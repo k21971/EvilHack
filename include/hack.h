@@ -1493,29 +1493,49 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 
 /* Constant passed to explode() for gas spores because gas spores are weird.
  * Specifically, this is an exception to whole "explode() uses dobuzz types"
- * system (the range -1 to -9 isn't used by it, for some reason), where this
+ * system (the range -1 to -10 isn't used by it, for some reason), where this
  * is effectively an extra dobuzz type, and some zap.c code needs to be aware
  * of it. */
 #define PHYS_EXPL_TYPE -1
 
-/* macros for dobuzz() type */
-#define BZ_VALID_ADTYP(adtyp) ((adtyp) >= AD_MAGM && (adtyp) <= AD_SPC2)
+/* zap type offsets within each dobuzz() section; the first eight
+   correspond to AD_MAGM..AD_ACID directly, while the extended beam
+   types (water/drain/stun) have noncontiguous adtyp values and are
+   mapped by adtyp_to_zt() (zap.c) */
+#define ZT_MAGIC_MISSILE (AD_MAGM - 1)
+#define ZT_FIRE (AD_FIRE - 1)
+#define ZT_COLD (AD_COLD - 1)
+#define ZT_SLEEP (AD_SLEE - 1)
+#define ZT_DEATH (AD_DISN - 1) /* or disintegration */
+#define ZT_LIGHTNING (AD_ELEC - 1)
+#define ZT_POISON_GAS (AD_DRST - 1)
+#define ZT_ACID (AD_ACID - 1)
+#define ZT_WATER 8
+#define ZT_DRAIN 9
+#define ZT_STUN 10
 
-#define BZ_OFS_AD(adtyp) (abs((adtyp) - AD_MAGM) % 10)
-#define BZ_OFS_WAN(otyp) (abs((otyp) - WAN_MAGIC_MISSILE) % 10)
-#define BZ_OFS_SPE(otyp) (abs((otyp) - SPE_MAGIC_MISSILE) % 10)
+#define MAX_ZT (ZT_STUN + 1) /* number of zap types per section */
+#define BASE_ZT(x) ((x) % MAX_ZT) /* section offset of a folded zap type */
+
+/* macros for dobuzz() type */
+#define BZ_VALID_ADTYP(adtyp) (adtyp_to_zt(adtyp) >= 0)
+
+#define BZ_OFS_AD(adtyp) adtyp_to_zt(adtyp)
+#define BZ_OFS_WAN(otyp) (abs((otyp) - WAN_MAGIC_MISSILE) % MAX_ZT)
+#define BZ_OFS_SPE(otyp) (abs((otyp) - SPE_MAGIC_MISSILE) % MAX_ZT)
 /* hero shooting a wand */
-#define BZ_U_WAND(bztyp) (0 + (bztyp))     /*  0..9  */
+#define BZ_U_WAND(bztyp) (0 + (bztyp))              /*   0..10  */
 /* hero casting a spell */
-#define BZ_U_SPELL(bztyp) (10 + (bztyp))   /* 10..19 */
+#define BZ_U_SPELL(bztyp) (MAX_ZT + (bztyp))        /*  11..21  */
 /* hero breathing as a monster */
-#define BZ_U_BREATH(bztyp) (20 + (bztyp))  /* 20..29 */
+#define BZ_U_BREATH(bztyp) (2 * MAX_ZT + (bztyp))   /*  22..32  */
 /* monster casting a spell */
-#define BZ_M_SPELL(bztyp) (-10 - (bztyp))  /* -19..-10 */
+#define BZ_M_SPELL(bztyp) (-MAX_ZT - (bztyp))       /* -21..-11 */
 /* monster breathing */
-#define BZ_M_BREATH(bztyp) (-20 - (bztyp)) /* -29..-20 */
-/* monster shooting a wand; note: not -9 to -0 because -0 is ambiguous  */
-#define BZ_M_WAND(bztyp) (-30 - (bztyp))   /* -39..-30 */
+#define BZ_M_BREATH(bztyp) (-2 * MAX_ZT - (bztyp))  /* -32..-22 */
+/* monster shooting a wand; offset past the breath section because
+   -0 is ambiguous (same as 0) */
+#define BZ_M_WAND(bztyp) (-3 * MAX_ZT - (bztyp))    /* -43..-33 */
 
 /* pick a random entry from array */
 #define ROLL_FROM(array) array[rn2(SIZE(array))]

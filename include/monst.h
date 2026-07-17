@@ -86,6 +86,8 @@ enum m_seen_resistance {
     M_SEEN_ACID    = 0x0080, /* Acid_resistance, AD_ACID */
     M_SEEN_REFL    = 0x0100, /* reflection, no corresponding AD_foo */
     M_SEEN_DEATH   = 0x0200, /* Death_resistance, AD_DETH */
+    M_SEEN_DRLI    = 0x0400, /* Drain_resistance, AD_DRLI */
+    M_SEEN_STUN    = 0x0800, /* Stun_resistance, AD_STUN */
 };
 
 #define m_seenres(mon, mask) ((mon)->seen_resistance & (mask))

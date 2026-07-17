@@ -283,7 +283,10 @@ enum zap_colors {
     zap_color_death      = CLR_BLACK,
     zap_color_lightning  = CLR_WHITE,
     zap_color_poison_gas = CLR_GREEN,
-    zap_color_acid       = CLR_YELLOW
+    zap_color_acid       = CLR_YELLOW,
+    zap_color_water      = CLR_BLUE,
+    zap_color_drain      = CLR_MAGENTA,
+    zap_color_stun       = CLR_RED
 };
 
 enum altar_colors {
@@ -355,7 +358,7 @@ enum { GM_FLAGS, GM_TTYCHAR, GM_COLOR, NUM_GLYPHMOD }; /* glyphmod entries */
 enum glyphmap_change_triggers { gm_nochange, gm_newgame, gm_levelchange,
                                 gm_optionchange, gm_symchange,
                                 gm_accessibility_change };
-#define NUM_ZAP 8 /* number of zap beam types */
+#define NUM_ZAP 11 /* number of zap beam types */
 
 /*
  * Glyphs are grouped for easy accessibility:

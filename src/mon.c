@@ -1653,7 +1653,8 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
         if (ispet && deadmimic)
             quickmimic(mtmp);
         if (otmp->otyp == EGG && corpsenm == PM_PYROLISK)
-            explode(mtmp->mx, mtmp->my, -11, d(3, 6), 0, EXPL_FIERY);
+            explode(mtmp->mx, mtmp->my, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0,
+                    EXPL_FIERY);
         if (corpsenm != NON_PM)
             mon_givit(mtmp, &mons[corpsenm]);
     }
@@ -6272,6 +6273,12 @@ newcham(
 
     /* take on the new form... */
     set_mon_data(mtmp, mdat);
+
+    /* a skeletal dragon's breath is fixed per individual; assign it
+       (and its matching self-immunity) now so the resistance is in
+       place before it ever breathes */
+    if (mdat == &mons[PM_SKELETAL_DRAGON])
+        sd_assign_breath(mtmp);
 
     /* add a new random race if polymorphing into a racial monster */
     if (is_racialmon(mdat))

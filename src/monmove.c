@@ -61,7 +61,8 @@ mb_trapped(struct monst *mtmp, boolean canseeit)
                      (mdistu(mtmp) > 7 * 7) ? "distant" : "nearby");
     }
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
-    mtmp->mstun = 1;
+    if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)))
+        mtmp->mstun = 1;
     mtmp->mhp -= rnd(15);
     if (DEADMONSTER(mtmp)) {
         mondied(mtmp);

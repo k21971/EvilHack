@@ -1756,10 +1756,8 @@ blowupforge(coordxy x, coordxy y)
     set_levltyp(x, y, ROOM);
     levl[x][y].flags = 0;
     newsym(x, y);
-/* ZT_FIRE = AD_FIRE-1 = 1 */
-#define ZT_FORGE_FIRE 1 /* value kludge, see zap.c */
-    explode(x, y, ZT_FORGE_FIRE, rnd(30), FORGE_EXPLODE, EXPL_FIERY);
-#undef ZT_FORGE_FIRE
+    /* wand-section fire type; FORGE_EXPLODE picks the actual messaging */
+    explode(x, y, BZ_U_WAND(ZT_FIRE), rnd(30), FORGE_EXPLODE, EXPL_FIERY);
 }
 
 /* the lava in a forge cools and hardens; the forge is gone */

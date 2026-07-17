@@ -232,7 +232,7 @@ explode(
             if (objects[type].oc_dir == RAY
                 && type != WAN_DIGGING && type != WAN_SLEEP) {
                 type -= WAN_MAGIC_MISSILE;
-                if (type < 0 || type > 9) {
+                if (type < 0 || type >= MAX_ZT) {
                     impossible("explode: wand has bad zap type (%d).", type);
                     type = 0;
                 }
@@ -315,7 +315,7 @@ explode(
          * still assign adtyp appropriately, but not replace str. */
         const char *adstr = NULL;
 
-        switch (abs(type) % 10) {
+        switch (BASE_ZT(abs(type))) {
         case 0:
             adstr = "magical blast";
             adtyp = AD_MAGM;
@@ -975,9 +975,8 @@ splatter_burning_oil(coordxy x, coordxy y, boolean diluted_oil)
 {
     int dmg = d(diluted_oil ? 3 : 4, 4);
 
-/* ZT_SPELL(ZT_FIRE) = ZT_SPELL(AD_FIRE-1) = 10+(2-1) = 11 */
-#define ZT_SPELL_O_FIRE 11 /* value kludge, see zap.c */
-    explode(x, y, ZT_SPELL_O_FIRE, dmg, BURNING_OIL, EXPL_FIERY);
+    /* BZ_U_SPELL(ZT_FIRE) marks this as a hero-spell-style fireball */
+    explode(x, y, BZ_U_SPELL(ZT_FIRE), dmg, BURNING_OIL, EXPL_FIERY);
 }
 
 /* lit potion of oil is exploding; extinguish it as a light source before
@@ -1047,11 +1046,10 @@ mon_explodes(
     if (mattk->adtyp == AD_PHYS) {
         type = PHYS_EXPL_TYPE;
     }
-    else if (mattk->adtyp >= AD_MAGM && mattk->adtyp <= AD_SPC2) {
-        /* The -1, +20, *-1 math is to set it up as a 'monster breath' type
-         * for the explosions (it isn't, but this is the closest analogue). */
-        /* FIXME: there are macros for kind of thing... */
-        type = -((mattk->adtyp - 1) + 20);
+    else if (BZ_VALID_ADTYP(mattk->adtyp)) {
+        /* set it up as a 'monster breath' type for the explosion (it
+         * isn't, but this is the closest analogue) */
+        type = BZ_M_BREATH(BZ_OFS_AD(mattk->adtyp));
     }
     else {
         impossible("unknown type for mon_explode %d", mattk->adtyp);

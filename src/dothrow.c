@@ -1163,9 +1163,22 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
     coord mc, cc;
 
     wakeup(mon, !svc.context.mon_moving);
-    /* At the very least, debilitate the monster */
-    mon->movement = 0;
-    mon->mstun = 1;
+    /* at the very least, debilitate the monster; unique monsters
+       resist stun most of the time and only lose one action instead
+       of all accumulated movement, preventing indefinite stun-locking
+       via jousting */
+    if (unique_corpstat(mon->data)) {
+        mon->movement -= NORMAL_SPEED;
+        if (mon->movement < 0)
+            mon->movement = 0;
+        if (!rn2(5)
+            && !(mon_resists_stun(mon) || defended(mon, AD_STUN)))
+            mon->mstun = 1;
+    } else {
+        mon->movement = 0;
+        if (!(mon_resists_stun(mon) || defended(mon, AD_STUN)))
+            mon->mstun = 1;
+    }
 
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
@@ -2676,7 +2689,7 @@ breakobj(
     if (!fracture)
         delobj(obj);
     if (explosion)
-        explode(x, y, -11, d(3, 6), 0, EXPL_FIERY);
+        explode(x, y, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0, EXPL_FIERY);
     return 1;
 }
 

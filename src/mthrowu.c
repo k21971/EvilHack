@@ -18,12 +18,19 @@ staticfn void return_from_mtoss(struct monst *, struct obj *, boolean);
     (distmin(u.ux, u.uy, x, y) > distmin(u.ux0, u.uy0, x, y))
 
 /*
- * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h.
+ * Keep consistent with breath weapons in zap.c; indexed by the
+ * adtyp_to_zt() section offset of the breath damage type.
  */
 static NEARDATA const char *breathwep[] = {
     "fragments", "fire", "frost", "sleep gas", "a disintegration blast",
-    "lightning", "poison gas", "acid", "strange breath #8",
-    "strange breath #9"
+    "lightning", "poison gas", "acid", "water", "a dark energy blast",
+    "a disorienting blast"
+};
+
+/* skeletal dragon breath pool: every breath type except water */
+static NEARDATA const int sd_breathtypes[] = {
+    AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_DISN,
+    AD_ELEC, AD_DRST, AD_ACID, AD_DRLI, AD_STUN
 };
 
 /* parent stack of a missile in flight, so that an object property
@@ -1273,11 +1280,74 @@ breathwep_name(int typ)
     return breathwep[BZ_OFS_AD(typ)];
 }
 
+/* pick a random breath damage type for a skeletal dragon (every
+   breath type except water) */
+int
+sd_random_breath(void)
+{
+    return ROLL_FROM(sd_breathtypes);
+}
+
+/* the mresists bit that makes a skeletal dragon immune to its own
+   breath, the way a living dragon resists its element; 0 for breath
+   types with no resistance bit: magic missile and drain life are
+   already covered by its static AD_RBRE attack and undead status, and
+   stun has no bit (handled per instance by mon_resists_stun()) */
+unsigned long
+sd_breath_resist(int adtyp)
+{
+    switch (adtyp) {
+    case AD_FIRE:
+        return MR_FIRE;
+    case AD_COLD:
+        return MR_COLD;
+    case AD_SLEE:
+        return MR_SLEEP;
+    case AD_DISN:
+        return MR_DISINT;
+    case AD_ELEC:
+        return MR_ELEC;
+    case AD_DRST:
+        return MR_POISON;
+    case AD_ACID:
+        return MR_ACID;
+    default:
+        return 0L;
+    }
+}
+
+/* fix a skeletal dragon's lifetime breath type (lazily assigned if
+   still unset, e.g. newcham-created, a clone, or an old save) and
+   grant the matching self-immunity; the hero's form resistances are
+   driven from set_uasmon() instead, so skip mintrinsics for youmonst;
+   its stun immunity is read live from mbreathtyp by mon_resists_stun */
+void
+sd_assign_breath(struct monst *mtmp)
+{
+    if (!BZ_VALID_ADTYP(mtmp->mbreathtyp) || mtmp->mbreathtyp == AD_WATR)
+        mtmp->mbreathtyp = (uchar) sd_random_breath();
+    if (mtmp != &gy.youmonst)
+        mtmp->mintrinsics |= sd_breath_resist((int) mtmp->mbreathtyp);
+}
+
+/* effective breath damage type for a breather: a skeletal dragon uses
+   the fixed type chosen when it rose; anything else defers to
+   get_atkdam_type(), which re-rolls AD_RBRE on every use */
+int
+breath_adtyp(struct monst *mtmp, struct attack *mattk)
+{
+    if (mtmp->data == &mons[PM_SKELETAL_DRAGON]) {
+        sd_assign_breath(mtmp);
+        return (int) mtmp->mbreathtyp;
+    }
+    return get_atkdam_type(mattk->adtyp);
+}
+
 /* monster breathes at monster (ranged) */
 int
 breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
 {
-    int typ = get_atkdam_type(mattk->adtyp);
+    int typ = breath_adtyp(mtmp, mattk);
     boolean utarget = (mtarg == &gy.youmonst);
 
     if (m_lined_up(mtarg, mtmp, TRUE)) {
@@ -1327,7 +1397,7 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                     if (dog->hungrytime >= 10)
                         dog->hungrytime -= 10;
                 }
-            } else impossible("Breath weapon %d used", typ-1);
+            } else impossible("Breath weapon %d used", typ);
         } else
             return M_ATTK_MISS;
     }

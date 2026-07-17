@@ -117,6 +117,10 @@ make_stunned(long xtime, boolean talk)
                      Hallucination ? "less wobbly" : "a bit steadier");
     }
     if (xtime && !old) {
+        if (Stun_resistance) {
+            You_feel("a slight itch.");
+            return;
+        }
         if (talk) {
             if (u.usteed)
                 You("wobble in the saddle.");
@@ -2714,7 +2718,7 @@ potion_dip(struct obj *obj, struct obj *potion)
         /* Turn off engine before fueling, turn off fuel too :-)  */
         if (obj->lamplit || potion->lamplit) {
             useup(potion);
-            explode(u.ux, u.uy, 11, d(6, 6), 0, EXPL_FIERY);
+            explode(u.ux, u.uy, BZ_U_SPELL(ZT_FIRE), d(6, 6), 0, EXPL_FIERY);
             exercise(A_WIS, FALSE);
             return ECMD_TIME;
         }

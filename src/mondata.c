@@ -1701,7 +1701,11 @@ cvt_adtyp_to_mseenres(uchar adtyp)
     case AD_ELEC: return M_SEEN_ELEC;
     case AD_DRST: return M_SEEN_POISON;
     case AD_ACID: return M_SEEN_ACID;
+    case AD_DRLI: return M_SEEN_DRLI;
+    case AD_STUN: return M_SEEN_STUN;
     /* M_SEEN_REFL has no corresponding AD_foo type */
+    /* AD_WATR deliberately has no bit: water breath is a physical
+       attack that cannot be resisted, so there is nothing to learn */
     default: return M_SEEN_NOTHING;
     }
 }
@@ -1720,6 +1724,8 @@ cvt_prop_to_mseenres(uchar prop)
     case SHOCK_RES: return M_SEEN_ELEC;
     case ACID_RES: return M_SEEN_ACID;
     case REFLECTING: return M_SEEN_REFL;
+    case DRAIN_RES: return M_SEEN_DRLI;
+    case STUN_RES: return M_SEEN_STUN;
     default: return M_SEEN_NOTHING;
     }
 }
@@ -1832,8 +1838,8 @@ get_atkdam_type(int adtyp)
 {
     if (adtyp == AD_RBRE) {
         static const int rnd_breath_typ[] = {
-            AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE,
-            AD_DISN, AD_ELEC, AD_DRST, AD_ACID };
+            AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_DISN, AD_ELEC,
+            AD_DRST, AD_ACID, AD_WATR, AD_DRLI, AD_STUN };
         return ROLL_FROM(rnd_breath_typ);
     }
     return adtyp;

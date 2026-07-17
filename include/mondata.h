@@ -52,6 +52,18 @@
 
 #define resists_lycan(ptr) (is_undead(ptr))
 
+#define resists_stun(ptr) \
+    ((ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] \
+     || (ptr) == &mons[PM_SHIMMERING_DRAGON])
+
+/* like resists_stun() but also honors a skeletal dragon's fixed stun
+   breath; use at per-instance gates (resists_stun() stays for
+   type-level checks) */
+#define mon_resists_stun(mon) \
+    (resists_stun((mon)->data) \
+     || ((mon)->data == &mons[PM_SKELETAL_DRAGON] \
+         && (mon)->mbreathtyp == AD_STUN))
+
 #define is_jumper(ptr) \
     ((ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_ZRUTY]           \
      || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_CAVE_LIZARD] \
@@ -398,6 +410,14 @@
 #define completelyrots(ptr) \
     ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr) == &mons[PM_LEATHER_GOLEM])
 #define completelyrusts(ptr) ((ptr) == &mons[PM_IRON_GOLEM])
+
+/* instantly extinguished by a significant water attack
+   (sea dragon breath) */
+#define completelydoused(ptr) \
+    ((ptr) == &mons[PM_FLAMING_SPHERE]     \
+     || (ptr) == &mons[PM_ORB_OF_FIRE]     \
+     || (ptr) == &mons[PM_FIRE_VORTEX]     \
+     || (ptr) == &mons[PM_FIRE_ELEMENTAL])
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */

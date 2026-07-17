@@ -1873,10 +1873,12 @@ Mb_hit(struct monst *magr, /* attacker */
     }
     /* stun if that was selected and a worse effect didn't occur */
     if (do_stun) {
-        if (youdefend)
+        if (youdefend) {
             make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
-        else
-            mdef->mstun = 1;
+        } else if (!DEADMONSTER(mdef)) {
+            if (!(mon_resists_stun(mdef) || defended(mdef, AD_STUN)))
+                mdef->mstun = 1;
+        }
         /* avoid extra stun message below if we used mb_verb["stun"] above */
         if (attack_indx == MB_INDEX_STUN)
             do_stun = FALSE;

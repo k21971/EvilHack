@@ -1276,7 +1276,8 @@ hmon_hitmon_misc_obj(
                     place_object(obj, mon->mx, mon->my);
             } else if (obj->corpsenm == PM_PYROLISK) {
                 useup_eggs(obj);
-                explode(mon->mx, mon->my, -11, d(3, 6), 0, EXPL_FIERY);
+                explode(mon->mx, mon->my, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0,
+                        EXPL_FIERY);
                 hmd->doreturn = TRUE;
                 hmd->retval = !DEADMONSTER(mon);
                 return;
@@ -4525,6 +4526,8 @@ mhitm_ad_stun(
 
     if (magr == &gy.youmonst) {
         /* uhitm */
+        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN))
+            return; /* immune to stun; plain dice damage still applies */
         if (!Blind)
             pline("%s %s for a moment.", Monnam(mdef),
                   makeplural(stagger(pd, "stagger")));
@@ -4543,6 +4546,8 @@ mhitm_ad_stun(
         /* mhitm */
         if (magr->mcan)
             return;
+        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN))
+            return; /* immune to stun; plain dice damage still applies */
         if (canseemon(mdef))
             pline_mon(mdef, "%s %s for a moment.", Monnam(mdef),
                   makeplural(stagger(pd, "stagger")));
@@ -5085,11 +5090,11 @@ explum(struct monst *mdef, struct attack *mattk)
         /* TODO-EVILHACK: AD_ACID belongs here too (acid sphere form),
            with corrosion of the defender's wielded weapons; ports with
            the EXPL_ACID/EXPL_SHOCK explosion-glyph extension */
-        /* See comment in mon_explodes() and in zap.c for an explanation
-           of this math.  Here, the player is causing the explosion, so it
-           should be in the +20 to +29 range instead of negative. */
-        explode(u.ux, u.uy, (mattk->adtyp - 1) + 20, tmp, MON_EXPLODE,
-                adtyp_to_expltype(mattk->adtyp));
+        /* see comment in mon_explodes() and in zap.c for an explanation
+           of this encoding; here the player is causing the explosion,
+           so it uses the positive hero-breath section */
+        explode(u.ux, u.uy, BZ_U_BREATH(BZ_OFS_AD(mattk->adtyp)), tmp,
+                MON_EXPLODE, adtyp_to_expltype(mattk->adtyp));
         if (mdef && DEADMONSTER(mdef)) {
             /* Other monsters may have died too, but return this if the actual
                target died. */
@@ -5596,7 +5601,8 @@ mhitm_knockback(
             if (!was_u)
                 *hitflags |= M_ATTK_DEF_DIED;
         } else if (!rn2(4)) {
-            mdef->mstun = 1;
+            if (!(mon_resists_stun(mdef) || defended(mdef, AD_STUN)))
+                mdef->mstun = 1;
             /* if steed and hero were knocked back, update attacker's idea
                of where hero is */
             if (mdef == u.usteed)

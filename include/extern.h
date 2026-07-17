@@ -2138,6 +2138,10 @@ extern struct obj *m_carrying(struct monst *, int) NONNULLARG1;
 extern int thrwmm(struct monst *, struct monst *) NONNULLARG12;
 extern int spitmm(struct monst *, struct attack *, struct monst *) NONNULLPTRS;
 extern int breamm(struct monst *, struct attack *, struct monst *) NONNULLPTRS;
+extern int sd_random_breath(void);
+extern unsigned long sd_breath_resist(int);
+extern void sd_assign_breath(struct monst *) NONNULLARG1;
+extern int breath_adtyp(struct monst *, struct attack *) NONNULLPTRS;
 extern void m_useupall(struct monst *, struct obj *) NONNULLARG12;
 extern void m_useup(struct monst *, struct obj *) NONNULLARG12;
 extern void m_throw(struct monst *, coordxy, coordxy, coordxy, coordxy,
@@ -4139,6 +4143,7 @@ extern void do_enlightenment_effect(void);
 extern void zapnodir(struct obj *) NONNULLARG1;
 extern int dozap(void);
 extern int zapyourself(struct obj *, boolean) NONNULLARG1;
+extern int adtyp_to_zt(int);
 extern void ubreatheu(struct attack *) NONNULLARG1;
 extern int lightdamage(struct obj *, boolean, int) NONNULLARG1;
 extern boolean flashburn(long, boolean);

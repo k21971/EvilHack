@@ -59,7 +59,19 @@ set_uasmon(void)
         else                                           \
             u.uprops[PropIndx].intrinsic &= ~FROMFORM; \
     } while (0)
-#define resist_from_form(MRtyp) ((gy.youmonst.data->mresists & (MRtyp)) != 0)
+#define resist_from_form(MRtyp) \
+    (((gy.youmonst.data->mresists | gy.youmonst.mintrinsics) & (MRtyp)) != 0)
+
+    /* a skeletal dragon is immune to its own fixed breath element;
+       gy.youmonst.mintrinsics is otherwise unused for the hero, so
+       drive the resist_from_form() checks below through it, cleared
+       on each form change so the immunity cannot outlast the form */
+    gy.youmonst.mintrinsics &= ~(unsigned long) (MR_FIRE | MR_COLD | MR_SLEEP
+                                                 | MR_DISINT | MR_ELEC
+                                                 | MR_POISON | MR_ACID);
+    if (mdat == &mons[PM_SKELETAL_DRAGON])
+        gy.youmonst.mintrinsics |=
+            sd_breath_resist((int) gy.youmonst.mbreathtyp);
 
     PROPSET(FIRE_RES, resist_from_form(MR_FIRE));
     PROPSET(COLD_RES, resist_from_form( MR_COLD));
@@ -77,6 +89,7 @@ set_uasmon(void)
         PROPSET(DRAIN_RES, resists_drli(&gy.youmonst));
         uwep = save_uwep;
     }
+    PROPSET(STUN_RES, mon_resists_stun(&gy.youmonst));
     /* resists_magm() takes wielded, worn, and carried equipment into
        into account; cheat and duplicate its monster-specific part */
     PROPSET(ANTIMAGIC, (dmgtype(mdat, AD_MAGM)
@@ -803,6 +816,11 @@ polymon(int mntmp)
 
     u.mtimedone = rn1(500, 500);
     u.umonnum = mntmp;
+    /* a skeletal dragon's breath is fixed per individual; reroll it
+       for every new change, before set_uasmon() derives the form's
+       resistances (including immunity to that breath element) */
+    if (mntmp == PM_SKELETAL_DRAGON)
+        gy.youmonst.mbreathtyp = (uchar) sd_random_breath();
     set_uasmon();
 
     /* New stats for monster, to last only as long as polymorphed.
@@ -1430,12 +1448,20 @@ dobreathe(void)
         return ECMD_CANCEL;
 
     mattk = attacktype_fordmg(gy.youmonst.data, AT_BREA, AD_ANY);
-    if (!mattk)
+    if (!mattk) {
         impossible("bad breath attack?"); /* mouthwash needed... */
-    else if (!u.dx && !u.dy && !u.dz)
-        ubreatheu(mattk);
-    else
-        ubuzz(BZ_U_BREATH(BZ_OFS_AD(mattk->adtyp)), (int) mattk->damn);
+    } else {
+        struct attack brattk;
+
+        /* resolve a concrete damage type: a skeletal dragon (or any
+           AD_RBRE form) must not feed AD_RBRE into the beam machinery */
+        brattk = *mattk;
+        brattk.adtyp = (uchar) breath_adtyp(&gy.youmonst, mattk);
+        if (!u.dx && !u.dy && !u.dz)
+            ubreatheu(&brattk);
+        else
+            ubuzz(BZ_U_BREATH(BZ_OFS_AD(brattk.adtyp)), (int) brattk.damn);
+    }
     return ECMD_TIME;
 }
 

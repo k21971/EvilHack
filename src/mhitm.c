@@ -1539,6 +1539,8 @@ passivemm(
                 (void) split_mon(mdef, magr);
             break;
         case AD_STUN:
+            if (mon_resists_stun(magr) || defended(magr, AD_STUN))
+                break; /* immune to stun; passive damage still applies */
             if (!magr->mstun) {
                 magr->mstun = 1;
                 if (canseemon(magr))

@@ -1252,8 +1252,9 @@ dog_move(
                     || attacktype(mtmp->data, AT_GAZE)
                     || attacktype(mtmp->data, AT_SPIT)
                     || (attacktype(mtmp->data, AT_MAGC)
-                        && ((attacktype_fordmg(mtmp->data, AT_MAGC,
-                                               AD_ANY))->adtyp <= AD_SPC2))
+                        && BZ_VALID_ADTYP((attacktype_fordmg(mtmp->data,
+                                                             AT_MAGC,
+                                                             AD_ANY))->adtyp))
                     || (attacktype(mtmp->data, AT_WEAP)
                         && select_rwep(mtmp)))
                    && mtmp->mlstmv != svm.moves) {

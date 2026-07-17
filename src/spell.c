@@ -1039,7 +1039,7 @@ cast_chain_lightning(void)
 
                 gn.notonhead = (mon->mx != gb.bhitpos.x
                                 || mon->my != gb.bhitpos.y);
-                dmg = zhitm(mon, BZ_U_SPELL(AD_ELEC - 1), 2, &unused);
+                dmg = zhitm(mon, BZ_U_SPELL(BZ_OFS_AD(AD_ELEC)), 2, &unused);
 
                 if (dmg) {
                     /* mon has been damaged, but we haven't yet printed the
@@ -1637,7 +1637,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                         }
                     } else {
                         explode(u.dx, u.dy,
-                                otyp - SPE_MAGIC_MISSILE + 10,
+                                BZ_U_SPELL(BZ_OFS_SPE(otyp)),
                                 spell_damage_bonus(u.ulevel / 2 + 1), 0,
                                 (otyp == SPE_CONE_OF_COLD)
                                    ? EXPL_FROSTY

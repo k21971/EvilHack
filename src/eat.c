@@ -2178,7 +2178,7 @@ fprefx(struct obj *otmp)
                 useup(otmp);
             else
                 useupf(otmp, 1L);
-            explode(u.ux, u.uy, -11, d(3, 6), 0, EXPL_FIERY);
+            explode(u.ux, u.uy, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0, EXPL_FIERY);
             return FALSE;
         } else if (stale_egg(otmp)) {
             pline("Ugh.  Rotten egg."); /* perhaps others like it */
@@ -3843,8 +3843,13 @@ vomit(void) /* A good idea from David Neves */
 
         /* currently, only yellow dragons can breathe acid */
         if (mattk) {
+            struct attack brattk;
+
+            /* resolve a concrete damage type as dobreathe() does */
+            brattk = *mattk;
+            brattk.adtyp = (uchar) breath_adtyp(&gy.youmonst, mattk);
             You("breathe acid on yourself..."); /* [why?] */
-            ubreatheu(mattk);
+            ubreatheu(&brattk);
         }
         /* vomiting on an altar is, all things considered, rather impolite */
         if (IS_ALTAR(levl[u.ux][u.uy].typ))

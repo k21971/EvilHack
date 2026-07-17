@@ -42,21 +42,14 @@ staticfn boolean destroyable(struct obj *, int);
 staticfn void wishcmdassist(int);
 staticfn void wish_history_menu(char *);
 
-#define ZT_MAGIC_MISSILE (AD_MAGM - 1)
-#define ZT_FIRE (AD_FIRE - 1)
-#define ZT_COLD (AD_COLD - 1)
-#define ZT_SLEEP (AD_SLEE - 1)
-#define ZT_DEATH (AD_DISN - 1) /* or disintegration */
-#define ZT_LIGHTNING (AD_ELEC - 1)
-#define ZT_POISON_GAS (AD_DRST - 1)
-#define ZT_ACID (AD_ACID - 1)
-/* 8 and 9 are currently unassigned */
+/* ZT_MAGIC_MISSILE..ZT_STUN and MAX_ZT/BASE_ZT are defined in hack.h
+   alongside the BZ_* encoding macros */
 
 #define ZT_WAND(x) (x)
-#define ZT_SPELL(x) (10 + (x))
-#define ZT_BREATH(x) (20 + (x))
+#define ZT_SPELL(x) (MAX_ZT + (x))
+#define ZT_BREATH(x) (2 * MAX_ZT + (x))
 
-#define is_hero_spell(type) ((type) >= 10 && (type) < 20)
+#define is_hero_spell(type) ((type) >= ZT_SPELL(0) && (type) < ZT_BREATH(0))
 
 #define M_IN_WATER(ptr) ((ptr)->mlet == S_EEL || cant_drown(ptr))
 
@@ -66,31 +59,50 @@ static const char are_blinded_by_the_flash[] = "are blinded by the flash!";
  * A positive index means zapped/cast/breathed by hero.
  * A negative index means zapped/cast/breathed by a monster, with value
  * index fixup beyond abs() needed for wand zaps.  Wand zaps for monster
- * use -39..-30 rather than -9..-0 because -0 is ambiguous (same as 0).
+ * use -43..-33 rather than -10..-0 because -0 is ambiguous (same as 0).
  */
 static const char *const flash_types[] = {
-    "magic missile", /* Wands must be 0-9 */
+    "magic missile", /* Wands must be 0-10 */
     "bolt of fire", "bolt of cold", "sleep ray", "death ray",
-    "bolt of lightning", "", "", "", "",
+    "bolt of lightning", "", "",
+    "bolt of water", "dark energy ray", "disorienting ray",
 
-    "magic missile", /* Spell equivalents must be 10-19 */
+    "magic missile", /* Spell equivalents must be 11-21 */
     "fireball", "cone of cold", "sleep ray", "finger of death",
     "bolt of lightning", /* there is no spell, used for retribution */
-    "", "", "", "",
+    "", "",
+    "blast of water", "blast of dark energy", "disorienting blast",
 
-    "blast of missiles", /* Dragon breath equivalents 20-29*/
+    "blast of missiles", /* Dragon breath equivalents 22-32 */
     "blast of fire", "blast of frost", "blast of sleep gas",
     "blast of disintegration", "blast of lightning",
-    "blast of poison gas", "blast of acid", "", ""
+    "blast of poison gas", "blast of acid",
+    "blast of water", "blast of dark energy", "disorienting blast"
 };
+
+/* convert an attack damage type to its zap-type section offset
+   (0..MAX_ZT-1), or -1 if the damage type has no beam form */
+int
+adtyp_to_zt(int adtyp)
+{
+    if (adtyp >= AD_MAGM && adtyp <= AD_ACID)
+        return adtyp - 1;
+    if (adtyp == AD_WATR)
+        return ZT_WATER;
+    if (adtyp == AD_DRLI)
+        return ZT_DRAIN;
+    if (adtyp == AD_STUN)
+        return ZT_STUN;
+    return -1;
+}
 
 /* convert monster zap/spell/breath value to hero zap/spell/breath value */
 staticfn int
 zaptype(int type)
 {
-    if (type <= -30 && -39 <= type) /* monster wand zap */
-        type += 30; /* first convert -39..-30 to -9..0 so that abs()
-                     * will yield 0..9 (hero wand zap) for it */
+    if (type <= -3 * MAX_ZT && -4 * MAX_ZT < type) /* monster wand zap */
+        type += 3 * MAX_ZT; /* first convert -43..-33 to -10..0 so that
+                             * abs() yields 0..10 (hero wand zap) for it */
     type = abs(type);
     return type;
 }
@@ -2801,7 +2813,8 @@ zapyourself(struct obj *obj, boolean ordinary)
 
     case SPE_FIREBALL:
         You("explode a fireball on top of yourself!");
-        explode(u.ux, u.uy, 11, d(6, 6), WAND_CLASS, EXPL_FIERY);
+        explode(u.ux, u.uy, ZT_SPELL(ZT_FIRE), d(6, 6), WAND_CLASS,
+                EXPL_FIERY);
         break;
     case WAN_FIRE:
     case FIRE_HORN:
@@ -3073,7 +3086,7 @@ zapyourself(struct obj *obj, boolean ordinary)
 void
 ubreatheu(struct attack *mattk)
 {
-    int dtyp = 20 + mattk->adtyp - 1;      /* breath by hero */
+    int dtyp = BZ_U_BREATH(BZ_OFS_AD(mattk->adtyp)); /* breath by hero */
 
     zhitu(dtyp, mattk->damn, flash_str(dtyp, TRUE), u.ux, u.uy);
 }
@@ -4325,7 +4338,7 @@ zhitm(
     struct obj **ootmp) /* to return worn armor for caller to disintegrate */
 {
     int tmp = 0, orig_dmg = 0; /* damage amount */
-    int damgtype = zaptype(type) % 10;
+    int damgtype = BASE_ZT(zaptype(type));
     boolean sho_shieldeff = FALSE;
     boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
 
@@ -4482,6 +4495,62 @@ zhitm(
         if (!rn2(6))
             erode_armor(mon, ERODE_CORRODE);
         break;
+    case ZT_WATER:
+        tmp = d(nd, 8);
+        if (mon->data == &mons[PM_WATER_ELEMENTAL]
+            || mon->data == &mons[PM_BABY_SEA_DRAGON]
+            || mon->data == &mons[PM_SEA_DRAGON]) {
+            tmp = 0;
+            break;
+        }
+        if (mon->data == &mons[PM_IRON_GOLEM]) {
+            if (canseemon(mon))
+                pline("%s falls to pieces!", Monnam(mon));
+            if (mon->mtame)
+                pline("May %s rust in peace.", mon_nam(mon));
+            tmp = mon->mhp + 1;
+            break;
+        }
+        if (completelydoused(mon->data)) {
+            if (canseemon(mon))
+                pline("%s is extinguished!", Monnam(mon));
+            tmp = mon->mhp + 1;
+            break;
+        }
+        if (!rn2(6)) {
+            (void) water_damage(MON_WEP(mon), (char *) 0, TRUE);
+            (void) water_damage(MON_WEP2(mon), (char *) 0, TRUE);
+        }
+        if (!rn2(6))
+            erode_armor(mon, ERODE_RUST);
+        break;
+    case ZT_DRAIN: {
+        int drain = monhp_per_lvl(mon);
+
+        tmp = d(nd, 6);
+        if (resists_drli(mon) || defended(mon, AD_DRLI)) {
+            sho_shieldeff = TRUE;
+            /* physical damage still occurs */
+            break;
+        }
+        if (mon->m_lev == 0) {
+            tmp = mon->mhp + 1;
+        } else {
+            tmp += drain;
+            mon->mhpmax -= drain;
+            mon->m_lev--;
+        }
+        break;
+    }
+    case ZT_STUN:
+        if (mon_resists_stun(mon) || defended(mon, AD_STUN)) {
+            sho_shieldeff = TRUE;
+            break;
+        }
+        tmp = d(nd, 6);
+        if (!mon->mstun)
+            mon->mstun = 1;
+        break;
     }
     if (sho_shieldeff)
         shieldeff(mon->mx, mon->my);
@@ -4512,7 +4581,7 @@ zhitu(
     int dam = 0, abstyp = zaptype(type);
     int orig_dam = 0;
 
-    switch (abstyp % 10) {
+    switch (BASE_ZT(abstyp)) {
     case ZT_MAGIC_MISSILE:
         if (Antimagic) {
             shieldeff(sx, sy);
@@ -4650,6 +4719,81 @@ zhitu(
         if (!rn2(6))
             erode_armor(&gy.youmonst, ERODE_CORRODE);
         break;
+    case ZT_WATER:
+        dam = d(nd, 8);
+        if (Half_physical_damage)
+            dam = (dam + 1) / 2;
+        if (u.umonnum == PM_WATER_ELEMENTAL
+            || u.umonnum == PM_BABY_SEA_DRAGON
+            || u.umonnum == PM_SEA_DRAGON) {
+            You("absorb the blast of water into your body.");
+            dam = 0;
+            break;
+        }
+        if (u.umonnum == PM_IRON_GOLEM) {
+            You("rust!");
+            rehumanize();
+            break;
+        }
+        if (u.umonnum == PM_FIRE_VORTEX
+            || u.umonnum == PM_FIRE_ELEMENTAL
+            || u.umonnum == PM_FLAMING_SPHERE) {
+            /* PM_ORB_OF_FIRE cannot be a hero form */
+            You("are extinguished!");
+            rehumanize();
+            break;
+        }
+        /* using two weapons at once makes both of them more vulnerable */
+        if (!rn2(u.twoweap ? 3 : 6))
+            (void) water_damage(uwep, (char *) 0, TRUE);
+        if (u.twoweap && !rn2(3))
+            (void) water_damage(uswapwep, (char *) 0, TRUE);
+        if (!rn2(6))
+            erode_armor(&gy.youmonst, ERODE_RUST);
+        break;
+    case ZT_DRAIN: {
+        const char *life = nonliving(gy.youmonst.data) ? "animating force"
+                                                       : "life";
+
+        /* physical force of the breath causes damage even when
+           drain resistant */
+        dam = d(nd, 6);
+        if (Half_physical_damage)
+            dam = (dam + 1) / 2;
+        if (Drain_resistance) {
+            monstseesu(M_SEEN_DRLI);
+            ugolemeffects(AD_DRLI, d(nd, 6));
+            break;
+        }
+        monstunseesu(M_SEEN_DRLI);
+        if (Reflecting) {
+            /* engulfed or self-directed breath bypasses the beam
+               reflection arm; mitigate rather than fully drain */
+            You("feel drained...");
+            u.uhpmax -= dam / 2 + rn2(5);
+        } else {
+            if (Blind)
+                You_feel("a dark energy blast draining your %s!", life);
+            else
+                pline_The("dark energy blast drains your %s!", life);
+            losexp("life drainage");
+        }
+        break;
+    }
+    case ZT_STUN:
+        /* physical force of the breath causes damage even when
+           stun resistant */
+        dam = d(nd, 6);
+        if (Half_physical_damage)
+            dam = (dam + 1) / 2;
+        if (Stun_resistance) {
+            shieldeff(sx, sy);
+            monstseesu(M_SEEN_STUN);
+        } else {
+            monstunseesu(M_SEEN_STUN);
+            make_stunned((HStun & TIMEOUT) + (long) dam / 2, TRUE);
+        }
+        break;
     }
 
     /*
@@ -4668,11 +4812,11 @@ zhitu(
         char kbuf[BUFSZ];
         struct obj *otmp = gc.current_wand;
         /* fire horn and frost horn get handled as wands by caller */
-        const char *verb = (abstyp < 10) /* wand */
+        const char *verb = (abstyp < ZT_SPELL(0)) /* wand */
                            ? ((otmp && otmp->oclass == TOOL_CLASS) ? "played"
                               : "zapped")
-                           : (abstyp < 20) ? "cast"
-                             : (abstyp < 30) ? "exhaled"
+                           : (abstyp < ZT_BREATH(0)) ? "cast"
+                             : (abstyp < ZT_BREATH(MAX_ZT)) ? "exhaled"
                                : "imagined"; /* should never happen */
 
         if (type < 0 || (type == 0 && gb.buzzer != 0)) {
@@ -4689,7 +4833,7 @@ zhitu(
         }
         /* Half_spell_damage protection yields half-damage for wands & spells,
            including hero's own ricochets; breath attacks do full damage */
-        if (dam && Half_spell_damage && abstyp < 20)
+        if (dam && Half_spell_damage && abstyp < ZT_BREATH(0))
             dam = (dam + 1) / 2;
         losehp(dam, kbuf, KILLED_BY_AN);
     }
@@ -4874,24 +5018,24 @@ buzz(int type, int nd, coordxy sx, coordxy sy, int dx, int dy)
 }
 
 /*
- * type ==   0 to   9 : you zapping a wand
- * type ==  10 to  19 : you casting a spell
- * type ==  20 to  29 : you breathing as a monster
- * type == -10 to -19 : monster casting spell
- * type == -20 to -29 : monster breathing at you
- * type == -30 to -39 : monster zapping a wand
+ * type ==   0 to  10 : you zapping a wand
+ * type ==  11 to  21 : you casting a spell
+ * type ==  22 to  32 : you breathing as a monster
+ * type == -11 to -21 : monster casting spell
+ * type == -22 to -32 : monster breathing at you
+ * type == -33 to -43 : monster zapping a wand
  * called with dx = dy = 0 for vertical bolts
  */
 void
 dobuzz(
-    int type,               /* 0..29 (by hero) or -39..-10 (by monster) */
+    int type,               /* 0..32 (by hero) or -43..-11 (by monster) */
     int nd,                 /* damage strength ('number of dice') */
     coordxy sx, coordxy sy, /* starting point */
     int dx, int dy,         /* direction delta */
     boolean sayhit, boolean saymiss, /* report out of sight hit/miss events */
     boolean forcemiss)
 {
-    int range, fltyp = zaptype(type), damgtype = fltyp % 10;
+    int range, fltyp = zaptype(type), damgtype = BASE_ZT(fltyp);
     coordxy lsx, lsy;
     struct monst *mon;
     coord save_bhitpos;
@@ -4984,6 +5128,9 @@ dobuzz(
                                             "But it reflects from %s %s!");
                         gas_hit = FALSE;
                     }
+                    /* water is reflected but doesn't bounce */
+                    if (damgtype == ZT_WATER)
+                        range = 0;
                     dx = -dx;
                     dy = -dy;
                 } else {
@@ -5015,6 +5162,15 @@ dobuzz(
                         }
                         break; /* Out of while loop */
                     }
+                    if (damgtype == ZT_WATER
+                        && (mon->data == &mons[PM_WATER_ELEMENTAL]
+                            || mon->data == &mons[PM_BABY_SEA_DRAGON]
+                            || mon->data == &mons[PM_SEA_DRAGON])) {
+                        if (canseemon(mon))
+                            pline("%s absorbs the blast of water into its "
+                                  "body.", Monnam(mon));
+                        break; /* Out of while loop */
+                    }
 
                     if (tmp == MAGIC_COOKIE) { /* disintegration */
                         disintegrate_mon(mon, type, flash_str(fltyp, FALSE));
@@ -5038,8 +5194,23 @@ dobuzz(
                     } else {
                         if (!otmp) {
                             /* normal non-fatal hit */
-                            if (sayhit || canseemon(mon))
+                            if (sayhit || canseemon(mon)) {
                                 hit(flash_str(fltyp, FALSE), mon, exclam(tmp));
+                                if (damgtype == ZT_DRAIN && canseemon(mon)) {
+                                    const char *life = nonliving(mon->data)
+                                                       ? "animating force"
+                                                       : "life";
+
+                                    if (resists_drli(mon)
+                                        || defended(mon, AD_DRLI))
+                                        pline("%s appears unaffected.",
+                                              Monnam(mon));
+                                    else
+                                        pline_The("blast draws the %s "
+                                                  "from %s!", life,
+                                                  mon_nam(mon));
+                                }
+                            }
                         } else {
                             /* some armor was destroyed; no damage done */
                             if (canseemon(mon))
@@ -5067,8 +5238,16 @@ dobuzz(
                 goto buzzmonst;
             } else if (!forcemiss && zap_hit((int) u.uac, 0)) {
                 range -= 2;
-                pline_dir(xytodir(-dx, -dy), "%s hits you!",
-                          The(flash_str(fltyp, FALSE)));
+                pline_dir(xytodir(-dx, -dy), "%s %s you!",
+                          The(flash_str(fltyp, FALSE)),
+                          (damgtype == ZT_WATER) ? "slams into" : "hits");
+                /* a watery hero form absorbs the blast of water; it
+                   stops here whether or not it is also reflected */
+                if (damgtype == ZT_WATER
+                    && (u.umonnum == PM_WATER_ELEMENTAL
+                        || u.umonnum == PM_BABY_SEA_DRAGON
+                        || u.umonnum == PM_SEA_DRAGON))
+                    range = 0;
                 if (Reflecting) {
                     if (!Blind) {
                         (void) ureflects("But %s reflects from your %s!",
@@ -5078,6 +5257,9 @@ dobuzz(
                     monstseesu(M_SEEN_REFL);
                     dx = -dx;
                     dy = -dy;
+                    /* water is reflected but doesn't bounce */
+                    if (damgtype == ZT_WATER)
+                        range = 0;
                     shieldeff(sx, sy);
                     gas_hit = FALSE;
                 } else {
@@ -5257,7 +5439,7 @@ zap_over_floor(
     struct trap *t;
     struct rm *lev = &levl[x][y];
     boolean see_it = cansee(x, y), yourzap;
-    int rangemod = 0, damgtype = zaptype(type) % 10;
+    int rangemod = 0, damgtype = BASE_ZT(zaptype(type));
     boolean lavawall = (lev->typ == LAVAWALL);
 
     if (type == PHYS_EXPL_TYPE) {
@@ -5484,7 +5666,7 @@ zap_over_floor(
     yourzap = (type >= 0 && !exploding_wand_typ);
     zapverb = "blast"; /* breath attack or wand explosion */
     if (!exploding_wand_typ) {
-        int ztype = zaptype(type); /* 0..29 for both hero and monsters */
+        int ztype = zaptype(type); /* 0..32 for both hero and monsters */
 
         if (ztype < ZT_SPELL(0))
             zapverb = "bolt"; /* wand zap */
@@ -5628,7 +5810,7 @@ mon_spell_hits_spot(
         boolean shopdummy = FALSE; /* zap_over_floor() requires this even
                                     * though it's only used when zapdmgtyp
                                     * is non-negative (hero's fault) */
-        int zt_typ = adtyp - 1,            /* convert AD_xxxx to ZT_xxxx */
+        int zt_typ = BZ_OFS_AD(adtyp),     /* convert AD_xxxx to ZT_xxxx */
             zapdmgtyp = -ZT_SPELL(zt_typ); /* damage is from monster spell */
 
         (void) zap_over_floor(x, y, zapdmgtyp, &shopdummy, TRUE, 0);

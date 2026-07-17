@@ -2711,7 +2711,8 @@ map_glyphinfo(
 const int zapcolors[NUM_ZAP] = {
     zap_color_missile,    zap_color_fire,  zap_color_frost,
     zap_color_sleep,      zap_color_death, zap_color_lightning,
-    zap_color_poison_gas, zap_color_acid,
+    zap_color_poison_gas, zap_color_acid,  zap_color_water,
+    zap_color_drain,      zap_color_stun,
 };
 const int altarcolors[] = {
     altar_color_unaligned, altar_color_chaotic, altar_color_neutral,

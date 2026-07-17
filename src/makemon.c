@@ -3299,6 +3299,10 @@ makemon(
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {
         mitem = POT_SICKNESS;
+    } else if (mndx == PM_SKELETAL_DRAGON) {
+        /* each one's breath is fixed to whatever it breathed in life,
+           along with immunity to that element */
+        sd_assign_breath(mtmp);
     }
     if (mitem != STRANGE_OBJECT && allow_minvent)
         (void) mongets(mtmp, mitem);

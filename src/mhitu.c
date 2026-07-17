@@ -2558,7 +2558,7 @@ mon_avoiding_this_attack(
     int typ = -1;
 
     if (attkidx >= 0
-        && (typ = get_atkdam_type(mattk[attkidx].adtyp)) >= 0
+        && (typ = breath_adtyp(mtmp, &mattk[attkidx])) >= 0
         && m_seenres(mtmp, cvt_adtyp_to_mseenres(typ)))
         return TRUE;
     return FALSE;
@@ -2578,7 +2578,7 @@ ranged_attk_available(struct monst *mtmp)
 
     for (i = 0; i < NATTK; i++) {
         if (DISTANCE_ATTK_TYPE(mattk[i].aatyp)
-            && (typ = get_atkdam_type(mattk[i].adtyp)) >= 0
+            && (typ = breath_adtyp(mtmp, &mattk[i])) >= 0
                 && m_seenres(mtmp, cvt_adtyp_to_mseenres(typ)) == 0)
                 return TRUE;
     }
@@ -2737,6 +2737,8 @@ passiveum(
                 (void) split_mon(&gy.youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
+            if (mon_resists_stun(mtmp) || defended(mtmp, AD_STUN))
+                break; /* immune to stun; passive damage still applies */
             if (!mtmp->mstun) {
                 mtmp->mstun = 1;
                 pline_mon(mtmp, "%s %s.", Monnam(mtmp),

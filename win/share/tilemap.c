@@ -99,6 +99,7 @@ const char *expl_texts[] = {
 const char *zap_texts[] = {
     "missile", "fire",      "frost",      "sleep",
     "death",   "lightning", "poison gas", "acid",
+    "water",   "dark energy", "stun",
 };
 
 enum tilesrc { monsters_file, objects_file, other_file, generated };

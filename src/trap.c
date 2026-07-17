@@ -2419,10 +2419,11 @@ trapeffect_anti_magic(
         struct permonst *mptr = mtmp->data;
 
         /* similar to hero's case, more or less */
-        if (!resists_magm(mtmp)) { /* lose spell energy */
+        if (!(resists_magm(mtmp)
+              || defended(mtmp, AD_MAGM))) { /* lose spell energy */
             if (!mtmp->mcan && (attacktype(mptr, AT_MAGC)
                                 || attacktype(mptr, AT_BREA))) {
-                mtmp->mspec_used += d(2, 6);
+                mtmp->mspec_used += d(2, 2);
                 if (in_sight) {
                     seetrap(trap);
                     pline_mon(mtmp, "%s seems lethargic.",
