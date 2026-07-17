@@ -453,14 +453,17 @@ mfind_target(struct monst *mtmp)
                 }
             }
         }
-        oldmret = mret;
+        /* keep the best find so far; a later direction that finds
+           nothing must not discard it */
+        if (mret)
+            oldmret = mret;
     }
 
-    if (mret != (struct monst *) 0) {
-        gt.tbx = (mret->mx - mtmp->mx);
-        gt.tby = (mret->my - mtmp->my);
-        return mret; /* should be the strongest monster that's not
-                        behind a friendly */
+    if (oldmret != (struct monst *) 0) {
+        gt.tbx = (oldmret->mx - mtmp->mx);
+        gt.tby = (oldmret->my - mtmp->my);
+        return oldmret; /* should be the strongest monster that's not
+                           behind a friendly */
     }
     /* Nothing lined up? */
     gt.tbx = gt.tby = 0;

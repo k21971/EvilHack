@@ -895,9 +895,13 @@ dochug(struct monst *mtmp)
 
     /* Look for other monsters to fight (at a distance). Intelligent
        monsters with Amulet of Yendor skip ranged attacks - escape.
-       Exception: priests in their temple guard the Amulet */
-    if ((!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat)
-         || (mtmp->ispriest && inhistemple(mtmp)))
+       Exception: priests in their temple guard the Amulet.
+       Pets skip this scan entirely; their ranged combat runs inside
+       dog_move where the petstrat orders, acceptable_pet_target and
+       friendly-fire gates all apply */
+    if (!mtmp->mtame
+        && (!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat)
+            || (mtmp->ispriest && inhistemple(mtmp)))
         && ((((attacktype(mdat, AT_BREA) || attacktype(mdat, AT_SPIT))
               && !mtmp->mbreath_attk)
              || (((attacktype(mdat, AT_GAZE) && mdat != &mons[PM_MEDUSA])
