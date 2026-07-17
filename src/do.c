@@ -1892,6 +1892,15 @@ goto_level(
     if (familiar)
         familiar_level_msg();
 
+    /* entered the Wizard's lair (final tower level) */
+    if (!Is_wiz1_level(&u.uz0) && Is_wiz1_level(&u.uz)
+        && !u.uevent.wiztower_entered) {
+        u.uevent.wiztower_entered = 1;
+        /* TODO-EVILHACK: com_pager("wizards_tower_enter") flavor
+           text once the quest text port lands */
+        livelog_printf(LL_ACHIEVE, "entered the Wizard of Yendor's lair");
+    }
+
     /* special location arrival messages/events */
     if (In_endgame(&u.uz)) {
         if (newdungeon)

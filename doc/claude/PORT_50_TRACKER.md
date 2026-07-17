@@ -248,12 +248,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       keep append-only vs upstream ordering) [~] ULTRAVISION=70
       appended 2026-07-12 (objects.h needed it); rest pending
 - [x] you.h DONE 2026-07-12b (u_achieve NOT ported: 5.0 enum
-      achievements + 31-bit xlogfile mask full - MAINTAINER
-      DECISION achieve2 field needed for EvilHack's 8 extras;
-      2026-07-17 kill-attribution slice appended 8 once-gate
-      u.uevent bits killed_medusa..killed_michael = the game-state
-      source those achieve2 entries will read; defeat_icequeen
-      still pending with the Ice Queen slice)
+      achievements + 31-bit xlogfile mask full; 2026-07-17
+      kill-attribution slice appended 8 once-gate u.uevent bits
+      killed_medusa..killed_michael = the game-state source;
+      defeat_icequeen still pending with the Ice Queen slice.
+      MAINTAINER DECIDED 2026-07-17: restore master's achieveX
+      named-token xlogfile field via a DEDICATED xlog-parity
+      Phase 2 slice - see that item in the Phase 2 list)
 - [ ] skills.h (+88: P_PET_HANDLING etc. - saved weapon_skills)
       [~] P_EVOCATION_SPELL landed 2026-07-12 INSERTED at 35 to
       extend the contiguous spell block (P_BARE_HANDED..
@@ -1499,13 +1500,45 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       PORTED + REVIEWED + FIXED 2026-07-17 (port subagent 26 files
       +481/-116; reviewer CONDITIONAL PASS 0 blockers/2 concerns/2
       nits -> all coordinator-verified+fixed same day; zero-warning
-      make clean + make all green). COMMIT PENDING (message at
-      scratchpad commit-msg-kill-attribution.txt); WIZMODE BATTERY
-      PENDING maintainer approval - combined 10-item list = union of
-      port report + review report battery sections (pet beam/wand/
-      explosion/cloud/petrify credit, consume-on-entry staleness,
-      nested spore chains, thrower death naming, pre-slice save
-      load, Medusa/Death livelog arms).
+      make clean + make all green). COMMITTED 2026-07-17 as
+      692008bd7 (28 files +586/-128 incl. tracker + insight.c fix).
+      WIZMODE BATTERY PASSED 2026-07-17 (maintainer-approved; 3
+      games, sanity_check on; bundle evilhack-50_2026-07-17g cut+
+      verified). BATTERY RECORD - livelog-proven: hero Medusa kill
+      = SINGLE "killed Medusa" lltype=6 line (concern-1 fix live,
+      no double), uevent.killed_medusa=1 + ACH_MEDU in uachieved[8];
+      "pet dog killed Cerberus" lltype=6 via set_pet_killer ->
+      m-prefix monkilled -> mondead consume -> logdeadmon pet arm
+      (gdb-staged setter = producer-contract lever); Vlad m-killed
+      IMMEDIATELY after = NO livelog + killed_vlad=1 quiet state =
+      consume-on-entry staleness proof; Death nap "put Death down
+      for a little nap" lltype=6 (concern-2 LL_ACHIEVE fix live),
+      three revived-Death m-kills all silent; Croesus m-kill SILENT
+      (5.0 would have logged "has been killed") then hero kill
+      "killed Croesus (2nd time)" lltype=4 cadence; save/reload
+      round-trip preserved cerberus/vlad bits with medusa=0;
+      hero death string "killed by a hobbit's thrown elven dagger"
+      (thitu weapon_killer possessive); hero-fault exploder chain
+      live in game A (F-attack tame gas spore -> "You kill Medusa!"
+      + pet-murder guilt line). PANICLOG: zero slice entries; one
+      self-inflicted staging entry (rloc kitten onto an occupied
+      tile -> placement detector; that game then lost to a SIGINT
+      landing in a gdb-blocked call - both lessons in gameplay
+      memory). RESIDUAL (not live-proven, code-verified by porter+
+      reviewer): pet melee/wand producer sites in real combat (pet
+      AI refuses boss targets - avoids petrify-risk Medusa, flees
+      high-level Cerberus, ignores paralyzed monsters; hostiles
+      prefer the hero over adjacent pets so popper staging fails),
+      monster-fault exploder arm, Medusa pet/no-credit branches
+      (proven on sibling arms), cloud creator_mid kill (region
+      creator verified by code review only). Pet-AI target-scoring
+      quirks discovered are PRE-EXISTING behavior, not slice bugs.
+      STAGING RECIPES proven: genesis unique -> "Creating
+      doppelganger instead; force X? [yn]" needs y (n leaves a
+      shapeshifter fake - check cham on staged monsters); Death
+      REVIVES every few turns and beelines the hero (m-wizkill per
+      revival); set_pet_killer callable from batch gdb (pure
+      setter) as the deterministic pet-credit lever.
       Landed: mon.c statics + set_pet_killer + mondead
       consume-on-entry (locals was_player_kill/pet_credit as FIRST
       statements) + monstone vamp_stone-fail/lifesaved clears +
@@ -1546,10 +1579,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       state only. (2) PM_DEATH nap arm was LL_UMONST-only while
       Famine/Pestilence keep LL_ACHIEVE via the generic arm's
       is_rider clause - nap arm now carries LL_ACHIEVE (branch
-      rider policy + master text). RATIFY QUEUE (maintainer): both
-      livelog decisions above; also non-hero unique kills going
-      silent is master parity but a 5.0 behavior change worth a
-      nod. NOT ported (master defers too): DoT/delayed-petrify/
+      rider policy + master text). MAINTAINER RATIFIED 2026-07-17:
+      both livelog decisions kept as shipped (Medusa credit-only
+      logging incl. silent non-hero causes; all Rider lines always
+      LL_ACHIEVE), and the achieve2 question resolved = DEDICATED
+      XLOG-PARITY SLICE (new Phase 2 item below). NOT ported (master defers too): DoT/delayed-petrify/
       gas-spore-chain-popper per-monster source attribution;
       hero-reflected beam kills stay unlogged BY DESIGN. DEFERRED
       with owners: trap.c nested trap-window buzzer save/zero/
@@ -2538,6 +2572,51 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       AT_BREA but pad mspec_used).
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
+- [x] xlogfile parity slice: achieveX/conductX named-token fields
+      DONE 2026-07-17 (coordinator hand-port, small-slice
+      precedent; reviewer PASS zero blockers; build green; xlog
+      entry live-verified in one approved wizmode game - COMMIT
+      PENDING, message at scratchpad commit-msg-xlog-parity.txt).
+      KEY DISCOVERY: the 5.0 fork ALREADY had achieveX/conductX
+      with master-compatible names for all 15 shared achievement
+      tokens - the slice was reconciliation, not a fresh port.
+      Landed: 16 live-state achieveX arms (oracle minor/major,
+      quest x5 via svq.quest_status + u.uevent, 7 boss u.uevent
+      bits, entered_wiztower, got_crowned); conductX to master's
+      25-token set (petless->never_had_a_pet, blind->blindfolded,
+      bonesless option->numbones semantics, +6 missing arms) with
+      fork extras kept (sokoban/pauper/unrerolled - maintainer
+      2026-07-17); LATENT FORK BUG FIXED: conductX reused
+      buf[BUFSZ]=256, full new token set worst-cases 368 bytes =
+      game-end stack smash - dedicated conductbuf[1600] + achbuf
+      grown; killed_uniques() ported (svm.mvitals, pmnames
+      NEUTRAL->MALE->FEMALE fallback, worm-tail/high-priest
+      skips) + killed_uniques/killed_nazgul/killed_erinyes/
+      killed_archangels fields; race0= added; do.c wiztower-entry
+      arm (write-never u.uevent.wiztower_entered now set, LL_
+      ACHIEVE livelog once; com_pager("wizards_tower_enter")
+      TODO-EVILHACK until quest text lands - msgid already in the
+      quest_to_50 map). MAINTAINER RULINGS 2026-07-17: flags=
+      keeps FORK layout (bits2/3 bonesless/reroll; master packed
+      bones count in bits 8-15 - intentional v1.0.0 delta, the
+      bones=/rerolls= numeric fields carry the data; scoreboard
+      note for cutover); forging token stays master's long
+      never_forged_an_artifact (settled - it was already live in
+      the fork). DEFERRED tokens with owners: entered_purgatory +
+      entered_hidden_dungeon (branches unported), defeated_ice_
+      queen (Ice Queen slice). BREADCRUMB for the Infidel slice:
+      writexlentry align0 uses 5.0's aligns[1 - ualignbase] with
+      NO A_NONE guard - Infidel A_NONE (-128) = OOB read; adopt
+      master's `== A_NONE ? 3 : 1 - sgn()` ternary when Infidel
+      ports (aligns[] index 3 "Una" entry already exists).
+      LIVE-VERIFIED (wizmode, quit at T:1 wizard1): race0=Hum,
+      killed_uniques=Croesus, killed_nazgul=2, killed_erinyes=1,
+      killed_archangels=0, conductX master names no petless/
+      blind, achieveX entered_gehennom + entered_wiztower, lair
+      livelog single-fire across leave/re-enter, tab-split clean,
+      flags=0x5 fork layout. #chronicle does NOT show the boss
+      achievements (u.uevent bits, not ACH entries) - accepted
+      cost of the ratified representation.
 - [x] Pet order system (P_PET_HANDLING, petstrat, #order)
       PORTED + REVIEWED 2026-07-17 (port subagent 13 files
       +1006/-109; reviewer CONDITIONAL PASS 1 blocker/2 nits ->

@@ -75,6 +75,7 @@ staticfn long encodeachieve(boolean);
 staticfn void add_achieveX(char *, const char *, boolean);
 staticfn char *encode_extended_achievements(char *);
 staticfn char *encode_extended_conducts(char *);
+staticfn char *killed_uniques(void);
 #endif
 staticfn void free_ttlist(struct toptenentry *);
 staticfn int classmon(char *);
@@ -342,7 +343,7 @@ writexlentry(FILE *rfile, struct toptenentry *tt, int how)
 #define Fprintf (void) fprintf
 #define XLOG_SEP '\t' /* xlogfile field separator. */
     char buf[BUFSZ], tmpbuf[DTHSZ + 1];
-    char achbuf[N_ACH * 40];
+    char achbuf[(N_ACH + 20) * 40], conductbuf[40 * 40];
 
     Sprintf(buf, "version=%d.%d.%d", tt->ver_major, tt->ver_minor,
             tt->patchlevel);
@@ -371,19 +372,27 @@ writexlentry(FILE *rfile, struct toptenentry *tt, int how)
     Fprintf(rfile, "%cachieveX=%s", XLOG_SEP,
             encode_extended_achievements(achbuf));
     Fprintf(rfile, "%cconductX=%s", XLOG_SEP,
-            encode_extended_conducts(buf)); /* reuse 'buf[]' */
+            encode_extended_conducts(conductbuf));
     Fprintf(rfile, "%crealtime=%ld%cstarttime=%ld%cendtime=%ld", XLOG_SEP,
             urealtime.realtime, XLOG_SEP,
             timet_to_seconds(ubirthday), XLOG_SEP,
             timet_to_seconds(urealtime.finish_time));
-    Fprintf(rfile, "%cgender0=%s%calign0=%s", XLOG_SEP,
+    Fprintf(rfile, "%cgender0=%s%calign0=%s%crace0=%s", XLOG_SEP,
             genders[flags.initgend].filecode, XLOG_SEP,
-            aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
+            aligns[1 - u.ualignbase[A_ORIGINAL]].filecode,
+            XLOG_SEP, races[flags.initrace].filecode);
     Fprintf(rfile, "%cflags=0x%lx", XLOG_SEP, encodexlogflags());
     Fprintf(rfile, "%cgold=%ld", XLOG_SEP,
             money_cnt(gi.invent) + hidden_gold(TRUE));
     Fprintf(rfile, "%cwish_cnt=%ld", XLOG_SEP, u.uconduct.wishes);
     Fprintf(rfile, "%carti_wish_cnt=%ld", XLOG_SEP, u.uconduct.wisharti);
+    Fprintf(rfile, "%ckilled_uniques=%s", XLOG_SEP, killed_uniques());
+    Fprintf(rfile, "%ckilled_nazgul=%d", XLOG_SEP,
+            svm.mvitals[PM_NAZGUL].died);
+    Fprintf(rfile, "%ckilled_erinyes=%d", XLOG_SEP,
+            svm.mvitals[PM_ERINYS].died);
+    Fprintf(rfile, "%ckilled_archangels=%d", XLOG_SEP,
+            svm.mvitals[PM_ARCHANGEL].died);
     Fprintf(rfile, "%cbones=%ld", XLOG_SEP, u.uroleplay.numbones);
     Fprintf(rfile, "%crerolls=%ld", XLOG_SEP, u.uroleplay.numrerolls);
     Fprintf(rfile, "\n");
@@ -581,6 +590,27 @@ encode_extended_achievements(char *buf)
         add_achieveX(buf, achievement, TRUE);
     }
 
+    /* game state with no uachieved[] entry */
+    add_achieveX(buf, "got_minor_oracle_consultation", u.uevent.minor_oracle);
+    add_achieveX(buf, "got_major_oracle_consultation", u.uevent.major_oracle);
+    add_achieveX(buf, "entered_quest_portal_level", u.uevent.qcalled);
+    add_achieveX(buf, "accepted_for_quest",
+                 svq.quest_status.got_quest || svq.quest_status.got_thanks);
+    add_achieveX(buf, "defeated_quest_nemesis",
+                 svq.quest_status.killed_nemesis);
+    add_achieveX(buf, "defeated_quest_leader",
+                 svq.quest_status.leader_is_dead);
+    add_achieveX(buf, "quest_completed", u.uevent.qcompleted);
+    add_achieveX(buf, "defeated_cerberus", u.uevent.killed_cerberus);
+    add_achieveX(buf, "defeated_vecna", u.uevent.killed_vecna);
+    add_achieveX(buf, "defeated_vlad_impaler", u.uevent.killed_vlad);
+    add_achieveX(buf, "defeated_talgath", u.uevent.killed_talgath);
+    add_achieveX(buf, "defeated_goblin_king", u.uevent.killed_gking);
+    add_achieveX(buf, "defeated_lucifer", u.uevent.killed_lucifer);
+    add_achieveX(buf, "defeated_saint_michael", u.uevent.killed_michael);
+    add_achieveX(buf, "entered_wiztower", u.uevent.wiztower_entered);
+    add_achieveX(buf, "got_crowned", u.uevent.uhand_of_elbereth != 0);
+
     return buf;
 }
 
@@ -600,19 +630,60 @@ encode_extended_conducts(char *buf)
     add_achieveX(buf, "wishless",     !u.uconduct.wishes);
     add_achieveX(buf, "artiwishless", !u.uconduct.wisharti);
     add_achieveX(buf, "genocideless", !num_genocides());
+    add_achieveX(buf, "never_had_a_pet", !u.uconduct.pets);
+    add_achieveX(buf, "never_touched_an_artifact", !u.uconduct.artitouch);
     add_achieveX(buf, "elberethless", !u.uconduct.elbereth);
+    add_achieveX(buf, "blindfolded",  u.uroleplay.blind);
+    add_achieveX(buf, "nudist",       u.uroleplay.nudist);
+    add_achieveX(buf, "hallucinating", u.uroleplay.hallu);
+    add_achieveX(buf, "deaf",         u.uroleplay.deaf);
+    add_achieveX(buf, "bonesless",    !u.uroleplay.numbones);
+    add_achieveX(buf, "never_died",   u.umortality == 0);
+    add_achieveX(buf, "never_abused_alignment", !u.ever_abused);
+    add_achieveX(buf, "never_forged_an_artifact", !u.uconduct.forgedarti);
+    add_achieveX(buf, "never_acquired_magic_resistance",
+                 !u.uconduct.antimagic);
+    add_achieveX(buf, "never_acquired_reflection", !u.uconduct.reflection);
+    /* extras with no counterpart in the pre-port token set */
     if (sokoban_in_play())
         add_achieveX(buf, "sokoban",  !u.uconduct.sokocheat);
-    add_achieveX(buf, "blind",        u.uroleplay.blind);
-    add_achieveX(buf, "deaf",         u.uroleplay.deaf);
-    add_achieveX(buf, "nudist",       u.uroleplay.nudist);
     add_achieveX(buf, "pauper",       u.uroleplay.pauper);
-    add_achieveX(buf, "bonesless",    !flags.bones);
-    add_achieveX(buf, "petless",      !u.uconduct.pets);
-    add_achieveX(buf, "never_forged_an_artifact", !u.uconduct.forgedarti);
     add_achieveX(buf, "unrerolled",   !u.uroleplay.reroll);
 
     return buf;
+}
+
+static char _killed_uniques[NUMMONS * 32];
+
+/* comma-separated names of every unique monster that has died; long worm
+   tails and high priests share their kill counters, so skip them */
+staticfn char *
+killed_uniques(void)
+{
+    int i;
+    size_t len, cap = sizeof _killed_uniques;
+    const char *nm;
+
+    _killed_uniques[0] = '\0';
+    for (i = LOW_PM; i < NUMMONS; i++) {
+        if ((mons[i].geno & G_UNIQ) && svm.mvitals[i].died) {
+            if (i == PM_LONG_WORM_TAIL || i == PM_HIGH_PRIEST)
+                continue;
+            nm = mons[i].pmnames[NEUTRAL] ? mons[i].pmnames[NEUTRAL]
+                 : mons[i].pmnames[MALE] ? mons[i].pmnames[MALE]
+                                         : mons[i].pmnames[FEMALE];
+            if (!nm)
+                continue;
+            /* +2: one for the comma, one for the terminator */
+            if (strlen(_killed_uniques) + strlen(nm) + 2 >= cap)
+                break; /* buffer full; drop remaining entries */
+            Sprintf(eos(_killed_uniques), "%s,", nm);
+        }
+    }
+    if ((len = strlen(_killed_uniques)) != 0)
+        _killed_uniques[len - 1] = '\0';
+
+    return _killed_uniques;
 }
 
 #endif /* XLOGFILE */
