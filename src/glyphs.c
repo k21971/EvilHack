@@ -350,8 +350,9 @@ compose_glyph_name(int glyph, char *buf, size_t bufsz)
             cmap = (glyph - GLYPH_CMAP_B_OFF) + S_grave;
         } else if (glyph_is_cmap_zap(glyph)) {
             static const char *const zap_texts[] = {
-                "missile", "fire",      "frost",      "sleep",
-                "death",   "lightning", "poison gas", "acid"
+                "missile", "fire",        "frost",      "sleep",
+                "death",   "lightning",   "poison gas", "acid",
+                "water",   "dark energy", "stun"
             };
 
             j = (glyph - GLYPH_ZAP_OFF);
@@ -1260,6 +1261,4 @@ glyphs_to_unicode(const char *id, const char *unicode_val, long clr)
 #endif /* SOME TEST STUFF */
 
 /* glyphs.c */
-
-
 

@@ -2317,10 +2317,66 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       multiple hits (munslime recipe); eyeless poly forms
       (green slime) see no monster messages - instrument with
       breakpoints, not plines.
-- [ ] Extended breath/spit weapon types + skeletal dragon fixed
+- [x] Extended breath/spit weapon types + skeletal dragon fixed
       breath (mbreathtyp)
-      PORTED + REVIEWED 2026-07-17 as TWO commits (combined battery
-      pending): COMMIT A = 5e3874faf beam widening + skeletal dragon
+      COMBINED BATTERY PASSED 2026-07-17 (one Valkyrie XL30 game,
+      sanity_check on, save/reload cycle, paniclog gained ZERO
+      entries). LAUNCH BLOCKER found+fixed first: the game
+      SEGFAULTED at startup in compose_glyph_name - src/glyphs.c
+      carries a SECOND zap_texts[] copy (8 entries, implicitly
+      sized) that populate_glyphname_hash_indices walks for every
+      glyph at options-init; NUM_ZAP=11 indexed past it into a
+      NULL "%s" (the porter grew the tilemap.c copy; porter AND
+      reviewer missed this one - it is invisible to NUM_ZAP-
+      consumer greps because it is a bare static array). Fixed
+      +3 names; only two copies exist tree-wide (verified).
+      Battery results: (1) all three beams live at range with
+      correct names - "breathes water/a dark energy blast/a
+      disorienting blast" + "blast of X" flash names; water
+      bounce mechanics; amulet of reflection reflected a frost
+      blast (generic beam reflection intact); (2) drain losexp
+      end-to-end (Farvel level 30, Xp 30->29, HPmax down); (3)
+      stun breath -> "You stagger..." + Stun status (central gate
+      non-resist path) and hero sleep-walked randomized movement;
+      (4) STUN GATES: shimmering dragon took repeated Magicbane
+      spec-roll hits (scare/probe messages fired) with mstun=0
+      throughout (m_id-verified reads); CONTROL = stun beam
+      crossfire set mstun=1 on a plain test monster (zhitm arm,
+      deterministic - Magicbane-roll controls are too slow, beam
+      control is the right instrument); (5) SKELETAL DRAGON:
+      creation hook assigned mbreathtyp=3/frost + mintrinsics
+      MR_COLD at genesis, breathed frost per the fixed type,
+      save/reload preserved both exactly; (6) HERO POLYFORMS:
+      skeletal form rolled mbreathtyp=5/disint + MR_DISINT and
+      #monster breath fired a real disintegration beam (the
+      AD_RBRE->BZ_OFS garbage path is dead); shadow form +
+      reflection self-breath -> "You feel drained..." + no losexp
+      (the restored C1 Reflecting mitigation, live); shimmering
+      form set STUN_RES (FROMFORM) and yellow-mold passive stun
+      -> "You feel a slight itch." twice, no Stun (central
+      make_stunned gate); golems are no-poly so snow golem dospit
+      is untestable from hero side; (7) SPIT TRIO: snow golem
+      "throws a snowball!" + hero Blind (can_blnd arm); needle
+      blight "fires a barbed needle!" + "Ow, that stings! The
+      barbed needle was poisoned!"; drider "shoots a ball of
+      webbing!" at a hero ON STAIRS = silent no-trap (correct
+      maketrap refusal path); (8) HERO DOSPIT (drider form):
+      floor spit broke with "Splat!", webbing hit a test monster
+      -> "caught in a spider web" (thrown-webbing hmon
+      maketrap+mintrap); (9) AD_WEBS TOUCH: large spider webbed
+      the hero - u.utrap TT_WEB (mhitm_ad_webs mhitu arm);
+      incidental: a snow golem got caught in a leftover web trap
+      (webs are real traps for monsters). BATTERY DATA POINT:
+      the CAVE spider has NO webbing in EITHER tree - spider
+      webbing starts at large spider (the slice inventory's
+      monster list mislabeled it; diagnosed via hitmu/dispatch
+      logging breakpoints when the touch never fired). Driving
+      notes: drider prefers its drow archery kit over spit at
+      range; snow golem breath and spit share the mbreath_attk
+      cooldown so snowballs are intermittent; conditional
+      breakpoints on m_id are the reliable per-monster logging
+      filter (mlet is an enum, not a char).
+      PORTED + REVIEWED 2026-07-17 as TWO commits: COMMIT A = 5e3874faf beam widening + skeletal dragon
       + stun predicates (port subagent 28 files +499/-119 incl.
       coordinator fixes; reviewer CONDITIONAL PASS 0 blockers,
       2 concerns + 1 nit all coordinator-fixed: drain-breath
