@@ -2219,15 +2219,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dragon fixed breath adtyp, fields landed Phase 1)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
-- [~] Pet order system (P_PET_HANDLING, petstrat, #order)
+- [x] Pet order system (P_PET_HANDLING, petstrat, #order)
       PORTED + REVIEWED 2026-07-17 (port subagent 13 files
       +1006/-109; reviewer CONDITIONAL PASS 1 blocker/2 nits ->
-      blocker coordinator-verified+fixed same day; zero-warning
-      clean rebuild by subagent + post-fix make all; COMMIT
-      PENDING, message file in scratchpad; wizmode battery
-      pending maintainer approval - 29-point list in
-      scratchpad/pet-order-battery-list.md incl. the session-7
-      pick-drop oscillation regression + shield-don follow-up).
+      blocker coordinator-verified+fixed same day), COMMITTED
+      2026-07-17 as 8d0c9504f (14 files +1111/-117). WIZMODE
+      BATTERY PASSED same day (one human Valkyrie XL30 game,
+      sanity_check on, PANICLOG NEVER CREATED; two save/reinstall/
+      reload cycles inside the run; battery record below). Battery
+      FOUND BUG-1346 (mfind_target direction-scan clobber, master
+      frozen-unfixed since the 2019 GruntHack import) - fix +
+      maintainer-ruled dochug-scan pet gate committed separately
+      right after the slice; see the archive entry and the battery
+      record below.
       Contents: doorder + find_commandable_pet appended to
       sounds.c (5.0 menu API with per-item color param replacing
       master's menuitemcolor global; ECMD returns - master 1 ->
@@ -2314,6 +2318,78 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arm unreachable for steeds by else-if order); Guidebook
       #order entry ("Give orders to a pet.") -> coordinator doc
       pass via the guidebook workflow.
+      WIZMODE BATTERY RECORD 2026-07-17 (maintainer-approved;
+      human Valkyrie XL30, starting little dog + genesis'd tame
+      dwarf as the workhorse; sanity_check on; paniclog never
+      created). VERIFIED LIVE: (1) #order command - auto-pick
+      with one eligible pet, getpos targeting with two (farlook
+      autodescribe names candidates), wall-select "There's no one
+      there to command.", "is incapacitated." alertness abort on
+      a donning-frozen pet, exchange adjacency refusal ("You need
+      to be next to..."), all no-time; "%s ignores you." at
+      P_UNSKILLED consumed the turn (T advanced = ECMD_TIME
+      parity). (2) skill gating - menu breadth stepped live
+      through all four tiers by gdb skill writes (a-f / +g-i at
+      P_BASIC / +j-l at P_SKILLED / +m-o at P_EXPERT), P_MASTER
+      obedience bypass; use_skill trains ONLY on changed orders
+      (advance counter exact across 4 changes, 0 on ignored/
+      cancelled). (3) toggles + exclusions by gdb petstrat reads:
+      AGGRO 0x1 -> COWED 0x2 -> NOATTACK 0x200 each clearing the
+      others; STATIONARY keeps NODROP (0xa0); belay -> 0 with
+      master's discretion message. (4) behaviors - STATIONARY
+      held position while hero walked away; COME 0x40 crossed the
+      room and SELF-CLEARED at arrival; STAY printed "stays
+      behind." at level teleport, pet absent on Dlvl 2, intact on
+      return; NODROP held items 15+ turns; NOATTACK silenced
+      melee+ranged+muse for 8 turns with a wand and a lined-up
+      frozen target available. (5) exchange + oreserved - give
+      transfers stack; dwarf donned given shield and ring mail
+      (m_dowear pass); take unworn/zero-delay = immediate
+      hand-over; take worn ring mail = "begins removing" +
+      mfrozen 6-7 + IMMEDIATE unwear + oreserved=1; the
+      RESERVATION HELD: 15 turns mobile without re-wearing (the
+      m_dowear_type gate live), belay released (oreserved 0) and
+      the dwarf re-wore within 6 turns; without NODROP the
+      reserved item was dropped by droppables and
+      extract_from_minvent cleared the reservation (master
+      parity - master droppables has no oreserved term; clean
+      handoff flow = take + NODROP). (6) droppables regression -
+      spare +2 dagger stack KEPT stable across churn windows
+      (preferred-throwable terms live), NO pick-drop oscillation
+      (the session-7 loop is gone); pets DROP unheld muse items
+      (wand) because could_use_item is deferred to monster
+      looting - interim gap, NODROP is the workaround, noted for
+      that slice. (7) pet ranged combat - STATIONARY dwarf threw
+      daggers at a lined-up frozen target at range 4-5
+      (pet_ranged_attk); after BUG-1346 fix + pet gate: "The
+      dwarf zaps a wand of striking!" EVERY eligible turn via
+      dog_move muse block (find_offensive MUSE_WAN_STRIKING=7 ->
+      use_offensive), wand auto-identified in the message, kill
+      "The gnoll is killed!" with NO hero XP/attribution;
+      pet-handling advance did NOT tick on the zap kill
+      (mdamagem melee site only = master parity). (8) save/
+      reload x2 (mid-battery reinstalls): petstrat 0xa0, staged
+      frozen monsters, wand charges all exact after restore.
+      NOT LIVE-TESTED (reviewer/code-verified): NOAPPORT floor
+      pickup, AVOIDPEACE, IGNORETRAPS, COWED retreat, dual-wield
+      marilith shield-don (dwarf single-wield don observed
+      instead; churn starvation root cause is fixed), loot_mon
+      wizard-mode arms, friendly-fire walk positive block (the
+      dog camping the zap line produced the negative case
+      incidentally - tame-in-line direction rejected). BATTERY
+      DEBUG LORE (new): dwarves are speed 6 = act every OTHER
+      turn - single-turn instrument windows coin-flip; breakpoint
+      scripts via -x file + background gdb + pkill -INT -x gdb
+      (exact match - `-f "gdb -batch"` also SIGINTs the
+      backgrounded wrapper whose cmdline contains the string,
+      killing queued tmux sends); never combine a gdb attach and
+      tmux send-keys in one compound Bash command (a hung gdb
+      strands the sends; they fire at detach or never); pets NAP
+      between orders - farlook autodescribe "can't move
+      (paralyzed or sleeping or busy)" diagnoses the
+      "incapacitated" abort, gdb msleeping/mfrozen clear stages
+      around it; the wizard restore "keep save file?" prompt eats
+      queued keys after "welcome back".
 - [ ] Player races: giant, centaur, hobbit, illithid, tortle, drow
       (light/dark auras - litroom memory), vampire, aasimar (wings,
       light aura, seduction immunity, cross-faction hostility)
