@@ -248,9 +248,12 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
             magical_scare = !auditory_scare;
 
     /* creatures who are directly resistant to any type of scaring:
-     * Rodney, lawful minions, Angels, the Riders */
+     * Rodney, lawful minions, Angels, the Riders, the branch bosses,
+     * berserk monsters */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
-        || is_rider(mtmp->data))
+        || is_rider(mtmp->data)
+        || mtmp->isvecna || mtmp->isvlad || mtmp->isgking
+        || mtmp->istalgath || mtmp->ismichael || mtmp->mberserk)
         return FALSE;
 
     /* creatures who are directly resistant to magical scaring
@@ -830,26 +833,43 @@ dochug(struct monst *mtmp)
        gold demands and must not act as blackmailing demons) */
     if (nearby && mdat->msound == MS_BRIBE && mtmp->mpeaceful && !mtmp->mtame
         && !u.uswallow && monsndx(mdat) != PM_PRISON_GUARD) {
-        if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
-            pline("%s whispers at thin air.",
-                  cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
+        /* STRAT_APPEARMSG doubles as the one-shot bribe-offer
+           tracker; once it is spent the demon lets the hero pass
+           without further demands */
+        if (mtmp->mstrategy & STRAT_APPEARMSG) {
+            if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
+                pline("%s whispers at thin air.",
+                      cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");
+                mtmp->mstrategy &= ~STRAT_APPEARMSG;
 
-            if (is_demon(gy.youmonst.data)) {
-                /* "Good hunting, brother" */
-                if (!tele_restrict(mtmp))
-                    (void) rloc(mtmp, RLOC_MSG);
-            } else {
-                mtmp->minvis = mtmp->perminvis = 0;
-                /* Why?  For the same reason in real demon talk */
-                if (canseemon(mtmp))
-                    set_msg_xy(mtmp->mx, mtmp->my);
-                pline("%s gets angry!", Amonnam(mtmp));
-                mtmp->mpeaceful = 0;
-                set_malign(mtmp);
-                /* since no way is an image going to pay it off */
-            }
-        } else if (demon_talk(mtmp))
-            return 1; /* you paid it off */
+                if (is_demon(raceptr(&gy.youmonst))) {
+                    /* "Good hunting, brother" */
+                    if (!tele_restrict(mtmp))
+                        (void) rloc(mtmp, RLOC_MSG);
+                    /* rloc can fire mintrap at the destination and
+                       kill mtmp; stop before later code derefs it */
+                    if (DEADMONSTER(mtmp))
+                        return 1;
+                } else {
+                    mtmp->minvis = mtmp->perminvis = 0;
+                    /* Why?  For the same reason in real demon talk */
+                    if (canseemon(mtmp))
+                        set_msg_xy(mtmp->mx, mtmp->my);
+                    pline("%s gets angry!", Amonnam(mtmp));
+                    mtmp->mpeaceful = 0;
+                    set_malign(mtmp);
+                    /* since no way is an image going to pay it off */
+                }
+            } else if (demon_talk(mtmp))
+                return 1; /* you paid it off */
+        } else { /* either let the player pass, or pacified somehow */
+            if (!tele_restrict(mtmp))
+                (void) rloc(mtmp, RLOC_MSG); /* either way no bribe demands */
+            /* rloc can fire mintrap at the destination and kill mtmp */
+            if (DEADMONSTER(mtmp))
+                return 1;
+            return 0;
+        }
     }
 
     /* the watch will look around and see if you are up to no good :-) */
@@ -1061,6 +1081,11 @@ dochug(struct monst *mtmp)
         quest_talk(mtmp);
     /* extra emotional attack for vile monsters */
     if (inrange && mtmp->data->msound == MS_CUSS && !mtmp->mpeaceful
+        && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
+        cuss(mtmp);
+    /* the Enchantress remains chatty after being freed from her curse */
+    if (inrange && mtmp->data->msound == MS_CUSS && mtmp->mpeaceful
+        && mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]
         && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
         cuss(mtmp);
 

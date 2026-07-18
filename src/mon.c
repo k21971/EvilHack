@@ -14,6 +14,7 @@ staticfn void m_calcdistress(struct monst *);
 staticfn boolean monlineu(struct monst *, int, int);
 staticfn long mm_2way_aggression(struct monst *, struct monst *);
 staticfn long mm_displacement(struct monst *, struct monst *);
+staticfn void icequeenrevive(struct monst *);
 staticfn void mon_leaving_level(struct monst *);
 staticfn void m_detach(struct monst *, struct permonst *, boolean);
 staticfn void set_mon_min_mhpmax(struct monst *, int);
@@ -2706,6 +2707,18 @@ mm_aggression(
     if ((mndx == PM_PURPLE_WORM || mndx == PM_BABY_PURPLE_WORM)
         && mdef->data == &mons[PM_SHRIEKER])
         return ALLOW_M | ALLOW_TM;
+
+    /* mini-me recently had a bad encounter with a yellowjacket;
+       she now hates all things that can sting */
+    if ((magr->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+         || magr->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+        && can_sting(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* pets will attack Lucifer, regardless of their level */
+    if (magr->mtame && mdef->data == &mons[PM_LUCIFER])
+        return ALLOW_M | ALLOW_TM;
+
     /* Various other combinations such as dog vs cat, cat vs rat, and
        elf vs orc have been suggested.  For the time being we don't
        support those. */
@@ -2765,6 +2778,148 @@ static struct {
 } recent_detaches[MAX_DETACH_TRACK];
 static int detach_idx = 0;
 
+/* the hero has freed the Ice Queen from her curse; called from
+   dmonsfree() when Kathryn the Ice Queen is found dead, before the
+   freeing loop can dispose of her; she revives, transformed back into
+   her original form of Kathryn the Enchantress, and calls off her
+   dogs */
+staticfn void
+icequeenrevive(struct monst *mtmp)
+{
+    struct monst *mon;
+    struct permonst *bourbon = &mons[PM_BOURBON];
+    struct permonst *ozzy = &mons[PM_OZZY];
+
+    /* our hero has freed the Ice Queen from her curse */
+    if (mtmp->data != &mons[PM_KATHRYN_THE_ICE_QUEEN])
+        return;
+
+    /* in case the player kills themselves while defeating the Ice
+       Queen and isn't life-saved */
+    if (u.uhp <= 0 && !Lifesaved) {
+        ; /* suppress feedback */
+    } else {
+        Your("actions have released %s from a powerful curse!",
+             mon_nam(mtmp));
+        if (canspotmon(mtmp))
+            You("watch as %s undergoes a transformation, back into her original form.",
+                mon_nam(mtmp));
+    }
+
+    /* should be redundant (set in mondead), but in case of funky
+       business */
+    if (!u.uevent.defeat_icequeen)
+        u.uevent.defeat_icequeen = 1;
+
+    if (svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died < 255)
+        svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
+
+    mtmp->mcanmove = 1;
+    mtmp->mfrozen = 0;
+    mtmp->mstone = 0;
+    mtmp->msick = 0;
+    mtmp->mdiseased = 0;
+    mtmp->mwither = 0;
+    mtmp->mconf = 0;
+    mtmp->mstun = 0;
+    mtmp->minvis = 0;
+
+    /* make her healthy for the transformation; newcham() rescales hit
+       points for the new form, so the real values are set afterwards */
+    mtmp->mhp = mtmp->mhpmax = max(mtmp->mhpmax, 1);
+    (void) newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], NO_NC_FLAGS);
+    /* alignment derives from her restored form, so this must follow
+       the transformation */
+    mtmp->mpeaceful = 1;
+    set_malign(mtmp);
+    if (kathryn_bday())
+        mtmp->mhp = mtmp->mhpmax = 15000;
+    else
+        mtmp->mhp = mtmp->mhpmax = 7500;
+    if (mtmp == u.ustuck) {
+        if (u.uswallow)
+            expels(mtmp, mtmp->data, FALSE);
+        else
+            uunstick();
+    }
+    newsym(mtmp->mx, mtmp->my);
+
+    /* fix up Bourbon and Ozzy */
+    for (mon = fmon; mon; mon = mon->nmon) {
+        if (DEADMONSTER(mon))
+            continue;
+        /* cure any ailments the dogs may have also */
+        if (mon->data == bourbon || mon->data == ozzy) {
+            if (u.uhp <= 0 && !Lifesaved) {
+                ; /* suppress feedback */
+            } else {
+                if (mon->data == bourbon && !mon->mpeaceful) {
+                    if (m_cansee(mtmp, mon->mx, mon->my))
+                        pline("%s motions for Bourbon to heel and stop %s attack.",
+                              Monnam(mtmp), mhis(mon));
+                } else if (mon->data == ozzy && !mon->mpeaceful) {
+                    if (m_cansee(mtmp, mon->mx, mon->my))
+                        pline("%s motions for Ozzy to heel and stop %s attack.",
+                              Monnam(mtmp), mhis(mon));
+                }
+            }
+            mon->mcanmove = 1;
+            mon->mfrozen = 0;
+            mon->mstone = 0;
+            mon->msick = 0;
+            mon->mdiseased = 0;
+            mon->mwither = 0;
+            mon->mconf = 0;
+            mon->mstun = 0;
+            mon->mpeaceful = 1;
+            set_malign(mon);
+            newsym(mon->mx, mon->my); /* enable peaceful glyph */
+        }
+    }
+    /* in case the player kills themselves while defeating the Ice
+       Queen and isn't life-saved */
+    if (u.uhp <= 0 && !Lifesaved) {
+        ; /* suppress feedback */
+    } else {
+        if (Role_if(PM_INFIDEL)) {
+            /* the Enchantress will not tolerate those that serve
+               Moloch; our Infidel has 100 turns to do what they're
+               going to do and get out before the situation becomes
+               dire */
+            /* TODO-EVILHACK: com_pager("icequeen_freed_infidel")
+               flavor text once the quest text port lands */
+            mtmp->mpeaceful = 0;
+            set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+            paralyze_monst(mtmp, 100);
+        } else if ((!Upolyd && Race_if(PM_DRAUGR))
+                   || (!Upolyd && Race_if(PM_VAMPIRE))
+                   || is_undead(gy.youmonst.data)) {
+            /* as with Infidels, the Enchantress will not tolerate
+               the undead */
+            /* TODO-EVILHACK: com_pager("icequeen_freed_undead")
+               flavor text once the quest text port lands */
+            mtmp->mpeaceful = 0;
+            set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+            paralyze_monst(mtmp, 100);
+        } else {
+            /* TODO-EVILHACK: com_pager("icequeen_freed") flavor text
+               once the quest text port lands */
+            ;
+        }
+    }
+    if (u.ualign.type == A_NONE) {
+        You_feel("guilty.");
+        adjalign(-2); /* doing good things as an agent of Moloch? pfft */
+        record_abuse_event(-2, ABUSE_INFIDEL_GOOD);
+    } else {
+        adjalign(2);
+    }
+    change_luck(2);
+    return;
+}
+
 /* really free dead monsters */
 void
 dmonsfree(void)
@@ -2810,10 +2965,39 @@ dmonsfree(void)
             orphan_warned_id = 0;
     }
 
-    /* TODO-EVILHACK: the Ice Queen -> Enchantress revive interception
-       (icequeenrevive) goes here when the Ice Queen bosses port */
     for (mtmp = &fmon; *mtmp; ) {
         freetmp = *mtmp;
+
+        if (DEADMONSTER(freetmp)
+            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            icequeenrevive(freetmp);
+            /* the Ice Queen transforms to the Enchantress and is
+               revived; only decrement the purge counter if she was
+               actually marked for purging */
+            if (freetmp->mstate & MON_DETACH) {
+                iflags.purge_monsters--;
+                freetmp->mstate &= ~MON_DETACH; /* clear after revival */
+            }
+            /* track this special case in recent_detaches with a
+               negative position */
+            Strcpy(recent_detaches[detach_idx].mname,
+                   "IceQueen->Enchantress");
+            recent_detaches[detach_idx].x = -1;
+            recent_detaches[detach_idx].y = -1;
+            recent_detaches[detach_idx].hp = 0;
+            recent_detaches[detach_idx].maxhp = 0;
+#ifdef __GNUC__
+            recent_detaches[detach_idx].caller = __builtin_return_address(0);
+#else
+            recent_detaches[detach_idx].caller = NULL;
+#endif
+            recent_detaches[detach_idx].turn = svm.moves;
+            recent_detaches[detach_idx].mon_addr = (void *) freetmp;
+            recent_detaches[detach_idx].m_id = freetmp->m_id;
+            recent_detaches[detach_idx].mm_seq = movemon_callctr;
+            detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
+        }
+
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
             freetmp->nmon = NULL;
@@ -3788,6 +3972,66 @@ anger_quest_guardians(struct monst *mtmp)
         setmangry(mtmp, TRUE);
 }
 
+/* boss-death bookkeeping; these record the once-only game-state bits
+   that unlock or alter later content (genocide gates, spawn rates,
+   xlogfile achievements) */
+void
+cerberusdead(void)
+{
+    if (!u.uevent.ucerberus)
+        u.uevent.ucerberus = TRUE;
+    /* TODO-EVILHACK: com_pager("cerberus_defeated") flavor text once
+       the quest text port lands */
+}
+
+void
+vecnadead(void)
+{
+    if (!u.uevent.uvecna)
+        u.uevent.uvecna = TRUE;
+    /* TODO-EVILHACK: com_pager("vecna_defeated") flavor text once the
+       quest text port lands */
+}
+
+void
+vladdead(void)
+{
+    if (!u.uevent.uvlad)
+        u.uevent.uvlad = TRUE;
+}
+
+void
+talgathdead(void)
+{
+    if (!u.uevent.utalgath)
+        u.uevent.utalgath = TRUE;
+}
+
+void
+goblinkingdead(void)
+{
+    if (!u.uevent.ugking)
+        u.uevent.ugking = TRUE;
+    /* TODO-EVILHACK: com_pager("goblin_king_defeated") flavor text
+       once the quest text port lands */
+}
+
+void
+luciferdead(void)
+{
+    if (!u.uevent.ulucifer)
+        u.uevent.ulucifer = TRUE;
+    /* TODO-EVILHACK: com_pager("lucifer_defeated") flavor text once
+       the quest text port lands */
+}
+
+void
+michaeldead(void)
+{
+    if (!u.uevent.umichael)
+        u.uevent.umichael = TRUE;
+}
+
 /* monster 'mtmp' has died; maybe life-save, otherwise unshapeshift and
    update vanquished stats and update map */
 void
@@ -3821,6 +4065,126 @@ mondead(struct monst *mtmp)
     /* vampire in bat/fog/wolf form reverts to vampire instead of dying */
     if (is_vampshifter(mtmp) && vamprises(mtmp))
         return;
+
+    /* the Ice Queen is defeated rather than killed; her revival as
+       the Enchantress is handled by dmonsfree() at end of turn */
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (!u.uevent.defeat_icequeen) {
+            u.uevent.defeat_icequeen = 1;
+            /* the defeat state is recorded regardless of cause, but
+               the livelog is credit-gated like the killed_* boss
+               lines; attribution was consumed on entry above */
+            if (pet_credit)
+                livelog_printf(LL_ACHIEVE | LL_UMONST,
+                               "pet %s defeated %s",
+                               mon_pmname(pet_credit),
+                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                        EXACT_NAME, FALSE));
+            else if (was_player_kill)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "defeated %s",
+                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                        EXACT_NAME, FALSE));
+        }
+        return; /* revive handled in dmonsfree */
+    }
+    /* our hero decided to choose poorly and attempt to kill
+       Kathryn the Enchantress */
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
+        if (canspotmon(mtmp)) {
+            pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
+            pline("Not even death can overcome her magic!");
+            gv.vamp_rise_msg = TRUE;
+        }
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
+        mtmp->msick = 0;
+        mtmp->mdiseased = 0;
+        mtmp->mwither = 0;
+        mtmp->mconf = 0;
+        mtmp->mstun = 0;
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+        mtmp->m_lev = 100;
+        mtmp->mhp = mtmp->mhpmax = 7500;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        newsym(mtmp->mx, mtmp->my);
+        if (u.ualign.type == A_NONE) {
+            adjalign(10);
+        } else {
+            You_feel("very guilty.");
+            adjalign(-15);
+            record_abuse_event(-15, ABUSE_ATTACK_ENCHANTRESS);
+        }
+        change_luck(-15);
+        return;
+    }
+
+    /* special handling for the Ice Queen's dogs */
+    if (mtmp->data == &mons[PM_BOURBON]
+        || mtmp->data == &mons[PM_OZZY]) {
+        if (canspotmon(mtmp)) {
+            pline("%s has been forced to submit, and %s is no longer hostile.",
+                  Monnam(mtmp), mhe(mtmp));
+        }
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        mtmp->mstone = 0;
+        mtmp->msick = 0;
+        mtmp->mdiseased = 0;
+        mtmp->mwither = 0;
+        mtmp->mconf = 0;
+        mtmp->mstun = 0;
+        mtmp->mpeaceful = 1;
+        set_malign(mtmp);
+        newmonhp(mtmp, monsndx(mtmp->data));
+        /* full health on submitting, not a random roll */
+        mtmp->mhp = mtmp->mhpmax;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        newsym(mtmp->mx, mtmp->my);
+        gv.vamp_rise_msg = TRUE;
+        return;
+    }
+
+    /* special handling for Vecna and his artifacts */
+    if (mtmp->isvecna) {
+        struct obj *otmp, *otmp2;
+
+        if (!Blind) {
+            if (is_lava(mtmp->mx, mtmp->my)
+                || is_pool(mtmp->mx, mtmp->my))
+                pline("As the remnants of %s body vanish, you notice some objects sink into the %s...",
+                      s_suffix(mon_nam(mtmp)), surface(mtmp->mx, mtmp->my));
+            else
+                pline("As the remnants of %s body vanish, you notice some objects were left behind...",
+                      s_suffix(mon_nam(mtmp)));
+        }
+        if (rn2(2)) {
+            otmp = mksobj(EYEBALL, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_EYE_OF_VECNA), ONAME_RANDOM);
+        } else {
+            otmp = mksobj(MUMMIFIED_HAND, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_HAND_OF_VECNA), ONAME_RANDOM);
+        }
+        curse(otmp);
+        place_object(otmp, mtmp->mx, mtmp->my);
+        stackobj(otmp);
+        /* create wand of wishing */
+        otmp2 = mksobj(WAN_WISHING, TRUE, FALSE);
+        (void) maybe_erodeproof(otmp2, 1);
+        place_object(otmp2, mtmp->mx, mtmp->my);
+        stackobj(otmp2);
+    }
 
     if (be_sad)
         You("have a sad feeling for a moment, then it passes.");
@@ -3891,6 +4255,24 @@ mondead(struct monst *mtmp)
             break;
         }
     }
+
+    /* boss-death bookkeeping; set the once-only u.uevent state bits
+       (the Wizard's own bookkeeping lives in m_detach since he can
+       also leave the dungeon alive) */
+    if (mtmp->iscerberus)
+        cerberusdead();
+    if (mtmp->isvecna)
+        vecnadead();
+    if (mtmp->isvlad)
+        vladdead();
+    if (mtmp->istalgath)
+        talgathdead();
+    if (mtmp->isgking)
+        goblinkingdead();
+    if (mtmp->islucifer)
+        luciferdead();
+    if (mtmp->ismichael)
+        michaeldead();
 
     /* achievement and/or livelog */
     logdeadmon(mtmp, mndx, was_player_kill, pet_credit);
@@ -4161,6 +4543,33 @@ monkilled(
     return;
 }
 
+/* another monster has killed the monster mdef, but the hero takes the
+   credit and the experience; used for hero-conjured helpers flagged
+   with mon->uexp (summoned elemental orbs and similar) */
+void
+mon_xkilled(
+    struct monst *mdef,
+    const char *fltxt,
+    int how)
+{
+    if (fltxt && (mdef->wormno ? worm_known(mdef)
+                               : cansee(mdef->mx, mdef->my)))
+        pline_mon(mdef, "%s is %s%s%s!", Monnam(mdef),
+              nonliving(mdef->data) ? "destroyed" : "killed",
+              *fltxt ? " by the " : "", fltxt);
+    else
+        /* sad feeling is deferred until after potential life-saving */
+        iflags.sad_feeling = mdef->mtame ? TRUE : FALSE;
+
+    /* no corpse if digested or disintegrated or flammable golem burnt
+       up; mirrors monkilled()'s routing */
+    if (how == AD_DGST || how == -AD_RBRE
+        || (how == AD_FIRE && completelyburns(mdef->data)))
+        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE | XKILL_INDIRECT);
+    else
+        xkilled(mdef, XKILL_NOMSG | XKILL_INDIRECT);
+}
+
 void
 set_ustuck(struct monst *mtmp)
 {
@@ -4235,7 +4644,8 @@ xkilled(
             burycorpse = FALSE,
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
-            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
+            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
+            indirect = (xkill_flags & XKILL_INDIRECT) != 0;
     boolean not_con_inf = (!((u.ualign.type == A_NONE
                               || Role_if(PM_CONVICT))
                              && (mtmp->isgd || mtmp->isshk
@@ -4252,11 +4662,19 @@ xkilled(
         if (!u.uconduct.killer++)
             livelog_printf(LL_CONDUCT, "killed for the first time");
     }
+
+    /* once the Ice Queen has been defeated, she cannot be killed
+       again on her way to reviving as the Enchantress */
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        && u.uevent.defeat_icequeen)
+        return;
+
     if (!nomsg) {
         boolean namedpet = has_mgivenname(mtmp) && !Hallucination;
 
         You("%s %s!",
-            nonliving(mtmp->data) ? "destroy" : "kill",
+            is_defeated(mtmp->data) ? "defeat"
+              : nonliving(mtmp->data) ? "destroy" : "kill",
             !(wasinside || canspotmon(mtmp)) ? "it"
               : !mtmp->mtame ? mon_nam(mtmp)
                 : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
@@ -4324,7 +4742,7 @@ xkilled(
         goto cleanup;
     }
 
-    if (nocorpse || LEVEL_SPECIFIC_NOCORPSE(mdat))
+    if (nocorpse || (LEVEL_SPECIFIC_NOCORPSE(mdat) && !mtmp->isvecna))
         goto cleanup;
 
 #ifdef MAIL_STRUCTURES
@@ -4369,9 +4787,14 @@ xkilled(
         }
         /* corpse--none if hero was inside the monster */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
-            gz.zombify = (!gt.thrownobj && !gs.stoned && !uwep
-                         && zombie_maker(&gy.youmonst)
-                         && zombie_form(r_data(mtmp)) != NON_PM);
+            /* for kills by monsters credited to the hero (mon->uexp),
+               zombify will have been set already by the caller where
+               the attacking monster was known; for actual kills by
+               the hero we can figure it out here */
+            if (!indirect)
+                gz.zombify = (!gt.thrownobj && !gs.stoned && !uwep
+                             && zombie_maker(&gy.youmonst)
+                             && zombie_form(r_data(mtmp)) != NON_PM);
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
                                                    : CORPSTAT_NONE);
             gz.zombify = FALSE; /* reset */

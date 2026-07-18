@@ -43,6 +43,8 @@ static int mon_wizard_spells[] = {
      || (otyp) == SPE_BURNING_HANDS || (otyp) == SPE_SHOCKING_GRASP)
 
 staticfn void cursetxt(struct monst *, boolean);
+staticfn boolean mon_has_eregen_artifact(struct monst *);
+staticfn boolean is_boss_caster(struct monst *);
 staticfn int choose_monster_spell(struct monst *, int);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
@@ -62,7 +64,7 @@ staticfn void mcast_destroy_armor(void);
 staticfn void mcast_weaken_you(struct monst *, int);
 staticfn void mcast_disappear(struct monst *);
 staticfn void mcast_stun_you(int);
-staticfn int mcast_geyser(int);
+staticfn int mcast_geyser(struct monst *, int);
 staticfn int mcast_fire_pillar(struct monst *, int);
 staticfn int mcast_lightning(struct monst *, int);
 staticfn int mcast_psi_bolt(int);
@@ -74,6 +76,30 @@ staticfn void mcast_confuse_you(struct monst *);
 staticfn void mcast_spell(struct monst *, int, int, short);
 staticfn boolean is_undirected_spell(struct monst *, int);
 staticfn boolean spell_would_be_useless(struct monst *, int);
+
+/* True if mtmp has any artifact conferring SPFX_EREGEN (energy
+   regeneration); such an artifact allows unlimited spellcasting
+   (mspec_used = 0) */
+staticfn boolean
+mon_has_eregen_artifact(struct monst *mtmp)
+{
+    return mon_arti_has_spfx(mtmp, SPFX_EREGEN);
+}
+
+/* check if monster is a boss-type spellcaster that gets mspec
+   bonuses; used to allow bosses to cast more frequently */
+staticfn boolean
+is_boss_caster(struct monst *mtmp)
+{
+    return (is_dprince(mtmp->data) || is_dlord(mtmp->data)
+            || mtmp->iswiz || mtmp->isvecna || mtmp->istalgath
+            || mtmp->data->msound == MS_LEADER
+            || mtmp->data->msound == MS_NEMESIS
+            || mtmp->data == &mons[PM_ORACLE]
+            || mtmp->data == &mons[PM_HIGH_PRIEST]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]);
+}
 
 /* feedback when frustrated monster couldn't cast a spell */
 staticfn void
@@ -144,14 +170,21 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
     if (spellval > maxlev && rn2(maxlev))
         spellval = rn2(maxlev);
 
-    /* find the highest spell in the list we could cast */
-    for (i = len-1; i >= 0; i--)
+    /* find the highest spell in the list we could cast,
+       or fall back to the first spell in the list */
+    for (i = len - 1; i > 0; i--)
         if (mcast_data[list[i]].level <= spellval
             && !spell_would_be_useless(mtmp, list[i]))
-            return list[i];
+            break;
 
-    /* or return the first spell in the list */
-    return list[0];
+    /* the Ice Queen and Asmodeus are creatures of cold; they conjure
+       lightning where other clerical casters would call down fire */
+    if (list[i] == MCAST_FIRE_PILLAR
+        && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_ASMODEUS]))
+        return MCAST_LIGHTNING;
+
+    return list[i];
 }
 
 /* return values:
@@ -217,6 +250,16 @@ castmu(
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
         /* monst->m_lev is unsigned (uchar), monst->mspec_used is int */
         mtmp->mspec_used = (int) ((mtmp->m_lev < 8) ? (10 - mtmp->m_lev) : 2);
+        /* many boss-type monsters that have two or more spell attacks
+           per turn are never able to fire off their second attack due
+           to mspec always being greater than 0, so set it to 0 for
+           those types of monsters half of the time */
+        if (rn2(2) && is_boss_caster(mtmp))
+            mtmp->mspec_used = 0;
+        /* any SPFX_EREGEN artifact (e.g. Eye of the Aethiopica) drops
+           mspec to 0, granting effectively unlimited spellcasting */
+        if (mon_has_eregen_artifact(mtmp))
+            mtmp->mspec_used = 0;
     }
 
     /* Monster can cast spells, but is casting a directed spell at the
@@ -297,20 +340,50 @@ castmu(
      *  they inflict damage on carried items.
      */
     switch (mattk->adtyp) {
-    case AD_FIRE:
-        pline("You're enveloped in flames.");
+    case AD_FIRE: {
+        /* demons cast hellfire, which sears the soul; the living can
+           only be fully protected from it if they are demonic or
+           undead themselves */
+        boolean hellfire = is_demon(mtmp->data),
+                soul_exempt = (Race_if(PM_DEMON) || Race_if(PM_DRAUGR)
+                               || Race_if(PM_VAMPIRE)
+                               || nonliving(gy.youmonst.data));
+
+        if (hellfire)
+            pline("You're enveloped in hellfire!");
+        else if (!Underwater)
+            pline("You're enveloped in flames.");
+        else {
+            pline_The("flames are quenched by the water around you.");
+            dmg = 0;
+            break;
+        }
         if (Fire_resistance) {
             shieldeff(u.ux, u.uy);
-            pline("But you resist the effects.");
-            monstseesu(M_SEEN_FIRE);
-            dmg = 0;
+            if (hellfire) {
+                if (soul_exempt) {
+                    dmg = 0;
+                } else {
+                    pline_The("hellish flames sear your soul!");
+                    dmg = (dmg + 1) / 2;
+                }
+            } else {
+                pline("But you resist the effects.");
+                monstseesu(M_SEEN_FIRE);
+                dmg = 0;
+            }
         } else {
+            if (hellfire && !soul_exempt) {
+                pline_The("hellish flames sear your soul!");
+                dmg *= 2;
+            }
             monstunseesu(M_SEEN_FIRE);
         }
         burn_away_slime();
         /* burn up flammable items on the floor, melt ice terrain */
         mon_spell_hits_spot(mtmp, AD_FIRE, u.ux, u.uy);
         break;
+    }
     case AD_COLD:
         pline("You're covered in frost.");
         if (Cold_resistance) {
@@ -487,6 +560,9 @@ mcast_summon_mons(struct monst *mtmp)
     } else if (mtmp->iswiz) {
         SetVoice(mtmp, 0, 80, 0);
         verbalize("Destroy the thief, my pet%s!", plur(count));
+    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        SetVoice(mtmp, 0, 80, 0);
+        verbalize("Defend me, my minion%s!", plur(count));
     } else {
         boolean one = (count == 1);
         const char *mappear = one ? "A monster appears"
@@ -580,11 +656,22 @@ mcast_stun_you(int dmg)
 }
 
 staticfn int
-mcast_geyser(int dmg)
+mcast_geyser(struct monst *mtmp, int dmg)
 {
     /* this is physical damage (force not heat),
      * not magical damage or fire damage
      */
+    if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        || mtmp->data == &mons[PM_ASMODEUS]
+        || mtmp->data == &mons[PM_VECNA]) {
+        /* cold-aligned casters bury the hero instead */
+        pline("An avalanche of ice and snow slams into you from nowhere!");
+        dmg = d(8, 8);
+        if (Half_physical_damage)
+            dmg = (dmg + 1) / 2;
+        (void) destroy_items(&gy.youmonst, AD_COLD, dmg);
+        return dmg;
+    }
     pline("A sudden geyser slams into you from nowhere!");
     dmg = d(8, 6);
     if (Half_physical_damage)
@@ -931,7 +1018,7 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
         dmg = mcast_psi_bolt(dmg);
         break;
     case MCAST_GEYSER:
-        dmg = mcast_geyser(dmg);
+        dmg = mcast_geyser(mtmp, dmg);
         break;
     case MCAST_FIRE_PILLAR:
         dmg = mcast_fire_pillar(mtmp, dmg);
@@ -1104,6 +1191,36 @@ buzzmu(struct monst *mtmp, struct attack *mattk)
     return M_ATTK_MISS;
 }
 
+/* monster uses spell against another monster (ranged) */
+int
+buzzmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
+{
+    /* don't print constant stream of curse messages for 'normal'
+       spellcasting monsters at range */
+    if (!BZ_VALID_ADTYP(mattk->adtyp))
+        return M_ATTK_MISS;
+
+    if (mtmp->mcan) {
+        cursetxt(mtmp, FALSE);
+        return M_ATTK_MISS;
+    }
+    if (m_lined_up(mdef, mtmp, FALSE) && rn2(3)) {
+        nomul(0);
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s zaps %s with a %s!", Monnam(mtmp),
+                  mon_nam(mdef), flash_str(BZ_OFS_AD(mattk->adtyp), FALSE));
+        /* crossfire can hit the hero, so set the attribution bracket
+           exactly like the other monster beam producers */
+        gb.buzzer = mtmp;
+        dobuzz(BZ_M_SPELL(BZ_OFS_AD(mattk->adtyp)), (int) mattk->damn,
+               mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
+               FALSE, FALSE, FALSE);
+        gb.buzzer = 0;
+        return M_ATTK_HIT;
+    }
+    return M_ATTK_MISS;
+}
+
 /* TRUE if the monster has a wizard or clerical spell attack */
 boolean
 is_spellcaster(struct monst *mtmp)
@@ -1177,64 +1294,70 @@ do_untame_pet(struct monst *caster, struct monst *target)
     }
 }
 
-/* monster casts a spell at another monster; so far only the
-   learned-spell repertoire and the charm-monster untame special are
-   implemented here */
-/* TODO-EVILHACK: innate monster-vs-monster casting (psi bolt, curse
-   items, summons, and the rest of the monster spell lists directed at
-   monster targets) ports with the boss behaviors slice */
+/* monster casts a spell at another monster; the learned-spell
+   repertoire, the charm-monster untame special, and the innate
+   elemental hand-to-hand casts (hellfire and kin) are implemented
+   here; the innate AD_SPEL/AD_CLRC spell lists are not yet cast at
+   monster targets */
 int
 castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
 {
-    int ml = mtmp->m_lev;
+    int dmg, ml = mtmp->m_lev;
     int spellnum = -1, spell_count;
     short learned_otyp = 0;
     boolean undirected;
     boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp)
                          || Detect_monsters);
+    boolean elemental = (mattk->adtyp == AD_FIRE
+                         || mattk->adtyp == AD_COLD
+                         || mattk->adtyp == AD_ACID
+                         || mattk->adtyp == AD_MAGM);
 
     /* guard against casting another spell attack at an already dead
        monster; some monsters have multiple AT_MAGC attacks */
     if (DEADMONSTER(mdef))
         return M_ATTK_MISS;
 
-    if ((mattk->adtyp != AD_SPEL && mattk->adtyp != AD_CLRC) || !ml)
+    if ((!elemental && mattk->adtyp != AD_SPEL && mattk->adtyp != AD_CLRC)
+        || !ml)
         return M_ATTK_MISS;
 
-    /* spells learned from spellbooks; the chance scales with
-       repertoire size like choose_monster_spell() */
-    spell_count = mcount_castable_spells(mtmp);
-    if (spell_count > 0) {
-        int chance = 15 + spell_count * 5;
+    if (!elemental) {
+        /* spells learned from spellbooks; the chance scales with
+           repertoire size like choose_monster_spell() */
+        spell_count = mcount_castable_spells(mtmp);
+        if (spell_count > 0) {
+            int chance = 15 + spell_count * 5;
 
-        if (chance > 40)
-            chance = 40;
-        if (rn2(100) < chance
-            && mchoose_learned_spell(mtmp, (struct monst *) 0, 0, 0,
-                                     FALSE) != 0)
-            spellnum = MCAST_LEARNED_SPELL;
+            if (chance > 40)
+                chance = 40;
+            if (rn2(100) < chance
+                && mchoose_learned_spell(mtmp, (struct monst *) 0, 0, 0,
+                                         FALSE) != 0)
+                spellnum = MCAST_LEARNED_SPELL;
+        }
+
+        /* if attacking a tame monster and we know charm monster, use
+           the untame spell instead */
+        if (mdef->mtame && mknows_spell(mtmp, SPE_CHARM_MONSTER))
+            spellnum = MCAST_UNTAME_PET;
+
+        if (spellnum < 0)
+            return M_ATTK_MISS; /* nothing castable at a monster target */
+
+        /* reject the learned meta when the entire offensive repertoire
+           would resist out against this target and no useful self-buff
+           is queued; don't waste the attack */
+        if (spellnum == MCAST_LEARNED_SPELL
+            && !mhas_useful_selfbuff_spell(mtmp)
+            && !mhas_castable_offensive_spell(mtmp, mdef))
+            return M_ATTK_MISS;
     }
-
-    /* if attacking a tame monster and we know charm monster, use the
-       untame spell instead */
-    if (mdef->mtame && mknows_spell(mtmp, SPE_CHARM_MONSTER))
-        spellnum = MCAST_UNTAME_PET;
-
-    if (spellnum < 0)
-        return M_ATTK_MISS; /* nothing castable at a monster target */
-
-    /* reject the learned meta when the entire offensive repertoire
-       would resist out against this target and no useful self-buff is
-       queued; don't waste the attack */
-    if (spellnum == MCAST_LEARNED_SPELL
-        && !mhas_useful_selfbuff_spell(mtmp)
-        && !mhas_castable_offensive_spell(mtmp, mdef))
-        return M_ATTK_MISS;
 
     /* monster unable to cast spells? */
     if (mtmp->mcan || mtmp->mspec_used) {
         if (canseemon(mtmp)) {
-            if (is_undirected_spell(mtmp, spellnum))
+            if (!elemental && is_undirected_spell(mtmp, spellnum))
                 pline_mon(mtmp, "%s points all around, then curses.",
                           Monnam(mtmp));
             else
@@ -1247,8 +1370,32 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
         return M_ATTK_MISS;
     }
 
-    /* casting cost, same formula as castmu() */
-    mtmp->mspec_used = (int) ((mtmp->m_lev < 8) ? (10 - mtmp->m_lev) : 2);
+    /* casting cost, same formula as castmu(); innate elemental
+       attacks are gated by mspec but never charge it */
+    if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
+        mtmp->mspec_used = (int) ((mtmp->m_lev < 8) ? (10 - mtmp->m_lev)
+                                                    : 2);
+        /* many boss-type monsters have two or more spell attacks per
+           turn and would never fire the later ones with mspec above
+           0; top tier bosses always reset it, mid tier bosses reset
+           it two thirds of the time */
+        if (is_dprince(mtmp->data) || mtmp->iswiz || mtmp->isvecna
+            || mtmp->istalgath
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            mtmp->mspec_used = 0;
+        else if (rn2(3)
+                 && (is_dlord(mtmp->data)
+                     || mtmp->data->msound == MS_LEADER
+                     || mtmp->data->msound == MS_NEMESIS
+                     || mtmp->data == &mons[PM_ORACLE]
+                     || mtmp->data == &mons[PM_HIGH_PRIEST]
+                     || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]))
+            mtmp->mspec_used = 0;
+        /* any SPFX_EREGEN artifact (e.g. Eye of the Aethiopica) drops
+           mspec to 0, granting effectively unlimited spellcasting */
+        if (mon_has_eregen_artifact(mtmp))
+            mtmp->mspec_used = 0;
+    }
 
     if (rn2(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
         Soundeffect(se_air_crackles, 60);
@@ -1265,7 +1412,7 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
        cannot diverge */
     if (spellnum == MCAST_LEARNED_SPELL)
         learned_otyp = mpick_learned_spell(mtmp, mdef);
-    undirected = is_undirected_spell(mtmp, spellnum);
+    undirected = elemental ? FALSE : is_undirected_spell(mtmp, spellnum);
     if (learned_otyp)
         undirected = IS_SELFBUFF_SPELL(learned_otyp);
 
@@ -1274,6 +1421,98 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
                   Monnam(mtmp), mon_nam(mdef));
     else if (seecaster && undirected)
         pline_mon(mtmp, "%s casts a spell!", Monnam(mtmp));
+
+    if (elemental) {
+        /* as these are spells, the damage is related to the level
+           of the monster casting the spell */
+        if (mattk->damd)
+            dmg = d((int) ((ml / 2) + mattk->damn), (int) mattk->damd);
+        else
+            dmg = d((int) ((ml / 2) + 1), 6);
+
+        switch (mattk->adtyp) {
+        case AD_FIRE:
+            if (mon_underwater(mdef)) {
+                if (canseemon(mdef))
+                    pline_The("flames are quenched by the water around %s.",
+                              mon_nam(mdef));
+                dmg = 0;
+                break;
+            }
+            if (canseemon(mdef)) {
+                if (is_demon(mtmp->data))
+                    pline("%s is enveloped in hellfire!", Monnam(mdef));
+                else
+                    pline("%s is enveloped in flames.", Monnam(mdef));
+            }
+            if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
+                shieldeff(mdef->mx, mdef->my);
+                if (is_demon(mtmp->data)) {
+                    if (!(nonliving(mdef->data) || is_demon(mdef->data)
+                          || racial_zombie(mdef) || racial_vampire(mdef))) {
+                        if (canseemon(mdef))
+                            pline_The("hellish flames sear %s soul!",
+                                      s_suffix(mon_nam(mdef)));
+                        dmg = (dmg + 1) / 2;
+                    } else {
+                        dmg = 0;
+                    }
+                } else {
+                    if (canseemon(mdef))
+                        pline("But %s resists the effects.", mhe(mdef));
+                    dmg = 0;
+                }
+            }
+            break;
+        case AD_COLD:
+            if (canseemon(mdef))
+                pline("%s is covered in frost.", Monnam(mdef));
+            if (resists_cold(mdef) || defended(mdef, AD_COLD)) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    pline("But %s resists the effects.", mhe(mdef));
+                dmg = 0;
+            }
+            break;
+        case AD_ACID:
+            if (mon_underwater(mdef)) {
+                if (canseemon(mdef))
+                    pline_The("acid dissipates harmlessly in the water around %s.",
+                              mon_nam(mdef));
+                dmg = 0;
+                break;
+            }
+            if (canseemon(mdef))
+                pline("%s is covered in acid.", Monnam(mdef));
+            if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    pline("But %s resists the effects.", mhe(mdef));
+                dmg = 0;
+            }
+            break;
+        case AD_MAGM:
+            if (canseemon(mdef))
+                pline("%s is hit by a shower of missiles!", Monnam(mdef));
+            dmg = d((int) ml / 2 + 1, 6);
+            if (resists_magm(mdef) || defended(mdef, AD_MAGM)) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    pline("Some missiles bounce off!");
+                dmg = (dmg + 1) / 2;
+            }
+            break;
+        }
+
+        if (dmg) {
+            if (damage_mon(mdef, dmg, (int) mattk->adtyp, FALSE)) {
+                if (mtmp->mtame)
+                    set_pet_killer(mtmp);
+                monkilled(mdef, "", (int) mattk->adtyp);
+            }
+        }
+        return M_ATTK_HIT;
+    }
 
     switch (spellnum) {
     case MCAST_UNTAME_PET:
@@ -1292,6 +1531,129 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
     default:
         impossible("castmm: unexpected spell (%d)", spellnum);
         return M_ATTK_MISS;
+    }
+    return M_ATTK_HIT;
+}
+
+/* the hero, polymorphed into a form with an elemental AT_MAGC attack,
+   casts at an adjacent monster; the innate AD_SPEL/AD_CLRC monster
+   spell lists have no hero-as-caster implementation yet, so those
+   attack slots do not route here */
+int
+castum(struct monst *mtmp, struct attack *mattk)
+{
+    int dmg, ml = mons[u.umonnum].mlevel;
+
+    /* guard against casting another spell attack at an already dead
+       monster; some monsters have multiple AT_MAGC attacks */
+    if (DEADMONSTER(mtmp))
+        return M_ATTK_MISS;
+
+    if ((mattk->adtyp != AD_FIRE && mattk->adtyp != AD_COLD
+         && mattk->adtyp != AD_ACID && mattk->adtyp != AD_MAGM) || !ml)
+        return M_ATTK_MISS;
+
+    /* unable to cast spells? */
+    if (u.uen < ml) {
+        You("point at %s, then curse.", mon_nam(mtmp));
+        return M_ATTK_MISS;
+    }
+    /* innate elemental casts drain no energy; only the wizard and
+       clerical spell lists charge power */
+
+    if (rn2(ml * 10) < (Confusion ? 100 : 20)) { /* fumbled attack */
+        pline_The("air crackles around you.");
+        return M_ATTK_MISS;
+    }
+
+    You("cast a spell at %s!", mon_nam(mtmp));
+
+    /* as these are spells, the damage is related to the level
+       of the form casting the spell */
+    if (mattk->damd)
+        dmg = d((int) ((ml / 2) + mattk->damn), (int) mattk->damd);
+    else
+        dmg = d((int) ((ml / 2) + 1), 6);
+
+    switch (mattk->adtyp) {
+    case AD_FIRE:
+        if (mon_underwater(mtmp)) {
+            if (canseemon(mtmp))
+                pline_The("flames are quenched by the water around %s.",
+                          mon_nam(mtmp));
+            dmg = 0;
+            break;
+        }
+        if (canseemon(mtmp)) {
+            if (is_demon(gy.youmonst.data))
+                pline("%s is enveloped in hellfire!", Monnam(mtmp));
+            else
+                pline("%s is enveloped in flames.", Monnam(mtmp));
+        }
+        if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            if (is_demon(gy.youmonst.data)) {
+                if (!(nonliving(mtmp->data) || is_demon(mtmp->data)
+                      || racial_zombie(mtmp) || racial_vampire(mtmp))) {
+                    if (canseemon(mtmp))
+                        pline_The("hellish flames sear %s soul!",
+                                  s_suffix(mon_nam(mtmp)));
+                    dmg = (dmg + 1) / 2;
+                } else {
+                    dmg = 0;
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline("But %s resists the effects.", mhe(mtmp));
+                dmg = 0;
+            }
+        }
+        break;
+    case AD_COLD:
+        if (canseemon(mtmp))
+            pline("%s is covered in frost.", Monnam(mtmp));
+        if (resists_cold(mtmp) || defended(mtmp, AD_COLD)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            if (canseemon(mtmp))
+                pline("But %s resists the effects.", mhe(mtmp));
+            dmg = 0;
+        }
+        break;
+    case AD_ACID:
+        if (mon_underwater(mtmp)) {
+            if (canseemon(mtmp))
+                pline_The("acid dissipates harmlessly in the water around %s.",
+                          mon_nam(mtmp));
+            dmg = 0;
+            break;
+        }
+        if (canseemon(mtmp))
+            pline("%s is covered in acid.", Monnam(mtmp));
+        if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            if (canseemon(mtmp))
+                pline("But %s resists the effects.", mhe(mtmp));
+            dmg = 0;
+        }
+        break;
+    case AD_MAGM:
+        if (canseemon(mtmp))
+            pline("%s is hit by a shower of missiles!", Monnam(mtmp));
+        dmg = d((int) ml / 2 + 1, 6);
+        if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
+            shieldeff(mtmp->mx, mtmp->my);
+            if (canseemon(mtmp))
+                pline("Some missiles bounce off!");
+            dmg = (dmg + 1) / 2;
+        }
+        break;
+    }
+
+    if (dmg) {
+        if (mon_arti_has_spfx(mtmp, SPFX_HSPDAM))
+            dmg = (dmg + 1) / 2;
+        if (damage_mon(mtmp, dmg, (int) mattk->adtyp, TRUE))
+            killed(mtmp);
     }
     return M_ATTK_HIT;
 }

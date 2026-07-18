@@ -210,6 +210,11 @@ resists_drli(struct monst *mon)
         /* is_were() doesn't handle hero in human form */
         || (mon == &gy.youmonst && u.ulycn >= LOW_PM)
         || ptr == &mons[PM_DEATH] || is_vampshifter(mon)
+        /* Cerberus and the Ice Queen boss group cannot be drained */
+        || ptr == &mons[PM_CERBERUS]
+        || ptr == &mons[PM_OZZY] || ptr == &mons[PM_BOURBON]
+        || ptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        || ptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]
         /* racial overlay: undead, demonic, or lycanthropic race */
         || mon_has_race(mon, MH_UNDEAD | MH_DEMON | MH_WERE))
         return TRUE;

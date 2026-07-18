@@ -366,7 +366,9 @@ do_earthquake(int force)
     for (x = start_x; x <= end_x; x++)
         for (y = start_y; y <= end_y; y++) {
             if ((mtmp = m_at(x, y)) != 0) {
-                wakeup(mtmp, TRUE); /* peaceful monster will become hostile */
+                /* Lucifer and the Wizard wake and act on their own terms */
+                if (!mtmp->islucifer && !mtmp->iswiz)
+                    wakeup(mtmp, TRUE); /* peaceful monster becomes hostile */
                 if (mtmp->mundetected) {
                     mtmp->mundetected = 0;
                     newsym(x, y);

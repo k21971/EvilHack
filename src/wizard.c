@@ -49,6 +49,26 @@ static NEARDATA const int nasties[] = {
        they're summoners so would aggravate excessive summoning) */
 };
 
+/* the Ice Queen summons winter-themed reinforcements */
+static NEARDATA const int ice_nasties[] = {
+    PM_WHITE_DRAGON, PM_SILVER_DRAGON, PM_DIRE_WOLVERINE,
+    PM_MASTODON, PM_WOOLLY_MAMMOTH, PM_WINTER_WOLF,
+    PM_CAVE_BEAR, PM_WARG, PM_ICE_TROLL, PM_FROST_GIANT,
+    PM_WEREWOLF, PM_YETI, PM_SASQUATCH, PM_ICE_VORTEX,
+    PM_GELATINOUS_CUBE, PM_OWLBEAR, PM_GOBLIN_CAPTAIN,
+    PM_SABER_TOOTHED_TIGER, PM_FROST_SALAMANDER,
+    PM_ICE_NYMPH,
+};
+
+/* Vecna summons the undead and the demonic */
+static NEARDATA const int vecna_nasties[] = {
+    PM_HUMAN_ZOMBIE, PM_REVENANT, PM_LICH, PM_DEMILICH,
+    PM_VAMPIRE_NOBLE, PM_SHADE, PM_SPECTRE, PM_HEZROU,
+    PM_MARILITH, PM_WEREWOLF, PM_HELL_HOUND, PM_VROCK,
+    PM_GIANT_ZOMBIE, PM_HUMAN_MUMMY, PM_ETTIN_MUMMY,
+    PM_GHOUL, PM_WRAITH, PM_BARROW_WIGHT,
+};
+
 static NEARDATA const unsigned wizapp[] = {
     PM_HUMAN,      PM_WATER_DEMON,  PM_VAMPIRE,       PM_RED_DRAGON,
     PM_TROLL,      PM_UMBER_HULK,   PM_XORN,          PM_XAN,
@@ -277,7 +297,9 @@ strategy(struct monst *mtmp)
            because that will leave its shop untended */
         || (mtmp->isshk && inhishop(mtmp))
         /* likewise for temple priests */
-        || (mtmp->ispriest && inhistemple(mtmp)))
+        || (mtmp->ispriest && inhistemple(mtmp))
+        /* Lucifer in the sanctum */
+        || (mtmp->islucifer && Is_sanctum(&u.uz)))
         return (unsigned long) STRAT_NONE;
 
     switch ((mtmp->mhp * 3) / mtmp->mhpmax) { /* 0-3 */
@@ -286,8 +308,8 @@ strategy(struct monst *mtmp)
     case 0: /* panic time - mtmp is almost snuffed */
         return (unsigned long) STRAT_HEAL;
 
-    case 1: /* the wiz is less cautious */
-        if (mtmp->data != &mons[PM_WIZARD_OF_YENDOR])
+    case 1: /* the wiz and Vecna are less cautious */
+        if (!(mtmp->iswiz || mtmp->isvecna))
             return (unsigned long) STRAT_HEAL;
         FALLTHROUGH;
         /* FALLTHRU */
@@ -497,7 +519,8 @@ aggravate(void)
     boolean in_w_tower = In_W_tower(u.ux, u.uy, &u.uz);
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp))
+        /* Lucifer and the Wizard wake and act on their own terms */
+        if (DEADMONSTER(mtmp) || mtmp->islucifer || mtmp->iswiz)
             continue;
         if (in_w_tower != In_W_tower(mtmp->mx, mtmp->my, &u.uz))
             continue;
@@ -505,7 +528,9 @@ aggravate(void)
         mtmp->msleeping = 0;
         if (!mtmp->mcanmove && !rn2(5)) {
             mtmp->mfrozen = 0;
-            mtmp->mcanmove = 1;
+            /* monsters in the middle of turning to stone stay frozen */
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
         }
     }
 }
@@ -580,6 +605,21 @@ pick_nasty(
     return res;
 }
 
+/* summon table for the Ice Queen; genocide of a selection is handled
+   by the makemon() substitution in nasty() */
+int
+pick_nasty_ice(void)
+{
+    return ROLL_FROM(ice_nasties);
+}
+
+/* summon table for Vecna */
+int
+pick_nasty_vecna(void)
+{
+    return ROLL_FROM(vecna_nasties);
+}
+
 /* create some nasty monsters, aligned with the caster or neutral; chaotic
    and unaligned are treated as equivalent; if summoner is Null, this is
    for late-game harassment (after the Wizard has been killed at least once
@@ -644,7 +684,15 @@ nasty(struct monst *summoner)
                 do {
                     if (!--trylimit)
                         goto nextj; /* break this loop, continue outer one */
-                    makeindex = pick_nasty(difcap);
+                    /* the Ice Queen and Vecna summon from their own
+                       themed tables */
+                    makeindex =
+                        (summoner
+                         && summoner->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+                          ? pick_nasty_ice()
+                          : (summoner && summoner->data == &mons[PM_VECNA])
+                            ? pick_nasty_vecna()
+                            : pick_nasty(difcap);
                     m_cls = mons[makeindex].mlet;
                 } while ((difcap > 0 && mons[makeindex].difficulty >= difcap
                           && attacktype(&mons[makeindex], AT_MAGC))
@@ -844,6 +892,44 @@ static const char *const random_malediction[] = {
     "Verily, thou shalt be one dead"
 };
 
+static const char *const random_icequeen[] = {
+    "My magic is greater than yours", "You will never defeat me",
+    "Winter shall last forever", "The cold never bothered me anyway",
+    "Muahahahah", "I am even more powerful than the Wizard himself",
+    "Run while you still can, fool", "Let's build a snowman",
+    "The pegasus belongs to me"
+};
+
+static const char *const random_enchantress[] = {
+    "Thank you again for freeing me", "I have so much damage to undo",
+    "I apologize for any harm I may have caused you",
+    "Be careful leaving this place, I have no control over the monsters that still lurk here",
+    "Please treat the pegasus well, it has been through a lot",
+    "It will take a long time to regrow the forest"
+};
+
+static const char *const random_vecna[] = {
+    "I am Vecna the Unholy", "Kneel before me, wretched mortal",
+    "You have no idea what true power is!  I will show you",
+    "Your suffering will be legendary, even in hell",
+    "Ah, the suffering.  The sweet, sweet suffering",
+    "I will rip your soul to shreds"
+};
+
+static const char *const random_talgath[] = {
+    "Puny creature!  Bow before my might",
+    "Look into my eyes, if you dare",
+    "Beauty truly is in the eye of the beholder"
+};
+
+static const char *const random_goblinking[] = {
+    "Bones will be shattered, necks will be wrung!  You'll be beaten and battered, from racks you'll be hung",
+    "You will die down here and never be found, down in the deep of Goblin Town",
+    "With a swish and a smack, and a whip and a crack!  Everybody talks when they're on my rack",
+    "Mine Town is under my control!  No one is allowed to visit",
+    "So you want to explore Mines' End, eh?  Over my dead body",
+};
+
 /* Insult or intimidate the player */
 void
 cuss(struct monst *mtmp)
@@ -876,6 +962,59 @@ cuss(struct monst *mtmp)
         com_pager("angel_cuss"); /* TODO: the Hallucination msg */
         /*com_pager(rn2(QTN_ANGELIC - 1 + (Hallucination ? 1 : 0))
           + QT_ANGELIC);*/
+    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (!rn2(5)) {
+            pline("%s points and giggles at you.", Monnam(mtmp));
+            SetVoice(mtmp, 0, 80, 0);
+            if (kathryn_bday())
+                verbalize("It's my birthday!  Woohoo!!");
+            else if (bourbon_bday())
+                verbalize("Wish Bourbon a happy birthday!  Now!!");
+            else if (ozzy_bday())
+                verbalize("Say happy birthday to Ozzy!  Say it!!");
+        } else {
+            SetVoice(mtmp, 0, 80, 0);
+            verbalize("%s!", ROLL_FROM(random_icequeen));
+        }
+    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
+        if (mtmp->mpeaceful) {
+            if (!rn2(5)) {
+                pline("%s waves to you.", Monnam(mtmp));
+                SetVoice(mtmp, 0, 80, 0);
+                if (kathryn_bday())
+                    verbalize("You freed me on my birthday!  Thank you so much!!");
+                else if (bourbon_bday())
+                    verbalize("Happy birthday, Bourbon!  Good girl!!");
+                else if (ozzy_bday())
+                    verbalize("Happy birthday, Ozzy!  You're a good boy, yes you are!!");
+            } else {
+                SetVoice(mtmp, 0, 80, 0);
+                verbalize("%s.", ROLL_FROM(random_enchantress));
+            }
+        } else {
+            if (!rn2(7))
+                pline("%s waves to you.", Monnam(mtmp));
+        }
+    } else if (mtmp->isvecna) {
+        SetVoice(mtmp, 0, 80, 0);
+        verbalize("%s!", ROLL_FROM(random_vecna));
+    } else if (mtmp->istalgath) {
+        SetVoice(mtmp, 0, 80, 0);
+        verbalize("%s!", ROLL_FROM(random_talgath));
+    } else if (mtmp->isgking) {
+        if (!rn2(3)) {
+            if (uwep && uwep->oartifact == ART_ORCRIST) {
+                SetVoice(mtmp, 0, 80, 0);
+                verbalize("I know that sword!  It is the Goblin Cleaver!  The Biter!  The blade that sliced a thousand necks!");
+            } else if (uwep && uwep->oartifact == ART_GLAMDRING) {
+                SetVoice(mtmp, 0, 80, 0);
+                verbalize("%s wields the Foe-Hammer!  The Beater!  Bright as daylight!",
+                          flags.female ? "She" : "He");
+            }
+        } else {
+            SetVoice(mtmp, 0, 80, 0);
+            verbalize("%s!", ROLL_FROM(random_goblinking));
+        }
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));
@@ -883,6 +1022,64 @@ cuss(struct monst *mtmp)
             com_pager("demon_cuss");
     }
     wake_nearto(mtmp->mx, mtmp->my, 5 * 5);
+}
+
+static const char *const random_mplayer_amulet[] = {
+    "Give me the Amulet of Yendor",
+    "Where is the Amulet?  I need it to escape this place",
+    "This isn't Purgatory, it's Hell with a nice view",
+    "Either you relinquish the Amulet now, or I will kill you"
+};
+
+static const char *const random_mplayer_idol[] = {
+    "Give me the Idol of Moloch",
+    "Where is the Idol?  I need it to escape this place",
+    "This isn't Purgatory, it's Hell with a nice view",
+    "Either you relinquish the Idol now, or I will kill you"
+};
+
+/* player monsters harass the player in Purgatory; unreachable until
+   the Purgatory branch and its monmove hook land */
+void
+mplayer_purg_talk(struct monst *mtmp)
+{
+    if (Deaf)
+        return;
+    if (is_mplayer(mtmp->data)) {
+        SetVoice(mtmp, 0, 80, 0);
+        if (Role_if(PM_INFIDEL))
+            verbalize("%s!", ROLL_FROM(random_mplayer_idol));
+        else
+            verbalize("%s!", ROLL_FROM(random_mplayer_amulet));
+    }
+}
+
+static const char *const random_arch_amulet[] = {
+    "Hast thou come to repent thy sins?",
+    "Give unto me the Amulet, and I shall cleanse thee of thy sins.",
+    "Only those that are pure of heart can ascend to glory."
+};
+
+static const char *const random_arch_idol[] = {
+    "Begone, foul Infidel!  I cast thee back to hell!",
+    "Return from whence thou cam'st!",
+    "I shall relieve thee of thy charge, and destroy thine wicked Idol!"
+};
+
+/* Saint Michael the Archangel confronts the player in Purgatory;
+   unreachable until the Purgatory branch and its monmove hook land */
+void
+archangel_purg_talk(struct monst *mtmp)
+{
+    if (Deaf)
+        return;
+    if (mtmp->data == &mons[PM_SAINT_MICHAEL]) {
+        SetVoice(mtmp, 0, 80, 0);
+        if (Role_if(PM_INFIDEL))
+            verbalize("%s", ROLL_FROM(random_arch_idol));
+        else
+            verbalize("%s", ROLL_FROM(random_arch_amulet));
+    }
 }
 
 /*wizard.c*/

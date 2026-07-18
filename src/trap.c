@@ -71,7 +71,7 @@ staticfn void untrap_box(struct obj *, boolean, boolean);
 staticfn void join_adjacent_pits(struct trap *);
 #endif
 staticfn boolean thitm(int, struct monst *, struct obj *, int,
-                                                         boolean) NONNULLARG2;
+                                              boolean, boolean) NONNULLARG2;
 staticfn void maybe_finish_sokoban(void);
 
 static const char *const a_your[2] = { "a", "your" };
@@ -679,6 +679,11 @@ fall_through(
         } else {
             dtmp.dnum = u.uz.dnum;
             dtmp.dlevel = newlevel;
+            /* prevent falling past mine town if the Goblin King has
+               not been defeated yet; eliminates the awkward case of
+               being stuck between mine town and mines' end */
+            if (In_mines(&u.uz) && !u.uevent.ugking)
+                dtmp.dlevel = dunlev(&u.uz) + 1;
         }
         dist = depth(&dtmp) - depth(&u.uz);
         if (dist > 1)
@@ -1247,7 +1252,8 @@ trapeffect_arrow_trap(
         otmp = t_missile(ARROW, trap);
         if (in_sight)
             seetrap(trap);
-        if (thitm(8, mtmp, otmp, 0, FALSE))
+        if (thitm(8, mtmp, otmp, 0, FALSE,
+                  trap->madeby_u ? TRUE : FALSE))
             trapkilled = TRUE;
 
         return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
@@ -1320,7 +1326,8 @@ trapeffect_dart_trap(
             otmp->opoisoned = 1;
         if (in_sight)
             seetrap(trap);
-        if (thitm(7, mtmp, otmp, 0, FALSE))
+        if (thitm(7, mtmp, otmp, 0, FALSE,
+                  trap->madeby_u ? TRUE : FALSE))
             trapkilled = TRUE;
 
         return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
@@ -1399,7 +1406,8 @@ trapeffect_rocktrap(
         otmp = t_missile(ROCK, trap);
         if (in_sight)
             seetrap(trap);
-        if (thitm(0, mtmp, otmp, d(2, 6), FALSE))
+        if (thitm(0, mtmp, otmp, d(2, 6), FALSE,
+                  trap->madeby_u ? TRUE : FALSE))
             trapkilled = TRUE;
 
         return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
@@ -1516,7 +1524,8 @@ trapeffect_bear_trap(
         if (u.usteed) {
             pline("%s bear trap closes on %s %s!", A_Your[trap->madeby_u],
                   s_suffix(mon_nam(u.usteed)), mbodypart(u.usteed, FOOT));
-            if (thitm(0, u.usteed, (struct obj *) 0, dmg, FALSE))
+            if (thitm(0, u.usteed, (struct obj *) 0, dmg, FALSE,
+                      trap->madeby_u ? TRUE : FALSE))
                 reset_utrap(TRUE); /* steed died, hero not trapped */
         } else {
             pline("%s bear trap closes on your %s!", A_Your[trap->madeby_u],
@@ -1560,7 +1569,8 @@ trapeffect_bear_trap(
             }
         }
         if (mtmp->mtrapped && !wearing_iron_shoes(mtmp))
-            trapkilled = thitm(0, mtmp, (struct obj *) 0, d(2, 4), FALSE);
+            trapkilled = thitm(0, mtmp, (struct obj *) 0, d(2, 4), FALSE,
+                               trap->madeby_u ? TRUE : FALSE);
 
         return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
             ? Trap_Caught_Mon : Trap_Effect_Finished;
@@ -1802,7 +1812,8 @@ trapeffect_fire_trap(
             if (alt > num)
                 num = alt;
 
-            if (thitm(0, mtmp, (struct obj *) 0, num, immolate))
+            if (thitm(0, mtmp, (struct obj *) 0, num, immolate,
+                      trap->madeby_u ? TRUE : FALSE))
                 trapkilled = TRUE;
             else {
                 mtmp->mhpmax -= rn2(num + 1);
@@ -2016,7 +2027,8 @@ trapeffect_pit(
         mselftouch(mtmp, "Falling, ", FALSE);
         if (wearing_iron_shoes(mtmp)) relevant_spikes = FALSE;
         if (DEADMONSTER(mtmp) || thitm(0, mtmp, (struct obj *) 0,
-                                       rnd(relevant_spikes ? 10 : 6), FALSE))
+                                       rnd(relevant_spikes ? 10 : 6), FALSE,
+                                       trap->madeby_u ? TRUE : FALSE))
             trapkilled = TRUE;
 
         return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
@@ -2328,9 +2340,38 @@ trapeffect_magic_trap(
         }
         (void) steedintrap(trap, (struct obj *) 0);
     } else {
-        /* A magic trap.  Monsters usually immune. */
-        if (!rn2(21))
-            return trapeffect_fire_trap(mtmp, trap, trflags);
+        /* a magic trap; monsters are sometimes immune */
+        if (rn2(2)) {
+            if (rn2(4)) {
+                int magic_dmg = rnd(10);
+                coordxy mtx = trap->tx, mty = trap->ty;
+                boolean madeby_player = trap->madeby_u ? TRUE : FALSE;
+                boolean in_sight = canseemon(mtmp);
+                boolean see_it = cansee(mtx, mty);
+                const char *killer_name =
+                    in_sight ? "magical explosion" : (const char *) 0;
+
+                deltrap(trap);
+                if (in_sight)
+                    pline_mon(mtmp, "%s is caught in a magical explosion!",
+                              Monnam(mtmp));
+                (void) damage_mon(mtmp, magic_dmg, AD_MAGM, madeby_player);
+                if (DEADMONSTER(mtmp)) {
+                    /* player gets credit for kills on their own trap;
+                       mirrors thitm()'s umade routing */
+                    if (madeby_player)
+                        mon_xkilled(mtmp, killer_name, AD_MAGM);
+                    else
+                        monkilled(mtmp, killer_name, AD_MAGM);
+                }
+                if (see_it)
+                    newsym(mtx, mty);
+                if (DEADMONSTER(mtmp))
+                    return Trap_Killed_Mon;
+            } else {
+                return trapeffect_fire_trap(mtmp, trap, trflags);
+            }
+        }
     }
     return Trap_Effect_Finished;
 }
@@ -2448,13 +2489,20 @@ trapeffect_anti_magic(
 
             if (in_sight)
                 seetrap(trap);
-            mtmp->mhp -= dmgval2;
-            if (DEADMONSTER(mtmp))
-                monkilled(mtmp,
-                          in_sight
-                          ? "compression from an anti-magic field"
-                          : (const char *) 0,
-                          -AD_MAGM);
+            (void) damage_mon(mtmp, dmgval2, AD_MAGM,
+                              trap->madeby_u ? TRUE : FALSE);
+            if (DEADMONSTER(mtmp)) {
+                const char *killer_name =
+                    in_sight ? "compression from an anti-magic field"
+                             : (const char *) 0;
+
+                /* player gets credit for kills on their own trap;
+                   mirrors thitm()'s umade routing */
+                if (trap->madeby_u)
+                    mon_xkilled(mtmp, killer_name, AD_MAGM);
+                else
+                    monkilled(mtmp, killer_name, AD_MAGM);
+            }
             if (DEADMONSTER(mtmp))
                 trapkilled = TRUE;
             if (see_it)
@@ -2652,7 +2700,8 @@ trapeffect_landmine(
         /* explosion might have destroyed a drawbridge; don't
            dish out more damage if monster is already dead */
         if (DEADMONSTER(mtmp)
-            || thitm(0, mtmp, (struct obj *) 0, damage, FALSE)) {
+            || thitm(0, mtmp, (struct obj *) 0, damage, FALSE,
+                     trap->madeby_u ? TRUE : FALSE)) {
             trapkilled = TRUE;
         } else {
             /* monsters recursively fall into new pit */
@@ -3136,7 +3185,8 @@ steedintrap(struct trap *trap, struct obj *otmp)
             impossible("steed hit by non-existent arrow?");
             return Trap_Effect_Finished;
         }
-        trapkilled = thitm(8, steed, otmp, 0, FALSE);
+        trapkilled = thitm(8, steed, otmp, 0, FALSE,
+                           trap->madeby_u ? TRUE : FALSE);
         steedhit = TRUE;
         break;
     case DART_TRAP_SET:
@@ -3144,7 +3194,8 @@ steedintrap(struct trap *trap, struct obj *otmp)
             impossible("steed hit by non-existent dart?");
             return Trap_Effect_Finished;
         }
-        trapkilled = thitm(7, steed, otmp, 0, FALSE);
+        trapkilled = thitm(7, steed, otmp, 0, FALSE,
+                           trap->madeby_u ? TRUE : FALSE);
         steedhit = TRUE;
         break;
     case SLP_GAS_TRAP_SET:
@@ -3157,14 +3208,16 @@ steedintrap(struct trap *trap, struct obj *otmp)
         steedhit = TRUE;
         break;
     case LANDMINE:
-        trapkilled = thitm(0, steed, (struct obj *) 0, rnd(16), FALSE);
+        trapkilled = thitm(0, steed, (struct obj *) 0, rnd(16), FALSE,
+                           trap->madeby_u ? TRUE : FALSE);
         steedhit = TRUE;
         break;
     case PIT:
     case SPIKED_PIT:
         trapkilled = (DEADMONSTER(steed)
                       || thitm(0, steed, (struct obj *) 0,
-                               rnd((tt == PIT) ? 6 : 10), FALSE));
+                               rnd((tt == PIT) ? 6 : 10), FALSE,
+                               trap->madeby_u ? TRUE : FALSE));
         steedhit = TRUE;
         break;
     case POLY_TRAP_SET:
@@ -6754,7 +6807,8 @@ thitm(
     struct monst *mon, /* target */
     struct obj *obj,   /* missile; might be Null */
     int d_override,    /* non-zero: force hit for this amount of damage */
-    boolean nocorpse)  /* True: a trap is completely burning up the target */
+    boolean nocorpse,  /* True: a trap is completely burning up the target */
+    boolean umade)     /* True: hero made the trap; gets credit and exp */
 {
     int strike;
     boolean trapkilled = FALSE;
@@ -6795,11 +6849,14 @@ thitm(
             }
         }
         if (!harmless) {
-            mon->mhp -= dam;
-            if (mon->mhp <= 0) {
+            (void) damage_mon(mon, dam, AD_PHYS, umade);
+            if (DEADMONSTER(mon)) {
                 int xx = mon->mx, yy = mon->my;
 
-                monkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
+                if (umade) /* player gets the credit and experience */
+                    mon_xkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
+                else
+                    monkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
                 if (DEADMONSTER(mon)) {
                     newsym(xx, yy);
                     trapkilled = TRUE;

@@ -283,6 +283,19 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             /* magic resistance protects from polymorph traps, so make
                it guard against involuntary polymorph attacks too... */
             shieldeff_mon(mtmp);
+        } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                   || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]
+                   || mtmp->data == &mons[PM_BOURBON]
+                   || mtmp->data == &mons[PM_OZZY]) {
+            /* Kathryn in both forms and both of her dogs are only
+               supposed to be defeated, never actually killed; the
+               dogs' magic resistance is low enough that they could
+               easily be polymorphed into another form and then
+               killed, and even the Ice Queen's high resistance still
+               leaves a chance; raising their resistance to 100 would
+               also protect them against other magical attacks, which
+               is not wanted */
+            shieldeff_mon(mtmp);
         } else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
             boolean polyspot = (otyp != POT_POLYMORPH),
                     give_msg = (!Hallucination

@@ -602,12 +602,30 @@ mattackm(
             break;
 
         case AT_MAGC:
-            /* monster-vs-monster spellcasting; currently only spells
-               learned from spellbooks plus the charm-monster untame
-               special are cast at monster targets */
-            /* TODO-EVILHACK: innate m-v-m casting and ranged elemental
-               buzzes (buzzmm) port with the boss behaviors slice */
-            if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
+            /* monster-vs-monster spellcasting: spells learned from
+               spellbooks, the charm-monster untame special, and the
+               innate elemental casts (hellfire and kin, via castmm
+               adjacent or buzzmm rays at range); the innate
+               AD_SPEL/AD_CLRC spell lists are still hero-target only */
+            if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
+                || mattk->adtyp == AD_ACID || mattk->adtyp == AD_MAGM) {
+                int mmtmp = !monnear(magr, mdef->mx, mdef->my)
+                            ? buzzmm(magr, mdef, mattk)
+                            : castmm(magr, mdef, mattk);
+
+                strike = (mmtmp == M_ATTK_MISS) ? 0 : 1;
+                /* we don't really know if we hit or not; pretend we did */
+                if (strike)
+                    res[i] |= M_ATTK_HIT;
+                if (DEADMONSTER(mdef)) {
+                    res[i] = M_ATTK_DEF_DIED;
+                    /* monster gains experience for a spell kill */
+                    if (!grow_up(magr, mdef))
+                        res[i] |= M_ATTK_AGR_DIED;
+                }
+                if (DEADMONSTER(magr))
+                    res[i] |= M_ATTK_AGR_DIED;
+            } else if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
                 strike = (castmm(magr, mdef, mattk) == M_ATTK_MISS) ? 0 : 1;
                 /* we don't really know if we hit or not; pretend we did */
                 if (strike)
@@ -1054,6 +1072,15 @@ explmm(struct monst *magr, struct monst *mdef, struct attack *mattk)
         mon_explodes(magr, mattk);
         /* unconditionally set AGR_DIED here; lifesaving is accounted below */
         result = M_ATTK_AGR_DIED | (DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : 0);
+        /* kludge to ensure the player gets experience if the
+           exploding sphere was conjured via spell */
+        if (magr->uexp && (result & M_ATTK_DEF_DIED)) {
+            int mndx = monsndx(mdef->data);
+            int tmp = experience(mdef, (int) svm.mvitals[mndx].died + 1);
+
+            more_experienced(tmp, 0);
+            newexplevel();
+        }
     } else {
         result = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
     }
@@ -1212,9 +1239,14 @@ mdamagem(
                          || mattk->aatyp == AT_CLAW
                          || mattk->aatyp == AT_BITE)
                      && zombie_form(r_data(mdef)) != NON_PM);
-        if (magr->mtame)
-            set_pet_killer(magr);
-        monkilled(mdef, "", (int) mattk->adtyp);
+        if (magr->uexp) {
+            /* hero-conjured helper; hero gets credit and experience */
+            mon_xkilled(mdef, "", (int) mattk->adtyp);
+        } else {
+            if (magr->mtame)
+                set_pet_killer(magr);
+            monkilled(mdef, "", (int) mattk->adtyp);
+        }
         gz.zombify = FALSE; /* reset */
         gm.mkcorpstat_norevive = FALSE;
         if (!DEADMONSTER(mdef))
@@ -1614,7 +1646,12 @@ passivemm(
         gz.zombify = FALSE; /* attacker's corpse never zombifies */
         if (mdef->mtame)
             set_pet_killer(mdef);
-        monkilled(magr, "", (int) mdattk[i].adtyp);
+        if (mdef->uexp)
+            /* hero-conjured helper's passive counterattack; the hero
+               gets credit and experience */
+            mon_xkilled(magr, "", (int) mdattk[i].adtyp);
+        else
+            monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | M_ATTK_AGR_DIED);
     }
     return (mdead | mhit);

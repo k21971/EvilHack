@@ -829,6 +829,30 @@ arti_reflects(struct obj *obj)
     return FALSE;
 }
 
+/* check whether a monster gets a given SPFX_ effect from any artifact
+   in its inventory -- generalizes the arti_reflects() pattern; pass
+   &gy.youmonst to check the hero's inventory */
+boolean
+mon_arti_has_spfx(struct monst *mon, unsigned long spfx_flag)
+{
+    struct obj *obj;
+    const struct artifact *arti;
+
+    for (obj = (mon == &gy.youmonst) ? gi.invent : mon->minvent;
+         obj; obj = obj->nobj) {
+        if (!obj->oartifact)
+            continue;
+        arti = get_artifact(obj);
+        if (arti == &artilist[ART_NONARTIFACT])
+            continue;
+        if ((obj->owornmask & ~W_ART) && (arti->spfx & spfx_flag))
+            return TRUE;
+        if (arti->cspfx & spfx_flag)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /* decide whether this obj is effective when attacking against shades;
    does not consider the bonus for blessed objects versus undead */
 boolean

@@ -2570,8 +2570,160 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       lethargic" mspec_used surcharge NIT from the cooldown slice
       (trap.c anti-magic trap + mhitm.c xdrainenergym key on
       AT_BREA but pad mspec_used).
-- [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
+- [x] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
+      PORTED + REVIEWED + FIXED 2026-07-18 (port subagent 27 files
+      +1610/-143 all 8 brief clusters; reviewer CONDITIONAL PASS 1
+      blocker/6 concerns/nits -> every finding coordinator-verified
+      against both trees and fixed same day; zero-warning make all).
+      COMMIT PENDING (message at scratchpad commit-msg-boss-slice.txt);
+      wizmode battery PENDING maintainer approval - 10-point list at
+      the end of this entry.
+      EIGHT MAINTAINER RULINGS 2026-07-18: (1) Ice Queen defeat
+      livelog CREDIT-GATED like the killed_* boss lines - moved from
+      icequeenrevive into the mondead IQ arm where the consume-on-
+      entry attribution locals are in scope (hero "defeated"/pet
+      variant/otherwise silent; state + xlog token always set;
+      LL_ACHIEVE|LL_UMONST matching sibling arms = deliberate flag
+      deviation from master's unconditional LL_UMONST line); (2)
+      hellfire binary-resistance endpoints KEPT (no FR = 2x damage,
+      full FR = half + soul-sear, zero for demonic/undead heroes -
+      master-exact at both endpoints, percentile middle ground lost
+      until/unless how_resistant ports); (3) dprince chain-summon
+      hellc_entered gate KEPT DORMANT (princes unsummonable until
+      Phase 3 wires entry bits - "never entered" is faithful when
+      the lairs do not exist); (4) read.c genocide arms STAY
+      DEFERRED to new owner "genocide-gating sweep" (G_UNIQ already
+      protects the bosses - verified read.c x3; branch monflag.h
+      needs G_TALGATH when it lands); (5) summonmu demon gate keeps
+      master's 1/10 hell 1/13 else (upstream 16 rejected); (6)
+      castum innate elemental casts FREE (master parity; the ported
+      unconditional u.uen charge removed); (7) Vecna gaze of death
+      deals NO damage through Death_resistance - master CODE wins
+      over its own "still does normal damage" comment (BUG-1347
+      archive entry, comment-only master mismatch); (8)
+      dlord_protected dormant-permanent edge ACCEPTED (once 3 lords
+      of a tier die the 4th stays protected until Phase 3 restores
+      the lair-entry lift).
+      REVIEWER BLOCKER FIXED: monmove.c Demonic-Blackmail arms had
+      dropped master's post-rloc DEADMONSTER guards on a false
+      premise (the port report claimed branch rloc cannot kill;
+      branch rloc_to_core fires mintrap on trapped monsters) - both
+      guards restored (whisper arm + spent arm return 1 on death);
+      master's is_demon(raceptr(&youmonst)) form also adopted there
+      (raceptr semantics verified identical both trees: race when
+      natural, form when polymorphed).
+      CONCERNS FIXED: muse.c cursed/confused scroll-of-teleportation
+      gate gained master's (Is_sanctum && Lucifer) clause (Lucifer
+      could levelport out of the sanctum as an escape item);
+      icequeenrevive mpeaceful/set_malign moved AFTER newcham
+      (master's newcham_deferred polys immediately - only minliquid
+      is deferred - so master computed malign on Enchantress data,
+      maligntyp 15, not IQ A_NONE; branch newcham never recomputes
+      malign); castmm casting-cost/boss-reset/EREGEN block gated on
+      AD_SPEL||AD_CLRC per master (elemental m-v-m casts are mspec-
+      gated but never mspec-charging; block is dead until the
+      spell-list expansion lands - NOTE for that owner: branch kept
+      castmu's 10-m_lev formula vs master castmm's 4-m_lev-min-2,
+      reconcile then); castum u.uen charge removed (ruling 6);
+      gazemu resist-branch damage removed (ruling 7).
+      NITS: Bourbon/Ozzy submit arm now sets mhp=mhpmax after
+      newmonhp (master monmaxhp gave deterministic full HP; the
+      newmonhp adj_lev level-shift delta remains, recorded);
+      LIGHTNING substitution broader than master (any FIRE_PILLAR
+      pick converts for IQ/Asmodeus vs master's clerical case 11
+      only - flavor-consistent, kept); do_earthquake Lucifer/Wizard
+      wakeup exemption applies to all callers not just the drum
+      (all current callers are drum-driven, kept); buzzmm
+      not-lined-up returns M_ATTK_MISS vs master's 1 (cleaner,
+      kept).
+      PORT KEY FACTS: boss-death handlers x7 + mondead dispatch +
+      IQ/Enchantress/Bourbon-Ozzy/Vecna-artifact-drop mondead arms;
+      icequeenrevive + dmonsfree interception (MON_DETACH-
+      conditional purge-counter decrement, recent_detaches sentinel
+      entry); newcham_deferred = NOT-APPLICABLE on branch (5.0
+      calls newcham directly in death processing, vamprises
+      precedent; minliquid-deferral machinery unneeded) - HP
+      7500/15000 set after newcham because branch newcham rescales;
+      defeat_icequeen = single appended u.uevent bit (u_event 47
+      bits, sizeof(u_event)==8 / sizeof(you)==3408 compile-proven
+      unchanged, no sfo/critical_sizes); topten achieveX
+      defeated_ice_queen live; do.c tower_entered arm live (In_tower
+      exists); com_pager TODO-EVILHACK markers per the wiztower
+      precedent (8 msgids: vecna/cerberus/goblin_king/lucifer_
+      defeated, icequeen_freed x3 variants, vlad_tower_enter);
+      LATENT BRANCH BUG FIXED: vanilla 5.0's dlord range
+      JUIBLEX..YEENOGHU on the EvilHack roster reached only 3 of 8
+      lords - Lolth and all four archdevil lords were silently
+      unsummonable; range now JUIBLEX..MEPHISTOPHELES (roster-
+      specific, NOT upstream-reportable); Vecna AD_DETH gazemu arm
+      added (roster gaze otherwise hits impossible()); castmm
+      extended with elemental m-v-m arms + boss mspec two-tier
+      resets + mon_arti_has_spfx EREGEN helper; NEW castum (uhitm
+      caller, hero polyform elemental casting, SPFX_HSPDAM halving,
+      damage_mon+killed credit) + buzzmm (mhitm caller, gb.buzzer
+      bracket, BZ_M_SPELL + adtyp_to_zt, m_lined_up(mdef,mtmp)
+      reversed-args correct); wizard.c ice/vecna nasty tables +
+      strategy/aggravate/cuss boss arms + Purgatory talk functions
+      (dormant, monmove callers need Inpurg = Phase 3); STRAT_
+      APPEARMSG bribe one-shot RECONCILED into 5.0 shape (monmove
+      whisper gate, demon_talk entry clear, rloc_to_core peaceful-
+      MS_BRIBE keep-flag carve-out = master's mnexto carve-out
+      relocated to the 5.0 one-chance home; prison-guard exclusion
+      preserved; B2 demon_talk body untouched); minion.c Lucifer
+      tier + dlord_protected + count_hella/hellb_gone (dormant
+      halves) + summonmu 13 gate + PM_DEMON no-chain exclusion;
+      small-file gates: music (earthquake wakeup), teleport (sanctum
+      portal), zap (poly shieldeff for IQ/Enchantress/dogs), muse
+      (rise gate Lucifer half), sounds (Enchantress cuss), dothrow
+      (candy-bar repacify + dogs cure), bones (boss no-bones
+      allowlist; isvlad already covered via is_Vlad), monmove
+      (onscary boss flags + mberserk), trap (fall-past-minetown
+      !ugking clamp), potion (Valley cursed gain-level while
+      Cerberus lives); mon_xkilled + XKILL_INDIRECT + thitm umade
+      param through all 12 callers + magic-trap/anti-magic monster
+      arms + explmm exp kludge - uexp machinery live but DORMANT
+      until a producer (hero spell parity: ORB_OF_FIRE/FROST) sets
+      mon->uexp; mondata.h can_sting/is_defeated + resists_drli
+      boss arms; calendar.c kathryn/bourbon/ozzy_bday (5.0 home of
+      time helpers).
+      NEW DEFERRED OWNERS from this slice: monster innate spell-
+      list expansion (MCAST_ ice/fire bolt + CLC_VULN_YOU +
+      CLC_SUMMON_MINION arms, innate AD_SPEL/CLRC m-v-m dual-target
+      lists, m-v-m geyser, castmm cost-formula reconcile);
+      genocide-gating sweep (read.c boss arms + G_TALGATH flag);
+      covetous close-range m_move arm + intervene() 8-case rework
+      (needs nasty centered_on_stairs) -> Wizard-harassment sweep;
+      strategy MS_NEMESIS treasure arm -> quest slice; Izchak
+      transform + msick reset -> shopkeeper-behaviors; Gollum cuss
+      -> mines content; bones.c non-boss additions -> bones sweep;
+      summon_minion woodchuck -> misc flavor; monclock -> its
+      slice; Purgatory monmove callers + all *_entered setters
+      except tower_entered -> Phase 3.
+      INHERITED MASTER EDGES recorded, not fixed: IQ petrification
+      leaves a statue coexisting with the revived Enchantress
+      (identical flow on master; BUGFIXES candidate with the
+      stoning slice); dprince() range spans Tiamat/Graz'zt (both
+      trees).
+      BATTERY LIST (10 points, run after commit approval): (1)
+      bribe-demon rloc death regression - peaceful trapped
+      archdevil, hero demon-form, whisper + spent paths, paniclog
+      watch; (2) IQ defeat -> same-turn revive -> Enchantress,
+      re-kill window, candy-bar repacify, dogs cure/submit loop,
+      credit-gated livelog variants (hero kill vs staged pet kill
+      vs m-v-m = silent); (3) IQ petrification statue+revive edge
+      (ledger only); (4) Mephistopheles hellfire vs resistant/
+      unresistant/demonic hero + castmm at pet + buzzmm crossfire
+      attribution + cast cadence post-C3; (5) hero Asmodeus-form
+      elemental cast - no Pw drain, kill credit; (6) Vecna gaze vs
+      death-resistant hero (zero damage) + death drop on
+      no-deathdrop level + nasty summon themes; (7) Lucifer sanctum
+      suite: aggravate/drum no-wake, portal block, rise gate,
+      scroll-teleport block (C1); (8) dlord variety - Lolth/
+      archdevils now appear; (9) player-dug trap m-v-m kill - thitm
+      umade exp/attribution routing vs environmental monkilled;
+      (10) defeated_ice_queen xlog token + u.uevent bits across
+      save/reload.
 - [x] xlogfile parity slice: achieveX/conductX named-token fields
       DONE 2026-07-17 (coordinator hand-port, small-slice
       precedent; reviewer PASS zero blockers; build green; xlog

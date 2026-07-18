@@ -1158,6 +1158,8 @@ domonnoise(struct monst *mtmp)
             cuss(mtmp);
         else if (is_lminion(mtmp))
             verbl_msg = "It's not too late.";
+        else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+            verbl_msg = "Ozzy!  I can't throw the stick if you won't drop it!";
         else
             verbl_msg = "We're all doomed.";
         break;

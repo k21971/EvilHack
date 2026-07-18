@@ -3220,6 +3220,34 @@ makemon(
     if ((mmflags & MM_MINVIS) != 0) /* for ^G */
         mon_set_minvis(mtmp, FALSE); /* call after place_monster() */
 
+    /* the Ice Queen is a much more deadly opponent on her birthday */
+    if (ptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        && kathryn_bday()) {
+        mtmp->mhp = mtmp->mhpmax = 500;
+        (void) mongets(mtmp, POT_FULL_HEALING);
+    }
+
+    /* beef up Cerberus a bit without jacking up his level so high
+       that pets won't attempt to take him on */
+    if (ptr == &mons[PM_CERBERUS])
+        mtmp->mhp = mtmp->mhpmax = 250 + rnd(50);
+
+    /* Vecna also gets a bit of a boost */
+    if (ptr == &mons[PM_VECNA])
+        mtmp->mhp = mtmp->mhpmax = 350 + rnd(50);
+
+    /* Lucifer */
+    if (ptr == &mons[PM_LUCIFER])
+        mtmp->mhp = mtmp->mhpmax = 666;
+
+    /* Saint Michael */
+    if (ptr == &mons[PM_SAINT_MICHAEL])
+        mtmp->mhp = mtmp->mhpmax = 300 + rnd(50);
+
+    /* test monster (will not appear during normal play) */
+    if (wizard && ptr == &mons[PM_TEST_MONSTER])
+        mtmp->mhp = mtmp->mhpmax = 9999;
+
     switch (ptr->mlet) {
     case S_MIMIC:
         set_mimic_sym(mtmp);

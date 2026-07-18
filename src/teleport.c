@@ -1706,7 +1706,11 @@ rloc_to_core(
                    *nearu = (du <= BOLT_LIM * BOLT_LIM) ? " close by" : 0;
 
         set_msg_xy(x, y);
-        mtmp->mstrategy &= ~STRAT_APPEARMSG; /* one chance only */
+        /* one chance only; but STRAT_APPEARMSG doubles as the bribe
+           one-shot tracker, so a peaceful blackmail demon keeps it
+           through teleports until it delivers its demand */
+        if (!mtmp->mpeaceful || mtmp->data->msound != MS_BRIBE)
+            mtmp->mstrategy &= ~STRAT_APPEARMSG;
         if (mtmp == u.ustuck && !u_at(u.ux0, u.uy0)) {
             You("and %s teleport together.", mon_nam(mtmp));
         } else if (telemsg && (couldsee(x, y) || sensemon(mtmp))) {
@@ -2036,9 +2040,11 @@ mlevel_tele_trap(
                 (void) clamp_hole_destination(&tolevel);
             }
         } else if (tt == MAGIC_PORTAL) {
-            if (In_endgame(&u.uz) && (mon_has_amulet(mtmp)
-                                      || is_home_elemental(mtmp->data)
-                                      || rn2(7))) {
+            if ((In_endgame(&u.uz) && (mon_has_amulet(mtmp)
+                                       || is_home_elemental(mtmp->data)
+                                       || rn2(7)))
+                /* Lucifer never abandons his post in the sanctum */
+                || (Is_sanctum(&u.uz) && mtmp->islucifer)) {
                 if (in_sight && mtmp->data->mlet != S_ELEMENTAL) {
                     pline_mon(mtmp,
                               "%s seems to shimmer for a moment.",

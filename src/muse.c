@@ -1019,7 +1019,9 @@ use_defensive(struct monst *mtmp)
             d_level flev;
 
             nlev = random_teleport_level();
-            if (mon_has_amulet(mtmp) || In_endgame(&u.uz)) {
+            if (mon_has_amulet(mtmp) || In_endgame(&u.uz)
+                || (Is_sanctum(&u.uz)
+                    && mtmp->data == &mons[PM_LUCIFER])) {
                 if (vismon)
                     pline_mon(mtmp, "%s seems very disoriented for a moment.",
                           Monnam(mtmp));
@@ -3298,8 +3300,11 @@ use_misc(struct monst *mtmp)
                 d_level tolevel;
 
                 get_level(&tolevel, tolev);
-                /* insurance against future changes... */
-                if (on_level(&tolevel, &u.uz))
+                /* insurance against future changes...
+                   Lucifer never abandons his post in the sanctum */
+                if (on_level(&tolevel, &u.uz)
+                    || (Is_sanctum(&u.uz)
+                        && mtmp->data == &mons[PM_LUCIFER]))
                     goto skipmsg;
                 if (vismon) {
                     pline_mon(mtmp, "%s rises up, through the %s!",

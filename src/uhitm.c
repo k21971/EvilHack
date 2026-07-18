@@ -6096,8 +6096,20 @@ hmonas(struct monst *mon)
              */
             if ((gy.youmonst.data->mlet == S_KOBOLD
                  || gy.youmonst.data->mlet == S_ORC
+                 || gy.youmonst.data->mlet == S_HUMAN
+                 || gy.youmonst.data->mlet == S_GIANT
+                 || gy.youmonst.data->mlet == S_VAMPIRE
                  || gy.youmonst.data->mlet == S_GNOME) && !weapon_used)
                 goto use_weapon;
+            /* elemental casts (hellfire and kin) work when the hero
+               is polymorphed into such a caster; the innate
+               AD_SPEL/AD_CLRC monster spell lists have no
+               hero-as-caster implementation yet */
+            if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
+                || mattk->adtyp == AD_ACID || mattk->adtyp == AD_MAGM) {
+                sum[i] = castum(mon, mattk);
+                continue;
+            }
             FALLTHROUGH;
             /*FALLTHRU*/
 

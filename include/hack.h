@@ -1396,6 +1396,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define XKILL_NOMSG     1
 #define XKILL_NOCORPSE  2
 #define XKILL_NOCONDUCT 4
+#define XKILL_INDIRECT  8 /* another monster made the kill but the hero
+                           * gets the experience (mon->uexp) */
 
 /* pline_flags; mask values for custompline()'s first argument */
 /* #define PLINE_ORDINARY 0 */

@@ -2388,6 +2388,59 @@ thitmonst(
         potionhit(mon, obj, POTHIT_HERO_THROW);
         return 1;
 
+    /* if you upset Kathryn after freeing her (surely by mistake...),
+       throwing her a candy bar will make her peaceful again */
+    } else if (mon->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]
+               && obj->otyp == CANDY_BAR && !Role_if(PM_INFIDEL)) {
+        struct monst *mtmp;
+        struct permonst *bourbon = &mons[PM_BOURBON];
+        struct permonst *ozzy = &mons[PM_OZZY];
+
+        /* Kathryn thanks you for the candy bar and eats it */
+        if (canseemon(mon)) {
+            pline("%s snatches the %s from you, smiles, and happily eats it.",
+                  Monnam(mon), simpleonames(obj));
+            if (!mon->mpeaceful)
+                pline("She appears to be peaceful again.");
+        }
+        mon->mpeaceful = 1;
+        /* fix up Bourbon and Ozzy in case they're also hostile
+           at the moment Kathryn is pacified again */
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (DEADMONSTER(mtmp))
+                continue;
+            /* cure any ailments the dogs may have also */
+            if (mtmp->data == bourbon || mtmp->data == ozzy) {
+                if (u.uhp <= 0 && !Lifesaved) {
+                    ; /* suppress feedback */
+                } else {
+                    if (mtmp->data == bourbon && !mtmp->mpeaceful) {
+                        if (m_cansee(mon, mtmp->mx, mtmp->my))
+                            pline("%s motions for Bourbon to heel and stop %s attack.",
+                                  Monnam(mon), mhis(mtmp));
+                    } else if (mtmp->data == ozzy && !mtmp->mpeaceful) {
+                        if (m_cansee(mon, mtmp->mx, mtmp->my))
+                            pline("%s motions for Ozzy to heel and stop %s attack.",
+                                  Monnam(mon), mhis(mtmp));
+                    }
+                }
+                mtmp->mcanmove = 1;
+                mtmp->mfrozen = 0;
+                mtmp->mstone = 0;
+                mtmp->msick = 0;
+                mtmp->mdiseased = 0;
+                mtmp->mwither = 0;
+                mtmp->mconf = 0;
+                mtmp->mstun = 0;
+                mtmp->mpeaceful = 1;
+                set_malign(mtmp);
+            }
+        }
+        set_malign(mon);
+        /* handle the now eaten candy bar */
+        obfree(obj, (struct obj *) 0);
+        return 1;
+
     } else if (befriend_with_obj(mon->data, obj)
                || (mon->mtame && dogfood(mon, obj) <= ACCFOOD)) {
         if (tamedog(mon, obj, TRUE)) {

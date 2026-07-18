@@ -601,6 +601,7 @@ encode_extended_achievements(char *buf)
     add_achieveX(buf, "defeated_quest_leader",
                  svq.quest_status.leader_is_dead);
     add_achieveX(buf, "quest_completed", u.uevent.qcompleted);
+    add_achieveX(buf, "defeated_ice_queen", u.uevent.defeat_icequeen);
     add_achieveX(buf, "defeated_cerberus", u.uevent.killed_cerberus);
     add_achieveX(buf, "defeated_vecna", u.uevent.killed_vecna);
     add_achieveX(buf, "defeated_vlad_impaler", u.uevent.killed_vlad);

@@ -1027,8 +1027,10 @@ summonmu(struct monst *mtmp, boolean youseeit)
      */
 
     if (is_demon(mdat)) {
-        if (mdat != &mons[PM_BALROG] && mdat != &mons[PM_AMOROUS_DEMON]) {
-            if (!rn2(Inhell ? 10 : 16))
+        /* the demon player race monster does not chain-summon */
+        if (mdat != &mons[PM_BALROG] && mdat != &mons[PM_AMOROUS_DEMON]
+            && mdat != &mons[PM_DEMON]) {
+            if (!rn2(Inhell ? 10 : 13))
                 (void) msummon(mtmp);
         }
         return; /* no such thing as a demon were creature, so we're done */
@@ -2015,6 +2017,93 @@ gazemu(struct monst *mtmp, struct attack *mattk)
         }
         break;
 #endif /* BEHOLDER */
+    case AD_DETH:
+        /* currently only Vecna has the gaze of death */
+        if (mcanseeu && rn2(4)) {
+            int dmg = d((int) mattk->damn, (int) mattk->damd);
+            int permdmg = 0;
+
+            if (mtmp->data == &mons[PM_VECNA])
+                You("meet %s deadly gaze!", s_suffix(mon_nam(mtmp)));
+            stop_occupation();
+            if (Death_resistance || immune_death_magic(gy.youmonst.data)) {
+                shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_DEATH);
+                You("are unaffected by death magic.");
+                break;
+            }
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+                if (!Antimagic) {
+                    char kbuf[BUFSZ];
+
+                    (void) death_inflicted_by(kbuf, "a gaze of death",
+                                              mtmp);
+                    svk.killer.format = KILLED_BY;
+                    Strcpy(svk.killer.name, kbuf);
+                    done(DIED);
+                    dmg = 0;
+                    break;
+                }
+                FALLTHROUGH;
+                /*FALLTHRU*/
+            default: /* case 16: ... case 2: */
+                You_feel("your life force draining away...");
+                permdmg = 1; /* actual drain applied below */
+                break;
+            case 1:
+            case 0:
+                if (Antimagic) {
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_MAGR);
+                }
+                pline("Lucky for you, it didn't work!");
+                dmg = 0;
+                break;
+            }
+
+            if (permdmg) { /* Vecna's life force drain */
+                int lowerlimit, *hpmax_p;
+                /*
+                 * Apply some of the damage to permanent hit points:
+                 *  polymorphed         100% against poly'd hpmax
+                 *  hpmax > 25*lvl      100% against normal hpmax
+                 *  hpmax > 10*lvl  50..100%
+                 *  hpmax >  5*lvl  25..75%
+                 *  otherwise        0..50%
+                 * Never reduces hpmax below 1 hit point per level.
+                 */
+                permdmg = rn2(dmg / 2 + 1);
+                if (Upolyd || u.uhpmax > 25 * u.ulevel)
+                    permdmg = dmg;
+                else if (u.uhpmax > 10 * u.ulevel)
+                    permdmg += dmg / 2;
+                else if (u.uhpmax > 5 * u.ulevel)
+                    permdmg += dmg / 4;
+
+                if (Upolyd) {
+                    hpmax_p = &u.mhmax;
+                    /* [can't use gy.youmonst.m_lev] */
+                    lowerlimit = min((int) gy.youmonst.data->mlevel,
+                                     u.ulevel);
+                } else {
+                    hpmax_p = &u.uhpmax;
+                    lowerlimit = minuhpmax(1);
+                }
+                if (*hpmax_p - permdmg > lowerlimit)
+                    *hpmax_p -= permdmg;
+                else if (*hpmax_p > lowerlimit)
+                    *hpmax_p = lowerlimit;
+                /* else already at or below the minimum threshold,
+                   do nothing to hpmax */
+                disp.botl = TRUE;
+            }
+            if (dmg)
+                mdamageu(mtmp, dmg);
+        }
+        break;
     default:
         impossible("Gaze attack %d?", mattk->adtyp);
         break;

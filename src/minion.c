@@ -5,6 +5,10 @@
 
 #include "hack.h"
 
+staticfn int count_hella_gone(void);
+staticfn int count_hellb_gone(void);
+staticfn boolean dlord_protected(int);
+
 /* used to pick among the four basic elementals without worrying whether
    they've been reordered (difficulty reassessment?) or any new ones have
    been introduced (hybrid types added to 'E'-class?) */
@@ -82,14 +86,19 @@ msummon(struct monst *mon)
         atyp = (ptr->maligntyp == A_NONE) ? A_NONE : sgn(ptr->maligntyp);
     }
 
-    if (is_dprince(ptr) || (ptr == &mons[PM_WIZARD_OF_YENDOR])) {
-        dtype = (!rn2(20)) ? dprince(atyp) : (!rn2(4)) ? dlord(atyp)
-                                                       : ndemon(atyp);
+    if (is_dprince(ptr) || (ptr == &mons[PM_WIZARD_OF_YENDOR])
+        || (ptr == &mons[PM_LUCIFER])) {
+        /* demon princes stay out of the summoning pool until the
+           hero has reached the deepest demon lairs */
+        dtype = (!rn2(20) && u.uevent.hellc_entered)
+                 ? dprince(atyp) : (!rn2(4)) ? dlord(atyp)
+                                             : ndemon(atyp);
         cnt = ((dtype != NON_PM)
                && !rn2(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
     } else if (is_dlord(ptr)) {
-        dtype = (!rn2(50)) ? dprince(atyp) : (!rn2(20)) ? dlord(atyp)
-                                                        : ndemon(atyp);
+        dtype = (!rn2(50) && u.uevent.hellc_entered)
+                 ? dprince(atyp) : (!rn2(20)) ? dlord(atyp)
+                                              : ndemon(atyp);
         cnt = ((dtype != NON_PM)
                && !rn2(4) && is_ndemon(&mons[dtype])) ? 2 : 1;
     } else if (ptr == &mons[PM_BONE_DEVIL]) {
@@ -264,6 +273,8 @@ demon_talk(struct monst *mtmp)
 {
     long cash, demand, offer;
 
+    mtmp->mstrategy &= ~STRAT_APPEARMSG; /* only initiate talk once */
+
     if (wielding_artifact(ART_EXCALIBUR)
         || wielding_artifact(ART_DEMONBANE)
         || wielding_artifact(ART_HAMMER_OF_THE_GODS)) {
@@ -292,10 +303,8 @@ demon_talk(struct monst *mtmp)
         boolean wasunseen = !canspotmon(mtmp);
 
         mtmp->minvis = mtmp->perminvis = 0;
-        if (wasunseen && canspotmon(mtmp)) {
+        if (wasunseen && canspotmon(mtmp))
             pline("%s appears before you.", Amonnam(mtmp));
-            mtmp->mstrategy &= ~STRAT_APPEARMSG;
-        }
         newsym(mtmp->mx, mtmp->my);
     }
     if (gy.youmonst.data->mlet == S_DEMON) { /* Won't blackmail their own. */
@@ -390,11 +399,72 @@ bribe(struct monst *mtmp, const char *prompt)
     return offer;
 }
 
+/* count how many demon lords from tier 1 (hella) are gone */
+staticfn int
+count_hella_gone(void)
+{
+    int count = 0;
+
+    if (svm.mvitals[PM_JUIBLEX].mvflags & G_GONE)
+        count++;
+    if (svm.mvitals[PM_BAALZEBUB].mvflags & G_GONE)
+        count++;
+    if (svm.mvitals[PM_GERYON].mvflags & G_GONE)
+        count++;
+    if (svm.mvitals[PM_BAPHOMET].mvflags & G_GONE)
+        count++;
+    return count;
+}
+
+/* count how many demon lords from tier 2 (hellb) are gone */
+staticfn int
+count_hellb_gone(void)
+{
+    int count = 0;
+
+    if (svm.mvitals[PM_MEPHISTOPHELES].mvflags & G_GONE)
+        count++;
+    if (svm.mvitals[PM_YEENOGHU].mvflags & G_GONE)
+        count++;
+    if (svm.mvitals[PM_DISPATER].mvflags & G_GONE)
+        count++;
+    if (svm.mvitals[PM_LOLTH].mvflags & G_GONE)
+        count++;
+    return count;
+}
+
+/* check if a demon lord should be protected from summoning;
+   protects the last remaining demon lord from each tier until the
+   player enters that tier's lair level */
+staticfn boolean
+dlord_protected(int pm)
+{
+    /* tier 1: protect last remaining hella lord */
+    if ((pm == PM_JUIBLEX || pm == PM_BAALZEBUB
+         || pm == PM_GERYON || pm == PM_BAPHOMET)
+        && !u.uevent.hella_entered
+        && count_hella_gone() >= 3
+        && !(svm.mvitals[pm].mvflags & G_GONE))
+        return TRUE;
+
+    /* tier 2: protect last remaining hellb lord */
+    if ((pm == PM_MEPHISTOPHELES || pm == PM_YEENOGHU
+         || pm == PM_DISPATER || pm == PM_LOLTH)
+        && !u.uevent.hellb_entered
+        && count_hellb_gone() >= 3
+        && !(svm.mvitals[pm].mvflags & G_GONE))
+        return TRUE;
+
+    return FALSE;
+}
+
 int
 dprince(aligntyp atyp)
 {
     int tryct, pm;
 
+    /* Lucifer is excluded from being summoned by another demon
+       prince or the Wizard; he needs to be present in the sanctum */
     for (tryct = !In_endgame(&u.uz) ? 20 : 0; tryct > 0; --tryct) {
         pm = rn1(PM_DEMOGORGON + 1 - PM_ORCUS, PM_ORCUS);
         if (!(svm.mvitals[pm].mvflags & G_GONE)
@@ -410,8 +480,9 @@ dlord(aligntyp atyp)
     int tryct, pm;
 
     for (tryct = !In_endgame(&u.uz) ? 20 : 0; tryct > 0; --tryct) {
-        pm = rn1(PM_YEENOGHU + 1 - PM_JUIBLEX, PM_JUIBLEX);
+        pm = rn1(PM_MEPHISTOPHELES + 1 - PM_JUIBLEX, PM_JUIBLEX);
         if (!(svm.mvitals[pm].mvflags & G_GONE)
+            && !dlord_protected(pm)
             && (atyp == A_NONE || sgn(mons[pm].maligntyp) == sgn(atyp)))
             return pm;
     }

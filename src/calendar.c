@@ -51,7 +51,6 @@ getyear(void)
     return (1900 + getlt()->tm_year);
 }
 
-
 long
 yyyymmdd(time_t date)
 {
@@ -223,6 +222,31 @@ int
 midnight(void)
 {
     return (getlt()->tm_hour == 0);
+}
+
+/* the Ice Queen is a much more dangerous foe on her birthday */
+boolean
+kathryn_bday(void)
+{
+    struct tm *lt = getlt();
+
+    return (boolean) (lt->tm_mday == 12 && lt->tm_mon + 1 == 2);
+}
+
+boolean
+bourbon_bday(void)
+{
+    struct tm *lt = getlt();
+
+    return (boolean) (lt->tm_mday == 19 && lt->tm_mon + 1 == 4);
+}
+
+boolean
+ozzy_bday(void)
+{
+    struct tm *lt = getlt();
+
+    return (boolean) (lt->tm_mday == 13 && lt->tm_mon + 1 == 1);
 }
 
 /* calendar.c */

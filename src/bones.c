@@ -509,9 +509,15 @@ remove_mon_from_bones(struct monst *mtmp)
     struct permonst *mptr = mtmp->data;
 
     if (mtmp->iswiz || mptr == &mons[PM_MEDUSA]
+        || mtmp->isvecna || mtmp->isgking
+        || mtmp->islucifer || mtmp->ismichael || mtmp->istalgath
         || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
         || is_Vlad(mtmp) /* mptr == &mons[VLAD_THE_IMPALER] || cham == VLAD */
-        || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp)))
+        || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
+        /* Cerberus guards the Valley; he may stay in Valley bones */
+        || (mtmp->iscerberus && !Is_valley(&u.uz))
+        || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+        || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
         mongone(mtmp);
 }
 

@@ -1892,6 +1892,17 @@ goto_level(
     if (familiar)
         familiar_level_msg();
 
+    /* entered Vlad's tower (cavern level); technically this event
+       would fire upon entering any of the four tower levels if
+       entering this branch for the first time, but during normal
+       game play the player has to access the cavern level first */
+    if (!In_tower(&u.uz0) && In_tower(&u.uz)
+        && !u.uevent.tower_entered) {
+        u.uevent.tower_entered = 1;
+        /* TODO-EVILHACK: com_pager("vlad_tower_enter") flavor text
+           (skipped when blind) once the quest text port lands */
+    }
+
     /* entered the Wizard's lair (final tower level) */
     if (!Is_wiz1_level(&u.uz0) && Is_wiz1_level(&u.uz)
         && !u.uevent.wiztower_entered) {

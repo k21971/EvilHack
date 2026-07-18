@@ -167,6 +167,7 @@
 #define can_fly(mon) \
     ((mon_resistancebits(mon) & MR2_FLY) != 0)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
+#define can_sting(ptr) attacktype(ptr, AT_STNG)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)
 #define carnivorous(ptr) (((ptr)->mflags1 & M1_CARNIVORE) != 0L)
@@ -322,6 +323,10 @@
      || (ptr) == &mons[PM_ARCH_PRIEST] || (ptr) == &mons[PM_ACOLYTE]    \
      || (ptr) == &mons[PM_ALIGNED_PRIEST])
 #define is_stationary(ptr) (((ptr)->mflags3 & M3_STATIONARY) != 0)
+/* monsters not technically killed, but defeated instead */
+#define is_defeated(ptr) \
+    ((ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                  \
+     || (ptr) == &mons[PM_BOURBON] || (ptr) == &mons[PM_OZZY])
 #define is_racialmon(ptr) (is_mplayer(ptr) || is_mercenary(ptr))
 /* NON_PM-safe lookup into mons[] for corpsenm/rmnum-derived indices.
    Falls back to PM_HUMAN on corruption so a corrupt index degrades to

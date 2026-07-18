@@ -1114,6 +1114,13 @@ peffect_gain_level(struct obj *otmp)
                     pline("It tasted bad.");
                     return;
                 }
+                /* while Cerberus lives, the effects of a cursed potion
+                   of gain level are nullified in the Valley; killing
+                   him restores the effect */
+                if (Is_valley(&u.uz) && !u.uevent.ucerberus) {
+                    You("have an uneasy feeling.");
+                    return;
+                }
             }
             You("rise up, through the %s!", ceiling(u.ux, u.uy));
             goto_level(&newlevel, FALSE, FALSE, FALSE);

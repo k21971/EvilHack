@@ -96,7 +96,11 @@ struct u_event {
     Bitfield(killed_gking, 1);
     Bitfield(killed_lucifer, 1);
     Bitfield(killed_michael, 1);
-    /* 18 free bits */
+    /* set when the Ice Queen falls for the first time; unlike the
+       killed_* gates above this also drives game state (xkilled
+       early return, revive interception) and the xlogfile token */
+    Bitfield(defeat_icequeen, 1);
+    /* 17 free bits */
 };
 
 /*

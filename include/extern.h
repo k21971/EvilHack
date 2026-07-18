@@ -162,6 +162,7 @@ extern boolean arti_immune(struct obj *, int);
 extern boolean spec_ability(struct obj *, unsigned long);
 extern boolean confers_luck(struct obj *) NONNULLPTRS;
 extern boolean arti_reflects(struct obj *);
+extern boolean mon_arti_has_spfx(struct monst *, unsigned long);
 extern boolean shade_glare(struct obj *) NONNULLPTRS;
 extern boolean restrict_name(struct obj *, const char *) NONNULLPTRS;
 extern boolean attacks(int, struct obj *);
@@ -332,6 +333,9 @@ extern int phase_of_the_moon(void);
 extern boolean friday_13th(void);
 extern int night(void);
 extern int midnight(void);
+extern boolean kathryn_bday(void);
+extern boolean bourbon_bday(void);
+extern boolean ozzy_bday(void);
 
 /* ### cfgfiles.c ### */
 
@@ -1571,11 +1575,14 @@ extern int castmu(struct monst *, struct attack *,
                   boolean, boolean) NONNULLARG12;
 extern int castmm(struct monst *, struct monst *,
                   struct attack *) NONNULLARG123;
+extern int castum(struct monst *, struct attack *) NONNULLARG12;
 extern void touch_of_death(struct monst *) NONNULLARG1;
 extern char *death_inflicted_by(char *, const char *,
                                 struct monst *) NONNULLARG12;
 extern char *mon_killer_name(char *, struct monst *) NONNULLARG12;
 extern int buzzmu(struct monst *, struct attack *) NONNULLARG12;
+extern int buzzmm(struct monst *, struct monst *,
+                  struct attack *) NONNULLARG123;
 extern boolean is_spellcaster(struct monst *) NONNULLARG1;
 extern boolean mknows_spell(struct monst *, int) NONNULLARG1;
 extern boolean mlearn_spell(struct monst *, struct obj *) NONNULLARG12;
@@ -1875,11 +1882,19 @@ extern void relmon(struct monst *, struct monst **) NONNULLARG1;
 extern struct obj *mlifesaver(struct monst *) NONNULLARG1;
 extern boolean corpse_chance(struct monst *, struct monst *, boolean) NONNULLARG1;
 extern void set_pet_killer(struct monst *);
+extern void cerberusdead(void);
+extern void vecnadead(void);
+extern void vladdead(void);
+extern void talgathdead(void);
+extern void goblinkingdead(void);
+extern void luciferdead(void);
+extern void michaeldead(void);
 extern void mondead(struct monst *) NONNULLARG1;
 extern void mondied(struct monst *) NONNULLARG1;
 extern void mongone(struct monst *) NONNULLARG1;
 extern void monstone(struct monst *) NONNULLARG1;
 extern void monkilled(struct monst *, const char *, int) NONNULLARG1;
+extern void mon_xkilled(struct monst *, const char *, int) NONNULLARG1;
 extern void set_ustuck(struct monst *);
 extern void unstuck(struct monst *) NONNULLARG1;
 extern void killed(struct monst *) NONNULLARG1;
@@ -4013,11 +4028,15 @@ extern boolean has_aggravatables(struct monst *) NONNULLARG1;
 extern void aggravate(void);
 extern void clonewiz(void);
 extern int pick_nasty(int);
+extern int pick_nasty_ice(void);
+extern int pick_nasty_vecna(void);
 extern int nasty(struct monst *) NO_NNARGS;
 extern void resurrect(void);
 extern void intervene(void);
 extern void wizdeadorgone(void);
 extern void cuss(struct monst *) NONNULLARG1;
+extern void mplayer_purg_talk(struct monst *) NONNULLARG1;
+extern void archangel_purg_talk(struct monst *) NONNULLARG1;
 
 /* ### wizcmds.c ### */
 
