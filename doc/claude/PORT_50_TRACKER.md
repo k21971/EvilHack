@@ -3056,8 +3056,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [ ] Monster `dead` .des flag -> des.monster dead= binding
       (must call mondied(); 13 sites)
 - [ ] MINDEPTH: directive binding (17 sites)
-- [ ] rndvault room system + "garden"/other room types (mkroom.h
-      GARDEN=17 etc. -> sp_lev room-name table)
+- [ ] Special room types only: GARDEN=17 etc. -> mkroom.h +
+      sp_lev room-name table (rtype drives runtime behavior, so
+      needed regardless of level source). The rndvault C
+      machinery (struct _rndvault registry: fname/freq/mindepth,
+      ~50 sites mklev.c/sp_lev.c/decl.*) is NOT PORTED -
+      MAINTAINER RATIFIED 2026-07-18: unique-to-EvilHack
+      rndvaults merge into upstream's themerooms system as
+      themerms.lua entries (fname -> contents, freq -> frequency,
+      mindepth -> mindiff); overlapping rooms dedupe to
+      upstream's version per the collision rule. Interlocks:
+      frequency-TUNING pass so EvilHack vault appearance rates
+      stay roughly master-like in the merged weighted pool
+      (competes with upstream entries + the weight-1000 default;
+      else ratify the new cadence as a v1.0.0 delta); check
+      MINDEPTH (depth) vs mindiff (difficulty) semantics per
+      vault during conversion; W-gate for vaults = repeated
+      level-generation sampling, not per-file walks.
 - [ ] #shield, other added commands (sweep cmd.c delta)
 - [ ] Bag of treasure/devouring rules; #tip interactions
 - [ ] Steed/saddle/barding architecture (memory file)
@@ -3098,7 +3113,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | icequeen.des | 3 | from-scratch | | | | |
 | nymph.des | 1 | from-scratch | x | x | | EXEMPLAR (luac-clean; W needs branch content) |
 | purgatory.des | 2 | from-scratch | | | | dead-shopkeeper flag |
-| vaults.des | 46 | from-scratch | | | | rndvault; vlt-0004/0045 HAND-CONVERTED 2026-07-03 (exemplar/vaults/, luac-clean, nil-swept; rndvault type/flag/MINDEPTH = TODO-EVILHACK until Phase 2); remaining 44 convert cleanly - polish with the vlt-0045 ROOMDOOR idiom |
+| vaults.des | 46 | from-scratch -> THEMERMS ENTRIES (ratified 2026-07-18) | | | | destination = themerms.lua contents functions, NOT standalone vlt-*.lua; vlt-0004/0045 HAND-CONVERTED 2026-07-03 (exemplar/vaults/, luac-clean, nil-swept) stay the map-conversion reference; remaining 44 convert cleanly - polish with the vlt-0045 ROOMDOOR idiom; dedupe overlaps to upstream's rooms; frequency/mindiff per the Phase 2 special-room-types item |
 | vecna.des | 3 | from-scratch | | | | |
 | Arch..Wizard (13 vanilla quests) | 65 | delta-diff | | | | Val-strt done as the delta-diff EXEMPLAR (exemplar/Val-strt.lua; Norn inv reconcile + magic-chest TODO) |
 | Convict.des | 5 | from-scratch | | | | |
@@ -3119,7 +3134,14 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       exemplar/Val-strt.lua - adopted upstream's own translation;
       `&` is UNION per SPO_SEL_ADD, crib sheet has the vocabulary)
 - [ ] Themed rooms: drop our back-port, keep custom rooms as
-      additions on upstream themerms.lua
+      additions on upstream themerms.lua; PLUS (ratified
+      2026-07-18) the unique-to-EvilHack rndvaults land here as
+      themerms entries - see the Phase 2 special-room-types item
+      for the merge rules (frequency tuning, mindiff mapping,
+      dedupe-to-upstream on overlap); the vlt-0004/0045
+      exemplars + crib ROOMDOOR idiom remain the map-conversion
+      reference, destination changed from standalone vlt-*.lua
+      files to themerooms contents functions
 - [ ] nhl bindings from Phase 2 wired: MAGIC_CHEST, FORGE,
       MINDEPTH, dead=, door material=, room types
 - [ ] GATE: every level wizmode-walked (W column full)
@@ -3256,7 +3278,7 @@ trees, different content - Phase 0 rename).
 | livelog | fork livelog | EvilHack event extras - diff the sets | |
 | server hints | hints/hardfought (fork) | EvilHack hints deltas (pkg-config WINTTYLIB etc.) | |
 | recover | fork recover.c changes | EvilHack recover tweaks | |
-| themed rooms | themerms.lua (origin) | EvilHack-only room types | |
+| themed rooms | themerms.lua (origin) | EvilHack-only room types + unique rndvaults merged in as entries (ratified 2026-07-18; rndvault C registry retired) | |
 | color/truecolor | coloratt/utf8map/glyphs.c | extcolor 24-bit, customcolor registry (RENAME ours) | |
 | crash logging | CRASHREPORT (report.c) | crash-log infra, paniclog extras | |
 | self-recovery | SELF_RECOVER | emergency .e.gz save + in-game recovery | |
@@ -3266,6 +3288,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-18 | rndvault -> themerooms MERGE: unique-to-EvilHack rndvaults become upstream themerms.lua entries (fname->contents, freq->frequency, mindepth->mindiff); the rndvault C registry (~50 sites) is retired unported; overlapping rooms adopt upstream's version; special room TYPES (GARDEN etc.) still port to mkroom.h + sp_lev name table; frequency-tuning pass keeps vault appearance rates roughly master-like or the new cadence gets its own ratification | maintainer |
 | 2026-07-16 | zombie_maker() = HYBRID: `if (mon->mcan) return FALSE; return racial_zombie(mon) \|\| mlet == S_LICH;` - master's erac-aware racial semantics (draugr-raced Knights/Monks/Infidels spread zombification) PLUS both upstream 5.0 additions kept (liches raise zombies; cancelled makers do not). Ghoul/skeleton excluded naturally (not MH_ZOMBIE) | maintainer |
 | 2026-07-15 | xlogfile forging conduct token stays master's long-style `never_forged_an_artifact` (0.9.x scoreboard-parser continuity) rather than a 5.0 short-style token | maintainer |
 | 2026-07-15 | Item economy: v1.0.0 ships the RICH economy (branch keeps upstream `ptr == &mons[PM_SOLDIER]` m_initinv gate - every monster rolls the m_lev magic/gold tail). Master's 2021 `!=` slip stays branch-excluded AND master-unfixed (soldier gate NOT in the backport batch; the lean-economy years remain a master-only accident that dies at cutover) | maintainer |
