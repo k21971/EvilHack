@@ -34,6 +34,7 @@ staticfn void peffect_gain_energy(struct obj *);
 staticfn void peffect_oil(struct obj *);
 staticfn void peffect_acid(struct obj *);
 staticfn void peffect_polymorph(struct obj *);
+staticfn void peffect_blood(struct obj *);
 staticfn boolean H2Opotion_dip(struct obj *, struct obj *, boolean,
                              const char *);
 staticfn short mixtype(struct obj *, struct obj *);
@@ -496,11 +497,15 @@ ghost_from_bottle(void)
     }
     pline("As you open the bottle, an enormous %s emerges!",
           Hallucination ? rndmonnam(NULL) : (const char *) "ghost");
-    if (flags.verbose)
-        You("are frightened to death, and unable to move.");
-    nomul(-3);
-    gm.multi_reason = "being frightened to death";
-    gn.nomovemsg = "You regain your composure.";
+    /* draugr do not fear the undead,
+       or anything else for that matter */
+    if (!maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))) {
+        if (flags.verbose)
+            You("are frightened to death, and unable to move.");
+        nomul(-3);
+        gm.multi_reason = "being frightened to death";
+        gn.nomovemsg = "You regain your composure.";
+    }
 }
 
 /* getobj callback for object to drink from, which also does double duty as
@@ -741,8 +746,14 @@ peffect_water(struct obj *otmp)
         return;
     }
     gp.potion_unkn++;
+    /* the undead races burn even when their current form is living */
+    /* TODO-EVILHACK: master also covers unaligned heroes (Infidels)
+       with the larger dice; ports with the roles slice */
     if (mon_hates_blessings(&gy.youmonst) /* undead or demon */
-        || u.ualign.type == A_CHAOTIC) {
+        || u.ualign.type == A_CHAOTIC
+        || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
+        int dice = (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) ? 4 : 2;
+
         if (otmp->blessed) {
             pline("This burns like %s!", hliquid("acid"));
             exercise(A_CON, FALSE);
@@ -753,11 +764,11 @@ peffect_water(struct obj *otmp)
                     you_unwere(FALSE);
                 set_ulycn(NON_PM); /* cure lycanthropy */
             }
-            losehp(Maybe_Half_Phys(d(2, 6)), "potion of holy water",
+            losehp(Maybe_Half_Phys(d(dice, 6)), "potion of holy water",
                    KILLED_BY_AN);
         } else if (otmp->cursed) {
             You_feel("quite proud of yourself.");
-            healup(d(2, 6), 0, 0, 0);
+            healup(d(dice, 6), 0, 0, 0);
             if (ismnum(u.ulycn) && !Upolyd)
                 you_were();
             exercise(A_CON, TRUE);
@@ -1354,6 +1365,109 @@ peffect_polymorph(struct obj *otmp)
     }
 }
 
+staticfn void
+peffect_blood(struct obj *otmp)
+{
+    /* potions of blood/vampire blood are a source of nutrition
+       for vampires, and vampire blood can also heal vampires
+       depending on its BUC status (akin to full healing potion
+       when blessed, or regular healing with uncursed).
+       Non-vampires drinking potions of blood can experience
+       various outcomes */
+    gp.potion_unkn++;
+    u.uconduct.unvegan++;
+    if (maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE))) {
+        violated_vegetarian();
+        if (otmp->cursed)
+            pline("Yecch!  This %s.", Hallucination
+                  ? "liquid could do with a good stir"
+                  : "blood has congealed");
+        else
+            pline(Hallucination
+                  ? "The %s liquid stirs memories of home."
+                  : "The %sblood tastes delicious.",
+                  otmp->odiluted ? "thinned " : "");
+        if (!otmp->cursed) {
+            if (otmp->otyp == POT_VAMPIRE_BLOOD)
+                lesshungry((otmp->odiluted ? 1 : 2)
+                           * (otmp->blessed ? 400 : 100));
+            else /* regular blood */
+                lesshungry((otmp->odiluted ? 1 : 2)
+                           * (otmp->blessed ? 100 : 30));
+        }
+        if (otmp->otyp == POT_VAMPIRE_BLOOD) {
+            if (otmp->blessed) {
+                healup(otmp->odiluted ? 100 : 200, 0, FALSE, FALSE);
+                You_feel("%s healed.",
+                         Upolyd ? (u.mh == u.mhmax ? "completely"
+                                                   : "mostly")
+                                : (u.uhp == u.uhpmax ? "completely"
+                                                     : "mostly"));
+            } else if (otmp->cursed) {
+                ; /* no healing */
+            } else { /* uncursed */
+                You_feel("better.");
+                healup(d((otmp->odiluted ? 1 : 4), 4), 0, FALSE, FALSE);
+            }
+        }
+    } else { /* not a vampire */
+        if (otmp->otyp == POT_VAMPIRE_BLOOD) {
+            /* fix conducts for potions of (vampire) blood -
+               doesn't use violated_vegetarian() to prevent
+               duplicated "you feel guilty" messages */
+            u.uconduct.unvegetarian++;
+            if (!Race_if(PM_VAMPIRE)) {
+                if (u.ualign.type == A_LAWFUL || Role_if(PM_MONK)) {
+                    You_feel(
+                        "%sguilty about drinking such a vile liquid.",
+                             Role_if(PM_MONK) ? "especially " : "");
+                    u.ugangr++;
+                    adjalign(-15);
+                    record_abuse_event(-15, ABUSE_CANNIBALISM);
+                } else if (u.ualign.type == A_NEUTRAL) {
+                    You_feel("guilty.");
+                    adjalign(-3);
+                    record_abuse_event(-3, ABUSE_CANNIBALISM);
+                }
+                exercise(A_CON, FALSE);
+            }
+            if (Upolyd && Race_if(PM_VAMPIRE)) {
+                if (!Unchanging)
+                    rehumanize();
+            } else if (!Unchanging) {
+                boolean successful_polymorph = FALSE;
+
+                if (!rn2(5)) {
+                    if (otmp->blessed)
+                        successful_polymorph
+                            = polymon(!rn2(4) ? PM_VAMPIRE_ROYAL
+                                              : PM_VAMPIRE_NOBLE);
+                    else if (otmp->cursed)
+                        successful_polymorph = polymon(PM_VAMPIRE_BAT);
+                    else
+                        successful_polymorph
+                            = polymon(PM_VAMPIRE_SOVEREIGN);
+                    if (successful_polymorph)
+                        u.mtimedone = 3000;
+                } else {
+                    int dmg;
+
+                    pline("Ugh. That was utterly disgusting.");
+                    dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8)
+                          / (otmp->odiluted ? 4 : 1);
+                    losehp(dmg, "potion of vampire blood",
+                           KILLED_BY_AN);
+                    exercise(A_CON, FALSE);
+                }
+            }
+        } else {
+            violated_vegetarian();
+            pline("Ugh. That was vile.");
+            make_vomiting(Vomiting + d(10, 8), TRUE);
+        }
+    }
+}
+
 int
 peffects(struct obj *otmp)
 {
@@ -1441,6 +1555,10 @@ peffects(struct obj *otmp)
         break;
     case POT_POLYMORPH:
         peffect_polymorph(otmp);
+        break;
+    case POT_BLOOD:
+    case POT_VAMPIRE_BLOOD:
+        peffect_blood(otmp);
         break;
     default:
         impossible("What a funny potion! (%u)", otmp->otyp);
@@ -2118,6 +2236,18 @@ potionbreathe(struct obj *obj)
     case POT_ACID:
     case POT_POLYMORPH:
         exercise(A_CON, FALSE);
+        break;
+    case POT_BLOOD:
+    case POT_VAMPIRE_BLOOD:
+        if (maybe_polyd(is_vampire(gy.youmonst.data),
+                        Race_if(PM_VAMPIRE))) {
+            kn++;
+            exercise(A_WIS, FALSE);
+            You_feel("a %ssense of loss.",
+                     obj->otyp == POT_VAMPIRE_BLOOD ? "terrible " : "");
+        } else {
+            exercise(A_CON, FALSE);
+        }
         break;
     /*
     case POT_GAIN_LEVEL:

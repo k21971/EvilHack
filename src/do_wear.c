@@ -297,8 +297,12 @@ oprops_off(struct obj *otmp, long mask)
 int
 Boots_on(void)
 {
-    long oldprop =
-        u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+    long oldprop;
+
+    if (!uarmf)
+        return 0;
+
+    oldprop = u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
 
     switch (uarmf->otyp) {
     case ORCISH_BOOTS:
@@ -385,8 +389,15 @@ int
 Boots_off(void)
 {
     struct obj *otmp = uarmf;
-    int otyp = otmp->otyp;
-    long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+    int otyp;
+    long oldprop;
+
+    if (!otmp) {
+        svc.context.takeoff.mask &= ~W_ARMF;
+        return 0;
+    }
+    otyp = otmp->otyp;
+    oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
 
     oprops_off(otmp, WORN_BOOTS);
 
@@ -452,9 +463,14 @@ Boots_off(void)
 staticfn int
 Cloak_on(void)
 {
-    int otyp = uarmc->otyp;
-    long oldprop =
-        u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+    int otyp;
+    long oldprop;
+
+    if (!uarmc)
+        return 0;
+
+    otyp = uarmc->otyp;
+    oldprop = u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
     if (Is_dragon_scales(uarmc)
         && otyp != SHIMMERING_DRAGON_SCALES
@@ -484,9 +500,8 @@ Cloak_on(void)
         break;
     case CELESTIAL_DRAGON_SCALES:
         /* setworn() has already set extrinsic flying */
-        /* TODO-EVILHACK: master also calls check_wings() here; it
-           ports with the aasimar wings machinery (races-R2) */
         float_vs_flight(); /* block flying if levitating */
+        check_wings(TRUE); /* form with wings that can already fly? */
         if (Flying) {
             boolean already_flying;
 
@@ -544,9 +559,16 @@ int
 Cloak_off(void)
 {
     struct obj *otmp = uarmc;
-    int otyp = otmp->otyp;
-    long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+    int otyp;
+    long oldprop;
     boolean was_flying = !!Flying;
+
+    if (!otmp) {
+        svc.context.takeoff.mask &= ~W_ARMC;
+        return 0;
+    }
+    otyp = otmp->otyp;
+    oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
     if (Is_dragon_scales(otmp)
         && otyp != SHIMMERING_DRAGON_SCALES
@@ -580,9 +602,8 @@ Cloak_off(void)
         break;
     case CELESTIAL_DRAGON_SCALES:
         /* the scales were already removed by the setworn() above */
-        /* TODO-EVILHACK: master also calls check_wings() here; it
-           ports with the aasimar wings machinery (races-R2) */
         float_vs_flight(); /* probably not needed here */
+        check_wings(TRUE); /* form with wings that can already fly? */
         if (was_flying && !Flying) {
             disp.botl = TRUE; /* status: 'Fly' Off */
             You("%s.", (is_pool_or_lava(u.ux, u.uy)
@@ -621,8 +642,13 @@ Cloak_off(void)
 staticfn int
 Helmet_on(void)
 {
-    long oldprop =
-        u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic & ~WORN_HELMET;
+    long oldprop;
+
+    if (!uarmh)
+        return 0;
+
+    oldprop = u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic
+              & ~WORN_HELMET;
 
     switch (uarmh->otyp) {
     case FEDORA:
@@ -667,6 +693,34 @@ Helmet_on(void)
         makeknown(uarmh->otyp);
         break;
     case HELM_OF_OPPOSITE_ALIGNMENT:
+        if (Race_if(PM_AASIMAR)) {
+            /* deity will not allow an Aasimar to change alignment;
+               no alignment change occurs, helm is destroyed */
+            struct obj *otmp = uarmh;
+            int dmg = d(2, 12);
+
+            SetVoice((struct monst *) 0, 0, 80, voice_deity);
+            verbalize("Thou shalt not forsake Me!");
+            otmp->known = 1;
+            makeknown(HELM_OF_OPPOSITE_ALIGNMENT);
+            pline("The %s explodes!", helm_simple_name(otmp));
+
+            /* destroy the helm - clear worn slot, then remove */
+            otmp->in_use = TRUE;
+            setworn((struct obj *) 0, W_ARMH);
+            useup(otmp);
+
+            /* the act offends your deity */
+            adjalign(-3);
+            record_abuse_event(-3, ABUSE_ALIGNMENT_HELM);
+
+            /* 2d12 physical damage and stun */
+            losehp(Maybe_Half_Phys(dmg),
+                   "an exploding helm of opposite alignment",
+                   KILLED_BY);
+            make_stunned((HStun & TIMEOUT) + (long) d(2, 4), TRUE);
+            break;
+        }
         uarmh->known = 1; /* do this here because uarmh could get cleared */
         /* changing alignment can toggle off active artifact properties,
            including levitation; uarmh could get dropped or destroyed here
@@ -727,6 +781,10 @@ Helmet_on(void)
 int
 Helmet_off(void)
 {
+    if (!uarmh) {
+        svc.context.takeoff.mask &= ~W_ARMH;
+        return 0;
+    }
     oprops_off(uarmh, WORN_HELMET);
 
     svc.context.takeoff.mask &= ~W_ARMH;
@@ -803,8 +861,13 @@ hard_helmet(struct obj *obj)
 staticfn int
 Gloves_on(void)
 {
-    long oldprop =
-        u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
+    long oldprop;
+
+    if (!uarmg)
+        return 0;
+
+    oldprop = u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic
+              & ~WORN_GLOVES;
 
     switch (uarmg->otyp) {
     case DARK_ELVEN_GLOVES:
@@ -886,9 +949,16 @@ int
 Gloves_off(void)
 {
     struct obj *gloves = uarmg; /* needed after uarmg has been set to Null */
-    long oldprop =
-        u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
-    boolean on_purpose = !svc.context.mon_moving && !uarmg->in_use;
+    long oldprop;
+    boolean on_purpose;
+
+    if (!gloves) {
+        svc.context.takeoff.mask &= ~W_ARMG;
+        return 0;
+    }
+    oldprop = u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic
+              & ~WORN_GLOVES;
+    on_purpose = !svc.context.mon_moving && !uarmg->in_use;
 
     oprops_off(uarmg, WORN_GLOVES);
 
@@ -951,6 +1021,9 @@ Gloves_off(void)
 staticfn int
 Shield_on(void)
 {
+    if (!uarms)
+        return 0;
+
     /* no shield currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does
        [the magical shields are handled by setting u.uprops[*].extrinsic
@@ -985,6 +1058,10 @@ Shield_on(void)
 int
 Shield_off(void)
 {
+    if (!uarms) {
+        svc.context.takeoff.mask &= ~W_ARMS;
+        return 0;
+    }
     oprops_off(uarms, WORN_SHIELD);
 
     svc.context.takeoff.mask &= ~W_ARMS;
@@ -1018,6 +1095,9 @@ Shield_off(void)
 staticfn int
 Shirt_on(void)
 {
+    if (!uarmu)
+        return 0;
+
     /* no shirt currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does */
     switch (uarmu->otyp) {
@@ -1038,6 +1118,10 @@ Shirt_on(void)
 int
 Shirt_off(void)
 {
+    if (!uarmu) {
+        svc.context.takeoff.mask &= ~W_ARMU;
+        return 0;
+    }
     oprops_off(uarmu, WORN_SHIRT);
 
     svc.context.takeoff.mask &= ~W_ARMU;
@@ -1138,6 +1222,47 @@ dragon_armor_handling(
     }
 }
 
+/* Some monster forms' flight is blocked by most body armor */
+void
+check_wings(boolean silent) /* we assume a wardrobe change if false */
+{
+    static struct obj *last_worn_armor;
+    boolean old_flying = Flying;
+
+    BFlying &= ~W_ARM;
+    /* Aasimar wings only manifest at experience level 15 with
+       unblemished alignment; until then ignore the wing/armor
+       interaction so a low-level or abused aasimar doesn't see
+       "holes for wings" or get W_ARM-blocked from flight */
+    if (Race_if(PM_AASIMAR)
+        && (u.ulevel < 15 || u.ualign.abuse != 0))
+        return;
+    if (!big_wings(raceptr(&gy.youmonst)))
+        return;
+
+    if (!uarm) {
+        if (!silent && Flying)
+            You("spread your wings%s.",
+                old_flying ? "" : " and take flight");
+    } else if (Is_dragon_scaled_armor(uarm) && !is_hard(uarm)) {
+        if (!silent)
+            You("arrange the scales around your wings.");
+    } else if (uarm && !is_hard(uarm)) {
+        if (!silent && uarm != last_worn_armor)
+            Your("%s seems to have holes for wings.", simpleonames(uarm));
+    } else {
+        BFlying |= W_ARM;
+        if (!silent)
+            You("fold your wings under your suit.");
+    }
+
+    if (uarm)
+        last_worn_armor = uarm;
+
+    if (Flying != old_flying)
+        disp.botl = TRUE;
+}
+
 staticfn int
 Armor_on(void)
 {
@@ -1147,6 +1272,7 @@ Armor_on(void)
         uarm->known = 1; /* suit's +/- evident because of status line AC */
         update_inventory();
     }
+    check_wings(FALSE);
     oprops_on(uarm, W_ARM);
     dragon_armor_handling(uarm, TRUE, TRUE);
     /* gold DSM requires extra handling since it emits light when worn;
@@ -1173,6 +1299,8 @@ Armor_off(void)
     svc.context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
     svc.context.takeoff.cancelled_don = FALSE;
+
+    check_wings(FALSE);
 
     /* taking off yellow dragon scales/mail might be fatal; arti_light
        comes from gold dragon scales/mail so they don't overlap, but
@@ -1206,6 +1334,8 @@ Armor_gone(void)
     svc.context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     svc.context.takeoff.cancelled_don = FALSE;
+
+    check_wings(FALSE);
 
     /* losing yellow dragon scales/mail might be fatal; arti_light
        comes from gold dragon scales/mail so they don't overlap, but
@@ -1319,6 +1449,7 @@ Amulet_on(struct obj *amul)
     case AMULET_OF_FLYING:
         /* setworn() has already set extrinsic flying */
         float_vs_flight(); /* block flying if levitating */
+        check_wings(TRUE); /* form with wings that can already fly? */
         if (Flying) {
             boolean already_flying;
 
@@ -1426,6 +1557,7 @@ Amulet_off(void)
         early_off_msg = TRUE;
 
         float_vs_flight(); /* probably not needed here */
+        check_wings(TRUE); /* form with wings that can already fly? */
         if (was_flying && !Flying) {
             disp.botl = TRUE; /* status: 'Fly' Off */
             You("%s.", (is_pool_or_lava(u.ux, u.uy)
@@ -2904,6 +3036,23 @@ find_ac(void)
         uac -= uright->spe;
     if (uamul && uamul->otyp == AMULET_OF_GUARDING)
         uac -= 2; /* fixed amount; main benefit is to MC */
+
+    /* Draugr/Vampire races receive a slight AC bonus
+       for wearing bone armor */
+    /* TODO-EVILHACK: master gives Druids a similar bonus for wooden
+       armor; ports with the roles slice */
+    if (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
+        if (uarm && is_bone(uarm))   /* body armor */
+            uac -= 1;
+        if (uarmg && is_bone(uarmg)) /* gauntlets */
+            uac -= 1;
+        if (uarmh && is_bone(uarmh)) /* helmet */
+            uac -= 1;
+        if (uarmf && is_bone(uarmf)) /* boots */
+            uac -= 1;
+        if (uarms && is_bone(uarms)) /* shield */
+            uac -= 1;
+    }
 
     /* armor class from other sources */
     if (HProtection & INTRINSIC)

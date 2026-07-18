@@ -41,11 +41,10 @@ set_uasmon(void)
     boolean was_vampshifter = valid_vampshiftform(gy.youmonst.cham, u.umonnum);
 
     /* large playable races adjust the size, weight, and speed of the
-       hero's base monster entry; mons[] is writable on this fork and
+       hero's base monster entry; the undead races shamble along more
+       slowly than the living; mons[] is writable on this fork and
        only reset at program startup, so reapply on each form change
        to cover new games, restores, and returns from polymorph */
-    /* TODO-EVILHACK: master also slows draugr and vampire heroes
-       here; ports with races-R2 */
     if (!Upolyd) {
         if (Race_if(PM_GIANT) || Race_if(PM_CENTAUR)) {
             mdat->cwt = 2200;
@@ -55,6 +54,10 @@ set_uasmon(void)
             mdat->cwt = 1600;
             mdat->mmove = 10;
             mdat->msize = MZ_LARGE;
+        } else if (Race_if(PM_DRAUGR)) {
+            mdat->mmove = 10;
+        } else if (Race_if(PM_VAMPIRE)) {
+            mdat->mmove = 15;
         }
     }
 
@@ -130,12 +133,17 @@ set_uasmon(void)
        suppress flying for it so that enlightenment doesn't confusingly
        show latent flight capability always blocked by levitation */
     PROPSET(FLYING, (is_flyer(mdat) && !is_floater(mdat)));
-    /* preserve racial flying for races that gain it at certain
-       levels (illithids at level 12) */
-    /* TODO-EVILHACK: vampire and aasimar racial flight ports with
-       races-R2 */
-    if (Race_if(PM_ILLITHID) && u.ulevel >= 12)
+    /* preserve racial flying for races that gain it at certain levels
+       (illithids and vampires at level 12, aasimar at level 15) */
+    if ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+        && u.ulevel >= 12)
         HFlying |= FROMRACE;
+    if (Race_if(PM_AASIMAR) && u.ulevel >= 15
+        && u.ualign.abuse == 0)
+        HFlying |= FROMRACE;
+    if (!program_state.restoring) /* if loading, defer wings check
+                                     until we have a steed */
+        check_wings(TRUE);
     PROPSET(SWIMMING, is_swimmer(mdat));
     /* [don't touch MAGICAL_BREATHING here; both Amphibious and Breathless
        key off of it but include different monster forms...] */
@@ -510,6 +518,85 @@ newman(void)
         selftouch(no_longer_petrify_resistant);
 }
 
+/* #shapechange menu for vampire heroes; pick one of the vampire
+   shift forms and transform via polymon() */
+void
+vampire_shapechange(void)
+{
+    winid win;
+    menu_item *selected;
+    anything any;
+    int i, n;
+    /* how much alignment abuse (or the lack of it) affects the
+       cooldown between shapechange uses */
+    int abuse = ((u.ualign.abuse == 0) ? -1000
+                 : (u.ualign.abuse < 5) ? 100
+                   : (u.ualign.abuse < 15) ? 200
+                     : (u.ualign.abuse < 30) ? 500
+                       : (u.ualign.abuse < 50) ? 1000
+                         : 2000);
+
+    if (Unchanging) {
+        You("fail to transform!");
+        return;
+    }
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+
+    for (i = LOW_PM; i < NUMMONS; i++) {
+        if (u.ulevel >= 1) {
+            if (!all_vampire_forms(i))
+                continue;
+        } else {
+            /* extra guard, otherwise potentially
+               all monsters become available */
+            continue;
+        }
+        any.a_int = i;
+        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR,
+                 mons[i].pmnames[NEUTRAL], MENU_ITEMFLAGS_NONE);
+    }
+    end_menu(win, "Pick a form to change into.");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        i = selected[0].item.a_int;
+        free((genericptr_t) selected);
+        /* set timer for next allowed use of shapechange only
+           if the transformation actually took place; polymon()
+           returns 0 if the chosen form was genocided.
+           3600-4000 turns; how alignment is abused (or not
+           abused) can affect the amount of turns needed to
+           wait between shapechange uses */
+        if (polymon(i))
+            u.uvampireshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                                   (3600 + abuse));
+    } else {
+        /* player hit ESC/did not make a selection */
+        return;
+    }
+
+    /* TODO-EVILHACK: master rechecks underwater vision here via the
+       See_underwater property; that macro ports with the
+       object-properties subsystem */
+    /* only remove racial flying if we're polymorphed and the new form
+       can't fly, but preserve it for vampires that naturally gain
+       flying at level twelve */
+    if ((HFlying & FROMRACE) && !is_flyer(gy.youmonst.data)) {
+        /* Don't remove racial flying if we're in our natural form and
+           should have it */
+        if (!(Race_if(PM_VAMPIRE) && u.ulevel >= 12)) {
+            HFlying &= ~FROMRACE;
+            disp.botl = TRUE;
+            You_feel("gravity's pull!");
+            spoteffects(TRUE);
+        }
+    }
+    return;
+}
+
 void
 polyself(int psflags)
 {
@@ -522,7 +609,8 @@ polyself(int psflags)
             draconian = (uarm && Is_dragon_armor(uarm)),
             iswere = (ismnum(u.ulycn)),
             isvamp = (is_vampire(gy.youmonst.data)
-                      || is_vampshifter(&gy.youmonst)),
+                      || is_vampshifter(&gy.youmonst)
+                      || (!Upolyd && Race_if(PM_VAMPIRE))),
             controllable_poly = Polymorph_control && !(Stunned || Unaware);
 
     if (Unchanging) {
@@ -777,9 +865,13 @@ polyself(int psflags)
     }
     /* only remove racial flying if the new form can't fly, and
        preserve it for races that naturally gain flight at certain
-       experience levels (illithids at level 12) */
+       experience levels (illithids and vampires at level 12,
+       aasimar at level 15) */
     if ((HFlying & FROMRACE) && !is_flyer(gy.youmonst.data)
-        && !(Race_if(PM_ILLITHID) && u.ulevel >= 12)) {
+        && !((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+             && u.ulevel >= 12)
+        && !(Race_if(PM_AASIMAR) && u.ulevel >= 15
+             && u.ualign.abuse == 0)) {
         HFlying &= ~FROMRACE;
         disp.botl = TRUE;
         You_feel("gravity's pull!");
@@ -1483,9 +1575,11 @@ rehumanize(void)
     /* if the original form had intrinsic flying, give it back; the
        current races that fly do so only from a certain experience
        level on, so check against that */
-    /* TODO-EVILHACK: vampire and aasimar racial flight ports with
-       races-R2 */
-    if (was_not_flying && Race_if(PM_ILLITHID) && u.ulevel >= 12) {
+    if (was_not_flying
+        && (((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+             && u.ulevel >= 12)
+            || (Race_if(PM_AASIMAR) && u.ulevel >= 15
+                && u.ualign.abuse == 0))) {
         HFlying |= FROMRACE;
         You_feel("lighter than air!");
     }
@@ -2043,6 +2137,37 @@ dodarkness(void)
     return ECMD_TIME;
 }
 
+/* #monster for an unpolymorphed aasimar: invoke an aura of light */
+int
+dolight(void)
+{
+    int energy = 10;
+    const char *fail_invoke = 0;
+
+    if (Confusion || Stunned)
+        fail_invoke = "are unable";
+    else if (u.uhunger <= 10)
+        fail_invoke = "are too weak from hunger";
+    else if (ACURR(A_STR) < 4)
+        fail_invoke = "lack the strength";
+    else if (energy > u.uen)
+        fail_invoke = "lack the energy";
+
+    if (fail_invoke) {
+        You("%s to invoke an aura of light.", fail_invoke);
+        return ECMD_OK;
+    }
+
+    exercise(A_WIS, TRUE);
+    u.uen -= energy;
+    disp.botl = TRUE;
+    You("invoke an aura of light.");
+    litroom(TRUE, TRUE, (struct obj *) 0, u.ux, u.uy);
+    (void) lightdamage((struct obj *) 0, (struct monst *) 0, FALSE, 5);
+
+    return ECMD_TIME;
+}
+
 int
 domindblast(void)
 {
@@ -2232,15 +2357,16 @@ mbodypart(struct monst *mon, int part)
         /* opposable thumbs, hence "hands", "arms", "legs", &c */
         return humanoid_parts[part]; /* yeti/sasquatch, monkey/ape */
     }
-    /* TODO-EVILHACK: master also uses claws for demon, draugr, and
-       vampire heroes (races-R2 and the roles slice) */
+    /* TODO-EVILHACK: master also uses claws for demon heroes (the
+       race granted by Infidel crowning); ports with the roles slice */
     if ((part == HAND || part == HANDED)
         && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
              && !strchr(not_claws, mptr->mlet)
              && mptr != &mons[PM_STONE_GOLEM]
              && mptr != &mons[PM_AMOROUS_DEMON])
             || (mon == &gy.youmonst && !Upolyd
-                && (Race_if(PM_TORTLE) || Race_if(PM_ILLITHID)))))
+                && (Race_if(PM_TORTLE) || Race_if(PM_ILLITHID)
+                    || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)))))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON])
         && part == NOSE)

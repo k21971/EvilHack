@@ -3202,11 +3202,170 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       delivery does not blast - the wield attempt does (wizmode
       offers Override); hero attribute staging needs u.acurr
       AND u.abase set (status refresh reads acurr).
+      R2 PORTED + REVIEWED + FIXED 2026-07-18 (COMMIT PENDING,
+      battery PASSED same day - record below): port subagent 41
+      files +2449/-263 (brief:
+      scratchpad port-brief-races-r2.md; full report
+      races-r2-port-report.md - census branch/master after port:
+      vampire 85/98, draugr 109/127, aasimar 34/36; ~200 PORT /
+      ~45 LIVE cited / DEFERs to named owners / 2 N/A; all 17
+      races-R2 markers consumed; zero silent skips). Landed:
+      vampire blood-feeding arc (odrained lifecycle, drain_level,
+      blood_freshness, conducts) + FRAIL hunger state + full
+      vampire newuhs ladder + shapeshift (#shapechange command,
+      vampire_shapechange, u.uvampireshape cooldown, mondata.h
+      form-macro block = you.h druid_form/vampire_form landmine
+      DEFUSED - M2 flag data was already live) + undead_to_corpse
+      vampire tiers + blood-potion arcs + oc_prob restore
+      re-apply + vampire pet draining; draugr food gates +
+      HLifesaved/ELifesaved split + DRAUGR_REVIVE done() block +
+      sentient_arise + DECAPITATED/INCINERATED/DISINTEGRATED
+      death codes (producers: zap disintegration breath, Vorpal
+      beheading; INCINERATED producer rides with artifacts
+      slice) + undead-identity behavior set (temple/shop/watch/
+      nurse/ghost-fearless) + starting pets; aasimar penalty
+      engine live on the stub (abuse_tier 5/15/30/50 sign-adapted
+      to positive-unsigned abuse, apply_aasimar_penalty,
+      celestial-blood loss, crowning Death-res revocation) +
+      check_wings machinery + racial flight + dolight aura on the
+      R1 litroom infra + seduction immunity + cross-faction
+      grudge pass. REVIEWER: CONDITIONAL PASS 4 blockers/6
+      concerns/5 nits - ALL coordinator-verified vs both trees +
+      fixed same day, zero-warning clean rebuild after fixes:
+      B1 fallen-aasimar re-force DEAD ON RESTORE (5.0 runs
+      role_init BEFORE Sfi_you, reversing master's order the
+      role.c guard assumed; re-force added in restgamestate after
+      Sfi_you, before set_uasmon consumes race state); B2
+      done_eating destroyed the corpse a vampire just drained
+      (master keep-corpse arm + "draining" finish verb ported;
+      5.0 fire-elemental "consuming" variant kept); B3 savelife
+      lost master 52c9c0fae cancel_don() stale-afternmv crash fix
+      (draugr revive makes savelife routine = the master repro;
+      cancel_don + all 12 do_wear NULL-slot guards re-ported); B4
+      newcham grudge arm missing = BUG-1275 class regression
+      (peaceful shapeshifter taking demon form near an aasimar
+      billed the hero abuse via the moveloop setmangry pass;
+      silent flip + set_malign ported, Knight/Infidel terms
+      TODO-roles); C1 doeat drain nutrition halving (nutrit
+      threading through reqtime/nmod); C2 dog_eat vampire
+      meating/4 + nutrit/2; C3 bite no-feed check hoisted above
+      the d(2,6) overwrite so the base bite still lands (master
+      break semantics; was zero damage when satiated); C4
+      isvamp-vs-odrained resume reset; C5 u.uhs FRAIL insertion
+      shifts hunger enum = pre-R2 dev saves INVALID (accepted,
+      migration no-save-compat policy - regenerate reference
+      saves); C6 savelife HUnchanging-clear vs sentient_arise
+      permanence logged as known interaction (5.0 behavior kept;
+      realistic reach = wizard/discover Die?-n only); N1 mon.c
+      site-3 comment dropped for master byte-parity; N3 amr_abil
+      80-col wrap; N4 ECMD_OK; N2 stale (dig.c already ruled and
+      fixed); N5 dog_eat dead quan>1 block kept for parity.
+      Reviewer adjudications RATIFY-QUEUE: !survive guard on
+      sentient_arise (deviation from master's unguarded call -
+      prevents a successful medallion save being hijacked into
+      permanent graverise); adjabil FROMOUTSIDE removal verified
+      master-parity with no 5.0 consumer dependency (15-file
+      sweep). MAINTAINER RULED 2026-07-18: corpse-taint parity
+      restore -100 (see Decisions log). FOLLOW-UPS minted by R2:
+      partial-intrinsics system needs an owner (NEW item below);
+      hobbit R1 spillover added to the vanilla-race parity sweep.
+      R2 BATTERY PASSED 2026-07-18 (4 wizmode sessions - vampire
+      Barbarian, draugr Dark Knight, aasimar Valkyrie x2 -
+      sanity_check on; paniclog NEVER CREATED; save dir restored
+      empty; src/evilhack vs installed playground recipe).
+      VAMPIRE: #shapechange hint line; racial Fly at XL30 incl.
+      across save/reload; drain arc "You drain the blood" +
+      wizard pline "Total nutrition: 100, available: 50" = C1
+      halving (proven again 700/350 on giant corpse); B2 proven
+      = "You finish draining" + corpse SURVIVES as "a drained
+      gnome corpse" in inventory; floorfood "drain it?" verb;
+      FRAIL ladder staged via gdb uhunger -150/-350: "You feel
+      frail." + Frail Deaf status, "You are starving." + Starved
+      Blind Deaf, NO starvation death, recovery feed cleared all
+      three afflictions; #shapechange menu warg/fog/bat, bat
+      form HD:5 + Stun, early-revert exact HP halving 188->94,
+      cooldown cap = 200 exact + wizmode Override prompt +
+      persistence/decay across reload (179 post-restore); C3
+      proven by logging breakpoint at the no-feed return:
+      mhm->damage = 3 and 4 (base bite retained; pre-fix 0);
+      species-vampire corpse age diff=100 exact by gdb floor
+      -chain walk (vs natural-corpse control 19); oc_prob
+      re-apply proven: POT_BLOOD/VAMPIRE_BLOOD/WATER 20/5/92
+      identical pre-save and in the fresh restore process.
+      DRAUGR: "You have been destroyed..." death wording; innate
+      revive END-TO-END ("But wait... Suddenly, you start to
+      revive!" + draugr nomovemsg + FULL 134/134 restore +
+      umortality=1 + adjattrib toll; lifesave intercepts BEFORE
+      the wizard Die? prompt = correct done() ordering); B3
+      proven by logging breakpoint: cancel_don fired inside
+      savelife with a LIVE stale afternmv=0x4d2120 from the
+      interrupted take-off = the exact master crash trigger,
+      cleared; dra_abil LIFESAVED/COLD_RES/SLEEP_RES all
+      FROMRACE + adjabil telepathy-skip (TELEPAT 0); "Ugh...
+      this corpse is too fresh!" gate; gdb-aged corpse ->
+      "Mmmm...  tainted meat!  Nutrition gained: 100" (cwt
+      ladder exact); skeletal pony starting pet confirmed in
+      passing ("You swap places with your skeletal pony");
+      Minetown temple trip abandoned (boulder-blocked corridor;
+      temple/shop/watch arms stay reviewer-code-verified only).
+      AASIMAR: aura hint line; divine-vitality newhp = HP 392 /
+      368 at XL30 (vs 188/134 controls); racial Fly at clean
+      alignment; #monster light aura "A celestial glow surrounds
+      you." 10 Pw; penalty engine tier 1 fired ON the abuse
+      charge in one line ("You feel conductive!" shock-res
+      strip + monsters-aware + "Your angelic wings wither and
+      fade away!" + "less resilient"), abuse=5,
+      uaasimar_penalties=0x206 packed, flight revoked next
+      status refresh (FLYING bits 0x0); forsake flow at wished
+      chaotic altar via #offer with gdb-staged angry god:
+      "Thou hast forsaken Me!" verbalize + "Loki accepts your
+      allegiance" + "Your bond with the heavens is severed.
+      You are but a mortal human now." + ufallen=1 + abuse=36;
+      B1 proven: save/reload -> welcome line says "the chaotic
+      human Valkyrie", gu.urace human, no racial flight, in the
+      fresh process; B4 proven DETERMINISTICALLY: peaceful
+      chameleon (cham=472 identity-anchored poll) forced to
+      vrock via gdb newcham(m, &mons[429], 0) msg-flag-0 (safe,
+      no plines) -> PRE peace=1/abuse=0, POST peace=0/abuse=0 =
+      hostile at transform, hero NOT billed; next-turn moveloop
+      pass added no charge and no guilt line; ~20 natural form
+      re-rolls (Dlvl 1 + Gehennom) all non-demon forms stayed
+      peaceful abuse=0 = control. BATTERY LESSONS: chameleon
+      natural rolls never produced a demon even in Gehennom
+      within ~150 turns (rndmonst demon fraction small) - the
+      newcham-msg-flag-0 gdb call is the deterministic driver
+      and is SAFE (no message = no More-hang; the 2026-07-16
+      newcham ban was about NC_SHOW_MSG); pets kill peaceful
+      staging monsters in weak forms (kitten ate the chameleon -
+      freeze the PET not the subject); engulfers/mobs eat
+      queued rest keys silently - poll svm.moves to detect
+      stalled turn-burn; wizard Die? sneaks into blind key spam
+      again (answered n = savelife generic wording proven for
+      non-undead as a bonus); genesis 'peaceful chameleon'
+      spawns pre-disguised (farlook name lies - anchor gdb
+      polls on mon->cham).
 - [ ] SWEEP (new, minted by races R1): vanilla-race parity for
       elf/dwarf/gnome/orc hero deltas vs master (elf Searching@9,
       orc mithril aversion, others via targeted Race_if(PM_ELF/
       DWARF/GNOME/ORC) fork-vs-branch diff) - these races predate
       EvilHack so their master deltas hide outside the R1 grep.
+      PLUS hobbit R1 spillover (races-R2 review finding): master
+      racial_hobbit satiation thresholds 6000/4500 in bite()/
+      lesshungry() + 3000 newuhs ladder + Food_sense doeat
+      edibility hook are not on the branch.
+- [ ] Partial-intrinsics/percentage-resistance system (NEW,
+      minted by races R2 - needs an owner): master's
+      how_resistant()/incr_resistance()/resist_reduce() partial
+      resistance machinery (potion.c core + attrib.c + ring/
+      corpse consumers) was never ported and has no TODO marker
+      on the branch. Until it lands: draugr/vampire heroes can
+      gain FULL binary fire resistance from corpses/rings
+      (master caps undead at 50%), the 1.5x undead fire-damage
+      vulnerability multiplier does not exist, and the R2
+      "vulnerable to fire" status/enlightenment lines are
+      informational only. R2 deliberately invented no interim
+      mechanics (eat.c eataccessory + potion.c arms classified
+      DEFER to this item in races-r2-port-report.md).
 - [ ] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
@@ -3445,6 +3604,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-18 | Corpse-taint parity: racial-vampire/zombie corpse aging restored to master's -100 at all three mon.c make_corpse sites AND the dig.c grave dig-up site (fresh racial-vampire corpse taints ~35% on eat, dug-up grave corpse likewise); upstream 5.0's "use TAINT_AGE" cleanup (408321b4f, -51) can never trip the rotted>5 taint check (needs >=55) = a silent upstream behavior change; mklev.c graveyard site stays TAINT_AGE+1 (master's own literal 51 there = parity) | maintainer |
 | 2026-07-18 | rndvault -> themerooms MERGE: unique-to-EvilHack rndvaults become upstream themerms.lua entries (fname->contents, freq->frequency, mindepth->mindiff); the rndvault C registry (~50 sites) is retired unported; overlapping rooms adopt upstream's version; special room TYPES (GARDEN etc.) still port to mkroom.h + sp_lev name table; frequency-tuning pass keeps vault appearance rates roughly master-like or the new cadence gets its own ratification | maintainer |
 | 2026-07-16 | zombie_maker() = HYBRID: `if (mon->mcan) return FALSE; return racial_zombie(mon) \|\| mlet == S_LICH;` - master's erac-aware racial semantics (draugr-raced Knights/Monks/Infidels spread zombification) PLUS both upstream 5.0 additions kept (liches raise zombies; cancelled makers do not). Ghoul/skeleton excluded naturally (not MH_ZOMBIE) | maintainer |
 | 2026-07-15 | xlogfile forging conduct token stays master's long-style `never_forged_an_artifact` (0.9.x scoreboard-parser continuity) rather than a 5.0 short-style token | maintainer |

@@ -2818,7 +2818,8 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
     /* hu_stat[] from eat.c has trailing spaces which foul up comparisons;
        for the "not hungry" case, there's no text hence no way to highlight */
     static const char *const hutxt[] = {
-        "Satiated", "", "Hungry", "Weak", "Fainting", "Fainted", "Starved"
+        "Satiated", "", "Hungry", "Weak", "Frail",
+        "Fainting", "Fainted", "Starved"
     };
     char *tmp, *how;
     int sidx = 0, i = -1, dt = ANY_INVALID;
@@ -4154,7 +4155,7 @@ status_hilite_menu_add(int origfld)
             Strcpy(hilite.textmatch, aligntxt[rv]);
         } else if (fld == BL_HUNGER) {
             static const char *const hutxt[] = {
-                "Satiated", (char *) 0, "Hungry", "Weak",
+                "Satiated", (char *) 0, "Hungry", "Weak", "Frail",
                 "Fainting", "Fainted", "Starved"
             };
             int rv = query_arrayvalue(qry_buf, hutxt, SATIATED, STARVED + 1);

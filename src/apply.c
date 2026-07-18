@@ -1056,7 +1056,8 @@ use_mirror(struct obj *obj)
                     }
                     gn.nomovemsg = 0; /* default, "you can move again" */
                 }
-            } else if (is_vampire(gy.youmonst.data)
+            } else if (maybe_polyd(is_vampire(gy.youmonst.data),
+                                   Race_if(PM_VAMPIRE))
                        || is_vampshifter(&gy.youmonst)) {
                 You("don't have a reflection.");
             } else if (u.umonnum == PM_UMBER_HULK) {

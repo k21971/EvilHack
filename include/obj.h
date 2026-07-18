@@ -402,6 +402,11 @@ struct obj {
          || dmgtype(&mons[(obj)->corpsenm], AD_POLY)))
 #define mlevelgain(obj) (ofood(obj) && (obj)->corpsenm == PM_WRAITH)
 #define mhealup(obj) (ofood(obj) && (obj)->corpsenm == PM_NURSE)
+/* the product of drain_level() is the amount of nutrition points
+   subtracted from a corpses base nutrition value (example: a jackal
+   corpse has 250 nutrition, a vampire feeding [draining blood] from
+   its corpse will receive 125 nutrition from it (250 / 2 = 125) */
+#define drain_level(corpse) (mons[(corpse)->corpsenm].cnutrit / 2)
 #define Is_pudding(o) \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING   \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)

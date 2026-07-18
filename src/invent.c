@@ -4517,6 +4517,21 @@ mergable(
     if (Is_candle(obj) && obj->age / 25 != otmp->age / 25)
         return FALSE;
 
+    /* corpses only merge if they have similar freshness (rot level);
+       rot_amount() uses (moves - age) / 10 for Draugr, with
+       thresholds at 3 (rancid) and 5 (very rancid), so use 30-turn
+       buckets to keep corpses in the same rot category together;
+       only enforce for Draugr/ghouls who can sense freshness.
+       Non-rotting corpses (lizard, lichen) never change rot category
+       and never display a freshness status, so they must not be
+       blocked here; Rider corpses are already excluded above via
+       is_reviver() */
+    if (obj->otyp == CORPSE
+        && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
+        && ((!Upolyd && Race_if(PM_DRAUGR)) || u.umonnum == PM_GHOUL)
+        && (svm.moves - obj->age) / 30 != (svm.moves - otmp->age) / 30)
+        return FALSE;
+
     /* burning potions of oil never merge */
     if (obj->otyp == POT_OIL && obj->lamplit)
         return FALSE;

@@ -637,6 +637,12 @@ restgamestate(NHFILE *nhfp)
     gy.youmonst.cham = u.mcham;
 
 #ifndef SFCTOOL
+    /* role_init() ran before struct you was read, so its fallen-aasimar
+       check saw a zero bit; re-force the permanent human race now that
+       u.uevent is restored, before set_uasmon() consumes race state */
+    if (u.uevent.ufallen_aasimar)
+        gu.urace = races[0];
+
     if (restoring_special && iflags.explore_error_flag) {
         /* savefile has wizard or explore mode, but player is no longer
            authorized to access either; can't downgrade mode any further, so
@@ -873,9 +879,20 @@ dorecover(NHFILE *nhfp)
         return 0;
     }
     /* after restgamestate() -> restnames() so that 'bases[]' is populated */
+    /* vampire heroes enable random blood potion generation at newgame
+       by mutating oc_prob; objects[] is rebuilt from static data on
+       every program start, so re-apply before recomputing the totals */
+    if (Race_if(PM_VAMPIRE)) {
+        objects[POT_BLOOD].oc_prob = 20;
+        objects[POT_VAMPIRE_BLOOD].oc_prob = 5;
+    }
     init_oclass_probs(); /* recompute go.oclass_prob_totals[] */
 
     restlevelstate();
+    /* check crowned infidels (demonic form) and high-level aasimar
+       for their wings, ensure they stay tucked away under their body
+       armor upon reload */
+    check_wings(TRUE);
 #ifdef INSURANCE
     savestateinlock();
 #endif

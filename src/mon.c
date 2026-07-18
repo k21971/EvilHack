@@ -481,10 +481,10 @@ undead_to_corpse(int mndx)
         mndx = PM_GNOLL;
         break;
     case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
     case PM_VAMPIRE_NOBLE:
-#if 0 /* DEFERRED */
+    case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:
-#endif
     case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
         mndx = PM_HUMAN;
@@ -674,12 +674,15 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE);
         goto default_1;
     case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
     case PM_VAMPIRE_NOBLE:
+    case PM_VAMPIRE_ROYAL:
+    case PM_VAMPIRE_MAGE:
         /* include mtmp in the mkcorpstat() call */
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
-        obj->age -= (TAINT_AGE + 1); /* this is an *OLD* corpse */
+        obj->age -= 100; /* this is an *OLD* corpse */
         break;
     case PM_KOBOLD_ZOMBIE:
     case PM_DWARF_ZOMBIE:
@@ -709,7 +712,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
-        obj->age -= (TAINT_AGE + 1); /* this is an *OLD* corpse */
+        obj->age -= 100; /* this is an *OLD* corpse */
         break;
     case PM_IRON_GOLEM:
         num = d(2, 6);
@@ -892,8 +895,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_WATER_MOCCASIN: case PM_PYTHON: case PM_PIT_VIPER: case PM_COBRA:
     case PM_GIANT_ANACONDA: case PM_TROLL: case PM_ICE_TROLL:
     case PM_ROCK_TROLL: case PM_WATER_TROLL: case PM_OLOG_HAI:
-    case PM_UMBER_HULK: case PM_SHAMBLING_HORROR: case PM_VAMPIRE_SOVEREIGN:
-    case PM_VAMPIRE_ROYAL: case PM_VAMPIRE_MAGE: case PM_KAS:
+    case PM_UMBER_HULK: case PM_SHAMBLING_HORROR: case PM_KAS:
     case PM_VLAD_THE_IMPALER: case PM_BARROW_WIGHT: case PM_WRAITH:
     case PM_NAZGUL: case PM_XORN: case PM_MONKEY: case PM_BABY_OWLBEAR:
     case PM_APE: case PM_OWLBEAR: case PM_YETI: case PM_CARNIVOROUS_APE:
@@ -969,7 +971,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
             obj = mkcorpstat(CORPSE, KEEPTRAITS(mtmp) ? mtmp : 0,
                              mdat, x, y, corpstatflags);
             if (racial_zombie(mtmp) || racial_vampire(mtmp))
-                obj->age -= (TAINT_AGE + 1); /* this is an *OLD* corpse */
+                obj->age -= 100;
             if (burythem) {
                 boolean dealloc;
 
@@ -6949,6 +6951,23 @@ newcham(
     if (mdat == &mons[PM_LONG_WORM] && (mtmp->wormno = get_wormno()) != 0) {
         initworm(mtmp, rn2(5));
         place_worm_tail_randomly(mtmp, mtmp->mx, mtmp->my);
+    }
+
+    /* a shapeshifter that takes on a form the hero innately grudges
+       must turn hostile the moment it transforms, just as makemon()
+       spawns such a monster hostile. Otherwise it lingers peaceful
+       until the per-turn grudge pass in moveloop() flips it via
+       setmangry(), charging the hero an alignment-abuse penalty for a
+       transformation the hero never caused. Only peaceful non-tame
+       forms incur that penalty, so only those are handled here; tame
+       forms are already flipped penalty-free by the moveloop pass.
+       TODO-EVILHACK: master also grudges Knight vs cross-aligned
+       dragon and Infidel vs lawful angel; those arms port with the
+       roles slice */
+    if (mtmp->mpeaceful && !mtmp->mtame
+        && (Race_if(PM_AASIMAR) && is_demon(mdat))) {
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
     }
 
     mtmp->meverseen = 0; /* never seen mon in present shape; newsym() ->

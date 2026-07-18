@@ -1894,6 +1894,10 @@ goto_level(
 #endif
             Soundeffect(se_groans_and_moans, 25);
             You_hear("groans and moans everywhere.");
+            /* TODO-EVILHACK: master suppresses hit point regeneration
+               in the Valley for all but draugr and vampire heroes and
+               warns of it on arrival; the warning ports together with
+               the suppression mechanic itself */
         }
 
         record_achievement(ACH_HELL); /* reached Gehennom */

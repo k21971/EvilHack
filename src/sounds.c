@@ -976,10 +976,13 @@ domonnoise(struct monst *mtmp)
     case MS_BONES:
         Soundeffect(se_bone_rattle, 60);
         pline("%s rattles noisily.", Monnam(mtmp));
-        You("freeze for a moment.");
-        nomul(-2);
-        gm.multi_reason = "scared by rattling";
-        gn.nomovemsg = 0;
+        if (!Race_if(PM_DRAUGR)) {
+            /* draugr do not fear the rattling of their own kind */
+            You("freeze for a moment.");
+            nomul(-2);
+            gm.multi_reason = "scared by rattling";
+            gn.nomovemsg = 0;
+        }
         break;
     case MS_LAUGH: {
         static const char *const laugh_msg[4] = {

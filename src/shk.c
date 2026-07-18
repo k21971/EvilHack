@@ -813,6 +813,12 @@ u_entered_shop(char *enterstring)
         return;
     }
 
+    /* Draugr being zombies */
+    /* TODO-EVILHACK: master also bans customers in a visible striped
+       prison shirt; ports with the roles slice */
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        eshkp->pbanned = TRUE;
+
     rt = svr.rooms[*enterstring - ROOMOFFSET].rtype;
 
     if (ANGRY(shkp)) {
@@ -844,7 +850,7 @@ u_entered_shop(char *enterstring)
                   Shknam(shkp), noit_mhis(shkp));
         }
     } else {
-        if (!Deaf && !muteshk(shkp)) {
+        if (!Deaf && !muteshk(shkp) && !eshkp->pbanned) {
             set_voice(shkp, 0, 80, 0);
             verbalize("%s, %s!  Welcome%s to %s %s!", Hello(shkp), svp.plname,
                       eshkp->visitct++ ? " again" : "",
@@ -895,6 +901,15 @@ u_entered_shop(char *enterstring)
                       Shknam(shkp),
                       not_upset ? "is hesitant" : "refuses",
                       tool, plur(cnt));
+            }
+            should_block = TRUE;
+        } else if (eshkp->pbanned && !ANGRY(shkp)) {
+            if (!Deaf && !muteshk(shkp)) {
+                SetVoice(shkp, 0, 80, 0);
+                if (!Upolyd && Race_if(PM_DRAUGR))
+                    verbalize("I don't do business with zombies!");
+                else
+                    verbalize("I don't sell to your kind here.");
             }
             should_block = TRUE;
         } else if (u.usteed) {
@@ -3964,7 +3979,7 @@ append_honorific(char *buf)
     };
 
     Strcat(buf, honored[rn2(SIZE(honored) - 1) + u.uevent.udemigod]);
-    if (is_vampire(gy.youmonst.data))
+    if (maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE)))
         Strcat(buf, (flags.female) ? " dark lady" : " dark lord");
     else if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)))
         Strcat(buf, (flags.female) ? " hiril" : " hir");
@@ -4706,7 +4721,7 @@ getprice(struct obj *obj, boolean shk_buying)
         /* simpler hunger check, (2-4)*cost */
         if (u.uhs >= HUNGRY && !shk_buying)
             tmp *= (long) u.uhs;
-        if (obj->oeaten)
+        if (obj->oeaten || obj->odrained)
             tmp = 0L;
         break;
     case WAND_CLASS:
@@ -4716,6 +4731,13 @@ getprice(struct obj *obj, boolean shk_buying)
     case POTION_CLASS:
         if (obj->otyp == POT_WATER && !obj->blessed && !obj->cursed)
             tmp = 0L;
+        /* vampire hunger check, (2-4)*cost */
+        if (Race_if(PM_VAMPIRE)
+            && (obj->otyp == POT_BLOOD
+                || obj->otyp == POT_VAMPIRE_BLOOD)) {
+            if (u.uhs >= HUNGRY && !shk_buying)
+                tmp *= (long) u.uhs;
+        }
         break;
     case ARMOR_CLASS:
     case WEAPON_CLASS:

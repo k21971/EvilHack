@@ -180,6 +180,14 @@ watch_on_duty(struct monst *mtmp)
 
     if (mtmp->mpeaceful && in_town(u.ux + u.dx, u.uy + u.dy)
         && mtmp->mcansee && m_canseeu(mtmp) && !rn2(3)) {
+        /* TODO-EVILHACK: master also has the watch recognize Convicts
+           from their wanted posters; ports with the roles slice */
+        if (Race_if(PM_DRAUGR) && !Upolyd) {
+            mon_yells(mtmp, "Another zombie!  Attack!");
+            (void) angry_guards(!!Deaf);
+            stop_occupation();
+            return;
+        }
         if (picking_lock(&x, &y) && IS_DOOR(levl[x][y].typ)
             && (levl[x][y].doormask & D_LOCKED)) {
             if (couldsee(mtmp->mx, mtmp->my)) {
@@ -619,6 +627,11 @@ mind_blast(struct monst *mtmp)
 
     if (canseemon(mtmp))
         pline_mon(mtmp, "%s concentrates.", Monnam(mtmp));
+    /* a mindless hero (or a draugr, whose mind is long gone) offers
+       nothing for the psychic blast to lock on to; the blast still
+       washes over everyone else */
+    if (mindless(gy.youmonst.data) || Race_if(PM_DRAUGR))
+        goto blast_others;
     if (mdistu(mtmp) > BOLT_LIM * BOLT_LIM) {
         You("sense a faint wave of psychic energy.");
         return;
@@ -658,6 +671,7 @@ mind_blast(struct monst *mtmp)
             losehp(dmg, "psychic blast", KILLED_BY_AN);
         }
     }
+ blast_others:
     for (m2 = fmon; m2; m2 = nmon) {
         nmon = m2->nmon;
         if (DEADMONSTER(m2))

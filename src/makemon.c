@@ -4428,9 +4428,18 @@ set_malign(struct monst *mtmp)
             mtmp->malign = 20; /* really hostile */
     } else if (always_peaceful(mtmp->data)) {
         int absmal = abs(mal);
-        if (mtmp->mpeaceful)
-            mtmp->malign = -3 * max(5, absmal);
-        else
+        if (mtmp->mpeaceful) {
+            /* TODO-EVILHACK: master also softens the penalty here for
+               unaligned heroes (Moloch's will) and Convicts; those
+               port with the roles slice */
+            if (!Upolyd && Race_if(PM_DRAUGR)) {
+                /* 'always peaceful' types turn on the walking dead;
+                   killing them is barely an alignment hit */
+                mtmp->malign += 1;
+            } else {
+                mtmp->malign = -3 * max(5, absmal);
+            }
+        } else
             mtmp->malign = 3 * max(5, absmal); /* renegade */
     } else if (always_hostile(mtmp->data)) {
         int absmal = abs(mal);

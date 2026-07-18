@@ -1335,7 +1335,20 @@ unturn_you(void)
 {
     (void) unturn_dead(&gy.youmonst); /* hit carried corpses and eggs */
 
-    if (is_undead(gy.youmonst.data)) {
+    if (maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))
+        || maybe_polyd(is_undead(gy.youmonst.data),
+                       Race_if(PM_VAMPIRE))) {
+        pline("%s!  This hurts!", rn2(2) ? "Argh" : "Uuungh");
+
+        if (Stun_resistance || wielding_artifact(ART_TEMPEST))
+            shieldeff(u.ux, u.uy); /* resistance handled below */
+        else
+            You_feel("frightened and %sstunned.",
+                     Stunned ? "even more " : "");
+        make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
+
+        losehp(d(4, 4), "wand of undead turning", KILLED_BY_AN);
+    } else if (is_undead(gy.youmonst.data)) {
         You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
         make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
     } else {
@@ -3028,6 +3041,31 @@ zapyourself(struct obj *obj, boolean ordinary)
 
     case WAN_DEATH:
     case SPE_FINGER_OF_DEATH:
+        if (is_undead(gy.youmonst.data)
+            || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
+            /* wand/spell of death acts like a potion of full healing
+               for the undead, especially whilst in the VotD */
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
+            if (Is_valley(&u.uz)) {
+                if (Upolyd) {
+                    u.mhmax += u.mhmax / 6;
+                    if (u.mhmax > 200)
+                        u.mhmax = 200;
+                } else {
+                    u.uhpmax += u.uhpmax / 6;
+                    if (u.uhpmax > 200)
+                        u.uhpmax = 200;
+                }
+            }
+            if (Upolyd)
+                u.mh = u.mhmax;
+            else
+                u.uhp = u.uhpmax;
+            You_feel("restored.");
+            disp.botl = TRUE;
+            break;
+        }
         if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
@@ -4821,6 +4859,21 @@ zhitu(
                 (void) disintegrate_arm(uarmc);
             if (uarmu)
                 (void) disintegrate_arm(uarmu);
+        } else if (is_undead(gy.youmonst.data)
+                   || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
+            /* wand of death acts like a potion of full healing
+               for the undead, especially whilst in the VotD */
+            shieldeff(sx, sy);
+            monstseesu(M_SEEN_DEATH);
+            if (Is_valley(&u.uz)) {
+                u.uhpmax += u.uhpmax / 6;
+                if (u.uhpmax > 200)
+                    u.uhpmax = 200;
+            }
+            u.uhp = u.uhpmax;
+            You_feel("restored.");
+            disp.botl = TRUE;
+            break;
         } else if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
             shieldeff(sx, sy);
             You("seem unaffected.");
@@ -4836,7 +4889,7 @@ zhitu(
         Strcpy(svk.killer.name, fltxt ? fltxt : "");
         /* when killed by disintegration breath, don't leave corpse */
         u.ugrave_arise = (type == -ZT_BREATH(ZT_DEATH)) ? -3 : NON_PM;
-        done(DIED);
+        done((type == -ZT_BREATH(ZT_DEATH)) ? DISINTEGRATED : DIED);
         return; /* lifesaved */
     case ZT_LIGHTNING:
         orig_dam = d(nd, 6);

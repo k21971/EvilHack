@@ -99,8 +99,10 @@ formatkiller(
         "killed by ", "choked on ", "poisoned by ", "died of ",
         /* DROWNING, BURNING, DISSOLVED, CRUSHING, */
         "drowned in ", "burned by ", "dissolved in ", "crushed to death by ",
-        /* STONING, TURNED_SLIME, GENOCIDED, */
-        "petrified by ", "turned to slime by ", "killed by ",
+        /* STONING, TURNED_SLIME, DECAPITATED, */
+        "petrified by ", "turned to slime by ", "decapitated by ",
+        /* INCINERATED, DISINTEGRATED, GENOCIDED, */
+        "incinerated by ", "disintegrated by ", "killed by ",
         /* PANICKED, TRICKED, QUIT, ESCAPED, ASCENDED */
         "", "", "", "", ""
     };
@@ -120,7 +122,12 @@ formatkiller(
         FALLTHROUGH;
         /*FALLTHRU*/
     case KILLED_BY:
-        (void) strncat(buf, killed_by_prefix[how], siz - 1);
+        /* undead players are "destroyed by" not "killed by" */
+        if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+            && (how == DIED || how == GENOCIDED))
+            (void) strncat(buf, "destroyed by ", siz - 1);
+        else
+            (void) strncat(buf, killed_by_prefix[how], siz - 1);
         l = Strlen(buf);
         buf += l, siz -= l;
         break;

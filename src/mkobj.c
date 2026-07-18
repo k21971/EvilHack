@@ -2658,6 +2658,19 @@ peek_at_iced_corpse_age(struct obj *otmp)
     return retval;
 }
 
+/*
+ * Number of turns a corpse's blood stays drinkable for a vampire after
+ * death (ice-adjusted age). Varies 8..15 per corpse, keyed to the
+ * object's o_id so the window is stable across repeated checks and
+ * identical for the player and a vampire pet -- it cannot be re-rolled
+ * by retrying the attempt.
+ */
+long
+blood_freshness(struct obj *otmp)
+{
+    return 8L + (long) (otmp->o_id % 8);
+}
+
 staticfn void
 obj_timer_checks(
     struct obj *otmp,
@@ -3098,6 +3111,11 @@ hornoplenty(
             if (objects[obj->otyp].oc_magic) {
                 do {
                     obj->otyp = rnd_class(POT_BOOZE, POT_WATER);
+                    /* the horn tailors its refreshments for vampires */
+                    if (maybe_polyd(is_vampire(gy.youmonst.data),
+                                    Race_if(PM_VAMPIRE)))
+                        obj->otyp = (rn2(5) ? POT_BLOOD
+                                            : POT_VAMPIRE_BLOOD);
                 } while (obj->otyp == POT_SICKNESS);
                 /* oil uses obj->age field differently from other potions */
                 if (obj->otyp == POT_OIL)

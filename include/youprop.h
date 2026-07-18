@@ -480,7 +480,9 @@
 
 #define Fixed_abil u.uprops[FIXED_ABIL].extrinsic /* KMH */
 
-#define Lifesaved u.uprops[LIFESAVED].extrinsic
+#define HLifesaved u.uprops[LIFESAVED].intrinsic /* Draugr race */
+#define ELifesaved u.uprops[LIFESAVED].extrinsic
+#define Lifesaved (HLifesaved || ELifesaved)
 
 /* EvilHack */
 #define HTelekinesis u.uprops[TELEKINESIS].intrinsic

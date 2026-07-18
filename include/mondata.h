@@ -69,6 +69,16 @@
      || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_CAVE_LIZARD] \
      || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
+/* humanoid shape with big wings (flight blocked by most body armor);
+   PM_AASIMAR is gated player-side by check_wings() on level/abuse */
+#define big_wings(ptr) \
+    ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON]     \
+     || (ptr) == &mons[PM_AMOROUS_DEMON]                                \
+     || (ptr) == &mons[PM_HORNED_DEVIL] || (ptr) == &mons[PM_ERINYS]    \
+     || (ptr) == &mons[PM_VROCK] || (ptr) == &mons[PM_PIT_FIEND]        \
+     || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_ANGEL]           \
+     || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON]       \
+     || (ptr) == &mons[PM_LUCIFER] || (ptr) == &mons[PM_AASIMAR])
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
@@ -446,6 +456,10 @@
 #define vegetarian(ptr) \
     (vegan(ptr)         \
      || ((ptr)->mlet == S_PUDDING && (ptr) != &mons[PM_BLACK_PUDDING]))
+/* creatures with blood a vampire hero can drain */
+#define has_blood(ptr) \
+    (!vegetarian(ptr) && (!is_undead(ptr) || is_vampire(ptr))       \
+     && ((ptr)->mlet != S_GOLEM || (ptr) == &mons[PM_FLESH_GOLEM]))
 
 #define corpse_eater(ptr)                    \
     (ptr == &mons[PM_PURPLE_WORM]            \
@@ -459,17 +473,21 @@
    pacified by any other food;
    horses can be tamed by always-veggy food or lichen corpses but
    not tamed or pacified by other corpses or tins of veggy critters;
-   drow heroes can also befriend spiders and cave lizards */
-/* TODO-EVILHACK: master extends this with more racial and role pet
-   clauses (wargs for orcs and vampires plus wolves for vampires with
-   races-R2; rats for Convicts, hawks for Druids, saber-toothed
-   tigers for Cave Dwellers with the roles slice) */
+   drow heroes can also befriend spiders and cave lizards;
+   vampire heroes can also befriend wargs, wolves, and wolf cubs */
+/* TODO-EVILHACK: master extends this with more role pet clauses
+   (rats for Convicts, hawks for Druids, saber-toothed tigers for
+   Cave Dwellers with the roles slice) */
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
      ? (obj)->otyp == BANANA                                             \
      : ((is_domestic(ptr)                                                \
          || (((is_spider(ptr) && (ptr) != &mons[PM_DRIDER])              \
-              || is_cavelizard(ptr)) && Race_if(PM_DROW)))               \
+              || is_cavelizard(ptr)) && Race_if(PM_DROW))                \
+         || ((ptr) == &mons[PM_WARG]                                     \
+             && (Race_if(PM_ORC) || Race_if(PM_VAMPIRE)))                \
+         || ((ptr) == &mons[PM_WOLF] && Race_if(PM_VAMPIRE))             \
+         || ((ptr) == &mons[PM_WOLF_CUB] && Race_if(PM_VAMPIRE)))        \
         && (obj)->oclass == FOOD_CLASS                                   \
         && ((ptr)->mlet != S_UNICORN                                     \
             || objects[(obj)->otyp].oc_material == VEGGY                 \
@@ -480,5 +498,25 @@
                         ? (ptr)->pmnames[g] : (ptr)->pmnames[NEUTRAL])
 #endif
 #define monsym(ptr) (def_monsyms[(int) (ptr)->mlet].sym)
+
+/* valid Druid #wildshape forms */
+#define druid_form_A(mndx) \
+    ((mons[mndx].mflags2 & M2_DRUID_FORM_A) != 0L)
+#define druid_form_B(mndx) \
+    ((mons[mndx].mflags2 & M2_DRUID_FORM_B) != 0L)
+#define druid_form_C(mndx) \
+    ((mons[mndx].mflags2 & M2_DRUID_FORM_C) != 0L)
+#define druid_form_D(mndx) \
+    ((mons[mndx].mflags2 & M2_DRUID_FORM_D) != 0L)
+
+#define all_druid_forms(mndx) \
+    (((mons[mndx].mflags2 & M2_DRUID_FORM_A) != 0L)     \
+     || ((mons[mndx].mflags2 & M2_DRUID_FORM_B) != 0L)  \
+     || ((mons[mndx].mflags2 & M2_DRUID_FORM_C) != 0L)  \
+     || ((mons[mndx].mflags2 & M2_DRUID_FORM_D) != 0L))
+
+/* valid vampire race #shapechange forms */
+#define all_vampire_forms(mndx) \
+    ((mons[mndx].mflags2 & M2_VAMPIRE_FORM) != 0L)
 
 #endif /* MONDATA_H */

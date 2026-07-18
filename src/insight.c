@@ -1584,6 +1584,12 @@ attributes_enlightenment(
                 from_what(HALLUC_RES));
     if (u.uedibility)
         you_can("recognize detrimental food", "");
+    /* TODO-EVILHACK: master keys this on the Vulnerable_* properties
+       and also reports cold, electricity, and acid vulnerability;
+       those port with the vulnerability subsystem */
+    if ((!Upolyd && Race_if(PM_DRAUGR))
+        || (!Upolyd && Race_if(PM_VAMPIRE)))
+        you_are("vulnerable to fire", "");
 
     /*** Vision and senses ***/
     if ((HBlinded || EBlinded) && BBlinded) /* blind w/ blindness blocked */
@@ -1792,6 +1798,10 @@ attributes_enlightenment(
         enl_msg("You regenerate", "", "d", "", from_what(REGENERATION));
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
+    if (maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE))) {
+        Sprintf(buf, "must consume blood for survival");
+        enl_msg(You_, buf, buf, "", "");
+    }
     if (u.uhitinc) {
         (void) enlght_combatinc("to hit", u.uhitinc, final, buf);
         if (iflags.tux_penalty && !Upolyd)
@@ -1898,6 +1908,19 @@ attributes_enlightenment(
         if (wizard)
             Sprintf(eos(buf), " (%d)", u.mtimedone);
         you_are(buf, "");
+    }
+    /* TODO-EVILHACK: master reports the equivalent druid #wildshape
+       cooldown here; ports with the roles slice */
+    if (Race_if(PM_VAMPIRE) && u.ulevel >= 3) {
+        if (u.uvampireshape == 0) {
+            Sprintf(buf, "able to use your shapechange ability");
+            you_are(buf, "");
+        } else { /* u.uvampireshape is greater than 0 */
+            Sprintf(buf,
+                 "have %u turns remaining before shapechanging again",
+                    u.uvampireshape);
+            enl_msg(You_, buf, buf, "", "");
+        }
     }
     if (lays_eggs(gy.youmonst.data) && flags.female) /* Upolyd */
         you_can("lay eggs", "");
@@ -3600,6 +3623,11 @@ ustatusline(void)
         Strcat(info, ", disguised");
     if (Invis)
         Strcat(info, ", invisible");
+    /* TODO-EVILHACK: master keys this on the Vulnerable_fire property
+       and also reports cold, electricity, and acid vulnerability;
+       those port with the vulnerability subsystem */
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        Strcat(info, ", vulnerable to fire");
     if (u.ustuck) {
         if (u.uswallow)
             Strcat(info, digests(u.ustuck->data) ? ", being digested by "

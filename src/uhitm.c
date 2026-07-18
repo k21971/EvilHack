@@ -855,18 +855,19 @@ hitum(struct monst *mon, struct attack *uattk)
     }
     gt.twohits = 0;
 
-    /* your race may grant extra natural attacks; illithids don't use
-       their tentacle attack every turn, and centaurs are strong
-       enough to not need their extra kick attack */
-    /* TODO-EVILHACK: draugr and vampire extra racial attacks port
-       with races-R2 */
+    /* your race may grant extra natural attacks; illithids and draugr
+       don't use their extra attack every turn, vampires only rarely,
+       and centaurs are strong enough to not need their extra kick
+       attack */
     if (!Upolyd && !(gm.multi < 0 || u.umortality > oldumort
                      || !malive || !isok(x, y) || m_at(x, y) != mon)) {
         int i;
         int race = gu.urace.mnum;
         struct attack *attacks = mons[race].mattk;
 
-        if ((Race_if(PM_ILLITHID) && rn2(4)) || Race_if(PM_CENTAUR))
+        if (((Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)) && rn2(4))
+            || (Race_if(PM_VAMPIRE) && !rn2(3))
+            || Race_if(PM_CENTAUR))
             return malive;
         for (i = 0; i < NATTK; i++) {
             if (attacks[i].aatyp != AT_WEAP
@@ -1804,11 +1805,13 @@ hmon_hitmon_msg_hit(
                            || is_wet_towel(obj))) ? "lash"
                   : Role_if(PM_BARBARIAN) ? "smite"
                     /* TODO-EVILHACK: master also claws for poly'd
-                       claw-bearing forms (has_claws) and for demon,
-                       draugr, and vampire heroes */
+                       claw-bearing forms (via its has_claws macros)
+                       and for demon heroes (roles slice) */
                     : (!obj && !Upolyd
                        && (Race_if(PM_TORTLE)
-                           || Race_if(PM_ILLITHID))) ? "claw"
+                           || Race_if(PM_ILLITHID)
+                           || Race_if(PM_DRAUGR)
+                           || Race_if(PM_VAMPIRE))) ? "claw"
                       : "hit",
                 mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
     }
@@ -2594,8 +2597,29 @@ mhitm_ad_drli(
         /* uhitm */
         if (!rn2(3) && !(resists_drli(mdef) || defended(mdef, AD_DRLI))
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
+            if (maybe_polyd(is_vampire(gy.youmonst.data),
+                            Race_if(PM_VAMPIRE))
+                && mattk->aatyp == AT_BITE
+                && (!has_blood(mdef->data) || u.uhunger > 1250)) {
+                /* don't execute the draining effect if we were not
+                   able to feed; the normal bite damage still applies.
+                   Satiated is u.uhunger at 1000-1999; allow some
+                   satiation, but don't go overboard */
+                return;
+            }
             mhm->damage = d(2, 6); /* Stormbringer uses monhp_per_lvl
                                     * (usually 1d8) */
+            if (maybe_polyd(is_vampire(gy.youmonst.data),
+                            Race_if(PM_VAMPIRE))
+                && mattk->aatyp == AT_BITE) {
+                /* For the life of a creature is in the blood */
+                if (flags.verbose)
+                    You("feed on its lifeblood.");
+                /* Biting monsters does not count against
+                   eating conducts. The draining of life is
+                   considered to be primarily a non-physical effect */
+                lesshungry(min(mhm->damage, mdef->mhp) * 6);
+            }
             pline("%s becomes weaker!", Monnam(mdef));
             if (mdef->mhpmax - mhm->damage > (int) mdef->m_lev) {
                 mdef->mhpmax -= mhm->damage;
@@ -4587,8 +4611,18 @@ mhitm_ad_heal(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         /* a cancelled nurse is just an ordinary monster,
-         * nurses don't heal those that cause petrification */
-        if (magr->mcan || (Upolyd && touch_petrifies(pd))) {
+         * nurses don't heal those that cause petrification,
+         * nor will they heal the undead */
+        if (magr->mcan || (Upolyd && touch_petrifies(pd))
+            || is_undead(gy.youmonst.data) || Race_if(PM_DRAUGR)
+            || Race_if(PM_VAMPIRE)) {
+            if (is_undead(gy.youmonst.data) || Race_if(PM_DRAUGR)
+                || Race_if(PM_VAMPIRE)) {
+                if (!Deaf && !(svm.moves % 5)) {
+                    SetVoice(magr, 0, 80, 0);
+                    verbalize("I can't heal the undead... you're dead!");
+                }
+            }
             hitmsg(magr, mattk);
             return;
         }
@@ -6005,6 +6039,41 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                             Race_if(PM_ILLITHID))
                 && mattk->aatyp == AT_TENT && u.uswallow)
                 break;
+            /* don't bite as one of the undead races when it would be
+               particularly detrimental */
+            if ((vampire_form
+                 || maybe_polyd(is_zombie(gy.youmonst.data),
+                                Race_if(PM_DRAUGR))
+                 || maybe_polyd(is_vampire(gy.youmonst.data),
+                                Race_if(PM_VAMPIRE)))
+                && mattk->aatyp == AT_BITE
+                && (((touch_petrifies(mon->data)
+                      || mon->data == &mons[PM_MEDUSA])
+                     && !Stone_resistance)
+                    || is_rider(mon->data)
+                    || noncorporeal(mon->data)
+                    || mon->data == &mons[PM_GREEN_SLIME]
+                    || (!Disint_resistance
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+                break;
+            /* never eat brains while engulfed */
+            if (maybe_polyd(is_zombie(gy.youmonst.data),
+                            Race_if(PM_DRAUGR))
+                && mattk->aatyp == AT_BITE && u.uswallow)
+                break;
+            /* small, unimpaired animals can evade a zombie's bite */
+            if (maybe_polyd(is_zombie(gy.youmonst.data),
+                            Race_if(PM_DRAUGR))
+                && mattk->aatyp == AT_BITE
+                && mon->data->msize <= MZ_SMALL
+                && is_animal(mon->data)
+                && !(mon->mfrozen || mon->mstone
+                     || mon->mconf || mon->mstun) && rn2(3)) {
+                pline("%s nimbly %s your bite!", Monnam(mon),
+                      rn2(2) ? "dodges" : "evades");
+                break;
+            }
             tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
                                    &attknum, &armorpenalty);
             mon_maybe_unparalyze(mon);
@@ -6328,6 +6397,14 @@ passive(
     int i, tmp;
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
     int malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
+
+    /* a vampire that just bit gets the side effects of tasting the
+       victim's flesh or blood */
+    if (maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE))
+        && aatyp == AT_BITE && mhitb) {
+        if (bite_monster(mon))
+            return M_ATTK_AGR_DIED; /* lifesaved */
+    }
 
     for (i = 0;; i++) {
         if (i >= NATTK)

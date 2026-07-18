@@ -138,9 +138,38 @@ static const struct innate {
                  { 9, &HSearching, "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
-  /* TODO-EVILHACK: master also defines racial intrinsic tables for
-     draugr, vampire, and aasimar (races-R2) and for the demon race
-     granted by Infidel crowning (roles slice) */
+  dra_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &HSick_resistance, "", "" },
+                 { 1, &HCold_resistance, "", "" },
+                 { 1, &HSleep_resistance, "", "" },
+                 { 1, &HPoison_resistance, "", "" },
+                 { 1, &HLycan_resistance, "", "" },
+                 { 1, &HAggravate_monster, "", "" },
+                 { 1, &HLifesaved, "", "" }, /* only a random number of times */
+                 { 0, 0, 0, 0 } },
+
+  vam_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &HSick_resistance, "", "" },
+                 { 1, &HCold_resistance, "", "" },
+                 { 1, &HSleep_resistance, "", "" },
+                 { 1, &HPoison_resistance, "", "" },
+                 { 1, &HLycan_resistance, "", "" },
+                 { 12, &HFlying, "lighter than air", "gravity's pull" },
+                 { 20, &HRegeneration, "resilient", "less resilient" },
+                 { 0, 0, 0, 0 } },
+
+  amr_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &HSee_invisible, "", "" },
+                 { 1, &HPoison_resistance, "", "" },
+                 { 4, &HAntimagic, "resistant to magic",
+                   "vulnerable to magic" },
+                 { 7, &HSleep_resistance, "awake", "tired" },
+                 { 12, &HCold_resistance, "warm", "cooler" },
+                 { 20, &HShock_resistance, "insulated", "conductive" },
+                 { 0, 0, 0, 0 } },
+
+  /* TODO-EVILHACK: master also defines a racial intrinsic table for
+     the demon race granted by Infidel crowning (roles slice) */
 
   hum_abil[] = { { 0, 0, 0, 0 } };
 
@@ -151,6 +180,12 @@ staticfn void postadjabil(long *) NONNULLARG1;
 staticfn const struct innate *role_abil(int);
 staticfn const struct innate *check_innate_abil(long *, long);
 staticfn int innately(long *);
+staticfn long *aasimar_pen_prop(int);
+staticfn int aasimar_pen_minlevel(int);
+staticfn void apply_aasimar_penalty(int, boolean);
+staticfn int abuse_tier(void);
+staticfn boolean has_stat_drain_penalty(void);
+staticfn boolean aasimar_ability_penalized(long *);
 
 /* adjust an attribute; return TRUE if change is made, FALSE otherwise */
 boolean
@@ -246,11 +281,10 @@ gainstr(struct obj *otmp, int incr, boolean givemsg)
 
     /* inherently strong races treat any non-cursed strength gain as
        a full gain roll; giants gain extra and top out at 18/100 */
-    /* TODO-EVILHACK: draugr, vampire, and aasimar also qualify for
-       the full gain roll; they port with races-R2 */
     if (!num
         || ((Race_if(PM_GIANT) || Race_if(PM_CENTAUR)
-             || Race_if(PM_TORTLE))
+             || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR)
+             || Race_if(PM_VAMPIRE) || Race_if(PM_AASIMAR))
             && !(otmp && otmp->cursed))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
@@ -572,17 +606,32 @@ staticfn void
 exerper(void)
 {
     if (!(svm.moves % 10)) {
-        /* Hunger Checks; hobbits eat often and are rarely sated */
-        int hs = (u.uhunger > (Race_if(PM_HOBBIT) ? 3000 : 1000)) ? SATIATED
+        /* Hunger Checks; hobbits eat often and are rarely sated;
+           vampire heroes can push into negative satiation */
+        int hs;
+
+        if (!racial_vampire(&gy.youmonst))
+            hs = (u.uhunger > (Race_if(PM_HOBBIT) ? 3000 : 1000)) ? SATIATED
                  : (u.uhunger > 150) ? NOT_HUNGRY
                    : (u.uhunger > 50) ? HUNGRY
                      : (u.uhunger > 0) ? WEAK
                        : FAINTING;
+        else
+            hs = (u.uhunger > 1000) ? SATIATED
+                 : (u.uhunger > 150) ? NOT_HUNGRY
+                   : (u.uhunger > 50) ? HUNGRY
+                     : (u.uhunger > -100) ? WEAK
+                       : (u.uhunger > -300) ? FRAIL
+                         : STARVED;
 
         debugpline0("exerper: Hunger checks");
         switch (hs) {
         case SATIATED:
-            exercise(A_DEX, FALSE);
+            if (!(maybe_polyd(is_zombie(gy.youmonst.data),
+                              Race_if(PM_DRAUGR))
+                  || maybe_polyd(is_vampire(gy.youmonst.data),
+                                 Race_if(PM_VAMPIRE))))
+                exercise(A_DEX, FALSE);
             if (Role_if(PM_MONK))
                 exercise(A_WIS, FALSE);
             break;
@@ -596,6 +645,11 @@ exerper(void)
             break;
         case FAINTING:
         case FAINTED:
+            exercise(A_CON, FALSE);
+            break;
+        case FRAIL:
+        case STARVED:
+            exercise(A_STR, FALSE);
             exercise(A_CON, FALSE);
             break;
         }
@@ -904,6 +958,15 @@ check_innate_abil(long *ability, long frommask)
         case PM_DROW:
             abil = dro_abil;
             break;
+        case PM_DRAUGR:
+            abil = dra_abil;
+            break;
+        case PM_VAMPIRE:
+            abil = vam_abil;
+            break;
+        case PM_AASIMAR:
+            abil = amr_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1076,6 +1139,10 @@ adjabil(int oldlevel, int newlevel)
 {
     const struct innate *abil, *rabil;
     long prevabil, mask = FROMEXPER;
+    /* don't give resistance messages when demon crowning; they aren't
+       given in normal crowning, and you can e.g. lose and regain
+       warning, so you don't want messages about that */
+    boolean verbose = !(oldlevel == 0 || newlevel == 0);
 
     abil = role_abil(Role_switch);
 
@@ -1104,6 +1171,15 @@ adjabil(int oldlevel, int newlevel)
     case PM_DROW:
         rabil = dro_abil;
         break;
+    case PM_DRAUGR:
+        rabil = dra_abil;
+        break;
+    case PM_VAMPIRE:
+        rabil = vam_abil;
+        break;
+    case PM_AASIMAR:
+        rabil = amr_abil;
+        break;
     case PM_HUMAN:
     case PM_DWARF:
     case PM_GNOME:
@@ -1123,32 +1199,46 @@ adjabil(int oldlevel, int newlevel)
             mask = FROMRACE;
         }
         prevabil = *(abil->ability);
-        /* giants are too big and loud to acquire stealth from
-           their role */
-        /* TODO-EVILHACK: master also skips fire resistance for
-           vampires and draugr and telepathy for draugr (races-R2) */
-        if (Race_if(PM_GIANT) && abil->ability == &HStealth) {
+        /* giants are too big and loud to acquire stealth from their
+           role; the undead races never warm up to fire resistance;
+           mindless draugr never develop telepathy */
+        if ((Race_if(PM_GIANT) && abil->ability == &HStealth)
+            || (Race_if(PM_VAMPIRE) && abil->ability == &HFire_resistance)
+            || (Race_if(PM_DRAUGR) && abil->ability == &HFire_resistance)
+            || (Race_if(PM_DRAUGR) && abil->ability == &HTelepat)) {
             abil++;
             continue;
         }
         if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
             /* Abilities gained at level 1 can never be lost
-             * via level loss, only via means that remove _any_
-             * sort of ability.  A "gain" of such an ability from
-             * an outside source is devoid of meaning, so we set
-             * FROMOUTSIDE to avoid such gains.
+             * via level loss, but can be lost by race change via
+             * infidel crowning. So, track separately from corpses.
              */
-            if (abil->ulevel == 1)
-                *(abil->ability) |= (mask | FROMOUTSIDE);
-            else
-                *(abil->ability) |= mask;
-            if (!(*(abil->ability) & INTRINSIC & ~mask)) {
+            /* Don't grant if an aasimar abuse penalty is
+               stripping this intrinsic */
+            if (mask == FROMRACE && Race_if(PM_AASIMAR)
+                && aasimar_ability_penalized(abil->ability)) {
+                abil++;
+                continue;
+            }
+            *(abil->ability) |= mask;
+            /* no magic resistance conduct */
+            if (mask == FROMRACE && abil->ability == &HAntimagic)
+                u.uconduct.antimagic++;
+            if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL & ~mask)
+                && (!(*(abil->ability) & HAVEPARTIAL & ~mask)
+                    || (*(abil->ability) & TIMEOUT) < 100)
+                && verbose) {
                 if (*(abil->gainstr))
                     You_feel("%s!", abil->gainstr);
             }
         } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
             *(abil->ability) &= ~mask;
-            if (!(*(abil->ability) & INTRINSIC)) {
+            if (prevabil != *(abil->ability)
+                && !(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL)
+                && (!(*(abil->ability) & HAVEPARTIAL)
+                    || (*(abil->ability) & TIMEOUT) < 100)
+                && verbose) {
                 if (*(abil->losestr))
                     You_feel("%s!", abil->losestr);
                 else if (*(abil->gainstr))
@@ -1207,6 +1297,12 @@ newhp(void)
             if (gu.urace.hpadv.hirnd > 0)
                 hp += rnd(gu.urace.hpadv.hirnd);
         }
+
+        /* Aasimar divine vitality: bonus HP per level if
+           alignment is completely unblemished or fully atoned */
+        if (Race_if(PM_AASIMAR) && u.ualign.abuse == 0)
+            hp += rn1(4, 3);
+
         if (ACURR(A_CON) <= 3)
             conplus = -2;
         else if (ACURR(A_CON) <= 6)
@@ -1432,20 +1528,476 @@ extremeattr(
     return (curval == lolimit || curval == hilimit) ? TRUE : FALSE;
 }
 
+/*
+ * Aasimar alignment abuse penalties.
+ *
+ * Each abuse tier imposes one random penalty: either strip
+ * a positive racial intrinsic (FROMRACE) or impose a negative
+ * one. Penalties persist until atonement reduces abuse below
+ * that tier. If the pool is exhausted, stat max values are
+ * reduced by 3 (one STAT_DRAIN max per character).
+ *
+ * Penalty IDs packed 6 bits each in u.uaasimar_penalties:
+ * bits 0-5 = Slight, 6-11 = Moderate, 12-17 = Serious,
+ * 18-23 = Severe, 24-29 = Grave.
+ */
+#define AASIMAR_PEN_NONE       0
+#define AASIMAR_PEN_SEE_INVIS  1
+#define AASIMAR_PEN_ANTIMAGIC  2
+#define AASIMAR_PEN_COLD_RES   3
+#define AASIMAR_PEN_SLEEP_RES  4
+#define AASIMAR_PEN_POISON_RES 5
+#define AASIMAR_PEN_SHOCK_RES  6
+#define AASIMAR_PEN_HUNGER     7
+#define AASIMAR_PEN_AGGRAVATE  8
+#define AASIMAR_PEN_STAT_DRAIN 9
+#define NUM_AASIMAR_PENALTIES  10
+#define NUM_ABUSE_TIERS        5
+
+#define AASIMAR_PEN_TIER(tier) \
+    ((int)((u.uaasimar_penalties \
+            >> ((tier) * 6)) & 0x3FL))
+#define SET_AASIMAR_PEN_TIER(tier, val) \
+    (u.uaasimar_penalties = \
+        (u.uaasimar_penalties \
+         & ~(0x3FL << ((tier) * 6))) \
+        | ((long)(val) << ((tier) * 6)))
+
+/* TRUE if this is a positive intrinsic penalty */
+#define PEN_IS_POSITIVE(id) \
+    ((id) >= AASIMAR_PEN_SEE_INVIS \
+     && (id) <= AASIMAR_PEN_SHOCK_RES)
+
+/* Map penalty ID to the property pointer it affects.
+   Returns NULL for STAT_DRAIN (handled separately) */
+staticfn long *
+aasimar_pen_prop(int pen_id)
+{
+    switch (pen_id) {
+    case AASIMAR_PEN_SEE_INVIS:
+        return &HSee_invisible;
+    case AASIMAR_PEN_ANTIMAGIC:
+        return &HAntimagic;
+    case AASIMAR_PEN_COLD_RES:
+        return &HCold_resistance;
+    case AASIMAR_PEN_SLEEP_RES:
+        return &HSleep_resistance;
+    case AASIMAR_PEN_POISON_RES:
+        return &HPoison_resistance;
+    case AASIMAR_PEN_SHOCK_RES:
+        return &HShock_resistance;
+    case AASIMAR_PEN_HUNGER:
+        return &HHunger;
+    case AASIMAR_PEN_AGGRAVATE:
+        return &HAggravate_monster;
+    default:
+        return (long *) 0;
+    }
+}
+
+/* Minimum player level for each positive intrinsic.
+   Negative intrinsics have no level requirement */
+staticfn int
+aasimar_pen_minlevel(int pen_id)
+{
+    switch (pen_id) {
+    case AASIMAR_PEN_SEE_INVIS:
+        return 1;
+    case AASIMAR_PEN_POISON_RES:
+        return 1;
+    case AASIMAR_PEN_ANTIMAGIC:
+        return 4;
+    case AASIMAR_PEN_SLEEP_RES:
+        return 7;
+    case AASIMAR_PEN_COLD_RES:
+        return 12;
+    case AASIMAR_PEN_SHOCK_RES:
+        return 20;
+    default:
+        return 0;
+    }
+}
+
+/* Apply or remove one aasimar penalty.
+   apply=TRUE imposes, apply=FALSE reverses */
+staticfn void
+apply_aasimar_penalty(int pen_id, boolean apply)
+{
+    long *prop;
+    long prevval;
+    int i;
+
+    /* Stat drain -- no property pointer.
+       Use absolute values from race definition
+       so apply/reverse are idempotent */
+    if (pen_id == AASIMAR_PEN_STAT_DRAIN) {
+        boolean changed = FALSE;
+
+        if (apply) {
+            for (i = 0; i < A_MAX; i++) {
+                int orig = races[flags.initrace].attrmax[i];
+                int drained = orig - 3;
+
+                if (drained < 3)
+                    drained = 3;
+                if (gu.urace.attrmax[i] != drained)
+                    changed = TRUE;
+                gu.urace.attrmax[i] = drained;
+                if (ABASE(i) > ATTRMAX(i))
+                    ABASE(i) = ATTRMAX(i);
+                if (AMAX(i) > ATTRMAX(i))
+                    AMAX(i) = ATTRMAX(i);
+            }
+            if (changed && !Upolyd && !program_state.restoring)
+                You_feel("your divine potential diminishing!");
+        } else {
+            for (i = 0; i < A_MAX; i++) {
+                if (gu.urace.attrmax[i]
+                    != races[flags.initrace].attrmax[i])
+                    changed = TRUE;
+                gu.urace.attrmax[i] =
+                    races[flags.initrace].attrmax[i];
+            }
+            if (changed && !Upolyd)
+                You_feel("your divine potential restored!");
+        }
+        return;
+    }
+
+    prop = aasimar_pen_prop(pen_id);
+    if (!prop)
+        return;
+
+    prevval = *prop;
+
+    if (PEN_IS_POSITIVE(pen_id)) {
+        /* Strip FROMRACE to punish, restore to forgive */
+        if (apply) {
+            if (u.ulevel < aasimar_pen_minlevel(pen_id))
+                return;
+            *prop &= ~FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                switch (pen_id) {
+                case AASIMAR_PEN_SEE_INVIS:
+                    Your("eyesight feels diminished.");
+                    break;
+                case AASIMAR_PEN_ANTIMAGIC:
+                    You_feel("vulnerable to magic!");
+                    break;
+                case AASIMAR_PEN_COLD_RES:
+                    You_feel("cooler!");
+                    break;
+                case AASIMAR_PEN_SLEEP_RES:
+                    You_feel("tired!");
+                    break;
+                case AASIMAR_PEN_POISON_RES:
+                    You_feel("less hardy!");
+                    break;
+                case AASIMAR_PEN_SHOCK_RES:
+                    You_feel("conductive!");
+                    break;
+                }
+            }
+        } else {
+            if (u.ulevel < aasimar_pen_minlevel(pen_id))
+                return;
+            *prop |= FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                switch (pen_id) {
+                case AASIMAR_PEN_SEE_INVIS:
+                    You_feel("an odd sensation.");
+                    break;
+                case AASIMAR_PEN_ANTIMAGIC:
+                    You_feel("resistant to magic!");
+                    break;
+                case AASIMAR_PEN_COLD_RES:
+                    You_feel("warm!");
+                    break;
+                case AASIMAR_PEN_SLEEP_RES:
+                    You_feel("awake!");
+                    break;
+                case AASIMAR_PEN_POISON_RES:
+                    You_feel("hardy!");
+                    break;
+                case AASIMAR_PEN_SHOCK_RES:
+                    You_feel("insulated!");
+                    break;
+                }
+            }
+        }
+    } else {
+        /* Negative: set FROMRACE to punish */
+        if (apply) {
+            *prop |= FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                if (pen_id == AASIMAR_PEN_HUNGER)
+                    You_feel("ravenously hungry!");
+                else
+                    You_feel(
+                        "that monsters are aware of your presence.");
+            }
+        } else {
+            *prop &= ~FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                if (pen_id == AASIMAR_PEN_HUNGER)
+                    You("no longer feel quite so hungry.");
+                else
+                    You_feel(
+                  "that monsters are no longer aware of your presence.");
+            }
+        }
+    }
+
+    if (prevval != *prop)
+        postadjabil(prop);
+}
+
+/* Compute the abuse tier (0-4) from current abuse value.
+   Returns -1 if no abuse (all tiers reversed) */
+staticfn int
+abuse_tier(void)
+{
+    int val = (int) u.ualign.abuse;
+
+    if (val <= 0)
+        return -1;
+    if (val < 5)
+        return 0;  /* slight */
+    if (val < 15)
+        return 1;  /* moderate */
+    if (val < 30)
+        return 2;  /* serious */
+    if (val < 50)
+        return 3;  /* severe */
+    return 4;       /* grave */
+}
+
+/* TRUE if any tier already has STAT_DRAIN assigned */
+staticfn boolean
+has_stat_drain_penalty(void)
+{
+    int t;
+
+    for (t = 0; t < NUM_ABUSE_TIERS; t++)
+        if (AASIMAR_PEN_TIER(t) == AASIMAR_PEN_STAT_DRAIN)
+            return TRUE;
+    return FALSE;
+}
+
+/* TRUE if the given property has an active aasimar
+   abuse penalty stripping it */
+staticfn boolean
+aasimar_ability_penalized(long *prop)
+{
+    int t, pen_id;
+
+    if (!Race_if(PM_AASIMAR))
+        return FALSE;
+
+    for (t = 0; t < NUM_ABUSE_TIERS; t++) {
+        pen_id = AASIMAR_PEN_TIER(t);
+        if (pen_id != AASIMAR_PEN_NONE
+            && PEN_IS_POSITIVE(pen_id)
+            && aasimar_pen_prop(pen_id) == prop)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /* Check aasimar abuse penalties. Called when abuse
    changes (adjalign), atonement (priest.c), level
    change (adjabil), and save restore (restore.c) */
 void
 aasimar_check_abuse(void)
 {
+    int current_tier, t, pen_id;
+    int eligible[AASIMAR_PEN_STAT_DRAIN]; /* IDs 1-8 */
+    int neligible, i, j;
+    boolean already_used;
+
     if (!Race_if(PM_AASIMAR))
         return;
-    /* TODO-EVILHACK: the per-tier penalty engine ports with the
-       aasimar race slice: AASIMAR_PEN_* penalty IDs stored per
-       abuse tier in u.uaasimar_penalties, apply_aasimar_penalty
-       to strip or restore racial intrinsics, the abuse_tier
-       thresholds, and revoking the crowning Death_resistance
-       gift at the gravest tier */
+
+    current_tier = abuse_tier();
+
+    for (t = 0; t < NUM_ABUSE_TIERS; t++) {
+        if (t <= current_tier) {
+            if (AASIMAR_PEN_TIER(t)
+                == AASIMAR_PEN_NONE) {
+                /* New tier -- pick random penalty */
+                neligible = 0;
+                for (i = 1; i < AASIMAR_PEN_STAT_DRAIN; i++) {
+                    already_used = FALSE;
+                    for (j = 0; j < NUM_ABUSE_TIERS; j++) {
+                        if (j != t && AASIMAR_PEN_TIER(j) == i) {
+                            already_used = TRUE;
+                            break;
+                        }
+                    }
+                    if (already_used)
+                        continue;
+                    if (PEN_IS_POSITIVE(i)
+                        && u.ulevel < aasimar_pen_minlevel(i))
+                        continue;
+                    eligible[neligible++] = i;
+                }
+                if (neligible > 0) {
+                    pen_id = eligible[rn2(neligible)];
+                } else if (!has_stat_drain_penalty()) {
+                    pen_id = AASIMAR_PEN_STAT_DRAIN;
+                } else {
+                    /* all positive intrinsics, both negative
+                       intrinsics, and stat drain are taken;
+                       nothing left to assign -- defensively
+                       leave the tier empty rather than
+                       double-assign a HUNGER/AGGRAVATE that
+                       the eligibility loop already rejected */
+                    pen_id = AASIMAR_PEN_NONE;
+                }
+                if (pen_id != AASIMAR_PEN_NONE) {
+                    SET_AASIMAR_PEN_TIER(t, pen_id);
+                    apply_aasimar_penalty(pen_id, TRUE);
+                }
+            } else {
+                /* Re-enforce existing penalty;
+                   adjabil or restore may have
+                   reset FROMRACE flags */
+                apply_aasimar_penalty(AASIMAR_PEN_TIER(t), TRUE);
+            }
+        } else {
+            /* Abuse below this tier -- reverse */
+            pen_id = AASIMAR_PEN_TIER(t);
+            if (pen_id != AASIMAR_PEN_NONE) {
+                apply_aasimar_penalty(pen_id, FALSE);
+                SET_AASIMAR_PEN_TIER(t, AASIMAR_PEN_NONE);
+            }
+        }
+    }
+
+    /* Death resistance from crowning: revoked on
+       abuse, restored on full atonement */
+    if (u.uevent.uhand_of_elbereth) {
+        if (u.ualign.abuse > 0
+            && (HDeath_resistance & FROMRACE)) {
+            HDeath_resistance &= ~FROMRACE;
+            if (!Upolyd)
+                You_feel("the gift of immortality slipping away!");
+        } else if (u.ualign.abuse == 0
+                   && !(HDeath_resistance & FROMRACE)) {
+            HDeath_resistance |= FROMRACE;
+            if (!Upolyd)
+                You_feel("the gift of immortality returning to you!");
+        }
+    }
+
+    /* Flying from clean alignment: level 15+.
+       Aasimar grow angelic wings as a body part; armor interaction
+       matches crowned-Infidel demonic wings via check_wings() */
+    if (u.ulevel >= 15) {
+        if (u.ualign.abuse > 0
+            && (HFlying & FROMRACE)) {
+            HFlying &= ~FROMRACE;
+            if (!Upolyd) {
+                Your("angelic wings wither and fade away!");
+                check_wings(TRUE);
+            }
+        } else if (u.ualign.abuse == 0
+                   && !(HFlying & FROMRACE)) {
+            HFlying |= FROMRACE;
+            if (!Upolyd) {
+                pline("Angelic wings sprout from your back!");
+                check_wings(FALSE);
+            }
+        }
+    } else if (HFlying & FROMRACE) {
+        /* Lost enough levels: revoke */
+        HFlying &= ~FROMRACE;
+        if (!Upolyd) {
+            Your(
+              "angelic wings fold inward and disappear beneath your skin.");
+            check_wings(TRUE);
+        }
+    }
+
+    /* Hungerless regeneration from clean alignment:
+       level 18+ (FROMRACE regen has no hunger cost) */
+    if (u.ulevel >= 18) {
+        if (u.ualign.abuse > 0
+            && (HRegeneration & FROMRACE)) {
+            HRegeneration &= ~FROMRACE;
+            if (!Upolyd)
+                You_feel("less resilient!");
+        } else if (u.ualign.abuse == 0
+                   && !(HRegeneration & FROMRACE)) {
+            HRegeneration |= FROMRACE;
+            if (!Upolyd)
+                You_feel("resilient!");
+        }
+    } else if (HRegeneration & FROMRACE) {
+        /* Lost enough levels: revoke */
+        HRegeneration &= ~FROMRACE;
+        if (!Upolyd)
+            You_feel("less resilient!");
+    }
+}
+
+/* An aasimar who deliberately permaconverts their alignment at a
+   cross-aligned altar betrays their celestial heritage. The spurned
+   deity strips their celestial blood: the race becomes human (one-way)
+   and every aasimar power is lost. This mirrors the Infidel crowning
+   that turns the hero into a demon (pray.c). Called from the altar
+   conversion path after uchangealign(), the chokepoint for permanent
+   alignment change */
+void
+aasimar_lose_celestial_blood(void)
+{
+    const struct innate *abil;
+    int i;
+
+    /* operate on the base form, not a temporary polymorph */
+    if (Upolyd)
+        rehumanize();
+
+    /* Become human before any set_uasmon()/check_wings(): those re-grant
+       celestial abilities while Race_if(PM_AASIMAR) holds. Do not use
+       adjabil() to strip the racial intrinsics either -- once the race
+       is human its ability table is empty (so it cannot strip aasimar
+       bits) and its trailing aasimar_check_abuse() would re-grant the
+       clean-alignment intrinsics. races[0] is the human entry */
+    gu.urace = races[0];
+
+    /* Strip the FROMRACE intrinsic layer. The table-driven racial
+       abilities come from amr_abil[]; the alignment-gated grants and
+       abuse penalties imposed by aasimar_check_abuse() and
+       apply_aasimar_penalty() live outside the table and are cleared
+       explicitly. set_uasmon() below handles the separate FROMFORM
+       layer for the new human form */
+    for (abil = amr_abil; abil->ability; abil++)
+        *(abil->ability) &= ~FROMRACE;
+    HDeath_resistance &= ~FROMRACE;  /* crowning gift */
+    HFlying &= ~FROMRACE;            /* angelic wings, level 15+ */
+    HRegeneration &= ~FROMRACE;      /* hungerless regen, level 18+ */
+    HHunger &= ~FROMRACE;            /* abuse penalty */
+    HAggravate_monster &= ~FROMRACE; /* abuse penalty */
+    u.uaasimar_penalties = 0L;
+
+    /* Drop attributes to human ceilings (urace.attrmax is now human's),
+       same clamp the stat-drain penalty uses */
+    for (i = 0; i < A_MAX; i++) {
+        if (ABASE(i) > ATTRMAX(i))
+            ABASE(i) = ATTRMAX(i);
+        if (AMAX(i) > ATTRMAX(i))
+            AMAX(i) = ATTRMAX(i);
+    }
+
+    /* Recompute the FROMFORM layer for the human form and refresh
+       wings/flight; the race is human so no celestial grant returns */
+    set_uasmon();
+    newsym(u.ux, u.uy);
+    disp.botl = TRUE;
+
+    /* Permanent: re-forced as human on every restore by role_init() */
+    u.uevent.ufallen_aasimar = 1;
 }
 
 /* avoid possible problems with alignment overflow, and provide a centralized

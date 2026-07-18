@@ -188,6 +188,11 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;
         /* 0,1,2:  b=80%,10,10; nc=10%,80,10; c=10%,10,80 */
+        /* TODO-EVILHACK: master also forces hostility for knights
+           with cross-aligned ki-rin and Infidels with lawful angels;
+           those port with the roles slice */
+        if (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
+            chance = 2; /* aasimar cannot tame demons */
         if (chance > 0) {
             reallytame = FALSE; /* not tame after all */
             if (chance == 2) {  /* hostile (cursed figurine) */
@@ -236,21 +241,34 @@ makedog(void)
         && (pettype == PM_LITTLE_DOG || pettype == PM_KITTEN
             || pettype == PM_LESSER_HOMUNCULUS))
         pettype = PM_LARGE_SPIDER;
-    /* TODO-EVILHACK: draugr and vampire starting pet overrides
-       (skeletal hound, wolf cub, skeletal pony) port with races-R2 */
-    /* chaotic knights ride a lesser nightmare instead of a pony;
-       centaurs cannot ride, so they get a little dog companion */
+    /* draugr get a skeletal hound and vampires a wolf cub in place
+       of a dog, kitten, or lesser homunculus */
+    else if (Race_if(PM_DRAUGR)
+             && (pettype == PM_LITTLE_DOG || pettype == PM_KITTEN
+                 || pettype == PM_LESSER_HOMUNCULUS))
+        pettype = PM_SMALL_SKELETAL_HOUND;
+    else if (Race_if(PM_VAMPIRE)
+             && (pettype == PM_LITTLE_DOG || pettype == PM_KITTEN
+                 || pettype == PM_LESSER_HOMUNCULUS))
+        pettype = PM_WOLF_CUB;
+    /* chaotic knights ride a lesser nightmare instead of a pony
+       (draugr knights a skeletal pony); centaurs cannot ride, so
+       they get a little dog companion */
     if (pettype == PM_PONY
         && u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT))
-        pettype = Race_if(PM_CENTAUR) ? PM_LITTLE_DOG
-                                      : PM_LESSER_NIGHTMARE;
+        pettype = Race_if(PM_DRAUGR) ? PM_SKELETAL_PONY
+                  : Race_if(PM_CENTAUR) ? PM_LITTLE_DOG
+                    : PM_LESSER_NIGHTMARE;
     svc.context.startingpet_typ = pettype;
     petname = (pettype == PM_LITTLE_DOG) ? gd.dogname
               : (pettype == PM_KITTEN) ? gc.catname
                 : (pettype == PM_PONY) ? gh.horsename
                   : (pettype == PM_LARGE_SPIDER) ? gs.spidername
                     : (pettype == PM_LESSER_NIGHTMARE) ? gh.horsename
-                      : "";
+                      : (pettype == PM_SKELETAL_PONY) ? gh.horsename
+                        : (pettype == PM_SMALL_SKELETAL_HOUND) ? gd.dogname
+                          : (pettype == PM_WOLF_CUB) ? gd.dogname
+                            : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {
@@ -279,7 +297,8 @@ makedog(void)
         svc.context.startingpet_mid = mtmp->m_id;
         if (!u.uroleplay.pauper) {
             /* initial horses start wearing a saddle (pauper hero excluded) */
-            if (pettype == PM_PONY || pettype == PM_LESSER_NIGHTMARE) {
+            if (pettype == PM_PONY || pettype == PM_LESSER_NIGHTMARE
+                || pettype == PM_SKELETAL_PONY) {
                 /* NULL obj arg means put_saddle_on_mon()
                  * will carry out the saddle creation */
                 put_saddle_on_mon((struct obj *) 0, mtmp);
@@ -1091,6 +1110,33 @@ dogfood(struct monst *mon, struct obj *obj)
                if there isn't, do eat it and grow into a queen */
             return !mtmp ? DOGFOOD : TABU;
         }
+
+        /* vampires drain the blood from fresh corpses; matches the
+           player's is_edible() check - allow partly-eaten corpses
+           that still have blood remaining. Tame vampire pets are
+           selective like non-vampire pets: only drain when not
+           deeply satiated (DOG_SATIATED gate); satiated pets walk
+           past blood corpses */
+        /* TODO-EVILHACK: master lets a satiated vampire pet still
+           drain a corpse that would grant it a new intrinsic; that
+           gate ports with the pet-intrinsics subsystem */
+        if (is_vampire(mptr)) {
+            boolean blood_corpse =
+                (obj->otyp == CORPSE
+                 && has_blood(&safe_mons(obj->corpsenm))
+                 && (!obj->odrained
+                     || obj->oeaten > (unsigned) drain_level(obj))
+                 && peek_at_iced_corpse_age(obj)
+                        + blood_freshness(obj) >= svm.moves);
+
+            if (!blood_corpse)
+                return TABU;
+            if (mon->mtame && !mon->isminion
+                && EDOG(mon)->hungrytime >= svm.moves + DOG_SATIATED)
+                return MANFOOD;
+            return DOGFOOD;
+        }
+
         if (!carni && !herbi)
             return obj->cursed ? UNDEF : APPORT;
 
@@ -1256,6 +1302,13 @@ tamedog(
         || (mtmp->data->mflags3 & M3_WANTSARTI))
         return FALSE;
 
+    /* Aasimars cannot tame demons or devils */
+    /* TODO-EVILHACK: master also blocks knights taming cross-aligned
+       ki-rin and Infidels taming lawful angels; those port with the
+       roles slice */
+    if (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
+        return FALSE;
+
     /* wielding or wearing any of the 'banes makes taming its hated
        race impossible; it isn't even made peaceful */
     if (wielding_artifact(ART_STING)
@@ -1331,6 +1384,15 @@ tamedog(
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
         && mtmp->data->mlet == S_DOG)
         return FALSE;
+
+    /* TODO-EVILHACK: master also makes domestic animals wary of
+       Convicts; ports with the roles slice */
+    if (!Upolyd && Race_if(PM_DRAUGR) && !is_undead(mtmp->data)
+        && is_domestic(mtmp->data) && !mtmp->mtame && obj) {
+        /* domestic animals are wary of the walking dead */
+        pline("%s still looks wary of you.", Monnam(mtmp));
+        return FALSE;
+    }
 
     /* If we cannot tame it, at least it's no longer afraid. */
     mtmp->mflee = 0;

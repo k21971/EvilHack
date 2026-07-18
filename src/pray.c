@@ -816,6 +816,15 @@ gcrownu(void)
     HShock_resistance |= FROMOUTSIDE;
     HSleep_resistance |= FROMOUTSIDE;
     HPoison_resistance |= FROMOUTSIDE;
+
+    /* Aasimar with unblemished alignment gain death resistance
+       when crowned - a reward for celestial purity.
+       Uses FROMRACE so it can be revoked/restored by abuse */
+    if (Race_if(PM_AASIMAR) && u.ualign.abuse == 0) {
+        HDeath_resistance |= FROMRACE;
+        You("are blessed with the gift of immortality!");
+    }
+
     godvoice(u.ualign.type, (char *) 0);
 
     class_gift = STRANGE_OBJECT;
@@ -828,8 +837,12 @@ gcrownu(void)
         class_gift = SPE_FINGER_OF_DEATH;
     } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
                && !carrying(SPE_RESTORE_ABILITY)) {
-        /* monks rarely wield a weapon */
-        class_gift = SPE_RESTORE_ABILITY;
+        /* monks rarely wield a weapon; draugr can't read spellbooks
+           so they receive armor instead */
+        if (!Race_if(PM_DRAUGR))
+            class_gift = SPE_RESTORE_ABILITY;
+        else
+            class_gift = GAUNTLETS_OF_PROTECTION;
     }
 
     obj = ok_wep(uwep) ? uwep : 0;
@@ -1002,6 +1015,13 @@ give_spell(void)
     struct obj *otmp;
     char spe_let;
     int spe_knowledge, trycnt = u.ulevel + 1;
+
+    /* TODO-EVILHACK: master also skips Cave Dwellers here; ports
+       with the roles slice */
+    /* those of the draugr race don't mess around with spells,
+       so do nothing */
+    if (Race_if(PM_DRAUGR))
+        return;
 
     /* not yet known spells and forgotten spells are given preference over
        usable ones; also, try to grant spell that hero could gain skill in
@@ -1322,7 +1342,7 @@ pleased(aligntyp g_align)
 
             godvoice(u.ualign.type,
                      "Thou hast pleased me with thy progress,");
-            if (!(HTelepat & INTRINSIC)) {
+            if (!(HTelepat & INTRINSIC) && !Race_if(PM_DRAUGR)) {
                 HTelepat |= FROMOUTSIDE;
                 pline(msg, "Telepathy");
                 if (Blind)
@@ -1651,10 +1671,27 @@ offer_different_alignment_altar(
         if (u.ualignbase[A_CURRENT] == u.ualignbase[A_ORIGINAL]
             && altaralign != A_NONE) {
             You("have a strong feeling that %s is angry...", u_gname());
+            /* an aasimar who reaches this permaconversion
+               chokepoint has deliberately forsaken their faith;
+               the spurned deity rebukes them at once */
+            if (Race_if(PM_AASIMAR)) {
+                SetVoice((struct monst *) 0, 0, 80, voice_deity);
+                verbalize("Thou hast forsaken Me!");
+            }
             consume_offering(otmp);
             pline("%s accepts your allegiance.", a_gname());
 
             uchangealign(altaralign, A_CG_CONVERT);
+            /* the betrayal strips the aasimar's celestial blood,
+               leaving a mere mortal human (one-way), and inflicts
+               a heavy alignment penalty */
+            if (Race_if(PM_AASIMAR)) {
+                Your("bond with the heavens is severed.");
+                aasimar_lose_celestial_blood();
+                You("are but a mortal human now.");
+                adjalign(-30);
+                record_abuse_event(-30, ABUSE_FORSAKE_DEITY);
+            }
             /* Beware, Conversion is costly */
             change_luck(-3);
             u.ublesscnt += 300;
@@ -2027,8 +2064,8 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
         /* elves and drow are close enough kin to count */
         || (Race_if(PM_ELF) && is_drow(ptr))
         || (Race_if(PM_DROW) && is_elf(ptr))
-        /* TODO-EVILHACK: vampires treat human corpses as their own
-           race here; ports with races-R2 */
+        /* vampires were human once, and still look the part */
+        || (Race_if(PM_VAMPIRE) && is_human(ptr))
         /* draugr consider all zombies to be their kin */
         || (Race_if(PM_DRAUGR) && otmp->zombie_corpse)) {
         sacrifice_your_race(otmp, highaltar, altaralign);

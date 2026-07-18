@@ -491,22 +491,25 @@ struct enum_dump {
  * code assume that PANICKED separates the deaths from the non-deaths.
  */
 enum game_end_types {
-    DIED         =  0,
-    CHOKING      =  1,
-    POISONING    =  2,
-    STARVING     =  3,
-    DROWNING     =  4,
-    BURNING      =  5,
-    DISSOLVED    =  6,
-    CRUSHING     =  7,
-    STONING      =  8,
-    TURNED_SLIME =  9,
-    GENOCIDED    = 10,
-    PANICKED     = 11,
-    TRICKED      = 12,
-    QUIT         = 13,
-    ESCAPED      = 14,
-    ASCENDED     = 15
+    DIED          =  0,
+    CHOKING       =  1,
+    POISONING     =  2,
+    STARVING      =  3,
+    DROWNING      =  4,
+    BURNING       =  5,
+    DISSOLVED     =  6,
+    CRUSHING      =  7,
+    STONING       =  8,
+    TURNED_SLIME  =  9,
+    DECAPITATED   = 10,
+    INCINERATED   = 11,
+    DISINTEGRATED = 12,
+    GENOCIDED     = 13,
+    PANICKED      = 14,
+    TRICKED       = 15,
+    QUIT          = 16,
+    ESCAPED       = 17,
+    ASCENDED      = 18
 };
 
 /* game events log */
@@ -576,9 +579,10 @@ enum hunger_state_types {
     NOT_HUNGRY = 1,
     HUNGRY     = 2,
     WEAK       = 3,
-    FAINTING   = 4,
-    FAINTED    = 5,
-    STARVED    = 6
+    FRAIL      = 4, /* vampire race only */
+    FAINTING   = 5,
+    FAINTED    = 6,
+    STARVED    = 7
 };
 
 /* fake inventory letters, not 'a'..'z' or 'A'..'Z' */

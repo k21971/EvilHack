@@ -433,7 +433,7 @@ intemple(int roomno)
 {
     struct monst *priest, *mtmp;
     struct epri *epri_p;
-    boolean shrined, sanctum, can_speak;
+    boolean shrined, sanctum, can_speak, call_guards = FALSE;
     long *this_time, *other_time;
     const char *msg1, *msg2;
     char buf[BUFSZ];
@@ -468,11 +468,22 @@ intemple(int roomno)
             epri_p->enter_time = 0L;
         }
         msg1 = msg2 = 0;
-        if (sanctum && Is_sanctum(&u.uz)) {
+        if ((sanctum && Is_sanctum(&u.uz))
+            || (!Upolyd && Race_if(PM_DRAUGR)
+                && mon_aligntyp(priest) >= A_NEUTRAL)) {
+            /* either a heathen in the Sanctum, or a draugr in a
+               lawful or neutral temple; the priest is not happy */
             if (priest->mpeaceful) {
                 /* first time inside */
-                msg1 = "Infidel, you have entered Moloch's Sanctum!";
-                msg2 = "Be gone!";
+                if (!Upolyd && Race_if(PM_DRAUGR)
+                    && mon_aligntyp(priest) >= A_NEUTRAL) {
+                    msg1 = "Begone, foul abomination!";
+                    msg2 = "You desecrate this holy Sanctum!";
+                    call_guards = in_town(priest->mx, priest->my);
+                } else {
+                    msg1 = "Infidel, you have entered Moloch's Sanctum!";
+                    msg2 = "Be gone!";
+                }
                 priest->mpeaceful = 0;
                 /* became angry voluntarily; no penalty for attacking him */
                 set_malign(priest);
@@ -491,6 +502,11 @@ intemple(int roomno)
             if (msg2)
                 verbalize1(msg2);
             epri_p->enter_time = svm.moves + (long) d(10, 100); /* ~505 */
+        }
+        /* for draugr, visiting the Minetown temple is a very bad idea */
+        if (call_guards) {
+            pline("%s calls for guards!", Monnam(priest));
+            (void) angry_guards(FALSE);
         }
         if (!sanctum) {
             if (!shrined || !p_coaligned(priest)
@@ -550,11 +566,16 @@ intemple(int roomno)
                 You("sense a presence close by!");
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
-            if (flags.verbose)
-                You("are frightened to death, and unable to move.");
-            nomul(-3);
-            gm.multi_reason = "being terrified of a ghost";
-            gn.nomovemsg = "You regain your composure.";
+            /* draugr do not fear the undead,
+               or anything else for that matter */
+            if (!maybe_polyd(is_undead(gy.youmonst.data),
+                             Race_if(PM_DRAUGR))) {
+                if (flags.verbose)
+                    You("are frightened to death, and unable to move.");
+                nomul(-3);
+                gm.multi_reason = "being terrified of a ghost";
+                gn.nomovemsg = "You regain your composure.";
+            }
         }
     }
 }
@@ -603,7 +624,11 @@ priest_talk(struct monst *priest)
     }
 
     /* priests don't chat unless peaceful and in their own temple */
-    if (!inhistemple(priest) || !priest->mpeaceful || helpless(priest)) {
+    /* TODO-EVILHACK: master also refuses unaligned heroes (Infidels)
+       at cross-aligned temples; ports with the roles slice */
+    if (!inhistemple(priest) || !priest->mpeaceful || helpless(priest)
+        || (!Upolyd && Race_if(PM_DRAUGR)
+            && mon_aligntyp(priest) >= A_NEUTRAL)) {
         static const char *const cranky_msg[3] = {
             "Thou wouldst have words, eh?  I'll give thee a word or two!",
             "Talk?  Here is what I have to say!",

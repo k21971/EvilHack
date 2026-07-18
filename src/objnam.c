@@ -1725,8 +1725,29 @@ doname_base(
         }
         break;
     case FOOD_CLASS:
-        if (obj->oeaten)
+        if (obj->otyp == CORPSE && obj->odrained) {
+            if (wizard && obj->oeaten < (unsigned) drain_level(obj))
+                Strcat(prefix, "over-drained ");
+            else if (obj->oeaten > (unsigned) drain_level(obj))
+                Strcat(prefix, "partly drained ");
+            else
+                Strcat(prefix, "drained ");
+        } else if (obj->oeaten) {
             Strcat(prefix, "partly eaten ");
+        }
+        /* draugr automatically know how rotted a corpse is */
+        if (obj->otyp == CORPSE
+            && !(obj->corpsenm == PM_LICHEN
+                 || obj->corpsenm == PM_LIZARD
+                 || obj->corpsenm == PM_DEATH
+                 || obj->corpsenm == PM_FAMINE
+                 || obj->corpsenm == PM_PESTILENCE)
+            && (!Upolyd && Race_if(PM_DRAUGR))) {
+            if (rot_amount(obj) > 5L)
+                Strcat(prefix, "very rancid ");
+            else if (rot_amount(obj) > 3L)
+                Strcat(prefix, "rancid ");
+        }
         if (obj->otyp == CORPSE) {
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;

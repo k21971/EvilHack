@@ -99,6 +99,7 @@ staticfn void cmdbind_add(uchar, const struct ext_func_tab *, boolean);
 staticfn void cmdbind_remove(uchar);
 staticfn void cmdbind_swapkeys(uchar, uchar);
 staticfn int doenshelling(void);
+staticfn int dovampireshapechange(void);
 staticfn int dosuspend_core(void);
 staticfn int dosh_core(void);
 staticfn int doherecmdmenu(void);
@@ -975,6 +976,8 @@ domonability(void)
         return doenshelling();
     else if (maybe_polyd(is_drow(uptr), Race_if(PM_DROW)))
         return dodarkness();
+    else if (maybe_polyd(is_aasimar(uptr), Race_if(PM_AASIMAR)))
+        return dolight();
     else if (is_mind_flayer(uptr))
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
@@ -1931,6 +1934,8 @@ struct ext_func_tab extcmdlist[] = {
               doprtool, IFBURIED | GENERALCMD | CMD_M_PREFIX, NULL },
     { WEAPON_SYM, "seeweapon", "show the weapon currently wielded",
               doprwep, IFBURIED | GENERALCMD | CMD_M_PREFIX, NULL },
+    { '\0',   "shapechange", "vampire's shapechanging ability",
+              dovampireshapechange, IFBURIED | AUTOCOMPLETE, NULL },
     { '!',    "shell",
               "leave game to enter a sub-shell ('exit' to come back)",
               dosh_core, (IFBURIED | GENERALCMD | NOFUZZERCMD
@@ -5540,6 +5545,53 @@ yn_func_menu_opt(winid win, char key, const char *text, char def)
              (def == key) ? MENU_ITEMFLAGS_SELECTED
                           : MENU_ITEMFLAGS_NONE);
 
+}
+
+/* #shapechange command - change vampire's form */
+staticfn int
+dovampireshapechange(void)
+{
+    if (!Race_if(PM_VAMPIRE)) {
+        You("don't have access to this ability.");
+    } else { /* player is a Vampire */
+        if (u.ulevel < 3) {
+            You("must first reach experience level three to use this ability.");
+        } else if (Upolyd && u.uvampireshape) {
+            /* manually revert back to original form,
+               significantly reducing the cooldown timer.
+               the cost of leaving shapechange early is a
+               reduction of one-half of the original hit
+               points while in original form, not to go
+               below one.
+
+               Example: original form has 60(100) hit points.
+               shapechange is used, now have 100(100) hit
+               points in shapechange form. decide to manually
+               revert to original form early, now have 30(100)
+               hit points */
+            u.uhp -= (u.uhp / 2);
+            if (u.uhp < 1)
+                u.uhp = 1;
+            rehumanize();
+            if (u.uvampireshape > 200)
+                u.uvampireshape = 200;
+        } else if (u.uvampireshape
+                   && (!wizard
+                       || y_n(
+                "You can't shapechange so soon. Override?") != 'y')) {
+            You_cant("shapechange so soon.");
+        } else if ((Stunned || Confusion)
+                   && (u.uvampireshape == 0)) {
+            You_cant("use shapechange while incapacitated.");
+        } else if (u.uhunger < 50) { /* weak */
+            You("are too weak from hunger to shapechange.");
+        } else if (ACURR(A_STR) < 4) {
+            You("lack the strength to shapechange.");
+        } else {
+            vampire_shapechange();
+        }
+    }
+    return ECMD_OK;
 }
 
 /* use a menu to ask a specific response to a query.

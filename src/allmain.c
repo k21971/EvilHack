@@ -408,6 +408,63 @@ moveloop_core(void)
                             deferred_goto();
                     }
                 }
+
+                /* make monsters that innately grudge the hero's race
+                   hostile should they be tame or peaceful */
+                /* TODO-EVILHACK: master runs the same pass for the
+                   wielded 'banes (artifacts slice) and for knights
+                   vs cross-aligned dragons and Infidels vs lawful
+                   angels (roles slice); once those land, the aasimar
+                   gate below has to move inside the loop */
+                if (Race_if(PM_AASIMAR))
+                    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                        boolean is_shkp = has_eshk(mtmp)
+                                          && inhishop(mtmp);
+                        boolean is_prst = has_epri(mtmp)
+                                          && inhistemple(mtmp);
+
+                        if (!is_demon(mtmp->data))
+                            continue;
+                        /* monster in question has to see you, not just
+                           sense you, before it becomes hostile */
+                        if (!(mtmp->mcansee && m_canseeu(mtmp)))
+                            continue;
+                        /* mindless creatures don't register the threat */
+                        if (mindless(mtmp->data))
+                            continue;
+                        /* coaligned temple priests will stay civil */
+                        if (is_prst && p_coaligned(mtmp))
+                            continue;
+
+                        if (is_shkp) {
+                            /* shopkeepers ban you from their shop */
+                            ESHK(mtmp)->pbanned = TRUE;
+                        } else if (mtmp->mpeaceful || mtmp->mtame) {
+                            setmangry(mtmp, FALSE);
+                            mtmp->mpeaceful = mtmp->mtame = 0;
+                            /* setmangry early-returns if mtame was
+                               set, so ensure malign resyncs */
+                            set_malign(mtmp);
+                            newsym(mtmp->mx, mtmp->my);
+                            if (mtmp->mleashed)
+                                m_unleash(mtmp, TRUE);
+                            if (u.usteed && mtmp == u.usteed)
+                                dismount_steed(DISMOUNT_THROWN);
+                        }
+                    }
+
+                /* Draugr corpse sense: update perm_invent when corpse
+                   rot status changes */
+                if (iflags.perm_invent && !Upolyd && Race_if(PM_DRAUGR)) {
+                    struct obj *otmp;
+
+                    for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+                        if (otmp->otyp == CORPSE) {
+                            update_inventory();
+                            break;
+                        }
+                    }
+                }
             }
         } while (u.umovement < NORMAL_SPEED); /* hero can't move */
 
@@ -1007,14 +1064,16 @@ welcome(boolean new_game) /* false => restoring an old game */
 
     if (new_game) {
         /* racial ability hints */
-        /* TODO-EVILHACK: the vampire #shapechange and aasimar aura
-           hint lines port with races-R2 */
         if (Race_if(PM_TORTLE))
             pline("Use #monster to hide in your shell.");
         else if (Race_if(PM_DROW))
             pline("Use #monster to invoke an aura of darkness.");
+        else if (Race_if(PM_VAMPIRE))
+            pline("Use #shapechange to change form.");
         else if (Race_if(PM_ILLITHID))
             pline("Use #telekinesis to manipulate objects and monsters.");
+        else if (Race_if(PM_AASIMAR))
+            pline("Use #monster to invoke an aura of light.");
 
         /* guarantee that 'major' event category is never empty */
         livelog_printf(LL_ACHIEVE, "%s the%s entered the dungeon",

@@ -240,6 +240,7 @@ dog_eat(struct monst *mtmp,
     int nutrit, res;
     long oprice;
     char objnambuf[BUFSZ], *obj_name;
+    boolean vamp = is_vampire(mtmp->data);
 
     objnambuf[0] = '\0';
     if (edog->hungrytime < svm.moves)
@@ -252,6 +253,17 @@ dog_eat(struct monst *mtmp,
         if (nutrit > 1)
             nutrit = (nutrit * 3) / 4;
     }
+
+    /* vampire nutrition for corpses: half the amount of
+       dog_nutrition() because only the blood is consumed;
+       blood potions get full nutrition from dog_nutrition */
+    if (vamp && obj->otyp == CORPSE) {
+        mtmp->meating = (mtmp->meating / 4);
+        nutrit = (nutrit / 2);
+        if (wizard)
+            pline("Consumed nutrition: %d.", nutrit);
+    }
+
     edog->hungrytime += nutrit;
     mtmp->mconf = 0;
     if (edog->mhpmax_penalty) {
@@ -302,10 +314,12 @@ dog_eat(struct monst *mtmp,
                 pline_mon(mtmp, "%s digs in.", noit_Monnam(mtmp));
             else
                 pline_mon(mtmp, "%s %s %s.", noit_Monnam(mtmp),
-                      devour ? "devours" : "eats", obj_name);
+                      vamp ? "drains" : devour ? "devours" : "eats",
+                      obj_name);
         } else if (seeobj) {
             obj_name = distant_name(obj, doname);
-            pline("It %s %s.", devour ? "devours" : "eats", obj_name);
+            pline("It %s %s.",
+                  vamp ? "drains" : devour ? "devours" : "eats", obj_name);
         }
     }
     if (obj->unpaid) {
@@ -323,6 +337,34 @@ dog_eat(struct monst *mtmp,
             if (flags.verbose)
                 pline("%s spits %s out in disgust!",
                       Monnam(mtmp), obj_name);
+        }
+    } else if (vamp && obj->otyp == CORPSE) {
+        /* vampire pet drains the blood; the corpse itself remains */
+        if (obj->quan > 1L) {
+            if (!carried(obj)) {
+                (void) splitobj(obj, 1L);
+            } else {
+                obj = splitobj(obj, obj->quan - 1L);
+                freeinv(obj);
+                if (inv_cnt(FALSE) >= invlet_basic
+                    && !merge_choice(gi.invent, obj)) {
+                    dropy(obj);
+                    if (obj->where == OBJ_DELETED)
+                        obj = (struct obj *) 0; /* destroyed */
+                } else {
+                    obj = addinv(obj); /* unlikely, but merge possible */
+                }
+            }
+        }
+        /* Take away blood nutrition; preserve any prior partial-eat
+           state so a subsequent eater isn't gifted nutrition that
+           was already consumed. drain_level represents what remains
+           after the blood is gone (the meat portion) */
+        if (obj) {
+            if (!obj->oeaten
+                || obj->oeaten > (unsigned) drain_level(obj))
+                obj->oeaten = drain_level(obj);
+            obj->odrained = 1;
         }
     } else {
         /* It's a reward if it's DOGFOOD and the player dropped/threw it.

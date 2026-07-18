@@ -658,6 +658,20 @@ nh_timeout(void)
     if (u.ucreamed)
         u.ucreamed--;
 
+    /* TODO-EVILHACK: master also runs the druid #wildshape cooldown
+       and its warning messages here; those port with the roles slice */
+    if (u.uvampireshape)
+        u.uvampireshape--;
+
+    /* Vampires have a sense for when they can use #shapechange again */
+    if (Race_if(PM_VAMPIRE) && u.uvampireshape == 20)
+        You_feel("your shapechanging ability start to return.");
+
+    /* Vampires have an innate sense of when they will lose their
+       current creature form and revert back to their original form */
+    if (Race_if(PM_VAMPIRE) && u.uvampireshape && u.mtimedone == 20)
+        You("are about to revert back to your original form.");
+
     /* Dissipate spell-based protection. */
     if (u.usptime) {
         if (--u.usptime == 0 && u.uspellprot) {

@@ -2742,6 +2742,10 @@ role_init(void)
     /* Initialize gu.urole and gu.urace */
     gu.urole = roles[flags.initrole];
     gu.urace = races[flags.initrace];
+    /* aasimar stripped of celestial blood is permanently human;
+       races[0] is the human entry */
+    if (u.uevent.ufallen_aasimar)
+        gu.urace = races[0];
 
     /* kick it over to alternate-alignment role */
     if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)

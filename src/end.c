@@ -23,6 +23,7 @@ staticfn void get_valuables(struct obj *) NO_NNARGS;
 staticfn void sort_valuables(struct valuable_data *, int);
 staticfn void artifact_score(struct obj *, boolean, winid);
 staticfn boolean fuzzer_savelife(int);
+staticfn boolean sentient_arise(int);
 ATTRNORETURN staticfn void really_done(int) NORETURN;
 staticfn void savelife(int);
 staticfn boolean should_query_disclose_option(int, char *);
@@ -40,6 +41,9 @@ staticfn void bel_copy1(char **, char *);
 #ifndef SFCTOOL
 #define done_stopprint program_state.stopprint
 
+/* number of times a draugr hero can revive from death */
+#define DRAUGR_REVIVE rnd(3)
+
 /*
  * The order of these needs to match the macros in hack.h.
  */
@@ -47,8 +51,8 @@ static NEARDATA const char *deaths[] = {
     /* the array of death */
     "died", "choked", "poisoned", "starvation", "drowning", "burning",
     "dissolving under the heat and pressure", "crushed", "turned to stone",
-    "turned into slime", "genocided", "panic", "trickery", "quit",
-    "escaped", "ascended"
+    "turned into slime", "decapitated", "incinerated", "disintegrated",
+    "genocided", "panic", "trickery", "quit", "escaped", "ascended"
 };
 
 static NEARDATA const char *ends[] = {
@@ -57,9 +61,10 @@ static NEARDATA const char *ends[] = {
     "starved", "drowned", "burned",
     "dissolved in the lava",
     "were crushed", "turned to stone",
-    "turned into slime", "were genocided",
-    "panicked", "were tricked", "quit",
-    "escaped", "ascended"
+    "turned into slime", "were decapitated",
+    "were incinerated", "were disintegrated",
+    "were genocided", "panicked", "were tricked",
+    "quit", "escaped", "ascended"
 };
 
 static boolean Schroedingers_cat = FALSE;
@@ -183,6 +188,94 @@ done_hangup(int sig)
 #endif
 #endif /* NO_SIGNAL */
 
+/* From xNetHack (modified) - If the player is killed by something that
+ * allows their body to continue existing as some kind of monster that's
+ * not a ghost, they might retain their original mind and agency (and the
+ * game won't end after all). However, this comes with a drawback - the
+ * new form has intrinsic unchanging, and dying in that form will cause
+ * permanent death.
+ * Returns true if and only if the player can continue playing.
+ * Assumes u.ugrave_arise has already been set to the correct monster
+ * number.
+ */
+staticfn boolean
+sentient_arise(int how)
+{
+    int mon_nm;
+
+    if (how == TURNED_SLIME) {
+        /* special case, isn't set by done_in_by */
+        mon_nm = PM_GREEN_SLIME;
+    } else {
+        mon_nm = u.ugrave_arise;
+    }
+    if (mon_nm < LOW_PM || (svm.mvitals[mon_nm].mvflags & G_GENOD))
+        return FALSE;
+
+    /* already got one shot... don't give third chances.
+     * or was unluckily wearing an amulet of unchanging and can't
+     * resurrect as a monster anyway */
+    if (Unchanging)
+        return FALSE;
+
+    /* Draugr can already revive a number of times when killed */
+    if (Race_if(PM_DRAUGR))
+        return FALSE;
+
+    /* The chances of this happening are based on how lucky you are */
+    if (u.uluck < 3)
+        return FALSE;
+
+    /* different monsters have different chances of keeping mind intact.
+     * The chances of this happening are rare */
+    if ((mon_nm == PM_GREEN_SLIME && !rn2(3))
+        || (mon_nm == PM_WRAITH && !rn2(8))
+        || (mon_nm == PM_GHOUL && !rn2(6))
+        || (mons[mon_nm].mlet == S_VAMPIRE && !rn2(10))
+        || (mon_nm == PM_VAMPIRE_MAGE && !rn2(20))
+        || (mon_nm == PM_BARROW_WIGHT && !rn2(10))
+        || (mon_nm == PM_MIND_FLAYER && !rn2(20))
+        || (mon_nm == PM_REVENANT && !rn2(8))
+        || (mon_nm == PM_SPECTRE && !rn2(16))
+        || (mons[mon_nm].mlet == S_MUMMY && !rn2(8))
+        || (mons[mon_nm].mlet == S_ZOMBIE && !rn2(8))) {
+        u.ugrave_arise = NON_PM;
+
+        if (mon_nm != PM_GREEN_SLIME) {
+            /* green slime already has transformation messages */
+            pline("Your soul does not leave your %s.",
+                  rn2(2) ? "dead body" : "corpse");
+        }
+        /* Set unchanging FIRST (polymon doesn't care about it):
+         * otherwise it's possible for the hero to get blasted by
+         * artifacts or whatever after transforming in polymon, and if
+         * that calls rehumanize before unchanging is set, the hero
+         * will rehumanize normally */
+        HUnchanging |= FROMOUTSIDE;
+        if (mon_nm != PM_GREEN_SLIME) {
+            /* slimed_to_death() already polyed us into green slime, we
+             * don't want to call it again as that will trigger
+             * newman() */
+            polymon(mon_nm);
+        } else {
+            /* but... at the same time, need to undo done()'s setting
+             * of mh to 0 if we did turn into a green slime (mhmax
+             * should still be set from the first polymon) */
+            u.mh = u.mhmax;
+        }
+        livelog_printf(LL_LIFESAVE,
+                       "became permanently transformed into a %s",
+                       mons[mon_nm].pmnames[NEUTRAL]);
+        /* bug: if u.uhp <= 0, monsters won't attack for some reason
+         * set to max, not like you're ever going to need it again */
+        u.uhp = u.uhpmax;
+        pline(
+      "Somehow, you retain your identity and what you must still do.");
+        return TRUE;
+    }
+    return FALSE;
+}
+
 DISABLE_WARNING_FORMAT_NONLITERAL /* one compiler warns if the format
                                      string is the result of a ? x : y */
 
@@ -197,7 +290,10 @@ done_in_by(struct monst *mtmp, int how)
             mimicker = (M_AP_TYPE(mtmp) == M_AP_MONSTER),
             imitator = (mptr != champtr || mimicker);
 
-    You((how == STONING) ? "turn to stone..." : "die...");
+    You((how == STONING) ? "turn to stone..."
+        : (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+          ? "have been destroyed..."
+          : "die...");
     mark_synch(); /* flush buffered screen output */
     buf[0] = '\0';
     svk.killer.format = KILLED_BY_AN;
@@ -711,12 +807,15 @@ savelife(int how)
 
     /* life-drain/level-loss to experience level 0 kills without actually
        reducing ulevel below 1, but include this for bulletproofing */
-    if (u.ulevel < 1)
+    if (u.ulevel < 1) {
         u.ulevel = 1;
+        adjabil(0, 1); /* since level-draining would have lost them */
+    }
     uhpmin = minuhpmax(10);
     if (u.uhpmax < uhpmin)
         setuhpmax(uhpmin, TRUE);
-    u.uhp = min(u.uhpmax, givehp);
+    /* a draugr's innate revival restores the whole body */
+    u.uhp = min(u.uhpmax, HLifesaved ? u.uhpmax : givehp);
     if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
         u.mh = min(u.mhmax, givehp);
     if (u.uhunger < 500 || how == CHOKING) {
@@ -727,7 +826,13 @@ savelife(int how)
     if ((Sick & TIMEOUT) == 1L) {
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
     }
-    gn.nomovemsg = "You survived that attempt on your life.";
+    /* cancel any pending armor don/doff action; savelife() overrides
+       multi and nomovemsg below, but afternmv would survive and fire
+       with a potentially-NULL armor slot when multi reaches zero */
+    cancel_don();
+    gn.nomovemsg = (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                       ? "You survived that attempt to destroy you."
+                       : "You survived that attempt on your life.";
     svc.context.move = 0;
 
     gm.multi = -1; /* can't move again during the current turn */
@@ -735,8 +840,11 @@ savelife(int how)
        again (perhaps due to zap rebound); this text will be appended to
           "killed by <something>, while "
        in high scores entry, if any, and in logfile (but not on tombstone) */
-    gm.multi_reason = Role_if(PM_TOURIST) ? "being toyed with by Fate"
-                                          : "attempting to cheat Death";
+    gm.multi_reason = Role_if(PM_TOURIST)
+                          ? "being toyed with by Fate"
+                          : Race_if(PM_DRAUGR)
+                              ? "running out of chances to revive"
+                              : "attempting to cheat Death";
 
     if (u.utrap && u.utraptype == TT_LAVA)
         reset_utrap(FALSE);
@@ -1081,7 +1189,49 @@ done(int how)
             disp.botl = TRUE;
         }
     }
-    if (Lifesaved && (how <= GENOCIDED)) {
+    if (HLifesaved && !ELifesaved && (how <= GENOCIDED)) { /* Draugr */
+        pline("But wait... Suddenly, you start to revive!");
+        /* reviving takes a toll */
+        (void) adjattrib(A_STR, -1, TRUE);
+        (void) adjattrib(A_CON, -1, TRUE);
+        savelife(how);
+        /* TODO-EVILHACK: master also aborts the revival when falling
+           in open air; that terrain ports with the level topology
+           work */
+        if (how == GENOCIDED) {
+            u.uhp = 0;
+            disp.botl = TRUE;
+            pline("Unfortunately you are still genocided...");
+        } else if (how == DECAPITATED) {
+            /* can't revive if you've lost your head */
+            u.uhp = 0;
+            disp.botl = TRUE;
+            pline("Unfortunately you've lost your %s...",
+                  body_part(HEAD));
+        } else if (how == INCINERATED || how == DISINTEGRATED) {
+            /* nothing to revive */
+            u.uhp = 0;
+            disp.botl = TRUE;
+            pline("Unfortunately there's nothing left to revive...");
+        } else if (how == STONING) { /* stoning */
+            u.uhp = 0;
+            disp.botl = TRUE;
+            pline("Unfortunately you've turned to stone...");
+        } else if (u.umortality > DRAUGR_REVIVE) {
+            /* ran out of revival chances */
+            u.uhp = 0;
+            disp.botl = TRUE;
+            pline(
+             "Unfortunately you weren't strong enough to revive fully...");
+        } else {
+            char killbuf[BUFSZ];
+
+            formatkiller(killbuf, BUFSZ, how, FALSE);
+            livelog_printf(LL_LIFESAVE, "averted death (%s)", killbuf);
+            survive = TRUE;
+        }
+    }
+    if (ELifesaved && (how <= GENOCIDED)) {
         pline("But wait...");
         /* assumes that only one type of item confers LifeSaved property */
         makeknown(AMULET_OF_LIFE_SAVING);
@@ -1114,15 +1264,33 @@ done(int how)
             (void) adjattrib(A_CON, -1, TRUE);
             savelife(how);
             if (how == GENOCIDED) {
+                u.uhp = 0;
+                disp.botl = TRUE;
                 pline("Unfortunately you are still genocided...");
             } else {
                 char killbuf[BUFSZ];
+
                 formatkiller(killbuf, BUFSZ, how, FALSE);
                 livelog_printf(LL_LIFESAVE, "averted death (%s)", killbuf);
                 survive = TRUE;
             }
         }
     }
+    /* maybe give the player a second chance if they were killed by the
+     * appropriate monster */
+    if (!survive && sentient_arise(how)) {
+        /* sentient_arise transformed the hero into their graverise form
+           without running savelife()'s cleanup; clear killer state so a
+           subsequent death isn't mis-attributed, and release the hero
+           from any swallower since the old body is gone */
+        svk.killer.name[0] = '\0';
+        svk.killer.format = KILLED_BY_AN; /* reset to 0 */
+        if (u.uswallow)
+            expels(u.ustuck, u.ustuck->data, TRUE);
+        cancel_don(); /* new form's armor layout may differ */
+        return;
+    }
+
     /* explore and wizard modes offer player the option to keep playing */
     if (!survive && (wizard || discover) && how <= GENOCIDED
 #ifdef HANGUPHANDLING
@@ -1131,8 +1299,15 @@ done(int how)
            accept it more than once if there's no user supplying it */
         && !(program_state.done_hup && gd.done_seq++ == gh.hero_seq)
 #endif
-        && !paranoid_query(ParanoidDie, "Die?")) {
-        pline("OK, so you don't %s.", (how == CHOKING) ? "choke" : "die");
+        && !paranoid_query(ParanoidDie,
+                           (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                               ? "Destroyed?" : "Die?")) {
+        pline("OK, so you %s.",
+              (how == CHOKING) ? "don't choke"
+              : (how == DECAPITATED) ? "don't lose your head"
+                : (how == STONING) ? "don't turn to stone"
+                  : (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                    ? "aren't destroyed" : "don't die");
         iflags.last_msg = PLNMSG_OK_DONT_DIE;
         savelife(how);
         survive = TRUE;

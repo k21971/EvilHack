@@ -2584,8 +2584,10 @@ skill_init(const struct def_skill *class_skill)
             P_SKILL(skill) = P_BASIC;
     }
 
-    /* set skills for magic */
-    if (Role_if(PM_HEALER) || Role_if(PM_MONK)) {
+    /* set skills for magic; draugr cannot cast, so give their
+       spellcasting roles no starting spell skill */
+    if (Role_if(PM_HEALER)
+        || (Role_if(PM_MONK) && !Race_if(PM_DRAUGR))) {
         P_SKILL(P_HEALING_SPELL) = P_BASIC;
     } else if (Role_if(PM_CLERIC)) {
         P_SKILL(P_CLERIC_SPELL) = P_BASIC;

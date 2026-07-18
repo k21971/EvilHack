@@ -4376,17 +4376,19 @@ weight_cap(void)
     /* large playable races are stronger beasts of burden; keyed on
        the current form's race so a hero polymorphed into one of
        these races benefits too */
-    /* TODO-EVILHACK: master grants a similar boost to draugr,
-       vampire, and aasimar heroes; ports with races-R2 */
     if (racial_giant(&gy.youmonst) || racial_centaur(&gy.youmonst)) {
         carrcap += 100;
         maxcarrcap += 400;
-    } else if (racial_tortle(&gy.youmonst)) {
+    } else if (racial_tortle(&gy.youmonst) || racial_zombie(&gy.youmonst)
+               || racial_vampire(&gy.youmonst)
+               || racial_aasimar(&gy.youmonst)) {
         carrcap += 100;
         maxcarrcap += 200;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
-        if (gy.youmonst.data->mlet == S_NYMPH)
+        /* TODO-EVILHACK: master also exempts druid_form here; ports
+           with the roles slice */
+        if (gy.youmonst.data->mlet == S_NYMPH || vampire_form)
             carrcap = maxcarrcap;
         else if (!gy.youmonst.data->cwt)
             carrcap = (carrcap * (long) gy.youmonst.data->msize) / MZ_HUMAN;

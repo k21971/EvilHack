@@ -1491,7 +1491,10 @@ m_use_undead_turning(struct monst *mtmp, struct obj *obj)
         || linedup_callback(ax, ay, bx, by, linedup_chk_corpse)
         /* or there's a corpse on the ground in a direct line from the
            monster to the hero, and up to 3 steps beyond. */
-        ) {
+        /* or the hero is one of the walking dead; the turning blast
+           is a direct attack against an undead-race hero */
+        || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)
+        || is_undead(gy.youmonst.data)) {
         gm.m.offensive = obj;
         gm.m.has_offense = MUSE_WAN_UNDEAD_TURNING;
     }

@@ -294,10 +294,12 @@ mk_artifact(
                receiving Demonbane */
             && !Hate_material(artifact_material(m))
             /* handles giants receiving Giantslayer */
-            /* TODO-EVILHACK: master also filters anti-undead
-               artifacts for draugr and vampires and Angelslayer for
-               aasimar (races-R2) */
-            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))) {
+            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))
+            /* handles undead races receiving Sunsword */
+            && !((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                 && (a->mtype & MH_UNDEAD))
+            /* handles aasimar receiving Angelslayer */
+            && !(Race_if(PM_AASIMAR) && (a->mtype & MH_AASIMAR))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
@@ -2332,9 +2334,17 @@ artifact_hit(
                           wepdesc, "shell");
                     return TRUE;
                 }
-                *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
                 pline(ROLL_FROM(behead_msg), wepdesc, "you");
                 observe_object(otmp);
+                if (Upolyd) {
+                    /* player returns to their original form */
+                    *dmgptr = 2 * u.mh + FATAL_DAMAGE_MODIFIER;
+                } else {
+                    svk.killer.format = NO_KILLER_PREFIX;
+                    Sprintf(svk.killer.name, "decapitated by %s",
+                            xname(otmp));
+                    done(DECAPITATED);
+                }
                 /* Should amulets fall off? */
                 return TRUE;
             }
