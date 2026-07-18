@@ -4166,7 +4166,7 @@
     /* aligned priests always have the epri extension attached;
     individual instantiations should always have either ispriest
     or isminion set */
-    MON(NAM("aligned priest"), S_HUMAN,
+    MON(NAMS("priest", "priestess", "aligned cleric"), S_HUMAN,
         LVL(12, 12, 10, 50, 0), (G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 10), ATTK(AT_KICK, AD_PHYS, 1, 4),
           ATTK(AT_MAGC, AD_CLRC, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK),

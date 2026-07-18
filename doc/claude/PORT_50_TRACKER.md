@@ -2576,9 +2576,108 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       +1610/-143 all 8 brief clusters; reviewer CONDITIONAL PASS 1
       blocker/6 concerns/nits -> every finding coordinator-verified
       against both trees and fixed same day; zero-warning make all).
-      COMMIT PENDING (message at scratchpad commit-msg-boss-slice.txt);
-      wizmode battery PENDING maintainer approval - 10-point list at
-      the end of this entry.
+      COMMITTED 2026-07-18 as 8b4283ba8 (maintainer); bundle
+      evilhack-50_2026-07-18.bundle cut+verified same day.
+      WIZMODE BATTERY RUN + PASSED 2026-07-18 (maintainer-approved;
+      one Valkyrie XL30 game + restore cycle, sanity_check on;
+      paniclog = ZERO slice entries - its only 2 entries are the
+      pre-existing sanctum.lua content gap below). BATTERY RECORD:
+      (1) bribe cluster END-TO-END - Mephistopheles genesis
+      peaceful+invis with STRAT_APPEARMSG+WAITFORU armed, unveil
+      "appears before you", cash-proportional demand (300 of
+      10000), paid -> "vanishes laughing" + lltype=4 "bribed
+      Mephistopheles with 300 zorkmids" livelog + mongone;
+      demon_talk entry-clear proven (strategy=0 mid-flow); Geryon
+      gdb-rloc teleport KEPT the flag = rloc_to_core carve-out
+      live (vanilla would clear); whisper/spent rloc-death guards
+      code-verified only (no lethal-trap staging). (2) IQ cycle -
+      m-v-m first kill = livelog SILENT (credit gate) with
+      defeat_icequeen=1 set + same-turn dmonsfree revive, same
+      m_id, 7500/7500 HP, mstate=0, purge counter balanced,
+      malign=-45 = set_malign-after-newcham fix live (A_NONE would
+      give 0); Enchantress plain-wizkill -> "not truly dead"
+      revive-in-place + guilt (abuse=15, luck-10); candy-bar
+      repacify (snatch+eat, peaceful, malign resync); hostile
+      Bourbon wizkill -> submit + pacify + 84/84 FULL HP (nit fix
+      live; m_lev 21 = recorded adj_lev delta); Enchantress
+      peaceful verbalization ("treat the pegasus well") = sounds.c
+      arm. (3) IQ petrification edge not staged (ledger). (4)
+      hellfire HERO arm - unresistant hero "You're enveloped in
+      hellfire!" + "hellish flames sear your soul!" + 2x arm =
+      master-parity messages confirmed against fork-point source;
+      m-v-m castmm/buzzmm arms not staged live (reviewer-verified;
+      Meph's AD_SPEL "Monsters appear from nowhere!" summon fired
+      incidentally). (5) castum - hero as barbed devil F-attack on
+      test monster: "You cast a spell..." + "enveloped in
+      hellfire!" 15 dmg with uen UNCHANGED at 68 = no-Pw-charge
+      ruling live; elven-wizard form proved the S_HUMAN use_weapon
+      reroute (master mlet list). (6) Vecna - 393/393 genesis
+      boost + isvecna; STRAT_CLOSE lair-wait observed (roster
+      M3_CLOSE, cleared for test); lich-form gaze "You are
+      unaffected by death magic." immune arm, no gaze damage
+      (touch damage broke poly = master-consistent); hero kill ->
+      "You destroy Vecna!" + remnants message + Hand of Vecna
+      (oartifact) + wand of wishing at the square + lltype=6
+      "destroyed Vecna" + uvecna=1 via vecnadead() + body crumble
+      no-corpse; his potion-quaff + psi-bolt casting cadence =
+      boss mspec resets exercised. (7) Lucifer - 666/666 boost +
+      islucifer live on the Is_sanctum slot (maze fallback keeps
+      the slot + noteleport flag); C1 scroll gate live-starved by
+      the UPSTREAM SELECTION gates (noteleport_level +
+      mon_knows_traps skip teleport items before the use-time arm;
+      identical shape on master = the use-time clause is defensive
+      depth) - C1/portal/rise/drum stay code-verified. (8) dlord()
+      24-call gdb sample: Juiblex/Baphomet/Yeenoghu/LOLTH/
+      DISPATER/BAALZEBUB all appear = widened range live; Geryon
+      absent (exists on level) + Mephistopheles absent (G_GONE) =
+      exclusion filters correct. (9) player-made trap credit
+      BLOCKED from live staging ("magic trap" wish yields the
+      deferred KIT object, no digging staged) - thitm umade
+      threading + both trap arms stay reviewer-verified. (10)
+      xlogfile: achieveX carries defeated_ice_queen AND
+      defeated_vecna; killed_uniques=Vecna,Kathryn the Ice Queen,
+      Mephistopheles (revive's died++ counts her IQ form = master
+      semantics); save/reload round-trip preserved defeat_icequeen/
+      uvecna/killed_vecna with cerberus controls 0. BATTERY
+      LESSONS: genesis "appears next to you" screens can be STALE
+      - C-r redraw before trusting a lingering prompt; #levelchange
+      walks one More per level (drain loop, do not resend);
+      "sanctum" ^V from Dlvl 1 lands in the Valley first (crossover
+      hop); gdb obj chain member is v.v_nexthere (nexthere macro
+      unavailable); gdb scripts ABORT at first bad line - macros
+      (couldsee, m_canseeu) are not callable, read gv.viz_array
+      directly; a failed lspo level leaves the DESTINATION teleport
+      queued - it fires on the next input.
+      NEW CONTENT GAP found by battery (NOT this slice; owner =
+      Phase 1 content / Phase 3 levels): branch roster NAM is
+      "aligned priest" but upstream dat luas say "aligned cleric"
+      -> des.monster Unknown-monster-id Lua error + maze fallback
+      in dat/astral.lua (ASTRAL PLANE = game unwinnable interim),
+      sanctum.lua, Pri-loca.lua, minetn-1.lua (41 refs total);
+      "cavewoman"/"priestess" ids resolve via female pmnames of
+      the merged records so only the aligned-cleric rename breaks.
+      MAINTAINER RULED 2026-07-18: rename the roster record - the
+      temple entry adopts upstream's full gendered form
+      NAMS("priest", "priestess", "aligned cleric") (was the
+      Phase 1 single NAM("aligned priest")); the branch role
+      monster already matched upstream's NAMS("priest",
+      "priestess", "cleric") and upstream itself shares the
+      gendered names across both records (name lookups resolve
+      in roster order, temple first - same as upstream); the
+      mondata.c alias table keeps "aligned priest"/"aligned
+      priestess" wishes working. FIX VERIFIED 2026-07-18
+      (maintainer-approved launch): all four levels now create
+      with ZERO Lua errors - sanctum real level on its slot with
+      9 aligned clerics placed, astral.lua full Astral Plane with
+      30, Pri-loca.lua and minetn-1.lua load clean via
+      #wizloaddes; paniclog never created. COMMIT PENDING
+      (rides with this tracker update; message at scratchpad
+      commit-msg-cleric-nams.txt). VERIFY-GAME GOTCHAS: the ^V
+      menu's "One way stair to The Elemental Planes" entry on
+      DoD 1 is the ESCAPE stair - climbing without the Amulet
+      ends the game as death=escaped; #wizloaddes on a named
+      plane lua TRANSPORTS you there (arrival message + temples
+      live) and is the deterministic level-creation check.
       EIGHT MAINTAINER RULINGS 2026-07-18: (1) Ice Queen defeat
       livelog CREDIT-GATED like the killed_* boss lines - moved from
       icequeenrevive into the mondead IQ arm where the consume-on-
