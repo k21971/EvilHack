@@ -115,7 +115,10 @@ setuwep(struct obj *obj)
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
         end_burn(olduwep, FALSE);
         if (!Blind)
-            pline("%s shining.", Tobjnam(olduwep, "stop"));
+            pline("%s %s.", Tobjnam(olduwep, "stop"),
+                  (is_art(olduwep, ART_STAFF_OF_THE_ARCHMAGI)
+                   && !Upolyd && Race_if(PM_DROW))
+                      ? "its aura of darkness" : "shining");
     }
     if (uwep == obj
         && (u_wield_art(ART_OGRESMASHER)
@@ -141,7 +144,9 @@ setuwep(struct obj *obj)
     if (obj) {
         gu.unweapon = (obj->oclass == WEAPON_CLASS)
                        ? is_launcher(obj) || is_ammo(obj) || is_missile(obj)
-            || (is_pole(obj) && !u.usteed && !is_art(obj, ART_SNICKERSNEE))
+                             || (is_pole(obj) && !u.usteed
+                                 && !Race_if(PM_CENTAUR)
+                                 && !is_art(obj, ART_SNICKERSNEE))
                        : !is_weptool(obj) && !is_wet_towel(obj);
     } else
         gu.unweapon = TRUE; /* for "bare hands" message */
@@ -257,19 +262,25 @@ ready_weapon(struct obj *wep)
 
         if (artifact_light(wep) && !wep->lamplit) {
             begin_burn(wep, FALSE);
-            if (!Blind)
-                pline("%s to shine %s!", Tobjnam(wep, "begin"),
-                      arti_light_description(wep));
+            if (!Blind) {
+                if (is_art(wep, ART_STAFF_OF_THE_ARCHMAGI)
+                    && !Upolyd && Race_if(PM_DROW))
+                    pline("%s an aura of darkness!", Tobjnam(wep, "cast"));
+                else
+                    pline("%s to shine %s!", Tobjnam(wep, "begin"),
+                          arti_light_description(wep));
+            }
         }
-#if 0
-        /* we'll get back to this someday, but it's not balanced yet */
-        if (Race_if(PM_ELF) && !wep->oartifact
-            && objects[wep->otyp].oc_material == IRON) {
-            /* Elves are averse to wielding cold iron */
-            You("have an uneasy feeling about wielding cold iron.");
-            change_luck(-1);
+        if ((maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
+             || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW)))
+            && wep->material == IRON && !(Barkskin || Stoneskin)) {
+            /* elves and drow are averse to wielding cold iron */
+            You("%s wielding cold iron.",
+                uarmg ? "have an uneasy feeling about"
+                      : "feel extremely uncomfortable");
+            if (!uarmg)
+                change_luck(-1);
         }
-#endif
         if (wep->unpaid) {
             struct monst *this_shkp;
 
@@ -333,6 +344,10 @@ ready_ok(struct obj *obj)
     /* downplay when wielded, unless more than one */
     if (obj == uwep || (obj == uswapwep && u.twoweap))
         return (obj->quan == 1) ? GETOBJ_DOWNPLAY : GETOBJ_SUGGEST;
+
+    /* rock-throwing heroes (giants) can usefully ready boulders */
+    if (obj->otyp == BOULDER && racial_throws_rocks(&gy.youmonst))
+        return GETOBJ_SUGGEST;
 
     if (is_ammo(obj)) {
         return ((uwep && ammo_and_launcher(obj, uwep))
@@ -878,6 +893,11 @@ set_twoweap(boolean on_off)
 int
 dotwoweapon(void)
 {
+    if (Hidinshell) {
+        pline("Don't be ridiculous!");
+        return ECMD_OK;
+    }
+
     /* You can always toggle it off */
     if (u.twoweap) {
         You("switch to your primary weapon.");
@@ -910,7 +930,10 @@ uwepgone(void)
         if (artifact_light(uwep) && uwep->lamplit) {
             end_burn(uwep, FALSE);
             if (!Blind)
-                pline("%s shining.", Tobjnam(uwep, "stop"));
+                pline("%s %s.", Tobjnam(uwep, "stop"),
+                      (is_art(uwep, ART_STAFF_OF_THE_ARCHMAGI)
+                       && !Upolyd && Race_if(PM_DROW))
+                          ? "its aura of darkness" : "shining");
         }
         setworn((struct obj *) 0, W_WEP);
         gu.unweapon = TRUE;

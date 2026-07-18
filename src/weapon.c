@@ -355,7 +355,11 @@ dmgval(struct obj *otmp, struct monst *mon)
             && !(has_barkskin(mon) || has_stoneskin(mon))
             && !(mon == &gy.youmonst && (Barkskin || Stoneskin)))
             bonus += rnd(sear_damage(otmp->material));
-        if (artifact_light(otmp) && otmp->lamplit && hates_light(ptr))
+        if (artifact_light(otmp) && otmp->lamplit
+            && (hates_light(ptr)
+                || (mon == &gy.youmonst
+                    && maybe_polyd(is_drow(gy.youmonst.data),
+                                   Race_if(PM_DROW)))))
             bonus += rnd(8);
 
         /* if the weapon is going to get a double damage bonus, adjust
@@ -2427,6 +2431,10 @@ weapon_hit_bonus(struct obj *weapon)
         bonus = P_SKILL(type);
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 2) * (martial_bonus() ? 2 : 1)) / 2;
+
+        /* giants have naturally powerful fists */
+        if (Race_if(PM_GIANT))
+            bonus += martial_bonus() ? 1 : 2;
     }
 
     /* KMH -- It's harder to hit while you are riding */
@@ -2524,8 +2532,8 @@ weapon_dam_bonus(struct obj *weapon)
         bonus = ((bonus + 1) * (martial_bonus() ? 3 : 1)) / 2;
     }
 
-    /* KMH -- Riding gives some thrusting damage */
-    if (u.usteed && type != P_TWO_WEAPON_COMBAT) {
+    /* KMH -- Riding or being a centaur gives some thrusting damage */
+    if ((u.usteed || Race_if(PM_CENTAUR)) && type != P_TWO_WEAPON_COMBAT) {
         switch (P_SKILL(P_RIDING)) {
         case P_ISRESTRICTED:
         case P_UNSKILLED:

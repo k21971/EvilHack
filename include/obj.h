@@ -307,8 +307,12 @@ struct obj {
     (((o)->oclass == WEAPON_CLASS || is_weptool(o)) \
      && ((objects[(o)->otyp].oc_dir & WHACK) != 0))
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
-#define bimanual(otmp)                                            \
-    ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
+/* giant heroes can wield two-handed weapons in one hand, except
+   for full-size launchers */
+#define bimanual(otmp)                                               \
+    ((!(maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT)))  \
+      || is_2h_launcher(otmp))                                       \
+     && (otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && objects[otmp->otyp].oc_bimanual)
 /* monster-aware version of bimanual(); giants can wield two-handed
    weapons in one hand, except for full-size launchers */

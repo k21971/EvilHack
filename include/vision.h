@@ -8,6 +8,8 @@
 #define COULD_SEE 0x1 /* location could be seen, if it were lit */
 #define IN_SIGHT 0x2  /* location can be seen */
 #define TEMP_LIT 0x4  /* location is temporarily lit */
+#define TEMP_DARK 0x08 /* location is temporarily darkened */
+#define UV_SEEN 0x10   /* location seen only via ultravision */
 
 /*
  * Light source sources
@@ -27,11 +29,12 @@ enum ls_sources {
  */
 #define cansee(x, y) ((gv.viz_array[y][x] & IN_SIGHT) != 0)
 #define couldsee(x, y) ((gv.viz_array[y][x] & COULD_SEE) != 0)
-#define templit(x, y) ((gv.viz_array[y][x] & TEMP_LIT) != 0)
-/* TODO-EVILHACK: extend with the TEMP_DARK viz bit once the drow
-   darkness subsystem is ported */
+#define uv_cansee(x, y) ((gv.viz_array[y][x] & UV_SEEN) != 0)
+#define templit(x, y) \
+    ((gv.viz_array[y][x] & TEMP_LIT) && !(gv.viz_array[y][x] & TEMP_DARK))
 #define spot_is_dark(x, y) \
     (!(levl[x][y].lit || (gv.viz_array[y][x] & TEMP_LIT)) \
+     || (gv.viz_array[y][x] & TEMP_DARK) \
      || ((x) == u.ux && (y) == u.uy && u.uswallow))
 
 /*

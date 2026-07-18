@@ -1813,6 +1813,11 @@ dopay(void)
         return ECMD_OK;
     }
 
+    if (Hidinshell) {
+        pline("How do you expect to do that while hiding in your shell?");
+        return ECMD_OK;
+    }
+
     /* The usual case.  Allow paying at a distance when
      * inside a tended shop.  Should we change that?
      */

@@ -344,7 +344,8 @@ adj_victual_nutrition(void)
 
     assert(nut > 0);
     if (otyp == LEMBAS_WAFER) {
-        if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)))
+        if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
+            || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW)))
             nut += (nut + 2) / 4; /* 800 -> 1000 */
         else if (maybe_polyd(is_orc(gy.youmonst.data), Race_if(PM_ORC)))
             nut -= (nut + 2) / 4; /* 800 -> 600 */
@@ -689,7 +690,17 @@ eat_brains(
             done(DIED);
             /* life-saving needed to reach here */
             exercise(A_WIS, FALSE);
-            *dmg_p += xtra_dmg; /* Rider takes extra damage */
+            /* TODO-EVILHACK: draugr heroes share the illithid
+               brain-eating damage bonus; ports with races-R2 */
+            if (!Upolyd && Race_if(PM_ILLITHID)) {
+                if (u.ulevel >= 26)
+                    *dmg_p += rn2(10) + 7;
+                else if (u.ulevel >= 14)
+                    *dmg_p += rn2(10) + 1;
+                else
+                    *dmg_p += rn2(4) + 1;
+            } else
+                *dmg_p += xtra_dmg; /* Rider takes extra damage */
         } else {
             morehungry(-rnd(30)); /* cannot choke */
             if (ABASE(A_INT) < AMAX(A_INT)) {
@@ -700,7 +711,15 @@ eat_brains(
                 disp.botl = TRUE;
             }
             exercise(A_WIS, TRUE);
-            *dmg_p += xtra_dmg;
+            if (!Upolyd && Race_if(PM_ILLITHID)) {
+                if (u.ulevel >= 26)
+                    *dmg_p += rn2(10) + 7;
+                else if (u.ulevel >= 14)
+                    *dmg_p += rn2(10) + 1;
+                else
+                    *dmg_p += rn2(4) + 1;
+            } else
+                *dmg_p += xtra_dmg;
         }
         /* targeting another mind flayer or your own underlying species
            is cannibalism; judge racial monsters by their race */
@@ -807,7 +826,11 @@ maybe_cannibal(int pm, boolean allowmsg)
            about cannibalism--hero's innate traits aren't altered) */
         && (your_race(fptr)
             || (Upolyd && same_race(gy.youmonst.data, fptr))
-            || (ismnum(u.ulycn) && were_beastie(pm) == u.ulycn))) {
+            || (ismnum(u.ulycn) && were_beastie(pm) == u.ulycn)
+            /* elves and drow are close enough kin for this to
+               count as cannibalism in either direction */
+            || (Race_if(PM_ELF) && is_drow(fptr))
+            || (Race_if(PM_DROW) && is_elf(fptr)))) {
         if (allowmsg) {
             if (Upolyd && your_race(fptr))
                 You("have a bad feeling deep inside.");
@@ -2224,8 +2247,15 @@ fprefx(struct obj *otmp)
         if (maybe_polyd(is_orc(gy.youmonst.data), Race_if(PM_ORC))) {
             pline("%s", "!#?&* elf kibble!");
             break;
-        } else if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))) {
+        } else if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
+                   || maybe_polyd(is_drow(gy.youmonst.data),
+                                  Race_if(PM_DROW))) {
             pline("A little goes a long way.");
+            break;
+        } else if (maybe_polyd(is_hobbit(gy.youmonst.data),
+                               Race_if(PM_HOBBIT))) {
+            pline(
+     "You'd prefer a bit of plain bread and a mug of ale, but this will do.");
             break;
         }
         goto give_feedback;
@@ -2899,6 +2929,10 @@ doeat(void)
             already_partly_eaten;
     int ll_conduct = 0;
 
+    if (Hidinshell) {
+        You_cant("eat while hiding in your shell.");
+        return ECMD_OK;
+    }
     if (Strangled) {
         pline("If you can't breathe air, how can you consume solids?");
         return ECMD_OK;

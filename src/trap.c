@@ -635,10 +635,18 @@ fall_through(
     } else if (Levitation || u.ustuck
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
              || ((Flying || is_clinger(gy.youmonst.data)
+                  || maybe_polyd(is_giant(gy.youmonst.data),
+                                 Race_if(PM_GIANT))
                   || (ceiling_hider(gy.youmonst.data) && u.uundetected))
                  && !(ftflags & TOOKPLUNGE))) {
-        dont_fall = "don't fall in.";
-    } else if (gy.youmonst.data->msize >= MZ_HUGE) {
+        /* give player giants a hint */
+        if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT)))
+            dont_fall = "don't fall, but you can climb down.";
+        else
+            dont_fall = "don't fall in.";
+    } else if (gy.youmonst.data->msize >= MZ_HUGE
+               && !maybe_polyd(is_giant(gy.youmonst.data),
+                               Race_if(PM_GIANT))) {
         dont_fall = "don't fit through.";
     } else if (!next_to_u()) {
         dont_fall = "are jerked back by your pet!";
@@ -653,7 +661,8 @@ fall_through(
         }
         return;
     }
-    if ((Flying || is_clinger(gy.youmonst.data))
+    if ((Flying || is_clinger(gy.youmonst.data)
+         || maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT)))
         && (ftflags & TOOKPLUNGE) && td && t) {
         if (Flying)
             controlled_flight = TRUE;
@@ -2177,7 +2186,9 @@ trapeffect_web(
 
         /* Time stuck in the web depends on your/steed's strength. */
         {
-            int tim, str = ACURR(A_STR);
+            int tim,
+                str = maybe_polyd(is_giant(gy.youmonst.data),
+                                  Race_if(PM_GIANT)) ? 125 : ACURR(A_STR);
 
             /* If mounted, the steed gets trapped.  Use mintrap
              * to do all the work.  If mtrapped is set as a result,
@@ -5397,7 +5408,10 @@ untrap_prob(
             if (u_wield_art(ART_STING) || attacks(AD_FIRE, wep))
                 chance = 1;
             /* else chance stays 3 */
-        } else if (!webmaker(gy.youmonst.data)) {
+        } else if (!webmaker(gy.youmonst.data)
+                   && !maybe_polyd(is_drow(gy.youmonst.data),
+                                   Race_if(PM_DROW))) {
+            /* spiders and drow deal with webs reliably */
             chance = 7; /* 5.0: used to be 30 */
         }
     }
@@ -5542,6 +5556,11 @@ try_disarm(
         pline("%s is in the way.", Monnam(mtmp));
         return 0;
     }
+    /* hiding in your shell */
+    if (Hidinshell) {
+        You_cant("do that while hiding in your shell.");
+        return 0;
+    }
     /* We might be forced to move onto the trap's location. */
     if (sobj_at(BOULDER, ttmp->tx, ttmp->ty) && !Passes_walls && !under_u) {
         There("is a boulder in your way.");
@@ -5580,7 +5599,9 @@ try_disarm(
                 } else if (ttype == WEB) {
                     struct trap *ttmp2 = t_at(u.ux, u.uy);
 
-                    if (!webmaker(gy.youmonst.data)
+                    if (!(webmaker(gy.youmonst.data)
+                          || maybe_polyd(is_drow(gy.youmonst.data),
+                                         Race_if(PM_DROW)))
                         /* don't always try to spread the web */
                         && !rn2(3)
                         /* is there already a trap at hero's spot?

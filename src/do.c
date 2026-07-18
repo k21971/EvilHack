@@ -1144,6 +1144,11 @@ dodown(void)
     if (u_rooted())
         return ECMD_TIME;
 
+    if (Hidinshell) {
+        You_cant("climb down while hiding in your shell.");
+        return ECMD_OK;
+    }
+
     if (stucksteed(TRUE)) {
         return ECMD_OK;
     }
@@ -1260,7 +1265,10 @@ dodown(void)
 
     if (trap) {
         const char *down_or_thru = trap->ttyp == HOLE ? "down" : "through";
-        const char *actn = u_locomotion("jump");
+        const char *actn = (!Flying && !Levitation
+                            && maybe_polyd(is_giant(gy.youmonst.data),
+                                           Race_if(PM_GIANT)))
+                               ? "squeeze" : u_locomotion("jump");
 
         if (gy.youmonst.data->msize >= MZ_HUGE) {
             char qbuf[QBUFSZ];
@@ -1308,6 +1316,11 @@ doup(void)
 
     if (u_rooted())
         return ECMD_TIME;
+
+    if (Hidinshell) {
+        You_cant("climb up while hiding in your shell.");
+        return ECMD_OK;
+    }
 
     /* "up" to get out of a pit... */
     if (u.utrap && u.utraptype == TT_PIT) {

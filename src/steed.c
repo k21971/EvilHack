@@ -168,9 +168,16 @@ put_saddle_on_mon(struct obj *saddle, struct monst *mtmp)
 boolean
 can_ride(struct monst *mtmp)
 {
-    return (mtmp->mtame && humanoid(gy.youmonst.data)
-            && !verysmall(gy.youmonst.data) && !bigmonst(gy.youmonst.data)
-            && (!Underwater || is_swimmer(mtmp->data)));
+    /* tortles are too ungainly to ride anything; giants can only
+       ride woolly mammoths */
+    return ((mtmp->mtame && humanoid(gy.youmonst.data)
+             && !maybe_polyd(is_tortle(gy.youmonst.data),
+                             Race_if(PM_TORTLE))
+             && !verysmall(gy.youmonst.data)
+             && !bigmonst(gy.youmonst.data)
+             && (!Underwater || is_swimmer(mtmp->data)))
+            || (r_data(mtmp) == &mons[PM_WOOLLY_MAMMOTH]
+                && Race_if(PM_GIANT)));
 }
 
 /* the #ride command */

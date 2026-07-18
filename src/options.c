@@ -844,7 +844,8 @@ restoptvals(NHFILE *nhfp)
 
 #endif /* 0 */
 
-/* common to optfn_catname(), optfn_dogname(), optfn_horsename() */
+/* common to optfn_catname(), optfn_dogname(), optfn_horsename(),
+   optfn_spidername() */
 staticfn int
 petname_optfn(
     int optidx, int req,
@@ -855,7 +856,8 @@ petname_optfn(
     char *petname = (optidx == opt_catname) ? gc.catname
                     : (optidx == opt_dogname) ? gd.dogname
                       : (optidx == opt_horsename) ? gh.horsename
-                        : failsafe;
+                        : (optidx == opt_spidername) ? gs.spidername
+                          : failsafe;
 
     if (req == do_init) {
         ;
@@ -4008,6 +4010,15 @@ optfn_sortvanquished(
               vanqorders[flags.vanq_sortmode][1]);
     }
     return optn_ok;
+}
+
+staticfn int
+optfn_spidername(
+    int optidx, int req,
+    boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
 }
 
 staticfn int

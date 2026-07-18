@@ -707,6 +707,11 @@ regen_hp(int wtcap)
         if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())) {
             heal = (u.ulevel + (int)ACURR(A_CON)) > rn2(100);
 
+            /* tortles gain some accelerated regeneration while
+               inside their shell */
+            if (Hidinshell && !Regeneration && !heal && !rn2(5))
+                heal = 1;
+
             if (U_CAN_REGEN())
                 heal += 1;
             if (Sleepy && u.usleep)
@@ -1001,6 +1006,16 @@ welcome(boolean new_game) /* false => restoring an old game */
           Hello((struct monst *) 0), svp.plname, buf);
 
     if (new_game) {
+        /* racial ability hints */
+        /* TODO-EVILHACK: the vampire #shapechange and aasimar aura
+           hint lines port with races-R2 */
+        if (Race_if(PM_TORTLE))
+            pline("Use #monster to hide in your shell.");
+        else if (Race_if(PM_DROW))
+            pline("Use #monster to invoke an aura of darkness.");
+        else if (Race_if(PM_ILLITHID))
+            pline("Use #telekinesis to manipulate objects and monsters.");
+
         /* guarantee that 'major' event category is never empty */
         livelog_printf(LL_ACHIEVE, "%s the%s entered the dungeon",
                        svp.plname, buf);

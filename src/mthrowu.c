@@ -1002,8 +1002,21 @@ m_throw(
                     if ((has_erac(mon) && (ERAC(mon)->mflags3 & M3_ACCURATE))
                         || (!has_erac(mon) && is_accurate(mon->data)))
                         hitv += mon->m_lev;
+                    /* drow are affected by being in both the light or
+                       the dark */
+                    if (racial_drow(mon)) {
+                        if (spot_is_dark(mon->mx, mon->my))
+                            hitv += (mon->m_lev / 6) + 2;
+                        else
+                            hitv -= 3;
+                    }
                     if (dam < 1)
                         dam = 1;
+                    /* giants are especially vulnerable to sling damage */
+                    if (maybe_polyd(is_giant(gy.youmonst.data),
+                                    Race_if(PM_GIANT))
+                        && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
+                        dam *= 2;
                     if (singleobj->otyp != ACID_VENOM)
                         dam = Maybe_Half_Phys(dam);
                     /* for death attribution -> thrown/fired by */

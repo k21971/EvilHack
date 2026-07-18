@@ -476,8 +476,14 @@ gelcube_digests(struct monst *mtmp)
    gold dragon scales/mail, nor from gold dragons, only from the hero */
 #define flees_light(mon) \
     ((mon)->data == &mons[PM_GREMLIN]                                     \
-     && ((uwep && uwep->lamplit && artifact_light(uwep))                  \
-         || (uarm && uarm->lamplit && artifact_light(uarm)))              \
+     && ((uwep && uwep->lamplit && artifact_light(uwep)                   \
+          /* a drow's Staff of the Archmagi emits darkness */             \
+          && !(u_wield_art(ART_STAFF_OF_THE_ARCHMAGI)                     \
+               && !Upolyd && Race_if(PM_DROW)))                           \
+         || (uarm && uarm->lamplit && artifact_light(uarm)                \
+             && !(Is_dragon_armor(uarm)                                   \
+                  && Dragon_armor_to_scales(uarm)                         \
+                     == SHADOW_DRAGON_SCALES)))                           \
      /* not applicable if mon can't see or hero isn't in line of sight */ \
      && mon->mcansee && couldsee(mon->mx, mon->my))                       \
      /* doesn't matter if hero is invisible--light being emitted isn't */
@@ -621,6 +627,9 @@ mind_blast(struct monst *mtmp)
     if (mtmp->mpeaceful
         && (!Conflict || resist_conflict(mtmp))) {
         pline("It feels quite soothing.");
+    } else if (maybe_polyd(is_illithid(gy.youmonst.data),
+                           Race_if(PM_ILLITHID))) {
+        Your("psionic abilities shield your brain.");
     } else if (!u.uinvulnerable) {
         int dmg;
         boolean m_sen = sensemon(mtmp);
@@ -880,6 +889,37 @@ dochug(struct monst *mtmp)
         mind_blast(mtmp);
         set_apparxy(mtmp);
         distfleeck(mtmp, &inrange, &nearby, &scared);
+    }
+
+    /* drow have the innate ability to cast an aura of darkness
+       around themselves, and will use it if surrounded by light */
+    if (!rn2(10) && racial_drow(mtmp)
+        && !mtmp->mpeaceful /* shopkeepers/temple priests */
+        && !is_undead(mdat) /* drow mummies/zombies */
+        && !spot_is_dark(mtmp->mx, mtmp->my)) {
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s invokes an aura of darkness.",
+                      Monnam(mtmp));
+        litroom(FALSE, TRUE, (struct obj *) 0, mtmp->mx, mtmp->my);
+        return 0;
+    }
+
+    /* aasimar have the innate ability to cast an aura of light
+       around themselves, and will use it if surrounded by darkness */
+    if (!rn2(10) && racial_aasimar(mtmp)
+        && !mtmp->mpeaceful
+        && !is_undead(mdat)
+        && spot_is_dark(mtmp->mx, mtmp->my)) {
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s invokes an aura of light.",
+                      Monnam(mtmp));
+        litroom(TRUE, TRUE, (struct obj *) 0, mtmp->mx, mtmp->my);
+        /* a drow or other light-hating hero caught within the
+           aura is harmed, just like a wand/scroll/spell of light */
+        if (distu(mtmp->mx, mtmp->my) <= 25
+            && clear_path(mtmp->mx, mtmp->my, u.ux, u.uy))
+            (void) lightdamage((struct obj *) 0, mtmp, FALSE, 5);
+        return 0;
     }
 
     /* If monster is nearby you, and has to wield a weapon, do so.  This
@@ -1987,6 +2027,12 @@ m_move(struct monst *mtmp, int after)
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
             || ((monsndx(ptr) == PM_STALKER || ptr->mlet == S_BAT
                  || ptr->mlet == S_LIGHT) && !rn2(3)))
+            appr = 0;
+
+        /* unintelligent monsters won't realize a hiding tortle is a
+           creature from far away, and even intelligent monsters may
+           overlook it occasionally */
+        if (Hidinshell && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
             appr = 0;
 
         if (appr == 1 && leppie_avoidance(mtmp))

@@ -3281,7 +3281,7 @@ makemon(
             mtmp->msleeping = 1;
         break;
     case S_ORC:
-        if (Race_if(PM_ELF))
+        if (Race_if(PM_ELF) || Race_if(PM_DROW))
             mtmp->mpeaceful = FALSE;
         break;
     case S_UNICORN:
@@ -4315,8 +4315,29 @@ peace_minded(struct monst *mtmp)
 
     if (always_peaceful(ptr))
         return TRUE;
-    if (always_hostile(ptr))
+
+    /* Major demons will sometimes be peaceful to unaligned Infidels.
+       They must pass this 50% check, then the usual checks below for
+       coaligned monsters; for crowned Infidels the random check is
+       bypassed. Followers of Lolth - if they are drow, stay chaotic,
+       and are at least fervently aligned, she will spawn peaceful.
+       Undead (non-uniques) will be peaceful towards draugr and
+       vampire heroes more often than not */
+    if (always_hostile(ptr)) {
+        if (Role_if(PM_INFIDEL) && is_demon(ptr)
+            && (u.uevent.uhand_of_elbereth || rn2(2)))
+            return TRUE;
+        if (ptr == &mons[PM_LOLTH] && ual == A_CHAOTIC
+            && u.ualign.record >= 9
+            && !Upolyd && Race_if(PM_DROW))
+            return TRUE;
+        if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+            && !Upolyd && is_undead(ptr)
+            && !unique_corpstat(ptr) && rn2(3))
+            return TRUE;
         return FALSE;
+    }
+
     if (ptr->msound == MS_LEADER || ptr->msound == MS_GUARDIAN)
         return TRUE;
     if (ptr->msound == MS_NEMESIS)
@@ -4324,17 +4345,24 @@ peace_minded(struct monst *mtmp)
     if (ptr == &mons[PM_ERINYS])
         return !u.ualign.abuse;
 
-    /* TODO-EVILHACK: master has additional racial peace carve-outs
-       here (major demons 50% peaceful to unaligned Infidels, Lolth
-       and drow peace for drow heroes, undead peace for draugr and
-       vampire heroes, angelic beings peaceful to aasimar, ents
-       peaceful to elves/Druids/Rangers); they port with the
-       player-races subsystem */
+    /* true ents are peaceful towards elven heroes with a deity, and
+       towards Druids and Rangers */
+    if (((Race_if(PM_ELF) && ual != A_NONE)
+         || Role_if(PM_DRUID) || Role_if(PM_RANGER))
+        && is_true_ent(ptr))
+        return TRUE;
 
     if (erac_race_peaceful(mtmp))
         return TRUE;
     if (erac_race_hostile(mtmp))
         return FALSE;
+
+    /* lawful angelic beings are peaceful to aasimar; a fallen
+       aasimar (abused their alignment) is still lawful and strives
+       to atone */
+    if (Race_if(PM_AASIMAR) && is_angel(ptr)
+        && !unique_corpstat(ptr) && mal > 0)
+        return TRUE;
 
     /* the monster is hostile if its alignment is different from the
      * player's */
@@ -4390,6 +4418,9 @@ set_malign(struct monst *mtmp)
     coaligned = (sgn(mal) == sgn(u.ualign.type));
     if (mtmp->data->msound == MS_LEADER) {
         mtmp->malign = -20;
+    } else if (mtmp->data == &mons[PM_LOLTH]
+               && u.ualign.type == A_CHAOTIC && Race_if(PM_DROW)) {
+        mtmp->malign = -30; /* super bad, just killed your deity */
     } else if (mal == A_NONE) {
         if (mtmp->mpeaceful)
             mtmp->malign = 0;

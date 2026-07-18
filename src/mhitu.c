@@ -735,7 +735,16 @@ mattacku(struct monst *mtmp)
     /* M3_ACCURATE monsters get a to-hit bonus */
     if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
         || is_accurate(mdat))
-        tmp += 5;
+        tmp += Hidinshell ? 0 : 5;
+    if (Hidinshell) /* enshelled tortles are much harder to hit */
+        tmp -= 12;
+    /* drow are affected by being in both the light or the dark */
+    if (racial_drow(mtmp)) {
+        if (spot_is_dark(mtmp->mx, mtmp->my))
+            tmp += (mtmp->m_lev / 3) + 2;
+        else
+            tmp -= 3;
+    }
     if (tmp <= 0)
         tmp = 1;
 
@@ -838,6 +847,25 @@ mattacku(struct monst *mtmp)
                         You("nimbly %s %s bite!",
                             rn2(2) ? "dodge" : "evade",
                             s_suffix(mon_nam(mtmp)));
+                        return 0; /* attack stops */
+                    }
+                    /* a tortle's shell wards off bites, tentacles,
+                       and stings from smaller attackers */
+                    if (mdat->msize <= MZ_LARGE && mattk->aatyp == AT_BITE
+                        && Hidinshell) {
+                        Your("protective shell blocks %s bite!",
+                             s_suffix(mon_nam(mtmp)));
+                        return 0; /* attack stops */
+                    }
+                    if (is_illithid(mdat) && mattk->aatyp == AT_TENT
+                        && Hidinshell) {
+                        Your("protective shell blocks %s tentacle attack!",
+                             s_suffix(mon_nam(mtmp)));
+                        return 0; /* attack stops */
+                    }
+                    if (mattk->aatyp == AT_STNG && Hidinshell) {
+                        pline("%s stinger glances off of your protective %s!",
+                              s_suffix(Monnam(mtmp)), "shell");
                         return 0; /* attack stops */
                     }
                     if (tmp > (j = rnd(20 + i))) {
@@ -1768,6 +1796,16 @@ explmu(
                     Your1(vision_clears);
             } else if (flags.verbose)
                 You("get the impression it was not terribly bright.");
+        }
+        /* exploding light can damage light haters whether they are
+           blind or not; drow heroes hate the light too */
+        if (ufound
+            && (hates_light(gy.youmonst.data)
+                || maybe_polyd(is_drow(gy.youmonst.data),
+                               Race_if(PM_DROW)))) {
+            pline("Ow, that light hurts!");
+            not_affected = FALSE;
+            mdamageu(mtmp, rnd(5));
         }
         break;
     case AD_HALU:

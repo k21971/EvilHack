@@ -715,6 +715,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(sparkle, Map, 0, opt_out, set_in_game,
            On, Yes, No, No, NoAlias, &flags.sparkle, Term_False,
            "display sparkly effect when resisting magic")
+    NHOPTC(spidername, Advanced, PL_PSIZ, opt_in, set_gameview,
+                No, Yes, No, No, NoAlias,
+                "name of your starting pet if it is a large spider")
     NHOPTB(spot_monsters, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &a11y.mon_notices, Term_False,
            "message when hero spots a monster")

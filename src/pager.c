@@ -1374,7 +1374,8 @@ do_screen_description(
         if ((looked ? (sym == gs.showsyms[S_HUMAN + SYM_OFF_M]
                        && u_at(cc.x, cc.y))
                     : (sym == def_monsyms[S_HUMAN].sym && !flags.showrace))
-            && !(Race_if(PM_HUMAN) || Race_if(PM_ELF)) && !Upolyd)
+            && !(Race_if(PM_HUMAN) || Race_if(PM_ELF)
+                 || Race_if(PM_DROW) || Race_if(PM_AASIMAR)) && !Upolyd)
             found += append_str(out_str, "you"); /* tack on "or you" */
     }
 

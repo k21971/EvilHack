@@ -998,6 +998,8 @@ status_enlightenment(int mode, int final)
     } else if (Flying) { /* can only fly when not levitating */
         enl_msg(youtoo, are, were, "flying", from_what(FLYING));
     }
+    if (Hidinshell)
+        you_are("hiding in your shell", "");
     if (Underwater) {
         you_are("underwater", "");
     } else if (u.uinwater) {

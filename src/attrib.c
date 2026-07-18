@@ -102,6 +102,46 @@ static const struct innate {
                  { 1, &HPoison_resistance, "", "" },
                  { 0, 0, 0, 0 } },
 
+  /* giants had it FROMFORM - make it FROMRACE like other races */
+  gia_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &HAggravate_monster, "", "" },
+                 { 12, &HRegeneration, "resilient", "less resilient" },
+                 { 0, 0, 0, 0 } },
+
+  hob_abil[] = { { 1, &HFood_sense, "", "" },
+                 { 1, &HHunger, "", "" },
+                 { 4, &HFast, "quick", "slow" },
+                 { 7, &HSearching, "perceptive", "unaware" },
+                 { 0, 0, 0, 0 } },
+
+  cen_abil[] = { { 1, &HFast, "", "" },
+                 /* use EJumping here, otherwise centaurs would only
+                    be able to jump the same way as knights */
+                 { 5, &EJumping, "light on your hooves", "weighted down" },
+                 { 10, &HWarning, "sensitive", "" },
+                 { 0, 0, 0, 0 } },
+
+  ill_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &HTelepat, "", "" },
+                 { 1, &HPsychic_resistance, "", "" },
+                 { 12, &HFlying, "lighter than air", "gravity's pull" },
+                 { 0, 0, 0, 0 } },
+
+  trt_abil[] = { { 1, &HSwimming, "", "" },
+                 { 5, &HWarning, "sensitive", "" },
+                 { 12, &HRegeneration, "resilient", "less resilient" },
+                 { 0, 0, 0, 0 } },
+
+  dro_abil[] = { { 1, &HUltravision, "", "" },
+                 { 1, &HSleep_resistance, "", "" },
+                 { 5, &HPoison_resistance, "hardy", "" },
+                 { 9, &HSearching, "perceptive", "unaware" },
+                 { 0, 0, 0, 0 } },
+
+  /* TODO-EVILHACK: master also defines racial intrinsic tables for
+     draugr, vampire, and aasimar (races-R2) and for the demon race
+     granted by Infidel crowning (roles slice) */
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 staticfn void exerper(void);
@@ -204,13 +244,24 @@ gainstr(struct obj *otmp, int incr, boolean givemsg)
 {
     int num = incr;
 
-    if (!num) {
+    /* inherently strong races treat any non-cursed strength gain as
+       a full gain roll; giants gain extra and top out at 18/100 */
+    /* TODO-EVILHACK: draugr, vampire, and aasimar also qualify for
+       the full gain roll; they port with races-R2 */
+    if (!num
+        || ((Race_if(PM_GIANT) || Race_if(PM_CENTAUR)
+             || Race_if(PM_TORTLE))
+            && !(otmp && otmp->cursed))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
         else if (ABASE(A_STR) < STR18(85))
             num = rnd(10);
         else
             num = 1;
+        if (Race_if(PM_GIANT) && ABASE(A_STR) < STR18(100))
+            num += d(2, 2);
+        if (ABASE(A_STR) < STR18(100) && ABASE(A_STR) + num > STR18(100))
+            num = STR18(100) - ABASE(A_STR);
     }
     (void) adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
                      givemsg ? -1 : 1);
@@ -521,8 +572,8 @@ staticfn void
 exerper(void)
 {
     if (!(svm.moves % 10)) {
-        /* Hunger Checks */
-        int hs = (u.uhunger > 1000) ? SATIATED
+        /* Hunger Checks; hobbits eat often and are rarely sated */
+        int hs = (u.uhunger > (Race_if(PM_HOBBIT) ? 3000 : 1000)) ? SATIATED
                  : (u.uhunger > 150) ? NOT_HUNGRY
                    : (u.uhunger > 50) ? HUNGRY
                      : (u.uhunger > 0) ? WEAK
@@ -835,6 +886,24 @@ check_innate_abil(long *ability, long frommask)
         case PM_ORC:
             abil = orc_abil;
             break;
+        case PM_GIANT:
+            abil = gia_abil;
+            break;
+        case PM_HOBBIT:
+            abil = hob_abil;
+            break;
+        case PM_CENTAUR:
+            abil = cen_abil;
+            break;
+        case PM_ILLITHID:
+            abil = ill_abil;
+            break;
+        case PM_TORTLE:
+            abil = trt_abil;
+            break;
+        case PM_DROW:
+            abil = dro_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1017,6 +1086,24 @@ adjabil(int oldlevel, int newlevel)
     case PM_ORC:
         rabil = orc_abil;
         break;
+    case PM_GIANT:
+        rabil = gia_abil;
+        break;
+    case PM_HOBBIT:
+        rabil = hob_abil;
+        break;
+    case PM_CENTAUR:
+        rabil = cen_abil;
+        break;
+    case PM_ILLITHID:
+        rabil = ill_abil;
+        break;
+    case PM_TORTLE:
+        rabil = trt_abil;
+        break;
+    case PM_DROW:
+        rabil = dro_abil;
+        break;
     case PM_HUMAN:
     case PM_DWARF:
     case PM_GNOME:
@@ -1036,6 +1123,14 @@ adjabil(int oldlevel, int newlevel)
             mask = FROMRACE;
         }
         prevabil = *(abil->ability);
+        /* giants are too big and loud to acquire stealth from
+           their role */
+        /* TODO-EVILHACK: master also skips fire resistance for
+           vampires and draugr and telepathy for draugr (races-R2) */
+        if (Race_if(PM_GIANT) && abil->ability == &HStealth) {
+            abil++;
+            continue;
+        }
         if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
             /* Abilities gained at level 1 can never be lost
              * via level loss, only via means that remove _any_

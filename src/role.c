@@ -2826,6 +2826,13 @@ role_init(void)
         gu.urole.ngod = roles[flags.pantheon].ngod;
         gu.urole.cgod = roles[flags.pantheon].cgod;
     }
+    /* drow heroes worship the drow pantheon regardless of role;
+       applies to both new and restored games */
+    if (Race_if(PM_DROW)) {
+        gu.urole.lgod = "_Eilistraee";
+        gu.urole.ngod = "Vhaeraun";
+        gu.urole.cgod = "_Lolth";
+    }
     /* 0 or 1; no gods are neuter, nor is gender randomized */
     svq.quest_status.godgend = !strcmpi(align_gtitle(alignmnt), "goddess");
 
@@ -3654,10 +3661,15 @@ setup_racemenu(
 {
     anything any;
     boolean race_ok;
-    int i;
-    char this_ch;
+    int i, j;
+    char this_ch, used[NUM_RACES + 1];
+    int nused = 0;
     int clr = NO_COLOR;
 
+    /* several races share a first letter (human vs hobbit; dwarf vs
+       drow vs draugr), so fall back to a race's first not-yet-used
+       letter to keep every entry reachable by its accelerator */
+    used[0] = '\0';
     any = cg.zeroany;
     for (i = 0; races[i].noun; i++) {
         /* no ok_gend(); race isn't constrained by gender */
@@ -3671,6 +3683,15 @@ setup_racemenu(
         else
             any.a_string = races[i].noun;
         this_ch = *races[i].noun;
+        for (j = 0; races[i].noun[j]; j++) {
+            this_ch = lowc(races[i].noun[j]);
+            if (!strchr(used, this_ch))
+                break;
+        }
+        if (nused < (int) sizeof used - 1) {
+            used[nused++] = this_ch;
+            used[nused] = '\0';
+        }
         /* filtering: picking race, so choose by first letter, with
            capital letter as unseen accelerator;
            !filtering: resetting filter rather than picking, choose by

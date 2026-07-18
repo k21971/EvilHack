@@ -749,10 +749,13 @@ vision_recalc(int control)
                     new_angle(lev, sv, row, col); /* update seen angle */
 
                 /* Update pos if previously not in sight or new angle. */
-                if (!(old_row[col] & IN_SIGHT) || oldseenv != lev->seenv)
+                if (!(old_row[col] & IN_SIGHT)
+                    || (old_row[col] & UV_SEEN)
+                    || oldseenv != lev->seenv)
                     newsym(col, row);
 
             } else if ((next_row[col] & COULD_SEE)
+                     && !(next_row[col] & TEMP_DARK)
                      && (lev->lit || (next_row[col] & TEMP_LIT))) {
                 /*
                  * We see this position because it is lit.
@@ -768,8 +771,11 @@ vision_recalc(int control)
                     dx = u.ux - col;
                     dx = sign(dx);
                     flev = &(levl[col + dx][row + dy]);
-                    if (flev->lit
-                        || next_array[row + dy][col + dx] & TEMP_LIT) {
+                    if (((flev->lit
+                          || next_array[row + dy][col + dx] & TEMP_LIT)
+                         && !(next_array[row + dy][col + dx] & TEMP_DARK))
+                        || ((next_array[row + dy][col + dx] & COULD_SEE)
+                            && Ultravision)) {
                         next_row[col] |= IN_SIGHT; /* we see it */
 
                         oldseenv = lev->seenv;
@@ -778,6 +784,7 @@ vision_recalc(int control)
                         /* Update pos if previously not in sight or new
                          * angle.*/
                         if (!(old_row[col] & IN_SIGHT)
+                            || (old_row[col] & UV_SEEN)
                             || oldseenv != lev->seenv)
                             newsym(col, row);
                     } else
@@ -790,9 +797,27 @@ vision_recalc(int control)
                     lev->seenv |= new_angle(lev, sv, row, col);
 
                     /* Update pos if previously not in sight or new angle. */
-                    if (!(old_row[col] & IN_SIGHT) || oldseenv != lev->seenv)
+                    if (!(old_row[col] & IN_SIGHT)
+                        || (old_row[col] & UV_SEEN)
+                        || oldseenv != lev->seenv)
                         newsym(col, row);
                 }
+            } else if ((next_row[col] & COULD_SEE) && Ultravision) {
+                /*
+                 * We see this position because of ultravision, which
+                 * pierces both ordinary and magical darkness.
+                 */
+                if (lev->waslit)
+                    lev->waslit = 0;
+                next_row[col] |= UV_SEEN | IN_SIGHT; /* we see it */
+                oldseenv = lev->seenv;
+                lev->seenv |=
+                    new_angle(lev, sv, row, col); /* update seen angle */
+
+                /* update pos if not previously using UV or new angle */
+                if (!(old_row[col] & UV_SEEN) || oldseenv != lev->seenv)
+                    newsym(col, row);
+
             } else if ((next_row[col] & COULD_SEE) && lev->waslit) {
                 /*
                  * If we make it here, the hero _could see_ the location,

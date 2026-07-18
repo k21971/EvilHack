@@ -40,6 +40,24 @@ set_uasmon(void)
     struct permonst *mdat = &mons[u.umonnum];
     boolean was_vampshifter = valid_vampshiftform(gy.youmonst.cham, u.umonnum);
 
+    /* large playable races adjust the size, weight, and speed of the
+       hero's base monster entry; mons[] is writable on this fork and
+       only reset at program startup, so reapply on each form change
+       to cover new games, restores, and returns from polymorph */
+    /* TODO-EVILHACK: master also slows draugr and vampire heroes
+       here; ports with races-R2 */
+    if (!Upolyd) {
+        if (Race_if(PM_GIANT) || Race_if(PM_CENTAUR)) {
+            mdat->cwt = 2200;
+            mdat->mmove = Race_if(PM_GIANT) ? 10 : 18;
+            mdat->msize = Race_if(PM_GIANT) ? MZ_HUGE : MZ_LARGE;
+        } else if (Race_if(PM_TORTLE)) {
+            mdat->cwt = 1600;
+            mdat->mmove = 10;
+            mdat->msize = MZ_LARGE;
+        }
+    }
+
     set_mon_data(&gy.youmonst, mdat);
     gy.youmonst.m_id = 1;
 
@@ -112,6 +130,12 @@ set_uasmon(void)
        suppress flying for it so that enlightenment doesn't confusingly
        show latent flight capability always blocked by levitation */
     PROPSET(FLYING, (is_flyer(mdat) && !is_floater(mdat)));
+    /* preserve racial flying for races that gain it at certain
+       levels (illithids at level 12) */
+    /* TODO-EVILHACK: vampire and aasimar racial flight ports with
+       races-R2 */
+    if (Race_if(PM_ILLITHID) && u.ulevel >= 12)
+        HFlying |= FROMRACE;
     PROPSET(SWIMMING, is_swimmer(mdat));
     /* [don't touch MAGICAL_BREATHING here; both Amphibious and Breathless
        key off of it but include different monster forms...] */
@@ -518,6 +542,10 @@ polyself(int psflags)
     old_light = emits_light(gy.youmonst.data);
     mntmp = NON_PM;
 
+    /* a tortle's shell doesn't come along to a new form */
+    if (Hidinshell)
+        (void) toggleshell();
+
     if (formrevert) {
         mntmp = gy.youmonst.cham;
         monsterpoly = TRUE;
@@ -648,6 +676,10 @@ polyself(int psflags)
         /* special changes that don't require polyok() */
         if (draconian) {
  do_merge:
+            /* TODO-EVILHACK: master also merges dragon scales worn in
+               the cloak slot (giants) into uskin here; that extension
+               interlocks with uskin save/restore and rehumanize and
+               ports with a dragon-scales follow-up */
             mntmp = armor_to_dragon(uarm->otyp);
             if (!(svm.mvitals[mntmp].mvflags & G_GENOD)) {
                 unsigned was_lit = uarm->lamplit;
@@ -713,11 +745,22 @@ polyself(int psflags)
      * we deliberately chose something illegal to force newman().
      */
     gs.sex_change_ok++;
-    if (!polyok(&mons[mntmp]) || (!forcecontrol && !rn2(5))
-        || your_race(&mons[mntmp])) {
-        newman();
-    } else {
-        (void) polymon(mntmp);
+    {
+        boolean yourrace = your_race(&mons[mntmp]);
+
+        /* for polymorphing, (fire, frost, hill, stone, storm) giants
+           are not the same race as a giant player and should not
+           cause newman(); same goes for centaurs */
+        if (Race_if(PM_GIANT))
+            yourrace = (mntmp == PM_GIANT);
+        if (Race_if(PM_CENTAUR))
+            yourrace = (mntmp == PM_CENTAUR);
+        if (!polyok(&mons[mntmp]) || (!forcecontrol && !rn2(5))
+            || yourrace) {
+            newman();
+        } else {
+            (void) polymon(mntmp);
+        }
     }
     gs.sex_change_ok--; /* reset */
 
@@ -731,6 +774,16 @@ polyself(int psflags)
         if (new_light)
             new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
                              monst_to_any(&gy.youmonst));
+    }
+    /* only remove racial flying if the new form can't fly, and
+       preserve it for races that naturally gain flight at certain
+       experience levels (illithids at level 12) */
+    if ((HFlying & FROMRACE) && !is_flyer(gy.youmonst.data)
+        && !(Race_if(PM_ILLITHID) && u.ulevel >= 12)) {
+        HFlying &= ~FROMRACE;
+        disp.botl = TRUE;
+        You_feel("gravity's pull!");
+        spoteffects(TRUE);
     }
 }
 
@@ -750,6 +803,10 @@ polymon(int mntmp)
         exercise(A_WIS, TRUE);
         return 0;
     }
+
+    /* a tortle's shell doesn't come along to a new form */
+    if (Hidinshell)
+        (void) toggleshell();
 
     /* KMH, conduct */
     if (!u.uconduct.polyselfs++)
@@ -1016,7 +1073,9 @@ polymon(int mntmp)
         /* probably should burn webs too if PM_FIRE_ELEMENTAL */
         reset_utrap(TRUE);
     }
-    if (webmaker(gy.youmonst.data) && u.utrap && u.utraptype == TT_WEB) {
+    if ((webmaker(gy.youmonst.data)
+         || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW)))
+        && u.utrap && u.utraptype == TT_WEB) {
         You("orient yourself on the web.");
         reset_utrap(TRUE);
     }
@@ -1377,7 +1436,8 @@ drop_weapon(int alone)
 void
 rehumanize(void)
 {
-    boolean was_flying = (Flying != 0);
+    boolean was_flying = (Flying != 0),
+            was_not_flying = !was_flying;
 
     /* You can't revert back while unchanging */
     if (Unchanging) {
@@ -1420,6 +1480,15 @@ rehumanize(void)
     gv.vision_full_recalc = 1;
     encumber_msg();
     update_inventory();
+    /* if the original form had intrinsic flying, give it back; the
+       current races that fly do so only from a certain experience
+       level on, so check against that */
+    /* TODO-EVILHACK: vampire and aasimar racial flight ports with
+       races-R2 */
+    if (was_not_flying && Race_if(PM_ILLITHID) && u.ulevel >= 12) {
+        HFlying |= FROMRACE;
+        You_feel("lighter than air!");
+    }
     if (was_flying && !Flying && u.usteed)
         You("and %s return gently to the %s.",
             mon_nam(u.usteed), surface(u.ux, u.uy));
@@ -1800,6 +1869,32 @@ dogaze(void)
     return ECMD_TIME;
 }
 
+/* tortle hero withdraws into or emerges from their shell; also the
+   occupation callback that finishes a delayed shell toggle */
+int
+toggleshell(void)
+{
+    boolean was_blind = Blind, was_hiding = Hidinshell;
+
+    /* maximum of 200 turns our hero can stay inside their shell,
+       and then 300-400 turns before they can hide in it again
+       after emerging from it */
+    u.uinshell = was_hiding ? -rn1(100, 300) : 200;
+
+    /* the shell absorbs half of all physical punishment */
+    if (!was_hiding)
+        HHalf_physical_damage |= FROMOUTSIDE;
+    else
+        HHalf_physical_damage &= ~FROMOUTSIDE;
+
+    find_ac();
+    disp.botl = TRUE;
+    if (was_blind ^ Blind)
+        toggle_blindness();
+
+    return 1;
+}
+
 /* called by domonability() for #monster */
 int
 dohide(void)
@@ -1918,6 +2013,36 @@ dopoly(void)
 }
 
 /* #monster for hero-as-mind_flayer giving psychic blast */
+/* #monster for an unpolymorphed drow: invoke an aura of darkness */
+int
+dodarkness(void)
+{
+    int energy = 10;
+    const char *fail_invoke = 0;
+
+    if (Confusion || Stunned)
+        fail_invoke = "are unable";
+    else if (u.uhunger <= 10)
+        fail_invoke = "are too weak from hunger";
+    else if (ACURR(A_STR) < 4)
+        fail_invoke = "lack the strength";
+    else if (energy > u.uen)
+        fail_invoke = "lack the energy";
+
+    if (fail_invoke) {
+        You("%s to invoke an aura of darkness.", fail_invoke);
+        return ECMD_OK;
+    }
+
+    exercise(A_WIS, TRUE);
+    u.uen -= energy;
+    disp.botl = TRUE;
+    You("invoke an aura of darkness.");
+    litroom(FALSE, TRUE, (struct obj *) 0, u.ux, u.uy);
+
+    return ECMD_TIME;
+}
+
 int
 domindblast(void)
 {
@@ -2107,10 +2232,15 @@ mbodypart(struct monst *mon, int part)
         /* opposable thumbs, hence "hands", "arms", "legs", &c */
         return humanoid_parts[part]; /* yeti/sasquatch, monkey/ape */
     }
+    /* TODO-EVILHACK: master also uses claws for demon, draugr, and
+       vampire heroes (races-R2 and the roles slice) */
     if ((part == HAND || part == HANDED)
-        && (humanoid(mptr) && attacktype(mptr, AT_CLAW)
-            && !strchr(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
-            && mptr != &mons[PM_AMOROUS_DEMON]))
+        && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
+             && !strchr(not_claws, mptr->mlet)
+             && mptr != &mons[PM_STONE_GOLEM]
+             && mptr != &mons[PM_AMOROUS_DEMON])
+            || (mon == &gy.youmonst && !Upolyd
+                && (Race_if(PM_TORTLE) || Race_if(PM_ILLITHID)))))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON])
         && part == NOSE)

@@ -1395,7 +1395,7 @@ use_candle(struct obj **optr)
     char qbuf[QBUFSZ], qsfx[QBUFSZ], *q;
     boolean was_lamplit;
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         You(no_elbow_room);
         return;
     }
@@ -1709,7 +1709,7 @@ light_cocktail(struct obj **optr)
     char buf[BUFSZ];
     boolean split1off;
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         You(no_elbow_room);
         return;
     }
@@ -2001,6 +2001,13 @@ jump(int magic) /* 0=Physical, otherwise skill level */
            but that isn't necessarily the case for knights */
         You_cant("jump; you have no legs!");
         return ECMD_OK;
+    } else if (Hidinshell) {
+        /* currently there's no way for a tortle to be able
+           to jump (magical or otherwise), but we'll cover
+           this regardless in case new methods of jumping
+           are created in the future */
+        You_cant("jump while hiding in your shell!");
+        return ECMD_OK;
     } else if (!magic && !Jumping) {
         You_cant("jump very far.");
         return ECMD_OK;
@@ -2269,6 +2276,12 @@ use_unicorn_horn(struct obj **optr)
     int idx, val, val_limit, trouble_count, unfixable_trbl, did_prop;
     int trouble_list[PROP_COUNT];
     struct obj *obj = (optr ? *optr : (struct obj *) 0);
+
+    if (obj && Hidinshell) {
+        You_cant("use your %s while hiding in your shell.",
+                 distant_name(obj, xname));
+        return;
+    }
 
     if (obj && obj->cursed) {
         long lcount = (long) rn1(90, 10);
@@ -2749,8 +2762,10 @@ use_stone(struct obj *tstone)
             do_scratch = TRUE;
         } else if (obj->oclass == GEM_CLASS
                    && (tstone->blessed
-                       || (!tstone->cursed && (Role_if(PM_ARCHEOLOGIST)
-                                               || Race_if(PM_GNOME))))) {
+                       || (!tstone->cursed
+                           && (Role_if(PM_ARCHEOLOGIST)
+                               || Race_if(PM_GNOME)
+                               || Race_if(PM_GIANT))))) {
             makeknown(TOUCHSTONE);
             makeknown(obj->otyp);
             prinv((char *) 0, obj, 0L);
@@ -3008,7 +3023,7 @@ use_whip(struct obj *obj)
     if (proficient < 0)
         proficient = 0;
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         There("is not enough room to flick your bullwhip.");
 
     } else if (Underwater) {
@@ -3440,7 +3455,7 @@ use_pole(struct obj *obj, boolean autohit)
     boolean freehit = FALSE;
 
     /* Are you allowed to use the pole? */
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         pline(not_enough_room);
         return ECMD_OK;
     }
@@ -3742,7 +3757,7 @@ use_grapple(struct obj *obj)
     struct obj *otmp;
 
     /* Are you allowed to use the hook? */
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         pline(not_enough_room);
         return ECMD_OK;
     }
@@ -4144,7 +4159,8 @@ do_break_wand(struct obj *obj)
         pay_for_damage("dig into", FALSE);
 
     if (obj->otyp == WAN_LIGHT)
-        litroom(TRUE, obj); /* only needs to be done once */
+        /* only needs to be done once */
+        litroom(TRUE, FALSE, obj, u.ux, u.uy);
 
     discard_broken_wand();
     return ECMD_TIME;

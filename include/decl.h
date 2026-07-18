@@ -867,6 +867,9 @@ struct instance_globals_s {
     /* do.c */
     d_level save_dlevel; /* ? [even back in 3.4.3, only used in bones.c] */
 
+    /* dog.c */
+    char spidername[PL_PSIZ];
+
     /* symbols.c */
     struct symsetentry symset[NUM_GRAPHICS];
     /* adds UNICODESET */

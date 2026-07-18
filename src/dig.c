@@ -369,8 +369,13 @@ dig(void)
 
     svc.context.digging.effort +=
         10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
-    if (Race_if(PM_DWARF))
+    /* TODO-EVILHACK: master doubles digging effort again for dead
+       trees; ports with the terrain work */
+    if (Race_if(PM_DWARF) || Race_if(PM_GIANT)
+        || P_SKILL(P_PICK_AXE) == P_SKILLED)
         svc.context.digging.effort *= 2;
+    if (P_SKILL(P_PICK_AXE) == P_EXPERT)
+        svc.context.digging.effort *= 4;
     if (svc.context.digging.down) {
         struct trap *ttmp = t_at(dpx, dpy);
 
@@ -1150,6 +1155,11 @@ use_pick_axe(struct obj *obj)
     }
     ispick = is_pick(obj);
     verb = ispick ? "dig" : "chop";
+
+    if (Hidinshell) {
+        You_cant("%s while hiding in your shell.", verb);
+        return res;
+    }
 
     if (u.utrap && u.utraptype == TT_WEB) {
         pline("%s you can't %s while entangled in a web.",

@@ -60,7 +60,7 @@ staticfn boolean m_slips_free(struct monst *, struct attack *) NONNULLPTRS;
 staticfn void start_engulf(struct monst *) NONNULLARG1;
 staticfn void end_engulf(void);
 staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
-staticfn boolean hmonas(struct monst *) NONNULLARG1;
+staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
 staticfn void nohandglow(struct monst *) NONNULLARG1;
 staticfn boolean mhurtle_to_doom(struct monst *, int,
                              struct permonst **) NONNULLARG13;
@@ -420,6 +420,20 @@ find_roll_to_hit(
         && maybe_polyd(is_orc(gy.youmonst.data), Race_if(PM_ORC)))
         tmp++;
 
+    /* drow get a to-hit bonus if surrounded by darkness
+       and using their racial weaponry, otherwise no bonus,
+       and they take a penalty while in the light */
+    if (maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))) {
+        if (spot_is_dark(u.ux, u.uy)) { /* spot is dark */
+            if (!uwep || is_drow_weapon(uwep)
+                || uwep->oartifact == ART_SHADOWBLADE)
+                tmp += (u.ulevel / 3) + 2;
+        } else {
+            /* spot is lit */
+            tmp -= 4;
+        }
+    }
+
     /* encumbrance: with a lot of luggage, your agility diminishes */
     if ((tmp2 = near_capacity()) != 0)
         tmp -= (tmp2 * 2) - 1;
@@ -592,7 +606,7 @@ do_attack(struct monst *mtmp)
     }
 
     if (Upolyd)
-        (void) hmonas(mtmp);
+        (void) hmonas(mtmp, NON_PM, TRUE);
     else
         (void) hitum(mtmp, gy.youmonst.data->mattk);
     mtmp->mstrategy &= ~STRAT_WAITMASK;
@@ -840,6 +854,29 @@ hitum(struct monst *mon, struct attack *uattk)
                            secondwep && !uswapwep);
     }
     gt.twohits = 0;
+
+    /* your race may grant extra natural attacks; illithids don't use
+       their tentacle attack every turn, and centaurs are strong
+       enough to not need their extra kick attack */
+    /* TODO-EVILHACK: draugr and vampire extra racial attacks port
+       with races-R2 */
+    if (!Upolyd && !(gm.multi < 0 || u.umortality > oldumort
+                     || !malive || !isok(x, y) || m_at(x, y) != mon)) {
+        int i;
+        int race = gu.urace.mnum;
+        struct attack *attacks = mons[race].mattk;
+
+        if ((Race_if(PM_ILLITHID) && rn2(4)) || Race_if(PM_CENTAUR))
+            return malive;
+        for (i = 0; i < NATTK; i++) {
+            if (attacks[i].aatyp != AT_WEAP
+                && attacks[i].aatyp != AT_NONE) {
+                malive = hmonas(mon, race, FALSE);
+                break;
+            }
+        }
+    }
+
     return malive;
 }
 
@@ -957,6 +994,17 @@ hmon_hitmon_weapon_melee(
     /* "normal" weapon usage */
     hmd->use_weapon_skill = TRUE;
     hmd->dmg = dmgval(obj, mon);
+    /* giants are more effective with club-like weapons; roll the
+       damage twice and take the better result, plus one */
+    if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT))
+        && objects[obj->otyp].oc_skill == P_CLUB
+        && !noncorporeal(hmd->mdat)) {
+        int dmg2 = dmgval(obj, mon);
+
+        if (hmd->dmg < dmg2)
+            hmd->dmg = dmg2;
+        hmd->dmg++;
+    }
     /* a minimal hit doesn't exercise proficiency */
     hmd->train_weapon_skill = (hmd->dmg > 1);
 
@@ -978,13 +1026,21 @@ hmon_hitmon_weapon_melee(
         You("strike %s from behind!", mon_nam(mon));
         hmd->dmg += rnd(u.ulevel);
         hmd->hittxt = TRUE;
-    } else if (hmd->dieroll == 2 && obj == uwep
-               && obj->oclass == WEAPON_CLASS
-               && (bimanual(obj)
-                   || (Role_if(PM_SAMURAI) && obj->otyp == KATANA
-                       && !uarms))
-               && ((wtype = uwep_skill_type()) != P_NONE
-                   && P_SKILL(wtype) >= P_SKILLED)
+    } else if (obj == uwep && obj->oclass == WEAPON_CLASS
+               && ((hmd->dieroll == 2
+                    && (bimanual(obj) || Race_if(PM_GIANT)
+                        || (Role_if(PM_SAMURAI) && obj->otyp == KATANA
+                            && !uarms))
+                    && ((wtype = uwep_skill_type()) != P_NONE
+                        && P_SKILL(wtype) >= P_SKILLED))
+                   /* giants can shatter weapons on other near-best
+                      hits, given enough skill */
+                   || (hmd->dieroll == 3 && Race_if(PM_GIANT)
+                       && ((wtype = uwep_skill_type()) != P_NONE
+                           && P_SKILL(wtype) >= P_BASIC))
+                   || (hmd->dieroll == 4 && !rn2(2) && Race_if(PM_GIANT)
+                       && ((wtype = uwep_skill_type()) != P_NONE
+                           && P_SKILL(wtype) >= P_EXPERT)))
                && ((monwep = MON_WEP(mon)) != 0
                    && !is_flimsy(monwep)
                    && !is_mithril(monwep) /* mithril is super-strong */
@@ -1060,9 +1116,14 @@ hmon_hitmon_weapon_melee(
         hmd->hated_obj = obj;
     }
     if (artifact_light(obj) && obj->lamplit
+        /* an Archmagi's staff radiating darkness for a drow does
+           not sear light haters */
+        && !(is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+             && !Upolyd && Race_if(PM_DROW))
         && mon_hates_light(mon))
         hmd->lightobj = TRUE;
-    if (u.usteed && !hmd->thrown && hmd->dmg > 0
+    if ((u.usteed || (!Upolyd && Race_if(PM_CENTAUR)))
+        && !hmd->thrown && hmd->dmg > 0
         && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
         hmd->jousting = joust(mon, obj);
         /* exercise skill even for minimal damage hits */
@@ -1082,6 +1143,9 @@ hmon_hitmon_weapon_melee(
                 hmd->dmg++;
             else if (Race_if(PM_ELF) && obj->otyp == ELVEN_ARROW
                      && uwep->otyp == ELVEN_BOW)
+                hmd->dmg++;
+            else if (Race_if(PM_DROW) && obj->otyp == DARK_ELVEN_ARROW
+                     && uwep->otyp == DARK_ELVEN_BOW)
                 hmd->dmg++;
             hmd->train_weapon_skill = (hmd->dmg > 0);
         }
@@ -1104,9 +1168,10 @@ hmon_hitmon_weapon(
         is_launcher(obj)
         /* or strike with a missile in your hand... */
         || (!hmd->thrown && (is_missile(obj) || is_ammo(obj)))
-        /* or use a pole at short range and not mounted... */
-        || (!hmd->thrown && !u.usteed && is_pole(obj)
-            && !is_art(obj,ART_SNICKERSNEE))
+        /* or use a pole at short range and not mounted (centaurs
+           count as mounted here) */
+        || (!hmd->thrown && !u.usteed && !Race_if(PM_CENTAUR)
+            && is_pole(obj) && !is_art(obj, ART_SNICKERSNEE))
         /* or throw a missile without the proper bow... */
         || (is_ammo(obj) && (hmd->thrown != HMON_THROWN
                              || !ammo_and_launcher(obj, uwep)))) {
@@ -1655,9 +1720,10 @@ hmon_hitmon_stagger(
     struct monst *mon,
     struct obj *obj UNUSED)
 {
-    /* VERY small chance of stunning opponent if unarmed. */
-    if (rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT) && !bigmonst(hmd->mdat)
-        && !thick_skinned(hmd->mdat)) {
+    /* VERY small chance of stunning opponent if unarmed;
+       giant heroes hit hard enough to manage it more often */
+    if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
+        && !bigmonst(hmd->mdat) && !thick_skinned(hmd->mdat)) {
         if (canspotmon(mon))
             pline("%s %s from your powerful strike!", Monnam(mon),
                   makeplural(stagger(mon->data, "stagger")));
@@ -1737,7 +1803,13 @@ hmon_hitmon_msg_hit(
                 : (obj && (objects[obj->otyp].oc_skill == P_WHIP
                            || is_wet_towel(obj))) ? "lash"
                   : Role_if(PM_BARBARIAN) ? "smite"
-                    : "hit",
+                    /* TODO-EVILHACK: master also claws for poly'd
+                       claw-bearing forms (has_claws) and for demon,
+                       draugr, and vampire heroes */
+                    : (!obj && !Upolyd
+                       && (Race_if(PM_TORTLE)
+                           || Race_if(PM_ILLITHID))) ? "claw"
+                      : "hit",
                 mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
     }
 }
@@ -2891,7 +2963,7 @@ mhitm_ad_sgld(
         hitmsg(magr, mattk);
         if (pd->mlet == pa->mlet)
             return;
-        if (!magr->mcan)
+        if (!(magr->mcan || Hidinshell))
             stealgold(magr);
     } else {
         /* mhitm */
@@ -4199,9 +4271,19 @@ mhitm_ad_phys(
                     mhm->hitflags |= M_ATTK_HIT;
                 }
             } else if (u.ustuck == magr) {
-                exercise(A_STR, FALSE);
-                You("are being %s.",
-                    (pa == &mons[PM_ROPE_GOLEM]) ? "choked" : "crushed");
+                if (Hidinshell) {
+                    /* monster still has you in its grasp, but is
+                       unable to cause any damage */
+                    Your("protective shell prevents you from being %s!",
+                         (pa == &mons[PM_ROPE_GOLEM]) ? "choked"
+                                                      : "crushed");
+                    mhm->damage = 0;
+                } else {
+                    exercise(A_STR, FALSE);
+                    You("are being %s.",
+                        (pa == &mons[PM_ROPE_GOLEM]) ? "choked"
+                                                     : "crushed");
+                }
             }
         } else { /* hand to hand weapon */
             struct obj *otmp = MON_WEP(magr);
@@ -4245,6 +4327,28 @@ mhitm_ad_phys(
                 if (Hate_material(otmp->material)) {
                     searmsg(magr, &gy.youmonst, otmp, FALSE);
                     exercise(A_CON, FALSE);
+                }
+                /* dmgval() adds the extra damage for this; light-hating
+                   forms and unpolymorphed drow suffer from a lit
+                   artifact's radiance */
+                if (artifact_light(otmp) && otmp->lamplit
+                    && (hates_light(gy.youmonst.data)
+                        || maybe_polyd(is_drow(gy.youmonst.data),
+                                       Race_if(PM_DROW)))) {
+                    if (canspotmon(magr)) {
+                        char *artiname = s_suffix(bare_artifactname(otmp));
+
+                        *artiname = highc(*artiname);
+                        pline("%s radiance penetrates deep into your %s!",
+                              artiname,
+                              !(noncorporeal(gy.youmonst.data)
+                                || amorphous(gy.youmonst.data))
+                                  ? "flesh" : "form");
+                    } else if (!Blind) {
+                        pline("The light sears you!");
+                    } else {
+                        You("are seared!");
+                    }
                 }
                 /* this redundancy necessary because you have
                    to take the damage _before_ being cloned;
@@ -4773,6 +4877,8 @@ mhitm_ad_samu(
         /* when the Wizard or quest nemesis hits, there's a 1/20 chance
            to steal a quest artifact (any, not just the one for the hero's
            own role) or the Amulet or one of the invocation tools */
+        if (Hidinshell)
+            return;
         if (!rn2(20))
             stealamulet(magr);
     } else {
@@ -4845,7 +4951,7 @@ mhitm_ad_sedu(
 
         if (is_animal(magr->data)) {
             hitmsg(magr, mattk);
-            if (magr->mcan)
+            if (magr->mcan || Hidinshell)
                 return;
             /* Continue below */
         } else if (dmgtype(gy.youmonst.data, AD_SEDU)
@@ -4863,10 +4969,11 @@ mhitm_ad_sedu(
             mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
             mhm->done = TRUE;
             return;
-        } else if (magr->mcan) {
+        } else if (magr->mcan || Hidinshell) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
-                      Adjmonnam(magr, "plain"),
+                      !magr->mcan ? Monnam(magr)
+                                  : Adjmonnam(magr, "plain"),
                       flags.female ? "charm" : "seduce",
                       flags.female ? "unaffected" : "uninterested");
             if (rn2(3)) {
@@ -4968,7 +5075,8 @@ mhitm_ad_ssex(struct monst *magr, struct attack *mattk, struct monst *mdef,
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         if (SYSOPT_SEDUCE) {
-            if (could_seduce(magr, mdef, mattk) == 1 && !magr->mcan)
+            if (could_seduce(magr, mdef, mattk) == 1
+                && !(magr->mcan || Hidinshell))
                 if (doseduce(magr)) {
                     mhm->hitflags = M_ATTK_AGR_DONE;
                     mhm->done = TRUE;
@@ -5717,13 +5825,17 @@ mhitm_knockback(
     return TRUE;
 }
 
-/* attack monster as a monster; returns True if mon survives */
+/* attack monster as a monster; returns True if mon survives;
+   'as' picks whose attack list to use: NON_PM means the hero's
+   current form, otherwise the given monster index (used for the
+   extra natural attacks of unpolymorphed racial heroes) */
 staticfn boolean
-hmonas(struct monst *mon)
+hmonas(struct monst *mon, int as, boolean weapon_attacks)
 {
     struct attack *mattk, alt_attk;
     struct obj *weapon, **originalweapon;
-    boolean altwep = FALSE, weapon_used = FALSE, odd_claw = TRUE;
+    boolean altwep = FALSE, weapon_used = !weapon_attacks,
+            odd_claw = TRUE;
     int i, tmp, dieroll, armorpenalty, sum[NATTK],
         dhit = 0, attknum = 0, multi_claw = 0, multi_weap = 0;
     boolean monster_survived;
@@ -5736,7 +5848,8 @@ hmonas(struct monst *mon)
        whether silver ring causes successful hit */
     for (i = 0; i < NATTK; i++) {
         sum[i] = M_ATTK_MISS;
-        mattk = getmattk(&gy.youmonst, mon, i, sum, &alt_attk);
+        mattk = (as != NON_PM) ? &mons[as].mattk[i]
+                : getmattk(&gy.youmonst, mon, i, sum, &alt_attk);
         if (mattk->aatyp == AT_WEAP)
             ++multi_weap;
         if (mattk->aatyp == AT_WEAP
@@ -5758,13 +5871,16 @@ hmonas(struct monst *mon)
                       || DEADMONSTER(mon)))
             continue;
 
-        mattk = getmattk(&gy.youmonst, mon, i, sum, &alt_attk);
+        mattk = (as != NON_PM) ? &mons[as].mattk[i]
+                : getmattk(&gy.youmonst, mon, i, sum, &alt_attk);
         if (gs.skipdrin && mattk->aatyp == AT_TENT && mattk->adtyp == AD_DRIN)
             continue;
         weapon = 0;
         switch (mattk->aatyp) {
         case AT_WEAP:
             /* if (!uwep) goto weaponless; */
+            if (!weapon_attacks)
+                continue;
  use_weapon:
             odd_claw = !odd_claw; /* see case AT_CLAW,AT_TUCH below */
             /* if we've already hit with a two-handed weapon, we don't
@@ -5862,6 +5978,33 @@ hmonas(struct monst *mon)
         case AT_BUTT:
         case AT_TENT:
         /*weaponless:*/
+            /* don't eat brains as a racial illithid when it would be
+               particularly detrimental */
+            /* TODO-EVILHACK: master extends this guard to druids in
+               wild shape (druid_form); ports with the roles slice */
+            if (maybe_polyd(is_illithid(gy.youmonst.data),
+                            Race_if(PM_ILLITHID))
+                && mattk->aatyp == AT_TENT
+                && (((touch_petrifies(mon->data)
+                      || mon->data == &mons[PM_MEDUSA])
+                     && !Stone_resistance)
+                    || is_rider(mon->data)
+                    || noncorporeal(mon->data)
+                    || mon->data == &mons[PM_GREEN_SLIME]
+                    /* illithid-on-illithid cannibalism is not a worry
+                       since their minds are psionically shielded */
+                    || (ismnum(u.ulycn)
+                        && were_beastie(monsndx(mon->data)) == u.ulycn
+                        && !Role_if(PM_CAVE_DWELLER))
+                    || (!Disint_resistance
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+                break;
+            /* never eat brains while engulfed */
+            if (maybe_polyd(is_illithid(gy.youmonst.data),
+                            Race_if(PM_ILLITHID))
+                && mattk->aatyp == AT_TENT && u.uswallow)
+                break;
             tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
                                    &attknum, &armorpenalty);
             mon_maybe_unparalyze(mon);

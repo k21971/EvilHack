@@ -675,6 +675,15 @@ nh_timeout(void)
             pline("%s stops galloping.", Monnam(u.usteed));
     }
 
+    /* tortle shell time: positive counts down to a forced emergence,
+       negative counts up until hiding is permitted again */
+    if (Hidinshell && --u.uinshell == 1) {
+        (void) toggleshell();
+        nomul(0);
+    } else if (u.uinshell < 0) {
+        u.uinshell++;
+    }
+
     was_flying = Flying;
     for (upp = u.uprops; upp < u.uprops + SIZE(u.uprops); upp++)
         if ((upp->intrinsic & TIMEOUT) && !(--upp->intrinsic & TIMEOUT)) {

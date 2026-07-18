@@ -1695,6 +1695,9 @@ water_friction(void)
     coordxy x, y, dx, dy;
     boolean eff = FALSE;
 
+    if (Race_if(PM_TORTLE))
+        return; /* tortles are in their natural element */
+
     if (Swimming && rn2(4))
         return; /* natural swimmers have advantage */
 

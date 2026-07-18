@@ -159,6 +159,9 @@ formatkiller(
         else if (sizeof ", while helpless" <= siz)
             Strcpy(buf, ", while helpless");
         /* else extra death info won't fit, so leave it out */
+    } else if (incl_helpless && Hidinshell
+               && sizeof ", while hiding in her shell" <= siz) {
+        Sprintf(buf, ", while hiding in %s shell", uhis());
     }
 }
 
@@ -366,6 +369,8 @@ writexlentry(FILE *rfile, struct toptenentry *tt, int how)
     if (gm.multi < 0)
         Fprintf(rfile, "%cwhile=%s", XLOG_SEP,
                 gm.multi_reason ? gm.multi_reason : "helpless");
+    else if (Hidinshell)
+        Fprintf(rfile, "%cwhile=hiding in %s shell", XLOG_SEP, uhis());
     Fprintf(rfile, "%cconduct=0x%lx%cturns=%ld%cachieve=0x%lx", XLOG_SEP,
             encodeconduct(), XLOG_SEP, svm.moves, XLOG_SEP,
             encodeachieve(FALSE));

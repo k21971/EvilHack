@@ -758,7 +758,7 @@ doforce(void)
      *  allow force with edged weapon to be performed on doors.
      */
 
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         You_cant("force anything from inside here.");
         return ECMD_OK;
     }

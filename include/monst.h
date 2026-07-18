@@ -351,6 +351,9 @@ struct monst {
 #define resists_poison(mon) Resists_Elem(mon, POISON_RES)
 #define resists_acid(mon)   Resists_Elem(mon, ACID_RES)
 #define resists_ston(mon)   Resists_Elem(mon, STONE_RES)
+/* psychic has no corresponding hero property; test the monster
+   resistance bit directly */
+#define resists_psychic(mon) ((mon_resistancebits(mon) & MR_PSYCHIC) != 0)
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)

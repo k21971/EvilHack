@@ -4343,6 +4343,10 @@ tipcontainer_checks(
         pline("%s is locked.", upstart(thesimpleoname(box)));
         return TIPCHECK_LOCKED;
 
+    } else if (Hidinshell) {
+        You_cant("tip that while hiding in your shell.");
+        return TIPCHECK_CANNOT;
+
     } else if (box->otrapped) {
         /* we're not reaching inside but we're still handling it... */
         (void) chest_trap(box, HAND, FALSE);

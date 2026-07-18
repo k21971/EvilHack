@@ -1855,9 +1855,18 @@ maybe_adjust_light(struct obj *obj, int old_range)
                    when changing intensity, using "less brightly" is
                    straightforward for dimming, but we need "brighter"
                    rather than "more brightly" for brightening; ugh */
-                pline("%s %s %s%s.", buf, otense(obj, "shine"),
-                      (abs(delta) > 1) ? "much " : "",
-                      (delta > 0) ? "brighter" : "less brightly");
+                if ((is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+                     && !Upolyd && Race_if(PM_DROW))
+                    || (Is_dragon_armor(obj)
+                        && (Dragon_armor_to_scales(obj)
+                            == SHADOW_DRAGON_SCALES)))
+                    pline("%s aura becomes %s%s.", makeplural(buf),
+                          (abs(delta) > 1) ? "much " : "",
+                          (delta > 0) ? "darker" : "less dark");
+                else
+                    pline("%s %s %s%s.", buf, otense(obj, "shine"),
+                          (abs(delta) > 1) ? "much " : "",
+                          (delta > 0) ? "brighter" : "less brightly");
             }
         }
     }

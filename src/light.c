@@ -55,7 +55,6 @@ staticfn unsigned whereis_mon(struct monst *, unsigned);
 extern const coordxy circle_data[];
 extern const coordxy circle_start[];
 
-
 /* Create a new light source.  Caller (and extern.h) doesn't need to know
    anything about type 'light_source'. */
 void
@@ -169,14 +168,21 @@ void
 do_light_sources(seenV **cs_rows)
 {
     coordxy x, y, min_x, max_x, max_y;
-    int offset;
+    int offset, lit_typ;
     const coordxy *limits;
-    short at_hero_range = 0;
     light_source *ls;
     seenV *row;
 
+    /* Note: the at_hero_range dedup for duplicate sources at the
+       hero's spot is intentionally absent here. EvilHack can have
+       TEMP_LIT and TEMP_DARK sources at the hero's tile at the same
+       time (e.g. an ordinary lamp plus a cursed magic lamp), so
+       skipping duplicates by radius alone loses the dark-lamp
+       classification */
+
     for (ls = gl.light_base; ls; ls = ls->next) {
         ls->flags &= ~LSF_SHOW;
+        lit_typ = TEMP_LIT;
 
         /*
          * Check for moved light sources.  It may be possible to
@@ -193,16 +199,41 @@ do_light_sources(seenV **cs_rows)
                 ls->flags |= LSF_SHOW;
         }
 
-        /* minor optimization: don't bother with duplicate light sources
-           at hero */
-        if (u_at(ls->x, ls->y)) {
-            if (at_hero_range >= ls->range)
-                ls->flags &= ~LSF_SHOW;
-            else
-                at_hero_range = ls->range;
-        }
-
         if (ls->flags & LSF_SHOW) {
+            /* classify dark-lamp vs normal light only after we know
+               the source is live and locatable; this keeps the
+               otyp/oartifact derefs behind the LSF_SHOW gate */
+            if (ls->type == LS_OBJECT && ls->range > 0) {
+                struct obj *lobj = ls->id.a_obj;
+
+                if (lobj->otyp == MAGIC_LAMP && lobj->cursed) {
+                    lit_typ = TEMP_DARK;
+                } else if (lobj->otyp == SHADOW_DRAGON_SCALES) {
+                    lit_typ = TEMP_DARK;
+                } else if (Is_dragon_scaled_armor(lobj)
+                           && (Dragon_armor_to_scales(lobj)
+                               == SHADOW_DRAGON_SCALES)) {
+                    lit_typ = TEMP_DARK;
+                } else if (lobj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                           && (lobj->owornmask & W_WEP) != 0L) {
+                    /* the Staff emits darkness for any drow wielder;
+                       drow monsters who wield the Staff get the same
+                       aura as a drow player would */
+                    if (carried(lobj)) {
+                        if (!Upolyd && Race_if(PM_DROW))
+                            lit_typ = TEMP_DARK;
+                    } else if (lobj->where == OBJ_MINVENT && lobj->ocarry
+                               && racial_drow(lobj->ocarry)) {
+                        lit_typ = TEMP_DARK;
+                    }
+                }
+            } else if (ls->type == LS_MONSTER) {
+                if (ls->id.a_monst->data == &mons[PM_SHADOW_DRAGON]
+                    || ls->id.a_monst->data
+                       == &mons[PM_BABY_SHADOW_DRAGON])
+                    lit_typ = TEMP_DARK;
+            }
+
             /*
              * Walk the points in the circle and see if they are
              * visible from the center.  If so, mark'em.
@@ -237,12 +268,12 @@ do_light_sources(seenV **cs_rows)
                      */
                     for (x = min_x; x <= max_x; x++)
                         if (row[x] & COULD_SEE)
-                            row[x] |= TEMP_LIT;
+                            row[x] |= lit_typ;
                 } else {
                     for (x = min_x; x <= max_x; x++)
                         if ((ls->x == x && ls->y == y)
                             || clear_path((int) ls->x, (int) ls->y, x, y))
-                            row[x] |= TEMP_LIT;
+                            row[x] |= lit_typ;
                 }
             }
         }
@@ -745,7 +776,9 @@ snuff_light_source(coordxy x, coordxy y)
                  * dropped or thrown inside a monster, this won't matter
                  * anyway because it will go out when dropped.)
                  */
-                if (artifact_light(obj))
+                if (artifact_light(obj)
+                    /* dark-emitting lamps are immune to darkness */
+                    || (obj->otyp == MAGIC_LAMP && obj->cursed))
                     continue;
                 end_burn(obj, obj->otyp != MAGIC_LAMP);
                 /*
@@ -904,9 +937,13 @@ arti_light_radius(struct obj *obj)
        light than other light sources */
     if (obj == uskin)
         res = 1;
-    else if (Is_dragon_scaled_armor(obj)
-             && Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES)
-        ++res; /* fused gold dragon scales; not plain scales */
+    else if ((Is_dragon_scaled_armor(obj)
+              && (Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
+                  || Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES
+                  || Dragon_armor_to_scales(obj)
+                     == CHROMATIC_DRAGON_SCALES))
+             || obj->otyp == SHIELD_OF_LIGHT)
+        ++res; /* fused dragon scales, not plain scales */
 
     return res;
 }

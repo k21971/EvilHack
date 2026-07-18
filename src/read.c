@@ -356,6 +356,11 @@ doread(void)
     if (check_capacity((char *) 0))
         return ECMD_OK;
 
+    if (Hidinshell) {
+        You_cant("read anything while hiding in your shell.");
+        return ECMD_OK;
+    }
+
     scroll = getobj("read", read_ok, GETOBJ_PROMPT);
     if (!scroll)
         return ECMD_CANCEL;
@@ -1135,7 +1140,11 @@ seffect_enchant_armor(struct obj **sobjp)
     schar s;
     boolean special_armor;
     boolean same_color;
-    struct obj *otmp = some_armor(&gy.youmonst);
+    /* dragon scales worn in the cloak slot take priority so they can
+       be enchanted into dragon-scaled armor */
+    struct obj *otmp = (uarmc && Is_dragon_scales(uarmc))
+                           ? uarmc
+                           : some_armor(&gy.youmonst);
     boolean sblessed = sobj->blessed;
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
@@ -1180,6 +1189,7 @@ seffect_enchant_armor(struct obj **sobjp)
     }
     /* elven armor vibrates warningly when enchanted beyond a limit */
     special_armor = is_elven_armor(otmp)
+        || (Race_if(PM_DROW) && is_drow_armor(otmp))
         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
     if (scursed)
         same_color = (otmp->otyp == BLACK_DRAGON_SCALES);
@@ -1740,9 +1750,9 @@ seffect_light(struct obj **sobjp)
     if (!confused) {
         if (!Blind)
             gk.known = TRUE;
-        litroom(!scursed, sobj);
+        litroom(!scursed, FALSE, sobj, u.ux, u.uy);
         if (!scursed) {
-            if (lightdamage(sobj, TRUE, 5))
+            if (lightdamage(sobj, (struct monst *) 0, TRUE, 5))
                 gk.known = TRUE;
         }
     } else {
@@ -2491,12 +2501,17 @@ set_lit(coordxy x, coordxy y, genericptr_t val)
 void
 litroom(
     boolean on,      /* True: make nearby area lit; False: cursed scroll */
-    struct obj *obj) /* scroll, spellbook (for spell), or wand of light */
+    boolean mon,     /* True: benign creature aura; False: magical object */
+    struct obj *obj, /* scroll, spellbook (for spell), or wand of light */
+    coordxy x, coordxy y) /* coordinates for centering do_clear_area() */
 {
     struct obj *otmp, *nextobj;
+    struct monst *mtmp;
     boolean blessed_effect = (obj && obj->oclass == SCROLL_CLASS
                               && obj->blessed);
     boolean no_op = (u.uswallow || Underwater || Is_waterlevel(&u.uz));
+    boolean lamp, staff, armor;
+    boolean you = u_at(x, y);
     char is_lit = 0; /* value is irrelevant but assign something anyway; its
                       * address is used as a 'not null' flag for set_lit() */
 
@@ -2505,24 +2520,36 @@ litroom(
         int still_lit = 0;
 
         /*
-         * The magic douses lamps,&c too and might curse artifact lights.
+         * The magic douses lamps,&c too and might curse artifact lights,
+         * if the hero is in the area of effect.
          *
          * FIXME?
          *  Shouldn't this affect all lit objects in the area of effect
          *  rather than just those carried by the hero?
          */
-        for (otmp = gi.invent; otmp; otmp = nextobj) {
-            nextobj = otmp->nobj;
-            if (otmp->lamplit) {
-                if (!artifact_light(otmp))
-                    (void) snuff_lit(otmp);
-                else
-                    /* wielded Sunsword or worn gold dragon scales/mail;
-                       maybe lower its BUC state if not already cursed */
-                    impact_arti_light(otmp, TRUE, (boolean) !Blind);
+        if (!mon || (distu(x, y) <= 25 && clear_path(x, y, u.ux, u.uy))) {
+            for (otmp = gi.invent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
+                lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
+                staff = (is_art(otmp, ART_STAFF_OF_THE_ARCHMAGI)
+                         && !Upolyd && Race_if(PM_DROW));
+                armor = (Is_dragon_armor(otmp)
+                         && (Dragon_armor_to_scales(otmp)
+                             == SHADOW_DRAGON_SCALES));
+                if (otmp->lamplit) {
+                    /* darkness-emitting lights are immune to darkness */
+                    if (lamp || staff || armor)
+                        continue;
+                    if (!artifact_light(otmp))
+                        (void) snuff_lit(otmp);
+                    else if (!mon)
+                        /* wielded Sunsword or worn gold dragon scales/mail;
+                           maybe lower its BUC state if not already cursed */
+                        impact_arti_light(otmp, TRUE, (boolean) !Blind);
 
-                if (otmp->lamplit)
-                    ++still_lit;
+                    if (otmp->lamplit)
+                        ++still_lit;
+                }
             }
         }
         /* scroll of light becomes discovered when not blind, so some
@@ -2533,22 +2560,42 @@ litroom(
                message came after the darkening, we could count visibly
                lit squares before and after to know; we do know that being
                swallowed won't be affected--the interior is still lit */
-            if (still_lit)
+            if (still_lit && !mon) {
                 pline_The("ambient light seems dimmer.");
-            else if (u.uswallow)
+            } else if (u.uswallow) {
                 pline("It seems even darker in here than before.");
-            else
+            } else if (you) {
                 You("are surrounded by darkness!");
+            } else {
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+                    if (!DEADMONSTER(mtmp)
+                        && mtmp->mx == x && mtmp->my == y
+                        && canseemon(mtmp))
+                        pline("%s is surrounded by darkness!",
+                              Monnam(mtmp));
+            }
         }
     } else { /* on */
         if (blessed_effect) {
-            /* might bless artifact lights; no effect on ordinary lights */
+            /* might bless artifact lights; could put out cursed
+               magic lamps (darkness) */
             for (otmp = gi.invent; otmp; otmp = nextobj) {
                 nextobj = otmp->nobj;
-                if (otmp->lamplit && artifact_light(otmp))
-                    /* wielded Sunsword or worn gold dragon scales/mail;
-                       maybe raise its BUC state if not already blessed */
-                    impact_arti_light(otmp, FALSE, (boolean) !Blind);
+                lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
+                staff = (is_art(otmp, ART_STAFF_OF_THE_ARCHMAGI)
+                         && !Upolyd && Race_if(PM_DROW));
+                armor = (Is_dragon_armor(otmp)
+                         && (Dragon_armor_to_scales(otmp)
+                             == SHADOW_DRAGON_SCALES));
+                if (otmp->lamplit && !mon) {
+                    if (!artifact_light(otmp) && lamp) {
+                        (void) snuff_lit(otmp);
+                    } else if (!(staff || armor)) {
+                        /* wielded Sunsword or worn gold dragon scales/mail;
+                           maybe raise its BUC state if not already blessed */
+                        impact_arti_light(otmp, FALSE, (boolean) !Blind);
+                    }
+                }
             }
         }
         if (u.uswallow) {
@@ -2563,7 +2610,19 @@ litroom(
                 pline("%s glistens.", Monnam(u.ustuck));
         } else if (!Blind && (!Is_rogue_level(&u.uz)
                               || levl[u.ux][u.uy].typ != CORR)) {
-            pline("A lit field %ssurrounds you!", no_op ? "briefly " : "");
+            if (you) {
+                if (mon)
+                    pline("A celestial glow surrounds you.");
+                else
+                    pline("A lit field %ssurrounds you!",
+                          no_op ? "briefly " : "");
+            } else {
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+                    if (!DEADMONSTER(mtmp)
+                        && mtmp->mx == x && mtmp->my == y
+                        && canseemon(mtmp))
+                        pline("A lit field surrounds %s!", mon_nam(mtmp));
+            }
         }
     }
 
@@ -2599,7 +2658,7 @@ litroom(
            (do_clear_area() rejects radius 0 so call set_lit() directly) */
         set_lit(u.ux, u.uy, (genericptr_t) &is_lit);
     } else {
-        do_clear_area(u.ux, u.uy, blessed_effect ? 9 : 5,
+        do_clear_area(x, y, blessed_effect ? 9 : 5,
                       set_lit, (genericptr_t) (on ? &is_lit : (char *) 0));
     }
 
@@ -2609,6 +2668,9 @@ litroom(
      *  correctly update all previously seen positions *and* correctly
      *  set the waslit bit [could be messed up from above].
      */
+    if (on)
+        blindingflash(mon); /* mon: benign creature ability, no anger */
+
     if (!Blind) {
         vision_recalc(2);
 

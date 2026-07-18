@@ -292,7 +292,12 @@ mk_artifact(
             /* handles orcs receiving Orcrist/Sting, elves/drow
                receiving Grimtooth, demons (crowned infidel) somehow
                receiving Demonbane */
-            && !Hate_material(artifact_material(m))) {
+            && !Hate_material(artifact_material(m))
+            /* handles giants receiving Giantslayer */
+            /* TODO-EVILHACK: master also filters anti-undead
+               artifacts for draugr and vampires and Angelslayer for
+               aasimar (races-R2) */
+            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
@@ -1295,6 +1300,14 @@ touch_artifact(struct obj *obj, struct monst *mon)
         return 0;
     }
 
+    if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {
+        if (yours ? (Role_if(PM_RANGER) && (Race_if(PM_GNOME)
+                                            || Race_if(PM_HOBBIT)))
+                  : (racial_gnome(mon) || racial_hobbit(mon)))
+            obj->owt = 24; /* magically lightened, same weight as
+                              the Longbow of Diana */
+    }
+
     return 1;
 }
 
@@ -1328,11 +1341,17 @@ bane_applies(const struct artifact *oart, struct monst *mon)
             return TRUE;
     }
 
-    /* the undead may not handle sacred artifacts */
+    /* drow and the undead may not handle sacred artifacts */
     if (yours) {
-        if ((maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))
-             || maybe_polyd(is_undead(gy.youmonst.data),
-                            Race_if(PM_VAMPIRE)))
+        if (maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+            if (!wizard || y_n("Override?") != 'y')
+                return TRUE;
+        } else if ((maybe_polyd(is_undead(gy.youmonst.data),
+                                Race_if(PM_DRAUGR))
+                    || maybe_polyd(is_undead(gy.youmonst.data),
+                                   Race_if(PM_VAMPIRE)))
             && (oart == &artilist[ART_SUNSWORD]
                 || oart == &artilist[ART_HAMMER_OF_THE_GODS]
                 || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
@@ -1340,7 +1359,13 @@ bane_applies(const struct artifact *oart, struct monst *mon)
                 return TRUE;
         }
     } else {
-        if ((racial_zombie(mon) || racial_vampire(mon))
+        if (racial_drow(mon)
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                /* SotA does not accommodate monster drow */
+                || oart == &artilist[ART_STAFF_OF_THE_ARCHMAGI])) {
+            return TRUE;
+        } else if ((racial_zombie(mon) || racial_vampire(mon))
             && (oart == &artilist[ART_SUNSWORD]
                 || oart == &artilist[ART_HAMMER_OF_THE_GODS]
                 || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
@@ -2302,6 +2327,11 @@ artifact_hit(
                           body_part(NECK));
                     return TRUE;
                 }
+                if (Hidinshell) {
+                    pline("%s glances harmlessly off of your protective %s.",
+                          wepdesc, "shell");
+                    return TRUE;
+                }
                 *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
                 pline(ROLL_FROM(behead_msg), wepdesc, "you");
                 observe_object(otmp);
@@ -2438,6 +2468,11 @@ doinvoke(void)
     obj = getobj("invoke", invoke_ok, GETOBJ_PROMPT);
     if (!obj)
         return ECMD_CANCEL;
+    if (Hidinshell) {
+        You_cant("invoke %s while hiding in your shell.",
+                 the(distant_name(obj, xname)));
+        return ECMD_OK;
+    }
     if (!retouch_object(&obj, FALSE, FALSE))
         return ECMD_TIME;
     return arti_invoke(obj);
@@ -2618,7 +2653,15 @@ invoke_create_portal(struct obj *obj)
 staticfn int
 invoke_create_ammo(struct obj *obj)
 {
-    struct obj *otmp = mksobj(ARROW, TRUE, FALSE);
+    struct obj *otmp =
+        mksobj((obj->otyp == CROSSBOW
+                || obj->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                   ? (Race_if(PM_DROW) ? DARK_ELVEN_CROSSBOW_BOLT
+                                       : CROSSBOW_BOLT)
+                   : (Race_if(PM_ELF) ? ELVEN_ARROW
+                      : Race_if(PM_DROW) ? DARK_ELVEN_ARROW
+                        : Race_if(PM_ORC) ? ORCISH_ARROW
+                          : ARROW), TRUE, FALSE);
 
     if (!otmp) {
         nothing_special(obj);
@@ -2748,7 +2791,7 @@ invoke_blinding_ray(struct obj *obj)
             /* up or down => light this map spot; litroom() uses
                radius 0 for Sunsword, except on Rogue level where
                whole room gets lit and corridor spots remain unlit */
-            litroom(TRUE, obj);
+            litroom(TRUE, FALSE, obj, u.ux, u.uy);
             pline("%s", ((!Blind && levl[u.ux][u.uy].lit
                           && !levl[u.ux][u.uy].waslit)
                          ? "It is lit here now."
@@ -2758,7 +2801,7 @@ invoke_blinding_ray(struct obj *obj)
             int damg = obj->blessed ? 15 : !obj->cursed ? 10 : 5;
 
             if (vulnerable) /* could be fatal if Unchanging */
-                (void) lightdamage(obj, TRUE, 2 * damg);
+                (void) lightdamage(obj, (struct monst *) 0, TRUE, 2 * damg);
 
             if (!flashburn((long) (damg + rnd(damg)), FALSE)
                 && !vulnerable)
@@ -2952,14 +2995,22 @@ boolean
 artifact_light(struct obj *obj)
 {
     /* not artifacts but treat them as if they were because they emit
-       light without burning */
+       light without burning; shadow dragon scales emit darkness */
     if (obj && Is_dragon_armor(obj)
-        && Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
-        && (obj->owornmask & W_ARM) != 0L)
+        && (Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
+            || Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES
+            || Dragon_armor_to_scales(obj) == CHROMATIC_DRAGON_SCALES)
+        && (obj->owornmask & (W_ARM | W_ARMC)) != 0L)
+        return TRUE;
+
+    if (obj && obj->otyp == SHIELD_OF_LIGHT
+        && (obj->owornmask & W_ARMS) != 0L)
         return TRUE;
 
     return (boolean) ((get_artifact(obj) != &artilist[ART_NONARTIFACT])
-                      && is_art(obj, ART_SUNSWORD));
+                      && (is_art(obj, ART_SUNSWORD)
+                          || is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+                          || is_art(obj, ART_HAMMER_OF_THE_GODS)));
 }
 
 /* KMH -- Talking artifacts are finally implemented */

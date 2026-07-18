@@ -1297,7 +1297,11 @@ pleased(aligntyp g_align)
                 nextobj = otmp->nobj;
                 if (otmp->cursed
                     && (otmp != uarmh /* [see worst_cursed_item()] */
-                        || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {
+                        || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)
+                    /* drow benefit from lit cursed magic lamps
+                       (permanent darkness) */
+                    && !(Race_if(PM_DROW) && otmp->otyp == MAGIC_LAMP
+                         && otmp->lamplit)) {
                     if (!Blind) {
                         pline("%s %s.", Yobjnam2(otmp, "softly glow"),
                               hcolor(NH_AMBER));
@@ -1726,7 +1730,11 @@ sacrifice_your_race(
         return;
     } else if (altaralign != A_CHAOTIC && altaralign != A_NONE) {
         /* curse the lawful/neutral altar */
-        pline_The("altar is stained with %s blood.", gu.urace.adj);
+        pline_The("altar is stained with %s blood.",
+                  (Race_if(PM_DROW) && is_elf(&mons[otmp->corpsenm]))
+                      ? "elven"
+                      : (Race_if(PM_ELF) && is_drow(&mons[otmp->corpsenm]))
+                          ? "dark elven" : gu.urace.adj);
         levl[u.ux][u.uy].altarmask = AM_CHAOTIC;
         newsym(u.ux, u.uy); /* in case Invisible to self */
         angry_priest();
@@ -1876,6 +1884,9 @@ dosacrifice(void)
     } else if (Confusion || Stunned) {
         You("are too impaired to perform the rite.");
         return ECMD_OK;
+    } else if (Hidinshell) {
+        You_cant("offer a sacrifice while hiding in your shell.");
+        return ECMD_OK;
     }
     highaltar = (levl[u.ux][u.uy].altarmask & AM_SANCTUM);
 
@@ -2013,6 +2024,11 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
     /* same race or former pet results apply even if the corpse is
        too old (value==0) */
     if (your_race(ptr)
+        /* elves and drow are close enough kin to count */
+        || (Race_if(PM_ELF) && is_drow(ptr))
+        || (Race_if(PM_DROW) && is_elf(ptr))
+        /* TODO-EVILHACK: vampires treat human corpses as their own
+           race here; ports with races-R2 */
         /* draugr consider all zombies to be their kin */
         || (Race_if(PM_DRAUGR) && otmp->zombie_corpse)) {
         sacrifice_your_race(otmp, highaltar, altaralign);
@@ -2293,8 +2309,12 @@ dopray(void)
 
     if (gp.p_type == 3 && !Inhell) {
         /* if you've been true to your god you can't die while you pray */
-        if (!Blind)
-            You("are surrounded by a shimmering light.");
+        if (!Blind) {
+            if (Race_if(PM_DROW))
+                You("are surrounded by swirling shadows.");
+            else
+                You("are surrounded by a shimmering light.");
+        }
         u.uinvulnerable = TRUE;
     }
 
@@ -2450,6 +2470,10 @@ doturn(void)
         if (known_spell(SPE_TURN_UNDEAD))
             return spelleffects(SPE_TURN_UNDEAD, FALSE, FALSE);
         You("don't know how to turn undead!");
+        return ECMD_OK;
+    }
+    if (Hidinshell) {
+        You_cant("turn undead while hiding in your shell!");
         return ECMD_OK;
     }
     if (!u.uconduct.gnostic++)

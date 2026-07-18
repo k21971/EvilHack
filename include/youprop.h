@@ -154,7 +154,9 @@
            are mutually exclusive; explicitly applying !BBlinded to both
            internal and external blindness should be more robust in case
            of future changes */
-#define Blind ((HBlinded || EBlinded) && !BBlinded)
+/* a tortle hidden inside its shell cannot see out of it */
+#define Hidinshell (u.uinshell > 0)
+#define Blind ((HBlinded || EBlinded || Hidinshell) && !BBlinded)
 
 /*
  * Maladies

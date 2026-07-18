@@ -3049,7 +3049,164 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       queued keys after "welcome back".
 - [ ] Player races: giant, centaur, hobbit, illithid, tortle, drow
       (light/dark auras - litroom memory), vampire, aasimar (wings,
-      light aura, seduction immunity, cross-faction hostility)
+      light aura, seduction immunity, cross-faction hostility).
+      MAINTAINER RULED 2026-07-18: split into TWO sub-slices, and
+      draugr HERO-race gates (~80 sites, eat.c-heavy; zombie slice
+      only owned monster-side zombification) fold into this item.
+      R1 = giant/centaur/hobbit/tortle/illithid/drow + litroom
+      5-arg aura infrastructure (vision.h TEMP_LIT/TEMP_DARK,
+      monmove.c monster aura blocks incl. the aasimar-light twin)
+      + shared plumbing (peace_minded 5 racial carve-outs,
+      race-picker duplicate accelerators, do_wear illithid msg
+      TODO). R2 = vampire + draugr + aasimar (shapeshift forms,
+      aasimar penalty system on the live stub, draugr polyself
+      re-roll, feeding/food gates; corpse-taint 35%->0% decision
+      raised at R2 start). Census 2026-07-18 (master remaining):
+      draugr ~80, vampire ~78, drow ~72, giant ~53, tortle ~26,
+      aasimar ~25, centaur ~23, illithid ~20, hobbit ~4.
+      R1 PORTED + REVIEWED 2026-07-18 (COMMIT PENDING, battery
+      next): port subagent 57 files ~+1700/-255 (brief: scratchpad
+      port-brief-races-r1.md; full per-site report:
+      races-r1-port-report.md - 172 logical fork sites, LIVE 44 /
+      PORT 103 / DEFER 19 / N/A 6, zero silent skips). Landed
+      beyond the grep: tortle shell-hide subsystem on the existing
+      u.uinshell field (Hidinshell/toggleshell/doenshelling +
+      ~40 consumer gates; no new saved state), aura infrastructure
+      (vision.h TEMP_DARK+UV_SEEN, vision_recalc arms + new
+      Ultravision pierce, do_light_sources dark-source
+      classification w/ at_hero_range dedup removed per master,
+      litroom 5-arg rework on the 5.0 body, blindingflash from
+      litroom = scrolls/wands of light now blind light-haters
+      (master parity), lightdamage 4-arg w/ monster KILLED_BY
+      attribution, monmove drow-dark + aasimar-light monster aura
+      blocks (aasimar block = monster-side, rode with the infra),
+      dodarkness #monster arm), peace_minded all 5 racial
+      carve-outs, race-picker first-unused-letter accelerators
+      (full list: drow=r, draugr=a, aasimar=s), spidername option
+      (gs bucket, runtime-only), racial intrinsic tables
+      (gia/hob/cen/ill/trt/dro_abil), hmonas(mon,as,
+      weapon_attacks) racial extra attacks (illithid 1-in-4
+      tentacle), SPE_PSIONIC_WAVE made castable (was force-learned
+      but unimplemented = latent Phase 1 gap), set_uasmon-based
+      mons[] size/speed/cwt mutation (reviewer-verified coverage:
+      u_init/restore/polyman; idempotent absolute writes).
+      REVIEWER: CONDITIONAL PASS 1 blocker/7 concerns/4 nits, ALL
+      coordinator-verified vs both trees + fixed same day: B1
+      bhito missing SPE_PSIONIC_WAVE case (impossible() per floor
+      pile per cast; fixed w/ master's full res=0 list incl.
+      castable-sibling SPE_ENTANGLE; SPE_CHANGE_METAL_TO_WOOD
+      case NOT added, cast_metal_to_wood absent); C1 wrong
+      deferral - MR_PSYCHIC already on branch (monflag.h 0x100,
+      collision-free vs MR2_ space; resists_psychic ported to
+      monst.h, direct-bit form since psychic has no *_RES prop;
+      all 6 illithid-family entries carry the bit = strictly
+      widening swap); C2 false-LIVE - monster-sling-vs-giant-hero
+      x2 was missing in m_throw (report conflated hit directions);
+      C3 false-N/A - mcast_stun_you Hidinshell gate (5.0
+      refactored MGC_STUN_YOU into a helper); C4 psionic 1-in-4
+      confusion rider; C5 zap_steed PSIONIC_WAVE+ENTANGLE (NOT
+      CRITICAL_HEALING - no bhitm arm yet); C6 psionic exemptions
+      x4 in 5.0 idiom (age_spells no-decay, lost-ability msg,
+      Amulet-drain skip w/ TODO-EVILHACK Infidel term for roles,
+      fatigued-mind msg - string literals master-byte-identical
+      incl. double space); N3 options.c blank-line noise
+      reverse-patched. N2 REJECTED (false nit: NHOPTC continuation
+      indent matches catname; reviewer compared NHOPTB). N4
+      accepted-as-is (blindingflash youmonst skip term dropped;
+      fmon never holds youmonst). MAINTAINER RULED 2026-07-18
+      (C7): Sunsword #invoke blinding-ray + litroom blindingflash
+      composite KEPT (exists in neither tree; ratified v1.0.0
+      delta). Post-fix full clean rebuild zero warnings.
+      FOLLOW-UPS minted by R1: (a) display.c uv_cansee dark-spot
+      rendering + MONSEEN_ULTRAVIS not ported - drow currently
+      see dark areas as normally-lit (Phase 4 display slice);
+      (b) vanilla-race parity gaps: elf Searching@9 intrinsic +
+      wield.c orc mithril aversion block (new sweep item below);
+      (c) reviewer note: Croesus/jabberwock DATA already carry
+      AD_GOLD/AD_BHED with no dispatcher case (damage silently
+      zeroed) - their tracker item is latently urgent. DEFER
+      owners confirmed by reviewer (17/18 valid): hero regen
+      overhaul (elf/orc_can_regen + drow-in-light), kick to-hit
+      roll, combat miss-flavor rework, steal_it pickpocket rework,
+      god-gift subsystem (record_gift), crowning rework,
+      Xiuhcoatl throw cluster, Giantslayer/Harbinger/
+      awaiting_guaranteed_gift artifact behaviors, larva AT_TENT
+      wrap, ma_break, botl_hitbonus, begin_burn light-establish
+      lightdamage, gain_guardian_steed, sewage terrain, dual-wield
+      offhand weight, druid_form landmine (all_druid_forms()
+      unimplemented - roles slice MUST implement before any
+      druid_form/vampire_form expansion). R2 (vampire/draugr/
+      aasimar) NOT STARTED - raise corpse-taint 35%->0% decision
+      at R2 start.
+      R1 BATTERY PASSED 2026-07-18 (6 wizmode games, sanity_check
+      on; paniclog ABSENT at end; save dir restored): ILLITHID
+      Wizard: psionic wave down-zap + beam over floor piles
+      SILENT (B1 regression), skeleton warrior "resists your
+      mental onslaught" (C1 - non-illithid MR_PSYCHIC carrier),
+      lichen no-mind arm, "seems confused" rider ~1-in-4 (C4),
+      mounted down-zap hits saddled pony via bhitm (C5), Amulet
+      carried: psionic cast NO drain vs force bolt drain-message
+      control (C6), Pw-3 "Your mind is fatigued." (C6), retention
+      psionic 20000 vs force bolt 19979-and-falling incl. across
+      save/reload (C6), racial Fly intrinsic at XL30 + survives
+      reload, claw+tentacle extra attacks + "You eat the test
+      monster's brain!", helm of telekinesis intensify/diminish
+      variants, hint line. TORTLE Monk: hint line, enshell cycle
+      (AC -14 -> -54, Blind status via shell), movement
+      "constrained by your shell", AC ladder exact (-4@XL1 ->
+      -14@XL30 = +10 max), xlog while=hiding in her shell
+      (gendered). C3 stun-shrug stays code-verified (apprentice
+      caster never rolled the spell vs AC-54). GIANT Barbarian:
+      C2 breakpoint-proven (SLING-DOUBLE dam 2->4/7->14/1->2;
+      thrown dagger correctly undoubled), BATTERY CATCH (see
+      below), boulder quiver GETOBJ_SUGGEST + "at the ready",
+      weight_cap()=1050 > vanilla 1000 clamp, base AC 6, St
+      18/xx. DROW Wizard (via full picker): 14-race menu all
+      unique letters + drow=r reachable, #monster aura (exactly
+      10 Pw, both messages), scroll of light blinds+pains a
+      gremlin (blindingflash + light-hater pain), Sunsword
+      wield = wizmode Override prompt + "You can't handle" +
+      blast damage (drow touch restriction), Archmagi wield
+      "casts an aura of darkness", cursed magic lamp paints
+      TEMP_DARK (viz_array 0x8 bit read via gdb; drow keeps
+      sight), lembas "A little goes a long way." master-exact,
+      elf corpse "You cannibal!", ^X "on a mission for Lolth".
+      DROW Ranger: starting pet = tame large spider "called
+      Webster" (spidername option end-to-end, gdb-verified).
+      CENTAUR Ranger: "You have too many hooves to wear boots.",
+      crossbow multishot "You shoot 2 crossbow bolts." volleys
+      at St 18. BATTERY CATCH (fixed same day, incremental
+      rebuild zero-warning, re-verified live): wearing chromatic
+      scales as giant cloak hit Cloak_on default impossible
+      "Unknown type of cloak (144)" - the port added the
+      canwearobj wearability exception but missed master's
+      Is_dragon_scales normalization in Cloak_on/Cloak_off
+      (GRAY no-op + SHIMMERING displacement + CELESTIAL flight
+      arms added; check_wings() calls dropped w/ TODO-EVILHACK
+      races-R2); sibling sweep also ported read.c
+      seffect_enchant_armor worn-scales-as-cloak preference and
+      left a TODO-EVILHACK at polyself do_merge (master merges
+      cloak-slot scales into uskin; interlocks with uskin
+      save/restore - dragon-scales follow-up owner). Post-fix
+      giant wear/remove cycle clean, no paniclog. LATENT FINDS
+      recorded (NOT this slice): (a) wish parser: "pair of
+      leather boots" fails to parse ("leather boots" works;
+      "blessed chromatic dragon scales" fails while plain
+      works) - R1 objnam diff has no parse changes, so this is
+      a naming/wishing-slice preparse gap - follow-up with
+      repro strings; (b) welcome() greeting still says
+      "welcome to NetHack!" - Phase 0 re-brand gap, sweep with
+      the branding follow-up. Battery lessons: EvilHack Wizard
+      pet is a pseudodragon so the drow spider override needs a
+      dog/kitten role (Ranger) to observe; wished-artifact
+      delivery does not blast - the wield attempt does (wizmode
+      offers Override); hero attribute staging needs u.acurr
+      AND u.abase set (status refresh reads acurr).
+- [ ] SWEEP (new, minted by races R1): vanilla-race parity for
+      elf/dwarf/gnome/orc hero deltas vs master (elf Searching@9,
+      orc mithril aversion, others via targeted Race_if(PM_ELF/
+      DWARF/GNOME/ORC) fork-vs-branch diff) - these races predate
+      EvilHack so their master deltas hide outside the R1 grep.
 - [ ] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)

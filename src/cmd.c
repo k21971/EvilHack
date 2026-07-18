@@ -98,6 +98,7 @@ staticfn struct Cmd_bind *cmdbind_get(uchar);
 staticfn void cmdbind_add(uchar, const struct ext_func_tab *, boolean);
 staticfn void cmdbind_remove(uchar);
 staticfn void cmdbind_swapkeys(uchar, uchar);
+staticfn int doenshelling(void);
 staticfn int dosuspend_core(void);
 staticfn int dosh_core(void);
 staticfn int doherecmdmenu(void);
@@ -885,6 +886,63 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 
 #endif /* TTY_GRAPHICS */
 
+/* #monster for an unpolymorphed tortle: withdraw into (or emerge
+   from) the protective shell */
+staticfn int
+doenshelling(void)
+{
+    int delay = 0;
+
+    if (!Hidinshell && u.uinshell) {
+        You_cant("retreat into your shell again so soon.");
+        return ECMD_OK;
+    } else if (!Hidinshell && Punished) {
+        You_cant(
+         "retreat into your shell with an iron ball chained to your %s!",
+                 body_part(LEG));
+        return ECMD_OK;
+    } else if (uarmg && is_hard(uarmg) && uarmg->cursed
+               && uarmg->oartifact != ART_GAUNTLETS_OF_PURITY) {
+        Your("cursed %s prevent you from retreating into your shell.",
+             gloves_simple_name(uarmg));
+        return ECMD_OK;
+    } else if (uarmh && is_hard(uarmh) && uarmh->cursed
+               && !(Role_if(PM_CLERIC)
+                    && uarmh->oartifact == ART_MITRE_OF_HOLINESS)) {
+        Your("cursed %s prevents you from retreating into your shell.",
+             helm_simple_name(uarmh));
+        return ECMD_OK;
+    }
+
+    /* variable delay when enshelling while wearing rigid armor
+       (gauntlets or helmet) */
+    if (uarmg && is_hard(uarmg))
+        delay += rn2(3) + 2;
+    if (uarmh && is_hard(uarmh))
+        delay += rn2(3) + 2;
+
+    You("%s%s your shell.", delay ? "begin to " : "",
+        Hidinshell ? "emerge from" : "retreat into");
+
+    if (delay) {
+        static char shelling_reason[26]; /* "retreating into his shell" */
+
+        ga.afternmv = toggleshell;
+        nomul(-delay);
+        if (Hidinshell) {
+            gn.nomovemsg = "You finish emerging from your shell.";
+            Sprintf(shelling_reason, "emerging from %s shell", uhis());
+        } else {
+            gn.nomovemsg = "You finish hiding in your shell.";
+            Sprintf(shelling_reason, "retreating into %s shell", uhis());
+        }
+        gm.multi_reason = shelling_reason;
+    } else {
+        (void) toggleshell();
+    }
+    return ECMD_TIME;
+}
+
 /* #monster command - use special monster ability while polymorphed */
 int
 domonability(void)
@@ -913,6 +971,10 @@ domonability(void)
         return dohide();
     else if (c ? c == 's' : webmaker(uptr))
         return dospinweb();
+    else if (maybe_polyd(is_tortle(uptr), Race_if(PM_TORTLE)))
+        return doenshelling();
+    else if (maybe_polyd(is_drow(uptr), Race_if(PM_DROW)))
+        return dodarkness();
     else if (is_mind_flayer(uptr))
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
@@ -3789,6 +3851,13 @@ rhack(int key)
                            && gd.domove_attempting) {
                     /* not a movement command, but a move prefix earlier? */
                     ; /* just do nothing */
+                } else if (((gd.domove_attempting
+                             & (DOMOVE_RUSH | DOMOVE_WALK)) != 0L)
+                           && Hidinshell) {
+                    /* enshelled tortles cannot walk about */
+                    Your("movement is constrained by your shell.");
+                    reset_cmd_vars(TRUE);
+                    return;
                 } else if (((gd.domove_attempting
                              & (DOMOVE_RUSH | DOMOVE_WALK)) != 0L)
                            && !svc.context.travel && !dxdy_moveok()) {

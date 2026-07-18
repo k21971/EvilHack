@@ -570,6 +570,64 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     case SPE_ENTANGLE:
         cast_entangle(mtmp, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
         break;
+    case SPE_PSIONIC_WAVE:
+        if (!maybe_polyd(is_illithid(gy.youmonst.data),
+                         Race_if(PM_ILLITHID))) {
+            Your("mind is not capable of using psionic abilities.");
+            dmg = 0;
+            wake = FALSE;
+        } else if (uarmh && is_heavy_metallic(uarmh)
+                   && uarmh->oartifact != ART_MITRE_OF_HOLINESS) {
+            pline_The("%s of your %s blocks your psionic attack.",
+                      materialnm[uarmh->material],
+                      helm_simple_name(uarmh));
+            dmg = 0;
+            wake = FALSE;
+        } else {
+            You("mentally %s %s!",
+                rn2(2) ? "attack" : "assault", mon_nam(mtmp));
+            if (mindless(mtmp->data)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline(
+                 "%s has no mind, and is immune to your mental attack.",
+                      Monnam(mtmp));
+            } else if (resists_psychic(mtmp)
+                       || defended(mtmp, AD_PSYC)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("%s resists your mental onslaught!", Monnam(mtmp));
+            } else if (!DEADMONSTER(mtmp)) {
+                if (u.ulevel >= 26)
+                    dmg = d(4, 6);
+                else if (u.ulevel >= 14)
+                    dmg = d(3, 6);
+                else
+                    dmg = d(2, 6);
+
+                if (!rn2(4) && uarmh
+                    && uarmh->otyp == HELM_OF_TELEPATHY) {
+                    Your("%s focuses your psychic attack!",
+                         helm_simple_name(uarmh));
+                    dmg += rnd(6) + 2; /* 3-8 hit points extra damage */
+                }
+
+                if (damage_mon(mtmp, dmg, AD_PSYC, TRUE)) {
+                    killed(mtmp);
+                } else {
+                    if (canseemon(mtmp)) {
+                        pline("%s %s in %s!", Monnam(mtmp),
+                              rn2(2) ? "withers" : "trembles",
+                              rn2(2) ? "agony" : "anguish");
+                    }
+                    if (!rn2(4)) {
+                        mtmp->mconf = 1;
+                        pline("%s seems %s!", Monnam(mtmp),
+                              rn2(2) ? "confused" : "disoriented");
+                    }
+                }
+                dmg = 0; /* damage was already inflicted */
+            }
+        }
+        break;
     case WAN_NOTHING:
         wake = FALSE;
         break;
@@ -2496,6 +2554,12 @@ bhito(struct obj *obj, struct obj *otmp)
         case WAN_NOTHING:
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
+        case SPE_CRITICAL_HEALING:
+        case SPE_CURE_SICKNESS:
+        case SPE_RESTORE_ABILITY:
+        case SPE_PSIONIC_WAVE:
+        case SPE_ENTANGLE:
+        case SPE_DISPEL_EVIL:
             res = 0;
             break;
         case SPE_STONE_TO_FLESH:
@@ -2635,8 +2699,8 @@ zapnodir(struct obj *obj)
         /* FIXME? wand of light becoming discovered should be contingent upon
            seeing at least one previously unlit spot become lit */
         known = (obj->dknown && !Blind);
-        litroom(TRUE, obj);
-        (void) lightdamage(obj, TRUE, 5);
+        litroom(TRUE, FALSE, obj, u.ux, u.uy);
+        (void) lightdamage(obj, (struct monst *) 0, TRUE, 5);
         break;
     case WAN_SECRET_DOOR_DETECTION:
     case SPE_DETECT_UNSEEN:
@@ -2988,6 +3052,32 @@ zapyourself(struct obj *obj, boolean ordinary)
     case SPE_ENTANGLE:
         cast_entangle(&gy.youmonst, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
         break;
+    case SPE_PSIONIC_WAVE:
+        learn_it = TRUE;
+        if (!maybe_polyd(is_illithid(gy.youmonst.data),
+                         Race_if(PM_ILLITHID))) {
+            Your("mind is not capable of using psionic abilities.");
+        } else if (uarmh && is_heavy_metallic(uarmh)
+                   && uarmh->oartifact != ART_MITRE_OF_HOLINESS) {
+            pline_The("%s of your %s blocks your psionic attack.",
+                      materialnm[uarmh->material],
+                      helm_simple_name(uarmh));
+        } else if (Psychic_resistance) {
+            shieldeff(u.ux, u.uy);
+            Your(
+       "wave of psionic energy drifts harmlessly through your mind.");
+            ugolemeffects(AD_PSYC, d(2, 6));
+        } else {
+            You("assault your own mind!");
+            make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
+            if (u.ulevel >= 26)
+                damage = d(4, 6);
+            else if (u.ulevel >= 14)
+                damage = d(3, 6);
+            else
+                damage = d(2, 6);
+        }
+        break;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
         learn_it = TRUE; /* (no effect for spells...) */
@@ -3003,7 +3093,7 @@ zapyourself(struct obj *obj, boolean ordinary)
     case EXPENSIVE_CAMERA:
         if (!damage)
             damage = 5;
-        damage = lightdamage(obj, ordinary, damage);
+        damage = lightdamage(obj, (struct monst *) 0, ordinary, damage);
         damage += rnd(25);
         if (flashburn((long) damage, FALSE))
             learn_it = TRUE;
@@ -3104,36 +3194,50 @@ ubreatheu(struct attack *mattk)
     zhitu(dtyp, mattk->damn, flash_str(dtyp, TRUE), u.ux, u.uy);
 }
 
-/* light damages hero in gremlin form */
+/* light damages light-hating heroes (gremlin form, drow, etc) */
 int
 lightdamage(
-    struct obj *obj,  /* item making light (fake book if spell) */
-    boolean ordinary, /* wand/camera zap vs wand destruction */
-    int amt)          /* pseudo-damage used to determine blindness duration */
+    struct obj *obj,   /* item making light (fake book if spell), or 0 */
+    struct monst *mon, /* monster source, or 0 if the hero's own */
+    boolean ordinary,  /* wand/camera zap vs wand destruction */
+    int amt)           /* pseudo-damage used to determine blindness
+                        * duration */
 {
     char buf[BUFSZ];
     const char *how;
     int dmg = amt;
 
-    if (dmg && gy.youmonst.data == &mons[PM_GREMLIN]) {
+    if (dmg && (hates_light(gy.youmonst.data)
+                || maybe_polyd(is_drow(gy.youmonst.data),
+                               Race_if(PM_DROW)))) {
         /* reduce high values (from destruction of wand with many charges) */
         dmg = rnd(dmg);
         if (dmg > 10)
             dmg = 10 + rnd(dmg - 10);
         if (dmg > 20)
             dmg = 20;
-        pline("Ow, that light hurts%c", (dmg > 2 || u.mh <= 5) ? '!' : '.');
-        /* [composing killer/reason is superfluous here; if fatal, cause
-           of death will always be "killed while stuck in creature form"] */
-        if (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS)
+        pline("Ow, that light hurts%c",
+              (dmg > 2 || (Upolyd ? u.mh : u.uhp) <= 5) ? '!' : '.');
+        if (obj && (obj->oclass == SCROLL_CLASS
+                    || obj->oclass == SPBOOK_CLASS))
             ordinary = FALSE; /* say blasted rather than zapped */
-        how = (obj->oclass == SPBOOK_CLASS) ? "spell of light"
-              : (!obj->oartifact) ? ansimpleoname(obj)
-                : bare_artifactname(obj);
-        Sprintf(buf, "%s %sself with %s", ordinary ? "zapped" : "blasted",
-                uhim(), how);
+        how = obj ? ((obj->oclass == SPBOOK_CLASS)
+                     ? "spell of light"
+                     : obj->oartifact ? bare_artifactname(obj)
+                       : mon ? simpleonames(obj)
+                         : ansimpleoname(obj))
+                  : "aura of light";
+        if (mon) {
+            /* light from a monster's ability or item; blame the
+               monster, not the hero */
+            Sprintf(buf, "%s %s", s_suffix(mon_nam(mon)), how);
+        } else {
+            Sprintf(buf, "%s %sself with %s",
+                    ordinary ? "zapped" : "blasted", uhim(), how);
+        }
         /* might rehumanize(); could be fatal, but only for Unchanging */
-        losehp(Maybe_Half_Phys(dmg), buf, NO_KILLER_PREFIX);
+        losehp(Maybe_Half_Phys(dmg), buf,
+               mon ? KILLED_BY : NO_KILLER_PREFIX);
     }
     return dmg;
 }
@@ -3160,6 +3264,40 @@ flashburn(long duration, boolean via_lightning)
         return TRUE;
     }
     return FALSE;
+}
+
+/* a burst of light near the hero blinds monsters that can see it */
+void
+blindingflash(boolean via_ability) /* creature's innate aura of light,
+                                    * not an attack */
+{
+    struct monst *mtmp;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        /* if it can't see the flash, don't bother */
+        if (DEADMONSTER(mtmp) || mtmp->msleeping
+            || !haseyes(mtmp->data) || !mtmp->mcansee
+            || mtmp->mblinded)
+            continue;
+
+        /* must be able to see our location */
+        if (m_cansee(mtmp, u.ux, u.uy)
+            && distu(mtmp->mx, mtmp->my) <= 5) {
+            /* a benign aura of light only touches light-hating
+               creatures; it neither blinds nor angers anything else */
+            if (via_ability && !hates_light(r_data(mtmp)))
+                continue;
+            if (!Blind && canseemon(mtmp))
+                pline("%s is blinded by the flash!", Monnam(mtmp));
+            /* anger a peaceful creature the flash actually affects: a
+               scroll or wand reaches anyone nearby, a benign aura
+               only the light-haters that got past the filter above */
+            if (mtmp->mpeaceful && !mtmp->mtame && !rn2(3))
+                setmangry(mtmp, TRUE);
+            mtmp->mblinded = rnd(hates_light(r_data(mtmp)) ? 40 : 20);
+            mtmp->mcansee = 0;
+        }
+    }
 }
 
 /* you've zapped a wand downwards while riding
@@ -3204,6 +3342,7 @@ zap_steed(struct obj *obj) /* wand or spell */
     case SPE_POLYMORPH:
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
+    case SPE_PSIONIC_WAVE:
     case WAN_SLOW_MONSTER:
     case SPE_SLOW_MONSTER:
     case WAN_SPEED_MONSTER:
@@ -3212,6 +3351,7 @@ zap_steed(struct obj *obj) /* wand or spell */
     case SPE_DRAIN_LIFE:
     case WAN_OPENING:
     case SPE_KNOCK:
+    case SPE_ENTANGLE:
         (void) bhitm(u.usteed, obj);
         steedhit = TRUE;
         break;

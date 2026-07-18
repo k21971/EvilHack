@@ -531,6 +531,10 @@ dodrink(void)
 {
     struct obj *otmp;
 
+    if (Hidinshell) {
+        You_cant("drink anything while hiding in your shell.");
+        return ECMD_OK;
+    }
     if (Strangled) {
         pline("If you can't breathe air, how can you drink liquid?");
         return ECMD_OK;
@@ -2304,6 +2308,10 @@ dodip(void)
         return ECMD_CANCEL;
     if (inaccessible_equipment(obj, "dip", FALSE))
         return ECMD_OK;
+    if (Hidinshell) {
+        You_cant("dip anything while hiding in your shell.");
+        return ECMD_OK;
+    }
 
     is_hands = (obj == &hands_obj);
     shortestname = (is_hands || is_plural(obj) || pair_of(obj)) ? "them"

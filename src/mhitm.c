@@ -336,6 +336,14 @@ mattackm(
         || is_accurate(magr->data))
         tmp += 5;
 
+    /* drow are affected by being in both the light or the dark */
+    if (racial_drow(magr)) {
+        if (spot_is_dark(magr->mx, magr->my))
+            tmp += (magr->m_lev / 3) + 2;
+        else
+            tmp -= 3;
+    }
+
     /* mundetected monsters become un-hidden if they are attacked */
     if (mdef->mundetected) {
         mdef->mundetected = 0;

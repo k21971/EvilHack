@@ -639,7 +639,7 @@ mcast_disappear(struct monst *mtmp)
 staticfn void
 mcast_stun_you(int dmg)
 {
-    if (Antimagic || Free_action) {
+    if (Antimagic || Free_action || Hidinshell) {
         shieldeff(u.ux, u.uy);
         monstseesu(M_SEEN_MAGR);
         if (!Stunned)

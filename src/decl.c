@@ -700,6 +700,8 @@ static const struct instance_globals_s g_init_s = {
     UNDEFINED_PTR, /* subrooms */
     /* do.c */
     { 0, 0 }, /* save_dlevel */
+    /* dog.c */
+    DUMMY, /* spidername */
     /* symbols.c */
     { DUMMY }, /* symset */
     { { { 0 } }, { { 0 } } }, /* symset_customizations */

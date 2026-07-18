@@ -510,6 +510,17 @@ study_book(struct obj *spellbook)
             return 1;
         }
 
+        /* only illithids can absorb this ability */
+        if (booktype == SPE_PSIONIC_WAVE && !Race_if(PM_ILLITHID)) {
+            You(
+     "do not understand the strange language this book is written in.");
+            pline_The("inscriptions in the book start to fade away!");
+            spellbook->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(spellbook, PAPER);
+            makeknown(booktype);
+            return 1;
+        }
+
         /* 3.6 tribute */
         if (booktype == SPE_NOVEL) {
             /* Obtain current Terry Pratchett book title */
@@ -677,7 +688,7 @@ age_spells(void)
      * does not alter the loss of memory.
      */
     for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++)
-        if (spellknow(i))
+        if (spellknow(i) && spellid(i) != SPE_PSIONIC_WAVE)
             decrnknow(i);
     return;
 }
@@ -1453,13 +1464,24 @@ spelleffects_check(int spell, int *res, int *energy)
      * decrement of spell knowledge is done every turn.
      */
     if (spellknow(spell) <= 0) {
-        Your("knowledge of this spell is twisted.");
+        if (spellid(spell) == SPE_PSIONIC_WAVE)
+            You("have somehow lost your psychic ability!");
+        else
+            Your("knowledge of this spell is twisted.");
         pline("It invokes nightmarish images in your mind...");
         spell_backfire(spell);
         u.uen -= rnd(*energy);
         if (u.uen < 0)
             u.uen = 0;
         disp.botl = TRUE;
+        *res = ECMD_TIME;
+        return TRUE;
+    /* an illithid that polymorphs into something that is not another
+       illithid-type monster lacks the brain structure needed to use
+       psionic abilities */
+    } else if (spellid(spell) == SPE_PSIONIC_WAVE
+               && !racial_illithid(&gy.youmonst)) {
+        You("lack the psychic ability to use this power.");
         *res = ECMD_TIME;
         return TRUE;
     } else if (spellknow(spell) <= KEEN / 200) { /* 100 turns left */
@@ -1492,17 +1514,25 @@ spelleffects_check(int spell, int *res, int *energy)
        the attempt may fail due to lack of energy after the draining, in
        which case a turn will be used up in addition to the energy loss */
     if (u.uhave.amulet && u.uen >= *energy) {
-        You_feel("the amulet draining your energy away.");
-        /* this used to be 'energy += rnd(2 * energy)' (without 'res'),
-           so if amulet-induced cost was more than u.uen, nothing
-           (except the "don't have enough energy" message) happened
-           and player could just try again (and again and again...);
-           now we drain some energy immediately, which has a
-           side-effect of not increasing the hunger aspect of casting */
-        u.uen -= rnd(2 * *energy);
-        if (u.uen < 0)
-            u.uen = 0;
-        disp.botl = TRUE;
+        /* psionic wave is an innate psychic ability rather than a
+           learned spell, so the Amulet does not drain it */
+        /* TODO-EVILHACK: master also exempts an Infidel whose quest
+           artifact has been imbued with the Amulet's power; ports
+           with the roles subsystem */
+        if (spellid(spell) != SPE_PSIONIC_WAVE) {
+            You_feel("the amulet draining your energy away.");
+            /* this used to be 'energy += rnd(2 * energy)' (without
+               'res'), so if amulet-induced cost was more than u.uen,
+               nothing (except the "don't have enough energy" message)
+               happened and player could just try again (and again and
+               again...); now we drain some energy immediately, which
+               has a side-effect of not increasing the hunger aspect
+               of casting */
+            u.uen -= rnd(2 * *energy);
+            if (u.uen < 0)
+                u.uen = 0;
+            disp.botl = TRUE;
+        }
         *res = ECMD_TIME; /* time is used even if spell doesn't get cast */
     }
 
@@ -1516,10 +1546,13 @@ spelleffects_check(int spell, int *res, int *energy)
          * isn't now (lost energy when losing levels or polymorphing into
          * new person or had some stripped away by traps or monsters).
          */
-        You("don't have enough energy to cast that spell%s.",
-            (u.uen < u.uenmax) ? "" /* not at full energy => normal message */
-            : (*energy > u.uenpeak) ? " yet" /* haven't ever had enough */
-              : " anymore"); /* once had enough but have lost some since */
+        if (spellid(spell) == SPE_PSIONIC_WAVE)
+            Your("mind is fatigued.  You cannot use your psychic energy.");
+        else
+            You("don't have enough energy to cast that spell%s.",
+                (u.uen < u.uenmax) ? "" /* not at full energy => normal */
+                : (*energy > u.uenpeak) ? " yet" /* never had enough */
+                  : " anymore"); /* once had enough but lost some since */
         return TRUE;
     } else {
         if (spellid(spell) != SPE_DETECT_FOOD) {
@@ -1681,6 +1714,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
     case SPE_ENTANGLE:
+    case SPE_PSIONIC_WAVE:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
                 /* healing and extra healing are actually potion effects,
@@ -2523,6 +2557,11 @@ percent_success(int spell)
         chance = 100;
     if (chance < 0)
         chance = 0;
+
+    /* as an illithid, you can always use your natural inherent
+       psychic ability */
+    if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_ILLITHID))
+        chance = 100;
 
     return chance;
 }

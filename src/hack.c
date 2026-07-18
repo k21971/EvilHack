@@ -4356,7 +4356,8 @@ losehp(int n, const char *knam, schar k_format)
 int
 weight_cap(void)
 {
-    long carrcap, save_ELev = ELevitation, save_BLev = BLevitation;
+    long carrcap, maxcarrcap = MAX_CARR_CAP,
+         save_ELev = ELevitation, save_BLev = BLevitation;
 
     /* boots take multiple turns to wear but any properties they
        confer are enabled at the start rather than the end; that
@@ -4372,10 +4373,21 @@ weight_cap(void)
 
     carrcap = (WT_WEIGHTCAP_STRCON * (ACURRSTR + ACURR(A_CON)))
                + WT_WEIGHTCAP_SPARE;
-    if (Upolyd) {
+    /* large playable races are stronger beasts of burden; keyed on
+       the current form's race so a hero polymorphed into one of
+       these races benefits too */
+    /* TODO-EVILHACK: master grants a similar boost to draugr,
+       vampire, and aasimar heroes; ports with races-R2 */
+    if (racial_giant(&gy.youmonst) || racial_centaur(&gy.youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 400;
+    } else if (racial_tortle(&gy.youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 200;
+    } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (gy.youmonst.data->mlet == S_NYMPH)
-            carrcap = MAX_CARR_CAP;
+            carrcap = maxcarrcap;
         else if (!gy.youmonst.data->cwt)
             carrcap = (carrcap * (long) gy.youmonst.data->msize) / MZ_HUMAN;
         else if (!strongmonst(gy.youmonst.data)
@@ -4386,10 +4398,10 @@ weight_cap(void)
 
     if (Levitation || Is_airlevel(&u.uz) /* pugh@cornell */
         || (u.usteed && strongmonst(u.usteed->data))) {
-        carrcap = MAX_CARR_CAP;
+        carrcap = maxcarrcap;
     } else {
-        if (carrcap > MAX_CARR_CAP)
-            carrcap = MAX_CARR_CAP;
+        if (carrcap > maxcarrcap)
+            carrcap = maxcarrcap;
         if (!Flying) {
             if (EWounded_legs & LEFT_SIDE)
                 carrcap -= WT_WOUNDEDLEG_REDUCT;

@@ -229,11 +229,28 @@ makedog(void)
         return ((struct monst *) 0);
     }
 
-    pettype = svc.context.startingpet_typ = pet_type();
+    pettype = pet_type();
+    /* drow heroes start with a large spider in place of a dog,
+       kitten, or lesser homunculus */
+    if (Race_if(PM_DROW)
+        && (pettype == PM_LITTLE_DOG || pettype == PM_KITTEN
+            || pettype == PM_LESSER_HOMUNCULUS))
+        pettype = PM_LARGE_SPIDER;
+    /* TODO-EVILHACK: draugr and vampire starting pet overrides
+       (skeletal hound, wolf cub, skeletal pony) port with races-R2 */
+    /* chaotic knights ride a lesser nightmare instead of a pony;
+       centaurs cannot ride, so they get a little dog companion */
+    if (pettype == PM_PONY
+        && u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT))
+        pettype = Race_if(PM_CENTAUR) ? PM_LITTLE_DOG
+                                      : PM_LESSER_NIGHTMARE;
+    svc.context.startingpet_typ = pettype;
     petname = (pettype == PM_LITTLE_DOG) ? gd.dogname
               : (pettype == PM_KITTEN) ? gc.catname
                 : (pettype == PM_PONY) ? gh.horsename
-                  : "";
+                  : (pettype == PM_LARGE_SPIDER) ? gs.spidername
+                    : (pettype == PM_LESSER_NIGHTMARE) ? gh.horsename
+                      : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {
@@ -262,7 +279,7 @@ makedog(void)
         svc.context.startingpet_mid = mtmp->m_id;
         if (!u.uroleplay.pauper) {
             /* initial horses start wearing a saddle (pauper hero excluded) */
-            if (pettype == PM_PONY) {
+            if (pettype == PM_PONY || pettype == PM_LESSER_NIGHTMARE) {
                 /* NULL obj arg means put_saddle_on_mon()
                  * will carry out the saddle creation */
                 put_saddle_on_mon((struct obj *) 0, mtmp);

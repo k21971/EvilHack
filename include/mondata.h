@@ -240,6 +240,10 @@
 #define is_jabberwock(ptr) (((ptr)->mhflags & MH_JABBERWOCK) != 0L)
 #define is_wraith(ptr) (((ptr)->mhflags & MH_WRAITH) != 0L)
 #define is_ent(ptr) ((ptr)->mlet == S_ENT)
+#define is_true_ent(ptr)                  \
+    ((ptr) == &mons[PM_ENT]               \
+     || (ptr) == &mons[PM_ELDER_ENT]      \
+     || (ptr) == &mons[PM_PETRIFIED_ENT])
 #define is_plant(ptr) ((ptr)->mlet == S_PLANT)
 #define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
@@ -272,7 +276,10 @@
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
-#define cantwield(ptr) (nohands(ptr) || verysmall(ptr))
+/* only ever applied to the hero, so the shell check is safe here */
+#define cantwield(ptr) \
+    (nohands(ptr) || verysmall(ptr)                 \
+     || Hidinshell || is_ent(ptr) || is_plant(ptr))
 /* Does this type of monster have multiple weapon attacks?  If so,
    hero poly'd into this form can use two-weapon combat.  It used
    to just check mattk[1] and assume mattk[0], which was suitable
@@ -303,6 +310,8 @@
 #define webmaker(ptr) \
     ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER])
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
+#define is_cavelizard(ptr) \
+    ((ptr) == &mons[PM_CAVE_LIZARD] || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_longworm(ptr)                                                   \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
@@ -449,11 +458,19 @@
    dogs and cats can be tamed by anything they like to eat and are
    pacified by any other food;
    horses can be tamed by always-veggy food or lichen corpses but
-   not tamed or pacified by other corpses or tins of veggy critters */
+   not tamed or pacified by other corpses or tins of veggy critters;
+   drow heroes can also befriend spiders and cave lizards */
+/* TODO-EVILHACK: master extends this with more racial and role pet
+   clauses (wargs for orcs and vampires plus wolves for vampires with
+   races-R2; rats for Convicts, hawks for Druids, saber-toothed
+   tigers for Cave Dwellers with the roles slice) */
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
      ? (obj)->otyp == BANANA                                             \
-     : (is_domestic(ptr) && (obj)->oclass == FOOD_CLASS                  \
+     : ((is_domestic(ptr)                                                \
+         || (((is_spider(ptr) && (ptr) != &mons[PM_DRIDER])              \
+              || is_cavelizard(ptr)) && Race_if(PM_DROW)))               \
+        && (obj)->oclass == FOOD_CLASS                                   \
         && ((ptr)->mlet != S_UNICORN                                     \
             || objects[(obj)->otyp].oc_material == VEGGY                 \
             || ((obj)->otyp == CORPSE && (obj)->corpsenm == PM_LICHEN))))

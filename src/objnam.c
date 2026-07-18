@@ -1595,8 +1595,17 @@ doname_base(
                 /* there could be light-emitting artifact gloves someday,
                    so add 'lit' separately from 'slippery' rather than via
                    'else if' after uarmg+Glib */
-                if (!Blind && obj->lamplit && artifact_light(obj))
-                    ConcatF1(bp, 1, ", %s lit)", arti_light_description(obj));
+                if (!Blind && obj->lamplit && artifact_light(obj)) {
+                    if ((is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+                         && !Upolyd && Race_if(PM_DROW))
+                        || (Is_dragon_armor(obj)
+                            && (Dragon_armor_to_scales(obj)
+                                == SHADOW_DRAGON_SCALES)))
+                        ConcatF1(bp, 1, "%s", ", aura of darkness)");
+                    else
+                        ConcatF1(bp, 1, ", %s lit)",
+                                 arti_light_description(obj));
+                }
             }
         }
         FALLTHROUGH;
@@ -1824,10 +1833,15 @@ doname_base(
                     ConcatF2(bp, 1, ", %s %s)",
                              glow_verb(gw.warn_obj_cnt, TRUE),
                              glow_color(obj->oartifact));
-                else if (obj->lamplit && artifact_light(obj))
+                else if (obj->lamplit && artifact_light(obj)) {
                     /* as above, overwrite known closing paren */
-                    ConcatF1(bp, 1, ", %s lit)",
-                             arti_light_description(obj));
+                    if (is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+                        && !Upolyd && Race_if(PM_DROW))
+                        ConcatF1(bp, 1, "%s", ", aura of darkness)");
+                    else
+                        ConcatF1(bp, 1, ", %s lit)",
+                                 arti_light_description(obj));
+                }
             }
         }
     }

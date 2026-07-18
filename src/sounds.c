@@ -1279,7 +1279,7 @@ dochat(void)
         You_cant("speak.  You're choking!");
         return ECMD_OK;
     }
-    if (u.uswallow) {
+    if (u.uswallow || Hidinshell) {
         pline("They won't hear you out there.");
         return ECMD_OK;
     }

@@ -127,6 +127,9 @@ toggle_stealth(
                 You("float imperceptibly.");
             else
                 You("walk very quietly.");
+        } else if (maybe_polyd(is_giant(gy.youmonst.data),
+                               Race_if(PM_GIANT))) {
+            You("are just as noisy as before.");
         } else {
             boolean riding = (u.usteed != NULL);
 
@@ -336,7 +339,14 @@ Boots_on(void)
         break;
     case DARK_ELVEN_BOOTS:
     case ELVEN_BOOTS:
-        toggle_stealth(uarmf, oldprop, TRUE);
+        if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT))) {
+            pline("This %s will not silence someone %s.",
+                  xname(uarmf), rn2(2) ? "as large as you"
+                                       : "of your stature");
+            EStealth &= ~W_ARMF;
+        } else {
+            toggle_stealth(uarmf, oldprop, TRUE);
+        }
         break;
     case FUMBLE_BOOTS:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -442,15 +452,24 @@ Boots_off(void)
 staticfn int
 Cloak_on(void)
 {
+    int otyp = uarmc->otyp;
     long oldprop =
         u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
-    switch (uarmc->otyp) {
+    if (Is_dragon_scales(uarmc)
+        && otyp != SHIMMERING_DRAGON_SCALES
+        && otyp != CELESTIAL_DRAGON_SCALES) {
+        /* most scales are handled the same in this function */
+        otyp = GRAY_DRAGON_SCALES;
+    }
+
+    switch (otyp) {
     case ORCISH_CLOAK:
     case DWARVISH_CLOAK:
     case CLOAK_OF_MAGIC_RESISTANCE:
     case ROBE:
     case CLOAK:
+    case GRAY_DRAGON_SCALES:
         break;
     case CLOAK_OF_PROTECTION:
         makeknown(uarmc->otyp);
@@ -460,7 +479,28 @@ Cloak_on(void)
         toggle_stealth(uarmc, oldprop, TRUE);
         break;
     case CLOAK_OF_DISPLACEMENT:
+    case SHIMMERING_DRAGON_SCALES:
         toggle_displacement(uarmc, oldprop, TRUE);
+        break;
+    case CELESTIAL_DRAGON_SCALES:
+        /* setworn() has already set extrinsic flying */
+        /* TODO-EVILHACK: master also calls check_wings() here; it
+           ports with the aasimar wings machinery (races-R2) */
+        float_vs_flight(); /* block flying if levitating */
+        if (Flying) {
+            boolean already_flying;
+
+            /* to determine whether this flight is new we have to muck
+               about in the Flying intrinsic (actually extrinsic) */
+            EFlying &= ~W_ARMC;
+            already_flying = !!Flying;
+            EFlying |= W_ARMC;
+
+            if (!already_flying) {
+                disp.botl = TRUE; /* status: 'Fly' On */
+                You("are now in flight.");
+            }
+        }
         break;
     case MUMMY_WRAPPING:
         /* Note: it's already being worn, so we have to cheat here. */
@@ -506,6 +546,14 @@ Cloak_off(void)
     struct obj *otmp = uarmc;
     int otyp = otmp->otyp;
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+    boolean was_flying = !!Flying;
+
+    if (Is_dragon_scales(otmp)
+        && otyp != SHIMMERING_DRAGON_SCALES
+        && otyp != CELESTIAL_DRAGON_SCALES) {
+        /* most scales are handled the same in this function */
+        otyp = GRAY_DRAGON_SCALES;
+    }
 
     oprops_off(otmp, WORN_CLOAK);
 
@@ -520,13 +568,29 @@ Cloak_off(void)
     case OILSKIN_CLOAK:
     case ROBE:
     case CLOAK:
+    case GRAY_DRAGON_SCALES:
         break;
     case DARK_ELVEN_CLOAK:
     case ELVEN_CLOAK:
         toggle_stealth(otmp, oldprop, FALSE);
         break;
     case CLOAK_OF_DISPLACEMENT:
+    case SHIMMERING_DRAGON_SCALES:
         toggle_displacement(otmp, oldprop, FALSE);
+        break;
+    case CELESTIAL_DRAGON_SCALES:
+        /* the scales were already removed by the setworn() above */
+        /* TODO-EVILHACK: master also calls check_wings() here; it
+           ports with the aasimar wings machinery (races-R2) */
+        float_vs_flight(); /* probably not needed here */
+        if (was_flying && !Flying) {
+            disp.botl = TRUE; /* status: 'Fly' Off */
+            You("%s.", (is_pool_or_lava(u.ux, u.uy)
+                        || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
+                          ? "stop flying"
+                          : "land");
+            spoteffects(TRUE);
+        }
         break;
     case MUMMY_WRAPPING:
         if (Invis && !Blind) {
@@ -578,10 +642,11 @@ Helmet_on(void)
                      (oldprop || HFast) ? " a bit more" : "");
         }
         break;
-    /* TODO-EVILHACK: illithid-race message variant ports with the
-       illithid race work */
     case HELM_OF_TELEKINESIS:
-        You_feel("your mind expand with telekinetic power.");
+        if (racial_illithid(&gy.youmonst))
+            You_feel("your telekinetic powers intensify!");
+        else
+            You_feel("your mind expand with telekinetic power.");
         makeknown(uarmh->otyp);
         break;
     case ORCISH_HELM:
@@ -676,8 +741,12 @@ Helmet_off(void)
             You_feel("yourself slow down%s.", Fast ? " a bit" : "");
         break;
     case HELM_OF_TELEKINESIS:
-        if (!svc.context.takeoff.cancelled_don)
-            You_feel("the telekinetic power recede from your mind.");
+        if (!svc.context.takeoff.cancelled_don) {
+            if (racial_illithid(&gy.youmonst))
+                You_feel("your telekinetic powers diminish.");
+            else
+                You_feel("the telekinetic power recede from your mind.");
+        }
         break;
     case FEDORA:
         if (Role_if(PM_ARCHEOLOGIST))
@@ -1476,7 +1545,14 @@ Ring_on(struct obj *obj)
         /* wearing a meat ring does not affect vegan conduct */
         break;
     case RIN_STEALTH:
-        toggle_stealth(obj, oldprop, TRUE);
+        if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT))) {
+            pline("This %s will not silence someone %s.",
+                  xname(obj), rn2(2) ? "as large as you"
+                                     : "of your stature");
+            EStealth &= ~W_RING;
+        } else {
+            toggle_stealth(obj, oldprop, TRUE);
+        }
         break;
     case RIN_WARNING:
         see_monsters();
@@ -2063,6 +2139,10 @@ dotakeoff(void)
             pline("Not wearing any armor or accessories.");
         return ECMD_OK;
     }
+    if (Hidinshell) {
+        You_cant("take off worn items while hiding in your shell.");
+        return ECMD_OK;
+    }
     if (Narmorpieces != 1 || ParanoidRemove || gi.item_action_in_progress)
         otmp = getobj("take off", takeoff_ok, GETOBJ_NOFLAGS);
     if (!otmp)
@@ -2095,6 +2175,10 @@ doremring(void)
     count_worn_stuff(&otmp, TRUE);
     if (!Naccessories && !Narmorpieces) {
         pline("Not wearing any accessories or armor.");
+        return ECMD_OK;
+    }
+    if (Hidinshell) {
+        You_cant("take off worn items while hiding in your shell.");
         return ECMD_OK;
     }
     if (Naccessories != 1 || ParanoidRemove || cmdq_peek(CQ_CANNED))
@@ -2270,9 +2354,15 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
 
     /* this is the same check as for 'W' (dowear), but different message,
        in case we get here via 'P' (doputon) */
-    if (verysmall(gy.youmonst.data) || nohands(gy.youmonst.data)) {
+    if (verysmall(gy.youmonst.data) || nohands(gy.youmonst.data)
+        || is_ent(gy.youmonst.data) || is_plant(gy.youmonst.data)) {
         if (noisy)
             You("can't wear any armor in your current form.");
+        return 0;
+    }
+    if (Hidinshell) {
+        if (noisy)
+            You("can't wear any armor while hiding in your shell.");
         return 0;
     }
 
@@ -2286,7 +2376,12 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             || ((otmp->otyp != MUMMY_WRAPPING)
                 ? gy.youmonst.data->msize != MZ_SMALL
                 : !WrappingAllowed(gy.youmonst.data)))
-        && (racial_exception(&gy.youmonst, otmp) < 1)) {
+        && (racial_exception(&gy.youmonst, otmp) < 1)
+        /* giant heroes have a few outsized armor options */
+        && !(Race_if(PM_GIANT) && Role_if(PM_SAMURAI)
+             && otmp->otyp == LARGE_SPLINT_MAIL)
+        && !(Race_if(PM_GIANT)
+             && otmp->otyp == CHROMATIC_DRAGON_SCALES)) {
         if (noisy)
             pline_The("%s will not fit on your body.", which);
         return 0;
@@ -2344,13 +2439,22 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             if (noisy)
                 You("have no feet..."); /* not body_part(FOOT) */
             err++;
-        } else if (Upolyd && gy.youmonst.data->mlet == S_CENTAUR) {
+        } else if ((Upolyd && (gy.youmonst.data->mlet == S_CENTAUR
+                               || gy.youmonst.data == &mons[PM_DRIDER]
+                               || gy.youmonst.data == &mons[PM_SATYR]))
+                   || (!Upolyd && Race_if(PM_CENTAUR))) {
             /* break_armor() pushes boots off for centaurs, so don't let
                dowear() put them back on;
                makeplural(body_part(FOOT)) would yield "rear hooves" here,
                which sounds odd, so use hard-coded "hooves" */
             if (noisy)
                 You("have too many hooves to wear %s.", c_boots);
+            err++;
+        } else if (!Upolyd && Race_if(PM_TORTLE)) {
+            /* tortle foot shape is all wrong */
+            if (noisy)
+                Your("%s are not shaped correctly to wear %s.",
+                     makeplural(body_part(FOOT)), c_boots);
             err++;
         } else if (u.utrap
                    && (u.utraptype == TT_BEARTRAP || u.utraptype == TT_INFLOOR
@@ -2411,6 +2515,13 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             err++;
         } else
             *mask = W_ARMC;
+        /* the chromatic dragon's scales barely fit a giant */
+        if (!err && !Upolyd && Race_if(PM_GIANT)
+            && otmp->otyp == CHROMATIC_DRAGON_SCALES) {
+            *mask = W_ARMC;
+            if (noisy)
+                pline_The("scales are just large enough to fit your body.");
+        }
     } else if (is_suit(otmp)) {
         if (uarmc) {
             if (noisy)
@@ -2419,6 +2530,11 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
         } else if (uarm) {
             if (noisy)
                 already_wearing("some armor");
+            err++;
+        } else if (gy.youmonst.data->msize < MZ_HUGE
+                   && otmp->otyp == LARGE_SPLINT_MAIL) {
+            if (noisy)
+                You("are too small to wear such a suit of armor.");
             err++;
         } else
             *mask = W_ARM;
@@ -2671,7 +2787,9 @@ dowear(void)
 
     /* cantweararm() checks for suits of armor, not what we want here;
        verysmall() or nohands() checks for shields, gloves, etc... */
-    if (verysmall(gy.youmonst.data) || nohands(gy.youmonst.data)) {
+    if (verysmall(gy.youmonst.data) || nohands(gy.youmonst.data)
+        || Hidinshell || is_ent(gy.youmonst.data)
+        || is_plant(gy.youmonst.data)) {
         pline("Don't even bother.");
         return ECMD_OK;
     }
@@ -2691,6 +2809,10 @@ doputon(void)
 {
     struct obj *otmp;
 
+    if (Hidinshell) {
+        You_cant("put on any items while hiding in your shell.");
+        return ECMD_OK;
+    }
     if (uleft && uright && uamul && ublindf
         && uarm && uarmu && uarmc && uarmh && uarms && uarmg && uarmf) {
         /* 'P' message doesn't mention armor */
@@ -2708,19 +2830,70 @@ doputon(void)
 void
 find_ac(void)
 {
-    int uac = mons[u.umonnum].ac; /* base armor class for current form */
+    /* base armor class for current form; giants can't wear body
+       armor, shirts, or cloaks, but their thick skin compensates a
+       bit; a tortle's shell provides exceptional protection */
+    int uac = maybe_polyd(mons[u.umonnum].ac,
+                          Race_if(PM_GIANT) ? 6
+                          : Race_if(PM_TORTLE) ? 0
+                            : mons[u.umonnum].ac);
+    int racial_bonus, tortle_ac;
+
+    /* wearing racial armor is worth a bit of extra AC; orcs get a
+       slightly larger bonus to compensate for their sub-standard
+       equipment (taken from SporkHack); drow gloves are deliberately
+       not on this list */
+    racial_bonus = Race_if(PM_ORC) ? 2
+                   : (Race_if(PM_ELF) || Race_if(PM_DWARF)
+                      || Race_if(PM_DROW)) ? 1 : 0;
 
     /* armor class from worn gear */
-    if (uarm)
+    if (uarm) {
         uac -= ARM_BONUS(uarm);
-    if (uarmc)
+        if ((Race_if(PM_ORC)
+             && (uarm->otyp == ORCISH_CHAIN_MAIL
+                 || uarm->otyp == ORCISH_RING_MAIL))
+            || (Race_if(PM_DROW)
+                && (uarm->otyp == DARK_ELVEN_CHAIN_MAIL
+                    || uarm->otyp == DARK_ELVEN_TUNIC))
+            || (Race_if(PM_ELF) && uarm->otyp == ELVEN_CHAIN_MAIL)
+            || (Race_if(PM_DWARF) && uarm->otyp == DWARVISH_CHAIN_MAIL))
+            uac -= racial_bonus;
+    }
+    if (uarmc) {
         uac -= ARM_BONUS(uarmc);
-    if (uarmh)
+        if ((Race_if(PM_ORC) && uarmc->otyp == ORCISH_CLOAK)
+            || (Race_if(PM_ELF) && uarmc->otyp == ELVEN_CLOAK)
+            || (Race_if(PM_DROW) && uarmc->otyp == DARK_ELVEN_CLOAK)
+            || (Race_if(PM_DWARF) && uarmc->otyp == DWARVISH_CLOAK))
+            uac -= racial_bonus;
+    }
+    if (uarmh) {
         uac -= ARM_BONUS(uarmh);
-    if (uarmf)
+        if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM)
+            || (Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM)
+            || (Race_if(PM_DROW) && uarmh->otyp == DARK_ELVEN_HELM)
+            || (Race_if(PM_DWARF) && uarmh->otyp == DWARVISH_HELM))
+            uac -= racial_bonus;
+    }
+    if (uarmf) {
         uac -= ARM_BONUS(uarmf);
-    if (uarms)
+        if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS)
+            || (Race_if(PM_DROW) && uarmf->otyp == DARK_ELVEN_BOOTS)
+            || (Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)
+            || (Race_if(PM_ORC) && uarmf->otyp == ORCISH_BOOTS))
+            uac -= racial_bonus;
+    }
+    if (uarms) {
         uac -= ARM_BONUS(uarms);
+        if ((Race_if(PM_ORC)
+             && (uarms->otyp == ORCISH_SHIELD
+                 || uarms->otyp == URUK_HAI_SHIELD))
+            || (Race_if(PM_ELF) && uarms->otyp == ELVEN_SHIELD)
+            || (Race_if(PM_DROW) && uarms->otyp == DARK_ELVEN_BRACERS)
+            || (Race_if(PM_DWARF) && uarms->otyp == DWARVISH_ROUNDSHIELD))
+            uac -= racial_bonus;
+    }
     if (uarmg)
         uac -= ARM_BONUS(uarmg);
     if (uarmu)
@@ -2758,6 +2931,17 @@ find_ac(void)
 
         uac -= stone_skill;
     }
+
+    /* tortle hiding in its shell */
+    if (Hidinshell)
+        uac -= 40;
+
+    /* tortles gradually gain more protection as they grow up and
+       their shells become tougher and thicker */
+    tortle_ac = 0;
+    if (Race_if(PM_TORTLE) && u.ulevel > 2)
+        tortle_ac -= min((u.ulevel - 3) / 3 + 1, 10);
+    uac += tortle_ac;
 
     /* put a cap on armor class [5.0: was +127,-128, now reduced to +/- 99 */
     if (abs(uac) > AC_MAX)

@@ -1747,7 +1747,9 @@ find_offensive(struct monst *mtmp)
         nomore(MUSE_CAMERA);
         if (obj->otyp == EXPENSIVE_CAMERA
             && ((!Blind && !resists_blnd(&gy.youmonst))
-                || hates_light(gy.youmonst.data))
+                || hates_light(gy.youmonst.data)
+                || maybe_polyd(is_drow(gy.youmonst.data),
+                               Race_if(PM_DROW)))
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
             && obj->spe > 0 && !rn2(6)) {
             gm.m.offensive = obj;
@@ -2656,7 +2658,7 @@ use_offensive(struct monst *mtmp)
             You("are blinded by the flash of light!");
             make_blinded(BlindedTimeout + (long) rnd(1 + 50), FALSE);
         }
-        lightdamage(otmp, TRUE, 5);
+        lightdamage(otmp, mtmp, TRUE, 5);
         gm.m_using = FALSE;
         otmp->spe--;
         return 1;
@@ -3534,7 +3536,7 @@ use_misc(struct monst *mtmp)
             if (vismon)
                 pline_mon(mtmp, "%s flicks a bullwhip towards your %s!",
                           Monnam(mtmp), hand_buf);
-            if (obj->otyp == HEAVY_IRON_BALL) {
+            if (obj->otyp == HEAVY_IRON_BALL || Hidinshell) {
                 pline("%s fails to wrap around %s.", The_whip, the_weapon);
                 return 1;
             }
