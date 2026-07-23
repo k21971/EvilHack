@@ -91,6 +91,14 @@ static const char
     are_no_longer_twoweap[] = "are no longer using two weapons at once",
     can_no_longer_twoweap[] = "can no longer wield two weapons at once";
 
+/* exported TWOWEAPOK for callers that must not re-engage two-weapon
+   combat with an illegal weapon (poly_obj reseat) */
+boolean
+twoweapon_ok(struct obj *obj)
+{
+    return TWOWEAPOK(obj);
+}
+
 /*** Functions that place a given item in a slot ***/
 /* Proper usage includes:
  * 1.  Initializing the slot during character generation or a

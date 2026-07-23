@@ -2087,15 +2087,18 @@ poly_obj(struct obj *obj, int id)
                 /* remove_worn_item() above canceled two-weapon combat
                    and revoked the off-hand extrinsics along with it;
                    re-seat the off-hand weapon rather than restore the
-                   bare flag so those extrinsics come back */
-                if (was_twoweap && uwep && !bimanual(uwep) && uswapwep)
+                   bare flag so those extrinsics come back; the new form
+                   must still be a legal two-weapon primary (polymorph
+                   can yield ammo or a launcher) */
+                if (was_twoweap && uwep && !bimanual(uwep)
+                    && twoweapon_ok(uwep) && uswapwep)
                     retwoweapon(); /* sets u.twoweap = TRUE */
             } else if ((new_wornmask & W_SWAPWEP) != 0L) {
                 if (was_twohanded || !bimanual(otmp))
                     setuswapwep(otmp);
                 /* as above: the new form was seated with two-weapon
                    combat off, so its W_SWAPWEP extrinsics were skipped */
-                if (was_twoweap && uswapwep)
+                if (was_twoweap && uswapwep && twoweapon_ok(uswapwep))
                     retwoweapon(); /* sets u.twoweap = TRUE */
             } else if ((new_wornmask & W_QUIVER) != 0L) {
                 setuqwep(otmp);

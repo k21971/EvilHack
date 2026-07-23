@@ -3493,8 +3493,52 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       non-Druid bracer wearers - C1 verified that way. Paniclog
       end state: 1 tester staging artifact + the shirt entry (now
       fixed); nothing else.
-- [~] ARTIFACTS SLICE (invokes + internals + combat behaviors) -
-      URGENT (Infidel ascension + Convict shirt live here).
+- [x] ARTIFACTS SLICE (invokes + internals + combat behaviors) -
+      was URGENT (Infidel ascension + Convict shirt live here).
+      BOTH COMMITS LANDED (A de7ab107f, B d025b6158) + COMBINED
+      BATTERY PASSED 2026-07-23 (evilhack-game-tester agent, main
+      round 5 games + supplement round 4 games; zero crashes/
+      panics; one battery catch = BUG-1354 fixup pending below).
+      BATTERY RECORD: main round proved the imbue/re-arm arc,
+      BUG-1352 wielded/quivered Idol channel, DEATH_MAGIC full
+      matrix (immune/MR/plain/peaceful + ABUSE_VECNA/#conduct +
+      luck backfire death), aasimar denial, opposed/Orcus twoweap
+      refusals byte-matched, resistance-ladder cures, PHASING both
+      carriers, COMMAND_UNDEAD, acid/disint/fuse/Orcus/DFLAGH
+      instakill cores, Fire Brand vulnerable_to severity.
+      SUPPLEMENT proved: (S1) REAL-Astral Infidel ascension
+      end-to-end - wrong-altar god_zaps_you arm + matching-altar
+      power-increase -> altar conversion -> "Archfiend of Moloch"
+      done(ASCENDED), dumplog/xlog (death=ascended (with the
+      Idol), full achieveX) - THE ROLE IS NOW PLAYER-COMPLETE;
+      (S2) drow Shadowblade fear-ray + darkness + per-object glow
+      incl. OFF-HAND Orcrist glow (W_SWAPWEP arm live), blind
+      quivering, per-blade enlightenment; (S3) twoweap extrinsics
+      cycle (grant/revoke/throw-return-re-engage/clean re-wield
+      revoke via gdb extrinsic masks), Monk Eyes worn-MR
+      defends(AD_MAGM) worn-vs-carried split. ADJUDICATIONS:
+      wished-artifact touch-blast = shared master machinery
+      by-design; wizmode tele bypassing the sanctum lock = the
+      guard's own !wizard term (master parity); Tempest adjacent
+      polearm bash NEVER enters artifact_hit (gdb-proven; shared
+      vanilla polearm routing - specials + 1/6 surge PROVEN on the
+      range apply incl. unreined pet catch at unskilled) =
+      NOT-A-BUG; no dedicated ascension livelog = 5.0 dump-livelog
+      mechanism, master has none either, no gap. BATTERY CATCH:
+      BUG-1354 poly-primary-to-ammo re-engaged twoweap ->
+      "Two-weapon insanity" paniclog (slice-B reseat gated
+      !bimanual only; fixed via exported twoweapon_ok() at both
+      poly_obj arms - archive entry). KNOWN REMAINING GAPS
+      (named, accepted): off-hand doname glow suffix (objnam
+      parity owner, deviation 9 confirmed live); Healer Staff
+      Withering-cure invoke + Xiuhcoatl DEX-gate live runs
+      (reviewer-verified, role-staging only); B8(b)
+      destroy-primary reseat (B8(a)/(c) proven). NEW OPEN ROW
+      (NOT artifacts scope): drow + worn blindfold does not set
+      the BLINDED extrinsic (potion blinds fine; Eyes W_TOOL
+      ANTIMAGIC extrinsic grants fine, so setworn is healthy -
+      blindfold/BLINDED-specific, drow tested only; verify vs
+      master + non-drow -> races/do_wear owner).
       Ruled 2026-07-23: TWO commits (Decisions log; also off-hand
       extrinsics parity, per-object glow, drop-proof sanctum locks,
       cspfx ratify). Full census in the session plan file

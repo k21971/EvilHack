@@ -3975,6 +3975,7 @@ extern void uqwepgone(void);
 extern void set_twoweap(boolean);
 extern void untwoweapon(void);
 extern void retwoweapon(void);
+extern boolean twoweapon_ok(struct obj *);
 extern int chwepon(struct obj *, int) NO_NNARGS;
 extern int welded(struct obj *) NO_NNARGS;
 extern void weldmsg(struct obj *) NONNULLARG1;
