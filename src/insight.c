@@ -2656,6 +2656,19 @@ record_achievement_core(schar achidx, boolean quietly)
     }
 }
 
+/* has an achievement been recorded? unlike u.uhave flags this survives
+   losing the item or state that earned it */
+boolean
+achievement_recorded(schar achidx)
+{
+    int i;
+
+    for (i = 0; u.uachieved[i]; ++i)
+        if (abs(u.uachieved[i]) == abs(achidx))
+            return TRUE;
+    return FALSE;
+}
+
 /* discard a recorded achievement; return True if removed, False otherwise */
 boolean
 remove_achievement(schar achidx)

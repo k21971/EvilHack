@@ -3493,6 +3493,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       non-Druid bracer wearers - C1 verified that way. Paniclog
       end state: 1 tester staging artifact + the shirt entry (now
       fixed); nothing else.
+- [~] ARTIFACTS SLICE (invokes + internals + combat behaviors) -
+      URGENT (Infidel ascension + Convict shirt live here).
+      Ruled 2026-07-23: TWO commits (Decisions log; also off-hand
+      extrinsics parity, per-object glow, drop-proof sanctum locks,
+      cspfx ratify). Full census in the session plan file
+      (feature-evilhack-50-artifacts-slice); briefs =
+      scratchpad port-brief-artifacts-a/b.md.
+      COMMIT A (invokes + hero-side internals) PORTED + REVIEWED +
+      COORDINATOR-FIXED 2026-07-23, COMMIT PENDING (16 files
+      +719/-50, zero-warning): five invoke cases live
+      (SHADOWBLADE fear-ray/darkness; PHASING Staff/Liberation w/
+      Convict gate + master phasing_dialogue ported to timeout.c;
+      CHANNEL full altar ladder - Infidel ascension via
+      done(ASCENDED), Sanctum re-assert, god_zaps_you arm, altar
+      conversion, off-altar use_figurine; DEATH_MAGIC Eye/Hand AoE
+      with monkilled no-XP intent, ABUSE_VECNA + ABUSE_SPELL_
+      PEACEFUL producers = the alignment-abuse deferral closed;
+      COMMAND_UNDEAD 3x3 tamedog); fix_artifact + 3 callers;
+      vecna_relic_denied x5 (census: master's 5 sites are ALL in
+      set_artifact_intrinsic/arti_invoke - agent's defends() label
+      was wrong, port placed correctly); set_artifact_intrinsic
+      dtyp ladder completed (ACID/STON/DISE/DETH/STUN/FUSE + cures
+      + antimagic conduct); spec_ability cspfx OR; arti_align +
+      obj.h alignment macros + can_twoweapon/hmonas opposed-align
+      + Wand-of-Orcus gates; sanctum locks drop-proof via NEW
+      achievement_recorded() helper (insight.c); use_figurine
+      exposed + master Idol arms (apply.c survival w/ setnotworn
+      fix = BUG-1352 master-latent; dog.c ndemon(A_NONE) channel,
+      cgend gated vs spe==1 imbue-marker collision); twoweap
+      extrinsics machinery (setworn predicates w/ master's real
+      unconditional teardown, dotwoweapon/untwoweapon/NEW
+      retwoweapon brackets, dothrow return-cycle callers, detect.c
+      offhand search); invoke_taming blessed + invoke_healing
+      Withering; awaiting_guaranteed_gift dead-by-design (consumer
+      pray.c:2609 = prayer owner). REVIEW: CONDITIONAL PASS, 1
+      blocker (BUG-1352) + all concerns fixed or assigned same day;
+      reviewer verified the reseat-caller census closes (no missed
+      site) and CHANNEL/DEATH_MAGIC ladders arm-by-arm.
+      NEW OWNER ROWS from review: figurine-taming parity (master
+      non_tameable() + petless-conduct `you` param absent on
+      branch; branch initedog livelogs the conduct break instead
+      of preventing it - pets/taming parity owner); pager artifact
+      encyclopedia (name_to_arti/get_artilist_entry) joins the
+      pager recipe-lookup deferral. COMMIT B carries: twoweap
+      stuck-state sweep (setnotworn/joust-shatter/poly_obj reseat
+      + setworn same-obj skip - brief item 10), SPFX_WARN
+      per-object recalc (glow rework), everything in brief items
+      1-9. Battery AFTER both commits (game-tester agent; lists in
+      both port reports + review Test-additions).
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
 - [ ] Monster `dead` .des flag -> des.monster dead= binding
@@ -3655,6 +3704,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-15 | steal.c mdrop_obj() use-after-free: update_mon_extrinsics(mon, obj, ...) runs after flooreffects() may have destroyed obj (worn item dropped over lava/open air deallocates it, then the extrinsics update derefs the freed object). Verbatim in upstream 5.0 at adoption commit 74d1133c2 and in Official_nh50. Fixed on the branch (oprops slice) with master's saved-fields dummy-object pattern; the companion stackobj() merge in the safe path was reviewer-proven NOT to free the dropped obj (merged() keeps the potmp arg = the dropped obj, frees the pre-existing floor stack) so no further change needed | fixed on branch; not yet sent |
 | 2026-07-22 | pray.c can_pray() demon gate `(gp.p_aligntyp == A_LAWFUL \|\| gp.p_aligntyp != A_NEUTRAL)` contradicts its own "ok if chaotic or none" comment - as written, demons find CHAOTIC prayer repugnant and NEUTRAL prayer fine. Master's `> A_CHAOTIC` form (matches the comment's intent) ported with the roles slice; reviewer-verified | fixed on branch; not yet sent |
 | 2026-07-17 | explode.c monster-kill loop mutates its adtyp local (`adtyp = AD_RBRE; /* no corpse */` at explode.c:579, identical in NetHack50 and Official_nh50): after the first no-corpse victim, every later victim of the same blast and the post-loop hero-damage block see AD_RBRE instead of the real damage type. Master's non-mutating `xkflg ? -AD_RBRE : adtyp` inline form ported to the branch (kill-attribution slice) | fixed on branch; not yet sent |
+| 2026-07-23 | pray.c pleased() gift switch rolls `rn2((Luck + 6) >> 1)` with no lower clamp: Luck <= -6 passes rn2() a non-positive argument (reachable - the pleased path gates on god anger/trouble, not on Luck). Master's clamp form (`gift_slot` local, floor at 1) ported with the roles slice; branch verified at pray.c pleased() | fixed on branch; not yet sent |
+| 2026-07-23 | artifact.c invoke_healing (5.0's split of arti_invoke HEALING) can print "You feel better." twice per invoke: the body has BOTH an unconditional `Blinded > creamed -> You_feel("better.")` arm and the gated `You_feel("%sbetter.", ...)` tail. Identical at 74d1133c2; looks like an upstream merge artifact. Left as-is on branch (only the Withering cure term was added by the artifacts slice) | traced; not yet sent |
 
 ## Master re-derive queue
 
@@ -3731,6 +3782,11 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-23 | Off-hand/twoweap artifact extrinsics = MASTER PARITY: setworn admits W_SWAPWEP while u.twoweap (teardown stays unconditional per master's own form) + wield.c dotwoweapon/untwoweapon/retwoweapon reseat brackets; un-deadens the oprops W_SWAPWEP mapping arm. Rejected: keep 5.0's no-off-hand-intrinsics policy (real nerf vs master) | maintainer |
+| 2026-07-23 | Warning glow = MASTER PER-OBJECT subsystem (has_glow_warning/glow_warning_effects/blind_glow_warnings, any SPFX_WARN\|SPFX_DFLAGH artifact incl. Shadowblade, off-hand aware, per-obj newwarncnt/lastwarncnt), replacing 5.0's hardcoded global Sting_effects - rides artifacts Commit B | maintainer |
+| 2026-07-23 | Artifacts slice ships as TWO commits: A = invokes + hero-side internals (role-unblocking), B = combat behaviors (artifact_hit arms, mon_wielding_artifact layer, u_wield_art sweep, glow rework); one combined battery after both | maintainer |
+| 2026-07-23 | Sanctum escape locks (portal invoke / cursed gain-level / level-tele) = DROP-PROOF per master's "even if you've dropped the Amulet/Idol" intent: NEW achievement_recorded(ACH_AMUL) query (insight.c) && (!Infidel \|\| uimbued_idol). Supersedes the carry-based uhave conjunct for THESE three sites only; chase gates keep the roles conjunct. Pauper edge: a pre-imbue pauper Infidel carrying the real Amulet can still portal out (conjunct leniency, consistent with the pauper chase-gate design) | maintainer |
+| 2026-07-23 | spec_ability cspfx OR restored (carried-artifact intrinsic leak = master parity; 5.0 never had cspfx so not a collision case) - closes the oprops open-decision row | ratified with Commit A |
 | 2026-07-22 | Infidel imbue state = NEW u.uevent Bitfield uimbued_idol (kill-attribution precedent: appended bit, achieve2 game-state source). Master's u.uachieve.amulet consumers sweep to it (conjunct sites reduce to `u.uhave.amulet && (!Role_if(PM_INFIDEL) \|\| u.uevent.uimbued_idol)`). Rejected: object-side-only carrying_imbued_idol() derivation (stashed-Idol no-heal + cancellation-erases-imbue deltas) | maintainer |
 | 2026-07-22 | Amulet first-possession WISH GRANT REMOVED entirely (hardfought-5.0 u.uevent.amulet_wish feature; every Infidel would get a free turn-1 wish). Grant block deleted from moveloop; the you.h bit + u_init zeroing stay dormant (wand-of-stasis precedent). Maintainer flags this as the FIRST OF SEVERAL intended 5.0-behavior reversions - collect future candidates here as they are named | maintainer |
 | 2026-07-22 | Pauper Infidel: the actual Amulet of Yendor (the Infidel's win-condition item; "Idol of Moloch" is only the Sanctum imbue-event flavor) is placed ON THE FLOOR at the hero's feet on turn 0 - starting inventory stays truly empty. Rationale: pauper (hardfought-5.0 conduct, no master counterpart) strips all of ini_inv, which would make the role unwinnable (no alternate Amulet source exists for Infidels). Rejected: exempt-and-wear carve-out, disallowing the combo | maintainer |

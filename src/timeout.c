@@ -6,6 +6,7 @@
 #include "hack.h"
 
 #ifndef SFCTOOL
+staticfn void phasing_dialogue(void);
 staticfn void stoned_dialogue(void);
 staticfn void vomiting_dialogue(void);
 staticfn void sleep_dialogue(void);
@@ -122,6 +123,27 @@ property_by_index(int idx, int *propertynum)
     if (propertynum)
         *propertynum = propertynames[idx].prop_num;
     return propertynames[idx].prop_name;
+}
+
+/* invoked or otherwise timed phasing is about to expire */
+staticfn void
+phasing_dialogue(void)
+{
+    if (HPasses_walls == 15 || HPasses_trees == 15) {
+        if (!Hallucination) {
+            Your("body is beginning to feel more solid.");
+        } else {
+            You_feel("more distant from the spirit world.");
+        }
+        stop_occupation();
+    } else if (HPasses_walls == 1 || HPasses_trees == 1) {
+        if (!Hallucination) {
+            Your("body is solid again.");
+        } else {
+            You_feel("totally separated from the spirit world.");
+        }
+        stop_occupation();
+    }
 }
 
 /* He is being petrified - dialogue by inmet!tower */
@@ -630,6 +652,8 @@ nh_timeout(void)
         else if (u.uluck < baseluck && (nostone || time_luck > 0))
             u.uluck++;
     }
+    if (HPasses_walls)
+        phasing_dialogue();
     if (u.uinvulnerable)
         return; /* things past this point could kill you */
     if (Stoned)

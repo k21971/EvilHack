@@ -2051,8 +2051,15 @@ dosearch0(int aflag) /* intrinsic autosearch vs explicit searching */
         if (!aflag)
             Norep("What are you looking for?  The exit?");
     } else {
-        int fund = (uwep && uwep->oartifact
-                    && spec_ability(uwep, SPFX_SEARCH)) ? uwep->spe : 0;
+        struct obj *searchart = (uwep && uwep->oartifact
+                                 && spec_ability(uwep, SPFX_SEARCH))
+                                    ? uwep
+                                    : (u.twoweap && uswapwep
+                                       && uswapwep->oartifact
+                                       && spec_ability(uswapwep, SPFX_SEARCH))
+                                          ? uswapwep
+                                          : (struct obj *) 0;
+        int fund = searchart ? searchart->spe : 0;
 
         if (ublindf && ublindf->otyp == LENSES && !Blind)
             fund += 2; /* JDS: lenses help searching */

@@ -109,8 +109,16 @@ pick_familiar_pm(struct obj *otmp, boolean quietly)
     struct permonst *pm = (struct permonst *) 0;
 
     if (otmp) { /* figurine; otherwise spell */
+        boolean idol = is_art(otmp, ART_IDOL_OF_MOLOCH);
         int mndx = otmp->corpsenm;
 
+        if (idol) {
+            /* the Idol channels a random demon out of the mist
+               rather than its fixed corpsenm species */
+            mndx = ndemon(A_NONE);
+            if (mndx == NON_PM) /* just in case */
+                return (struct permonst *) 0;
+        }
         assert(ismnum(mndx));
         pm = &mons[mndx];
         /* activating a figurine provides one way to exceed the
@@ -118,10 +126,16 @@ pick_familiar_pm(struct obj *otmp, boolean quietly)
            it has a special limit (erinys, Nazgul) */
         if ((svm.mvitals[mndx].mvflags & G_EXTINCT)
             && mbirth_limit(mndx) != MAXMONNO) {
-            if (!quietly)
+            if (!quietly) {
                 /* have just been given "You <do something with>
                    the figurine and it transforms." message */
-                pline("... into a pile of dust.");
+                if (idol) {
+                    if (!Blind)
+                        pline_The("cloud disperses.");
+                } else {
+                    pline("... into a pile of dust.");
+                }
+            }
             return (struct permonst *) 0;
         }
     } else if (!rn2(3)) {
@@ -144,6 +158,7 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
     struct monst *mtmp = 0;
     int chance, trycnt = 100;
     boolean reallytame = TRUE;
+    boolean idol = otmp && is_art(otmp, ART_IDOL_OF_MOLOCH);
 
     do {
         mmflags_nht mmflags;
@@ -152,8 +167,12 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (!(pm = pick_familiar_pm(otmp, quietly)))
             break;
 
-        mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG;
-        cgend = otmp ? (otmp->spe & CORPSTAT_GENDER) : 0;
+        /* the Idol's channeled demons arrive with their gear */
+        mmflags = MM_EDOG | MM_IGNOREWATER | MM_NOMSG
+                  | (idol ? 0 : NO_MINVENT);
+        /* the imbued Idol's spe overloads CORPSTAT_FEMALE; its demons
+           roll their own gender */
+        cgend = (otmp && !idol) ? (otmp->spe & CORPSTAT_GENDER) : 0;
         mmflags |= ((cgend == CORPSTAT_FEMALE) ? MM_FEMALE
                     : (cgend == CORPSTAT_MALE) ? MM_MALE : 0L);
 
@@ -161,9 +180,15 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         if (otmp) { /* figurine */
             if (!mtmp) {
                 /* monster has been genocided or target spot is occupied */
-                if (!quietly)
-                    pline_The(
+                if (!quietly) {
+                    if (idol) {
+                        if (!Blind)
+                            pline_The("cloud disperses.");
+                    } else {
+                        pline_The(
                            "figurine writhes and then shatters into pieces!");
+                    }
+                }
                 break;
             } else if (mtmp->isminion) {
                 /* Fixup for figurine of an Angel:  makemon() is willing to
@@ -181,6 +206,15 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
 
     if (!mtmp)
         return (struct monst *) 0;
+
+    if (idol && !quietly && !Blind) {
+        pline_The("mist coagulates into the shape of %s%s.",
+                  x_monnam(mtmp, ARTICLE_A, (char *) 0,
+                           SUPPRESS_IT | SUPPRESS_INVISIBLE
+                               | SUPPRESS_SADDLE | SUPPRESS_BARDING
+                               | SUPPRESS_NAME, FALSE),
+                  canspotmon(mtmp) ? "" : " and vanishes");
+    }
 
     if (is_pool(mtmp->mx, mtmp->my) && minliquid(mtmp))
         return (struct monst *) 0;
@@ -215,8 +249,9 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
                 set_malign(mtmp);
             }
         }
-        /* if figurine has been named, give same name to the monster */
-        if (has_oname(otmp))
+        /* if figurine has been named, give same name to the monster;
+           the Idol's name never transfers to its channeled demons */
+        if (has_oname(otmp) && !idol)
             mtmp = christen_monst(mtmp, ONAME(otmp));
     }
     if (reallytame)

@@ -15,8 +15,6 @@ staticfn void at_your_feet(const char *);
 staticfn void gcrownu(void);
 staticfn void give_spell(void);
 staticfn void pleased(aligntyp);
-staticfn void godvoice(aligntyp, const char *);
-staticfn void god_zaps_you(aligntyp);
 staticfn void fry_by_god(aligntyp, boolean);
 staticfn void gods_angry(aligntyp);
 staticfn void gods_upset(aligntyp);
@@ -625,7 +623,7 @@ fix_worst_trouble(int trouble)
  * bathroom walls, but who is foiled by bathrobes." --Bertrand Russell, 1943
  * Divine wrath, dungeon walls, and armor follow the same principle.
  */
-staticfn void
+void
 god_zaps_you(aligntyp resp_god)
 {
     if (u.uswallow) {
@@ -1605,7 +1603,7 @@ water_prayer(boolean bless_water)
     return (boolean) (changed > 0L);
 }
 
-staticfn void
+void
 godvoice(aligntyp g_align, const char *words)
 {
     const char *quot = "";

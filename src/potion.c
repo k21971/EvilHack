@@ -1118,6 +1118,14 @@ peffect_gain_level(struct obj *otmp)
         boolean on_lvl_1 = (ledger_no(&u.uz) == 1);
 
         gp.potion_unkn++;
+        /* once the Amulet of Yendor has been obtained (or the Idol of
+           Moloch imbued for Infidels), rising up out of the sanctum is
+           prohibited, even after dropping it */
+        if (Is_sanctum(&u.uz) && achievement_recorded(ACH_AMUL)
+            && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)) {
+            You("have an uneasy feeling.");
+            return;
+        }
         /* they went up a level */
         if (on_lvl_1 ? u.uhave.amulet : Can_rise_up(u.ux, u.uy, &u.uz)) {
             int newlev;

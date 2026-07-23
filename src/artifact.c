@@ -23,6 +23,8 @@ staticfn struct artifact *get_artifact(struct obj *) NONNULL;
                              ? &artilist[(int) (o)->oartifact] \
                              : &artilist[ART_NONARTIFACT]) */
 
+staticfn void fix_artifact(struct obj *) NONNULLARG1;
+staticfn boolean vecna_relic_denied(struct obj *);
 staticfn boolean bane_applies(const struct artifact *, struct monst *)
                                                                  NONNULLARG12;
 staticfn int spec_applies(const struct artifact *, struct monst *)
@@ -40,6 +42,12 @@ staticfn int invoke_banish(struct obj *) NONNULLARG1;
 staticfn int invoke_fling_poison(struct obj *) NONNULLARG1;
 staticfn int invoke_storm_spell(struct obj *) NONNULLARG1;
 staticfn int invoke_blinding_ray(struct obj *) NONNULLARG1;
+staticfn int invoke_shadowblade(struct obj *) NONNULLARG1;
+staticfn int invoke_phasing(struct obj *) NONNULLARG1;
+staticfn int invoke_channel(struct obj *) NONNULLARG1;
+staticfn int invoke_death_magic(struct obj *) NONNULLARG1;
+staticfn void death_magic_anger(struct monst *) NONNULLARG1;
+staticfn int invoke_command_undead(struct obj *) NONNULLARG1;
 staticfn int arti_invoke_cost_pw(struct obj *) NONNULLARG1;
 staticfn boolean arti_invoke_cost(struct obj *) NONNULLARG1;
 staticfn int arti_invoke(struct obj *);
@@ -156,6 +164,17 @@ restore_artifacts(NHFILE *nhfp)
 
 #ifndef SFCTOOL
 
+/* some artifacts may need additional tweaking when created;
+   called when the artifact is christened */
+staticfn void
+fix_artifact(struct obj *otmp)
+{
+    /* the Idol of Moloch is a figurine and must animate a fixed
+       species */
+    if (otmp->oartifact == ART_IDOL_OF_MOLOCH)
+        set_corpsenm(otmp, PM_HORNED_DEVIL);
+}
+
 const char *
 artiname(int artinum)
 {
@@ -226,6 +245,7 @@ mk_particular_artifact(int artinum)
            marks it as existing (via artifact_exists()); the hero is
            creating it in hand so it starts out found */
         obj = oname(obj, a->name, ONAME_KNOW_ARTI);
+        fix_artifact(obj);
     }
     return obj;
 }
@@ -383,6 +403,7 @@ mk_artifact(
         otmp->oartifact = m;  /* probably already set by this point, but */
         /* set existence and reason for creation bits */
         artifact_origin(otmp, ONAME_RANDOM); /* 'random' is default */
+        fix_artifact(otmp);
         if (adjust_spe) {
             int new_spe;
 
@@ -678,6 +699,7 @@ artifact_exists(
                        there's no ONAME_ flag) and flgs might also contain
                        the know_arti bit (hero knows that artifact exists) */
                     artifact_origin(otmp, flgs);
+                    fix_artifact(otmp);
                 } else { /* uncreate */
                     /* clear all the flag bits */
                     artiexist[m] = zero_artiexist;
@@ -800,8 +822,9 @@ spec_ability(struct obj *otmp, unsigned long abil)
 {
     const struct artifact *arti = get_artifact(otmp);
 
+    /* worn/wielded abilities (spfx) or carried abilities (cspfx) */
     return (boolean) (arti != &artilist[ART_NONARTIFACT]
-                      && (arti->spfx & abil) != 0L);
+                      && ((arti->spfx | arti->cspfx) & abil) != 0L);
 }
 
 /* used so that callers don't need to known about SPFX_ codes */
@@ -1032,6 +1055,18 @@ protects(struct obj *otmp, boolean being_worn)
                       || (being_worn && (arti->spfx & SPFX_PROTECT) != 0));
 }
 
+/* an aasimar's celestial nature draws no power from Vecna's relics; the
+   Eye confers intrinsics while merely carried, the Hand only while worn
+   (and an aasimar cannot wear it) -- deny both */
+staticfn boolean
+vecna_relic_denied(struct obj *obj)
+{
+    return (boolean) (obj
+                      && (is_art(obj, ART_EYE_OF_VECNA)
+                          || is_art(obj, ART_HAND_OF_VECNA))
+                      && racial_aasimar(&gy.youmonst));
+}
+
 /*
  * a potential artifact has just been worn/wielded/picked-up or
  * unworn/unwielded/dropped.  Pickup/drop only set/reset the W_ART mask.
@@ -1043,6 +1078,7 @@ set_artifact_intrinsic(
     long wp_mask)
 {
     long *mask = 0;
+    long *mask2 = 0;
     const struct artifact *art, *oart = get_artifact(otmp);
     struct obj *obj;
     uchar dtyp;
@@ -1055,20 +1091,49 @@ set_artifact_intrinsic(
        yields zero here so plain property objects are unaffected */
     dtyp = (wp_mask != W_ART) ? oart->defn.adtyp : oart->cary.adtyp;
 
+    /* an aasimar gains nothing from Vecna's relics */
+    if (vecna_relic_denied(otmp))
+        dtyp = 0;
+
     if (dtyp == AD_FIRE)
         mask = &EFire_resistance;
     else if (dtyp == AD_COLD)
         mask = &ECold_resistance;
     else if (dtyp == AD_ELEC)
         mask = &EShock_resistance;
-    else if (dtyp == AD_MAGM)
+    else if (dtyp == AD_MAGM) {
         mask = &EAntimagic;
-    else if (dtyp == AD_DISN)
+        /* no magic resistance conduct */
+        if (on)
+            u.uconduct.antimagic++;
+    } else if (dtyp == AD_DISN)
         mask = &EDisint_resistance;
     else if (dtyp == AD_DRST)
         mask = &EPoison_resistance;
     else if (dtyp == AD_DRLI)
         mask = &EDrain_resistance;
+    else if (dtyp == AD_ACID)
+        mask = &EAcid_resistance;
+    else if (dtyp == AD_STON) {
+        mask = &EStone_resistance;
+        if (Stoned)
+            make_stoned(0L, "You no longer seem to be petrifying.", 0,
+                        (char *) 0);
+    } else if (dtyp == AD_DISE) {
+        mask = &ESick_resistance;
+        if (Sick)
+            make_sick(0L, (char *) 0, TRUE, SICK_ALL);
+    } else if (dtyp == AD_DETH)
+        mask = &EDeath_resistance;
+    else if (dtyp == AD_STUN) {
+        mask = &EStun_resistance;
+        if (Stunned)
+            make_stunned(0L, TRUE);
+    } else if (dtyp == AD_FUSE) {
+        /* fusion of fire and frost confers both resistances */
+        mask = &EFire_resistance;
+        mask2 = &ECold_resistance;
+    }
 
     if (mask && wp_mask == W_ART && !on) {
         /* find out if some other artifact also confers this intrinsic;
@@ -1077,7 +1142,8 @@ set_artifact_intrinsic(
             if (obj != otmp && obj->oartifact) {
                 art = get_artifact(obj);
                 if (art != &artilist[ART_NONARTIFACT]
-                        && art->cary.adtyp == dtyp) {
+                        && art->cary.adtyp == dtyp
+                        && !vecna_relic_denied(obj)) {
                     mask = (long *) 0;
                     break;
                 }
@@ -1089,6 +1155,12 @@ set_artifact_intrinsic(
             *mask |= wp_mask;
         else
             *mask &= ~wp_mask;
+    }
+    if (mask2) { /* second resistance for AD_FUSE */
+        if (on)
+            *mask2 |= wp_mask;
+        else
+            *mask2 &= ~wp_mask;
     }
 
     /* intrinsics from the spfx field; there could be more than one */
@@ -1103,12 +1175,18 @@ set_artifact_intrinsic(
         if (otmp->oprops & ITEM_ESP)
             spfx |= SPFX_ESP;
     }
+
+    /* an aasimar gains nothing from Vecna's relics */
+    if (vecna_relic_denied(otmp))
+        spfx = 0;
+
     if (spfx && wp_mask == W_ART && !on) {
         /* don't change any spfx also conferred by other artifacts */
         for (obj = gi.invent; obj; obj = obj->nobj)
             if (obj != otmp && obj->oartifact) {
                 art = get_artifact(obj);
-                if (art != &artilist[ART_NONARTIFACT])
+                if (art != &artilist[ART_NONARTIFACT]
+                    && !vecna_relic_denied(obj))
                     spfx &= ~art->cspfx;
             }
     }
@@ -2500,8 +2578,9 @@ invoke_taming(struct obj *obj UNUSED)
 {
     struct obj pseudo;
 
-    pseudo = cg.zeroobj; /* neither cursed nor blessed, zero oextra too */
+    pseudo = cg.zeroobj; /* zero oextra too */
     pseudo.otyp = SCR_TAMING;
+    pseudo.blessed = 1; /* acts as a blessed scroll of taming */
     (void) seffects(&pseudo);
     return ECMD_TIME;
 }
@@ -2516,7 +2595,7 @@ invoke_healing(struct obj *obj)
         healamt = (u.mhmax + 1 - u.mh) / 2;
     if (healamt || Sick || Slimed || Blinded > creamed)
         You_feel("better.");
-    if (healamt || Sick || Slimed || BlindedTimeout > creamed)
+    if (healamt || Sick || Slimed || Withering || BlindedTimeout > creamed)
         You_feel("%sbetter.",
                  (!healamt && !Sick && !Slimed
                   /* when healing temporary blindness (aside from
@@ -2538,6 +2617,8 @@ invoke_healing(struct obj *obj)
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
     if (Slimed)
         make_slimed(0L, (char *) 0);
+    if (Withering)
+        set_itimeout(&HWithering, 0L);
     if (BlindedTimeout > creamed)
         make_blinded(creamed, FALSE);
     disp.botl = TRUE;
@@ -2598,10 +2679,20 @@ invoke_create_portal(struct obj *obj)
 {
     int i, num_ok_dungeons, last_ok_dungeon = 0;
     d_level newlev;
-    winid tmpwin = create_nhwindow(NHW_MENU);
+    winid tmpwin;
     anything any;
     int clr = NO_COLOR;
 
+    /* once the Amulet of Yendor has been obtained (or the Idol of
+       Moloch imbued for Infidels), portaling out of the sanctum is
+       prohibited, even after dropping it */
+    if (Is_sanctum(&u.uz) && achievement_recorded(ACH_AMUL)
+        && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)) {
+        nothing_special(obj);
+        return ECMD_TIME;
+    }
+
+    tmpwin = create_nhwindow(NHW_MENU);
     any = cg.zeroany; /* set all bits to zero */
     start_menu(tmpwin, MENU_BEHAVE_STANDARD);
     /* use index+1 (can't use 0) as identifier */
@@ -2655,6 +2746,10 @@ invoke_create_portal(struct obj *obj)
             You("are surrounded by a shimmering sphere!");
         else
             You_feel("weightless for a moment.");
+        /* update hero location and the display before leaving the
+           level; goto_level() releases any non-engulfing hold */
+        if (u.uswallow)
+            unstuck(u.ustuck);
         goto_level(&newlev, FALSE, FALSE, FALSE);
     }
     return ECMD_TIME;
@@ -2826,6 +2921,312 @@ invoke_blinding_ray(struct obj *obj)
     return ECMD_TIME;
 }
 
+staticfn int
+invoke_shadowblade(struct obj *obj)
+{
+    struct monst *mtmp;
+    int ct = 0;
+
+    if (y_n("Do you want to cast an aura of darkness?") == 'n') {
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (DEADMONSTER(mtmp))
+                continue;
+            if (cansee(mtmp->mx, mtmp->my)) {
+                if (!resist(mtmp, WEAPON_CLASS, 0, NOTELL)
+                    /* some monsters are immune */
+                    && onscary(0, 0, mtmp))
+                    monflee(mtmp, 0, FALSE, TRUE);
+                if (!mtmp->mtame)
+                    ct++; /* pets don't laugh at you */
+            }
+        }
+        if (!Deaf && ct)
+            You_hear("%s laughter coming from %s!",
+                     rn2(2) ? "fiendish" : "maniacal", xname(obj));
+    } else {
+        litroom(FALSE, FALSE, obj, u.ux, u.uy);
+    }
+    return ECMD_TIME;
+}
+
+/* walk through walls and stone like a xorn */
+staticfn int
+invoke_phasing(struct obj *obj)
+{
+    if (is_art(obj, ART_STRIPED_SHIRT_OF_LIBERATION)
+        && !Role_if(PM_CONVICT) && rn2(5)) {
+        You_feel("that %s %s purposely ignoring you.",
+                 the(xname(obj)), otense(obj, "are"));
+        return ECMD_TIME;
+    }
+    if (Passes_walls) {
+        nothing_special(obj);
+        return ECMD_TIME;
+    }
+    if (!Hallucination)
+        Your("body begins to feel less solid.");
+    else
+        You_feel("one with the spirit world.");
+    incr_itimeout(&HPasses_walls, 50 + rnd(100));
+    obj->age += HPasses_walls; /* time begins after phasing ends */
+    if (u.uswallow) {
+        struct monst *mon = u.ustuck;
+
+        expels(mon, mon->data, FALSE);
+        You("exit %s, phasing right through %s %s!", mon_nam(mon),
+            mhis(mon), mbodypart(mon, STOMACH));
+    }
+    return ECMD_TIME;
+}
+
+staticfn int
+invoke_channel(struct obj *obj)
+{
+    /* should this break atheist conduct? currently it doesn't, under
+       the excuse of being necessary to ascend, even though this is
+       channeling a god's power */
+    if (!IS_ALTAR(levl[u.ux][u.uy].typ)) {
+        obj->age = 0; /* figurine activation manages the invoke cost */
+        return use_figurine(&obj);
+    } else {
+        aligntyp altar_align = Amask2align(levl[u.ux][u.uy].altarmask
+                                           & AM_MASK);
+        boolean high_altar = ((Is_astralevel(&u.uz) || Is_sanctum(&u.uz))
+                              && (levl[u.ux][u.uy].altarmask & AM_SANCTUM));
+
+        if (!Blind)
+            pline("Tendrils of %s mist seep out of %s "
+                  "and into the altar below...",
+                  hcolor("crimson"), the(xname(obj)));
+        else
+            You_feel("something flow from %s.", the(xname(obj)));
+        if (altar_align == A_NONE) {
+            if (high_altar && Role_if(PM_INFIDEL)
+                && u.uevent.uimbued_idol) {
+                godvoice(A_NONE, (char *) 0);
+                qt_pager("moloch_offer_idol");
+                You_feel("strange energies envelop %s.", the(xname(obj)));
+                u.uhave.amulet = 1;
+                u.uamulet_on_planes = 0;
+                return ECMD_TIME;
+            }
+            if (!Blind)
+                pline_The("altar glows for a moment.");
+            /* nothing happens */
+            return ECMD_TIME;
+        }
+        if (high_altar) {
+            /* messages yoinked from pray.c */
+            You("sense a conflict between %s and %s.",
+                align_gname(A_NONE), a_gname());
+            if (u.uevent.uimbued_idol && altar_align == inf_align(1)) {
+                You_feel("the power of %s increase.", align_gname(A_NONE));
+            } else {
+                pline("%s feel the power of %s decrease.",
+                      u.ualign.type == A_NONE ? "Unluckily, you" : "You",
+                      align_gname(A_NONE));
+                godvoice(altar_align,
+                         "So, mortal!  You dare desecrate my High Temple!");
+                god_zaps_you(altar_align);
+                return ECMD_TIME;
+            }
+        }
+        levl[u.ux][u.uy].altarmask &= (AM_SHRINE | AM_SANCTUM);
+        levl[u.ux][u.uy].altarmask |= AM_NONE;
+        if (!Blind)
+            pline_The("altar glows %s.", hcolor(NH_RED));
+        if (!high_altar) {
+            /* the Idol does all the work for you, so you don't get a
+               luck increase; but you don't get a hostile minion,
+               either */
+            struct monst *pri = findpriest(temple_occupied(u.urooms));
+
+            if (pri && mon_aligntyp(pri) != A_NONE)
+                angry_priest();
+        } else {
+            /* at this point the player must be an Infidel; should we
+               still check for opposite alignment? currently Moloch
+               doesn't care */
+            adjalign(10);
+            u.uevent.ascended = 1;
+            pline1("A sinister laughter echoes through the temple, "
+                   "and you're bathed in darkness...");
+            godvoice(A_NONE, "My pawn, thou hast done well!");
+            display_nhwindow(WIN_MESSAGE, FALSE);
+            SetVoice((struct monst *) 0, 0, 80, voice_deity);
+            verbalize("In return for thy service, "
+                      "I grant thee a part of My domain!");
+            You("ascend, becoming the Archfiend of Moloch...");
+            done(ASCENDED);
+            /*NOTREACHED*/
+        }
+    }
+    return ECMD_TIME;
+}
+
+/* a peaceful or tame monster has survived the invoked wrath of the Eye
+   or Hand of Vecna; it will not stay friendly toward the invoker */
+staticfn void
+death_magic_anger(struct monst *mtmp)
+{
+    if (mtmp->mpeaceful || mtmp->mtame) {
+        mtmp->mpeaceful = mtmp->mtame = 0;
+        if (mtmp->mleashed)
+            m_unleash(mtmp, TRUE);
+        set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my);
+        if (u.ualign.type != A_NONE) {
+            You_feel("distraught.");
+            adjalign(-3);
+            record_abuse_event_mon(-3, ABUSE_SPELL_PEACEFUL, mtmp);
+        }
+    }
+}
+
+staticfn int
+invoke_death_magic(struct obj *obj)
+{
+    struct monst *mtmp, *nextmon;
+
+    if (u.uluck < -9) {
+        /* being immune to death magic doesn't help in this instance */
+        pline("%s turns on you!", The(xname(obj)));
+        u.uhp = 0;
+        svk.killer.format = KILLED_BY;
+        if (is_art(obj, ART_EYE_OF_VECNA))
+            Strcpy(svk.killer.name, "the Eye of Vecna");
+        else
+            Strcpy(svk.killer.name, "the Hand of Vecna");
+        done(DIED);
+    } else {
+        if (is_art(obj, ART_EYE_OF_VECNA)) {
+            pline("%s looks around with its icy gaze!", The(xname(obj)));
+        /* the Hand of Vecna needs to be 'worn' for it to be invoked */
+        } else if (uarmg && is_art(uarmg, ART_HAND_OF_VECNA)) {
+            You("hold %s up high above your %s!",
+                the(xname(obj)), body_part(HEAD));
+        } else if (is_art(obj, ART_HAND_OF_VECNA)) {
+            You("hold %s up high above your %s, but nothing happens.",
+                the(xname(obj)), body_part(HEAD));
+            return ECMD_TIME;
+        }
+
+        for (mtmp = fmon; mtmp; mtmp = nextmon) {
+            nextmon = mtmp->nmon;
+            if (DEADMONSTER(mtmp))
+                continue;
+            /* the Eye is never blind */
+            if (is_art(obj, ART_EYE_OF_VECNA)
+                    ? !couldsee(mtmp->mx, mtmp->my)
+                    : !canspotmon(mtmp))
+                continue;
+            if (immune_death_magic(mtmp->data)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("%s is not affected by %s.", Monnam(mtmp),
+                      the(distant_name(obj, xname)));
+                continue;
+            }
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+            case 16:
+            case 15:
+                if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))) {
+                    pline_The("%s %s %s!", distant_name(obj, xname),
+                              rn2(2) ? "annihilates" : "obliterates",
+                              mon_nam(mtmp));
+                    mtmp->mhp = 0;
+                    /* the artifact does the killing, not the hero;
+                       no experience or murder penalty (the alignment
+                       and luck costs below are the price) */
+                    monkilled(mtmp, (char *) 0, AD_DETH);
+                    if (!DEADMONSTER(mtmp)) /* lifesaved */
+                        continue;
+                } else { /* MR or resists */
+                    shieldeff(mtmp->mx, mtmp->my);
+                    pline("%s %s in pain, but resists %s deadly %s.",
+                          Monnam(mtmp), makeplural(growl_sound(mtmp)),
+                          the(s_suffix(xname(obj))),
+                          is_art(obj, ART_EYE_OF_VECNA) ? "gaze" : "aura");
+                    (void) damage_mon_nonlethal(mtmp, d(6, 4), AD_DETH,
+                                                TRUE);
+                    death_magic_anger(mtmp);
+                }
+                break;
+            default: /* case 14 through case 0 */
+                if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))) {
+                    if (!Deaf)
+                        pline("%s %s in %s!", Monnam(mtmp),
+                              makeplural(growl_sound(mtmp)),
+                              rn2(2) ? "agony" : "pain");
+                    else if (cansee(mtmp->mx, mtmp->my))
+                        pline("%s trembles in %s!", Monnam(mtmp),
+                              rn2(2) ? "agony" : "pain");
+                    /* mhp will then still be less than this value */
+                    mtmp->mhpmax -= rn1(9, 4);
+                    if (mtmp->mhpmax < 1) /* protect against invalid value */
+                        mtmp->mhpmax = 1;
+                    mtmp->mhp /= 2;
+                    if (mtmp->mhp < 1)
+                        mtmp->mhp = 1;
+                    death_magic_anger(mtmp);
+                } else { /* MR or resists */
+                    shieldeff(mtmp->mx, mtmp->my);
+                    pline("%s %s in pain, but resists %s deadly %s.",
+                          Monnam(mtmp), makeplural(growl_sound(mtmp)),
+                          the(s_suffix(xname(obj))),
+                          is_art(obj, ART_EYE_OF_VECNA) ? "gaze" : "aura");
+                    (void) damage_mon_nonlethal(mtmp, d(4, 4), AD_DETH,
+                                                TRUE);
+                    death_magic_anger(mtmp);
+                }
+                break;
+            }
+        }
+    }
+    /* use at your own risk */
+    if (u.ualign.type != A_NONE) {
+        if (u.ualign.type == A_LAWFUL) {
+            You_feel("very guilty.");
+            adjalign(-7);
+            record_abuse_event(-7, ABUSE_VECNA);
+        } else {
+            You_feel("guilty.");
+            adjalign(-3);
+            record_abuse_event(-3, ABUSE_VECNA);
+        }
+    }
+    /* Infidels get a bit more leeway from Moloch */
+    change_luck((u.ualign.type == A_NONE) ? -1 : -3);
+    exercise(A_WIS, FALSE);
+    return ECMD_TIME;
+}
+
+staticfn int
+invoke_command_undead(struct obj *obj UNUSED)
+{
+    struct monst *mtmp;
+
+    if (u.uswallow) {
+        if (is_undead(u.ustuck->data))
+            (void) tamedog(u.ustuck, (struct obj *) 0, FALSE);
+    } else {
+        int i, j, bd = 1;
+
+        for (i = -bd; i <= bd; i++) {
+            for (j = -bd; j <= bd; j++) {
+                if (!isok(u.ux + i, u.uy + j))
+                    continue;
+                if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0
+                    && is_undead(mtmp->data))
+                    (void) tamedog(mtmp, (struct obj *) 0, FALSE);
+            }
+        }
+    }
+    return ECMD_TIME;
+}
+
 /* return the amount of Pw invoking an object costs.
    return a negative value, if obj invoking cannot be paid with Pw */
 staticfn int
@@ -2887,6 +3288,13 @@ arti_invoke(struct obj *obj)
         return ECMD_TIME;
     }
 
+    /* an aasimar's celestial nature recoils from Vecna's unholy relics */
+    if (vecna_relic_denied(obj)) {
+        You("recoil from %s; you cannot bring yourself to channel"
+            " such unholy power.", the(xname(obj)));
+        return ECMD_TIME;
+    }
+
     /* It's a special power, not "just" a property */
     if (oart->inv_prop > LAST_PROP) {
         if (!arti_invoke_cost(obj))
@@ -2911,6 +3319,11 @@ arti_invoke(struct obj *obj)
             /*FALLTHRU*/
         case FIRESTORM: res = invoke_storm_spell(obj); break;
         case BLINDING_RAY: res = invoke_blinding_ray(obj); break;
+        case SHADOWBLADE: res = invoke_shadowblade(obj); break;
+        case PHASING: res = invoke_phasing(obj); break;
+        case CHANNEL: res = invoke_channel(obj); break;
+        case DEATH_MAGIC: res = invoke_death_magic(obj); break;
+        case COMMAND_UNDEAD: res = invoke_command_undead(obj); break;
         default:
             impossible("Unknown invoke power %d.", oart->inv_prop);
             break;
@@ -3220,6 +3633,43 @@ wielding_artifact(int art)
 
     return (u_wield_art(art)
             || (u.twoweap && uswapwep && is_art(uswapwep, art)));
+}
+
+/* TRUE if the hero's role still has an ungenerated artifact that
+   mk_artifact() would hand out as a guaranteed first-choice gift */
+boolean
+awaiting_guaranteed_gift(void)
+{
+    int m;
+    const struct artifact *a;
+
+    for (m = 1, a = &artilist[m]; a->otyp; a++, m++) {
+        if (artiexist[m].exists)
+            continue;
+        if (a->spfx & SPFX_NOGEN)
+            continue;
+
+        /* uses the same criteria as mk_artifact() */
+        if (Role_if(a->role)
+            && (a->alignment == u.ualign.type || a->alignment == A_NONE)
+            && (a->race == NON_PM || !race_hostile(&mons[a->race]))
+            && !Hate_material(artifact_material(m))
+            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))
+            && !((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                 && (a->mtype & MH_UNDEAD))
+            && !(Race_if(PM_AASIMAR) && (a->mtype & MH_AASIMAR)))
+            return TRUE;
+    }
+    return FALSE;
+}
+
+/* the intrinsic alignment of an artifact */
+int
+arti_align(int oartifact)
+{
+    if (oartifact <= 0 || oartifact > NROFARTIFACTS)
+        return A_NONE;
+    return artilist[oartifact].alignment;
 }
 
 /* use for warning "glow" for Sting, Orcrist, and Grimtooth */

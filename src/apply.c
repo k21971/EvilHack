@@ -24,7 +24,6 @@ staticfn void light_cocktail(struct obj **);
 staticfn int rub_ok(struct obj *);
 staticfn void display_jump_positions(boolean);
 staticfn void use_tinning_kit(struct obj *);
-staticfn int use_figurine(struct obj **);
 staticfn int grease_ok(struct obj *);
 staticfn int use_grease(struct obj *);
 staticfn void use_trap(struct obj *);
@@ -2561,13 +2560,25 @@ figurine_location_checks(struct obj *obj, coord *cc, boolean quietly)
     return TRUE;
 }
 
-staticfn int
+/* also called by invoke_channel() for the Idol of Moloch */
+int
 use_figurine(struct obj **optr)
 {
     struct obj *obj = *optr;
+    boolean idol = is_art(obj, ART_IDOL_OF_MOLOCH);
     coordxy x, y;
     coord cc;
+    const char *release_figurine;
 
+    if (idol && obj->age > svm.moves) {
+        /* the Idol shares the invoke tiredness clock */
+        You_feel("that %s %s ignoring you.", the(xname(obj)),
+                 otense(obj, "are"));
+        obj->age += (long) d(3, 10);
+        return ECMD_TIME;
+    }
+    if (!u_handsy())
+        return ECMD_OK;
     if (u.uswallow) {
         /* can't activate a figurine while swallowed */
         if (!figurine_location_checks(obj, (coord *) 0, FALSE))
@@ -2584,17 +2595,37 @@ use_figurine(struct obj **optr)
     /* Passing FALSE arg here will result in messages displayed */
     if (!figurine_location_checks(obj, &cc, FALSE))
         return ECMD_TIME;
-    You("%s and it %stransforms.",
-        (u.dx || u.dy) ? "set the figurine beside you"
-                       : (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
-                          || is_pool(cc.x, cc.y))
-                             ? "release the figurine"
-                             : (u.dz < 0 ? "toss the figurine into the air"
-                                         : "set the figurine on the ground"),
-        Blind ? "supposedly " : "");
+    if (u.dx || u.dy)
+        release_figurine = "set the figurine beside you";
+    else if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
+             || is_pool(cc.x, cc.y))
+        release_figurine = "release the figurine";
+    else if (u.dz < 0)
+        release_figurine = "toss the figurine into the air";
+    else
+        release_figurine = "set the figurine on the ground";
+    if (idol) {
+        if (Blind)
+            You("%s and feel an unholy aura emanate from it.",
+                release_figurine);
+        else
+            You("%s and a cloud of %s mist arises from it.",
+                release_figurine, hcolor("crimson"));
+    } else {
+        You("%s and it %stransforms.", release_figurine,
+            Blind ? "supposedly " : "");
+    }
     (void) make_familiar(obj, cc.x, cc.y, FALSE);
-    (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
-    useup(obj);
+    if (idol) {
+        /* the Idol is never consumed; it rests instead */
+        obj->age = svm.moves + rnz(100);
+        setnotworn(obj); /* it may be wielded or quivered */
+        freeinv(obj);
+        place_object(obj, cc.x, cc.y);
+    } else {
+        (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
+        useup(obj);
+    }
     if (Blind)
         map_invisible(cc.x, cc.y);
     *optr = 0;

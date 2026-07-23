@@ -1182,7 +1182,12 @@ level_tele(void)
         schedule_goto(&newlevel, UTOTYPE_NONE, (char *) 0, (char *) 0);
         return;
     }
-    if ((u.uhave.amulet || In_endgame(&u.uz) || In_sokoban(&u.uz))
+    if ((u.uhave.amulet || In_endgame(&u.uz) || In_sokoban(&u.uz)
+         /* the sanctum cannot be level-teleported out of once the
+            Amulet has been obtained (or the Idol imbued for Infidels),
+            even after dropping it */
+         || (Is_sanctum(&u.uz) && achievement_recorded(ACH_AMUL)
+             && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
         && !wizard) {
         You_feel("very disoriented for a moment.");
         return;

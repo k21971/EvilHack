@@ -303,6 +303,10 @@ struct obj {
      || otmp->otyp == RUNED_BARDING          \
      || otmp->otyp == SPIKED_BARDING         \
      || otmp->otyp == BARDING_OF_REFLECTION)
+#define is_lawful_artifact(otmp) \
+    (otmp->oartifact && arti_align(otmp->oartifact) == A_LAWFUL)
+#define is_chaotic_artifact(otmp) \
+    (otmp->oartifact && arti_align(otmp->oartifact) == A_CHAOTIC)
 #define is_blunt_weapon(o)                          \
     (((o)->oclass == WEAPON_CLASS || is_weptool(o)) \
      && ((objects[(o)->otyp].oc_dir & WHACK) != 0))

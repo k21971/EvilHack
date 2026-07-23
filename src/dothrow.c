@@ -1832,7 +1832,10 @@ throwit(
                     if (obj->owornmask & W_QUIVER)
                         setuqwep((struct obj *) 0);
                     setuwep(obj);
-                    set_twoweap(twoweap); /* u.twoweap = twoweap */
+                    /* only restore twoweap if swap weapon still exists;
+                       reseat so off-hand extrinsics re-engage */
+                    if (twoweap && uswapwep)
+                        retwoweapon();
                     if (cansee(gb.bhitpos.x, gb.bhitpos.y))
                         newsym(gb.bhitpos.x, gb.bhitpos.y);
                 } else {
@@ -2056,9 +2059,10 @@ return_throw_to_inv(
             setuqwep(obj);
 
         /* in case the throw ended dual-wielding, reinstate it after
-           successful catch (not needed for boomerang split/unsplit) */
-        if (twoweap && !u.twoweap)
-            set_twoweap(TRUE); /* u.twoweap = TRUE */
+           successful catch (not needed for boomerang split/unsplit);
+           reseat via retwoweapon() so off-hand extrinsics re-engage */
+        if (twoweap && !u.twoweap && uswapwep)
+            retwoweapon();
     }
 
     encumber_msg();

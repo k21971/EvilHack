@@ -5973,12 +5973,22 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 /* only consider secondary when wielding one-handed primary */
                 && uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
                 && !bimanual(uwep)
-                /* only switch if not wearing shield and not at artifact;
+                /* only switch if not wearing shield;
                    shield limitation is iffy since still get extra swings
-                   if polyform has them, but it matches twoweap behavior;
-                   twoweap also only allows primary to be an artifact, so
-                   if alternate weapon is one, don't use it */
-                && !uarms && !uswapwep->oartifact
+                   if polyform has them, but it matches twoweap behavior */
+                && !uarms
+                /* opposite-aligned artifacts can't be twoweaponed */
+                && !((is_lawful_artifact(uwep)
+                      && is_chaotic_artifact(uswapwep))
+                     || (is_chaotic_artifact(uwep)
+                         && is_lawful_artifact(uswapwep)))
+                /* the Wand of Orcus can't be twoweaponed with any
+                   other artifact */
+                && !(is_art(uwep, ART_WAND_OF_ORCUS)
+                     && uswapwep->oartifact)
+                /* the Wand of Orcus won't be held second to anything */
+                && !(is_art(uswapwep, ART_WAND_OF_ORCUS)
+                     && (is_weptool(uwep) || uwep->oclass == WEAPON_CLASS))
                 /* only switch to uswapwep if it's a weapon */
                 && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
                 /* only switch if uswapwep is not bow, arrows, or darts */

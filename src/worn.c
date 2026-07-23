@@ -87,10 +87,20 @@ setworn(struct obj *obj, long mask)
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask=0x%08lx.", wp->w_mask);
                 if (oobj) {
-                    if (u.twoweap && (oobj->owornmask & (W_WEP | W_SWAPWEP)))
+                    if (u.twoweap
+                        && (oobj->owornmask & (W_WEP | W_SWAPWEP))) {
+                        /* clear the flag first so that untwoweapon()
+                           skips its feedback message */
                         set_twoweap(FALSE); /* u.twoweap = FALSE */
+                        /* reseat the off-hand weapon to turn off its
+                           W_SWAPWEP extrinsics */
+                        untwoweapon();
+                    }
                     oobj->owornmask &= ~wp->w_mask;
-                    if (wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) {
+                    /* W_SWAPWEP is always torn down: u.twoweap may have
+                       been cleared just above (or by the caller) while
+                       the off-hand extrinsics are still seated */
+                    if (wp->w_mask & ~W_QUIVER) {
                         /* leave as "x = x <op> y", here and below, for broken
                          * compilers */
                         p = objects[oobj->otyp].oc_oprop;
@@ -116,8 +126,11 @@ setworn(struct obj *obj, long mask)
                      * potions, through the quiver, etc.
                      * Allow weapon-tools, too.
                      * wp_mask should be same as mask at this point.
+                     * The off-hand weapon conveys intrinsics only while
+                     * two-weapon combat is active.
                      */
-                    if (wp->w_mask & ~(W_SWAPWEP | W_QUIVER)) {
+                    if ((wp->w_mask & ~(W_SWAPWEP | W_QUIVER))
+                        || ((wp->w_mask & W_SWAPWEP) && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
                             p = objects[obj->otyp].oc_oprop;

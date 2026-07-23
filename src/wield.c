@@ -844,9 +844,26 @@ can_twoweapon(void)
         pline("%s isn't one-handed.", Yname2(otmp));
     } else if (uarms && !is_bracer(uarms)) {
         You_cant("use two weapons while wearing a shield.");
-    } else if (uswapwep->oartifact) {
-        pline("%s being held second to another weapon!",
+    /* allow two-weaponing with an artifact, but not if they are of
+       opposite alignments; as expected, neutral artifacts don't care */
+    } else if (uswapwep->oartifact
+               && ((is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
+                   || (is_chaotic_artifact(uswapwep)
+                       && is_lawful_artifact(uwep)))) {
+        pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
+    /* the Wand of Orcus will not tolerate being wielded along with
+       another artifact */
+    } else if (is_art(uwep, ART_WAND_OF_ORCUS) && uswapwep->oartifact) {
+        pline("%s being held alongside another artifact!",
+              Yobjnam2(uwep, "resist"));
+    /* the Wand of Orcus will not tolerate being held second to
+       any object */
+    } else if (is_art(uswapwep, ART_WAND_OF_ORCUS)
+               && (is_weptool(uwep) || uwep->oclass == WEAPON_CLASS)) {
+        pline("%s being held second to another %s!",
+              Yobjnam2(uswapwep, "resist"),
+              uwep->oartifact ? "artifact" : "weapon");
     } else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: !TWOWEAPOK() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
@@ -907,17 +924,33 @@ dotwoweapon(void)
 
     /* You can always toggle it off */
     if (u.twoweap) {
+        struct obj *tmp = uswapwep;
+
         You("switch to your primary weapon.");
         set_twoweap(FALSE); /* u.twoweap = FALSE */
+        /* reseat the off-hand weapon so that setworn() revokes its
+           W_SWAPWEP extrinsics now that two-weapon combat is off */
+        setuswapwep((struct obj *) 0);
+        setuswapwep(tmp);
         update_inventory();
         return ECMD_OK;
     }
 
     /* May we use two weapons? */
     if (can_twoweapon()) {
+        struct obj *tmp = uswapwep;
+
         /* Success! */
         You("begin two-weapon combat.");
+        /* reseat via a NULL bracket to force setworn() to run the
+           W_SWAPWEP grant block; a direct setuswapwep(uswapwep) call
+           would tear the occupied slot down and cancel two-weapon
+           combat in the process; set u.twoweap after the NULL teardown,
+           not before, since setworn() cancels two-weapon combat when a
+           worn weapon is replaced while it is active */
+        setuswapwep((struct obj *) 0);
         set_twoweap(TRUE); /* u.twoweap = TRUE */
+        setuswapwep(tmp);
         update_inventory();
         return (rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK;
     }
@@ -969,11 +1002,37 @@ uqwepgone(void)
 void
 untwoweapon(void)
 {
+    struct obj *tmp = uswapwep;
+
     if (u.twoweap) {
         You("%s.", can_no_longer_twoweap);
         set_twoweap(FALSE); /* u.twoweap = FALSE */
-        update_inventory();
     }
+    /* reseat the off-hand weapon so that setworn() revokes its
+       W_SWAPWEP extrinsics; harmless when nothing is readied */
+    setuswapwep((struct obj *) 0);
+    setuswapwep(tmp);
+    update_inventory();
+    return;
+}
+
+/* re-engage two-weapon combat after a thrown primary weapon returns to
+   hand; the off-hand object is already seated in W_SWAPWEP, so a plain
+   setuswapwep(uswapwep) call would tear the slot down and cancel
+   two-weapon combat without ever running the W_SWAPWEP-gated grant,
+   leaving off-hand extrinsics dead until the next two-weapon toggle;
+   reseat via a NULL bracket so the grant runs with u.twoweap set,
+   mirroring dotwoweapon(); caller guarantees uswapwep is non-NULL and
+   u.twoweap was torn down by the throw */
+void
+retwoweapon(void)
+{
+    struct obj *tmp = uswapwep;
+
+    setuswapwep((struct obj *) 0);
+    set_twoweap(TRUE); /* u.twoweap = TRUE */
+    setuswapwep(tmp);
+    update_inventory();
     return;
 }
 
