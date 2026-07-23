@@ -2233,8 +2233,7 @@ doloot_core(void)
         /* "Can't do that while carrying so much stuff." */
         return ECMD_OK;
     }
-    if (nohands(gy.youmonst.data)) {
-        You("have no hands!"); /* not `body_part(HAND)' */
+    if (!u_handsy()) {
         return ECMD_OK;
     }
     if (Confusion) {

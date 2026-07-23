@@ -3609,12 +3609,13 @@ plsel_startmenu(int ttyrows, int aspect)
                 rolename,
                 (RACE < 0) ? "<race>" : races[RACE].noun,
                 (GEND < 0) ? "<gender>" : genders[GEND].adj,
-                (ALGN < 0) ? "<alignment>" : aligns[ALGN].adj);
+                (ALGN < 0) ? "<alignment>"
+                           : aligns[special_alignment(ROLE, ALGN)].adj);
     } else {
         /* "<name> the <alignment> <gender> <race.adjective> <role>" */
         Sprintf(qbuf, "%.20s the %.20s %.20s %.20s %.20s",
                 svp.plname,
-                aligns[ALGN].adj,
+                aligns[special_alignment(ROLE, ALGN)].adj,
                 genders[GEND].adj,
                 races[RACE].adj,
                 rolename);

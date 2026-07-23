@@ -3057,7 +3057,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "incapacitated" abort, gdb msleeping/mfrozen clear stages
       around it; the wizard restore "keep save file?" prompt eats
       queued keys after "welcome back".
-- [ ] Player races: giant, centaur, hobbit, illithid, tortle, drow
+- [x] Player races: giant, centaur, hobbit, illithid, tortle, drow
       (light/dark auras - litroom memory), vampire, aasimar (wings,
       light aura, seduction immunity, cross-faction hostility).
       MAINTAINER RULED 2026-07-18: split into TWO sub-slices, and
@@ -3378,7 +3378,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       informational only. R2 deliberately invented no interim
       mechanics (eat.c eataccessory + potion.c arms classified
       DEFER to this item in races-r2-port-report.md).
-- [ ] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
+- [x] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
       PORTED + REVIEWED x2 + COORDINATOR-FIXED 2026-07-22/23 (COMMIT
       PENDING, battery next): port subagent 42 files +1716/-222
       (brief: scratchpad port-brief-roles.md; report:
@@ -3455,6 +3455,44 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       re-review additions (cursed-gauntlets prayer, ring-over-cursed-
       gloves, loadstone menu-drop split, monster-armor probe suffix,
       Hand of Vecna T-off, goggles plural).
+      BATTERY RUN 2026-07-23 (evilhack-game-tester agent, 5 games,
+      sanity_check on; full evidence in scratchpad
+      battery-report-roles-quest.md - transient, verdicts recorded
+      here): PASSED with 2 real catches, both coordinator-fixed
+      same day (fixup commit follows): (1) Shirt_on/Shirt_off
+      exhaustive dev-switches lacked STRIPED_SHIRT - every Convict
+      start hit impossible + paniclog (Phase 0.5 make_corpse
+      dev-switch class; the object predated any wearer); (2)
+      doloot_core kept the vanilla-5.0 raw nohands gate = a
+      wildshaped Druid could not loot (master routes through
+      u_handsy; adopted); plus the pre-game confirm header showed
+      "chaotic Infidel" (plsel_startmenu = the MISSED 5TH
+      special_alignment consumer - master's tty twin had it; 5.0
+      relocated that code into role.c). ADJUDICATED MASTER-PARITY
+      (battery-brief expectation errors, no code change): Knight
+      peaceful-dragon grudge flip charges abuse via setmangry
+      (flip body byte-identical both trees; tame arm free);
+      woodland-guilt event totals 6 = 5 peaceful-anger + 1
+      woodland rider. PASSED highlights: imbue end-to-end (livelog
+      + uimbued_idol + save-survival; the imbued Idol is
+      deliberately non-containable, so the stashed-Idol regen
+      delta is MOOT in practice - regen proven with Idol carried),
+      crowning->demon persists across reload, death-writers all
+      show align=Una (aligns OOB fix proven), pauper floor-Amulet
+      + no re-fire on reload + no wish at pickup, all four role
+      legacy texts + altstart routing, wildshape armor-merge +
+      in-form usability, metal-cast 100% fail, summons castable,
+      vampire #shapechange + the N4 double-space string exact.
+      SKIPPED (named): quest-leader forfeit + Convict shop/watch
+      town trips + angel_cuss live gating (all reviewer-verified;
+      staging heavy). NEW LATENT FIND (naming/wishing preparse
+      family, joins 'pair of X'): "Bracers of the First Circle"
+      and base "runed bracers" do not wish-parse - battery worked
+      around with leather bracers. Druid #twoweapon is role-blocked
+      outright, so the C1 bracers-shield fix is only reachable by
+      non-Druid bracer wearers - C1 verified that way. Paniclog
+      end state: 1 tester staging artifact + the shirt entry (now
+      fixed); nothing else.
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
 - [ ] Monster `dead` .des flag -> des.monster dead= binding
