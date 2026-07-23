@@ -296,6 +296,15 @@ ready_weapon(struct obj *wep)
             if (!uarmg)
                 change_luck(-1);
         }
+        if (maybe_polyd(is_orc(gy.youmonst.data), Race_if(PM_ORC))
+            && wep->material == MITHRIL && !(Barkskin || Stoneskin)) {
+            /* orcs are averse to wielding mithril */
+            You("%s wielding mithril.",
+                uarmg ? "have a weird feeling about"
+                      : "feel extremely uncomfortable");
+            if (!uarmg)
+                change_luck(-1);
+        }
         if (wep->unpaid) {
             struct monst *this_shkp;
 

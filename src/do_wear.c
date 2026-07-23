@@ -3060,6 +3060,15 @@ find_ac(void)
     if (uamul && uamul->otyp == AMULET_OF_GUARDING)
         uac -= 2; /* fixed amount; main benefit is to MC */
 
+    if (uarms && uarms->oartifact == ART_ASHMAR) {
+        /* significant fixed amount, especially as
+           a dwarf */
+        if (!Upolyd && Race_if(PM_DWARF))
+            uac -= 7;
+        else
+            uac -= 5;
+    }
+
     if (uarms && uarms->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCLE) {
         /* the Druid quest artifact grants extra AC on top of
            what its base material provides, moreso if the

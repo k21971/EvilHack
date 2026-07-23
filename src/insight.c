@@ -1733,6 +1733,8 @@ attributes_enlightenment(
         }
         enl_msg(You_, "will confuse", "would have confused", buf, "");
     }
+    if (Food_sense)
+        you_can("recognize detrimental food", from_what(FOOD_SENSE));
 
     /*** Appearance and behavior ***/
     if (Adornment) {

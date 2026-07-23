@@ -6001,16 +6001,274 @@ readobjnam(char *bp, struct obj *no_wish)
     if (permapoisoned(d.otmp))
         d.otmp->opoisoned = 1;
 
-    /* more wishing abuse: don't allow wishing for certain artifacts */
-    /* and make them pay; charge them for the wish anyway! */
+    /* more wishing abuse: don't allow wishing for the quest artifact
+     * and make them pay; charge them for the wish anyway!
+     * otherwise an increasing probability that the artifact returns
+     * with its previous owner
+     */
     if ((is_quest_artifact(d.otmp)
-         || (d.otmp->oartifact && rn2(nartifact_exist()) > 1)) && !wizard) {
+         || non_wishable_artifact(d.otmp)
+         || (Role_if(PM_RANGER)
+             && (((Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
+                  && d.otmp->oartifact == ART_LONGBOW_OF_DIANA)
+                 || (!(Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
+                     && d.otmp->oartifact == ART_CROSSBOW_OF_CARL)))
+         || (d.otmp->oartifact && rn2(u.uconduct.wisharti) > 1)) && !wizard) {
         artifact_exists(d.otmp, safe_oname(d.otmp), FALSE, ONAME_NO_FLAGS);
         obfree(d.otmp, (struct obj *) 0);
         d.otmp = &hands_obj;
-        pline("For a moment, you feel %s in your %s, but it disappears!",
-              something, makeplural(body_part(HAND)));
+
+        if (Hallucination)
+            pline("Wish in one hand...");
+        else
+            pline("For a moment, you feel %s in your %s, but it disappears!",
+                  something, makeplural(body_part(HAND)));
         return d.otmp;
+    } else if (d.otmp->oartifact
+               && (rn2(u.uconduct.wisharti)
+                   || any_quest_artifact(d.otmp))
+               && !(wizard && (program_state.wizkit_wishing
+                               || y_n("Deal with previous owner?") == 'n'))) {
+        int pm = -1;
+        int strategy = NEED_HTH_WEAPON;
+        struct monst *mtmp;
+        struct obj *otmp2 = (struct obj *) 0;
+        /* you can use otmp2 to give the owner some other item you want
+           to; used here to give ammunition for the Ranger artifacts */
+        const char *aname = artiname(d.otmp->oartifact);
+
+        /* wishing for a quest artifact may summon its rightful owner */
+        if (any_quest_artifact(d.otmp)) {
+            const struct Role *role = roles;
+
+            /* the Magic Mirror of Merlin is shared by both Knights and
+               Dark Knights; summon the opposing leader based on the
+               wisher's alignment */
+            if (d.otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN) {
+                if (u.ualign.type == A_LAWFUL)
+                    pm = PM_MORGAN_LE_FAY; /* chaotic leader opposes */
+                else if (u.ualign.type == A_CHAOTIC)
+                    pm = PM_KING_ARTHUR;   /* lawful leader opposes */
+                else
+                    pm = rn2(2) ? PM_KING_ARTHUR : PM_MORGAN_LE_FAY;
+            } else {
+                while ((role->name.m)
+                       && (role->questarti != d.otmp->oartifact))
+                    role++;
+                if (role->name.m) {
+                    /* don't bring the Rogue's leader to fight a Tourist
+                       when he is also the Tourist's quest nemesis */
+                    if (!((role->ldrnum == PM_MASTER_OF_THIEVES)
+                          && Role_if(PM_TOURIST))) {
+                        pm = role->ldrnum;
+                    }
+                }
+            }
+        }
+
+        if (pm < 0) {
+            switch (d.otmp->oartifact) {
+            case ART_XIUHCOATL:
+            case ART_SUNSWORD:
+            case ART_GRAYSWANDIR:
+                pm = PM_ARCHEOLOGIST;
+                break;
+            case ART_RING_OF_PHUL:
+            case ART_CLEAVER:
+            case ART_STORMBRINGER:
+            case ART_OGRESMASHER:
+                pm = PM_BARBARIAN;
+                break;
+            case ART_KEOLEWA:
+            case ART_DRAGONBANE:
+            case ART_SCEPTRE_OF_MIGHT:
+                pm = PM_CAVE_DWELLER;
+                break;
+            case ART_LUCK_BLADE:
+            case ART_STRIPED_SHIRT_OF_LIBERATION:
+                pm = PM_CONVICT;
+                break;
+            case ART_BRACERS_OF_THE_FIRST_CIRCLE:
+                pm = PM_DRUID;
+                break;
+            case ART_STAFF_OF_AESCULAPIUS:
+                pm = PM_HEALER;
+                break;
+            case ART_IDOL_OF_MOLOCH:
+            case ART_SECESPITA:
+            case ART_ANGELSLAYER:
+                pm = PM_INFIDEL;
+                break;
+            case ART_MAGIC_MIRROR_OF_MERLIN:
+            case ART_EXCALIBUR:
+            case ART_DIRGE:
+                pm = PM_KNIGHT;
+                break;
+            case ART_EYES_OF_THE_OVERWORLD:
+                pm = PM_MONK;
+                break;
+            case ART_MITRE_OF_HOLINESS:
+            case ART_TROLLSBANE:
+                pm = PM_CLERIC;
+                break;
+            case ART_LONGBOW_OF_DIANA:
+                otmp2 = mksobj(ARROW, TRUE, FALSE);
+                otmp2->quan = (long) rn1(20, 10);
+                otmp2->owt = weight(otmp2);
+                otmp2->blessed = otmp2->cursed = 0;
+                otmp2->spe = rn2(3);
+                strategy = NEED_RANGED_WEAPON;
+                pm = PM_RANGER;
+                break;
+            case ART_CROSSBOW_OF_CARL:
+                otmp2 = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
+                otmp2->quan = (long) rn1(20, 10);
+                otmp2->owt = weight(otmp2);
+                otmp2->blessed = otmp2->cursed = 0;
+                otmp2->spe = rn2(3);
+                strategy = NEED_RANGED_WEAPON;
+                pm = PM_RANGER;
+                break;
+            case ART_ORCRIST:
+                pm = PM_RANGER;
+                break;
+            case ART_MASTER_KEY_OF_THIEVERY:
+            case ART_STING:
+            case ART_GRIMTOOTH:
+                pm = PM_ROGUE;
+                break;
+            case ART_TSURUGI_OF_MURAMASA:
+            case ART_SNICKERSNEE:
+                pm = PM_SAMURAI;
+                break;
+            case ART_YENDORIAN_EXPRESS_CARD:
+            case ART_VORPAL_BLADE:
+                pm = PM_TOURIST;
+                break;
+            case ART_GJALLAR:
+            case ART_GIANTSLAYER:
+            case ART_MJOLLNIR:
+            case ART_DRAMBORLEG:
+                pm = PM_VALKYRIE;
+                break;
+            case ART_EYE_OF_THE_AETHIOPICA:
+            case ART_MAGICBANE:
+                pm = PM_WIZARD;
+                break;
+            case ART_FROST_BRAND:
+                if (u.ualign.type == A_NEUTRAL)
+                    pm = PM_TOURIST;
+                else
+                    pm = PM_KNIGHT;
+                break;
+            case ART_FIRE_BRAND:
+                if (u.ualign.type == A_CHAOTIC)
+                    pm = PM_BARBARIAN;
+                else
+                    pm = PM_ARCHEOLOGIST;
+                break;
+            case ART_DEMONBANE:
+                if (u.ualign.type == A_NEUTRAL)
+                    pm = PM_HEALER;
+                else
+                    pm = PM_CLERIC;
+                break;
+            case ART_WEREBANE:
+                if (u.ualign.type == A_CHAOTIC)
+                    pm = PM_BARBARIAN;
+                else
+                    pm = PM_DRUID;
+                break;
+            /* non-wishable artifacts (wizmode only) */
+            case ART_MAGIC_8_BALL:
+            case ART_LIFESTEALER:
+            case ART_BAG_OF_THE_HESPERIDES:
+            case ART_BUTCHER:
+            case ART_WAND_OF_ORCUS:
+            case ART_EYE_OF_VECNA:
+            case ART_HAND_OF_VECNA:
+            case ART_SWORD_OF_KAS:
+            case ART_ONE_RING:
+            case ART_SWORD_OF_ANNIHILATION:
+            case ART_GLAMDRING:
+            case ART_STAFF_OF_THE_ARCHMAGI:
+            case ART_SHADOWBLADE:
+            case ART_GAUNTLETS_OF_PURITY:
+            case ART_ASHMAR:
+            case ART_HAMMER_OF_THE_GODS:
+            case ART_TEMPEST:
+            case ART_ITHILMAR:
+            case ART_ARMOR_OF_RETRIBUTION:
+            case ART_DICHOTOMY:
+            case ART_HARBINGER:
+                pm = PM_SAMURAI;
+                break;
+            default:
+                impossible("Unknown artifact!");
+                break;
+            }
+        }
+
+        mtmp = (pm >= 0) ? mk_mplayer(&mons[pm], u.ux, u.uy, TRUE)
+                         : (struct monst *) 0;
+        if (mtmp && !is_mplayer(mtmp->data))
+            free_mgivenname(mtmp);
+        if (mtmp) {
+            if (Blind) {
+                if (Hallucination)
+                    pline("Smells like teen spirit...");
+                else
+                    You("%ssmell smoke.",
+                        Deaf ? "" : "hear a small explosion and ");
+            } else {
+                if (Hallucination)
+                    pline("Nice colors, but %s.",
+                          Deaf ? "funky smell"
+                               : "the sound could have been more mellow");
+                else
+                    pline("There is a puff of smoke and a figure appears!");
+            }
+            if (!Deaf) {
+                pline("%s says:", Blind ? "Someone" : Monnam(mtmp));
+                verbalize("Did you think that I would %s %s %s?",
+                          rn2(2) ? "relinquish"
+                                 : (rn2(2) ? "hand over" : "give you"),
+                          aname, rn2(2) ? "so easily" : "without a fight");
+            }
+            /* re-apply erosion properties before giving the artifact to
+               its owner; the normal erosion pass ran before oname(),
+               which may have changed the artifact's material */
+            if (erosion_matters(d.otmp)) {
+                d.otmp->oeroded = d.otmp->oeroded2 = 0;
+                if (d.eroded && (is_flammable(d.otmp)
+                                 || is_rustprone(d.otmp)
+                                 || is_crackable(d.otmp)))
+                    d.otmp->oeroded = d.eroded;
+                if (d.eroded2
+                    && (is_corrodeable(d.otmp) || is_rottable(d.otmp)))
+                    d.otmp->oeroded2 = d.eroded2;
+                if (d.erodeproof
+                    && (is_damageable(d.otmp) || d.otmp->otyp == CRYSKNIFE))
+                    d.otmp->oerodeproof = (Luck >= 0 || wizard);
+            }
+            (void) mpickobj(mtmp, d.otmp);
+            if (otmp2)
+                (void) mpickobj(mtmp, otmp2);
+            d.otmp = &hands_obj;
+            if (is_mplayer(mtmp->data))
+                mtmp->m_lev = rn1(8, 23);
+            else
+                mtmp->m_lev = rn1(3, 20);
+            mtmp->mpeaceful = mtmp->msleeping = 0;
+            /* hostile summoned owner engages immediately; don't
+               inherit the quest-leader waiting/meditating seed */
+            mtmp->mstrategy &= ~(STRAT_WAITMASK | STRAT_APPEARMSG);
+            newsym(mtmp->mx, mtmp->my);
+            m_dowear(mtmp, TRUE);
+            mtmp->weapon_check = strategy;
+            mon_wield_item(mtmp);
+            return d.otmp;
+        }
     }
 
     /* set quality */

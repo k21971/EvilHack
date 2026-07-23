@@ -3356,15 +3356,132 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       non-undead as a bonus); genesis 'peaceful chameleon'
       spawns pre-disguised (farlook name lies - anchor gdb
       polls on mon->cham).
-- [ ] SWEEP (new, minted by races R1): vanilla-race parity for
-      elf/dwarf/gnome/orc hero deltas vs master (elf Searching@9,
-      orc mithril aversion, others via targeted Race_if(PM_ELF/
-      DWARF/GNOME/ORC) fork-vs-branch diff) - these races predate
-      EvilHack so their master deltas hide outside the R1 grep.
-      PLUS hobbit R1 spillover (races-R2 review finding): master
-      racial_hobbit satiation thresholds 6000/4500 in bite()/
-      lesshungry() + 3000 newuhs ladder + Food_sense doeat
-      edibility hook are not on the branch.
+- [x] SWEEP (new, minted by races R1): vanilla-race parity for
+      elf/dwarf/gnome/orc hero deltas vs master + hobbit R1
+      spillover. PORTED + REVIEWED + COORDINATOR-FIXED + BATTERY
+      PASSED + RE-VERIFIED 2026-07-23 (COMMIT PENDING). CENSUS:
+      three parallel
+      Explore agents over anchors Race_if x5 races (124 fork
+      sites) / is_X(youmonst.data) (22) / racial_X(&youmonst)
+      (11) / Race_switch bodies / urace fields / ability tables /
+      race-keyed macros; classifications LIVE 94 / VANILLA-NATIVE
+      / MISSING / DEFER per census reports; hidden-anchor sweep
+      found ONE non-Race_if gap (pray.c apply_racial_substitution
+      god-gift consumer, deferred). PORT (11 src files +416/-30,
+      port subagent 8 files + coordinator fixes): attrib.c
+      elf_abil Searching@9 row + adjabil explicit HUMAN/DWARF/
+      GNOME arms (FROMRACE infravision, master comment); wield.c
+      setuwep orc mithril aversion; do_wear.c find_ac ART_ASHMAR
+      dwarf -7/else -5; dothrow.c 4 Ranger-artifact multishot
+      disjuncts (elf/drow x2/orc); eat.c hobbit satiation
+      (bite 6000, lesshungry 6000/4500 + "Amazingly, y" keeping
+      5.0 !Hunger guard, newuhs 3000 + elevenses HUNGRY arm,
+      fprefx FOOD_RATION 3700) + dwarf LEMBAS cram + gnome EGG
+      anathema (fprefx + edibility_prompts) + EYEBALL fprefx/
+      fpostfx (aasimar celestial-soul death + burn, svk.killer
+      idiom) + eatspecial ART_HAND_OF_VECNA burn + doeat
+      (u.uedibility || Food_sense) gate with master inner split
+      + edibility stoneorslime Eye disjunct + doeat worn Hand
+      "part of you" refusal; detect.c food_detect 5 Food_sense
+      sites; insight.c permanent Food_sense you_can; hack.c
+      maybe_wail powers[] + timeout.c propertynames[] FOOD_SENSE;
+      objnam.c readobjnam wish-abuse gate (non_wishable_artifact
+      + Ranger racial clause + rn2(u.uconduct.wisharti) +
+      Hallucination split) + FULL previous-owner summon arm ~250
+      lines (roles[] walk, Magic Mirror align split, Tourist/
+      Master-of-Thieves carve-out, 64-case owner switch NAMS-
+      adapted PM_CAVE_DWELLER/PM_CLERIC + enum renames, Ranger
+      ammo otmp2, mk_mplayer summon, smoke/taunt matrix, post-
+      oname erosion re-apply, mpickobj handoff, weapon_check
+      strategy, &hands_obj consumed-wish return); mplayer.c
+      mk_mplayer is_mplayer refusal REMOVED (master relaxed it so
+      quest leaders summon; NONNULLARG1 contract makes a NULL
+      guard dead+warning; rank_of falls back to gu.urole = safe,
+      arm strips leader names via free_mgivenname; sp_lev caller
+      self-gated both trees). REVIEWER CONDITIONAL PASS 2B/4C/3N:
+      B1 (leader summons dead vs branch is_mplayer guard) FIXED;
+      B2 REFUTED (its "68 live artifacts" counted #if-0 entries;
+      real census = 64 live, ALL case-covered, default:
+      unreachable) but pm>=0 summon guard added as exhaustive-
+      switch-class hardening; C3 eatspecial Hand burn ported;
+      C4 = NEW MASTER BUG-1356 (food_detect tautological
+      !A||!B tingle guards, De Morgan family; composed form on
+      branch); C5/C6 FOOD_SENSE list entries ported; N7 erosion
+      comment corrected (branch pass runs pre-oname); N8
+      adjudicated (eat.c long-string out-dent precedent); N9
+      otmp2 leak master-parity noted. MASTER BUGS: BUG-1355
+      hobbit-Ranger Longbow wish (gate tested gnome only;
+      race_roles[0] questarti = Crossbow applies to both; branch
+      gate tests gnome||hobbit both ways), BUG-1356 (archive
+      entries written, master frozen-unfixed). DEFERS confirmed
+      to existing owners: elf/orc_can_regen -> hero regen
+      overhaul; hack.c ma_break elf/drow prob -> ma_break;
+      pray.c god-gift cluster (apply_racial_substitution +
+      crowning racial gear rejects + gift material rerolls) ->
+      god-gift subsystem; uhitm pickpocket size -> steal_it;
+      steed.c racial mount gates (~19) -> steed/barding; elf
+      tree-guilt (hack.c burn, zap.c death-ray + dig-ray) + dig.c
+      DEADTREE effort -> dead-trees terrain distinction (dig-ray
+      site also sewage-entangled). NEW GAP ROWS from this pass:
+      (a) mplayer racial NAMING unported - branch get_mplname is
+      vanilla Adam/Eve; master namelists[]/rank_of_mplayer/
+      endgame tt-name draw missing (init_mplayer_erac itself IS
+      live, makemon-called) - ERAC residual, needs owner;
+      (b) pager.c ASHMAR artifact-info lines have no owner (other
+      ASHMAR residuals route to the existing worn-acurr force-arm
+      and knockback-machinery rows). Battery list = reviewer test
+      recs: owner summon via switch path (Excalibur) + roles-walk
+      path (Mitre; was blocker-1 dead) + erosion transfer, hobbit
+      threshold ladder + elevenses, gnome egg anathema + prompt +
+      pyrolisk precedence, aasimar Eye death + life-save, polyd
+      Hand eatspecial burn, detect tingle suppression x2 casts,
+      Food_sense doeat prompt, multishot artifact disjunct, orc
+      mithril wield, ASHMAR AC by gdb, save/reload spot.
+      BATTERY RUN 2026-07-23 (evilhack-game-tester, 8 games):
+      15 PASS / 2 FAIL / 1 PARTIAL -> both catches fixed same day,
+      re-verification pass clean. CATCH 1 (A3/A4): quest-leader
+      summons fired impossible("bad mplayer monster") - the guard
+      relaxation exposed vanilla-5.0's mk_mplayer GEAR SWITCH
+      default (master has no gear switch at all - its mplayer gear
+      moved to the makemon kit system); FIX = early return after
+      christening for !is_mplayer(ptr) so leaders keep their
+      makemon gear (also avoids random mplayer kit on leaders).
+      CATCH 2 (B1): hobbit 4500 "Amazingly" fullwarn never fired -
+      hob_abil grants PERMANENT racial HHunger and the 5.0-native
+      !Hunger warn suppression masked exactly the race the arm
+      targets; FIX = (racial_hobbit || !Hunger) so ring-of-hunger
+      suppression survives for everyone else (master has no such
+      guard; hobbit side = master parity). Battery PASS evidence
+      highlights: Excalibur owner summon end-to-end (hostile
+      knight mplayer, blessed+3 preserved, W_WEP, taunt, no
+      freebie), erosion transfer oeroded=1/oeroded2=1, wisharti
+      denial 'n' path + increment proof, choke 6000 live (5900
+      ration -> choke, survived 1/20 vomit arm), SATIATED flips
+      at 3000 exactly (gdb 2862 vs 3099), elevenses + supper
+      flavor, ^X/#wizintrinsic/prompt Food_sense consumers,
+      BUG-1356 fix proven (starts -> continues wording), gnome
+      anathema + prompt + pyrolisk precedence, aasimar Eye death
+      life-saved + orc burn 196 control, worn-Hand refusal +
+      cube-form eatspecial burn, orc mithril luck -1 bare vs
+      gloved no-change, elf Searching gain@9/loss@8 both
+      messages, dwarf Ashmar botl delta 7 vs orc 5, Longbow
+      volleys 2/3/4 vs plain-bow cap 2, dwarf poly infravision
+      retained, save/reload clean. A4 arrows expectation was a
+      BRIEF ERROR not a defect (Longbow is roles[]-claimed in
+      both trees; ammo switch case is dead on master too).
+      OBSERVATIONS (no action this slice): wish-delivery
+      cross-align artifact blast = by-design (session-18 ruling);
+      "leather gloves" wish -> riding gloves + "material leather
+      not valid; using iron" note = possible naming-slice
+      follow-up, not race-related; mksobj egg corpsenm random =
+      vanilla. RE-VERIFICATION 2026-07-23 (2 games) 4/4 PASS:
+      Mitre summon clean (Arch Priest, Mitre WORN on head, no
+      impossible, makemon caster gear - Arch Priest msound=36 is
+      not MS_PRIEST so a random caster kit is its natural gear,
+      the brief's mace/armor line was illustrative only), Orion
+      + Longbow clean, hobbit "Amazingly" warn fires with innate
+      HHunger proven set, ring-of-hunger control still suppressed
+      for non-hobbits. Paniclog byte-identical to baseline.
 - [ ] Partial-intrinsics/percentage-resistance system (NEW,
       minted by races R2 - needs an owner): master's
       how_resistant()/incr_resistance()/resist_reduce() partial

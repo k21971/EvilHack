@@ -93,6 +93,7 @@ static const struct innate {
 
   elf_abil[] = { { 1, &HInfravision, "", "" },
                  { 4, &HSleep_resistance, "awake", "tired" },
+                 { 9, &HSearching, "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
   gno_abil[] = { { 1, &HInfravision, "", "" },
@@ -1194,8 +1195,16 @@ adjabil(int oldlevel, int newlevel)
         rabil = amr_abil;
         break;
     case PM_HUMAN:
+        rabil = hum_abil;
+        break;
+    /* explicitly write these out or else infravision will be FROMFORM
+       (though ^x will show it as innate) */
     case PM_DWARF:
+        rabil = dwa_abil;
+        break;
     case PM_GNOME:
+        rabil = gno_abil;
+        break;
     default:
         rabil = 0;
         break;

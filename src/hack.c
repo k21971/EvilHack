@@ -4286,7 +4286,8 @@ maybe_wail(void)
 {
     static short powers[] = { TELEPORT, SEE_INVIS, POISON_RES, COLD_RES,
                               SHOCK_RES, FIRE_RES, SLEEP_RES, DISINT_RES,
-                              TELEPORT_CONTROL, STEALTH, FAST, INVIS };
+                              TELEPORT_CONTROL, STEALTH, FAST, INVIS,
+                              FOOD_SENSE };
 
     if (svm.moves <= gw.wailmsg + 50)
         return;

@@ -114,7 +114,6 @@ mk_mplayer_armor(struct monst *mon, short typ)
     (void) mpickobj(mon, obj);
 }
 
-
 void
 init_mplayer_erac(struct monst *mtmp, boolean noname)
 {
@@ -293,9 +292,6 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
     struct monst *mtmp;
     char nam[PL_NSIZ];
 
-    if (!is_mplayer(ptr))
-        return ((struct monst *) 0);
-
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), RLOC_ERR|RLOC_NOMSG); /* insurance */
 
@@ -320,6 +316,11 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         mtmp = christen_monst(mtmp, nam);
         mtmp->mpeaceful = 0;
         set_malign(mtmp); /* peaceful may have changed again */
+
+        /* non-mplayer summons (quest leaders wished back by their own
+           artifact) keep the gear makemon gave them */
+        if (!is_mplayer(ptr))
+            return mtmp;
 
         /* default equipment; much of it will be overridden below */
         weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);

@@ -522,7 +522,7 @@ food_detect(struct obj *sobj)
             docrt();
             You("sense a lack of %s nearby.", what);
             if (sobj && sobj->blessed) {
-                if (!u.uedibility)
+                if (!(u.uedibility || Food_sense))
                     Your("%s starts to tingle.", body_part(NOSE));
                 u.uedibility = 1;
             }
@@ -530,10 +530,10 @@ food_detect(struct obj *sobj)
             char buf[BUFSZ];
 
             Sprintf(buf, "Your %s twitches%s.", body_part(NOSE),
-                    (sobj->blessed && !u.uedibility)
+                    (sobj->blessed && (!(u.uedibility || Food_sense)))
                         ? " then starts to tingle"
                         : "");
-            if (sobj->blessed && !u.uedibility) {
+            if (sobj->blessed && (!(u.uedibility || Food_sense))) {
                 boolean savebeginner = flags.beginner;
 
                 flags.beginner = FALSE; /* prevent non-delivery of message */
@@ -548,7 +548,7 @@ food_detect(struct obj *sobj)
         gk.known = TRUE;
         You("%s %s nearby.", sobj ? "smell" : "sense", what);
         if (sobj && sobj->blessed) {
-            if (!u.uedibility)
+            if (!(u.uedibility || Food_sense))
                 Your("%s starts to tingle.", body_part(NOSE));
             u.uedibility = 1;
         }
@@ -585,7 +585,8 @@ food_detect(struct obj *sobj)
         if (sobj) {
             if (sobj->blessed) {
                 Your("%s %s to tingle and you smell %s.", body_part(NOSE),
-                     u.uedibility ? "continues" : "starts", what);
+                     (u.uedibility || Food_sense) ? "continues" : "starts",
+                     what);
                 u.uedibility = 1;
             } else
                 Your("%s tingles and you smell %s.", body_part(NOSE), what);

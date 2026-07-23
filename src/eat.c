@@ -2437,6 +2437,17 @@ fprefx(struct obj *otmp)
                 useupf(otmp, 1L);
             explode(u.ux, u.uy, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0, EXPL_FIERY);
             return FALSE;
+        } else if (otmp->corpsenm == NON_PM
+                   && maybe_polyd(is_gnome(gy.youmonst.data),
+                                  Race_if(PM_GNOME))) {
+            /* eggs are severely harmful to gnomes, so it's going to hurt
+               a lot - and even if you survive, your stomach rejects it */
+            pline("Ewww!  Eggs are anathema to gnomes!");
+            make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
+            /* small chance of cancellation (Tik Tok of Oz) */
+            if (!rn2(10))
+                (void) cancel_monst(&gy.youmonst, otmp, FALSE, FALSE, TRUE);
+            losehp(d(4, 10), "eating an egg", KILLED_BY);
         } else if (stale_egg(otmp)) {
             pline("Ugh.  Rotten egg."); /* perhaps others like it */
             /* increasing existing nausea means that it will take longer
@@ -2459,8 +2470,10 @@ fprefx(struct obj *otmp)
 
         /* 700-1+800 remains below 1500, the choking threshold which
            triggers "you're having a hard time getting it down" feedback */
-        else if (u.uhunger < 700)
+        else if (!racial_hobbit(&gy.youmonst) && u.uhunger < 700)
             pline("This satiates your %s!", body_part(STOMACH));
+        else if (racial_hobbit(&gy.youmonst) && u.uhunger < 3700)
+            pline("Surprisingly, this satiates your %s!", body_part(STOMACH));
         /* [satiation message may be inaccurate if eating gets interrupted] */
         break;
     case TRIPE_RATION:
@@ -2491,6 +2504,10 @@ fprefx(struct obj *otmp)
                                   Race_if(PM_DROW))) {
             pline("A little goes a long way.");
             break;
+        } else if (maybe_polyd(is_dwarf(gy.youmonst.data),
+                               Race_if(PM_DWARF))) {
+            pline("Hrm... cram.");
+            break;
         } else if (maybe_polyd(is_hobbit(gy.youmonst.data),
                                Race_if(PM_HOBBIT))) {
             pline(
@@ -2502,6 +2519,13 @@ fprefx(struct obj *otmp)
     case MEAT_STICK:
     case HUGE_CHUNK_OF_MEAT:
     case MEAT_RING:
+        goto give_feedback;
+    case EYEBALL:
+        /* the Eye of Vecna is an unholy relic, never a pleasant meal */
+        if (otmp->oartifact == ART_EYE_OF_VECNA) {
+            pline("This %s is utterly revolting!", singular(otmp, xname));
+            break;
+        }
         goto give_feedback;
     case CLOVE_OF_GARLIC:
         if (is_undead(gy.youmonst.data)) {
@@ -2812,6 +2836,24 @@ eatspecial(void)
         exercise(A_CON, TRUE);
     }
 
+    if (otmp->oartifact == ART_HAND_OF_VECNA) {
+        int dmg = otmp->cursed ? rn1(150, 250) : rn1(50, 150);
+
+        You("feel a burning deep inside your %s!", body_part(STOMACH));
+        if (Upolyd) {
+            u.mh -= dmg, disp.botl = TRUE;
+            if (u.mh <= 0)
+                rehumanize();
+        } else {
+            u.uhp -= dmg, disp.botl = TRUE;
+            if (u.uhp <= 0) {
+                svk.killer.format = KILLED_BY;
+                Strcpy(svk.killer.name, "eating the Hand of Vecna");
+                done(DIED);
+            }
+        }
+    }
+
     if (otmp == uwep && otmp->quan == 1L)
         uwepgone();
     if (otmp == uquiver && otmp->quan == 1L)
@@ -2869,6 +2911,37 @@ fpostfx(struct obj *otmp)
             if (!u.uconduct.literate++)
                 livelog_printf(LL_CONDUCT,
                     "became literate by reading the fortune inside a cookie");
+        break;
+    case EYEBALL:
+        if (!otmp->oartifact)
+            break;
+        /* an aasimar's celestial nature cannot abide consuming Vecna's
+           unholy relic; it is instantly fatal */
+        if (racial_aasimar(&gy.youmonst)) {
+            pline("%s consumes your celestial soul!", The(xname(otmp)));
+            svk.killer.format = KILLED_BY;
+            Strcpy(svk.killer.name, "eating the Eye of Vecna");
+            done(DIED);
+            break; /* only reached if life-saved */
+        }
+
+        {
+            int dmg = otmp->cursed ? rn1(150, 250) : rn1(50, 150);
+
+            You("feel a burning deep inside your %s!", body_part(STOMACH));
+            if (Upolyd) {
+                u.mh -= dmg, disp.botl = TRUE;
+                if (u.mh <= 0)
+                    rehumanize();
+            } else {
+                u.uhp -= dmg, disp.botl = TRUE;
+                if (u.uhp <= 0) {
+                    svk.killer.format = KILLED_BY;
+                    Strcpy(svk.killer.name, "eating the Eye of Vecna");
+                    done(DIED);
+                }
+            }
+        }
         break;
     case LUMP_OF_ROYAL_JELLY:
         if (gy.youmonst.data == &mons[PM_KILLER_BEE] && !Unchanging
@@ -3018,7 +3091,7 @@ edibility_prompts(struct obj *otmp)
         /* Tainted meat */
         Snprintf(buf, sizeof buf, "%s like %s could be tainted!",
                  foodsmell, it_or_they);
-    } else if (stoneorslime) {
+    } else if (stoneorslime || otmp->oartifact == ART_EYE_OF_VECNA) {
         Snprintf(buf, sizeof buf,
                  "%s like %s could be something very dangerous!",
                  foodsmell, it_or_they);
@@ -3031,6 +3104,12 @@ edibility_prompts(struct obj *otmp)
            it can't match after the rotten (cadaver && rotted > 3) test;
            tainted meat is a draugr's preferred meal, no warning */
         Snprintf(buf, sizeof buf, "%s like %s could be tainted.",
+                 foodsmell, it_or_they);
+    } else if (otmp->otyp == EGG && otmp->corpsenm == NON_PM
+               && maybe_polyd(is_gnome(gy.youmonst.data),
+                              Race_if(PM_GNOME))) {
+        Snprintf(buf, sizeof buf,
+                 "%s like %s could be very harmful for gnomes!",
                  foodsmell, it_or_they);
     } else if ((otmp->orotten || (cadaver && rotted > 3L))
                && !(!Upolyd && Race_if(PM_DRAUGR))) {
@@ -3188,14 +3267,17 @@ doeat(void)
     if (check_capacity((char *) 0))
         return ECMD_OK;
 
-    if (u.uedibility) {
+    if (u.uedibility || Food_sense) {
         int res = edibility_prompts(otmp);
 
-        if (res) {
+        if (res && u.uedibility) {
             Your(
                "%s stops tingling and your sense of smell returns to normal.",
                  body_part(NOSE));
             u.uedibility = 0;
+            if (res == 1)
+                return ECMD_OK;
+        } else {
             if (res == 1)
                 return ECMD_OK;
         }
@@ -3230,7 +3312,10 @@ doeat(void)
     } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
                != 0) {
         /* let them eat rings */
-        You_cant("eat %s you're wearing.", something);
+        if (otmp->oartifact == ART_HAND_OF_VECNA)
+            You_cant("eat %s that's a part of you!", something);
+        else
+            You_cant("eat %s you're wearing.", something);
         return ECMD_OK;
     } else if (!(carried(otmp)
                  /* direct=TRUE: eating means mouth contact, so gloves
@@ -3539,7 +3624,8 @@ bite(void)
     /* hack to pacify static analyzer incorporated into gcc 12.2 */
     sa_victual(&svc.context.victual);
 
-    if (svc.context.victual.canchoke && u.uhunger >= 2000) {
+    if (svc.context.victual.canchoke
+        && u.uhunger >= (racial_hobbit(&gy.youmonst) ? 6000 : 2000)) {
         choke(svc.context.victual.piece);
         return 1;
     }
@@ -3712,7 +3798,7 @@ lesshungry(int num)
 
     debugpline1("lesshungry(%d)", num);
     u.uhunger += num;
-    if (u.uhunger >= 2000) {
+    if (u.uhunger >= (racial_hobbit(&gy.youmonst) ? 6000 : 2000)) {
         if (!iseating || svc.context.victual.canchoke) {
             if (iseating) {
                 choke(svc.context.victual.piece);
@@ -3726,11 +3812,14 @@ lesshungry(int num)
         /* Have lesshungry() report when you're nearly full so all eating
          * warns when you're about to choke.
          */
-        if (u.uhunger >= 1500 && !Hunger
+        if (u.uhunger >= (racial_hobbit(&gy.youmonst) ? 4500 : 1500)
+            /* hobbits innately have Hunger; it must not mask their warning */
+            && (racial_hobbit(&gy.youmonst) || !Hunger)
             && (!svc.context.victual.eating
                 || (svc.context.victual.eating
                     && !svc.context.victual.fullwarn))) {
-            pline("You're having a hard time getting all of it down.");
+            pline("%sou're having a hard time getting all of it down.",
+                  racial_hobbit(&gy.youmonst) ? "Amazingly, y" : "Y");
             gn.nomovemsg = "You're finally finished.";
             if (!svc.context.victual.eating) {
                 gm.multi = -2;
@@ -3792,7 +3881,7 @@ newuhs(boolean incr)
        experience some serious adverse effects if they do
        not feed in a timely manner */
     if (!racial_vampire(&gy.youmonst))
-        newhs = (h > 1000)
+        newhs = (h > (racial_hobbit(&gy.youmonst) ? 3000 : 1000))
                     ? SATIATED
                     : (h > 150) ? NOT_HUNGRY
                         : (h > 50) ? HUNGRY
@@ -4038,6 +4127,13 @@ newuhs(boolean incr)
                 else
                     You(!incr ? "now have a lesser case of the munchies."
                         : "are getting the munchies.");
+            } else if (racial_hobbit(&gy.youmonst)) {
+                You(!incr ? "could use some supper."
+                    : (u.uhunger < 145)
+                      ? "feel it's time for afternoon tea."
+                      : rn2(2)
+                        ? "need to stop for second breakfast."
+                : "hear your stomach rumble.  It's time for elevenses.");
             } else if (racial_vampire(&gy.youmonst)) {
                 You("%s.", !incr ? "only feel thirsty now"
                            : (u.uhunger < 145) ? "feel thirsty for blood"
