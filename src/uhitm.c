@@ -125,6 +125,12 @@ erode_armor(struct monst *mdef, int hurt)
 {
     struct obj *target;
 
+    /* wielding Harbinger protects worn armor */
+    if ((mdef == &gy.youmonst)
+            ? wielding_artifact(ART_HARBINGER)
+            : mon_wielding_artifact(mdef, ART_HARBINGER))
+        return;
+
     /* What the following code does: it keeps looping until it
      * finds a target for the rust monster.
      * Head, feet, etc... not covered by metal, or covered by
@@ -314,8 +320,10 @@ attack_checks(
 
     if (flags.confirm && mtmp->mpeaceful
         && !Confusion && !Hallucination && !Stunned) {
-        /* Intelligent chaotic weapons (Stormbringer) want blood */
-        if (is_art(wep, ART_STORMBRINGER)) {
+        /* Intelligent chaotic weapons (Stormbringer, The Sword of Kas)
+           want blood */
+        if (wep && (wielding_artifact(ART_STORMBRINGER)
+                    || wielding_artifact(ART_SWORD_OF_KAS))) {
             go.override_confirmation = TRUE;
             return FALSE;
         }
@@ -518,9 +526,11 @@ do_attack(struct monst *mtmp)
      * 07/92) then we assume that you're not trying to attack. Instead,
      * you'll usually just swap places if this is a movement command
      */
-    /* Intelligent chaotic weapons (Stormbringer) want blood */
+    /* Intelligent chaotic weapons (Stormbringer, The Sword of Kas)
+       want blood */
     if (is_safemon(mtmp) && !svc.context.forcefight) {
-        if (!u_wield_art(ART_STORMBRINGER)) {
+        if (!(wielding_artifact(ART_STORMBRINGER)
+              || wielding_artifact(ART_SWORD_OF_KAS))) {
             /* There are some additional considerations: this won't work
              * if in a shop or Punished or you miss a random roll or
              * if you can walk thru walls and your pet cannot (KAA) or
@@ -826,7 +836,7 @@ hitum(struct monst *mon, struct attack *uattk)
     /* Cleaver attacks three spots, 'mon' and one on either side of 'mon';
        it can't be part of dual-wielding but we guard against that anyway;
        cleave return value reflects status of primary target ('mon') */
-    if (u_wield_art(ART_CLEAVER) && !u.twoweap
+    if (is_art(uwep, ART_CLEAVER) && !u.twoweap
         && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum))
         return hitum_cleave(mon, uattk);
 
@@ -1724,8 +1734,16 @@ hmon_hitmon_jousting(
 
     if (hmd->jousting < 0) {
         /* (must be either primary or secondary weapon to get here) */
-        set_twoweap(FALSE); /* sets u.twoweap = FALSE;
-                             * untwoweapon() is too verbose here */
+        if (u.twoweap) {
+            struct obj *tmp = uswapwep;
+
+            /* untwoweapon() is too verbose here; mirror its teardown
+               so the off-hand W_SWAPWEP extrinsics are revoked instead
+               of staying seated with two-weapon combat off */
+            set_twoweap(FALSE); /* u.twoweap = FALSE */
+            setuswapwep((struct obj *) 0);
+            setuswapwep(tmp);
+        }
         if (obj == uwep)
             uwepgone(); /* set gu.unweapon */
         pline("%s shatters on impact!", Yname2(obj));
@@ -1735,7 +1753,11 @@ hmon_hitmon_jousting(
         /* obj is gone; don't let the searing message use it */
         hmd->hated_obj = (struct obj *) 0;
     }
-    if (mhurtle_to_doom(mon, hmd->dmg, &hmd->mdat))
+    /* a wielded Harbinger or Giantslayer anchors the defender against
+       the knockback */
+    if (!(mon_wielding_artifact(mon, ART_HARBINGER)
+          || mon_wielding_artifact(mon, ART_GIANTSLAYER))
+        && mhurtle_to_doom(mon, hmd->dmg, &hmd->mdat))
         hmd->already_killed = TRUE;
     hmd->hittxt = TRUE;
 }
@@ -1753,7 +1775,11 @@ hmon_hitmon_stagger(
         if (canspotmon(mon))
             pline("%s %s from your powerful strike!", Monnam(mon),
                   makeplural(stagger(mon->data, "stagger")));
-        if (mhurtle_to_doom(mon, hmd->dmg, &hmd->mdat))
+        /* a wielded Harbinger or Giantslayer anchors the defender
+           against the knockback */
+        if (!(mon_wielding_artifact(mon, ART_HARBINGER)
+              || mon_wielding_artifact(mon, ART_GIANTSLAYER))
+            && mhurtle_to_doom(mon, hmd->dmg, &hmd->mdat))
             hmd->already_killed = TRUE;
         hmd->hittxt = TRUE;
     }
@@ -4733,7 +4759,8 @@ mhitm_ad_stun(
 
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN))
+        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN)
+            || mon_wielding_artifact(mdef, ART_TEMPEST))
             return; /* immune to stun; plain dice damage still applies */
         if (!Blind)
             pline("%s %s for a moment.", Monnam(mdef),
@@ -4753,7 +4780,8 @@ mhitm_ad_stun(
         /* mhitm */
         if (magr->mcan)
             return;
-        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN))
+        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN)
+            || mon_wielding_artifact(mdef, ART_TEMPEST))
             return; /* immune to stun; plain dice damage still applies */
         if (canseemon(mdef))
             pline_mon(mdef, "%s %s for a moment.", Monnam(mdef),
@@ -5687,7 +5715,6 @@ boolean
 m_is_steadfast(struct monst *mtmp)
 {
     boolean is_u = (mtmp == &gy.youmonst);
-    struct obj *otmp = is_u ? uwep : MON_WEP(mtmp);
 
     /* must be on the ground (or in water) */
     if ((is_u ? (Flying || Levitation)
@@ -5696,7 +5723,12 @@ m_is_steadfast(struct monst *mtmp)
         || (Is_waterlevel(&u.uz) && !is_pool(u.ux, u.uy))) /* air bubble */
         return FALSE;
 
-    if (is_art(otmp, ART_GIANTSLAYER))
+    /* Giantslayer and Harbinger both anchor their wielder,
+       in either hand */
+    if (is_u ? (wielding_artifact(ART_GIANTSLAYER)
+                || wielding_artifact(ART_HARBINGER))
+             : (mon_wielding_artifact(mtmp, ART_GIANTSLAYER)
+                || mon_wielding_artifact(mtmp, ART_HARBINGER)))
         return TRUE;
 
     /* steadfast if carrying any loadstone (and not floating or flying);

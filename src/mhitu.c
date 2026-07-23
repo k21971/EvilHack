@@ -2876,7 +2876,8 @@ passiveum(
                 (void) split_mon(&gy.youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
-            if (mon_resists_stun(mtmp) || defended(mtmp, AD_STUN))
+            if (mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)
+                || mon_wielding_artifact(mtmp, ART_TEMPEST))
                 break; /* immune to stun; passive damage still applies */
             if (!mtmp->mstun) {
                 mtmp->mstun = 1;

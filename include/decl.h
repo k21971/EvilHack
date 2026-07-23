@@ -1051,7 +1051,6 @@ struct instance_globals_v {
 struct instance_globals_w {
 
     /* decl.c */
-    int warn_obj_cnt; /* count of monsters meeting criteria */
     long wailmsg;
 
     /* do_wear.c */

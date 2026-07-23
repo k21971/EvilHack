@@ -248,7 +248,7 @@ resists_magm(struct monst *mon)
         return TRUE;
     /* check for magic resistance granted by worn or carried items */
     o = is_you ? gi.invent : mon->minvent;
-    slotmask = W_ARMOR | W_ACCESSORY;
+    slotmask = W_ARMOR | W_ACCESSORY | W_BARDING;
     if (!is_you /* assumes monsters don't wield non-weapons */
         || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
         slotmask |= W_WEP;
@@ -258,7 +258,8 @@ resists_magm(struct monst *mon)
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
-             && obj_has_prop(o, ANTIMAGIC))
+             && (obj_has_prop(o, ANTIMAGIC)
+                 || defends(AD_MAGM, o)))
             || (o->oartifact && defends_when_carried(AD_MAGM, o)))
             return TRUE;
     return FALSE;
@@ -420,6 +421,70 @@ can_blnd(
     }
 
     return TRUE;
+}
+
+/* True if the monster takes increased damage from the given element,
+   either from an inherent species vulnerability or from a temporary
+   one, and has no resistance overriding it */
+boolean
+vulnerable_to(struct monst *mon, int element)
+{
+    boolean fire_vuln = (((mon->data->mflags4 & M4_VULNERABLE_FIRE) != 0
+                          || mon->vuln_fire)
+                         && !resists_fire(mon));
+    boolean cold_vuln = (((mon->data->mflags4 & M4_VULNERABLE_COLD) != 0
+                          || mon->vuln_cold)
+                         && !resists_cold(mon));
+    boolean elec_vuln = (((mon->data->mflags4 & M4_VULNERABLE_ELEC) != 0
+                          || mon->vuln_elec)
+                         && !resists_elec(mon));
+    boolean acid_vuln = (((mon->data->mflags4 & M4_VULNERABLE_ACID) != 0
+                          || mon->vuln_acid)
+                         && !resists_acid(mon));
+
+    if (defended(mon, element))
+        return FALSE;
+
+    switch (element) {
+    case AD_FIRE:
+        return fire_vuln;
+    case AD_COLD:
+        return cold_vuln;
+    case AD_ELEC:
+        return elec_vuln;
+    case AD_ACID:
+        return acid_vuln;
+    case AD_FUSE:
+        return (fire_vuln || cold_vuln);
+    default:
+        break;
+    }
+    return FALSE;
+}
+
+/* monster race or type name mapping from the MH_ values in monflag.h,
+   used for glow warnings */
+const char *
+mon_race_name(unsigned mhflag)
+{
+    static const char *const mrnames[] = {
+        "human", "elf", "dwarf", "gnome",
+        "orc", "giant", "hobbit", "centaur",
+        "illithid", "tortle", "drow", "zombie",
+        "vampire", "aasimar", "demonic being",
+        "undead",
+        "lycanthrope",
+        "dragon",
+        "angelic being",
+        "ogre",
+        "troll",
+        "gnoll",
+        "spider",
+        "jabberwock",
+        "wraith"
+    };
+
+    return (mhflag < SIZE(mrnames)) ? mrnames[mhflag] : "creature";
 }
 
 /* returns True if monster can attack at range */
@@ -705,7 +770,7 @@ can_be_strangled(struct monst *mon)
 boolean
 can_track(struct permonst *ptr)
 {
-    if (u_wield_art(ART_EXCALIBUR))
+    if (wielding_artifact(ART_EXCALIBUR))
         return TRUE;
     return (boolean) haseyes(ptr);
 }

@@ -1850,11 +1850,11 @@ doname_base(
             /* we just added a parenthesized phrase, but the right paren
                might be absent if the appended string got truncated */
             if (!Blind && bpspaceleft && bp_eos[-1] == ')') {
-                if (gw.warn_obj_cnt && obj == uwep
-                    && (EWarn_of_mon & W_WEP) != 0L)
+                if (obj->lastwarncnt
+                    && strcmp(glow_color(obj->oartifact), "no color"))
                     /* we know bp[] ends with ')'; overwrite that */
                     ConcatF2(bp, 1, ", %s %s)",
-                             glow_verb(gw.warn_obj_cnt, TRUE),
+                             glow_verb((int) obj->lastwarncnt, TRUE),
                              glow_color(obj->oartifact));
                 else if (obj->lamplit && artifact_light(obj)) {
                     /* as above, overwrite known closing paren */

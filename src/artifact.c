@@ -51,6 +51,7 @@ staticfn int invoke_command_undead(struct obj *) NONNULLARG1;
 staticfn int arti_invoke_cost_pw(struct obj *) NONNULLARG1;
 staticfn boolean arti_invoke_cost(struct obj *) NONNULLARG1;
 staticfn int arti_invoke(struct obj *);
+staticfn boolean friendly_in_blast(coordxy, coordxy, struct monst *);
 staticfn boolean Mb_hit(struct monst * magr, struct monst *mdef,
                       struct obj *, int *, int, boolean, char *);
 staticfn unsigned long abil_to_spfx(long *) NONNULLARG1;
@@ -827,6 +828,19 @@ spec_ability(struct obj *otmp, unsigned long abil)
                       && ((arti->spfx | arti->cspfx) & abil) != 0L);
 }
 
+/* used to check if an artifact can glow in warning to monsters of some
+   races; if it can, return the bitmap of warned races, otherwise 0 */
+int
+has_glow_warning(struct obj *obj)
+{
+    const struct artifact *arti = get_artifact(obj);
+
+    if (arti != &artilist[ART_NONARTIFACT]
+        && (arti->spfx & SPFX_WARN) && (arti->spfx & SPFX_DFLAGH))
+        return arti->mtype;
+    return 0;
+}
+
 /* used so that callers don't need to known about SPFX_ codes */
 boolean
 confers_luck(struct obj *obj)
@@ -1236,20 +1250,29 @@ set_artifact_intrinsic(
     }
     if (spfx & SPFX_WARN) {
         if (spec_mh(otmp)) {
-            if (on) {
-                EWarn_of_mon |= wp_mask;
-                svc.context.warntype.obj |= spec_mh(otmp);
-            } else {
-                EWarn_of_mon &= ~wp_mask;
-                svc.context.warntype.obj &= ~spec_mh(otmp);
+            /* since multiple artifacts can potentially warn of the
+               same monster type we need to recalculate everything
+               on any use or unuse */
+            EWarn_of_mon = 0L;
+            svc.context.warntype.obj = 0L;
+            for (obj = gi.invent; obj; obj = obj->nobj) {
+                if (obj == otmp && !on) {
+                    glow_warning_effects(otmp);
+                    obj->lastwarncnt = 0;
+                } else if (((obj->owornmask & ~W_SWAPWEP)
+                            || (obj->owornmask && u.twoweap))
+                           && has_glow_warning(obj)) {
+                    EWarn_of_mon |= obj->owornmask;
+                    svc.context.warntype.obj |= spec_mh(obj);
+                }
             }
-            see_monsters();
         } else {
             if (on)
                 EWarning |= wp_mask;
             else
                 EWarning &= ~wp_mask;
         }
+        see_monsters();
     }
     if (spfx & SPFX_EREGEN) {
         if (on)
@@ -1495,7 +1518,8 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
 
         switch (weap->attk.adtyp) {
         case AD_FIRE:
-            return !(yours ? Fire_resistance : resists_fire(mtmp));
+            return !(yours ? (Fire_resistance || Underwater)
+                           : (resists_fire(mtmp) || mon_underwater(mtmp)));
         case AD_COLD:
             return !(yours ? Cold_resistance : resists_cold(mtmp));
         case AD_ELEC:
@@ -1507,10 +1531,26 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
             return !(yours ? Poison_resistance : resists_poison(mtmp));
         case AD_DRLI:
             return !(yours ? Drain_resistance : resists_drli(mtmp));
+        case AD_DREN:
+            return !nonliving(ptr);
         case AD_STON:
             return !(yours ? Stone_resistance : resists_ston(mtmp));
+        case AD_ACID:
+            return !(yours ? (Acid_resistance || Underwater)
+                           : (resists_acid(mtmp) || mon_underwater(mtmp)));
         case AD_DISE:
             return !(yours ? Sick_resistance : resists_sick(mtmp));
+        case AD_DETH:
+            return !(yours ? Death_resistance : immune_death_magic(ptr));
+        case AD_DISN:
+            return !(yours ? Disint_resistance : resists_disint(mtmp));
+        case AD_FUSE:
+            return !(yours ? ((Fire_resistance || Underwater)
+                              && Cold_resistance)
+                           : ((resists_fire(mtmp) || mon_underwater(mtmp)
+                               || defended(mtmp, AD_FIRE))
+                              && (resists_cold(mtmp)
+                                  || defended(mtmp, AD_COLD))));
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1551,6 +1591,7 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
 {
     const struct artifact *weap = get_artifact(otmp);
     boolean yours = (mon == &gy.youmonst);
+    int dbon, adtype = 0;
 
     if (weap == &artilist[ART_NONARTIFACT] && otmp->oprops
         && (otmp->oclass == WEAPON_CLASS
@@ -1558,22 +1599,27 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
             || (uarms && otmp == uarms)
             || (uarmg && otmp == uarmg))) {
         gs.spec_dbon_applies = FALSE;
-        if ((attacks(AD_FIRE, otmp)
+        if ((attacks(adtype = AD_FIRE, otmp)
              && (yours ? !(Fire_resistance || Underwater)
-                       : !(resists_fire(mon) || defended(mon, AD_FIRE))))
-            || (attacks(AD_COLD, otmp)
+                       : !(resists_fire(mon) || defended(mon, AD_FIRE)
+                           || mon_underwater(mon))))
+            || (attacks(adtype = AD_COLD, otmp)
                 && (yours ? !Cold_resistance
                           : !(resists_cold(mon)
                               || defended(mon, AD_COLD))))
-            || (attacks(AD_ELEC, otmp)
+            || (attacks(adtype = AD_ELEC, otmp)
                 && (yours ? !Shock_resistance
                           : !(resists_elec(mon)
                               || defended(mon, AD_ELEC))))
-            || (attacks(AD_DRST, otmp)
+            || (attacks(adtype = AD_DRST, otmp)
                 && (yours ? !Poison_resistance
                           : !(resists_poison(mon)
                               || defended(mon, AD_DRST))))
-            || (attacks(AD_DISE, otmp)
+            || (attacks(adtype = AD_ACID, otmp)
+                && (yours ? !(Acid_resistance || Underwater)
+                          : !(resists_acid(mon) || defended(mon, AD_ACID)
+                              || mon_underwater(mon))))
+            || (attacks(adtype = AD_DISE, otmp)
                 && (yours ? !Sick_resistance
                           : !(resists_sick(mon)
                               || defended(mon, AD_DISE))))) {
@@ -1582,7 +1628,10 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
                the poisoned-hit code */
             if (otmp->oprops & ITEM_VENOM)
                 return rnd(2);
-            return rnd(5) + 3;
+            dbon = rnd(5) + 3;
+            if (vulnerable_to(mon, adtype))
+                dbon = ((3 * dbon) + 1) / 2;
+            return dbon;
         }
         if ((otmp->oprops & ITEM_DRLI)
             && (yours ? !Drain_resistance
@@ -1597,18 +1646,49 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
         || (weap->attk.adtyp == AD_PHYS /* check for `NO_ATTK' */
                   && weap->attk.damn == 0 && weap->attk.damd == 0))
         gs.spec_dbon_applies = FALSE;
-    else if (is_art(otmp, ART_GRIMTOOTH))
-        /* Grimtooth has SPFX settings to warn against elves but we want its
-           damage bonus to apply to all targets that can sicken, so bypass
-           spec_applies() */
-        gs.spec_dbon_applies = !(yours ? Sick_resistance
-                                       : (resists_sick(mon)
-                                          || defended(mon, AD_DISE)));
+    else if ((is_art(otmp, ART_GRIMTOOTH)
+              && !(yours ? Sick_resistance
+                         : (resists_sick(mon) || defended(mon, AD_DISE))))
+             || is_art(otmp, ART_VORPAL_BLADE)
+             || (is_art(otmp, ART_ANGELSLAYER)
+                 && !(yours ? is_demon(raceptr(&gy.youmonst))
+                            : is_demon(mon->data)))
+             || (is_art(otmp, ART_HARBINGER)
+                 && !(yours ? Acid_resistance
+                            : (resists_acid(mon) || defended(mon, AD_ACID))))
+             || is_art(otmp, ART_DRAMBORLEG))
+        /* Grimtooth, Vorpal Blade, Angelslayer, Harbinger, and
+           Dramborleg have SPFX settings to warn against elves,
+           jabberwocks, angels, giants, and demons respectively,
+           but we want their damage bonuses to apply to more targets,
+           so bypass spec_applies() */
+        gs.spec_dbon_applies = TRUE;
     else
         gs.spec_dbon_applies = spec_applies(weap, mon);
 
-    if (gs.spec_dbon_applies)
-        return weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
+    if (gs.spec_dbon_applies) {
+        dbon = weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
+        /* we want to possibly increase dbon, not the whole attack's
+           damage, since only dbon is elemental */
+        if (vulnerable_to(mon, weap->attk.adtyp))
+            dbon = ((3 * dbon) + 1) / 2;
+        /* damage bonus doubles if Dichotomy hits a target that resists
+           neither fire nor cold */
+        if (is_art(otmp, ART_DICHOTOMY)
+            && (yours ? (!(Fire_resistance || Underwater)
+                         && !Cold_resistance)
+                      : (!(resists_fire(mon) || defended(mon, AD_FIRE)
+                           || mon_underwater(mon))
+                         && !(resists_cold(mon)
+                              || defended(mon, AD_COLD)))))
+            dbon = (2 * dbon) + 1;
+        /* hellfire is mitigated by fire resistance */
+        if (is_art(otmp, ART_ANGELSLAYER)
+            && (yours ? Fire_resistance
+                      : (resists_fire(mon) || defended(mon, AD_FIRE))))
+            dbon = (dbon + 1) / 2;
+        return dbon;
+    }
     return 0;
 }
 
@@ -1662,6 +1742,15 @@ score_artifact_weapon(
         applies = !(yours ? Sick_resistance
                           : (resists_sick(mdef)
                              || defended(mdef, AD_DISE)));
+    else if (is_art(otmp, ART_VORPAL_BLADE) || is_art(otmp, ART_DRAMBORLEG))
+        applies = TRUE;
+    else if (is_art(otmp, ART_ANGELSLAYER))
+        applies = !(yours ? is_demon(raceptr(&gy.youmonst))
+                          : is_demon(mdef->data));
+    else if (is_art(otmp, ART_HARBINGER))
+        applies = !(yours ? Acid_resistance
+                          : (resists_acid(mdef)
+                             || defended(mdef, AD_ACID)));
     else
         applies = (spec_applies(weap, mdef) != 0);
 
@@ -1672,17 +1761,42 @@ score_artifact_weapon(
         dbon = weap->attk.damd
                    ? (weap->attk.damd + 1) / 2
                    : (base_dmg > 0 ? base_dmg : 1);
-        /* TODO-EVILHACK: scale dbon for targets vulnerable to
-           weap->attk.adtyp when the monster vulnerability
-           subsystem lands */
+        if (vulnerable_to(mdef, weap->attk.adtyp))
+            dbon = ((3 * dbon) + 1) / 2;
+        /* Dichotomy doubles vs targets that resist neither fire
+           nor cold */
+        if (is_art(otmp, ART_DICHOTOMY)
+            && (yours ? (!(Fire_resistance || Underwater)
+                         && !Cold_resistance)
+                      : (!(resists_fire(mdef) || defended(mdef, AD_FIRE)
+                           || mon_underwater(mdef))
+                         && !(resists_cold(mdef)
+                              || defended(mdef, AD_COLD)))))
+            dbon = (2 * dbon) + 1;
+        /* Angelslayer's hellfire is halved by fire resistance */
+        if (is_art(otmp, ART_ANGELSLAYER)
+            && (yours ? Fire_resistance
+                      : (resists_fire(mdef) || defended(mdef, AD_FIRE))))
+            dbon = (dbon + 1) / 2;
         score += dbon;
 
-        /* Magicbane's extra effects aren't part of spec_dbon() but
+        /* per-artifact extras that aren't part of spec_dbon() but
            fire whenever spec_dbon() would apply; Mb_hit adds probe
            (always +1d4), plus 50% stun (+1d4) and rare scare/cancel
-           (+1d4 each) - roughly +4 expected per swing */
-        if (otmp->oartifact == ART_MAGICBANE)
+           (+1d4 each), and Tempest has a 1/6 chance of a d(6,6) AOE
+           lightning surge - each roughly +4 expected per swing */
+        switch (otmp->oartifact) {
+        case ART_MAGICBANE:
+        case ART_BUTCHER:
+        case ART_STAFF_OF_THE_ARCHMAGI:
             score += 4;
+            break;
+        case ART_TEMPEST:
+            score += 4; /* (1/6) * d(6,6) avg ~3.5 */
+            break;
+        default:
+            break;
+        }
     }
 
     /* save-or-die expected value, scaled by target HP */
@@ -1697,6 +1811,28 @@ score_artifact_weapon(
         break;
     case ART_TSURUGI_OF_MURAMASA:
         score += hp / 20;
+        break;
+    case ART_WAND_OF_ORCUS:
+        if (!immune_death_magic(mdef->data))
+            score += (hp * 3) / 20;
+        break;
+    case ART_GIANTSLAYER:
+    case ART_HARBINGER:
+        if (is_giant(mdef->data))
+            score += hp / 10;
+        break;
+    case ART_ANGELSLAYER:
+        if (is_angel(mdef->data) || is_aasimar(mdef->data))
+            score += hp / 10;
+        break;
+    case ART_SWORD_OF_ANNIHILATION:
+        /* artifact_hit() instakills with 1/12 probability against
+           non-resistant non-uniques and 1/100 against uniques */
+        if (!(yours ? Disint_resistance
+                    : (resists_disint(mdef)
+                       || defended(mdef, AD_DISN))))
+            score += hp / ((!yours && (mdef->data->geno & G_UNIQ))
+                               ? 100 : 12);
         break;
     default:
         break;
@@ -2051,6 +2187,35 @@ Mb_hit(struct monst *magr, /* attacker */
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
+/* TRUE if a peaceful or tame monster (other than 'skip') - or a tame
+   steed the hero is sitting on - stands within the 3x3 area explode()
+   would affect when centered on <x,y>. The Tempest / Harbinger /
+   Dichotomy surge routines use this to rein in the bonus blast around
+   friendlies when the hero attacks with a blessed artifact and is at
+   least skilled in its base weapon, so a lucky proc on a hostile target
+   can't anger, untame, or kill an innocent bystander */
+staticfn boolean
+friendly_in_blast(coordxy x, coordxy y, struct monst *skip)
+{
+    coordxy dx, dy;
+    struct monst *mtmp;
+
+    for (dx = x - 1; dx < x + 2; ++dx) {
+        for (dy = y - 1; dy < y + 2; ++dy) {
+            if (!isok(dx, dy))
+                continue;
+            mtmp = m_at(dx, dy);
+            if (!mtmp && u_at(dx, dy))
+                mtmp = u.usteed; /* mirror explode()'s steed pick */
+            if (!mtmp || mtmp == skip || DEADMONSTER(mtmp))
+                continue;
+            if (mtmp->mpeaceful || mtmp->mtame)
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 /* Function used when someone attacks someone else with an artifact
  * weapon.  Only adds the special (artifact) damage, and returns a 1 if it
  * did something special (in which case the caller won't print the normal
@@ -2072,10 +2237,18 @@ artifact_hit(
     boolean vis = (!youattack && magr && cansee(magr->mx, magr->my))
                   || (!youdefend && cansee(mdef->mx, mdef->my))
                   || (youattack && engulfing_u(mdef) && !Blind);
-    boolean realizes_damage;
+    /* used to determine if an instakill message should be shown;
+       currently consistent with behavior of other instakill weapons,
+       but not realizes_damage */
+    boolean show_instakill = (youattack || youdefend || vis);
+    boolean realizes_damage; /* player can see or feel the hit;
+                              * gates messages only */
+    boolean def_underwater;
     const char *wepdesc;
+    const struct artifact *atmp;
     static const char you[] = "you";
     char hittee[BUFSZ];
+    int hurtle_distance;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 
@@ -2090,64 +2263,190 @@ artifact_hit(
         return FALSE;
     }
 
+    /* Ogresmasher has a damage bonus against ogres, but it can also
+     * hurtle light-weight monsters, so the spec_dbon_applies check
+     * is insufficient for its effects. Hurtle distance is used as an
+     * additional check for its knockback behavior for MZ_MEDIUM and
+     * smaller targets. Knockback rate is set here as well in rn2(rate).
+     * Knockback will not trigger if Ogresmasher is cursed.
+     */
+    hurtle_distance = 0;
+
+    if (is_art(otmp, ART_OGRESMASHER) && !otmp->cursed
+        && mdef->data->msize < MZ_LARGE && !rn2(5))
+        hurtle_distance = MZ_LARGE - mdef->data->msize;
+
+    /* incorporeal monsters are immune to various types of damage */
+    if (noncorporeal(mdef->data)
+        && !(shade_glare(otmp) || gs.spec_dbon_applies))
+        return FALSE;
+
     realizes_damage = (youdefend || vis
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
 
-    /* the four basic attacks: fire, cold, shock and missiles */
+    def_underwater = youdefend ? Underwater : mon_underwater(mdef);
+
+    /* the basic attacks: fire, cold, shock, missiles, and so on */
     if (attacks(AD_FIRE, otmp)) {
+        boolean angel, aasimar;
+
         if (realizes_damage) {
-            if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
-                 || is_bullet(otmp) || otmp == uarms || otmp == uarmg)
-                && (otmp->oprops & ITEM_FIRE))
+            if (is_art(otmp, ART_FIRE_BRAND)) {
+                pline_The("fiery blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_vaporize(mdef->data)
+                                  ? "vaporizes part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_FIRE)
+                                          ? "severely burns" : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if (is_art(otmp, ART_XIUHCOATL)) {
+                pline_The("flaming spear %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_vaporize(mdef->data)
+                                  ? "vaporizes part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_FIRE)
+                                          ? "severely burns" : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if (is_art(otmp, ART_ANGELSLAYER)) {
+                pline_The("infernal trident %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_vaporize(mdef->data)
+                                  ? "vaporizes part of"
+                                  : vulnerable_to(mdef, AD_FIRE)
+                                      ? "severely burns" : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                        || is_bullet(otmp) || otmp == uarms
+                        || otmp == uarmg)
+                       && (otmp->oprops & ITEM_FIRE)) {
                 pline_The("%s %s %s%c",
                           otmp->oclass == WEAPON_CLASS
                               ? distant_name(otmp, xname)
                               : simpleonames(otmp),
                           !gs.spec_dbon_applies
                               ? "hits"
-                              : (mdef->data == &mons[PM_WATER_ELEMENTAL])
-                                    ? "vaporizes part of"
-                                    : "burns",
+                              : can_vaporize(mdef->data)
+                                  ? "vaporizes part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_FIRE)
+                                          ? "severely burns" : "burns",
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
-            else
-                pline_The("fiery blade %s %s%c",
-                          !gs.spec_dbon_applies
-                              ? "hits"
-                              : (mdef->data == &mons[PM_WATER_ELEMENTAL])
-                                    ? "vaporizes part of"
-                                    : "burns",
-                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            }
         }
         if ((otmp->oprops & ITEM_FIRE) && gs.spec_dbon_applies) {
             otmp->oprops_known |= ITEM_FIRE;
             update_inventory();
         }
-        if (!rn2(4)) {
-            int itemdmg = destroy_items(mdef, AD_FIRE, *dmgptr);
-            if (!youdefend)
-                *dmgptr += itemdmg; /* item destruction dmg */
-            ignite_items(mdef->minvent);
+        if (!def_underwater || is_art(otmp, ART_ANGELSLAYER)) {
+            if (!rn2(4)) {
+                int itemdmg = destroy_items(mdef, AD_FIRE, *dmgptr);
+
+                if (!youdefend)
+                    *dmgptr += itemdmg; /* item destruction dmg */
+                ignite_items(mdef->minvent);
+            }
+            if (youdefend && Slimed)
+                burn_away_slime();
+            /* NB: if youdefend, then mdef == &gy.youmonst */
+            if (completelyburns(mdef->data)
+                || mdef->data == &mons[PM_WOOD_GOLEM]
+                || mdef->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mdef->data) && !rn2(10))
+                || (mdef->data == &mons[PM_ENT] && !rn2(10))
+                || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
+                if (youdefend) {
+                    You("ignite and turn to ash!");
+                    losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
+                           NO_KILLER_PREFIX);
+                } else {
+                    /* guard against mdef being killed twice should
+                       it die before we reach this point */
+                    if (!DEADMONSTER(mdef)) {
+                        if (show_instakill)
+                            pline("%s ignites and turns to ash!",
+                                  Monnam(mdef));
+                        if (youattack) {
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        } else {
+                            if (magr && magr->mtame)
+                                set_pet_killer(magr);
+                            monkilled(mdef, (char *) 0, AD_FIRE);
+                        }
+                    }
+                }
+                return TRUE;
+            }
         }
-        if (youdefend && Slimed)
-            burn_away_slime();
+
+        angel = youdefend ? is_angel(gy.youmonst.data)
+                          : is_angel(mdef->data);
+        aasimar = youdefend ? maybe_polyd(is_aasimar(gy.youmonst.data),
+                                          Race_if(PM_AASIMAR))
+                            : racial_aasimar(mdef);
+
+        if (is_art(otmp, ART_ANGELSLAYER) && !rn2(10)
+            && (angel || aasimar)) {
+            if (youdefend) {
+                pline("Angelslayer's eldritch flame consumes %s!", hittee);
+                losehp((Upolyd ? u.mh : u.uhp) + 1,
+                       "incinerated by Angelslayer", NO_KILLER_PREFIX);
+            } else {
+                /* guard against mdef being killed twice should
+                   it die before we reach this point */
+                if (!DEADMONSTER(mdef)) {
+                    if (show_instakill)
+                        pline_The(
+                            "infernal trident's eldritch flame consumes %s!",
+                                  hittee);
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    } else {
+                        if (magr && magr->mtame)
+                            set_pet_killer(magr);
+                        monkilled(mdef, (char *) 0, AD_FIRE);
+                    }
+                }
+            }
+            return TRUE;
+        }
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp)) {
         if (realizes_damage) {
-            if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
-                 || is_bullet(otmp) || otmp == uarms || otmp == uarmg)
-                && (otmp->oprops & ITEM_FROST))
+            if (is_art(otmp, ART_FROST_BRAND)) {
+                pline_The("ice-cold blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_freeze(mdef->data)
+                                  ? "freezes part of"
+                                  : vulnerable_to(mdef, AD_COLD)
+                                      ? "severely freezes" : "freezes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                        || is_bullet(otmp) || otmp == uarms
+                        || otmp == uarmg)
+                       && (otmp->oprops & ITEM_FROST)) {
                 pline_The("%s %s %s%c",
                           otmp->oclass == WEAPON_CLASS
                               ? distant_name(otmp, xname)
                               : simpleonames(otmp),
-                          !gs.spec_dbon_applies ? "hits" : "freezes",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_freeze(mdef->data)
+                                  ? "freezes part of"
+                                  : vulnerable_to(mdef, AD_COLD)
+                                      ? "severely freezes" : "freezes",
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
-            else
-                pline_The("ice-cold blade %s %s%c",
-                          !gs.spec_dbon_applies ? "hits" : "freezes", hittee,
-                          !gs.spec_dbon_applies ? '.' : '!');
+            }
         }
         if ((otmp->oprops & ITEM_FROST) && gs.spec_dbon_applies) {
             otmp->oprops_known |= ITEM_FROST;
@@ -2155,6 +2454,7 @@ artifact_hit(
         }
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_COLD, *dmgptr);
+
             if (!youdefend)
                 *dmgptr += itemdmg; /* item destruction dmg */
         }
@@ -2162,21 +2462,33 @@ artifact_hit(
     }
     if (attacks(AD_ELEC, otmp)) {
         if (realizes_damage) {
-            if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
-                 || is_bullet(otmp) || otmp == uarms || otmp == uarmg)
-                && (otmp->oprops & ITEM_SHOCK))
+            if (is_art(otmp, ART_MJOLLNIR)) {
+                pline_The("massive hammer hits%s %s%c",
+                          !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if (is_art(otmp, ART_KEOLEWA)) {
+                pline_The("war club hits%s %s%c",
+                          !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if (is_art(otmp, ART_TEMPEST)) {
+                pline_The("tumultuous polearm hits%s %s%c",
+                          !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                        || is_bullet(otmp) || otmp == uarms
+                        || otmp == uarmg)
+                       && (otmp->oprops & ITEM_SHOCK)) {
                 pline_The("%s %s %s%c",
                           otmp->oclass == WEAPON_CLASS
                               ? distant_name(otmp, xname)
                               : simpleonames(otmp),
                           !gs.spec_dbon_applies
                               ? "hits"
-                              : rn2(2) ? "jolts" : "shocks",
+                              : vulnerable_to(mdef, AD_ELEC)
+                                  ? "severely shocks"
+                                  : rn2(2) ? "jolts" : "shocks",
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
-            else
-                pline_The("massive hammer hits%s %s%c",
-                          !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
-                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            }
         }
         if ((otmp->oprops & ITEM_SHOCK) && gs.spec_dbon_applies) {
             otmp->oprops_known |= ITEM_SHOCK;
@@ -2185,9 +2497,46 @@ artifact_hit(
         /* only Mjollnir's thunderclap wakes the neighborhood; other
            shock artifacts and object-property weapons stay quiet */
         if (gs.spec_dbon_applies && is_art(otmp, ART_MJOLLNIR))
-            wake_nearto(mdef->mx, mdef->my, 4 * 4);
+            wake_nearto(youdefend ? u.ux : mdef->mx,
+                        youdefend ? u.uy : mdef->my, 4 * 4);
+
+        /* Tempest has a chance of a power surge on a successful hit,
+           dealing extra electrical damage (area of effect); a blessed
+           one in the hero's hands, wielded with at least skilled
+           proficiency in its base weapon, reins the surge in rather
+           than catch a peaceful or tame creature next to the target --
+           an uncursed, cursed, or clumsily wielded one, or any
+           monster's, blasts regardless of who is standing in range */
+        if (!rn2(6)
+            && gs.spec_dbon_applies && is_art(otmp, ART_TEMPEST)
+            && (youdefend || !DEADMONSTER(mdef))) {
+            if (youattack && otmp->blessed
+                && P_SKILL(weapon_type(otmp)) >= P_SKILLED
+                && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
+                pline("A surge of energy builds in the %s, then ebbs.",
+                      simpleonames(otmp));
+                /* fall through to the normal AD_ELEC follow-up */
+            } else {
+                struct monst *save_exploder = ge.exploder;
+
+                pline("A massive surge of energy courses through the %s!",
+                      simpleonames(otmp));
+                ge.exploder = magr;
+                /* no separate shock explosion type exists, so the
+                   magical one stands in for it */
+                explode(youdefend ? u.ux : mdef->mx,
+                        youdefend ? u.uy : mdef->my,
+                        (youattack ? BZ_U_BREATH(ZT_LIGHTNING)
+                                   : BZ_M_BREATH(ZT_LIGHTNING)), d(6, 6),
+                        0, EXPL_MAGICAL);
+                ge.exploder = save_exploder;
+                return TRUE;
+            }
+        }
+
         if (!rn2(5)) {
             int itemdmg = destroy_items(mdef, AD_ELEC, *dmgptr);
+
             if (!youdefend)
                 *dmgptr += itemdmg; /* item destruction dmg */
         }
@@ -2222,7 +2571,6 @@ artifact_hit(
     }
     /* disease */
     if (attacks(AD_DISE, otmp)) {
-        boolean show_instakill = (youattack || youdefend || vis);
         boolean elf = youdefend ? maybe_polyd(is_elf(gy.youmonst.data),
                                               Race_if(PM_ELF))
                                 : racial_elf(mdef);
@@ -2255,7 +2603,7 @@ artifact_hit(
         }
 
         if (!rn2(10) && (elf || drow)) {
-            if (!DEADMONSTER(mdef) && show_instakill)
+            if ((youdefend || !DEADMONSTER(mdef)) && show_instakill)
                 pline_The(
                      "cruel blade penetrates %s soft flesh, disemboweling %s!",
                           youdefend ? "your" : s_suffix(mon_nam(mdef)),
@@ -2288,6 +2636,8 @@ artifact_hit(
                     pline_mon(mdef, "%s looks %s.", Monnam(mdef),
                               mdef->mdiseased ? "even worse" : "diseased");
                 mdef->mdiseased = 1;
+                /* only a hero-swung weapon credits the hero when the
+                   disease kills; a monster-wielded Grimtooth must not */
                 mdef->mdiseabyu = youattack ? TRUE : FALSE;
             }
         }
@@ -2302,18 +2652,884 @@ artifact_hit(
                       hittee, !gs.spec_dbon_applies ? '.' : '!');
         return realizes_damage;
     }
+    /* death magic */
+    if (attacks(AD_DETH, otmp)) {
+        int permdmg = 0;
+
+        if (realizes_damage) {
+            /* currently the only object that uses this
+               is the Wand of Orcus artifact */
+            pline_The("ornate mace %s %s%c",
+                      (immune_death_magic(mdef->data)
+                       || defended(mdef, AD_DETH))
+                          ? "hits"
+                          : rn2(2) ? "bashes" : "bludgeons",
+                      hittee, !gs.spec_dbon_applies ? '.' : '!');
+        }
+        if (youdefend && !Death_resistance) {
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+                if (!Antimagic) {
+                    pline_The("%s consumes your soul!",
+                              distant_name(otmp, xname));
+                    svk.killer.format = KILLED_BY;
+                    Strcpy(svk.killer.name, "the Wand of Orcus");
+                    done(DIED);
+                    return TRUE;
+                }
+                FALLTHROUGH;
+                /*FALLTHRU*/
+            default: /* case 16: ... case 0: */
+                You_feel("your life force draining away...");
+                permdmg = 1; /* actual damage done below */
+                break;
+            }
+            if (permdmg) {
+                int lowerlimit, *hpmax_p;
+                /*
+                 * Apply some of the damage to permanent hit points:
+                 *  polymorphed         100% against poly'd hpmax
+                 *  hpmax > 25*lvl  50..100% against normal hpmax
+                 *  hpmax > 10*lvl  25..75%
+                 *  hpmax >  5*lvl  20..60%
+                 *  otherwise        0..50%
+                 * Never reduces hpmax below 1 hit point per level.
+                 */
+                permdmg = rn2(*dmgptr / 2 + 1);
+                if (Upolyd || u.uhpmax > 25 * u.ulevel)
+                    permdmg = *dmgptr / 2;
+                else if (u.uhpmax > 10 * u.ulevel)
+                    permdmg += *dmgptr / 4;
+                else if (u.uhpmax > 5 * u.ulevel)
+                    permdmg += *dmgptr / 5;
+
+                /* cap maximum permdmg to 15 hit points per hit */
+                if (permdmg > 15)
+                    permdmg = 15;
+
+                if (Upolyd) {
+                    hpmax_p = &u.mhmax;
+                    /* [can't use gy.youmonst.m_lev] */
+                    lowerlimit = min((int) gy.youmonst.data->mlevel,
+                                     u.ulevel);
+                    if (lowerlimit <= 0)
+                        lowerlimit = 1;
+                } else {
+                    hpmax_p = &u.uhpmax;
+                    lowerlimit = u.ulevel;
+                }
+                if (*hpmax_p - permdmg > lowerlimit)
+                    *hpmax_p -= permdmg;
+                else if (*hpmax_p > lowerlimit)
+                    *hpmax_p = lowerlimit;
+                /* else unlikely...
+                 * already at or below minimum threshold; do nothing */
+
+                if (!Upolyd) {
+                    if (u.uhp > *hpmax_p)
+                        u.uhp = *hpmax_p;
+                } else {
+                    if (u.mh > *hpmax_p)
+                        u.mh = *hpmax_p;
+                }
+                disp.botl = TRUE;
+            }
+        } else if (!youdefend && !immune_death_magic(mdef->data)) {
+            switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+                if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
+                    && !resist(mdef, 0, 0, 0)) {
+                    pline_The("%s consumes %s life force!",
+                              distant_name(otmp, xname),
+                              s_suffix(mon_nam(mdef)));
+                    mdef->mhp = 0;
+                    if (!youattack && magr && magr->mtame)
+                        set_pet_killer(magr);
+                    monkilled(mdef, (char *) 0, AD_DETH);
+                    if (!DEADMONSTER(mdef))
+                        return FALSE;
+                    return TRUE;
+                }
+                break;
+            default: /* case 16 through case 0 */
+                if (vis)
+                    pline("%s looks weaker!", Monnam(mdef));
+                /* mhp will then still be less than this value */
+                mdef->mhpmax -= (rn2(*dmgptr / 2 + 1) + (*dmgptr / 4));
+                if (mdef->mhpmax <= 0) /* protect against invalid value */
+                    mdef->mhpmax = 1;
+                break;
+            }
+        }
+        return realizes_damage;
+    }
+    /* acid */
+    if (attacks(AD_ACID, otmp)) {
+        boolean giant;
+
+        if (realizes_damage) {
+            if (is_art(otmp, ART_DIRGE)) {
+                pline_The("acidic blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_corrode(mdef->data)
+                                  ? "eats away part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_ACID)
+                                          ? "severely burns" : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if (is_art(otmp, ART_HARBINGER)) {
+                pline_The("acidic %s %s %s%c",
+                          simpleonames(otmp),
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_corrode(mdef->data)
+                                  ? "eats away part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_ACID)
+                                          ? "severely burns" : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            }
+        }
+
+        /* Harbinger has a chance of an explosive surge on a successful
+           hit, dealing extra acidic damage (area of effect); a blessed
+           one in the hero's hands, wielded with at least skilled
+           proficiency in its base weapon, reins the surge in rather
+           than catch a peaceful or tame creature next to the target --
+           an uncursed, cursed, or clumsily wielded one, or any
+           monster's, blasts regardless of who is standing in range */
+        if (!rn2(6)
+            && gs.spec_dbon_applies && is_art(otmp, ART_HARBINGER)
+            && (youdefend || !DEADMONSTER(mdef))) {
+            if (youattack && otmp->blessed
+                && P_SKILL(weapon_type(otmp)) >= P_SKILLED
+                && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
+                pline("A surge of acid wells up in the %s, then ebbs.",
+                      simpleonames(otmp));
+                /* fall through to the normal AD_ACID follow-up */
+            } else {
+                struct monst *save_exploder = ge.exploder;
+
+                pline("A surge of acid flows through the %s!",
+                      simpleonames(otmp));
+                ge.exploder = magr;
+                /* no separate acid explosion type exists, so the
+                   noxious one stands in for it */
+                explode(youdefend ? u.ux : mdef->mx,
+                        youdefend ? u.uy : mdef->my,
+                        (youattack ? BZ_U_BREATH(ZT_ACID)
+                                   : BZ_M_BREATH(ZT_ACID)), d(6, 6),
+                        0, EXPL_NOXIOUS);
+                ge.exploder = save_exploder;
+                return TRUE;
+            }
+        }
+
+        if (!def_underwater) {
+            if (!rn2(5))
+                erode_armor(mdef, ERODE_CORRODE);
+        }
+
+        /* Harbinger inherits Giantslayer's chance to instakill
+           giants with a single blow */
+        giant = youdefend ? maybe_polyd(is_giant(gy.youmonst.data),
+                                        Race_if(PM_GIANT))
+                          : racial_giant(mdef);
+
+        if (!rn2(10) && giant && is_art(otmp, ART_HARBINGER)) {
+            if (youdefend || !DEADMONSTER(mdef)) {
+                if (show_instakill)
+                    pline(
+     "A massive surge of acid engulfs %s body, completely dissolving %s!",
+                          youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                          youdefend ? "you" : noit_mhim(mdef));
+            }
+            if (youdefend) {
+                losehp((Upolyd ? u.mh : u.uhp) + 1, "dissolved by Harbinger",
+                       NO_KILLER_PREFIX);
+            } else { /* you or mon hit monster */
+                /* guard against mdef being killed twice should
+                   it die before we reach this point */
+                if (!DEADMONSTER(mdef)) {
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        if (magr && magr->mtame)
+                            set_pet_killer(magr);
+                        monkilled(mdef, (char *) 0, AD_DISE);
+                    }
+                }
+            }
+            return TRUE;
+        }
+        return realizes_damage;
+    }
+    /* disintegration */
+    if (attacks(AD_DISN, otmp)) {
+        boolean resistant;
+        struct obj *target;
+
+        resistant = youdefend ? Disint_resistance
+                              : (resists_disint(mdef)
+                                 || defended(mdef, AD_DISN));
+        if (!resistant
+            && !rn2((!youdefend && (mdef->data->geno & G_UNIQ))
+                    ? 100 : 12)) {
+            /* instant disintegration */
+            if (youdefend || !DEADMONSTER(mdef)) {
+                if (show_instakill)
+                    pline_The("deadly blade disintegrates %s!", hittee);
+            }
+            if (youdefend) {
+                u.ugrave_arise = -3; /* no corpse */
+                svk.killer.format = NO_KILLER_PREFIX;
+                Sprintf(svk.killer.name, "disintegrated by %s",
+                        the(xname(otmp)));
+                done(DISINTEGRATED);
+            } else { /* you or mon hit monster */
+                disint_mon_invent(mdef);
+                if (youattack) {
+                    if (is_rider(mdef->data)) {
+                        if (vis) {
+                            pline("%s body reintegrates before your %s!",
+                                  s_suffix(Monnam(mdef)),
+                                  (eyecount(gy.youmonst.data) == 1)
+                                     ? body_part(EYE)
+                                     : makeplural(body_part(EYE)));
+                            pline("%s resurrects!", Monnam(mdef));
+                        }
+                        mdef->mhp = mdef->mhpmax;
+                    } else {
+                        if (!DEADMONSTER(mdef))
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    }
+                } else {
+                    if (is_rider(mdef->data)) {
+                        if (vis) {
+                            pline("%s body reintegrates!",
+                                  s_suffix(Monnam(mdef)));
+                            pline("%s resurrects!", Monnam(mdef));
+                        }
+                        mdef->mhp = mdef->mhpmax;
+                    } else {
+                        if (!DEADMONSTER(mdef)) {
+                            if (magr && magr->mtame)
+                                set_pet_killer(magr);
+                            monkilled(mdef, (char *) 0, AD_DISN);
+                        }
+                    }
+                }
+            }
+            return TRUE;
+        }
+
+        if (realizes_damage) {
+            /* currently the only object that uses this
+               is the Sword of Annihilation artifact */
+            pline_The("deadly blade %s %s!",
+                      resistant ? "hits" : "partially disintegrates",
+                      hittee);
+        }
+
+        /* maybe disintegrate some armor */
+        target = (struct obj *) 0;
+
+        if (youdefend) { /* hero's armor is targeted */
+            if (uarms && !rn2(3)) {
+                target = uarms;
+            } else if (uarmc && !rn2(4)) {
+                target = uarmc;
+            } else if (uarm && !rn2(6)) {
+                target = uarm;
+            }
+
+            if (target) {
+                if (target->otyp == BLACK_DRAGON_SCALES
+                    || (Is_dragon_scaled_armor(target)
+                        && Dragon_armor_to_scales(target)
+                           == BLACK_DRAGON_SCALES)) {
+                    /* nothing happens */
+                    Your("%s vibrates unexpectedly, but remains intact.",
+                         xname(target));
+                } else {
+                    (void) disintegrate_arm(target);
+                }
+            }
+        } else { /* monster's armor is targeted */
+            if ((mdef->misc_worn_check & W_ARMS) && !rn2(3)) {
+                target = which_armor(mdef, W_ARMS);
+            } else if ((mdef->misc_worn_check & W_ARMC) && !rn2(4)) {
+                target = which_armor(mdef, W_ARMC);
+            } else if ((mdef->misc_worn_check & W_ARM) && !rn2(6)) {
+                target = which_armor(mdef, W_ARM);
+            }
+
+            if (target) {
+                if (target->otyp == BLACK_DRAGON_SCALES
+                    || (Is_dragon_scaled_armor(target)
+                        && Dragon_armor_to_scales(target)
+                           == BLACK_DRAGON_SCALES)) {
+                    /* nothing happens */
+                    if (canseemon(mdef))
+                        pline(
+                         "%s %s vibrates unexpectedly, but remains intact.",
+                              s_suffix(Monnam(mdef)), xname(target));
+                } else {
+                    if (canseemon(mdef))
+                        pline("%s %s is disintegrated!",
+                              s_suffix(Monnam(mdef)), xname(target));
+                    m_useup(mdef, target);
+                }
+            }
+        }
+        return realizes_damage;
+    }
+    /* combines fire and cold together */
+    if (attacks(AD_FUSE, otmp)) {
+        boolean no_burn, no_freeze;
+
+        no_burn = youdefend ? (Fire_resistance || Underwater)
+                            : (resists_fire(mdef)
+                               || defended(mdef, AD_FIRE)
+                               || mon_underwater(mdef));
+        no_freeze = youdefend ? Cold_resistance
+                              : (resists_cold(mdef)
+                                 || defended(mdef, AD_COLD));
+        if (realizes_damage) {
+            if (no_freeze) {
+                pline_The("scintillating blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_vaporize(mdef->data)
+                                  ? "vaporizes part of"
+                                  : def_underwater ? "hits" : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if (no_burn) {
+                pline_The("scintillating blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : can_freeze(mdef->data)
+                                  ? "freezes part of"
+                                  : "freezes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else {
+                pline_The("scintillating blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits" : "sears",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            }
+        }
+        /* Dichotomy has a chance of exploding either a ball of fire or
+           cold on a successful hit, dealing extra elemental damage
+           (area of effect); a blessed one in the hero's hands, wielded
+           with at least skilled proficiency in its base weapon, reins
+           the surge in rather than catch a peaceful or tame creature
+           next to the target -- an uncursed, cursed, or clumsily
+           wielded one, or any monster's, blasts regardless of who is
+           standing in range */
+        if (!rn2(6)
+            && gs.spec_dbon_applies && is_art(otmp, ART_DICHOTOMY)
+            && (youdefend || !DEADMONSTER(mdef))) {
+            if (youattack && otmp->blessed
+                && P_SKILL(weapon_type(otmp)) >= P_SKILLED
+                && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
+                pline("Power surges through the blade, then ebbs.");
+                /* fall through to the normal follow-up effects */
+            } else if (rn2(2)) {
+                if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+                    struct monst *save_exploder = ge.exploder;
+
+                    pline("A surge of flame flows through the blade!");
+                    ge.exploder = magr;
+                    explode(youdefend ? u.ux : mdef->mx,
+                            youdefend ? u.uy : mdef->my,
+                            (youattack ? BZ_U_BREATH(ZT_FIRE)
+                                       : BZ_M_BREATH(ZT_FIRE)), d(4, 6),
+                            0, EXPL_FIERY);
+                    ge.exploder = save_exploder;
+                    return TRUE;
+                }
+            } else {
+                if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
+                    struct monst *save_exploder = ge.exploder;
+
+                    pline("A surge of frost flows through the blade!");
+                    ge.exploder = magr;
+                    explode(youdefend ? u.ux : mdef->mx,
+                            youdefend ? u.uy : mdef->my,
+                            (youattack ? BZ_U_BREATH(ZT_COLD)
+                                       : BZ_M_BREATH(ZT_COLD)), d(4, 6),
+                            0, EXPL_FROSTY);
+                    ge.exploder = save_exploder;
+                    return TRUE;
+                }
+            }
+        }
+        if (!rn2(4) && !no_freeze) {
+            int itemdmg = destroy_items(mdef, AD_COLD, *dmgptr);
+
+            if (!youdefend)
+                *dmgptr += itemdmg; /* item destruction dmg */
+        }
+        if (!def_underwater && !no_burn) {
+            if (!rn2(4)) {
+                int itemdmg = destroy_items(mdef, AD_FIRE, *dmgptr);
+
+                if (!youdefend)
+                    *dmgptr += itemdmg; /* item destruction dmg */
+                ignite_items(mdef->minvent);
+            }
+            if (youdefend && Slimed)
+                burn_away_slime();
+            /* NB: if youdefend, then mdef == &gy.youmonst */
+            if (completelyburns(mdef->data)
+                || mdef->data == &mons[PM_WOOD_GOLEM]
+                || mdef->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mdef->data) && !rn2(10))
+                || (mdef->data == &mons[PM_ENT] && !rn2(10))
+                || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
+                if (youdefend) {
+                    You("ignite and turn to ash!");
+                    losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
+                           NO_KILLER_PREFIX);
+                } else {
+                    /* guard against mdef being killed twice should
+                       it die before we reach this point */
+                    if (!DEADMONSTER(mdef)) {
+                        if (show_instakill)
+                            pline("%s ignites and turns to ash!",
+                                  Monnam(mdef));
+                        if (youattack) {
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        } else {
+                            if (magr && magr->mtame)
+                                set_pet_killer(magr);
+                            monkilled(mdef, (char *) 0, AD_FIRE);
+                        }
+                    }
+                }
+                return TRUE;
+            }
+        }
+        return realizes_damage;
+    }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
         /* Magicbane's special attacks (possibly modifies hittee[]) */
         return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
     }
 
-    if (!gs.spec_dbon_applies) {
+    if (!gs.spec_dbon_applies && !hurtle_distance) {
         /* since damage bonus didn't apply, nothing more to do;
            no further attacks have side-effects on inventory */
         return FALSE;
     }
 
+    /* Some neat and unique effects from various artifact weapons.
+     * Pulled this from SporkHack - by default, the odds of an instakill
+     * were 50/50. Because we can dual-wield artifact weapons in EvilHack,
+     * we need to tone this down. Significantly.
+     * I've added a few extra artifact weapons here that could use some
+     * love. Just be warned, this can be used against the player depending
+     * on the race they choose...
+     *
+     * If an artifact already has another type of attack (e.g. Angelslayer
+     * has SPFX_DFLAGH vs MH_ANGEL but also uses AD_FIRE attack type), they
+     * can't be included in this switch statement.
+     */
+    atmp = get_artifact(otmp);
+
+    if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
+        int j = !rn2(10), /* 10% chance of instakill for some artifacts */
+            k = !rn2(20), /* 5% chance if same weapon is used against
+                             the player */
+            l = !rn2(5);  /* special chance of incineration
+                             (Draugr/Vampire) */
+
+        switch (otmp->oartifact) {
+        case ART_WEREBANE:
+        case ART_SHADOWBLADE:
+            if (youattack && is_were(mdef->data) && j) {
+                You("severely burn %s with your %s blade!", mon_nam(mdef),
+                    (is_art(otmp, ART_WEREBANE) ? "silver" : "shadowy"));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && is_were(mdef->data) && j) {
+                if (show_instakill)
+                    pline("%s severely burns %s with its %s blade!",
+                          Monnam(magr), mon_nam(mdef),
+                          (is_art(otmp, ART_WEREBANE) ? "silver"
+                                                      : "shadowy"));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && is_were(gy.youmonst.data) && k) {
+                pline_The("%s blade gravely burns you!",
+                          (is_art(otmp, ART_WEREBANE) ? "silver"
+                                                      : "shadowy"));
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else if (!(youdefend ? is_were(gy.youmonst.data)
+                                   : is_were(mdef->data))
+                       && is_art(otmp, ART_SHADOWBLADE)) {
+                /* Shadowblade still has a DRLI attack */
+                break;
+            } else {
+                return FALSE;
+            }
+            return TRUE;
+        case ART_GIANTSLAYER:
+            if (youattack && racial_giant(mdef) && j) {
+                You("eviscerate %s with a fatal stab!", mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && racial_giant(mdef) && j) {
+                if (show_instakill)
+                    pline("%s eviscerates %s with a fatal stab!",
+                          Monnam(magr), mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && maybe_polyd(is_giant(gy.youmonst.data),
+                                                Race_if(PM_GIANT)) && k) {
+                pline_The("magical spear eviscerates you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_OGRESMASHER:
+            if (youattack && is_ogre(mdef->data) && j) {
+                You("crush %s skull!", s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && is_ogre(mdef->data) && j) {
+                if (show_instakill)
+                    pline("%s crushes %s skull!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && is_ogre(gy.youmonst.data) && k) {
+                pline_The("monstrous hammer crushes your skull!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else if (hurtle_distance && !unsolid(mdef->data)) {
+                if (youattack && !u.uswallow) {
+                    You("smash %s backwards%s", mon_nam(mdef),
+                        canseemon(mdef) ? exclam(4 * hurtle_distance)
+                                        : ".");
+                    mhurtle(mdef, u.dx, u.dy, hurtle_distance);
+                } else if (!youattack && !youdefend) {
+                    /* not an instakill, but currently behaves like one */
+                    int kx, ky;
+
+                    if (magr) {
+                        kx = mdef->mx - magr->mx;
+                        ky = mdef->my - magr->my;
+                    } else {
+                        /* thrown projectile has no attacker; derive
+                           knockback direction from projectile's path */
+                        kx = mdef->mx - gb.bhitpos.x;
+                        ky = mdef->my - gb.bhitpos.y;
+                        if (!kx && !ky)
+                            return FALSE;
+                    }
+                    if (show_instakill) {
+                        if (magr)
+                            pline("%s smashes %s backwards!",
+                                  Monnam(magr), mon_nam(mdef));
+                        else
+                            pline("%s is smashed backwards!",
+                                  Monnam(mdef));
+                    }
+                    mhurtle(mdef, kx, ky, hurtle_distance);
+                } else if (!u.uswallow) {
+                    int kx, ky;
+
+                    if (magr) {
+                        kx = u.ux - magr->mx;
+                        ky = u.uy - magr->my;
+                    } else {
+                        kx = u.ux - gb.bhitpos.x;
+                        ky = u.uy - gb.bhitpos.y;
+                        if (!kx && !ky)
+                            return FALSE;
+                    }
+                    You("are smashed backwards!");
+                    hurtle(kx, ky, hurtle_distance, FALSE);
+                    /* hurtle's traps can fire dobuzz that kills magr
+                       on the beam path */
+                    if (magr && !DEADMONSTER(magr)) {
+                        magr->mux = u.ux;
+                        magr->muy = u.uy;
+                    }
+                    return TRUE;
+                }
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_TROLLSBANE:
+            if (youattack && is_troll(mdef->data) && j) {
+                pline("As you strike %s, it bursts into flame!",
+                      mon_nam(mdef));
+                xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+            } else if (!youattack && !youdefend
+                       && magr && is_troll(mdef->data) && j) {
+                if (show_instakill)
+                    pline("As %s strikes %s, it bursts into flame!",
+                          mon_nam(magr), mon_nam(mdef));
+                if (magr->mtame)
+                    set_pet_killer(magr);
+                monkilled(mdef, (char *) 0, AD_DISN);
+            } else if (youdefend && is_troll(gy.youmonst.data) && k) {
+                You("burst into flame as you are hit!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_ORCRIST:
+            if (youattack && racial_orc(mdef) && j) {
+                You("slice open %s throat!", s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && racial_orc(mdef) && j) {
+                if (show_instakill)
+                    pline("%s slices open %s throat!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && maybe_polyd(is_orc(gy.youmonst.data),
+                                                Race_if(PM_ORC)) && k) {
+                You("feel Orcrist slice deep across your neck!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_STING:
+            if (youattack && racial_orc(mdef) && j) {
+                You("stab deep into %s heart!", s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && racial_orc(mdef) && j) {
+                if (show_instakill)
+                    pline("%s stabs deep into %s heart!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && maybe_polyd(is_orc(gy.youmonst.data),
+                                                Race_if(PM_ORC)) && k) {
+                You("feel Sting stab deep into your heart!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_SUNSWORD:
+            if (youattack && is_undead(mdef->data) && j) {
+                if (mdef->isvecna || mdef->isvlad) {
+                    pline_The(
+             "consecrated blade flares brightly, severely wounding %s!",
+                              mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline_The(
+             "consecrated blade flares brightly as it incinerates %s!",
+                              mon_nam(mdef));
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_undead(mdef->data) && j) {
+                if (mdef->isvecna || mdef->isvlad) {
+                    if (show_instakill)
+                        pline_The(
+             "consecrated blade flares brightly, severely wounding %s!",
+                                  mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (show_instakill)
+                        pline_The(
+             "consecrated blade flares brightly as it incinerates %s!",
+                                  mon_nam(mdef));
+                    if (magr->mtame)
+                        set_pet_killer(magr);
+                    monkilled(mdef, (char *) 0, AD_DISN);
+                }
+            } else if (youdefend && l
+                       && (maybe_polyd(is_undead(gy.youmonst.data),
+                                       Race_if(PM_DRAUGR))
+                           || maybe_polyd(is_undead(gy.youmonst.data),
+                                          Race_if(PM_VAMPIRE)))) {
+                pline_The(
+                    "holy power of Sunsword incinerates your undead flesh!");
+                if (Upolyd) {
+                    /* player returns to their original form */
+                    *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
+                } else {
+                    svk.killer.format = NO_KILLER_PREFIX;
+                    /* specifically name Sunsword */
+                    Sprintf(svk.killer.name, "incinerated by Sunsword");
+                    done(INCINERATED);
+                }
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_DRAMBORLEG:
+            /* Dramborleg will one-shot kill a balrog every time */
+            if (youattack && mdef->data == &mons[PM_BALROG]) {
+                You("obliterate %s with a powerful strike!", mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (!youattack && !youdefend
+                       && magr && mdef->data == &mons[PM_BALROG]) {
+                if (show_instakill)
+                    pline("%s obliterates %s with a powerful strike!",
+                          Monnam(magr), mon_nam(mdef));
+                *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+            } else if (youdefend && gy.youmonst.data == &mons[PM_BALROG]) {
+                pline_The("magical axe obliterates you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_DEMONBANE:
+            if (youattack && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    pline_The("holy mace gravely wounds %s!",
+                              mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline_The("holy mace shines brilliantly, destroying %s!",
+                              mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    if (show_instakill)
+                        pline_The("holy mace gravely wounds %s!",
+                                  mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (show_instakill)
+                        pline_The(
+                            "holy mace shines brilliantly, destroying %s!",
+                                  mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (youdefend && k
+                       && maybe_polyd(is_demon(gy.youmonst.data),
+                                      Race_if(PM_DEMON))) {
+                pline("Demonbane shines brilliantly, destroying you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else
+                return FALSE;
+            return TRUE;
+        case ART_HAMMER_OF_THE_GODS:
+            if (youattack && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    pline_The("divine hammer gravely wounds %s!",
+                              mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline_The(
+                        "divine hammer shines brilliantly, destroying %s!",
+                              mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (youattack && is_undead(mdef->data) && j) {
+                if (mdef->isvecna || mdef->isvlad) {
+                    pline_The(
+                 "divine hammer flares brightly, severely wounding %s!",
+                              mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    pline_The(
+                 "divine hammer flares brightly as it incinerates %s!",
+                              mon_nam(mdef));
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_demon(mdef->data) && j) {
+                if (!is_ndemon(mdef->data)) {
+                    if (show_instakill)
+                        pline_The("divine hammer gravely wounds %s!",
+                                  mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (show_instakill)
+                        pline_The(
+                        "divine hammer shines brilliantly, destroying %s!",
+                                  mon_nam(mdef));
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
+            } else if (!youattack && !youdefend
+                       && magr && is_undead(mdef->data) && j) {
+                if (mdef->isvecna || mdef->isvlad) {
+                    if (show_instakill)
+                        pline_The(
+                 "divine hammer flares brightly, severely wounding %s!",
+                                  mon_nam(mdef));
+                    *dmgptr *= 3;
+                    return TRUE;
+                } else {
+                    if (show_instakill)
+                        pline_The(
+                 "divine hammer flares brightly as it incinerates %s!",
+                                  mon_nam(mdef));
+                    if (magr->mtame)
+                        set_pet_killer(magr);
+                    monkilled(mdef, (char *) 0, AD_DISN);
+                }
+            } else if (youdefend && k
+                       && maybe_polyd(is_demon(gy.youmonst.data),
+                                      Race_if(PM_DEMON))) {
+                pline_The(
+                    "Hammer of the Gods shines brilliantly, destroying you!");
+                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp)
+                           + FATAL_DAMAGE_MODIFIER);
+                /* player returns to their original form if poly'd */
+            } else if (youdefend && l
+                       && (maybe_polyd(is_undead(gy.youmonst.data),
+                                       Race_if(PM_DRAUGR))
+                           || maybe_polyd(is_undead(gy.youmonst.data),
+                                          Race_if(PM_VAMPIRE)))) {
+                pline_The(
+                    "Hammer of the Gods incinerates your undead flesh!");
+                if (Upolyd) {
+                    /* player returns to their original form */
+                    *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
+                } else {
+                    svk.killer.format = NO_KILLER_PREFIX;
+                    /* specifically name the Hammer of the Gods */
+                    Sprintf(svk.killer.name,
+                            "incinerated by the Hammer of the Gods");
+                    done(INCINERATED);
+                }
+            } else
+                return FALSE;
+            return TRUE;
+        default:
+            break;
+        }
+    }
     /* We really want "on a natural 20" but Nethack does it in */
     /* reverse from AD&D. */
     if (spec_ability(otmp, SPFX_BEHEAD)) {
@@ -2383,6 +3599,16 @@ artifact_hit(
                           s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
                     return TRUE;
                 }
+                if (mdef->data == &mons[PM_CERBERUS]) {
+                    pline("%s removes one of %s heads!", wepdesc,
+                          s_suffix(mon_nam(mdef)));
+                    *dmgptr = rn2(15) + 10;
+                    if (!DEADMONSTER(mdef)) {
+                        if (canseemon(mdef))
+                            You("watch in horror as it quickly grows back.");
+                    }
+                    return TRUE;
+                }
                 *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;
                 pline(ROLL_FROM(behead_msg), wepdesc,
                       mon_nam(mdef));
@@ -2428,7 +3654,7 @@ artifact_hit(
             }
         }
     }
-    if (spec_ability(otmp, SPFX_DRLI)) {
+    if (attacks(AD_DRLI, otmp) || spec_ability(otmp, SPFX_DRLI)) {
         /* some non-living creatures (golems, vortices) are vulnerable to
            life drain effects so can get "<Arti> draws the <life>" feedback */
         const char *life = nonliving(mdef->data) ? "animating force" : "life";
@@ -2452,12 +3678,19 @@ artifact_hit(
                 if (is_art(otmp, ART_STORMBRINGER))
                     pline_The("%s blade draws the %s from %s!",
                               hcolor(NH_BLACK), life, mon_nam(mdef));
+                else if (is_art(otmp, ART_LIFESTEALER))
+                    pline_The("massive sword draws the %s from %s!",
+                              life, mon_nam(mdef));
+                else if (is_art(otmp, ART_SHADOWBLADE))
+                    pline_The("shadowy blade draws the %s from %s!",
+                              life, mon_nam(mdef));
                 /* thirsty weapons currently are not allowed but we
                    cover that base here in case they are added someday */
                 else if (otmp->oclass == WEAPON_CLASS
                          && (otmp->oprops & ITEM_DRLI))
                     pline_The("deadly %s draws the %s from %s!",
                               otmpname, life, mon_nam(mdef));
+                /* the Staff of Aesculapius */
                 else
                     pline("%s draws the %s from %s!",
                           The(otmpname), life, mon_nam(mdef));
@@ -2491,7 +3724,8 @@ artifact_hit(
 
             if (Blind) {
                 You_feel("an %s drain your %s!",
-                         is_art(otmp, ART_STORMBRINGER)
+                         (is_art(otmp, ART_STORMBRINGER)
+                          || is_art(otmp, ART_LIFESTEALER))
                             ? "unholy blade"
                             : "object",
                          life);
@@ -2503,9 +3737,14 @@ artifact_hit(
                 if (is_art(otmp, ART_STORMBRINGER))
                     pline_The("%s blade drains your %s!",
                               hcolor(NH_BLACK), life);
+                else if (is_art(otmp, ART_LIFESTEALER))
+                    pline_The("massive sword drains your %s!", life);
+                else if (is_art(otmp, ART_SHADOWBLADE))
+                    pline_The("shadowy blade drains your %s!", life);
                 else if (otmp->oclass == WEAPON_CLASS
                          && (otmp->oprops & ITEM_DRLI))
                     pline_The("deadly %s drains your %s!", otmpname, life);
+                /* the Staff of Aesculapius */
                 else
                     pline("%s drains your %s!", The(otmpname), life);
             }
@@ -3631,8 +4870,19 @@ wielding_artifact(int art)
     if (!art)
         return FALSE;
 
-    return (u_wield_art(art)
+    return (is_art(uwep, art)
             || (u.twoweap && uswapwep && is_art(uswapwep, art)));
+}
+
+/* monster equivalent of wielding_artifact() - checks both the primary
+   and the off-hand weapon */
+boolean
+mon_wielding_artifact(struct monst *mon, int art)
+{
+    if (!art || !mon)
+        return FALSE;
+
+    return (is_art(MON_WEP(mon), art) || is_art(MON_WEP2(mon), art));
 }
 
 /* TRUE if the hero's role still has an ungenerated artifact that
@@ -3672,42 +4922,54 @@ arti_align(int oartifact)
     return artilist[oartifact].alignment;
 }
 
-/* use for warning "glow" for Sting, Orcrist, and Grimtooth */
+/* warning glow from in-use race-detecting artifacts like Sting,
+   Demonbane, and so on */
 void
-Sting_effects(
-    int orc_count) /* new count (warn_obj_cnt is old count);
-                    * -1 is a flag value */
+glow_warning_effects(struct obj *glower)
 {
-    if (u_wield_art(ART_STING)
-        || u_wield_art(ART_ORCRIST)
-        || u_wield_art(ART_GRIMTOOTH)) {
-        int oldstr = glow_strength(gw.warn_obj_cnt),
-            newstr = glow_strength(orc_count);
+    if (glower && glower->oartifact
+        && artilist[(int) glower->oartifact].acolor != NO_COLOR) {
+        int oldstr = glow_strength((int) glower->lastwarncnt),
+            newstr = glow_strength(glower->newwarncnt);
 
-        if (orc_count == -1 && gw.warn_obj_cnt > 0) {
-            /* -1 means that blindness has just been toggled; give a
-               'continue' message that eventual 'stop' message will match */
-            pline("%s is %s.", bare_artifactname(uwep),
-                  glow_verb(Blind ? 0 : gw.warn_obj_cnt, TRUE));
-        } else if (newstr > 0 && newstr != oldstr) {
-            /* goto_level() -> docrt() -> see_monsters() -> Sting_effects();
+        if (newstr > 0 && newstr != oldstr) {
+            /* goto_level() -> docrt() -> see_monsters() -> here;
                if "you materialize on a different level" is pending, give
                it now so that start-glowing message comes after it */
             maybe_lvltport_feedback(); /* usually called by goto_level() */
 
             /* 'start' message */
             if (!Blind)
-                pline("%s %s %s%c", bare_artifactname(uwep),
-                      otense(uwep, glow_verb(orc_count, FALSE)),
-                      glow_color(uwep->oartifact),
+                pline("%s %s %s%c", bare_artifactname(glower),
+                      otense(glower, glow_verb(glower->newwarncnt, FALSE)),
+                      glow_color(glower->oartifact),
                       (newstr > oldstr) ? '!' : '.');
             else if (oldstr == 0) /* quivers */
-                pline("%s %s slightly.", bare_artifactname(uwep),
-                      otense(uwep, glow_verb(0, FALSE)));
-        } else if (orc_count == 0 && gw.warn_obj_cnt > 0) {
+                pline("%s %s slightly.", bare_artifactname(glower),
+                      otense(glower, glow_verb(0, FALSE)));
+        } else if (glower->newwarncnt == 0 && glower->lastwarncnt > 0) {
             /* 'stop' message */
-            pline("%s stops %s.", bare_artifactname(uwep),
-                  glow_verb(Blind ? 0 : gw.warn_obj_cnt, TRUE));
+            pline("%s stops %s.", bare_artifactname(glower),
+                  glow_verb(Blind ? 0 : (int) glower->lastwarncnt, TRUE));
+        }
+    }
+}
+
+/* blinding suppresses perception of artifacts like Sting that glow to
+   warn of certain monsters; give a 'continue' message when blindness
+   is toggled so that the eventual 'stop' message will match it */
+void
+blind_glow_warnings(void)
+{
+    struct obj *otmp;
+
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+        if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+             || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+            && has_glow_warning(otmp)
+            && otmp->lastwarncnt > 0) {
+            pline("%s is %s.", bare_artifactname(otmp),
+                  glow_verb(Blind ? 0 : (int) otmp->lastwarncnt, TRUE));
         }
     }
 }
@@ -3995,7 +5257,7 @@ mkot_trap_warn(void)
         "hot", "very hot", "like fire"
     };
 
-    if (!uarmg && u_wield_art(ART_MASTER_KEY_OF_THIEVERY)) {
+    if (!uarmg && is_art(uwep, ART_MASTER_KEY_OF_THIEVERY)) {
         int idx, ntraps = count_surround_traps(u.ux, u.uy);
 
         if (ntraps != gm.mkot_trap_warn_count) {

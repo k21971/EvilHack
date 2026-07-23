@@ -3469,7 +3469,7 @@ could_pole_mon(void)
 staticfn boolean
 snickersnee_used_dist_attk(struct obj *obj)
 {
-    if (obj && obj == uwep && u_wield_art(ART_SNICKERSNEE)
+    if (obj && obj == uwep && is_art(obj, ART_SNICKERSNEE)
         && svc.context.snickersnee_turn == svm.moves)
         return TRUE;
     return FALSE;
@@ -3563,7 +3563,7 @@ use_pole(struct obj *obj, boolean autohit)
         gn.notonhead = (gb.bhitpos.x != mtmp->mx || gb.bhitpos.y != mtmp->my);
 
         /* Snickersnee allows one free hit from a distance per turn */
-        if (obj == uwep && u_wield_art(ART_SNICKERSNEE)) {
+        if (obj == uwep && is_art(obj, ART_SNICKERSNEE)) {
             freehit = (svm.moves != svc.context.snickersnee_turn);
             svc.context.snickersnee_turn = svm.moves;
             if (freehit && !Deaf) {

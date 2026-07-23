@@ -1884,12 +1884,13 @@ goto_level(
     /* deferred arrival message for level teleport looks odd if given
        after the various messages below, so give it before them;
        [it might have already been delivered via docrt() -> see_monsters()
-       -> Sting_effects() -> maybe_lvltport_feedback(), in which case
-       'dfr_post_msg' has already been reset to Null];
+       -> glow_warning_effects() -> maybe_lvltport_feedback(), in which
+       case 'dfr_post_msg' has already been reset to Null];
        if 'dfr_post_msg' is "you materialize on a different level" then
        maybe_lvltport_feedback() will deliver it now and then free it */
     if (gd.dfr_post_msg)
-        maybe_lvltport_feedback(); /* potentially called by Sting_effects() */
+        maybe_lvltport_feedback(); /* potentially called by
+                                      glow_warning_effects() */
 
     /* special levels can have a custom arrival message */
     deliver_splev_message();
@@ -2088,7 +2089,8 @@ temperature_change_msg(schar prev_temperature)
     }
 }
 
-/* usually called from goto_level(); might be called from Sting_effects() */
+/* usually called from goto_level(); might be called from
+   glow_warning_effects() */
 void
 maybe_lvltport_feedback(void)
 {

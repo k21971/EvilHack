@@ -851,8 +851,8 @@ gcrownu(void)
     /* 3.3.[01] had this in the A_NEUTRAL case,
        preventing chaotic wizards from receiving a spellbook */
     if (Role_if(PM_WIZARD)
-        && !u_wield_art(ART_VORPAL_BLADE)
-        && !u_wield_art(ART_STORMBRINGER)
+        && !is_art(uwep, ART_VORPAL_BLADE)
+        && !is_art(uwep, ART_STORMBRINGER)
         && !carrying(SPE_FINGER_OF_DEATH)) {
         class_gift = SPE_FINGER_OF_DEATH;
     } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
@@ -878,7 +878,7 @@ gcrownu(void)
         break;
     case A_NEUTRAL:
         u.uevent.uhand_of_elbereth = 2;
-        in_hand = u_wield_art(ART_VORPAL_BLADE);
+        in_hand = wielding_artifact(ART_VORPAL_BLADE);
         already_exists = exist_artifact(LONG_SWORD,
                                         artiname(ART_VORPAL_BLADE));
         SetVoice((struct monst *) 0, 0, 80, voice_deity);
@@ -888,7 +888,7 @@ gcrownu(void)
         break;
     case A_CHAOTIC:
         u.uevent.uhand_of_elbereth = 3;
-        in_hand = u_wield_art(ART_STORMBRINGER);
+        in_hand = wielding_artifact(ART_STORMBRINGER);
         already_exists = exist_artifact(RUNESWORD,
                                         artiname(ART_STORMBRINGER));
         what = (((already_exists && !in_hand) || class_gift != STRANGE_OBJECT)

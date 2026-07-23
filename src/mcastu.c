@@ -642,11 +642,13 @@ mcast_stun_you(int dmg)
     if (Antimagic || Free_action || Hidinshell) {
         shieldeff(u.ux, u.uy);
         monstseesu(M_SEEN_MAGR);
-        if (!Stunned)
+        if (!(Stunned || Stun_resistance
+              || wielding_artifact(ART_TEMPEST)))
             You_feel("momentarily disoriented.");
         make_stunned(1L, FALSE);
     } else {
-        You(Stunned ? "struggle to keep your balance." : "reel...");
+        if (!(Stun_resistance || wielding_artifact(ART_TEMPEST)))
+            You(Stunned ? "struggle to keep your balance." : "reel...");
         dmg = d(ACURR(A_DEX) < 12 ? 6 : 4, 4);
         if (Half_spell_damage)
             dmg = (dmg + 1) / 2;

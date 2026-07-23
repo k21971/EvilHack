@@ -881,11 +881,27 @@ one_characteristic(int mode, int final, int attrindx)
     case A_STR:
         if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER && uarmg->cursed)
             hide_innate_value = TRUE;
+        if (is_art(uarmg, ART_HAND_OF_VECNA) && uarmg->cursed)
+            hide_innate_value = FALSE;
+        if ((is_art(uwep, ART_GIANTSLAYER) && uwep->cursed)
+            || (u.twoweap && is_art(uswapwep, ART_GIANTSLAYER)
+                && uswapwep->cursed))
+            hide_innate_value = TRUE;
+        if ((is_art(uwep, ART_HARBINGER) && uwep->cursed)
+            || (u.twoweap && is_art(uswapwep, ART_HARBINGER)
+                && uswapwep->cursed))
+            hide_innate_value = TRUE;
+        if ((is_art(uwep, ART_SWORD_OF_KAS) && uwep->cursed)
+            || (u.twoweap && is_art(uswapwep, ART_SWORD_OF_KAS)
+                && uswapwep->cursed))
+            hide_innate_value = TRUE;
         break;
     case A_DEX:
         break;
     case A_CON:
-        if (u_wield_art(ART_OGRESMASHER) && uwep->cursed)
+        if ((is_art(uwep, ART_OGRESMASHER) && uwep->cursed)
+            || (u.twoweap && is_art(uswapwep, ART_OGRESMASHER)
+                && uswapwep->cursed))
             hide_innate_value = TRUE;
         break;
     case A_INT:
@@ -1635,13 +1651,37 @@ attributes_enlightenment(
         you_are("telepathic", from_what(TELEPAT));
     if (Warning)
         you_are("warned", from_what(WARNING));
-    if (Warn_of_mon && svc.context.warntype.obj) {
-        Sprintf(buf, "aware of the presence of %s",
-                (svc.context.warntype.obj & MH_ORC) ? "orcs"
-                : (svc.context.warntype.obj & MH_ELF) ? "elves"
-                  : (svc.context.warntype.obj & MH_DEMON) ? "demons"
-                    : something);
-        you_are(buf, from_what(WARN_OF_MON));
+    /* need to walk all potential in-use artifacts that glow on warning
+       since it is possible to have multiple artifacts that warn of the
+       same monster type as well as artifacts that warn of multiple
+       monster types */
+    if (Warn_of_mon) {
+        struct obj *otmp;
+        int i, warnmask;
+
+        for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+            if ((((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP)) != 0L)
+                 || (u.twoweap && (otmp->owornmask & W_SWAPWEP) != 0L))
+                && (warnmask = has_glow_warning(otmp)) != 0) {
+                for (i = 0; i < 32; i++) {
+                    long raceflag = 1L << i;
+
+                    /* artifacts let you know they are responsible even
+                       in non-wizard mode */
+                    if (warnmask & raceflag) {
+                        /* skip zombie-specific message if all undead
+                           are warned of */
+                        if (raceflag == MH_ZOMBIE
+                            && (warnmask & MH_UNZOMBIE))
+                            continue;
+                        Sprintf(buf,
+                              "aware of the presence of %s because of ",
+                                makeplural(mon_race_name(i)));
+                        you_are(buf, bare_artifactname(otmp));
+                    }
+                }
+            }
+        }
     }
     if (Warn_of_mon && svc.context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",
@@ -3675,8 +3715,9 @@ ustatusline(void)
     if (Invis)
         Strcat(info, ", invisible");
     /* TODO-EVILHACK: master keys this on the Vulnerable_fire property
-       and also reports cold, electricity, and acid vulnerability;
-       those port with the vulnerability subsystem */
+       (now live via vulnerable_to) and also reports cold, electricity,
+       and acid vulnerability; the report rework ports with the
+       vulnerability-consumers item */
     if (!Upolyd && Race_if(PM_DRAUGR))
         Strcat(info, ", vulnerable to fire");
     if (u.ustuck) {

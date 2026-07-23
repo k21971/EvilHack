@@ -1064,7 +1064,9 @@ revive(struct obj *corpse, boolean by_hero)
     }
 
     if (corpse->norevive
-        || (mons[montype].mlet == S_EEL && !IS_POOL(levl[x][y].typ))) {
+        || (mons[montype].mlet == S_EEL && !IS_POOL(levl[x][y].typ))
+        || (mons[montype].mlet == S_TROLL
+            && by_hero && wielding_artifact(ART_TROLLSBANE))) {
         if (cansee(x, y))
             pline("%s twitches feebly.",
                 upstart(corpse_xname(corpse, (const char *) 0, CXN_PFX_THE)));
@@ -2082,13 +2084,19 @@ poly_obj(struct obj *obj, int id)
             if ((new_wornmask & W_WEP) != 0L) {
                 if (was_twohanded || !bimanual(otmp) || !uarms)
                     setuwep(otmp);
-                if (was_twoweap && uwep && !bimanual(uwep))
-                    set_twoweap(TRUE); /* u.twoweap = TRUE */
+                /* remove_worn_item() above canceled two-weapon combat
+                   and revoked the off-hand extrinsics along with it;
+                   re-seat the off-hand weapon rather than restore the
+                   bare flag so those extrinsics come back */
+                if (was_twoweap && uwep && !bimanual(uwep) && uswapwep)
+                    retwoweapon(); /* sets u.twoweap = TRUE */
             } else if ((new_wornmask & W_SWAPWEP) != 0L) {
                 if (was_twohanded || !bimanual(otmp))
                     setuswapwep(otmp);
+                /* as above: the new form was seated with two-weapon
+                   combat off, so its W_SWAPWEP extrinsics were skipped */
                 if (was_twoweap && uswapwep)
-                    set_twoweap(TRUE); /* u.twoweap = TRUE */
+                    retwoweapon(); /* sets u.twoweap = TRUE */
             } else if ((new_wornmask & W_QUIVER) != 0L) {
                 setuqwep(otmp);
             } else if (new_wornmask) {
@@ -4740,7 +4748,8 @@ zhitm(
         break;
     }
     case ZT_STUN:
-        if (mon_resists_stun(mon) || defended(mon, AD_STUN)) {
+        if (mon_resists_stun(mon) || defended(mon, AD_STUN)
+            || mon_wielding_artifact(mon, ART_TEMPEST)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -4998,7 +5007,7 @@ zhitu(
         dam = d(nd, 6);
         if (Half_physical_damage)
             dam = (dam + 1) / 2;
-        if (Stun_resistance) {
+        if (Stun_resistance || wielding_artifact(ART_TEMPEST)) {
             shieldeff(sx, sy);
             monstseesu(M_SEEN_STUN);
         } else {
@@ -5181,13 +5190,62 @@ zap_hit(
     return (3 - chance < ac + spell_bonus);
 }
 
+/* disintegration routine for a monster's inventory when the monster
+   itself is disintegrated; also called for the Sword of Annihilation's
+   instant-disintegration hits */
+void
+disint_mon_invent(struct monst *mon)
+{
+    struct obj *otmp, *otmp2, *m_amulet = mlifesaver(mon);
+
+/* note: worn amulet of life saving must be preserved in order to operate */
+#define oresist_disintegration(obj)                                       \
+    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
+     || obj->otyp == CRYSTAL_PLATE_MAIL || is_quest_artifact(obj)         \
+     || obj == m_amulet)
+
+    for (otmp = mon->minvent; otmp; otmp = otmp2) {
+        otmp2 = otmp->nobj;
+        if (!oresist_disintegration(otmp)) {
+            /* if a container is destroyed, check whether any of its
+               contents resist and spill them out first */
+            if (Has_contents(otmp)) {
+                struct obj *cobj, *cnext;
+                boolean spilled = FALSE;
+
+                for (cobj = otmp->cobj; cobj; cobj = cnext) {
+                    cnext = cobj->nobj;
+                    if (oresist_disintegration(cobj)) {
+                        obj_extract_self(cobj);
+                        if (otmp->otyp == ICE_BOX)
+                            removed_from_icebox(cobj);
+                        if (!flooreffects(cobj, mon->mx, mon->my, "")) {
+                            place_object(cobj, mon->mx, mon->my);
+                            stackobj(cobj);
+                        }
+                        if (!spilled && canseemon(mon)) {
+                            pline("%s contents spill out onto the %s.",
+                                  s_suffix(The(distant_name(otmp, xname))),
+                                  surface(mon->mx, mon->my));
+                            spilled = TRUE;
+                        }
+                    }
+                }
+            }
+            extract_from_minvent(mon, otmp, TRUE, TRUE);
+            obfree(otmp, (struct obj *) 0);
+        }
+    }
+#undef oresist_disintegration
+}
+
 staticfn void
 disintegrate_mon(
     struct monst *mon,
     int type, /* hero vs other */
     const char *fltxt)
 {
-    struct obj *otmp, *otmp2, *m_amulet = mlifesaver(mon);
+    struct obj *m_amulet = mlifesaver(mon);
 
     if (canseemon(mon)) {
         if (!m_amulet)
@@ -5196,20 +5254,7 @@ disintegrate_mon(
             hit(fltxt, mon, "!");
     }
 
-/* note: worn amulet of life saving must be preserved in order to operate */
-#define oresist_disintegration(obj)                                       \
-    (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
-     || is_quest_artifact(obj) || obj == m_amulet)
-
-    for (otmp = mon->minvent; otmp; otmp = otmp2) {
-        otmp2 = otmp->nobj;
-        if (!oresist_disintegration(otmp)) {
-            extract_from_minvent(mon, otmp, TRUE, TRUE);
-            obfree(otmp, (struct obj *) 0);
-        }
-    }
-
-#undef oresist_disintegration
+    disint_mon_invent(mon);
 
     if (type < 0) {
         if (gb.buzzer && gb.buzzer->mtame)
@@ -6140,6 +6185,34 @@ destroyable(struct obj *obj, int adtyp)
     }
     if (obj->in_use && obj->quan == 1L) {
         /* not available for destroying */
+        return FALSE;
+    }
+    /* a wielded elemental artifact shields kindred items in the
+       bearer's open inventory */
+    if (adtyp == AD_ELEC
+        && (carried(obj)
+                ? wielding_artifact(ART_TEMPEST)
+                : (mcarried(obj)
+                   && mon_wielding_artifact(obj->ocarry, ART_TEMPEST)))) {
+        /* Tempest grants shock resistance to objects in open inventory */
+        return FALSE;
+    }
+    if ((adtyp == AD_FIRE || adtyp == AD_COLD)
+        && (carried(obj)
+                ? wielding_artifact(ART_DICHOTOMY)
+                : (mcarried(obj)
+                   && mon_wielding_artifact(obj->ocarry, ART_DICHOTOMY)))) {
+        /* Dichotomy grants fire and cold resistance to objects in
+           open inventory */
+        return FALSE;
+    }
+    if (adtyp == AD_ACID
+        && (carried(obj)
+                ? wielding_artifact(ART_HARBINGER)
+                : (mcarried(obj)
+                   && mon_wielding_artifact(obj->ocarry, ART_HARBINGER)))) {
+        /* Harbinger grants acid resistance to objects in open
+           inventory */
         return FALSE;
     }
     if (adtyp == AD_FIRE) {

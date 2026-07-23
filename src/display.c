@@ -1526,8 +1526,8 @@ void
 see_monsters(void)
 {
     struct monst *mon;
+    struct obj *otmp;
     unsigned long raceflags;
-    int new_warn_obj_cnt = 0;
 
     if (gd.defer_see_monsters)
         return;
@@ -1555,16 +1555,30 @@ see_monsters(void)
             raceflags = ERAC(mon)->mrace;
         else
             raceflags = mon->data->mhflags;
-        if (Warn_of_mon && (svc.context.warntype.obj & raceflags) != 0L)
-            new_warn_obj_cnt++;
+        /* track how many monsters each glow warning artifact is
+           aware of */
+        if (Warn_of_mon && (svc.context.warntype.obj & raceflags) != 0L) {
+            for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+                if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+                     || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+                    && (has_glow_warning(otmp) & raceflags))
+                    otmp->newwarncnt++;
+            }
+        }
     }
 
-    /*
-     * Make Sting glow blue or stop glowing if required.
-     */
-    if (new_warn_obj_cnt != gw.warn_obj_cnt) {
-        Sting_effects(new_warn_obj_cnt);
-        gw.warn_obj_cnt = new_warn_obj_cnt;
+    /* make artifacts like Sting that glow to warn of certain monsters
+       adjust their glows */
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+        if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
+             || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
+            && has_glow_warning(otmp)) {
+            if (otmp->newwarncnt != (int) otmp->lastwarncnt) {
+                glow_warning_effects(otmp);
+                otmp->lastwarncnt = otmp->newwarncnt;
+            }
+            otmp->newwarncnt = 0;
+        }
     }
 
     /* when mounted, hero's location gets caught by monster loop */

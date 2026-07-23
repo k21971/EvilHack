@@ -74,6 +74,14 @@ staticfn void finish_splitting(struct obj *);
    or arrow or missile (dart, shuriken, boomerang), so not matching the
    one-handed weapons which yield "you begin bashing" if used for melee;
    empty hands and two-handed weapons have to be handled separately */
+/* artifacts that influence the bottom-line status display when wielded
+   (or held in offhand during two-weapon combat) */
+#define is_botl_artifact(o)                  \
+    (is_art((o), ART_OGRESMASHER)            \
+     || is_art((o), ART_GIANTSLAYER)         \
+     || is_art((o), ART_HARBINGER)           \
+     || is_art((o), ART_SWORD_OF_KAS))
+
 #define TWOWEAPOK(obj) \
     (((obj)->oclass == WEAPON_CLASS)                            \
      ? !(is_launcher(obj) || is_ammo(obj) || is_missile(obj))   \
@@ -106,12 +114,13 @@ setuwep(struct obj *obj)
     if (obj == uwep)
         return; /* necessary to not set gu.unweapon */
     setworn(obj, W_WEP);
-    /* handle Ogresmasher before Sunsword; even though they can't be happening
-       at the same time, botl flag update should come before pline message */
+    /* handle status artifacts before Sunsword; even though they can't be
+       happening at the same time, botl flag update should come before
+       pline message */
     if (uwep == obj
-        && ((uwep && uwep->oartifact == ART_OGRESMASHER)
-            || (olduwep && olduwep->oartifact == ART_OGRESMASHER)))
-        disp.botl = TRUE; /* gaining or losing Con bonus */
+        && ((obj && is_botl_artifact(obj))
+            || (olduwep && is_botl_artifact(olduwep))))
+        disp.botl = TRUE; /* gaining or losing an attribute effect */
     /* This message isn't printed in the caller because it happens
      * *whenever* Sunsword is unwielded, from whatever cause. */
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
@@ -122,10 +131,6 @@ setuwep(struct obj *obj)
                    && !Upolyd && Race_if(PM_DROW))
                       ? "its aura of darkness" : "shining");
     }
-    if (uwep == obj
-        && (u_wield_art(ART_OGRESMASHER)
-            || is_art(olduwep, ART_OGRESMASHER)))
-        disp.botl = TRUE;
     /* wielding or unwielding a weapon of excellence changes Luck */
     if (uwep == obj && obj && (obj->oprops & ITEM_EXCEL)) {
         obj->oprops_known |= ITEM_EXCEL;
@@ -318,6 +323,8 @@ setuswapwep(struct obj *obj)
     struct obj *olduswapwep = uswapwep;
 
     setworn(obj, W_SWAPWEP);
+    if (uswapwep == obj && u.twoweap && obj && is_botl_artifact(obj))
+        disp.botl = TRUE; /* gaining or losing an attribute effect */
     /* wielding or unwielding a weapon of excellence changes Luck */
     if (uswapwep == obj && obj && u.twoweap
         && (obj->oprops & ITEM_EXCEL)) {
@@ -1177,7 +1184,7 @@ chwepon(struct obj *otmp, int amount)
      * additional adverse reaction on Magicbane whose effects are
      * spe dependent.  Give an obscure clue here.
      */
-    if (u_wield_art(ART_MAGICBANE) && uwep->spe >= 0) {
+    if (is_art(uwep, ART_MAGICBANE) && uwep->spe >= 0) {
         Your("right %s %sches!", body_part(HAND),
              (((amount > 1) && (uwep->spe > 1)) ? "flin" : "it"));
     }

@@ -4300,6 +4300,35 @@ corpse_chance(
         return FALSE;
     }
 
+    /* Trolls don't leave a corpse when the player is wielding Trollsbane */
+    if (mdat->mlet == S_TROLL
+        && wielding_artifact(ART_TROLLSBANE)
+        && distu(mon->mx, mon->my) < 3) {
+        if (cansee(mon->mx, mon->my))
+            pline_mon(mon,
+    "In the presence of Trollsbane, %s corpse flares brightly and burns to ashes.",
+                      s_suffix(mon_nam(mon)));
+        return FALSE;
+    }
+
+    /* Zombies don't leave a corpse when the player is wielding Sunsword */
+    if (racial_zombie(mon)
+        && (wielding_artifact(ART_SUNSWORD)
+            || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+        && distu(mon->mx, mon->my) < 3) {
+        if (cansee(mon->mx, mon->my)) {
+            if (wielding_artifact(ART_SUNSWORD))
+                pline_mon(mon,
+    "In the presence of Sunsword, %s corpse dissolves into nothingness.",
+                          s_suffix(mon_nam(mon)));
+            else if (wielding_artifact(ART_HAMMER_OF_THE_GODS))
+                pline_mon(mon,
+    "In the presence of the Hammer of the Gods, %s corpse dissolves into nothingness.",
+                          s_suffix(mon_nam(mon)));
+        }
+        return FALSE;
+    }
+
     /* Gas spores always explode upon death */
     for (i = 0; i < NATTK; i++) {
         if (mdat->mattk[i].aatyp == AT_BOOM) {

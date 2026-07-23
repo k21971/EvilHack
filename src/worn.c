@@ -86,6 +86,11 @@ setworn(struct obj *obj, long mask)
                 oobj = *(wp->w_obj);
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask=0x%08lx.", wp->w_mask);
+                /* slot already correctly occupied; skip teardown+grant
+                   so we don't re-call set_artifact_intrinsic or churn
+                   the slot's extrinsics */
+                if (oobj == obj && obj != (struct obj *) 0)
+                    continue;
                 if (oobj) {
                     if (u.twoweap
                         && (oobj->owornmask & (W_WEP | W_SWAPWEP))) {
@@ -168,8 +173,17 @@ setnotworn(struct obj *obj)
 
     if (!obj)
         return;
-    if (u.twoweap && (obj == uwep || obj == uswapwep))
+    if (u.twoweap && (obj == uwep || obj == uswapwep)) {
+        struct obj *tmp = uswapwep;
+
+        /* mirror untwoweapon()'s teardown without its message so the
+           off-hand W_SWAPWEP extrinsics are revoked instead of staying
+           seated with two-weapon combat off; when obj is the off-hand
+           weapon itself the loop below finishes clearing its slot */
         set_twoweap(FALSE); /* u.twoweap = FALSE */
+        setuswapwep((struct obj *) 0);
+        setuswapwep(tmp);
+    }
     for (wp = worn; wp->w_mask; wp++)
         if (obj == *(wp->w_obj)) {
             /* in case wearing or removal is in progress or removal

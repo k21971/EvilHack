@@ -62,8 +62,9 @@
      || gy.youmonst.data == &mons[PM_SHIMMERING_DRAGON]    \
      || gy.youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
 
-/* TODO-EVILHACK: vulnerable_to() ports with the monster
-   vulnerability subsystem */
+/* vulnerable_to() (mondata.c) reads these through gy.youmonst;
+   the remaining master consumers (damage_mon central scaling,
+   combat-arm messages) port with the vulnerability-consumers item */
 #define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
 #define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
 #define Vulnerable_fire \

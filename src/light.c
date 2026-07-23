@@ -214,15 +214,16 @@ do_light_sources(seenV **cs_rows)
                            && (Dragon_armor_to_scales(lobj)
                                == SHADOW_DRAGON_SCALES)) {
                     lit_typ = TEMP_DARK;
-                } else if (lobj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                           && (lobj->owornmask & W_WEP) != 0L) {
+                } else if (lobj->oartifact == ART_STAFF_OF_THE_ARCHMAGI) {
                     /* the Staff emits darkness for any drow wielder;
                        drow monsters who wield the Staff get the same
                        aura as a drow player would */
-                    if (carried(lobj)) {
-                        if (!Upolyd && Race_if(PM_DROW))
-                            lit_typ = TEMP_DARK;
+                    if (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                        && !Upolyd && Race_if(PM_DROW)) {
+                        lit_typ = TEMP_DARK;
                     } else if (lobj->where == OBJ_MINVENT && lobj->ocarry
+                               && mon_wielding_artifact(lobj->ocarry,
+                                              ART_STAFF_OF_THE_ARCHMAGI)
                                && racial_drow(lobj->ocarry)) {
                         lit_typ = TEMP_DARK;
                     }

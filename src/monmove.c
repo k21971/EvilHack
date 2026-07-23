@@ -61,7 +61,8 @@ mb_trapped(struct monst *mtmp, boolean canseeit)
                      (mdistu(mtmp) > 7 * 7) ? "distant" : "nearby");
     }
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
-    if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)))
+    if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)
+          || mon_wielding_artifact(mtmp, ART_TEMPEST)))
         mtmp->mstun = 1;
     mtmp->mhp -= rnd(15);
     if (DEADMONSTER(mtmp)) {
@@ -321,8 +322,13 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
 void
 mon_regen(struct monst *mon, boolean digest_meal)
 {
-    /* only the undead can regenerate in the Valley of the Dead */
-    if ((!Is_valley(&u.uz) || is_undead(r_data(mon)))
+    boolean mon_orcus_wield = mon_wielding_artifact(mon, ART_WAND_OF_ORCUS);
+
+    /* only the undead can regenerate in the Valley of the Dead; the
+       Wand of Orcus suppresses regeneration for any wielder short of
+       a demon prince */
+    if ((!mon_orcus_wield || is_dprince(mon->data))
+        && (!Is_valley(&u.uz) || is_undead(r_data(mon)))
         && (svm.moves % 20 == 0 || mon_prop(mon, REGENERATION)))
         healmon(mon, 1, 0);
     if (mon->mspec_used)
@@ -489,12 +495,17 @@ gelcube_digests(struct monst *mtmp)
     ((mon)->data == &mons[PM_GREMLIN]                                     \
      && ((uwep && uwep->lamplit && artifact_light(uwep)                   \
           /* a drow's Staff of the Archmagi emits darkness */             \
-          && !(u_wield_art(ART_STAFF_OF_THE_ARCHMAGI)                     \
+          && !(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)               \
                && !Upolyd && Race_if(PM_DROW)))                           \
+         || (u.twoweap && uswapwep && uswapwep->lamplit                   \
+             && artifact_light(uswapwep)                                  \
+             && !(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)            \
+                  && !Upolyd && Race_if(PM_DROW)))                        \
          || (uarm && uarm->lamplit && artifact_light(uarm)                \
              && !(Is_dragon_armor(uarm)                                   \
                   && Dragon_armor_to_scales(uarm)                         \
-                     == SHADOW_DRAGON_SCALES)))                           \
+                     == SHADOW_DRAGON_SCALES))                            \
+         || (uarms && uarms->lamplit && artifact_light(uarms)))           \
      /* not applicable if mon can't see or hero isn't in line of sight */ \
      && mon->mcansee && couldsee(mon->mx, mon->my))                       \
      /* doesn't matter if hero is invisible--light being emitted isn't */

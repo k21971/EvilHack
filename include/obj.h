@@ -573,8 +573,6 @@ struct obj {
 /* is_art() is now a function in artifact.c */
 /* #define is_art(o,art) ((o) && (o)->oartifact == (art)) */
 
-#define u_wield_art(art) is_art(uwep, art)
-
 /* mummy wrappings are more versatile sizewise than other cloaks */
 #define WrappingAllowed(mptr) \
     (humanoid(mptr) && (mptr)->msize >= MZ_SMALL && (mptr)->msize <= MZ_HUGE \

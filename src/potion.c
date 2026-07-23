@@ -118,7 +118,7 @@ make_stunned(long xtime, boolean talk)
                      Hallucination ? "less wobbly" : "a bit steadier");
     }
     if (xtime && !old) {
-        if (Stun_resistance) {
+        if (Stun_resistance || wielding_artifact(ART_TEMPEST)) {
             You_feel("a slight itch.");
             return;
         }
@@ -340,8 +340,6 @@ make_blinded(long xtime, boolean talk)
 void
 toggle_blindness(void)
 {
-    boolean Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L);
-
     /* blindness has just been toggled */
     disp.botl = TRUE; /* status conditions need update */
     gv.vision_full_recalc = 1; /* vision has changed */
@@ -351,7 +349,8 @@ toggle_blindness(void)
        and then a secret door; hero was blinded by vapors but then got the
        message "a door appears in the wall" because wall spot was IN_SIGHT) */
     vision_recalc(0);
-    if (Blind_telepat || Infravision || Stinging)
+    if (Blind_telepat || Infravision || Ultravision
+        || svc.context.warntype.obj)
         see_monsters(); /* also counts EWarn_of_mon monsters */
     /*
      * Avoid either of the sequences
@@ -361,8 +360,7 @@ toggle_blindness(void)
      * "Sting is glowing" when regaining sight so that the eventual
      * "stops" message matches the most recent "Sting is ..." one.
      */
-    if (Stinging)
-        Sting_effects(-1);
+    blind_glow_warnings();
     /* update dknown flag for inventory picked up while blind */
     if (!Blind)
         learn_unseen_invent();

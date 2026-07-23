@@ -1251,9 +1251,13 @@ return_from_mtoss(
         if (hits_thrower) {
             if (otmp->oartifact)
                 (void) artifact_hit((struct monst *) 0, magr, otmp, &dmg, 0);
-            magr->mhp -= dmg;
-            if (DEADMONSTER(magr))
-                monkilled(magr, canspotmon(magr) ? "" : (char *) 0, AD_PHYS);
+            /* an artifact instakill arm may already have killed magr */
+            if (!DEADMONSTER(magr)) {
+                magr->mhp -= dmg;
+                if (DEADMONSTER(magr))
+                    monkilled(magr, canspotmon(magr) ? "" : (char *) 0,
+                              AD_PHYS);
+            }
         }
         if (notcaught) {
             (void) snuff_candle(otmp);

@@ -1146,15 +1146,16 @@ addinv_core0(
 
     /* fill empty quiver if obj was thrown */
     if (obj_was_thrown && flags.pickup_thrown && !uquiver
-        /* if Mjollnir is thrown and fails to return, we want to
-           auto-pick it when we move to its spot, but not into quiver
-           because it needs to be wielded to be re-thrown;
+        /* if Mjollnir or Xiuhcoatl is thrown and fails to return, we
+           want to auto-pick it when we move to its spot, but not into
+           quiver because it needs to be wielded to be re-thrown;
            aklys likewise because player using 'f' to throw it might
            not notice that it isn't wielded until it fails to return
            several times; we never auto-wield, just omit from quiver
            so that player will be prompted for what to throw and
            possibly realize that re-wielding is necessary */
-        && obj->oartifact != ART_MJOLLNIR && obj->otyp != AKLYS
+        && obj->oartifact != ART_MJOLLNIR
+        && obj->oartifact != ART_XIUHCOATL && obj->otyp != AKLYS
         && (throwing_weapon(obj) || is_ammo(obj)))
         setuqwep(obj);
  added:

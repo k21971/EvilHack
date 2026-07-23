@@ -3536,12 +3536,65 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch; branch initedog livelogs the conduct break instead
       of preventing it - pets/taming parity owner); pager artifact
       encyclopedia (name_to_arti/get_artilist_entry) joins the
-      pager recipe-lookup deferral. COMMIT B carries: twoweap
-      stuck-state sweep (setnotworn/joust-shatter/poly_obj reseat
-      + setworn same-obj skip - brief item 10), SPFX_WARN
-      per-object recalc (glow rework), everything in brief items
-      1-9. Battery AFTER both commits (game-tester agent; lists in
-      both port reports + review Test-additions).
+      pager recipe-lookup deferral. COMMIT A COMMITTED de7ab107f.
+      COMMIT B (combat behaviors) PORTED + REVIEWED + COORDINATOR-
+      FIXED 2026-07-23, COMMIT PENDING (32 files +1848/-236 incl.
+      fix round, zero-warning): mon_wielding_artifact + the
+      mon_*_wield boolean layer via 16 PORT clusters (full site
+      table in artifacts-b-port-report.md; 11 DEFERs with named
+      owners incl. monster ring-wear extra_pref stub, mrndcurse,
+      monster chest_trap, Gjallar, AD_BHED/AD_LOUD executors,
+      combat-knockback muse/zap TODO sites, begin_burn light
+      slice); ALL remaining artifact_hit arms (named FIRE/COLD/
+      ELEC + vulnerable_to severity, Angelslayer/ash instakills,
+      Orcus AD_DETH soul-consume w/ monkilled no-XP, Dirge/
+      Harbinger AD_ACID + giant dissolve, Annihilation AD_DISN +
+      Rider reintegrate + shared disint_mon_invent w/ container
+      spill, Dichotomy AD_FUSE, DFLAGH/DCLAS instakill switch,
+      Vorpal Cerberus, DRLI naming, three AOE surges on the
+      ge.exploder bracket w/ BZ_U/M_BREATH + friendly_in_blast);
+      u_wield_art RETIRED (29-site sweep, per-site master forms,
+      uwep-only judgment calls reviewer-confirmed); attrib STR
+      trio + is_botl_artifact status wiring + insight A_STR
+      cursed-hide arms; corpse_chance Trollsbane/Sunsword/Hammer
+      + zap.c revive() troll gate; Xiuhcoatl throw cluster;
+      score_artifact_weapon re-sync + NEW vulnerable_to()
+      (mondata.c; hero via gy.youmonst - Vulnerable_* props now
+      live); resists_magm defends+W_BARDING; per-object glow
+      subsystem (Sting_effects + gw.warn_obj_cnt retired
+      tree-wide; see_monsters per-object loop; set_artifact_
+      intrinsic full recalc closes the Commit A transient-clear
+      concern); twoweap stuck-state sweep + setworn same-obj skip;
+      hero Tempest stun immunity at the make_stunned choke point;
+      m_is_steadfast Harbinger/off-hand extension. REVIEW:
+      CONDITIONAL PASS -> all findings fixed same day: BLOCKER
+      disint macro CRYSTAL_PLATE_MAIL term restored (deviation-6
+      claim was false - crystal plate oc_oprop is 0 both trees);
+      BUG-1344 regression caught by COORDINATOR pre-review (the
+      B brief wrongly ordered mdiseabyu re-keyed to master's buggy
+      ART_GRIMTOOTH form; youattack fix restored); Mjollnir wake
+      youdefend coords; BUG-1353 hero-defend instakill message
+      gates x3 (archived, master frozen-unfixed); mthrowu
+      returning-weapon double-kill tail guard; insight/is_botl
+      census riders ported; stale vulnerable_to TODOs updated;
+      hack.c web-burn names the responsible blade. OPEN FOR
+      MAINTAINER AT COMMIT: (a) AD_DETH melee kills route
+      monkilled/no-XP like the invoke (master parity - confirm
+      the Commit A ruling extends); (b) ratify the container-spill
+      upgrade now shared by black-dragon-breath disintegration.
+      NEW DEFER OWNER ROWS from the B review/report (nothing
+      silent): artifact-bane aura arm of master's allmain moveloop
+      grudge loop (absent; interlocks w/ the races bane passes);
+      mthrowu thrown Dirge/Harbinger iron-bars dissolve;
+      vulnerable_to remaining consumers (damage_mon central 1.5x,
+      mhitm/mhitu/uhitm/zhitm arms, polyself PROPSET, priest.c,
+      insight report rework); should_cleave() conjunct at the
+      Cleaver hitum line; Vecna-relics/Ashmar/Retribution worn
+      acurr force-arms; mon_regen !mwither gate (wither owner);
+      corpse_chance minsects/alhoon-Kas-crumble/open-air arms.
+      Battery AFTER B commits (game-tester agent; combined brief
+      READY at scratchpad battery-brief-artifacts.md A1-A13 +
+      B1-B12).
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
 - [ ] Monster `dead` .des flag -> des.monster dead= binding

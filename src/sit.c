@@ -595,8 +595,11 @@ rndcurse(void)
     struct obj *otmp;
     static const char mal_aura[] = "feel a malignant aura surround %s.";
 
-    if (u_wield_art(ART_MAGICBANE) && rn2(20)) {
-        You(mal_aura, "the magic-absorbing blade");
+    if ((wielding_artifact(ART_MAGICBANE) && rn2(20))
+        || (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI) && rn2(30))) {
+        You(mal_aura,
+            wielding_artifact(ART_MAGICBANE) ? "the magic-absorbing staff"
+                                             : "the powerful staff");
         return;
     }
 

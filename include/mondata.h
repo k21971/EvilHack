@@ -483,6 +483,18 @@
      || (ptr) == &mons[PM_FIRE_VORTEX]     \
      || (ptr) == &mons[PM_FIRE_ELEMENTAL])
 
+/* macros for various monsters affected by specific types of damage */
+#define can_vaporize(ptr) \
+    ((ptr) == &mons[PM_WATER_ELEMENTAL] || (ptr) == &mons[PM_ICE_VORTEX]     \
+     || (ptr) == &mons[PM_BABY_SEA_DRAGON] || (ptr) == &mons[PM_SEA_DRAGON])
+
+#define can_freeze(ptr) \
+    ((ptr) == &mons[PM_WATER_ELEMENTAL]                                      \
+     || (ptr) == &mons[PM_BABY_SEA_DRAGON] || (ptr) == &mons[PM_SEA_DRAGON])
+
+#define can_corrode(ptr) \
+    ((ptr) == &mons[PM_IRON_GOLEM] || (ptr) == &mons[PM_IRON_PIERCER])
+
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */
 /* Maybe someday this could be in mflags... */

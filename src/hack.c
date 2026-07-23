@@ -1595,7 +1595,7 @@ trapmove(
         climb_pit();
         break;
     case TT_WEB:
-        if (u_wield_art(ART_STING)) {
+        if (wielding_artifact(ART_STING)) {
             /* escape trap but don't move and don't destroy it */
             u.utrap = 0; /* caller will call reset_utrap() */
             pline("Sting cuts through the web!");
@@ -2054,11 +2054,17 @@ domove_fight_web(coordxy x, coordxy y)
                chance to succeed rather than maybe make two tries */
             roll = rn2(uwep ? 20 : (45 - 5 * wskill_minus_2));
 
-        if (uwep && (u_wield_art(ART_STING)
-                     || (uwep->oartifact && attacks(AD_FIRE, uwep)))) {
-            /* guaranteed success */
-            pline("%s %s through the web!", bare_artifactname(uwep),
-                  u_wield_art(ART_STING) ? "cuts" : "burns");
+        if (uwep && (wielding_artifact(ART_STING)
+                     || (uwep->oartifact
+                         && (attacks(AD_FIRE, uwep)
+                             || attacks(AD_FUSE, uwep))))) {
+            /* guaranteed success; name the blade actually responsible
+               (Sting may be the off-hand weapon) */
+            pline("%s %s through the web!",
+                  bare_artifactname(is_art(uwep, ART_STING) ? uwep
+                                    : wielding_artifact(ART_STING)
+                                        ? uswapwep : uwep),
+                  wielding_artifact(ART_STING) ? "cuts" : "burns");
 
         /* is_blade() includes daggers (which are classified as PIERCE)
            but doesn't include axes and slashing polearms */

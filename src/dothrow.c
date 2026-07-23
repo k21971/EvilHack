@@ -30,7 +30,10 @@ staticfn boolean mhurtle_step(genericptr_t, coordxy, coordxy);
 #define AutoReturn(o,wmsk) \
     ((((wmsk) & W_WEP) != 0                                             \
       && ((o)->otyp == AKLYS                                            \
-          || ((o)->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE)))) \
+          || (o)->oartifact == ART_XIUHCOATL                            \
+          || ((o)->oartifact == ART_MJOLLNIR && Role_if(PM_VALKYRIE))   \
+          || ((o)->oartifact == ART_HAMMER_OF_THE_GODS                  \
+              && P_SKILL(P_HAMMER) >= P_SKILLED)))                      \
      || (o)->otyp == BOOMERANG)
 
 /* gt.thrownobj (decl.c) tracks an object until it lands */
@@ -124,7 +127,8 @@ throw_obj(struct obj *obj, int shotlimit)
         res = ECMD_OK;
         goto unsplit_stack;
     }
-    if (is_art(obj, ART_MJOLLNIR) && obj != uwep) {
+    if ((is_art(obj, ART_MJOLLNIR) || is_art(obj, ART_XIUHCOATL))
+        && obj != uwep) {
         pline("%s must be wielded before it can be thrown.", The(xname(obj)));
         res = ECMD_OK;
         goto unsplit_stack;
@@ -132,6 +136,17 @@ throw_obj(struct obj *obj, int shotlimit)
     if ((is_art(obj, ART_MJOLLNIR) && ACURR(A_STR) < STR19(25))
         || (obj->otyp == BOULDER && !racial_throws_rocks(&gy.youmonst))) {
         pline("It's too heavy.");
+        res = ECMD_TIME;
+        goto unsplit_stack;
+    }
+    /* Xiuhcoatl requires a certain level of dexterity to be thrown.
+       If the player is not an archeologist, a dexterity of 21 or
+       greater is required, otherwise a dexterity of 18 or greater
+       (or 10 or greater if a Tortle) is needed */
+    if (is_art(obj, ART_XIUHCOATL)
+        && (ACURR(A_DEX) < (Race_if(PM_TORTLE) ? 10 : 18)
+            || (!Role_if(PM_ARCHEOLOGIST) && ACURR(A_DEX) < 21))) {
+        pline("%s a deft hand.", Tobjnam(obj, "require"));
         res = ECMD_TIME;
         goto unsplit_stack;
     }
@@ -1206,11 +1221,13 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
         if (mon->movement < 0)
             mon->movement = 0;
         if (!rn2(5)
-            && !(mon_resists_stun(mon) || defended(mon, AD_STUN)))
+            && !(mon_resists_stun(mon) || defended(mon, AD_STUN)
+                 || mon_wielding_artifact(mon, ART_TEMPEST)))
             mon->mstun = 1;
     } else {
         mon->movement = 0;
-        if (!(mon_resists_stun(mon) || defended(mon, AD_STUN)))
+        if (!(mon_resists_stun(mon) || defended(mon, AD_STUN)
+              || mon_wielding_artifact(mon, ART_TEMPEST)))
             mon->mstun = 1;
     }
 
@@ -1758,6 +1775,8 @@ throwit(
             range = 20; /* you must be giant */
         else if (is_art(obj, ART_MJOLLNIR))
             range = (range + 1) / 2; /* it's heavy */
+        else if (is_art(obj, ART_XIUHCOATL))
+            range = (range + 2); /* not heavy at all */
         else if (tethered_weapon) /* primary weapon is aklys */
             /* range of a tethered_weapon is limited by the
                length of the attached cord [implicit aspect of item] */

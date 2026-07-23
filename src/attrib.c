@@ -1419,7 +1419,10 @@ acurr(int chridx)
            1 <= xx <= 100), and 119..125 for other characteristics' 19..25;
            STR18(x) yields 18 + x (intended for 0 <= x <= 100; not used here);
            STR19(y) yields 100 + y (intended for 19 <= y <= 25) */
-        if (tmp >= STR19(25) || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER))
+        if (tmp >= STR19(25) || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || wielding_artifact(ART_GIANTSLAYER)
+            || wielding_artifact(ART_HARBINGER)
+            || wielding_artifact(ART_SWORD_OF_KAS))
             result = STR19(25); /* 125 */
         else
             /* need non-zero here to avoid 'if(result==0)' below because
@@ -1448,7 +1451,7 @@ acurr(int chridx)
                 result = 25;
         }
     } else if (chridx == A_CON) {
-        if (u_wield_art(ART_OGRESMASHER))
+        if (wielding_artifact(ART_OGRESMASHER))
             result = 25;
     } else if (chridx == A_INT || chridx == A_WIS) {
         /* Yes, this may raise Int and/or Wis if hero is sufficiently
@@ -1500,10 +1503,13 @@ extremeattr(
     if (attrindx == A_STR) {
         hilimit = STR19(25); /* 125 */
         /* lower limit for Str can also be 25 */
-        if (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+        if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || wielding_artifact(ART_GIANTSLAYER)
+            || wielding_artifact(ART_HARBINGER)
+            || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;
     } else if (attrindx == A_CON) {
-        if (u_wield_art(ART_OGRESMASHER))
+        if (wielding_artifact(ART_OGRESMASHER))
             lolimit = hilimit;
     } else if (attrindx == A_CHA) {
         /* mirror acurr()'s A_CHA forced floor and ceiling so a +0 item

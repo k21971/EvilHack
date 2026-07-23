@@ -96,6 +96,11 @@ burnarmor(struct monst *victim)
         return 0;
     hitting_u = (victim == &gy.youmonst);
 
+    /* wielding Dichotomy protects worn armor */
+    if (hitting_u ? wielding_artifact(ART_DICHOTOMY)
+                  : mon_wielding_artifact(victim, ART_DICHOTOMY))
+        return 0;
+
     /* burning damage may dry wet towel */
     item = hitting_u ? carrying(TOWEL) : m_carrying(victim, TOWEL);
     while (item) {
@@ -2425,7 +2430,7 @@ trapeffect_anti_magic(
             if (Half_physical_damage || Half_spell_damage)
                 dmgval2 += rnd(4);
             /* give Magicbane wielder dose of own medicine */
-            if (u_wield_art(ART_MAGICBANE))
+            if (wielding_artifact(ART_MAGICBANE))
                 dmgval2 += rnd(4);
             /* having an artifact--other than own quest one--which
                confers magic resistance simply by being carried
@@ -5409,7 +5414,7 @@ untrap_prob(
         if (wep && !m_at(ttmp->tx, ttmp->ty)) {
             /* primary or secondary weapon is a blade (which includes
                daggers but not axes or bladed polearms) */
-            if (u_wield_art(ART_STING) || attacks(AD_FIRE, wep))
+            if (wielding_artifact(ART_STING) || attacks(AD_FIRE, wep))
                 chance = 1;
             /* else chance stays 3 */
         } else if (!webmaker(gy.youmonst.data)
@@ -5696,9 +5701,9 @@ disarm_holdingtrap(struct trap *ttmp)
                             ? uswapwep : NULL;
 
         if (wep && wep->oartifact
-            && (u_wield_art(ART_STING) || attacks(AD_FIRE, wep)))
-            pline("%s %s through %s web!", bare_artifactname(uwep),
-                  u_wield_art(ART_STING) ? "cuts" : "burns", which);
+            && (wielding_artifact(ART_STING) || attacks(AD_FIRE, wep)))
+            pline("%s %s through %s web!", bare_artifactname(wep),
+                  wielding_artifact(ART_STING) ? "cuts" : "burns", which);
         else if (wep)
             You("cut through %s web.", which);
         else
