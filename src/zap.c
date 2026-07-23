@@ -1583,6 +1583,9 @@ obj_resists(struct obj *obj,
             int achance) /* percent chance for artifacts */
 {
     if (obj->otyp == AMULET_OF_YENDOR
+        /* an Infidel's quest artifact absorbs the Amulet's power
+           and is every bit as durable */
+        || (Role_if(PM_INFIDEL) && is_quest_artifact(obj))
         || obj->otyp == SPE_BOOK_OF_THE_DEAD
         || obj->otyp == CANDELABRUM_OF_INVOCATION
         || obj->otyp == BELL_OF_OPENING

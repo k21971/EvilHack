@@ -1176,7 +1176,14 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case VENOM_CLASS:
     case CHAIN_CLASS:
+        if (Role_if(PM_CONVICT) && otmp->otyp == IRON_CHAIN
+            && (svm.moves <= 1))
+            otmp->dknown = otmp->bknown = otmp->rknown = 1;
+        break;
     case BALL_CLASS:
+        if (Role_if(PM_CONVICT) && otmp->otyp == HEAVY_IRON_BALL
+            && (svm.moves <= 1))
+            otmp->dknown = otmp->bknown = otmp->rknown = 1;
         break;
     case POTION_CLASS: /* note: potions get some additional init below */
     case SCROLL_CLASS:
@@ -1213,6 +1220,19 @@ mksobj_init(struct obj **obj, boolean artif)
         /* simulate lacquered armor for samurai */
         if (Role_if(PM_SAMURAI) && otmp->otyp == SPLINT_MAIL
             && (svm.moves <= 1 || In_quest(&u.uz))) {
+#ifdef UNIXPC
+            /* optimizer bitfield bug */
+            otmp->oerodeproof = 1;
+            otmp->rknown = 1;
+#else
+            otmp->oerodeproof = otmp->rknown = 1;
+#endif
+        }
+        /* since it's fairly easy for objects to erode/burn
+           completely away, this needs to be fooproofed
+           at the start of the game */
+        if (Role_if(PM_CONVICT) && otmp->otyp == STRIPED_SHIRT
+            && (svm.moves <= 1)) {
 #ifdef UNIXPC
             /* optimizer bitfield bug */
             otmp->oerodeproof = 1;

@@ -87,8 +87,14 @@ give_may_advance_msg(int skill)
              (skill == P_NONE) ? ""
                  : (skill <= P_LAST_WEAPON) ? "weapon "
                      : (skill <= P_LAST_SPELL) ? "spell casting "
-                         : (skill == P_TELEKINESIS) ? "telekinetic "
-                             : "fighting ");
+                         : (skill == P_SHIELD) ? "defensive "
+                             : (skill == P_RIDING) ? "riding "
+                                 : (skill == P_THIEVERY) ? "thievery "
+                                     : (skill == P_PET_HANDLING)
+                                       ? "pet handling "
+                                       : (skill == P_TELEKINESIS)
+                                         ? "telekinetic "
+                                         : "fighting ");
     (void) handle_tip(TIP_ENHANCE);
 }
 
@@ -2341,6 +2347,9 @@ weapon_type(struct obj *obj)
 
     if (!obj)
         return P_BARE_HANDED_COMBAT; /* Not using a weapon */
+    /* a Convict can wield their punishment ball to some effect */
+    if (obj->otyp == HEAVY_IRON_BALL && Role_if(PM_CONVICT))
+        return objects[obj->otyp].oc_skill;
     if (obj->oclass != WEAPON_CLASS && obj->oclass != TOOL_CLASS
         && obj->oclass != GEM_CLASS)
         return P_NONE; /* Not a weapon, weapon-tool, or ammo */
@@ -2584,17 +2593,30 @@ skill_init(const struct def_skill *class_skill)
             P_SKILL(skill) = P_BASIC;
     }
 
+    /* Wizards no longer start with a weapon in inventory,
+       so make sure quarterstaff is set to basic skill */
+    if (Role_if(PM_WIZARD))
+        P_SKILL(P_QUARTERSTAFF) = P_BASIC;
+
     /* set skills for magic; draugr cannot cast, so give their
        spellcasting roles no starting spell skill */
     if (Role_if(PM_HEALER)
         || (Role_if(PM_MONK) && !Race_if(PM_DRAUGR))) {
         P_SKILL(P_HEALING_SPELL) = P_BASIC;
+    } else if (Role_if(PM_DRUID)) {
+        P_SKILL(P_EVOCATION_SPELL) = P_BASIC;
+    } else if (Role_if(PM_INFIDEL) && !Race_if(PM_DRAUGR)) {
+        P_SKILL(P_ATTACK_SPELL) = P_BASIC;
     } else if (Role_if(PM_CLERIC)) {
         P_SKILL(P_CLERIC_SPELL) = P_BASIC;
     } else if (Role_if(PM_WIZARD)) {
         P_SKILL(P_ATTACK_SPELL) = P_BASIC;
         P_SKILL(P_ENCHANTMENT_SPELL) = P_BASIC;
     }
+
+    /* set skill for thievery */
+    if (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+        P_SKILL(P_THIEVERY) = P_BASIC;
 
     /* walk through array to set skill maximums */
     for (; class_skill->skill != P_NONE; class_skill++) {
@@ -2611,7 +2633,8 @@ skill_init(const struct def_skill *class_skill)
         P_SKILL(P_BARE_HANDED_COMBAT) = P_BASIC;
 
     /* Roles that start with a horse know how to ride it */
-    if (gu.urole.petnum == PM_PONY)
+    if (gu.urole.petnum == PM_PONY
+        || gu.urole.petnum == PM_SKELETAL_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
 
     /* Healers, Druids and Knights start with basic pet handling

@@ -85,6 +85,8 @@ struct u_event {
     Bitfield(ulearned_elbereth, 1); /* learned how to write Elbereth */
     Bitfield(ufallen_aasimar, 1);   /* aasimar stripped of celestial blood,
                                        permanently human (one-way) */
+    Bitfield(uimbued_idol, 1);      /* Infidel: the Idol of Moloch has been
+                                       imbued at the Sanctum */
 
     /* once-only gates for first-kill livelog entries; always set for
        game state regardless of who or what made the kill */

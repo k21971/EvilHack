@@ -613,7 +613,10 @@ nh_timeout(void)
         baseluck += 1;
 
     if (u.uluck != baseluck
-        && svm.moves % ((u.uhave.amulet || u.ugangr) ? 300 : 600) == 0) {
+        && svm.moves % (((u.uhave.amulet
+                          && (!Role_if(PM_INFIDEL)
+                              || u.uevent.uimbued_idol))
+                         || u.ugangr) ? 300 : 600) == 0) {
         /* Cursed luckstones stop bad luck from timing out; blessed luckstones
          * stop good luck from timing out; normal luckstones stop both;
          * neither is stopped if you don't have a luckstone.
@@ -658,10 +661,20 @@ nh_timeout(void)
     if (u.ucreamed)
         u.ucreamed--;
 
-    /* TODO-EVILHACK: master also runs the druid #wildshape cooldown
-       and its warning messages here; those port with the roles slice */
+    if (u.uwildshape)
+        u.uwildshape--;
+
     if (u.uvampireshape)
         u.uvampireshape--;
+
+    /* Druids have a sense for when they can use #wildshape again */
+    if (Role_if(PM_DRUID) && u.uwildshape == 20)
+        You_feel("your wildshape ability start to return.");
+
+    /* Druids have an innate sense of when they will lose their
+       current creature form and revert back to their original form */
+    if (Role_if(PM_DRUID) && u.mtimedone == 20)
+        You("are about to revert back to your original form.");
 
     /* Vampires have a sense for when they can use #shapechange again */
     if (Race_if(PM_VAMPIRE) && u.uvampireshape == 20)

@@ -339,8 +339,14 @@ ok_to_throw(int *shotlimit_p) /* (see dothrow()) */
         You("are physically incapable of throwing or shooting anything.");
         return FALSE;
     } else if (nohands(gy.youmonst.data)) {
-        You_cant("throw or shoot without hands."); /* not body_part(HAND) */
-        return FALSE;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            return TRUE;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            return TRUE;
+        } else {
+            You_cant("throw or shoot without hands.");
+            return FALSE;
+        }
         /*[what about !freehand(), aside from cursed missile launcher?]*/
     }
     if (check_capacity((char *) 0))
@@ -1613,7 +1619,8 @@ throwit(
             tether_released_msg = FALSE;
 
     gn.notonhead = FALSE; /* reset potentially stale value */
-    if ((obj->cursed || obj->greased) && (u.dx || u.dy) && !rn2(7)) {
+    if (((obj->cursed && u.ualign.type != A_NONE) || obj->greased)
+        && (u.dx || u.dy) && !rn2(7)) {
         boolean slipok = TRUE;
 
         if (ammo_and_launcher(obj, uwep)) {

@@ -1924,7 +1924,9 @@ opentin(void)
     if (svc.context.tin.usedtime < svc.context.tin.reqtime)
         return 1; /* still busy */
 
-    consume_tin("You succeed in opening the tin.");
+    consume_tin(druid_form && cantwield(gy.youmonst.data)
+                ? "You manage to open the tin despite your current form."
+                : "You succeed in opening the tin.");
     return 0;
 }
 
@@ -1939,8 +1941,14 @@ start_tin(struct obj *otmp)
         mesg = "You bite right into the metal tin...";
         tmp = 0;
     } else if (cantwield(gy.youmonst.data)) { /* nohands || verysmall */
-        You("cannot handle the tin properly to open it.");
-        return;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            /* Druids in animal form can manipulate objects */
+            pline("It is not so easy to open this tin.");
+            tmp = rn1(3, 2);  /* 2-4 extra turns without hands */
+        } else {
+            You("cannot handle the tin properly to open it.");
+            return;
+        }
     } else if (otmp->blessed) {
         /* 50/50 chance for immediate access vs 1 turn delay (unless
            wielding blessed tin opener which always yields immediate
@@ -2434,9 +2442,9 @@ fprefx(struct obj *otmp)
             /* increasing existing nausea means that it will take longer
                before eventual vomit, but also means that constitution
                will be abused more times before illness completes */
-            /* TODO-EVILHACK: master also spares Convicts here (they
-               are used to bad food); ports with the roles slice */
-            if (!Upolyd && Race_if(PM_DRAUGR))
+            if ((!Upolyd && Race_if(PM_DRAUGR))
+                || (Role_if(PM_CONVICT) && (rn2(8) > u.ulevel)))
+                /* prisoners are used to bad food */
                 You_feel("a slight stomach ache.");
             else
                 make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
@@ -2463,11 +2471,13 @@ fprefx(struct obj *otmp)
                                 : "Mmm, tripe... not bad!");
         } else {
             pline("Yak - dog food!");
+            if (Role_if(PM_CONVICT))
+                pline("At least it's not prison food.");
             more_experienced(1, 0);
             newexplevel();
             /* not cannibalism, but we use similar criteria
                for deciding whether to be sickened by this meal */
-            if (rn2(2) && !CANNIBAL_ALLOWED())
+            if (rn2(2) && !CANNIBAL_ALLOWED() && !Role_if(PM_CONVICT))
                 make_vomiting((long) rn1(svc.context.victual.reqtime, 14),
                               FALSE);
         }
@@ -3572,10 +3582,8 @@ gethungry(void)
             /* vampires burn hunger even in non-eating shift forms */
             || maybe_polyd(is_vampire(gy.youmonst.data),
                            Race_if(PM_VAMPIRE)))
-        /* Draugr can last twice as long at hungry and below */
-        /* TODO-EVILHACK: master extends this to Convicts; ports with
-           the roles slice */
-        && (!(!Upolyd && Race_if(PM_DRAUGR))
+        /* Convicts/Draugr can last twice as long at hungry and below */
+        && (!(Role_if(PM_CONVICT) || (!Upolyd && Race_if(PM_DRAUGR)))
             || (svm.moves % 2) || (u.uhs < HUNGRY))
         && !Slow_digestion)
         u.uhunger--; /* ordinary food consumption */

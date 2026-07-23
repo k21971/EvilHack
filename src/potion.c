@@ -746,13 +746,16 @@ peffect_water(struct obj *otmp)
         return;
     }
     gp.potion_unkn++;
-    /* the undead races burn even when their current form is living */
-    /* TODO-EVILHACK: master also covers unaligned heroes (Infidels)
-       with the larger dice; ports with the roles slice */
+    /* the undead races burn even when their current form is living,
+       as does a demon-race hero in natural form; unaligned heroes
+       and the undead races suffer the larger dice */
     if (mon_hates_blessings(&gy.youmonst) /* undead or demon */
-        || u.ualign.type == A_CHAOTIC
+        || is_demon(raceptr(&gy.youmonst))
+        || u.ualign.type <= A_CHAOTIC
         || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
-        int dice = (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) ? 4 : 2;
+        int dice = ((u.ualign.type == A_NONE)
+                    || Race_if(PM_DRAUGR)
+                    || Race_if(PM_VAMPIRE)) ? 4 : 2;
 
         if (otmp->blessed) {
             pline("This burns like %s!", hliquid("acid"));
@@ -1121,6 +1124,10 @@ peffect_gain_level(struct obj *otmp)
             d_level newlevel;
 
             if (on_lvl_1) {
+                if (Role_if(PM_INFIDEL)) { /* omg no freebies */
+                    You("have an uneasy feeling.");
+                    return;
+                }
                 assign_level(&newlevel, &earth_level);
             } else {
                 newlev = depth(&u.uz) - 1;

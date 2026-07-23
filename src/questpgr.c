@@ -266,6 +266,9 @@ convert_arg(char c)
     case 'i':
         str = intermed();
         break;
+    case 'Q':
+        str = Role_if(PM_INFIDEL) ? "possess" : "seek";
+        break;
     case 'O':
     case 'o':
         str = the(artiname(gu.urole.questarti));

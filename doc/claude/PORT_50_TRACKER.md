@@ -2750,7 +2750,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       defeated_ice_queen live; do.c tower_entered arm live (In_tower
       exists); com_pager TODO-EVILHACK markers per the wiztower
       precedent (8 msgids: vecna/cerberus/goblin_king/lucifer_
-      defeated, icequeen_freed x3 variants, vlad_tower_enter);
+      defeated, icequeen_freed x3 variants, vlad_tower_enter;
+      +4 ADDED by the roles slice 2026-07-22: lucifer_demand_idol/
+      lucifer_demand_amulet at the monmove.c STRAT_CLOSE arm and
+      vecna_hand_evil/vecna_hand at the do_wear.c Hand donning
+      narration - all pend on the quest.lua data merge);
       LATENT BRANCH BUG FIXED: vanilla 5.0's dlord range
       JUIBLEX..YEENOGHU on the EvilHack roster reached only 3 of 8
       lords - Lolth and all four archdevil lords were silently
@@ -3126,7 +3130,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       AD_GOLD/AD_BHED with no dispatcher case (damage silently
       zeroed) - their tracker item is latently urgent. DEFER
       owners confirmed by reviewer (17/18 valid): hero regen
-      overhaul (elf/orc_can_regen + drow-in-light), kick to-hit
+      overhaul (elf/orc_can_regen + drow-in-light + Druid
+      druid_near_veg grass/next-to-tree heal bonus - named per the
+      roles-slice review N3), kick to-hit
       roll, combat miss-flavor rework, steal_it pickpocket rework,
       god-gift subsystem (record_gift), crowning rework,
       Xiuhcoatl throw cluster, Giantslayer/Harbinger/
@@ -3367,6 +3373,82 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mechanics (eat.c eataccessory + potion.c arms classified
       DEFER to this item in races-r2-port-report.md).
 - [ ] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
+      PORTED + REVIEWED x2 + COORDINATOR-FIXED 2026-07-22/23 (COMMIT
+      PENDING, battery next): port subagent 42 files +1716/-222
+      (brief: scratchpad port-brief-roles.md; report:
+      roles-port-report.md - 23/23 markers consumed, LIVE 33/PORT 95/
+      DEFER 26/N-A 3) -> reviewer FAIL (census anchors Role_if +
+      "wildshape" missed A_NONE-keyed Infidel sites and druid_form/
+      vampire_form-keyed usability sites; 5 blockers incl. a FALSE
+      port claim on prayer_done) -> fix pass on the resumed subagent
+      (fix-brief-roles.md; re-census with BOTH missed anchors found
+      FOUR more roles-owned gaps, all fixed: files.c livelog aindx
+      OOB, gcrownu A_NONE resistance gate + curse-not-bless,
+      sacrifice anger/ublesscnt divisors, dopray crimson-glow +
+      coaligned water-curse arms) -> focused re-review CONDITIONAL
+      PASS (roles-rereview-report.md) -> coordinator applied the
+      completion set same day (Cursed_obj macro + Glib arm, do_wear
+      9-site + loadstone 6-site + pickup-stash cursed() conversions,
+      helper Hand-of-Vecna carve-out + GOGGLES plural, objnam
+      carried() merged-suffix guard, gcrownu maybe_erodeproof,
+      engrave freehand parity). FINAL: 59 files +2144/-390,
+      zero-warning clean build. MAINTAINER RULINGS (Decisions log):
+      pauper Infidel Amulet-at-feet (implemented in newgame() after
+      u_on_upstairs, once-only, never on restore); imbue state =
+      u.uevent.uimbued_idol bit (sizeof(you) 3408/u_event 8
+      UNCHANGED; carrying_imbued_idol() retired; full master
+      uachieve.amulet census swept - artifact.c x3/potion.c/
+      teleport.c:917 arms stay with the artifacts owner, bit-exists
+      note recorded); Amulet first-possession WISH GRANT REMOVED
+      (first 5.0-behavior reversion; bit + u_init zeroing dormant).
+      KEY LANDINGS: #wildshape end-to-end + armor-merge/form-
+      usability layer (~30 sites) + missing R2 vampire twins
+      (rehumanize +1000, appr=0, take-off block, fog door passage);
+      Moloch prayer/sacrifice/crowning arc (gcrownu A_NONE
+      demonization via race_demon, restore re-force after Sfi_you on
+      uhand_of_elbereth==4); Idol imbue at Sanctum + chase-gate
+      conjuncts; Infidel cast-from-HP; aligns[] A_NONE OOB x7 fixed
+      (crash class); cursed() converted to master 2-arg silent form
+      across ALL consumers; inf_align permutation; quest-leader
+      forfeit; Convict watch/vault/shop/food/pet/ball behaviors;
+      SPE_SUMMON_ANIMAL/ELEMENTAL castable (latent Phase 1 gap);
+      Knight/Infidel grudge arms (R2 B4 stubs consumed); grudge loop
+      restructured with aasimar gate inside. RATIFY QUEUE: sliparm/
+      breakarm + stuff_prevents_passage hero-global druid_form/
+      vampire_form macros inside general monster predicates kept
+      master-exact (scoping to mon==&youmonst would be a deviation);
+      apply.c doapply-head form carve-out (5.0-only blanket gate,
+      carve-out preserves master usability - exists in neither tree
+      verbatim); pray_revive runs only in the non-A_NONE coaligned
+      arm (5.0-only feature; Moloch-doesn't-succor reading);
+      sounds.c chat fall-through-to-domonnoise delta; mysteryforce
+      decay term kept + A_NONE exemption (standing collision rule).
+      DISPOSITIONS: prayer_done -1 arm stays vanilla-5.0-exact
+      (master's praying&& gate + HUnchanging forced-death unported;
+      5.0 rehumanize covers intent); ACH_AMUL full-pack-imbue edge
+      keeps master's OBJ_INVENT gate (bit set unconditionally heals
+      master's own state-loss edge); ex-giant crowned demon mons[]
+      cwt/mmove residue until reload (master-shared). NEW OWNER ROWS
+      (from re-review + re-census, nothing silent): cursed
+      wand-of-light darkness arms (wands/light parity); bearded-axe
+      shield hook (muse/combat parity); master luck-timeout rework
+      (misc parity, pre-existing); break_armor boots trigger
+      widening + makemon S_JABBERWOCK-awake/S_NYMPH-satyr/S_EYE-
+      beholder case shapes (races/monsters parity sweep); Priest
+      pierce/slash cursed-slip term (Priest parity); amulet-escape
+      subsystem (mon_escape_with_amulet + uamulet_on_planes gates -
+      NEW owner minted by pass 1); meat-armor worn-suffix display
+      parity. SEQUENCING FLAG (role-critical): Infidel ascension =
+      Idol CHANNEL invoke, Convict Liberation-shirt = PHASING invoke
+      - BOTH live in the artifacts slice; it must land before the
+      roles are player-visible. quest.lua data merge = ruled
+      immediate follow-up commit (converted file in
+      /root/nh50-port-preview merges with branch hardfought deltas;
+      +4 msgids added to the boss-slice follow-up list). Battery
+      list: port report battery section + fix addendum deltas +
+      re-review additions (cursed-gauntlets prayer, ring-over-cursed-
+      gloves, loadstone menu-drop split, monster-armor probe suffix,
+      Hand of Vecna T-off, goggles plural).
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
 - [ ] Monster `dead` .des flag -> des.monster dead= binding
@@ -3527,6 +3609,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-12 | util/sfctool.c validate() call missing the 4th arg added by the u.ustuck save/restore fixes (optional target, upstream CI never builds it); also two -DSFCTOOL -Wunused-function warnings in files.c (set_whereisfile/write_whereis) | validate fix on branch; warnings not chased |
 | 2026-07-13 | WIP-build false positive: shop_keeper()'s "untrustworthy null shkp" diagnostic (shk.c:1082) fires during throne-room generation - fill_zoo COURT chest fill -> add_to_container gold merge -> obfree's unconditional shop_keeper(*u.ushops) fallback (shk.c:1227) probes rmno '\0' while level_status.making. Repro: generate levels until a COURT spawns (4 merges = 4 reports at one newgame observed). Suggested fix: diagnostic should skip rmno < ROOMOFFSET - a no-room probe's NULL is definitionally correct | traced on branch (gdb bt); code byte-identical upstream; not yet sent |
 | 2026-07-15 | steal.c mdrop_obj() use-after-free: update_mon_extrinsics(mon, obj, ...) runs after flooreffects() may have destroyed obj (worn item dropped over lava/open air deallocates it, then the extrinsics update derefs the freed object). Verbatim in upstream 5.0 at adoption commit 74d1133c2 and in Official_nh50. Fixed on the branch (oprops slice) with master's saved-fields dummy-object pattern; the companion stackobj() merge in the safe path was reviewer-proven NOT to free the dropped obj (merged() keeps the potmp arg = the dropped obj, frees the pre-existing floor stack) so no further change needed | fixed on branch; not yet sent |
+| 2026-07-22 | pray.c can_pray() demon gate `(gp.p_aligntyp == A_LAWFUL \|\| gp.p_aligntyp != A_NEUTRAL)` contradicts its own "ok if chaotic or none" comment - as written, demons find CHAOTIC prayer repugnant and NEUTRAL prayer fine. Master's `> A_CHAOTIC` form (matches the comment's intent) ported with the roles slice; reviewer-verified | fixed on branch; not yet sent |
 | 2026-07-17 | explode.c monster-kill loop mutates its adtyp local (`adtyp = AD_RBRE; /* no corpse */` at explode.c:579, identical in NetHack50 and Official_nh50): after the first no-corpse victim, every later victim of the same blast and the post-loop hero-damage block see AD_RBRE instead of the real damage type. Master's non-mutating `xkflg ? -AD_RBRE : adtyp` inline form ported to the branch (kill-attribution slice) | fixed on branch; not yet sent |
 
 ## Master re-derive queue
@@ -3604,6 +3687,9 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-22 | Infidel imbue state = NEW u.uevent Bitfield uimbued_idol (kill-attribution precedent: appended bit, achieve2 game-state source). Master's u.uachieve.amulet consumers sweep to it (conjunct sites reduce to `u.uhave.amulet && (!Role_if(PM_INFIDEL) \|\| u.uevent.uimbued_idol)`). Rejected: object-side-only carrying_imbued_idol() derivation (stashed-Idol no-heal + cancellation-erases-imbue deltas) | maintainer |
+| 2026-07-22 | Amulet first-possession WISH GRANT REMOVED entirely (hardfought-5.0 u.uevent.amulet_wish feature; every Infidel would get a free turn-1 wish). Grant block deleted from moveloop; the you.h bit + u_init zeroing stay dormant (wand-of-stasis precedent). Maintainer flags this as the FIRST OF SEVERAL intended 5.0-behavior reversions - collect future candidates here as they are named | maintainer |
+| 2026-07-22 | Pauper Infidel: the actual Amulet of Yendor (the Infidel's win-condition item; "Idol of Moloch" is only the Sanctum imbue-event flavor) is placed ON THE FLOOR at the hero's feet on turn 0 - starting inventory stays truly empty. Rationale: pauper (hardfought-5.0 conduct, no master counterpart) strips all of ini_inv, which would make the role unwinnable (no alternate Amulet source exists for Infidels). Rejected: exempt-and-wear carve-out, disallowing the combo | maintainer |
 | 2026-07-18 | Corpse-taint parity: racial-vampire/zombie corpse aging restored to master's -100 at all three mon.c make_corpse sites AND the dig.c grave dig-up site (fresh racial-vampire corpse taints ~35% on eat, dug-up grave corpse likewise); upstream 5.0's "use TAINT_AGE" cleanup (408321b4f, -51) can never trip the rotted>5 taint check (needs >=55) = a silent upstream behavior change; mklev.c graveyard site stays TAINT_AGE+1 (master's own literal 51 there = parity) | maintainer |
 | 2026-07-18 | rndvault -> themerooms MERGE: unique-to-EvilHack rndvaults become upstream themerms.lua entries (fname->contents, freq->frequency, mindepth->mindiff); the rndvault C registry (~50 sites) is retired unported; overlapping rooms adopt upstream's version; special room TYPES (GARDEN etc.) still port to mkroom.h + sp_lev name table; frequency-tuning pass keeps vault appearance rates roughly master-like or the new cadence gets its own ratification | maintainer |
 | 2026-07-16 | zombie_maker() = HYBRID: `if (mon->mcan) return FALSE; return racial_zombie(mon) \|\| mlet == S_LICH;` - master's erac-aware racial semantics (draugr-raced Knights/Monks/Infidels spread zombification) PLUS both upstream 5.0 additions kept (liches raise zombies; cancelled makers do not). Ghoul/skeleton excluded naturally (not MH_ZOMBIE) | maintainer |

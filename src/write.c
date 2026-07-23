@@ -85,8 +85,14 @@ dowrite(struct obj *pen)
     int spell_knowledge;
 
     if (nohands(gy.youmonst.data)) {
-        You("need hands to be able to write!");
-        return ECMD_OK;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            ;
+        } else {
+            You("need hands to be able to write!");
+            return ECMD_OK;
+        }
     } else if (Glib) {
         pline("%s from your %s.", Tobjnam(pen, "slip"),
               fingers_or_gloves(FALSE));

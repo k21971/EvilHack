@@ -227,6 +227,7 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
                                * AoY; possibly null if carrying the Amulet */
 {
     struct obj *otmp;
+    int alignabuse = 0;
 
     if (obj && !is_quest_artifact(obj)) {
         /* tossed an invocation item (or [fake] AoY) at the quest leader */
@@ -248,33 +249,162 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
         return;
     }
 
-    if (u.uhave.amulet) {
+    if (u.uhave.amulet
+        /* an Infidel's own starting Amulet does not impress their
+           quest leader; only the imbued Idol carries its power */
+        && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)) {
         /* has the amulet in inventory -- most likely the player has already
            completed the quest and stopped in on her way back up, but it's not
            impossible to have gotten the amulet before formally presenting the
            quest artifact to the leader. */
-        qt_pager("hasamulet");
+        if (Role_if(PM_INFIDEL)) {
+            /* a hack for displaying a different god's name in the
+               message */
+            aligntyp saved_align = u.ualignbase[A_ORIGINAL];
+            uchar saved_godgend = svq.quest_status.godgend;
+
+            u.ualignbase[A_ORIGINAL] = inf_align(2);
+            /* "god"[3] == 0; "goddess"[3] != 0 */
+            svq.quest_status.godgend = !!align_gtitle(inf_align(2))[3];
+            qt_pager("hasamulet");
+            u.ualignbase[A_ORIGINAL] = saved_align;
+            svq.quest_status.godgend = saved_godgend;
+        } else
+            qt_pager("hasamulet");
         /* leader IDs the real amulet but ignores any fakes */
         if ((otmp = carrying(AMULET_OF_YENDOR)) != (struct obj *) 0) {
             fully_identify_obj(otmp);
             update_inventory();
         }
-    } else {
+        return; /* don't also show the artifact completion message */
+    } else if (u.ualign.abuse != 0) {
+        /* the more often the player abuses their alignment,
+           the greater the odds of their quest leader demanding
+           that they forfeit the quest artifact */
+        int i = 51 - (int) u.ualign.abuse;
+
+        if (i < 1)
+            i = 1; /* clamp lower limit to avoid panic */
+        alignabuse = !rn2(i);
+        if (alignabuse) {
+            char ldr_buf[BUFSZ];
+            const char *qa_name = artiname(gu.urole.questarti);
+            const char *ldr_name;
+            char qbuf[BUFSZ];
+            struct monst *mtmp;
+
+            /* snapshot ldrname() into local buffer; ldrname returns
+               static nambuf which qt_pager rewrites via %l token */
+            Strcpy(ldr_buf, ldrname());
+            ldr_name = ldr_buf;
+
+            Snprintf(qbuf, sizeof qbuf, "Forfeit %s to %s?", qa_name,
+                     ldr_name);
+            /* quest leader decides they want the quest artifact */
+            /* TODO-EVILHACK: master announces the demand via
+               qt_pager("leader_wantsit"); enable once the EvilHack
+               quest text data lands */
+            if (y_n(qbuf) == 'y') {
+                /* TODO-EVILHACK: qt_pager("gaveitup") once the
+                   EvilHack quest text data lands */
+                if (obj) {
+                    u.uevent.qcompleted = 1; /* you did it! */
+                    /* completing the quest frees the bell of opening
+                       from its 'curse' */
+                    if ((otmp = carrying(BELL_OF_OPENING)) != 0)
+                        otmp->blessed = 1;
+                    adjalign(5); /* god happy, much yay */
+                    u.uluck += 3; /* increase luck */
+                    /* leader still gives the artifact their special
+                       treatment */
+                    fully_identify_obj(obj);
+                    obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
+                    (void) maybe_erodeproof(obj, 1);
+                    remove_worn_item(obj, TRUE);
+                    obj_extract_self(obj);
+                    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                        if (DEADMONSTER(mtmp))
+                            continue;
+                        if (mtmp->isqldr) {
+                            (void) mpickobj(mtmp, obj);
+                            break;
+                        }
+                    }
+                    update_inventory();
+                    livelog_printf(LL_ACHIEVE,
+                                   "returned %s to %s, completing %s quest",
+                                   qa_name, ldr_name, uhis());
+                }
+                if (u.ualign.type == A_NONE)
+                    /* Infidel quest leader stays hostile regardless */
+                    Qstat(pissed_off) = TRUE;
+                /* should have obtained bell during quest;
+                   if not, suggest returning for it now */
+                if ((otmp = carrying(BELL_OF_OPENING)) == 0) {
+                    /* unless it's the infidel quest leader */
+                    if (!(u.ualign.type == A_NONE && Qstat(pissed_off)))
+                        com_pager("quest_complete_no_bell");
+                }
+                Qstat(got_thanks) = TRUE;
+            } else {
+                /* You have made the quest leader and his guardians
+                   grumpy; the quest won't be complete until the quest
+                   leader is defeated */
+                struct permonst *q_guardian =
+                    (gu.urole.guardnum != NON_PM)
+                        ? &mons[gu.urole.guardnum]
+                        : (struct permonst *) 0;
+
+                Qstat(pissed_off) = TRUE;
+                adjalign(-10); /* god less happy, much sad */
+                record_abuse_event(-10, ABUSE_QUEST_BETRAYAL);
+                if (u.ualign.type == A_NONE)
+                    verbalize(
+ "I wouldn't expect anything less from a servant of Moloch.  However, I will not tolerate your insolence!");
+                else
+                    verbalize(
+ "You deny my request to safeguard our sacred artifact?  Your bones shall serve to warn others.");
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    if (DEADMONSTER(mtmp))
+                        continue;
+                    /* quest guardians become angry */
+                    if (q_guardian && mtmp->data == q_guardian)
+                        setmangry(mtmp, FALSE);
+                }
+                /* Convict quest leader is extra harsh */
+                if (Role_if(PM_CONVICT) && !Punished)
+                    punish((struct obj *) 0);
+                livelog_printf(LL_ACHIEVE, "refused to give up %s to %s",
+                               qa_name, ldr_name);
+            }
+        }
+    }
+    if (!alignabuse) { /* player gets to keep quest artifact */
         /* normal quest completion; threw artifact or walked up carrying it */
         qt_pager(!Qstat(got_thanks) ? "offeredit" : "offeredit2");
         /* should have obtained bell during quest;
            if not, suggest returning for it now */
         if ((otmp = carrying(BELL_OF_OPENING)) == 0)
             com_pager("quest_complete_no_bell");
-    }
-    Qstat(got_thanks) = TRUE;
+        Qstat(got_thanks) = TRUE;
 
-    if (obj) {
-        u.uevent.qcompleted = 1; /* you did it! */
-        /* behave as if leader imparts sufficient info about the
-           quest artifact */
-        fully_identify_obj(obj);
-        update_inventory();
+        if (obj) {
+            u.uevent.qcompleted = 1; /* you did it! */
+            /* completing the quest frees the bell of opening
+               from its 'curse' */
+            if ((otmp = carrying(BELL_OF_OPENING)) != 0)
+                otmp->blessed = 1;
+            /* behave as if leader imparts sufficient info about the
+               quest artifact */
+            if (!Qstat(pissed_off)) {
+                fully_identify_obj(obj);
+                obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
+                (void) maybe_erodeproof(obj, 1); /* leader 'fixes' it */
+            }
+            update_inventory();
+            livelog_printf(LL_ACHIEVE,
+                           "completed %s quest without incident", uhis());
+        }
     }
 }
 
@@ -293,7 +423,8 @@ chat_with_leader(struct monst *mtmp)
      */
     if (Qstat(got_thanks)) {
         /* Rule 1: You've gone back with/without the amulet. */
-        if (u.uhave.amulet)
+        if (u.uhave.amulet
+            && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
             finish_quest((struct obj *) 0);
 
         /* Rule 2: You've gone back before going for the amulet. */

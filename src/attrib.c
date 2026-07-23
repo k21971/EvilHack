@@ -168,8 +168,15 @@ static const struct innate {
                  { 20, &HShock_resistance, "insulated", "conductive" },
                  { 0, 0, 0, 0 } },
 
-  /* TODO-EVILHACK: master also defines a racial intrinsic table for
-     the demon race granted by Infidel crowning (roles slice) */
+  /* remove drain res and flying - they are FROMFORM.
+     add sick res to remain consistent with previous behavior */
+  dem_abil[] = { { 1, &HInfravision, "", "" },
+                 { 1, &HFire_resistance, "", "" },
+                 { 1, &HPoison_resistance, "", "" },
+                 { 1, &HSee_invisible, "", "" },
+                 { 1, &HSick_resistance, "hale", "" },
+                 /* also inediate */
+                 { 0, 0, 0, 0 } },
 
   hum_abil[] = { { 0, 0, 0, 0 } };
 
@@ -952,6 +959,9 @@ check_innate_abil(long *ability, long frommask)
         case PM_ILLITHID:
             abil = ill_abil;
             break;
+        case PM_DEMON:
+            abil = dem_abil;
+            break;
         case PM_TORTLE:
             abil = trt_abil;
             break;
@@ -1176,6 +1186,9 @@ adjabil(int oldlevel, int newlevel)
         break;
     case PM_VAMPIRE:
         rabil = vam_abil;
+        break;
+    case PM_DEMON:
+        rabil = dem_abil;
         break;
     case PM_AASIMAR:
         rabil = amr_abil;

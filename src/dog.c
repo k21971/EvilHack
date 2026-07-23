@@ -6,6 +6,8 @@
 #include "hack.h"
 
 staticfn int pet_type(void);
+staticfn int woodland_animal(void);
+staticfn int elemental(void);
 staticfn struct permonst * pick_familiar_pm(struct obj *, boolean);
 staticfn void set_mon_lastmove(struct monst *);
 staticfn int mon_leave(struct monst *) NONNULLARG1;
@@ -184,15 +186,26 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         return (struct monst *) 0;
 
     if (otmp) { /* figurine; resulting monster might not become a pet */
+        boolean same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
+
         chance = rn2(10); /* 0==tame, 1==peaceful, 2==hostile */
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;
         /* 0,1,2:  b=80%,10,10; nc=10%,80,10; c=10%,10,80 */
-        /* TODO-EVILHACK: master also forces hostility for knights
-           with cross-aligned ki-rin and Infidels with lawful angels;
-           those port with the roles slice */
+        if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL
+            && mtmp->data == &mons[PM_ELDRITCH_KI_RIN])
+            chance = 2;
+        if (Role_if(PM_KNIGHT) && u.ualign.type == A_CHAOTIC
+            && mtmp->data == &mons[PM_KI_RIN])
+            chance = 2;
+        if (Role_if(PM_KNIGHT) && is_dragon(mtmp->data)
+            && !same_align)
+            chance = 2;
         if (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
             chance = 2; /* aasimar cannot tame demons */
+        if (Role_if(PM_INFIDEL) && is_angel(mtmp->data)
+            && mon_aligntyp(mtmp) > 0)
+            chance = 2;
         if (chance > 0) {
             reallytame = FALSE; /* not tame after all */
             if (chance == 2) {  /* hostile (cursed figurine) */
@@ -217,6 +230,141 @@ make_familiar(struct obj *otmp, coordxy x, coordxy y, boolean quietly)
         mtmp->weapon_check = NEED_HTH_WEAPON;
         (void) mon_wield_item(mtmp);
     }
+    return mtmp;
+}
+
+/* pick a woodland creature for the summon animal spell; the better
+   the caster's skill, the more formidable the animal */
+staticfn int
+woodland_animal(void)
+{
+    if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) < P_BASIC) {
+        switch (rnd(5)) {
+        case 1:
+            return rn2(2) ? PM_GECKO : PM_NEWT;
+        case 2:
+            return rn2(2) ? PM_CENTIPEDE : PM_GARTER_SNAKE;
+        case 3:
+            return PM_FOX;
+        case 4:
+            return rn2(5) ? PM_BAT : PM_GIANT_BAT;
+        case 5:
+            return PM_GIANT_ANT;
+        }
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) == P_BASIC) {
+        switch (rnd(5)) {
+        case 1:
+            return rn2(4) ? PM_WOODCHUCK : PM_ROTHE;
+        case 2:
+            return PM_SNAKE;
+        case 3:
+            return rn2(6) ? PM_DEER : PM_STAG;
+        case 4:
+            return PM_HAWK;
+        case 5:
+            return PM_LIZARD;
+        }
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) == P_SKILLED) {
+        switch (rnd(5)) {
+        case 1:
+            return PM_GIANT_BEETLE;
+        case 2:
+            return rn2(5) ? PM_WINTER_WOLF_CUB : PM_WINTER_WOLF;
+        case 3:
+            return rn2(2) ? PM_LYNX : PM_WOLF;
+        case 4:
+            return PM_GRAY_UNICORN;
+        case 5:
+            return rn2(4) ? PM_LARGE_HAWK : PM_GIANT_HAWK;
+        }
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) == P_EXPERT) {
+        switch (rnd(5)) {
+        case 1:
+            return PM_HONEY_BADGER;
+        case 2:
+            return rn2(5) ? PM_WOLVERINE : PM_DIRE_WOLVERINE;
+        case 3:
+            return rn2(5) ? PM_GRIZZLY_BEAR : PM_CAVE_BEAR;
+        case 4:
+            return PM_SABER_TOOTHED_TIGER;
+        case 5:
+            return rn2(6) ? PM_GIANT_CROCODILE : PM_PEGASUS;
+        }
+    }
+    return 0;
+}
+
+/* pick an elemental for the summon elemental spell */
+staticfn int
+elemental(void)
+{
+    switch (rnd(4)) {
+    case 1:
+        return PM_AIR_ELEMENTAL;
+    case 2:
+        return PM_WATER_ELEMENTAL;
+    case 3:
+        return PM_EARTH_ELEMENTAL;
+    case 4:
+        return PM_FIRE_ELEMENTAL;
+    }
+    return 0;
+}
+
+struct monst *
+make_woodland_animal(coordxy x, coordxy y)
+{
+    struct permonst *pm;
+    struct monst *mtmp = 0;
+    int trycnt = 100;
+
+    do {
+        pm = &mons[woodland_animal()];
+        mtmp = makemon(pm, x, y, MM_EDOG | NO_MINVENT);
+    } while (!mtmp && --trycnt > 0);
+
+    if (!mtmp)
+        return (struct monst *) 0; /* genocided */
+
+    initedog(mtmp, TRUE);
+    mtmp->mtame = 15;
+    mtmp->msleeping = 0;
+    set_malign(mtmp); /* more alignment changes */
+    newsym(mtmp->mx, mtmp->my);
+
+    return mtmp;
+}
+
+struct monst *
+make_elemental(coordxy x, coordxy y)
+{
+    struct permonst *pm;
+    struct monst *mtmp = 0;
+    int trycnt = 100;
+
+    do {
+        pm = &mons[elemental()];
+        mtmp = makemon(pm, x, y, MM_EDOG | NO_MINVENT);
+    } while (!mtmp && --trycnt > 0);
+
+    if (!mtmp)
+        return (struct monst *) 0; /* genocided */
+
+    initedog(mtmp, TRUE);
+    mtmp->mtame = 15;
+    mtmp->msleeping = 0;
+    /* increase hit points based on spellcasting skill */
+    if (P_SKILL(spell_skilltype(SPE_SUMMON_ELEMENTAL)) == P_SKILLED) {
+        mtmp->mhpmax += mtmp->mhpmax / 2;
+        mtmp->mhp = mtmp->mhpmax;
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ELEMENTAL))
+               == P_EXPERT) {
+        mtmp->mhpmax += mtmp->mhpmax;
+        mtmp->mhp = mtmp->mhpmax;
+    }
+    set_malign(mtmp); /* more alignment changes */
+    newsym(mtmp->mx, mtmp->my);
+
     return mtmp;
 }
 
@@ -281,6 +429,15 @@ makedog(void)
             petname = "Idefix"; /* Obelix */
         if (Role_if(PM_RANGER))
             petname = "Sirius"; /* Orion's dog */
+    } else if (!*petname && pettype == PM_SEWER_RAT) {
+        if (Role_if(PM_CONVICT))
+            petname = "Nicodemus"; /* Rats of NIMH */
+    } else if (!*petname && pettype == PM_LESSER_HOMUNCULUS) {
+        if (Role_if(PM_INFIDEL))
+            petname = "Hecubus"; /* The Kids in the Hall */
+    } else if (!*petname && pettype == PM_HAWK) {
+        if (Role_if(PM_DRUID))
+            petname = "Bobo"; /* Viva La Dirt League */
     }
 
     /* specifying NO_MINVENT prevents makemon() from having a 1% chance
@@ -1302,11 +1459,28 @@ tamedog(
         || (mtmp->data->mflags3 & M3_WANTSARTI))
         return FALSE;
 
+    /* Knights can never tame dragons of differing alignment */
+    if (Role_if(PM_KNIGHT) && is_dragon(mtmp->data)
+        && sgn(mon_aligntyp(mtmp)) != u.ualign.type)
+        return FALSE;
+
+    /* Dark knights cannot tame ki-rin, lawful knights cannot
+       tame eldritch ki-rin */
+    if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL
+        && mtmp->data == &mons[PM_ELDRITCH_KI_RIN])
+        return FALSE;
+
+    if (Role_if(PM_KNIGHT) && u.ualign.type == A_CHAOTIC
+        && mtmp->data == &mons[PM_KI_RIN])
+        return FALSE;
+
     /* Aasimars cannot tame demons or devils */
-    /* TODO-EVILHACK: master also blocks knights taming cross-aligned
-       ki-rin and Infidels taming lawful angels; those port with the
-       roles slice */
     if (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
+        return FALSE;
+
+    /* Infidels cannot tame lawful angels */
+    if (Role_if(PM_INFIDEL) && is_angel(mtmp->data)
+        && mon_aligntyp(mtmp) > 0)
         return FALSE;
 
     /* wielding or wearing any of the 'banes makes taming its hated
@@ -1385,11 +1559,10 @@ tamedog(
         && mtmp->data->mlet == S_DOG)
         return FALSE;
 
-    /* TODO-EVILHACK: master also makes domestic animals wary of
-       Convicts; ports with the roles slice */
-    if (!Upolyd && Race_if(PM_DRAUGR) && !is_undead(mtmp->data)
+    if ((Role_if(PM_CONVICT)
+         || (!Upolyd && Race_if(PM_DRAUGR) && !is_undead(mtmp->data)))
         && is_domestic(mtmp->data) && !mtmp->mtame && obj) {
-        /* domestic animals are wary of the walking dead */
+        /* domestic animals are wary of Convicts and the walking dead */
         pline("%s still looks wary of you.", Monnam(mtmp));
         return FALSE;
     }

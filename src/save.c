@@ -1054,7 +1054,8 @@ store_plname_in_file(NHFILE *nhfp)
     Snprintf(hero, sizeof hero, "%s-%.3s-%.3s-%.3s-%.3s",
             svp.plname, gu.urole.filecode,
             gu.urace.filecode, genders[flags.female].filecode,
-            aligns[1 - u.ualign.type].filecode);
+            aligns[u.ualign.type == A_NONE
+                   ? 3 : 1 - u.ualign.type].filecode);
     /* replace "-role-race..." with "\0role-race..." so that we can include
        or exclude the role-&c suffix easily, without worrying about whether
        plname contains any dashes; but don't rely on snprintf() for this */

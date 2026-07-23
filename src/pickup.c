@@ -2528,7 +2528,7 @@ exchange_objects_with_mon(struct monst *mtmp, boolean taking)
                 weldmsg(otmp);
                 continue;
             }
-            if (otmp->otyp == LOADSTONE && otmp->cursed
+            if (otmp->otyp == LOADSTONE && cursed(otmp, TRUE)
                 && maxquan < otmp->quan) {
                 /* kludge for canletgo() feedback, also used in getobj() */
                 otmp->corpsenm = maxquan;
@@ -2835,11 +2835,12 @@ in_container(struct obj *obj)
         Norep("You cannot %s %s you are wearing.",
               Icebox ? "refrigerate" : "stash", something);
         return 0;
-    } else if ((obj->otyp == LOADSTONE) && obj->cursed) {
+    } else if ((obj->otyp == LOADSTONE) && cursed(obj, TRUE)) {
         set_bknown(obj, 1);
         pline_The("stone%s won't leave your person.", plur(obj->quan));
         return 0;
     } else if (obj->otyp == AMULET_OF_YENDOR
+               || (Role_if(PM_INFIDEL) && is_quest_artifact(obj))
                || obj->otyp == CANDELABRUM_OF_INVOCATION
                || obj->otyp == BELL_OF_OPENING
                || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
@@ -3204,8 +3205,14 @@ boolean
 u_handsy(void)
 {
     if (nohands(gy.youmonst.data)) {
-        You("have no hands!"); /* not `body_part(HAND)' */
-        return FALSE;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            return TRUE;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            return TRUE;
+        } else {
+            You("have no hands!"); /* not `body_part(HAND)' */
+            return FALSE;
+        }
     } else if (!freehand()) {
         You("have no free %s.", body_part(HAND));
         return FALSE;

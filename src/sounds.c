@@ -1419,6 +1419,52 @@ dochat(void)
         return ECMD_OK;
     }
 
+    /* Druids can speak with woodland creatures, possibly winning
+       them over */
+    if (Role_if(PM_DRUID) && u.ulevel > 2
+        && is_woodland_creature(mtmp->data) && !mtmp->mtame) {
+        if (!canspotmon(mtmp))
+            map_invisible(mtmp->mx, mtmp->my);
+        You("speak with the %s in its native tongue...",
+            l_monnam(mtmp));
+        if (rnl(20) < 2) {
+            pline("%s agrees to help you.", Monnam(mtmp));
+            /* a newly tamed monster also gets its usual chat response */
+            (void) tamedog(mtmp, (struct obj *) 0, TRUE);
+        } else {
+            if (rnl(10) < 5) {
+                if (!mtmp->mpeaceful) {
+                    mtmp->mpeaceful = 1;
+                    set_malign(mtmp);
+                }
+                pline("%s enjoys the chat.", Monnam(mtmp));
+            } else {
+                pline("%s ignores you.", Monnam(mtmp));
+            }
+            return ECMD_TIME;
+        }
+    }
+
+    /* Convicts can attempt to soothe hostile rats */
+    if (Role_if(PM_CONVICT) && !mtmp->mpeaceful && is_rat(mtmp->data)) {
+        if (!canspotmon(mtmp))
+            map_invisible(mtmp->mx, mtmp->my);
+        You("attempt to soothe the %s with chittering sounds...",
+            l_monnam(mtmp));
+        if (rnl(10) < 2) {
+            /* a newly tamed monster also gets its usual chat response */
+            (void) tamedog(mtmp, (struct obj *) 0, TRUE);
+        } else {
+            pline("%s unfortunately ignores your overtures.",
+                  Monnam(mtmp));
+            if (rnl(10) < 3) {
+                mtmp->mpeaceful = 1;
+                set_malign(mtmp);
+            }
+            return ECMD_TIME;
+        }
+    }
+
     /* Draugr can perform a necromantic binding ritual on an adjacent
        tame skeletal undead pet, costing Pw and on a per-pet cooldown,
        to reinforce the necromantic bond (+1 tameness). Skeletal
@@ -1498,7 +1544,7 @@ tiphat(void)
         return 0;
 
     res = uarmh->bknown ? 0 : 1;
-    if (cursed(uarmh)) /* "You can't.  It is cursed." */
+    if (cursed(uarmh, FALSE)) /* "You can't.  It is cursed." */
         return res; /* if learned of curse, use a move */
 
     /* might choose a position, but dealing with direct lines is simpler */

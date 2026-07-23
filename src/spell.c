@@ -715,6 +715,16 @@ rejectcasting(void)
          */
         Your("arms are not free to cast!");
         return TRUE;
+    } else if (nohands(gy.youmonst.data)) {
+        /* Note: only Druids in their #wildshape forms and vampires in
+           their #shapechange forms can still cast spells without having
+           actual arms/hands */
+        if (druid_form || vampire_form) {
+            return FALSE;
+        } else {
+            You("have no hands to cast!");
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -1515,11 +1525,14 @@ spelleffects_check(int spell, int *res, int *energy)
        which case a turn will be used up in addition to the energy loss */
     if (u.uhave.amulet && u.uen >= *energy) {
         /* psionic wave is an innate psychic ability rather than a
-           learned spell, so the Amulet does not drain it */
-        /* TODO-EVILHACK: master also exempts an Infidel whose quest
-           artifact has been imbued with the Amulet's power; ports
-           with the roles subsystem */
-        if (spellid(spell) != SPE_PSIONIC_WAVE) {
+           learned spell, so the Amulet does not drain it.
+
+           In regards to Infidels: once the Amulet has been sacrificed
+           to Moloch and their quest artifact is imbued with its power,
+           Moloch's influence suppresses the spell power draining effect
+           and allows the Infidel to realize their full potential */
+        if (spellid(spell) != SPE_PSIONIC_WAVE
+            && !(Role_if(PM_INFIDEL) && u.uevent.uimbued_idol)) {
             You_feel("the amulet draining your energy away.");
             /* this used to be 'energy += rnd(2 * energy)' (without
                'res'), so if amulet-induced cost was more than u.uen,
@@ -1607,8 +1620,21 @@ spelleffects_check(int spell, int *res, int *energy)
 
     chance = percent_success(spell);
     if (confused || (rnd(100) > chance)) {
-        You("fail to cast the spell correctly.");
-        u.uen -= *energy / 2;
+        if (spellid(spell) == SPE_PSIONIC_WAVE)
+            You("are too confused to use your psychic abilities.");
+        else
+            You("fail to cast the spell correctly.");
+        /* an Infidel without the Amulet's power at hand burns life
+           force instead of spell power */
+        if (u.ualign.type == A_NONE && !u.uhave.amulet
+            && !u.uevent.uimbued_idol
+            && spellid(spell) != SPE_PSIONIC_WAVE) {
+            Sprintf(svk.killer.name, "draining %s own life force",
+                    uhis());
+            losehp(*energy / 2, svk.killer.name, KILLED_BY);
+        } else {
+            u.uen -= *energy / 2;
+        }
         disp.botl = TRUE;
         *res = ECMD_TIME;
         return TRUE;
@@ -1631,7 +1657,39 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     if (!force && spelleffects_check(spell, &res, &energy))
         return res;
 
-    u.uen -= energy;
+    /* Infidels attempting to cast spells without having
+       the Amulet of Yendor in their possession (before
+       the Idol of Moloch is imbued) costs them hit points
+       instead of spell power */
+    if (!force && u.ualign.type == A_NONE && !u.uhave.amulet
+        && !u.uevent.uimbued_idol
+        /* psychic attack uses spell power but
+           technically is not considered a spell */
+        && spellid(spell) != SPE_PSIONIC_WAVE) {
+        You("draw upon your own life force to cast the spell.");
+        /* prevent healing spell abuse:
+           healing can cure 6d4 worth of hit points,
+           casting it drains 30 hit points.
+           extra healing can cure 6d8 worth of hit points,
+           but casting it drains 60 hit points. critical
+           healing can cure 6d12 worth of hit points, but
+           casting it drains 90 hit points. The net
+           result is that our Infidel will still lose about
+           the same amount of hit points as if casting
+           something other than healing/extra healing */
+        Sprintf(svk.killer.name, "draining %s own life force", uhis());
+        if (spellid(spell) == SPE_HEALING) {
+            losehp(6 * energy, svk.killer.name, KILLED_BY);
+        } else if (spellid(spell) == SPE_EXTRA_HEALING) {
+            losehp(4 * energy, svk.killer.name, KILLED_BY);
+        } else if (spellid(spell) == SPE_CRITICAL_HEALING) {
+            losehp(3 * energy, svk.killer.name, KILLED_BY);
+        } else {
+            losehp(energy, svk.killer.name, KILLED_BY);
+        }
+    } else {
+        u.uen -= energy;
+    }
     disp.botl = TRUE;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
@@ -1767,6 +1825,13 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_MAGIC_MAPPING:
     case SPE_CREATE_MONSTER:
         (void) seffects(pseudo);
+        break;
+
+    case SPE_SUMMON_ANIMAL:
+        (void) make_woodland_animal(u.ux, u.uy);
+        break;
+    case SPE_SUMMON_ELEMENTAL:
+        (void) make_elemental(u.ux, u.uy);
         break;
 
     /* these are all duplicates of potion effects */
@@ -2463,7 +2528,9 @@ percent_success(int spell)
                                                     : gu.urole.spelarmr;
     else if (uarmc && uarmc->otyp == ROBE)
         splcaster -= gu.urole.spelarmr;
-    if (uarms)
+    /* the Druid quest artifact occupies the shield slot but casts
+       as though nothing were there */
+    if (uarms && !(uarms->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCLE))
         splcaster += gu.urole.spelshld;
 
     if (uwep && uwep->otyp == QUARTERSTAFF)
@@ -2476,6 +2543,25 @@ percent_success(int spell)
             splcaster += uarmgbon;
         if (uarmf && is_metallic(uarmf))
             splcaster += uarmfbon;
+    }
+
+    /* Infidels have a special penalty for wearing blessed armor */
+    if (Role_if(PM_INFIDEL)) {
+        static struct obj **const armor[] = { &uarm, &uarmc, &uarmh, &uarms,
+                                              &uarmg, &uarmf, &uarmu };
+        int penalty = 0;
+        int i;
+
+        for (i = 0; i < SIZE(armor); i++) {
+            if (!*armor[i])
+                continue;
+            if ((*armor[i])->blessed)
+                penalty += 2;
+            else if ((*armor[i])->cursed)
+                penalty--;
+        }
+        if (penalty > 0)
+            splcaster += penalty;
     }
 
     if (spellid(spell) == gu.urole.spelspec)
@@ -2562,6 +2648,22 @@ percent_success(int spell)
        psychic ability */
     if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_ILLITHID))
         chance = 100;
+
+    /* Druids will always have 100% failure rate if wearing any sort
+       of metallic armor; checking all armor types here even though
+       some of these currently can never be made of metal (cloaks,
+       shirts) to futureproof any changes */
+    if (Role_if(PM_DRUID)) {
+        if ((uarm && is_metallic(uarm))
+            || (uarmc && is_metallic(uarmc))
+            || (uarmh && is_metallic(uarmh))
+            || (uarms && is_metallic(uarms))
+            || (uarmg && is_metallic(uarmg))
+            || (uarmf && is_metallic(uarmf))
+            || (uarmu && is_metallic(uarmu))) {
+            chance = 0;
+        }
+    }
 
     return chance;
 }

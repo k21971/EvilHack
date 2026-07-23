@@ -814,10 +814,21 @@ u_entered_shop(char *enterstring)
     }
 
     /* Draugr being zombies */
-    /* TODO-EVILHACK: master also bans customers in a visible striped
-       prison shirt; ports with the roles slice */
     if (!Upolyd && Race_if(PM_DRAUGR))
         eshkp->pbanned = TRUE;
+
+    /* Visible striped prison shirt */
+    if ((uarmu && (uarmu->otyp == STRIPED_SHIRT))
+        && !uarm && !uarmc) {
+        eshkp->pbanned = TRUE;
+    }
+
+    /* the Striped Shirt of Liberation does not need
+       to be visible if worn */
+    if (uarmu
+        && (uarmu->oartifact == ART_STRIPED_SHIRT_OF_LIBERATION)) {
+        eshkp->pbanned = TRUE;
+    }
 
     rt = svr.rooms[*enterstring - ROOMOFFSET].rtype;
 
@@ -1437,7 +1448,11 @@ make_happy_shk(struct monst *shkp, boolean silentkops)
     pacify_shk(shkp, FALSE);
     eshkp->following = 0;
     eshkp->robbed = 0L;
-    if (!Role_if(PM_ROGUE))
+
+    /* Convicts, Rogues, and Infidels do not feel
+       guilt when resolving issues with shopkeepers */
+    if (!(Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+        && u.ualign.type != A_NONE)
         adjalign(sgn(u.ualign.type));
     if (!inhishop(shkp)) {
         char shk_nam[BUFSZ];

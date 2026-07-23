@@ -1234,9 +1234,20 @@ level_tele(void)
                 if (In_endgame(&newlevel) && !In_endgame(&u.uz)) {
                     struct obj *amu;
 
-                    if (!u.uhave.amulet
-                        && (amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE))
-                               != 0) {
+                    if (!u.uhave.amulet) {
+                        if (Role_if(PM_INFIDEL)) {
+                            /* Infidels enter the Planes with their
+                               imbued quest artifact instead of the
+                               Amulet itself */
+                            amu = mksobj(FIGURINE, TRUE, FALSE);
+                            amu = oname(amu,
+                                        artiname(ART_IDOL_OF_MOLOCH),
+                                        ONAME_KNOW_ARTI);
+                            amu->spe = 1; /* imbued */
+                            u.uevent.uimbued_idol = 1;
+                        } else {
+                            amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
+                        }
                         /* ordinarily we'd use hold_another_object()
                            for something like this, but we don't want
                            fumbling or already full pack to interfere */

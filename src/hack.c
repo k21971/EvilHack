@@ -1095,7 +1095,9 @@ test_move(
                     return FALSE;
             } else {
                 if (mode == DO_MOVE) {
-                    if (amorphous(gy.youmonst.data))
+                    /* a vampire's fog form never gets this far (its
+                       gear passes with it), so don't taunt it */
+                    if (amorphous(gy.youmonst.data) && !vampire_form)
                         You("try to ooze under the door,"
                             " but can't squeeze your possessions through.");
                     if (flags.autoopen && !svc.context.run
@@ -1155,7 +1157,11 @@ test_move(
         }
     }
     if (dx && dy && bad_rock(&gy.youmonst, ux, y)
-        && bad_rock(&gy.youmonst, x, uy)) {
+        && bad_rock(&gy.youmonst, x, uy)
+        /* Druids can slip between trees */
+        && !(Role_if(PM_DRUID)
+             && (IS_TREE(levl[ux][y].typ)
+                 || IS_TREE(levl[x][uy].typ)))) {
         /* Move at a diagonal. */
         switch (cant_squeeze_thru(&gy.youmonst)) {
         case 3:
@@ -4386,9 +4392,8 @@ weight_cap(void)
         maxcarrcap += 200;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
-        /* TODO-EVILHACK: master also exempts druid_form here; ports
-           with the roles slice */
-        if (gy.youmonst.data->mlet == S_NYMPH || vampire_form)
+        if (is_nymph(gy.youmonst.data)
+            || druid_form || vampire_form)
             carrcap = maxcarrcap;
         else if (!gy.youmonst.data->cwt)
             carrcap = (carrcap * (long) gy.youmonst.data->msize) / MZ_HUMAN;

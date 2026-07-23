@@ -803,7 +803,7 @@ extern void Blindf_off(struct obj *);
 extern int dotakeoff(void);
 extern int ia_dotakeoff(void);
 extern int doremring(void);
-extern int cursed(struct obj *);
+extern int cursed(struct obj *, boolean);
 extern int armoroff(struct obj *);
 extern boolean will_touch_skin(long);
 extern int canwearobj(struct obj *, long *, boolean) NONNULLPTRS;
@@ -819,6 +819,7 @@ extern int doddoremarm(void);
 extern int remarm_swapwep(void);
 extern int disintegrate_arm(struct obj *);
 extern int destroy_arm(void);
+extern void wornarm_destroyed(struct obj *) NONNULLARG1;
 extern void adj_abon(struct obj *, schar) NONNULLARG1;
 extern boolean inaccessible_equipment(struct obj *, const char *, boolean);
 extern int any_worn_armor_ok(struct obj *);
@@ -830,6 +831,8 @@ extern void newedog(struct monst *) NONNULLARG1;
 extern void free_edog(struct monst *) NONNULLARG1;
 extern void initedog(struct monst *, boolean) NONNULLARG1;
 extern struct monst *make_familiar(struct obj *, coordxy, coordxy, boolean);
+extern struct monst *make_woodland_animal(coordxy, coordxy);
+extern struct monst *make_elemental(coordxy, coordxy);
 extern struct monst *makedog(void);
 extern void update_mlstmv(void);
 extern void losedogs(void);
@@ -2640,6 +2643,7 @@ extern void float_vs_flight(void);
 extern void steed_vs_stealth(void);
 extern void change_sex(void);
 extern void livelog_newform(boolean, int, int);
+extern void druid_wildshape(void);
 extern void vampire_shapechange(void);
 extern void polyself(int);
 extern int polymon(int);
@@ -2714,6 +2718,7 @@ extern const char *a_gname_at(coordxy x, coordxy y);
 extern const char *align_gname(aligntyp);
 extern const char *halu_gname(aligntyp);
 extern const char *align_gtitle(aligntyp);
+extern aligntyp inf_align(int);
 extern void altar_wrath(coordxy, coordxy);
 
 /* ### priest.c ### */
@@ -2921,6 +2926,7 @@ extern void shuffle_int_array(int *, int) NONNULLARG1;
 
 /* ### role.c ### */
 
+extern int special_alignment(int, int);
 extern boolean validrole(int);
 extern boolean validrace(int, int);
 extern boolean validgend(int, int, int);

@@ -1428,6 +1428,16 @@ staticfn int race_alignmentcount(int);
 /* used by str2XXX() */
 static char NEARDATA randomstr[] = "random";
 
+/* Infidels are listed as chaotic in roles[], but actually are unaligned */
+int
+special_alignment(int rolenum, int alignnum)
+{
+    if (rolenum >= 0 && rolenum < SIZE(roles) - 1
+        && roles[rolenum].mnum == PM_INFIDEL)
+        return 3; /* aligns[unaligned] */
+    return alignnum;
+}
+
 boolean
 validrole(int rolenum)
 {
@@ -2183,7 +2193,7 @@ root_plselection_prompt(
 #endif  /* the four lines of code below were in both 'if' and 'else' above */
         if (donefirst)
             Strcat(buf, " ");
-        Strcat(buf, aligns[alignnum].adj);
+        Strcat(buf, aligns[special_alignment(rolenum, alignnum)].adj);
         donefirst = TRUE;
     } else {
         /* in case we got here by failing the ok_align() test */
@@ -2484,6 +2494,7 @@ role_selection_prolog(int which, winid where)
             a = 2; /* aligns[chaotic] */
         /* [c never forces gender] */
     }
+    a = special_alignment(r, a); /* special case (Infidel) */
     /* [g and a don't constrain anything sufficiently
        to narrow something done to a single choice] */
 
@@ -2618,6 +2629,7 @@ role_menu_extra(int which, winid where, boolean preselect)
                 a = 1; /* aligns[neutral] */
             else if (allowmask == AM_CHAOTIC)
                 a = 2; /* aligns[chaotic] */
+            a = special_alignment(r, a); /* special case (Infidel) */
             if (a >= 0)
                 constrainer = "role";
         }
@@ -2698,7 +2710,7 @@ role_menu_extra(int which, winid where, boolean preselect)
 void
 role_init(void)
 {
-    int alignmnt;
+    int alignmnt, malignmnt;
     struct permonst *pm;
 
     /* Strip the role letter out of the player name.
@@ -2737,11 +2749,22 @@ role_init(void)
     if (!validalign(flags.initrole, flags.initrace, flags.initalign))
         /* Pick a random alignment */
         flags.initalign = randalign(flags.initrole, flags.initrace);
-    alignmnt = aligns[flags.initalign].value;
+    /* Infidels are actually unaligned */
+    flags.initalign = special_alignment(flags.initrole, flags.initalign);
+    alignmnt = malignmnt = aligns[flags.initalign].value;
+    if (alignmnt != A_NONE)
+        malignmnt *= 3;
 
     /* Initialize gu.urole and gu.urace */
     gu.urole = roles[flags.initrole];
     gu.urace = races[flags.initrace];
+    if (u.uevent.uhand_of_elbereth == 4
+        && !Race_if(PM_DRAUGR)) { /* crowned as a demon */
+        gu.urace = race_demon;
+        /* mental faculties are not changed by demonization */
+        gu.urace.attrmax[A_INT] = races[flags.initrace].attrmax[A_INT];
+        gu.urace.attrmax[A_WIS] = races[flags.initrace].attrmax[A_WIS];
+    }
     /* aasimar stripped of celestial blood is permanently human;
        races[0] is the human entry */
     if (u.uevent.ufallen_aasimar)
@@ -2779,7 +2802,7 @@ role_init(void)
         pm->msound = MS_LEADER;
         pm->mflags2 |= (M2_PEACEFUL);
         pm->mflags3 |= M3_CLOSE;
-        pm->maligntyp = alignmnt * 3;
+        pm->maligntyp = malignmnt;
         /* if gender is random, we choose it now instead of waiting
            until the leader monster is created */
         svq.quest_status.ldrgend =
@@ -2792,7 +2815,7 @@ role_init(void)
     if (gu.urole.guardnum != NON_PM) {
         pm = &mons[gu.urole.guardnum];
         pm->mflags2 |= (M2_PEACEFUL);
-        pm->maligntyp = alignmnt * 3;
+        pm->maligntyp = malignmnt;
     }
 
     /* Fix up the quest nemesis */
@@ -2807,6 +2830,14 @@ role_init(void)
            until the nemesis monster is created */
         svq.quest_status.nemgend = is_neuter(pm) ? 2 : is_female(pm) ? 1
                                    : is_male(pm) ? 0 : (rn2(100) < 50);
+    }
+
+    /* Enable special Inf enemies */
+    if (Role_if(PM_INFIDEL)) {
+        if (gu.urole.enemy1num != NON_PM)
+            mons[gu.urole.enemy1num].geno &= ~G_NOGEN;
+        if (gu.urole.enemy2num != NON_PM)
+            mons[gu.urole.enemy2num].geno &= ~G_NOGEN;
     }
 
     /* Fix up the god names */

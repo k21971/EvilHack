@@ -661,7 +661,8 @@ dump_everything(
 
     /* character name and basic role info */
     Sprintf(pbuf, "%s, %s %s %s %s",
-            svp.plname, aligns[1 - u.ualign.type].adj,
+            svp.plname,
+            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].adj,
             genders[flags.female].adj, gu.urace.adj,
             (flags.female && gu.urole.name.f) ? gu.urole.name.f
                                              : gu.urole.name.m);
@@ -883,6 +884,8 @@ get_valuables(struct obj *list) /* inventory or container contents */
         } else if (obj->oartifact) {
             continue;
         } else if (obj->oclass == AMULET_CLASS) {
+            if (Role_if(PM_INFIDEL) && obj->otyp == AMULET_OF_YENDOR)
+                continue; /* starting inventory */
             i = obj->otyp - FIRST_AMULET;
             if (!ga.amulets[i].count) {
                 ga.amulets[i].count = obj->quan;
@@ -1610,7 +1613,13 @@ really_done(int how)
     }
 #endif
     if (u.uhave.amulet) {
-        Strcat(svk.killer.name, " (with the Amulet)");
+        if (Role_if(PM_INFIDEL)
+            && u.uevent.uimbued_idol) /* ascends with the Idol of Moloch */
+            Strcat(svk.killer.name, " (with the Idol)");
+        /* lets not spam the xlogfile with a bunch of 'with the
+           amulet' deaths */
+        else if (!Role_if(PM_INFIDEL))
+            Strcat(svk.killer.name, " (with the Amulet)");
     } else if (how == ESCAPED) {
         if (Is_astralevel(&u.uz)) /* offered Amulet to wrong deity */
             Strcat(svk.killer.name, " (in celestial disgrace)");
@@ -1624,7 +1633,10 @@ really_done(int how)
                 ? (const char *) ((flags.female && gu.urole.name.f)
                     ? gu.urole.name.f
                     : gu.urole.name.m)
-                : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
+                : Role_if(PM_INFIDEL) /* can only ascend via Moloch */
+                    ? (const char *) ("Archfiend of Moloch")
+                    : (const char *) (flags.female ? "Demigoddess"
+                                                   : "Demigod"));
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
     dump_redirect(TRUE);

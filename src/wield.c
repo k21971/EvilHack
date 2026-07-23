@@ -67,6 +67,8 @@ staticfn void finish_splitting(struct obj *);
 /* used by welded(), and also while wielding */
 #define will_weld(optr) \
     ((optr)->cursed && (erodeable_wep(optr) || (optr)->otyp == TIN_OPENER))
+/* Infidels are immune to curses */
+#define will_weld_to_you(optr) (will_weld(optr) && !Role_if(PM_INFIDEL))
 
 /* to dual-wield, 'obj' must be a weapon or a weapon-tool, and not a bow
    or arrow or missile (dart, shuriken, boomerang), so not matching the
@@ -201,7 +203,7 @@ ready_weapon(struct obj *wep)
     } else if (wep->otyp == CORPSE && cant_wield_corpse(wep)) {
         /* hero must have been life-saved to get here; use a turn */
         res = ECMD_TIME; /* corpse won't be wielded */
-    } else if (uarms && bimanual(wep)) {
+    } else if (uarms && !is_bracer(uarms) && bimanual(wep)) {
         You("cannot wield a two-handed %s while wearing a shield.",
             is_sword(wep) ? "sword" : wep->otyp == BATTLE_AXE ? "axe"
                                                               : "weapon");
@@ -211,7 +213,7 @@ ready_weapon(struct obj *wep)
     } else {
         /* Weapon WILL be wielded after this point */
         res = ECMD_TIME;
-        if (will_weld(wep)) {
+        if (will_weld_to_you(wep)) {
             const char *tmp = xname(wep), *thestr = "The ";
 
             if (strncmp(tmp, thestr, 4) && !strncmp(The(tmp), thestr, 4))
@@ -766,11 +768,16 @@ wield_tool(struct obj *obj,
         return FALSE;
     }
     if (cantwield(gy.youmonst.data)) {
-        You_cant("hold %s strongly enough.", more_than_1 ? "them" : "it");
+        if (druid_form || vampire_form)
+            You("aren't able to hold %s properly while in this form.",
+                yname(obj));
+        else
+            You_cant("hold %s strongly enough.",
+                     more_than_1 ? "them" : "it");
         return FALSE;
     }
     /* check shield */
-    if (uarms && bimanual(obj)) {
+    if (uarms && !is_bracer(uarms) && bimanual(obj)) {
         You("cannot %s a two-handed %s while wearing a shield.", verb,
             (obj->oclass == WEAPON_CLASS) ? "weapon" : "tool");
         return FALSE;
@@ -786,7 +793,7 @@ wield_tool(struct obj *obj,
     } else {
         struct obj *oldwep = uwep;
 
-        if (will_weld(obj)) {
+        if (will_weld_to_you(obj)) {
             /* hope none of ready_weapon()'s early returns apply here... */
             (void) ready_weapon(obj);
         } else {
@@ -835,7 +842,7 @@ can_twoweapon(void)
     } else if (bimanual(uwep) || bimanual(uswapwep)) {
         otmp = bimanual(uwep) ? uwep : uswapwep;
         pline("%s isn't one-handed.", Yname2(otmp));
-    } else if (uarms) {
+    } else if (uarms && !is_bracer(uarms)) {
         You_cant("use two weapons while wearing a shield.");
     } else if (uswapwep->oartifact) {
         pline("%s being held second to another weapon!",
@@ -1129,7 +1136,7 @@ chwepon(struct obj *otmp, int amount)
 int
 welded(struct obj *obj)
 {
-    if (obj && obj == uwep && will_weld(obj)) {
+    if (obj && obj == uwep && will_weld_to_you(obj)) {
         set_bknown(obj, 1);
         return 1;
     }

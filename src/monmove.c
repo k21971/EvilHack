@@ -180,10 +180,13 @@ watch_on_duty(struct monst *mtmp)
 
     if (mtmp->mpeaceful && in_town(u.ux + u.dx, u.uy + u.dy)
         && mtmp->mcansee && m_canseeu(mtmp) && !rn2(3)) {
-        /* TODO-EVILHACK: master also has the watch recognize Convicts
-           from their wanted posters; ports with the roles slice */
         if (Race_if(PM_DRAUGR) && !Upolyd) {
             mon_yells(mtmp, "Another zombie!  Attack!");
+            (void) angry_guards(!!Deaf);
+            stop_occupation();
+            return;
+        } else if (Role_if(PM_CONVICT) && !Upolyd) {
+            mon_yells(mtmp, "Hey, you're the one from the wanted poster!");
             (void) angry_guards(!!Deaf);
             stop_occupation();
             return;
@@ -603,6 +606,15 @@ distfleeck(
                     || (!mtmp->mpeaceful && in_your_sanctuary(mtmp, 0, 0)))) {
         *scared = 1;
         monflee(mtmp, rnd(rn2(7) ? 10 : 100), TRUE, TRUE);
+        if (u.ualign.type == A_NONE && !svc.context.coward
+            && sengr_at("Elbereth", seescaryx, seescaryy, TRUE)) {
+            /* followers of Moloch aren't supposed
+               to hide behind other gods */
+            You_feel("like a coward.");
+            svc.context.coward = TRUE; /* once per move */
+            adjalign(-5);
+            record_abuse_event(-5, ABUSE_COWARDICE);
+        }
     } else
         *scared = 0;
 }
@@ -771,8 +783,18 @@ dochug(struct monst *mtmp)
         if (Hallucination)
             newsym(mtmp->mx, mtmp->my);
         if (mtmp->mcanmove && (mtmp->mstrategy & STRAT_CLOSE)
-            && !mtmp->msleeping && monnear(mtmp, u.ux, u.uy))
-            quest_talk(mtmp); /* give the leaders a chance to speak */
+            && !mtmp->msleeping && monnear(mtmp, u.ux, u.uy)) {
+            if (mtmp->data == &mons[PM_LUCIFER]) {
+                /* TODO-EVILHACK: master delivers Lucifer's demand via
+                   com_pager("lucifer_demand_idol") for Infidels and
+                   com_pager("lucifer_demand_amulet") for everyone
+                   else; enable once the EvilHack quest text data
+                   lands */
+                mtmp->mstrategy &= ~STRAT_WAITMASK;
+            } else {
+                quest_talk(mtmp); /* give the leaders a chance to speak */
+            }
+        }
         return 0;             /* other frozen monsters can't do anything */
     }
 
@@ -2049,6 +2071,18 @@ m_move(struct monst *mtmp, int after)
         if (Hidinshell && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
             appr = 0;
 
+        /* same for Druids that have used wildshape to change into
+           their various forms */
+        if (druid_form
+            && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
+            appr = 0;
+
+        /* same for Vampires that have shapechanged into their
+           various forms */
+        if (vampire_form
+            && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
+            appr = 0;
+
         if (appr == 1 && leppie_avoidance(mtmp))
             appr = -1;
 
@@ -2506,6 +2540,10 @@ staticfn boolean
 stuff_prevents_passage(struct monst *mtmp)
 {
     struct obj *chain, *obj;
+
+    /* a vampire's fog form carries its gear merged into the mist */
+    if (vampire_form && is_whirly(gy.youmonst.data))
+        return FALSE;
 
     if (mtmp == &gy.youmonst) {
         chain = gi.invent;

@@ -99,6 +99,7 @@ staticfn void cmdbind_add(uchar, const struct ext_func_tab *, boolean);
 staticfn void cmdbind_remove(uchar);
 staticfn void cmdbind_swapkeys(uchar, uchar);
 staticfn int doenshelling(void);
+staticfn int dodruidwildshape(void);
 staticfn int dovampireshapechange(void);
 staticfn int dosuspend_core(void);
 staticfn int dosh_core(void);
@@ -2018,6 +2019,8 @@ struct ext_func_tab extcmdlist[] = {
               dowhatis, IFBURIED | GENERALCMD, NULL },
     { 'w',    "wield", "wield (put in use) a weapon",
               dowield, 0, NULL },
+    { '\0',   "wildshape", "druid's shapechanging ability",
+              dodruidwildshape, IFBURIED | AUTOCOMPLETE, NULL },
     { M('w'), "wipe", "wipe off your face",
               dowipe, AUTOCOMPLETE, NULL },
     { '\0',   "wizborn", "show stats of monsters created",
@@ -5547,6 +5550,63 @@ yn_func_menu_opt(winid win, char key, const char *text, char def)
 
 }
 
+/* #wildshape command - change druid's form */
+staticfn int
+dodruidwildshape(void)
+{
+    if (!Role_if(PM_DRUID)) {
+        You("don't have access to this ability.");
+    } else { /* player is Druid */
+        if (u.ulevel < 3) {
+            You("must first reach the rank of Ovate to use this ability.");
+        } else if (Upolyd && u.uwildshape) {
+            /* manually revert back to original form,
+               significantly reducing the cooldown timer.
+               the cost of leaving wildshape early is a
+               reduction of one-half of the original hit
+               points while in original form, not to go
+               below one.
+
+               Example: original form has 60(100) hit points.
+               wildshape is used, now have 100(100) hit
+               points in wildshape form. decide to manually
+               revert to original form early, now have 30(100)
+               hit points */
+            u.uhp -= (u.uhp / 2);
+            if (u.uhp < 1)
+                u.uhp = 1;
+            rehumanize();
+            if (u.uwildshape > 200)
+                u.uwildshape = 200;
+        } else if (u.uwildshape
+                   && (!wizard
+                       || y_n(
+                "You can't use wildshape so soon.  Override?") != 'y')) {
+            You_cant("use wildshape so soon.");
+        } else if ((Stunned || Confusion)
+                   && (u.uwildshape == 0)) {
+            You_cant("use wildshape while incapacitated.");
+        } else if (u.uhunger < 50) { /* weak */
+            You("are too weak from hunger to use wildshape.");
+        } else if (ACURR(A_STR) < 4) {
+            You("lack the strength to use wildshape.");
+        } else if (u.ulycn >= LOW_PM) {
+            You_cant("use wildshape while infected with lycanthropy.");
+        } else if ((uarm && is_metallic(uarm))
+                   || (uarmc && is_metallic(uarmc))
+                   || (uarmh && is_metallic(uarmh))
+                   || (uarms && is_metallic(uarms))
+                   || (uarmg && is_metallic(uarmg))
+                   || (uarmf && is_metallic(uarmf))
+                   || (uarmu && is_metallic(uarmu))) {
+            You_cant("use wildshape while wearing metallic armor.");
+        } else {
+            druid_wildshape();
+        }
+    }
+    return ECMD_OK;
+}
+
 /* #shapechange command - change vampire's form */
 staticfn int
 dovampireshapechange(void)
@@ -5578,7 +5638,7 @@ dovampireshapechange(void)
         } else if (u.uvampireshape
                    && (!wizard
                        || y_n(
-                "You can't shapechange so soon. Override?") != 'y')) {
+                "You can't shapechange so soon.  Override?") != 'y')) {
             You_cant("shapechange so soon.");
         } else if ((Stunned || Confusion)
                    && (u.uvampireshape == 0)) {

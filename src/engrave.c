@@ -479,7 +479,7 @@ freehand(void)
         return FALSE;
 
     return (!uwep || !welded(uwep)
-            || (!bimanual(uwep) && (!uarms || !uarms->cursed)));
+            || (!bimanual(uwep) && (!uarms || !cursed(uarms, TRUE))));
 }
 
 /* getobj callback for an object to engrave with */
@@ -538,8 +538,14 @@ u_can_engrave(void)
     }
 
     if (cantwield(gy.youmonst.data)) {
-        You_cant("even hold anything!");
-        return FALSE;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            ;
+        } else {
+            You_cant("even hold anything!");
+            return FALSE;
+        }
     }
     if (check_capacity((char *) 0))
         return FALSE;

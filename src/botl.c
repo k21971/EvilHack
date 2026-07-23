@@ -87,9 +87,10 @@ do_statusline1(void)
             ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS),
             ACURR(A_CHA));
     Sprintf(nb = eos(nb), "%s",
-            (u.ualign.type == A_CHAOTIC) ? "  Chaotic"
-              : (u.ualign.type == A_NEUTRAL) ? "  Neutral"
-                : "  Lawful");
+            (u.ualign.type == A_NONE) ? "  Unaligned"
+              : (u.ualign.type == A_CHAOTIC) ? "  Chaotic"
+                : (u.ualign.type == A_NEUTRAL) ? "  Neutral"
+                  : "  Lawful");
 #ifdef SCORE_ON_BOTL
     if (flags.showscore)
         Sprintf(nb = eos(nb), " S:%ld", botl_score());
@@ -1021,11 +1022,13 @@ bot_via_windowport(void)
     gb.blstats[idx][BL_CH].a.a_int = ACURR(A_CHA);
 
     /* Alignment */
-    Strcpy(gb.blstats[idx][BL_ALIGN].val, (u.ualign.type == A_CHAOTIC)
-                                          ? "Chaotic"
-                                          : (u.ualign.type == A_NEUTRAL)
-                                               ? "Neutral"
-                                               : "Lawful");
+    Strcpy(gb.blstats[idx][BL_ALIGN].val, (u.ualign.type == A_NONE)
+                                          ? "Unaligned"
+                                          : (u.ualign.type == A_CHAOTIC)
+                                            ? "Chaotic"
+                                            : (u.ualign.type == A_NEUTRAL)
+                                              ? "Neutral"
+                                              : "Lawful");
 
     /* Score */
     gb.blstats[idx][BL_SCORE].a.a_long =

@@ -642,6 +642,17 @@ restgamestate(NHFILE *nhfp)
        u.uevent is restored, before set_uasmon() consumes race state */
     if (u.uevent.ufallen_aasimar)
         gu.urace = races[0];
+    /* same for an Infidel crowned as a demon: role_init() saw
+       uhand_of_elbereth as zero, so re-force the demon race here */
+    if (u.uevent.uhand_of_elbereth == 4 && !Race_if(PM_DRAUGR)) {
+        int maxint = gu.urace.attrmax[A_INT],
+            maxwis = gu.urace.attrmax[A_WIS];
+
+        gu.urace = race_demon;
+        /* mental faculties are not changed by demonization */
+        gu.urace.attrmax[A_INT] = maxint;
+        gu.urace.attrmax[A_WIS] = maxwis;
+    }
 
     if (restoring_special && iflags.explore_error_flag) {
         /* savefile has wizard or explore mode, but player is no longer

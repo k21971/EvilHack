@@ -829,7 +829,8 @@ write_whereis(boolean playing) /* < True if game is running */
             gu.urole.filecode,
             gu.urace.filecode,
             genders[flags.female].filecode,
-            aligns[1 - u.ualign.type].filecode);
+            aligns[u.ualign.type == A_NONE
+                   ? 3 : 1 - u.ualign.type].filecode);
     Sprintf(eos(whereis_work), "conduct=0x%lx:amulet=%d:ascended=%d:",
 #ifdef RECORD_CONDUCT
             encodeconduct(),
@@ -2117,7 +2118,6 @@ docompress_file(const char *filename, boolean uncomp)
 
 /* ----------  END FILE COMPRESSION HANDLING ----------- */
 
-
 /* ----------  BEGIN PROBLEMATIC SAVEFILE HANDLING ----------- */
 #ifndef SFCTOOL
 static struct sfstatus_to_msg {
@@ -2336,14 +2336,12 @@ static struct flock sflock; /* for unlocking, same as above */
 #define HUP
 #endif
 
-
 #if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(WIN32) \
     || defined(MSDOS)
 #define UNUSED_conditional /*empty*/
 #else
 #define UNUSED_conditional UNUSED
 #endif
-
 
 #ifndef USE_FCNTL
 staticfn char *
@@ -3812,10 +3810,12 @@ livelog_add(long ll_type, const char *str)
         now = getnow();
         gindx = flags.female ? 1 : 0;
         /* note on alignment designation:
-               aligns[] uses [0] lawful, [1] neutral, [2] chaotic;
-               u.ualign.type uses -1 chaotic, 0 neutral, 1 lawful;
-           so subtracting from 1 converts from either to the other */
-        aindx = 1 - u.ualign.type;
+               aligns[] uses [0] lawful, [1] neutral, [2] chaotic,
+               [3] unaligned;
+               u.ualign.type uses -1 chaotic, 0 neutral, 1 lawful,
+               -128 unaligned;
+           so subtracting from 1 converts between the aligned values */
+        aindx = (u.ualign.type == A_NONE) ? 3 : 1 - u.ualign.type;
         /* format relies on STD C's implicit concatenation of
            adjacent string literals */
         (void) fprintf(livelogfile,

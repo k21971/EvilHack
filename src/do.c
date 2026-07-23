@@ -686,7 +686,8 @@ canletgo(struct obj *obj, const char *word)
         }
         return FALSE;
     }
-    if (obj->otyp == LOADSTONE && obj->cursed) {
+    if (obj->otyp == LOADSTONE
+        && obj->cursed && !Role_if(PM_INFIDEL)) {
         /* getobj() kludge sets corpsenm to user's specified count
            when refusing to split a stack of cursed loadstones */
         if (*word) {
@@ -971,7 +972,7 @@ menudrop_split(struct obj *otmp, long cnt)
     if (cnt && cnt < otmp->quan) {
         if (welded(otmp)) {
             ; /* don't split */
-        } else if (otmp->otyp == LOADSTONE && otmp->cursed) {
+        } else if (otmp->otyp == LOADSTONE && cursed(otmp, TRUE)) {
             /* same kludge as getobj(), for canletgo()'s use */
             otmp->corpsenm = (int) cnt; /* don't split */
         } else {
@@ -1525,7 +1526,10 @@ goto_level(
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
     if (newdungeon) {
         if (In_endgame(newlevel)) { /* 1st Endgame Level !!! */
-            if (!u.uhave.amulet)
+            /* an Infidel's starting Amulet does not open the Planes;
+               only the imbued Idol of Moloch carries its power */
+            if (!u.uhave.amulet
+                || (Role_if(PM_INFIDEL) && !u.uevent.uimbued_idol))
                 return;  /* must have the Amulet */
             if (!wizard) /* wizard ^V can bypass Earth level */
                 assign_level(newlevel, &earth_level); /* (redundant) */
@@ -1563,7 +1567,9 @@ goto_level(
      */
     if (Inhell && up && u.uhave.amulet && !newdungeon && !portal
         && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
-        if (!rn2(4 + svc.context.mysteryforce)) {
+        /* Infidels (unaligned) are spared from the mysterious force */
+        if (u.ualign.type != A_NONE
+            && !rn2(4 + svc.context.mysteryforce)) {
             int odds = 3 + (int) u.ualign.type,   /* 2..4 */
                 diff = (odds <= 1) ? 0 : rn2(odds); /* paranoia */
 
@@ -1805,7 +1811,11 @@ goto_level(
                     You("fly down %s.",
                         ga.at_ladder ? "along the ladder" : "the stairs");
             } else if (near_capacity() > UNENCUMBERED
-                       || Punished || Fumbling) {
+                       || (Punished
+                           && ((uwep != uball)
+                               || (P_SKILL(P_FLAIL) < P_BASIC)
+                               || !Role_if(PM_CONVICT)))
+                       || Fumbling) {
                 You("fall down the %s.", ga.at_ladder ? "ladder" : "stairs");
                 if (Punished) {
                     drag_down();

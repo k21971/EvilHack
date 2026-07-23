@@ -566,12 +566,14 @@ background_enlightenment(int unused_mode UNUSED, int final)
        trailing "and" on all three aligned entries but looks too verbose] */
     Sprintf(buf, " who %s opposed by", !final ? "is" : "was");
     if (u.ualign.type != A_LAWFUL)
-        Sprintf(eos(buf), " %s (%s) and", align_gname(A_LAWFUL),
-                align_str(A_LAWFUL));
+        Sprintf(eos(buf), " %s (%s)%s", align_gname(A_LAWFUL),
+                align_str(A_LAWFUL),
+                (u.ualign.type != A_NONE) ? " and" : ",");
     if (u.ualign.type != A_NEUTRAL)
         Sprintf(eos(buf), " %s (%s)%s", align_gname(A_NEUTRAL),
                 align_str(A_NEUTRAL),
-                (u.ualign.type != A_CHAOTIC) ? " and" : "");
+                (u.ualign.type == A_NONE) ? ", and" /* oxford comma */
+                  : (u.ualign.type != A_CHAOTIC) ? " and" : "");
     if (u.ualign.type != A_CHAOTIC)
         Sprintf(eos(buf), " %s (%s)", align_gname(A_CHAOTIC),
                 align_str(A_CHAOTIC));
@@ -1204,6 +1206,26 @@ status_enlightenment(int mode, int final)
             enl_msg("You ", "fall", "fell", " asleep uncontrollably", buf);
         }
     }
+    /* in case the player missed the "urge to perform a sacrifice",
+       put a reminder here */
+    if (u.ualign.type == A_NONE) {
+        long due = svm.moves - svc.context.next_moloch_offering;
+
+        if (due < 0) {
+            if (wizard) {
+                Sprintf(buf, "%ld turns until your next "
+                        "mandatory sacrifice to ", -due);
+                you_have(buf, u_gname());
+            }
+        } else {
+            if (wizard && due > 0)
+                Sprintf(buf, "%ld turns late for your "
+                        "next sacrifice to ", due);
+            else
+                Strcpy(buf, "due for a sacrifice to ");
+            you_are(buf, u_gname());
+        }
+    }
     /* hunger/nutrition */
     if (Hunger) {
         if (magic || cause_known(HUNGER))
@@ -1304,7 +1326,9 @@ weapon_insight(int final)
        described as a long sword, for instance; mattock, hook, and aklys
        are exceptions), or wielded non-weapon item by its object class */
     } else {
-        const char *what = weapon_descr(uwep);
+        const char *what = (Role_if(PM_CONVICT)
+                            && uwep->oclass == BALL_CLASS)
+                           ? "iron ball" : weapon_descr(uwep);
 
         /* [what about other silver items?] */
         if (uwep->otyp == SHIELD_OF_REFLECTION)
@@ -1909,8 +1933,17 @@ attributes_enlightenment(
             Sprintf(eos(buf), " (%d)", u.mtimedone);
         you_are(buf, "");
     }
-    /* TODO-EVILHACK: master reports the equivalent druid #wildshape
-       cooldown here; ports with the roles slice */
+    if (Role_if(PM_DRUID) && u.ulevel >= 3) {
+        if (u.uwildshape == 0) {
+            Sprintf(buf, "able to use your wildshape ability");
+            you_are(buf, "");
+        } else { /* u.uwildshape is greater than 0 */
+            Sprintf(buf,
+                 "have %u turns remaining before using wildshape again",
+                    u.uwildshape);
+            enl_msg(You_, buf, buf, "", "");
+        }
+    }
     if (Race_if(PM_VAMPIRE) && u.ulevel >= 3) {
         if (u.uvampireshape == 0) {
             Sprintf(buf, "able to use your shapechange ability");
@@ -2490,6 +2523,11 @@ show_achievements(
             you_have_X("gained access to Moloch's Sanctum");
             break;
         case ACH_AMUL:
+            /* for Infidels the achievement marks the imbue event */
+            if (Role_if(PM_INFIDEL)) {
+                you_have_X("imbued the Idol of Moloch");
+                break;
+            }
             /* alternate wording for ascended (always past tense) since
                hero had it until #offer forced it to be relinquished */
             enl_msg(You_,

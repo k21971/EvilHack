@@ -352,6 +352,14 @@ check_caitiff(struct monst *mtmp)
         You("dishonorably attack the innocent!");
         adjalign(-1);
         record_abuse_event_mon(-1, ABUSE_ATTACK_PEACEFUL, mtmp);
+    } else if (Role_if(PM_DRUID) && mtmp->mpeaceful
+               && (is_woodland_creature(mtmp->data)
+                   || is_woodland_being(mtmp->data)
+                   || mtmp->data == &mons[PM_DRUID])) {
+        /* attacking peaceful woodland creatures is bad for Druids */
+        You("dare to attack your woodland brethren!");
+        adjalign(-1);
+        record_abuse_event_mon(-1, ABUSE_ATTACK_WOODLAND, mtmp);
     }
 }
 
@@ -439,6 +447,15 @@ find_roll_to_hit(
         tmp -= (tmp2 * 2) - 1;
     if (u.utrap)
         tmp -= 3;
+
+    /* Druids that #wildshape into one of their allowed forms
+       enjoy a bonus that scales as they level up */
+    if (!uwep && druid_form)
+        tmp += (u.ulevel / 3) + 5;
+
+    /* same with Vampires that #shapechange */
+    if (!uwep && vampire_form)
+        tmp += (u.ulevel / 3) + 5;
 
     /* higher quality weapons have a slightly greater
        chance to hit, inferior ones not so much */
@@ -1634,7 +1651,15 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
             /* [this assumes that `!thrown' implies wielded...] */
             int wtype = hmd->thrown ? weapon_type(skillwep)
                                     : uwep_skill_type();
-            use_skill(wtype, 1);
+
+            /* train thievery in steal_it() when we know if theft
+               succeeded */
+            /* TODO-EVILHACK: master's steal_it() trains thievery on
+               theft outcome; that ports with the steal_it pickpocket
+               rework */
+            if (!(wtype == P_THIEVERY
+                  && (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))))
+                use_skill(wtype, 1);
         }
     }
 
@@ -1804,14 +1829,15 @@ hmon_hitmon_msg_hit(
                 : (obj && (objects[obj->otyp].oc_skill == P_WHIP
                            || is_wet_towel(obj))) ? "lash"
                   : Role_if(PM_BARBARIAN) ? "smite"
-                    /* TODO-EVILHACK: master also claws for poly'd
-                       claw-bearing forms (via its has_claws macros)
-                       and for demon heroes (roles slice) */
-                    : (!obj && !Upolyd
-                       && (Race_if(PM_TORTLE)
-                           || Race_if(PM_ILLITHID)
-                           || Race_if(PM_DRAUGR)
-                           || Race_if(PM_VAMPIRE))) ? "claw"
+                    : (!obj
+                       && (has_claws(gy.youmonst.data)
+                           || has_claws_undead(gy.youmonst.data)
+                           || (!Upolyd
+                               && (Race_if(PM_DEMON)
+                                   || Race_if(PM_TORTLE)
+                                   || Race_if(PM_ILLITHID)
+                                   || Race_if(PM_DRAUGR)
+                                   || Race_if(PM_VAMPIRE))))) ? "claw"
                       : "hit",
                 mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
     }
@@ -4982,6 +5008,10 @@ mhitm_ad_sedu(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         char buf[BUFSZ];
+        /* mystic Druids are one with nature and cannot be
+           tempted by nymphs */
+        boolean druid_mystic = (Role_if(PM_DRUID) && u.ulevel >= 14
+                                && is_nymph(magr->data));
 
         if (is_animal(magr->data)) {
             hitmsg(magr, mattk);
@@ -5003,7 +5033,7 @@ mhitm_ad_sedu(
             mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
             mhm->done = TRUE;
             return;
-        } else if (magr->mcan || Hidinshell) {
+        } else if (magr->mcan || Hidinshell || druid_mystic) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
                       !magr->mcan ? Monnam(magr)
@@ -6012,12 +6042,11 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
         case AT_BUTT:
         case AT_TENT:
         /*weaponless:*/
-            /* don't eat brains as a racial illithid when it would be
-               particularly detrimental */
-            /* TODO-EVILHACK: master extends this guard to druids in
-               wild shape (druid_form); ports with the roles slice */
-            if (maybe_polyd(is_illithid(gy.youmonst.data),
-                            Race_if(PM_ILLITHID))
+            /* don't eat brains as a racial illithid or as a druid in
+               wild shape when it would be particularly detrimental */
+            if ((druid_form
+                 || maybe_polyd(is_illithid(gy.youmonst.data),
+                                Race_if(PM_ILLITHID)))
                 && mattk->aatyp == AT_TENT
                 && (((touch_petrifies(mon->data)
                       || mon->data == &mons[PM_MEDUSA])
@@ -6039,9 +6068,9 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                             Race_if(PM_ILLITHID))
                 && mattk->aatyp == AT_TENT && u.uswallow)
                 break;
-            /* don't bite as one of the undead races when it would be
-               particularly detrimental */
-            if ((vampire_form
+            /* don't bite as one of the undead races or as a druid in
+               wild shape when it would be particularly detrimental */
+            if ((druid_form || vampire_form
                  || maybe_polyd(is_zombie(gy.youmonst.data),
                                 Race_if(PM_DRAUGR))
                  || maybe_polyd(is_vampire(gy.youmonst.data),
@@ -6074,6 +6103,16 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                       rn2(2) ? "dodges" : "evades");
                 break;
             }
+            /* don't sting as a druid in wild shape or as a demon-race
+               hero when it would be particularly detrimental */
+            if ((druid_form || (!Upolyd && Race_if(PM_DEMON)))
+                && mattk->aatyp == AT_STNG
+                && ((touch_petrifies(mon->data) && !Stone_resistance)
+                    || noncorporeal(mon->data)
+                    || (!Disint_resistance
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+                break;
             tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
                                    &attknum, &armorpenalty);
             mon_maybe_unparalyze(mon);

@@ -767,6 +767,14 @@ sliparm(struct monst *mon)
 {
     struct permonst *ptr = r_data(mon);
 
+    /* a hero druid in wildshape or a vampire in a shift form keeps
+       worn gear merged with the new form instead of losing it */
+    if (druid_form)
+        return FALSE;
+
+    if (vampire_form)
+        return FALSE;
+
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
                       || noncorporeal(ptr));
 }
@@ -787,6 +795,13 @@ breakarm(struct monst *mon)
         return TRUE;
 
     if (ptr == &mons[PM_DRIDER])
+        return FALSE;
+
+    /* worn gear merges with a druid wildshape or vampire shift form */
+    if (druid_form)
+        return FALSE;
+
+    if (vampire_form)
         return FALSE;
 
     return (boolean) (bigmonst(ptr)
@@ -1366,10 +1381,14 @@ levl_follower(struct monst *mtmp)
     /* some monsters will follow even while intending to flee from you */
     if (mtmp->mtame || mtmp->iswiz || is_fshk(mtmp))
         return TRUE;
-    /* stalking types follow, but won't when fleeing unless you hold
-       the Amulet */
+    /* stalking types follow, but won't when fleeing unless the
+       Amulet chase is active (Infidels need the Idol imbued too,
+       not just the starting Amulet in inventory) */
     return (boolean) ((mtmp->data->mflags2 & M2_STALK)
-                      && (!mtmp->mflee || u.uhave.amulet));
+                      && (!mtmp->mflee
+                          || (u.uhave.amulet
+                              && (!Role_if(PM_INFIDEL)
+                                  || u.uevent.uimbued_idol))));
 }
 
 static const short grownups[][2] = {

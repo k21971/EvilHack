@@ -38,7 +38,6 @@ staticfn int select_off(struct obj *);
 staticfn struct obj *do_takeoff(void);
 staticfn int take_off(void);
 staticfn int menu_remarm(int);
-staticfn void wornarm_destroyed(struct obj *);
 staticfn void count_worn_stuff(struct obj **, boolean);
 staticfn int armor_or_accessory_off(struct obj *);
 staticfn int accessory_or_armor_on(struct obj *);
@@ -2203,6 +2202,11 @@ armor_or_accessory_off(struct obj *obj)
         You("are not wearing that.");
         return ECMD_OK;
     }
+    if ((druid_form || vampire_form)
+        && (obj->owornmask & W_ARMOR)) {
+        You_cant("take that off; it's merged.");
+        return ECMD_OK;
+    }
     if (obj == uskin
         || ((obj == uarm) && uarmc)
         || ((obj == uarmu) && (uarmc || uarm))) {
@@ -2323,16 +2327,26 @@ doremring(void)
 
 /* Check if something worn is cursed _and_ unremovable. */
 int
-cursed(struct obj *otmp)
+cursed(struct obj *otmp, boolean silent)
 {
     if (!otmp) {
         impossible("cursed without otmp");
         return 0;
     }
+    /* Infidels are immune to curses; the Hand of Vecna serves its
+       wearer willingly */
+    if (Role_if(PM_INFIDEL)
+        || (otmp == uarmg && otmp->oartifact == ART_HAND_OF_VECNA))
+        return 0;
     /* Curses, like chickens, come home to roost. */
     if ((otmp == uwep) ? welded(otmp) : (int) otmp->cursed) {
-        boolean use_plural = (is_boots(otmp) || is_gloves(otmp)
-                              || otmp->otyp == LENSES || otmp->quan > 1L);
+        boolean use_plural;
+
+        if (silent)
+            return 1;
+        use_plural = (is_boots(otmp) || is_gloves(otmp)
+                      || otmp->otyp == LENSES || otmp->otyp == GOGGLES
+                      || otmp->quan > 1L);
 
         /* might be trying again after applying grease to hands */
         if (Glib && otmp->bknown
@@ -2356,7 +2370,7 @@ armoroff(struct obj *otmp)
     int delay = -objects[otmp->otyp].oc_delay;
     const char *what = 0;
 
-    if (cursed(otmp))
+    if (cursed(otmp, FALSE))
         return 0;
     /* this used to make assumptions about which types of armor had
        delays and which didn't; now both are handled for all types */
@@ -2549,14 +2563,14 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             if (noisy)
                 already_wearing(an(c_shield));
             err++;
-        } else if (uwep && bimanual(uwep)) {
+        } else if (uwep && !is_bracer(otmp) && bimanual(uwep)) {
             if (noisy)
                 You("cannot wear a shield while wielding a two-handed %s.",
                     is_sword(uwep) ? c_sword : (uwep->otyp == BATTLE_AXE)
                                                    ? c_axe
                                                    : c_weapon);
             err++;
-        } else if (u.twoweap) {
+        } else if (u.twoweap && !is_bracer(otmp)) {
             if (noisy)
                 You("cannot wear a shield while wielding two weapons.");
             err++;
@@ -2776,7 +2790,7 @@ accessory_or_armor_on(struct obj *obj)
                      gloves_simple_name(uarmg));
                 return ECMD_TIME; /* always uses move */
             }
-            if (uarmg && uarmg->cursed) {
+            if (uarmg && cursed(uarmg, TRUE)) {
                 res = !uarmg->bknown;
                 set_bknown(uarmg, 1);
                 You("cannot remove your %s to put on the ring.", c_gloves);
@@ -2880,6 +2894,10 @@ accessory_or_armor_on(struct obj *obj)
         if (delay) {
             nomul(delay);
             gm.multi_reason = "dressing up";
+            /* TODO-EVILHACK: master narrates donning the Hand of
+               Vecna via com_pager("vecna_hand_evil") for unaligned
+               heroes and com_pager("vecna_hand") for everyone else;
+               enable once the EvilHack quest text data lands */
             gn.nomovemsg = "You finish your dressing maneuver.";
         } else {
             unmul(""); /* call afternmv, clear it+nomovemsg+multi_reason */
@@ -3037,10 +3055,33 @@ find_ac(void)
     if (uamul && uamul->otyp == AMULET_OF_GUARDING)
         uac -= 2; /* fixed amount; main benefit is to MC */
 
+    if (uarms && uarms->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCLE) {
+        /* the Druid quest artifact grants extra AC on top of
+           what its base material provides, moreso if the
+           wearer is actually a Druid */
+        if (Role_if(PM_DRUID))
+            uac -= 6;
+        else
+            uac -= 3;
+    }
+
+    /* Druids get a slight AC bonus for wearing
+       wooden armor */
+    if (Role_if(PM_DRUID)) {
+        if (uarm && is_wood(uarm))   /* body armor */
+            uac -= 2;
+        if (uarmg && is_wood(uarmg)) /* gauntlets */
+            uac -= 2;
+        if (uarmh && is_wood(uarmh)) /* helmet */
+            uac -= 2;
+        if (uarmf && is_wood(uarmf)) /* boots */
+            uac -= 2;
+        if (uarms && is_wood(uarms)) /* shield */
+            uac -= 2;
+    }
+
     /* Draugr/Vampire races receive a slight AC bonus
        for wearing bone armor */
-    /* TODO-EVILHACK: master gives Druids a similar bonus for wooden
-       armor; ports with the roles slice */
     if (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
         if (uarm && is_bone(uarm))   /* body armor */
             uac -= 1;
@@ -3123,10 +3164,10 @@ glibr(void)
     boolean leftfall, rightfall, wastwoweap = FALSE;
     const char *otherwep = 0, *thiswep, *which, *hand;
 
-    leftfall = (uleft && !uleft->cursed
+    leftfall = (uleft && !cursed(uleft, TRUE)
                 && (!uwep || !(welded(uwep) && ULEFTY)
                     || !bimanual(uwep)));
-    rightfall = (uright && !uright->cursed
+    rightfall = (uright && !cursed(uright, TRUE)
                 && (!uwep || !(welded(uwep) && URIGHTY)
                     || !bimanual(uwep)));
 /*
@@ -3181,8 +3222,13 @@ glibr(void)
     if (otmp && otmp->otyp != AKLYS && !welded(otmp)) {
         long savequan = otmp->quan;
 
-        /* nice wording if both weapons are the same type */
-        thiswep = is_sword(otmp) ? c_sword : weapon_descr(otmp);
+        /* nice wording if both weapons are the same type.
+           special case handling for Convicts and wielding
+           a heavy iron ball is only necessary for the right
+           hand, as you can't dual-wield a non-weapon object */
+        thiswep = is_sword(otmp) ? c_sword
+                  : (Role_if(PM_CONVICT) && otmp->oclass == BALL_CLASS)
+                    ? "iron ball" : weapon_descr(otmp);
         if (otherwep && strcmp(thiswep, makesingular(otherwep)))
             otherwep = 0;
         if (otmp->quan > 1L) {
@@ -3256,13 +3302,13 @@ stuck_ring(struct obj *ring, int otyp)
         /* reasons ring can't be removed match those checked by select_off();
            limbless case has extra checks because ordinarily it's temporary */
         if (nolimbs(gy.youmonst.data) && uamul
-            && uamul->otyp == AMULET_OF_UNCHANGING && uamul->cursed)
+            && uamul->otyp == AMULET_OF_UNCHANGING && cursed(uamul, TRUE))
             return uamul;
         if (welded(uwep) && ((ring == RING_ON_PRIMARY) || bimanual(uwep)))
             return uwep;
-        if (uarmg && uarmg->cursed)
+        if (uarmg && cursed(uarmg, TRUE))
             return uarmg;
-        if (ring->cursed)
+        if (cursed(ring, TRUE))
             return ring;
         /* normally outermost layer is processed first, but slippery gloves
            wears off quickly so uncurse ring itself before handling those */
@@ -3306,7 +3352,7 @@ select_off(struct obj *otmp)
         if (welded(uwep) && ((otmp == RING_ON_PRIMARY) || bimanual(uwep))) {
             Sprintf(buf, "free a weapon %s", body_part(HAND));
             why = uwep;
-        } else if (uarmg && (uarmg->cursed || Glib)) {
+        } else if (uarmg && (cursed(uarmg, TRUE) || Glib)) {
             Sprintf(buf, "take off your %s%s",
                     Glib ? "slippery " : "", gloves_simple_name(uarmg));
             why = !Glib ? uarmg : &glibdummy;
@@ -3348,10 +3394,10 @@ select_off(struct obj *otmp)
     /* special suit and shirt checks */
     if (otmp == uarm || otmp == uarmu) {
         why = 0; /* the item which prevents disrobing */
-        if (uarmc && uarmc->cursed) {
+        if (uarmc && cursed(uarmc, TRUE)) {
             Sprintf(buf, "remove your %s", cloak_simple_name(uarmc));
             why = uarmc;
-        } else if (otmp == uarmu && uarm && uarm->cursed) {
+        } else if (otmp == uarmu && uarm && cursed(uarm, TRUE)) {
             Sprintf(buf, "remove your %s", c_suit);
             why = uarm;
         } else if (welded(uwep) && bimanual(uwep)) {
@@ -3372,7 +3418,7 @@ select_off(struct obj *otmp)
         ; /* some items can be removed even when cursed */
     } else {
         /* otherwise, this is fundamental */
-        if (cursed(otmp))
+        if (cursed(otmp, FALSE))
             return 0;
     }
 
@@ -3420,7 +3466,7 @@ do_takeoff(void)
 
     svc.context.takeoff.mask |= I_SPECIAL; /* set flag for cancel_doff() */
     if (doff->what == W_WEP) {
-        if (!cursed(uwep)) {
+        if (!cursed(uwep, FALSE)) {
             setuwep((struct obj *) 0);
             if (was_twoweap)
                 You("are no longer wielding either weapon.");
@@ -3437,46 +3483,46 @@ do_takeoff(void)
         You("no longer have ammunition readied.");
     } else if (doff->what == WORN_ARMOR) {
         otmp = uarm;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Armor_off();
     } else if (doff->what == WORN_CLOAK) {
         otmp = uarmc;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Cloak_off();
     } else if (doff->what == WORN_BOOTS) {
         otmp = uarmf;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Boots_off();
     } else if (doff->what == WORN_GLOVES) {
         otmp = uarmg;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Gloves_off();
     } else if (doff->what == WORN_HELMET) {
         otmp = uarmh;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Helmet_off();
     } else if (doff->what == WORN_SHIELD) {
         otmp = uarms;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Shield_off();
     } else if (doff->what == WORN_SHIRT) {
         otmp = uarmu;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             (void) Shirt_off();
     } else if (doff->what == WORN_AMUL) {
         otmp = uamul;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             Amulet_off();
     } else if (doff->what == LEFT_RING) {
         otmp = uleft;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             Ring_off(uleft);
     } else if (doff->what == RIGHT_RING) {
         otmp = uright;
-        if (!cursed(otmp))
+        if (!cursed(otmp, FALSE))
             Ring_off(uright);
     } else if (doff->what == WORN_BLINDF) {
-        if (!cursed(ublindf))
+        if (!cursed(ublindf, FALSE))
             Blindf_off(ublindf);
     } else {
         impossible("do_takeoff: taking off %lx", doff->what);
@@ -3622,6 +3668,12 @@ doddoremarm(void)
                && !uleft && !uright && !wearing_armor()) {
         You("are not wearing anything.");
         return ECMD_OK;
+    } else if (druid_form) {
+        You_cant("take off worn items while in wildshape.");
+        return ECMD_OK;
+    } else if (vampire_form) {
+        You_cant("take off worn items while shapechanged.");
+        return ECMD_OK;
     }
 
     add_valid_menu_class(0); /* reset */
@@ -3731,7 +3783,7 @@ menu_remarm(int retry)
 /* take off the specific worn object and if it still exists after that,
    destroy it (taking off the item might already destroy it by dunking
    hero into lava) */
-staticfn void
+void
 wornarm_destroyed(struct obj *wornarm)
 {
     struct obj *invobj, *nextobj;

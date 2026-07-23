@@ -468,21 +468,28 @@ intemple(int roomno)
             epri_p->enter_time = 0L;
         }
         msg1 = msg2 = 0;
-        if ((sanctum && Is_sanctum(&u.uz))
+        if ((((sanctum && Is_sanctum(&u.uz)) || u.ualign.type == A_NONE)
+             && !p_coaligned(priest))
             || (!Upolyd && Race_if(PM_DRAUGR)
                 && mon_aligntyp(priest) >= A_NEUTRAL)) {
-            /* either a heathen in the Sanctum, or a draugr in a
-               lawful or neutral temple; the priest is not happy */
+            /* either a non-Infidel in the Sanctum, or an Infidel in any
+               non-Moloch temple, or a Draugr in a lawful or neutral
+               temple; either way, the priest is not happy */
             if (priest->mpeaceful) {
                 /* first time inside */
                 if (!Upolyd && Race_if(PM_DRAUGR)
+                    && !Role_if(PM_INFIDEL)
                     && mon_aligntyp(priest) >= A_NEUTRAL) {
                     msg1 = "Begone, foul abomination!";
                     msg2 = "You desecrate this holy Sanctum!";
                     call_guards = in_town(priest->mx, priest->my);
+                } else if (u.ualign.type == A_NONE) {
+                    msg1 = "Begone, Infidel!";
+                    msg2 = "This place is barred for your cult!";
+                    call_guards = in_town(priest->mx, priest->my);
                 } else {
-                    msg1 = "Infidel, you have entered Moloch's Sanctum!";
-                    msg2 = "Be gone!";
+                    msg1 = "Heathen, you have entered Moloch's Sanctum!";
+                    msg2 = "Begone!";
                 }
                 priest->mpeaceful = 0;
                 /* became angry voluntarily; no penalty for attacking him */
@@ -624,9 +631,8 @@ priest_talk(struct monst *priest)
     }
 
     /* priests don't chat unless peaceful and in their own temple */
-    /* TODO-EVILHACK: master also refuses unaligned heroes (Infidels)
-       at cross-aligned temples; ports with the roles slice */
     if (!inhistemple(priest) || !priest->mpeaceful || helpless(priest)
+        || (u.ualign.type == A_NONE && !coaligned)
         || (!Upolyd && Race_if(PM_DRAUGR)
             && mon_aligntyp(priest) >= A_NEUTRAL)) {
         static const char *const cranky_msg[3] = {
@@ -657,6 +663,13 @@ priest_talk(struct monst *priest)
         return;
     }
     if (!money_cnt(gi.invent)) {
+        /* TODO-EVILHACK: for an Infidel who has imbued the Idol of
+           Moloch (u.uevent.uimbued_idol), master has the Sanctum's
+           high priest hint at the correct high altar via
+           qt_pager("moloch_altar_hint") and
+           qt_pager("moloch_altar_hint2") with inf_align() god-name
+           substitution; enable once the EvilHack quest text data
+           lands */
         if (coaligned && !strayed) {
             long pmoney = money_cnt(priest->minvent);
             if (pmoney > 0L) {

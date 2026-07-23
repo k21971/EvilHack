@@ -1579,7 +1579,9 @@ doname_base(
                       because donning() returns True for both cases */
                    : doffing(obj) ? " (being doffed)"
                      : donning(obj) ? " (being donned)"
-                       : " (being worn)");
+                       : ((druid_form || vampire_form) && carried(obj))
+                         ? " (merged to your form)"
+                         : " (being worn)");
             /* we just added a parenthesized phrase, but the right paren
                might be absent if the appended string got truncated */
             if (bp_eos[-1] == ')') {

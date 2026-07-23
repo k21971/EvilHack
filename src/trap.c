@@ -5015,7 +5015,8 @@ emergency_disrobe(boolean *lostsome)
                  * for obvious reasons.  Also, any item in the midst
                  * of being taken off or stolen.
                  */
-                if (!((obj->otyp == LOADSTONE && obj->cursed) || obj == uamul
+                if (!((obj->otyp == LOADSTONE && cursed(obj, TRUE))
+                      || obj == uamul
                       || obj == uleft || obj == uright || obj == ublindf
                       || obj == uarm || obj == uarmc || obj == uarmg
                       || obj == uarmf || obj == uarmu
@@ -5363,7 +5364,10 @@ could_untrap(boolean verbosely, boolean check_floor)
     buf[0] = '\0';
     if (near_capacity() >= HVY_ENCUMBER) {
         Strcpy(buf, "You're too strained to do that.");
-    } else if ((nohands(gy.youmonst.data) && !webmaker(gy.youmonst.data))
+    } else if ((nohands(gy.youmonst.data)
+                && !(druid_form && !slithy(gy.youmonst.data))
+                && !(vampire_form && !is_whirly(gy.youmonst.data))
+                && !webmaker(gy.youmonst.data))
                || !gy.youmonst.data->mmove) {
         Strcpy(buf, "And just how do you expect to do that?");
     } else if (u.ustuck && sticks(gy.youmonst.data)) {

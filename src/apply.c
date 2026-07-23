@@ -864,7 +864,7 @@ use_leash_core(struct obj *obj, struct monst *mtmp, coord *cc, int spotmon)
         /* applying a leash which is currently in use */
         if (obj->leashmon != (int) mtmp->m_id) {
             pline("This leash is not attached to that creature.");
-        } else if (obj->cursed) {
+        } else if (obj->cursed && !Role_if(PM_INFIDEL)) {
             pline_The("leash would not come off!");
             set_bknown(obj, 1);
         } else {
@@ -3945,8 +3945,14 @@ do_break_wand(struct obj *obj)
                           || objdescr_is(obj, "glass"));
 
     if (nohands(gy.youmonst.data)) {
-        You_cant("break %s without hands!", yname(obj));
-        return ECMD_OK;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            ;
+        } else {
+            You_cant("break %s without hands!", yname(obj));
+            return ECMD_OK;
+        }
     } else if (!freehand()) {
         Your("%s are occupied!", makeplural(body_part(HAND)));
         return ECMD_OK;
@@ -4239,7 +4245,9 @@ doapply(void)
     struct obj *obj;
     int res = ECMD_TIME;
 
-    if (nohands(gy.youmonst.data)) {
+    if (nohands(gy.youmonst.data)
+        && !(druid_form && !slithy(gy.youmonst.data))
+        && !(vampire_form && !is_whirly(gy.youmonst.data))) {
         You("aren't able to use or apply tools in your current form.");
         return ECMD_OK;
     }
@@ -4267,7 +4275,7 @@ doapply(void)
     case BLINDFOLD:
     case LENSES:
         if (obj == ublindf) {
-            if (!cursed(obj))
+            if (!cursed(obj, FALSE))
                 Blindf_off(obj);
         } else if (!ublindf) {
             Blindf_on(obj);

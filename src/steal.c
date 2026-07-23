@@ -449,6 +449,16 @@ steal(struct monst *mtmp, char *objnambuf)
     if (otmp->o_id == gs.stealoid)
         return 0;
 
+    if ((druid_form || vampire_form)
+        && ((otmp == uarm) || (otmp == uarmc)
+            || (otmp == uarmu) || (otmp == uarmh)
+            || (otmp == uarmg) || (otmp == uarms)
+            || (otmp == uarmf))) {
+        pline("%s appears confused, being unable to remove %s.",
+              Monnam(mtmp), ysimple_name(otmp));
+        return 1; /* let them flee */
+    }
+
     if (otmp->otyp == BOULDER && !racial_throws_rocks(mtmp)) {
         if (!retrycnt++)
             goto retry;

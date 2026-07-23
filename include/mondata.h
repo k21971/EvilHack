@@ -176,6 +176,27 @@
     ((mon_resistancebits(mon) & MR2_LEVITATE) != 0)
 #define can_fly(mon) \
     ((mon_resistancebits(mon) & MR2_FLY) != 0)
+#define has_claws(ptr) \
+    (is_gnoll(ptr)                                                       \
+     || (is_illithid(ptr)                                                \
+         && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]                       \
+              || (ptr) == &mons[PM_NEOTHELID]))                          \
+     || (ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE           \
+     || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP                 \
+     || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER                \
+     || (ptr)->mlet == S_ENT || (ptr)->mlet == S_BAT                     \
+     || (ptr)->mlet == S_DRAGON || (ptr)->mlet == S_JABBERWOCK           \
+     || (ptr)->mlet == S_RUSTMONST || (ptr)->mlet == S_TROLL             \
+     || (ptr)->mlet == S_UMBER || (ptr)->mlet == S_YETI                  \
+     || ((ptr)->mlet == S_DEMON && (ptr) != &mons[PM_AMOROUS_DEMON])     \
+     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG                  \
+     || is_blight(ptr) || (ptr) == &mons[PM_DIRE_WOLVERINE]              \
+     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_HONEY_BADGER]  \
+     || (ptr) == &mons[PM_GRIZZLY_BEAR] || (ptr) == &mons[PM_CAVE_BEAR])
+#define has_claws_undead(ptr) \
+    ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE      \
+     || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE \
+     || (ptr)->mlet == S_SKELETON)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define can_sting(ptr) attacktype(ptr, AT_STNG)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
@@ -241,6 +262,25 @@
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
+#define is_blight(ptr) \
+    ((ptr) == &mons[PM_TWIG_BLIGHT]       \
+     || (ptr) == &mons[PM_TREE_BLIGHT]    \
+     || (ptr) == &mons[PM_NEEDLE_BLIGHT]  \
+     || (ptr) == &mons[PM_GULTHIAS_TREE])
+#define is_nymph(ptr) \
+    ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
+#define is_pseudodragon(ptr) \
+    ((ptr) == &mons[PM_PSEUDODRAGON]             \
+     || (ptr) == &mons[PM_ELDER_PSEUDODRAGON]    \
+     || (ptr) == &mons[PM_ANCIENT_PSEUDODRAGON])
+#define is_hawk(ptr) \
+    ((ptr) == &mons[PM_HAWK]           \
+     || (ptr) == &mons[PM_LARGE_HAWK]  \
+     || (ptr) == &mons[PM_GIANT_HAWK])
+#define is_rat(ptr) \
+    ((ptr) == &mons[PM_SEWER_RAT] || (ptr) == &mons[PM_GIANT_RAT]       \
+     || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
+     || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
 #define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
@@ -461,6 +501,31 @@
     (!vegetarian(ptr) && (!is_undead(ptr) || is_vampire(ptr))       \
      && ((ptr)->mlet != S_GOLEM || (ptr) == &mons[PM_FLESH_GOLEM]))
 
+/* woodland animals and plants */
+#define is_woodland_creature(ptr) \
+    ((is_plant(ptr) && !is_blight(ptr)) || is_bird(ptr)                    \
+     || is_pseudodragon(ptr) || is_unicorn(ptr) || is_cavelizard(ptr)      \
+     || (ptr) == &mons[PM_LICHEN] || (ptr) == &mons[PM_FOX]                \
+     || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WINTER_WOLF_CUB]      \
+     || (ptr) == &mons[PM_WINTER_WOLF] || (ptr) == &mons[PM_LYNX]          \
+     || (ptr) == &mons[PM_GRIZZLY_BEAR] || (ptr) == &mons[PM_CAVE_BEAR]    \
+     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_DIRE_WOLVERINE]  \
+     || (ptr) == &mons[PM_TIGER] || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] \
+     || (ptr) == &mons[PM_WOODCHUCK] || (ptr) == &mons[PM_HONEY_BADGER]    \
+     || (ptr) == &mons[PM_DEER] || (ptr) == &mons[PM_STAG]                 \
+     || (ptr) == &mons[PM_GARTER_SNAKE] || (ptr) == &mons[PM_SNAKE]        \
+     || (ptr) == &mons[PM_NEWT] || (ptr) == &mons[PM_LIZARD]               \
+     || (ptr) == &mons[PM_GIANT_BEETLE] || (ptr) == &mons[PM_ROTHE]        \
+     || (ptr) == &mons[PM_CENTIPEDE] || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
+     || (ptr) == &mons[PM_PEGASUS] || (ptr) == &mons[PM_GREATER_PEGASUS]   \
+     || (ptr) == &mons[PM_COBRA] || (ptr) == &mons[PM_GIANT_ANACONDA]      \
+     || (ptr) == &mons[PM_WOLF_CUB])
+
+/* woodland beings */
+#define is_woodland_being(ptr) \
+    (is_nymph(ptr) || is_satyr(ptr) || is_true_ent(ptr)   \
+     || is_hobbit(ptr) || is_elf(ptr) || is_centaur(ptr))
+
 #define corpse_eater(ptr)                    \
     (ptr == &mons[PM_PURPLE_WORM]            \
      || ptr == &mons[PM_BABY_PURPLE_WORM]    \
@@ -473,21 +538,25 @@
    pacified by any other food;
    horses can be tamed by always-veggy food or lichen corpses but
    not tamed or pacified by other corpses or tins of veggy critters;
+   convict heroes can also befriend rats;
+   druid heroes can also befriend hawks;
    drow heroes can also befriend spiders and cave lizards;
-   vampire heroes can also befriend wargs, wolves, and wolf cubs */
-/* TODO-EVILHACK: master extends this with more role pet clauses
-   (rats for Convicts, hawks for Druids, saber-toothed tigers for
-   Cave Dwellers with the roles slice) */
+   vampire heroes can also befriend wargs, wolves, and wolf cubs;
+   cave dweller heroes can also befriend saber-toothed tigers */
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
      ? (obj)->otyp == BANANA                                             \
      : ((is_domestic(ptr)                                                \
+         || (is_rat(ptr) && Role_if(PM_CONVICT))                         \
+         || (is_hawk(ptr) && Role_if(PM_DRUID))                          \
          || (((is_spider(ptr) && (ptr) != &mons[PM_DRIDER])              \
               || is_cavelizard(ptr)) && Race_if(PM_DROW))                \
          || ((ptr) == &mons[PM_WARG]                                     \
              && (Race_if(PM_ORC) || Race_if(PM_VAMPIRE)))                \
          || ((ptr) == &mons[PM_WOLF] && Race_if(PM_VAMPIRE))             \
-         || ((ptr) == &mons[PM_WOLF_CUB] && Race_if(PM_VAMPIRE)))        \
+         || ((ptr) == &mons[PM_WOLF_CUB] && Race_if(PM_VAMPIRE))         \
+         || ((ptr) == &mons[PM_SABER_TOOTHED_TIGER]                      \
+             && Role_if(PM_CAVE_DWELLER)))                               \
         && (obj)->oclass == FOOD_CLASS                                   \
         && ((ptr)->mlet != S_UNICORN                                     \
             || objects[(obj)->otyp].oc_material == VEGGY                 \

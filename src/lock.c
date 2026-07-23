@@ -108,7 +108,10 @@ picklock(void)
         }
     }
 
-    if (gx.xlock.usedtime++ >= 50 || nohands(gy.youmonst.data)) {
+    if (gx.xlock.usedtime++ >= 50
+        || (nohands(gy.youmonst.data)
+            && !(druid_form && !slithy(gy.youmonst.data))
+            && !(vampire_form && !is_whirly(gy.youmonst.data)))) {
         You("give up your attempt at %s.", lock_action());
         exercise(A_DEX, TRUE); /* even if you don't succeed */
         return ((gx.xlock.usedtime = 0));
@@ -412,7 +415,10 @@ pick_lock(
     if (gx.xlock.usedtime && picktyp == gx.xlock.picktyp) {
         static char no_longer[] = "Unfortunately, you can no longer %s %s.";
 
-        if (nohands(gy.youmonst.data)) {
+        if ((nohands(gy.youmonst.data)
+             && !(druid_form && !slithy(gy.youmonst.data))
+             && !(vampire_form && !is_whirly(gy.youmonst.data)))
+            || !freehand()) {
             const char *what = (picktyp == LOCK_PICK) ? "pick" : "key";
 
             if (picktyp == CREDIT_CARD)
@@ -435,8 +441,14 @@ pick_lock(
     }
 
     if (nohands(gy.youmonst.data)) {
-        You_cant("hold %s -- you have no hands!", doname(pick));
-        return PICKLOCK_DID_NOTHING;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            ;
+        } else {
+            You_cant("hold %s -- you have no hands!", doname(pick));
+            return PICKLOCK_DID_NOTHING;
+        }
     } else if (u.uswallow) {
         You_cant("%sunlock %s.", (picktyp == CREDIT_CARD) ? "" : "lock or ",
                  mon_nam(u.ustuck));
@@ -868,8 +880,14 @@ doopen_indir(coordxy x, coordxy y)
     int res = ECMD_OK;
 
     if (nohands(gy.youmonst.data)) {
-        You_cant("open anything -- you have no hands!");
-        return ECMD_OK;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            ;
+        } else {
+            You_cant("open anything -- you have no hands!");
+            return ECMD_OK;
+        }
     }
 
     dirprompt = NULL; /* have get_adjacent_loc() -> getdir() use default */
@@ -1044,8 +1062,14 @@ doclose(void)
     int res = ECMD_OK;
 
     if (nohands(gy.youmonst.data)) {
-        You_cant("close anything -- you have no hands!");
-        return ECMD_OK;
+        if (druid_form && !slithy(gy.youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(gy.youmonst.data)) {
+            ;
+        } else {
+            You_cant("close anything -- you have no hands!");
+            return ECMD_OK;
+        }
     }
 
     if (u.utrap && u.utraptype == TT_PIT) {

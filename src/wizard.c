@@ -89,7 +89,10 @@ amulet(void)
         return;
 #endif
     if ((((amu = uamul) != 0 && amu->otyp == AMULET_OF_YENDOR)
-         || ((amu = uwep) != 0 && amu->otyp == AMULET_OF_YENDOR))
+         || ((amu = uwep) != 0
+             && (amu->otyp == AMULET_OF_YENDOR
+                 || (amu->oartifact == ART_IDOL_OF_MOLOCH
+                     && u.uevent.uimbued_idol))))
         && !rn2(15)) {
         for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap) {
             if (ttmp->ttyp == MAGIC_PORTAL) {
@@ -128,7 +131,9 @@ mon_has_amulet(struct monst *mtmp)
     struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-        if (otmp->otyp == AMULET_OF_YENDOR)
+        if (otmp->otyp == AMULET_OF_YENDOR
+            || (otmp->oartifact == ART_IDOL_OF_MOLOCH
+                && u.uevent.uimbued_idol))
             return 1;
     return 0;
 }

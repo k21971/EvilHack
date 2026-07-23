@@ -518,6 +518,90 @@ newman(void)
         selftouch(no_longer_petrify_resistant);
 }
 
+/* #wildshape menu for Druid heroes; pick one of the druid forms
+   available at the hero's experience level and transform via
+   polymon() */
+void
+druid_wildshape(void)
+{
+    winid win;
+    menu_item *selected;
+    anything any;
+    int i, n;
+    /* how much alignment abuse (or the lack of it) affects the
+       cooldown between wildshape uses */
+    int abuse = ((u.ualign.abuse == 0) ? -1000
+                 : (u.ualign.abuse < 5) ? 100
+                   : (u.ualign.abuse < 15) ? 200
+                     : (u.ualign.abuse < 30) ? 500
+                       : (u.ualign.abuse < 50) ? 1000
+                         : 2000);
+
+    if (Unchanging) {
+        You("fail to transform!");
+        return;
+    }
+
+    if (Hidinshell)
+        (void) toggleshell();
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+
+    for (i = LOW_PM; i < NUMMONS; i++) {
+        if (u.ulevel >= 20) {
+            if (!all_druid_forms(i))
+                continue;
+        } else if (u.ulevel >= 14) {
+            if (!druid_form_A(i)
+                && !druid_form_B(i)
+                && !druid_form_C(i))
+                continue;
+        } else if (u.ulevel >= 8) {
+            if (!druid_form_A(i)
+                && !druid_form_B(i))
+                continue;
+        } else if (u.ulevel >= 3) {
+            if (!druid_form_A(i))
+                continue;
+        } else {
+            /* extra guard, otherwise potentially
+               all monsters become available */
+            continue;
+        }
+        any.a_int = i;
+        add_menu(win, &nul_glyphinfo, &any, 0, 0, ATR_NONE, NO_COLOR,
+                 mons[i].pmnames[NEUTRAL], MENU_ITEMFLAGS_NONE);
+    }
+    end_menu(win, "Pick a form to change into.");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        i = selected[0].item.a_int;
+        free((genericptr_t) selected);
+        /* set timer for next allowed use of wildshape only if
+           the transformation actually took place; polymon()
+           returns 0 if the chosen form was genocided.
+           3600-4000 turns approximates Druids being able to
+           use wildshape three times a day (ad&d rules); how
+           alignment is abused (or not abused) can affect the
+           amount of turns needed to wait between wildshape
+           uses */
+        if (polymon(i))
+            u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                                (3600 + abuse));
+    } else {
+        /* player hit ESC/did not make a selection */
+        return;
+    }
+
+    /* TODO-EVILHACK: master rechecks underwater vision here via the
+       See_underwater property; that macro ports with the
+       object-properties subsystem */
+    return;
+}
+
 /* #shapechange menu for vampire heroes; pick one of the vampire
    shift forms and transform via polymon() */
 void
@@ -963,7 +1047,12 @@ polymon(int mntmp)
         make_stoned(0L, "You turn to stone!", 0, (char *) 0);
     }
 
-    u.mtimedone = rn1(500, 500);
+    /* Druids can stay in their chosen polyform much longer
+       than other roles: 2500-3000 turns vs 500-999 turns */
+    if (Role_if(PM_DRUID))
+        u.mtimedone = rn1(501, 2500);
+    else
+        u.mtimedone = rn1(500, 500);
     u.umonnum = mntmp;
     /* a skeletal dragon's breath is fixed per individual; reroll it
        for every new change, before set_uasmon() derives the form's
@@ -1027,10 +1116,19 @@ polymon(int mntmp)
         if (is_home_elemental(&mons[mntmp]))
             u.mhmax *= 3;
     }
+    /* Druid assumes #wildshape form, or a vampire uses #shapechange;
+       hit points/max hit points either stays the same as if they
+       did not change shape (u.uhp/u.uhpmax), or becomes that of
+       the monster they #wildshape or #shapechange into (u.mh/u.umhmax),
+       whichever is greater */
+    if ((druid_form || vampire_form) && u.mhmax < u.uhpmax)
+        u.mhmax = u.uhpmax;
     u.mh = u.mhmax;
 
-    if (u.ulevel < mlvl) {
-        /* Low level characters can't become high level monsters for long */
+    if (u.ulevel < mlvl && !(druid_form || vampire_form)) {
+        /* Low level characters can't become high level monsters for
+           long; Druids using #wildshape and vampires using
+           #shapechange are the exception */
 #ifdef DUMB
         /* DRS/NS 2.2.6 messes up -- Peter Kendell */
         int mtd = u.mtimedone, ulv = u.ulevel;
@@ -1045,6 +1143,25 @@ polymon(int mntmp)
         skinback(FALSE);
     break_armor();
     drop_weapon(1);
+    /* druids in wildshape form will automatically
+       drop any carried boulder in inventory if they
+       change into a form that can't toss boulders */
+    if (druid_form) {
+        struct obj *bigrock = carrying(BOULDER);
+
+        if (bigrock && !throws_rocks(gy.youmonst.data)) {
+            /* do the relevant parts of do.c drop(), which has
+               become a static command handler */
+            if (bigrock == uwep)
+                setuwep((struct obj *) 0);
+            else if (bigrock == uswapwep)
+                setuswapwep((struct obj *) 0);
+            else if (bigrock == uquiver)
+                setuqwep((struct obj *) 0);
+            You("drop %s.", doname(bigrock));
+            dropx(bigrock);
+        }
+    }
     find_ac(); /* (repeated below) */
     /* if hiding under something and can't hide anymore, unhide now;
        but don't auto-hide when not already hiding-under */
@@ -1388,7 +1505,7 @@ break_armor(void)
             dropp(otmp);
         }
     }
-    if (has_horns(uptr)) {
+    if (has_horns(uptr) && !druid_form) {
         if ((otmp = uarmh) != 0) {
             if (is_flimsy(otmp) && !donning(otmp)) {
                 char hornbuf[BUFSZ];
@@ -1408,22 +1525,42 @@ break_armor(void)
         }
     }
     if (nohands(uptr) || verysmall(uptr)) {
-        if ((otmp = uarmg) != 0) {
+        if (!(druid_form || vampire_form) && (otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
             /* Drop weapon along with gloves */
-            You("drop your gloves%s!", uwep ? " and weapon" : "");
-            drop_weapon(0);
-            (void) Gloves_off();
-            /* Glib manipulation (ends immediately) handled by Gloves_off */
-            dropp(otmp);
+            if (uarmg->oartifact == ART_HAND_OF_VECNA) {
+                if (uwep) {
+                    You("drop your weapon!");
+                    drop_weapon(0);
+                }
+            } else {
+                You("drop your gloves%s!", uwep ? " and weapon" : "");
+                drop_weapon(0);
+                (void) Gloves_off();
+                /* Glib manipulation (ends immediately) handled by
+                   Gloves_off */
+                dropp(otmp);
+            }
         }
         if ((otmp = uarms) != 0) {
-            You("can no longer hold your shield!");
-            (void) Shield_off();
-            dropp(otmp);
+            if ((druid_form || vampire_form) && !is_bracer(uarms))
+                You("can no longer hold your shield!");
+            else if (!(druid_form || vampire_form))
+                You("can no longer %s!",
+                    is_bracer(uarms) ? "wear your bracers"
+                                     : "hold your shield");
+            if ((druid_form || vampire_form) && is_bracer(uarms)) {
+                ; /* do nothing */
+            } else {
+                if (otmp->lamplit)
+                    end_burn(otmp, FALSE);
+                (void) Shield_off();
+                if (!(druid_form || vampire_form))
+                    dropp(otmp);
+            }
         }
-        if ((otmp = uarmh) != 0) {
+        if (!(druid_form || vampire_form) && (otmp = uarmh) != 0) {
             if (donning(otmp))
                 cancel_don();
             Your("%s falls to the %s!", helm_simple_name(otmp),
@@ -1432,8 +1569,9 @@ break_armor(void)
             dropp(otmp);
         }
     }
-    if (nohands(uptr) || verysmall(uptr)
-        || slithy(uptr) || uptr->mlet == S_CENTAUR) {
+    if ((nohands(uptr) || verysmall(uptr)
+         || slithy(uptr) || uptr->mlet == S_CENTAUR)
+        && !(druid_form || vampire_form)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1490,25 +1628,29 @@ drop_weapon(int alone)
                 if (uwep->quan != 1L || u.twoweap)
                     which = makeplural(which);
 
-                You("find you must %s %s %s!", what,
+                You("find you must %s %s %s!",
+                    (druid_form || vampire_form) ? "release" : what,
                     the_your[!!strncmp(which, "corpse", 6)], which);
             }
             /* if either uwep or wielded uswapwep is flagged as 'in_use'
                then don't drop it or explicitly update inventory; leave
-               those actions to caller (or caller's caller, &c) */
+               those actions to caller (or caller's caller, &c); a
+               druid or vampire shift form releases the grip but the
+               weapons stay merged with the form rather than dropping */
             if (u.twoweap) {
                 otmp = uswapwep;
                 uswapwepgone();
                 if (otmp->in_use)
                     updateinv = FALSE;
-                else if (candropswapwep)
+                else if (candropswapwep
+                         && !(druid_form || vampire_form))
                     dropx(otmp);
             }
             otmp = uwep;
             uwepgone();
             if (otmp->in_use)
                 updateinv = FALSE;
-            else if (candropwep)
+            else if (candropwep && !(druid_form || vampire_form))
                 dropx(otmp);
             /* [note: dropp vs dropx -- if heart of ahriman is wielded, we
                might be losing levitation by dropping it; but that won't
@@ -1552,6 +1694,16 @@ rehumanize(void)
      * Right now, dying while being a shifted vampire (bat, cloud, wolf)
      * reverts to human rather than to vampire.
      */
+
+    /* if a Druid dies while using wildshape,
+       extra turns are added to the cooldown
+       timer before they can use it again */
+    if (u.uwildshape && u.mh < 1)
+        u.uwildshape += 1000;
+
+    /* same for vampires */
+    if (u.uvampireshape && u.mh < 1)
+        u.uvampireshape += 1000;
 
     if (emits_light(gy.youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
@@ -2357,16 +2509,15 @@ mbodypart(struct monst *mon, int part)
         /* opposable thumbs, hence "hands", "arms", "legs", &c */
         return humanoid_parts[part]; /* yeti/sasquatch, monkey/ape */
     }
-    /* TODO-EVILHACK: master also uses claws for demon heroes (the
-       race granted by Infidel crowning); ports with the roles slice */
     if ((part == HAND || part == HANDED)
         && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
              && !strchr(not_claws, mptr->mlet)
              && mptr != &mons[PM_STONE_GOLEM]
              && mptr != &mons[PM_AMOROUS_DEMON])
             || (mon == &gy.youmonst && !Upolyd
-                && (Race_if(PM_TORTLE) || Race_if(PM_ILLITHID)
-                    || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)))))
+                && (Race_if(PM_DEMON) || Race_if(PM_TORTLE)
+                    || Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)
+                    || Race_if(PM_VAMPIRE)))))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON])
         && part == NOSE)

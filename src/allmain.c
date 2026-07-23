@@ -317,6 +317,58 @@ moveloop_core(void)
 
                 regen_pw(mvl_wtcap);
 
+                /* Moloch demands regular sacrifices! */
+                if (svc.context.next_moloch_offering <= svm.moves) {
+                    if (svc.context.next_moloch_offering == svm.moves
+                        && (u.ualign.type == A_NONE
+                            || u.ualignbase[A_CURRENT] == A_NONE)) {
+                        You_feel("%s urge to perform a sacrifice.",
+                                 u.ualign.type == A_NONE ? "an"
+                                                         : "a faint");
+                        stop_occupation();
+                    }
+                    if (u.ualign.type == A_NONE
+                        && rn2((int) (svm.moves
+                                      - svc.context.next_moloch_offering
+                                      + 1000L)) >= 1000) {
+                        if (!rn2(100) && u.ualign.record > -99) {
+                            adjalign(-1);
+                            record_abuse_event(-1, ABUSE_NEGLECT_OFFERING);
+                            /* give our infidel some feedback every
+                               once in a while */
+                            if (!rn2(5))
+                                You_feel(
+                                 "your favor with %s starting to slip.",
+                                         u_gname());
+                        }
+                        if (u.ualign.record < -10 && !rn2(u.ugangr + 1)
+                            && rn2(-u.ualign.record + 90) >= 100) {
+                            const char *angry = (char *) 0;
+
+                            u.ugangr++;
+                            /* avoid repetitive messages */
+                            switch (u.ugangr) {
+                            /* same values as in insight.c */
+                            case 1:
+                                angry = "";
+                                break;
+                            case 4:
+                                angry = "very ";
+                                break;
+                            case 7:
+                                angry = "extremely ";
+                                break;
+                            }
+                            if (angry) {
+                                You_feel("that %s is %sangry at your "
+                                         "lack of offerings.", u_gname(),
+                                         angry);
+                                stop_occupation();
+                            }
+                        }
+                    }
+                }
+
                 if (!u.uinvulnerable) {
                     if (Teleportation && !rn2(85)) {
                         coordxy old_ux = u.ux, old_uy = u.uy;
@@ -409,33 +461,36 @@ moveloop_core(void)
                     }
                 }
 
-                /* make monsters that innately grudge the hero's race
-                   hostile should they be tame or peaceful */
-                /* TODO-EVILHACK: master runs the same pass for the
-                   wielded 'banes (artifacts slice) and for knights
-                   vs cross-aligned dragons and Infidels vs lawful
-                   angels (roles slice); once those land, the aasimar
-                   gate below has to move inside the loop */
-                if (Race_if(PM_AASIMAR))
-                    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                        boolean is_shkp = has_eshk(mtmp)
-                                          && inhishop(mtmp);
-                        boolean is_prst = has_epri(mtmp)
-                                          && inhistemple(mtmp);
+                /* make monsters that innately grudge the hero's race,
+                   role, or alignment hostile should they be tame or
+                   peaceful */
+                /* TODO-EVILHACK: master also runs this pass for the
+                   wielded or worn 'banes; those arms port with the
+                   artifacts slice */
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    boolean is_shkp = has_eshk(mtmp)
+                                      && inhishop(mtmp);
+                    boolean is_prst = has_epri(mtmp)
+                                      && inhistemple(mtmp);
+                    boolean same_align = (sgn(mon_aligntyp(mtmp))
+                                          == u.ualign.type);
 
-                        if (!is_demon(mtmp->data))
-                            continue;
-                        /* monster in question has to see you, not just
-                           sense you, before it becomes hostile */
-                        if (!(mtmp->mcansee && m_canseeu(mtmp)))
-                            continue;
-                        /* mindless creatures don't register the threat */
-                        if (mindless(mtmp->data))
-                            continue;
-                        /* coaligned temple priests will stay civil */
-                        if (is_prst && p_coaligned(mtmp))
-                            continue;
+                    /* monster in question has to see you, not just
+                       sense you, before it becomes hostile */
+                    if (!(mtmp->mcansee && m_canseeu(mtmp)))
+                        continue;
+                    /* mindless creatures don't register the threat */
+                    if (mindless(mtmp->data))
+                        continue;
+                    /* coaligned temple priests will stay civil */
+                    if (is_prst && p_coaligned(mtmp))
+                        continue;
 
+                    if ((Role_if(PM_KNIGHT) && !same_align
+                         && is_dragon(mtmp->data))
+                        || (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
+                        || (Role_if(PM_INFIDEL) && is_angel(mtmp->data)
+                            && mon_aligntyp(mtmp) > 0)) {
                         if (is_shkp) {
                             /* shopkeepers ban you from their shop */
                             ESHK(mtmp)->pbanned = TRUE;
@@ -452,6 +507,7 @@ moveloop_core(void)
                                 dismount_steed(DISMOUNT_THROWN);
                         }
                     }
+                }
 
                 /* Draugr corpse sense: update perm_invent when corpse
                    rot status changes */
@@ -516,6 +572,7 @@ moveloop_core(void)
                 reset_utrap(TRUE);
             }
         }
+        svc.context.coward = FALSE;
 
         /* vision while buried or underwater is updated here */
         if (Underwater)
@@ -531,14 +588,6 @@ moveloop_core(void)
     /****************************************/
 
     clear_splitobjs();
-
-    /* the Amulet of Yendor gives a wish when initially picked up */
-    if (u.uhave.amulet && !u.uevent.amulet_wish) {
-        u.uevent.amulet_wish = 1;
-        display_nhwindow(WIN_MESSAGE, TRUE);
-        urgent_pline("The Amulet is bestowing a wish upon you!");
-        makewish();
-    }
 
     find_ac();
     if (!svc.context.mv || Blind) {
@@ -705,11 +754,41 @@ init_mchest(void)
 staticfn void
 regen_pw(int wtcap)
 {
+    /* normal energy regeneration rate */
+    long rate = ((MAXULEV + 8L - u.ulevel)
+                 * ((Role_if(PM_WIZARD) || Role_if(PM_INFIDEL)) ? 3L : 4L)
+                 / 6L);
+
+    /* Druids can have differing rates of energy
+       regeneration depending on the amount of
+       mistletoe (or lack thereof) in open inventory */
+    if (Role_if(PM_DRUID)) {
+        struct obj *mtoe = carrying(MISTLETOE);
+
+        if (mtoe && mtoe->quan >= 9) {
+            /* double normal rate */
+            rate /= 2L;
+        } else if (mtoe && mtoe->quan >= 5) {
+            /* roughly 1.3x normal rate */
+            if (!(svm.moves % 3))
+                rate /= 2L;
+        /* one to four mistletoe in open inventory
+           is normal energy regeneration */
+        } else if (!mtoe) {
+            /* no mistletoe: half normal rate */
+            rate *= 2L;
+        }
+    }
+
     if (u.uen < u.uenmax
-        && ((wtcap < MOD_ENCUMBER
-             && (!(svm.moves % ((MAXULEV + 8 - u.ulevel)
-                              * (Role_if(PM_WIZARD) ? 3 : 4)
-                              / 6)))) || Energy_regeneration)) {
+        && ((wtcap < MOD_ENCUMBER && !(svm.moves % rate))
+            || Energy_regeneration
+            /* the Idol grants energy regen to piously unaligned;
+               it really shouldn't be restricted to Infidels,
+               but so far we have no other unaligned roles */
+            || (Role_if(PM_INFIDEL) && u.uhave.questart
+                && u.ualign.type == A_NONE
+                && u.ualign.record > rn2(20)))) {
         int upper = (int) (ACURR(A_WIS) + ACURR(A_INT)) / 15 + 1;
 
         if (EMagical_breathing)
@@ -732,7 +811,16 @@ regen_hp(int wtcap)
 {
     int heal = 0;
     boolean reached_full = FALSE,
-            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved);
+            encumbrance_ok = (wtcap < MOD_ENCUMBER || !u.umoved),
+            infidel_no_amulet = (u.ualign.type == A_NONE
+                                 && !u.uhave.amulet
+                                 && !u.uevent.uimbued_idol);
+
+    /* periodically let our Infidel know why their hit
+       points aren't regenerating if they don't have
+       the Amulet in their possession */
+    if (infidel_no_amulet && !rn2(20))
+        You_feel("unable to rest or heal without the Amulet of Yendor.");
 
     if (Upolyd) {
         if (u.mh < 1) { /* shouldn't happen... */
@@ -746,7 +834,13 @@ regen_hp(int wtcap)
                 && (!Half_physical_damage || !(svm.moves % 2L)))
                 heal = -1;
         } else if (u.mh < u.mhmax) {
-            if (U_CAN_REGEN() || (encumbrance_ok && !(svm.moves % 20L)))
+            /* Druids in wildshape form and vampires in shapechange
+               form recover noticeably faster than an ordinary
+               polymorphed hero */
+            if (U_CAN_REGEN()
+                || (encumbrance_ok
+                    && !(svm.moves % ((druid_form || vampire_form)
+                                      ? 9L : 20L))))
                 heal = 1;
         }
         if (heal) {
@@ -760,8 +854,12 @@ regen_hp(int wtcap)
         /* [when this code was in-line within moveloop(), there was
            no !Upolyd check here, so poly'd hero recovered lost u.uhp
            once u.mh reached u.mhmax; that may have been convenient
-           for the player, but it didn't make sense for gameplay...] */
-        if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())) {
+           for the player, but it didn't make sense for gameplay...]
+
+           Infidels won't heal at all without the Amulet of Yendor
+           with them (pre-idol imbuement) */
+        if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())
+            && !infidel_no_amulet) {
             heal = (u.ulevel + (int)ACURR(A_CON)) > rn2(100);
 
             /* tortles gain some accelerated regeneration while
@@ -897,6 +995,9 @@ newgame(void)
     svc.context.next_attrib_check = 600L; /* arbitrary first setting */
     svc.context.tribute.enabled = TRUE;   /* turn on 3.6 tributes    */
     svc.context.tribute.tributesz = sizeof(struct tribute_info);
+    svc.context.inf_aligns = rn2(6);      /* randomness for the Infidel role */
+    svc.context.next_moloch_offering = 6000; /* give a grace period before
+                                              * the first sacrifice */
     get_nhuuid();
 
     for (i = LOW_PM; i < NUMMONS; i++)
@@ -970,12 +1071,42 @@ newgame(void)
     }
     u_init_skills_discoveries();
 
+    /* Convicts begin the game punished, dragging a light iron ball;
+       done after the reroll loop so the ball and chain cannot be
+       disturbed by inventory re-initialization */
+    if (Role_if(PM_CONVICT)) {
+        setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+        setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+        uball->spe = 1;
+        placebc();
+        newsym(u.ux, u.uy);
+    }
+
     if (wizard) {
         read_wizkit();
         obj_delivery(FALSE); /* finish wizkit */
     }
 
+    /* a pauper Infidel starts with nothing, which would make the game
+       unwinnable: the Amulet of Yendor they normally carry is their
+       win condition and no other source of it exists for them; place
+       the Amulet on the floor at the hero's feet instead, matching
+       the state it would have had in a normal Infidel's inventory */
+    if (u.uroleplay.pauper && Role_if(PM_INFIDEL)) {
+        struct obj *amu = mksobj(AMULET_OF_YENDOR, TRUE, FALSE);
+
+        if (objects[amu->otyp].oc_uses_known)
+            amu->known = 1;
+        amu->dknown = amu->bknown = amu->rknown = 1;
+        amu->cursed = amu->blessed = 0;
+        place_object(amu, u.ux, u.uy);
+        newsym(u.ux, u.uy);
+    }
+
     if (flags.legacy) {
+        /* TODO-EVILHACK: master shows Convicts their own legacy text;
+           needs com_pager("legacy_convict") and the Infidel altstart
+           substitution hook once the EvilHack quest text data lands */
         com_pager(u.uroleplay.pauper ? "pauper_legacy" : "legacy");
     }
 
@@ -1058,9 +1189,14 @@ welcome(boolean new_game) /* false => restoring an old game */
             (currentgend && gu.urole.name.f) ? gu.urole.name.f
                                              : gu.urole.name.m);
 
-    pline(new_game ? "%s %s, welcome to NetHack!  You are a%s."
-                   : "%s %s, the%s, welcome back to NetHack!",
-          Hello((struct monst *) 0), svp.plname, buf);
+    if (u.ualign.type == A_NONE)
+        pline(new_game ? "%s %s, welcome to NetHack!  You are an%s."
+                       : "%s %s, the%s, welcome back to NetHack!",
+              Hello((struct monst *) 0), svp.plname, buf);
+    else
+        pline(new_game ? "%s %s, welcome to NetHack!  You are a%s."
+                       : "%s %s, the%s, welcome back to NetHack!",
+              Hello((struct monst *) 0), svp.plname, buf);
 
     if (new_game) {
         /* racial ability hints */
@@ -1074,6 +1210,10 @@ welcome(boolean new_game) /* false => restoring an old game */
             pline("Use #telekinesis to manipulate objects and monsters.");
         else if (Race_if(PM_AASIMAR))
             pline("Use #monster to invoke an aura of light.");
+
+        /* Roles */
+        if (Role_if(PM_DRUID))
+            pline("Use #wildshape to change form.");
 
         /* guarantee that 'major' event category is never empty */
         livelog_printf(LL_ACHIEVE, "%s the%s entered the dungeon",

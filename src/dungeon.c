@@ -1538,7 +1538,9 @@ prev_level(boolean at_stairs)
         /* Taking an up dungeon branch. */
         /* KMH -- Upwards branches are okay if not level 1 */
         /* (Just make sure it doesn't go above depth 1) */
-        if (!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet)
+        if (!u.uz.dnum && u.uz.dlevel == 1
+            && !(u.uhave.amulet
+                 && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
             done(ESCAPED);
         else {
             newlevel.dnum = stway->tolev.dnum;

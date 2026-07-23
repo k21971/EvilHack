@@ -3277,7 +3277,9 @@ makemon(
         break;
     case S_JABBERWOCK:
     case S_NYMPH:
-        if (rn2(5) && !u.uhave.amulet)
+        if (rn2(5)
+            && !(u.uhave.amulet
+                 && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
             mtmp->msleeping = 1;
         break;
     case S_ORC:
@@ -3352,7 +3354,9 @@ makemon(
     if (gi.in_mklev) {
         if ((is_ndemon(ptr) || mndx == PM_WUMPUS
              || mndx == PM_LONG_WORM || mndx == PM_GIANT_EEL)
-            && !u.uhave.amulet && rn2(5))
+            && !(u.uhave.amulet
+                 && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
+            && rn2(5))
             mtmp->msleeping = TRUE;
     } else {
         if (byyou) {
@@ -3714,6 +3718,10 @@ mk_gen_ok(int mndx, unsigned mvflagsmask, unsigned genomask)
     if (ptr->geno & genomask)
         return FALSE;
     if (is_placeholder(ptr))
+        return FALSE;
+    /* the Agent and the Champion hunt Infidels exclusively */
+    if (!Role_if(PM_INFIDEL)
+        && (ptr == &mons[PM_AGENT] || ptr == &mons[PM_CHAMPION]))
         return FALSE;
 #ifdef MAIL_STRUCTURES
     /* special levels might ask for random demon type; reject this one */
@@ -4364,13 +4372,28 @@ peace_minded(struct monst *mtmp)
         && !unique_corpstat(ptr) && mal > 0)
         return TRUE;
 
+    /* lawful angelic beings are hostile to infidels */
+    if (Role_if(PM_INFIDEL) && is_angel(ptr)
+        && !unique_corpstat(ptr) && mal > 0)
+        return FALSE;
+
+    /* monsters of same race as the player tend to be peaceful,
+       followers of Moloch and Convicts are the exception */
+    if (ual == A_NONE || Role_if(PM_CONVICT))
+        return FALSE;
+
     /* the monster is hostile if its alignment is different from the
      * player's */
     if (sgn(mal) != sgn(ual))
         return FALSE;
 
-    /* Negative monster hostile to player with Amulet. */
-    if (mal < A_NEUTRAL && u.uhave.amulet)
+    /* not all chaotics support Moloch; this goes especially for elves */
+    if (ual == A_NONE && (racial_elf(mtmp) || rn2(2)))
+        return FALSE;
+
+    /* Negative monster hostile to player with Amulet, except when
+       the player is an Infidel chasing their own possession */
+    if (mal < A_NEUTRAL && u.uhave.amulet && !Role_if(PM_INFIDEL))
         return FALSE;
 
     /* minions are hostile to players that have strayed at all */
@@ -4415,9 +4438,14 @@ set_malign(struct monst *mtmp)
             mal *= 5;
     }
 
-    coaligned = (sgn(mal) == sgn(u.ualign.type));
+    /* compare raw alignment so an unaligned hero (A_NONE) is never
+       treated as coaligned with anyone */
+    coaligned = (sgn(mal) == u.ualign.type);
     if (mtmp->data->msound == MS_LEADER) {
-        mtmp->malign = -20;
+        if (u.ualign.type == A_NONE)
+            ; /* Moloch's indifference */
+        else
+            mtmp->malign = -20;
     } else if (mtmp->data == &mons[PM_LOLTH]
                && u.ualign.type == A_CHAOTIC && Race_if(PM_DROW)) {
         mtmp->malign = -30; /* super bad, just killed your deity */
@@ -4426,16 +4454,23 @@ set_malign(struct monst *mtmp)
             mtmp->malign = 0;
         else
             mtmp->malign = 20; /* really hostile */
+        if (u.ualign.type == A_NONE)
+            mtmp->malign -= 20; /* reverse */
     } else if (always_peaceful(mtmp->data)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful) {
-            /* TODO-EVILHACK: master also softens the penalty here for
-               unaligned heroes (Moloch's will) and Convicts; those
-               port with the roles slice */
-            if (!Upolyd && Race_if(PM_DRAUGR)) {
-                /* 'always peaceful' types turn on the walking dead;
-                   killing them is barely an alignment hit */
+            if (u.ualign.type == A_NONE
+                || (!Upolyd && Race_if(PM_DRAUGR))) {
+                /* Moloch's will; 'always peaceful' types also turn
+                   on the walking dead - killing them is barely an
+                   alignment hit */
                 mtmp->malign += 1;
+            } else if (Role_if(PM_CONVICT)) {
+                /* Several 'always peaceful' types become hostile
+                   once they see a Convict. Still an alignment
+                   hit, but not nearly as bad as it is for other
+                   roles */
+                mtmp->malign = -1 * max(1, absmal);
             } else {
                 mtmp->malign = -3 * max(5, absmal);
             }

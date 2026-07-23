@@ -962,10 +962,22 @@ addinv_core1(struct obj *obj)
     if (obj->oclass == COIN_CLASS) {
         disp.botl = TRUE;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
-        if (u.uhave.amulet)
+        /* Infidels start with the Amulet and can re-acquire it after
+           their quest artifact has absorbed it, so duplicates are
+           routine for them rather than impossible */
+        if (u.uhave.amulet && !Role_if(PM_INFIDEL))
             impossible("already have amulet?");
         u.uhave.amulet = 1;
-        record_achievement(ACH_AMUL);
+        u.uamulet_on_planes = 0;
+        /* Player will be able to discover if s/he has the real amulet
+           by monitoring the livelog - but only when it was picked up
+           for the first time; for Infidels the achievement instead
+           marks imbuing the Idol of Moloch */
+        /* TODO-EVILHACK: master also opens the sanctum gates here via
+           mkgate(); that ports with the Purgatory levels (the gate
+           coordinates depend on the EvilHack sanctum layout) */
+        if (!Role_if(PM_INFIDEL))
+            record_achievement(ACH_AMUL);
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (u.uhave.menorah)
             impossible("already have candelabrum?");
@@ -986,6 +998,13 @@ addinv_core1(struct obj *obj)
             if (u.uhave.questart)
                 impossible("already have quest artifact?");
             u.uhave.questart = 1;
+            /* an Idol of Moloch imbued with the Amulet's power (its
+               enchantment marks the imbue event) counts as the
+               Amulet itself */
+            if (Role_if(PM_INFIDEL) && obj->spe == 1) {
+                u.uhave.amulet = 1;
+                u.uamulet_on_planes = 0;
+            }
             artitouch(obj);
         }
         set_artifact_intrinsic(obj, 1, W_ART);
@@ -1275,7 +1294,7 @@ hold_another_object(
 
         obj = addinv_core0(obj, (struct obj *) 0, FALSE);
         if (inv_cnt(FALSE) > invlet_basic
-                || ((obj->otyp != LOADSTONE || !obj->cursed)
+                || ((obj->otyp != LOADSTONE || !cursed(obj, TRUE))
                        && near_capacity() > prev_encumbr)) {
             /* undo any merge which took place */
             if (obj->quan > oquan)
@@ -1382,6 +1401,10 @@ freeinv_core(struct obj *obj)
             if (!u.uhave.questart)
                 impossible("don't have quest artifact?");
             u.uhave.questart = 0;
+            /* losing the imbued Idol of Moloch means losing the
+               Amulet's power it carries */
+            if (Role_if(PM_INFIDEL) && obj->spe == 1)
+                u.uhave.amulet = 0;
         }
         set_artifact_intrinsic(obj, 0, W_ART);
     }
@@ -1665,7 +1688,7 @@ compactify(char *buf)
 boolean
 splittable(struct obj *obj)
 {
-    return !((obj->otyp == LOADSTONE && obj->cursed)
+    return !((obj->otyp == LOADSTONE && cursed(obj, TRUE))
              || (obj == uwep && welded(uwep)));
 }
 
@@ -2082,7 +2105,7 @@ getobj(
             /* don't split a stack of cursed loadstones */
             if (splittable(otmp))
                 otmp = splitobj(otmp, cnt);
-            else if (otmp->otyp == LOADSTONE && otmp->cursed)
+            else if (otmp->otyp == LOADSTONE && cursed(otmp, TRUE))
                 /* kludge for canletgo()'s can't-drop-this message */
                 otmp->corpsenm = (int) cnt;
         }

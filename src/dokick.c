@@ -914,6 +914,12 @@ kick_ouch(coordxy x, coordxy y, const char *kickobjnam)
     int dmg;
     char buf[BUFSZ];
 
+    /* Druids take no harm from nudging a tree */
+    if (IS_TREE(gm.maploc->typ) && Role_if(PM_DRUID)) {
+        if (Is_airlevel(&u.uz) || Levitation)
+            hurtle(-u.dx, -u.dy, rn1(2, 2), TRUE);
+        return;
+    }
     pline("Ouch!  That hurts!");
     exercise(A_DEX, FALSE);
     exercise(A_STR, FALSE);
@@ -1212,6 +1218,8 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
     if (IS_TREE(gm.maploc->typ)) {
         struct obj *treefruit;
 
+        You("%s %s.", Role_if(PM_DRUID) ? "gently nudge" : "kick",
+            Blind ? something : "the tree");
         /* nothing, fruit or trouble? 75:23.5:1.5%; the odds
            improve for giants and centaurs */
         if ((maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT))

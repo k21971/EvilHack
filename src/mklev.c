@@ -980,7 +980,9 @@ fill_ordinary_room(
        while a monster was on the stairs. Conclusion:
        we have to check for monsters on the stairs anyway. */
 
-    if ((u.uhave.amulet || !rn2(3)) && somexyspace(croom, &pos)) {
+    if (((u.uhave.amulet
+          && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
+         || !rn2(3)) && somexyspace(croom, &pos)) {
         tmonst = makemon((struct permonst *) 0, pos.x, pos.y, MM_NOGRP);
         if (tmonst && tmonst->data == &mons[PM_GIANT_SPIDER]
             && !occupied(pos.x, pos.y))

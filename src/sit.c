@@ -379,6 +379,9 @@ lay_an_egg(void)
             You("yearn for the Sargasso Sea.");
             return ECMD_OK;
         }
+    } else if (rn2(1000) && druid_form) {
+        You("try, but you aren't quite ready to lay an egg.");
+        return ECMD_TIME; /* time passes */
     }
     uegg = mksobj(EGG, FALSE, FALSE);
     uegg->spe = 1;
