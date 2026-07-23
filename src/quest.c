@@ -130,7 +130,10 @@ artitouch(struct obj *obj)
         observe_object(obj);
         /* only give this message once */
         Qstat(touched_artifact) = TRUE;
-        qt_pager("gotit");
+        if (Qstat(leader_is_dead))
+            qt_pager("gotit2");
+        else
+            qt_pager("gotit");
         exercise(A_WIS, TRUE);
     }
 }
@@ -301,12 +304,9 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
             Snprintf(qbuf, sizeof qbuf, "Forfeit %s to %s?", qa_name,
                      ldr_name);
             /* quest leader decides they want the quest artifact */
-            /* TODO-EVILHACK: master announces the demand via
-               qt_pager("leader_wantsit"); enable once the EvilHack
-               quest text data lands */
+            qt_pager("leader_wantsit");
             if (y_n(qbuf) == 'y') {
-                /* TODO-EVILHACK: qt_pager("gaveitup") once the
-                   EvilHack quest text data lands */
+                qt_pager("gaveitup");
                 if (obj) {
                     u.uevent.qcompleted = 1; /* you did it! */
                     /* completing the quest frees the bell of opening

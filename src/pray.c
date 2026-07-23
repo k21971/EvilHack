@@ -1769,11 +1769,10 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
                they just carry a different McGuffin */
             otmp = find_quest_artifact(1 << OBJ_INVENT);
             godvoice(A_NONE, (char *) 0);
-            /* TODO-EVILHACK: master narrates both outcomes here via
-               qt_pager("moloch_offer_no_idol") and
-               qt_pager("moloch_offer_idol"); enable them once the
-               EvilHack quest text data lands */
-            if (otmp) {
+            if (!otmp) {
+                qt_pager("moloch_offer_no_idol");
+            } else {
+                qt_pager("moloch_offer_idol");
                 if (otmp->where == OBJ_CONTAINED) {
                     /* the Idol cannot be contained now,
                        so we have to remove it */

@@ -25,7 +25,8 @@ staticfn void convert_line(char *,char *);
 staticfn void deliver_by_pline(const char *);
 staticfn void deliver_by_window(const char *, int);
 staticfn boolean skip_pager(boolean);
-staticfn boolean com_pager_core(const char *, const char *, boolean, char **);
+staticfn boolean com_pager_core(const char *, const char *, boolean, int,
+                                char **);
 
 short
 quest_info(int typ)
@@ -164,7 +165,7 @@ stinky_nemesis(struct monst *mon)
     for (r = 0; roles[r].name.m || roles[r].name.f; ++r)
         if (roles[r].neminum == mndx) {
             (void) com_pager_core(roles[r].filecode, "killed_nemesis",
-                                  FALSE, &mesg);
+                                  FALSE, 0, &mesg);
             break;
         }
 #else
@@ -172,7 +173,8 @@ stinky_nemesis(struct monst *mon)
     /* since nemdead() just gave the message for hero's nemesis even if 'mon'
        is some other role's nemesis (feasible in wizard mode), base any gas
        cloud on the text that was shown even if not appropriate for 'mon' */
-    (void) com_pager_core(gu.urole.filecode, "killed_nemesis", FALSE, &mesg);
+    (void) com_pager_core(gu.urole.filecode, "killed_nemesis", FALSE, 0,
+                          &mesg);
 #endif
 
     /* this is somewhat fragile; it assumes that when both {noxious or
@@ -470,11 +472,15 @@ skip_pager(boolean common UNUSED)
     return FALSE;
 }
 
+/* 'limit' restricts the random pick when the message is an array of
+   strings: positive allows only the first 'limit' elements, negative
+   excludes that many trailing elements, zero uses the whole array */
 staticfn boolean
 com_pager_core(
     const char *section,
     const char *msgid,
     boolean showerror,
+    int limit,
     char **rawtext)
 {
     static const char *const howtoput[] = {
@@ -569,6 +575,10 @@ com_pager_core(
                            QTEXT_FILE);
             goto compagerdone;
         }
+        if (limit > 0 && limit < nelems)
+            nelems = limit;
+        else if (limit < 0 && nelems + limit > 0)
+            nelems += limit;
         nelems = rn2(nelems) + 1;
         lua_pushinteger(L, nelems);
         lua_gettable(L, -2);
@@ -629,14 +639,32 @@ com_pager_core(
 void
 com_pager(const char *msgid)
 {
-    (void) com_pager_core("common", msgid, TRUE, (char **) 0);
+    (void) com_pager_core("common", msgid, TRUE, 0, (char **) 0);
+}
+
+/* like com_pager() but restrict which elements of a message array may
+   be chosen: positive 'limit' allows only the first 'limit' entries,
+   negative 'limit' excludes that many trailing entries */
+void
+com_pager_subset(const char *msgid, int limit)
+{
+    (void) com_pager_core("common", msgid, TRUE, limit, (char **) 0);
 }
 
 void
 qt_pager(const char *msgid)
 {
-    if (!com_pager_core(gu.urole.filecode, msgid, FALSE, (char **) 0))
-        (void) com_pager_core("common", msgid, TRUE, (char **) 0);
+    if (!com_pager_core(gu.urole.filecode, msgid, FALSE, 0, (char **) 0))
+        (void) com_pager_core("common", msgid, TRUE, 0, (char **) 0);
+}
+
+/* deliver an optional role-specific message; unlike qt_pager(), a
+   missing msgid is not an error and does not fall back to the common
+   section; returns whether the message was found and delivered */
+boolean
+qt_pager_opt(const char *msgid)
+{
+    return com_pager_core(gu.urole.filecode, msgid, FALSE, 0, (char **) 0);
 }
 
 struct permonst *

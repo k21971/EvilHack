@@ -1104,10 +1104,17 @@ newgame(void)
     }
 
     if (flags.legacy) {
-        /* TODO-EVILHACK: master shows Convicts their own legacy text;
-           needs com_pager("legacy_convict") and the Infidel altstart
-           substitution hook once the EvilHack quest text data lands */
-        com_pager(u.uroleplay.pauper ? "pauper_legacy" : "legacy");
+        /* pauper text takes precedence for all roles; Convicts have
+           their own legacy message; a role's quest section can define
+           an optional alternate game start message ("altstart",
+           currently only Infidels) that replaces the common legacy
+           text */
+        if (u.uroleplay.pauper)
+            com_pager("pauper_legacy");
+        else if (Role_if(PM_CONVICT))
+            com_pager("legacy_convict");
+        else if (!qt_pager_opt("altstart"))
+            com_pager("legacy");
     }
 
     urealtime.realtime = 0L;

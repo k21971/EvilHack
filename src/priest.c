@@ -663,14 +663,26 @@ priest_talk(struct monst *priest)
         return;
     }
     if (!money_cnt(gi.invent)) {
-        /* TODO-EVILHACK: for an Infidel who has imbued the Idol of
-           Moloch (u.uevent.uimbued_idol), master has the Sanctum's
-           high priest hint at the correct high altar via
-           qt_pager("moloch_altar_hint") and
-           qt_pager("moloch_altar_hint2") with inf_align() god-name
-           substitution; enable once the EvilHack quest text data
-           lands */
-        if (coaligned && !strayed) {
+        if (Role_if(PM_INFIDEL) && u.uevent.uimbued_idol
+            && priest->data == &mons[PM_HIGH_PRIEST] && Is_sanctum(&u.uz)) {
+            /* give a hint about the correct high altar */
+            aligntyp saved_align = u.ualignbase[A_ORIGINAL];
+            uchar saved_godgend = svq.quest_status.godgend;
+
+            /* a hack for displaying a different god's name in the
+               message */
+            u.ualignbase[A_ORIGINAL] = inf_align(3);
+            /* "god"[3] == 0; "goddess"[3] != 0 */
+            svq.quest_status.godgend = !!align_gtitle(inf_align(3))[3];
+            qt_pager("moloch_altar_hint");
+            if (svq.quest_status.killed_leader) {
+                u.ualignbase[A_ORIGINAL] = inf_align(2);
+                svq.quest_status.godgend = !!align_gtitle(inf_align(2))[3];
+                qt_pager("moloch_altar_hint2");
+            }
+            u.ualignbase[A_ORIGINAL] = saved_align;
+            svq.quest_status.godgend = saved_godgend;
+        } else if (coaligned && !strayed) {
             long pmoney = money_cnt(priest->minvent);
             if (pmoney > 0L) {
                 const char *bits;

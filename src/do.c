@@ -1926,16 +1926,16 @@ goto_level(
     if (!In_tower(&u.uz0) && In_tower(&u.uz)
         && !u.uevent.tower_entered) {
         u.uevent.tower_entered = 1;
-        /* TODO-EVILHACK: com_pager("vlad_tower_enter") flavor text
-           (skipped when blind) once the quest text port lands */
+        if (!Blind)
+            com_pager("vlad_tower_enter");
     }
 
     /* entered the Wizard's lair (final tower level) */
     if (!Is_wiz1_level(&u.uz0) && Is_wiz1_level(&u.uz)
         && !u.uevent.wiztower_entered) {
         u.uevent.wiztower_entered = 1;
-        /* TODO-EVILHACK: com_pager("wizards_tower_enter") flavor
-           text once the quest text port lands */
+        if (!Blind)
+            com_pager("wizards_tower_enter");
         livelog_printf(LL_ACHIEVE, "entered the Wizard of Yendor's lair");
     }
 

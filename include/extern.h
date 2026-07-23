@@ -2772,7 +2772,9 @@ extern boolean is_quest_artifact(struct obj *) NONNULLARG1;
 extern struct obj *find_quest_artifact(unsigned);
 extern int stinky_nemesis(struct monst *);
 extern void com_pager(const char *);
+extern void com_pager_subset(const char *, int);
 extern void qt_pager(const char *);
+extern boolean qt_pager_opt(const char *);
 extern struct permonst *qt_montype(void);
 extern void deliver_splev_message(void);
 

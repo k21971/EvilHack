@@ -785,11 +785,10 @@ dochug(struct monst *mtmp)
         if (mtmp->mcanmove && (mtmp->mstrategy & STRAT_CLOSE)
             && !mtmp->msleeping && monnear(mtmp, u.ux, u.uy)) {
             if (mtmp->data == &mons[PM_LUCIFER]) {
-                /* TODO-EVILHACK: master delivers Lucifer's demand via
-                   com_pager("lucifer_demand_idol") for Infidels and
-                   com_pager("lucifer_demand_amulet") for everyone
-                   else; enable once the EvilHack quest text data
-                   lands */
+                if (Role_if(PM_INFIDEL))
+                    com_pager("lucifer_demand_idol");
+                else
+                    com_pager("lucifer_demand_amulet");
                 mtmp->mstrategy &= ~STRAT_WAITMASK;
             } else {
                 quest_talk(mtmp); /* give the leaders a chance to speak */

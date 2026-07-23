@@ -964,9 +964,8 @@ cuss(struct monst *mtmp)
         }
     } else if (is_lminion(mtmp)
                && !(mtmp->isminion && EMIN(mtmp)->renegade)) {
-        com_pager("angel_cuss"); /* TODO: the Hallucination msg */
-        /*com_pager(rn2(QTN_ANGELIC - 1 + (Hallucination ? 1 : 0))
-          + QT_ANGELIC);*/
+        /* the last angel_cuss entry is only used while hallucinating */
+        com_pager_subset("angel_cuss", Hallucination ? 0 : -1);
     } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
         if (!rn2(5)) {
             pline("%s points and giggles at you.", Monnam(mtmp));

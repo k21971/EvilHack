@@ -2754,7 +2754,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       +4 ADDED by the roles slice 2026-07-22: lucifer_demand_idol/
       lucifer_demand_amulet at the monmove.c STRAT_CLOSE arm and
       vecna_hand_evil/vecna_hand at the do_wear.c Hand donning
-      narration - all pend on the quest.lua data merge);
+      narration. 2026-07-23 STATUS: quest.lua data merge + C wiring
+      DONE (16 sites, all these msgids live); still pending =
+      purgatory_enter/hidden_dungeon_enter (entry arms are Phase 3
+      topology; only the you.h bits exist) and the Charon chat
+      helper (no branch site yet; recipe:
+      com_pager_subset("charon_talk", u.uevent.ucerberus ? 3 : 0) -
+      lua array elements 1-3 are the post-Cerberus-safe subset);
       LATENT BRANCH BUG FIXED: vanilla 5.0's dlord range
       JUIBLEX..YEENOGHU on the EvilHack roster reached only 3 of 8
       lords - Lolth and all four archdevil lords were silently

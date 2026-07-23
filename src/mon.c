@@ -2888,8 +2888,7 @@ icequeenrevive(struct monst *mtmp)
                Moloch; our Infidel has 100 turns to do what they're
                going to do and get out before the situation becomes
                dire */
-            /* TODO-EVILHACK: com_pager("icequeen_freed_infidel")
-               flavor text once the quest text port lands */
+            com_pager("icequeen_freed_infidel");
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
@@ -2899,16 +2898,13 @@ icequeenrevive(struct monst *mtmp)
                    || is_undead(gy.youmonst.data)) {
             /* as with Infidels, the Enchantress will not tolerate
                the undead */
-            /* TODO-EVILHACK: com_pager("icequeen_freed_undead")
-               flavor text once the quest text port lands */
+            com_pager("icequeen_freed_undead");
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             paralyze_monst(mtmp, 100);
         } else {
-            /* TODO-EVILHACK: com_pager("icequeen_freed") flavor text
-               once the quest text port lands */
-            ;
+            com_pager("icequeen_freed");
         }
     }
     if (u.ualign.type == A_NONE) {
@@ -3976,14 +3972,13 @@ anger_quest_guardians(struct monst *mtmp)
 
 /* boss-death bookkeeping; these record the once-only game-state bits
    that unlock or alter later content (genocide gates, spawn rates,
-   xlogfile achievements) */
+   xlogfile achievements) and deliver the boss-defeat flavor text */
 void
 cerberusdead(void)
 {
     if (!u.uevent.ucerberus)
         u.uevent.ucerberus = TRUE;
-    /* TODO-EVILHACK: com_pager("cerberus_defeated") flavor text once
-       the quest text port lands */
+    com_pager("cerberus_defeated");
 }
 
 void
@@ -3991,8 +3986,7 @@ vecnadead(void)
 {
     if (!u.uevent.uvecna)
         u.uevent.uvecna = TRUE;
-    /* TODO-EVILHACK: com_pager("vecna_defeated") flavor text once the
-       quest text port lands */
+    com_pager("vecna_defeated");
 }
 
 void
@@ -4014,8 +4008,7 @@ goblinkingdead(void)
 {
     if (!u.uevent.ugking)
         u.uevent.ugking = TRUE;
-    /* TODO-EVILHACK: com_pager("goblin_king_defeated") flavor text
-       once the quest text port lands */
+    com_pager("goblin_king_defeated");
 }
 
 void
@@ -4023,8 +4016,7 @@ luciferdead(void)
 {
     if (!u.uevent.ulucifer)
         u.uevent.ulucifer = TRUE;
-    /* TODO-EVILHACK: com_pager("lucifer_defeated") flavor text once
-       the quest text port lands */
+    com_pager("lucifer_defeated");
 }
 
 void

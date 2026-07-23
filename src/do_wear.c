@@ -2894,11 +2894,14 @@ accessory_or_armor_on(struct obj *obj)
         if (delay) {
             nomul(delay);
             gm.multi_reason = "dressing up";
-            /* TODO-EVILHACK: master narrates donning the Hand of
-               Vecna via com_pager("vecna_hand_evil") for unaligned
-               heroes and com_pager("vecna_hand") for everyone else;
-               enable once the EvilHack quest text data lands */
-            gn.nomovemsg = "You finish your dressing maneuver.";
+            if (obj == uarmg && obj->oartifact == ART_HAND_OF_VECNA) {
+                if (u.ualign.type == A_NONE)
+                    com_pager("vecna_hand_evil");
+                else
+                    com_pager("vecna_hand");
+            } else {
+                gn.nomovemsg = "You finish your dressing maneuver.";
+            }
         } else {
             unmul(""); /* call afternmv, clear it+nomovemsg+multi_reason */
             on_msg(obj);
