@@ -160,11 +160,19 @@ picklock(void)
     You("succeed in %s.", lock_action());
     if (gx.xlock.door) {
         if (gx.xlock.door->doormask & D_TRAPPED) {
-            b_trapped("door", FINGER);
-            gx.xlock.door->doormask = D_NODOOR;
-            unblock_point(u.ux + u.dx, u.uy + u.dy);
-            if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
-                add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
+            /* set the door state before b_trapped() so a fire blast goes
+               off in an empty doorway */
+            if (door_trap_destroys(u.ux + u.dx, u.uy + u.dy)) {
+                gx.xlock.door->doormask = D_NODOOR;
+                unblock_point(u.ux + u.dx, u.uy + u.dy);
+                if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
+                    add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
+            } else {
+                /* unlocked; trap gone, door stays */
+                gx.xlock.door->doormask = D_CLOSED;
+            }
+            b_trapped("door", FINGER, door_material(gx.xlock.door),
+                      u.ux + u.dx, u.uy + u.dy);
             newsym(u.ux + u.dx, u.uy + u.dy);
         } else if (gx.xlock.door->doormask & D_LOCKED)
             gx.xlock.door->doormask = D_CLOSED;
@@ -1005,10 +1013,17 @@ doopen_indir(coordxy x, coordxy y)
         set_msg_xy(cc.x, cc.y);
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
-            b_trapped("door", FINGER);
-            door->doormask = D_NODOOR;
-            if (*in_rooms(cc.x, cc.y, SHOPBASE))
-                add_damage(cc.x, cc.y, SHOP_DOOR_COST);
+            /* set the door state before b_trapped() so a fire blast goes
+               off in an empty doorway */
+            if (door_trap_destroys(cc.x, cc.y)) {
+                door->doormask = D_NODOOR;
+                if (*in_rooms(cc.x, cc.y, SHOPBASE))
+                    add_damage(cc.x, cc.y, SHOP_DOOR_COST);
+            } else {
+                /* non-destructive: the door just opens */
+                door->doormask = D_ISOPEN;
+            }
+            b_trapped("door", FINGER, door_material(door), cc.x, cc.y);
         } else
             door->doormask = D_ISOPEN;
         feel_newsym(cc.x, cc.y); /* the hero knows she opened it */
@@ -1282,11 +1297,14 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
             msg = "The door swings shut, and locks!";
             break;
         case D_BROKEN:
+            /* a broken door is fixed in place, keeping its own material */
             msg = "The broken door reassembles and locks!";
             break;
         case D_NODOOR:
             msg =
                "A cloud of dust springs up and assembles itself into a door!";
+            door->material = 0; /* a brand-new door is wood; a destroyed
+                                   door left no material behind */
             break;
         default:
             res = FALSE;
@@ -1310,6 +1328,12 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
             /* sawit: closed door location is more visible than open */
             boolean sawit, seeit;
 
+            if (hard_door(door)) {
+                /* a metal or stone door can't be forced open by a blow;
+                   it also isn't jarred enough to set off its own trap */
+                msg = "The reinforced door shudders.";
+                break;
+            }
             if (door->doormask & D_TRAPPED) {
                 struct monst *mtmp = m_at(x, y);
 
@@ -1319,9 +1343,11 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
                 newsym(x, y);
                 seeit = mtmp ? canseemon(mtmp) : cansee(x, y);
                 if (mtmp) {
-                    (void) mb_trapped(mtmp, sawit || seeit);
+                    /* a force bolt destroying the door isn't the monster
+                       working the knob by hand */
+                    (void) mb_trapped(mtmp, FALSE);
                 } else {
-                    /* for mtmp, mb_trapped() does is own wake_nearto() */
+                    /* for mtmp, mb_trapped() does its own wake_nearto() */
                     loudness = 40;
                     if (flags.verbose) {
                         Soundeffect(se_kaboom_door_explodes, 75);
@@ -1356,6 +1382,80 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
             loudness = 20;
         } else
             res = FALSE;
+        break;
+    case SPE_CHANGE_METAL_TO_WOOD:
+        if (metal_door(door)) {
+            /* read material name before we overwrite it */
+            if (cansee(x, y))
+                pline_The("%s door turns to wood.",
+                          materialnm[door_material(door)]);
+            /* 0 == wood, as in the reassembly case above */
+            door->material = 0;
+            /* the door glyph is unchanged, so force the cell to redraw
+               with the new color; cf. metal_to_wood() */
+            newsym_force(x, y);
+        } else {
+            /* already wood or not metal: fizzle */
+            if (cansee(x, y))
+                pline_The("door glows briefly, but remains the same.");
+            res = FALSE;
+        }
+        break;
+    case SPE_STONE_TO_FLESH:
+        if (door_material(door) != MINERAL) {
+            /* the spell only transmutes stone */
+            if (cansee(x, y))
+                pline_The("door glows briefly, but remains the same.");
+            res = FALSE;
+            break;
+        }
+        if ((door->doormask & D_TRAPPED) && In_sokoban(&u.uz)) {
+            /* never pop a sokoban prize door */
+            if (cansee(x, y))
+                pline_The("door absorbs the spell!");
+            break;
+        }
+        if (cansee(x, y))
+            pline_The("stone door turns to flesh and falls apart!");
+        else if (!Deaf)
+            You_hear("a wet tearing sound.");
+        if (door->doormask & D_TRAPPED) {
+            struct monst *mtmp = m_at(x, y);
+
+            /* the booby-trap goes off as the fleshy door comes apart */
+            if (mtmp) {
+                (void) mb_trapped(mtmp, FALSE);
+            } else if (flags.verbose) {
+                Soundeffect(se_kaboom_door_explodes, 75);
+                if (cansee(x, y) && !Unaware) {
+                    pline("KABOOM!!  You see a door explode.");
+                } else if (!Deaf) {
+                    Soundeffect(se_explosion, 75);
+                    You_hear("a %s explosion.",
+                             (distu(x, y) > 7 * 7) ? "distant" : "nearby");
+                }
+            }
+            loudness = 40;
+        } else {
+            /* a wet collapse; also drives shop billing below */
+            loudness = 10;
+        }
+        door->doormask = D_NODOOR;
+        door->material = 0;
+        recalc_block_point(x, y);
+        {
+            static const short meats[] = {
+                MEATBALL, MEAT_STICK, MEAT_RING, STRIP_OF_BACON,
+                HUGE_CHUNK_OF_MEAT
+            };
+            int i, n = rn1(3, 2); /* 2..4 meat items */
+
+            for (i = 0; i < n; i++)
+                (void) mksobj_at(meats[rn2(SIZE(meats))], x, y, TRUE, FALSE);
+        }
+        /* redraw once the meat exists: the door->doorway transition
+           happened before the objects were created */
+        newsym(x, y);
         break;
     default:
         impossible("magic (%d) attempted on door.", otmp->otyp);

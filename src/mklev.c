@@ -630,7 +630,7 @@ dosdoor(coordxy x, coordxy y, struct mkroom *aroom, int type)
                 levl[x][y].doormask = D_CLOSED;
 
             if (levl[x][y].doormask != D_ISOPEN && !shdoor
-                && level_difficulty() >= 5 && !rn2(25))
+                && level_difficulty() >= 1 && !rn2(25))
                 levl[x][y].doormask |= D_TRAPPED;
         } else {
 #ifdef STUPID
@@ -669,8 +669,36 @@ dosdoor(coordxy x, coordxy y, struct mkroom *aroom, int type)
         else
             levl[x][y].doormask = D_CLOSED;
 
-        if (!shdoor && level_difficulty() >= 4 && !rn2(20))
+        if (!shdoor && level_difficulty() >= 1 && !rn2(20))
             levl[x][y].doormask |= D_TRAPPED;
+    }
+
+    /* chance of a non-wood door, scaling with depth; shops are excluded
+       and a doorless doorway (D_NODOOR) stays plain wood. Iron is the
+       common case; steel/bronze/stone show up less often. Gold is
+       treasure-only and never generated randomly */
+    if (!shdoor && levl[x][y].doormask != D_NODOOR
+        && rn1(40, 10) < level_difficulty()) {
+        switch (rn2(10)) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4: /* 50% */
+            levl[x][y].material = IRON;
+            break;
+        case 5:
+        case 6: /* 20% */
+            levl[x][y].material = STEEL;
+            break;
+        case 7:
+        case 8: /* 20% */
+            levl[x][y].material = BRONZE;
+            break;
+        default: /* 10% */
+            levl[x][y].material = MINERAL;
+            break;
+        }
     }
 
     add_door(x, y, aroom);
@@ -857,8 +885,10 @@ count_level_features(void)
 void
 clear_level_structures(void)
 {
+    /* glyph, typ, seenv, flags, horizontal, lit, waslit,
+       roomno, edge, candig, material */
     static struct rm zerorm = { GLYPH_UNEXPLORED,
-                                0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     coordxy x, y;
     struct rm *lev;
 

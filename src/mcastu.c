@@ -683,7 +683,7 @@ mcast_geyser(struct monst *mtmp, int dmg)
         dmg = (dmg + 1) / 2;
 #if 0   /* since inventory items aren't affected, don't include this */
         /* make floor items wet */
-    water_damage_chain(level.objects[u.ux][u.uy], TRUE);
+    water_damage_chain(level.objects[u.ux][u.uy], TRUE, 0, TRUE);
 #endif
     return dmg;
 }

@@ -660,13 +660,19 @@ still_chewing(coordxy x, coordxy y)
     if (!boulder
         && ((IS_OBSTRUCTED(lev->typ) && !may_dig(x, y))
             /* may_dig() checks W_NONDIGGABLE but doesn't handle iron bars */
-            || (lev->typ == IRONBARS && (lev->wall_info & W_NONDIGGABLE)))) {
+            || (lev->typ == IRONBARS && (lev->wall_info & W_NONDIGGABLE))
+            /* only a metallivore can chew through a metal door (or a
+               metal secret door, which reads as rock) */
+            || ((IS_DOOR(lev->typ) || lev->typ == SDOOR) && metal_door(lev)
+                && !metallivorous(gy.youmonst.data)))) {
         You("hurt your teeth on the %s.",
             (lev->typ == IRONBARS)
                 ? "bars"
-                : IS_TREE(lev->typ)
-                    ? "tree"
-                    : "hard stone");
+                : IS_DOOR(lev->typ)
+                    ? "door"
+                    : IS_TREE(lev->typ)
+                        ? "tree"
+                        : "hard stone");
         nomul(0);
         return 1;
     } else if (lev->typ == IRONBARS
@@ -788,7 +794,7 @@ still_chewing(coordxy x, coordxy y)
     } else if (lev->typ == SDOOR) {
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
-            b_trapped("secret door", NO_PART);
+            b_trapped("secret door", NO_PART, door_material(lev), x, y);
         } else {
             digtxt = "chew through the secret door.";
             lev->doormask = D_BROKEN;
@@ -802,7 +808,7 @@ still_chewing(coordxy x, coordxy y)
         }
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
-            b_trapped("door", NO_PART);
+            b_trapped("door", NO_PART, door_material(lev), x, y);
         } else {
             digtxt = "chew through the door.";
             lev->doormask = D_BROKEN;

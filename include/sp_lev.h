@@ -123,7 +123,7 @@ typedef struct {
 } lev_init;
 
 typedef struct {
-    xint16 wall, pos, secret, mask;
+    xint16 wall, pos, secret, mask, material;
 } room_door;
 
 typedef struct {

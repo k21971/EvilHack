@@ -4368,6 +4368,8 @@ bhit(
             case SPE_KNOCK:
             case SPE_WIZARD_LOCK:
             case SPE_FORCE_BOLT:
+            case SPE_CHANGE_METAL_TO_WOOD:
+            case SPE_STONE_TO_FLESH:
                 if (doorlock(obj, x, y)) {
                     if (cansee(x, y) || (obj->otyp == WAN_STRIKING && !Deaf))
                         learnwand(obj);
@@ -6015,7 +6017,9 @@ zap_over_floor(
                 goto def_case;
             new_doormask = D_NODOOR;
             see_txt = "The door disintegrates!";
-            hear_txt = "crashing wood.";
+            /* the heard sound depends on the door's material */
+            hear_txt = door_flammable(lev) ? "crashing wood."
+                                           : "a crashing sound.";
             break;
         case ZT_LIGHTNING:
             new_doormask = D_BROKEN;
@@ -6045,6 +6049,22 @@ zap_over_floor(
             } else
                 You_feel("vibrations.");
             break;
+        }
+        /* a metal or stone door shrugs off every beam except acid, which
+           corrodes/etches it, and disintegration, which unmakes it
+           outright */
+        if (hard_door(lev) && new_doormask >= 0
+            && damgtype != ZT_ACID && damgtype != ZT_DEATH) {
+            new_doormask = -1; /* survives intact */
+            if (see_it) {
+                if (metal_door(lev))
+                    pline_The("door absorbs %s %s!",
+                              yourzap ? "your" : "the", zapverb);
+                else /* a stone door simply isn't affected */
+                    pline_The("door is unharmed by %s %s!",
+                              yourzap ? "your" : "the", zapverb);
+            } else
+                You_feel("vibrations.");
         }
         if (new_doormask >= 0) { /* door gets broken */
             if (*in_rooms(x, y, SHOPBASE)) {

@@ -1497,15 +1497,22 @@ snuff_candle(struct obj *otmp)
 
 /* called when lit lamp is hit by water or put into a container or
    you've been swallowed by a monster; obj might be in transit while
-   being thrown or dropped so don't assume that its location is valid */
+   being thrown or dropped so don't assume that its location is valid.
+   A magic lamp's flame is impervious to water and engulfing; callers
+   that must snuff one anyway (stowing it in a container, dousing it
+   via magic) pass forced as TRUE */
 boolean
-snuff_lit(struct obj *obj)
+snuff_lit(
+    struct obj *obj,
+    boolean forced) /* True: snuff even a magic lamp */
 {
     coordxy x, y;
 
     if (obj->lamplit) {
         if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
             || obj->otyp == LANTERN || obj->otyp == POT_OIL) {
+            if (obj->otyp == MAGIC_LAMP && !forced)
+                return FALSE;
             (void) get_obj_location(obj, &x, &y, 0);
             if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind)
                 pline("%s %s out!", Yname2(obj), otense(obj, "go"));
@@ -1566,7 +1573,7 @@ splash_lit(struct obj *obj)
             return FALSE;
     }
 
-    result = snuff_lit(obj);
+    result = snuff_lit(obj, FALSE);
 
     /* this is simpler when we wait until after lantern has been snuffed */
     if (dunk) {

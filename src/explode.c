@@ -262,6 +262,10 @@ explode(
         /* a forge explosion behaves like a non-wand fiery blast when
            it hits the surrounding terrain */
         exploding_wand_typ = SCR_FIRE;
+    } else if (olet == TRAPPED_DOOR) {
+        /* a booby-trapped door's blast isn't the hero's own zap; this
+           keeps zap_over_floor() from crediting it to the hero */
+        exploding_wand_typ = type;
     } else if (olet == TRAP_EXPLODE) {
         type = 0; /* hardcoded to generic magic explosion */
     }
@@ -323,8 +327,9 @@ explode(
         case 1:
             adstr = (olet == BURNING_OIL) ? "burning oil"
                      : (olet == SCROLL_CLASS) ? "tower of flame"
-                       : (olet == FORGE_EXPLODE) ? "exploding forge"
-                         : "fireball";
+                       : (olet == TRAPPED_DOOR) ? "explosion"
+                         : (olet == FORGE_EXPLODE) ? "exploding forge"
+                           : "fireball";
             /* fire damage, not physical damage */
             adtyp = AD_FIRE;
             break;
@@ -665,6 +670,9 @@ explode(
                     Snprintf(svk.killer.name, sizeof svk.killer.name,
                              "caught %sself in a %s", uhim(),
                              str);
+                } else if (adtyp == AD_FIRE && olet == TRAPPED_DOOR) {
+                    svk.killer.format = KILLED_BY_AN;
+                    Strcpy(svk.killer.name, str);
                 } else if (adtyp == AD_FIRE && olet == FORGE_EXPLODE) {
                     svk.killer.format = KILLED_BY_AN;
                     Strcpy(svk.killer.name, str);

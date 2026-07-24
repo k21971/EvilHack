@@ -16,6 +16,13 @@
 
 extern void mkmap(lev_init *);
 
+/* payload passed to sel_set_door(); the door's material rides along with
+   its state so a single genericptr_t can carry both */
+struct door_spec {
+    int typ;      /* door state (doormask bits, maybe D_SECRET) */
+    int material; /* obj_material_types; 0 == unset, meaning wood */
+};
+
 staticfn void solidify_map(void);
 staticfn void map_cleanup(void);
 staticfn void lvlfill_maze_grid(int, int, int, int, schar);
@@ -1731,7 +1738,8 @@ create_door(room_door *dd, struct mkroom *broom)
                     dd->mask = D_LOCKED;
                 else
                     dd->mask = D_CLOSED;
-                if (dd->mask != D_ISOPEN && !rn2(25))
+                if (dd->mask != D_ISOPEN
+                    && level_difficulty() >= 1 && !rn2(25))
                     dd->mask |= D_TRAPPED;
             } else
                 dd->mask = D_NODOOR;
@@ -1741,7 +1749,7 @@ create_door(room_door *dd, struct mkroom *broom)
             else
                 dd->mask = D_CLOSED;
 
-            if (!rn2(20))
+            if (level_difficulty() >= 1 && !rn2(20))
                 dd->mask |= D_TRAPPED;
         }
     }
@@ -1802,6 +1810,7 @@ create_door(room_door *dd, struct mkroom *broom)
     if (!set_levltyp(x, y, (dd->secret ? SDOOR : DOOR)))
         return;
     levl[x][y].doormask = dd->mask;
+    levl[x][y].material = dd->material; /* 0 == default (wood) */
 }
 
 /*
@@ -4689,7 +4698,8 @@ sel_set_feature(coordxy x, coordxy y, genericptr_t arg)
 staticfn void
 sel_set_door(coordxy dx, coordxy dy, genericptr_t arg)
 {
-    coordxy typ = *(coordxy *) arg;
+    struct door_spec *dsp = (struct door_spec *) arg;
+    int typ = dsp->typ;
     coordxy x = dx, y = dy;
 
     if (!IS_DOOR(levl[x][y].typ) && levl[x][y].typ != SDOOR)
@@ -4701,6 +4711,7 @@ sel_set_door(coordxy dx, coordxy dy, genericptr_t arg)
     }
     set_door_orientation(x, y); /* set/clear levl[x][y].horizontal */
     levl[x][y].doormask = typ;
+    levl[x][y].material = dsp->material; /* 0 == default (wood) */
     SpLev_Map[x][y] = 1;
 }
 
@@ -4709,6 +4720,7 @@ DISABLE_WARNING_UNREACHABLE_CODE
 /* door({ x = 1, y = 1, state = "nodoor" }); */
 /* door({ coord = {1, 1}, state = "nodoor" }); */
 /* door({ wall = "north", pos = 3, state="secret" }); */
+/* door({ x = 1, y = 1, state = "locked", material = "iron" }); */
 /* door("nodoor", 1, 2); */
 int
 lspo_door(lua_State *L)
@@ -4720,13 +4732,23 @@ lspo_door(lua_State *L)
     static const int doorstates2i[] = {
         -1, D_ISOPEN, D_CLOSED, D_LOCKED, D_NODOOR, D_BROKEN, D_SECRET
     };
+    /* keep in step with doormaterials2i[]; "default" leaves the material
+       unset, which door_material() resolves to wood */
+    static const char *const doormaterials[] = {
+        "default", "wooden", "iron", "steel", "bronze", "gold", "stone",
+        NULL
+    };
+    static const int doormaterials2i[] = {
+        0, WOOD, IRON, STEEL, BRONZE, GOLD, MINERAL
+    };
+    struct door_spec dspec;
     int msk;
     coordxy x, y;
-    coordxy typ;
     int argc = lua_gettop(L);
 
     create_des_coder();
 
+    dspec.material = 0;
     if (argc == 3) {
         msk = doorstates2i[luaL_checkoption(L, 1, "random", doorstates)];
         x = luaL_checkinteger(L, 2);
@@ -4740,9 +4762,12 @@ lspo_door(lua_State *L)
         x = dx, y = dy;
         msk = doorstates2i[get_table_option(L, "state", "random",
                                             doorstates)];
+        dspec.material =
+            doormaterials2i[get_table_option(L, "material", "default",
+                                             doormaterials)];
     }
 
-    typ = (msk == -1) ? rnddoor() : (coordxy) msk;
+    dspec.typ = (msk == -1) ? rnddoor() : msk;
 
     if (x == -1 && y == -1) {
         static const char *const walldirs[] = {
@@ -4755,14 +4780,15 @@ lspo_door(lua_State *L)
         };
         room_door tmpd;
 
-        tmpd.secret = (typ == D_SECRET) ? 1 : 0;
+        tmpd.secret = (dspec.typ == D_SECRET) ? 1 : 0;
         tmpd.mask = msk;
         tmpd.pos = get_table_int_opt(L, "pos", -1);
         tmpd.wall = walldirs2i[get_table_option(L, "wall", "all", walldirs)];
+        tmpd.material = dspec.material;
 
         create_door(&tmpd, gc.coder->croom);
     } else {
-        /*selection_iterate(sel, sel_set_door, (genericptr_t) &typ);*/
+        /*selection_iterate(sel, sel_set_door, (genericptr_t) &dspec);*/
         get_location_coord(&x, &y, ANY_LOC, gc.coder->croom,
                            SP_COORD_PACK(x, y));
         if (!isok(x, y)) {
@@ -4770,7 +4796,7 @@ lspo_door(lua_State *L)
             /*NOTREACHED*/
             return 0;
         }
-        sel_set_door(x, y, (genericptr_t) &typ);
+        sel_set_door(x, y, (genericptr_t) &dspec);
     }
 
     return 0;

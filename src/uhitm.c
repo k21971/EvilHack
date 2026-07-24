@@ -5511,7 +5511,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
     if (!(u_digest && u.uhunger >= 1500) && !u.uswallow) {
         if (!flaming(gy.youmonst.data)) {
             for (otmp = mdef->minvent; otmp; otmp = otmp->nobj)
-                (void) snuff_lit(otmp);
+                (void) snuff_lit(otmp, FALSE);
         }
 
         /* force vampire in bat, cloud, or wolf form to revert back to

@@ -471,6 +471,16 @@ do_earthquake(int force)
                     do_pit(x, y, tu_pit);
                     break;
                 }
+                /* a metal or stone door has a good chance to withstand
+                   the quake */
+                if (hard_door(&levl[x][y]) && rn2(3)) {
+                    /* a secret door revealed by the quake above still
+                       needs its glyph refreshed even though it survives */
+                    newsym(x, y);
+                    if (cansee(x, y))
+                        pline_The("door shudders but holds.");
+                    break;
+                }
                 /* wasn't doorless, now it will be */
                 levl[x][y].doormask = D_NODOOR;
                 recalc_block_point(x, y);

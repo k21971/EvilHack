@@ -174,8 +174,9 @@ dig_typ(struct obj *otmp, coordxy x, coordxy y)
         return DIGTYP_UNDIGGABLE;
 
     ltyp = levl[x][y].typ;
+    /* a metal door can't be cut or picked through */
     if (is_axe(otmp))
-        return closed_door(x, y) ? DIGTYP_DOOR
+        return (closed_door(x, y) && !metal_door(&levl[x][y])) ? DIGTYP_DOOR
                : IS_TREE(ltyp) ? DIGTYP_TREE /* axe vs tree */
                  : DIGTYP_UNDIGGABLE;
     /*assert(is_pick(otmp));*/
@@ -183,7 +184,7 @@ dig_typ(struct obj *otmp, coordxy x, coordxy y)
            ? DIGTYP_STATUE
            : (sobj_at(BOULDER, x, y) && pick_can_reach(otmp, x, y))
              ? DIGTYP_BOULDER
-             : closed_door(x, y) ? DIGTYP_DOOR
+             : (closed_door(x, y) && !metal_door(&levl[x][y])) ? DIGTYP_DOOR
                : IS_TREE(ltyp) ? DIGTYP_UNDIGGABLE /* pick vs tree */
                  : (IS_OBSTRUCTED(ltyp)
                     && (!svl.level.flags.arboreal || IS_WALL(ltyp)))
@@ -549,9 +550,14 @@ dig(void)
             digtxt = "You make an opening in the wall.";
         } else if (lev->typ == SDOOR) {
             cvt_sdoor_to_door(lev); /* ->typ = DOOR */
-            digtxt = "You break through a secret door!";
-            if (!(lev->doormask & D_TRAPPED))
-                lev->doormask = D_BROKEN;
+            if (metal_door(lev)) {
+                /* a metal secret door is uncovered but can't be broken */
+                digtxt = "Clang!  You uncover a secret door.";
+            } else {
+                digtxt = "You break through a secret door!";
+                if (!(lev->doormask & D_TRAPPED))
+                    lev->doormask = D_BROKEN;
+            }
         } else if (closed_door(dpx, dpy)) {
             Sprintf(digbuf, "You break through the door with your %s.",
                     simpleonames(uwep));
@@ -579,9 +585,10 @@ dig(void)
             if (makemon(&mons[mndx], dpx, dpy, MM_NOMSG))
                 pline_The("debris from your digging comes to life!");
         }
-        if (IS_DOOR(lev->typ) && (lev->doormask & D_TRAPPED)) {
+        if (IS_DOOR(lev->typ) && (lev->doormask & D_TRAPPED)
+            && !metal_door(lev)) {
             lev->doormask = D_NODOOR;
-            b_trapped("door", NO_PART);
+            b_trapped("door", NO_PART, door_material(lev), dpx, dpy);
             recalc_block_point(dpx, dpy);
             newsym(dpx, dpy);
         }
@@ -919,7 +926,7 @@ liquid_flow(
         if (typ == LAVAPOOL)
             fire_damage_chain(objchain, TRUE, TRUE, x, y);
         else
-            water_damage_chain(objchain, TRUE);
+            water_damage_chain(objchain, TRUE, 0, TRUE);
     }
     /* damage to the hero */
     if (u_spot) {
@@ -1305,6 +1312,10 @@ use_pick_axe2(struct obj *obj)
             } else if (lev->typ == IRONBARS) {
                 pline("Clang!");
                 wake_nearby(FALSE);
+            } else if (closed_door(rx, ry) && metal_door(lev)) {
+                pline("Clang!  %s harmlessly off the door.",
+                      Yobjnam2(obj, "bounce"));
+                wake_nearby(FALSE);
             } else if (IS_WATERWALL(lev->typ)) {
                 pline("Splash!");
             } else if (lev->typ == LAVAWALL) {
@@ -1498,10 +1509,15 @@ boolean
 mdig_tunnel(struct monst *mtmp)
 {
     struct rm *here;
-    boolean sawit, seeit, trapped;
+    boolean trapped;
     int pile = rnd(12);
 
     here = &levl[mtmp->mx][mtmp->my];
+    /* only a metallivore can chew through a metal door; for others it
+       stays intact (and a metal secret door stays hidden) */
+    if ((here->typ == SDOOR || closed_door(mtmp->mx, mtmp->my))
+        && metal_door(here) && !metallivorous(mtmp->data))
+        return FALSE;
     if (here->typ == SDOOR)
         cvt_sdoor_to_door(here); /* ->typ = DOOR */
 
@@ -1509,15 +1525,13 @@ mdig_tunnel(struct monst *mtmp)
     if (closed_door(mtmp->mx, mtmp->my)) {
         if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
             add_damage(mtmp->mx, mtmp->my, 0L);
-        /* sawit: closed door location is more visible than an open one */
-        sawit = canseemon(mtmp); /* before door state change and unblock_pt */
         trapped = (here->doormask & D_TRAPPED) ? TRUE : FALSE;
         here->doormask = trapped ? D_NODOOR : D_BROKEN;
         recalc_block_point(mtmp->mx, mtmp->my); /* vision */
         newsym(mtmp->mx, mtmp->my);
         if (trapped) {
-            seeit = canseemon(mtmp);
-            if (mb_trapped(mtmp, sawit || seeit)) { /* mtmp is killed */
+            /* tunneling through is not working the knob by hand */
+            if (mb_trapped(mtmp, FALSE)) { /* mtmp is killed */
                 newsym(mtmp->mx, mtmp->my);
                 return TRUE;
             }

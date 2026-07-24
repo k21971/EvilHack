@@ -172,6 +172,7 @@ struct rm {
     Bitfield(roomno, 6); /* room # for special rooms */
     Bitfield(edge, 1);   /* marks boundaries for special rooms*/
     Bitfield(candig, 1); /* Exception to Can_dig_down; was a trapdoor */
+    Bitfield(material, 5); /* obj_material_types; 0 == default (wood) */
 };
 
 /*
@@ -242,6 +243,21 @@ struct rm {
 
 #define D_TRAPPED 0x10
 #define D_SECRET  0x20 /* only used by sp_lev.c, NOT in rm-struct */
+
+/*
+ * Door material is held in the separate rm.material field rather than
+ * doormask, so it never conflicts with the wall_info bits a secret door
+ * also stores in flags. A material of 0 resolves to the default, wood.
+ * metal_door() gates the metal-only rules (metallivore feeding, druid
+ * metal-to-wood, undiggable "Clang!"); hard_door() gates the brute-force
+ * toughness shared by metal and stone (no kick/force/smash/quake; beams
+ * do not destroy), but unlike metal a stone door can still be dug
+ * through. door_flammable() gates fire/cold destruction.
+ */
+#define door_material(lev) ((lev)->material ? (lev)->material : WOOD)
+#define metal_door(lev) mat_is_metallic(door_material(lev))
+#define hard_door(lev) (metal_door(lev) || door_material(lev) == MINERAL)
+#define door_flammable(lev) mat_is_flammable(door_material(lev))
 
 /*
  * Thrones should only be looted once.

@@ -962,9 +962,12 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
 
     exercise(A_DEX, TRUE);
     doorbuster = maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT));
-    /* door is known to be CLOSED or LOCKED */
-    if (doorbuster
-        || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX)))) {
+    /* door is known to be CLOSED or LOCKED; a hard (metal or stone)
+       door can never be kicked open or broken, so it always falls
+       through to the Thwack/Whammm arm */
+    if (!hard_door(gm.maploc)
+        && (doorbuster
+            || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX))))) {
         boolean shopdoor = *in_rooms(x, y, SHOPBASE) ? TRUE : FALSE;
 
         /* break the door */
@@ -973,7 +976,7 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
                 You("kick the door.");
             exercise(A_STR, FALSE);
             gm.maploc->doormask = D_NODOOR;
-            b_trapped("door", FOOT);
+            b_trapped("door", FOOT, door_material(gm.maploc), x, y);
         } else if (((ACURR(A_STR) > 18
                      || maybe_polyd(is_giant(gy.youmonst.data),
                                     Race_if(PM_GIANT))
@@ -1006,6 +1009,17 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
            fairly strong connotation of noise that a deaf hero shouldn't
            hear; we've kept the extra 'm's and one of the extra '!'s */
         pline("%s!!", (Deaf || !rn2(3)) ? "Thwack" : "Whammm");
+        /* a barefoot hero who hates the door's material is hurt when an
+           unbreakable metal door refuses to budge */
+        if (metal_door(gm.maploc) && !uarmf
+            && Hate_material(door_material(gm.maploc))
+            && !(Barkskin || Stoneskin)) {
+            int dmat = door_material(gm.maploc);
+
+            You("recoil from the door's %s!", materialnm[dmat]);
+            losehp(rnd(sear_damage(dmat)),
+                   "kicking a door of hated material", KILLED_BY);
+        }
         if (in_town(x, y))
             (void) get_iter_mons_xy(watchman_door_damage, x, y);
     }
@@ -1017,18 +1031,22 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
 {
     if (gm.maploc->typ == SDOOR) {
         if (!Levitation && rn2(30) < avrg_attrib) {
+            boolean hard = hard_door(gm.maploc);
+
             cvt_sdoor_to_door(gm.maploc); /* ->typ = DOOR */
             Soundeffect(se_crash_door, 40);
             pline("Crash!  %s a secret door!",
-                  /* don't "kick open" when it's locked
-                     unless it also happens to be trapped */
-                  ((gm.maploc->doormask & (D_LOCKED | D_TRAPPED))
-                   == D_LOCKED) ? "Your kick uncovers" : "You kick open");
+                  /* don't "kick open" when it's locked or hard (a metal
+                     or stone door can't be kicked open at all), unless a
+                     softer door is also trapped */
+                  (hard
+                   || (gm.maploc->doormask & (D_LOCKED | D_TRAPPED))
+                      == D_LOCKED) ? "Your kick uncovers" : "You kick open");
             exercise(A_DEX, TRUE);
-            if (gm.maploc->doormask & D_TRAPPED) {
+            if (!hard && (gm.maploc->doormask & D_TRAPPED)) {
                 gm.maploc->doormask = D_NODOOR;
-                b_trapped("door", FOOT);
-            } else if (gm.maploc->doormask != D_NODOOR
+                b_trapped("door", FOOT, door_material(gm.maploc), x, y);
+            } else if (!hard && gm.maploc->doormask != D_NODOOR
                        && !(gm.maploc->doormask & D_LOCKED))
                 gm.maploc->doormask = D_ISOPEN;
             feel_newsym(x, y); /* we know it's gone */

@@ -3955,8 +3955,155 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       nesting (done, both arms bracketed); zombie-slice "sleeping
       gas trap wish = kit object" note (confirmed intended -
       object wins the wish parse, kit now applies).
-- [ ] Door materials + door-trap variety (+ des.door material=
-      binding; 224 TODO-EVILHACK sites in converted levels)
+- [x] Door materials + door-trap variety (+ des.door material=
+      binding; 224 TODO-EVILHACK sites in converted levels).
+      PORTED + REVIEWED + BATTERY PASSED 2026-07-24 (maintainer
+      commit pending; msg at scratchpad
+      commit-msg-door-materials.txt). 30 files +883/-165. Covers
+      all five master door features (e9bdc34f5 iron doors,
+      b24696505 metal-to-wood, 5eac42ea0 steel/stone/gold/bronze,
+      6b17464a4 stone-to-flesh, 9f3e876be door-trap variety).
+      CONTENT: struct rm gains Bitfield(material,5) (sizeof 8->12,
+      DEV SAVES INVALID, whole-struct Sfo_rm so NO hand sfo pair
+      and no sfdata regen - pilot-D recipe; master's RLE
+      run-match change is N/A, 5.0 savelevl writes per tile) +
+      door_material/metal_door/hard_door/door_flammable in rm.h;
+      doortrap_types enum (6 varieties, never stored, separate
+      namespace from trap_types so the ttyp 5-bit budget is
+      untouched); coord_hash() in rnd.c; getdoortrap()
+      trapminlevels 1/2/5/7/10/12 + door_trap_destroys();
+      b_trapped() -> (item,bodypart,material,dx,dy) six-way
+      dispatch, mb_trapped() -> (mtmp,by_hand) with the
+      ge.exploder bracket (consumes the kill-attribution slice's
+      deferred item) and the 5.0-native mon_learns_traps tail
+      kept per surviving arm; ~40 hard/metal/flammable consumers
+      (dokick/lock/dig/hack/zap/mon/music/trap/pager/detect);
+      dosdoor weighted material roll + both trapped gates to
+      level_difficulty()>=1; NEW Lua binding door({material=".."})
+      via a door_spec payload through sel_set_door + room_door
+      .material (Phase 3 row wired); wizterrainwish material
+      (closes the naming-slice "iron door drops material" nit).
+      RIDERS FOLDED IN: water_damage_chain gains count +
+      do_container in 5.0 idiom (master's x,y are N/A - 5.0
+      resolves location via get_obj_location + the gb.bhitpos
+      save/restore, which is strictly better than master's
+      unrestored bhitpos), 10 callers swept; BUG-1329 snuff_lit
+      (obj,forced) re-ported (without it the new WATER_BUCKET
+      trap re-introduces the reported lit-magic-lamp bug);
+      explode.c gains master's 3 TRAPPED_DOOR arms (REVIEWER
+      CATCH - without them a fatal door/tin blast read "caught
+      herself in her own fireball" instead of "killed by an
+      explosion", and an adjacent door blamed "your bolt" for a
+      monster-triggered blast). BUG-1363 minted + FIXED (battery
+      catch, branch-only port regression): not_spec_material()'s
+      terrain loop compares against defsyms[].explanation, which
+      master spells "dark part of a room" for S_stone but 5.0
+      shortens to "stone" - so "stone door" matched the material
+      word against itself, "stone" was refused as a material, and
+      the preparse break ate every following adjective ("stone
+      locked door" -> plain closed wood door). Affected ANY
+      "stone <object>" wish, not just doors. Fix = skip terrain
+      entries whose name IS the material name; a bare material
+      wish is already caught by the whole-string test above it.
+      REVIEW: evilhack-code-reviewer PASS, LOW only (nested
+      exploder-bracket staleness = master-identical, architectural
+      - noted for the kill-attribution memory; trapped tin on a
+      floor can be scatter-relocated before billing =
+      master-identical; pager reads live material for a remembered
+      glyph = save-trust class). Coordinator ALSO removed a
+      now-duplicate "%s is destroyed!" in vamprises() - its
+      comment claimed the death went unreported, true of the old
+      silent mondied() mb_trapped but false of every new kill
+      path (monkilled(mtmp,"",how) passes a non-NULL fltxt and
+      prints the line itself); battery proved single-report with
+      telepathy active. MAINTAINER RULINGS 2026-07-24: (1)
+      SOKOBAN prize doors = LAND AS-IS, whole mechanic in its own
+      slice - this slice ships two knowingly-INERT consumer arms
+      (b_trapped wall-seal, stone-to-flesh In_sokoban guard); the
+      producer (sel_set_door In_sokoban auto-trap) + 7 guards
+      (mfndpos, picklock x3 incl. the magic-key silent-disarm,
+      doorlock WAN_LOCKING + WAN_STRIKING, untrap, openone,
+      zap_over_floor) + soko*.lua material="stone" land together,
+      rationale = the producer arms trapped doors against
+      upstream's un-reconciled soko levels that Phase 3 replaces;
+      NOT a regression, branch soko doors were already untrapped.
+      (2) zap_over_floor shop-door billing KEEPS 5.0's `type >= 0`
+      (master uses yourzap; flipping would silently change
+      exploding-wand billing too - separate pre-existing
+      divergence, own owner). (3) wizard-wish materials RESTRICTED
+      to wood/stone/metals (master accepts any) - those are the
+      only materials the four rm.h macros give coherent behavior.
+      (4) BUG-925 (explode() damage loop reads live u.ux/u.uy via
+      u_at, so a steed killed mid-blast -> dismount_steed ->
+      teleds can move the hero into a later cell of the SAME blast
+      = double damage; master fixed with a hero_x/hero_y snapshot)
+      -> PHASE 5, with raised exposure recorded: this slice adds a
+      common blast producer right where a mounted hero stands.
+      BATTERY (evilhack-game-tester, 3 games + focused follow-up,
+      sanity_check on, paniclog ZERO slice entries): struct rm
+      save/restore exact + pre-slice save REFUSED CLEANLY
+      ("critical bytes mismatched at 12 (struct rm)") + sizeof 12;
+      generation weighted, no random gold, material named on BOTH
+      open and closed doors (BUG-1217 re-derived onto 5.0's alt_i
+      loop); wishes incl. the BUG-1363 re-verify (stone/stone
+      locked/stone trapped locked all material=24) with the
+      "iron bars" terrain case proven un-regressed; hard-door
+      matrix all rows (kick, "reinforced door shudders" with the
+      trap NOT consumed, Clang vs stone dig-through, absorbs vs
+      "is unharmed by", disintegration, earthquake 2/3, boulder
+      locked-stops vs unlocked-slams-open); all six varieties
+      hero-side + determinism re-armed 3/3 + the BUG-1274 knob
+      gate (kicking a shock/knob door = no spark, HP unchanged) +
+      glove gating 39/45/6 + depth-gate sweep matching the table;
+      WATER_BUCKET exactly (lvl/5)+1 items, MAGIC LAMP STAYS LIT
+      (BUG-1329 proof), both sampler edge paths; monster side
+      (knob-by-hand burn, doorbuster takes NO knob damage,
+      monster-triggered explode() catching the hero, scatter
+      moving floor objects); "killed by an explosion" for both
+      door and tin (svk.killer.name="explosion", KILLED_BY_AN);
+      mfndpos ALL FOUR ROWS with A/B controls (same LOCKED IRON
+      door pinned a hill giant 25 turns but passed a rock mole;
+      flipping ONLY material 12->24 took an umber hulk from
+      blocked-30-turns to through-in-3; metal SDOOR blocks the
+      digger, passes the metallivore); exploder attribution
+      (EXPLODE olet=28 with ge.exploder = the pet, xkilled never
+      fired, hero alignment untouched); both doorlock spell cases
+      via gdb (metal-to-wood material->0, stone-to-flesh 4 meats +
+      correct newsym ordering); vamprises single-report.
+      NOT REACHED (say so plainly): shops-always-wood row (no shop
+      generated), Lua material= round-trip (no consumer until
+      Phase 3), trapped tin on a shop floor, bones round-trip with
+      a non-wood door. DEFERRED with owners: material_color() door
+      AND object map coloring -> Phase 4 (doors stay brown; the
+      farlook naming that lands here is the only material channel
+      until then); ZT_ACID/ZT_POISON_GAS door arms -> zap
+      door-effects slice (NOTE: acid currently destroys NO door,
+      wood included - the FEATURES_ARCHIVE "still destroyed by
+      acid" line is not yet true on branch, the hard_door override
+      is only reached when new_doormask >= 0);
+      temple_at_boundary() billing -> temple slice (every ported
+      site keeps shop-only billing); SPE_CHANGE_METAL_TO_WOOD /
+      SPE_STONE_TO_FLESH bhito + zapyourself + the two dispatcher
+      arms -> druid/matter-spell slice (the doorlock cases and
+      bhit routing here are UNREACHABLE until the spells are
+      wired - REVIEWER RIDER: finish the dispatcher sweep with
+      that slice or they land half-wired); coord_hash serverseed
+      term -> Phase 6; master's 3 rnd(3) rain/spray
+      water_damage_chain producers -> their own subsystems;
+      BUG-924 scatter() uball fix -> open-air/ball-flight slice
+      (precondition absent today: branch unpunish() frees only the
+      chain and is_open_air does not exist, so the bare waschain
+      flag is correct for now); hack.c door_flammable burn arm ->
+      martial-arts/break-terrain slice (feature absent entirely).
+      MASTER-PARITY NOTES (do not "fix"): postmov's
+      `doormask == D_CLOSED` equality test is byte-identical on
+      master, so a CLOSED+TRAPPED door always routes to the buster
+      arm and the monster by-hand knob path is reachable only via
+      the D_LOCKED bitmask arm; stone-to-flesh deliberately calls
+      mb_trapped BEFORE clearing material so the 3x shrapnel can
+      still read hard_door(). Battery lever correction: rm.h
+      SDOOR=14, SCORR=15 - an earlier scan misread typ 15 as a
+      secret door.
 - [ ] Monster `dead` .des flag -> des.monster dead= binding
       (must call mondied(); 13 sites)
 - [ ] MINDEPTH: directive binding (17 sites)

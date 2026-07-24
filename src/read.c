@@ -2541,7 +2541,7 @@ litroom(
                     if (lamp || staff || armor)
                         continue;
                     if (!artifact_light(otmp))
-                        (void) snuff_lit(otmp);
+                        (void) snuff_lit(otmp, TRUE);
                     else if (!mon)
                         /* wielded Sunsword or worn gold dragon scales/mail;
                            maybe lower its BUC state if not already cursed */
@@ -2589,7 +2589,7 @@ litroom(
                              == SHADOW_DRAGON_SCALES));
                 if (otmp->lamplit && !mon) {
                     if (!artifact_light(otmp) && lamp) {
-                        (void) snuff_lit(otmp);
+                        (void) snuff_lit(otmp, TRUE);
                     } else if (!(staff || armor)) {
                         /* wielded Sunsword or worn gold dragon scales/mail;
                            maybe raise its BUC state if not already blessed */

@@ -126,7 +126,7 @@ extern const char *beautiful(void);
 extern void check_leash(coordxy, coordxy);
 extern boolean um_dist(coordxy, coordxy, xint16);
 extern boolean snuff_candle(struct obj *) NONNULLPTRS;
-extern boolean snuff_lit(struct obj *) NONNULLPTRS;
+extern boolean snuff_lit(struct obj *, boolean) NONNULLPTRS;
 extern boolean splash_lit(struct obj *) NONNULLPTRS;
 extern boolean catch_lit(struct obj *) NONNULLPTRS;
 extern void use_unicorn_horn(struct obj **);
@@ -2937,6 +2937,7 @@ extern int rnd(int);
 extern int d(int, int);
 extern int rne(int);
 extern int rnz(int);
+extern unsigned int coord_hash(coordxy, coordxy, int);
 extern void init_random(int(*fn)(int));
 extern void reseed_random(int(*fn)(int));
 extern void shuffle_int_array(int *, int) NONNULLARG1;
@@ -3513,7 +3514,8 @@ extern boolean lava_damage(struct obj *, coordxy, coordxy) NONNULLARG1;
    preventing NONNULLARG1 */
 extern void acid_damage(struct obj *) NO_NNARGS;
 extern int water_damage(struct obj *, const char *, boolean) NO_NNARGS;
-extern void water_damage_chain(struct obj *, boolean) NO_NNARGS;
+extern void water_damage_chain(struct obj *, boolean, int,
+                               boolean) NO_NNARGS;
 extern boolean rnd_nextto_goodpos(coordxy *, coordxy *,
                                   struct monst *) NONNULLPTRS;
 extern void back_on_ground(boolean);
@@ -3534,7 +3536,10 @@ extern void set_trap_ammo(struct trap *, struct obj *) NO_NNARGS;
 extern boolean delfloortrap(struct trap *) NO_NNARGS;
 extern struct trap *t_at(coordxy, coordxy);
 extern int count_traps(int);
-extern void b_trapped(const char *, int) NONNULLARG1;
+extern int getdoortrap(coordxy, coordxy);
+extern boolean door_trap_destroys(coordxy, coordxy);
+extern void b_trapped(const char *, int, int,
+                      coordxy, coordxy) NONNULLARG1;
 extern boolean unconscious(void);
 extern void blow_up_landmine(struct trap *) NONNULLARG1;
 extern int launch_obj(short, coordxy, coordxy, coordxy, coordxy, int);

@@ -1577,7 +1577,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
         if (!flaming(mtmp->data)) {
             for (otmp2 = gi.invent; otmp2; otmp2 = nextobj) {
                 nextobj = otmp2->nobj;
-                (void) snuff_lit(otmp2);
+                (void) snuff_lit(otmp2, FALSE);
             }
         }
     }

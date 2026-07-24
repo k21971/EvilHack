@@ -948,7 +948,7 @@ gulpmm(
     }
     if (!flaming(magr->data)) {
         for (obj = mdef->minvent; obj; obj = obj->nobj)
-            (void) snuff_lit(obj);
+            (void) snuff_lit(obj, FALSE);
     }
 
     if (is_vampshifter(mdef)

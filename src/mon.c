@@ -1064,7 +1064,7 @@ minliquid_core(struct monst *mtmp)
         if (split_mon(mtmp, (struct monst *) 0))
             dryup(mtmp->mx, mtmp->my, FALSE);
         if (inpool)
-            water_damage_chain(mtmp->minvent, FALSE);
+            water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
     } else if (mtmp->data == &mons[PM_LAVA_GREMLIN]
                && (inlava || inforge) && rn2(3)) {
@@ -1086,7 +1086,7 @@ minliquid_core(struct monst *mtmp)
             if (DEADMONSTER(mtmp))
                 return 1;
         }
-        water_damage_chain(mtmp->minvent, FALSE);
+        water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
         return 0;
     }
 
@@ -1183,7 +1183,7 @@ minliquid_core(struct monst *mtmp)
                     ; /* vampshifter in wolf form can revert to vampire lord
                        * and become a flyer so not need to teleport */
                 } else {
-                    water_damage_chain(mtmp->minvent, FALSE);
+                    water_damage_chain(mtmp->minvent, FALSE, 0, TRUE);
                     if (!rloc(mtmp, RLOC_NOMSG))
                         deal_with_overcrowding(mtmp);
                 }
@@ -2458,7 +2458,11 @@ mfndpos(
             ntyp = levl[nx][ny].typ;
             if (IS_OBSTRUCTED(ntyp)
                 && !((flag & ALLOW_WALL) && may_passwall(nx, ny))
-                && !((IS_TREE(ntyp) ? treeok : rockok) && may_dig(nx, ny)))
+                && (!((IS_TREE(ntyp) ? treeok : rockok) && may_dig(nx, ny))
+                    /* a non-metallivore can't dig through a metal secret
+                       door (which reads as rock here) */
+                    || (ntyp == SDOOR && metal_door(&levl[nx][ny])
+                        && !metallivorous(mdat))))
                 continue;
             /* intelligent peacefuls avoid digging shop/temple walls */
             if (IS_OBSTRUCTED(ntyp) && rockok
@@ -2481,7 +2485,16 @@ mfndpos(
                 && !((amorphous(mdat) || can_fog(mon)) && !engulfing_u(mon))
                 && (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
                     || ((levl[nx][ny].doormask & D_LOCKED)
-                        && !(flag & UNLOCKDOOR))) && !thrudoor)
+                        && !(flag & UNLOCKDOOR)))
+                /* a hard (metal or stone) door resists busting; metal
+                   yields only to a metallivore, stone only to a digger,
+                   and either to phasing */
+                && !(thrudoor
+                     && (!hard_door(&levl[nx][ny]) || (flag & ALLOW_WALL)
+                         || (metal_door(&levl[nx][ny])
+                             && metallivorous(mdat))
+                         || (door_material(&levl[nx][ny]) == MINERAL
+                             && rockok))))
                 continue;
             /* avoid poison gas? */
             if (!poisongas_ok && !in_poisongas
@@ -3737,37 +3750,29 @@ vamprises(struct monst *mtmp)
         /* revived vampire is in normal shape, so can't be amorphous; if on
            a closed door spot, destroy the door and if trapped, blow it up */
         if (closed_door(x, y)) {
-            static const char
-                door_smashed[] = "a door being smashed",
-                door_go_boom[] = "a door exploding";
+            static const char door_smashed[] = "a door being smashed";
             struct rm *door = &levl[x][y];
             boolean trapped = (door->doormask & D_TRAPPED) != 0,
                     seeit = cansee(x, y);
 
             set_msg_xy(x, y); /* You()/pline() will reset this */
+            /* the trap's own flavor comes from mb_trapped() below, which
+               knows which of the booby-trap varieties this door has */
             if (!seeit)
-                You_hear("%s.", trapped ? "an explosion" : door_smashed);
+                You_hear("%s.", door_smashed);
             else if (!canspotmon(mtmp))
-                You_see("%s.", trapped ? door_go_boom : door_smashed);
+                You_see("%s.", door_smashed);
             else if (!Unaware)
-                pline_The("door is smashed%s",
-                          trapped ? " and it explodes!" : ".");
+                pline_The("door is smashed.");
             set_msg_xy(0, 0); /* in case none of the messages was delivered */
 
             door->doormask = D_NODOOR;
             recalc_block_point(x, y);
             if (trapped) {
-                boolean trap_killed, save_verbose = flags.verbose;
-
-                flags.verbose = FALSE; /* suppress mb_trapped() messages
-                                        * (that makes the 'seeit' arg moot) */
-                trap_killed = mb_trapped(mtmp, seeit);
-                flags.verbose = save_verbose;
-                /* if the booby trap has killed the monster, mondied() will
-                   have been called but no message about its death given yet;
-                   mtmp was a vampire so use unconditional "destroyed" */
-                if (trap_killed && canspotmon(mtmp) && !Unaware)
-                    pline_mon(mtmp, "%s is destroyed!", Monnam(mtmp));
+                /* re-forming inside the door is not working its knob;
+                   every booby-trap variety that can kill reports the
+                   death itself, so nothing is said here */
+                (void) mb_trapped(mtmp, FALSE);
             }
         }
         newsym(x, y);

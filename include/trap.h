@@ -147,4 +147,19 @@ enum deltrap_handle_ammo {
 #define fixed_tele_trap(t) ((t)->ttyp == TELEP_TRAP_SET \
                             && isok((t)->teledest.x,(t)->teledest.y))
 
+/* Booby-trapped door varieties (subset adapted from xNetHack). These are a
+   separate namespace from trap_types and are never stored; getdoortrap()
+   picks one deterministically per door location, so no doormask bit and no
+   save-format change are needed. Keep getdoortrap()'s trapminlevels[] table
+   in sync with this list */
+enum doortrap_types {
+    HINGE_SCREECH = 0, /* loud noise, wakes nearby monsters */
+    STATIC_SHOCK,      /* electric shock from the doorknob */
+    WATER_BUCKET,      /* bucket of water soaks the inventory */
+    ROCKFALL,          /* tripwire drops a boulder */
+    HOT_KNOB,          /* red-hot doorknob burns the hand */
+    FIRE_BLAST,        /* the classic explosion */
+    NUMDOORTRAPS
+};
+
 #endif /* TRAP_H */

@@ -294,6 +294,25 @@ reseed_random(int (*fn)(int))
         init_random(fn);
 }
 
+/* Deterministic hash of three coordinates (intended x, y, z; z is usually
+   ledger_no() so it stays unique among levels). ubirthday is mixed in so
+   the result cannot be read off the visible game state; the server-seed
+   term master also folds in is pending its own port. Adapted from
+   xNetHack */
+unsigned int
+coord_hash(coordxy x, coordxy y, int z)
+{
+    const int magic_number = 0x45d9f3b;
+    /* Cantor pairing reduces (x,y) to a single number */
+    unsigned int a = ((x + y) * (x + y + 1) / 2) + x + z
+                     + (unsigned int) ubirthday;
+
+    a = a * magic_number;
+    a = ((a >> 16) ^ a) * magic_number;
+    a = ((a >> 16) ^ a);
+    return a;
+}
+
 /* randomize the given list of numbers  0 <= i < count */
 void
 shuffle_int_array(int *indices, int count)

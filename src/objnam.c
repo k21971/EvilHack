@@ -3965,7 +3965,7 @@ wizterrainwish(struct _readobjnam_data *d)
         } else {
             dbterrainmesg("Moat", x, y);
         }
-        water_damage_chain(svl.level.objects[x][y], TRUE);
+        water_damage_chain(svl.level.objects[x][y], TRUE, 0, TRUE);
         madeterrain = TRUE;
 
     /* also matches "molten lava" */
@@ -4067,7 +4067,7 @@ wizterrainwish(struct _readobjnam_data *d)
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 4, "door")
                || (d->doorless && !BSTRCMPI(bp, p - 7, "doorway"))) {
-        char dbuf[40];
+        char dbuf[BUFSZ];
         unsigned old_wall_info;
         boolean secret = !BSTRCMPI(bp, p - 11, "secret door");
 
@@ -4118,6 +4118,18 @@ wizterrainwish(struct _readobjnam_data *d)
                 d->trapped = 0;
             if (d->trapped)
                 lev->doormask |= D_TRAPPED;
+            /* an explicit material from the wish ("iron door"); only wood,
+               stone and the metals have a door ruleset behind them, so
+               anything else is refused and the door stays wood */
+            lev->material = 0;
+            if (d->material) {
+                if (d->material == WOOD || d->material == MINERAL
+                    || mat_is_metallic(d->material))
+                    lev->material = d->material;
+                else
+                    pline("A door can't be made of %s.",
+                          materialnm[d->material]);
+            }
             /* feedback */
             dbuf[0] = '\0';
             if (lev->doormask & D_TRAPPED)
@@ -4125,6 +4137,8 @@ wizterrainwish(struct _readobjnam_data *d)
             if (lev->doormask & D_LOCKED)
                 Strcat(dbuf, "locked ");
             if (lev->typ == SDOOR) {
+                if (door_material(lev) != WOOD)
+                    Sprintf(eos(dbuf), "%s ", materialnm[door_material(lev)]);
                 Strcat(dbuf, "secret door");
             } else {
                 /* these should be mutually exclusive but we describe them
@@ -4135,10 +4149,17 @@ wizterrainwish(struct _readobjnam_data *d)
                     Strcat(dbuf, "open ");
                 if (lev->doormask & D_BROKEN)
                     Strcat(dbuf, "broken ");
-                if ((lev->doormask & ~D_TRAPPED) == D_NODOOR)
+                if ((lev->doormask & ~D_TRAPPED) == D_NODOOR) {
+                    /* a doorless doorway has no door to be made of
+                       anything */
+                    lev->material = 0;
                     Strcat(dbuf, "doorless doorway");
-                else
+                } else {
+                    if (door_material(lev) != WOOD)
+                        Sprintf(eos(dbuf), "%s ",
+                                materialnm[door_material(lev)]);
                     Strcat(dbuf, "door");
+                }
             }
             pline("%s.", upstart(an(dbuf)));
             madeterrain = TRUE;
@@ -4317,8 +4338,15 @@ not_spec_material(const char *str, int material)
     for (i = 0; i < MAXPCHARS; ++i) {
         const char *terr_name = defsyms[i].explanation;
 
-        if (terr_name && *terr_name
-            && !strncmpi(str, terr_name, strlen(terr_name))) {
+        if (!terr_name || !*terr_name)
+            continue;
+        /* a terrain whose name is exactly the material name (S_stone is
+           "stone") would match on the material word alone, which proves
+           nothing about the rest of the wish; a bare wish for such a
+           terrain is already caught by the whole-string test above */
+        if (!strcmpi(terr_name, matstr))
+            continue;
+        if (!strncmpi(str, terr_name, strlen(terr_name))) {
             return TRUE;
         }
     }
