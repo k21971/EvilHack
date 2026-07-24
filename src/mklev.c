@@ -729,12 +729,13 @@ place_niche(
 static NEARDATA const char *trap_engravings[TRAPNUM] = {
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
-    (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0,
-    /* 14..16: trap door, teleport, level-teleport */
+    (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
+    (char *) 0,
+    /* 16..18: trap door, teleport, level-teleport */
     "Vlad was here", "ad aerarium", "ad aerarium", (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
-    /* 24..25 */
-    (char *) 0, (char *) 0,
+    /* 26..29 */
+    (char *) 0, (char *) 0, (char *) 0, (char *) 0,
 };
 
 staticfn void
@@ -1857,23 +1858,28 @@ mktrap_victim(struct trap *ttmp)
        that kill in a specific way that's obvious after the fact. */
     switch (kind) {
     case ARROW_TRAP_SET:
-        otmp = mksobj(ARROW, TRUE, FALSE);
-        otmp->opoisoned = 0;
-        /* don't adjust the quantity; maybe the trap shot multiple
-           times, there was an untrapping attempt, etc... */
-        break;
+    case BOLT_TRAP_SET:
     case DART_TRAP_SET:
-        otmp = mksobj(DART, TRUE, FALSE);
-        break;
+    case SPEAR_TRAP_SET:
     case ROCKTRAP:
-        otmp = mksobj(ROCK, TRUE, FALSE);
+        if (ttmp->ammo) {
+            int quan = rnd(4); /* amount of ammo to dump */
+
+            if (ttmp->ammo->quan <= quan)
+                ttmp->ammo->quan = quan + 1;
+
+            otmp = splitobj(ttmp->ammo, quan); /* this handles weights */
+            if (otmp) {
+                extract_nobj(otmp, &ttmp->ammo);
+                place_object(otmp, x, y);
+            }
+        } else {
+            impossible("fresh trap %d without ammo?", ttmp->ttyp);
+        }
         break;
     default:
         /* no item dropped by the trap */
         break;
-    }
-    if (otmp) {
-        place_object(otmp, x, y);
     }
 
     /* now otmp is reused for other items we're placing */
@@ -2005,14 +2011,27 @@ traptype_rnd(unsigned mktrapflags)
         if (lvl < 7 && !(mktrapflags & MKTRAP_NOSPIDERONWEB))
             kind = NO_TRAP;
         break;
+    case SPEAR_TRAP_SET:
+        if (lvl < 6)
+            kind = NO_TRAP;
+        break;
     case STATUE_TRAP:
     case POLY_TRAP_SET:
         if (lvl < 8)
             kind = NO_TRAP;
         break;
+    case MAGIC_BEAM_TRAP_SET:
+        if (lvl < 12)
+            kind = NO_TRAP;
+        break;
     case FIRE_TRAP_SET:
         if (!Inhell)
             kind = NO_TRAP;
+        break;
+    case ICE_TRAP_SET:
+        /* random generation is tied to the Ice Queen branch, which
+           has not been ported yet */
+        kind = NO_TRAP;
         break;
     case TELEP_TRAP_SET:
         if (svl.level.flags.noteleport)
@@ -2033,7 +2052,7 @@ traptype_roguelvl(void)
 {
     int kind;
 
-    switch (rn2(7)) {
+    switch (rn2(8)) {
     default:
         kind = BEAR_TRAP;
         break; /* 0 */
@@ -2041,18 +2060,21 @@ traptype_roguelvl(void)
         kind = ARROW_TRAP_SET;
         break;
     case 2:
-        kind = DART_TRAP_SET;
+        kind = BOLT_TRAP_SET;
         break;
     case 3:
-        kind = TRAPDOOR;
+        kind = DART_TRAP_SET;
         break;
     case 4:
-        kind = PIT;
+        kind = TRAPDOOR;
         break;
     case 5:
-        kind = SLP_GAS_TRAP_SET;
+        kind = PIT;
         break;
     case 6:
+        kind = SLP_GAS_TRAP_SET;
+        break;
+    case 7:
         kind = RUST_TRAP_SET;
         break;
     }
@@ -2174,7 +2196,9 @@ mktrap(
         && !is_pit(kind) && (kind < HOLE || kind == MAGIC_TRAP_SET)) {
         if (kind == LANDMINE) {
             /* if victim was killed by a land mine, we won't scatter objects;
-               treat it as exploded, converting it into an unconcealed pit */
+               treat it as exploded, converting it into an unconcealed pit;
+               the explosion also used up the mine itself */
+            set_trap_ammo(t, (struct obj *) 0);
             t->ttyp = PIT;
             t->tseen = 1;
         }
@@ -2573,7 +2597,7 @@ mkinvpos(coordxy x, coordxy y, int dist)
 
     /* clear traps */
     if ((ttmp = t_at(x, y)) != 0)
-        deltrap(ttmp);
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
 
     /* clear boulders; leave some rocks for non-{moat|trap} locations */
     make_rocks = (dist != 1 && dist != 4 && dist != 5) ? TRUE : FALSE;

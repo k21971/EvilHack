@@ -1934,17 +1934,25 @@ dospinweb(void)
             deltrap(ttmp);
             newsym(x, y);
             return ECMD_TIME;
+        case SPEAR_TRAP_SET:
+            You("spin a web, jamming the mechanism.");
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+            newsym(x, y);
+            return ECMD_TIME;
         case ARROW_TRAP_SET:
+        case BOLT_TRAP_SET:
         case DART_TRAP_SET:
         case BEAR_TRAP:
         case ROCKTRAP:
         case FIRE_TRAP_SET:
+        case ICE_TRAP_SET:
         case LANDMINE:
         case SLP_GAS_TRAP_SET:
         case RUST_TRAP_SET:
         case MAGIC_TRAP_SET:
         case ANTI_MAGIC:
         case POLY_TRAP_SET:
+        case MAGIC_BEAM_TRAP_SET:
             You("have triggered a trap!");
             dotrap(ttmp, NO_TRAP_FLAGS);
             return ECMD_TIME;

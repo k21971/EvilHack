@@ -4184,7 +4184,7 @@ wizterrainwish(struct _readobjnam_data *d)
             if (IS_FURNITURE(oldtyp))
                 count_level_features();
             if ((t = t_at(x, y)) != 0 && t->ttyp != MAGIC_PORTAL)
-                deltrap(t);
+                deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
             madeterrain = TRUE;
         } else if (is_dbridge) {
             lev->drawbridgemask &= ~DB_UNDER;

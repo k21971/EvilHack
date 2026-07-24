@@ -429,7 +429,7 @@ enum glyphmap_change_triggers { gm_nochange, gm_newgame, gm_levelchange,
  *                  Count: 5
  *
  * cmap B           S_grave through S_arrow_trap + TRAPNUM - 1
- *                  Count: (S_arrow_trap + (TRAPNUM - 1) - S_grave) = 41
+ *                  Count: (S_arrow_trap + (TRAPNUM - 1) - S_grave) = 45
  *
  * zap beams        set of four (there are four directions) HI_ZAP.
  *                  Count: 4 * NUM_ZAP

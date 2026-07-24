@@ -3844,16 +3844,117 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Battery AFTER B commits (game-tester agent; combined brief
       READY at scratchpad battery-brief-artifacts.md A1-A13 +
       B1-B12).
-- [ ] EvilHack trap types: BOLT/ICE/SPEAR/MAGIC_BEAM_TRAP_SET +
-      trap-kit object application (kits exist as objects since
-      Phase 1 but do not apply; Decisions-log 2026-07-12 deferral
-      finally gets its checkbox row). Riders collected so far:
-      freezing-mist partial-resistance arms (doicetrap consumer +
-      decr_resistance/HVulnerable_cold producer - port the
-      INTENDED shape, master's >=50 rn2(3) store is dead, see
-      BUG-1358); kill-attribution trap-window nesting note (the
-      MAGIC_BEAM_TRAP_SET line in the kill-attribution record);
-      zombie-slice "sleeping gas trap wish = kit object" note.
+- [x] EvilHack trap types: BOLT/ICE/SPEAR/MAGIC_BEAM_TRAP_SET +
+      trap-kit object application. PORTED + REVIEWED + BATTERY
+      PASSED 2026-07-24 (maintainer commit pending; msg at
+      scratchpad commit-msg-trap-types.txt). BATTERY (3 games,
+      sanity_check on, evilhack-game-tester): 7 PASS 1 PARTIAL -
+      landmine bones B1 proof (bones pit ammo nil, boulder fill
+      clean, no impossible), ammo persistence exact across
+      save/reload (7->7) + empty-store click removal, crafting
+      matrix incl. BUG-1360 quivered-10 clean + BUG-1362 spe
+      floor + charge-on-fail (5->4), set/untrap cycles (beartrap
+      recover, ammo TAKE merge "11 in total", spear Luck
+      take-vs-break, cursed bungle, low-DEX fall-apart), magic
+      beam BUG-1359 quiet removal + wall-launch beam + unique
+      beam-kill livelog-SILENT (Yeenoghu), ice trap 100%-res
+      flash-freeze dmg 0 + erosion 100->66->31 + sub-50 scaled
+      + airborne fly-over (ratified) + BUG-1361 UNSEEN MR_COLD
+      strip proven (blind hero, giant soldier 2->0), display
+      (colors bolt cyan/ice bright-cyan/spear brown/beam
+      bright-yellow, ^F, hallu, save/reload glyphs). T7 PARTIAL:
+      hero arm + Stoneskin break-off PASS; mounted-steed + ERID
+      arms unstaged (mount friction; code reviewed) - fold into
+      the steed/barding slice battery; flying-dragon "isn't long
+      enough" = MASTER PARITY (Flying checked before
+      thick_skinned in both trees, brief expectation was wrong,
+      not a bug). Paniclog = 1 staging artifact only (gdb-forced
+      material 7 darts, explained + restored; next install wipes
+      it). WATCH ITEM: Game A (Valkyrie dlvl2 T:9) died with NO
+      bones prompt while identical Game B prompted - one-off,
+      unattributed, upstream gating suspected; watch on future
+      batteries. Port subagent 23 files
+      +1307/-311; reviewer CONDITIONAL PASS 1 blocker/5 concerns
+      -> ALL coordinator-verified vs both trees + fixed same day;
+      zero-warning make all after fixes. CONTENT: enum inserts
+      BOLT=2/ICE=12/SPEAR=25/MAGIC_BEAM=26 with 5.0 tail kept
+      (VIBRATING=27, TRAPPED_DOOR=28, TRAPPED_CHEST=29,
+      TRAPNUM=30; ttyp 5-bit budget = 2 more values); defsym.h 4
+      PCHAR inserts + renumber (map in port report; tiles Phase 4
+      per S_forge precedent; cmapname/altlabels self-populate from
+      defsym.h - no implicit-array edits needed); trap->ammo
+      persistent model (OBJ_INTRAP, set_trap_ammo/
+      deltrap_with_ammo + DELTRAP_* enum, savetrapchn/getlev obj
+      chains, sfdata regen with genericptr ammo per erid
+      precedent, obj-sanity trap-ammo walk; struct trap grew ->
+      DEV SAVES INVALID, accepted); existing arrow/dart/rock
+      traps now fire-from-ammo-and-deplete via shared
+      trapeffect_shooting_trap; trap_fusions[] 23 recipes (all
+      otyps verified live) + use_trap_kit on 5.0 getobj API;
+      use_trap/set_trap extended beartrap+landmine -> all 14 trap
+      objects (traptype_of_obj helper, trap_ammo_typ restore,
+      material/oprops/spe transfer, use_unpaid_trapobj billing
+      kept); trapeffect_ice/spear/magic_beam handlers (hero/
+      monster/steed/ERID); branch-native switch arms
+      (floor_trigger, m_harmless_trap, immune_to_trap,
+      steedintrap, dowebspin, traptype_rnd/roguelvl, hurtle_step,
+      cmap_to_roguecolor); mklev gates SPEAR>=6/BEAM>=12/rogue
+      BOLT; sp_lev trap_types[] + dat/symbols. RIDERS: BUG-1358
+      intended shape in doicetrap (>=50 keeps rn2(3)) +
+      HVulnerable_cold/decr_resistance producers in branch
+      partial-res idiom; gb.buzzer save/zero/restore around both
+      new dobuzz arms (mcastu shape; trap->once set pre-dobuzz -
+      melt_ice can free the trap). REVIEWER BLOCKER fixed: hero
+      landmine death window - trapeffect_landmine converts to PIT
+      before losehp but blow_up_landmine's ammo clear ran after,
+      so bones inherited a PIT carrying a live LAND_MINE obj;
+      set_trap_ammo(trap, 0) now precedes the PIT conversion.
+      CONCERNS fixed: dighole magical-trap arm + both magic-beam
+      stale-launch arms -> deltrap_with_ammo(DESTROY) (BUG-1359);
+      use_trap_kit worn-component delobj -> remove_worn_item
+      (BUG-1360); ice-trap MR_COLD strip unhooked from in_sight
+      (BUG-1361); empty-kit negative spe guard (BUG-1362);
+      doicetrap monstseesu(M_SEEN_COLD) sibling parity with
+      dofiretrap; dig() destroy-arm trailing newsym restored
+      (master parity). MASTER BUGS ARCHIVED: BUG-1359..1362 all
+      frozen-unfixed, fixed on branch. RATIFY QUEUE: (1) airborne
+      hero/monster now SKIPS ice traps (ICE joined floor_trigger
+      like 5.0's FIRE convention; master's mist hits flyers) -
+      MAINTAINER RATIFIED 2026-07-24 (5.0 convention ships,
+      consistent with branch fire traps); (2) ice-trap MR_COLD strip +
+      monstseesu additions are behavior deltas vs master (both
+      bug-class fixes); (3) zap.c maybe-explode + branch-native
+      crafted-trap deletion sites use deltrap_with_ammo(DESTROY)
+      where master had plain deltrap (guard-noise avoidance);
+      (4) RogueEpyx symset got all four trap glyphs (master added
+      only ice - apparent oversight); (5) dart-trap poison is
+      stack-level at creation + dart to-hit unified at 8 (master
+      ammo-model behavior, replaces branch per-shot 1/6 + 7).
+      DEFERRED/FLAGGED: random ICE_TRAP_SET generation blocked
+      until Ice Queen topology (Iniceq bias N/A; wizmode wish/
+      kits/des placement work); spear-trap hide/airborne
+      predicate subset (can_fly/can_levitate/is_bone_monster/
+      has_bark/tortle revisit when those port); vault.c fakecorr
+      + shk.c shop-repair + dbridge.c keep plain deltrap = master
+      parity latents (hero-set ammo trap there = guarded
+      impossible + destroy, frozen-master shape); master's Flying
+      loosen-rock dig feature NOT ported (not trap-related, needs
+      an owner); grow_tree/create_pit_under deltrap sites travel
+      with their own slices; mktrap_victim SPEAR arm dead via
+      random gen (master parity); nhlua.c 3 blank-line collapses
+      are formatter-hook-enforced (rode in with nhl_deltrap
+      edit). Port report:
+      scratchpad/port-report-trap-types.md (session-local);
+      battery list = reviewer's 8-point set in that session's
+      review (landmine bones, ammo save/reload/bones, crafting
+      matrix incl. BUG-1360 case, set/untrap cycle, magic beam
+      incl. BUG-1359 + nesting, ice trap resist tiers + strip,
+      spear/steed/ERID, display/farlook/symsets).
+      Original riders (all consumed): freezing-mist partial-res
+      arms (done, BUG-1358 shape); kill-attribution trap-window
+      nesting (done, both arms bracketed); zombie-slice "sleeping
+      gas trap wish = kit object" note (confirmed intended -
+      object wins the wish parse, kit now applies).
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
 - [ ] Monster `dead` .des flag -> des.monster dead= binding

@@ -26,6 +26,8 @@ staticfn void display_jump_positions(boolean);
 staticfn void use_tinning_kit(struct obj *);
 staticfn int grease_ok(struct obj *);
 staticfn int use_grease(struct obj *);
+staticfn void use_trap_kit(struct obj *);
+staticfn int traptype_of_obj(struct obj *);
 staticfn void use_trap(struct obj *);
 staticfn int touchstone_ok(struct obj *);
 staticfn int use_stone(struct obj *);
@@ -2869,7 +2871,229 @@ reset_trapset(void)
     gt.trapinfo.force_bungle = 0;
 }
 
-/* Place a landmine/bear trap.  Helge Hafting */
+const struct trap_recipe trap_fusions[] = {
+    /* trap type, components, component quantity */
+    { ARROW_TRAP, ARROW, 10L },
+    { ARROW_TRAP, ELVEN_ARROW, 10L },
+    { ARROW_TRAP, ORCISH_ARROW, 10L },
+    { ARROW_TRAP, DARK_ELVEN_ARROW, 10L },
+    { ARROW_TRAP, YA, 10L },
+    { BOLT_TRAP, CROSSBOW_BOLT, 10L },
+    { BOLT_TRAP, DARK_ELVEN_CROSSBOW_BOLT, 10L },
+    { DART_TRAP, DART, 10L },
+    { SPEAR_TRAP, SPEAR, 1L },
+    { SPEAR_TRAP, ELVEN_SPEAR, 1L },
+    { SPEAR_TRAP, ORCISH_SPEAR, 1L },
+    { SPEAR_TRAP, DWARVISH_SPEAR, 1L },
+    { SPEAR_TRAP, DARK_ELVEN_SPEAR, 1L },
+    { BEARTRAP, GRAPPLING_HOOK, 1L },
+    { LAND_MINE, SLING_BULLET, 10L },
+    { SLEEPING_GAS_TRAP, WAN_SLEEP, 1L },
+    { FIRE_TRAP, WAN_FIRE, 1L },
+    { ICE_TRAP, WAN_COLD, 1L },
+    { TELEPORTATION_TRAP, WAN_TELEPORTATION, 1L },
+    { MAGIC_TRAP, POT_GAIN_ENERGY, 3L },
+    { ANTI_MAGIC_TRAP, WAN_CANCELLATION, 1L },
+    { POLYMORPH_TRAP, POT_POLYMORPH, 1L },
+    { MAGIC_BEAM_TRAP, WAN_MAGIC_MISSILE, 1L },
+    { 0, 0, 0 }
+};
+
+/* craft a trap object from components, using a trap kit */
+staticfn void
+use_trap_kit(struct obj *obj)
+{
+    const struct trap_recipe *recipe;
+    struct obj *otmp;   /* components needed to make a trap */
+    struct obj *output; /* final product (crafted trap) */
+    int trap_type = 0;
+    boolean is_rogue = Role_if(PM_ROGUE);
+    boolean is_ranger = Role_if(PM_RANGER);
+
+    /* various player conditions can prevent successful crafting */
+    if (!u_handsy()) {
+        return;
+    } else if (Stunned || Confusion) {
+        You_cant("build a trap while incapacitated.");
+        return;
+    } else if (near_capacity() > SLT_ENCUMBER) {
+        You_cant("build a trap while encumbered.");
+        return;
+    } else if (u.uhunger < 50) { /* weak */
+        You("are too weak from hunger to build a trap.");
+        return;
+    } else if (ACURR(A_DEX) < 4) {
+        You("lack the dexterity to build a trap.");
+        return;
+    } else if (rn2(21) > ACURR(A_DEX)
+               && !(is_rogue || is_ranger)) {
+        You("fail to use your trap kit correctly.");
+        if (obj->spe > 0) /* don't drive an empty kit negative */
+            consume_obj_charge(obj, TRUE); /* this uses up a charge */
+        return;
+    }
+
+    /* trap kit requires 'charges' to function */
+    if (obj->spe <= 0) {
+        You("seem to be out of materials to build a trap.");
+        return;
+    }
+
+    /* setup the base components for the trap */
+    otmp = getobj("use as a component", any_obj_ok, GETOBJ_PROMPT);
+    if (!otmp) {
+        You("need a base component to build a trap.");
+        return;
+    }
+
+    /* start the build process */
+    for (recipe = trap_fusions; recipe->result_typ; recipe++) {
+        if (otmp->otyp == recipe->comp
+            && otmp->quan >= recipe->quan) {
+            trap_type = recipe->result_typ;
+            break;
+        }
+    }
+
+    if (!trap_type) {
+        You("fail to build the trap.");
+        pline("Check your component type and/or quantity.");
+        return;
+    } else {
+        /* success */
+        output = mksobj(trap_type, TRUE, FALSE);
+
+        /* try to take on the material from the component object */
+        if (output->otyp == BEARTRAP || output->otyp == LAND_MINE
+            || output->otyp == ARROW_TRAP || output->otyp == BOLT_TRAP
+            || output->otyp == DART_TRAP || output->otyp == SPEAR_TRAP) {
+            if (valid_obj_material(output, otmp->material)) {
+                set_material(output, otmp->material);
+            } else {
+                /* material is invalid for the output object */
+                Your("component is made of an incorrect material (%s).",
+                     materialnm[otmp->material]);
+                You("fail to build the trap.");
+                delobj(output);
+                return;
+            }
+        }
+
+        /* trap recipes that require a wand as a component, the wand
+           must have a minimum number of charges */
+        if (output->otyp == SLEEPING_GAS_TRAP
+            || output->otyp == FIRE_TRAP
+            || output->otyp == ICE_TRAP
+            || output->otyp == TELEPORTATION_TRAP
+            || output->otyp == ANTI_MAGIC_TRAP
+            || output->otyp == MAGIC_BEAM_TRAP) {
+            if (otmp->spe < 6) {
+                Your("component does not have enough charges.");
+                You("fail to build the trap.");
+                delobj(output);
+                return;
+            }
+        }
+
+        /* feedback for successful build */
+        pline("Using your %s, you craft %s%s to build %s.",
+              simpleonames(obj),
+              ((otmp->quan > recipe->quan) ? "some of " : ""),
+              yobjnam(otmp, (char *) 0), doname(output));
+
+        /* trap kit consumes a charge */
+        consume_obj_charge(obj, TRUE);
+
+        /* transfer BUC status of components used */
+        output->blessed = otmp->blessed;
+        output->cursed = otmp->cursed;
+
+        /* transfer any erosion levels */
+        output->oeroded = otmp->oeroded;
+        output->oeroded2 = otmp->oeroded2;
+
+        /* transfer object properties and enchantments */
+        output->oprops = otmp->oprops;
+        output->spe = otmp->spe;
+
+        /* ensure the final product is not coated in any
+           substances, nor carrying over any additional
+           object properties */
+        output->opoisoned = 0;
+        output->otainted = 0;
+        output->greased = 0;
+        output->forged_qual = FQ_NORMAL;
+
+        /* for ammo-based traps, store the original ammo type
+           so we can restore it when the trap is set */
+        if (output->otyp == ARROW_TRAP || output->otyp == BOLT_TRAP
+            || output->otyp == DART_TRAP || output->otyp == SPEAR_TRAP) {
+            output->trap_ammo_typ = recipe->comp;
+        }
+
+        /* toss out old objects, add new one */
+        if (otmp->otyp == recipe->comp)
+            otmp->quan -= recipe->quan;
+
+        /* recalculate weight of the recipe objects if
+           using a stack */
+        if (otmp->quan > 0L)
+            otmp->owt = weight(otmp);
+
+        /* delete recipe objects if quantity reaches zero; the
+           component may be wielded or quivered (spears, ammo) */
+        if (otmp->quan <= 0L) {
+            if (otmp->owornmask)
+                remove_worn_item(otmp, FALSE);
+            delobj(otmp);
+        }
+
+        /* trap is created */
+        output = addinv(output);
+        output->owt = weight(output);
+
+        update_inventory();
+    }
+}
+
+/* map a trap tool object to the map trap type it arms */
+staticfn int
+traptype_of_obj(struct obj *otmp)
+{
+    switch (otmp->otyp) {
+    case LAND_MINE:
+        return LANDMINE;
+    case BEARTRAP:
+        return BEAR_TRAP;
+    case ARROW_TRAP:
+        return ARROW_TRAP_SET;
+    case BOLT_TRAP:
+        return BOLT_TRAP_SET;
+    case DART_TRAP:
+        return DART_TRAP_SET;
+    case SPEAR_TRAP:
+        return SPEAR_TRAP_SET;
+    case SLEEPING_GAS_TRAP:
+        return SLP_GAS_TRAP_SET;
+    case FIRE_TRAP:
+        return FIRE_TRAP_SET;
+    case ICE_TRAP:
+        return ICE_TRAP_SET;
+    case TELEPORTATION_TRAP:
+        return TELEP_TRAP_SET;
+    case MAGIC_TRAP:
+        return MAGIC_TRAP_SET;
+    case ANTI_MAGIC_TRAP:
+        return ANTI_MAGIC;
+    case POLYMORPH_TRAP:
+        return POLY_TRAP_SET;
+    case MAGIC_BEAM_TRAP:
+        return MAGIC_BEAM_TRAP_SET;
+    }
+    return NO_TRAP;
+}
+
+/* place a settable trap object; Helge Hafting */
 staticfn void
 use_trap(struct obj *otmp)
 {
@@ -2881,8 +3105,12 @@ use_trap(struct obj *otmp)
 
     if (nohands(gy.youmonst.data))
         what = "without hands";
+    else if (!freehand())
+        what = "without a free hand";
     else if (Stunned)
         what = "while stunned";
+    else if (near_capacity() > SLT_ENCUMBER)
+        what = "while encumbered";
     else if (u.uswallow)
         what = digests(u.ustuck->data) ? "while swallowed" : "while engulfed";
     else if (Underwater)
@@ -2910,7 +3138,7 @@ use_trap(struct obj *otmp)
         reset_trapset();
         return;
     }
-    ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE : BEAR_TRAP;
+    ttyp = traptype_of_obj(otmp);
     if (otmp == gt.trapinfo.tobj && u_at(gt.trapinfo.tx, gt.trapinfo.ty)) {
         You("resume setting %s%s.", shk_your(buf, otmp),
             trapname(ttyp, FALSE));
@@ -2946,7 +3174,7 @@ use_trap(struct obj *otmp)
                     gt.trapinfo.time_needed = 0;
                     gt.trapinfo.force_bungle = TRUE;
                     break;
-                case BEAR_TRAP: /* drop it without arming it */
+                default: /* drop it without arming it */
                     reset_trapset();
                     You("drop %s!", the(trapname(ttyp, FALSE)));
                     dropx(otmp);
@@ -2964,13 +3192,23 @@ use_trap(struct obj *otmp)
     return;
 }
 
-/* occupation routine called each turn while arming a beartrap or landmine */
+/* occupation routine called each turn while arming a trap object */
 staticfn int
 set_trap(void)
 {
     struct obj *otmp = gt.trapinfo.tobj;
     struct trap *ttmp;
     int ttyp;
+    boolean obj_cursed;
+    int mat;
+    long prop;
+    schar enchant;
+    boolean is_rogue = Role_if(PM_ROGUE);
+    boolean is_ranger = Role_if(PM_RANGER);
+    int chance = (ACURR(A_DEX)
+                  + (is_rogue ? (u.ulevel * 5)
+                              : is_ranger ? (u.ulevel * 2)
+                                          : u.ulevel));
 
     if (!otmp || !carried(otmp) || !u_at(gt.trapinfo.tx, gt.trapinfo.ty)) {
         /* trap object might have been stolen or hero teleported */
@@ -2978,28 +3216,75 @@ set_trap(void)
         return 0;
     }
 
+    obj_cursed = otmp->cursed;
+    mat = otmp->material;
+    prop = otmp->oprops;
+    enchant = otmp->spe;
+
     if (--gt.trapinfo.time_needed > 0)
         return 1; /* still busy */
 
-    ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE : BEAR_TRAP;
+    ttyp = traptype_of_obj(otmp);
     ttmp = maketrap(u.ux, u.uy, ttyp);
-    if (ttmp) {
+    if (ttmp && (rnd(100) < chance)) {
         ttmp->madeby_u = 1;
         feeltrap(ttmp);
+
+        /* our object becomes the new ammo of the trap */
+        if (otmp->quan > 1L)
+            otmp = splitobj(otmp, 1);
+        if (ttmp->ttyp == ARROW_TRAP_SET
+            || ttmp->ttyp == BOLT_TRAP_SET
+            || ttmp->ttyp == DART_TRAP_SET
+            || ttmp->ttyp == SPEAR_TRAP_SET) {
+            static const short dflt_ammo[4] = { ARROW, CROSSBOW_BOLT,
+                                                DART, SPEAR };
+            int which = (ttmp->ttyp == ARROW_TRAP_SET) ? 0
+                        : (ttmp->ttyp == BOLT_TRAP_SET) ? 1
+                          : (ttmp->ttyp == DART_TRAP_SET) ? 2 : 3;
+
+            /* use stored ammo type, fallback to base if not set */
+            otmp->otyp = otmp->trap_ammo_typ ? otmp->trap_ammo_typ
+                                             : dflt_ammo[which];
+            ttmp->launch_otyp = otmp->otyp;
+            otmp->quan = (ttmp->ttyp == SPEAR_TRAP_SET) ? 1L : 10L;
+            otmp->spe = enchant;
+            otmp->oprops = prop;
+            set_material(otmp, mat);
+            otmp->owt = weight(otmp);
+        } else if (ttmp->ttyp == MAGIC_BEAM_TRAP_SET) {
+            /* wand of magic missile is the component to make
+               a magic beam trap; force beam to match the
+               component */
+            ttmp->launch_otyp = BZ_M_SPELL(ZT_MAGIC_MISSILE);
+        }
+        setnotworn(otmp); /* in case trap was wielded when set */
+        freeinv(otmp);
+        set_trap_ammo(ttmp, otmp);
+
         if (*in_rooms(u.ux, u.uy, SHOPBASE)) {
             add_damage(u.ux, u.uy, 0L); /* schedule removal */
         }
         if (!gt.trapinfo.force_bungle)
             You("finish arming %s.", the(trapname(ttyp, FALSE)));
-        if (((otmp->cursed || Fumbling) && (rnl(10) > 5))
+        if (((obj_cursed || Fumbling) && (rnl(10) > 5))
             || gt.trapinfo.force_bungle)
             dotrap(ttmp,
                    (unsigned) (gt.trapinfo.force_bungle ? FORCEBUNGLE : 0));
     } else {
-        /* this shouldn't happen */
         Your("trap setting attempt fails.");
+        if (ttmp)
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+        /* if dexterity is less than 15, there's a chance
+           of breaking the trap altogether on a failed
+           attempt; the lower your dexterity, the greater
+           the chance of breaking the trap */
+        if (rn2(16) > ACURR(A_DEX)) {
+            Your("trap falls apart!");
+            setnotworn(otmp); /* in case trap was wielded when set */
+            delobj(otmp);
+        }
     }
-    useup(otmp);
     reset_trapset();
     return 0;
 }
@@ -4357,6 +4642,9 @@ doapply(void)
     case DWARVISH_MATTOCK:
         res = use_pick_axe(obj);
         break;
+    case TRAP_KIT:
+        use_trap_kit(obj);
+        break;
     case TINNING_KIT:
         use_tinning_kit(obj);
         break;
@@ -4460,9 +4748,23 @@ doapply(void)
         break;
     case LAND_MINE:
     case BEARTRAP:
+    case ARROW_TRAP:
+    case BOLT_TRAP:
+    case DART_TRAP:
+    case SPEAR_TRAP:
+    case SLEEPING_GAS_TRAP:
+    case FIRE_TRAP:
+    case ICE_TRAP:
+    case TELEPORTATION_TRAP:
+    case MAGIC_TRAP:
+    case ANTI_MAGIC_TRAP:
+    case POLYMORPH_TRAP:
+    case MAGIC_BEAM_TRAP:
         use_trap(obj);
-        if (go.occupation == set_trap)
-            obj = (struct obj *) 0; /* not gone yet but behave as if it was */
+        /* not necessarily gone yet, but a mounted bungle may have
+           dropped it where floor effects could destroy it, so treat
+           it as if it were; trap objects are never artifacts */
+        obj = (struct obj *) 0;
         break;
     case FLINT:
     case LUCKSTONE:

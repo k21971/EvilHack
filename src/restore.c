@@ -1243,6 +1243,11 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
                 /* convert relative destination to absolute */
                 trap->dst.dlevel += u.uz.dlevel;
             }
+            /* trap->ammo will either be Null or a stale pointer from
+               the previous game; we don't read the stale pointer, other
+               than to see whether an object chain follows this trap */
+            if (trap->ammo)
+                trap->ammo = restobjchn(nhfp, FALSE);
             trap->ntrap = gf.ftrap;
             gf.ftrap = trap;
         } else

@@ -436,7 +436,7 @@ put_lregion_here(
             if (t && !undestroyable_trap(t->ttyp)) {
                 if (((mtmp = m_at(x, y)) != 0) && mtmp->mtrapped)
                     mtmp->mtrapped = 0;
-                deltrap(t);
+                deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
             }
             if (bad_location(x, y, nlx, nly, nhx, nhy)
                 || is_exclusion_zone(rtype, x, y))

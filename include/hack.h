@@ -160,6 +160,14 @@ struct forge_recipe {
 
 extern const struct forge_recipe fusions[]; /* array of forge recipes */
 
+struct trap_recipe {
+    short result_typ;
+    short comp;
+    long quan;
+};
+
+extern const struct trap_recipe trap_fusions[]; /* array of trap recipes */
+
 #define MAX_BMASK 4
 
 struct bubble {

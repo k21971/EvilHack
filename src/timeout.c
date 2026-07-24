@@ -2694,6 +2694,7 @@ obj_is_local(struct obj *obj)
         return FALSE;
     case OBJ_FLOOR:
     case OBJ_BURIED:
+    case OBJ_INTRAP:
         return TRUE;
     case OBJ_CONTAINED:
         return obj_is_local(obj->ocontainer);

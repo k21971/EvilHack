@@ -420,7 +420,7 @@ dig(void)
             } else {
                 You("destroy the bear trap with %s.",
                     yobjnam(uwep, (const char *) 0));
-                deltrap(ttmp);
+                deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
                 reset_utrap(TRUE); /* release from trap, maybe Lev or Fly */
             }
             /* we haven't made any progress toward a pit yet */
@@ -433,7 +433,19 @@ dig(void)
                 You("destroy %s with %s.",
                     ttmp->tseen ? the(ttmpname) : an(ttmpname),
                     yobjnam(uwep, (const char *) 0));
-            deltrap(ttmp);
+            if (ttmp->ammo) {
+                deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+            } else if (is_magical_trap(ttmp->ttyp)) {
+                pline("Boom!");
+                explode(dpx, dpy, 0, 20 + d(3, 6),
+                        TRAP_EXPLODE, EXPL_MAGICAL);
+                /* same distance as exploding land mine */
+                wake_nearto(dpx, dpy, 400);
+                deltrap(ttmp);
+            } else {
+                deltrap(ttmp);
+            }
+            newsym(dpx, dpy);
             /* we haven't made any progress toward a pit yet */
             svc.context.digging.effort = 0;
             return 0;
@@ -956,7 +968,8 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
                   (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
     } else if (ttmp && is_magical_trap(ttmp->ttyp)) {
         explode(dig_x, dig_y, 0, 20 + d(3, 6), TRAP_EXPLODE, EXPL_MAGICAL);
-        deltrap(ttmp);
+        /* crafted magical traps carry their component as ammo */
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
         newsym(dig_x, dig_y);
     } else if (is_pool_or_lava(dig_x, dig_y)) {
         pline_The("%s sloshes furiously for a moment, then subsides.",
@@ -1042,13 +1055,18 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
             }
             retval = TRUE;
         } else {
-            /* magical digging disarms settable traps */
+            /* magical digging disarms resettable/ammo-based traps */
             if (by_magic && ttmp
-                && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP)) {
-                int otyp = (ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP;
-
-                /* convert trap into buried object (deletes trap) */
-                cnv_trap_obj(otyp, 1, ttmp, TRUE);
+                && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP
+                    || ttmp->ttyp == ARROW_TRAP_SET
+                    || ttmp->ttyp == BOLT_TRAP_SET
+                    || ttmp->ttyp == DART_TRAP_SET
+                    || ttmp->ttyp == SPEAR_TRAP_SET)) {
+                /* convert trap into object(s) (deletes trap) */
+                deltrap_with_ammo(ttmp,
+                                  (ttmp->ttyp == LANDMINE
+                                   ? DELTRAP_BURY_AMMO
+                                   : DELTRAP_PLACE_AMMO));
             }
 
             /* finally we get to make a hole */
@@ -1224,10 +1242,25 @@ use_pick_axe2(struct obj *obj)
     } else if (Underwater) {
         pline("Turbulence torpedoes your %s attempts.", verbing);
     } else if (u.dz < 0) {
-        if (Levitation)
+        trap = t_at(u.ux, u.uy);
+        if (Levitation) {
             You("don't have enough leverage.");
-        else
+        } else if (trap && trap->ttyp == ROCKTRAP) {
+            const char *trapnm = trapname(trap->ttyp, FALSE);
+
+            if (ispick) {
+                You("destroy %s with %s.",
+                    trap->tseen ? the(trapnm) : an(trapnm),
+                    yobjnam(obj, (const char *) 0));
+                deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
+            } else {
+                You("strike %s with %s, but nothing else happens.",
+                    trap->tseen ? the(trapnm) : an(trapnm),
+                    yobjnam(obj, (const char *) 0));
+            }
+        } else {
             You_cant("reach the %s.", ceiling(u.ux, u.uy));
+        }
     } else if (!u.dx && !u.dy && !u.dz) {
         char buf[BUFSZ];
         int dam;

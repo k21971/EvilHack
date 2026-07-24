@@ -3904,7 +3904,9 @@ maybe_explode_trap(
             /* note: this explosion mustn't destroy otmp */
             explode(x, y, -WAN_CANCELLATION,
                     20 + d(3, 6), TRAP_EXPLODE, EXPL_MAGICAL);
-            deltrap(ttmp);
+            /* hero-crafted magical traps carry their crafting
+               component as ammo; the explosion consumes it */
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
             newsym(x, y);
             if (seeit)
                 *learn_it = TRUE;

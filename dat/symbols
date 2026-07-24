@@ -71,6 +71,7 @@ start: Blank
         S_bear_trap: \032
         S_blcorn: \032
         S_blob: \032
+        S_bolt_trap: \032
         S_book: \032
         S_boomleft: \032
         S_boomright: \032
@@ -132,6 +133,7 @@ start: Blank
         S_humanoid: \032
         S_hwall: \032
         S_ice: \032
+        S_ice_trap: \032
         S_imp: \032
         S_invisible: \032
         S_jabberwock: \032
@@ -148,6 +150,7 @@ start: Blank
         S_litcorr: \032
         S_lizard: \032
         S_lslant: \032
+        S_magic_beam_trap: \032
         S_magic_chest: \032
         S_magic_portal: \032
         S_magic_trap: \032
@@ -180,6 +183,7 @@ start: Blank
         S_sink: \032
         S_sleeping_gas_trap: \032
         S_snake: \032
+        S_spear_trap: \032
         S_spider: \032
         S_spiked_pit: \032
         S_squeaky_board: \032
@@ -530,6 +534,7 @@ start: RogueEpyx
 	S_brupstair: \xf0		# Greek Xi
 	S_brdnstair: \xf0
 	S_arrow_trap: \x04		# diamond (cards)
+	S_bolt_trap: \x04
 	S_dart_trap: \x04
 	S_falling_rock_trap: \x04
 	S_squeaky_board: \x04
@@ -539,6 +544,7 @@ start: RogueEpyx
 	S_sleeping_gas_trap: \x04
 	S_rust_trap: \x04
 	S_fire_trap: \x04
+	S_ice_trap: \x04
 	S_pit: \x04
 	S_spiked_pit: \x04
 	S_hole: \x04
@@ -552,6 +558,8 @@ start: RogueEpyx
 	S_magic_trap: \x04
 	S_anti_magic_trap: \x04
 	S_polymorph_trap: \x04
+	S_spear_trap: \x04
+	S_magic_beam_trap: \x04
 	S_weapon: \x18			# up arrow
 # ^J	S_armor: \x0a			# Vert rect with o
 	S_armor: \x5b			# default: '['

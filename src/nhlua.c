@@ -486,7 +486,7 @@ nhl_deltrap(lua_State *L)
         struct trap *ttmp = t_at(x, y);
 
         if (ttmp)
-            deltrap(ttmp);
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
     }
     return 0;
 }
@@ -2558,7 +2558,6 @@ static struct e ct_base_unsafe[] = {
    sort can take a lot of time and can't be caught by the step limit */
 /* no ct_utf8_ tables; all fns at same level of concern */
 
-
 /* possible ct_debug tables - likely to need changes */
 static struct e ct_debug_debug[] = {
     { NEVER,  "debug" },          /* uses normal I/O so needs re-write */
@@ -2603,7 +2602,6 @@ static struct e ct_os_files[] = {
     { NEVER, "tmpname" },
     { EOT, NULL }
 };
-
 
 #define DROPIF(flag, lib, ct) \
     nhl_clearfromtable(L, !!(lflags & flag), lib, ct)
@@ -2701,7 +2699,6 @@ opencheckpat(lua_State *L, const char *ename, int param)
 
     string = lua_tolstring(L, param, NULL); /* mode or filename     -0,+0 */
     lua_pushstring(luapat, string);                              /* -0,+1 */
-
 
     (void) lua_getfield(L, -1, ename);       /* pattern              -0,+1 */
     lua_pop(L, 1);                                               /* -1,+0 */

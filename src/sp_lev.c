@@ -346,7 +346,7 @@ map_cleanup(void)
                 /* traps on liquid? */
                 if (((ttmp = t_at(x, y)) != 0)
                     && !undestroyable_trap(ttmp->ttyp))
-                    deltrap(ttmp);
+                    deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
 
                 /* engravings? */
                 if ((etmp = engr_at(x, y)) != 0)
@@ -4222,7 +4222,7 @@ l_create_stairway(lua_State *L, boolean using_ladder)
     get_location_coord(&x, &y, DRY, gc.coder->croom, scoord);
     set_ok_location_func(NULL);
     if ((badtrap = t_at(x, y)) != 0)
-        deltrap(badtrap);
+        deltrap_with_ammo(badtrap, DELTRAP_DESTROY_AMMO);
     SpLev_Map[x][y] = 1;
 
     if (using_ladder) {
@@ -4358,6 +4358,7 @@ static const struct {
     const char *name;
     int type;
 } trap_types[] = { { "arrow", ARROW_TRAP_SET },
+                   { "crossbow bolt", BOLT_TRAP_SET },
                    { "dart", DART_TRAP_SET },
                    { "falling rock", ROCKTRAP },
                    { "board", SQKY_BOARD },
@@ -4367,6 +4368,7 @@ static const struct {
                    { "sleep gas", SLP_GAS_TRAP_SET },
                    { "rust", RUST_TRAP_SET },
                    { "fire", FIRE_TRAP_SET },
+                   { "ice", ICE_TRAP_SET },
                    { "pit", PIT },
                    { "spiked pit", SPIKED_PIT },
                    { "hole", HOLE },
@@ -4379,6 +4381,8 @@ static const struct {
                    { "magic", MAGIC_TRAP_SET },
                    { "anti magic", ANTI_MAGIC },
                    { "polymorph", POLY_TRAP_SET },
+                   { "spear", SPEAR_TRAP_SET },
+                   { "magic beam", MAGIC_BEAM_TRAP_SET },
                    { "vibrating square", VIBRATING_SQUARE },
                    { "random", -1 },
                    { 0, NO_TRAP } };

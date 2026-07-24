@@ -31,6 +31,15 @@ struct trap {
                             * when you untrap a monster.  It would be too
                             * easy to make a monster peaceful if you could
                             * set a trap for it and then untrap it. */
+    struct obj *ammo; /* object associated with this trap - darts for a dart
+                       * trap, arrows for an arrow trap, a beartrap object
+                       * for a bear trap. This object does not physically
+                       * exist in the game until some action creates it,
+                       * such as the beartrap being untrapped, or one dart
+                       * being fired. Not all types of traps will need this
+                       * field - in fact, most don't. Only those which need
+                       * to store persistent information about the
+                       * associated object do */
     union vlaunchinfo vl;
 #define launch_otyp vl.v_launch_otyp
 #define launch2 vl.v_launch2
@@ -58,28 +67,32 @@ enum trap_types {
     ALL_TRAPS    = -1, /* mon_knows_traps(), mon_learns_traps() */
     NO_TRAP      =  0,
     ARROW_TRAP_SET   =  1,
-    DART_TRAP_SET    =  2,
-    ROCKTRAP     =  3,
-    SQKY_BOARD   =  4,
-    BEAR_TRAP    =  5,
-    LANDMINE     =  6,
-    ROLLING_BOULDER_TRAP = 7,
-    SLP_GAS_TRAP_SET =  8,
-    RUST_TRAP_SET    =  9,
-    FIRE_TRAP_SET    = 10,
-    PIT          = 11,
-    SPIKED_PIT   = 12,
-    HOLE         = 13,
-    TRAPDOOR     = 14,
-    TELEP_TRAP_SET   = 15,
-    LEVEL_TELEP  = 16,
-    MAGIC_PORTAL = 17,
-    WEB          = 18,
-    STATUE_TRAP  = 19,
-    MAGIC_TRAP_SET   = 20,
-    ANTI_MAGIC   = 21,
-    POLY_TRAP_SET    = 22,
-    VIBRATING_SQUARE = 23, /* not a trap but shown/remembered as if one
+    BOLT_TRAP_SET    =  2,
+    DART_TRAP_SET    =  3,
+    ROCKTRAP     =  4,
+    SQKY_BOARD   =  5,
+    BEAR_TRAP    =  6,
+    LANDMINE     =  7,
+    ROLLING_BOULDER_TRAP = 8,
+    SLP_GAS_TRAP_SET =  9,
+    RUST_TRAP_SET    = 10,
+    FIRE_TRAP_SET    = 11,
+    ICE_TRAP_SET     = 12,
+    PIT          = 13,
+    SPIKED_PIT   = 14,
+    HOLE         = 15,
+    TRAPDOOR     = 16,
+    TELEP_TRAP_SET   = 17,
+    LEVEL_TELEP  = 18,
+    MAGIC_PORTAL = 19,
+    WEB          = 20,
+    STATUE_TRAP  = 21,
+    MAGIC_TRAP_SET   = 22,
+    ANTI_MAGIC   = 23,
+    POLY_TRAP_SET    = 24,
+    SPEAR_TRAP_SET   = 25,
+    MAGIC_BEAM_TRAP_SET = 26,
+    VIBRATING_SQUARE = 27, /* not a trap but shown/remembered as if one
                             * once it has been discovered */
 
     /* trapped door and trapped chest aren't traps on the map, but they
@@ -87,10 +100,10 @@ enum trap_types {
        comes in view of them and sees the feature or object;
        key-using or door-busting monsters who survive a door trap learn
        to avoid other such doors [not implemented] */
-    TRAPPED_DOOR = 24, /* part of door; not present on map as a trap */
-    TRAPPED_CHEST = 25, /* part of object; not on map */
+    TRAPPED_DOOR = 28, /* part of door; not present on map as a trap */
+    TRAPPED_CHEST = 29, /* part of object; not on map */
 
-    TRAPNUM = 26
+    TRAPNUM = 30
 };
 
 /* some trap-related function return results */
@@ -109,6 +122,14 @@ enum trap_immunities {
     TRAP_HIDDEN_IMMUNE = 2,
 };
 
+/* values for deltrap_with_ammo() */
+enum deltrap_handle_ammo {
+    DELTRAP_RETURN_AMMO = 0, /* return ammo to caller; do nothing with it */
+    DELTRAP_DESTROY_AMMO,    /* delete ammo */
+    DELTRAP_PLACE_AMMO,      /* place ammo on ground where trap was */
+    DELTRAP_BURY_AMMO,       /* bury ammo under where trap was */
+    DELTRAP_TAKE_AMMO        /* put ammo into player's inventory */
+};
 
 #define is_pit(ttyp) ((ttyp) == PIT || (ttyp) == SPIKED_PIT)
 #define is_hole(ttyp)  ((ttyp) == HOLE || (ttyp) == TRAPDOOR)
@@ -119,7 +140,8 @@ enum trap_immunities {
                                || (ttyp) == LEVEL_TELEP \
                                || (ttyp) == MAGIC_TRAP_SET  \
                                || (ttyp) == ANTI_MAGIC  \
-                               || (ttyp) == POLY_TRAP_SET)
+                               || (ttyp) == POLY_TRAP_SET \
+                               || (ttyp) == MAGIC_BEAM_TRAP_SET)
 /* "transportation" traps */
 #define is_xport(ttyp) ((ttyp) >= TELEP_TRAP_SET && (ttyp) <= MAGIC_PORTAL)
 #define fixed_tele_trap(t) ((t)->ttyp == TELEP_TRAP_SET \

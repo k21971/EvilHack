@@ -980,6 +980,11 @@ savetrapchn(NHFILE *nhfp, struct trap *trap)
         }
         if (use_relative)
             trap->dst.dlevel += u.uz.dlevel; /* reset back to absolute */
+        if (trap->ammo)
+            /* if update_file, this will save the ammo after the trap;
+               if release_data, this will free the ammo before the trap
+               itself is freed */
+            saveobjchn(nhfp, &trap->ammo);
         if (release_data(nhfp))
             dealloc_trap(trap);
         trap = trap2;

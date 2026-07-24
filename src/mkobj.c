@@ -2808,6 +2808,7 @@ discard_minvent(struct monst *mtmp, boolean uncreate_artifacts)
  *      OBJ_LUAFREE     obj is dealloc'd from core, but still used by lua
  *      OBJ_DELETED     obj has been deleted from play but not yet deallocated
  *      OBJ_MCHEST      magic chest
+ *      OBJ_INTRAP      obj is in a trap as ammo (use extract_nobj instead)
  */
 void
 obj_extract_self(struct obj *obj)
@@ -2843,6 +2844,14 @@ obj_extract_self(struct obj *obj)
         break;
     case OBJ_MCHEST:
         extract_nobj(obj, &gm.mchest);
+        break;
+    case OBJ_INTRAP:
+        /* objects do not store a pointer to their containing trap;
+           the only place that we should be trying to extract an object
+           inside a trap is from within trap code that has a pointer to
+           the trap that contains the object; we should never be trying
+           to extract an object inside a trap without that context */
+        panic("trying to extract object from trap with no trap info");
         break;
     default:
         panic("obj_extract_self, where=%d", obj->where);
@@ -3266,6 +3275,13 @@ obj_sanity_check(void)
     objlist_sanity(svl.level.buriedobjlist, OBJ_BURIED, "buried sanity");
     objlist_sanity(gb.billobjs, OBJ_ONBILL, "bill sanity");
     objlist_sanity(go.objs_deleted, OBJ_DELETED, "deleted object sanity");
+    {
+        struct trap *ttmp;
+
+        for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap)
+            if (ttmp->ammo)
+                objlist_sanity(ttmp->ammo, OBJ_INTRAP, "trap ammo sanity");
+    }
 
     mon_obj_sanity(fmon, "minvent sanity");
     mon_obj_sanity(gm.migrating_mons, "migrating minvent sanity");

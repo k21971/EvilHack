@@ -2770,7 +2770,7 @@ cmap_to_roguecolor(int cmap)
 
     if (cmap >= S_vwall && cmap <= S_hcdoor)
         color = CLR_BROWN;
-    else if (cmap >= S_arrow_trap && cmap <= S_polymorph_trap)
+    else if (cmap >= S_arrow_trap && cmap <= S_magic_beam_trap)
         color = CLR_MAGENTA;
     else if (cmap == S_corr || cmap == S_litcorr)
         color = CLR_GRAY;
