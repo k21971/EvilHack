@@ -3845,10 +3845,17 @@ wornarm_destroyed(struct obj *wornarm)
 staticfn struct obj *
 maybe_destroy_armor(struct obj *armor, struct obj *atmp, boolean *resisted)
 {
-    if ((armor != 0) && (!atmp || atmp == armor)
-        && ((*resisted = obj_resists(armor, 0, 90)) == FALSE)) {
-        armor->in_use = 1;
-        return armor;
+    if ((armor != 0) && (!atmp || atmp == armor)) {
+        if (armor->otyp == CRYSTAL_PLATE_MAIL) {
+            /* crystal plate mail is never destroyed by disintegration,
+               but it also cannot be sacrificed to spare its wearer */
+            *resisted = FALSE;
+            return (struct obj *) 0;
+        }
+        if ((*resisted = obj_resists(armor, 0, 90)) == FALSE) {
+            armor->in_use = 1;
+            return armor;
+        }
     }
     return (struct obj *) 0;
 }

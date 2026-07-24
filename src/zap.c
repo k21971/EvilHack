@@ -2900,9 +2900,9 @@ zapyourself(struct obj *obj, boolean ordinary)
     case WAN_LIGHTNING:
         learn_it = TRUE;
         orig_dmg = d(12, 6);
-        if (!Shock_resistance) {
+        if (how_resistant(SHOCK_RES) < 100) {
             You("shock yourself!");
-            damage = orig_dmg;
+            damage = resist_reduce(orig_dmg, SHOCK_RES);
             exercise(A_CON, FALSE);
             monstunseesu(M_SEEN_ELEC);
         } else {
@@ -2924,14 +2924,14 @@ zapyourself(struct obj *obj, boolean ordinary)
     case FIRE_HORN:
         learn_it = TRUE;
         orig_dmg = d(12, 6);
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You_feel("rather warm.");
             monstseesu(M_SEEN_FIRE);
             ugolemeffects(AD_FIRE, orig_dmg);
         } else {
             pline("You've set yourself afire!");
-            damage = orig_dmg;
+            damage = resist_reduce(orig_dmg, FIRE_RES);
             monstunseesu(M_SEEN_FIRE);
         }
         burn_away_slime();
@@ -2945,14 +2945,14 @@ zapyourself(struct obj *obj, boolean ordinary)
     case FROST_HORN:
         learn_it = TRUE;
         orig_dmg = d(12, 6);
-        if (Cold_resistance) {
+        if (how_resistant(COLD_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You_feel("a little chill.");
             monstseesu(M_SEEN_COLD);
             ugolemeffects(AD_COLD, orig_dmg);
         } else {
             You("imitate a popsicle!");
-            damage = orig_dmg;
+            damage = resist_reduce(orig_dmg, COLD_RES);
             monstunseesu(M_SEEN_COLD);
         }
         (void) destroy_items(&gy.youmonst, AD_COLD, orig_dmg);
@@ -3022,7 +3022,7 @@ zapyourself(struct obj *obj, boolean ordinary)
     case WAN_SLEEP:
     case SPE_SLEEP:
         learn_it = TRUE;
-        if (Sleep_resistance) {
+        if (how_resistant(SLEEP_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You("don't feel sleepy!");
             monstseesu(M_SEEN_SLEEP);
@@ -3032,7 +3032,7 @@ zapyourself(struct obj *obj, boolean ordinary)
             else
                 You("fall asleep!");
             monstunseesu(M_SEEN_SLEEP);
-            fall_asleep(-rnd(50), TRUE);
+            fall_asleep(-resist_reduce(rnd(50), SLEEP_RES), TRUE);
         }
         break;
 
@@ -3427,16 +3427,17 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
 {
     /* TODO-EVILHACK: the cancellation rework (dragon-scale immunities
        plus immediate stripping of spell buffs such as reflection,
-       barkskin, stoneskin, burning hands, and shocking grasp) ports
-       with the cancellation slice; until then those buffs simply run
-       out via their own timers */
+       barkskin, stoneskin, burning hands, and shocking grasp, and
+       clearing of the Vulnerable_* elemental vulnerability props)
+       ports with the cancellation slice; until then those buffs and
+       vulnerabilities simply run out via their own timers */
     static const char
         writing_vanishes[] = "Some writing vanishes from %s head!",
         your[] = "your"; /* should be extern */
     boolean youdefend = (mdef == &gy.youmonst);
 
     if (youdefend ? (!youattack && Antimagic)
-                  : resist(mdef, obj->oclass, 0, NOTELL))
+                  : resist(mdef, obj ? obj->oclass : 0, 0, NOTELL))
         return FALSE; /* resisted cancellation */
 
     if (self_cancel) { /* 1st cancel inventory */
@@ -4804,70 +4805,84 @@ zhitu(
         break;
     case ZT_FIRE:
         orig_dam = d(nd, 6);
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100 || Underwater) {
             shieldeff(sx, sy);
             You("don't feel hot!");
             monstseesu(M_SEEN_FIRE);
             ugolemeffects(AD_FIRE, orig_dam);
         } else {
-            dam = orig_dam;
+            dam = resist_reduce(orig_dam, FIRE_RES);
             monstunseesu(M_SEEN_FIRE);
         }
-        burn_away_slime();
-        if (burnarmor(&gy.youmonst)) { /* "body hit" */
-            if (!rn2(3))
-                (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dam);
-            if (!rn2(3))
-                ignite_items(gi.invent);
+        if (!Underwater) {
+            burn_away_slime();
+            if (burnarmor(&gy.youmonst)) { /* "body hit" */
+                if (!rn2(3))
+                    (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dam);
+                if (!rn2(3))
+                    ignite_items(gi.invent);
+            }
         }
         break;
     case ZT_COLD:
         orig_dam = d(nd, 6);
-        if (Cold_resistance) {
+        if (how_resistant(COLD_RES) == 100) {
             shieldeff(sx, sy);
             You("don't feel cold.");
             monstseesu(M_SEEN_COLD);
             ugolemeffects(AD_COLD, orig_dam);
         } else {
-            dam = orig_dam;
+            dam = resist_reduce(orig_dam, COLD_RES);
             monstunseesu(M_SEEN_COLD);
         }
         if (!rn2(3))
             (void) destroy_items(&gy.youmonst, AD_COLD, orig_dam);
         break;
     case ZT_SLEEP:
-        if (Sleep_resistance) {
+        if (how_resistant(SLEEP_RES) == 100) {
             shieldeff(u.ux, u.uy);
             You("don't feel sleepy.");
             monstseesu(M_SEEN_SLEEP);
         } else {
             monstunseesu(M_SEEN_SLEEP);
-            fall_asleep(-d(nd, 25), TRUE); /* sleep ray */
+            /* sleep ray */
+            fall_asleep(-resist_reduce(d(nd, 25), SLEEP_RES), TRUE);
         }
         break;
     case ZT_DEATH:
         if (abstyp == ZT_BREATH(ZT_DEATH)) {
             boolean disn_prot = inventory_resistance_check(AD_DISN);
 
-            if (Disint_resistance) {
+            if (how_resistant(DISINT_RES) == 100) {
                 You("are not disintegrated.");
                 monstseesu(M_SEEN_DISINT);
                 break;
             } else if (disn_prot) {
                 break;
+            } else if (how_resistant(DISINT_RES) >= 50) {
+                You("aren't disintegrated, but that really hurts!");
+                dam = resist_reduce(d(12, 6), DISINT_RES);
+                monstunseesu(M_SEEN_DISINT);
+                break;
             }
             monstunseesu(M_SEEN_DISINT);
+            dam = resist_reduce(d(12, 6), DISINT_RES);
             if (uarms) {
                 /* destroy shield; other possessions are safe */
-                (void) disintegrate_arm(uarms);
-                break;
+                if (disintegrate_arm(uarms) || uarms->oartifact)
+                    break;
             } else if (uarm) {
                 /* destroy suit; if present, cloak goes too */
                 if (uarmc)
                     (void) disintegrate_arm(uarmc);
-                (void) disintegrate_arm(uarm);
-                break;
+                if (disintegrate_arm(uarm) || uarm->oartifact)
+                    break;
+                Your("%s remains intact, but you do not!", xname(uarm));
             }
+            /* fall through. not having enough disintegration
+               resistance can still get you disintegrated, as can
+               wearing a suit that cannot be sacrificed to the blast */
+
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
             if (uarmc)
@@ -4908,13 +4923,13 @@ zhitu(
         return; /* lifesaved */
     case ZT_LIGHTNING:
         orig_dam = d(nd, 6);
-        if (Shock_resistance) {
+        if (how_resistant(SHOCK_RES) == 100) {
             shieldeff(sx, sy);
             You("aren't affected.");
             monstseesu(M_SEEN_ELEC);
             ugolemeffects(AD_ELEC, orig_dam);
         } else {
-            dam = orig_dam;
+            dam = resist_reduce(orig_dam, SHOCK_RES);
             exercise(A_CON, FALSE);
             monstunseesu(M_SEEN_ELEC);
         }
@@ -6423,7 +6438,8 @@ maybe_destroy_item(
     case AD_FIRE:
         xresist = (obj->oclass != POTION_CLASS
                    && obj->otyp != GLOB_OF_GREEN_SLIME
-                   && (u_carry ? Fire_resistance : resists_fire(carrier)));
+                   && (u_carry ? how_resistant(FIRE_RES) == 100
+                               : resists_fire(carrier)));
         if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
             skip = 1;
             if (u_carry ? !Blind : vis) {
@@ -6455,7 +6471,8 @@ maybe_destroy_item(
         break;
     case AD_ELEC:
         xresist = (obj->oclass != RING_CLASS
-                   && (u_carry ? Shock_resistance : resists_elec(carrier)));
+                   && (u_carry ? how_resistant(SHOCK_RES) == 100
+                               : resists_elec(carrier)));
         quan = obj->quan;
         switch (obj->oclass) {
         case RING_CLASS:

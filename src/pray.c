@@ -649,7 +649,7 @@ god_zaps_you(aligntyp resp_god)
             else
                 (void) ureflects("%s reflects from your %s.", "It");
             monstseesu(M_SEEN_REFL);
-        } else if (Shock_resistance) {
+        } else if (how_resistant(SHOCK_RES) == 100) {
             shieldeff(u.ux, u.uy);
             pline("It seems not to affect you.");
             monstseesu(M_SEEN_ELEC);
@@ -686,7 +686,7 @@ god_zaps_you(aligntyp resp_god)
             (void) disintegrate_arm(uarm);
         if (uarmu && !uarm && !uarmc)
             (void) disintegrate_arm(uarmu);
-        if (!Disint_resistance) {
+        if (how_resistant(DISINT_RES) < 100) {
             fry_by_god(resp_god, TRUE);
             monstunseesu(M_SEEN_DISINT);
         } else {
@@ -829,12 +829,19 @@ gcrownu(void)
 
     /* Moloch-worshippers get intrinsics from becoming a demon */
     if (u.ualign.type != A_NONE) {
+        incr_resistance(&HFire_resistance, 100);
+        incr_resistance(&HCold_resistance, 100);
+        incr_resistance(&HShock_resistance, 100);
+        incr_resistance(&HSleep_resistance, 100);
+        incr_resistance(&HPoison_resistance, 100);
         HSee_invisible |= FROMOUTSIDE;
-        HFire_resistance |= FROMOUTSIDE;
-        HCold_resistance |= FROMOUTSIDE;
-        HShock_resistance |= FROMOUTSIDE;
-        HSleep_resistance |= FROMOUTSIDE;
-        HPoison_resistance |= FROMOUTSIDE;
+        /* small chance to obtain sick resistance, but not
+           this way if infidel (see below) */
+        if (!rn2(10))
+            HSick_resistance |= FROMOUTSIDE;
+
+        monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC
+                   | M_SEEN_SLEEP | M_SEEN_POISON);
     }
 
     /* Aasimar with unblemished alignment gain death resistance
@@ -918,10 +925,7 @@ gcrownu(void)
                 in_hand = wielding_artifact(ART_ANGELSLAYER);
                 already_exists =
                     exist_artifact(TRIDENT, artiname(ART_ANGELSLAYER));
-                /* TODO-EVILHACK: master grants shock resistance via
-                   the partial-intrinsics incr_resistance(); binary
-                   grant until that system lands */
-                HShock_resistance |= FROMOUTSIDE;
+                incr_resistance(&HShock_resistance, 100);
                 HSee_invisible |= FROMOUTSIDE;
                 monstseesu(M_SEEN_ELEC);
             } else {
@@ -945,10 +949,8 @@ gcrownu(void)
                 adjabil(0, u.ulevel);
                 /* resistances - not shock res because that can be
                    gained by leveling up, and not cold res because
-                   demons and cold typically don't mix; TODO-EVILHACK:
-                   master grants this via the partial-intrinsics
-                   incr_resistance() */
-                HSleep_resistance |= FROMOUTSIDE;
+                   demons and cold typically don't mix */
+                incr_resistance(&HSleep_resistance, 100);
                 /* move this line so adjabil doesn't flash e.g. warning
                    on and off */
                 pline1(

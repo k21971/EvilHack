@@ -2789,18 +2789,24 @@ mhitm_ad_fire(
                 /* KMH -- this is okay with unchanging */
                 rehumanize();
                 return;
-            } else if (Fire_resistance) {
-                pline_The("fire doesn't feel hot!");
+            } else if (how_resistant(FIRE_RES) == 100 || Underwater) {
+                if (Underwater)
+                    pline_The("fire quickly fizzles out.");
+                else
+                    pline_The("fire doesn't feel hot!");
                 monstseesu(M_SEEN_FIRE);
                 mhm->damage = 0;
             } else {
+                mhm->damage = resist_reduce(mhm->damage, FIRE_RES);
                 monstunseesu(M_SEEN_FIRE);
             }
-            if ((int) magr->m_lev > rn2(20)) {
-                (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dmg);
-                ignite_items(gi.invent);
+            if (!Underwater) {
+                if ((int) magr->m_lev > rn2(20)) {
+                    (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dmg);
+                    ignite_items(gi.invent);
+                }
+                burn_away_slime();
             }
-            burn_away_slime();
         } else {
             mhm->damage = 0;
         }
@@ -2870,11 +2876,12 @@ mhitm_ad_cold(
         hitmsg(magr, mattk);
         if (!mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             pline("You're covered in frost!");
-            if (Cold_resistance) {
+            if (how_resistant(COLD_RES) == 100) {
                 pline_The("frost doesn't seem cold!");
                 monstseesu(M_SEEN_COLD);
                 mhm->damage = 0;
             } else {
+                mhm->damage = resist_reduce(mhm->damage, COLD_RES);
                 monstunseesu(M_SEEN_COLD);
             }
             if ((int) magr->m_lev > rn2(20))
@@ -2928,11 +2935,12 @@ mhitm_ad_elec(
         hitmsg(magr, mattk);
         if (!mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             You("get zapped!");
-            if (Shock_resistance) {
+            if (how_resistant(SHOCK_RES) == 100) {
                 pline_The("zap doesn't shock you!");
                 monstseesu(M_SEEN_ELEC);
                 mhm->damage = 0;
             } else {
+                mhm->damage = resist_reduce(mhm->damage, SHOCK_RES);
                 monstunseesu(M_SEEN_ELEC);
             }
             if ((int) magr->m_lev > rn2(20))
@@ -3792,12 +3800,12 @@ mhitm_ad_slee(
         hitmsg(magr, mattk);
         if (gm.multi >= 0 && !rn2(5)
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
-            if (Sleep_resistance) {
+            if (how_resistant(SLEEP_RES) == 100) {
                 monstseesu(M_SEEN_SLEEP);
                 return;
             }
             monstunseesu(M_SEEN_SLEEP);
-            fall_asleep(-rnd(10), TRUE);
+            fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
             if (Blind)
                 You("are put to sleep!");
             else
@@ -4467,6 +4475,45 @@ mhitm_ad_phys(
                      * (This is the same as poisoned ammo.) */
                     poisoned(buf, A_STR, pmname(magr->data, Mgender(magr)),
                              10, FALSE);
+                }
+                /* monster attacking with a tainted (drow-poisoned)
+                   weapon */
+                if (otmp->otainted && is_poisonable(otmp)) {
+                    int notaint;
+
+                    pline("%s attack was tainted!", s_suffix(Monnam(magr)));
+
+                    if (how_resistant(SLEEP_RES) == 100) {
+                        monstseesu(M_SEEN_SLEEP);
+                        pline_The("drow poison doesn't seem to affect you.");
+                    } else {
+                        if (!rn2(3)) {
+                            losehp(resist_reduce(rnd(2), POISON_RES),
+                                   "tainted weapon", KILLED_BY_AN);
+                        } else {
+                            if (u.usleep) { /* don't let sleep effect stack */
+                                losehp(resist_reduce(rnd(2), POISON_RES),
+                                       "tainted weapon", KILLED_BY_AN);
+                            } else {
+                                You("lose consciousness.");
+                                losehp(resist_reduce(rnd(2), POISON_RES),
+                                       "tainted weapon", KILLED_BY_AN);
+                                fall_asleep(-resist_reduce(rn2(3) + 2,
+                                                           SLEEP_RES), TRUE);
+                            }
+                        }
+                    }
+
+                    notaint = ((is_drow_weapon(otmp) ? 20 : 5)
+                               - otmp->owt / 10);
+                    if (notaint < 2)
+                        notaint = 2;
+                    if (!rn2(notaint)) {
+                        otmp->otainted = FALSE;
+                        if (canseemon(magr))
+                            pline("%s %s is no longer tainted.",
+                                  s_suffix(Monnam(magr)), xname(otmp));
+                    }
                 }
             } else if (mattk->aatyp != AT_TUCH || mhm->damage != 0
                        || magr != u.ustuck) {
@@ -6101,7 +6148,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     || (ismnum(u.ulycn)
                         && were_beastie(monsndx(mon->data)) == u.ulycn
                         && !Role_if(PM_CAVE_DWELLER))
-                    || (!Disint_resistance
+                    || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
@@ -6124,7 +6171,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     || is_rider(mon->data)
                     || noncorporeal(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
-                    || (!Disint_resistance
+                    || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
@@ -6151,7 +6198,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 && mattk->aatyp == AT_STNG
                 && ((touch_petrifies(mon->data) && !Stone_resistance)
                     || noncorporeal(mon->data)
-                    || (!Disint_resistance
+                    || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
@@ -6475,7 +6522,8 @@ passive(
     struct permonst *ptr = mon->data;
     /* passive attacks come from the racial overlay's matrix */
     struct attack *mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
-    int i, tmp;
+    struct obj *passive_armor;
+    int i, t, tmp;
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
     int malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
 
@@ -6589,6 +6637,76 @@ passive(
                 passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
+    case AD_DISN:
+        if (mhitb && !mon->mcan) { /* successful attack */
+            long protector = attk_protection((int) aatyp);
+            int chance = (mon->data == &mons[PM_ANTIMATTER_VORTEX])
+                             ? rn2(10) : rn2(20);
+
+            tmp = rnd(8) + 1;
+            /* hero using monsters' AT_MAGC attack is hitting hand to
+               hand rather than casting a spell */
+            if (aatyp == AT_MAGC)
+                protector = W_ARMG;
+
+            if (protector == 0L /* no protection */
+                || (protector == W_ARMG && !uarmg
+                    && !uwep && !wep_was_destroyed)
+                || (protector == W_ARMF && !uarmf)
+                || (protector == W_ARMH && !uarmh)
+                || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
+                if (how_resistant(DISINT_RES) == 100) {
+                    if (!rn2(3))
+                        You("are unaffected by %s %s.",
+                            s_suffix(mon_nam(mon)),
+                            mon->data == &mons[PM_ANTIMATTER_VORTEX]
+                                ? "form" : "hide");
+                    monstseesu(M_SEEN_DISINT);
+                    stop_occupation();
+                } else {
+                    if (chance) {
+                        You("partially disintegrate!");
+                        tmp = resist_reduce(tmp, DISINT_RES);
+                        mdamageu(mon, tmp);
+                    } else {
+                        if (how_resistant(DISINT_RES) < 50) {
+                            pline("%s deadly %s disintegrates you!",
+                                  s_suffix(Monnam(mon)),
+                                  mon->data == &mons[PM_ANTIMATTER_VORTEX]
+                                      ? "form" : "hide");
+                            u.ugrave_arise = -3;
+                            svk.killer.format = NO_KILLER_PREFIX;
+                            Sprintf(svk.killer.name, "disintegrated by %s",
+                                    an(l_monnam(mon)));
+                            done(DISINTEGRATED);
+                            return M_ATTK_DEF_DIED;
+                        } else {
+                            You("partially disintegrate!");
+                            tmp = resist_reduce(tmp, DISINT_RES);
+                            mdamageu(mon, tmp);
+                        }
+                    }
+                }
+            }
+            /* odds of obj disintegrating handled in passive_obj()
+               except for attack type AT_KICK */
+            if (aatyp == AT_KICK) {
+                if (uarmf
+                    && (mon->data == &mons[PM_ANTIMATTER_VORTEX]
+                            ? !rn2(3) : !rn2(6))) {
+                    if (rn2(2)
+                        && (uarmf->oerodeproof || is_supermaterial(uarmf)))
+                        pline("%s being disintegrated!",
+                              Yobjnam2(uarmf, "resist"));
+                    else
+                        (void) disintegrate_arm(uarmf);
+                }
+            } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                       || aatyp == AT_MAGC || aatyp == AT_TUCH) {
+                passive_obj(mon, weapon, &(mattk[i]));
+            }
+        }
+        break;
     case AD_MAGM:
         /* wrath of gods for attacking Oracle */
         if (Antimagic) {
@@ -6677,7 +6795,7 @@ passive(
             break;
         case AD_COLD: /* brown mold or blue jelly */
             if (monnear(mon, u.ux, u.uy)) {
-                if (Cold_resistance) {
+                if (how_resistant(COLD_RES) == 100) {
                     shieldeff(u.ux, u.uy);
                     You_feel("a mild chill.");
                     monstseesu(M_SEEN_COLD);
@@ -6686,6 +6804,7 @@ passive(
                 }
                 monstunseesu(M_SEEN_COLD);
                 You("are suddenly very cold!");
+                tmp = resist_reduce(tmp, COLD_RES);
                 mdamageu(mon, tmp);
                 /* monster gets stronger with your heat! */
                 healmon(mon, (tmp + rn2(2)) / 2, (tmp + 1) / 2);
@@ -6700,7 +6819,7 @@ passive(
             break;
         case AD_FIRE:
             if (monnear(mon, u.ux, u.uy)) {
-                if (Fire_resistance) {
+                if (how_resistant(FIRE_RES) == 100 || Underwater) {
                     shieldeff(u.ux, u.uy);
                     You_feel("mildly warm.");
                     monstseesu(M_SEEN_FIRE);
@@ -6709,11 +6828,12 @@ passive(
                 }
                 monstunseesu(M_SEEN_FIRE);
                 You("are suddenly very hot!");
+                tmp = resist_reduce(tmp, FIRE_RES);
                 mdamageu(mon, tmp); /* fire damage */
             }
             break;
         case AD_ELEC:
-            if (Shock_resistance) {
+            if (how_resistant(SHOCK_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 You_feel("a mild tingle.");
                 monstseesu(M_SEEN_ELEC);
@@ -6722,13 +6842,289 @@ passive(
             }
             monstunseesu(M_SEEN_ELEC);
             You("are jolted with electricity!");
+            tmp = resist_reduce(tmp, SHOCK_RES);
             mdamageu(mon, tmp);
             break;
         case AD_DISE: /* specifically gray fungus */
             (void) diseasemu(mon);
             break;
+        case AD_DRST: /* specifically green dragons */
+            if (how_resistant(POISON_RES) == 100) {
+                if (!rn2(5))
+                    You("are immune to %s poisonous hide.",
+                        s_suffix(mon_nam(mon)));
+                monstseesu(M_SEEN_POISON);
+            } else {
+                i = rn2(20);
+                if (i) {
+                    You("have been poisoned!");
+                    tmp = resist_reduce(tmp, POISON_RES);
+                    mdamageu(mon, tmp);
+                } else {
+                    if (how_resistant(POISON_RES) <= 34) {
+                        pline("%s poisonous hide was deadly...",
+                              s_suffix(Monnam(mon)));
+                        done_in_by(mon, DIED);
+                        return M_ATTK_DEF_DIED;
+                    }
+                }
+            }
+            break;
+        case AD_SLOW: /* specifically orange dragons */
+            if (!Slow && !defended(&gy.youmonst, AD_SLOW)
+                && !resists_slow(gy.youmonst.data) && !rn2(3))
+                u_slow_down();
+            break;
+        case AD_SLEE: /* specifically black fungus */
+            if (how_resistant(SLEEP_RES) < 100) {
+                You("lose consciousness.");
+                losehp(resist_reduce(rnd(6), POISON_RES),
+                       "black fungus", KILLED_BY_AN);
+                fall_asleep(-resist_reduce(rn2(3) + 8, SLEEP_RES), TRUE);
+            }
+            break;
         default:
             break;
+        }
+    }
+
+    /* humanoid monsters wearing various dragon-scaled armor */
+    if ((passive_armor = which_armor(mon, W_ARM)) != 0) {
+        t = rnd(6) + 1;
+        if (mhitb && !rn2(3)
+            && Is_dragon_scaled_armor(passive_armor)) {
+            int otyp = Dragon_armor_to_scales(passive_armor);
+
+            switch (otyp) {
+            case GREEN_DRAGON_SCALES:
+                if (how_resistant(POISON_RES) == 100) {
+                    You("are immune to %s poisonous armor.",
+                        s_suffix(mon_nam(mon)));
+                    monstseesu(M_SEEN_POISON);
+                    break;
+                } else {
+                    if (rn2(20)) {
+                        You("have been poisoned!");
+                        t = resist_reduce(t, POISON_RES);
+                        mdamageu(mon, t);
+                    } else {
+                        if (how_resistant(POISON_RES) <= 34) {
+                            pline("%s poisonous armor was deadly...",
+                                  s_suffix(Monnam(mon)));
+                            done_in_by(mon, DIED);
+                            return M_ATTK_DEF_DIED;
+                        }
+                    }
+                }
+                break;
+            case BLACK_DRAGON_SCALES:
+                {
+                    long protector = attk_protection((int) aatyp);
+
+                    /* hero using monsters' AT_MAGC attack is hitting
+                       hand to hand rather than casting a spell */
+                    if (aatyp == AT_MAGC)
+                        protector = W_ARMG;
+
+                    if (protector == 0L /* no protection */
+                        || (protector == W_ARMG && !uarmg
+                            && !uwep && !wep_was_destroyed)
+                        || (protector == W_ARMF && !uarmf)
+                        || (protector == W_ARMH && !uarmh)
+                        || (protector == (W_ARMC | W_ARMG)
+                            && (!uarmc || !uarmg))) {
+                        if (how_resistant(DISINT_RES) == 100) {
+                            if (!rn2(3))
+                                You("are unaffected by %s deadly armor.",
+                                    s_suffix(mon_nam(mon)));
+                            monstseesu(M_SEEN_DISINT);
+                            break;
+                        } else {
+                            if (rn2(40)) {
+                                You("partially disintegrate!");
+                                t = resist_reduce(t, DISINT_RES);
+                                mdamageu(mon, t);
+                            } else {
+                                if (how_resistant(DISINT_RES) < 50) {
+                                    pline(
+                                      "%s deadly armor disintegrates you!",
+                                          s_suffix(Monnam(mon)));
+                                    u.ugrave_arise = -3;
+                                    done_in_by(mon, DISINTEGRATED);
+                                    return M_ATTK_DEF_DIED;
+                                } else {
+                                    You("partially disintegrate!");
+                                    t = resist_reduce(t, DISINT_RES);
+                                    mdamageu(mon, t);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!rn2(12)) {
+                    if (!(uwep || (u.twoweap && uswapwep))
+                        && !wep_was_destroyed
+                        && (aatyp == AT_WEAP || aatyp == AT_CLAW
+                            || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
+                        if (uarmg) {
+                            if (uarmg->oartifact == ART_DRAGONBANE)
+                                pline("%s %s, but remains %s.",
+                                      The(xname(uarmg)),
+                                      rn2(2) ? "shudders violently"
+                                             : "vibrates unexpectedly",
+                                      rn2(2) ? "whole" : "intact");
+                            else if (rn2(2)
+                                     && (uarmg->oerodeproof
+                                         || is_supermaterial(uarmg)))
+                                pline("%s being disintegrated!",
+                                      Yobjnam2(uarmg, "resist"));
+                            else
+                                (void) disintegrate_arm(uarmg);
+                        }
+                    }
+                    break;
+                }
+                if (weapon && !rn2(12)) {
+                    if (aatyp == AT_KICK) {
+                        if (uarmf) {
+                            if (rn2(2)
+                                && (uarmf->oerodeproof
+                                    || is_supermaterial(uarmf)))
+                                pline("%s being disintegrated!",
+                                      Yobjnam2(uarmf, "resist"));
+                            else
+                                (void) disintegrate_arm(uarmf);
+                        }
+                        break;
+                    } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                               || aatyp == AT_MAGC || aatyp == AT_TUCH) {
+                        if (obj_resists(weapon, 0, 0)) {
+                            pline_The("%s %s and cannot be disintegrated.",
+                                      xname(weapon),
+                                      rn2(2) ? "resists completely"
+                                             : "defies physics");
+                            break;
+                        } else if (weapon->otyp == BLACK_DRAGON_SCALES
+                                   || (Is_dragon_scaled_armor(weapon)
+                                       && Dragon_armor_to_scales(weapon)
+                                          == BLACK_DRAGON_SCALES)) {
+                            pline("%s disintegration-proof and %s intact.",
+                                  Yobjnam2(weapon, "are"),
+                                  otense(weapon, "remain"));
+                            break;
+                        } else if (weapon->oartifact && rn2(20)) {
+                            pline("%s %s, but remains %s.", Yname2(weapon),
+                                  rn2(2) ? "shudders violently"
+                                         : "vibrates unexpectedly",
+                                  rn2(2) ? "whole" : "intact");
+                            break;
+                        } else if (rn2(2)
+                                   && (weapon->oerodeproof
+                                       || is_supermaterial(weapon))) {
+                            pline("%s being disintegrated!",
+                                  Yobjnam2(weapon, "resist"));
+                            break;
+                        } else {
+                            if (cansee(mon->mx, mon->my))
+                                pline("%s disintegrates!", Yname2(weapon));
+                            if (weapon == uball || weapon == uchain)
+                                unpunish();
+                            /* make sure any properties given by worn or
+                               wielded objects are removed */
+                            remove_worn_item(weapon, FALSE);
+                            setnotworn(weapon);
+                            delobj(weapon);
+                            break;
+                        }
+                    }
+                }
+                update_inventory();
+                break;
+            case ORANGE_DRAGON_SCALES:
+                if (!Slow && !defended(&gy.youmonst, AD_SLOW)
+                    && !resists_slow(gy.youmonst.data) && !rn2(3)) {
+                    u_slow_down();
+                }
+                break;
+            case WHITE_DRAGON_SCALES:
+                if (how_resistant(COLD_RES) == 100) {
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_COLD);
+                    You_feel("a mild chill from %s armor.",
+                             s_suffix(mon_nam(mon)));
+                    ugolemeffects(AD_COLD, t);
+                    break;
+                } else {
+                    if (rn2(20)) {
+                        You("are suddenly very cold!");
+                        t = resist_reduce(t, COLD_RES);
+                        mdamageu(mon, t);
+                    } else {
+                        pline("%s chilly armor freezes you!",
+                              s_suffix(Monnam(mon)));
+                        t = resist_reduce(t, COLD_RES);
+                        mdamageu(mon, d(3, 6) + t);
+                    }
+                }
+                break;
+            case RED_DRAGON_SCALES:
+                if (how_resistant(FIRE_RES) == 100
+                    || Underwater) {
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_FIRE);
+                    You_feel("mildly warm from %s armor.",
+                             s_suffix(mon_nam(mon)));
+                    ugolemeffects(AD_FIRE, t);
+                    break;
+                } else {
+                    if (rn2(20)) {
+                        You("are suddenly very hot!");
+                        t = resist_reduce(t, FIRE_RES);
+                        mdamageu(mon, t);
+                    } else {
+                        pline("%s fiery armor severely burns you!",
+                              s_suffix(Monnam(mon)));
+                        t = resist_reduce(t, FIRE_RES);
+                        mdamageu(mon, d(3, 6) + t);
+                    }
+                }
+                break;
+            case YELLOW_DRAGON_SCALES:
+                if (how_resistant(ACID_RES) == 100
+                    || Underwater) {
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_ACID);
+                    You_feel("a mild sting from %s armor.",
+                             s_suffix(mon_nam(mon)));
+                    ugolemeffects(AD_ACID, t);
+                    break;
+                } else {
+                    if (rn2(20)) {
+                        You_feel("a searing sensation!");
+                        t = resist_reduce(t, ACID_RES);
+                        mdamageu(mon, t);
+                    } else {
+                        pline("%s acidic armor critically sears you!",
+                              s_suffix(Monnam(mon)));
+                        t = resist_reduce(t, ACID_RES);
+                        mdamageu(mon, d(3, 6) + t);
+                    }
+                }
+                if (rn2(u.twoweap ? 2 : 3))
+                    acid_damage(uwep);
+                if (u.twoweap && rn2(2))
+                    acid_damage(uswapwep);
+                break;
+            case GRAY_DRAGON_SCALES:
+                if (!rn2(6)) {
+                    (void) cancel_monst(&gy.youmonst,
+                                        (struct obj *) 0, FALSE, TRUE,
+                                        FALSE);
+                }
+                break;
+            default: /* all other types of armor, just pass on through */
+                break;
+            }
         }
     }
     return (malive | mhit);

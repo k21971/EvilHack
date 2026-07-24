@@ -102,6 +102,12 @@ set_uasmon(void)
     PROPSET(POISON_RES, resist_from_form(MR_POISON));
     PROPSET(ACID_RES, resist_from_form(MR_ACID));
     PROPSET(STONE_RES, resist_from_form(MR_STONE));
+
+    /* vulnerabilities */
+    PROPSET(VULN_FIRE, vulnerable_to(&gy.youmonst, AD_FIRE));
+    PROPSET(VULN_COLD, vulnerable_to(&gy.youmonst, AD_COLD));
+    PROPSET(VULN_ELEC, vulnerable_to(&gy.youmonst, AD_ELEC));
+    PROPSET(VULN_ACID, vulnerable_to(&gy.youmonst, AD_ACID));
     {
         /* resists_drli() takes wielded weapon into account; suppress it */
         struct obj *save_uwep = uwep;

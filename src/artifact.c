@@ -1518,17 +1518,20 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
 
         switch (weap->attk.adtyp) {
         case AD_FIRE:
-            return !(yours ? (Fire_resistance || Underwater)
+            return !(yours ? ((how_resistant(FIRE_RES) > 99) || Underwater)
                            : (resists_fire(mtmp) || mon_underwater(mtmp)));
         case AD_COLD:
-            return !(yours ? Cold_resistance : resists_cold(mtmp));
+            return !(yours ? (how_resistant(COLD_RES) > 99)
+                           : resists_cold(mtmp));
         case AD_ELEC:
-            return !(yours ? Shock_resistance : resists_elec(mtmp));
+            return !(yours ? (how_resistant(SHOCK_RES) > 99)
+                           : resists_elec(mtmp));
         case AD_MAGM:
         case AD_STUN:
             return !(yours ? Antimagic : (rn2(100) < ptr->mr));
         case AD_DRST:
-            return !(yours ? Poison_resistance : resists_poison(mtmp));
+            return !(yours ? (how_resistant(POISON_RES) > 99)
+                           : resists_poison(mtmp));
         case AD_DRLI:
             return !(yours ? Drain_resistance : resists_drli(mtmp));
         case AD_DREN:
@@ -1545,8 +1548,8 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
         case AD_DISN:
             return !(yours ? Disint_resistance : resists_disint(mtmp));
         case AD_FUSE:
-            return !(yours ? ((Fire_resistance || Underwater)
-                              && Cold_resistance)
+            return !(yours ? (((how_resistant(FIRE_RES) > 99) || Underwater)
+                              && (how_resistant(COLD_RES) > 99))
                            : ((resists_fire(mtmp) || mon_underwater(mtmp)
                                || defended(mtmp, AD_FIRE))
                               && (resists_cold(mtmp)
@@ -2876,7 +2879,7 @@ artifact_hit(
         boolean resistant;
         struct obj *target;
 
-        resistant = youdefend ? Disint_resistance
+        resistant = youdefend ? how_resistant(DISINT_RES) >= 50
                               : (resists_disint(mdef)
                                  || defended(mdef, AD_DISN));
         if (!resistant

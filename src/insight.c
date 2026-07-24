@@ -1585,23 +1585,30 @@ attributes_enlightenment(
         you_are("invulnerable", from_what(INVULNERABLE));
     if (Antimagic)
         you_are("magic-protected", from_what(ANTIMAGIC));
+    /* partial intrinsic resistances */
+    Sprintf(buf, "%d%% fire resistant", how_resistant(FIRE_RES));
     if (Fire_resistance)
-        you_are("fire resistant", from_what(FIRE_RES));
+        you_are(buf, "");
     item_resistance_message(AD_FIRE, " protected from fire", final);
+    Sprintf(buf, "%d%% cold resistant", how_resistant(COLD_RES));
     if (Cold_resistance)
-        you_are("cold resistant", from_what(COLD_RES));
+        you_are(buf, "");
     item_resistance_message(AD_COLD, " protected from cold", final);
+    Sprintf(buf, "%d%% sleep resistant", how_resistant(SLEEP_RES));
     if (Sleep_resistance)
-        you_are("sleep resistant", from_what(SLEEP_RES));
+        you_are(buf, "");
+    Sprintf(buf, "%d%% disintegration resistant", how_resistant(DISINT_RES));
     if (Disint_resistance)
-        you_are("disintegration resistant", from_what(DISINT_RES));
+        you_are(buf, "");
     item_resistance_message(AD_DISN, " protected from disintegration", final);
+    Sprintf(buf, "%d%% shock resistant", how_resistant(SHOCK_RES));
     if (Shock_resistance)
-        you_are("shock resistant", from_what(SHOCK_RES));
+        you_are(buf, "");
     item_resistance_message(AD_ELEC, " protected from electric shocks",
                             final);
+    Sprintf(buf, "%d%% poison resistant", how_resistant(POISON_RES));
     if (Poison_resistance)
-        you_are("poison resistant", from_what(POISON_RES));
+        you_are(buf, "");
     if (Acid_resistance) {
         Sprintf(buf, "%.20s%.30s",
                 temp_resist(ACID_RES) ? "temporarily " : "",
@@ -1624,12 +1631,16 @@ attributes_enlightenment(
                 from_what(HALLUC_RES));
     if (u.uedibility)
         you_can("recognize detrimental food", "");
-    /* TODO-EVILHACK: master keys this on the Vulnerable_* properties
-       and also reports cold, electricity, and acid vulnerability;
-       those port with the vulnerability subsystem */
-    if ((!Upolyd && Race_if(PM_DRAUGR))
+    if (Vulnerable_fire
+        || (!Upolyd && Race_if(PM_DRAUGR))
         || (!Upolyd && Race_if(PM_VAMPIRE)))
-        you_are("vulnerable to fire", "");
+        you_are("vulnerable to fire", from_what(VULN_FIRE));
+    if (Vulnerable_cold)
+        you_are("vulnerable to cold", from_what(VULN_COLD));
+    if (Vulnerable_elec)
+        you_are("vulnerable to electricity", from_what(VULN_ELEC));
+    if (Vulnerable_acid)
+        you_are("vulnerable to acid", from_what(VULN_ACID));
 
     /*** Vision and senses ***/
     if ((HBlinded || EBlinded) && BBlinded) /* blind w/ blindness blocked */
@@ -3716,12 +3727,15 @@ ustatusline(void)
         Strcat(info, ", disguised");
     if (Invis)
         Strcat(info, ", invisible");
-    /* TODO-EVILHACK: master keys this on the Vulnerable_fire property
-       (now live via vulnerable_to) and also reports cold, electricity,
-       and acid vulnerability; the report rework ports with the
-       vulnerability-consumers item */
-    if (!Upolyd && Race_if(PM_DRAUGR))
+    if (Vulnerable_fire
+        || (!Upolyd && Race_if(PM_DRAUGR)))
         Strcat(info, ", vulnerable to fire");
+    if (Vulnerable_cold)
+        Strcat(info, ", vulnerable to cold");
+    if (Vulnerable_elec)
+        Strcat(info, ", vulnerable to electricity");
+    if (Vulnerable_acid)
+        Strcat(info, ", vulnerable to acid");
     if (u.ustuck) {
         if (u.uswallow)
             Strcat(info, digests(u.ustuck->data) ? ", being digested by "

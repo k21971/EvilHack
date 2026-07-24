@@ -2463,7 +2463,7 @@ slippery_ice_fumbling(void)
             || is_floater(iceskater->data) || is_clinger(iceskater->data)
             || is_whirly(iceskater->data)) {
             on_ice = FALSE;
-        } else if (!rn2(Cold_resistance ? 3 : 2)) {
+        } else if (!rn2((how_resistant(COLD_RES) > 50) ? 3 : 2)) {
             HFumbling |= FROMOUTSIDE;
             HFumbling &= ~TIMEOUT;
             HFumbling += 1; /* slip on next move */

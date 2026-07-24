@@ -1166,67 +1166,125 @@ temp_givit(int type, struct permonst *ptr)
 staticfn void
 givit(int type, struct permonst *ptr)
 {
+    const char *adj;
+    int percentincrease;
+
     debugpline1("Attempting to give intrinsic %d", type);
 
-    if (!should_givit(type, ptr) && !temp_givit(type, ptr))
-        return;
+    /* elemental resistances accumulate as a percentage based on corpse
+       weight and are conveyed every time; other intrinsics keep their
+       own chance gates below */
+    if (type == ACID_RES || type == STONE_RES) {
+        if (!temp_givit(type, ptr))
+            return;
+    }
+
+    percentincrease = (int) (ptr->cwt / 90);
+    if (percentincrease < 5)
+        percentincrease = 5;
+
+    if (percentincrease > 32) {
+        adj = "much";
+    } else if (percentincrease > 20) {
+        adj = "significantly";
+    } else if (percentincrease > 15) {
+        adj = "considerably";
+    } else if (percentincrease > 8) {
+        adj = "somewhat";
+    } else if (percentincrease > 5) {
+        adj = "a bit";
+    } else {
+        adj = "slightly";
+    }
 
     switch (type) {
+    /* All these use the percentage system, based on corpse weight */
     case FIRE_RES:
         debugpline0("Trying to give fire resistance");
-        if (!(HFire_resistance & FROMOUTSIDE)) {
-            You(Hallucination ? "be chillin'." : "feel a momentary chill.");
-            HFire_resistance |= FROMOUTSIDE;
+        /* Due to their undead nature, Draugr/Vampires only gain intrinsic
+           fire resistance a third as much as other races per corpse,
+           and it is capped at 50% resistance (see how_resistant() in
+           potion.c) */
+        if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+            incr_resistance(&HFire_resistance,
+                            ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                             ? (percentincrease / 3)
+                             : percentincrease));
+            if ((HFire_resistance & TIMEOUT) == 100)
+                You_feel(Hallucination ? "like... so chill."
+                                       : "completely chilled.");
+            else if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                     && (HFire_resistance & TIMEOUT) >= 50)
+                ; /* no feedback */
+            else
+                You_feel("%s more chill.", adj);
         }
         break;
     case SLEEP_RES:
         debugpline0("Trying to give sleep resistance");
-        if (!(HSleep_resistance & FROMOUTSIDE)) {
-            You_feel("wide awake.");
-            HSleep_resistance |= FROMOUTSIDE;
+        if ((HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+            incr_resistance(&HSleep_resistance, percentincrease);
+            if ((HSleep_resistance & TIMEOUT) == 100)
+                You_feel("wide awake.");
+            else
+                You_feel("%s perkier.", adj);
         }
         break;
     case COLD_RES:
         debugpline0("Trying to give cold resistance");
-        if (!(HCold_resistance & FROMOUTSIDE)) {
-            You_feel("full of hot air.");
-            HCold_resistance |= FROMOUTSIDE;
+        if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+            incr_resistance(&HCold_resistance, percentincrease);
+            if ((HCold_resistance & TIMEOUT) == 100)
+                You_feel("full of hot air.");
+            else
+                You_feel("%s warmer.", adj);
         }
         break;
     case DISINT_RES:
         debugpline0("Trying to give disintegration resistance");
-        if (!(HDisint_resistance & FROMOUTSIDE)) {
-            You_feel(Hallucination ? "totally together, man." : "very firm.");
-            HDisint_resistance |= FROMOUTSIDE;
+        if ((HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+            incr_resistance(&HDisint_resistance, percentincrease);
+            if ((HDisint_resistance & TIMEOUT) == 100)
+                You_feel(Hallucination ? "totally together, man."
+                                       : "completely firm.");
+            else
+                You_feel("%s more firm.", adj);
         }
         break;
     case SHOCK_RES: /* shock (electricity) resistance */
         debugpline0("Trying to give shock resistance");
-        if (!(HShock_resistance & FROMOUTSIDE)) {
-            if (Hallucination)
-                You_feel("grounded in reality.");
+        if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+            incr_resistance(&HShock_resistance, percentincrease);
+            if ((HShock_resistance & TIMEOUT) == 100)
+                pline(Hallucination
+                          ? "You feel grounded in reality."
+                          : "Your health feels completely amplified!");
             else
-                Your("health currently feels amplified!");
-            HShock_resistance |= FROMOUTSIDE;
+                Your("health is %s more amplified!", adj);
         }
         break;
     case POISON_RES:
         debugpline0("Trying to give poison resistance");
-        if (!(HPoison_resistance & FROMOUTSIDE)) {
-            You_feel(Poison_resistance ? "especially healthy." : "healthy.");
-            HPoison_resistance |= FROMOUTSIDE;
+        if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+            incr_resistance(&HPoison_resistance, percentincrease);
+            if ((HPoison_resistance & TIMEOUT) == 100)
+                You_feel("completely healthy.");
+            else
+                You_feel("%s healthier.", adj);
         }
         break;
     case TELEPORT:
         debugpline0("Trying to give teleport");
-        if (!(HTeleportation & FROMOUTSIDE)) {
+        if (!(HTeleportation & (FROMOUTSIDE | FROMRACE | FROMEXPER))
+            && !rn2(5)) {
             You_feel(Hallucination ? "diffuse." : "very jumpy.");
             HTeleportation |= FROMOUTSIDE;
         }
         break;
     case TELEPORT_CONTROL:
         debugpline0("Trying to give teleport control");
-        if (!(HTeleport_control & FROMOUTSIDE)) {
+        if (!(HTeleport_control & (FROMOUTSIDE | FROMRACE | FROMEXPER))
+            && !rn2(10)) {
             You_feel(Hallucination ? "centered in your personal space."
                                    : "in control of yourself.");
             HTeleport_control |= FROMOUTSIDE;
@@ -1236,7 +1294,7 @@ givit(int type, struct permonst *ptr)
         debugpline0("Trying to give telepathy");
         if (Race_if(PM_DRAUGR)) /* mindless, never develops telepathy */
             break;
-        if (!(HTelepat & FROMOUTSIDE)) {
+        if (!(HTelepat & (FROMOUTSIDE | FROMRACE | FROMEXPER))) {
             You_feel(Hallucination ? "in touch with the cosmos."
                                    : "a strange mental acuity.");
             HTelepat |= FROMOUTSIDE;
@@ -1465,6 +1523,7 @@ cpostfx(int pm)
     /* possibly convey an intrinsic */
     if (check_intrinsics) {
         struct permonst *ptr = &mons[pm];
+        int i;
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm == PM_VIOLET_FUNGUS) {
@@ -1477,13 +1536,16 @@ cpostfx(int pm)
         if (attacktype(ptr, AT_MAGC) || pm == PM_NEWT)
             eye_of_newt_buzz();
 
-        tmp = corpse_intrinsic(ptr);
-
-        /* if something was chosen, give it now (givit() might fail) */
-        if (tmp == -1)
+        /* every possible intrinsic is conveyed, as a percentage for the
+           elemental resistances rather than one full grant chosen at
+           random; STR is given separately since it is not a prop index */
+        if (is_giant(ptr))
             gainstr((struct obj *) 0, 0, TRUE);
-        else if (tmp > 0)
-            givit(tmp, ptr);
+        for (i = 1; i <= LAST_PROP; i++) {
+            if (!intrinsic_possible(i, ptr))
+                continue;
+            givit(i, ptr);
+        }
     } /* check_intrinsics */
 
     if (ismnum(catch_lycanthropy)) {
@@ -2244,8 +2306,9 @@ eatcorpse(struct obj *otmp)
         tp++;
         pline("%s - that must have been poisonous!",
               (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm" : "Ecch");
-        if (!Poison_resistance) {
-            poison_strdmg(rnd(4), rnd(15),
+        if (how_resistant(POISON_RES) < 100) {
+            poison_strdmg(resist_reduce(rnd(4), POISON_RES),
+                          resist_reduce(rnd(15), POISON_RES),
                           !glob ? "poisonous corpse" : "poisonous glob",
                           KILLED_BY_AN);
         } else
@@ -2727,12 +2790,69 @@ eataccessory(struct obj *otmp)
             disp.botl = TRUE;
             break;
         case RIN_FREE_ACTION:
+        case RIN_ANCIENT:
             /* Give sleep resistance instead */
-            if (!(HSleep_resistance & FROMOUTSIDE))
+            if (how_resistant(SLEEP_RES) < 100) {
                 accessory_has_effect(otmp);
-            if (!Sleep_resistance)
                 You_feel("wide awake.");
-            HSleep_resistance |= FROMOUTSIDE;
+            }
+            incr_resistance(&HSleep_resistance, 100);
+            break;
+        case RIN_FIRE_RESISTANCE:
+            /* Due to their undead nature, Draugr/Vampires only gain
+               intrinsic fire resistance a third as much as other races
+               per source, and it is capped at 50% resistance (see
+               how_resistant() in potion.c) */
+            if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HFire_resistance,
+                                ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                                 ? (50 / 3) : 50));
+                if ((HFire_resistance & TIMEOUT) == 100)
+                    You_feel(Hallucination ? "like... so chill."
+                                           : "completely chilled.");
+                else if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                         && (HFire_resistance & TIMEOUT) >= 50)
+                    ; /* no feedback */
+                else
+                    You_feel("%s more chill.",
+                             (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                                 ? "considerably" : "much");
+            }
+            break;
+        case RIN_COLD_RESISTANCE:
+            if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HCold_resistance, 50);
+                if ((HCold_resistance & TIMEOUT) == 100)
+                    You_feel("full of hot air.");
+                else
+                    You_feel("much warmer.");
+            }
+            break;
+        case RIN_SHOCK_RESISTANCE:
+            if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER))
+                < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HShock_resistance, 50);
+                if ((HShock_resistance & TIMEOUT) == 100)
+                    pline(Hallucination
+                              ? "You feel grounded in reality."
+                              : "Your health feels completely amplified!");
+                else
+                    Your("health is much more amplified!");
+            }
+            break;
+        case RIN_POISON_RESISTANCE:
+            if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER))
+                < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HPoison_resistance, 50);
+                if ((HPoison_resistance & TIMEOUT) == 100)
+                    You_feel("completely healthy.");
+                else
+                    You_feel("much healthier.");
+            }
             break;
         case AMULET_OF_CHANGE:
             accessory_has_effect(otmp);
@@ -3116,12 +3236,14 @@ edibility_prompts(struct obj *otmp)
         /* Rotten (draugr find rot appetizing, no warning) */
         Snprintf(buf, sizeof buf, "%s like %s could be rotten!",
                  foodsmell, it_or_they);
-    } else if (cadaver && poisonous(&mons[mnum]) && !Poison_resistance) {
+    } else if (cadaver && poisonous(&mons[mnum])
+               && how_resistant(POISON_RES) < 100) {
         /* poisonous */
         Snprintf(buf, sizeof buf, "%s%s like %s might be poisonous!",
                  (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm!  " : "",
                  foodsmell, it_or_they);
-    } else if (otmp->otyp == APPLE && otmp->cursed && !Sleep_resistance) {
+    } else if (otmp->otyp == APPLE && otmp->cursed
+               && how_resistant(SLEEP_RES) < 100) {
         /* causes sleep, for long enough to be dangerous */
         Snprintf(buf, sizeof buf, "%s like %s might have been poisoned.",
                  foodsmell, it_or_they);
@@ -3223,10 +3345,20 @@ doeat_nonfood(struct obj *otmp)
 
     if (otmp->oclass == WEAPON_CLASS && otmp->opoisoned) {
         pline("Ecch - that must have been poisonous!");
-        if (!Poison_resistance) {
-            poison_strdmg(rnd(4), rnd(15), xname(otmp), KILLED_BY_AN);
+        if (how_resistant(POISON_RES) < 100) {
+            poison_strdmg(resist_reduce(rnd(4), POISON_RES),
+                          resist_reduce(rnd(15), POISON_RES),
+                          xname(otmp), KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
+    } else if (otmp->oclass == WEAPON_CLASS && otmp->otainted) {
+        pline("Ecch - that must have been tainted!");
+        if (how_resistant(SLEEP_RES) < 100) {
+            losehp(resist_reduce(rnd(2), POISON_RES),
+                   xname(otmp), KILLED_BY_AN);
+            fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES), TRUE);
+        } else
+            You("seem unaffected by the drow poison.");
     } else if (!nodelicious) {
         pline("%s%s is delicious!",
               (obj_is_pname(otmp)

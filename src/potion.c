@@ -86,6 +86,114 @@ incr_itimeout(long *which, int incr)
     set_itimeout(which, itimeout_incr(*which, incr));
 }
 
+/* increase a partial-resistance intrinsic by XX%
+ * ...will automatically cap at 100% */
+void
+incr_resistance(long *which, int incr)
+{
+    long oldval = *which & TIMEOUT;
+
+    if (oldval + incr > 100)
+        oldval = 100;
+    else
+        oldval += incr;
+
+    *which &= ~TIMEOUT;
+    *which |= (oldval | HAVEPARTIAL);
+}
+
+/* decrease a partial-resistance intrinsic by XX% */
+void
+decr_resistance(long *which, int incr)
+{
+    long oldval = *which & TIMEOUT;
+
+    if (oldval - incr < 0)
+        oldval = 0;
+    else
+        oldval -= incr;
+
+    *which &= ~TIMEOUT;
+    *which |= (oldval | ((oldval < 1) ? 0 : HAVEPARTIAL));
+}
+
+/* return the percentage that the hero resists the given property */
+int
+how_resistant(int which)
+{
+    int val;
+
+    /* extrinsics and level/race/form based intrinsics always provide
+       100%, as do divine or other permanent external grants */
+    if (u.uprops[which].extrinsic
+        || (u.uprops[which].intrinsic
+            & (FROMEXPER | FROMRACE | FROMFORM | FROMOUTSIDE))) {
+        val = 100;
+    } else if (u.uprops[which].intrinsic & HAVEPARTIAL) {
+        val = (u.uprops[which].intrinsic & TIMEOUT);
+
+        if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+            && which == FIRE_RES && val > 50) {
+            val = 50; /* Draugr/Vampires intrinsic fire res capped at 50% */
+            u.uprops[which].intrinsic &= ~TIMEOUT;
+            u.uprops[which].intrinsic |= (val | HAVEPARTIAL);
+        } else if (val > 100) {
+            val = 100;
+            u.uprops[which].intrinsic &= ~TIMEOUT;
+            u.uprops[which].intrinsic |= (val | HAVEPARTIAL);
+        }
+    } else {
+        /* the TIMEOUT bits only hold a percentage when HAVEPARTIAL is
+           set; otherwise a nonzero value is a timed full-strength
+           grant (lava-escape fire resistance, mid-meal acid or stone
+           resistance) that expires on its own */
+        val = (u.uprops[which].intrinsic & TIMEOUT) ? 100 : 0;
+    }
+
+    /* vulnerability lowers the effective resistance */
+    switch (which) {
+    case FIRE_RES:
+        if (Vulnerable_fire)
+            val -= 50;
+        break;
+    case COLD_RES:
+        if (Vulnerable_cold)
+            val -= 50;
+        break;
+    case SHOCK_RES:
+        if (Vulnerable_elec)
+            val -= 50;
+        break;
+    case ACID_RES:
+        if (Vulnerable_acid)
+            val -= 50;
+        break;
+    default:
+        break;
+    }
+    return val;
+}
+
+/* Handles the damage-reduction shuffle necessary to
+   convert 80% resistance into 20% damage (and keeps
+   the floating-point silliness out of the main lines) */
+int
+resist_reduce(int amount, int which)
+{
+    float tmp = (float) (100 - how_resistant(which));
+
+    tmp /= 100;
+
+    /* Draugr/Vampires, as most undead, are vulnerable
+       to fire, and take 1.5 times the amount of damage */
+    if (((!Upolyd && Race_if(PM_DRAUGR))
+         || (!Upolyd && Race_if(PM_VAMPIRE)))
+        && which == FIRE_RES)
+        amount = ((amount * 3) + 1) / 2;
+
+    return (int) ((float) amount * tmp);
+}
+
 void
 make_confused(long xtime, boolean talk)
 {
@@ -930,13 +1038,15 @@ peffect_paralysis(struct obj *otmp)
 staticfn void
 peffect_sleeping(struct obj *otmp)
 {
-    if (Sleep_resistance || Free_action) {
+    if (how_resistant(SLEEP_RES) == 100 || Free_action) {
         monstseesu(M_SEEN_SLEEP);
         You("yawn.");
     } else {
         You("suddenly fall asleep!");
         monstunseesu(M_SEEN_SLEEP);
-        fall_asleep(-rn1(10, 25 - 12 * bcsign(otmp)), TRUE);
+        fall_asleep(-resist_reduce(rn1(otmp->odiluted ? 5 : 10,
+                                       25 - 12 * bcsign(otmp)),
+                                   SLEEP_RES), TRUE);
     }
 }
 
@@ -1001,31 +1111,35 @@ peffect_sickness(struct obj *otmp)
             losehp(1, "mildly contaminated potion", KILLED_BY_AN);
         }
     } else {
-        if (Poison_resistance)
+        if (how_resistant(POISON_RES) == 100)
             pline("(But in fact it was biologically contaminated %s.)",
                   fruitname(TRUE));
         if (Role_if(PM_HEALER)) {
+            monstseesu(M_SEEN_POISON);
             pline("Fortunately, you have been immunized.");
         } else {
             char contaminant[BUFSZ];
             int typ = rn2(A_MAX);
 
             Sprintf(contaminant, "%s%s",
-                    (Poison_resistance) ? "mildly " : "",
+                    (how_resistant(POISON_RES) == 100) ? "mildly " : "",
                     (otmp->fromsink) ? "contaminated tap water"
                     : "contaminated potion");
             if (!Fixed_abil) {
                 poisontell(typ, FALSE);
-                (void) adjattrib(typ, Poison_resistance ? -1 : -rn1(4, 3),
+                (void) adjattrib(typ,
+                                 -(resist_reduce(rn1(4, 3), POISON_RES) + 1),
                                  1);
             }
-            if (!Poison_resistance) {
+            if (how_resistant(POISON_RES) < 100) {
                 if (otmp->fromsink)
-                    losehp(rnd(10) + 5 * !!(otmp->cursed), contaminant,
-                           KILLED_BY);
+                    losehp(resist_reduce(rnd(10) + 5 * !!(otmp->cursed),
+                                         POISON_RES),
+                           contaminant, KILLED_BY);
                 else
-                    losehp(rnd(10) + 5 * !!(otmp->cursed), contaminant,
-                           KILLED_BY_AN);
+                    losehp(resist_reduce(rnd(10) + 5 * !!(otmp->cursed),
+                                         POISON_RES),
+                           contaminant, KILLED_BY_AN);
             } else {
                 /* rnd loss is so that unblessed poorer than blessed */
                 losehp(1 + rn2(2), contaminant,
@@ -1308,7 +1422,7 @@ peffect_gain_energy(struct obj *otmp)
 staticfn void
 peffect_oil(struct obj *otmp)
 {
-    boolean good_for_you = FALSE, vulnerable;
+    boolean good_for_you = FALSE;
 
     if (otmp->lamplit) {
         if (likes_fire(gy.youmonst.data)) {
@@ -1322,8 +1436,7 @@ peffect_oil(struct obj *otmp)
              */
             You("burn your %s.", body_part(FACE));
             /* fire damage */
-            vulnerable = !Fire_resistance || Cold_resistance;
-            losehp(d(vulnerable ? 4 : 2, 4),
+            losehp(resist_reduce(d(2, 4), FIRE_RES) + d(1, 4),
                    "quaffing a burning potion of oil",
                    KILLED_BY);
         }
@@ -2208,9 +2321,9 @@ potionbreathe(struct obj *obj)
         break;
     case POT_SLEEPING:
         kn++;
-        if (!Free_action && !Sleep_resistance) {
+        if (!Free_action && how_resistant(SLEEP_RES) < 100) {
             You_feel("rather tired.");
-            nomul(-rnd(5));
+            nomul(-resist_reduce(rnd(5), SLEEP_RES));
             gm.multi_reason = "sleeping off a magical draught";
             gn.nomovemsg = You_can_move_again;
             exercise(A_DEX, FALSE);

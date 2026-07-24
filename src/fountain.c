@@ -297,7 +297,7 @@ dipforge(struct obj *obj)
      * Non-metallic objects are handled by lava_damage().
      */
     if (is_metallic(obj) && (obj->owornmask & (W_ARMOR | W_ACCESSORY))) {
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             /* immune to fire but still can't reforge worn items */
             You("can't reforge something you're wearing.");
         } else {
@@ -306,7 +306,7 @@ dipforge(struct obj *obj)
             if (!rn2(3))
                 You("may want to remove your %s first...",
                     xname(obj));
-            losehp(d(1, 8),
+            losehp(resist_reduce(d(1, 8), FIRE_RES),
                    "dipping a worn object into a forge", KILLED_BY);
         }
         return;
@@ -427,8 +427,8 @@ dipforge(struct obj *obj)
             return;
         } else {
             pline("Molten lava surges up and splashes all over you!");
-            if (!Fire_resistance)
-                losehp(d(3, 8), "dipping into a forge", KILLED_BY);
+            losehp(resist_reduce(d(3, 8), FIRE_RES),
+                   "dipping into a forge", KILLED_BY);
         }
         break;
     case 23:
@@ -507,14 +507,15 @@ drinkfountain(void)
             break;
         case 21: /* Poisonous */
             pline_The("water is contaminated!");
-            if (Poison_resistance) {
+            if (how_resistant(POISON_RES) == 100) {
                 pline("Perhaps it is runoff from the nearby %s farm.",
                       fruitname(FALSE));
                 losehp(rnd(4), "unrefrigerated sip of juice", KILLED_BY_AN);
                 break;
             }
-            poison_strdmg(rn1(4, 3), rnd(10), "contaminated water",
-                          KILLED_BY);
+            poison_strdmg(resist_reduce(rn1(4, 3), POISON_RES),
+                          resist_reduce(rnd(10), POISON_RES),
+                          "contaminated water", KILLED_BY);
             exercise(A_CON, FALSE);
             break;
         case 22: /* Fountain of snakes! */
@@ -1757,7 +1758,8 @@ blowupforge(coordxy x, coordxy y)
     levl[x][y].flags = 0;
     newsym(x, y);
     /* wand-section fire type; FORGE_EXPLODE picks the actual messaging */
-    explode(x, y, BZ_U_WAND(ZT_FIRE), rnd(30), FORGE_EXPLODE, EXPL_FIERY);
+    explode(x, y, BZ_U_WAND(ZT_FIRE), resist_reduce(rnd(30), FIRE_RES),
+            FORGE_EXPLODE, EXPL_FIERY);
 }
 
 /* the lava in a forge cools and hardens; the forge is gone */
@@ -1842,11 +1844,12 @@ drinksink(void)
         break;
     case 2:
         You("take a sip of scalding hot %s.", hliquid("water"));
-        if (Fire_resistance) {
+        if (how_resistant(FIRE_RES) == 100) {
             pline("It seems quite tasty.");
             monstseesu(M_SEEN_FIRE);
         } else {
-            losehp(rnd(6), "sipping boiling water", KILLED_BY);
+            losehp(resist_reduce(rnd(6), FIRE_RES),
+                   "sipping boiling water", KILLED_BY);
             monstunseesu(M_SEEN_FIRE);
         }
         /* boiling water burns considered fire damage */

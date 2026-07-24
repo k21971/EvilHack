@@ -738,7 +738,9 @@ nh_timeout(void)
 
     was_flying = Flying;
     for (upp = u.uprops; upp < u.uprops + SIZE(u.uprops); upp++)
-        if ((upp->intrinsic & TIMEOUT) && !(--upp->intrinsic & TIMEOUT)) {
+        if (!(upp->intrinsic & HAVEPARTIAL) /* partials do not time out */
+            && (upp->intrinsic & TIMEOUT)
+            && !(--upp->intrinsic & TIMEOUT)) {
             kptr = find_delayed_killer((int) (upp - u.uprops));
             switch (upp - u.uprops) {
             case STONED:
@@ -869,11 +871,11 @@ nh_timeout(void)
                     stop_occupation();
                 break;
             case SLEEPY:
-                if (unconscious() || Sleep_resistance) {
+                if (unconscious() || how_resistant(SLEEP_RES) == 100) {
                     incr_itimeout(&HSleepy, rnd(100));
                 } else if (Sleepy) {
                     You("fall asleep.");
-                    sleeptime = rnd(20);
+                    sleeptime = resist_reduce(rnd(20), SLEEP_RES);
                     fall_asleep(-sleeptime, TRUE);
                     incr_itimeout(&HSleepy, sleeptime + rnd(100));
                 }
@@ -1046,6 +1048,24 @@ nh_timeout(void)
                 pline_The("stone covering your %s completely disappears.",
                           mbodypart(&gy.youmonst, SKIN));
                 find_ac();
+                break;
+            /* all these need to make sure the external intrinsic is not
+               there too */
+            case VULN_FIRE:
+                if (!Vulnerable_fire)
+                    You("are no longer vulnerable to fire.");
+                break;
+            case VULN_COLD:
+                if (!Vulnerable_cold)
+                    You("are no longer vulnerable to cold.");
+                break;
+            case VULN_ELEC:
+                if (!Vulnerable_elec)
+                    You("are no longer vulnerable to electricity.");
+                break;
+            case VULN_ACID:
+                if (!Vulnerable_acid)
+                    You("are no longer vulnerable to acid.");
                 break;
             }
         }

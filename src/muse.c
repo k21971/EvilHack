@@ -2687,13 +2687,15 @@ use_offensive(struct monst *mtmp)
             (void) destroy_mitem(mtmp, POTION_CLASS, AD_FIRE);
             ignite_items(mtmp->minvent);
             num = (2 * (rn1(3, 3) + 2 * bcsign(otmp)) + 1) / 3;
-            if (Fire_resistance)
-                You("are not harmed.");
             burn_away_slime();
-            if (Half_spell_damage)
-                num = (num + 1) / 2;
-            else
+            if (how_resistant(FIRE_RES) == 100) {
+                You("are not harmed.");
+                monstseesu(M_SEEN_FIRE);
+            } else {
+                if (Half_spell_damage)
+                    num = (num + 1) / 2;
                 losehp(num, "scroll of fire", KILLED_BY_AN);
+            }
             for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
                 if (DEADMONSTER(mtmp2))
                     continue;

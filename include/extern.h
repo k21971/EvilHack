@@ -2683,6 +2683,10 @@ extern const char *udeadinside(void);
 
 extern void set_itimeout(long *, long) NONNULLARG1;
 extern void incr_itimeout(long *, int) NONNULLARG1;
+extern void incr_resistance(long *, int) NONNULLARG1;
+extern void decr_resistance(long *, int) NONNULLARG1;
+extern int how_resistant(int);
+extern int resist_reduce(int, int);
 extern void make_confused(long, boolean);
 extern void make_stunned(long, boolean);
 extern void make_sick(long, const char *, boolean, int) NO_NNARGS;
@@ -4208,7 +4212,7 @@ extern int lightdamage(struct obj *, struct monst *, boolean, int);
 extern boolean flashburn(long, boolean);
 extern void blindingflash(boolean);
 extern boolean cancel_monst(struct monst *, struct obj *, boolean, boolean,
-                            boolean) NONNULLARG12;
+                            boolean) NONNULLARG1;
 extern void zapsetup(void);
 extern void zapwrapup(void);
 extern void weffects(struct obj *) NONNULLARG1;

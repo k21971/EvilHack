@@ -1872,7 +1872,7 @@ seffect_fire(struct obj **sobjp)
         if (Underwater) {
             pline("A little %s around you vaporizes.", hliquid("water"));
         }
-        else if (Fire_resistance) {
+        else if (how_resistant(FIRE_RES) == 100) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_FIRE);
             if (!Blind)

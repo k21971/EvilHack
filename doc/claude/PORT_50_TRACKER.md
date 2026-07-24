@@ -3482,19 +3482,107 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       + Longbow clean, hobbit "Amazingly" warn fires with innate
       HHunger proven set, ring-of-hunger control still suppressed
       for non-hobbits. Paniclog byte-identical to baseline.
-- [ ] Partial-intrinsics/percentage-resistance system (NEW,
-      minted by races R2 - needs an owner): master's
-      how_resistant()/incr_resistance()/resist_reduce() partial
-      resistance machinery (potion.c core + attrib.c + ring/
-      corpse consumers) was never ported and has no TODO marker
-      on the branch. Until it lands: draugr/vampire heroes can
-      gain FULL binary fire resistance from corpses/rings
-      (master caps undead at 50%), the 1.5x undead fire-damage
-      vulnerability multiplier does not exist, and the R2
-      "vulnerable to fire" status/enlightenment lines are
-      informational only. R2 deliberately invented no interim
-      mechanics (eat.c eataccessory + potion.c arms classified
-      DEFER to this item in races-r2-port-report.md).
+- [x] Partial-intrinsics/percentage-resistance system PORTED +
+      REVIEWED + BATTERY-PASSED 2026-07-24 (COMMIT PENDING).
+      Port subagent 26 files, final +1286/-262 with coordinator
+      fixes; brief/report/battery-brief in the session scratchpad
+      (port-brief/partial-resistance-port-report/battery-brief-
+      partial-resistance.md). Census = 3 parallel Explore agents:
+      25 producer sites, ~252 consumer calls gate-style-classified,
+      branch-state map. Classification 118 PORT (+2 reviewer
+      completions, +2 gaze-arm siblings) / 14 LIVE / 22 N/A /
+      7 DEFER; all 5 forging-debt percent-resist sites converted;
+      boss-slice hellfire percentile middle ground restored.
+      MAINTAINER RULINGS 2026-07-24 (Decisions log): how_resistant
+      honors FROMOUTSIDE as 100% (master quirk = BUG-1357, fixed
+      on branch); TIMEOUT bits read as percentage ONLY under
+      HAVEPARTIAL - plain timed intrinsics (5.0 lava hatch,
+      mid-meal acid/stone res) read 100 while active and expire
+      normally. Port-subagent/reviewer lava-hatch "clobber" claim
+      REFUTED twice: the write is gated on !Fire_resistance and
+      any partial percentage makes that macro TRUE (reachability,
+      not set_itimeout semantics). REVIEWER CONDITIONAL PASS
+      0 blockers/4 concerns: C1 passive() AD_SLOW orange-dragon
+      case missing (fixed master-exact), C2 sink_into_lava Upolyd
+      u.mh third-ing dropped (fixed), C3 = the refuted clobber,
+      C4 report staleness (refreshed). Census verified complete
+      by the reviewer at the anchor level (per-file master-vs-
+      branch symbol counts all reconciled).
+      BATTERY (game-tester agent, 2 games: Valkyrie XL30 T:389 +
+      draugr Barbarian XL30 T:159): 16 PASS / 1 PARTIAL / 1
+      caveat. Proofs: corpse +50 steps to exactly 100 with the
+      chill ladder; draugr 1/3-rate accumulation, cap write-back
+      to 50, 1.5x-then-scale = 0.75x composite; ring-eating +50/
+      +50-to-100 and free-action sleep 100; crowning = five
+      100|HAVEPARTIAL grants (not FROMOUTSIDE) + FROMOUTSIDE-
+      reads-100 ruling proof on staged sick-res; disenchanter
+      attrcurse 50-100 point strips + FROMEXPER stripped outright;
+      DISN three tiers incl. shield sacrifice, crystal-plate
+      "remains intact, but you do not!" death, engulf single-
+      application (BUG-1312 shape); hellfire (dmg+1)/2 at 100% +
+      resist_reduce*2 partial; explode mask exact at the 51/50
+      boundary; six %d%% enlightenment lines + FROMFORM
+      vulnerability attribution (90-50=40 arithmetic); sleep
+      duration halving via breakpoint; poisoned() 100/40/20
+      ladder incl. instadeath + max-HP-loss signature; timed
+      grant reads 100 and decays in 5 turns while 40|HAVEPARTIAL
+      never decays over 120; save/reload bit-exact for both
+      forms; AD_SLOW ~1/3 rate 10/31; lava polyform u.uhp AND
+      u.mh to thirds. PARTIAL = draugr hellfire dmg=0 control:
+      preconditions gdb-proven (soul_exempt + extrinsic ring =
+      how_resistant 100 overriding the cap), deterministic branch
+      gate, but Asmodeus never cast fire in the draugr game
+      (melees when adjacent, ~60 turns + logging breakpoint
+      empty; repro recipe in the battery report). Caveat =
+      orange-scales defended(AD_SLOW) control unstaged ("orange
+      dragon scale mail" wish returns plain scale mail - naming
+      latent family, joins 'pair of X').
+      BATTERY CATCH fixed same day: beholder AD_CNCL gaze hit
+      impossible("Gaze attack 45?") x4 paniclog ("Program in
+      disorder!") - latent Phase 1 class: generating monster,
+      unhandled attack arm. Master gazemu AD_CNCL arm ported +
+      sibling AD_LUCK (magical eye ominous glare, same class);
+      reactions[9] "lackluster" was already pre-staged by the
+      port. AD_STON gaze needed nothing (generic Medusa arm
+      covers the beholder - port report Q5's STON half was
+      wrong). RE-VERIFY 2026-07-24 (game-tester agent, 1 game,
+      paniclog ZERO): 4/4 PASS - strange gaze forced titan-form
+      rehumanize; mcan gazer drew "looks lackluster" with no
+      cancellation; glare stepped uluck 0 -> -1 (breakpoint-
+      logged change_luck(-1)); blessed wielded mirror drew
+      "sees its own glare in your mirror" + "is cancelled!" +
+      flee with no further luck loss. Driving note: the magical
+      eye's AD_STUN gaze shares the mspec_used cooldown, so the
+      LUCK glare is rare unassisted (master-identical; staged by
+      zeroing mspec_used via breakpoint).
+      UPSTREAM 5.0 BUGS +2 (table): muse.c scroll-of-fire mangled
+      if/else (fixed here via census conversion), mhitm_ad_slee
+      doubled sleep_monst condition (recorded, monster-side).
+      MASTER BUGS: BUG-1357 (crowned sick-res reads 0% on the
+      percentage path, fixed on branch per ruling), BUG-1358
+      (freezing-mist >=50 arm dead rn2(3) store, master-only,
+      intended shape rides with the trap-types owner).
+      RATIFY QUEUE: poisoned() drops 5.0's survived-arm CON
+      drains (master parity); lava-sink monstseesu keyed on
+      boil_away kept (branch improvement over master's
+      unconditional call); "quaffing a burning potion of oil"
+      killer string kept over master's shorter form.
+      WATCH: Valkyrie baseline COLD_RES intrinsic read
+      FROMEXPER|FROMFORM before any polymorph (reads 100
+      correctly; FROMFORM origin unowned, battery observation).
+      LESSON: make install wipes var/ INCLUDING paniclog - a
+      battery brief must not promise a stale-line baseline across
+      an install; tester correctly re-baselined at 0.
+      DEFER owners (nothing silent): freezing-mist trap arms +
+      BUG-1358 shape (trap-types row below); CLC_VULN_YOU
+      Vulnerable_* producers (monster innate spell-list
+      expansion); cancel_monst stripping block incl. Vulnerable_*
+      clears (cancellation slice - TODO enumeration extended in
+      zap.c); Dragonbane-gloves passive, passive_obj AD_DISN,
+      AT_NONE AD_CNCL passive arm (monster-cluster); monster-side
+      vulnerability scaling (damage_mon core). Dev-save note:
+      pre-slice binary FROMOUTSIDE elemental grants now read 100
+      via the FROMOUTSIDE ruling (benign, no invalidation).
 - [x] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
       PORTED + REVIEWED x2 + COORDINATOR-FIXED 2026-07-22/23 (COMMIT
       PENDING, battery next): port subagent 42 files +1716/-222
@@ -3756,6 +3844,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Battery AFTER B commits (game-tester agent; combined brief
       READY at scratchpad battery-brief-artifacts.md A1-A13 +
       B1-B12).
+- [ ] EvilHack trap types: BOLT/ICE/SPEAR/MAGIC_BEAM_TRAP_SET +
+      trap-kit object application (kits exist as objects since
+      Phase 1 but do not apply; Decisions-log 2026-07-12 deferral
+      finally gets its checkbox row). Riders collected so far:
+      freezing-mist partial-resistance arms (doicetrap consumer +
+      decr_resistance/HVulnerable_cold producer - port the
+      INTENDED shape, master's >=50 rn2(3) store is dead, see
+      BUG-1358); kill-attribution trap-window nesting note (the
+      MAGIC_BEAM_TRAP_SET line in the kill-attribution record);
+      zombie-slice "sleeping gas trap wish = kit object" note.
 - [ ] Door materials + door-trap variety (+ des.door material=
       binding; 224 TODO-EVILHACK sites in converted levels)
 - [ ] Monster `dead` .des flag -> des.monster dead= binding
@@ -3920,6 +4018,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-17 | explode.c monster-kill loop mutates its adtyp local (`adtyp = AD_RBRE; /* no corpse */` at explode.c:579, identical in NetHack50 and Official_nh50): after the first no-corpse victim, every later victim of the same blast and the post-loop hero-damage block see AD_RBRE instead of the real damage type. Master's non-mutating `xkflg ? -AD_RBRE : adtyp` inline form ported to the branch (kill-attribution slice) | fixed on branch; not yet sent |
 | 2026-07-23 | pray.c pleased() gift switch rolls `rn2((Luck + 6) >> 1)` with no lower clamp: Luck <= -6 passes rn2() a non-positive argument (reachable - the pleased path gates on god anger/trouble, not on Luck). Master's clamp form (`gift_slot` local, floor at 1) ported with the roles slice; branch verified at pray.c pleased() | fixed on branch; not yet sent |
 | 2026-07-23 | artifact.c invoke_healing (5.0's split of arti_invoke HEALING) can print "You feel better." twice per invoke: the body has BOTH an unconditional `Blinded > creamed -> You_feel("better.")` arm and the gated `You_feel("%sbetter.", ...)` tail. Identical at 74d1133c2; looks like an upstream merge artifact. Left as-is on branch (only the Withering cure term was added by the artifacts slice) | traced; not yet sent |
+| 2026-07-24 | muse.c hero scroll-of-fire arm: `if (Fire_resistance) You("are not harmed.");` followed by `if (Half_spell_damage) num = (num + 1) / 2; else losehp(num, ...)` - the losehp rides the halving else, so a fire-resistant hero takes FULL damage whenever Half_spell_damage is absent, and ANY hero with Half_spell_damage takes zero. Identical in NetHack50 and Official_nh50. Branch restored master's gate form (==100 no-harm + monstseesu, else halve-then-losehp) with the partial-resistance slice | fixed on branch; not yet sent |
+| 2026-07-24 | uhitm.c mhitm_ad_slee monster-vs-monster arm: `!mdef->msleeping && sleep_monst(mdef, rnd(10), -1) && sleep_monst(mdef, rnd(10), -1)` - sleep_monst called twice in one condition, so the sleep applies only when both rolls succeed and the first success is re-rolled. Identical in NetHack50 and Official_nh50. Left as-is on branch (monster-side, outside the partial-resistance slice) | traced; not yet sent |
 
 ## Master re-derive queue
 
@@ -3996,6 +4096,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-24 | how_resistant() honors FROMOUTSIDE as 100% - divine/external permanent grants are full strength (fixes master's crowned-sick-res-reads-0% quirk, archived BUG-1357; the crowning grant itself stays `HSick_resistance \|= FROMOUTSIDE` master-exact). Rejected: master-exact 0% read; producer-side rework | maintainer |
+| 2026-07-24 | how_resistant() reads the TIMEOUT bits as a percentage ONLY when HAVEPARTIAL is set; a plain timed intrinsic reads 100 while active and expires via nh_timeout (reconciles 5.0-native timed grants - lava double-lifesave hatch, mid-meal acid/stone res - with the percentage system; no-op vs master, which has zero timed grants on the eight queried props). Rejected: master-exact raw read (5.0 features misbehave); rewriting the two 5.0 grant mechanisms | maintainer |
 | 2026-07-23 | Off-hand/twoweap artifact extrinsics = MASTER PARITY: setworn admits W_SWAPWEP while u.twoweap (teardown stays unconditional per master's own form) + wield.c dotwoweapon/untwoweapon/retwoweapon reseat brackets; un-deadens the oprops W_SWAPWEP mapping arm. Rejected: keep 5.0's no-off-hand-intrinsics policy (real nerf vs master) | maintainer |
 | 2026-07-23 | Warning glow = MASTER PER-OBJECT subsystem (has_glow_warning/glow_warning_effects/blind_glow_warnings, any SPFX_WARN\|SPFX_DFLAGH artifact incl. Shadowblade, off-hand aware, per-obj newwarncnt/lastwarncnt), replacing 5.0's hardcoded global Sting_effects - rides artifacts Commit B | maintainer |
 | 2026-07-23 | Artifacts slice ships as TWO commits: A = invokes + hero-side internals (role-unblocking), B = combat behaviors (artifact_hit arms, mon_wielding_artifact layer, u_wield_art sweep, glow rework); one combined battery after both | maintainer |

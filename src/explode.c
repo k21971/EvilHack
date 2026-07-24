@@ -40,25 +40,25 @@ explosionmask(
                 res = EXPL_HERO;
             break;
         case AD_FIRE:
-            if (Fire_resistance)
+            if (how_resistant(FIRE_RES) > 50)
                 res = EXPL_HERO;
             break;
         case AD_COLD:
-            if (Cold_resistance)
+            if (how_resistant(COLD_RES) > 50)
                 res = EXPL_HERO;
             break;
         case AD_DISN:
             if ((olet == WAND_CLASS)
-                ? (nonliving(m->data) || is_demon(m->data))
-                : Disint_resistance)
+                ? (Death_resistance || immune_death_magic(m->data))
+                : how_resistant(DISINT_RES) > 50)
                 res = EXPL_HERO;
             break;
         case AD_ELEC:
-            if (Shock_resistance)
+            if (how_resistant(SHOCK_RES) > 50)
                 res = EXPL_HERO;
             break;
         case AD_DRST:
-            if (Poison_resistance)
+            if (how_resistant(POISON_RES) > 50)
                 res = EXPL_HERO;
             break;
         case AD_ACID:

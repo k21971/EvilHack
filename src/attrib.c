@@ -428,7 +428,7 @@ poisoned(
               isupper((uchar) *reason) ? "" : "The ", reason,
               plural ? "were" : "was");
     }
-    if (Poison_resistance) {
+    if (how_resistant(POISON_RES) == 100) {
         if (blast)
             shieldeff(u.ux, u.uy);
         pline_The("poison doesn't seem to affect you.");
@@ -454,38 +454,36 @@ poisoned(
 
     i = !fatal ? 1 : rn2(fatal + (thrown_weapon ? 20 : 0));
     if (i == 0 && typ != A_CHA) {
-        /* sometimes survivable instant kill */
-        loss = 6 + d(4, 6); /* 6 + 4d6 => 10..34 */
-        if (u.uhp <= loss) {
+        if (how_resistant(POISON_RES) >= 35) {
+            /* partial resistance turns the instant kill into a
+               severe reaction */
+            int olduhp = u.uhp, newuhpmax;
+
+            pline_The("poison was extremely toxic!");
+            loss = resist_reduce(d(4, 6), POISON_RES);
+            newuhpmax = u.uhpmax - (loss / 2);
+            setuhpmax(max(newuhpmax, minuhpmax(3)), TRUE); /*True: see FIXME*/
+            loss = adjuhploss(loss, olduhp);
+            losehp(loss, pkiller, kprefix); /* poison damage */
+        } else {
+            /* instant kill */
             u.uhp = -1;
             disp.botl = TRUE;
             pline_The("poison was deadly...");
-        } else {
-            /* survived, but with severe reaction */
-            int olduhp = u.uhp,
-                newuhpmax = u.uhpmax - (loss / 2);
-
-            setuhpmax(max(newuhpmax, minuhpmax(3)), TRUE); /*True: see FIXME*/
-            loss = adjuhploss(loss, olduhp);
-
-            losehp(loss, pkiller, kprefix); /* poison damage */
-            if (adjattrib(A_CON, (typ != A_CON) ? -1 : -3, TRUE))
-                poisontell(A_CON, TRUE);
-            if (typ != A_CON && adjattrib(typ, -3, 1))
-                poisontell(typ, TRUE);
         }
     } else if (i > 5) {
         boolean cloud = !strcmp(reason, "gas cloud");
 
         /* HP damage; more likely--but less severe--with missiles */
-        loss = thrown_weapon ? rnd(6) : rn1(10, 6);
+        loss = resist_reduce(thrown_weapon ? rnd(6) : rn1(10, 6), POISON_RES);
         if ((blast || cloud) && Half_gas_damage) /* worn towel */
             loss = (loss + 1) / 2;
         losehp(loss, pkiller, kprefix); /* poison damage */
     } else {
         /* attribute loss; if typ is A_STR, reduction in current and
            maximum HP will occur once strength has dropped down to 3 */
-        loss = (thrown_weapon || !fatal) ? 1 : d(2, 2); /* was rn1(3,3) */
+        loss = (thrown_weapon || !fatal)
+                   ? 1 : resist_reduce(d(2, 2), POISON_RES); /* was rn1(3,3) */
         /* check that a stat change was made */
         if (adjattrib(typ, -loss, 1))
             poisontell(typ, TRUE);

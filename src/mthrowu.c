@@ -1039,6 +1039,28 @@ m_throw(
                             poison is limited to attrib loss */
                          (u.umortality > oldumort) ? 0 : 10, TRUE);
             }
+            if (hitu && singleobj->otainted && is_poisonable(singleobj)) {
+                if (how_resistant(SLEEP_RES) == 100) {
+                    monstseesu(M_SEEN_SLEEP);
+                    pline_The("drow poison doesn't seem to affect you.");
+                } else {
+                    if (!rn2(3)) {
+                        losehp(resist_reduce(rnd(2), POISON_RES),
+                               xname(singleobj), KILLED_BY_AN);
+                    } else {
+                        if (u.usleep) { /* don't let sleep effect stack */
+                            losehp(resist_reduce(rnd(2), POISON_RES),
+                                   xname(singleobj), KILLED_BY_AN);
+                        } else {
+                            You("lose consciousness.");
+                            losehp(resist_reduce(rnd(2), POISON_RES),
+                                   xname(singleobj), KILLED_BY_AN);
+                            fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES),
+                                        TRUE);
+                        }
+                    }
+                }
+            }
             if (hitu && can_blnd((struct monst *) 0, &gy.youmonst,
                                  (uchar) ((singleobj->otyp == BLINDING_VENOM
                                            || singleobj->otyp == SNOWBALL)
@@ -1540,7 +1562,8 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                  */
                 if (!utarget || !rn2(3))
                     mtmp->mbreath_attk = 8 + rn2(18);
-                if (utarget && typ == AD_SLEE && !Sleep_resistance)
+                if (utarget && typ == AD_SLEE
+                    && how_resistant(SLEEP_RES) < 100)
                     mtmp->mbreath_attk += rnd(20);
 
                 /* If this is a pet, it'll get hungry. Minions and
