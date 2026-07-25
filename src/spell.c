@@ -1179,7 +1179,7 @@ cast_protection(int skill)
                                          : "ooze")
                                 : (u.uinwater ? hliquid("water")
                                    : (rmtyp == CLOUD) ? "cloud"
-                                     : IS_TREE(rmtyp) ? "vegetation"
+                                     : IS_TREES(rmtyp) ? "vegetation"
                                        : IS_STWALL(rmtyp) ? "stone"
                                          : "air");
                 pline_The("%s around you begins to shimmer with %s haze.",
@@ -1326,15 +1326,14 @@ cast_entangle(struct monst *mdef, int skill)
 
     /* target needs to be standing on or near vegetation for
        entanglement to work */
-    /* TODO-EVILHACK: also allow standing on GRASS terrain once the
-       grass terrain type is ported (terrain slice) */
     if (youdefend) {
-        if (!nexttotree(u.ux, u.uy)) {
+        if (!(levl[u.ux][u.uy].typ == GRASS || nexttotree(u.ux, u.uy))) {
             You("must be on or near vegetation to become entangled.");
             return;
         }
     } else {
-        if (!nexttotree(mdef->mx, mdef->my)) {
+        if (!(levl[mdef->mx][mdef->my].typ == GRASS
+              || nexttotree(mdef->mx, mdef->my))) {
             pline("%s must be on or near vegetation to become entangled.",
                   Monnam(mdef));
             return;
@@ -1358,13 +1357,19 @@ cast_entangle(struct monst *mdef, int skill)
         if (u.usteed) {
             newsym(u.usteed->mx, u.usteed->my);
             dismount_steed(DISMOUNT_FELL);
-            if (!nexttotree(u.ux, u.uy)) {
+            if (!(levl[u.ux][u.uy].typ == GRASS
+                  || nexttotree(u.ux, u.uy))) {
                 You("land on bare ground; the spell loses its grip.");
                 return;
             }
         }
-        pline_The("%s from a nearby tree ensnare you!",
-                  rn2(2) ? "branches" : "roots");
+        if (nexttotree(u.ux, u.uy))
+            pline_The("%s from a nearby tree ensnare you!",
+                      rn2(2) ? "branches" : "roots");
+        else
+            pline_The(
+                "grass underneath you twists and loops around your %s!",
+                makeplural(body_part(LEG)));
         You("are entangled!");
         set_utrap(rn1(6, 3), TT_ENTANGLED); /* 3-8 turns */
         return;
@@ -1384,8 +1389,14 @@ cast_entangle(struct monst *mdef, int skill)
             return;
         } else {
             if (canseemon(mdef)) {
-                pline_The("%s from a nearby tree ensnare %s!",
-                          rn2(2) ? "branches" : "roots", mon_nam(mdef));
+                if (nexttotree(mdef->mx, mdef->my))
+                    pline_The("%s from a nearby tree ensnare %s!",
+                              rn2(2) ? "branches" : "roots", mon_nam(mdef));
+                else
+                    pline_The(
+                        "grass underneath %s twists and loops around %s %s!",
+                        mon_nam(mdef), mhis(mdef),
+                        makeplural(mbodypart(mdef, LEG)));
                 pline("%s is entangled!", Monnam(mdef));
             }
             mdef->mentangled = 1;

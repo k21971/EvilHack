@@ -67,46 +67,51 @@ enum levl_typ_types {
     TRWALL    = 11,
     DBWALL    = 12,
     TREE      = 13, /* KMH */
-    SDOOR     = 14,
-    SCORR     = 15,
-    POOL      = 16,
-    MOAT      = 17, /* pool that doesn't boil, adjust messages */
-    WATER     = 18,
-    DRAWBRIDGE_UP = 19,
-    LAVAPOOL  = 20,
-    LAVAWALL  = 21,
-    IRONBARS  = 22, /* KMH */
-    DOOR      = 23,
-    CORR      = 24,
-    ROOM      = 25,
-    STAIRS    = 26,
-    LADDER    = 27,
-    FORGE     = 28,
-    MAGIC_CHEST = 29,
-    FOUNTAIN  = 30,
-    THRONE    = 31,
-    SINK      = 32,
-    GRAVE     = 33,
-    ALTAR     = 34,
-    ICE       = 35,
-    DRAWBRIDGE_DOWN = 36,
-    AIR       = 37,
-    CLOUD     = 38,
+    DEADTREE  = 14,
+    SDOOR     = 15,
+    SCORR     = 16,
+    POOL      = 17,
+    MOAT      = 18, /* pool that doesn't boil, adjust messages */
+    WATER     = 19,
+    DRAWBRIDGE_UP = 20,
+    LAVAPOOL  = 21,
+    LAVAWALL  = 22,
+    IRONBARS  = 23, /* KMH */
+    DOOR      = 24,
+    CORR      = 25,
+    ROOM      = 26,
+    STAIRS    = 27,
+    LADDER    = 28,
+    FORGE     = 29,
+    MAGIC_CHEST = 30,
+    FOUNTAIN  = 31,
+    THRONE    = 32,
+    SINK      = 33,
+    GRAVE     = 34,
+    ALTAR     = 35,
+    ICE       = 36,
+    GRASS     = 37,
+    SAND      = 38,
+    DRAWBRIDGE_DOWN = 39,
+    AIR       = 40,
+    CLOUD     = 41,
+    PUDDLE    = 42,
+    SEWAGE    = 43,
 
-    MAX_TYPE  = 39,
+    MAX_TYPE  = 44,
     /* for special levels */
-    MATCH_WALL = 40,
+    MATCH_WALL = 45,
 
     /* these aren't levl[][].typ values, they're additional indices
        into terrain_descr[] for status feedback */
-    xFLOOR     = 41,
-    xGROUND    = 42,
-    xOPENDOOR  = 43,
-    xSHUTDOOR  = 44,
-    xSWAMP     = 45,
-    xSUBMERGED = 46,
-    xSEA       = 47,
-    xWATERWALL = 48,
+    xFLOOR     = 46,
+    xGROUND    = 47,
+    xOPENDOOR  = 48,
+    xSHUTDOOR  = 49,
+    xSWAMP     = 50,
+    xSUBMERGED = 51,
+    xSEA       = 52,
+    xWATERWALL = 53,
 
     INVALID_TYPE = 127
 };
@@ -124,6 +129,8 @@ enum levl_typ_types {
 #define IS_DOORJOIN(typ) (IS_OBSTRUCTED(typ) || (typ) == IRONBARS)
 #define IS_TREE(typ)                                            \
     ((typ) == TREE || (svl.level.flags.arboreal && (typ) == STONE))
+#define IS_DEADTREE(typ) ((typ) == DEADTREE)
+#define IS_TREES(typ) (IS_TREE(typ) || IS_DEADTREE(typ))
 #define ACCESSIBLE(typ) ((typ) >= DOOR) /* good position */
 #define IS_ROOM(typ) ((typ) >= ROOM)    /* ROOM, STAIRS, furniture.. */
 #define ZAP_POS(typ) ((typ) >= POOL)
@@ -142,6 +149,10 @@ enum levl_typ_types {
 #define IS_FURNITURE(typ) ((typ) >= STAIRS && (typ) <= ALTAR)
 #define IS_AIR(typ) ((typ) == AIR || (typ) == CLOUD)
 #define IS_SOFT(typ) ((typ) == AIR || (typ) == CLOUD || IS_POOL(typ))
+#define IS_PUDDLE(typ) ((typ) == PUDDLE)
+#define IS_SEWAGE(typ) ((typ) == SEWAGE)
+#define IS_GRASS(typ) ((typ) == GRASS)
+#define IS_SAND(typ) ((typ) == SAND)
 #define IS_WATERWALL(typ) ((typ) == WATER)
 /* for surface checks when it's unknown whether a drawbridge is involved;
    drawbridge_up is the spot in front of a closed drawbridge and not the
@@ -164,7 +175,7 @@ struct rm {
     int glyph;               /* what the hero thinks is there */
     schar typ;               /* what is really there  [why is this signed?] */
     uchar seenv;             /* seen vector */
-    Bitfield(flags, 5);      /* extra information for typ */
+    Bitfield(flags, 6);      /* extra information for typ */
     Bitfield(horizontal, 1); /* wall/door/etc is horiz. (more typ info) */
     Bitfield(lit, 1);        /* speed hack for lit rooms */
     Bitfield(waslit, 1);     /* remember if a location was lit */
@@ -192,12 +203,13 @@ struct rm {
  * throne  |             |             |            |            | T_LOOTED   |
  * fountain|             |             |            | F_WARNED   | F_LOOTED   |
  * ladder  |             |             |            | LA_DOWN    | LA_UP      |
- * pool    |ICED_MOAT    | ICED_POOL   |            |            |            |
+ * pool    |ICED_POOL    | ICED_SEWAGE |ICED_PUDDLE |            |            |
  * grave   |             |             |            |            | emptygrave |
  * altar   |AM_SANCTUM   | AM_SHRINE   | AM_MASK    | AM_MASK    | AM_MASK    |
  *         |             |             |            |            |            |
  *         +-------------+-------------+------------+------------+------------+
  *
+ * bit6 (0x20) is used by pool terrain only, for ICED_MOAT
  *
  * If these get changed or expanded, make sure wizard-mode wishing becomes
  * aware of the new usage
@@ -212,7 +224,8 @@ struct rm {
  *      D_LOCKED conflicts with W_NONDIGGABLE but the latter is not
  *      expected to be used on door locations.
  *      D_TRAPPED conflicts with W_NONPASSWALL.
- *      D_SECRET would not fit within struct rm's 5-bit 'flags' field.
+ *      D_SECRET is only consumed while a special level is being built,
+ *      so it is never stored in struct rm's 'flags' field.
  */
 
 #define doormask   flags /* door, sdoor (note conflict with wall_info) */
@@ -269,6 +282,7 @@ struct rm {
  */
 #define TREE_LOOTED 1
 #define TREE_SWARM 2
+#define TREE_FLOCK 3
 
 /*
  * Fountains have limits, and special warnings.
@@ -330,8 +344,10 @@ struct rm {
 /*
  * Room areas may be iced pools
  */
-#define ICED_POOL 8
-#define ICED_MOAT 16
+#define ICED_PUDDLE 4
+#define ICED_SEWAGE 8
+#define ICED_POOL 16
+#define ICED_MOAT 32
 
 /* light states for terrain replacements, for set_levltyp_lit */
 #define SET_LIT_RANDOM -1

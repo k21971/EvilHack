@@ -2160,10 +2160,8 @@ mchoose_learned_spell(struct monst *mtmp, struct monst *target,
                 continue;
             /* entangle requires vegetation at the target location;
                skip filtering if tx,ty are 0 (availability check) */
-            /* TODO-EVILHACK: also allow GRASS terrain once the grass
-               terrain type is ported (terrain slice) */
             if (spell_otyp == SPE_ENTANGLE && (tx || ty)) {
-                if (!nexttotree(tx, ty))
+                if (!(levl[tx][ty].typ == GRASS || nexttotree(tx, ty)))
                     continue;
             }
             /* self-cure spells already handled by the priority check

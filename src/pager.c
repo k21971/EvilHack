@@ -593,6 +593,14 @@ waterbody_name(coordxy x, coordxy y)
     } else if (ltyp == POOL) {
         Snprintf(pooltype, sizeof pooltype, "pool of %s", hliquid("water"));
         return pooltype;
+    } else if (ltyp == PUDDLE) {
+        Snprintf(pooltype, sizeof pooltype, "pool of shallow %s",
+                 hliquid("water"));
+        return pooltype;
+    } else if (ltyp == SEWAGE) {
+        Snprintf(pooltype, sizeof pooltype, "pool of raw %s",
+                 hliquid("sewage"));
+        return pooltype;
     } else if (ltyp == MOAT) {
         /* a bit of extra flavor over general moat */
         if (hallucinate) {
@@ -1526,12 +1534,16 @@ do_screen_description(
                      && glyph == cmap_to_glyph(S_magic_chest)))
                 continue;
 
-            /* avoid "an unexplored", "an stone", "an air",
+            /* avoid "an unexplored", "an stone", "an air", "a grass",
                "a floor of a room", "a dark part of a room" */
             article = strstri(x_str, " of a room") ? 2
                       : !(alt_i == S_stone
                           || strcmp(x_str, "air") == 0
-                          || strcmp(x_str, "land") == 0);
+                          || strcmp(x_str, "land") == 0
+                          || strcmp(x_str, "grass") == 0
+                          || strcmp(x_str, "sand") == 0
+                          || strcmp(x_str, "shallow water") == 0
+                          || strcmp(x_str, "sewage") == 0);
 
             found = add_cmap_descr(found, alt_i, glyph, article,
                                    cc, x_str, prefix,

@@ -177,7 +177,7 @@ dig_typ(struct obj *otmp, coordxy x, coordxy y)
     /* a metal door can't be cut or picked through */
     if (is_axe(otmp))
         return (closed_door(x, y) && !metal_door(&levl[x][y])) ? DIGTYP_DOOR
-               : IS_TREE(ltyp) ? DIGTYP_TREE /* axe vs tree */
+               : IS_TREES(ltyp) ? DIGTYP_TREE /* axe vs tree */
                  : DIGTYP_UNDIGGABLE;
     /*assert(is_pick(otmp));*/
     return (sobj_at(STATUE, x, y) && pick_can_reach(otmp, x, y))
@@ -185,7 +185,7 @@ dig_typ(struct obj *otmp, coordxy x, coordxy y)
            : (sobj_at(BOULDER, x, y) && pick_can_reach(otmp, x, y))
              ? DIGTYP_BOULDER
              : (closed_door(x, y) && !metal_door(&levl[x][y])) ? DIGTYP_DOOR
-               : IS_TREE(ltyp) ? DIGTYP_UNDIGGABLE /* pick vs tree */
+               : IS_TREES(ltyp) ? DIGTYP_UNDIGGABLE /* pick vs tree */
                  : (IS_OBSTRUCTED(ltyp)
                     && (!svl.level.flags.arboreal || IS_WALL(ltyp)))
                    ? DIGTYP_ROCK
@@ -327,7 +327,7 @@ dig(void)
             return 0;
         }
     } else { /* !svc.context.digging.down */
-        if (IS_TREE(lev->typ) && !may_dig(dpx, dpy)
+        if (IS_TREES(lev->typ) && !may_dig(dpx, dpy)
             && dig_typ(uwep, dpx, dpy) == DIGTYP_TREE) {
             pline("This tree seems to be petrified.");
             return 0;
@@ -370,8 +370,9 @@ dig(void)
 
     svc.context.digging.effort +=
         10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
-    /* TODO-EVILHACK: master doubles digging effort again for dead
-       trees; ports with the terrain work */
+    /* dead wood offers far less resistance than living wood */
+    if (IS_DEADTREE(lev->typ))
+        svc.context.digging.effort *= 2;
     if (Race_if(PM_DWARF) || Race_if(PM_GIANT)
         || P_SKILL(P_PICK_AXE) == P_SKILLED)
         svc.context.digging.effort *= 2;
@@ -491,7 +492,7 @@ dig(void)
             }
             digtxt = "The boulder falls apart.";
         } else if (lev->typ == STONE || lev->typ == SCORR
-                   || IS_TREE(lev->typ)) {
+                   || IS_TREES(lev->typ)) {
             if (Is_earthlevel(&u.uz)) {
                 if (uwep->blessed && !rn2(3)) {
                     mkcavearea(FALSE);
@@ -503,33 +504,40 @@ dig(void)
                 }
             }
             if (digtyp == DIGTYP_TREE) {
-                /* Druids are penalized for cutting down
-                   live trees */
-                if (Role_if(PM_DRUID)) {
-                    digtxt = "You cut down the tree.  You feel very guilty.";
-                    adjalign(-15);
-                    record_abuse_event(-15, ABUSE_DESTROY_TREE);
-                    change_luck(-7);
-                    /* deity becomes "very" angry */
-                    u.ugangr += 5;
-                } else if (Race_if(PM_ELF)) {
-                    /* Elves are also penalized, but
-                       not as severely */
-                    digtxt = "You cut down the tree.  You feel guilty.";
-                    adjalign(-5);
-                    record_abuse_event(-5, ABUSE_DESTROY_TREE);
-                    change_luck(-2);
-                } else if (Role_if(PM_RANGER)) {
-                    /* Rangers are penalized mildly */
-                    digtxt = "You cut down the tree.  You feel a little guilty.";
-                    adjalign(-2);
-                    record_abuse_event(-2, ABUSE_DESTROY_TREE);
-                } else {
-                    digtxt = "You cut down the tree.";
+                if (IS_TREE(lev->typ)) {
+                    /* Druids are penalized for cutting down
+                       live trees */
+                    if (Role_if(PM_DRUID)) {
+                        digtxt =
+                            "You cut down the tree.  You feel very guilty.";
+                        adjalign(-15);
+                        record_abuse_event(-15, ABUSE_DESTROY_TREE);
+                        change_luck(-7);
+                        /* deity becomes "very" angry */
+                        u.ugangr += 5;
+                    } else if (Race_if(PM_ELF)) {
+                        /* Elves are also penalized, but
+                           not as severely */
+                        digtxt = "You cut down the tree.  You feel guilty.";
+                        adjalign(-5);
+                        record_abuse_event(-5, ABUSE_DESTROY_TREE);
+                        change_luck(-2);
+                    } else if (Role_if(PM_RANGER)) {
+                        /* Rangers are penalized mildly */
+                        digtxt =
+                            "You cut down the tree.  You feel a little guilty.";
+                        adjalign(-2);
+                        record_abuse_event(-2, ABUSE_DESTROY_TREE);
+                    } else {
+                        digtxt = "You cut down the tree.";
+                    }
+                    lev->typ = ROOM, lev->flags = 0;
+                    if (!rn2(5))
+                        (void) rnd_treefruit_at(dpx, dpy);
+                } else { /* dead tree; no fruit for you */
+                    digtxt = "You cut down the dead tree.";
+                    lev->typ = ROOM, lev->flags = 0;
                 }
-                lev->typ = ROOM, lev->flags = 0;
-                if (!rn2(5))
-                    (void) rnd_treefruit_at(dpx, dpy);
             } else {
                 digtxt = "You succeed in cutting away some rock.";
                 lev->typ = CORR, lev->flags = 0;
@@ -1321,7 +1329,7 @@ use_pick_axe2(struct obj *obj)
             } else if (lev->typ == LAVAWALL) {
                 pline("Splash!");
                 (void) fire_damage(uwep, FALSE, rx, ry);
-            } else if (IS_TREE(lev->typ)) {
+            } else if (IS_TREES(lev->typ)) {
                 You("need an axe to cut down a tree.");
             } else if (IS_OBSTRUCTED(lev->typ)) {
                 You("need a pick to dig rock.");
@@ -1414,6 +1422,9 @@ use_pick_axe2(struct obj *obj)
         /* Monsters which swim also happen not to be able to dig */
         You("cannot stay under%s long enough.",
             is_pool(u.ux, u.uy) ? "water" : " the lava");
+    } else if (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy)) {
+        Your("%s against the water's surface.", aobjnam(obj, "splash"));
+        wake_nearby(FALSE);
     } else if ((trap = t_at(u.ux, u.uy)) != 0
                && (uteetering_at_seen_pit(trap) || uescaped_shaft(trap))) {
         dotrap(trap, FORCEBUNGLE);
@@ -1473,6 +1484,7 @@ watch_dig(struct monst *mtmp, coordxy x, coordxy y, boolean zap)
 {
     struct rm *lev = &levl[x][y];
 
+    /* IS_TREE, not IS_TREES: the watch doesn't mind dead trees coming down */
     if (in_town(x, y)
         && (closed_door(x, y) || lev->typ == SDOOR || IS_WALL(lev->typ)
             || IS_FOUNTAIN(lev->typ) || IS_TREE(lev->typ))) {
@@ -1548,7 +1560,8 @@ mdig_tunnel(struct monst *mtmp)
         newsym(mtmp->mx, mtmp->my);
         draft_message(FALSE); /* "You feel a draft." */
         return FALSE;
-    } else if (!IS_OBSTRUCTED(here->typ) && !IS_TREE(here->typ)) { /* no dig */
+    } else if (!IS_OBSTRUCTED(here->typ)
+               && !IS_TREES(here->typ)) { /* no dig */
         return FALSE;
     }
 
@@ -1556,7 +1569,7 @@ mdig_tunnel(struct monst *mtmp)
     if ((here->wall_info & W_NONDIGGABLE) != 0) {
         impossible("mdig_tunnel:  %s at (%d,%d) is undiggable",
                    (IS_WALL(here->typ) ? "wall"
-                    : IS_TREE(here->typ) ? "tree" : "stone"),
+                    : IS_TREES(here->typ) ? "tree" : "stone"),
                    (int) mtmp->mx, (int) mtmp->my);
         return FALSE; /* still alive */
     }
@@ -1581,6 +1594,8 @@ mdig_tunnel(struct monst *mtmp)
         here->typ = ROOM, here->flags = 0;
         if (pile && pile < 5)
             (void) rnd_treefruit_at(mtmp->mx, mtmp->my);
+    } else if (IS_DEADTREE(here->typ)) {
+        here->typ = ROOM, here->flags = 0;
     } else {
         here->typ = CORR, here->flags = 0;
         if (pile && pile < 5)
@@ -1798,6 +1813,10 @@ zap_dig(void)
                 } else if (!Blind)
                     pline_The("tree shudders but is unharmed.");
                 break;
+            } else if (IS_DEADTREE(room->typ)) { /* dead trees are special */
+                room->typ = ROOM, room->flags = 0;
+                unblock_point(zx, zy); /* vision */
+                break;
             } else if (room->typ == STONE || room->typ == SCORR) {
                 if (!(room->wall_info & W_NONDIGGABLE)) {
                     room->typ = CORR, room->flags = 0;
@@ -1821,7 +1840,7 @@ zap_dig(void)
                     room->typ = DOOR, room->doormask = D_NODOOR;
                 }
                 digdepth -= 2;
-            } else if (IS_TREE(room->typ)) {
+            } else if (IS_TREES(room->typ)) {
                 room->typ = ROOM, room->flags = 0;
                 digdepth -= 2;
             } else { /* IS_OBSTRUCTED but not IS_WALL or SDOOR */
@@ -1885,7 +1904,7 @@ adj_pit_checks(coord *cc, char *msg)
         /* if (room->wall_info & W_NONDIGGABLE) */
         Strcpy(msg, foundation_msg);
         return FALSE;
-    } else if (IS_TREE(ltyp)) { /* check trees before stone */
+    } else if (IS_TREES(ltyp)) { /* check trees before stone */
         /* if (room->wall_info & W_NONDIGGABLE) */
         Strcpy(msg, "The tree's roots glow then fade.");
         return FALSE;

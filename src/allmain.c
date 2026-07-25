@@ -858,6 +858,11 @@ regen_hp(int wtcap)
 
            Infidels won't heal at all without the Amulet of Yendor
            with them (pre-idol imbuement) */
+        /* TODO-EVILHACK: master speeds a Druid's healing while they stand
+           on grass or beside a live tree by shortening its moves-modulo
+           regeneration interval; 5.0 replaced that interval with a
+           per-turn probability, so the bonus needs a new formula rather
+           than a straight port */
         if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())
             && !infidel_no_amulet) {
             heal = (u.ulevel + (int)ACURR(A_CON)) > rn2(100);

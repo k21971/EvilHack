@@ -531,6 +531,9 @@ extern void free_nomakedefs(void);
 /* ### dbridge.c ### */
 
 extern boolean is_waterwall(coordxy, coordxy);
+extern boolean is_damp_terrain(coordxy, coordxy);
+extern boolean is_puddle(coordxy, coordxy);
+extern boolean is_sewage(coordxy, coordxy);
 extern boolean is_pool(coordxy, coordxy);
 extern boolean is_lava(coordxy, coordxy);
 extern boolean is_pool_or_lava(coordxy, coordxy);
@@ -857,6 +860,7 @@ extern void wary_dog(struct monst *, boolean) NONNULLARG1;
 extern boolean cursed_object_at(coordxy, coordxy);
 extern struct obj *droppables(struct monst *) NONNULLARG1;
 extern int dog_nutrition(struct monst *, struct obj *) NONNULLPTRS;
+extern boolean m_eat_grass(struct monst *) NONNULLARG1;
 extern int dog_eat(struct monst *, struct obj *,
                    coordxy, coordxy, boolean) NONNULLPTRS;
 extern int pet_ranged_attk(struct monst *, boolean) NONNULLARG1;

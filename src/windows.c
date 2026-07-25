@@ -1518,6 +1518,11 @@ html_init_sym(void)
     htmlsym[S_litcorr] = 9618;
     htmlsym[S_fountain] = 8992;
     htmlsym[S_magic_chest] = 8962; /* U+2302 HOUSE */
+    /* TODO-EVILHACK: master maps the new terrain here, but it also maps
+       their look-alikes; mapping dead tree without live tree, or grass
+       without room floor, would make the dump show distinctions the
+       terminal does not. The whole table lands with the HTML dumplog
+       reconciliation */
 }
 
 /* convert 'special' flags returned from mapglyph to

@@ -778,6 +778,24 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
             obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
         free_mgivenname(mtmp);
         break;
+    /* only allow dead tree 'corpses' to form on certain
+       level tile types; we don't want to blank out stairs
+       or a ladder, etc */
+    case PM_ENT:
+    case PM_ELDER_ENT:
+    case PM_TREE_BLIGHT:
+    case PM_GULTHIAS_TREE:
+        if (levl[x][y].typ == ROOM
+            || levl[x][y].typ == GRASS
+            || levl[x][y].typ == SAND) {
+            levl[x][y].typ = DEADTREE;
+            /* a dead tree blocks line of sight; master leaves the vision
+               array stale here until the next full recalculation */
+            recalc_block_point(x, y);
+        }
+        newsym(x, y);
+        free_mgivenname(mtmp);
+        break;
     /* expired puddings will congeal into a large blob;
        like dragons, relies on the order remaining consistent */
     case PM_GRAY_OOZE:
@@ -932,8 +950,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_LIZARD: case PM_TORTLE_SHAMAN: case PM_CHAMELEON: case PM_CROCODILE:
     case PM_GIANT_TURTLE: case PM_CAVE_LIZARD: case PM_SALAMANDER:
     case PM_FROST_SALAMANDER: case PM_LARGE_CAVE_LIZARD:
-    case PM_GIANT_CROCODILE: case PM_ENT: case PM_TREE_BLIGHT:
-    case PM_ELDER_ENT: case PM_PETRIFIED_ENT: case PM_GULTHIAS_TREE:
+    case PM_GIANT_CROCODILE: case PM_PETRIFIED_ENT:
     case PM_CREEPING_MOUND: case PM_TWIG_BLIGHT: case PM_NEEDLE_BLIGHT:
     case PM_ASSASSIN_VINE: case PM_ORB_OF_FROST: case PM_ORB_OF_FIRE:
     case PM_ARCHEOLOGIST: case PM_BARBARIAN: case PM_CAVE_DWELLER:
@@ -2458,7 +2475,7 @@ mfndpos(
             ntyp = levl[nx][ny].typ;
             if (IS_OBSTRUCTED(ntyp)
                 && !((flag & ALLOW_WALL) && may_passwall(nx, ny))
-                && (!((IS_TREE(ntyp) ? treeok : rockok) && may_dig(nx, ny))
+                && (!((IS_TREES(ntyp) ? treeok : rockok) && may_dig(nx, ny))
                     /* a non-metallivore can't dig through a metal secret
                        door (which reads as rock here) */
                     || (ntyp == SDOOR && metal_door(&levl[nx][ny])

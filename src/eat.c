@@ -4428,6 +4428,23 @@ floorfood(
             && (Wwalking || is_clinger(uptr) || (Flying && !Breathless))))
         goto skipfloor;
 
+    /* allow the player to eat grass if they are polymorphed
+       into a herbivore */
+    if (feeding && levl[u.ux][u.uy].typ == GRASS
+        && Upolyd && can_eat_grass(uptr)) {
+        Sprintf(qbuf, "There is some grass here; eat it?");
+        if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
+            levl[u.ux][u.uy].typ = ROOM;
+            levl[u.ux][u.uy].flags = 0;
+            newsym(u.ux, u.uy);
+            pline("This grass tastes delicious!");
+            lesshungry(20);
+            return (struct obj *) 0;
+        } else if (c == 'q') {
+            return (struct obj *) 0;
+        }
+    }
+
     if (feeding && metallivorous(uptr)) {
         struct obj *gold;
         struct trap *ttmp = t_at(u.ux, u.uy);

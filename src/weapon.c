@@ -310,6 +310,11 @@ dmgval(struct obj *otmp, struct monst *mon)
     }
     if (Is_weapon) {
         tmp += otmp->spe;
+        /* TODO-EVILHACK: master grants a Druid wielding a wooden weapon
+           +2 damage while standing on grass or beside a live tree, but
+           the bonus is gated on the attacker being the hero and dmgval()
+           here has no attacker parameter; ports with the attacker-param
+           threading */
         /* negative enchantment mustn't produce negative damage */
         if (tmp < 0)
             tmp = 0;

@@ -160,15 +160,15 @@ tk_push_obj(struct obj *obj, int dx, int dy, int range)
             stopped = TRUE;
             break;
         }
-        /* Solid terrain; TODO-EVILHACK: dead trees when the terrain
-           extensions port */
-        if (IS_STWALL(levl[nx][ny].typ) || IS_TREE(levl[nx][ny].typ)
+        /* Solid terrain */
+        if (IS_STWALL(levl[nx][ny].typ) || IS_TREES(levl[nx][ny].typ)
             || closed_door(nx, ny)
             || levl[nx][ny].typ == IRONBARS) {
             pline_The("%s slams against the %s!", xname(obj),
-                      IS_TREE(levl[nx][ny].typ) ? "tree"
-                      : levl[nx][ny].typ == IRONBARS ? "iron bars"
-                                                     : "wall");
+                      IS_DEADTREE(levl[nx][ny].typ) ? "dead tree"
+                      : IS_TREE(levl[nx][ny].typ) ? "tree"
+                        : levl[nx][ny].typ == IRONBARS ? "iron bars"
+                                                       : "wall");
             stopped = TRUE;
             break;
         }
@@ -289,8 +289,9 @@ tk_impact(struct monst *mtmp, int hdx, int hdy, struct monst *magr)
         what = "wall";
     } else if (IS_STWALL(levl[nx][ny].typ)) {
         what = "wall";
+    } else if (IS_DEADTREE(levl[nx][ny].typ)) {
+        what = "dead tree";
     } else if (IS_TREE(levl[nx][ny].typ)) {
-        /* TODO-EVILHACK: distinguish dead trees when they port */
         what = "tree";
     } else if (closed_door(nx, ny)) {
         what = "door";
@@ -606,9 +607,8 @@ m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
             stopped = TRUE;
             break;
         }
-        /* Solid terrain; TODO-EVILHACK: dead trees when the terrain
-           extensions port */
-        if (IS_STWALL(levl[nx][ny].typ) || IS_TREE(levl[nx][ny].typ)
+        /* Solid terrain */
+        if (IS_STWALL(levl[nx][ny].typ) || IS_TREES(levl[nx][ny].typ)
             || closed_door(nx, ny)
             || levl[nx][ny].typ == IRONBARS) {
             stopped = TRUE;

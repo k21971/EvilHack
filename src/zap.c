@@ -5566,6 +5566,41 @@ dobuzz(
         if (gas_hit)
             (void) zap_over_floor(sx, sy, type, &shopdamage, TRUE, 0);
 
+        /* a death ray, but not a breath weapon, kills a living tree */
+        if (levl[sx][sy].typ == TREE && damgtype == ZT_DEATH
+            && abs(type) != ZT_BREATH(ZT_DEATH)) {
+            levl[sx][sy].typ = DEADTREE;
+            if (cansee(sx, sy)) {
+                pline("The tree withers and dies!");
+                newsym(sx, sy);
+            }
+            if (type >= 0) {
+                /* Druids are penalized hardest for killing a live tree */
+                if (Role_if(PM_DRUID)) {
+                    You_feel("very guilty.");
+                    adjalign(-15);
+                    record_abuse_event(-15, ABUSE_DESTROY_TREE);
+                    change_luck(-7);
+                    /* deity becomes "very" angry */
+                    u.ugangr += 5;
+                } else if (Race_if(PM_ELF)) {
+                    /* Elves are also penalized, but not as severely */
+                    You_feel("guilty.");
+                    adjalign(-5);
+                    record_abuse_event(-5, ABUSE_DESTROY_TREE);
+                    change_luck(-2);
+                } else if (Role_if(PM_RANGER)) {
+                    /* Rangers are penalized mildly */
+                    You_feel("a little guilty.");
+                    adjalign(-2);
+                    record_abuse_event(-2, ABUSE_DESTROY_TREE);
+                }
+            }
+            /* the tree stops the beam rather than bouncing it */
+            range = 0;
+            break;
+        }
+
         if (!ZAP_POS(levl[sx][sy].typ)
             || (closed_door(sx, sy) && range >= 0)) {
             int bchance;
@@ -5619,20 +5654,25 @@ melt_ice(coordxy x, coordxy y, const char *msg)
     if (lev->typ == DRAWBRIDGE_UP || lev->typ == DRAWBRIDGE_DOWN) {
         lev->drawbridgemask &= ~DB_ICE; /* revert to DB_MOAT */
     } else { /* lev->typ == ICE */
-        lev->typ = (lev->icedpool == ICED_POOL ? POOL : MOAT);
+        lev->typ = (lev->icedpool == ICED_POOL ? POOL
+                    : lev->icedpool == ICED_PUDDLE ? PUDDLE
+                      : lev->icedpool == ICED_SEWAGE ? SEWAGE : MOAT);
         lev->icedpool = 0;
     }
     spot_stop_timers(x, y, MELT_ICE_AWAY); /* no more ice to melt away */
     if (t_at(x, y))
         trap_ice_effects(x, y, TRUE); /* TRUE because ice_is_melting */
     obj_ice_effects(x, y, FALSE);
-    unearth_objs(x, y);
+    /* shallow water never buried anything, so there is nothing to raise */
+    if (!(lev->typ == PUDDLE || lev->typ == SEWAGE))
+        unearth_objs(x, y);
     if (Underwater)
         vision_recalc(1);
     newsym(x, y);
     if (cansee(x, y) || u_at(x, y))
         Norep("%s", msg);
-    if ((otmp = sobj_at(BOULDER, x, y)) != 0) {
+    if (!(lev->typ == PUDDLE || lev->typ == SEWAGE)
+        && (otmp = sobj_at(BOULDER, x, y)) != 0) {
         if (cansee(x, y))
             pline("%s settles...", An(xname(otmp)));
         do {
@@ -5809,11 +5849,73 @@ zap_over_floor(
                 pline("Steam billows from the fountain.");
             rangemod -= 1;
             dryup(x, y, type > 0);
+        } else if (IS_PUDDLE(lev->typ) || IS_SEWAGE(lev->typ)) {
+            if (see_it)
+                pline_The("%s boils away.",
+                          IS_PUDDLE(lev->typ) ? "shallow water"
+                                              : "raw sewage");
+            else
+                You_hear("hissing gas.");
+            rangemod -= 3;
+            lev->typ = ROOM, lev->flags = 0;
+            if ((mon = m_at(x, y)) != 0) {
+                if (is_swimmer(mon->data) && mon->mundetected)
+                    mon->mundetected = 0;
+            }
+            newsym(x, y);
+        } else if (lev->typ == TREE) {
+            if (see_it)
+                pline("The tree burns to a crisp!");
+            lev->typ = DEADTREE;
+            newsym(x, y);
+            if (type >= 0 && !exploding_wand_typ) {
+                /* Druids are penalized hardest for killing a live tree */
+                if (Role_if(PM_DRUID)) {
+                    You_feel("very guilty.");
+                    adjalign(-15);
+                    record_abuse_event(-15, ABUSE_DESTROY_TREE);
+                    change_luck(-7);
+                    /* deity becomes "very" angry */
+                    u.ugangr += 5;
+                } else if (Race_if(PM_ELF)) {
+                    /* Elves are also penalized, but not as severely */
+                    You_feel("guilty.");
+                    adjalign(-5);
+                    record_abuse_event(-5, ABUSE_DESTROY_TREE);
+                    change_luck(-2);
+                } else if (Role_if(PM_RANGER)) {
+                    /* Rangers are penalized mildly */
+                    You_feel("a little guilty.");
+                    adjalign(-2);
+                    record_abuse_event(-2, ABUSE_DESTROY_TREE);
+                }
+            }
+        } else if (lev->typ == DEADTREE) {
+            if (may_dig(x, y)) { /* petrified dead trees are unaffected */
+                if (see_it)
+                    pline("The dead tree burns to ashes!");
+                rangemod -= 1000; /* stop */
+                lev->typ = ROOM, lev->flags = 0;
+                newsym(x, y);
+                if (!does_block(x, y, &levl[x][y]))
+                    unblock_point(x, y); /* vision: can see through */
+                feel_newsym(x, y);
+            }
+        } else if (IS_GRASS(lev->typ)) {
+            lev->typ = ROOM, lev->flags = 0;
+            if (see_it)
+                Norep("The grass is burned away!");
+            if ((mon = m_at(x, y)) != 0) {
+                /* at a minimum, hiders are forced out of hiding */
+                if (hides_under(mon->data) && mon->mundetected)
+                    mon->mundetected = 0;
+            }
+            newsym(x, y);
         }
         break; /* ZT_FIRE */
 
     case ZT_COLD:
-        if (is_pool(x, y) || is_lava(x, y) || lavawall) {
+        if (is_damp_terrain(x, y) || is_lava(x, y) || lavawall) {
             boolean lava = (is_lava(x, y) || lavawall),
                     moat = is_moat(x, y);
             int chance = max(2, 5 + svl.level.flags.temperature * 10);
@@ -5829,6 +5931,7 @@ zap_over_floor(
                 rangemod -= 1000; /* stop */
             } else {
                 char buf[BUFSZ];
+                boolean shallow = FALSE;
 
                 Strcpy(buf, waterbody_name(x, y)); /* for MOAT */
                 rangemod -= 3;
@@ -5836,9 +5939,12 @@ zap_over_floor(
                     lev->drawbridgemask &= ~DB_UNDER; /* clear lava */
                     lev->drawbridgemask |= (lava ? DB_FLOOR : DB_ICE);
                 } else {
+                    shallow = (lev->typ == PUDDLE || lev->typ == SEWAGE);
                     lev->icedpool = lava ? 0
-                                         : (lev->typ == POOL) ? ICED_POOL
-                                                              : ICED_MOAT;
+                                    : (lev->typ == POOL) ? ICED_POOL
+                                      : (lev->typ == PUDDLE) ? ICED_PUDDLE
+                                        : (lev->typ == SEWAGE) ? ICED_SEWAGE
+                                          : ICED_MOAT;
                     if (lavawall) {
                         if ((isok(x, y-1) && IS_WALL(levl[x][y-1].typ))
                             || (isok(x, y+1) && IS_WALL(levl[x][y+1].typ)))
@@ -5851,7 +5957,9 @@ zap_over_floor(
                         lev->typ = lava ? ROOM : ICE;
                     }
                 }
-                bury_objs(x, y);
+                /* shallow water is too thin to bury anything under */
+                if (!shallow)
+                    bury_objs(x, y);
                 if (!lava) {
                     Soundeffect(se_soft_crackling, 30);
                 }

@@ -523,7 +523,10 @@ u_can_engrave(void)
     } else if (is_lava(u.ux, u.uy)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return FALSE;
-    } else if (is_pool(u.ux, u.uy) || IS_FOUNTAIN(levtyp)) {
+    } else if (is_damp_terrain(u.ux, u.uy) || IS_FOUNTAIN(levtyp)) {
+        You_cant("write on the %s!", surface(u.ux, u.uy));
+        return FALSE;
+    } else if (IS_GRASS(levtyp) || IS_SAND(levtyp)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return FALSE;
     } else if (IS_AIR(levtyp)) {
@@ -1728,7 +1731,9 @@ make_grave(coordxy x, coordxy y, const char *str)
     char buf[BUFSZ];
 
     /* Can we put a grave here? */
-    if ((levl[x][y].typ != ROOM && levl[x][y].typ != GRAVE) || t_at(x, y))
+    if ((levl[x][y].typ != ROOM && levl[x][y].typ != GRASS
+         && levl[x][y].typ != SAND && levl[x][y].typ != GRAVE)
+        || t_at(x, y))
         return;
     /* Make the grave */
     if (!set_levltyp(x, y, GRAVE))

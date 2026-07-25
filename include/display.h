@@ -423,13 +423,13 @@ enum glyphmap_change_triggers { gm_nochange, gm_newgame, gm_levelchange,
  *                  Count: (S_trwall - S_vwall) + 1 = 11
  *
  * cmap A           S_ndoor through S_brdnladder
- *                  Count: (S_brdnladder - S_ndoor) + 1 = 19
+ *                  Count: (S_brdnladder - S_ndoor) + 1 = 22
  *
  * Altars           Altar (unaligned, chaotic, neutral, lawful, other)
  *                  Count: 5
  *
  * cmap B           S_grave through S_arrow_trap + TRAPNUM - 1
- *                  Count: (S_arrow_trap + (TRAPNUM - 1) - S_grave) = 45
+ *                  Count: (S_arrow_trap + (TRAPNUM - 1) - S_grave) = 50
  *
  * zap beams        set of four (there are four directions) HI_ZAP.
  *                  Count: 4 * NUM_ZAP

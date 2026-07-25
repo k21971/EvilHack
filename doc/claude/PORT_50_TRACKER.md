@@ -4539,6 +4539,138 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dat/*.lua; all 14 quest-artifact placements match their artilist
       base otyp (BUG-1368's gate); `luac -p` clean on all 21 edited .lua
       files.
+- [x] EvilHack terrain types: GRASS/SAND/DEADTREE/PUDDLE/SEWAGE.
+      NEW ITEM MINTED 2026-07-25 - this was never on the Phase 2 list,
+      but three earlier items had deferred to a "terrain slice" that
+      did not exist, and the special-room-types item below could not
+      start without it (GARDEN needs GRASS, FOREST needs GRASS/
+      DEADTREE/PUDDLE, NURSERY floods with PUDDLE, GARDEN/FOREST
+      mimics need S_deadtree). PORTED + REVIEWED + BATTERY PASSED
+      2026-07-25 (maintainer commit pending), 38 files +798/-253,
+      zero-warning clean rebuild.
+      DECISIONS (log rows below): enum placement mirrors master's
+      relative order so every range macro keeps its meaning
+      (MAX_TYPE 39->44, MATCH_WALL 40->45, xFLOOR..xWATERWALL +5);
+      struct rm Bitfield(flags,5)->6 for master's renumbered ICED_*;
+      PUDDLE takes map char 'p' because 5.0 owns 'w' for MATCH_WALL.
+      CLOSED the five parked TODO-EVILHACK markers this slice existed
+      to unblock (spell.c + mcastu.c entangle-on-GRASS, telekinesis.c
+      x3 dead-trees-are-solid) plus a sixth in dig.c (dead-tree
+      effort).
+      REVIEWER CONDITIONAL PASS, 15 findings, all coordinator-fixed:
+      (1) CRITICAL - the save-invalidation decision was never armed.
+      sizeof(struct rm) is 12 bytes at BOTH 5- and 6-bit flags, so
+      critical_sizes[] never fires; EDITLEVEL was still 0. A pre-slice
+      save would have loaded with every typ >= 14 reinterpreted (old
+      ROOM as CORR, old ICE as ALTAR). Fixed by EDITLEVEL 0 -> 1.
+      GENERAL LESSON: "dev saves are invalidated" is NOT automatic - a
+      bitfield widening that does not change sizeof needs an explicit
+      EDITLEVEL bump.
+      (2) HIGH - zap.c dropped master's `range = 0; break;` after a
+      death ray kills a tree, so the beam fell through to make_bounce
+      and reflected back at the hero.
+      (3) HIGH - 14 IS_TREE sites master had converted to IS_TREES
+      were missed (may_dig, all 7 in still_chewing, mfndpos,
+      m_digweapon_check, sel_set_wall_property, Druid diagonal
+      squeeze, 2 message sites). Symptoms: a rock mole chewing a dead
+      tree produced a CORRIDOR tile inside a room; nondiggable dead
+      trees were fellable and produced impossible("mdig_tunnel: tree
+      ... is undiggable").
+      (4) HIGH - farlook said "a grass"/"a shallow water"; master
+      suppresses the article in TWO places (just_an + the
+      do_screen_description article list), neither ported.
+      (5) MEDIUM - dead trees had no kick handler at all ("You kick at
+      empty space", fatal kick logged as "killed by kicking a rock");
+      ported master's block + TREE_FLOCK into 5.0 idiom.
+      (6) MEDIUM - make_corpse's new DEADTREE arm never updated the
+      vision array, so the hero saw through a fresh dead tree until
+      the next vision_reset; added recalc_block_point (master shares
+      this gap - branch improves on master).
+      COORDINATOR REVERTED TWO OF THE PORT'S OWN CHANGES: gush() left
+      a PUDDLE instead of a POOL, and mkswamp() converted half its
+      checkerboard to PUDDLE. Master's shallow-water SEMANTICS live
+      behind is_damp_terrain/is_puddle/is_sewage (~110 sites, 30
+      files) which are NOT ported, so both changes would have quietly
+      REMOVED an existing drowning hazard. Both restored to POOL with
+      TODO-EVILHACK markers naming the follow-on slice. Terrain stays
+      reachable via wizard wish + Lua, so the room-types slice is not
+      blocked.
+      HTML dump: the five htmlsym[] entries were REMOVED again. The
+      branch's table is minimal and has no S_room/S_tree/S_pool rows,
+      so mapping dead tree to U+03A8 while live tree stays '#' would
+      make the dump show distinctions the terminal does not. Whole
+      table rides the Phase 4 DUMPHTML reconciliation.
+      BATTERY 13/13 PASS (game-tester agent, 2 games, paniclog file
+      never created): all five wishes name and render correctly with
+      the expected colors; GRASS/SAND track a plain ROOM square
+      through lit / out-of-LOS / unlit-remembered (the display.c risk
+      - verified by capture-pane escape codes, all three identical
+      dark-gray in states 2 and 3); farlook and `:` and the status
+      terrain field carry no article; engraving refused on grass and
+      sand while graves still work on both; ICED_* round trip exact
+      for puddle AND sewage (typ 42/43 -> ICE -> back, objects not
+      buried) AND the staged north-facing raised drawbridge DID bury
+      its 7 rocks, confirming the branch's `shallow` boolean fixes
+      master's drawbridgemask/icedpool aliasing bug in the live game;
+      nondiggable dead tree resists axe and fire, plain one falls to
+      an axe and a pick-axe correctly reports DIGTYP_TREE; all four
+      kick outcomes seen and a fatal kick tombstones as "killed by
+      kicking a dead tree"; a pick-axe dwarf walled in by nondiggable
+      dead trees tunnelled the room wall instead and produced NO
+      mdig_tunnel impossible; rock mole chewed a dead tree to ROOM
+      (26) not CORR (25); death ray withered a tree and did NOT
+      bounce; an ent killed at range cut line of sight in the same
+      frame; a des.terrain level using all five new map chars loaded
+      clean via #wizloaddes; overview said "some grass"/"some sand";
+      save+reload byte-identical including all three ICED_* states;
+      four generated swamp levels produced POOL only and zero
+      PUDDLE/SEWAGE, confirming the deliberate producer deferral.
+      BATTERY ANOMALY CLOSED by coordinator: an unlit SAND square
+      blanked to S_stone after unmap_object. Not a defect - master's
+      unmap_object blanks ROOM, SAND and GRASS identically on
+      !waslit, 5.0's original had only the ROOM arm, and the port
+      added the other two in master's exact shape. A plain ROOM
+      control would blank the same way.
+      DEFERRED (owner rows): tile art for the 5 new cmap symbols ->
+      the NEW Phase 4 "TILE-ART DRIFT" item minted by this slice
+      (measured there: tile.c expects 258 cmap tiles, other.txt
+      supplies 243, 23 indices fall past the end of the file, first
+      break moved from index 37 to 19); SAND/ICE random level
+      generation -> Ice Queen dungeon topology (Phase 3), same block
+      as the existing random-ICE deferral; makeriver +
+      mk_knox_fallback_vault + concealed_spot +
+      maybe_freeze_underfoot are master-only functions with no branch
+      counterpart; SCR_CONSECRATION altar-on-sand/grass (object
+      exists, read.c case does not). dat/symbols AmigaFont
+      deliberately skipped - that set also has no
+      S_forge/S_magic_chest/S_lavawall rows, so skipping matches both
+      the branch's own precedent and upstream's.
+      MASTER BUGS FOUND (traced, not fixed - master frozen):
+      zap.c ZT_COLD skips bury_objs on a north-facing raised
+      drawbridge (drawbridgemask and icedpool alias the same flags
+      byte; DB_ICE == 8 == ICED_SEWAGE) - branch sidesteps it with a
+      `shallow` boolean captured before typ is overwritten, and the
+      battery proved the branch buries correctly there;
+      objnam.c puddle/sewage wizard wish wets only the top floor item
+      (calls water_damage() with the chain head instead of
+      water_damage_chain(), unlike the adjacent pool/moat arm) -
+      branch uses water_damage_chain.
+      PHASE 3 CARRY: ~/des_to_lua.pl emits master's 'w' for puddles
+      and MUST be remapped to 'p' before the level conversions run.
+- [ ] Damp-terrain behavior sweep (NEW, minted 2026-07-25 by the
+      terrain slice): thread master's is_damp_terrain/is_puddle/
+      is_sewage through their ~110 call sites across ~30 files
+      (wading, water damage, drowning, monster movement, item damage,
+      polyself, teleport, dokick, read, sit, ball, uhitm, weapon).
+      Until this lands PUDDLE and SEWAGE are inert floor, and the two
+      producers held back by the terrain slice (fountain.c gush,
+      mkroom.c mkswamp checkerboard) stay reverted to POOL - restore
+      both WITH this sweep, not before. Also closes the sp_lev.c
+      is_ok_location(WET) TODO and the two Druid TODOs the terrain
+      slice could not close (weapon.c dmgval has no attacker param on
+      5.0 -> blocked on attacker-param threading; allmain.c regen is
+      a per-turn probability on 5.0, not master's `moves % rate`
+      interval, so it needs a new formula rather than a port).
 - [ ] Special room types only: GARDEN=17 etc. -> mkroom.h +
       sp_lev room-name table (rtype drives runtime behavior, so
       needed regardless of level source). The rndvault C
@@ -4640,6 +4772,49 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       trees - pure per-file content reconciliation, no add/remove)
 - [ ] HTML dumplog: NetHack50 DUMPHTML base + EvilHack enhancements
       (pet/peaceful highlighting, customcolor swatches, rider fix)
+- [ ] TILE-ART DRIFT: win/share/other.txt is behind the branch's
+      cmap enum and every tile from the first branch-only symbol
+      onward resolves to the WRONG ART. Own item (minted
+      2026-07-25 by the terrain slice) rather than a rider on the
+      customcolor row, because it is an art+reindex job with a
+      different shape and a different source of truth.
+      MECHANISM: src/tile.c is GENERATED at build time from the
+      cmap enum via win/share/tilemap.c (not tracked in git) and
+      IS compiled in - sys/unix/Makefile.src sets
+      `NHCFLAGS+=-DTTY_TILES_ESCCODES` and adds tile.c to WINSRC.
+      So every defsym.h insert silently shifts the mapping and
+      nothing in the build complains.
+      MEASURED 2026-07-25: tile.c expects 258 cmap tiles;
+      other.txt supplies 243 tiles total; 23 of the expected cmap
+      indices fall past the END of the file. First content
+      misalignment is now index 19 - tile.c wants "dead tree",
+      other.txt has "floor of a room". PRE-EXISTING, not caused by
+      the terrain slice: before it the first branch-only insert was
+      S_forge, and other.txt index 37 is "other altar", so the file
+      was already misaligned there - the terrain slice moved the
+      break from 37 to 19 and added 5 more.
+      WORK, by source of art:
+      (a) master HAS the art, lift + reindex: dead tree (master
+          other.txt 19), forge (32), magic chest (33), grass (37),
+          sand (38), shallow water (46), sewage (47);
+      (b) 5.0-only, NO master counterpart, needs art or a
+          deliberate placeholder: S_lavawall + the new trap
+          symbols (bolt/ice/spear/magic-beam trap sets);
+      (c) NOT a verbatim lift either way - the branch's other.txt
+          expands altars (35/36/37 neutral/lawful/other) where
+          master's numbering differs, so this is an index-by-index
+          reconciliation against the CURRENT defsym.h PCHAR list,
+          not a file copy.
+      SCOPE OF IMPACT: tile-capable output only (the
+      TTY_TILES_ESCCODES escape-code path and the tile ports).
+      Plain tty/curses glyph rendering is unaffected, which is why
+      this has stayed invisible - it is wrong today, not newly
+      wrong. Not a gameplay blocker.
+      GATE: after any future defsym.h insert, re-run the check -
+      compare tile.c's `other.txt:NNN <name> (cmap=N)` comments
+      against other.txt's `# tile N (name)` headers and confirm
+      they agree index-by-index. Worth doing as the last step of
+      every slice that touches defsym.h.
 - [ ] menuitemcolor / status branch-labels / UI extras sweep
       (master menuitemcolor renders BRACKET-SCOPED: item color
       applies only to text inside [] - win/curses cursdial.c
@@ -4778,6 +4953,9 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-25 | EvilHack terrain enum placement mirrors MASTER'S RELATIVE ORDER (DEADTREE after TREE; GRASS/SAND after ICE; PUDDLE/SEWAGE after CLOUD) rather than appending at the end - this keeps every range macro's meaning without rewriting it: IS_OBSTRUCTED(<POOL) catches DEADTREE as solid, IS_ROOM(>=ROOM) catches GRASS/SAND as walkable floor, IS_FURNITURE(STAIRS..ALTAR) is undisturbed. MAX_TYPE 39->44, MATCH_WALL 40->45, xFLOOR..xWATERWALL +5; terrain_descr[]/levltyp[]/type_names[] are positional and shift with them. 5.0's open-ended `ACCESSIBLE(typ) >= DOOR` deliberately LEFT ALONE (master bounds it `<= SEWAGE`; the open form already spanned MAX_TYPE before this change and is not a bug) | coordinator |
+| 2026-07-25 | struct rm `Bitfield(flags, 5)` WIDENED TO 6 so master's renumbered ICED_PUDDLE 4 / ICED_SEWAGE 8 / ICED_POOL 16 / ICED_MOAT 32 fit (32 overflows 5 bits; master widened it too). levl saves whole-struct via historical_sfo_rm so there is no hand sfo/sfi pair and no new field, leaving the generated exportascii writers unchanged. Master's neighbouring frac_altar bit deliberately NOT adopted (sacrifice subsystem, different slice). CAVEAT THAT BIT US: sizeof(struct rm) is 12 either way, so critical_sizes[] does NOT invalidate old saves - EDITLEVEL bumped 0 -> 1 to arm it. Applies to ANY future bitfield widening | coordinator |
+| 2026-07-25 | PUDDLE takes map char 'p', NOT master's 'w': 5.0 already uses 'w' for MATCH_WALL and four upstream levels depend on it (hellfill, nhlib, themerms, bigrm-11). Empirically scanned every map/mapfragment block across all 131 dat/*.lua - the complete charset in use is `#+-.ABCFLPSTWZ\wx{\|}`, so master's 's'/'g'/'a'/'t' stay master-compatible and only PUDDLE needed a new char ('p' free, mnemonic against 'P' = POOL). Phase 3 carry: des_to_lua.pl emits 'w' for puddles and must be remapped | coordinator |
 | 2026-07-24 | how_resistant() honors FROMOUTSIDE as 100% - divine/external permanent grants are full strength (fixes master's crowned-sick-res-reads-0% quirk, archived BUG-1357; the crowning grant itself stays `HSick_resistance \|= FROMOUTSIDE` master-exact). Rejected: master-exact 0% read; producer-side rework | maintainer |
 | 2026-07-24 | how_resistant() reads the TIMEOUT bits as a percentage ONLY when HAVEPARTIAL is set; a plain timed intrinsic reads 100 while active and expires via nh_timeout (reconciles 5.0-native timed grants - lava double-lifesave hatch, mid-meal acid/stone res - with the percentage system; no-op vs master, which has zero timed grants on the eight queried props). Rejected: master-exact raw read (5.0 features misbehave); rewriting the two 5.0 grant mechanisms | maintainer |
 | 2026-07-23 | Off-hand/twoweap artifact extrinsics = MASTER PARITY: setworn admits W_SWAPWEP while u.twoweap (teardown stays unconditional per master's own form) + wield.c dotwoweapon/untwoweapon/retwoweapon reseat brackets; un-deadens the oprops W_SWAPWEP mapping arm. Rejected: keep 5.0's no-off-hand-intrinsics policy (real nerf vs master) | maintainer |

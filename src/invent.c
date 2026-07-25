@@ -4139,6 +4139,14 @@ dfeature_at(coordxy x, coordxy y, char *buf)
         dfeature = ice_descr(x, y, altbuf), cmap = -1; /* "ice" */
     else if (is_pool(x, y))
         dfeature = "pool of water";
+    else if (is_puddle(x, y))
+        dfeature = "pool of shallow water";
+    else if (is_sewage(x, y))
+        dfeature = "pool of raw sewage";
+    else if (IS_GRASS(ltyp))
+        cmap = S_grass; /* "grass" */
+    else if (IS_SAND(ltyp))
+        cmap = S_sand; /* "sand" */
     else if (IS_SINK(ltyp))
         cmap = S_sink; /* "sink" */
     else if (IS_FORGE(ltyp))
@@ -4161,6 +4169,8 @@ dfeature_at(coordxy x, coordxy y, char *buf)
         cmap = S_grave; /* "grave" */
     else if (ltyp == TREE)
         cmap = S_tree; /* "tree" */
+    else if (ltyp == DEADTREE)
+        cmap = S_deadtree; /* "dead tree" */
     else if (ltyp == IRONBARS)
         dfeature = "set of iron bars";
 

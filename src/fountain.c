@@ -182,6 +182,9 @@ gush(coordxy x, coordxy y, genericptr_t poolcnt)
         pline("Water gushes forth from the overflowing fountain!");
 
     /* Put a pool at x, y */
+    /* TODO-EVILHACK: master leaves a PUDDLE here; a puddle is inert floor
+       until shallow water carries its behavior, and swapping it in now
+       would quietly remove the drowning hazard an overflow creates */
     set_levltyp(x, y, POOL);
     levl[x][y].flags = 0;
     /* No kelp! */

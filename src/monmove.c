@@ -1422,7 +1422,7 @@ m_digweapon_check(
         if (closed_door(nix, niy)) {
             if (!mw_tmp || !is_pick(mw_tmp) || !is_axe(mw_tmp))
                 mtmp->weapon_check = NEED_PICK_OR_AXE;
-        } else if (IS_TREE(levl[nix][niy].typ)) {
+        } else if (IS_TREES(levl[nix][niy].typ)) {
             if (!mw_tmp || !is_axe(mw_tmp))
                 mtmp->weapon_check = NEED_AXE;
         } else if (IS_STWALL(levl[nix][niy].typ)) {

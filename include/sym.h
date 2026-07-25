@@ -102,7 +102,8 @@ struct symsetentry {
 #define is_cmap_room(i) ((i) >= S_room && (i) <= S_darkroom)
 #define is_cmap_corr(i) ((i) >= S_corr && (i) <= S_litcorr)
 #define is_cmap_furniture(i) ((i) >= S_upstair && (i) <= S_fountain)
-#define is_cmap_water(i) ((i) == S_pool || (i) == S_water)
+#define is_cmap_water(i) ((i) == S_pool || (i) == S_water \
+                          || (i) == S_puddle || (i) == S_sewage)
 #define is_cmap_lava(i) ((i) == S_lava || (i) == S_lavawall)
 #define is_cmap_stairs(i) ((i) >= S_upstair && (i) <= S_brdnladder)
 #define is_cmap_engraving(i) ((i) == S_engroom || (i) == S_engrcorr)
@@ -159,7 +160,6 @@ struct customization_detail {
     union customization_content content;
     struct customization_detail *next;
 };
-
 
 /* one set per symset_name */
 struct symset_customization {

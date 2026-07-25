@@ -993,7 +993,7 @@ sel_set_wall_property(coordxy x, coordxy y, genericptr_t arg)
 {
     int prop = *(int *) arg;
 
-    if (IS_STWALL(levl[x][y].typ) || IS_TREE(levl[x][y].typ)
+    if (IS_STWALL(levl[x][y].typ) || IS_TREES(levl[x][y].typ)
         /* 3.6.2: made iron bars eligible to be flagged nondiggable
            (checked by chewing(hack.c) and zap_over_floor(zap.c)) */
         || levl[x][y].typ == IRONBARS)
@@ -1306,6 +1306,10 @@ is_ok_location(coordxy x, coordxy y, getloc_flags_t humidity)
         if (!bould || (bould && (humidity & SOLID)))
             return TRUE;
     }
+    /* TODO-EVILHACK: master counts puddles and sewage as WET here via
+       is_damp_terrain(); deferred until the damp-terrain slice teaches
+       minliquid() and the monster water rules about shallow water, so a
+       water-liking monster isn't placed somewhere it can't survive */
     if ((humidity & WET) && is_pool(x, y))
         return TRUE;
     if ((humidity & HOT) && is_lava(x, y))
@@ -4968,10 +4972,12 @@ int
 lspo_feature(lua_State *L)
 {
     static const char *const features[] = { "fountain", "sink", "pool",
-                                            "throne", "tree", "forge",
-                                            "magic chest", NULL };
+                                            "throne", "tree", "dead tree",
+                                            "forge", "magic chest",
+                                            "puddle", "sewage", NULL };
     static const int features2i[] = { FOUNTAIN, SINK, POOL,
-                                      THRONE, TREE, FORGE, MAGIC_CHEST,
+                                      THRONE, TREE, DEADTREE, FORGE,
+                                      MAGIC_CHEST, PUDDLE, SEWAGE,
                                       STONE };
     coordxy x, y;
     int typ;

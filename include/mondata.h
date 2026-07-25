@@ -538,6 +538,21 @@
     (is_nymph(ptr) || is_satyr(ptr) || is_true_ent(ptr)   \
      || is_hobbit(ptr) || is_elf(ptr) || is_centaur(ptr))
 
+#define has_trunk(ptr) \
+    ((ptr) == &mons[PM_MUMAK] || (ptr) == &mons[PM_MASTODON] \
+     || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
+
+/* grazers; will crop a patch of grass down to bare floor */
+#define can_eat_grass(ptr) \
+    (((ptr)->mlet == S_UNICORN && !is_undead(ptr)) \
+     || has_trunk(ptr) || (ptr) == &mons[PM_ROTHE] \
+     || (ptr) == &mons[PM_TITANOTHERE]             \
+     || (ptr) == &mons[PM_BALUCHITHERIUM]          \
+     || (ptr) == &mons[PM_WOODCHUCK]               \
+     || (ptr) == &mons[PM_GIANT_TURTLE]            \
+     || (ptr) == &mons[PM_CREEPING_MOUND]          \
+     || (ptr) == &mons[PM_GELATINOUS_CUBE])
+
 #define corpse_eater(ptr)                    \
     (ptr == &mons[PM_PURPLE_WORM]            \
      || ptr == &mons[PM_BABY_PURPLE_WORM]    \

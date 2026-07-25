@@ -1788,6 +1788,14 @@ surface(coordxy x, coordxy y)
         return "headstone";
     else if (IS_FOUNTAIN(levtyp))
         return "fountain";
+    else if (IS_PUDDLE(levtyp))
+        return hliquid("water");
+    else if (IS_SEWAGE(levtyp))
+        return "raw sewage";
+    else if (IS_GRASS(levtyp))
+        return "grass";
+    else if (IS_SAND(levtyp))
+        return "sand";
     else if (On_stairs(x, y))
         return "stairs";
     else if (IS_WALL(levtyp) || levtyp == SDOOR)
@@ -2886,6 +2894,7 @@ init_mapseen(d_level *lev)
     ((feat).nfount || (feat).nsink || (feat).nforge \
      || (feat).nmagicchest || (feat).nthrone   \
      || (feat).naltar || (feat).ngrave || (feat).ntree || (feat).nshop  \
+     || (feat).ndeadtree || (feat).ngrass || (feat).nsand \
      || (feat).ntemple)
   /* || (feat).water || (feat).ice || (feat).lava */
 
@@ -2999,6 +3008,21 @@ count_feat_lastseentyp(
         count = mptr->feat.ntree + 1;
         if (count <= 3)
             mptr->feat.ntree = count;
+        break;
+    case DEADTREE:
+        count = mptr->feat.ndeadtree + 1;
+        if (count <= 3)
+            mptr->feat.ndeadtree = count;
+        break;
+    case GRASS:
+        count = mptr->feat.ngrass + 1;
+        if (count <= 2)
+            mptr->feat.ngrass = count;
+        break;
+    case SAND:
+        count = mptr->feat.nsand + 1;
+        if (count <= 2)
+            mptr->feat.nsand = count;
         break;
     case FOUNTAIN:
         count = mptr->feat.nfount + 1;
@@ -3515,12 +3539,18 @@ tunesuffix(
         if (var)                                     \
             Sprintf(eos(buf), "%s%s", COMMA, (nam)); \
     } while (0)
-#define ADDNTOBUF(nam, var) \
+#define ADDNTOBUF_CORE(nam, var, is_mass) \
     do {                                                                     \
         if (var)                                                             \
-            Sprintf(eos(buf), "%s%s %s%s", COMMA, seen_string((var), (nam)), \
-                    (nam), plur(var));                                       \
+            Sprintf(eos(buf), "%s%s %s%s", COMMA,                            \
+                    /* mass nouns: use "some" even for 1, never "a/an" */    \
+                    ((is_mass) && (var) == 1)                                \
+                        ? "some" : seen_string((var), (nam)),                \
+                    (nam),                                                   \
+                    (is_mass) ? "" : plur(var));                             \
     } while (0)
+#define ADDNTOBUF(nam, var) ADDNTOBUF_CORE(nam, var, FALSE)
+#define ADDNTOBUF_MASS(nam, var) ADDNTOBUF_CORE(nam, var, TRUE)
 /* ADD2NTOBUF: for "M temples and N altars"; seen_string() is safe to use
    multiple times within one expression; so is plur() */
 #define ADD2NTOBUF(nam, var, nam2, var2) \
@@ -3648,6 +3678,9 @@ print_mapseen(
         ADDNTOBUF("sink", mptr->feat.nsink);
         ADDNTOBUF("grave", mptr->feat.ngrave);
         ADDNTOBUF("tree", mptr->feat.ntree);
+        ADDNTOBUF("dead tree", mptr->feat.ndeadtree);
+        ADDNTOBUF_MASS("grass", mptr->feat.ngrass);
+        ADDNTOBUF_MASS("sand", mptr->feat.nsand);
 #if 0
         ADDTOBUF("water", mptr->feat.water);
         ADDTOBUF("lava", mptr->feat.lava);

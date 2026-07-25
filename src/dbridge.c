@@ -42,6 +42,29 @@ is_waterwall(coordxy x, coordxy y)
     return FALSE;
 }
 
+/* any water the hero can wade through or be splashed by */
+boolean
+is_damp_terrain(coordxy x, coordxy y)
+{
+    return (is_pool(x, y) || is_puddle(x, y) || is_sewage(x, y));
+}
+
+boolean
+is_puddle(coordxy x, coordxy y)
+{
+    if (isok(x, y) && IS_PUDDLE(levl[x][y].typ))
+        return TRUE;
+    return FALSE;
+}
+
+boolean
+is_sewage(coordxy x, coordxy y)
+{
+    if (isok(x, y) && IS_SEWAGE(levl[x][y].typ))
+        return TRUE;
+    return FALSE;
+}
+
 boolean
 is_pool(coordxy x, coordxy y)
 {

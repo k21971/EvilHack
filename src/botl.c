@@ -875,13 +875,14 @@ const char *terrain_descr[] = {
        c_Wall,          /* trwall */
        "Portcullis",    /* dbwall, closed drawbridge 'door' */
        "Tree",
+       "Dead-tree",     /* deadtree */
        c_Wall,          /* sdoor: secret door */
        "Stone",         /* scorr: secret corridor */
        "Pool",          /* pool or non-moat water; can be boiled away */
        "Moat",          /* water that can't be boiled away */
        "Water",         /* water on Water level; can't be boiled or frozen */
-       "(gap)",         /* drawbridge_up; replaced by whatever is under */
-/*20*/ "Lava",          /* lavapool */
+/*20*/ "(gap)",         /* drawbridge_up; replaced by whatever is under */
+       "Lava",          /* lavapool */
        "LavaWall",      /* lava that extends to ceiling */
        "Bars",          /* ironbars */
        "Doorway",       /* doorless or broken door; diagonal movement is ok */
@@ -890,25 +891,29 @@ const char *terrain_descr[] = {
        "Stairs",
        "Ladder",
        "Forge",
-       "Magic-chest",
-/*30*/ "Fountain",
+/*30*/ "Magic-chest",
+       "Fountain",
        "Throne",
        "Sink",
        "Grave",
        "Altar",
        "Ice",
+       "Grass",
+       "Sand",
        "Bridge",        /* drawbridge_down, span across moat/ice/lava/floor */
-       "Air",           /* open air on Air level or bubble on Water level */
+/*40*/ "Air",           /* open air on Air level or bubble on Water level */
        "Cloud",         /* [part of] a cloud or Air level */
+       "Puddle",        /* shallow water */
+       "Sewage",
        /*
         */
-/*39*/ "",              /* MAX_TYPE; skipped ratther than overloaded */
-/*40*/ c_Wall,          /* MATCH_WALL for special levels; shouldn't happen */
+/*44*/ "",              /* MAX_TYPE; skipped ratther than overloaded */
+/*45*/ c_Wall,          /* MATCH_WALL for special levels; shouldn't happen */
        /*
         * additional terrain names that aren't simple levl[][].typ values
         */
-/*41*/ "Floor",         /* substituted for room or corridor */
-/*42*/ "Ground",        /* 'room' on Earth level */
+/*46*/ "Floor",         /* substituted for room or corridor */
+/*47*/ "Ground",        /* 'room' on Earth level */
        "Open-door",     /* open (not broken or doorless) */
        "Shut-door",     /* closed or locked (or trapped) */
        "Swamp",         /* Juiblex level */

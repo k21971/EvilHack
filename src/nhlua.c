@@ -365,12 +365,19 @@ static const struct {
                 { '\\', THRONE },
                 { 'K', SINK },
                 { '}', MOAT },
+                /* 'w' is already taken by MATCH_WALL below, so shallow
+                   water uses 'p' here */
+                { 'p', PUDDLE },
+                { 's', SEWAGE },
                 { 'P', POOL },
                 { 'L', LAVAPOOL },
                 { 'Z', LAVAWALL },
                 { 'I', ICE },
+                { 'g', GRASS },
+                { 'a', SAND },
                 { 'W', WATER },
                 { 'T', TREE },
+                { 't', DEADTREE },
                 { 'F', IRONBARS }, /* Fe = iron */
                 { 'x', MAX_TYPE }, /* "see-through" */
                 { 'B', CROSSWALL }, /* hack: boundary location */

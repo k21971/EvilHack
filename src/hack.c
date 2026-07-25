@@ -670,7 +670,7 @@ still_chewing(coordxy x, coordxy y)
                 ? "bars"
                 : IS_DOOR(lev->typ)
                     ? "door"
-                    : IS_TREE(lev->typ)
+                    : IS_TREES(lev->typ)
                         ? "tree"
                         : "hard stone");
         nomul(0);
@@ -693,14 +693,15 @@ still_chewing(coordxy x, coordxy y)
         assign_level(&svc.context.digging.level, &u.uz);
         /* solid rock takes more work & time to dig through */
         svc.context.digging.effort =
-            (IS_OBSTRUCTED(lev->typ) && !IS_TREE(lev->typ) ? 30 : 60) + u.udaminc;
+            (IS_OBSTRUCTED(lev->typ) && !IS_TREES(lev->typ) ? 30 : 60)
+            + u.udaminc;
         You("start chewing %s %s.",
-            (boulder || IS_TREE(lev->typ) || lev->typ == IRONBARS)
+            (boulder || IS_TREES(lev->typ) || lev->typ == IRONBARS)
                 ? "on a"
                 : "a hole in the",
             boulder
                 ? "boulder"
-                : IS_TREE(lev->typ)
+                : IS_TREES(lev->typ)
                     ? "tree"
                     : IS_OBSTRUCTED(lev->typ)
                         ? "rock"
@@ -715,7 +716,7 @@ still_chewing(coordxy x, coordxy y)
                 svc.context.digging.chew ? "continue" : "begin",
                 boulder
                     ? "boulder"
-                    : IS_TREE(lev->typ)
+                    : IS_TREES(lev->typ)
                         ? "tree"
                         : IS_OBSTRUCTED(lev->typ)
                             ? "rock"
@@ -732,7 +733,7 @@ still_chewing(coordxy x, coordxy y)
         livelog_printf(LL_CONDUCT,
                        "ate for the first time, by chewing through %s",
                        boulder ? "a boulder"
-                       : IS_TREE(lev->typ) ? "a tree"
+                       : IS_TREES(lev->typ) ? "a tree"
                          : IS_OBSTRUCTED(lev->typ) ? "rock"
                            : (lev->typ == IRONBARS) ? "iron bars"
                              : "a door");
@@ -772,7 +773,7 @@ still_chewing(coordxy x, coordxy y)
             lev->typ = DOOR;
             lev->doormask = D_NODOOR;
         }
-    } else if (IS_TREE(lev->typ)) {
+    } else if (IS_TREES(lev->typ)) {
         digtxt = "chew through the tree.";
         lev->typ = ROOM;
     } else if (lev->typ == IRONBARS) {
@@ -933,7 +934,7 @@ may_dig(coordxy x, coordxy y)
 {
     struct rm *lev = &levl[x][y];
 
-    return (boolean) !((IS_STWALL(lev->typ) || IS_TREE(lev->typ))
+    return (boolean) !((IS_STWALL(lev->typ) || IS_TREES(lev->typ))
                        && (lev->wall_info & W_NONDIGGABLE));
 }
 
@@ -1166,8 +1167,8 @@ test_move(
         && bad_rock(&gy.youmonst, x, uy)
         /* Druids can slip between trees */
         && !(Role_if(PM_DRUID)
-             && (IS_TREE(levl[ux][y].typ)
-                 || IS_TREE(levl[x][uy].typ)))) {
+             && (IS_TREES(levl[ux][y].typ)
+                 || IS_TREES(levl[x][uy].typ)))) {
         /* Move at a diagonal. */
         switch (cant_squeeze_thru(&gy.youmonst)) {
         case 3:
@@ -4037,6 +4038,7 @@ lookaround(void)
 
             /* more uninteresting terrain */
             if (IS_OBSTRUCTED(levl[x][y].typ) || levl[x][y].typ == ROOM
+                || levl[x][y].typ == GRASS || levl[x][y].typ == SAND
                 || IS_AIR(levl[x][y].typ) || levl[x][y].typ == ICE) {
                 continue;
             } else if (closed_door(x, y) || (mtmp && is_door_mappear(mtmp))) {

@@ -832,6 +832,8 @@ kickstr(char *buf, const char *kickobjnam)
         what = "a tree";
     else if (IS_STWALL(gm.maploc->typ))
         what = "a wall";
+    else if (IS_DEADTREE(gm.maploc->typ))
+        what = "a dead tree";
     else if (IS_OBSTRUCTED(gm.maploc->typ))
         what = "a rock";
     else if (IS_THRONE(gm.maploc->typ))
@@ -1296,6 +1298,43 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             return ECMD_TIME;
         }
         kick_ouch(x, y, "");
+        return ECMD_TIME;
+    }
+    if (IS_DEADTREE(gm.maploc->typ)) {
+        You("kick %s.", Blind ? something : "the dead tree");
+        switch (!(gm.maploc->looted & TREE_FLOCK) ? rn2(5) : rn2(4)) {
+        case 0:
+        case 1:
+            kick_ouch(x, y, "");
+            break;
+        case 2:
+            pline_The("dead tree vibrates from your forceful kick.");
+            break;
+        case 3:
+            if (!may_dig(x, y)) {
+                kick_ouch(x, y, "");
+                break;
+            }
+            pline_The("dead tree falls down.");
+            gm.maploc->typ = ROOM;
+            if (Blind)
+                feel_location(x, y); /* we know it's gone */
+            else
+                newsym(x, y);
+            unblock_point(x, y); /* vision */
+            break;
+        case 4: {
+            coord mm;
+
+            mm.x = x;
+            mm.y = y;
+            if (enexto(&mm, mm.x, mm.y, &mons[PM_RAVEN])
+                && makemon(&mons[PM_RAVEN], mm.x, mm.y, MM_ANGRY|MM_NOMSG))
+                pline("You've attracted the tree's former occupant!");
+            gm.maploc->looted |= TREE_FLOCK;
+            break;
+        }
+        }
         return ECMD_TIME;
     }
     if (IS_SINK(gm.maploc->typ)) {

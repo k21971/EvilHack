@@ -2438,6 +2438,8 @@ just_an(char *outbuf, const char *str)
                || !strcmpi(str, "molten lava")
                || !strcmpi(str, "iron bars")
                || !strcmpi(str, "ice")
+               || !strcmpi(str, "grass")
+               || !strcmpi(str, "sand")
                ) {
         ; /* no article */
     } else {
@@ -3967,6 +3969,21 @@ wizterrainwish(struct _readobjnam_data *d)
         }
         water_damage_chain(svl.level.objects[x][y], TRUE, 0, TRUE);
         madeterrain = TRUE;
+    } else if (!BSTRCMPI(bp, p - 13, "shallow water")
+               || !BSTRCMPI(bp, p - 6, "puddle")) {
+        lev->typ = PUDDLE;
+        lev->flags = 0;
+        del_engr_at(x, y);
+        pline("Shallow water.");
+        water_damage_chain(svl.level.objects[x][y], TRUE, 0, TRUE);
+        madeterrain = TRUE;
+    } else if (!BSTRCMPI(bp, p - 6, "sewage")) {
+        lev->typ = SEWAGE;
+        lev->flags = 0;
+        del_engr_at(x, y);
+        pline("Sewage.");
+        water_damage_chain(svl.level.objects[x][y], TRUE, 0, TRUE);
+        madeterrain = TRUE;
 
     /* also matches "molten lava" */
     } else if (!BSTRCMPI(bp, p - 4, "lava")
@@ -4043,11 +4060,27 @@ wizterrainwish(struct _readobjnam_data *d)
             pline("Can't place a grave here.");
             badterrain = TRUE;
         }
+    } else if (!BSTRCMPI(bp, p - 9, "dead tree")) {
+        lev->typ = DEADTREE;
+        lev->flags = 0;
+        set_wallprop_from_str(bp);
+        pline("A dead tree.");
+        madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 4, "tree")) {
         lev->typ = TREE;
         lev->looted = d->looted ? (TREE_LOOTED | TREE_SWARM) : 0;
         set_wallprop_from_str(bp);
         pline("A tree.");
+        madeterrain = TRUE;
+    } else if (!BSTRCMPI(bp, p - 5, "grass")) {
+        lev->typ = GRASS;
+        lev->flags = 0;
+        pline("Some grass.");
+        madeterrain = TRUE;
+    } else if (!BSTRCMPI(bp, p - 4, "sand")) {
+        lev->typ = SAND;
+        lev->flags = 0;
+        pline("Some sand.");
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 4, "bars")) {
         lev->typ = IRONBARS;

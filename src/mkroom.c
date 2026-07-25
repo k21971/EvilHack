@@ -575,9 +575,15 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
                                            sx, sy, NO_MM_FLAGS);
                             eelct++;
                         }
-                    } else if (!rn2(4)) /* swamps tend to be moldy */
+                    } else if (!rn2(4)) {
+                        /* TODO-EVILHACK: master fills the other half of the
+                           checkerboard with PUDDLE; holding that back until
+                           shallow water carries its wading, item-damage and
+                           monster-movement behavior, since a puddle here
+                           would be inert floor where a pool is a hazard */
                         (void) makemon(mkclass(S_FUNGUS, 0), sx, sy,
                                        NO_MM_FLAGS);
+                    }
                 }
             }
         svl.level.flags.has_swamp = 1;
@@ -788,7 +794,9 @@ somexyspace(struct mkroom* croom, coord *c)
         okay = somexy(croom, c) && isok(c->x, c->y) && !occupied(c->x, c->y)
             && (levl[c->x][c->y].typ == ROOM
                 || levl[c->x][c->y].typ == CORR
-                || levl[c->x][c->y].typ == ICE);
+                || levl[c->x][c->y].typ == ICE
+                || levl[c->x][c->y].typ == SAND
+                || levl[c->x][c->y].typ == GRASS);
     } while (trycnt++ < 100 && !okay);
     return okay;
 }
@@ -1001,6 +1009,9 @@ cmap_to_type(int sym)
     case S_tree:
         typ = TREE;
         break;
+    case S_deadtree:
+        typ = DEADTREE;
+        break;
     case S_room:
     case S_darkroom:
         typ = ROOM;
@@ -1041,8 +1052,20 @@ cmap_to_type(int sym)
     case S_pool:
         typ = POOL;
         break;
+    case S_puddle:
+        typ = PUDDLE;
+        break;
+    case S_sewage:
+        typ = SEWAGE;
+        break;
     case S_ice:
         typ = ICE;
+        break;
+    case S_grass:
+        typ = GRASS;
+        break;
+    case S_sand:
+        typ = SAND;
         break;
     case S_lava:
         typ = LAVAPOOL;

@@ -228,6 +228,28 @@ dog_nutrition(struct monst *mtmp, struct obj *obj)
     return nutrit;
 }
 
+/* pet grazes the grass it is standing on; returns FALSE if it ate */
+boolean
+m_eat_grass(struct monst *mtmp)
+{
+    struct edog *edog = EDOG(mtmp);
+    struct rm *here = &levl[mtmp->mx][mtmp->my];
+
+    if (!IS_GRASS(here->typ))
+        return TRUE;
+
+    if (svm.moves > (edog->hungrytime + 20)
+        && can_eat_grass(mtmp->data)) {
+        here->typ = ROOM, here->flags = 0;
+        if (canseemon(mtmp) && flags.verbose)
+            pline_mon(mtmp, "%s eats some grass.", Monnam(mtmp));
+    }
+    edog->hungrytime += 20; /* nutrition gain */
+    newsym(mtmp->mx, mtmp->my);
+
+    return FALSE;
+}
+
 /* returns 2 if pet dies, otherwise 1 */
 int
 dog_eat(struct monst *mtmp,
@@ -1220,6 +1242,15 @@ dog_move(
         edog->petstrat &= ~PETSTRAT_COME;
         if (canseemon(mtmp))
             pline_mon(mtmp, "%s arrives at your side.", Monnam(mtmp));
+    }
+
+    /* skip grass eating if coming to the player */
+    if (edog && !(edog->petstrat & PETSTRAT_COME)
+        && svm.moves > (edog->hungrytime + 20)
+        && levl[mtmp->mx][mtmp->my].typ == GRASS
+        && can_eat_grass(mtmp->data)) {
+        m_eat_grass(mtmp);
+        return MMOVE_DONE;
     }
 
     nix = omx; /* set before newdogpos */
