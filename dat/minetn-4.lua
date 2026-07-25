@@ -112,21 +112,21 @@ des.room({ type = "ordinary",
            contents = function()
               des.stair("down")
               des.trap()
-              des.monster("gnome")
-              des.monster("gnome")
+              des.monster("rock gnome")
+              des.monster("rock gnome")
            end
 })
 
 des.room({ type = "ordinary",
            contents = function()
-              des.monster("dwarf")
+              des.monster("mountain dwarf")
            end
 })
 
 des.room({ type = "ordinary",
            contents = function()
               des.trap()
-              des.monster("gnome")
+              des.monster("rock gnome")
            end
 })
 

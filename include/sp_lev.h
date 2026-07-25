@@ -144,7 +144,7 @@ typedef struct {
     xint16 class, appear;
     schar peaceful, asleep;
     short female, invis, cancelled, revived, avenge, fleeing, blinded,
-        paralyzed, stunned, confused, waiting;
+        paralyzed, stunned, confused, waiting, dead;
     short m_lev_adj;
     long seentraps;
     short has_invent;

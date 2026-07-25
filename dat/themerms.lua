@@ -773,7 +773,7 @@ xx|.....|xx
 }}}}}}]], contents = function(m)
             des.region({ region={3,3,3,3}, type="themed", irregular=true,
                          filled=0, joined=false });
-            local nasty_undead = { "giant zombie", "ettin zombie", "vampire lord" };
+            local nasty_undead = { "giant zombie", "ettin zombie", "vampire noble" };
             local chest_spots = { { 2, 2 }, { 3, 2 }, { 2, 3 }, { 3, 3 } };
 
             shuffle(chest_spots)

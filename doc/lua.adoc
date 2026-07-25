@@ -820,6 +820,7 @@ The hash parameter accepts the following keys:
 | confused       | boolean |
 | waiting        | boolean | monster will wait until hero gets next to it
 | m_lev_adj      | integer | monster's level adjustment
+| dead           | boolean | monster is created and then immediately killed; it drops what it was carrying, may leave a corpse, and does not count toward the vanquished tally. It runs the full death path, so use it only for ordinary bodies - never for a unique, a boss, or a quest leader or nemesis
 | tail           | boolean | generate worm without a tail?
 | group          | boolean | generate a group of monsters?
 | adjacentok     | boolean | is adjacent location ok, if given one is not suitable?

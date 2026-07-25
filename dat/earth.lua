@@ -54,7 +54,7 @@ des.levregion({ region = {0,0,75,19}, exclude = {65,13,75,19}, type="portal", na
 --  Some helpful monsters.  Making sure a
 --  pick axe and at least one wand of digging
 --  are available.
-des.monster("Elvenking", 67,16)
+des.monster("elven royal", 67,16)
 des.monster("minotaur", 67,14)
 --  An assortment of earth-appropriate nasties
 --  in each cavern.

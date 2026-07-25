@@ -4104,9 +4104,441 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       still read hard_door(). Battery lever correction: rm.h
       SDOOR=14, SCORR=15 - an earlier scan misread typ 15 as a
       secret door.
-- [ ] Monster `dead` .des flag -> des.monster dead= binding
-      (must call mondied(); 13 sites)
-- [ ] MINDEPTH: directive binding (17 sites)
+- [x] Monster `dead` .des flag -> des.monster dead= binding
+      DONE 2026-07-25. Census correction: the old "13 sites" figure was
+      wrong - the real inventory is **6 .des lines, all dat/mines.des
+      Orcish Town (minetn-1)**: 3 shopkeepers, 1 aligned priest, 1
+      watchman inside LOOP [4], 1 watch captain = 9 monsters at runtime.
+      No other master .des uses the flag. Master implementation was 6
+      sites (lev_comp.l token, lev_comp.y token + SP_M_V_DEAD, sp_lev.h
+      field, sp_lev.c opvar parse x2, sp_lev.c kill arm).
+      SHAPE: `short dead` on the transient `monster` struct (no save
+      exposure - the typedef is only a create_monster() arg and an
+      lspo_monster() stack local), one init in the common defaults block
+      so the three non-table argument forms are covered, and
+      get_table_boolean_opt in the table branch.
+      MAINTAINER RULINGS 2026-07-25: (1) DEFERRED KILL - create_monster()
+      now returns `struct monst *` (mirroring create_object() in the same
+      file) and the kill lives at a single site in lspo_monster() AFTER
+      the Lua inventory closure and spo_end_moninvent(), so `dead = 1`
+      composes with `inventory = function()` and the custom loot drops
+      beside the corpse. Behaviour is identical to master for all 6
+      existing sites (nothing runs in between). (2) BOTH mvitals EDGES
+      GUARDED - decrement only when DEADMONSTER() holds after mondied()
+      and only when the count is above 0; a stated deviation from
+      master's unconditional decrement.
+      MASTER BUGS (both latent, no shipped .des reaches either; archived
+      frozen-unfixed, fixed on branch): **BUG-1364** unconditional
+      `mvitals[].died--` subtracts a count mondead() never added when the
+      monster survives (lifesaved / vamprises / Ice Queen), wrapping the
+      uchar to 255 - real consequences are a 255 vanquished count,
+      experience()'s per-20-kills halving collapsing XP for the species,
+      and corruption of killed_nazgul/Croesus/unique-killed gates; it is
+      NOT extinction (that is G_EXTINCT in mvflags). **BUG-1365** `dead`
+      plus an inventory block hands the block's objects to the
+      already-detached monster via invent_carrying_monster, and
+      dealloc_monst() frees the struct with no minvent handling, so they
+      leak silently.
+      REVIEWER (evilhack-code-reviewer, CONDITIONAL PASS, 0 blockers):
+      2 MEDIUM, both real and fixed. M1 = the else arm of the closure
+      gate left invent_carrying_monster set when `inventory` is present
+      but not a function (a table, say), which still sets CUSTOM_INVENT;
+      with `dead` that became the BUG-1365 leak on the branch's own new
+      path. Fixed by clearing the static in the else arm when
+      CUSTOM_INVENT was requested; the underlying non-function case is
+      upstream's and is in the upstream-reportable table. M2 = corpse
+      wording, see the CENSUS CORRECTION below. Reviewer independently
+      confirmed: mtmp is initialised on every path reaching `return
+      mtmp` (the three-way makemon/mk_roamer/mk_mplayer assignment is
+      exhaustive and both early returns precede it); christen_monst()
+      returns the same pointer; worn_slot_sanity()/check_wornmask_slots()
+      are hero-slot-only so a dead monster's worn gear cannot trip them;
+      no NULL-mextra deref for the makemon'd shopkeeper (isshk stays 0,
+      so m_detach's shkgone is not reached) or aligned cleric (makemon
+      routes an ordinary aligned priest to emin, ispriest stays 0, and
+      m_detach has no EPRI branch at all); the full death lifecycle is
+      safe at level-creation time (gi.in_mklev suppresses newsym,
+      vision_recalc(2) has already killed cansee so every cansee-gated
+      pline is silent, attribution globals are clean, and the
+      single-detach monster waits for the dmonsfree that savelev() and
+      moveloop both force) - with create_object's named-statue
+      makemon+mongone pair as the established precedent for removing a
+      monster during level creation.
+      CENSUS CORRECTION (my error, reviewer-caught): the plan claimed the
+      placed bodies always leave a corpse because human monsters are
+      bigmonst. WRONG - EvilHack defines `bigmonst(ptr)` as
+      `msize >= MZ_LARGE` while `MZ_HUMAN == MZ_MEDIUM`, so a human is
+      NOT bigmonst and corpse_chance() falls through to
+      `2 + ((geno & G_FREQ) < 2) + r_verysmall` = a 1-in-3 roll for all
+      four species. Watchmen and watch captains are M2_MERC, so
+      m_randrace can give them a GIANT body, which IS r_bigmonst and
+      always leaves a corpse - so the rate is race-dependent. Identical
+      on master, i.e. Orcish Town's corpses have always been
+      probabilistic, whereas upstream's des.object corpse block is
+      unconditional. Phase 3 must not "fix" that to match upstream.
+      BATTERY (evilhack-game-tester, 1 game, paniclog file NEVER
+      CREATED, zero impossible()): 7 PASS, 1 invalid lever. Proofs:
+      deferred kill live-proven twice (custom crystal ball on the floor
+      with the body and NO default gear when `inventory` was given
+      alone; marker PLUS default gear with keep_default_invent);
+      shopkeeper / aligned cleric / watch captain bodies all dropped
+      their gear with no message-line output at all; the M1 regression
+      lever (`inventory = { }` table + a later des.object) put the
+      fortune cookie on the FLOOR, `where=1`, not on the detached
+      monster. TALLY = the headline proof: `#vanquished` read "No
+      creatures have been vanquished" with 5 dead watchmen plus the
+      shopkeeper/cleric/captain/wererat/vampire on the map (gdb: watchman
+      born=7 died=0), then read exactly "a watchman" count 1 after a
+      hero kill of the live control - so the placed bodies were
+      cancelled and the cancellation did not over-subtract.
+      **BUG-1364's fix is live-proven** by the life-saving lever: a
+      `dead = 1` watchman given an amulet of life saving as custom
+      inventory was worn-and-consumed by m_dowear during
+      spo_end_moninvent and survived, and died stayed 0 - master's
+      unconditional decrement would have read 255 there.
+      ADJUDICATED, not defects: the life-saving revival was SILENT (no
+      "But wait..." / medallion messages) because level-creation message
+      suppression is in effect, exactly as the reviewer traced - brief
+      expectation error. The vampshifter lever was INVALID on two
+      counts: "vampire lord" does not exist in EvilHack (master and
+      branch both name them vampire / vampire sovereign / noble /
+      royal), and the plain `vampire` record is a LVL(0,...) G_NOGEN
+      placeholder without M2_SHAPESHIFTER, so pm_to_cham leaves
+      cham = NON_PM and is_vampshifter is false - it died correctly and
+      the 2-in-3 corpse roll failed, which is why the square was empty.
+      A real lever needs vampire sovereign/noble/royal. The vamprises
+      early return is the same `if (DEADMONSTER(mtmp))` guard the
+      life-saving lever proved, so guard coverage is adequate.
+      Files: include/sp_lev.h, src/sp_lev.c, doc/lua.adoc.
+      SPUN OUT OF THE INVALID LEVER: see the "Gendered monster names
+      (NAMS) lost by the monsters.h migration" row below - it turned out
+      to be a branch-only regression costing 24 names and 32 shipped
+      level references, fixed the same day in its own slice.
+- [x] MINDEPTH: directive binding - CLOSED 2026-07-25 with NO code.
+      All 17 sites are in dat/vaults.des, and the rndvault C machinery is
+      already ratified NOT PORTED (rndvaults become themerms.lua
+      entries, see the row below). mindiff/maxdiff filtering is pure Lua
+      inside themerooms_generate (dat/themerms.lua), so there is no C
+      binding to write - the per-vault MINDEPTH(depth) -> mindiff
+      (difficulty) semantics check travels with the Phase 3 conversion.
+- [x] **Gendered monster names (NAMS) lost by the monsters.h migration -
+      RESTORED 2026-07-25.** Found while adjudicating an invalid battery
+      lever on the dead= slice (`id = "vampire lord"` silently produced a
+      plain vampire); maintainer identified the cause as the monsters.h
+      migration not accounting for 5.0's gendered-name field.
+      **MASTER HAD TWO MECHANISMS AND THE MIGRATION DROPPED BOTH:**
+      (1) LOOKUP - `name_to_mon()` (src/mondata.c) rewrites the *input*
+      tail `" lord"/" lady" -> "noble"`, `" king"/" queen" -> "royal"`,
+      `" baron"/" baroness" -> "sovereign"`, with rat king / goblin king
+      / kathryn carve-outs, so a gendered name matches mons[].mname;
+      (2) DISPLAY - `x_monnam()` (src/do_name.c, "lords and ladies, kings
+      and queens") runs `strsubst()` on the rendered buffer in the other
+      direction, gated on `is_lord()` = M2_LORD, `is_prince()` =
+      M2_PRINCE, plus an explicit `PM_VAMPIRE_SOVEREIGN` arm. So on
+      master a male gnome royal DISPLAYS "gnome king" and the name also
+      RESOLVES. Neither mechanism reached the branch, so gendered names
+      neither displayed nor resolved - a branch-only regression, NOT a
+      v1.0.0 delta. (Coordinator initially mis-diagnosed this as
+      master-never-displayed-gendered-names; the strsubst block does not
+      store any gendered string, so a tree-wide grep for "gnome king"
+      returns zero hits on master and looks like confirmation. Maintainer
+      corrected it. LESSON: a constructed string is invisible to grep -
+      find the render path, do not infer absence from a literal search.)
+      **FIX = 5.0's single native mechanism.** `NAMS(male, female, base)`
+      fills `permonst.pmnames[NUM_MGENDERS]`, which `pmname(ptr,g)`
+      (include/mondata.h) reads for DISPLAY and `name_to_monplus()`
+      iterates for LOOKUP - so converting the 12 records restores both
+      halves at once and supersedes both 3.6 mechanisms. **Do NOT port
+      master's strsubst block or the input normalizer on top of this**;
+      they would be redundant, and the normalizer's rat-king/goblin-king
+      carve-outs exist only because it did blind string surgery, which
+      exact per-record NAMS data cannot do.
+      12 records converted, EvilHack's gender-neutral base kept in the
+      third field per maintainer ruling ("if master's base name differs
+      from upstream's base name, keep master's base name" - upstream's
+      leader/ruler/tyrant/monarch NOT adopted): dwarf noble/royal,
+      kobold noble, gnome noble/royal, ogre noble/royal, vampire
+      noble/royal/sovereign, elven noble/royal. Verified every " noble"
+      record carries M2_LORD, every " royal" carries M2_PRINCE, vampire
+      sovereign carries neither (its explicit PM arm), and none carries
+      both - so master's else-if ordering hazard (is_lord matching first
+      and its strsubst finding nothing) has no instances, and the 24
+      names are exactly what master rendered. Upstream has a NAMS
+      counterpart for only 8; the vampire royal/sovereign tiers and the
+      elven pair are EvilHack-only and took their gendered names from
+      master's normalizer vocabulary.
+      WAS LIVE: 32 bad monster references in 17 shipped upstream .lua
+      files, 30 of them silent. `gnome lord` x15 and `gnome king` x3
+      (positional form) prefix-matched to the LVL(0,..) G_NOGEN
+      PLACEHOLDER gnome; `vampire lord` x8 and `vampire lady` x3 to the
+      placeholder vampire - so the whole Gnomish Mines, Wizard's Tower,
+      Orcus's lair and Vlad's Tower spawned level-0 pushovers.
+      `Elvenking` (earth.lua) matched nothing and became a RANDOM
+      monster; `montype="gnome king"` (minetn-5) and `id="Grand Master"`
+      (Mon-strt) hard-errored. Wishing, genocide, polyself and
+      #wizgenesis lost all 24 names too.
+      ALSO IN THE SLICE: two level references corrected to the names
+      master's .des uses, which is what Phase 3 will emit - earth.lua
+      -> "elven royal" (master endgame.des), Mon-strt.lua -> "Master Po"
+      (master Monk.des; the branch Monk leader is NAM("Master Po") and
+      "Grand Master" is not a rank title either - weapon.c's "Grand
+      Master" is a SKILL level). HARDENING: the three positional
+      `des.monster("name")` branches in lspo_monster ignored a NON_PM
+      from find_montype, leaving class -1 / id NON_PM, which
+      create_monster turns into pm = NULL and therefore a RANDOM monster
+      - that is what hid Elvenking inside an endgame plane. They now
+      nhl_error("Unknown monster id") like the table form already does
+      via get_table_montype. CONVERTER: ~/monst_to_50.py gained a
+      RANK_TIERS map keyed on the base name's final word so a
+      regeneration cannot silently revert this; validated against
+      master's real 569-entry corpus, 12/12 emitted NAMS records match
+      the hand-edited monsters.h byte-for-byte. Full-corpus proof: all
+      1615 monster references across all 131 dat/*.lua now resolve
+      EXACTLY - zero prefix-matches, zero errors - so the prefix
+      fallback is no longer load-bearing for any shipped level and a
+      future conversion typo surfaces instead of substituting.
+      NUMMONS unchanged at 561; no struct/enum/save impact (pmnames[]
+      already existed, the MON enum suffix is a separate macro arg,
+      mons[] is static const); src/tile.c is build-generated and
+      regenerated to the `male gnome royal {gnome king}` form.
+      REVIEWER (evilhack-code-reviewer, CONDITIONAL PASS): independently
+      re-derived the do_name.c strsubst block and the M2_LORD/M2_PRINCE
+      agreement between trees, and found the slice UNDER-CLAIMED its own
+      impact - see BUG-1366, the Mine Town maze abort. MEDIUM finding
+      fixed: three alt_spl aliases master accepted were still missing
+      ("elf king"/"elf queen"/"elf royal"); without them `"elf royal"`
+      prefix-matched the LVL(0,..) G_NOGEN placeholder `NAM("elf")`.
+      Reviewer also verified no name collisions among the 24 new strings
+      (only the pre-existing priest/priestess and were* pairs collide),
+      that the one new prefix pair "vampire baron"/"vampire baroness"
+      disambiguates correctly through name_to_monplus's suffix rules,
+      that every gendered name is <= its neutral name in length so there
+      is no doname/BUFSZ exposure, that none of the 12 carries M2_MALE or
+      M2_FEMALE so both genders stay reachable, and that no literal
+      string comparison anywhere in src/ or include/ tests any of the 12
+      base or 24 gendered names.
+      TWO REVIEWER NOTES RECORDED, NOT FIXED:
+      (a) LEVEL-GEN GENDER IS NOW DETERMINISTIC where master randomized
+      it. Master's .des used the neutral names ("gnome noble"), so gender
+      was rolled per monster; the adopted upstream .lua files use the
+      MALE aliases ("gnome lord"), and find_montype maps a male-alias
+      name to MALE unconditionally, so every Mine Town / Mine's End noble
+      is male today. Upstream-consistent, and it SELF-HEALS at Phase 3
+      because those levels get regenerated from master's .des, which uses
+      the neutral names. Do not "fix" it by diverging the .lua from
+      upstream before then.
+      (b) win/share/monsters.txt tile-name comments still carry
+      upstream's names (`# tile 340 (gnome leader,male)`) and the file
+      has 789 entries where 561x2 are needed - pre-existing Phase 1
+      migration debt, zero build impact since src/tile.c is generated
+      from monsters.h at build time and is gitignored. Belongs to Phase 4.
+      BATTERY (evilhack-game-tester, 1 game, paniclog file NEVER CREATED,
+      zero impossible()): **7/7 PASS**. Display proven for all 12 records
+      both genders (33 name inputs), with articles correct throughout -
+      "A gnome king", "An elven king", "An ogre lord", "A dwarf lady".
+      Renderings verified in every channel: genesis lines, farlook
+      autodescribe and confirm ("G  a gnome (peaceful gnome queen)"),
+      pile lines ("a statue of a gnome king", "a gnome king corpse"),
+      combat/anger/flee, kill ("You kill the gnome king!", "You destroy
+      the vampire lady!"), peaceful displace ("Pardon me, gnome queen."),
+      vampshift reveal ("...rises as a vampire lady!"), and the
+      polymorphed hero status line ("Wizard the Gnome Lord"). Resolution
+      proven by gdb mnum+female walk for all 33 inputs - zero landed on a
+      placeholder. All 6 previously-broken levels PASS: minend-1 real
+      gnome king + gnome lords; wizard1 real vampire noble; tower1 three
+      named female vampire nobles; **minetn-5 loads with NO "Unknown
+      montype" error** and its statue reads corpsenm=262 gnome royal
+      spe=6 = CORPSTAT_MALE|CORPSTAT_HISTORIC, confirming both the
+      BUG-1366 maze abort is gone AND the statue-gender arm is live;
+      earth has a real elven royal at the right tile; **Mon-strt loads
+      and Master Po is the genuine quest leader** (mnum 517 == urole
+      ldrnum, +6 robe, real leader dialogue on #chat). Statue wishes set
+      CORPSTAT_FEMALE/MALE correctly. Player-input paths pass: genocide
+      accepted "vampire baron" -> "Wiped out all vampire sovereigns",
+      polyself accepted "gnome lord", and both the "gnome king corpse"
+      and "vampire lady figurine" wishes carried the right corpsenm+sex.
+      Death reporting: tombstone/logfile/xlogfile all read "killed by a
+      gnome king's thrown dart"; **#vanquished groups by species using
+      the base neuter name** ("3 gnome royals") while kill messages use
+      the gendered name - the same split master has (insight.c reads
+      pmnames[NEUTRAL], done_in_by uses pmname(Mgender)), so it is
+      correct, not an inconsistency to chase.
+      TESTING NOTES for future batteries: #wizgenesis delivers the three
+      M2_SHAPESHIFTER vampire records PRE-DISGUISED (genesis says "A
+      vampire bat appears"), so verify the name resolved by reading
+      mtmp->cham rather than the visible form, and un-mask with
+      `call (int) newcham($m, &mons[$c], 0)`; #wizgenocide does not exist
+      on this branch (wish a scroll instead); the DUMPLOGFILE sysconf
+      path points at a nonexistent /dgldir so death dumps are not
+      reachable here - logfile/xlogfile/livelog cover the same text.
+      The three new elf aliases landed AFTER this battery's binary was
+      built (the tester correctly caught the tree changing under it), so
+      they got their own short follow-up run against the rebuilt binary:
+      PASS 6/6 - "elf lord"/"elf lady"/"elf noble" -> mnum 391 elven
+      noble and "elf king"/"elf queen"/"elf royal" -> mnum 394 elven
+      royal, MALE/FEMALE/random respectively, all at mlevel 8/9 so none
+      on the LVL(0) placeholder; "high-elf" still resolves (regression
+      check); an "elf king corpse" wish carried CORPSTAT_MALE and an
+      "elf queen figurine" CORPSTAT_FEMALE; paniclog again never created.
+      Recorded from that run: polyself resolves the SPECIES from the
+      alias but keeps the HERO's gender ("elf queen" -> "You turn into an
+      elven king!") - standard polymon() behaviour, not an alias defect,
+      and identical for "gnome lord"; the female half is proven by the
+      figurine wish instead.
+      RESIDUE (open): find_montype still resolves by longest-prefix, so
+      a TYPO that prefixes a real name (not a renamed species - those
+      are all fixed) would still substitute silently. Master caught every
+      bad name at BUILD time in util/lev_main.c get_monster_id() (exact
+      strcmp -> ERR -> lev_comp error); the branch has no equivalent
+      gate. Making level-file lookup exact would need name_to_monplus to
+      report HOW it matched, so alt-table aliases like "high-elf" keep
+      working - deferred, revisit with the Phase 3 conversion tooling.
+- [x] **Adopted upstream .lua names that resolve to an EvilHack
+      PLACEHOLDER - 80 refs FIXED 2026-07-25, plus 27 gendered-alias refs
+      converted to base names.** Found by the gendered-names battery
+      (anomaly 1). EvilHack splits several vanilla base species into an
+      `mlevel 0` + `G_NOGEN` **race-archetype placeholder** plus a
+      renamed real monster; master's .des names the real one, upstream's
+      .lua name the vanilla one = our placeholder. The BUG-1366 sweep was
+      blind to this because these resolve EXACTLY, just to the wrong
+      record. Correct detector = "resolves to an mlevel-0 G_NOGEN
+      record", not "resolves". Archived as BUG-1367.
+      RENAMES (74): `gnome` -> `rock gnome` x54, `dwarf` ->
+      `mountain dwarf` x20 across minefill/minend-1,2/minetn-2..7. Safe as
+      a uniform substitution: master's mines.des names the bare forms
+      ZERO times, and LVL()+geno are byte-identical between upstream's
+      base record and EvilHack's renamed one. Reviewer re-derived the
+      whole master gnome/dwarf inventory (rock gnome 56, gnomish wizard
+      18, mountain dwarf 17, gnome noble 17, gnome royal 5, zero bare)
+      and spot-checked minetn-2/-5/-7 and minend-1/-2 section by section,
+      several matching master coordinate-for-coordinate.
+      orcus.lua (5): bare `vampire` -> sovereign x3 + royal x2, derived
+      positionally from master's gehennom.des orcus section; post-change
+      totals match master exactly (sovereign 3 / noble 4 / royal 2).
+      **Cav-goal.lua: the Caveman quest had NO NEMESIS.** `id =
+      "Chromatic Dragon"` case-insensitively matched
+      `NAM("chromatic dragon")`, which monsters.h itself comments is
+      "strictly a placeholder for chromatic dragon scales" (mlevel 0).
+      Master's Caveman.des has `MONSTER:('H',"Annam"),(23,10),asleep` at
+      the IDENTICAL coordinate and flag and role.c gives Caveman
+      `neminum = PM_ANNAM` (field order verified against you.h). Fixed.
+      GENDERED ALIASES -> BASE NAMES (27, maintainer-directed): level
+      files must name monsters by the gender-neutral base name, because
+      (a) master's .des use base names exclusively in creation position -
+      reviewer swept all 36 master .des files and found only three
+      exceptions, all deliberate - and (b) `find_montype` PINS the sex
+      for a gendered alias (exact match on pmnames[MALE] propagates
+      matchgend) while a neutral-name match falls through to
+      `mgend = rn2(2)`, so every Mine Town noble was male. Converted
+      `gnome lord` x15, `gnome king` x3, `vampire lord` x9 (the 9th was
+      in themerms.lua's `nasty_undead` list, which feeds
+      `des.monster(nasty_undead[1],...)`).
+      tower1.lua got `id="vampire noble", female=1` instead of a plain
+      base name, because its three niches are upstream's named "Brides of
+      Dracula" (Madame/Marquise/Countess) and a random gender would let a
+      male be called "Madame". Reviewer verified the precedence line by
+      line: `tmpmons.female` is read BEFORE get_table_montype, BOOL_RANDOM
+      is -1, VAMPIRE_NOBLE carries neither M2_MALE nor M2_FEMALE, so the
+      override guard is false and the explicit flag wins. Its
+      `nh.is_genocided("vampire")` guard was also a REAL dead check - the
+      placeholder's geno is `(G_NOGEN)` with NO `G_GENO`, i.e.
+      non-genocidable, so Vgenod could never be true; now
+      `is_genocided("vampire noble")`.
+      DELIBERATE EXCLUSIONS, all reviewer-confirmed against master:
+      Tou-goal.lua incubus x4 / succubus x2 (gender IS the discriminator
+      under upstream's NAMS merge, and master's Tourist.des uses the same
+      names at the same coordinates); minetn-5.lua `montype="gnome king"`
+      statue (master's mines.des has NO statue lines at all - upstream-only
+      content whose maleness is upstream's own fix, and it keeps the
+      CORPSTAT_MALE arm exercised); valley.lua `montype="caveman"/
+      "cavewoman"` (master's gehennom.des uses those exact gendered
+      montype names for corpses); themerms.lua "Massacre" role list.
+      **CORRECTION to my own rationale, reviewer-caught**: I justified the
+      Massacre exclusion as "adventurer monsters of both sexes", which is
+      WRONG for `priest`/`priestess` - lspo_object's montype scan walks
+      mons[] ascending and breaks on first hit, and
+      `NAMS("priest","priestess","aligned cleric")` (monsters.h:4170)
+      precedes `NAMS("priest","priestess","cleric")` (:5205), so those
+      resolve to PM_ALIGNED_PRIEST, not the adventurer PM_CLERIC. This is
+      the documented 2026-07-03 NAMS gotcha resurfacing. The exclusion is
+      still correct (byte-identical upstream, and master does the same at
+      purgatory.des) but do not cite the old reasoning as fact.
+      DIAGNOSTIC (maintainer-approved): lspo_monster reports via
+      `impossible()` when a level names an mlevel-0 G_NOGEN record, then
+      creates it anyway - deliberately NOT nhl_error, because aborting the
+      load costs the player the whole level via the mkmaze fallback, which
+      is the BUG-1366 symptom. Reviewer verified the predicate must stay
+      NARROW: ~45 further G_NOGEN records have mlevel > 0 and are named by
+      levels legitimately (Orcus, Vlad, Wizard of Yendor, Annam, Master
+      Po, aligned priests, quest leaders/nemeses, Riders). It also proved
+      the diagnostic cannot fire in normal play by scanning all 141 .lua
+      files (1803 monster arguments, 0 placeholder hits in dat/) and by
+      tracing every variable-fed des.monster argument, and audited the
+      three runtime `mons[]` writers (role.c Infidel enemy1num, mon.c
+      mmove, adj_erinys mlevel>=7) - none can make a placeholder look
+      real or vice versa.
+      REVIEWER MEDIUM FIXED: test/test_des.lua named the `gnome`
+      placeholder twice explicitly (now `rock gnome`), and its exhaustive
+      `for i = LOW_PM, HIGH_PM` loop necessarily names all 16 archetypes,
+      so a comment now records that the resulting paniclog lines are the
+      diagnostic working rather than a failure. Note for Phase 7 when the
+      harness gets wired up: `impossible()` becomes a hard panic under
+      `fuzzer_impossible_panic`, so if the des harness ever becomes
+      fuzzer-reachable that loop needs a real skip, not a comment.
+      REVIEWER RULED OUT (do not re-raise): rock gnome carries G_SGROUP
+      where the placeholder did not, but group spawning is gated on
+      `anymon = !ptr` in makemon, so a NAMED monster never groups - no
+      density change. Side benefits of the record swap: the species become
+      poly-eligible again (M2_NOPOLY dropped, matching master) and
+      `G_GENO` means #genocide and mvitals extinction bookkeeping now land
+      on the species actually created, where the non-genocidable
+      placeholder previously swallowed them.
+      BATTERY (evilhack-game-tester, 1 game, 26 level loads, 2 genocides):
+      **8/8 PASS**, paniclog exactly ONE line and it is the intended
+      diagnostic proof. 0 placeholders on minend-1/minetn-6/minefill/
+      minetn-2 with full species censuses; **gender random again - 24M/40F
+      over n=64** where every one had been male; orcus exactly 3/4/2 with
+      zero bare vampire over 3 loads; **Annam present asleep with mnum ==
+      urole neminum 527 and no chromatic dragon anywhere**; tower1 brides
+      all female+named, and after genociding "vampire noble" the
+      previously-dead Vgenod guard fired (names absent, niches
+      substituted); the diagnostic produced its one line AND the level
+      still loaded as its room rather than a maze; and genociding
+      "rock gnome" now substitutes 9 random monsters in minend-1, where
+      the non-genocidable placeholder used to absorb it.
+      TESTER CORRECTION to my brief, worth keeping: "no monster has
+      mlevel 0" is too strong as a test criterion - kobold, goblin and bat
+      legitimately have mlevel 0. The discriminating predicate is
+      `mlevel == 0 && G_NOGEN`, which is exactly what the diagnostic uses.
+      SPUN OUT: the tester's raw observation that Cav-goal's named mace
+      had `oartifact = 0` was a REAL second bug, not a wizloaddes
+      artifact - see BUG-1368. Also recorded from that run: Cav-goal.lua
+      declares `level_flags("mazelevel")` with no `noflip`, so it flips on
+      both axes at random; any future coordinate assertion on that level
+      must account for it.
+      BUG-1368 VERIFIED LIVE in a follow-up run: `oartifact = 49 =
+      gu.urole.questarti` and `otyp = 86 (rod) = artilist[49].otyp`, where
+      it previously read `otyp=82 (mace) oartifact=0`. The load-bearing
+      proof is the pickup text, which only fires for a real artifact - "As
+      you pick up the Sceptre of Might it seem heavy at first, but then
+      your arms feel strong. / You feel like you can beat up anyone now."
+      - i.e. the quest-artifact touch plus the intrinsic grant. Identified
+      form reads "the blessed +0 Sceptre of Might"; UNidentified it reads
+      "a steel ornate mace named the Sceptre of Might", because ROD's
+      appearance is "ornate mace" - expected, and the very thing that made
+      the wrong base object look plausible. paniclog absent for that run.
+      NOT A BUG (harness): that run reported `;` (glance) doing nothing,
+      with the next keystroke moving the hero. `;` IS bound to "glance" in
+      cmd.c and `/` (whatis) worked in the same run - the symptom is
+      exactly the tmux trap the tester documented in an earlier round,
+      where a bare `;` in `send-keys -l` is eaten as tmux's own command
+      separator and must be sent as `-l '\;'`. Third recurrence; it is a
+      driving gotcha, not a game defect.
+      GATE (re-runnable, keep for Phase 3): 0 placeholder-creation refs
+      and 0 non-exact refs across 1615 monster references in all 131
+      dat/*.lua; all 14 quest-artifact placements match their artilist
+      base otyp (BUG-1368's gate); `luac -p` clean on all 21 edited .lua
+      files.
 - [ ] Special room types only: GARDEN=17 etc. -> mkroom.h +
       sp_lev room-name table (rtype drives runtime behavior, so
       needed regardless of level source). The rndvault C
@@ -4153,7 +4585,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | gehennom.des | 14 | delta-diff | | | | |
 | knox.des | 3 | delta-diff | | | | |
 | medusa.des | 4 | delta-diff | | | | |
-| mines.des | 14 | delta-diff | | | | |
+| mines.des | 14 | delta-diff | | | | minetn-1 (Orcish Town): use des.monster{dead=1}, do NOT adopt upstream's des.object{id="corpse"} block (loses the dropped gear); priest id is "aligned cleric" (PM_ALIGNED_CLERIC d=15), not "cleric" (PM_CLERIC d=12) |
 | oracle.des | 3 | delta-diff | | | | |
 | sokoban.des | 24 | delta-diff | | | | |
 | tower.des | 4 | delta-diff | | | | |
@@ -4267,6 +4699,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-23 | pray.c pleased() gift switch rolls `rn2((Luck + 6) >> 1)` with no lower clamp: Luck <= -6 passes rn2() a non-positive argument (reachable - the pleased path gates on god anger/trouble, not on Luck). Master's clamp form (`gift_slot` local, floor at 1) ported with the roles slice; branch verified at pray.c pleased() | fixed on branch; not yet sent |
 | 2026-07-23 | artifact.c invoke_healing (5.0's split of arti_invoke HEALING) can print "You feel better." twice per invoke: the body has BOTH an unconditional `Blinded > creamed -> You_feel("better.")` arm and the gated `You_feel("%sbetter.", ...)` tail. Identical at 74d1133c2; looks like an upstream merge artifact. Left as-is on branch (only the Withering cure term was added by the artifacts slice) | traced; not yet sent |
 | 2026-07-24 | muse.c hero scroll-of-fire arm: `if (Fire_resistance) You("are not harmed.");` followed by `if (Half_spell_damage) num = (num + 1) / 2; else losehp(num, ...)` - the losehp rides the halving else, so a fire-resistant hero takes FULL damage whenever Half_spell_damage is absent, and ANY hero with Half_spell_damage takes zero. Identical in NetHack50 and Official_nh50. Branch restored master's gate form (==100 no-harm + monstseesu, else halve-then-losehp) with the partial-resistance slice | fixed on branch; not yet sent |
+| 2026-07-25 | sp_lev.c lspo_monster() leaks two heap strings on its table-form error paths, because `nhl_error` -> `lua_error` longjmps out past the `Free`s: the `nhl_error(L, "Unknown appear_as type")` arm abandons `mappear` (from get_table_str_opt) plus `tmpmons.name.str`, and an `nhl_error` raised inside `get_table_montype()` abandons `tmpmons.name.str` and the `dupstr`ed `tmpmons.appear_as.str`. Verified identical in NetHack50 and Official_nh50. Matters a little more than a normal error-path leak because a Lua error during level generation is NOT fatal - `nhl_pcall_handle` uses NHLpa_impossible, so load_special returns FALSE, mkmaze falls back to a random maze and play continues, so the leak can recur. NOT the same as `get_table_montype()` itself, whose `Free(s)` correctly precedes its `nhl_error`. The branch's three new positional-form `nhl_error`s are leak-free by construction (nothing is allocated yet at that point and paramstr is Lua-owned) | traced, not fixed on branch; not yet sent |
+| 2026-07-25 | sp_lev.c lspo_monster(): a `des.monster{ inventory = <non-function> }` (a table, say) still sets `has_invent = CUSTOM_INVENT` at the `lua_getfield`/`!lua_isnil` test, so create_monster() points the file static `invent_carrying_monster` at the monster, but the closure gate additionally requires LUA_TFUNCTION - the else arm only does `lua_pop` and never calls spo_end_moninvent(). The static therefore outlives the call and create_object() diverts every later `des.object()` in the file into that monster instead of onto the map. Identical in NetHack50 and Official_nh50 (both `} else lua_pop(L, 1);`, and their create_monster is `staticfn void`). Harmless-but-wrong upstream; on the branch the `dead` binding turns it into a silent object leak (objects handed to a detached monster, freed by dealloc_monst which has no minvent handling), so the branch clears the static in the else arm whenever CUSTOM_INVENT was requested | fixed on branch; not yet sent |
 | 2026-07-24 | uhitm.c mhitm_ad_slee monster-vs-monster arm: `!mdef->msleeping && sleep_monst(mdef, rnd(10), -1) && sleep_monst(mdef, rnd(10), -1)` - sleep_monst called twice in one condition, so the sleep applies only when both rolls succeed and the first success is re-rolled. Identical in NetHack50 and Official_nh50. Left as-is on branch (monster-side, outside the partial-resistance slice) | traced; not yet sent |
 
 ## Master re-derive queue

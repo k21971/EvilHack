@@ -56,7 +56,7 @@ des.room({ type = "ordinary", lit=1, x=3, y=3,
                  des.room({ type = "ordinary", x=22,y=0, w=2,h=2,
                             contents = function()
                                des.door({ state="closed", wall="south" })
-                               des.monster("gnome")
+                               des.monster("rock gnome")
                             end
                  })
               end
@@ -89,7 +89,7 @@ des.room({ type = "ordinary", lit=1, x=3, y=3,
                  des.room({ type = "ordinary", x=8,y=5, w=2,h=2,
                             contents = function()
                                des.door({ state="locked", wall="north" })
-                               des.monster("gnome")
+                               des.monster("rock gnome")
                             end
                  })
               end
@@ -122,7 +122,7 @@ des.room({ type = "ordinary", lit=1, x=3, y=3,
                  des.room({ type = "ordinary", lit=0, x=7,y=10, w=3,h=3,
                             contents = function()
                                des.door({ state="locked", wall="north" })
-                               des.monster("gnome")
+                               des.monster("rock gnome")
                             end
                  });
               end
@@ -140,7 +140,7 @@ des.room({ type = "ordinary", lit=1, x=3, y=3,
                  des.room({ type = "ordinary", lit=1, x=18,y=10, w=4,h=3,
                             contents = function()
                                des.door({ state="locked", wall="west" })
-                               des.monster("gnome lord")
+                               des.monster("gnome noble")
                             end
                  });
               end
@@ -162,19 +162,19 @@ des.room({ contents = function()
 des.room({ contents = function()
               des.stair("down")
               des.trap()
-              des.monster("gnome")
-              des.monster("gnome")
+              des.monster("rock gnome")
+              des.monster("rock gnome")
                       end
 });
 
 des.room({ contents = function()
-              des.monster("dwarf")
+              des.monster("mountain dwarf")
                       end
 });
 
 des.room({ contents = function()
               des.trap()
-              des.monster("gnome")
+              des.monster("rock gnome")
                       end
 });
 

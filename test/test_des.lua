@@ -86,7 +86,7 @@ end
 
 function test_monster()
    des.monster();
-   des.monster("gnome")
+   des.monster("rock gnome")
    des.monster("S")
    des.monster(":", {12,07});
    des.monster("K", 13,07);
@@ -119,12 +119,17 @@ function test_monster()
    des.monster({ id = "long worm", tail = false });
    des.monster({ id = "hill orc", group = false });
    des.monster({ id = "lurker above", adjacentok = true });
-   des.monster({ id = "gnome", ignorewater = true });
+   des.monster({ id = "rock gnome", ignorewater = true });
    des.monster({ id = "xan", countbirth = false });
    des.monster({ id = "Angel", align = "law" });
    des.monster({ id = "archeologist" });
    des.monster({ id = "wizard", name = "Rincewind", peaceful = true });
 
+   -- deliberately exhaustive, so this also names the mlevel-0 G_NOGEN race
+   -- archetypes (gnome, dwarf, human, vampire, ...). lspo_monster reports
+   -- those via impossible() because a real level should never spawn one, so
+   -- expect one paniclog line per archetype from this loop - that is the
+   -- diagnostic working, not a failure.
    for i = nhc.LOW_PM, nhc.HIGH_PM do
       des.monster({ id = nh.int_to_pmname(i) });
    end

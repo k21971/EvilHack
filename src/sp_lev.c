@@ -59,7 +59,7 @@ staticfn int noncoalignment(aligntyp);
 staticfn boolean m_bad_boulder_spot(coordxy, coordxy);
 staticfn int pm_to_humidity(struct permonst *);
 staticfn unsigned int sp_amask_to_amask(unsigned int sp_amask);
-staticfn void create_monster(monster *, struct mkroom *);
+staticfn struct monst *create_monster(monster *, struct mkroom *);
 staticfn struct obj *create_object(object *, struct mkroom *);
 staticfn void create_altar(altar *, struct mkroom *);
 staticfn boolean search_door(struct mkroom *, coordxy *, coordxy *, xint16,
@@ -1929,7 +1929,9 @@ sp_amask_to_amask(unsigned int sp_amask)
     return amask;
 }
 
-staticfn void
+/* create a monster from a level description; returns the monster so that
+   the caller can act on it after any custom inventory has been given */
+staticfn struct monst *
 create_monster(monster *m, struct mkroom *croom)
 {
     struct monst *mtmp;
@@ -1956,7 +1958,7 @@ create_monster(monster *m, struct mkroom *croom)
         pm = &mons[m->id];
         g_mvflags = (unsigned) svm.mvitals[monsndx(pm)].mvflags;
         if ((pm->geno & G_UNIQ) && (g_mvflags & G_EXTINCT))
-            return;
+            return (struct monst *) 0;
         if (g_mvflags & G_GONE) /* genocided or extinct */
             pm = (struct permonst *) 0; /* make random monster */
     } else {
@@ -1997,7 +1999,7 @@ create_monster(monster *m, struct mkroom *croom)
         x = cc.x, y = cc.y;
 
     if (croom && !inside_room(croom, x, y))
-        return;
+        return (struct monst *) 0;
 
     if (m->sp_amask != AM_SPLEV_RANDOM)
         mtmp = mk_roamer(pm, Amask2align(amask), x, y, m->peaceful);
@@ -2204,6 +2206,7 @@ create_monster(monster *m, struct mkroom *croom)
             invent_carrying_monster = mtmp;
         }
     }
+    return mtmp;
 }
 
 /*
@@ -3249,6 +3252,7 @@ lspo_monster(lua_State *L)
 {
     int argc = lua_gettop(L);
     monster tmpmons;
+    struct monst *mtmp;
     lua_Integer mx = -1, my = -1;
     int mgend = NEUTRAL;
     char *mappear = NULL;
@@ -3276,6 +3280,7 @@ lspo_monster(lua_State *L)
     tmpmons.waiting = 0;
     tmpmons.mm_flags = NO_MM_FLAGS;
     tmpmons.m_lev_adj = 0;
+    tmpmons.dead = 0;
 
     if (argc == 1 && lua_type(L, 1) == LUA_TSTRING) {
         const char *paramstr = luaL_checkstring(L, 1);
@@ -3286,6 +3291,11 @@ lspo_monster(lua_State *L)
         } else {
             tmpmons.class = -1;
             tmpmons.id = find_montype(L, paramstr, &mgend);
+            /* refuse an unresolvable name the way the table form's
+               get_table_montype() does; left alone, create_monster()
+               would silently make a random monster instead */
+            if (tmpmons.id == NON_PM)
+                nhl_error(L, "Unknown monster id");
             tmpmons.female = (mgend == FEMALE) ? FEMALE
                                 : (mgend == MALE) ? MALE : rn2(2);
         }
@@ -3301,6 +3311,11 @@ lspo_monster(lua_State *L)
         } else {
             tmpmons.class = -1;
             tmpmons.id = find_montype(L, paramstr, &mgend);
+            /* refuse an unresolvable name the way the table form's
+               get_table_montype() does; left alone, create_monster()
+               would silently make a random monster instead */
+            if (tmpmons.id == NON_PM)
+                nhl_error(L, "Unknown monster id");
             tmpmons.female = (mgend == FEMALE) ? FEMALE
                                 : (mgend == MALE) ? MALE : rn2(2);
         }
@@ -3317,6 +3332,11 @@ lspo_monster(lua_State *L)
         } else {
             tmpmons.class = -1;
             tmpmons.id = find_montype(L, paramstr, &mgend);
+            /* refuse an unresolvable name the way the table form's
+               get_table_montype() does; left alone, create_monster()
+               would silently make a random monster instead */
+            if (tmpmons.id == NON_PM)
+                nhl_error(L, "Unknown monster id");
             tmpmons.female = (mgend == FEMALE) ? FEMALE
                                 : (mgend == MALE) ? MALE : rn2(2);
         }
@@ -3342,6 +3362,7 @@ lspo_monster(lua_State *L)
         tmpmons.confused = get_table_boolean_opt(L, "confused", FALSE);
         tmpmons.waiting = get_table_boolean_opt(L, "waiting", FALSE);
         tmpmons.m_lev_adj = get_table_int_opt(L, "m_lev_adj", 0);
+        tmpmons.dead = get_table_boolean_opt(L, "dead", FALSE);
         tmpmons.seentraps = 0; /* TODO: list of trap names to bitfield */
         keep_default_invent =
             get_table_boolean_opt(L, "keep_default_invent", -1);
@@ -3417,15 +3438,49 @@ lspo_monster(lua_State *L)
     if (tmpmons.id != NON_PM && tmpmons.class == -1)
         tmpmons.class = monsym(&mons[tmpmons.id]);
 
-    create_monster(&tmpmons, gc.coder->croom);
+    /* the mlevel-0 G_NOGEN records are race archetypes, kept for racial
+       machinery and for the corpsenm of racial objects; a level should
+       never spawn one. Report it but still make the monster, since
+       failing the load would cost the player the whole level */
+    if (tmpmons.id != NON_PM && mons[tmpmons.id].mlevel == 0
+        && (mons[tmpmons.id].geno & G_NOGEN) != 0)
+        impossible("level names placeholder monster \"%s\"",
+                   mons[tmpmons.id].pmnames[NEUTRAL]);
+
+    mtmp = create_monster(&tmpmons, gc.coder->croom);
 
     if ((tmpmons.has_invent & CUSTOM_INVENT)
         && lua_type(L, -1) == LUA_TFUNCTION) {
         lua_remove(L, -2);
         nhl_pcall_handle(L, 0, 0, "lspo_monster", NHLpa_panic);
         spo_end_moninvent();
-    } else
+    } else {
         lua_pop(L, 1);
+        /* 'inventory' was supplied but is not a function, so nothing was
+           created for it; create_monster() still aimed the level coder at
+           this monster, and that must not outlive the call. A later
+           des.object() would otherwise be handed to a monster this
+           routine is about to detach, and freed along with it */
+        if (tmpmons.has_invent & CUSTOM_INVENT)
+            spo_end_moninvent();
+    }
+
+    /* a body placed by the level description; killing it here rather than
+       in create_monster() lets any custom inventory be given first, so
+       that it gets dropped alongside the corpse */
+    if (tmpmons.dead && mtmp) {
+        mondied(mtmp);
+        /* the hero never met this monster, so cancel the death that
+           mondead() just tallied. mondead() skips its own tally when the
+           monster was lifesaved or rose as a vampire instead of dying,
+           and when the count already sits at its 255 ceiling */
+        if (DEADMONSTER(mtmp)) {
+            int mndx = monsndx(mtmp->data);
+
+            if (svm.mvitals[mndx].died > 0)
+                svm.mvitals[mndx].died--;
+        }
+    }
 
     Free(tmpmons.name.str);
     Free(tmpmons.appear_as.str);

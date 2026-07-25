@@ -6,7 +6,7 @@
 --
 --	The "start" level for the quest.
 --
---	Here you meet your (besieged) class leader, the Grand Master
+--	Here you meet your (besieged) class leader, Master Po,
 --	and receive your quest assignment.
 --
 des.level_init({ style = "solidfill", fg = " " });
@@ -70,8 +70,8 @@ des.door("closed",46,14)
 des.door("closed",52,14)
 -- Unattended Altar - unaligned due to conflict - player must align it.
 des.altar({ x=28,y=09, align="noalign", type="altar" })
--- The Grand Master
-des.monster({ id = "Grand Master", coord = {28, 10}, inventory = function()
+-- Master Po
+des.monster({ id = "Master Po", coord = {28, 10}, inventory = function()
    des.object({ id = "robe", spe = 6 });
 end })
 -- No treasure chest!
