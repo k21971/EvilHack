@@ -23,9 +23,14 @@ staticfn struct mkroom *pick_room(boolean);
 staticfn void mkshop(void), mkzoo(int), mkswamp(void);
 staticfn void mk_zoo_thronemon(coordxy, coordxy);
 staticfn void mktemple(void);
+staticfn void mkgardenroom(int);
+staticfn void mkgarden(struct mkroom *);
+staticfn void mkforest(struct mkroom *);
 staticfn coord *shrine_pos(int);
 staticfn struct permonst *morguemon(void);
 staticfn struct permonst *squadmon(void);
+staticfn struct permonst *armorymon(void);
+staticfn struct permonst *nurserymon(void);
 #endif /* SFCTOOL */
 
 staticfn void save_room(NHFILE *, struct mkroom *);
@@ -73,6 +78,12 @@ do_mkroom(int roomtype)
         case SWAMP:
             mkswamp();
             break;
+        case GARDEN:
+            mkgardenroom(GARDEN);
+            break;
+        case FOREST:
+            mkgardenroom(FOREST);
+            break;
         case TEMPLE:
             mktemple();
             break;
@@ -84,6 +95,18 @@ do_mkroom(int roomtype)
             break;
         case ANTHOLE:
             mkzoo(ANTHOLE);
+            break;
+        case OWLBNEST:
+            mkzoo(OWLBNEST);
+            break;
+        case ARMORY:
+            mkzoo(ARMORY);
+            break;
+        case NURSERY:
+            mkzoo(NURSERY);
+            break;
+        case LEMUREPIT:
+            mkzoo(LEMUREPIT);
             break;
         default:
             impossible("Tried to make a room of type %d.", roomtype);
@@ -134,8 +157,32 @@ mkshop(void)
                 mkzoo(LEPREHALL);
                 return;
             }
+            if (*ep == 'y' || *ep == 'Y') {
+                mkzoo(OWLBNEST);
+                return;
+            }
+            if (*ep == 'r' || *ep == 'R') {
+                mkzoo(ARMORY);
+                return;
+            }
+            if (*ep == 'h' || *ep == 'H' || *ep == ';') {
+                mkzoo(NURSERY);
+                return;
+            }
+            if (*ep == 'p' || *ep == 'P') {
+                mkzoo(LEMUREPIT);
+                return;
+            }
             if (*ep == '_') {
                 mktemple();
+                return;
+            }
+            if (*ep == 'n' || *ep == 'N') {
+                mkgardenroom(GARDEN);
+                return;
+            }
+            if (*ep == 'j' || *ep == 'J') {
+                mkgardenroom(FOREST);
                 return;
             }
             if (*ep == '}') {
@@ -256,7 +303,7 @@ mkzoo(int type)
 staticfn void
 mk_zoo_thronemon(coordxy x, coordxy y)
 {
-    int i = rnd(level_difficulty());
+    int i = rnd(max(level_difficulty(), 1));
     int pm = (i > 9) ? PM_OGRE_ROYAL
         : (i > 5) ? PM_ELVEN_ROYAL
         : (i > 2) ? PM_DWARF_ROYAL
@@ -276,16 +323,27 @@ void
 fill_zoo(struct mkroom *sroom)
 {
     struct monst *mon;
+    struct obj *oegg;
     int sx, sy, i;
     int sh, goldlim = 0, type = sroom->rtype;
     coordxy tx = 0, ty = 0;
     int rmno = (int) ((sroom - svr.rooms) + ROOMOFFSET);
+    boolean special_nursery = !rn2(10);
     coord mm;
 
     /* Note: This doesn't check needfill; it assumes the caller has already
        done that. */
     sh = sroom->fdoor;
     switch (type) {
+    case GARDEN:
+        mkgarden(sroom);
+        /* mkgarden() sets flags and we don't want other fillings */
+        return;
+    case FOREST:
+        mkforest(sroom);
+        /* just as with mkgarden(), mkforest() sets flags and we
+           don't want other fillings */
+        return;
     case COURT:
         if (svl.level.flags.is_maze_lev) {
             for (tx = sroom->lx; tx <= sroom->hx; tx++)
@@ -295,22 +353,36 @@ fill_zoo(struct mkroom *sroom)
         }
         i = 100;
         do { /* don't place throne on top of stairs */
-            (void) somexyspace(sroom, &mm);
-            tx = mm.x;
-            ty = mm.y;
+            if (somexyspace(sroom, &mm)) {
+                tx = mm.x;
+                ty = mm.y;
+            } else {
+                /* no free spot; fall back to the room corner rather
+                   than reading a coordinate the picker never set */
+                tx = sroom->lx;
+                ty = sroom->ly;
+                break;
+            }
         } while (occupied(tx, ty) && --i > 0);
  throne_placed:
         mk_zoo_thronemon(tx, ty);
         break;
+    case OWLBNEST:
+    case NURSERY:
+    case LEMUREPIT:
+    case ANTHOLE:
     case BEEHIVE:
         tx = sroom->lx + (sroom->hx - sroom->lx + 1) / 2;
         ty = sroom->ly + (sroom->hy - sroom->ly + 1) / 2;
         if (sroom->irregular) {
-            /* center might not be valid, so put queen elsewhere */
+            /* center might not be valid, so put queen/mother elsewhere */
             if ((int) levl[tx][ty].roomno != rmno || levl[tx][ty].edge) {
-                (void) somexyspace(sroom, &mm);
-                tx = mm.x;
-                ty = mm.y;
+                if (somexyspace(sroom, &mm)) {
+                    tx = mm.x;
+                    ty = mm.y;
+                }
+                /* else: keep the invalid center; the main monster
+                   loop's roomno/edge filter will skip the queen tile */
             }
         }
         break;
@@ -341,24 +413,63 @@ fill_zoo(struct mkroom *sroom)
             /* don't place monster on explicitly placed throne */
             if (type == COURT && IS_THRONE(levl[sx][sy].typ))
                 continue;
-            mon = makemon((type == COURT)
-                           ? courtmon()
-                           : (type == BARRACKS)
-                              ? squadmon()
-                              : (type == MORGUE)
-                                 ? morguemon()
-                                 : (type == BEEHIVE)
-                                     ? (sx == tx && sy == ty
-                                         ? &mons[PM_QUEEN_BEE]
-                                         : &mons[PM_KILLER_BEE])
-                                     : (type == LEPREHALL)
-                                         ? &mons[PM_LEPRECHAUN]
-                                         : (type == COCKNEST)
-                                             ? &mons[PM_COCKATRICE]
-                                             : (type == ANTHOLE)
-                                                 ? antholemon()
-                                                 : (struct permonst *) 0,
-                          sx, sy, MM_ASLEEP | MM_NOGRP);
+            if (type == NURSERY && !On_stairs(sx, sy))
+                levl[sx][sy].typ = PUDDLE;
+            mon = (struct monst *) 0;
+            if (type == ARMORY) {
+                /* armories don't contain as many monsters */
+                if (!rn2(3))
+                    mon = makemon(armorymon(), sx, sy, NO_MM_FLAGS);
+            } else if (type == NURSERY) {
+                if (special_nursery) { /* rare event */
+                    /* somehow a larvae nursery was left unattended, and
+                       the sole surviving larva had undergone neoteny,
+                       becoming a neothelid. mind flayers nearby
+                       discovered this abomination and are trying to kill
+                       it (see grudges) */
+                    if (sx == tx && sy == ty)
+                        (void) makemon(&mons[PM_NEOTHELID], sx, sy,
+                                       NO_MM_FLAGS);
+                    if (!rn2(4))
+                        (void) makemon(nurserymon(), sx, sy, NO_MM_FLAGS);
+                } else {
+                    /* normal mind flayer larva nursery */
+                    mon = makemon(sx == tx && sy == ty
+                                  ? &mons[PM_MIND_FLAYER]
+                                  : rn2(12) ? &mons[PM_MIND_FLAYER_LARVA]
+                                            : &mons[PM_PRISONER],
+                                  sx, sy, MM_ASLEEP);
+                }
+            } else {
+                mon = makemon((type == COURT)
+                    ? courtmon()
+                    : (type == BARRACKS)
+                       ? squadmon()
+                       : (type == MORGUE)
+                          ? morguemon()
+                          : (type == BEEHIVE)
+                             ? (sx == tx && sy == ty
+                                ? &mons[PM_QUEEN_BEE]
+                                : &mons[PM_KILLER_BEE])
+                             : (type == LEPREHALL)
+                                ? &mons[PM_LEPRECHAUN]
+                                : (type == COCKNEST)
+                                   ? &mons[PM_COCKATRICE]
+                                   : (type == ANTHOLE)
+                                      ? (sx == tx && sy == ty
+                                         ? &mons[PM_QUEEN_ANT]
+                                         : antholemon())
+                                      : (type == OWLBNEST)
+                                         ? (sx == tx && sy == ty
+                                            ? &mons[PM_OWLBEAR]
+                                            : &mons[PM_BABY_OWLBEAR])
+                                         : (type == LEMUREPIT)
+                                            ? (sx == tx && sy == ty
+                                               ? &mons[PM_HORNED_DEVIL]
+                                               : &mons[PM_LEMURE])
+                                            : (struct permonst *) 0,
+                              sx, sy, MM_ASLEEP | MM_NOGRP);
+            }
             if (mon) {
                 mon->msleeping = 1;
                 if (type == COURT && mon->mpeaceful) {
@@ -378,7 +489,7 @@ fill_zoo(struct mkroom *sroom)
                 if (i >= goldlim)
                     i = 5 * level_difficulty();
                 goldlim -= i;
-                (void) mkgold((long) rn1(i, 10), sx, sy);
+                (void) mkgold((long) rn1(max(i, 1), 10), sx, sy);
                 break;
             case MORGUE:
                 if (!rn2(5))
@@ -417,16 +528,52 @@ fill_zoo(struct mkroom *sroom)
             case ANTHOLE:
                 if (!rn2(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
+                if (!rn2(5)) {
+                    oegg = mksobj_at(EGG, sx, sy, TRUE, FALSE);
+                    set_corpsenm(oegg, PM_GIANT_ANT);
+                }
                 break;
+            case OWLBNEST:
+                if (!rn2(5)) {
+                    oegg = mksobj_at(EGG, sx, sy, TRUE, FALSE);
+                    set_corpsenm(oegg, PM_OWLBEAR);
+                }
+                break;
+            case ARMORY: {
+                struct obj *otmp;
+
+                if (rn2(4)) {
+                    if (rn2(2)) {
+                        if (rn2(4)) {
+                            otmp = mkobj_at(WEAPON_CLASS, sx, sy, FALSE);
+                            otmp->spe = 0;
+                        } else {
+                            otmp = mkobj_at(TOOL_CLASS, sx, sy, FALSE);
+                        }
+                    } else {
+                        otmp = mkobj_at(ARMOR_CLASS, sx, sy, FALSE);
+                        otmp->spe = 0;
+                    }
+                    if (is_rustprone(otmp) || is_flammable(otmp))
+                        otmp->oeroded = rn2(4);
+                    else if (is_corrodeable(otmp) || is_rottable(otmp))
+                        otmp->oeroded2 = rn2(4);
+                }
+                break;
+            }
             }
         }
     switch (type) {
     case COURT: {
         struct obj *chest, *gold;
         levl[tx][ty].typ = THRONE;
-        (void) somexyspace(sroom, &mm);
+        if (!somexyspace(sroom, &mm)) {
+            /* fall back to throne tile; chest sits on throne */
+            mm.x = tx;
+            mm.y = ty;
+        }
         gold = mksobj(GOLD_PIECE, TRUE, FALSE);
-        gold->quan = (long) rn1(50 * level_difficulty(), 10);
+        gold->quan = (long) rn1(max(50 * level_difficulty(), 1), 10);
         gold->owt = weight(gold);
         /* the royal coffers */
         /* TODO-EVILHACK: master uses IRON_SAFE below depth 15; a plain
@@ -458,6 +605,9 @@ fill_zoo(struct mkroom *sroom)
         break;
     case BEEHIVE:
         svl.level.flags.has_beehive = 1;
+        break;
+    case LEMUREPIT:
+        svl.level.flags.has_lemurepit = 1;
         break;
     }
 }
@@ -535,6 +685,177 @@ antholemon(void)
 
     return ((svm.mvitals[mtyp].mvflags & G_GONE) ? (struct permonst *) 0
                                              : &mons[mtyp]);
+}
+
+staticfn struct permonst *
+armorymon(void)
+{
+    return (!rn2(5) ? mkclass(S_RUSTMONST, 0)
+                    : rn2(6) ? &mons[PM_BROWN_PUDDING]
+                             : &mons[PM_BLACK_PUDDING]);
+}
+
+staticfn struct permonst *
+nurserymon(void)
+{
+    return (rn2(7) ? &mons[PM_MIND_FLAYER]
+                   : &mons[PM_MASTER_MIND_FLAYER]);
+}
+
+/* pick a lit, otherwise ordinary room and mark it as a garden or a forest;
+   unlike mkzoo() the room must be lit, since both types are meant to be
+   looked at */
+staticfn void
+mkgardenroom(int type)
+{
+    struct mkroom *sroom;
+    int tryct = 0;
+
+    if (svn.nroom <= 0)
+        return;
+    while (tryct++ < 25) {
+        sroom = &svr.rooms[rn2(svn.nroom)];
+        if (sroom->hx < 0 || sroom->rtype != OROOM || !sroom->rlit
+            || has_upstairs(sroom) || has_dnstairs(sroom))
+            continue;
+        sroom->rtype = type;
+        /* room does not get stocked at this time - it will get stocked at
+           the end of makelevel() */
+        sroom->needfill = FILL_NORMAL;
+        return;
+    }
+}
+
+/** Fill a special room with trees, fountains and nymphs.
+ * @author Pasi Kallinen, modified by Keith Simpson
+ */
+staticfn void
+mkgarden(struct mkroom *sroom)
+{
+    coord pos;
+    int i, tried;
+
+    svl.level.flags.has_garden = 1;
+
+    /* create grass */
+    for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++)
+        for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++)
+            if (levl[pos.x][pos.y].typ == ROOM && !t_at(pos.x, pos.y))
+                levl[pos.x][pos.y].typ = GRASS;
+
+    /* create trees/fountains */
+    tried = 0;
+    i = rn1(3, 3);
+    while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+        if (levl[pos.x][pos.y].typ == GRASS
+            && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            && !t_at(pos.x, pos.y) && !nexttodoor(pos.x, pos.y)) {
+            if (rn2(5)) {
+                levl[pos.x][pos.y].typ = TREE;
+            } else {
+                levl[pos.x][pos.y].typ = FOUNTAIN;
+                svl.level.flags.nfountains++;
+            }
+            i--;
+        }
+    }
+
+    /* create nymphs */
+    tried = 0;
+    i = rnd(2);
+    while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+        struct permonst *pmon;
+
+        if (!OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            && !t_at(pos.x, pos.y) && (pmon = mkclass(S_NYMPH, 0)) != 0) {
+            struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
+
+            if (mtmp && rn2(2))
+                mtmp->msleeping = 1;
+            i--;
+        }
+    }
+
+    /* create plant-based monsters */
+    tried = 0;
+    i = rnd(2);
+    while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+        struct permonst *pmon;
+
+        if (!rn2(100) && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            && !t_at(pos.x, pos.y) && (pmon = mkclass(S_PLANT, 0)) != 0) {
+            struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
+
+            if (mtmp)
+                mtmp->mpeaceful = 0;
+            i--;
+        }
+    }
+}
+
+/** Fill a special room with dead trees and plant-like creatures.
+ * @author Keith Simpson
+ */
+staticfn void
+mkforest(struct mkroom *sroom)
+{
+    coord pos;
+    int i, tried;
+
+    svl.level.flags.has_forest = 1;
+
+    /* create grass */
+    for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++)
+        for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++)
+            if (levl[pos.x][pos.y].typ == ROOM && !t_at(pos.x, pos.y))
+                levl[pos.x][pos.y].typ = GRASS;
+
+    /* create dead trees and shallow water */
+    tried = 0;
+    i = rn1(3, 3);
+    while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+        if (levl[pos.x][pos.y].typ == GRASS
+            && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            && !t_at(pos.x, pos.y) && !nexttodoor(pos.x, pos.y)) {
+            if (rn2(6)) {
+                levl[pos.x][pos.y].typ = DEADTREE;
+            } else {
+                levl[pos.x][pos.y].typ = PUDDLE;
+            }
+            i--;
+        }
+    }
+
+    /* create blights */
+    tried = 0;
+    i = rnd(2);
+    while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+        if (!OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            && !t_at(pos.x, pos.y)) {
+            if (rn2(4)) {
+                (void) makemon(rn2(3) ? &mons[PM_TWIG_BLIGHT]
+                                      : &mons[PM_NEEDLE_BLIGHT],
+                               pos.x, pos.y, NO_MM_FLAGS);
+            } else {
+                (void) makemon(&mons[PM_TREE_BLIGHT], pos.x, pos.y,
+                               NO_MM_FLAGS);
+            }
+            i--;
+        }
+    }
+
+    /* create other plants */
+    tried = 0;
+    i = rnd(2);
+    while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+        if (!rn2(200) && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            && !t_at(pos.x, pos.y)) {
+            (void) makemon(rn2(2) ? &mons[PM_ASSASSIN_VINE]
+                                  : &mons[PM_CREEPING_MOUND],
+                           pos.x, pos.y, NO_MM_FLAGS);
+            i--;
+        }
+    }
 }
 
 staticfn void

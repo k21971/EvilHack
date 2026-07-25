@@ -6,6 +6,7 @@
 
 staticfn boolean throne_mon_sound(struct monst *);
 staticfn boolean beehive_mon_sound(struct monst *);
+staticfn boolean lemurepit_mon_sound(struct monst *);
 staticfn boolean morgue_mon_sound(struct monst *);
 staticfn boolean zoo_mon_sound(struct monst *);
 staticfn boolean temple_priest_sound(struct monst *);
@@ -77,6 +78,45 @@ beehive_mon_sound(struct monst *mtmp)
             Soundeffect(se_bees, 100);
             You_hear("bees in your %sbonnet!",
                      uarmh ? "" : "(nonexistent) ");
+            break;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+staticfn boolean
+lemurepit_mon_sound(struct monst *mtmp)
+{
+    if (mtmp->data == &mons[PM_LEMURE]
+        && mon_in_room(mtmp, LEMUREPIT)) {
+        int hallu = Hallucination ? 1 : 0;
+
+        /* no Soundeffect() here; 5.0 has no se_ id for whips or screams,
+           unlike the throne and beehive sounds above. master carries a
+           further "a weeping willow!" case that its own rn2(6) + hallu
+           selector can never reach, so it is not reproduced */
+        switch (rn2(6) + hallu) {
+        case 0:
+            You_hear("the crack of a barbed whip!");
+            break;
+        case 1:
+            You_hear("the screams of tortured souls!");
+            break;
+        case 2:
+            You_hear("a wail of eternal anguish!");
+            break;
+        case 3:
+            You_hear("diabolical laughter...");
+            break;
+        case 4:
+            You_hear("cries of repentance!");
+            break;
+        case 5:
+            You_hear("futile pleas for mercy!");
+            break;
+        case 6:
+            You_hear("screams of lust!");
             break;
         }
         return TRUE;
@@ -233,6 +273,24 @@ dosounds(void)
         if (get_iter_mons(throne_mon_sound))
             return;
     }
+    if (svl.level.flags.has_garden && !rn2(200)) {
+        static const char *const garden_msg[4] = {
+            "hear crickets chirping.", "hear birds singing.",
+            "hear the grass growing!", "hear the wind in the willows!",
+        };
+        /* master indexes the hallucinatory pair with 2 * hallu here,
+           unlike the + hallu form the rest of dosounds uses */
+        You1(garden_msg[rn2(2) + 2 * hallu]);
+        return;
+    }
+    if (svl.level.flags.has_forest && !rn2(200)) {
+        static const char *const forest_msg[4] = {
+            "hear a distant, mournful howl.", "hear rustling leaves.",
+            "hear the color purple!", "hear a mattress flollop!",
+        };
+        You1(forest_msg[rn2(2) + 2 * hallu]);
+        return;
+    }
     if (svl.level.flags.has_swamp && !rn2(200)) {
         static const char *const swamp_msg[3] = {
             "hear mosquitoes!", "smell marsh gas!", /* so it's a smell...*/
@@ -283,6 +341,10 @@ dosounds(void)
     }
     if (svl.level.flags.has_beehive && !rn2(200)) {
         if (get_iter_mons(beehive_mon_sound))
+            return;
+    }
+    if (svl.level.flags.has_lemurepit && !rn2(20)) {
+        if (get_iter_mons(lemurepit_mon_sound))
             return;
     }
     if (svl.level.flags.has_morgue && !rn2(200)) {

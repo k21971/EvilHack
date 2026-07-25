@@ -4585,6 +4585,12 @@ set_mimic_sym(struct monst *mtmp)
     } else if (rt == TEMPLE) {
         ap_type = M_AP_FURNITURE;
         appear = S_altar;
+    } else if (rt == GARDEN) {
+        ap_type = M_AP_FURNITURE;
+        appear = rn2(3) ? S_tree : S_deadtree;
+    } else if (rt == FOREST) {
+        ap_type = M_AP_FURNITURE;
+        appear = rn2(8) ? S_deadtree : S_tree;
 
     /*
      * We won't bother with beehives, morgues, barracks, throne rooms

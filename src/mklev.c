@@ -919,10 +919,13 @@ clear_level_structures(void)
     svl.level.flags.has_zoo = 0;
     svl.level.flags.has_court = 0;
     svl.level.flags.has_morgue = svl.level.flags.graveyard = 0;
+    svl.level.flags.has_lemurepit = 0;
     svl.level.flags.has_beehive = 0;
     svl.level.flags.has_barracks = 0;
     svl.level.flags.has_temple = 0;
     svl.level.flags.has_swamp = 0;
+    svl.level.flags.has_garden = 0;
+    svl.level.flags.has_forest = 0;
     svl.level.flags.noteleport = 0;
     svl.level.flags.hardfloor = 0;
     svl.level.flags.nommap = 0;
@@ -1416,11 +1419,21 @@ makelevel(void)
             do_mkroom(LEPREHALL);
         else if (u_depth > 6 && !rn2(7))
             do_mkroom(ZOO);
+        else if (u_depth > 7 && !rn2(6))
+            do_mkroom(GARDEN);
+        else if (u_depth > 7 && !rn2(7)
+                 && !(svm.mvitals[PM_RUST_MONSTER].mvflags & G_GONE))
+            do_mkroom(ARMORY);
         else if (u_depth > 8 && !rn2(5))
             do_mkroom(TEMPLE);
         else if (u_depth > 9 && !rn2(5)
                  && !(svm.mvitals[PM_KILLER_BEE].mvflags & G_GONE))
             do_mkroom(BEEHIVE);
+        else if (u_depth > 10 && !rn2(7)
+                 && !(svm.mvitals[PM_BABY_OWLBEAR].mvflags & G_GONE))
+            do_mkroom(OWLBNEST);
+        else if (u_depth > 11 && !rn2(6))
+            do_mkroom(FOREST);
         else if (u_depth > 11 && !rn2(6))
             do_mkroom(MORGUE);
         else if (u_depth > 12 && !rn2(8) && antholemon())
@@ -1430,9 +1443,12 @@ makelevel(void)
             do_mkroom(BARRACKS);
         else if (u_depth > 15 && !rn2(6))
             do_mkroom(SWAMP);
-        else if (u_depth > 16 && !rn2(8)
+        else if (u_depth > 15 && !rn2(8)
                  && !(svm.mvitals[PM_COCKATRICE].mvflags & G_GONE))
             do_mkroom(COCKNEST);
+        else if (u_depth > 16 && !rn2(6)
+                 && !(svm.mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE))
+            do_mkroom(NURSERY);
 
  skip0:
         prevstairs = gs.stairs; /* used to test for place_branch() success */

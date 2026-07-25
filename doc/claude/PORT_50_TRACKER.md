@@ -4671,7 +4671,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       5.0 -> blocked on attacker-param threading; allmain.c regen is
       a per-turn probability on 5.0, not master's `moves % rate`
       interval, so it needs a new formula rather than a port).
-- [ ] Special room types only: GARDEN=17 etc. -> mkroom.h +
+- [x] Special room types only: GARDEN=17 etc. -> mkroom.h +
       sp_lev room-name table (rtype drives runtime behavior, so
       needed regardless of level source). The rndvault C
       machinery (struct _rndvault registry: fname/freq/mindepth,
@@ -4688,6 +4688,108 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MINDEPTH (depth) vs mindiff (difficulty) semantics per
       vault during conversion; W-gate for vaults = repeated
       level-generation sampling, not per-file walks.
+      PORTED + REVIEWED + BATTERY PASSED 2026-07-25 (maintainer
+      commit pending), 11 files +568/-48, zero-warning clean
+      rebuild. SIX types not master's seven: RNDVAULT DROPPED
+      because 5.0's THEMEROOM occupies its exact role (mklev.c and
+      sp_lev.c both carry the same "treat like OROOM so random
+      content still lands" test master uses RNDVAULT for), which
+      follows from the ratified rndvaults-to-themerooms decision
+      above. So SHOPBASE 14 -> 20 and CANDLESHOP 31, NOT master's
+      21/32. SIDE EFFECT WORTH KEEPING: mapseen_feat.shoptype is
+      Bitfield(5) and recalc_mapseen stores a raw rtype in it, so
+      master's CANDLESHOP 32 truncates to 0 = the "mixed shop
+      types" sentinel and a known candle shop annotates as
+      "untended shop" in the overview - master has this bug TODAY
+      and dropping RNDVAULT incidentally fixes it here. A comment
+      at the enum records the <= 31 constraint; do NOT "restore
+      parity" by re-adding RNDVAULT. (No static assert - this tree
+      has no nhStaticAssert facility, and adding one is its own
+      portability decision.)
+      EDITLEVEL 1 -> 2. sizeof(struct levelflags) MEASURED at 24
+      both before and after the three new bits (27 -> 30 stays in
+      one 4-byte unit), so critical_sizes[] would not have fired -
+      [[pattern-bitfield-widening-needs-editlevel]] recurring one
+      slice after it was written.
+      ARCHITECTURAL ADAPTATION: master's do_mkroom(GARDEN) calls
+      mkgarden(NULL), which SELECTS AND FILLS in one call. 5.0
+      splits generation - do_mkroom() only marks a room and
+      fill_special_room() fills at the end of makelevel(). A
+      literal port would have filled every garden TWICE (double
+      trees, fountains, nymphs). Split into mkgardenroom() for
+      master's selection (random room, OROOM, LIT, no stairs, 25
+      tries) and mkgarden()/mkforest() for fill only; master's
+      rlit requirement is preserved, which routing through
+      mkzoo()/pick_room() would have lost. Reviewer verified no
+      double-fill path exists (the second fill_special_room loop
+      is in lspo_finalize_level, testing-only, called by no
+      dat/*.lua; a themeroom arriving filled=1 is handled because
+      rtype != OROOM makes ROOM_IS_FILLABLE false).
+      MASTER PARITY RIDERS, all inside functions this slice
+      rewrites: ANTHOLE now gets a QUEEN ANT at its geometric
+      centre (master's center-tile group includes ANTHOLE; 5.0
+      lacked it, and PM_QUEEN_ANT is G_GENO|G_NOGEN so this is its
+      only generation site in either tree); all three master
+      max(...,1) rn1/rnd guards taken together rather than one of
+      three (defensive parity - none is reachable, level_difficulty
+      bottoms out at depth() >= 1); COURT throne loop, COURT chest
+      and the BEEHIVE-group center tile all stopped ignoring the
+      picker's return value (the throne loop was reading an
+      uninitialized coord and feeding it to occupied() and
+      levl[][].typ = THRONE - a latent 5.0 bug, fixed with master's
+      control flow but 5.0's somexyspace picker, which is strictly
+      better since it also rejects IS_FURNITURE so the chest can no
+      longer land on the throne tile).
+      DELIBERATE SUPERSET: fill_special_room() lists ARMORY, which
+      master does NOT - master's omission leaves a level-file
+      armory unstocked, and under 5.0's deferred-fill model the
+      case is mandatory or every armory would be empty. Commented
+      in place.
+      COCKNEST DEPTH RESTORED 16 -> 15 (see the unlogged-constant
+      sweep item below - this is the find that minted it).
+      NEOTHELID GRUDGE ARMS ported to mm_aggression (mind flayers
+      attack neothelids; neothelids attack anything not mindless).
+      CAUGHT BY THE BATTERY, not by the port or the review: the
+      rare nursery variant's whole point is the infighting, master's
+      own comment says "(see grudges)", and without the arms the
+      neothelid just sits there. NOTE for future slices:
+      mm_aggression is being ported PIECEMEAL per subsystem - the
+      branch had 3 arms against master's 14, the present ones
+      (Kathryn, Lucifer) having arrived with the Ice Queen and
+      demon-lord slices. Expect to carry the relevant arms with
+      every future monster-behavior slice; an incomplete grudge
+      table is the normal state and will not look wrong.
+      BATTERY 12/12 PASS (game-tester agent, 8 games; paniclog's
+      only 2 entries were self-inflicted by the tester's own first
+      Lua level lacking des.random_corridors()). Highlights: all
+      six types generate and fill correctly (gdb tile + monster
+      dumps, not eyeballing); entry messages exact incl. the blind
+      garden/forest variants and the lemure pit's deliberate
+      SILENCE (room still marked discovered); all three ambient
+      sound sets fire incl. hallucinatory variants; level flags set
+      and clear; garden/forest feature counts land in the 4-6 band
+      a single rn1(3,3) pass produces, confirming NO double-fill;
+      nursery stair tiles not converted to puddle and the 1-in-10
+      neothelid variant places exactly one; natural Mine Town
+      candle shop reads "lighting shop" not "untended shop",
+      confirming the renumbering held; save/reload exact.
+      HONEST CAVEATS from the battery: NURSERY and COCKNEST never
+      appeared across ~125 randomly generated levels - they are
+      last in the else-if chain at roughly 1-2%/level, so absence
+      is expected rather than a defect, and their generation is
+      covered via SHOPTYPE=h; and the pre-slice save rejection
+      cannot be attributed uniquely to EDITLEVEL because the
+      staged save predates several other branch commits.
+      DEFERRED (owner rows): getroomtype() NOT ported - master's
+      only consumer is its mapglyph.c per-room-type map coloring,
+      which is Phase 4 on this tree, and porting an unused function
+      would be dead code; ZOO "you enter an ice cave!" arm marked
+      TODO-EVILHACK pending Ice Queen dungeon topology.
+      PRE-EXISTING 5.0 QUIRK observed, not ours: a level created by
+      #wizloaddes or regenerated by #wizmakemap has its overview
+      entry discarded (makemap_prepost -> rm_mapseen) and never
+      recreated, so ^o lists nothing for it even after entering a
+      shop there.
 - [ ] #shield, other added commands (sweep cmd.c delta)
 - [ ] Bag of treasure/devouring rules; #tip interactions
 - [ ] Steed/saddle/barding architecture (memory file)
@@ -4701,6 +4803,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [ ] SWEEP: FEATURES_ARCHIVE.md Features Index (57 entries) +
       dated 2026 sections (~100) - tick each off as covered by the
       subsystems above or added here; nothing skipped silently
+- [ ] SWEEP: UNLOGGED NUMERIC-CONSTANT diff, master vs branch (NEW,
+      minted 2026-07-25 by the special-room-types slice). The two
+      archive sweeps above are KEYWORD-driven and therefore cannot
+      catch an EvilHack tweak that was never archived - by
+      construction. Found case: EvilHack master lowered COCKNEST
+      generation from vanilla's `u_depth > 16` to `> 15`, with no
+      BUGFIXES_ARCHIVE or FEATURES_ARCHIVE entry. The wholesale 5.0
+      tree adoption reverted it to upstream's 16 and nothing would
+      ever have flagged it; caught only because the room-types slice
+      happened to rewrite that ladder. Restored to 15 with that
+      slice.
+      WORK: a value-level diff of master against the branch over
+      already-ported subsystems, looking for bare numeric constants
+      EvilHack changed away from vanilla - depth gates, rn2/rnd
+      probabilities, damage and timeout values, percentage rolls,
+      table weights. Establish provenance for each hit the same way:
+      compare vanilla at merge-base 44b6612fd, upstream 5.0, and
+      master; only a vanilla==5.0 != master triple is an EvilHack
+      tweak that the adoption reverted. A vanilla != 5.0 difference
+      is an upstream change and stays per the collision rule.
+      Highest-yield targets are the files whose slices are already
+      committed, since those are the ones where a reverted constant
+      is now invisible.
 - [ ] Per-subsystem: BUGFIXES_ARCHIVE.md keyword sweep as it lands
 
 ## Phase 3 - Levels and quests (233 lua files from 36 .des)
@@ -4714,7 +4839,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | bigroom.des | 10 | delta-diff | | | | |
 | castle.des | 3 | delta-diff | | | | wand recharged:1 now converts |
 | endgame.des | 5 | delta-diff | | | | PORTAL self-name + mkportal semantics! |
-| gehennom.des | 14 | delta-diff | | | | |
+| gehennom.des | 14 | delta-diff | | | | six `REGION: ... unlit,"lemurepit"` entries need the LEMUREPIT rtype - available since the special-room-types slice |
 | knox.des | 3 | delta-diff | | | | |
 | medusa.des | 4 | delta-diff | | | | |
 | mines.des | 14 | delta-diff | | | | minetn-1 (Orcish Town): use des.monster{dead=1}, do NOT adopt upstream's des.object{id="corpse"} block (loses the dropped gear); priest id is "aligned cleric" (PM_ALIGNED_CLERIC d=15), not "cleric" (PM_CLERIC d=12) |
@@ -4724,9 +4849,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | yendor.des | 4 | delta-diff | | | | |
 | forest.des | 1 | from-scratch | | | | 7 top-level TERRAIN:random TODOs |
 | goblintown.des | 3 | from-scratch | | | | |
-| hdgn.des | 1 | from-scratch | | | | |
+| hdgn.des | 1 | from-scratch | | | | carries `REGION: ... "nursery",filled` - needs the NURSERY rtype, available since the special-room-types slice |
 | icequeen.des | 3 | from-scratch | | | | |
-| nymph.des | 1 | from-scratch | x | x | | EXEMPLAR (luac-clean; W needs branch content) |
+| nymph.des | 1 | from-scratch | x | x | | EXEMPLAR (luac-clean; W needs branch content); five `ROOM: "garden"` incl. one `unlit` - rtype available since the special-room-types slice, and mkgarden() deliberately does NOT re-check rlit when called with a room, so the unlit garden converts faithfully |
 | purgatory.des | 2 | from-scratch | | | | dead-shopkeeper flag |
 | vaults.des | 46 | from-scratch -> THEMERMS ENTRIES (ratified 2026-07-18) | | | | destination = themerms.lua contents functions, NOT standalone vlt-*.lua; vlt-0004/0045 HAND-CONVERTED 2026-07-03 (exemplar/vaults/, luac-clean, nil-swept) stay the map-conversion reference; remaining 44 convert cleanly - polish with the vlt-0045 ROOMDOOR idiom; dedupe overlaps to upstream's rooms; frequency/mindiff per the Phase 2 special-room-types item |
 | vecna.des | 3 | from-scratch | | | | |
@@ -4953,6 +5078,9 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-25 | RNDVAULT rtype DROPPED rather than ported: 5.0's THEMEROOM occupies its exact role (both trees carry the same "treat like OROOM so random content still lands" test), which follows directly from the ratified 2026-07-18 rndvaults-to-themerooms decision. Consequence: SHOPBASE 14->20 and CANDLESHOP 31, NOT master's 21/32. This also incidentally FIXES a live master bug - mapseen_feat.shoptype is Bitfield(5) and recalc_mapseen stores a raw rtype, so master's CANDLESHOP 32 truncates to 0, the "mixed shop types" sentinel, and a known candle shop annotates as "untended shop" in the overview. Constraint recorded at the enum; do NOT re-add RNDVAULT | coordinator |
+| 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
+| 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
 | 2026-07-25 | EvilHack terrain enum placement mirrors MASTER'S RELATIVE ORDER (DEADTREE after TREE; GRASS/SAND after ICE; PUDDLE/SEWAGE after CLOUD) rather than appending at the end - this keeps every range macro's meaning without rewriting it: IS_OBSTRUCTED(<POOL) catches DEADTREE as solid, IS_ROOM(>=ROOM) catches GRASS/SAND as walkable floor, IS_FURNITURE(STAIRS..ALTAR) is undisturbed. MAX_TYPE 39->44, MATCH_WALL 40->45, xFLOOR..xWATERWALL +5; terrain_descr[]/levltyp[]/type_names[] are positional and shift with them. 5.0's open-ended `ACCESSIBLE(typ) >= DOOR` deliberately LEFT ALONE (master bounds it `<= SEWAGE`; the open form already spanned MAX_TYPE before this change and is not a bug) | coordinator |
 | 2026-07-25 | struct rm `Bitfield(flags, 5)` WIDENED TO 6 so master's renumbered ICED_PUDDLE 4 / ICED_SEWAGE 8 / ICED_POOL 16 / ICED_MOAT 32 fit (32 overflows 5 bits; master widened it too). levl saves whole-struct via historical_sfo_rm so there is no hand sfo/sfi pair and no new field, leaving the generated exportascii writers unchanged. Master's neighbouring frac_altar bit deliberately NOT adopted (sacrifice subsystem, different slice). CAVEAT THAT BIT US: sizeof(struct rm) is 12 either way, so critical_sizes[] does NOT invalidate old saves - EDITLEVEL bumped 0 -> 1 to arm it. Applies to ANY future bitfield widening | coordinator |
 | 2026-07-25 | PUDDLE takes map char 'p', NOT master's 'w': 5.0 already uses 'w' for MATCH_WALL and four upstream levels depend on it (hellfill, nhlib, themerms, bigrm-11). Empirically scanned every map/mapfragment block across all 131 dat/*.lua - the complete charset in use is `#+-.ABCFLPSTWZ\wx{\|}`, so master's 's'/'g'/'a'/'t' stay master-compatible and only PUDDLE needed a new char ('p' free, mnemonic against 'P' = POOL). Phase 3 carry: des_to_lua.pl emits 'w' for puddles and must be remapped | coordinator |

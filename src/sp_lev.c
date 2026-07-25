@@ -2813,6 +2813,15 @@ fill_special_room(struct mkroom *croom)
         case LEPREHALL:
         case MORGUE:
         case BARRACKS:
+        case OWLBNEST:
+        /* master omits ARMORY here, which leaves a level-file armory
+           unstocked; 5.0 defers all filling to this function, so without
+           the case a randomly generated armory would be empty too */
+        case ARMORY:
+        case NURSERY:
+        case GARDEN:
+        case FOREST:
+        case LEMUREPIT:
             fill_zoo(croom);
             break;
         }
@@ -2841,6 +2850,15 @@ fill_special_room(struct mkroom *croom)
         break;
     case SWAMP:
         svl.level.flags.has_swamp = TRUE;
+        break;
+    case GARDEN:
+        svl.level.flags.has_garden = TRUE;
+        break;
+    case FOREST:
+        svl.level.flags.has_forest = TRUE;
+        break;
+    case LEMUREPIT:
+        svl.level.flags.has_lemurepit = TRUE;
         break;
     }
 }
@@ -4077,6 +4095,12 @@ static const struct {
     { "anthole", ANTHOLE },
     { "cocknest", COCKNEST },
     { "leprehall", LEPREHALL },
+    { "owlbnest", OWLBNEST },
+    { "armory", ARMORY },
+    { "nursery", NURSERY },
+    { "garden", GARDEN },
+    { "forest", FOREST },
+    { "lemurepit", LEMUREPIT },
     { "shop", SHOPBASE },
     { "armor shop", ARMORSHOP },
     { "scroll shop", SCROLLSHOP },

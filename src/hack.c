@@ -3745,7 +3745,22 @@ check_special_room(boolean newlev)
          * but everything else gives a message only the first time */
         switch (rt) {
         case ZOO:
+            /* TODO-EVILHACK: master reports an ice cave here instead when
+               the hero is in the Ice Queen branch; that dungeon topology
+               is not ported yet */
             pline("Welcome to David's treasure zoo!");
+            break;
+        case GARDEN:
+            if (Blind)
+                pline_The("air here smells nice and fresh!");
+            else
+                You("enter a beautiful garden.");
+            break;
+        case FOREST:
+            if (Blind)
+                pline_The("air here smells musty.");
+            else
+                You("enter a dark, decaying forest.");
             break;
         case SWAMP:
             pline("It %s rather %s down here.", Blind ? "feels" : "looks",
@@ -3767,6 +3782,9 @@ check_special_room(boolean newlev)
             } else
                 You("have an uncanny feeling...");
             break;
+        case LEMUREPIT:
+            /* no message; the pit announces itself by sound */
+            break;
         case BEEHIVE:
             You("enter a giant beehive!");
             break;
@@ -3775,6 +3793,15 @@ check_special_room(boolean newlev)
             break;
         case ANTHOLE:
             You("enter an anthole!");
+            break;
+        case OWLBNEST:
+            You("enter an owlbear nest!");
+            break;
+        case ARMORY:
+            You("enter a dilapidated armory.");
+            break;
+        case NURSERY:
+            You("enter a mind flayer nursery!");
             break;
         case BARRACKS:
             if (monstinroom(&mons[PM_SOLDIER], roomno)
@@ -3819,6 +3846,12 @@ check_special_room(boolean newlev)
                 case COURT:
                     svl.level.flags.has_court = 0;
                     break;
+                case GARDEN:
+                    svl.level.flags.has_garden = 0;
+                    break;
+                case FOREST:
+                    svl.level.flags.has_forest = 0;
+                    break;
                 case SWAMP:
                     svl.level.flags.has_swamp = 0;
                     break;
@@ -3834,19 +3867,25 @@ check_special_room(boolean newlev)
                 case TEMPLE:
                     svl.level.flags.has_temple = 0;
                     break;
+                case LEMUREPIT:
+                    svl.level.flags.has_lemurepit = 0;
+                    break;
                 case BEEHIVE:
                     svl.level.flags.has_beehive = 0;
                     break;
                 }
             }
-            if (rt == COURT || rt == SWAMP || rt == MORGUE || rt == ZOO)
+            if (rt == COURT || rt == SWAMP || rt == MORGUE || rt == ZOO
+                || rt == GARDEN)
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (DEADMONSTER(mtmp))
                         continue;
                     if (!isok(mtmp->mx,mtmp->my)
                         || roomno != (int) levl[mtmp->mx][mtmp->my].roomno)
                         continue;
-                    if (!Stealth && !rn2(3)) {
+                    /* plants and ents stay rooted where they are */
+                    if (!Stealth && !rn2(3)
+                        && !is_plant(mtmp->data) && !is_ent(mtmp->data)) {
                         wake_msg(mtmp, FALSE);
                         mtmp->msleeping = 0;
                     }

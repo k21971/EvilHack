@@ -63,22 +63,36 @@ enum roomtype_types {
     LEPREHALL  = 11, /* leprechaun hall (Tom Proudfoot) */
     COCKNEST   = 12, /* cockatrice nest (Tom Proudfoot) */
     ANTHOLE    = 13, /* ants (Tom Proudfoot) */
-    SHOPBASE   = 14, /* everything above this is a shop */
-    ARMORSHOP  = 15, /* specific shop defines for level compiler */
-    SCROLLSHOP = 16,
-    POTIONSHOP = 17,
-    WEAPONSHOP = 18,
-    FOODSHOP   = 19,
-    RINGSHOP   = 20,
-    WANDSHOP   = 21,
-    TOOLSHOP   = 22,
-    BOOKSHOP   = 23,
-    FODDERSHOP = 24, /* health food store */
-    CANDLESHOP = 25
+    OWLBNEST   = 14, /* owlbear nest */
+    ARMORY     = 15, /* weapons, armor, tools and rust monsters */
+    NURSERY    = 16, /* mind flayer larva nursery */
+    GARDEN     = 17, /* nymphs, trees, grass, and fountains */
+    FOREST     = 18, /* plant-like creatures, dead trees, grass */
+    LEMUREPIT  = 19, /* contains lemures and horned devils */
+    SHOPBASE   = 20, /* everything above this is a shop */
+    ARMORSHOP  = 21, /* specific shop defines for level compiler */
+    SCROLLSHOP = 22,
+    POTIONSHOP = 23,
+    WEAPONSHOP = 24,
+    FOODSHOP   = 25,
+    RINGSHOP   = 26,
+    WANDSHOP   = 27,
+    TOOLSHOP   = 28,
+    BOOKSHOP   = 29,
+    FODDERSHOP = 30, /* health food store */
+    CANDLESHOP = 31
 };
 
 #define MAXRTYPE (CANDLESHOP) /* maximum valid room type */
 #define UNIQUESHOP (CANDLESHOP) /* shops here & above not randomly gen'd. */
+
+/* recalc_mapseen() stores a raw rtype in mapseen_feat.shoptype, which is
+   only 5 bits wide, and 0 there is the "mixed shop types" sentinel. A
+   room type above 31 truncates and a known shop would be annotated as an
+   untended one in the dungeon overview. Widen that bitfield before
+   adding a shop type or any room type that pushes CANDLESHOP higher.
+   Master trips this today at CANDLESHOP 32; dropping RNDVAULT here
+   keeps the range inside the field */
 
 /* Special type for search_special() */
 #define ANY_TYPE (-1)

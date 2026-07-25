@@ -2751,6 +2751,18 @@ mm_aggression(
     if (magr->mtame && mdef->data == &mons[PM_LUCIFER])
         return ALLOW_M | ALLOW_TM;
 
+    /* Neothelids are an abomination
+       to mind flayers */
+    if (is_mind_flayer(magr->data)
+        && mdef->data == &mons[PM_NEOTHELID])
+        return ALLOW_M | ALLOW_TM;
+
+    /* neothelids need brains to survive and
+       will attack anything not mindless */
+    if (magr->data == &mons[PM_NEOTHELID]
+        && !mindless(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
     /* Various other combinations such as dog vs cat, cat vs rat, and
        elf vs orc have been suggested.  For the time being we don't
        support those. */
