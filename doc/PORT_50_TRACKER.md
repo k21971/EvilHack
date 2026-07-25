@@ -90,7 +90,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stale 3.6 build leftovers in the worktree are untracked/
       ignored and harmless - do NOT git clean, doc/claude lives
       there)
-- [x] Move this tracker into doc/claude/ on the branch
+- [x] Move this tracker onto the branch - now doc/PORT_50_TRACKER.md
+      (relocated out of doc/claude/ 2026-07-25 so the whole notes
+      directory could be gitignored; it was the only tracked file
+      under it)
 - [x] Resolve src/glyphs.c name collision - DECIDED 2026-07-12:
       EvilHack's customcolor registry ports as src/customcolor.c at
       Phase 4; upstream src/glyphs.c keeps its name (see Decisions)

@@ -24,4 +24,8 @@ guioptions
 porthelp
 NetHack.ad
 gitinfo.txt
+# EvilHack build/runtime artifacts
+Guidebook
+serverseed
+vaults.dat
 

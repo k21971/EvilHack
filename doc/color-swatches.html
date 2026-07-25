@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EvilHack 256-Color Reference</title>
+<style>
+  body {
+    background: #000000;
+    color: #cccccc;
+    font-family: "Courier New", Consolas, monospace;
+    padding: 2em;
+    margin: 0;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    font-weight: normal;
+  }
+  h1 { font-size: 1.4em; }
+  h2 { font-size: 1.1em; margin-top: 2em; border-bottom: 1px solid #444; padding-bottom: 0.3em; }
+  h3 { font-size: 0.95em; margin-top: 1.2em; color: #aaaaaa; }
+  table {
+    border-collapse: collapse;
+    margin: 1em 0;
+  }
+  th {
+    text-align: left;
+    color: #888888;
+    font-weight: normal;
+    padding: 0.2em 1.2em 0.2em 0;
+    border-bottom: 1px solid #333;
+  }
+  td {
+    padding: 0.3em 1.2em 0.3em 0;
+    vertical-align: middle;
+  }
+  .swatch {
+    font-size: 1.6em;
+    line-height: 1;
+  }
+  .num { color: #888888; text-align: right; }
+  .hex { color: #666666; }
+  .name { color: #cccccc; }
+  .desc { color: #888888; }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+    max-width: 480px;
+    margin: 0.5em 0;
+  }
+  .color-cell {
+    text-align: center;
+    padding: 4px 0;
+    cursor: default;
+    position: relative;
+  }
+  .color-cell .glyph {
+    font-size: 1.8em;
+    line-height: 1;
+    display: block;
+  }
+  .color-cell .label {
+    font-size: 0.7em;
+    color: #666666;
+    display: block;
+    margin-top: 2px;
+  }
+  .color-cell .tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: #222222;
+    border: 1px solid #555555;
+    padding: 4px 8px;
+    font-size: 0.75em;
+    white-space: nowrap;
+    z-index: 10;
+    color: #cccccc;
+  }
+  .color-cell:hover .tooltip {
+    display: block;
+  }
+  .cube-row {
+    display: flex;
+    gap: 1.5em;
+    flex-wrap: wrap;
+    margin: 0.5em 0;
+  }
+  .cube-block {
+    flex: 0 0 auto;
+  }
+  .cube-block-label {
+    font-size: 0.8em;
+    color: #666666;
+    margin-bottom: 0.3em;
+  }
+  .gray-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2px;
+    max-width: 720px;
+    margin: 0.5em 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>EvilHack 256-Color Reference</h1>
+
+<h2>Base 16 Terminal Colors (0-15)</h2>
+<table>
+  <tr><th>Swatch</th><th class="num">#</th><th>Hex</th><th>R</th><th>G</th><th>B</th><th>Name</th><th>Aliases</th></tr>
+  <tr><td class="swatch" style="color:#555555">&#x2B24;</td><td class="num">0</td><td class="hex">#555555</td><td>85</td><td>85</td><td>85</td><td class="name">black</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#AA0000">&#x2B24;</td><td class="num">1</td><td class="hex">#AA0000</td><td>170</td><td>0</td><td>0</td><td class="name">red</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#00AA00">&#x2B24;</td><td class="num">2</td><td class="hex">#00AA00</td><td>0</td><td>170</td><td>0</td><td class="name">green</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#AA5500">&#x2B24;</td><td class="num">3</td><td class="hex">#AA5500</td><td>170</td><td>85</td><td>0</td><td class="name">brown</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#0000AA">&#x2B24;</td><td class="num">4</td><td class="hex">#0000AA</td><td>0</td><td>0</td><td>170</td><td class="name">blue</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#AA00AA">&#x2B24;</td><td class="num">5</td><td class="hex">#AA00AA</td><td>170</td><td>0</td><td>170</td><td class="name">magenta</td><td class="desc">purple</td></tr>
+  <tr><td class="swatch" style="color:#00AAAA">&#x2B24;</td><td class="num">6</td><td class="hex">#00AAAA</td><td>0</td><td>170</td><td>170</td><td class="name">cyan</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#AAAAAA">&#x2B24;</td><td class="num">7</td><td class="hex">#AAAAAA</td><td>170</td><td>170</td><td>170</td><td class="name">gray</td><td class="desc">grey</td></tr>
+  <tr><td class="swatch" style="color:#555555">&#x2B24;</td><td class="num">8</td><td class="hex">#555555</td><td>85</td><td>85</td><td>85</td><td class="name">no color</td><td class="desc">transparent (NO_COLOR)</td></tr>
+  <tr><td class="swatch" style="color:#FF5555">&#x2B24;</td><td class="num">9</td><td class="hex">#FF5555</td><td>255</td><td>85</td><td>85</td><td class="name">orange</td><td class="desc">light red, bright red</td></tr>
+  <tr><td class="swatch" style="color:#55FF55">&#x2B24;</td><td class="num">10</td><td class="hex">#55FF55</td><td>85</td><td>255</td><td>85</td><td class="name">light green</td><td class="desc">bright green</td></tr>
+  <tr><td class="swatch" style="color:#FFFF55">&#x2B24;</td><td class="num">11</td><td class="hex">#FFFF55</td><td>255</td><td>255</td><td>85</td><td class="name">yellow</td><td class="desc"></td></tr>
+  <tr><td class="swatch" style="color:#5555FF">&#x2B24;</td><td class="num">12</td><td class="hex">#5555FF</td><td>85</td><td>85</td><td>255</td><td class="name">light blue</td><td class="desc">bright blue</td></tr>
+  <tr><td class="swatch" style="color:#FF55FF">&#x2B24;</td><td class="num">13</td><td class="hex">#FF55FF</td><td>255</td><td>85</td><td>255</td><td class="name">light magenta</td><td class="desc">light purple, bright magenta</td></tr>
+  <tr><td class="swatch" style="color:#55FFFF">&#x2B24;</td><td class="num">14</td><td class="hex">#55FFFF</td><td>85</td><td>255</td><td>255</td><td class="name">light cyan</td><td class="desc">bright cyan</td></tr>
+  <tr><td class="swatch" style="color:#FCFCFC">&#x2B24;</td><td class="num">15</td><td class="hex">#FCFCFC</td><td>252</td><td>252</td><td>252</td><td class="name">white</td><td class="desc"></td></tr>
+</table>
+
+<h2>HI_* Material Colors (color.h)</h2>
+<table>
+  <tr><th>Swatch</th><th class="num">#</th><th>Hex</th><th>R</th><th>G</th><th>B</th><th>Define</th><th>Description</th></tr>
+  <tr><td class="swatch" style="color:#AA00AA">&#x2B24;</td><td class="num">5</td><td class="hex">#AA00AA</td><td>170</td><td>0</td><td>170</td><td class="name">HI_OBJ</td><td class="desc">CLR_MAGENTA</td></tr>
+  <tr><td class="swatch" style="color:#00AAAA">&#x2B24;</td><td class="num">6</td><td class="hex">#00AAAA</td><td>0</td><td>170</td><td>170</td><td class="name">HI_METAL</td><td class="desc">CLR_CYAN</td></tr>
+  <tr><td class="swatch" style="color:#AA5500">&#x2B24;</td><td class="num">3</td><td class="hex">#AA5500</td><td>170</td><td>85</td><td>0</td><td class="name">HI_ORGANIC</td><td class="desc">CLR_BROWN</td></tr>
+  <tr><td class="swatch" style="color:#AA5500">&#x2B24;</td><td class="num">3</td><td class="hex">#AA5500</td><td>170</td><td>85</td><td>0</td><td class="name">HI_LIQUID</td><td class="desc">CLR_BROWN</td></tr>
+  <tr><td class="swatch" style="color:#FCFCFC">&#x2B24;</td><td class="num">15</td><td class="hex">#FCFCFC</td><td>252</td><td>252</td><td>252</td><td class="name">HI_PAPER</td><td class="desc">CLR_WHITE</td></tr>
+  <tr><td class="swatch" style="color:#AA5500">&#x2B24;</td><td class="num">3</td><td class="hex">#AA5500</td><td>170</td><td>85</td><td>0</td><td class="name">HI_LEATHER</td><td class="desc">CLR_BROWN</td></tr>
+  <tr><td class="swatch" style="color:#00AAAA">&#x2B24;</td><td class="num">6</td><td class="hex">#00AAAA</td><td>0</td><td>170</td><td>170</td><td class="name">HI_IRON</td><td class="desc">CLR_CYAN</td></tr>
+  <tr><td class="swatch" style="color:#55FFFF">&#x2B24;</td><td class="num">14</td><td class="hex">#55FFFF</td><td>85</td><td>255</td><td>255</td><td class="name">DRAGON_SILVER</td><td class="desc">CLR_BRIGHT_CYAN</td></tr>
+  <tr><td class="swatch" style="color:#5555FF">&#x2B24;</td><td class="num">12</td><td class="hex">#5555FF</td><td>85</td><td>85</td><td>255</td><td class="name">HI_ZAP</td><td class="desc">CLR_BRIGHT_BLUE</td></tr>
+  <tr><td colspan="8" style="border-bottom:1px solid #333; padding:0.1em"></td></tr>
+  <tr><td class="swatch" style="color:#FFFFAF">&#x2B24;</td><td class="num">229</td><td class="hex">#FFFFAF</td><td>255</td><td>255</td><td>175</td><td class="name">HI_WAX</td><td class="desc">lemon chiffon</td></tr>
+  <tr><td class="swatch" style="color:#5F8700">&#x2B24;</td><td class="num">64</td><td class="hex">#5F8700</td><td>95</td><td>135</td><td>0</td><td class="name">HI_VEGGY</td><td class="desc">olive green</td></tr>
+  <tr><td class="swatch" style="color:#D75F5F">&#x2B24;</td><td class="num">167</td><td class="hex">#D75F5F</td><td>215</td><td>95</td><td>95</td><td class="name">HI_FLESH</td><td class="desc">indian red</td></tr>
+  <tr><td class="swatch" style="color:#D7AF87">&#x2B24;</td><td class="num">180</td><td class="hex">#D7AF87</td><td>215</td><td>175</td><td>135</td><td class="name">HI_CLOTH</td><td class="desc">medium burlywood</td></tr>
+  <tr><td class="swatch" style="color:#DADADA">&#x2B24;</td><td class="num">253</td><td class="hex">#DADADA</td><td>218</td><td>218</td><td>218</td><td class="name">HI_SPIDER_SILK</td><td class="desc">very light gray</td></tr>
+  <tr><td class="swatch" style="color:#875F00">&#x2B24;</td><td class="num">94</td><td class="hex">#875F00</td><td>135</td><td>95</td><td>0</td><td class="name">HI_WOOD</td><td class="desc">dark goldenrod</td></tr>
+  <tr><td class="swatch" style="color:#FFFFD7">&#x2B24;</td><td class="num">230</td><td class="hex">#FFFFD7</td><td>255</td><td>255</td><td>215</td><td class="name">HI_BONE</td><td class="desc">cornsilk</td></tr>
+  <tr><td class="swatch" style="color:#5F0000">&#x2B24;</td><td class="num">52</td><td class="hex">#5F0000</td><td>95</td><td>0</td><td>0</td><td class="name">HI_DRAGON_HIDE</td><td class="desc">dark maroon</td></tr>
+  <tr><td class="swatch" style="color:#5F87AF">&#x2B24;</td><td class="num">67</td><td class="hex">#5F87AF</td><td>95</td><td>135</td><td>175</td><td class="name">HI_STEEL</td><td class="desc">steel blue</td></tr>
+  <tr><td class="swatch" style="color:#D75F00">&#x2B24;</td><td class="num">166</td><td class="hex">#D75F00</td><td>215</td><td>95</td><td>0</td><td class="name">HI_COPPER</td><td class="desc">rust</td></tr>
+  <tr><td class="swatch" style="color:#D78700">&#x2B24;</td><td class="num">172</td><td class="hex">#D78700</td><td>215</td><td>135</td><td>0</td><td class="name">HI_BRONZE</td><td class="desc">dark orange</td></tr>
+  <tr><td class="swatch" style="color:#B2B2B2">&#x2B24;</td><td class="num">249</td><td class="hex">#B2B2B2</td><td>178</td><td>178</td><td>178</td><td class="name">HI_SILVER</td><td class="desc">silver</td></tr>
+  <tr><td class="swatch" style="color:#FFD700">&#x2B24;</td><td class="num">220</td><td class="hex">#FFD700</td><td>255</td><td>215</td><td>0</td><td class="name">HI_GOLD</td><td class="desc">gold</td></tr>
+  <tr><td class="swatch" style="color:#E4E4E4">&#x2B24;</td><td class="num">254</td><td class="hex">#E4E4E4</td><td>228</td><td>228</td><td>228</td><td class="name">HI_PLATINUM</td><td class="desc">near white</td></tr>
+  <tr><td class="swatch" style="color:#87AFD7">&#x2B24;</td><td class="num">110</td><td class="hex">#87AFD7</td><td>135</td><td>175</td><td>215</td><td class="name">HI_MITHRIL</td><td class="desc">light steel blue</td></tr>
+  <tr><td class="swatch" style="color:#303030">&#x2B24;</td><td class="num">236</td><td class="hex">#303030</td><td>48</td><td>48</td><td>48</td><td class="name">HI_ADAMANTINE</td><td class="desc">dark gray</td></tr>
+  <tr><td class="swatch" style="color:#AFFF87">&#x2B24;</td><td class="num">156</td><td class="hex">#AFFF87</td><td>175</td><td>255</td><td>135</td><td class="name">HI_PLASTIC</td><td class="desc">pale green</td></tr>
+  <tr><td class="swatch" style="color:#AFFFFF">&#x2B24;</td><td class="num">159</td><td class="hex">#AFFFFF</td><td>175</td><td>255</td><td>255</td><td class="name">HI_GLASS</td><td class="desc">pale cyan</td></tr>
+  <tr><td class="swatch" style="color:#FF0000">&#x2B24;</td><td class="num">196</td><td class="hex">#FF0000</td><td>255</td><td>0</td><td>0</td><td class="name">HI_GEMSTONE</td><td class="desc">bright red</td></tr>
+  <tr><td class="swatch" style="color:#808080">&#x2B24;</td><td class="num">244</td><td class="hex">#808080</td><td>128</td><td>128</td><td>128</td><td class="name">HI_MINERAL</td><td class="desc">gray</td></tr>
+</table>
+
+<h2>Extended Palette (16-231) &mdash; 6&times;6&times;6 RGB Cube</h2>
+<p style="color:#888888; font-size:0.85em; margin:0.3em 0 1em 0">
+  color = 16 + (36 &times; R) + (6 &times; G) + B &nbsp;|&nbsp;
+  levels: 0=0, 1=95, 2=135, 3=175, 4=215, 5=255 &nbsp;|&nbsp;
+  hover for details
+</p>
+<div id="cube"></div>
+
+<h2>Grayscale Ramp (232-255)</h2>
+<div id="grayscale"></div>
+
+<script>
+(function() {
+  var levels = [0, 95, 135, 175, 215, 255];
+
+  /* Color names from colors256.md */
+  var names = {
+    16:"black",17:"very dark blue",18:"dark blue",19:"medium blue",
+    20:"blue",21:"bright blue",22:"very dark green",23:"dark teal",
+    24:"deep teal blue",25:"steel blue",26:"dodger blue",27:"deep blue",
+    28:"forest green",29:"sea green",30:"teal",31:"cerulean",
+    32:"azure",33:"deep sky blue",34:"green",35:"medium sea green",
+    36:"medium aquamarine",37:"light sea green",38:"deep sky blue",39:"vivid sky blue",
+    40:"lime green",41:"spring green",42:"medium spring green",43:"aquamarine",
+    44:"dark turquoise",45:"deep sky blue",46:"lime",47:"bright spring green",
+    48:"spring green",49:"medium spring green",50:"bright aquamarine",51:"cyan / aqua",
+    52:"dark maroon",53:"dark purple",54:"indigo",55:"blue violet",
+    56:"vivid blue violet",57:"electric indigo",58:"dark olive",59:"dim gray",
+    60:"slate gray",61:"medium slate blue",62:"cornflower blue",63:"royal blue",
+    64:"olive green",65:"dark sea green",66:"cadet blue",67:"steel blue",
+    68:"cornflower blue",69:"vivid cornflower",70:"yellow green",71:"dark sea green",
+    72:"medium aquamarine",73:"cadet blue",74:"sky blue",75:"light sky blue",
+    76:"chartreuse",77:"pale green",78:"light green",79:"medium aquamarine",
+    80:"medium turquoise",81:"light sky blue",82:"bright chartreuse",83:"bright green",
+    84:"light green",85:"pale green",86:"light aquamarine",87:"light cyan",
+    88:"dark red",89:"dark magenta",90:"dark magenta",91:"dark violet",
+    92:"blue violet",93:"electric violet",94:"dark goldenrod",95:"warm gray",
+    96:"plum",97:"medium purple",98:"medium purple",99:"light slate blue",
+    100:"olive",101:"dark khaki",102:"gray",103:"light slate gray",
+    104:"medium slate blue",105:"light slate blue",106:"yellow green",107:"dark olive green",
+    108:"dark sea green",109:"pale turquoise",110:"light steel blue",111:"light sky blue",
+    112:"lawn green",113:"light green",114:"pale green",115:"light aquamarine",
+    116:"pale turquoise",117:"light blue",118:"bright chartreuse",119:"bright green",
+    120:"light green",121:"pale green",122:"light aquamarine",123:"light cyan",
+    124:"red",125:"medium violet red",126:"deep pink",127:"magenta",
+    128:"dark violet",129:"vivid violet",130:"dark orange / bronze",131:"rosy brown",
+    132:"pale violet red",133:"orchid",134:"medium orchid",135:"medium purple",
+    136:"dark goldenrod",137:"burlywood / tan",138:"rosy brown",139:"thistle",
+    140:"plum",141:"medium purple",142:"dark yellow / olive",143:"dark khaki",
+    144:"tan",145:"silver",146:"light steel blue",147:"lavender",
+    148:"green yellow",149:"yellow green",150:"light green",151:"pale green",
+    152:"light cyan",153:"light sky blue",154:"bright green yellow",155:"bright yellow green",
+    156:"pale green",157:"light green",158:"light aquamarine",159:"pale cyan",
+    160:"crimson",161:"deep pink",162:"deep pink",163:"hot pink",
+    164:"bright magenta",165:"electric purple",166:"rust / dark orange",167:"indian red",
+    168:"hot pink",169:"orchid",170:"violet",171:"medium orchid",
+    172:"dark orange",173:"sandy brown",174:"light coral",175:"plum",
+    176:"violet",177:"light purple",178:"goldenrod",179:"dark khaki",
+    180:"burlywood",181:"misty rose",182:"thistle",183:"light plum",
+    184:"yellow",185:"khaki",186:"pale goldenrod",187:"lemon chiffon",
+    188:"light gray",189:"lavender",190:"green yellow",191:"light green yellow",
+    192:"pale green",193:"light green",194:"honeydew",195:"azure",
+    196:"bright red",197:"deep pink",198:"deep pink",199:"hot pink",
+    200:"bright magenta",201:"fuchsia",202:"orange red",203:"salmon",
+    204:"hot pink",205:"pink",206:"orchid",207:"violet",
+    208:"dark orange",209:"salmon",210:"light coral",211:"light pink",
+    212:"pink",213:"light orchid",214:"orange",215:"sandy brown",
+    216:"light salmon",217:"light pink",218:"pink",219:"light plum",
+    220:"gold",221:"light goldenrod",222:"khaki",223:"peach puff",
+    224:"misty rose",225:"lavender blush",226:"bright yellow",227:"light yellow",
+    228:"pale yellow",229:"lemon chiffon",230:"cornsilk",231:"white",
+    232:"near black",233:"very dark gray",234:"very dark gray",235:"very dark gray",
+    236:"dark gray",237:"dark gray",238:"dark gray",239:"dim gray",
+    240:"dim gray",241:"dim gray",242:"medium gray",243:"medium gray",
+    244:"gray",245:"gray",246:"dark silver",247:"dark silver",
+    248:"silver",249:"silver",250:"light gray",251:"light gray",
+    252:"very light gray",253:"very light gray",254:"near white",255:"near white"
+  };
+
+  function toHex(n) {
+    var s = n.toString(16).toUpperCase();
+    return s.length < 2 ? '0' + s : s;
+  }
+
+  function makeCell(num, r, g, b) {
+    var hex = '#' + toHex(r) + toHex(g) + toHex(b);
+    var name = names[num] || '';
+    var div = document.createElement('div');
+    div.className = 'color-cell';
+    div.innerHTML =
+      '<span class="glyph" style="color:' + hex + '">&#x2B24;</span>' +
+      '<span class="label">' + num + '</span>' +
+      '<span class="tooltip">' + num + ' &nbsp; ' + hex +
+      ' &nbsp; rgb(' + r + ',' + g + ',' + b + ')' +
+      (name ? ' &nbsp; ' + name : '') + '</span>';
+    return div;
+  }
+
+  // 6x6x6 cube: 6 blocks (one per red level), each a 6x6 grid of G x B
+  var cube = document.getElementById('cube');
+  for (var ri = 0; ri < 6; ri++) {
+    var block = document.createElement('div');
+    block.className = 'cube-block';
+    var label = document.createElement('div');
+    label.className = 'cube-block-label';
+    label.textContent = 'R=' + levels[ri] + ' (colors ' +
+      (16 + ri * 36) + '-' + (16 + ri * 36 + 35) + ')';
+    block.appendChild(label);
+    var grid = document.createElement('div');
+    grid.className = 'color-grid';
+    for (var gi = 0; gi < 6; gi++) {
+      for (var bi = 0; bi < 6; bi++) {
+        var num = 16 + ri * 36 + gi * 6 + bi;
+        grid.appendChild(makeCell(num, levels[ri], levels[gi], levels[bi]));
+      }
+    }
+    block.appendChild(grid);
+    cube.appendChild(block);
+  }
+
+  // Grayscale ramp 232-255
+  var gray = document.getElementById('grayscale');
+  var ggrid = document.createElement('div');
+  ggrid.className = 'gray-grid';
+  for (var i = 0; i < 24; i++) {
+    var v = 8 + i * 10;
+    ggrid.appendChild(makeCell(232 + i, v, v, v));
+  }
+  gray.appendChild(ggrid);
+})();
+</script>
+
+</body>
+</html>
