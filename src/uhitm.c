@@ -15,7 +15,10 @@ staticfn boolean known_hitum(struct monst *, struct obj *, int *, int, int,
 staticfn boolean theft_petrifies(struct obj *) NONNULLARG1;
 staticfn void mhitm_really_poison(struct monst *, struct attack *,
                                   struct monst *, struct mhitm_data *);
+staticfn boolean steal_slips_off(struct monst *, struct obj *) NONNULLPTRS;
+staticfn void pickpocket_watch_responds(struct monst *) NONNULLARG1;
 staticfn void steal_it(struct monst *, struct attack *) NONNULLARG1;
+staticfn struct monst *find_steal_target(void);
 /* hitum_cleave() has contradictory information. There's a comment
  * beside the 1st arg 'target' stating non-null, but later on there
  * is a test for 'target' being null */
@@ -1664,9 +1667,6 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
 
             /* train thievery in steal_it() when we know if theft
                succeeded */
-            /* TODO-EVILHACK: master's steal_it() trains thievery on
-               theft outcome; that ports with the steal_it pickpocket
-               rework */
             if (!(wtype == P_THIEVERY
                   && (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))))
                 use_skill(wtype, 1);
@@ -2363,6 +2363,66 @@ theft_petrifies(struct obj *otmp)
     return TRUE;
 }
 
+/* greased or otherwise slippery gear is hard to get a grip on; report
+   the fumble, maybe wear the grease off, and tell the caller that this
+   particular theft has failed */
+staticfn boolean
+steal_slips_off(struct monst *mdef, struct obj *otmp)
+{
+    const char *adj, *what;
+
+    if (!otmp->greased && otmp->otyp != OILSKIN_CLOAK
+        && otmp->otyp != OILSKIN_SACK
+        && !is_art(otmp, ART_BAG_OF_THE_HESPERIDES)
+        && !(otmp->oprops & ITEM_OILSKIN))
+        return FALSE;
+    /* a cursed item occasionally clings to its owner instead */
+    if (otmp->cursed && !rn2(4))
+        return FALSE;
+
+    adj = otmp->greased ? "greased" : "slippery";
+    what = (otmp->greased || objects[otmp->otyp].oc_name_known)
+               ? xname(otmp)
+               : simpleonames(otmp);
+    /* an unidentified oilskin cloak is already called a slippery
+       cloak, so the adjective would otherwise be said twice */
+    if (!strncmpi(what, adj, strlen(adj)))
+        adj = "";
+
+    Your("%s slip off of %s %s%s%s!", makeplural(body_part(HAND)),
+         s_suffix(mon_nam(mdef)), adj, *adj ? " " : "", what);
+    if (otmp->greased && !rn2(2)) {
+        pline_The("grease wears off.");
+        otmp->greased = 0;
+    }
+    return TRUE;
+}
+
+/* the town watch takes a dim view of a botched pickpocketing */
+staticfn void
+pickpocket_watch_responds(struct monst *mdef)
+{
+    struct monst *mon;
+
+    for (mon = fmon; mon; mon = mon->nmon) {
+        if (DEADMONSTER(mon))
+            continue;
+        /* the mpeaceful test below catches this since mdef is no
+           longer peaceful, but be explicit */
+        if (mon == mdef)
+            continue;
+        if (!mon->mpeaceful || mon->msleeping)
+            continue;
+        if (!humanoid(mon->data) && !mon->isshk && !mon->ispriest)
+            continue;
+        if (is_watch(mon->data) && mon->mcansee && m_canseeu(mon)) {
+            SetVoice(mon, 0, 80, 0);
+            verbalize("Halt!  You're under arrest!");
+            (void) angry_guards(!!Deaf);
+        }
+    }
+}
+
 /*
  * Player uses theft attack against monster.
  *
@@ -2374,14 +2434,19 @@ steal_it(struct monst *mdef, struct attack *mattk)
 {
     struct obj *otmp, *gold = 0, *ustealo, **minvent_ptr;
     long unwornmask;
+    int i = rn2(10), dex_pick = 0, no_vis = 0,
+        size = 0, enc = 0, other = 0, cap;
+    /* seducing the target strips it bare but leaves its gold alone;
+       an ordinary pickpocket takes one item and may take the coins */
+    boolean as_mon = (could_seduce(&gy.youmonst, mdef, mattk) != 0);
 
     otmp = mdef->minvent;
-    if (!otmp || (otmp->oclass == COIN_CLASS && !otmp->nobj))
+    if (!otmp || (as_mon && otmp->oclass == COIN_CLASS && !otmp->nobj))
         return; /* nothing to take */
 
     /* look for worn body armor */
     ustealo = (struct obj *) 0;
-    if (could_seduce(&gy.youmonst, mdef, mattk) && mdef->mcanmove) {
+    if (as_mon && mdef->mcanmove) {
         /* find armor, and move it to end of inventory in the process */
         minvent_ptr = &mdef->minvent;
         while ((otmp = *minvent_ptr) != 0)
@@ -2396,7 +2461,20 @@ steal_it(struct monst *mdef, struct attack *mattk)
             }
         *minvent_ptr = ustealo; /* put armor back into minvent */
     }
-    gold = findgold(mdef->minvent);
+    /* the coins are spared whenever the theft is a seduction, even when
+       the target is too incapacitated for the strip-it-bare path above */
+    if (as_mon)
+        gold = findgold(mdef->minvent);
+
+    /* prevent gold from being stolen so that steal-item isn't a superset
+       of steal-gold; shuffling it out of minvent before selecting next
+       item, and then back in case hero or monster dies (hero touching
+       stolen c'trice corpse or monster wielding one and having gloves
+       stolen) is less bookkeeping than skipping it within the loop or
+       taking it out once and then trying to figure out how to put it back;
+       a pickpocket is not seducing anyone, so coins are fair game there */
+    if (gold)
+        obj_extract_self(gold);
 
     if (ustealo) { /* we will be taking everything */
         char heshe[20];
@@ -2412,22 +2490,177 @@ steal_it(struct monst *mdef, struct attack *mattk)
         else
             You("seduce %s and %s starts to take off %s clothes.",
                 mon_nam(mdef), mhe(mdef), mhis(mdef));
+        otmp = mdef->minvent;
+    } else {
+        /* only one object is taken, so pick it at random */
+        int nitems = 0;
+
+        for (otmp = mdef->minvent; otmp; otmp = otmp->nobj)
+            ++nitems;
+        nitems = rnd(nitems);
+        for (otmp = mdef->minvent; nitems > 1; --nitems)
+            otmp = otmp->nobj;
     }
 
-    /* prevent gold from being stolen so that steal-item isn't a superset
-       of steal-gold; shuffling it out of minvent before selecting next
-       item, and then back in case hero or monster dies (hero touching
-       stolen c'trice corpse or monster wielding one and having gloves
-       stolen) is less bookkeeping than skipping it within the loop or
-       taking it out once and then trying to figure out how to put it back */
-    if (gold)
-        obj_extract_self(gold);
+    /* greased objects are difficult to get a grip on, hence
+       the odds that an attempt at stealing it may fail */
+    if (otmp && steal_slips_off(mdef, otmp)) {
+        if (gold)
+            mpickobj(mdef, gold);
+        return;
+    }
 
-    while ((otmp = mdef->minvent) != 0) {
+    /* Rogues and Convicts can use the thievery skill;
+       dexterity directly affects how successful a
+       pickpocketing attempt will be */
+    if (ACURR(A_DEX) <= 6)
+        dex_pick += 3;
+    else if (ACURR(A_DEX) <= 9)
+        dex_pick += 2;
+    else if (ACURR(A_DEX) <= 15)
+        dex_pick -= 0;
+    else if (ACURR(A_DEX) <= 18)
+        dex_pick -= 1;
+    else if (ACURR(A_DEX) <= 21)
+        dex_pick -= 2;
+    else if (ACURR(A_DEX) <= 24)
+        dex_pick -= 3;
+    else if (ACURR(A_DEX) == 25)
+        dex_pick -= 4;
+
+    /* varying degrees of perception */
+    if (!mdef->mcansee && haseyes(mdef->data)) {
+        /* target is blind */
+        no_vis -= 4;
+    } else if (!m_canseeu(mdef)) {
+        /* thief is invisible */
+        no_vis -= 3;
+    } else if (mdef->mcansee && haseyes(mdef->data)
+               && spot_is_dark(u.ux, u.uy)) {
+        /* thief is in darkness, target can see */
+        if (Race_if(PM_DROW))
+            no_vis -= 3;
+        else
+            no_vis -= 2;
+    }
+
+    /* slight bonus if the thief is small and
+       its target is much bigger */
+    if ((Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
+        && mdef->data->msize >= MZ_LARGE)
+        size -= 1;
+
+    /* being encumbered adversely affects pickpocketing success rate,
+       to the point where it becomes impossible if the level of
+       encumbrance is too high */
+    if ((cap = near_capacity()) > UNENCUMBERED) {
+        switch (cap) {
+        case SLT_ENCUMBER:
+            enc += 2;
+            break; /* burdened */
+        case MOD_ENCUMBER:
+            enc += 6;
+            break; /* stressed */
+        case HVY_ENCUMBER:
+            enc += 10;
+            break; /* strained */
+        case EXT_ENCUMBER:
+        case OVERLOADED:
+            enc += 20;
+            break; /* overtaxed/overloaded:
+                      can't 'fight' when this overburdened */
+        }
+    }
+
+    /* other conditions that could affect success, and these
+       can stack if multiple conditions are met */
+    if (has_magic_key(&gy.youmonst))
+        other -= 6; /* MKoT in open inventory, meets is_magic_key() criteria */
+    if (mdef->mfrozen) /* target is immobile or incapacitated */
+        other -= 5;
+    if (mdef->mconf || mdef->mstun) /* target can't think straight */
+        other -= 3;
+    if (uarms) /* wearing a shield */
+        other += 2;
+    if (uarm && is_heavy_metallic(uarm)) /* wearing bulky body armor */
+        other += 3;
+    if (Wounded_legs) /* hard to move deftly */
+        other += 5;
+    if (u.usteed) /* steed can hamper stealth */
+        other += 5;
+    if (!canspotmon(mdef)) /* can't see/sense target */
+        other += 6;
+    if (Glib) /* slippery fingers */
+        other += 7;
+    if (Fumbling) /* difficult motor control */
+        other += 10;
+    if (Confusion || Stunned) /* hard to do much anything if impaired */
+        other += 20;
+    if (mdef->data == &mons[PM_ORACLE]) {
+        /* stealing from the Oracle will never succeed,
+           although the attempt is allowed [see AD_MAGM in passive()] */
+        other += 50;
+    }
+
+    /* failure routine */
+    if (!Upolyd
+        && (i + dex_pick + no_vis + size + enc + other)
+               > P_SKILL(P_THIEVERY)) {
+        if (Confusion || Stunned) {
+            You("are in no shape to %s anything.",
+                rn2(2) ? "pickpocket" : "steal");
+        } else {
+            Your("attempt to %s %s %s.",
+                 rn2(2) ? "pickpocket" : "steal from",
+                 mon_nam(mdef), rn2(2) ? "failed" : "was unsuccessful");
+            if (!rn2(10) && P_SKILL(P_THIEVERY) == P_BASIC)
+                You("could use more practice at pickpocketing.");
+            /* there's a chance a monster being pickpocketed will notice;
+               as expected, they're not too happy about it, and a good
+               bit of this comes from setmangry() */
+            if (mdef->mpeaceful && rnd(6) > P_SKILL(P_THIEVERY)) {
+                mdef->mpeaceful = 0;
+                set_malign(mdef);
+                newsym(mdef->mx, mdef->my); /* clear peaceful glyph */
+                if (mdef->ispriest) {
+                    if (p_coaligned(mdef)) {
+                        You_feel("guilty.");
+                        adjalign(-5); /* very bad */
+                        record_abuse_event(-5, ABUSE_PICKPOCKET);
+                    } else {
+                        adjalign(2);
+                    }
+                }
+                if (couldsee(mdef->mx, mdef->my)) {
+                    if (humanoid(mdef->data) || mdef->isshk || mdef->isgd)
+                        pline_mon(mdef, "%s notices your pickpocketing"
+                                        " attempt and gets angry!",
+                                  Monnam(mdef));
+                    else if (flags.verbose && !Deaf)
+                        growl(mdef);
+                }
+                /* robbing your own quest leader will anger the guardians */
+                if (!svc.context.mon_moving /* always the case here */
+                    && mdef->data == &mons[quest_info(MS_LEADER)])
+                    qst_guardians_respond();
+                /* make the watch react */
+                if (!svc.context.mon_moving)
+                    pickpocket_watch_responds(mdef);
+            }
+        }
+        if (gold)
+            mpickobj(mdef, gold);
+        return;
+    }
+
+    while (ustealo ? ((otmp = mdef->minvent) != 0) : (otmp != 0)) {
         if (gold) /* put 'mdef's gold back after remembering mdef->minvent */
             mpickobj(mdef, gold), gold = 0;
-        if (!Upolyd)
-            break; /* no longer have ability to steal */
+        /* only reachable once items have already been stolen; failing to
+           steal a greased object stops further theft so that the loop
+           can't spin on an item that can't be picked up */
+        if (steal_slips_off(mdef, otmp))
+            break;
         unwornmask = otmp->owornmask;
         /* this would take place when doname() formats the object for
            the hold_another_object() call, but we want to do it before
@@ -2445,8 +2678,15 @@ steal_it(struct monst *mdef, struct attack *mattk)
         otmp = hold_another_object(otmp, "You snatched but dropped %s.",
                                    doname(otmp), "You steal: ");
         /* might have dropped otmp, and it might have broken or left level */
-        if (!otmp || otmp->where != OBJ_INVENT)
+        if (!otmp || otmp->where != OBJ_INVENT) {
+            if (!ustealo)
+                break; /* only taking one item */
+            /* the next item comes out of minvent, so take the gold
+               back out before looping around to select it */
+            if ((gold = findgold(mdef->minvent)) != 0)
+                obj_extract_self(gold);
             continue;
+        }
         if (theft_petrifies(otmp))
             break; /* stop thieving even though hero survived */
         /* more take-away handling, after theft message */
@@ -2460,6 +2700,8 @@ steal_it(struct monst *mdef, struct attack *mattk)
 
         if (!ustealo)
             break; /* only taking one item */
+        if (!Upolyd)
+            break; /* no longer have ability to steal */
 
         /* take gold out of minvent before making next selection; if it
            is the only thing left, the loop will terminate and it will be
@@ -2474,6 +2716,130 @@ steal_it(struct monst *mdef, struct attack *mattk)
        now if it has just been turned into one) */
     if (gold)
         mpickobj(mdef, gold);
+
+    /* only train thievery if you have the skill */
+    if (Role_if(PM_ROGUE) || Role_if(PM_CONVICT)) {
+        /* train the skill here instead of in hmon_hitmon() to avoid
+           premature messages about feeling more dangerous when theft
+           fails */
+        use_skill(P_THIEVERY, 1);
+
+        /* Training up thievery skill can be quite the chore, to the point
+           where many players don't bother to use it. Randomly add an
+           additional point of skill for a successful attempt to balance
+           out the drudgery, without having to revamp how skill points are
+           awarded for this specific skill */
+        if (rn2(3)) /* 66% chance in favor of the player */
+            use_skill(P_THIEVERY, 1);
+    }
+}
+
+/* Find the single valid adjacent steal target if exactly one exists.
+   Returns the monster if found, NULL if zero or multiple */
+staticfn struct monst *
+find_steal_target(void)
+{
+    struct monst *mtmp, *found = (struct monst *) 0;
+    int dx, dy;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy)
+                continue;
+            if (!isok(u.ux + dx, u.uy + dy))
+                continue;
+            mtmp = m_at(u.ux + dx, u.uy + dy);
+            /* a long worm can occupy several adjacent spots */
+            if (!mtmp || mtmp == found)
+                continue;
+            if (!canspotmon(mtmp))
+                continue;
+            /* skip targets the steal code always refuses */
+            if (mtmp->mtame)
+                continue;
+            if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak"))
+                continue;
+            if (found)
+                return (struct monst *) 0; /* more than one */
+            found = mtmp;
+        }
+    }
+    return found;
+}
+
+/* the #steal command -- Rogue/Convict thievery via extended command,
+   replaces the old forcefight-triggered thievery mechanic */
+int
+dosteal(void)
+{
+    coord cc;
+    struct monst *mtmp;
+
+    if (!Role_if(PM_ROGUE) && !Role_if(PM_CONVICT)) {
+        You("don't have any thieving skills.");
+        return ECMD_OK;
+    }
+    if (Upolyd) {
+        You_cant("steal anything in this form.");
+        return ECMD_OK;
+    }
+    if (uwep) {
+        You("need your hands free to steal.");
+        return ECMD_OK;
+    }
+    if (u.uswallow) {
+        pline("What exactly were you planning on stealing?  Its stomach?");
+        return ECMD_OK;
+    }
+
+    /* if exactly one valid adjacent target exists, auto-select it */
+    mtmp = find_steal_target();
+    if (!mtmp) {
+        cc.x = u.ux;
+        cc.y = u.uy;
+        if (getpos(&cc, FALSE, "the monster you want to steal from") < 0)
+            return ECMD_CANCEL; /* aborted -- no turn cost */
+
+        if (!isok(cc.x, cc.y))
+            return ECMD_CANCEL;
+
+        mtmp = m_at(cc.x, cc.y);
+        if (!mtmp || !canspotmon(mtmp)) {
+            pline("There's no one there to steal from.");
+            return ECMD_OK;
+        }
+        if (distu(cc.x, cc.y) > 2) {
+            pline("You're too far away to steal from %s.", mon_nam(mtmp));
+            return ECMD_OK;
+        }
+    }
+
+    /* Izchak is off-limits */
+    if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
+        You("find yourself unable to steal from %s.", mon_nam(mtmp));
+        return ECMD_OK;
+    }
+    /* pets are off-limits */
+    if (mtmp->mtame) {
+        You_cant("bring yourself to steal from %s.", mon_nam(mtmp));
+        return ECMD_OK;
+    }
+
+    /* wrath of the gods for attempting to steal from a peaceful Oracle */
+    if (mtmp->mpeaceful && mtmp->data == &mons[PM_ORACLE]) {
+        pline_The("gods notice your deception!");
+        setmangry(mtmp, FALSE);
+    }
+
+    if (mtmp->minvent) {
+        You("%s to %s %s.", rn2(2) ? "try" : "attempt",
+            rn2(2) ? "steal from" : "pickpocket", mon_nam(mtmp));
+        steal_it(mtmp, &gy.youmonst.data->mattk[0]);
+    } else {
+        pline("%s has nothing for you to %s.", Monnam(mtmp),
+              rn2(2) ? "steal" : "pickpocket");
+    }
+    return ECMD_TIME;
 }
 
 void

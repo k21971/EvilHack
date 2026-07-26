@@ -119,6 +119,10 @@ resetobjs(struct obj *ochain, boolean restore)
             otmp->invlet = 0;
             otmp->no_charge = 0;
             otmp->how_lost = LOST_NONE;
+            /* the #shield designation belonged to the dead hero; this
+               catches shields that were not in inventory at death and
+               so never passed through drop_upon_death() */
+            otmp->altshield = 0;
 
             /* strip user-supplied names */
             /* Statue and some corpse names are left intact,
@@ -329,6 +333,7 @@ drop_upon_death(
         if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
             end_burn(otmp, TRUE); /* smother in statue */
         otmp->owornmask = 0L;
+        otmp->altshield = 0; /* don't carry the #shield mark into bones */
 
         if (otmp->otyp == SLIME_MOLD)
             goodfruit(otmp->spe);

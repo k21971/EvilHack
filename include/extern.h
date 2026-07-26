@@ -493,6 +493,7 @@ extern void reset_commands(boolean);
 extern void update_rest_on_space(void);
 extern void rhack(int);
 extern int doextlist(void);
+extern int doremoveimarkers(void);
 extern int extcmd_via_menu(void);
 extern int enter_explore_mode(void);
 extern boolean bind_mousebtn(int, const char *);
@@ -816,6 +817,9 @@ extern int cursed(struct obj *, boolean);
 extern int armoroff(struct obj *);
 extern boolean will_touch_skin(long);
 extern int canwearobj(struct obj *, long *, boolean) NONNULLPTRS;
+/* designate_altshield() accepts NULL: clear the mark without setting one */
+extern void designate_altshield(struct obj *) NO_NNARGS;
+extern int doshield(void);
 extern int dowear(void);
 extern int doputon(void);
 extern void find_ac(void);
@@ -1926,6 +1930,7 @@ extern void deal_with_overcrowding(struct monst *) NONNULLARG1;
 extern void maybe_mnexto(struct monst *) NONNULLARG1;
 extern int mnearto(struct monst *, coordxy, coordxy, boolean, unsigned) NONNULLARG1;
 extern void m_respond(struct monst *) NONNULLARG1;
+extern void qst_guardians_respond(void);
 extern void setmangry(struct monst *, boolean) NONNULLARG1;
 extern void setmangry_accidental(struct monst *, boolean) NONNULLARG1;
 extern void wake_msg(struct monst *, boolean) NONNULLARG1;
@@ -2739,6 +2744,10 @@ extern aligntyp inf_align(int);
 extern void godvoice(aligntyp, const char *);
 extern void god_zaps_you(aligntyp);
 extern void altar_wrath(coordxy, coordxy);
+/* the #wizcrown and #wizpious commands live here rather than in
+   wizcmds.c because gcrownu() is local to this file */
+extern int wiz_crown(void);
+extern int wiz_pious(void);
 
 /* ### priest.c ### */
 
@@ -3665,6 +3674,7 @@ extern void mhitm_adtyping(struct monst *, struct attack *, struct monst *,
 extern boolean do_stone_u(struct monst *) NONNULLARG1;
 extern void do_stone_mon(struct monst *, struct attack *, struct monst *,
                          struct mhitm_data *) NONNULLARG134;
+extern int dosteal(void);
 extern int damageum(struct monst *, struct attack *, int) NONNULLARG12;
 /* domove_fight_empty passes NULL to explum arg1 */
 extern int explum(struct monst *, struct attack *) NONNULLARG2;

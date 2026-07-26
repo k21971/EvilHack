@@ -960,6 +960,31 @@ dotwoweapon(void)
         return ECMD_OK;
     }
 
+    /* From sword & board: shed the shield so the readied off-hand
+       weapon can be engaged, mirroring how the #shield command sheds
+       the off-hand weapon. A worn shield is the only can_twoweapon()
+       refusal this can clear, so every other refusal it makes has to be
+       repeated here; otherwise the shield comes off and two-weapon
+       combat is declined anyway. A cursed shield stays put and
+       can_twoweapon() reports the shield itself */
+    if (uarms && !is_bracer(uarms) && !cursed(uarms, TRUE)
+        && could_twoweap(gy.youmonst.data)
+        && uwep && !bimanual(uwep) && twoweapon_ok(uwep)
+        && uswapwep && !bimanual(uswapwep) && twoweapon_ok(uswapwep)
+        && !(uswapwep->oartifact
+             && ((is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
+                 || (is_chaotic_artifact(uswapwep)
+                     && is_lawful_artifact(uwep))))
+        && !(is_art(uwep, ART_WAND_OF_ORCUS) && uswapwep->oartifact)
+        && !is_art(uswapwep, ART_WAND_OF_ORCUS)
+        && !uswapwep->cursed && !Glib) {
+        struct obj *shld = uarms;
+
+        remove_worn_item(shld, FALSE);
+        designate_altshield(shld);
+        You("take off %s.", yname(shld));
+    }
+
     /* May we use two weapons? */
     if (can_twoweapon()) {
         struct obj *tmp = uswapwep;

@@ -4793,7 +4793,213 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       entry discarded (makemap_prepost -> rm_mapseen) and never
       recreated, so ^o lists nothing for it even after entering a
       shop there.
-- [ ] #shield, other added commands (sweep cmd.c delta)
+- [x] #shield, other added commands (sweep cmd.c delta).
+      PORTED + REVIEWED + BATTERY PASSED 2026-07-25 (maintainer
+      commit pending), 9 files +629/-22, zero-warning build.
+      THE SWEEP IS AUTHORITATIVE AND DONE, by two diffs: (a)
+      extcmdlist name diff master vs branch = 12 names master has
+      and the branch lacks; (b) cmd.c function-set diff master vs
+      vanilla merge-base 44b6612fd = 13 functions master added,
+      which confirms (a) and turned up nothing extra. Every other
+      EvilHack cmd.c change - domonability's tortle/drow/aasimar/
+      vampire arms, the #terrain forge + magic-chest rows, the
+      enlightenment artifact blocks - was ALREADY on the branch,
+      each having landed with its own slice.
+      DISPOSITION OF THE 12: seenv/seespells/seetrap already
+      present under upstream's names (wizseenv/showspells/
+      showtrap); wizspell needs NO WORK, 5.0's #wizcast
+      (dowizcast, src/spell.c) is body-identical to master's
+      wiz_spell; showcolors stays with the Phase 4 customcolor
+      item; wizpathfind + wizescapepath BLOCKED, see the new
+      pathfinding row below; the remaining five ported here.
+      SHIPPED: #shield (do_wear.c is_wearable_shield/
+      free_shieldhand/find_altshield/designate_altshield/doshield
+      + wield.c dotwoweapon shed block + objnam.c suffix +
+      bones.c), #steal (uhitm.c dosteal/find_steal_target + the
+      whole thievery rework inside steal_it), #removeimarkers,
+      #wizcrown, #wizpious.
+      THE REAL WEIGHT WAS #steal, NOT #shield. Master's steal_it()
+      is 339 lines against 5.0's 105 because EvilHack's entire
+      pickpocketing system lives inside it, and none of it had
+      been ported: P_THIEVERY was a DEAD SKILL on the branch -
+      u_init.c granted it to Rogue (Skilled) and Convict (Master),
+      weapon.c named it and seeded it at Basic, and nothing
+      trained or read it. Another instance of
+      content-live-behavior-missing, as was obj->altshield, which
+      Phase 1 had already put in obj.h with zero readers. The
+      branch's own setmangry() carried a comment promising "an
+      alignment penalty for failing to steal from a priest in
+      steal_it()" - a dangling reference this slice closes.
+      PORTED INTO 5.0 IDIOM, NOT TRANSPLANTED: really_steal() is
+      NOT ported (5.0 already inlines exactly that code, and
+      master's post-really_steal re-checks are dead code there);
+      qst_guardians_respond() was de-static'ed in mon.c and reused
+      instead of duplicating master's inline quest-guardian block,
+      which 5.0 had already extracted verbatim; the greased/
+      oilskin slip test became steal_slips_off() since master has
+      it twice; set_twoweap() replaces master's raw u.twoweap
+      write; has_magic_key()/is_magic_key() are 5.0's names for
+      master's roguish-key pair; pmname() replaces the removed
+      ->mname; Concat() replaces master's BP_HAS_ROOM + Strcat.
+      TWO CONTROL-FLOW MOVES THAT ARE LOAD-BEARING, not cosmetic:
+      (1) 5.0's `if (!Upolyd) break;` had to move from the TOP of
+      the theft loop to master's position near the bottom - at the
+      top it is correct only while steal_it() is reachable solely
+      from mhitm_ad_sedu(), and it would have made #steal (never
+      polymorphed) steal nothing at all. (2) the port adopted
+      master's `while (ustealo ? ... : (otmp != 0))` ternary, so
+      5.0's unconditional `continue` on a dropped object had to
+      gain an `if (!ustealo) break;` - otherwise the loop
+      re-enters with the SAME otmp when hold_another_object()
+      returns a non-NULL floor object and extract_from_minvent()
+      is called on an OBJ_FLOOR object. 5.0's continue was safe
+      only because its loop condition reassigned otmp.
+      COORDINATOR FIX to the port's own work: it had put
+      `gold = findgold(...)` inside the `as_mon && mdef->mcanmove`
+      block. Master gates gold protection on as_mon ALONE (the
+      mcanmove conjunct is 5.0's, and only guards the strip-bare
+      path), so a seduction against an incapacitated target would
+      have let the hero take coins master protects. Gold is now
+      spared whenever the theft is a seduction, and an ordinary
+      pickpocket can still take coins - that asymmetry is the
+      point of the as_mon gate and the battery proved both halves.
+      MAINTAINER RULINGS 2026-07-25, both fixing master defects
+      the review surfaced rather than shipping parity:
+      (1) #shield and the X shed block called remove_worn_item(),
+      the FORCED-removal helper, which has no curse check - so a
+      cursed shield could be taken off freely, unlike every other
+      armor slot. All 45 remove_worn_item() call sites were swept:
+      every other one is theft/trap/polymorph/impossible-fallback,
+      these two were the only hero-voluntary uses. Both now gate
+      on cursed() - the same helper armoroff() uses. BUG-1375.
+      (2) the X shed guard admitted any non-bimanual WEAPON_CLASS
+      secondary, but can_twoweapon() is stricter (TWOWEAPOK also
+      rejects launchers/ammo/missiles, plus opposite-aligned
+      artifacts and two Wand of Orcus rules), so shield + long
+      sword + readied darts meant the shield came off and
+      two-weaponing was declined anyway - and the code comment
+      claimed the opposite. Guard now repeats every can_twoweapon()
+      refusal via the exported twoweapon_ok(); comment corrected.
+      BUG-1376.
+      MASTER BUGS ARCHIVED (frozen-unfixed, fixed on branch):
+      BUG-1374 steal_it() leaks the target's gold - the pre-loop
+      greased/oilskin check returns after obj_extract_self(gold)
+      with no mpickobj(), so a nymph-form hero stealing a slippery
+      item from a gold-carrying monster orphans the coins;
+      BUG-1375 and BUG-1376 as above; BUG-1377 the #shield
+      designation survived into bones for any marked shield NOT in
+      inventory at death, because master patched only
+      drop_upon_death() and not resetobjs()'s saving branch where
+      every other per-hero flag is stripped - a later hero picking
+      the shield up got a designation they never made; BUG-1378
+      the watch shouted "Halt! You're under arrest!" once per
+      visible watchman, since master's loop lacks the mpeaceful
+      test that angry_guards() makes true after the first
+      iteration (branch mirrors 5.0's peacefuls_respond(), which
+      also supplied the SetVoice call and the !msleeping filter).
+      MASTER-PARITY, DO NOT "FIX": setmangry()'s Rogue/Convict
+      forcefight carve-outs are vestigial in BOTH trees (#steal
+      replaced the forcefight thievery trigger) but still fire as
+      live behavior, and the branch already matched; "%s has
+      nothing for you to steal" costing a turn; dosteal() having
+      no Hidinshell guard while doshield() does; designate_
+      altshield()'s single-mark invariant holding only over
+      gi.invent and not into carried containers; `{` on a
+      COMPLETELY empty inventory printing nothing (query_objlist
+      returns 0 not -1 before the SIGNAL_NOMENU path - the
+      battery showed the message DOES fire whenever inventory is
+      non-empty, so the gap is narrower than expected).
+      dat/cmdhelp NEEDS NO EDIT and this was verified, not
+      assumed: 5.0's dowhatdoes_core() resolves keys through
+      key2extcmddesc() -> cmdbind_get() -> extcmdlist and the
+      whole file-reading path is #if 0'd, so `{` and #steal
+      self-document. C('u') for #removeimarkers is DEAD in BOTH
+      trees and was kept for parity - reset_commands() rebinds it
+      to rush-northeast on the branch, and master's rhack()
+      intercepts it identically via movecmd(unctrl(*cmd)) before
+      the command table is consulted; under number_pad both trees
+      fall through to the table. The command is reachable by name.
+      BATTERY 28/28 PASS (game-tester agent, 3 games; paniclog's
+      45 entries were ALL the pre-existing rndmonst A_NONE bug
+      below, fired by Oracle-level generation, none from the five
+      commands). Headline proofs: thievery advance climbed
+      20 -> 89 and the skill went Basic -> Skilled, the first time
+      P_THIEVERY has ever moved on this branch; the gold
+      asymmetry proved from both sides by gdb minvent dump (a
+      pickpocket took the coins, a wood nymph's seduction stripped
+      22 of 23 items and left exactly the gold piece); exactly ONE
+      "Halt!" for five visible Minetown watch; quest-leader theft
+      angering three thugs; coaligned-priest failure recording
+      "Turn 141: caught pickpocketing (-5)" in #conduct; the
+      Oracle refusing 20 controlled attempts with 0 successes; the
+      cursed shield staying on with bknown set; darts as secondary
+      leaving the shield worn; save/reload preserving both the
+      designation (same o_id) and mid-skill progress.
+      COSMETIC MASTER BUG FIXED ON MAINTAINER'S CALL 2026-07-26,
+      caught by the battery: the slip message read "the jackal's
+      slippery slippery cloak" because master's format supplies
+      the adjective while an unidentified oilskin cloak's own
+      appearance string is already "slippery cloak"
+      (objects.h CLOAK("oilskin cloak", "slippery cloak", ..)).
+      steal_slips_off() now resolves the object name first and
+      drops the adjective when the name already starts with it, so
+      the adjective still appears for an IDENTIFIED oilskin cloak
+      ("slippery oilskin cloak") and a greased unidentified one
+      still reads "greased slippery cloak", which is correct.
+      Safe to hold the name across s_suffix() because that uses
+      its own static buffer in hacklib.c, not objnam.c's rotating
+      NUMOBUF pool. BUG-1379.
+      COSMETIC, MASTER-PARITY, LEFT AS-IS: a dropped designated
+      shield keeps the tag in its drop message, because doname()
+      runs while carried() is still true.
+- [ ] Monster BFS pathfinding: intelligent + escape distance maps
+      (NEW, minted 2026-07-25 by the added-commands slice). NOT a
+      checklist item before now, and the two wizard commands that
+      view it CANNOT ship without it - #wizpathfind and
+      #wizescapepath ride with this row and are the ONLY part of
+      the cmd.c delta left unported.
+      SCOPE: decl.h globals pathfind_dist[COLNO][ROWNO],
+      pathfind_turn, pathfind_px/py, escape_pathfind_dist,
+      escape_pathfind_turn, escape_pathfind_tx/ty; hack.h
+      PATHFIND_UNREACHABLE; compute_pathfind_map/
+      ensure_pathfind_map/mon_uses_pathfinding/
+      compute_escape_pathfind_map/ensure_escape_pathfind_map;
+      ~46 refs in mon.c and 17 in monmove.c, plus map-
+      invalidation hooks in do.c, hack.c, mkobj.c and zap.c.
+      All of it must land in 5.0 idiom, so the globals are a gX
+      vs svX placement decision (log it) and the caches are
+      turn-stamped rather than saved.
+- [ ] findgold() gold-material rule (NEW, minted 2026-07-25 by the
+      added-commands slice). Master's findgold(chain, only_coins)
+      makes gold-MATERIAL objects count as gold; the branch has
+      the 1-arg coins-only form, which equals master's
+      only_coins == TRUE. 14 call sites across detect.c,
+      makemon.c, mhitm.c, monmove.c, shk.c, steal.c and uhitm.c,
+      plus master's AD_SGLD "stole a gold non-coin object" arm,
+      absent from mhitm_ad_sgld(). NOT a blocker for #steal, which
+      is why that slice shipped without it: master's steal_it()
+      only ever passes TRUE.
+- [ ] rndmonst A_NONE weight underflow (NEW, minted 2026-07-26 by
+      the added-commands BATTERY, which is the only reason it was
+      seen; PRE-EXISTING, not that slice's doing). Symptom: 45
+      paniclog lines and 39 "Program in disorder!" --More--
+      presses from ONE Oracle-level generation, cycling
+      `impossible("bad weight in rndmonst for mndx %d")` for mndx
+      423/435/497 (amorous demon, weredemon, infidel).
+      ROOT CAUSE: A_NONE is -128 (align.h), and align_shift()
+      computes (maligntyp + 20) / (2 * ALIGNWEIGHT) on a lawful
+      level and (20 - abs(maligntyp)) / ALIGNWEIGHT on a neutral
+      one, so an A_NONE monster contributes -13 or -27 against a
+      G_FREQ of 1..3 and rndmonst_adj()'s `weight < 0` guard
+      fires. The code is upstream 5.0 VERBATIM (identical in
+      Official_nh50) - it is the DATA that differs: the branch has
+      37 monster records declared A_NONE against upstream's 1,
+      so upstream never trips a guard EvilHack's monster set trips
+      constantly. A Phase 1 data-meets-upstream-code collision.
+      Decide between clamping align_shift()'s input, excluding
+      A_NONE from the alignment term, or revisiting the 37
+      records; whichever is chosen, check the same maligntyp
+      arithmetic in every other consumer before closing.
 - [ ] Bag of treasure/devouring rules; #tip interactions
 - [ ] Steed/saddle/barding architecture (memory file)
       (+ master mhitu.c steed-retaliation acceptable_pet_target

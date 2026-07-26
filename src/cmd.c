@@ -677,7 +677,8 @@ doextlist(void)
                     add_menu_heading(menuwin, buf);
                     menushown[pass] = 1;
                 }
-                /* longest ef_txt at present is "wizrumorcheck" (13 chars);
+                /* longest ef_txt at present is 14 chars ("removeimarkers"
+                   and "wiztelekinesis");
                    2nd field will be "    " or " [A]" or " [m]" or "[mA]" */
                 Sprintf(buf, " %-14s %4s %s", efp->ef_txt,
                         doc_extcmd_flagstr(menuwin, efp), cmd_desc);
@@ -733,6 +734,25 @@ doextlist(void)
         }
     }
     destroy_nhwindow(menuwin);
+    return ECMD_OK;
+}
+
+/* the #removeimarkers command: forget every remembered, unseen monster
+   so that the map stops showing stale 'I' markers */
+int
+doremoveimarkers(void)
+{
+    coordxy x, y;
+
+    for (x = 0; x < COLNO; x++) {
+        for (y = 0; y < ROWNO; y++) {
+            if (isok(x, y) && glyph_is_invisible(levl[x][y].glyph)) {
+                unmap_object(x, y);
+                newsym(x, y);
+            }
+        }
+    }
+    pline("Remembered monster markers removed.");
     return ECMD_OK;
 }
 
@@ -1897,6 +1917,8 @@ struct ext_func_tab extcmdlist[] = {
               doredraw, IFBURIED | GENERALCMD | CMD_INSANE, NULL },
     { 'R',    "remove", "remove an accessory (ring, amulet, etc)",
               doremring, 0, NULL },
+    { C('u'), "removeimarkers", "remove remembered 'I' monster markers",
+              doremoveimarkers, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
     { C('a'), "repeat", "repeat a previous command",
               do_repeat, IFBURIED | GENERALCMD, NULL },
     /* "modify command" is a vague description for use as no-autopickup,
@@ -1944,6 +1966,8 @@ struct ext_func_tab extcmdlist[] = {
                         | CMD_NOT_AVAILABLE
 #endif /* SHELL */
                         ), NULL },
+    { '{',    "shield", "toggle shield use (sword and board)",
+              doshield, AUTOCOMPLETE, NULL },
     /* $ is like ),=,&c but is not included with *, so not called "seegold" */
     { GOLD_SYM, "showgold", "show gold, possibly shop credit or debt",
               doprgold, IFBURIED | GENERALCMD | CMD_M_PREFIX, NULL },
@@ -1955,6 +1979,8 @@ struct ext_func_tab extcmdlist[] = {
               dosit, AUTOCOMPLETE, NULL },
     { '\0',   "stats", "show memory statistics",
               wiz_show_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+    { '\0',   "steal", "attempt to steal from a monster",
+              dosteal, AUTOCOMPLETE, NULL },
     { C('z'), "suspend", "push game to background ('fg' to come back)",
               dosuspend_core, (IFBURIED | GENERALCMD | NOFUZZERCMD
 #ifndef SUSPEND
@@ -2032,6 +2058,8 @@ struct ext_func_tab extcmdlist[] = {
 #endif
     { '\0',   "wizcast", "cast any spell",
               dowizcast, IFBURIED | WIZMODECMD, NULL },
+    { '\0',   "wizcrown", "become crowned",
+              wiz_crown, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizcustom", "show customized glyphs",
               wiz_custom, IFBURIED | WIZMODECMD | NOFUZZERCMD, NULL },
     { C('e'), "wizdetect", "reveal hidden things within a small radius",
@@ -2069,6 +2097,8 @@ struct ext_func_tab extcmdlist[] = {
     { '\0',   "wizmondiff", "validate the difficulty ratings of monsters",
               wiz_mon_diff, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
 #endif
+    { '\0',   "wizpious", "become pious",
+              wiz_pious, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizrumorcheck", "verify rumor boundaries",
               wiz_rumor_check, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizseenv", "show map locations' seen vectors",

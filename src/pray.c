@@ -12,6 +12,7 @@ staticfn void fix_curse_trouble(struct obj *, const char *);
 staticfn void fix_worst_trouble(int);
 staticfn void angrygods(aligntyp);
 staticfn void at_your_feet(const char *);
+staticfn void gpiousu(void);
 staticfn void gcrownu(void);
 staticfn void give_spell(void);
 staticfn void pleased(aligntyp);
@@ -816,6 +817,31 @@ at_your_feet(const char *str)
               Levitation ? "beneath" : "at",
               makeplural(body_part(FOOT)));
     }
+}
+
+/* the #wizpious command */
+int
+wiz_pious(void)
+{
+    You("are now piously aligned.");
+    gpiousu();
+    return ECMD_OK;
+}
+
+/* the #wizcrown command */
+int
+wiz_crown(void)
+{
+    Your("crown, my %s.", flags.female ? "queen" : "king");
+    gcrownu();
+    return ECMD_OK;
+}
+
+/* set the alignment record to the top of the 'pious' band */
+staticfn void
+gpiousu(void)
+{
+    u.ualign.record = PIOUS;
 }
 
 staticfn void

@@ -1881,6 +1881,10 @@ doname_base(
             ConcatF1(bp, 0, " (alternate weapon%s; not wielded)",
                      plur(obj->quan));
     }
+    /* the shield the #shield command will reach for next */
+    if (obj->altshield && is_shield(obj) && !obj->owornmask
+        && carried(obj))
+        Concat(bp, 0, " (alternate shield; not worn)");
     if (obj->owornmask & W_QUIVER) {
         int Qtyp;
 

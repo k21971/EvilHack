@@ -26,7 +26,6 @@ staticfn boolean ok_to_obliterate(struct monst *);
 staticfn void m_respond_shrieker(struct monst *);
 staticfn void m_respond_medusa(struct monst *);
 staticfn void m_respond_zombie(struct monst *);
-staticfn void qst_guardians_respond(void);
 staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
 staticfn void m_restartcham(struct monst *);
@@ -5493,8 +5492,9 @@ m_respond(struct monst *mtmp)
         aggravate();
 }
 
-/* how quest guardians respond when you attack the quest leader */
-staticfn void
+/* how quest guardians respond when you attack -- or rob -- the quest
+   leader; steal_it() calls this too, so it can't be static here */
+void
 qst_guardians_respond(void)
 {
     struct monst *mon;
