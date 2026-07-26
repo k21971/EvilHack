@@ -1754,7 +1754,8 @@ notice_mon(struct monst *mtmp)
                         && !type_is_pname(mtmp->data)) ? ARTICLE_A
                      : ARTICLE_NONE,
                      (mtmp->mpeaceful && !mtmp->mtame) ? "peaceful" : 0,
-                     has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE));
+                     has_mgivenname(mtmp)
+                       ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE));
         } else if (!spot) {
             mtmp->mspotted = FALSE;
         }
@@ -2226,7 +2227,8 @@ domove_swap_with_pet(
                         && !type_is_pname(mtmp->data)) ? ARTICLE_THE
                      : ARTICLE_NONE,
                      (mtmp->mpeaceful && !mtmp->mtame) ? "peaceful" : 0,
-                     has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE));
+                     has_mgivenname(mtmp)
+                       ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE));
 
         /* check for displacing it into pools and traps */
         switch (minliquid(mtmp) ? Trap_Killed_Mon

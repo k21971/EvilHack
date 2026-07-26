@@ -515,7 +515,8 @@ dowield(void)
         }
         /* wielding whole readied stack, so no longer quivered */
         setuqwep((struct obj *) 0);
-    } else if (wep->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    } else if (wep->owornmask
+               & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
         You("cannot wield that!");
         return ECMD_FAIL;
     }
@@ -637,7 +638,8 @@ doquiver_core(const char *verb) /* "ready" or "fire" */
  already_quivered:
         pline("That ammunition is already readied!");
         return ECMD_OK;
-    } else if (newquiver->owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    } else if (newquiver->owornmask
+               & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
         You("cannot %s that!", verb);
         return ECMD_OK;
     } else if (newquiver == uwep) {

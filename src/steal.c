@@ -868,8 +868,13 @@ mdrop_obj(
     } else if (!DEADMONSTER(mon) && unwornmask
                && !(unwornmask & W_SADDLE)) {
         /* object was destroyed on lava or open air; still need to
-           clear extrinsics the monster got from wearing it; pass a
-           stack copy with the fields update_mon_extrinsics reads */
+           clear extrinsics the monster got from wearing it (armor
+           granting flight/speed/resistances, barding with object
+           properties, etc); pass a stack copy with the fields
+           update_mon_extrinsics reads. Reflection and artifact defense
+           properties (barding of reflection, Ithilmar) are checked
+           dynamically via mon_reflects()/defended() against worn items,
+           so those were already lost at extraction */
         struct obj dummy;
 
         dummy = cg.zeroobj;
@@ -878,6 +883,10 @@ mdrop_obj(
         dummy.oprops = saved_oprops;
         update_mon_extrinsics(mon, &dummy, FALSE, TRUE);
     }
+    /* If flooreffects() destroyed a saddle, the steed must have been
+       flying over the hazard; dismount is moot since the saddle is gone
+       and the steed survives the terrain. Barding is handled by the
+       else-if above (W_BARDING != W_SADDLE) */
 }
 
 /* some monsters bypass the normal rules for moving between levels or

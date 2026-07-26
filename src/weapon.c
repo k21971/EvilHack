@@ -2546,7 +2546,10 @@ weapon_dam_bonus(struct obj *weapon)
         bonus = ((bonus + 1) * (martial_bonus() ? 3 : 1)) / 2;
     }
 
-    /* KMH -- Riding or being a centaur gives some thrusting damage */
+    /* KMH -- Riding or being a centaur gives some thrusting damage.
+       The centaur half is inert: skill_init() restricts riding for
+       centaurs and tortles, so they can only ever reach the no-bonus
+       arms of the switch */
     if ((u.usteed || Race_if(PM_CENTAUR)) && type != P_TWO_WEAPON_COMBAT) {
         switch (P_SKILL(P_RIDING)) {
         case P_ISRESTRICTED:
@@ -2642,11 +2645,29 @@ skill_init(const struct def_skill *class_skill)
         || gu.urole.petnum == PM_SKELETAL_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
 
+    /* Centaurs/tortles can never ride anything */
+    if (Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
+        P_SKILL(P_RIDING) = P_NONE;
+
     /* Healers, Druids and Knights start with basic pet handling
        skill */
     if (Role_if(PM_HEALER) || Role_if(PM_DRUID)
         || Role_if(PM_KNIGHT))
         P_SKILL(P_PET_HANDLING) = P_BASIC;
+
+    /* As a Tortle, if their role lists trident as a trainable skill,
+       raise the max proficiency level by one. If non-cleric, add
+       trident skill, and allow training up to basic */
+    if (Race_if(PM_TORTLE)) {
+        if (Role_if(PM_BARBARIAN) || Role_if(PM_MONK)) {
+            P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
+        } else if (Role_if(PM_HEALER) || Role_if(PM_TOURIST)) {
+            P_MAX_SKILL(P_TRIDENT) = P_SKILLED;
+        } else if (!Role_if(PM_CLERIC)) {
+            unrestrict_weapon_skill(P_TRIDENT);
+            P_MAX_SKILL(P_TRIDENT) = P_BASIC;
+        }
+    }
 
     /* Illithids have innate telekinesis - start untrained, must
        practice */

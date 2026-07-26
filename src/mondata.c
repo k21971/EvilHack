@@ -1876,8 +1876,16 @@ give_u_to_m_resistances(struct monst *mtmp)
 boolean
 resist_conflict(struct monst *mtmp)
 {
-    /* always a small chance at 19 */
-    int resist_chance = min(19, (ACURR(A_CHA) - mtmp->m_lev + u.ulevel));
+    struct obj *barding;
+    int resist_chance = ACURR(A_CHA) - mtmp->m_lev + u.ulevel;
+
+    if (resist_chance > 19) {
+        resist_chance = 19; /* always a small chance */
+    } else if ((barding = which_armor(mtmp, W_BARDING)) != 0
+               && barding->oartifact == ART_ITHILMAR) {
+        /* steed wearing Ithilmar will always resist */
+        return TRUE;
+    }
 
     return (rnd(20) > resist_chance);
 }

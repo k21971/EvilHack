@@ -268,6 +268,7 @@ mreadmsg(struct monst *mtmp, struct obj *otmp)
            has ever been seen or is the same race as the hero (not yet seen
            unique monsters excepted) */
         int mflags = (SUPPRESS_INVISIBLE | SUPPRESS_SADDLE
+                      | SUPPRESS_BARDING
                       | (recognize ? SUPPRESS_IT : AUGMENT_IT));
 
         if (sensemon(mtmp)) {
@@ -3784,6 +3785,15 @@ mon_reflects(struct monst *mon, const char *str)
         if (str) {
             pline(str, s_suffix(mon_nam(mon)), "shield");
             makeknown(SHIELD_OF_REFLECTION);
+        }
+        return TRUE;
+    } else if ((orefl = which_armor(mon, W_BARDING)) != 0
+               && (orefl->otyp == BARDING_OF_REFLECTION
+                   || orefl->oartifact == ART_ITHILMAR)) {
+        if (str) {
+            pline(str, s_suffix(mon_nam(mon)), "barding");
+            if (orefl->otyp == BARDING_OF_REFLECTION)
+                makeknown(BARDING_OF_REFLECTION);
         }
         return TRUE;
     } else if (arti_reflects(MON_WEP(mon))) {

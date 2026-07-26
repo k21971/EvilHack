@@ -947,12 +947,20 @@ mon_catchup_elapsed_time(
 
     /* reduce tameness for every 150 moves you are separated */
     if (mtmp->mtame) {
+        struct obj *barding;
         int wilder = (imv + 75) / 150;
-        if (mtmp->mtame > wilder)
+
+        /* an Ithilmar-barded steed keeps its tameness; skip only the
+           ladder below, not the hit point recovery and lastmove refresh
+           that follow */
+        if ((barding = which_armor(mtmp, W_BARDING)) != 0
+            && barding->oartifact == ART_ITHILMAR) {
+            /* tameness isn't affected */
+        } else if (mtmp->mtame > wilder) {
             mtmp->mtame -= wilder; /* less tame */
-        else if (mtmp->mtame > rn2(wilder))
+        } else if (mtmp->mtame > rn2(wilder)) {
             mtmp->mtame = 0; /* untame */
-        else {
+        } else {
             mtmp->mtame = mtmp->mpeaceful = 0; /* hostile! */
             set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* update display */

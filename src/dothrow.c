@@ -923,7 +923,8 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
         /* after unhiding; combination of a_monnam() and some_mon_nam();
            yields "someone" or "something" instead of "it" for unseen mon */
         mnam = x_monnam(mon, ARTICLE_A, (char *) 0,
-                        ((has_mgivenname(mon) ? SUPPRESS_SADDLE : 0)
+                        ((has_mgivenname(mon)
+                          ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0)
                          | AUGMENT_IT),
                         FALSE);
         if (!glyph_is_monster(glyph) && !glyph_is_invisible(glyph))
@@ -1712,6 +1713,12 @@ throwit(
             /* alternative to prayer or wand of opening/spell of knock
                for dealing with cursed saddle:  throw holy water > */
             potionhit(u.usteed, obj, POTHIT_HERO_THROW);
+        } else if (u.dz > 0 && u.usteed
+                   && dogfood(u.usteed, obj) <= ACCFOOD) {
+            /* feed the steed; on success tamedog() has consumed the food
+               and obj is already freed, so only the miss drops it */
+            if (!tamedog(u.usteed, obj, TRUE))
+                hitfloor(obj, TRUE);
         } else {
             hitfloor(obj, TRUE);
         }

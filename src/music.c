@@ -282,7 +282,8 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
                             mtmp->mtame
                              ? x_monnam(mtmp, ARTICLE_THE, "poor",
                                         has_mgivenname(mtmp)
-                                         ? SUPPRESS_SADDLE : 0,
+                                         ? (SUPPRESS_SADDLE
+                                            | SUPPRESS_BARDING) : 0,
                                         FALSE)
                              : mon_nam(mtmp));
                     }

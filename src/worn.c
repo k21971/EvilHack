@@ -356,6 +356,8 @@ wearslot(struct obj *obj)
             res = W_WEP | W_SWAPWEP;
         else if (otyp == SADDLE)
             res = W_SADDLE;
+        else if (is_barding(obj))
+            res = W_BARDING;
         break;
     case FOOD_CLASS:
         if (obj->otyp == MEAT_RING)
@@ -1294,6 +1296,10 @@ which_armor(struct monst *mon, long flag)
             return uarmf;
         case W_ARMU:
             return uarmu;
+        case W_SADDLE:
+        case W_BARDING:
+            /* hero never wears a saddle or barding */
+            return (struct obj *) 0;
         default:
             impossible("bad flag in which_armor");
             return 0;
@@ -1582,6 +1588,13 @@ mon_break_armor(struct monst *mon, boolean polyspot)
                           verysmall(mdat) ? "slide" : "are pushed", ppronoun);
             }
             m_lose_armor(mon, otmp, polyspot);
+        }
+    }
+    if (!can_wear_barding(mon)) {
+        if ((otmp = which_armor(mon, W_BARDING)) != 0) {
+            m_lose_armor(mon, otmp, polyspot);
+            if (vis)
+                pline_mon(mon, "%s barding falls off.", s_suffix(Monnam(mon)));
         }
     }
     if (!can_saddle(mon)) {

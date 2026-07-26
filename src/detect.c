@@ -404,7 +404,8 @@ gold_detect(struct obj *sobj)
                                       u.usteed->mtame ? ARTICLE_YOUR
                                                       : ARTICLE_THE,
                                       (char *) 0,
-                                      SUPPRESS_SADDLE, FALSE)));
+                                      (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                      FALSE)));
         else
             Strcpy(buf, "You feel materially poor.");
 

@@ -1148,8 +1148,23 @@ seffect_enchant_armor(struct obj **sobjp)
     boolean sblessed = sobj->blessed;
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
+    boolean already_known = (sobj->oclass == SPBOOK_CLASS /* spell */
+                             || objects[sobj->otyp].oc_name_known);
     boolean old_erodeproof, new_erodeproof;
+    struct obj *barding;
 
+    /* a known scroll lets a rider target the steed's barding instead of
+       his own armor; no need to ask when some_armor() already picked it */
+    if (already_known && u.usteed
+        && (barding = which_armor(u.usteed, W_BARDING)) != 0
+        && otmp != barding) {
+        char qbuf[QBUFSZ];
+
+        Sprintf(qbuf, "Enchant %s %s?", s_suffix(y_monnam(u.usteed)),
+                xname(barding));
+        if (y_n(qbuf) == 'y')
+            otmp = barding;
+    }
     if (!otmp) {
         strange_feeling(sobj, !Blind
                         ? "Your skin glows then fades."
@@ -1209,8 +1224,13 @@ seffect_enchant_armor(struct obj **sobjp)
               (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
                                                   : NH_SILVER),
               otense(otmp, "evaporate"));
-        remove_worn_item(otmp, FALSE);
-        useup(otmp);
+        if (carried(otmp)) {
+            remove_worn_item(otmp, FALSE);
+            useup(otmp);
+        } else if (mcarried(otmp)) {
+            /* steed barding */
+            m_useup(otmp->ocarry, otmp);
+        }
         return;
     }
     if (s < -100)
@@ -1585,6 +1605,24 @@ seffect_remove_curse(struct obj **sobjp)
                 uncurse(obj);
                 /* like rndcurse(sit.c), effect on regular inventory
                    doesn't show things glowing but saddle does */
+                if (!Blind) {
+                    pline("%s %s.", Yobjnam2(obj, "glow"),
+                              hcolor("amber"));
+                    obj->bknown = Hallucination ? 0 : 1;
+                } else {
+                    obj->bknown = 0; /* skip set_bknown() */
+                }
+            }
+        }
+        /* same for barding */
+        if (u.usteed && (obj = which_armor(u.usteed, W_BARDING)) != 0) {
+            if (confused) {
+                blessorcurse(obj, 2);
+                obj->bknown = 0; /* skip set_bknown() */
+            } else if (obj->cursed) {
+                uncurse(obj);
+                /* like rndcurse(sit.c), effect on regular inventory
+                   doesn't show things glowing but barding does */
                 if (!Blind) {
                     pline("%s %s.", Yobjnam2(obj, "glow"),
                               hcolor("amber"));
@@ -3224,7 +3262,8 @@ create_particular_parse(
     d->genderconf = -1;  /* no confusion on which gender to assign */
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
-    d->sleeping = d->saddled = d->invisible = d->hidden = FALSE;
+    d->sleeping = d->saddled = d->barded = FALSE;
+    d->invisible = d->hidden = FALSE;
     d->sick = d->diseased = FALSE;
 
     /* quantity */
@@ -3245,6 +3284,10 @@ create_particular_parse(
     if ((tmpp = strstri(bufp, "saddled ")) != 0) {
         d->saddled = TRUE;
         (void) memset(tmpp, ' ', sizeof "saddled " - 1);
+    }
+    if ((tmpp = strstri(bufp, "barded ")) != 0) {
+        d->barded = TRUE;
+        (void) memset(tmpp, ' ', sizeof "barded " - 1);
     }
     /* state -- limited number of possibilities supported */
     if ((tmpp = strstri(bufp, "sleeping ")) != 0) {
@@ -3416,6 +3459,19 @@ create_particular_creation(
             /* NULL obj arg means put_saddle_on_mon()
              * will create the saddle itself */
             put_saddle_on_mon((struct obj *) 0, mtmp);
+        }
+        if (d->barded && can_wear_barding(mtmp)
+            && !which_armor(mtmp, W_BARDING)) {
+            struct obj *otmp = mksobj(rn2(4)
+                                      ? BARDING
+                                      : rn2(3) ? SPIKED_BARDING
+                                               : BARDING_OF_REFLECTION,
+                                      TRUE, FALSE);
+
+            if (otmp) {
+                reroll_barding_material(otmp, mtmp, (struct monst *) 0);
+                put_barding_on_mon(otmp, mtmp);
+            }
         }
         if (d->sick
             && !(resists_sick(mtmp) || defended(mtmp, AD_DISE))) {

@@ -4510,6 +4510,8 @@ enum menucmd {
     MCMD_RIDE,
     MCMD_REMOVE_SADDLE,
     MCMD_APPLY_SADDLE,
+    MCMD_REMOVE_BARDING,
+    MCMD_APPLY_BARDING,
     MCMD_TALK,
     MCMD_NAME,
 
@@ -4606,7 +4608,7 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
     if (u.usteed) { /* another movement choice */
         Sprintf(buf, "Dismount %s",
                 x_monnam(u.usteed, ARTICLE_THE, (char *) 0,
-                         SUPPRESS_SADDLE, FALSE));
+                         (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         mcmd_addmenu(win, MCMD_DISMOUNT, buf), ++K;
     }
 
@@ -4725,19 +4727,35 @@ there_cmd_menu_next2u(
         mtmp = 0;
     if (mtmp && which_armor(mtmp, W_SADDLE)) {
         char *mnam = x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                              SUPPRESS_SADDLE, FALSE);
+                              (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE);
 
         if (!u.usteed) {
             Sprintf(buf, "Ride %s", mnam);
             mcmd_addmenu(win, MCMD_RIDE, buf), ++K;
         }
-        Sprintf(buf, "Remove saddle from %s", mnam);
-        mcmd_addmenu(win, MCMD_REMOVE_SADDLE, buf), ++K;
+        /* gear only comes off a pet, and only through #order */
+        if (mtmp->mtame) {
+            Sprintf(buf, "Remove saddle from %s", mnam);
+            mcmd_addmenu(win, MCMD_REMOVE_SADDLE, buf), ++K;
+        }
     }
     if (mtmp && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)
         && carrying(SADDLE)) {
         Sprintf(buf, "Put saddle on %s", mon_nam(mtmp));
         mcmd_addmenu(win, MCMD_APPLY_SADDLE, buf), ++K;
+    }
+    if (mtmp && mtmp->mtame && which_armor(mtmp, W_BARDING)) {
+        char *mnam = x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                              (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE);
+
+        Sprintf(buf, "Remove barding from %s", mnam);
+        mcmd_addmenu(win, MCMD_REMOVE_BARDING, buf), ++K;
+    }
+    if (mtmp && can_wear_barding(mtmp) && !which_armor(mtmp, W_BARDING)
+        && (carrying(BARDING) || carrying(RUNED_BARDING)
+            || carrying(SPIKED_BARDING) || carrying(BARDING_OF_REFLECTION))) {
+        Sprintf(buf, "Put barding on %s", mon_nam(mtmp));
+        mcmd_addmenu(win, MCMD_APPLY_BARDING, buf), ++K;
     }
     if (mtmp && (mtmp->mpeaceful || mtmp->mtame)) {
         Sprintf(buf, "Talk to %s", mon_nam(mtmp));
@@ -4884,14 +4902,27 @@ act_on_act(
         cmdq_add_dir(CQ_CANNED, dx, dy, 0);
         break;
     case MCMD_REMOVE_SADDLE:
-        /* m-prefix for #loot: skip any floor containers */
-        cmdq_add_ec(CQ_CANNED, do_reqmenu);
-        cmdq_add_ec(CQ_CANNED, doloot);
-        cmdq_add_dir(CQ_CANNED, dx, dy, 0);
-        cmdq_add_key(CQ_CANNED, 'y'); /* "Do you want to remove saddle? */
+        /* #loot no longer takes gear off a monster; the pet order menu
+           owns that, and it does its own targeting, so no direction or
+           menu key can be queued here */
+        cmdq_add_ec(CQ_CANNED, doorder);
         break;
     case MCMD_APPLY_SADDLE:
         if ((otmp = carrying(SADDLE)) != 0) {
+            cmdq_add_ec(CQ_CANNED, doapply);
+            cmdq_add_key(CQ_CANNED, otmp->invlet);
+            cmdq_add_dir(CQ_CANNED, dx, dy, 0);
+        }
+        break;
+    case MCMD_REMOVE_BARDING:
+        /* as for the saddle above, removal lives in the pet order menu */
+        cmdq_add_ec(CQ_CANNED, doorder);
+        break;
+    case MCMD_APPLY_BARDING:
+        if ((otmp = carrying(BARDING)) != 0
+            || (otmp = carrying(RUNED_BARDING)) != 0
+            || (otmp = carrying(SPIKED_BARDING)) != 0
+            || (otmp = carrying(BARDING_OF_REFLECTION)) != 0) {
             cmdq_add_ec(CQ_CANNED, doapply);
             cmdq_add_key(CQ_CANNED, otmp->invlet);
             cmdq_add_dir(CQ_CANNED, dx, dy, 0);

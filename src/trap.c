@@ -12,6 +12,8 @@ staticfn int dng_bottom(d_level *lev);
 staticfn void hole_destination(d_level *);
 staticfn boolean keep_saddle_with_steedcorpse(unsigned, struct obj *,
                                             struct obj *);
+staticfn boolean keep_barding_with_steedcorpse(unsigned, struct obj *,
+                                            struct obj *);
 staticfn boolean mu_maybe_destroy_web(struct monst *, boolean, struct trap *);
 staticfn boolean floor_trigger(int);
 staticfn boolean check_in_air(struct monst *, unsigned);
@@ -1112,6 +1114,37 @@ keep_saddle_with_steedcorpse(
     return FALSE;
 }
 
+staticfn boolean
+keep_barding_with_steedcorpse(
+    unsigned steed_mid,
+    struct obj *objchn,
+    struct obj *barding)
+{
+    if (!barding)
+        return FALSE;
+    while (objchn) {
+        if (objchn->otyp == CORPSE && has_omonst(objchn)) {
+            struct monst *mtmp = OMONST(objchn);
+
+            if (mtmp->m_id == steed_mid) {
+                /* move barding */
+                coordxy x, y;
+                if (get_obj_location(objchn, &x, &y, 0)) {
+                    obj_extract_self(barding);
+                    place_object(barding, x, y);
+                    stackobj(barding);
+                }
+                return TRUE;
+            }
+        }
+        if (Has_contents(objchn)
+            && keep_barding_with_steedcorpse(steed_mid, objchn->cobj, barding))
+            return TRUE;
+        objchn = objchn->nobj;
+    }
+    return FALSE;
+}
+
 /* monster or you go through and possibly destroy a web.
    return TRUE if could go through. */
 staticfn boolean
@@ -1861,6 +1894,8 @@ trapeffect_rust_trap(
                                     TRUE);
             else if ((target = which_armor(mtmp, W_ARMU)) != 0)
                 (void) water_damage(target, "shirt", TRUE);
+            else if ((target = which_armor(mtmp, W_BARDING)) != 0)
+                (void) water_damage(target, "barding", TRUE);
         }
 
         if (completelyrusts(mptr)) {
@@ -2260,11 +2295,13 @@ trapeffect_pit(
                 if ((trflags & RECURSIVETRAP) != 0)
                     Sprintf(verbbuf, "and %s fall",
                             x_monnam(u.usteed, steed_article, (char *) 0,
-                                     SUPPRESS_SADDLE, FALSE));
+                                     (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                     FALSE));
                 else
                     Sprintf(verbbuf, "lead %s",
                             x_monnam(u.usteed, steed_article, "poor",
-                                     SUPPRESS_SADDLE, FALSE));
+                                     (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                     FALSE));
             } else if (iflags.menu_requested && already_known) {
                 You("carefully %s into the pit.",
                     u_locomotion("lower yourself"));
@@ -2298,7 +2335,8 @@ trapeffect_pit(
             if (u.usteed) {
                 pline("%s %s %s!",
                       upstart(x_monnam(u.usteed, steed_article, "poor",
-                                       SUPPRESS_SADDLE, FALSE)),
+                                       (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                       FALSE)),
                       conj_pit ? "steps" : "lands", predicament);
             } else
                 You("%s %s!", conj_pit ? "step" : "land", predicament);
@@ -2529,7 +2567,8 @@ trapeffect_web(
             } else if (u.usteed) {
                 Sprintf(verbbuf, "lead %s into",
                         x_monnam(u.usteed, steed_article, "poor",
-                                 SUPPRESS_SADDLE, FALSE));
+                                 (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                                 FALSE));
             } else {
                 Sprintf(verbbuf, "%s into", u_locomotion("stumble"));
             }
@@ -2904,7 +2943,7 @@ trapeffect_poly_trap(
         else if (u.usteed)
             Sprintf(verbbuf, "lead %s onto",
                     x_monnam(u.usteed, steed_article, (char *) 0,
-                             SUPPRESS_SADDLE, FALSE));
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         else
             Sprintf(verbbuf, "%s onto", u_locomotion("step"));
         You("%s a polymorph trap!", verbbuf);
@@ -2978,6 +3017,10 @@ trapeffect_landmine(
         boolean forcebungle = (trflags & FORCEBUNGLE) != 0;
         unsigned steed_mid = 0;
         struct obj *saddle = 0;
+        struct obj *barding = 0;
+        struct obj *abarding = 0;
+        struct obj *sbarding = 0;
+        struct obj *rbarding = 0;
 
         if ((Levitation || Flying) && !forcetrap) {
             if (!already_seen && rn2(3))
@@ -3011,7 +3054,6 @@ trapeffect_landmine(
             recursive_mine = TRUE;
             (void) steedintrap(trap, (struct obj *) 0);
             recursive_mine = FALSE;
-            saddle = sobj_at(SADDLE, u.ux, u.uy);
             set_wounded_legs(LEFT_SIDE, rn1(35, 41));
             set_wounded_legs(RIGHT_SIDE, rn1(35, 41));
             exercise(A_DEX, FALSE);
@@ -3025,8 +3067,25 @@ trapeffect_landmine(
         trap->madeby_u = FALSE;
         losehp(Maybe_Half_Phys(damage), "land mine", KILLED_BY_AN);
         blow_up_landmine(trap);
+        /* fetch surviving floor tack AFTER the explosion -- scatter()
+           inside blow_up_landmine() can break and free metallic barding,
+           so capturing the pointers earlier risks a use-after-free inside
+           keep_barding_with_steedcorpse() */
+        saddle = sobj_at(SADDLE, u.ux, u.uy);
+        barding = sobj_at(BARDING, u.ux, u.uy);
+        abarding = sobj_at(RUNED_BARDING, u.ux, u.uy);
+        sbarding = sobj_at(SPIKED_BARDING, u.ux, u.uy);
+        rbarding = sobj_at(BARDING_OF_REFLECTION, u.ux, u.uy);
         if (steed_mid && saddle && !u.usteed)
             (void) keep_saddle_with_steedcorpse(steed_mid, fobj, saddle);
+        if (steed_mid && barding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, barding);
+        if (steed_mid && abarding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, abarding);
+        if (steed_mid && sbarding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, sbarding);
+        if (steed_mid && rbarding && !u.usteed)
+            (void) keep_barding_with_steedcorpse(steed_mid, fobj, rbarding);
         newsym(u.ux, u.uy); /* update trap symbol */
         /* fall recursively into the pit... */
         if ((trap = t_at(u.ux, u.uy)) != 0)

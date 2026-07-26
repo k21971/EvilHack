@@ -5,12 +5,20 @@
 #include "hack.h"
 
 /* Monsters that might be ridden */
-static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
-                                        S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
-                                        '\0' };
+static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN,  S_ANGEL,
+                                        S_CENTAUR,   S_DRAGON,   S_JABBERWOCK,
+                                        S_DOG,       S_FELINE,   S_SPIDER,
+                                        S_LIZARD,    S_SKELETON, '\0' };
+
+/* Monsters that might wear barding */
+static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
+                                          S_DRAGON,    S_JABBERWOCK, S_DOG,
+                                          S_FELINE,    S_SPIDER,     S_LIZARD,
+                                          S_SKELETON,  '\0' };
 
 staticfn boolean landing_spot(coord *, int, int);
 staticfn void maybewakesteed(struct monst *);
+staticfn void rebuff_rider(struct monst *);
 
 /* caller has decided that hero can't reach something while mounted */
 void
@@ -29,7 +37,120 @@ can_saddle(struct monst *mtmp)
 
     return (strchr(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
-            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr));
+            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
+            && !(ptr->mlet == S_QUADRUPED
+                 && mtmp->mnum != PM_ROTHE
+                 && mtmp->mnum != PM_LEOCROTTA
+                 && mtmp->mnum != PM_WUMPUS
+                 && mtmp->mnum != PM_MUMAK
+                 && mtmp->mnum != PM_TITANOTHERE
+                 && mtmp->mnum != PM_BALUCHITHERIUM
+                 && mtmp->mnum != PM_MASTODON
+                 && mtmp->mnum != PM_WOOLLY_MAMMOTH)
+            && !(ptr->mlet == S_UNICORN
+                 && mtmp->mnum != PM_PONY
+                 && mtmp->mnum != PM_HORSE
+                 && mtmp->mnum != PM_WARHORSE
+                 && mtmp->mnum != PM_LESSER_NIGHTMARE
+                 && mtmp->mnum != PM_NIGHTMARE
+                 && mtmp->mnum != PM_CAUCHEMAR
+                 && mtmp->mnum != PM_WHITE_UNICORN
+                 && mtmp->mnum != PM_GRAY_UNICORN
+                 && mtmp->mnum != PM_BLACK_UNICORN
+                 && mtmp->mnum != PM_PEGASUS
+                 && mtmp->mnum != PM_GREATER_PEGASUS
+                 && mtmp->mnum != PM_PALE_HORSE
+                 && mtmp->mnum != PM_BLACK_HORSE
+                 && mtmp->mnum != PM_WHITE_HORSE
+                 && mtmp->mnum != PM_RED_HORSE)
+            && !(ptr->mlet == S_JABBERWOCK
+                 && mtmp->mnum != PM_JABBERWOCK
+                 && mtmp->mnum != PM_VORPAL_JABBERWOCK)
+            && !(ptr->mlet == S_DOG
+                 && mtmp->mnum != PM_WOLF
+                 && mtmp->mnum != PM_WARG)
+            && !(ptr->mlet == S_SPIDER
+                 && mtmp->mnum != PM_GIANT_SPIDER
+                 && mtmp->mnum != PM_GARGANTUAN_SPIDER)
+            && !(ptr->mlet == S_LIZARD
+                 && mtmp->mnum != PM_CAVE_LIZARD
+                 && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
+            && !(ptr->mlet == S_SKELETON
+                 && mtmp->mnum != PM_SKELETAL_PONY
+                 && mtmp->mnum != PM_SKELETAL_HORSE
+                 && mtmp->mnum != PM_SKELETAL_WARHORSE
+                 && mtmp->mnum != PM_SKELETAL_DRAGON)
+            && !(ptr->mlet == S_FELINE
+                 && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
+}
+
+/* Can this monster wear barding? */
+boolean
+can_wear_barding(struct monst *mtmp)
+{
+    struct permonst *ptr = r_data(mtmp);
+
+    return (strchr(mbarding, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
+            && !humanoid(ptr) && !amorphous(ptr) && !noncorporeal(ptr)
+            && !is_whirly(ptr) && !unsolid(ptr)
+            && !(ptr->mlet == S_QUADRUPED
+                 && mtmp->mnum != PM_ROTHE
+                 && mtmp->mnum != PM_LEOCROTTA
+                 && mtmp->mnum != PM_WUMPUS
+                 && mtmp->mnum != PM_MUMAK
+                 && mtmp->mnum != PM_TITANOTHERE
+                 && mtmp->mnum != PM_BALUCHITHERIUM
+                 && mtmp->mnum != PM_MASTODON
+                 && mtmp->mnum != PM_WOOLLY_MAMMOTH)
+            && !(ptr->mlet == S_UNICORN
+                 && mtmp->mnum != PM_PONY
+                 && mtmp->mnum != PM_HORSE
+                 && mtmp->mnum != PM_WARHORSE
+                 && mtmp->mnum != PM_LESSER_NIGHTMARE
+                 && mtmp->mnum != PM_NIGHTMARE
+                 && mtmp->mnum != PM_CAUCHEMAR
+                 && mtmp->mnum != PM_WHITE_UNICORN
+                 && mtmp->mnum != PM_GRAY_UNICORN
+                 && mtmp->mnum != PM_BLACK_UNICORN
+                 && mtmp->mnum != PM_PEGASUS
+                 && mtmp->mnum != PM_GREATER_PEGASUS
+                 && mtmp->mnum != PM_PALE_HORSE
+                 && mtmp->mnum != PM_BLACK_HORSE
+                 && mtmp->mnum != PM_WHITE_HORSE
+                 && mtmp->mnum != PM_RED_HORSE)
+            && !(ptr->mlet == S_JABBERWOCK
+                 && mtmp->mnum != PM_JABBERWOCK
+                 && mtmp->mnum != PM_VORPAL_JABBERWOCK)
+            && !(ptr->mlet == S_DOG
+                 && mtmp->mnum != PM_WOLF
+                 && mtmp->mnum != PM_WARG)
+            && !(ptr->mlet == S_SPIDER
+                 && mtmp->mnum != PM_GIANT_SPIDER
+                 && mtmp->mnum != PM_GARGANTUAN_SPIDER)
+            && !(ptr->mlet == S_LIZARD
+                 && mtmp->mnum != PM_CAVE_LIZARD
+                 && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
+            && !(ptr->mlet == S_SKELETON
+                 && mtmp->mnum != PM_SKELETAL_PONY
+                 && mtmp->mnum != PM_SKELETAL_HORSE
+                 && mtmp->mnum != PM_SKELETAL_WARHORSE
+                 && mtmp->mnum != PM_SKELETAL_DRAGON)
+            && !(ptr->mlet == S_FELINE
+                 && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
+}
+
+/* a mount that only accepts riders of a particular race or role has just
+   snarled, hissed or rattled at the hero; sometimes it turns on him */
+staticfn void
+rebuff_rider(struct monst *mtmp)
+{
+    if ((mtmp->mtame > 0 || mtmp->mpeaceful) && !rn2(3)) {
+        mtmp->mtame = mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+        if (mtmp->mleashed)
+            m_unleash(mtmp, TRUE);
+        newsym(mtmp->mx, mtmp->my);
+    }
 }
 
 int
@@ -82,6 +203,47 @@ use_saddle(struct obj *otmp)
     if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
         || mtmp->iswiz) {
         pline("I think %s would mind.", mon_nam(mtmp));
+        return ECMD_TIME;
+    }
+    if ((ptr == &mons[PM_WARG] || ptr == &mons[PM_WOLF])
+        && !racial_orc(&gy.youmonst)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if (ptr == &mons[PM_SABER_TOOTHED_TIGER]
+        && !Role_if(PM_CAVE_DWELLER)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if ((ptr == &mons[PM_GIANT_SPIDER]
+         || ptr == &mons[PM_GARGANTUAN_SPIDER]
+         || ptr == &mons[PM_CAVE_LIZARD]
+         || ptr == &mons[PM_LARGE_CAVE_LIZARD])
+        && !racial_drow(&gy.youmonst)) {
+        if (!Deaf)
+            pline("%s hisses threateningly at you!", Monnam(mtmp));
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if ((ptr == &mons[PM_SKELETAL_PONY]
+         || ptr == &mons[PM_SKELETAL_HORSE]
+         || ptr == &mons[PM_SKELETAL_WARHORSE]
+         || ptr == &mons[PM_SKELETAL_DRAGON])
+        && !(racial_zombie(&gy.youmonst) || racial_vampire(&gy.youmonst))) {
+        if (!Deaf) {
+            pline("%s rattles noisily at you!", Monnam(mtmp));
+            You("freeze for a moment.");
+            nomul(-2);
+            gm.multi_reason = "scared by rattling";
+            gn.nomovemsg = 0;
+        }
+        rebuff_rider(mtmp);
         return ECMD_TIME;
     }
     if (!can_saddle(mtmp)) {
@@ -162,6 +324,215 @@ put_saddle_on_mon(struct obj *saddle, struct monst *mtmp)
     update_mon_extrinsics(mtmp, saddle, TRUE, FALSE);
 }
 
+/*** Putting the barding on ***/
+
+int
+use_barding(struct obj *otmp)
+{
+    struct monst *mtmp;
+    struct permonst *ptr;
+    int chance;
+
+    if (!u_handsy())
+        return ECMD_OK;
+
+    /* Select an animal */
+    if (u.uswallow || Underwater || !getdir((char *) 0)) {
+        pline1(Never_mind);
+        return ECMD_CANCEL;
+    }
+    if (!u.dx && !u.dy) {
+        pline("Put barding on yourself?  Very funny...");
+        return ECMD_OK;
+    }
+    if (!isok(u.ux + u.dx, u.uy + u.dy)
+        || !(mtmp = m_at(u.ux + u.dx, u.uy + u.dy)) || !canspotmon(mtmp)) {
+        pline("I see nobody there.");
+        return ECMD_TIME;
+    }
+
+    /* Is this a valid monster? */
+    if ((mtmp->misc_worn_check & W_BARDING) != 0L
+        || which_armor(mtmp, W_BARDING)) {
+        pline("%s doesn't need another one.", Monnam(mtmp));
+        return ECMD_TIME;
+    }
+    ptr = mtmp->data;
+    if (touch_petrifies(ptr) && !uarmg && !Stone_resistance) {
+        char kbuf[BUFSZ];
+
+        You("touch %s.", mon_nam(mtmp));
+        if (!(poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))) {
+            Sprintf(kbuf, "attempting to put barding on %s",
+                    an(pmname(mtmp->data, Mgender(mtmp))));
+            instapetrify(kbuf);
+        }
+    }
+    if (ptr == &mons[PM_AMOROUS_DEMON]) {
+        pline("This won't accessorize well...");
+        exercise(A_WIS, FALSE);
+        return ECMD_TIME;
+    }
+    if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
+        || mtmp->iswiz) {
+        pline("I think %s would mind.", mon_nam(mtmp));
+        return ECMD_TIME;
+    }
+    if ((ptr == &mons[PM_WARG] || ptr == &mons[PM_WOLF])
+        && !racial_orc(&gy.youmonst)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if (ptr == &mons[PM_SABER_TOOTHED_TIGER]
+        && !Role_if(PM_CAVE_DWELLER)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if ((ptr == &mons[PM_GIANT_SPIDER]
+         || ptr == &mons[PM_GARGANTUAN_SPIDER]
+         || ptr == &mons[PM_CAVE_LIZARD]
+         || ptr == &mons[PM_LARGE_CAVE_LIZARD])
+        && !racial_drow(&gy.youmonst)) {
+        if (!Deaf)
+            pline("%s hisses threateningly at you!", Monnam(mtmp));
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if ((ptr == &mons[PM_SKELETAL_PONY]
+         || ptr == &mons[PM_SKELETAL_HORSE]
+         || ptr == &mons[PM_SKELETAL_WARHORSE]
+         || ptr == &mons[PM_SKELETAL_DRAGON])
+        && !(racial_zombie(&gy.youmonst) || racial_vampire(&gy.youmonst))) {
+        if (!Deaf) {
+            pline("%s rattles noisily at you!", Monnam(mtmp));
+            You("freeze for a moment.");
+            nomul(-2);
+            gm.multi_reason = "scared by rattling";
+            gn.nomovemsg = 0;
+        }
+        rebuff_rider(mtmp);
+        return ECMD_TIME;
+    }
+    if (!can_wear_barding(mtmp)) {
+        You_cant("put barding on such a creature.");
+        return ECMD_TIME;
+    }
+
+    /* Calculate your chance (same as for using a saddle) */
+    chance = ACURR(A_DEX) + ACURR(A_CHA) / 2 + 2 * mtmp->mtame;
+    chance += u.ulevel * (mtmp->mtame ? 20 : 5);
+    if (!mtmp->mtame)
+        chance -= 10 * mtmp->m_lev;
+    if (Role_if(PM_KNIGHT))
+        chance += 20;
+    switch (P_SKILL(P_RIDING)) {
+    case P_ISRESTRICTED:
+    case P_UNSKILLED:
+    default:
+        chance -= 20;
+        break;
+    case P_BASIC:
+        break;
+    case P_SKILLED:
+        chance += 15;
+        break;
+    case P_EXPERT:
+        chance += 30;
+        break;
+    }
+    if (Confusion || Fumbling || Glib)
+        chance -= 20;
+    else if (uarmg && objdescr_is(uarmg, "riding gloves"))
+        /* Bonus for wearing "riding" (but not fumbling) gloves */
+        chance += 10;
+    else if (uarmf && objdescr_is(uarmf, "riding boots"))
+        /* ... or for "riding boots" */
+        chance += 10;
+    if (otmp->cursed)
+        chance -= 50;
+
+    /* [intended] steed becomes alert if possible */
+    maybewakesteed(mtmp);
+
+    /* Make the attempt */
+    if (rn2(100) < chance) {
+        You("fit the barding on %s.", mon_nam(mtmp));
+        if (otmp->owornmask)
+            remove_worn_item(otmp, FALSE);
+        freeinv(otmp);
+        /* !can_wear_barding(mtmp) already eliminated above */
+        put_barding_on_mon(otmp, mtmp);
+    } else
+        pline("%s resists!", Monnam(mtmp));
+    return ECMD_TIME;
+}
+
+void
+put_barding_on_mon(struct obj *barding, struct monst *mtmp)
+{
+    if (!can_wear_barding(mtmp) || which_armor(mtmp, W_BARDING)) {
+        if (barding)
+            impossible("put_barding_on_mon: barding obj could get orphaned");
+        return;
+    }
+    if (!barding) {
+        if ((barding = mksobj(BARDING, TRUE, FALSE)) != 0) {
+            fully_identify_obj(barding);
+            /* mpickobj can later override identification if out-of-view */
+        } else {
+            return;
+        }
+    }
+    if (mpickobj(mtmp, barding))
+        panic("merged barding?");
+    mtmp->misc_worn_check |= W_BARDING;
+    barding->owornmask = W_BARDING;
+    barding->leashmon = mtmp->m_id;
+    update_mon_extrinsics(mtmp, barding, TRUE, FALSE);
+}
+
+/* reroll freshly spawned steed barding so neither the steed nor its
+   rider (if any) is averse to its material; mirrors the hated-material
+   reroll mongets() does for ordinary monster gear */
+void
+reroll_barding_material(
+    struct obj *barding,
+    struct monst *steed,
+    struct monst *rider)
+{
+    int tryct = 0, mat = 1;
+
+    if (!barding)
+        return;
+    while (mon_hates_material(steed, barding->material)
+           || (rider && mon_hates_material(rider, barding->material))) {
+        init_obj_material(barding);
+        if (++tryct >= 100) {
+            for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
+                if (valid_obj_material(barding, mat)
+                    && !mon_hates_material(steed, mat)
+                    && !(rider && mon_hates_material(rider, mat))) {
+                    set_material(barding, mat);
+                    break;
+                }
+            }
+            if (mat == NUM_MATERIAL_TYPES) {
+                impossible("no valid barding material (steed %d, rider %d)",
+                           monsndx(steed->data),
+                           rider ? monsndx(rider->data) : -1);
+                set_material(barding, objects[barding->otyp].oc_material);
+            }
+            break;
+        }
+    }
+}
+
 /*** Riding the monster ***/
 
 /* Can we ride this monster?  Caller should also check can_saddle() */
@@ -206,7 +577,9 @@ mount_steed(
     boolean force)      /* Quietly force this animal */
 {
     struct obj *otmp;
+    struct obj *barding;
     char buf[BUFSZ];
+    int role_modifier;
     struct permonst *ptr;
 
     /* Sanity checks */
@@ -274,6 +647,47 @@ mount_steed(
         You("couldn't ride %s, let alone its tail.", a_monnam(mtmp));
         return FALSE;
     }
+    if ((mtmp->data == &mons[PM_WARG] || mtmp->data == &mons[PM_WOLF])
+        && !racial_orc(&gy.youmonst)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        rebuff_rider(mtmp);
+        return FALSE;
+    }
+    if (mtmp->data == &mons[PM_SABER_TOOTHED_TIGER]
+        && !Role_if(PM_CAVE_DWELLER)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        rebuff_rider(mtmp);
+        return FALSE;
+    }
+    if ((mtmp->data == &mons[PM_GIANT_SPIDER]
+         || mtmp->data == &mons[PM_GARGANTUAN_SPIDER]
+         || mtmp->data == &mons[PM_CAVE_LIZARD]
+         || mtmp->data == &mons[PM_LARGE_CAVE_LIZARD])
+        && !racial_drow(&gy.youmonst)) {
+        if (!Deaf)
+            pline("%s hisses threateningly at you!", Monnam(mtmp));
+        rebuff_rider(mtmp);
+        return FALSE;
+    }
+    if ((mtmp->data == &mons[PM_SKELETAL_PONY]
+         || mtmp->data == &mons[PM_SKELETAL_HORSE]
+         || mtmp->data == &mons[PM_SKELETAL_WARHORSE]
+         || mtmp->data == &mons[PM_SKELETAL_DRAGON])
+        && !(racial_zombie(&gy.youmonst) || racial_vampire(&gy.youmonst))) {
+        if (!Deaf) {
+            pline("%s rattles noisily at you!", Monnam(mtmp));
+            You("freeze for a moment.");
+            nomul(-2);
+            gm.multi_reason = "scared by rattling";
+            gn.nomovemsg = 0;
+        }
+        rebuff_rider(mtmp);
+        return FALSE;
+    }
     if (u.uswallow || u.ustuck || u.utrap || Punished
         || !test_move(u.ux, u.uy, mtmp->mx - u.ux, mtmp->my - u.uy,
                       TEST_MOVE)) {
@@ -311,8 +725,19 @@ mount_steed(
                  mhe(mtmp), an(trapname(t->ttyp, FALSE)));
         return (FALSE);
     }
+    if (mtmp->mentangled) {
+        You_cant("mount %s while %s's entangled.", mon_nam(mtmp),
+                 mhe(mtmp));
+        return (FALSE);
+    }
 
-    if (!force && !Role_if(PM_KNIGHT) && !(--mtmp->mtame)) {
+    /* Knights will not decrease the tameness of their steed when
+       mounting them. The same is true for any role whose steed is
+       wearing Ithilmar (artifact barding) */
+    barding = which_armor(mtmp, W_BARDING);
+    if (!force && !(Role_if(PM_KNIGHT)
+                    || (barding && barding->oartifact == ART_ITHILMAR))
+        && !(--mtmp->mtame)) {
         /* no longer tame */
         newsym(mtmp->mx, mtmp->my);
         pline("%s resists%s!", Monnam(mtmp),
@@ -342,10 +767,15 @@ mount_steed(
              uarm->oeroded ? "rusty" : "corroded", mon_nam(mtmp));
         return (FALSE);
     }
+    /* A Knight should be able to ride his own horse!
+       so we get a bonus for all horse-like things */
+    role_modifier = (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_UNICORN)
+                    ? 10 : 0;
     if (!force
         && (Confusion || Fumbling || Glib || Wounded_legs || otmp->cursed
             || otmp->greased
-            || (u.ulevel + mtmp->mtame < rnd(MAXULEV / 2 + 5)))) {
+            || (u.ulevel + mtmp->mtame + role_modifier
+                < rnd(MAXULEV / 2 + 5)))) {
         if (Levitation) {
             pline("%s slips away from you.", Monnam(mtmp));
             return FALSE;
@@ -763,6 +1193,8 @@ dismount_steed(
                                                ABUSE_HAZ_LAVA);
                     }
                 }
+                /* TODO-EVILHACK: master also kills a steed dropped into
+                   open air here; is_open_air terrain is unported */
             }
             /* Steed dismounting consists of two steps: being moved to another
              * square, and descending to the floor.  We have functions to do
@@ -892,7 +1324,7 @@ poly_steed(
         char buf[BUFSZ];
 
         Strcpy(buf, x_monnam(steed, ARTICLE_YOUR, (char *) 0,
-                             SUPPRESS_SADDLE, FALSE));
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         if (oldshape != steed->data)
             (void) strsubst(buf, "your ", "your new ");
         You("adjust yourself in the saddle on %s.", buf);

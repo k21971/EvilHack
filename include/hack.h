@@ -337,7 +337,7 @@ struct _create_particular_data {
     char monclass;
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
-    boolean sleeping, saddled, invisible, hidden;
+    boolean sleeping, saddled, barded, invisible, hidden;
     boolean sick, diseased;
 };
 
@@ -1050,10 +1050,12 @@ typedef struct nh_file NHFILE;
 #define SUPPRESS_HALLUCINATION 0x04
 #define SUPPRESS_SADDLE        0x08
 #define SUPPRESS_MAPPEARANCE   0x10
-#define EXACT_NAME             0x1F
+/* SUPPRESS_BARDING is defined out of numeric order because EXACT_NAME,
+   which covers every adjective suppressor, has to be able to name it */
+#define SUPPRESS_BARDING       0x80
+#define EXACT_NAME             (0x1F | SUPPRESS_BARDING)
 #define SUPPRESS_NAME 0x20
 #define AUGMENT_IT    0x40 /* use "someone" or "something" instead of "it" */
-#define SUPPRESS_BARDING 0x80
 
 /* pline (et al) for a single string argument (suppress compiler warning) */
 #define pline1(cstr) pline("%s", cstr)

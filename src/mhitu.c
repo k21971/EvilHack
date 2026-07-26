@@ -568,10 +568,28 @@ mattacku(struct monst *mtmp)
             if ((i & M_ATTK_DEF_DIED) != 0 || !u.usteed
                 || !m_next2u(mtmp))
                 return 0;
-            /* Let your steed retaliate */
+            /* Let your steed retaliate (check acceptable_pet_target()
+               as a guard) */
+            if (!acceptable_pet_target(u.usteed, mtmp, FALSE))
+                return 0;
             gb.bhitpos.x = mtmp->mx, gb.bhitpos.y = mtmp->my;
             gn.notonhead = FALSE;
             return !!(mattackm(u.usteed, mtmp) & M_ATTK_DEF_DIED);
+        }
+        /* a steed will attack on the player's behalf without waiting for
+           the player or itself to be attacked first, provided it is loyal
+           or better; a steed with a ranged attack can use it apart from
+           this routine */
+        if (u.usteed->mtame >= 15 && m_next2u(mtmp)
+            && acceptable_pet_target(u.usteed, mtmp, FALSE)) {
+            gb.bhitpos.x = mtmp->mx, gb.bhitpos.y = mtmp->my;
+            gn.notonhead = FALSE;
+            i = mattackm(u.usteed, mtmp);
+            /* the steed died; mtmp wasn't the aggressor here, so the
+               return code mustn't claim that mtmp died */
+            if ((i & M_ATTK_AGR_DIED) != 0 || !u.usteed)
+                return 0;
+            return !!(i & M_ATTK_DEF_DIED);
         }
     }
 

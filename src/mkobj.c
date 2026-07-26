@@ -3851,9 +3851,9 @@ sanity_check_worn(struct obj *obj)
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || defined(DEBUG)
     static unsigned long wearbits[] = {
-        W_ARM,    W_ARMC,   W_ARMH,    W_ARMS, W_ARMG,  W_ARMF,  W_ARMU,
-        W_WEP,    W_QUIVER, W_SWAPWEP, W_AMUL, W_RINGL, W_RINGR, W_TOOL,
-        W_SADDLE, W_BALL,   W_CHAIN,   0
+        W_ARM,    W_ARMC,    W_ARMH,    W_ARMS,  W_ARMG,  W_ARMF,  W_ARMU,
+        W_WEP,    W_QUIVER,  W_SWAPWEP, W_AMUL,  W_RINGL, W_RINGR, W_TOOL,
+        W_SADDLE, W_BARDING, W_BALL,    W_CHAIN, 0
         /* [W_ART,W_ARTI are property bits for items which aren't worn] */
     };
     char maskbuf[60];
@@ -3896,7 +3896,8 @@ sanity_check_worn(struct obj *obj)
         insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
     }
     if ((owornmask & ~allmask) != 0L
-        || (carried(obj) && (owornmask & W_SADDLE) != 0L)) {
+        || (carried(obj) && (owornmask & W_SADDLE) != 0L)
+        || (carried(obj) && (owornmask & W_BARDING) != 0L)) {
         /* non-wearable bit(s) set */
         Sprintf(maskbuf, "worn mask (bogus)) 0x%08lx", obj->owornmask);
         insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
@@ -3963,6 +3964,7 @@ sanity_check_worn(struct obj *obj)
                 what = "blindfold";
             break;
         /* case W_SADDLE: */
+        /* case W_BARDING: */
         case W_BALL:
             if (obj != uball)
                 what = "ball";
@@ -4023,6 +4025,9 @@ sanity_check_worn(struct obj *obj)
         } else if (owornmask & W_SADDLE) {
             if (obj->otyp != SADDLE)
                 what = "saddle";
+        } else if (owornmask & W_BARDING) {
+            if (!is_barding(obj))
+                what = "barding";
         }
         if (what) {
             char oclassname[30];

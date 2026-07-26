@@ -110,7 +110,7 @@ dynamic_multi_reason(struct monst *mon, const char *verb, boolean by_gaze)
     char *who = x_monnam(mon, ARTICLE_A, (char *) 0,
                          (SUPPRESS_IT | SUPPRESS_INVISIBLE
                           | SUPPRESS_HALLUCINATION | SUPPRESS_SADDLE
-                          | SUPPRESS_NAME),
+                          | SUPPRESS_BARDING | SUPPRESS_NAME),
                          FALSE),
          *p = gm.multireasonbuf;
 
@@ -2257,7 +2257,15 @@ m_slips_free(struct monst *mdef, struct attack *mattk)
 
     if (mattk->adtyp == AD_DRIN) {
         /* intelligence drain attacks the head */
-        obj = which_armor(mdef, W_ARMH);
+        if (mdef->data->mlet == S_QUADRUPED || mdef->data->mlet == S_DRAGON
+            || mdef->data->mlet == S_UNICORN
+            || mdef->data == &mons[PM_WARG]
+            || mdef->data == &mons[PM_JABBERWOCK]
+            || mdef->data == &mons[PM_KI_RIN]
+            || mdef->data == &mons[PM_ELDRITCH_KI_RIN])
+            obj = which_armor(mdef, W_BARDING);
+        else
+            obj = which_armor(mdef, W_ARMH);
     } else {
         /* grabbing attacks the body */
         obj = which_armor(mdef, W_ARMC); /* cloak */
@@ -2297,7 +2305,11 @@ staticfn int
 joust(struct monst *mon, /* target */
       struct obj *obj)   /* weapon */
 {
+    struct obj *barding;
     int skill_rating, joust_dieroll;
+    boolean ithilmar = (u.usteed
+                        && (barding = which_armor(u.usteed, W_BARDING)) != 0
+                        && barding->oartifact == ART_ITHILMAR);
 
     if (Fumbling || Stunned)
         return 0;
@@ -2319,8 +2331,12 @@ joust(struct monst *mon, /* target */
 
     /* odds to joust are expert:80%, skilled:60%, basic:40%, unskilled:20% */
     if ((joust_dieroll = rn2(5)) < skill_rating) {
-        if (joust_dieroll == 0 && rnl(50) == (50 - 1) && !unsolid(mon->data)
-            && !obj_resists(obj, 0, 100))
+        /* if your steed is wearing Ithilmar, there's a very good chance
+           of preserving your lance while jousting */
+        if (joust_dieroll == 0
+            && (ithilmar ? (!rn2(3) && rnl(500) == (500 - 1))
+                         : (rnl(50) == (50 - 1)))
+            && !unsolid(mon->data) && !obj_resists(obj, 0, 100))
             return -1; /* hit that breaks lance */
         return 1;      /* successful joust */
     }
@@ -3789,6 +3805,7 @@ mhitm_ad_drin(
     if (magr == &gy.youmonst) {
         /* uhitm */
         struct obj *helmet;
+        struct obj *barding;
 
         /* a zombie hero's bite infects rather than eats brains */
         if (((!Upolyd && Race_if(PM_DRAUGR)) || is_zombie(gy.youmonst.data))
@@ -3829,6 +3846,11 @@ mhitm_ad_drin(
             pline("%s %s blocks your attack to %s head.",
                   s_suffix(Monnam(mdef)), helm_simple_name(helmet),
                   mhis(mdef));
+            return;
+        }
+        if ((barding = which_armor(mdef, W_BARDING)) != 0 && rn2(8)) {
+            pline("%s barding blocks your attack to %s head.",
+                  s_suffix(Monnam(mdef)), mhis(mdef));
             return;
         }
         amu = which_armor(mdef, W_AMUL);
@@ -3941,10 +3963,11 @@ mhitm_ad_drin(
             gs.skipdrin = TRUE; /* affects mattackm()'s attack loop */
             return;
         }
-        if ((mdef->misc_worn_check & W_ARMH) && rn2(8)) {
+        if ((mdef->misc_worn_check & (W_ARMH | W_BARDING)) && rn2(8)) {
             if (gv.vis && canspotmon(magr) && canseemon(mdef)) {
                 Strcpy(buf, s_suffix(Monnam(mdef)));
-                pline("%s helmet blocks %s attack to %s head.", buf,
+                pline("%s %s blocks %s attack to %s head.", buf,
+                      which_armor(mdef, W_ARMH) ? "helmet" : "barding",
                       s_suffix(mon_nam(magr)), mhis(mdef));
             }
             return;
@@ -5298,6 +5321,14 @@ mhitm_ad_dgst(
             mhm->done = TRUE;
             return;
         }
+        /* spikes and runes are equally hard to swallow */
+        if ((obj = which_armor(mdef, W_BARDING)) != 0
+            && (obj->otyp == SPIKED_BARDING
+                || obj->otyp == RUNED_BARDING)) {
+            mhm->hitflags = (M_ATTK_HIT | M_ATTK_EXPELLED);
+            mhm->done = TRUE;
+            return;
+        }
         /* unique monsters are too significant to be digested;
            expelled immediately with no damage, like slow digestion */
         if (unique_corpstat(pd)) {
@@ -5926,9 +5957,20 @@ gulpum(struct monst *mdef, struct attack *mattk)
         } else {
             start_engulf(mdef);
             switch (mattk->adtyp) {
-            case AD_DGST:
+            case AD_DGST: {
+                struct obj *sbarding;
+
                 /* slow digestion protects against being swallowed */
                 if (mon_prop(mdef, SLOW_DIGESTION)) {
+                    You("hurriedly %s the indigestible %s.",
+                        expel_verb, m_monnam(mdef));
+                    end_engulf();
+                    return M_ATTK_HIT;
+                }
+                /* spikes and runes are equally hard to swallow */
+                if ((sbarding = which_armor(mdef, W_BARDING)) != 0
+                    && (sbarding->otyp == SPIKED_BARDING
+                        || sbarding->otyp == RUNED_BARDING)) {
                     You("hurriedly %s the indigestible %s.",
                         expel_verb, m_monnam(mdef));
                     end_engulf();
@@ -6014,6 +6056,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 gm.mswallower = (struct monst *) 0;
                 end_engulf();
                 return M_ATTK_DEF_DIED;
+            }
             case AD_PHYS:
                 if (gy.youmonst.data == &mons[PM_FOG_CLOUD]) {
                     pline("%s is laden with your moisture.", Monnam(mdef));

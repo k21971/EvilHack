@@ -3426,6 +3426,22 @@ makemon(
              * will create the saddle itself */
             put_saddle_on_mon((struct obj *) 0, mtmp);
         }
+        /* sometimes saddled monsters come barded */
+        if (which_armor(mtmp, W_SADDLE)) {
+            if (!rn2(100) && can_wear_barding(mtmp)
+                && !which_armor(mtmp, W_BARDING)) {
+                struct obj *otmp = mksobj(rn2(4)
+                                          ? BARDING
+                                          : rn2(3) ? SPIKED_BARDING
+                                                   : BARDING_OF_REFLECTION,
+                                          TRUE, FALSE);
+
+                if (otmp) {
+                    reroll_barding_material(otmp, mtmp, (struct monst *) 0);
+                    put_barding_on_mon(otmp, mtmp);
+                }
+            }
+        }
 
     } else {
         /* no initial inventory is allowed */

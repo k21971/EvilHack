@@ -303,8 +303,8 @@ wiz_kill(void)
             int tame = !!mtmp->mtame,
                 seen = (canspotmon(mtmp) || (u.uswallow && mtmp == u.ustuck)),
                 flgs = (SUPPRESS_IT | SUPPRESS_HALLUCINATION
-                        | ((tame && has_mgivenname(mtmp)) ? SUPPRESS_SADDLE
-                           : 0)),
+                        | ((tame && has_mgivenname(mtmp))
+                           ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0)),
                 articl = tame ? ARTICLE_YOUR : seen ? ARTICLE_THE : ARTICLE_A;
             const char *adjs = tame ? (!seen ? "poor, unseen" : "poor")
                                     : (!seen ? "unseen" : (const char *) 0);

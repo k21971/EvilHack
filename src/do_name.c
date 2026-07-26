@@ -831,7 +831,8 @@ rndghostname(void)
  *
  * suppress
  *
- * SUPPRESS_IT, SUPPRESS_INVISIBLE, SUPPRESS_HALLUCINATION, SUPPRESS_SADDLE.
+ * SUPPRESS_IT, SUPPRESS_INVISIBLE, SUPPRESS_HALLUCINATION, SUPPRESS_SADDLE,
+ * SUPPRESS_BARDING.
  * SUPPRESS_MAPPEARANCE: if monster is mimicking another monster (cloned
  *              Wizard or quickmimic pet), describe the real monster rather
  *              than its current form;
@@ -868,7 +869,7 @@ x_monnam(
     char *buf = nextmbuf();
     struct permonst *mdat = mtmp->data;
     const char *pm_name;
-    boolean do_hallu, do_invis, do_it, do_saddle, do_mappear,
+    boolean do_hallu, do_invis, do_it, do_saddle, do_barding, do_mappear,
             do_exact, do_name, augment_it;
     boolean name_at_start, has_adjectives, insertbuf2,
             mappear_as_mon = (M_AP_TYPE(mtmp) == M_AP_MONSTER);
@@ -898,6 +899,7 @@ x_monnam(
             && !program_state.gameover && mtmp != u.usteed
             && !engulfing_u(mtmp) && !(suppress & SUPPRESS_IT);
     do_saddle = !(suppress & SUPPRESS_SADDLE);
+    do_barding = !(suppress & SUPPRESS_BARDING);
     do_mappear = mappear_as_mon && !(suppress & SUPPRESS_MAPPEARANCE);
     do_exact = (suppress & EXACT_NAME) == EXACT_NAME;
     do_name = !(suppress & SUPPRESS_NAME) || type_is_pname(mdat);
@@ -979,6 +981,9 @@ x_monnam(
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
         && !Hallucination)
         Strcat(buf, "saddled ");
+    if (do_barding && (mtmp->misc_worn_check & W_BARDING) && !Blind
+        && !Hallucination)
+        Strcat(buf, "barded ");
     if (has_erac(mtmp) && !type_is_pname(mdat)
         /* don't reveal high priest race too early */
         && mdat != &mons[PM_HIGH_PRIEST]
@@ -1076,14 +1081,16 @@ char *
 l_monnam(struct monst *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
-                    (has_mgivenname(mtmp)) ? SUPPRESS_SADDLE : 0, TRUE);
+                    (has_mgivenname(mtmp))
+                        ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, TRUE);
 }
 
 char *
 mon_nam(struct monst *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                    (has_mgivenname(mtmp)) ? SUPPRESS_SADDLE : 0, FALSE);
+                    (has_mgivenname(mtmp))
+                        ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE);
 }
 
 /* print the name as if mon_nam() (y_monnam() if tame) was called, but
@@ -1095,7 +1102,8 @@ char *
 noit_mon_nam(struct monst *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_YOUR, (char *) 0,
-                    (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_IT)
+                    (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE
+                                             | SUPPRESS_BARDING | SUPPRESS_IT)
                                           : SUPPRESS_IT),
                     FALSE);
 }
@@ -1106,7 +1114,8 @@ char *
 some_mon_nam(struct monst *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                    (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE | AUGMENT_IT)
+                    (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE
+                                             | SUPPRESS_BARDING | AUGMENT_IT)
                                           : AUGMENT_IT),
                     FALSE);
 }
@@ -1163,7 +1172,7 @@ y_monnam(struct monst *mtmp)
     suppression_flag = (has_mgivenname(mtmp)
                         /* "saddled" is redundant when mounted */
                         || mtmp == u.usteed)
-                           ? SUPPRESS_SADDLE
+                           ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
                            : 0;
 
     return x_monnam(mtmp, prefix, (char *) 0, suppression_flag, FALSE);
@@ -1183,7 +1192,8 @@ char *
 Adjmonnam(struct monst *mtmp, const char *adj)
 {
     char *bp = x_monnam(mtmp, ARTICLE_THE, adj,
-                        has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE);
+                        has_mgivenname(mtmp)
+                            ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE);
 
     *bp = highc(*bp);
     return bp;
@@ -1193,7 +1203,8 @@ char *
 a_monnam(struct monst *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_A, (char *) 0,
-                    has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0, FALSE);
+                    has_mgivenname(mtmp)
+                        ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0, FALSE);
 }
 
 char *

@@ -1391,7 +1391,8 @@ slip_or_trip(void)
 
         pline("%s %s %s the ice.",
               u.usteed ? upstart(x_monnam(u.usteed, ARTICLE_THE, (char *) 0,
-                                          SUPPRESS_SADDLE, FALSE))
+                                          (SUPPRESS_SADDLE
+                                           | SUPPRESS_BARDING), FALSE))
                        : "You",
               /* "steed": arbitrary value that will use third person verb
                  regardless of what u.usteed might be named, as opposed to

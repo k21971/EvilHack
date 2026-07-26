@@ -137,7 +137,8 @@ toggle_stealth(
 
             You("%s%s are noisy.", riding ? "and " : "sure",
                 riding ? x_monnam(u.usteed, ARTICLE_YOUR, (char *) NULL,
-                                  (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION),
+                                  (SUPPRESS_SADDLE | SUPPRESS_BARDING
+                                   | SUPPRESS_HALLUCINATION),
                                   FALSE)
                        : "");
         }
@@ -3448,6 +3449,13 @@ some_armor(struct monst *victim)
     otmp = (victim == &gy.youmonst) ? uarms : which_armor(victim, W_ARMS);
     if (otmp && (!otmph || !rn2(4)))
         otmph = otmp;
+    if (victim != &gy.youmonst && (otmp = which_armor(victim, W_BARDING)) != 0
+        && (!otmph || !rn2(4)))
+        otmph = otmp;
+    if (victim == &gy.youmonst && u.usteed
+        && (otmp = which_armor(u.usteed, W_BARDING)) != 0
+        && (!otmph || !rn2(4)))
+        otmph = otmp;
     return otmph;
 }
 
@@ -4053,6 +4061,21 @@ disintegrate_arm(struct obj *atmp)
         urgent_pline("Your %s disintegrate!", boots_simple_name(otmp));
     } else if ((otmp = maybe_destroy_armor(uarms, atmp, &resisted)) != 0) {
         urgent_pline("Your %s crumbles away!", shield_simple_name(otmp));
+    } else if (u.usteed
+               && (otmp = which_armor(u.usteed, W_BARDING)) != 0
+               /* don't route barding through maybe_destroy_armor() (at
+                  least for now) -- we want it to be an invalid target
+                  when atmp is Null, so that it can only be destroyed if
+                  specifically targeted */
+               && otmp == atmp
+               && !obj_resists(otmp, 0, 90)) {
+        otmp->in_use = TRUE;
+        urgent_pline("%s crumbles to pieces!", Yname2(otmp));
+        m_useup(u.usteed, otmp);
+        /* barding isn't hero-worn gear, so the shared wornarm_destroyed()
+           cleanup below must not run for it */
+        stop_occupation();
+        return 1;
     } else {
         return 0; /* could not destroy anything */
     }

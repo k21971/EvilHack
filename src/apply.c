@@ -4663,6 +4663,12 @@ doapply(void)
     case SADDLE:
         res = use_saddle(obj);
         break;
+    case BARDING:
+    case RUNED_BARDING:
+    case SPIKED_BARDING:
+    case BARDING_OF_REFLECTION:
+        res = use_barding(obj);
+        break;
     case MAGIC_WHISTLE:
         use_magic_whistle(obj);
         break;

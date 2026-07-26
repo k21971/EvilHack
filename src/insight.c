@@ -980,7 +980,8 @@ status_enlightenment(int mode, int final)
                       : x_monnam(u.usteed,
                                  u.usteed->mtame ? ARTICLE_YOUR : ARTICLE_THE,
                                  (char *) 0,
-                                 (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION),
+                                 (SUPPRESS_SADDLE | SUPPRESS_BARDING
+                                  | SUPPRESS_HALLUCINATION),
                                  FALSE));
 
     /*\

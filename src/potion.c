@@ -1897,7 +1897,9 @@ potionhit(struct monst *mon, struct obj *obj, int how)
     boolean isyou = (mon == &gy.youmonst);
     int distance, tx, ty;
     struct obj *saddle = (struct obj *) 0;
-    boolean hit_saddle = FALSE, your_fault = (how <= POTHIT_HERO_THROW);
+    struct obj *barding = (struct obj *) 0;
+    boolean hit_saddle = FALSE, hit_barding = FALSE,
+            your_fault = (how <= POTHIT_HERO_THROW);
 
     if (isyou) {
         tx = u.ux, ty = u.uy;
@@ -1918,6 +1920,14 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                     && ((rnl(10) > 7 && obj->cursed)
                         || (rnl(10) < 4 && obj->blessed) || !rn2(3)))))
             hit_saddle = TRUE;
+        /* same chance for hitting barding */
+        if (((mon->misc_worn_check & W_BARDING)
+             && (barding = which_armor(mon, W_BARDING)))
+            && (!rn2(10)
+                || (obj->otyp == POT_WATER
+                    && ((rnl(10) > 7 && obj->cursed)
+                        || (rnl(10) < 4 && obj->blessed) || !rn2(3)))))
+            hit_barding = TRUE;
         distance = distu(tx, ty);
         if (!cansee(tx, ty)) {
             Soundeffect(se_potion_crash_and_break, 60);
@@ -1929,7 +1939,14 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             if (hit_saddle && saddle) {
                 Sprintf(buf, "%s saddle",
                         s_suffix(x_monnam(mon, ARTICLE_THE, (char *) 0,
-                                          (SUPPRESS_IT | SUPPRESS_SADDLE),
+                                          (SUPPRESS_IT | SUPPRESS_SADDLE
+                                           | SUPPRESS_BARDING),
+                                          FALSE)));
+            } else if (hit_barding && barding) {
+                Sprintf(buf, "%s barding",
+                        s_suffix(x_monnam(mon, ARTICLE_THE, (char *) 0,
+                                          (SUPPRESS_IT | SUPPRESS_SADDLE
+                                           | SUPPRESS_BARDING),
                                           FALSE)));
             } else if (has_head(mon->data)) {
                 Sprintf(buf, "%s %s", s_suffix(mnam),
@@ -1941,12 +1958,12 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             pline_The("%s crashes on %s and breaks into shards.", botlnam,
                       buf);
         }
-        if (rn2(5) && mon->mhp > 1 && !hit_saddle)
+        if (rn2(5) && mon->mhp > 1 && !hit_saddle && !hit_barding)
             mon->mhp--;
     }
 
-    /* oil doesn't instantly evaporate; Neither does a saddle hit */
-    if (obj->otyp != POT_OIL && !hit_saddle && cansee(tx, ty))
+    /* oil doesn't instantly evaporate; neither does a saddle/barding hit */
+    if (obj->otyp != POT_OIL && !hit_saddle && !hit_barding && cansee(tx, ty))
         pline("%s.", Tobjnam(obj, "evaporate"));
 
     if (isyou) {
@@ -1978,7 +1995,8 @@ potionhit(struct monst *mon, struct obj *obj, int how)
         boolean useeit = !Blind && canseemon(mon) && cansee(tx, ty);
 
         mnam = x_monnam(mon, ARTICLE_THE, (char *) 0,
-                        (SUPPRESS_IT | SUPPRESS_SADDLE), FALSE);
+                        (SUPPRESS_IT | SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                        FALSE);
         Sprintf(buf, "%s", upstart(s_suffix(mnam)));
 
         switch (obj->otyp) {
@@ -1993,6 +2011,28 @@ potionhit(struct monst *mon, struct obj *obj, int how)
         }
         if (useeit && !affected)
             pline("%s %s wet.", buf, aobjnam(saddle, "get"));
+    } else if (hit_barding && barding) {
+        char *mnam, buf[BUFSZ], barding_glows[BUFSZ];
+        boolean affected = FALSE;
+        boolean useeit = !Blind && canseemon(mon) && cansee(tx, ty);
+
+        mnam = x_monnam(mon, ARTICLE_THE, (char *) 0,
+                        (SUPPRESS_IT | SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                        FALSE);
+        Sprintf(buf, "%s", upstart(s_suffix(mnam)));
+
+        switch (obj->otyp) {
+        case POT_WATER:
+            Snprintf(barding_glows, sizeof(barding_glows), "%s %s",
+                     buf, aobjnam(barding, "glow"));
+            affected = H2Opotion_dip(obj, barding, useeit, barding_glows);
+            break;
+        case POT_POLYMORPH:
+            /* Do we allow barding to polymorph? */
+            break;
+        }
+        if (useeit && !affected)
+            pline("%s %s wet.", buf, aobjnam(barding, "get"));
     } else {
         boolean angermon = your_fault, cureblind = FALSE;
 

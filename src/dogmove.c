@@ -440,7 +440,15 @@ dog_starve(struct monst *mtmp)
 staticfn boolean
 dog_hunger(struct monst *mtmp, struct edog *edog)
 {
-    if (svm.moves > edog->hungrytime + DOG_WEAK) {
+    struct obj *barding;
+    boolean ithilmar;
+
+    ithilmar = ((barding = which_armor(mtmp, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR);
+
+    /* steed wearing Ithilmar can last much longer before needing
+       another meal */
+    if (svm.moves > edog->hungrytime + (ithilmar ? 3500 : DOG_WEAK)) {
         if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
             edog->hungrytime = svm.moves + DOG_WEAK;
             /* but not too high; it might polymorph */

@@ -4740,7 +4740,9 @@ xkilled(
             !(wasinside || canspotmon(mtmp)) ? "it"
               : !mtmp->mtame ? mon_nam(mtmp)
                 : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
-                           "poor", namedpet ? SUPPRESS_SADDLE : 0, FALSE));
+                           "poor",
+                           namedpet ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0,
+                           FALSE));
     }
 
     if (mtmp->mtrapped && (t = t_at(x, y)) != 0 && is_pit(t->ttyp)) {
@@ -5127,7 +5129,8 @@ vamp_stone(struct monst *mtmp)
             /* construct a format string before transformation */
             Sprintf(buf, "The lapidifying %s %s %s",
                     x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
-                             (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
+                             (SUPPRESS_SADDLE | SUPPRESS_BARDING
+                              | SUPPRESS_HALLUCINATION
                               | SUPPRESS_INVISIBLE | SUPPRESS_IT), FALSE),
                     amorphous(mtmp->data) ? "coalesces on the"
                        : is_flyer(mtmp->data) ? "drops to the"
@@ -6855,14 +6858,16 @@ newcham(
 
     if (msg) {
         Strcpy(oldname,
-               /* like YMonnam() but never mention saddle */
+               /* like YMonnam() but never mention saddle or barding */
                x_monnam(mtmp, mtmp->mtame ? ARTICLE_YOUR : ARTICLE_THE,
-                        (char *) 0, SUPPRESS_SADDLE, FALSE));
+                        (char *) 0, (SUPPRESS_SADDLE | SUPPRESS_BARDING),
+                        FALSE));
         oldname[0] = highc(oldname[0]);
     }
     /* we need this one whether msg is true or not */
     Strcpy(l_oldname, x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                               has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0,
+                               has_mgivenname(mtmp)
+                                 ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0,
                                FALSE));
 
     /* mdat = 0 -> caller wants a random monster shape */
