@@ -3655,10 +3655,11 @@ steedintrap(struct trap *trap, struct obj *otmp)
         break;
     case SPEAR_TRAP_SET:
         pline("The spear stabs %s%s!",
-              (is_flyer(steed->data) || Levitation || Flying)
-                ? "at " : "",
+              (is_flyer(steed->data) || can_fly(steed)
+               || Levitation || Flying) ? "at " : "",
               mon_nam(steed));
-        if (is_flyer(steed->data) || Levitation || Flying) {
+        if (is_flyer(steed->data) || can_fly(steed)
+            || Levitation || Flying) {
             pline("But it isn't long enough to reach %s.",
                   mon_nam(steed));
         } else if (thick_skinned(steed->data)

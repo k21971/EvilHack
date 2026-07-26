@@ -212,7 +212,7 @@ explode(
     struct monst *mtmp, *mdef = 0;
     uchar adtyp;
     int explmask[3][3]; /* 0=normal explosion, 1=do shieldeff, 2=do nothing */
-    coordxy xx, yy;
+    coordxy xx, yy, hero_x, hero_y;
     boolean shopdamage = FALSE, generic = FALSE,
             do_hallu = FALSE, inside_engulfer, grabbed, grabbing;
     coord grabxy;
@@ -462,6 +462,14 @@ explode(
     if (!Deaf && !didmsg)
         pline("Boom!");
 
+    /* the hero can be moved mid-loop: killing u.usteed dismounts, and
+       the dismount's float_down() can reposition him - dragged to the
+       iron ball while Punished, or crawling out of the pool he was
+       riding over. The explmask grid was computed for where the hero
+       was, so match against that position rather than the live one, or
+       he takes the blast a second time on the square he moved to */
+    hero_x = u.ux, hero_y = u.uy;
+
     /* apply effects to monsters and floor objects first, in case the
        damage to the hero is fatal and leaves bones */
     if (dam) {
@@ -473,7 +481,7 @@ explode(
                     continue;
                 xx = x + i - 1;
                 yy = y + j - 1;
-                if (u_at(xx, yy)) {
+                if (xx == hero_x && yy == hero_y) {
                     uhurt = ((explmask[i][j] & EXPL_HERO) != 0) ? 1 : 2;
                     /* If the player is attacking via polyself into something
                      * with an explosion attack, leave them (and their gear)
@@ -494,7 +502,7 @@ explode(
                                           exploding_wand_typ);
 
                 mtmp = m_at(xx, yy);
-                if (!mtmp && u_at(xx, yy))
+                if (!mtmp && xx == hero_x && yy == hero_y)
                     mtmp = u.usteed;
                 if (!mtmp)
                     continue;

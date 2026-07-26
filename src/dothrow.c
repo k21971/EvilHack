@@ -1078,6 +1078,11 @@ mhurtle_step(genericptr_t arg, coordxy x, coordxy y)
     if (will_hurtle(mon, x, y) && m_in_out_region(mon, x, y)) {
         int res;
 
+        /* m_in_out_region transition callback may kill mon;
+           no current region triggers this, but guard against future ones */
+        if (DEADMONSTER(mon))
+            return FALSE;
+
         if (mon != u.usteed) {
             remove_monster(mon->mx, mon->my);
             newsym(mon->mx, mon->my);

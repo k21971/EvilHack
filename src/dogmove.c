@@ -1237,6 +1237,10 @@ dog_move(
     if (mtmp == u.usteed) {
         if (Conflict && !resist_conflict(mtmp)) {
             dismount_steed(DISMOUNT_THROWN);
+            /* the dismount can kill the steed outright - no landing
+               spot, or the hero standing over water or lava */
+            if (DEADMONSTER(mtmp))
+                return MMOVE_DIED;
             return MMOVE_MOVED;
         }
         udist = 1;
@@ -1649,6 +1653,10 @@ dog_move(
         }
         if (!m_in_out_region(mtmp, nix, niy))
             return MMOVE_MOVED;
+        /* m_in_out_region transition callback may kill mtmp;
+           no current region triggers this, but guard against future ones */
+        if (DEADMONSTER(mtmp))
+            return MMOVE_DIED;
         if (m_digweapon_check(mtmp, nix,niy))
             return MMOVE_NOTHING;
 
@@ -1709,6 +1717,10 @@ dog_move(
  dognext:
         if (!m_in_out_region(mtmp, nix, niy))
             return MMOVE_MOVED;
+        /* m_in_out_region transition callback may kill mtmp;
+           no current region triggers this, but guard against future ones */
+        if (DEADMONSTER(mtmp))
+            return MMOVE_DIED;
         remove_monster(mtmp->mx, mtmp->my);
         place_monster(mtmp, cc.x, cc.y);
         newsym(cc.x, cc.y);
@@ -1845,8 +1857,13 @@ quickmimic(struct monst *mtmp)
        rider taking on an unsuitable shape, but its message works fine
        for this and also avoids inflicting damage during forced dismount;
        do this before changing so that dismount refers to original shape */
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed) {
         dismount_steed(DISMOUNT_POLY);
+        /* the forced dismount can kill the former steed; the mimic
+           shape must not be applied through a dead monster */
+        if (DEADMONSTER(mtmp))
+            return;
+    }
 
     do {
         idx = rn2(SIZE(qm));

@@ -2382,6 +2382,10 @@ m_move(struct monst *mtmp, int after)
 
         if (!m_in_out_region(mtmp, nix, niy))
             return MMOVE_DONE;
+        /* m_in_out_region transition callback may kill mtmp;
+           no current region triggers this, but guard against future ones */
+        if (DEADMONSTER(mtmp))
+            return MMOVE_DIED;
 
         if ((mfp.info[chi] & ALLOW_ROCK) && m_can_break_boulder(mtmp)) {
             (void) m_break_boulder(mtmp, nix, niy);

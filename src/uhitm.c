@@ -990,8 +990,10 @@ hmon_hitmon_weapon_ranged(
         useup(obj);
         if (!more_than_1) {
             obj = (struct obj *) 0;
-            /* obj is gone; don't let the searing message use it */
+            /* obj is gone; don't let the searing message use it, and
+               tell our caller, whose copy of the pointer is now stale */
             hmd->hated_obj = (struct obj *) 0;
+            hmd->obj_gone = TRUE;
         }
         hmd->hittxt = TRUE;
         if (hmd->mdat != &mons[PM_SHADE])
@@ -1260,6 +1262,7 @@ hmon_hitmon_misc_obj(
             change_luck(-2);
             useup(obj);
             obj = (struct obj *) 0;
+            hmd->obj_gone = TRUE;
             hmd->unarmed = FALSE; /* avoid obj==0 confusion */
             hmd->get_dmg_bonus = FALSE;
             hmd->hittxt = TRUE;
@@ -1309,6 +1312,7 @@ hmon_hitmon_misc_obj(
         else                             \
             useupall(o);                 \
         o = (struct obj *) 0;            \
+        hmd->obj_gone = TRUE;            \
     } while (0) /* now gone */
     case EGG: {
         long cnt = obj->quan;
@@ -1445,8 +1449,10 @@ hmon_hitmon_misc_obj(
             else
                 useup(obj);
 
-            if (!more_than_1)
+            if (!more_than_1) {
                 obj = (struct obj *) 0;
+                hmd->obj_gone = TRUE;
+            }
         }
         hmd->hittxt = TRUE;
         hmd->get_dmg_bonus = FALSE;
@@ -1468,8 +1474,10 @@ hmon_hitmon_misc_obj(
             else
                 useup(obj);
 
-            if (!more_than_1)
+            if (!more_than_1) {
                 obj = (struct obj *) 0;
+                hmd->obj_gone = TRUE;
+            }
         }
         hmd->hittxt = TRUE;
         hmd->get_dmg_bonus = FALSE;
@@ -1490,8 +1498,10 @@ hmon_hitmon_misc_obj(
             else
                 useup(obj);
 
-            if (!more_than_1)
+            if (!more_than_1) {
                 obj = (struct obj *) 0;
+                hmd->obj_gone = TRUE;
+            }
         }
         hmd->hittxt = TRUE;
         hmd->get_dmg_bonus = FALSE;
@@ -1750,8 +1760,11 @@ hmon_hitmon_jousting(
         /* minor side-effect: broken lance won't split puddings */
         useup(obj);
         obj = (struct obj *) 0;
-        /* obj is gone; don't let the searing message use it */
+        /* obj is gone; don't let the searing message use it, and tell
+           our caller, whose own copy of the pointer is now stale --
+           'obj' here is a by-value parameter */
         hmd->hated_obj = (struct obj *) 0;
+        hmd->obj_gone = TRUE;
     }
     /* a wielded Harbinger or Giantslayer anchors the defender against
        the knockback */
@@ -1957,9 +1970,14 @@ hmon_hitmon(
     hmd.dryit = FALSE;
     hmd.doreturn = FALSE;
     hmd.retval = FALSE;
+    hmd.obj_gone = FALSE;
     hmd.saved_oname[0] = '\0';
 
     hmon_hitmon_do_hit(&hmd, mon, obj);
+    /* the hit may have used the object up; the helpers below it take obj
+       by value, so our own pointer is the one left dangling */
+    if (hmd.obj_gone)
+        obj = (struct obj *) 0;
     if (hmd.doreturn)
         return hmd.retval;
 
@@ -2004,6 +2022,10 @@ hmon_hitmon(
 
     if (hmd.jousting) {
         hmon_hitmon_jousting(&hmd, mon, obj);
+        /* a shattered lance was used up inside a by-value parameter, so
+           our own pointer is stale from here on */
+        if (hmd.obj_gone)
+            obj = (struct obj *) 0;
     } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj && !Upolyd) {
         hmon_hitmon_stagger(&hmd, mon, obj);
     } else if (!hmd.unarmed && hmd.dmg > 1 && !thrown && !Upolyd
@@ -2064,8 +2086,7 @@ hmon_hitmon(
        obj->opoisoned was cleared above and any message referring to
        "poisoned <obj>" has now been given; we want just "<obj>" for
        last message, so reformat while obj is still accessible */
-    if (hmd.unpoisonmsg) {
-        assert(obj != NULL);
+    if (hmd.unpoisonmsg && obj) {
         Strcpy(hmd.saved_oname, cxname(obj));
     }
 
@@ -2115,7 +2136,9 @@ hmon_hitmon(
                 pline("%s appears confused.", Monnam(mon));
         }
     }
-    if (hmd.unpoisonmsg)
+    /* nothing to report when the weapon itself is gone; the message that
+       destroyed it has already accounted for it */
+    if (hmd.unpoisonmsg && !hmd.obj_gone)
         Your("%s %s no longer poisoned.", hmd.saved_oname,
              vtense(hmd.saved_oname, "are"));
 

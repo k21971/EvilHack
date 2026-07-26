@@ -816,6 +816,10 @@ mount_steed(
     remove_monster(mtmp->mx, mtmp->my);
     teleds(mtmp->mx, mtmp->my, TELEDS_ALLOW_DRAG);
     disp.botl = TRUE;
+    /* riding a strong steed raises weight_cap(), which the persistent
+       inventory window prints; the status line refresh above does not
+       reach it */
+    update_inventory();
     return TRUE;
 }
 
@@ -856,7 +860,8 @@ kick_steed(void)
                 u.usteed->mfrozen -= 2;
             else {
                 u.usteed->mfrozen = 0;
-                u.usteed->mcanmove = 1;
+                if (!u.usteed->mstone || u.usteed->mstone > 2)
+                    u.usteed->mcanmove = 1;
             }
             if (helpless(u.usteed))
                 pline("%s stirs.", He);
@@ -1054,7 +1059,7 @@ dismount_steed(
         }
         break;
     case DISMOUNT_POLY:
-        You("can no longer ride %s.", mon_nam(u.usteed));
+        You("can no longer ride %s.", mon_nam(mtmp));
         if (!have_spot)
             have_spot = landing_spot(&cc, reason, 1);
         break;
@@ -1161,10 +1166,12 @@ dismount_steed(
             /* The steed may drop into water/lava */
             if (grounded(mdat)) {
                 if (is_pool(u.ux, u.uy)) {
-                    if (!Underwater)
-                        pline("%s falls into the %s!", Monnam(mtmp),
-                              surface(u.ux, u.uy));
+                    /* the dramatic message belongs to the steed that
+                       drowns; one that swims gets a neutral one */
                     if (!cant_drown(mdat)) {
+                        if (!Underwater)
+                            pline("%s falls into the %s!", Monnam(mtmp),
+                                  surface(u.ux, u.uy));
                         /* hero gets credit/blame only when player chose
                            to dismount; accidental drops are silent kills
                            with no XP, mirroring the no-room branch */
@@ -1177,11 +1184,14 @@ dismount_steed(
                         record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
                                                monsndx(mdat) + 1,
                                                ABUSE_HAZ_WATER);
+                    } else if (!Underwater) {
+                        pline("%s splashes into the %s.", Monnam(mtmp),
+                              surface(u.ux, u.uy));
                     }
                 } else if (is_lava(u.ux, u.uy)) {
-                    pline("%s is pulled into the %s!", Monnam(mtmp),
-                          hliquid("lava"));
                     if (!likes_lava(mdat)) {
+                        pline("%s is pulled into the %s!", Monnam(mtmp),
+                              hliquid("lava"));
                         if (reason == DISMOUNT_BYCHOICE)
                             killed(mtmp);
                         else
@@ -1280,6 +1290,10 @@ dismount_steed(
     /* polearms behave differently when not mounted */
     if (uwep && is_pole(uwep))
         gu.unweapon = TRUE;
+    /* weight_cap() drops back to the hero's own carrying capacity, so the
+       persistent inventory window needs the same refresh the status line
+       just got */
+    update_inventory();
     return;
 }
 
@@ -1297,7 +1311,10 @@ maybewakesteed(struct monst *steed)
         /* might break out of timed sleep or paralysis */
         if (!rn2(frozen)) {
             steed->mfrozen = 0;
-            steed->mcanmove = 1;
+            /* breaking out of sleep or paralysis must not undo the
+               paralysis of a steed that is turning to stone */
+            if (!steed->mstone || steed->mstone > 2)
+                steed->mcanmove = 1;
         } else {
             /* didn't awake, but remaining duration is halved */
             steed->mfrozen = frozen;

@@ -608,6 +608,9 @@ fix_worst_trouble(int trouble)
         break;
     case TROUBLE_SADDLE:
         otmp = which_armor(u.usteed, W_SADDLE);
+        /* the saddle can come off between in_trouble() and here */
+        if (!otmp)
+            break;
         if (!Blind) {
             pline("%s %s.", Yobjnam2(otmp, "softly glow"), hcolor(NH_AMBER));
             set_bknown(otmp, 1);

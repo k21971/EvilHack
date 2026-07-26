@@ -112,13 +112,19 @@ kickdmg(struct monst *mon, boolean clumsy)
         if (goodpos(mdx, mdy, mon, 0)) {
             pline("%s reels from the blow.", Monnam(mon));
             if (m_in_out_region(mon, mdx, mdy)) {
-                remove_monster(mon->mx, mon->my);
-                newsym(mon->mx, mon->my);
-                place_monster(mon, mdx, mdy);
-                newsym(mon->mx, mon->my);
-                set_apparxy(mon);
-                if (mintrap(mon, NO_TRAP_FLAGS) == Trap_Killed_Mon)
+                /* m_in_out_region transition callback may kill mon;
+                   suppress the duplicate killed() at function end */
+                if (DEADMONSTER(mon)) {
                     trapkilled = TRUE;
+                } else {
+                    remove_monster(mon->mx, mon->my);
+                    newsym(mon->mx, mon->my);
+                    place_monster(mon, mdx, mdy);
+                    newsym(mon->mx, mon->my);
+                    set_apparxy(mon);
+                    if (mintrap(mon, NO_TRAP_FLAGS) == Trap_Killed_Mon)
+                        trapkilled = TRUE;
+                }
             }
         }
     }

@@ -1637,13 +1637,18 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
     } else if (otmp == uchain) {
         unpunish(); /* frees uchain */
     } else {
-        boolean deadmimic, slimer, unsick;
+        boolean deadmimic, slimer, unsick, pyro_egg;
         int poly, grow, heal, eyes, mstone, vis = canseemon(mtmp);
         int corpsenm = (otmp->otyp == CORPSE ? otmp->corpsenm : NON_PM);
 
         deadmimic = (otmp->otyp == CORPSE && (corpsenm == PM_SMALL_MIMIC
                                               || corpsenm == PM_LARGE_MIMIC
                                               || corpsenm == PM_GIANT_MIMIC));
+        /* computed before delobj() frees otmp; note that corpsenm is
+           NON_PM for anything that is not a corpse, so this condition
+           cannot currently be true - whether a pyrolisk egg is meant to
+           go off when eaten is a separate question */
+        pyro_egg = (otmp->otyp == EGG && corpsenm == PM_PYROLISK);
         slimer = (otmp->otyp == GLOB_OF_GREEN_SLIME);
         unsick = (otmp->otyp == EUCALYPTUS_LEAF
                   && (mtmp->msick || mtmp->mdiseased));
@@ -1682,9 +1687,14 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
             healmon(mtmp, mtmp->mhpmax, 0);
         if ((eyes || heal) && !mtmp->mcansee)
             mcureblindness(mtmp, canseemon(mtmp));
-        if (ispet && deadmimic)
+        if (ispet && deadmimic) {
             quickmimic(mtmp);
-        if (otmp->otyp == EGG && corpsenm == PM_PYROLISK)
+            /* a pet steed taking on the mimic shape is dismounted first,
+               and that dismount can kill it */
+            if (DEADMONSTER(mtmp))
+                return;
+        }
+        if (pyro_egg)
             explode(mtmp->mx, mtmp->my, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0,
                     EXPL_FIERY);
         if (corpsenm != NON_PM)

@@ -604,6 +604,11 @@ struct _hitmon_data {
     struct obj *hated_obj; /* object whose material sears mon, or
                             * &zeroobj for the hero's own body; cleared
                             * if the object gets used up mid-hit */
+    boolean obj_gone;      /* the object was used up mid-hit (shattered
+                            * lance, splintered boomerang, broken mirror,
+                            * splattered egg or venom); the helpers take
+                            * it by value, so hmon_hitmon() must be told
+                            * to drop its own copy of the pointer */
     boolean lightobj;
     int material;
     int jousting;

@@ -1321,12 +1321,18 @@ m_lose_armor(
     struct obj *obj,
     boolean polyspot)
 {
+    /* stripping a saddle dismounts the hero, and that dismount can move
+       the former steed - to a spot found by enexto when an engulfer is
+       standing where it landed, or by rloc_to when the hero could not be
+       moved instead - so drop the armor where the wearer was */
+    coordxy mx = mon->mx, my = mon->my;
+
     extract_from_minvent(mon, obj, TRUE, FALSE);
-    place_object(obj, mon->mx, mon->my);
+    place_object(obj, mx, my);
     if (polyspot)
         bypass_obj(obj);
     /* call stackobj() if we ever drop anything that can merge */
-    newsym(mon->mx, mon->my);
+    newsym(mx, my);
 }
 
 /* clear bypass bits for an object chain, plus contents if applicable */
@@ -1600,6 +1606,10 @@ mon_break_armor(struct monst *mon, boolean polyspot)
     if (!can_saddle(mon)) {
         if ((otmp = which_armor(mon, W_SADDLE)) != 0) {
             m_lose_armor(mon, otmp, polyspot);
+            /* losing the saddle dismounts the hero, which can kill the
+               former steed; nothing below may speak for it */
+            if (DEADMONSTER(mon))
+                return;
             if (vis)
                 pline_mon(mon, "%s saddle falls off.", s_suffix(Monnam(mon)));
         }
@@ -1615,6 +1625,11 @@ mon_break_armor(struct monst *mon, boolean polyspot)
             Sprintf(buf, "falling off %s",
                     an(pmname(u.usteed->data, Mgender(u.usteed))));
             instapetrify(buf);
+            /* instapetrify() returns instead of ending the game when the
+               hero polymorphs into stone, and that polymorph dismounts
+               already, leaving nothing to dismount from here */
+            if (!u.usteed)
+                return;
         }
         dismount_steed(DISMOUNT_FELL);
     }
