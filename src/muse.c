@@ -3135,7 +3135,12 @@ find_misc(struct monst *mtmp)
             gm.m.has_misc = MUSE_POT_POLYMORPH;
         }
         nomore(MUSE_BAG);
-        if (Is_container(obj) && obj->otyp != BAG_OF_TRICKS && !rn2(5)
+        /* the two rare bags are excluded by otyp: a bag of treasure is
+           meant to stay sealed once a monster has one, and a bag of
+           devouring is a disposal unit that should never be rummaged */
+        if (Is_container(obj) && obj->otyp != BAG_OF_TRICKS
+            && obj->otyp != BAG_OF_TREASURE
+            && obj->otyp != BAG_OF_DEVOURING && !rn2(5)
             && !SchroedingersBox(obj)
             && !gm.m.has_misc && Has_contents(obj)
             && !obj->olocked && !obj->otrapped) {

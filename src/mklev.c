@@ -1955,15 +1955,25 @@ mktrap_victim(struct trap *ttmp)
            by a dead adventurer, bones-pile-style) and for balance
            (less useful to use, and encourage pets to avoid the trap) */
         otmp = mkobj(poss_class, FALSE);
-        curse(otmp);
-        /* for mktrap_victim(), PIT is actually an exploded LANDMINE */
-        if (ttmp->ttyp == PIT && breaktest(otmp)) {
-            /* landmine: if fragile object has been created, destroy it;
-               don't worry about non-empty containers--they aren't
-               breakable--nor about breakable contents of such */
-            dealloc_obj(otmp);
+        /* bags of treasure/devouring must never seed here; both are
+           meant to stay extremely rare, and this drop always curses
+           what it places, so a cursed bag of devouring would be an
+           early-game instadeath on a drop whose purpose is mercy */
+        if (otmp->otyp == BAG_OF_TREASURE
+            || otmp->otyp == BAG_OF_DEVOURING) {
+            obfree(otmp, (struct obj *) 0);
+            otmp = (struct obj *) 0;
         } else {
-            place_object(otmp, x, y);
+            curse(otmp);
+            /* for mktrap_victim(), PIT is actually an exploded LANDMINE */
+            if (ttmp->ttyp == PIT && breaktest(otmp)) {
+                /* landmine: if fragile object has been created, destroy it;
+                   don't worry about non-empty containers--they aren't
+                   breakable--nor about breakable contents of such */
+                dealloc_obj(otmp);
+            } else {
+                place_object(otmp, x, y);
+            }
         }
 
         /* 20% chance of placing an additional item, recursively */

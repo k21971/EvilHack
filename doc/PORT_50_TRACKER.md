@@ -979,7 +979,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       port report): Goblin Town gates (makemon/shknam
       TODO-EVILHACK markers), create_oprop sites (oprops = next
       big unlock; direct ITEM_* assignments already ported and
-      saved), m_stash_items + container AI, setmnotwielded2
+      saved), m_stash_items + container AI (WHEN PORTED it must
+      exclude BAG_OF_TREASURE and BAG_OF_DEVOURING explicitly -
+      m_stash_items runs at creation, so Croesus would otherwise
+      stash straight into his own guaranteed bag; noted by the
+      bags slice 2026-07-26), setmnotwielded2
       dual-wield drop, mon_bimanual, big_wings W_ARM, monster
       ring-wearing (extra_pref rework, W_RINGL/R, Nazgul ring,
       cursed_glove gating), armor_bonus/material_bonus AC.
@@ -1333,7 +1337,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wizterrainwish flags=0 + counter guard improve on master.
       DEFERRED (item -> subsystem): monster container looting
       (mpickstuff/likes_contents/m_move mchest splice/muse
-      MAGIC_KEY pickup - one TODO in mon.c), iron safes
+      MAGIC_KEY pickup - one TODO in mon.c; WHEN PORTED both the
+      mpickstuff arm and m_move's `|| Is_container(otmp)` clause
+      must exclude BAG_OF_TREASURE and BAG_OF_DEVOURING, since a
+      cursed treasure bag weighs its contents x10 and so makes
+      !can_carry true, which is exactly the crack-it-open case -
+      TODO-EVILHACK markers left at both sites by the bags slice
+      2026-07-26), iron safes
       (generation arms + stethoscope cracking + lock_action
       flavor), magic detection (marker above), cursed-tool
       break, Is_container range to BAG_OF_DEVOURING (bags
@@ -5292,7 +5302,143 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       returns 0 for every candidate; the differential only appears
       on branches and levels that declare an alignment. Kept
       verbatim as master parity.
-- [ ] Bag of treasure/devouring rules; #tip interactions
+- [x] Bag of treasure/devouring rules; #tip interactions
+      DONE 2026-07-26 (maintainer commit pending): include/obj.h +
+      src/pickup.c + src/mkobj.c + src/mklev.c + src/apply.c +
+      src/muse.c + src/mon.c + src/monmove.c. Ports master 417f2c972
+      (feature) with f57302ef0 (mktrap exclusion) folded in, per the
+      maintainer's one-commit ruling. Design spec was already written:
+      FEATURES_ARCHIVE.md "Bag of Treasure and Bag of Devouring"
+      (May 18 2026) plus the topic memory - this slice made it true.
+      STARTING STATE WAS WORSE THAN "UNPORTED", which is the reusable
+      part: Phase 1 had landed the two OBJECTS and the Croesus grant
+      in makemon.c, but Is_container() stopped at BAG_OF_TRICKS and
+      both bags sort after it, so they were NOT CONTAINERS AT ALL.
+      Producer live, consumer absent - Croesus reliably dropped a
+      "bag" that could not be opened, filled or used, and random
+      generation and mktrap_victim could place one too. Same shape as
+      P_THIEVERY being a dead skill before the #steal slice; no BUG
+      id, since this is the normal unported state the row existed to
+      close. The magic-chest slice had already predicted the work,
+      its own deferral list naming "Is_container range to
+      BAG_OF_DEVOURING (bags slice)".
+      PREREQUISITE SWEEP found nothing blocking but three absent
+      pools, and getting that right mattered more than the port:
+      is_treasure_item() and Is_allbag were missing and are added
+      here; the wish-parser class-word exception ("bag of devou-RING"
+      parsing as a ring, a real master bug) was ALREADY PRESENT and
+      5.0 has no second name_to_otyp() chain; but m_stash_items() is
+      a whole unported subsystem, 5.0's mpickstuff() has no
+      floor-container looting arm, and 5.0's m_move() object-seek has
+      plain can_carry with no `|| Is_container(otmp)`. The archive's
+      three demanded monster-AI exclusions therefore COULD NOT BE
+      WRITTEN - you cannot exclude from a function that is not there.
+      Recorded as riders on the two existing deferred rows above plus
+      TODO-EVILHACK markers at both live sites, per maintainer ruling.
+      TWO DIVERGENCES RESTORED ON PROVENANCE (vanilla@44b6612fd ==
+      5.0 != master, the reverted-EvilHack-tweak signature): the
+      maintainer ruled mbag_explodes() back to master's unconditional
+      form (5.0 kept vanilla's depth-graduated odds; the divergence is
+      only observable 2+ containers deep, since depth 0 and 1 always
+      explode in both), and I applied the same ruling without
+      re-asking to the sibling makeknown() block for the item that
+      triggers a bag-of-holding explosion - same triple, and two of
+      its four otyps are the new bags. The reviewer independently
+      re-derived the provenance for that second call and confirmed it.
+      REVIEW CAUGHT WHAT THE PORT AND I BOTH MISSED, and both findings
+      came from the Is_container widening rather than the port itself:
+      (a) BUG-1385, hornoplenty()'s tip-into arm is an unguarded
+      add_to_container with no type check at all, so a horn of plenty
+      tipped into a bag of treasure filled it with food at the /4
+      weight discount and into a bag of devouring gave that bag
+      PERSISTENT CONTENTS the design says are impossible - live on
+      master too, since master's tip-target filter is
+      Is_nonprize_container and master's Is_container already covers
+      both bags; archived master frozen-unfixed, fixed here.
+      (b) 5.0 has a FOURTH monster pool the archive could not have
+      named because MASTER DOES NOT HAVE IT: find_misc()'s MUSE_BAG
+      selector (src/muse.c) keys on Is_container() with only
+      BAG_OF_TRICKS excluded, and 5.0's searches_for_item() is a
+      RANGE test where master's is an otyp WHITELIST - so a monster
+      that picked up or stole a filled bag of treasure would
+      mloot_container() it empty, breaking the archive's stated
+      "it then stays sealed" invariant. Both otyps now excluded there.
+      LESSON: the archive's exclusion list was written against
+      master's pools and is not sufficient for this tree - when a
+      range macro is widened, re-derive the consumer set on the
+      BRANCH rather than porting master's exclusion list.
+      FOUR MORE FIXES from review and battery: the devour message
+      hardcoded "is" and read "The rocks is devoured" (all three sites
+      now otense(obj, "are")); mkbox_cnts()'s magic-bag substitution
+      when filling a randomly generated bag of holding is keyed on
+      Is_mbag, which deliberately excludes both new bags - my slice is
+      what made them detonate a bag of holding, so seeding one inside
+      became a forbidden state and the substitution now catches them;
+      mktrap_victim nulls otmp after obfree, matching master; Is_mbag
+      comment corrected to mention both bags.
+      HONEST NEGATIVE, and it corrects a reviewer claim as well as
+      mine: the mkbox_cnts fix guards an UNREACHABLE path. The battery
+      read boxiprobs[] (src/mkobj.c) and found it carries no
+      TOOL_CLASS at all, so a bag-of-holding content draw can never be
+      a tool - measured 0 tool-class contents in 10000 filled bags.
+      The pre-fix rate is 0, not the ~1/995 I briefed, and the
+      PRE-EXISTING Is_mbag clause beside it is equally unreachable.
+      Kept anyway for consistency with that clause and proven correct
+      by forcing the branch (13/13 forced draws became SACK), but it
+      is defensive code, not a live fix - do not cite it as one.
+      VERIFICATION: reviewer CONDITIONAL PASS (every finding fixed),
+      which also audited the tipcontainer() restructure - the riskiest
+      edit, converting the branch's `if (targetbox) / else if
+      (highdrop) / else` chain to master's to_floor form - and found
+      every object takes exactly one terminal path with no leak,
+      double-free or double-extract, the to_floor latch placed before
+      the explosion arm nulls targetbox being the load-bearing detail.
+      Battery 10/10 PASS then a 5-fix re-verify 5/5 PASS plus
+      regressions, paniclog never created in either run. Headline
+      evidence: 12/12 forced Croesus creations carried exactly one bag
+      and it is now a working container; 40000 mktrap_victim calls
+      produced 13462 tool draws and ZERO bags against ~21 expected
+      unguarded; all four beatitude functions reweighed a LOADED bag
+      immediately (x10/x1//4//8 confirmed by gdb and by dipping in
+      holy water); 199 evaluations of a contents-bearing treasure bag
+      in monster minvent produced 0 MUSE_BAG selections while ordinary
+      sacks still drew 54, proving the fix is narrow.
+      THE BATTERY FALSIFIED THREE MORE OF MY PREMISES (fifth and sixth
+      slice running): the wish exception is in readobjnam_postparse1()
+      not readobjnam_parse_charges() as I briefed - and the tester
+      proved the guard load-bearing rather than vestigial by wishing
+      "bag of vouring", which still ends in "ring" and duly produced a
+      wooden ring; obj_resists(o,0,0) gives ARTIFACTS zero protection,
+      so Excalibur is permanently destroyed by a bag of devouring
+      (master parity, recorded not changed), and four of the six
+      obj_resists items plus the Infidel quest artifact are caught by
+      in_container's earlier "cannot be confined in such trappings"
+      branch, leaving "refuses to devour" reachable via #loot only by
+      a Rider corpse (the #tip path has no such earlier branch, so it
+      fires normally there); and the amulet of life saving can NEVER
+      be the rescue at the devour-you-whole site, because the death
+      branch requires zero eligible items while the amulet is always
+      eligible and is eaten first - structurally mutually exclusive.
+      The tester substituted the Draugr racial LIFESAVED intrinsic and
+      proved done(DIED) does honor life saving there, livelog
+      recording "averted death (eaten by a bag of devouring)".
+      MASTER PARITY, DO NOT "FIX": the first devour or refusal message
+      in a game names the bag by its unidentified description, because
+      xname(targetbox) is formatted before makeknown() runs; put-in
+      says "only accepts gold and gems" while tip and horn say "only
+      holds", both being master's own strings; oc_nowish blocks only
+      non-wizard wishes, so wizmode wishing works by design.
+- [ ] Object-lore display: master's add_obj_info() (NEW, minted
+      2026-07-26 by the bags slice, which needed one line of it).
+      Master's src/pager.c carries a 557-line add_obj_info()
+      (1322-1879) called from its `/` lookup, printing per-object
+      lore: damage, to-hit, material, weight, container subclass,
+      erosion, and so on. NOTHING of it exists on the branch - the
+      whole subsystem is unported and was never on any checklist.
+      Found because master classifies the two new bags as subclass
+      "container" there and I went looking for the branch counterpart.
+      No dependency either way with the bags, which is why that one
+      line is simply N/A rather than deferred.
 - [ ] Steed/saddle/barding architecture (memory file)
       (+ master mhitu.c steed-retaliation acceptable_pet_target
       sites; + master skill_init centaur/tortle riding + tortle

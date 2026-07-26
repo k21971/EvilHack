@@ -1728,6 +1728,13 @@ m_search_items(
                 if (costly && !otmp->no_charge)
                     continue;
 
+                /* TODO-EVILHACK: master ORs `|| Is_container(otmp)` into
+                   the can_carry test here, so a monster will walk to a
+                   container it cannot lift in order to crack it open.
+                   Porting that arm must exclude BAG_OF_TREASURE and
+                   BAG_OF_DEVOURING, which master's own arm does; a
+                   cursed bag of treasure weighs its contents x10, so
+                   !can_carry is exactly the case a dropped one hits */
                 if (((mon_would_take_item(mtmp, otmp)
                       && (can_carry(mtmp, otmp) > 0))
                      || mon_would_consume_item(mtmp, otmp))

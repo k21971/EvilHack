@@ -2095,7 +2095,13 @@ mpickstuff(struct monst *mtmp)
        magic chest into this walk and into m_move's goal search
        (likes_contents), and has searches_for_item() cover keys so
        monsters pick them up; port all of that together as the
-       monster-container-looting slice */
+       monster-container-looting slice.
+       WHEN THAT LANDS it must exclude BAG_OF_TREASURE and
+       BAG_OF_DEVOURING explicitly, as master's own arm does: they are
+       Is_container() and merely being TOOL_CLASS is not enough to keep
+       them out, and a cursed bag of treasure weighs its contents x10,
+       which makes !can_carry true and so routes a dropped one straight
+       into the crack-it-open path */
 
     /* prevent shopkeepers from leaving the door of their shop */
     if (mtmp->isshk && inhishop(mtmp))

@@ -420,7 +420,11 @@ mkbox_cnts(struct obj *box)
                     otmp->owt = weight(otmp);
                 }
             if (box->otyp == BAG_OF_HOLDING) {
-                if (Is_mbag(otmp)) {
+                /* the two rare bags detonate a bag of holding on
+                   contact, so they must not be seeded inside one
+                   either; Is_mbag deliberately excludes them */
+                if (Is_mbag(otmp) || otmp->otyp == BAG_OF_TREASURE
+                    || otmp->otyp == BAG_OF_DEVOURING) {
                     otmp->otyp = SACK;
                     otmp->spe = 0;
                     otmp->owt = weight(otmp);
@@ -1911,7 +1915,8 @@ bless(struct obj *otmp)
     otmp->blessed = 1;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING)
+    else if (otmp->otyp == BAG_OF_HOLDING
+             || otmp->otyp == BAG_OF_TREASURE)
         otmp->owt = weight(otmp);
     else if (otmp->otyp == FIGURINE && otmp->timed)
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(otmp));
@@ -1930,7 +1935,8 @@ unbless(struct obj *otmp)
     otmp->blessed = 0;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING)
+    else if (otmp->otyp == BAG_OF_HOLDING
+             || otmp->otyp == BAG_OF_TREASURE)
         otmp->owt = weight(otmp);
     if (otmp->lamplit)
         maybe_adjust_light(otmp, old_light);
@@ -1959,7 +1965,8 @@ curse(struct obj *otmp)
     /* some cursed items need immediate updating */
     if (carried(otmp) && confers_luck(otmp)) {
         set_moreluck();
-    } else if (otmp->otyp == BAG_OF_HOLDING) {
+    } else if (otmp->otyp == BAG_OF_HOLDING
+               || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
     } else if (otmp->otyp == FIGURINE) {
         if (otmp->corpsenm != NON_PM && !dead_species(otmp->corpsenm, TRUE)
@@ -1985,7 +1992,8 @@ uncurse(struct obj *otmp)
     otmp->cursed = 0;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING)
+    else if (otmp->otyp == BAG_OF_HOLDING
+             || otmp->otyp == BAG_OF_TREASURE)
         otmp->owt = weight(otmp);
     else if (otmp->otyp == FIGURINE && otmp->timed)
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(otmp));
@@ -2169,6 +2177,10 @@ weight(struct obj *obj)
             cwt = obj->cursed ? (cwt * 2)
                   : obj->blessed ? ((cwt + 3) / 4)
                     : ((cwt + 1) / 2); /* uncursed */
+        else if (obj->otyp == BAG_OF_TREASURE)
+            cwt = obj->cursed ? (cwt * 10)
+                  : obj->blessed ? ((cwt + 7) / 8)
+                    : ((cwt + 3) / 4); /* uncursed */
 
         return wt + cwt;
     }
@@ -3181,6 +3193,32 @@ hornoplenty(
                                           : "Oops!  %s to the floor!",
                                       The(aobjnam(obj, "slip")), (char *) 0);
             nhUse(obj);
+        } else if (targetbox
+                   && targetbox->otyp == BAG_OF_DEVOURING) {
+            /* the horn's output is food and drink; a bag of devouring
+               destroys it rather than storing it, exactly as if it had
+               been put in by hand */
+            pline("%s %s devoured by %s!", The(xname(obj)),
+                  otense(obj, "are"), the(xname(targetbox)));
+            makeknown(BAG_OF_DEVOURING);
+            obfree(obj, (struct obj *) 0);
+        } else if (targetbox
+                   && targetbox->otyp == BAG_OF_TREASURE
+                   && !is_treasure_item(obj)) {
+            /* a bag of treasure holds only gold and gems, so the horn's
+               output spills to the floor instead of being stored */
+            pline("%s only holds gold and gems.", The(xname(targetbox)));
+            makeknown(BAG_OF_TREASURE);
+            if (!can_reach_floor(TRUE)) {
+                hitfloor(obj, TRUE);
+            } else {
+                if (IS_ALTAR(levl[u.ux][u.uy].typ))
+                    doaltarobj(obj);
+                else
+                    pline("%s %s to the %s.", Doname2(obj),
+                          otense(obj, "drop"), surface(u.ux, u.uy));
+                dropy(obj);
+            }
         } else if (targetbox) {
             add_to_container(targetbox, obj);
             /* add to container doesn't update the weight */
