@@ -5141,7 +5141,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       means the failure mode when the limit IS hit is a silent
       stack smash rather than the intended panic. Worth fixing in
       the same slice as the bump.
-- [ ] Halloween undead generation bonus (NEW, minted 2026-07-26 by
+- [x] Halloween undead generation bonus (NEW, minted 2026-07-26 by
       the A_NONE fix, a sibling gap in the same function).
       Master's rndmonst_adj() carries
       `if (is_undead(ptr) && halloween()) weight *= 3;` right after
@@ -5150,6 +5150,133 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       EvilHack feature rather than a one-line add - deliberately
       NOT smuggled into the A_NONE bug fix. Check whether master's
       halloween() lives in hacklib.c and what else calls it.
+      DONE 2026-07-26 (maintainer commit pending): include/extern.h
+      + src/calendar.c + src/allmain.c + src/makemon.c, 24 added
+      lines. Origin is master 76eacd0b1 ("Refactor rndmonst()."),
+      whose message calls the feature a long-standing IRC joke:
+      on 31 October undead spawn at triple weight and the player is
+      told so at every game load, "just like when there's a
+      full/new moon".
+      SCOPE ANSWERED, both halves of the row's question: master's
+      halloween() is in src/hacklib.c, and there are exactly TWO
+      callers, both from that same commit - the rndmonst_adj()
+      weight and a load notice in allmain.c. A case-insensitive
+      sweep of all of master (src/, include/, dat/, doc/) turns up
+      nothing else; the only other hits are "shallow" and
+      "hallowed". Reviewer independently re-ran the sweep and
+      agreed.
+      THE HELPER MOVED HOUSE: 5.0 extracted the date routines from
+      hacklib.c into src/calendar.c, and the three EvilHack birthday
+      helpers (kathryn_bday/bourbon_bday/ozzy_bday) were ported
+      there at some earlier slice - halloween() is the ONLY one of
+      master's date helpers that was missed. Master's body uses
+      getmday()/getmonth(), which 5.0 dropped and the branch does
+      not have, so the port uses the single-getlt() idiom its three
+      siblings in that file already use. That INCIDENTALLY FIXES a
+      latent master defect worth recording but not, on its own,
+      worth a BUG id: master's getmday()+getmonth() pair is two
+      independent time()+localtime() calls, so the predicate can
+      straddle midnight and read tm_mday from Oct 31 against tm_mon
+      from Nov 1. Consequence is only that the feature fails to fire
+      inside a sub-millisecond window, and master's three bday
+      helpers share the shape. Raise it with the maintainer if the
+      frozen-unfixed list is ever swept for completeness.
+      TWO DELIBERATE DEVIATIONS FROM MASTER, both maintainer-ruled
+      at plan time:
+      1. The x3 goes AFTER `weight += temperature_shift(ptr);`, an
+         upstream 5.0 term master lacks, so it triples the FINAL
+         weight rather than master's freq+align subtotal. There is
+         no master position to be faithful to. Reviewer bounded the
+         observable scope: svl.level.flags.temperature is set in
+         only three places (mklev.c In_hell, one cold hellfill.lua
+         fill, dat/fire.lua), and since temperature > 0 needs
+         MR_FIRE while nearly every undead is MR_COLD, the
+         deviation bites only for master lich / arch-lich in
+         default Gehennom and for most undead on the one cold
+         hellfill variant. Battery proved the +3 is inside the
+         multiply: orc zombie 4 -> 12 at temperature -1.
+      2. halloween() is HOISTED into a `hallow` local assigned after
+         the qt_montype() early return, not called per candidate.
+         Master paid up to 54 calls per rndmonst_adj(), each of
+         which was TWO localtime()s via getmday()+getmonth(), so
+         ~108; the branch pays 1. Reviewer's one LOW note: the
+         hoist is unconditional, so it pays that 1 call on the
+         ~364/365 of the year the answer is FALSE and on calls
+         where no undead is even a candidate, where master's
+         short-circuit paid 0. Still a large net win, rndmonst_adj()
+         is not hot, and lazy assignment would reintroduce the
+         definite-assignment question the hoist removes. Left as is.
+      MASTER PARITY, DO NOT "FIX": the notice prints on RESTORE as
+      well as new game (it sits outside `if (!resuming)`, like the
+      moon-phase and Friday-13th notices, and master's commit
+      message says that is the intent); halloween() is evaluated
+      LIVE rather than cached into flags at game start the way
+      flags.moonphase and flags.friday13 are, so a session running
+      past midnight into 1 November loses the bonus mid-game -
+      caching it would mean a save-format field for no benefit.
+      GUARD HEADROOM, and the corrected number: the x3 cannot trip
+      either arm of `weight < 0 || weight > 127`. All three addends
+      are individually non-negative - maligntyp spans exactly -20
+      .. 20 across all 562 records (plus A_NONE, normalised by
+      54f3f27e6, so the two commits compose), which pins
+      align_shift() to 0..5; temperature_shift() is 0 or 3; G_FREQ
+      is 0..5 in the data. My plan quoted a 39 ceiling; THE BATTERY
+      CORRECTED IT TO 27, because 39 assumed a G_FREQ-5 undead and
+      the highest frequency among the 54 undead records is 2
+      (wraith, skeleton) - verified independently. Reviewer adds
+      that the G_FREQ MASK is 0x0007, so a future freq-6/7 monster
+      would raise the ceiling to 45, still unreachable. Highest
+      weight actually observed across 1348 instrumented samples: 15.
+      AFFECTED SET IS AT PARITY: is_undead() and
+      MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE) are byte-identical
+      between the trees, and both carry the same 54 records
+      (12 MH_ZOMBIE + 42 MH_UNZOMBIE). Reviewer diffed the NAME
+      sets, not just the counts, and they match.
+      BATTERY 6/6 PASS (game-tester agent, 2 games), paniclog NEVER
+      CREATED, and a breakpoint armed on the impossible() call
+      itself never fired. Headline evidence: notice byte-identical
+      on both the new-game and restore paths; on Dlvl 20 with
+      align_shift 0, all 33 undead candidates went to exactly 3x and
+      all 304 non-undead were unchanged, zero mismatches either way;
+      10,000 direct rndmonst() returns went 7.68% -> 20.17% undead
+      on Dlvl 20 and 8.06% -> 20.67% on Dlvl 14, against 7.59% ->
+      19.77% predicted by the weight table; the quest arm hit
+      qt_montype() 19 times in 20 and reached the weighted loop
+      once, consistent with rn2(7), confirming the early return
+      never reads `hallow`. Reviewer PASS, no critical/high/medium.
+      THE BATTERY CORRECTED TWO PREMISES IN MY OWN BRIEF, which is
+      the reusable part: (a) rndmonst() does NOT touch
+      mvitals[].born - born is incremented inside makemon()
+      (src/makemon.c), so "force several hundred rndmonst() calls
+      and compare born" cannot work as written; the tester reported
+      both a direct tally of rndmonst()'s return value AND born
+      deltas driven by real makemon() calls, which is the better
+      pair of metrics. (b) the 27-vs-39 ceiling above. Third slice
+      running where the tester checked the brief's premise instead
+      of trusting it.
+      STAGING RECIPE FOR ANY FUTURE DATE-GATED FEATURE, since this
+      is the first one tested on the branch: faketime and datefudge
+      are NOT installed on this host and no TZ value can turn one
+      month into another, so the date must be forced in gdb. The
+      obvious technique - a breakpoint inside halloween() with
+      `return 1` or a `set var` on the tm struct - IS UNUSABLE
+      alongside gdb inferior calls: any breakpoint inside a
+      gdb-called function aborts the evaluation ("stopped while in
+      a function called from GDB"), leaves a dangling dummy frame,
+      and killed one test game outright. What worked was a 4-byte
+      in-memory text patch NOPing halloween()'s two branch-out jnes
+      so control always falls into `mov $0x1,%eax` while getlt() is
+      still called normally (binary is non-PIE, so file addresses
+      are runtime addresses), verified each time with
+      `print halloween()` and confirmed side-effect-free against
+      friday_13th() and yyyymmdd().
+      NOTE ON THE PORTED COMMENT: master's "chaotic-aligned levels
+      will see a greater increase than lawful/neutral" is accurate
+      as written but has no effect in the Dungeons of Doom, where
+      svd.dungeons[0].flags.align is AM_NONE and align_shift()
+      returns 0 for every candidate; the differential only appears
+      on branches and levels that declare an alignment. Kept
+      verbatim as master parity.
 - [ ] Bag of treasure/devouring rules; #tip interactions
 - [ ] Steed/saddle/barding architecture (memory file)
       (+ master mhitu.c steed-retaliation acceptable_pet_target

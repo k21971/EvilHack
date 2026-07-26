@@ -338,6 +338,7 @@ extern char *yyyymmddhhmmss(time_t) NONNULL;
 extern time_t time_from_yyyymmddhhmmss(char *);
 extern int phase_of_the_moon(void);
 extern boolean friday_13th(void);
+extern boolean halloween(void);
 extern int night(void);
 extern int midnight(void);
 extern boolean kathryn_bday(void);

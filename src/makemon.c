@@ -3645,7 +3645,7 @@ rndmonst_adj(int minadj, int maxadj)
     struct permonst *ptr;
     int mndx;
     int weight, totalweight, selected_mndx, zlevel, minmlev, maxmlev;
-    boolean elemlevel, upper;
+    boolean elemlevel, upper, hallow;
 
     if (u.uz.dnum == quest_dnum && rn2(7) && (ptr = qt_montype()) != 0)
         return ptr;
@@ -3655,6 +3655,9 @@ rndmonst_adj(int minadj, int maxadj)
     maxmlev = monmax_difficulty(zlevel) + maxadj;
     upper = Is_rogue_level(&u.uz); /* prefer uppercase only on rogue level */
     elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz); /* elmntl plane */
+    /* checked once here rather than per candidate; the date cannot
+       meaningfully change partway through a single selection pass */
+    hallow = halloween();
 
     /* amount processed so far */
     totalweight = 0;
@@ -3689,6 +3692,13 @@ rndmonst_adj(int minadj, int maxadj)
          */
         weight = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
         weight += temperature_shift(ptr);
+
+        /* adjust rate at which the undead spawn on Halloween,
+           chaotic-aligned levels will see a greater increase
+           than lawful/neutral */
+        if (is_undead(ptr) && hallow)
+            weight *= 3;
+
         if (weight < 0 || weight > 127) {
             impossible("bad weight in rndmonst for mndx %d", mndx);
             weight = 0;

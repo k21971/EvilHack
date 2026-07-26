@@ -67,6 +67,10 @@ moveloop_preamble(boolean resuming)
         pline("Watch out!  Bad things can happen on Friday the 13th.");
         change_luck(-1);
     }
+    if (halloween()) {
+        pline("Beware the Undead, for they roam the Dungeons of Doom"
+              " on All Hallows' Eve!");
+    }
 
     if (!resuming) { /* new game */
         program_state.beyond_savefile_load = 1; /* for TTY_PERM_INVENT */

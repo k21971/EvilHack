@@ -210,6 +210,15 @@ friday_13th(void)
     return (boolean) (lt->tm_wday == 5 && lt->tm_mday == 13);
 }
 
+/* the undead roam the dungeon in greater numbers on All Hallows' Eve */
+boolean
+halloween(void)
+{
+    struct tm *lt = getlt();
+
+    return (boolean) (lt->tm_mday == 31 && lt->tm_mon + 1 == 10);
+}
+
 int
 night(void)
 {
