@@ -4996,10 +4996,94 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       37 monster records declared A_NONE against upstream's 1,
       so upstream never trips a guard EvilHack's monster set trips
       constantly. A Phase 1 data-meets-upstream-code collision.
-      Decide between clamping align_shift()'s input, excluding
-      A_NONE from the alignment term, or revisiting the 37
-      records; whichever is chosen, check the same maligntyp
-      arithmetic in every other consumer before closing.
+      FIXED + BATTERY PASSED 2026-07-26 (maintainer commit
+      pending), src/makemon.c only, 11 insertions.
+      THE FRAMING ABOVE WAS HALF WRONG AND THE CORRECTION IS THE
+      USEFUL PART: this was not a judgement call between three
+      options, it was an UNPORTED MASTER FIX. Master's
+      align_shift() has always opened with
+      `aligntyp ma = (ptr->maligntyp == A_NONE) ? -3 :
+      ptr->maligntyp;` and used `ma` in all three arms; the Phase 0
+      tree adoption took upstream's version, which reads
+      ptr->maligntyp directly, and the guard was lost. So the fix
+      is master parity, not invention. Shifts go from -13/-27/+18
+      to 2/4/2 (lawful/neutral/chaotic).
+      SECOND SYMPTOM, silent, which the paniclog could never have
+      revealed: on a CHAOTIC level the same arithmetic yields
+      +18, so those species were generated at weight ~19 against
+      every other monster's 1-5. No message, just over-generation.
+      Only gdb on align_shift() proves that half.
+      LIVE SET IS THREE SPECIES, not 37: of the 37 A_NONE records,
+      23 are G_NOGEN/G_UNIQ and filtered by uncommon(); of the
+      remaining 14, twelve are G_HELL, and uncommon() filters those
+      outside Gehennom while Gehennom itself is unaligned - so they
+      never see a non-zero shift either. The live set is exactly
+      amorous demon, weredemon and infidel, matching the three mndx
+      values the battery reported. That is also why master's -3
+      remains the right value despite master's comment ("the only
+      randomly generated A_NONE monster is the infidel")
+      undercounting the records - the branch comment states the
+      accurate version.
+      SWEEP DONE: every other maligntyp consumer on the branch
+      (artifact.c, minion.c, dothrow.c, mplayer.c, priest.c,
+      pray.c, mon.c, spell.c, trap.c, wizard.c, restore.c and the
+      rest of makemon.c) uses sgn(), an ==/!= comparison or a plain
+      assignment. align_shift() held the only arithmetic that can
+      underflow. sgn(A_NONE) reading as chaotic is master-parity
+      and is not part of this bug.
+      BATTERY 7/7 PASS (game-tester agent, 2 games; paniclog file
+      NEVER CREATED, against 45 lines from a single Oracle
+      generation pre-fix). Proofs: 3000 rndmonst_adj passes on the
+      neutral Oracle level with zero paniclog lines; gdb
+      align_shift(&mons[PM_INFIDEL]) = 4 neutral / 2 chaotic
+      (medusa) / 2 lawful (forced field, restored and read back);
+      ordinary species unchanged and still ordered correctly
+      (Archon 4 lawful vs 0 chaotic, hill orc 2 lawful vs 3
+      chaotic); Gehennom a no-op at 0; and all three live species
+      selectable again at weight 5 where pre-fix they clamped to 0
+      and could never be randomly generated at all.
+      BATTERY ALSO FOUND THE BUG THAT WAS MASKING THIS ONE - see
+      the dungeon-alignment row below. Fixing them in this order
+      was lucky rather than clever: had the alignment bug been
+      fixed first, the A_NONE spam would have widened from two
+      special levels to whole dungeons.
+- [ ] Dungeon alignments never reach runtime (NEW, minted
+      2026-07-26 by the A_NONE battery, which surveyed
+      svd.dungeons[] to check its own premise and found every
+      dungeon reporting align 0). UPSTREAM 5.0 BUG, live on the
+      branch, NOT branch-introduced - see the upstream-reportable
+      table.
+      MECHANISM: get_dgn_align() returns D_ALIGN_* values, which
+      dgn_file.h defines as `AM_* << 4`, and dungeon.c assigns one
+      straight into `svd.dungeons[dngidx].flags.align`, which
+      dungeon.h declares `Bitfield(align, 3)`. AM_LAWFUL << 4 = 64
+      into three bits = 0. The LEVEL path in the same file gets it
+      right (`((tlevel->flags & D_ALIGN_MASK) >> 4)`), and master,
+      whose dgn_comp-era parser used a >> 9 shift, carries the
+      comment "bit shift needs to match that in include/dgn_file.h"
+      at exactly this assignment. 5.0's Lua rewrite kept the shift
+      on the level path and dropped it on the dungeon path.
+      CONSEQUENCE: every dungeon-wide alignment in dat/dungeon.lua
+      is silently discarded. Runtime survey: all 9 dungeons align 0
+      although the file declares Gnomish Mines lawful, Sokoban and
+      The Quest neutral and Vlad's Tower chaotic; only the oracle
+      (neutral), medusa (chaotic) and tut-1/tut-2 (chaotic) SPECIAL
+      LEVELS carry alignment at all. So monster generation
+      frequency is alignment-blind across whole dungeons, and any
+      other consumer of dungeon alignment is too - check them all
+      when fixing.
+      WORTH KNOWING WHEN SCOPING: this is a one-line fix but it
+      WIDENS the exposure of anything alignment-sensitive, so
+      re-run the A_NONE battery afterwards.
+- [ ] Halloween undead generation bonus (NEW, minted 2026-07-26 by
+      the A_NONE fix, a sibling gap in the same function).
+      Master's rndmonst_adj() carries
+      `if (is_undead(ptr) && halloween()) weight *= 3;` right after
+      the weight line this fix touched. `halloween()` does not
+      exist anywhere on the branch, so this is a whole unported
+      EvilHack feature rather than a one-line add - deliberately
+      NOT smuggled into the A_NONE bug fix. Check whether master's
+      halloween() lives in hacklib.c and what else calls it.
 - [ ] Bag of treasure/devouring rules; #tip interactions
 - [ ] Steed/saddle/barding architecture (memory file)
       (+ master mhitu.c steed-retaliation acceptable_pet_target
@@ -5210,6 +5294,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-24 | muse.c hero scroll-of-fire arm: `if (Fire_resistance) You("are not harmed.");` followed by `if (Half_spell_damage) num = (num + 1) / 2; else losehp(num, ...)` - the losehp rides the halving else, so a fire-resistant hero takes FULL damage whenever Half_spell_damage is absent, and ANY hero with Half_spell_damage takes zero. Identical in NetHack50 and Official_nh50. Branch restored master's gate form (==100 no-harm + monstseesu, else halve-then-losehp) with the partial-resistance slice | fixed on branch; not yet sent |
 | 2026-07-25 | sp_lev.c lspo_monster() leaks two heap strings on its table-form error paths, because `nhl_error` -> `lua_error` longjmps out past the `Free`s: the `nhl_error(L, "Unknown appear_as type")` arm abandons `mappear` (from get_table_str_opt) plus `tmpmons.name.str`, and an `nhl_error` raised inside `get_table_montype()` abandons `tmpmons.name.str` and the `dupstr`ed `tmpmons.appear_as.str`. Verified identical in NetHack50 and Official_nh50. Matters a little more than a normal error-path leak because a Lua error during level generation is NOT fatal - `nhl_pcall_handle` uses NHLpa_impossible, so load_special returns FALSE, mkmaze falls back to a random maze and play continues, so the leak can recur. NOT the same as `get_table_montype()` itself, whose `Free(s)` correctly precedes its `nhl_error`. The branch's three new positional-form `nhl_error`s are leak-free by construction (nothing is allocated yet at that point and paramstr is Lua-owned) | traced, not fixed on branch; not yet sent |
 | 2026-07-25 | sp_lev.c lspo_monster(): a `des.monster{ inventory = <non-function> }` (a table, say) still sets `has_invent = CUSTOM_INVENT` at the `lua_getfield`/`!lua_isnil` test, so create_monster() points the file static `invent_carrying_monster` at the monster, but the closure gate additionally requires LUA_TFUNCTION - the else arm only does `lua_pop` and never calls spo_end_moninvent(). The static therefore outlives the call and create_object() diverts every later `des.object()` in the file into that monster instead of onto the map. Identical in NetHack50 and Official_nh50 (both `} else lua_pop(L, 1);`, and their create_monster is `staticfn void`). Harmless-but-wrong upstream; on the branch the `dead` binding turns it into a silent object leak (objects handed to a detached monster, freed by dealloc_monst which has no minvent handling), so the branch clears the static in the else arm whenever CUSTOM_INVENT was requested | fixed on branch; not yet sent |
+| 2026-07-26 | dungeon.c init_dungeon(): `svd.dungeons[dngidx].flags.align = dgn_align;` assigns a `D_ALIGN_*` value straight into a `Bitfield(align, 3)`. dgn_file.h defines `D_ALIGN_LAWFUL` etc. as `AM_* << 4`, so lawful (64), neutral (32) and chaotic (16) all truncate to 0 and EVERY dungeon-wide alignment declared in dat/dungeon.lua is silently discarded. The level path in the same file is correct (`new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 4)`), so the Lua rewrite kept the shift on one path and dropped it on the other; 3.6's dgn_comp-era code has the same assignment with a `>> 9` shift AND the comment "bit shift needs to match that in include/dgn_file.h". Identical in Official_nh50 at the same line numbers. Runtime-proven on the branch by gdb survey: all 9 dungeons report align 0, only the oracle/medusa/tutorial special levels carry alignment. Consequence: monster generation frequency (align_shift) is alignment-blind across whole dungeons | traced, NOT yet fixed on branch (own tracker row); not yet sent |
 | 2026-07-24 | uhitm.c mhitm_ad_slee monster-vs-monster arm: `!mdef->msleeping && sleep_monst(mdef, rnd(10), -1) && sleep_monst(mdef, rnd(10), -1)` - sleep_monst called twice in one condition, so the sleep applies only when both rolls succeed and the first success is re-rolled. Identical in NetHack50 and Official_nh50. Left as-is on branch (monster-side, outside the partial-resistance slice) | traced; not yet sent |
 
 ## Master re-derive queue

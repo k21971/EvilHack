@@ -3589,6 +3589,14 @@ align_shift(struct permonst *ptr)
     static NEARDATA long oldmoves = 0L; /* != 1, starting value of moves */
     static NEARDATA s_level *lev;
     int alshift;
+    /* A_NONE is an out-of-band sentinel, not a point on the alignment
+       scale, so feeding it to the arithmetic below yields a wildly
+       negative shift on a lawful or neutral level and a wildly positive
+       one on a chaotic level; substitute a mildly chaotic value to give
+       unaligned monsters a sane generation frequency. Only the three
+       A_NONE species that lack G_HELL are really affected, the rest
+       being confined to Gehennom, which is unaligned */
+    aligntyp ma = (ptr->maligntyp == A_NONE) ? -3 : ptr->maligntyp;
 
     if (oldmoves != svm.moves) {
         lev = Is_special(&u.uz);
@@ -3600,13 +3608,13 @@ align_shift(struct permonst *ptr)
         alshift = 0;
         break;
     case AM_LAWFUL:
-        alshift = (ptr->maligntyp + 20) / (2 * ALIGNWEIGHT);
+        alshift = (ma + 20) / (2 * ALIGNWEIGHT);
         break;
     case AM_NEUTRAL:
-        alshift = (20 - abs(ptr->maligntyp)) / ALIGNWEIGHT;
+        alshift = (20 - abs(ma)) / ALIGNWEIGHT;
         break;
     case AM_CHAOTIC:
-        alshift = (-(ptr->maligntyp - 20)) / (2 * ALIGNWEIGHT);
+        alshift = (-(ma - 20)) / (2 * ALIGNWEIGHT);
         break;
     }
     return alshift;
