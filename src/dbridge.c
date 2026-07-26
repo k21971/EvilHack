@@ -458,17 +458,28 @@ e_died(
         etmp->ex = u.ux, etmp->ey = u.uy;
     } else {
         int entitycnt;
+        struct monst *steed = (struct monst *) 0;
+
+        /* a monster's steed is crushed along with its rider */
+        if (has_erid(etmp->emon))
+            steed = ERID(etmp->emon)->mon_steed;
 
         svk.killer.name[0] = 0;
 /* fake "digested to death" damage-type suppresses corpse */
 #define mk_message(dest) (((dest & XKILL_NOMSG) != 0) ? (char *) 0 : "")
 #define mk_corpse(dest) (((dest & XKILL_NOCORPSE) != 0) ? AD_DGST : AD_PHYS)
         /* if monsters are moving, one of them caused the destruction */
-        if (svc.context.mon_moving)
+        if (svc.context.mon_moving) {
             monkilled(etmp->emon,
                       mk_message(xkill_flags), mk_corpse(xkill_flags));
-        else /* you caused it */
+            if (steed)
+                monkilled(steed,
+                          mk_message(xkill_flags), mk_corpse(xkill_flags));
+        } else { /* you caused it */
             xkilled(etmp->emon, xkill_flags);
+            if (steed)
+                xkilled(steed, xkill_flags);
+        }
 
         /* if etmp gets life-saved, kill it again; otherwise we might end up
            trying to place another monster (probably a xorn) on same spot */
@@ -707,6 +718,8 @@ do_entity(struct entity *etmp)
         if (!is_u(etmp)) {
             remove_monster(etmp->ex, etmp->ey);
             place_monster(etmp->emon, newx, newy);
+            /* a rider drags its steed along */
+            update_monsteed(etmp->emon);
             update_monster_region(etmp->emon);
         } else {
             u.ux = newx;

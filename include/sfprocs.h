@@ -44,6 +44,7 @@ SF_PROTO_C(struct, emsp);
 SF_PROTO_C(struct, engr);
 SF_PROTO_C(struct, epri);
 SF_PROTO_C(struct, erac);
+SF_PROTO_C(struct, erid);
 SF_PROTO_C(struct, eshk);
 SF_PROTO_C(struct, fe);
 SF_PROTO_C(struct, flag);
@@ -131,6 +132,7 @@ struct sf_procs {
     SF_ENTRY_C(struct, engr);
     SF_ENTRY_C(struct, epri);
     SF_ENTRY_C(struct, erac);
+    SF_ENTRY_C(struct, erid);
     SF_ENTRY_C(struct, eshk);
     SF_ENTRY_C(struct, fe);
     SF_ENTRY_C(struct, flag);

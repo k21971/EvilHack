@@ -1567,6 +1567,8 @@ extern void newerac(struct monst *) NONNULLARG1;
 extern void free_erac(struct monst *) NONNULLARG1;
 extern void newemsp(struct monst *) NONNULLARG1;
 extern void free_emsp(struct monst *) NONNULLARG1;
+extern void newerid(struct monst *) NONNULLARG1;
+extern void free_erid(struct monst *) NONNULLARG1;
 extern struct monst *makemon(struct permonst *, coordxy, coordxy, mmflags_nht);
 extern struct monst *unmakemon(struct monst *, mmflags_nht) NONNULLARG1;
 extern boolean create_critters(int, struct permonst *, boolean);
@@ -3337,6 +3339,12 @@ extern struct obj *findgold(struct obj *) NO_NNARGS;
 /* ### steed.c ### */
 
 extern void rider_cant_reach(void);
+extern void update_monsteed(struct monst *) NONNULLARG1;
+extern void mount_monster(struct monst *, int) NONNULLARG1;
+extern boolean mount_up(struct monst *) NONNULLARG1;
+extern void separate_steed_and_rider(struct monst *) NONNULLARG1;
+extern void web_unseats_rider(struct monst *) NONNULLARG1;
+extern struct monst *get_mon_rider(struct monst *) NONNULLARG1;
 extern boolean can_saddle(struct monst *) NONNULLARG1;
 extern boolean can_wear_barding(struct monst *) NONNULLARG1;
 extern int use_saddle(struct obj *) NONNULLARG1;

@@ -1625,6 +1625,7 @@ movebubbles(void)
 
                             newsym(x, y); /* clean up old position */
                             mon->mx = mon->my = 0;
+                            update_monsteed(mon);
                             mon->mstate |= MON_BUBBLEMOVE;
                         }
                         if (!u.uswallow && u_at(x, y)) {

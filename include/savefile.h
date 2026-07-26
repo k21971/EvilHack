@@ -84,6 +84,7 @@ extern void sfo_emsp(NHFILE *, struct emsp *, const char *);
 extern void sfo_engr(NHFILE *, struct engr *, const char *);
 extern void sfo_epri(NHFILE *, struct epri *, const char *);
 extern void sfo_erac(NHFILE *, struct erac *, const char *);
+extern void sfo_erid(NHFILE *, struct erid *, const char *);
 extern void sfo_eshk(NHFILE *, struct eshk *, const char *);
 extern void sfo_trap(NHFILE *, struct trap *, const char *);
 extern void sfo_gamelog_line(NHFILE *, struct gamelog_line *, const char *);
@@ -174,6 +175,7 @@ extern void sfi_emsp(NHFILE *, struct emsp *, const char *);
 extern void sfi_engr(NHFILE *, struct engr *, const char *);
 extern void sfi_epri(NHFILE *, struct epri *, const char *);
 extern void sfi_erac(NHFILE *, struct erac *, const char *);
+extern void sfi_erid(NHFILE *, struct erid *, const char *);
 extern void sfi_eshk(NHFILE *, struct eshk *, const char *);
 extern void sfi_trap(NHFILE *, struct trap *, const char *);
 extern void sfi_fruit(NHFILE *, struct fruit *, const char *);
@@ -249,6 +251,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfo_engr(a,b,c) sfo_engr(a, b, c)
 #define Sfo_epri(a,b,c) sfo_epri(a, b, c)
 #define Sfo_erac(a,b,c) sfo_erac(a, b, c)
+#define Sfo_erid(a,b,c) sfo_erid(a, b, c)
 #define Sfo_eshk(a,b,c) sfo_eshk(a, b, c)
 #define Sfo_trap(a,b,c) sfo_trap(a, b, c)
 #define Sfo_gamelog_line(a,b,c) sfo_gamelog_line(a, b, c)
@@ -316,6 +319,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfi_engr(a,b,c) sfi_engr(a, b, c)
 #define Sfi_epri(a,b,c) sfi_epri(a, b, c)
 #define Sfi_erac(a,b,c) sfi_erac(a, b, c)
+#define Sfi_erid(a,b,c) sfi_erid(a, b, c)
 #define Sfi_eshk(a,b,c) sfi_eshk(a, b, c)
 #define Sfi_trap(a,b,c) sfi_trap(a, b, c)
 #define Sfi_fruit(a,b,c) sfi_fruit(a, b, c)
@@ -366,6 +370,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
     struct engr *         : sfo_engr,          \
     struct epri *         : sfo_epri,          \
     struct erac *         : sfo_erac,          \
+    struct erid *         : sfo_erid,          \
     struct eshk *         : sfo_eshk,          \
     struct fe *           : sfo_fe,            \
     struct flag *         : sfo_flag,          \
@@ -430,6 +435,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
     struct engr *         : sfi_engr,          \
     struct epri *         : sfi_epri,          \
     struct erac *         : sfi_erac,          \
+    struct erid *         : sfi_erid,          \
     struct eshk *         : sfi_eshk,          \
     struct fe *           : sfi_fe,            \
     struct flag *         : sfi_flag,          \
@@ -520,6 +526,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfo_engr(a,b,c) sfo(a, b, c)
 #define Sfo_epri(a,b,c) sfo(a, b, c)
 #define Sfo_erac(a,b,c) sfo(a, b, c)
+#define Sfo_erid(a,b,c) sfo(a, b, c)
 #define Sfo_eshk(a,b,c) sfo(a, b, c)
 #define Sfo_trap(a,b,c) sfo(a, b, c)
 #define Sfo_gamelog_line(a,b,c) sfo(a, b, c)
@@ -588,6 +595,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfi_engr(a,b,c) sfi(a, b, c)
 #define Sfi_epri(a,b,c) sfi(a, b, c)
 #define Sfi_erac(a,b,c) sfi(a, b, c)
+#define Sfi_erid(a,b,c) sfi(a, b, c)
 #define Sfi_eshk(a,b,c) sfi(a, b, c)
 #define Sfi_trap(a,b,c) sfi(a, b, c)
 #define Sfi_fruit(a,b,c) sfi(a, b, c)

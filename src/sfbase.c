@@ -704,6 +704,7 @@ void norm_ptrs_emsp(struct emsp *d_emsp);
 void norm_ptrs_engr(struct engr *d_engr);
 void norm_ptrs_epri(struct epri *d_epri);
 void norm_ptrs_erac(struct erac *d_erac);
+void norm_ptrs_erid(struct erid *d_erid);
 void norm_ptrs_eshk(struct eshk *d_eshk);
 void norm_ptrs_fakecorridor(struct fakecorridor *d_fakecorridor);
 void norm_ptrs_fe(struct fe *d_fe);
@@ -916,6 +917,11 @@ norm_ptrs_epri(struct epri *d_epri UNUSED)
 
 void
 norm_ptrs_erac(struct erac *d_erac UNUSED)
+{
+}
+
+void
+norm_ptrs_erid(struct erid *d_erid UNUSED)
 {
 }
 

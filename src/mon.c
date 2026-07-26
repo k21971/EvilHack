@@ -296,9 +296,15 @@ mon_sanity_check(void)
             if (x != u.ux || y != u.uy)
                 impossible("steed (%s) claims to be at <%d,%d>?",
                            fmt_ptr((genericptr_t) mtmp), x, y);
-        } else if (svl.level.monsters[x][y] != mtmp) {
-            impossible("mon (%s) at <%d,%d> is not there!",
-                       fmt_ptr((genericptr_t) mtmp), x, y);
+        } else if (mtmp->ridden_by) {
+            /* a monster's steed is kept on the fmon list but off the map,
+               with its coordinates synced to its rider's */
+            continue;
+        } else if ((m = svl.level.monsters[x][y]) != mtmp) {
+            /* a rider stands on the same square as the steed it is on */
+            if (!m || m->ridden_by != mtmp->m_id)
+                impossible("mon (%s) at <%d,%d> is not there!",
+                           fmt_ptr((genericptr_t) mtmp), x, y);
         } else if (mtmp->wormno) {
             sanity_check_worm(mtmp);
 
@@ -323,7 +329,8 @@ mon_sanity_check(void)
                     impossible("steed (%s) is on the map at <%d,%d>!",
                                fmt_ptr((genericptr_t) mtmp), x, y);
                 else if ((mtmp->mx != x || mtmp->my != y)
-                         && mtmp->data != &mons[PM_LONG_WORM])
+                         && mtmp->data != &mons[PM_LONG_WORM]
+                         && !mtmp->ridden_by)
                     impossible("map mon (%s) at <%d,%d> is found at <%d,%d>?",
                                fmt_ptr((genericptr_t) mtmp),
                                mtmp->mx, mtmp->my, x, y);
@@ -1272,7 +1279,17 @@ mcalcmove(
 void
 mcalcdistress(void)
 {
-    iter_mons(m_calcdistress);
+    struct monst *mtmp;
+
+    /* not iter_mons(): that skips every off-map monster, and a steed
+       carrying a monster rider is off the map for the whole time it is
+       ridden - it would never regenerate, never time out being blinded
+       or frozen, and never recharge a special attack */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || (mon_offmap(mtmp) && !mtmp->ridden_by))
+            continue;
+        m_calcdistress(mtmp);
+    }
 }
 
 staticfn void
@@ -1430,8 +1447,10 @@ movemon_singlemon(struct monst *mtmp)
         return FALSE;
     }
 
-    /* monster isn't on this map anymore */
-    if (mon_offmap(mtmp)) {
+    /* monster isn't on this map anymore; a steed carrying a monster rider
+       is off the map but stays on the fmon list at its rider's square and
+       is still able to attack from there */
+    if (mon_offmap(mtmp) && !mtmp->ridden_by) {
         mtmp->movement = 0;
         return FALSE;
     }
@@ -1522,6 +1541,12 @@ movemon_singlemon(struct monst *mtmp)
            can't--or at least won't--move, so they never reach
            their post-move chance to re-hide */
         if (hideunder(mtmp))
+            return FALSE;
+    }
+
+    /* a monster might climb onto a nearby saddled monster */
+    if ((is_mplayer(mtmp->data) && !rn2(16)) || !rn2(300)) {
+        if (mount_up(mtmp))
             return FALSE;
     }
 
@@ -2979,7 +3004,7 @@ icequeenrevive(struct monst *mtmp)
 void
 dmonsfree(void)
 {
-    struct monst **mtmp, *freetmp;
+    struct monst **mtmp, *freetmp, *ridertmp;
     int count = 0;
     int undetached = 0;
     unsigned undetached_id = 0;
@@ -3077,8 +3102,10 @@ dmonsfree(void)
                             freetmp->mstate, freetmp->mhp);
                 }
             }
-            /* TODO-EVILHACK: separate a steed from its monster rider
-               (erid) before dealloc when the monster-riding port lands */
+            /* a steed being freed must not leave its rider holding a
+               dangling mon_steed pointer */
+            if ((ridertmp = get_mon_rider(freetmp)) != 0)
+                separate_steed_and_rider(ridertmp);
             dealloc_monst(freetmp);
             count++;
         } else
@@ -3282,7 +3309,8 @@ replmon(struct monst *mtmp, struct monst *mtmp2)
     relmon(mtmp, (struct monst **) 0);
 
     /* finish adding its replacement */
-    if (mtmp != u.usteed) /* don't place steed onto the map */
+    /* don't place a steed onto the map */
+    if (mtmp != u.usteed && !mtmp->ridden_by)
         place_monster(mtmp2, mtmp2->mx, mtmp2->my);
     if (mtmp2->wormno)      /* update level.monsters[wseg->wx][wseg->wy] */
         place_wsegs(mtmp2, mtmp); /* locations to mtmp2 not mtmp. */
@@ -3391,6 +3419,12 @@ copy_mextra(struct monst *mtmp2, struct monst *mtmp1)
             newebones(mtmp2);
         assert(has_ebones(mtmp2));
         *EBONES(mtmp2) = *EBONES(mtmp1);
+    }
+    if (ERID(mtmp1)) {
+        if (!ERID(mtmp2))
+            newerid(mtmp2);
+        assert(has_erid(mtmp2));
+        *ERID(mtmp2) = *ERID(mtmp1);
     }
     if (ERAC(mtmp1)) {
         if (!ERAC(mtmp2))
@@ -3533,6 +3567,20 @@ m_detach(
      * before dropping its former belongings.
      */
     mon_leaving_level(mtmp);
+
+    /* a departing rider drops its steed back onto the map; a departing
+       steed leaves its rider standing where the pair used to be */
+    if (has_erid(mtmp))
+        separate_steed_and_rider(mtmp);
+    if (mtmp->ridden_by) {
+        struct monst *rider = get_mon_rider(mtmp);
+
+        if (rider)
+            free_erid(rider);
+        else
+            mtmp->ridden_by = 0; /* rider already gone; clear stale flag */
+        newsym(mtmp->mx, mtmp->my);
+    }
 
     mtmp->mhp = 0; /* simplify some tests: force mhp to 0 */
     /* death handling for the Wizard needs to take place even if he is
@@ -4081,7 +4129,7 @@ void
 mondead(struct monst *mtmp)
 {
     struct permonst *mptr;
-    struct monst *pet_credit;
+    struct monst *pet_credit, *rider;
     boolean was_player_kill;
     boolean be_sad;
     int mndx;
@@ -4241,6 +4289,11 @@ mondead(struct monst *mtmp)
        need to do this after life-saving and before m_detach() */
     if (mtmp->isgd && !grddead(mtmp))
         return;
+
+    /* monster is thrown from its steed when the steed dies */
+    rider = get_mon_rider(mtmp);
+    if (rider)
+        separate_steed_and_rider(rider);
 
     mptr = mtmp->data; /* save this for m_detach() */
     /* restore chameleon, lycanthropes to true form at death */
@@ -4455,12 +4508,19 @@ mondied(struct monst *mdef)
 void
 mongone(struct monst *mdef)
 {
+    struct monst *rider;
+
     mdef->mhp = 0; /* can skip some inventory bookkeeping */
 
     /* dead vault guard is actually kept at coordinate <0,0> until
        his temporary corridor to/from the vault has been removed */
     if (mdef->isgd && !grddead(mdef))
         return;
+    /* monster is thrown from its steed when the steed disappears */
+    rider = get_mon_rider(mdef);
+    if (rider)
+        separate_steed_and_rider(rider);
+
     /* stuck to you? release */
     unstuck(mdef);
     /* drop special items like the Amulet so that a dismissed Kop or nurse
@@ -5342,6 +5402,7 @@ mnexto(struct monst *mtmp, unsigned int rlocflags)
     }
 
     rloc_to_flag(mtmp, mm.x, mm.y, rlocflags);
+    update_monsteed(mtmp);
     return;
 }
 
@@ -6846,7 +6907,10 @@ newcham(
             seenorsensed = canspotmon(mtmp);
     int hpn, hpd, mndx, tryct;
     struct permonst *olddata = mtmp->data;
-    char *p, oldname[BUFSZ], l_oldname[BUFSZ];
+    /* oldmhe holds a pronoun; 5.0's genders[] has a fourth "they" row
+       that a hallucinating hero can draw, so three letters is not the
+       most this can hold */
+    char *p, oldname[BUFSZ], l_oldname[BUFSZ], oldmhe[QBUFSZ];
 
     /* Riders are immune to polymorph and green slime
        (but apparent Rider might actually be a doppelganger) */
@@ -6879,6 +6943,8 @@ newcham(
                                has_mgivenname(mtmp)
                                  ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0,
                                FALSE));
+    /* pronoun for the pre-transformation shape, for a rider's benefit */
+    Strcpy(oldmhe, mhe(mtmp));
 
     /* mdat = 0 -> caller wants a random monster shape */
     if (mdat == 0) {
@@ -6982,6 +7048,47 @@ newcham(
     if (!mtmp->perminvis || pm_invisible(olddata))
         mtmp->perminvis = pm_invisible(mdat);
     mtmp->minvis = mtmp->invis_blkd ? 0 : mtmp->perminvis;
+
+    /* the new shape may be unfit to ride, or unfit to be ridden */
+    if (has_erid(mtmp) && !mon_can_ride(mtmp)) {
+        if (canseemon(mtmp))
+            pline("Transforming, %s falls from %s!", l_oldname,
+                  mon_nam(ERID(mtmp)->mon_steed));
+        separate_steed_and_rider(mtmp);
+        /* the rider is relocated to get off its steed, and that can put
+           it in a trap or hand it a turn of its own */
+        if (DEADMONSTER(mtmp))
+            return 1;
+    }
+    if (mtmp->ridden_by && !mon_can_be_ridden(mtmp) && mtmp != u.usteed) {
+        struct monst *rider = get_mon_rider(mtmp);
+
+        if (rider) {
+            if (canseemon(rider))
+                pline("%s falls from %s mount as %s transforms!",
+                      Monnam(rider), mhis(rider), oldmhe);
+            separate_steed_and_rider(rider);
+        } else {
+            /* the rider is gone but the steed is still flagged as ridden;
+               it was taken off the map when mounted, so put it back as a
+               free monster before clearing the stale flag - otherwise it
+               lingers in fmon off the map, invisible yet still able to
+               act, until a save/restore re-places it */
+            if (m_at(mtmp->mx, mtmp->my) != mtmp) {
+                coord cc;
+
+                if (!m_at(mtmp->mx, mtmp->my) && isok(mtmp->mx, mtmp->my))
+                    place_monster(mtmp, mtmp->mx, mtmp->my);
+                else if (enexto(&cc, mtmp->mx, mtmp->my, mtmp->data))
+                    place_monster(mtmp, cc.x, cc.y);
+                else
+                    (void) rloc(mtmp, RLOC_ERR | RLOC_NOMSG);
+                newsym(mtmp->mx, mtmp->my);
+            }
+            mtmp->ridden_by = 0;
+        }
+    }
+
     if (mtmp->mundetected)
         (void) hideunder(mtmp);
     if (u.ustuck == mtmp) {

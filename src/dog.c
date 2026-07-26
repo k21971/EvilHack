@@ -692,7 +692,7 @@ mon_arrive(struct monst *mtmp, int when)
        here for monsters migrating to a newly created level */
     restore_cham(mtmp);
 
-    if (mtmp == u.usteed) {
+    if (mtmp == u.usteed || mtmp->ridden_by) {
         mtmp->mstate &= ~MON_STILL_ARRIVING;
         return; /* don't place steed on the map */
     }
@@ -1071,6 +1071,9 @@ keepdogs(
         mtmp2 = mtmp->nmon;
         if (DEADMONSTER(mtmp))
             continue;
+        /* a mounted monster and its steed stay where they are */
+        if (has_erid(mtmp) || mtmp->ridden_by)
+            continue;
         if (pets_only) {
             if (!mtmp->mtame)
                 continue; /* reject non-pets */
@@ -1176,6 +1179,10 @@ migrate_to_level(
     coordxy xyflags;
     coordxy mx = mtmp->mx, my = mtmp->my; /* <mx,my> needed below */
     int num_segs; /* count of worm segments */
+
+    /* recursive call to levelport a monster's steed along with it */
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed)
+        migrate_to_level(ERID(mtmp)->mon_steed, tolev, xyloc, cc);
 
     if (mtmp->mleashed) {
         mtmp->mtame--;
@@ -1590,6 +1597,11 @@ tamedog(
         && is_wraith(mtmp->data))
         return FALSE;
 
+    /* steeds' disposition matches their riders'; it shouldn't be
+       changed independently */
+    if (mtmp->ridden_by)
+        return FALSE;
+
     /* worst case, at least it'll be peaceful. */
     if (givemsg && !mtmp->mpeaceful && canspotmon(mtmp)) {
         pline_mon(mtmp, "%s seems %s.", Monnam(mtmp),
@@ -1598,6 +1610,13 @@ tamedog(
     }
     mtmp->mpeaceful = 1;
     set_malign(mtmp);
+
+    /* steeds follow their riders' direction */
+    if (has_erid(mtmp)) {
+        ERID(mtmp)->mon_steed->mpeaceful = 1;
+        set_malign(ERID(mtmp)->mon_steed);
+    }
+
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
         && mtmp->data->mlet == S_DOG)
         return FALSE;
@@ -1614,12 +1633,24 @@ tamedog(
     mtmp->mflee = 0;
     mtmp->mfleetim = 0;
 
+    if (has_erid(mtmp)) {
+        ERID(mtmp)->mon_steed->mflee = 0;
+        ERID(mtmp)->mon_steed->mfleetim = 0;
+    }
+
     /* make grabber let go now, whether it becomes tame or not */
     if (mtmp == u.ustuck) {
         if (u.uswallow)
             expels(mtmp, mtmp->data, TRUE);
         else if (!(Upolyd && sticks(gy.youmonst.data)))
             unstuck(mtmp);
+    }
+
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed == u.ustuck) {
+        if (u.uswallow)
+            expels(ERID(mtmp)->mon_steed, mtmp->data, TRUE);
+        else if (!(Upolyd && sticks(gy.youmonst.data)))
+            unstuck(ERID(mtmp)->mon_steed);
     }
 
     /* feeding it treats makes it tamer */
@@ -1685,6 +1716,17 @@ tamedog(
 
     if (mtmp->m_id == svq.quest_status.leader_m_id)
         return FALSE;
+
+    /* don't allow pets to ride.
+       note their steed will not become tame, though it will be peaceful.
+       this allows for minor abuse with making ki-rin and maybe unicorns
+       peaceful, but most steeds already have pretty low MR */
+    if (has_erid(mtmp)) {
+        if (canseemon(mtmp))
+            pline("%s pats %s steed and clambers off.", Monnam(mtmp),
+                  mhis(mtmp));
+        separate_steed_and_rider(mtmp);
+    }
 
     /* add the pet extension */
     if (!has_edog(mtmp)) {

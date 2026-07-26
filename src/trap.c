@@ -416,7 +416,10 @@ mk_trap_statue(coordxy x, coordxy y)
              && sgn(u.ualign.type) == sgn(mptr->maligntyp));
     statue = mkcorpstat(STATUE, (struct monst *) 0, mptr, x, y,
                         CORPSTAT_NONE);
-    mtmp = makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH | MM_NOMSG);
+    /* MM_NOSTEED prevents mount creation for riding monsters; we only
+       want the rider's inventory, not a wandering steed */
+    mtmp = makemon(&mons[statue->corpsenm], 0, 0,
+                   MM_NOCOUNTBIRTH | MM_NOMSG | MM_NOSTEED);
     if (!mtmp)
         return; /* should never happen */
     while (mtmp->minvent) {
@@ -911,7 +914,9 @@ animate_statue(
             wary_dog(mon, TRUE);
     } else {
         int sgend = (statue->spe & CORPSTAT_GENDER);
-        mmflags_nht mmflags = (NO_MINVENT | MM_NOMSG
+        /* MM_NOSTEED: an animated statue is a lone dead-monster
+           snapshot; don't fabricate a fresh mount for riding monsters */
+        mmflags_nht mmflags = (NO_MINVENT | MM_NOMSG | MM_NOSTEED
                         | ((sgend == CORPSTAT_MALE) ? MM_MALE : 0)
                         | ((sgend == CORPSTAT_FEMALE) ? MM_FEMALE : 0));
 
@@ -2990,6 +2995,18 @@ trapeffect_poly_trap(
             shieldeff_mon(mtmp);
         } else if (!resist(mtmp, WAND_CLASS, 0, NOTELL)) {
             (void) newcham(mtmp, (struct permonst *) 0, NC_SHOW_MSG);
+            /* the transform might have killed it (new form unable to
+               survive shallow water at the trap's location) */
+            if (DEADMONSTER(mtmp))
+                return Trap_Killed_Mon;
+            /* is the monster riding another monster? */
+            if (has_erid(mtmp)
+                && (!humanoid(mtmp->data) || bigmonst(mtmp->data))) {
+                if (in_sight)
+                    pline("%s falls off %s %s!", Monnam(mtmp), mhis(mtmp),
+                          l_monnam(ERID(mtmp)->mon_steed));
+                separate_steed_and_rider(mtmp);
+            }
             if (in_sight)
                 seetrap(trap);
         }

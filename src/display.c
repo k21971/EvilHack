@@ -379,6 +379,11 @@ map_object(struct obj *obj, int show)
 void
 map_invisible(coordxy x, coordxy y)
 {
+    struct monst *mon = m_at(x, y);
+
+    /* an unseen rider whose steed is visible isn't a remembered 'I' */
+    if (mon && has_erid(mon) && mon_visible(ERID(mon)->mon_steed))
+        return;
     if (x != u.ux || y != u.uy) { /* don't display I at hero's location */
         if (svl.level.flags.hero_memory)
             levl[x][y].glyph = GLYPH_INVISIBLE;
@@ -605,6 +610,8 @@ display_monster(
                 num = petnum_to_glyph(PM_LONG_WORM_TAIL, mgendercode);
             else
                 num = pet_to_glyph(mon, rn2_on_display_rng);
+        } else if (has_erid(mon) || mon->ridden_by) {
+            num = ridden_mon_to_glyph(mon, rn2_on_display_rng);
         } else if (sightflags == DETECTED) {
             if (worm_tail)
                 num = detected_monnum_to_glyph(what_mon(PM_LONG_WORM_TAIL,
@@ -1038,6 +1045,11 @@ newsym(coordxy x, coordxy y)
                 display_monster(x, y, mon,
                                 see_it ? PHYSICALLY_SEEN : DETECTED,
                                 worm_tail);
+            } else if (mon && !mon_visible(mon) && has_erid(mon)
+                       && mon_visible(ERID(mon)->mon_steed)) {
+                /* rider can't be seen but the steed under it can */
+                display_monster(x, y, ERID(mon)->mon_steed, PHYSICALLY_SEEN,
+                                FALSE);
             } else if (mon && mon_warning(mon) && !worm_tail) {
                 display_warning(mon);
             } else if (glyph_is_invisible(lev->glyph)) {

@@ -2747,6 +2747,8 @@ clone_mon(
     m2->mw2 = (struct obj *) 0;
     m2->misc_worn_check = 0L; /* no inventory, so no worn masks */
     m2->mleashed = 0;
+    /* only one of the two can be the monster the rider is sitting on */
+    m2->ridden_by = 0;
     /* Max HP the same, but current HP halved for both.  The caller
      * might want to override this by halving the max HP also.
      * When current HP is odd, the original keeps the extra point.
@@ -2981,6 +2983,32 @@ free_emsp(struct monst *mtmp)
     if (mtmp->mextra && EMSP(mtmp)) {
         free((genericptr_t) EMSP(mtmp));
         EMSP(mtmp) = (struct emsp *) 0;
+    }
+}
+
+void
+newerid(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+
+    if (!ERID(mtmp)) {
+        ERID(mtmp) = (struct erid *) alloc(sizeof (struct erid));
+        (void) memset((genericptr_t) ERID(mtmp), 0, sizeof (struct erid));
+    }
+}
+
+void
+free_erid(struct monst *mtmp)
+{
+    if (mtmp->mextra && ERID(mtmp)) {
+        struct monst *steed = ERID(mtmp)->mon_steed;
+
+        /* the steed is no longer being ridden */
+        if (steed)
+            steed->ridden_by = 0;
+        free((genericptr_t) ERID(mtmp));
+        ERID(mtmp) = (struct erid *) 0;
     }
 }
 
@@ -3247,6 +3275,71 @@ makemon(
     /* test monster (will not appear during normal play) */
     if (wizard && ptr == &mons[PM_TEST_MONSTER])
         mtmp->mhp = mtmp->mhpmax = 9999;
+
+    /* here is where we match riding monsters with their mounts */
+    if (!(mmflags & MM_NOSTEED)) {
+        switch (mndx) {
+        case PM_DEATH:
+            mount_monster(mtmp, PM_PALE_HORSE);
+            break;
+        case PM_FAMINE:
+            mount_monster(mtmp, PM_BLACK_HORSE);
+            break;
+        case PM_PESTILENCE:
+            mount_monster(mtmp, PM_WHITE_HORSE);
+            break;
+        case PM_NAZGUL:
+            mount_monster(mtmp, PM_FELL_BEAST);
+            break;
+        case PM_GOBLIN_OUTRIDER:
+            mount_monster(mtmp, PM_WOLF);
+            break;
+        case PM_GOBLIN_CAPTAIN:
+            mount_monster(mtmp, PM_WARG);
+            break;
+        case PM_URUK_HAI:
+            if (!rn2(7))
+                mount_monster(mtmp, PM_WARG);
+            break;
+        case PM_ORC_CAPTAIN:
+            if (!rn2(4))
+                mount_monster(mtmp, PM_WARG);
+            break;
+        case PM_KNIGHT:
+            if (racial_centaur(mtmp))
+                break;
+            if (mon_aligntyp(mtmp) == A_CHAOTIC) {
+                if (racial_drow(mtmp))
+                    rn2(3) ? mount_monster(mtmp, PM_CAVE_LIZARD)
+                           : mount_monster(mtmp, PM_LARGE_CAVE_LIZARD);
+                else if (racial_zombie(mtmp))
+                    rn2(3) ? mount_monster(mtmp, PM_SKELETAL_HORSE)
+                           : mount_monster(mtmp, PM_SKELETAL_WARHORSE);
+                else
+                    rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
+                           : mount_monster(mtmp, PM_CAUCHEMAR);
+            } else {
+                rn2(3) ? mount_monster(mtmp, PM_HORSE)
+                       : mount_monster(mtmp, PM_WARHORSE);
+            }
+            break;
+        case PM_FROST_GIANT:
+            /* TODO-EVILHACK: master mounts a frost giant on a woolly
+               mammoth 1 time in 5 inside the Ice Queen branch; that
+               branch, and the Iniceq predicate that tests for it, are
+               not on this tree yet */
+            break;
+        case PM_DROW_RAIDER:
+            if (!rn2(7))
+                mount_monster(mtmp, PM_GIANT_SPIDER);
+            break;
+        case PM_DROW_CLERIC:
+            if (!rn2(7))
+                rn2(3) ? mount_monster(mtmp, PM_GIANT_SPIDER)
+                       : mount_monster(mtmp, PM_GARGANTUAN_SPIDER);
+            break;
+        }
+    }
 
     switch (ptr->mlet) {
     case S_MIMIC:

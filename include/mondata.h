@@ -483,6 +483,27 @@
      || (ptr) == &mons[PM_FIRE_VORTEX]     \
      || (ptr) == &mons[PM_FIRE_ELEMENTAL])
 
+/* monster can mount and ride another monster */
+#define mon_can_ride(mon) \
+    (!(mon)->mtame && (mon) != u.ustuck && !(mon)->mpeaceful                 \
+     && !(mon)->mtrapped && humanoid((mon)->data) && !is_zombie((mon)->data) \
+     && !r_bigmonst(mon) && !is_animal((mon)->data) && !is_were((mon)->data) \
+     && (mon)->data->mlet != S_MUMMY && (mon)->data->mlet != S_LIZARD        \
+     && !r_verysmall(mon) && !is_shapeshifter((mon)->data)                   \
+     && (mon)->mcanmove && !(mon)->msleeping && (mon)->cham == NON_PM        \
+     && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU)        \
+     && !is_covetous((mon)->data) && !is_skeleton((mon)->data)               \
+     && !is_ent((mon)->data) && !is_plant((mon)->data))
+
+/* monster can be ridden by another monster */
+#define mon_can_be_ridden(mon) \
+    (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous((mon)->data)       \
+     && !(mon)->mtame && (mon) != u.ustuck && !(mon)->mpeaceful              \
+     && !(mon)->mtrapped && (mon)->mcanmove && !(mon)->msleeping             \
+     && !is_shapeshifter((mon)->data) && !is_were((mon)->data)               \
+     && !(mon)->isshk && (mon)->cham == NON_PM                               \
+     && !((mon)->mstrategy & STRAT_WAITFORU))
+
 /* macros for various monsters affected by specific types of damage */
 #define can_vaporize(ptr) \
     ((ptr) == &mons[PM_WATER_ELEMENTAL] || (ptr) == &mons[PM_ICE_VORTEX]     \

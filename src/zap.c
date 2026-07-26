@@ -338,6 +338,19 @@ bhitm(struct monst *mtmp, struct obj *otmp)
                                      || engulfing_u(mtmp)))
                         learn_it = TRUE;
                 }
+                /* newcham can land on a handless poly form whose
+                   mon_break_armor + mselftouch petrifies mtmp before
+                   we get here; skip rider/long-worm reads on dead mtmp */
+                if (DEADMONSTER(mtmp))
+                    break;
+                /* is the monster riding another monster? */
+                if (has_erid(mtmp)
+                    && (!humanoid(mtmp->data) || r_bigmonst(mtmp))) {
+                    if (canseemon(mtmp))
+                        pline("%s falls off %s %s!", Monnam(mtmp), mhis(mtmp),
+                              l_monnam(ERID(mtmp)->mon_steed));
+                    separate_steed_and_rider(mtmp);
+                }
             }
 
             /* do this even if polymorphed failed (otherwise using
@@ -817,7 +830,7 @@ montraits(
                                give mtmp any; it will be given a new 'wormno'
                                though (unless those are exhausted) so be able
                                to grow new tail segments */
-                            | MM_NOTAIL | MM_NOMSG
+                            | MM_NOTAIL | MM_NOMSG | MM_NOSTEED
                             | (adjacentok ? MM_ADJACENTOK : 0)));
         }
         if (!mtmp) {
@@ -880,6 +893,14 @@ montraits(
         mtmp2->mavenge = 0;
         mtmp2->meating = 0;
         mtmp2->mleashed = 0;
+        /* never inherit a steed relationship from stored traits; the
+           erid's mon_steed pointer is meaningless here, so raw-free it
+           (NOT free_erid, which would dereference that stale pointer) */
+        mtmp2->ridden_by = 0;
+        if (mtmp2->mextra && ERID(mtmp2)) {
+            free((genericptr_t) ERID(mtmp2));
+            ERID(mtmp2) = (struct erid *) 0;
+        }
         mtmp2->mtrapped = 0;
         mtmp2->msleeping = 0;
         mtmp2->mfrozen = 0;
@@ -1083,7 +1104,7 @@ revive(struct obj *corpse, boolean by_hero)
     if (cant_revive(&montype, TRUE, corpse)) {
         /* make a zombie or doppelganger instead */
         /* note: montype has changed; mptr keeps old value for newcham() */
-        mtmp = makemon(&mons[montype], x, y, mmflags);
+        mtmp = makemon(&mons[montype], x, y, mmflags | MM_NOSTEED);
         if (mtmp) {
             /* skip ghost handling */
             if (has_omid(corpse))
@@ -1106,7 +1127,7 @@ revive(struct obj *corpse, boolean by_hero)
             wary_dog(mtmp, TRUE);
     } else {
         /* make a new monster */
-        mtmp = makemon(mptr, x, y, mmflags | MM_NOCOUNTBIRTH);
+        mtmp = makemon(mptr, x, y, mmflags | MM_NOCOUNTBIRTH | MM_NOSTEED);
     }
     if (!mtmp)
         return (struct monst *) 0;
@@ -2192,7 +2213,8 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
             } else { /* (obj->otyp == FIGURINE) */
                 if (golem_xform)
                     ptr = &mons[PM_FLESH_GOLEM];
-                mon = makemon(ptr, oox, ooy, NO_MINVENT|MM_NOMSG);
+                mon = makemon(ptr, oox, ooy,
+                              NO_MINVENT | MM_NOMSG | MM_NOSTEED);
                 if (mon) {
                     if (costly_spot(oox, ooy)
                         && (carried(obj) ? obj->unpaid : !obj->no_charge)) {
@@ -4341,6 +4363,13 @@ bhit(
                     goto bhit_done;
                 }
                 range -= 3;
+                /* while this would work for all wands, it causes massive
+                   problems if the mount dies before the rider */
+                if (obj->otyp == WAN_PROBING
+                    && !DEADMONSTER(mtmp) && mtmp->mx && has_erid(mtmp)) {
+                    (void) (*fhitm)(ERID(mtmp)->mon_steed, obj);
+                    range -= 1;
+                }
             }
         } else {
             if (weapon == ZAPPED_WAND && obj->otyp == WAN_PROBING

@@ -728,8 +728,10 @@ ohitmon(
             && !t_at(mtmp->mx, mtmp->my)) {
             struct trap *web = maketrap(mtmp->mx, mtmp->my, WEB);
 
-            if (web)
+            if (web) {
                 (void) mintrap(mtmp, NO_TRAP_FLAGS);
+                web_unseats_rider(mtmp);
+            }
         }
 
         if (!DEADMONSTER(mtmp) && !svc.context.mon_moving)

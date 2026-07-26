@@ -660,7 +660,9 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             /* skip if there's no trap or can't/won't move onto trap */
             if ((t = t_at(xx, yy)) == 0
                 || (!ignore_boulders && sobj_at(BOULDER, xx, yy))
-                || onscary(xx, yy, mtmp))
+                || onscary(xx, yy, mtmp)
+                /* a mounted monster and its steed stay put */
+                || has_erid(mtmp) || mtmp->ridden_by)
                 continue;
             /* use trap if it's the correct type */
             if (is_hole(t->ttyp)
@@ -4143,6 +4145,8 @@ muse_unslime(
             place_monster(mon, trap->tx, trap->ty);
             if (mon->wormno) /* won't happen; worms don't MUSE to unslime */
                 worm_move(mon);
+            /* a rider drags its steed along */
+            update_monsteed(mon);
             newsym(mon->mx, mon->my);
             if (vis)
                 pline("%s %s %s %s fire trap!", Mnam,

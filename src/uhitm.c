@@ -236,7 +236,10 @@ attack_checks(
      */
     if (!canspotmon(mtmp)
         && !glyph_is_warning(glyph) && !glyph_is_invisible(glyph)
-        && !(!Blind && mtmp->mundetected && hides_under(mtmp->data))) {
+        && !(!Blind && mtmp->mundetected && hides_under(mtmp->data))
+        /* an unseen rider on a steed you can see is not a surprise;
+           the steed is drawn at the square and gives it away */
+        && (!has_erid(mtmp) || !canspotmon(ERID(mtmp)->mon_steed))) {
         pline("Wait!  There's %s there you can't see!", something);
         map_invisible(gb.bhitpos.x, gb.bhitpos.y);
         /* if it was an invisible mimic, treat it as if we stumbled
@@ -1513,8 +1516,10 @@ hmon_hitmon_misc_obj(
         if (!t_at(mon->mx, mon->my)) {
             struct trap *web = maketrap(mon->mx, mon->my, WEB);
 
-            if (web)
+            if (web) {
                 (void) mintrap(mon, NO_TRAP_FLAGS);
+                web_unseats_rider(mon);
+            }
         }
         break;
     default:
@@ -5666,8 +5671,10 @@ mhitm_ad_webs(
         if (!t_at(mdef->mx, mdef->my)) {
             struct trap *web = maketrap(mdef->mx, mdef->my, WEB);
 
-            if (web)
+            if (web) {
                 (void) mintrap(mdef, NO_TRAP_FLAGS);
+                web_unseats_rider(mdef);
+            }
         }
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
@@ -5704,8 +5711,10 @@ mhitm_ad_webs(
         if (!t_at(mdef->mx, mdef->my)) {
             struct trap *web = maketrap(mdef->mx, mdef->my, WEB);
 
-            if (web)
+            if (web) {
                 (void) mintrap(mdef, NO_TRAP_FLAGS);
+                web_unseats_rider(mdef);
+            }
         }
     }
 }

@@ -2429,6 +2429,18 @@ save_mtraits(struct obj *obj, struct monst *mtmp)
         if (mtmp2->mhp < 1)
             mtmp2->mhp = 0;
         mtmp2->mstate &= ~MON_DETACH;
+        /* A corpse or statue records a single dead monster; its stored
+           traits must never carry a steed relationship. monstone()
+           snapshots a still-mounted rider before m_detach() severs the
+           link, so without this a later animate_statue()/revive() would
+           resurrect a rider bound to a steed that no longer exists.
+           Free only our private copy of the erid - never free_erid(),
+           which would clear the live steed's ridden_by */
+        mtmp2->ridden_by = 0;
+        if (mtmp2->mextra && ERID(mtmp2)) {
+            free((genericptr_t) ERID(mtmp2));
+            ERID(mtmp2) = (struct erid *) 0;
+        }
     }
     return obj;
 }

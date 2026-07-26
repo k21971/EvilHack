@@ -1699,6 +1699,7 @@ rloc_to_core(
     mon_track_clear(mtmp);
     place_monster(mtmp, x, y); /* put monster down */
     update_monster_region(mtmp);
+    update_monsteed(mtmp); /* drag a monster steed along */
 
     if (mtmp->wormno) /* now put down tail */
         place_worm_tail_randomly(mtmp, x, y);
@@ -1833,6 +1834,16 @@ rloc(
     if (mtmp == u.usteed) {
         tele();
         return TRUE;
+    }
+
+    if (mtmp->ridden_by) {
+        /* teleport a monster rider along with its steed */
+        struct monst *rider = get_mon_rider(mtmp);
+
+        if (rider)
+            return rloc(rider, rlocflags);
+        /* rider gone, clear stale flag and continue with steed teleport */
+        mtmp->ridden_by = 0;
     }
 
     if (mtmp->iswiz && mtmp->mx) { /* Wizard, not just arriving */

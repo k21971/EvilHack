@@ -427,6 +427,11 @@ look_at_monster(
     char *name, monnambuf[BUFSZ], healthbuf[BUFSZ];
     boolean accurate = !Hallucination;
 
+    /* an unseen rider is described by the steed it is sitting on */
+    if (!canspotmon(mtmp) && has_erid(mtmp)
+        && canspotmon(ERID(mtmp)->mon_steed))
+        mtmp = ERID(mtmp)->mon_steed;
+
     name = (mtmp->data == &mons[PM_COYOTE] && accurate)
               ? coyotename(mtmp, monnambuf)
               : distant_monnam(mtmp, ARTICLE_NONE, monnambuf);
@@ -441,6 +446,14 @@ look_at_monster(
                     ? "peaceful "
                     : "",
             name);
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
+        if (is_rider(mtmp->data) && !m_next2u(mtmp) && !canseemon(mtmp))
+            Sprintf(eos(buf), ", riding its steed");
+        else
+            Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->mon_steed));
+    }
+    if (mtmp->ridden_by)
+        Strcat(buf, ", being ridden");
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
             Strcat(buf, digests(mtmp->data) ? ", swallowing you"
@@ -730,6 +743,10 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
     } else if (glyph_is_monster(glyph)) {
         if ((mtmp = m_at(x, y)) != 0) {
             look_at_monster(buf, monbuf, mtmp, x, y);
+            /* an unseen rider is described by the steed it is sitting on */
+            if (!canspotmon(mtmp) && has_erid(mtmp)
+                && canspotmon(ERID(mtmp)->mon_steed))
+                mtmp = ERID(mtmp)->mon_steed;
             pm = mtmp->data;
         } else if (Hallucination) {
             /* 'monster' must actually be a statue */

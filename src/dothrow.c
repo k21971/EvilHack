@@ -1253,6 +1253,32 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
         return;
     }
 
+    /* Is the monster riding another monster? */
+    if (has_erid(mon)) {
+        if (canseemon(mon))
+            pline("%s is knocked straight off %s %s!", Monnam(mon),
+                  mhis(mon), l_monnam(ERID(mon)->mon_steed));
+        separate_steed_and_rider(mon);
+        /* rloc_to/rloc inside separate_steed_and_rider may kill mon
+           via mintrap on the destination tile */
+        if (DEADMONSTER(mon))
+            return;
+    /* Is the monster being ridden? */
+    } else if (mon->ridden_by) {
+        struct monst *rider = get_mon_rider(mon);
+
+        if (rider) {
+            if (canseemon(mon))
+                pline("%s is knocked out from under %s rider!", Monnam(mon),
+                      mhis(mon));
+            separate_steed_and_rider(rider);
+            /* with nowhere to put it, the separation dismisses the
+               steed - which is the monster we are about to hurtle */
+            if (DEADMONSTER(mon))
+                return;
+        }
+    }
+
     /* Make sure dx and dy are [-1,0,1] */
     dx = sgn(dx);
     dy = sgn(dy);

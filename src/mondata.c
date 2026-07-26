@@ -1440,7 +1440,7 @@ pronoun_gender(
 boolean
 levl_follower(struct monst *mtmp)
 {
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed || mtmp->ridden_by)
         return TRUE;
 
     /* Wizard with Amulet won't bother trying to follow across levels */

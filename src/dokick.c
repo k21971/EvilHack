@@ -121,6 +121,8 @@ kickdmg(struct monst *mon, boolean clumsy)
                     newsym(mon->mx, mon->my);
                     place_monster(mon, mdx, mdy);
                     newsym(mon->mx, mon->my);
+                    /* a rider drags its steed along */
+                    update_monsteed(mon);
                     set_apparxy(mon);
                     if (mintrap(mon, NO_TRAP_FLAGS) == Trap_Killed_Mon)
                         trapkilled = TRUE;

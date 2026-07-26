@@ -1095,6 +1095,30 @@ free_emsp(struct monst *mtmp)
     }
 }
 
+void
+newerid(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!ERID(mtmp)) {
+        ERID(mtmp) = (struct erid *) alloc(sizeof (struct erid));
+        (void) memset((genericptr_t) ERID(mtmp), 0, sizeof (struct erid));
+    }
+}
+
+void
+free_erid(struct monst *mtmp)
+{
+    if (mtmp->mextra && ERID(mtmp)) {
+        struct monst *steed = ERID(mtmp)->mon_steed;
+
+        if (steed)
+            steed->ridden_by = 0;
+        free((genericptr_t) ERID(mtmp));
+        ERID(mtmp) = (struct erid *) 0;
+    }
+}
+
 static const struct mextra zeromextra = DUMMY;
 
 static void

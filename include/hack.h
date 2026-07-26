@@ -1213,7 +1213,11 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define GP_ALLOW_U      0x00400000L /* don't reject hero's location */
 #define GP_CHECKSCARY   0x00800000L /* check monster for onscary() */
 #define GP_AVOID_MONPOS 0x01000000L /* don't accept existing mon location */
-/* 25 bits used */
+/* first free bit above the GP_ block; new MM_ flags continue from here
+   rather than renumbering the GP_ ones */
+#define MM_NOSTEED      0x02000000L /* don't create a steed for a monster
+                                     * that would otherwise spawn mounted */
+/* 26 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */
 #define MHID_PREFIX  1 /* include ", mimicking " prefix */

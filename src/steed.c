@@ -19,12 +19,286 @@ static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
 staticfn boolean landing_spot(coord *, int, int);
 staticfn void maybewakesteed(struct monst *);
 staticfn void rebuff_rider(struct monst *);
+staticfn void steed_off_map(struct monst *);
 
 /* caller has decided that hero can't reach something while mounted */
 void
 rider_cant_reach(void)
 {
     You("aren't skilled enough to reach from %s.", y_monnam(u.usteed));
+}
+
+/* keep a monster's steed in step with its rider; the steed stays on the
+   fmon list but off the map, so its coordinates have to be carried along
+   by hand every time the rider moves */
+void
+update_monsteed(struct monst *mtmp)
+{
+    struct monst *steed;
+
+    if (!has_erid(mtmp))
+        return;
+
+    steed = ERID(mtmp)->mon_steed;
+    if (!steed)
+        return;
+    /* if the steed has the hero grabbed and its rider is carrying it
+       out of reach, release the grab */
+    if (steed == u.ustuck && !u.uswallow && !sticks(gy.youmonst.data)
+        && !m_next2u(mtmp)) {
+        unstuck(steed);
+        You("get released!");
+    }
+    steed->mx = mtmp->mx;
+    steed->my = mtmp->my;
+    steed->mpeaceful = mtmp->mpeaceful;
+    set_malign(steed);
+}
+
+/* take a steed off the map without disturbing the rest of its state; it
+   remains on the fmon list with its coordinates synced to its rider */
+staticfn void
+steed_off_map(struct monst *steed)
+{
+    if (isok(steed->mx, steed->my)
+        && svl.level.monsters[steed->mx][steed->my] == steed) {
+        remove_monster(steed->mx, steed->my);
+        newsym(steed->mx, steed->my);
+    }
+    steed->mstate |= MON_OFFMAP;
+}
+
+/* assign a steed to a monster as the monster spawns */
+void
+mount_monster(
+    struct monst *mtmp, /* rider */
+    int pm)             /* steed */
+{
+    struct monst *mount;
+
+    /* small hack here: make it in a random spot to avoid failures due
+       to there not being enough room */
+    mount = makemon(&mons[pm], 0, 0, MM_ADJACENTOK);
+    /* no steed (doesn't exist, genocided, extinct) or if for
+       some reason the steed is covetous - denied */
+    if (!mount || is_covetous(mount->data)
+        || ((svm.mvitals[monsndx(mount->data)].mvflags & G_GONE)
+            && !(mount->data == &mons[PM_PALE_HORSE]
+                 || mount->data == &mons[PM_WHITE_HORSE]
+                 || mount->data == &mons[PM_BLACK_HORSE]))) {
+        return;
+    }
+    steed_off_map(mount);
+
+    newerid(mtmp);
+    ERID(mtmp)->mon_steed = mount;
+    ERID(mtmp)->mid = mount->m_id;
+    mount->ridden_by = mtmp->m_id;
+    mount->mx = mtmp->mx;
+    mount->my = mtmp->my;
+    newsym(mtmp->mx, mtmp->my);
+
+    /* rider over'rides' steed's natural inclinations */
+    mount->mpeaceful = mtmp->mpeaceful;
+    set_malign(mount);
+
+    /* monster steeds will come with a saddle */
+    if (can_saddle(mount) && !which_armor(mount, W_SADDLE)) {
+        struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
+
+        if (otmp)
+            put_saddle_on_mon(otmp, mount);
+    }
+
+    /* if the monster steed has a saddle, there's a chance it's wearing
+       barding also */
+    if (!rn2(10) && which_armor(mount, W_SADDLE)
+        && can_wear_barding(mount) && !which_armor(mount, W_BARDING)) {
+        struct obj *otmp = mksobj(rn2(4) ? BARDING
+                                  : rn2(3) ? SPIKED_BARDING
+                                    : BARDING_OF_REFLECTION, TRUE, FALSE);
+
+        if (otmp) {
+            reroll_barding_material(otmp, mount, mtmp);
+            put_barding_on_mon(otmp, mount);
+        }
+    }
+}
+
+/* an unmounted monster looks around for something to climb onto */
+boolean
+mount_up(struct monst *rider)
+{
+    struct monst *steed, *nmon;
+
+    /* not acceptable as riders */
+    if (!mon_can_ride(rider) || has_erid(rider))
+        return FALSE;
+
+    for (steed = fmon; steed; steed = nmon) {
+        nmon = steed->nmon;
+        if (nmon == rider)
+            nmon = rider->nmon;
+        if (steed == rider)
+            continue;
+        /* the mount the hero is sitting on is not up for grabs; a steed
+           that goes untame while ridden would otherwise pass every test
+           below and end up carrying a monster and the hero at once */
+        if (steed == u.usteed)
+            continue;
+        /* criteria for an acceptable steed */
+        if (steed->data == &mons[PM_CAVE_BEAR]
+            || steed->data == &mons[PM_GRIZZLY_BEAR])
+            continue;
+        if (steed->data == &mons[PM_DEER]
+            || steed->data == &mons[PM_STAG])
+            continue;
+        if (!racial_drow(rider) && is_spider(steed->data))
+            continue;
+        if (!racial_drow(rider)
+            && (steed->data == &mons[PM_CAVE_LIZARD]
+                || steed->data == &mons[PM_LARGE_CAVE_LIZARD]))
+            continue;
+        if (!racial_orc(rider)
+            && (steed->data == &mons[PM_WARG]
+                || steed->data == &mons[PM_WOLF]))
+            continue;
+        if (rider->data != &mons[PM_CAVE_DWELLER]
+            && steed->data == &mons[PM_SABER_TOOTHED_TIGER])
+            continue;
+        if (!(racial_zombie(rider) || racial_vampire(rider))
+            && (steed->data == &mons[PM_SKELETAL_PONY]
+                || steed->data == &mons[PM_SKELETAL_HORSE]
+                || steed->data == &mons[PM_SKELETAL_WARHORSE]
+                || steed->data == &mons[PM_SKELETAL_DRAGON]))
+            continue;
+        /* don't let wild riders commandeer the hero's pet */
+        if (steed->mtame)
+            continue;
+        if (monnear(rider, steed->mx, steed->my)
+            && mon_can_be_ridden(steed) && !steed->ridden_by)
+            break;
+    }
+    /* not a steed? can't ride */
+    if (!steed)
+        return FALSE;
+    /* steed doesn't have a saddle? can't ride */
+    if (!which_armor(steed, W_SADDLE))
+        return FALSE;
+
+    if (canseemon(rider)) {
+        pline("%s clambers onto %s!", Monnam(rider),
+              canseemon(steed) ? mon_nam(steed) : "something");
+    } else if (!Deaf && mdistu(rider) <= 5) {
+        You_hear("someone %s.", Hallucination
+                                ? "getting on their high horse"
+                                : "jump into a saddle");
+    }
+    steed_off_map(steed);
+
+    newerid(rider);
+    ERID(rider)->mon_steed = steed;
+    ERID(rider)->mid = steed->m_id;
+    steed->ridden_by = rider->m_id;
+    steed->mx = rider->mx;
+    steed->my = rider->my;
+    newsym(rider->mx, rider->my);
+
+    /* rider over'rides' steed's natural inclinations */
+    steed->mpeaceful = rider->mpeaceful;
+    set_malign(steed);
+    return TRUE;
+}
+
+/* break the link between a monster rider and its steed, putting both
+   back onto the map */
+void
+separate_steed_and_rider(struct monst *rider)
+{
+    struct monst *steed;
+    coord cc;
+
+    if (!has_erid(rider))
+        return;
+
+    steed = ERID(rider)->mon_steed;
+    free_erid(rider);
+    if (!steed)
+        return;
+
+    /* handle rider if both rider and steed are alive */
+    if (!DEADMONSTER(rider) && !DEADMONSTER(steed)) {
+        coordxy orig_x = rider->mx, orig_y = rider->my;
+        boolean rider_moved;
+
+        /* move rider to an adjacent tile */
+        if (enexto(&cc, rider->mx, rider->my, rider->data)) {
+            rloc_to(rider, cc.x, cc.y);
+            rider_moved = TRUE;
+        } else {
+            /* evidently no room nearby; move rider elsewhere */
+            rider_moved = rloc(rider, RLOC_ERR | RLOC_NOMSG);
+        }
+        if (rider_moved) {
+            place_monster(steed, orig_x, orig_y);
+        } else if (enexto(&cc, orig_x, orig_y, steed->data)) {
+            /* rider stuck at orig; find a different spot for steed */
+            place_monster(steed, cc.x, cc.y);
+        } else {
+            /* truly nowhere to put the steed - dismiss it */
+            mongone(steed);
+        }
+    }
+    /* place rider if steed dies and rider is still alive */
+    if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
+        remove_monster(steed->mx, steed->my); /* remove pointer to steed */
+        place_monster(rider, rider->mx, rider->my);
+    }
+    /* place steed if rider dies and steed is still alive */
+    if (!DEADMONSTER(steed) && DEADMONSTER(rider))
+        place_monster(steed, steed->mx, steed->my);
+
+    /* rloc_to/rloc above can kill the rider via mintrap on the destination
+       (collapsing tile, anti-magic field, lava, statue corpse, gas-cloud
+       region damage); mongone(steed) above can dismiss the steed. Guard
+       each side independently against a stale-coord deref */
+    if (!DEADMONSTER(rider)) {
+        update_monster_region(rider);
+        newsym(rider->mx, rider->my);
+    }
+    if (!DEADMONSTER(steed)) {
+        update_monster_region(steed);
+        newsym(steed->mx, steed->my);
+    }
+}
+
+/* a monster snared by a web is shaken off whatever it was riding */
+void
+web_unseats_rider(struct monst *mon)
+{
+    /* web traps don't kill, but the DEADMONSTER guard is cheap insurance
+       in case mintrap() ever grows a lethal side effect on this path */
+    if (DEADMONSTER(mon) || !mon->mtrapped || !has_erid(mon))
+        return;
+    if (canseemon(mon))
+        pline("%s falls off %s %s!", Monnam(mon), mhis(mon),
+              l_monnam(ERID(mon)->mon_steed));
+    separate_steed_and_rider(mon);
+}
+
+/* return the monster riding mtmp, if any */
+struct monst *
+get_mon_rider(struct monst *mtmp)
+{
+    struct monst *mtmp2;
+
+    if (!mtmp->ridden_by)
+        return (struct monst *) 0;
+    for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+        if (mtmp->ridden_by == mtmp2->m_id)
+            return mtmp2;
+    }
+    return (struct monst *) 0;
 }
 
 /*** Putting the saddle on ***/
@@ -1400,7 +1674,11 @@ place_monster(struct monst *mon, coordxy x, coordxy y)
                    mon->mstate, buf);
         return;
     }
-    if ((othermon = svl.level.monsters[x][y]) != 0) {
+    if ((othermon = svl.level.monsters[x][y]) != 0
+        /* a monster steed and its rider are colocated, so allow placing
+           one on top of the other */
+        && !((has_erid(othermon) && ERID(othermon)->mon_steed == mon)
+             || (has_erid(mon) && ERID(mon)->mon_steed == othermon))) {
         describe_level(buf, 0);
         monnm = minimal_monnam(mon, FALSE);
         othnm = (mon != othermon) ? minimal_monnam(othermon, TRUE) : "itself";

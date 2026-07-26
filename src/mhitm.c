@@ -185,7 +185,7 @@ mdisplacem(
     int tx, ty, fx, fy;
 
     /* sanity checks; could matter if we unexpectedly get a long worm */
-    if (!magr || !mdef || magr == mdef)
+    if (!magr || !mdef || magr == mdef || has_erid(mdef))
         return M_ATTK_MISS;
     pa = magr->data, pd = mdef->data;
     tx = mdef->mx, ty = mdef->my; /* destination */
@@ -901,6 +901,10 @@ engulf_target(struct monst *magr, struct monst *mdef)
     if (mdef->mentangled)
         return FALSE;
 
+    /* can't swallow something if riding / being ridden */
+    if (magr->ridden_by || mdef->ridden_by || has_erid(magr))
+        return FALSE;
+
     /* if attacker is phasing in solid rock and defender can't move there,
        or vice versa, don't allow engulf to succeed; otherwise expelling
        might not be able to place attacker and defender both back on map;
@@ -938,6 +942,13 @@ gulpmm(
 
     if (!engulf_target(magr, mdef))
         return M_ATTK_MISS;
+
+    if (has_erid(mdef)) {
+        if (gv.vis)
+            pline("%s plucks %s right off %s mount!", Monnam(magr),
+                  mon_nam(mdef), mhis(mdef));
+        separate_steed_and_rider(mdef);
+    }
 
     if (gv.vis) {
         pline("%s %s %s.", Monnam(magr),

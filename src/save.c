@@ -905,6 +905,11 @@ savemon(NHFILE *nhfp, struct monst *mtmp)
             relative_time_to_moves(&EDOG(mtmp)->droptime);
             relative_time_to_moves(&EDOG(mtmp)->hungrytime);
         }
+        buflen = ERID(mtmp) ? (int) sizeof (struct erid) : 0;
+        Sfo_int(nhfp, &buflen, "monst-erid_length");
+        if (buflen > 0) {
+            Sfo_erid(nhfp, ERID(mtmp), "monst-erid");
+        }
         buflen = EBONES(mtmp) ? (int) sizeof (struct ebones) : 0;
         Sfo_int(nhfp, &buflen, "monst-ebones_length");
         if (buflen > 0) {

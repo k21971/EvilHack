@@ -26,6 +26,7 @@ staticfn void rest_stairs(NHFILE *);
 staticfn void ghostfruit(struct obj *);
 staticfn boolean restgamestate(NHFILE *);
 staticfn void restlevelstate(void);
+staticfn void restmonsteeds(struct monst *, boolean);
 staticfn int restlevelfile(xint8);
 staticfn void rest_bubbles(NHFILE *);
 staticfn void restore_gamelog(NHFILE *);
@@ -359,6 +360,12 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
            if (EDOG(mtmp)->apport <= 0) {
                EDOG(mtmp)->apport = 1;
            }
+        }
+        /* erid - monster steed */
+        Sfi_int(nhfp, &buflen, "monst-erid_length");
+        if (buflen > 0) {
+            newerid(mtmp);
+            Sfi_erid(nhfp, ERID(mtmp), "monst-erid");
         }
         /* ebones */
         Sfi_int(nhfp, &buflen, "monst-ebones_length");
@@ -729,6 +736,10 @@ restgamestate(NHFILE *nhfp)
     }
 
 #ifndef SFCTOOL
+    /* a mounted monster migrates together with its steed, so the pair
+       can be reattached within the migrating chain */
+    restmonsteeds(gm.migrating_mons, FALSE);
+
     /*
      * There are some things after this that can have unintended display
      * side-effects too early in the game.
@@ -1268,6 +1279,10 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
     rest_engravings(nhfp);
 
 #ifndef SFCTOOL
+    /* monster riders can be reattached to their steeds now that the
+       whole fmon chain has been read */
+    restmonsteeds(fmon, ghostly);
+
     /* reset level.monsters for new level */
     for (x = 0; x < COLNO; x++)
         for (y = 0; y < ROWNO; y++)
@@ -1279,14 +1294,18 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
         if (ghostly) {
             mtmp->movement = 0;
         }
+        /* being the hero's or a monster's mount is independent of being
+           the monster that has hold of the hero */
+        if (mtmp->m_id == u.ustuck_mid)
+            set_ustuck(mtmp); /* set_ustuck clears u.ustuck_mid */
         if (mtmp->m_id == u.usteed_mid) {
             /* steed is kept on fmon list but off the map */
             u.usteed = mtmp;
             u.usteed_mid = 0;
+        } else if (mtmp->ridden_by) {
+            /* a monster's steed is also kept on fmon but off the map */
+            ;
         } else {
-            if (mtmp->m_id == u.ustuck_mid) {
-                set_ustuck(mtmp); /* set_ustuck clears u.ustuck_mid */
-            }
             place_monster(mtmp, mtmp->mx, mtmp->my);
             if (mtmp->wormno)
                 place_wsegs(mtmp, NULL);
@@ -1577,6 +1596,51 @@ add_id_mapping(unsigned int gid, unsigned int nid)
     gi.id_map->map[idx].gid = gid;
     gi.id_map->map[idx].nid = nid;
     gn.n_ids_mapped++;
+}
+
+/* re-derive the mon_steed pointers that a savefile can't hold; a monster
+   chain has just been read, so each stored steed m_id can be resolved to
+   the monster it names */
+staticfn void
+restmonsteeds(struct monst *chain, boolean ghostly)
+{
+    struct monst *mon, *mtmp;
+    /* initialize to 0 so a lookup_id_mapping() miss can't feed stack
+       garbage into the m_id search below (0 matches no real monster) */
+    unsigned steed_id = 0;
+
+    for (mon = chain; mon; mon = mon->nmon) {
+        if (!has_erid(mon))
+            continue;
+        /* the steed's id will have changed if this came from a bones file */
+        if (ghostly) {
+            if (!lookup_id_mapping(ERID(mon)->mid, &steed_id))
+                steed_id = 0;
+        } else {
+            steed_id = ERID(mon)->mid;
+        }
+
+        for (mtmp = chain; mtmp; mtmp = mtmp->nmon)
+            if (mtmp->m_id == steed_id)
+                break;
+
+        if (!mtmp) {
+            /* can't use free_erid(); the pointer from the savefile is
+               stale, so following it would touch freed memory */
+            free((genericptr_t) ERID(mon));
+            ERID(mon) = (struct erid *) 0;
+            impossible("steed ID %u (ridden by %s) does not exist?",
+                       steed_id, minimal_monnam(mon, FALSE));
+        } else {
+            ERID(mon)->mon_steed = mtmp;
+            ERID(mon)->mid = mtmp->m_id;
+            /* the steed's back-pointer holds the rider's id, which is
+               also stale after a bones remap; nothing else rewrites it,
+               and get_mon_rider() would either miss or, worse, name a
+               different monster whose new id collides */
+            mtmp->ridden_by = mon->m_id;
+        }
+    }
 }
 
 /*

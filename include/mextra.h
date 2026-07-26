@@ -214,7 +214,11 @@ struct edog {
  */
 struct erid {
     struct monst *mon_steed;  /* monster being ridden */
-    unsigned int mid;         /* pointer to attached monster id */
+    unsigned mid;             /* m_id of the monster being ridden; the
+                               * pointer above is re-derived from it on
+                               * restore. spelled 'unsigned' rather than
+                               * 'unsigned int' because that is the type
+                               * name the savefile generator knows */
 };
 
 /***

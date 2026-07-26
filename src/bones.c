@@ -522,8 +522,26 @@ remove_mon_from_bones(struct monst *mtmp)
         /* Cerberus guards the Valley; he may stay in Valley bones */
         || (mtmp->iscerberus && !Is_valley(&u.uz))
         || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-        || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+        || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
         mongone(mtmp);
+        return; /* don't inspect erid on a detached monster */
+    }
+
+    /* monster steeds tend to wander off */
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
+        struct monst *msteed = ERID(mtmp)->mon_steed;
+        coord cc;
+
+        /* anchor on the rider, not the hero; act on the return value
+           so we don't silently place the steed on the fallback square
+           (which would be the hero's tile when anchored on u.ux,u.uy) */
+        if (enexto(&cc, mtmp->mx, mtmp->my, msteed->data)
+            && !m_at(cc.x, cc.y))
+            place_monster(msteed, cc.x, cc.y);
+        else
+            mongone(msteed);
+    }
+    free_erid(mtmp);
 }
 
 /* save bones and possessions of a deceased adventurer */

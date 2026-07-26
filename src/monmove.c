@@ -1205,7 +1205,10 @@ dochug(struct monst *mtmp)
 
         if (!status)
             status = m_move(mtmp, 0);
-        if (mon_offmap(mtmp))
+        /* drag a monster steed along to wherever its rider ended up */
+        update_monsteed(mtmp);
+        /* a steed carrying a monster rider is off the map on purpose */
+        if (mon_offmap(mtmp) && !mtmp->ridden_by)
             return 1;
         if (status != MMOVE_DIED)
             distfleeck(mtmp, &inrange, &nearby, &scared); /* recalc */
@@ -2066,6 +2069,11 @@ m_move(struct monst *mtmp, int after)
 
     /* held fast by magical vegetation; can still attack */
     if (mtmp->mentangled)
+        return MMOVE_NOTHING;
+
+    /* a monster being ridden goes where its rider takes it; it can
+       still attack from there */
+    if (mtmp->ridden_by)
         return MMOVE_NOTHING;
 
     if (mtmp->meating) {
