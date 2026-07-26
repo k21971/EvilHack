@@ -5172,15 +5172,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master's date helpers that was missed. Master's body uses
       getmday()/getmonth(), which 5.0 dropped and the branch does
       not have, so the port uses the single-getlt() idiom its three
-      siblings in that file already use. That INCIDENTALLY FIXES a
-      latent master defect worth recording but not, on its own,
-      worth a BUG id: master's getmday()+getmonth() pair is two
-      independent time()+localtime() calls, so the predicate can
-      straddle midnight and read tm_mday from Oct 31 against tm_mon
-      from Nov 1. Consequence is only that the feature fails to fire
-      inside a sub-millisecond window, and master's three bday
-      helpers share the shape. Raise it with the maintainer if the
-      frozen-unfixed list is ever swept for completeness.
+      siblings in that file already use. That INCIDENTALLY AVOIDS a
+      latent master defect, BUG-1384: master's getmday()+getmonth()
+      pair is two independent time()+localtime() calls, so the
+      predicate reads the day and the month from two clock samples
+      and can straddle midnight, taking tm_mday from Oct 31 against
+      tm_mon from Nov 1.
+      SCOPE CORRECTED WHEN THE ID WAS ASSIGNED, and the correction
+      is the part worth keeping: this was first recorded as
+      affecting master's three bday helpers too. It does not. The
+      month can only change across a midnight rollover when the day
+      under test is the LAST day of its month, so kathryn_bday
+      (12 Feb), bourbon_bday (19 Apr) and ozzy_bday (13 Jan) always
+      land their second sample in the same month and cannot
+      misfire; only halloween() is exposed, because 31 October is
+      October's last day. friday_13th() in that same file already
+      uses the single-getlt() form, so both shapes coexist there.
+      A false positive is impossible - it would need the first
+      sample on a 31st and the later one still in October, which
+      requires 31 October already - leaving only a false negative
+      in the microseconds of the Oct 31 -> Nov 1 rollover, i.e. the
+      feature ends a few microseconds early on its last instant.
+      Numbered at the maintainer's direction as a code-shape
+      record, not an impact record; master frozen-unfixed, and the
+      branch is correct by construction rather than by a fix.
       TWO DELIBERATE DEVIATIONS FROM MASTER, both maintainer-ruled
       at plan time:
       1. The x3 goes AFTER `weight += temperature_shift(ptr);`, an
