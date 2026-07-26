@@ -32,6 +32,7 @@ struct tmplevel {
     struct couple lev;
     int chance, rndlevs, chain, flags;
     char boneschar;
+    int align;
 };
 
 struct tmpbranch {
@@ -59,12 +60,22 @@ struct tmpbranch {
 #define ROGUELIKE   0x08
 #define UNCONNECTED 0x10
 
+/*
+ *    Dungeon and level alignment. These are carried in the dedicated
+ *    'align' field of struct tmpdungeon and struct tmplevel and must
+ *    never be OR'd into 'flags': the values overlap the flag bits above
+ *    (D_ALIGN_CHAOTIC and UNCONNECTED are both 0x10), so packing them
+ *    into one word makes an unconnected dungeon read as chaotic.
+ *    dungeon.c unpacks them with D_ALIGN_SHIFT into a 3-bit field, so
+ *    everything below derives from that one shift
+ */
+#define D_ALIGN_SHIFT 4
 #define D_ALIGN_NONE 0
-#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 4)
-#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 4)
-#define D_ALIGN_LAWFUL (AM_LAWFUL << 4)
+#define D_ALIGN_CHAOTIC (AM_CHAOTIC << D_ALIGN_SHIFT)
+#define D_ALIGN_NEUTRAL (AM_NEUTRAL << D_ALIGN_SHIFT)
+#define D_ALIGN_LAWFUL (AM_LAWFUL << D_ALIGN_SHIFT)
 
-#define D_ALIGN_MASK 0x70
+#define D_ALIGN_MASK (AM_MASK << D_ALIGN_SHIFT)
 
 /*
  *    Max number of prototype levels and branches.

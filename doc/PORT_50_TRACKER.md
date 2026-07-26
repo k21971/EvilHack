@@ -5047,34 +5047,100 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       was lucky rather than clever: had the alignment bug been
       fixed first, the A_NONE spam would have widened from two
       special levels to whole dungeons.
-- [ ] Dungeon alignments never reach runtime (NEW, minted
-      2026-07-26 by the A_NONE battery, which surveyed
-      svd.dungeons[] to check its own premise and found every
-      dungeon reporting align 0). UPSTREAM 5.0 BUG, live on the
-      branch, NOT branch-introduced - see the upstream-reportable
-      table.
-      MECHANISM: get_dgn_align() returns D_ALIGN_* values, which
-      dgn_file.h defines as `AM_* << 4`, and dungeon.c assigns one
-      straight into `svd.dungeons[dngidx].flags.align`, which
-      dungeon.h declares `Bitfield(align, 3)`. AM_LAWFUL << 4 = 64
-      into three bits = 0. The LEVEL path in the same file gets it
-      right (`((tlevel->flags & D_ALIGN_MASK) >> 4)`), and master,
-      whose dgn_comp-era parser used a >> 9 shift, carries the
-      comment "bit shift needs to match that in include/dgn_file.h"
-      at exactly this assignment. 5.0's Lua rewrite kept the shift
-      on the level path and dropped it on the dungeon path.
-      CONSEQUENCE: every dungeon-wide alignment in dat/dungeon.lua
-      is silently discarded. Runtime survey: all 9 dungeons align 0
-      although the file declares Gnomish Mines lawful, Sokoban and
-      The Quest neutral and Vlad's Tower chaotic; only the oracle
-      (neutral), medusa (chaotic) and tut-1/tut-2 (chaotic) SPECIAL
-      LEVELS carry alignment at all. So monster generation
-      frequency is alignment-blind across whole dungeons, and any
-      other consumer of dungeon alignment is too - check them all
-      when fixing.
-      WORTH KNOWING WHEN SCOPING: this is a one-line fix but it
-      WIDENS the exposure of anything alignment-sensitive, so
-      re-run the A_NONE battery afterwards.
+- [x] Dungeon alignments never reach runtime (minted 2026-07-26 by
+      the A_NONE battery, which surveyed svd.dungeons[] to check
+      its own premise and found every dungeon reporting align 0).
+      UPSTREAM 5.0 BUG, live on the branch, NOT branch-introduced -
+      see the upstream-reportable table. DONE 2026-07-26,
+      BUG-1381 + BUG-1382 + BUG-1383.
+      SCOPED AS A ONE-LINE FIX; IT WAS THREE DEFECTS. The two extra
+      ones were not in the original trace, and the note above that
+      "the LEVEL path in the same file gets it right" was wrong -
+      it only looked right because it reads a differently-broken
+      field. Recorded here because the mis-scoping is the lesson:
+      1. BUG-1381, the traced one. get_dgn_align() returns
+         D_ALIGN_* (`AM_* << 4`) and dungeon.c assigned one
+         straight into `Bitfield(align, 3)`, so 64/32/16 all
+         truncated to 0 and every dungeon-wide alignment in
+         dat/dungeon.lua was discarded.
+      2. BUG-1382. The level-inherits-dungeon fallback reads
+         `pd->tmpdungeon[dgn].flags & D_ALIGN_MASK`, but 5.0's Lua
+         parser stores dungeon alignment in a dedicated `.align`
+         member and puts NO alignment bit in `.flags`. That member
+         was write-only dead code; special levels never inherited
+         their dungeon's alignment. Independent of 1381 - fixing
+         the truncation alone would have left minetn/minend/tower
+         unaligned.
+      3. BUG-1383. `UNCONNECTED` is 0x10 and `D_ALIGN_CHAOTIC` is
+         `AM_CHAOTIC << 4` = 0x10 - the same bit, with D_ALIGN_MASK
+         0x70 overlapping the flag word. The Tutorial's dungeon-
+         scope `flags = { "mazelike", "unconnected" }` therefore
+         read back as chaotic through defect 2. That is what the
+         survey line below was actually seeing.
+      FIX: alignment decoupled from the flag word entirely -
+      `struct tmplevel` gained an `align` member mirroring
+      tmpdungeon's, both init_level() reads take the align fields,
+      and the dungeon assignment shifts. Master's `<< 9` was
+      REJECTED: master's word runs TOWN 0x01..HDGN 0x100 with
+      D_ALIGN_CHAOTIC at 0x200 on the next free bit, so once the
+      five unported EvilHack flags land alongside 5.0's
+      UNCONNECTED (ten flags, needing bit 9) `<< 9` re-creates the
+      collision. Decoupling leaves 0x20-0x200 free for them.
+      CORRECTED SURVEY (the pre-fix line said "Sokoban and The
+      Quest neutral" and "tut-1/tut-2 chaotic"; both wrong):
+      dat/dungeon.lua declares Gnomish Mines lawful, Sokoban
+      neutral, Vlad's Tower chaotic, oracle neutral, medusa
+      chaotic. The Quest block declares NO alignment key - reading
+      0 is correct, not a symptom. tut-1/tut-2 declare none either;
+      their chaotic reading was defect 3.
+      POST-FIX gdb survey at init_castle_tune(): Mines 4, Sokoban
+      2, Vlad 1, Quest/DoD/Gehennom/Ludios/Planes/Tutorial 0;
+      minetn/minend 4, tower1-3 1, soko1-4 2 (inheritance live);
+      tut-1/tut-2 0 while Tutorial keeps unconnected 1 - a pairing
+      that was impossible pre-fix.
+      A_NONE battery re-run afterwards as required, since this
+      widens exposure from a few special levels to whole dungeons:
+      PASS, ~860 forced rndmonst() calls across the lawful, neutral
+      and chaotic arms plus 13 level generations, paniclog never
+      created, and mvitals[].born proving all three A_NONE species
+      are generated again rather than merely silent.
+      TWO BATTERY-STAGING GOTCHAS worth reusing (both cost time on
+      this slice):
+      1. align_shift() caches `lev = Is_special(&u.uz)` keyed on
+         svm.moves, and wizard ^G/^V consume no game time - so a
+         run staged entirely at a fixed turn count reads a STALE
+         lev from a previously-visited level and reports the wrong
+         alignment arm. Burn a turn on each level before observing.
+         Staging artifact only; the reviewer traced the cache and
+         found no in-game staleness window (svm.moves++ precedes
+         rhack()/deferred_goto(), and goto_level() sets u.uz before
+         mklev()).
+      2. /root/.evilhackrc is full of master-era options this 5.0
+         build rejects, which stops startup at "Hit return to
+         continue" and hangs an unattended run. Launch with
+         `--no-evilhackrc`. Also `-@` does NOT suppress character
+         selection in this build - it still prompts, answer 'y'.
+- [ ] LEV_LIMIT must be raised before the EvilHack dungeons land
+      (NEW, minted 2026-07-26 by the code reviewer on the dungeon-
+      alignment slice). include/dgn_file.h on the branch carries
+      upstream 5.0's `LEV_LIMIT 50`; master raised it to 99 for
+      EvilHack's extra dungeons. dat/dungeon.lua currently declares
+      ~37 level prototypes (38 entries in the runtime sp_levchn
+      survey), so headroom is only ~12 - and the five unported
+      EvilHack dungeons (Ice Queen, Vecna, Goblin King, Purgatory,
+      Hidden Dungeon) plus their levels will blow through it.
+      Raise to master's 99 with the dungeon-content port, NOT
+      before - it is a pure constant bump with no dependency, but
+      it belongs with the content that needs it.
+      RELATED, same file: `init_dungeon_levels()` writes
+      `tmpl = &pd->tmplevel[pd->n_levs + f]` BEFORE the
+      `if (pd->n_levs > LEV_LIMIT) panic(...)` guard that follows
+      the loop, so overflow corrupts proto_dungeon before it is
+      caught. Pre-existing and upstream-identical, not player-
+      reachable (dungeon.lua is maintainer-controlled), but it
+      means the failure mode when the limit IS hit is a silent
+      stack smash rather than the intended panic. Worth fixing in
+      the same slice as the bump.
 - [ ] Halloween undead generation bonus (NEW, minted 2026-07-26 by
       the A_NONE fix, a sibling gap in the same function).
       Master's rndmonst_adj() carries
@@ -5294,7 +5360,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-24 | muse.c hero scroll-of-fire arm: `if (Fire_resistance) You("are not harmed.");` followed by `if (Half_spell_damage) num = (num + 1) / 2; else losehp(num, ...)` - the losehp rides the halving else, so a fire-resistant hero takes FULL damage whenever Half_spell_damage is absent, and ANY hero with Half_spell_damage takes zero. Identical in NetHack50 and Official_nh50. Branch restored master's gate form (==100 no-harm + monstseesu, else halve-then-losehp) with the partial-resistance slice | fixed on branch; not yet sent |
 | 2026-07-25 | sp_lev.c lspo_monster() leaks two heap strings on its table-form error paths, because `nhl_error` -> `lua_error` longjmps out past the `Free`s: the `nhl_error(L, "Unknown appear_as type")` arm abandons `mappear` (from get_table_str_opt) plus `tmpmons.name.str`, and an `nhl_error` raised inside `get_table_montype()` abandons `tmpmons.name.str` and the `dupstr`ed `tmpmons.appear_as.str`. Verified identical in NetHack50 and Official_nh50. Matters a little more than a normal error-path leak because a Lua error during level generation is NOT fatal - `nhl_pcall_handle` uses NHLpa_impossible, so load_special returns FALSE, mkmaze falls back to a random maze and play continues, so the leak can recur. NOT the same as `get_table_montype()` itself, whose `Free(s)` correctly precedes its `nhl_error`. The branch's three new positional-form `nhl_error`s are leak-free by construction (nothing is allocated yet at that point and paramstr is Lua-owned) | traced, not fixed on branch; not yet sent |
 | 2026-07-25 | sp_lev.c lspo_monster(): a `des.monster{ inventory = <non-function> }` (a table, say) still sets `has_invent = CUSTOM_INVENT` at the `lua_getfield`/`!lua_isnil` test, so create_monster() points the file static `invent_carrying_monster` at the monster, but the closure gate additionally requires LUA_TFUNCTION - the else arm only does `lua_pop` and never calls spo_end_moninvent(). The static therefore outlives the call and create_object() diverts every later `des.object()` in the file into that monster instead of onto the map. Identical in NetHack50 and Official_nh50 (both `} else lua_pop(L, 1);`, and their create_monster is `staticfn void`). Harmless-but-wrong upstream; on the branch the `dead` binding turns it into a silent object leak (objects handed to a detached monster, freed by dealloc_monst which has no minvent handling), so the branch clears the static in the else arm whenever CUSTOM_INVENT was requested | fixed on branch; not yet sent |
-| 2026-07-26 | dungeon.c init_dungeon(): `svd.dungeons[dngidx].flags.align = dgn_align;` assigns a `D_ALIGN_*` value straight into a `Bitfield(align, 3)`. dgn_file.h defines `D_ALIGN_LAWFUL` etc. as `AM_* << 4`, so lawful (64), neutral (32) and chaotic (16) all truncate to 0 and EVERY dungeon-wide alignment declared in dat/dungeon.lua is silently discarded. The level path in the same file is correct (`new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 4)`), so the Lua rewrite kept the shift on one path and dropped it on the other; 3.6's dgn_comp-era code has the same assignment with a `>> 9` shift AND the comment "bit shift needs to match that in include/dgn_file.h". Identical in Official_nh50 at the same line numbers. Runtime-proven on the branch by gdb survey: all 9 dungeons report align 0, only the oracle/medusa/tutorial special levels carry alignment. Consequence: monster generation frequency (align_shift) is alignment-blind across whole dungeons | traced, NOT yet fixed on branch (own tracker row); not yet sent |
+| 2026-07-26 | dungeon.c/dgn_file.h dungeon alignment - THREE defects in one mechanism, all identical in Official_nh50. (1) `init_dungeon()` assigns a `D_ALIGN_*` value (`AM_* << 4`) straight into `Bitfield(align, 3)`, so lawful/neutral/chaotic all truncate to 0 and every dungeon-wide alignment in dat/dungeon.lua is discarded; 3.6's dgn_comp-era code has the same assignment with a `>> 9` shift AND the comment "bit shift needs to match that in include/dgn_file.h". (2) `init_level()`'s inherit-from-dungeon fallback reads `pd->tmpdungeon[dgn].flags & D_ALIGN_MASK`, but 5.0's Lua parser stores dungeon alignment in a dedicated `.align` member and never puts an alignment bit in `.flags` - so that member is write-only dead code and special levels never inherit. (3) `UNCONNECTED` (0x10) is bit-identical to `D_ALIGN_CHAOTIC` (`AM_CHAOTIC << 4`), and D_ALIGN_MASK 0x70 overlaps the flag word, so upstream's own Tutorial block (`flags = { "mazelike", "unconnected" }`) reads back through (2) as chaotic - tut-1/tut-2 generate chaotic-weighted monsters and chaotic-biased altars that nothing ever declared. Branch fix decouples alignment from the flag word (`struct tmplevel` gains an `align` member mirroring tmpdungeon's); master's `<< 9` was rejected because master has zero headroom above HDGN 0x100 and the branch's eventual ten-flag set would re-collide. gdb-proven: Mines 4 / Sokoban 2 / Vlad 1, minetn+minend 4, tower1-3 1, soko1-4 2, tut-1/tut-2 0 with Tutorial still unconnected 1 | fixed on branch (BUG-1381/1382/1383); not yet sent - decide at send time whether upstream gets the decoupling or a minimal shift-only variant |
 | 2026-07-24 | uhitm.c mhitm_ad_slee monster-vs-monster arm: `!mdef->msleeping && sleep_monst(mdef, rnd(10), -1) && sleep_monst(mdef, rnd(10), -1)` - sleep_monst called twice in one condition, so the sleep applies only when both rolls succeed and the first success is re-rolled. Identical in NetHack50 and Official_nh50. Left as-is on branch (monster-side, outside the partial-resistance slice) | traced; not yet sent |
 
 ## Master re-derive queue

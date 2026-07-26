@@ -585,10 +585,11 @@ init_level(int dgn, int proto_index, struct proto_dungeon *pd)
     new_level->flags.hellish = !!(tlevel->flags & HELLISH);
     new_level->flags.maze_like = !!(tlevel->flags & MAZELIKE);
     new_level->flags.rogue_like = !!(tlevel->flags & ROGUELIKE);
-    new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 4);
+    /* alignment lives in its own field, not in 'flags' - see dgn_file.h */
+    new_level->flags.align = ((tlevel->align & D_ALIGN_MASK) >> D_ALIGN_SHIFT);
     if (!new_level->flags.align)
         new_level->flags.align =
-            ((pd->tmpdungeon[dgn].flags & D_ALIGN_MASK) >> 4);
+            ((pd->tmpdungeon[dgn].align & D_ALIGN_MASK) >> D_ALIGN_SHIFT);
 
     new_level->rndlevs = tlevel->rndlevs;
     new_level->next = (s_level *) 0;
@@ -835,7 +836,8 @@ init_dungeon_levels(
             tmpl->lev.rand = lvl_range;
             tmpl->chance = lvl_chance;
             tmpl->rndlevs = lvl_nlevels;
-            tmpl->flags = lvl_flags | lvl_align;
+            tmpl->flags = lvl_flags;
+            tmpl->align = lvl_align;
             tmpl->boneschar = *lvl_bonetag ? *lvl_bonetag : 0;
             free(lvl_bonetag);
             tmpl->chain = -1;
@@ -1100,7 +1102,8 @@ init_dungeon_dungeons(
     svd.dungeons[dngidx].flags.hellish = !!(dgn_flags & HELLISH);
     svd.dungeons[dngidx].flags.maze_like = !!(dgn_flags & MAZELIKE);
     svd.dungeons[dngidx].flags.rogue_like = !!(dgn_flags & ROGUELIKE);
-    svd.dungeons[dngidx].flags.align = dgn_align;
+    svd.dungeons[dngidx].flags.align =
+        ((dgn_align & D_ALIGN_MASK) >> D_ALIGN_SHIFT);
     svd.dungeons[dngidx].flags.unconnected = !!(dgn_flags & UNCONNECTED);
 
     init_dungeon_set_entry(pd, dngidx);
