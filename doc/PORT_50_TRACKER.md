@@ -5517,11 +5517,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       critical_sizes[] beside its ebones/emsp/erac siblings and
       EDITLEVEL 2 -> 3, so old saves report "outdated savefile"
       rather than a datamodel mismatch. Dev saves and bones invalid.
-      DIVERGENCES FROM MASTER, both flagged for ratification:
-      mount_up() declines to take the mount the hero is sitting on
-      (master lets a monster bind erid to u.usteed, which on this
-      branch would also stamp MON_OFFMAP on it), and the Ithilmar
-      arm above.
+      DIVERGENCES FROM MASTER, BOTH RATIFIED: the Ithilmar arm above
+      (maintainer 2026-07-26), and mount_up() declining to take the
+      mount the hero is sitting on (maintainer 2026-07-27, keep as
+      defensive). Master lets a monster bind erid to u.usteed, which
+      on this branch would also stamp MON_OFFMAP on the mount the
+      hero is riding. TRACED AT RATIFICATION TIME AND CURRENTLY
+      UNREACHABLE, which is why the guard's comment says so: a
+      mounted steed can only lose tameness through kick_steed(),
+      which dismounts the hero at zero; mount_steed()'s !mtame
+      refusal is not force-gated, so even wizmode cannot mount a
+      non-tame monster; nothing sets u.usteed->mtame or mpeaceful to
+      0 directly; and mon_can_be_ridden() requires both !mtame and
+      !mpeaceful. Re-check the guard if a future path ever untames a
+      steed without dismounting.
       BATTERY (26 items, sanity_check on, 5 games): 24 PASS. NONE of
       "mon is not there!" / "placing X over Y" / "off-map steed" /
       "no monster to remove" ever fired, and the barded-monster

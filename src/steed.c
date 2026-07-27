@@ -141,9 +141,11 @@ mount_up(struct monst *rider)
             nmon = rider->nmon;
         if (steed == rider)
             continue;
-        /* the mount the hero is sitting on is not up for grabs; a steed
-           that goes untame while ridden would otherwise pass every test
-           below and end up carrying a monster and the hero at once */
+        /* defensive: the mount the hero is sitting on is not up for
+           grabs. No current path leaves a steed mounted and untame -
+           kicking one to zero tameness throws the hero off - so this
+           cannot fire today, but carrying a monster and the hero at
+           once would corrupt state in ways nothing else checks for */
         if (steed == u.usteed)
             continue;
         /* criteria for an acceptable steed */
