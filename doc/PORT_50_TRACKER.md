@@ -1167,8 +1167,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       domonability lava gremlin; forgedarti conduct (insight
       listing + xlog bit 15 + never_forged_an_artifact achieveX);
       FQ combat (find_roll_to_hit, dmgval clamp, two-hander
-      shatter, breaktest 3/8) + ARM_BONUS +1/+2/-2 (replaces
-      master's armor_bonus - covers hero AC + find_mac); shk
+      shatter, breaktest 3/8) + ARM_BONUS +1/+2/-2 (SUPERSEDED
+      2026-07-27: the macro is gone, master's armor_bonus() is the
+      single source, and it carries the material term the macro
+      never had - see the glass/blocker row); shk
       getprice quality factor; objnam quality/gem naming + wish
       parse + PREFIX 148; mkobj may_generate_quality (init-only);
       artifact.c mk_particular_artifact/is_forged_artifact/
@@ -5567,16 +5569,95 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       can_wear_barding() read mlet from r_data() but test the ladder
       against mtmp->mnum, so a raced monster is matched against the
       wrong species list.
-- [ ] Armor-blocker miss flavor (NEW, minted 2026-07-26 by the steed
-      slice). Master's armor_bonus() subsystem decides WHICH worn
-      piece deflected a miss and says so ("Your attack glances off
-      his shield"). armor_bonus() does not exist anywhere on this
-      branch and is absent from Official 5.0 too, so it is an
-      EvilHack-only feature, not an upstream regression. Owns:
-      master do_wear.c's uac computation, dogmove.c's armor ranking
-      (armor_bonus + extra_pref), and the uhitm.c/mhitm.c blocker
-      ladders - including the two W_BARDING arms the steed slice
-      therefore could not port.
+- [x] Glass/blocker combat (was "Armor-blocker miss flavor", minted
+      2026-07-26 by the steed slice) - COMPLETE 2026-07-27 in FOUR
+      commits: 707efb221 AC foundation, 844b61273 glass breakage,
+      faf70b62f the melee-odds ruling, 2c8ee6887 the deflection
+      ladders. Reviewer pass on every commit, every finding
+      coordinator-verified against both trees before acting.
+      THE ROW UNDERSTATED ITS OWN SCOPE, and the reason is worth
+      keeping: it was written as message flavor, but the prerequisite
+      check found the AC foundation underneath it missing. matac[] and
+      material_bonus() were never ported, so armor materials have
+      contributed ZERO AC since the tree adoption while
+      init_obj_material() has been randomizing them - a leather-
+      material plate mail protected exactly as well as a steel one.
+      BUG-1392. The branch's ARM_BONUS macro was deleted rather than
+      left as a second, incomplete AC formula; all ten callers now go
+      through master's armor_bonus(), which is the macro plus the
+      material term and the dragon-scaled +5.
+      P_SHIELD WAS UNTRAINABLE, which is the other thing the row did
+      not know it owned: the skill exists and eight roles start with
+      it, but all five of master's use_skill(P_SHIELD, 1) sites live
+      inside these ladders.
+      FOUR SLICES' DEFERRALS CLOSED, all by name: the forge slice's
+      break_glass_obj + FQ_INFERIOR fall-apart channel (tracker line
+      1219, explicit ruling), the webbing slice's spit_object
+      exemption (2539), the kill-attribution slice's missmm blocker
+      sear (1606), and the materials slice's blocker-sears family
+      (611). The steed slice's two W_BARDING arms land via
+      which_armor, which already knows a hero never wears barding.
+      ONE HELPER, NOT THREE LADDERS: master writes the blocker walk
+      out three times; the branch has armor_blocker() in worn.c taking
+      the running to-hit total by pointer so missmu can continue with
+      the golden haze, which is not an object. Reviewer verified it
+      arm-for-arm against all three master copies - same order, same
+      short-circuits, same rn2(10)/rn2(10)/rn2(5) draw count and
+      positions, including master's quirk that a lucky glove overrides
+      an inner piece's claim.
+      MAINTAINER RULINGS, both recorded as precedent:
+      (1) MELEE GLASS ODDS ARE MASTER'S. break_glass_obj was briefly
+      gated twice for crackable armor - upstream's nonbreakchance = 90
+      inside breaktest plus master's rn2(6) force gate - compounding to
+      ~1.7% per blow per crack step, ~240 blows to destroy. Ruled that
+      where the trees disagree on melee fragility master wins; the
+      melee channel now runs master's own obj_resists(obj, 1, 99) and
+      never consults breaktest, giving 16.5% per blow. Throws, drops
+      and kicks keep upstream's gentler roll. The arm also tests
+      oerodeproof, mirroring master's breaktest glass arm, else
+      erode_obj announces "somehow, your helm is not affected" every
+      few blows and identifies the erodeproofing for free.
+      (2) A DISPLAY OPTION MUST NOT DECIDE WHETHER DAMAGE LANDS. In
+      master the sear and the breakage sit inside the message block, so
+      an off-screen fight, a blind hero or verbose off means no damage
+      and no broken armor - and master is not self-consistent about it,
+      since its monster-attacks-hero version applies both regardless.
+      All three directions now apply the mechanics whenever a blocker
+      was found. Visible consequence: a blind hero deflecting off a
+      hated material takes the searing, and unseen monster fights
+      resolve like watched ones.
+      MASTER DEFECTS FIXED RATHER THAN REPRODUCED: hmonas' engulf arm
+      passed an UNINITIALIZED dieroll to missum (master assigns one,
+      but by drawing a second unrelated rnd(20), so master judges that
+      miss by the wrong roll; -O0 hides the read, -O2 reports it);
+      mattackm's engulf arm passed missmm a dieroll the melee path
+      never wrote, so m-v-m engulf deflection has essentially never
+      fired in master; neither mattackm miss site reported a dead
+      attacker or defender, though missmm can kill the attacker with
+      the sear and can petrify a cockatrice-wielding defender by
+      breaking its gloves; break_glass_obj's off-hand unwield was
+      gated on u.twoweap, which the primary weapon's own destruction
+      clears behind its back, freeing the object with uswapwep still
+      pointing at it; hitmm takes the weapon by value so master's
+      null-out never reaches mattackm, which then reads it for the
+      pudding split and hands it to passivemm's AD_ENCH drain_item.
+      THE CRACK-MODEL COLLISION IS THE ONE TO REMEMBER: upstream added
+      a model master does not have - glass armor cracks four times
+      before dying, and breakobj() returns early to erode_obj() to do
+      it. Master's break_glass_obj assumes breakobj always deletes, so
+      ported verbatim it announced "breaks into pieces", unwore the
+      piece by hand and reported destruction for armor that had merely
+      cracked and was still in the pack, with every caller believing it
+      gone. Any master function that ends in breakobj() needs the same
+      check.
+      MASTER QUIRKS PRESERVED, no id assigned: missum's sear tests the
+      DEFENDER's barkskin/stoneskin where the other two directions test
+      the attacker; "stone hide" in missum against "stony hide" in the
+      other two.
+      NOT PORTED, recorded below as their own rows: extra_pref's rework
+      (monster ring-wearing), is_better_armor (monster looting), the
+      remaining Ashmar/Retribution behaviour sites, the dmgval
+      body-material arms, the glass piercer, rustm's EF_DESTROY.
 - [ ] Open-air terrain (NEW, minted 2026-07-26 by the steed slice).
       is_open_air does not exist on the branch. Already owns two
       recorded deferrals: the dismount ABUSE_HAZ_FALL arm (a steed
@@ -5601,6 +5682,88 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       not mean unported. Diff the branch body against master
       BEFORE planning any remaining row - two of the fourteen open
       Phase 2 items turned out to need nothing.
+- [ ] BUG-1393 mounted save is unrestorable (NEW, minted 2026-07-27 by
+      the glass/blocker slice's BATTERY, which is the only reason it was
+      seen; NOT that slice's doing - it touches none of restore.c,
+      check_wings or the Flying macro). Restoring any save made while
+      riding SIGSEGVs in check_wings() before the welcome line, twice
+      reproduced, once from a 3-turn minimal repro.
+      ROOT CAUSE: save.c writes the whole u struct including the raw
+      u.usteed POINTER, which is meaningless in the next process - its
+      own comment says the pointers must not be dereferenced - and the
+      valid handle is u.usteed_mid. dorecover() calls getlev() BEFORE
+      restgamestate(), so getlev's relink cannot fire yet; restgamestate
+      then loads the stale pointer into u.usteed; check_wings(TRUE)
+      runs sixteen lines BEFORE the u.usteed = NULL that exists for
+      exactly this reason, and its first statement reads Flying, which
+      dereferences u.usteed->data.
+      OWNER: the player-races R2 slice (721196586, 2026-07-18) placed
+      the check_wings call there. Unmounted restores are safe because a
+      NULL steed short-circuits, which is why the steed slice's own
+      battery missed it - it never saved while mounted.
+      Full mechanism, repro, cores and fix options in CRASH_TRACKING.md.
+      BLOCKS: nothing in the port, but it makes riding unsaveable, so
+      it should land before any battery that rides.
+- [ ] Body-material weapon-damage arms (NEW, minted 2026-07-27 by the
+      glass/blocker slice; maintainer ruled it a row of its own rather
+      than smuggling a combat-balance change into an AC-foundation
+      commit). include/mondata.h is_wooden() on the branch is
+      upstream's wood-golem-only form; master's is WOOD_GOLEM || ENT ||
+      ELDER_ENT || is_blight. src/weapon.c dmgval carries 1 of master's
+      4 anatomy arms: master has axe +rnd(4) vs wooden/plant/barkskin,
+      WHACK -rnd(3)-3 vs the same, PIERCE|SLASH -rnd(5)-3 vs
+      bone/stoneskin, and WHACK +rnd(4) vs bone. These are the
+      substantive consumers of the is_bone_monster() the AC-foundation
+      commit added - until they land it only feeds flavor text.
+      The hero-side twin is master mhitu.c's late damage-adjustment
+      block and is ENTANGLED with master's FQ double-count, already
+      flagged frozen-unfixed by the forge slice: port the weapon.c
+      arms, decide the mhitu twin separately.
+- [ ] Glass piercer + the piercer damage rework (NEW, minted 2026-07-27
+      by the glass/blocker slice). master hack.c's S_PIERCER arm in
+      spoteffects is restructured: a hard helmet HALVES damage instead
+      of nullifying it, and a glass piercer against a glass helm
+      shatters it for +rnd(6) bonus damage. The branch has upstream's
+      arm (hard helmet = no damage, no glass case). This is the ONLY
+      remaining master breaktest/breakobj call site with no branch
+      counterpart. NOTE master's version has a defect not to copy: it
+      gates on breaktest() then calls breakobj() unconditionally, which
+      on this branch routes through the crackable erode_obj arm and
+      usually does NOT destroy, so "It pierces and shatters your helm!"
+      would lie exactly the way break_glass_obj did before the fix.
+- [ ] rustm() erosion parity (NEW, minted 2026-07-27 by the
+      glass/blocker slice). master's rustm passes EF_DESTROY and
+      handles AD_DCAY alongside AD_CORR; the branch carries upstream's
+      EF_GREASE | EF_VERBOSE with neither, so a monster's weapon can
+      never be destroyed by the hero's rust/corrode/decay polyform.
+      That is also why BUG-563's guard is not needed on the branch -
+      its hazard does not exist until this lands, and it MUST land with
+      the guard, since the block downstream of rustm reads the weapon.
+      Both call sites (hero-defense and m-v-m) are consistent today.
+- [ ] mthrowu hero-on-defense AC model (NEW, minted 2026-07-27 by the
+      glass/blocker slice). thitu uses raw u.uac + tlev; master uses
+      realac = AC_VALUE(u.uac). Upstream 5.0 also uses raw u.uac, so
+      this is an unported master divergence, not a 5.0 regression.
+      Belongs with the to-hit/AC roll matrix - the hero-on-defense
+      -rnd() arm is the whole reason the hero is never fully immune.
+- [ ] find_ac shield-skill AC block (NEW, minted 2026-07-27 by the
+      glass/blocker slice). master's do_wear.c grants AC for
+      P_SKILL(P_SHIELD); absent on the branch. The deflection ladders
+      just made P_SHIELD trainable, so the reward for training it
+      should follow closely.
+- [ ] pager farlook remainder (NEW, minted 2026-07-27 by the
+      glass/blocker slice, which ported the armor-weight half). master's
+      ", wielding %s" + MON_WEP2 arm is already claimed by the
+      "pager.c probe wielding-both display" deferral; the
+      hallucinatory_armor() helper and the hallucinatory-weapon else
+      branch have no owner yet.
+- [ ] look_at_monster buffer accumulation (NEW, minted 2026-07-27 by
+      the glass/blocker slice). buf is BUFSZ and every clause before
+      the new armor line appends unbounded, including player-nameable
+      distant_monnam and the newly live ", riding <name>". Master and
+      upstream are both unbounded here and master is strictly worse
+      (it also appends mon_wounds and the wielding clause). The armor
+      line itself was written bounded; the function wants an audit.
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
