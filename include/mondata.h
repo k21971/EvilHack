@@ -267,6 +267,10 @@
      || (ptr) == &mons[PM_TREE_BLIGHT]    \
      || (ptr) == &mons[PM_NEEDLE_BLIGHT]  \
      || (ptr) == &mons[PM_GULTHIAS_TREE])
+/* deliberately excludes the petrified ent, which has stone, not bark */
+#define has_bark(ptr) \
+    (is_blight(ptr) || (ptr) == &mons[PM_ENT] \
+     || (ptr) == &mons[PM_ELDER_ENT])
 #define is_nymph(ptr) \
     ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
 #define is_pseudodragon(ptr) \
@@ -282,6 +286,8 @@
      || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
      || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
 #define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
+#define is_bone_monster(ptr) \
+    ((ptr) == &mons[PM_BONE_DEVIL] || is_skeleton(ptr))
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_spider(ptr) (((ptr)->mhflags & MH_SPIDER) != 0L)

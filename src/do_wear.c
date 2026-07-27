@@ -3153,7 +3153,7 @@ find_ac(void)
 
     /* armor class from worn gear */
     if (uarm) {
-        uac -= ARM_BONUS(uarm);
+        uac -= armor_bonus(uarm);
         if ((Race_if(PM_ORC)
              && (uarm->otyp == ORCISH_CHAIN_MAIL
                  || uarm->otyp == ORCISH_RING_MAIL))
@@ -3165,7 +3165,7 @@ find_ac(void)
             uac -= racial_bonus;
     }
     if (uarmc) {
-        uac -= ARM_BONUS(uarmc);
+        uac -= armor_bonus(uarmc);
         if ((Race_if(PM_ORC) && uarmc->otyp == ORCISH_CLOAK)
             || (Race_if(PM_ELF) && uarmc->otyp == ELVEN_CLOAK)
             || (Race_if(PM_DROW) && uarmc->otyp == DARK_ELVEN_CLOAK)
@@ -3173,7 +3173,7 @@ find_ac(void)
             uac -= racial_bonus;
     }
     if (uarmh) {
-        uac -= ARM_BONUS(uarmh);
+        uac -= armor_bonus(uarmh);
         if ((Race_if(PM_ORC) && uarmh->otyp == ORCISH_HELM)
             || (Race_if(PM_ELF) && uarmh->otyp == ELVEN_HELM)
             || (Race_if(PM_DROW) && uarmh->otyp == DARK_ELVEN_HELM)
@@ -3181,7 +3181,7 @@ find_ac(void)
             uac -= racial_bonus;
     }
     if (uarmf) {
-        uac -= ARM_BONUS(uarmf);
+        uac -= armor_bonus(uarmf);
         if ((Race_if(PM_ELF) && uarmf->otyp == ELVEN_BOOTS)
             || (Race_if(PM_DROW) && uarmf->otyp == DARK_ELVEN_BOOTS)
             || (Race_if(PM_DWARF) && uarmf->otyp == DWARVISH_BOOTS)
@@ -3189,7 +3189,7 @@ find_ac(void)
             uac -= racial_bonus;
     }
     if (uarms) {
-        uac -= ARM_BONUS(uarms);
+        uac -= armor_bonus(uarms);
         if ((Race_if(PM_ORC)
              && (uarms->otyp == ORCISH_SHIELD
                  || uarms->otyp == URUK_HAI_SHIELD))
@@ -3199,9 +3199,9 @@ find_ac(void)
             uac -= racial_bonus;
     }
     if (uarmg)
-        uac -= ARM_BONUS(uarmg);
+        uac -= armor_bonus(uarmg);
     if (uarmu)
-        uac -= ARM_BONUS(uarmu);
+        uac -= armor_bonus(uarmu);
     if (uleft && uleft->otyp == RIN_PROTECTION)
         uac -= uleft->spe;
     if (uright && uright->otyp == RIN_PROTECTION)

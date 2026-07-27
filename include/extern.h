@@ -1839,6 +1839,7 @@ extern void pudding_merge_message(struct obj *, struct obj *) NONNULLARG12;
 extern void init_obj_material(struct obj *) NONNULLARG1;
 extern boolean valid_obj_material(struct obj *, int) NONNULLARG1;
 extern void set_material(struct obj *, int) NONNULLARG1;
+extern int material_bonus(struct obj *) NONNULLARG1;
 extern struct obj *init_dummyobj(struct obj *, short, long);
 
 /* ### mkroom.c ### */
@@ -4190,6 +4191,8 @@ extern void mon_adjust_speed(struct monst *, int, struct obj *) NONNULLARG1;
 extern boolean obj_has_prop(struct obj *, int) NONNULLARG1;
 extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
                                   boolean) NONNULLARG12;
+/* no NONNULLARG1: keeps master's defensive impossible() on a null obj */
+extern int armor_bonus(struct obj *);
 extern int find_mac(struct monst *) NONNULLARG1;
 extern void m_dowear(struct monst *, boolean) NONNULLARG1;
 extern struct obj *which_armor(struct monst *, long) NONNULLARG1;

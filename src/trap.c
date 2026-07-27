@@ -2104,15 +2104,20 @@ trapeffect_spear_trap(
         } else if (Levitation || Flying) {
             pline("But it isn't long enough to reach you.");
         } else if (thick_skinned(gy.youmonst.data)
+                   || (!Upolyd && Race_if(PM_TORTLE))
                    || Barkskin || Stoneskin) {
             pline("But it breaks off against your %s.",
                   is_dragon(gy.youmonst.data)
                     ? "scaly hide"
-                    : is_tortle(gy.youmonst.data)
+                    : (gy.youmonst.data == &mons[PM_GIANT_TURTLE]
+                       || maybe_polyd(is_tortle(gy.youmonst.data),
+                                      Race_if(PM_TORTLE)))
                       ? "protective shell"
-                      : Barkskin
-                        ? "rough bark"
-                        : Stoneskin ? "stony hide" : "thick hide");
+                      : is_bone_monster(gy.youmonst.data)
+                        ? "bony structure"
+                        : (has_bark(gy.youmonst.data) || Barkskin)
+                          ? "rough bark"
+                          : Stoneskin ? "stony hide" : "thick hide");
             deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(u.ux, u.uy);
             return Trap_Is_Gone;
@@ -3685,12 +3690,15 @@ steedintrap(struct trap *trap, struct obj *otmp)
                   s_suffix(mon_nam(steed)),
                   is_dragon(steed->data)
                     ? "scaly hide"
-                    : is_tortle(steed->data)
+                    : (steed->data == &mons[PM_GIANT_TURTLE]
+                       || is_tortle(steed->data))
                       ? "protective shell"
-                      : has_barkskin(steed)
-                        ? "rough bark"
-                        : has_stoneskin(steed)
-                          ? "stony hide" : "thick hide");
+                      : is_bone_monster(steed->data)
+                        ? "bony structure"
+                        : (has_bark(steed->data) || has_barkskin(steed))
+                          ? "rough bark"
+                          : has_stoneskin(steed)
+                            ? "stony hide" : "thick hide");
             deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(steed->mx, steed->my);
         } else {

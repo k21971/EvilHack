@@ -4830,4 +4830,61 @@ set_material(struct obj *otmp, int material)
     maybe_erodeproof(otmp, otmp->oerodeproof);
 }
 
+/* Relative defensiveness of various materials. The only thing that
+   should ever matter is the difference between two of these quantities,
+   so the values are adjusted up so that there are no negatives.
+   The units involved here are AC points (but again, only the difference
+   matters) */
+static const int matac[] = {
+    0,
+    0, /* LIQUID */
+    1, /* WAX */
+    1, /* VEGGY */
+    3, /* FLESH */
+    1, /* PAPER */
+    2, /* CLOTH */
+    4, /* SPIDER_SILK */
+    3, /* LEATHER */
+    4, /* WOOD */
+    5, /* BONE */
+    8, /* DRAGON_HIDE */
+    5, /* IRON - de facto baseline for metal armor */
+    5, /* STEEL */
+    4, /* COPPER */
+    5, /* BRONZE */
+    5, /* SILVER */
+    3, /* GOLD */
+    4, /* PLATINUM */
+    6, /* MITHRIL */
+    7, /* ADAMANTINE */
+    3, /* PLASTIC */
+    5, /* GLASS */
+    7, /* GEMSTONE */
+    6  /* MINERAL */
+};
+
+/* Compute the bonus or penalty to AC an armor piece should get for being
+   a non-default material */
+int
+material_bonus(struct obj *obj)
+{
+    int diff = matac[obj->material] - matac[objects[obj->otyp].oc_material];
+
+    /* don't allow the armor's base AC to go below 0...
+       or below 1, if the armor is metallic */
+    const int min_ac = is_metallic(obj) ? 1 : 0;
+
+    if (objects[obj->otyp].a_ac + diff < min_ac)
+        diff = min_ac - objects[obj->otyp].a_ac;
+
+    /* force mithril, adamantine, steel and dragonhide to give a unique
+       extra +1 AC for barding */
+    if (is_barding(obj)
+        && (obj->material == MITHRIL || obj->material == STEEL
+            || obj->material == ADAMANTINE || obj->material == DRAGON_HIDE))
+        diff++;
+
+    return diff;
+}
+
 /*mkobj.c*/

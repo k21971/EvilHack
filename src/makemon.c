@@ -2287,7 +2287,7 @@ m_initinv(struct monst *mtmp)
             }
 
 #define add_ac(otmp) \
-    if (otmp) { mac += ARM_BONUS(otmp); } \
+    if (otmp) { mac += armor_bonus(otmp); } \
     otmp = (struct obj *) 0;
 
             /* round 1: give them race-appropriate body armor */

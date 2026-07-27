@@ -853,6 +853,45 @@ update_mon_extrinsics(
 
 #undef altprop
 
+/* Return the armor bonus of a piece of armor: the amount by which it
+   directly lowers the AC of the wearer */
+int
+armor_bonus(struct obj *armor)
+{
+    int bon = 0;
+
+    if (!armor) {
+        impossible("armor_bonus was passed a null obj");
+        return 0;
+    }
+    /* start with its base AC value */
+    bon = objects[armor->otyp].a_ac;
+    /* adjust for material */
+    bon += material_bonus(armor);
+    /* subtract erosion */
+    bon -= (int) greatest_erosion(armor);
+    /* erosion is not allowed to make the armor worse than wearing
+       nothing; only negative enchantment can do that */
+    if (bon < 0)
+        bon = 0;
+    /* add enchantment (could be negative) */
+    bon += armor->spe;
+    /* adjust for armor quality */
+    if (armor->forged_qual == FQ_SUPERIOR)
+        bon += 1;
+    else if (armor->forged_qual == FQ_EXCEPTIONAL)
+        bon += 2;
+    else if (armor->forged_qual == FQ_INFERIOR)
+        bon -= 2;
+    /* add bonus for dragon-scaled armor, slightly more AC than dragon
+       scales by themselves, as the scales harden as they merge with
+       worn armor */
+    if (Is_dragon_scaled_armor(armor))
+        bon += 5;
+
+    return bon;
+}
+
 int
 find_mac(struct monst *mon)
 {
@@ -866,8 +905,8 @@ find_mac(struct monst *mon)
             if (obj->otyp == AMULET_OF_GUARDING)
                 base -= 2; /* fixed amount, not impacted by erosion */
             else
-                base -= ARM_BONUS(obj);
-            /* since ARM_BONUS is positive, subtracting it increases AC */
+                base -= armor_bonus(obj);
+            /* since armor_bonus is positive, subtracting it increases AC */
 
             /* race and role armor bonuses, separate from regular
                bonuses, leaving drow gloves out of this on purpose */
@@ -1141,14 +1180,14 @@ m_dowear_type(
         }
         if (obj->owornmask)
             continue;
-        /* I'd like to define a VISIBLE_ARM_BONUS which doesn't assume the
-         * monster knows obj->spe, but if I did that, a monster would keep
-         * switching forever between two -2 caps since when it took off one
-         * it would forget spe and once again think the object is better
-         * than what it already has.
+        /* I'd like to define a visible armor_bonus which doesn't assume
+         * the monster knows obj->spe, but if I did that, a monster would
+         * keep switching forever between two -2 caps since when it took
+         * off one it would forget spe and once again think the object is
+         * better than what it already has.
          */
-        if (best && (ARM_BONUS(best) + extra_pref(mon, best)
-                     >= ARM_BONUS(obj) + extra_pref(mon, obj)))
+        if (best && (armor_bonus(best) + extra_pref(mon, best)
+                     >= armor_bonus(obj) + extra_pref(mon, obj)))
             continue;
         best = obj;
     }

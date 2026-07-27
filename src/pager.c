@@ -480,6 +480,29 @@ look_at_monster(
         Strcat(buf, ", leashed to you");
     if (mtmp->mentangled && cansee(mtmp->mx, mtmp->my))
         Strcat(buf, ", entangled");
+    if (canseemon(mtmp) && !Blind
+        && (accurate || program_state.gameover)
+        && (mtmp->misc_worn_check & W_ARMOR) != 0L) {
+        int base_ac = 0, arm_ct = 0;
+        long atype;
+        struct obj *otmp;
+
+        for (atype = W_ARM; (atype & W_ARMOR) != 0L; atype <<= 1) {
+            if (!(otmp = which_armor(mtmp, atype)))
+                continue;
+            /* don't count armor->spe, since this represents only what
+               the hero can see from afar - a monster with +8 gloves will
+               still seem "lightly armored" from a distance */
+            base_ac += armor_bonus(otmp) - otmp->spe;
+            arm_ct++;
+        }
+
+        /* bounded: buf has already accumulated name, riding, held and
+           leashed clauses, any of which can be player-named */
+        Snprintf(eos(buf), BUFSZ - strlen(buf), ", wearing %s%sarmor",
+                 arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
+                 base_ac > 9 ? "heavy " : base_ac < 6 ? "light " : "");
+    }
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
         struct trap *t = t_at(mtmp->mx, mtmp->my);
         int tt = t ? t->ttyp : NO_TRAP;
