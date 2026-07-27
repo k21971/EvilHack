@@ -3036,6 +3036,38 @@ break_glass_obj(struct obj *obj)
         return FALSE;
     }
 
+    /* Glass armor cracks rather than shattering, and only the crack
+       that finishes it off destroys it. That model is upstream's -
+       master's breakobj() always deletes - and it stays, but the odds
+       are master's: breaktest() inflates the resistance roll to 90 for
+       crackable armor so that a throw, drop or kick chips it slowly,
+       and compounding that with the rn2(6) force gate below would leave
+       glass armor effectively immune in melee. So the melee channel
+       runs master's own obj_resists(obj, 1, 99) and never consults
+       breaktest at all. erode_obj() does the unwearing, the messaging
+       and the deletion, and reports honestly */
+    if (is_crackable(obj)) {
+        struct monst *mon = mcarried(obj) ? obj->ocarry : (struct monst *) 0;
+        boolean were_gloves, gone;
+
+        /* oerodeproof is tested here for the same reason master tests
+           it in breaktest's glass arm: tempered glass does not break.
+           Without it erode_obj would answer "somehow, your helm is not
+           affected" every few blows, and identify the erodeproofing */
+        if (obj->oerodeproof || obj_resists(obj, 1, 99) || rn2(6)
+            || !obj->owornmask)
+            return FALSE;
+        were_gloves = (obj->owornmask & W_ARMG) != 0L;
+        gone = (erode_obj(obj, armor_simple_name(obj), ERODE_CRACK,
+                          EF_DESTROY | EF_VERBOSE) == ER_DESTROYED);
+        /* erode_obj unwears a monster's gear through
+           extract_from_minvent, which has no petrification hook of its
+           own; the hero's side is covered by Gloves_off */
+        if (gone && mon && were_gloves)
+            mselftouch(mon, (const char *) 0, TRUE);
+        return gone;
+    }
+
     if (!breaktest(obj, x, y)
         || spit_object(obj)
         || rn2(6)) /* items are subject to less force than when thrown */
@@ -3048,26 +3080,6 @@ break_glass_obj(struct obj *obj)
         /* Object is in inventory but not equipped */
         return FALSE;
     }
-    /* Glass armor cracks rather than shattering, and only the crack
-       that finishes it off destroys it. That model is upstream's, not
-       master's - master's breakobj() always deletes - so the rest of
-       this function, which announces destruction and unwears by hand,
-       must not run for a crackable piece. erode_obj() does its own
-       unwearing, messaging and deletion, and reports honestly */
-    if (is_crackable(obj)) {
-        struct monst *mon = mcarried(obj) ? obj->ocarry : (struct monst *) 0;
-        boolean were_gloves = (unwornmask & W_ARMG) != 0L, gone;
-
-        gone = (erode_obj(obj, armor_simple_name(obj), ERODE_CRACK,
-                          EF_DESTROY | EF_VERBOSE) == ER_DESTROYED);
-        /* erode_obj unwears a monster's gear through
-           extract_from_minvent, which has no petrification hook of its
-           own; the hero's side is covered by Gloves_off */
-        if (gone && mon && were_gloves)
-            mselftouch(mon, (const char *) 0, TRUE);
-        return gone;
-    }
-
     if (ucarried) { /* hero's item */
         if (obj->quan == 1L) {
             unsigned obj_oid = obj->o_id;
