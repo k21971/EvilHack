@@ -4989,7 +4989,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       absent from mhitm_ad_sgld(). NOT a blocker for #steal, which
       is why that slice shipped without it: master's steal_it()
       only ever passes TRUE.
-- [ ] rndmonst A_NONE weight underflow (NEW, minted 2026-07-26 by
+- [x] rndmonst A_NONE weight underflow (NEW, minted 2026-07-26 by
       the added-commands BATTERY, which is the only reason it was
       seen; PRE-EXISTING, not that slice's doing). Symptom: 45
       paniclog lines and 39 "Program in disorder!" --More--
@@ -5006,8 +5006,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       37 monster records declared A_NONE against upstream's 1,
       so upstream never trips a guard EvilHack's monster set trips
       constantly. A Phase 1 data-meets-upstream-code collision.
-      FIXED + BATTERY PASSED 2026-07-26 (maintainer commit
-      pending), src/makemon.c only, 11 insertions.
+      FIXED + BATTERY PASSED 2026-07-26, LANDED 54f3f27e6
+      ("Fix: restore the A_NONE guard in align_shift()"),
+      src/makemon.c only, 11 insertions.
       THE FRAMING ABOVE WAS HALF WRONG AND THE CORRECTION IS THE
       USEFUL PART: this was not a judgement call between three
       options, it was an UNPORTED MASTER FIX. Master's
@@ -5583,7 +5584,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dismount_steed) and BUG-924's scatter()/uball fix, whose
       precondition the terrain provides. Check for further consumers
       when it lands.
-- [ ] Shop pricing racial adjustments (shk_racial_adjustments)
+- [x] Shop pricing racial adjustments (shk_racial_adjustments) -
+      ALREADY PORTED, ticked 2026-07-27 after verification rather
+      than after a port. The row was never a work item: the
+      subsystem rode in with an earlier slice and nobody came back
+      to tick it. Verified in-tree: shk_racial_adjustments() in
+      shk.c is master's body verbatim modulo 5.0 idiom (prototype
+      shape and two reflowed comments are the only diff), both
+      call sites are present in get_cost() and set_cost() with the
+      numer/denom argument order inverted between them exactly as
+      master has it, shk_stat_priced() and the gnome/nymph
+      charisma carve-out are there, matprices[] carries the
+      EvilHack material rows, and doc/shop-price-matrix.md is on
+      the branch.
+      LESSON, same shape as the A_NONE row above: unchecked does
+      not mean unported. Diff the branch body against master
+      BEFORE planning any remaining row - two of the fourteen open
+      Phase 2 items turned out to need nothing.
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
