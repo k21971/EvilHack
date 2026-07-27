@@ -761,6 +761,20 @@ restgamestate(NHFILE *nhfp)
     setuwep(otmp); /* (don't need any null check here) */
     if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == GRAPPLING_HOOK)
         gu.unweapon = TRUE;
+
+    /* the 'u' struct read back above carries the SAVING process's
+       u.ustuck and u.usteed pointers, which are meaningless here and
+       must never be dereferenced. setuwep() just made the last
+       legitimate use of one: it reads u.usteed's non-null-ness as a
+       "hero is mounted" flag, which is why they are not cleared any
+       earlier than this. Clearing them here rather than in dorecover()
+       keeps aasimar_check_abuse() below out of reach of a wild pointer,
+       since it can call check_wings(), and the first thing check_wings()
+       reads is Flying, which dereferences u.usteed. Both are re-linked
+       from their _mid fields when getlev() reads the hero's level back
+       at the end of dorecover() */
+    u.ustuck = (struct monst *) 0;
+    u.usteed = (struct monst *) 0;
 #endif /* !SFCTOOL */
 
     restore_dungeon(nhfp);
@@ -911,10 +925,6 @@ dorecover(NHFILE *nhfp)
     init_oclass_probs(); /* recompute go.oclass_prob_totals[] */
 
     restlevelstate();
-    /* check crowned infidels (demonic form) and high-level aasimar
-       for their wings, ensure they stay tucked away under their body
-       armor upon reload */
-    check_wings(TRUE);
 #ifdef INSURANCE
     savestateinlock();
 #endif
@@ -924,10 +934,11 @@ dorecover(NHFILE *nhfp)
 
     program_state.restoring = REST_LEVELS;
 
-    /* these pointers won't be valid while we're processing the
-     * other levels, but they'll be reset again by restlevelstate()
-     * afterwards, and in the meantime at least u.usteed may mislead
-     * place_monster() on other levels
+    /* restgamestate() has already cleared these; keep upstream's
+     * belt-and-braces clear here so they stay null while we process the
+     * other levels, where a stale u.usteed would mislead place_monster()
+     * (upstream's note about restlevelstate() resetting them afterwards
+     * no longer applies - on 5.0 that function is a stub)
      */
     u.ustuck = (struct monst *) 0;
     u.usteed = (struct monst *) 0;
@@ -989,6 +1000,14 @@ dorecover(NHFILE *nhfp)
     getlev(nhfp, 0, (xint8) 0);
     close_nhfile(nhfp);
     restlevelstate();
+    /* check crowned infidels (demonic form) and high-level aasimar
+       for their wings, ensure they stay tucked away under their body
+       armor upon reload. This has to come after the getlev() above,
+       which is where u.usteed is re-linked from u.usteed_mid: the
+       first thing check_wings() reads is Flying, and Flying reads
+       u.usteed->data. set_uasmon() defers its own call for the same
+       reason, "until we have a steed" */
+    check_wings(TRUE);
     program_state.something_worth_saving = 1; /* useful data now exists */
 
     if (gu.uplift_needed_rev0_to_rev1 == 1) {
