@@ -5439,10 +5439,141 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "container" there and I went looking for the branch counterpart.
       No dependency either way with the bags, which is why that one
       line is simply N/A rather than deferred.
-- [ ] Steed/saddle/barding architecture (memory file)
-      (+ master mhitu.c steed-retaliation acceptable_pet_target
-      sites; + master skill_init centaur/tortle riding + tortle
-      trident racial blocks)
+- [x] Steed/saddle/barding architecture - COMPLETE 2026-07-26/27 in
+      THREE commits, maintainer-ratified split: f6a787e0d barding +
+      the saddle/riding racial gates (31 files +926/-82), 96d900884
+      the carried fixes (13 files +150/-32), 48f0bf3c8 monster riding
+      via erid (37 files +908/-39). Battery 24 PASS / 1 brief-error /
+      1 latent, paniclog CLEAN.
+      THE GROUNDWORK WAS ALREADY THERE AND UNREACHABLE, the same
+      producer-live/consumer-absent shape as the bags slice: barding
+      objects, is_barding(), W_BARDING, SUPPRESS_BARDING 0x80, the
+      material tables, Ithilmar + its forge recipe and the #order
+      "Remove barding" arm had all landed in earlier slices, but
+      nothing could put barding on a monster, so all of it was dead.
+      THE ARCHIVE KEYWORD SWEEP WAS THE HIGHEST-YIELD STEP AND
+      BELONGS BEFORE THE PORT, NOT AFTER. ~35 archive entries mention
+      steed/saddle/barding; checking each against the BRANCH BODY
+      rather than assuming master's fixes travel with master's text
+      found twelve whose targets are shared 5.0 code the branch still
+      carried unfixed (BUG-386 pt2, 474, 579, 837, 925, 929, 930, 935,
+      946, 948, 986, 987, 988), one FEATURE the tree adoption silently
+      dropped (throwing food down to feed your steed - verified absent
+      from vanilla at merge-base 44b6612fd AND from Official 5.0), and
+      it is what led to BUG-1390. Four suspected entries turned out
+      already correct on the branch and were left alone.
+      MASTER BUGS ARCHIVED (frozen-unfixed, fixed on branch): BUG-1386
+      there-menu saddle/barding removal queues a #loot prompt that no
+      longer exists - on this branch 5.0's command queue then executes
+      the orphaned canned 'y' as a movement key; BUG-1387 the Ithilmar
+      tameness exemption returns out of mon_catchup_elapsed_time,
+      costing the pet its off-level regen (maintainer ratified the
+      divergence); BUG-1388 landmine saddle pointer captured before
+      the scatter() that can free it. BRANCH-ONLY REGRESSION: BUG-1389
+      upstream's steeds[] lacks S_SKELETON, so dog.c's
+      put_saddle_on_mon(NULL,...) grant silently no-opped and the
+      chaotic Draugr Knight started with an unsaddleable skeletal pony
+      - the NULL obj arg suppresses the orphan impossible(), which is
+      why nothing reported it.
+      TWO USE-AFTER-FREES THAT 5.0 CREATED BY SPLITTING FUNCTIONS
+      INTO HELPERS, both live in Official 5.0 and both upstream-
+      reportable: BUG-1390, the hmon_hitmon() helpers take obj BY
+      VALUE, so all seven places one of them uses the object up
+      (shattered lance, splintered boomerang, broken mirror, eggs,
+      cream pie, acid venom, barbed needle) left the caller reading -
+      and on the venom path WRITING - through freed memory, which the
+      neighbouring assert cannot catch because the pointer is non-NULL
+      and freed; and BUG-1391, m_consume_obj() reads otmp->otyp after
+      delobj() freed it, on every monster meal, while snapshotting
+      every other field it needs. The reviewer found the first as a
+      sibling sweep off the jousting half, which had been fixed alone.
+      REVIEWER CRITICAL ON THE ERID COMMIT, master-impossible by
+      construction: newcham() copies a pronoun into char oldmhe[4],
+      correct on master whose genders[] has three rows, but 5.0 added
+      a fourth ("they") that pronoun_gender() draws via rn2(4) while
+      hallucinating - a five-byte write into a four-byte buffer on
+      ~1 newcham in 4, and newcham runs constantly. Also dropped and
+      restored: master's attack_checks() erid conjunct, without which
+      an invisible rider on a visible steed is permanently
+      unattackable while consuming a turn per try.
+      5.0 ADAPTATIONS THE PORT REQUIRED (record these - a literal port
+      gets them wrong): a ridden steed must carry mstate MON_OFFMAP,
+      which then needs (a) ridden_by carve-outs in mon_sanity_check's
+      BOTH loops or every mounted monster reports "mon is not there!",
+      (b) a colocation exemption in place_monster(), (c) exemptions at
+      the off-map early-outs in dochug and movemon_singlemon so the
+      steed still attacks, and (d) mcalcdistress given its own loop,
+      because iter_mons() skips off-map monsters and the steed would
+      otherwise never regenerate, never time out blindness and never
+      recharge a special attack. erid's raw mon_steed pointer is
+      re-derived from the saved mid in the same restore pass 5.0 uses
+      for u.ustuck_mid/u.usteed_mid, and the steed's ridden_by
+      back-pointer needs the bones remap too. struct erid's field is
+      spelled 'unsigned' because sftags maps 'unsigned int' to a type
+      name with no serializer. MM_NOSTEED took 0x02000000 (first free
+      bit above the GP_ block, no GP_ renumbering); MM_ERID was NOT
+      ported - master defines it with zero callers.
+      SAVE FORMAT BROKEN DELIBERATELY: struct erid joins
+      critical_sizes[] beside its ebones/emsp/erac siblings and
+      EDITLEVEL 2 -> 3, so old saves report "outdated savefile"
+      rather than a datamodel mismatch. Dev saves and bones invalid.
+      DIVERGENCES FROM MASTER, both flagged for ratification:
+      mount_up() declines to take the mount the hero is sitting on
+      (master lets a monster bind erid to u.usteed, which on this
+      branch would also stamp MON_OFFMAP on it), and the Ithilmar
+      arm above.
+      BATTERY (26 items, sanity_check on, 5 games): 24 PASS. NONE of
+      "mon is not there!" / "placing X over Y" / "off-map steed" /
+      "no monster to remove" ever fired, and the barded-monster
+      sanity check ran ~90 turns silent, which is what proves the
+      wearbits[] row. Mounted Nazgul rendered, farlooked "riding a
+      saddled fell beast" and rider+steed both acted in the same turn;
+      killing either party placed the other correctly; save/reload
+      relinked with no "steed ID does not exist?". THE TWO NON-PASSES
+      WERE BOTH MY BRIEF'S ERRORS, NOT DEFECTS: master's W_BARDING
+      rust-trap arm is in the MONSTER branch only, so a hero riding
+      over a rust trap damaging his own gear is correct (barding is
+      water-reachable, proven by a thrown potion), and #stats folds
+      erid bytes into the fmon total rather than printing a line.
+      ONE LATENT FIX: BUG-579's update_inventory() calls are right but
+      have nothing to show, because 5.0's perm_invent renders no
+      weight header at all - master's curses port does. -> Phase 4 UI
+      sweep. ALSO LEARNED: keepdogs() skips both parties, so a mounted
+      monster can NEVER follow the hero across levels by design; and
+      the spear trap is the only in-game damage source that reaches an
+      off-map steed (wand of probing is the only wand that touches
+      it).
+      DEFERRALS, each verified absent by grep rather than assumed:
+      gain_guardian_steed (Red Horse barding), selective_remove_curse
+      (NEW - expert-clerical auto-uncurse of steed barding, belongs
+      with the spell-skill subsystem), hero-cast SPE_REPAIR_ARMOR
+      prompt, an AD_BHED dispatcher arm, master's mind-flayer-larva
+      steed displacement (that feature is unported; whoever ports it
+      must carry the block), and the two items minted below.
+      MASTER DEFECTS REPRODUCED VERBATIM FOR PARITY, no id assigned:
+      resist_conflict()'s Ithilmar arm is an else-if on the
+      resist_chance > 19 clamp, so "always resist" is false exactly
+      when Charisma and level are high; and can_saddle()/
+      can_wear_barding() read mlet from r_data() but test the ladder
+      against mtmp->mnum, so a raced monster is matched against the
+      wrong species list.
+- [ ] Armor-blocker miss flavor (NEW, minted 2026-07-26 by the steed
+      slice). Master's armor_bonus() subsystem decides WHICH worn
+      piece deflected a miss and says so ("Your attack glances off
+      his shield"). armor_bonus() does not exist anywhere on this
+      branch and is absent from Official 5.0 too, so it is an
+      EvilHack-only feature, not an upstream regression. Owns:
+      master do_wear.c's uac computation, dogmove.c's armor ranking
+      (armor_bonus + extra_pref), and the uhitm.c/mhitm.c blocker
+      ladders - including the two W_BARDING arms the steed slice
+      therefore could not port.
+- [ ] Open-air terrain (NEW, minted 2026-07-26 by the steed slice).
+      is_open_air does not exist on the branch. Already owns two
+      recorded deferrals: the dismount ABUSE_HAZ_FALL arm (a steed
+      dropped into open air plummets; TODO-EVILHACK marker sits in
+      dismount_steed) and BUG-924's scatter()/uball fix, whose
+      precondition the terrain provides. Check for further consumers
+      when it lands.
 - [ ] Shop pricing racial adjustments (shk_racial_adjustments)
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
@@ -5596,6 +5727,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       2026-07-17 - only [active]/[inactive] should be colored.
       Port the bracket-scoped rendering into both 5.0 window
       ports, then re-check doorder's rows)
+      ALSO OWNS (added 2026-07-27 by the steed battery): master's
+      curses perm_invent header prints "Inventory: X/Y weight
+      (N/52 slots)"; 5.0's renders no weight or capacity figure at
+      all, and no inv_mode covers it. Consequence already on the
+      branch: BUG-579's update_inventory() calls in mount_steed and
+      dismount_steed are correct but have nothing to refresh, so
+      that fix stays latent until this row lands. Re-check it then.
 - [ ] Fuzzer input hook (curses_getch chokepoint) re-established
 
 ## Phase 5 - Bugfix triage sweep
