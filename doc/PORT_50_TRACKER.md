@@ -5682,12 +5682,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       not mean unported. Diff the branch body against master
       BEFORE planning any remaining row - two of the fourteen open
       Phase 2 items turned out to need nothing.
-- [ ] BUG-1393 mounted save is unrestorable (NEW, minted 2026-07-27 by
+- [x] BUG-1393 mounted save is unrestorable (NEW, minted 2026-07-27 by
       the glass/blocker slice's BATTERY, which is the only reason it was
       seen; NOT that slice's doing - it touches none of restore.c,
-      check_wings or the Flying macro). Restoring any save made while
-      riding SIGSEGVs in check_wings() before the welcome line, twice
-      reproduced, once from a 3-turn minimal repro.
+      check_wings or the Flying macro). FIXED SAME DAY, src/restore.c
+      only. Restoring any save made while riding SIGSEGVs in
+      check_wings() before the welcome line, twice reproduced, once from
+      a 3-turn minimal repro.
       ROOT CAUSE: save.c writes the whole u struct including the raw
       u.usteed POINTER, which is meaningless in the next process - its
       own comment says the pointers must not be dereferenced - and the
@@ -5701,9 +5702,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the check_wings call there. Unmounted restores are safe because a
       NULL steed short-circuits, which is why the steed slice's own
       battery missed it - it never saved while mounted.
-      Full mechanism, repro, cores and fix options in CRASH_TRACKING.md.
-      BLOCKS: nothing in the port, but it makes riding unsaveable, so
-      it should land before any battery that rides.
+      THE FIX IS THE ORDERING, NOT THE LINE: check_wings() moves to just
+      after the getlev() that re-links the steed, which is master's
+      relationship (master's restlevelstate() really re-links, ours is a
+      5.0 stub) and is also what set_uasmon() already asks for, since it
+      defers its own call "until we have a steed" - the deferral was
+      being resumed before the steed existed. restgamestate() also
+      clears u.ustuck/u.usteed itself now, right after setuwep() makes
+      the last legitimate use of one; the reviewer's decisive catch was
+      that the clear must NOT go any earlier, because setuwep() reads
+      u.usteed's non-null-ness as a "hero is mounted" flag for the
+      "bashing" reminder.
+      Battery 14/14 PASS, paniclog empty: both crash saves captured from
+      the ORIGINAL failure, written by the pre-fix binary, now restore.
+      A flying steed restores with flight correct, which the old
+      placement could not have got right even without the crash.
+      LESSON FOR THE REST OF THE PORT: this is what porting a line
+      instead of a relationship looks like. Master's call site was
+      correct because of what ran immediately before it; the branch kept
+      the position and lost the precondition. When a ported call depends
+      on state another function establishes, check that the 5.0 version
+      of that function still establishes it - restlevelstate() had been
+      reduced to a stub.
+      Full mechanism, repro and cores in CRASH_TRACKING.md.
 - [ ] Body-material weapon-damage arms (NEW, minted 2026-07-27 by the
       glass/blocker slice; maintainer ruled it a row of its own rather
       than smuggling a combat-balance change into an AC-foundation
