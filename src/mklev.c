@@ -1966,7 +1966,10 @@ mktrap_victim(struct trap *ttmp)
         } else {
             curse(otmp);
             /* for mktrap_victim(), PIT is actually an exploded LANDMINE */
-            if (ttmp->ttyp == PIT && breaktest(otmp)) {
+            /* 0,0: otmp is still OBJ_FREE and has no coordinates, and
+               a drow item's light fragility is not meaningful at level
+               creation anyway */
+            if (ttmp->ttyp == PIT && breaktest(otmp, 0, 0)) {
                 /* landmine: if fragile object has been created, destroy it;
                    don't worry about non-empty containers--they aren't
                    breakable--nor about breakable contents of such */

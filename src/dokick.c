@@ -1875,12 +1875,13 @@ ship_object(struct obj *otmp, coordxy x, coordxy y, boolean shop_floor_obj)
     if (otmp->owornmask)
         remove_worn_item(otmp, TRUE);
 
-    /* some things break rather than ship */
-    if (breaktest(otmp)) {
+    /* some things break rather than ship. we won't be able to tell if
+       drow items should break if the next level isn't generated. leave
+       breakage to obj_delivery() and accept the lack of feedback here */
+    if (otmp->material != ADAMANTINE && breaktest(otmp, 0, 0)) {
         const char *result;
 
-        if (objects[otmp->otyp].oc_material == GLASS
-            || otmp->otyp == EXPENSIVE_CAMERA) {
+        if (otmp->material == GLASS || otmp->otyp == EXPENSIVE_CAMERA) {
             if (otmp->otyp == MIRROR)
                 change_luck(-2);
             result = "crash";
@@ -1988,7 +1989,7 @@ obj_delivery(boolean near_hero)
                 if (where == MIGR_WITH_HERO) {
                     if (breaks(otmp, nx, ny))
                         continue;
-                } else if (breaktest(otmp)) {
+                } else if (breaktest(otmp, nx, ny)) {
                     /* assume it broke before player arrived, no messages */
                     delobj(otmp);
                     continue;
@@ -2003,7 +2004,8 @@ obj_delivery(boolean near_hero)
             /* set dummy coordinates because there's no
                current position for rloco() to update */
             otmp->ox = otmp->oy = 0;
-            if (rloco(otmp) && !nobreak && breaktest(otmp)) {
+            if (rloco(otmp) && !nobreak
+                && breaktest(otmp, otmp->ox, otmp->oy)) {
                 /* assume it broke before player arrived, no messages */
                 delobj(otmp);
             }

@@ -1260,7 +1260,7 @@ hmon_hitmon_misc_obj(
         }
         break;
     case MIRROR:
-        if (breaktest(obj)) {
+        if (breaktest(obj, u.ux, u.uy)) {
             You("break %s.  That's bad luck!", ysimple_name(obj));
             change_luck(-2);
             useup(obj);
@@ -2146,6 +2146,24 @@ hmon_hitmon(
     if (hmd.unpoisonmsg && !hmd.obj_gone)
         Your("%s %s no longer poisoned.", hmd.saved_oname,
              vtense(hmd.saved_oname, "are"));
+
+    /* glass breakage from the attack. the two monster-side arms are
+       skipped when the target has been jousted off the level, since its
+       coordinates are gone; the hero's own weapon breaks at the hero's
+       square and is unaffected. master has no offmap flag and lets the
+       armor arm reach break_glass_obj's isok() failsafe instead */
+    if (!hmd.offmap)
+        (void) break_glass_obj(some_armor(mon));
+    if (obj && (hmd.hand_to_hand
+                ? break_glass_obj(obj)
+                : (!hmd.offmap && hero_breaks(obj, mon->mx, mon->my, 0)))) {
+        obj = (struct obj *) 0;
+        hmd.obj_gone = TRUE;
+    }
+    /* mselftouch() inside the armor break can petrify a monster that
+       wields a cockatrice corpse */
+    if (DEADMONSTER(mon))
+        hmd.destroyed = TRUE;
 
     if (!hmd.destroyed && !hmd.offmap) {
         int hitflags = M_ATTK_HIT;
@@ -4931,6 +4949,17 @@ mhitm_ad_phys(
                             pline("%s %s is no longer tainted.",
                                   s_suffix(Monnam(magr)), xname(otmp));
                     }
+                }
+                /* glass breakage from the attack, last so that every
+                   effect of the blow has already landed - master runs
+                   it after its own poison and taint blocks too, just
+                   ahead of the pudding split that 5.0 moved above */
+                (void) break_glass_obj(some_armor(&gy.youmonst));
+                if (break_glass_obj(otmp)) {
+                    /* mattacku() cached this weapon in a file static of
+                       its own; clear that or passiveum() drains it */
+                    mon_currwep_gone(otmp);
+                    otmp = (struct obj *) 0;
                 }
             } else if (mattk->aatyp != AT_TUCH || mhm->damage != 0
                        || magr != u.ustuck) {

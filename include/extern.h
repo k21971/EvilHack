@@ -912,7 +912,10 @@ extern int hero_breaks(struct obj *, coordxy, coordxy, unsigned);
 extern int breaks(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern void release_camera_demon(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern int breakobj(struct obj *, coordxy, coordxy, boolean, boolean) NONNULLARG1;
-extern boolean breaktest(struct obj *) NONNULLARG1;
+extern boolean breaktest(struct obj *, coordxy, coordxy) NONNULLARG1;
+/* no NONNULLARG1: callers pass which_armor()/some_armor() results
+   directly and rely on the null check inside */
+extern boolean break_glass_obj(struct obj *);
 extern boolean walk_path(coord *, coord *,
                          boolean(*)(void *, coordxy, coordxy), genericptr_t) NONNULLARG12;
 
@@ -1640,6 +1643,7 @@ extern void rustm(struct monst *, struct obj *);
 
 /* ### mhitu.c ### */
 
+extern void mon_currwep_gone(struct obj *);
 extern void hitmsg(struct monst *, struct attack *) NONNULLARG12;
 extern const char *mswings_verb(struct obj *, boolean) NONNULLARG1;
 extern const char *mpoisons_subj(struct monst *, struct attack *) NONNULLARG12;

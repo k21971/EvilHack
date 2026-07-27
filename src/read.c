@@ -2355,7 +2355,11 @@ drop_boulder_on_player(
         You("are hit by %s!", doname(otmp2));
         dmg = (int) (dmgval(otmp2, &gy.youmonst) * otmp2->quan);
         if (uarmh && helmet_protects) {
-            if (hard_helmet(uarmh)) {
+            if (otmp2->owt >= 400 && is_glass(uarmh)
+                && break_glass_obj(uarmh)) {
+                ; /* the helm is gone; glass armor more often just
+                     cracks, in which case it still protects */
+            } else if (hard_helmet(uarmh)) {
                 pline("Fortunately, you are wearing a hard helmet.");
                 if (dmg > 2)
                     dmg = 2;
@@ -2407,7 +2411,13 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
 
         mdmg = dmgval(otmp2, mtmp) * otmp2->quan;
         if (helmet) {
-            if (hard_helmet(helmet)) {
+            /* helmet, not uarmh: master passed the hero's helm here
+               until BUG-737 */
+            if (otmp2->owt >= 400 && is_glass(helmet)
+                && break_glass_obj(helmet)) {
+                ; /* the helm is gone; glass armor more often just
+                     cracks, in which case it still protects */
+            } else if (hard_helmet(helmet)) {
                 if (canspotmon(mtmp))
                     pline("Fortunately, %s is wearing a hard helmet.",
                           mon_nam(mtmp));

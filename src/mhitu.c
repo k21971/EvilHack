@@ -24,6 +24,17 @@ staticfn int passiveum(struct permonst *, struct monst *, struct attack *);
 
 #define ld() ((yyyymmdd((time_t) 0) - (getyear() * 10000L)) == 0xe5)
 
+/* The attacker's weapon can be destroyed mid-attack - glass breakage in
+   mhitm_ad_phys(), erosion in the rust paths - after mattacku() has
+   cached it here. Whoever destroys it calls this so the stale pointer
+   never reaches passiveum()'s AD_ENCH drain_item() */
+void
+mon_currwep_gone(struct obj *obj)
+{
+    if (obj && mon_currwep == obj)
+        mon_currwep = (struct obj *) 0;
+}
+
 /* monster hits hero (most callers have been moved to uthim.c) */
 void
 hitmsg(struct monst *mtmp, struct attack *mattk)

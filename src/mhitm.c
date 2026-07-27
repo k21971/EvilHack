@@ -498,6 +498,22 @@ mattackm(
                     strike = 0;
                     break;
                 }
+                /* glass breakage from the attack. master does this
+                   inside hitmm(), which takes mwep by value, so its
+                   own null-out never reaches this scope; done here
+                   instead, at the same point in the sequence, so the
+                   pudding-split test below and passivemm()'s AD_ENCH
+                   drain_item() cannot see a deleted weapon */
+                (void) break_glass_obj(some_armor(mdef));
+                if (break_glass_obj(mwep))
+                    mwep = (struct obj *) 0;
+                if (DEADMONSTER(mdef)) {
+                    /* mselftouch() inside the armor break can petrify
+                       a cockatrice-wielding defender */
+                    res[i] = M_ATTK_DEF_DIED;
+                    break;
+                }
+
                 res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
@@ -528,10 +544,19 @@ mattackm(
                    while covered by blessed armor (which does damage but does
                    not achieve a successful hold); likewise, rope golems can't
                    wield weapons so ability to choke isn't affected by such */
-                if (failed_grab(magr, mdef, mattk))
+                if (failed_grab(magr, mdef, mattk)) {
                     strike = 0;
-                else
+                } else {
+                    /* a squeeze breaks the defender's fragile armor too;
+                       master gets this for free by breaking inside
+                       hitmm(), which both of its call sites reach */
+                    (void) break_glass_obj(some_armor(mdef));
+                    if (DEADMONSTER(mdef)) {
+                        res[i] = M_ATTK_DEF_DIED;
+                        break;
+                    }
                     res[i] = hitmm(magr, mdef, mattk, (struct obj *) 0, 0);
+                }
             }
             break;
 

@@ -1399,7 +1399,7 @@ toss_up(struct obj *obj, boolean hitsroof)
     if (!has_ceiling(&u.uz)) {
         action = "flies up into"; /* into "the sky" or "the water above" */
     } else if (hitsroof) {
-        if (breaktest(obj)) {
+        if (breaktest(obj, u.ux, u.uy)) {
             pline("%s hits the %s.", Doname2(obj), ceiling(u.ux, u.uy));
             breakmsg(obj, !Blind);
             /* crackable armor will return True for breaktest() but will
@@ -1422,7 +1422,7 @@ toss_up(struct obj *obj, boolean hitsroof)
 
     if (obj->oclass == POTION_CLASS) {
         potionhit(&gy.youmonst, obj, POTHIT_HERO_THROW);
-    } else if (breaktest(obj)) {
+    } else if (breaktest(obj, u.ux, u.uy)) {
         int blindinc;
 
         /* need to check for blindness result prior to destroying obj */
@@ -1526,7 +1526,13 @@ toss_up(struct obj *obj, boolean hitsroof)
 
         if (uarmh) {
             /* note: 'harmless' and 'petrifier' are mutually exclusive */
-            if ((less_damage && dmg < (Upolyd ? u.mh : u.uhp)) || harmless) {
+            if (obj->owt >= 400 && is_glass(uarmh)
+                && break_glass_obj(uarmh)) {
+                ; /* the helm is gone; it protects nothing. a glass helm
+                     usually only cracks here - it takes the fourth
+                     crack to destroy it */
+            } else if ((less_damage && dmg < (Upolyd ? u.mh : u.uhp))
+                       || harmless) {
                 if (!artimsg) {
                     if (!harmless) /* !harmless => less_damage here */
                         pline("Fortunately, you are wearing a hard helmet.");
@@ -2000,7 +2006,8 @@ throwit(
             }
         }
 
-        if ((!IS_SOFT(levl[gb.bhitpos.x][gb.bhitpos.y].typ) && breaktest(obj))
+        if ((!IS_SOFT(levl[gb.bhitpos.x][gb.bhitpos.y].typ)
+             && breaktest(obj, gb.bhitpos.x, gb.bhitpos.y))
             /* venom [via #monster to spit while poly'd] fails breaktest()
                but we want to force breakage even when location IS_SOFT() */
             || obj->oclass == VENOM_CLASS) {
@@ -2248,6 +2255,7 @@ thitmonst(
     int otyp = obj->otyp, hmode;
     boolean guaranteed_hit = engulfing_u(mon);
     int dieroll;
+    unsigned obj_oid = obj->o_id;
 
     hmode = (obj == uwep) ? HMON_APPLIED
               : (obj == gk.kickedobj) ? HMON_KICKED
@@ -2447,6 +2455,11 @@ thitmonst(
                so we can't safely use that pointer anymore; it escapes
                the chance to be used up here... */
             if (wasthrown && !gt.thrownobj)
+                return 1;
+            /* an applied weapon is uwep, so hmon() could have shattered
+               it (glass, or inferior forge quality) - everything below
+               reads obj, and the thrown case is covered just above */
+            if (hmode == HMON_APPLIED && !o_on(obj_oid, gi.invent))
                 return 1;
 
             /* projectiles other than magic stones sometimes disappear
@@ -2716,7 +2729,7 @@ hero_breaks(
 
     /* only call breaktest if caller hasn't already specified the outcome */
     if (!brk)
-        brk = breaktest(obj) ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
+        brk = breaktest(obj, x, y) ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
     if (brk == BRK_KNOWN2NOTBREAK)
         return 0;
 
@@ -2736,7 +2749,7 @@ breaks(
 {
     boolean in_view = Blind ? FALSE : cansee(x, y);
 
-    if (!breaktest(obj))
+    if (!breaktest(obj, x, y))
         return 0;
     breakmsg(obj, in_view);
     return breakobj(obj, x, y, FALSE, FALSE);
@@ -2868,21 +2881,39 @@ breakobj(
  * break it. Return 0 if the object isn't going to break, 1 if it is.
  */
 boolean
-breaktest(struct obj *obj)
+breaktest(
+    struct obj *obj,
+    coordxy x, coordxy y) /* where the object is; only consulted for the
+                             light-fragility of drow gear */
 {
     int nonbreakchance = 1; /* chance for non-artifacts to resist */
 
-    /* this may need to be changed if actual glass armor gets added someday;
-       for now, it affects crystal plate mail and helm of brilliance;
-       either of them will have to be cracked 4 times before breaking */
-    if (obj->oclass == ARMOR_CLASS && objects[obj->otyp].oc_material == GLASS)
+    /* glass armor cracks rather than shattering outright - it has to be
+       cracked 4 times before it breaks. Instance material, not the
+       object type's, so that any armor rolled as glass behaves the same
+       way crystal plate mail and the helm of brilliance always do */
+    if (is_crackable(obj))
         nonbreakchance = 90;
 
     if (obj_resists(obj, nonbreakchance, 99))
         return FALSE;
-    if (objects[obj->otyp].oc_material == GLASS && !obj->oartifact
+    if (obj->material == GLASS && !obj->oerodeproof && !obj->oartifact
         && obj->oclass != GEM_CLASS)
         return TRUE;
+    /* Drow objects are brittle if in the light.
+     * Drow weapons are a bit sturdier.
+     * Melee weapons have 1/16 chance of breakage when break_glass_obj
+     * is considered, thrown/kicked/etc. weapons have a 3/8 chance,
+     * ammo (arrows/bolts) gets a gentler 1/8 chance because it also
+     * eats the standard projectile-breakage roll inside thitmonst(),
+     * and armor has a 1/6 chance regardless */
+    if (obj->material == ADAMANTINE && is_drow_obj(obj)
+        && !obj->oartifact && !spot_is_dark(x, y)) {
+        if (!is_drow_weapon(obj))
+            return TRUE;
+        if (is_ammo(obj) ? !rn2(8) : (rn2(8) < 3))
+            return TRUE;
+    }
     /* armor and weapons of inferior quality can sometimes
        fall apart with use */
     if (obj->forged_qual == FQ_INFERIOR
@@ -2962,6 +2993,183 @@ breakmsg(struct obj *obj, boolean in_view)
         pline("Thwack!");
         break;
     }
+}
+
+/* Possibly destroy a glass object by its use in melee or thrown combat.
+ * Return TRUE if destroyed.
+ * Separate logic from breakobj because we are not unconditionally
+ * breaking the object, and we also need to make sure it's removed from
+ * the inventory properly */
+boolean
+break_glass_obj(struct obj *obj)
+{
+    long unwornmask;
+    boolean ucarried;
+    coordxy x, y; /* position of the object */
+
+    if (!obj)
+        return FALSE;
+
+    /* guard against objects that can never break
+       or go 'splat!' */
+    if (!(obj->material == GLASS
+          || obj->material == FLESH
+          || obj->material == VEGGY
+          || obj->material == ADAMANTINE
+          || obj->forged_qual == FQ_INFERIOR))
+        return FALSE;
+
+    ucarried = carried(obj);
+
+    if (ucarried) {
+        x = u.ux;
+        y = u.uy;
+    } else if (mcarried(obj)) {
+        struct monst *mon = obj->ocarry;
+
+        x = mon->mx;
+        y = mon->my;
+    } else {
+        /* Object has been moved, freed, or is no longer equipped.
+           This can happen when monster death processing occurs before
+           glass breakage checks. Gracefully skip breakage */
+        return FALSE;
+    }
+
+    if (!breaktest(obj, x, y)
+        || spit_object(obj)
+        || rn2(6)) /* items are subject to less force than when thrown */
+        return FALSE;
+    /* now we are definitely breaking it */
+
+    /* remove its worn flags */
+    unwornmask = obj->owornmask;
+    if (!unwornmask) {
+        /* Object is in inventory but not equipped */
+        return FALSE;
+    }
+    /* Glass armor cracks rather than shattering, and only the crack
+       that finishes it off destroys it. That model is upstream's, not
+       master's - master's breakobj() always deletes - so the rest of
+       this function, which announces destruction and unwears by hand,
+       must not run for a crackable piece. erode_obj() does its own
+       unwearing, messaging and deletion, and reports honestly */
+    if (is_crackable(obj)) {
+        struct monst *mon = mcarried(obj) ? obj->ocarry : (struct monst *) 0;
+        boolean were_gloves = (unwornmask & W_ARMG) != 0L, gone;
+
+        gone = (erode_obj(obj, armor_simple_name(obj), ERODE_CRACK,
+                          EF_DESTROY | EF_VERBOSE) == ER_DESTROYED);
+        /* erode_obj unwears a monster's gear through
+           extract_from_minvent, which has no petrification hook of its
+           own; the hero's side is covered by Gloves_off */
+        if (gone && mon && were_gloves)
+            mselftouch(mon, (const char *) 0, TRUE);
+        return gone;
+    }
+
+    if (ucarried) { /* hero's item */
+        if (obj->quan == 1L) {
+            unsigned obj_oid = obj->o_id;
+
+            /* weapon handling */
+            if (obj == uwep)
+                uwepgone();
+            /* no u.twoweap test: master has one, but the flag can
+               already have been cleared this turn by the primary
+               weapon's own destruction (setworn -> set_twoweap), while
+               hitum() still swings the off-hand it captured earlier.
+               Skipping uswapwepgone() there would free the object with
+               the uswapwep global still pointing at it */
+            if (obj == uswapwep)
+                uswapwepgone();
+            /* armor/accessory handling. some of these will never be
+               called currently (e.g. no such thing as a glass cloak or
+               t-shirt), but we'll cover all the bases in case of future
+               changes. where a destroyed-item variant exists it is used
+               in preference to the take-off one: Armor_gone rather than
+               Armor_off, Ring_gone rather than Ring_off */
+            if (obj == uarmf)
+                (void) Boots_off();
+            if (obj == uarmc)
+                (void) Cloak_off();
+            if (obj == uarmh)
+                (void) Helmet_off();
+            if (obj == uarmg)
+                (void) Gloves_off();
+            if (obj == uarms)
+                (void) Shield_off();
+            if (obj == uarmu)
+                (void) Shirt_off();
+            if (obj == uarm)
+                (void) Armor_gone();
+            if (obj == uamul)
+                Amulet_off();
+            if (obj == uleft)
+                Ring_gone(uleft);
+            if (obj == uright)
+                Ring_gone(uright);
+            /* the removal calls above can end levitation and drop the
+               hero into lava or water, which may free obj. Check by id
+               rather than dereferencing a possibly freed pointer
+               (carried() reads obj->where) */
+            if (!o_on(obj_oid, gi.invent))
+                return FALSE;
+        }
+        obj->ox = u.ux, obj->oy = u.uy;
+    } else if (mcarried(obj)) { /* monster's item */
+        struct monst *mon = obj->ocarry;
+
+        if (obj->quan == 1L) {
+            mon->misc_worn_check &= ~unwornmask;
+            if (unwornmask & W_WEP) {
+                setmnotwielded(mon, obj);
+                possibly_unwield(mon, FALSE);
+            }
+            if (unwornmask & W_SWAPWEP)
+                setmnotwielded2(mon, obj);
+            if (unwornmask & W_ARMG)
+                mselftouch(mon, (const char *) 0, TRUE);
+            /* shouldn't really be needed, but be safe. master calls
+               this update_mon_intrinsics; 5.0 renamed it */
+            update_mon_extrinsics(mon, obj, FALSE, FALSE);
+        }
+        obj->ox = mon->mx, obj->oy = mon->my;
+    } else {
+        impossible("breaking glass obj not in inventory?");
+        return FALSE;
+    }
+
+    /* guard against carrier at (0,0) during parkguard/mondead transition;
+       breakobj -> newsym/maybe_unhide_at would otherwise touch invalid
+       coords */
+    if (!isok(obj->ox, obj->oy)) {
+        impossible("break_glass_obj: invalid coords (%d,%d)",
+                   obj->ox, obj->oy);
+        return FALSE;
+    }
+
+    if (obj->quan == 1L) {
+        obj->owornmask = 0L;
+        if (cansee(obj->ox, obj->oy))
+            pline("%s %s!", Yname2(obj),
+                  (obj->material == ADAMANTINE
+                   ? "crumbles into fragments"
+                   : obj->forged_qual == FQ_INFERIOR ? "falls apart"
+                                                     : "breaks into pieces"));
+    } else {
+        if (cansee(obj->ox, obj->oy))
+            pline("One of %s %s!", yname(obj),
+                  (obj->material == ADAMANTINE
+                   ? "crumbles into fragments"
+                   : obj->forged_qual == FQ_INFERIOR ? "falls apart"
+                                                     : "breaks into pieces"));
+        obj = splitobj(obj, 1L);
+    }
+    (void) breakobj(obj, obj->ox, obj->oy, !svc.context.mon_moving, TRUE);
+    if (ucarried)
+        update_inventory();
+    return TRUE;
 }
 
 staticfn int

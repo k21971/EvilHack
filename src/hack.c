@@ -2030,7 +2030,7 @@ domove_fight_ironbars(coordxy x, coordxy y)
         struct obj *obj = uwep;
         unsigned breakflags = (BRK_BY_HERO | BRK_FROM_INV | BRK_MELEE);
 
-        if (breaktest(obj)) {
+        if (breaktest(obj, u.ux, u.uy)) {
             if (obj->quan > 1L)
                 obj = splitobj(obj, 1L);
             else

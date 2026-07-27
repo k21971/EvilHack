@@ -294,6 +294,14 @@ struct obj {
      && objects[otmp->otyp].oc_skill >= -P_BOOMERANG              \
      && objects[otmp->otyp].oc_skill <= -P_DART)
 #define is_bullet(otmp) (otmp->otyp == SLING_BULLET)
+/* things that are spat or lobbed rather than swung or worn; they are
+   already fragile by nature and are exempt from equipment breakage */
+#define spit_object(otmp) \
+    ((otmp)->otyp == ACID_VENOM         \
+     || (otmp)->otyp == BLINDING_VENOM  \
+     || (otmp)->otyp == SNOWBALL        \
+     || (otmp)->otyp == BALL_OF_WEBBING \
+     || (otmp)->otyp == BARBED_NEEDLE)
 #define is_weptool(o) \
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
