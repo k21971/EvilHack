@@ -11,7 +11,8 @@ static const char brief_feeling[] =
 
 staticfn void noises(struct monst *, struct attack *);
 staticfn void pre_mm_attack(struct monst *, struct monst *);
-staticfn void missmm(struct monst *, struct monst *, struct attack *);
+staticfn void missmm(struct monst *, struct monst *, int, int,
+                     struct attack *);
 staticfn int hitmm(struct monst *, struct monst *, struct attack *,
                  struct obj *, int);
 staticfn int gazemm(struct monst *, struct monst *, struct attack *);
@@ -76,18 +77,82 @@ staticfn void
 missmm(
     struct monst *magr, /* attacker */
     struct monst *mdef, /* defender */
+    int target,         /* attacker's to-hit total */
+    int roll,           /* what it rolled against the defender */
     struct attack *mattk) /* attack and damage types */
 {
+    struct obj *blocker;
+    boolean nearmiss = (target == roll);
+    /* s_suffix() hands back one shared static buffer, so the two
+       possessives in these messages cannot both be live arguments to
+       the same pline(); master stages the first half the same way */
+    char buf[BUFSZ];
+
+    blocker = armor_blocker(mdef, &target, roll);
+
     pre_mm_attack(magr, mdef);
 
     if (gv.vis) {
-        pline("%s %s %s.", Monnam(magr),
-              (magr->mcan || !could_seduce(magr, mdef, mattk)) ? "misses"
-                  : "pretends to be friendly to",
-              mon_nam_too(mdef, magr));
+        if (flags.verbose && !nearmiss && blocker) {
+            Snprintf(buf, sizeof buf, "%s %s %s", s_suffix(Monnam(mdef)),
+                     aobjnam(blocker, (char *) 0),
+                     rn2(2) ? "blocks" : "deflects");
+            pline_mon(mdef, "%s %s attack.", buf,
+                      s_suffix(mon_nam_too(magr, mdef)));
+        } else if ((thick_skinned(mdef->data)
+                    || has_barkskin(mdef) || has_stoneskin(mdef))
+                   && !rn2(10)) {
+            Snprintf(buf, sizeof buf, "%s %s %s", s_suffix(Monnam(mdef)),
+                     is_dragon(mdef->data)
+                       ? "scaly hide"
+                       : (mdef->data == &mons[PM_GIANT_TURTLE]
+                          || is_tortle(mdef->data))
+                         ? "protective shell"
+                         : is_bone_monster(mdef->data)
+                           ? "bony structure"
+                           : (has_bark(mdef->data) || has_barkskin(mdef))
+                             ? "rough bark"
+                             : has_stoneskin(mdef) ? "stony hide"
+                                                   : "thick hide",
+                     rn2(2) ? "blocks" : "deflects");
+            pline_mon(mdef, "%s %s attack.", buf,
+                      s_suffix(mon_nam_too(magr, mdef)));
+        } else {
+            boolean plainmiss = (magr->mcan
+                                 || !could_seduce(magr, mdef, mattk));
+
+            pline("%s %s%s %s.", Monnam(magr),
+                  plainmiss ? (nearmiss ? "just " : "") : "",
+                  plainmiss ? "misses" : "pretends to be friendly to",
+                  mon_nam_too(mdef, magr));
+        }
     } else {
         noises(magr, mattk);
     }
+
+    if (!blocker)
+        return;
+
+    /* the attacker grazes a material it hates on the way past */
+    if (!MON_WEP(magr) && !which_armor(magr, W_ARMG)
+        && mon_hates_material(magr, blocker->material)
+        && !(has_barkskin(magr) || has_stoneskin(magr))) {
+        searmsg(mdef, magr, blocker, FALSE);
+        /* glancing blow. master notes here that damage_mon() applies
+           the SPFX_HPHDAM halving centrally for AD_PHYS; on this branch
+           damage_mon is still the stub, so that arrives with it */
+        if (damage_mon(magr, rnd(sear_damage(blocker->material) / 2),
+                       AD_PHYS, FALSE)) {
+            if (mdef->mtame)
+                set_pet_killer(mdef);
+            monkilled(magr, "", AD_PHYS);
+        }
+    }
+    /* glass armor, or certain drow armor in the presence of light, can
+       break when it deflects an attack */
+    if (is_glass(blocker) || is_adamantine(blocker)
+        || blocker->forged_qual == FQ_INFERIOR)
+        (void) break_glass_obj(blocker);
 }
 
 /*
@@ -531,8 +596,17 @@ mattackm(
                             res[i] |= M_ATTK_AGR_DIED;
                     }
                 }
-            } else
-                missmm(magr, mdef, mattk);
+            } else {
+                missmm(magr, mdef, tmp, dieroll, mattk);
+                /* a glancing blow off armor of a material the attacker
+                   hates can kill it, and its armor breaking can petrify
+                   a cockatrice-wielding defender; either way the rest
+                   of the attack chain must not run */
+                if (DEADMONSTER(magr))
+                    res[i] = M_ATTK_AGR_DIED;
+                if (DEADMONSTER(mdef))
+                    res[i] = M_ATTK_DEF_DIED;
+            }
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
@@ -596,13 +670,20 @@ mattackm(
             /* Engulfing attacks are directed at the hero if possible. -dlc */
             if (engulfing_u(magr)) {
                 strike = 0;
-            } else if ((strike = (tmp > rnd(20 + i))) != 0) {
+            } else if ((strike = (tmp > (dieroll = rnd(20 + i)))) != 0) {
                 if (failed_grab(magr, mdef, mattk))
                     strike = 0; /* purple worm can't swallow unsolid mons */
                 else
                     res[i] = gulpmm(magr, mdef, mattk);
             } else {
-                missmm(magr, mdef, mattk);
+                /* the roll is captured above rather than left inline:
+                   master passes the melee path's stale dieroll here, and
+                   the blocker ladder needs the roll this attack made */
+                missmm(magr, mdef, tmp, dieroll, mattk);
+                if (DEADMONSTER(magr))
+                    res[i] = M_ATTK_AGR_DIED;
+                if (DEADMONSTER(mdef))
+                    res[i] = M_ATTK_DEF_DIED;
             }
             break;
 

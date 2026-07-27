@@ -236,7 +236,8 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
                 if ((sum & M_ATTK_DEF_DIED))
                     break; /* Defender died */
             } else {
-                missum(mon, uattk, (tmp + armorpenalty > kickdieroll));
+                missum(mon, tmp, kickdieroll, uattk,
+                       (tmp + armorpenalty > kickdieroll));
                 (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
             }
         }

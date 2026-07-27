@@ -3697,7 +3697,10 @@ extern int dosteal(void);
 extern int damageum(struct monst *, struct attack *, int) NONNULLARG12;
 /* domove_fight_empty passes NULL to explum arg1 */
 extern int explum(struct monst *, struct attack *) NONNULLARG2;
-extern void missum(struct monst *, struct attack *, boolean) NONNULLARG12;
+extern void missum(struct monst *, int, int, struct attack *,
+                   boolean) NONNULLARG14;
+extern boolean mhurtle_to_doom(struct monst *, int,
+                               struct permonst **) NONNULLPTRS;
 extern boolean m_is_steadfast(struct monst *) NONNULLARG1;
 extern boolean mhitm_knockback(struct monst *, struct monst *,struct attack *,
                                int *, boolean) NONNULLPTRS;
@@ -4197,6 +4200,7 @@ extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
                                   boolean) NONNULLARG12;
 /* no NONNULLARG1: keeps master's defensive impossible() on a null obj */
 extern int armor_bonus(struct obj *);
+extern struct obj *armor_blocker(struct monst *, int *, int) NONNULLPTRS;
 extern int find_mac(struct monst *) NONNULLARG1;
 extern void m_dowear(struct monst *, boolean) NONNULLARG1;
 extern struct obj *which_armor(struct monst *, long) NONNULLARG1;

@@ -8,7 +8,7 @@
 
 static NEARDATA struct obj *mon_currwep = (struct obj *) 0;
 
-staticfn void missmu(struct monst *, boolean, struct attack *);
+staticfn void missmu(struct monst *, int, int, struct attack *);
 staticfn void mswings(struct monst *, struct obj *, boolean);
 staticfn void wildmiss(struct monst *, struct attack *);
 staticfn void calc_mattacku_vars(struct monst *, boolean *, boolean *,
@@ -92,20 +92,143 @@ hitmsg(struct monst *mtmp, struct attack *mattk)
 }
 
 /* monster missed you */
+/* verbose miss descriptions taken from Slash'EM, edited for EvilHack */
 staticfn void
-missmu(struct monst *mtmp, boolean nearmiss, struct attack *mattk)
+missmu(
+    struct monst *mtmp,
+    int target,           /* monster's to-hit total */
+    int roll,             /* what it rolled against you */
+    struct attack *mattk)
 {
+    struct obj *blocker;
+    struct permonst *mdat = mtmp->data;
+    boolean nearmiss = (target == roll), already_killed = FALSE,
+            spellprot = FALSE;
+    int tmp = rnd(5) + 3; /* knockback damage */
+
     gh.hitmsg_mid = 0;
     gh.hitmsg_prev = NULL;
+
+    blocker = armor_blocker(&gy.youmonst, &target, roll);
+    /* a protection spell's golden haze is the last thing between the
+       blow and you; it is not an object, so it is tracked separately */
+    if (!blocker && !nearmiss && u.uspellprot && target <= roll) {
+        target += u.uspellprot;
+        if (target > roll)
+            spellprot = TRUE;
+    }
 
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
-    if (could_seduce(mtmp, &gy.youmonst, mattk) && !mtmp->mcan)
+    if (could_seduce(mtmp, &gy.youmonst, mattk) && !mtmp->mcan) {
         pline_mon(mtmp, "%s pretends to be friendly.", Monnam(mtmp));
-    else
-        pline_mon(mtmp, "%s %smisses!", Monnam(mtmp),
-                  (nearmiss && flags.verbose) ? "just " : "");
+    } else if (!DEADMONSTER(mtmp)) {
+        if (!flags.verbose || (!nearmiss && !blocker && !spellprot)) {
+            pline_mon(mtmp, "%s misses!", Monnam(mtmp));
+        } else if (nearmiss || (!blocker && !spellprot)) {
+            if ((thick_skinned(gy.youmonst.data)
+                 || (!Upolyd && Race_if(PM_TORTLE))
+                 || Barkskin || Stoneskin) && rn2(2)) {
+                Your("%s %s %s attack.",
+                     is_dragon(gy.youmonst.data)
+                       ? "scaly hide"
+                       : (gy.youmonst.data == &mons[PM_GIANT_TURTLE]
+                          || maybe_polyd(is_tortle(gy.youmonst.data),
+                                         Race_if(PM_TORTLE)))
+                         ? "protective shell"
+                         : is_bone_monster(gy.youmonst.data)
+                           ? "bony structure"
+                           : (has_bark(gy.youmonst.data) || Barkskin)
+                             ? "rough bark"
+                             : Stoneskin ? "stony hide" : "thick hide",
+                     rn2(2) ? "blocks" : "deflects", s_suffix(mon_nam(mtmp)));
+            } else if (!Upolyd && Race_if(PM_TORTLE)) {
+                pline_mon(mtmp, "%s narrowly misses!", Monnam(mtmp));
+            } else {
+                if (rn2(2))
+                    You("dodge %s attack!", s_suffix(mon_nam(mtmp)));
+                else if (rn2(2))
+                    You("evade %s attack!", s_suffix(mon_nam(mtmp)));
+                else
+                    pline_mon(mtmp, "%s narrowly misses!", Monnam(mtmp));
+            }
+        } else if (spellprot) {
+            pline_mon(mtmp, "%s is stopped by your golden haze.",
+                      Monnam(mtmp));
+        } else {
+            /* all artifact shields (Ashmar) are automatically dknown */
+            boolean nameart = (blocker->oartifact && blocker->dknown);
+
+            pline("%s%s %s%s %s attack.", nameart ? "Your " : "",
+                  nameart ? xname(blocker) : Ysimple_name2(blocker),
+                  rn2(2) ? "block" : "deflect",
+                  (((blocker == uarmg)
+                    && (blocker->oartifact != ART_DRAGONBANE || !nameart))
+                   || (blocker == uarmf)) ? "" : "s",
+                  s_suffix(mon_nam(mtmp)));
+        }
+
+        if (blocker) {
+            /* the attacker grazes a material it hates on the way past */
+            if (!MON_WEP(mtmp) && !which_armor(mtmp, W_ARMG)
+                && mon_hates_material(mtmp, blocker->material)
+                && !(has_barkskin(mtmp) || has_stoneskin(mtmp))) {
+                /* glancing blow, partial damage */
+                searmsg(&gy.youmonst, mtmp, blocker, FALSE);
+                damage_mon(mtmp, rnd(sear_damage(blocker->material) / 2),
+                           AD_PHYS, TRUE);
+                if (DEADMONSTER(mtmp)) {
+                    killed(mtmp);
+                    already_killed = TRUE;
+                }
+            }
+            /* a block is how shield skill is trained */
+            if (blocker == uarms)
+                use_skill(P_SHIELD, 1);
+            /* glass armor, or certain drow armor in the presence of
+               light, can break when it deflects an attack */
+            if (is_glass(blocker) || is_adamantine(blocker)
+                || blocker->forged_qual == FQ_INFERIOR)
+                (void) break_glass_obj(blocker);
+            /* the artifact shield Ashmar can knock the attacker away
+               when it deflects a blow; the dead check matters because
+               the attacker may already have killed itself on the
+               shield's material */
+            if (!already_killed && !rn2(4) && blocker == uarms
+                && !(u.uswallow || unsolid(mdat))
+                && blocker->oartifact == ART_ASHMAR) {
+                pline("%s knocks %s away from you!",
+                      artiname(uarms->oartifact), mon_nam(mtmp));
+                u.dx = mtmp->mx - u.ux;
+                u.dy = mtmp->my - u.uy;
+                if (mhurtle_to_doom(mtmp, tmp, &mdat))
+                    already_killed = TRUE;
+                if (!already_killed) {
+                    damage_mon(mtmp, tmp, AD_PHYS, TRUE);
+                    if (DEADMONSTER(mtmp))
+                        killed(mtmp);
+                }
+            }
+            /* the Armor of Retribution does the same, less often; it
+               cannot also fire, because the two test different slots */
+            if (!already_killed && !rn2(7) && blocker == uarm
+                && !(u.uswallow || unsolid(mdat))
+                && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+                pline_The("%s knocks %s away from you!",
+                          artiname(uarm->oartifact), mon_nam(mtmp));
+                u.dx = mtmp->mx - u.ux;
+                u.dy = mtmp->my - u.uy;
+                if (mhurtle_to_doom(mtmp, tmp, &mdat))
+                    already_killed = TRUE;
+                if (!already_killed) {
+                    damage_mon(mtmp, tmp, AD_PHYS, TRUE);
+                    if (DEADMONSTER(mtmp))
+                        killed(mtmp);
+                }
+            }
+        }
+    }
 
     stop_occupation();
 }
@@ -913,8 +1036,20 @@ mattacku(struct monst *mtmp)
                         if (mattk->aatyp != AT_KICK
                             || !thick_skinned(gy.youmonst.data))
                             sum[i] = hitmu(mtmp, mattk);
-                    } else
-                        missmu(mtmp, (tmp == j), mattk);
+                    } else {
+                        missmu(mtmp, tmp, j, mattk);
+                        /* a shield gets some practice from any blow
+                           the hero avoids while wearing one */
+                        if (uarms && !rn2(3))
+                            use_skill(P_SHIELD, 1);
+                        /* missmu() can now kill the attacker outright -
+                           a glancing blow off armor of a material it
+                           hates, or an Ashmar/Retribution knockback -
+                           and a dead monster must not go on to dispatch
+                           the rest of its attack chain */
+                        if (DEADMONSTER(mtmp))
+                            return 1; /* attacker dead */
+                    }
                 } else {
                     wildmiss(mtmp, mattk);
                     /* skip any remaining non-spell attacks */
@@ -954,7 +1089,24 @@ mattacku(struct monst *mtmp)
                         flush_screen(1);
                         sum[i] = gulpmu(mtmp, mattk);
                     } else {
-                        missmu(mtmp, (tmp == j), mattk);
+                        /* a spent engulfer never made a roll, so j still
+                           holds the previous attack's; a zero roll makes
+                           the blocker ladder decline, as it should when
+                           nothing was deflected */
+                        if (mtmp->mspec_used)
+                            j = 0;
+                        missmu(mtmp, tmp, j, mattk);
+                        /* a shield gets some practice from any blow
+                           the hero avoids while wearing one */
+                        if (uarms && !rn2(3))
+                            use_skill(P_SHIELD, 1);
+                        /* missmu() can now kill the attacker outright -
+                           a glancing blow off armor of a material it
+                           hates, or an Ashmar/Retribution knockback -
+                           and a dead monster must not go on to dispatch
+                           the rest of its attack chain */
+                        if (DEADMONSTER(mtmp))
+                            return 1; /* attacker dead */
                     }
                 } else if (digests(mtmp->data)) {
                     pline_mon(mtmp, "%s gulps some air!", Monnam(mtmp));
@@ -1038,10 +1190,22 @@ mattacku(struct monst *mtmp)
                         tmp += hittmp;
                         mswings(mtmp, mon_currwep, bash);
                     }
-                    if (tmp > (j = gm.mhitu_dieroll = rnd(20 + i)))
+                    if (tmp > (j = gm.mhitu_dieroll = rnd(20 + i))) {
                         sum[i] = hitmu(mtmp, mattk);
-                    else
-                        missmu(mtmp, (tmp == j), mattk);
+                    } else {
+                        missmu(mtmp, tmp, j, mattk);
+                        /* a shield gets some practice from any blow
+                           the hero avoids while wearing one */
+                        if (uarms && !rn2(3))
+                            use_skill(P_SHIELD, 1);
+                        /* missmu() can now kill the attacker outright -
+                           a glancing blow off armor of a material it
+                           hates, or an Ashmar/Retribution knockback -
+                           and a dead monster must not go on to dispatch
+                           the rest of its attack chain */
+                        if (DEADMONSTER(mtmp))
+                            return 1; /* attacker dead */
+                    }
                     /* KMH -- Don't accumulate to-hit bonuses */
                     if (mon_currwep)
                         tmp -= hittmp;

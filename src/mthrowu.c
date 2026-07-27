@@ -154,7 +154,33 @@ thitu(
         } else if (u.uac + tlev <= dieroll - 2) {
             if (onm != onmbuf)
                 Strcpy(onmbuf, onm); /* [modifiable buffer for upstart()] */
-            pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
+            if ((thick_skinned(gy.youmonst.data)
+                 || (!Upolyd && Race_if(PM_TORTLE))
+                 || Barkskin || Stoneskin) && rn2(2)) {
+                Your("%s %s %s.",
+                     is_dragon(gy.youmonst.data)
+                       ? "scaly hide"
+                       : (gy.youmonst.data == &mons[PM_GIANT_TURTLE]
+                          || maybe_polyd(is_tortle(gy.youmonst.data),
+                                         Race_if(PM_TORTLE)))
+                         ? "protective shell"
+                         : is_bone_monster(gy.youmonst.data)
+                           ? "bony structure"
+                           : (has_bark(gy.youmonst.data) || Barkskin)
+                             ? "rough bark"
+                             : Stoneskin ? "stony hide" : "thick hide",
+                     rn2(2) ? "blocks" : "deflects", onm);
+            } else if (uarms && rn2(2)) {
+                boolean nameart = (uarms->oartifact && uarms->dknown);
+
+                pline("%s%s %s %s.", nameart ? "Your " : "",
+                      nameart ? xname(uarms) : Ysimple_name2(uarms),
+                      rn2(2) ? "blocks" : "deflects", onm);
+                /* a block is how shield skill is trained */
+                use_skill(P_SHIELD, 1);
+            } else {
+                pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
+            }
         } else
             You("are almost hit by %s.", onm);
         return 0;

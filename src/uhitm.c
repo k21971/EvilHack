@@ -65,8 +65,6 @@ staticfn void end_engulf(void);
 staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
 staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
 staticfn void nohandglow(struct monst *) NONNULLARG1;
-staticfn boolean mhurtle_to_doom(struct monst *, int,
-                             struct permonst **) NONNULLARG13;
 staticfn void first_weapon_hit(struct obj *) NONNULLARG1;
 staticfn boolean shade_aware(struct obj *) NO_NNARGS;
 
@@ -683,7 +681,8 @@ known_hitum(
     }
 
     if (!*mhit) {
-        missum(mon, uattk, (rollneeded + armorpenalty > dieroll));
+        missum(mon, rollneeded, dieroll, uattk,
+               (rollneeded + armorpenalty > dieroll));
     } else {
         int oldhp = mon->mhp;
         long oldweaphit = u.uconduct.weaphit;
@@ -2181,8 +2180,9 @@ hmon_hitmon(
 
 /* joust or martial arts punch is knocking the target back; that might
    kill 'mon' (via trap) before known_hitum() has a chance to do so;
-   return True if we kill mon, False otherwise */
-staticfn boolean
+   return True if we kill mon, False otherwise. also used by missmu()
+   for the two artifact armors that knock an attacker away */
+boolean
 mhurtle_to_doom(
     struct monst *mon,         /* target monster */
     int tmp,                   /* amount of pending damage */
@@ -6211,19 +6211,75 @@ gulpum(struct monst *mdef, struct attack *mattk)
 void
 missum(
     struct monst *mdef,
+    int target,           /* hero's to-hit total */
+    int roll,             /* what the hero rolled against it */
     struct attack *mattk,
     boolean wouldhavehit)
 {
+    struct obj *blocker;
+    boolean nearmiss = (target == roll);
+
+    blocker = armor_blocker(mdef, &target, roll);
+
     if (wouldhavehit) /* monk is missing due to penalty for wearing suit */
         Your("armor is rather cumbersome...");
 
-    if (could_seduce(&gy.youmonst, mdef, mattk))
+    if (could_seduce(&gy.youmonst, mdef, mattk)) {
         You("pretend to be friendly to %s.", mon_nam(mdef));
-    else if (canspotmon(mdef) && flags.verbose)
-        You("miss %s.", mon_nam(mdef));
-    else
-        You("miss it.");
-    if (!helpless(mdef))
+    } else if (canspotmon(mdef) && flags.verbose) {
+        if (nearmiss || !blocker) {
+            if ((thick_skinned(mdef->data)
+                 || has_barkskin(mdef) || has_stoneskin(mdef))
+                && !rn2(10))
+                pline_mon(mdef, "%s %s %s your attack.",
+                          s_suffix(Monnam(mdef)),
+                          is_dragon(mdef->data)
+                            ? "scaly hide"
+                            : (mdef->data == &mons[PM_GIANT_TURTLE]
+                               || is_tortle(mdef->data))
+                              ? "protective shell"
+                              : is_bone_monster(mdef->data)
+                                ? "bony structure"
+                                : (has_bark(mdef->data)
+                                   || has_barkskin(mdef))
+                                  ? "rough bark"
+                                  : has_stoneskin(mdef)
+                                    ? "stone hide" : "thick hide",
+                          rn2(2) ? "blocks" : "deflects");
+            else
+                You("%smiss %s.", nearmiss ? "just " : "", mon_nam(mdef));
+        } else {
+            pline_mon(mdef, "%s %s %s your attack.", s_suffix(Monnam(mdef)),
+                      aobjnam(blocker, (char *) 0),
+                      rn2(2) ? "blocks" : "deflects");
+        }
+    } else {
+        You("%smiss it.", (flags.verbose && nearmiss) ? "just " : "");
+    }
+
+    /* What a deflection does is not conditional on the hero watching it
+       happen. Master nests both of these inside the message arm above,
+       so a blind hero takes no searing and unseen armor never breaks;
+       maintainer ruling is that a display option must not decide
+       whether damage lands, in any of the three combat directions */
+    if (blocker) {
+        /* the hero grazes a material they hate on the way past */
+        if (!uwep && !uarmg
+            && Hate_material(blocker->material)
+            && !(has_barkskin(mdef) || has_stoneskin(mdef))) {
+            searmsg(mdef, &gy.youmonst, blocker, FALSE);
+            /* glancing blow */
+            losehp(rnd(sear_damage(blocker->material) / 2),
+                   "touching a hated material", KILLED_BY);
+        }
+        /* glass armor, or certain drow armor in the presence of light,
+           can break when it deflects an attack */
+        if (is_glass(blocker) || is_adamantine(blocker)
+            || blocker->forged_qual == FQ_INFERIOR)
+            (void) break_glass_obj(blocker);
+    }
+    /* breaking the blocker can petrify a cockatrice-wielding defender */
+    if (!DEADMONSTER(mdef) && !helpless(mdef))
         wakeup(mdef, TRUE);
 }
 
@@ -6771,7 +6827,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     sum[i] = damageum(mon, mattk, specialdmg);
                 }
             } else { /* !dhit */
-                missum(mon, mattk, (tmp + armorpenalty > dieroll));
+                missum(mon, tmp, dieroll, mattk,
+                       (tmp + armorpenalty > dieroll));
             }
             break;
 
@@ -6877,7 +6934,11 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             tmp = find_roll_to_hit(mon, mattk->aatyp, (struct obj *) 0,
                                    &attknum, &armorpenalty);
             mon_maybe_unparalyze(mon);
-            if ((dhit = (tmp > rnd(20 + i)))) {
+            /* the roll is captured rather than left inline because the
+               miss path now needs it, and this arm never wrote dieroll.
+               master draws a second, unrelated rnd(20) for the same
+               purpose, so its ladder judges the miss by the wrong roll */
+            if ((dhit = (tmp > (dieroll = rnd(20 + i))))) {
                 wakeup(mon, TRUE);
                 /* can't engulf unsolid creatures */
                 if (mon->data == &mons[PM_SHADE]) {
@@ -6896,7 +6957,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     }
                 }
             } else {
-                missum(mon, mattk, FALSE);
+                missum(mon, tmp, dieroll, mattk, FALSE);
             }
             break;
 

@@ -892,6 +892,81 @@ armor_bonus(struct obj *armor)
     return bon;
 }
 
+/* An attack missed by a margin the defender's armor can account for:
+   walk the worn pieces from the skin outwards, adding each one's
+   armor_bonus to the attacker's target number, and return the piece
+   that carried it past the roll - the one that deflected the blow.
+   Returns Null when the attack missed on its own merits.
+
+   'target' is updated as we go so a caller can continue the ladder with
+   something that is not an object, as the hero's golden haze does.
+
+   Master has this written out three times, once per combat direction;
+   the arms and their order are its own, quirks included. The gloves,
+   boots and helm arms deliberately do not re-test the roll, so a lucky
+   1-in-10 glove can take credit for a blow an inner piece had already
+   stopped - keep that, it is what makes the messages vary */
+struct obj *
+armor_blocker(
+    struct monst *mdef,
+    int *target, /* attacker's to-hit total; updated in place */
+    int roll)    /* what the attacker rolled */
+{
+    struct obj *blocker = (struct obj *) 0, *otmp;
+
+    if (*target >= roll)
+        return blocker; /* missed by more than armor can explain */
+
+    /* undershirt, only if nothing is worn over it */
+    if ((otmp = which_armor(mdef, W_ARMU)) != 0
+        && !which_armor(mdef, W_ARM) && !which_armor(mdef, W_ARMC)
+        && *target <= roll) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    /* body armor, only if no cloak is worn over it */
+    if ((otmp = which_armor(mdef, W_ARM)) != 0
+        && !which_armor(mdef, W_ARMC) && *target <= roll) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    if ((otmp = which_armor(mdef, W_ARMG)) != 0 && !rn2(10)) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    if ((otmp = which_armor(mdef, W_ARMF)) != 0 && !rn2(10)) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    if ((otmp = which_armor(mdef, W_ARMH)) != 0 && !rn2(5)) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    if ((otmp = which_armor(mdef, W_ARMC)) != 0 && *target <= roll) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    if ((otmp = which_armor(mdef, W_ARMS)) != 0 && *target <= roll) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+    /* barding, for a steed; which_armor never reports it for the hero */
+    if ((otmp = which_armor(mdef, W_BARDING)) != 0 && *target <= roll) {
+        *target += armor_bonus(otmp);
+        if (*target > roll)
+            blocker = otmp;
+    }
+
+    return blocker;
+}
+
 int
 find_mac(struct monst *mon)
 {
