@@ -3190,6 +3190,17 @@ find_ac(void)
     }
     if (uarms) {
         uac -= armor_bonus(uarms);
+        /* knowing how to hold a shield is worth more than the shield;
+           bracers cover less of the body, so they reward the skill less */
+        if (P_SKILL(P_SHIELD) == P_BASIC)
+            uac -= 1;
+        else if (P_SKILL(P_SHIELD) == P_SKILLED)
+            uac -= (is_bracer(uarms) ? 2 : 3);
+        else if (P_SKILL(P_SHIELD) == P_EXPERT)
+            uac -= (is_bracer(uarms) ? 3 : 5);
+        else if (P_SKILL(P_SHIELD) == P_MASTER)
+            uac -= (is_bracer(uarms) ? 4 : 8);
+
         if ((Race_if(PM_ORC)
              && (uarms->otyp == ORCISH_SHIELD
                  || uarms->otyp == URUK_HAI_SHIELD))

@@ -2669,6 +2669,11 @@ skill_init(const struct def_skill *class_skill)
     if (Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
         P_SKILL(P_RIDING) = P_NONE;
 
+    /* Roles that can reach expert or master in shield skill already
+       have a basic understanding of how to use them */
+    if (Role_if(PM_KNIGHT) || Role_if(PM_VALKYRIE))
+        P_SKILL(P_SHIELD) = P_BASIC;
+
     /* Healers, Druids and Knights start with basic pet handling
        skill */
     if (Role_if(PM_HEALER) || Role_if(PM_DRUID)

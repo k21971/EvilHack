@@ -92,7 +92,7 @@ thitu(
     struct obj *obj = objp ? *objp : 0;
     const char *onm, *knm;
     boolean is_acid, is_webbing, is_needle, named = (name != 0);
-    int kprefix = KILLED_BY_AN, dieroll;
+    int kprefix = KILLED_BY_AN, dieroll, realac;
     char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
     if (!name) {
@@ -147,7 +147,11 @@ thitu(
     is_webbing = (obj && obj->otyp == BALL_OF_WEBBING);
     is_needle = (obj && obj->otyp == BARBED_NEEDLE);
 
-    if (u.uac + tlev <= (dieroll = rnd(20))) {
+    /* deeply negative AC is randomly weakened so that no amount of it
+       makes the hero untouchable; the near-miss message below stays on
+       the raw value, so how close the shot came is reported honestly */
+    realac = AC_VALUE(u.uac);
+    if (realac + tlev <= (dieroll = rnd(20))) {
         ++gm.mesg_given;
         if (Blind || !flags.verbose) {
             pline("It misses.");
