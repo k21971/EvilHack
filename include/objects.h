@@ -1010,6 +1010,12 @@ MARKER(LAST_AMULET, AMULET_OF_YENDOR)
     OBJECT(OBJ(name, desc),                                             \
            BITS(kn, 0, chg, 1, mgc, chg, 0, 0, 0, 0, 0, P_NONE, mat),   \
            0, TOOL_CLASS, prob, 0, wt, cost, 0, 0, 0, 0, wt, color, sn)
+/* facewear; unlike TOOL this carries a property, which is how a worn
+   blindfold or towel confers blindness through setworn() */
+#define EYEWEAR(name,desc,kn,prop,prob,wt,cost,mat,color,sn) \
+    OBJECT(OBJ(name, desc),                                             \
+           BITS(kn, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, mat),         \
+           prop, TOOL_CLASS, prob, 0, wt, cost, 0, 0, 0, 0, wt, color, sn)
 #define WEPTOOL(name,desc,kn,mgc,bi,prob,wt,cost,sdam,ldam,hitbon,typ,sub,mat,clr,sn) \
     OBJECT(OBJ(name, desc),                                             \
            BITS(kn, 0, 1, 0, mgc, 1, 0, 0, bi, 0, typ, sub, mat),       \
@@ -1097,17 +1103,17 @@ TOOL("crystal ball", "glass orb",
 TOOL("eight ball", "plastic orb",
      0, 0, 0, 0,   0,  20,  30, PLASTIC, CLR_BLACK,
         EIGHT_BALL),
-TOOL("lenses", NoDes,
-     1, 0, 0, 0,   3,   3,  80, GLASS, HI_GLASS,
+EYEWEAR("lenses", NoDes,
+     1,       0,   3,   3,  80, GLASS, HI_GLASS,
         LENSES),
-TOOL("goggles", NoDes,
-     1, 0, 0, 0,   1,   3,  50, PLASTIC, HI_PLASTIC,
+EYEWEAR("goggles", NoDes,
+     1,       0,   1,   3,  50, PLASTIC, HI_PLASTIC,
         GOGGLES),
-TOOL("blindfold", NoDes,
-     1, 0, 0, 0,  50,   2,  20, CLOTH, CLR_BLACK,
+EYEWEAR("blindfold", NoDes,
+     1, BLINDED,  50,   2,  20, CLOTH, CLR_BLACK,
         BLINDFOLD),
-TOOL("towel", NoDes,
-     1, 0, 0, 0,  50,   2,  50, CLOTH, CLR_MAGENTA,
+EYEWEAR("towel", NoDes,
+     1, BLINDED,  50,   2,  50, CLOTH, CLR_MAGENTA,
         TOWEL),
 TOOL("saddle", NoDes,
      1, 0, 0, 0,   5, 200, 150, LEATHER, HI_LEATHER,
