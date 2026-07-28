@@ -849,7 +849,7 @@ xname_flags(
         break;
     case ARMOR_CLASS:
         /* depends on order of the dragon scales objects */
-        if (typ >= GRAY_DRAGON_SCALES && typ <= YELLOW_DRAGON_SCALES) {
+        if (typ >= FIRST_DRAGON_SCALES && typ <= LAST_DRAGON_SCALES) {
             Strcat(buf, "set of ");
             Strcat(buf, actualn);
             break;
@@ -5102,9 +5102,9 @@ readobjnam_postparse1(struct _readobjnam_data *d)
     }
 
     /* dragon scales - assumes order of dragons */
-    if (!strcmpi(d->bp, "scales") && d->mntmp >= PM_GRAY_DRAGON
-        && d->mntmp <= PM_YELLOW_DRAGON) {
-        d->typ = GRAY_DRAGON_SCALES + d->mntmp - PM_GRAY_DRAGON;
+    if (!strcmpi(d->bp, "scales") && d->mntmp >= FIRST_DRAGON
+        && d->mntmp <= LAST_DRAGON) {
+        d->typ = mndx_to_dragon_scales(d->mntmp);
         d->mntmp = NON_PM; /* no monster */
         return 2; /*goto typfnd;*/
     }
@@ -5672,8 +5672,14 @@ readobjnam(char *bp, struct obj *no_wish)
         case SPE_BOOK_OF_THE_DEAD:
             d.typ = SPE_BLANK_PAPER;
             break;
+        case CHROMATIC_DRAGON_SCALES:
+            d.typ = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
+            break;
         case BLACKSMITH_HAMMER:
             d.typ = WAR_HAMMER;
+            break;
+        case SCR_CONSECRATION:
+            d.typ = SCR_BLANK_PAPER;
             break;
         case MAGIC_LAMP:
             d.typ = OIL_LAMP;
@@ -5693,6 +5699,17 @@ readobjnam(char *bp, struct obj *no_wish)
         d.typ = GLOB_OF_GRAY_OOZE + (d.mntmp - PM_GRAY_OOZE);
         d.mntmp = NON_PM; /* not used for globs */
     }
+
+    /* players are likely to wish for "foo dragon scale mail" by reflex,
+       which no longer exists and would otherwise ignore the dragon type
+       and hand over a plain scale mail; don't punish a player who hasn't
+       met the dtsund-DSM change yet - give them the scales instead */
+    if (d.typ == SCALE_MAIL && d.mntmp >= FIRST_DRAGON
+        && d.mntmp <= PM_CELESTIAL_DRAGON) { /* chromatic is off-limits */
+        d.typ = mndx_to_dragon_scales(d.mntmp);
+        d.mntmp = NON_PM; /* no monster */
+    }
+
     /*
      * Create the object, then fine-tune it.
      */
@@ -5906,10 +5923,6 @@ readobjnam(char *bp, struct obj *no_wish)
             d.otmp->corpsenm = d.mntmp;
             if (Has_contents(d.otmp) && verysmall(&mons[d.mntmp]))
                 delete_contents(d.otmp); /* no spellbook */
-            break;
-        case SCALE_MAIL:
-            /* TODO-EVILHACK: "<color> dragon scale mail" wishes should
-               produce dragon-scaled armor once that system ports */
             break;
         }
     }
