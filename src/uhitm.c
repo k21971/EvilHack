@@ -4895,7 +4895,18 @@ mhitm_ad_phys(
                     if (cloneu())
                         You("divide as %s hits you!", mon_nam(magr));
                 }
-                rustm(&gy.youmonst, otmp);
+                {
+                    unsigned wep_id = otmp->o_id;
+
+                    rustm(&gy.youmonst, otmp);
+                    /* erode_obj() can free a weapon that was already at
+                       maximum erosion; drop the local and mattacku()'s
+                       cached copy so nothing below reads it */
+                    if (!o_on(wep_id, magr->minvent)) {
+                        mon_currwep_gone(otmp);
+                        otmp = (struct obj *) 0;
+                    }
+                }
                 if (was_poisoned && gm.mhitu_dieroll <= 5) {
                     char buf[BUFSZ];
 
@@ -4913,7 +4924,7 @@ mhitm_ad_phys(
                 }
                 /* monster attacking with a tainted (drow-poisoned)
                    weapon */
-                if (otmp->otainted && is_poisonable(otmp)) {
+                if (otmp && otmp->otainted && is_poisonable(otmp)) {
                     int notaint;
 
                     pline("%s attack was tainted!", s_suffix(Monnam(magr)));
@@ -5023,9 +5034,16 @@ mhitm_ad_phys(
                     return;
                 }
             }
-            if (mhm->damage)
+            if (mhm->damage) {
+                unsigned wep_id = mwep->o_id;
+
                 rustm(mdef, mwep);
-            if ((mwep->opoisoned || permapoisoned(mwep)) && !rn2(4)) {
+                /* same hazard as the mhitu arm above: the weapon can be
+                   destroyed outright, and the poison check below reads it */
+                if (!o_on(wep_id, magr->minvent))
+                    mwep = (struct obj *) 0;
+            }
+            if (mwep && (mwep->opoisoned || permapoisoned(mwep)) && !rn2(4)) {
                 /* 1/4 chance of weapon poison applying is the same as in
                  * uhitm and mhitu cases. But since we don't need to call
                  * any special functions or go through tangled hmon_hitmon

@@ -372,6 +372,7 @@ mattackm(
     struct attack *mattk, alt_attk;
     struct obj *mwep;
     struct permonst *pa, *pd;
+    unsigned wep_id;
 
     if (!magr || !mdef)
         return M_ATTK_MISS; /* mike@genat */
@@ -579,11 +580,17 @@ mattackm(
                     break;
                 }
 
+                wep_id = mwep ? mwep->o_id : 0;
                 res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
+                /* hitmm() takes mwep by value and rustm() down that path
+                   can erode it out of existence, so re-check it here for
+                   the pudding-split test below and for passivemm() */
+                if (mwep && !o_on(wep_id, magr->minvent))
+                    mwep = (struct obj *) 0;
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
-                    && (mwep && (objects[mwep->otyp].oc_material == IRON
-                                 || objects[mwep->otyp].oc_material == STEEL))
+                    && (mwep && (mwep->material == IRON
+                                 || mwep->material == STEEL))
                     && mdef->mhp > 1 && !mdef->mcan) {
                     struct monst *mclone;
 
@@ -1243,6 +1250,8 @@ mdamagem(
 {
     struct permonst *pa = magr->data, *pd = mdef->data;
     struct mhitm_data mhm;
+    unsigned wep_id;
+
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
@@ -1279,7 +1288,13 @@ mdamagem(
         }
     }
 
+    wep_id = mwep ? mwep->o_id : 0;
     mhitm_adtyping(magr, mattk, mdef, &mhm);
+    /* mwep is our caller's pointer by value; rustm() inside the AD_PHYS
+       handler can erode the weapon away, so re-check before the tests
+       further down read it */
+    if (mwep && !o_on(wep_id, magr->minvent))
+        mwep = (struct obj *) 0;
 
     if (mhitm_knockback(magr, mdef, mattk, &mhm.hitflags,
                         (MON_WEP(magr) != 0))
@@ -1558,7 +1573,7 @@ rustm(struct monst *mdef, struct obj *obj)
     if (!mdef || !obj)
         return; /* just in case */
     /* AD_ACID and AD_ENCH are handled in passivemm() and passiveum() */
-    if (dmgtype(mdef->data, AD_CORR)) {
+    if (dmgtype(mdef->data, AD_CORR) || dmgtype(mdef->data, AD_DCAY)) {
         dmgtyp = ERODE_CORRODE;
     } else if (dmgtype(mdef->data, AD_RUST)) {
         dmgtyp = ERODE_RUST;
@@ -1569,8 +1584,11 @@ rustm(struct monst *mdef, struct obj *obj)
         chance = 6;
     }
 
+    /* EF_DESTROY: a weapon already eroded to the limit is finished off
+       here rather than surviving forever, so every caller must treat the
+       object as possibly freed once this returns */
     if (dmgtyp != ERODE_NONE && !rn2(chance))
-        (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_VERBOSE);
+        (void) erode_obj(obj, (char *) 0, dmgtyp, EF_GREASE | EF_DESTROY);
 }
 
 staticfn void
