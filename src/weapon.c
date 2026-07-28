@@ -360,7 +360,22 @@ dmgval(struct obj *otmp, struct monst *mon)
 
         if (otmp->blessed && mon_hates_blessings(mon))
             bonus += rnd(4);
-        if (is_axe(otmp) && is_wooden(ptr))
+        /* anatomy of the defender: an axe bites into anything woody,
+           a blunt weapon barely marks it, and the reverse holds for a
+           skeletal frame that a blade slips between but a club shatters */
+        if (is_axe(otmp)
+            && (is_wooden(ptr) || is_plant(ptr) || has_barkskin(mon)
+                || (mon == &gy.youmonst && Barkskin)))
+            bonus += rnd(4);
+        if ((objects[otyp].oc_dir & WHACK)
+            && (is_wooden(ptr) || is_plant(ptr) || has_barkskin(mon)
+                || (mon == &gy.youmonst && Barkskin)))
+            bonus -= rnd(3) + 3;
+        if ((objects[otyp].oc_dir & (PIERCE | SLASH))
+            && (is_bone_monster(ptr) || has_stoneskin(mon)
+                || (mon == &gy.youmonst && Stoneskin)))
+            bonus -= rnd(5) + 3;
+        if ((objects[otyp].oc_dir & WHACK) && is_bone_monster(ptr))
             bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material)
             && !(has_barkskin(mon) || has_stoneskin(mon))
@@ -391,6 +406,11 @@ dmgval(struct obj *otmp, struct monst *mon)
         if (tmp < 1)
             tmp = 1;
     }
+
+    /* the anatomy penalties above can drive this negative, and callers
+       add the result to a running damage total */
+    if (tmp < 0)
+        tmp = 0;
 
     return  tmp;
 }

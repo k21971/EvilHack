@@ -136,7 +136,9 @@
 #define humanoid(ptr) (((ptr)->mflags1 & M1_HUMANOID) != 0L)
 #define is_animal(ptr) (((ptr)->mflags1 & M1_ANIMAL) != 0L)
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
-#define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM])
+/* has_bark() covers the ents and the blights; it is defined further
+   down this file, which is fine because macros resolve at the use site */
+#define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM] || has_bark(ptr))
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
 #define hug_throttles(ptr) ((ptr) == &mons[PM_ROPE_GOLEM])
 #define digests(ptr) \
