@@ -3485,28 +3485,50 @@ spoteffects(boolean pick)
     if ((mtmp = m_at(u.ux, u.uy)) != 0 && !u.uswallow) {
         mtmp->mundetected = mtmp->msleeping = 0;
         switch (mtmp->data->mlet) {
-        case S_PIERCER:
+        case S_PIERCER: {
+            int dmg = d(4, 6);
+            boolean shattered = FALSE;
+
+            if (Half_physical_damage)
+                dmg = (dmg + 1) / 2;
             pline("%s suddenly drops from the %s!", Amonnam(mtmp),
                   ceiling(u.ux, u.uy));
             if (mtmp->mtame) { /* jumps to greet you, not attack */
                 ;
-            } else if (hard_helmet(uarmh)) {
-                pline("Its blow glances off your %s.",
-                      helm_simple_name(uarmh));
             } else if (u.uac + 3 <= rnd(20)) {
                 You("are almost hit by %s!",
                     x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
+            } else if (uarmh) {
+                /* a glass piercer is the one thing that drives through a
+                   glass helm instead of skidding off it; breakobj() only
+                   reports destruction on the crack that finishes the helm,
+                   so the claim is made when the helm really did go */
+                if (mtmp->data == &mons[PM_GLASS_PIERCER] && is_glass(uarmh)
+                    && breaktest(uarmh, u.ux, u.uy)
+                    && breakobj(uarmh, u.ux, u.uy, FALSE, TRUE)) {
+                    pline("It punches straight through the glass!");
+                    /* glass through glass; it earned the extra bite */
+                    dmg += rnd(6);
+                    shattered = TRUE;
+                }
+                if (!shattered) {
+                    if (hard_helmet(uarmh)) {
+                        pline("Its blow glances off your %s.",
+                              helm_simple_name(uarmh));
+                        dmg = (dmg + 1) / 2;
+                    } else {
+                        You("are hit by %s!",
+                            x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
+                    }
+                }
+                mdamageu(mtmp, dmg);
             } else {
-                int dmg;
-
                 You("are hit by %s!",
                     x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
-                dmg = d(4, 6);
-                if (Half_physical_damage)
-                    dmg = (dmg + 1) / 2;
                 mdamageu(mtmp, dmg);
             }
             break;
+        }
         default: /* monster surprises you. */
             if (mtmp->mtame)
                 pline("%s jumps near you from the %s.", Amonnam(mtmp),
