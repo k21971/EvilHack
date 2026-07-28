@@ -17,6 +17,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
+- Last slice: 2026-07-28 COMBAT DAMAGE / AC REMAINDER - the five rows
+  the glass/blocker slice minted, closed in four commits: dmgval's
+  four body-material arms (plus master's final negative clamp, which
+  the branch lacked and the new penalties made mandatory), the
+  find_ac shield-skill ladder with its Knight/Valkyrie skill_init
+  bump, thitu's AC_VALUE hit gate, rustm's EF_DESTROY + AD_DCAY
+  parity with FOUR UAF guards, and the glass-piercer rework. Battery
+  20/20 PASS, no crashes. Three new rows minted: the Dex-to-AC ladder
+  (unlogged adoption casualty), is_hard-vs-hard_helmet tree-wide, and
+  the monster off-hand damage-weapon mismatch
 - (was: PHASE 1 IN PROGRESS (content data LANDED
   2026-07-12: 561 monsters + 566 objects build clean-rebuild green;
   two commits pending maintainer: staged slice A scaffolding
@@ -5725,10 +5735,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       of that function still establishes it - restlevelstate() had been
       reduced to a stub.
       Full mechanism, repro and cores in CRASH_TRACKING.md.
-- [ ] Body-material weapon-damage arms (NEW, minted 2026-07-27 by the
+- [x] Body-material weapon-damage arms (NEW, minted 2026-07-27 by the
       glass/blocker slice; maintainer ruled it a row of its own rather
       than smuggling a combat-balance change into an AC-foundation
-      commit). include/mondata.h is_wooden() on the branch is
+      commit). PORTED 2026-07-28, include/mondata.h + src/weapon.c.
+      is_wooden() widened as a composition of the has_bark() the branch
+      already had rather than by re-listing master's PM_ constants -
+      same four species, and the petrified ent stays excluded because
+      it is stone, not bark. All four arms landed verbatim in branch
+      idiom; none of them reads an attacker, so no signature change was
+      needed. Battery-confirmed at the dmgval() return: axe 4-7 vs ent
+      against mace 0-2, mace 6-13 vs skeleton against dagger 0-1, and
+      the petrified ent showing clean unmodified rolls on both weapons.
+      MASTER'S FINAL CLAMP CAME WITH THEM AND IS NOT OPTIONAL: master
+      ends dmgval with `if (tmp < 0) tmp = 0;` under the comment
+      "certain bonuses can make tmp negative", and the branch had no
+      such clamp because every pre-existing bonus was positive. The two
+      new penalty arms are the first that can drive the running total
+      below zero, and the branch's tail only clamps inside `if (tmp >
+      0)`, so without it dmgval would have returned negative damage to
+      callers that add it to a total. Caught in self-review, not by the
+      reviewer - the general shape is that porting a penalty into a
+      function that has only ever computed bonuses invalidates its
+      clamp reasoning.
+      THE HERO-SIDE TWIN WAS DELIBERATELY NOT PORTED, as this row
+      instructed. It is unnecessary as well as buggy: the branch runs
+      AT_WEAP damage through one choke point, mhitm_ad_phys() in
+      uhitm.c, which hands mdef == &gy.youmonst straight to dmgval(),
+      so the hero-on-defense direction got all four arms for free.
+      Battery confirmed it: a mace against a Barkskin hero dropped from
+      2-7 to 0-1, a dagger against a Stoneskin hero to 0, and a mace
+      against a Stoneskin hero stayed unchanged - the right arm firing
+      for the right defender in the direction that has no code of its
+      own. Master's mhitu.c late block stays unported and its FQ
+      double-count stays frozen-unfixed.
+      include/mondata.h is_wooden() on the branch was
       upstream's wood-golem-only form; master's is WOOD_GOLEM || ENT ||
       ELDER_ENT || is_blight. src/weapon.c dmgval carries 1 of master's
       4 anatomy arms: master has axe +rnd(4) vs wooden/plant/barkskin,
@@ -5740,8 +5781,46 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       block and is ENTANGLED with master's FQ double-count, already
       flagged frozen-unfixed by the forge slice: port the weapon.c
       arms, decide the mhitu twin separately.
-- [ ] Glass piercer + the piercer damage rework (NEW, minted 2026-07-27
-      by the glass/blocker slice). master hack.c's S_PIERCER arm in
+- [x] Glass piercer + the piercer damage rework (NEW, minted 2026-07-27
+      by the glass/blocker slice). PORTED 2026-07-28, src/hack.c only.
+      Master's restructure landed: dmg hoisted to the top of the arm,
+      the dodge roll moved ahead of the helm check, hard helm halves
+      instead of nullifying, glass piercer against a glass helm pays
+      +rnd(6). Battery confirmed the reorder is visible in play - "you
+      are almost hit" now fires while wearing a hard helm, which the
+      old short-circuit made impossible - and that a metal helm now
+      costs 5-9 HP where it used to cost none.
+      THREE DEVIATIONS FROM MASTER, all deliberate:
+      (1) the honesty fix this row asked for. breakobj() is called and
+      its RETURN gates both the message and the bonus damage, so the
+      claim is only made on the crack that actually finishes the helm.
+      Battery: 34 tracked encounters, cracks reported as cracks at
+      eroded 1/2/3, no false claim once. Master's manual setworn() +
+      update_inventory() were deliberately NOT ported - on this branch
+      erode_obj() does the unwearing through remove_worn_item(), which
+      is strictly more correct because it runs Helmet_off().
+      (2) hard_helmet() is used, NOT master's is_hard(). MAINTAINER
+      RULING 2026-07-28. Master has no hard_helmet() at all - verified
+      by git grep over the whole of master's src/ - and uses is_hard()
+      everywhere; hard_helmet() is upstream 5.0's narrower helper
+      (metallic or crackable, so it excludes wood/bone/stone) and the
+      branch already stands on it at ten falling-object sites. Taking
+      master's predicate at this one site would have made a wooden helm
+      deflect a piercer but not a falling rock. Glass helms satisfy
+      both predicates, so the new glass path is unaffected either way.
+      The tree-wide is_hard-vs-hard_helmet question is its own row
+      below.
+      (3) a soft helm keeps the "you are hit" message. Master's
+      structure prints nothing at all for a leather helm - no shatter
+      line, no glance line, no hit line - so the damage arrives silent.
+      MESSAGE TEXT DEVIATES TOO, and the battery is why: erode_obj()
+      announces "Your helm shatters!" itself on this branch, so
+      master's "It pierces and shatters your helm!" landed directly on
+      top of it and said shatters twice. Reworded to "It punches
+      straight through the glass!" per maintainer 2026-07-28 - keeps
+      the glass-through-glass flavor that explains the bonus damage
+      without repeating the line erode_obj already printed.
+      master hack.c's S_PIERCER arm in
       spoteffects is restructured: a hard helmet HALVES damage instead
       of nullifying it, and a glass piercer against a glass helm
       shatters it for +rnd(6) bonus damage. The branch has upstream's
@@ -5752,8 +5831,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       on this branch routes through the crackable erode_obj arm and
       usually does NOT destroy, so "It pierces and shatters your helm!"
       would lie exactly the way break_glass_obj did before the fix.
-- [ ] rustm() erosion parity (NEW, minted 2026-07-27 by the
-      glass/blocker slice). master's rustm passes EF_DESTROY and
+- [x] rustm() erosion parity (NEW, minted 2026-07-27 by the
+      glass/blocker slice). PORTED 2026-07-28, src/mhitm.c +
+      src/uhitm.c. AD_DCAY joins AD_CORR and the flags become master's
+      EF_GREASE | EF_DESTROY. Battery-confirmed on every leg: corrode
+      (black pudding), the new decay arm (brown pudding, which did
+      nothing to weapons before this), rust (rust monster) and burn
+      (fire vortex), each destroying a maxed weapon without incident,
+      m-v-u and m-v-m both.
+      THIS ROW WARNED THE GUARD MUST LAND WITH IT AND THE WARNING WAS
+      AN UNDERCOUNT - it says "both call sites are consistent today",
+      which was true of the two rustm call sites and false of the
+      call CHAIN. Four guards were needed, not two:
+      - uhitm.c mhitu arm, master's o_id + o_on() pattern plus
+        mon_currwep_gone(); the drow-taint block below it reads and
+        WRITES otmp->otainted. This is BUG-563's shape, except the
+        branch had reordered rustm to run BEFORE the taint block
+        instead of after it, so the exposure was worse than master's.
+      - uhitm.c mhitm arm, same pattern; mwep->opoisoned is read on
+        the very next line.
+      - mdamagem(), which takes mwep BY VALUE from hitmm(). Reads it
+        at four sites after mhitm_adtyping() returns, one of them a
+        real dereference through troll_baned().
+      - mattackm(), which owns the original pointer. Reads it in the
+        pudding-split test right after hitmm() returns, and hands it
+        to passivemm() further down.
+      THE LESSON IS THE FRAME COUNT. The reviewer caught the last two;
+      the first two were not enough because mhitm_ad_phys() does not
+      receive mwep - it recomputes MON_WEP(magr) locally - so nulling
+      that local reached neither caller. Three independent copies of
+      one pointer, and a fix that only clears the innermost looks
+      complete and is not. When a leaf function gains the ability to
+      free an object, every frame between it and the object's owner
+      has to be walked, not just the frame holding the call.
+      The comment already sitting above mattackm's break_glass_obj
+      null-out states this invariant exactly, and it is the reason it
+      is stated there: it was written when break_glass_obj gained the
+      same power.
+      SIBLING FIX IN THE SAME LINES, maintainer-approved 2026-07-28:
+      mattackm's pudding-split test read objects[mwep->otyp].oc_material
+      - the object TYPE's default - where master reads the instance
+      (mwep->material) and the branch's own hero-side sibling in
+      uhitm.c reads the instance too. Under EvilHack's per-instance
+      material system those disagree: a wooden-instance long sword split
+      puddings and a steel-instance club did not. Now reads the
+      instance. Battery-confirmed both directions: two soldiers'
+      long swords set to WOOD produced zero splits over 22 turns of
+      melee against black and brown puddings; the same two objects
+      switched to IRON split them immediately.
+      master's rustm passes EF_DESTROY and
       handles AD_DCAY alongside AD_CORR; the branch carries upstream's
       EF_GREASE | EF_VERBOSE with neither, so a monster's weapon can
       never be destroyed by the hero's rust/corrode/decay polyform.
@@ -5761,17 +5887,42 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       its hazard does not exist until this lands, and it MUST land with
       the guard, since the block downstream of rustm reads the weapon.
       Both call sites (hero-defense and m-v-m) are consistent today.
-- [ ] mthrowu hero-on-defense AC model (NEW, minted 2026-07-27 by the
-      glass/blocker slice). thitu uses raw u.uac + tlev; master uses
+- [x] mthrowu hero-on-defense AC model (NEW, minted 2026-07-27 by the
+      glass/blocker slice). PORTED 2026-07-28, src/mthrowu.c only,
+      three lines. The hit gate runs on realac = AC_VALUE(u.uac); the
+      near-miss comparison stays on raw u.uac against dieroll - 2,
+      which is master's own arrangement and deliberate - the outcome
+      is randomized, how close the shot came is reported honestly.
+      Restores the branch's third AC_VALUE call site; it had matched
+      upstream's two.
+      Battery: at AC -44 a centaurian sergeant's thrown daggers still
+      landed repeatedly, interleaved with honest misses, shield blocks
+      and the near-miss line. That is the whole point of the row -
+      before this, enough negative AC made the hero untouchable by
+      thrown weapons.
+      thitu used raw u.uac + tlev; master uses
       realac = AC_VALUE(u.uac). Upstream 5.0 also uses raw u.uac, so
       this is an unported master divergence, not a 5.0 regression.
       Belongs with the to-hit/AC roll matrix - the hero-on-defense
       -rnd() arm is the whole reason the hero is never fully immune.
-- [ ] find_ac shield-skill AC block (NEW, minted 2026-07-27 by the
-      glass/blocker slice). master's do_wear.c grants AC for
-      P_SKILL(P_SHIELD); absent on the branch. The deflection ladders
-      just made P_SHIELD trainable, so the reward for training it
-      should follow closely.
+- [x] find_ac shield-skill AC block (NEW, minted 2026-07-27 by the
+      glass/blocker slice). PORTED 2026-07-28, src/do_wear.c +
+      src/weapon.c. master's ladder landed verbatim, and master's
+      skill_init() Knight/Valkyrie starting P_BASIC came with it -
+      without that bump the two roles that can reach master-rank
+      shield skill would have started no better than anyone else at
+      the thing their kit is built around.
+      Battery: bare AC 10, +3 small shield, ladder measured at
+      Unskilled 6 / Basic 5 / Skilled 3 / Expert 1 / Master -2, and
+      the bracer split measured separately at Basic -1 / Skilled -2 /
+      Expert -3 / Master -4. Valkyrie and Knight both start Basic; a
+      Wizard has the skill restricted and absent from #enhance.
+      P_SKILL() is safe before skill_init() runs - weapon_skills[] is
+      zero-initialised as part of struct you, so every rank reads
+      P_ISRESTRICTED and no arm fires; uarms is NULL then anyway.
+      STILL UNPORTED, master's other P_SKILL(P_SHIELD) consumers: the
+      shield-bash chance in uhitm.c (three sites) and the muse.c gate.
+      Training the skill now pays in AC but not yet in offense.
 - [ ] pager farlook remainder (NEW, minted 2026-07-27 by the
       glass/blocker slice, which ported the armor-weight half). master's
       ", wielding %s" + MON_WEP2 arm is already claimed by the
@@ -5785,6 +5936,53 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream are both unbounded here and master is strictly worse
       (it also appends mon_wounds and the wielding clause). The armor
       line itself was written bounded; the function wants an audit.
+- [ ] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
+      damage/AC slice, which found it while verifying find_ac() for the
+      shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
+      dropped it silently and no keyword sweep would have found it.
+      master's find_ac() carries a dex_adjust_ac ladder: Dex <= 6 gives
+      +3 AC, 7-9 +1, 10-14 0, 15-16 -1, 17-18 -2, 19-20 -3, 21-23 -4,
+      >= 24 -5, then cancelled outright (clamped to no better than 0)
+      when the body armor is heavy metallic / bone / stone / wood /
+      glass, or when near_capacity() >= SLT_ENCUMBER. The branch's
+      find_ac() has no dex_adjust_ac local at all. Maintainer ruled
+      2026-07-28: record it now, port it in a later slice, so the
+      shield commit stayed AC plumbing rather than a character-balance
+      change.
+      RIDES WITH IT: ART_ARMOR_OF_RETRIBUTION's -5 in the same
+      function is also absent on the branch - it belongs to the
+      existing Ashmar/Retribution behaviour row, noted here because
+      both gaps are in find_ac() and one read of the function should
+      close both.
+- [ ] is_hard() vs hard_helmet(), tree-wide (NEW, minted 2026-07-28 by
+      the combat damage/AC slice). master has NO hard_helmet() at all -
+      git grep over master's whole src/ finds zero - and uses is_hard()
+      at every falling-object site. hard_helmet() is upstream 5.0's
+      helper and is NARROWER: metallic or crackable, where is_hard()
+      also covers wood, bone and stone. The branch currently stands on
+      hard_helmet() at ten sites (ball.c, dothrow.c, read.c x2,
+      potion.c, mhitu.c, trap.c, dig.c, objnam.c, do_wear.c).
+      The piercer slice hit this and was ruled to hard_helmet() for
+      consistency, but that means a wooden or bone helm gives no
+      protection against ANY falling object on the branch where it
+      would on master. Decide once, tree-wide; do not settle it a site
+      at a time.
+- [ ] Monster off-hand weapon rolls damage from the primary (NEW,
+      minted 2026-07-28 by the combat damage/AC slice; PRE-EXISTING,
+      not that slice's doing, and surfaced by its reviewer).
+      mattackm() and mhitu.c's mattacku() both select the off-hand
+      weapon correctly for a 2nd+ AT_WEAP attack - MON_WEP2, with
+      OFFHAND_PENALTY applied - and it correctly drives to-hit and the
+      mswings message. But the damage path does not receive it:
+      mhitm_ad_phys() recomputes MON_WEP(magr) locally in both its
+      m-v-u and m-v-m arms, so a dual-wielding monster's off-hand
+      swing scores damage from the PRIMARY weapon. On master the late
+      mhitu damage-adjustment block consumed mon_currwep and kept the
+      two in sync; the branch has no consumer, so nothing ever
+      noticed. Now that the anatomy arms and rustm's EF_DESTROY both
+      key off that pointer, the off-hand swing also erodes and can
+      destroy the wrong weapon. Fix is to thread the swung weapon into
+      mhitm_ad_phys rather than recompute it.
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
