@@ -569,7 +569,9 @@ struct obj {
         "a pair of lenses named the Eyes of the Overworld" is not */    \
      || ((o)->oartifact == ART_EYES_OF_THE_OVERWORLD                    \
          && !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD)))
-#define pair_of(o) ((o)->otyp == LENSES || is_gloves(o) || is_boots(o))
+#define pair_of(o)                                    \
+    ((o)->otyp == LENSES || (o)->otyp == GOGGLES      \
+     || is_gloves(o) || is_boots(o) || is_bracer(o))
 
 /* objects that skip the metallic/crystal material requirement when
    used as a forge ingredient */

@@ -57,6 +57,7 @@ staticfn char *singplur_compound(char *);
 staticfn boolean ch_ksound(const char *basestr);
 staticfn boolean badman(const char *, boolean);
 staticfn boolean wishymatch(const char *, const char *, boolean);
+staticfn int alt_spelling_otyp(const char *);
 staticfn short rnd_otyp_by_wpnskill(schar);
 staticfn short rnd_otyp_by_namedesc(const char *, char, int);
 staticfn boolean not_spec_material(const char *, int);
@@ -264,10 +265,14 @@ obj_typename(int otyp)
             Sprintf(eos(buf), " (%s)", dn);
         return buf;
     case ARMOR_CLASS:
-        if (objects[otyp].oc_armcat == ARM_GLOVES
-            || objects[otyp].oc_armcat == ARM_BOOTS)
+        if ((objects[otyp].oc_armcat == ARM_GLOVES
+             && otyp != MUMMIFIED_HAND)
+            || objects[otyp].oc_armcat == ARM_BOOTS
+            /* is_bracer() wants an object; this function has only a type */
+            || otyp == BRACERS || otyp == DARK_ELVEN_BRACERS
+            || otyp == RUNED_BRACERS)
             Strcpy(buf, "pair of ");
-        else if (otyp >= GRAY_DRAGON_SCALES && otyp <= YELLOW_DRAGON_SCALES)
+        else if (otyp >= FIRST_DRAGON_SCALES && otyp <= LAST_DRAGON_SCALES)
             Strcpy(buf, "set of ");
         FALLTHROUGH;
         /*FALLTHRU*/
@@ -807,7 +812,7 @@ xname_flags(
         /* poisoned weapon prefix was handled before the switch */
     case VENOM_CLASS:
     case TOOL_CLASS:
-        if (typ == LENSES)
+        if (typ == LENSES || typ == GOGGLES)
             Strcat(buf, "pair of ");
         else if (is_barding(obj))
             Strcat(buf, "set of ");
@@ -853,8 +858,18 @@ xname_flags(
             Strcat(buf, "set of ");
             Strcat(buf, actualn);
             break;
-        } else if (is_boots(obj) || is_gloves(obj)) {
+        } else if (is_boots(obj) || is_bracer(obj)
+                   /* a mummified hand comes one to a customer */
+                   || (is_gloves(obj) && typ != MUMMIFIED_HAND)) {
             Strcat(buf, "pair of ");
+            if (is_bracer(obj) && !dknown) {
+                /* the appearance names the type outright, so fall back on
+                   the generic word the way an unseen shield does below */
+                Strcat(buf, "bracers");
+                propnames(buf, BUFSZ - PREFIX, obj->oprops,
+                          obj->oprops_known, FALSE, FALSE);
+                break;
+            }
             /*FALLTHRU*/
         } else if (is_shield(obj) && !dknown) {
             if (obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD) {
@@ -943,6 +958,12 @@ xname_flags(
                                         : (obj->owt <= 500) ? "large"
                                           : "very large",
                      actualn);
+            break;
+        }
+
+        if (typ == MEAT_BOOTS || typ == MEAT_GLOVES) {
+            Concat(buf, 0, "pair of ");
+            Concat(buf, 0, actualn);
             break;
         }
 
@@ -3012,14 +3033,14 @@ static const struct sing_plur one_off[] = {
 static const char *const as_is[] = {
     /* makesingular() leaves these plural due to how they're used */
     "boots",   "shoes",     "gloves",    "lenses",   "scales",
-    "eyes",    "gauntlets", "iron bars",
+    "eyes",    "gauntlets", "iron bars", "goggles",  "bracers",
     /* both singular and plural are spelled the same */
     "bison",   "deer",      "elk",       "fish",      "fowl",
     "tuna",    "yaki",      "-hai",      "krill",     "manes",
     "moose",   "ninja",     "sheep",     "ronin",     "roshi",
     "shito",   "tengu",     "ki-rin",    "Nazgul",    "gunyoki",
     "piranha", "samurai",   "shuriken",  "haggis",    "Bordeaux",
-    0,
+    "drow",    "undead",    "mistletoe", 0,
     /* Note:  "fish" and "piranha" are collective plurals, suitable
        for "wiped out all <foo>".  For "3 <foo>", they should be
        "fishes" and "piranhas" instead.  We settle for collective
@@ -3670,13 +3691,14 @@ static NEARDATA const struct o_range o_ranges[] = {
     { "lamp", TOOL_CLASS, OIL_LAMP, MAGIC_LAMP },
     { "candle", TOOL_CLASS, TALLOW_CANDLE, WAX_CANDLE },
     { "horn", TOOL_CLASS, TOOLED_HORN, HORN_OF_PLENTY },
-    { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_REFLECTION },
-    { "hat", ARMOR_CLASS, FEDORA, DUNCE_CAP },
-    { "helm", ARMOR_CLASS, ELVEN_HELM, HELM_OF_TELEPATHY },
-    { "gloves", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_DEXTERITY },
-    { "gauntlets", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_DEXTERITY },
-    { "boots", ARMOR_CLASS, LOW_BOOTS, LEVITATION_BOOTS },
-    { "shoes", ARMOR_CLASS, LOW_BOOTS, DWARVISH_BOOTS },
+    { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_MOBILITY },
+    { "bracers", ARMOR_CLASS, BRACERS, RUNED_BRACERS },
+    { "hat", ARMOR_CLASS, DUNCE_CAP, FEDORA },
+    { "helm", ARMOR_CLASS, DUNCE_CAP, HELM_OF_TELEKINESIS },
+    { "gloves", ARMOR_CLASS, GLOVES, MUMMIFIED_HAND },
+    { "gauntlets", ARMOR_CLASS, GAUNTLETS, GAUNTLETS_OF_POWER },
+    { "boots", ARMOR_CLASS, LOW_BOOTS, FUMBLE_BOOTS },
+    { "shoes", ARMOR_CLASS, LOW_BOOTS, ORCISH_BOOTS },
     { "cloak", ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT },
     { "shirt", ARMOR_CLASS, HAWAIIAN_SHIRT, T_SHIRT },
     { "dragon scales", ARMOR_CLASS, FIRST_DRAGON_SCALES,
@@ -3704,6 +3726,7 @@ static const struct alt_spellings {
     { "iron ball", HEAVY_IRON_BALL },
     { "lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
+    { "bearded axe", DWARVISH_BEARDED_AXE },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
     { "amulet of protection", AMULET_OF_GUARDING },
     { "amulet of telepathy", AMULET_OF_ESP },
@@ -3722,6 +3745,7 @@ static const struct alt_spellings {
     { "can opener", TIN_OPENER },
     { "kelp", KELP_FROND },
     { "eucalyptus", EUCALYPTUS_LEAF },
+    { "royal jelly", LUMP_OF_ROYAL_JELLY },
     { "lembas", LEMBAS_WAFER },
     { "tripe", TRIPE_RATION },
     { "cookie", FORTUNE_COOKIE },
@@ -3744,8 +3768,57 @@ static const struct alt_spellings {
     { "load stone", LOADSTONE },
     { "touch stone", TOUCHSTONE },
     { "flintstone", FLINT },
+    { "shiny stone", SLING_BULLET },
+    /* Drow objects */
+    { "drow arrow", DARK_ELVEN_ARROW },
+    { "drow crossbow bolt", DARK_ELVEN_CROSSBOW_BOLT },
+    { "drow spear", DARK_ELVEN_SPEAR },
+    { "drow dagger", DARK_ELVEN_DAGGER },
+    { "drow short sword", DARK_ELVEN_SHORT_SWORD },
+    { "drow broadsword", DARK_ELVEN_BROADSWORD },
+    { "drow long sword", DARK_ELVEN_LONG_SWORD },
+    { "drow mace", DARK_ELVEN_MACE },
+    { "drow heavy mace", DARK_ELVEN_HEAVY_MACE },
+    { "drow bow", DARK_ELVEN_BOW },
+    { "drow crossbow", DARK_ELVEN_HAND_CROSSBOW },
+    { "dark elven crossbow", DARK_ELVEN_HAND_CROSSBOW },
+    { "drow hand crossbow", DARK_ELVEN_HAND_CROSSBOW },
+    { "drow helm", DARK_ELVEN_HELM },
+    { "drow armor", DARK_ELVEN_CHAIN_MAIL },
+    { "dark elven armor", DARK_ELVEN_CHAIN_MAIL },
+    { "drow chain mail", DARK_ELVEN_CHAIN_MAIL },
+    { "drow tunic", DARK_ELVEN_TUNIC },
+    { "drow cloak", DARK_ELVEN_CLOAK },
+    { "drow bracers", DARK_ELVEN_BRACERS },
+    { "dark elven bracers", DARK_ELVEN_BRACERS },
+    { "drow shield", DARK_ELVEN_BRACERS },
+    { "dark elven shield", DARK_ELVEN_BRACERS },
+    { "drow gloves", DARK_ELVEN_GLOVES },
+    { "drow boots", DARK_ELVEN_BOOTS },
+    /* armor */
+    { "gloves", GLOVES },
+    { "bracers", BRACERS },
+    { "runed bracers", RUNED_BRACERS },
     { (const char *) 0, 0 },
 };
+
+/* the object type an alternate spelling names, or STRANGE_OBJECT for none.
+   Also consulted by the monster-name parser: several aliases open with a
+   word that is also a monster ("drow dagger"), and 5.0 runs that parser
+   ahead of the spelling lookup where master ran it after, so without this
+   the leading word is eaten and the rest resolves to a plain base item */
+staticfn int
+alt_spelling_otyp(const char *str)
+{
+    const struct alt_spellings *as = spellings;
+
+    while (as->sp) {
+        if (wishymatch(str, as->sp, TRUE))
+            return as->ob;
+        as++;
+    }
+    return STRANGE_OBJECT;
+}
 
 staticfn short
 rnd_otyp_by_wpnskill(schar skill)
@@ -5025,7 +5098,10 @@ readobjnam_postparse1(struct _readobjnam_data *d)
         && strncmpi(d->bp, "death wand", 10)  /* 'of inversion', not Rider */
         && strncmpi(d->bp, "master key", 10)  /* not the "master" rank */
         && strncmpi(d->bp, "ninja-to", 8)     /* not the "ninja" rank */
-        && strncmpi(d->bp, "magenta", 7)) {   /* not the "mage" rank */
+        && strncmpi(d->bp, "magenta", 7)      /* not the "mage" rank */
+        /* nor the leading word of an object alias that happens to name a
+           monster, such as "drow dagger" */
+        && alt_spelling_otyp(d->bp) == STRANGE_OBJECT) {
         const char *rest = 0;
 
         if (d->mntmp < LOW_PM && strlen(d->bp) > 2
@@ -5080,14 +5156,11 @@ readobjnam_postparse1(struct _readobjnam_data *d)
 
     /* Alternate spellings (pick-ax, silver sabre, &c) */
     {
-        const struct alt_spellings *as = spellings;
+        int alt = alt_spelling_otyp(d->bp);
 
-        while (as->sp) {
-            if (wishymatch(d->bp, as->sp, TRUE)) {
-                d->typ = as->ob;
-                return 2; /*goto typfnd;*/
-            }
-            as++;
+        if (alt != STRANGE_OBJECT) {
+            d->typ = alt;
+            return 2; /*goto typfnd;*/
         }
         /* can't use spellings list for this one due to shuffling */
         if (!strncmpi(d->bp, "grey spell", 10))
@@ -6603,6 +6676,9 @@ shield_simple_name(struct obj *shield)
         /* xname() describes unknown (unseen) reflection as smooth */
         if (shield->otyp == SHIELD_OF_REFLECTION)
             return shield->dknown ? "silver shield" : "smooth shield";
+        /* bracers occupy the shield slot but are named as a pair */
+        if (is_bracer(shield))
+            return "bracers";
         /*
          * We might distinguish between wooden vs metallic or
          * light vs heavy to give small benefit to spell casters.
