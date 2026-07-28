@@ -17,7 +17,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last slice: 2026-07-28 COMBAT DAMAGE / AC REMAINDER - the five rows
+- Last slice: 2026-07-28 LATER, objnam.c RE-PORT - the three wish/naming
+  oddities the combat/AC battery reported, traced to Phase 1 leaving
+  src/objnam.c as vanilla 5.0. Three commits: the dragon-scale-mail
+  redirect + chromatic gate, the plural handling, the wish tables; plus a
+  fourth for the eyewear property the object swap dropped, which had left
+  blindfolds and towels unable to blind. Sweep found worse than the
+  reports: "hat" wishes returned a random object of any class. Reviewer
+  caught a new bug before it shipped - master's drow aliases are
+  order-dependent and 5.0 inverted the parse order. Both batteries PASS,
+  paniclog clean. Goggles behavior minted as its own row
+- Previous slice: 2026-07-28 COMBAT DAMAGE / AC REMAINDER - the five rows
   the glass/blocker slice minted, closed in four commits: dmgval's
   four body-material arms (plus master's final negative clamp, which
   the branch lacked and the new penalties made mandatory), the
@@ -5983,6 +5993,85 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       key off that pointer, the off-hand swing also erodes and can
       destroy the wrong weapon. Fix is to thread the swung weapon into
       mhitm_ad_phys rather than recompute it.
+- [x] objnam.c wish tables and plural handling (NEW, minted AND closed
+      2026-07-28 by the oddities the combat/AC battery reported while
+      staging test gear). Phase 1's object swap ec925f41a brought
+      EvilHack's objects.h but left src/objnam.c as vanilla 5.0, so every
+      table in it either indexes the wrong objects or omits EvilHack's
+      outright. Three reported symptoms, one cause; the sweep found the
+      rest.
+      LANDED: master's dragon-scale-mail redirect above mksobj (the dead
+      TODO stub in the post-creation switch deleted with it), the
+      CHROMATIC_DRAGON_SCALES and SCR_CONSECRATION non-wizard downgrades,
+      three stale dragon ranges modernized to the FIRST/LAST macros,
+      as_is[] + pair_of() + xname_flags() + obj_typename() taught that
+      bracers and goggles are already plural, master's MUMMIFIED_HAND
+      carve-out and MEAT_BOOTS/MEAT_GLOVES arm, o_ranges[] endpoints
+      adopted wholesale plus master's bracers row, and spellings[] unioned
+      with master's 25 drow aliases and four other entries.
+      WORST OF THE SWEEP FINDINGS: wishing "hat" returned a RANDOM OBJECT
+      OF ANY CLASS. EvilHack reordered the helmet block so DUNCE_CAP now
+      precedes FEDORA, the vanilla row reads {FEDORA, DUNCE_CAP},
+      rnd_class() returns STRANGE_OBJECT when last <= first, and mkobj()
+      then rolls a random class. Six sibling rows silently truncated.
+      THE LESSON IS PARSE ORDER, and it nearly shipped a new bug: master
+      runs the alternate-spelling lookup BEFORE the monster-name stripper;
+      5.0 inverted them. Porting master's "drow dagger" aliases into 5.0's
+      order meant name_to_monplus() ate "drow" as the monster it also is,
+      and all 21 aliases silently produced plain base items. Caught by the
+      reviewer, not by the battery, and not by the build. Fixed by giving
+      the stripper's existing exclusion list (samurai sword, wizard lock,
+      master key) a general test: alt_spelling_otyp() now answers "this
+      whole string is a known alias", which also de-duplicates the
+      spellings loop and self-polices any future alias whose first word
+      names a monster. A DATA table is not order-independent when the code
+      around it was reordered.
+      Battery: every part PASS. 21/21 drow aliases, 14 dragon colors
+      including shadow and celestial, non-wizard downgrades proven in a
+      real non-wizmode game with a legitimately zapped wand, "hat" x26 all
+      headwear, blind-pickup showing the generic word rather than leaking
+      "etched bracers", and a named type reading "a pair of bracers called
+      Foo" rather than "a pair of shield called Foo" - the last two being
+      reviewer catches on top of the port.
+- [x] Eyewear lost its property in the object swap (NEW, minted 2026-07-28
+      by this slice's battery, which noticed a worn blindfold did not
+      blind; PRE-EXISTING, not the objnam slice's doing). FIXED SAME DAY,
+      include/objects.h only.
+      ROOT CAUSE, and it is the A_NONE shape again - Phase 1 DATA meeting
+      5.0 CODE. Upstream declares facewear with a dedicated EYEWEAR(name,
+      desc, kn, prop, ...) macro carrying a property; blindfold and towel
+      get BLINDED. The branch had no EYEWEAR macro at all and carried all
+      four as plain TOOL(), whose expansion hardcodes oc_oprop 0. setworn()
+      grants extrinsics from oc_oprop, and 5.0's Blind macro reads
+      EBlinded - where master's read the ublindf POINTER, which is exactly
+      why master never needed the property and why a byte-faithful
+      conversion of master's entry silently broke it here.
+      Property enum starts at 1, so the 0 went to an unused slot; nothing
+      wrong was granted, blindness simply never arrived. Swept every other
+      property-bearing macro (ARMOR/HELM/CLOAK/SHIELD/GLOVES/BOOTS/
+      DRGN_SCALES/RING/AMULET/POTION): all survived, EYEWEAR was the only
+      one missing, so the blast radius is these four objects.
+      Battery: blindfold and towel both blind and unblind cleanly with
+      EBlinded going 0x80000 (W_TOOL) and back; lenses are the negative
+      control and stay at 0; telepathy through a blindfold paints and
+      TRACKS monsters outside line of sight, proving the extrinsic reaches
+      a real per-turn consumer rather than a one-shot.
+- [ ] Goggles behavior (NEW, minted 2026-07-28 by this slice, which made
+      goggles wishable and correctly named but not functional). The object
+      exists and is obtainable; the behavior never ported. The branch's
+      do_wear.c `eyewear` predicate omits GOGGLES, so P and W both refuse
+      them ("That is a silly thing to wear"). That one line is not the
+      job: master references GOGGLES at seven places in do_wear.c plus
+      four in apply.c and two in invent.c, and the branch has one of the
+      thirteen. Port the behavior as a unit and decide what goggles
+      actually do; do NOT just open the wear gate, or the player can equip
+      them for no effect.
+- [ ] "pairs of" at quan > 1 (NEW, minted 2026-07-28 by this slice's
+      battery). A stack of the mergeable pair-items renders "2 pair of
+      meat gloves" where it wants "2 pairs of". Only reachable on the
+      FOOD_CLASS meat gloves and boots, since armor does not merge.
+      Master has the identical construction so this is master parity, not
+      a regression - but neither tree pluralizes the "pair".
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
