@@ -542,6 +542,8 @@ druid_wildshape(void)
                      : (u.ualign.abuse < 30) ? 500
                        : (u.ualign.abuse < 50) ? 1000
                          : 2000);
+    /* a form change can start or stop underwater vision */
+    boolean old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
         You("fail to transform!");
@@ -602,9 +604,10 @@ druid_wildshape(void)
         return;
     }
 
-    /* TODO-EVILHACK: master rechecks underwater vision here via the
-       See_underwater property; that macro ports with the
-       object-properties subsystem */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     return;
 }
 
@@ -625,6 +628,8 @@ vampire_shapechange(void)
                      : (u.ualign.abuse < 30) ? 500
                        : (u.ualign.abuse < 50) ? 1000
                          : 2000);
+    /* a form change can start or stop underwater vision */
+    boolean old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
         You("fail to transform!");
@@ -668,9 +673,10 @@ vampire_shapechange(void)
         return;
     }
 
-    /* TODO-EVILHACK: master rechecks underwater vision here via the
-       See_underwater property; that macro ports with the
-       object-properties subsystem */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     /* only remove racial flying if we're polymorphed and the new form
        can't fly, but preserve it for vampires that naturally gain
        flying at level twelve */
@@ -701,7 +707,9 @@ polyself(int psflags)
             isvamp = (is_vampire(gy.youmonst.data)
                       || is_vampshifter(&gy.youmonst)
                       || (!Upolyd && Race_if(PM_VAMPIRE))),
-            controllable_poly = Polymorph_control && !(Stunned || Unaware);
+            controllable_poly = Polymorph_control && !(Stunned || Unaware),
+            /* a form change can start or stop underwater vision */
+            old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
         You("fail to transform!");
@@ -943,6 +951,10 @@ polyself(int psflags)
     gs.sex_change_ok--; /* reset */
 
  made_change:
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     new_light = emits_light(gy.youmonst.data);
     if (old_light != new_light) {
         if (old_light)

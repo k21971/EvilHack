@@ -172,7 +172,7 @@ does_block(int x, int y, struct rm *lev)
     if (gs.seethru != 1) {
 #endif
     if (lev->typ == CLOUD || IS_WATERWALL(lev->typ) || lev->typ == LAVAWALL
-        || (Underwater && is_moat(x, y)))
+        || (Underwater && is_moat(x, y) && !See_underwater))
         return 1;
 #ifdef DEBUG
     } /* gs.seethru */
@@ -586,7 +586,7 @@ vision_recalc(int control)
     } else {
         int lo_col, has_night_vision = 1; /* hero has night vision */
 
-        if (Underwater && !Is_waterlevel(&u.uz)) {
+        if (Underwater && !Is_waterlevel(&u.uz) && !See_underwater) {
             /*
              * The hero is underwater.  Only see surrounding locations if
              * they are also underwater.  This overrides night vision but

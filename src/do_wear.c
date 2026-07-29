@@ -1894,7 +1894,9 @@ Ring_gone(struct obj *obj)
 void
 Blindf_on(struct obj *otmp)
 {
-    boolean already_blind = Blind, changed = FALSE;
+    boolean already_blind = Blind, changed = FALSE,
+            /* goggles and the Eyes let the hero see while submerged */
+            old_uwvis = (Underwater && See_underwater);
 
     /* blindfold might be wielded; release it for wearing */
     remove_worn_item(otmp, FALSE);
@@ -1923,13 +1925,22 @@ Blindf_on(struct obj *otmp)
     if (changed) {
         toggle_blindness(); /* potion.c */
     }
+    /* gaining or losing underwater sight switches the map between the
+       submerged three-by-three and the ordinary view; redraw at the
+       change rather than every turn, which is how the shapechanges do it */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
 }
 
 void
 Blindf_off(struct obj *otmp)
 {
     boolean was_blind = Blind, changed = FALSE,
-            nooffmsg = !otmp;
+            nooffmsg = !otmp,
+            /* goggles and the Eyes let the hero see while submerged */
+            old_uwvis = (Underwater && See_underwater);
 
     if (!otmp)
         otmp = ublindf;
@@ -1964,6 +1975,12 @@ Blindf_off(struct obj *otmp)
     }
     if (changed) {
         toggle_blindness(); /* potion.c */
+    }
+    /* losing underwater sight has to blank the map back down to the
+       submerged view; nothing else redraws on the way out */
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
     }
 }
 

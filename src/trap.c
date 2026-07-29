@@ -5843,7 +5843,14 @@ drown(void)
         }
         vision_recalc(2); /* unsee old position */
         set_uinwater(1); /* u.uinwater = 1 */
-        under_water(1);
+        if (!See_underwater) {
+            under_water(1);
+        } else {
+            /* the hero can see down here; draw the map properly rather
+               than the submerged three-by-three */
+            vision_reset();
+            docrt();
+        }
         gv.vision_full_recalc = 1;
         return FALSE;
     }

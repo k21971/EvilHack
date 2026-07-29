@@ -1346,7 +1346,8 @@ do_screen_description(
     int i, j, alt_i, glyph = NO_GLYPH,
         skipped_venom = 0, found = 0; /* count of matching syms found */
     boolean hit_trap, need_to_look = FALSE,
-            submerged = (Underwater && !Is_waterlevel(&u.uz)),
+            submerged = (Underwater && !Is_waterlevel(&u.uz)
+                         && !See_underwater),
             hallucinate = (Hallucination && !program_state.gameover);
     const char *x_str;
     nhsym tmpsym;

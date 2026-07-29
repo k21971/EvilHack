@@ -962,7 +962,8 @@ newsym(coordxy x, coordxy y)
     if (Underwater && !Is_waterlevel(&u.uz)) {
         /* when underwater, don't do anything unless <x,y> is an
            adjacent water or lava or ice position */
-        if (!(is_pool_or_lava(x, y) || is_ice(x, y)) || !next2u(x, y))
+        if (!(is_pool_or_lava(x, y) || is_ice(x, y))
+            || (!See_underwater && !next2u(x, y)))
             return;
     }
     lev = &levl[x][y];
@@ -1814,7 +1815,7 @@ docrt_flags(int refresh_flags)
         swallowed(1);
         goto post_map;
     }
-    if (Underwater && !Is_waterlevel(&u.uz)) {
+    if (Underwater && !Is_waterlevel(&u.uz) && !See_underwater) {
         under_water(1);
         goto post_map;
     }

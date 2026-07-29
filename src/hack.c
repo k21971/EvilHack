@@ -3330,6 +3330,8 @@ pooleffects(
 
             set_uinwater(0); /* u.uinwater = 0; leave the water */
             if (was_underwater) { /* restore vision */
+                if (See_underwater)
+                    vision_reset();
                 docrt();
                 gv.vision_full_recalc = 1;
             }

@@ -343,6 +343,14 @@
     (HMagical_breathing || EMagical_breathing || amphibious(gy.youmonst.data))
 /* Get wet, may go under surface */
 
+/* see while submerged, rather than only feeling the adjacent water;
+   raw oartifact test, matching master */
+#define See_underwater                                                   \
+    ((HSwimming && (HMagical_breathing || amphibious(gy.youmonst.data)   \
+                    || racial_tortle(&gy.youmonst)))                     \
+     || (ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD)     \
+     || (ublindf && ublindf->otyp == GOGGLES))
+
 #define Breathless_nomagic \
     (breathless(gy.youmonst.data) || racial_zombie(&gy.youmonst) \
      || racial_vampire(&gy.youmonst))

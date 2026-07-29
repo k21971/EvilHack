@@ -579,8 +579,10 @@ moveloop_core(void)
         svc.context.coward = FALSE;
 
         /* vision while buried or underwater is updated here */
-        if (Underwater)
+        if (Underwater && !See_underwater)
             under_water(0);
+        else if (Underwater && !Is_waterlevel(&u.uz))
+            docrt();
         else if (u.uburied)
             under_ground(0);
 
