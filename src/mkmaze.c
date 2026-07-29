@@ -2059,6 +2059,12 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
             case CONS_MON: {
                 struct monst *mon = (struct monst *) cons->list;
 
+                /* the ride is over; drop the in-transit flag before
+                   placing, so that whatever state the placement settles
+                   on - floor here, or migrating or obliterated by way of
+                   elemental_clog() - is the state the monster keeps */
+                mon->mstate &= ~MON_BUBBLEMOVE;
+
                 /* mnearto() might fail. We can jump right to elemental_clog
                    from here rather than deal_with_overcrowding() */
                 if (!mnearto(mon, cons->x, cons->y, TRUE, RLOC_NOMSG))
