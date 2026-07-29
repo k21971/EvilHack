@@ -17,7 +17,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last slice: 2026-07-28 LATER, objnam.c RE-PORT - the three wish/naming
+- Last slice: 2026-07-29 GOGGLES - closed the row the objnam slice minted,
+  in two commits: the equipment plumbing (18 sites, one of which a
+  master-anchored census structurally could not find - iactions.c is
+  5.0-only), then See_underwater and its ~15 consumers. Goggles do NOT
+  confer Breathless, as first claimed; they are a source of master's
+  See_underwater, which is EvilHack-only and was absent here entirely.
+  Battery found a real port bug - removing eyewear while submerged left a
+  stale map - fixed at the transition in Blindf_on/off rather than by
+  master's per-turn docrt(). Note this changed underwater play for every
+  tortle, not just goggles wearers. Four rows minted
+- Previous slice: 2026-07-28 LATER, objnam.c RE-PORT - the three wish/naming
   oddities the combat/AC battery reported, traced to Phase 1 leaving
   src/objnam.c as vanilla 5.0. Three commits: the dragon-scale-mail
   redirect + chromatic gate, the plural handling, the wish tables; plus a
@@ -6056,16 +6066,100 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       control and stay at 0; telepathy through a blindfold paints and
       TRACKS monsters outside line of sight, proving the extrinsic reaches
       a real per-turn consumer rather than a one-shot.
-- [ ] Goggles behavior (NEW, minted 2026-07-28 by this slice, which made
-      goggles wishable and correctly named but not functional). The object
-      exists and is obtainable; the behavior never ported. The branch's
-      do_wear.c `eyewear` predicate omits GOGGLES, so P and W both refuse
-      them ("That is a silly thing to wear"). That one line is not the
-      job: master references GOGGLES at seven places in do_wear.c plus
-      four in apply.c and two in invent.c, and the branch has one of the
-      thirteen. Port the behavior as a unit and decide what goggles
-      actually do; do NOT just open the wear gate, or the player can equip
-      them for no effect.
+- [x] Goggles behavior (NEW, minted 2026-07-28 by the objnam slice, which
+      made goggles wishable and correctly named but not functional).
+      PORTED 2026-07-29 in two commits: the equipment plumbing, then
+      See_underwater.
+      THE ROW SAID GOGGLES "NEED A DESIGN CALL ON WHAT THEY DO" AND THAT
+      WAS WRONG - master answers it, and the first answer given was wrong
+      too. They do NOT confer Breathless; that macro is already
+      byte-identical here and was never the gap. Goggles are a source of
+      master's `See_underwater`, which lets the hero see while submerged
+      instead of only feeling the adjacent water. The misreading came from
+      quoting a macro's continuation lines without its `#define`.
+      See_underwater is a pure EvilHack invention - absent from upstream
+      5.0 as well as from the branch - and all ~15 of its master call
+      sites were unported, so the branch was plain 5.0 at each and
+      underwater vision was unconditionally restricted. Two TODO-EVILHACK
+      markers in polyself.c named it.
+      THE SITE COUNT WAS WRONG TOO, AND THE REASON GENERALIZES: the census
+      said thirteen sites because it was anchored on `git grep GOGGLES
+      master`. src/iactions.c is 5.0-only, has no master counterpart, and
+      therefore CANNOT appear in a master-anchored census - it carries the
+      item-action menu's own BLINDFOLD/TOWEL/LENSES list, so goggles had
+      no "Put these on" entry. Found by the reviewer. When porting an
+      object into 5.0, census the BRANCH's sibling-object sites too, not
+      just master's sites for the object being ported.
+      THE BATTERY CAUGHT A REAL BUG IN THE PORT: removing eyewear while
+      submerged left the full map painted on screen forever, correctable
+      only with ^R. Master hides this by calling docrt() every turn in
+      BOTH moveloop arms; the branch keeps upstream's cheaper first arm,
+      so nothing redrew on the way out. Fixed at the transition instead of
+      per-turn, in Blindf_on()/Blindf_off(), using the same old_uwvis
+      compare the polyself sites use - which is the better shape and
+      avoids master's per-turn full-screen clear. Retest: three
+      remove/wear cycles plus the Eyes and a blindfold control, every
+      transition byte-identical to a forced ^R.
+      DELIBERATE DEVIATION, recorded because it is invisible otherwise:
+      master's first moveloop arm also calls docrt(); ours does not, and
+      the moveloop's new second arm carries !Is_waterlevel so the Plane of
+      Water does not repaint every turn. Measured: 2 docrt() calls in 22
+      submerged turns there.
+      KNOWN LIMITATION, MASTER PARITY, LEFT AS-IS: a monster on an
+      adjacent DRY tile is not drawn while submerged, even with
+      See_underwater. The rule is terrain-based - a monster on adjacent
+      WATER is drawn, and the same monster rloc'd between the two flips
+      visibility. newsym()'s first disjunct returns early for any
+      non-pool/non-ice square and is unguarded on master too; only
+      docrt()'s remembered-glyph blit paints land. Farlook does not report
+      the monster either, though its action messages still print. Not
+      goggles-specific: identical for a tortle's innate See_underwater.
+      WIZMODE-ONLY ODDITY, not reachable in play: #wizmap while submerged
+      opens a position prompt rather than mapping, and repeated use
+      toggles a state where the auto-drawn screen disagrees with ^R.
+      SCOPE NOTE FOR ANYONE READING THIS LATER: See_underwater is true for
+      every tortle from XL1 - they take intrinsic Swimming at XL1
+      (attrib.c trt_abil[]) and the macro's first clause is
+      `HSwimming && (... || racial_tortle(...))`. This commit therefore
+      changed underwater play for a whole race, not just for goggles
+      wearers. Battery-verified against a non-tortle control at the same
+      level.
+- [ ] Amphibious is missing racial_tortle (NEW, minted 2026-07-29 by the
+      goggles slice, which edited the same macro block and deliberately
+      did not touch this). master's Amphibious is
+      `(HMagical_breathing || EMagical_breathing || amphibious(...)
+      || racial_tortle(&youmonst))`; the branch is at plain upstream 5.0
+      and lacks the last term, though racial_tortle exists here and is
+      used in 18 places. A tortle therefore survives deep water only via
+      the Swimming disjunct in drown(), and reads Amphibious == FALSE at
+      telekinesis.c and polyself.c. Kept out of the goggles commit because
+      it makes a whole race amphibious - a gameplay change that wants its
+      own row, per the standing ruling. Note See_underwater legitimately
+      references racial_tortle as part of its own content; that is not
+      this gap.
+- [ ] #up out of water (NEW, minted 2026-07-29 by the goggles slice).
+      master's doup() opens with an `if (u.uinwater && (HWwalking ||
+      HFlying))` block letting a hero with intrinsic water walking or
+      flying step or fly out of a pool; the branch's doup() has no such
+      block and neither does upstream, so it is EvilHack-only and
+      unported. It is also the one See_underwater consumer with no branch
+      counterpart - when it lands it must carry
+      `if (See_underwater) vision_reset();` before its docrt(), exactly
+      as pooleffects() does. Same note for master's pager.c
+      append_spot_lighting(), whose "in light"/"in darkness" farlook
+      annotation is likewise unported and carries the other missing
+      See_underwater site.
+- [ ] Plane of Water floods paniclog under sanity_check (NEW, minted
+      2026-07-29 by the goggles battery; PRE-EXISTING, unrelated to that
+      slice - it fired on arrival, before any goggles interaction). With
+      sanity_check on, arriving at the Plane of Water emits
+      `impossible("floor mon (0x...) with mstate set to 0x00000010")` for
+      every bubble-carried monster and then repeats roughly per turn: 896
+      lines in about 25 turns, with a wall of --More-- prompts each turn.
+      mstate 0x10 is MON_BUBBLEMOVE, so the checker and the bubble code
+      disagree about whether a bubble-carried monster counts as on the
+      floor. Either the check needs to exempt MON_BUBBLEMOVE or the
+      bubble code needs to clear it; decide which, do not silence it.
 - [ ] "pairs of" at quan > 1 (NEW, minted 2026-07-28 by this slice's
       battery). A stack of the mergeable pair-items renders "2 pair of
       meat gloves" where it wants "2 pairs of". Only reachable on the
