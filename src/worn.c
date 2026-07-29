@@ -28,7 +28,8 @@ static const struct worn {
              { W_SWAPWEP, &uswapwep, "alternate weapon" },
              { W_QUIVER, &uquiver, "quiver" },
              { W_AMUL, &uamul, "amulet" },
-             { W_TOOL, &ublindf, "facewear" }, /* blindfold|towel|lenses */
+             /* blindfold|towel|lenses|goggles */
+             { W_TOOL, &ublindf, "facewear" },
              { W_BALL, &uball, "chained ball" },
              { W_CHAIN, &uchain, "attached chain" },
              { 0, 0, (char *) 0 }
@@ -350,7 +351,8 @@ wearslot(struct obj *obj)
             res |= W_QUIVER;
         break;
     case TOOL_CLASS:
-        if (otyp == BLINDFOLD || otyp == TOWEL || otyp == LENSES)
+        if (otyp == BLINDFOLD || otyp == TOWEL || otyp == LENSES
+            || otyp == GOGGLES)
             res = W_TOOL; /* WORN_BLINDF */
         else if (is_weptool(obj) || otyp == TIN_OPENER)
             res = W_WEP | W_SWAPWEP;

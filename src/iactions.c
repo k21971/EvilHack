@@ -519,11 +519,13 @@ itemactions(struct obj *otmp)
                 Sprintf(buf, "[both ring %s in use]",
                         makeplural(body_part(FINGER)));
         } else if (otmp->otyp == BLINDFOLD || otmp->otyp == TOWEL
-                   || otmp->otyp == LENSES) {
+                   || otmp->otyp == LENSES || otmp->otyp == GOGGLES) {
             if (ublindf)
                 Strcpy(buf, "[already wearing eyewear]");
             else if (otmp->otyp == LENSES)
                 Strcpy(buf, "Put these lenses on");
+            else if (otmp->otyp == GOGGLES)
+                Strcpy(buf, "Put these goggles on");
             else
                 Sprintf(buf, "Put this on%s",
                         (otmp->otyp == TOWEL) ? " to blindfold yourself" : "");

@@ -2036,7 +2036,8 @@ hits_bars(
             hits = (obj_type != SKELETON_KEY && obj_type != LOCK_PICK
                     && obj_type != CREDIT_CARD && obj_type != TALLOW_CANDLE
                     && obj_type != WAX_CANDLE && obj_type != LENSES
-                    && obj_type != PEA_WHISTLE && obj_type != MAGIC_WHISTLE);
+                    && obj_type != PEA_WHISTLE && obj_type != MAGIC_WHISTLE
+                    && obj_type != GOGGLES);
             break;
         case ROCK_CLASS: /* includes boulder */
             if (obj_type != STATUE || mons[otmp->corpsenm].msize > MZ_TINY)

@@ -142,10 +142,10 @@ use_towel(struct obj *obj)
             } else {
                 const char *what;
 
-                what = (ublindf->otyp == LENSES)
-                           ? "lenses"
-                           : (obj->otyp == ublindf->otyp) ? "other towel"
-                                                          : "blindfold";
+                what = (ublindf->otyp == LENSES) ? "lenses"
+                       : (ublindf->otyp == GOGGLES) ? "goggles"
+                         : (obj->otyp == ublindf->otyp) ? "other towel"
+                           : "blindfold";
                 if (ublindf->cursed) {
                     You("push your %s %s.", what,
                         rn2(2) ? "cock-eyed" : "crooked");
@@ -423,7 +423,8 @@ use_stethoscope(struct obj *obj)
                     what = simple_typename(odummy->otyp);
                 }
                 use_plural = (is_boots(odummy) || is_gloves(odummy)
-                              || odummy->otyp == LENSES);
+                              || odummy->otyp == LENSES
+                              || odummy->otyp == GOGGLES);
                 break;
             case M_AP_MONSTER: /* ignore Hallucination here */
                 what = pmname(&mons[mtmp->mappearance], Mgender(mtmp));
@@ -4597,6 +4598,7 @@ doapply(void)
     switch (obj->otyp) {
     case BLINDFOLD:
     case LENSES:
+    case GOGGLES:
         if (obj == ublindf) {
             if (!cursed(obj, FALSE))
                 Blindf_off(obj);
@@ -4606,7 +4608,8 @@ doapply(void)
             You("are already %s.",
                 (ublindf->otyp == TOWEL) ? "covered by a towel"
                 : (ublindf->otyp == BLINDFOLD) ? "wearing a blindfold"
-                  : "wearing lenses");
+                  : (ublindf->otyp == GOGGLES) ? "wearing goggles"
+                    : "wearing lenses");
         }
         break;
     case CREAM_PIE:
