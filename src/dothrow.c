@@ -2946,8 +2946,12 @@ breakmsg(struct obj *obj, boolean in_view)
 
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
-    default: /* glass or crystal wand, or inferior quality objects */
-        if (obj->oclass != WAND_CLASS && obj->forged_qual != FQ_INFERIOR)
+    default:
+        /* glass or crystal wand, adamantine (drow objects)
+           in light, or inferior quality objects */
+        if (!(obj->material == GLASS
+              || obj->material == ADAMANTINE
+              || obj->forged_qual == FQ_INFERIOR))
             impossible("breaking odd object (%d)?", obj->otyp);
         if (obj->forged_qual == FQ_INFERIOR) {
             if (!in_view && !Deaf)
@@ -2991,6 +2995,25 @@ breakmsg(struct obj *obj, boolean in_view)
         break;
     case BARBED_NEEDLE:
         pline("Thwack!");
+        break;
+    case DARK_ELVEN_SPEAR:
+    case DARK_ELVEN_DAGGER:
+    case DARK_ELVEN_SHORT_SWORD:
+    case DARK_ELVEN_BROADSWORD:
+    case DARK_ELVEN_LONG_SWORD:
+    case DARK_ELVEN_MACE:
+    case DARK_ELVEN_HEAVY_MACE:
+    case DARK_ELVEN_BOW:
+    case DARK_ELVEN_ARROW:
+    case DARK_ELVEN_HAND_CROSSBOW:
+    case DARK_ELVEN_CROSSBOW_BOLT:
+    case DARK_ELVEN_BRACERS:
+    case DARK_ELVEN_CHAIN_MAIL:
+        if (!in_view && !Deaf)
+            You_hear("%s crumble apart!", something);
+        else
+            pline("%s crumble%s into fragments!",
+                  Doname2(obj), (obj->quan == 1L) ? "s" : "");
         break;
     }
 }
