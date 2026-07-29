@@ -17,12 +17,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-29 BUG-1394, the Plane of Water paniclog flood the
-  goggles battery found. MON_BUBBLEMOVE was set when a bubble lifts a
-  monster and cleared nowhere, so every carried monster read as
-  permanently off-map to the sanity checker. Upstream 5.0 bug. The same
-  battery then exposed a SECOND source on that level, see_monsters()
-  calling newsym() on off-map monsters - own row, fix pending
+- Last fix: 2026-07-29 PLANE OF WATER PANICLOG, two upstream 5.0 bugs in
+  two commits. BUG-1394: MON_BUBBLEMOVE set when a bubble lifts a monster
+  and cleared nowhere, so every carried monster read as permanently
+  off-map to the sanity checker (~900 lines / 25 turns). Then
+  see_monsters() calling newsym() on monsters at column 0, which only
+  became visible once the flood stopped (28 lines). The two are
+  opposites - state wrong vs check wrong - and that is the reusable part.
+  THREE rows minted and DEFERRED, all traced but none fixed: the parked
+  vault guard's MON_PARKED tripping the same check (maintainer deferred
+  to later in Phase 2, 2026-07-29 - fix is written out in the row, ready
+  to pick up), the Plane of Water's levl vision-blocking complaints, and
+  the "pairs of" plural nit
 - Last slice: 2026-07-29 GOGGLES - closed the row the objnam slice minted,
   in two commits: the equipment plumbing (18 sites, one of which a
   master-anchored census structurally could not find - iactions.c is
@@ -6229,6 +6235,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       exempt the parked guard there too, and that is NOT a sanity-heal:
       nothing is being papered over, the check is simply incomplete.
       Byte-identical in upstream 5.0.
+      DEFERRED TO LATER IN PHASE 2, maintainer 2026-07-29. It was traced
+      to the line while the Plane of Water work was in flight and could
+      have ridden along; held back because it is a different level and a
+      different bug from the two bubble fixes, and those commits should
+      not carry an unrelated rider.
+      READY TO PICK UP - no re-derivation needed. The fix is one
+      condition in mon_sanity_check() (src/mon.c): give the final
+      `else if (mon_offmap(mtmp))` arm the same parked-guard carve-out
+      its own isok() arm already has, i.e. do not complain when the
+      monster is a guard parked at <0,0> with MON_PARKED set. Prefer
+      testing that trio explicitly over a bare PARKEDMONSTER(), so the
+      exemption stays narrow and a guard that is off-map for any OTHER
+      reason still gets reported.
+      VERIFY BY: ordinary level, sanity_check on, enter a vault, take
+      the gold, let the guard arrive and escort you out. The line fires
+      exactly once, at "Suddenly, the guard disappears." Repro recorded
+      by the see_monsters battery: Dlvl 3, vault at rooms[8], teleport
+      in, pick up the gold, wait for the guard, answer the name prompt,
+      drop the gold, follow until the corridor collapses.
+      WATCH FOR: whether a guard can also be parked while the hero is
+      off-level or the level is being saved - if so the carve-out needs
+      to hold there too. Not investigated.
 - [ ] levl vision blocking on the Plane of Water (NEW, minted 2026-07-29
       by the see_monsters battery). THIRD paniclog source on that level,
       4 lines, always in pairs on one square, two bursts in 187 turns:
