@@ -1573,7 +1573,11 @@ see_monsters(void)
 
     /* loop through level.monsters (aka fmon) */
     for (mon = fmon; mon; mon = mon->nmon) {
-        if (DEADMONSTER(mon) || PARKEDMONSTER(mon))
+        /* a monster that is off the map has no square to redraw, and
+           newsym() rejects column 0; this covers the parked vault guard
+           that used to be named here as well as anything a Plane of
+           Water bubble is carrying at the moment */
+        if (DEADMONSTER(mon) || !mon->mx)
             continue;
         if ((mon->mstate & MON_STILL_ARRIVING) != 0)
             continue;

@@ -6179,10 +6179,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       monsters, every DROP 0x10 and every PLACED 0x0 with occupancy
       confirmed, zero mstate lines, elemental_clog exercised 99 times. A
       deliberate positive control proved the checker was live.
-- [ ] see_monsters() calls newsym() on off-map monsters (NEW, minted
+- [x] see_monsters() calls newsym() on off-map monsters (NEW, minted
       2026-07-29 by the BUG-1394 battery, which is the only reason it was
-      visible - the mstate flood was drowning it out). The SECOND paniclog
-      source on the Plane of Water, 28 lines:
+      visible - the mstate flood was drowning it out). FIXED SAME DAY,
+      src/display.c only: the skip becomes `DEADMONSTER(mon) || !mon->mx`,
+      which strictly subsumes the PARKEDMONSTER term it replaces.
+      `!mon->mx` was chosen over mon_offmap() deliberately - mx == 0 is
+      precisely what newsym() cannot handle, and it holds whether or not
+      mstate bookkeeping is correct. BUG-1394 had just proved mstate can
+      drift, so the display path should not depend on it.
+      Battery: zero newsym lines over 187 turns on the plane, and the
+      reported backtrace reproduced FIVE times by forcing u.ustuck to be
+      mnearto()'s displaced monster - 3, 46, 43, 3 and 31 off-map
+      monsters in the following see_monsters() walk, i.e. 126 newsym(0,0)
+      calls that no longer happen, with paniclog untouched. Monsters
+      still render and still track their bubble; vault guard escort
+      re-tested end to end.
+      The SECOND paniclog source on the Plane of Water, 28 lines:
       `impossible("newsym: attempting screen update for <0,0>")`.
       see_monsters() (src/display.c) skips DEADMONSTER, PARKEDMONSTER and
       MON_STILL_ARRIVING, then calls `newsym(mon->mx, mon->my)`
@@ -6196,6 +6209,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       it is theirs too. Fix is to skip any monster with mx == 0, which
       strictly subsumes PARKEDMONSTER; newsym() on column 0 is never
       valid, so nothing legitimate is lost.
+- [ ] mon_sanity_check() exempts the parked guard's position but not its
+      mstate (NEW, minted 2026-07-29 by the see_monsters battery, which
+      hit it during the vault-guard regression test; NOT that fix's doing
+      - display.c cannot touch mstate). One line, on an ordinary level,
+      at the moment a vault guard departs:
+      `impossible("floor mon (0x...) with mstate set to 0x00000200")`.
+      0x200 is MON_PARKED.
+      THIS ONE IS THE OPPOSITE OF BUG-1394 AND THE DIFFERENCE MATTERS.
+      There the state was wrong and the checker was right. Here the state
+      is CORRECT: parkguard() (src/vault.c) deliberately places the guard
+      at <0,0> with MON_PARKED set while the temporary corridor is torn
+      down, and restfakecorr() clears the bit again - a real, bounded,
+      by-design window, which is why it fires once rather than per turn.
+      The checker already knows that position is legitimate - its isok()
+      arm carries the explicit carve-out `!(mtmp->isgd && x == 0 && y ==
+      0)` - and then its final mon_offmap() arm has no matching carve-out
+      for the mstate bit that says the same thing. So the fix is to
+      exempt the parked guard there too, and that is NOT a sanity-heal:
+      nothing is being papered over, the check is simply incomplete.
+      Byte-identical in upstream 5.0.
+- [ ] levl vision blocking on the Plane of Water (NEW, minted 2026-07-29
+      by the see_monsters battery). THIRD paniclog source on that level,
+      4 lines, always in pairs on one square, two bursts in 187 turns:
+      `impossible("levl[%i][%i] vision blocking")` from
+      levl_sanity_check() (src/wizcmds.c). Independent of both bubble
+      fixes - it is a terrain/vision-table disagreement, not monster
+      state. An earlier battery saw the same message and could not rule
+      out its own gdb staging; this run got the [31][16] pair during
+      plain play with nothing attached, so it is real. Sporadic, so
+      expect to need a long instrumented run to catch it.
 - [ ] "pairs of" at quan > 1 (NEW, minted 2026-07-28 by this slice's
       battery). A stack of the mergeable pair-items renders "2 pair of
       meat gloves" where it wants "2 pairs of". Only reachable on the
@@ -6418,7 +6461,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-26 | trap.c trapeffect_landmine() captures the floor saddle pointer (`sobj_at(SADDLE, u.ux, u.uy)`) BEFORE `losehp()` and `blow_up_landmine()`, then hands it to `keep_saddle_with_steedcorpse()`, which does `obj_extract_self()`/`place_object()` through it. `blow_up_landmine()` calls `scatter()`, which can destroy floor objects outright - metallic gear is exactly what a blast breaks - so the pointer can be freed before it is dereferenced. EvilHack master fetches after the explosion and documents why. Identical in Official_nh50 | fixed on branch (BUG-1388, commit f6a787e0d); not yet sent |
 | 2026-07-26 | mon.c m_consume_obj() reads `otmp->otyp` at the pyrolisk-egg test AFTER `delobj(otmp)` has freed the object - the function carefully snapshots every other field it needs into locals beforehand (corpsenm, deadmimic, slimer, unsick, poly, grow, heal, eyes, mstone) and missed this one, so every monster meal ends with a read of freed memory. The guarded action is also dead code: `corpsenm` is assigned `(otmp->otyp == CORPSE ? otmp->corpsenm : NON_PM)`, so `otyp == EGG && corpsenm == PM_PYROLISK` can never be true and a pyrolisk egg has never exploded when eaten. Identical in Official_nh50 (mon.c, the corpsenm assignment and the test). Branch fix snapshots the condition into a `pyro_egg` local before delobj, which kills the read and deliberately leaves the dead branch dead - whether the explosion is meant to fire is a gameplay question for the maintainer, not a port decision | UAF fixed on branch (BUG-1391); dead-code question open; not yet sent |
 | 2026-07-29 | mkmaze.c `movebubbles()` sets `mon->mstate \|= MON_BUBBLEMOVE` when a bubble on the Plane of Water lifts a monster, and nothing anywhere clears it - three hits tree-wide (the `#define`, that `\|=`, and a comment in `place_monster()` listing it among bits that function deliberately preserves), and no code reads it. `mon_offmap()` is `mstate != MON_FLOOR` with `MON_FLOOR == 0`, so the stale bit makes every carried monster read as permanently off-map; `mon_sanity_check()` reaches its complaint only for a monster that IS on the map at its own coordinates, so it fires once per carried monster per turn forever. With `sanity_check` on that is ~900 paniclog lines and a `--More--` wall in 25 turns. Verified character-identical in NetHack50 and Official_nh50. Branch fix clears the bit in the `CONS_MON` bubble-restore arm, before the `mnearto()`/`elemental_clog()` placement so the failure path's own state is not stomped; `place_monster()`'s mask left alone | fixed on branch (BUG-1394); not yet sent |
-| 2026-07-29 | display.c `see_monsters()` calls `newsym(mon->mx, mon->my)` on every live monster after skipping only DEADMONSTER, PARKEDMONSTER and MON_STILL_ARRIVING - but a monster in transit inside a Plane of Water bubble has `mx = my = 0` and is none of those, and `newsym()` rejects column 0 with `impossible("newsym: attempting screen update for <0,0>")`. Note PARKEDMONSTER is `isgd && mx == 0`, so the loop already special-cases one kind of off-map monster and misses the general case. Backtrace: movebubbles -> mv_bubble -> mnearto -> mon_leaving_level -> unstuck -> docrt -> docrt_flags -> see_monsters -> newsym(0,0). Byte-identical loop in NetHack50 and Official_nh50 | found on branch; fix pending |
+| 2026-07-29 | display.c `see_monsters()` calls `newsym(mon->mx, mon->my)` on every live monster after skipping only DEADMONSTER, PARKEDMONSTER and MON_STILL_ARRIVING - but a monster in transit inside a Plane of Water bubble has `mx = my = 0` and is none of those, and `newsym()` rejects column 0 with `impossible("newsym: attempting screen update for <0,0>")`. Note PARKEDMONSTER is `isgd && mx == 0`, so the loop already special-cases one kind of off-map monster and misses the general case. Backtrace: movebubbles -> mv_bubble -> mnearto -> mon_leaving_level -> unstuck -> docrt -> docrt_flags -> see_monsters -> newsym(0,0). Byte-identical loop in NetHack50 and Official_nh50. Branch fix makes the skip `DEADMONSTER(mon) \|\| !mon->mx`, which strictly subsumes PARKEDMONSTER; `!mon->mx` rather than `mon_offmap()` so the display path does not depend on mstate bookkeeping being correct | fixed on branch; not yet sent |
+| 2026-07-29 | mon.c `mon_sanity_check()` carves the parked vault guard out of its position test - `if (!isok(x, y) && !(mtmp->isgd && x == 0 && y == 0))` - but not out of its final `mon_offmap()` test, so the `MON_PARKED` bit that `parkguard()` (vault.c) legitimately sets while the temporary corridor is torn down trips `impossible("floor mon (%s) with mstate set to 0x%08lx")` once per guard departure. The state is correct and the check is incomplete, which is the inverse of the MON_BUBBLEMOVE bug above. Identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
 
 ## Master re-derive queue
