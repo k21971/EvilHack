@@ -1114,6 +1114,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->spe = rn1(21, 5); /* 0..20 + 5 => 5..25 */
             blessorcurse(otmp, 10);
             break;
+        case TRAP_KIT:
+            otmp->spe = rn1(21, 10); /* 10-30 initial charges */
+            break;
         case BLACKSMITH_HAMMER:
             otmp->spe = rn1(4, 2); /* 2-5 initial charges */
             blessorcurse(otmp, 10);

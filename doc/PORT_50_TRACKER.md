@@ -17,7 +17,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-29 BUG-1397, the code review's one CRITICAL: the
+- Last fix: 2026-07-29 BUG-1398 + BUG-1399, the review's two paniclog
+  spammers, one commit each. BUG-1398: breaktest() learned to break
+  instance-glass and lit drow adamantine but breakmsg() was never
+  told, so every such break fired "breaking odd object" into paniclog
+  and shattered what should crumble - master's material guard and its
+  13 dark-elven cases restored. BUG-1399: mksobj() had no TRAP_KIT
+  charge arm, so every kit spawned empty and the entire crafting
+  subsystem (23-recipe fusion table, both Rogue starting kits) was
+  unreachable - master's 10-30 roll restored, confirmed the ONLY
+  missing arm by a switch-wide diff. Battery: crumble/shatter/falls-
+  apart messages all correct, a starting kit built an arrow trap that
+  killed its first victim, paniclog byte-identical after every
+  scenario. Empty kits staying spent is master parity (recharge() has
+  no TRAP_KIT arm on either tree) - design question, not a gap
+- Previous fix: 2026-07-29 BUG-1397, the code review's one CRITICAL: the
   glass/blocker slice's breakage block at the tail of hmon_hitmon()
   read obj after killed()/xkilled(), and a swallowed hero's thrown
   missile is freed inside xkilled() when it merges into the dead
@@ -29,18 +43,6 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   both arms. Battery 5/5, merge-and-free proven by pointer identity,
   paniclog byte-identical. The 2026-07-29 review of the July 24-29
   commits minted further findings - rows to follow in a separate pass
-- Previous fix: 2026-07-29 PLANE OF WATER PANICLOG, two upstream 5.0 bugs in
-  two commits. BUG-1394: MON_BUBBLEMOVE set when a bubble lifts a monster
-  and cleared nowhere, so every carried monster read as permanently
-  off-map to the sanity checker (~900 lines / 25 turns). Then
-  see_monsters() calling newsym() on monsters at column 0, which only
-  became visible once the flood stopped (28 lines). The two are
-  opposites - state wrong vs check wrong - and that is the reusable part.
-  THREE rows minted and DEFERRED, all traced but none fixed: the parked
-  vault guard's MON_PARKED tripping the same check (maintainer deferred
-  to later in Phase 2, 2026-07-29 - fix is written out in the row, ready
-  to pick up), the Plane of Water's levl vision-blocking complaints, and
-  the "pairs of" plural nit
 - Last slice: 2026-07-29 GOGGLES - closed the row the objnam slice minted,
   in two commits: the equipment plumbing (18 sites, one of which a
   master-anchored census structurally could not find - iactions.c is
