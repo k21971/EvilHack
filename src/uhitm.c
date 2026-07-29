@@ -2107,22 +2107,21 @@ hmon_hitmon(
         }
     }
     if (hmd.poiskilled) {
-        struct obj *vobj = obj;
-
         pline_The("poison was deadly...");
         if (!hmd.already_killed)
             xkilled(mon, XKILL_NOMSG);
         hmd.destroyed = TRUE; /* return FALSE; */
         /* thrown obj might be gone (swallowed hero's missile added to
-           engulfer's minvent, possibly merged); a melee weapon might
-           have been destroyed by death side effects */
+           engulfer's minvent, possibly merged) */
         if (thrown == HMON_THROWN && !gt.thrownobj)
-            vobj = (struct obj *) 0;
-        else if (thrown != HMON_THROWN && vobj && vobj != uwep
-                 && !(u.twoweap && vobj == uswapwep))
-            vobj = (struct obj *) 0;
-        if (vobj && (vobj->oprops & ITEM_VENOM)) {
-            vobj->oprops_known |= ITEM_VENOM;
+            obj = (struct obj *) 0;
+        /* melee weapon destroyed by death side effects
+           (e.g. AT_BOOM explosion -> destroy_item()) */
+        else if (thrown != HMON_THROWN && obj && obj != uwep
+                 && !(u.twoweap && obj == uswapwep) && obj != uarms)
+            obj = (struct obj *) 0;
+        if (obj && (obj->oprops & ITEM_VENOM)) {
+            obj->oprops_known |= ITEM_VENOM;
             update_inventory();
         }
     } else if (hmd.destroyed) {
@@ -2132,6 +2131,15 @@ hmon_hitmon(
             killed(mon); /* takes care of most messages */
             gm.mkcorpstat_norevive = FALSE;
         }
+        /* thrown obj might be gone (swallowed hero's missile added to
+           engulfer's minvent, possibly merged) */
+        if (thrown == HMON_THROWN && !gt.thrownobj)
+            obj = (struct obj *) 0;
+        /* melee weapon destroyed by death side effects
+           (e.g. AT_BOOM explosion -> destroy_item()) */
+        else if (thrown != HMON_THROWN && obj && obj != uwep
+                 && !(u.twoweap && obj == uswapwep) && obj != uarms)
+            obj = (struct obj *) 0;
     } else if (u.umconf && hmd.hand_to_hand) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {

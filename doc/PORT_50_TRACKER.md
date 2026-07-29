@@ -17,7 +17,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-29 PLANE OF WATER PANICLOG, two upstream 5.0 bugs in
+- Last fix: 2026-07-29 BUG-1397, the code review's one CRITICAL: the
+  glass/blocker slice's breakage block at the tail of hmon_hitmon()
+  read obj after killed()/xkilled(), and a swallowed hero's thrown
+  missile is freed inside xkilled() when it merges into the dead
+  engulfer's inventory - UAF plus possible double free. Master nulls
+  obj in both kill arms; the port lost that in two individually
+  correct steps (oprops slice scoped the guard to a vobj local for
+  venom marking, breakage slice added a new post-kill consumer without
+  hoisting it). Fix restores master's two null-outs to obj itself in
+  both arms. Battery 5/5, merge-and-free proven by pointer identity,
+  paniclog byte-identical. The 2026-07-29 review of the July 24-29
+  commits minted further findings - rows to follow in a separate pass
+- Previous fix: 2026-07-29 PLANE OF WATER PANICLOG, two upstream 5.0 bugs in
   two commits. BUG-1394: MON_BUBBLEMOVE set when a bubble lifts a monster
   and cleared nowhere, so every carried monster read as permanently
   off-map to the sanity checker (~900 lines / 25 turns). Then
