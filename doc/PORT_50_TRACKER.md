@@ -17,35 +17,44 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-29 BUG-1398 + BUG-1399, the review's two paniclog
-  spammers, one commit each. BUG-1398: breaktest() learned to break
-  instance-glass and lit drow adamantine but breakmsg() was never
-  told, so every such break fired "breaking odd object" into paniclog
-  and shattered what should crumble - master's material guard and its
-  13 dark-elven cases restored. BUG-1399: mksobj() had no TRAP_KIT
-  charge arm, so every kit spawned empty and the entire crafting
-  subsystem (23-recipe fusion table, both Rogue starting kits) was
-  unreachable - master's 10-30 roll restored, confirmed the ONLY
-  missing arm by a switch-wide diff. Battery: crumble/shatter/falls-
-  apart messages all correct, a starting kit built an arrow trap that
-  killed its first victim, paniclog byte-identical after every
-  scenario. Empty kits staying spent was master parity (recharge() has
-  no TRAP_KIT arm on either tree); maintainer ruled 2026-07-29 they
-  should recharge, landed as its own change - TRAP_KIT joined the
-  grease/horn/bag group in recharge(), deliberate divergence from
-  master, FEATURES_ARCHIVE entry "Trap Kits Are Rechargeable"
-- Previous fix: 2026-07-29 BUG-1397, the code review's one CRITICAL: the
-  glass/blocker slice's breakage block at the tail of hmon_hitmon()
-  read obj after killed()/xkilled(), and a swallowed hero's thrown
-  missile is freed inside xkilled() when it merges into the dead
-  engulfer's inventory - UAF plus possible double free. Master nulls
-  obj in both kill arms; the port lost that in two individually
-  correct steps (oprops slice scoped the guard to a vobj local for
-  venom marking, breakage slice added a new post-kill consumer without
-  hoisting it). Fix restores master's two null-outs to obj itself in
-  both arms. Battery 5/5, merge-and-free proven by pointer identity,
-  paniclog byte-identical. The 2026-07-29 review of the July 24-29
-  commits minted further findings - rows to follow in a separate pass
+- Last fix: 2026-07-30 BUG-1400 + BUG-1401 (commits pending; battery
+  8/8 PASS - weapon/gloves destruction, full refusal ladder incl.
+  Dragonbane-via-fallback, vortex rate, thrown counts EXACT by floor
+  arithmetic, drop_throw exercised live = the BUG-310 shape re-run
+  clean, cancellation 3/20 with a zero-proc Antimagic control,
+  disenchanter regression intact, paniclog byte-identical after
+  every scenario) - the review pipeline's two HIGH rows, fixed the
+  same day the rows landed (3 HIGH + 19 MEDIUM + 22 REVIEW-LOW + a
+  reviewer re-run row at the Phase 2 tail, a converter-trap GATE row
+  in Phase 3, MON_ENDGAME_MIGR added to the upstream-reportable table
+  and the BUG-1394 row's status amended with its send-time
+  archive-entry correction). BUG-1400: passive_obj() had no AD_DISN
+  case, so the comment in passive()'s AD_DISN arm promised object
+  disintegration that never happened anywhere - master's refusal
+  ladder ported in master's position, the bare-handed NULL-obj
+  fallback widened to master's six adtypes, and master's void -> int
+  return restored with both thrower reactions (thitmonst return-1,
+  drop_throw broken) because the throw paths read the object after
+  the call - drop_throw's master guard IS the BUG-310 fix and a bare
+  port would have re-created that freed-pointer reuse on the branch.
+  EF_DESTROY flags deliberately left with their MEDIUM row, which now
+  owes only the flags. BUG-1401: passive() had no AD_CNCL case, so
+  the gray dragon's passive slot was inert - master's 1-in-6
+  cancel_monst arm restored (youattack=FALSE per the BUG-1308
+  family); strengthens for free when the cancellation slice lands.
+  Clean rebuild, zero warnings
+- Previous fix: 2026-07-29 BUG-1397 (CRITICAL) + BUG-1398 + BUG-1399,
+  one commit each: hmon_hitmon()'s breakage block read obj after
+  killed()/xkilled() (UAF + possible double free; master's two
+  null-outs restored, merge-and-free proven by pointer identity),
+  breakmsg() never learned breaktest()'s new materials (paniclog spam
+  + wrong message; master's material guard + 13 dark-elven cases
+  restored), and mksobj() spawned every trap kit empty (the entire
+  crafting subsystem unreachable; master's 10-30 roll restored) -
+  plus the maintainer-ruled trap-kit recharge feature, a deliberate
+  divergence (FEATURES_ARCHIVE "Trap Kits Are Rechargeable"). All
+  batteries PASS, paniclog byte-identical; detail in
+  BUGFIXES_ARCHIVE + FEATURES_ARCHIVE
 - Last slice: 2026-07-29 GOGGLES - closed the row the objnam slice minted,
   in two commits: the equipment plumbing (18 sites, one of which a
   master-anchored census structurally could not find - iactions.c is
@@ -6290,6 +6299,316 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       FOOD_CLASS meat gloves and boots, since armor does not merge.
       Master has the identical construction so this is master parity, not
       a regression - but neither tree pluralizes the "pair".
+- [x] passive_obj() has no AD_DISN case (NEW, minted 2026-07-30 from
+      the 2026-07-29 review of the July 24-29 commits; HIGH; verified
+      still live at mint time). LANDED SAME DAY as BUG-1400 (battery
+      PASS; commit pending): master's case ported between AD_ENCH and default (the
+      ENCH mcan fallthrough became a plain break so a cancelled
+      disenchanter cannot fall into the new case), fallback widened
+      to the six adtypes, AND a prerequisite the row missed -
+      master's passive_obj() void -> int return with ER_* codes plus
+      the two thrower reactions (thitmonst return-1, drop_throw
+      broken=TRUE), without which the port re-creates BUG-310's
+      freed-pointer reuse; drop_throw's master guard IS that fix.
+      update_inventory() tail keyed on ER_DESTROYED first so it never
+      reads the freed obj. EF_DESTROY erosion flags deliberately NOT
+      ported - their MEDIUM row below now owes only the flags.
+      Original finding: Black dragon / antimatter vortex
+      passive object disintegration is a silent no-op: the AD_DISN arm
+      b6a2f9576 added to passive() carries a comment claiming
+      passive_obj() handles the object side, and passive_obj()
+      (src/uhitm.c) has no such case. Port master's case AD_DISN block
+      (obj_resists -> Hand of Vecna -> Dragonbane -> black dragon
+      scales -> artifact 1-in-20 -> erodeproof -> remove_worn_item +
+      delobj) AND widen the bare-handed NULL-obj fallback that routes
+      to uarmg: master routes FIRE|ACID|RUST|CORR|ENCH|DISN where the
+      branch's `if (!obj && mattk->adtyp == AD_ENCH)` routes ENCH
+      only. BATCH: one passive-arms slice with the AD_CNCL row below.
+- [x] passive() has no case AD_CNCL (NEW, minted 2026-07-30 from the
+      2026-07-29 review of the July 24-29 commits; HIGH; verified
+      still live at mint time - zero AD_CNCL hits in src/uhitm.c).
+      LANDED SAME DAY as BUG-1401 (battery PASS; commit pending):
+      master's arm in
+      master's position, mhitb/gy.youmonst form; cancel_monst()
+      verified NULL-obj-tolerant (only use is obj ? obj->oclass : 0)
+      and youattack stays FALSE per the BUG-1308 family. The branch's
+      cancel_monst is still 5.0's reduced implementation (zap.c
+      TODO-EVILHACK) - the arm strengthens for free when the
+      cancellation slice lands.
+      Original finding: The gray dragon's passive slot is
+      ATTK(AT_NONE, AD_CNCL, 0, 0),
+      so melee-attacking a gray dragon never cancels the hero.
+      Master's arm in passive()'s first switch: if (mhit && !rn2(6))
+      cancel_monst(&youmonst, weapon, FALSE, TRUE, FALSE). (AD_SLIM
+      is also absent from passive(), but it is absent upstream too -
+      upstream gap, not a port regression; not part of this row.)
+      BATCH: one passive-arms slice with the AD_DISN row above.
+- [ ] Quest artifact destroyable by bag of devouring (NEW, minted
+      2026-07-30 from the 2026-07-29 review of the July 24-29
+      commits; HIGH; verified still live at mint time - no "resists
+      being confined" arm in src/pickup.c). master's in_container()
+      refusal arm ("resists being confined until the quest is
+      completed", between the Amulet/invocation-items arm and the
+      LEASH arm) was never restored; the branch guards only the
+      cursed-bag attack path (bag_devours_invent, two sites), so a
+      hero can still voluntarily stash their own quest artifact in a
+      bag of devouring and lose it for good. Add the same guard to
+      the tipcontainer devouring arm while there. Permanent
+      quest-bricking: obfree never clears artifact_exists, so
+      qcompleted can never be set afterwards.
+- [ ] EF_DESTROY armor siblings (NEW, minted 2026-07-30 by the
+      2026-07-29 review; MEDIUM port gap). rustm() got master parity
+      but the sibling erosion entry points still carry upstream's
+      non-destroying flags, so armor can never be destroyed by
+      erosion outside rustm(): erode_armor() (uhitm.c, 7 sites),
+      passive_obj() (4 sites - master also changed its signature
+      void -> int so callers can react), trap.c's burn_dmg macro +
+      acid_damage() + water_damage(), and potion.c's acid arm.
+      Master's ERODE_FRACTURE type has no branch counterpart at all.
+      UPDATE 2026-07-30: the void -> int signature half landed with
+      BUG-1400 (all passive_obj arms record ret; both thrower callers
+      react to ER_DESTROYED). This row now owes only the EF_DESTROY
+      flags at the listed sites - note master's fire/acid passive_obj
+      arms also carry !Underwater guards the branch lacks, bring them
+      along - plus the trap.c/potion.c siblings, the erode_armor()
+      sites, and the ERODE_FRACTURE decision.
+- [ ] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
+      minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
+      weapon.c: the mirror of the blessed arm the branch has - cursed
+      && (is_angel(ptr) || is_aasimar(ptr)) -> bonus += rnd(4).
+      Attacker-free, drops into the 2-param dmgval unchanged.
+      (Master's Infidel cursed arm IS blocked by the 2-param
+      signature - correctly out of scope.)
+- [ ] enexto_core_mon() family unported (NEW, minted 2026-07-30 by
+      the 2026-07-29 review; MEDIUM port gap; the BUG-506/525/536/
+      559/560/575/610 archive family). separate_steed_and_rider
+      (steed.c, 2 sites), the bones.c steed site and the newcham
+      steed site all use enexto(..., ->data), so gear-based fly/
+      levitation is ignored - a rider rloc'd across the level, or a
+      steed mongone'd in bones. Port enexto_core_mon/
+      enexto_core_full from master teleport.c (the other half of
+      BUG-610, acting on the return value, WAS carried). AUDIT
+      RIDER: ~59 more enexto() call sites want a pass once the
+      helpers exist.
+- [ ] Door-material display color unported (NEW, minted 2026-07-30
+      by the 2026-07-29 review; MEDIUM port gap). master's
+      mapglyph.c colors non-wood doors via
+      material_color(door_material()); grep material_color on the
+      branch = nothing. All the new door rules (unkickable,
+      undiggable, beam-absorbing, shrapnel) hang off a property the
+      player cannot see, and lock.c's newsym_force "redraw with the
+      new color" comment describes behavior that does not exist.
+      DEPENDENCY: belongs with the Phase 4 color rows - carry it
+      onto their list when that phase opens.
+- [ ] SUPPRESS_RIDER farlook hedge unported (NEW, minted 2026-07-30
+      by the 2026-07-29 review; MEDIUM port gap). pager.c has the
+      Rider "riding its steed" hedge but master's x_monnam
+      SUPPRESS_RIDER mechanism is absent, so farlook prints "Death,
+      riding its steed" - the steed name leaks which Rider is
+      mounted. Re-verify the exact leak shape at fix time.
+- [ ] is_lightblocker_mappear() missing the S_deadtree row (NEW,
+      minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
+      include/monst.h: the branch macro ends at S_tree where master
+      continues with S_deadtree, so a garden/forest mimic disguised
+      as a dead tree is see-through while a real dead tree blocks
+      sight - a free mimic tell. One line; seemimic() reads the same
+      macro, so discovery unblocking is fixed by the same edit.
+- [ ] tipcontainer missing BUG-1284's third arm (NEW, minted
+      2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
+      pickup.c generic-destination tip branch: no ice-box age-freeze
+      + ROT_CORPSE/REVIVE_MON stop_timer on #tip into an ice box,
+      while the #loot path (in_container's Icebox arm) has it - a
+      troll tipped into an ice box revives inside. The same branch
+      also lacks master's obj_resists pre-check on the cursed-mbag
+      arm.
+- [ ] POT_DROW_POISON quaff/breathe arms unported (NEW, minted
+      2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
+      potion.c peffects() and potionbreathe() have no case, so
+      quaffing one lands in impossible("What a funny potion!") - and
+      every drow starts with two (u_init). Master's arms gate on
+      how_resistant(SLEEP_RES) and scale with resist_reduce
+      POISON_RES - port in partial-resistance form per the standing
+      rulings.
+- [ ] searches_for_item() Is_container-range widening (NEW, minted
+      2026-07-30 by the 2026-07-29 review; MEDIUM port gap). muse.c:
+      monsters now seek and pick up bags of treasure/devouring
+      (master whitelists containers there). Add the two-otyp
+      exclusion mirroring find_misc()'s MUSE_BAG arm in the same
+      file - the widening commit fixed that sibling and missed this
+      one.
+- [ ] mhitm.c res[i] clobber in both mattackm miss arms (NEW, minted
+      2026-07-30 by the 2026-07-29 review; MEDIUM regression).
+      res[i] = M_ATTK_DEF_DIED overwrites a just-set M_ATTK_AGR_DIED
+      when missmm() kills both parties (the hated-blocker sear kills
+      magr; the FQ_INFERIOR glove break's mselftouch petrifies a
+      cockatrice-wielding mdef) -> passivemm()/monkilled() on a dead
+      attacker. Fix shape: test mdef first with =, then magr with
+      |= - four sibling sites in the same function show it. BATCH:
+      one mhitm/steed-guard slice with the next two rows.
+- [ ] mhitm.c pre-hit armor-break blocks leave strike == 1 (NEW,
+      minted 2026-07-30 by the 2026-07-29 review; MEDIUM regression;
+      2 sites). When break_glass_obj kills mdef before hitmm() runs,
+      passivemm() still receives strike = 1 and applies passive
+      damage for a blow that never landed. Set strike = 0 before the
+      break. BATCH: rides with the res[i] row above.
+- [ ] separate_steed_and_rider() callers missing the DEADMONSTER/
+      relocation guard (NEW, minted 2026-07-30 by the 2026-07-29
+      review; MEDIUM regression; five call sites). The same commit
+      added the guard at its dothrow.c and newcham siblings but not
+      at: the web_unseats_rider() callers (uhitm.c x3, mthrowu.c
+      x1), tamedog() (dog.c), gulpmm() (mhitm.c), and
+      trapeffect_poly_trap() (trap.c). rloc_to at the destination
+      runs mintrap(), which can kill or migrate the rider
+      mid-function. Consider having web_unseats_rider() return
+      still-alive-and-here so its callers share one guard; pin the
+      exact site count at fix time. BATCH: rides with the two mhitm
+      rows above.
+- [ ] deltrap_with_ammo() unconditional reset_utrap(TRUE) (NEW,
+      minted 2026-07-30 by the 2026-07-29 review; MEDIUM
+      regression). trap.c: it defeats delfloortrap()'s TT_BURIEDBALL
+      carve-out - a Punished hero is silently freed from a buried
+      iron ball when the trap square floods or is dug away. Guard on
+      utraptype != TT_BURIEDBALL or pass the disposition through.
+- [ ] sink_into_lava() thirds BOTH HP pools for a polymorphed hero
+      (NEW, minted 2026-07-30 by the 2026-07-29 review; MEDIUM
+      regression). trap.c: make the u.uhp / u.mh reduction
+      exclusive, like potionbreathe's sickness arm.
+- [ ] rehumanize() missing the See_underwater transition redraw
+      (NEW, minted 2026-07-30 by the 2026-07-29 review; MEDIUM
+      regression). polyself.c: a polyform swimmer whose form expires
+      while submerged keeps the full map + stale glyphs painted
+      forever. The goggles slice instrumented Blindf_on/off with the
+      old_uwvis compare; rehumanize() is the one uninstrumented
+      form-change door. (The reverse direction needs nothing -
+      allmain's arm-2 docrt covers it.)
+- [ ] set_trap() can install an invalid ammo material (NEW, minted
+      2026-07-30 by the 2026-07-29 review; MEDIUM regression).
+      apply.c: crafted_ammo_trap_materials[] includes ADAMANTINE but
+      the ammo otyps fall to metal_materials[] without it; wish
+      "adamantine arrow trap", apply -> set_material impossible(),
+      and the invalid material follows the ammo through the new
+      trap-ammo sanity walk. Validate against the ammo otyp
+      (fallback objects[].oc_material) or drop ADAMANTINE from the
+      crafted list.
+- [ ] attrcurse() contract + gremlin farming (NEW, minted 2026-07-30
+      by the 2026-07-29 review; MEDIUM regression). sit.c + the
+      uhitm.c mon_give_prop consumer: the six converted resistance
+      cases return the property even when nothing was stripped, and
+      decr_resistance() never clears a spent HAVEPARTIAL - so a
+      gremlin repeatedly gains real resistances the hero no longer
+      has (1-in-10 per hit). Fix: before/after how_resistant compare
+      for the return; consider clearing HAVEPARTIAL at 0 in
+      decr_resistance so the binary macros stop reporting the
+      phantom. BATCH: one partial-resistance-consumers slice with
+      the next row.
+- [ ] Decision layers read binary macros under partial resistance
+      (NEW, minted 2026-07-30 by the 2026-07-29 review; MEDIUM
+      regression). immune_to_trap()'s Sleep/Fire arms (trap.c) and
+      getmattk()'s cold arm (mhitu.c) classify 5% resistance as
+      immunity (suppressed trap confirmations; a lich's AT_TUCH
+      converted to AD_PHYS, which can be MORE damage). Intended form
+      per the partial-resistance rulings: how_resistant(X) == 100.
+      BATCH: rides with the attrcurse row above.
+- [ ] Migrated ridden steed arrives at <0,0> (NEW, minted 2026-07-30
+      by the 2026-07-29 review; MEDIUM; master-inherited, 5.0's
+      per-turn sanity makes it loud). dog.c mon_arrive: the
+      ridden_by early-return runs before coordinates are restored,
+      so the steed sits at <0,0> - per-turn sanity impossible()
+      until the rider moves, and if the rider dies on its arrival
+      turn the steed is place_monster'd into level.monsters[0][0],
+      the vault-guard parking slot. Fix: update_monsteed on the
+      rider's arrival or set steed coords in the early-return.
+- [ ] REVIEW-LOW (2026-07-29): #undef EYEWEAR missing at the
+      objects.h macro-cleanup block - upstream has it. (This and the
+      REVIEW-LOW rows below were minted 2026-07-30 as one batch; fix
+      opportunistically.)
+- [ ] REVIEW-LOW (2026-07-29): obj_typename() GEM_CLASS lost
+      master's SLING_BULLET " stone" carve-out (xname has it);
+      master also has erosion_matters/doname SLING_BULLET arms the
+      branch lacks. One row for the family.
+- [ ] REVIEW-LOW (2026-07-29): stale comments - polyself.c eyewear
+      list missing goggles; mon.c sanity colocation-exemption arms
+      are dead code (the ridden_by continue precedes them);
+      designate_altshield "at most one" overclaim (master parity -
+      the bit survives outside invent).
+- [ ] REVIEW-LOW (2026-07-29): mktrap_victim() SPEAR_TRAP_SET arm is
+      dead code (mklev.c kind < HOLE gate).
+- [ ] REVIEW-LOW (2026-07-29): immune_to_trap() vs
+      trapeffect_ice_trap() contradiction - cold-resistant monsters
+      route around the trap whose live effect is eroding their cold
+      resistance. Decide which is authoritative.
+- [ ] REVIEW-LOW (2026-07-29): ICE_TRAP/MAGIC_BEAM generation gate
+      is one-sided - traptype_rnd blocks them, rndtrap (lua
+      trap("random")) still rolls both.
+- [ ] REVIEW-LOW (2026-07-29): mb_trapped() infers death from
+      m_at(mx, my) != mtmp - false when the monster merely moved
+      (vamprise rloc, minliquid) (monmove.c).
+- [ ] REVIEW-LOW (2026-07-29): lock.c - the stone-to-flesh
+      trapped-door arm calls mb_trapped() before doormask =
+      D_NODOOR, breaking the invariant its five siblings document;
+      and picklock's non-destroy path forces D_CLOSED, silently
+      losing a "lock the door" action.
+- [ ] REVIEW-LOW (2026-07-29): disarm_spear_trap()'s trailing newsym
+      is derived from u.dx/u.dy - redundant (deltrap_with_ammo does
+      its own) and coordinate-fragile.
+- [ ] REVIEW-LOW (2026-07-29): dat/symbols AmigaFont set is missing
+      the 5 new terrain symbols - consistent with its older gaps;
+      one cosmetic row.
+- [ ] REVIEW-LOW (2026-07-29): morguemon()/courtmon() zero-range
+      guards unswept (mkroom.c) - the commit message claimed the
+      family swept; 3 of master's 5 adopted.
+- [ ] REVIEW-LOW (2026-07-29): mcalcdistress()'s hand-rolled loop
+      reads mtmp->nmon after the callback (mon.c; iter_mons
+      pre-captures; latent - no live relmon path today).
+- [ ] REVIEW-LOW (2026-07-29): bubble pickup can spuriously unstuck
+      a steed grabbing the hero (mkmaze.c: mx = 0 then
+      update_monsteed -> !m_next2u -> unstuck).
+- [ ] REVIEW-LOW (2026-07-29): mattacku() hittmp leak when the
+      weapon dies mid-attack (mhitu.c "KMH" subtraction gated on
+      mon_currwep; master parity, but rust-destruction now makes it
+      reachable). Key it on a had-weapon boolean.
+- [ ] REVIEW-LOW (2026-07-29): steed_off_map's MON_OFFMAP excludes
+      ridden steeds from 6 other iter_mons consumers
+      (set_mon_lastmove, maybe_turn_mon_iter,
+      deadbook_pacify_undead, garlic_breath, reset_hostility,
+      remove_mon_from_bones) - mostly cosmetic; a comment or an
+      iter_mons-level exemption.
+- [ ] REVIEW-LOW (2026-07-29): separate_steed_and_rider() can place
+      the steed twice when the rider dies inside rloc_to (steed.c -
+      three independent ifs should be an if/else-if chain;
+      master-inherited).
+- [ ] REVIEW-LOW (2026-07-29): see_monsters()'s widened skip drops
+      bubble passengers from the warning-glow census (display.c;
+      cosmetic; the old PARKEDMONSTER term had the same property).
+- [ ] REVIEW-LOW (2026-07-29): b6a2f9576's commit message overstates
+      coverage - dogmove.c pet-ignite arms and read.c
+      genocide-throne (Vecna/Vlad/Tal'Gath) arms are NOT ported.
+      Recorded so a later census does not treat them as done.
+- [ ] REVIEW-LOW (2026-07-29): resist_conflict()'s Ithilmar
+      always-resist arm is unreachable at high CHA (mondata.c
+      else-if off the clamp; master parity).
+- [ ] REVIEW-LOW (2026-07-29): RECORD ONLY - EDITLEVEL gap window
+      df04f38c6..403245844 accepted dev saves unguarded (later bumps
+      closed it); 403245844's commit-message claim that struct rm
+      growth changes critical_sizes is wrong (the 5 bits fit the
+      existing bitfield unit).
+- [ ] REVIEW-LOW (2026-07-29): dothrow.c dropy() return discarded
+      near hurtle (pre-existing; master captures it).
+- [ ] REVIEW-LOW (2026-07-29): hack.c domove switch default clears
+      mpeaceful without set_malign/newsym (pre-existing, shared with
+      upstream; the BUG-945 shape).
+- [ ] Wish feedback prints the pre-merge count (NEW, minted
+      2026-07-30 by the BUG-1400 battery; cosmetic). Wishing "15
+      daggers" while already carrying one prints "b - 15 +0 daggers"
+      though the merged stack is 16 (inventory display and gdb agree
+      on 16). The wish-delivery pline reads the wished object's quan
+      before/without the merge. Check master for the same behavior
+      before treating it as a port bug.
+- [ ] Re-run the review on the partial-intrinsics (b6a2f9576) and
+      steed/riding clusters with the reviewer agent inheriting the
+      session model (NEW, minted 2026-07-30; the original 2026-07-29
+      pass reviewed those clusters on Opus via the old frontmatter
+      pin).
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
@@ -6354,6 +6673,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | Druid.des | 5 | from-scratch | | | | |
 | Infidel.des | 5 | from-scratch | | | | |
 
+- [ ] GATE BEFORE ANY CONVERSION (NEW, minted 2026-07-30 from the
+      2026-07-29 review): ~/des_to_lua.pl still emits 'w' for
+      PUDDLE, which on this branch is MATCH_WALL - every converted
+      level would silently turn puddles into walls. Add a converter
+      remap or hard assertion first.
 - [ ] dungeon.def -> dat/dungeon.lua (branches: Ice Queen etc.)
 - [x] quest.txt -> quest.lua converter BUILT + VALIDATED (2026-07-03,
       ~/quest_to_50.py; output quest_evilhack.lua 18 sections / 1066
@@ -6505,10 +6829,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-24 | uhitm.c mhitm_ad_slee monster-vs-monster arm: `!mdef->msleeping && sleep_monst(mdef, rnd(10), -1) && sleep_monst(mdef, rnd(10), -1)` - sleep_monst called twice in one condition, so the sleep applies only when both rolls succeed and the first success is re-rolled. Identical in NetHack50 and Official_nh50. Left as-is on branch (monster-side, outside the partial-resistance slice) | traced; not yet sent |
 | 2026-07-26 | trap.c trapeffect_landmine() captures the floor saddle pointer (`sobj_at(SADDLE, u.ux, u.uy)`) BEFORE `losehp()` and `blow_up_landmine()`, then hands it to `keep_saddle_with_steedcorpse()`, which does `obj_extract_self()`/`place_object()` through it. `blow_up_landmine()` calls `scatter()`, which can destroy floor objects outright - metallic gear is exactly what a blast breaks - so the pointer can be freed before it is dereferenced. EvilHack master fetches after the explosion and documents why. Identical in Official_nh50 | fixed on branch (BUG-1388, commit f6a787e0d); not yet sent |
 | 2026-07-26 | mon.c m_consume_obj() reads `otmp->otyp` at the pyrolisk-egg test AFTER `delobj(otmp)` has freed the object - the function carefully snapshots every other field it needs into locals beforehand (corpsenm, deadmimic, slimer, unsick, poly, grow, heal, eyes, mstone) and missed this one, so every monster meal ends with a read of freed memory. The guarded action is also dead code: `corpsenm` is assigned `(otmp->otyp == CORPSE ? otmp->corpsenm : NON_PM)`, so `otyp == EGG && corpsenm == PM_PYROLISK` can never be true and a pyrolisk egg has never exploded when eaten. Identical in Official_nh50 (mon.c, the corpsenm assignment and the test). Branch fix snapshots the condition into a `pyro_egg` local before delobj, which kills the read and deliberately leaves the dead branch dead - whether the explosion is meant to fire is a gameplay question for the maintainer, not a port decision | UAF fixed on branch (BUG-1391); dead-code question open; not yet sent |
-| 2026-07-29 | mkmaze.c `movebubbles()` sets `mon->mstate \|= MON_BUBBLEMOVE` when a bubble on the Plane of Water lifts a monster, and nothing anywhere clears it - three hits tree-wide (the `#define`, that `\|=`, and a comment in `place_monster()` listing it among bits that function deliberately preserves), and no code reads it. `mon_offmap()` is `mstate != MON_FLOOR` with `MON_FLOOR == 0`, so the stale bit makes every carried monster read as permanently off-map; `mon_sanity_check()` reaches its complaint only for a monster that IS on the map at its own coordinates, so it fires once per carried monster per turn forever. With `sanity_check` on that is ~900 paniclog lines and a `--More--` wall in 25 turns. Verified character-identical in NetHack50 and Official_nh50. Branch fix clears the bit in the `CONS_MON` bubble-restore arm, before the `mnearto()`/`elemental_clog()` placement so the failure path's own state is not stomped; `place_monster()`'s mask left alone | fixed on branch (BUG-1394); not yet sent |
+| 2026-07-29 | mkmaze.c `movebubbles()` sets `mon->mstate \|= MON_BUBBLEMOVE` when a bubble on the Plane of Water lifts a monster, and nothing anywhere clears it - three hits tree-wide (the `#define`, that `\|=`, and a comment in `place_monster()` listing it among bits that function deliberately preserves), and no code reads it. `mon_offmap()` is `mstate != MON_FLOOR` with `MON_FLOOR == 0`, so the stale bit makes every carried monster read as permanently off-map; `mon_sanity_check()` reaches its complaint only for a monster that IS on the map at its own coordinates, so it fires once per carried monster per turn forever. With `sanity_check` on that is ~900 paniclog lines and a `--More--` wall in 25 turns. Verified character-identical in NetHack50 and Official_nh50. Branch fix clears the bit in the `CONS_MON` bubble-restore arm, before the `mnearto()`/`elemental_clog()` placement so the failure path's own state is not stomped; `place_monster()`'s mask left alone | fixed on branch (BUG-1394); not yet sent - correct the archive entry first: its "clearing afterwards would stomp whichever bits that path had just set" clause is false of &= ~ONE_BIT; the right justification is the entry's own first clause (the transit is over - the clear is unconditional and placement-independent) |
 | 2026-07-29 | display.c `see_monsters()` calls `newsym(mon->mx, mon->my)` on every live monster after skipping only DEADMONSTER, PARKEDMONSTER and MON_STILL_ARRIVING - but a monster in transit inside a Plane of Water bubble has `mx = my = 0` and is none of those, and `newsym()` rejects column 0 with `impossible("newsym: attempting screen update for <0,0>")`. Note PARKEDMONSTER is `isgd && mx == 0`, so the loop already special-cases one kind of off-map monster and misses the general case. Backtrace: movebubbles -> mv_bubble -> mnearto -> mon_leaving_level -> unstuck -> docrt -> docrt_flags -> see_monsters -> newsym(0,0). Byte-identical loop in NetHack50 and Official_nh50. Branch fix makes the skip `DEADMONSTER(mon) \|\| !mon->mx`, which strictly subsumes PARKEDMONSTER; `!mon->mx` rather than `mon_offmap()` so the display path does not depend on mstate bookkeeping being correct | fixed on branch; not yet sent |
 | 2026-07-29 | mon.c `mon_sanity_check()` carves the parked vault guard out of its position test - `if (!isok(x, y) && !(mtmp->isgd && x == 0 && y == 0))` - but not out of its final `mon_offmap()` test, so the `MON_PARKED` bit that `parkguard()` (vault.c) legitimately sets while the temporary corridor is torn down trips `impossible("floor mon (%s) with mstate set to 0x%08lx")` once per guard departure. The state is correct and the check is incomplete, which is the inverse of the MON_BUBBLEMOVE bug above. Identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
+| 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 
 ## Master re-derive queue
 
