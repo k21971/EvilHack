@@ -7297,6 +7297,11 @@ passive(
             (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
+    case AD_CNCL:
+        if (mhitb && !rn2(6)) {
+            (void) cancel_monst(&gy.youmonst, weapon, FALSE, TRUE, FALSE);
+        }
+        break;
     default:
         break;
     }
