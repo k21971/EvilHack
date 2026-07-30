@@ -3232,8 +3232,18 @@ passiveum(
         if (!rn2(30))
             erode_armor(mtmp, ERODE_CORRODE);
         if (!rn2(6)) {
-            acid_damage(MON_WEP(mtmp));
-            acid_damage(MON_WEP2(mtmp));
+            struct obj *mwp = MON_WEP(mtmp);
+            struct obj *mwp2 = MON_WEP2(mtmp);
+
+            /* acid_damage() can now destroy a weapon; when a wielded
+               slot empties, tell mattacku()'s cached weapon pointer
+               so it does not dangle for the rest of the attack chain */
+            acid_damage(mwp);
+            if (mwp && MON_WEP(mtmp) != mwp)
+                mon_currwep_gone(mwp);
+            acid_damage(mwp2);
+            if (mwp2 && MON_WEP2(mtmp) != mwp2)
+                mon_currwep_gone(mwp2);
         }
         return assess_dmg(mtmp, tmp);
     case AD_STON: /* cockatrice */

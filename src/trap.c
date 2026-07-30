@@ -124,7 +124,8 @@ burnarmor(struct monst *victim)
         item = item->nobj;
     }
 
-#define burn_dmg(obj, descr) erode_obj(obj, descr, ERODE_BURN, EF_GREASE)
+#define burn_dmg(obj, descr) \
+    erode_obj(obj, descr, ERODE_BURN, (EF_GREASE | EF_DESTROY))
     while (1) {
         switch (rn2(5)) {
         case 0:
@@ -5357,7 +5358,8 @@ acid_damage(struct obj *obj)
         obj->spe = 0;
         obj->dknown = 0;
     } else
-        erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE | EF_VERBOSE);
+        erode_obj(obj, (char *) 0, ERODE_CORRODE,
+                  EF_GREASE | EF_VERBOSE | EF_DESTROY);
 }
 
 staticfn void
@@ -5464,12 +5466,19 @@ water_damage(
         water_damage_chain(obj->cobj, FALSE, 0, TRUE);
         return ER_DAMAGED; /* contents were damaged */
     } else if (Waterproof_container(obj)) {
+        int er;
+
         if (in_invent && !Blind && !Underwater) {
             pline_The("%s cannot get into your %s.", hliquid("water"), ostr);
             gm.mentioned_water = !Hallucination;
             makeknown(obj->otyp); /* if an oilskin sack, discover it; doesn't
                                    * matter for chest, large box, ice box */
         }
+        /* the exterior of a rust-prone container can still rust even
+           though the water cannot reach the contents */
+        er = erode_obj(obj, ostr, ERODE_RUST, EF_DESTROY);
+        if (er != ER_NOTHING)
+            return er;
         /* not actually damaged, but because we /didn't/ get the "water
            gets into!" message, the player now has more information and
            thus we need to waste any potion they may have used (also,
@@ -5554,7 +5563,7 @@ water_damage(
             return ER_DAMAGED;
         }
     } else {
-        return erode_obj(obj, ostr, ERODE_RUST, EF_NONE);
+        return erode_obj(obj, ostr, ERODE_RUST, EF_DESTROY);
     }
     return ER_NOTHING;
 }

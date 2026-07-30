@@ -143,45 +143,45 @@ erode_armor(struct monst *mdef, int hurt)
         case 0:
             target = which_armor(mdef, W_ARMH);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt,
+                             EF_GREASE | EF_DESTROY) == ER_NOTHING)
                 continue;
             break;
         case 1:
             target = which_armor(mdef, W_ARMC);
             if (target) {
                 (void) erode_obj(target, xname(target), hurt,
-                                 EF_GREASE | EF_VERBOSE);
+                                 EF_GREASE | EF_VERBOSE | EF_DESTROY);
                 break;
             }
             if ((target = which_armor(mdef, W_ARM)) != (struct obj *) 0) {
                 (void) erode_obj(target, xname(target), hurt,
-                                 EF_GREASE | EF_VERBOSE);
+                                 EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if ((target = which_armor(mdef, W_ARMU))
                        != (struct obj *) 0) {
                 (void) erode_obj(target, xname(target), hurt,
-                                 EF_GREASE | EF_VERBOSE);
+                                 EF_GREASE | EF_VERBOSE | EF_DESTROY);
             }
             break;
         case 2:
             target = which_armor(mdef, W_ARMS);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt,
+                             EF_GREASE | EF_DESTROY) == ER_NOTHING)
                 continue;
             break;
         case 3:
             target = which_armor(mdef, W_ARMG);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt,
+                             EF_GREASE | EF_DESTROY) == ER_NOTHING)
                 continue;
             break;
         case 4:
             target = which_armor(mdef, W_ARMF);
             if (!target
-                || erode_obj(target, xname(target), hurt, EF_GREASE)
-                       == ER_NOTHING)
+                || erode_obj(target, xname(target), hurt,
+                             EF_GREASE | EF_DESTROY) == ER_NOTHING)
                 continue;
             break;
         }
@@ -835,6 +835,7 @@ hitum(struct monst *mon, struct attack *uattk)
     boolean malive, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep,
         *secondwep = u.twoweap ? uswapwep : (struct obj *) 0;
+    unsigned secondwep_id = secondwep ? secondwep->o_id : 0;
     int tmp, dieroll, mhit, armorpenalty, attknum = 0,
         x = u.ux + u.dx, y = u.uy + u.dy, oldumort = u.umortality;
 
@@ -871,7 +872,11 @@ hitum(struct monst *mon, struct attack *uattk)
        knocked to different location */
     if (gt.twohits && !(go.override_confirmation
                         || gm.multi < 0 || u.umortality > oldumort
-                        || !malive || m_at(x, y) != mon)) {
+                        || !malive || m_at(x, y) != mon
+                        /* the first passive counter-attack may have
+                           destroyed the secondary weapon */
+                        || (secondwep
+                            && !o_on(secondwep_id, gi.invent)))) {
         gt.twohits = 2; /* second of 2 hits */
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
                                &armorpenalty);
@@ -880,10 +885,13 @@ hitum(struct monst *mon, struct attack *uattk)
         mhit = (tmp > dieroll || u.uswallow);
         malive = known_hitum(mon, secondwep, &mhit, tmp, armorpenalty, uattk,
                              dieroll);
+        /* the second hit itself can destroy the secondary weapon */
+        if (secondwep && !o_on(secondwep_id, gi.invent))
+            secondwep = (struct obj *) 0;
         /* second passive counter-attack only occurs if second attack hits */
         if (mhit)
             (void) passive(mon, secondwep, mhit, malive, AT_WEAP,
-                           secondwep && !uswapwep);
+                           (secondwep_id != 0 && !secondwep));
     }
     gt.twohits = 0;
 
@@ -7057,6 +7065,10 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             (void) passive(mon, weapon, (sum[i] != M_ATTK_MISS), 1,
                            mattk->aatyp, FALSE);
         }
+        /* passive() may have destroyed the wielded weapon; re-read the
+           equipment slot before the cursed-weapon check below */
+        if (weapon)
+            weapon = *originalweapon;
 
         if (mhitm_knockback(&gy.youmonst, mon, mattk, &sum[i], weapon_used))
             break;
@@ -7105,6 +7117,9 @@ passive(
     int i, t, tmp;
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
     int malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
+    /* the counter-effects below can destroy the object weapon points
+       at; used to re-validate before later sections read it */
+    unsigned wep_id = weapon ? weapon->o_id : 0;
 
     /* a vampire that just bit gets the side effects of tasting the
        victim's flesh or blood */
@@ -7132,11 +7147,11 @@ passive(
      */
     switch (mattk[i].adtyp) {
     case AD_FIRE:
-        if (mhitb && !mon->mcan && weapon) {
+        if (mhitb && !mon->mcan && weapon && !Underwater) {
             if (aatyp == AT_KICK) {
                 if (uarmf && !rn2(6))
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_BURN,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 (void) passive_obj(mon, weapon, &(mattk[i]));
@@ -7156,14 +7171,20 @@ passive(
             } else {
                 monstseesu(M_SEEN_ACID);
             }
-            if (!rn2(30))
-                erode_armor(&gy.youmonst, ERODE_CORRODE);
+            if (!Underwater) {
+                if (!rn2(30))
+                    erode_armor(&gy.youmonst, ERODE_CORRODE);
+            }
         }
-        if (mhitb && weapon) {
+        /* erode_armor() can destroy the gloves or boots the weapon
+           parameter references */
+        if (weapon && !o_on(wep_id, gi.invent))
+            weapon = (struct obj *) 0;
+        if (mhitb && weapon && !Underwater) {
             if (aatyp == AT_KICK) {
                 if (uarmf && !rn2(6))
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 (void) passive_obj(mon, weapon, &(mattk[i]));
@@ -7199,7 +7220,7 @@ passive(
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_RUST,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 (void) passive_obj(mon, weapon, &(mattk[i]));
@@ -7210,7 +7231,7 @@ passive(
             if (aatyp == AT_KICK) {
                 if (uarmf)
                     (void) erode_obj(uarmf, xname(uarmf), ERODE_CORRODE,
-                                     EF_GREASE | EF_VERBOSE);
+                                     EF_GREASE | EF_VERBOSE | EF_DESTROY);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
                 (void) passive_obj(mon, weapon, &(mattk[i]));
@@ -7471,6 +7492,13 @@ passive(
             break;
         }
     }
+
+    /* any of the counter-effects above may have destroyed the object
+       the weapon parameter references (passive erosion, passive
+       disintegration, armor erosion); re-validate before the armor
+       retaliation section reads it */
+    if (weapon && !o_on(wep_id, gi.invent))
+        weapon = (struct obj *) 0;
 
     /* humanoid monsters wearing various dragon-scaled armor */
     if ((passive_armor = which_armor(mon, W_ARM)) != 0) {
@@ -7752,25 +7780,28 @@ passive_obj(
 
     switch (mattk->adtyp) {
     case AD_FIRE:
-        if (!rn2(6) && !mon->mcan
+        if (!rn2(6) && !mon->mcan && !Underwater
             /* steam vortex: fire resist applies, fire damage doesn't */
             && mon->data != &mons[PM_STEAM_VORTEX]) {
-            ret = erode_obj(obj, NULL, ERODE_BURN, EF_NONE);
+            ret = erode_obj(obj, NULL, ERODE_BURN, EF_DESTROY);
         }
         break;
     case AD_ACID:
-        if (!rn2(6)) {
-            ret = erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE);
+        if (!rn2(6) && !Underwater) {
+            ret = erode_obj(obj, NULL, ERODE_CORRODE,
+                            EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_RUST:
         if (!mon->mcan) {
-            ret = erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE);
+            ret = erode_obj(obj, (char *) 0, ERODE_RUST,
+                            EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_CORR:
         if (!mon->mcan) {
-            ret = erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE);
+            ret = erode_obj(obj, (char *) 0, ERODE_CORRODE,
+                            EF_GREASE | EF_DESTROY);
         }
         break;
     case AD_ENCH:
