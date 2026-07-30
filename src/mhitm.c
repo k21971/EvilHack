@@ -575,7 +575,9 @@ mattackm(
                     mwep = (struct obj *) 0;
                 if (DEADMONSTER(mdef)) {
                     /* mselftouch() inside the armor break can petrify
-                       a cockatrice-wielding defender */
+                       a cockatrice-wielding defender; the blow itself
+                       never landed, so no on-hit passive damage */
+                    strike = 0;
                     res[i] = M_ATTK_DEF_DIED;
                     break;
                 }
@@ -634,6 +636,9 @@ mattackm(
                        hitmm(), which both of its call sites reach */
                     (void) break_glass_obj(some_armor(mdef));
                     if (DEADMONSTER(mdef)) {
+                        /* the squeeze itself never landed, so no
+                           on-hit passive damage */
+                        strike = 0;
                         res[i] = M_ATTK_DEF_DIED;
                         break;
                     }
