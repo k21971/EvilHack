@@ -2909,6 +2909,10 @@ in_container(struct obj *obj)
          */
         pline("%s cannot be confined in such trappings.", The(xname(obj)));
         return 0;
+    } else if (is_quest_artifact(obj) && !u.uevent.qcompleted) {
+        pline("%s resists being confined until the quest is completed.",
+              The(xname(obj)));
+        return 0;
     } else if (obj->otyp == LEASH && obj->leashmon != 0) {
         pline("%s attached to your pet.", Tobjnam(obj, "are"));
         return 0;
