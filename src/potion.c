@@ -114,7 +114,12 @@ decr_resistance(long *which, int incr)
         oldval -= incr;
 
     *which &= ~TIMEOUT;
-    *which |= (oldval | ((oldval < 1) ? 0 : HAVEPARTIAL));
+    if (oldval < 1)
+        /* fully spent: drop the marker too, or the leftover bit keeps
+           the property word nonzero and it reads as still-resistant */
+        *which &= ~HAVEPARTIAL;
+    else
+        *which |= (oldval | HAVEPARTIAL);
 }
 
 /* return the percentage that the hero resists the given property */
