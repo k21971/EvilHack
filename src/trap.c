@@ -3370,7 +3370,7 @@ immune_to_trap(struct monst *mon, unsigned ttype)
             return TRAP_CLEARLY_IMMUNE;
         else if (!is_you && resists_sleep(mon))
             return TRAP_CLEARLY_IMMUNE;
-        else if (is_you && Sleep_resistance)
+        else if (is_you && how_resistant(SLEEP_RES) == 100)
             return TRAP_HIDDEN_IMMUNE;
         return TRAP_NOT_IMMUNE;
     case LEVEL_TELEP:
@@ -3440,7 +3440,7 @@ immune_to_trap(struct monst *mon, unsigned ttype)
         /*FALLTHRU*/
     case FIRE_TRAP_SET: /* can always destroy items being carried */
         /* harmful if not resistant or if carrying anything that could burn */
-        if (is_you ? !Fire_resistance : !resists_fire(mon))
+        if (is_you ? how_resistant(FIRE_RES) < 100 : !resists_fire(mon))
             return TRAP_NOT_IMMUNE;
 
         for (obj = is_you ? gi.invent : mon->minvent; obj; obj = obj->nobj) {
