@@ -3454,7 +3454,9 @@ use_whip(struct obj *obj)
             cc.y = ry;
             You("wrap your bullwhip around %s.", wrapped_what);
             if (proficient && rn2(proficient + 2)) {
-                if (!mtmp || enexto(&cc, rx, ry, gy.youmonst.data)) {
+                if (!mtmp
+                    || enexto_core_mon(&cc, rx, ry, &gy.youmonst,
+                                       NO_MM_FLAGS)) {
                     You("yank yourself out of the pit!");
                     reset_utrap(TRUE); /* [was after teleds(); do this before
                                         * in case it has no alternative other
@@ -4177,7 +4179,7 @@ use_grapple(struct obj *obj)
         gn.notonhead = (gb.bhitpos.x != mtmp->mx || gb.bhitpos.y != mtmp->my);
         save_confirm = flags.confirm;
         if (verysmall(mtmp->data) && !rn2(4)
-            && enexto(&cc, u.ux, u.uy, (struct permonst *) 0)) {
+            && enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS)) {
             flags.confirm = FALSE;
             (void) attack_checks(mtmp, uwep);
             flags.confirm = save_confirm;

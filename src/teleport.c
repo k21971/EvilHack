@@ -2344,8 +2344,8 @@ u_teleport_mon(
         unstuck(mtmp);
         if (!rloc(mtmp, RLOC_MSG))
             m_into_limbo(mtmp);
-    } else if (mon_prop(mtmp, TELEPORT_CONTROL)
-               && rn2(13) && enexto(&cc, u.ux, u.uy, mtmp->data)) {
+    } else if (mon_prop(mtmp, TELEPORT_CONTROL) && rn2(13)
+               && enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS)) {
         rloc_to(mtmp, cc.x, cc.y);
     } else {
         if (!rloc(mtmp, RLOC_MSG))

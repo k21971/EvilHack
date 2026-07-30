@@ -1411,7 +1411,7 @@ dismount_steed(
         /* hero's spot has a monster in it; hero must have been plucked
            from saddle as engulfer moved into his spot--other dismounts
            shouldn't run into this situation; find nearest viable spot */
-        if (!enexto(&steedcc, u.ux, u.uy, mtmp->data)
+        if (!enexto_core_mon(&steedcc, u.ux, u.uy, mtmp, NO_MM_FLAGS)
             /* no spot? must have been engulfed by a lurker-above over
                water or lava; try requesting a location for a flyer */
             && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT]))
@@ -1428,7 +1428,7 @@ dismount_steed(
            we want to make room for potential ghost, so move steed */
         if (reason == DISMOUNT_BONES) {
             /* move the steed to an adjacent square */
-            if (enexto(&cc, u.ux, u.uy, mtmp->data))
+            if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
                 rloc_to(mtmp, cc.x, cc.y);
             else /* evidently no room nearby; move steed elsewhere */
                 (void) rloc(mtmp, RLOC_ERR | RLOC_NOMSG);
@@ -1518,7 +1518,7 @@ dismount_steed(
             }
 
         /* Couldn't move hero... try moving the steed. */
-        } else if (enexto(&cc, u.ux, u.uy, mtmp->data)) {
+        } else if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS)) {
             /* Keep player here, move the steed to cc */
             rloc_to(mtmp, cc.x, cc.y);
             /* Player stays put */

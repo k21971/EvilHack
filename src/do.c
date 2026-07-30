@@ -1451,7 +1451,8 @@ u_collide_m(struct monst *mtmp)
        it was already here.  Randomly move you to an adjacent spot
        or else the monster to any nearby location.  Prior to 3.3.0
        the latter was done unconditionally. */
-    if (!rn2(2) && enexto(&cc, u.ux, u.uy, gy.youmonst.data)
+    if (!rn2(2)
+        && enexto_core_mon(&cc, u.ux, u.uy, &gy.youmonst, NO_MM_FLAGS)
         && next2u(cc.x, cc.y))
         u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
     else

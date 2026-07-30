@@ -2073,7 +2073,13 @@ create_monster(monster *m, struct mkroom *croom)
                             x = m->x;
                             y = m->y;
                             get_location(&x, &y, DRY, croom);
-                            if (MON_AT(x, y) && enexto(&cc, x, y, pm))
+                            /* use mtmp, already equipped via makemon,
+                               so worn levitation or flight is seen by
+                               goodpos(); a bare permonst builds a
+                               zeroed fakemon with no extrinsics */
+                            if (MON_AT(x, y)
+                                && enexto_core_mon(&cc, x, y, mtmp,
+                                                   NO_MM_FLAGS))
                                 x = cc.x, y = cc.y;
                         } while (m_bad_boulder_spot(x, y)
                                  && --retrylimit > 0);

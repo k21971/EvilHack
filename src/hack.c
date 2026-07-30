@@ -118,7 +118,8 @@ revive_nasty(coordxy x, coordxy y, const char *msg)
             && (is_rider(&mons[otmp->corpsenm])
                 || otmp->corpsenm == PM_WIZARD_OF_YENDOR)) {
             /* move any living monster already at that location */
-            if ((mtmp = m_at(x, y)) && enexto(&cc, x, y, mtmp->data))
+            if ((mtmp = m_at(x, y))
+                && enexto_core_mon(&cc, x, y, mtmp, NO_MM_FLAGS))
                 rloc_to(mtmp, cc.x, cc.y);
             if (msg)
                 Norep("%s", msg);
@@ -130,7 +131,7 @@ revive_nasty(coordxy x, coordxy y, const char *msg)
     if (revived) {
         mtmp = m_at(x, y);
         if (mtmp && !goodpos(x, y, mtmp, 0)
-            && enexto(&cc, x, y, mtmp->data)) {
+            && enexto_core_mon(&cc, x, y, mtmp, NO_MM_FLAGS)) {
             rloc_to(mtmp, cc.x, cc.y);
         }
         /* else impossible? */

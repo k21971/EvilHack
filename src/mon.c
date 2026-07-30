@@ -5390,7 +5390,8 @@ mnexto(struct monst *mtmp, unsigned int rlocflags)
         return;
     }
 
-    if (!enexto(&mm, u.ux, u.uy, mtmp->data) || !isok(mm.x, mm.y)) {
+    if (!enexto_core_mon(&mm, u.ux, u.uy, mtmp, NO_MM_FLAGS)
+        || !isok(mm.x, mm.y)) {
         deal_with_overcrowding(mtmp);
         return;
     }
@@ -5432,7 +5433,7 @@ maybe_mnexto(struct monst *mtmp)
     int tryct = 20;
 
     do {
-        if (!enexto(&mm, u.ux, u.uy, ptr))
+        if (!enexto_core_mon(&mm, u.ux, u.uy, mtmp, NO_MM_FLAGS))
             return;
         if (couldsee(mm.x, mm.y)
             /* don't move grid bugs diagonally */
@@ -5486,7 +5487,8 @@ mnearto(
          * Migrating_mons that need to be placed will cause
          * no end of trouble.
          */
-        if (!enexto(&mm, newx, newy, mtmp->data) || !isok(mm.x, mm.y)) {
+        if (!enexto_core_mon(&mm, newx, newy, mtmp, NO_MM_FLAGS)
+            || !isok(mm.x, mm.y)) {
             if (othermon) {
                 /* othermon already had its mx, my set to 0 above
                  * and this would shortly cause a sanity check to fail

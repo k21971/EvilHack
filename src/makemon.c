@@ -2712,7 +2712,8 @@ clone_mon(
         return (struct monst *) 0;
     }
     if (MON_AT(mm.x, mm.y)) { /* (always True for the x==0 case) */
-        if (!enexto(&mm, mm.x, mm.y, mon->data) || MON_AT(mm.x, mm.y))
+        if (!enexto_core_mon(&mm, mm.x, mm.y, mon, NO_MM_FLAGS)
+            || MON_AT(mm.x, mm.y))
             return (struct monst *) 0;
     }
 

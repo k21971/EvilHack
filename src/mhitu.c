@@ -742,7 +742,7 @@ mattacku(struct monst *mtmp)
                is eligible for placing hero; we assume that a
                removed monster remembers its old spot <mx,my> */
             remove_monster(mtmp->mx, mtmp->my);
-            if (!enexto(&cc, u.ux, u.uy, gy.youmonst.data)
+            if (!enexto_core_mon(&cc, u.ux, u.uy, &gy.youmonst, NO_MM_FLAGS)
                 /* a fish won't voluntarily swap positions
                    when it's in water and hero is over land */
                 || (mtmp->data->mlet == S_EEL
@@ -767,7 +767,8 @@ mattacku(struct monst *mtmp)
                 /* tail hasn't grown, so if it now occupies <cc.x,.y>
                    then one of its original spots must be free */
                 if (m_at(cc.x, cc.y))
-                    (void) enexto(&cc, u.ux, u.uy, gy.youmonst.data);
+                    (void) enexto_core_mon(&cc, u.ux, u.uy, &gy.youmonst,
+                                           NO_MM_FLAGS);
             }
             teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG); /* move hero */
             set_apparxy(mtmp);
