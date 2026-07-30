@@ -29,8 +29,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   missing arm by a switch-wide diff. Battery: crumble/shatter/falls-
   apart messages all correct, a starting kit built an arrow trap that
   killed its first victim, paniclog byte-identical after every
-  scenario. Empty kits staying spent is master parity (recharge() has
-  no TRAP_KIT arm on either tree) - design question, not a gap
+  scenario. Empty kits staying spent was master parity (recharge() has
+  no TRAP_KIT arm on either tree); maintainer ruled 2026-07-29 they
+  should recharge, landed as its own change - TRAP_KIT joined the
+  grease/horn/bag group in recharge(), deliberate divergence from
+  master, FEATURES_ARCHIVE entry "Trap Kits Are Rechargeable"
 - Previous fix: 2026-07-29 BUG-1397, the code review's one CRITICAL: the
   glass/blocker slice's breakage block at the tail of hmon_hitmon()
   read obj after killed()/xkilled(), and a swallowed hero's thrown

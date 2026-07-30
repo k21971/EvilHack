@@ -978,6 +978,7 @@ recharge(struct obj *obj, int curse_bless)
         case HORN_OF_PLENTY:
         case BAG_OF_TRICKS:
         case CAN_OF_GREASE:
+        case TRAP_KIT:
             if (is_cursed) {
                 stripspe(obj);
             } else if (is_blessed) {
