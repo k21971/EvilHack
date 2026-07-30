@@ -2785,7 +2785,8 @@ do_boh_explosion(struct obj *boh, boolean on_floor)
     boh->in_use = 1; /* in case scatter() leads to bones creation */
     for (otmp = boh->cobj; otmp; otmp = nobj) {
         nobj = otmp->nobj;
-        if (is_boh_item_gone()) {
+        /* obj_resists() items survive the loss roll and scatter instead */
+        if (is_boh_item_gone() && !obj_resists(otmp, 0, 0)) {
             obj_extract_self(otmp);
             mbag_item_gone(!on_floor, otmp, TRUE);
         } else {
@@ -2807,7 +2808,8 @@ boh_loss(struct obj *container, boolean held)
 
         for (curr = container->cobj; curr; curr = otmp) {
             otmp = curr->nobj;
-            if (is_boh_item_gone()) {
+            /* obj_resists() items survive the loss roll */
+            if (is_boh_item_gone() && !obj_resists(curr, 0, 0)) {
                 obj_extract_self(curr);
                 loss += mbag_item_gone(held, curr, FALSE);
             }
@@ -4251,7 +4253,10 @@ tipcontainer(struct obj *box) /* or bag */
 
             if (box->otyp == ICE_BOX) {
                 removed_from_icebox(otmp); /* resume rotting for corpse */
-            } else if (cursed_mbag && is_boh_item_gone()) {
+            /* obj_resists() items survive the loss roll and fall
+               through to normal tip placement */
+            } else if (cursed_mbag && is_boh_item_gone()
+                       && !obj_resists(otmp, 0, 0)) {
                 loss += mbag_item_gone(srcheld, otmp, FALSE);
                 /* abbreviated drop format is no longer appropriate */
                 terse = FALSE;

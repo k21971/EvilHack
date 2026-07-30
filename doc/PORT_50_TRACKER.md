@@ -17,8 +17,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-30 BUG-1400 + BUG-1401 (commits pending; battery
-  8/8 PASS - weapon/gloves destruction, full refusal ladder incl.
+- Last fix: 2026-07-30 LATER, BUG-1402 + BUG-1403 (commits pending;
+  battery PASS - refusal in all three container types with the
+  artifact never leaving inventory, qcompleted unlock verified both
+  directions, 161 Rider-corpse destruction rolls across #loot/#tip/
+  explosion with ZERO losses vs ~3e-6 pre-fix survival odds,
+  ordinary items still dying on every path, paniclog untouched by
+  every tested scenario) - the pipeline's last HIGH plus three
+  same-family gaps its exploration surfaced. BUG-1402: master's
+  in_container() quest-artifact refusal arm ("resists being confined
+  until the quest is completed") was never ported - a hero could
+  stash the quest artifact in a bag of devouring and brick the quest
+  (artiexist bit never cleared by obfree, recreation gated on it,
+  finish_quest needs the physical artifact and its invent scan is
+  non-recursive). Arm restored verbatim; the row's
+  tipcontainer-devouring-arm instruction was a wrong premise (both
+  trees already obj_resists-guard that arm; master has no quest arm
+  there - protection is transitive once insertion is refused).
+  BUG-1403: master pre-checks obj_resists(x,0,0) before every
+  1-in-13 cursed-bag destruction roll; the branch missed it at
+  do_boh_explosion(), boh_loss() and tipcontainer's cursed-mbag arm
+  (Rider corpses were destroyable) - guarded branch-shaped
+  (condition widening; master's own return verbs abandon loop
+  remainders and drop accumulated shop loss). Closes the obj_resists
+  half of the BUG-1284-third-arm row. m_stash_items()
+  future-dependency recorded on the ticked row. Incremental builds
+  green, zero warnings
+- Previous fix: 2026-07-30 BUG-1400 (67547eee2) + BUG-1401
+  (a09223367) (battery 8/8 PASS - weapon/gloves destruction, full
+  refusal ladder incl.
   Dragonbane-via-fallback, vortex rate, thrown counts EXACT by floor
   arithmetic, drop_throw exercised live = the BUG-310 shape re-run
   clean, cancellation 3/20 with a zero-proc Antimagic control,
@@ -43,18 +70,6 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   cancel_monst arm restored (youattack=FALSE per the BUG-1308
   family); strengthens for free when the cancellation slice lands.
   Clean rebuild, zero warnings
-- Previous fix: 2026-07-29 BUG-1397 (CRITICAL) + BUG-1398 + BUG-1399,
-  one commit each: hmon_hitmon()'s breakage block read obj after
-  killed()/xkilled() (UAF + possible double free; master's two
-  null-outs restored, merge-and-free proven by pointer identity),
-  breakmsg() never learned breaktest()'s new materials (paniclog spam
-  + wrong message; master's material guard + 13 dark-elven cases
-  restored), and mksobj() spawned every trap kit empty (the entire
-  crafting subsystem unreachable; master's 10-30 roll restored) -
-  plus the maintainer-ruled trap-kit recharge feature, a deliberate
-  divergence (FEATURES_ARCHIVE "Trap Kits Are Rechargeable"). All
-  batteries PASS, paniclog byte-identical; detail in
-  BUGFIXES_ARCHIVE + FEATURES_ARCHIVE
 - Last slice: 2026-07-29 GOGGLES - closed the row the objnam slice minted,
   in two commits: the equipment plumbing (18 sites, one of which a
   master-anchored census structurally could not find - iactions.c is
@@ -6302,7 +6317,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] passive_obj() has no AD_DISN case (NEW, minted 2026-07-30 from
       the 2026-07-29 review of the July 24-29 commits; HIGH; verified
       still live at mint time). LANDED SAME DAY as BUG-1400 (battery
-      PASS; commit pending): master's case ported between AD_ENCH and default (the
+      PASS; commit 67547eee2): master's case ported between AD_ENCH and default (the
       ENCH mcan fallthrough became a plain break so a cancelled
       disenchanter cannot fall into the new case), fallback widened
       to the six adtypes, AND a prerequisite the row missed -
@@ -6327,7 +6342,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] passive() has no case AD_CNCL (NEW, minted 2026-07-30 from the
       2026-07-29 review of the July 24-29 commits; HIGH; verified
       still live at mint time - zero AD_CNCL hits in src/uhitm.c).
-      LANDED SAME DAY as BUG-1401 (battery PASS; commit pending):
+      LANDED SAME DAY as BUG-1401 (battery PASS; commit a09223367):
       master's arm in
       master's position, mhitb/gy.youmonst form; cancel_monst()
       verified NULL-obj-tolerant (only use is obj ? obj->oclass : 0)
@@ -6343,10 +6358,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is also absent from passive(), but it is absent upstream too -
       upstream gap, not a port regression; not part of this row.)
       BATCH: one passive-arms slice with the AD_DISN row above.
-- [ ] Quest artifact destroyable by bag of devouring (NEW, minted
+- [x] Quest artifact destroyable by bag of devouring (NEW, minted
       2026-07-30 from the 2026-07-29 review of the July 24-29
       commits; HIGH; verified still live at mint time - no "resists
-      being confined" arm in src/pickup.c). master's in_container()
+      being confined" arm in src/pickup.c). LANDED as BUG-1402
+      (commit pending): master's arm restored verbatim between the
+      Amulet/invocation and LEASH arms; bricking mechanism verified
+      (artiexist bit never cleared by obfree, recreation gated on it,
+      finish_quest needs the physical artifact and its invent scan is
+      non-recursive). PREMISE CORRECTION: this row's "add the same
+      guard to the tipcontainer devouring arm" was wrong - both trees
+      already guard that arm with !obj_resists(otmp, 0, 0) and master
+      has NO quest arm there (protection is transitive once insertion
+      is refused; quest artifacts neither generate in containers nor
+      survive into bones). Exploration instead surfaced THREE missing
+      obj_resists pre-checks in the same family, landed as BUG-1403:
+      do_boh_explosion(), boh_loss(), and tipcontainer's cursed-mbag
+      arm (the obj_resists half of the BUG-1284-third-arm row below).
+      FUTURE DEPENDENCY: master's m_stash_items() (monsters stash
+      items into containers) is entirely unported and carries this
+      same quest-artifact guard - it MUST travel when that function
+      is ported; no branch counterpart exists today.
+      Original finding: master's in_container()
       refusal arm ("resists being confined until the quest is
       completed", between the Amulet/invocation-items arm and the
       LEASH arm) was never restored; the branch guards only the
@@ -6421,6 +6454,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       troll tipped into an ice box revives inside. The same branch
       also lacks master's obj_resists pre-check on the cursed-mbag
       arm.
+      UPDATE 2026-07-30: the obj_resists half landed with BUG-1403
+      (branch-shaped condition widening; do_boh_explosion and
+      boh_loss got the same missing pre-check). This row now owes
+      only the ice-box age-freeze/stop_timer third arm.
 - [ ] POT_DROW_POISON quaff/breathe arms unported (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       potion.c peffects() and potionbreathe() have no case, so
