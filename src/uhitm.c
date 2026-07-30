@@ -1518,6 +1518,12 @@ hmon_hitmon_misc_obj(
             if (web) {
                 (void) mintrap(mon, NO_TRAP_FLAGS);
                 web_unseats_rider(mon);
+                /* the separation inside web_unseats_rider rloc's the
+                   rider and re-runs mintrap at its new spot; a lethal
+                   trap there has already done the full death
+                   processing, so the postlude must not kill again */
+                if (DEADMONSTER(mon))
+                    hmd->already_killed = TRUE;
             }
         }
         break;
@@ -5729,6 +5735,14 @@ mhitm_ad_webs(
             if (web) {
                 (void) mintrap(mdef, NO_TRAP_FLAGS);
                 web_unseats_rider(mdef);
+                /* the separation inside web_unseats_rider rloc's the
+                   rider and re-runs mintrap at its new spot, which
+                   can kill it or migrate it off the level */
+                if (DEADMONSTER(mdef) || mon_offmap(mdef)) {
+                    if (DEADMONSTER(mdef))
+                        mhm->hitflags |= M_ATTK_DEF_DIED;
+                    mhm->done = TRUE;
+                }
             }
         }
     } else if (mdef == &gy.youmonst) {
@@ -5769,6 +5783,14 @@ mhitm_ad_webs(
             if (web) {
                 (void) mintrap(mdef, NO_TRAP_FLAGS);
                 web_unseats_rider(mdef);
+                /* the separation inside web_unseats_rider rloc's the
+                   rider and re-runs mintrap at its new spot, which
+                   can kill it or migrate it off the level */
+                if (DEADMONSTER(mdef) || mon_offmap(mdef)) {
+                    if (DEADMONSTER(mdef))
+                        mhm->hitflags |= M_ATTK_DEF_DIED;
+                    mhm->done = TRUE;
+                }
             }
         }
     }

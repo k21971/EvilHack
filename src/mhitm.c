@@ -1069,6 +1069,13 @@ gulpmm(
             pline("%s plucks %s right off %s mount!", Monnam(magr),
                   mon_nam(mdef), mhis(mdef));
         separate_steed_and_rider(mdef);
+        /* the separation rloc's the rider and re-runs mintrap at its
+           new spot, which can kill it or migrate it off the level;
+           either way the engulf must not continue */
+        if (DEADMONSTER(mdef))
+            return M_ATTK_DEF_DIED;
+        if (mon_offmap(mdef))
+            return M_ATTK_HIT;
     }
 
     if (gv.vis) {

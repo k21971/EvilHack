@@ -1726,6 +1726,11 @@ tamedog(
             pline("%s pats %s steed and clambers off.", Monnam(mtmp),
                   mhis(mtmp));
         separate_steed_and_rider(mtmp);
+        /* the separation rloc's the rider and re-runs mintrap at its
+           new spot, which can kill it or migrate it off the level;
+           either way there is nothing here left to tame */
+        if (DEADMONSTER(mtmp) || mon_offmap(mtmp))
+            return FALSE;
     }
 
     /* add the pet extension */

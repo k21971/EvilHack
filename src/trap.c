@@ -3011,6 +3011,13 @@ trapeffect_poly_trap(
                     pline("%s falls off %s %s!", Monnam(mtmp), mhis(mtmp),
                           l_monnam(ERID(mtmp)->mon_steed));
                 separate_steed_and_rider(mtmp);
+                /* the separation rloc's the rider and re-runs mintrap
+                   at its new spot, which can kill it or migrate it
+                   off the level */
+                if (DEADMONSTER(mtmp))
+                    return Trap_Killed_Mon;
+                if (mon_offmap(mtmp))
+                    return Trap_Moved_Mon;
             }
             if (in_sight)
                 seetrap(trap);
