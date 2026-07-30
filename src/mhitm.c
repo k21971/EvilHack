@@ -608,11 +608,12 @@ mattackm(
                 /* a glancing blow off armor of a material the attacker
                    hates can kill it, and its armor breaking can petrify
                    a cockatrice-wielding defender; either way the rest
-                   of the attack chain must not run */
-                if (DEADMONSTER(magr))
-                    res[i] = M_ATTK_AGR_DIED;
+                   of the attack chain must not run; both can die on the
+                   same miss, so the flags must accumulate */
                 if (DEADMONSTER(mdef))
                     res[i] = M_ATTK_DEF_DIED;
+                if (DEADMONSTER(magr))
+                    res[i] |= M_ATTK_AGR_DIED;
             }
             break;
 
@@ -687,10 +688,12 @@ mattackm(
                    master passes the melee path's stale dieroll here, and
                    the blocker ladder needs the roll this attack made */
                 missmm(magr, mdef, tmp, dieroll, mattk);
-                if (DEADMONSTER(magr))
-                    res[i] = M_ATTK_AGR_DIED;
+                /* both can die on the same miss (see the melee arm),
+                   so the flags must accumulate */
                 if (DEADMONSTER(mdef))
                     res[i] = M_ATTK_DEF_DIED;
+                if (DEADMONSTER(magr))
+                    res[i] |= M_ATTK_AGR_DIED;
             }
             break;
 
