@@ -529,7 +529,7 @@ dosit(void)
             if (!rn2(10) && uarm)
                 (void) water_damage(uarm, "armor", TRUE);
             if (!rn2(10) && uarmf && uarmf->otyp != WATER_WALKING_BOOTS)
-                (void) water_damage(uarm, "armor", TRUE);
+                (void) water_damage(uarmf, "boots", TRUE);
         }
     } else if (IS_SINK(typ)) {
         You(sit_message, defsyms[S_sink].explanation);
