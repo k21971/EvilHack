@@ -179,6 +179,11 @@ hitval(struct obj *otmp, struct monst *mon)
     if (Is_weapon && otmp->blessed && mon_hates_blessings(mon))
         tmp += 2;
 
+    /* Cursed weapons used against angelic beings */
+    if (Is_weapon && otmp->cursed
+        && (is_angel(ptr) || is_aasimar(ptr)))
+        tmp += 2;
+
     if (is_spear(otmp) && strchr(kebabable, ptr->mlet))
         tmp += 2;
 
@@ -314,7 +319,9 @@ dmgval(struct obj *otmp, struct monst *mon)
            +2 damage while standing on grass or beside a live tree, but
            the bonus is gated on the attacker being the hero and dmgval()
            here has no attacker parameter; ports with the attacker-param
-           threading */
+           threading. Same deferral for master's Infidel bonuses with a
+           cursed weapon against lawful or neutral foes (+1 to hit in
+           hitval(), +rnd(2) damage here), gated the same way */
         /* negative enchantment mustn't produce negative damage */
         if (tmp < 0)
             tmp = 0;
@@ -359,6 +366,8 @@ dmgval(struct obj *otmp, struct monst *mon)
         int bonus = 0;
 
         if (otmp->blessed && mon_hates_blessings(mon))
+            bonus += rnd(4);
+        if (otmp->cursed && (is_angel(ptr) || is_aasimar(ptr)))
             bonus += rnd(4);
         /* anatomy of the defender: an axe bites into anything woody,
            a blunt weapon barely marks it, and the reverse holds for a
