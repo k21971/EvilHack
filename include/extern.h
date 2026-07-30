@@ -3706,7 +3706,7 @@ extern boolean mhitm_knockback(struct monst *, struct monst *,struct attack *,
                                int *, boolean) NONNULLPTRS;
 extern int passive(struct monst *, struct obj *, boolean, boolean, uchar,
                    boolean) NONNULLARG1;
-extern void passive_obj(struct monst *, struct obj *, struct attack *) NONNULLARG1;
+extern int passive_obj(struct monst *, struct obj *, struct attack *) NONNULLARG1;
 extern void that_is_a_mimic(struct monst *, unsigned) NONNULLARG1;
 extern void stumble_onto_mimic(struct monst *) NONNULLARG1;
 extern boolean disguised_as_non_mon(struct monst *) NONNULLARG1;

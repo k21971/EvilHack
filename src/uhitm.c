@@ -7117,7 +7117,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_ACID:
@@ -7144,7 +7144,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         exercise(A_STR, FALSE);
         break;
@@ -7180,7 +7180,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_CORR:
@@ -7191,7 +7191,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_DISN:
@@ -7260,7 +7260,7 @@ passive(
                 }
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH) {
-                passive_obj(mon, weapon, &(mattk[i]));
+                (void) passive_obj(mon, weapon, &(mattk[i]));
             }
         }
         break;
@@ -7294,7 +7294,7 @@ passive(
                  */
                 ;
             }
-            passive_obj(mon, weapon, &(mattk[i]));
+            (void) passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     default:
@@ -7691,30 +7691,32 @@ passive(
  * Special (passive) attacks on an attacking object by monsters done here.
  * Assumes the attack was successful.
  */
-void
+int
 passive_obj(
     struct monst *mon,
     struct obj *obj,      /* null means pick uwep, uswapwep or uarmg */
     struct attack *mattk) /* null means we find one internally */
 {
     struct permonst *ptr = mon->data;
-    int i;
+    int i, ret = ER_NOTHING;
 
-    /* [this first bit is obsolete; we're not called with Null anymore] */
-    /* if caller hasn't specified an object, use uwep, uswapwep or uarmg */
+    /* if caller hasn't specified an object, use uwep, uswapwep or uarmg;
+       passive() does this for a bare-handed hit */
     if (!obj) {
         obj = (u.twoweap && uswapwep && !rn2(2)) ? uswapwep : uwep;
-        if (!obj && mattk->adtyp == AD_ENCH)
+        if (!obj && (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_ACID
+                     || mattk->adtyp == AD_RUST || mattk->adtyp == AD_CORR
+                     || mattk->adtyp == AD_ENCH || mattk->adtyp == AD_DISN))
             obj = uarmg; /* no weapon? then must be gloves */
         if (!obj)
-            return; /* no object to affect */
+            return ER_NOTHING; /* no object to affect */
     }
 
     /* if caller hasn't specified an attack, find one */
     if (!mattk) {
         for (i = 0;; i++) {
             if (i >= NATTK)
-                return; /* no passive attacks */
+                return ER_NOTHING; /* no passive attacks */
             if (ptr->mattk[i].aatyp == AT_NONE)
                 break; /* try this one */
         }
@@ -7726,22 +7728,22 @@ passive_obj(
         if (!rn2(6) && !mon->mcan
             /* steam vortex: fire resist applies, fire damage doesn't */
             && mon->data != &mons[PM_STEAM_VORTEX]) {
-            (void) erode_obj(obj, NULL, ERODE_BURN, EF_NONE);
+            ret = erode_obj(obj, NULL, ERODE_BURN, EF_NONE);
         }
         break;
     case AD_ACID:
         if (!rn2(6)) {
-            (void) erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE);
+            ret = erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE);
         }
         break;
     case AD_RUST:
         if (!mon->mcan) {
-            (void) erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE);
+            ret = erode_obj(obj, (char *) 0, ERODE_RUST, EF_GREASE);
         }
         break;
     case AD_CORR:
         if (!mon->mcan) {
-            (void) erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE);
+            ret = erode_obj(obj, (char *) 0, ERODE_CORRODE, EF_GREASE);
         }
         break;
     case AD_ENCH:
@@ -7749,17 +7751,72 @@ passive_obj(
             if (drain_item(obj, TRUE) && carried(obj)
                 && (obj->known || obj->oclass == ARMOR_CLASS)) {
                 pline("%s less effective.", Yobjnam2(obj, "seem"));
+                ret = ER_DAMAGED;
             }
             break;
         }
-        FALLTHROUGH;
-        /* FALLTHRU */
+        break;
+    case AD_DISN: {
+        int chance = (mon->data == &mons[PM_ANTIMATTER_VORTEX]) ? !rn2(3)
+                                                                : !rn2(6);
+
+        if (chance && !mon->mcan) {
+            /* lets not make the game unwinnable */
+            if (obj_resists(obj, 0, 0)) {
+                pline_The("%s %s and cannot be disintegrated.", xname(obj),
+                          rn2(2) ? "resists completely" : "defies physics");
+                break;
+            } else if (obj->oartifact == ART_HAND_OF_VECNA) {
+                ; /* no feedback, as we're pretending that the Hand
+                     isn't worn, but a part of your body */
+                break;
+            } else if (obj->oartifact == ART_DRAGONBANE
+                       && mon->data != &mons[PM_ANTIMATTER_VORTEX]) {
+                pline("%s %s, but remains %s.", The(xname(obj)),
+                      rn2(2) ? "shudders violently" : "vibrates unexpectedly",
+                      rn2(2) ? "whole" : "intact");
+                break;
+            } else if (obj->otyp == BLACK_DRAGON_SCALES
+                       || (Is_dragon_scaled_armor(obj)
+                           && Dragon_armor_to_scales(obj)
+                              == BLACK_DRAGON_SCALES)) {
+                pline("%s disintegration-proof and %s intact.",
+                      Yobjnam2(obj, "are"), otense(obj, "remain"));
+                break;
+            } else if (obj->oartifact && rn2(20)) {
+                pline("%s %s, but remains %s.", Yname2(obj),
+                      rn2(2) ? "shudders violently" : "vibrates unexpectedly",
+                      rn2(2) ? "whole" : "intact");
+                break;
+            } else if (rn2(2)
+                       && (obj->oerodeproof || is_supermaterial(obj))) {
+                pline("%s being disintegrated!", Yobjnam2(obj, "resist"));
+                break;
+            } else {
+                if ((u.uswallow && mon == u.ustuck && !Blind)
+                    || cansee(mon->mx, mon->my))
+                    pline("%s disintegrates!", Yname2(obj));
+                if (obj == uchain || obj == uball)
+                    unpunish();
+                /* make sure any properties given by worn/wielded
+                   objects are removed */
+                remove_worn_item(obj, FALSE);
+                setnotworn(obj);
+                delobj(obj);
+                ret = ER_DESTROYED;
+            }
+            break;
+        }
+        break;
+    }
     default:
         break;
     }
 
-    if (carried(obj))
+    /* obj is freed when destroyed - it cannot feed carried() then */
+    if (ret == ER_DESTROYED || carried(obj))
         update_inventory();
+    return ret;
 }
 
 DISABLE_WARNING_FORMAT_NONLITERAL

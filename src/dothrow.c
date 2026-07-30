@@ -2471,7 +2471,8 @@ thitmonst(
                 obfree(obj, (struct obj *) 0);
                 return 1;
             }
-            passive_obj(mon, obj, (struct attack *) 0);
+            if (passive_obj(mon, obj, (struct attack *) 0) == ER_DESTROYED)
+                return 1;
         } else {
             tmiss(obj, mon, TRUE);
             if (hmode == HMON_APPLIED)

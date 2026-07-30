@@ -279,9 +279,12 @@ drop_throw(
                 place_object(obj, x, y);
                 if (!mtmp && u_at(x, y))
                     mtmp = &gy.youmonst;
-                if (mtmp && ohit)
-                    passive_obj(mtmp, obj, (struct attack *) 0);
-                stackobj(obj);
+                if (mtmp && ohit
+                    && passive_obj(mtmp, obj, (struct attack *) 0)
+                           == ER_DESTROYED)
+                    broken = TRUE; /* the passive counterattack consumed it */
+                else
+                    stackobj(obj);
             }
         }
     }
