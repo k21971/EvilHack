@@ -17,32 +17,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-30 LATER, BUG-1402 + BUG-1403 (commits pending;
-  battery PASS - refusal in all three container types with the
-  artifact never leaving inventory, qcompleted unlock verified both
-  directions, 161 Rider-corpse destruction rolls across #loot/#tip/
-  explosion with ZERO losses vs ~3e-6 pre-fix survival odds,
-  ordinary items still dying on every path, paniclog untouched by
-  every tested scenario) - the pipeline's last HIGH plus three
-  same-family gaps its exploration surfaced. BUG-1402: master's
-  in_container() quest-artifact refusal arm ("resists being confined
-  until the quest is completed") was never ported - a hero could
-  stash the quest artifact in a bag of devouring and brick the quest
-  (artiexist bit never cleared by obfree, recreation gated on it,
-  finish_quest needs the physical artifact and its invent scan is
-  non-recursive). Arm restored verbatim; the row's
-  tipcontainer-devouring-arm instruction was a wrong premise (both
-  trees already obj_resists-guard that arm; master has no quest arm
-  there - protection is transitive once insertion is refused).
-  BUG-1403: master pre-checks obj_resists(x,0,0) before every
-  1-in-13 cursed-bag destruction roll; the branch missed it at
-  do_boh_explosion(), boh_loss() and tipcontainer's cursed-mbag arm
-  (Rider corpses were destroyable) - guarded branch-shaped
-  (condition widening; master's own return verbs abandon loop
-  remainders and drop accumulated shop loss). Closes the obj_resists
-  half of the BUG-1284-third-arm row. m_stash_items()
-  future-dependency recorded on the ticked row. Incremental builds
-  green, zero warnings
+- Last fix: 2026-07-30 EVENING, BUG-1404 + BUG-1405 + BUG-1406
+  (ade89646c / cef59e66a / 380d42ced; battery 4/4 PASS - three
+  staged mon-vs-mon rounds through the changed miss/deflect arms
+  with every kill announced exactly once, all three web-unseat
+  paths exercised live with rider and steed gdb-verified alive,
+  separate and on-map, scroll-of-taming dismount-and-tame with the
+  steed left peaceful, three poly-trap unseats with the steed alive
+  and unridden each time, paniclog clean throughout) - the
+  pipeline's first MEDIUM slice (mhitm/steed-guard, review items
+  13+14+15). BUG-1404: mattackm()'s two miss arms clobbered
+  M_ATTK_AGR_DIED when missmm() killed both parties, running
+  passivemm() against a dead attacker - now defender first with =,
+  attacker accumulated with |=, the four sibling sites' shape.
+  BUG-1405: the branch-only pre-hit armor-break blocks left
+  strike = 1 when the break killed the defender, landing on-hit
+  passives for a blow that never happened - strike zeroed in both.
+  BUG-1406: six continuations after separate_steed_and_rider()
+  kept using a rider that rloc_to's destination mintrap can kill
+  or migrate (guaranteed mtrapped on the web path) - guards added
+  at hmon's ball-of-webbing case (already_killed), both
+  mhitm_ad_webs arms (DEF_DIED + done), tamedog (return FALSE),
+  gulpmm (return before the display swap) and trapeffect_poly_trap
+  (Trap_Killed_Mon/Trap_Moved_Mon); the taming/engulf/poly-trap
+  exposures are master-inherited (frozen-unfixed, archived), the
+  web paths branch-side; battery caveat: all three poly-trap
+  triggers routed through newcham's own guard arm, so trap.c's new
+  arm stands by inspection against that sibling. Incremental
+  builds green, zero warnings
 - Previous fix: 2026-07-30 BUG-1400 (67547eee2) + BUG-1401
   (a09223367) (battery 8/8 PASS - weapon/gloves destruction, full
   refusal ladder incl.
@@ -6362,7 +6364,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-07-30 from the 2026-07-29 review of the July 24-29
       commits; HIGH; verified still live at mint time - no "resists
       being confined" arm in src/pickup.c). LANDED as BUG-1402
-      (commit pending): master's arm restored verbatim between the
+      (commit a202b734f): master's arm restored verbatim between the
       Amulet/invocation and LEASH arms; bricking mechanism verified
       (artiexist bit never cleared by obfree, recreation gated on it,
       finish_quest needs the physical artifact and its invent scan is
@@ -6372,7 +6374,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       has NO quest arm there (protection is transitive once insertion
       is refused; quest artifacts neither generate in containers nor
       survive into bones). Exploration instead surfaced THREE missing
-      obj_resists pre-checks in the same family, landed as BUG-1403:
+      obj_resists pre-checks in the same family, landed as BUG-1403
+      (commit d56763327):
       do_boh_explosion(), boh_loss(), and tipcontainer's cursed-mbag
       arm (the obj_resists half of the BUG-1284-third-arm row below).
       FUTURE DEPENDENCY: master's m_stash_items() (monsters stash
@@ -6473,7 +6476,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       exclusion mirroring find_misc()'s MUSE_BAG arm in the same
       file - the widening commit fixed that sibling and missed this
       one.
-- [ ] mhitm.c res[i] clobber in both mattackm miss arms (NEW, minted
+- [x] mhitm.c res[i] clobber in both mattackm miss arms (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM regression).
       res[i] = M_ATTK_DEF_DIED overwrites a just-set M_ATTK_AGR_DIED
       when missmm() kills both parties (the hated-blocker sear kills
@@ -6481,14 +6484,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cockatrice-wielding mdef) -> passivemm()/monkilled() on a dead
       attacker. Fix shape: test mdef first with =, then magr with
       |= - four sibling sites in the same function show it. BATCH:
-      one mhitm/steed-guard slice with the next two rows.
-- [ ] mhitm.c pre-hit armor-break blocks leave strike == 1 (NEW,
+      one mhitm/steed-guard slice with the next two rows. LANDED
+      SAME DAY as BUG-1404 (commit ade89646c; battery melee smoke
+      PASS - every kill announced exactly once through ~90 message
+      pages, paniclog clean): exactly the minted fix shape, both
+      arms; the dual-death miss itself is not deterministically
+      stageable, so that corner stands by inspection against the
+      four sibling sites (master uses |= for both flags - branch
+      regression confirmed).
+- [x] mhitm.c pre-hit armor-break blocks leave strike == 1 (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM regression;
       2 sites). When break_glass_obj kills mdef before hitmm() runs,
       passivemm() still receives strike = 1 and applies passive
       damage for a blow that never landed. Set strike = 0 before the
-      break. BATCH: rides with the res[i] row above.
-- [ ] separate_steed_and_rider() callers missing the DEADMONSTER/
+      break. BATCH: rides with the res[i] row above. LANDED SAME
+      DAY as BUG-1405 (commit cef59e66a; same battery): strike
+      zeroed INSIDE the DEADMONSTER break blocks rather than before
+      the break (the break itself is not the miss - only a fatal
+      one is); passivemm(mhitb=FALSE) verified to give ordinary
+      miss semantics with the passed-in DEF_DIED flag merging into
+      its return unchanged.
+- [x] separate_steed_and_rider() callers missing the DEADMONSTER/
       relocation guard (NEW, minted 2026-07-30 by the 2026-07-29
       review; MEDIUM regression; five call sites). The same commit
       added the guard at its dothrow.c and newcham siblings but not
@@ -6499,7 +6515,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mid-function. Consider having web_unseats_rider() return
       still-alive-and-here so its callers share one guard; pin the
       exact site count at fix time. BATCH: rides with the two mhitm
-      rows above.
+      rows above. LANDED SAME DAY as BUG-1406 (commit 380d42ced;
+      battery: all three web paths live with rider+steed
+      gdb-verified alive/separate/on-map, taming
+      dismount-and-tame, three poly-trap unseats clean, paniclog
+      absent throughout). Count PINNED at fix time: FOUR direct
+      call sites (web_unseats_rider() itself, tamedog, gulpmm,
+      trapeffect_poly_trap) yielding SIX guarded continuations -
+      the webbing risk fans through web_unseats_rider's callers
+      into hmon_hitmon_misc_obj (already_killed) and both
+      mhitm_ad_webs arms (DEF_DIED + done); tamedog returns FALSE;
+      gulpmm returns before the display swap; poly_trap returns
+      Trap_Killed_Mon/Trap_Moved_Mon. mthrowu.c's caller needed NO
+      change (its only later use is already death-guarded); zap.c's
+      bhitm arm verified already guarded; the boolean-return idea
+      DECLINED (each caller needs a different reaction).
+      Master-inherited at tamedog/gulpmm/poly-trap/AD_WEBS
+      (frozen-unfixed, archived); web/hmon path branch-side.
+      Battery caveat: all three poly-trap triggers routed through
+      newcham's own guard arm (every poly result was unridable), so
+      trap.c's new arm stands by inspection against that sibling.
 - [ ] deltrap_with_ammo() unconditional reset_utrap(TRUE) (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM
       regression). trap.c: it defeats delfloortrap()'s TT_BURIEDBALL
