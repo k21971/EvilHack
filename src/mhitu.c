@@ -667,7 +667,7 @@ mattacku(struct monst *mtmp)
      *     attacks and would miss the same wrong spot each time.)
      */
     boolean ranged, range2, foundyou, firstfoundyou, youseeit,
-            skipnonmagc = FALSE;
+            was_unfindable, skipnonmagc = FALSE;
 
     calc_mattacku_vars(mtmp, &ranged, &range2, &foundyou, &youseeit);
 
@@ -957,6 +957,13 @@ mattacku(struct monst *mtmp)
 
     gs.skipdrin = FALSE; /* [see mattackm(mhitm.c)] */
     firstfoundyou = foundyou;
+    /* the set of hero states wildmiss() can explain; tracked so a
+       mid-chain transition out of all of them (burnt-away cloak of
+       invisibility, lost displacement) refreshes the monster's guess
+       instead of leaving mux/muy stale and wildmiss() unexplained */
+    was_unfindable = (!mtmp->mcansee
+                      || (Invis && !mon_prop(mtmp, SEE_INVIS))
+                      || Displaced || Underwater);
 
     for (i = 0; i < NATTK; i++) {
         sum[i] = M_ATTK_MISS;
@@ -964,10 +971,23 @@ mattacku(struct monst *mtmp)
         if (DEADMONSTER(mtmp))
             return 1;
         if (i > 0) {
+            boolean now_unfindable = (!mtmp->mcansee
+                                      || (Invis
+                                          && !mon_prop(mtmp, SEE_INVIS))
+                                      || Displaced || Underwater);
+
+            /* a counter-effect of attack [i-1] can end the state that
+               was hiding the hero; refresh the guess only on that
+               transition so a hero who stays hidden throughout the
+               chain is not re-rolled every attack */
+            if (was_unfindable && !now_unfindable)
+                set_apparxy(mtmp);
+            was_unfindable = now_unfindable;
             /* recalc in case prior attack moved hero; mtmp doesn't make
-               another attempt to guess your location but might have
-               accidentally knocked you to where it thought you were
-               [not sure whether that's actually possible] */
+               another attempt to guess your location while you stay
+               hidden but might have accidentally knocked you to where
+               it thought you were [not sure whether that's actually
+               possible] */
             calc_mattacku_vars(mtmp, &ranged, &range2, &foundyou, &youseeit);
             /* if hero was found but isn't anymore, avoid wildmiss now */
             if (firstfoundyou && !foundyou)
