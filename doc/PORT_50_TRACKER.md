@@ -17,34 +17,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
   except roles-side follow-ups logged in its section
-- Last fix: 2026-07-30 EVENING, BUG-1404 + BUG-1405 + BUG-1406
-  (ade89646c / cef59e66a / 380d42ced; battery 4/4 PASS - three
-  staged mon-vs-mon rounds through the changed miss/deflect arms
-  with every kill announced exactly once, all three web-unseat
-  paths exercised live with rider and steed gdb-verified alive,
-  separate and on-map, scroll-of-taming dismount-and-tame with the
-  steed left peaceful, three poly-trap unseats with the steed alive
-  and unridden each time, paniclog clean throughout) - the
-  pipeline's first MEDIUM slice (mhitm/steed-guard, review items
-  13+14+15). BUG-1404: mattackm()'s two miss arms clobbered
-  M_ATTK_AGR_DIED when missmm() killed both parties, running
-  passivemm() against a dead attacker - now defender first with =,
-  attacker accumulated with |=, the four sibling sites' shape.
-  BUG-1405: the branch-only pre-hit armor-break blocks left
-  strike = 1 when the break killed the defender, landing on-hit
-  passives for a blow that never happened - strike zeroed in both.
-  BUG-1406: six continuations after separate_steed_and_rider()
-  kept using a rider that rloc_to's destination mintrap can kill
-  or migrate (guaranteed mtrapped on the web path) - guards added
-  at hmon's ball-of-webbing case (already_killed), both
-  mhitm_ad_webs arms (DEF_DIED + done), tamedog (return FALSE),
-  gulpmm (return before the display swap) and trapeffect_poly_trap
-  (Trap_Killed_Mon/Trap_Moved_Mon); the taming/engulf/poly-trap
-  exposures are master-inherited (frozen-unfixed, archived), the
-  web paths branch-side; battery caveat: all three poly-trap
-  triggers routed through newcham's own guard arm, so trap.c's new
-  arm stands by inspection against that sibling. Incremental
-  builds green, zero warnings
+- Last fix: 2026-07-30 NIGHT, BUG-1407 + BUG-1408 (3d94580ad /
+  bd45c47a6; battery 4/4 PASS - gremlin farming dead: first proc
+  stripped 40% fire res and gifted exactly one gremlin with the
+  prop word gdb-verified 0x10000028 -> 0x00000000, then 45 procs
+  zero repeats/zero re-gifts; crowned donor survived 44 procs
+  untouched; lich vs 50% cold res landed real frost 11x where
+  pre-fix substituted physical while 100% still converts; all four
+  trap-prompt A/B legs unchanged; paniclog never created) - the
+  partial-resistance-consumers slice (review items 20+21).
+  BUG-1407: decr_resistance() now clears a spent HAVEPARTIAL (the
+  phantom kept binary macros TRUE at 0% - master-inherited,
+  frozen-unfixed there) and attrcurse()'s six resistance cases
+  compare how_resistant() before/after so only a real drop
+  messages and returns the property - closing the branch-side
+  mon_give_prop() farming loop AND the crowned-donor no-op vector
+  found at fix time (FROMOUTSIDE pinned at 100 yet still
+  returning ret). BUG-1408: the lich AT_TUCH cold->physical
+  conversion and immune_to_trap()'s sleep/fire hero arms now key
+  on how_resistant(X) == 100 per the partial-resistance rulings;
+  premise correction recorded on the row - the trap arms were
+  INERT (sole consumer only skips prompts for CLEARLY_IMMUNE),
+  the lich arm was the live half (95% hero took ~10x intended
+  damage). Incremental builds green, zero warnings
 - Previous fix: 2026-07-30 BUG-1400 (67547eee2) + BUG-1401
   (a09223367) (battery 8/8 PASS - weapon/gloves destruction, full
   refusal ladder incl.
@@ -6562,7 +6557,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       trap-ammo sanity walk. Validate against the ammo otyp
       (fallback objects[].oc_material) or drop ADAMANTINE from the
       crafted list.
-- [ ] attrcurse() contract + gremlin farming (NEW, minted 2026-07-30
+- [x] attrcurse() contract + gremlin farming (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM regression). sit.c + the
       uhitm.c mon_give_prop consumer: the six converted resistance
       cases return the property even when nothing was stripped, and
@@ -6572,15 +6567,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       for the return; consider clearing HAVEPARTIAL at 0 in
       decr_resistance so the binary macros stop reporting the
       phantom. BATCH: one partial-resistance-consumers slice with
-      the next row.
-- [ ] Decision layers read binary macros under partial resistance
+      the next row. LANDED SAME DAY as BUG-1407 (commit 3d94580ad;
+      battery: first proc stripped 40%% fire res and gifted exactly
+      one gremlin, word gdb-verified 0x10000028 -> 0x00000000 with
+      the marker gone; 45 later procs zero repeats/zero re-gifts;
+      100->30 decrement kept the marker; paniclog absent): both
+      suggested halves implemented. EXTRA VECTOR closed, found at
+      fix time: a crowned hero (FROMOUTSIDE pinned at 100, mask
+      preserves it) was an infinite free donor - the no-op strip
+      still returned the property; the before/after compare closes
+      it (44-proc donor leg, word intact, nothing gifted).
+      Classification split: decr + gates master-inherited
+      (frozen-unfixed); the mon_give_prop farming consumer is
+      upstream-5.0/branch-side (master discards attrcurse's
+      return).
+- [x] Decision layers read binary macros under partial resistance
       (NEW, minted 2026-07-30 by the 2026-07-29 review; MEDIUM
       regression). immune_to_trap()'s Sleep/Fire arms (trap.c) and
       getmattk()'s cold arm (mhitu.c) classify 5% resistance as
       immunity (suppressed trap confirmations; a lich's AT_TUCH
       converted to AD_PHYS, which can be MORE damage). Intended form
       per the partial-resistance rulings: how_resistant(X) == 100.
-      BATCH: rides with the attrcurse row above.
+      BATCH: rides with the attrcurse row above. LANDED SAME DAY as
+      BUG-1408 (commit bd45c47a6; battery: lich vs 50%% cold res
+      landed real frost 11x where pre-fix substituted physical, vs
+      100%% still converted - 9 touches zero frost; all four
+      trap-prompt A/B legs unchanged; paniclog absent): all three
+      sites converted to the ruled how_resistant form. PREMISE
+      CORRECTION recorded: the "suppressed trap confirmations"
+      claim was WRONG - immune_to_trap()'s only consumer (hack.c
+      ParanoidTrap prompt) skips asking solely for
+      TRAP_CLEARLY_IMMUNE, so the trap-arm half was INERT; fixed
+      per the ruling anyway (enum semantics, /* revisit */ extern,
+      future consumers). The lich cold arm was the live half
+      (upstream-5.0 code absent from master; a 95%% hero took ~10x
+      the intended damage). Both halves branch-only.
 - [ ] Migrated ridden steed arrives at <0,0> (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM; master-inherited, 5.0's
       per-turn sanity makes it loud). dog.c mon_arrive: the
