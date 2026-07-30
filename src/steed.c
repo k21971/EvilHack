@@ -234,7 +234,8 @@ separate_steed_and_rider(struct monst *rider)
         boolean rider_moved;
 
         /* move rider to an adjacent tile */
-        if (enexto(&cc, rider->mx, rider->my, rider->data)) {
+        if (enexto_core_mon(&cc, rider->mx, rider->my, rider,
+                            NO_MM_FLAGS)) {
             rloc_to(rider, cc.x, cc.y);
             rider_moved = TRUE;
         } else {
@@ -243,7 +244,8 @@ separate_steed_and_rider(struct monst *rider)
         }
         if (rider_moved) {
             place_monster(steed, orig_x, orig_y);
-        } else if (enexto(&cc, orig_x, orig_y, steed->data)) {
+        } else if (enexto_core_mon(&cc, orig_x, orig_y, steed,
+                                   NO_MM_FLAGS)) {
             /* rider stuck at orig; find a different spot for steed */
             place_monster(steed, cc.x, cc.y);
         } else {

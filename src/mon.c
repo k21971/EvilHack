@@ -1063,11 +1063,13 @@ minliquid_core(struct monst *mtmp)
 
     /* [ceiling clingers are handled below] */
     inpool = (is_pool(mtmp->mx, mtmp->my)
-              && (!(is_flyer(mtmp->data) || is_floater(mtmp->data))
+              && (!(is_flyer(mtmp->data) || is_floater(mtmp->data)
+                    || can_levitate(mtmp) || can_fly(mtmp))
                   /* there's no "above the surface" on the plane of water */
                   || Is_waterlevel(&u.uz)));
     inlava = (is_lava(mtmp->mx, mtmp->my)
-              && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
+              && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
+                   || can_levitate(mtmp) || can_fly(mtmp)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
 
@@ -2467,9 +2469,11 @@ mfndpos(
 
     nodiag = NODIAG(mdat - mons);
     wantpool = (mdat->mlet == S_EEL);
-    poolok = ((!Is_waterlevel(&u.uz) && m_in_air(mon))
+    poolok = ((!Is_waterlevel(&u.uz)
+               && (m_in_air(mon) || can_levitate(mon) || can_fly(mon)))
               || (is_swimmer(mdat) && !wantpool));
-    lavaok = (m_in_air(mon) || likes_lava(mdat));
+    lavaok = (m_in_air(mon) || can_levitate(mon) || can_fly(mon)
+              || likes_lava(mdat));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
@@ -7079,7 +7083,8 @@ newcham(
 
                 if (!m_at(mtmp->mx, mtmp->my) && isok(mtmp->mx, mtmp->my))
                     place_monster(mtmp, mtmp->mx, mtmp->my);
-                else if (enexto(&cc, mtmp->mx, mtmp->my, mtmp->data))
+                else if (enexto_core_mon(&cc, mtmp->mx, mtmp->my, mtmp,
+                                         NO_MM_FLAGS))
                     place_monster(mtmp, cc.x, cc.y);
                 else
                     (void) rloc(mtmp, RLOC_ERR | RLOC_NOMSG);

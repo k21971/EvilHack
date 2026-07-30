@@ -3423,6 +3423,8 @@ extern boolean enexto_gpflags(coord *, coordxy, coordxy, struct permonst *,
                            mmflags_nht) NONNULLARG1;
 extern boolean enexto_core(coord *, coordxy, coordxy, struct permonst *,
                            mmflags_nht) NONNULLARG1;
+extern boolean enexto_core_mon(coord *, coordxy, coordxy, struct monst *,
+                               mmflags_nht) NONNULLARG1;
 extern void teleds(coordxy, coordxy, int);
 extern int collect_coords(coord *, coordxy, coordxy, int, unsigned,
                           boolean (*)(coordxy, coordxy)) NONNULLARG1;

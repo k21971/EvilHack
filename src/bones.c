@@ -535,7 +535,7 @@ remove_mon_from_bones(struct monst *mtmp)
         /* anchor on the rider, not the hero; act on the return value
            so we don't silently place the steed on the fallback square
            (which would be the hero's tile when anchored on u.ux,u.uy) */
-        if (enexto(&cc, mtmp->mx, mtmp->my, msteed->data)
+        if (enexto_core_mon(&cc, mtmp->mx, mtmp->my, msteed, NO_MM_FLAGS)
             && !m_at(cc.x, cc.y))
             place_monster(msteed, cc.x, cc.y);
         else

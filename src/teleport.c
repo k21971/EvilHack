@@ -7,6 +7,8 @@
 #define NEW_ENEXTO
 
 staticfn boolean goodpos_onscary(coordxy, coordxy, struct permonst *);
+staticfn boolean enexto_core_full(coord *, coordxy, coordxy, struct monst *,
+                                  mmflags_nht);
 staticfn boolean tele_jump_ok(coordxy, coordxy, coordxy, coordxy);
 staticfn boolean teleok(coordxy, coordxy, boolean);
 staticfn void vault_tele(void);
@@ -144,7 +146,8 @@ goodpos(
                 return (is_swimmer(mdat)
                         || (!Is_waterlevel(&u.uz)
                             && !is_waterwall(x, y)
-                            && m_in_air(mtmp)));
+                            && (m_in_air(mtmp) || can_levitate(mtmp)
+                                || can_fly(mtmp))));
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater) {
             return FALSE;
         } else if (is_lava(x, y) && !ignorelava) {
@@ -158,7 +161,8 @@ goodpos(
                             && uarmf->oerodeproof)
                         || (Upolyd && likes_lava(gy.youmonst.data)));
             else
-                return (m_in_air(mtmp) || likes_lava(mdat));
+                return (m_in_air(mtmp) || can_levitate(mtmp)
+                        || can_fly(mtmp) || likes_lava(mdat));
         }
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
@@ -213,8 +217,6 @@ enexto_gpflags(
             || enexto_core(cc, xx, yy, mdat, entflags));
 }
 
-#ifdef NEW_ENEXTO
-
 boolean
 enexto_core(
     coord *cc, /* output; <cc.x,cc.y> as close as feasible to <xx,yy> */
@@ -223,13 +225,7 @@ enexto_core(
                              * lava or boulder spots will be considered */
     mmflags_nht entflags)   /* flags for goodpos() */
 {
-    coord candy[ROWNO * (COLNO - 1)]; /* enough room for every location */
-    int i, nearcandyct, allcandyct;
     struct monst fakemon; /* dummy monster */
-    boolean allow_xx_yy = (boolean) ((entflags & GP_ALLOW_XY) != 0);
-    /* note: GP_ALLOW_XY isn't used by goodpos(); old enext_core() used to
-       mask it off to hide it from goodpos but that isn't required and we
-       want to keep it in case the debugpline4() gets called */
 
     if (!mdat) {
         debugpline0("enexto() called with null mdat");
@@ -238,6 +234,43 @@ enexto_core(
     }
     fakemon = cg.zeromonst;
     set_mon_data(&fakemon, mdat); /* set up for goodpos() */
+    return enexto_core_full(cc, xx, yy, &fakemon, entflags);
+}
+
+/* variant of enexto_core() for a live monster: goodpos() sees the real
+   mtmp, so gear-granted levitation and flight (mextrinsics) and the
+   real onscary() test apply; a NULL mtmp falls back to the fakemon
+   path */
+boolean
+enexto_core_mon(
+    coord *cc,
+    coordxy xx, coordxy yy,
+    struct monst *mtmp,
+    mmflags_nht entflags)
+{
+    if (!mtmp)
+        return enexto_gpflags(cc, xx, yy, (struct permonst *) 0, entflags);
+    return (enexto_core_full(cc, xx, yy, mtmp, GP_CHECKSCARY | entflags)
+            || enexto_core_full(cc, xx, yy, mtmp, entflags));
+}
+
+#ifdef NEW_ENEXTO
+
+staticfn boolean
+enexto_core_full(
+    coord *cc, /* output; <cc.x,cc.y> as close as feasible to <xx,yy> */
+    coordxy xx, coordxy yy, /* input coordinates */
+    struct monst *mtmp,     /* monster being placed; its capabilities
+                             * affect whether water or lava or boulder
+                             * spots will be considered */
+    mmflags_nht entflags)   /* flags for goodpos() */
+{
+    coord candy[ROWNO * (COLNO - 1)]; /* enough room for every location */
+    int i, nearcandyct, allcandyct;
+    boolean allow_xx_yy = (boolean) ((entflags & GP_ALLOW_XY) != 0);
+    /* note: GP_ALLOW_XY isn't used by goodpos(); old enext_core() used to
+       mask it off to hide it from goodpos but that isn't required and we
+       want to keep it in case the debugpline4() gets called */
 
     /* gather candidate coordinates within 3 steps, those 1 step away in
        random order first, then those 2 steps away in random order, then 3;
@@ -246,7 +279,7 @@ enexto_core(
                                  (boolean (*)(coordxy, coordxy)) 0);
     for (i = 0; i < nearcandyct; ++i) {
         *cc = candy[i];
-        if (goodpos(cc->x, cc->y, &fakemon, entflags))
+        if (goodpos(cc->x, cc->y, mtmp, entflags))
             return TRUE;
     }
 
@@ -259,46 +292,38 @@ enexto_core(
        they will occur in different random order but same overall total */
     for (i = nearcandyct; i < allcandyct; ++i) {
         *cc = candy[i];
-        if (goodpos(cc->x, cc->y, &fakemon, entflags))
+        if (goodpos(cc->x, cc->y, mtmp, entflags))
             return TRUE;
     }
 
     /* still didn't find a spot; maybe try <xx,yy> itself */
     cc->x = xx, cc->y = yy; /* final value for 'cc' in case we return False */
-    if (allow_xx_yy && goodpos(cc->x, cc->y, &fakemon, entflags))
+    if (allow_xx_yy && goodpos(cc->x, cc->y, mtmp, entflags))
         return TRUE;
 
     /* failed to find any acceptable spot */
     debugpline4("enexto(\"%s\",%d,%d,0x%08lx) failed",
-                mdat->pmnames[NEUTRAL], (int) xx, (int) yy,
+                mtmp->data->pmnames[NEUTRAL], (int) xx, (int) yy,
                 (unsigned long) entflags);
     return FALSE;
 }
 
 #else   /* !NEW_ENEXTO */
 
-boolean
-enexto_core(
+staticfn boolean
+enexto_core_full(
     coord *cc,
     coordxy xx, coordxy yy,
-    struct permonst *mdat,
+    struct monst *mtmp,
     mmflags_nht entflags)
 {
 #define MAX_GOOD 15
     coord good[MAX_GOOD], *good_ptr;
     coordxy x, y, range, i;
     coordxy xmin, xmax, ymin, ymax, rangemax;
-    struct monst fakemon; /* dummy monster */
     boolean allow_xx_yy = (boolean) ((entflags & GP_ALLOW_XY) != 0);
 
     entflags &= ~GP_ALLOW_XY;
-    if (!mdat) {
-        debugpline0("enexto() called with null mdat");
-        /* default to player's original monster type */
-        mdat = &mons[u.umonster];
-    }
-    fakemon = cg.zeromonst;
-    set_mon_data(&fakemon, mdat); /* set up for goodpos */
 
     /* used to use 'if (range > ROWNO && range > COLNO) return FALSE' below,
        so effectively 'max(ROWNO, COLNO)' which performs useless iterations
@@ -320,14 +345,14 @@ enexto_core(
         ymax = min(ROWNO - 1, yy + range);
 
         for (x = xmin; x <= xmax; x++) {
-            if (goodpos(x, ymin, &fakemon, entflags)) {
+            if (goodpos(x, ymin, mtmp, entflags)) {
                 good_ptr->x = x;
                 good_ptr->y = ymin;
                 /* beware of accessing beyond segment boundaries.. */
                 if (good_ptr++ == &good[MAX_GOOD - 1])
                     goto full;
             }
-            if (goodpos(x, ymax, &fakemon, entflags)) {
+            if (goodpos(x, ymax, mtmp, entflags)) {
                 good_ptr->x = x;
                 good_ptr->y = ymax;
                 if (good_ptr++ == &good[MAX_GOOD - 1])
@@ -336,13 +361,13 @@ enexto_core(
         }
         /* 3.6.3: this used to use 'ymin+1' which left top row unchecked */
         for (y = ymin; y < ymax; y++) {
-            if (goodpos(xmin, y, &fakemon, entflags)) {
+            if (goodpos(xmin, y, mtmp, entflags)) {
                 good_ptr->x = xmin;
                 good_ptr->y = y;
                 if (good_ptr++ == &good[MAX_GOOD - 1])
                     goto full;
             }
-            if (goodpos(xmax, y, &fakemon, entflags)) {
+            if (goodpos(xmax, y, mtmp, entflags)) {
                 good_ptr->x = xmax;
                 good_ptr->y = y;
                 if (good_ptr++ == &good[MAX_GOOD - 1])
@@ -357,11 +382,11 @@ enexto_core(
            and left 'cc' uninitialized when returning False */
         cc->x = xx, cc->y = yy;
         /* if every spot other than <xx,yy> has failed, try <xx,yy> itself */
-        if (allow_xx_yy && goodpos(xx, yy, &fakemon, entflags)) {
+        if (allow_xx_yy && goodpos(xx, yy, mtmp, entflags)) {
             return TRUE; /* 'cc' is set */
         } else {
             debugpline3("enexto(\"%s\",%d,%d) failed",
-                        mdat->pmnames[NEUTRAL], (int) xx, (int) yy);
+                        mtmp->data->pmnames[NEUTRAL], (int) xx, (int) yy);
             return FALSE;
         }
     }
