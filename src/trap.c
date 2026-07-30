@@ -262,7 +262,8 @@ erode_obj(
     if (check_grease && otmp->greased) {
         grease_protect(otmp, ostr, victim);
         return ER_GREASED;
-    } else if (!erosion_matters(otmp)) {
+    } else if (!erosion_matters(otmp)
+               || otmp->oartifact == ART_HAND_OF_VECNA) {
         return ER_NOTHING;
     } else if (!vulnerable || (otmp->oerodeproof && otmp->rknown)) {
         if (flags.verbose && print && (uvictim || vismon))
@@ -314,7 +315,17 @@ erode_obj(
             update_inventory();
 
         return ER_DAMAGED;
-    } else if (ef_flags & EF_DESTROY) {
+    } else if ((ef_flags & EF_DESTROY)
+               /* ball and chain are managed by unpunish(), never freed
+                  here; unique and quest objects resist destruction */
+               && otmp != uball && otmp != uchain
+               && !obj_resists(otmp, 5, 95)) {
+        if (otmp->otyp == IRON_SAFE && rn2(20)) {
+            /* too massive to fall apart from one more soaking */
+            if (uvictim || vismon || visobj)
+                pline("%s is still completely rusted.", Yname2(otmp));
+            return ER_DAMAGED;
+        }
         otmp->in_use = 1; /* in case of hangup during message w/ --More-- */
         if (uvictim || vismon || visobj) {
             char actbuf[BUFSZ];
@@ -332,15 +343,37 @@ erode_obj(
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
+        if (Is_box(otmp) && Has_contents(otmp)) {
+            /* delobj() would free the contents along with the box;
+               spill them where the box was instead */
+            struct obj *otmp2, *ncobj;
+            coordxy ox, oy;
+
+            if (!get_obj_location(otmp, &ox, &oy,
+                                  CONTAINED_TOO | BURIED_TOO))
+                ox = u.ux, oy = u.uy;
+            if (uvictim || vismon || visobj)
+                pline("Its contents fall out.");
+            for (otmp2 = otmp->cobj; otmp2; otmp2 = ncobj) {
+                ncobj = otmp2->nobj;
+                obj_extract_self(otmp2);
+                if (!flooreffects(otmp2, ox, oy, ""))
+                    place_object(otmp2, ox, oy);
+            }
+            newsym(ox, oy);
+        }
+
         if (otmp->owornmask) {
             /* unwear otmp before deleting it */
             if (carried(otmp)) {
-                /* otmp remains in hero's invent; if we get here because
-                   it is being burned up by lava, we don't need to worry
-                   about unwearing levitation boots and having that
-                   trigger float_down to then fall in again; if such
-                   were being worn, they wouldn't be in the lava now */
+                /* Boots_off() can recurse into spoteffects() ->
+                   lava_effects()/pooleffects() and back into erosion
+                   on the object being destroyed here; the
+                   in_lava_effects gates in Boots_off() short-circuit
+                   that recursion */
+                iflags.in_lava_effects++;
                 remove_worn_item(otmp, TRUE); /* calls Cloak_off(),&c */
+                iflags.in_lava_effects--;
             } else if (mcarried(otmp)) {
                 /* results in otmp->where==OBJ_FREE; delobj() doesn't care */
                 extract_from_minvent(otmp->ocarry, otmp, TRUE, FALSE);
