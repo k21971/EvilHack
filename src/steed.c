@@ -48,9 +48,12 @@ update_monsteed(struct monst *mtmp)
     if (steed->mstate & (MON_MIGRATING | MON_LIMBO))
         return;
     /* if the steed has the hero grabbed and its rider is carrying it
-       out of reach, release the grab */
+       out of reach, release the grab; skip the test while the rider is
+       off the map (a water bubble picking the pair up zeroes the
+       rider's coordinates first) - rloc_to_core re-checks adjacency
+       once the rider is placed again */
     if (steed == u.ustuck && !u.uswallow && !sticks(gy.youmonst.data)
-        && !m_next2u(mtmp)) {
+        && isok(mtmp->mx, mtmp->my) && !m_next2u(mtmp)) {
         unstuck(steed);
         You("get released!");
     }
