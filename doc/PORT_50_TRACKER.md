@@ -17,7 +17,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Last fix: 2026-07-31 LATER, the ITEMS 8-12 BATCH - six commits
+- Last fix: 2026-07-31 NIGHT, the REGRESSIONS BATCH - five commits
+  closing review items 16/17/18/19/22; battery 5/5 legs PASS in one
+  neutral human Valkyrie game, paniclog never existed: BUG-1422
+  a2542f9ed (deltrap_with_ammo TT_BURIEDBALL carve-out), BUG-1423
+  db9c25f88 (sink_into_lava exclusive HP pools), BUG-1424 a9f87676b
+  (rehumanize + slimed_to_death See_underwater redraw - the
+  reviewer sweep found the second door), BUG-1425 978752639
+  (set_trap deploy-side material validation - the row's
+  drop-ADAMANTINE option would have broken legitimate adamantine
+  dwarvish-spear kits), BUG-1426 ef21f70ac (mon_arrive ridden-steed
+  coord sync + update_monsteed transit guard - the reviewer caught
+  a relmon panic in the first-draft failed-arrival routing; final
+  shape keeps the rider/steed pair on one monster list, which
+  save/restore relinking requires; rider-death arm = the BUG-1259
+  orphan signature, noted as a possible producer). Items 16/17/18
+  RECLASSIFIED master-inherited (identical code, frozen-unfixed).
+  Rows minted: wrong-pool-under-Upolyd family (muse.c PW-kill +
+  lava_effects boil-away); upstream-reportable rows for
+  sink_into_lava's wrong-pool form and cnv_trap_obj's buried-ball
+  defeat
+- Previous fix: 2026-07-31 LATER, the ITEMS 8-12 BATCH - six commits
   closing the five remaining MEDIUM port-gap review rows; battery
   7/7 legs PASS in one lawful dwarven Valkyrie game, paniclog
   never created: BUG-1416 a3f673272 (searches_for_item rare-bag
@@ -44,32 +64,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   all-piercing form, and hand-thrown ammo skipping poison/taint
   entirely (a 5.0 refactor regression, also upstream-reportable);
   plus the pet rare-bag LOW row
-- Previous fix: 2026-07-31, the PORT-GAP BATCH - seven commits closing
-  three review rows (items 4/5/6) in one slice; battery 8/8 core
-  legs PASS in one Barbarian XL30 game, paniclog never created:
-  BUG-1409 67ae1c655 (hitval+dmgval cursed-vs-celestial arms;
-  hitval was a sibling-sweep find), BUG-1410 1f77678b1 (erode_obj
-  destroy-arm guards, landed FIRST as the prerequisite), BUG-1411
-  8c598b845 (mattacku cover-break refresh - BUG-821's fix lives in
-  shared code and never traveled; archive-sweep find; pyrolisk
-  cloak-burn repro'd twice clean), BUG-1412 f4d3a8ddc (sit.c
-  reintroduced BUG-329 boots typo), BUG-1413 0b6fb92b7
-  (enexto_core_mon mechanism + the goodpos/minliquid_core/mfndpos
-  can_levitate/can_fly companions the row missed + four steed
-  sites; whistle repro: levitating pet ON water and ALIVE),
-  BUG-1414 e67f51153 (19 EF_DESTROY flag sites + !Underwater gates
-  + four caller-guard groups, closing a LIVE AD_DISN/dragon-scale
-  UAF present since BUG-1400), BUG-1415 59177863e (18-site
-  enexto master-parity sweep per BUG-560's audit). Re-verify-first
-  paid again: two new findings and three scope corrections came
-  from verification, none from the review text. Six rows minted:
-  D1-D4 erosion deferrals (AD_LOUD subsystem, ERODE_FRACTURE
-  decision, ERODE_DETERIORATE, erosion_matters width),
-  bare-enexto residue audit, and the can_levitate consumer sweep -
-  upgraded to MEDIUM after the battery's stretch leg killed a
-  levitating steed on dismount through the documented
-  grounded(mdat) gap (live repro on the row)
 - Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-31 BUG-1409..1415 (port-gap batch, items 4/5/6, seven
+  commits; battery 8/8 core legs PASS one Barbarian XL30 game; six
+  rows minted incl. the D1-D4 erosion deferrals and the
+  can_levitate consumer sweep upgraded to MEDIUM on a live repro);
   2026-07-30 NIGHT BUG-1407 3d94580ad + BUG-1408 bd45c47a6
   (partial-resistance consumers slice, items 20+21; battery 4/4
   PASS - gremlin farming dead, crowned donor intact, lich arm was
@@ -6748,17 +6747,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Battery caveat: all three poly-trap triggers routed through
       newcham's own guard arm (every poly result was unridable), so
       trap.c's new arm stands by inspection against that sibling.
-- [ ] deltrap_with_ammo() unconditional reset_utrap(TRUE) (NEW,
+- [x] deltrap_with_ammo() unconditional reset_utrap(TRUE) (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM
       regression). trap.c: it defeats delfloortrap()'s TT_BURIEDBALL
       carve-out - a Punished hero is silently freed from a buried
       iron ball when the trap square floods or is dug away. Guard on
       utraptype != TT_BURIEDBALL or pass the disposition through.
-- [ ] sink_into_lava() thirds BOTH HP pools for a polymorphed hero
+      LANDED 2026-07-31 as BUG-1422 (commit a2542f9ed; battery:
+      staged tether survived trap deletion, beartrap control still
+      reset; trigger lore - own-square #untrap refuses while
+      trapped, "room floor" terrain wish is the direct path).
+      RECLASSIFIED master-inherited: master's deltrap_with_ammo has
+      the identical unconditional reset (frozen-unfixed, archived);
+      upstream has no deltrap_with_ammo but its cnv_trap_obj carries
+      the same defeat - upstream-reportable row added.
+- [x] sink_into_lava() thirds BOTH HP pools for a polymorphed hero
       (NEW, minted 2026-07-30 by the 2026-07-29 review; MEDIUM
       regression). trap.c: make the u.uhp / u.mh reduction
       exclusive, like potionbreathe's sickness arm.
-- [ ] rehumanize() missing the See_underwater transition redraw
+      LANDED 2026-07-31 as BUG-1423 (commit db9c25f88; battery:
+      polymorphed giant at 40%% fire res, u.mh 33->11->4->0 across
+      three sinking turns with u.uhp pinned at 228; staging lore -
+      the TT_LAVA tether is only reachable at 100%% fire res, grant
+      then drop). RECLASSIFIED master-inherited (identical hunk,
+      frozen-unfixed); upstream reduces only u.uhp = the wrong pool
+      when poly'd - upstream-reportable row added. Two wrong-pool
+      SIBLINGS surfaced (reviewer + battery), minted as the
+      wrong-pool-under-Upolyd row below.
+- [x] rehumanize() missing the See_underwater transition redraw
       (NEW, minted 2026-07-30 by the 2026-07-29 review; MEDIUM
       regression). polyself.c: a polyform swimmer whose form expires
       while submerged keeps the full map + stale glyphs painted
@@ -6766,7 +6782,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       old_uwvis compare; rehumanize() is the one uninstrumented
       form-change door. (The reverse direction needs nothing -
       allmain's arm-2 docrt covers it.)
-- [ ] set_trap() can install an invalid ammo material (NEW, minted
+      LANDED 2026-07-31 as BUG-1424 (commit a9f87676b; battery:
+      submerged eel form, forced expiry, painted map collapsed to
+      the hero glyph the moment the rehumanize message flushed;
+      surfacing repainted). SCOPE WIDENED by the reviewer sweep:
+      slimed_to_death()'s direct polymon (timeout.c) was a second
+      live door, fixed same commit by inspection; all other direct
+      polymon callers cannot flip See_underwater. "One
+      uninstrumented door" premise corrected to two. RECLASSIFIED
+      master-inherited (rehumanize identically bare there).
+- [x] set_trap() can install an invalid ammo material (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM regression).
       apply.c: crafted_ammo_trap_materials[] includes ADAMANTINE but
       the ammo otyps fall to metal_materials[] without it; wish
@@ -6775,6 +6800,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       trap-ammo sanity walk. Validate against the ammo otyp
       (fallback objects[].oc_material) or drop ADAMANTINE from the
       crafted list.
+      LANDED 2026-07-31 as BUG-1425 (commit 978752639; battery:
+      wished adamantine arrow trap deployed IRON arrows with no
+      impossible; crafted adamantine dwarvish-spear kit round-
+      tripped keeping ADAMANTINE). PREMISE REFINED: the array lives
+      in mkobj.c, and the drop-ADAMANTINE option would have broken
+      the legitimate adamantine dwarvish-spear kit (dwarvish lists
+      roll {2, ADAMANTINE}); the deploy-side validation was the
+      only correct arm. Branch-only (the kit transmutation flow is
+      the OBJ_INTRAP port).
 - [x] attrcurse() contract + gremlin farming (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM regression). sit.c + the
       uhitm.c mon_give_prop consumer: the six converted resistance
@@ -6820,7 +6854,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       future consumers). The lich cold arm was the live half
       (upstream-5.0 code absent from master; a 95%% hero took ~10x
       the intended damage). Both halves branch-only.
-- [ ] Migrated ridden steed arrives at <0,0> (NEW, minted 2026-07-30
+- [x] Migrated ridden steed arrives at <0,0> (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM; master-inherited, 5.0's
       per-turn sanity makes it loud). dog.c mon_arrive: the
       ridden_by early-return runs before coordinates are restored,
@@ -6829,6 +6863,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       turn the steed is place_monster'd into level.monsters[0][0],
       the vault-guard parking slot. Fix: update_monsteed on the
       rider's arrival or set steed coords in the early-return.
+      LANDED 2026-07-31 as BUG-1426 (commit ef21f70ac; battery:
+      genesis'd mounted drow cleric fell through a trapdoor
+      barrier, arrival steed coords exactly equaled the rider's,
+      monsters[0][0] NULL, per-turn sync tracked three rider moves,
+      rider #wizkill placed the steed normally; paniclog never
+      existed). FIX SHAPE HARDENED by the reviewer: the first-draft
+      failed-arrival routing (steed -> failed_arrivals) would have
+      double-migrated via the rider's limbo steed recursion =
+      relmon panic, and a cross-list rider/steed pair cannot
+      survive restmonsteeds' fmon-only relink - final shape leaves
+      an unplaced rider's steed on fmon for the recursion to carry
+      (pair always one list), plus a defense-in-depth
+      migrating/limbo guard in update_monsteed. Rider-death arm =
+      the BUG-1259 orphan signature; noted on that investigation
+      as a possible Track 2 producer.
+- [ ] Wrong HP pool consulted under polymorph, non-lava sites (NEW,
+      minted 2026-07-31 from the BUG-1423 fix round; MEDIUM;
+      pre-existing, one row for the family). Two confirmed sites
+      read/write the dormant u.uhp while Upolyd: (1) muse.c
+      power-word-kill youdefend branch - the kill-zone gate
+      (u.uhp <= threshold), BOTH damage clamps (dmg = u.uhp - 1,
+      whose losehp then charges u.mh), and the resisted arm's
+      setuhpmax + u.uhp /= 3 (reviewer find); (2) trap.c
+      lava_effects boil-away arm - the u.uhp > 1 gate and the
+      u.uhp / 2 amount feed a losehp that charges u.mh (battery
+      find; the !boil_away flat-1 path behaved). Intended shape
+      per BUG-1423: gate/clamp/reduce on Upolyd ? u.mh : u.uhp,
+      potionbreathe sickness form. Sweep the rest of the u.uhp
+      readers in decision code before fixing - these two came from
+      one review pass, the family is likely wider.
 - [ ] REVIEW-LOW (2026-07-29): #undef EYEWEAR missing at the
       objects.h macro-cleanup block - upstream has it. (This and the
       REVIEW-LOW rows below were minted 2026-07-30 as one batch; fix
@@ -7146,6 +7210,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
 | 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-31 | uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | found on branch (BUG-1421 battery); not yet sent |
+| 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent |
+| 2026-07-31 | trap.c cnv_trap_obj() runs `if (u.utrap && u_at(ttmp->tx, ttmp->ty)) reset_utrap(TRUE);` with no TT_BURIEDBALL carve-out, silently freeing a Punished hero from a buried iron ball when a co-located trap converts to objects; upstream's own delfloortrap() carries the carve-out (the same defeat EvilHack fixed at deltrap_with_ammo(), BUG-1422 - EvilHack has no cnv_trap_obj to fix). Reviewer find, verified in Official_nh50 | found (no branch counterpart); not yet sent |
 
 ## Master re-derive queue
 
