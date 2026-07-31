@@ -4987,15 +4987,23 @@ doicetrap(
         num = rn2(3);
         pline_The("mist flash-freezes around you as your heat is drawn away!");
         if (HCold_resistance && !rn2(3)) {
-            if (HCold_resistance & (FROMEXPER | FROMRACE)) {
+            /* innate resistance (role, race, or the polymorphed form's
+               species) cannot be stripped; overlay a temporary
+               vulnerability instead */
+            if (HCold_resistance & (FROMEXPER | FROMRACE | FROMFORM)) {
                 if (Vulnerable_cold)
                     return;
                 incr_itimeout(&HVulnerable_cold, rnd(75) + 75);
                 You_feel("extremely chilly.");
             } else {
+                int prev = how_resistant(COLD_RES);
+
                 HCold_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
                 decr_resistance(&HCold_resistance, rnd(25) + 25);
-                You_feel("alarmingly cooler.");
+                /* a permanent full-strength source survives the strip
+                   untouched; only claim a loss when one happened */
+                if (how_resistant(COLD_RES) < prev)
+                    You_feel("alarmingly cooler.");
             }
         }
     } else {
