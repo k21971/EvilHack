@@ -7094,11 +7094,87 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       elemental_clog's zm candidate bucket is declared and never
       assigned in master, branch and upstream alike - dead weight,
       fold its removal into whatever fix lands here.
-- [ ] Re-run the review on the partial-intrinsics (b6a2f9576) and
+- [x] Re-run the review on the partial-intrinsics (b6a2f9576) and
       steed/riding clusters with the reviewer agent inheriting the
       session model (NEW, minted 2026-07-30; the original 2026-07-29
       pass reviewed those clusters on Opus via the old frontmatter
-      pin).
+      pin). DONE 2026-07-31 EVENING: two agents, both clusters
+      CONDITIONAL PASS - the fixed/deferred exclusion lists held (no
+      re-reports); 1 HIGH + 4 MEDIUM + 4 LOW NEW findings, every one
+      re-verified in the main context against the actual bodies and
+      minted as the rows below. Core lifecycles reported tight (ERID
+      alloc/free, migration pairing, bones separation, HAVEPARTIAL
+      save/lifecycle, no double-scaling on the resistance graph).
+- [ ] REVIEW-HIGH (2026-07-31): elemental_clog() can pick one half
+      of a mounted pair as its obliterate victim (mon.c victim scan
+      filters neither has_erid nor ridden_by; ok_to_obliterate
+      excludes only the Rider ITSELF, not its horse; Death/Famine/
+      Pestilence always spawn mounted and Astral has no elementals,
+      so a Rider's horse is a prime m3 pick). mongone(horse) ->
+      separation re-places the RIDER on the shared square, then the
+      snapshotted-coords rloc_to() stomps that square: "placing X
+      over Y" impossible + level.monsters overwrite, Rider left as a
+      phantom (per-turn "is not there!", his next move deletes the
+      wrong map entry). MASTER-INHERITED (identical sequence).
+      Fix shape: exclude has_erid/ridden_by candidates in the scan,
+      or re-check MON_AT after mongone and fall back to rloc().
+      LAND TOGETHER with the elemental_clog Astral no-op row below -
+      both touch the victim scan, and excluding pairs makes the
+      no-candidate arms more reachable.
+- [ ] REVIEW-MEDIUM (2026-07-31): domove_swap_with_pet() lost the
+      steed drag (hack.c raw remove_monster+place_monster with no
+      update_monsteed; PORT REGRESSION - master routes the swap
+      through rloc_to whose core calls update_monsteed; the correct
+      branch sibling is dokick.c's "a rider drags its steed along").
+      A charmed mounted Knight (tamedog sets peaceful then bails
+      before separation for humans) swap-displaced then killed
+      places its steed under the hero ("you over monster" sanity).
+      Fix: update_monsteed(mtmp) after the place; same one-liner at
+      the displacer-beast swap sibling for symmetry.
+- [ ] REVIEW-MEDIUM (2026-07-31): slippery_ice_fumbling() binary
+      resists_cold gate makes any 1% partial grant total slip
+      immunity - the graded how_resistant>50 ? 3 : 2 roll ported
+      for partials is dead code for the hero (hack.c; BRANCH-ONLY:
+      master's hero-side resists_cold reads form bits only, so
+      master heroes with eaten resistance still slip). Also mixed
+      actors when mounted (gate reads the steed, graded arm reads
+      the rider). Fix: hero leg gates on how_resistant(COLD_RES)
+      == 100, keeping 1-99 in the graded roll.
+- [ ] REVIEW-MEDIUM (2026-07-31): the lava double-lifesave
+      countermeasure is defeated for 1-99% fire resistance (trap.c
+      burncount==2 arm: `!Fire_resistance` is binary, so a partial
+      hero gets no 5-turn escape grant and re-burns every move;
+      cluster-created window - vanilla's gate was exhaustive).
+      NEEDS A DESIGN RULING before fixing: a naive <100 gate would
+      let set_itimeout() write 5 into a HAVEPARTIAL word and
+      silently rewrite a partial percentage (TIMEOUT bits are
+      dual-purpose); options = grant only when the word is empty,
+      top the partial to 100 via incr_resistance for the wizard/
+      explore corner, or a different escape mechanism.
+- [ ] REVIEW-MEDIUM (2026-07-31): vulnerable_to() hero leg reads
+      binary resistance, so any 1% partial suppresses form
+      vulnerability, and the suppression is acquisition-order
+      dependent (partial held at poly time kills the FROMFORM
+      vulnerability bit via PROPSET; partial gained after keeps it
+      -> identical state differs by 50 resistance points; master is
+      consistent - partials never suppress). FIX CAVEAT: converting
+      the hero leg to how_resistant()==100 recurses (how_resistant
+      -> Vulnerable_* -> vulnerable_to); the override must read the
+      raw pre-vulnerability layers directly.
+- [ ] REVIEW-LOW batch (2026-07-31), fix opportunistically:
+      (a) incr_resistance() folds a live timed full-strength grant
+      (the lava-escape 5-turn HFire_resistance, #wizintrinsic) into
+      a permanent small partial when a resistance corpse is eaten
+      during it - wizmode/explore reach only; (b) doicetrap() else
+      arm's pre-mask deletes a FROMFORM cold resistance instead of
+      routing it to the vulnerability arm, and "alarmingly cooler"
+      prints for a FROMOUTSIDE holder pinned at 100 - MASTER-SHARED
+      verbatim (note: the branch already fixed master's dead
+      num=rn2(3) clobber there); (c) mount_monster()'s covetous/
+      G_GONE rejection path leaks the freshly-created mount to roam
+      the level - master-shared; (d) replmon() transfers no erid
+      cross-links - currently unreachable (sole caller passes fresh
+      MM_NOSTEED monsters), defensive note only.
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
