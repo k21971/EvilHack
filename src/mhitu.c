@@ -1165,6 +1165,7 @@ mattacku(struct monst *mtmp)
                 weap_attk_idx++;
             } else {
                 int hittmp = 0;
+                boolean had_wep = FALSE;
 
                 if (weap_attk_idx == 0) {
                     /* first AT_WEAP: use primary weapon */
@@ -1211,6 +1212,7 @@ mattacku(struct monst *mtmp)
 
                         hittmp = hitval(mon_currwep, &gy.youmonst);
                         tmp += hittmp;
+                        had_wep = TRUE;
                         mswings(mtmp, mon_currwep, bash);
                     }
                     if (tmp > (j = gm.mhitu_dieroll = rnd(20 + i))) {
@@ -1229,8 +1231,11 @@ mattacku(struct monst *mtmp)
                         if (DEADMONSTER(mtmp))
                             return 1; /* attacker dead */
                     }
-                    /* KMH -- Don't accumulate to-hit bonuses */
-                    if (mon_currwep)
+                    /* KMH -- Don't accumulate to-hit bonuses; keyed on
+                       whether a bonus was added rather than on the
+                       cached weapon pointer, which mon_currwep_gone()
+                       nulls when the weapon is destroyed mid-attack */
+                    if (had_wep)
                         tmp -= hittmp;
                 } else {
                     wildmiss(mtmp, mattk);
