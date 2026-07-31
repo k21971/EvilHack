@@ -92,7 +92,11 @@ incr_itimeout(long *which, int incr)
 void
 incr_resistance(long *which, int incr)
 {
-    long oldval = *which & TIMEOUT;
+    /* the TIMEOUT field is dual-purpose: without HAVEPARTIAL it holds
+       the turn count of a timed full-strength grant, not a percentage;
+       folding that count in would turn the live grant into a small
+       permanent partial, so the new partial replaces the grant instead */
+    long oldval = (*which & HAVEPARTIAL) ? (*which & TIMEOUT) : 0L;
 
     if (oldval + incr > 100)
         oldval = 100;
@@ -107,7 +111,11 @@ incr_resistance(long *which, int incr)
 void
 decr_resistance(long *which, int incr)
 {
-    long oldval = *which & TIMEOUT;
+    /* same dual-purpose TIMEOUT field as incr_resistance(): a timed
+       full-strength grant stores turns, and reading them as a
+       percentage could even promote a long grant into a permanent
+       partial; a strip during a grant clears it outright instead */
+    long oldval = (*which & HAVEPARTIAL) ? (*which & TIMEOUT) : 0L;
 
     if (oldval - incr < 0)
         oldval = 0;
