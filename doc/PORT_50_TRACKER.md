@@ -17,54 +17,45 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Last fix: 2026-07-31 NIGHT, the REGRESSIONS BATCH - five commits
-  closing review items 16/17/18/19/22; battery 5/5 legs PASS in one
-  neutral human Valkyrie game, paniclog never existed: BUG-1422
-  a2542f9ed (deltrap_with_ammo TT_BURIEDBALL carve-out), BUG-1423
-  db9c25f88 (sink_into_lava exclusive HP pools), BUG-1424 a9f87676b
-  (rehumanize + slimed_to_death See_underwater redraw - the
-  reviewer sweep found the second door), BUG-1425 978752639
-  (set_trap deploy-side material validation - the row's
-  drop-ADAMANTINE option would have broken legitimate adamantine
-  dwarvish-spear kits), BUG-1426 ef21f70ac (mon_arrive ridden-steed
-  coord sync + update_monsteed transit guard - the reviewer caught
-  a relmon panic in the first-draft failed-arrival routing; final
-  shape keeps the rider/steed pair on one monster list, which
-  save/restore relinking requires; rider-death arm = the BUG-1259
-  orphan signature, noted as a possible producer). Items 16/17/18
-  RECLASSIFIED master-inherited (identical code, frozen-unfixed).
-  Rows minted: wrong-pool-under-Upolyd family (muse.c PW-kill +
-  lava_effects boil-away); upstream-reportable rows for
-  sink_into_lava's wrong-pool form and cnv_trap_obj's buried-ball
-  defeat
-- Previous fix: 2026-07-31 LATER, the ITEMS 8-12 BATCH - six commits
-  closing the five remaining MEDIUM port-gap review rows; battery
-  7/7 legs PASS in one lawful dwarven Valkyrie game, paniclog
-  never created: BUG-1416 a3f673272 (searches_for_item rare-bag
-  exclusion; the widening commit's missed sibling), BUG-1417
-  b80fefbde (S_deadtree lightblocker row - verification showed
-  forest mimics take that disguise 7-in-8, the dominant case),
-  BUG-1418 017682b05 (tip-into-ice-box freeze using the branch's
-  own in_container block + the hornoplenty sibling the sweep
-  found; upstream 5.0 shares the gap), BUG-1419 fd5021875
-  (SUPPRESS_RIDER both halves, flag at 0x100 since 0x40 is
-  AUGMENT_IT; premise correction - the Rider's OWN name leaked,
-  not the steed's; end.c exempt via pmname; the no-stats hedge
-  travels with the unported add_mon_info), BUG-1420 ba73baa4b
-  (ALL potion.c drow-poison arms - quaff was
-  impossible("What a funny potion!") with every drow starting
-  with two - incl. both fungus recipes with BUG-731's guards),
-  BUG-1421 cbb0c86de (taint parity across 9 more files:
-  hero-side hmon_hitmon_taint + mon-vs-mon + mthrowu arms,
-  "tainted" display/wish, cancel/poly/gen carry; retired the
-  mislabeled u_init zombification TODO). Item 7 (door color)
-  needed nothing - both rows already record the Phase 4
-  dependency. The battery yielded two NEW pre-existing findings,
-  minted as rows: is_poisonable's ammo-only width vs master's
-  all-piercing form, and hand-thrown ammo skipping poison/taint
-  entirely (a 5.0 refactor regression, also upstream-reportable);
-  plus the pet rare-bag LOW row
+- Last fix: 2026-07-31 LATE EVENING, the REVIEW-HIGH slice - two
+  commits closing the reviewer re-run's HIGH plus the Astral no-op
+  design row (landed together per the rows - both touch
+  elemental_clog's victim scan, and excluding pairs widens the
+  no-candidate window): BUG-1443 d7bd8421e (ok_to_obliterate now
+  excludes both mounted-pair halves - has_erid/ridden_by; the
+  battery's counterfactual enumeration found 7 pair halves
+  obliterate-eligible pre-fix on one live Astral level with a horse
+  at m_lev=7 as the actual m3 winner, and FIVE mounted pairs
+  present, so ordinary mounted knights hit the path, not just the
+  Riders), BUG-1444 7fc3b5a86 (elemental_clog's Astral
+  no-candidate arm now parks the displaced monster in limbo per
+  session ruling - m_into_limbo, the game's standard no-room
+  fallback, ERID-recursive; dead zm bucket removed). Battery 4/4
+  legs PASS in one Valkyrie XL30 game on real Astral, sanity_check
+  on throughout, paniclog never existed. Both master-inherited
+  frozen-unfixed; the Astral no-op also upstream-shared (the
+  MON_ENDGAME_MIGR report artifact already notes the sibling)
+- Previous fix: 2026-07-31 EVENING, BUG-1442 0f4f2c898 (mon_arrive
+  now clears MON_ENDGAME_MIGR - a monster bumped off a full
+  Elemental Plane arrived permanently frozen; upstream-inherited,
+  report artifact ~/nh50-mon-endgame-migr.patch applies clean to
+  both upstream trees, awaiting send) + the reviewer re-run row
+  closed (two session-model agents over the partial-intrinsics and
+  steed clusters, zero re-reports against the exclusion lists; 1
+  HIGH + 4 MEDIUM + 4 LOW NEW findings re-verified in main context
+  and minted as the REVIEW-* rows; core lifecycles reported tight)
 - Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-31 REVIEW-LOW batch BUG-1427..1441 (17 commits - 15 fixes
+  + cleanup + tracker; battery 9/9 PASS one lawful human Priest
+  game; premise corrections on 7 of 22 rows; the battery caught a
+  real crash in the first dogmove draft - the AT_ANY/AD_ANY
+  lookup-twin lesson in the BUG-1440 entry);
+  2026-07-31 NIGHT BUG-1422..1426 (regressions batch, five commits;
+  battery 5/5 PASS; items 16/17/18 reclassified master-inherited;
+  wrong-pool-under-Upolyd + two upstream-reportable rows minted);
+  2026-07-31 LATER BUG-1416..1421 (items 8-12 batch, six commits;
+  battery 7/7 PASS; SUPPRESS_RIDER + drow-poison + taint parity;
+  two NEW pre-existing poison findings minted as rows);
   2026-07-31 BUG-1409..1415 (port-gap batch, items 4/5/6, seven
   commits; battery 8/8 core legs PASS one Barbarian XL30 game; six
   rows minted incl. the D1-D4 erosion deferrals and the
@@ -7080,9 +7071,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       per-monster assignments in monsters.h, plus master's pager.c
       lookup line. The b6a2f9576 commit message wrongly claims this
       was converted - there was nothing to convert.
-- [ ] elemental_clog() Astral no-candidate arm is a total no-op (NEW,
+- [x] elemental_clog() Astral no-candidate arm is a total no-op (NEW,
       minted 2026-07-31 by the BUG-1442 verification; needs a design
-      ruling; upstream-shared). On Astral with no obliteration
+      ruling; upstream-shared). DONE 2026-07-31 as BUG-1444 (commit
+      7fc3b5a86; ruling: m_into_limbo - the game's standard no-room
+      fallback, sanity-legal, save/restore-safe, ERID-recursive so a
+      mounted displaced rider carries its steed; the zm bucket removed
+      in the same commit; battery: mstate 0xd on migrating_mons, 31
+      sanity-checked turns clean, paniclog never existed; landed
+      together with the REVIEW-HIGH pair-exclusion row below, whose
+      fix widens this arm's no-candidate window). Original finding:
+      On Astral with no obliteration
       candidate neither clog arm runs, but mnearto() has ALREADY
       stripped its displaced monster to <0,0> with MON_OFFMAP - its
       own deal_with_overcrowding comment says the call exists to
@@ -7105,7 +7104,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       minted as the rows below. Core lifecycles reported tight (ERID
       alloc/free, migration pairing, bones separation, HAVEPARTIAL
       save/lifecycle, no double-scaling on the resistance graph).
-- [ ] REVIEW-HIGH (2026-07-31): elemental_clog() can pick one half
+- [x] REVIEW-HIGH (2026-07-31): elemental_clog() can pick one half
       of a mounted pair as its obliterate victim (mon.c victim scan
       filters neither has_erid nor ridden_by; ok_to_obliterate
       excludes only the Rider ITSELF, not its horse; Death/Famine/
@@ -7120,7 +7119,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       or re-check MON_AT after mongone and fall back to rloc().
       LAND TOGETHER with the elemental_clog Astral no-op row below -
       both touch the victim scan, and excluding pairs makes the
-      no-candidate arms more reachable.
+      no-candidate arms more reachable. DONE 2026-07-31 as BUG-1443
+      (commit d7bd8421e; the scan-exclusion shape, in
+      ok_to_obliterate itself so every bucket is covered; battery
+      counterfactual: 7 pair halves obliterate-eligible pre-fix on
+      one live Astral level - FIVE mounted pairs, so ordinary
+      mounted knights hit the path, not just the Riders - with a
+      horse at m_lev=7 as the pre-fix m3 winner; post-fix scan
+      empty, pairs intact and moving as units 31 turns on).
 - [ ] REVIEW-MEDIUM (2026-07-31): domove_swap_with_pet() lost the
       steed drag (hack.c raw remove_monster+place_monster with no
       update_monsteed; PORT REGRESSION - master routes the swap
@@ -7399,7 +7405,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-29 | display.c `see_monsters()` calls `newsym(mon->mx, mon->my)` on every live monster after skipping only DEADMONSTER, PARKEDMONSTER and MON_STILL_ARRIVING - but a monster in transit inside a Plane of Water bubble has `mx = my = 0` and is none of those, and `newsym()` rejects column 0 with `impossible("newsym: attempting screen update for <0,0>")`. Note PARKEDMONSTER is `isgd && mx == 0`, so the loop already special-cases one kind of off-map monster and misses the general case. Backtrace: movebubbles -> mv_bubble -> mnearto -> mon_leaving_level -> unstuck -> docrt -> docrt_flags -> see_monsters -> newsym(0,0). Byte-identical loop in NetHack50 and Official_nh50. Branch fix makes the skip `DEADMONSTER(mon) \|\| !mon->mx`, which strictly subsumes PARKEDMONSTER; `!mon->mx` rather than `mon_offmap()` so the display path does not depend on mstate bookkeeping being correct | fixed on branch; not yet sent |
 | 2026-07-29 | mon.c `mon_sanity_check()` carves the parked vault guard out of its position test - `if (!isok(x, y) && !(mtmp->isgd && x == 0 && y == 0))` - but not out of its final `mon_offmap()` test, so the `MON_PARKED` bit that `parkguard()` (vault.c) legitimately sets while the temporary corridor is torn down trips `impossible("floor mon (%s) with mstate set to 0x%08lx")` once per guard departure. The state is correct and the check is incomplete, which is the inverse of the MON_BUBBLEMOVE bug above. Identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
-| 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | FIXED on branch 2026-07-31 BUG-1442 (mon_arrive clear-mask); report artifact ~/nh50-mon-endgame-migr.patch applies clean to both upstream trees; upstream unreported. Astral no-op family minted as its own checklist row |
+| 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | FIXED on branch 2026-07-31 BUG-1442 (mon_arrive clear-mask); report artifact ~/nh50-mon-endgame-migr.patch applies clean to both upstream trees; upstream unreported. Astral no-op family FIXED on branch 2026-07-31 BUG-1444 (m_into_limbo per session ruling; still live upstream - the artifact's sibling note stands) |
 | 2026-07-31 | sp_lev.c rndtrap() rolls TRAPPED_DOOR/TRAPPED_CHEST out of rnd(TRAPNUM - 1); maketrap() silently rejects both, so roughly seven percent of fill_empty_maze() trap placements evaporate. Upstream's own rndtrap() has the same roll over its 24/25 values. Branch fixed by BUG-1429 (exclusion cases + the restored retry cap); upstream still affected | fixed on branch; upstream unreported |
 | 2026-07-31 | uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | found on branch (BUG-1421 battery); not yet sent |
 | 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent |
