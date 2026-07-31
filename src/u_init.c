@@ -1879,8 +1879,8 @@ ini_inv_adjust_obj(const struct trobj *trop, struct obj *obj)
         obj->cursed = (trop->trbless == CURSED);
         if (obj->opoisoned && u.ualign.type != A_CHAOTIC)
             obj->opoisoned = 0;
-        /* TODO-EVILHACK: clearing obj->otainted here ports with the
-           zombification subsystem */
+        if (obj->otainted)
+            obj->otainted = 0;
         if (obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS) {
             obj->quan = trquan(trop);
             stop = TRUE;

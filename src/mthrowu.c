@@ -661,6 +661,23 @@ ohitmon(
                 }
             }
         }
+        if (otmp->otainted && is_poisonable(otmp)) {
+            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE)) {
+                if (vis)
+                    pline_The("drow poison doesn't seem to affect %s.",
+                              mon_nam(mtmp));
+            } else {
+                if (!rn2(3)) {
+                    damage += rnd(2);
+                } else {
+                    if (sleep_monst(mtmp, rn2(3) + 2, WEAPON_CLASS)) {
+                        if (vis)
+                            pline("%s loses consciousness.", Monnam(mtmp));
+                        slept_monst(mtmp);
+                    }
+                }
+            }
+        }
         if (otmp->otyp == BARBED_NEEDLE) {
             if (resists_poison(mtmp) || defended(mtmp, AD_DRCO)) {
                 if (vis)

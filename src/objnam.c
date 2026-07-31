@@ -24,7 +24,7 @@ struct _readobjnam_data {
     const char *name;
     char *p;
     int cnt, spe, spesgn, typ, very, rechrg;
-    int blessed, uncursed, iscursed, ispoisoned, isgreased;
+    int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
     int eroded, eroded2, erodeproof, locked, unlocked, broken, real, fake;
     int halfeaten, mntmp, contents;
     int islit, unlabeled, ishistoric, isdiluted, trapped;
@@ -766,11 +766,14 @@ xname_flags(
     if (obj_is_pname(obj))
         goto nameit;
 
-    /* poisoned must precede "magical" in buf so that doname_base()
-       can find and strip it from the start */
-    if (obj->oclass == WEAPON_CLASS && is_poisonable(obj)
-        && obj->opoisoned)
-        Strcat(buf, "poisoned ");
+    /* poisoned/tainted must precede "magical" in buf so that
+       doname_base() can find and strip them from the start */
+    if (obj->oclass == WEAPON_CLASS && is_poisonable(obj)) {
+        if (obj->opoisoned)
+            Strcat(buf, "poisoned ");
+        else if (obj->otainted)
+            Strcat(buf, "tainted ");
+    }
 
     /* an unidentified object property or unidentified inherent magic
        is announced as simply "magical" when sensed */
@@ -1428,7 +1431,7 @@ doname_base(
     struct obj *obj,       /* object to format */
     unsigned doname_flags) /* special case requests */
 {
-    boolean ispoisoned = FALSE,
+    boolean ispoisoned = FALSE, istainted = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             for_menu = (doname_flags & DONAME_FOR_MENU) != 0,
@@ -1477,6 +1480,12 @@ doname_base(
     if (!strncmp(bp, "poisoned ", 9) && obj->opoisoned) {
         bp += 9; /* doesn't affect bp_eos or bpspaceleft */
         ispoisoned = TRUE;
+    }
+
+    /* same check for otainted */
+    if (!strncmp(bp, "tainted ", 8) && obj->otainted) {
+        bp += 8; /* doesn't affect bp_eos or bpspaceleft */
+        istainted = TRUE;
     }
 
     /* fruits are allowed to be given artifact names; when that happens,
@@ -1636,6 +1645,8 @@ doname_base(
     case WEAPON_CLASS:
         if (ispoisoned)
             Strcat(prefix, "poisoned ");
+        if (istainted)
+            Strcat(prefix, "tainted ");
         add_erosion_words(obj, prefix);
         if (known) {
             Sprintf(eos(prefix), "%+d ", obj->spe); /* sitoa(obj->spe)+" " */
@@ -2289,6 +2300,8 @@ killer_xname(struct obj *obj)
        not the cause of death and "poisoned by poisoned <obj>" would
        be redundant when it is, so suppress "poisoned" prefix */
     obj->opoisoned = 0;
+    /* same for "killed by tainted <obj>" */
+    obj->otainted = 0;
     /* strip user-supplied name; artifacts keep theirs */
     if (!obj->oartifact && save_oname)
         ONAME(obj) = (char *) 0;
@@ -4469,7 +4482,8 @@ readobjnam_init(char *bp, struct _readobjnam_data *d)
     d->otmp = (struct obj *) 0;
     d->cnt = d->spe = d->spesgn = d->typ = 0;
     d->very = d->rechrg = d->blessed = d->uncursed = d->iscursed
-        = d->ispoisoned = d->isgreased = d->eroded = d->eroded2
+        = d->ispoisoned = d->istainted = d->isgreased = d->eroded
+        = d->eroded2
         = d->erodeproof = d->halfeaten = d->islit = d->unlabeled
         = d->ishistoric = d->isdiluted /* statues, potions */
           /* box/chest and wizard mode door */
@@ -4587,6 +4601,8 @@ readobjnam_preparse(struct _readobjnam_data *d)
             l = (int) ((d->p + 9) - d->bp); /* 9 = strlen("-studded ") */
         } else if (!strncmpi(d->bp, "poisoned ", l = 9)) {
             d->ispoisoned = 1;
+        } else if (!strncmpi(d->bp, "tainted ", l = 8)) {
+            d->istainted = 1;
 
         /* "trapped" recognized but not honored outside wizard mode */
         } else if (!strncmpi(d->bp, "trapped ", l = 8)) {
@@ -6075,6 +6091,11 @@ readobjnam(char *bp, struct obj *no_wish)
         else if (d.oclass == FOOD_CLASS)
             /* try to taint by making it as old as possible */
             d.otmp->age = 1L;
+    }
+    /* set tainted */
+    if (d.istainted) {
+        if (is_poisonable(d.otmp))
+            d.otmp->otainted = (Luck >= 0);
     }
     /* set forge quality */
     if (d.isforged0)

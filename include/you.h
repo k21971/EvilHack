@@ -620,6 +620,10 @@ struct _hitmon_data {
     boolean unpoisonmsg;
     boolean needpoismsg;
     boolean poiskilled;
+    boolean istainted;
+    boolean untaintmsg;
+    boolean needtaintmsg;
+    boolean taintsleep;
     boolean already_killed;
     boolean offmap;
     boolean destroyed;

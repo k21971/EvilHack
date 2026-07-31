@@ -1444,6 +1444,7 @@ cancel_item(struct obj *obj)
                          || obj->oclass == WEAPON_CLASS || is_weptool(obj)))
         || otyp == POT_ACID
         || otyp == POT_SICKNESS
+        || otyp == POT_DROW_POISON
         || (otyp == POT_WATER && (obj->blessed || obj->cursed))
         /* not magic; cancels to blank spellbook */
         || otyp == SPE_NOVEL) {
@@ -1476,11 +1477,13 @@ cancel_item(struct obj *obj)
         case POTION_CLASS:
             costly_alteration(obj, (otyp != POT_WATER) ? COST_CANCEL
                                    : obj->cursed ? COST_UNCURS : COST_UNBLSS);
-            if (otyp == POT_SICKNESS || otyp == POT_SEE_INVISIBLE) {
+            if (otyp == POT_SICKNESS || otyp == POT_SEE_INVISIBLE
+                || otyp == POT_DROW_POISON) {
                 /* sickness is "biologically contaminated" fruit juice;
                    cancel it and it just becomes fruit juice...
                    whereas see invisible tastes like "enchanted" fruit
-                   juice, it similarly cancels */
+                   juice, it similarly cancels; drow poison is fruit
+                   juice fermented with a black fungus */
                 obj->otyp = POT_FRUIT_JUICE;
             } else {
                 obj->otyp = POT_WATER;
@@ -1959,6 +1962,8 @@ poly_obj(struct obj *obj, int id)
         otmp->otrapped = 1;
     if (obj->opoisoned && is_poisonable(otmp))
         otmp->opoisoned = 1;
+    if (obj->otainted && is_poisonable(otmp))
+        otmp->otainted = 1;
 
     if (id == STRANGE_OBJECT && obj->otyp == CORPSE) {
         /* turn crocodile corpses into shoes */

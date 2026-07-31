@@ -43,6 +43,8 @@ staticfn void hmon_hitmon_do_hit(struct _hitmon_data *, struct monst *,
 staticfn void hmon_hitmon_dmg_recalc(struct _hitmon_data *, struct obj *);
 staticfn void hmon_hitmon_poison(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
+staticfn void hmon_hitmon_taint(struct _hitmon_data *, struct monst *,
+                             struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_jousting(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_stagger(struct _hitmon_data *, struct monst *,
@@ -1194,6 +1196,8 @@ hmon_hitmon_weapon_melee(
         }
         if (obj->opoisoned && is_poisonable(obj))
             hmd->ispoisoned = TRUE;
+        if (obj->otainted && is_poisonable(obj))
+            hmd->istainted = TRUE;
     }
     /* permapoisoned is non-ammo/missile, limit the poison */
     if (permapoisoned(obj) && hmd->dieroll <= 5)
@@ -1748,6 +1752,41 @@ hmon_hitmon_poison(
 }
 
 staticfn void
+hmon_hitmon_taint(
+    struct _hitmon_data *hmd,
+    struct monst *mon,
+    struct obj *obj)    /* obj is not NULL */
+{
+    int notaint = ((is_drow_weapon(obj) ? 20 : 5) - (obj->owt / 10));
+
+    if (notaint < 2)
+        notaint = 2;
+    if (Role_if(PM_SAMURAI)) {
+        You("dishonorably use a tainted weapon!");
+        adjalign(-sgn(u.ualign.type));
+        record_abuse_event_dtl(-sgn(u.ualign.type), ABUSE_USE_TAINTED,
+                               obj->otyp + 1, 0);
+    } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+        int pen = Role_if(PM_KNIGHT) ? -3 : -1;
+
+        You_feel("like an evil coward for using a tainted weapon.");
+        adjalign(pen);
+        record_abuse_event_dtl(pen, ABUSE_USE_TAINTED,
+                               obj->otyp + 1, 0);
+    }
+    if (!rn2(notaint)) {
+        /* remove drow poison now in case obj ends up in a bones file */
+        obj->otainted = FALSE;
+        /* defer "obj is no longer tainted" until after hit message */
+        hmd->untaintmsg = TRUE;
+    }
+    if (resists_sleep(mon))
+        hmd->needtaintmsg = TRUE;
+    else
+        hmd->taintsleep = TRUE;
+}
+
+staticfn void
 hmon_hitmon_jousting(
     struct _hitmon_data *hmd,
     struct monst *mon, /* target */
@@ -1939,6 +1978,7 @@ hmon_hitmon_msg_lightobj(
  *       hmon_hitmon_potion,
  *       hmon_hitmon_misc_obj,
  *       hmon_hitmon_poison,
+ *       hmon_hitmon_taint,
  *       hmon_hitmon_jousting,
  *
  * These are equipped to handle a NULL obj pointer:
@@ -1982,6 +2022,10 @@ hmon_hitmon(
     hmd.unpoisonmsg = FALSE;
     hmd.needpoismsg = FALSE;
     hmd.poiskilled = FALSE;
+    hmd.istainted = FALSE;
+    hmd.untaintmsg = FALSE;
+    hmd.needtaintmsg = FALSE;
+    hmd.taintsleep = FALSE;
     hmd.already_killed = FALSE;
     hmd.offmap = FALSE;
     hmd.destroyed = FALSE;
@@ -2011,6 +2055,9 @@ hmon_hitmon(
 
     if (hmd.ispoisoned || (obj && (obj->oprops & ITEM_VENOM)))
         hmon_hitmon_poison(&hmd, mon, obj);
+
+    if (hmd.istainted && obj)
+        hmon_hitmon_taint(&hmd, mon, obj);
 
     if (hmd.dmg < 1) {
         boolean mon_is_shade = (mon->data == &mons[PM_SHADE]);
@@ -2100,11 +2147,12 @@ hmon_hitmon(
     if (hmd.lightobj)
         hmon_hitmon_msg_lightobj(&hmd, mon, obj);
 
-    /* if a "no longer poisoned" message is coming, it will be last;
-       obj->opoisoned was cleared above and any message referring to
-       "poisoned <obj>" has now been given; we want just "<obj>" for
-       last message, so reformat while obj is still accessible */
-    if (hmd.unpoisonmsg && obj) {
+    /* if a "no longer poisoned/tainted" message is coming, it will be
+       last; obj->opoisoned/otainted was cleared above and any message
+       referring to "poisoned <obj>" has now been given; we want just
+       "<obj>" for last message, so reformat while obj is still
+       accessible */
+    if ((hmd.unpoisonmsg || hmd.untaintmsg) && obj) {
         Strcpy(hmd.saved_oname, cxname(obj));
     }
 
@@ -2113,6 +2161,8 @@ hmon_hitmon(
        minvent and might merge with a stack that's already there)] */
     /* already_killed and poiskilled won't apply for Trollsbane */
 
+    if (hmd.needtaintmsg)
+        pline_The("drow poison doesn't seem to affect %s.", mon_nam(mon));
     if (hmd.needpoismsg) {
         pline_The("poison doesn't seem to affect %s.", mon_nam(mon));
         if (obj && (obj->oprops & ITEM_VENOM)) {
@@ -2137,6 +2187,12 @@ hmon_hitmon(
         if (obj && (obj->oprops & ITEM_VENOM)) {
             obj->oprops_known |= ITEM_VENOM;
             update_inventory();
+        }
+    } else if (hmd.taintsleep && !hmd.destroyed) {
+        /* wakeup() doesn't rouse victims of temporary sleep */
+        if (sleep_monst(mon, rn2(3) + 2, WEAPON_CLASS)) {
+            pline("%s loses consciousness.", Monnam(mon));
+            slept_monst(mon);
         }
     } else if (hmd.destroyed) {
         if (!hmd.already_killed) {
@@ -2166,6 +2222,9 @@ hmon_hitmon(
        destroyed it has already accounted for it */
     if (hmd.unpoisonmsg && !hmd.obj_gone)
         Your("%s %s no longer poisoned.", hmd.saved_oname,
+             vtense(hmd.saved_oname, "are"));
+    if (hmd.untaintmsg && !hmd.obj_gone)
+        Your("%s %s no longer tainted.", hmd.saved_oname,
              vtense(hmd.saved_oname, "are"));
 
     /* glass breakage from the attack. the two monster-side arms are
@@ -5071,6 +5130,45 @@ mhitm_ad_phys(
                  * any special functions or go through tangled hmon_hitmon
                  * code, we can just jump straight to the poisoning. */
                 mhitm_really_poison(magr, mattk, mdef, mhm);
+            }
+            if (mwep && mwep->otainted && is_poisonable(mwep)) {
+                /* monster attacking with a tainted (drow-poisoned)
+                   weapon; like the monster-vs-hero arm, the knockout
+                   chance applies on every hit and the coating wears
+                   off with use */
+                int notaint;
+
+                if (gv.vis && canspotmon(magr))
+                    pline("%s %s was tainted!", s_suffix(Monnam(magr)),
+                          mpoisons_subj(magr, mattk));
+                if (resists_sleep(mdef) || defended(mdef, AD_SLEE)) {
+                    if (gv.vis && canspotmon(mdef) && canspotmon(magr))
+                        pline_The("drow poison doesn't seem to affect %s.",
+                                  mon_nam(mdef));
+                } else {
+                    if (!rn2(3)) {
+                        mhm->damage += rnd(2);
+                    } else {
+                        /* wakeup() doesn't rouse victims of temporary
+                           sleep */
+                        if (sleep_monst(mdef, rn2(3) + 2, WEAPON_CLASS)) {
+                            if (gv.vis && canspotmon(mdef))
+                                pline("%s loses consciousness.",
+                                      Monnam(mdef));
+                            slept_monst(mdef);
+                        }
+                    }
+                }
+                notaint = ((is_drow_weapon(mwep) ? 20 : 5)
+                           - (mwep->owt / 10));
+                if (notaint < 2)
+                    notaint = 2;
+                if (!rn2(notaint)) {
+                    mwep->otainted = FALSE;
+                    if (gv.vis && canspotmon(magr))
+                        pline("%s %s is no longer tainted.",
+                              s_suffix(Monnam(magr)), xname(mwep));
+                }
             }
         } else if (pa == &mons[PM_PURPLE_WORM] && pd == &mons[PM_SHRIEKER]) {
             /* hack to enhance mm_aggression(); we don't want purple
