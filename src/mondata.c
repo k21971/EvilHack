@@ -4,6 +4,9 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+
+staticfn boolean u_full_resist_raw(int);
+
 /*
  *      These routines provide basic data for any type of monster.
  */
@@ -423,24 +426,48 @@ can_blnd(
     return TRUE;
 }
 
+/* full pre-vulnerability resistance read for the hero, mirroring
+   how_resistant()'s layer logic without the vulnerability step:
+   how_resistant() consults the Vulnerable_* macros, which route back
+   through vulnerable_to(), so reading it from here would recurse.
+   A 1-99 partial is NOT full resistance - partials never suppress a
+   vulnerability */
+staticfn boolean
+u_full_resist_raw(int which)
+{
+    if (u.uprops[which].extrinsic
+        || (u.uprops[which].intrinsic
+            & (FROMEXPER | FROMRACE | FROMFORM | FROMOUTSIDE)))
+        return TRUE;
+    if (u.uprops[which].intrinsic & HAVEPARTIAL)
+        return (u.uprops[which].intrinsic & TIMEOUT) >= 100;
+    /* nonzero TIMEOUT without HAVEPARTIAL is a timed full grant */
+    return (u.uprops[which].intrinsic & TIMEOUT) != 0;
+}
+
 /* True if the monster takes increased damage from the given element,
    either from an inherent species vulnerability or from a temporary
    one, and has no resistance overriding it */
 boolean
 vulnerable_to(struct monst *mon, int element)
 {
+    boolean is_you = (mon == &gy.youmonst);
     boolean fire_vuln = (((mon->data->mflags4 & M4_VULNERABLE_FIRE) != 0
                           || mon->vuln_fire)
-                         && !resists_fire(mon));
+                         && !(is_you ? u_full_resist_raw(FIRE_RES)
+                                     : resists_fire(mon)));
     boolean cold_vuln = (((mon->data->mflags4 & M4_VULNERABLE_COLD) != 0
                           || mon->vuln_cold)
-                         && !resists_cold(mon));
+                         && !(is_you ? u_full_resist_raw(COLD_RES)
+                                     : resists_cold(mon)));
     boolean elec_vuln = (((mon->data->mflags4 & M4_VULNERABLE_ELEC) != 0
                           || mon->vuln_elec)
-                         && !resists_elec(mon));
+                         && !(is_you ? u_full_resist_raw(SHOCK_RES)
+                                     : resists_elec(mon)));
     boolean acid_vuln = (((mon->data->mflags4 & M4_VULNERABLE_ACID) != 0
                           || mon->vuln_acid)
-                         && !resists_acid(mon));
+                         && !(is_you ? u_full_resist_raw(ACID_RES)
+                                     : resists_acid(mon)));
 
     if (defended(mon, element))
         return FALSE;
