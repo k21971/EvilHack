@@ -17,7 +17,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Last fix: 2026-07-31 NIGHT, the REVIEW-MEDIUM slice - four
+- Last fix: 2026-07-31 LATE NIGHT, the opportunistic REVIEW-LOW
+  residue - five commits draining the pipeline's final five rows,
+  battery 4/4 legs PASS one human Rogue XL30 game, paniclog never
+  existed: BUG-1450 69283d87f (incr/decr_resistance start from 0
+  on a no-HAVEPARTIAL word - a timed grant's turn count no longer
+  folds into, or gets promoted to, a permanent partial; a live
+  corpse meal during a 99-turn grant produced a clean 50% partial),
+  BUG-1451 43b842422 (doicetrap routes FROMFORM to the
+  vulnerability overlay per the innate-only ruling and claims
+  "alarmingly cooler" only on a real drop - five logged no-op
+  strips stayed silent; staging lore: white dragons FLY OVER ice
+  traps, winter wolf is the cold-res form), BUG-1449 f0b696345
+  (the Vulnerable_* macros mask FROMFORM out of the word leg - a
+  stale poly-time snapshot can no longer bypass the BUG-1448
+  override; the ice trap's timed word still bites), BUG-1452
+  e5ea1ae4f (mount_monster's denied path unmakemon()s the mount -
+  extinct-warg leg: born unchanged, no stray), + the replmon
+  no-steed-links invariant comment 784fc50d3. All four
+  master-inherited frozen-unfixed; the 2026-07 review pipeline is
+  FULLY DRAINED
+- Previous fix: 2026-07-31 NIGHT, the REVIEW-MEDIUM slice - four
   commits closing all four reviewer re-run MEDIUMs, battery 6/6
   legs PASS one chaotic Rogue game, paniclog never existed:
   BUG-1445 de333b251 (update_monsteed at both open-coded swaps -
@@ -36,15 +56,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   orders agree, monster leg unchanged). One NEW pre-existing
   finding minted: the Vulnerable_* macro word arm bypasses the
   resistance override (order-dependence one layer up)
-- Previous fix: 2026-07-31 LATE EVENING, the REVIEW-HIGH slice -
-  BUG-1443 d7bd8421e (ok_to_obliterate excludes both mounted-pair
-  halves; counterfactual: 7 pair halves eligible pre-fix, a horse
-  as the live m3 winner, FIVE mounted pairs on one Astral level)
-  + BUG-1444 7fc3b5a86 (elemental_clog Astral no-candidate arm ->
-  m_into_limbo per ruling; zm bucket removed). Battery 4/4 PASS
-  on real Astral; both master-inherited; the Astral no-op also
-  upstream-shared (report artifact notes the sibling)
 - Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-31 LATE EVENING BUG-1443 d7bd8421e + BUG-1444 7fc3b5a86
+  (REVIEW-HIGH slice: ok_to_obliterate excludes both mounted-pair
+  halves + elemental_clog Astral no-candidate arm -> m_into_limbo
+  per ruling; battery 4/4 PASS on real Astral; both
+  master-inherited, the Astral no-op also upstream-shared);
   2026-07-31 EVENING BUG-1442 0f4f2c898 (mon_arrive clears
   MON_ENDGAME_MIGR; upstream-inherited, artifact
   ~/nh50-mon-endgame-migr.patch awaiting send) + the reviewer
@@ -7198,7 +7215,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       orders agree, the 99/100 boundary, and the monster leg
       unchanged across 12 live monsters; NEW pre-existing sibling
       minted as the row below).
-- [ ] REVIEW-LOW (2026-07-31, minted by the BUG-1448 battery;
+- [x] REVIEW-LOW (2026-07-31, minted by the BUG-1448 battery;
       pre-existing, untouched by the fix): the Vulnerable_* MACRO
       word arm bypasses vulnerable_to()'s resistance override -
       Vulnerable_cold is (HVulnerable_cold || EVulnerable_cold ||
@@ -7214,8 +7231,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the same raw-resistance override, or re-run PROPSET when
       resistance layers change; check master's macro form first
       (the VULN_* words carry external vulnerability sources -
-      curses, ice traps - which must keep working).
-- [ ] REVIEW-LOW batch (2026-07-31), fix opportunistically:
+      curses, ice traps - which must keep working). DONE 2026-07-31
+      as BUG-1449 (commit f0b696345): the narrow shape - mask
+      FROMFORM alone out of the word leg; the whole-word defer was
+      REJECTED because the ice trap stamps its timed vulnerability
+      precisely on full-innate-resistance holders, so deferring
+      would no-op it (the sole external writer - there are no curse
+      writers on the branch). The PROPSET stamp stays for
+      from_what() attribution. Master shares the macro shape and
+      the staleness, frozen-unfixed. Battery: all three post-poly
+      full-resistance word states read 100 (pre-fix 50), partials
+      still never suppress, and the FROMRACE + timed-VULN external
+      case still reads 50.
+- [x] REVIEW-LOW batch (2026-07-31), fix opportunistically:
       (a) incr_resistance() folds a live timed full-strength grant
       (the lava-escape 5-turn HFire_resistance, #wizintrinsic) into
       a permanent small partial when a resistance corpse is eaten
@@ -7228,7 +7256,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       G_GONE rejection path leaks the freshly-created mount to roam
       the level - master-shared; (d) replmon() transfers no erid
       cross-links - currently unreachable (sole caller passes fresh
-      MM_NOSTEED monsters), defensive note only.
+      MM_NOSTEED monsters), defensive note only. DONE 2026-07-31,
+      all four: (a) BUG-1450 69283d87f - both incr AND decr made
+      HAVEPARTIAL-aware (the decr side could even PROMOTE a 200-turn
+      grant into a permanent >=100 partial, worse than the row
+      knew); (b) BUG-1451 43b842422 - FROMFORM joins the innate arm
+      per the 82af6dfab unstrippable ruling, message gated on a
+      real how_resistant() drop; (c) BUG-1452 e5ea1ae4f - unmakemon
+      on the denied path, born unwound (extinct steed = the live
+      vector; no steed type is covetous); (d) record-only per the
+      row - replmon invariant comment, commit 784fc50d3. Battery
+      4/4 legs PASS (details in the archive entries).
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
