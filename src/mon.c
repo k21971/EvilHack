@@ -5302,10 +5302,10 @@ elemental_clog(struct monst *mon)
 {
     static long msgmv = 0L;
     int m_lev = 0;
-    struct monst *mtmp, *m1, *m2, *m3, *m4, *m5, *zm;
+    struct monst *mtmp, *m1, *m2, *m3, *m4, *m5;
 
     if (In_endgame(&u.uz)) {
-        m1 = m2 = m3 = m4 = m5 = zm = (struct monst *) 0;
+        m1 = m2 = m3 = m4 = m5 = (struct monst *) 0;
         if (!msgmv || (svm.moves - msgmv) > 200L) {
             if (!msgmv || rn2(2))
                 You_feel("besieged.");
@@ -5348,7 +5348,7 @@ elemental_clog(struct monst *mon)
                 }
             }
         }
-        mtmp = m1 ? m1 : m2 ? m2 : m3 ? m3 : m4 ? m4 : m5 ? m5 : zm;
+        mtmp = m1 ? m1 : m2 ? m2 : m3 ? m3 : m4 ? m4 : m5;
         if (mtmp) {
             int mx = mtmp->mx, my = mtmp->my;
 
@@ -5368,6 +5368,10 @@ elemental_clog(struct monst *mon)
             target_lev = ledger_no(&dest);
             mon->mstate |= MON_ENDGAME_MIGR;
             migrate_mon(mon, target_lev, MIGR_RANDOM);
+        } else {
+            /* no plane beyond Astral; park mon in limbo rather than
+               leave it stranded off the map at <0,0> */
+            m_into_limbo(mon);
         }
     }
 }
