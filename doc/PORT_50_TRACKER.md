@@ -6482,7 +6482,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Related anomaly recorded by the battery: a WIELDED
       thrice-corroded weapon's dip prompt drops the "thoroughly
       corroded" adjective that the carried form shows - check the
-      doname worn-suffix path during that slice.
+      doname worn-suffix path during that slice. NOTE 2026-07-31:
+      BUG-1427 landed master's doname GEM_CLASS SLING_BULLET arm -
+      inert until this row widens erosion_matters, at which point
+      sling-bullet erosion words become visible with no further
+      naming work.
 - [x] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       weapon.c: the mirror of the blessed arm the branch has - cursed
@@ -6893,92 +6897,189 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       potionbreathe sickness form. Sweep the rest of the u.uhp
       readers in decision code before fixing - these two came from
       one review pass, the family is likely wider.
-- [ ] REVIEW-LOW (2026-07-29): #undef EYEWEAR missing at the
+- [x] REVIEW-LOW (2026-07-29): #undef EYEWEAR missing at the
       objects.h macro-cleanup block - upstream has it. (This and the
       REVIEW-LOW rows below were minted 2026-07-30 as one batch; fix
-      opportunistically.)
-- [ ] REVIEW-LOW (2026-07-29): obj_typename() GEM_CLASS lost
+      opportunistically.) LANDED 2026-07-31 in the batch cleanup
+      commit (BUG-1396 oversight; hygiene only).
+- [x] REVIEW-LOW (2026-07-29): obj_typename() GEM_CLASS lost
       master's SLING_BULLET " stone" carve-out (xname has it);
       master also has erosion_matters/doname SLING_BULLET arms the
-      branch lacks. One row for the family.
-- [ ] REVIEW-LOW (2026-07-29): stale comments - polyself.c eyewear
+      branch lacks. One row for the family. LANDED 2026-07-31
+      BUG-1427 (obj_typename disjunct live; doname arm restored but
+      inert until D4 widens erosion_matters - noted on D4; the
+      erosion_matters half was already superseded by D4).
+- [x] REVIEW-LOW (2026-07-29): stale comments - polyself.c eyewear
       list missing goggles; mon.c sanity colocation-exemption arms
       are dead code (the ridden_by continue precedes them);
       designate_altshield "at most one" overclaim (master parity -
-      the bit survives outside invent).
-- [ ] REVIEW-LOW (2026-07-29): mktrap_victim() SPEAR_TRAP_SET arm is
-      dead code (mklev.c kind < HOLE gate).
-- [ ] REVIEW-LOW (2026-07-29): immune_to_trap() vs
+      the bit survives outside invent). LANDED 2026-07-31 in the
+      batch cleanup commit; PREMISE CORRECTED on the mon.c arms:
+      dead because a mounted steed is off the map and the exemption
+      tests the inverse relation, NOT because of the continue -
+      comment now says so; predicates untouched (master parity).
+- [x] REVIEW-LOW (2026-07-29): mktrap_victim() SPEAR_TRAP_SET arm is
+      dead code (mklev.c kind < HOLE gate). RECORD-ONLY 2026-07-31:
+      comment added marking the arm unreachable and kept; widening
+      the gate is pointless today (spear traps generate at lvl>=6,
+      victims only at lvl<=rnd(4)).
+- [x] REVIEW-LOW (2026-07-29): immune_to_trap() vs
       trapeffect_ice_trap() contradiction - cold-resistant monsters
       route around the trap whose live effect is eroding their cold
-      resistance. Decide which is authoritative.
-- [ ] REVIEW-LOW (2026-07-29): ICE_TRAP/MAGIC_BEAM generation gate
+      resistance. Decide which is authoritative. RULED + LANDED
+      2026-07-31 BUG-1439: erosion is authoritative; the live
+      router was m_harmless_trap() (immune_to_trap's only consumer
+      is the hero prompt) and its ice arm now exempts only
+      unstrippable resistance.
+- [x] REVIEW-LOW (2026-07-29): ICE_TRAP/MAGIC_BEAM generation gate
       is one-sided - traptype_rnd blocks them, rndtrap (lua
-      trap("random")) still rolls both.
-- [ ] REVIEW-LOW (2026-07-29): mb_trapped() infers death from
+      trap("random")) still rolls both. LANDED 2026-07-31 BUG-1429,
+      PREMISE CORRECTED twice: lua trap("random") routes through
+      traptype_rnd correctly - the leaker is rndtrap()/maze filler;
+      MAGIC_BEAM is depth-gated, only ICE was blocked. Fix also
+      excluded TRAPPED_DOOR/CHEST (silent ~7% maze density hole,
+      upstream-shared - upstream table row added) and restored
+      BUG-539's retry cap the port dropped.
+- [x] REVIEW-LOW (2026-07-29): mb_trapped() infers death from
       m_at(mx, my) != mtmp - false when the monster merely moved
-      (vamprise rloc, minliquid) (monmove.c).
-- [ ] REVIEW-LOW (2026-07-29): lock.c - the stone-to-flesh
+      (vamprise rloc, minliquid) (monmove.c). LANDED 2026-07-31
+      BUG-1430 (liveness test at both arms; relocated survivor no
+      longer forfeits its turn; mdig_tunnel redraw snapshot).
+- [x] REVIEW-LOW (2026-07-29): lock.c - the stone-to-flesh
       trapped-door arm calls mb_trapped() before doormask =
       D_NODOOR, breaking the invariant its five siblings document;
       and picklock's non-destroy path forces D_CLOSED, silently
-      losing a "lock the door" action.
-- [ ] REVIEW-LOW (2026-07-29): disarm_spear_trap()'s trailing newsym
+      losing a "lock the door" action. LANDED 2026-07-31 BUG-1431
+      (state hoist; flesh door no longer throws x3 stone shrapnel,
+      "unharmed" contradiction gone) + BUG-1432 (lock/unlock toggle
+      preserved; the temple_at_boundary billing half belongs to the
+      existing temple-slice row - helper unported).
+- [x] REVIEW-LOW (2026-07-29): disarm_spear_trap()'s trailing newsym
       is derived from u.dx/u.dy - redundant (deltrap_with_ammo does
-      its own) and coordinate-fragile.
-- [ ] REVIEW-LOW (2026-07-29): dat/symbols AmigaFont set is missing
+      its own) and coordinate-fragile. LANDED 2026-07-31 in the
+      batch cleanup commit (line deleted; disarm_squeaky_board's
+      sibling newsym IS load-bearing and stays).
+- [x] REVIEW-LOW (2026-07-29): dat/symbols AmigaFont set is missing
       the 5 new terrain symbols - consistent with its older gaps;
-      one cosmetic row.
-- [ ] REVIEW-LOW (2026-07-29): morguemon()/courtmon() zero-range
+      one cosmetic row. LANDED 2026-07-31 BUG-1441. Ruling asked
+      for MACgraphics/curses too; premise corrected: both are
+      internally consistent as they stand (curses omits the whole
+      water family together; MACgraphics fallbacks match its floor)
+      - left alone deliberately.
+- [x] REVIEW-LOW (2026-07-29): morguemon()/courtmon() zero-range
       guards unswept (mkroom.c) - the commit message claimed the
-      family swept; 3 of master's 5 adopted.
-- [ ] REVIEW-LOW (2026-07-29): mcalcdistress()'s hand-rolled loop
+      family swept; 3 of master's 5 adopted. LANDED 2026-07-31
+      BUG-1428 (both max() wraps + the pick_room/mkswamp nroom
+      guards - BUG-658 completion). Verification ALSO FOUND
+      morguemon() is the vanilla 5.0 body - EvilHack content row
+      minted below.
+- [x] REVIEW-LOW (2026-07-29): mcalcdistress()'s hand-rolled loop
       reads mtmp->nmon after the callback (mon.c; iter_mons
-      pre-captures; latent - no live relmon path today).
-- [ ] REVIEW-LOW (2026-07-29): bubble pickup can spuriously unstuck
+      pre-captures; latent - no live relmon path today). LANDED
+      2026-07-31 with BUG-1434: the ridden-steed exemption moved
+      into the helpers, so mcalcdistress reverted to iter_mons()
+      and inherits its pre-capture.
+- [x] REVIEW-LOW (2026-07-29): bubble pickup can spuriously unstuck
       a steed grabbing the hero (mkmaze.c: mx = 0 then
-      update_monsteed -> !m_next2u -> unstuck).
-- [ ] REVIEW-LOW (2026-07-29): mattacku() hittmp leak when the
+      update_monsteed -> !m_next2u -> unstuck). LANDED 2026-07-31
+      BUG-1435 (isok gate on the release arm; rloc_to_core re-tests
+      after placement).
+- [x] REVIEW-LOW (2026-07-29): mattacku() hittmp leak when the
       weapon dies mid-attack (mhitu.c "KMH" subtraction gated on
       mon_currwep; master parity, but rust-destruction now makes it
-      reachable). Key it on a had-weapon boolean.
-- [ ] REVIEW-LOW (2026-07-29): steed_off_map's MON_OFFMAP excludes
+      reachable). Key it on a had-weapon boolean. LANDED 2026-07-31
+      BUG-1436 (had_wep; leak was branch-specific - master's gate
+      dangles instead of nulling).
+- [x] REVIEW-LOW (2026-07-29): steed_off_map's MON_OFFMAP excludes
       ridden steeds from 6 other iter_mons consumers
       (set_mon_lastmove, maybe_turn_mon_iter,
       deadbook_pacify_undead, garlic_breath, reset_hostility,
       remove_mon_from_bones) - mostly cosmetic; a comment or an
-      iter_mons-level exemption.
-- [ ] REVIEW-LOW (2026-07-29): separate_steed_and_rider() can place
+      iter_mons-level exemption. RULED helper-level + LANDED
+      2026-07-31 BUG-1434 (all ~25 consumers audited;
+      remove_mon_from_bones was a false alarm - rider's erid block
+      handles the steed).
+- [x] REVIEW-LOW (2026-07-29): separate_steed_and_rider() can place
       the steed twice when the rider dies inside rloc_to (steed.c -
       three independent ifs should be an if/else-if chain;
-      master-inherited).
-- [ ] REVIEW-LOW (2026-07-29): see_monsters()'s widened skip drops
+      master-inherited). LANDED 2026-07-31 BUG-1437 (else-if chain;
+      the "placing X over itself" impossible retired).
+- [x] REVIEW-LOW (2026-07-29): see_monsters()'s widened skip drops
       bubble passengers from the warning-glow census (display.c;
       cosmetic; the old PARKEDMONSTER term had the same property).
-- [ ] REVIEW-LOW (2026-07-29): b6a2f9576's commit message overstates
+      COMMENT-ONLY 2026-07-31 (batch cleanup commit); premise note:
+      PARKEDMONSTER covered only the vault guard - the census loss
+      is new vs both trees but is a sub-turn Plane-of-Water flicker
+      that self-corrects; a real fix would split a hot redraw loop.
+- [x] REVIEW-LOW (2026-07-29): b6a2f9576's commit message overstates
       coverage - dogmove.c pet-ignite arms and read.c
       genocide-throne (Vecna/Vlad/Tal'Gath) arms are NOT ported.
       Recorded so a later census does not treat them as done.
-- [ ] REVIEW-LOW (2026-07-29): resist_conflict()'s Ithilmar
+      RESOLVED 2026-07-31: dogmove pet-unslime PORTED as BUG-1440
+      (session ruling); read.c genocide-throne minted below as a
+      data-port row (no code existed to convert - the no_geno_*
+      macros and G_VECNA/G_VLAD/G_TALGATH geno bits are absent
+      tree-wide; u.uevent bits exist unconsumed).
+- [x] REVIEW-LOW (2026-07-29): resist_conflict()'s Ithilmar
       always-resist arm is unreachable at high CHA (mondata.c
-      else-if off the clamp; master parity).
-- [ ] REVIEW-LOW (2026-07-29): RECORD ONLY - EDITLEVEL gap window
+      else-if off the clamp; master parity). LANDED 2026-07-31
+      BUG-1438 (artifact test hoisted above the clamp; battery
+      10/10 resist with barding vs 1/10 control).
+- [x] REVIEW-LOW (2026-07-29): RECORD ONLY - EDITLEVEL gap window
       df04f38c6..403245844 accepted dev saves unguarded (later bumps
       closed it); 403245844's commit-message claim that struct rm
       growth changes critical_sizes is wrong (the 5 bits fit the
-      existing bitfield unit).
-- [ ] REVIEW-LOW (2026-07-29): dothrow.c dropy() return discarded
-      near hurtle (pre-existing; master captures it).
-- [ ] REVIEW-LOW (2026-07-29): hack.c domove switch default clears
+      existing bitfield unit). CONFIRMED CLOSED 2026-07-31: bumps
+      1/2/3 landed in the next Phase-2 commits, HEAD at EDITLEVEL 3;
+      nothing to do.
+- [x] REVIEW-LOW (2026-07-29): dothrow.c dropy() return discarded
+      near hurtle (pre-existing; master captures it). RECORD-ONLY
+      2026-07-31, premise corrected: branch dropy() is void (5.0
+      signatures), so the real defect is toss_up()'s hard-coded
+      TRUE return vs its "FALSE if the object is gone" header -
+      master captured a boolean dropy() exactly there and the port
+      lost it. INERT today: toss_up's sole caller void-discards and
+      obj is never dereferenced after. Revisit if toss_up's return
+      gains a consumer.
+- [x] REVIEW-LOW (2026-07-29): hack.c domove switch default clears
       mpeaceful without set_malign/newsym (pre-existing, shared with
-      upstream; the BUG-945 shape).
-- [ ] Wish feedback prints the pre-merge count (NEW, minted
+      upstream; the BUG-945 shape). LANDED 2026-07-31 BUG-1433,
+      premise corrected: the site is spoteffects(), and it is a
+      PORT REGRESSION - master has set_malign + newsym (BUG-478's
+      fix) + an mcanmove gate on the surprise-attack line; all
+      three restored.
+- [x] Wish feedback prints the pre-merge count (NEW, minted
       2026-07-30 by the BUG-1400 battery; cosmetic). Wishing "15
       daggers" while already carrying one prints "b - 15 +0 daggers"
       though the merged stack is 16 (inventory display and gdb agree
       on 16). The wish-delivery pline reads the wished object's quan
       before/without the merge. Check master for the same behavior
-      before treating it as a port bug.
+      before treating it as a port bug. CHECKED 2026-07-31: NOT a
+      port bug - master prints the identical pre-merge count and no
+      total at all; the branch matches upstream 5.0 and adds
+      "(16 in total)." under verbose (default on). The reporter's
+      bare string implies verbose:false. Nothing to do.
+- [ ] morguemon() EvilHack content unported (NEW, minted 2026-07-31
+      by the BUG-1428 verification; MEDIUM port gap). The branch
+      carries the vanilla 5.0 body; master's EvilHack content is
+      entirely absent: skeletal-dragon rare top tier (hd > 10,
+      i > 97, G_GONE-gated), vampire/skeleton-warrior arms
+      (hd > 8, i > 85), In_vecna_branch shade arm and wraith
+      weighting (v = 22 vs 40), and the zombie/skeleton class
+      split. FEATURES_ARCHIVE documents the feature. Port with the
+      Vecna-branch slice or as its own content slice; check
+      In_vecna_branch availability first.
+- [ ] read.c genocide-throne arms + geno-bit data port (NEW, minted
+      2026-07-31 from the b6a2f9576 overstatement row; content/data
+      port). Master's do_genocide() has three ~28-line refusal arms
+      (Vecna/liches, Vlad/vampires, Tal'Gath/beholders) keyed on
+      no_geno_vecna/vlad/talgath macros over G_VECNA/G_VLAD/
+      G_TALGATH geno bits - none of which exist on the branch; the
+      u.uevent.uvecna/uvlad/utalgath consumers-to-be are already
+      set on boss death. Prerequisite: port the geno bits and their
+      per-monster assignments in monsters.h, plus master's pager.c
+      lookup line. The b6a2f9576 commit message wrongly claims this
+      was converted - there was nothing to convert.
 - [ ] Re-run the review on the partial-intrinsics (b6a2f9576) and
       steed/riding clusters with the reviewer agent inheriting the
       session model (NEW, minted 2026-07-30; the original 2026-07-29
@@ -7209,6 +7310,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-29 | mon.c `mon_sanity_check()` carves the parked vault guard out of its position test - `if (!isok(x, y) && !(mtmp->isgd && x == 0 && y == 0))` - but not out of its final `mon_offmap()` test, so the `MON_PARKED` bit that `parkguard()` (vault.c) legitimately sets while the temporary corridor is torn down trips `impossible("floor mon (%s) with mstate set to 0x%08lx")` once per guard departure. The state is correct and the check is incomplete, which is the inverse of the MON_BUBBLEMOVE bug above. Identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
 | 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | found on branch; fix pending |
+| 2026-07-31 | sp_lev.c rndtrap() rolls TRAPPED_DOOR/TRAPPED_CHEST out of rnd(TRAPNUM - 1); maketrap() silently rejects both, so roughly seven percent of fill_empty_maze() trap placements evaporate. Upstream's own rndtrap() has the same roll over its 24/25 values. Branch fixed by BUG-1429 (exclusion cases + the restored retry cap); upstream still affected | fixed on branch; upstream unreported |
 | 2026-07-31 | uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | found on branch (BUG-1421 battery); not yet sent |
 | 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent |
 | 2026-07-31 | trap.c cnv_trap_obj() runs `if (u.utrap && u_at(ttmp->tx, ttmp->ty)) reset_utrap(TRUE);` with no TT_BURIEDBALL carve-out, silently freeing a Punished hero from a buried iron ball when a co-located trap converts to objects; upstream's own delfloortrap() carries the carve-out (the same defeat EvilHack fixed at deltrap_with_ammo(), BUG-1422 - EvilHack has no cnv_trap_obj to fix). Reviewer find, verified in Official_nh50 | found (no branch counterpart); not yet sent |
