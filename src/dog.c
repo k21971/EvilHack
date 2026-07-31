@@ -693,6 +693,23 @@ mon_arrive(struct monst *mtmp, int when)
     restore_cham(mtmp);
 
     if (mtmp == u.usteed || mtmp->ridden_by) {
+        if (mtmp->ridden_by) {
+            /* a monster's steed stays on fmon but off the map with its
+               coordinates mirroring its rider's; the rider migrates
+               after its steed but arrives first, so mirror it now -
+               nothing else will until the rider next moves */
+            struct monst *rider = find_mid(mtmp->ridden_by, FM_FMON);
+
+            if (rider && rider->mx) {
+                mtmp->mx = rider->mx;
+                mtmp->my = rider->my;
+            }
+            /* else the rider could not arrive and is waiting on
+               failed_arrivals; when losedogs() sends it back into
+               limbo, migrate_to_level()'s steed recursion takes this
+               steed along - it must stay on fmon for that relmon,
+               keeping the pair on the same monster list */
+        }
         mtmp->mstate &= ~MON_STILL_ARRIVING;
         return; /* don't place steed on the map */
     }

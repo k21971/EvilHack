@@ -42,6 +42,11 @@ update_monsteed(struct monst *mtmp)
     steed = ERID(mtmp)->mon_steed;
     if (!steed)
         return;
+    /* defense in depth: a steed still in transit between levels has
+       zeroed coordinates and overloaded fields that must not be
+       stamped over; mon_arrive() syncs it when it arrives */
+    if (steed->mstate & (MON_MIGRATING | MON_LIMBO))
+        return;
     /* if the steed has the hero grabbed and its rider is carrying it
        out of reach, release the grab */
     if (steed == u.ustuck && !u.uswallow && !sticks(gy.youmonst.data)
