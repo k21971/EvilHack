@@ -17,34 +17,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Last fix: 2026-07-31 LATE EVENING, the REVIEW-HIGH slice - two
-  commits closing the reviewer re-run's HIGH plus the Astral no-op
-  design row (landed together per the rows - both touch
-  elemental_clog's victim scan, and excluding pairs widens the
-  no-candidate window): BUG-1443 d7bd8421e (ok_to_obliterate now
-  excludes both mounted-pair halves - has_erid/ridden_by; the
-  battery's counterfactual enumeration found 7 pair halves
-  obliterate-eligible pre-fix on one live Astral level with a horse
-  at m_lev=7 as the actual m3 winner, and FIVE mounted pairs
-  present, so ordinary mounted knights hit the path, not just the
-  Riders), BUG-1444 7fc3b5a86 (elemental_clog's Astral
-  no-candidate arm now parks the displaced monster in limbo per
-  session ruling - m_into_limbo, the game's standard no-room
-  fallback, ERID-recursive; dead zm bucket removed). Battery 4/4
-  legs PASS in one Valkyrie XL30 game on real Astral, sanity_check
-  on throughout, paniclog never existed. Both master-inherited
-  frozen-unfixed; the Astral no-op also upstream-shared (the
-  MON_ENDGAME_MIGR report artifact already notes the sibling)
-- Previous fix: 2026-07-31 EVENING, BUG-1442 0f4f2c898 (mon_arrive
-  now clears MON_ENDGAME_MIGR - a monster bumped off a full
-  Elemental Plane arrived permanently frozen; upstream-inherited,
-  report artifact ~/nh50-mon-endgame-migr.patch applies clean to
-  both upstream trees, awaiting send) + the reviewer re-run row
-  closed (two session-model agents over the partial-intrinsics and
-  steed clusters, zero re-reports against the exclusion lists; 1
-  HIGH + 4 MEDIUM + 4 LOW NEW findings re-verified in main context
-  and minted as the REVIEW-* rows; core lifecycles reported tight)
+- Last fix: 2026-07-31 NIGHT, the REVIEW-MEDIUM slice - four
+  commits closing all four reviewer re-run MEDIUMs, battery 6/6
+  legs PASS one chaotic Rogue game, paniclog never existed:
+  BUG-1445 de333b251 (update_monsteed at both open-coded swaps -
+  domove_swap_with_pet port regression + the mdisplacem sibling
+  UPGRADED to a live master-inherited path, Riders are
+  M3_DISPLACES and always mounted), BUG-1446 c4544ad9b
+  (slippery ice hero gate how_resistant==100 + graded roll
+  unmounted-only; 40% partial measured ~1/2 where pre-fix NEVER
+  fumbled), BUG-1447 e70c635bb (lava escape grant word-safe by
+  RULING - Wwalking is the partials' escape; zero behavior delta
+  proven across 7 word states, the naive-gate corruption
+  0x10000028->0x10000005 demonstrated, and the burncount==2 arm
+  found UNREACHABLE on a normal level - safe_teleds succeeds
+  first try), BUG-1448 c7e00ecf8 (vulnerable_to hero leg via
+  u_full_resist_raw() raw layers - no recursion; both acquisition
+  orders agree, monster leg unchanged). One NEW pre-existing
+  finding minted: the Vulnerable_* macro word arm bypasses the
+  resistance override (order-dependence one layer up)
+- Previous fix: 2026-07-31 LATE EVENING, the REVIEW-HIGH slice -
+  BUG-1443 d7bd8421e (ok_to_obliterate excludes both mounted-pair
+  halves; counterfactual: 7 pair halves eligible pre-fix, a horse
+  as the live m3 winner, FIVE mounted pairs on one Astral level)
+  + BUG-1444 7fc3b5a86 (elemental_clog Astral no-candidate arm ->
+  m_into_limbo per ruling; zm bucket removed). Battery 4/4 PASS
+  on real Astral; both master-inherited; the Astral no-op also
+  upstream-shared (report artifact notes the sibling)
 - Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-31 EVENING BUG-1442 0f4f2c898 (mon_arrive clears
+  MON_ENDGAME_MIGR; upstream-inherited, artifact
+  ~/nh50-mon-endgame-migr.patch awaiting send) + the reviewer
+  re-run row closed (zero re-reports; 1 HIGH + 4 MEDIUM + 4 LOW
+  NEW findings minted as REVIEW-* rows);
   2026-07-31 REVIEW-LOW batch BUG-1427..1441 (17 commits - 15 fixes
   + cleanup + tracker; battery 9/9 PASS one lawful human Priest
   game; premise corrections on 7 of 22 rows; the battery caught a
@@ -7127,7 +7132,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mounted knights hit the path, not just the Riders - with a
       horse at m_lev=7 as the pre-fix m3 winner; post-fix scan
       empty, pairs intact and moving as units 31 turns on).
-- [ ] REVIEW-MEDIUM (2026-07-31): domove_swap_with_pet() lost the
+- [x] REVIEW-MEDIUM (2026-07-31): domove_swap_with_pet() lost the
       steed drag (hack.c raw remove_monster+place_monster with no
       update_monsteed; PORT REGRESSION - master routes the swap
       through rloc_to whose core calls update_monsteed; the correct
@@ -7136,8 +7141,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       before separation for humans) swap-displaced then killed
       places its steed under the hero ("you over monster" sanity).
       Fix: update_monsteed(mtmp) after the place; same one-liner at
-      the displacer-beast swap sibling for symmetry.
-- [ ] REVIEW-MEDIUM (2026-07-31): slippery_ice_fumbling() binary
+      the displacer-beast swap sibling for symmetry. DONE 2026-07-31
+      as BUG-1445 (commit de333b251; verification UPGRADED the
+      mdisplacem sibling from symmetry to a LIVE master-inherited
+      path - the Riders are M3_DISPLACES and always mounted, so
+      only the mounted-magr side needed the call, mdef is has_erid-
+      filtered at entry; battery proved both drags with breakpoints
+      BEFORE the per-turn monmove update_monsteed confound).
+- [x] REVIEW-MEDIUM (2026-07-31): slippery_ice_fumbling() binary
       resists_cold gate makes any 1% partial grant total slip
       immunity - the graded how_resistant>50 ? 3 : 2 roll ported
       for partials is dead code for the hero (hack.c; BRANCH-ONLY:
@@ -7145,8 +7156,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master heroes with eaten resistance still slip). Also mixed
       actors when mounted (gate reads the steed, graded arm reads
       the rider). Fix: hero leg gates on how_resistant(COLD_RES)
-      == 100, keeping 1-99 in the graded roll.
-- [ ] REVIEW-MEDIUM (2026-07-31): the lava double-lifesave
+      == 100, keeping 1-99 in the graded roll. DONE 2026-07-31 as
+      BUG-1446 (commit c4544ad9b; graded roll additionally made
+      unmounted-only - the mounted mixed-actor half; measured
+      rates 0%~1/2, 40%~1/2 [pre-fix NEVER], 60%~1/3, 100/
+      FROMOUTSIDE never, mounted flat 1/2 with the steed's binary
+      gate ruling; 200-call gdb loops per case).
+- [x] REVIEW-MEDIUM (2026-07-31): the lava double-lifesave
       countermeasure is defeated for 1-99% fire resistance (trap.c
       burncount==2 arm: `!Fire_resistance` is binary, so a partial
       hero gets no 5-turn escape grant and re-burns every move;
@@ -7156,8 +7172,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       silently rewrite a partial percentage (TIMEOUT bits are
       dual-purpose); options = grant only when the word is empty,
       top the partial to 100 via incr_resistance for the wizard/
-      explore corner, or a different escape mechanism.
-- [ ] REVIEW-MEDIUM (2026-07-31): vulnerable_to() hero leg reads
+      explore corner, or a different escape mechanism. DONE
+      2026-07-31 as BUG-1447 by RULING (commit e70c635bb; ruling
+      = grant only when the word is free; the skip for partials is
+      INTENDED - the unconditional Wwalking grant is their escape,
+      scaled burn on the walk-out verified live; gate rewritten
+      word-safe with the constraint comment, ZERO behavior delta
+      proven across all 7 word states; the battery demonstrated
+      the counterfactual corruption 0x10000028 -> 0x10000005 that
+      the conjunct prevents, and found the arm UNREACHABLE on a
+      normal level - safe_teleds succeeds first try - so the arm
+      was exercised by direct statement execution).
+- [x] REVIEW-MEDIUM (2026-07-31): vulnerable_to() hero leg reads
       binary resistance, so any 1% partial suppresses form
       vulnerability, and the suppression is acquisition-order
       dependent (partial held at poly time kills the FROMFORM
@@ -7166,7 +7192,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       consistent - partials never suppress). FIX CAVEAT: converting
       the hero leg to how_resistant()==100 recurses (how_resistant
       -> Vulnerable_* -> vulnerable_to); the override must read the
-      raw pre-vulnerability layers directly.
+      raw pre-vulnerability layers directly. DONE 2026-07-31 as
+      BUG-1448 (commit c7e00ecf8; u_full_resist_raw() raw-layer
+      helper per the caveat; battery proved both acquisition
+      orders agree, the 99/100 boundary, and the monster leg
+      unchanged across 12 live monsters; NEW pre-existing sibling
+      minted as the row below).
+- [ ] REVIEW-LOW (2026-07-31, minted by the BUG-1448 battery;
+      pre-existing, untouched by the fix): the Vulnerable_* MACRO
+      word arm bypasses vulnerable_to()'s resistance override -
+      Vulnerable_cold is (HVulnerable_cold || EVulnerable_cold ||
+      vulnerable_to(...)), and polyself's PROPSET stamps the
+      VULN_* word's FROMFORM bit from vulnerable_to at POLY TIME,
+      so a hero who becomes fully resistant AFTER polymorph keeps
+      how_resistant() capped at 50 (macro word arm TRUE) while
+      vulnerable_to() itself reports not-vulnerable - the BUG-1448
+      order-dependence shape one layer up. Measured: red-dragon
+      form, word set post-poly to 100%-partial/FROMOUTSIDE/timed-
+      full all read vulnerable_to=0 yet how_resistant(COLD_RES)=50.
+      Fix shape to evaluate: make the macro's H-word arm defer to
+      the same raw-resistance override, or re-run PROPSET when
+      resistance layers change; check master's macro form first
+      (the VULN_* words carry external vulnerability sources -
+      curses, ice traps - which must keep working).
 - [ ] REVIEW-LOW batch (2026-07-31), fix opportunistically:
       (a) incr_resistance() folds a live timed full-strength grant
       (the lava-escape 5-turn HFire_resistance, #wizintrinsic) into
