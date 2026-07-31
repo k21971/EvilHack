@@ -3288,6 +3288,14 @@ dmonsfree(void)
 void
 replmon(struct monst *mtmp, struct monst *mtmp2)
 {
+    /* monster-steed links are NOT transferred: neither an erid on mtmp
+       (its steed's ridden_by would keep pointing at the discarded
+       monster) nor a rider's erid->mon_steed aimed at mtmp (it would
+       dangle after dealloc_monst below). The sole caller, montraits(),
+       creates mtmp2 with MM_NOSTEED and raw-frees the stored traits'
+       erid, so neither side is part of a mounted pair here; a future
+       caller passing a mounted monster must migrate the links or call
+       separate_steed_and_rider() first */
     struct obj *otmp;
 
     /* transfer the monster's inventory */
