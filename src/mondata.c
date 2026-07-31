@@ -1879,13 +1879,15 @@ resist_conflict(struct monst *mtmp)
     struct obj *barding;
     int resist_chance = ACURR(A_CHA) - mtmp->m_lev + u.ulevel;
 
-    if (resist_chance > 19) {
-        resist_chance = 19; /* always a small chance */
-    } else if ((barding = which_armor(mtmp, W_BARDING)) != 0
-               && barding->oartifact == ART_ITHILMAR) {
-        /* steed wearing Ithilmar will always resist */
+    /* steed wearing Ithilmar will always resist, no matter how
+       persuasive its rider is; test before the clamp, which would
+       otherwise swallow this arm at any respectable charisma */
+    if ((barding = which_armor(mtmp, W_BARDING)) != 0
+        && barding->oartifact == ART_ITHILMAR)
         return TRUE;
-    }
+
+    if (resist_chance > 19)
+        resist_chance = 19; /* always a small chance */
 
     return (rnd(20) > resist_chance);
 }
