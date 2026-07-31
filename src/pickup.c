@@ -4314,6 +4314,28 @@ tipcontainer(struct obj *box) /* or bag */
 
                     losehp(d(6, 6), "magical explosion", KILLED_BY_AN);
                 } else {
+                    /* freeze corpse rot/revive timers when tipping into
+                       an ice box, matching #loot put-in */
+                    if (targetbox->otyp == ICE_BOX
+                        && !age_is_relative(otmp)) {
+                        otmp->age = svm.moves - otmp->age; /* actual age */
+                        if (otmp->otyp == CORPSE) {
+                            if (otmp->timed) {
+                                (void) stop_timer(ROT_CORPSE,
+                                                  obj_to_any(otmp));
+                                (void) stop_timer(REVIVE_MON,
+                                                  obj_to_any(otmp));
+                            }
+                            /* if this is the corpse of a cancelled ice
+                               troll, uncancel it */
+                            if (otmp->corpsenm == PM_ICE_TROLL
+                                && has_omonst(otmp))
+                                OMONST(otmp)->mcan = 0;
+                        } else if (otmp->globby && otmp->timed) {
+                            (void) stop_timer(SHRINK_GLOB,
+                                              obj_to_any(otmp));
+                        }
+                    }
                     (void) add_to_container(targetbox, otmp);
                 }
             }
