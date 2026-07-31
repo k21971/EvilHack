@@ -119,9 +119,11 @@ mb_trapped(
         }
         (void) drop_boulder_on_monster(mx, my, FALSE, FALSE);
         /* drop_boulder_on_monster returns True even when an amorphous
-           monster takes no damage, so derive death from the map; mtmp
-           may be freed if it died, so compare addresses only */
-        if (m_at(mx, my) != mtmp)
+           monster takes no damage, so test liveness directly; the
+           actual free is deferred to dmonsfree so the struct is safe
+           to read. A survivor may have been relocated off its square,
+           which is not death */
+        if (DEADMONSTER(mtmp) || !mtmp->mx)
             return TRUE;
         mon_learns_traps(mtmp, TRAPPED_DOOR);
         return FALSE;
@@ -176,9 +178,11 @@ mb_trapped(
                 VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE,
                 (struct obj *) 0);
         wake_nearto(mx, my, 7 * 7);
-        /* explode() inflicted the damage and any death; mtmp may be freed,
-           so compare addresses only */
-        if (m_at(mx, my) != mtmp)
+        /* explode() inflicted the damage and any death; test liveness
+           directly rather than inferring death from the map, since a
+           survivor may have been relocated (the blast can melt ice out
+           from under it and minliquid then moves it) */
+        if (DEADMONSTER(mtmp) || !mtmp->mx)
             return TRUE;
         mon_learns_traps(mtmp, TRAPPED_DOOR);
         return FALSE;

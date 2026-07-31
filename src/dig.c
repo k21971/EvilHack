@@ -1542,9 +1542,11 @@ mdig_tunnel(struct monst *mtmp)
         recalc_block_point(mtmp->mx, mtmp->my); /* vision */
         newsym(mtmp->mx, mtmp->my);
         if (trapped) {
+            coordxy dx = mtmp->mx, dy = mtmp->my;
+
             /* tunneling through is not working the knob by hand */
-            if (mb_trapped(mtmp, FALSE)) { /* mtmp is killed */
-                newsym(mtmp->mx, mtmp->my);
+            if (mb_trapped(mtmp, FALSE)) { /* mtmp died or left the level */
+                newsym(dx, dy);
                 return TRUE;
             }
         } else {
