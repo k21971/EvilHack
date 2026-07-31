@@ -1056,6 +1056,9 @@ typedef struct nh_file NHFILE;
 #define EXACT_NAME             (0x1F | SUPPRESS_BARDING)
 #define SUPPRESS_NAME 0x20
 #define AUGMENT_IT    0x40 /* use "someone" or "something" instead of "it" */
+/* show a distant unseen Rider's real name instead of the farlook-only
+   "Rider" identity obfuscation */
+#define SUPPRESS_RIDER 0x100
 
 /* pline (et al) for a single string argument (suppress compiler warning) */
 #define pline1(cstr) pline("%s", cstr)

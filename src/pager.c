@@ -948,10 +948,17 @@ checkfile(
      * for Angel and angel, make the lookup string the same for both
      * user_typed_name and picked name.
      */
-    if (pm != (struct permonst *) 0 && !user_typed_name)
-        dbase_str = strcpy(newstr, pm->pmnames[NEUTRAL]);
-    else
+    if (pm != (struct permonst *) 0 && !user_typed_name) {
+        /* looking up a Rider must not name which one; the data.base
+           entry is shared but the "More info about" prompt would leak
+           the identity farlook withholds */
+        if (is_rider(pm))
+            dbase_str = strcpy(newstr, "Rider");
+        else
+            dbase_str = strcpy(newstr, pm->pmnames[NEUTRAL]);
+    } else {
         dbase_str = strcpy(newstr, inp);
+    }
     (void) lcase(dbase_str);
 
     /*

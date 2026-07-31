@@ -3878,9 +3878,11 @@ vamprises(struct monst *mtmp)
 }
 
 /* specific combination of x_monnam flags for livelogging; show what was
-   actually killed even when unseen or hallucinated to be something else */
+   actually killed even when unseen or hallucinated to be something else,
+   and don't honor the farlook-only Rider-identity obfuscation either */
 #define livelog_mon_nam(mtmp) \
-    x_monnam(mtmp, ARTICLE_THE, (char *) 0, EXACT_NAME, FALSE)
+    x_monnam(mtmp, ARTICLE_THE, (char *) 0, EXACT_NAME | SUPPRESS_RIDER, \
+             FALSE)
 
 /* when a mon has died, maybe record an achievement or issue livelog message;
    moved into separate routine to unclutter mondead() */
@@ -4173,12 +4175,10 @@ mondead(struct monst *mtmp)
                 livelog_printf(LL_ACHIEVE | LL_UMONST,
                                "pet %s defeated %s",
                                mon_pmname(pet_credit),
-                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                                        EXACT_NAME, FALSE));
+                               livelog_mon_nam(mtmp));
             else if (was_player_kill)
                 livelog_printf(LL_ACHIEVE | LL_UMONST, "defeated %s",
-                               x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                                        EXACT_NAME, FALSE));
+                               livelog_mon_nam(mtmp));
         }
         return; /* revive handled in dmonsfree */
     }
