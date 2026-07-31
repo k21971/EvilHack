@@ -15,9 +15,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 - Current phase: PHASE 2 IN PROGRESS (started 2026-07-13; lifecycle
   detectors slice ported first per plan - see Phase 2 checklist
-  notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
-  except roles-side follow-ups logged in its section
-- Last fix: 2026-07-30 NIGHT, BUG-1407 + BUG-1408 (3d94580ad /
+  notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
+  PASSED) except roles-side follow-ups logged in its section
+- Last fix: 2026-07-31, the PORT-GAP BATCH - seven commits closing
+  three review rows (items 4/5/6) in one slice; battery 8/8 core
+  legs PASS in one Barbarian XL30 game, paniclog never created:
+  BUG-1409 67ae1c655 (hitval+dmgval cursed-vs-celestial arms;
+  hitval was a sibling-sweep find), BUG-1410 1f77678b1 (erode_obj
+  destroy-arm guards, landed FIRST as the prerequisite), BUG-1411
+  8c598b845 (mattacku cover-break refresh - BUG-821's fix lives in
+  shared code and never traveled; archive-sweep find; pyrolisk
+  cloak-burn repro'd twice clean), BUG-1412 f4d3a8ddc (sit.c
+  reintroduced BUG-329 boots typo), BUG-1413 0b6fb92b7
+  (enexto_core_mon mechanism + the goodpos/minliquid_core/mfndpos
+  can_levitate/can_fly companions the row missed + four steed
+  sites; whistle repro: levitating pet ON water and ALIVE),
+  BUG-1414 e67f51153 (19 EF_DESTROY flag sites + !Underwater gates
+  + four caller-guard groups, closing a LIVE AD_DISN/dragon-scale
+  UAF present since BUG-1400), BUG-1415 59177863e (18-site
+  enexto master-parity sweep per BUG-560's audit). Re-verify-first
+  paid again: two new findings and three scope corrections came
+  from verification, none from the review text. Six rows minted:
+  D1-D4 erosion deferrals (AD_LOUD subsystem, ERODE_FRACTURE
+  decision, ERODE_DETERIORATE, erosion_matters width),
+  bare-enexto residue audit, and the can_levitate consumer sweep -
+  upgraded to MEDIUM after the battery's stretch leg killed a
+  levitating steed on dismount through the documented
+  grounded(mdat) gap (live repro on the row)
+- Previous fix: 2026-07-30 NIGHT, BUG-1407 + BUG-1408 (3d94580ad /
   bd45c47a6; battery 4/4 PASS - gremlin farming dead: first proc
   stripped 40% fire res and gifted exactly one gremlin with the
   prop word gdb-verified 0x10000028 -> 0x00000000, then 45 procs
@@ -40,33 +65,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   INERT (sole consumer only skips prompts for CLEARLY_IMMUNE),
   the lich arm was the live half (95% hero took ~10x intended
   damage). Incremental builds green, zero warnings
-- Previous fix: 2026-07-30 BUG-1400 (67547eee2) + BUG-1401
-  (a09223367) (battery 8/8 PASS - weapon/gloves destruction, full
-  refusal ladder incl.
-  Dragonbane-via-fallback, vortex rate, thrown counts EXACT by floor
-  arithmetic, drop_throw exercised live = the BUG-310 shape re-run
-  clean, cancellation 3/20 with a zero-proc Antimagic control,
-  disenchanter regression intact, paniclog byte-identical after
-  every scenario) - the review pipeline's two HIGH rows, fixed the
-  same day the rows landed (3 HIGH + 19 MEDIUM + 22 REVIEW-LOW + a
-  reviewer re-run row at the Phase 2 tail, a converter-trap GATE row
-  in Phase 3, MON_ENDGAME_MIGR added to the upstream-reportable table
-  and the BUG-1394 row's status amended with its send-time
-  archive-entry correction). BUG-1400: passive_obj() had no AD_DISN
-  case, so the comment in passive()'s AD_DISN arm promised object
-  disintegration that never happened anywhere - master's refusal
-  ladder ported in master's position, the bare-handed NULL-obj
-  fallback widened to master's six adtypes, and master's void -> int
-  return restored with both thrower reactions (thitmonst return-1,
-  drop_throw broken) because the throw paths read the object after
-  the call - drop_throw's master guard IS the BUG-310 fix and a bare
-  port would have re-created that freed-pointer reuse on the branch.
-  EF_DESTROY flags deliberately left with their MEDIUM row, which now
-  owes only the flags. BUG-1401: passive() had no AD_CNCL case, so
-  the gray dragon's passive slot was inert - master's 1-in-6
-  cancel_monst arm restored (youattack=FALSE per the BUG-1308
-  family); strengthens for free when the cancellation slice lands.
-  Clean rebuild, zero warnings
+- Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-30 BUG-1400 67547eee2 + BUG-1401 a09223367 (passive-arms
+  HIGHs: passive_obj AD_DISN + void->int with thrower reactions,
+  passive AD_CNCL; battery 8/8 PASS) and BUG-1402 a202b734f +
+  BUG-1403 d56763327 (bag-of-devouring HIGHs; battery PASS);
+  2026-07-30 EVENING BUG-1404..1406 (mhitm/steed-guard slice,
+  battery 4/4 PASS)
 - Last slice: 2026-07-29 GOGGLES - closed the row the objnam slice minted,
   in two commits: the equipment plumbing (18 sites, one of which a
   master-anchored census structurally could not find - iactions.c is
@@ -6387,7 +6392,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the tipcontainer devouring arm while there. Permanent
       quest-bricking: obfree never clears artifact_exists, so
       qcompleted can never be set afterwards.
-- [ ] EF_DESTROY armor siblings (NEW, minted 2026-07-30 by the
+- [x] EF_DESTROY armor siblings (NEW, minted 2026-07-30 by the
       2026-07-29 review; MEDIUM port gap). rustm() got master parity
       but the sibling erosion entry points still carry upstream's
       non-destroying flags, so armor can never be destroyed by
@@ -6403,14 +6408,88 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arms also carry !Underwater guards the branch lacks, bring them
       along - plus the trap.c/potion.c siblings, the erode_armor()
       sites, and the ERODE_FRACTURE decision.
-- [ ] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
+      LANDED 2026-07-31 as four commits (battery PASS, paniclog
+      never created; evidence in the archive entries): BUG-1410
+      1f77678b1 ported the destroy-arm guards FIRST as a
+      prerequisite (uball/uchain + obj_resists 5/95 + iron-safe
+      bail + box contents dump + in_lava_effects wrap + Hand of
+      Vecna exclusion); BUG-1411 8c598b845 carried master's
+      mattacku() cover-break refresh (the BUG-821 fix lives in
+      shared code and had never traveled - archive-sweep find);
+      BUG-1414 e67f51153 widened all 19 flag sites with the
+      !Underwater gates, the waterproof-container exterior rust,
+      and four caller-guard groups from the UAF audit (hitum
+      secondwep, passive() choke - which also closed a LIVE
+      AD_DISN/dragon-scale UAF present since BUG-1400 - hmonas
+      slot re-read, passiveum mon_currwep sync); BUG-1412
+      f4d3a8ddc fixed sit.c's reintroduced BUG-329 boots typo
+      found during verification. ERODE_FRACTURE deliberately
+      deferred to rows D1/D2 below; erosion_matters() width to D4.
+- [ ] D1: AD_LOUD / AT_SCRE sonic combat subsystem unported (NEW,
+      minted 2026-07-31 by the EF_DESTROY parity slice; MEDIUM
+      port gap). Master's executors - mhitu.c screamu() behind the
+      mattacku AT_SCRE arm (damage, deafness, glass fracture,
+      destroy_item of POTION/RING/TOOL/WAND), mhitm.c's two
+      AD_LOUD arms with destroy_mitem, uhitm.c's AT_SCRE polyform
+      arm, and mcastu.c m_destroy_armor() - none exist on the
+      branch. LIVE TODAY: celestial dragon (monsters.h:2540) and
+      Nazgul (:3559) carry AT_SCRE/AD_LOUD attacks with no
+      handler, so the slot is silently skipped in both mattacku
+      and mattackm default arms, and the dochug ranged-scan
+      (monmove.c:1130) counts AT_SCRE as usable so they select
+      ranged targets they cannot attack. Depends on D2 for the
+      glass-shatter leg; destroy_mitem already exists (muse.c).
+- [ ] D2: ERODE_FRACTURE decision (NEW, minted 2026-07-31;
+      decision row, tied to D1). Master's erosion type 4 is
+      ERODE_FRACTURE (is_glass, "fracture"/"fragmentation",
+      COST_FRACTURE) feeding the sonic subsystem; the branch's
+      type 4 is 5.0's ERODE_CRACK (is_crackable crystal armor,
+      COST_CRACK) - same slot, DIFFERENT semantics, a bare port
+      collides. Decide: renumber master's fracture in as a new
+      type alongside crack, or fold the glass fracture into the
+      crack model. COST_FRACTURE/COST_DETERIORATE also absent
+      from the branch COST_ enum.
+- [ ] D3: ERODE_DETERIORATE defined but unhandled (NEW, minted
+      2026-07-31; LOW, latent). include/obj.h defines it (5) but
+      the branch erode_obj() switch has no arm - any caller would
+      hit the impossible() default. Master's arm:
+      is_supermaterial, secondary erosion, COST_DETERIORATE. No
+      branch caller today; lands naturally with D1/D2.
+- [ ] D4: erosion_matters() vanilla-narrow vs master (NEW, minted
+      2026-07-31; MEDIUM port gap; supersedes the REVIEW-LOW
+      SLING_BULLET note's erosion_matters half). Master lets all
+      of TOOL_CLASS fall through (containers included) and adds
+      AMULET/RING/WAND/FOOD and SLING_BULLET; the branch returns
+      TRUE only for weptools + WEAPON/ARMOR/BALL/CHAIN. Until
+      widened, containers cannot erode, which keeps three
+      already-ported master-shape pieces of erode_obj()'s destroy
+      arm dormant (iron-safe bail, box contents dump,
+      water_damage's waterproof-container exterior rust - battery
+      documented the dormancy live: an iron safe in water shows
+      erosion_matters==0 while co-located ball/chain erode; the
+      Amulet also short-circuits at this gate BEFORE the
+      obj_resists guard). Widening is a real balance change
+      (rings/wands/food start eroding) - port deliberately, with
+      the doname/xname erosion-word consumers in the same slice.
+      Related anomaly recorded by the battery: a WIELDED
+      thrice-corroded weapon's dip prompt drops the "thoroughly
+      corroded" adjective that the carried form shows - check the
+      doname worn-suffix path during that slice.
+- [x] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       weapon.c: the mirror of the blessed arm the branch has - cursed
       && (is_angel(ptr) || is_aasimar(ptr)) -> bonus += rnd(4).
       Attacker-free, drops into the 2-param dmgval unchanged.
       (Master's Infidel cursed arm IS blocked by the 2-param
       signature - correctly out of scope.)
-- [ ] enexto_core_mon() family unported (NEW, minted 2026-07-30 by
+      LANDED 2026-07-31, BUG-1409 67ae1c655 (battery PASS: gdb
+      matrix showed exactly +2 hitval and the +rnd(4) dmgval
+      spread vs an Angel, flat vs the soldier control). SIBLING
+      SWEEP FOUND MORE: hitval() was missing the same cursed arm
+      (+2, also attacker-free) - both ported. The Infidel cursed
+      arms in BOTH functions joined the Druid arm in the
+      TODO-EVILHACK attacker-param-threading deferral comment.
+- [x] enexto_core_mon() family unported (NEW, minted 2026-07-30 by
       the 2026-07-29 review; MEDIUM port gap; the BUG-506/525/536/
       559/560/575/610 archive family). separate_steed_and_rider
       (steed.c, 2 sites), the bones.c steed site and the newcham
@@ -6418,9 +6497,58 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       levitation is ignored - a rider rloc'd across the level, or a
       steed mongone'd in bones. Port enexto_core_mon/
       enexto_core_full from master teleport.c (the other half of
-      BUG-610, acting on the return value, WAS carried). AUDIT
-      RIDER: ~59 more enexto() call sites want a pass once the
-      helpers exist.
+      BUG-610, acting on the return value, WAS carried).
+      LANDED 2026-07-31 as two commits (battery PASS - the BUG-506
+      whistle repro placed a gear-levitating pet on water 6/18
+      applications, it SURVIVED there, and the negative control
+      never touched water): BUG-1413 0b6fb92b7 = the mechanism
+      (both NEW_ENEXTO arm bodies refactored to a shared
+      enexto_core_full, the dead ring arm compile-checked;
+      enexto_core_mon keeps 5.0's GP_CHECKSCARY two-pass and
+      upgrades to real onscary()) PLUS the load-bearing
+      companions the review row missed: branch goodpos(),
+      minliquid_core() AND mfndpos() all lacked can_levitate/
+      can_fly terms (m_in_air is type-data-only), so the entry
+      point alone would have placed pets on water and DROWNED
+      them a turn later - all three gained the terms; plus the
+      four named sites. BUG-1415 59177863e = the 18-site
+      master-parity sweep (dismount trio = BUG-525's real scope,
+      fixuporacle + goodpos pre-check, mnexto/maybe_mnexto/
+      mnearto, revive_nasty x2, mhitu hero drops x2 = BUG-887,
+      u_collide_m = BUG-575, whip + grapple = BUG-559, sp_lev
+      retry = BUG-536, vault guard, clone_mon, u_teleport_mon),
+      skip list per master's BUG-560 audit.
+- [ ] Bare-enexto residue audit (NEW 2026-07-31, replaces the old
+      "~59 call sites" AUDIT RIDER; LOW). After the sweep, ~24
+      bare enexto() calls remain and all are believed-correct
+      fakemon users: pre-creation PM_*/corpsenm spawns (mcastu,
+      muse, minion, dokick, timeout, mkroom, zap, mail, apply
+      figurine, makemon eel-distress), steed.c PM_BAT/PM_GHOST
+      probes, newcham NEW-form pre-placements (vamp_stone,
+      decide_to_shapeshift - passing the form about to be assumed
+      is the point), dbridge edata, landing_spot forceit, and the
+      two sites master also left bare (mcastu bypos, teleport.c
+      level-full relocation). Re-audit only when a caller passes
+      ->data of an already-existing monster. Three master
+      enexto_core_mon sites have no branch counterpart because
+      their features are unported - each must arrive as
+      enexto_core_mon with its feature: apply.c hooked-axe pit
+      escape, mon.c larva-host steed displacement, uhitm.c
+      underwater swim-under displace.
+- [ ] can_levitate/can_fly consumer sweep beyond goodpos/
+      minliquid/mfndpos (NEW 2026-07-31; MEDIUM - upgraded from
+      the planned LOW after the battery produced a live kill).
+      steed.c's dismount drop check reads data-only grounded(mdat)
+      where master guards with !can_levitate - battery repro,
+      twice: a saddled pony with verified MR2_LEVITATE dismounted
+      over water -> "The saddled pony falls into the water! The
+      saddled pony is killed!" (the have_spot/ride-onto-water
+      path; the converted no-dry-tile fallback is a different
+      arm). Also data-only: trap.c pit/hole arms, do.c boulder
+      push. Flagged-at-design-time gaps in the same family:
+      dismount triple-failure mongone (master steed.c), mhitu eel
+      puddle/sewage refinements, goodpos hero-water Breathless
+      question comment.
 - [ ] Door-material display color unported (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM port gap). master's
       mapglyph.c colors non-wood doors via
