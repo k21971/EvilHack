@@ -168,8 +168,13 @@ picklock(void)
                 if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                     add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
             } else {
-                /* unlocked; trap gone, door stays */
-                gx.xlock.door->doormask = D_CLOSED;
+                /* trap gone, door stays; preserve the lock or unlock
+                   the hero was actually performing */
+                gx.xlock.door->doormask &= ~D_TRAPPED;
+                if (gx.xlock.door->doormask & D_LOCKED)
+                    gx.xlock.door->doormask = D_CLOSED;
+                else
+                    gx.xlock.door->doormask = D_LOCKED;
             }
             b_trapped("door", FINGER, door_material(gx.xlock.door),
                       u.ux + u.dx, u.uy + u.dy);
