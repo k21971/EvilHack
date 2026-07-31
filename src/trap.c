@@ -8100,9 +8100,10 @@ sink_into_lava(void)
            resistance if water walking boots allow survival and then
            get burned up; u.utrap time will be quite short in that case */
         if (how_resistant(FIRE_RES) < 100) {
-            u.uhp = (u.uhp + 2) / 3;
             if (Upolyd)
                 u.mh = (u.mh + 2) / 3;
+            else
+                u.uhp = (u.uhp + 2) / 3;
         }
 
         u.utrap -= (1 << 8);
