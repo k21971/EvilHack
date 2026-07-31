@@ -261,13 +261,16 @@ separate_steed_and_rider(struct monst *rider)
             mongone(steed);
         }
     }
-    /* place rider if steed dies and rider is still alive */
-    if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
+    /* place rider if steed dies and rider is still alive; else-if so
+       that a rider killed inside the block above (rloc_to can run
+       mintrap on the destination) cannot re-place a steed the block
+       already placed */
+    else if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
         remove_monster(steed->mx, steed->my); /* remove pointer to steed */
         place_monster(rider, rider->mx, rider->my);
     }
     /* place steed if rider dies and steed is still alive */
-    if (!DEADMONSTER(steed) && DEADMONSTER(rider))
+    else if (!DEADMONSTER(steed) && DEADMONSTER(rider))
         place_monster(steed, steed->mx, steed->my);
 
     /* rloc_to/rloc above can kill the rider via mintrap on the destination
