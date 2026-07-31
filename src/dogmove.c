@@ -1265,6 +1265,44 @@ dog_move(
         return MMOVE_DONE;
     }
 
+    /* unslime: a fire-capable pet burns the slime off a hero who is
+       turning into green slime */
+    if (dmgtype(mtmp->data, AD_FIRE) && !mtmp->mcan && Slimed
+        && distu(mtmp->mx, mtmp->my) < 3) {
+        struct attack *fireattk =
+            dmgtype_fromattack(mtmp->data, AD_FIRE, AT_ANY);
+
+        if (attacktype(mtmp->data, AT_BREA))
+            pline_mon(mtmp, "%s breathes fire on you!", Monnam(mtmp));
+        else if (attacktype(mtmp->data, AT_GAZE) && !Blind && mtmp->mcansee)
+            pline_mon(mtmp, "%s looks at you with a fiery gaze!",
+                      Monnam(mtmp));
+        pline("You're %s!", on_fire(gy.youmonst.data, fireattk));
+        if (completelyburns(gy.youmonst.data)) {
+            You("go up in flames!");
+            burn_away_slime();
+            rehumanize();
+            return MMOVE_DONE;
+        } else if (how_resistant(FIRE_RES) == 100 || Underwater) {
+            if (Underwater)
+                pline_The("fire quickly fizzles out.");
+            else
+                pline_The("fire doesn't feel hot!");
+            monstseesu(M_SEEN_FIRE);
+        } else {
+            losehp(resist_reduce(rnd(6), FIRE_RES),
+                   flags.female ? "being set on fire by her pet"
+                                : "being set on fire by his pet",
+                   KILLED_BY);
+        }
+        if (!Underwater) {
+            if ((int) mtmp->m_lev > rn2(20))
+                (void) destroy_items(&gy.youmonst, AD_FIRE, rnd(6));
+            burn_away_slime();
+        }
+        return MMOVE_DONE;
+    }
+
     nix = omx; /* set before newdogpos */
     niy = omy;
     cursemsg[0] = FALSE; /* lint suppression */
