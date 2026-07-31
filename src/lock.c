@@ -1419,30 +1419,41 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
             pline_The("stone door turns to flesh and falls apart!");
         else if (!Deaf)
             You_hear("a wet tearing sound.");
-        if (door->doormask & D_TRAPPED) {
-            struct monst *mtmp = m_at(x, y);
+        {
+            boolean trapped = (door->doormask & D_TRAPPED) != 0;
 
-            /* the booby-trap goes off as the fleshy door comes apart */
-            if (mtmp) {
-                (void) mb_trapped(mtmp, FALSE);
-            } else if (flags.verbose) {
-                Soundeffect(se_kaboom_door_explodes, 75);
-                if (cansee(x, y) && !Unaware) {
-                    pline("KABOOM!!  You see a door explode.");
-                } else if (!Deaf) {
-                    Soundeffect(se_explosion, 75);
-                    You_hear("a %s explosion.",
-                             (distu(x, y) > 7 * 7) ? "distant" : "nearby");
+            /* set the final door state before the trap fires so a fire
+               blast goes off in an empty doorway, and as a fleshy door
+               rather than a stone one, matching the other trigger
+               sites */
+            door->doormask = D_NODOOR;
+            door->material = 0;
+            recalc_block_point(x, y);
+            newsym(x, y);
+            if (trapped) {
+                struct monst *mtmp = m_at(x, y);
+
+                /* the booby-trap goes off as the fleshy door comes
+                   apart */
+                if (mtmp) {
+                    (void) mb_trapped(mtmp, FALSE);
+                } else if (flags.verbose) {
+                    Soundeffect(se_kaboom_door_explodes, 75);
+                    if (cansee(x, y) && !Unaware) {
+                        pline("KABOOM!!  You see a door explode.");
+                    } else if (!Deaf) {
+                        Soundeffect(se_explosion, 75);
+                        You_hear("a %s explosion.",
+                                 (distu(x, y) > 7 * 7) ? "distant"
+                                                       : "nearby");
+                    }
                 }
+                loudness = 40;
+            } else {
+                /* a wet collapse; also drives shop billing below */
+                loudness = 10;
             }
-            loudness = 40;
-        } else {
-            /* a wet collapse; also drives shop billing below */
-            loudness = 10;
         }
-        door->doormask = D_NODOOR;
-        door->material = 0;
-        recalc_block_point(x, y);
         {
             static const short meats[] = {
                 MEATBALL, MEAT_STICK, MEAT_RING, STRIP_OF_BACON,
