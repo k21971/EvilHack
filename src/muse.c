@@ -3744,7 +3744,13 @@ searches_for_item(struct monst *mon, struct obj *obj)
                               && mon->data != &mons[PM_KI_RIN]);
         if (typ == FROST_HORN || typ == FIRE_HORN)
             return (obj->spe > 0 && can_blow(mon));
+        /* the two rare bags are excluded by otyp, matching find_misc:
+           a bag of treasure is meant to stay sealed once a monster has
+           one, and a bag of devouring is a disposal unit that should
+           never be rummaged */
         if (Is_container(obj) && !(Is_mbag(obj) && obj->cursed)
+            && obj->otyp != BAG_OF_TREASURE
+            && obj->otyp != BAG_OF_DEVOURING
             && !obj->olocked)
             return TRUE;
         if (typ == EXPENSIVE_CAMERA)
