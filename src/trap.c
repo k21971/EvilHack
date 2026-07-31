@@ -7447,7 +7447,11 @@ deltrap_with_ammo(struct trap *trap, int do_what)
         }
         objchn = (struct obj *) 0;
     }
-    if (u.utrap && u_at(trap->tx, trap->ty))
+    /* if the hero is tethered to a buried iron ball, that hold belongs
+       to the ball rather than to the trap being deleted; preserve it,
+       matching delfloortrap */
+    if (u.utrap && u.utraptype != TT_BURIEDBALL
+        && u_at(trap->tx, trap->ty))
         reset_utrap(TRUE);
     deltrap(trap);
     newsym(tx, ty);
