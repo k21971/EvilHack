@@ -269,6 +269,8 @@ pick_room(boolean strict)
     struct mkroom *sroom;
     int i = svn.nroom;
 
+    if (svn.nroom <= 0)
+        return (struct mkroom *) 0;
     for (sroom = &svr.rooms[rn2(svn.nroom)]; i--; sroom++) {
         if (sroom == &svr.rooms[svn.nroom])
             sroom = &svr.rooms[0];
@@ -638,7 +640,7 @@ mkundead(
 staticfn struct permonst *
 morguemon(void)
 {
-    int i = rn2(100), hd = rn2(level_difficulty());
+    int i = rn2(100), hd = rn2(max(level_difficulty(), 1));
 
     if (hd > 10 && i < 10) {
         if (Inhell || In_endgame(&u.uz)) {
@@ -866,6 +868,8 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
     coordxy sx, sy;
     int rmno;
 
+    if (svn.nroom <= 0)
+        return;
     for (i = 0; i < 5; i++) { /* turn up to 5 rooms swampy */
         sroom = &svr.rooms[rn2(svn.nroom)];
         if (sroom->hx < 0 || sroom->rtype != OROOM || has_upstairs(sroom)
@@ -1149,7 +1153,7 @@ search_special(schar type)
 struct permonst *
 courtmon(void)
 {
-    int i = rn2(60) + rn2(3 * level_difficulty());
+    int i = rn2(60) + rn2(max(3 * level_difficulty(), 1));
 
     if (i > 100)
         return mkclass(S_DRAGON, 0);
