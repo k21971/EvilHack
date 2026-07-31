@@ -289,7 +289,8 @@ obj_typename(int otyp)
             Strcat(buf, dn ? dn : actualn);
             if (ocl->oc_class == GEM_CLASS)
                 Strcat(buf,
-                       (ocl->oc_material == MINERAL) ? " stone" : " gem");
+                       (ocl->oc_material == MINERAL
+                        || otyp == SLING_BULLET) ? " stone" : " gem");
             if (un)
                 xcalled(buf, BUFSZ, "", un);
         }
@@ -1829,6 +1830,10 @@ doname_base(
         if (obj->owornmask & (W_BALL | W_CHAIN))
             ConcatF1(bp, 0, " (%s to you)",
                      (obj->owornmask & W_BALL) ? "chained" : "attached");
+        break;
+    case GEM_CLASS:
+        if (obj->otyp == SLING_BULLET)
+            add_erosion_words(obj, prefix);
         break;
     }
 
