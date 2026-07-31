@@ -3034,7 +3034,10 @@ find_altshield(void)
 }
 
 /* mark shield as the designated sword-and-board shield, clearing the
-   mark from any other carried object so at most one is ever set */
+   mark from any other object in inventory; the bit can survive on an
+   object that leaves inventory, so two carried objects can transiently
+   be marked after such an object is picked back up - find_altshield()
+   takes the first and the next designation re-sweeps */
 void
 designate_altshield(struct obj *shield)
 {

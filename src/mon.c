@@ -301,7 +301,9 @@ mon_sanity_check(void)
                with its coordinates synced to its rider's */
             continue;
         } else if ((m = svl.level.monsters[x][y]) != mtmp) {
-            /* a rider stands on the same square as the steed it is on */
+            /* the exemption below is inert: a mounted steed is removed
+               from the map, so the occupant here can never be a steed
+               of mtmp; kept for master parity */
             if (!m || m->ridden_by != mtmp->m_id)
                 impossible("mon (%s) at <%d,%d> is not there!",
                            fmt_ptr((genericptr_t) mtmp), x, y);

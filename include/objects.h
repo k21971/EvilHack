@@ -1274,6 +1274,7 @@ WEPTOOL("unicorn horn", NoDes,
 #undef CONTAINER
 #undef TOOL
 #undef WEPTOOL
+#undef EYEWEAR
 /* === OBJECT entries === */
 OBJECT(OBJ("Candelabrum of Invocation", "candelabrum"),
        BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, P_NONE, GOLD),

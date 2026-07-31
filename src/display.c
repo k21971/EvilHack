@@ -1576,7 +1576,9 @@ see_monsters(void)
         /* a monster that is off the map has no square to redraw, and
            newsym() rejects column 0; this covers the parked vault guard
            that used to be named here as well as anything a Plane of
-           Water bubble is carrying at the moment */
+           Water bubble is carrying at the moment. Those monsters are
+           also omitted from the warning-glow census below, which
+           self-corrects on the next redraw once the bubble drops them */
         if (DEADMONSTER(mon) || !mon->mx)
             continue;
         if ((mon->mstate & MON_STILL_ARRIVING) != 0)

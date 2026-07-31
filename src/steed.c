@@ -64,7 +64,8 @@ update_monsteed(struct monst *mtmp)
 }
 
 /* take a steed off the map without disturbing the rest of its state; it
-   remains on the fmon list with its coordinates synced to its rider */
+   remains on the fmon list with its coordinates synced to its rider,
+   and the iter_mons family exempts it from its off-map skip */
 staticfn void
 steed_off_map(struct monst *steed)
 {

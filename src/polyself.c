@@ -1608,9 +1608,10 @@ break_armor(void)
        amulet stays worn */
     if ((otmp = ublindf) != 0 && !has_head(uptr)) {
         int l;
-        const char *eyewear = simpleonames(otmp); /* blindfold|towel|lenses */
+        const char *eyewear =
+            simpleonames(otmp); /* blindfold|towel|lenses|goggles */
 
-        if (!strncmp(eyewear, "pair of ", l = 8)) /* lenses */
+        if (!strncmp(eyewear, "pair of ", l = 8)) /* lenses, goggles */
             eyewear += l;
         Your("%s %s off!", eyewear, vtense(eyewear, "fall"));
         (void) Blindf_off((struct obj *) 0); /* Null: skip usual off mesg */

@@ -6456,7 +6456,6 @@ disarm_spear_trap(struct trap *ttmp)
     } else {
         pline_The("spear breaks!");
         deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
-        newsym(u.ux + u.dx, u.uy + u.dy);
     }
     return 1;
 }

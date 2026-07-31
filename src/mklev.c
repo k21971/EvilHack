@@ -1906,6 +1906,9 @@ mktrap_victim(struct trap *ttmp)
     case ARROW_TRAP_SET:
     case BOLT_TRAP_SET:
     case DART_TRAP_SET:
+    /* the spear arm is currently unreachable - the caller's gate only
+       admits trap types below HOLE - but is kept for a future
+       widening */
     case SPEAR_TRAP_SET:
     case ROCKTRAP:
         if (ttmp->ammo) {
