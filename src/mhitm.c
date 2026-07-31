@@ -317,6 +317,9 @@ mdisplacem(
         remove_monster(tx, ty);
     place_monster(magr, tx, ty); /* put down at target spot */
     place_monster(mdef, fx, fy);
+    /* a rider drags its steed along; mdef cannot be mounted - the
+       has_erid(mdef) check above rejects that case */
+    update_monsteed(magr);
     if (mdef->wormno) /* now put down tail */
         place_worm_tail_randomly(mdef, fx, fy);
     /* either creature might move into or out of a poison gas cloud */

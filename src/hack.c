@@ -2220,6 +2220,8 @@ domove_swap_with_pet(
         place_monster(mtmp, u.ux0, u.uy0);
         newsym(x, y);
         newsym(u.ux0, u.uy0);
+        /* a rider drags its steed along */
+        update_monsteed(mtmp);
 
         You("%s %s.", mtmp->mpeaceful ? "swap places with" : "frighten",
             x_monnam(mtmp,
