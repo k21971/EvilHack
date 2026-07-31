@@ -2470,12 +2470,19 @@ slippery_ice_fumbling(void)
     struct monst *iceskater = u.usteed ? u.usteed : &gy.youmonst;
 
     if (on_ice) {
+        /* the hero's leg reads how_resistant so a partial grant keeps
+           the graded roll below live; resists_cold on the hero is a
+           binary word test that would treat 1% as full immunity.
+           Steeds have no partials, so their binary read stands */
         if ((uarmf && objdescr_is(uarmf, "snow boots"))
-            || resists_cold(iceskater) || Flying
+            || (u.usteed ? resists_cold(iceskater)
+                         : how_resistant(COLD_RES) == 100)
+            || Flying
             || is_floater(iceskater->data) || is_clinger(iceskater->data)
             || is_whirly(iceskater->data)) {
             on_ice = FALSE;
-        } else if (!rn2((how_resistant(COLD_RES) > 50) ? 3 : 2)) {
+        } else if (!rn2((!u.usteed && how_resistant(COLD_RES) > 50)
+                        ? 3 : 2)) {
             HFumbling |= FROMOUTSIDE;
             HFumbling &= ~TIMEOUT;
             HFumbling += 1; /* slip on next move */
