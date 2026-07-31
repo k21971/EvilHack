@@ -1690,6 +1690,8 @@ rehumanize(void)
 {
     boolean was_flying = (Flying != 0),
             was_not_flying = !was_flying;
+    /* a form change can start or stop underwater vision */
+    boolean old_uwvis = (Underwater && See_underwater);
 
     /* You can't revert back while unchanging */
     if (Unchanging) {
@@ -1740,6 +1742,10 @@ rehumanize(void)
 
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
     encumber_msg();
     update_inventory();
     /* if the original form had intrinsic flying, give it back; the
