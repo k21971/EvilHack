@@ -3258,6 +3258,10 @@ set_trap(void)
             otmp->quan = (ttmp->ttyp == SPEAR_TRAP_SET) ? 1L : 10L;
             otmp->spe = enchant;
             otmp->oprops = prop;
+            /* a wished-for kit can carry a material its ammo cannot
+               take (kits crafted from real ammo always match) */
+            if (!valid_obj_material(otmp, mat))
+                mat = objects[otmp->otyp].oc_material;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == MAGIC_BEAM_TRAP_SET) {
