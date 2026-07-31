@@ -8047,7 +8047,14 @@ lava_effects(void)
                the lava again on next move so take countermeasures to give
                the player--or the debug fuzzer--a chance to try something
                else instead of just immediately burning up all over again */
-            if (!Fire_resistance)
+            /* deliberately NOT the bare partial-aware
+               how_resistant()<100 shape: set_itimeout() on a
+               HAVEPARTIAL word would rewrite the stored percentage,
+               so any nonzero intrinsic word blocks the grant; a
+               partial hero keeps the word intact and escapes on the
+               Wwalking grant below, taking scaled burn on the walk
+               out */
+            if (how_resistant(FIRE_RES) < 100 && !HFire_resistance)
                 set_itimeout(&HFire_resistance, 5L);
             if (!Wwalking)
                 set_itimeout(&HWwalking, 5L);
