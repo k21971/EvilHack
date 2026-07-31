@@ -21,6 +21,7 @@ staticfn void peffect_sleeping(struct obj *);
 staticfn int peffect_monster_detection(struct obj *);
 staticfn int peffect_object_detection(struct obj *);
 staticfn void peffect_sickness(struct obj *);
+staticfn void peffect_drow_poison(struct obj *);
 staticfn void peffect_confusion(struct obj *);
 staticfn void peffect_gain_ability(struct obj *);
 staticfn void peffect_speed(struct obj *);
@@ -1160,6 +1161,21 @@ peffect_sickness(struct obj *otmp)
 }
 
 staticfn void
+peffect_drow_poison(struct obj *otmp)
+{
+    pline("Ugh!  This molasses tastes foul.");
+    if (how_resistant(SLEEP_RES) == 100) {
+        monstseesu(M_SEEN_SLEEP);
+        pline_The("drow poison doesn't seem to affect you.");
+    } else {
+        You("lose consciousness.");
+        losehp(resist_reduce(rnd(2), POISON_RES),
+               xname(otmp), KILLED_BY_AN);
+        fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES), TRUE);
+    }
+}
+
+staticfn void
 peffect_confusion(struct obj *otmp)
 {
     if (!Confusion) {
@@ -1646,6 +1662,9 @@ peffects(struct obj *otmp)
     case POT_SICKNESS:
         peffect_sickness(otmp);
         break;
+    case POT_DROW_POISON:
+        peffect_drow_poison(otmp);
+        break;
     case POT_CONFUSION:
         peffect_confusion(otmp);
         break;
@@ -2089,6 +2108,13 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                     pline("%s looks rather ill.", Monnam(mon));
             }
             break;
+        case POT_DROW_POISON:
+            /* wakeup() doesn't rouse victims of temporary sleep */
+            if (sleep_monst(mon, rn2(3) + 2, POTION_CLASS)) {
+                pline("%s loses consciousness.", Monnam(mon));
+                slept_monst(mon);
+            }
+            break;
         case POT_CONFUSION:
         case POT_BOOZE:
             if (!resist(mon, POTION_CLASS, 0, NOTELL))
@@ -2336,6 +2362,19 @@ potionbreathe(struct obj *obj)
             exercise(A_CON, FALSE);
         }
         break;
+    case POT_DROW_POISON:
+        kn++;
+        if (how_resistant(SLEEP_RES) < 100) {
+            You_feel("rather tired.");
+            nomul(-resist_reduce(rnd(3), SLEEP_RES));
+            gm.multi_reason = "sleeping off poisonous fumes";
+            gn.nomovemsg = You_can_move_again;
+            exercise(A_DEX, FALSE);
+        } else {
+            monstseesu(M_SEEN_SLEEP);
+            pline_The("drow poison doesn't seem to affect you.");
+        }
+        break;
     case POT_HALLUCINATION:
         You("have a momentary vision.");
         break;
@@ -2479,6 +2518,12 @@ mixtype(struct obj *o1, struct obj *o2)
         switch (o2typ) {
         case POT_SICKNESS:
             return POT_FRUIT_JUICE;
+        case POT_DROW_POISON:
+            /* the horn purifies it; healing potions (which reach this
+               switch by fallthrough) do not */
+            if (o1typ == UNICORN_HORN)
+                return POT_FRUIT_JUICE;
+            break;
         case POT_HALLUCINATION:
         case POT_BLINDNESS:
         case POT_CONFUSION:
@@ -2510,6 +2555,8 @@ mixtype(struct obj *o1, struct obj *o2)
         switch (o2typ) {
         case POT_SICKNESS:
             return POT_SICKNESS;
+        case POT_DROW_POISON:
+            return POT_DROW_POISON;
         case POT_ENLIGHTENMENT:
         case POT_SPEED:
             return POT_BOOZE;
@@ -2935,6 +2982,56 @@ potion_dip(struct obj *obj, struct obj *potion)
         return ECMD_TIME;
     }
 
+    /* create a potion of sickness from a potion of fruit juice
+       and a gray fungus corpse */
+    if (potion->otyp == POT_FRUIT_JUICE && obj->otyp == CORPSE
+        && obj->corpsenm == PM_GRAY_FUNGUS) {
+        if (obj->quan > 1L) {
+            You_cant("dip multiple %s into %s.",
+                     cxname(obj), the(xname(potion)));
+            potion->in_use = FALSE; /* didn't go poof */
+            return ECMD_OK;
+        }
+        pline("%s is absorbed by %s%s.", The(cxname(obj)),
+              (potion->quan > 1L) ? "one of " : "", the(xname(potion)));
+        pline("%s bubble%s furiously, and %stransforms.",
+              The(xname(potion)), (potion->quan > 1L) ? "" : "s",
+              (potion->quan > 1L) ? "one " : "");
+        useup(potion);
+        makeknown(POT_FRUIT_JUICE);
+        obj = poly_obj(obj, POT_SICKNESS);
+        if (!obj)
+            return ECMD_TIME;
+        freeinv(obj);
+        hold_potion(obj, "You drop %s!", doname(obj), (const char *) 0);
+        return ECMD_TIME;
+    }
+
+    /* create a potion of drow poison from a potion of fruit juice
+       and a black fungus corpse */
+    if (potion->otyp == POT_FRUIT_JUICE && obj->otyp == CORPSE
+        && obj->corpsenm == PM_BLACK_FUNGUS) {
+        if (obj->quan > 1L) {
+            You_cant("dip multiple %s into %s.",
+                     cxname(obj), the(xname(potion)));
+            potion->in_use = FALSE; /* didn't go poof */
+            return ECMD_OK;
+        }
+        pline("%s is absorbed by %s%s.", The(cxname(obj)),
+              (potion->quan > 1L) ? "one of " : "", the(xname(potion)));
+        pline("%s bubble%s furiously, and %stransforms.",
+              The(xname(potion)), (potion->quan > 1L) ? "" : "s",
+              (potion->quan > 1L) ? "one " : "");
+        useup(potion);
+        makeknown(POT_FRUIT_JUICE);
+        obj = poly_obj(obj, POT_DROW_POISON);
+        if (!obj)
+            return ECMD_TIME;
+        freeinv(obj);
+        hold_potion(obj, "You drop %s!", doname(obj), (const char *) 0);
+        return ECMD_TIME;
+    }
+
     if (potion->otyp == POT_ACID && obj->otyp == CORPSE
         && obj->corpsenm == PM_LICHEN) {
         pline("%s %s %s around the edges.", The(cxname(obj)),
@@ -2958,6 +3055,12 @@ potion_dip(struct obj *obj, struct obj *potion)
         if (potion->otyp == POT_SICKNESS && !obj->opoisoned) {
             char buf[BUFSZ];
 
+            if (obj->otainted) {
+                pline_The("%s is already coated in drow poison.",
+                          xname(obj));
+                potion->in_use = FALSE; /* didn't go poof */
+                return ECMD_TIME;
+            }
             if (potion->quan > 1L)
                 Sprintf(buf, "One of %s", the(xname(potion)));
             else
@@ -2966,12 +3069,34 @@ potion_dip(struct obj *obj, struct obj *potion)
             obj->opoisoned = TRUE;
             poof(potion);
             return ECMD_TIME;
-        } else if (obj->opoisoned && !permapoisoned(obj)
+        } else if (potion->otyp == POT_DROW_POISON && !obj->otainted) {
+            char buf[BUFSZ];
+
+            if (obj->opoisoned) {
+                pline_The("%s is already coated in poison.",
+                          xname(obj));
+                potion->in_use = FALSE; /* didn't go poof */
+                return ECMD_TIME;
+            }
+            if (potion->quan > 1L)
+                Sprintf(buf, "One of %s", the(xname(potion)));
+            else
+                Strcpy(buf, The(xname(potion)));
+            pline("%s forms a thick inky coating on %s.", buf,
+                  the(xname(obj)));
+            obj->otainted = TRUE;
+            poof(potion);
+            return ECMD_TIME;
+        } else if (((obj->opoisoned && !permapoisoned(obj))
+                    || obj->otainted)
                    && (potion->otyp == POT_HEALING
                        || potion->otyp == POT_EXTRA_HEALING
                        || potion->otyp == POT_FULL_HEALING)) {
             pline("A coating wears off %s.", the(xname(obj)));
-            obj->opoisoned = 0;
+            if (obj->opoisoned && !permapoisoned(obj))
+                obj->opoisoned = 0;
+            if (obj->otainted)
+                obj->otainted = 0;
             poof(potion);
             return ECMD_TIME;
         }
