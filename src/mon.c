@@ -5287,6 +5287,10 @@ ok_to_obliterate(struct monst *mtmp)
      * here (return FALSE).
      */
     if (mtmp->data == &mons[PM_WIZARD_OF_YENDOR] || is_rider(mtmp->data)
+        /* neither half of a mounted pair: obliterating one re-places
+           the survivor on the shared square, which the caller's
+           rloc_to() placement would then stomp */
+        || has_erid(mtmp) || mtmp->ridden_by
         || has_emin(mtmp) || has_epri(mtmp) || has_eshk(mtmp)
         || mtmp == u.ustuck || mtmp == u.usteed)
         return FALSE;
