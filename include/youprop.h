@@ -64,29 +64,36 @@
 
 /* vulnerable_to() (mondata.c) reads these through gy.youmonst;
    the remaining master consumers (damage_mon central scaling,
-   combat-arm messages) port with the vulnerability-consumers item */
+   combat-arm messages) port with the vulnerability-consumers item.
+   The word arms mask out FROMFORM: that bit is a poly-time snapshot
+   (polyself's PROPSET, kept for from_what() attribution) of the same
+   fact vulnerable_to() re-derives live with its full-resistance
+   override applied, so honoring it here would let a stale snapshot
+   bypass the override; the unmasked bits carry the external sources
+   (the ice trap's timed vulnerability), which apply regardless of
+   resistance */
 #define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
 #define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
 #define Vulnerable_fire \
-    (HVulnerable_fire || EVulnerable_fire  \
+    ((HVulnerable_fire & ~FROMFORM) || EVulnerable_fire  \
      || vulnerable_to(&gy.youmonst, AD_FIRE))
 
 #define HVulnerable_cold u.uprops[VULN_COLD].intrinsic
 #define EVulnerable_cold u.uprops[VULN_COLD].extrinsic
 #define Vulnerable_cold \
-    (HVulnerable_cold || EVulnerable_cold  \
+    ((HVulnerable_cold & ~FROMFORM) || EVulnerable_cold  \
      || vulnerable_to(&gy.youmonst, AD_COLD))
 
 #define HVulnerable_elec u.uprops[VULN_ELEC].intrinsic
 #define EVulnerable_elec u.uprops[VULN_ELEC].extrinsic
 #define Vulnerable_elec \
-    (HVulnerable_elec || EVulnerable_elec  \
+    ((HVulnerable_elec & ~FROMFORM) || EVulnerable_elec  \
      || vulnerable_to(&gy.youmonst, AD_ELEC))
 
 #define HVulnerable_acid u.uprops[VULN_ACID].intrinsic
 #define EVulnerable_acid u.uprops[VULN_ACID].extrinsic
 #define Vulnerable_acid \
-    (HVulnerable_acid || EVulnerable_acid  \
+    ((HVulnerable_acid & ~FROMFORM) || EVulnerable_acid  \
      || vulnerable_to(&gy.youmonst, AD_ACID))
 
 /* Hxxx due to FROMFORM only */

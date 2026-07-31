@@ -103,7 +103,9 @@ set_uasmon(void)
     PROPSET(ACID_RES, resist_from_form(MR_ACID));
     PROPSET(STONE_RES, resist_from_form(MR_STONE));
 
-    /* vulnerabilities */
+    /* vulnerabilities; the stamped FROMFORM bit only feeds from_what()
+       attribution - the Vulnerable_* macros mask it out and re-derive
+       the form's vulnerability live through vulnerable_to() */
     PROPSET(VULN_FIRE, vulnerable_to(&gy.youmonst, AD_FIRE));
     PROPSET(VULN_COLD, vulnerable_to(&gy.youmonst, AD_COLD));
     PROPSET(VULN_ELEC, vulnerable_to(&gy.youmonst, AD_ELEC));
