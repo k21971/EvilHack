@@ -1086,8 +1086,11 @@ start: AmigaFont
 	S_hcdoor: \x94
 	S_bars: '#'
 	S_tree: '#'
+	S_deadtree: '#'
 	S_room: '.'
 	S_darkroom: \x20
+	S_grass: '.'
+	S_sand: '.'
 	S_corr: \xe5
 	S_litcorr: \xe5
 	S_upstair: '<'
@@ -1100,6 +1103,8 @@ start: AmigaFont
 	S_sink: '{'
 	S_fountain: '}'
 	S_pool: '*'
+	S_puddle: '*'
+	S_sewage: '*'
 	S_ice: '}'
 	S_lava: '*'
 	S_vodbridge: '*'
