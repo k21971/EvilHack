@@ -1356,7 +1356,12 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
             return TRUE;
         break;
     case ICE_TRAP_SET:
-        if (resists_cold(mtmp) || defended(mtmp, AD_COLD))
+        /* the freezing mist can strip an acquired cold resistance, so
+           the trap is only harmless to a monster whose resistance comes
+           from an unstrippable source (its species, worn gear, or a
+           carried artifact) */
+        if ((resists_cold(mtmp) && !(mtmp->mintrinsics & MR_COLD))
+            || defended(mtmp, AD_COLD))
             return TRUE;
         break;
     case SPEAR_TRAP_SET:
