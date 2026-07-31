@@ -17,7 +17,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Last fix: 2026-07-31, the PORT-GAP BATCH - seven commits closing
+- Last fix: 2026-07-31 LATER, the ITEMS 8-12 BATCH - six commits
+  closing the five remaining MEDIUM port-gap review rows; battery
+  7/7 legs PASS in one lawful dwarven Valkyrie game, paniclog
+  never created: BUG-1416 a3f673272 (searches_for_item rare-bag
+  exclusion; the widening commit's missed sibling), BUG-1417
+  b80fefbde (S_deadtree lightblocker row - verification showed
+  forest mimics take that disguise 7-in-8, the dominant case),
+  BUG-1418 017682b05 (tip-into-ice-box freeze using the branch's
+  own in_container block + the hornoplenty sibling the sweep
+  found; upstream 5.0 shares the gap), BUG-1419 fd5021875
+  (SUPPRESS_RIDER both halves, flag at 0x100 since 0x40 is
+  AUGMENT_IT; premise correction - the Rider's OWN name leaked,
+  not the steed's; end.c exempt via pmname; the no-stats hedge
+  travels with the unported add_mon_info), BUG-1420 ba73baa4b
+  (ALL potion.c drow-poison arms - quaff was
+  impossible("What a funny potion!") with every drow starting
+  with two - incl. both fungus recipes with BUG-731's guards),
+  BUG-1421 cbb0c86de (taint parity across 9 more files:
+  hero-side hmon_hitmon_taint + mon-vs-mon + mthrowu arms,
+  "tainted" display/wish, cancel/poly/gen carry; retired the
+  mislabeled u_init zombification TODO). Item 7 (door color)
+  needed nothing - both rows already record the Phase 4
+  dependency. The battery yielded two NEW pre-existing findings,
+  minted as rows: is_poisonable's ammo-only width vs master's
+  all-piercing form, and hand-thrown ammo skipping poison/taint
+  entirely (a 5.0 refactor regression, also upstream-reportable);
+  plus the pet rare-bag LOW row
+- Previous fix: 2026-07-31, the PORT-GAP BATCH - seven commits closing
   three review rows (items 4/5/6) in one slice; battery 8/8 core
   legs PASS in one Barbarian XL30 game, paniclog never created:
   BUG-1409 67ae1c655 (hitval+dmgval cursed-vs-celestial arms;
@@ -42,30 +69,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   upgraded to MEDIUM after the battery's stretch leg killed a
   levitating steed on dismount through the documented
   grounded(mdat) gap (live repro on the row)
-- Previous fix: 2026-07-30 NIGHT, BUG-1407 + BUG-1408 (3d94580ad /
-  bd45c47a6; battery 4/4 PASS - gremlin farming dead: first proc
-  stripped 40% fire res and gifted exactly one gremlin with the
-  prop word gdb-verified 0x10000028 -> 0x00000000, then 45 procs
-  zero repeats/zero re-gifts; crowned donor survived 44 procs
-  untouched; lich vs 50% cold res landed real frost 11x where
-  pre-fix substituted physical while 100% still converts; all four
-  trap-prompt A/B legs unchanged; paniclog never created) - the
-  partial-resistance-consumers slice (review items 20+21).
-  BUG-1407: decr_resistance() now clears a spent HAVEPARTIAL (the
-  phantom kept binary macros TRUE at 0% - master-inherited,
-  frozen-unfixed there) and attrcurse()'s six resistance cases
-  compare how_resistant() before/after so only a real drop
-  messages and returns the property - closing the branch-side
-  mon_give_prop() farming loop AND the crowned-donor no-op vector
-  found at fix time (FROMOUTSIDE pinned at 100 yet still
-  returning ret). BUG-1408: the lich AT_TUCH cold->physical
-  conversion and immune_to_trap()'s sleep/fire hero arms now key
-  on how_resistant(X) == 100 per the partial-resistance rulings;
-  premise correction recorded on the row - the trap arms were
-  INERT (sole consumer only skips prompts for CLEARLY_IMMUNE),
-  the lich arm was the live half (95% hero took ~10x intended
-  damage). Incremental builds green, zero warnings
 - Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-30 NIGHT BUG-1407 3d94580ad + BUG-1408 bd45c47a6
+  (partial-resistance consumers slice, items 20+21; battery 4/4
+  PASS - gremlin farming dead, crowned donor intact, lich arm was
+  the live half with the trap arms proven INERT);
   2026-07-30 BUG-1400 67547eee2 + BUG-1401 a09223367 (passive-arms
   HIGHs: passive_obj AD_DISN + void->int with thrower reactions,
   passive AD_CNCL; battery 8/8 PASS) and BUG-1402 a202b734f +
@@ -789,7 +797,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       self-hit, monster teleport-AI (decide_to_teleport),
       pet-stash filter, vulnerable_to/mon_underwater severity,
       "tainted " xname prefix (drow-poison - producers exist,
-      display does not), resists_magm defends(AD_MAGM)+W_BARDING
+      display does not; LANDED 2026-07-31 with BUG-1421's parity
+      sweep), resists_magm defends(AD_MAGM)+W_BARDING
       (artifact-defense wiring: Striped Shirt/Ring of P'hul/Eyes
       of the Overworld/Ithilmar do not confer MR when worn yet),
       mk_artifact forged_qual/affixed_gem zeroing (Forging),
@@ -6559,19 +6568,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       new color" comment describes behavior that does not exist.
       DEPENDENCY: belongs with the Phase 4 color rows - carry it
       onto their list when that phase opens.
-- [ ] SUPPRESS_RIDER farlook hedge unported (NEW, minted 2026-07-30
+- [x] SUPPRESS_RIDER farlook hedge unported (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM port gap). pager.c has the
       Rider "riding its steed" hedge but master's x_monnam
       SUPPRESS_RIDER mechanism is absent, so farlook prints "Death,
       riding its steed" - the steed name leaks which Rider is
       mounted. Re-verify the exact leak shape at fix time.
-- [ ] is_lightblocker_mappear() missing the S_deadtree row (NEW,
+      LANDED 2026-07-31 as BUG-1419 (commit fd5021875; battery all
+      four sub-checks PASS - blind+ESP farlook "Rider, riding its
+      steed", '/' prompt says "rider", sighted farlook names Death,
+      livelog records "put Death down for a little nap"). PREMISE
+      CORRECTION: the leak was backwards - the hedge already hid
+      the steed; the Rider's OWN name leaked, plus again via the
+      '/' prompt. Flag is 0x100 (0x40 = AUGMENT_IT here); end.c
+      needs no opt-out (done_in_by formats via pmname); master's
+      "no stats via farlook" hedge guards add_mon_info(), which is
+      UNPORTED - it must travel with the monster-stats display
+      feature when that ports.
+- [x] is_lightblocker_mappear() missing the S_deadtree row (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       include/monst.h: the branch macro ends at S_tree where master
       continues with S_deadtree, so a garden/forest mimic disguised
       as a dead tree is see-through while a real dead tree blocks
       sight - a free mimic tell. One line; seemimic() reads the same
       macro, so discovery unblocking is fixed by the same edit.
+      LANDED 2026-07-31 as BUG-1417 (commit b80fefbde; by
+      inspection - no GARDEN/FOREST room appeared in the battery
+      game and the leg was opportunistic by design; consumers
+      verified: does_block, mimic_light_blocking, seemimic's
+      capture-then-conditional-unblock is symmetric). Verification
+      upgraded the stakes: forest mimics take S_deadtree 7-in-8,
+      garden 1-in-3 - the dominant disguise, not a corner.
 - [ ] tipcontainer missing BUG-1284's third arm (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       pickup.c generic-destination tip branch: no ice-box age-freeze
@@ -6584,7 +6611,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (branch-shaped condition widening; do_boh_explosion and
       boh_loss got the same missing pre-check). This row now owes
       only the ice-box age-freeze/stop_timer third arm.
-- [ ] POT_DROW_POISON quaff/breathe arms unported (NEW, minted
+      LANDED 2026-07-31 as BUG-1418 (commit 017682b05; battery
+      PASS - tipped troll corpse timed=0 with age flipped, #loot
+      control unregressed, floor-control troll DID revive, both
+      boxed corpses inert 250 turns later). Copied the BRANCH's
+      in_container block (ice-troll uncancel + SHRINK_GLOB, beyond
+      master's reduced arm); sibling-sweep find: hornoplenty() can
+      tip corpses into an ice box too - same block added there
+      (mkobj.c). Upstream 5.0 shares the original gap. Row DONE.
+- [x] POT_DROW_POISON quaff/breathe arms unported (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       potion.c peffects() and potionbreathe() have no case, so
       quaffing one lands in impossible("What a funny potion!") - and
@@ -6592,13 +6627,68 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       how_resistant(SLEEP_RES) and scale with resist_reduce
       POISON_RES - port in partial-resistance form per the standing
       rulings.
-- [ ] searches_for_item() Is_container-range widening (NEW, minted
+      LANDED 2026-07-31, scope WIDENED to full drow-poison parity
+      by session ruling, two commits: BUG-1420 ba73baa4b (ALL
+      potion.c arms - quaff/thrown/vapor/mixtype x2/fungus recipes
+      x2 with BUG-731 guards/coating/cross-guards/healing strip;
+      battery legs a-h PASS) and BUG-1421 cbb0c86de (taint parity
+      sweep across 9 more files: hero-side hmon_hitmon_taint +
+      mon-vs-mon + mthrowu arms, mpoisons_subj, "tainted" xname/
+      doname/killer/wish display+parse, cancel+poly_obj carry,
+      mksobj gen rolls, u_init clear retiring the mislabeled
+      zombification TODO; battery PASS incl. gdb-verified abuse
+      event). pray.c altar-strip stays with the sacrifice-gift
+      feature (oprops deferral list). Battery yielded TWO NEW
+      pre-existing findings, minted as rows below (is_poisonable
+      width; hand-thrown ammo skips poison/taint).
+- [x] searches_for_item() Is_container-range widening (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM port gap). muse.c:
       monsters now seek and pick up bags of treasure/devouring
       (master whitelists containers there). Add the two-otyp
       exclusion mirroring find_misc()'s MUSE_BAG arm in the same
       file - the widening commit fixed that sibling and missed this
       one.
+      LANDED 2026-07-31 as BUG-1416 (commit a3f673272; battery
+      PASS - gnome lord on the pile took the sack + a tin, both
+      rare bags untouched across ~40 monster-turns). Two in-tree
+      TODOs (mon.c mpickstuff, monmove.c goal arm) had
+      pre-specified the exclusion; they stay - they gate the
+      unported container-cracking port. Pet residual minted as a
+      LOW row below.
+- [ ] is_poisonable() range narrower than master (NEW, minted
+      2026-07-31 by the BUG-1420/1421 battery; MEDIUM port gap,
+      affects poison AND taint). Branch include/obj.h keeps
+      upstream 5.0's ammo/missile-only form (oc_skill in
+      [-P_SHURIKEN, -P_BOW], plus the branch's permapoisoned
+      rider); master covers every non-launcher WEAPON_CLASS item
+      with oc_dir != WHACK - daggers, spears, swords. On the
+      branch, dipping an elven dagger into drow poison OR sickness
+      prints "Interesting..." and coats nothing, and wishes for
+      poisoned/tainted daggers silently drop the adjective
+      (readobjnam gates on the same macro). Widening changes
+      generation too (mksobj poison/taint rolls and makemon drow
+      producers gate on it) - audit consumers before flipping.
+- [ ] Hand-thrown ammo never applies poison or taint (NEW, minted
+      2026-07-31 by the BUG-1421 battery; MEDIUM port gap,
+      upstream-shared). hmon_hitmon_weapon() routes is_ammo &&
+      (thrown != HMON_THROWN || !ammo_and_launcher) to
+      hmon_hitmon_weapon_ranged(), which never sets
+      hmd->ispoisoned/istainted - both flags are set only in the
+      melee helper's thrown-ammo tail, which such throws never
+      reach. A poisoned arrow thrown by hand hits with no poison;
+      battery-observed with a tainted elven arrow. Thrown darts
+      are is_missile, take the melee helper, and work. Routing and
+      flag placement are byte-identical in NetHack50 - an upstream
+      5.0 regression vs 3.6 (master's monolithic hmon_hitmon
+      applies poison on every WEAPON_CLASS hit); also entered in
+      the Upstream-reportable table.
+- [ ] Pets still fetch the two rare bags (NEW, minted 2026-07-31
+      with BUG-1416; LOW, master-shared). dogmove.c dog_invent()
+      picks up floor items via the nofetch class filter and never
+      consults searches_for_item(), so a pet will carry an
+      uncursed bag of treasure/devouring after BUG-1416. Master
+      has the same shape; fix is a beyond-master decision (add the
+      two otyps to dog_invent's exclusions if wanted).
 - [x] mhitm.c res[i] clobber in both mattackm miss arms (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM regression).
       res[i] = M_ATTK_DEF_DIED overwrites a just-set M_ATTK_AGR_DIED
@@ -7055,6 +7145,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-29 | mon.c `mon_sanity_check()` carves the parked vault guard out of its position test - `if (!isok(x, y) && !(mtmp->isgd && x == 0 && y == 0))` - but not out of its final `mon_offmap()` test, so the `MON_PARKED` bit that `parkguard()` (vault.c) legitimately sets while the temporary corridor is torn down trips `impossible("floor mon (%s) with mstate set to 0x%08lx")` once per guard departure. The state is correct and the check is incomplete, which is the inverse of the MON_BUBBLEMOVE bug above. Identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
 | 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | found on branch; fix pending |
+| 2026-07-31 | uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | found on branch (BUG-1421 battery); not yet sent |
 
 ## Master re-derive queue
 
