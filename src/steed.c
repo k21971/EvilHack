@@ -95,6 +95,10 @@ mount_monster(
             && !(mount->data == &mons[PM_PALE_HORSE]
                  || mount->data == &mons[PM_WHITE_HORSE]
                  || mount->data == &mons[PM_BLACK_HORSE]))) {
+        /* take back the just-made steed instead of leaving it placed
+           on the map to roam unridden */
+        if (mount)
+            mount = unmakemon(mount, MM_ADJACENTOK);
         return;
     }
     steed_off_map(mount);
