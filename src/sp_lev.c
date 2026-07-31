@@ -1165,6 +1165,7 @@ staticfn int
 rndtrap(void)
 {
     int rtrap;
+    int tries = 0;
 
     do {
         rtrap = rnd(TRAPNUM - 1);
@@ -1172,6 +1173,17 @@ rndtrap(void)
         case HOLE: /* no random holes on special levels */
         case VIBRATING_SQUARE:
         case MAGIC_PORTAL:
+            rtrap = NO_TRAP;
+            break;
+        case ICE_TRAP_SET:
+            /* random generation is tied to the Ice Queen branch, which
+               has not been ported yet */
+            rtrap = NO_TRAP;
+            break;
+        case TRAPPED_DOOR:
+        case TRAPPED_CHEST:
+            /* these are controlled by the feature or object they guard,
+               not by the map, so mustn't be created on it */
             rtrap = NO_TRAP;
             break;
         case TRAPDOOR:
@@ -1189,6 +1201,10 @@ rndtrap(void)
                 rtrap = NO_TRAP;
             break;
         }
+        /* defensive: if every candidate gets filtered out we'd spin
+           forever; give up and return a plausible default */
+        if (++tries > 200)
+            return ARROW_TRAP_SET;
     } while (rtrap == NO_TRAP);
     return rtrap;
 }
