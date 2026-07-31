@@ -1281,17 +1281,7 @@ mcalcmove(
 void
 mcalcdistress(void)
 {
-    struct monst *mtmp;
-
-    /* not iter_mons(): that skips every off-map monster, and a steed
-       carrying a monster rider is off the map for the whole time it is
-       ridden - it would never regenerate, never time out being blinded
-       or frozen, and never recharge a special attack */
-    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp) || (mon_offmap(mtmp) && !mtmp->ridden_by))
-            continue;
-        m_calcdistress(mtmp);
-    }
+    iter_mons(m_calcdistress);
 }
 
 staticfn void
@@ -6115,7 +6105,10 @@ iter_mons(void (*vfunc)(struct monst *))
 
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-        if (DEADMONSTER(mtmp) || mon_offmap(mtmp))
+        /* a monster's ridden steed is off the map for the whole time it
+           is ridden but must still be iterated; its coordinates mirror
+           its rider's */
+        if (DEADMONSTER(mtmp) || (mon_offmap(mtmp) && !mtmp->ridden_by))
             continue;
         (*vfunc)(mtmp);
     }
@@ -6131,7 +6124,7 @@ get_iter_mons(boolean (*bfunc)(struct monst *))
 
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-        if (DEADMONSTER(mtmp) || mon_offmap(mtmp))
+        if (DEADMONSTER(mtmp) || (mon_offmap(mtmp) && !mtmp->ridden_by))
             continue;
         if ((*bfunc)(mtmp))
             break;
@@ -6151,7 +6144,7 @@ get_iter_mons_xy(
 
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-        if (DEADMONSTER(mtmp) || mon_offmap(mtmp))
+        if (DEADMONSTER(mtmp) || (mon_offmap(mtmp) && !mtmp->ridden_by))
             continue;
         if ((*bfunc)(mtmp, x, y))
             break;
