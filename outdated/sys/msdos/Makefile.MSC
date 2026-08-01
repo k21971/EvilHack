@@ -785,7 +785,9 @@ nhdat:	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(DAT)\options \
 	@echo Kni-goal.lua >>dlb.lst
 	@echo Kni-loca.lua >>dlb.lst
 	@echo Kni-strt.lua >>dlb.lst
-	@echo knox.lua >>dlb.lst
+	@echo knox-1.lua >>dlb.lst
+	@echo knox-2.lua >>dlb.lst
+	@echo knox-3.lua >>dlb.lst
 	@echo medusa-1.lua >>dlb.lst
 	@echo medusa-2.lua >>dlb.lst
 	@echo medusa-3.lua >>dlb.lst

@@ -1,4 +1,4 @@
--- NetHack knox knox.lua	$NHDT-Date: 1781994882 2026/06/20 22:34:42 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.6 $
+-- NetHack knox knox-1.lua	$NHDT-Date: 1781994882 2026/06/20 22:34:42 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.6 $
 --	Copyright (c) 1989 by Jean-Christophe Collet
 --	Copyright (c) 1992 by Izchak Miller
 -- NetHack may be freely redistributed.  See license for details.
@@ -17,12 +17,12 @@ des.map([[
 |   #   |........}}}}}}}....................}}}}}}}..........|..........|..|
 |   #   |........}-----}....................}-----}..........--+--+--...|..|
 |   # ---........}|...|}}}}}}}}}}}}}}}}}}}}}}|...|}.................|...|..|
-|   # |..........}---S------------------------S---}.................|...|..|
+|   # |..........}--------------------------------}.................|...|..|
 |   # |..........}}}|...............|..........|}}}.................+...|..|
-| --S----..........}|...............S..........|}...................|...|..|
-| |.....|..........}|...............|......\...S}...................|...|..|
+| --S----..........}|...............|..........|}...................|...|..|
+| |.....|..........}|...............|......\...|}...................|...|..|
 | |.....+........}}}|...............|..........|}}}.................+...|..|
-| |.....|........}---S------------------------S---}.................|...|..|
+| |.....|........}--------------------------------}.................|...|..|
 | |.....|........}|...|}}}}}}}}}}}}}}}}}}}}}}|...|}.................|...|..|
 | |..-S----......}-----}....................}-----}..........--+--+--...|..|
 | |..|....|......}}}}}}}....................}}}}}}}..........|..........|..|
@@ -43,13 +43,18 @@ des.region({ x1=37,y1=08,x2=46,y2=11, lit=1, type="throne", filled=1 })
 --   50% chance each to move throne and/or fort's entry secret door up one row
 if percent(50) then
    des.monster({ id = "Croesus", x=43, y=10, peaceful = 0 })
+   des.feature("magic chest", 42, 10)
 else
    des.monster({ id = "Croesus", x=43, y=09, peaceful = 0 })
    des.terrain(43,09, "\\")
    des.terrain(43,10, ".")
+   des.feature("magic chest", 42, 09)
 end
 if percent(50) then
-   des.terrain(47,09, "S")
+   des.door({ state = "secret", material = "gold", x = 47, y = 10 })
+   des.terrain(47,09, "|")
+else
+   des.door({ state = "secret", material = "gold", x = 47, y = 09 })
    des.terrain(47,10, "|")
 end
 
@@ -71,8 +76,11 @@ treasury:iterate(treasure_spot);
 
 --   Vault entrance also varies
 if percent(50) then
+   des.door({ state = "secret", material = "gold", x = 36, y = 09 })
+   des.terrain(36,10, "|")
+else
+   des.door({ state = "secret", material = "gold", x = 36, y = 10 })
    des.terrain(36,09, "|")
-   des.terrain(36,10, "S")
 end
 --   Corner towers
 des.region(selection.area(19,06,21,06),"lit")
@@ -122,6 +130,11 @@ des.door("closed",63,14)
 des.door("closed",66,14)
 des.door("closed",04,03)
 des.door("closed",04,09)
+-- Secret doors to gem rooms
+des.door({ state = "secret", material = "gold", x = 21, y = 07 })
+des.door({ state = "secret", material = "gold", x = 21, y = 12 })
+des.door({ state = "secret", material = "gold", x = 46, y = 07 })
+des.door({ state = "secret", material = "gold", x = 46, y = 12 })
 -- Soldiers guarding the fort
 des.monster("soldier",12,14)
 des.monster("soldier",12,13)
@@ -165,3 +178,12 @@ des.object("ruby",48,06)
 des.object("amethyst",46,13)
 des.object("amethyst",47,13)
 des.object("amethyst",48,13)
+-- magic key is in an iron safe
+des.object({ id = "iron safe", x = 03, y = 16, locked = 1,
+   contents = function()
+      des.object("magic key")
+      des.object("*")
+      des.object("=")
+      des.object("\"")
+   end
+})

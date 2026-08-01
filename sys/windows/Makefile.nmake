@@ -733,7 +733,8 @@ LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)bigrm-5.lua $(DAT)bigrm-6.lua $(DAT)bigrm-7.lua \
 	$(DAT)bigrm-8.lua $(DAT)bigrm-9.lua $(DAT)castle.lua \
 	$(DAT)fakewiz1.lua $(DAT)fakewiz2.lua $(DAT)juiblex.lua \
-	$(DAT)knox.lua $(DAT)medusa-1.lua $(DAT)medusa-2.lua \
+	$(DAT)knox-1.lua $(DAT)knox-2.lua $(DAT)knox-3.lua \
+	$(DAT)medusa-1.lua $(DAT)medusa-2.lua \
 	$(DAT)medusa-3.lua $(DAT)medusa-4.lua $(DAT)minend-1.lua \
 	$(DAT)minend-2.lua $(DAT)minend-3.lua $(DAT)minefill.lua \
 	$(DAT)minetn-1.lua $(DAT)minetn-2.lua $(DAT)minetn-3.lua \
@@ -774,7 +775,7 @@ LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)quest.lua
 
 luawildcards = asmodeus.lua baalz.lua bigrm-*.lua castle.lua fakewiz?.lua \
-	juiblex.lua knox.lua medusa-?.lua minend-?.lua minefill.lua \
+	juiblex.lua knox-?.lua medusa-?.lua minend-?.lua minefill.lua \
 	minetn-?.lua oracle-?.lua orcus.lua sanctum.lua soko?-?.lua tower?.lua \
 	valley.lua wizard?.lua nhcore.lua nhlib.lua themerms.lua astral.lua \
 	air.lua earth.lua fire.lua water.lua hellfill.lua tut-?.lua \
