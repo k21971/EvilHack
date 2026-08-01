@@ -17,6 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
+- Tooling 2026-08-01 (after the slice below): the Phase 3 converter
+  GATE row is ALSO closed - ~/des_to_lua.pl gained the terrain
+  remap (w -> p) + fatal out-of-vocabulary gate, full-corpus
+  regression and a live engine leg PASS, crib sheet documented.
+  Failure-mode corrected on the row (silent erasure into the
+  solidfill, not walls; Healer's puddles would have become
+  DROWNING POOL). PHASE 3 CONVERSION IS UNBLOCKED - both gates
+  (LEV_LIMIT + converter) are now down; next Phase 3 step is the
+  first delta-diff level batch
 - Last fix: 2026-08-01, the LEV_LIMIT slice - THE PHASE 3 GATE ROW
   IS CLOSED. Three commits: BUG-1453 (init_dungeon_levels/
   init_dungeon_branches bound their lua_len counts BEFORE the fill
@@ -4789,6 +4798,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch uses water_damage_chain.
       PHASE 3 CARRY: ~/des_to_lua.pl emits master's 'w' for puddles
       and MUST be remapped to 'p' before the level conversions run.
+      (CARRY DISCHARGED 2026-08-01 - the converter GATE row in the
+      Phase 3 checklist is ticked with the full evidence.)
 - [ ] Damp-terrain behavior sweep (NEW, minted 2026-07-25 by the
       terrain slice): thread master's is_damp_terrain/is_puddle/
       is_sewage through their ~110 call sites across ~30 files
@@ -5314,7 +5325,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       init_dungeon_dungeons(). Fix-opportunistically: a
       validation pass in the loader printing WHAT overflowed
       before panicking would restore master's authoring
-      ergonomics.
+      ergonomics. SAME THEME (added 2026-08-01 by the converter
+      GATE slice): lspo_map's invalid-map-char arm is an
+      unimplemented upstream TODO ("/* TODO: warn about illegal
+      map char */" then continue), so a bad map char silently
+      keeps the fill terrain - engine-proven with a 'w' cell
+      loading as STONE, zero messages. Implementing that warning
+      belongs to this row.
 - [x] Halloween undead generation bonus (NEW, minted 2026-07-26 by
       the A_NONE fix, a sibling gap in the same function).
       Master's rndmonst_adj() carries
@@ -7386,11 +7403,51 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | Druid.des | 5 | from-scratch | | | | |
 | Infidel.des | 5 | from-scratch | | | | |
 
-- [ ] GATE BEFORE ANY CONVERSION (NEW, minted 2026-07-30 from the
+- [x] GATE BEFORE ANY CONVERSION (NEW, minted 2026-07-30 from the
       2026-07-29 review): ~/des_to_lua.pl still emits 'w' for
       PUDDLE, which on this branch is MATCH_WALL - every converted
       level would silently turn puddles into walls. Add a converter
       remap or hard assertion first.
+      DONE 2026-08-01 - both the remap AND the assertion, with a
+      FAILURE-MODE CORRECTION: MATCH_WALL(45) >= MAX_TYPE(44), and
+      every Lua emission channel SKIPS such cells (lspo_map
+      continue, set_levltyp reject, replace_terrain no-op), so
+      puddles would not have become walls - they would have
+      SILENTLY VANISHED into the level's solidfill: STONE on 8 of
+      the 10 affected files (connectivity risk), POOL on Healer
+      (shallow water becoming drowning water), ROOM on Knight.
+      WIDENED at planning: 'Z' is a SECOND silent collision
+      (master MAGIC_CHEST vs 5.0's upstream-standard LAVAWALL -
+      both sides valid, zero errors) and 'U' (FORGE) has no branch
+      binding at all (INVALID_TYPE; lspo_map's warning is an
+      unimplemented upstream TODO). Both have zero map-block uses
+      in master (directives only) and both route via des.feature
+      by name ("magic chest"/"forge" - branch name-table
+      additions), so no engine map-chars are needed. Context
+      hazard honored: 'w'/'s' are also monster class chars (14
+      giant-leech sites), so terrain_char() applies only in
+      terrain funnels (MAP blocks, mapchar_of/terrain_value, the
+      MAZE fill, INIT_MAP fg/bg); out-of-vocabulary chars die
+      with nonzero exit. Corpus regression: all 36 master .des
+      converted pre/post - 2237/2237 puddle map cells remapped
+      (per-file counts match the census exactly), 344 changed
+      lines every one pure w->p, all des.monster lines
+      byte-identical, luac 230/233 (the same three known
+      hand-finish files). Gate proof: crafted Z/U levels die at
+      the right line with the des.feature route in the message.
+      Engine leg (throwaway playground, rebuilt nhdat): converted
+      'p' loads as PUDDLE typ 42; the old 'w' output loads as
+      solidfill STONE with no message and no paniclog line -
+      the silent-erasure counterfactual demonstrated live.
+      Crib sheet gained a Map characters section (its old "map
+      char kept" limitation note read as an endorsement of raw
+      pass-through - corrected). Phase 3 conversion UNBLOCKED.
+      Observed en route, not chased: the test level's POOL
+      control cell loaded as ROOM with a des.stair directive
+      targeting it (DRY-diverted stair, pool absent in both
+      legs) - flag if real conversions show pool loss near
+      stairs; and #wizloaddes applies flip_level_rnd, so
+      coordinate probes must account for random flips.
 - [ ] dungeon.def -> dat/dungeon.lua (branches: Ice Queen etc.)
 - [x] quest.txt -> quest.lua converter BUILT + VALIDATED (2026-07-03,
       ~/quest_to_50.py; output quest_evilhack.lua 18 sections / 1066
@@ -7633,7 +7690,7 @@ trees, different content - Phase 0 rename).
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
 | 2026-07-25 | EvilHack terrain enum placement mirrors MASTER'S RELATIVE ORDER (DEADTREE after TREE; GRASS/SAND after ICE; PUDDLE/SEWAGE after CLOUD) rather than appending at the end - this keeps every range macro's meaning without rewriting it: IS_OBSTRUCTED(<POOL) catches DEADTREE as solid, IS_ROOM(>=ROOM) catches GRASS/SAND as walkable floor, IS_FURNITURE(STAIRS..ALTAR) is undisturbed. MAX_TYPE 39->44, MATCH_WALL 40->45, xFLOOR..xWATERWALL +5; terrain_descr[]/levltyp[]/type_names[] are positional and shift with them. 5.0's open-ended `ACCESSIBLE(typ) >= DOOR` deliberately LEFT ALONE (master bounds it `<= SEWAGE`; the open form already spanned MAX_TYPE before this change and is not a bug) | coordinator |
 | 2026-07-25 | struct rm `Bitfield(flags, 5)` WIDENED TO 6 so master's renumbered ICED_PUDDLE 4 / ICED_SEWAGE 8 / ICED_POOL 16 / ICED_MOAT 32 fit (32 overflows 5 bits; master widened it too). levl saves whole-struct via historical_sfo_rm so there is no hand sfo/sfi pair and no new field, leaving the generated exportascii writers unchanged. Master's neighbouring frac_altar bit deliberately NOT adopted (sacrifice subsystem, different slice). CAVEAT THAT BIT US: sizeof(struct rm) is 12 either way, so critical_sizes[] does NOT invalidate old saves - EDITLEVEL bumped 0 -> 1 to arm it. Applies to ANY future bitfield widening | coordinator |
-| 2026-07-25 | PUDDLE takes map char 'p', NOT master's 'w': 5.0 already uses 'w' for MATCH_WALL and four upstream levels depend on it (hellfill, nhlib, themerms, bigrm-11). Empirically scanned every map/mapfragment block across all 131 dat/*.lua - the complete charset in use is `#+-.ABCFLPSTWZ\wx{\|}`, so master's 's'/'g'/'a'/'t' stay master-compatible and only PUDDLE needed a new char ('p' free, mnemonic against 'P' = POOL). Phase 3 carry: des_to_lua.pl emits 'w' for puddles and must be remapped | coordinator |
+| 2026-07-25 | PUDDLE takes map char 'p', NOT master's 'w': 5.0 already uses 'w' for MATCH_WALL and four upstream levels depend on it (hellfill, nhlib, themerms, bigrm-11). Empirically scanned every map/mapfragment block across all 131 dat/*.lua - the complete charset in use is `#+-.ABCFLPSTWZ\wx{\|}`, so master's 's'/'g'/'a'/'t' stay master-compatible and only PUDDLE needed a new char ('p' free, mnemonic against 'P' = POOL). Phase 3 carry: des_to_lua.pl emits 'w' for puddles and must be remapped (DISCHARGED 2026-08-01 - the converter GATE row) | coordinator |
 | 2026-07-24 | how_resistant() honors FROMOUTSIDE as 100% - divine/external permanent grants are full strength (fixes master's crowned-sick-res-reads-0% quirk, archived BUG-1357; the crowning grant itself stays `HSick_resistance \|= FROMOUTSIDE` master-exact). Rejected: master-exact 0% read; producer-side rework | maintainer |
 | 2026-07-24 | how_resistant() reads the TIMEOUT bits as a percentage ONLY when HAVEPARTIAL is set; a plain timed intrinsic reads 100 while active and expires via nh_timeout (reconciles 5.0-native timed grants - lava double-lifesave hatch, mid-meal acid/stone res - with the percentage system; no-op vs master, which has zero timed grants on the eight queried props). Rejected: master-exact raw read (5.0 features misbehave); rewriting the two 5.0 grant mechanisms | maintainer |
 | 2026-07-23 | Off-hand/twoweap artifact extrinsics = MASTER PARITY: setworn admits W_SWAPWEP while u.twoweap (teardown stays unconditional per master's own form) + wield.c dotwoweapon/untwoweapon/retwoweapon reseat brackets; un-deadens the oprops W_SWAPWEP mapping arm. Rejected: keep 5.0's no-off-hand-intrinsics policy (real nerf vs master) | maintainer |
