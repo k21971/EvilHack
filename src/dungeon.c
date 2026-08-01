@@ -386,7 +386,12 @@ level_range(
     int lmax = svd.dungeons[dgn].num_dunlevs;
 
     if (chain >= 0) { /* relative to a special level */
-        s_level *levtmp = pd->final_lev[chain];
+        s_level *levtmp;
+
+        if (chain >= LEV_LIMIT)
+            panic("level_range: chain (%d) out of range (max %d)",
+                  chain, LEV_LIMIT - 1);
+        levtmp = pd->final_lev[chain];
         if (!levtmp)
             panic("level_range: empty chain level!");
 
