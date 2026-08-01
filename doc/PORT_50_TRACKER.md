@@ -17,7 +17,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Last fix: 2026-07-31 LATE NIGHT, the opportunistic REVIEW-LOW
+- Last fix: 2026-08-01, the LEV_LIMIT slice - THE PHASE 3 GATE ROW
+  IS CLOSED. Three commits: BUG-1453 (init_dungeon_levels/
+  init_dungeon_branches bound their lua_len counts BEFORE the fill
+  loops - the post-loop checks let an oversized dungeon.lua corrupt
+  proto_dungeon and the init_dungeons() stack before panicking;
+  upstream-inherited from the 5.0 Lua rewrite, byte-identical in
+  both upstream trees, artifact ~/nh50-dungeon-init-guards.patch),
+  BUG-1454 (level_range() regained master's chain >= LEV_LIMIT
+  bound - EvilHack hardening vanilla lacks, port gap), and the
+  LEV_LIMIT 50 -> 99 bump BY SESSION RULING now rather than with
+  the Phase 3 content (save-neutral, proven by a live cross-build
+  restore: a save written at 50 restored byte-identical at 99).
+  Battery ALL LEGS PASS: end-to-end padded-nhdat panics with write
+  breakpoints unhit (loop counters still uninitialized at the
+  panic), "max 98" tracking the bumped constant, all 9 dungeons +
+  Mines/Sokoban traversals + same-build round trip clean; real
+  paniclog never existed (deliberate panic lines confined to a
+  throwaway playground copy). Row corrections recorded: SIX
+  master-only dungeons (the Wizard's Tower hoist was uncounted),
+  post-port ~49 prototypes/15 dungeons; MAXDUNGEON 16 is the real
+  binding constraint (exactly 15/15 post-port, kept at 16 by
+  ruling, master parity). A LOW authoring-ergonomics row minted
+  (the Lua loader lost dgn_comp.y's whole compile-time validation
+  layer)
+- Previous fix: 2026-07-31 LATE NIGHT, the opportunistic REVIEW-LOW
   residue - five commits draining the pipeline's final five rows,
   battery 4/4 legs PASS one human Rogue XL30 game, paniclog never
   existed: BUG-1450 69283d87f (incr/decr_resistance start from 0
@@ -37,26 +61,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   no-steed-links invariant comment 784fc50d3. All four
   master-inherited frozen-unfixed; the 2026-07 review pipeline is
   FULLY DRAINED
-- Previous fix: 2026-07-31 NIGHT, the REVIEW-MEDIUM slice - four
-  commits closing all four reviewer re-run MEDIUMs, battery 6/6
-  legs PASS one chaotic Rogue game, paniclog never existed:
-  BUG-1445 de333b251 (update_monsteed at both open-coded swaps -
-  domove_swap_with_pet port regression + the mdisplacem sibling
-  UPGRADED to a live master-inherited path, Riders are
-  M3_DISPLACES and always mounted), BUG-1446 c4544ad9b
-  (slippery ice hero gate how_resistant==100 + graded roll
-  unmounted-only; 40% partial measured ~1/2 where pre-fix NEVER
-  fumbled), BUG-1447 e70c635bb (lava escape grant word-safe by
-  RULING - Wwalking is the partials' escape; zero behavior delta
-  proven across 7 word states, the naive-gate corruption
-  0x10000028->0x10000005 demonstrated, and the burncount==2 arm
-  found UNREACHABLE on a normal level - safe_teleds succeeds
-  first try), BUG-1448 c7e00ecf8 (vulnerable_to hero leg via
-  u_full_resist_raw() raw layers - no recursion; both acquisition
-  orders agree, monster leg unchanged). One NEW pre-existing
-  finding minted: the Vulnerable_* macro word arm bypasses the
-  resistance override (order-dependence one layer up)
 - Earlier fixes this window (detail in the archive + ticked rows):
+  2026-07-31 NIGHT BUG-1445..1448 (REVIEW-MEDIUM slice, four
+  commits; battery 6/6 PASS one chaotic Rogue game; update_monsteed
+  at both open-coded swaps, slippery-ice how_resistant==100 gate,
+  lava-grant word-safety by ruling, vulnerable_to
+  u_full_resist_raw override; minted the Vulnerable_* macro
+  word-arm row the next slice closed);
   2026-07-31 LATE EVENING BUG-1443 d7bd8421e + BUG-1444 7fc3b5a86
   (REVIEW-HIGH slice: ok_to_obliterate excludes both mounted-pair
   halves + elemental_clog Astral no-candidate arm -> m_into_limbo
@@ -5239,7 +5250,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
          continue" and hangs an unattended run. Launch with
          `--no-evilhackrc`. Also `-@` does NOT suppress character
          selection in this build - it still prompts, answer 'y'.
-- [ ] LEV_LIMIT must be raised before the EvilHack dungeons land
+- [x] LEV_LIMIT must be raised before the EvilHack dungeons land
       (NEW, minted 2026-07-26 by the code reviewer on the dungeon-
       alignment slice). include/dgn_file.h on the branch carries
       upstream 5.0's `LEV_LIMIT 50`; master raised it to 99 for
@@ -5260,6 +5271,50 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       means the failure mode when the limit IS hit is a silent
       stack smash rather than the intended panic. Worth fixing in
       the same slice as the bump.
+      DONE 2026-08-01 as the Phase 3 gate slice, three commits.
+      SESSION RULING reversing the mint-time timing note: the bump
+      landed NOW (save-neutral - proto_dungeon is a stack local of
+      init_dungeons() and the dungeon save format is count-prefixed
+      throughout; PROVEN LIVE by a cross-build restore, a save
+      written at 50 restoring byte-identical at 99), so Phase 3 is
+      un-gated completely. BUG-1453 = both loaders bound the
+      lua_len count BEFORE their fill loops (branches sibling
+      init_dungeon_branches() had the same shape); upstream-
+      reportable, byte-identical in both 5.0 trees, artifact
+      ~/nh50-dungeon-init-guards.patch; battery proved the panic
+      end-to-end with a padded rebuilt nhdat (100 > 99), write
+      breakpoints unhit. BUG-1454 = level_range() regained
+      master's chain >= LEV_LIMIT bound (EvilHack hardening,
+      vanilla 3.6 lacks it - port gap, NOT upstream-reportable);
+      "max 98" in the live panic proves the bound tracks the new
+      constant. ROW CORRECTIONS from the planning census: the
+      master-only dungeons are SIX, not five - the list above
+      misses The Wizard's Tower (master hoists wizard1-3 out of
+      Gehennom via a wizportal CHAINBRANCH); post-port target is
+      ~49 prototypes (master 47 + Tutorial 2), 15 dungeons, ~13
+      branches. THE BINDING CONSTRAINT IS MAXDUNGEON, not
+      LEV_LIMIT: global.h's 16 with init_dungeons()'s `>=` guard
+      means max 15 dungeons and the full port lands at EXACTLY 15,
+      zero spare - kept at 16 by session ruling (master parity;
+      master runs 14 of 15); a 16th dungeon must bump it
+      (save-neutral too, dungeons[] is saved count-prefixed).
+- [ ] LOW, record for Phase 3 authoring (minted 2026-08-01 by the
+      LEV_LIMIT slice): the Lua loader has NO equivalent of
+      master's dgn_comp.y compile-time validation layer - the
+      MAXLEVEL base/range couple checks, the MAXDUNGEON and
+      LEV_LIMIT rejections with their edit-this-header hints are
+      all gone, and an over-deep dungeon now silently clamps at
+      init_dungeons()'s num_dunlevs > MAXLEVEL arm instead of
+      being rejected with a message. The runtime guards (hardened
+      by BUG-1453) are the only checks left, and they panic rather
+      than explain. Anyone authoring the Phase 3 dungeon.lua
+      content should know the failure modes: too many levels or
+      branches = launch panic; too deep = silent truncation to 32
+      levels; bad name lengths = the Strlen guards at
+      init_dungeon_dungeons(). Fix-opportunistically: a
+      validation pass in the loader printing WHAT overflowed
+      before panicking would restore master's authoring
+      ergonomics.
 - [x] Halloween undead generation bonus (NEW, minted 2026-07-26 by
       the A_NONE fix, a sibling gap in the same function).
       Master's rndmonst_adj() carries
@@ -6615,7 +6670,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       capture-then-conditional-unblock is symmetric). Verification
       upgraded the stakes: forest mimics take S_deadtree 7-in-8,
       garden 1-in-3 - the dominant disguise, not a corner.
-- [ ] tipcontainer missing BUG-1284's third arm (NEW, minted
+- [x] tipcontainer missing BUG-1284's third arm (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       pickup.c generic-destination tip branch: no ice-box age-freeze
       + ROT_CORPSE/REVIVE_MON stop_timer on #tip into an ice box,
@@ -7496,6 +7551,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-31 | uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | found on branch (BUG-1421 battery); not yet sent |
 | 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent |
 | 2026-07-31 | trap.c cnv_trap_obj() runs `if (u.utrap && u_at(ttmp->tx, ttmp->ty)) reset_utrap(TRUE);` with no TT_BURIEDBALL carve-out, silently freeing a Punished hero from a buried iron ball when a co-located trap converts to objects; upstream's own delfloortrap() carries the carve-out (the same defeat EvilHack fixed at deltrap_with_ammo(), BUG-1422 - EvilHack has no cnv_trap_obj to fix). Reviewer find, verified in Official_nh50 | found (no branch counterpart); not yet sent |
+| 2026-08-01 | dungeon.c init_dungeon_levels()/init_dungeon_branches() fill their proto_dungeon arrays BEFORE the LEV_LIMIT/BRANCH_LIMIT panics that follow the loops - the lua_len count is file-driven and unbounded, so an oversized dungeon.lua corrupts final_lev[] (later dereferenced by place_level), tmpbranch[], then pd's own counters (which can suppress the panic itself), and past ~25 slots over the limit the init_dungeons() stack frame - instead of the intended clean panic. 3.6's compiled loader checked before Fread-filling, and its dgn_comp.y compile-time validation layer was dropped by the Lua rewrite, so the runtime guard's ordering is the only protection left. Byte-identical in NetHack50 and Official_nh50 (both functions). Battery-proven end-to-end on the branch: padded nhdat -> clean pre-loop panic, write breakpoints unhit | fixed on branch (BUG-1453, pre-loop bounds); report artifact ~/nh50-dungeon-init-guards.patch; not yet sent |
 
 ## Master re-derive queue
 
