@@ -5843,6 +5843,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dismount_steed) and BUG-924's scatter()/uball fix, whose
       precondition the terrain provides. Check for further consumers
       when it lands.
+- [ ] Mplayer kit reconciliation (NEW, minted 2026-08-01 by the
+      endgame-slice battery, which made the branch's first real
+      Astral visit). Astral creation fires impossible("bad mplayer
+      monster") + a paniclog line whenever create_mplayers rolls
+      convict/druid/infidel: the 5.0-native equipment switch in
+      mk_mplayer covers only the 13 vanilla roles while the roster
+      block PM_ARCHEOLOGIST..PM_WIZARD carries 16 (the roles slice
+      ported init_mplayer_erac's 16-case race switch but never
+      widened this one), so those three spawn with no switch kit
+      plus one impossible each. NOT a three-arm bolt-on: master has
+      NO equipment switch in mk_mplayer at all - master kits
+      mplayers via the makemon m_initweap/m_initinv tables, which
+      ERAC B2 already ported (makemon.c is_mplayer arms live), and
+      branch mk_mplayer calls makemon WITHOUT NO_MINVENT then tops
+      up the 13 vanilla roles from the 5.0 switch. Reconcile the two
+      kit paths (extend the switch vs route through the ported
+      tables) and audit the vanilla 13 for double-kitting while
+      there.
 - [x] Shop pricing racial adjustments (shk_racial_adjustments) -
       ALREADY PORTED, ticked 2026-07-27 after verification rather
       than after a port. The row was never a work item: the
@@ -7380,7 +7398,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 |------|--------|------|---|---|---|-------|
 | bigroom.des | 10 | delta-diff | x | x | | EvilHack delta vs 3.6 base = 0 lines (never modified); upstream bigrm-1..13 adopted verbatim incl. 3 upstream-new variants; level-count/chance reconcile belongs to the dungeon.lua row; no W walk needed (no EvilHack content) |
 | castle.des | 3 | delta-diff | | | | wand recharged:1 now converts |
-| endgame.des | 5 | delta-diff | | | | PORTAL self-name + mkportal semantics! |
+| endgame.des | 5 | delta-diff | x | x | x | 5/5 delta applied + mkportal In_endgame dlevel-1 arm ported SAME COMMIT (mkmaze.c) per the crib portal gotcha, 2026-08-01. Self-named portals on all four portal planes; monster upgrades (elder minotaur/elven royal, antimatter vortices, 4 lava demons + 12 salamanders, sea-life row, 3 Archangels, undead-free nasties + celestial dragon); earth arrival messages commented out per master. Battery via REAL ^V plane visits (wizloaddes cannot exercise the In_endgame arm - u.uz must be in-endgame at creation): portal dst tuples proven Earth 5->4, Air 4->3, Fire 3->2, Water 2->1, Astral portal-free, dst.dnum preserved; all censuses exact; W ticked on those live visits, though portal traversal on foot was skipped (water-bubble drift) - full ascension traversal lands with Phase 7 validation. Battery's single paniclog line = the pre-existing mplayer kit-switch gap (see the Phase 2 Mplayer kit reconciliation row), NOT this slice. With vanilla fixed plane slots the arm reproduces vanilla progression; randomized order arrives with the dungeon.lua row |
 | gehennom.des | 14 | delta-diff | | | | six `REGION: ... unlit,"lemurepit"` entries need the LEMUREPIT rtype - available since the special-room-types slice |
 | knox.des | 3 | delta-diff | | | | |
 | medusa.des | 4 | delta-diff | x | x | | 4/4 delta applied onto upstream files 2026-08-01: maps spliced byte-identical (w->p verified per file), scimitar->saber, cobra->giant-anaconda upgrades + python, moved Medusa/Perseus/stairs/doors/regions/traps on 1/2, medusa-4 place-list 4->3 spots + 3 sealed doors + board/land-mine row + S-loop 16; upstream 5.0 evolution KEPT (medloc/altloc rndcoord scheme on 3/4, arrival_room rooms, historic/male Perseus, Medusa asleep on 3/4); luac + runtime-nil sweep clean; engine leg PASSED 2026-08-01 (two games): 4/4 wizload clean no fallback, Medusa + named Perseus statue verified per level, medloc co-location proven on 3 (statue+Medusa+stairs same cell), puddle census EXACT at depth 21 (235/235 on medusa-4) and short only by dug-trap cells at dlvl 1 - engine-native maketrap IS_ROOM dig-out under PIT/HOLE (master parity, master trap.c 'typ = ROOM' sibling), landmine intact at depth 21 flanked by both boards while at dlvl 1 it correctly reads as an exploded PIT (5.0-native mktrap victim mechanic, level_difficulty <= rnd(4)); paniclog never created. W column ticks after the damp-terrain sweep re-walk (745 puddle cells inert until then). Converter gap found en route: MONSTER:random,(x,y) loses its coords (bare des.monster()) - crib updated, hand-restore on from-scratch levels |
@@ -7448,7 +7466,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       legs) - flag if real conversions show pool loss near
       stairs; and #wizloaddes applies flip_level_rnd, so
       coordinate probes must account for random flips.
-- [ ] dungeon.def -> dat/dungeon.lua (branches: Ice Queen etc.)
+- [ ] dungeon.def -> dat/dungeon.lua (branches: Ice Queen etc.).
+      Includes the elemental-plane order randomization: master's
+      dungeon.def gives the four planes @ (2, 4) random-range slots
+      vs vanilla's fixed 2/3/4/5 (astral stays 1, dummy 6). The
+      level side is already order-agnostic since the endgame slice
+      (self-named portals + mkportal In_endgame dlevel-1 arm)
 - [x] quest.txt -> quest.lua converter BUILT + VALIDATED (2026-07-03,
       ~/quest_to_50.py; output quest_evilhack.lua 18 sections / 1066
       messages, luac-clean, round-tripped field-by-field through real

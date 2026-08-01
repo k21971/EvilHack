@@ -46,7 +46,7 @@ des.teleport_region({ region = {01,00,24,20}, region_islev = 1, exclude = {25,00
 des.teleport_region({ region = {56,00,79,20}, region_islev = 1, exclude = {01,00,55,20}, exclude_islev=1, dir="down" })
 
 -- des.portal(levregion(57,01,78,19),(0,0,0,0),"fire")
-des.levregion({ region = {57,01,78,19}, region_islev=1, type="portal", name="fire" });
+des.levregion({ region = {57,01,78,19}, region_islev=1, type="portal", name="air" });
 des.region(selection.area(00,00,75,19),"lit")
 des.monster({ id = "air elemental", peaceful = 0 })
 des.monster({ id = "air elemental", peaceful = 0 })
@@ -86,8 +86,8 @@ des.monster({ id = "djinni", peaceful = 0 })
 des.monster({ id = "djinni", peaceful = 0 })
 des.monster({ id = "djinni", peaceful = 0 })
 
-des.monster({ id = "fog cloud", peaceful = 0 })
-des.monster({ id = "fog cloud", peaceful = 0 })
+des.monster({ id = "antimatter vortex", peaceful = 0 })
+des.monster({ id = "antimatter vortex", peaceful = 0 })
 des.monster({ id = "fog cloud", peaceful = 0 })
 des.monster({ id = "fog cloud", peaceful = 0 })
 des.monster({ id = "fog cloud", peaceful = 0 })

@@ -1480,7 +1480,10 @@ mkportal(coordxy x, coordxy y, xint16 todnum, xint16 todlevel)
     debugpline4("mkportal: at <%d,%d>, to %s, level %d", x, y,
                 svd.dungeons[todnum].dname, todlevel);
     ttmp->dst.dnum = todnum;
-    ttmp->dst.dlevel = todlevel;
+    if (In_endgame(&u.uz))
+        ttmp->dst.dlevel = u.uz.dlevel - 1;
+    else
+        ttmp->dst.dlevel = todlevel;
     return;
 }
 

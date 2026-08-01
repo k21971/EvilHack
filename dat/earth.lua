@@ -14,9 +14,9 @@ des.level_init({ style = "solidfill", fg = " " });
 
 des.level_flags("mazelevel", "noteleport", "hardfloor", "shortsighted")
 
-des.message("Well done, mortal!")
-des.message("But now thou must face the final Test...")
-des.message("Prove thyself worthy or perish!")
+-- des.message("Well done, mortal!")
+-- des.message("But now thou must face the final Test...")
+-- des.message("Prove thyself worthy or perish!")
 
 -- The player lands, upon arrival, in the
 -- lower-right cavern.  The location of the
@@ -50,12 +50,12 @@ des.replace_terrain({ region={0,0, 75,19}, fromterrain=" ", toterrain=".", lit=0
 
 --  Since there are no stairs, this forces the hero's initial placement
 des.teleport_region({region = {69,16,69,16} })
-des.levregion({ region = {0,0,75,19}, exclude = {65,13,75,19}, type="portal", name="air" })
+des.levregion({ region = {0,0,75,19}, exclude = {65,13,75,19}, type="portal", name="earth" })
 --  Some helpful monsters.  Making sure a
 --  pick axe and at least one wand of digging
 --  are available.
 des.monster("elven royal", 67,16)
-des.monster("minotaur", 67,14)
+des.monster("elder minotaur", 67,14)
 --  An assortment of earth-appropriate nasties
 --  in each cavern.
 des.monster({ id = "earth elemental", x = 52, y = 13, peaceful = 0 })
