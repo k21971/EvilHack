@@ -2771,8 +2771,8 @@ mk_knox_portal(coordxy x, coordxy y)
         source = &br->end1;
     }
 
-    /* Already set or 2/3 chance of deferring until a later level. */
-    if (source->dnum < svn.n_dgns || (rn2(3) && !wizard))
+    /* Already set */
+    if (source->dnum < svn.n_dgns)
         return;
 
     if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */
@@ -2787,6 +2787,80 @@ mk_knox_portal(coordxy x, coordxy y)
 
     debugpline0("Made knox portal.");
     place_branch(br, x, y);
+}
+
+/* Place the Fort Ludios portal at (x,y) on the current level, bypassing
+   the eligibility test and place_branch's made_branch guard. Caller is
+   responsible for choosing a sensible level and tile. Returns FALSE if
+   the Knox branch is already wired up elsewhere or the tile is unusable */
+boolean
+mk_knox_portal_at(coordxy x, coordxy y)
+{
+    branch *br;
+    d_level *source, *dest;
+
+    br = dungeon_branch("Fort Ludios");
+    if (!br)
+        return FALSE; /* defensive; dungeon_branch() panics on NULL */
+    source = on_level(&knox_level, &br->end1) ? &br->end2 : &br->end1;
+    if (source->dnum < svn.n_dgns)
+        return FALSE; /* portal is already placed somewhere */
+
+    *source = u.uz;
+    insert_branch(br, TRUE);
+
+    /* call mkportal directly; place_branch's made_branch guard would
+       otherwise silently no-op on a level that already received a
+       branch */
+    dest = on_level(&br->end1, &u.uz) ? &br->end2 : &br->end1;
+    if (isok(x, y) && !occupied(x, y)) {
+        mkportal(x, y, dest->dnum, dest->dlevel);
+        debugpline0("Made knox portal (Medusa fallback).");
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Carve a 1x1 VAULT room inside a 3x3 bounding box whose top-left is
+   (x,y). Caller has verified the box is all-moat. The center tile
+   becomes the vault floor, the 8 perimeter tiles are converted from
+   add_room()'s stone walls to one randomly-chosen non-rock material
+   (live trees, dead trees, pool, or sewage), giving each fallback
+   grove a different access mechanic, and the Ludios portal lands on
+   the lone floor tile. The vault is intentionally bare: needfill
+   stays FILL_NONE so it never receives the usual vault gold */
+void
+mk_knox_fallback_vault(coordxy x, coordxy y)
+{
+    static const schar choices[] = { TREE, DEADTREE, POOL, SEWAGE };
+    schar wallmat;
+    int dx, dy;
+    coordxy tx, ty;
+
+    /* add_room(lowx,lowy,hix,hiy,...) carves the perimeter at
+       lowx-1,lowy-1 .. hix+1,hiy+1 and floors the interior.
+       Passing a 1x1 floor at (x+1,y+1) walls the full 3x3 box
+       (x,y)..(x+2,y+2) */
+    add_room(x + 1, y + 1, x + 1, y + 1, FALSE, VAULT, FALSE);
+    svl.level.flags.has_vault = 1;
+    svr.rooms[svn.nroom - 1].needfill = FILL_NONE;
+
+    /* Pick one wall material for the whole perimeter */
+    wallmat = choices[rn2(SIZE(choices))];
+
+    /* Replace the freshly-placed stone walls with the chosen material.
+       The 1x1 interior at (x+1, y+1) is the floor and is left alone */
+    for (dy = 0; dy < 3; dy++)
+        for (dx = 0; dx < 3; dx++) {
+            if (dx == 1 && dy == 1)
+                continue;
+            tx = x + dx;
+            ty = y + dy;
+            if (IS_WALL(levl[tx][ty].typ))
+                (void) set_levltyp(tx, ty, wallmat);
+        }
+
+    (void) mk_knox_portal_at(x + 1, y + 1);
 }
 
 /*mklev.c*/

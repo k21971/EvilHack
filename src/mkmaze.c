@@ -10,6 +10,7 @@
 staticfn int iswall(coordxy, coordxy);
 staticfn int iswall_or_stone(coordxy, coordxy);
 staticfn boolean is_solid(coordxy, coordxy);
+staticfn boolean find_knox_fallback_spot(coordxy *, coordxy *);
 staticfn int extend_spine(int[3][3], int, int, int);
 staticfn void wall_cleanup(coordxy, coordxy, coordxy, coordxy);
 staticfn boolean okay(coordxy, coordxy, coordxy);
@@ -571,6 +572,45 @@ baalz_fixup(void)
     gb.bughack.inarea.y2 = gb.bughack.delarea.y2 = 0;
 }
 
+/* Pick a random 3x3 block of pure MOAT tiles on the current level.
+   Used by the Fort Ludios Medusa fallback to find a hidden spot for
+   a vault. Returns TRUE and fills (*vx,*vy) with the top-left corner
+   on success, FALSE if no such block exists */
+staticfn boolean
+find_knox_fallback_spot(coordxy *vx, coordxy *vy)
+{
+    coord cands[64];
+    int ncand = 0;
+    int x, y, dx, dy;
+    boolean ok;
+
+    for (y = 1; y < ROWNO - 3; y++) {
+        for (x = 1; x < COLNO - 3; x++) {
+            ok = TRUE;
+            for (dy = 0; dy < 3 && ok; dy++)
+                for (dx = 0; dx < 3 && ok; dx++)
+                    if (levl[x + dx][y + dy].typ != MOAT)
+                        ok = FALSE;
+            if (ok) {
+                cands[ncand].x = x;
+                cands[ncand].y = y;
+                if (++ncand >= SIZE(cands))
+                    goto done;
+            }
+        }
+    }
+ done:
+    if (!ncand)
+        return FALSE;
+    {
+        int pick = rn2(ncand);
+
+        *vx = cands[pick].x;
+        *vy = cands[pick].y;
+    }
+    return TRUE;
+}
+
 /* this is special stuff that the level compiler cannot (yet) handle */
 void
 fixup_special(void)
@@ -687,6 +727,27 @@ fixup_special(void)
                        || poly_when_stoned(&mons[otmp->corpsenm]))) {
                 /* set_corpsenm() handles weight too */
                 set_corpsenm(otmp, rndmonnum());
+            }
+        }
+
+        /* Fort Ludios fallback: if a vault portal hasn't been placed
+           anywhere in the main dungeon, carve a hidden vault here and
+           place the portal in it. This guarantees Fort Ludios is
+           always reachable even when the main dungeon failed to roll
+           a qualifying vault between depth 11 and Medusa-1 */
+        {
+            branch *br = dungeon_branch("Fort Ludios");
+
+            if (br) {
+                d_level *src = on_level(&knox_level, &br->end1)
+                                   ? &br->end2 : &br->end1;
+
+                if (src->dnum >= svn.n_dgns) {
+                    coordxy vx, vy;
+
+                    if (find_knox_fallback_spot(&vx, &vy))
+                        mk_knox_fallback_vault(vx, vy);
+                }
             }
         }
     } else if (Role_if(PM_CLERIC) && In_quest(&u.uz)) {

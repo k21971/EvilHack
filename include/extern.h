@@ -1707,6 +1707,8 @@ extern void topologize(struct mkroom *) NONNULLARG1;
 #endif
 /* place_branch() has tests for NULL branch arg, preventing NONNULLARG1 */
 extern void place_branch(branch *, coordxy, coordxy) NO_NNARGS;
+extern boolean mk_knox_portal_at(coordxy, coordxy);
+extern void mk_knox_fallback_vault(coordxy, coordxy);
 extern boolean occupied(coordxy, coordxy);
 extern int okdoor(coordxy, coordxy);
 extern boolean maybe_sdoor(int);
