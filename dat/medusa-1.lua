@@ -14,50 +14,46 @@ des.level_flags("mazelevel", "noteleport")
 des.map([[
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-}}.}}}}}..}}}}}......}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}....}}}...}}}}}
-}...}}.....}}}}}....}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}...............}
-}....}}}}}}}}}}....}}}..}}}}}}}}}}}.......}}}}}}}}}}}}}}}}..}}.....}}}...}}
-}....}}}}}}}}.....}}}}..}}}}}}.................}}}}}}}}}}}.}}}}.....}}...}}
-}....}}}}}}}}}}}}.}}}}.}}}}}}.-----------------.}}}}}}}}}}}}}}}}}.........}
-}....}}}}}}}}}}}}}}}}}}.}}}...|...............S...}}}}}}}}}}}}}}}}}}}....}}
-}.....}.}}....}}}}}}}}}.}}....--------+--------....}}}}}}..}}}}}}}}}}}...}}
-}......}}}}..}}}}}}}}}}}}}........|.......|........}}}}}....}}}}}}}}}}}}}}}
-}.....}}}}}}}}}}}}}}}}}}}}........|.......|........}}}}}...}}}}}}}}}.}}}}}}
-}.....}}}}}}}}}}}}}}}}}}}}....--------+--------....}}}}}}.}.}}}}}}}}}}}}}}}
-}......}}}}}}}}}}}}}}}}}}}}...S...............|...}}}}}}}}}}}}}}}}}.}}}}}}}
-}.......}}}}}}}..}}}}}}}}}}}}.-----------------.}}}}}}}}}}}}}}}}}....}}}}}}
-}........}}.}}....}}}}}}}}}}}}.................}}}}}..}}}}}}}}}.......}}}}}
-}.......}}}}}}}......}}}}}}}}}}}}}}.......}}}}}}}}}.....}}}}}}...}}..}}}}}}
-}.....}}}}}}}}}}}.....}}}}}}}}}}}}}}}}}}}}}}.}}}}}}}..}}}}}}}}}}....}}}}}}}
-}}..}}}}}}}}}}}}}....}}}}}}}}}}}}}}}}}}}}}}...}}..}}}}}}}.}}.}}}}..}}}}}}}}
+}}p}}}}}pp}}}}}pppppp}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}pppp}}}ppp}}}}}
+}ppp}}ppppp}}}}}p..p}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}ppp..pppppppppp}
+}p..p}}}}}}}}}}p..p}}}pp}}}}}}}}}}}ppppppp}}}}}}}}}}}}}}}}pp}}p....}}}..p}}
+}p..p}}}}}}}}ppppp}}}}pp}}}}}}ppppp.......ppppp}}}}}}}}}}}p}}}}pp...}}..p}}
+}p..p}}}}}}}}}}}}p}}}}p}}}}}}p-----------------p}}}}}}}}}}}}}}}}}ppppp...p}
+}p..p}}}}}}}}}}}}}}}}}}p}}}pp.|...............S.pp}}}}}}}}}}}}}}}}}}}p..p}}
+}p...p}p}}pppp}}}}}}}}}p}}p...|...............|...p}}}}}}pp}}}}}}}}}}}ppp}}
+}p....p}}}}pp}}}}}}}}}}}}}p...|...............|...p}}}}}p..p}}}}}}}}}}}}}}}
+}p...p}}}}}}}}}}}}}}}}}}}}p...|...............|...p}}}}}p.p}}}}}}}}}p}}}}}}
+}p...p}}}}}}}}}}}}}}}}}}}}p...|...............|...p}}}}}}p}p}}}}}}}}}}}}}}}
+}p....p}}}}}}}}}}}}}}}}}}}}pp.S...............|.pp}}}}}}}}}}}}}}}}}p}}}}}}}
+}p.....p}}}}}}}pp}}}}}}}}}}}}p-----------------p}}}}}}}}}}}}}}}}}pp.p}}}}}}
+}p......p}}p}}p..p}}}}}}}}}}}}ppppp.......ppppp}}}}}pp}}}}}}}}}pp....p}}}}}
+}p....pp}}}}}}}pppppp}}}}}}}}}}}}}}ppppppp}}}}}}}}}p..pp}}}}}}pp.}}.p}}}}}}
+}p..pp}}}}}}}}}}}p...p}}}}}}}}}}}}}}}}}}}}}}p}}}}}}}pp}}}}}}}}}}pppp}}}}}}}
+}}pp}}}}}}}}}}}}}pppp}}}}}}}}}}}}}}}}}}}}}}ppp}}pp}}}}}}}p}}p}}}}pp}}}}}}}}
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 ]]);
 -- Dungeon Description
 des.region(selection.area(00,00,74,19),"lit")
-des.region(selection.area(31,07,45,07),"unlit")
--- make the downstairs room a real room to control arriving monsters, 
+-- make the downstairs room a real room to control arriving monsters,
 -- and also as a fixup_special hack; the first room defined on Medusa's level
 -- receives some statues
-des.region({ region={35,09, 41,10}, lit = 0, type="ordinary", arrival_room=true })
-des.region(selection.area(31,12,45,12),"unlit")
+des.region({ region={31,07, 45,12}, lit = 1, type="ordinary", arrival_room=true })
 -- Teleport: down to up stairs island, up to Medusa's island
 des.teleport_region({ region = {01,01,05,17}, dir="down" })
 des.teleport_region({ region = {26,04,50,15}, dir="up" })
 -- Stairs
 des.stair("up", 05,14)
-des.stair("down", 36,10)
+des.stair("down", 38,09)
 -- Doors
-des.door("closed",46,07)
-des.door("locked",38,08)
-des.door("locked",38,11)
-des.door("closed",30,12)
+des.door("locked",46,07)
+des.door("locked",30,12)
 -- Branch, not allowed inside Medusa's building.
 des.levregion({ region = {01,00,79,20}, exclude = {30,06,46,13}, type = "branch" })
 -- Non diggable walls
 des.non_diggable(selection.area(30,06,46,13))
 -- Objects
-des.object({ id = "statue", x=36,y=10, buc="uncursed",
+des.object({ id = "statue", x=38,y=10, buc="uncursed",
              montype="knight", historic=1, male = 1, name="Perseus",
              contents = function()
                 if percent(75) then
@@ -67,7 +63,7 @@ des.object({ id = "statue", x=36,y=10, buc="uncursed",
                    des.object({ id = "levitation boots", spe=0 })
                 end
                 if percent(50) then
-                   des.object({ id = "scimitar", buc="blessed", spe=2 })
+                   des.object({ id = "saber", buc="blessed", spe=2 })
                 end
                 if percent(50) then
                    des.object("sack")
@@ -97,10 +93,12 @@ des.trap()
 des.trap()
 des.trap()
 des.trap()
-des.trap("board",38,07)
-des.trap("board",38,12)
+des.trap("board",45,07)
+des.trap("board",45,08)
+des.trap("board",31,11)
+des.trap("board",31,12)
 -- Random monsters
-des.monster({ id = "Medusa", x=36,y=10, asleep=1 })
+des.monster({ id = "Medusa", x=38,y=09, asleep=1 })
 des.monster("giant eel",11,06)
 des.monster("giant eel",23,13)
 des.monster("giant eel",29,02)
@@ -109,8 +107,11 @@ des.monster("jellyfish",00,08)
 des.monster("jellyfish",04,18)
 des.monster("water troll",51,03)
 des.monster("water troll",64,11)
-des.monster({ class = 'S', x=38, y=07 })
-des.monster({ class = 'S', x=38, y=12 })
+des.monster({ class = 'S', x=33, y=10 })
+des.monster("python",37,09)
+des.monster("giant anaconda",38,08)
+des.monster("giant anaconda",39,09)
+des.monster({ class = 'S', x=43, y=09 })
 des.monster()
 des.monster()
 des.monster()

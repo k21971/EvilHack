@@ -7378,12 +7378,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | .des | levels | mode | C | P | W | notes |
 |------|--------|------|---|---|---|-------|
-| bigroom.des | 10 | delta-diff | | | | |
+| bigroom.des | 10 | delta-diff | x | x | | EvilHack delta vs 3.6 base = 0 lines (never modified); upstream bigrm-1..13 adopted verbatim incl. 3 upstream-new variants; level-count/chance reconcile belongs to the dungeon.lua row; no W walk needed (no EvilHack content) |
 | castle.des | 3 | delta-diff | | | | wand recharged:1 now converts |
 | endgame.des | 5 | delta-diff | | | | PORTAL self-name + mkportal semantics! |
 | gehennom.des | 14 | delta-diff | | | | six `REGION: ... unlit,"lemurepit"` entries need the LEMUREPIT rtype - available since the special-room-types slice |
 | knox.des | 3 | delta-diff | | | | |
-| medusa.des | 4 | delta-diff | | | | |
+| medusa.des | 4 | delta-diff | x | x | | 4/4 delta applied onto upstream files 2026-08-01: maps spliced byte-identical (w->p verified per file), scimitar->saber, cobra->giant-anaconda upgrades + python, moved Medusa/Perseus/stairs/doors/regions/traps on 1/2, medusa-4 place-list 4->3 spots + 3 sealed doors + board/land-mine row + S-loop 16; upstream 5.0 evolution KEPT (medloc/altloc rndcoord scheme on 3/4, arrival_room rooms, historic/male Perseus, Medusa asleep on 3/4); luac + runtime-nil sweep clean; engine leg PASSED 2026-08-01 (two games): 4/4 wizload clean no fallback, Medusa + named Perseus statue verified per level, medloc co-location proven on 3 (statue+Medusa+stairs same cell), puddle census EXACT at depth 21 (235/235 on medusa-4) and short only by dug-trap cells at dlvl 1 - engine-native maketrap IS_ROOM dig-out under PIT/HOLE (master parity, master trap.c 'typ = ROOM' sibling), landmine intact at depth 21 flanked by both boards while at dlvl 1 it correctly reads as an exploded PIT (5.0-native mktrap victim mechanic, level_difficulty <= rnd(4)); paniclog never created. W column ticks after the damp-terrain sweep re-walk (745 puddle cells inert until then). Converter gap found en route: MONSTER:random,(x,y) loses its coords (bare des.monster()) - crib updated, hand-restore on from-scratch levels |
 | mines.des | 14 | delta-diff | | | | minetn-1 (Orcish Town): use des.monster{dead=1}, do NOT adopt upstream's des.object{id="corpse"} block (loses the dropped gear); priest id is "aligned cleric" (PM_ALIGNED_CLERIC d=15), not "cleric" (PM_CLERIC d=12) |
 | oracle.des | 3 | delta-diff | | | | |
 | sokoban.des | 24 | delta-diff | | | | |
