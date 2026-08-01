@@ -62,6 +62,7 @@ dungeon = {
             bonetag = "O",
             base = 5,
             range = 5,
+            nlevels = 3,
             alignment = "neutral"
          },
          {

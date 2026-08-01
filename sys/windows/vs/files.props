@@ -88,7 +88,9 @@
     <Luafiles Include = "Mon-strt.lua"/>
     <Luafiles Include = "nhcore.lua"/>
     <Luafiles Include = "nhlib.lua"/>
-    <Luafiles Include = "oracle.lua"/>
+    <Luafiles Include = "oracle-1.lua"/>
+    <Luafiles Include = "oracle-2.lua"/>
+    <Luafiles Include = "oracle-3.lua"/>
     <Luafiles Include = "orcus.lua"/>
     <Luafiles Include = "Pri-fila.lua"/>
     <Luafiles Include = "Pri-filb.lua"/>

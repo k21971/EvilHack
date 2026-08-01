@@ -1,11 +1,11 @@
--- NetHack oracle oracle.lua	$NHDT-Date: 1781994886 2026/06/20 22:34:46 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.2 $
+-- NetHack oracle oracle-1.lua	$NHDT-Date: 1781994886 2026/06/20 22:34:46 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.2 $
 -- Copyright (c) 2015 by Pasi Kallinen
 -- NetHack may be freely redistributed.  See license for details.
 --
 -- Oracle level
 des.level_flags("noflip");
 
-des.room({ type = "ordinary", lit=1, x=3,y=3, xalign="center",yalign="center", w=11,h=9, contents = function()
+des.room({ type = "delphi", lit=1, x=3,y=3, xalign="center",yalign="center", w=11,h=9, contents = function()
               des.object({ id = "statue", x = 0, y = 0, montype = "C", historic = true });
               des.object({ id = "statue", x = 0, y = 8, montype = "C", historic = true });
               des.object({ id = "statue", x =10, y = 0, montype = "C", historic = true });
@@ -15,12 +15,31 @@ des.room({ type = "ordinary", lit=1, x=3,y=3, xalign="center",yalign="center", w
               des.object({ id = "statue", x = 2, y = 4, montype = "C", historic = true });
               des.object({ id = "statue", x = 8, y = 4, montype = "C", historic = true });
 
-              des.room({ type = "delphi", lit = 1, x=4,y=3, w=3,h=3, contents = function()
+              -- four trees
+              des.terrain(5, 0, "T");
+              des.terrain(5, 8, "T");
+              des.terrain(0, 4, "T");
+              des.terrain(10, 4, "T");
+              -- grass
+              des.replace_terrain({ region = { 0, 0, 10, 8 },
+                                    fromterrain = ".", toterrain = "g",
+                                    chance = 100 });
+
+              des.room({ type = "ordinary", lit = 1, x=4,y=3, w=3,h=3, contents = function()
                             des.feature("fountain", 0, 1);
                             des.feature("fountain", 1, 0);
                             des.feature("fountain", 1, 2);
                             des.feature("fountain", 2, 1);
-                            des.monster("Oracle", 1, 1);
+                            des.replace_terrain({ region = { 0, 0, 2, 2 },
+                                                  fromterrain = ".",
+                                                  toterrain = "g",
+                                                  chance = 100 });
+                            des.monster({ id = "Oracle", x = 1, y = 1,
+                                          inventory = function()
+                               des.object({ id = "eight ball",
+                                            buc = "uncursed",
+                                            name = "Magic 8-Ball" });
+                            end });
                             des.door({ state="nodoor", wall="all" });
                          end
               });
