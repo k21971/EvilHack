@@ -541,6 +541,7 @@ extern boolean is_lava(coordxy, coordxy);
 extern boolean is_pool_or_lava(coordxy, coordxy);
 extern boolean is_ice(coordxy, coordxy);
 extern boolean is_moat(coordxy, coordxy);
+extern boolean is_open_air(coordxy, coordxy);
 extern schar db_under_typ(int);
 extern int is_drawbridge_wall(coordxy, coordxy);
 extern boolean is_db_wall(coordxy, coordxy);

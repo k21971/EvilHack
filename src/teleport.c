@@ -93,6 +93,7 @@ goodpos(
     struct permonst *mdat = (struct permonst *) 0;
     boolean ignorewater = ((gpflags & MM_IGNOREWATER) != 0),
             ignorelava = ((gpflags & MM_IGNORELAVA) != 0),
+            ignoreair = ((gpflags & MM_IGNOREAIR) != 0),
             checkscary = ((gpflags & GP_CHECKSCARY) != 0),
             allow_u = ((gpflags & GP_ALLOW_U) != 0),
             avoid_monpos = ((gpflags & GP_AVOID_MONPOS) != 0);
@@ -163,6 +164,12 @@ goodpos(
             else
                 return (m_in_air(mtmp) || can_levitate(mtmp)
                         || can_fly(mtmp) || likes_lava(mdat));
+        } else if (is_open_air(x, y) && !ignoreair) {
+            if (mtmp == &gy.youmonst)
+                return (Levitation || Flying);
+            else
+                return (m_in_air(mtmp) || is_clinger(mdat)
+                        || can_levitate(mtmp) || can_fly(mtmp));
         }
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
@@ -175,7 +182,8 @@ goodpos(
     }
     if (!accessible(x, y)) {
         if (!(is_pool(x, y) && ignorewater)
-            && !(is_lava(x, y) && ignorelava))
+            && !(is_lava(x, y) && ignorelava)
+            && !(is_open_air(x, y) && ignoreair))
             return FALSE;
     }
     /* skip boulder locations for most creatures */

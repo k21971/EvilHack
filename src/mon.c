@@ -209,6 +209,7 @@ sanity_check_single_mon(
                      || levl[mx][my].typ == WATER
                      || levl[mx][my].typ == LAVAPOOL
                      || levl[mx][my].typ == LAVAWALL
+                     || is_open_air(mx, my)
                      || accessible(mx, my))))
             impossible("ceiling hider hiding %s (%s)",
                        !has_ceiling(&u.uz) ? "without ceiling"
@@ -1060,7 +1061,7 @@ minliquid(struct monst *mtmp)
 staticfn int
 minliquid_core(struct monst *mtmp)
 {
-    boolean inpool, inlava, infountain, inforge;
+    boolean inpool, inlava, infountain, inforge, inopenair;
     boolean waterwall = is_waterwall(mtmp->mx,mtmp->my);
 
     /* [ceiling clingers are handled below] */
@@ -1074,6 +1075,10 @@ minliquid_core(struct monst *mtmp)
                    || can_levitate(mtmp) || can_fly(mtmp)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
     inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
+    inopenair = (is_open_air(mtmp->mx, mtmp->my)
+                 && !(is_flyer(mtmp->data) || is_floater(mtmp->data)
+                      || is_clinger(mtmp->data) || can_levitate(mtmp)
+                      || can_fly(mtmp) || ((mtmp == u.usteed) && Flying)));
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -1175,6 +1180,30 @@ minliquid_core(struct monst *mtmp)
             }
             return 1;
         }
+    } else if (inopenair) {
+        if (cansee(mtmp->mx, mtmp->my)) {
+            pline_mon(mtmp, "%s plummets several thousand feet to %s death.",
+                      Monnam(mtmp), mhis(mtmp));
+        }
+        if (engulfing_u(mtmp)) {
+            /* This can happen after a purple worm plucks you off a
+               flying steed while you are over air */
+            pline("%s falls as %s rushes in and forces you out.",
+                  Monnam(mtmp), hliquid("air"));
+        }
+        if (svc.context.mon_moving) {
+            /* no corpse or objects as both are now
+               several thousand feet down */
+            mongone(mtmp);
+        } else {
+            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+        }
+        if (!DEADMONSTER(mtmp)) {
+            if (!rloc(mtmp, RLOC_NOMSG))
+                deal_with_overcrowding(mtmp);
+            return 0;
+        }
+        return 1;
     } else if (inpool || waterwall) {
         /* Most monsters drown in pools.  flooreffects() will take care of
          * water damage to dead monsters' inventory, but survivors need to
@@ -2567,6 +2596,12 @@ mfndpos(
                         && !m_at(nx, ny) && (nx != u.ux || ny != u.uy))))
                 continue;
             if ((!lavaok || !(flag & ALLOW_WALL)) && ntyp == LAVAWALL)
+                continue;
+            /* avoid open air if gravity is in effect */
+            if (is_open_air(nx, ny)
+                && !(is_flyer(mdat) || is_floater(mdat)
+                     || is_clinger(mdat) || can_levitate(mon)
+                     || can_fly(mon)))
                 continue;
             if ((poolok || is_pool(nx, ny) == wantpool)
                 && (lavaok || !is_lava(nx, ny))) {
@@ -4432,6 +4467,14 @@ corpse_chance(
     "In the presence of the Hammer of the Gods, %s corpse dissolves into nothingness.",
                           s_suffix(mon_nam(mon)));
         }
+        return FALSE;
+    }
+
+    /* Corpses don't hover in midair in the presence of gravity */
+    if (is_open_air(mon->mx, mon->my)) {
+        if (cansee(mon->mx, mon->my) && !(mdat->geno & G_NOCORPSE))
+            pline_mon(mon, "%s corpse falls away and disappears.",
+                      s_suffix(Monnam(mon)));
         return FALSE;
     }
 
@@ -6586,24 +6629,46 @@ pickvampshape(struct monst *mon)
     boolean uppercase_only = Is_rogue_level(&u.uz);
 
     switch (mndx) {
+    case PM_KAS:
     case PM_VLAD_THE_IMPALER:
         /* ensure Vlad can keep carrying the Candelabrum */
-        if (mon_has_special(mon))
+        if (mon_has_special(mon) || mon->data == &mons[PM_KAS])
             break; /* leave mndx as is */
         wolfchance = 3;
         FALLTHROUGH;
     /*FALLTHRU*/
-    case PM_VAMPIRE_NOBLE: /* vampire lord or Vlad can become wolf */
+    case PM_VAMPIRE_NOBLE: /* vampire lords/ladies, Kas, or Vlad can
+                              become wolf */
         if (!rn2(wolfchance) && !uppercase_only
             /* don't pick a walking form if that would lead to immediate
                drowning or immolation and reversion to vampire form */
             && !is_pool_or_lava(mon->mx, mon->my)) {
-            mndx = PM_WOLF;
+            if (IS_AIR(levl[mon->mx][mon->my].typ))
+                mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD
+                                                    : PM_VAMPIRE_BAT;
+            else
+                mndx = PM_WOLF;
             break;
         }
         FALLTHROUGH;
     /*FALLTHRU*/
-    case PM_VAMPIRE: /* any vampire can become fog or bat */
+    case PM_VAMPIRE_ROYAL:
+    case PM_VAMPIRE_MAGE: /* vampire kings/queens and mages can become
+                             a warg */
+        if (!rn2(wolfchance) && !uppercase_only
+            /* don't pick a walking form if that would lead to immediate
+               drowning or immolation and reversion to vampire form */
+            && !is_pool_or_lava(mon->mx, mon->my)) {
+            if (IS_AIR(levl[mon->mx][mon->my].typ))
+                mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD
+                                                    : PM_VAMPIRE_BAT;
+            else
+                mndx = PM_WARG;
+            break;
+        }
+        FALLTHROUGH;
+    /*FALLTHRU*/
+    case PM_VAMPIRE_SOVEREIGN: /* any vampire can become fog or bat */
         mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
         break;
     }
@@ -6676,6 +6741,10 @@ validvamp(struct monst *mon, int *mndx_p, int monclass)
         *mndx_p = PM_VLAD_THE_IMPALER;
         return TRUE;
     }
+    if (mon->cham == PM_KAS && mon_has_special(mon)) {
+        *mndx_p = PM_KAS;
+        return TRUE;
+    }
     if (ismnum(*mndx_p) && is_shapeshifter(&mons[*mndx_p])) {
         /* player picked some type of shapeshifter; use mon's self
            (vampire or chameleon) */
@@ -6684,8 +6753,8 @@ validvamp(struct monst *mon, int *mndx_p, int monclass)
     }
     /* basic vampires can't become wolves; any can become fog or bat
        (we don't enforce upper-case only for rogue level here) */
-    if (*mndx_p == PM_WOLF)
-        return (boolean) (mon->cham != PM_VAMPIRE);
+    if (*mndx_p == PM_WOLF || *mndx_p == PM_WARG)
+        return (boolean) (mon->cham != PM_VAMPIRE_SOVEREIGN);
     if (*mndx_p == PM_FOG_CLOUD || *mndx_p == PM_VAMPIRE_BAT)
         return TRUE;
 
@@ -6701,7 +6770,7 @@ validvamp(struct monst *mon, int *mndx_p, int monclass)
         *mndx_p = PM_FOG_CLOUD;
         break;
     case S_DOG:
-        if (mon->cham != PM_VAMPIRE) {
+        if (mon->cham != PM_VAMPIRE_SOVEREIGN) {
             *mndx_p = PM_WOLF;
             break;
         }
@@ -6830,8 +6899,11 @@ select_newcham_form(struct monst *mon)
             mndx = pick_animal();
         break;
     case PM_VLAD_THE_IMPALER:
+    case PM_KAS:
+    case PM_VAMPIRE_MAGE:
+    case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_NOBLE:
-    case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
         mndx = pickvampshape(mon);
         break;
     case NON_PM: /* ordinary */

@@ -348,6 +348,7 @@ bad_location(
     coordxy nlx, coordxy nly, coordxy nhx, coordxy nhy)
 {
     return (boolean) (occupied(x, y)
+                      || is_open_air(x, y)
                       || within_bounded_area(x, y, nlx, nly, nhx, nhy)
                       || !((levl[x][y].typ == CORR
                             && svl.level.flags.is_maze_lev)

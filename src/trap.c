@@ -4725,6 +4725,7 @@ float_down(
 
     if (Punished && !carried(uball) && !m_at(uball->ox, uball->oy)
         && (is_pool(uball->ox, uball->oy)
+            || is_open_air(uball->ox, uball->oy)
             || ((trap = t_at(uball->ox, uball->oy))
                 && (is_pit(trap->ttyp) || is_hole(trap->ttyp))))) {
         u.ux0 = u.ux;
@@ -4768,6 +4769,17 @@ float_down(
             You("begin to tumble in place.");
         } else if (Is_waterlevel(&u.uz) && !no_msg) {
             You_feel("heavier.");
+        } else if (is_open_air(u.ux, u.uy)
+                   && !(u.usteed && (is_floater(u.usteed->data)
+                                     || is_flyer(u.usteed->data)
+                                     || can_levitate(u.usteed)))) {
+            if (!Flying) {
+                You("are no longer flying.");
+                You("plummet several thousand feet to your death.");
+                Sprintf(svk.killer.name, "fell to %s death", uhis());
+                svk.killer.format = NO_KILLER_PREFIX;
+                done(DIED);
+            }
         /* u.uinwater msgs already in spoteffects()/drown() */
         } else if (!u.uinwater && !no_msg) {
             if (!(emask & W_SADDLE)) {

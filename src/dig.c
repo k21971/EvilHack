@@ -2418,7 +2418,7 @@ wiz_debug_cmd_bury(void)
 
     for (x = u.ux - 1; x <= u.ux + 1; x++)
         for (y = u.uy - 1; y <= u.uy + 1; y++) {
-            if (!isok(x, y))
+            if (!isok(x, y) || is_open_air(x, y))
                 continue;
             for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere)
                 ++before;

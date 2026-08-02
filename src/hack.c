@@ -1215,6 +1215,11 @@ test_move(
                      || (is_pool(x, y) ? Known_wwalking
                          : (Known_lwalking && is_lava(u.ux, u.uy))))))
             return (mode == TEST_TRAP);
+
+        /* known open air where gravity is in effect */
+        if ((levl[x][y].seenv && is_open_air(x, y))
+            && !(Levitation || Flying || is_clinger(gy.youmonst.data)))
+            return (mode == TEST_TRAP);
     }
 
     if (mode == TEST_TRAP)
@@ -3557,6 +3562,21 @@ spoteffects(boolean pick)
         }
         mnexto(mtmp, RLOC_NOMSG); /* have to move the monster */
     }
+    if (is_open_air(u.ux, u.uy) && !Levitation
+        /* normally won't fall if flying, unless iron ball is pulling you */
+        && !(Flying && !(Punished && !carried(uball)
+                         && is_open_air(uball->ox, uball->oy)))
+        && !is_clinger(gy.youmonst.data)
+        && !(u.usteed && is_clinger(u.usteed->data))) {
+        if (Punished && !carried(uball))
+            pline_The("heavy iron ball falls away, and yanks you down with it!");
+        else
+            pline("Unfortunately, you don't know how to fly.");
+        You("plummet several thousand feet to your death.");
+        Sprintf(svk.killer.name, "fell to %s death", uhis());
+        svk.killer.format = NO_KILLER_PREFIX;
+        done(DIED);
+    }
     if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && !Levitation && gm.mchest) {
         char *tmp = doname(gm.mchest);
 
@@ -4113,10 +4133,12 @@ lookaround(void)
                     goto stop;
             }
 
-            /* more uninteresting terrain */
+            /* more uninteresting terrain; open air is NOT uninteresting
+               when gravity is in effect */
             if (IS_OBSTRUCTED(levl[x][y].typ) || levl[x][y].typ == ROOM
                 || levl[x][y].typ == GRASS || levl[x][y].typ == SAND
-                || IS_AIR(levl[x][y].typ) || levl[x][y].typ == ICE) {
+                || (IS_AIR(levl[x][y].typ) && !is_open_air(x, y))
+                || levl[x][y].typ == ICE) {
                 continue;
             } else if (closed_door(x, y) || (mtmp && is_door_mappear(mtmp))) {
                 /* a closed door? */
@@ -4163,6 +4185,12 @@ lookaround(void)
                 continue;
             } else if (is_pool_or_lava(x, y)) {
                 if (infront && avoid_moving_on_liquid(x, y, TRUE))
+                    goto stop;
+                continue;
+            } else if (is_open_air(x, y)) {
+                if (infront && !Levitation && !Flying
+                    && !is_clinger(gy.youmonst.data)
+                    && !(u.usteed && is_clinger(u.usteed->data)))
                     goto stop;
                 continue;
             } else { /* e.g. objects or trap or stairs */

@@ -403,6 +403,8 @@ struct dgn_topology { /* special dungeon levels for speed */
     d_level d_knox_level;
     d_level d_mineend_level;
     d_level d_sokoend_level;
+    d_level d_hellc_level; /* deepest demon prince lair; unset until the
+                            * Gehennom hellc levels are defined */
 };
 
 /* macros for accessing the dungeon levels by their old names */
@@ -438,6 +440,7 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define knox_level              (svd.dungeon_topology.d_knox_level)
 #define mineend_level           (svd.dungeon_topology.d_mineend_level)
 #define sokoend_level           (svd.dungeon_topology.d_sokoend_level)
+#define hellc_level             (svd.dungeon_topology.d_hellc_level)
 /* clang-format on */
 
 #define dunlev_reached(x) (svd.dungeons[(x)->dnum].dunlev_ureached)
@@ -1220,7 +1223,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
    rather than renumbering the GP_ ones */
 #define MM_NOSTEED      0x02000000L /* don't create a steed for a monster
                                      * that would otherwise spawn mounted */
-/* 26 bits used */
+#define MM_IGNOREAIR    0x04000000L /* ignore open air when positioning */
+/* 27 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */
 #define MHID_PREFIX  1 /* include ", mimicking " prefix */

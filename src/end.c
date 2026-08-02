@@ -1134,6 +1134,7 @@ void
 done(int how)
 {
     boolean survive = FALSE;
+    coordxy x = u.ux + u.dx, y = u.uy + u.dy;
 
     if (how == TRICKED) {
         if (svk.killer.name[0]) {
@@ -1198,9 +1199,6 @@ done(int how)
         (void) adjattrib(A_STR, -1, TRUE);
         (void) adjattrib(A_CON, -1, TRUE);
         savelife(how);
-        /* TODO-EVILHACK: master also aborts the revival when falling
-           in open air; that terrain ports with the level topology
-           work */
         if (how == GENOCIDED) {
             u.uhp = 0;
             disp.botl = TRUE;
@@ -1226,6 +1224,15 @@ done(int how)
             disp.botl = TRUE;
             pline(
              "Unfortunately you weren't strong enough to revive fully...");
+        } else if (is_open_air(x, y) && !Levitation
+                   && !(Flying && !(Punished && !carried(uball)
+                        && is_open_air(uball->ox, uball->oy)))) {
+            if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
+                return; /* successful life-save */
+            /* nowhere safe to land; repeat falling loop */
+            u.uhp = 0;
+            disp.botl = TRUE;
+            pline("Unfortunately the impact was too great...");
         } else {
             char killbuf[BUFSZ];
 
@@ -1270,6 +1277,15 @@ done(int how)
                 u.uhp = 0;
                 disp.botl = TRUE;
                 pline("Unfortunately you are still genocided...");
+            } else if (is_open_air(x, y) && !Levitation
+                       && !(Flying && !(Punished && !carried(uball)
+                            && is_open_air(uball->ox, uball->oy)))) {
+                if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
+                    return; /* successful life-save */
+                /* nowhere safe to land; repeat falling loop */
+                u.uhp = 0;
+                disp.botl = TRUE;
+                pline("Unfortunately the impact was too great...");
             } else {
                 char killbuf[BUFSZ];
 

@@ -1496,9 +1496,18 @@ dismount_steed(
                                                monsndx(mdat) + 1,
                                                ABUSE_HAZ_LAVA);
                     }
+                } else if (is_open_air(u.ux, u.uy)) {
+                    pline("%s plummets several thousand feet to %s death.",
+                          Monnam(mtmp), mhis(mtmp));
+                    /* no corpse or objects as both are now several
+                       thousand feet down */
+                    mongone(mtmp);
+                    You_feel("guilty.");
+                    adjalign(-1);
+                    record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                           monsndx(mdat) + 1,
+                                           ABUSE_HAZ_FALL);
                 }
-                /* TODO-EVILHACK: master also kills a steed dropped into
-                   open air here; is_open_air terrain is unported */
             }
             /* Steed dismounting consists of two steps: being moved to another
              * square, and descending to the floor.  We have functions to do

@@ -780,13 +780,16 @@ scatter(
     while ((otmp = (individual_object ? obj
                                       : svl.level.objects[sx][sy])) != 0) {
         if (otmp == uball || otmp == uchain) {
-            boolean waschain = (otmp == uchain);
-
             Soundeffect(se_chain_shatters, 25);
             pline_The("chain shatters!");
             unpunish();
-            if (waschain)
-                continue;
+            /* unpunish() frees uchain unconditionally and may free uball
+               (open-air floor case via flooreffects -> delobj). otmp is
+               dangling; uball/uchain globals are now Null. Bail this
+               iteration; the objects re-fetch will return the next object
+               (or the placed-back ball, no longer matching uball/uchain) */
+            obj = (struct obj *) 0; /* in-flight obj path: terminate loop */
+            continue;
         }
         if (otmp->quan > 1L) {
             qtmp = otmp->quan - 1L;

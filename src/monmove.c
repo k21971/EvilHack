@@ -940,6 +940,19 @@ dochug(struct monst *mtmp)
     if (mtmp->mstun && !rn2(10))
         mtmp->mstun = 0;
 
+    /* being in midair where gravity is still in effect can be lethal */
+    if (is_open_air(mtmp->mx, mtmp->my)
+        && !(is_flyer(mdat) || is_floater(mdat) || can_levitate(mtmp)
+             || can_fly(mtmp) || is_clinger(mdat)
+             || ((mtmp == u.usteed) && Flying))) {
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s plummets several thousand feet to %s death.",
+                      Monnam(mtmp), mhis(mtmp));
+        /* no corpse or objects as both are now several thousand feet down */
+        mongone(mtmp);
+        return 1;
+    }
+
     /* Some monsters teleport. Teleportation costs a turn. */
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !noteleport_level(mtmp)) {

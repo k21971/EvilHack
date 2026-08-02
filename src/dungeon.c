@@ -722,6 +722,7 @@ static struct level_map {
                   { "earth", &earth_level },
                   { "fakewiz1", &portal_level },
                   { "fire", &fire_level },
+                  { "hellc", &hellc_level },
                   { "juiblex", &juiblex_level },
                   { "knox", &knox_level },
                   { "medusa", &medusa_level },

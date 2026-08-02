@@ -3403,8 +3403,14 @@ makemon(
         && (mcham = pm_to_cham(mndx)) != NON_PM) {
         /* this is a shapechanger after all */
         mtmp->cham = mcham;
-        /* Vlad stays in his normal shape so he can carry the Candelabrum */
-        if (mndx != PM_VLAD_THE_IMPALER
+        /* Vlad and Kas stay in their normal shape so they can carry
+           inventory. The named vampire tiers get a 50/50 chance on
+           whether they spawn in normal shape or newcham shape */
+        if (mndx != PM_VLAD_THE_IMPALER && mndx != PM_KAS
+            && (mndx != PM_VAMPIRE_MAGE || rn2(2))
+            && (mndx != PM_VAMPIRE_ROYAL || rn2(2))
+            && (mndx != PM_VAMPIRE_NOBLE || rn2(2))
+            && (mndx != PM_VAMPIRE_SOVEREIGN || rn2(2))
             /* Note:  shapechanger's initial form used to be chosen here
                with rndmonst(), yielding a monster which was appropriate
                to the level's difficulty but ignoring the changer's usual
@@ -4691,6 +4697,11 @@ set_mimic_sym(struct monst *mtmp)
             appear = Is_rogue_level(&u.uz) ? S_hwall : S_hcdoor;
         else
             appear = Is_rogue_level(&u.uz) ? S_vwall : S_vcdoor;
+    } else if (is_open_air(mx, my) || is_pool_or_lava(mx, my)) {
+        /* mimics cling to the ceiling over inaccessible terrain, but there's
+         * no appropriate disguise that hangs from the ceiling */
+        ap_type = M_AP_NOTHING;
+        appear = 0;
     } else if (svl.level.flags.is_maze_lev
                && !(In_mines(&u.uz) && in_town(u.ux, u.uy))
                && !In_sokoban(&u.uz) && rn2(2)) {

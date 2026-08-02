@@ -505,6 +505,12 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
         assert(edog->apport > 0);
         if (!rn2(udist + 1) || !rn2(edog->apport))
             if (rn2(10) < edog->apport) {
+                /* intelligent pets won't drop objects over
+                   pools, lava, or open air */
+                if ((is_damp_terrain(omx, omy) || is_lava(omx, omy)
+                     || is_open_air(omx, omy))
+                    && !(is_animal(mtmp->data) || mindless(mtmp->data)))
+                    return 0;
                 relobj(mtmp, (int) mtmp->minvis, TRUE);
                 if (edog->apport > 1)
                     edog->apport--;
@@ -1774,6 +1780,9 @@ could_reach_item(struct monst *mon, coordxy nx, coordxy ny)
 {
     if ((!is_pool(nx, ny) || is_swimmer(mon->data))
         && (!is_lava(nx, ny) || likes_lava(mon->data))
+        /* if open air and can't fly/float and gravity is in effect */
+        && (!is_open_air(nx, ny) || m_in_air(mon)
+            || is_clinger(mon->data) || can_levitate(mon) || can_fly(mon))
         && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon)))
         return TRUE;
     return FALSE;

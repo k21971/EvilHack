@@ -3184,7 +3184,8 @@ punish(struct obj *sobj)
 void
 unpunish(void)
 {
-    struct obj *savechain = uchain;
+    struct obj *savechain = uchain,
+               *saveball = uball;
 
     /* chain goes away */
     setworn((struct obj *) 0, W_CHAIN); /* sets 'uchain' to Null */
@@ -3193,6 +3194,23 @@ unpunish(void)
 
     /* the chain is gone but the no longer attached ball persists */
     setworn((struct obj *) 0, W_BALL); /* sets 'uball' to Null */
+    if (saveball->where == OBJ_FLOOR
+        && is_open_air(saveball->ox, saveball->oy)) {
+        /* Save coordinates before flooreffects() may destroy the ball;
+           once uball is cleared, flooreffects' special case for ball/chain
+           won't match and delobj() will be called */
+        coordxy ox = saveball->ox, oy = saveball->oy;
+
+        /* pick up the ball and drop it, so it can fall through the air */
+        obj_extract_self(saveball);
+        if (!flooreffects(saveball, ox, oy, "drop")) {
+            place_object(saveball, ox, oy);
+        } else {
+            /* Ball was destroyed by flooreffects(); use saved coords */
+            maybe_unhide_at(ox, oy);
+            newsym(ox, oy);
+        }
+    }
 }
 
 /* prompt the player to create a stinking cloud and then create it if they

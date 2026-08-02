@@ -1008,6 +1008,8 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
         }
     } else if (is_lava(x, y) && !stopping_short) {
         Norep("You move over some lava.");
+    } else if (is_open_air(x, y) && !stopping_short) {
+        Norep("You pass over the chasm.");
     }
 
     /* FIXME:
@@ -1063,7 +1065,7 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
      * TODO: Treat walls, doors, iron bars, etc. specially
      * rather than just stopping before.
      */
-    return goodpos(x, y, mon, MM_IGNOREWATER | MM_IGNORELAVA);
+    return goodpos(x, y, mon, MM_IGNOREWATER | MM_IGNORELAVA | MM_IGNOREAIR);
 }
 
 staticfn boolean

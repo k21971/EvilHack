@@ -2687,7 +2687,10 @@ polysense(void)
         warnidx = PM_SHRIEKER;
         break;
     case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
     case PM_VAMPIRE_NOBLE:
+    case PM_VAMPIRE_ROYAL:
+    case PM_VAMPIRE_MAGE:
         svc.context.warntype.polyd = MH_HUMAN | MH_ELF;
         HWarn_of_mon |= FROMRACE;
         return;
