@@ -256,7 +256,7 @@ observe_recursively(struct obj *obj)
        (SCR_MAGIC_DETECTION has no effect yet), master's magic_detect
        also walks the shared magic chest chain and its do_mdetect/
        do_dknown_of/maybe_map helpers carry this same crystal chest
-       resistance guard */
+       resistance guard, plus do_dknown_of's sokoban/mines prize skip */
     /* the crystal chest resists; its contents stay hidden */
     if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
@@ -1773,9 +1773,14 @@ openone(coordxy zx, coordxy zy, genericptr_t num)
     }
     /* note: a secret door stores both its trapped flag and its wall_info
        in levl[][].flags; see rm.h for that troublesome overlay */
-    if (levl[zx][zy].typ == SDOOR
-        || (levl[zx][zy].typ == DOOR
-            && (levl[zx][zy].doormask & (D_CLOSED | D_LOCKED)))) {
+    if ((levl[zx][zy].typ == SDOOR
+         || (levl[zx][zy].typ == DOOR
+             && (levl[zx][zy].doormask & (D_CLOSED | D_LOCKED))))
+        /* a trapped sokoban prize door never opens this way; the
+           doormask test needs a real door because of the secret-door
+           overlay above */
+        && !(In_sokoban(&u.uz) && levl[zx][zy].typ == DOOR
+             && (levl[zx][zy].doormask & D_TRAPPED))) {
         if (levl[zx][zy].typ == SDOOR)
             cvt_sdoor_to_door(&levl[zx][zy]); /* .typ = DOOR */
         if (levl[zx][zy].doormask & D_TRAPPED) {

@@ -1782,6 +1782,15 @@ zap_dig(void)
                 break;
             }
         } else if (closed_door(zx, zy) || room->typ == SDOOR) {
+            /* a trapped sokoban prize door resists digging; the doormask
+               test needs a real door - a secret door stores wall_info in
+               the same flags field */
+            if (In_sokoban(&u.uz) && room->typ == DOOR
+                && (room->doormask & D_TRAPPED) != 0) {
+                if (!Blind && cansee(zx, zy))
+                    pline_The("door glows, then fades.");
+                break;
+            }
             if (*in_rooms(zx, zy, SHOPBASE)) {
                 add_damage(zx, zy, SHOP_DOOR_COST);
                 shopdoor = TRUE;

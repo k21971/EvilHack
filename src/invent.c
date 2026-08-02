@@ -1017,8 +1017,11 @@ addinv_core1(struct obj *obj)
         svc.context.achieveo.mines_prize_oid = 0; /* done w/ luckstone o_id */
         obj->nomerge = 0; /* was set in create_object(sp_lev.c) */
     } else if (is_soko_prize(obj)) {
+        /* the livelog wants the type of the prize actually acquired */
+        svc.context.achieveo.soko_prize_otyp = obj->otyp;
         record_achievement(ACH_SOKO_PRIZE);
-        svc.context.achieveo.soko_prize_oid = 0; /* done w/ bag/amulet o_id */
+        makeknown(obj->otyp); /* hero knows what was won */
+        del_soko_prizes(); /* unchosen prizes vanish; clears all o_ids */
         obj->nomerge = 0; /* (got set in sp_lev.c) */
     }
 }

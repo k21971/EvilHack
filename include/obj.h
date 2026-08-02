@@ -140,7 +140,6 @@ struct obj {
 #define norevive oeroded2 /* frozen corpse */
     Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
     Bitfield(olocked, 1);     /* object is locked */
-#define sokoprize olocked     /* special flag for sokoban prize */
 #define orecursive olocked    /* special flag for preventing recursive calls */
     Bitfield(obroken, 1);     /* lock has been broken */
 #define degraded_horn obroken /* unicorn horn will poly to non-magic */
@@ -431,6 +430,8 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) \
     ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_DEVOURING)
+/* an unclaimed sokoban prize is not lootable/tippable in place */
+#define Is_nonprize_container(o) (Is_container(o) && !is_soko_prize(o))
 #define Is_box(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= HIDDEN_CHEST)
 /* deliberately covers neither new bag: a bag of treasure carries its own
    weight rules rather than the magic-bag ones, and a bag of devouring
@@ -588,9 +589,17 @@ struct obj {
                        || (o)->otyp == POT_POLYMORPH \
                        || (o)->otyp == AMULET_OF_UNCHANGING)
 
-/* achievement tracking; 3.6.x did this differently */
-#define is_mines_prize(o) ((o)->o_id == svc.context.achieveo.mines_prize_oid)
-#define is_soko_prize(o) ((o)->o_id == svc.context.achieveo.soko_prize_oid)
+/* achievement tracking; 3.6.x did this differently. o_id 0 never
+   matches: cleared prize slots hold 0, and synthetic objects built
+   from zeroobj (minimal_xname) carry o_id 0 */
+#define is_mines_prize(o) \
+    ((o)->o_id != 0 && (o)->o_id == svc.context.achieveo.mines_prize_oid)
+/* three prize closets on the sokoban end level; evaluates 'o' repeatedly */
+#define is_soko_prize(o) \
+    ((o)->o_id != 0                                             \
+     && ((o)->o_id == svc.context.achieveo.soko_prize_oid[0]    \
+         || (o)->o_id == svc.context.achieveo.soko_prize_oid[1] \
+         || (o)->o_id == svc.context.achieveo.soko_prize_oid[2]))
 
 /* is_art() is now a function in artifact.c */
 /* #define is_art(o,art) ((o) && (o)->oartifact == (art)) */

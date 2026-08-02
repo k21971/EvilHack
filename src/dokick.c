@@ -442,7 +442,7 @@ container_impact_dmg(
     boolean costly, insider, frominv, wchange = FALSE;
 
     /* only consider normal containers */
-    if (!Is_container(obj) || !Has_contents(obj) || Is_mbag(obj))
+    if (!Is_nonprize_container(obj) || !Has_contents(obj) || Is_mbag(obj))
         return;
 
     costly = ((shkp = shop_keeper(*in_rooms(x, y, SHOPBASE)))
@@ -1726,6 +1726,9 @@ impact_drop(
         oct += obj->quan;
         if (obj == uball || obj == uchain)
             continue;
+        /* sokoban prizes never fall */
+        if (is_soko_prize(obj))
+            continue;
         /* boulders can fall too, but rarely & never due to rocks */
         if ((isrock && obj->otyp == BOULDER)
             || rn2(obj->otyp == BOULDER ? 30 : 3))
@@ -1818,7 +1821,7 @@ ship_object(struct obj *otmp, coordxy x, coordxy y, boolean shop_floor_obj)
 
     /* objects other than attached iron ball always fall down ladder,
        but have a chance of staying otherwise */
-    nodrop = (otmp == uball) || (otmp == uchain)
+    nodrop = (otmp == uball) || (otmp == uchain) || is_soko_prize(otmp)
              || (toloc != MIGR_LADDER_UP && rn2(3));
 
     container = Has_contents(otmp);

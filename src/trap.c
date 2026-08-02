@@ -6875,6 +6875,11 @@ untrap(
         || (!force && confused && !rn2(3))) {
         You("find a trap on the door!");
         exercise(A_WIS, TRUE);
+        /* a sokoban prize door's trap cannot be disarmed */
+        if (In_sokoban(&u.uz)) {
+            pline("But you see no way to disable it.");
+            return 1;
+        }
         if (ynq("Disarm it?") != 'y')
             return 1;
         if (levl[x][y].doormask & D_TRAPPED) {

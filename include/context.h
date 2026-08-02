@@ -124,13 +124,17 @@ struct novel_tracking { /* for choosing random passage when reading novel */
        passage from the Death Quotes section of dat/tribute */
 };
 
+/* number of sokoban prize closets on a sokoban end level */
+#define NUM_SOKO_PRIZES 3
+
 struct achievement_tracking {
     unsigned mines_prize_oid,   /* luckstone->o_id */
-             soko_prize_oid,    /* {bag or amulet}->o_id */
+             soko_prize_oid[NUM_SOKO_PRIZES], /* closet prize o_ids */
              castle_prize_old;  /* wand->o_id; not yet implemented */
     /* record_achievement() wants the item type for livelog() event */
     short    mines_prize_otyp,  /* luckstone */
-             soko_prize_otyp,   /* bag of holding or amulet of reflection */
+             soko_prize_otyp,   /* set at pickup: the type of the one
+                                 * prize the hero actually acquired */
              castle_prize_otyp; /* strange object (someday wand of wishing) */
     boolean minetn_reached;     /* avoid redundant checking for town entry */
 };

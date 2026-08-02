@@ -2412,7 +2412,7 @@ bhito(struct obj *obj, struct obj *otmp)
             res = !obj->dknown;
             /* target object has now been "seen (up close)" */
             observe_object(obj);
-            if (Is_container(obj) || obj->otyp == STATUE) {
+            if (Is_nonprize_container(obj) || obj->otyp == STATUE) {
                 if (obj->otyp == CRYSTAL_CHEST) {
                     /* special container that is immune to magic */
                     pline_The("%s resists your magical probing.",
@@ -6142,6 +6142,9 @@ zap_over_floor(
         const char *see_txt = 0, *sense_txt = 0, *hear_txt = 0;
 
         rangemod = -1000;
+        /* a trapped sokoban prize door is never destroyed by a zap */
+        if ((lev->doormask & D_TRAPPED) && In_sokoban(&u.uz))
+            goto def_case;
         switch (damgtype) {
         case ZT_FIRE:
             new_doormask = D_NODOOR;

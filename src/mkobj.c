@@ -4778,9 +4778,14 @@ invalid_obj_material(struct obj *obj, int mat)
         && mat == PAPER)
         return TRUE;
 
-    /* TODO-EVILHACK: the sokoban-prize exclusion (iflags.soko_prize_type2,
-       soko_prize_type3, soko_prize_type5 and is_soko_prize_flag) ports
-       with the sokoban prize subsystem */
+    /* sokoban prizes must be wearable as found; these types are subject
+       to the iron/mithril/silver drawbacks (rusting, hated material) */
+    if (is_soko_prize(obj)
+        && (obj->otyp == AMULET_OF_REFLECTION
+            || obj->otyp == HELM_OF_SPEED
+            || obj->otyp == AMULET_OF_MAGIC_RESISTANCE)
+        && (mat == IRON || mat == MITHRIL || mat == SILVER))
+        return TRUE;
 
     return FALSE;
 }

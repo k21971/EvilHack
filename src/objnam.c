@@ -723,6 +723,10 @@ xname_flags(
         obj->known = 0;
     if (!Blind && !gd.distantname)
         observe_object(obj);
+    /* an unclaimed sokoban prize is recognizable even blind or from a
+       distance */
+    if (is_soko_prize(obj))
+        obj->dknown = 1;
     if (Role_if(PM_CLERIC))
         obj->bknown = 1; /* avoid set_bknown() to bypass update_inventory() */
     /* wizards have a feel for magical items */
@@ -805,10 +809,14 @@ xname_flags(
         else if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
             /* each must be identified individually */
             Strcat(buf, known ? actualn : dn);
-        else if (nn)
+        else if (nn && !is_soko_prize(obj))
             Strcat(buf, actualn);
-        else if (un)
+        else if (un && !is_soko_prize(obj))
             xcalled(buf, BUFSZ - PREFIX, "amulet", un);
+        else if (is_soko_prize(obj))
+            /* deliberately clobbers any material prefix; an unclaimed
+               prize hides everything but its class */
+            Strcpy(buf, "sokoban prize amulet");
         else
             Sprintf(eos(buf), "%s amulet", dn);
         break;
@@ -831,10 +839,13 @@ xname_flags(
 
         if (!dknown)
             Strcat(buf, dn);
-        else if (nn)
+        else if (nn && !is_soko_prize(obj))
             Strcat(buf, actualn);
-        else if (un)
+        else if (un && !is_soko_prize(obj))
             xcalled(buf, BUFSZ - PREFIX, dn, un);
+        else if (is_soko_prize(obj))
+            /* deliberately clobbers any material prefix */
+            Strcpy(buf, "sokoban prize tool");
         else
             Strcat(buf, dn);
 
@@ -901,16 +912,20 @@ xname_flags(
         }
         ConcUpdate(buf);
 
-        if (nn) {
+        if (nn && !is_soko_prize(obj)) {
             Concat(buf, 0, actualn);
             propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
                       FALSE, !!strstri(actualn, " of "));
-        } else if (un) {
+        } else if (un && !is_soko_prize(obj)) {
             Concat(buf, 0, armor_simple_name(obj));
             propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             ConcUpdate(buf);
             xcalled(buf, BUFSZ - PREFIX, "", un);
+        } else if (is_soko_prize(obj)) {
+            /* deliberately clobbers any prefix; an unclaimed prize
+               hides everything but its class */
+            Strcpy(buf, "sokoban prize armor");
         } else {
             Concat(buf, 0, dn);
             propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,

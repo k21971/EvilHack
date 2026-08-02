@@ -2534,7 +2534,7 @@ show_achievements(
         case ACH_SOKO:
             you_have_X("entered Sokoban");
             break;
-        case ACH_SOKO_PRIZE: /* hard to reach guaranteed bag or amulet */
+        case ACH_SOKO_PRIZE: /* hard to reach guaranteed closet prize */
             you_have_X("completed Sokoban");
             break;
         case ACH_MINE_PRIZE: /* hidden guaranteed luckstone */
@@ -2699,9 +2699,10 @@ record_achievement_core(schar achidx, boolean quietly)
                       ? svc.context.achieveo.soko_prize_otyp
                       : svc.context.achieveo.mines_prize_otyp);
 
-        /* note: OBJ_NAME() works here because both "bag of holding" and
-           "amulet of reflection" are fully named in their objects[] entry
-           but that's not true in the general case */
+        /* note: OBJ_NAME() works here because the luckstone and all six
+           sokoban prize types (bag of holding, magic marker, both amulets,
+           helm of speed, gauntlets of protection) are fully named in their
+           objects[] entry but that's not true in the general case */
         livelog_printf(achieve_msg[achidx].llflag, "%s %s",
                        achieve_msg[achidx].msg, OBJ_NAME(objects[otyp]));
     } else {

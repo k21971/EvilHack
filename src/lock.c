@@ -108,6 +108,12 @@ picklock(void)
         }
     }
 
+    if (Sokoban && !gx.xlock.box
+        && (gx.xlock.door->doormask & D_TRAPPED) != 0) {
+        You("cannot lock this door.");
+        return ((gx.xlock.usedtime = 0));
+    }
+
     if (gx.xlock.usedtime++ >= 50
         || (nohands(gy.youmonst.data)
             && !(druid_form && !slithy(gy.youmonst.data))
@@ -127,6 +133,13 @@ picklock(void)
                        : (gx.xlock.door->doormask & D_TRAPPED) != 0)
         && gx.xlock.magic_key) {
         gx.xlock.chance += 20; /* less effort needed next time */
+        /* a sokoban prize door's trap cannot be disarmed, even with
+           the magic key */
+        if (In_sokoban(&u.uz) && gx.xlock.door) {
+            You("find a trap!  But you see no way to disarm it.");
+            exercise(A_WIS, FALSE);
+            return ((gx.xlock.usedtime = 0));
+        }
         if (!gx.xlock.door) {
             if (!gx.xlock.box->tknown)
                 You("find a trap!");
@@ -159,7 +172,7 @@ picklock(void)
 
     You("succeed in %s.", lock_action());
     if (gx.xlock.door) {
-        if (gx.xlock.door->doormask & D_TRAPPED) {
+        if ((gx.xlock.door->doormask & D_TRAPPED) && !In_sokoban(&u.uz)) {
             /* set the door state before b_trapped() so a fire blast goes
                off in an empty doorway */
             if (door_trap_destroys(u.ux + u.dx, u.uy + u.dy)) {
@@ -1293,6 +1306,12 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
                   quickly_dissipates);
             return FALSE;
         }
+        /* Don't allow the sokoban closet doors to be locked */
+        if (Sokoban && (door->doormask & D_TRAPPED) != 0) {
+            pline_The("%s has no effect on this door.",
+                      otmp->otyp == WAN_LOCKING ? "wand" : "spell");
+            return FALSE;
+        }
 
         switch (door->doormask & ~D_TRAPPED) {
         case D_CLOSED:
@@ -1342,6 +1361,12 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
             if (door->doormask & D_TRAPPED) {
                 struct monst *mtmp = m_at(x, y);
 
+                if (In_sokoban(&u.uz)) {
+                    /* never pop a sokoban prize door */
+                    if (cansee(x, y))
+                        pline_The("door absorbs the force!");
+                    break;
+                }
                 sawit = mtmp ? canseemon(mtmp) : cansee(x, y);
                 door->doormask = D_NODOOR;
                 unblock_point(x, y);

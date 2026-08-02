@@ -1775,7 +1775,8 @@ meatmetal(struct monst *mtmp)
         if ((mtmp->data == &mons[PM_RUST_MONSTER] && !is_rustprone(otmp))
             || (otmp->otyp == AMULET_OF_STRANGULATION
                 || otmp->otyp == RIN_SLOW_DIGESTION)
-            || (otmp->opoisoned && !resists_poison(mtmp)))
+            || (otmp->opoisoned && !resists_poison(mtmp))
+            || is_mines_prize(otmp) || is_soko_prize(otmp))
             continue;
         if (is_metallic(otmp) && !obj_resists(otmp, 5, 95)
             && touch_artifact(otmp, mtmp)) {
@@ -2565,7 +2566,11 @@ mfndpos(
                 /* an amorphous creature can only move under/through a
                    closed door if it doesn't currently have hero engulfed */
                 && !((amorphous(mdat) || can_fog(mon)) && !engulfing_u(mon))
-                && (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
+                /* a trapped sokoban prize door stops even door-openers */
+                && ((In_sokoban(&u.uz)
+                     && (levl[nx][ny].doormask & D_TRAPPED))
+                    || ((levl[nx][ny].doormask & D_CLOSED)
+                        && !(flag & OPENDOOR))
                     || ((levl[nx][ny].doormask & D_LOCKED)
                         && !(flag & UNLOCKDOOR)))
                 /* a hard (metal or stone) door resists busting; metal

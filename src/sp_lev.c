@@ -2381,8 +2381,11 @@ create_object(object *o, struct mkroom *croom)
                 remove_object(otmp);
                 if (otmp->otyp == SADDLE && can_saddle(invent_carrying_monster))
                     put_saddle_on_mon(otmp, invent_carrying_monster);
-                else
-                    (void) mpickobj(invent_carrying_monster, otmp);
+                else if (mpickobj(invent_carrying_monster, otmp)) {
+                    /* merged with an existing stack in minvent;
+                       otmp has been freed - nothing more to do */
+                    return NULL;
+                }
             }
         } else {
             struct obj *cobj = container_obj[container_idx - 1];
@@ -2405,12 +2408,28 @@ create_object(object *o, struct mkroom *croom)
     }
     /* container */
     if (o->containment & SP_OBJ_CONTAINER) {
-        delete_contents(otmp);
-        if (container_idx < MAX_CONTAINMENT) {
-            container_obj[container_idx] = otmp;
-            container_idx++;
-        } else
-            impossible("create_object: too deeply nested containers.");
+        /* if this object was already placed INTO a container via
+           SP_OBJ_CONTENT above, otmp may have been reassigned by
+           add_to_container() when it merged with an existing
+           identical item. Treating a merged survivor as a new
+           empty container would let delete_contents() destroy its
+           siblings in the outer container, and would redirect
+           subsequent SP_OBJ_CONTENT specs into the wrong bag.
+           Skip the container-init step in that case */
+        if (!(o->containment & SP_OBJ_CONTENT)) {
+            delete_contents(otmp);
+            if (container_idx < MAX_CONTAINMENT) {
+                container_obj[container_idx] = otmp;
+                container_idx++;
+            } else {
+                impossible(
+                    "create_object: too deeply nested containers.");
+                /* best-effort: redirect subsequent CONTENT specs to
+                   this container so its intended contents don't
+                   spill into the parent */
+                container_obj[MAX_CONTAINMENT - 1] = otmp;
+            }
+        }
     }
 
     /* Medusa level special case: statues are petrified monsters, so they
@@ -2466,11 +2485,24 @@ create_object(object *o, struct mkroom *croom)
                 impossible(prize_warning, "mines end");
             }
         } else if (Is_sokoend_level(&u.uz)) {
-            if (!svc.context.achieveo.soko_prize_oid) {
-                svc.context.achieveo.soko_prize_oid = otmp->o_id;
-                svc.context.achieveo.soko_prize_otyp = otmp->otyp;
+            int prize_i;
+
+            for (prize_i = 0; prize_i < NUM_SOKO_PRIZES; ++prize_i)
+                if (!svc.context.achieveo.soko_prize_oid[prize_i])
+                    break;
+            if (prize_i < NUM_SOKO_PRIZES) {
+                svc.context.achieveo.soko_prize_oid[prize_i] = otmp->o_id;
+                /* soko_prize_otyp is set at pickup time, once the hero
+                   has committed to one of the closet prizes */
                 otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack;
                                     * will be reset in addinv_core1() */
+                /* prizes are always usable as found */
+                otmp->cursed = 0;
+                if (otmp->spe < 0)
+                    otmp->spe = 0;
+                /* material was rolled before the o_id was recorded;
+                   re-roll so the prize material exclusion applies */
+                init_obj_material(otmp);
             } else {
                 impossible(prize_warning, "sokoban end");
             }
@@ -3889,6 +3921,10 @@ lspo_object(lua_State *L)
     } else
         lua_pop(L, 1);
 
+    /* note: create_object() skips the container_obj[] push for a
+       CONTENT|CONTAINER object (merge-survivor defense), so this pop
+       would unbalance the stack for a nested container that itself
+       declares contents; no level ships that shape today */
     if ((tmpobj.containment & SP_OBJ_CONTAINER) != 0)
         spo_pop_container();
 
@@ -4814,6 +4850,14 @@ sel_set_door(coordxy dx, coordxy dy, genericptr_t arg)
         if (typ < D_CLOSED)
             typ = D_CLOSED;
     }
+
+    /* special Sokoban doors
+     * this relies on the normal doors being locked,
+     * but the special doors being trapped
+     */
+    if (In_sokoban(&u.uz) && typ == D_CLOSED)
+        typ |= D_TRAPPED;
+
     set_door_orientation(x, y); /* set/clear levl[x][y].horizontal */
     levl[x][y].doormask = typ;
     levl[x][y].material = dsp->material; /* 0 == default (wood) */

@@ -1095,9 +1095,12 @@ makemap_prepost(boolean pre, boolean wiztower)
                     pline(Unachieve, "Mine's-end");
                 svc.context.achieveo.mines_prize_oid = 0;
             } else if (Is_sokoend_level(&u.uz)) {
+                int i;
+
                 if (remove_achievement(ACH_SOKO_PRIZE))
                     pline(Unachieve, "Soko-prize");
-                svc.context.achieveo.soko_prize_oid = 0;
+                for (i = 0; i < NUM_SOKO_PRIZES; ++i)
+                    svc.context.achieveo.soko_prize_oid[i] = 0;
             }
         }
         if (Punished) {
@@ -4626,7 +4629,7 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
         Sprintf(buf, "Pick up %s", otmp->nexthere ? "items" : doname(otmp));
         mcmd_addmenu(win, MCMD_PICKUP, buf), ++K;
 
-        if (Is_container(otmp)) {
+        if (Is_nonprize_container(otmp)) {
             Sprintf(buf, "Loot %s", doname(otmp));
             mcmd_addmenu(win, MCMD_LOOT, buf), ++K;
 
@@ -5147,7 +5150,8 @@ domouseaction(void)
                 cmdq_add_ec(CQ_CANNED, dodown);
                 return ECMD_OK;
             } else if ((o = vobj_at(u.ux, u.uy)) != 0) {
-                cmdq_add_ec(CQ_CANNED, Is_container(o) ? doloot : dopickup);
+                cmdq_add_ec(CQ_CANNED,
+                            Is_nonprize_container(o) ? doloot : dopickup);
                 return ECMD_OK;
             } else {
                 cmdq_add_ec(CQ_CANNED, donull); /* just rest */

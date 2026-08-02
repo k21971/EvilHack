@@ -962,6 +962,10 @@ autopick_testobj(struct obj *otmp, boolean calc_costly)
     if (ape)
         pickit = ape->grab;
 
+    /* never pick up sokoban prize */
+    if (is_soko_prize(otmp))
+        pickit = FALSE;
+
     return pickit;
 }
 
@@ -2039,7 +2043,7 @@ container_at(coordxy x, coordxy y, boolean countem)
     }
     for (cobj = svl.level.objects[x][y]; cobj; cobj = nobj) {
         nobj = cobj->nexthere;
-        if (Is_container(cobj)) {
+        if (Is_nonprize_container(cobj)) {
             container_count++;
             if (!countem)
                 break;
@@ -2294,7 +2298,7 @@ doloot_core(void)
             }
             for (cobj = svl.level.objects[cc.x][cc.y]; cobj;
                  cobj = cobj->nexthere)
-                if (Is_container(cobj)) {
+                if (Is_nonprize_container(cobj)) {
                     any.a_obj = cobj;
                     tmpglyph = obj_to_glyph(cobj, rn2_on_display_rng);
                     map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
@@ -2329,7 +2333,7 @@ doloot_core(void)
             for (cobj = svl.level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
                 nobj = cobj->nexthere;
 
-                if (Is_container(cobj)) {
+                if (Is_nonprize_container(cobj)) {
                     anyfound = TRUE;
                     timepassed |= do_loot_cont(&cobj, 1, 1);
                     if (ga.abort_looting)
@@ -3865,7 +3869,7 @@ tip_ok(struct obj *obj)
     if (!obj || obj->oclass == COIN_CLASS)
         return GETOBJ_EXCLUDE;
 
-    if (Is_container(obj)) {
+    if (Is_nonprize_container(obj)) {
         return GETOBJ_SUGGEST;
     }
 
@@ -3909,7 +3913,7 @@ choose_tip_container_menu(void)
     }
     for (otmp = svl.level.objects[u.ux][u.uy]; otmp;
          otmp = otmp->nexthere)
-        if (Is_container(otmp)) {
+        if (Is_nonprize_container(otmp)) {
             ++i;
             any.a_obj = otmp;
             tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
@@ -4012,7 +4016,7 @@ dotip(void)
                     char prompt_part2[BUFSZ];
 
                     nobj = cobj->nexthere;
-                    if (!Is_container(cobj))
+                    if (!Is_nonprize_container(cobj))
                         continue;
                     /*
                      * Calling tipcontainer_gettarget with a non-zero int ptr
@@ -4047,7 +4051,7 @@ dotip(void)
         return ECMD_CANCEL;
 
     /* normal case */
-    if (Is_container(cobj) || cobj->otyp == HORN_OF_PLENTY) {
+    if (Is_nonprize_container(cobj) || cobj->otyp == HORN_OF_PLENTY) {
         tipcontainer(cobj);
         return ECMD_TIME;
     }
@@ -4396,7 +4400,7 @@ count_target_containers(
     int ret = 0;
 
     while (olist) {
-        if (olist != excludo && Is_container(olist)
+        if (olist != excludo && Is_nonprize_container(olist)
             /* include bag of tricks when not known to be such */
             && (box->otyp != BAG_OF_TRICKS || !box->dknown
                 || !objects[box->otyp].oc_name_known))
@@ -4498,7 +4502,7 @@ tipcontainer_gettarget(
                 continue;
             /* skip non-containers; bag of tricks passes Is_container() test,
                only include it if it isn't known to be a bag of tricks */
-            if (!Is_container(otmp)
+            if (!Is_nonprize_container(otmp)
                 || (otmp->otyp == BAG_OF_TRICKS && otmp->dknown
                     && objects[otmp->otyp].oc_name_known))
                 continue;
@@ -4656,6 +4660,51 @@ tipcontainer_checks(
     }
 
     return TIPCHECK_OK;
+}
+
+/* the hero has just acquired one of the sokoban closet prizes; the
+   unchosen prizes vanish. called from addinv_core1() while the prize
+   o_ids are still recorded; clears all of them when done */
+void
+del_soko_prizes(void)
+{
+    coordxy x, y;
+    int i, cnt = 0;
+    struct obj *otmp, *onext;
+
+    /* check objs on floor */
+    for (otmp = fobj; otmp; otmp = onext) {
+        onext = otmp->nobj; /* otmp may be destroyed */
+        if (is_soko_prize(otmp)) {
+            x = otmp->ox;
+            y = otmp->oy;
+            obj_extract_self(otmp);
+            if (cansee(x, y)) {
+                You("see %s %s.", an(xname(otmp)),
+                    rn2(2) ? "dissolve into nothingness"
+                           : "wink out of existience");
+                newsym(x, y);
+            } else if (cnt && !Deaf) {
+                You_hear("%s.",
+                         rn2(2) ? "a distinct popping sound"
+                                : "a noise like a hundred thousand people"
+                                  " saying 'foop'");
+            } else {
+                cnt++;
+            }
+            obfree(otmp, (struct obj *) 0);
+        }
+    }
+    /* check buried objs... do we need this? */
+    for (otmp = svl.level.buriedobjlist; otmp; otmp = onext) {
+        onext = otmp->nobj; /* otmp may be destroyed */
+        if (is_soko_prize(otmp)) {
+            obj_extract_self(otmp);
+            obfree(otmp, (struct obj *) 0);
+        }
+    }
+    for (i = 0; i < NUM_SOKO_PRIZES; ++i)
+        svc.context.achieveo.soko_prize_oid[i] = 0;
 }
 
 /*pickup.c*/
