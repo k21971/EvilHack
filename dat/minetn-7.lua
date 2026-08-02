@@ -147,6 +147,7 @@ des.room({ type="ordinary", lit=1, x=3,y=3,
                          contents = function()
                             des.door({ state = "closed", wall = "west" })
                             des.altar({ x=02, y=01, align=align[1], type="shrine" })
+                            des.feature("magic chest", 3, 1)
                             des.monster("gnomish wizard")
                             des.monster("gnomish wizard")
                          end
@@ -159,7 +160,7 @@ des.room({ type="ordinary", lit=1, x=3,y=3,
               des.monster({ id = "watch captain", peaceful = 1 })
               des.monster("rock gnome")
               des.monster("rock gnome")
-              des.monster("rock gnome")
+              des.monster("gnome noble")
               des.monster("gnome noble")
               des.monster("monkey")
               des.monster("monkey")

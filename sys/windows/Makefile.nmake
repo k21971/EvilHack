@@ -737,10 +737,12 @@ LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)knox-1.lua $(DAT)knox-2.lua $(DAT)knox-3.lua \
 	$(DAT)medusa-1.lua $(DAT)medusa-2.lua \
 	$(DAT)medusa-3.lua $(DAT)medusa-4.lua $(DAT)minend-1.lua \
-	$(DAT)minend-2.lua $(DAT)minend-3.lua $(DAT)minefill.lua \
+	$(DAT)minend-2.lua $(DAT)minend-3.lua $(DAT)minend-4.lua \
+	$(DAT)minend-5.lua $(DAT)minefill.lua \
 	$(DAT)minetn-1.lua $(DAT)minetn-2.lua $(DAT)minetn-3.lua \
 	$(DAT)minetn-4.lua $(DAT)minetn-5.lua $(DAT)minetn-6.lua \
-	$(DAT)minetn-7.lua $(DAT)oracle-1.lua $(DAT)oracle-2.lua \
+	$(DAT)minetn-7.lua $(DAT)minetn-8.lua \
+	$(DAT)oracle-1.lua $(DAT)oracle-2.lua \
 	$(DAT)oracle-3.lua $(DAT)orcus.lua \
 	$(DAT)sanctum.lua $(DAT)soko1-1.lua $(DAT)soko1-2.lua \
 	$(DAT)soko1-3.lua $(DAT)soko1-4.lua $(DAT)soko1-5.lua \

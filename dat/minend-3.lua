@@ -33,6 +33,9 @@ des.map({ halign = "center", valign = "bottom", map = [[
 local place = { {1,15},{68,6},{1,13} }
 shuffle(place)
 
+local key = { {4,12},{18,1},{24,7},{31,16},{70,5},{68,13} }
+shuffle(key)
+
 des.non_diggable(selection.area(67,3,73,7))
 des.non_diggable(selection.area(0,12,2,16))
 des.feature("fountain", {12,08})
@@ -46,6 +49,13 @@ des.door("closed",2,15)
 des.mazewalk({ x=36, y=8, dir="west", stocked=false })
 des.stair("up", 42,8)
 des.wallify()
+
+-- magic key is buried in a chest
+des.engraving({ coord=key[1], type="engrave", text="X" })
+des.object({ id = "chest", coord = key[1], buried = 1, trapped = 0, locked = 1,
+             contents = function()
+                des.object("magic key")
+             end })
 
 -- Objects
 des.object("diamond")
@@ -64,7 +74,7 @@ des.object("ruby")
 des.object("amethyst")
 des.object("*")
 des.object("amethyst")
-des.object({ id="luckstone", coord=place[2], buc="not-cursed", achievement=1 })
+des.object({ id="luckstone", coord=place[2], achievement=1 })
 des.object("flint",place[1])
 des.object("?")
 des.object("?")

@@ -28,6 +28,7 @@ des.room({ type = "ordinary", lit=1, x=3,y=3,
                          contents = function()
                             des.door({ state = "closed", wall="south" })
                             des.altar({ x=2,y=1,align=align[1], type="shrine" })
+                            des.feature("magic chest", 2, 0)
                             des.monster("gnomish wizard")
                             des.monster("gnomish wizard")
                          end

@@ -17,7 +17,7 @@ des.map([[
 |    |.......|        |..........................-S-      --.......|      |
 |    |......-------   ---........................|.       |.......--      |
 |    |..--........-----..........................|.       -.-..----       |
-|    --..--.-----........-.....................---        --..--          |
+|    --..--..----........-.....................---        --..--          |
 |     --..--..| -----------..................---.----------..--           |
 |      |...--.|    |..S...S..............---................--            |
 |     ----..-----  ------------........--- ------------...---             |
@@ -49,10 +49,11 @@ des.door("locked",51,16)
 des.door("locked",66,02)
 -- Stairs
 des.stair("up", 36,04)
+-- Forge
+des.feature("forge", 48, 13)
 -- Non diggable walls
 des.non_diggable(selection.area(00,00,74,17))
 -- Niches
--- Note: place[6] empty
 des.object("diamond",place[7])
 des.object("emerald",place[7])
 des.object("worthless piece of violet glass",place[7])
@@ -74,7 +75,14 @@ des.object("ruby",place[4])
 des.object("loadstone",place[4])
 des.object("ruby",place[5])
 des.object("worthless piece of red glass",place[5])
-des.object({ id="luckstone", coord=place[5], buc="not-cursed", achievement=1 })
+des.object({ id="luckstone", coord=place[5], achievement=1 })
+
+-- magic key is buried in a chest
+des.engraving({ coord=place[6], type="engrave", text="One-Eyed Sam was here" })
+des.object({ id = "chest", coord = place[6], buried = 1, trapped = 0, locked = 1,
+             contents = function()
+                des.object("magic key")
+             end })
 -- Random objects
 des.object("*")
 des.object("*")
@@ -97,7 +105,7 @@ des.trap()
 des.trap()
 -- Random monsters
 des.monster("gnome royal")
-des.monster("gnome noble")
+des.monster("gnome royal")
 des.monster("gnome noble")
 des.monster("gnome noble")
 des.monster("gnomish wizard")
@@ -112,7 +120,7 @@ des.monster("rock gnome")
 des.monster("rock gnome")
 des.monster("rock gnome")
 des.monster("hobbit")
-des.monster("hobbit")
+des.monster("hobbit pickpocket")
 des.monster("mountain dwarf")
 des.monster("mountain dwarf")
 des.monster("mountain dwarf")

@@ -182,7 +182,7 @@ dungeon = {
             bonetag = "T",
             base = 3,
             range = 2,
-            nlevels = 7,
+            nlevels = 8,
             flags = "town"
          },
          {
@@ -190,7 +190,7 @@ dungeon = {
 --          5.0.0: minend changed to no-bones to simplify achievement tracking
 --          bonetag = "E"
             base = -1,
-            nlevels = 3
+            nlevels = 5
          },
       }
    },

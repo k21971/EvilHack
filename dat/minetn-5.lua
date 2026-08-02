@@ -130,8 +130,10 @@ des.door("locked",73,18)
 des.object("chest", 73, 19)
 des.door("locked",50,06)
 des.object("(", 50, 03)
-des.object({ id = "statue", x=38, y=15, montype="gnome king", historic=1 })
+des.object({ id = "statue", x=38, y=15, montype="gnome royal", historic=1 })
 -- Temple
 des.region({ region={29,02, 33,04}, lit=1, type="temple", filled=1 })
 des.door("closed",31,05)
 des.altar({ x=31,y=03, align=align[1], type="shrine" })
+-- Magic chest
+des.feature("magic chest", 29, 2)

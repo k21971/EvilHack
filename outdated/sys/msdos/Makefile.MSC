@@ -798,6 +798,8 @@ nhdat:	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(DAT)\options \
 	@echo minend-1.lua >>dlb.lst
 	@echo minend-2.lua >>dlb.lst
 	@echo minend-3.lua >>dlb.lst
+	@echo minend-4.lua >>dlb.lst
+	@echo minend-5.lua >>dlb.lst
 	@echo minetn-1.lua >>dlb.lst
 	@echo minetn-2.lua >>dlb.lst
 	@echo minetn-3.lua >>dlb.lst
@@ -805,6 +807,7 @@ nhdat:	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(DAT)\options \
 	@echo minetn-5.lua >>dlb.lst
 	@echo minetn-6.lua >>dlb.lst
 	@echo minetn-7.lua >>dlb.lst
+	@echo minetn-8.lua >>dlb.lst
 	@echo Mon-fila.lua >>dlb.lst
 	@echo Mon-filb.lua >>dlb.lst
 	@echo Mon-goal.lua >>dlb.lst

@@ -33,9 +33,10 @@ if percent(75) then
    end
 end
 --
-for i = 1,math.random(6, 8) do
+for i = 1,6 do
    des.monster("rock gnome")
 end
+des.monster("gnome noble")
 des.monster("gnome noble")
 des.monster("mountain dwarf")
 des.monster("mountain dwarf")

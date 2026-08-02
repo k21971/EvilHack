@@ -4,7 +4,7 @@
 -- NetHack may be freely redistributed.  See license for details.
 --
 -- Mine end level variant 2
--- "Gnome King's Wine Cellar"
+-- "Gnome King's/Queen's Wine Cellar" (gender is selected randomly)
 
 des.level_init({ style = "solidfill", fg = " " });
 
@@ -13,8 +13,8 @@ des.level_flags("mazelevel");
 des.map([[
 ---------------------------------------------------------------------------
 |...................................................|                     |
-|.|---------S--.--|...|--------------------------|..|                     |
-|.||---|   |.||-| |...|..........................|..|                     |
+|.|---------S--.--|...|--------------------------|..|  ..                 |
+|.||---|   |.||-| |...|..........................|..|   ..                |
 |.||...| |-|.|.|---...|.............................|                ..   |
 |.||...|-|.....|....|-|..........................|..|.               ..   |
 |.||.....|-S|..|....|............................|..|..                   |
@@ -24,7 +24,7 @@ des.map([[
 |.|---|..|--|.......|----------------------------|..|.....                |
 |...........|----.--|......................|     |..|.......              |
 |-----------|...|.| |------------------|.|.|-----|..|.....|..             |
-|-----------|.{.|.|--------------------|.|..........|.....|....           |
+|-----------|...|.|--------------------|.|..........|.....|....           |
 |...............|.S......................|-------------..-----...         |
 |.--------------|.|--------------------|.|.........................       |
 |.................|                    |.....................|........    |
@@ -55,14 +55,14 @@ if percent(50) then
    end
 end
 
--- uncontrolled arrival (via trap door, level teleport) will be in the central
--- portion of level to prevent ending up stuck in the treasure area, whether
--- arriving from above or below (despite this being bottom of Mines branch,
--- hero might arrive from below by invoking Wiz role's Eye of the Aethiopica)
-des.teleport_region({ region={23,03,48,16}, region_islev=1 })
+local place = { {05,05},{22,11},{54,12},{56,02} }
+shuffle(place)
+
+-- uncontrolled arrival (via trap door, level teleport) will be in the
+-- upper corridor to prevent ending up stuck in the treasure area
+des.teleport_region({ region={23,03,48,06}, exclude={0,0,0,0} })
 
 -- Dungeon Description
-des.feature("fountain", {14,13})
 des.region(selection.area(23,03,48,06),"lit")
 des.region(selection.area(21,06,22,06),"lit")
 des.region(selection.area(14,04,14,04),"unlit")
@@ -71,7 +71,9 @@ des.region(selection.area(10,09,11,09),"unlit")
 des.region(selection.area(15,08,16,08),"unlit")
 -- Secret doors
 des.door("locked",12,02)
-des.door("locked",11,06)
+des.door({ state="locked", material="stone", x=11, y=06 })
+-- Forge
+des.feature("forge", 14, 13)
 -- Stairs
 des.stair("up", 36,04)
 -- Non diggable walls
@@ -81,20 +83,32 @@ des.non_diggable(selection.area(53,17,74,17))
 des.non_diggable(selection.area(74,01,74,16))
 des.non_diggable(selection.area(53,07,55,07))
 des.non_diggable(selection.area(53,14,61,14))
--- The Gnome King's wine cellar.
--- the Trespassers sign is a long-running joke
+-- The Gnome King's/Queen's wine cellar.
+-- the Trespassers sign used to be a long-running joke...
 des.engraving({12,03}, "engrave",
-	      "You are now entering the Gnome King's wine cellar.")
+	      "You are now entering the royal wine cellar.")
 des.engraving({12,04}, "engrave", "Trespassers will be persecuted!")
+-- hired mercenaries, courtesy of the Yendorian Army
+des.monster({ id = "sergeant", x=14, y=04, peaceful = 0 })
+des.monster({ id = "soldier", x=14, y=05, peaceful = 0 })
+des.monster({ id = "gnome royal", x=14, y=08, peaceful = 0 })
 des.object("potion of booze", 10, 07)
 des.object("potion of booze", 10, 07)
 des.object("!", 10, 07)
 des.object("potion of booze", 10, 08)
 des.object("potion of booze", 10, 08)
 des.object("!", 10, 08)
+des.engraving({10,09}, "burn", "Elbereth")
 des.object("potion of booze", 10, 09)
 des.object("potion of booze", 10, 09)
 des.object("potion of object detection", 10, 09)
+
+-- magic key is buried in a chest
+des.engraving({ coord=place[1], type="engrave", text="Property of Croesus" })
+des.object({ id = "chest", coord = place[1], buried = 1, trapped = 0, locked = 1,
+             contents = function()
+                des.object("magic key")
+             end })
 -- Objects
 -- The Treasure chamber...
 des.object("diamond", 69, 04)
@@ -113,8 +127,7 @@ des.object("ruby", 70, 05)
 des.object("amethyst", 70, 05)
 des.object("*", 70, 05)
 des.object("amethyst", 70, 05)
-des.object({ id="luckstone", x=70, y=05,
-	     buc="not-cursed", achievement=1 });
+des.object({ id="luckstone", x=70, y=05, achievement=1 });
 -- Scattered gems...
 des.object("*")
 des.object("*")
@@ -152,7 +165,7 @@ des.monster("rock gnome")
 des.monster("rock gnome")
 des.monster("rock gnome")
 des.monster("hobbit")
-des.monster("hobbit")
+des.monster("hobbit pickpocket")
 des.monster("mountain dwarf")
 des.monster("mountain dwarf")
 des.monster("mountain dwarf")
