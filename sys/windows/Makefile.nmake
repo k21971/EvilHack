@@ -743,8 +743,14 @@ LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)minetn-7.lua $(DAT)oracle-1.lua $(DAT)oracle-2.lua \
 	$(DAT)oracle-3.lua $(DAT)orcus.lua \
 	$(DAT)sanctum.lua $(DAT)soko1-1.lua $(DAT)soko1-2.lua \
-	$(DAT)soko2-1.lua $(DAT)soko2-2.lua $(DAT)soko3-1.lua \
-	$(DAT)soko3-2.lua $(DAT)soko4-1.lua $(DAT)soko4-2.lua \
+	$(DAT)soko1-3.lua $(DAT)soko1-4.lua $(DAT)soko1-5.lua \
+	$(DAT)soko1-6.lua $(DAT)soko2-1.lua $(DAT)soko2-2.lua \
+	$(DAT)soko2-3.lua $(DAT)soko2-4.lua $(DAT)soko2-5.lua \
+	$(DAT)soko2-6.lua $(DAT)soko3-1.lua $(DAT)soko3-2.lua \
+	$(DAT)soko3-3.lua $(DAT)soko3-4.lua $(DAT)soko3-5.lua \
+	$(DAT)soko3-6.lua $(DAT)soko4-1.lua $(DAT)soko4-2.lua \
+	$(DAT)soko4-3.lua $(DAT)soko4-4.lua $(DAT)soko4-5.lua \
+	$(DAT)soko4-6.lua \
 	$(DAT)tower1.lua $(DAT)tower2.lua $(DAT)tower3.lua \
 	$(DAT)tower4.lua \
 	$(DAT)valley.lua $(DAT)wizard1.lua $(DAT)wizard2.lua \

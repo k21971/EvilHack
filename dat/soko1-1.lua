@@ -4,7 +4,8 @@
 --
 des.level_init({ style = "solidfill", fg = " " });
 
-des.level_flags("mazelevel", "noteleport", "premapped", "sokoban", "solidify");
+des.level_flags("mazelevel", "noteleport", "premapped", "sokoban", "solidify",
+                "noflip");
 des.map([[
 --------------------------
 |........................|
@@ -26,10 +27,8 @@ des.map([[
 -----            -------  
 ]]);
 
-place = selection.new();
-place:set(16,11);
-place:set(16,13);
-place:set(16,15);
+local place = { {16,11}, {16,13}, {16,15} };
+shuffle(place);
 
 des.stair("down", 01, 01);
 des.region(selection.area(00,00,25,17),"lit");
@@ -59,11 +58,8 @@ des.object("boulder", 09, 12);
 --
 des.object("boulder", 03, 14);
 
--- prevent monster generation over the (filled) holes
-des.exclusion({ type = "monster-generation", region = { 07,01, 23,01 } });
 -- Traps
-des.trap("hole", 07, 01);
-des.trap("rolling boulder", 08, 01);
+des.trap("hole", 08, 01);
 des.trap("hole", 09, 01);
 des.trap("hole", 10, 01);
 des.trap("hole", 11, 01);
@@ -93,20 +89,35 @@ des.object({ class = "/" });
 
 -- Rewards
 des.door("locked", 23, 13);
-des.door("closed", 17, 11);
-des.door("closed", 17, 13);
-des.door("closed", 17, 15);
+des.door({ state = "closed", material = "stone", x = 17, y = 11 });
+des.door({ state = "closed", material = "stone", x = 17, y = 13 });
+des.door({ state = "closed", material = "stone", x = 17, y = 15 });
 
 des.region({ region={18,10, 22,16}, lit = 1, type = "zoo", filled = 1, irregular = 1 });
 
-local pt = selection.rndcoord(place);
-if percent(75) then
-   des.object({ id="bag of holding", coord=pt,
-		buc="not-cursed", achievement=1 });
+des.object({ id = "scroll of scare monster", coord = place[1], buc = "cursed" });
+if percent(50) then
+  des.object({ id = "bag of holding", coord = place[1], achievement = 1 });
 else
-   des.object({ id="amulet of reflection", coord=pt,
-		buc="not-cursed", achievement=1 });
+  des.object({ id = "magic marker", coord = place[1], achievement = 1 });
 end
-des.engraving({ coord = pt, type = "burn", text = "Elbereth" });
-des.object({ id = "scroll of scare monster", coord = pt, buc = "cursed" });
+des.engraving({ coord = place[1], type = "burn", text = "Elbereth" });
+
+des.object({ id = "scroll of scare monster", coord = place[2], buc = "cursed" });
+if percent(50) then
+  des.object({ id = "amulet of reflection", coord = place[2], achievement = 1 });
+else
+  des.object({ id = "amulet of magic resistance", coord = place[2],
+               achievement = 1 });
+end
+des.engraving({ coord = place[2], type = "burn", text = "Elbereth" });
+
+des.object({ id = "scroll of scare monster", coord = place[3], buc = "cursed" });
+if percent(50) then
+  des.object({ id = "helm of speed", coord = place[3], achievement = 1 });
+else
+  des.object({ id = "gauntlets of protection", coord = place[3],
+               achievement = 1 });
+end
+des.engraving({ coord = place[3], type = "burn", text = "Elbereth" });
 

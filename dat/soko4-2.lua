@@ -4,14 +4,15 @@
 --
 des.level_init({ style = "solidfill", fg = " " });
 
-des.level_flags("mazelevel", "noteleport", "hardfloor", "premapped", "sokoban", "solidify");
+des.level_flags("mazelevel", "noteleport", "hardfloor", "premapped", "sokoban",
+                "solidify", "noflip");
 
 des.map([[
 -------- ------
 |.|....|-|....|
 |.|-..........|
-|.||....|.....|
-|.||....|.....|
+|.|.....|.....|
+|.|-....|.....|
 |.|-----|.-----
 |.|    |......|
 |.-----|......|
@@ -19,6 +20,9 @@ des.map([[
 |..|---|......|
 ----   --------
 ]]);
+-- Since there isn't a return portal, this forces the hero's initial placement
+des.teleport_region({ region = { 00,00,14,10 } })
+
 des.levregion({ region = {03,01,03,01}, type = "branch" })
 des.stair("up", 01,01)
 des.region(selection.area(00,00,14,10),"lit")
@@ -41,27 +45,26 @@ des.object("boulder",08,08)
 des.object("boulder",09,08)
 des.object("boulder",10,08)
 
--- prevent monster generation over the (filled) pits
-des.exclusion({ type = "monster-generation", region = { 01,01, 01,09 } });
-des.exclusion({ type = "monster-generation", region = { 01,08, 07,09 } });
 -- Traps
 des.trap("pit",01,02)
 des.trap("pit",01,03)
 des.trap("pit",01,04)
 des.trap("pit",01,05)
 des.trap("pit",01,06)
-des.trap("rolling boulder",01,07)
-
-des.trap("pit",01,08)
-des.trap("pit",02,08)
+des.trap("pit",01,07)
 des.trap("pit",03,08)
 des.trap("pit",04,08)
 des.trap("pit",05,08)
-des.trap("rolling boulder",06,08)
+des.trap("pit",06,08)
+
+-- Magic chest
+des.feature("magic chest", 03, 03)
 
 -- A little help
 des.object("scroll of earth",01,09)
-des.object("scroll of earth",02,09)
+if percent(50) then
+  des.object("scroll of earth",02,09)
+end
 
 -- Random objects
 des.object({ class = "%" });
