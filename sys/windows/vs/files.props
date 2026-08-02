@@ -135,6 +135,7 @@
     <Luafiles Include = "tower1.lua"/>
     <Luafiles Include = "tower2.lua"/>
     <Luafiles Include = "tower3.lua"/>
+    <Luafiles Include = "tower4.lua"/>
     <Luafiles Include = "tut-1.lua"/>
     <Luafiles Include = "tut-2.lua"/>
     <Luafiles Include = "Val-fila.lua"/>

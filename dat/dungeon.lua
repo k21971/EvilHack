@@ -98,9 +98,9 @@ dungeon = {
       branches = {
          {
             name = "Vlad's Tower",
-            base = 9,
+            base = 8,
             range = 5,
-            direction = "up"
+            direction = "down"
          }
       },
       levels = {
@@ -263,7 +263,7 @@ dungeon = {
    },
    {
       name = "Vlad's Tower",
-      base = 3,
+      base = 4,
       bonetag = "T",
       protofile = "tower",
       alignment = "chaotic",
@@ -281,6 +281,10 @@ dungeon = {
          {
             name = "tower3",
             base = 3
+         },
+         {
+            name = "tower4",
+            base = 4
          },
       }
    },

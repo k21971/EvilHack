@@ -854,6 +854,7 @@ nhdat:	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(DAT)\options \
 	@echo tower1.lua >>dlb.lst
 	@echo tower2.lua >>dlb.lst
 	@echo tower3.lua >>dlb.lst
+	@echo tower4.lua >>dlb.lst
 	@echo Val-fila.lua >>dlb.lst
 	@echo Val-filb.lua >>dlb.lst
 	@echo Val-goal.lua >>dlb.lst

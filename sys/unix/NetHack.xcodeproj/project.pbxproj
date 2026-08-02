@@ -1681,6 +1681,7 @@
 				"$(NH_DAT_DIR)/tower1.lua",
 				"$(NH_DAT_DIR)/tower2.lua",
 				"$(NH_DAT_DIR)/tower3.lua",
+				"$(NH_DAT_DIR)/tower4.lua",
 				"$(NH_DAT_DIR)/tut-1.lua",
 				"$(NH_DAT_DIR)/tut-2.lua",
 				"$(NH_DAT_DIR)/Val-fila.lua",

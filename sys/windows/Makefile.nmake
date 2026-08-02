@@ -746,6 +746,7 @@ LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)soko2-1.lua $(DAT)soko2-2.lua $(DAT)soko3-1.lua \
 	$(DAT)soko3-2.lua $(DAT)soko4-1.lua $(DAT)soko4-2.lua \
 	$(DAT)tower1.lua $(DAT)tower2.lua $(DAT)tower3.lua \
+	$(DAT)tower4.lua \
 	$(DAT)valley.lua $(DAT)wizard1.lua $(DAT)wizard2.lua \
 	$(DAT)wizard3.lua $(DAT)nhcore.lua $(DAT)nhlib.lua \
 	$(DAT)themerms.lua $(DAT)astral.lua $(DAT)air.lua \

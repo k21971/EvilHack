@@ -5837,13 +5837,44 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (monster ring-wearing), is_better_armor (monster looting), the
       remaining Ashmar/Retribution behaviour sites, the dmgval
       body-material arms, the glass piercer, rustm's EF_DESTROY.
-- [ ] Open-air terrain (NEW, minted 2026-07-26 by the steed slice).
-      is_open_air does not exist on the branch. Already owns two
-      recorded deferrals: the dismount ABUSE_HAZ_FALL arm (a steed
-      dropped into open air plummets; TODO-EVILHACK marker sits in
-      dismount_steed) and BUG-924's scatter()/uball fix, whose
-      precondition the terrain provides. Check for further consumers
-      when it lands.
+- [x] Open-air terrain - PORTED 2026-08-02 with the tower slice
+      (commit 1 of the two-commit ruling). is_open_air() in dbridge.c
+      (AIR typ outside the endgame; no new terrain type) + consumer
+      arms across 18 files in 5.0-native idiom: hero fall death in
+      spoteffects (iron-ball pull, clinger/steed exemptions), both
+      end.c lifesave arms (discharged an UNRECORDED third deferral -
+      the end.c TODO marker), float_down plummet + ball-over-air
+      pull, run/travel/lookaround refusal, dochug + minliquid
+      inopenair monster gravity (mon_moving mongone vs xkilled
+      attribution), mfndpos + could_reach_item avoidance, mimic
+      disguise suppression, pet drop guard, flooreffects object
+      destruction (obj_resists items migrate to hellc_level when
+      defined, rloco in-level fallback until the Gehennom slice;
+      ball/chain yank death), boulder push-over-edge, hurtle msg,
+      corpse_chance no-corpse, bones veto, wizbury guard,
+      bad_location, goodpos + MM_IGNOREAIR (0x04000000L - master's
+      0x200000L collides with GP_ALLOW_XY), scatter waschain removal
+      (BUG-924 shape), unpunish saved-coords drop (BUG-294 shape),
+      dismount_steed ABUSE_HAZ_FALL (steed.c TODO discharged). BOTH
+      recorded deferrals closed. hellc_level plumbing rode along
+      (dgn_topology field + level_map entry, inert until Gehennom).
+      NO-SIBLING master sites recorded: flooreffects Amulet-teleport
+      guard (feature unported - carry its open-air exception when it
+      lands) and make_helper's MM_IGNOREAIR caller (sphere spells
+      unported). Battery-caught port defect fixed pre-commit:
+      lookaround's "uninteresting terrain" arm classified AIR as
+      skippable and shadowed the stop arm (runs walked into known
+      chasms); open air excluded there. VERIFIED-INTENDED master
+      parity: the FIRST step of a run into adjacent seen air and
+      travel's FINAL step into an explicitly-selected air destination
+      both fall (master's lookaround gates only continuation; its
+      travel arm exempts the destination cell). BUG-1456 rode with
+      this commit: the vampshifter tier cluster the adoption reverted
+      (see the archive entry). Battery: full open-air leg PASS (fall
+      + Die?-decline with NO relocation - hero stays suspended on the
+      air cell; flying traversal; object destroyed; Amulet rloco'd
+      in-level exactly-1; engrave refusal; dismount plummet with
+      abuse counter + align -1; nest stability post-BUG-1456).
 - [ ] Mplayer kit reconciliation (NEW, minted 2026-08-01 by the
       endgame-slice battery, which made the branch's first real
       Astral visit). Astral creation fires impossible("bad mplayer
@@ -7406,7 +7437,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | mines.des | 14 | delta-diff | | | | minetn-1 (Orcish Town): use des.monster{dead=1}, do NOT adopt upstream's des.object{id="corpse"} block (loses the dropped gear); priest id is "aligned cleric" (PM_ALIGNED_CLERIC d=15), not "cleric" (PM_CLERIC d=12) |
 | oracle.des | 3 | delta-diff | x | x | x | FIRST NEW-VARIANT slice - mechanics established 2026-08-01: dat/oracle.lua renamed oracle-1.lua (delta: delphi/ordinary room-type swap, four trees, grass, Oracle carries the named Magic 8-Ball; upstream noflip + historic statues kept), oracle-2/3 from converter + polish, dungeon.lua oracle entry nlevels=3 (= master RNDLEVEL count; mkmaze protofile "%s-%d"), build lists swept (Makefile.top, Makefile_top.vms, Makefile.nmake x2, files.props, xcodeproj x2, Files reflow, install.com, outdated MSC) + setup.sh regen. CONVERTER BUG found+fixed en route: SWITCH plain form emitted math.random(1,N) against 0-based CASE labels - case 0 dead AND top roll matched no arm, so oracle-3's ring stayed fully sealed ~25% of games; ~/des_to_lua.pl now emits math.random(0,N-1) (crib maintenance log; vaults.des SWITCHes benefit later). Battery PASSED (4 games, paniclog never created): wizloaddes 3/3 clean; real-path selection via SPLEVTYPE on 4 random oracle dlvls; censuses EXACT per variant (v1 4F/0P/4T + 8 historic centaur statues; v2 4F/15P + elemental statues; v3 3F/19P/4T + EXACTLY ONE open passage aligned with its removed fountain = SWITCH fix live, + woodchuck statue); Oracle + named Magic 8-Ball in minvent on all variants; W ticked on those live visits. LESSONS: wizard variant lever = SPLEVTYPE env var (no picker prompt); wizloaddes consumes unique monsters - run file-load legs and real-level visits in separate games |
 | sokoban.des | 24 | delta-diff | | | | |
-| tower.des | 4 | delta-diff | | | | |
+| tower.des | 4 | delta-diff | x | x | x | TWO-COMMIT slice 2026-08-02 (Decisions log): commit 1 = the open-air subsystem + BUG-1456 vampshifter cluster (Phase 2 row, see there), commit 2 = the levels. Master rebuilt Vlad's Tower wholesale: dungeon (3,0)->(4,0), ENTRY -1 = enter at tower4 (Bottomless Cavern) and climb UP; Gehennom branch vanilla (9,5)up -> master (8,5)down. tower1-3 = upstream headers/idiom + EvilHack content (30/30/52-wide maps - RAGGED in master's .des, lev_comp padded internally; the Lua files must be PADDED to the widest row, new crib clause); tower4 from scratch (76x20 air map, morgue unfilled, nommap/graveyard/shortsighted/solidify, ~48 sleeping nest vampires + 8 random V + 3 demons). RULINGS: Brides of Dracula KEPT adapted into three tower1 niches (waiting=1 true form, genocide-guarded); Vlad keep_default_invent=true so his makemon Candelabrum is not duplicated by the branch's mdrop_special_objs safety (side effect: he may carry makemon blood potions - accepted). CONVERTER GAPS hand-fixed + crib-recorded: spe dice after name emitted as quantity (Lifestealer = 1d3 stacked swords), class-qualified ambiguous names lose the class (spellbook "magic missile" -> the wand; ring "levitation"), TRAP:random,$place[n] loses the register coord. dungeon.lua: Vlad base 4 + tower4 row + branch 8/5/down; build lists = explicit sets only (Files/nmake/files.props/xcodeproj/MSC; tower?.lua wildcards already match). BATTERIES (2 games + re-battery, paniclog never created): topology proven via gdb (BR_STAIR Gehennom dlev 12 in [8,12] -> dnum 6 dlev 4, entry_lev=4; ^V menu "entrance from below"); arrival narrative + engraving; per-level censuses EXACT on file-load AND real path (Vlad true-form with Lifestealer spe2 erodeproof cursed + EXACTLY ONE Candelabrum incl. minvents; Brides Madame/Marquise/Countess true-form female; ghost-class ' ' placements = 4 spectres mlet S_GHOST; spellbook ocls SPBOOK; ring ocls RING; all 6 tower3 niche traps co-located with their objects; steel/bronze/wood door materials; corpse montypes all valid incl. cave dweller/aligned cleric NAMS mappings); tier vampire forms post-BUG-1456 all valid vampshapes (wolf/warg only on ground, bat/fog on air - noble->warg reachable via master's own fallthrough, verified intended); tower4 nests STABLE over 27 turns (delta = the tester's own wizkill). Real-path traversal note: tower3->tower1 climbed via ^V because tower3's arrival closet is gated by locked+secret doors (level content, not a defect). W ticked on the real-path visits. Watch: wizloaddes onto Dlvl 1 leaves the pre-existing staircase cell + strips the pet (lever artifact, recorded in gameplay memory) |
 | yendor.des | 4 | delta-diff | | | | |
 | forest.des | 1 | from-scratch | | | | 7 top-level TERRAIN:random TODOs |
 | goblintown.des | 3 | from-scratch | | | | |
@@ -7709,6 +7740,10 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-08-02 | Tower slice ships as TWO commits (knox precedent): commit 1 = the open-air terrain subsystem (closes the dormant Phase 2 row + its recorded deferrals), commit 2 = the four tower levels + dungeon plumbing; one combined battery after both | maintainer |
+| 2026-08-02 | Vampire spawn-form policy RESTORED to master's (makemon): Vlad AND Kas always true form; vampire mage/royal/noble/sovereign each 50/50 true-vs-shifted; all other vampires shift at creation. The tree adoption had silently reverted this (vanilla==5.0 != master triple) leaving every vampire except Vlad always-shifted - the castle-2 battery's all-bats observation traces to exactly this | maintainer |
+| 2026-08-02 | Brides of Dracula KEPT, adapted: upstream 5.0's three named female vampire nobles (Madame/Marquise/Countess, waiting=1 true form, genocide-guarded) occupy three of EvilHack tower1's eight niche vampire slots. Upstream-content exception to the strict-parity default (contrast the castle potion ruling) | maintainer |
+| 2026-08-02 | Vlad keeps his makemon Candelabrum (keep_default_invent = true in tower1.lua) instead of master's discard-and-recreate .des shape - the branch's mdrop_special_objs safety would otherwise duplicate the unique item (floor copy + inventory copy). Side effect: Vlad may also carry his makemon blood potions, which master's discard stripped - accepted divergence | coordinator |
 | 2026-08-01 | Castle wand chest: upstream 5.0's added potion of gain level (nh50 a8800a9ac anti-frustration guarantee) DROPPED everywhere - strict master parity on the chest contents (wand of wishing +2 recharged:1 only) across all three castle variants. A deliberate deviation from the adopt-upstream collision default | maintainer |
 | 2026-08-01 | castle-2 court monsters GET the shuffle on branch (master's castle-2 $monster register lacks SHUFFLE while castle-1/3 and vanilla all shuffle = master oversight, BUG-1455 frozen-unfixed): dat/castle-2.lua carries shuffle(monster) | maintainer |
 | 2026-07-25 | RNDVAULT rtype DROPPED rather than ported: 5.0's THEMEROOM occupies its exact role (both trees carry the same "treat like OROOM so random content still lands" test), which follows directly from the ratified 2026-07-18 rndvaults-to-themerooms decision. Consequence: SHOPBASE 14->20 and CANDLESHOP 31, NOT master's 21/32. This also incidentally FIXES a live master bug - mapseen_feat.shoptype is Bitfield(5) and recalc_mapseen stores a raw rtype, so master's CANDLESHOP 32 truncates to 0, the "mixed shop types" sentinel, and a known candle shop annotates as "untended shop" in the overview. Constraint recorded at the enum; do NOT re-add RNDVAULT | coordinator |

@@ -61,9 +61,9 @@ optmenu       oracle-1.lua  oracle-2.lua  oracle-3.lua  oracles.txt
 orcus.lua     quest.lua     rumors.fal    rumors.tru    sanctum.lua
 soko1-1.lua   soko1-2.lua   soko2-1.lua   soko2-2.lua   soko3-1.lua
 soko3-2.lua   soko4-1.lua   soko4-2.lua   symbols       themerms.lua
-tower1.lua    tower2.lua    tower3.lua    tribute       tut-1.lua
-tut-2.lua     usagehlp      valley.lua    water.lua     wizard1.lua
-wizard2.lua   wizard3.lua   wizhelp
+tower1.lua    tower2.lua    tower3.lua    tower4.lua    tribute
+tut-1.lua     tut-2.lua     usagehlp      valley.lua    water.lua
+wizard1.lua   wizard2.lua   wizard3.lua   wizhelp
 
 doc:
 (files for all versions)
