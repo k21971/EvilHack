@@ -801,7 +801,7 @@ migrate_orc(struct monst *mtmp, unsigned long mflags)
             nlev--;
         mtmp->migflags |= MIGR_LEFTOVERS;
     } else {
-        nlev = rn2((max_depth - cur_depth) + 1) + cur_depth;
+        nlev = rn2(max(max_depth - cur_depth, 0) + 1) + cur_depth;
         if (nlev == cur_depth)
             nlev++;
         if (nlev > max_depth)

@@ -401,6 +401,7 @@ struct dgn_topology { /* special dungeon levels for speed */
     xint16 d_tutorial_dnum;
     d_level d_qstart_level, d_qlocate_level, d_nemesis_level;
     d_level d_knox_level;
+    d_level d_minetn_level;
     d_level d_mineend_level;
     d_level d_sokoend_level;
     d_level d_hellc_level; /* deepest demon prince lair; unset until the
@@ -438,6 +439,7 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define qlocate_level           (svd.dungeon_topology.d_qlocate_level)
 #define nemesis_level           (svd.dungeon_topology.d_nemesis_level)
 #define knox_level              (svd.dungeon_topology.d_knox_level)
+#define minetn_level            (svd.dungeon_topology.d_minetn_level)
 #define mineend_level           (svd.dungeon_topology.d_mineend_level)
 #define sokoend_level           (svd.dungeon_topology.d_sokoend_level)
 #define hellc_level             (svd.dungeon_topology.d_hellc_level)

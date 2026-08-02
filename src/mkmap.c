@@ -18,6 +18,8 @@ staticfn void join_map_cleanup(void);
 staticfn void join_map(schar, schar);
 staticfn void finish_map(schar, schar, boolean, boolean, boolean);
 staticfn void remove_room(unsigned);
+staticfn void makeriver(int, int, int, int, boolean, boolean);
+staticfn void mkrivers(boolean);
 void mkmap(lev_init *);
 
 staticfn void
@@ -447,6 +449,176 @@ litstate_rnd(int litstate)
     return (boolean) litstate;
 }
 
+staticfn void
+makeriver(int x1, int y1, int x2, int y2, boolean notpool, boolean lit)
+{
+    int cx, cy;
+    int dx, dy;
+    int chance;
+    int count = 0;
+    int monstcount = rnd(4);
+
+    cx = x1;
+    cy = y1;
+
+    while (count++ < 2000) {
+        int rnum = levl[cx][cy].roomno - ROOMOFFSET;
+        chance = 0;
+
+        /* rnum < nroom guards against stale/uninitialized roomno bits
+           indexing past the live rooms on this level */
+        if (rnum >= 0 && rnum < svn.nroom && svr.rooms[rnum].rtype != OROOM)
+            chance = 0;
+        /* damp terrain replacing stairs currently isn't
+           possible as makeriver() is only called during
+           mines creation, but good to guard against should
+           makeriver() ever be called after mkstairs() */
+        else if (levl[cx][cy].typ == STAIRS)
+            chance = 0;
+        else if (levl[cx][cy].typ == CORR)
+            chance = 15;
+        else if (levl[cx][cy].typ == ROOM)
+            chance = 30;
+        else if (IS_OBSTRUCTED(levl[cx][cy].typ))
+            chance = 100;
+
+        if (rn2(100) < chance && !t_at(cx, cy)) {
+            if (notpool) {
+                levl[cx][cy].typ = SEWAGE;
+                levl[cx][cy].lit = lit;
+            } else {
+                levl[cx][cy].typ = !rn2(3) ? POOL
+                                           : !rn2(3) ? PUDDLE : MOAT;
+                if (levl[cx][cy].typ == POOL
+                    || levl[cx][cy].typ == MOAT)
+                    levl[cx][cy].lit = 1;
+                else
+                    levl[cx][cy].lit = lit;
+            }
+        }
+
+        if (cx == x2 && cy == y2)
+            break;
+
+        if (cx < x2 && !rn2(3))
+            dx = 1;
+        else if (cx > x2 && !rn2(3))
+            dx = -1;
+        else
+            dx = 0;
+
+        if (cy < y2 && !rn2(3))
+            dy = 1;
+        else if (cy > y2 && !rn2(3))
+            dy = -1;
+        else
+            dy = 0;
+
+        switch (rn2(16)) {
+        default:
+            break;
+        case 1: dx--; dy--;
+            break;
+        case 2: dx++; dy--;
+            break;
+        case 3: dx--; dy++;
+            break;
+        case 4: dx++; dy++;
+            break;
+        case 5: dy--;
+            break;
+        case 6: dy++;
+            break;
+        case 7: dx--;
+            break;
+        case 8: dx++;
+            break;
+        }
+
+        if (dx < -1)
+            dx = -1;
+        else if (dx > 1)
+            dx = 1;
+        if (dy < -1)
+            dy = -1;
+        else if (dy > 1)
+            dy = 1;
+
+        cx += dx;
+        cy += dy;
+
+        /* clamp cx to >= 1; column 0 is the off-screen border per
+           isok() convention (y=0 is valid and stays) */
+        if (cx < 1)
+            cx = 1;
+        else if (cx >= COLNO)
+            cx = COLNO - 1;
+        if (cy < 0)
+            cy = 0;
+        else if (cy >= ROWNO)
+            cy = ROWNO - 1;
+    }
+    /* Loop through and spawn some monsters. Since rivers are
+       currently only made in the gnomish mines, no need to
+       specify In_mines(&u.uz) */
+    count = 0;
+    while (count++ < 2000 && monstcount > 0) {
+        cx = 1 + rn2(COLNO - 2);
+        cy = 1 + rn2(ROWNO - 2);
+        if (levl[cx][cy].typ == POOL || levl[cx][cy].typ == MOAT
+            || levl[cx][cy].typ == PUDDLE) {
+            /* max(..., 1) guards rn2(0) UB if the monster order is ever
+               changed so PM_JELLYFISH and PM_MIND_FLAYER_LARVA become
+               adjacent */
+            int aquatic = PM_JELLYFISH
+                          + rn2(max(PM_MIND_FLAYER_LARVA - PM_JELLYFISH, 1));
+
+            if (u.uz.dlevel >= 5) {
+                (void) makemon(rn2(20) ? &mons[aquatic]
+                                       : rn2(8) ? &mons[PM_WATER_MOCCASIN]
+                                                : &mons[PM_WATER_TROLL],
+                               cx, cy, NO_MM_FLAGS);
+            } else {
+                (void) makemon(&mons[aquatic], cx, cy, NO_MM_FLAGS);
+            }
+            monstcount--;
+        } else if (levl[cx][cy].typ == SEWAGE) {
+            if (u.uz.dlevel >= 5) {
+                (void) makemon(rn2(3)
+                                 ? &mons[PM_GIANT_LEECH]
+                                 : rn2(3) ? &mons[PM_GIANT_COCKROACH]
+                                          : rn2(8) ? &mons[PM_CREEPING_MOUND]
+                                                   : &mons[PM_CROCODILE],
+                               cx, cy, NO_MM_FLAGS);
+            } else {
+                (void) makemon(rn2(3)
+                                 ? &mons[PM_GIANT_LEECH]
+                                 : rn2(5) ? &mons[PM_GIANT_COCKROACH]
+                                          : &mons[PM_CREEPING_MOUND],
+                               cx, cy, NO_MM_FLAGS);
+            }
+            monstcount--;
+        }
+    }
+}
+
+staticfn void
+mkrivers(boolean lit)
+{
+    int nriv = rn2(3) + 1;
+    boolean notpool = rn2(20) < depth(&u.uz);
+
+    while (nriv--) {
+        /* avoid column 0 (off-screen border per isok() convention) at
+           both ends of the river walk */
+        if (rn2(2))
+            makeriver(1, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool, lit);
+        else
+            makeriver(1 + rn2(COLNO - 1), 0,
+                      1 + rn2(COLNO - 1), ROWNO - 1, notpool, lit);
+    }
+}
+
 void
 mkmap(lev_init *init_lev)
 {
@@ -474,6 +646,13 @@ mkmap(lev_init *init_lev)
 
     if (join)
         join_map(bg_typ, fg_typ);
+
+    if (In_mines(&u.uz) && !In_hell(&u.uz)) {
+        if (!Is_minetn_level(&u.uz) && !Is_branchlev(&u.uz)) {
+            if (rn2(u.uz.dlevel + 1))
+                mkrivers((boolean) lit);
+        }
+    }
 
     finish_map(fg_typ, bg_typ, (boolean) lit, (boolean) walled,
                init_lev->icedpools);

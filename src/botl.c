@@ -458,6 +458,20 @@ describe_level(
         if (!addbranch)
             (void) strsubst(buf, "Plane of ", ""); /* just keep <element> */
         addbranch = FALSE;
+    } else if (Is_minetn_level(&u.uz)) {
+        Sprintf(buf, "Mine Town");
+        addbranch = FALSE;
+    } else if (Is_mineend_level(&u.uz)) {
+        Sprintf(buf, "Mines' End");
+        addbranch = FALSE;
+    } else if (In_mines(&u.uz)) {
+        /* the colon-and-pad form is status-line formatting; livelog and
+           other prose callers get a plain readable phrase */
+        if (addbranch)
+            Sprintf(buf, "Mines %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Mines:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
     } else {
         /* ports with more room may expand this one */
         if (!addbranch)

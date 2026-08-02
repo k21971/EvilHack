@@ -2280,6 +2280,7 @@ mkstairs(
 {
     int ltyp;
     d_level dest;
+    struct monst *mtmp;
 
     if (!x || !isok(x, y)) {
         impossible("mkstairs:  bogus stair attempt at <%d,%d>", x, y);
@@ -2310,6 +2311,13 @@ mkstairs(
 
     (void) set_levltyp(x, y, STAIRS);
     levl[x][y].ladder = up ? LA_UP : LA_DOWN;
+
+    /* added because makeriver() runs before mkstairs()
+       in the gnomish mines */
+    if ((mtmp = m_at(x, y)) != 0) {
+        if (is_swimmer(mtmp->data) && mtmp->mundetected)
+            mtmp->mundetected = 0;
+    }
 }
 
 /* is room a good one to generate up or down stairs in? */
