@@ -763,7 +763,9 @@ nhdat:	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(DAT)\options \
 	@echo bigrm-7.lua >>dlb.lst
 	@echo bigrm-8.lua >>dlb.lst
 	@echo bigrm-9.lua >>dlb.lst
-	@echo castle.lua >>dlb.lst
+	@echo castle-1.lua >>dlb.lst
+	@echo castle-2.lua >>dlb.lst
+	@echo castle-3.lua >>dlb.lst
 	@echo Cav-fila.lua >>dlb.lst
 	@echo Cav-filb.lua >>dlb.lst
 	@echo Cav-goal.lua >>dlb.lst

@@ -1,4 +1,4 @@
--- NetHack castle castle.lua	$NHDT-Date: 1781994880 2026/06/20 22:34:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.9 $
+-- NetHack castle castle-1.lua	$NHDT-Date: 1781994880 2026/06/20 22:34:40 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.9 $
 --	Copyright (c) 1989 by Jean-Christophe Collet
 -- NetHack may be freely redistributed.  See license for details.
 --
@@ -26,15 +26,15 @@ des.map([[
 }-------}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}-------}
 }|.....|-----------------------------------------------|.....|}
 }|.....+...............................................+.....|}
-}-------------------------------+-----------------------------}
-}}}}}}|........|..........+...........|.......S.S.......|}}}}}}
+}-FFF---------------------------+-------------------------FFF-}
+}}}}}}|........|..........|...........|.......S.S.......|}}}}}}
 .....}|........|..........|...........|.......|.|.......|}.....
 .....}|........------------...........---------S---------}.....
 .....}|...{....+..........+.........\.S.................+......
 .....}|........------------...........---------S---------}.....
 .....}|........|..........|...........|.......|.|.......|}.....
-}}}}}}|........|..........+...........|.......S.S.......|}}}}}}
-}-------------------------------+-----------------------------}
+}}}}}}|........|..........|...........|.......S.S.......|}}}}}}
+}-FFF---------------------------+-------------------------FFF-}
 }|.....+...............................................+.....|}
 }|.....|-----------------------------------------------|.....|}
 }-------}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}-------}
@@ -55,28 +55,38 @@ local monster = { "L", "N", "E", "H", "M", "O", "R", "T", "X", "Z" }
 shuffle(monster)
 
 des.teleport_region({ region = {01,00,10,20}, region_islev=1, exclude={1,1,61,15}, dir="down" })
-des.teleport_region({ region = {69,00,79,20}, region_islev=1, exclude={1,1,61,15}, dir="up" })
+des.teleport_region({ region = {69,00,77,20}, region_islev=1, exclude={1,1,61,15}, dir="up" })
 des.levregion({ region = {01,00,10,20}, region_islev=1, exclude={0,0,62,16}, type="stair-up" })
+-- Magic chest
+des.feature("magic chest", 32,08)
 des.feature("fountain", 10,08)
 -- Doors
-des.door("closed",07,03)
-des.door("closed",55,03)
-des.door("locked",32,04)
-des.door("locked",26,05)
-des.door("locked",46,05)
-des.door("locked",48,05)
-des.door("locked",47,07)
-des.door("closed",15,08)
-des.door("closed",26,08)
-des.door("locked",38,08)
-des.door("locked",56,08)
-des.door("locked",47,09)
-des.door("locked",26,11)
-des.door("locked",46,11)
-des.door("locked",48,11)
-des.door("locked",32,12)
-des.door("closed",07,13)
-des.door("closed",55,13)
+des.door({ state = "locked", material = "steel", x = 07, y = 03 })
+des.door({ state = "locked", material = "steel", x = 55, y = 03 })
+des.door({ state = "locked", material = "iron", x = 32, y = 04 })
+if percent(50) then
+   des.door({ state = "closed", material = "iron", x = 15, y = 05 })
+else
+   des.door({ state = "closed", material = "iron", x = 26, y = 05 })
+end
+des.door({ state = "locked", material = "iron", x = 46, y = 05 })
+des.door({ state = "locked", material = "iron", x = 48, y = 05 })
+des.door({ state = "locked", material = "iron", x = 47, y = 07 })
+des.door({ state = "closed", material = "iron", x = 15, y = 08 })
+des.door({ state = "closed", material = "iron", x = 26, y = 08 })
+des.door({ state = "locked", material = "iron", x = 38, y = 08 })
+des.door({ state = "locked", material = "iron", x = 56, y = 08 })
+des.door({ state = "locked", material = "iron", x = 47, y = 09 })
+if percent(50) then
+   des.door({ state = "closed", material = "iron", x = 15, y = 11 })
+else
+   des.door({ state = "closed", material = "iron", x = 26, y = 11 })
+end
+des.door({ state = "locked", material = "iron", x = 46, y = 11 })
+des.door({ state = "locked", material = "iron", x = 48, y = 11 })
+des.door({ state = "locked", material = "iron", x = 32, y = 12 })
+des.door({ state = "locked", material = "steel", x = 07, y = 13 })
+des.door({ state = "locked", material = "steel", x = 55, y = 13 })
 -- The drawbridge
 des.drawbridge({ dir="east", state="closed", x=05,y=08})
 -- Storeroom number 1
@@ -141,15 +151,50 @@ des.object(object[4],54,11)
 des.object(object[4],55,11)
 -- THE WAND OF WISHING in 1 of the 4 towers
 local loc = place:rndcoord(1);
-des.object({ id = "chest", trapped = 0, locked = 1, coord = loc ,
+if percent(50) then
+   des.object({ id = "chest", trapped = 0, locked = 1, coord = loc,
+                contents = function()
+                   des.object({ id = "wishing", spe = 2, recharged = 1 });
+                end
+   });
+else
+   des.object({ id = "crystal chest", trapped = 0, coord = loc,
+                contents = function()
+                   des.object({ id = "wishing", spe = 2, recharged = 1 });
+                end
+   });
+end
+-- THE NOT QUITE WANDS OF WISHING
+-- ...since you can see the chest now through the bars,
+-- we have to find a better way to disguise where the wand is
+-- From SporkHack
+local loc2 = place:rndcoord(1);
+des.object({ id = "chest", trapped = 0, coord = loc2,
              contents = function()
-                des.object("wishing");
-                des.object("potion of gain level");
+                des.object("/");
              end
 });
--- Prevent monsters from eating it.  (@'s never eat objects)
+local loc3 = place:rndcoord(1);
+des.object({ id = "chest", trapped = 0, coord = loc3,
+             contents = function()
+                des.object({ id = "nothing", class = "/" });
+             end
+});
+local loc4 = place:rndcoord(1);
+des.object({ id = "chest", trapped = 0, coord = loc4,
+             contents = function()
+                des.object("/");
+             end
+});
+-- Prevent monsters from eating them.  (@'s never eat objects)
 des.engraving({ coord = loc, type="burn", text="Elbereth" })
 des.object({ id = "scroll of scare monster", coord = loc, buc="cursed" })
+des.engraving({ coord = loc2, type="burn", text="Elbereth" })
+des.object({ id = "scroll of scare monster", coord = loc2, buc="cursed" })
+des.engraving({ coord = loc3, type="burn", text="Elbereth" })
+des.object({ id = "scroll of scare monster", coord = loc3, buc="cursed" })
+des.engraving({ coord = loc4, type="burn", text="Elbereth" })
+des.object({ id = "scroll of scare monster", coord = loc4, buc="cursed" })
 -- The treasure of the lord
 des.object("chest",37,08)
 -- Traps
@@ -169,14 +214,14 @@ des.monster("soldier",11,11)
 des.monster("soldier",12,10)
 des.monster("lieutenant",09,08)
 -- Soldiers guarding the towers
-des.monster("soldier",03,02)
-des.monster("soldier",05,02)
-des.monster("soldier",57,02)
-des.monster("soldier",59,02)
-des.monster("soldier",03,14)
-des.monster("soldier",05,14)
-des.monster("soldier",57,14)
-des.monster("soldier",59,14)
+des.monster("sergeant",03,02)
+des.monster("lieutenant",05,02)
+des.monster("sergeant",57,02)
+des.monster("lieutenant",59,02)
+des.monster("sergeant",03,14)
+des.monster("lieutenant",05,14)
+des.monster("sergeant",57,14)
+des.monster("lieutenant",59,14)
 -- The four dragons that are guarding the storerooms
 des.monster("D",47,05)
 des.monster("D",47,06)
