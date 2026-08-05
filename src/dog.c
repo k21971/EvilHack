@@ -808,12 +808,22 @@ mon_arrive(struct monst *mtmp, int when)
             xlocale = t->tx, ylocale = t->ty;
             break;
         } else if (iflags.debug_fuzzer
-                   && (stway = stairway_find_dir(!builds_up(&u.uz))) != 0) {
-            /* debugfuzzer returns from or enters another branch */
+                   && ((stway = stairway_find_dir(!builds_up(&u.uz))) != 0
+                       || (stway = stairway_find_dir(builds_up(&u.uz)))
+                              != 0)) {
+            /* debugfuzzer fallback: land on any vertical connection
+               (stairs, ladder, or branch stairs) when the arrival
+               portal is missing, e.g. a one-way branch portal whose
+               destination has no return portal */
             xlocale = stway->sx, ylocale = stway->sy;
             break;
-        } else if (!(u.uevent.qexpelled
-                     && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))) {
+        } else if (!iflags.debug_fuzzer
+                   && !(u.uevent.qexpelled
+                        && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))) {
+            /* one-way branch portals legitimately lack a return
+               portal; log it in normal play but never panic the
+               fuzzer - fall through to random placement, mirroring
+               goto_level in do.c */
             impossible("mon_arrive: no corresponding portal?");
         }
         FALLTHROUGH;

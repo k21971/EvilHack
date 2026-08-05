@@ -720,7 +720,6 @@ static struct level_map {
                   { "bigrm", &bigroom_level },
                   { "castle", &stronghold_level },
                   { "earth", &earth_level },
-                  { "fakewiz1", &portal_level },
                   { "fire", &fire_level },
                   { "hellc", &hellc_level },
                   { "juiblex", &juiblex_level },
@@ -735,6 +734,7 @@ static struct level_map {
                   { "wizard1", &wiz1_level },
                   { "wizard2", &wiz2_level },
                   { "wizard3", &wiz3_level },
+                  { "wizportal", &portal_level },
                   { "minend", &mineend_level },
                   { "minetn", &minetn_level },
                   { "soko1", &sokoend_level },
@@ -1639,16 +1639,25 @@ u_on_rndspot(int upflag)
      * place_lregion(xTELE) -> put_lregion_here(xTELE) -> u_on_newpos()
      * Unspecified region (.lx == 0) defaults to entire level.
      */
-    if (was_in_W_tower && On_W_tower_level(&u.uz))
+    if (was_in_W_tower && On_W_tower_level(&u.uz)) {
         /* Stay inside the Wizard's tower when feasible.
            We use the W Tower's exclusion region for the
            destination instead of its enclosing region.
            Note: up vs down doesn't matter in this case
            because both specify the same exclusion area. */
-        place_lregion(svd.dndest.nlx, svd.dndest.nly,
-                      svd.dndest.nhx, svd.dndest.nhy,
+        coordxy tlx = svd.dndest.nlx, tly = svd.dndest.nly;
+        coordxy thx = svd.dndest.nhx, thy = svd.dndest.nhy;
+
+        /* if the exclusion region is too small or invalid,
+           fall back to using the main region */
+        if (tlx > thx || tly > thy
+            || (thx - tlx + 1) * (thy - tly + 1) < 20) {
+            tlx = svd.dndest.lx, tly = svd.dndest.ly;
+            thx = svd.dndest.hx, thy = svd.dndest.hy;
+        }
+        place_lregion(tlx, tly, thx, thy,
                       0, 0, 0, 0, LR_DOWNTELE, (d_level *) 0);
-    else if (up)
+    } else if (up)
         place_lregion(svu.updest.lx, svu.updest.ly,
                       svu.updest.hx, svu.updest.hy,
                       svu.updest.nlx, svu.updest.nly,

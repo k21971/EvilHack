@@ -1743,9 +1743,27 @@ find_branch_room(coord *mp)
     } else {
         croom = generate_stairs_find_room();
         assert(croom != NULL); /* Null iff nroom==0 which won't get here */
-        if (!somexyspace(croom, mp))
-            impossible("Can't place branch!");
+        if (!somexyspace(croom, mp)) {
+            /* if the chosen room really has no free tile, fall back to
+               a maze/corridor tile (such as a portal branch arriving on
+               a roomless maze level, or if the level with the portal is
+               somehow filled) */
+            mazexy(mp);
+            /* signal "no room" so caller knows it's a corridor placement */
+            croom = (struct mkroom *) 0;
+        }
     }
+    /* sanity-check: after both room-and-corridor attempts, mp must land
+       on either a room floor or a corridor, otherwise call impossible.
+       On failure, plant a sentinel coord so the caller's levl[] writes
+       can be skipped */
+    if (!isok(mp->x, mp->y)
+        || (levl[mp->x][mp->y].typ != CORR
+            && !IS_ROOM(levl[mp->x][mp->y].typ))) {
+        impossible("Can't place branch!");
+        mp->x = mp->y = 0;
+    }
+
     return croom;
 }
 
@@ -1801,12 +1819,17 @@ place_branch(
         dest = &br->end1;
     }
 
+    /* find_branch_room() may have failed to land mp on a valid tile;
+       it signals this by zeroing m, so guard the levl[] writes here */
     if (br->type == BR_PORTAL) {
-        if (iflags.debug_fuzzer && (u.ucamefrom.dnum || u.ucamefrom.dlevel))
-            mkportal(x, y, u.ucamefrom.dnum, u.ucamefrom.dlevel);
-        else
-            mkportal(x, y, dest->dnum, dest->dlevel);
-    } else if (make_stairs) {
+        if (isok(x, y) && !occupied(x, y)) {
+            if (iflags.debug_fuzzer
+                && (u.ucamefrom.dnum || u.ucamefrom.dlevel))
+                mkportal(x, y, u.ucamefrom.dnum, u.ucamefrom.dlevel);
+            else
+                mkportal(x, y, dest->dnum, dest->dlevel);
+        }
+    } else if (make_stairs && isok(x, y)) {
         boolean goes_up = on_level(&br->end1, &u.uz) ? br->end1_up
                                                      : !br->end1_up;
 
@@ -1882,6 +1905,9 @@ dodoor(coordxy x, coordxy y, struct mkroom *aroom)
 boolean
 occupied(coordxy x, coordxy y)
 {
+    if (!isok(x, y))
+        return TRUE;
+
     return (boolean) (t_at(x, y) || IS_FURNITURE(levl[x][y].typ)
                       || is_lava(x, y) || is_pool(x, y)
                       || invocation_pos(x, y));
@@ -2644,7 +2670,7 @@ mkinvpos(coordxy x, coordxy y, int dist)
     struct trap *ttmp;
     struct obj *otmp;
     boolean make_rocks;
-    struct rm *lev = &levl[x][y];
+    struct rm *lev;
     struct monst *mon;
     /* maze levels have slightly different constraints from normal levels;
        these are also defined in mkmaze.c and may not be appropriate for
@@ -2664,6 +2690,9 @@ mkinvpos(coordxy x, coordxy y, int dist)
         }
         return;
     }
+    /* deferred until after the bounds check so the pointer is never
+       formed from out-of-range coordinates */
+    lev = &levl[x][y];
 
     /* clear traps */
     if ((ttmp = t_at(x, y)) != 0)

@@ -1267,6 +1267,11 @@ peffect_gain_level(struct obj *otmp)
             You("have an uneasy feeling.");
             return;
         }
+        /* revamped wizard's tower is also prohibited */
+        if (On_W_tower_level(&u.uz)) {
+            You("have an uneasy feeling.");
+            return;
+        }
         /* they went up a level */
         if (on_lvl_1 ? u.uhave.amulet : Can_rise_up(u.ux, u.uy, &u.uz)) {
             int newlev;

@@ -472,6 +472,14 @@ describe_level(
         else
             Sprintf(buf, "Mines:%-2d", dunlev(&u.uz));
         addbranch = FALSE;
+    } else if (u.uz.dnum == wiz1_level.dnum) {
+        /* the Wizard of Yendor's tower is its own dungeon but has no
+           dedicated flag; identify it by dnum */
+        if (addbranch)
+            Sprintf(buf, "Wizard's Tower %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "WizTwr:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
     } else {
         /* ports with more room may expand this one */
         if (!addbranch)

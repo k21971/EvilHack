@@ -2621,6 +2621,12 @@ show_achievements(
         } /* switch */
     } /* for */
 
+    /* the Wizard's tower entry event has no formal achievement slot;
+       it is tracked via u.uevent (set in goto_level), so it cannot
+       participate in the chronological list above */
+    if (u.uevent.wiztower_entered)
+        you_have_X("entered the Wizard of Yendor's lair");
+
     if (awin != ge.en_win) {
         display_nhwindow(awin, TRUE);
         destroy_nhwindow(awin);

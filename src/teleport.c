@@ -895,7 +895,9 @@ scrolltele(struct obj *scroll)
     if (!Blinded)
         make_blinded(0L, FALSE);
 
-    if ((u.uhave.amulet || On_W_tower_level(&u.uz)) && !rn2(3)) {
+    if (u.uhave.amulet || On_W_tower_level(&u.uz)
+        || (u.usteed && mon_has_amulet(u.usteed))
+        || (In_quest(&u.uz) && !svq.quest_status.killed_nemesis)) {
         You_feel("disoriented for a moment.");
         /* don't discover the scroll [at least not yet for wizard override];
            disorientation doesn't reveal that this is a teleport attempt */
@@ -1215,14 +1217,27 @@ level_tele(void)
         schedule_goto(&newlevel, UTOTYPE_NONE, (char *) 0, (char *) 0);
         return;
     }
-    if ((u.uhave.amulet || In_endgame(&u.uz) || In_sokoban(&u.uz)
+    if ((u.uhave.amulet || In_endgame(&u.uz)
+         || In_V_tower(&u.uz) || In_sokoban(&u.uz)
          /* the sanctum cannot be level-teleported out of once the
             Amulet has been obtained (or the Idol imbued for Infidels),
             even after dropping it */
          || (Is_sanctum(&u.uz) && achievement_recorded(ACH_AMUL)
-             && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
+             && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
+         || (u.usteed && mon_has_amulet(u.usteed))
+         || (In_quest(&u.uz) && !svq.quest_status.killed_nemesis
+             && !(Role_if(PM_ROGUE) && Is_nemesis(&u.uz))))
         && !wizard) {
         You_feel("very disoriented for a moment.");
+        return;
+    }
+    /* prevent levelporting in the Wizard's tower until the
+       Wizard has been defeated for the first time */
+    if (!u.uevent.udemigod && On_W_tower_level(&u.uz)
+        && (!wizard
+            || y_n("The Wizard of Yendor has not been defeated.  Override?")
+                   != 'y')) {
+        pline("Powerful magic prevents you from teleporting.");
         return;
     }
     if ((Teleport_control && !Stunned) || wizard) {

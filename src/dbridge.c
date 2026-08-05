@@ -829,6 +829,15 @@ close_drawbridge(coordxy x, coordxy y)
     x2 = x;
     y2 = y;
     get_wall_for_db(&x2, &y2);
+    /* protected drawbridges won't operate if a monster is in the way */
+    if ((Is_valley(&u.uz) || Is_wiz1_level(&u.uz) || Is_wiz3_level(&u.uz))
+        && (MON_AT(x, y) || MON_AT(x2, y2))) {
+        if (cansee(x, y) || cansee(x2, y2))
+            pline_The("drawbridge strains, but something is in the way.");
+        else
+            You_hear("gears grinding.");
+        return;
+    }
     if (cansee(x, y) || cansee(x2, y2)) {
         You_see("a drawbridge %s up!",
                 (((u.ux == x || u.uy == y) && !Underwater)
@@ -894,6 +903,15 @@ open_drawbridge(coordxy x, coordxy y)
     x2 = x;
     y2 = y;
     get_wall_for_db(&x2, &y2);
+    /* protected drawbridges won't operate if a monster is in the way */
+    if ((Is_valley(&u.uz) || Is_wiz1_level(&u.uz) || Is_wiz3_level(&u.uz))
+        && (MON_AT(x, y) || MON_AT(x2, y2))) {
+        if (cansee(x, y) || cansee(x2, y2))
+            pline_The("drawbridge strains, but something is in the way.");
+        else
+            You_hear("gears grinding.");
+        return;
+    }
     if (cansee(x, y) || cansee(x2, y2)) {
         You_see("a drawbridge %s down!",
                 (distu(x2, y2) < distu(x, y)) ? "going" : "coming");
@@ -943,6 +961,11 @@ destroy_drawbridge(coordxy x, coordxy y)
     lev1 = &levl[x][y];
     if (!IS_DRAWBRIDGE(lev1->typ))
         return;
+    /* the drawbridges guarding certain special levels are protected */
+    if (Is_valley(&u.uz) || Is_wiz1_level(&u.uz) || Is_wiz3_level(&u.uz)) {
+        pline("This drawbridge cannot be destroyed.");
+        return;
+    }
     x2 = x;
     y2 = y;
     get_wall_for_db(&x2, &y2);

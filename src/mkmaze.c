@@ -397,6 +397,13 @@ place_lregion(
     if (hy > ROWNO - 1)
         hy = ROWNO - 1;
 
+    /* ensure the search region is valid */
+    if (lx > hx || ly > hy) {
+        impossible("Invalid lregion search area (%d,%d,%d,%d) for rtype %d",
+                   lx, ly, hx, hy, rtype);
+        return;
+    }
+
     /* first a probabilistic approach */
 
     oneshot = (lx == hx && ly == hy);
@@ -414,7 +421,21 @@ place_lregion(
             if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, TRUE, lev))
                 return;
 
-    impossible("Couldn't place lregion type %d!", rtype);
+    /* if we couldn't place the region, try relaxing the constraints;
+       this can happen with mines-style levels where much of the map
+       is solid rock, making the specified regions too restrictive */
+    if (rtype == LR_UPSTAIR || rtype == LR_DOWNSTAIR
+        || rtype == LR_PORTAL || rtype == LR_BRANCH
+        || rtype == LR_TELE || rtype == LR_UPTELE || rtype == LR_DOWNTELE) {
+        /* try the whole map without exclusion zones */
+        for (x = 1; x < COLNO - 1; x++)
+            for (y = 0; y < ROWNO - 1; y++)
+                if (put_lregion_here(x, y, 0, 0, 0, 0, rtype, TRUE, lev))
+                    return;
+    }
+
+    impossible("Couldn't place lregion type %d in (%d,%d,%d,%d)!",
+               rtype, lx, ly, hx, hy);
 }
 
 staticfn boolean
@@ -618,7 +639,7 @@ fixup_special(void)
 {
     lev_region *r = gl.lregions;
     s_level *sp;
-    struct d_level lev;
+    struct d_level lev = { 0, 0 };
     int x, y;
     struct mkroom *croom;
     boolean added_branch = FALSE;
@@ -642,6 +663,12 @@ fixup_special(void)
                 lev.dlevel = atoi(r->rname.str);
             } else {
                 sp = find_level(r->rname.str);
+                if (!sp) {
+                    impossible("LR_PORTAL: unknown level \"%s\"",
+                               r->rname.str);
+                    free((genericptr_t) r->rname.str), r->rname.str = 0;
+                    continue;
+                }
                 lev = sp->dlevel;
             }
             FALLTHROUGH;
