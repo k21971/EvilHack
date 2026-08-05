@@ -5,89 +5,75 @@
 --
 des.level_init({ style = "solidfill", fg = " " });
 
-des.level_flags("mazelevel", "noteleport", "hardfloor", "nommap")
+-- noflip: mkgate() opens the sanctum gates at absolute coordinates
+-- keyed to this map's unflipped placement (master 3.6 never flips)
+des.level_flags("mazelevel", "noteleport", "hardfloor", "nommap", "noflip")
 -- This is outside the main map, below, so we must do it before adding
 -- that map and anchoring coordinates to it. This extends the invisible
 -- barrier up to the top row, which falls outside the drawn map.
 des.non_passwall(selection.area(39,00,41,00))
 des.map([[
-----------------------------------------------------------------------------
-|             --------------                                               |
-|             |............|             -------                           |
-|       -------............-----         |.....|                           |
-|       |......................|        --.....|            ---------      |
-|    ----......................---------|......----         |.......|      |
-|    |........---------..........|......+.........|     ------+---..|      |
-|  ---........|.......|..........--S----|.........|     |........|..|      |
-|  |..........|.......|.............|   |.........-------..----------      |
-|  |..........|.......|..........----   |..........|....|..|......|        |
-|  |..........|.......|..........|      --.......----+---S---S--..|        |
-|  |..........---------..........|       |.......|.............|..|        |
-|  ---...........................|       -----+-------S---------S---       |
-|    |...........................|          |...| |......|    |....|--     |
-|    ----.....................----          |...---....---  ---......|     |
-|       |.....................|             |..........|    |.....----     |
-|       -------...........-----             --...-------    |.....|        |
-|             |...........|                  |...|          |.....|        |
-|             -------------                  -----          -------        |
-----------------------------------------------------------------------------
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL--------------LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL|............|LLLLLLLLLLLLL-------LLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL------|............-----LLLLLLLLLF.....FLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL|.....|................|LLLLLLLL--.....|LLLLLLLLLLLL--F---F--LLLLLLL
+LLLLL----.....|................-------LL|......----LLLLLLLLL|.......|LLLLLLL
+LLLLL|........|LLLLLLLLL.........|...|LL|.........|--F----F---+---..FLLLLLLL
+LL-------.....|--------L.........--S--LL|.........|.....S........|..|LLLLLLL
+--|....|......|.......|L............|LLLF.........---S---..-----S----LLLLLLL
+|.S..|........|.......|L.........----LLL|..........|....|..|......|LLLLLLLLL
+|.|..|........|.......|L.........|LLLLLL--.......----+---S---S--..FLLLLLLLLL
+--|....|......|.......|L.........|LLLLLLLF.......|.............|..|LLLLLLLLL
+LL-------.....|--------L.........|LLLLLLL-----+-------S---------S---LLLLLLLL
+LLLLL|........|LLLLLLLLL.........|LLLLLLLLLL|...F.F......|....|....|--LLLLLL
+LLLLL----.....|...............----LLLLLLLLLLF...-F-....------S-......FLLLLLL
+LLLLLLLL|.....|...............|LLLLLLLLLLLLL|..........|LLLL|.....----LLLLLL
+LLLLLLLL------|...........-----LLLLLLLLLLLLL--...----F--LLLLF.....|LLLLLLLLL
+LLLLLLLLLLLLLL|...........|LLLLLLLLLLLLLLLLLLF...FLLLLLLLLLL|.....FLLLLLLLLL
+LLLLLLLLLLLLLL-------------LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 ]]);
-des.region({ region={15,07, 21,10}, lit=1, type="temple", filled=2, contents = function()
+-- TODO-EVILHACK: master anchors the Purgatory chainbranch here
+-- (BRANCH:(01,10,01,10) inside Lucifer's chamber); the levregion lands
+-- with the Purgatory dungeon topology
+des.region({ region={15,08, 21,11}, lit=1, type="temple", filled=2, contents = function()
                 des.door({ wall = "random", state = "secret" });
 end })
-des.altar({ x=18, y=08, align="noalign", type="sanctum" })
+des.altar({ x=18, y=09, align="noalign", type="sanctum" })
 des.region({ region={41,06, 48,11}, lit=0, type="morgue", filled=1, irregular=1 })
 -- Non diggable walls
 des.non_diggable(selection.area(00,00,75,19))
 -- Invisible barrier separating the left & right halves of the level
-des.non_passwall(selection.area(37,00,39,19))
+-- as well as Lucifer's chamber
+des.non_passwall(selection.area(00,00,39,19))
+-- Drawbridges
+des.drawbridge({ x=38, y=06, dir="west", state="closed" })
+des.drawbridge({ x=39, y=06, dir="east", state="closed" })
 -- Doors
-des.door("closed",40,06)
-des.door("locked",62,06)
-des.door("closed",46,12)
-des.door("closed",53,10)
--- Surround the temple with fire
-des.trap("fire",13,05)
-des.trap("fire",14,05)
-des.trap("fire",15,05)
-des.trap("fire",16,05)
-des.trap("fire",17,05)
-des.trap("fire",18,05)
-des.trap("fire",19,05)
-des.trap("fire",20,05)
-des.trap("fire",21,05)
-des.trap("fire",22,05)
-des.trap("fire",23,05)
-des.trap("fire",13,12)
-des.trap("fire",14,12)
-des.trap("fire",15,12)
-des.trap("fire",16,12)
-des.trap("fire",17,12)
-des.trap("fire",18,12)
-des.trap("fire",19,12)
-des.trap("fire",20,12)
-des.trap("fire",21,12)
-des.trap("fire",22,12)
-des.trap("fire",23,12)
-des.trap("fire",13,06)
-des.trap("fire",13,07)
-des.trap("fire",13,08)
-des.trap("fire",13,09)
-des.trap("fire",13,10)
-des.trap("fire",13,11)
-des.trap("fire",23,06)
-des.trap("fire",23,07)
-des.trap("fire",23,08)
-des.trap("fire",23,09)
-des.trap("fire",23,10)
-des.trap("fire",23,11)
+des.door({ state="locked", material="bronze", x=62, y=06 })
+des.door({ state="closed", material="bronze", x=46, y=12 })
+des.door({ state="closed", material="bronze", x=53, y=10 })
+-- Secret doors
+des.door({ state="secret", material="bronze", x=02, y=09 })
+des.door({ state="secret", material="bronze", x=35, y=07 })
+des.door({ state="secret", material="bronze", x=53, y=08 })
+des.door({ state="secret", material="bronze", x=54, y=12 })
+des.door({ state="secret", material="bronze", x=56, y=07 })
+des.door({ state="secret", material="bronze", x=57, y=10 })
+des.door({ state="secret", material="bronze", x=61, y=10 })
+des.door({ state="secret", material="bronze", x=61, y=14 })
+des.door({ state="secret", material="bronze", x=64, y=08 })
+des.door({ state="secret", material="bronze", x=64, y=12 })
 -- Some traps.
 des.trap("spiked pit")
 des.trap("fire")
 des.trap("sleep gas")
 des.trap("anti magic")
-des.trap("fire")
+des.trap("ice")
 des.trap("magic")
+des.trap("spear")
+des.trap("magic beam")
 -- Some random objects
 des.object("[")
 des.object("[")
@@ -105,28 +91,61 @@ des.object("?")
 des.object("?")
 des.object("?")
 des.object("?")
+-- Chest by the altar
+des.object({ id = "crystal chest", x=17, y=09,
+   contents = function()
+      des.object("magic marker")
+   end
+})
+-- Lucifer and his consorts
+des.monster({ id = "Lucifer", x=04, y=09, peaceful=0 })
+des.monster({ id = "balrog", x=08, y=08, name="Adramalech", asleep=1, peaceful=0 })
+des.monster({ id = "balrog", x=08, y=11, name="Buer", asleep=1, peaceful=0 })
+des.monster({ id = "balrog", x=11, y=04, name="Phongor", asleep=1, peaceful=0 })
+des.monster({ id = "balrog", x=11, y=15, name="Zagum", asleep=1, peaceful=0 })
+-- Inner sanctum guards
+des.monster({ id = "salamander", x=15, y=06, peaceful=0 })
+des.monster({ id = "salamander", x=23, y=06, peaceful=0 })
+des.monster({ id = "salamander", x=15, y=13, peaceful=0 })
+des.monster({ id = "salamander", x=23, y=13, peaceful=0 })
+des.monster({ id = "lava demon", x=18, y=06, peaceful=0 })
+des.monster({ id = "lava demon", x=18, y=13, peaceful=0 })
 -- Some monsters.
-des.monster({ id = "horned devil", x=14,y=12,peaceful=0 })
-des.monster({ id = "barbed devil", x=18,y=08,peaceful=0 })
-des.monster({ id = "erinys", x=10,y=04,peaceful=0 })
-des.monster({ id = "marilith", x=07,y=09,peaceful=0 })
-des.monster({ id = "nalfeshnee", x=27,y=08,peaceful=0 })
+des.monster({ id = "pit fiend", x=17, y=14, peaceful=0 })
+des.monster({ id = "balrog", x=18, y=08, name="Baalphegor", peaceful=0 })
+des.monster({ id = "erinys", x=17, y=04, peaceful=0 })
+des.monster({ id = "marilith", x=17, y=15, peaceful=0 })
+des.monster({ id = "nalfeshnee", x=27, y=09, peaceful=0 })
+des.monster({ id = "alhoon", x=18, y=10, peaceful=0 })
 -- Moloch's horde
-des.monster({ id = "aligned cleric", x=20,y=03,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=15,y=04,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=11,y=05,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=11,y=07,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=11,y=09,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=11,y=12,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=15,y=13,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=17,y=13,align="noalign",peaceful=0 })
-des.monster({ id = "aligned cleric", x=21,y=13,align="noalign",peaceful=0 })
+des.monster({ id = "aligned cleric", x=20, y=03, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=15, y=04, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=21, y=03, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=25, y=08, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=25, y=11, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=21, y=14, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=15, y=15, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=17, y=15, align="noalign", peaceful=0 })
+des.monster({ id = "aligned cleric", x=19, y=16, align="noalign", peaceful=0 })
 -- A few nasties
 des.monster("L")
 des.monster("L")
 des.monster("V")
 des.monster("V")
 des.monster("V")
+des.monster("shambling horror")
+des.monster("shambling horror")
+des.monster("shambling horror")
+-- Lava nasties
+des.monster({ id = "salamander", x=01, y=01, peaceful=0 })
+des.monster({ id = "salamander", x=74, y=01, peaceful=0 })
+des.monster({ id = "salamander", x=01, y=18, peaceful=0 })
+des.monster({ id = "salamander", x=74, y=18, peaceful=0 })
+des.monster({ id = "salamander", x=38, y=04, peaceful=0 })
+des.monster({ id = "salamander", x=38, y=08, peaceful=0 })
+des.monster({ id = "lava demon", x=60, y=03, peaceful=0 })
+des.monster({ id = "lava demon", x=30, y=17, peaceful=0 })
+-- Exit
 des.stair("up", 63,15)
 -- Teleporting to this level is allowed after the invocation creates its
 -- entrance.  Force arrival in that case to be on rightmost third of level.

@@ -5,90 +5,101 @@
 --
 des.level_init({ style="mazegrid", bg ="-" });
 
-des.level_flags("mazelevel", "shortsighted")
+des.level_flags("mazelevel", "noteleport", "shortsighted")
 
-local tmpbounds = selection.match("-");
-local bnds = tmpbounds:bounds();
-local bounds2 = selection.fillrect(bnds.lx, bnds.ly + 1, bnds.hx - 2, bnds.hy - 1);
+des.level_init({ style = "mines", fg = ".", bg = " ", smoothed = true,
+                 joined = true, lit = 0, walled = true });
 
 -- A ghost town
-local orcus1 = des.map({ halign = "right", valign = "center", map = [[
-.|....|....|....|..............|....|........
-.|....|....|....|..............|....|........
-.|....|....|....|--...-+-------|.............
-.|....|....|....|..............+.............
-.|.........|....|..............|....|........
-.--+-...-+----+--....-------...--------.-+---
-.....................|.....|.................
-.....................|.....|.................
-.--+----....-+---....|.....|...----------+---
-.|....|....|....|....---+---...|......|......
-.|.........|....|..............|......|......
-.----...---------.....-----....+......|......
-.|........................|....|......|......
-.----------+-...--+--|....|....----------+---
-.|....|..............|....+....|.............
-.|....+.......|......|....|....|.............
-.|....|.......|......|....|....|.............
+des.map({ halign = "right", valign = "center", map = [[
+ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
+.---------------------------------------------L
+.|....|....|....|..............|....|........|L
+.|....|....|....|..............|....|........|L
+.|....|....|....|--...-+-------|.............|L
+.|....|....|....|..............+.............|L
+.|.........|....|..............|....|........|L
+.--+-...-+----+--....-------...--------.-+----L
+.....................|.....|.................LL
+.....................|.....|.................LL
+.--+----....-+---....|.....|...----------+----L
+.|....|....|....|....---+---...|......|......|L
+.|.........|....|..............|......|......|L
+.----...---------.....-----....+......|......|L
+.|........................|....|......|......|L
+.----------+-...--+--|....|....----------+---|L
+.|....|..............|....+....|.............|L
+.|....+.......|......|....|....|.............|L
+.|....|.......|......|....|....|.............|L
+.---------------------------------------------L
+ LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL 
 ]], contents = function(rm)
-   des.mazewalk(00,06,"west")
    -- Entire main area
-   des.region(selection.area(01,00,44,16),"unlit")
-   des.stair("down", 33,15)
+   des.region(selection.area(1,0,46,18),"unlit")
+   des.stair("down", 33,17)
+   -- knock out the lava-frame seed cells, then flood the
+   -- surrounding mines fill with lava from those seeds
+   local seeds = { {0,0},{46,0},{0,18},{46,18} }
+   for i = 1, #seeds do
+      des.terrain(seeds[i][1], seeds[i][2], " ")
+   end
+   for i = 1, #seeds do
+      des.terrain(selection.floodfill(seeds[i][1], seeds[i][2]), "L")
+   end
    -- Wall "ruins"
-   des.object("boulder",19,02)
-   des.object("boulder",20,02)
-   des.object("boulder",21,02)
-   des.object("boulder",36,02)
-   des.object("boulder",36,03)
-   des.object("boulder",06,04)
-   des.object("boulder",05,05)
-   des.object("boulder",06,05)
-   des.object("boulder",07,05)
-   des.object("boulder",39,05)
-   des.object("boulder",08,08)
-   des.object("boulder",09,08)
-   des.object("boulder",10,08)
-   des.object("boulder",11,08)
-   des.object("boulder",06,10)
-   des.object("boulder",05,11)
-   des.object("boulder",06,11)
-   des.object("boulder",07,11)
-   des.object("boulder",21,11)
-   des.object("boulder",21,12)
-   des.object("boulder",13,13)
-   des.object("boulder",14,13)
-   des.object("boulder",15,13)
-   des.object("boulder",14,14)
+   des.object("boulder",19,4)
+   des.object("boulder",20,4)
+   des.object("boulder",21,4)
+   des.object("boulder",36,4)
+   des.object("boulder",36,5)
+   des.object("boulder",6,6)
+   des.object("boulder",5,7)
+   des.object("boulder",6,7)
+   des.object("boulder",7,7)
+   des.object("boulder",39,7)
+   des.object("boulder",8,10)
+   des.object("boulder",9,10)
+   des.object("boulder",10,10)
+   des.object("boulder",11,10)
+   des.object("boulder",6,12)
+   des.object("boulder",5,13)
+   des.object("boulder",6,13)
+   des.object("boulder",7,13)
+   des.object("boulder",21,13)
+   des.object("boulder",21,14)
+   des.object("boulder",13,15)
+   des.object("boulder",14,15)
+   des.object("boulder",15,15)
+   des.object("boulder",14,16)
    -- Doors
-   des.door("closed",23,02)
-   des.door("open",31,03)
-   des.door("nodoor",03,05)
-   des.door("closed",09,05)
-   des.door("closed",14,05)
-   des.door("closed",41,05)
-   des.door("open",03,08)
-   des.door("nodoor",13,08)
-   des.door("open",41,08)
-   des.door("closed",24,09)
-   des.door("closed",31,11)
-   des.door("open",11,13)
-   des.door("closed",18,13)
-   des.door("closed",41,13)
-   des.door("open",26,14)
-   des.door("closed",06,15)
+   des.door({ state = "closed", material = "bronze", x = 23, y = 4 })
+   des.door({ state = "open", material = "bronze", x = 31, y = 5 })
+   des.door("nodoor",3,7)
+   des.door({ state = "closed", material = "bronze", x = 9, y = 7 })
+   des.door({ state = "closed", material = "bronze", x = 14, y = 7 })
+   des.door({ state = "closed", material = "bronze", x = 41, y = 7 })
+   des.door({ state = "open", material = "bronze", x = 3, y = 10 })
+   des.door("nodoor",13,10)
+   des.door({ state = "open", material = "bronze", x = 41, y = 10 })
+   des.door({ state = "closed", material = "bronze", x = 24, y = 11 })
+   des.door({ state = "closed", material = "bronze", x = 31, y = 13 })
+   des.door({ state = "open", material = "bronze", x = 11, y = 15 })
+   des.door({ state = "closed", material = "bronze", x = 18, y = 15 })
+   des.door({ state = "closed", material = "bronze", x = 41, y = 15 })
+   des.door({ state = "open", material = "bronze", x = 26, y = 16 })
+   des.door({ state = "closed", material = "bronze", x = 6, y = 17 })
    -- Special rooms
-   des.altar({ x=24,y=07,align="noalign",type="sanctum" })
-   des.region({ region={22,12,25,16},lit=0,type="morgue",filled=1 })
-   des.region({ region={32,09,37,12},lit=1,type="shop",filled=1 })
-   des.region({ region={12,00,15,04},lit=1,type="shop",filled=1 })
+   des.altar({ x=24,y=9,align="noalign",type="sanctum" })
+   des.region({ region={22,14,25,18},lit=0,type="morgue",filled=1 })
+   des.region({ region={32,11,37,14},lit=1,type="shop",filled=1 })
+   des.region({ region={12,2,15,6},lit=1,type="shop",filled=1 })
    -- Some traps.
    des.trap("spiked pit")
    des.trap("sleep gas")
    des.trap("anti magic")
    des.trap("fire")
    des.trap("fire")
-   des.trap("fire")
+   des.trap("ice")
    des.trap("magic")
    des.trap("magic")
    -- Some random objects
@@ -102,33 +113,28 @@ local orcus1 = des.map({ halign = "right", valign = "center", map = [[
    des.object()
    des.object()
    des.object()
-   -- An object that's worth most of a wish
-   -- (this is part of the compensation for the reduced wishes at the Castle)
-   if math.random(0, 1) == 1 then
-      des.object("magic marker")
-   else
-      des.object("magic lamp")
-   end
    -- The resident nasty
-   des.monster("Orcus",33,15)
+   des.monster({ id = "Orcus", x = 33, y = 17, peaceful = 0 })
    -- And its preferred companions
-   des.monster("human zombie",32,15)
-   des.monster("shade",32,14)
+   des.monster("human zombie",32,17)
    des.monster("shade",32,16)
+   des.monster("shade",32,18)
+   des.monster("vampire sovereign",35,18)
    des.monster("vampire sovereign",35,16)
-   des.monster("vampire sovereign",35,14)
-   des.monster("vampire noble",36,14)
-   des.monster("vampire noble",36,15)
+   des.monster("vampire noble",36,16)
+   des.monster("vampire noble",36,17)
+   -- Watches the sanctum
+   des.monster("alhoon",24,9)
    -- Randomly placed companions
-   des.monster("skeleton")
-   des.monster("skeleton")
-   des.monster("skeleton")
-   des.monster("skeleton")
-   des.monster("skeleton")
+   des.monster("skeleton warrior")
+   des.monster("skeleton warrior")
+   des.monster("skeleton warrior")
+   des.monster("skeleton warrior")
+   des.monster("skeletal dragon")
    des.monster("shade")
    des.monster("shade")
    des.monster("shade")
-   des.monster("shade")
+   des.monster("spectre")
    des.monster("giant zombie")
    des.monster("giant zombie")
    des.monster("giant zombie")
@@ -136,13 +142,19 @@ local orcus1 = des.map({ halign = "right", valign = "center", map = [[
    des.monster("ettin zombie")
    des.monster("ettin zombie")
    des.monster("human zombie")
-   des.monster("human zombie")
-   des.monster("human zombie")
+   des.monster("revenant")
+   des.monster("revenant")
    des.monster("vampire sovereign")
-   des.monster("vampire royal")
-   des.monster("vampire royal")
    des.monster("vampire noble")
    des.monster("vampire noble")
+   des.monster("vampire royal")
+   des.monster("vampire royal")
+   -- Lava
+   des.monster({ id = "salamander", x = 46, y = 1, peaceful = 0 })
+   des.monster({ id = "salamander", x = 46, y = 17, peaceful = 0 })
+   if percent(20) then
+      des.monster({ id = "lava gremlin", x = 46, y = 9, peaceful = 0 })
+   end
    -- A few more for the party
    des.monster()
    des.monster()
@@ -151,9 +163,6 @@ local orcus1 = des.map({ halign = "right", valign = "center", map = [[
    des.monster()
 end });
 
-des.levregion({ region={01,00,12,20}, region_islev=1, exclude={20,01,70,20}, exclude_islev=1, type="stair-up" });
-des.levregion({ region={01,00,12,20}, region_islev=1, exclude={20,01,70,20}, exclude_islev=1, type="branch" });
-des.teleport_region({ region={01,00,12,20}, region_islev=1, exclude={20,01,70,20}, exclude_islev=1 });
-
-local protected = bounds2:negate() | orcus1;
-hell_tweaks(protected);
+des.levregion({ region={1,1,20,20}, region_islev=1, exclude={20,1,79,20}, exclude_islev=1, type="stair-up" });
+des.levregion({ region={1,1,20,20}, region_islev=1, exclude={20,1,79,20}, exclude_islev=1, type="branch" });
+des.teleport_region({ region={1,1,20,20}, region_islev=1, exclude={20,1,79,20}, exclude_islev=1 });

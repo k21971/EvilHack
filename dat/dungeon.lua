@@ -90,7 +90,7 @@ dungeon = {
    {
       name = "Gehennom",
       bonetag = "G",
-      base = 20,
+      base = 16,
       range = 5,
       flags = { "mazelike", "hellish" },
       lvlfill = "hellfill",
@@ -126,28 +126,31 @@ dungeon = {
             base = -1
          },
          {
-            name = "juiblex",
-            bonetag = "J",
-            base = 4,
-            range = 4
+            name = "hella",
+            bonetag = "A",
+            base = 3,
+            range = 2,
+            nlevels = 4
          },
          {
-            name = "baalz",
+            name = "hellb",
             bonetag = "B",
             base = 6,
-            range = 4
+            range = 2,
+            nlevels = 3
          },
          {
-            name = "asmodeus",
-            bonetag = "A",
-            base = 2,
-            range = 6
+            name = "hellc",
+            bonetag = "C",
+            base = 12,
+            range = 2,
+            nlevels = 3
          },
          {
             name = "orcus",
             bonetag = "O",
-            base = 10,
-            range = 6
+            base = 9,
+            range = 2
          },
          {
             name = "wizportal",

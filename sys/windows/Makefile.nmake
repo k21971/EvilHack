@@ -726,14 +726,17 @@ HACKINCL = \
 	$(INCL)wintype.h  $(INCL)you.h        $(INCL)youprop.h \
 	$(INCL)weight.h
 
-LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
+LUA_FILES = $(DAT)bigrm-1.lua \
 	$(DAT)bigrm-10.lua $(DAT)bigrm-11.lua $(DAT)bigrm-12.lua \
 	$(DAT)bigrm-13.lua \
 	$(DAT)bigrm-2.lua $(DAT)bigrm-3.lua $(DAT)bigrm-4.lua \
 	$(DAT)bigrm-5.lua $(DAT)bigrm-6.lua $(DAT)bigrm-7.lua \
 	$(DAT)bigrm-8.lua $(DAT)bigrm-9.lua \
 	$(DAT)castle-1.lua $(DAT)castle-2.lua $(DAT)castle-3.lua \
-	$(DAT)juiblex.lua \
+	$(DAT)hella-1.lua $(DAT)hella-2.lua $(DAT)hella-3.lua \
+	$(DAT)hella-4.lua $(DAT)hellb-1.lua $(DAT)hellb-2.lua \
+	$(DAT)hellb-3.lua $(DAT)hellc-1.lua $(DAT)hellc-2.lua \
+	$(DAT)hellc-3.lua \
 	$(DAT)knox-1.lua $(DAT)knox-2.lua $(DAT)knox-3.lua \
 	$(DAT)medusa-1.lua $(DAT)medusa-2.lua \
 	$(DAT)medusa-3.lua $(DAT)medusa-4.lua $(DAT)minend-1.lua \
@@ -784,8 +787,9 @@ LUA_FILES = $(DAT)asmodeus.lua $(DAT)baalz.lua $(DAT)bigrm-1.lua \
 	$(DAT)Val-strt.lua $(DAT)Wiz-strt.lua $(DAT)dungeon.lua \
 	$(DAT)quest.lua
 
-luawildcards = asmodeus.lua baalz.lua bigrm-*.lua castle-?.lua \
-	juiblex.lua knox-?.lua medusa-?.lua minend-?.lua minefill.lua \
+luawildcards = bigrm-*.lua castle-?.lua \
+	hella-?.lua hellb-?.lua hellc-?.lua \
+	knox-?.lua medusa-?.lua minend-?.lua minefill.lua \
 	minetn-?.lua oracle-?.lua orcus.lua sanctum.lua soko?-?.lua tower?.lua \
 	valley.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua themerms.lua \
 	astral.lua air.lua earth.lua fire.lua water.lua hellfill.lua tut-?.lua \

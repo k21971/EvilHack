@@ -97,7 +97,7 @@ CSS = NHdump.css
 
 DATHELP = help hh cmdhelp keyhelp history opthelp optmenu usagehlp wizhelp
 
-SPEC_LEVS = asmodeus.lua baalz.lua bigrm-*.lua castle-?.lua juiblex.lua \
+SPEC_LEVS = bigrm-*.lua castle-?.lua hella-?.lua hellb-?.lua hellc-?.lua \
 	knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua \
 	oracle-?.lua orcus.lua sanctum.lua soko?-?.lua tower?.lua \
 	valley.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua \

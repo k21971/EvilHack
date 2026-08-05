@@ -71,6 +71,43 @@ function populatemaze()
       des.monster({ peaceful = 0 });
    end
 
+   -- chance of evil critters
+   if percent(50) then
+      des.monster({ class = "L", peaceful = 0 });
+   else
+      des.monster({ peaceful = 0 });
+   end
+
+   -- some flavor from GruntHack
+   if percent(50) then
+      des.monster({ id = "shade", peaceful = 0 });
+      des.monster({ id = "shade", peaceful = 0 });
+   else
+      des.monster({ id = "skeleton warrior", peaceful = 0 });
+      des.monster({ id = "skeletal dragon", peaceful = 0 });
+   end
+
+   -- could be a snark now, so up the percentage a bit
+   if percent(66) then
+      des.monster({ class = "J", peaceful = 0 });
+   else
+      des.monster({ peaceful = 0 });
+   end
+
+   if percent(75) then
+      des.monster({ id = "salamander", peaceful = 0 });
+      des.monster({ id = "salamander", peaceful = 0 });
+   else
+      des.monster({ id = "salamander", peaceful = 0 });
+      des.monster({ id = "lava demon", peaceful = 0 });
+   end
+
+   if percent(20) then
+      des.monster({ id = "alhoon", peaceful = 0 });
+   else
+      des.monster({ peaceful = 0 });
+   end
+
    for i = 1, math.random(6) + 7 do
       des.gold();
    end

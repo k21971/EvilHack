@@ -9,7 +9,9 @@
 
 des.level_init({ style = "solidfill", fg = " " });
 
-des.level_flags("mazelevel", "nommap")
+-- noflip: mkgate2() opens the treasure-room door at an absolute
+-- coordinate keyed to this map's unflipped placement
+des.level_flags("mazelevel", "nommap", "noflip")
 
 des.message("You enter the sewers of the Gnomish Mines.")
 des.message("The stench of fetid sewage is barely tolerable.")
