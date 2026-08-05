@@ -101,6 +101,18 @@ dungeon = {
             base = 8,
             range = 5,
             direction = "down"
+         },
+         {
+            -- the chainlevel lookup only searches levels declared before
+            -- this branch's position in file order (init_dungeon's chain
+            -- scan bound includes the branch index); keep this entry
+            -- after Vlad's so wizportal at the end of levels stays in
+            -- range, or move wizportal earlier if this list is reordered
+            name = "The Wizard's Tower",
+            chainlevel = "wizportal",
+            base = 0,
+            branchtype = "portal",
+            direction = "up"
          }
       },
       levels = {
@@ -132,39 +144,15 @@ dungeon = {
             range = 6
          },
          {
-            name = "wizard1",
-            base = 11,
-            range = 6
-         },
-         {
-            name = "wizard2",
-            bonetag = "X",
-            chainlevel = "wizard1",
-            base = 1
-         },
-         {
-            name = "wizard3",
-            bonetag = "Y",
-            chainlevel = "wizard1",
-            base = 2
-         },
-         {
             name = "orcus",
             bonetag = "O",
             base = 10,
             range = 6
          },
          {
-            name = "fakewiz1",
+            name = "wizportal",
             bonetag = "F",
-            base = -6,
-            range = 4
-         },
-         {
-            name = "fakewiz2",
-            bonetag = "G",
-            base = -6,
-            range = 4
+            base = -3
          },
       }
    },
@@ -285,6 +273,30 @@ dungeon = {
          {
             name = "tower4",
             base = 4
+         },
+      }
+   },
+   {
+      name = "The Wizard's Tower",
+      base = 3,
+      bonetag = "W",
+      alignment = "chaotic",
+      flags = { "mazelike" },
+      entry = 3,
+      levels = {
+         {
+            name = "wizard1",
+            base = 1
+         },
+         {
+            name = "wizard2",
+            bonetag = "X",
+            base = 2
+         },
+         {
+            name = "wizard3",
+            bonetag = "Y",
+            base = 3
          },
       }
    },

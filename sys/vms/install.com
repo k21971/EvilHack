@@ -36,14 +36,14 @@ $	guidebook  = "[.doc]Guidebook.txt"
 $	invoc_proc = "[.sys.vms]nethack.com"
 $	trmcp_file = "[.sys.share]termcap"
 $	spec_files = "air.lua,asmodeus.lua,astral.lua,baalz.lua,"	-
-		+ "bigrm-*.lua,castle-%.lua,earth.lua,fakewiz%.lua,"	-
+		+ "bigrm-*.lua,castle-%.lua,earth.lua,"			-
 		+ "fire.lua,hellfill.lua,juiblex.lua,knox-%.lua,"	-
 		+ "medusa-%.lua,minefill.lua,minetn-%.lua,"		-
 		+ "minend-%.lua,nhcore.lua,nhlib.lua,"	-
 		+ "oracle-1.lua,oracle-2.lua,oracle-3.lua,"		-
 		+ "orcus.lua,quest.lua,sanctum.lua,"			-
 		+ "soko%-%.lua,themerms.lua,tower%.lua,tut-%.lua,"	-
-		+ "valley.lua,water.lua,wizard%.lua"
+		+ "valley.lua,water.lua,wizard%.lua,wizportal.lua"
 $	qstl_files = "%%%-goal.lua,%%%-fil%.lua,%%%-loca.lua,%%%-strt.lua"
 $	dngn_files = "dungeon.lua"
 $!

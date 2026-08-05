@@ -52,8 +52,6 @@
     <Luafiles Include = "Cav-strt.lua"/>
     <Luafiles Include = "dungeon.lua"/>
     <Luafiles Include = "earth.lua"/>
-    <Luafiles Include = "fakewiz1.lua"/>
-    <Luafiles Include = "fakewiz2.lua"/>
     <Luafiles Include = "fire.lua"/>
     <Luafiles Include = "Hea-fila.lua"/>
     <Luafiles Include = "Hea-filb.lua"/>
@@ -172,6 +170,7 @@
     <Luafiles Include = "wizard1.lua"/>
     <Luafiles Include = "wizard2.lua"/>
     <Luafiles Include = "wizard3.lua"/>
+    <Luafiles Include = "wizportal.lua"/>
   </ItemGroup>
   <ItemGroup>
     <UUFiles Include = "$(SysWindDir)nhico.uu"/>
