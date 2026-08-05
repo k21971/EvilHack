@@ -1710,6 +1710,8 @@ extern void topologize(struct mkroom *) NONNULLARG1;
 extern void place_branch(branch *, coordxy, coordxy) NO_NNARGS;
 extern boolean mk_knox_portal_at(coordxy, coordxy);
 extern void mk_knox_fallback_vault(coordxy, coordxy);
+extern void mkgate(void);
+extern void mkgate2(void);
 extern boolean occupied(coordxy, coordxy);
 extern int okdoor(coordxy, coordxy);
 extern boolean maybe_sdoor(int);
@@ -3310,6 +3312,7 @@ extern void skill_based_spellbook_id(void);
 
 extern void stairway_add(coordxy, coordxy,
                          boolean, boolean, d_level *) NONNULLPTRS;
+extern void stairway_del_at(coordxy, coordxy);
 extern void stairway_free_all(void);
 extern stairway *stairway_at(coordxy, coordxy);
 extern stairway *stairway_find(d_level *) NONNULLARG1;

@@ -23,6 +23,22 @@ stairway_add(
     gs.stairs = tmp;
 }
 
+/* remove the stairway at <x,y>, if any */
+void
+stairway_del_at(coordxy x, coordxy y)
+{
+    stairway **sp = &gs.stairs;
+
+    while (*sp && !((*sp)->sx == x && (*sp)->sy == y))
+        sp = &(*sp)->next;
+    if (*sp) {
+        stairway *tmp = *sp;
+
+        *sp = tmp->next;
+        free((genericptr_t) tmp);
+    }
+}
+
 void
 stairway_free_all(void)
 {

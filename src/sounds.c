@@ -1131,7 +1131,17 @@ domonnoise(struct monst *mtmp)
             pline_msg = "curses orcs.";
         else if (racial_dwarf(mtmp))
             pline_msg = "talks about mining.";
-        else if (likes_magic(ptr))
+        else if (ptr == &mons[PM_CHARON]) {
+            /* Charon carries M2_MAGIC, so the generic likes_magic arm
+               below would shadow his authored dialogue (it does on
+               master, where these lines have never been reachable);
+               while Cerberus lives Charon can also warn about him -
+               once the guardian is dead only the first three lines
+               (the Cerberus-neutral ones) still apply */
+            if (mtmp->mpeaceful)
+                com_pager_subset("charon_talk",
+                                 u.uevent.ucerberus ? 3 : 0);
+        } else if (likes_magic(ptr))
             pline_msg = "talks about spellcraft.";
         else if (racial_centaur(mtmp))
             pline_msg = "discusses hunting.";

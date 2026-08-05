@@ -127,7 +127,7 @@ is_moat(coordxy x, coordxy y)
     if (!isok(x, y))
         return FALSE;
     ltyp = levl[x][y].typ;
-    if (!Is_juiblex_level(&u.uz)
+    if (!Is_hella_level(&u.uz)
         && (ltyp == MOAT
             || (ltyp == DRAWBRIDGE_UP
                 && (levl[x][y].drawbridgemask & DB_UNDER) == DB_MOAT)))

@@ -972,12 +972,13 @@ addinv_core1(struct obj *obj)
         /* Player will be able to discover if s/he has the real amulet
            by monitoring the livelog - but only when it was picked up
            for the first time; for Infidels the achievement instead
-           marks imbuing the Idol of Moloch */
-        /* TODO-EVILHACK: master also opens the sanctum gates here via
-           mkgate(); that ports with the Purgatory levels (the gate
-           coordinates depend on the EvilHack sanctum layout) */
-        if (!Role_if(PM_INFIDEL))
+           marks imbuing the Idol of Moloch (and the sanctum gates
+           open at the imbue, not here) */
+        if (!Role_if(PM_INFIDEL)) {
+            if (!achievement_recorded(ACH_AMUL))
+                mkgate();
             record_achievement(ACH_AMUL);
+        }
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
         if (u.uhave.menorah)
             impossible("already have candelabrum?");

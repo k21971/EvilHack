@@ -19,6 +19,7 @@ staticfn boolean u_stuck_cannot_go(const char *);
 staticfn NHFILE *currentlevel_rewrite(void);
 staticfn void familiar_level_msg(void);
 staticfn void final_level(void);
+staticfn void dlords_stalk(void);
 staticfn void temperature_change_msg(schar);
 staticfn boolean better_not_try_to_drop_that(struct obj *);
 
@@ -340,20 +341,14 @@ flooreffects(
             /* Dropping the Amulet or any of the invocation
                items teleports them to the deepest demon prince
                lair rather than destroying them */
-            if (hellc_level.dnum || hellc_level.dlevel) {
-                d_level dest = hellc_level;
+            d_level dest = hellc_level;
 
-                add_to_migration(obj);
-                obj->ox = dest.dnum;
-                obj->oy = dest.dlevel;
-                obj->owornmask = (long) MIGR_RANDOM;
-                if (wizard)
-                    pline("%d:%d", obj->ox, obj->oy);
-            } else {
-                /* the demon prince lairs are not part of this dungeon
-                   yet; relocate within the level instead */
-                (void) rloco(obj);
-            }
+            add_to_migration(obj);
+            obj->ox = dest.dnum;
+            obj->oy = dest.dlevel;
+            obj->owornmask = (long) MIGR_RANDOM;
+            if (wizard)
+                pline("%d:%d", obj->ox, obj->oy);
             if (!Blind)
                 pline("%s away and %s.  Perhaps it wound up elsewhere in the dungeon...",
                       it_falls, disappears);
@@ -1316,6 +1311,14 @@ dodown(void)
         }
     }
     if (on_level(&valley_level, &u.uz) && !u.uevent.gehennom_entered) {
+        /* the gates of hell remain closed to the living
+           while Cerberus is still alive to guard them */
+        if (!u.uevent.ucerberus) {
+            You("are standing at the gate to Gehennom.");
+            pline(
+             "These gates are closed to the living while Cerberus still lives.");
+            return ECMD_OK;
+        }
         You("are standing at the gate to Gehennom.");
         pline("Unspeakable cruelty and harm lurk down there.");
         if (y_n("Are you sure you want to enter?") != 'y')
@@ -1494,6 +1497,28 @@ badspot(coordxy x, coordxy y)
                       || MON_AT(x, y));
 }
 */
+
+/* make demon lords follow the player if they levelport below their lairs */
+staticfn void
+dlords_stalk(void)
+{
+    struct monst *mtmp, *mtmp2;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+        /* save in case mtmp gets migrated */
+        mtmp2 = mtmp->nmon;
+        /* a monster killed in the same action window can still be
+           on fmon awaiting dmonsfree(); master relied on its
+           migrate_to_level() opening with a DEADMONSTER return,
+           which the 5.0 body does not have */
+        if (DEADMONSTER(mtmp))
+            continue;
+        if ((is_dlord(mtmp->data) || is_dprince(mtmp->data))
+            /* infidels can get peaceful dlords who won't hound them */
+            && !mtmp->mpeaceful)
+            migrate_to_level(mtmp, ledger_no(&u.uz), MIGR_STALK, (coord *) 0);
+    }
+}
 
 /* when arriving on a level, if hero and a monster are trying to share same
    spot, move one; extracted from goto_level(); also used by wiz_makemap() */
@@ -1719,8 +1744,13 @@ goto_level(
     set_ustuck((struct monst *) 0); /* clear u.ustuck and u.uswallow */
     set_uinwater(0); /* u.uinwater = 0 */
     u.uundetected = 0; /* not hidden, even if means are available */
-    if (!iflags.nofollowers)
+    if (!iflags.nofollowers) {
         keepdogs(FALSE);
+        /* called after keepdogs(), so adjacent or engulfing dlords
+           will follow the player as before */
+        if (Inhell)
+            dlords_stalk();
+    }
     recalc_mapseen(); /* recalculate map overview before we leave the level */
     /*
      *  We no longer see anything on the level.  Make sure that this
@@ -1971,10 +2001,13 @@ goto_level(
 #endif
             Soundeffect(se_groans_and_moans, 25);
             You_hear("groans and moans everywhere.");
-            /* TODO-EVILHACK: master suppresses hit point regeneration
-               in the Valley for all but draugr and vampire heroes and
-               warns of it on arrival; the warning ports together with
-               the suppression mechanic itself */
+            if ((!Upolyd && Race_if(PM_DRAUGR))
+                || (!Upolyd && Race_if(PM_VAMPIRE))) {
+                ; /* Draugr/Vampires that are not poly'd into another
+                     form can still regenerate hit points */
+            } else {
+                You("feel unable to rest or recuperate here.");
+            }
         }
 
         record_achievement(ACH_HELL); /* reached Gehennom */
@@ -2005,6 +2038,26 @@ goto_level(
             com_pager("wizards_tower_enter");
         livelog_printf(LL_ACHIEVE, "entered the Wizard of Yendor's lair");
     }
+
+    /* made it to the first demon lord lair? */
+    if (!Is_hella_level(&u.uz0) && Is_hella_level(&u.uz)
+        && !u.uevent.hella_entered)
+        u.uevent.hella_entered = 1;
+
+    /* made it to the second demon lord lair? */
+    if (!Is_hellb_level(&u.uz0) && Is_hellb_level(&u.uz)
+        && !u.uevent.hellb_entered)
+        u.uevent.hellb_entered = 1;
+
+    /* made it to the final demon prince lair? */
+    if (!Is_hellc_level(&u.uz0) && Is_hellc_level(&u.uz)
+        && !u.uevent.hellc_entered)
+        u.uevent.hellc_entered = 1;
+
+    /* made it to Orcus Town? */
+    if (!Is_orcustown(&u.uz0) && Is_orcustown(&u.uz)
+        && !u.uevent.orcus_entered)
+        u.uevent.orcus_entered = 1;
 
     /* special location arrival messages/events */
     if (In_endgame(&u.uz)) {

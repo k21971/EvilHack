@@ -2624,6 +2624,8 @@ show_achievements(
     /* the Wizard's tower entry event has no formal achievement slot;
        it is tracked via u.uevent (set in goto_level), so it cannot
        participate in the chronological list above */
+    if (u.uevent.killed_cerberus)
+        you_have_X("defeated Cerberus");
     if (u.uevent.wiztower_entered)
         you_have_X("entered the Wizard of Yendor's lair");
 

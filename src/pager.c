@@ -646,7 +646,7 @@ waterbody_name(coordxy x, coordxy y)
             /* somewhat iffy since ordinary stairs can take you beneath,
                but previous generic "water" was rather anti-climactic */
             return "shallow sea";
-        } else if (Is_juiblex_level(&u.uz)) {
+        } else if (Is_hella_level(&u.uz)) {
             return "swamp";
         } else if (Role_if(PM_SAMURAI) && Is_qstart(&u.uz)) {
             /* samurai quest home level has two isolated moat spots;

@@ -1819,9 +1819,7 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
                         u.uhave.amulet = 1;
                         u.uamulet_on_planes = 0;
                         record_achievement(ACH_AMUL);
-                        /* TODO-EVILHACK: master also opens the
-                           sanctum gates here via mkgate(); that
-                           ports with the Purgatory levels */
+                        mkgate();
                     }
                 }
                 livelog_printf(LL_ACHIEVE, "imbued the Idol of Moloch");

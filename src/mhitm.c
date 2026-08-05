@@ -1555,15 +1555,21 @@ sleep_monst(struct monst *mon, int amt, int how)
                                           || M_AP_TYPE(mon) == M_AP_OBJECT))
         seemimic(mon);
 
-    if (resists_sleep(mon) || defended(mon, AD_SLEE)
-        || (how >= 0 && resist(mon, (char) how, 0, NOTELL))) {
+    /* music can lull even sleep-resistant Cerberus, though never
+       for more than a few turns at a time */
+    if ((resists_sleep(mon) || defended(mon, AD_SLEE)
+         || (how >= 0 && resist(mon, (char) how, 0, NOTELL)))
+        && !(mon->data == &mons[PM_CERBERUS] && how == TOOL_CLASS)) {
         shieldeff(mon->mx, mon->my);
     } else if (mon->mcanmove) {
         finish_meating(mon); /* terminate any meal-in-progress */
         amt += (int) mon->mfrozen;
         if (amt > 0) { /* sleep for N turns */
             mon->mcanmove = 0;
-            mon->mfrozen = min(amt, 127);
+            if (mon->data == &mons[PM_CERBERUS])
+                mon->mfrozen = min(amt, 8);
+            else
+                mon->mfrozen = min(amt, 127);
         } else { /* sleep until awakened */
             mon->msleeping = 1;
         }

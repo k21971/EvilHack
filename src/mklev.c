@@ -2900,4 +2900,83 @@ mk_knox_fallback_vault(coordxy x, coordxy y)
     (void) mk_knox_portal_at(x + 1, y + 1);
 }
 
+/* create the gates leading from the inner sanctum to Lucifer and the
+   portal to Purgatory; triggered by first possession of the Amulet of
+   Yendor (or an Infidel imbuing the Idol of Moloch). The coordinates
+   are absolute and rely on sanctum.lua placing its map exactly where
+   master's gehennom.des did */
+void
+mkgate(void)
+{
+    const int a = 66, b = 16,
+              x = 17, y1 = 10, y2 = 11;
+
+    /* don't do this if we're not in the sanctum */
+    if (!Is_sanctum(&u.uz))
+        return;
+
+    levl[x][y1].typ = DOOR;
+    levl[x][y2].typ = DOOR;
+    levl[x][y1].doormask = D_LOCKED;
+    levl[x][y2].doormask = D_LOCKED;
+    if (cansee(x, y1))
+        newsym(x, y1);
+    if (cansee(x, y2))
+        newsym(x, y2);
+
+    if (cansee(x, y1) || cansee(x, y2)) {
+        pline("As you %s, the far wall of the sanctum warps.",
+              Role_if(PM_INFIDEL) ? "imbue the Idol of Moloch"
+                                  : "pickup the Amulet of Yendor");
+        pline("A gate appears where the wall used to be.");
+    }
+
+    /* once the Amulet of Yendor is first touched (or the Idol of
+       Moloch imbued), stair access leading out of the sanctum is
+       removed - the only way out is forward, through Purgatory */
+
+    /* we know the exact location of the stairs leading
+       back up, no need to setup a for loop to find them */
+    stairway_del_at(a, b);
+    if (levl[a][b].typ == STAIRS) {
+        levl[a][b].typ = ROOM;
+        /* clear residual ladder bits in the aliased flags byte;
+           ROOM tiles don't consume flags but the byte aliases
+           doormask/altarmask/drawbridgemask/looted/icedpool/
+           frac_altar, so leaving stale bits behind invites
+           confusion if the tile is later transmuted */
+        levl[a][b].flags = 0;
+    }
+    if (cansee(a, b))
+        newsym(a, b);
+
+    gv.vision_full_recalc = 1;
+}
+
+/* create a locked door leading into the Mines' End treasure room;
+   triggered by the death of the Rat King */
+void
+mkgate2(void)
+{
+    const int x = 23, y = 10;
+
+    /* don't do this if we're not at Mines' End */
+    if (!Is_mineend_level(&u.uz))
+        return;
+
+    levl[x][y].typ = DOOR;
+    levl[x][y].doormask = D_LOCKED;
+    if (cansee(x, y))
+        newsym(x, y);
+
+    /* odds are the player won't be anywhere near this location
+       once they defeat the Rat King, but it is possible */
+    if (cansee(x, y))
+        pline("A door appears where the wall used to be.");
+    else if (!Deaf)
+        You_hear("the walls of the dungeon shift in a peculiar way.");
+
+    gv.vision_full_recalc = 1;
+}
+
 /*mklev.c*/

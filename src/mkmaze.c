@@ -526,6 +526,9 @@ baalz_fixup(void)
             lastx = x;
         }
     gb.bughack.inarea.x2 = ((lastx > gb.bughack.inarea.x1) ? lastx : x) - 1;
+    /* if no nondiggable region was found, nothing to fixup */
+    if (gb.bughack.inarea.x1 >= COLNO)
+        return;
     /* find low and high y for to-be-wallified portion of level */
     x = gb.bughack.inarea.x1;
     for (lasty = y = 0; y < ROWNO; ++y)
@@ -783,8 +786,8 @@ fixup_special(void)
         svl.level.flags.graveyard = 1;
     } else if (Is_stronghold(&u.uz)) {
         svl.level.flags.graveyard = 1;
-    } else if (on_level(&u.uz, &baalzebub_level)) {
-        /* custom wallify the "beetle" potion of the level */
+    } else if (on_level(&u.uz, &hella_level)) {
+        /* custom wallify the "beetle" portion of the level */
         baalz_fixup();
     } else if (u.uz.dnum == mines_dnum && gr.ransacked) {
        stolen_booty();

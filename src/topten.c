@@ -1463,7 +1463,10 @@ classmon(char *plch)
     if (!strcmp(plch, "E"))
         return PM_RANGER;
 
-    impossible("What weird role is this? (%s)", plch);
+    /* record files are retained across versions, so an unknown but
+       well-formed filecode written by a newer (or older) binary is
+       expected external data, not internal corruption; fall back to
+       a generic corpse owner rather than fire impossible() */
     return  PM_HUMAN_MUMMY;
 }
 

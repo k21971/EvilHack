@@ -992,10 +992,16 @@ stock_room(int shp_indx, struct mkroom *sroom)
      * monsters will sit on top of objects and not the other way around.
      */
 
-    /* Hack for Orcus's level: it's a ghost town, get rid of shopkeepers */
+    /* Hack for Orcus's level: it's a ghost town, get rid of shopkeepers.
+       Clear the room's resident pointer first; mongone() does not, and
+       dmonsfree() would leave it dangling at the freed shk */
     if (on_level(&u.uz, &orcus_level)) {
         struct monst *mtmp = shop_keeper(rmno);
-        mongone(mtmp);
+
+        if (mtmp) {
+            set_residency(mtmp, TRUE);
+            mongone(mtmp);
+        }
     }
 
     svl.level.flags.has_shop = TRUE;

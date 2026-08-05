@@ -472,6 +472,20 @@ describe_level(
         else
             Sprintf(buf, "Mines:%-2d", dunlev(&u.uz));
         addbranch = FALSE;
+    } else if (In_sokoban(&u.uz)) {
+        if (addbranch)
+            Sprintf(buf, "Sokoban %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Soko:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
+    /* Gehennom-chain sub-branches: each one MUST be tested before the
+       generic In_hell() arm below, since they all carry hellish=TRUE */
+    } else if (In_tower(&u.uz)) {
+        if (addbranch)
+            Sprintf(buf, "Vlad's Tower %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Vlad:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
     } else if (u.uz.dnum == wiz1_level.dnum) {
         /* the Wizard of Yendor's tower is its own dungeon but has no
            dedicated flag; identify it by dnum */
@@ -479,6 +493,16 @@ describe_level(
             Sprintf(buf, "Wizard's Tower %d", dunlev(&u.uz));
         else
             Sprintf(buf, "WizTwr:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
+    } else if (In_hell(&u.uz)) {
+        /* Gehennom is the continuous downward extension of the main
+           dungeon, so show the absolute dungeon level depth() in
+           parens after the branch-relative level (level teleport and
+           total-depth bookkeeping use the absolute number) */
+        if (addbranch)
+            Sprintf(buf, "Gehennom %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Hell:%d(%d)", dunlev(&u.uz), depth(&u.uz));
         addbranch = FALSE;
     } else {
         /* ports with more room may expand this one */

@@ -4321,6 +4321,12 @@ mondead(struct monst *mtmp)
         stackobj(otmp2);
     }
 
+    /* special handling for the Rat King.
+       TODO: make a proper bitfield for this monster like
+       other unique monsters have, like mtmp->isratking */
+    if (mtmp->data == &mons[PM_RAT_KING])
+        mkgate2();
+
     if (be_sad)
         You("have a sad feeling for a moment, then it passes.");
 

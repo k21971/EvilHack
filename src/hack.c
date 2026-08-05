@@ -3212,7 +3212,7 @@ classify_terrain(void)
             /* moat and swamp handling match waterbody_name()'s result */
             if (Is_medusa_level(&u.uz))
                 typ = xSEA;
-            else if (Is_juiblex_level(&u.uz))
+            else if (Is_hella_level(&u.uz))
                 typ = xSWAMP;
             break;
         case WATER:

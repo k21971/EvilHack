@@ -30,6 +30,9 @@ no_bones_level(d_level *lev)
                          in any dungeon (level 1 isn't multiway) */
                       || Is_botlevel(lev)
                       || (Is_branchlev(lev) && lev->dlevel > 1)
+                      /* no bones in the Valley while Cerberus lives;
+                         a Valley bones file may carry its own Cerberus */
+                      || (Is_valley(lev) && !u.uevent.ucerberus)
                       /* no bones in the invocation level */
                       || (In_hell(lev)
                           && lev->dlevel == dunlevs_in_dungeon(lev) - 1));
@@ -419,8 +422,9 @@ in_owner_lair(struct obj *obj)
     case ART_MAGIC_8_BALL:
         lair = &oracle_level;
         break;
-    /* TODO-EVILHACK: case ART_BUTCHER maps to hellb_level once the
-       Ice Queen branch dungeon topology is ported */
+    case ART_BUTCHER:
+        lair = &hellb_level;
+        break;
     case ART_WAND_OF_ORCUS:
         lair = &orcus_level;
         break;
@@ -522,8 +526,11 @@ remove_mon_from_bones(struct monst *mtmp)
         || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
         || is_Vlad(mtmp) /* mptr == &mons[VLAD_THE_IMPALER] || cham == VLAD */
         || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
-        /* Cerberus guards the Valley; he may stay in Valley bones */
+        /* Cerberus and Charon belong to the Valley; they may stay
+           in Valley bones but never travel in any other level's */
         || (mtmp->iscerberus && !Is_valley(&u.uz))
+        || (mptr == &mons[PM_CHARON] && !Is_valley(&u.uz))
+        || mptr == &mons[PM_RAT_KING] || mtmp->cham == PM_RAT_KING
         || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
         || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
         mongone(mtmp);

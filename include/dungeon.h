@@ -118,9 +118,10 @@ typedef struct branch {
 #define Is_medusa_level(x)  (Lcheck(x, &medusa_level))
 #define Is_oracle_level(x)  (Lcheck(x, &oracle_level))
 #define Is_valley(x)        (Lcheck(x, &valley_level))
-#define Is_juiblex_level(x) (Lcheck(x, &juiblex_level))
-#define Is_asmo_level(x)    (Lcheck(x, &asmodeus_level))
-#define Is_baal_level(x)    (Lcheck(x, &baalzebub_level))
+#define Is_hella_level(x)   (Lcheck(x, &hella_level))
+#define Is_hellb_level(x)   (Lcheck(x, &hellb_level))
+#define Is_hellc_level(x)   (Lcheck(x, &hellc_level))
+#define Is_orcustown(x)     (Lcheck(x, &orcus_level))
 #define Is_wiz1_level(x)    (Lcheck(x, &wiz1_level))
 #define Is_wiz2_level(x)    (Lcheck(x, &wiz2_level))
 #define Is_wiz3_level(x)    (Lcheck(x, &wiz3_level))
@@ -159,6 +160,7 @@ typedef struct branch {
 #define MIGR_SSTAIRS 7      /* dungeon branch */
 #define MIGR_PORTAL 8       /* magic portal */
 #define MIGR_WITH_HERO 9    /* mon: followers; obj: trap door */
+#define MIGR_STALK 10       /* dlords follow if the hero skips their lair */
 #define MIGR_NOBREAK 1024   /* bitmask: don't break on delivery */
 #define MIGR_NOSCATTER 2048 /* don't scatter on delivery */
 #define MIGR_TO_SPECIES 4096 /* migrating to species as they are made */

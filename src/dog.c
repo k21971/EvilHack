@@ -534,6 +534,7 @@ losedogs(void)
 {
     struct monst *mtmp, **mprev;
     int dismissKops = 0, xyloc;
+    boolean stalked = FALSE;
 
     failed_arrivals = 0;
     /*
@@ -615,11 +616,16 @@ losedogs(void)
     /* time for migrating monsters to arrive; monsters who belong on
        this level but fail to arrive get put on the failed_arrivals list
        temporarily [by mon_arrive()], then back onto the migrating_mons
-       list below */
+       list below; a MIGR_STALK demon lord waiting at a shallower level
+       of this dungeon intercepts the hero here too */
     for (mprev = &gm.migrating_mons; (mtmp = *mprev) != 0; ) {
         xyloc = mtmp->mtrack[0].x;
-        if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel
+        if (mtmp->mux == u.uz.dnum
+            && (mtmp->muy == u.uz.dlevel
+                || (mtmp->muy < u.uz.dlevel && xyloc == MIGR_STALK))
             && xyloc != MIGR_EXACT_XY) {
+            if (mtmp->muy < u.uz.dlevel && xyloc == MIGR_STALK)
+                stalked = TRUE;
             /* remove mtmp from migrating_mons */
             *mprev = mtmp->nmon;
             /* note: if there's no room, it ends up on failed_arrivals list */
@@ -627,6 +633,12 @@ losedogs(void)
         } else {
             mprev = &mtmp->nmon;
         }
+    }
+    if (stalked) {
+        if (!Deaf)
+            You_hear("demonic laughter.");
+        else
+            You_feel("a forboding force surround you.");
     }
 
     /* put any monsters who couldn't arrive back on migrating_mons,
@@ -758,6 +770,16 @@ mon_arrive(struct monst *mtmp, int when)
         break;
     case MIGR_WITH_HERO:
         xlocale = u.ux, ylocale = u.uy;
+        break;
+    case MIGR_STALK:
+        /* if returning to the same level, pretend it never left, so no
+           movement; if arriving on a deeper level, don't give the hero
+           any breathing room */
+        wander = 0;
+        if (fromdlev.dlevel < u.uz.dlevel) {
+            xlocale = u.ux, ylocale = u.uy;
+            mtmp->mstrategy &= ~STRAT_WAITMASK;
+        }
         break;
     case MIGR_STAIRS_UP:
         if ((stway = stairway_find_from(&fromdlev, FALSE)) != 0) {

@@ -842,11 +842,14 @@ regen_hp(int wtcap)
         } else if (u.mh < u.mhmax) {
             /* Druids in wildshape form and vampires in shapechange
                form recover noticeably faster than an ordinary
-               polymorphed hero */
-            if (U_CAN_REGEN()
-                || (encumbrance_ok
-                    && !(svm.moves % ((druid_form || vampire_form)
-                                      ? 9L : 20L))))
+               polymorphed hero; nothing living heals in the Valley
+               of the Dead */
+            if ((!Is_valley(&u.uz) || is_undead(gy.youmonst.data))
+                && !wielding_artifact(ART_WAND_OF_ORCUS)
+                && (U_CAN_REGEN()
+                    || (encumbrance_ok
+                        && !(svm.moves % ((druid_form || vampire_form)
+                                          ? 9L : 20L)))))
                 heal = 1;
         }
         if (heal) {
@@ -863,14 +866,19 @@ regen_hp(int wtcap)
            for the player, but it didn't make sense for gameplay...]
 
            Infidels won't heal at all without the Amulet of Yendor
-           with them (pre-idol imbuement) */
+           with them (pre-idol imbuement). No one can regenerate hit
+           points while located in the Valley of the Dead, except for
+           Draugr/Vampires */
         /* TODO-EVILHACK: master speeds a Druid's healing while they stand
            on grass or beside a live tree by shortening its moves-modulo
            regeneration interval; 5.0 replaced that interval with a
            per-turn probability, so the bonus needs a new formula rather
            than a straight port */
         if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())
-            && !infidel_no_amulet) {
+            && (!Is_valley(&u.uz)
+                || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+            && !infidel_no_amulet
+            && !wielding_artifact(ART_WAND_OF_ORCUS)) {
             heal = (u.ulevel + (int)ACURR(A_CON)) > rn2(100);
 
             /* tortles gain some accelerated regeneration while

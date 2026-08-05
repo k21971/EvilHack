@@ -1205,6 +1205,7 @@ level_tele(void)
     const char *escape_by_flying = 0; /* when surviving dest of -N */
     char buf[BUFSZ];
     boolean force_dest = FALSE;
+    struct monst *mtmp;
 
     if (iflags.debug_fuzzer) {
         do {
@@ -1231,6 +1232,23 @@ level_tele(void)
         You_feel("very disoriented for a moment.");
         return;
     }
+    /* Being in the presence of demon lords/princes can negate
+       level teleportation most of the time */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp))
+            continue;
+        if (is_dlord(mtmp->data) && rn2(10)
+            && (!wizard
+                || y_n("A Demon Lord exists here.  Override?") != 'y')) {
+            pline("Demonic forces prevent you from teleporting.");
+            return;
+        } else if (is_dprince(mtmp->data) && rn2(20)
+            && (!wizard
+                || y_n("A Demon Prince exists here.  Override?") != 'y')) {
+            pline("Powerful demonic forces prevent you from teleporting.");
+            return;
+        }
+    }
     /* prevent levelporting in the Wizard's tower until the
        Wizard has been defeated for the first time */
     if (!u.uevent.udemigod && On_W_tower_level(&u.uz)
@@ -1238,6 +1256,16 @@ level_tele(void)
             || y_n("The Wizard of Yendor has not been defeated.  Override?")
                    != 'y')) {
         pline("Powerful magic prevents you from teleporting.");
+        return;
+    }
+    /* if the Valley of the Dead, stay put. while Cerberus is alive,
+     * levelporting out of the Valley is impossible, but once he is
+     * defeated, the ability opens back up */
+    if (!force_dest
+        && (Is_valley(&u.uz) && !u.uevent.ucerberus
+            && (!wizard
+                || y_n("Cerberus is alive.  Override?") != 'y'))) {
+        You1(shudder_for_moment);
         return;
     }
     if ((Teleport_control && !Stunned) || wizard) {
@@ -1466,10 +1494,22 @@ level_tele(void)
 
         /* if invocation did not yet occur, teleporting into
          * the last level of Gehennom is forbidden.
+         * attempting to bypass the three demon boss lairs
+         * or Orcus town is also forbidden
          */
-        if (!wizard && Inhell && !u.uevent.invoked && newlev >= deepest) {
-            newlev = deepest - 1;
-            pline("Sorry...");
+        if (!wizard && Inhell) {
+            if (!u.uevent.hella_entered && newlev > depth(&hella_level))
+                newlev = depth(&hella_level);
+            if (!u.uevent.hellb_entered && newlev > depth(&hellb_level))
+                newlev = depth(&hellb_level);
+            if (!u.uevent.hellc_entered && newlev > depth(&hellc_level))
+                newlev = depth(&hellc_level);
+            if (!u.uevent.orcus_entered && newlev > depth(&orcus_level))
+                newlev = depth(&orcus_level);
+            if (!u.uevent.invoked && newlev >= deepest) {
+                newlev = deepest - 1;
+                pline("Sorry...");
+            }
         }
         /* no teleporting out of quest dungeon */
         if (In_quest(&u.uz) && newlev < depth(&qstart_level))

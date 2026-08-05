@@ -771,10 +771,11 @@ stealamulet(struct monst *mtmp)
         /* finally, steal the target item */
         if (otmp->owornmask)
             worn_item_removal(mtmp, otmp);
+        /* format the name before freeing inventory */
+        Strcpy(buf, doname(otmp));
         if (otmp->unpaid)
             subfrombill(otmp, shop_keeper(*u.ushops));
         freeinv(otmp);
-        Strcpy(buf, doname(otmp));
         (void) mpickobj(mtmp, otmp); /* could merge and free otmp but won't */
         pline("%s steals %s!", Some_Monnam(mtmp), buf);
         if (can_teleport(mtmp->data) && !tele_restrict(mtmp))
