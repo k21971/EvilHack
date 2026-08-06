@@ -29,6 +29,8 @@ des.region(selection.area(00,00,39,12), "lit")
 -- Stairs
 des.stair("up", 48,14)
 des.stair("down", 20,06)
+-- Altar
+des.altar({ x=29, y=06, align="chaos", type="altar" })
 -- Non diggable walls
 des.non_diggable(selection.area(00,00,39,12))
 -- Objects
@@ -80,6 +82,6 @@ des.monster({ id = "fire giant", peaceful = 0 })
 des.monster({ id = "fire giant", peaceful = 0 })
 des.monster({ id = "fire giant", peaceful = 0 })
 des.monster({ id = "fire giant", peaceful = 0 })
-des.monster({ id = "fire giant", peaceful = 0 })
+des.monster({ id = "hill giant shaman", x=29, y=06, peaceful = 0 })
 des.monster({ class = "H", peaceful = 0 })
 

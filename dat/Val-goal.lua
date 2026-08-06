@@ -46,7 +46,7 @@ else
    des.drawbridge({ x=17, y=14, dir="north", state="random" })
 end
 -- Objects
-des.object({ id = "crystal ball", x=17, y=08, buc="blessed", spe=5, name="The Orb of Fate" })
+des.object({ id = "tooled horn", x=17, y=08, buc="blessed", name="Gjallar" })
 des.object()
 des.object()
 des.object()
@@ -92,6 +92,9 @@ des.monster({ id = "fire giant", x=24, y=09, peaceful = 0 })
 des.monster({ id = "fire giant", x=24, y=10, peaceful = 0 })
 des.monster({ id = "fire giant", peaceful = 0 })
 des.monster({ id = "fire giant", peaceful = 0 })
+des.monster({ id = "salamander", x=20, y=02, peaceful = 0 })
+des.monster({ id = "salamander", x=20, y=14, peaceful = 0 })
+des.monster({ id = "salamander", peaceful = 0 })
 des.monster({ class = "H", peaceful = 0 })
 
 --
