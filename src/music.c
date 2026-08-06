@@ -118,6 +118,7 @@ charm_snakes(int distance)
             was_peaceful = mtmp->mpeaceful;
             mtmp->mpeaceful = 1;
             mtmp->mavenge = 0;
+            set_malign(mtmp);
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             could_see_mon = canseemon(mtmp);
             mtmp->mundetected = 0;
@@ -151,6 +152,7 @@ calm_nymphs(int distance)
             mtmp->msleeping = 0;
             mtmp->mpeaceful = 1;
             mtmp->mavenge = 0;
+            set_malign(mtmp);
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             if (canseemon(mtmp))
                 pline(
@@ -180,6 +182,7 @@ awaken_soldiers(struct monst *bugler  /* monster that played instrument */)
             mtmp->msleeping = mtmp->mfrozen = 0;
             mtmp->mcanmove = 1;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
+            set_malign(mtmp);
             if (canseemon(mtmp))
                 pline("%s is now ready for battle!", Monnam(mtmp));
             else if (!Deaf)
@@ -661,13 +664,51 @@ do_improvisation(struct obj *instr)
         makeknown(instr->otyp);
         break;
     case TOOLED_HORN: /* Awaken or scare monsters */
-        if (!Deaf)
-            You("produce a frightful, grave%s sound.",
-                same_old_song ? ", yet familiar," : "");
-        else
+        if (!Deaf) {
+            if (instr->oartifact == ART_GJALLAR) {
+                You("produce an awesome, %s!",
+                    rn2(2) ? "resounding tone" : "reverberating sound");
+                if (!rn2(10) && !Role_if(PM_VALKYRIE)) {
+                    incr_itimeout(&HDeaf, rn1(10, 10));
+                    disp.botl = TRUE;
+                }
+            } else {
+                You("produce a frightful, grave%s sound.",
+                    same_old_song ? ", yet familiar," : "");
+            }
+        } else {
             You("blow into the horn.");
+        }
         Hero_playnotes(obj_to_instr(&itmp), improvisation, 80);
-        awaken_monsters(u.ulevel * 30);
+        if (instr->oartifact == ART_GJALLAR) {
+            struct monst *mtmp;
+
+            awaken_monsters(ROWNO * COLNO);
+            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (DEADMONSTER(mtmp)
+                    || mtmp->islucifer || mtmp->iswiz)
+                    continue;
+                /* Gjallar's sound is so awesome, even those
+                   predisposed to wait decide to take action */
+                if ((mtmp->mstrategy & STRAT_WAITMASK) != 0) {
+                    You_feel(
+                       "as if you've drawn unwanted attention to yourself.");
+                    mtmp->mstrategy &= ~STRAT_WAITMASK;
+                }
+                if (mdistu(mtmp) <= 3 && instr->blessed && !rn2(5)
+                    && !mtmp->mstun) {
+                    if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)
+                          || mon_wielding_artifact(mtmp, ART_TEMPEST))) {
+                        pline("%s %s from the intense blast of sound!",
+                              Monnam(mtmp),
+                              makeplural(stagger(mtmp->data, "stagger")));
+                        mtmp->mstun = 1;
+                    }
+                }
+            }
+        } else {
+            awaken_monsters(u.ulevel * 30);
+        }
         exercise(A_WIS, FALSE);
         break;
     case BUGLE: /* Awaken & attract soldiers */

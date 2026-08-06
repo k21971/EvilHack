@@ -278,9 +278,10 @@ target_on(int mask, struct monst *mtmp)
             mtmp->mgoal.y = otmp->oy;
             return (STRAT_GROUND | mask);
         } else if ((mtmp2 = other_mon_has_arti(mtmp, otyp)) != 0
-                 /* when seeking the Amulet, avoid targeting the Wizard
-                    or temple priests (to protect Moloch's high priest) */
-                 && (otyp != AMULET_OF_YENDOR
+                 /* when seeking the Amulet or a quest artifact, avoid
+                    targeting the Wizard or temple priests (to protect
+                    Moloch's high priest) */
+                 && ((otyp != AMULET_OF_YENDOR && otyp != 0)
                      || (!mtmp2->iswiz && !inhistemple(mtmp2)))) {
             mtmp->mgoal.x = mtmp2->mx;
             mtmp->mgoal.y = mtmp2->my;
@@ -326,6 +327,12 @@ strategy(struct monst *mtmp)
         dstrat = STRAT_NONE;
         break;
     }
+
+    /* Quest nemeses will always prioritize their treasure
+     * (important for the Infidel quest) */
+    if (mtmp->data->msound == MS_NEMESIS)
+        if ((strat = target_on(M3_WANTSARTI, mtmp)) != STRAT_NONE)
+            return strat;
 
     if (svc.context.made_amulet)
         if ((strat = target_on(M3_WANTSAMUL, mtmp)) != STRAT_NONE)

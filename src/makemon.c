@@ -3093,7 +3093,7 @@ makemon(
     struct monst *mtmp;
     struct monst fakemon;
     coord cc;
-    int mndx, mcham, ct, mitem;
+    int mndx, mcham, ct, mitem, mitem2;
     boolean femaleok, maleok,
             anymon = !ptr,
             byyou = u_at(x, y),
@@ -3393,6 +3393,7 @@ makemon(
         new_light_source(mtmp->mx, mtmp->my, ct, LS_MONSTER,
                          monst_to_any(mtmp));
     mitem = STRANGE_OBJECT; /* extra inventory item for this monster */
+    mitem2 = STRANGE_OBJECT; /* 2nd extra inventory item for this monster */
 
     if (mndx == PM_VLAD_THE_IMPALER) {
         mtmp->isvlad = TRUE;
@@ -3437,10 +3438,13 @@ makemon(
             mitem = SPE_DIG;
     } else if (mndx == PM_GHOST && !(mmflags & MM_NONAME)) {
         mtmp = christen_monst(mtmp, rndghostname());
+    } else if (mndx == gu.urole.ldrnum) {
+        mtmp->isqldr = TRUE;
     } else if (mndx == PM_CROESUS) {
         mitem = TWO_HANDED_SWORD;
     } else if (ptr->msound == MS_NEMESIS) {
         mitem = BELL_OF_OPENING;
+        mitem2 = SCR_CONSECRATION;
     } else if (mndx == PM_PESTILENCE) {
         mitem = POT_SICKNESS;
     } else if (mndx == PM_SKELETAL_DRAGON) {
@@ -3450,6 +3454,8 @@ makemon(
     }
     if (mitem != STRANGE_OBJECT && allow_minvent)
         (void) mongets(mtmp, mitem);
+    if (mitem2 != STRANGE_OBJECT && allow_minvent)
+        (void) mongets(mtmp, mitem2);
 
     if (gi.in_mklev) {
         if ((is_ndemon(ptr) || mndx == PM_WUMPUS

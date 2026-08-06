@@ -609,10 +609,18 @@ quest_chat(struct monst *mtmp)
     }
     switch (mtmp->data->msound) {
     case MS_NEMESIS:
-        chat_with_nemesis();
+        if (gu.urole.neminum != NON_PM
+            && mtmp->data == &mons[gu.urole.neminum])
+            chat_with_nemesis();
         break;
     case MS_GUARDIAN:
         chat_with_guardian();
+        break;
+    case MS_LEADER:
+        /* another role's quest leader (e.g. Wizard chatting Morgan
+           le Fay on the Knight quest via wizmode wizmakemap); the
+           m_id check above only catches your own role's leader, so
+           foreign-role leaders fall through to here. No dialogue */
         break;
     default:
         impossible("quest_chat: Unknown quest character %s.", mon_nam(mtmp));
@@ -628,7 +636,9 @@ quest_talk(struct monst *mtmp)
     }
     switch (mtmp->data->msound) {
     case MS_NEMESIS:
-        nemesis_speaks();
+        if (gu.urole.neminum != NON_PM
+            && mtmp->data == &mons[gu.urole.neminum])
+            nemesis_speaks();
         break;
     case MS_DJINNI:
         prisoner_speaks(mtmp);

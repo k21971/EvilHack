@@ -621,7 +621,8 @@ maybe_gasp(struct monst *mon)
     boolean dogasp = FALSE;
 
     /* other roles' guardians and cross-aligned priests don't gasp */
-    if ((msound == MS_GUARDIAN && mptr != &mons[gu.urole.guardnum])
+    if ((msound == MS_GUARDIAN && gu.urole.guardnum != NON_PM
+         && mptr != &mons[gu.urole.guardnum])
         || (msound == MS_PRIEST && !p_coaligned(mon)))
         msound = MS_SILENT;
     /* co-aligned angels do gasp */
@@ -764,7 +765,8 @@ domonnoise(struct monst *mtmp)
     if (mtmp->m_id == svq.quest_status.leader_m_id && msound > MS_ANIMAL)
         msound = MS_LEADER;
     /* make sure it's your role's quest guardian; adjust if not */
-    else if (msound == MS_GUARDIAN && ptr != &mons[gu.urole.guardnum])
+    else if (msound == MS_GUARDIAN && gu.urole.guardnum != NON_PM
+             && ptr != &mons[gu.urole.guardnum])
         msound = mons[genus(monsndx(ptr), 1)].msound;
     /* even polymorphed, shopkeepers retain their minds and capitalist bent */
     else if (mtmp->isshk)

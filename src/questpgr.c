@@ -51,9 +51,18 @@ const char *
 ldrname(void)
 {
     int i = gu.urole.ldrnum;
+    const char *nm, *pfx;
 
-    Sprintf(gn.nambuf, "%s%s", type_is_pname(&mons[i]) ? "" : "the ",
-            mons[i].pmnames[NEUTRAL]);
+    if (i != NON_PM) {
+        pfx = type_is_pname(&mons[i]) ? "" : "the ";
+        nm = mons[i].pmnames[NEUTRAL];
+        if (strlen(pfx) + strlen(nm) < sizeof gn.nambuf) {
+            Sprintf(gn.nambuf, "%s%s", pfx, nm);
+            return gn.nambuf;
+        }
+        impossible("quest leader name too long (%s)", nm);
+    }
+    Strcpy(gn.nambuf, "the quest leader");
     return gn.nambuf;
 }
 
@@ -128,9 +137,18 @@ staticfn const char *
 neminame(void)
 {
     int i = gu.urole.neminum;
+    const char *nm, *pfx;
 
-    Sprintf(gn.nambuf, "%s%s", type_is_pname(&mons[i]) ? "" : "the ",
-            mons[i].pmnames[NEUTRAL]);
+    if (i != NON_PM) {
+        pfx = type_is_pname(&mons[i]) ? "" : "the ";
+        nm = mons[i].pmnames[NEUTRAL];
+        if (strlen(pfx) + strlen(nm) < sizeof gn.nambuf) {
+            Sprintf(gn.nambuf, "%s%s", pfx, nm);
+            return gn.nambuf;
+        }
+        impossible("quest nemesis name too long (%s)", nm);
+    }
+    Strcpy(gn.nambuf, "the quest nemesis");
     return gn.nambuf;
 }
 
@@ -139,6 +157,8 @@ guardname(void) /* return your role leader's guard monster name */
 {
     int i = gu.urole.guardnum;
 
+    if (i == NON_PM)
+        return "the quest guardian";
     return mons[i].pmnames[NEUTRAL];
 }
 
