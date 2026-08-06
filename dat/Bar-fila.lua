@@ -3,11 +3,11 @@
 --	Copyright (c) 1991 by M. Stephenson
 -- NetHack may be freely redistributed.  See license for details.
 --
-des.level_init({ style = "solidfill", fg = " " });
+des.level_init({ style = "solidfill", fg = "a" });
 
 des.level_flags("mazelevel", "noflip");
 
-des.level_init({ style="mines", fg=".", bg=".", smoothed=true, joined=true, lit=0, walled=false })
+des.level_init({ style="mines", fg=".", bg="a", smoothed=true, joined=true, lit=0, walled=false })
 
 --
 des.stair("up")

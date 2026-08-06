@@ -40,7 +40,7 @@ des.stair("up", 36,05)
 des.altar({ x=63,y=04,align="noncoaligned", type="altar" })
 des.non_diggable(selection.area(00,00,75,19))
 -- Objects
-des.object({ id = "luckstone", x=63, y=04,buc="blessed",spe=0,name="The Heart of Ahriman" })
+des.object({ id = "ancient", x=63, y=04,buc="blessed",spe=0,name="The Ring of P'hul" })
 des.object()
 des.object()
 des.object()
