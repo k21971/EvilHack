@@ -79,23 +79,23 @@ des.monster({ id = "bugbear", x=34, y=07, peaceful=0 })
 des.monster({ id = "bugbear", peaceful=0 })
 des.monster({ id = "bugbear", peaceful=0 })
 des.monster({ id = "bugbear", peaceful=0 })
-des.monster({ id = "bugbear", peaceful=0 })
-des.monster({ class = "h", peaceful=0 })
+des.monster({ id = "cave bear", peaceful=0 })
+des.monster({ class = "o", peaceful=0 })
 des.monster({ class = "H", peaceful=0 })
 des.monster({ id = "hill giant", x=03, y=12, peaceful=0 })
 des.monster({ id = "hill giant", x=20, y=17, peaceful=0 })
 des.monster({ id = "hill giant", x=35, y=08, peaceful=0 })
 des.monster({ id = "hill giant", peaceful=0 })
 des.monster({ id = "hill giant", peaceful=0 })
-des.monster({ id = "hill giant", peaceful=0 })
-des.monster({ id = "hill giant", peaceful=0 })
+des.monster({ id = "cave bear", peaceful=0 })
+des.monster({ id = "cave bear", peaceful=0 })
 des.monster({ class = "H", peaceful=0 })
 des.wallify()
 
 --
 --	The "goal" level for the quest.
 --
---	Here you meet Tiamat your nemesis monster.  You have to
---	defeat Tiamat in combat to gain the artifact you have
+--	Here you meet Annam your nemesis monster.  You have to
+--	defeat Annam in combat to gain the artifact you have
 --	been assigned to retrieve.
 --
