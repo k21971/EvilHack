@@ -489,16 +489,12 @@ static NEARDATA struct artifact artilist[] = {
 
     /*
      *      At first I was going to add the artifact shield that was made for the
-     *      Archeologist quest in UnNetHack,
-      but then decided to do something unique.
-     *      Behold Xiuhcoatl,
-      a dark wooden spear-thrower that does fire damage much like
-     *      Mjollnir does electrical damage. From Aztec lore,
-      Xiuhcoatl is an atlatl,
+     *      Archeologist quest in UnNetHack, but then decided to do something unique.
+     *      Behold Xiuhcoatl, a dark wooden spear-thrower that does fire damage much like
+     *      Mjollnir does electrical damage. From Aztec lore, Xiuhcoatl is an atlatl,
      *      which is an ancient device that was used to throw spears with great force
      *      and even greater distances. Xiuhcoatl will return to the throwers hand much like
-     *      Mjollnir,
-      but requires high dexterity instead of strength to handle properly.
+     *      Mjollnir, but requires high dexterity instead of strength to handle properly.
      */
     A("Xiuhcoatl", ATLATL,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_ATTK | SPFX_DEFN),

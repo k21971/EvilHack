@@ -2643,7 +2643,14 @@ yobjnam(struct obj *obj, const char *verb)
     /* leave off "your" for most of your artifacts, but prepend
      * "your" for unique objects and "foo of bar" quest artifacts */
     if (!carried(obj) || !obj_is_pname(obj)
-        || obj->oartifact >= ART_XIUHCOATL) {
+        || (obj->oartifact >= ART_XIUHCOATL
+            && obj->oartifact != ART_GJALLAR)
+        || obj->oartifact == ART_DRAGONBANE
+        || obj->oartifact == ART_MAGIC_8_BALL
+        || obj->oartifact == ART_WAND_OF_ORCUS
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
+        || obj->oartifact == ART_GAUNTLETS_OF_PURITY
+        || obj->oartifact == ART_HAMMER_OF_THE_GODS) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - Strlen(outbuf);
 
@@ -2740,7 +2747,14 @@ yname(struct obj *obj)
     /* leave off "your" for most of your artifacts, but prepend
      * "your" for unique objects and "foo of bar" quest artifacts */
     if (!carried(obj) || !obj_is_pname(obj)
-        || obj->oartifact >= ART_XIUHCOATL) {
+        || (obj->oartifact >= ART_XIUHCOATL
+            && obj->oartifact != ART_GJALLAR)
+        || obj->oartifact == ART_DRAGONBANE
+        || obj->oartifact == ART_MAGIC_8_BALL
+        || obj->oartifact == ART_WAND_OF_ORCUS
+        || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
+        || obj->oartifact == ART_GAUNTLETS_OF_PURITY
+        || obj->oartifact == ART_HAMMER_OF_THE_GODS) {
         char *outbuf = shk_your(nextobuf(), obj);
         int space_left = BUFSZ - 1 - Strlen(outbuf);
 

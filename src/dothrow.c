@@ -26,7 +26,8 @@ staticfn void breakmsg(struct obj *, boolean);
 staticfn boolean mhurtle_step(genericptr_t, coordxy, coordxy);
 
 /* uwep might already be removed from inventory so test for W_WEP instead;
-   for Valk+Mjollnir, caller needs to validate the strength requirement */
+   for Valk + Mjollnir, caller needs to validate the strength requirement,
+   for Xiuhcoatl, caller needs to validate the dexterity requirement */
 #define AutoReturn(o,wmsk) \
     ((((wmsk) & W_WEP) != 0                                             \
       && ((o)->otyp == AKLYS                                            \
@@ -153,6 +154,12 @@ throw_obj(struct obj *obj, int shotlimit)
     if (!u.dx && !u.dy && !u.dz) {
         You("cannot throw an object at yourself.");
         res = ECMD_OK;
+        goto unsplit_stack;
+    }
+    /* on failure, obj may have been dropped and nulled out; the
+       unsplit_stack epilogue skips rejoining when obj is gone */
+    if (!retouch_object(&obj, !uarmg, TRUE)) {
+        res = ECMD_TIME;
         goto unsplit_stack;
     }
     u_wipe_engr(2);
@@ -1739,13 +1746,23 @@ throwit(
             tmp_at(DISP_TETHER, obj_to_glyph(obj, rn2_on_display_rng));
     } else if (u.dz) {
         if (u.dz < 0
-            /* Mjollnir must we wielded to be thrown--caller verifies this;
-               aklys must we wielded as primary to return when thrown */
+            /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller
+               verifies this; aklys must be wielded as primary to return
+               when thrown */
             && iflags.returning_missile
             && !impaired) {
-            pline("%s the %s and returns to your hand!", Tobjnam(obj, "hit"),
-                  ceiling(u.ux, u.uy));
+            pline("%s the %s and returns to your %s!", Tobjnam(obj, "hit"),
+                  ceiling(u.ux, u.uy), body_part(HAND));
             obj = return_throw_to_inv(obj, wep_mask, twoweap, oldslot);
+            retouch_object(&obj, !uarmg, TRUE);
+            /* retouch_object may NULL obj (e.g. hero changed state
+               mid-flight and can no longer safely handle the artifact) */
+            if (obj && artifact_light(obj) && !obj->lamplit) {
+                begin_burn(obj, FALSE);
+                if (!Blind)
+                    pline("%s to shine %s!", Tobjnam(obj, "begin"),
+                          arti_light_description(obj));
+            }
         } else if (u.dz < 0) {
             (void) toss_up(obj, rn2(5) && !Underwater);
         } else if (u.dz > 0 && u.usteed && obj->oclass == POTION_CLASS
@@ -1837,8 +1854,20 @@ throwit(
         else if (obj == uball && u.utrap && u.utraptype == TT_INFLOOR)
             range = 1;
 
-        if (Underwater)
-            range = 1;
+        if (Underwater) {
+            if (rn2(5)) {
+                pline("Water turbulence prevents the %s from %s.",
+                      simpleonames(obj),
+                      ammo_and_launcher(obj, uwep) ? "firing"
+                                                   : "being thrown");
+                if (!iflags.returning_missile)
+                    pline("It drifts down to your %s.",
+                          makeplural(body_part(FOOT)));
+                range = 0;
+            } else {
+                range = 1;
+            }
+        }
 
         mon = bhit(u.dx, u.dy, range,
                    tethered_weapon ? THROWN_TETHERED_WEAPON : THROWN_WEAPON,
@@ -1886,17 +1915,29 @@ throwit(
         swallowit(obj);
         return;
     } else {
-        /* Mjollnir must be wielded to be thrown--caller verifies this;
-           aklys must be wielded as primary to return when thrown */
-        if (iflags.returning_missile) { /* Mjollnir or aklys */
-            if (rn2(100)) {
+        /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller
+           verifies this; aklys must be wielded as primary to return
+           when thrown */
+        if (iflags.returning_missile) { /* Mjollnir, Xiuhcoatl or aklys */
+            boolean aklys_skill = (obj->otyp == AKLYS
+                                   && P_SKILL(P_CLUB) >= P_EXPERT);
+            boolean spear_skill = (is_spear(obj)
+                                   && P_SKILL(P_SPEAR) >= P_EXPERT);
+            boolean hammer_skill = (is_hammer(obj)
+                                    && P_SKILL(P_HAMMER) >= P_EXPERT);
+
+            if (rn2(100) || aklys_skill || spear_skill || hammer_skill) {
                 if (tethered_weapon)
                     tmp_at(DISP_END, BACKTRACK);
                 else
                     sho_obj_return_to_u(obj); /* display its flight */
 
-                if (!impaired && rn2(100)) {
-                    pline("%s to your hand!", Tobjnam(obj, "return"));
+                if (!impaired
+                    && (rn2(100) || aklys_skill
+                        || spear_skill || hammer_skill)) {
+                    if (range > 0)
+                        pline("%s to your %s!", Tobjnam(obj, "return"),
+                              body_part(HAND));
                     obj = addinv_before(obj, oldslot);
                     encumber_msg();
                     /* addinv autoquivers an aklys if quiver is empty;
@@ -1908,14 +1949,28 @@ throwit(
                        reseat so off-hand extrinsics re-engage */
                     if (twoweap && uswapwep)
                         retwoweapon();
-                    if (cansee(gb.bhitpos.x, gb.bhitpos.y))
-                        newsym(gb.bhitpos.x, gb.bhitpos.y);
+                    retouch_object(&obj, !uarmg, TRUE);
+                    /* retouch_object may NULL obj */
+                    if (obj) {
+                        if (artifact_light(obj) && !obj->lamplit) {
+                            begin_burn(obj, FALSE);
+                            if (!Blind)
+                                pline("%s to shine %s!",
+                                      Tobjnam(obj, "begin"),
+                                      arti_light_description(obj));
+                        }
+                        if (cansee(gb.bhitpos.x, gb.bhitpos.y))
+                            newsym(gb.bhitpos.x, gb.bhitpos.y);
+                    }
                 } else {
                     int dmg = rn2(2);
 
                     if (tethered_weapon) {
                         /* It's tethered, so it usually returns to your
-                         * inventory, despite impairment */
+                         * inventory, despite impairment; no retouch here:
+                         * the throw-time gate already vetted this object
+                         * this action, and touch state cannot change
+                         * mid-throw */
                         obj = addinv_before(obj, oldslot);
                         encumber_msg();
                         /* addinv autoquivers an aklys if quiver is empty;
