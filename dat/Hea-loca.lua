@@ -10,16 +10,16 @@ des.level_flags("mazelevel", "hardfloor");
 des.level_init({ style="mines", fg=".", bg="P", smoothed=true ,joined=true, lit=1, walled=false })
 
 des.map([[
-PPPPPPPPPPPPP.......PPPPPPPPPPP
-PPPPPPPP...............PPPPPPPP
-PPPP.....-------------...PPPPPP
-PPPPP....|.S.........|....PPPPP
-PPP......+.|.........|...PPPPPP
-PPP......+.|.........|..PPPPPPP
-PPPP.....|.S.........|..PPPPPPP
-PPPPP....-------------....PPPPP
-PPPPPPPP...............PPPPPPPP
-PPPPPPPPPPP........PPPPPPPPPPPP
+PPPPPPPPPPPPPp.....pPPPPPPPPPPP
+PPPPPPPPp.............pPPPPPPPP
+PPPPp....-------------..pPPPPPP
+PPPPPp...|.S.........|...pPPPPP
+PPPp.....+.|.........|..pPPPPPP
+PPPp.....+.|.........|.pPPPPPPP
+PPPPp....|.S.........|.pPPPPPPP
+PPPPPp...-------------...pPPPPP
+PPPPPPPPp.............pPPPPPPPP
+PPPPPPPPPPPp......pPPPPPPPPPPPP
 ]]);
 -- Dungeon Description
 des.region(selection.area(00,00,30,09), "lit")
@@ -66,8 +66,8 @@ des.monster("rabid rat")
 des.monster("rabid rat")
 des.monster("rabid rat")
 des.monster("rabid rat")
-des.monster("rabid rat")
-des.monster("rabid rat")
+des.monster("enormous rat")
+des.monster("enormous rat")
 des.monster({ class = "r", peaceful=0 })
 des.monster("giant eel")
 des.monster("giant eel")

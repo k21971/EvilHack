@@ -23,6 +23,7 @@ des.object()
 des.object()
 --
 des.monster("rabid rat")
+des.monster("enormous rat")
 des.monster({ class = "r", peaceful=0 })
 des.monster({ class = "r", peaceful=0 })
 des.monster("giant eel")

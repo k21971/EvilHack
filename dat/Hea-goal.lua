@@ -11,18 +11,18 @@ des.level_flags("mazelevel");
 des.level_init({ style="mines", fg=".", bg="P", smoothed=false, joined=true, lit=1, walled=false })
 
 des.map([[
-.P....................................PP.
-PP.......PPPPPPP....PPPPPPP....PPPP...PP.
-...PPPPPPP....PPPPPPP.....PPPPPP..PPP...P
-...PP..............................PPP...
-..PP..............................PP.....
-..PP..............................PPP....
-..PPP..............................PP....
-.PPP..............................PPPP...
-...PP............................PPP...PP
-..PPPP...PPPPP..PPPP...PPPPP.....PP...PP.
-P....PPPPP...PPPP..PPPPP...PPPPPPP...PP..
-PPP..................................PPP.
+pPp..................................pPPp
+PPpppppppPPPPPPPppppPPPPPPPppppPPPPpppPPp
+..pPPPPPPPppppPPPPPPPpppppPPPPPPppPPPpppP
+..pPP..............................PPPp..
+.pPP..............................PPp....
+.pPP..............................PPPp...
+.pPPP..............................PPp...
+pPPP..............................PPPPp..
+..pPP............................PPPpppPP
+.pPPPPpppPPPPPppPPPPpppPPPPPpppppPPpppPPp
+PppppPPPPPpppPPPPppPPPPPpppPPPPPPPpppPPp.
+PPPp................................pPPPp
 ]]);
 -- Dungeon Description
 des.region(selection.area(00,00,40,11), "lit")
@@ -59,6 +59,8 @@ des.monster({ id = "Cyclops", x=20, y=06, peaceful=0 })
 des.monster("rabid rat")
 des.monster("rabid rat")
 des.monster("rabid rat")
+des.monster("rodent of unusual size")
+des.monster("rodent of unusual size")
 des.monster({ class = "r", peaceful=0 })
 des.monster({ class = "r", peaceful=0 })
 des.monster("giant eel")

@@ -15,24 +15,24 @@ des.level_flags("mazelevel", "noteleport", "hardfloor")
 
 des.map([[
 PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-PPPP........PPPP.....PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP.P..PPPPP......PPPPPPPP
-PPP..........PPPP...PPPPP.........................PPPP..PPPPP........PPPPPPP
-PP............PPPPPPPP..............................PPP...PPPP......PPPPPPPP
-P.....PPPPPPPPPPPPPPP................................PPPPPPPPPPPPPPPPPPPPPPP
-PPPP....PPPPPPPPPPPP...................................PPPPP.PPPPPPPPPPPPPPP
-PPPP........PPPPP.........-----------------------........PP...PPPPPPP.....PP
-PPP............PPPPP....--|.|......S..........S.|--.....PPPP.PPPPPPP.......P
-PPPP..........PPPPP.....|.S.|......-----------|S|.|......PPPPPP.PPP.......PP
-PPPPPP......PPPPPP......|.|.|......|...|......|.|.|.....PPPPPP...PP.......PP
-PPPPPPPPPPPPPPPPPPP.....+.|.|......S.\.S......|.|.+......PPPPPP.PPPP.......P
-PPP...PPPPP...PPPP......|.|.|......|...|......|.|.|.......PPPPPPPPPPP.....PP
-PP.....PPP.....PPP......|.|S|-----------......|.S.|......PPPPPPPPPPPPPPPPPPP
-PPP..PPPPP...PPPP.......--|.S..........S......|.|--.....PPPPPPPPP....PPPPPPP
-PPPPPPPPPPPPPPPP..........-----------------------..........PPPPP..........PP
-PPPPPPPPPPPPPPPPP........................................PPPPPP............P
-PPP.............PPPP...................................PPP..PPPP..........PP
-PP...............PPPPP................................PPPP...PPPP........PPP
-PPP.............PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP....PPPPPP
+PPPPp......pPPPPp...pPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPpPppPPPPPp....pPPPPPPPP
+PPPp........pPPPPpppPPPPPpppppppppppppppppppppppppPPPPppPPPPPp......pPPPPPPP
+PPp..........pPPPPPPPPp............................pPPP...PPPPp....pPPPPPPPP
+PpppppPPPPPPPPPPPPPPPp..............................pPPPPPPPPPPPPPPPPPPPPPPP
+PPPPppppPPPPPPPPPPPPp.................................pPPPPPpPPPPPPPPPPPPPPP
+PPPPp......pPPPPPp........-----------------------.......pPPpppPPPPPPPp...pPP
+PPPp..........pPPPPPp...--|.|......S..........S.|--....pPPPPpPPPPPPPp.....pP
+PPPPp........pPPPPPp....|.S.|......-----------|S|.|.....pPPPPPPpPPPp.....pPP
+PPPPPPp....pPPPPPPp.....|.|.|......|...|......|.|.|....pPPPPPPpppPPp.....pPP
+PPPPPPPPPPPPPPPPPPPp....+.|.|......S.\.S......|.|.+.....pPPPPPPpPPPPp.....pP
+PPPpppPPPPPpppPPPPp.....|.|.|......|...|......|.|.|......pPPPPPPPPPPPp...pPP
+PPp...pPPPp...pPPPp.....|.|S|-----------......|.S.|.....pPPPPPPPPPPPPPPPPPPP
+PPPppPPPPPpppPPPPp......--|.S..........S......|.|--....pPPPPPPPPPppppPPPPPPP
+PPPPPPPPPPPPPPPPp.........-----------------------.........pPPPPPp........pPP
+PPPPPPPPPPPPPPPPPp......................................pPPPPPPp..........pP
+PPPp...........pPPPPp.................................pPPP..PPPPp........pPP
+PPp.............pPPPPPppppppppppppppppppppppppppppppppPPPP...PPPPp......pPPP
+PPPp...........pPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp..pPPPPPP
 PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 ]]);
 
@@ -61,10 +61,10 @@ des.door("closed",48,12)
 des.door("locked",50,10)
 -- Hippocrates
 des.monster({ id = "Hippocrates", coord = {37, 10}, inventory = function()
-   des.object({ id = "silver dagger", spe = 5 });
+   des.object({ id = "dagger", spe = 5 });
 end })
--- The treasure of Hippocrates
-des.object("chest", 37, 10)
+-- Magic chest
+des.feature("magic chest", 31, 09)
 -- intern guards for the audience chamber
 des.monster("attendant", 29, 08)
 des.monster("attendant", 29, 09)
@@ -92,8 +92,8 @@ des.monster("rabid rat")
 des.monster("rabid rat")
 des.monster("rabid rat")
 des.monster("rabid rat")
-des.monster("rabid rat")
-des.monster("rabid rat")
+des.monster("enormous rat")
+des.monster("enormous rat")
 des.monster("giant eel")
 des.monster("shark")
 des.monster(";")
