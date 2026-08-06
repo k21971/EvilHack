@@ -6643,6 +6643,8 @@ maybe_destroy_item(
         quan = obj->quan;
         switch (obj->oclass) {
         case RING_CLASS:
+            /* The Ring of P'hul and the One Ring are not affected,
+               artifacts are off-limits per destroy_item() */
             if (((obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg))
                 || obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;

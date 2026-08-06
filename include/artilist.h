@@ -620,12 +620,9 @@ static NEARDATA struct artifact artilist[] = {
      *      just be ridiculous if its full power were realized in-game. In the series,
      *      it deals out death and disease. Here it will protect the wearer from a
      *      good portion of that. Making this the quest artifact for the Barbarian role.
-     *      This artifact also corrects an oversight from vanilla,
-      that no chaotic-based
-     *      artiafcts conferred magic resistance,
-      a problem that was compounded if our
-     *      hero is in a form that can't wear body armor or cloaks. So,
-      we make the
+     *      This artifact also corrects an oversight from vanilla, that no chaotic-based
+     *      artiafcts conferred magic resistance, a problem that was compounded if our
+     *      hero is in a form that can't wear body armor or cloaks. So, we make the
      *      Barbarian artifact chaotic (why it was neutral before is a bit confusing
      *      to me as most vanilla Barbarian race/role combinations are chaotic).
      */
