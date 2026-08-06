@@ -43,7 +43,7 @@ des.region(selection.area(32,06,48,06), "unlit")
 des.region(selection.area(50,06,56,08), "lit")
 des.region(selection.area(40,08,46,08), "unlit")
 des.region(selection.area(22,08,22,12), "unlit")
-des.region(selection.area(24,08,38,12), "unlit")
+des.region(selection.area(24,08,38,12), "lit")
 des.region(selection.area(48,08,48,08), "lit")
 des.region(selection.area(40,10,56,10), "lit")
 des.region(selection.area(48,12,48,12), "lit")
@@ -74,8 +74,8 @@ des.monster({ id = "Lord Carnarvon", coord = {25, 10}, inventory = function()
    des.object({ id = "fedora", spe = 5 });
    des.object({ id = "bullwhip", spe = 4 });
 end })
--- The treasure of Lord Carnarvon
-des.object("chest", 25, 10)
+-- Magic chest
+des.feature("magic chest", 27, 10)
 -- student guards for the audience chamber
 des.monster("student", 26, 09)
 des.monster("student", 27, 09)
