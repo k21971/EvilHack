@@ -2315,7 +2315,9 @@ mkstairs(
     if (force)
         levl[x][y].typ = ROOM;
     ltyp = levl[x][y].typ; /* somexyspace() allows ice */
-    if (ltyp != ROOM && ltyp != CORR && ltyp != ICE) {
+    /* grass and sand are valid dry open ground for stairs */
+    if (ltyp != ROOM && ltyp != CORR && ltyp != ICE
+        && ltyp != GRASS && ltyp != SAND) {
         int glyph = back_to_glyph(x, y),
             sidx = glyph_to_cmap(glyph);
 

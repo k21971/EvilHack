@@ -1181,6 +1181,11 @@ hmon_hitmon_weapon_melee(
             /* slings hit giants harder */
             if (uwep->otyp == SLING && racial_giant(mon))
                 hmd->dmg *= 2;
+            /* the Longbow of Diana and the Crossbow of Carl impart
+               a damage bonus to the ammo fired from them */
+            if (is_art(uwep, ART_LONGBOW_OF_DIANA)
+                || is_art(uwep, ART_CROSSBOW_OF_CARL))
+                hmd->dmg += rnd(6);
             /* elves and samurai do extra damage using their own
                bows with their own arrows; they're highly trained */
             if (Role_if(PM_SAMURAI) && obj->otyp == YA

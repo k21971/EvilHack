@@ -4327,7 +4327,9 @@ good_stair_loc(coordxy x, coordxy y)
 {
     schar typ = levl[x][y].typ;
 
-    return (typ == ROOM || typ == CORR || typ == ICE);
+    /* grass and sand count as dry open ground for random placement */
+    return (typ == ROOM || typ == CORR || typ == ICE
+            || typ == GRASS || typ == SAND);
 }
 
 staticfn int
