@@ -62,17 +62,14 @@ des.door("closed",45,03)
 des.door("closed",04,12)
 des.door("closed",45,12)
 -- King Arthur
-des.monster({ id = "King Arthur", coord = {09, 07}, inventory = function()
-   des.object({ id = "long sword", spe = 4, buc = "blessed", name = "Excalibur" });
-   des.object({ id = "plate mail", spe = 4 });
-end })
--- The treasure of King Arthur
-des.object("chest", 09, 07)
--- knight guards for the watchrooms
-des.monster({ id = "knight", x=04, y=02, peaceful = 1 })
-des.monster({ id = "knight", x=04, y=13, peaceful = 1 })
-des.monster({ id = "knight", x=45, y=02, peaceful = 1 })
-des.monster({ id = "knight", x=45, y=13, peaceful = 1 })
+des.monster({ id = "King Arthur", coord = {09, 07} })
+-- Magic chest
+des.feature("magic chest", 07, 07)
+-- page guards for the watchrooms
+des.monster({ id = "page", x=04, y=02, peaceful = 1 })
+des.monster({ id = "page", x=04, y=13, peaceful = 1 })
+des.monster({ id = "page", x=45, y=02, peaceful = 1 })
+des.monster({ id = "page", x=45, y=13, peaceful = 1 })
 -- page guards for the audience chamber
 des.monster("page", 16, 06)
 des.monster("page", 18, 06)
@@ -102,8 +99,3 @@ des.monster({ id = "quasit", x=30, y=00, peaceful=0 })
 des.monster({ id = "quasit", x=32, y=00, peaceful=0 })
 des.monster({ id = "quasit", x=34, y=00, peaceful=0 })
 des.monster({ id = "quasit", x=36, y=00, peaceful=0 })
-
--- Some warhorses
-for i = 1, 2 + nh.rn2(3) do
-    des.monster({ id = "warhorse", peaceful = 1, inventory = function() if percent(50) then des.object("saddle"); end end });
-end
