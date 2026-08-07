@@ -4327,9 +4327,10 @@ good_stair_loc(coordxy x, coordxy y)
 {
     schar typ = levl[x][y].typ;
 
-    /* grass and sand count as dry open ground for random placement */
+    /* grass, sand, and shallow liquids are valid open ground here */
     return (typ == ROOM || typ == CORR || typ == ICE
-            || typ == GRASS || typ == SAND);
+            || typ == GRASS || typ == SAND
+            || typ == PUDDLE || typ == SEWAGE);
 }
 
 staticfn int
