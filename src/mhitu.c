@@ -2182,8 +2182,6 @@ gazemu(struct monst *mtmp, struct attack *mattk)
 
     switch (mattk->adtyp) {
     case AD_STON:
-        /* note: Medusa is the only monster with stoning gaze, so
-           'is_medusa' will always be True here */
         if (cancelled || !mtmp->mcansee) {
             if (!canseemon(mtmp))
                 break; /* silently */
@@ -2195,7 +2193,7 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 pline("Someone seems overdue for a serpent cut.");
             else
                 pline_mon(mtmp, "%s %s.", Monnam(mtmp),
-                      (is_medusa && mtmp->mcan && !react)
+                      (is_medusa && mtmp->mcan)
                           ? "doesn't look all that ugly"
                           : "gazes ineffectually");
             break;
@@ -2208,6 +2206,12 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 && ureflects("%s gaze is reflected by your %s.",
                              s_suffix(Monnam(mtmp))))
                 monstseesu(M_SEEN_REFL);
+            if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 8) {
+                if (useeit)
+                    pline("%s reflection is too far away for %s to notice.",
+                          s_suffix(Monnam(mtmp)), mhis(mtmp));
+                break;
+            }
             if (mon_reflects(mtmp, !useeit ? (char *) 0
                                   : "The gaze is reflected away by %s %s!"))
                 break;
@@ -2218,25 +2222,71 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                           Monnam(mtmp), mhis(mtmp));
                 break;
             }
-            if (useeit)
-                pline_mon(mtmp, "%s is turned to stone!", Monnam(mtmp));
-            gs.stoned = TRUE;
-            killed(mtmp);
+            if (!rn2(12)) {
+                if (useeit)
+                    pline_mon(mtmp, "%s is turned to stone!", Monnam(mtmp));
+                gs.stoned = TRUE;
+                killed(mtmp);
+            } else {
+                if (useeit)
+                    pline_mon(mtmp,
+                              "%s %s %s eyes from %s reflected gaze"
+                              " just in time!",
+                              Monnam(mtmp), rn2(2) ? "shields" : "covers",
+                              mhis(mtmp), mhis(mtmp));
+                break;
+            }
 
             if (!DEADMONSTER(mtmp))
                 break;
             return M_ATTK_AGR_DIED;
         }
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
-            && !Stone_resistance && !Unaware) {
-            You("meet %s gaze.", s_suffix(mon_nam(mtmp)));
+            && !Unaware && !rn2(3)) {
+            You("meet %s petrifying gaze!", s_suffix(mon_nam(mtmp)));
             stop_occupation();
-            if (poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))
+            if (Stone_resistance
+                || (poly_when_stoned(gy.youmonst.data)
+                    && (polymon(PM_STONE_GOLEM)
+                        || polymon(PM_PETRIFIED_ENT)))) {
+                You("are unaffected by %s gaze.", s_suffix(mon_nam(mtmp)));
                 break;
-            urgent_pline("You turn to stone...");
-            svk.killer.format = KILLED_BY;
-            Strcpy(svk.killer.name, pmname(mtmp->data, Mgender(mtmp)));
-            done(STONING);
+            }
+            if (mtmp->data == &mons[PM_BEHOLDER]
+                || mtmp->data == &mons[PM_TAL_GATH]) {
+                /* The EotO can afford the player some protection when worn */
+                if (ublindf
+                    && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+                    int dmg = d(4, 6);
+
+                    pline("%s partially protect you from %s petrifying "
+                          "gaze.  That hurts!",
+                          An(bare_artifactname(ublindf)),
+                          s_suffix(mon_nam(mtmp)));
+                    if (dmg)
+                        mdamageu(mtmp, dmg);
+                } else if (!Stoned) {
+                    int kformat = KILLED_BY_AN;
+                    const char *kname = pmname(mtmp->data, Mgender(mtmp));
+
+                    if (mtmp->data->geno & G_UNIQ) {
+                        if (!type_is_pname(mtmp->data))
+                            kname = the(kname);
+                        kformat = KILLED_BY;
+                    }
+                    make_stoned(5L, (char *) 0, kformat, kname);
+                    return M_ATTK_HIT;
+                }
+            } else if (is_medusa) {
+                if (ublindf
+                    && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD)
+                    pline("%s gaze is too powerful for %s to resist!",
+                          s_suffix(Monnam(mtmp)), bare_artifactname(ublindf));
+                urgent_pline("You turn to stone...");
+                svk.killer.format = KILLED_BY;
+                Strcpy(svk.killer.name, pmname(mtmp->data, Mgender(mtmp)));
+                done(STONING);
+            }
         }
         break;
     case AD_CONF:
@@ -2244,6 +2294,13 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             if (cancelled) {
                 react = 0; /* "confused" */
                 already = (mtmp->mconf != 0);
+            } else if (ublindf
+                       && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+                if (!rn2(4))
+                    pline("%s protect you from %s confusing gaze.",
+                          An(bare_artifactname(ublindf)),
+                          s_suffix(mon_nam(mtmp)));
+                break;
             } else {
                 int conf = d(3, 4);
 
@@ -2263,6 +2320,13 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             if (cancelled) {
                 react = 1; /* "stunned" */
                 already = (mtmp->mstun != 0);
+            } else if (ublindf
+                       && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+                if (!rn2(4))
+                    pline("%s protect you from %s stunning gaze.",
+                          An(bare_artifactname(ublindf)),
+                          s_suffix(mon_nam(mtmp)));
+                break;
             } else {
                 int stun = d(2, 6);
 
@@ -2420,15 +2484,26 @@ gazemu(struct monst *mtmp, struct attack *mattk)
         }
         break;
     case AD_SLOW:
-        if (mcanseeu
-            && (HFast & (INTRINSIC | TIMEOUT)) && !defended(mtmp, AD_SLOW)
-            && !rn2(4)) {
+        if (mcanseeu && !rn2(4)) {
+            if (!cancelled)
+                You("meet %s lethargic gaze.", s_suffix(mon_nam(mtmp)));
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);
-            } else {
+                break;
+            /* The EotO can afford the player some protection when worn */
+            } else if (ublindf
+                       && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
+                if (!rn2(4))
+                    pline("%s protect you from %s lethargic gaze.",
+                          An(bare_artifactname(ublindf)),
+                          s_suffix(mon_nam(mtmp)));
+                break;
+            } else if (!Slow && !(defended(&gy.youmonst, AD_SLOW)
+                                  || resists_slow(gy.youmonst.data))) {
                 u_slow_down();
                 stop_occupation();
+                break;
             }
         }
         break;

@@ -1065,6 +1065,27 @@ gcrownu(void)
            currently wielded weapon rather than the book */
         if (known_spell(class_gift) != spe_Unknown && ok_wep(uwep))
             obj = uwep; /* to be blessed,&c */
+    } else if (objects[class_gift].oc_class == ARMOR_CLASS) {
+        char abuf[BUFSZ];
+
+        /* draugr Monk crowning gift is armor rather than a spellbook */
+        obj = mksobj(class_gift, TRUE, FALSE);
+        if (obj->spe < 0)
+            obj->spe = 0; /* a divine gift is never damaged goods */
+        Strcpy(abuf, actualoname(obj)); /* for livelog; "gauntlets of
+                                         * protection" even if hero
+                                         * doesn't know the armor */
+        bless(obj);
+        obj->bknown = 1; /* ok to skip set_bknown() */
+        observe_object(obj);
+        at_your_feet(upstart(ansimpleoname(obj)));
+        dropy(obj);
+        obj = dropped_gift(obj);
+        u.ugifts++;
+        /* not an artifact, but treat like one for this situation;
+           classify as a spoiler in case player hasn't IDed the armor */
+        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
+                       "was bestowed with %s", abuf);
     }
 
     switch (u.ualign.type) {
