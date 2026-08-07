@@ -7459,7 +7459,7 @@ passive(
                 if (mon->mcansee) {
                     if (ureflects("%s gaze is reflected by your %s.",
                                   s_suffix(Monnam(mon)))) {
-                        ;
+                        monstseesu(M_SEEN_REFL);
                     } else if (Hallucination && rn2(4)) {
                         /* [it's the hero who should be getting paralyzed
                            and isn't; this message describes the monster's

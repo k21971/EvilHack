@@ -3487,7 +3487,10 @@ doeat(void)
                 freeinv(otmp);
                 dropy(otmp);
             }
-            stackobj(otmp);
+            /* flooreffects inside dropy can delete or merge the object;
+               only floor objects can stack further */
+            if (otmp->where == OBJ_FLOOR)
+                stackobj(otmp);
         }
         return ECMD_TIME;
     }

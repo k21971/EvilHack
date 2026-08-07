@@ -623,40 +623,62 @@ dipfountain(struct obj *obj)
         return;
     }
 
-    if (obj->otyp == LONG_SWORD && u.ulevel >= 5
-        && !rn2(Role_if(PM_KNIGHT) ? 6 : 30)
+    if (obj->otyp == LONG_SWORD && u.ulevel >= 5 && !rn2(6)
+        && !(uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
         /* once upon a time it was possible to poly N daggers into N swords */
         && obj->quan == 1L && !obj->oartifact
         && !exist_artifact(LONG_SWORD, artiname(ART_EXCALIBUR))) {
         static const char lady[] = "Lady of the Lake";
 
-        if (u.ualign.type != A_LAWFUL) {
+        if (u.ualign.type != A_LAWFUL || !Role_if(PM_KNIGHT)) {
             /* Ha!  Trying to cheat her. */
             pline("A freezing mist rises from the %s"
                   " and envelopes the sword.",
                   hliquid("water"));
-            pline_The("fountain disappears!");
-            curse(obj);
-            if (obj->spe > -6 && !rn2(3))
-                obj->spe--;
-            obj->oerodeproof = FALSE;
-            exercise(A_WIS, FALSE);
-            livelog_printf(LL_ARTIFACT,
-                           "was denied %s!  The %s has deemed %s unworthy",
-                           artiname(ART_EXCALIBUR), lady, uhim());
+            if (!rn2(3)) {
+                pline("From the mist, a hand reaches forth"
+                      " and wrests your %s from your grasp!",
+                      xname(obj));
+                livelog_printf(LL_ARTIFACT,
+                               "was denied %s!  The %s has removed"
+                               " %s %s from existence",
+                               artiname(ART_EXCALIBUR), lady, uhis(),
+                               xname(obj));
+                if (carried(obj))
+                    useup(obj);
+                else
+                    delobj(obj);
+                pline_The("fountain disappears!");
+                exercise(A_WIS, FALSE);
+                change_luck(-1);
+            } else {
+                pline_The("fountain disappears!");
+                curse(obj);
+                if (obj->spe > -6 && !rn2(3))
+                    obj->spe--;
+                (void) maybe_erodeproof(obj, 0);
+                exercise(A_WIS, FALSE);
+                livelog_printf(LL_ARTIFACT,
+                               "was denied %s!  The %s has deemed %s unworthy",
+                               artiname(ART_EXCALIBUR), lady, uhim());
+            }
         } else {
             /* The lady of the lake acts! - Eric Backus */
             /* Be *REAL* nice */
             pline(
               "From the murky depths, a hand reaches up to bless the sword.");
             pline("As the hand retreats, the fountain disappears!");
+            obj->oprops = obj->oprops_known = 0L;
             obj = oname(obj, artiname(ART_EXCALIBUR),
                         ONAME_VIA_DIP | ONAME_KNOW_ARTI);
             discover_artifact(ART_EXCALIBUR);
             bless(obj);
+            if (obj->spe < 0)
+                obj->spe = 0;
             obj->oeroded = obj->oeroded2 = 0;
-            obj->oerodeproof = TRUE;
+            (void) maybe_erodeproof(obj, 1);
             exercise(A_WIS, TRUE);
+            u.uconduct.artitouch++;
             livelog_printf(LL_ARTIFACT, "%s", excalmsgs[rn2(SIZE(excalmsgs))]);
         }
         update_inventory();

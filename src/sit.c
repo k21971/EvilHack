@@ -393,7 +393,10 @@ lay_an_egg(void)
     observe_object(uegg);
     You("%s an egg.", eggs_in_water(gy.youmonst.data) ? "spawn" : "lay");
     dropy(uegg);
-    stackobj(uegg);
+    /* flooreffects inside dropy can delete the egg (lava, open air)
+       or merge it away; stacking it again then double-frees it */
+    if (uegg->where == OBJ_FLOOR)
+        stackobj(uegg);
     morehungry((int) objects[EGG].oc_nutrition);
     return ECMD_TIME;
 }

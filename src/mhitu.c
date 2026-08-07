@@ -2204,9 +2204,10 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             /* hero has line of sight to Medusa and she's not blind */
             boolean useeit = canseemon(mtmp);
 
-            if (useeit)
-                (void) ureflects("%s gaze is reflected by your %s.",
-                                 s_suffix(Monnam(mtmp)));
+            if (useeit
+                && ureflects("%s gaze is reflected by your %s.",
+                             s_suffix(Monnam(mtmp))))
+                monstseesu(M_SEEN_REFL);
             if (mon_reflects(mtmp, !useeit ? (char *) 0
                                   : "The gaze is reflected away by %s %s!"))
                 break;

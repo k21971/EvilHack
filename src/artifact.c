@@ -103,9 +103,12 @@ hack_artifacts(void)
         if (art->role == Role_switch && art->alignment != A_NONE)
             art->alignment = alignmnt;
 
-    /* Excalibur can be used by any lawful character, not just knights */
-    if (!Role_if(PM_KNIGHT))
+    /* Excalibur can be used by any lawful character, not just knights;
+       the same applies to Dirge for chaotics */
+    if (!Role_if(PM_KNIGHT)) {
         artilist[ART_EXCALIBUR].role = NON_PM;
+        artilist[ART_DIRGE].role = NON_PM;
+    }
 
     if (Role_if(PM_CLERIC)) {
         /* The Hammer of the Gods is forged from Demonbane and
@@ -1300,11 +1303,39 @@ set_artifact_intrinsic(
             u.xray_range = -1;
         gv.vision_full_recalc = 1;
     }
-    if ((spfx & SPFX_REFLECT) && (wp_mask & W_WEP)) {
-        if (on)
-            EReflecting |= wp_mask;
-        else
-            EReflecting &= ~wp_mask;
+    if (spfx & SPFX_REFLECT) {
+        if (is_art(otmp, ART_MAGIC_MIRROR_OF_MERLIN)) {
+            if (on) {
+                EReflecting |= wp_mask;
+                u.uconduct.reflection++;
+            } else
+                EReflecting &= ~wp_mask;
+        } else if ((is_art(otmp, ART_LONGBOW_OF_DIANA)
+                    || is_art(otmp, ART_CROSSBOW_OF_CARL))
+                   && (wp_mask & W_WEP)) {
+            /* wielding various reflecting artifacts */
+            if (on) {
+                EReflecting |= wp_mask;
+                u.uconduct.reflection++;
+            } else
+                EReflecting &= ~wp_mask;
+        } else if (is_art(otmp, ART_DRAGONBANE)
+                   && (wp_mask & W_ARMG)) {
+            /* or in Dragonbane's case, wear them */
+            if (on) {
+                EReflecting |= wp_mask;
+                u.uconduct.reflection++;
+            } else
+                EReflecting &= ~wp_mask;
+        } else if (is_art(otmp, ART_GAUNTLETS_OF_PURITY)
+                   && (wp_mask & W_ARMG)) {
+            /* same */
+            if (on) {
+                EReflecting |= wp_mask;
+                u.uconduct.reflection++;
+            } else
+                EReflecting &= ~wp_mask;
+        }
     }
     if (spfx & SPFX_PROTECT) {
         if (on)
@@ -1355,6 +1386,7 @@ touch_artifact(struct obj *obj, struct monst *mon)
        will have to be extended to explicitly include quest artifacts */
     self_willed = ((oart->spfx & SPFX_INTEL) != 0);
     if (yours) {
+        u.uconduct.artitouch++;
         badclass = self_willed
                    && ((oart->role != NON_PM && !Role_if(oart->role))
                        || (oart->race != NON_PM && !Race_if(oart->race)));
@@ -1362,11 +1394,19 @@ touch_artifact(struct obj *obj, struct monst *mon)
                     && oart->alignment != A_NONE
                     && (oart->alignment != u.ualign.type
                         || u.ualign.record < 0));
-    } else if (!is_covetous(mon->data) && !is_mplayer(mon->data)) {
+    } else if (!(is_covetous(mon->data)
+                 || is_mplayer(mon->data) || is_demon(mon->data))) {
         badclass = self_willed && oart->role != NON_PM
                    && oart != &artilist[ART_EXCALIBUR];
         badalign = (oart->spfx & SPFX_RESTR) && oart->alignment != A_NONE
                    && (oart->alignment != mon_aligntyp(mon));
+    } else if (is_demon(mon->data)) {
+        /* special case for demons as they are now all unaligned (evil).
+           Lawful/neutral artifacts are off-limits */
+        badclass = self_willed && oart->role != NON_PM
+                   && oart != &artilist[ART_EXCALIBUR];
+        badalign = (oart->spfx & SPFX_RESTR) && oart->alignment >= A_NEUTRAL
+                   && mon_aligntyp(mon) == A_NONE;
     } else { /* an M3_WANTSxxx monster or a fake player */
         /* special monsters trying to take the Amulet, invocation tools or
            quest item can touch anything except `spec_applies' artifacts */
@@ -1378,7 +1418,8 @@ touch_artifact(struct obj *obj, struct monst *mon)
         badalign = bane_applies(oart, mon);
 
     if (((badclass || badalign) && self_willed)
-        || (badalign && (!yours || !rn2(4)))) {
+        || (badalign && (!yours || !rn2(4)))
+        || (yours && oart == &artilist[ART_WAND_OF_ORCUS])) {
         int dmg;
         char buf[BUFSZ];
 
@@ -1387,6 +1428,11 @@ touch_artifact(struct obj *obj, struct monst *mon)
         You("are blasted by %s power!", s_suffix(the(xname(obj))));
         touch_blasted = TRUE;
         dmg = d((Antimagic ? 2 : 4), (self_willed ? 10 : 4));
+        /* wearing the gauntlets of purity can harm the player
+           even more if their alignment doesn't match */
+        if (oart == &artilist[ART_GAUNTLETS_OF_PURITY]
+            && oart->alignment != u.ualign.type)
+            dmg += d((u.ualign.record > 50 ? 6 : 8), 10);
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
         exercise(A_WIS, FALSE);
@@ -1400,7 +1446,8 @@ touch_artifact(struct obj *obj, struct monst *mon)
             else
                 pline("%s beyond your control!", Tobjnam(obj, "are"));
         }
-        return 0;
+        if (!wizard || y_n("Override?") != 'y')
+            return 0;
     }
 
     if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {

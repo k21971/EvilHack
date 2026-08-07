@@ -25,6 +25,7 @@ staticfn void m_tele(struct monst *, boolean, boolean, int);
 staticfn boolean m_next2m(struct monst *);
 staticfn void reveal_trap(struct trap *, boolean);
 staticfn int mon_escape(struct monst *, boolean);
+staticfn struct obj *m_carrying_arti_reflecting(struct monst *);
 staticfn boolean linedup_chk_corpse(coordxy, coordxy);
 staticfn void m_use_undead_turning(struct monst *, struct obj *);
 staticfn boolean hero_behind_chokepoint(struct monst *);
@@ -3782,12 +3783,37 @@ searches_for_item(struct monst *mon, struct obj *obj)
     return FALSE;
 }
 
+/* check if monster is carrying (not wearing/wielding) an artifact
+   that grants reflection via cspfx */
+staticfn struct obj *
+m_carrying_arti_reflecting(struct monst *mon)
+{
+    struct obj *obj;
+
+    for (obj = mon->minvent; obj; obj = obj->nobj) {
+        if (obj->oartifact && !(obj->owornmask & ~W_ART)
+            && arti_reflects(obj))
+            return obj;
+    }
+    return (struct obj *) 0;
+}
+
 DISABLE_WARNING_FORMAT_NONLITERAL
 
 boolean
 mon_reflects(struct monst *mon, const char *str)
 {
-    struct obj *orefl = which_armor(mon, W_ARMS);
+    struct obj *orefl, *brefl;
+
+    /* the hero's reflection is tracked via Reflecting; route &youmonst
+       through ureflects() so we don't misread the hero's gear with
+       monster-inventory logic (which both scans youmonst.minvent and
+       passes barding/amulet masks that which_armor cannot map) */
+    if (mon == &gy.youmonst)
+        return ureflects((const char *) 0, (const char *) 0);
+
+    orefl = which_armor(mon, W_ARMS);
+    brefl = which_armor(mon, W_BARDING);
 
     if (orefl && orefl->otyp == SHIELD_OF_REFLECTION) {
         if (str) {
@@ -3795,14 +3821,23 @@ mon_reflects(struct monst *mon, const char *str)
             makeknown(SHIELD_OF_REFLECTION);
         }
         return TRUE;
-    } else if ((orefl = which_armor(mon, W_BARDING)) != 0
-               && (orefl->otyp == BARDING_OF_REFLECTION
-                   || orefl->oartifact == ART_ITHILMAR)) {
+    } else if (brefl && (brefl->otyp == BARDING_OF_REFLECTION
+                         || brefl->oartifact == ART_ITHILMAR)) {
         if (str) {
             pline(str, s_suffix(mon_nam(mon)), "barding");
-            if (orefl->otyp == BARDING_OF_REFLECTION)
+            if (brefl->otyp == BARDING_OF_REFLECTION)
                 makeknown(BARDING_OF_REFLECTION);
         }
+        return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMG))
+               && orefl->oartifact == ART_DRAGONBANE) {
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "gloves");
+        return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMG))
+               && orefl->oartifact == ART_GAUNTLETS_OF_PURITY) {
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "gauntlets");
         return TRUE;
     } else if (arti_reflects(MON_WEP(mon))) {
         /* due to wielded artifact weapon */
@@ -3814,6 +3849,13 @@ mon_reflects(struct monst *mon, const char *str)
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "other weapon");
         return TRUE;
+    } else if ((orefl = m_carrying_arti_reflecting(mon)) != 0) {
+        /* carried (not worn/wielded) artifact granting reflection,
+           e.g. the Magic Mirror of Merlin */
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)),
+                  orefl->otyp == MIRROR ? "mirror" : "artifact");
+        return TRUE;
     } else if ((orefl = which_armor(mon, W_AMUL))
                && orefl->otyp == AMULET_OF_REFLECTION) {
         if (str) {
@@ -3822,12 +3864,20 @@ mon_reflects(struct monst *mon, const char *str)
         }
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARM))
-               && orefl->otyp == SILVER_DRAGON_SCALES) {
+               && Is_dragon_scaled_armor(orefl)
+               && (Dragon_armor_to_scales(orefl) == SILVER_DRAGON_SCALES
+                   || Dragon_armor_to_scales(orefl)
+                      == CHROMATIC_DRAGON_SCALES)) {
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "armor");
         return TRUE;
+    } else if ((orefl = which_armor(mon, W_ARMC))
+               && orefl->otyp == SILVER_DRAGON_SCALES) {
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "set of scales");
+        return TRUE;
     } else if (mon->data == &mons[PM_SILVER_DRAGON]
-               || mon->data == &mons[PM_CHROMATIC_DRAGON]) {
+               || mon->data == &mons[PM_TIAMAT]) {
         /* Silver dragons only reflect when mature; babies do not */
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "scales");
@@ -3851,6 +3901,11 @@ ureflects(const char *fmt, const char *str)
             makeknown(SHIELD_OF_REFLECTION);
         }
         return TRUE;
+    } else if (EReflecting & W_ARMG) {
+        /* due to wearing the artifact Dragonbane */
+        if (fmt && str)
+            pline(fmt, str, "gloves");
+        return TRUE;
     } else if (HReflecting) {
         /* reflection spell */
         if (fmt && str)
@@ -3867,9 +3922,18 @@ ureflects(const char *fmt, const char *str)
             makeknown(AMULET_OF_REFLECTION);
         }
         return TRUE;
+    } else if (EReflecting & W_ARMC) {
+        if (fmt && str)
+            pline(fmt, str, "set of scales");
+        return TRUE;
     } else if (EReflecting & W_ARM) {
         if (fmt && str)
             pline(fmt, str, uskin ? "luster" : "armor");
+        return TRUE;
+    } else if (EReflecting & W_ART) {
+        /* due to the Magic Mirror, which shows as W_ART */
+        if (fmt && str)
+            pline(fmt, str, "mirror");
         return TRUE;
     } else if (gy.youmonst.data == &mons[PM_SILVER_DRAGON]) {
         if (fmt && str)
