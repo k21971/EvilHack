@@ -73,8 +73,6 @@ kickdmg(struct monst *mon, boolean clumsy)
     if (M_AP_TYPE(mon))
         seemimic(mon);
 
-    check_caitiff(mon);
-
     /* squeeze some guilt feelings... */
     if (mon->mtame) {
         abuse_dog(mon);
@@ -166,6 +164,12 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
     boolean clumsy = FALSE;
     int i, j;
 
+    /* note the abuse now, while a non-tame target is still
+       peaceful; setmangry() below clears that flag. the kick's
+       find_roll_to_hit() calls start their attack count at 1 so
+       they don't repeat this */
+    check_caitiff(mon);
+
     /* anger target even if wild miss will occur */
     setmangry(mon, TRUE);
 
@@ -201,8 +205,11 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
     if (Upolyd && attacktype(gy.youmonst.data, AT_KICK)) {
         struct attack *uattk;
         struct obj *hated_obj = (struct obj *) 0;
+        /* attknum starts at 1: kick_monster() already called
+           check_caitiff() above, so find_roll_to_hit() must not
+           repeat it */
         int sum, kickdieroll, armorpenalty, specialdmg,
-            attknum = 0,
+            attknum = 1,
             tmp = find_roll_to_hit(mon, AT_KICK, (struct obj *) 0, &attknum,
                                    &armorpenalty);
         mon_maybe_unparalyze(mon);
