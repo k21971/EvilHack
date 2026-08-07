@@ -487,7 +487,7 @@ doread(void)
               ((((long) scroll->o_id * 499L) % 899999L) + 100000L),
               ((int) scroll->o_id % 10),
               (!((int) scroll->o_id % 3)),
-              (((int) scroll->o_id * 7) % 10),
+              (int) (((long) scroll->o_id * 7L) % 10L),
               (flags.verbose || Blind) ? "." : "");
         if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT,
