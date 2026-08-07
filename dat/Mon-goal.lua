@@ -29,6 +29,9 @@ local placeidx = math.random(1, #place);
 des.region(selection.area(00,00,25,10), "unlit")
 -- Stairs
 des.stair("up", 20,05)
+-- Master Kaen
+des.monster("Master Kaen",place[placeidx])
+des.altar({ coord = place[placeidx], align="noalign", type="altar" })
 -- Objects
 des.object({ id = "lenses", coord = place[placeidx], buc="blessed", spe=0, name="The Eyes of the Overworld" })
 des.object()
@@ -53,8 +56,6 @@ des.trap("fire")
 des.trap()
 des.trap()
 -- Random monsters.
-des.monster("Master Kaen",place[placeidx])
-des.altar({ coord = place[placeidx], align="noalign", type="altar" })
 des.monster("earth elemental")
 des.monster("earth elemental")
 des.monster("earth elemental")
@@ -73,3 +74,5 @@ des.monster("xorn")
 des.monster("xorn")
 des.monster("xorn")
 des.monster("xorn")
+des.monster({ id = "salamander", peaceful = 0 })
+des.monster({ id = "salamander", peaceful = 0 })

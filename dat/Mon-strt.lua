@@ -14,35 +14,33 @@ des.level_init({ style = "solidfill", fg = " " });
 des.level_flags("mazelevel", "noteleport", "hardfloor")
 
 des.map([[
-............................................................................
-............................................................................
-............................................................................
-....................------------------------------------....................
-....................|................|.....|.....|.....|....................
-....................|..------------..|--+-----+-----+--|....................
-....................|..|..........|..|.................|....................
-....................|..|..........|..|+---+---+-----+--|....................
-..................---..|..........|......|...|...|.....|....................
-..................+....|..........+......|...|...|.....|....................
-..................+....|..........+......|...|...|.....|....................
-..................---..|..........|......|...|...|.....|....................
-....................|..|..........|..|+-----+---+---+--|....................
-....................|..|..........|..|.................|....................
-....................|..------------..|--+-----+-----+--|....................
-....................|................|.....|.....|.....|....................
-....................------------------------------------....................
-............................................................................
-............................................................................
-............................................................................
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggg------------------------------------gggggggggggggggggggg
+gggggggggggggggggggg|................|.....|.....|.....|gggggggggggggggggggg
+gggggggggggggggggggg|..------------..|--+-----+-----+--|gggggggggggggggggggg
+gggggggggggggggggggg|..|..........|..|.................|gggggggggggggggggggg
+gggggggggggggggggggg|..|..........|..|+---+---+-----+--|gggggggggggggggggggg
+gggggggggggggggggg---..|..........|......|...|...|.....|gggggggggggggggggggg
+gggggggggggggggggg+....|..........+......|...|...|.....|gggggggggggggggggggg
+gggggggggggggggggg+....|..........+......|...|...|.....|gggggggggggggggggggg
+gggggggggggggggggg---..|..........|......|...|...|.....|gggggggggggggggggggg
+gggggggggggggggggggg|..|..........|..|+-----+---+---+--|gggggggggggggggggggg
+gggggggggggggggggggg|..|..........|..|.................|gggggggggggggggggggg
+gggggggggggggggggggg|..------------..|--+-----+-----+--|gggggggggggggggggggg
+gggggggggggggggggggg|................|.....|.....|.....|gggggggggggggggggggg
+gggggggggggggggggggg------------------------------------gggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ]]);
 -- Dungeon Description
 des.region(selection.area(00,00,75,19), "lit")
 des.region({ region={24,06, 33,13}, lit=1, type="temple" })
 
-des.replace_terrain({ region={00,00, 10,19}, fromterrain=".", toterrain="T", chance=10 })
-des.replace_terrain({ region={65,00, 75,19}, fromterrain=".", toterrain="T", chance=10 })
-
-local spacelocs = selection.floodfill(05,04);
+des.replace_terrain({ region={00,00, 10,19}, fromterrain="g", toterrain="T", chance=10 })
+des.replace_terrain({ region={65,00, 75,19}, fromterrain="g", toterrain="T", chance=10 })
 
 -- Portal arrival point
 des.terrain({05,04}, ".")
@@ -74,7 +72,8 @@ des.altar({ x=28,y=09, align="noalign", type="altar" })
 des.monster({ id = "Master Po", coord = {28, 10}, inventory = function()
    des.object({ id = "robe", spe = 6 });
 end })
--- No treasure chest!
+-- Magic chest
+des.feature("magic chest", 26, 09)
 -- guards for the audience chamber
 des.monster("abbot", 32, 07)
 des.monster("abbot", 32, 08)
@@ -87,20 +86,25 @@ des.monster("abbot", 33, 12)
 -- Non diggable walls
 des.non_diggable(selection.area(18,03,55,16))
 -- Random traps
-for i = 1, 2 do
-   des.trap("dart", spacelocs:rndcoord(1))
-end
+des.trap("dart", 20, 09)
+des.trap("dart", 20, 10)
 des.trap()
 des.trap()
 des.trap()
 des.trap()
 -- Monsters on siege duty.
-for i = 1, 8 do
-   des.monster("earth elemental", spacelocs:rndcoord(1))
-end
-for i = 1, 4 do
-   des.monster("xorn", spacelocs:rndcoord(1))
-end
+des.monster("earth elemental", 37, 01)
+des.monster("earth elemental", 37, 18)
+des.monster("earth elemental", 03, 03)
+des.monster("earth elemental", 65, 04)
+des.monster("earth elemental", 12, 11)
+des.monster("earth elemental", 60, 12)
+des.monster("earth elemental", 14, 08)
+des.monster("earth elemental", 55, 00)
+des.monster("xorn", 18, 18)
+des.monster("xorn", 59, 10)
+des.monster("xorn", 13, 09)
+des.monster("xorn", 01, 17)
 -- next to leader, so possibly tricky to pick up if not ready for quest yet;
 -- there's no protection against a xorn eating these tins; BUC state is random
 des.object({ id="tin", coord = {29, 9}, quantity=2, montype="spinach" })
