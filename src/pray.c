@@ -4,6 +4,7 @@
 
 #include "hack.h"
 
+staticfn boolean mitre_inhell(void);
 staticfn int prayer_done(void);
 staticfn void maybe_turn_mon_iter(struct monst *);
 staticfn struct obj *worst_cursed_item(void);
@@ -110,6 +111,18 @@ static const char *const godvoices[] = {
    before iterating that, so don't need to be globals */
 static int turn_undead_range;
 static int turn_undead_msg_cnt;
+
+/* TRUE if in Gehennom and not wearing Mitre,
+   which allows praying inside Gehennom */
+staticfn boolean
+mitre_inhell(void)
+{
+    if (!Inhell)
+        return FALSE;
+    if (uarmh && uarmh->oartifact == ART_MITRE_OF_HOLINESS)
+        return FALSE;
+    return TRUE;
+}
 
 /* critically low hit points if hp <= 5 or hp <= maxhp/N for some N */
 boolean
@@ -727,7 +740,7 @@ angrygods(aligntyp resp_god)
 {
     int maxanger, new_ublesscnt;
 
-    if (Inhell)
+    if (mitre_inhell())
         resp_god = A_NONE;
     u.ublessed = 0; /* lose divine protection */
 
@@ -1904,12 +1917,14 @@ consume_offering(struct obj *otmp)
 staticfn void
 offer_too_soon(aligntyp altaralign)
 {
-    if (altaralign == A_NONE && Inhell) {
+    if (altaralign == A_NONE && u.ualign.type != A_NONE && Inhell) {
         /* offering on an unaligned altar in Gehennom;
            hero has left Moloch's Sanctum (caller handles that)
            so is in the process of getting away with the Amulet;
            for any unaligned altar outside of Gehennom, give the
-           "you feel ashamed" feedback for wrong alignment below */
+           "you feel ashamed" feedback for wrong alignment below;
+           an Infidel serves Moloch and falls through to the
+           "urge to descend deeper" hint instead */
         gods_upset(A_NONE); /* Moloch becomes angry */
         return;
     }
@@ -2287,7 +2302,7 @@ sacrifice_your_race(
         record_abuse_event(-5, ABUSE_SAC_SAME_RACE);
         u.ugangr += 3;
         (void) adjattrib(A_WIS, -1, TRUE);
-        if (!Inhell)
+        if (!mitre_inhell())
             angrygods(u.ualign.type);
         change_luck(-5);
     } else
@@ -2732,7 +2747,7 @@ can_pray(boolean praying) /* false means no messages should be given */
             gp.p_type = 3;
     }
 
-    if (is_undead(gy.youmonst.data) && !Inhell
+    if (is_undead(gy.youmonst.data) && !mitre_inhell()
         && (gp.p_aligntyp == A_LAWFUL
             || (gp.p_aligntyp == A_NEUTRAL && !rn2(10))))
         gp.p_type = -1;
@@ -2749,7 +2764,7 @@ can_pray(boolean praying) /* false means no messages should be given */
 
     return !praying
            ? (boolean) (gp.p_type == 3
-                        && (!Inhell || u.ualign.type == A_NONE))
+                        && (!mitre_inhell() || u.ualign.type == A_NONE))
            : TRUE;
 }
 
@@ -2843,7 +2858,7 @@ dopray(void)
     gn.nomovemsg = "You finish your prayer.";
     ga.afternmv = prayer_done;
 
-    if (gp.p_type == 3 && (!Inhell || u.ualign.type == A_NONE)) {
+    if (gp.p_type == 3 && (!mitre_inhell() || u.ualign.type == A_NONE)) {
         /* if you've been true to your god you can't die while you pray */
         if (!Blind) {
             if (u.ualign.type == A_NONE)
@@ -2885,9 +2900,7 @@ prayer_done(void) /* M. Stephenson (1.0.3b) */
         exercise(A_CON, FALSE);
         return 1;
     }
-    /* TODO-EVILHACK: master carves out the Mitre of Holiness here via
-       its mitre_inhell() helper; that ports with the artifacts slice */
-    if (Inhell && u.ualign.type != A_NONE) {
+    if (mitre_inhell() && u.ualign.type != A_NONE) {
         pline("Since you are in Gehennom, %s can't help you.",
               align_gname(alignment));
         /* haltingly aligned is least likely to anger */
@@ -3038,7 +3051,7 @@ doturn(void)
         exercise(A_WIS, FALSE);
         return ECMD_TIME;
     }
-    if (Inhell) {
+    if (mitre_inhell()) {
         pline("Since you are in Gehennom, %s %s help you.",
               /* not actually calling upon Moloch but use alternate
                  phrasing anyway if hallucinatory feedback says it's him */
