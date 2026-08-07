@@ -63,6 +63,8 @@ des.region({ region = {60,17,71,18}, lit = 1, type = "shop", filled = 1 })
 des.non_diggable(selection.area(00,00,75,19))
 -- Stairs
 des.stair("up", 70,08)
+-- Altar
+des.altar({ x=02, y=01, align="chaos", type="altar" })
 -- Doors
 des.door("locked",07,03)
 des.door("locked",02,06)
@@ -128,9 +130,9 @@ des.monster("giant spider")
 des.monster("giant spider")
 des.monster("giant spider")
 des.monster("giant spider")
-des.monster("giant spider")
-des.monster("giant spider")
-des.monster("giant spider")
+des.monster("jumping spider")
+des.monster("jumping spider")
+des.monster("jumping spider")
 des.monster("s")
 des.monster("s")
 -- ladies of the evening
