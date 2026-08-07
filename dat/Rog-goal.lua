@@ -35,6 +35,8 @@ des.map([[
 des.region(selection.area(00,00,75,20), "lit")
 -- Stairs
 des.levregion({ region={01,00,15,20}, region_islev=1, exclude={01,18,04,20}, type="stair-up" });
+-- Altar
+des.altar({ x=02, y=16, align="random", type="altar" })
 -- Doors
 -- Non diggable walls
 des.non_diggable(selection.area(00,00,75,20))
