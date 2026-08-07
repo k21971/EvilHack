@@ -14,29 +14,30 @@ des.level_init({ style = "solidfill", fg = "." });
 des.level_flags("mazelevel", "noteleport", "hardfloor", "arboreal")
 
 des.level_init({ style="mines", fg=".", bg=".", smoothed=true, joined=true, lit=1, walled=false })
-des.replace_terrain({ region={00,00, 76,19}, fromterrain=".", toterrain="T", chance=5 })
+des.replace_terrain({ region={00,00, 78,20}, fromterrain=".", toterrain="g", chance=100 })
+des.replace_terrain({ region={00,00, 76,19}, fromterrain="g", toterrain="T", chance=5 })
 --1234567890123456789012345678901234567890123456789012345678901234567890
 des.map({ halign = "left", valign = "center", map = [[
                                        xx
-   ...................................  x
-  ..                                 ..  
- ..  ...............F...............  .. 
- .  ..             .F.             ..  . 
- . ..  .............F.............  .. . 
- . .  ..                         ..  . . 
- . . ..  .......................  .. ... 
- . . .  ..                     ..  .     
- ... . ..  .|..................... ......
- FFF . .  ..S..................          
- ... . ..  .|.................  .... ... 
- . . .  ..                     ..  . . . 
- . . ..  .......................  .. . . 
- . .  ..                         ..  . . 
- . ..  .............F.............  .. . 
- .  ..             .F.             ..  . 
- ..  ...............F...............  .. 
-  ..                                 ..  
-   ...................................  x
+   ggggggggggggggggggggggggggggggggggg  x
+  gg                                 gg  
+ gg  gggggggggggggggFggggggggggggggg  gg 
+ g  gg             gFg             gg  g 
+ g gg  gggggggggggggFggggggggggggg  gg g 
+ g g  gg                         gg  g g 
+ g g gg  ggggggggggggggggggggggg  gg ggg 
+ g g g  gg                     gg  g     
+ ggg g gg  g|ggggggggggggggggggggg gggggg
+ FFF g g  ggSgggggggggggggggggg          
+ ggg g gg  g|ggggggggggggggggg  gggg ggg 
+ g g g  gg                     gg  g g g 
+ g g gg  ggggggggggggggggggggggg  gg g g 
+ g g  gg                         gg  g g 
+ g gg  gggggggggggggFggggggggggggg  gg g 
+ g  gg             gFg             gg  g 
+ gg  gggggggggggggggFggggggggggggggg  gg 
+  gg                                 gg  
+   ggggggggggggggggggggggggggggggggggg  x
                                        xx
 ]] });
 -- Dungeon Description
@@ -47,12 +48,14 @@ des.stair("down", 10,10)
 des.levregion({ region = {51,2,77,18}, region_islev = 1, type="branch" })
 -- Orion
 des.monster({ id = "Orion", coord = {20, 10}, inventory = function()
-   des.object({ id = "leather armor", spe = 4 });
+   des.object({ id = "armor", spe = 4 });
    des.object({ id = "yumi", spe = 4 });
-   des.object({ id = "ya", spe = 4, quantity = 50 });
+   des.object({ id = "arrow", spe = 4, quantity = 50 });
 end })
--- The treasure of Orion
-des.object("chest", 20, 10)
+-- Magic chest
+des.feature("magic chest", 18, 10)
+-- Altar
+des.altar({ x=16, y=10, align="neutral", type="altar" })
 -- Guards for the audience chamber
 des.monster("hunter", 19, 09)
 des.monster("hunter", 20, 09)
@@ -65,8 +68,16 @@ des.monster("hunter", 21, 11)
 -- Non diggable walls
 des.non_diggable(selection.area(00,00,40,20))
 -- Traps
-des.trap("arrow",30,09)
-des.trap("arrow",30,10)
+if percent(50) then
+   des.trap("arrow",30,09)
+else
+   des.trap("crossbow bolt",30,09)
+end
+if percent(50) then
+   des.trap("arrow",30,10)
+else
+   des.trap("crossbow bolt",30,10)
+end
 des.trap("pit",40,09)
 des.trap("spiked pit")
 des.trap("bear")

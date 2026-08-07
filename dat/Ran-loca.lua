@@ -50,8 +50,16 @@ des.trap("spiked pit")
 des.trap("spiked pit")
 des.trap("teleport")
 des.trap("teleport")
-des.trap("arrow")
-des.trap("arrow")
+if percent(50) then
+   des.trap("arrow")
+else
+   des.trap("crossbow bolt")
+end
+if percent(50) then
+   des.trap("arrow")
+else
+   des.trap("crossbow bolt")
+end
 -- Random monsters.
 des.monster({ id = "wumpus", x=27, y=18, peaceful=0, asleep=1 })
 des.monster({ id = "giant bat", peaceful=0 })

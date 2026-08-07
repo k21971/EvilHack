@@ -7,7 +7,7 @@ des.level_init({ style = "solidfill", fg = " " });
 
 des.level_flags("mazelevel", "noflip");
 
-des.level_init({ style="mines", fg=".", bg="T", smoothed=true, joined=true, walled=true })
+des.level_init({ style="mines", fg="g", bg="T", smoothed=true, joined=true, walled=true })
 
 --
 des.stair("up")
