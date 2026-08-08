@@ -61,7 +61,7 @@ p|..|...|..|...|.p}p}}
    --
    des.region({ region = { 0, 0, 21, 16 }, lit = 1, type = "ordinary" })
    des.region({ region = { 10, 7, 14, 9 }, lit = 1, type = "throne",
-                filled = 0 })
+                filled = 2 })
    des.non_diggable(selection.area(1, 1, 15, 15))
    -- random demon boss
    if percent(50) then

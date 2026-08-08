@@ -36,7 +36,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAA
 des.teleport_region({ region = { 01, 17, 04, 19 }, exclude = { 00, 00, 00, 00 } })
 des.levregion({ region = {01,18,01,18}, exclude = {00,00,00,00}, type="branch" })
 des.ladder("up", 74, 01)
-des.region({ region = { 00, 00, 75, 19 }, lit = 0, type = "morgue", filled = 0 })
+des.region({ region = { 00, 00, 75, 19 }, lit = 0, type = "morgue", filled = 2 })
 des.region({ region = { 01, 18, 01, 18 }, lit = 1, type = "ordinary" })
 des.region({ region = { 74, 01, 74, 01 }, lit = 1, type = "ordinary" })
 des.engraving({ coord = { 04, 17 }, type = "engrave", text = "Watch your step..." })

@@ -69,10 +69,10 @@ des.region({ region = { 01, 09, 03, 11 }, lit = 0, type = "ordinary" })
 des.region({ region = { 01, 11, 15, 11 }, lit = 0, type = "ordinary" })
 
 -- the special rooms in the castle
-des.region({ region = { 05, 03, 15, 07 }, lit = 1, type = "throne", filled = 0, irregular = 1 })
-des.region({ region = { 17, 01, 23, 03 }, lit = 1, type = "barracks" })
-des.region({ region = { 27, 01, 33, 03 }, lit = 1, type = "barracks" })
-des.region({ region = { 17, 07, 19, 10 }, lit = 1, type = "barracks" })
+des.region({ region = { 05, 03, 15, 07 }, lit = 1, type = "throne", filled = 2, irregular = 1 })
+des.region({ region = { 17, 01, 23, 03 }, lit = 1, type = "barracks", filled = 1 })
+des.region({ region = { 27, 01, 33, 03 }, lit = 1, type = "barracks", filled = 1 })
+des.region({ region = { 17, 07, 19, 10 }, lit = 1, type = "barracks", filled = 1 })
 
 des.mazewalk(33, 13, "east")
 

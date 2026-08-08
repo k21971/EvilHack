@@ -102,10 +102,10 @@ des.region({ region = { 63, 00, 75, 01 }, lit = 1, type = "ordinary" })
 des.region({ region = { 47, 03, 52, 06 }, lit = 0, type = "ordinary" })
 des.region({ region = { 47, 12, 52, 15 }, lit = 0, type = "ordinary" })
 
-des.region({ region = { 24, 03, 31, 15 }, lit = 1, type = "throne", filled = 0, irregular = 1 })
+des.region({ region = { 24, 03, 31, 15 }, lit = 1, type = "throne", filled = 2, irregular = 1 })
 
-des.region({ region = { 14, 03, 22, 05 }, lit = 1, type = "barracks" })
-des.region({ region = { 14, 13, 22, 15 }, lit = 1, type = "barracks" })
+des.region({ region = { 14, 03, 22, 05 }, lit = 1, type = "barracks", filled = 1 })
+des.region({ region = { 14, 13, 22, 15 }, lit = 1, type = "barracks", filled = 1 })
 
 -- the armouries and the treasure room are unlit
 des.region({ region = { 09, 03, 12, 15 }, lit = 0, type = "ordinary" })
