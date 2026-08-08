@@ -48,6 +48,11 @@
     <Luafiles Include = "Cav-goal.lua"/>
     <Luafiles Include = "Cav-loca.lua"/>
     <Luafiles Include = "Cav-strt.lua"/>
+    <Luafiles Include = "Con-fila.lua"/>
+    <Luafiles Include = "Con-filb.lua"/>
+    <Luafiles Include = "Con-goal.lua"/>
+    <Luafiles Include = "Con-loca.lua"/>
+    <Luafiles Include = "Con-strt.lua"/>
     <Luafiles Include = "dungeon.lua"/>
     <Luafiles Include = "earth.lua"/>
     <Luafiles Include = "fire.lua"/>
