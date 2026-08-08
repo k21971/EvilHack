@@ -802,10 +802,14 @@ vision_recalc(int control)
                         || oldseenv != lev->seenv)
                         newsym(col, row);
                 }
-            } else if ((next_row[col] & COULD_SEE) && Ultravision) {
+            } else if (col != 0 && (next_row[col] & COULD_SEE) && Ultravision) {
                 /*
                  * We see this position because of ultravision, which
-                 * pierces both ordinary and magical darkness.
+                 * pierces both ordinary and magical darkness. Column 0
+                 * is excluded: the boundary scan can mark it COULD_SEE
+                 * beside a wall at column 1, but it is never displayable
+                 * (newsym rejects x == 0), so let it fall through to the
+                 * not-in-sight arm, which already guards against it.
                  */
                 if (lev->waslit)
                     lev->waslit = 0;
