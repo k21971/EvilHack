@@ -13,13 +13,13 @@ des.map([[
                    -------------                 -------------              
                    |...........|                 |...........|              
             -------|...........-------------------...........|              
-            |......S...........|..|..|..|..|..|..|...........|              
-            |......|...........|..|..|..|..|..|..|...........|              
-            |......|...........-F+-F+-F+-F+-F+-F+-...........|              
+            |......S...........|..|..|ppppp|..|..|...........|              
+            |......|...........|..|..|ppppp|..|..|...........|              
+            |......|...........-F+-F+-FFFF+-F+-F+-...........|              
             --S----|...........S.................+...........|              
-            |......|...........-F+-F+-F+-F+-F+-F+-...........|              
-            |......|...........|..|..|..|..|..|..|...........|              
-            |......|...........|..|..|..|..|..|..|...........|              
+            |......|...........-F+-F+-FFFF+-F+-F+-...........|              
+            |......|...........|..|..|ppppp|..|..|...........|              
+            |......|...........|..|..|ppppp|..|..|...........|              
             -------|...........-------------------...........|              
                    |...........|                 |...........|              
                    -------------                 -------------              
@@ -52,13 +52,11 @@ des.door("locked",14,09)
 des.door("locked",31,09)
 des.door("locked",33,08)
 des.door("locked",36,08)
-des.door("locked",39,08)
 des.door("locked",42,08)
 des.door("locked",45,08)
 des.door("locked",48,08)
 des.door("locked",33,10)
 des.door("locked",36,10)
-des.door("locked",39,10)
 des.door("locked",42,10)
 des.door("locked",45,10)
 des.door("locked",48,10)
@@ -68,9 +66,15 @@ des.stair("up", 55,05)
 -- Non diggable walls
 des.non_diggable(selection.area(00,00,75,19))
 -- The altar.  This is not a shrine.
-des.altar({ coord={16,11}, aligned="noncoaligned", type="altar" })
+des.altar({ coord={16,11}, align="noncoaligned", type="altar" })
 -- Objects
 des.object({ id = "amulet of ESP", x=16, y=11, buc="blessed", spe=0, name="The Eye of the Aethiopica" })
+if percent(50) then
+   des.object({ id = "skeleton key", x=40, y=06 })
+end
+if percent(50) then
+   des.object({ id = "skeleton key", x=40, y=12 })
+end
 des.object()
 des.object()
 des.object()
@@ -93,7 +97,8 @@ des.trap()
 des.trap()
 des.trap()
 -- Random monsters.
-des.monster("Dark One", 16, 11)
+des.monster({ id = "Dark One", x=16, y=11, peaceful=0 })
+des.monster({ id = "elder pseudodragon", x=15, y=11, peaceful=0 })
 des.monster({ class = "B",random, peaceful = 0 })
 des.monster({ class = "B",random, peaceful = 0 })
 des.monster({ class = "B",random, peaceful = 0 })
@@ -127,6 +132,22 @@ des.monster({ id = "owlbear", x=47, y=06, peaceful=1, asleep=1 })
 des.monster({ id = "wizard", x=32, y=11, peaceful=1, asleep=1, name="Newt" })
 des.monster({ id = "Grey-elf", x=44, y=11, peaceful=1 })
 des.monster({ id = "hill giant", x=47, y=11, peaceful=1, asleep=1 })
-des.monster({ id = "gnomish wizard", x=38, y=06, peaceful=1 })
-des.monster({ id = "prisoner", x=35, y=11, peaceful=1 })
-des.monster({ id = "prisoner", x=41, y=11, peaceful=1, asleep=1 })
+des.monster({ id = "gnomish wizard", x=35, y=11, peaceful=1 })
+des.monster({ id = "prisoner", x=38, y=06, peaceful=1 })
+des.monster({ id = "prisoner", x=42, y=12, peaceful=1 })
+des.monster({ id = "mind flayer larva", x=39, y=06, asleep=1 })
+des.monster({ id = "mind flayer larva", x=40, y=06, asleep=1 })
+des.monster({ id = "mind flayer larva", x=41, y=06, asleep=1 })
+des.monster({ id = "mind flayer larva", x=42, y=06, asleep=1 })
+des.monster({ id = "mind flayer larva", x=38, y=07, asleep=1 })
+des.monster({ id = "mind flayer larva", x=39, y=07, asleep=1 })
+des.monster({ id = "mind flayer larva", x=40, y=07, asleep=1 })
+des.monster({ id = "mind flayer larva", x=41, y=07, asleep=1 })
+des.monster({ id = "mind flayer larva", x=38, y=11, asleep=1 })
+des.monster({ id = "mind flayer larva", x=39, y=11, asleep=1 })
+des.monster({ id = "mind flayer larva", x=40, y=11, asleep=1 })
+des.monster({ id = "mind flayer larva", x=41, y=11, asleep=1 })
+des.monster({ id = "mind flayer larva", x=38, y=12, asleep=1 })
+des.monster({ id = "mind flayer larva", x=39, y=12, asleep=1 })
+des.monster({ id = "mind flayer larva", x=40, y=12, asleep=1 })
+des.monster({ id = "mind flayer larva", x=41, y=12, asleep=1 })
