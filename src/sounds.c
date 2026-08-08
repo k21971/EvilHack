@@ -1227,7 +1227,33 @@ domonnoise(struct monst *mtmp)
         }
         break;
     case MS_BRIBE:
-        if (mtmp->mpeaceful && !mtmp->mtame) {
+        if (monsndx(ptr) == PM_PRISON_GUARD) {
+            long gdemand = 500 * u.ulevel;
+            long goffer = 0;
+
+            if (!mtmp->mpeaceful && !mtmp->mtame) {
+                if (!money_cnt(gi.invent)) { /* can't bribe with no money */
+                    mtmp->mspec_used = 1000;
+                    break;
+                }
+                pline("%s demands %ld %s to avoid re-arrest.",
+                      Amonnam(mtmp), gdemand, currency(gdemand));
+                if ((goffer = bribe(mtmp, "How much will you offer?"))
+                    >= gdemand) {
+                    verbl_msg = "Good.  Now beat it, scum!";
+                    mtmp->mpeaceful = 1;
+                    set_malign(mtmp);
+                    break;
+                } else {
+                    pline("I said %ld!", gdemand);
+                    mtmp->mspec_used = 1000;
+                    break;
+                }
+            } else {
+                verbl_msg = "Out of my way, scum!"; /* still a jerk */
+                break;
+            }
+        } else if (mtmp->mpeaceful && !mtmp->mtame) {
             (void) demon_talk(mtmp);
             break;
         }

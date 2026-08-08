@@ -1058,6 +1058,30 @@ dochug(struct monst *mtmp)
         }
     }
 
+    /* Prison guard extortion */
+    if (nearby && (monsndx(mdat) == PM_PRISON_GUARD) && !mtmp->mpeaceful
+        && !mtmp->mtame && !u.uswallow && (!mtmp->mspec_used)) {
+        long gdemand = 500 * u.ulevel;
+        long goffer = 0;
+
+        if (!money_cnt(gi.invent)) { /* can't bribe with no money */
+            mtmp->mspec_used = 1000;
+            return 0;
+        }
+
+        pline("%s demands %ld %s to avoid re-arrest.", Amonnam(mtmp),
+              gdemand, currency(gdemand));
+        if ((goffer = bribe(mtmp, "How much will you offer?")) >= gdemand) {
+            SetVoice(mtmp, 0, 80, 0);
+            verbalize("Good.  Now beat it, scum!");
+            mtmp->mpeaceful = 1;
+            set_malign(mtmp);
+        } else {
+            pline("I said %ld!", gdemand);
+            mtmp->mspec_used = 1000;
+        }
+    }
+
     /* the watch will look around and see if you are up to no good :-) */
     if (is_watch(mdat)) {
         watch_on_duty(mtmp);
