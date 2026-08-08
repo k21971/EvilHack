@@ -1872,8 +1872,11 @@ rloc_to_core(
         (void) dochugw(mtmp, FALSE);
 
     /* trapped monster teleported away */
-    if (mtmp->mtrapped && !mtmp->wormno)
+    if (mtmp->mtrapped && !mtmp->wormno) {
         (void) mintrap(mtmp, NO_TRAP_FLAGS);
+        if (DEADMONSTER(mtmp))
+            return; /* trap killed mtmp; the rest would touch a corpse */
+    }
 
     /* entanglement goes away (pulled away from plants magically
        entangling mtmp) */

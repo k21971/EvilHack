@@ -991,12 +991,16 @@ dochug(struct monst *mtmp)
 
     /* Monsters that want to acquire things may teleport, so do it before
        inrange is set. This costs a turn only if mstate is set.  */
-    if (is_covetous(mdat)) {
+    /* The Amulet prevents teleportation - skip covetous tactics */
+    if (is_covetous(mdat) && !mon_has_amulet(mtmp)) {
         (void) tactics(mtmp);
         /* tactics -> mnexto -> deal_with_overcrowding */
         if (mtmp->mstate)
             return 0;
         set_apparxy(mtmp);
+        /* tactics teleports can fire a polymorph trap and change
+           mtmp's form; refresh the cached permonst */
+        mdat = mtmp->data;
     }
 
     /* check distance and scariness of attacks */
@@ -2126,8 +2130,10 @@ m_move(struct monst *mtmp, int after)
     }
 
     /* and the acquisitive monsters get special treatment */
-    if (is_covetous(ptr)) { /* [should this include
-                             *  '&& mtmp->mstrategy != STRAT_NONE'?] */
+    /* Skip if holding Amulet - escaping is the priority */
+    if (is_covetous(ptr)
+        && !mon_has_amulet(mtmp)) { /* [should this include
+                                     *  '&& mtmp->mstrategy != STRAT_NONE'?] */
         int covetousattack;
         coordxy tx = mtmp->mgoal.x,
                 ty = mtmp->mgoal.y;

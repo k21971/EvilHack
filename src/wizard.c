@@ -288,6 +288,31 @@ target_on(int mask, struct monst *mtmp)
             return (STRAT_MONSTR | mask);
         }
     }
+
+    /* Do we have the Amulet? Alrighty then...
+       On Astral, a covetous monster carrying the Amulet of
+       Yendor heads for its own aligned altar to sacrifice it */
+    if (Is_astralevel(&u.uz) && mon_has_arti(mtmp, AMULET_OF_YENDOR)) {
+        coordxy x, y, targetx = u.ux, targety = u.uy;
+        aligntyp malign = sgn(mon_aligntyp(mtmp));
+
+        /* scan level for monster's aligned altar - alignments are
+           shuffled per game so we can't rely on fixed coordinates */
+        for (x = 1; x < COLNO; x++) {
+            for (y = 0; y < ROWNO; y++) {
+                if (IS_ALTAR(levl[x][y].typ) && a_align(x, y) == malign) {
+                    targetx = x;
+                    targety = y;
+                    goto found_altar;
+                }
+            }
+        }
+ found_altar:
+        mtmp->mgoal.x = targetx;
+        mtmp->mgoal.y = targety;
+        return (unsigned long) mask;
+    }
+
     mtmp->mgoal.x = mtmp->mgoal.y = 0;
     return (unsigned long) STRAT_NONE;
 }
@@ -306,6 +331,10 @@ strategy(struct monst *mtmp)
         || (mtmp->ispriest && inhistemple(mtmp))
         /* Lucifer in the sanctum */
         || (mtmp->islucifer && Is_sanctum(&u.uz)))
+        return (unsigned long) STRAT_NONE;
+
+    /* avoid divide-by-zero on degenerate mhpmax */
+    if (mtmp->mhpmax <= 0)
         return (unsigned long) STRAT_NONE;
 
     switch ((mtmp->mhp * 3) / mtmp->mhpmax) { /* 0-3 */
@@ -421,8 +450,13 @@ tactics(struct monst *mtmp)
         if (In_W_tower(mx, my, &u.uz)
             || (mtmp->iswiz && !sx && !mon_has_amulet(mtmp))) {
             if (!noteleport_level(mtmp) &&
-                !rn2(3 + mtmp->mhp / 10))
+                !rn2(3 + mtmp->mhp / 10)) {
                 (void) rloc(mtmp, RLOC_MSG);
+                /* rloc may fire mintrap and kill mtmp */
+                if (DEADMONSTER(mtmp))
+                    return 0;
+                mx = mtmp->mx, my = mtmp->my; /* update cached location */
+            }
         } else if (sx && (mx != sx || my != sy)) {
             if (!noteleport_level(mtmp) &&
                 !mnearto(mtmp, sx, sy, TRUE, RLOC_MSG)) {
@@ -432,6 +466,10 @@ tactics(struct monst *mtmp)
                 rloc_to(mtmp, mx, my);
                 return 0;
             }
+            /* mnearto succeeded; its internal rloc_to may have killed
+               mtmp via mintrap on the destination tile */
+            if (DEADMONSTER(mtmp))
+                return 0;
             mx = mtmp->mx, my = mtmp->my; /* update cached location */
         }
         /* if you're not around, cast healing spells */
@@ -472,6 +510,11 @@ tactics(struct monst *mtmp)
             if (!MON_AT(tx, ty) || (mtmp->mx == tx && mtmp->my == ty)) {
                 /* teleport to it and pick it up */
                 rloc_to(mtmp, tx, ty); /* clean old pos */
+                /* rloc_to may fire mintrap and kill mtmp; bail before
+                   picking up the target so it stays on the floor
+                   instead of being discarded with the corpse */
+                if (DEADMONSTER(mtmp))
+                    return 0;
 
                 if ((otmp = on_ground(which_arti(targ))) != 0) {
                     if (cansee(mtmp->mx, mtmp->my))
@@ -670,20 +713,19 @@ nasty(struct monst *summoner)
         bypos.x = u.ux;
         bypos.y = u.uy;
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i) {
-            /* Of the 44 nasties[], 10 are lawful, 14 are chaotic,
-             * and 20 are neutral.  [These numbers are up date for
-             * 5.0.0; the ones in the next paragraph are not....]
+            /* Of the 44 nasties[], on this game's monster data 5 are
+             * lawful, 20 are chaotic or unaligned, and 19 are neutral.
              *
-             * Neutral caster, used for late-game harassment,
-             * has 18/42 chance to stop the inner loop on each
-             * critter, 24/42 chance for another iteration.
-             * Lawful caster has 28/42 chance to stop unless the
-             * summoner is an angel or demon, in which case the
-             * chance is 26/42.
-             * Chaotic or unaligned caster has 32/42 chance to
-             * stop, so will summon fewer creatures on average.
+             * The inner loop breaks on a critter whose alignment is
+             * neutral or matches the caster's sign: a neutral caster
+             * (or the no-summoner harassment case) breaks on neutrals
+             * only (19/44), a lawful caster on neutrals plus lawfuls
+             * (24/44), and a chaotic caster on neutrals plus chaotics
+             * (39/44), so chaotic casters stop soonest and summon the
+             * fewest creatures on average. An unaligned summoner
+             * counts as chaotic here (sgn of its A_NONE alignment).
              *
-             * The outer loop potentially gives chaotic/unaligned
+             * The outer loop potentially gives casters who stop early
              * a chance to even things up since others will hit
              * MAXNASTIES sooner, but its number of iterations is
              * randomized so it won't always do so.
@@ -821,7 +863,9 @@ resurrect(void)
         }
     }
 
-    if (mtmp) {
+    /* the makemon() and mon_arrive() calls above can both fire mintrap
+       on the arrival square; a Wizard killed there dies quietly */
+    if (mtmp && !DEADMONSTER(mtmp)) {
         /* FIXME: when a new wizard is created by makemon(), it gives
            a "<mon> appears" message, delivered after he's been placed
            on the map; however, when an existing wizard comes off
@@ -877,7 +921,8 @@ intervene(void)
 void
 wizdeadorgone(void)
 {
-    svc.context.no_of_wizards--;
+    if (svc.context.no_of_wizards > 0)
+        svc.context.no_of_wizards--;
     if (!u.uevent.udemigod) {
         u.uevent.udemigod = TRUE;
         u.udg_cnt = rn1(250, 50);
@@ -955,7 +1000,7 @@ cuss(struct monst *mtmp)
             SetVoice(mtmp, 0, 80, 0);
             verbalize("Relinquish the amulet, %s!",
                       ROLL_FROM(random_insult));
-        } else if (u.uhp < 5 && !rn2(2)) { /* Panic */
+        } else if ((Upolyd ? u.mh : u.uhp) < 5 && !rn2(2)) { /* Panic */
             SetVoice(mtmp, 0, 80, 0);
             verbalize(rn2(2) ? "Even now thy life force ebbs, %s!"
                              : "Savor thy breath, %s, it be thy last!",

@@ -131,6 +131,9 @@ typedef struct align { /* alignment & record */
                  : ((x) == A_LAWFUL) ? AM_LAWFUL                \
                    : ((x) + 2))) /* -1 => 1, 0 => 2 */
 
+/* for altars (see pray.c and wizard.c) */
+#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
+
 /* Because clearly Nethack needs more ways to specify alignment...
    Amask2msa(): 1, 2, 4 converted to 1, 2, 3 to fit within a width 2 bitfield;
    Msa2amask(): 1, 2, 3 converted back to 1, 2, 4;

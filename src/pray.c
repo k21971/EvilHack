@@ -105,7 +105,6 @@ static const char *const godvoices[] = {
 #define ugod_is_angry() (u.ualign.record < 0)
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
 #define on_shrine() ((levl[u.ux][u.uy].altarmask & AM_SHRINE) != 0)
-#define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
 
 /* used by turn undead iteration function; always reinitialized
    before iterating that, so don't need to be globals */
