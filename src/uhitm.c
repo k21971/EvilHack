@@ -2387,7 +2387,8 @@ m_slips_free(struct monst *mdef, struct attack *mattk)
 {
     struct obj *obj;
 
-    if (mattk->adtyp == AD_DRIN) {
+    if (mattk->adtyp == AD_DRIN
+        || (mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP)) {
         /* intelligence drain attacks the head */
         if (mdef->data->mlet == S_QUADRUPED || mdef->data->mlet == S_DRAGON
             || mdef->data->mlet == S_UNICORN
@@ -4171,27 +4172,59 @@ mhitm_ad_wrap(
     if (magr == &gy.youmonst) {
         /* uhitm */
         if (!sticks(pd)) {
-            boolean tailmiss = !gn.notonhead;
+            /* a grab aimed at a long worm's tail cannot take hold */
+            boolean tailmiss = gn.notonhead;
 
             if (!u.ustuck && !tailmiss && !rn2(10)) {
                 if (m_slips_free(mdef, mattk)) {
                     mhm->damage = 0;
                 } else {
-                    You("%s yourself around %s!",
-                        coil ? "coil" : "swing", mon_nam(mdef));
+                    if (gy.youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
+                        You("wrap your tentacles around %s %s,"
+                            " attaching yourself to its %s!",
+                            s_suffix(mon_nam(mdef)), mbodypart(mdef, HEAD),
+                            mbodypart(mdef, FACE));
+                    else
+                        You("%s yourself around %s!",
+                            coil ? "coil" : "swing", mon_nam(mdef));
                     set_ustuck(mdef);
                 }
             } else if (u.ustuck == mdef && !tailmiss) {
                 /* Monsters don't wear amulets of magical breathing */
-                if (is_pool(u.ux, u.uy) && !cant_drown(pd)) {
+                if (is_pool(u.ux, u.uy) && !cant_drown(pd)
+                    && gy.youmonst.data != &mons[PM_MIND_FLAYER_LARVA]) {
                     You("drown %s...", mon_nam(mdef));
                     mhm->damage = mdef->mhp;
-                } else if (mattk->aatyp == AT_HUGS)
+                } else if (mattk->aatyp == AT_HUGS) {
                     pline("%s is being crushed.", Monnam(mdef));
+                } else if (mattk->aatyp == AT_TENT) {
+                    if (racial_illithid(mdef)) {
+                        You("sense %s is kin, and release your grip.",
+                            mon_nam(mdef));
+                        set_ustuck((struct monst *) 0);
+                        mhm->damage = 0;
+                    } else if (can_become_flayer(pd)) {
+                        You("burrow into %s brain, taking over its body!",
+                            s_suffix(mon_nam(mdef)));
+                        You("begin to transform...");
+                        mhm->damage = 0;
+                        xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
+                        (void) polymon(PM_MIND_FLAYER);
+                        mhm->hitflags |= M_ATTK_DEF_DIED;
+                        mhm->done = TRUE;
+                    } else {
+                        You("burrow into %s brain!",
+                            s_suffix(mon_nam(mdef)));
+                        mhm->damage = mdef->mhp;
+                    }
+                }
             } else {
                 mhm->damage = 0;
                 if (flags.verbose) {
-                    if (coil && !tailmiss)
+                    if (gy.youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
+                        You("try to attach yourself to %s %s!",
+                            s_suffix(mon_nam(mdef)), mbodypart(mdef, FACE));
+                    else if (coil && !tailmiss)
                         You("brush against %s.", mon_nam(mdef));
                     else
                         You("brush against %s %s.", s_suffix(mon_nam(mdef)),
@@ -4208,13 +4241,20 @@ mhitm_ad_wrap(
                     mhm->damage = 0;
                 } else {
                     set_ustuck(magr); /* before message, for botl update */
-                    urgent_pline("%s %s itself around you!",
-                                 Some_Monnam(magr),
-                                 coil ? "coils" : "swings");
+                    if (pa == &mons[PM_MIND_FLAYER_LARVA])
+                        urgent_pline("%s wraps its tentacles around your %s,"
+                                     " attaching itself to your %s!",
+                                     Some_Monnam(magr), body_part(HEAD),
+                                     body_part(FACE));
+                    else
+                        urgent_pline("%s %s itself around you!",
+                                     Some_Monnam(magr),
+                                     coil ? "coils" : "swings");
                 }
             } else if (u.ustuck == magr) {
                 if (is_pool(magr->mx, magr->my) && !Swimming && !Amphibious
-                    && !Breathless) {
+                    && !Breathless
+                    && pa != &mons[PM_MIND_FLAYER_LARVA]) {
                     boolean moat = (levl[magr->mx][magr->my].typ != POOL)
                                    && !is_waterwall(magr->mx, magr->my)
                                    && !Is_medusa_level(&u.uz)
@@ -4228,11 +4268,42 @@ mhitm_ad_wrap(
                     done(DROWNING);
                 } else if (mattk->aatyp == AT_HUGS) {
                     You("are being crushed.");
+                } else if (mattk->aatyp == AT_TENT) {
+                    if (Race_if(PM_ILLITHID)
+                        || is_mind_flayer(gy.youmonst.data)) {
+                        pline_mon(magr,
+                                  "%s senses you are kin, and releases"
+                                  " its grip.", Monnam(magr));
+                        set_ustuck((struct monst *) 0);
+                        mhm->damage = 0;
+                    } else if (magr->mstate & MON_DETACH) {
+                        /* a dying larva can't complete the transformation */
+                        pline_mon(magr, "%s shudders and loses its grip!",
+                                  Monnam(magr));
+                        set_ustuck((struct monst *) 0);
+                        mhm->damage = 0;
+                    } else {
+                        urgent_pline("%s burrows itself into your brain!",
+                                     Monnam(magr));
+                        Your("last thoughts fade away as you begin"
+                             " your transformation...");
+                        svk.killer.format = NO_KILLER_PREFIX;
+                        Sprintf(svk.killer.name,
+                                "became a parasitic host to %s",
+                                an(pmname(magr->data, Mgender(magr))));
+                        /* the larva just took over your body */
+                        mongone(magr);
+                        done(DIED);
+                    }
                 }
             } else {
                 mhm->damage = 0;
                 if (flags.verbose) {
-                    if (coil)
+                    if (pa == &mons[PM_MIND_FLAYER_LARVA])
+                        pline_mon(magr,
+                                  "%s tries to attach itself to your %s!",
+                                  Monnam(magr), body_part(FACE));
+                    else if (coil)
                         pline_mon(magr, "%s brushes against you.",
                                   Monnam(magr));
                     else
@@ -4244,10 +4315,40 @@ mhitm_ad_wrap(
             mhm->damage = 0;
     } else {
         /* mhitm */
-        if (magr->mcan)
+        /* suffocation attack: negate damage for breathless; this
+           isn't affected by cancellation */
+        if (magr->mcan
+            || (attacktype_fordmg(pa, AT_ENGL, AD_WRAP) && breathless(pd)))
             mhm->damage = 0;
 
-        if (!mhm->damage && (canseemon(magr) || canseemon(mdef))) {
+        if (pa == &mons[PM_MIND_FLAYER_LARVA] && can_become_flayer(pd)) {
+            if (rn2(6)) {
+                if (canseemon(mdef))
+                    pline("%s tries to attach itself to %s %s!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)),
+                          mbodypart(mdef, FACE));
+            } else if (m_slips_free(mdef, mattk)) {
+                mhm->damage = 0;
+            } else {
+                if (canseemon(mdef)) {
+                    pline("%s wraps its tentacles around %s %s,"
+                          " attaching itself to %s %s!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)),
+                          mbodypart(mdef, HEAD), mhis(mdef),
+                          mbodypart(mdef, FACE));
+                    pline("%s burrows itself into %s brain!",
+                          Monnam(magr), s_suffix(the(mon_nam(mdef))));
+                }
+                if (!mlifesaver(mdef)) {
+                    /* mind flayer larva transforms by consuming the host */
+                    mhm->hitflags |= become_flayer(magr, mdef);
+                    mhm->damage = 0;
+                    mhm->done = TRUE;
+                } else {
+                    mhm->damage = mdef->mhp;
+                }
+            }
+        } else if (!mhm->damage && (canseemon(magr) || canseemon(mdef))) {
             pline("%s brushes against %s.",
                   Some_Monnam(magr), some_mon_nam(mdef));
         }

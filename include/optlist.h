@@ -608,6 +608,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(price_quotes, General, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.pricequotes, Term_False,
            "display prices you have seen for unidentified objects")
+    NHOPTC(pseudoname, Advanced, PL_PSIZ, opt_in, set_gameview,
+                No, Yes, No, No, NoAlias,
+                "name of your starting pet if it is a pseudodragon")
     NHOPTB(pushweapon, Behavior, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.pushweapon, Term_False,
            "previous weapon goes to secondary slot")

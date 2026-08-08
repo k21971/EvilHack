@@ -780,6 +780,7 @@ struct instance_globals_p {
     /* dog.c */
     int petname_used; /* user preferred pet name has been used */
     char preferred_pet; /* '\0', 'c', 'd', 'n' (none) */
+    char pseudoname[PL_PSIZ];
 
     /* symbols.c */
     nhsym primary_syms[SYM_MAX];   /* loaded primary symbols          */

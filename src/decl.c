@@ -635,6 +635,7 @@ static const struct instance_globals_p g_init_p = {
     /* dog.c */
     0,  /* petname_used */
     UNDEFINED_VALUE, /* preferred_pet */
+    DUMMY, /* pseudoname */
     /* symbols.c */
     DUMMY, /* primary_syms */
     /* invent.c */

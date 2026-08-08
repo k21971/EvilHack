@@ -453,6 +453,138 @@ zombie_form(struct permonst *pm)
     return NON_PM;
 }
 
+/* a mind flayer larva consumes a suitable host and matures into an
+   adult mind flayer; the larva does the transformation codewise, but
+   thematically it is the host's body that is taken over */
+int
+become_flayer(
+    struct monst *magr, /* mind flayer larva */
+    struct monst *mdef) /* victim */
+{
+    boolean tamer = magr->mtame;
+    char victimname[PL_PSIZ];
+    coordxy host_x = mdef->mx, host_y = mdef->my;
+    boolean mdef_tame = mdef->mtame;
+    boolean mdef_peaceful = mdef->mpeaceful;
+
+    /* a dying larva can't complete transformation */
+    if (magr->mstate & MON_DETACH) {
+        if (canseemon(magr))
+            pline("%s shudders and loses its grip!", Monnam(magr));
+        return M_ATTK_AGR_DIED;
+    }
+
+    /* special case: Izchak cannot be consumed */
+    if (is_izchak(mdef, TRUE) && racial_human(mdef)) {
+        if (canseemon(mdef)) {
+            pline("%s starts to transform into a mind flayer!",
+                  Monnam(mdef));
+            pline("But wait!  %s transforms into his true form!",
+                  Monnam(mdef));
+        }
+        /* no liquid/open-air hazard here: newcham defers those
+           checks to the new form's next move */
+        (void) newcham(mdef, &mons[PM_ARCHANGEL], NO_NC_FLAGS);
+        mdef->mcanmove = 1;
+        mdef->mfrozen = 0;
+        mdef->mstone = 0;
+        mdef->msick = 0;
+        mdef->mdiseased = 0;
+        mdef->mwither = 0;
+        mdef->mconf = 0;
+        mdef->mstun = 0;
+        free_erac(mdef);
+        mdef->mhp = mdef->mhpmax = 1500;
+        newsym(mdef->mx, mdef->my);
+        /* larva dies from the attempt */
+        mongone(magr);
+        return M_ATTK_AGR_DIED;
+    }
+
+    /* preserve victim's name if it had one */
+    victimname[0] = '\0';
+    if (has_mgivenname(mdef) && !Hallucination)
+        Strcpy(victimname, MGIVENNAME(mdef));
+
+    if (canseemon(mdef))
+        pline("%s transforms into a mind flayer!", Monnam(mdef));
+
+    mongone(mdef); /* remove the victim */
+
+    /* check for genocided/extinct mind flayers */
+    if (svm.mvitals[PM_MIND_FLAYER].mvflags & G_GONE) {
+        if (canseemon(magr))
+            pline("As %s transforms into a mind flayer, %s dies!",
+                  mon_nam(magr), mhe(magr));
+        mondied(magr);
+        return M_ATTK_AGR_DIED;
+    }
+
+    /* transform the larva (aggressor) into a mind flayer */
+    if (newcham(magr, &mons[PM_MIND_FLAYER], NO_NC_FLAGS)) {
+        /* the transform might have killed the new mind flayer */
+        if (DEADMONSTER(magr))
+            return M_ATTK_AGR_DIED;
+        /* give the mind flayer the victim's name */
+        if (victimname[0] != '\0')
+            (void) christen_monst(magr, victimname);
+
+        /* clear status ailments from the larva */
+        magr->mcanmove = 1;
+        magr->mfrozen = 0;
+        magr->mstone = 0;
+        magr->msick = 0;
+        magr->mdiseased = 0;
+        magr->mwither = 0;
+        magr->mconf = 0;
+        magr->mstun = 0;
+
+        /* preserve tame/peaceful status from larva */
+        if (!tamer && (mdef_tame || mdef_peaceful)) {
+            magr->mtame = magr->mpeaceful = 0;
+            set_malign(magr);
+        }
+        if (tamer)
+            (void) tamedog(magr, (struct obj *) 0, FALSE);
+
+        /* always place the new mind flayer at victim's location */
+        if (magr->mx != host_x || magr->my != host_y) {
+            coordxy old_x = magr->mx, old_y = magr->my;
+            struct monst *mon_steed = m_at(host_x, host_y);
+
+            /* if victim was a rider, their steed may now occupy the spot
+               after separate_steed_and_rider() was called in mongone() */
+            if (mon_steed) {
+                coord cc;
+
+                if (enexto_core_mon(&cc, host_x, host_y, mon_steed,
+                                    NO_MM_FLAGS)) {
+                    remove_monster(host_x, host_y);
+                    place_monster(mon_steed, cc.x, cc.y);
+                    newsym(cc.x, cc.y);
+                } else {
+                    /* no adjacent room; relocate steed elsewhere */
+                    (void) rloc(mon_steed, RLOC_NOMSG);
+                }
+            }
+
+            remove_monster(old_x, old_y);
+            place_monster(magr, host_x, host_y);
+            /* the raw relocation bypasses trap handling; a larva that
+               was webbed or pitted would keep a trapped flag with no
+               trap under the new location */
+            magr->mtrapped = 0;
+            newsym(old_x, old_y);   /* update old position */
+            newsym(host_x, host_y); /* update new position */
+        }
+
+        set_malign(magr);
+    }
+
+    /* only the defender died - larva continues as mind flayer */
+    return M_ATTK_DEF_DIED;
+}
+
 /* convert the monster index of an undead to its living counterpart */
 int
 undead_to_corpse(int mndx)
@@ -1248,9 +1380,12 @@ minliquid_core(struct monst *mtmp)
             return 1;
         }
     } else {
-        /* but eels have a difficult time outside */
+        /* but eels have a difficult time outside; shallow water and
+           sewage are wet enough to keep them going */
         if (mtmp->data->mlet == S_EEL && !Is_waterlevel(&u.uz)
-            && !breathless(mtmp->data)) {
+            && !breathless(mtmp->data)
+            && !(is_puddle(mtmp->mx, mtmp->my)
+                 || is_sewage(mtmp->mx, mtmp->my))) {
             /* as mhp gets lower, the rate of further loss slows down */
             if (mtmp->mhp > 1 && rn2(mtmp->mhp) > rn2(8))
                 mtmp->mhp--;
@@ -2837,6 +2972,16 @@ mm_aggression(
        will attack anything not mindless */
     if (magr->data == &mons[PM_NEOTHELID]
         && !mindless(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* mind flayer larvae need live humanoids as hosts
+       so they can mature into adult flayers */
+    if (magr->data == &mons[PM_MIND_FLAYER_LARVA]
+        && can_become_flayer(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* pseudodragons *really* like to hunt for rodents */
+    if (is_pseudodragon(magr->data) && is_rat(mdef->data))
         return ALLOW_M | ALLOW_TM;
 
     /* Various other combinations such as dog vs cat, cat vs rat, and
@@ -5646,8 +5791,13 @@ void
 qst_guardians_respond(void)
 {
     struct monst *mon;
-    struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
+    int guardnum = quest_info(MS_GUARDIAN);
+    struct permonst *q_guardian = (guardnum != NON_PM) ? &mons[guardnum]
+                                                       : (struct permonst *) 0;
     int got_mad = 0;
+
+    if (!q_guardian)
+        return;
 
     /* guardians will sense this attack even if they can't see it */
     for (mon = fmon; mon; mon = mon->nmon) {

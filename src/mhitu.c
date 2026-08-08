@@ -1383,6 +1383,9 @@ u_slip_free(
         obj = uarmu;
     if (mattk->adtyp == AD_DRIN)
         obj = uarmh;
+    if (mtmp->data == &mons[PM_MIND_FLAYER_LARVA]
+        && mattk->aatyp == AT_TENT && mattk->adtyp == AD_WRAP)
+        obj = uarmh;
 
     /* if your cloak/armor is greased, monster slips off; this
        protection might fail (33% chance) when the armor is cursed */

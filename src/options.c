@@ -845,7 +845,7 @@ restoptvals(NHFILE *nhfp)
 #endif /* 0 */
 
 /* common to optfn_catname(), optfn_dogname(), optfn_horsename(),
-   optfn_spidername() */
+   optfn_pseudoname(), optfn_spidername() */
 staticfn int
 petname_optfn(
     int optidx, int req,
@@ -856,8 +856,9 @@ petname_optfn(
     char *petname = (optidx == opt_catname) ? gc.catname
                     : (optidx == opt_dogname) ? gd.dogname
                       : (optidx == opt_horsename) ? gh.horsename
-                        : (optidx == opt_spidername) ? gs.spidername
-                          : failsafe;
+                        : (optidx == opt_pseudoname) ? gp.pseudoname
+                          : (optidx == opt_spidername) ? gs.spidername
+                            : failsafe;
 
     if (req == do_init) {
         ;
@@ -920,7 +921,6 @@ optfn_alignment(
     }
     return optn_ok;
 }
-
 
 staticfn int
 optfn_align_message(
@@ -3507,6 +3507,15 @@ optfn_playmode(
 }
 
 staticfn int
+optfn_pseudoname(
+    int optidx, int req,
+    boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
+}
+
+staticfn int
 optfn_race(
     int optidx,
     int req,
@@ -5486,7 +5495,6 @@ spcfn_misc_menu_cmd(int midx, int req, boolean negated, char *opts, char *op)
     return optn_ok;
 }
 
-
 /*
  **********************************
  *
@@ -5537,7 +5545,6 @@ can_set_perm_invent(void)
 #endif
     return TRUE;
 }
-
 
 #ifdef TTY_PERM_INVENT
 void
@@ -7540,7 +7547,6 @@ change_inv_order(char *op)
     return retval;
 }
 
-
 /*
  * Support functions for "warning"
  *
@@ -8085,7 +8091,6 @@ illegal_menu_cmd_key(uchar c)
     return FALSE;
 }
 
-
 /*
  * Convert the given string of object classes to a string of default object
  * symbols.
@@ -8326,7 +8331,6 @@ fruitadd(char *str, struct fruit *replace_fruit)
  *
  **********************************
  */
-
 
 DISABLE_WARNING_FORMAT_NONLITERAL   /* RESTORE is after show_menucontrols() */
 
@@ -9096,7 +9100,6 @@ doset_add_menu(
     add_menu(win, &nul_glyphinfo, &any, 0, 0,
              ATR_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
 }
-
 
 /* display keys for menu actions; used by cmd.c '?i' and pager.c '?k' */
 void
@@ -10248,8 +10251,6 @@ disregard_this_option(enum opt optidx)
     if (optidx >= 0 && optidx < (enum opt) OPTCOUNT)
         allopt[optidx].disregarded = TRUE;
 }
-
-
 
 #undef OPTIONS_HEADING
 #undef CONFIG_SLOT

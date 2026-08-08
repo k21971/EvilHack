@@ -2599,7 +2599,8 @@ mbodypart(struct monst *mon, int part)
     }
     if (mptr == &mons[PM_STALKER] && part == HEAD)
         return "head";
-    if (mptr->mlet == S_EEL && mptr != &mons[PM_JELLYFISH])
+    if (mptr->mlet == S_EEL && mptr != &mons[PM_JELLYFISH]
+        && mptr != &mons[PM_MIND_FLAYER_LARVA])
         return fish_parts[part];
     if (mptr->mlet == S_WORM)
         return worm_parts[part];

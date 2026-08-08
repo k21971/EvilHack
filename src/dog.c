@@ -447,11 +447,12 @@ makedog(void)
               : (pettype == PM_KITTEN) ? gc.catname
                 : (pettype == PM_PONY) ? gh.horsename
                   : (pettype == PM_LARGE_SPIDER) ? gs.spidername
-                    : (pettype == PM_LESSER_NIGHTMARE) ? gh.horsename
-                      : (pettype == PM_SKELETAL_PONY) ? gh.horsename
-                        : (pettype == PM_SMALL_SKELETAL_HOUND) ? gd.dogname
-                          : (pettype == PM_WOLF_CUB) ? gd.dogname
-                            : "";
+                    : (pettype == PM_PSEUDODRAGON) ? gp.pseudoname
+                      : (pettype == PM_LESSER_NIGHTMARE) ? gh.horsename
+                        : (pettype == PM_SKELETAL_PONY) ? gh.horsename
+                          : (pettype == PM_SMALL_SKELETAL_HOUND) ? gd.dogname
+                            : (pettype == PM_WOLF_CUB) ? gd.dogname
+                              : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {

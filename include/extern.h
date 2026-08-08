@@ -1885,6 +1885,7 @@ extern void mon_sanity_check(void);
 extern boolean zombie_maker(struct monst *) NONNULLARG1;
 extern int zombie_form(struct permonst *) NONNULLARG1;
 extern int m_poisongas_ok(struct monst *) NONNULLARG1;
+extern int become_flayer(struct monst *, struct monst *) NONNULLPTRS;
 extern int undead_to_corpse(int);
 extern int genus(int, int);
 extern int pm_to_cham(int);

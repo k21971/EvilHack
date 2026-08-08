@@ -248,6 +248,11 @@
      || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP   \
      || ((ptr)->mlet == S_HUMANOID && !is_illithid(ptr)) \
      || (ptr)->mlet == S_GNOME || (ptr)->mlet == S_ORC)
+#define can_become_flayer(ptr) \
+    (!nonliving(ptr) && ((ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP      \
+                         || ((ptr)->mlet == S_HUMANOID && !is_illithid(ptr)) \
+                         || (ptr)->mlet == S_GNOME || (ptr)->mlet == S_ORC   \
+                         || (ptr)->mlet == S_GIANT))
 #define is_skeletal_animal(ptr) \
     ((ptr) == &mons[PM_SMALL_SKELETAL_HOUND]    \
      || (ptr) == &mons[PM_SKELETAL_HOUND]       \
