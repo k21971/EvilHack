@@ -40,5 +40,9 @@ MONSPELL(DEATH_TOUCH, 20, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(LEARNED_SPELL, 0, MCF_NONE),
 /* charm-monster special vs tame monsters; castmm() only */
 MONSPELL(UNTAME_PET,    0, MCF_NONE),
+/* druidic self-wards; choose_monster_spell() substitutes them for
+   the druid caster ring in place of same-level clerical picks */
+MONSPELL(BARKSKIN,      2, MCF_INDIRECT),
+MONSPELL(STONESKIN,     6, MCF_INDIRECT),
 
 #undef MONSPELL

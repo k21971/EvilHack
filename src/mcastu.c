@@ -45,6 +45,7 @@ static int mon_wizard_spells[] = {
 staticfn void cursetxt(struct monst *, boolean);
 staticfn boolean mon_has_eregen_artifact(struct monst *);
 staticfn boolean is_boss_caster(struct monst *);
+staticfn int druid_ward_subst(struct monst *, int);
 staticfn int choose_monster_spell(struct monst *, int);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
@@ -129,6 +130,25 @@ cursetxt(struct monst *mtmp, boolean undirected)
 
 /* choose a spell for monster to cast */
 staticfn int
+druid_ward_subst(struct monst *mtmp, int spellnum)
+{
+    /* Elanee and her circle ward themselves with the druidic skin
+       spells in place of the generic clerical picks of the same
+       level; once either ward is up the generic pick stands (the
+       wards are mutually exclusive) */
+    if (mtmp->data != &mons[PM_ELANEE] && mtmp->data != &mons[PM_DRUID]
+        && mtmp->data != &mons[PM_ASPIRANT])
+        return spellnum;
+    if (has_barkskin(mtmp) || has_stoneskin(mtmp))
+        return spellnum;
+    if (spellnum == MCAST_BLIND_YOU)
+        return MCAST_STONESKIN;
+    if (spellnum == MCAST_CONFUSE_YOU)
+        return MCAST_BARKSKIN;
+    return spellnum;
+}
+
+staticfn int
 choose_monster_spell(struct monst *mtmp, int adtyp)
 {
     int *list = NULL;
@@ -170,11 +190,15 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
     if (spellval > maxlev && rn2(maxlev))
         spellval = rn2(maxlev);
 
-    /* find the highest spell in the list we could cast,
-       or fall back to the first spell in the list */
+    /* find the highest spell in the list we could cast, or fall back
+       to the first spell in the list; the druid substitution runs on
+       the candidate BEFORE the useless test so the substituted
+       spell's own flags decide (the wards are indirect and castable
+       by the peaceful circle, unlike the hostile-only picks they
+       replace) */
     for (i = len - 1; i > 0; i--)
         if (mcast_data[list[i]].level <= spellval
-            && !spell_would_be_useless(mtmp, list[i]))
+            && !spell_would_be_useless(mtmp, druid_ward_subst(mtmp, list[i])))
             break;
 
     /* the Ice Queen and Asmodeus are creatures of cold; they conjure
@@ -184,7 +208,7 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
             || mtmp->data == &mons[PM_ASMODEUS]))
         return MCAST_LIGHTNING;
 
-    return list[i];
+    return druid_ward_subst(mtmp, list[i]);
 }
 
 /* return values:
@@ -1049,6 +1073,14 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
         mcast_confuse_you(mtmp);
         dmg = 0;
         break;
+    case MCAST_BARKSKIN:
+        cast_barkskin(mtmp, P_SKILL(spell_skilltype(SPE_BARKSKIN)));
+        dmg = 0;
+        break;
+    case MCAST_STONESKIN:
+        cast_stoneskin(mtmp, P_SKILL(spell_skilltype(SPE_STONESKIN)));
+        dmg = 0;
+        break;
     case MCAST_OPEN_WOUNDS:
         dmg = mcast_open_wounds(dmg);
         break;
@@ -1160,6 +1192,12 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
     case MCAST_CURE_SELF:
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax)
+            return TRUE;
+        break;
+    case MCAST_BARKSKIN:
+    case MCAST_STONESKIN:
+        /* the two skin wards are mutually exclusive */
+        if (has_barkskin(mtmp) || has_stoneskin(mtmp))
             return TRUE;
         break;
     case MCAST_BLIND_YOU:
