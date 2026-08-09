@@ -764,13 +764,14 @@ LUA_FILES = $(DAT)bigrm-1.lua \
 	$(DAT)earth.lua $(DAT)fire.lua $(DAT)water.lua \
 	$(DAT)hellfill.lua $(DAT)tut-1.lua $(DAT)tut-2.lua \
 	$(DAT)Arc-goal.lua $(DAT)Bar-goal.lua $(DAT)Cav-goal.lua \
-	$(DAT)Con-goal.lua $(DAT)Hea-goal.lua $(DAT)Kni-goal.lua \
-	$(DAT)Mon-goal.lua $(DAT)Pri-goal.lua $(DAT)Ran-goal.lua \
-	$(DAT)Rog-goal.lua $(DAT)Sam-goal.lua $(DAT)Tou-goal.lua \
-	$(DAT)Val-goal.lua $(DAT)Wiz-goal.lua $(DAT)Arc-fila.lua \
-	$(DAT)Arc-filb.lua $(DAT)Bar-fila.lua $(DAT)Bar-filb.lua \
-	$(DAT)Cav-fila.lua $(DAT)Cav-filb.lua $(DAT)Con-fila.lua \
-	$(DAT)Con-filb.lua $(DAT)Hea-fila.lua $(DAT)Hea-filb.lua \
+	$(DAT)Con-goal.lua $(DAT)Dru-goal.lua $(DAT)Hea-goal.lua \
+	$(DAT)Kni-goal.lua $(DAT)Mon-goal.lua $(DAT)Pri-goal.lua \
+	$(DAT)Ran-goal.lua $(DAT)Rog-goal.lua $(DAT)Sam-goal.lua \
+	$(DAT)Tou-goal.lua $(DAT)Val-goal.lua $(DAT)Wiz-goal.lua \
+	$(DAT)Arc-fila.lua $(DAT)Arc-filb.lua $(DAT)Bar-fila.lua \
+	$(DAT)Bar-filb.lua $(DAT)Cav-fila.lua $(DAT)Cav-filb.lua \
+	$(DAT)Con-fila.lua $(DAT)Con-filb.lua $(DAT)Dru-fila.lua \
+	$(DAT)Dru-filb.lua $(DAT)Hea-fila.lua $(DAT)Hea-filb.lua \
 	$(DAT)Kni-fila.lua $(DAT)Kni-filb.lua $(DAT)Mon-fila.lua \
 	$(DAT)Mon-filb.lua $(DAT)Pri-fila.lua $(DAT)Pri-filb.lua \
 	$(DAT)Ran-fila.lua $(DAT)Ran-filb.lua $(DAT)Rog-fila.lua \
@@ -778,15 +779,16 @@ LUA_FILES = $(DAT)bigrm-1.lua \
 	$(DAT)Tou-fila.lua $(DAT)Tou-filb.lua $(DAT)Val-fila.lua \
 	$(DAT)Val-filb.lua $(DAT)Wiz-fila.lua $(DAT)Wiz-filb.lua \
 	$(DAT)Arc-loca.lua $(DAT)Bar-loca.lua $(DAT)Cav-loca.lua \
-	$(DAT)Con-loca.lua $(DAT)Hea-loca.lua $(DAT)Kni-loca.lua \
-	$(DAT)Mon-loca.lua $(DAT)Pri-loca.lua $(DAT)Ran-loca.lua \
-	$(DAT)Rog-loca.lua $(DAT)Sam-loca.lua $(DAT)Tou-loca.lua \
-	$(DAT)Val-loca.lua $(DAT)Wiz-loca.lua $(DAT)Arc-strt.lua \
-	$(DAT)Bar-strt.lua $(DAT)Cav-strt.lua $(DAT)Con-strt.lua \
-	$(DAT)Hea-strt.lua $(DAT)Kni-strt.lua $(DAT)Mon-strt.lua \
-	$(DAT)Pri-strt.lua $(DAT)Ran-strt.lua $(DAT)Rog-strt.lua \
-	$(DAT)Sam-strt.lua $(DAT)Tou-strt.lua $(DAT)Val-strt.lua \
-	$(DAT)Wiz-strt.lua $(DAT)dungeon.lua $(DAT)quest.lua
+	$(DAT)Con-loca.lua $(DAT)Dru-loca.lua $(DAT)Hea-loca.lua \
+	$(DAT)Kni-loca.lua $(DAT)Mon-loca.lua $(DAT)Pri-loca.lua \
+	$(DAT)Ran-loca.lua $(DAT)Rog-loca.lua $(DAT)Sam-loca.lua \
+	$(DAT)Tou-loca.lua $(DAT)Val-loca.lua $(DAT)Wiz-loca.lua \
+	$(DAT)Arc-strt.lua $(DAT)Bar-strt.lua $(DAT)Cav-strt.lua \
+	$(DAT)Con-strt.lua $(DAT)Dru-strt.lua $(DAT)Hea-strt.lua \
+	$(DAT)Kni-strt.lua $(DAT)Mon-strt.lua $(DAT)Pri-strt.lua \
+	$(DAT)Ran-strt.lua $(DAT)Rog-strt.lua $(DAT)Sam-strt.lua \
+	$(DAT)Tou-strt.lua $(DAT)Val-strt.lua $(DAT)Wiz-strt.lua \
+	$(DAT)dungeon.lua $(DAT)quest.lua
 
 luawildcards = bigrm-*.lua castle-?.lua \
 	hella-?.lua hellb-?.lua hellc-?.lua \
