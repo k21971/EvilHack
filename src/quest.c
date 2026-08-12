@@ -109,6 +109,11 @@ nemdead(void)
     if (!Qstat(killed_nemesis)) {
         Qstat(killed_nemesis) = TRUE;
         qt_pager("killed_nemesis");
+        /* player had to kill the quest leader to
+           continue - in this case, killing the quest
+           nemesis marks the quest as complete */
+        if (Qstat(killed_leader))
+            u.uevent.qcompleted = 1;
     }
 }
 
@@ -118,6 +123,13 @@ leaddead(void)
     if (!Qstat(killed_leader)) {
         Qstat(killed_leader) = TRUE;
         /* TODO: qt_pager("killed_leader"); ? */
+        /* player killed the quest nemesis,
+           came back with the quest artifact,
+           but made the quest leader angry
+           before talking to them to flag
+           quest as complete */
+        if (Qstat(killed_nemesis))
+            u.uevent.qcompleted = 1;
     }
 }
 
@@ -201,9 +213,32 @@ expulsion(boolean seal)
     schedule_goto(dest, portal_flag, (char *) 0, (char *) 0);
     if (seal) { /* remove the portal to the quest - sealing it off */
         int reexpelled = u.uevent.qexpelled;
+        struct monst *mtmp;
+        int portal_migrants = 0;
 
         u.uevent.qexpelled = 1;
         remdun_mapseen(quest_dnum);
+
+        /* Check if any monsters are migrating to this level via portal */
+        for (mtmp = gm.migrating_mons; mtmp; mtmp = mtmp->nmon) {
+            if ((mtmp->mtrack[0].x == MIGR_PORTAL)
+                && (mtmp->mux == u.uz.dnum
+                    || mtmp->mux == quest_dnum)) {
+                portal_migrants++;
+                /* Change migration type to approximate coordinates to
+                   prevent crash */
+                mtmp->mtrack[0].x = MIGR_APPROX_XY;
+                /* will be set to valid location on arrival */
+                mtmp->mtrack[0].y = 0;
+            }
+        }
+
+        if (portal_migrants && (wizard || iflags.debug_fuzzer)) {
+            pline(
+     "[%d monster%s migrating via portal, redirected to approximate location]",
+                  portal_migrants, portal_migrants == 1 ? " was" : "s were");
+        }
+
         /* Delete the near portal now; the far (main dungeon side)
            portal will be deleted as part of arrival on that level.
            If monster movement is in progress, any who haven't moved
@@ -408,6 +443,12 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
     }
 }
 
+boolean
+q_leader_angered(void)
+{
+    return Qstat(pissed_off);
+}
+
 staticfn void
 chat_with_leader(struct monst *mtmp)
 {
@@ -519,6 +560,14 @@ leader_speaks(struct monst *mtmp)
 
     if (!Qstat(pissed_off))
         chat_with_leader(mtmp);
+
+    /* leader might have become pissed during the chat */
+    if (Qstat(pissed_off)) {
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* update display */
+    }
 }
 
 staticfn void

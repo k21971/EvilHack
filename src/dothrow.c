@@ -2434,6 +2434,20 @@ thitmonst(
                 boolean next2u = monnear(mon, u.ux, u.uy);
 
                 finish_quest(obj); /* acknowledge quest completion */
+                if (mcarried(obj)
+                    || (is_quest_artifact(obj) && q_leader_angered())) {
+                    /* quest leader keeps the artifact, so don't throw
+                       it back; mcarried indicates the player agreed to
+                       forfeit it and it was subsequently placed into
+                       the leader's inventory, otherwise it is taken
+                       now (an angered leader does not hand it back) */
+                    if (!mcarried(obj)) {
+                        if (*u.ushops || obj->unpaid) /* not likely */
+                            check_shop_obj(obj, mon->mx, mon->my, FALSE);
+                        (void) mpickobj(mon, obj);
+                    }
+                    return 1;
+                }
                 pline("%s %s %s back to you.", Some_Monnam(mon),
                       (next2u ? "hands" : "tosses"), the(xname(obj)));
                 if (!next2u)

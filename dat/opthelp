@@ -336,6 +336,8 @@ gender     Your starting gender (male, female, or random).         [random]
            You may specify just the first letter.  Although you can
            still denote your gender using the old "male" and "female"
            boolean options, the "gender" option will take precedence.
+hawkname   name of your starting pet if it is a hawk                 [none]
+homunname  name of your starting pet if it is a lesser homunculus    [none]
 horsename  name of your starting pet if it is a pony                 [none]
 menu_*     specify single character accelerators for menu commands.
            Here is a list of all commands with their default keystroke
@@ -370,8 +372,13 @@ pettype    your preferred type of pet (cat, dog, horse, random,    [random]
            but not horse.  For roles which force a particular type,
            pettype is ignored unless it specifies 'none'.
 playmode   normal play or non-scoring explore mode or debug mode   [normal]
+pseudoname name of your starting pet if it is a pseudodragon         [none]
 race       Your starting race (e.g., race:Human, race:Elf).        [random]
            Most roles restrict race choice to a subset.
+ratname    name of your starting pet if it is a sewer rat            [none]
+           Convicts are the only role to have a sewer rat as a
+           starting pet.  Its default starting name is "Nicodemus"
+           unless specified.
 role       Your starting role (e.g., role:Barbarian, role:Valk).   [random]
            Although you can specify just the first letter(s), it will
            choose only the first role it finds that matches; thus, it
@@ -379,6 +386,7 @@ role       Your starting role (e.g., role:Barbarian, role:Valk).   [random]
            as possible.  You can also still denote your role by
            appending it to the "name" option (e.g., name:Vic-V), but
            the "role" option will take precedence.
+spidername name of your starting pet if it is a large spider         [none]
 windowtype windowing system to be used    [depends on operating system and
            compile-time setup]    if more than one choice is available.
            Some instances of the program support only one window-type;

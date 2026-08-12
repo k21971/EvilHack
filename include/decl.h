@@ -461,6 +461,8 @@ struct instance_globals_h {
                     * the current turn */
 
     /* dog.c */
+    char hawkname[PL_PSIZ];
+    char homunname[PL_PSIZ];
     char horsename[PL_PSIZ];
 
     /* mhitu.c */
@@ -779,7 +781,8 @@ struct instance_globals_p {
 
     /* dog.c */
     int petname_used; /* user preferred pet name has been used */
-    char preferred_pet; /* '\0', 'c', 'd', 'n' (none) */
+    char preferred_pet; /* '\0', 'c', 'd', 'h', 'i', 'p', 'r', 's',
+                           'B', 'n' (none) */
     char pseudoname[PL_PSIZ];
 
     /* symbols.c */
@@ -829,6 +832,9 @@ struct instance_globals_r {
 
     /* symbols.c */
     nhsym rogue_syms[SYM_MAX];   /* loaded rogue symbols           */
+
+    /* dog.c */
+    char ratname[PL_PSIZ];
 
     /* extralev.c */
     struct rogueroom r[3][3];

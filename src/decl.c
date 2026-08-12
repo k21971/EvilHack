@@ -403,6 +403,8 @@ static const struct instance_globals_h g_init_h = {
               * where n is usually 1, sometimes 2 when Fast/Very_fast, maybe
               * higher if polymorphed into something that's even faster */
     /* dog.c */
+    DUMMY, /* hawkname */
+    DUMMY, /* homunname */
     DUMMY, /* horsename */
     /* mhitu.c */
     0U, /* hitmsg_mid */
@@ -674,6 +676,8 @@ static const struct instance_globals_q g_init_q = {
 static const struct instance_globals_r g_init_r = {
     /* symbols.c */
     DUMMY, /* rogue_syms */
+    /* dog.c */
+    DUMMY, /* ratname */
     /* extralev.c */
     { { UNDEFINED_VALUES } }, /* r */
     /* mkmaze.c */

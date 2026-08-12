@@ -452,7 +452,11 @@ makedog(void)
                         : (pettype == PM_SKELETAL_PONY) ? gh.horsename
                           : (pettype == PM_SMALL_SKELETAL_HOUND) ? gd.dogname
                             : (pettype == PM_WOLF_CUB) ? gd.dogname
-                              : "";
+                              : (pettype == PM_SEWER_RAT) ? gr.ratname
+                                : (pettype == PM_LESSER_HOMUNCULUS)
+                                  ? gh.homunname
+                                  : (pettype == PM_HAWK) ? gh.hawkname
+                                    : "";
 
     /* default pet names */
     if (!*petname && pettype == PM_LITTLE_DOG) {
@@ -1039,6 +1043,22 @@ mon_catchup_elapsed_time(
            never losing any time to be accounted for later */
         impossible("catching up for leashed monster?");
         m_unleash(mtmp, FALSE);
+    }
+
+    /* maybe pick up the abandoned Amulet */
+    if (mtmp->data == &mons[PM_AGENT] && !mtmp->mpeaceful
+        && !mon_has_amulet(mtmp) && rn2(imv + 1) > 300) {
+        struct obj *otmp;
+
+        for (otmp = fobj; otmp; otmp = otmp->nobj)
+            if (otmp->otyp == AMULET_OF_YENDOR
+                || otmp->otyp == FAKE_AMULET_OF_YENDOR) {
+                obj_extract_self(otmp);
+                /* mpickobj() may merge otmp into a stack and free it;
+                   the break below ensures otmp is not touched after */
+                (void) mpickobj(mtmp, otmp);
+                break;
+            }
     }
 
     /* recover lost hit points; only the undead can regenerate in

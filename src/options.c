@@ -844,8 +844,9 @@ restoptvals(NHFILE *nhfp)
 
 #endif /* 0 */
 
-/* common to optfn_catname(), optfn_dogname(), optfn_horsename(),
-   optfn_pseudoname(), optfn_spidername() */
+/* common to optfn_catname(), optfn_dogname(), optfn_hawkname(),
+   optfn_homunname(), optfn_horsename(), optfn_pseudoname(),
+   optfn_ratname(), optfn_spidername() */
 staticfn int
 petname_optfn(
     int optidx, int req,
@@ -855,10 +856,13 @@ petname_optfn(
     char failsafe[PL_PSIZ + 1];
     char *petname = (optidx == opt_catname) ? gc.catname
                     : (optidx == opt_dogname) ? gd.dogname
-                      : (optidx == opt_horsename) ? gh.horsename
-                        : (optidx == opt_pseudoname) ? gp.pseudoname
-                          : (optidx == opt_spidername) ? gs.spidername
-                            : failsafe;
+                      : (optidx == opt_hawkname) ? gh.hawkname
+                        : (optidx == opt_homunname) ? gh.homunname
+                          : (optidx == opt_horsename) ? gh.horsename
+                            : (optidx == opt_pseudoname) ? gp.pseudoname
+                              : (optidx == opt_ratname) ? gr.ratname
+                                : (optidx == opt_spidername) ? gs.spidername
+                                  : failsafe;
 
     if (req == do_init) {
         ;
@@ -1852,6 +1856,15 @@ optfn_glyph(
 }
 
 staticfn int
+optfn_hawkname(
+    int optidx,
+    int req, boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
+}
+
+staticfn int
 optfn_hilite_status(
     int optidx UNUSED,
     int req,
@@ -1894,6 +1907,15 @@ optfn_hilite_status(
         return optn_ok;
     }
     return optn_ok;
+}
+
+staticfn int
+optfn_homunname(
+    int optidx,
+    int req, boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
 }
 
 staticfn int
@@ -3221,10 +3243,27 @@ optfn_pettype(
                    pet_type(dog.c) won't actually honor this */
                 gp.preferred_pet = 'h';
                 break;
+            case 'i': /* homunculus */
+                /* 'h' is already taken, 'i' will suffice as
+                   homunculi are represented as such */
+                gp.preferred_pet = 'i';
+                break;
+            case 'p': /* pseudodragon */
+                gp.preferred_pet = 'p';
+                break;
+            case 'r': /* rat */
+                gp.preferred_pet = 'r';
+                break;
+            case 's': /* spider */
+                gp.preferred_pet = 's';
+                break;
+            case 'b': /* hawk; the input is case-folded, so this arm
+                         must test the lowercase letter */
+                gp.preferred_pet = 'B';
+                break;
             case 'n': /* no pet */
                 gp.preferred_pet = 'n';
                 break;
-            case 'r': /* random */
             case '*': /* random */
                 gp.preferred_pet = '\0';
                 break;
@@ -3241,8 +3280,13 @@ optfn_pettype(
         Sprintf(opts, "%s", (gp.preferred_pet == 'c') ? "cat"
                            : (gp.preferred_pet == 'd') ? "dog"
                              : (gp.preferred_pet == 'h') ? "horse"
-                               : (gp.preferred_pet == 'n') ? "none"
-                                 : "random");
+                               : (gp.preferred_pet == 'i') ? "homunculus"
+                                 : (gp.preferred_pet == 'p') ? "pseudodragon"
+                                   : (gp.preferred_pet == 'r') ? "rat"
+                                     : (gp.preferred_pet == 's') ? "spider"
+                                       : (gp.preferred_pet == 'B') ? "hawk"
+                                         : (gp.preferred_pet == 'n') ? "none"
+                                           : "random");
         return optn_ok;
     }
     if (req == get_cnf_val) {
@@ -3551,6 +3595,15 @@ optfn_race(
         return optn_ok;
     }
     return optn_ok;
+}
+
+staticfn int
+optfn_ratname(
+    int optidx,
+    int req, boolean negated,
+    char *opts, char *op)
+{
+    return petname_optfn(optidx, req, negated, opts, op);
 }
 
 staticfn int

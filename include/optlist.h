@@ -357,6 +357,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(guicolor, Advanced, 0, opt_out, set_in_game,
            On, Yes, No, No, NoAlias, &iflags.wc2_guicolor, Term_False,
            "use color for UI")
+    NHOPTC(hawkname, Advanced, PL_PSIZ, opt_in, set_gameview,
+                No, Yes, No, No, NoAlias,
+                "name of your starting pet if it is a hawk")
     NHOPTB(help, Advanced, 0, opt_out, set_in_game,
            On, Yes, No, No, NoAlias, &flags.help, Term_False,
            "show all available info when using whatis-command")
@@ -389,6 +392,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(hitpointbar, Status, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.wc2_hitpointbar, Term_False,
            "show colored bar for hit points")
+    NHOPTC(homunname, Advanced, PL_PSIZ, opt_in, set_gameview,
+                No, Yes, No, No, NoAlias,
+                "name of your starting pet if it is a lesser homunculus")
     NHOPTC(horsename, Advanced, PL_PSIZ, opt_in, set_gameview,
                 No, Yes, No, No, NoAlias,
                 "name of your starting pet if it is a pony")
@@ -621,6 +627,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
            Off, Yes, No, No, NoAlias, &flags.quick_farsight, Term_False,
            "skip map browse when forced to looked at map")
  /* NHOPTC(race) -- moved to top */
+    NHOPTC(ratname, Advanced, PL_PSIZ, opt_in, set_gameview,
+                No, Yes, No, No, NoAlias,
+                "name of your starting pet if it is a sewer rat")
 #ifdef MICRO
     NHOPTB(rawio, Advanced, 0, opt_in, set_in_config,
            Off, Yes, No, No, NoAlias, &iflags.rawio, Term_False,

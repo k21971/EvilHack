@@ -1380,6 +1380,92 @@ use_defensive(struct monst *mtmp)
 #undef m_flee
 }
 
+/* Check if monster with Amulet should escape via stairs/portal.
+   Called after monster movement to handle immediate escape.
+   Returns 2 if monster escaped (migrated), 0 otherwise */
+int
+mon_escape_with_amulet(struct monst *mtmp)
+{
+    coordxy x = mtmp->mx, y = mtmp->my;
+    boolean vismon = canseemon(mtmp);
+    stairway *stway;
+    struct trap *ttrap;
+
+    /* Only intelligent monsters understand the Amulet's significance */
+    if (!mon_has_amulet(mtmp) || mtmp->mpeaceful
+        || mindless(mtmp->data) || is_animal(mtmp->data))
+        return 0;
+
+    /* Check for stairs or a ladder at monster's location */
+    if ((stway = stairway_at(x, y)) != 0) {
+        if (stway->tolev.dnum != u.uz.dnum) {
+            /* On a dungeon branch (master's special stairs)? */
+            if (!u.uz.dnum && u.uz.dlevel == 1 && stway->up) {
+                /* Escaping to the Planes! */
+                if (vismon)
+                    pline("%s escapes to the Planes with the Amulet!",
+                          Monnam(mtmp));
+                if (Role_if(PM_INFIDEL)) {
+                    /* Infidels need the Amulet to imbue the Idol at
+                       Moloch's altar in the Sanctum - losing it to
+                       the Planes is catastrophic and unrecoverable */
+                    livelog_printf(LL_ARTIFACT,
+                        "failed their quest! %s escaped to the Planes "
+                        "with the Amulet of Yendor",
+                        upstart(x_monnam(mtmp, ARTICLE_THE,
+                                         (char *) 0, SUPPRESS_IT,
+                                         TRUE)));
+                    pline("The ground shakes violently!");
+                    You_hear("a voice boom from the depths below:");
+                    verbalize("FOOL!  You have let the Amulet slip "
+                              "through your fingers!");
+                    verbalize("It was to be MINE, and now it is lost "
+                              "to me forever!");
+                    pline("Moloch's fury consumes you utterly.");
+                    svk.killer.format = KILLED_BY;
+                    Strcpy(svk.killer.name, "Moloch's wrath");
+                    done(DIED);
+                    /* won't reach here */
+                }
+                u.uamulet_on_planes = 1;
+            } else {
+                if (vismon)
+                    pline("%s escapes %sstairs with the Amulet!",
+                          Monnam(mtmp), stway->up ? "up" : "down");
+            }
+            migrate_to_level(mtmp, ledger_no(&stway->tolev), MIGR_SSTAIRS,
+                             (coord *) 0);
+            newsym(x, y);
+            return 2;
+        }
+        if (stway->up) {
+            /* On same-dungeon stairs or ladder going up? */
+            if (vismon)
+                pline("%s escapes up%s with the Amulet!", Monnam(mtmp),
+                      stway->isladder ? " the ladder" : "stairs");
+            migrate_to_level(mtmp, ledger_no(&stway->tolev),
+                             stway->isladder ? MIGR_LADDER_DOWN
+                                             : MIGR_STAIRS_DOWN,
+                             (coord *) 0);
+            newsym(x, y);
+            return 2;
+        }
+    }
+
+    /* Check for magic portal (elemental planes) */
+    ttrap = t_at(x, y);
+    if (ttrap && ttrap->ttyp == MAGIC_PORTAL) {
+        if (vismon)
+            pline("%s enters the portal with the Amulet!", Monnam(mtmp));
+        migrate_to_level(mtmp, ledger_no(&ttrap->dst), MIGR_PORTAL,
+                         (coord *) 0);
+        newsym(x, y);
+        return 2;
+    }
+
+    return 0;
+}
+
 int
 rnd_defensive_item(struct monst *mtmp)
 {
@@ -4097,7 +4183,8 @@ mcould_eat_tin(struct monst *mon)
         return FALSE;
 
     mwep = MON_WEP(mon);
-    welded_wep = mwep && mwelded(mwep);
+    welded_wep = (mwep && mwelded(mwep)
+                  && mon->data != &mons[PM_INFIDEL]);
     /* this is different from the player; tin opener or dagger doesn't
        have to be wielded, and knife can be used instead of dagger */
     for (obj = mon->minvent; obj; obj = obj->nobj) {

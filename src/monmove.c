@@ -1464,7 +1464,8 @@ m_digweapon_check(
     if (!Is_rogue_level(&u.uz))
         can_tunnel = racial_tunnels(mtmp);
 
-    if (can_tunnel && racial_needspick(mtmp) && !mwelded(mw_tmp)
+    if (can_tunnel && racial_needspick(mtmp)
+        && !(mwelded(mw_tmp) && mtmp->data != &mons[PM_INFIDEL])
         && (may_dig(nix, niy) || closed_door(nix, niy))) {
         /* may_dig() is either IS_STWALL or IS_TREE */
         if (closed_door(nix, niy)) {
@@ -2463,6 +2464,20 @@ m_move(struct monst *mtmp, int after)
         maybe_unhide_at(mtmp->mx, mtmp->my);
 
         mon_track_add(mtmp, omx, omy);
+
+        /* Intelligent Amulet carriers immediately escape via stairs
+           or portal. Exception: priests in their temple guard the
+           Amulet. Update old position display before the early
+           return */
+        if (mon_has_amulet(mtmp) && !mindless(ptr) && !is_animal(ptr)
+            && !(mtmp->ispriest && inhistemple(mtmp))) {
+            if (mon_escape_with_amulet(mtmp)) {
+                newsym(omx, omy); /* clear the vacated spot */
+                /* the monster left the level; report it the same way
+                   as a death so no caller touches it afterwards */
+                return MMOVE_DIED;
+            }
+        }
     } else {
         if (is_unicorn(ptr) && rn2(2) && !tele_restrict(mtmp)) {
             (void) rloc(mtmp, RLOC_MSG);

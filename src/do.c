@@ -1621,9 +1621,10 @@ goto_level(
         if (In_endgame(newlevel)) { /* 1st Endgame Level !!! */
             /* an Infidel's starting Amulet does not open the Planes;
                only the imbued Idol of Moloch carries its power */
-            if (!u.uhave.amulet
-                || (Role_if(PM_INFIDEL) && !u.uevent.uimbued_idol))
-                return;  /* must have the Amulet */
+            if ((!u.uhave.amulet
+                 || (Role_if(PM_INFIDEL) && !u.uevent.uimbued_idol))
+                && !u.uamulet_on_planes)
+                return;  /* must have the Amulet (or be chasing it) */
             if (!wizard) /* wizard ^V can bypass Earth level */
                 assign_level(newlevel, &earth_level); /* (redundant) */
         } else if (In_tutorial(newlevel)) {

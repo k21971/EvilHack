@@ -2213,6 +2213,7 @@ extern boolean hits_bars(struct obj **, coordxy, coordxy, coordxy, coordxy,
 
 extern boolean find_defensive(struct monst *, boolean) NONNULLARG1;
 extern int use_defensive(struct monst *) NONNULLARG1;
+extern int mon_escape_with_amulet(struct monst *) NONNULLARG1;
 extern int rnd_defensive_item(struct monst *) NONNULLARG1;
 extern boolean find_offensive(struct monst *) NONNULLARG1;
 extern int use_offensive(struct monst *) NONNULLARG1;
@@ -2797,6 +2798,7 @@ extern void nemdead(void);
 extern void leaddead(void);
 extern void artitouch(struct obj *) NONNULLARG1;
 extern boolean ok_to_quest(void);
+extern boolean q_leader_angered(void);
 extern void leader_speaks(struct monst *) NONNULLARG1;
 extern void nemesis_speaks(void);
 extern void nemesis_stinks(coordxy, coordxy);

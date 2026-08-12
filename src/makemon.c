@@ -3366,6 +3366,16 @@ makemon(
             (void) hideunder(mtmp);
         }
         break;
+    case S_EYE:
+        if (mtmp->data == &mons[PM_BEHOLDER]) {
+            /* chase-active: see mklev.c rationale re the Infidel
+               imbued-Idol gate */
+            if (rn2(5)
+                && !(u.uhave.amulet
+                     && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
+                mtmp->msleeping = 1;
+        }
+        break;
     case S_LEPRECHAUN:
         mtmp->msleeping = 1;
         break;
@@ -3510,6 +3520,15 @@ makemon(
         /* done in priest.c for other priests (in temples and roamers) */
         if (mndx != PM_ANGEL)
             apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
+    }
+    /* these monsters are normally affiliated with a deity */
+    if ((mndx == PM_PALADIN || mndx == PM_TEMPLAR || mndx == PM_CHAMPION
+         || mndx == PM_AGENT) && !(mmflags & MM_EMIN)) {
+        aligntyp mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : ptr->maligntyp;
+
+        newemin(mtmp);
+        mtmp->isminion = 1;
+        EMIN(mtmp)->min_align = sgn(mal);
     }
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon && !(mmflags & MM_NOGRP)) {

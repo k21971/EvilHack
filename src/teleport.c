@@ -1568,11 +1568,23 @@ domagicportal(struct trap *ttmp)
 
     /* prevent the poor shnook, whose amulet was stolen while in
      * the endgame, from accidently triggering the portal to the
-     * next level, and thus losing the game
+     * next level, and thus losing the game (unless chasing it)
      */
     if (In_endgame(&u.uz) && !u.uhave.amulet) {
-        You_feel("dizzy for a moment, but nothing happens...");
-        return;
+        struct monst *mtmp;
+
+        if (!u.uamulet_on_planes) {
+            You_feel("dizzy for a moment, but nothing happens...");
+            return;
+        }
+        /* chasing - only allow if the monster with the Amulet
+           already went through */
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (!DEADMONSTER(mtmp) && mon_has_amulet(mtmp)) {
+                You("need to recover the Amulet before proceeding.");
+                return;
+            }
+        }
     }
 
     target_level = ttmp->dst;

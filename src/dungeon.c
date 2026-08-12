@@ -1554,7 +1554,8 @@ prev_level(boolean at_stairs)
         /* (Just make sure it doesn't go above depth 1) */
         if (!u.uz.dnum && u.uz.dlevel == 1
             && !(u.uhave.amulet
-                 && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
+                 && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
+            && !u.uamulet_on_planes)
             done(ESCAPED);
         else {
             newlevel.dnum = stway->tolev.dnum;
