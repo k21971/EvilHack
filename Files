@@ -38,7 +38,8 @@ Cav-fila.lua  Cav-filb.lua  Cav-goal.lua  Cav-loca.lua  Cav-strt.lua
 Con-fila.lua  Con-filb.lua  Con-goal.lua  Con-loca.lua  Con-strt.lua
 Dru-fila.lua  Dru-filb.lua  Dru-goal.lua  Dru-loca.lua  Dru-strt.lua
 GENFILES      Hea-fila.lua  Hea-filb.lua  Hea-goal.lua  Hea-loca.lua
-Hea-strt.lua  Kni-fila.lua  Kni-filb.lua  Kni-goal.lua  Kni-loca.lua
+Hea-strt.lua  Inf-fila.lua  Inf-filb.lua  Inf-goal.lua  Inf-loca.lua
+Inf-strt.lua  Kni-fila.lua  Kni-filb.lua  Kni-goal.lua  Kni-loca.lua
 Kni-strt.lua  Mon-fila.lua  Mon-filb.lua  Mon-goal.lua  Mon-loca.lua
 Mon-strt.lua  Pri-fila.lua  Pri-filb.lua  Pri-goal.lua  Pri-loca.lua
 Pri-strt.lua  Ran-fila.lua  Ran-filb.lua  Ran-goal.lua  Ran-loca.lua

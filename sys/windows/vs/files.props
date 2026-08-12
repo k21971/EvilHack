@@ -77,6 +77,11 @@
     <Luafiles Include = "hellc-2.lua"/>
     <Luafiles Include = "hellc-3.lua"/>
     <Luafiles Include = "hellfill.lua"/>
+    <Luafiles Include = "Inf-fila.lua"/>
+    <Luafiles Include = "Inf-filb.lua"/>
+    <Luafiles Include = "Inf-goal.lua"/>
+    <Luafiles Include = "Inf-loca.lua"/>
+    <Luafiles Include = "Inf-strt.lua"/>
     <Luafiles Include = "Kni-fila.lua"/>
     <Luafiles Include = "Kni-filb.lua"/>
     <Luafiles Include = "Kni-goal.lua"/>
