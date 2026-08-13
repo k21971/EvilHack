@@ -2310,6 +2310,38 @@ sacrifice_your_race(
         useup(otmp);
     else
         useupf(otmp, 1L);
+
+    /* create Dirge from player's longsword here if possible */
+    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
+        && !u.ugangr && u.ualign.record > 0
+        && uwep && (uwep->otyp == LONG_SWORD
+                    || uwep->otyp == ELVEN_LONG_SWORD
+                    || uwep->otyp == ORCISH_LONG_SWORD
+                    || uwep->otyp == DARK_ELVEN_LONG_SWORD)
+        && !uwep->oartifact
+        && !(uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
+        && !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
+        /* TODO-EVILHACK: master also one-shots this per altar via the
+           frac_altar gate and marks the altar fractured, with its
+           lightning-strike message pair; those arms land with the
+           frac_altar subsystem */
+        Your("sword melts in your hand and transforms into something new!");
+        uwep->oprops = uwep->oprops_known = 0L;
+        uwep->otyp = LONG_SWORD;
+        uwep = oname(uwep, artiname(ART_DIRGE), ONAME_GIFT | ONAME_KNOW_ARTI);
+        discover_artifact(ART_DIRGE);
+        bless(uwep);
+        if (uwep->spe < 0)
+            uwep->spe = 0;
+        uwep->oeroded = uwep->oeroded2 = 0;
+        (void) maybe_erodeproof(uwep, 1);
+        exercise(A_WIS, TRUE);
+        u.uconduct.artitouch++;
+        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                       "had Dirge gifted to %s by the grace of %s",
+                       uhim(), align_gname(u.ualign.type));
+        update_inventory();
+    }
 }
 
 staticfn int

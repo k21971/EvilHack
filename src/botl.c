@@ -342,6 +342,12 @@ rank_of(int lev, short monnum, boolean female)
     if (!role->name.m)
         role = &gu.urole;
 
+    /* use dark knight rank titles for a chaotic Knight hero; urole
+       holds the alternate-alignment variant after role_init */
+    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
+        && monnum == PM_KNIGHT)
+        role = &gu.urole;
+
     /* Find the rank */
     for (i = xlev_to_rank((int) lev); i >= 0; i--) {
         if (female && role->rank[i].f)

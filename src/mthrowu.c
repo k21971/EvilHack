@@ -1970,8 +1970,37 @@ hit_bars(
                 You_hear(Hallucination ? "angry snakes!"
                                        : "a hissing noise.");
             }
-            if (!nodissolve)
+            if (!nodissolve) {
+                /* add_damage before terrain change so original type
+                   is saved */
+                if (*in_rooms(barsx, barsy, SHOPBASE))
+                    add_damage(barsx, barsy,
+                               your_fault ? SHOP_BARS_COST : 0L);
+                /* TODO-EVILHACK: also bill temple-boundary bars damage
+                   once temple_at_boundary ports with the temple
+                   damage-repair sweep */
                 dissolve_bars(barsx, barsy);
+            }
+        }
+    } else if ((obj_type == LONG_SWORD && otmp->oartifact == ART_DIRGE)
+               || (obj_type == AKLYS && otmp->oartifact == ART_HARBINGER)) {
+        if (cansee(barsx, barsy) && !nodissolve) {
+            pline_The("acidic %s right through the iron bars!",
+                      otmp->oartifact == ART_DIRGE ? "blade slices"
+                                                   : "aklys eats");
+        } else {
+            Soundeffect(se_angry_snakes, 100);
+            You_hear(Hallucination ? "a hot knife slice through butter!"
+                                   : "a hissing noise.");
+        }
+        if (!nodissolve) {
+            /* add_damage before terrain change so original type is saved */
+            if (*in_rooms(barsx, barsy, SHOPBASE))
+                add_damage(barsx, barsy, your_fault ? SHOP_BARS_COST : 0L);
+            /* TODO-EVILHACK: also bill temple-boundary bars damage once
+               temple_at_boundary ports with the temple damage-repair
+               sweep */
+            dissolve_bars(barsx, barsy);
         }
     } else {
         if (!Deaf) {
@@ -2014,6 +2043,13 @@ hit_bars(
 
             if (!rn2(max(2, chance))) {
                 You("break the bars apart!");
+                /* add_damage before terrain change so original type
+                   is saved */
+                if (*in_rooms(barsx, barsy, SHOPBASE))
+                    add_damage(barsx, barsy, SHOP_BARS_COST);
+                /* TODO-EVILHACK: also bill temple-boundary bars damage
+                   once temple_at_boundary ports with the temple
+                   damage-repair sweep */
                 dissolve_bars(barsx, barsy);
                 noise = noise * 2;
             }

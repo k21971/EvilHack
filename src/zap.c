@@ -6087,12 +6087,14 @@ zap_over_floor(
                 if (see_it)
                     Norep("The %s %s.", defsyms[S_bars].explanation,
                           (damgtype == ZT_ACID) ? "corrode away" : "melt");
-                dissolve_bars(x, y);
+                /* add_damage before terrain change so original type
+                   is saved */
                 if (*in_rooms(x, y, SHOPBASE)) {
                     add_damage(x, y, (type >= 0) ? SHOP_BARS_COST : 0L);
                     if (type >= 0)
                         *shopdamage = TRUE;
                 }
+                dissolve_bars(x, y);
             }
         }
         break; /* ZT_ACID */
