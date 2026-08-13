@@ -437,6 +437,22 @@ tactics(struct monst *mtmp)
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
 
+    /* once a covetous monster gets close enough, they will start
+       to move normally 95% of the time */
+    if (rn2(20) && distu(mtmp->mx, mtmp->my) <= 8
+        /* unless engulfing the hero; it must reach the STRAT_HEAL
+           expels() release instead of moving with the hero inside */
+        && !engulfing_u(mtmp)) {
+        int mv = m_move(mtmp, 0);
+
+        if (mv == MMOVE_DIED)
+            return 2;
+        if (mv == MMOVE_DONE)
+            return 3;
+        /* MMOVE_NOMOVES: monster can still act this turn */
+        return (mv == MMOVE_MOVED) ? 1 : 0;
+    }
+
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
         mx = mtmp->mx, my = mtmp->my;
@@ -683,9 +699,10 @@ pick_nasty_vecna(void)
    creatures on average (in 3.6.0 and earlier, Null was treated as chaotic);
    returns the number of monsters created */
 int
-nasty(struct monst *summoner)
+nasty(struct monst *summoner, boolean centered_on_stairs)
 {
     struct monst *mtmp;
+    stairway *stway;
     coord bypos;
     int i, j, count, census, tmp, makeindex,
         s_cls, m_cls, difcap, trylimit, castalign;
@@ -709,9 +726,22 @@ nasty(struct monst *summoner)
         castalign = summoner ? sgn(summoner->data->maligntyp) : 0;
         tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
         /* if we don't have a casting monster, nasties appear around hero,
-           otherwise they'll appear around spot summoner thinks she's at */
-        bypos.x = u.ux;
-        bypos.y = u.uy;
+           otherwise they'll appear around spot summoner thinks she's at;
+           unless we're being called with the 'stairs' flag to block the
+           adventurer's return with the Amulet */
+        if (centered_on_stairs
+            && (stway = stairway_find_type_dir(FALSE, TRUE)) != 0) {
+            bypos.x = stway->sx;
+            bypos.y = stway->sy;
+            /* the stair square is away from the hero, so makemon's
+               by-you relocation never applies; allow adjacent
+               placement or the wave stops at the first summon
+               (master passes MM_ADJACENTOK for every nasty) */
+            mmflags |= MM_ADJACENTOK;
+        } else {
+            bypos.x = u.ux;
+            bypos.y = u.uy;
+        }
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i) {
             /* Of the 44 nasties[], on this game's monster data 5 are
              * lawful, 20 are chaotic or unaligned, and 19 are neutral.
@@ -891,11 +921,13 @@ resurrect(void)
 void
 intervene(void)
 {
-    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(6);
+    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(8);
 
-    /* cases 0 and 5 don't apply on the Astral level */
+    /* cases 0, and 5 through 7 don't apply on the Astral level */
     switch (which) {
     case 0:
+        You_feel("apprehensive.");
+        break;
     case 1:
         You_feel("vaguely nervous.");
         break;
@@ -908,10 +940,21 @@ intervene(void)
         aggravate();
         break;
     case 4:
-        (void) nasty((struct monst *) 0);
+        (void) nasty((struct monst *) 0, FALSE);
         break;
     case 5:
         resurrect();
+        break;
+    case 6:
+        if (u.uevent.invoked) {
+            pline_The("entire dungeon starts shaking around you!");
+            do_earthquake((MAXULEV - 1) / 3 + 1, FALSE);
+            /* shake up monsters in a much larger radius */
+            awaken_monsters(ROWNO * COLNO);
+        }
+        break;
+    case 7:
+        (void) nasty((struct monst *) 0, TRUE);
         break;
     }
 }

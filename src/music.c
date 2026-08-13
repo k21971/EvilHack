@@ -29,13 +29,11 @@
 #include "hack.h"
 
 staticfn void awaken_scare(struct monst *, boolean);
-staticfn void awaken_monsters(int);
 staticfn void put_monsters_to_sleep(int);
 staticfn void charm_snakes(int);
 staticfn void calm_nymphs(int);
 staticfn void charm_monsters(int);
-staticfn void do_pit(coordxy, coordxy, unsigned);
-staticfn void do_earthquake(int);
+staticfn void do_pit(coordxy, coordxy, unsigned, boolean *, boolean);
 staticfn const char *generic_lvl_desc(void);
 staticfn int do_improvisation(struct obj *);
 staticfn char *improvised_notes(boolean *);
@@ -63,7 +61,7 @@ awaken_scare(struct monst *mtmp, boolean scary)
  * Wake every monster in range...
  */
 
-staticfn void
+void
 awaken_monsters(int distance)
 {
     struct monst *mtmp;
@@ -224,7 +222,8 @@ charm_monsters(int distance)
 
 /* Try to make a pit. */
 staticfn void
-do_pit(coordxy x, coordxy y, unsigned tu_pit)
+do_pit(coordxy x, coordxy y, unsigned tu_pit,
+       boolean *worm_hit, boolean player_caused)
 {
     struct monst *mtmp;
     struct obj *otmp;
@@ -236,7 +235,7 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
         return; /* no pit if portal at that location */
     chasm->tseen = 1;
 
-    mtmp = m_at(x, y); /* (redundant?) */
+    mtmp = m_at(x, y);
     if ((otmp = sobj_at(BOULDER, x, y)) != 0) {
         if (cansee(x, y))
             pline("KADOOM!  The boulder falls into a chasm%s!",
@@ -258,12 +257,14 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
         /* liquid_flow() deletes trap, might kill mtmp */
         if ((chasm = t_at(x, y)) == NULL)
             return;
+        mtmp = m_at(x, y); /* refresh; liquid_flow may have killed mtmp */
     }
 
     /* We have to check whether monsters or hero falls into a
        new pit....  Note: if we get here, chasm is non-Null. */
     if (mtmp) {
-        if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)) {
+        if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)
+            && !(mtmp->wormno && worm_hit[mtmp->wormno])) {
             boolean m_already_trapped = mtmp->mtrapped;
 
             mtmp->mtrapped = 1;
@@ -277,25 +278,36 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
             }
             /* Falling is okay for falling down
                within a pit from jostling too */
-            mselftouch(mtmp, "Falling, ", TRUE);
+            mselftouch(mtmp, "Falling, ", player_caused);
             if (!DEADMONSTER(mtmp)) {
-                mtmp->mhp -= rnd(m_already_trapped ? 4 : 6);
+                damage_mon(mtmp, rnd(m_already_trapped ? 4 : 6),
+                           AD_PHYS, player_caused);
                 if (DEADMONSTER(mtmp)) {
-                    if (!cansee(x, y)) {
-                        pline("It is destroyed!");
+                    if (!player_caused) {
+                        if (cansee(x, y))
+                            pline("%s is destroyed!", Monnam(mtmp));
+                        else
+                            pline("It is destroyed!");
+                        mondied(mtmp);
                     } else {
-                        You("destroy %s!",
-                            mtmp->mtame
-                             ? x_monnam(mtmp, ARTICLE_THE, "poor",
-                                        has_mgivenname(mtmp)
-                                         ? (SUPPRESS_SADDLE
-                                            | SUPPRESS_BARDING) : 0,
-                                        FALSE)
-                             : mon_nam(mtmp));
+                        if (!cansee(x, y)) {
+                            pline("It is destroyed!");
+                        } else {
+                            You("destroy %s!",
+                                mtmp->mtame
+                                 ? x_monnam(mtmp, ARTICLE_THE, "poor",
+                                            has_mgivenname(mtmp)
+                                             ? (SUPPRESS_SADDLE
+                                                | SUPPRESS_BARDING) : 0,
+                                            FALSE)
+                                 : mon_nam(mtmp));
+                        }
+                        xkilled(mtmp, XKILL_NOMSG);
                     }
-                    xkilled(mtmp, XKILL_NOMSG);
                 }
             }
+            if (mtmp->wormno && !DEADMONSTER(mtmp))
+                worm_hit[mtmp->wormno] = TRUE;
         }
     } else if (u_at(x, y)) {
         if (u.utrap && u.utraptype == TT_BURIEDBALL) {
@@ -347,8 +359,8 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit)
 /* Generate earthquake :-) of desired force.
  * That is:  create random chasms (pits).
  */
-staticfn void
-do_earthquake(int force)
+void
+do_earthquake(int force, boolean player_caused)
 {
     static const char into_a_chasm[] = " into a chasm";
     coordxy x, y;
@@ -357,7 +369,9 @@ do_earthquake(int force)
     int start_x, start_y, end_x, end_y, amsk;
     aligntyp algn;
     unsigned tu_pit = 0;
+    boolean quake_worm_hit[MAX_NUM_WORMS];
 
+    (void) memset(quake_worm_hit, 0, sizeof quake_worm_hit);
     if (trap_at_u)
         tu_pit = is_pit(trap_at_u->ttyp);
     if (force > 13) /* sanity precaution; maximum used is actually 10 */
@@ -375,7 +389,8 @@ do_earthquake(int force)
             if ((mtmp = m_at(x, y)) != 0) {
                 /* Lucifer and the Wizard wake and act on their own terms */
                 if (!mtmp->islucifer && !mtmp->iswiz)
-                    wakeup(mtmp, TRUE); /* peaceful monster becomes hostile */
+                    /* a player-caused quake angers peaceful monsters */
+                    wakeup(mtmp, player_caused);
                 if (mtmp->mundetected) {
                     mtmp->mundetected = 0;
                     newsym(x, y);
@@ -418,17 +433,17 @@ do_earthquake(int force)
             case FOUNTAIN: /* make the fountain disappear */
                 if (cansee(x, y))
                     pline_The("fountain falls%s.", into_a_chasm);
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case SINK:
                 if (cansee(x, y))
                     pline_The("kitchen sink falls%s.", into_a_chasm);
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case FORGE:
                 if (cansee(x, y))
                     pline_The("forge falls%s.", into_a_chasm);
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case MAGIC_CHEST:
                 /* magic chests are unaffected by earthquakes */
@@ -443,17 +458,17 @@ do_earthquake(int force)
                     pline_The("%s altar falls%s.",
                               align_str(algn), into_a_chasm);
                 desecrate_altar(FALSE, algn);
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case GRAVE:
                 if (cansee(x, y))
                     pline_The("headstone topples%s.", into_a_chasm);
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case THRONE:
                 if (cansee(x, y))
                     pline_The("throne falls%s.", into_a_chasm);
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case SCORR:
                 levl[x][y].typ = CORR;
@@ -464,7 +479,7 @@ do_earthquake(int force)
                 /*FALLTHRU*/
             case CORR:
             case ROOM:
-                do_pit(x, y, tu_pit);
+                do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case SDOOR:
                 cvt_sdoor_to_door(&levl[x][y]); /* .typ = DOOR */
@@ -475,7 +490,7 @@ do_earthquake(int force)
             case DOOR: /* make the door collapse */
                 /* if already doorless, treat like room or corridor */
                 if (levl[x][y].doormask == D_NODOOR) {
-                    do_pit(x, y, tu_pit);
+                    do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                     break;
                 }
                 /* a metal or stone door has a good chance to withstand
@@ -496,6 +511,9 @@ do_earthquake(int force)
                     pline_The("door collapses.");
                 if (*in_rooms(x, y, SHOPBASE))
                     add_damage(x, y, 0L);
+                /* TODO-EVILHACK: also bill temple-boundary door damage
+                   once temple_at_boundary ports with the temple
+                   damage-repair sweep */
                 break;
             }
         }
@@ -760,7 +778,7 @@ do_improvisation(struct obj *instr)
         You("produce a heavy, thunderous rolling!");
         Hero_playnotes(obj_to_instr(&itmp), "C", 100);
         pline_The("entire %s is shaking around you!", generic_lvl_desc());
-        do_earthquake((u.ulevel - 1) / 3 + 1);
+        do_earthquake((u.ulevel - 1) / 3 + 1, TRUE);
         /* shake up monsters in a much larger radius... */
         awaken_monsters(ROWNO * COLNO);
         makeknown(DRUM_OF_EARTHQUAKE);

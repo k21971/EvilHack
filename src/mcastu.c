@@ -580,7 +580,7 @@ mcast_clone_wiz(struct monst *mtmp)
 staticfn void
 mcast_summon_mons(struct monst *mtmp)
 {
-    int count = nasty(mtmp);
+    int count = nasty(mtmp, FALSE);
 
     if (!count) {
         ; /* nothing was created? */

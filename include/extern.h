@@ -2239,6 +2239,8 @@ extern boolean mcast_nodir_spell(struct monst *, struct monst *,
 
 /* ### music.c ### */
 
+extern void awaken_monsters(int);
+extern void do_earthquake(int, boolean);
 extern void awaken_soldiers(struct monst *) NONNULLARG1;
 extern int do_play_instrument(struct obj *) NONNULLARG1;
 enum instruments obj_to_instr(struct obj *) NONNULLARG1;
@@ -4121,7 +4123,7 @@ extern void clonewiz(void);
 extern int pick_nasty(int);
 extern int pick_nasty_ice(void);
 extern int pick_nasty_vecna(void);
-extern int nasty(struct monst *) NO_NNARGS;
+extern int nasty(struct monst *, boolean) NO_NNARGS;
 extern void resurrect(void);
 extern void intervene(void);
 extern void wizdeadorgone(void);

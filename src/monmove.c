@@ -993,7 +993,12 @@ dochug(struct monst *mtmp)
        inrange is set. This costs a turn only if mstate is set.  */
     /* The Amulet prevents teleportation - skip covetous tactics */
     if (is_covetous(mdat) && !mon_has_amulet(mtmp)) {
-        (void) tactics(mtmp);
+        int tactics_result = tactics(mtmp);
+
+        /* the close-range arm dispatches into m_move; 2 = died,
+           3 = spent its whole action */
+        if (tactics_result >= 2)
+            return (tactics_result == 2) ? 1 : 0;
         /* tactics -> mnexto -> deal_with_overcrowding */
         if (mtmp->mstate)
             return 0;
@@ -2181,6 +2186,12 @@ m_move(struct monst *mtmp, int after)
             return postmov(mtmp, ptr, omx, omy, mmoved,
                            seenflgs, can_tunnel, can_unlock, can_open);
         }
+        /* beyond close range covetous monsters rely on their warping
+           tactics rather than walking; only assume normal movement
+           once near the hero */
+        if (distu(mtmp->mx, mtmp->my) > 8)
+            return postmov(mtmp, ptr, omx, omy, mmoved,
+                           seenflgs, can_tunnel, can_unlock, can_open);
         /* otherwise continue with normal AI routine */
     }
 

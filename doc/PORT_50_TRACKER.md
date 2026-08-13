@@ -5993,8 +5993,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mon.c bones former-rank); until this row lands, those
       callers key dark titles on the HERO being a chaotic Knight
       rather than the mplayer's own alignment.
-      DONE 2026-08-13 (BUG-1552..1556, commit hash rides the next
-      commit): mk_mplayer slimmed to master shape (gear switch +
+      DONE 2026-08-13 (BUG-1552..1557, commit 41970ffcd, bundle
+      evilhack-50_2026-08-13b; hash line rides the next commit):
+      mk_mplayer slimmed to master shape (gear switch +
       mk_mplayer_armor + duplicate item trio deleted; ascending
       semantics, master m_lev/mhp, LUCKSTONE + resistance-aware
       ring loop; !is_mplayer leader early return preserved;
@@ -6111,7 +6112,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       after the assignment; the line serves ALL des monsters -
       reconcile deliberately, watch the session-22 gendered-name
       des rules.
-- [ ] music.c earthquake reconcile (minted 2026-08-06 by the Valkyrie
+- [x] music.c earthquake reconcile (minted 2026-08-06 by the Valkyrie
       slice's archive sweep). Two master fixes do not transplant into
       5.0's rewritten do_earthquake() (the do_pit() helper shape):
       BUG-1053's quake_worm_hit[] long-worm dedup (master hits each
@@ -6146,6 +6147,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mechanism needs NO port - branch 5.0 newcham() has no minliquid
       tail call, so liquid checks are natively deferred; call plain
       newcham (proven by the become_flayer Izchak arm, Wizard slice).
+      DONE 2026-08-13 (BUG-1558..1561, commit hash rides the next
+      commit): (a)-(d) all landed, (e) STAYS PARKED ((d) did not
+      port the short-jump shape). Session adjudications: wakeup
+      stays IN-BODY box-scoped, threaded as wakeup(mtmp,
+      player_caused) - master's caller-side fmon sweeps NOT ported
+      (user ruling; the boss-slice "exemption applies to all
+      callers" NIT re-adjudicated compatible since the exemption
+      now keys off the flag, not the caller); tactics() keeps the
+      harassment sweep's minimal return contract - only the new
+      close-range arm returns died(2)/turn-spent(3), consumed by
+      dochug ahead of the mstate test; the arm carries an
+      engulfing_u() carve-out (5.0's STRAT_HEAL expels() release,
+      absent on master, must stay reachable) and maps 5.0-only
+      MMOVE_NOMOVES to continue; nasty()'s stair seed ORs
+      MM_ADJACENTOK (battery catch: makemon's by-you relocation
+      never applies away from the hero, so an occupied stair square
+      zeroed the wave); centered_on_stairs translated as
+      stairway_find_type_dir(FALSE, TRUE) with silent hero fallback
+      (exact xupstair semantics). Reviewer CONDITIONAL PASS -> HIGH
+      (missing m_move distu>8 warp-only gate, BUG-1561) fixed, LOW
+      temple_at_boundary door-billing routing comment added, LOW
+      covetous-mflee gap routed to the residual row below. Battery
+      6 legs + 2 follow-up mini-legs PASSED, paniclog NEVER
+      CREATED. NOT taken (master parity quirk, kept): after the
+      close-range arm's m_move, dochug may move the monster again
+      the same turn (master has shipped this since 6f210b1fa).
 - [ ] wizard.c target_on()/strategy() residual master deltas (minted
       2026-08-06 by the Valkyrie slice's reviewer, not taken with
       BUG-1477): master's is_mplayer covetousness arms (the M_Wants
@@ -6159,7 +6186,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mplayer-kit slice): the is_mplayer covetousness arms STAY here,
       gated on the Purgatory topology (mplayer_purg_talk is dormant
       with zero callers until Inpurg exists) - the kit slice
-      deliberately did not take them.
+      deliberately did not take them. GREW 2026-08-13 (earthquake-
+      slice reviewer, function-scope census on tactics()): master's
+      covetous-mflee opener (`if (mtmp->mflee) { mavenge = 1;
+      400-try far rloc_to + rnd(8) heal; "looks around nervously"
+      }`) is absent on the branch and was never routed anywhere - a
+      magically-scared covetous monster on the branch never
+      teleport-flees; since the close-range arm landed it instead
+      flee-walks via m_move at close range. DEFER here; when it
+      ports, the close-range arm must move BELOW it (master
+      ordering: mflee block first, then the rn2(20) arm, then the
+      strategy switch).
 - [ ] nasties[] content reconcile (minted 2026-08-07 by the Wizard-
       slice reviewer during the BUG-1516 comment recompute): the
       branch kept upstream 5.0's nasties[] list (EvilHack renames
