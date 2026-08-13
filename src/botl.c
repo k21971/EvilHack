@@ -13,6 +13,7 @@ const char *const enc_stat[] = {
     "Strained", "Overtaxed", "Overloaded"
 };
 
+staticfn const char *rank_of_role(int, const struct Role *, boolean);
 staticfn const char *rank(void);
 staticfn void bot_via_windowport(void);
 staticfn void stat_update_time(void);
@@ -329,24 +330,10 @@ rank_to_xlev(int rank)
            : (rank < 8) ? ((rank * 4) - 2) : 30;
 }
 
-const char *
-rank_of(int lev, short monnum, boolean female)
+staticfn const char *
+rank_of_role(int lev, const struct Role *role, boolean female)
 {
-    const struct Role *role;
     int i;
-
-    /* Find the role */
-    for (role = roles; role->name.m; role++)
-        if (monnum == role->mnum)
-            break;
-    if (!role->name.m)
-        role = &gu.urole;
-
-    /* use dark knight rank titles for a chaotic Knight hero; urole
-       holds the alternate-alignment variant after role_init */
-    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
-        && monnum == PM_KNIGHT)
-        role = &gu.urole;
 
     /* Find the rank */
     for (i = xlev_to_rank((int) lev); i >= 0; i--) {
@@ -362,6 +349,54 @@ rank_of(int lev, short monnum, boolean female)
     else if (role->name.m)
         return role->name.m;
     return "Player";
+}
+
+const char *
+rank_of(int lev, short monnum, boolean female)
+{
+    const struct Role *role;
+
+    /* Find the role */
+    for (role = roles; role->name.m; role++)
+        if (monnum == role->mnum)
+            break;
+    if (!role->name.m)
+        role = &gu.urole;
+
+    /* use dark knight rank titles for a chaotic Knight hero; urole
+       holds the alternate-alignment variant after role_init */
+    if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
+        && monnum == PM_KNIGHT)
+        role = &gu.urole;
+
+    return rank_of_role(lev, role, female);
+}
+
+/* rank title for a player monster, keyed on the monster itself rather
+   than the hero */
+const char *
+rank_of_mplayer(int lev, struct monst *mtmp, boolean female)
+{
+    const struct Role *role;
+    short monnum = monsndx(mtmp->data);
+
+    /* ronin in the samurai quest share the same titles
+       as their samurai counterparts */
+    if (monnum == PM_RONIN)
+        monnum = PM_SAMURAI;
+
+    /* Find the role */
+    for (role = roles; role->name.m; role++)
+        if (monnum == role->mnum)
+            break;
+    if (!role->name.m)
+        role = &gu.urole;
+
+    /* use dark knight rank titles for chaotic mplayer knights */
+    if (role->mnum == PM_KNIGHT && mon_aligntyp(mtmp) < 0)
+        role = &align_roles[0];
+
+    return rank_of_role(lev, role, female);
 }
 
 staticfn const char *

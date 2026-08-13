@@ -1031,13 +1031,6 @@ x_monnam(
             Strcat(buf, name);
             name_at_start = TRUE;
         }
-    } else if (is_mplayer(mdat) && !In_endgame(&u.uz)) {
-        char pbuf[BUFSZ];
-
-        Strcpy(pbuf, rank_of((int) mtmp->m_lev, monsndx(mdat),
-                             (boolean) mtmp->female));
-        Strcat(buf, lcase(pbuf));
-        name_at_start = FALSE;
     } else if (is_rider(mdat)
                && !(suppress & SUPPRESS_RIDER)
                && !m_next2u(mtmp)

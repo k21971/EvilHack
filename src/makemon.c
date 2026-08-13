@@ -2208,7 +2208,7 @@ m_initweap(struct monst *mtmp)
 void
 mkmonmoney(struct monst *mtmp, long amount)
 {
-    /* mk_mplayer() passes rn2(1000) so the amount might be 0 */
+    /* the mplayer kit passes rn2(1000) so the amount might be 0 */
     if (amount > 0L) {
         struct obj *gold = mksobj(GOLD_PIECE, FALSE, FALSE);
 
@@ -4162,6 +4162,16 @@ adj_lev(struct permonst *ptr)
         tmp = ptr->mlevel + svm.mvitals[PM_WIZARD_OF_YENDOR].died;
         if (tmp > 49)
             tmp = 49;
+        return tmp;
+    }
+
+    if (is_mplayer(ptr)) {
+        /* player monsters are kitted out relative to the hero */
+        tmp = rn1(5, u.ulevel - 2);
+        if (tmp < 1)
+            tmp = 1;
+        if (tmp > 30)
+            tmp = 30;
         return tmp;
     }
 

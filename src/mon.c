@@ -7230,13 +7230,12 @@ newcham(
         return 0; /* still the same monster */
 
     mgender_from_permonst(mtmp, mdat);
-    /* Endgame mplayers start out as "Foo the Bar", but some of the
-     * titles are inappropriate when polymorphed, particularly into
-     * the opposite sex.  Player characters don't use ranks when
-     * polymorphed, so dropping rank for mplayers seems reasonable.
+    /* Mplayers start out as "Foo the Bar", but some of the titles are
+     * inappropriate when polymorphed, particularly into the opposite
+     * sex. Player characters don't use ranks when polymorphed, so
+     * dropping rank for mplayers seems reasonable.
      */
-    if (In_endgame(&u.uz) && is_mplayer(olddata)
-        && has_mgivenname(mtmp)
+    if (is_mplayer(olddata) && has_mgivenname(mtmp)
         && (p = strstr(MGIVENNAME(mtmp), " the ")) != 0)
         *p = '\0';
 

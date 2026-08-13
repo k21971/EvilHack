@@ -4,120 +4,262 @@
 
 #include "hack.h"
 
-staticfn const char *dev_name(void);
 staticfn void get_mplname(struct monst *, char *);
-staticfn void mk_mplayer_armor(struct monst *, short);
 
-/* These are the names of those who
- * contributed to the development of NetHack 3.2/3.3/3.4/3.6.
- *
- * Keep in alphabetical order within teams.
- * Same first name is entered once within each team.
- */
-static const char *const developers[] = {
-    /* devteam */
-    "Alex",    "Dave",   "Dean",    "Derek",   "Eric",    "Izchak",
-    "Janet",   "Jessie", "Ken",     "Kevin",   "Michael", "Mike",
-    "Pasi",    "Pat",    "Patric",  "Paul",    "Sean",    "Steve",
-    "Timo",    "Warwick",
-    /* PC team */
-    "Bill",    "Eric",   "Keizo",   "Ken",    "Kevin",    "Michael",
-    "Mike",    "Paul",   "Stephen", "Steve",  "Timo",     "Yitzhak",
-    /* Amiga team */
-    "Andy",    "Gregg",  "Janne",   "Keni",   "Mike",     "Olaf",
-    "Richard",
-    /* Mac team */
-    "Andy",    "Chris",  "Dean",    "Jon",    "Jonathan", "Kevin",
-    "Wang",
-    /* Atari team */
-    "Eric",    "Marvin", "Warwick",
-    /* NT team */
-    "Alex",    "Dion",   "Michael",
-    /* OS/2 team */
-    "Helge",   "Ron",    "Timo",
-    /* VMS team */
-    "Joshua",  "Pat",    ""
+/* Human male struct - These are the names of those who
+ * contributed to the development of NetHack 3.2 through 3.7.
+ * Janet has been included in the human female struct. This
+ * struct includes every name in alphabetical order, regardless
+ * of which team they worked on */
+static const char *human_male_names[] = {
+    /* devteam et al */
+    "Andy",         "Alex",        "Bart",       "Bill",       "Chris",
+    "Dave",         "Dean",        "Derek",      "Dion",       "Eric",
+    "Gregg",        "Helge",       "Izchak",     "Janne",      "Jessie",
+    "Jon",          "Jonathan",    "Joshua",     "Keizo",      "Ken",
+    "Keni",         "Kevin",       "Marvin",     "Michael",    "Mike",
+    "Olaf",         "Pasi",        "Pat",        "Patric",     "Paul",
+    "Richard",      "Ron",         "Sean",       "Stephen",    "Steve",
+    "Timo",         "Wang",        "Warwick",    "Yitzhak",
+    /* don't forget Carl */
+    "Carl",
+    0
 };
 
-/* return a randomly chosen developer name */
-staticfn const char *
-dev_name(void)
-{
-    int i, m = 0, n = SIZE(developers);
-    struct monst *mtmp;
-    boolean match;
+static const char *human_female_names[] = {
+    "Alexandria",   "Anna",        "Ariel",      "Betty",      "Charlotte",
+    "Ella",         "Gabrielle",   "Inez",       "Isabella",   "Janet", /* devteam */
+    "Lillianna",    "Joanna",      "Mary",       "Nancy",      "Natasha",
+    "Olivia",       "Penny",       "Rosa",       "Sally",      "Sierra",
+    "Sophia",       "Tabitha",     "Veronica",   "Yvette",     "Zoey",
+    0
+};
 
-    do {
-        match = FALSE;
-        i = rn2(n);
-        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-            if (!is_mplayer(mtmp->data))
-                continue;
-            if (!strncmp(developers[i],
-                         (has_mgivenname(mtmp)) ? MGIVENNAME(mtmp) : "",
-                         strlen(developers[i]))) {
-                match = TRUE;
-                break;
-            }
-        }
-        m++;
-    } while (match && m < 100); /* m for insurance */
+static const char *elf_male_names[] = {
+    "Aelion",       "Aphedir",     "Caeleben",   "Eliion",     "Erwarthon",
+    "Eston",        "Harnedir",    "Harnon",     "Laerchon",   "Lassendaer",
+    "Meremen",      "Miluichon",   "Nimen",      "Nithor",     "Padrion",
+    "Peldaer",      "Pendor",      "Silon",      "Sogrion",    "Tyalion",
+    0
+};
 
-    if (match)
-        return (const char *) 0;
-    return (developers[i]);
-}
+static const char *elf_female_names[] = {
+    "Arthil",       "Calassel",    "Cureth",     "Dewrien",    "Eilianniel",
+    "Gelinnasbes",  "Gwaerenil",   "Harnith",    "Hwiniril",   "Linnriel",
+    "Liririen",     "Luthadis",    "Luthril",    "Mialel",     "Maechenebeth",
+    "Raegeth",      "Remlasbes",   "Solnissien", "Theririen",  "Tolneth",
+    0
+};
+
+static const char *dwarf_male_names[] = {
+    "Brambin",      "Bromlar",     "Drandar",    "Dulbor",     "Dwusrun",
+    "Flel",         "Flumbin",     "Frelrur",    "Frerbun",    "Glelrir",
+    "Glomik",       "Glorvor",     "Grinir",     "Grundig",    "Khel",
+    "Krandar",      "Tham",        "Tharlor",    "Thorak",     "Thrun",
+    0
+};
+
+static const char *dwarf_female_names[] = {
+    "Agahildr",     "Bryldana",    "Dourdoulin", "Erigruigit", "Glarnirgith",
+    "Grordrabyrn",  "Hjara",       "Kanolsia",   "Kaldana",    "Kherebyrn",
+    "Orirodeth",    "Radgrarra",   "Skafadrid",  "Thrurja",    "Umirsila",
+    0
+};
+
+static const char *centaur_male_names[] = {
+    "Ajalus",       "Cephagio",    "Danasius",   "Erymanus",   "Koretrius",
+    "Linasio",      "Sofrasos",    "Tymysus",    "Yorgoneus",  "Zerelous",
+    0
+};
+
+static const char *centaur_female_names[] = {
+    "Agaraia",      "Eidone",      "Hekasia",    "Mellaste",   "Nemolea",
+    "Olamna",       "Phaeraris",   "Rhodora",    "Theladina",  "Typheis",
+    0
+};
+
+static const char *giant_male_names[] = {
+    "Agant",        "Clobos",      "Creswor",    "Cuzwar",     "Dlifur",
+    "Dlimohr",      "Doxroch",     "Falwar",     "Fexsal",     "Grorlith",
+    "Hefvog",       "Iziar",       "Jazbarg",    "Karog",      "Kolog",
+    "Kruxfum",      "Vovog",       "Xalgi",      "Zovoq",      "Zuksag",
+    0
+};
+
+static const char *giant_female_names[] = {
+    "Asdius",       "Clewar",      "Clisor",     "Crerlog",    "Dithor",
+    "Demhroq",      "Giwbog",      "Huwfur",     "Javar",      "Jowwor",
+    "Larog",        "Lifgant",     "Riwbof",     "Talrion",    "Valas",
+    "Vlinrion",     "Vrebog",      "Vrurym",     "Wenfir",     "Xenghaf",
+    0
+};
+
+static const char *orc_male_names[] = {
+    "Agbo",         "Auzzaf",      "Bolgorg",    "Cracbac",    "Crazza",
+    "Dergi",        "Durcad",      "Gazru",      "Kozbugh",    "Oddugh",
+    "Ogrogh",       "Orboth",      "Rozgi",      "Uglaudh",    "Urdi",
+    0
+};
+
+static const char *orc_female_names[] = {
+    "Athri",        "Auzgut",      "Azrauth",    "Becradh",    "Bridbosh",
+    "Crilgi",       "Ghulgaf",     "Gihaush",    "Ohadiz",     "Rardith",
+    "Sraglikh",     "Sruzdith",    "Sugdol",     "Udbe",       "Uggudh",
+    0
+};
+
+static const char *gnome_male_names[] = {
+    "Bengnomer",    "Clieddwess",  "Darbick",    "Frialewost", "Hembaz",
+    "Hiempess",     "Knoobbrekur", "Slykwass",   "Smoofamurt", "Tivignap",
+    0
+};
+
+static const char *gnome_female_names[] = {
+    "Amanbin",      "Bluprell",    "Clamwal",    "Clekmit",    "Flegbibis",
+    "Fobnass",      "Fyhipraal",   "Glidwi",     "Gninklidli", "Pyiqaglim",
+    0
+};
+
+static const char *hobbit_male_names[] = {
+    "Bilbo",        "Blutmund",    "Cyr",        "Faramond",   "Frodo",
+    "Nob",          "Theodoric",   "Samwise",    "Uffo",       "Wulfram",
+    0
+};
+
+static const char *hobbit_female_names[] = {
+    "Athalia",      "Bave",        "Gerda",      "Guntheuc",   "Kunegund",
+    "Malva",        "Menegilda",   "Merofled",   "Peony",      "Ruothilde",
+    0
+};
+
+static const char *illithid_male_names[] = {
+    "Druphrilt",    "Gzur",        "Gudanilz",   "Kaddudun",   "Reddin",
+    "Tagangask",    "Usder",       "Vaggask",    "Vossk",      "Zuzchigoz",
+    0
+};
+
+static const char *illithid_female_names[] = {
+    "Cliloduzak",   "Druzzusk",    "Gusgamiyi",  "Qoss",       "Slilithindi",
+    "Tazili",       "Tralq",       "Uthilith",   "Velbobar",   "Viduz",
+    0
+};
+
+static const char *tortle_male_names[] = {
+    "Baka",         "Damu",        "Gar",        "Jappa",      "Krull",
+    "Lop",          "Nortle",      "Ploqwat",    "Queg",       "Quott",
+    "Ubo",          "Xelbuk",      "Yog",
+    0
+};
+
+static const char *tortle_female_names[] = {
+    "Gura",         "Ini",         "Kinlek",     "Lim",        "Nukla",
+    "Olo",          "Quee",        "Tibor",      "Uhok",       "Wabu",
+    "Xopa",
+    0
+};
+
+static const char *drow_male_names[] = {
+    "Chanin",       "Dresmorlin",  "Gwydyn",     "Imaufein",   "Nadryn",
+    "Ornamorlin",   "Seldszar",    "Torreldril", "Uhlsyln",    "Zaknafein",
+    0
+};
+
+static const char *drow_female_names[] = {
+    "Arduda",       "Balquiri",    "Drisinil",   "Ghirina",    "Jhulssysn",
+    "Kiava",        "Nalin",       "Quarstin",   "Rilvra",     "Vierna",
+    0
+};
+
+static const char *draugr_male_names[] = {
+    "Bjorn",        "Erik",        "Gorm",       "Halfdan",    "Leif",
+    "Njal",         "Sten",        "Svend",      "Torsten",    "Ulf",
+    0
+};
+
+static const char *draugr_female_names[] = {
+    "Astrid",       "Frida",       "Gunhild",    "Helga",      "Sigrid",
+    "Revna",        "Thyra",       "Thurid",     "Yrsa",       "Ulfhild",
+    0
+};
+
+static const char *vampire_male_names[] = {
+    "Antoine",      "Armand",      "Avicus",     "Azim",       "Daniel",
+    "David",        "Enkil",       "Eric",       "Khayman",    "Lestat",
+    "Louis",        "Mael",        "Magnus",     "Marius",     "Nicolas",
+    "Rhoshamandes", "Santiago",    "Santino",    "Seth",       "Teskhamen",
+    "Thorne",
+    0
+};
+
+static const char *vampire_female_names[] = {
+    "Akasha",       "Bianca",      "Claudia",    "Eudoxia",    "Gabrielle",
+    "Jessica",      "Madeleine",   "Maharet",    "Mekare",     "Merrick",
+    "Pandora",
+    0
+};
+
+static const char *aasimar_male_names[] = {
+    "Afriel",       "Hochmael",    "Kakabel",    "Munkar",     "Nephilim",
+    "Ongkanon",     "Osmadiel",    "Rampel",     "Yefefiah",   "Zarall",
+    0
+};
+
+static const char *aasimar_female_names[] = {
+    "Aliyah",       "Azriel",      "Hanniah",    "Kasdeja",    "Lahabiel",
+    "Maroth",       "Mumiah",      "Nanael",     "Pesagniyah", "Sahaqiel",
+    0
+};
+
+struct mfnames {
+    const char **male;
+    const char **female;
+};
+
+/* indexing must match races[] in role.c */
+static const struct mfnames namelists[] = {
+    { human_male_names, human_female_names },
+    { elf_male_names, elf_female_names },
+    { dwarf_male_names, dwarf_female_names },
+    { gnome_male_names, gnome_female_names },
+    { orc_male_names, orc_female_names },
+    { giant_male_names, giant_female_names },
+    { hobbit_male_names, hobbit_female_names },
+    { centaur_male_names, centaur_female_names },
+    { illithid_male_names, illithid_female_names },
+    { tortle_male_names, tortle_female_names },
+    { drow_male_names, drow_female_names },
+    { draugr_male_names, draugr_female_names },
+    { vampire_male_names, vampire_female_names },
+    { aasimar_male_names, aasimar_female_names }
+};
 
 staticfn void
 get_mplname(struct monst *mtmp, char *nam)
 {
-    boolean fmlkind = is_female(mtmp->data);
-    const char *devnam;
+    char *ttname = get_rnd_tt_name(TRUE); /* record file */
+    const char **mp_names;
+    int r_id = 0, ncnt;
 
-    devnam = dev_name();
-    if (!devnam)
-        Strcpy(nam, fmlkind ? "Eve" : "Adam");
-    else if (fmlkind && !!strcmp(devnam, "Janet"))
-        Strcpy(nam, rn2(2) ? "Maud" : "Eve");
-    else
-        Strcpy(nam, devnam);
+    if (has_erac(mtmp) && ERAC(mtmp)->r_id >= 0
+        && ERAC(mtmp)->r_id < SIZE(namelists))
+        r_id = ERAC(mtmp)->r_id;
 
-    if (fmlkind || !strcmp(nam, "Janet"))
-        mtmp->female = 1;
-    else
-        mtmp->female = 0;
-    Strcat(nam, " the ");
-    Strcat(nam, rank_of((int) mtmp->m_lev, monsndx(mtmp->data),
-                        (boolean) mtmp->female));
-}
+    mp_names = mtmp->female ? namelists[r_id].female : namelists[r_id].male;
 
-staticfn void
-mk_mplayer_armor(struct monst *mon, short typ)
-{
-    struct obj *obj;
+    for (ncnt = 0; mp_names[ncnt]; ncnt++)
+        ; /* count the number of names in the list */
 
-    if (typ == STRANGE_OBJECT)
-        return;
-    obj = mksobj(typ, FALSE, FALSE);
-    obj->oeroded = obj->oeroded2 = 0;
-    if (!rn2(3))
-        obj->oerodeproof = 1;
-    if (!rn2(3))
-        curse(obj);
-    if (!rn2(3))
-        bless(obj);
-    /* Most players who get to the endgame who have cursed equipment
-     * have it because the wizard or other monsters cursed it, so its
-     * chances of having plusses is the same as usual....
-     */
-    obj->spe = rn2(10) ? (rn2(3) ? rn2(5) : rn1(4, 4)) : -rnd(3);
-    (void) mpickobj(mon, obj);
+    (void) snprintf(nam, PL_PSIZ, "%s the %s",
+                    (In_endgame(&u.uz) && ttname != 0)
+                        ? ttname : mp_names[rn2(ncnt)],
+                    rank_of_mplayer((int) mtmp->m_lev, mtmp,
+                                    (boolean) mtmp->female));
 }
 
 void
 init_mplayer_erac(struct monst *mtmp, boolean noname)
 {
-    char nam[PL_NSIZ];
+    char nam[PL_PSIZ];
     int race;
     struct erac *rptr;
     int mndx = mtmp->mnum;
@@ -290,25 +432,21 @@ struct monst *
 mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
 {
     struct monst *mtmp;
-    char nam[PL_NSIZ];
+    boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
+    char nam[PL_PSIZ];
 
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), RLOC_ERR|RLOC_NOMSG); /* insurance */
 
-    if (!In_endgame(&u.uz))
-        special = FALSE;
-
     if ((mtmp = makemon(ptr, x, y,
                         special ? (MM_NOMSG | MM_NONAME)
                                 : MM_NONAME)) != 0) {
-        short weapon, armor, cloak, helm, shield;
-        int quan;
-        struct obj *otmp;
-
-        mtmp->m_lev = (special ? rn1(16, 15) : rnd(16));
+        mtmp->m_lev = (special ? (ascending ? rn1(16, 15)
+                                            : min(30, u.ulevel + rn1(4, 4)))
+                               : rnd(16));
         mtmp->mhp = mtmp->mhpmax = d((int) mtmp->m_lev, 10)
-                                   + (special ? (30 + rnd(30)) : 30);
-        if (special) {
+                                   + (ascending ? (30 + rnd(30)) : 30);
+        if (ascending) {
             /* that's why they are "stuck" in the endgame :-) */
             (void) mongets(mtmp, FAKE_AMULET_OF_YENDOR);
         }
@@ -318,175 +456,55 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         set_malign(mtmp); /* peaceful may have changed again */
 
         /* non-mplayer summons (quest leaders wished back by their own
-           artifact) keep the gear makemon gave them */
+           artifact) keep the gear makemon gave them; role kit for real
+           mplayers comes from the makemon inventory tables */
         if (!is_mplayer(ptr))
             return mtmp;
 
-        /* default equipment; much of it will be overridden below */
-        weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
-        armor  = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES);
-        cloak  = !rn2(8) ? STRANGE_OBJECT
-                         : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
-        helm   = !rn2(8) ? STRANGE_OBJECT
-                         : rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
-        shield = !rn2(8) ? STRANGE_OBJECT
-                         : rnd_class(ELVEN_SHIELD, SHIELD_OF_REFLECTION);
+        /* TODO: when the Purgatory branch lands, mplayers created on its
+           entry level should sometimes carry a ring of teleport control,
+           worn via m_dowear */
 
-        switch (monsndx(ptr)) {
-        case PM_ARCHEOLOGIST:
-            if (rn2(2))
-                weapon = BULLWHIP;
-            break;
-        case PM_BARBARIAN:
-            if (rn2(2)) {
-                weapon = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
-                shield = STRANGE_OBJECT;
-            }
-            if (rn2(2))
-                armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
-            if (helm == HELM_OF_BRILLIANCE)
-                helm = STRANGE_OBJECT;
-            break;
-        case PM_CAVE_DWELLER:
-            if (rn2(4))
-                weapon = MACE;
-            else if (rn2(2))
-                weapon = CLUB;
-            if (helm == HELM_OF_BRILLIANCE)
-                helm = STRANGE_OBJECT;
-            break;
-        case PM_HEALER:
-            if (rn2(4))
-                weapon = QUARTERSTAFF;
-            else if (rn2(2))
-                weapon = rn2(2) ? UNICORN_HORN : SCALPEL;
-            if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
-            if (rn2(2))
-                shield = STRANGE_OBJECT;
-            break;
-        case PM_KNIGHT:
-            if (rn2(4))
-                weapon = LONG_SWORD;
-            if (rn2(2))
-                armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
-            break;
-        case PM_MONK:
-            weapon = !rn2(3) ? SHURIKEN : STRANGE_OBJECT;
-            armor = STRANGE_OBJECT;
-            cloak = ROBE;
-            if (rn2(2))
-                shield = STRANGE_OBJECT;
-            break;
-        case PM_CLERIC:
-            if (rn2(2))
-                weapon = MACE;
-            if (rn2(2))
-                armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
-            if (rn2(4))
-                cloak = ROBE;
-            if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
-            if (rn2(2))
-                shield = STRANGE_OBJECT;
-            break;
-        case PM_RANGER:
-            if (rn2(2))
-                weapon = ELVEN_DAGGER;
-            break;
-        case PM_ROGUE:
-            if (rn2(2))
-                weapon = rn2(2) ? SHORT_SWORD : ORCISH_DAGGER;
-            break;
-        case PM_SAMURAI:
-            if (rn2(2))
-                weapon = KATANA;
-            break;
-        case PM_TOURIST:
-            /* Defaults are just fine */
-            break;
-        case PM_VALKYRIE:
-            if (rn2(2))
-                weapon = WAR_HAMMER;
-            if (rn2(2))
-                armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
-            break;
-        case PM_WIZARD:
-            if (rn2(4))
-                weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
-            if (rn2(2)) {
-                armor = rn2(2) ? BLACK_DRAGON_SCALES
-                               : SILVER_DRAGON_SCALES;
-                cloak = CLOAK_OF_MAGIC_RESISTANCE;
-            }
-            if (rn2(4))
-                helm = HELM_OF_BRILLIANCE;
-            shield = STRANGE_OBJECT;
-            break;
-        default:
-            impossible("bad mplayer monster");
-            weapon = 0;
-            break;
-        }
-
-        if (weapon != STRANGE_OBJECT) {
-            otmp = mksobj(weapon, TRUE, FALSE);
-            otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->spe = (special ? rn1(5, 4) : rn2(4));
-            if (!rn2(3))
-                otmp->oerodeproof = 1;
-            else if (!rn2(2))
-                otmp->greased = 1;
-            /* mk_artifact() with otmp and A_NONE will never return NULL */
-            if (special && rn2(2))
-                otmp = mk_artifact(otmp, A_NONE, 99, FALSE);
-            /* usually increase stack size if stackable weapon */
-            if (objects[otmp->otyp].oc_merge && !otmp->oartifact
-                && monmightthrowwep(otmp))
-                otmp->quan += (long) rn2(is_spear(otmp) ? 4 : 8);
-            otmp->owt = weight(otmp);
-            /* mplayers knew better than to overenchant Magicbane */
-            if (is_art(otmp, ART_MAGICBANE))
-                otmp->spe = rnd(4);
-            (void) mpickobj(mtmp, otmp);
-        }
-
-        if (special) {
+        if (ascending) {
             if (!rn2(10))
                 (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);
-            mk_mplayer_armor(mtmp, armor);
-            mk_mplayer_armor(mtmp, cloak);
-            mk_mplayer_armor(mtmp, helm);
-            mk_mplayer_armor(mtmp, shield);
-            if (weapon == WAR_HAMMER) /* valkyrie: wimpy weapon or Mjollnir */
-                mk_mplayer_armor(mtmp, GAUNTLETS_OF_POWER);
-            else if (rn2(8))
-                mk_mplayer_armor(mtmp, rnd_class(GLOVES,
-                                                 GAUNTLETS_OF_DEXTERITY));
-            if (rn2(8))
-                mk_mplayer_armor(mtmp, rnd_class(LOW_BOOTS,
-                                                 LEVITATION_BOOTS));
-            m_dowear(mtmp, TRUE);
 
-            quan = rn2(3) ? rn2(3) : rn2(16);
-            while (quan--)
-                (void) mongets(mtmp, rnd_class(DILITHIUM_CRYSTAL, JADE));
-            /* To get the gold "right" would mean a player can double his
-               gold supply by killing one mplayer.  Not good. */
-            mkmonmoney(mtmp, rn2(1000));
-            quan = rn2(10);
-            while (quan--)
-                (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE));
+            /* extra ring */
+            if (rn2(8) || monsndx(ptr) == PM_WIZARD) {
+                int i, ring;
+
+                for (i = 0;
+                     i < 2 && (rn2(2) || monsndx(ptr) == PM_WIZARD); i++) {
+                    int tryct = 0;
+
+                    do {
+                        ring = !rn2(9) ? RIN_INVISIBILITY
+                               : !rn2(8) ? RIN_TELEPORT_CONTROL
+                                 : !rn2(7) ? RIN_FIRE_RESISTANCE
+                                   : !rn2(6) ? RIN_COLD_RESISTANCE
+                                     : !rn2(5) ? RIN_SHOCK_RESISTANCE
+                                       : !rn2(4) ? RIN_POISON_RESISTANCE
+                                         : !rn2(3) ? RIN_INCREASE_ACCURACY
+                                           : !rn2(2) ? RIN_INCREASE_DAMAGE
+                                             : RIN_PROTECTION;
+                    } while (((resists_poison(mtmp)
+                               && ring == RIN_POISON_RESISTANCE)
+                              || (resists_elec(mtmp)
+                                  && ring == RIN_SHOCK_RESISTANCE)
+                              || (resists_fire(mtmp)
+                                  && ring == RIN_FIRE_RESISTANCE)
+                              || (resists_cold(mtmp)
+                                  && ring == RIN_COLD_RESISTANCE)
+                              || (mtmp->minvis
+                                  && ring == RIN_INVISIBILITY))
+                             && tryct++ <= 500);
+                    if (tryct > 500)
+                        ring = RIN_PROTECTION;
+                    (void) mongets(mtmp, ring);
+                }
+                m_dowear(mtmp, TRUE);
+            }
         }
-        quan = rnd(3);
-        while (quan--)
-            (void) mongets(mtmp, rnd_offensive_item(mtmp));
-        quan = rnd(3);
-        while (quan--)
-            (void) mongets(mtmp, rnd_defensive_item(mtmp));
-        quan = rnd(3);
-        while (quan--)
-            (void) mongets(mtmp, rnd_misc_item(mtmp));
     }
 
     return (mtmp);
@@ -494,10 +512,7 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
 
 /* create the indicated number (num) of monster-players,
  * randomly chosen, and in randomly chosen (free) locations
- * on the level.  If "special", the size of num should not
- * be bigger than the number of _non-repeated_ names in the
- * developers array, otherwise a bunch of Adams and Eves will
- * fill up the overflow.
+ * on the level
  */
 void
 create_mplayers(int num, boolean special)
@@ -517,10 +532,10 @@ create_mplayers(int num, boolean special)
         do {
             x = rn1(COLNO - 4, 2);
             y = rnd(ROWNO - 2);
-        } while (!goodpos(x, y, &fakemon, 0) && tryct++ <= 50);
+        } while (!goodpos(x, y, &fakemon, 0) && tryct++ <= 500);
 
-        /* if pos not found in 50 tries, don't bother to continue */
-        if (tryct > 50)
+        /* if pos not found in 500 tries, don't bother to continue */
+        if (tryct > 500)
             return;
 
         (void) mk_mplayer(&mons[pm], (coordxy) x, (coordxy) y, special);

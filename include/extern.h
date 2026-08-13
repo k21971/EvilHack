@@ -295,6 +295,7 @@ extern void timebot(void);
 extern int xlev_to_rank(int);
 extern int rank_to_xlev(int);
 extern const char *rank_of(int, short, boolean);
+extern const char *rank_of_mplayer(int, struct monst *, boolean) NONNULLARG2;
 extern int title_to_mon(const char *, int *, int *);
 extern void max_rank_sz(void);
 #ifdef SCORE_ON_BOTL
@@ -3507,6 +3508,7 @@ extern int observable_depth(d_level *) NONNULLARG1;
 extern void topten(int, time_t);
 extern void prscore(int, char **);
 extern struct toptenentry *get_rnd_toptenentry(void);
+extern char *get_rnd_tt_name(boolean);
 extern struct obj *tt_oname(struct obj *) NO_NNARGS;
 extern int tt_doppel(struct monst *) NONNULLARG1;
 

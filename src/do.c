@@ -2231,7 +2231,7 @@ final_level(void)
     iter_mons(reset_hostility);
 
     /* create some player-monsters */
-    create_mplayers(rn1(4, 3), TRUE);
+    create_mplayers(rn1(5, 4), TRUE);
 
     /* create a guardian angel next to player, if worthy */
     gain_guardian_angel();

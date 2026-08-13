@@ -66,6 +66,7 @@ staticfn void outheader(void);
 staticfn void outentry(int, struct toptenentry *, boolean);
 staticfn void discardexcess(FILE *);
 staticfn void readentry(FILE *, struct toptenentry *);
+staticfn boolean name_unused_on_lvl(const char *);
 staticfn void writeentry(FILE *, struct toptenentry *);
 #ifdef XLOGFILE
 staticfn void writexlentry(FILE *, struct toptenentry *, int);
@@ -1507,6 +1508,84 @@ get_rnd_toptenentry(void)
 
     (void) fclose(rfile);
     return tt;
+}
+
+/* does a monster on the level already have this name?  used to ensure
+   player monster names from the high score list aren't reused on Astral */
+staticfn boolean
+name_unused_on_lvl(const char *name)
+{
+    int namlen = strlen(name);
+    char plus_space[NAMSZ + 2];
+    struct monst *mtmp;
+
+    Strcpy(plus_space, name);
+    Strcat(plus_space, " ");
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        const char *mnam;
+
+        if (!has_mgivenname(mtmp))
+            continue;
+        mnam = MGIVENNAME(mtmp);
+        /* normal mplayer will typically be named like "<name> the <title>",
+           so check for starting with "<name> " in addition to a full match */
+        if (!strncmpi(plus_space, mnam, namlen + 1) || !strcmpi(name, mnam))
+            return FALSE;
+    }
+    return TRUE;
+}
+
+/* return a random player name from the high score list as a string */
+char *
+get_rnd_tt_name(
+    boolean unique) /* don't accept a name already in use on the level */
+{
+    int rank, i, tries;
+    FILE *rfile;
+    struct toptenentry *tt;
+    static struct toptenentry tt_buf;
+
+    rfile = fopen_datafile(RECORD, "r", SCOREPREFIX);
+    if (!rfile) {
+        raw_print("get_rnd_tt_name: Cannot open record file!");
+        return (char *) 0;
+    }
+
+    tt = &tt_buf;
+    rank = rnd(sysopt.tt_oname_maxrank);
+ pickentry:
+    for (i = rank; i; i--) {
+        readentry(rfile, tt);
+        if (tt->points == 0)
+            break;
+    }
+
+    tries = min(20, sysopt.tt_oname_maxrank - rank);
+    if (unique && tries > 0 && tt->points > 0) {
+        /* continue reading entries until we hit one that's unique (or we
+           run out of tries, hit the sysopt max rank, or run out of
+           entries) */
+        while (!name_unused_on_lvl(tt->name)) {
+            readentry(rfile, tt);
+            if (tt->points == 0)
+                break;
+            if (--tries == 0)
+                break;
+        }
+    }
+
+    if (tries == 0 || tt->points == 0) {
+        if (rank > 1) {
+            rank = 1;
+            rewind(rfile);
+            goto pickentry;
+        }
+        tt = NULL;
+    }
+
+    (void) fclose(rfile);
+    return tt ? tt->name : (char *) 0;
 }
 
 /*

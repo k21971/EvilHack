@@ -2024,7 +2024,7 @@ create_monster(monster *m, struct mkroom *croom)
     if (m->sp_amask != AM_SPLEV_RANDOM)
         mtmp = mk_roamer(pm, Amask2align(amask), x, y, m->peaceful);
     else if (PM_ARCHEOLOGIST <= m->id && m->id <= PM_WIZARD)
-        mtmp = mk_mplayer(pm, x, y, FALSE);
+        mtmp = mk_mplayer(pm, x, y, TRUE);
     else
         mtmp = makemon(pm, x, y, m->mm_flags);
 
