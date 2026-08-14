@@ -18,6 +18,12 @@ dungeon = {
             range = 3
          },
          {
+            name = "Goblin Town",
+            base = 2,
+            range = 2,
+            branchtype = "portal"
+         },
+         {
             name = "Sokoban",
             chainlevel = "oracle",
             base = 1,
@@ -182,6 +188,23 @@ dungeon = {
 --          bonetag = "E"
             base = -1,
             nlevels = 5
+         },
+      }
+   },
+   {
+      name = "Goblin Town",
+      base = 2,
+      alignment = "chaotic",
+      flags = { "mazelike", "gtown" },
+      levels = {
+         {
+            name = "goblintown-1",
+            base = 1,
+            nlevels = 2
+         },
+         {
+            name = "goblintown-2",
+            base = 2
          },
       }
    },

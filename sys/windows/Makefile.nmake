@@ -733,6 +733,8 @@ LUA_FILES = $(DAT)bigrm-1.lua \
 	$(DAT)bigrm-5.lua $(DAT)bigrm-6.lua $(DAT)bigrm-7.lua \
 	$(DAT)bigrm-8.lua $(DAT)bigrm-9.lua \
 	$(DAT)castle-1.lua $(DAT)castle-2.lua $(DAT)castle-3.lua \
+	$(DAT)goblintown-1-1.lua $(DAT)goblintown-1-2.lua \
+	$(DAT)goblintown-2.lua \
 	$(DAT)hella-1.lua $(DAT)hella-2.lua $(DAT)hella-3.lua \
 	$(DAT)hella-4.lua $(DAT)hellb-1.lua $(DAT)hellb-2.lua \
 	$(DAT)hellb-3.lua $(DAT)hellc-1.lua $(DAT)hellc-2.lua \
@@ -795,7 +797,7 @@ LUA_FILES = $(DAT)bigrm-1.lua \
 	$(DAT)Val-strt.lua $(DAT)Wiz-strt.lua \
 	$(DAT)dungeon.lua $(DAT)quest.lua
 
-luawildcards = bigrm-*.lua castle-?.lua \
+luawildcards = bigrm-*.lua castle-?.lua goblintown*.lua \
 	hella-?.lua hellb-?.lua hellc-?.lua \
 	knox-?.lua medusa-?.lua minend-?.lua minefill.lua \
 	minetn-?.lua oracle-?.lua orcus.lua sanctum.lua soko?-?.lua tower?.lua \

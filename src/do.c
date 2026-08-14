@@ -1703,6 +1703,34 @@ goto_level(
         return;
     }
 
+    /* Prevent the player from accessing either Mine Town or Mines' End
+     * unless they have defeated the Goblin King. Using the stairs or
+     * falling through a hole or trap door is blocked, but our hero can
+     * still levelport to either location. The Goblin King's wards are
+     * decent, but they aren't all-powerful */
+    if (at_stairs || falling) {
+        if ((!up && (ledger_no(&u.uz) == ledger_no(&minetn_level) - 1))
+            || (!up && (ledger_no(&u.uz) == ledger_no(&minetn_level)))
+            || (!up && (ledger_no(&u.uz) == ledger_no(&mineend_level) - 1))) {
+            if (!u.uevent.ugking) {
+                if (at_stairs) {
+                    if (Blind) {
+                        pline("A mysterious force prevents you from"
+                              " accessing the stairs.");
+                    } else {
+                        You("see a magical glyph hovering in midair,"
+                            " preventing access to the stairs.");
+                        pline("It reads 'Access denied, by order of"
+                              " the Goblin King'.");
+                    }
+                } else if (falling) {
+                    pline("A mysterious force prevents you from falling.");
+                }
+                return;
+            }
+        }
+    }
+
     if (on_level(newlevel, &u.uz))
         return; /* this can happen */
 
@@ -1867,9 +1895,13 @@ goto_level(
                    doesn't exist anymore - see expulsion(). */
                 u_on_rndspot(0);
             } else {
+                /* No corresponding portal exists - this can happen with
+                 * branch portals like Goblin Town that are one-way only.
+                 * Place the player at a random location */
                 if (!iflags.debug_fuzzer)
                     impossible("goto_level: no corresponding portal!");
                 u_on_rndspot(0);
+                You("materialize in a puff of smoke!");
             }
         } else {
             seetrap(ttrap);
@@ -2061,6 +2093,13 @@ goto_level(
     if (!Is_orcustown(&u.uz0) && Is_orcustown(&u.uz)
         && !u.uevent.orcus_entered)
         u.uevent.orcus_entered = 1;
+
+    /* first time in Goblin Town? */
+    if (!In_goblintown(&u.uz0) && Ingtown
+        && !u.uevent.gtown_entered) {
+        u.uevent.gtown_entered = 1;
+        You("have entered Goblin Town, the lair of the Goblin King.");
+    }
 
     /* special location arrival messages/events */
     if (In_endgame(&u.uz)) {

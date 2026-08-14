@@ -66,6 +66,9 @@
     <Luafiles Include = "dungeon.lua"/>
     <Luafiles Include = "earth.lua"/>
     <Luafiles Include = "fire.lua"/>
+    <Luafiles Include = "goblintown-1-1.lua"/>
+    <Luafiles Include = "goblintown-1-2.lua"/>
+    <Luafiles Include = "goblintown-2.lua"/>
     <Luafiles Include = "Hea-fila.lua"/>
     <Luafiles Include = "Hea-filb.lua"/>
     <Luafiles Include = "Hea-goal.lua"/>

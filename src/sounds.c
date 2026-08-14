@@ -404,6 +404,16 @@ dosounds(void)
         if (get_iter_mons(oracle_sound))
             return;
     }
+    if (!In_goblintown(&u.uz0) && at_dgn_entrance("Goblin Town")
+        && !rn2(200)) {
+        static const char *const gtown_msg[] = {
+            "the sounds of a bustling town nearby.",
+            "what sounds like a goblin war party off in the distance.",
+            "a chorus singing \"We are the Lollipop Guild\"..."
+        };
+        You_hear1(gtown_msg[rn2(2 + hallu)]);
+        return;
+    }
 }
 
 static const char *const h_sounds[] = {
@@ -1129,11 +1139,31 @@ domonnoise(struct monst *mtmp)
                  && svm.moves > EDOG(mtmp)->hungrytime)
             verbl_msg = "I'm hungry.";
         /* Specific monsters' interests */
-        else if (racial_elf(mtmp))
-            pline_msg = "curses orcs.";
-        else if (racial_dwarf(mtmp))
-            pline_msg = "talks about mining.";
-        else if (ptr == &mons[PM_CHARON]) {
+        else if (racial_elf(mtmp)) {
+            if (mtmp->mpeaceful && Ingtown) {
+                if (u.uevent.ugking) {
+                    verbl_msg = "The Goblin King is dead!";
+                } else {
+                    verbl_msg = rn2(2) ? "Death to the Goblin King!"
+                                       : "Curse this wretched town!";
+                }
+            } else {
+                pline_msg = "curses orcs.";
+            }
+        } else if (racial_dwarf(mtmp)) {
+            if (mtmp->mpeaceful && Ingtown) {
+                if (u.uevent.ugking) {
+                    verbl_msg = "The Goblin King has fallen!"
+                                "  Back to mining, lads!";
+                } else {
+                    verbl_msg = rn2(2)
+                        ? "Baruk Khazad!  Khazad ai-menu!"
+                        : "Bah!  Not a single pint of ale to be found!";
+                }
+            } else {
+                pline_msg = "talks about mining.";
+            }
+        } else if (ptr == &mons[PM_CHARON]) {
             /* Charon carries M2_MAGIC, so the generic likes_magic arm
                below would shadow his authored dialogue (it does on
                master, where these lines have never been reachable);
@@ -1148,7 +1178,15 @@ domonnoise(struct monst *mtmp)
         else if (racial_centaur(mtmp))
             pline_msg = "discusses hunting.";
         else if (racial_gnome(mtmp)) {
-            if (Hallucination && (gnomeplan = rn2(4)) % 2) {
+            if (mtmp->mpeaceful && Ingtown) {
+                if (u.uevent.ugking) {
+                    verbl_msg = "The Goblin King is no more!"
+                                "  Mine Town is open for business!";
+                } else {
+                    verbl_msg = "We must free our brothers and sisters"
+                                " in the Mines!";
+                }
+            } else if (Hallucination && (gnomeplan = rn2(4)) % 2) {
                 /* skipped for rn2(4) result of 0 or 2;
                    gag from an early episode of South Park called "Gnomes";
                    initially, Tweek (introduced in that episode) is the only
@@ -1266,6 +1304,8 @@ domonnoise(struct monst *mtmp)
             verbl_msg = "It's not too late.";
         else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
             verbl_msg = "Ozzy!  I can't throw the stick if you won't drop it!";
+        else if (mtmp->data == &mons[PM_GOLLUM])
+            verbl_msg = "My preciousss...";
         else
             verbl_msg = "We're all doomed.";
         break;

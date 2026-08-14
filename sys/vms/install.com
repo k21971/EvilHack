@@ -37,7 +37,8 @@ $	invoc_proc = "[.sys.vms]nethack.com"
 $	trmcp_file = "[.sys.share]termcap"
 $	spec_files = "air.lua,astral.lua,"				-
 		+ "bigrm-*.lua,castle-%.lua,earth.lua,"			-
-		+ "fire.lua,hella-%.lua,hellb-%.lua,hellc-%.lua,"	-
+		+ "fire.lua,goblintown*.lua,"				-
+		+ "hella-%.lua,hellb-%.lua,hellc-%.lua,"		-
 		+ "hellfill.lua,knox-%.lua,"				-
 		+ "medusa-%.lua,minefill.lua,minetn-%.lua,"		-
 		+ "minend-%.lua,nhcore.lua,nhlib.lua,"	-
