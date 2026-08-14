@@ -136,6 +136,12 @@ msummon(struct monst *mon)
     if (dtype == NON_PM)
         return 0;
 
+    /* The Ice Queen's realm is too cold for almost all demons:
+       force any demon summons to ice devils */
+    if (Iniceq && is_demon(&mons[dtype])
+        && !(svm.mvitals[PM_ICE_DEVIL].mvflags & G_GONE))
+        dtype = PM_ICE_DEVIL;
+
     /* sanity checks */
     if (cnt > 1 && (mons[dtype].geno & G_UNIQ) != 0)
         cnt = 1;

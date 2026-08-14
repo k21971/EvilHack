@@ -181,6 +181,7 @@ tshirt_text(struct obj *tshirt, char *buf)
            TV show "Game of Thrones" (probably an actual T-shirt too...) */
         "/Valar morghulis/ -- /Valar dohaeris/",
         "Asidonhopo once said: the namesake of my enemy is my enemy",
+        "The Ice Queen Snow Cone Stand, est. 2020",
     };
 
     Strcpy(buf, shirt_msgs[tshirt->o_id % SIZE(shirt_msgs)]);

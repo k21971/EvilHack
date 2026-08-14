@@ -465,6 +465,15 @@ moveloop_core(void)
                     }
                 }
 
+                /* TODO-EVILHACK: master calls in_hell_effects() here
+                   (Gehennom ambient fire); ports with the flames-of-hell
+                   row */
+
+                /* Running around in the Ice Queen branch without
+                   100% cold resistance */
+                if (Iniceq)
+                    in_iceq_effects();
+
                 /* make monsters that innately grudge the hero's race,
                    role, or alignment hostile should they be tame or
                    peaceful */

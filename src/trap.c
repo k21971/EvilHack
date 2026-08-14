@@ -7913,6 +7913,92 @@ unconscious(void)
                     || !strncmp(gn.nomovemsg, "You are consci", 14))));
 }
 
+/* Derived from lava_effects(): hero can freeze in the
+   Ice Queen branch without adequate cold resistance */
+static const char in_iceq_killer[] = "freezing to death";
+
+boolean
+in_iceq_effects(void)
+{
+    int dmg = resist_reduce(d(1, 6), COLD_RES);
+    boolean usurvive, freeze_solid;
+    static int freezing_death_attempts = 0;
+
+    if (likes_iceq(gy.youmonst.data)) {
+        if (iflags.debug_fuzzer)
+            freezing_death_attempts = 0; /* reset counter - we're fine */
+        return FALSE;
+    }
+
+    usurvive = how_resistant(COLD_RES) == 100 || (dmg < u.uhp);
+
+    if (how_resistant(COLD_RES) < 100) {
+        if (how_resistant(COLD_RES) >= 50) {
+            if (rn2(3))
+                You("are slowly freezing to death.");
+        } else {
+            You("are freezing to death!");
+        }
+        if (usurvive) {
+            losehp(dmg, in_iceq_killer, KILLED_BY);
+            if (iflags.debug_fuzzer)
+                freezing_death_attempts = 0; /* reset - still alive */
+            return FALSE;
+        }
+
+        if (wizard)
+            usurvive = TRUE;
+
+        /* Fuzzer protection: prevent infinite freezing loops */
+        if (iflags.debug_fuzzer) {
+            freezing_death_attempts++;
+            /* after 2 failed attempts, grant temporary cold resistance
+               and teleport to safety */
+            if (freezing_death_attempts >= 2) {
+                Your("body rapidly adapts to the extreme cold!");
+                /* deliberately guarded, unlike master's unconditional
+                   grant: a timeout write on a nonzero intrinsic word
+                   would rewrite a stored partial-resistance percentage,
+                   so only an empty word gets the temporary grant; a
+                   partial holder still escapes via the teleport below */
+                if (!HCold_resistance) {
+                    You("develop temporary cold resistance!");
+                    /* grant enough turns to escape */
+                    set_itimeout(&HCold_resistance, 50L);
+                }
+                freezing_death_attempts = 0;
+                /* try to find a safe spot on this level first */
+                if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    You("are magically transported to safety!");
+                    return FALSE; /* successfully escaped freezing */
+                }
+                /* if no safe spot on this level, level teleport */
+                You("feel a powerful force pulling you away!");
+                level_tele();
+                return FALSE; /* continue turn */
+            }
+        }
+
+        freeze_solid = (u.umonnum == PM_WATER_ELEMENTAL
+                        || u.umonnum == PM_STEAM_VORTEX
+                        || u.umonnum == PM_WATER_TROLL
+                        || u.umonnum == PM_BABY_SEA_DRAGON
+                        || u.umonnum == PM_SEA_DRAGON
+                        || u.umonnum == PM_FOG_CLOUD);
+
+        svk.killer.format = KILLED_BY;
+        Strcpy(svk.killer.name, in_iceq_killer);
+        urgent_pline("You %s...",
+                     freeze_solid ? "freeze solid" : "freeze to death");
+        done(DIED);
+        return TRUE;
+    }
+
+    if (iflags.debug_fuzzer)
+        freezing_death_attempts = 0; /* reset - full resistance */
+    return FALSE;
+}
+
 static const char lava_killer[] = "molten lava";
 
 /* hero enters pool of molten lava; returns True if hero is killed and

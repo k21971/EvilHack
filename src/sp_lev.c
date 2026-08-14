@@ -1175,11 +1175,6 @@ rndtrap(void)
         case MAGIC_PORTAL:
             rtrap = NO_TRAP;
             break;
-        case ICE_TRAP_SET:
-            /* random generation is tied to the Ice Queen branch, which
-               has not been ported yet */
-            rtrap = NO_TRAP;
-            break;
         case TRAPPED_DOOR:
         case TRAPPED_CHEST:
             /* these are controlled by the feature or object they guard,

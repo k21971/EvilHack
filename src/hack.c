@@ -3803,10 +3803,10 @@ check_special_room(boolean newlev)
          * but everything else gives a message only the first time */
         switch (rt) {
         case ZOO:
-            /* TODO-EVILHACK: master reports an ice cave here instead when
-               the hero is in the Ice Queen branch; that dungeon topology
-               is not ported yet */
-            pline("Welcome to David's treasure zoo!");
+            if (Iniceq)
+                You("enter an ice cave!");
+            else
+                pline("Welcome to David's treasure zoo!");
             break;
         case GARDEN:
             if (Blind)

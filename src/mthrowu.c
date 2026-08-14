@@ -1952,7 +1952,10 @@ hit_bars(
 {
     struct obj *otmp = *objp;
     int obj_type = otmp->otyp;
-    boolean nodissolve = (levl[barsx][barsy].wall_info & W_NONDIGGABLE) != 0,
+    /* the Ice Queen's realm carve-out lets acid dissolve even
+       nondiggable bars there */
+    boolean nodissolve = ((levl[barsx][barsy].wall_info & W_NONDIGGABLE) != 0)
+                         && !Iniceq,
             your_fault = (breakflags & BRK_BY_HERO) != 0,
             melee_attk = (breakflags & BRK_MELEE) != 0;
     int noise = 0;

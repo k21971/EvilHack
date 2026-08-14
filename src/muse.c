@@ -413,6 +413,12 @@ m_tele(
     } else if ((mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) && !rn2(3)) {
         if (vismon)
             pline_mon(mtmp, "%s seems disoriented for a moment.", Monnam(mtmp));
+    } else if (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (vismon) {
+            pline_mon(mtmp, "A powerful curse prevents %s from teleporting!",
+                      mon_nam(mtmp));
+            verbalize("Nooooo!");
+        }
     } else {
         /* teleport monster 'mtmp' */
         if (how) {
@@ -975,6 +981,14 @@ use_defensive(struct monst *mtmp)
             if (vismon)
                 pline_mon(mtmp, "%s seems disoriented for a moment.",
                           Monnam(mtmp));
+        } else if (Iniceq
+                   && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            if (vismon) {
+                pline_mon(mtmp,
+                          "A powerful curse prevents %s from teleporting!",
+                          mon_nam(mtmp));
+                verbalize("Nooooo!");
+            }
         } else {
             (void) rloc(mtmp, RLOC_MSG);
         }
@@ -1032,6 +1046,14 @@ use_defensive(struct monst *mtmp)
             } else if (nlev == depth(&u.uz)) {
                 if (vismon)
                     pline_mon(mtmp, "%s shudders for a moment.", Monnam(mtmp));
+            } else if (Iniceq
+                       && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                if (vismon) {
+                    pline_mon(mtmp, "A powerful curse prevents %s from"
+                                    " leaving this place!",
+                              mon_nam(mtmp));
+                    verbalize("Nooooo!");
+                }
             } else {
                 get_level(&flev, nlev);
                 migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
@@ -2876,6 +2898,9 @@ rnd_offensive_item(struct monst *mtmp)
     case 9:
         return WAN_SLEEP;
     case 10:
+        /* wands of fire are rare in the Ice Queen's realm */
+        if (Iniceq)
+            return rn2(6) ? WAN_SLEEP : rn2(3) ? WAN_LIGHTNING : WAN_FIRE;
         return WAN_FIRE;
     case 11:
         return WAN_COLD;
@@ -3403,8 +3428,11 @@ use_misc(struct monst *mtmp)
 
                 get_level(&tolevel, tolev);
                 /* insurance against future changes...
-                   Lucifer never abandons his post in the sanctum */
+                   Lucifer never abandons his post in the sanctum, and
+                   the Ice Queen's curse binds her to her realm */
                 if (on_level(&tolevel, &u.uz)
+                    || (Iniceq
+                        && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
                     || (Is_sanctum(&u.uz)
                         && mtmp->data == &mons[PM_LUCIFER]))
                     goto skipmsg;

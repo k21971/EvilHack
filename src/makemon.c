@@ -3336,10 +3336,8 @@ makemon(
             }
             break;
         case PM_FROST_GIANT:
-            /* TODO-EVILHACK: master mounts a frost giant on a woolly
-               mammoth 1 time in 5 inside the Ice Queen branch; that
-               branch, and the Iniceq predicate that tests for it, are
-               not on this tree yet */
+            if (Iniceq && !rn2(5))
+                mount_monster(mtmp, PM_WOOLLY_MAMMOTH);
             break;
         case PM_DROW_RAIDER:
             if (!rn2(7))
@@ -3830,6 +3828,10 @@ rndmonst_adj(int minadj, int maxadj)
             continue;
         if (Ingtown && !likes_gtown(ptr))
             continue;
+        if (Iniceq && !likes_iceq(ptr))
+            continue;
+        if (!Iniceq && is_iceq_only(ptr))
+            continue;
 
         /*
          * Weighted reservoir sampling:  select ptr with a
@@ -3890,6 +3892,9 @@ mk_gen_ok(int mndx, unsigned mvflagsmask, unsigned genomask)
     if (ptr->geno & genomask)
         return FALSE;
     if (is_placeholder(ptr))
+        return FALSE;
+    /* ice nymphs are native to the Ice Queen's realm */
+    if (!In_icequeen_branch(&u.uz) && ptr == &mons[PM_ICE_NYMPH])
         return FALSE;
     /* the Agent and the Champion hunt Infidels exclusively */
     if (!Role_if(PM_INFIDEL)
@@ -4487,6 +4492,8 @@ golemhp(int type)
         return 80;
     case PM_IRON_GOLEM:
         return 120;
+    case PM_SNOW_GOLEM:
+        return 150;
     default:
         return 0;
     }

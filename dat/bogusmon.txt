@@ -87,6 +87,15 @@ omnibus
 slinky
 maxotaur
 millitaur
+
+# Ice Branch
+-Kate the Nice Queen
+=Abdominal Snowman
++Carl the Escalator
+scimitar-tailed tiger
+=Bonbon
+=Oozy
+
 octahedron
 dungeon core
 quale

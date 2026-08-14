@@ -2094,6 +2094,17 @@ goto_level(
         && !u.uevent.orcus_entered)
         u.uevent.orcus_entered = 1;
 
+    /* first time in the Ice Queen's realm? */
+    if (!In_icequeen_branch(&u.uz0) && Iniceq
+        && !u.uevent.iceq_entered) {
+        u.uevent.iceq_entered = 1;
+        You("arrive in a frozen, barren wasteland.");
+        pline_The("remnants of a once majestic forest stretch out"
+                  " before you.");
+        if (!Deaf)
+            You_hear("the distant howl of hungry wolves.");
+    }
+
     /* first time in Goblin Town? */
     if (!In_goblintown(&u.uz0) && Ingtown
         && !u.uevent.gtown_entered) {

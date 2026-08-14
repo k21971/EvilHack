@@ -1654,6 +1654,8 @@ static const char *const sir_Terry_novels[] = {
     "A Hat Full of Sky", "Going Postal", "Thud!", "Wintersmith",
     "Making Money", "Unseen Academicals", "I Shall Wear Midnight", "Snuff",
     "Raising Steam", "The Shepherd's Crown",
+    /* Specific journal for the Ice Queen side branch */
+    "The Adventurer's Journal",
     /* Specific journal for forge recipes */
     "The Blacksmith's Cookbook"
 };

@@ -354,6 +354,7 @@ bad_location(
                             && svl.level.flags.is_maze_lev)
                            || levl[x][y].typ == ROOM
                            || levl[x][y].typ == GRASS
+                           || levl[x][y].typ == ICE
                            || levl[x][y].typ == SAND
                            || levl[x][y].typ == AIR));
 }

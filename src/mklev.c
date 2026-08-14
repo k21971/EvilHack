@@ -2117,9 +2117,8 @@ traptype_rnd(unsigned mktrapflags)
             kind = NO_TRAP;
         break;
     case ICE_TRAP_SET:
-        /* random generation is tied to the Ice Queen branch, which
-           has not been ported yet */
-        kind = NO_TRAP;
+        if (!Iniceq)
+            kind = NO_TRAP;
         break;
     case TELEP_TRAP_SET:
         if (svl.level.flags.noteleport)
@@ -2207,9 +2206,12 @@ mktrap(
         kind = num;
     } else if (Is_rogue_level(&u.uz)) {
         kind = traptype_roguelvl();
-    } else if (Inhell && !rn2(5)) {
+    } else if (Inhell && !Iniceq && !rn2(5)) {
         /* bias the frequency of fire traps in Gehennom */
         kind = FIRE_TRAP_SET;
+    } else if (Iniceq && !rn2(3)) {
+        /* same for ice traps in the Ice Queen branch */
+        kind = ICE_TRAP_SET;
     } else {
         do {
             kind = traptype_rnd(mktrapflags);
