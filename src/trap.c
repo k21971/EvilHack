@@ -458,7 +458,11 @@ mk_trap_statue(coordxy x, coordxy y)
         return; /* should never happen */
     while (mtmp->minvent) {
         otmp = mtmp->minvent;
-        otmp->owornmask = 0;
+        /* extinguish a worn artifact light before clearing the
+           mask that artifact_light() depends on */
+        if (otmp->lamplit && artifact_light(otmp))
+            end_burn(otmp, FALSE);
+        otmp->owornmask = 0L;
         obj_extract_self(otmp);
         (void) add_to_container(statue, otmp);
     }

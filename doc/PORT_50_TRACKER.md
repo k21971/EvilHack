@@ -8096,6 +8096,64 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       doc/fixes5-0-*.txt, renamed from fixesN.N); use the
       file-relocation map (re-derive queue section) to find where
       each fix's home file went
+- [x] Light-guard port slice (minted+DONE 2026-08-14; first
+      concrete instance of the row above; BUG-1562..1566, commit
+      hash rides the next commit). Origin: the 2026-08-13 recursive
+      panic("obj_is_local") during #wizloaddes savelev (core-dump
+      root cause: monster-worn lit W_ARMS shield of light stripped
+      lamplit-hot, freed, stale light_sources entry) - see the
+      CRASH_TRACKING.md RESOLVED entry. Ports: master 34e9287d1
+      (dealloc_obj obj->lamplit backstop + burn_object default-case
+      cleanup + forensics), the BUG-1276 statue-harvest guards
+      (trap.c mk_trap_statue + sp_lev.c statue prize), BUG-684/709
+      billing-dummy lamplit clears (bill_dummy_object made
+      unconditional; sub_one_frombill line was missing entirely),
+      and master's three-slot extract_from_minvent guard (branch
+      was W_ARM-only, so W_ARMS/W_ARMC stripped lamplit-hot
+      through every death/drop/steal funnel = the root cause).
+      Branch-original fix: break_glass_obj monster branch
+      (adamantine/inferior worn armor broke lamplit-hot straight
+      into dealloc_obj; master's BUG-1276 re-audit clearance of
+      that site does not hold on 5.0). NOT ported (adjudicated):
+      splitobj's obj_sheds_light gate (split, not delete; lights
+      never stack), sounds.c saddle/barding pre-clears + worn.c
+      setworn/setnotworn hero clears (master posture - the dealloc
+      backstop covers), steal.c mpickobj (5.0 coordinate-based
+      snuff already safe; master 052cf57fe has no landing site),
+      and master's reverted c08724474 (unconditional
+      del_light_source - do not resurrect). Reviewer CONDITIONAL
+      PASS (all 7 hunks master-faithful; HIGH = pre-existing
+      hero-side gap, routed below; burn_object forensics NIT
+      adopted). Battery 6 legs PASSED with sanity_check on,
+      paniclog NEVER CREATED; the repro-negative replayed the full
+      crash sequence clean, incl. a naturally generated lit W_ARM
+      dragon-scaled plate surviving savelev/restore. Caveat: the
+      13 statue harvests rolled no lit item, so that arm ran as a
+      no-op branch only (form identical to the exercised sp_lev/
+      master shape).
+- [ ] Hero-side worn artifact light port (minted 2026-08-14 by the
+      light-guard slice reviewer): master's toggle_armor_light()
+      helper + its Shield_on/Shield_off/Cloak_on/Cloak_off call
+      sites were never ported - a hero-worn shield of light or
+      cloak-slot gold/shadow/chromatic dragon scales NEVER lights
+      on the branch (feature-inert; only Armor_on/Armor_off/
+      Armor_gone carry the W_ARM was_arti_light pattern in
+      do_wear.c). Riders: master destroy_arm's pre-message
+      end_burn for the uarms/uarmc arms (branch disintegrate_arm
+      guards uarm only); once this lands, break_glass_obj's hero
+      branch becomes safe for the right reason (today it is safe
+      only because the light never starts). Battery evidence
+      2026-08-14: hero wearing a lit-capable shield produced no
+      light, no message, lamplit 0.
+- [ ] Light-guard riders on unported features (minted 2026-08-14):
+      master muse.c munstone() spellcaster inventory-strip loop
+      (a BUG-1276 guard site; branch mon_consume_unstone has no
+      strip loop) and master apply.c use_whip() worn-shield snatch
+      arm (a BUG-1267 guard site; branch whip targets MON_WEP
+      only). Whichever slice ports those features MUST carry the
+      lamplit + artifact_light end_burn guard with them
+      (archive-sweep-before-port: shared-code fixes never travel
+      with ported text).
 
 ## Phase 6 - Infra and server
 

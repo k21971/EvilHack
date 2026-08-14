@@ -786,8 +786,9 @@ bill_dummy_object(struct obj *otmp)
     copy_oextra(dummy, otmp);
     if (has_omid(dummy))
         free_omid(dummy); /* only one association with m_id */
-    if (Is_candle(dummy))
-        dummy->lamplit = 0;
+    /* dummy is a shop-billing placeholder; never sheds light regardless
+       of the source obj's lit state */
+    dummy->lamplit = 0;
     dummy->owornmask = 0L; /* dummy object is not worn */
     addtobill(dummy, FALSE, TRUE, TRUE);
     if (cost && dummy->where != OBJ_DELETED)
@@ -3075,7 +3076,7 @@ dealloc_obj(struct obj *obj)
      * list must track all objects that can have a light source
      * attached to it (and also requires lamplit to be set).
      */
-    if (obj_sheds_light(obj)) {
+    if (obj->lamplit) {
         del_light_source(LS_OBJECT, obj_to_any(obj));
         obj->lamplit = 0;
     }

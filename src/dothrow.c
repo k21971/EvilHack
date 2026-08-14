@@ -3238,6 +3238,11 @@ break_glass_obj(struct obj *obj)
                 setmnotwielded2(mon, obj);
             if (unwornmask & W_ARMG)
                 mselftouch(mon, (const char *) 0, TRUE);
+            /* extinguish a worn artifact light (shield of light,
+               gold/shadow/chromatic dragon armor) before the worn
+               mask that artifact_light() depends on is cleared */
+            if (obj->lamplit && artifact_light(obj))
+                end_burn(obj, FALSE);
             /* shouldn't really be needed, but be safe. master calls
                this update_mon_intrinsics; 5.0 renamed it */
             update_mon_extrinsics(mon, obj, FALSE, FALSE);

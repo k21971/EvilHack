@@ -1832,9 +1832,12 @@ extract_from_minvent(
     }
     /* leaving the monster's inventory releases any hero reservation */
     obj->oreserved = 0;
-    /* handle gold dragon scales/scale-mail (lit when worn) before clearing
-       obj->owornmask because artifact_light() expects that to be W_ARM */
-    if ((unwornmask & W_ARM) != 0 && obj->lamplit && artifact_light(obj))
+    /* handle gold dragon scales/shield of light (lit when worn) before
+       clearing obj->owornmask because artifact_light() expects that to
+       be W_ARM / W_ARMC / W_ARMS */
+    if (((unwornmask & W_ARM) != 0 || (unwornmask & W_ARMC) != 0
+         || (unwornmask & W_ARMS) != 0)
+        && obj->lamplit && artifact_light(obj))
         end_burn(obj, FALSE);
 
     obj_extract_self(obj);

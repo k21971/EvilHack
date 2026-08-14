@@ -4060,6 +4060,7 @@ sub_one_frombill(struct obj *obj, struct monst *shkp)
             otmp->where = OBJ_FREE;
             otmp->quan = (bp->bquan -= obj->quan);
             otmp->owt = 0; /* superfluous */
+            otmp->lamplit = 0; /* dummy is a billing placeholder; never lit */
             bp->useup = TRUE;
             add_to_billobjs(otmp);
             return;
