@@ -2626,6 +2626,8 @@ show_achievements(
        participate in the chronological list above */
     if (u.uevent.killed_cerberus)
         you_have_X("defeated Cerberus");
+    if (u.uevent.killed_gking)
+        you_have_X("defeated the Goblin King");
     if (u.uevent.wiztower_entered)
         you_have_X("entered the Wizard of Yendor's lair");
 

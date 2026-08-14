@@ -59,6 +59,7 @@ struct tmpbranch {
 #define MAZELIKE    0x04
 #define ROGUELIKE   0x08
 #define UNCONNECTED 0x10
+#define GTOWN       0x20
 
 /*
  *    Dungeon and level alignment. These are carried in the dedicated

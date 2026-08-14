@@ -519,6 +519,12 @@ describe_level(
         else
             Sprintf(buf, "Soko:%-2d", dunlev(&u.uz));
         addbranch = FALSE;
+    } else if (In_goblintown(&u.uz)) {
+        if (addbranch)
+            Sprintf(buf, "Goblin Town %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Goblin:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
     /* Gehennom-chain sub-branches: each one MUST be tested before the
        generic In_hell() arm below, since they all carry hellish=TRUE */
     } else if (In_tower(&u.uz)) {

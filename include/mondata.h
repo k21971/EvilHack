@@ -292,6 +292,9 @@
     ((ptr) == &mons[PM_SEWER_RAT] || (ptr) == &mons[PM_GIANT_RAT]       \
      || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
      || (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
+/* Goblin Town branch defines */
+#define likes_gtown(ptr) \
+    ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
 #define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
 #define is_bone_monster(ptr) \
     ((ptr) == &mons[PM_BONE_DEVIL] || is_skeleton(ptr))

@@ -772,8 +772,8 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
     if (!srace)
         srace = m_randrace(monsndx(shk->data));
 
-    /* TODO-EVILHACK: master forces srace to PM_ORC inside Goblin
-       Town; ports with the Goblin Town dungeon branch */
+    if (In_goblintown(&u.uz))
+        srace = PM_ORC;
 
     apply_race(shk, srace);
 

@@ -2164,6 +2164,52 @@ meatcorpse(
     return 0;
 }
 
+/* Gollum eats fish, goblin, and bat corpses off the floor.
+   Return value is 0 = nothing eaten, 1 = ate, 2 = died */
+int
+gollum_eat(struct monst *mtmp)
+{
+    struct obj *otmp;
+    struct permonst *original_ptr = mtmp->data;
+    coordxy x = mtmp->mx, y = mtmp->my;
+
+    /* Gollum can't be tamed, but we'll leave this here anyways */
+    if (mtmp->mtame)
+        return 0;
+
+    /* eats the topmost suitable corpse if it is there */
+    for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere) {
+        if (!is_gollumfood(otmp))
+            continue;
+
+        if (cansee(x, y) && canseemon(mtmp)) {
+            /* call distant_name() for its possible side-effects even if
+               the result won't be printed */
+            char *otmpname = distant_name(otmp, doname);
+
+            if (flags.verbose)
+                pline_mon(mtmp, "%s eats %s!", Monnam(mtmp), otmpname);
+        } else {
+            Soundeffect(se_masticating_sound, 50);
+            if (flags.verbose)
+                You_hear("a smacking sound.");
+        }
+        /* Gollum can eat very fast */
+        mtmp->meating = rnd(3) + 1;
+
+        /* heal-by-weight and any corpse side effects are handled
+           inside m_consume_obj() */
+        m_consume_obj(mtmp, otmp);
+        /* in case it polymorphed or died */
+        if (mtmp->data != original_ptr)
+            return !mtmp->data ? 2 : 1;
+
+        newsym(x, y);
+        return 1;
+    }
+    return 0;
+}
+
 /* give monster property prop */
 void
 mon_give_prop(struct monst *mtmp, int prop)
@@ -2965,6 +3011,12 @@ mm_aggression(
     if ((magr->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
          || magr->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
         && can_sting(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* Gollum hates the piranhas, bats, and orcs of his cave */
+    if (magr->data == &mons[PM_GOLLUM]
+        && (mdef->data == &mons[PM_PIRANHA]
+            || is_bat(mdef->data) || mdef->data->mlet == S_ORC))
         return ALLOW_M | ALLOW_TM;
 
     /* pets will attack Lucifer, regardless of their level */

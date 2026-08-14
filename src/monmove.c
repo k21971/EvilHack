@@ -2052,6 +2052,11 @@ postmov(
                 if ((etmp = meatcorpse(mtmp)) >= 2)
                     return etmp; /* it died or got forced off the level */
             }
+            /* Maybe Gollum ate a corpse */
+            if (ptr == &mons[PM_GOLLUM]) {
+                if (gollum_eat(mtmp) == 2)
+                    return MMOVE_DIED;
+            }
 
             if (mpickstuff(mtmp))
                 mmoved = MMOVE_DONE;

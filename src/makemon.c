@@ -780,10 +780,6 @@ m_initweap(struct monst *mtmp)
     if (Is_rogue_level(&u.uz))
         return;
 
-    /* TODO-EVILHACK: master suppresses most racial gear for monsters
-       generated inside Goblin Town; those gates port with the Goblin
-       Town dungeon branch */
-
     /* treat player monsters differently: they are outfitted with role
        kits akin to the hero's initial inventory, scaled by level */
     if (is_mplayer(ptr)) {
@@ -1326,7 +1322,7 @@ m_initweap(struct monst *mtmp)
                 w2 = KNIFE;
             if (w2)
                 (void) mongets(mtmp, w2);
-        } else if (racial_elf(mtmp) && mm != PM_ELANEE) {
+        } else if (racial_elf(mtmp) && !Ingtown && mm != PM_ELANEE) {
             if (rn2(2))
                 (void) mongets(mtmp,
                                (rn2(2) && (mm == PM_GREY_ELF
@@ -1740,7 +1736,7 @@ m_initweap(struct monst *mtmp)
         break;
 
     case S_HUMANOID:
-        if (is_hobbit(ptr)) {
+        if (is_hobbit(ptr) && !Ingtown) {
             switch (rn2(3)) {
             case 0:
                 (void) mongets(mtmp, DAGGER);
@@ -1771,7 +1767,7 @@ m_initweap(struct monst *mtmp)
                 if (!rn2(8))
                     (void) mongets(mtmp, SACK);
             }
-        } else if (is_dwarf(ptr)) {
+        } else if (is_dwarf(ptr) && !Ingtown) {
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
             if (rn2(7))
@@ -2144,6 +2140,8 @@ m_initweap(struct monst *mtmp)
             if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, BATTLE_AXE);
+                else if (is_gnome(ptr) && Ingtown)
+                    ;
                 else
                     m_initthrow(mtmp, DART, 12);
             }
@@ -2152,6 +2150,8 @@ m_initweap(struct monst *mtmp)
             if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
                 if (strongmonst(ptr)) {
                     (void) mongets(mtmp, TWO_HANDED_SWORD);
+                } else if (is_gnome(ptr) && Ingtown) {
+                    ;
                 } else {
                     (void) mongets(mtmp, CROSSBOW);
                     m_initthrow(mtmp, CROSSBOW_BOLT, 12);
@@ -2160,14 +2160,20 @@ m_initweap(struct monst *mtmp)
             break;
         case 3:
             if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
-                (void) mongets(mtmp, BOW);
-                m_initthrow(mtmp, ARROW, 12);
+                if (is_gnome(ptr) && Ingtown) {
+                    ;
+                } else {
+                    (void) mongets(mtmp, BOW);
+                    m_initthrow(mtmp, ARROW, 12);
+                }
             }
             break;
         case 4:
             if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, LONG_SWORD);
+                else if (is_gnome(ptr) && Ingtown)
+                    ;
                 else
                     m_initthrow(mtmp, DAGGER, 3);
             }
@@ -2176,6 +2182,8 @@ m_initweap(struct monst *mtmp)
             if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
                 if (strongmonst(ptr))
                     (void) mongets(mtmp, LUCERN_HAMMER);
+                else if (is_gnome(ptr) && Ingtown)
+                    ;
                 else
                     (void) mongets(mtmp, AKLYS);
             }
@@ -2197,7 +2205,10 @@ m_initweap(struct monst *mtmp)
     }
 
     if ((int) mtmp->m_lev > rn2(75)) {
-        if (is_ent(ptr) || is_plant(ptr))
+        if ((racial_elf(mtmp) || is_dwarf(ptr) || is_gnome(ptr))
+            && Ingtown)
+            ; /* nothing */
+        else if (is_ent(ptr) || is_plant(ptr))
             ; /* nothing */
         else
             (void) mongets(mtmp, rnd_offensive_item(mtmp));
@@ -3816,6 +3827,8 @@ rndmonst_adj(int minadj, int maxadj)
         if (uncommon(mndx))
             continue;
         if (Inhell && (ptr->geno & G_NOHELL))
+            continue;
+        if (Ingtown && !likes_gtown(ptr))
             continue;
 
         /*

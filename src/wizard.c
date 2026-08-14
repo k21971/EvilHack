@@ -1030,6 +1030,15 @@ static const char *const random_goblinking[] = {
     "So you want to explore Mines' End, eh?  Over my dead body",
 };
 
+static const char *const random_gollum[] = {
+    "Precious, precious, precious!  My Precious!  O my Precious",
+    "Losst it is, my precious, lost, lost!  Curse us and crush us, my precious is lost",
+    "Never!  Smeagol wouldn't hurt a fly",
+    "It isn't fair, my precious, is it, to ask us what it's got in it's nassty little pocketsess",
+    "We wants it, we needs it.  Must have the precious.  They stole it from us",
+    "And they doesn't taste very nice, does they, Precious",
+};
+
 /* Insult or intimidate the player */
 void
 cuss(struct monst *mtmp)
@@ -1114,6 +1123,9 @@ cuss(struct monst *mtmp)
             SetVoice(mtmp, 0, 80, 0);
             verbalize("%s!", ROLL_FROM(random_goblinking));
         }
+    } else if (mtmp->data == &mons[PM_GOLLUM]) {
+        SetVoice(mtmp, 0, 80, 0);
+        verbalize("%s!", ROLL_FROM(random_gollum));
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));
