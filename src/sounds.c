@@ -414,6 +414,16 @@ dosounds(void)
         You_hear1(gtown_msg[rn2(2 + hallu)]);
         return;
     }
+    if (!In_icequeen_branch(&u.uz0)
+        && at_dgn_entrance("The Ice Queen's Realm") && !rn2(200)) {
+        static const char *const icequeenbranch_msg[] = {
+            "an eerie, ominous wail.",
+            "a howling wind.",
+            "someone singing \"Do You Want to Build a Snowman?\""
+        };
+        You_hear1(icequeenbranch_msg[rn2(2 + hallu)]);
+        return;
+    }
 }
 
 static const char *const h_sounds[] = {

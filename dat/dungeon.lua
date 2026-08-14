@@ -24,6 +24,13 @@ dungeon = {
             branchtype = "portal"
          },
          {
+            -- the portal is on the level directly above Medusa's
+            name = "The Ice Queen's Realm",
+            chainlevel = "medusa",
+            base = -1,
+            branchtype = "portal"
+         },
+         {
             name = "Sokoban",
             chainlevel = "oracle",
             base = 1,
@@ -205,6 +212,26 @@ dungeon = {
          {
             name = "goblintown-2",
             base = 2
+         },
+      }
+   },
+   {
+      name = "The Ice Queen's Realm",
+      base = 3,
+      alignment = "unaligned",
+      flags = { "mazelike", "iceq" },
+      levels = {
+         {
+            name = "icequeen-1",
+            base = 1
+         },
+         {
+            name = "icequeen-2",
+            base = 2
+         },
+         {
+            name = "icequeen-3",
+            base = 3
          },
       }
    },

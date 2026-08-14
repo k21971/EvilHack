@@ -39,7 +39,7 @@ $	spec_files = "air.lua,astral.lua,"				-
 		+ "bigrm-*.lua,castle-%.lua,earth.lua,"			-
 		+ "fire.lua,goblintown*.lua,"				-
 		+ "hella-%.lua,hellb-%.lua,hellc-%.lua,"		-
-		+ "hellfill.lua,knox-%.lua,"				-
+		+ "hellfill.lua,icequeen-%.lua,knox-%.lua,"		-
 		+ "medusa-%.lua,minefill.lua,minetn-%.lua,"		-
 		+ "minend-%.lua,nhcore.lua,nhlib.lua,"	-
 		+ "oracle-1.lua,oracle-2.lua,oracle-3.lua,"		-

@@ -85,6 +85,9 @@
     <Luafiles Include = "hellc-2.lua"/>
     <Luafiles Include = "hellc-3.lua"/>
     <Luafiles Include = "hellfill.lua"/>
+    <Luafiles Include = "icequeen-1.lua"/>
+    <Luafiles Include = "icequeen-2.lua"/>
+    <Luafiles Include = "icequeen-3.lua"/>
     <Luafiles Include = "Inf-fila.lua"/>
     <Luafiles Include = "Inf-filb.lua"/>
     <Luafiles Include = "Inf-goal.lua"/>
