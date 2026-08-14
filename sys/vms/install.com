@@ -43,7 +43,7 @@ $	spec_files = "air.lua,astral.lua,"				-
 		+ "medusa-%.lua,minefill.lua,minetn-%.lua,"		-
 		+ "minend-%.lua,nhcore.lua,nhlib.lua,"	-
 		+ "oracle-1.lua,oracle-2.lua,oracle-3.lua,"		-
-		+ "orcus.lua,quest.lua,sanctum.lua,"			-
+		+ "orcus.lua,purgatory-%.lua,quest.lua,sanctum.lua,"			-
 		+ "soko%-%.lua,themerms.lua,tower%.lua,tut-%.lua,"	-
 		+ "valley.lua,water.lua,wizard%.lua,wizportal.lua"
 $	qstl_files = "%%%-goal.lua,%%%-fil%.lua,%%%-loca.lua,%%%-strt.lua"

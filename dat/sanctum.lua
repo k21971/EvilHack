@@ -34,11 +34,13 @@ LLLLLLLLLLLLLL|...........|LLLLLLLLLLLLLLLLLLF...FLLLLLLLLLL|.....FLLLLLLLLL
 LLLLLLLLLLLLLL-------------LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
 LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 ]]);
--- TODO-EVILHACK: master anchors the Purgatory chainbranch here
--- (BRANCH:(01,10,01,10) inside Lucifer's chamber); the levregion lands
--- with the Purgatory dungeon topology
+-- Portal to Purgatory, inside Lucifer's chamber
+des.levregion({ region = {01,10,01,10}, type="branch" })
+-- north/south only: the temple west wall is the mkgate gate cells, and
+-- a secret door landing on one would overlap the carved gate
 des.region({ region={15,08, 21,11}, lit=1, type="temple", filled=2, contents = function()
-                des.door({ wall = "random", state = "secret" });
+                des.door({ wall = percent(50) and "north" or "south",
+                           state = "secret" });
 end })
 des.altar({ x=18, y=09, align="noalign", type="sanctum" })
 des.region({ region={41,06, 48,11}, lit=0, type="morgue", filled=1, irregular=1 })

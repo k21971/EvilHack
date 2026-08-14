@@ -845,12 +845,15 @@ mon_arrive(struct monst *mtmp, int when)
             xlocale = stway->sx, ylocale = stway->sy;
             break;
         } else if (!iflags.debug_fuzzer
+                   && !Is_stronghold(&u.uz)
                    && !(u.uevent.qexpelled
                         && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))) {
             /* one-way branch portals legitimately lack a return
                portal; log it in normal play but never panic the
                fuzzer - fall through to random placement, mirroring
-               goto_level in do.c */
+               goto_level in do.c. The Castle is exempt: monsters
+               transiting Purgatory's one-way exit portal arrive
+               there with no return portal by design */
             impossible("mon_arrive: no corresponding portal?");
         }
         FALLTHROUGH;

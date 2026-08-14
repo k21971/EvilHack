@@ -126,6 +126,14 @@ dungeon = {
             base = 0,
             branchtype = "portal",
             direction = "up"
+         },
+         {
+            -- the portal is inside Lucifer's chamber on the sanctum
+            name = "Purgatory",
+            chainlevel = "sanctum",
+            base = 0,
+            branchtype = "portal",
+            direction = "up"
          }
       },
       levels = {
@@ -232,6 +240,25 @@ dungeon = {
          {
             name = "icequeen-3",
             base = 3
+         },
+      }
+   },
+   {
+      -- ENTRY -1: arrival from the sanctum portal is at purgatory-2
+      name = "Purgatory",
+      bonetag = "P",
+      base = 2,
+      alignment = "neutral",
+      entry = -1,
+      flags = { "mazelike", "purg" },
+      levels = {
+         {
+            name = "purgatory-1",
+            base = 1
+         },
+         {
+            name = "purgatory-2",
+            base = 2
          },
       }
    },

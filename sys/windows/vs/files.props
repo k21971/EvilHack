@@ -135,6 +135,8 @@
     <Luafiles Include = "Pri-goal.lua"/>
     <Luafiles Include = "Pri-loca.lua"/>
     <Luafiles Include = "Pri-strt.lua"/>
+    <Luafiles Include = "purgatory-1.lua"/>
+    <Luafiles Include = "purgatory-2.lua"/>
     <Luafiles Include = "quest.lua"/>
     <Luafiles Include = "Ran-fila.lua"/>
     <Luafiles Include = "Ran-filb.lua"/>

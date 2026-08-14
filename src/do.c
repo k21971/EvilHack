@@ -1703,6 +1703,23 @@ goto_level(
         return;
     }
 
+    /* The portal to Purgatory is not active until its guardian
+       is defeated */
+    if (on_level(&u.uz, &sanctum_level)
+        && !u.uevent.ulucifer && portal) {
+        pline("Entrance to Purgatory is blocked while Lucifer still lives.");
+        return;
+    }
+
+    /* The final portal leaving Purgatory will not function until
+       its ruler is defeated */
+    if (on_level(&u.uz, &purgend_level)
+        && !u.uevent.umichael && portal) {
+        pline("Escape from Purgatory is blocked"
+              " while Saint Michael still lives.");
+        return;
+    }
+
     /* Prevent the player from accessing either Mine Town or Mines' End
      * unless they have defeated the Goblin King. Using the stairs or
      * falling through a hole or trap door is blocked, but our hero can
@@ -1879,7 +1896,10 @@ goto_level(
     gv.vision_full_recalc = 0; /* don't let that reenable vision yet */
     flush_screen(-1);       /* ensure all map flushes are postponed */
 
-    if (portal && !In_endgame(&u.uz)) {
+    /* the Castle is excluded: Purgatory's exit portal is one-way and
+       has no return portal there - arrival goes through the random
+       placement below instead */
+    if (portal && !In_endgame(&u.uz) && !Is_stronghold(&u.uz)) {
         /* find the portal on the new level */
         struct trap *ttrap;
 
@@ -2110,6 +2130,19 @@ goto_level(
         && !u.uevent.gtown_entered) {
         u.uevent.gtown_entered = 1;
         You("have entered Goblin Town, the lair of the Goblin King.");
+    }
+
+    /* entered Purgatory */
+    if (!In_purgatory(&u.uz0) && Inpurg
+        && !u.uevent.purgatory_entered) {
+        u.uevent.purgatory_entered = 1;
+        if (!Blind)
+            com_pager("purgatory_enter");
+        livelog_printf(LL_ACHIEVE, "entered Purgatory");
+        /* force chance of a confrontation with Wizard,
+           but only on first arrival */
+        if (!rn2(3))
+            resurrect();
     }
 
     /* special location arrival messages/events */
