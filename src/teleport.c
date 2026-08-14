@@ -1227,7 +1227,8 @@ level_tele(void)
              && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
          || (u.usteed && mon_has_amulet(u.usteed))
          || (In_quest(&u.uz) && !svq.quest_status.killed_nemesis
-             && !(Role_if(PM_ROGUE) && Is_nemesis(&u.uz))))
+             && !(Role_if(PM_ROGUE) && Is_nemesis(&u.uz)))
+         || In_purgatory(&u.uz))
         && !wizard) {
         You_feel("very disoriented for a moment.");
         return;
@@ -2174,7 +2175,9 @@ mlevel_tele_trap(
                                        || is_home_elemental(mtmp->data)
                                        || rn2(7)))
                 /* Lucifer never abandons his post in the sanctum */
-                || (Is_sanctum(&u.uz) && mtmp->islucifer)) {
+                || (Is_sanctum(&u.uz) && mtmp->islucifer)
+                /* Saint Michael never flees Purgatory's exit portal */
+                || (Is_purgend_level(&u.uz) && mtmp->ismichael)) {
                 if (in_sight && mtmp->data->mlet != S_ELEMENTAL) {
                     pline_mon(mtmp,
                               "%s seems to shimmer for a moment.",

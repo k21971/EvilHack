@@ -743,6 +743,8 @@ wiz_map_levltyp(void)
                 Strcat(dsc, " Goblin Town");
             if (slev->flags.iceq)
                 Strcat(dsc, " Ice Queen branch");
+            if (slev->flags.purg)
+                Strcat(dsc, " Purgatory");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)

@@ -264,7 +264,7 @@ target_on(int mask, struct monst *mtmp)
     struct obj *otmp;
     struct monst *mtmp2;
 
-    if (!M_Wants(mask))
+    if (!M_Wants(mask) && !is_mplayer(mtmp->data))
         return (unsigned long) STRAT_NONE;
 
     otyp = which_arti(mask);
@@ -1149,8 +1149,7 @@ static const char *const random_mplayer_idol[] = {
     "Either you relinquish the Idol now, or I will kill you"
 };
 
-/* player monsters harass the player in Purgatory; unreachable until
-   the Purgatory branch and its monmove hook land */
+/* player monsters harass the player in Purgatory */
 void
 mplayer_purg_talk(struct monst *mtmp)
 {
@@ -1177,8 +1176,7 @@ static const char *const random_arch_idol[] = {
     "I shall relieve thee of thy charge, and destroy thine wicked Idol!"
 };
 
-/* Saint Michael the Archangel confronts the player in Purgatory;
-   unreachable until the Purgatory branch and its monmove hook land */
+/* Saint Michael the Archangel confronts the player in Purgatory */
 void
 archangel_purg_talk(struct monst *mtmp)
 {

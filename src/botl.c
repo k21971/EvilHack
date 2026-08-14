@@ -531,6 +531,12 @@ describe_level(
         else
             Sprintf(buf, "IceQ:%-2d", dunlev(&u.uz));
         addbranch = FALSE;
+    } else if (In_purgatory(&u.uz)) {
+        if (addbranch)
+            Sprintf(buf, "Purgatory %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Purg:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
     /* Gehennom-chain sub-branches: each one MUST be tested before the
        generic In_hell() arm below, since they all carry hellish=TRUE */
     } else if (In_tower(&u.uz)) {

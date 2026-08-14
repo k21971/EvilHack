@@ -322,6 +322,14 @@
 /* Goblin Town branch defines */
 #define likes_gtown(ptr) \
     ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
+/* Purgatory defines */
+#define likes_purg(ptr) \
+    ((ptr)->mlet == S_DRAGON || (ptr)->mlet == S_NYMPH                 \
+     || (ptr)->mlet == S_UNICORN || (ptr)->mlet == S_CENTAUR           \
+     || (ptr)->mlet == S_JABBERWOCK || (ptr)->mlet == S_ENT            \
+     || ((ptr) >= &mons[PM_ARCHEOLOGIST] && (ptr) <= &mons[PM_WIZARD]) \
+     || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_GHOST]         \
+     || (ptr)->mlet == S_PLANT)
 #define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
 #define is_bone_monster(ptr) \
     ((ptr) == &mons[PM_BONE_DEVIL] || is_skeleton(ptr))

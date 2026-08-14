@@ -624,6 +624,7 @@ encode_extended_achievements(char *buf)
     add_achieveX(buf, "defeated_lucifer", u.uevent.killed_lucifer);
     add_achieveX(buf, "defeated_saint_michael", u.uevent.killed_michael);
     add_achieveX(buf, "entered_wiztower", u.uevent.wiztower_entered);
+    add_achieveX(buf, "entered_purgatory", u.uevent.purgatory_entered);
     add_achieveX(buf, "got_crowned", u.uevent.uhand_of_elbereth != 0);
 
     return buf;

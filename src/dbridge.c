@@ -941,6 +941,8 @@ open_drawbridge(coordxy x, coordxy y)
     unblock_point(x2, y2); /* vision */
     if (Is_stronghold(&u.uz))
         u.uevent.uopened_dbridge = TRUE;
+    if (In_purgatory(&u.uz))
+        wake_nearto(x, y, 200);
     nokiller();
 }
 

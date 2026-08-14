@@ -2632,6 +2632,8 @@ show_achievements(
         you_have_X("defeated Kathryn the Ice Queen");
     if (u.uevent.wiztower_entered)
         you_have_X("entered the Wizard of Yendor's lair");
+    if (u.uevent.purgatory_entered)
+        you_have_X("entered Purgatory");
 
     if (awin != ge.en_win) {
         display_nhwindow(awin, TRUE);

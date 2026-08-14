@@ -3832,6 +3832,8 @@ rndmonst_adj(int minadj, int maxadj)
             continue;
         if (!Iniceq && is_iceq_only(ptr))
             continue;
+        if (Inpurg && !likes_purg(ptr))
+            continue;
 
         /*
          * Weighted reservoir sampling:  select ptr with a

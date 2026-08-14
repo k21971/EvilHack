@@ -2981,6 +2981,20 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
         && racial_hobbit(mdef) && !is_undead(mdef->data))
         return ALLOW_M | ALLOW_TM;
 
+    /* In Purgatory, lost souls will fight living
+       players for a chance at redemption */
+    if (In_purgatory(&u.uz)
+        && is_mplayer(magr->data) && mdef->data == &mons[PM_SPECTRE])
+        return ALLOW_M | ALLOW_TM;
+
+    /* covetous monsters will attack whoever has the amulet;
+       player monsters and everyone on Astral attack if opposing alignment */
+    if ((is_covetous(magr->data)
+         || ((is_mplayer(magr->data) || Is_astralevel(&u.uz))
+             && sgn(magr->data->maligntyp) != sgn(mdef->data->maligntyp)))
+        && mon_has_amulet(mdef))
+        return ALLOW_M | ALLOW_TM;
+
     return 0L;
 }
 

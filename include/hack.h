@@ -405,6 +405,8 @@ struct dgn_topology { /* special dungeon levels for speed */
     d_level d_hellb_level;
     d_level d_hellc_level; /* deepest demon prince lair; also where
                             * items destroyed on open air migrate */
+    d_level d_purgend_level;   /* Purgatory exit; Saint Michael's palace */
+    d_level d_purgstart_level; /* Purgatory arrival from the sanctum */
 };
 
 /* macros for accessing the dungeon levels by their old names */
@@ -441,6 +443,8 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define hella_level             (svd.dungeon_topology.d_hella_level)
 #define hellb_level             (svd.dungeon_topology.d_hellb_level)
 #define hellc_level             (svd.dungeon_topology.d_hellc_level)
+#define purgend_level           (svd.dungeon_topology.d_purgend_level)
+#define purgstart_level         (svd.dungeon_topology.d_purgstart_level)
 /* clang-format on */
 
 #define dunlev_reached(x) (svd.dungeons[(x)->dnum].dunlev_ureached)

@@ -1337,6 +1337,19 @@ dochug(struct monst *mtmp)
         && mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]
         && couldsee(mtmp->mx, mtmp->my) && !mtmp->minvis && !rn2(5))
         cuss(mtmp);
+    /* player monsters in Purgatory */
+    if (Inpurg && (distu(mtmp->mx, mtmp->my) <= 15)
+        && is_mplayer(mtmp->data) && !mtmp->mpeaceful
+        && couldsee(mtmp->mx, mtmp->my)
+        && !mtmp->minvis && !rn2(5))
+        mplayer_purg_talk(mtmp);
+    /* Saint Michael the Archangel in Purgatory */
+    if (Inpurg && (distu(mtmp->mx, mtmp->my) <= 15)
+        && mtmp->data == &mons[PM_SAINT_MICHAEL]
+        && !mtmp->mpeaceful
+        && couldsee(mtmp->mx, mtmp->my)
+        && !mtmp->minvis && !rn2(5))
+        archangel_purg_talk(mtmp);
 
     /* note: can't get here when monster is dead, so this always returns 0 */
     return (status == MMOVE_DIED);

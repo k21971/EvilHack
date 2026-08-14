@@ -61,6 +61,7 @@ struct tmpbranch {
 #define UNCONNECTED 0x10
 #define GTOWN       0x20
 #define ICEQ        0x40
+#define PURGATORY   0x80
 
 /*
  *    Dungeon and level alignment. These are carried in the dedicated

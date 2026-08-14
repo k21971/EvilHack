@@ -20,11 +20,12 @@ typedef struct d_flags {     /* dungeon/level type flags */
     Bitfield(rogue_like, 1); /* is this an old-fashioned presentation? */
     Bitfield(align, 3);      /* dungeon alignment. */
     Bitfield(unconnected, 1); /* dungeon not connected to any branch */
-    /* gtown and iceq sit at the tail, unlike master's member order: the
-       struct is saved wholesale, so a new bit must land in the container's
-       zeroed padding for older saves to read it as unset */
+    /* gtown, iceq and purg sit at the tail, unlike master's member order:
+       the struct is saved wholesale, so a new bit must land in the
+       container's zeroed padding for older saves to read it as unset */
     Bitfield(gtown, 1);      /* is this part of the Goblin King's branch? */
     Bitfield(iceq, 1);       /* is this part of the Ice Queen's branch? */
+    Bitfield(purg, 1);       /* is this part of Purgatory? */
 } d_flags;
 
 typedef struct s_level { /* special dungeon level element */
@@ -142,12 +143,15 @@ typedef struct branch {
 #define Is_minetn_level(x)  (Lcheck(x, &minetn_level))
 #define Is_mineend_level(x) (Lcheck(x, &mineend_level))
 #define Is_sokoend_level(x) (Lcheck(x, &sokoend_level))
+#define Is_purgend_level(x)   (Lcheck(x, &purgend_level))
+#define Is_purgstart_level(x) (Lcheck(x, &purgstart_level))
 
 #define In_sokoban(x) ((x)->dnum == sokoban_dnum)
 #define In_tower(x) ((x)->dnum == tower_dnum)
 #define Inhell In_hell(&u.uz) /* now gehennom */
 #define Ingtown In_goblintown(&u.uz)
 #define Iniceq In_icequeen_branch(&u.uz)
+#define Inpurg In_purgatory(&u.uz)
 #define In_endgame(x) ((x)->dnum == astral_level.dnum)
 #define In_tutorial(x) ((x)->dnum == tutorial_dnum)
 
