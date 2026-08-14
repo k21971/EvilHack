@@ -6147,9 +6147,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mechanism needs NO port - branch 5.0 newcham() has no minliquid
       tail call, so liquid checks are natively deferred; call plain
       newcham (proven by the become_flayer Izchak arm, Wizard slice).
-      DONE 2026-08-13 (BUG-1558..1561, commit hash rides the next
-      commit): (a)-(d) all landed, (e) STAYS PARKED ((d) did not
-      port the short-jump shape). Session adjudications: wakeup
+      DONE 2026-08-13 (BUG-1558..1561, commit 55bcb5a8d; hash line
+      rides the next commit): (a)-(d) all landed, (e) STAYS PARKED
+      ((d) did not port the short-jump shape). Session
+      adjudications: wakeup
       stays IN-BODY box-scoped, threaded as wakeup(mtmp,
       player_caused) - master's caller-side fmon sweeps NOT ported
       (user ruling; the boss-slice "exemption applies to all
@@ -8098,7 +8099,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       each fix's home file went
 - [x] Light-guard port slice (minted+DONE 2026-08-14; first
       concrete instance of the row above; BUG-1562..1566, commit
-      hash rides the next commit). Origin: the 2026-08-13 recursive
+      128953cb2; hash line rides the next commit). Origin: the
+      2026-08-13 recursive
       panic("obj_is_local") during #wizloaddes savelev (core-dump
       root cause: monster-worn lit W_ARMS shield of light stripped
       lamplit-hot, freed, stale light_sources entry) - see the
@@ -8131,20 +8133,40 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       13 statue harvests rolled no lit item, so that arm ran as a
       no-op branch only (form identical to the exercised sp_lev/
       master shape).
-- [ ] Hero-side worn artifact light port (minted 2026-08-14 by the
-      light-guard slice reviewer): master's toggle_armor_light()
-      helper + its Shield_on/Shield_off/Cloak_on/Cloak_off call
-      sites were never ported - a hero-worn shield of light or
-      cloak-slot gold/shadow/chromatic dragon scales NEVER lights
-      on the branch (feature-inert; only Armor_on/Armor_off/
-      Armor_gone carry the W_ARM was_arti_light pattern in
-      do_wear.c). Riders: master destroy_arm's pre-message
-      end_burn for the uarms/uarmc arms (branch disintegrate_arm
-      guards uarm only); once this lands, break_glass_obj's hero
-      branch becomes safe for the right reason (today it is safe
-      only because the light never starts). Battery evidence
-      2026-08-14: hero wearing a lit-capable shield produced no
-      light, no message, lamplit 0.
+- [x] Hero-side worn artifact light port (minted 2026-08-14 by the
+      light-guard slice reviewer; DONE 2026-08-14, BUG-1567..1568,
+      commit hash rides the next commit): master's
+      toggle_armor_light() helper ported (5.0 staticfn/ANSI form)
+      and wired at all six master call sites - Cloak_on/off,
+      Shield_on/off (new otmp/was_arti_light locals; setworn NULLs
+      uarms before the call point), Armor_on/off (upstream inline
+      blocks replaced). Adjudications: Armor_off KEEPS upstream's
+      light-off-before-dragon_armor_handling bones ordering
+      (master calls the helper last; shadow-scaled suit removal
+      now reports its darkness aura correctly as a side effect);
+      Armor_gone keeps its inline block (master parity; shadow
+      "stops shining" quirk kept). Riders landed: master
+      destroy_arm's pre-message end_burn added to the
+      disintegrate_arm uarmc/uarms arms (suit arm already had it;
+      its stale Armor_gone() comment corrected to Armor_off()).
+      break_glass_obj's hero branch is now safe for the right
+      reason. Reviewer PASS (no findings above LOW; all five
+      adjudications verified; a setworn/setnotworn census of the
+      three slots found no orphan funnel). Battery 6 legs PASSED
+      with sanity_check on, paniclog never created: shield of
+      light r3 / cloak-slot gold scales r2 (W_ARMC mask
+      gdb-verified) / shadow scales darkness-aura texts / gold-
+      scaled suit r4 regression; disintegration breath destroyed
+      the lit worn shield with no trailing stops-shining and
+      light_sources empty; worn-lit savelev round trip +
+      save/restore + #polyself red dragon (break_armor silent
+      shield light-end, Cloak_off stops-shining on the burst
+      clasp) all clean. DEFER observation (not light-relevant):
+      branch break_armor's cloak arm structurally diverges from
+      master - no huge-humanoid chromatic-scales-stay-on
+      carve-out, clasp-breaks+dropp instead of tears-apart+useup
+      for non-wrapping cloaks - route with any future
+      polyself/break_armor reconcile row.
 - [ ] Light-guard riders on unported features (minted 2026-08-14):
       master muse.c munstone() spellcaster inventory-strip loop
       (a BUG-1276 guard site; branch mon_consume_unstone has no

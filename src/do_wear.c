@@ -30,6 +30,7 @@ staticfn int Gloves_on(void);
 staticfn int Shield_on(void);
 staticfn int Shirt_on(void);
 staticfn void dragon_armor_handling(struct obj *, boolean, boolean);
+staticfn void toggle_armor_light(struct obj *, boolean);
 staticfn void Amulet_on(struct obj *) NONNULLARG1;
 staticfn void learnring(struct obj *, boolean);
 staticfn void adjust_attrib(struct obj *, int, int);
@@ -555,6 +556,7 @@ Cloak_on(void)
         }
         oprops_on(uarmc, WORN_CLOAK);
     }
+    toggle_armor_light(uarmc, TRUE);
     return 0;
 }
 
@@ -565,6 +567,7 @@ Cloak_off(void)
     int otyp;
     long oldprop;
     boolean was_flying = !!Flying;
+    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
     if (!otmp) {
         svc.context.takeoff.mask &= ~W_ARMC;
@@ -639,6 +642,8 @@ Cloak_off(void)
     default:
         impossible(unknown_type, c_cloak, otyp);
     }
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
     return 0;
 }
 
@@ -1055,13 +1060,17 @@ Shield_on(void)
         update_inventory();
     }
     oprops_on(uarms, WORN_SHIELD);
+    toggle_armor_light(uarms, TRUE);
     return 0;
 }
 
 int
 Shield_off(void)
 {
-    if (!uarms) {
+    struct obj *otmp = uarms;
+    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (!otmp) {
         svc.context.takeoff.mask &= ~W_ARMS;
         return 0;
     }
@@ -1092,6 +1101,8 @@ Shield_off(void)
     }
 
     setworn((struct obj *) 0, W_ARMS);
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
     return 0;
 }
 
@@ -1268,6 +1279,42 @@ check_wings(boolean silent) /* we assume a wardrobe change if false */
         disp.botl = TRUE;
 }
 
+/* hero is putting on or taking off obj, which may do something light-related
+   unifies code for cloak, shield and body armor code paths since gold dragon
+   scales are worn in cloak slot and gold-scaled armor is worn in armor slot */
+staticfn void
+toggle_armor_light(struct obj *armor, boolean on)
+{
+    boolean shadow = (Is_dragon_armor(armor)
+                      && Dragon_armor_to_scales(armor) == SHADOW_DRAGON_SCALES);
+
+    if (on) {
+        if (artifact_light(armor) && !armor->lamplit) {
+            begin_burn(armor, FALSE);
+            if (!Blind) {
+                if (shadow)
+                    pline("%s %s an aura of darkness!",
+                          Yname2(armor), otense(armor, "cast"));
+                else
+                    pline("%s %s to shine %s!",
+                          Yname2(armor), otense(armor, "begin"),
+                          arti_light_description(armor));
+            }
+        }
+    } else {
+        if (!artifact_light(armor)) {
+            end_burn(armor, FALSE);
+            if (!Blind) {
+                if (shadow)
+                    pline("%s its aura of darkness.",
+                          Tobjnam(armor, "stop"));
+                else
+                    pline("%s shining.", Tobjnam(armor, "stop"));
+            }
+        }
+    }
+}
+
 staticfn int
 Armor_on(void)
 {
@@ -1280,15 +1327,7 @@ Armor_on(void)
     check_wings(FALSE);
     oprops_on(uarm, W_ARM);
     dragon_armor_handling(uarm, TRUE, TRUE);
-    /* gold DSM requires extra handling since it emits light when worn;
-       do that after the special armor handling */
-    if (artifact_light(uarm) && !uarm->lamplit) {
-        begin_burn(uarm, FALSE);
-        if (!Blind)
-            pline("%s %s to shine %s!",
-                  Yname2(uarm), otense(uarm, "begin"),
-                  arti_light_description(uarm));
-    }
+    toggle_armor_light(uarm, TRUE);
     return 0;
 }
 
@@ -1311,11 +1350,8 @@ Armor_off(void)
        comes from gold dragon scales/mail so they don't overlap, but
        conceptually the non-fatal change should be done before the
        potentially fatal change in case the latter results in bones */
-    if (was_arti_light && !artifact_light(otmp)) {
-        end_burn(otmp, FALSE);
-        if (!Blind)
-            pline("%s shining.", Tobjnam(otmp, "stop"));
-    }
+    if (was_arti_light)
+        toggle_armor_light(otmp, FALSE);
     dragon_armor_handling(otmp, FALSE, TRUE);
 
     return 0;
@@ -4080,6 +4116,11 @@ disintegrate_arm(struct obj *atmp)
      */
 
     if ((otmp = maybe_destroy_armor(uarmc, atmp, &resistedc)) != 0) {
+        /* for gold/chromatic DS, we don't want Cloak_off() to report
+           that it stops shining _after_ we've been told that it is
+           destroyed */
+        if (otmp->lamplit)
+            end_burn(otmp, FALSE);
         urgent_pline("Your %s crumbles and turns to dust!",
                      /* cloak/robe/apron/smock (ID'd apron)/wrapping */
                      cloak_simple_name(otmp));
@@ -4087,7 +4128,7 @@ disintegrate_arm(struct obj *atmp)
              && (otmp = maybe_destroy_armor(uarm, atmp, &resistedsuit)) != 0) {
         const char *suit = suit_simple_name(otmp);
 
-        /* for gold DSM, we don't want Armor_gone() to report that it
+        /* for gold DSM, we don't want Armor_off() to report that it
            stops shining _after_ we've been told that it is destroyed */
         if (otmp->lamplit)
             end_burn(otmp, FALSE);
@@ -4108,6 +4149,11 @@ disintegrate_arm(struct obj *atmp)
     } else if ((otmp = maybe_destroy_armor(uarmf, atmp, &resisted)) != 0) {
         urgent_pline("Your %s disintegrate!", boots_simple_name(otmp));
     } else if ((otmp = maybe_destroy_armor(uarms, atmp, &resisted)) != 0) {
+        /* for a shield of light, we don't want Shield_off() to report
+           that it stops shining _after_ we've been told that it is
+           destroyed */
+        if (otmp->lamplit)
+            end_burn(otmp, FALSE);
         urgent_pline("Your %s crumbles away!", shield_simple_name(otmp));
     } else if (u.usteed
                && (otmp = which_armor(u.usteed, W_BARDING)) != 0
