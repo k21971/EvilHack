@@ -42,6 +42,8 @@
     (/* The hero can always sense a monster IF:        */  \
      /* 1. the monster has a brain to sense            */  \
      (!mindless(mon->data))                                \
+     /* (and the monster is not Tal'Gath)              */  \
+      && mon->data != &mons[PM_TAL_GATH]                   \
      /* AND     2a. hero is blind and telepathic       */  \
       && ((Blind && Blind_telepat)                         \
           /* OR 2b. hero is using a telepathy inducing */  \

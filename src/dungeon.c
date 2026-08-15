@@ -104,26 +104,28 @@ dumpit(void)
                 DD.num_dunlevs, DD.dunlev_ureached);
         fprintf(stderr, "    depth_start %d, ledger_start %d\n",
                 DD.depth_start, DD.ledger_start);
-        fprintf(stderr, "    flags:%s%s%s%s%s%s\n",
+        fprintf(stderr, "    flags:%s%s%s%s%s%s%s\n",
                 DD.flags.rogue_like ? " rogue_like" : "",
                 DD.flags.maze_like ? " maze_like" : "",
                 DD.flags.hellish ? " hellish" : "",
                 DD.flags.gtown ? " gtown" : "",
                 DD.flags.iceq ? " iceq" : "",
-                DD.flags.purg ? " purg" : "");
+                DD.flags.purg ? " purg" : "",
+                DD.flags.hdgn ? " hdgn" : "");
         (void) getchar();
     }
     fprintf(stderr, "\nSpecial levels:\n");
     for (x = svs.sp_levchn; x; x = x->next) {
         fprintf(stderr, "%s (%d): ", x->proto, x->rndlevs);
         fprintf(stderr, "on %d, %d; ", x->dlevel.dnum, x->dlevel.dlevel);
-        fprintf(stderr, "flags:%s%s%s%s%s%s%s\n",
+        fprintf(stderr, "flags:%s%s%s%s%s%s%s%s\n",
                 x->flags.rogue_like ? " rogue_like" : "",
                 x->flags.maze_like ? " maze_like" : "",
                 x->flags.hellish ? " hellish" : "",
                 x->flags.gtown ? " gtown" : "",
                 x->flags.iceq ? " iceq" : "",
                 x->flags.purg ? " purg" : "",
+                x->flags.hdgn ? " hdgn" : "",
                 x->flags.town ? " town" : "");
         (void) getchar();
     }
@@ -597,6 +599,7 @@ init_level(int dgn, int proto_index, struct proto_dungeon *pd)
     new_level->flags.gtown = !!(tlevel->flags & GTOWN);
     new_level->flags.iceq = !!(tlevel->flags & ICEQ);
     new_level->flags.purg = !!(tlevel->flags & PURGATORY);
+    new_level->flags.hdgn = !!(tlevel->flags & HDGN);
     new_level->flags.maze_like = !!(tlevel->flags & MAZELIKE);
     new_level->flags.rogue_like = !!(tlevel->flags & ROGUELIKE);
     /* alignment lives in its own field, not in 'flags' - see dgn_file.h */
@@ -764,11 +767,11 @@ get_dgn_flags(lua_State *L)
 {
     int dgn_flags = 0;
     static const char *const flagstrs[] = {
-        "town", "hellish", "gtown", "iceq", "purg", "mazelike", "roguelike",
-        "unconnected", NULL
+        "town", "hellish", "gtown", "iceq", "purg", "hdgn", "mazelike",
+        "roguelike", "unconnected", NULL
     };
     static const int flagstrs2i[] = {
-        TOWN, HELLISH, GTOWN, ICEQ, PURGATORY, MAZELIKE, ROGUELIKE,
+        TOWN, HELLISH, GTOWN, ICEQ, PURGATORY, HDGN, MAZELIKE, ROGUELIKE,
         UNCONNECTED, 0
     };
 
@@ -1128,6 +1131,7 @@ init_dungeon_dungeons(
     svd.dungeons[dngidx].flags.gtown = !!(dgn_flags & GTOWN);
     svd.dungeons[dngidx].flags.iceq = !!(dgn_flags & ICEQ);
     svd.dungeons[dngidx].flags.purg = !!(dgn_flags & PURGATORY);
+    svd.dungeons[dngidx].flags.hdgn = !!(dgn_flags & HDGN);
     svd.dungeons[dngidx].flags.maze_like = !!(dgn_flags & MAZELIKE);
     svd.dungeons[dngidx].flags.rogue_like = !!(dgn_flags & ROGUELIKE);
     svd.dungeons[dngidx].flags.align =
@@ -2027,6 +2031,13 @@ boolean
 In_purgatory(d_level *lev)
 {
     return (boolean) (svd.dungeons[lev->dnum].flags.purg);
+}
+
+/* are you in the Hidden Dungeon? */
+boolean
+In_hdgn(d_level *lev)
+{
+    return (boolean) (svd.dungeons[lev->dnum].flags.hdgn);
 }
 
 /* sets *lev to be the gateway to Gehennom... */

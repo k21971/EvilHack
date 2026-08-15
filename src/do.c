@@ -2145,6 +2145,15 @@ goto_level(
             resurrect();
     }
 
+    /* entered the Hidden Dungeon */
+    if (!In_hdgn(&u.uz0) && Inhdgn
+        && !u.uevent.hdgn_entered) {
+        u.uevent.hdgn_entered = 1;
+        if (!Blind)
+            com_pager("hidden_dungeon_enter");
+        livelog_printf(LL_ACHIEVE, "entered the Hidden Dungeon");
+    }
+
     /* special location arrival messages/events */
     if (In_endgame(&u.uz)) {
         if (newdungeon)

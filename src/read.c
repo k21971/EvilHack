@@ -48,6 +48,7 @@ staticfn void seffect_magic_mapping(struct obj **);
 staticfn void seffect_mail(struct obj **);
 #endif /* MAIL_STRUCTURES */
 staticfn void set_lit(coordxy, coordxy, genericptr);
+staticfn void geno_refusal(const char *, const char *, int);
 staticfn void do_class_genocide(void);
 staticfn void do_stinking_cloud(struct obj *, boolean);
 staticfn boolean create_particular_parse(char *,
@@ -2798,6 +2799,20 @@ do_class_genocide(void)
         class = name_to_monclass(buf, (int *) 0);
         if (class == 0 && (i = name_to_mon(buf, (int *) 0)) != NON_PM)
             class = mons[i].mlet;
+
+        /* liches and the like are immune to genocide until Vecna is
+           destroyed; test the resolved class rather than master's
+           literal "L" so that class names ("lich") can't slip past */
+        if (!u.uevent.uvecna && class == S_LICH) {
+            geno_refusal("Vecna", "my kind", 0);
+            return;
+        }
+        /* vampires are immune to genocide until Vlad is destroyed */
+        if (!u.uevent.uvlad && class == S_VAMPIRE) {
+            geno_refusal("Vlad the Impaler", "my kind", 0);
+            return;
+        }
+
         immunecnt = gonecnt = goodcnt = 0;
         for (i = LOW_PM; i < NUMMONS; i++) {
             if (mons[i].mlet == class) {
@@ -2842,7 +2857,18 @@ do_class_genocide(void)
                 /* Although "genus" is Latin for race, the hero benefits
                  * from both race and role; thus genocide affects either.
                  */
-                if (Your_Own_Role(i) || Your_Own_Race(i)
+                if (!u.uevent.uvecna && i == PM_ALHOON) {
+                    /* rides class 'h' but answers to Vecna */
+                    if (!gameover)
+                        pline("A dark magic prevents you from genociding"
+                              " %s.", nam);
+                    continue;
+                } else if (!u.uevent.utalgath && i == PM_BEHOLDER) {
+                    if (!gameover)
+                        pline("A dark magic prevents you from genociding"
+                              " %s.", nam);
+                    continue;
+                } else if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
                         && !(svm.mvitals[i].mvflags & G_GENOD))) {
                     /* This check must be first since player monsters might
@@ -2937,6 +2963,42 @@ do_class_genocide(void)
 #define REALLY 1
 #define PLAYER 2
 #define ONTHRONE 4
+
+/* a genocide attempt covered by a living boss's protection (Vecna,
+   Vlad, Tal'Gath): the boss refuses the request and the dark magic
+   burns the hero via the scroll, or via the throne for the
+   sit-on-throne source */
+staticfn void
+geno_refusal(
+    const char *boss,    /* whose voice objects */
+    const char *victims, /* "my kind" or the plural of what was typed */
+    int how)             /* do_genocide() flags; 0 from the class form */
+{
+    pline_The("voice of %s fills your mind:", boss);
+    SetVoice((struct monst *) 0, 0, 80, voice_nothing_special);
+    verbalize("Thou shalt do no harm to %s whilst I exist!", victims);
+    if (how & ONTHRONE) {
+        /* the dark magic causes the throne to burn you */
+        pline_The("throne glows white hot!");
+        if (how_resistant(FIRE_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_FIRE);
+        } else {
+            losehp(rnd(3), "sitting on a searing hot throne", KILLED_BY);
+        }
+    } else {
+        /* the dark magic causes the scroll to burn */
+        pline("A dark magic catches the scroll on fire and you burn"
+              " your %s.", makeplural(body_part(HAND)));
+        if (how_resistant(FIRE_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_FIRE);
+        } else {
+            losehp(rnd(3), "burning scroll of genocide", KILLED_BY_AN);
+        }
+    }
+}
+
 void
 do_genocide(
     int how) /* 0 = no genocide; create monsters (cursed scroll)
@@ -3009,6 +3071,25 @@ do_genocide(
                 continue;
             }
             ptr = &mons[mndx];
+
+            /* liches and the like are immune to genocide until Vecna
+               is destroyed */
+            if (!u.uevent.uvecna && no_geno_vecna(ptr)) {
+                geno_refusal("Vecna", makeplural(buf), how);
+                return;
+            }
+            /* vampires are immune to genocide until Vlad is destroyed */
+            if (!u.uevent.uvlad && no_geno_vlad(ptr)) {
+                geno_refusal("Vlad the Impaler", makeplural(buf), how);
+                return;
+            }
+            /* beholders are immune to genocide until Tal'Gath is
+               killed */
+            if (!u.uevent.utalgath && no_geno_talgath(ptr)) {
+                geno_refusal("Tal'Gath", makeplural(buf), how);
+                return;
+            }
+
             /* first revert if current shifted form or base vampire form */
             if (Upolyd && vampshifted(&gy.youmonst)
                 && (mndx == u.umonnum || mndx == gy.youmonst.cham))

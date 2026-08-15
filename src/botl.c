@@ -539,6 +539,13 @@ describe_level(
         addbranch = FALSE;
     /* Gehennom-chain sub-branches: each one MUST be tested before the
        generic In_hell() arm below, since they all carry hellish=TRUE */
+    } else if (In_hdgn(&u.uz)) {
+        /* not hellish, but reached from Gehennom like the others */
+        if (addbranch)
+            Sprintf(buf, "Hidden Dungeon %d", dunlev(&u.uz));
+        else
+            Sprintf(buf, "Hidden:%-2d", dunlev(&u.uz));
+        addbranch = FALSE;
     } else if (In_tower(&u.uz)) {
         if (addbranch)
             Sprintf(buf, "Vlad's Tower %d", dunlev(&u.uz));

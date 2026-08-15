@@ -2324,7 +2324,10 @@ mpickgold(struct monst *mtmp)
         add_to_minv(mtmp, gold);
         if (cansee(mtmp->mx, mtmp->my)) {
             if (flags.verbose && !mtmp->isgd)
-                pline_mon(mtmp, "%s picks up some %s.", Monnam(mtmp),
+                pline_mon(mtmp, "%s %s some %s.", Monnam(mtmp),
+                         ((mtmp->data == &mons[PM_BEHOLDER]
+                           || mtmp->data == &mons[PM_TAL_GATH])
+                             ? "magically gathers up" : "picks up"),
                          mat_idx == GOLD ? "gold" : "money");
             newsym(mtmp->mx, mtmp->my);
         }
@@ -2394,12 +2397,17 @@ mpickstuff(struct monst *mtmp)
             if (cansee(mtmp->mx, mtmp->my)) {
                 /* call distant_name() for its possible side-effects even
                    if the result won't be printed; do it before the extract
-                   from floor and subsequent pickup by mtmp */
-                char *otmpname = distant_name(otmp, doname);
+                   from floor and subsequent pickup by mtmp; name otmp3,
+                   the portion being taken - after a split, otmp is the
+                   portion staying behind */
+                char *otmpname = distant_name(otmp3, doname);
 
                 if (flags.verbose)
-                    pline_mon(mtmp, "%s picks up %s.",
-                              Monnam(mtmp), otmpname);
+                    pline_mon(mtmp, "%s %s %s.", Monnam(mtmp),
+                              ((mtmp->data == &mons[PM_BEHOLDER]
+                                || mtmp->data == &mons[PM_TAL_GATH])
+                                  ? "magically gathers up" : "picks up"),
+                              otmpname);
             }
             obj_extract_self(otmp3);      /* remove from floor */
             (void) mpickobj(mtmp, otmp3); /* may merge and free otmp3 */

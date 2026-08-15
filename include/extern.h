@@ -967,6 +967,7 @@ extern boolean In_hell(d_level *) NONNULLARG1;
 extern boolean In_goblintown(d_level *) NONNULLARG1;
 extern boolean In_icequeen_branch(d_level *) NONNULLARG1;
 extern boolean In_purgatory(d_level *) NONNULLARG1;
+extern boolean In_hdgn(d_level *) NONNULLARG1;
 extern boolean In_V_tower(d_level *) NONNULLARG1;
 extern boolean On_W_tower_level(d_level *) NONNULLARG1;
 extern boolean In_W_tower(coordxy, coordxy, d_level *) NONNULLARG3;

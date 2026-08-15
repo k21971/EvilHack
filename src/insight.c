@@ -2630,10 +2630,14 @@ show_achievements(
         you_have_X("defeated the Goblin King");
     if (u.uevent.defeat_icequeen)
         you_have_X("defeated Kathryn the Ice Queen");
+    if (u.uevent.killed_talgath)
+        you_have_X("defeated Tal'Gath");
     if (u.uevent.wiztower_entered)
         you_have_X("entered the Wizard of Yendor's lair");
     if (u.uevent.purgatory_entered)
         you_have_X("entered Purgatory");
+    if (u.uevent.hdgn_entered)
+        you_have_X("entered the Hidden Dungeon");
 
     if (awin != ge.en_win) {
         display_nhwindow(awin, TRUE);
