@@ -134,6 +134,14 @@ dungeon = {
             base = 0,
             branchtype = "portal",
             direction = "up"
+         },
+         {
+            -- the valley-side portal is hand-placed by valley.lua
+            -- (the level's auto-branch slot is already taken)
+            name = "The Hidden Dungeon",
+            chainlevel = "valley",
+            base = 0,
+            branchtype = "portal"
          }
       },
       levels = {
@@ -259,6 +267,19 @@ dungeon = {
          {
             name = "purgatory-2",
             base = 2
+         },
+      }
+   },
+   {
+      -- no bonetag: no bones anywhere in this dungeon (master parity)
+      name = "The Hidden Dungeon",
+      base = 1,
+      alignment = "chaotic",
+      flags = { "mazelike", "hdgn" },
+      levels = {
+         {
+            name = "hdgn",
+            base = 1
          },
       }
    },

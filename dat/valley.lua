@@ -70,10 +70,10 @@ des.stair("down", 01,01)
 -- Branch location
 des.levregion({ type="branch", region={66,17,66,17} })
 des.teleport_region({ region = {58,09,72,18}, dir="down" })
--- TODO-EVILHACK: master places the portal to The Hidden Dungeon here
--- (PORTAL:(74,06,74,06),"hdgn"); the levregion lands with the Hidden
--- Dungeon topology - declaring it before that dungeon exists would
--- fire the fixup_special unknown-level impossible on every load
+-- the portal to The Hidden Dungeon, in the sealed alcove; hand-placed
+-- because this level's single auto-branch slot is consumed by the
+-- Castle branch arrival above
+des.levregion({ region = {74,06,74,06}, type="portal", name="hdgn" })
 
 -- Secret Doors
 des.door({ state="locked", material="stone", x=03, y=09 })
