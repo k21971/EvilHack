@@ -179,7 +179,10 @@ themeroom_fills = {
                      "samurai", "rogue", "ranger", "priestess",
                      "priest", "monk", "knight", "healer",
                      "cavewoman", "caveman", "barbarian",
-                     "archeologist" };
+                     "archeologist",
+                     -- EvilHack roles and their quest guardians
+                     "convict", "druid", "infidel",
+                     "inmate", "aspirant", "cultist" };
          local idx = math.random(#mon);
          for i = 1, d(5,5) do
             if (percent(10)) then idx = math.random(#mon); end
@@ -865,6 +868,389 @@ xx|.....|xx
             end
          });
       end
+   },
+
+   -- EvilHack additions: the unique-to-EvilHack random vaults from
+   -- master's dat/vaults.des (the SporkHack rndvault set), merged in
+   -- as themed rooms; vaults overlapping an upstream entry above were
+   -- deduplicated in favor of the upstream version. frequency = 5
+   -- keeps each entry at roughly master's per-vault appearance rate.
+
+   -- lava/ice/pool/tree/fountain/grass/sand room
+   {
+      name = "Terrain spots",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", w = 3, h = 3, filled = 1,
+                    contents = function()
+            local terr = { "L", "I", "P", "T", "t", "{", "g", "a" };
+            local pick = terr[math.random(#terr)];
+            for y = 0, 2 do
+               for x = 0, 2 do
+                  if ((x == 1 and y == 1) or percent(10)) then
+                     des.terrain(x, y, pick);
+                  end
+               end
+            end
+         end });
+      end,
+   },
+   -- tiny cage, big monster
+   {
+      name = "Tiny cage",
+      frequency = 5,
+      mindiff = 7,
+      contents = function()
+         des.room({ type = "themed", w = 5, h = 5, filled = 1,
+                    contents = function()
+            for y = 1, 3 do
+               for x = 1, 3 do
+                  if (x ~= 2 or y ~= 2) then
+                     des.terrain(x, y, "F");
+                  end
+               end
+            end
+            if (percent(80)) then
+               local mons = { "M", "D", "O", "Z", "T", "H" };
+               des.monster({ class = mons[math.random(#mons)],
+                             x = 2, y = 2, peaceful = 0 });
+            else
+               des.trap({ coord = { 2, 2 } });
+            end
+         end });
+      end,
+   },
+   -- random cloud/lava/ice/pool/tree/grass/sand room
+   {
+      name = "Terrain flood",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", filled = 1,
+                    contents = function()
+            local terr = { "C", "L", "I", "P", "T", "t", "g", "a" };
+            des.terrain(selection.floodfill(1, 1):percentage(30),
+                        terr[math.random(#terr)]);
+         end });
+      end,
+   },
+   -- room split by a wall or iron bars, with a gap in the middle
+   {
+      name = "Split",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", w = 5, h = 5, filled = 1,
+                    contents = function()
+            local terr = percent(50) and "-" or "F";
+            local idx = math.random(1, 3);
+            if (percent(50)) then
+               for x = 0, 4 do
+                  des.terrain(x, idx, terr);
+               end
+               des.terrain(2, idx, ".");
+            else
+               for y = 0, 4 do
+                  des.terrain(idx, y, terr);
+               end
+               des.terrain(idx, 2, ".");
+            end
+         end });
+      end,
+   },
+   -- Split horizontally
+   {
+      name = "Split, horizontal",
+      frequency = 5,
+      mindiff = 5,
+      contents = function()
+         des.map({ map = [[
+--------
+|......|
+|......|
+|------|
+|......|
+|......|
+|......|
+--------]], contents = function(m)
+            if (percent(40)) then
+               des.replace_terrain({ region = { 1, 3, 6, 3 },
+                                     fromterrain = "-",
+                                     toterrain = percent(50) and "L" or "F",
+                                     chance = 100 });
+            end
+            des.region({ region = { 1, 1, 6, 2 }, type = "ordinary",
+                         filled = 1 });
+            des.region({ region = { 1, 4, 6, 6 }, type = "ordinary",
+                         filled = 1 });
+         end });
+      end,
+   },
+   -- Split vertically
+   -- (master replaces mapchar '-' here, i.e. HWALL, but this divider
+   -- is drawn with '|', VWALL, so its 40 percent arm never fires;
+   -- replace_terrain matches exact terrain types in both trees)
+   {
+      name = "Split, vertical",
+      frequency = 5,
+      mindiff = 5,
+      contents = function()
+         des.map({ map = [[
+---------
+|...|...|
+|...|...|
+|...|...|
+|...|...|
+|...|...|
+|...|...|
+---------]], contents = function(m)
+            if (percent(40)) then
+               des.replace_terrain({ region = { 4, 1, 4, 6 },
+                                     fromterrain = "|",
+                                     toterrain = percent(50) and "L" or "F",
+                                     chance = 100 });
+            end
+            des.region({ region = { 1, 1, 3, 6 }, type = "ordinary",
+                         filled = 1 });
+            des.region({ region = { 5, 1, 7, 6 }, type = "ordinary",
+                         filled = 1 });
+         end });
+      end,
+   },
+   -- U-shaped
+   {
+      name = "U-shaped",
+      frequency = 5,
+      contents = function()
+         des.map({ map = [[
+-----xxx-----
+|...|xxx|...|
+|...|xxx|...|
+|...-----...|
+|...........|
+|...........|
+|...........|
+-------------]], contents = function(m) filler_region(5, 5); end });
+      end,
+   },
+   -- C-shaped
+   {
+      name = "C-shaped",
+      frequency = 5,
+      contents = function()
+         des.map({ map = [[
+--------
+|......|
+|......|
+|...----
+|...|xxx
+|...|xxx
+|...----
+|......|
+|......|
+--------]], contents = function(m) filler_region(1, 1); end });
+      end,
+   },
+   -- L-shaped, big
+   {
+      name = "L-shaped, big",
+      frequency = 5,
+      contents = function()
+         des.map({ map = [[
+-------xxxxxx
+|.....|xxxxxx
+|.....|xxxxxx
+|.....|xxxxxx
+|.....|xxxxxx
+|.....-------
+|...........|
+|...........|
+|...........|
+|...........|
+|...........|
+-------------]], contents = function(m) filler_region(3, 3); end });
+      end,
+   },
+   -- with a corner room (top right)
+   {
+      name = "Corner room, top right",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", w = 6, h = 6, filled = 1,
+                    contents = function()
+            local walls = { "south", "west" };
+            des.room({ type = "ordinary", x = 4, y = 0, w = 2, h = 2,
+                       contents = function()
+               des.door({ state = percent(50) and "secret" or "random",
+                          wall = walls[math.random(#walls)] });
+            end });
+         end });
+      end,
+   },
+   -- with a corner room (bottom left)
+   {
+      name = "Corner room, bottom left",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", w = 6, h = 6, filled = 1,
+                    contents = function()
+            local walls = { "north", "east" };
+            des.room({ type = "ordinary", x = 0, y = 4, w = 2, h = 2,
+                       contents = function()
+               des.door({ state = percent(50) and "secret" or "random",
+                          wall = walls[math.random(#walls)] });
+            end });
+         end });
+      end,
+   },
+   -- three rooms (right side)
+   -- (master's 6x6 shape lets the two subrooms and their walls cover
+   -- the parent's entire east wall; 5.0's corridor join refuses a wall
+   -- whose inner tile belongs to a subroom instead of forcing a door
+   -- through it, so the parent could generate sealed. h = 8 keeps one
+   -- aisle row on that wall - the Twin businesses rule above)
+   {
+      name = "Three rooms, right",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", w = 6, h = 8, filled = 1,
+                    contents = function()
+            des.room({ type = "ordinary", x = 4, y = 0, w = 2, h = 2,
+                       contents = function()
+               des.door({ state = percent(50) and "secret" or "random",
+                          wall = "west" });
+            end });
+            local walls = { "north", "west" };
+            des.room({ type = "ordinary", x = 4, y = 5, w = 2, h = 3,
+                       contents = function()
+               des.door({ state = percent(50) and "secret" or "random",
+                          wall = walls[math.random(#walls)] });
+            end });
+         end });
+      end,
+   },
+   -- three rooms (left side)
+   {
+      name = "Three rooms, left",
+      frequency = 5,
+      contents = function()
+         des.room({ type = "themed", w = 6, h = 8, filled = 1,
+                    contents = function()
+            des.room({ type = "ordinary", x = 0, y = 6, w = 2, h = 2,
+                       contents = function()
+               des.door({ state = percent(50) and "secret" or "random",
+                          wall = "east" });
+            end });
+            local walls = { "south", "east" };
+            des.room({ type = "ordinary", x = 0, y = 0, w = 2, h = 3,
+                       contents = function()
+               des.door({ state = percent(50) and "secret" or "random",
+                          wall = walls[math.random(#walls)] });
+            end });
+         end });
+      end,
+   },
+   -- house of spears
+   {
+      name = "House of spears",
+      frequency = 5,
+      mindiff = 4,
+      contents = function()
+         des.room({ type = "themed", filled = 1,
+                    contents = function()
+            for i = 1, d(4) + 3 do
+               des.trap("spear");
+            end
+         end });
+      end,
+   },
+   -- house of horrors
+   {
+      name = "House of horrors",
+      frequency = 5,
+      mindiff = 14,
+      contents = function()
+         des.room({ type = "themed", w = 6, h = 6, filled = 1,
+                    contents = function()
+            local terr = { "F", "L", "P" };
+            local pick = terr[math.random(#terr)];
+            for x = 0, 5 do
+               des.terrain(x, 2, pick);
+            end
+            des.monster("shambling horror");
+            if (percent(10)) then
+               des.monster("shambling horror");
+            end
+         end });
+      end,
+   },
+   -- room with dangerous monster and loot
+   {
+      name = "Dangerous lair",
+      frequency = 5,
+      mindiff = 15,
+      contents = function()
+         des.room({ type = "themed", filled = 1,
+                    contents = function()
+            local mons = { "M", "D", "O", "Z", "T", "H" };
+            local cls = mons[math.random(#mons)];
+            des.monster({ class = cls });
+            if (percent(50)) then des.monster({ class = cls }); end
+            if (percent(25)) then des.monster({ class = cls }); end
+            des.object();
+            if (percent(50)) then des.object(); end
+            if (percent(25)) then des.object(); end
+            if (percent(10)) then des.object(); end
+         end });
+      end,
+   },
+   -- beam me up scotty
+   {
+      name = "Beam me up scotty",
+      frequency = 5,
+      mindiff = 12,
+      contents = function()
+         des.room({ type = "themed", filled = 1,
+                    contents = function()
+            for i = 1, d(4) + 3 do
+               des.trap("magic beam");
+            end
+         end });
+      end,
+   },
+   -- bazaar: four corner shops
+   {
+      name = "Bazaar",
+      frequency = 5,
+      mindiff = 8,
+      contents = function()
+         -- as with Twin businesses above, the aisle between the corner
+         -- shops touches all four walls of the parent room, so corridor
+         -- connections always reach it
+         local layouts = {
+            { "weapon shop", "armor shop", "food shop", "tool shop" },
+            { "scroll shop", "potion shop", "wand shop", "book shop" },
+            { "armor shop", "ring shop", "weapon shop", "scroll shop" },
+            { "tool shop", "food shop", "potion shop", "armor shop" },
+         };
+         local corners = {
+            { x = 0, y = 0, walls = { "south", "east" } },
+            { x = 6, y = 0, walls = { "south", "west" } },
+            { x = 0, y = 6, walls = { "north", "east" } },
+            { x = 6, y = 6, walls = { "north", "west" } },
+         };
+         des.room({ type = "themed", lit = 1, w = 9, h = 9,
+                    contents = function()
+            local shops = layouts[math.random(#layouts)];
+            for i = 1, 4 do
+               local c = corners[i];
+               des.room({ type = shops[i], lit = 1, x = c.x, y = c.y,
+                          w = 3, h = 3, filled = 1, joined = false,
+                          contents = function()
+                  des.door({ state = percent(50) and "secret" or "random",
+                             wall = c.walls[math.random(#c.walls)] });
+               end });
+            end
+         end });
+      end,
    },
 
 };
