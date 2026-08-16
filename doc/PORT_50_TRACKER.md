@@ -8056,22 +8056,76 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       legs) - flag if real conversions show pool loss near
       stairs; and #wizloaddes applies flip_level_rnd, so
       coordinate probes must account for random flips.
-- [ ] dungeon.def -> dat/dungeon.lua (branches: Ice Queen etc.). OPEN ITEM
-  (reviewer observation, forest/nymph slice 2026-08-16): the adopted vanilla
-  levels list keeps the ROGUE LEVEL ACTIVE (`name = "rogue"`, base 15 range 4,
-  no chance = always placed) while master COMMENTS IT OUT (`#LEVEL: "rogue"`
-  in dungeon.def) - every branch game generates a Rogue level master never
-  does; pre-existing since the tree adoption, needs an explicit keep/drop
-  ruling when this row is worked.
+- [x] dungeon.def -> dat/dungeon.lua reconcile DONE 2026-08-16 (session
+      47, TWO commits: A = C payload, B = dungeon.lua + tracker; hashes
+      ride the next commit). Census against master's dungeon.def and
+      upstream's dungeon.lua: every dungeon/branch/level row was already
+      reconciled by the prior slices (Ice Queen chainbranch by the
+      icequeen slice as noted below); the remainder = the elemental-plane
+      order randomization, the rogue-level ruling, two ratifications.
+      RANDOMIZATION (master d239461ae GruntHack + 12aa5cf1e + 5840dff05
+      + 2104b473b): dungeon.lua water/fire/air/earth each base=2 range=4
+      = master's @ (2, 4) (astral stays 1, dummy 6, entry -2 = slot 5;
+      place_level backtracking resolves the shared window). C arms:
+      do.c goto_level first-endgame clamp earth_level -> {astral dnum,
+      entry_lev} - master's explicit livelog "entered the Planes" NOT
+      ported, subsumed by 5.0-native record_achievement(ACH_ENDG) which
+      livelogs "entered the Elemental Planes" on the same newdungeon
+      transition (fires in wizard mode too - uniform 5.0 achievement
+      convention, reviewer-verified); do.c cant_go_back "Well done,
+      mortal!" triptych gated !leaving_tutorial (branch cant_go_back
+      also covers tutorial exit = the ported-call-lost-precondition
+      class; gate proven equivalent to master's endgame-only condition;
+      earth.lua already carries the des.message copies commented out, no
+      double print); potion.c cursed gain-level on-D:1 arm -> entry_lev
+      form (12aa5cf1e - the old form skips every plane below Earth's
+      random slot); topten.c observable_depth #if 0 REMOVED (canonical
+      -5..-1 live for topten/xlog deathlev; reader side verified -
+      outentry decodes under the astral-dnum gate, parsers take
+      negatives, pre-change records equal canonical under fixed order);
+      dungeon.c ^O overview + botl.c describe_level endgame arms pass
+      observable_depth (BUG-1090 re-port; insight.c sibling was already
+      correct; Mine Town/Mines' End half already live). ROGUE LEVEL
+      RULED KEPT (maintainer 2026-08-16): 5.0's re-activated vanilla
+      tribute level stays active (base 15 range 4, always placed,
+      procedural via extralev.c makeroguerooms - no .lua file exists or
+      is needed); BUG-1105 rogue_vision rnum < svn.nroom guard
+      re-ported, live with it. RATIFIED: bigrm nlevels=13 (the bigroom
+      row's deferred count reconcile; base/range/chance already master
+      parity) + the Tutorial dungeon stays (de-facto adoption made
+      explicit). REVIEW: PASS zero actionable (4 LOW informational:
+      the wizard-livelog convention delta above; in-endgame wizard ^V
+      menu numbers are dlevel-derived not canonical - byte-identical
+      vanilla inheritance master also lives with; stale entry_lev
+      comment master shares; potion.c dlord/dprince negation loop
+      confirmed = the tracked gehennom-slice deferral, not a gap).
+      BATTERY (game-tester, 6 games, 10 legs, ALL PASS, paniclog never
+      existed): 6/6 DISTINCT permutations of slots 2-5, astral pinned 1,
+      dummy 6, entry_lev 5, rogue level DoD 15-18 in all 6; real-path
+      D:1 stair transit lands the slot-5 plane (stairway target
+      gdb-read dnum 13 dlvl 5) with the triptych ONCE + exactly one
+      livelog line; portal chain Water5->Fire4->Earth3->Air2->Astral1,
+      every hop a real dotrap transit landing dlevel-1 with status/^X/^O
+      naming the ACTUAL plane; cursed gain-level rise landed Air-at-5
+      (not Earth); wizard ^V lands the chosen plane (clamp bypassed);
+      rogue level ROGUESET flip on entry + revert on exit, ^O row
+      "[rogue]", lit-room boundary vision; tutorial exit prints NO
+      triptych; mid-Planes save/restore topology byte-stable + terrain
+      md5-stable; xlog deathlev CANONICAL (-1 for Earth-at-dlevel-3,
+      corroborated -2 for Air-at-dlevel-5; the "on the Plane of X"
+      prose is wizard-mode-unreachable by design - pure switch on the
+      verified value). Battery lore: the brief's "uppercase-only rogue
+      monsters" expectation was VOID - the engine biases GENERATION
+      toward uppercase-lettered classes (makemon Is_rogue_level arm),
+      it never transforms display, identical in all trees; the
+      Water-plane portal DRIFTS with the air bubbles (mkmaze cons list
+      rewrites btrap tx/ty) so coordinate staging goes stale by one
+      turn; an Amulet-carrying planes arrival draws WoY + sea-life
+      pressure immediately (resurrect arm, master parity).
       Ice Queen branch DONE (icequeen slice 2026-08-14: medusa
       chainbranch base -1 portal + the dungeon block; chain scan
       bound verified - medusa is 4th of 5 DoD levels, resolves at
-      any branch index). Includes the elemental-plane order
-      randomization: master's
-      dungeon.def gives the four planes @ (2, 4) random-range slots
-      vs vanilla's fixed 2/3/4/5 (astral stays 1, dummy 6). The
-      level side is already order-agnostic since the endgame slice
-      (self-named portals + mkportal In_endgame dlevel-1 arm)
+      any branch index).
 - [x] quest.txt -> quest.lua converter BUILT + VALIDATED (2026-07-03,
       ~/quest_to_50.py; output quest_evilhack.lua 18 sections / 1066
       messages, luac-clean, round-tripped field-by-field through real
@@ -8096,7 +8150,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 - [ ] nhl bindings from Phase 2 wired: MAGIC_CHEST, FORGE,
       MINDEPTH, dead=, door material=, room types
 - [x] dat/data.base reconciliation DONE 2026-08-16 (session 46, ONE
-      commit, hash rides the next commit; the row's old "pure vanilla
+      commit d3c3590a7, landed 2026-08-16; the row's old "pure vanilla
       5.0" premise was stale - the vecna slice had already added its
       31-line block, so this ran as a true THREE-WAY entry-level merge:
       BASE 472 / MASTER 660 / BRANCH 518 entries -> 687 = 518 + 170
@@ -8238,6 +8292,18 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       doc/fixes5-0-*.txt, renamed from fixesN.N); use the
       file-relocation map (re-derive queue section) to find where
       each fix's home file went
+- [ ] BUG-1091 re-port check (routed 2026-08-16 by the dungeon.lua
+      remainder slice's archive sweep): master's defer_unpunish
+      machinery (zap.c bhitpile/mbhit uchain UAF via unpunish(),
+      Plane-of-Air open-air uball path) is absent on the branch;
+      5.0's bhitpile/mbhit bodies differ from 3.6's - verify the
+      save-next iterator hazard actually exists on this tree before
+      porting the drain shape
+- [ ] BUG-771 knox arm (routed 2026-08-16, same sweep): the
+      branch's debug_fuzzer level_tele walk excludes astral dnum +
+      unconnected + empty dungeons but NOT knox_level.dnum (master
+      excludes both); fuzzer-only code, reconcile with the
+      teleport.c pass
 - [x] Light-guard port slice (minted+DONE 2026-08-14; first
       concrete instance of the row above; BUG-1562..1566, commit
       128953cb2; hash line rides the next commit). Origin: the
@@ -8578,6 +8644,9 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-08-16 | ROGUE LEVEL KEPT: 5.0's re-activated vanilla tribute level stays active (base 15 range 4, always placed at DoD depth 15-18; master inherits 3.6's commented-out entry and never places it) - the adopt-upstream-additions precedent (Tutorial/themerms/bigrm-13/minend) extended to a whole level; data-only toggle, reversible any time, new games only. BUG-1105 rogue_vision guard re-ported live with it | maintainer |
+| 2026-08-16 | dungeon.lua remainder ratifications: bigrm nlevels=13 (upstream's variant set incl. 3 upstream-new, adopted verbatim by the bigroom slice; count declaration now matches the shipped files) and the Tutorial dungeon STAYS (counted in the post-port prototype totals since adoption; BUG-1381/1383 preserved its behavior - de-facto adoption made an explicit ruling) | maintainer |
+| 2026-08-16 | Planes-entry livelog: master's explicit livelog_write_string(LL_ACHIEVE, "entered the Planes") NOT ported - subsumed by 5.0-native record_achievement(ACH_ENDG), which livelogs "entered the Elemental Planes" on the same first-arrival transition and dedups via u.uachieved[]. Convention delta accepted: the achievement fires in wizard mode too (master's arm was !wizard-gated), matching every other 5.0 achievement incl. ACH_HELL | coordinator |
 | 2026-08-16 | data.base merge deviations RATIFIED with the slice plan: (1) heart of ahriman keeps master's comment-out over upstream's cosmetic edit - the item does not exist on this tree (EvilHack's Barbarian quest artifact is the Sword of Annihilation), the EvilHack-content-wins side of the delta rule; (2) *horse restored ALONGSIDE master's four-horsemen keys by ordering the horsemen entry first - master traded generic-horse coverage for steed routing (BUG-1594), the swap serves both. Also recorded: the collision rule's upstream-wins consequences (the ~*sleeping Big Trouble quote master deleted STAYS; PYEC keeps upstream wording since branch Antimagic fully bounces magic missiles - master's "partially" travels with a future partial-MR mechanics slice) | maintainer |
 | 2026-08-16 | data.base BROAD-KEY NARROWING policy: when a master encyclopedia glob key captures LIVE upstream entries under checkfile's first-entry-wins scan, the branch narrows the glob to its actual subject family instead of adopting it verbatim - *ent -> ent + "* ent" (was capturing every name ending "ent" incl. upstream's helm-of-opposite-alignment and scroll-of-punishment entries), elven* -> the nine explicit monarch names (was capturing the elven equipment entries). The data-side sibling of the ported-call-lost-precondition class: master's broad key was "safe" only because master lacked the entries it shadows. Verified by a 500-object HEAD-vs-merged shadow audit (BUG-1596 archives the master-side damage) | coordinator |
 | 2026-08-16 | vaults->themerms FREQUENCY RATIFIED (the 2026-07-18 merge ruling's tuning interlock, AskUserQuestion): the 18 kept EvilHack-unique entries get frequency = 5 each (~0.44% of rooms = master's ~0.41% per-vault rate; merged pool 1037 -> 1127, themed share ~11% vs master's 12-18%); the 28 vaults deduped to upstream entries inherit UPSTREAM'S cadence (~4-5x rarer than master) as part of adopt-upstream's-version - a recorded v1.0.0 gameplay delta. Also ratified: all 7 borderline vaults KEPT (corner rooms x2, three rooms x2, U/C-shaped, L-shaped big) rather than folded into upstream's room-in-room/shape families | maintainer |

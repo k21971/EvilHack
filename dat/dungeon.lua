@@ -457,21 +457,28 @@ dungeon = {
             name = "astral",
             base = 1
          },
+         -- the order of the four elemental planes is randomized per
+         -- game; each gets a random slot in levels 2-5 (astral stays
+         -- 1, dummy stays 6) and the portal chain simply ascends
          {
             name = "water",
-            base = 2
+            base = 2,
+            range = 4
          },
          {
             name = "fire",
-            base = 3
+            base = 2,
+            range = 4
          },
          {
             name = "air",
-            base = 4
+            base = 2,
+            range = 4
          },
          {
             name = "earth",
-            base = 5
+            base = 2,
+            range = 4
          },
          {
             name = "dummy",
