@@ -66,6 +66,7 @@
     <Luafiles Include = "dungeon.lua"/>
     <Luafiles Include = "earth.lua"/>
     <Luafiles Include = "fire.lua"/>
+    <Luafiles Include = "forest.lua"/>
     <Luafiles Include = "goblintown-1-1.lua"/>
     <Luafiles Include = "goblintown-1-2.lua"/>
     <Luafiles Include = "goblintown-2.lua"/>
@@ -127,6 +128,7 @@
     <Luafiles Include = "Mon-strt.lua"/>
     <Luafiles Include = "nhcore.lua"/>
     <Luafiles Include = "nhlib.lua"/>
+    <Luafiles Include = "nymph.lua"/>
     <Luafiles Include = "oracle-1.lua"/>
     <Luafiles Include = "oracle-2.lua"/>
     <Luafiles Include = "oracle-3.lua"/>

@@ -134,10 +134,11 @@ VARDAT = $(VARDATD) $(VARDATND)
 
 DATHELP = help hh cmdhelp keyhelp history opthelp optmenu usagehlp wizhelp
 
-SPEC_LEVS = bigrm-*.lua castle-?.lua goblintown*.lua hdgn.lua hella-?.lua \
-	hellb-?.lua hellc-?.lua icequeen-?.lua \
+SPEC_LEVS = bigrm-*.lua castle-?.lua forest.lua goblintown*.lua hdgn.lua \
+	hella-?.lua hellb-?.lua hellc-?.lua icequeen-?.lua \
 	knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua \
-	oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua soko?-?.lua tower?.lua \
+	nymph.lua oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua \
+	soko?-?.lua tower?.lua \
 	valley.lua vecna-?.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua \
 	themerms.lua astral.lua air.lua earth.lua fire.lua water.lua \
 	hellfill.lua tut-?.lua

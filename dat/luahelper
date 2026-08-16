@@ -25,9 +25,10 @@ MAKEFLAGS += --no-print-directory
 AWK=awk
 
 
-luanames = asmodeus baalz bigrm-* castle juiblex knox medusa-? \
-	minend-? minefill minetn-? oracle orcus sanctum soko?-? tower? \
-	valley wizard? wizportal nhcore nhlib themerms astral air earth \
+luanames = bigrm-* castle-? forest goblintown* hdgn hella-? hellb-? \
+	hellc-? icequeen-? knox-? medusa-? minend-? minefill minetn-? \
+	nymph oracle-? orcus purgatory-? sanctum soko?-? tower? valley \
+	vecna-? wizard? wizportal nhcore nhlib themerms astral air earth \
 	fire water hellfill tut-? ???-goal ???-fil? ???-loca ???-strt \
 	dungeon quest
 

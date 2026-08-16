@@ -1614,6 +1614,7 @@
 				"$(NH_DAT_DIR)/dungeon.lua",
 				"$(NH_DAT_DIR)/earth.lua",
 				"$(NH_DAT_DIR)/fire.lua",
+				"$(NH_DAT_DIR)/forest.lua",
 				"$(NH_DAT_DIR)/goblintown-1-1.lua",
 				"$(NH_DAT_DIR)/goblintown-1-2.lua",
 				"$(NH_DAT_DIR)/goblintown-2.lua",
@@ -1675,6 +1676,7 @@
 				"$(NH_DAT_DIR)/Mon-strt.lua",
 				"$(NH_DAT_DIR)/nhcore.lua",
 				"$(NH_DAT_DIR)/nhlib.lua",
+				"$(NH_DAT_DIR)/nymph.lua",
 				"$(NH_DAT_DIR)/oracle-1.lua",
 				"$(NH_DAT_DIR)/oracle-2.lua",
 				"$(NH_DAT_DIR)/oracle-3.lua",
@@ -1767,7 +1769,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"${NH_DAT_DIR}\"\n\"${NH_UTIL_DIR}\"/dlb cf nhdat help hh cmdhelp keyhelp history opthelp optmenu wizhelp dungeon.lua tribute bigrm-*.lua castle-?.lua goblintown*.lua hdgn.lua hella-?.lua hellb-?.lua hellc-?.lua icequeen-?.lua knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua soko?-?.lua tower?.lua tut-?.lua valley.lua vecna-?.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua themerms.lua hellfill.lua astral.lua air.lua earth.lua fire.lua water.lua ???-goal.lua ???-fil?.lua ???-loca.lua ???-strt.lua bogusmon data engrave epitaph oracles options quest.lua rumors\n";
+			shellScript = "cd \"${NH_DAT_DIR}\"\n\"${NH_UTIL_DIR}\"/dlb cf nhdat help hh cmdhelp keyhelp history opthelp optmenu wizhelp dungeon.lua tribute bigrm-*.lua castle-?.lua forest.lua goblintown*.lua hdgn.lua hella-?.lua hellb-?.lua hellc-?.lua icequeen-?.lua knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua nymph.lua oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua soko?-?.lua tower?.lua tut-?.lua valley.lua vecna-?.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua themerms.lua hellfill.lua astral.lua air.lua earth.lua fire.lua water.lua ???-goal.lua ???-fil?.lua ???-loca.lua ???-strt.lua bogusmon data engrave epitaph oracles options quest.lua rumors\n";
 		};
 		3192867021A39F6A00325BEB /* Install */ = {
 			isa = PBXShellScriptBuildPhase;
