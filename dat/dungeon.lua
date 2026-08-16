@@ -142,6 +142,15 @@ dungeon = {
             chainlevel = "valley",
             base = 0,
             branchtype = "portal"
+         },
+         {
+            -- one level below the valley, on an ordinary maze level
+            -- whose auto-branch slot is free; find_branch_room falls
+            -- back to a corridor tile there
+            name = "Vecna's Domain",
+            chainlevel = "valley",
+            base = 1,
+            branchtype = "portal"
          }
       },
       levels = {
@@ -280,6 +289,27 @@ dungeon = {
          {
             name = "hdgn",
             base = 1
+         },
+      }
+   },
+   {
+      -- no bonetag: no bones anywhere in this dungeon (master parity)
+      name = "Vecna's Domain",
+      base = 3,
+      alignment = "chaotic",
+      flags = { "mazelike", "vecnad" },
+      levels = {
+         {
+            name = "vecna-1",
+            base = 1
+         },
+         {
+            name = "vecna-2",
+            base = 2
+         },
+         {
+            name = "vecna-3",
+            base = 3
          },
       }
    },

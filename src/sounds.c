@@ -414,6 +414,16 @@ dosounds(void)
         You_hear1(gtown_msg[rn2(2 + hallu)]);
         return;
     }
+    if (!In_vecna_branch(&u.uz0) && at_dgn_entrance("Vecna's Domain")
+        && !rn2(200)) {
+        static const char *const vecnabranch_msg[] = {
+            "a mysterious chanting.",
+            "the tortured cries of the damned.",
+            "\"Dead man walking\"..."
+        };
+        You_hear1(vecnabranch_msg[rn2(2 + hallu)]);
+        return;
+    }
     if (!In_icequeen_branch(&u.uz0)
         && at_dgn_entrance("The Ice Queen's Realm") && !rn2(200)) {
         static const char *const icequeenbranch_msg[] = {

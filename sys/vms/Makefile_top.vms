@@ -138,7 +138,7 @@ SPEC_LEVS = bigrm-*.lua castle-?.lua goblintown*.lua hdgn.lua hella-?.lua \
 	hellb-?.lua hellc-?.lua icequeen-?.lua \
 	knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua \
 	oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua soko?-?.lua tower?.lua \
-	valley.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua \
+	valley.lua vecna-?.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua \
 	themerms.lua astral.lua air.lua earth.lua fire.lua water.lua \
 	hellfill.lua tut-?.lua
 QUEST_LEVS = ???-goal.lua ???-fil?.lua ???-loca.lua ???-strt.lua

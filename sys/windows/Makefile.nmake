@@ -762,7 +762,9 @@ LUA_FILES = $(DAT)bigrm-1.lua \
 	$(DAT)soko4-6.lua \
 	$(DAT)tower1.lua $(DAT)tower2.lua $(DAT)tower3.lua \
 	$(DAT)tower4.lua \
-	$(DAT)valley.lua $(DAT)wizard1.lua $(DAT)wizard2.lua \
+	$(DAT)valley.lua \
+	$(DAT)vecna-1.lua $(DAT)vecna-2.lua $(DAT)vecna-3.lua \
+	$(DAT)wizard1.lua $(DAT)wizard2.lua \
 	$(DAT)wizard3.lua $(DAT)wizportal.lua $(DAT)nhcore.lua $(DAT)nhlib.lua \
 	$(DAT)themerms.lua $(DAT)astral.lua $(DAT)air.lua \
 	$(DAT)earth.lua $(DAT)fire.lua $(DAT)water.lua \
@@ -804,7 +806,8 @@ luawildcards = bigrm-*.lua castle-?.lua goblintown*.lua hdgn.lua \
 	knox-?.lua medusa-?.lua minend-?.lua minefill.lua \
 	minetn-?.lua oracle-?.lua orcus.lua purgatory-?.lua \
 	sanctum.lua soko?-?.lua tower?.lua \
-	valley.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua themerms.lua \
+	valley.lua vecna-?.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua \
+	themerms.lua \
 	astral.lua air.lua earth.lua fire.lua water.lua hellfill.lua tut-?.lua \
 	???-goal.lua ???-fil?.lua ???-loca.lua ???-strt.lua \
 	dungeon.lua quest.lua

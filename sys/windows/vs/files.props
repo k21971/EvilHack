@@ -197,6 +197,9 @@
     <Luafiles Include = "Val-loca.lua"/>
     <Luafiles Include = "Val-strt.lua"/>
     <Luafiles Include = "valley.lua"/>
+    <Luafiles Include = "vecna-1.lua"/>
+    <Luafiles Include = "vecna-2.lua"/>
+    <Luafiles Include = "vecna-3.lua"/>
     <Luafiles Include = "water.lua"/>
     <Luafiles Include = "Wiz-fila.lua"/>
     <Luafiles Include = "Wiz-filb.lua"/>

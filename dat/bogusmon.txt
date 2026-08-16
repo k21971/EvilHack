@@ -96,6 +96,15 @@ scimitar-tailed tiger
 =Bonbon
 =Oozy
 
+# Vecna Branch
+Nose of Vecna
+Toe of Vecna
+Cheek of Vecna
+incredibly old lich
+decrepit lich
+minilich
+mystery van-pire
+
 octahedron
 dungeon core
 quale

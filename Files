@@ -83,9 +83,9 @@ soko3-5.lua         soko3-6.lua         soko4-1.lua         soko4-2.lua
 soko4-3.lua         soko4-4.lua         soko4-5.lua         soko4-6.lua
 symbols             themerms.lua        tower1.lua          tower2.lua
 tower3.lua          tower4.lua          tribute             tut-1.lua
-tut-2.lua           usagehlp            valley.lua          water.lua
-wizard1.lua         wizard2.lua         wizard3.lua         wizhelp
-wizportal.lua
+tut-2.lua           usagehlp            valley.lua          vecna-1.lua
+vecna-2.lua         vecna-3.lua         water.lua           wizard1.lua
+wizard2.lua         wizard3.lua         wizhelp             wizportal.lua
 
 doc:
 (files for all versions)

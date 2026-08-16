@@ -1745,6 +1745,9 @@
 				"$(NH_DAT_DIR)/Val-loca.lua",
 				"$(NH_DAT_DIR)/Val-strt.lua",
 				"$(NH_DAT_DIR)/valley.lua",
+				"$(NH_DAT_DIR)/vecna-1.lua",
+				"$(NH_DAT_DIR)/vecna-2.lua",
+				"$(NH_DAT_DIR)/vecna-3.lua",
 				"$(NH_DAT_DIR)/water.lua",
 				"$(NH_DAT_DIR)/Wiz-fila.lua",
 				"$(NH_DAT_DIR)/Wiz-filb.lua",
@@ -1764,7 +1767,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"${NH_DAT_DIR}\"\n\"${NH_UTIL_DIR}\"/dlb cf nhdat help hh cmdhelp keyhelp history opthelp optmenu wizhelp dungeon.lua tribute bigrm-*.lua castle-?.lua goblintown*.lua hdgn.lua hella-?.lua hellb-?.lua hellc-?.lua icequeen-?.lua knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua soko?-?.lua tower?.lua tut-?.lua valley.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua themerms.lua hellfill.lua astral.lua air.lua earth.lua fire.lua water.lua ???-goal.lua ???-fil?.lua ???-loca.lua ???-strt.lua bogusmon data engrave epitaph oracles options quest.lua rumors\n";
+			shellScript = "cd \"${NH_DAT_DIR}\"\n\"${NH_UTIL_DIR}\"/dlb cf nhdat help hh cmdhelp keyhelp history opthelp optmenu wizhelp dungeon.lua tribute bigrm-*.lua castle-?.lua goblintown*.lua hdgn.lua hella-?.lua hellb-?.lua hellc-?.lua icequeen-?.lua knox-?.lua medusa-?.lua minend-?.lua minefill.lua minetn-?.lua oracle-?.lua orcus.lua purgatory-?.lua sanctum.lua soko?-?.lua tower?.lua tut-?.lua valley.lua vecna-?.lua wizard?.lua wizportal.lua nhcore.lua nhlib.lua themerms.lua hellfill.lua astral.lua air.lua earth.lua fire.lua water.lua ???-goal.lua ???-fil?.lua ???-loca.lua ???-strt.lua bogusmon data engrave epitaph oracles options quest.lua rumors\n";
 		};
 		3192867021A39F6A00325BEB /* Install */ = {
 			isa = PBXShellScriptBuildPhase;

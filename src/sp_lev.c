@@ -5972,7 +5972,11 @@ lspo_drawbridge(lua_State *L)
     y = my;
 
     get_location_coord(&x, &y, DRY | WET | HOT, gc.coder->croom, dcoord);
-    if (!isok(mx, my)) {
+    /* validate the translated location, not the map-relative one the
+       level file gave us - map column 0 is a legal map cell and only
+       becomes a legal level column after get_location_coord() adds the
+       map's origin */
+    if (!isok(x, y)) {
         nhl_error(L, "drawbridge coord not ok");
         /*NOTREACHED*/
         return 0;
