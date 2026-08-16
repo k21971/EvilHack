@@ -2272,6 +2272,19 @@ create_object(object *o, struct mkroom *croom)
 
     if (!c) {
         otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
+        /* a fully random object placed inside a container must not
+           itself be a container; the engine never nests containers
+           when it fills boxes (see mkbox_cnts), so reroll until we
+           get a non-container to match that behavior */
+        if (o->containment & SP_OBJ_CONTENT) {
+            int tries = 100;
+
+            while (Is_container(otmp) && --tries > 0) {
+                obj_extract_self(otmp);
+                obfree(otmp, (struct obj *) 0);
+                otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
+            }
+        }
     } else if (o->id != -1) {
         otmp = mksobj_at(o->id, x, y, TRUE, !named);
     } else {
