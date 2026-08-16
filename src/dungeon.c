@@ -755,6 +755,8 @@ static struct level_map {
                   /* ENTRY -1: purgatory-2 is the arrival level */
                   { "purgatory-1", &purgend_level },
                   { "purgatory-2", &purgstart_level },
+                  { "nymph", &nymph_level },
+                  { "forest", &forest_level },
                   { X_START, &qstart_level },
                   { X_LOCATE, &qlocate_level },
                   { X_GOAL, &nemesis_level },
@@ -3002,7 +3004,8 @@ interest_mapseen(mapseen *mptr)
             return FALSE;
     }
     /* level is of interest if it has an auto-generated annotation */
-    if (mptr->flags.oracle || mptr->flags.bigroom || mptr->flags.roguelevel
+    if (mptr->flags.oracle || mptr->flags.bigroom || mptr->flags.nymph
+        || mptr->flags.forest || mptr->flags.roguelevel
         || mptr->flags.castle || mptr->flags.valley
         || mptr->flags.msanctum || mptr->flags.vibrating_square
         || mptr->flags.quest_summons || mptr->flags.questing)
@@ -3251,6 +3254,8 @@ recalc_mapseen(void)
         mptr->flags.bigroom = Is_bigroom(&u.uz);
     else if (mptr->flags.forgot)
         mptr->flags.bigroom = 0;
+    mptr->flags.nymph = Is_nymph(&u.uz);
+    mptr->flags.forest = Is_forest(&u.uz);
     mptr->flags.roguelevel = Is_rogue_level(&u.uz);
     mptr->flags.oracle = 0; /* recalculated during room traversal below */
     mptr->flags.castletune = 0;
@@ -3789,6 +3794,10 @@ print_mapseen(
                 mptr->flags.sokosolved ? "Solved" : "Unsolved");
     } else if (mptr->flags.bigroom) {
         Sprintf(buf, "%sA very big room.", PREFIX);
+    } else if (mptr->flags.nymph) {
+        Sprintf(buf, "%sAphrodite's Garden.", PREFIX);
+    } else if (mptr->flags.forest) {
+        Sprintf(buf, "%sDesolate Forest.", PREFIX);
     } else if (mptr->flags.roguelevel) {
         Sprintf(buf, "%sA primitive area.", PREFIX);
     } else if (on_level(&mptr->lev, &qstart_level)) {

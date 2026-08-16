@@ -147,6 +147,8 @@ typedef struct branch {
 #define Is_sokoend_level(x) (Lcheck(x, &sokoend_level))
 #define Is_purgend_level(x)   (Lcheck(x, &purgend_level))
 #define Is_purgstart_level(x) (Lcheck(x, &purgstart_level))
+#define Is_nymph(x)           (Lcheck(x, &nymph_level))
+#define Is_forest(x)          (Lcheck(x, &forest_level))
 
 #define In_sokoban(x) ((x)->dnum == sokoban_dnum)
 #define In_tower(x) ((x)->dnum == tower_dnum)
@@ -260,6 +262,11 @@ struct mapseen_flags {
                                     * the next dungeon level; temple
                                     * entered or high altar mapped) */
     Bitfield(spare1, 1);           /* not used */
+    /* nymph and forest sit at the tail, unlike master's member order:
+       the struct is saved wholesale, so new bits land after the
+       upstream-shared fields */
+    Bitfield(nymph, 1);  /* Aphrodite's Garden */
+    Bitfield(forest, 1); /* the Desolate Forest */
 };
 
 struct mapseen_rooms {

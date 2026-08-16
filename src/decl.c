@@ -905,7 +905,7 @@ static const struct instance_globals_saved_d init_svd = {
     0, 0, 0, 0, 0,
     {0}, {0}, {0},
     {0}, {0}, {0}, {0}, {0}, {0}, {0},
-    {0}, {0} }, /* dungeon_topology */
+    {0}, {0}, {0}, {0} }, /* dungeon_topology */
     /* decl.c */
     { 0, 0, 0, 0, 0, 0, 0, 0 },          /* dndest */
     NULL,                                /* doors */

@@ -407,6 +407,8 @@ struct dgn_topology { /* special dungeon levels for speed */
                             * items destroyed on open air migrate */
     d_level d_purgend_level;   /* Purgatory exit; Saint Michael's palace */
     d_level d_purgstart_level; /* Purgatory arrival from the sanctum */
+    d_level d_nymph_level;     /* Aphrodite's Garden */
+    d_level d_forest_level;    /* the Desolate Forest */
 };
 
 /* macros for accessing the dungeon levels by their old names */
@@ -445,6 +447,8 @@ struct dgn_topology { /* special dungeon levels for speed */
 #define hellc_level             (svd.dungeon_topology.d_hellc_level)
 #define purgend_level           (svd.dungeon_topology.d_purgend_level)
 #define purgstart_level         (svd.dungeon_topology.d_purgstart_level)
+#define nymph_level             (svd.dungeon_topology.d_nymph_level)
+#define forest_level            (svd.dungeon_topology.d_forest_level)
 /* clang-format on */
 
 #define dunlev_reached(x) (svd.dungeons[(x)->dnum].dunlev_ureached)
