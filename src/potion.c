@@ -1282,7 +1282,8 @@ peffect_gain_level(struct obj *otmp)
                     You("have an uneasy feeling.");
                     return;
                 }
-                assign_level(&newlevel, &earth_level);
+                newlevel.dnum = astral_level.dnum;
+                newlevel.dlevel = svd.dungeons[astral_level.dnum].entry_lev;
             } else {
                 newlev = depth(&u.uz) - 1;
                 get_level(&newlevel, newlev);

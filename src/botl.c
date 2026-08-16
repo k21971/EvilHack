@@ -495,7 +495,12 @@ describe_level(
         Sprintf(buf, "Home %d", dunlev(&u.uz));
     } else if (In_endgame(&u.uz)) {
         /* [3.6.2: this used to be "Astral Plane" or generic "End Game"] */
-        (void) endgamelevelname(buf, depth(&u.uz));
+        /* EvilHack randomizes the elemental plane order per game, so
+           depth(&u.uz) does not map to a fixed plane; observable_depth()
+           uses the Is_*level() macros (struct-reference compare) and
+           returns the canonical -1..-5 index that endgamelevelname()
+           switches on */
+        (void) endgamelevelname(buf, observable_depth(&u.uz));
         if (!addbranch)
             (void) strsubst(buf, "Plane of ", ""); /* just keep <element> */
         addbranch = FALSE;

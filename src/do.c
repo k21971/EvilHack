@@ -1619,14 +1619,18 @@ goto_level(
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
     if (newdungeon) {
         if (In_endgame(newlevel)) { /* 1st Endgame Level !!! */
+            d_level newlev;
+
+            newlev.dnum = astral_level.dnum;
+            newlev.dlevel = svd.dungeons[astral_level.dnum].entry_lev;
             /* an Infidel's starting Amulet does not open the Planes;
                only the imbued Idol of Moloch carries its power */
             if ((!u.uhave.amulet
                  || (Role_if(PM_INFIDEL) && !u.uevent.uimbued_idol))
                 && !u.uamulet_on_planes)
                 return;  /* must have the Amulet (or be chasing it) */
-            if (!wizard) /* wizard ^V can bypass Earth level */
-                assign_level(newlevel, &earth_level); /* (redundant) */
+            if (!wizard) /* wizard ^V can bypass first plane */
+                assign_level(newlevel, &newlev); /* (redundant) */
         } else if (In_tutorial(newlevel)) {
             tutorial(TRUE); /* entering tutorial */
         } else if (In_tutorial(&u.uz)) {
@@ -1838,6 +1842,12 @@ goto_level(
                 remdun_mapseen(l_idx);
         /* get rid of mons & objs scheduled to migrate to discarded levels */
         discard_migrations();
+
+        if (!leaving_tutorial) {
+            pline("Well done, mortal!");
+            pline("But now thou must face the final Test...");
+            pline("Prove thyself worthy or perish!");
+        }
     }
 
     if (Is_rogue_level(newlevel) || Is_rogue_level(&u.uz))

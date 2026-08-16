@@ -319,7 +319,7 @@ rogue_vision(seenV **next, coordxy *rmin, coordxy *rmax)
 
     /* If in a lit room, we are able to see to its boundaries. */
     /* If dark, set COULD_SEE so various spells work -dlc */
-    if (rnum >= 0) {
+    if (rnum >= 0 && rnum < svn.nroom) {
         for (zy = svr.rooms[rnum].ly - 1; zy <= svr.rooms[rnum].hy + 1; zy++) {
             rmin[zy] = start = svr.rooms[rnum].lx - 1;
             rmax[zy] = stop = svr.rooms[rnum].hx + 1;

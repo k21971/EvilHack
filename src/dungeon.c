@@ -3702,7 +3702,7 @@ print_mapseen(
     i = depthstart + mptr->lev.dlevel - 1;
     if (In_endgame(&mptr->lev))
         Sprintf(buf, "%s%s:", (final != -1) ? TAB : "",
-                endgamelevelname(tmpbuf, i));
+                endgamelevelname(tmpbuf, observable_depth(&mptr->lev)));
     else
         Sprintf(buf, "%sLevel %d:", (final != -1) ? TAB : "", i);
 

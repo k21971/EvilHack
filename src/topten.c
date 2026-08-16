@@ -194,7 +194,6 @@ topten_print_bold(const char *x)
 int
 observable_depth(d_level *lev)
 {
-#if 0
     /* if we ever randomize the order of the elemental planes, we
        must use a constant external representation in the record file */
     if (In_endgame(lev)) {
@@ -211,8 +210,7 @@ observable_depth(d_level *lev)
         else
             return 0; /* ? */
     } else
-#endif
-    return depth(lev);
+        return depth(lev);
 }
 
 /* throw away characters until current record has been entirely consumed */
