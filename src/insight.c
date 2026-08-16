@@ -2632,6 +2632,14 @@ show_achievements(
         you_have_X("defeated Kathryn the Ice Queen");
     if (u.uevent.killed_talgath)
         you_have_X("defeated Tal'Gath");
+    if (u.uevent.killed_vecna)
+        you_have_X("defeated Vecna");
+    if (u.uevent.killed_vlad)
+        you_have_X("defeated Vlad the Impaler");
+    if (u.uevent.killed_lucifer)
+        you_have_X("defeated Lucifer");
+    if (u.uevent.killed_michael)
+        you_have_X("defeated Saint Michael");
     if (u.uevent.wiztower_entered)
         you_have_X("entered the Wizard of Yendor's lair");
     if (u.uevent.purgatory_entered)

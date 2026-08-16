@@ -63,6 +63,7 @@ struct tmpbranch {
 #define ICEQ        0x40
 #define PURGATORY   0x80
 #define HDGN        0x100
+#define VECNAD      0x200
 
 /*
  *    Dungeon and level alignment. These are carried in the dedicated

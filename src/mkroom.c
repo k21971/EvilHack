@@ -641,6 +641,8 @@ staticfn struct permonst *
 morguemon(void)
 {
     int i = rn2(100), hd = rn2(max(level_difficulty(), 1));
+    /* Vecna's dead walk in greater numbers than elsewhere */
+    int v = In_vecna_branch(&u.uz) ? 22 : 40;
 
     if (hd > 10 && i < 10) {
         if (Inhell || In_endgame(&u.uz)) {
@@ -653,12 +655,21 @@ morguemon(void)
         }
     }
 
+    /* rare top tier: a long-dead dragon walks again */
+    if (hd > 10 && i > 97
+        && !(svm.mvitals[PM_SKELETAL_DRAGON].mvflags & G_GONE))
+        return &mons[PM_SKELETAL_DRAGON];
+
     if (hd > 8 && i > 85)
-        return mkclass(S_VAMPIRE, 0);
+        return (rn2(5) ? mkclass(S_VAMPIRE, 0)
+                       : &mons[PM_SKELETON_WARRIOR]);
+    if (In_vecna_branch(&u.uz) && hd > 8 && i > 80)
+        return &mons[PM_SHADE];
 
     return ((i < 20) ? &mons[PM_GHOST]
-                     : (i < 40) ? &mons[PM_WRAITH]
-                                : mkclass(S_ZOMBIE, 0));
+                     : (i < v) ? &mons[PM_WRAITH]
+                               : rn2(5) ? mkclass(S_ZOMBIE, 0)
+                                        : mkclass(S_SKELETON, 0));
 }
 
 struct permonst *

@@ -745,6 +745,10 @@ wiz_map_levltyp(void)
                 Strcat(dsc, " Ice Queen branch");
             if (slev->flags.purg)
                 Strcat(dsc, " Purgatory");
+            if (slev->flags.hdgn)
+                Strcat(dsc, " Hidden Dungeon");
+            if (slev->flags.vecnad)
+                Strcat(dsc, " Vecna's branch");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)

@@ -27,6 +27,7 @@ typedef struct d_flags {     /* dungeon/level type flags */
     Bitfield(iceq, 1);       /* is this part of the Ice Queen's branch? */
     Bitfield(purg, 1);       /* is this part of Purgatory? */
     Bitfield(hdgn, 1);       /* is this part of the Hidden Dungeon? */
+    Bitfield(vecnad, 1);     /* is this part of Vecna's domain? */
 } d_flags;
 
 typedef struct s_level { /* special dungeon level element */
@@ -154,6 +155,7 @@ typedef struct branch {
 #define Iniceq In_icequeen_branch(&u.uz)
 #define Inpurg In_purgatory(&u.uz)
 #define Inhdgn In_hdgn(&u.uz)
+#define Invecnad In_vecna_branch(&u.uz)
 #define In_endgame(x) ((x)->dnum == astral_level.dnum)
 #define In_tutorial(x) ((x)->dnum == tutorial_dnum)
 

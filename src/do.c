@@ -2125,6 +2125,15 @@ goto_level(
             You_hear("the distant howl of hungry wolves.");
     }
 
+    /* first time in Vecna's domain? */
+    if (!In_vecna_branch(&u.uz0) && Invecnad
+        && !u.uevent.vecnad_entered) {
+        u.uevent.vecnad_entered = 1;
+        You("enter a desolate landscape, completely devoid of life.");
+        pline("Every fiber of your being tells you to leave this evil"
+              " place, now.");
+    }
+
     /* first time in Goblin Town? */
     if (!In_goblintown(&u.uz0) && Ingtown
         && !u.uevent.gtown_entered) {
