@@ -41,6 +41,8 @@ staticfn void hmon_hitmon_misc_obj(struct _hitmon_data *, struct monst *,
 staticfn void hmon_hitmon_do_hit(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
 staticfn void hmon_hitmon_dmg_recalc(struct _hitmon_data *, struct obj *);
+staticfn void hmon_hitmon_vecna_relics(struct _hitmon_data *,
+                                       struct monst *);
 staticfn void hmon_hitmon_poison(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_taint(struct _hitmon_data *, struct monst *,
@@ -620,7 +622,8 @@ do_attack(struct monst *mtmp)
             else if (!cantwield(gy.youmonst.data))
                 You("begin %s monsters with your %s %s.",
                     ing_suffix(Role_if(PM_MONK) ? "strike" : "bash"),
-                    uarmg ? "gloved" : "bare", /* Del Lamb */
+                    (uarmg && !is_art(uarmg, ART_HAND_OF_VECNA))
+                      ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
     }
@@ -1717,6 +1720,42 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
         hmd->dmg = 1;
 }
 
+/* damage carried by Vecna's relics that the artifact tables cannot
+   express: the Sword of Kas' attunement to its maker and his servants,
+   and the cold of the Hand */
+staticfn void
+hmon_hitmon_vecna_relics(struct _hitmon_data *hmd, struct monst *mon)
+{
+    /* wielding the Sword of Kas against Vecna does triple damage; it
+       has to be wielded in the primary hand */
+    if (is_art(uwep, ART_SWORD_OF_KAS)) {
+        if (hmd->mdat == &mons[PM_VECNA]) {
+            hmd->dmg *= 3;
+        /* even though the Sword of Kas is attuned to Vecna, it does
+           extra harm to creatures that draw their power from him also */
+        } else if (hmd->mdat == &mons[PM_LICH]
+                   || hmd->mdat == &mons[PM_DEMILICH]
+                   || hmd->mdat == &mons[PM_MASTER_LICH]
+                   || hmd->mdat == &mons[PM_ARCH_LICH]
+                   || hmd->mdat == &mons[PM_ALHOON]) {
+            hmd->dmg *= 2;
+        }
+    }
+
+    /* the Hand of Vecna imparts cold damage to attacks, whether
+       bare-handed or wielding a weapon; the feedback for it is
+       delivered further along, once the hit messages are done */
+    if (is_art(uarmg, ART_HAND_OF_VECNA) && hmd->hand_to_hand) {
+        if (resists_cold(mon) || defended(mon, AD_COLD)) {
+            shieldeff(mon->mx, mon->my);
+            golemeffects(mon, AD_COLD, hmd->dmg);
+        } else {
+            (void) destroy_items(mon, AD_COLD, hmd->dmg);
+            hmd->dmg += rnd(5) + 7; /* 8-12 hit points of cold damage */
+        }
+    }
+}
+
 staticfn void
 hmon_hitmon_poison(
     struct _hitmon_data *hmd,
@@ -2058,6 +2097,9 @@ hmon_hitmon(
     if (hmd.dmg > 0)
         hmon_hitmon_dmg_recalc(&hmd, obj);
 
+    if (!hmd.already_killed)
+        hmon_hitmon_vecna_relics(&hmd, mon);
+
     if (hmd.ispoisoned || (obj && (obj->oprops & ITEM_VENOM)))
         hmon_hitmon_poison(&hmd, mon, obj);
 
@@ -2148,6 +2190,37 @@ hmon_hitmon(
 
     if (hmd.hated_obj)
         searmsg(&gy.youmonst, mon, hmd.hated_obj, FALSE);
+
+    /* feedback for the cold the Hand of Vecna dealt above, placed here
+       due to order of events; skip it if a joust hurtled the monster
+       off the level */
+    if (!hmd.destroyed && !hmd.offmap && hmd.hand_to_hand
+        && is_art(uarmg, ART_HAND_OF_VECNA)) {
+        if (!Blind)
+            pline("%s covers %s in frost!", The(xname(uarmg)),
+                  mon_nam(mon));
+        if (resists_cold(mon) || defended(mon, AD_COLD)) {
+            if (!Blind)
+                pline_The("frost doesn't chill %s!", mon_nam(mon));
+        } else if (!rn2(8)
+                   && !((uwep && uwep->oartifact)
+                        || (u.twoweap && uswapwep && uswapwep->oartifact))) {
+            /* explosive damage placed here due to order of events */
+            struct monst *save_exploder = ge.exploder;
+
+            pline("A surge of frost flows through your mummified hand!");
+            ge.exploder = &gy.youmonst;
+            explode(mon->mx, mon->my, BZ_U_BREATH(ZT_COLD),
+                    d((!uwep ? 4 : 2), 6), 0, EXPL_FROSTY);
+            ge.exploder = save_exploder;
+            /* explode() routes a lethal blast through xkilled(), so the
+               shared cleanup below must not kill the monster again */
+            if (DEADMONSTER(mon)) {
+                hmd.already_killed = TRUE;
+                hmd.destroyed = TRUE;
+            }
+        }
+    }
 
     if (hmd.lightobj)
         hmon_hitmon_msg_lightobj(&hmd, mon, obj);
@@ -5418,7 +5491,9 @@ mhitm_ad_heal(
         /* weapon check should match the one in sounds.c for MS_NURSE */
         if (!(uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep)))
             && !uarmu && !uarm && !uarmc
-            && !uarms && !uarmg && !uarmf && !uarmh) {
+            && !uarms && !uarmf && !uarmh
+            /* a mummified hand is bare enough for a nurse */
+            && (!uarmg || is_art(uarmg, ART_HAND_OF_VECNA))) {
             boolean goaway = FALSE;
 
             pline_mon(magr, "%s hits!  (I hope you don't mind.)",

@@ -250,9 +250,15 @@ remove_worn_item(
             (void) Cloak_off();
         else if (obj == uarmf)
             (void) Boots_off();
-        else if (obj == uarmg)
+        else if (obj == uarmg) {
+            /* the Hand of Vecna has merged with the wearer and cannot
+               be taken off by theft or seduction */
+            if (is_art(uarmg, ART_HAND_OF_VECNA)) {
+                obj->in_use = oldinuse;
+                return;
+            }
             (void) Gloves_off();
-        else if (obj == uarmh)
+        } else if (obj == uarmh)
             (void) Helmet_off();
         else if (obj == uarms)
             (void) Shield_off();
@@ -492,13 +498,18 @@ steal(struct monst *mtmp, char *objnambuf)
                 "steal", "snatch", "grab", "take"
             };
  cant_take:
-            pline("%s tries to %s %s%s but %s.", Monnambuf,
-                  ROLL_FROM(how),
-                  (otmp->owornmask & W_ARMOR) ? "your " : "",
-                  (otmp->owornmask & W_ARMOR) ? armor_simple_name(otmp)
-                                              : yname(otmp),
-                  mon_hates_material(mtmp, otmp->material)
-                      ? "can't handle it" : "gives up");
+            if (otmp == uarmg && is_art(uarmg, ART_HAND_OF_VECNA))
+                pline(
+                  "%s takes one look at your decrepit %s and thinks better"
+                  " of it.", Monnambuf, body_part(HAND));
+            else
+                pline("%s tries to %s %s%s but %s.", Monnambuf,
+                      ROLL_FROM(how),
+                      (otmp->owornmask & W_ARMOR) ? "your " : "",
+                      (otmp->owornmask & W_ARMOR) ? armor_simple_name(otmp)
+                                                  : yname(otmp),
+                      mon_hates_material(mtmp, otmp->material)
+                          ? "can't handle it" : "gives up");
             /* the fewer items you have, the less likely the thief
                is going to stick around to try again (0) instead of
                running away (1) */
@@ -528,6 +539,13 @@ steal(struct monst *mtmp, char *objnambuf)
             worn_item_removal(mtmp, otmp);
             break;
         case ARMOR_CLASS:
+            if (otmp == uarmg && is_art(uarmg, ART_HAND_OF_VECNA)) {
+                /* neither charm nor animal cunning takes the Hand off
+                   the arm it merged with; remove_worn_item() would
+                   refuse, and the theft below would then take it while
+                   still worn */
+                goto cant_take;
+            }
             armordelay = objects[otmp->otyp].oc_delay;
             if (olddelay > 0 && olddelay < armordelay)
                 armordelay = olddelay;
@@ -758,13 +776,17 @@ stealamulet(struct monst *mtmp)
         if (otmp == uarmu && uarm)
             worn_item_removal(mtmp, uarm);
         if ((otmp == uarmg || ((otmp == uright || otmp == uleft) && uarmg))
-            && uwep) {
+            && uwep && !is_art(uarmg, ART_HAND_OF_VECNA)) {
             /* gloves are about to be unworn; unwield weapon(s) first */
             if (u.twoweap)    /* remove_worn_item(uswapwep) indirectly */
                 worn_item_removal(mtmp, uswapwep); /* clears u.twoweap */
             worn_item_removal(mtmp, uwep);
         }
-        if ((otmp == uright || otmp == uleft) && uarmg)
+        if ((otmp == uright || otmp == uleft) && uarmg
+            /* the Hand of Vecna stays on and does not block ring
+               access; remove_worn_item() would refuse to take it off,
+               making the removal message a lie */
+            && !is_art(uarmg, ART_HAND_OF_VECNA))
             /* calls Gloves_off() to handle wielded cockatrice corpse */
             worn_item_removal(mtmp, uarmg);
 

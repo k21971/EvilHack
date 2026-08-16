@@ -62,6 +62,9 @@ staticfn struct obj *find_altshield(void);
 const char *
 fingers_or_gloves(boolean check_gloves)
 {
+    if (check_gloves && is_art(uarmg, ART_HAND_OF_VECNA))
+        return "mummified hand";
+
     return ((check_gloves && uarmg)
             ? gloves_simple_name(uarmg) /* "gloves" or "gauntlets" */
             : makeplural(body_part(FINGER))); /* "fingers" */
@@ -885,8 +888,9 @@ Gloves_on(void)
     case GAUNTLETS_OF_PROTECTION:
         makeknown(uarmg->otyp);
         break;
-    /* TODO-EVILHACK: the Hand of Vecna donning interplay (piety
-       check, hand meld) ports with the Vecna content */
+    /* TODO-EVILHACK: master prints a piety message here when the
+       Gauntlets of Purity slide on; that rides the artifact
+       use-restriction port, not the Hand of Vecna */
     case MUMMIFIED_HAND:
         makeknown(uarmg->otyp);
         disp.botl = TRUE;
@@ -2682,8 +2686,13 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             *mask = W_ARMF;
     } else if (is_gloves(otmp)) {
         if (uarmg) {
-            if (noisy)
-                already_wearing(c_gloves);
+            if (noisy) {
+                if (uarmg->otyp == MUMMIFIED_HAND)
+                    pline("%s resists being covered!",
+                          The(xname(uarmg)));
+                else
+                    already_wearing(c_gloves);
+            }
             err++;
         } else if (welded(uwep)) {
             if (noisy)
@@ -2696,6 +2705,12 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             if (noisy)
                 Your("%s are too slippery to pull on %s.",
                      fingers_or_gloves(FALSE), gloves_simple_name(otmp));
+            err++;
+        } else if (is_art(otmp, ART_HAND_OF_VECNA)
+                   && racial_aasimar(&gy.youmonst)) {
+            if (noisy)
+                You("recoil from %s; such an unholy relic is anathema"
+                    " to your celestial nature.", the(xname(otmp)));
             err++;
         } else
             *mask = W_ARMG;
@@ -3625,6 +3640,10 @@ select_off(struct obj *otmp)
                   uarmg->unpaid ? "The" : "Your", /* simplified Shk_Your() */
                   gloves_simple_name(uarmg));
             return 0;
+        } else if (is_art(uarmg, ART_HAND_OF_VECNA)) {
+            pline("%s has merged with your left %s and cannot be removed.",
+                  The(xname(uarmg)), body_part(ARM));
+            return 0;
         }
         if (better_not_take_that_off(otmp))
             return 0;
@@ -4143,6 +4162,12 @@ disintegrate_arm(struct obj *atmp)
     } else if ((otmp = maybe_destroy_armor(uarmh, atmp, &resisted)) != 0) {
         urgent_pline("Your %s turns to dust and is blown away!",
                      helm_simple_name(otmp)); /* "helm" or "hat" */
+    } else if (uarmg && is_art(uarmg, ART_HAND_OF_VECNA)
+               && (!atmp || atmp == uarmg)) {
+        /* no feedback, as we're pretending the Hand of Vecna isn't
+           worn but a part of your body; nothing else is destroyed
+           in its place */
+        return 0;
     } else if ((otmp = maybe_destroy_armor(uarmg, atmp, &resisted)) != 0) {
         urgent_pline("Your %s vanish!", gloves_simple_name(otmp));
         losing_gloves = TRUE;
@@ -4326,8 +4351,10 @@ inaccessible_equipment(
         }
         return TRUE;
     }
-    /* check for ring covered by gloves */
-    if ((obj == uleft || obj == uright) && uarmg && BLOCKSACCESS(uarmg)) {
+    /* check for ring covered by gloves; the Hand of Vecna covers only
+       the arm it merged with, leaving the ring fingers free */
+    if ((obj == uleft || obj == uright) && uarmg && BLOCKSACCESS(uarmg)
+        && !is_art(uarmg, ART_HAND_OF_VECNA)) {
         if (verb) {
             Strcpy(buf, yname(uarmg));
             You(need_to_take_off_outer_armor, buf, verb, yname(obj));

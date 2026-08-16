@@ -2354,13 +2354,17 @@ thitmonst(
     if (uarmg && uwep && objects[uwep->otyp].oc_skill == P_BOW) {
         switch (uarmg->otyp) {
         case GAUNTLETS_OF_POWER: /* metal */
+        case GAUNTLETS:
             tmp -= 2;
             break;
         case GAUNTLETS_OF_FUMBLING:
             tmp -= 3;
             break;
+        case GAUNTLETS_OF_PROTECTION:
         case GLOVES:
+        case DARK_ELVEN_GLOVES:
         case GAUNTLETS_OF_DEXTERITY:
+        case MUMMIFIED_HAND: /* the Hand of Vecna */
             break;
         default:
             impossible("Unknown type of gloves (%d)", uarmg->otyp);

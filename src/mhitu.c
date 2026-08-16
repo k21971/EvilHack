@@ -2925,7 +2925,9 @@ doseduce(struct monst *mon)
         }
     }
 
-    naked = (!uarmc && !uarmf && !uarmg && !uarms && !uarmh && !uarmu);
+    naked = (!uarmc && !uarmf
+             && (!uarmg || is_art(uarmg, ART_HAND_OF_VECNA))
+             && !uarms && !uarmh && !uarmu);
     urgent_pline("%s %s%s.", Who,
                  Deaf ? "seems to murmur into your ear"
                  : naked ? "murmurs sweet nothings into your ear"
@@ -3156,6 +3158,10 @@ mayberem(struct monst *mon,
         }
         return;
     }
+    /* the Hand of Vecna cannot be stolen, as it has 'merged' with
+       the wearer */
+    if (is_art(obj, ART_HAND_OF_VECNA))
+        return;
 
     /* being deaf overrides confirmation prompt for high charisma */
     if (Deaf) {

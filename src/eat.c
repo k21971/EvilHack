@@ -4377,7 +4377,9 @@ offer_ok(struct obj *obj)
         return GETOBJ_EXCLUDE;
 
     if (obj->otyp != CORPSE && obj->otyp != AMULET_OF_YENDOR
-        && obj->otyp != FAKE_AMULET_OF_YENDOR)
+        && obj->otyp != FAKE_AMULET_OF_YENDOR
+        /* the Eye of Vecna is no corpse, but the gods will take it */
+        && !is_art(obj, ART_EYE_OF_VECNA))
         return GETOBJ_EXCLUDE_SELECTABLE;
 
     /* suppress corpses on astral, amulets elsewhere
@@ -4526,8 +4528,12 @@ floorfood(
     /* Is there some food (probably a heavy corpse) here on the ground? */
     for (otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
         if (corpsecheck
-                ? (otmp->otyp == CORPSE
-                   && (corpsecheck == 1 || tinnable(otmp)))
+                ? ((otmp->otyp == CORPSE
+                    && (corpsecheck == 1 || tinnable(otmp)))
+                   /* the Eye of Vecna is no corpse, but it can be
+                      offered - it is as sacrificeable off the altar
+                      floor as it is out of the pack */
+                   || (offering && is_art(otmp, ART_EYE_OF_VECNA)))
                 : feeding ? (otmp->oclass != COIN_CLASS && is_edible(otmp))
                           : otmp->oclass == FOOD_CLASS) {
             char qsfx[QBUFSZ];
@@ -4570,7 +4576,9 @@ floorfood(
         impossible("floorfood: unknown request (%s)", verb);
         otmp = (struct obj *) 0;
     }
-    if (otmp && corpsecheck && !(offering && otmp->oclass == AMULET_CLASS)) {
+    if (otmp && corpsecheck
+        && !(offering && (otmp->oclass == AMULET_CLASS
+                          || is_art(otmp, ART_EYE_OF_VECNA)))) {
         if (otmp->otyp != CORPSE || (corpsecheck == 2 && !tinnable(otmp))) {
             You_cant("%s that!", verb);
             otmp = (struct obj *) 0;

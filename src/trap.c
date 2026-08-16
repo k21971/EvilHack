@@ -5307,6 +5307,10 @@ lava_damage(struct obj *obj, coordxy x, coordxy y)
        (let Book of the Dead fall through to fire_damage() to get feedback) */
     if (obj_resists(obj, 0, 0) && otyp != SPE_BOOK_OF_THE_DEAD)
         return FALSE;
+    /* the artifacts that generate when Vecna is destroyed are never
+       destroyed by lava */
+    if (is_art(obj, ART_EYE_OF_VECNA) || is_art(obj, ART_HAND_OF_VECNA))
+        return FALSE;
     /* destroy liquid (venom), wax, veggy, flesh, paper (except for scrolls
        and books--let fire damage deal with them), cloth, leather, wood, bone
        unless it's inherently or explicitly fireproof or contains something;

@@ -1369,6 +1369,9 @@ dogfood(struct monst *mon, struct obj *obj)
     if (is_quest_artifact(obj) || obj_resists(obj, 0, 95))
         return obj->cursed ? TABU : APPORT;
 
+    if (is_art(obj, ART_EYE_OF_VECNA))
+        return TABU;
+
     switch (obj->oclass) {
     case FOOD_CLASS:
         fx = (obj->otyp == CORPSE || obj->otyp == TIN || obj->otyp == EGG)

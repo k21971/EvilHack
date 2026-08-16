@@ -1625,16 +1625,22 @@ doname_base(
         break;
     case ARMOR_CLASS:
         if (obj->owornmask & W_ARMOR) {
-            Concat(bp, 0,
-                   (obj == uskin) ? " (embedded in your skin)"
-                   /* in case of perm_invent update while Wear/Takeoff
-                      is in progress; check doffing() before donning()
-                      because donning() returns True for both cases */
-                   : doffing(obj) ? " (being doffed)"
-                     : donning(obj) ? " (being donned)"
-                       : ((druid_form || vampire_form) && carried(obj))
-                         ? " (merged to your form)"
-                         : " (being worn)");
+            if (obj->otyp == MUMMIFIED_HAND)
+                /* monsters don't wear these, so assuming it's yours
+                   is fine */
+                ConcatF1(bp, 0, " (merged to your left %s)",
+                         body_part(ARM));
+            else
+                Concat(bp, 0,
+                       (obj == uskin) ? " (embedded in your skin)"
+                       /* in case of perm_invent update while Wear/Takeoff
+                          is in progress; check doffing() before donning()
+                          because donning() returns True for both cases */
+                       : doffing(obj) ? " (being doffed)"
+                         : donning(obj) ? " (being donned)"
+                           : ((druid_form || vampire_form) && carried(obj))
+                             ? " (merged to your form)"
+                             : " (being worn)");
             /* we just added a parenthesized phrase, but the right paren
                might be absent if the appended string got truncated */
             if (bp_eos[-1] == ')') {
@@ -1643,8 +1649,12 @@ doname_base(
                    are described as slippery when hero has slippery fingers */
                 if (obj == uarmg && Glib) /* just appended "(something)",
                                            * replace paren, changing that
-                                           * to be "(something; slippery)" */
-                    Concat(bp,  1, "; slippery)");
+                                           * to be "(something; slippery)";
+                                           * must be the Snprintf form -
+                                           * strncat appends at the
+                                           * terminator, so plain Concat
+                                           * cannot overwrite the paren */
+                    ConcatF1(bp, 1, "%s", "; slippery)");
             }
             if (bp_eos[-1] == ')') {
                 /* there could be light-emitting artifact gloves someday,

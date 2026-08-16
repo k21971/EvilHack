@@ -32,6 +32,8 @@ staticfn int bestow_artifact(uchar);
 staticfn int sacrifice_value(struct obj *);
 staticfn int eval_offering(struct obj *, aligntyp);
 staticfn void offer_corpse(struct obj *, boolean, aligntyp);
+staticfn void resolve_offering(struct obj *, int, boolean, aligntyp);
+staticfn void offer_vecna_eye(struct obj *, boolean, aligntyp);
 staticfn boolean pray_revive(void);
 staticfn boolean water_prayer(boolean);
 staticfn boolean blocked_boulder(int, int);
@@ -2458,6 +2460,11 @@ dosacrifice(void)
         return ECMD_TIME;
     } /* fake Amulet */
 
+    if (is_art(otmp, ART_EYE_OF_VECNA)) {
+        offer_vecna_eye(otmp, highaltar, altaralign);
+        return ECMD_TIME;
+    }
+
     if (otmp->otyp == CORPSE) {
         offer_corpse(otmp, highaltar, altaralign);
         return ECMD_TIME;
@@ -2625,6 +2632,16 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
     }
 
     value = eval_offering(otmp, altaralign);
+    resolve_offering(otmp, value, highaltar, altaralign);
+}
+
+/* the shared half of an offering that follows valuation: the rejection
+   cases, then the brownie-point ladder. reached from offer_corpse() and
+   from the Eye of Vecna, which is no corpse but carries a fixed value */
+staticfn void
+resolve_offering(struct obj *otmp, int value, boolean highaltar,
+                 aligntyp altaralign)
+{
     if (value == 0) {
         /* too old; don't give undead or unicorn bonus or penalty */
         pline1(nothing_happens);
@@ -2736,6 +2753,21 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
                     makeplural(body_part(FOOT)));
         }
     }
+}
+
+/* sacrificing the Eye of Vecna is a special case - it is no corpse, but
+   the gods prize the destruction of an unholy relic above any of them */
+staticfn void
+offer_vecna_eye(struct obj *otmp, boolean highaltar, aligntyp altaralign)
+{
+    You("offer this evil abomination to %s...", a_gname());
+    /* KMH, conduct */
+    if (!u.uconduct.gnostic++)
+        livelog_printf(LL_CONDUCT, "rejected atheism"
+                                   " by offering %s on an altar of %s",
+                       The(xname(otmp)), a_gname());
+
+    resolve_offering(otmp, MAXVALUE, highaltar, altaralign);
 }
 
 /* determine prayer results in advance; also used for enlightenment */

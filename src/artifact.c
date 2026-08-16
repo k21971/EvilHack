@@ -1485,6 +1485,10 @@ bane_applies(const struct artifact *oart, struct monst *mon)
 
     if (oart != &artilist[ART_NONARTIFACT]
             && (oart->spfx & SPFX_DBONUS) != 0) {
+        /* special case so non-chaotics can wield it */
+        if (oart == &artilist[ART_SWORD_OF_KAS])
+            return FALSE;
+
         atmp = *oart;
         atmp.spfx &= SPFX_DBONUS; /* clear other spfx fields */
         if (spec_applies(&atmp, mon))

@@ -1427,6 +1427,7 @@ acurr(int chridx)
            STR18(x) yields 18 + x (intended for 0 <= x <= 100; not used here);
            STR19(y) yields 100 + y (intended for 19 <= y <= 25) */
         if (tmp >= STR19(25) || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || is_art(uarmg, ART_HAND_OF_VECNA)
             || wielding_artifact(ART_GIANTSLAYER)
             || wielding_artifact(ART_HARBINGER)
             || wielding_artifact(ART_SWORD_OF_KAS))
@@ -1511,6 +1512,7 @@ extremeattr(
         hilimit = STR19(25); /* 125 */
         /* lower limit for Str can also be 25 */
         if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
+            || is_art(uarmg, ART_HAND_OF_VECNA)
             || wielding_artifact(ART_GIANTSLAYER)
             || wielding_artifact(ART_HARBINGER)
             || wielding_artifact(ART_SWORD_OF_KAS))

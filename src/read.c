@@ -1208,6 +1208,7 @@ seffect_enchant_armor(struct obj **sobjp)
     /* elven armor vibrates warningly when enchanted beyond a limit */
     special_armor = is_elven_armor(otmp)
         || (Race_if(PM_DROW) && is_drow_armor(otmp))
+        || is_art(otmp, ART_HAND_OF_VECNA)
         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
     if (scursed)
         same_color = (otmp->otyp == BLACK_DRAGON_SCALES);
@@ -1221,6 +1222,18 @@ seffect_enchant_armor(struct obj **sobjp)
     s = scursed ? -otmp->spe : otmp->spe;
     if (s > (special_armor ? 5 : 3) && rn2(s)) {
         otmp->in_use = TRUE;
+        if (otmp == uarmg && is_art(otmp, ART_HAND_OF_VECNA)) {
+            /* the Hand of Vecna has merged with the wearer, it can't
+               be destroyed this way */
+            pline("%s violently %s%s%s for a while, but nothing else"
+                  " happens.", Yname2(otmp),
+                  otense(otmp, Blind ? "vibrate" : "glow"),
+                  (!Blind && !same_color) ? " " : "",
+                  (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
+                                                      : NH_SILVER));
+            otmp->in_use = FALSE;
+            return;
+        }
         pline("%s violently %s%s%s for a while, then %s.", Yname2(otmp),
               otense(otmp, Blind ? "vibrate" : "glow"),
               (!Blind && !same_color) ? " " : "",

@@ -167,7 +167,10 @@ use_towel(struct obj *obj)
     if (Glib) {
         make_glib(0);
         You("wipe off your %s.",
-            !uarmg ? makeplural(body_part(HAND)) : gloves_simple_name(uarmg));
+            !uarmg ? makeplural(body_part(HAND))
+                   : is_art(uarmg, ART_HAND_OF_VECNA)
+                     ? "mummified hand"
+                     : gloves_simple_name(uarmg));
         if (is_wet_towel(obj))
             dry_a_towel(obj, -1, drying_feedback);
         return ECMD_TIME;
