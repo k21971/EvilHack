@@ -1411,15 +1411,20 @@ get_free_room_loc(
     coordxy try_x, try_y;
     int trycnt = 0;
 
-    get_location_coord(&try_x, &try_y, DRY, croom, pos);
-    if (levl[try_x][try_y].typ != ROOM) {
+    get_location_coord(&try_x, &try_y, DRY | NO_LOC_WARN, croom, pos);
+    if (!isok(try_x, try_y) || levl[try_x][try_y].typ != ROOM) {
         do {
             try_x = *x, try_y = *y;
             get_room_loc(&try_x, &try_y, croom);
         } while (levl[try_x][try_y].typ != ROOM && ++trycnt <= 100);
 
-        if (trycnt > 100)
-            panic("get_free_room_loc:  can't find a place!");
+        /* room has no free floor tile; signal the caller to skip
+           rather than panicking (e.g. a tiny garden room entirely
+           filled with trees and a fountain) */
+        if (trycnt > 100) {
+            *x = *y = -1;
+            return;
+        }
     }
     *x = try_x, *y = try_y;
 }
@@ -1855,6 +1860,11 @@ create_trap(spltrap *t, struct mkroom *croom)
             return;
     }
 
+    /* get_free_room_loc() returns -1,-1 when the room has no free
+       floor tile; skip rather than place the trap off the map */
+    if (!isok(x, y))
+        return;
+
     if (!t->spider_on_web)
         mktrap_flags |= MKTRAP_NOSPIDERONWEB;
     if (t->seen)
@@ -2003,11 +2013,16 @@ create_monster(monster *m, struct mkroom *croom)
         get_location_coord(&x, &y, loc | NO_LOC_WARN, croom, m->coord);
         if (x == -1 && y == -1) {
             loc |= DRY;
-            get_location_coord(&x, &y, loc, croom, m->coord);
+            get_location_coord(&x, &y, loc | NO_LOC_WARN, croom, m->coord);
         }
     } else {
-        get_location_coord(&x, &y, DRY, croom, m->coord);
+        get_location_coord(&x, &y, DRY | NO_LOC_WARN, croom, m->coord);
     }
+
+    /* skip if the room has no free floor tile rather than reading
+       and writing off the map */
+    if (!isok(x, y))
+        return (struct monst *) 0;
 
     /* try to find a close place if someone else is already there */
     if (MON_AT(x, y) && enexto(&cc, x, y, pm))
@@ -2243,7 +2258,12 @@ create_object(object *o, struct mkroom *croom)
 
     named = o->name.str ? TRUE : FALSE;
 
-    get_location_coord(&x, &y, DRY, croom, o->coord);
+    get_location_coord(&x, &y, DRY | NO_LOC_WARN, croom, o->coord);
+
+    /* skip if the room has no free floor tile rather than
+       placing the object off the map */
+    if (!isok(x, y))
+        return NULL;
 
     if (o->class >= 0)
         c = o->class;
@@ -2556,6 +2576,11 @@ create_altar(altar *a, struct mkroom *croom)
         else
             croom_is_temple = FALSE;
     }
+
+    /* get_free_room_loc() returns -1,-1 when the room has no free
+       floor tile; skip rather than read or write off the map */
+    if (!isok(x, y))
+        return;
 
     /* check for existing features */
     if (!set_levltyp(x, y, ALTAR))
