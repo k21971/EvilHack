@@ -41,13 +41,13 @@ abbot
 # takes "suit or piece of armor" when specifying '['
 # FIXME: "dragon scales, dragon scale mail" needs its own entry
 # FIXME too: "ac, armor class" also merits its own distinct entry
+~spellbook of repair armor
+~*dragon*scale*
+~scroll of mail
 ac
 armor*
 armour*
-*leather armor
-suit or piece of armor
-~*dragon*scale*
-~scroll of mail
+*armor
 *mail
 	"The last spot on the school jousting team came down to another
 	boy and me.  He was poor, and his only armor was a blanket his
@@ -86,6 +86,17 @@ agate*
 	solution is slowly deposited into cavities and veins in older
 	rock.
 		[ The Columbia Encyclopedia, Sixth Edition ]
+agent
+agent of *
+	It was part of his profession to kill people.  He had never liked
+	doing it and when he had to kill he did it as well as he knew how
+	and forgot about it.  As a secret agent who held the rare double-O
+	prefix -- the licence to kill in the Secret Service -- it was his
+	duty to be as cool about death as a surgeon.  If it happened,
+	it happened.  Regret was unprofessional -- worse, it was
+	death-watch beetle in the soul.
+		[ Goldfinger, by Ian Fleming ]
+
 alchemy
 	By and large, the only skill the alchemists of Ankh-Morpork had
 	discovered so far was the ability to turn gold into less gold.
@@ -93,6 +104,14 @@ alchemy
 aleax
 	Said to be a doppelganger sent to inflict divine punishment
 	for alignment violations.
+alhoon
+	A truly terrifying creature, alhoons are rogue master mind flayers
+	that sought out ultimate magical power, sacrificing their souls
+	and becoming something akin to an arch-lich.  Alhoons do not have
+	as many tentacle attacks as their mind flayer brethren, but they
+	can cast powerful spells.  They enjoy all of the strengths and
+	weaknesses associated with being undead.
+
 *altar
 offer*
 sacrific*
@@ -170,7 +189,23 @@ amulet of yendor
 	immortality to the adventurer who can deliver it from the
 	depths of Moloch's Sanctum and offer it on the appropriate high
 	altar on the Astral Plane.
-angel*
+ancient ring
+ring of p'hul
+	Shandiph rose again; his knees were growing tired. "That's all
+	right.  Yes, we already possess one; it was the Ring of P'hul
+	that first permitted the Council of the Most High to gain what
+	power we now hold, at the end of the Twelfth Age.  It has been
+	kept carefully hidden ever since, because it is far too dangerous
+	to use; it was the Ring which caused the Great Plague that wiped
+	out the Royal Eramman Army and thereby put an end to the Racial
+	Wars before the overmen could be wiped out.  It was the Ring that
+	laid waste the Plain of Derbarok.  It always did what was asked
+	of it, but never in the way desired; it ended the Racial Wars only
+	by killing the army and ended the war with Orun only by ruining
+	what both sides fought for."
+		[ The Sword of Bheleu, by Lawrence Watt-Evans ]
+
+angel
 	He answered and said unto them, he that soweth the good seed
 	is the Son of man; the field is the world, and the good seed
 	are the children of the kingdom; but the weeds are the
@@ -183,6 +218,12 @@ angel*
 	and shall cast them into the furnace of fire; there shall be
 	wailing and gnashing of teeth.
 		[ The Gospel According to Matthew, 13:37-42, 49-50 ]
+angelslayer
+	An artifact trident that warns of Angels, confers automatic
+	searching and half-spell damage, and does extra fire damage
+	to targets that are susceptible.  Rumor has is that demons,
+	especially Balrogs, are fond of this weapon.
+
 angry god*
 	Cold wind blows.
 	The gods look down in anger on this poor child.
@@ -208,6 +249,16 @@ ankh-morpork
 	meagre incomes by filling some small role for one or other
 	of the competing gangs.
 	    [ The Colour of Magic, by Terry Pratchett ]
+annam
+	The giants are destined to rule Faerun. Honor the Ordning
+	and your ordning.  Never raise your hand against a brother
+	giant - there must be peace between breeds to see Annam's
+	prophecies to their fruition.  Ostoria is the only hope for
+	Toril.  Do not fear time; it is the bane of your enemies.
+	Do not underestimate other peoples, but do not allow them to
+	distract you from your destiny.
+	    [ Creed of Annam, Giantcraft, by Ray Winninger ]
+
 anshar
 	A primordial Babylonian-Akkadian deity, Anshar is mentioned
 	in the Babylonian creation epic _Enuma Elish_ as one of a
@@ -244,6 +295,26 @@ apelike creature
 	be masters.  Apes should be proud.  Apes should make the
 	Earth shake when they walked.  Apes should _rule_ the Earth.
 	  [ Battle for the Planet of the Apes, by David Gerrold ]
+aphrodite
+	I will sing of stately Aphrodite, gold-crowned and beautiful,
+	whose dominion is the walled cities of all sea-set Cyprus.
+	There the moist breath of the western wind wafted her over
+	the waves of the loud moaning sea in soft foam, and there
+	the gold-filleted Hours welcomed her joyously.  They clothed
+	her with heavenly garments: on her head they put a fine,
+	well-wrought crown of gold, and in her pierced ears they
+	hung ornaments of orichalc and precious gold, and adorned
+	her with golden necklaces over her soft neck and snow-white
+	breasts, jewels which the gold-filleted Hours wear themselves
+	whenever they go to their father's house to join the lovely
+	dances of the gods.  And when they had fully decked her, they
+	brought her to the gods, who welcomed her when they saw her,
+	giving her their hands.  Each one of them prayed that he might
+	lead her home to be his wedded wife, so greatly were they
+	amazed at the beauty of violet-crowned Cytherea.
+	  [ Homeric Hymn VI, to Aphrodite,
+		translated by Hugh G. Evelyn-White ]
+
 apple
 	NEWTONIAN, adj.  Pertaining to a philosophy of the universe
 	invented by Newton, who discovered that an apple will fall
@@ -251,6 +322,19 @@ apple
 	and disciples have advanced so far as to be able to say
 	when.
 		[ The Devil's Dictionary, by Ambrose Bierce ]
+archangel
+saint michael
+	All knees to thee shall bow, of them that bide
+	In Heaven, or Earth, or under Earth in Hell;
+	When thou attended gloriously from Heav'n
+	Shalt in the Skie appeer, and from thee send
+	The summoning Arch-Angels to proclaime
+	Thy dread Tribunal: forthwith from all Windes
+	The living, and forthwith the cited dead
+	Of all past Ages to the general Doom
+	Shall hast'n, such a peal shall rouse thir sleep.
+		[ Paradise Lost, by John Milton ]
+
 archeolog*
 * archeologist
 	Archeology is the search for fact, not truth. [...]
@@ -283,6 +367,12 @@ arioch
 	the Swords, Lord of the Seven Darks, Lord of the Higher Hell
 	and many more names besides.
 		[ Elric of Melnibone, by Michael Moorcock ]
+armor of retribution
+	Legend tells of a suit of armor that protects the one that
+	wears it like no other.  So intent in its mission to safeguard
+	its master, it will actively attack those that try to harm it.
+		[]
+
 *arrow
 	I shot an arrow into the air,
 	It fell to earth, I knew not where;
@@ -309,6 +399,14 @@ ashikaga takauji
 	government in the town of Yoshino.  This period of dual
 	governments was known as the Nambokucho.
 	  [ Samurai - The Story of a Warrior Tradition, by Cook ]
+ashmar
+	The Guardian, or 'Ashmar' as spoken in the dwarvish tongue.
+	Arguably the best defense a warrior could ever hope to
+	have.  Rumor has it, the bearer of this magical shield
+	could never be forced to retreat, and that its foes would
+	be repelled should they dare to attack.
+		[]
+
 asmodeus
 	It is said that Asmodeus is the overlord over all of hell.
 	His appearance, unlike many other demons and devils, is
@@ -326,6 +424,15 @@ asmodeus
 	Asmodeus often figures as the spirit of matrimonial jealousy
 	or unhappiness.
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+assassin vine
+	Rumor tells of a particular vine that sometimes grows deep
+	in the dungeon, one that will ensnare anyone or anything
+	that dares to get close to it.  Rumor also has it that this
+	plant will grow wherever it can, and if left unchecked,
+	would spread across the entire dungeon.  No one with any
+	common sense would think to entertain that last bit of
+	nonsense.
+
 athame
 	The consecrated ritual knife of a Wiccan initiate (one of four
 	basic tools, together with the wand, chalice and pentacle).
@@ -357,8 +464,26 @@ athen*
 	sprang forth from his head completely armed.  Her favourite
 	bird was the owl, and the plant sacred to her is the olive.
 		[ Bulfinch's Mythology, by Thomas Bulfinch ]
+atlatl
+	Among the arsenal of Aztec weapons were obsidian-bladed swords
+	and an array of clubs, bows and arrows and spears.  Perhaps the
+	most prestigious was the spear thrower known by its Nahuatl name
+	atlatl and used to hurl lethal darts.
+		[ Ancient American Art in Detail, by Colin McEwan ]
+
+auril
+	Cover all the lands with ice.  Quench fire wherever it is found.
+	Let in the winds and the cold; cut down windbreaks and chop holes
+	in walls and roofs that my breath may come in.  Work darknesses
+	to hide the cursed sun so that the chill I bring may slay.  Take
+	the life of an arctic creature only in great need, but slay all
+	others at will.  Make all Faerun fear me.
+		[ Faiths & Avatars, by Julia Martin and
+			Eric L. Boyd ]
+
 axe
 battle?axe
+*bearded?axe
 double?headed?axe
 	"For ev'ry silver ringing blow,
 	Cities and palaces shall grow!"
@@ -404,6 +529,19 @@ b*lzebub
 	devil whose name suggests that he is devoted to decay,
 	destruction, demoralization, hysteria and panic...
 		[ Notes on _Lord of the Flies_, by E.L. Epstein ]
+baba yaga
+	He journeyed onwards, straight ahead... and finally came to a
+	little hut; it stood in the open field, turning on chicken legs.
+	He entered and found Baba Yaga the Bony-legged.  "Fie, fie," she
+	said, "the Russian smell was never heard of nor caught sight of
+	here, but it has come by itself.  Are you here of your own free
+	will or by compulsion, my good youth?"  "Largely of my own free
+	will, and twice as much by compulsion!  Do you know, Baba Yaga,
+	where lies the thrice tenth kingdom?"  "No, I do not," she said,
+	and told him to go to her second sister; she might know...
+		[ The Maiden Star, by Alexander Afanasyev,
+			 Russian Fairy Tales (1973) ]
+
 balrog
 	...  It came to the edge of the fire and the light faded as
 	if a cloud had bent over it.  Then with a rush it leaped
@@ -451,8 +589,18 @@ banshee
 	is awaiting death.  The word is a phonetic spelling of the
 	Irish _beansidhe_, a woman of the fairies.
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+baphomet
+	This hulking, manlike brute stands 20 feet tall.  His muscular
+	frame is covered in thick, matted black hair.  His head is that
+	of a fiendish bull, and his great horns are stained in the
+	lifeblood of countless victims.
+		[ Hordes of the Abyss, by Ed Stark,
+		  James Jacobs, and Erik Mona ]
+
 barbarian
 * barbarian
+champion
+champion of *
 	They dressed alike -- in buckskin boots, leathern breeks and
 	deerskin shirts, with broad girdles that held axes and short
 	swords; and they were all gaunt and scarred and hard-eyed;
@@ -479,6 +627,29 @@ bat or bird
 	proverb, and I will show you something that ought to be in
 	some kind of a home.
 		[ A Pelican at Blandings, by P.G. Wodehouse ]
+barding
+ithilmar
+	Barding (also spelled bard or barb) is body armour for war horses.
+	The practice of armoring horses was first extensively developed in
+	antiquity in the eastern kingdoms of Parthia and Pahlava, and
+	after the conquests of Alexander the Great it made its way into
+	European military practices via the Seleucid Empire and later
+	Byzantine Empire.  Though its historical roots lie in antiquity in
+	the regions of what was once the Persian Empire, barded horses have
+	become a symbol of the late European Middle Ages chivalry and the
+	era of knights.
+		[ Wikipedia, the free encyclopedia ]
+
+* bear
+~bear*trap
+	"If you want to know what berries are good to eat, you can't
+	always rely on the birds because birds can eat poisonous
+	berries, but people can usually eat what the bears eat.
+	Bears also know how to dig for roots.  If you're not sure
+	about eating something, you should find a bear.  But be sure
+	the bear doesn't find you."
+		[ Tymora's Luck, by Kate Novak and Jeff Grubb ]
+
 bear*trap
 	Probably most commonly associated with trapping, the leghold
 	trap is a rather simple mechanical trap.  It is made up of two
@@ -527,6 +698,15 @@ bell of opening
 	* Old Tom was the single cracked bronze bell in the University
 	bell tower.
 		[ Eric, by Terry Pratchett ]
+beholder
+	The beholder is the stuff of nightmares.  This creature,
+	also called the sphere of many eyes or the eye tyrant,
+	appears as a large orb dominated by a central eye and a
+	large toothy maw, has 10 smaller eyes on stalks sprouting
+	from the top of the orb.  Among adventurers, beholders are
+	known as deadly adversaries.
+		[ Monstrous Manual, AD&D 2nd edition ]
+
 *bell*
 	Hear the sledges with the bells --
 	    Silver bells!
@@ -555,6 +735,16 @@ blindfold
 	blindfolded, I do not know why, unless it was from fear that she
 	should impart the secrets of the route to us.
 		[ She, by H. Rider Haggard ]
+* blight
+	Blights are plants that have been tainted with evil, usually
+	after a forest was corrupted by an evil force.  They typically
+	resemble dead versions of their original plants.  The first
+	blights were spawned when the vampire Gulthias was stabbed with
+	a stake.  The stake turned into a sapling which grew into a tree.
+	This tree released the seeds from which the first blights emerged.
+		[ Advanced Dungeons & Dragons,
+			Monster Manual 5th Edition ]
+
 blind io
 	On this particular day Blind Io, by dint of constant vigilance
 	the chief of the gods, sat with his chin on his hand
@@ -600,6 +790,19 @@ spotted jelly
 bone devil
 	Bone devils attack with weapons and with a great hooked tail
 	which causes a loss of strength to those they sting.
+boojum
+snark
+	"It's a Snark!" was the sound that first came to their ears,
+	    And seemed almost too good to be true.
+	Then followed a torrent of laughter and cheers:
+	    Then the ominous words "It's a Boo--"
+
+	Then, silence. Some fancied they heard in the air
+	    A weary and wandering sigh
+	That sounded like "-jum!" but the others declare
+	    It was only a breeze that went by.
+		[ The Hunting of the Snark, by Lewis Carroll ]
+
 book of the dead
 candelabrum*
 *candle
@@ -697,6 +900,29 @@ bow
 	"It would not be amiss," said Hordle John, "if under his
 	girdle he had four farthings'-worth of wine."
 		[ The White Company, by Sir Arthur Conan Doyle ]
+bourbon
+koa
+ozzy
+german shepherd
+	I am your friend, your partner,
+	Your defender, your dog.
+	You are my life, my leader.
+	I will be yours, faithful and true,
+	To the last beat of my heart.
+	I am the German Shepherd.
+		[ Author unknown ]
+
+	Koa:     July 25th, 2009 - November 29th, 2020
+	Ozzy:    January 13th, 2015 - present
+	Bourbon: April 19th, 2016 - present
+
+~*bracers of the first circle
+bracers
+* bracers
+	Bracers are a type of armor that protects the wrist and
+	forearm.  Bracers most often come in pairs, and magical ones
+	usually only impart their power when both are worn.
+
 brigit
 	Brigit (Brigid, Bride, Banfile), which means the Exalted One,
 	was the Celtic (continental European and Irish) fertility
@@ -736,6 +962,11 @@ bullwhip
 	a round of rotted cheese.  "What did your keeper use on you?
 	A bullwhip?"
 		[ Melusine, by Sarah Monette ]
+butcher
+	Legend states that the demon lord Yeenoghu himself crafted this
+	triple-headed flail from the thighbone and flayed skin of an
+	ancient god he slew.
+
 *camaxtli
 	A classical Mesoamerican Aztec god, also known as Mixcoatl-
 	Camaxtli (the Cloud Serpent), Camaxtli is the god of war.  He
@@ -822,6 +1053,18 @@ kitten
 	the cats appear, and sonorous with purring content.
 		[ The Cats of Ulthar, by H.P. Lovecraft ]
 # this one doesn't work very well for dwarven and gnomish cavemen
+cauchemar
+*nightmare
+	By a route obscure and lonely,
+	Haunted by ill angels only,
+	Where an Eidolon, named NIGHT,
+	On a black throne reigns upright,
+	I have reached these lands but newly
+	From an ultimate dim Thule--
+	From a wild weird clime that lieth, sublime,
+	Out of SPACE -- Out of TIME.
+		[ Dream-Land, by Edgar Allen Poe ]
+
 cave dweller
 cave*man
 human cave*man
@@ -855,7 +1098,7 @@ gnom* cave*man
 	Then over-worn he rested by a stream,
 	And sank into a sleep too deep for dream.
 		[ The Dreamer, by Robert Service ]
-*centaur
+*centaur*
 	Of all the monsters put together by the Greek imagination
 	the Centaurs (Kentauroi) constituted a class in themselves.
 	Despite a strong streak of sensuality, in their make-up,
@@ -877,7 +1120,7 @@ gnom* cave*man
 #		  including all lower case and conventional mixed case;
 #		  it appears that Volume 1 (of 13) was written by
 #		  William Sherwood Fox and edited by Louis Herbert Gray ]
-centipede
+*centipede
 	I observed here, what I had often seen before, that certain
 	districts abound in centipedes.  Here they have light
 	reddish bodies and blue legs; great myriapedes are seen
@@ -920,6 +1163,7 @@ charo*n
 	of-kin would place a coin under his tongue, to pay the ferry-
 	man.
 chest
+crystal chest
 large box
 	Dantes rapidly cleared away the earth around the chest.  Soon
 	the center lock appeared, then the handles at each end, all
@@ -951,8 +1195,16 @@ chih*sung*tzu
 	  [ The Illustrated Who's Who In Mythology, by Michael Senior ]
 chromatic dragon
 tiamat
-	Tiamat is said to be the mother of evil dragonkind.  She is
-	extremely vain.
+	Stand!  I and thou, let us join battle!
+	When Tiamat heard these words,
+	She was like one posessed, she lost her reason.
+	Tiamat uttered wild, piercing cries,
+	She trembled and shook to her very foundations.
+	She recited an incantation, she pronounced her spell,
+	And the gods of the battle cried out for their weapons.
+	Then advanced Tiamat and Marduk, the counselor of the gods;
+	To the fight they came on, to the battle they drew nigh.
+		[ Enuma Elish, trans. L.W. King ]
 citrine*
 	A pale yellow variety of crystalline quartz resembling topaz.
 clay golem
@@ -1015,6 +1267,7 @@ cobra
 	hood to keep the sun off Brahm as he slept.  Look, and be
 	afraid!'
 		[ Rikki-tikki-tavi, by Rudyard Kipling ]
+basilisk
 c*ckatrice
 	Once in a great while, when the positions of the stars are
 	just right, a seven-year-old rooster will lay an egg.  Then,
@@ -1039,6 +1292,17 @@ c*ckatrice
 	sicken and die.
 	  [ Mythical Beasts, by Deirdre Headon (The Leprechaun Library)
 		and other sources ]
+*cockroach
+	i do not see why men
+	should be so proud
+	insects have the more
+	ancient lineage
+	according to the scientists
+	insects were insects
+	when man was only
+	a burbling whatsit
+		[ archy and mehitabel, by Don Marquis ]
+
 *coin
 ~creeping coins
 *coins
@@ -1069,6 +1333,12 @@ conical hat
 	was a witch. People paid attention to a pointy hat.
 		[ Wintersmith, by Terry Pratchett ]
 # not "*cope" because that would match "stethoscope"
+convict
+	In the darkest region of the political field, the condemned man
+	represents the symmetrical, inverted figure of the king.
+	   [ Discipline and Punish: The Birth of the Prison,
+		by Michel Foucault, translated by Alan Sheridan ]
+
 cope
 * cope
 	The cope is a liturgical vestment which may be worn by any
@@ -1133,6 +1403,13 @@ charge card
 	"this is the American Express card.  It is the finest way of
 	settling bills known to man.  Haven't you read their junk mail?"
 		[ So Long, and Thanks For All The Fish, by Douglas Adams ]
+creeping mound
+	Creeping mounds (also known as shambling mounds) are large,
+	animated plants with predatory tendencies.  They generally
+	appear as moving, vaguely man-shaped mounds of rotting vegetation.
+		[ Advanced Dungeons & Dragons,
+			Monster Manual 3rd Edition ]
+
 *crocodile
 	A big animal with the appearance of a lizard, constituting
 	an order of the reptiles (_Loricata_ or _Crocodylia_), the
@@ -1173,12 +1450,19 @@ crom
 	"By Crom, there will be blood spilt today."
 	    [ Conan the Avenger, by Robert E. Howard, Bjorn Nyberg,
 		and L. Sprague de Camp ]
+~*crossbow of carl
 crossbow*
 	"God save thee, ancient Mariner!
 	From the fiends, that plague thee thus! -
 	Why look'st thou so?" - With my cross-bow
 	I shot the Albatross.
 	  [ The Rime of the Ancient Mariner, by Samuel Taylor Coleridge ]
+*crossbow of carl
+	This awesome crossbow grants ESP when carried and can reflect
+	magical attacks when wielded.  When invoked it provides a supply
+	of crossbow bolts. It is also about half the weight of a regular
+	crossbow when wielded by one deemed worthy of Carl.
+
 crystal ball
 	You look into one of these and see _vapours swirling like
 	clouds_.  These shortly clear away to show a sort of video
@@ -1275,6 +1559,12 @@ dart*
 	I saw the thing that should have pierced his heart
 	Turn to a golden staff.
 		[ Gifts, by Mary Coleridge ]
+deer
+stag
+	A deer tethered with a golden chain can escape to the forest
+	to eat grass.
+		[ Malawian Proverb, author unknown ]
+
 demogorgon
 	A terrible deity, whose very name was capable of producing the
 	most horrible effects.  He is first mentioned by the 4th-century
@@ -1343,7 +1633,12 @@ diamond
 	removes anger and quarrels; it heals the mad; it defends you
 	from your enemies.  It should be set in gold or silver and worn
 	on the left arm.  It is likewise found in Arabia.
-	 	[ The Aberdeen Bestiary, translated by Colin McLaren ]
+		[ The Aberdeen Bestiary, translated by Colin McLaren ]
+dichotomy
+	A powerful runesword that is in perpetual conflict, a forced
+	mating of Fire and Ice.
+		[]
+
 dilithium*
 	The most famous and the first to be named of the imaginary
 	"minerals" of Star Trek is dilithium. ... Because of this
@@ -1372,6 +1667,9 @@ dingo
 	introduced by the aborigines.
 		[ Webster's Encyclopedic Unabridged Dictionary
 		    of the English Language ]
+dirge
+	... DIRGE \o/
+
 disenchanter
 	Ask not, what your magic can do to it.  Ask what it can do
 	to your magic.
@@ -1405,6 +1703,7 @@ djinn*
 	a lucky rogue, and some djinn are known to be so grateful
 	when released that they might grant their rescuer a wish.
 # takes "dog or other canine" when specifying 'd'
+~*rabid dog
 ~hachi
 ~slasher
 ~sirius
@@ -1462,6 +1761,8 @@ doppelganger
 	Xander: I am.
 	Xander Double: No, _I_ am.
 	    [ Buffy the Vampire Slayer, Episode 5.03, "The Replacement" ]
+~chromatic dragon
+~*pseudodragon
 *dragon
 *xoth
 	In the West the dragon was the natural enemy of man.  Although
@@ -1500,6 +1801,42 @@ dragonbane
 	would keep its edge, as the dragon discovered
 	as soon as they came together in combat.
 		[ Beowulf, translated by Seamus Heaney ]
+dramborleg
+	... but he carried an axe rather than a sword, and this in the
+	speech of the Gondolindrim he named Dramborleg, for its buffet
+	stunned and its edge clove all armour.
+		[ The Book of Lost Tales: Part Two,
+			by J.R.R. Tolkien ]
+
+drow*
+	Drow, also known as dark elves, deep elves, night elves, and
+	the Dark Ones among orcs, are a dark-skinned sub-race of elves
+	that predominantly live in the Underdark.  They are hated and
+	feared due to their cruelty, though some non-evil and an even
+	smaller number of good drow exist.
+
+	"Station: In all the world of the drow, there is no more
+	important word.  It is the calling of their - of our - religion,
+	the incessant pulling of hungering heartstrings.  Ambition
+	overrides good sense and compassion is thrown away in its face,
+	all in the name of Lloth, the Spider Queen." - Drizzt Do'Urden
+		[ Homeland, by R.A. Salvatore ]
+
+druid
+* druid
+	Druids are primal spellcasters of considerable power and versatility,
+	who gain their power through being at one with nature or through a
+	connection to a powerful deity or nature spirit.  Guardians of the
+	wilderness, druids see themselves less as masters of the natural order
+	and more as an extension of its will.
+
+	"Some dismiss them with a sneer as 'flower lovers', but I warn
+	such scoffers that few herbs or plant medicines would aid us
+	today were it not for the lore and work of the druid circles of
+	Faerun." - Beldrith Tarlelntar, Sage of the Old Ways
+		[ Forgotten Realms Campaign Setting,
+			 3rd edition ]
+
 *drum*
 	Many travelers have seen the drums of the great apes, and
 	some have heard the sounds of their beating and the noise of
@@ -1537,8 +1874,10 @@ dungeon*
 		[ Paradise Lost, by John Milton ]
 ~dwarf ??m*
 ~dwar* cloak
-#~dwar* cave*man
 dwarf*
+dwarven*
+* dwarf
+#~dwar* cave*man
 	Dwarfs have faces like men (ugly men, with wrinkled, leathery
 	skins), but are generally either flat-footed, duck-footed, or
 	have feet pointing backwards.  They are of the earth, earthy,
@@ -1605,6 +1944,12 @@ egg
 	crocodile or a dragon or something like that, I won't have it
 	in my house for one minute."
 		[ The Enormous Egg, by Oliver Butterworth ]
+elanee
+	I am Elanee, once of the mere where dead men rest, now no more.
+	I have little use for titles or names, such things speak of the
+	ways of cities and walls.
+		[ Neverwinter Nights 2, Atari ]
+
 elbereth
 	... Even as they stepped over the threshold a single clear
 	voice rose in song.
@@ -1632,18 +1977,29 @@ electric eel
 	This eel is known for its electrical organ which enables it
 	to paralyse creatures up to the size of a horse.
 	   [ Van Dale's Groot Woordenboek der Nederlandse Taal ]
-*elemental
+elemental
+air elemental
+earth elemental
+fire elemental
+water elemental
 	Elementals are manifestations of the basic nature of the
 	universe.  There are four known forms of elementals:  air, fire,
 	water, and earth.  Some mystics have postulated the necessity
 	for a fifth type, the spirit elemental, but none have ever
 	been encountered, at least on this plane of existence.
-~human or elf*
+~human or other humanoid*
 ~elf ??m*
+~spellbook of haste self
 *elf*
 elvenking
 elvenqueen
 elven monarch
+elven king
+elven queen
+elven lord
+elven lady
+elven noble
+elven royal
 	The Elves sat round the fire upon the grass or upon the sawn
 	rings of old trunks.  Some went to and fro bearing cups and
 	pouring drinks; others brought food on heaped plates and
@@ -1718,6 +2074,21 @@ A.S*
 	journey.
 		[ Journey to the Centre of the Earth, by Jules Verne,
 		  translated by Robert Baldick ]
+~*enlightenment
+ent
+* ent
+	Pippin, though still amazed, no longer felt afraid.  Under those
+	eyes he felt a curious suspense, but not fear. 'Please,' he said,
+	'who are you?  And what are you?'
+
+	A queer look came into the old eyes, a kind of wariness; the deep
+	wells were covered over.  'Hrum, now,' answered the voice; 'well,
+	I am an Ent, or that's what they call me.  Yes, Ent is the word.
+	The Ent, I am, you might say, in your manner of speaking.
+	Fangorn is my name according to some, Treebeard others make it.
+	Treebeard will do.'
+		[ The Two Towers, by J.R.R. Tolkien ]
+
 *epidaurus
 	The asclepieion at Epidaurus was the most celebrated healing
 	center of the Classical world, the place where ill people went
@@ -1782,10 +2153,10 @@ eye of the aethiopica
 	powers, it regenerates the energy of anyone who carries
 	it, allowing them to cast spells more often.  It also reduces
 	any spell damage to the person who carries it by half, and
-	protects from magic missiles.  Finally, when invoked it has
-	the power to instantly open a portal to any other area of the
-	dungeon, allowing its invoker to travel quickly between
-	areas.
+	is partially protected from magic missiles.  Finally, when
+	invoked it has the power to instantly open a portal to any other
+	area of the dungeon, allowing its invoker to travel quickly
+	between areas.
 # note:  The Eyes of the Overworld is the title of Jack Vance's sequel
 # to The Dying Earth and in it the 'Eyes' were separate "cusps" that
 # needed to be worn like contact lenses, one on each eyeball.  Wearing
@@ -1816,6 +2187,14 @@ fedora
 	stride as if you're only a step away from dancing.  They demand a
 	lot of you.
 		[ Anansi Boys, by Neil Gaiman ]
+fell beast
+	It was a winged creature: if bird, then greater than all other
+	birds, and it was naked, and neither quill nor feather did it
+	bear, and its vast pinions were as webs of hide between horned
+	fingers; and it stank.  A creature of an older world maybe it was...
+	   [ J.R.R. Tolkien, The Return of the King,
+		"The Battle of the Pelennor Fields" ]
+
 figurine*
 	Then it appeared in Paris at just about the time that Paris
 	was full of Carlists who had to get out of Spain.  One of
@@ -1852,6 +2231,12 @@ f* brand
 	Is also great
 	And would suffice.
 		[ Fire and Ice, by Robert Frost ]
+*flail
+	When you are swinging a spiky ball on a chain, the only
+	realistic option is to keep moving.  Standing still is an
+	interesting but brief demonstration of a spiral in action.
+		[ Men at Arms, by Terry Pratchett ]
+
 flesh golem
 	With an anxiety that almost amounted to agony, I collected
 	the instruments of life around me, that I might infuse a spark
@@ -1910,6 +2295,7 @@ fog* cloud
 	and then moves on.
 	     [ Fog, by Carl Sandburg ]
 # includes "food detection" and "detect food", which might not be the best
+~spellbook of detect food
 *food*
 	The little girl stood on tip-toe and picked one of the nicest
 	and biggest lunch-boxes, and then she sat down upon the ground
@@ -1920,6 +2306,17 @@ fog* cloud
 	Dorothy found them all to be delicious, and she ate every bit
 	of luncheon in the box before she had finished.
 		[ Ozma of Oz, by L. Frank Baum ]
+forge
+	Vulcan: You were woont to say that the beating of hammers made
+	your head ake, and the smoake of the forge your eies water, and
+	euery coale was a blocke in your way.  You weepe rose water,
+	when you aske, and spitte vinegar, when you haue obteined.  What
+	would you now, with new arrowes? [...] But I will not chide Venus.
+	Come Cyclops, my wife must haue her will: let vs doe that in earth,
+	which the Gods cannot vndoe in heauen.
+	Venus: Gramercie sweete Vulcan: to your worke!
+		[ Sapho and Phao, by John Lyly ]
+
 fortune cookie
 	Nemesis cracked another cookie and wrinkled her nose. "_You will
 	have great fortune when you least expect it,_" she read. "That's
@@ -2026,6 +2423,13 @@ fruitname
 	escaped their suspicions.
 		[ Dracula, by Bram Stoker ]
 # gas spore -- see *spore
+gauntlets of purity
+	Only the most pure of heart can wear these gauntlets.  Those
+	that wear them can resist the charms and wiles of even the
+	most seductive of creatures that would seek to corrupt their
+	hearts.
+		[]
+
 gehenn*
 *h?nnom
 hell
@@ -2100,6 +2504,7 @@ geryon
 	      translated by H.F. Cary ]
 *ghost
 valley of *dea*
+spectre
 	And now the souls of the dead who had gone below came swarming
 	up from Erebus -- fresh brides, unmarried youths, old men
 	with life's long suffering behind them, tender young girls
@@ -2129,22 +2534,55 @@ ghoul
 		[ Les Miserables, by Victor Hugo ]
 *giant
 giant humanoid
+hill giant shaman
 	Giants have always walked the earth, though they are rare in
 	these times.  They range in size from little over nine feet
 	to a towering twenty feet or more.  The larger ones use huge
 	boulders as weapons, hurling them over large distances.  All
 	types of giants share a love for men - roasted, boiled, or
 	fried.  Their table manners are legendary.
+gjallar
+	Fast move the sons of Mim and fate
+	Is heard in the note of the Gjallarhorn;
+	Loud blows Heimdall, the horn is aloft,
+	In fear quake all who on Hel-roads are.
+	   [ Voluspa, from the Poetic Edda,
+		translated by Henry Adams Bellows ]
+
+glamdring
+	The Balrog reached the bridge. Gandalf stood in the middle of
+	the span, leaning on the staff in his left hand, but in his
+	other hand Glamdring gleamed, cold and white.  His enemy halted
+	again, facing him, and the shadow about it reached out like two
+	vast wings.  It raised the whip, and the thongs whined and
+	cracked.  Fire came from its nostrils.  But Gandalf stood firm.
+
+	'You cannot pass,' he said.  The orcs stood still, and a dead
+	silence fell.  'I am a servant of the Secret Fire, wielder of
+	the flame of Anor.  You cannot pass.  The dark fire will not
+	avail you, flame of Udun.  Go back to the Shadow! You cannot
+	pass.'
+		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
+
 *gloves
 gauntlets*
 	And her old Uncle William used to say a lady is known by her
 	shoes and her gloves.
 		[ Mrs. Dalloway, by Virginia Woolf ]
 # note: "gnomish wizard" is a monster
+gnoll*
+flind
+	We are born and we die.
+	No one cares, no one remembers,
+	and it doesn't matter.
+	This is why we laugh.
+		[ The Gnoll Credo, by J. Stanton ]
+
 ~gnome ??m*
-#~gnom* cave*man
 gnome*
+* gnome
 gnomish wizard
+#~gnom* cave*man
 	...  And then a gnome came by, carrying a bundle, an old
 	fellow three times as large as an imp and wearing clothes of
 	a sort, especially a hat.  And he was clearly just as frightened
@@ -2173,7 +2611,7 @@ gnomish wizard
 	with its horny little feet; he grasped it around the ankles
 	and turned it upside down.
 	  [ Harry Potter and the Chamber of Secrets, by J.K. Rowling ]
-goblin
+goblin*
 	Now goblins are cruel, wicked, and bad-hearted.  They make
 	no beautiful things, but they make many clever ones.  They
 	can tunnel and mine as well as any but the most skilled
@@ -2226,6 +2664,7 @@ gold golem
 ~straw golem
 ~wood golem
 ~clay golem
+~snow golem
 *golem
 	"The original story harks back, so they say, to the sixteenth
 	century.  Using long-lost formulas from the Kabbala, a rabbi is
@@ -2245,6 +2684,13 @@ gold golem
 	left of it was a small clay image, which you can still see in
 	the Old Synagogue." ...
 	    [ The Golem, by Gustav Meyrink ]
+gollum
+	"Deep down here by the dark water lived old Gollum, a small slimy
+	creature.  I don't know where he came from, nor who or what he was.
+	He was Gollum - as dark as darkness, except for two big round pale
+	eyes in his thin face."
+		[ The Hobbit, by J.R.R. Tolkien ]
+
 grave
 	"Who'd care to dig 'em," said the old, old man,
 	"Those six feet marked in chalk?
@@ -2258,11 +2704,19 @@ grayswandir
 	need the extra edge his weapon could provide?  I wanted to
 	think so, to believe that he had been more than a Pattern-ghost.
 		[ Knight of Shadows, by Roger Zelazny ]
+graz'zt
+	The figure standing before the throne is darkly handsome,
+	an ebon-skinned man nearly 9 feet tall.  His slightly
+	pointed ears, yellow fangs, and six-fingered hands mark
+	him for the demon he is.
+		[ Hordes of the Abyss, by Ed Stark,
+		  James Jacobs, and Erik Mona ]
+
 *grease
 	ANOINT, v.t.  To grease a king or other great functionary
 	already sufficiently slippery.
 		[ The Devil's Dictionary, by Ambrose Bierce ]
-gremlin
+*gremlin
 	The gremlin is a highly intelligent and completely evil
 	creature.  It lives to torment other creatures and will go
 	to great lengths to inflict pain or cause injury.
@@ -2292,6 +2746,34 @@ grid bug
 	beam connection -- to which he'd given no thought whatsoever
 	until this moment -- was healthy and sound."
 	    [ Tron, novel by Brian Daley, story by Steven Lisberger ]
+grumbar
+	Much like earth itself, Grumbar may seem indifferent, uncaring,
+	and resistant to change, but also represents a stability,
+	consistency, and resolution that is especially appealing to
+	those followers who worship him as the Elemental Lord of Earth.
+
+gulthias tree
+	A Gulthias tree is a plant infused with supernatural evil,
+	capable of spreading corruption to nearby plant life and
+	generating malevolent creatures known as blights.  A Gulthias
+	tree could originate wherever a plant was contaminated by an
+	evil force or sentience.  A Gulthias tree left unchecked could
+	infect the surrounding forest and cause blights to emerge from
+	nearby corrupted plant life.  The tree and its associated blights
+	could turn a lush forest into a toxic, bramble-filled wasteland.
+
+	According to legend, the first Gulthias tree sprouted from the
+	stake used to slay the vampire Gulthias of Nightfang Spire, head
+	of the cult of the red dragon Ashardalon.  The stake destroyed
+	Gulthias, but the vampire's latent magic caused the stake to
+	sprout, growing into a sapling infused with vampiric power.
+	A druid was said to have later discovered the sapling and
+	transplanted it inside an underground grotto, where the druid
+	nurtured the tree until it produced the first seeds from which
+	blights were generated.
+		[ Advanced Dungeons & Dragons,
+			Monster Manual 5th Edition ]
+
 gunyoki
 	The samurai's last meal before battle.  It was usually made
 	up of cooked chestnuts, dried seaweed, and sake.
@@ -2315,6 +2797,22 @@ potion of hallucination
 	Recollect that while all this was hallucination, it was just as
 	real as if it had been an undeniable and awful reality.
 		[ Fifteen Years in Hell, by Luther Benson ]
+hammer of the gods
+	You go to such lengths to build these churches, making sure
+	they strike terror into the hearts of all who come near.
+	It's just a room with a door... no different to a prison.
+		[ Hammer of the Gods, by Matthew Read ]
+
+harbinger
+	The voice of him that crieth in the wilderness, Prepare ye the
+	way of the Lord, make straight in the desert a highway for our
+	God.  Every valley shall be exalted, and every mountain and hill
+	shall be made low: and the crooked shall be made straight, and
+	the rough places plain: And the glory of the Lord shall be
+	revealed, and all flesh shall see it together: for the mouth of
+	the Lord hath spoken it.
+		[ Isaiah 40:3-5, The Bible - King James Version ]
+
 *harp
 	A triangular stringed instrument, often Magic.  Even when not
 	Magic, a Harp is surprisingly portable and tough and can be
@@ -2348,6 +2846,15 @@ hawaiian*shirt
 	a shirt in such a violent and vivid conflict of colours that
 	the Weasel's fastidious eye was offended even in the half-light.
 		[ The Colour of Magic, by Terry Pratchett ]
+*hawk
+	The hawk circles and circles, and waits.  Against most prey he
+	will have but one strike.  He waits therefore for the best chance.
+	Be as the hawk.  Watch and wait, and strike true.  The People cannot
+	afford foolish deaths in battle.  War to slay, not to fight long and
+	glorious.
+		[ Aermhar of the Tangletrees, Spellfire,
+			by Ed Greenwood ]
+
 healer
 * healer
 attendant
@@ -2373,26 +2880,38 @@ physician
 	PHYSICIAN, n.  One upon whom we set our hopes when ill and our
 	dogs when well.
 		[ The Devil's Dictionary, by Ambrose Bierce ]
-heart of ahriman
-	The other three drew in their breath sharply, and the dark,
-	powerful man who stood at the head of the sarcophagus whispered:
-	"The Heart of Ahriman!"  The other lifted a quick hand
-	for silence.  Somewhere a dog began howling dolefully, and a
-	stealthy step padded outside the barred and bolted door. ...
-	But none looked aside from the mummy case over which the man
-	in the ermine-trimmed robe was now moving the great flaming
-	jewel, while he muttered an incantation that was old when
-	Atlantis sank.  The glare of the gem dazzled their eyes, so
-	that they could not be sure what they saw; but with a
-	splintering crash, the carven lid of the sarcophagus burst
-	outward as if from some irresistible pressure applied from
-	within and the four men, bending eagerly forward, saw the
-	occupant -- a huddled, withered, wizened shape, with dried
-	brown limbs like dead wood showing through moldering bandages.
-	"Bring that thing back?" muttered the small dark man who
-	stood on the right, with a short, sardonic laugh.  "It is
-	ready to crumble at a touch.  We are fools ---"
-		[ Conan the Conqueror, by Robert E. Howard ]
+# no longer the Barbarian quest artifact
+#heart of ahriman
+#	The other three drew in their breath sharply, and the dark,
+#	powerful man who stood at the head of the sarcophagus whispered:
+#	"The Heart of Ahriman!"  The other lifted a quick hand
+#	for silence.  Somewhere a dog began howling dolefully, and a
+#	stealthy step padded outside the barred and bolted door. ...
+#	But none looked aside from the mummy case over which the man
+#	in the ermine-trimmed robe was now moving the great flaming
+#	jewel, while he muttered an incantation that was old when
+#	Atlantis sank.  The glare of the gem dazzled their eyes, so
+#	that they could not be sure what they saw; but with a
+#	splintering crash, the carven lid of the sarcophagus burst
+#	outward as if from some irresistible pressure applied from
+#	within and the four men, bending eagerly forward, saw the
+#	occupant -- a huddled, withered, wizened shape, with dried
+#	brown limbs like dead wood showing through moldering bandages.
+#	"Bring that thing back?" muttered the small dark man who
+#	stood on the right, with a short, sardonic laugh.  "It is
+#	ready to crumble at a touch.  We are fools ---"
+#		[ Conan The Conqueror, by Robert E. Howard ]
+hecubus
+	Sir Simon Milligan:
+	  Hecubus, have you seen the movie "Presumed Innocent?"
+
+	Hecubus:
+	  Yes I have, Master, and his wife killed her.
+
+	Sir Simon Milligan:
+	  But Hecubus, I haven't seen the movie yet... Evil! Evil!
+		[ Simon & Hecubus, The Kids in the Hall ]
+
 hell hound*
 	But suddenly they started forward in a rigid, fixed stare,
 	and his lips parted in amazement.  At the same instant Lestrade
@@ -2452,6 +2971,16 @@ hermes
 	to the underworld ferry of Charon and back again.  He is said
 	to have invented, among other things, the lyre, Pan's Pipes,
 	numbers, the alphabet, weights and measures, and sacrificing.
+*hesperides
+	Perseus got possession of the eye and the tooth, and when they
+	asked them back, he said he would give them up if they would
+	show him the way to the nymphs [the Hesperides].  Now these
+	nymphs had winged sandals and the kibisis, which they say was a
+	wallet.  [...] The kibisis is so called because dress and food
+	are deposited in it.
+	   [ Bibliotheca of Pseudo-Apollodorus,
+		translated by James George Frazer ]
+
 hezrou
 	"Hezrou" is the common name for the type II demon.  It is
 	among the weaker of demons, but still quite formidable,
@@ -2527,6 +3056,7 @@ holy water
 	"Yet," corrected Crowley.
 		[ Good Omens, by Neil Gaiman and Terry Pratchett ]
 hom*nculus
+* hom*nculus
 	A homunculus is a creature summoned by a mage to perform some
 	particular task.  They are particularly good at spying.  They
 	are smallish creatures, but very agile.  They can put their
@@ -2541,6 +3071,46 @@ hom*nculus
 	thought.'"
 		[ Conan the Rebel, by Poul Anderson ]
 # also gets 'pruning hook' aka guisarme
+honey badger
+ratel
+	The Honey badger (or ratel) is a tenacious small carnivore that
+	has a reputation for being, pound for pound, Africa's most fearless
+	animal despite its small size.  It is even listed as the "most
+	fearless animal in the world" in the Guinness Book of Records.
+
+	Honey badgers are reputed to go for the scrotum when attacking large
+	animals.  The first published record of this behaviour was a
+	circumstantial account by Stevenson-Hamilton (1947) where a badger
+	reportedly castrated an adult Buffalo.  Other animals alleged to have
+	been emasculated by honey badgers include wildebeest, waterbuck, kudu,
+	zebra and man.  This has also been reported by other African tribes,
+	but no direct evidence exists to support this behaviour.
+
+honu
+*turtle
+	The most popular Hawaiian turtle legend is that of Kauila.
+	Historian Daniel Akaka, Jr. tells the story this way:
+
+	This takes place on the island of Hawai'i at a black sand beach
+	called Punalu'u.  Two turtles, the female named Honupo'okea
+	(White-headed Green Sea Turtle) and the male named Honu'ea
+	(Hawksbill), entered the beach of Punalu'u and dug out a pond
+	which provided the people of the area with a supply of drinking
+	water.  Honupo'okea left a nest of eggs and when they hatched,
+	all but one of the hatchlings entered the sea and that one
+	hatchling lived in the nearby pond.  The people named the baby
+	turtle Kauila, for her shell was the color of a dark-brown natice
+	hardwood of that name.  This female turtle grew in the pond and
+	was known to possess special powers.  She could transform herself
+	into a little girl and would often be seen on the beach with the
+	other children.  When children were caught in the strong ocean
+	currents while swimming she would go out and save them.  When
+	Kauila wanted to retire back to her home pond she would once again
+	transform back into her turtle form.  The people of Punalu'u loved
+	Kauila as the guardian of their children and also for the spring
+	that gave them pure drinking water.
+		[ Fire in the Turtle House, by Osha Gray Davidson ]
+
 *hook
 	But as for Queequeg -- why, Queequeg sat there among them --
 	at the head of the table, too, it so chanced; as cool as an
@@ -2579,16 +3149,10 @@ horned devil
 barbed devil
 	These devils lack any real special abilities, though they
 	are quite difficult to kill.
-~horsem*
-*horse
-	King Richard III: A horse! a horse! my kingdom for a horse!
-	Catesby: Withdraw, my lord; I'll help you to a horse.
-	King Richard III: Slave, I have set my life upon a cast,
-	                  And I will stand the hazard of the die:
-	                  I think there be six Richmonds in the field;
-	                  Five have I slain to-day instead of him.
-	                  A horse! a horse! my kingdom for a horse!
-		[ King Richard III, by William Shakespeare ]
+white horse
+red horse
+black horse
+pale horse
 *horsem*
 rider*
 death
@@ -2622,6 +3186,17 @@ hunger
 	the fourth part of the earth, to kill with sword, and with
 	hunger, and with death, and with the beasts of the earth.
 		[ Revelations of John, 6:1-8 ]
+~horsem*
+warhorse
+*horse
+	King Richard III: A horse! a horse! my kingdom for a horse!
+	Catesby: Withdraw, my lord; I'll help you to a horse.
+	King Richard III: Slave, I have set my life upon a cast,
+	                  And I will stand the hazard of the die:
+	                  I think there be six Richmonds in the field;
+	                  Five have I slain to-day instead of him.
+	                  A horse! a horse! my kingdom for a horse!
+		[ King Richard III, by William Shakespeare ]
 huan*ti
 	The first of five mythical Chinese emperors, Huan Ti is known
 	as the yellow emperor.  He rules the _moving_ heavens, as
@@ -2647,14 +3222,14 @@ humanoid
 # takes "human or elf or you" when specifying '@' as a dwarf, gnome, or orc
 human
 chieftain
-guard
+*guard
 ninja
 nurse
 ronin
 student
 warrior
 *watch*
-human or elf*
+human or other humanoid*
 	These strange creatures live mostly on the surface of the
 	earth, gathering together in societies of various forms, but
 	occasionally a stray will descend into the depths and commit
@@ -2714,6 +3289,26 @@ ice devil
 	equally at home in the fires of Hell and the cold of Limbo,
 	and who can cause the traveller to feel the latter with just
 	a touch of their tail.
+ice queen
+kathryn*
+	"The White Witch? Who is she?"
+	"Why, it is she that has got all Narnia under her thumb.
+	It's she that makes it always winter.  Always winter and
+	never Christmas; think of that!"
+	"How awful!" said Lucy.
+
+	Every moment the patches of green grew bigger and the patches
+	of snow grew smaller.  Every moment more and more of the trees
+	shook off their robes of snow.  Soon, wherever you looked,
+	instead of white shapes you saw the dark green of firs or the
+	black prickly branches of bare oaks and beeches and elms.
+	Then the mist turned from white to gold and presently cleared
+	away altogether.  Shafts of delicious sunlight struck down on
+	to the forest floor and overhead you could see a blue sky
+	between the tree tops.
+	   [ The Lion, the Witch and the Wardrobe,
+		by C.S. Lewis ]
+
 idefix
 	Another clever translation [of the _Asterix_ character names]
 	is that of Idefix.  An _idee fixe_ is a "fixed idea", i.e.
@@ -2724,6 +3319,20 @@ idefix
 	uprooted tree).
 		[ Wikipedia, the free encyclopedia ]
 # takes "imp or minor demon" when specifying 'i'
+*idol of moloch
+	One of the rare few artifacts able to exert Moloch's influence
+	aboveground.  By drawing on Moloch's power, the faithful are able
+	to summon demons, defile shrines, and replenish their magical
+	energy.  The Idol also protects its holder from hostile magics.
+
+ilmater
+	Known by many names -- the Crying God, the Lord on the Rack,
+	the One Who Endures, and more -- Ilmater is a god worshipped
+	everywhere there is suffering, poverty, and desperation.  Known
+	for his willingness to suffer on behalf of others -- a trait his
+	followers aspire to emulate -- he is often portrayed as covered
+	in scars, burns, and weeping sores.
+
 imp
 imp or minor demon
 	 ... imps ... little creatures of two feet high that could
@@ -2747,6 +3356,24 @@ amorous demon
 	same demon, one who lies with a human for its own purposes,
 	usually to the detriment of the mortals who are unwise in
 	their dealings with them.
+infidel
+* infidel
+cultist
+malefic*
+	We must especially observe that this heresy, witchcraft, not only
+	differs from all other heresy in this, that not merely by a tacit
+	compact, but by a compact which is exactly defined and expressed
+	it blasphemes the Creator and endeavours to the utmost to profane Him
+	and to harm His creatures, for all other simple heresies have made
+	no open compact with the devil, no compact, that is, either tacit
+	or exactly expressed, although their errors and misbelief are directly
+	to be attributed to the Father of errors and lies.  Moreover,
+	maleficium (witchcraft) differs from all other harmful and mysterious
+	arts in this point, that of all superstition it is essentially
+	the vilest, the most evil and the worst, wherefore it derives its name
+	from doing evil, and from blaspheming the true faith.
+		[ The Malleus Maleficarum, translated by Montague Summers ]
+
 *insect
 *insects
 	A minute invertebrate animal; one of the class _Insecta_.
@@ -2770,7 +3397,7 @@ amorous demon
 	that they were upon the earth unto this day.  And he turned
 	himself, and went out from Pharaoh.
 		[ Exodus, 10:4-6 ]
-*iron ball
+*iron ball*
 *iron chain
 	"You are fettered, " said Scrooge, trembling.  "Tell me why?"
 	"I wear the chain I forged in life," replied the Ghost.  "I
@@ -2982,12 +3609,27 @@ kelp*
 	I had studied on the _Nautilus_ -- but the fresh, living
 	specimens in their native setting.
 		[ 20,000 Leagues Under the Sea, by Jules Verne ]
-ki-rin
+keolewa
+	At the place ever afterwards famous as Lamakee he kills with
+	his spear the warrior Paopele, who wields a club named Keolewa
+	so great that it extends over a whole district in length,
+	reaches up to the clouds of heaven, and takes four thousand men
+	to carry.
+		[ Hawaiian Mythology, by Martha Beckwith ]
+
+*ki-rin
 	The ki-rin is a strange-looking wingless flying creature.
 	It has scales, a mane like a lion, a tail, four legs with
 	hooves, and a horn like a unicorn's.  It is brightly colored,
 	and can usually be found flying in the sky looking for good
 	deeds to reward.
+
+	An eldritch ki-rin is one that started its celestial life as
+	a normal lawful ki-rin, and at some point lost its way and
+	started following a path of darkness.  In nearly all aspects,
+	they are identical to their lawful brethren. The differences
+	are that their alignment is strongly chaotic, and their
+	appearance is extremely dark.
 king arthur
 *arthur
 	Ector took both his sons to the church before which the
@@ -3207,6 +3849,24 @@ leash
 	eye.  They walked side by side with great dignity, only
 	putting the Dearlys on the leash to lead them over crossings.
 		[ The Hundred and One Dalmatians, by Dodie Smith ]
+*leech
+	The commonest leeches in these hills are slender brown ones,
+	like bits of dark whipcord when empty, but rapidly "swelling
+	visibly" under the influence of draughts of blood into glossy
+	black sausages, resembling well-fed garden-slugs.  A very brief
+	visit to their domains at a time of year when the local conditions
+	favour their activity will suffice to secure an unpleasant
+	familiarity with their appearance, manners, and customs; for,
+	should any brief halt be made on the moist and mossy surfaces of
+	the stones marking the line of what is supposed to represent a
+	path, they are almost sure to attract attention as they come
+	eagerly trooping inwards from all quarters and converge upon their
+	prey; and, unless he have skillfully protected himself, the wayfarer
+	is almost certain to end his day's march bearing a burden of clammy,
+	black vampires, hanging in wreaths around his ankles and occupying
+	scattered outpost all along the course of his legs.
+		[ Plagues and Pleasures of Life in Bengal, by David D. Cunningham ]
+
 lembas*
 	In the morning, as they were beginning to pack their slender
 	goods, Elves that could speak their tongue came to them and
@@ -3312,6 +3972,49 @@ lizard
 	"wings".  Most are carnivores, feeding on invertebrate and
 	small vertebrate prey, but others feed on vegetation.
 		[ Macmillan Illustrated Animal Encyclopedia ]
+lifestealer
+	Legend has it that there was once an ambitious king who wanted
+	the powers of the undead at his command.  He commissioned a
+	powerful wizard to make his dreams a reality.  The wizard set
+	out to fulfill the wishes of the king by capturing an ancient
+	vampire and transferring its essence into a fearsome two-handed
+	sword.  The king tested the powers of the blade on the wizard
+	that created it, then used it to conquer his enemies, and finally
+	all within his reach.  The legend goes on to say that the king
+	became so consumed with using the power of the sword that he
+	completely succumbed to it, and became a vampire himself...
+
+locust
+	And Moses stretched forth his rod over the land of Egypt, and
+	the Lord brought an east wind upon the land all that day, and
+	all that night; and when it was morning, the east wind brought
+	the locusts.  And the locust went up over all the land of Egypt,
+	and rested in all the coasts of Egypt: very grievous were they;
+	before them there were no such locusts as they, neither after
+	them shall be such.  For they covered the face of the whole earth,
+	so that the land was darkened; and they did eat every herb of the
+	land, and all the fruit of the trees which the hail had left: and
+	there remained not any green thing in the trees, or in the herbs
+	of the field, through all the land of Egypt.
+		[ Exodus, 10:13-15 ]
+
+	The fifth angel sounded his trumpet, and I saw a star that had
+	fallen from the sky to the earth.  The star was given the key to
+	the shaft of the Abyss.  When he opened the Abyss, smoke rose from
+	it like the smoke from a gigantic furnace.  The sun and sky were
+	darkened by the smoke from the Abyss.  And out of the smoke locusts
+	came down on the earth and were given power like that of scorpions
+	of the earth.  They were told not to harm the grass of the earth or
+	any plant or tree, but only those people who did not have the seal
+	of God on their foreheads.  They were not allowed to kill them but
+	only to torture them for five months.  And the agony they suffered
+	was like that of the sting of a scorpion when it strikes.  During
+	those days people will seek death but will not find it; they will
+	long to die, but death will elude them.  The locusts looked like
+	horses prepared for battle.  On their heads they wore something like
+	crowns of gold, and their faces resembled human faces.
+		[ The Book of Revelation, 9:1-7 ]
+
 loki
 	Loki, or Lopt, is described in Snorri's _Edda_ as being
 	"pleasing and handsome in appearance, evil in character, and
@@ -3327,6 +4030,14 @@ loki
 	Odin's horse Sleipnir.  He also allegedly sired the serpent
 	Midgard, the mistress of the netherworld, Hel, and the wolf
 	Fenrir, who will devour the sun at Ragnarok.
+lolth
+	Ascension to power in drow society is a simple process of
+	assassination.  The Spider Queen is a deity of chaos, and she
+	and her high priestesses, the true rulers of the drow world,
+	do not look with ill favor upon ambitious individuals wielding
+	poisoned daggers.
+		[ Drizzt Do'Urden ]
+
 *longbow of diana
 	This legendary bow grants ESP when carried and can reflect magical
 	attacks when wielded.  When invoked it provides a supply of arrows.
@@ -3370,7 +4081,18 @@ lord surt*
 	world with fire.
 			[ The Prose Edda, by Snorri Sturluson ]
 # if a quote for good luck gets added, make this one exclusively bad luck
-luck
+lucifer
+	How art thou fallen from heaven, O Lucifer, son of the morning!
+	How art thou cut down to the ground, which didst weaken the
+	nations!  For thou hast said in thine heart, I will ascend into
+	heaven, I will exalt my throne above the stars of God: I will
+	sit also upon the mount of the congregation, in the sides of the
+	north: I will ascend above the heights of the clouds; I will be
+	like the most High.  Yet thou shalt be brought down to hell, to
+	the sides of the pit.
+			[ Isaiah 14:12-15 ]
+
+luck *
 bad luck
 	"[...]  We'll succeed and you'll get all the fortune you came
 	seeking."
@@ -3402,6 +4124,20 @@ lurker*
 	These dungeon scavengers are very adept at blending into the
 	surrounding walls and ceilings of the dungeon due to the
 	stone-like coloring of their skin.
+lustrous ring
+one ring
+	It began with the forging of the Great Rings.  Three were given to
+	the Elves, immortal, wisest, and fairest of all beings.  Seven to
+	the Dwarf lords, great miners and craftsmen of the mountain halls.
+	And Nine.  Nine Rings were gifted to the race of Men, who above all
+	else, desire power.  For within these Rings was bound the strength
+	and will to govern each race.  But they were all of them deceived,
+	for another Ring was made.  In the land of Mordor, in the fires of
+	Mount Doom, the Dark Lord Sauron forged, in secret, a Master Ring to
+	control all others.  And into this Ring, he poured his cruelty, his
+	malice and his will to dominate all life.  One Ring to rule them all.
+		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
+
 lycanthrope
 were*
 human were*
@@ -3431,7 +4167,7 @@ lynx
 	will overcome her rival.
 		[ 10,000 Dreams Interpreted, by Gustavus Hindman Miller ]
 ~*sceptre of might
-mace
+*mace
 sceptre
 	Originally a club armed with iron, and used in war; now a staff
 	of office pertaining to certain dignitaries, as the Speaker of
@@ -3440,6 +4176,16 @@ sceptre
 	about in armour, and sovereigns needed champions to vindicate
 	their rights.
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+magic 8-ball
+	Reply hazy, try again.
+
+magic chest
+hidden chest
+	It would be mistaken to say the Luggage was nowhere to be seen.
+	It was somewhere to be seen, it was just that the place wasn't
+	anywhere near Rincewind.
+		[ Sourcery, by Terry Pratchett ]
+
 magic marker
 	The pen is mightier than the sword.
 		[ Richelieu, by Edward Bulwer-Lytton ]
@@ -3462,9 +4208,17 @@ magic mirror of merlin
 #	  For-thy it round and hollow shaped was,
 #	Like the world itself, and seemed a world of glass.
 		[ The Faerie Queene, by Edmund Spencer ]
+magical eye
+	A serious nuisance, especially when encountered with other
+	monsters.  Harasses the player with six different gaze attacks
+	at its disposal, and it's skittish, meaning it will evade and
+	kite its target, making the magical eye somewhat difficult to
+	kill.  Eating its corpse will randomly increase or decrease the
+	player's luck by two points.
+
 magicbane
-	A highly enchanted athame said to hold the power to channel
-	and direct magical energy.
+	A highly enchanted quarterstaff said to hold the power to
+	channel and direct magical energy.
 mail d*emon
 	It is rumoured that these strange creatures can be harmed by
 	domesticated canines only.
@@ -3626,10 +4380,26 @@ melon
 	I think we ate about six each before we had done, and, poor
 	fruit as they were, I doubt if I ever thought anything nicer.
 		[ King Solomon's Mines, by H. Rider Haggard ]
+mephisto*
+	This diabolical fiend has crimson skin, massive red leathery
+	wings, curling horns, white eyes, and long, straight black
+	hair.  Swathed in a flowing black cape, he is the vision of
+	evil.
+		[ Tyrants of the Nine Hells,
+		  by Robin Laws and Robert Schwalb ]
+
 mercury
 	Roman god of commerce, trade and travellers.  He is commonly
 	depicted carrying a caduceus (a staff with two snakes
 	intertwining around it) and a purse.
+mielikki
+	I know Mielikki is with me because I sense her.  I feel her
+	touch as the wind.  I hear her voice in the whisper of leaves.
+	I see her beauty in the scene around us.  Her presence is as
+	real as yours.  She embraces us with every reverent step we take
+	in the wilderness.
+		[ The words of a favored of Mielikki ]
+
 *mimic
 	The ancestors of the modern day chameleon, these creatures can
 	assume the form of anything in their surroundings.  They may
@@ -3637,6 +4407,8 @@ mercury
 	chameleon though, which assumes the shape of another creature
 	and goes in hunt of food, the mimic waits patiently for its
 	meals to come in search of it.
+illithid
+~mind flayer larva
 *mind flayer
 	This creature has a humanoid body, tentacles around its
 	covered mouth, and three long fingers on each hand.  Mind
@@ -3644,6 +4416,17 @@ mercury
 	especially humans.  If they hit their victim with a tentacle,
 	the mind flayer will slowly drain it of all intelligence,
 	eventually killing its victim.
+mind flayer larva
+	Mind flayer larva are only ever found in mind flayer nurseries,
+	tended to by an adult mind flayer.  Relatively weak, they exist
+	in shallow pools of water and will not venture from them.  They
+	have one attack, which is to attempt to attach itself to its
+	victims face.  If successful, the victim has only moments to kill
+	or remove the mind flayer larva from its face.  If not removed in
+	time, the mind flayer larva burrows itself into its victims brain,
+	killing them instantly.  The larva controls the host body, feeding
+	off of it and eventually growing into a full-grown mind flayer.
+
 mine*
 gnomish mines
 	Made by Dwarfs.  The Rule here is that the Mine is either long
@@ -3658,7 +4441,7 @@ gnomish mines
 	walls.  Metal will also be present, but only when made up into
 	armor and weapons (_wondrous_).
 	  [ The Tough Guide to Fantasyland, by Diana Wynne Jones ]
-minotaur
+*minotaur
 	The Minotaur was a monster, half bull, half human, the
 	offspring of Minos' wife Pasiphae and a wonderfully beautiful
 	bull. ...  When the Minotaur was born Minos did not kill him.
@@ -3668,6 +4451,25 @@ minotaur
 	Once inside, one would go endlessly along its twisting paths
 	without ever finding the exit.
 		[ Mythology, by Edith Hamilton ]
+mistletoe
+	We should not omit to mention the great admiration that the
+	Gauls have for it as well.  The druids - that is what they
+	call their magicians - hold nothing more sacred than the
+	mistletoe and a tree on which it is growing, provided it is a
+	hard-timbered oak...  Mistletoe is rare and when found it is
+	gathered with great ceremony, and particularly on the sixth day
+	of the moon...  Hailing the moon in a native word that means
+	'healing all things,' they prepare a ritual sacrifice and
+	banquet beneath a tree and bring up two white bulls, whose horns
+	are bound for the first time on this occasion.  A priest arrayed
+	in white vestments climbs the tree and, with a golden sickle,
+	cuts down the mistletoe, which is caught in a white cloak.  Then
+	finally they kill the victims, praying to a god to render his
+	gift propitious to those on whom he has bestowed it.  They believe
+	that mistletoe given in drink will impart fertility to any animal
+	that is barren and that it is an antidote to all poisons.
+		[ Account by Pliny the Elder ]
+
 mit*ra*
 	Originating in India (Mitra), Mithra is a god of light who
 	was translated into the attendant of the god Ahura Mazda in
@@ -3797,7 +4599,7 @@ monkey
 	where the monkeys drink; we do not go where the monkeys go;
 	we do not hunt where they hunt; we do not die where they die...."
 		[ The Jungle Book, by Rudyard Kipling ]
-morning star
+*morning star
 	The morning star was a medieval weapon resembling a mace, but
 	with a large spike on the end and smaller spikes around the
 	circumference.  It was also known as the goedendag (from the
@@ -3813,6 +4615,36 @@ morning star
 	but with the head attached by a short chain.
 		[ Dictionary of Medieval Knighthood and Chivalry,
 		  by Bradford Broughton ]
+*mosquito
+	Red Saunders said he could take anything.  The men found a corner
+	of the island where thick clouds of mosquitos were hovering above
+	the still water.  The workmen built a small, smoldering fire to
+	give off smoke that would give them some shelter.  And Red stripped
+	off his shirt and lay face down in the mud, letting the mosquitoes
+	go to work on his back.  And work they did.  Red's back was soon
+	covered with the insects, digging in, drawing blood, and leaving
+	itchy welts behind.  But Red didn't flinch.  He just lay there,
+	letting the mosquitos feed on him, and only occasionally looking up
+	to say "I sure hope those mosquitos over there ain't getting to be
+	too much for y'all" to the men sheltering in the smoke.  This went
+	on and on.  But when about three-quarters of that hour had passed,
+	something happened.  Red felt something bite into his back sharper
+	and more powerful than he had ever imagined.  A searing, sharp pain,
+	bit into his flesh, and he heard one of the men by the fire yell out
+	"Gallinipper!"
+	   [ The Legend of the Gallinipper,
+		Averasboro, North Carolina, circa. 1855 ]
+
+	There are in this country over thirty varieties of mosquitoes.
+	Some are small and others are quite large.  Some live wholly on
+	vegetable juices, while others have a passion for animal fluids.
+	The largest, and perhaps the most ferocious kind, is one which the
+	steamboatmen of the Mississippi River call the galnipper.  Of it
+	they tell strange stories.  They describe it as being as large as a
+	goose; and they gravely declare that it flies about at night with a
+	brick-bat under its wings to sharpen its beak with.
+		[ Living Creatures of Water, Land and Air, by John Monteith ]
+
 mumak*
 	... the Mumak of Harad was indeed a beast of vast bulk, and
 	the like of him does not walk now in Middle-Earth; his kin
@@ -3903,6 +4735,18 @@ neferet the green
 	translocation.  It is further rumored that when she was an
 	apprentice herself, she accidentally turned her skin green, and
 	has kept it that way ever since.
+neothelid
+	Neothelids are extremely rare creatures, so called as they were
+	illithid larvae who had undergone neoteny.  They typically
+	appeared once a mind flayer society was destroyed and the larva
+	nursery left unsupervised.  The larval illithids engaged in
+	cannibalism until the last survivor became a gargantuan leviathan
+	loathed by all, especially mind flayers themselves.  Neothelids
+	are slime-covered worms with a quadri-tentacled mouth that resembled
+	gigantic versions of illithid larvae.  They were often mistaken for
+	purple worms due to their purple skin, and massive larval body
+	structure.
+
 newt
 	(kinds of) small animal, like a lizard, which spends most of
 	its time in the water.
@@ -4086,8 +4930,8 @@ pear
 *orb of detection
 	This Orb is a crystal ball of exceptional powers.  When
 	carried, it grants ESP, limits damage done by spells, and
-	protects the carrier from magic missiles.  When invoked it
-	allows the carrier to become invisible.
+	partially protects the carrier from magic missiles.  When
+	invoked it allows the carrier to become invisible.
 *orb of fate
 	Some say that Odin himself created this ancient crystal ball,
 	although others argue that Loki created it and forged Odin's
@@ -4107,7 +4951,7 @@ orcrist
 	Goblin-cleaver, but the goblins called it simply Biter.
 	They hated it and hated worse any one that carried it.
 		[ The Hobbit, by J.R.R. Tolkien ]
-orcus
+*orcus
 	Orcus, Prince of the Undead, has a ram's head and a poison
 	stinger.  He is most feared, though, for his powerful magic
 	abilities.  His wand causes death to those he chooses.
@@ -4157,7 +5001,7 @@ sirius
 		[ Bulfinch's Mythology, by Thomas Bulfinch ]
 osaku
 	The osaku is a small tool for picking locks.
-owlbear
+*owlbear
 	Owlbears are probably the crossbreed creation of a demented
 	wizard; given the lethal nature of this creation, it is quite
 	likely the wizard who created them is no longer alive.  As
@@ -4170,6 +5014,18 @@ page
 	of gentle parentage attending a royal or princely personage.
 		[ Webster's Comprehensive International Dictionary
 		  of the English Language ]
+*paladin
+*paladin of *
+	The paladin is a noble and heroic warrior, the symbol of all
+	that is right and true in the world.  As such, he has high ideals
+	that he must maintain at all times.  Throughout legend and history
+	there are many heroes who could be called paladins: Roland and
+	the 12 Peers of Charlemagne, Sir Lancelot, Sir Gawain, and Sir Galahad
+	are all examples of the class.  However, many brave and
+	heroic soldiers have tried and failed to live up to the ideals of
+	the paladin.  It is not an easy task!
+		[ AD&D Player's Handbook, 2nd Edition ]
+
 *pall
 	_Pallium._  The Roman name for a square woollen cloak worn
 	by men in ancient Greece, especially by philosophers and
@@ -4201,6 +5057,15 @@ panther
 	Such players may use Paper to assert their superiority and dignity.
 		[ The Official Rock Paper Scissors Strategy Guide,
 			by Douglas and Graham Walker ]
+*pegasus
+	The famous winged horse, whose origin is thus related.  When
+	Perseus struck off the head of Medusa, with whom Poseidon had
+	had intercourse in the form of a horse or a bird, there sprang
+	forth from her Chrysaor and the horse Pegasus.  The latter
+	obtained the name Pegasus because he was believed to have made
+	his appearance near the sources (pegai) of Oceanus.
+	        [ Encyclopedia Mythica, ed. M.F. Lindemans ]
+
 pelias
 	Conan cried out sharply and recoiled, thrusting his companion
 	back.  Before them rose the great shimmering white form of Satha,
@@ -4435,6 +5300,7 @@ paddle cactus
 	nopalli for the pads, or nostle, from the Nahuatl word nochtli
 	for the fruit; or paddle cactus.
 		[ Wikipedia, the free encyclopedia ]
+inmate
 prisoner
 	Where am I?
 		In the Village.
@@ -4451,6 +5317,16 @@ prisoner
 		You are Number 6.
 	I am not a number!  I am a free man!
 		[ The Prisoner, by Patrick McGoohan ]
+*pseudodragon
+	Pseudodragons are small, magical, flying lizards native to
+	wilderness forests but occasionally found as companions to humans,
+	particularly wizards.  They look much like tiny red dragons,
+	except for the long, barbed tail and slightly brownish coloration.
+	Their coloration is subject to frequent change, however, as they
+	can alter their color to blend in to their forest homes.  They are
+	omnivorous, eating rodents and birds along with leaves and fruits.
+	        [ Dragon Magazine #269, 'Into the Wild' ]
+
 ptah
 	Known under various names (Nu, Neph, Cenubis, Amen-Kneph,
 	Khery-Bakef), Ptah is the creator god and god of craftsmen.
@@ -4461,6 +5337,12 @@ ptah
 	consisting of a staff surmounted by the _ankh_ symbol of
 	life.  He is otherwise symbolized by his sacred animal, the
 	bull.
+~*purity
+gauntlet*
+	A type of armored glove designed to protect the wrist and hand,
+	usually made of metal or hardened leather and intended to be
+	worn as part of a full suit of armor.
+
 *purple worm
 	A gargantuan version of the harmless rain-worm, the purple
 	worm poses a huge threat to the ordinary adventurer.  It is
@@ -4559,6 +5441,17 @@ quit*
 	          be cast into the Flaming Pit of Death.
 		[ Snow Day, directed by Chris Koch,
 		  written by Will McRobb and Chris Viscardi ]
+rabid dog
+	It would perhaps not be amiss to point out that he had always
+	tried to be a good dog.  He had tried to do all the things his
+	MAN and his WOMAN, and most of all his BOY, had asked or
+	expected of him.  He would have died for them, if that had been
+	required.  He had never wanted to kill anybody.  He had been
+	struck by something, possibly destiny, or fate, or only a
+	degenerative nerve disease called rabies. Free will was not a
+	factor.
+		[ Cujo, by Stephen King ]
+
 raijin
 raiden
 	The Japanese god of thunder (rai) and lightning (den).  He
@@ -4585,8 +5478,8 @@ ranger
 	quiet lands, or in the homes of simple men at night, if the
 	Dunedain were asleep, or were all gone into the grave?"
 		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
-rat
-* rat
+~rat king
+*rat
 	Rats are long-tailed rodents.  They are aggressive,
 	omnivorous, and adaptable, often carrying diseases.
 		[]
@@ -4601,6 +5494,17 @@ rat
 	dying people.  They show astonishing intelligence in knowing
 	when a human being is helpless."
 		[ 1984, by George Orwell ]
+rat king
+	At this moment two of the enemies' tirailleurs seized him by
+	his wooden mantle, and the Mouse-King, squeaking from his seven
+	throats, leaped in triumph towards him.  Maria could no longer
+	control herself.  "Oh, my poor Nutcracker!" she cried, sobbing,
+	and without being exactly conscious of what she did, grasped her
+	left shoe, and threw it with all her strength into the thickest
+	of the mice, straight at their king.
+	   [ Nutracker and the Mouse-King, by E. T. A. Hoffmann,
+		translated by Mrs. St. Simon ]
+
 raven
 	But the raven, sitting lonely on the placid bust, spoke only
 	That one word, as if his soul in that one word he did outpour.
@@ -4610,6 +5514,10 @@ raven
 		Then the bird said, 'Nevermore.'
 				[ The Raven, by Edgar Allan Poe ]
 ~*invisibility
+~*p'hul
+~*one ring
+~ancient ring
+~lustrous ring
 ring
 * ring
 ring of *
@@ -4622,6 +5530,16 @@ ring of *
 	One Ring to bring them all and in the darkness bind them
 	In the Land of Mordor where the Shadows lie.
 		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
+revenant
+	Will rose.  Ser Waymar Royce stood over him.  His fine clothes were
+	a tatter, his face a ruin.  A shard from his sword transfixed the
+	blind white pupil of his left eye.  The right eye was open.  The pupil
+	burned blue.  It saw.  The broken sword fell from nerveless fingers.
+	Will closed his eyes to pray.  Long, elegant hands brushed his cheek,
+	then tightened around his throat.  They were gloved in the finest
+	moleskin and sticky with blood, yet the touch was icy cold.
+		[ A Game of Thrones, by George R. R. Martin ]
+
 ring of invisibility
 	"When time came for the shepherds to hold their customary
 	assembly in order to prepare their monthly report to the king
@@ -4653,6 +5571,12 @@ robe
 	2.  For Kings.  The OMT here is _falling in stately folds_.
 	3.  As the garb of Desert Nomads.  [...]
 	    [ The Tough Guide to Fantasyland, by Diana Wynne Jones ]
+robert the lifer
+	They send you here for life, that's exactly what they take.
+	The part that counts, anyways.
+	   [ The Shawshank Redemption, directed by Frank Darabont,
+		written by Stephen King and Frank Darabont ]
+
 rock
 large rock
 	Bilbo saw that the moment had come when he must do something.
@@ -4683,12 +5607,25 @@ rock mole
 	eat anything they come across in their diggings, although it
 	is still unknown how they convert some of these things into
 	something of nutritional value.
-rodent*
+rod
+	Rods were sceptre-like objects that could be used by
+	spellcasters to focus their spells, and were particularly favored
+	by wizards.  Some magical rods had unique magical powers, often
+	found in the possesion of powerful planar beings.  Rods could
+	also be employed in battle, and were effective bludgeoning
+	instruments.
+
+rodent
 	A gnawing mammal (order _Rodentia_) having in each jaw two
 	(rarely four) incisors, growing continually from persistent
 	pulps, and no canine teeth, as a squirrel, beaver, or rat.
 		[ Webster's Comprehensive International Dictionary
 		  of the English Language ]
+rodent of unusual size
+	Rodents of unusual size?  I don't think they exist.
+	   [ The Princess Bride, directed by Rob Reiner,
+		written by William Goldman ]
+
 rogue
 * rogue
 	I understand the business, I hear it: to have an open ear, a
@@ -4769,6 +5706,7 @@ rust monster
 rust monster or disenchanter
 	These ground-dwelling monsters are known to make short
 	work out of degrading adventurers' combat equipment.
+~saber-toothed tiger
 *saber
 *sabre
 	Flashed all their sabres bare,
@@ -4785,6 +5723,14 @@ rust monster or disenchanter
 	Not the six hundred.
 		[ The Charge of the Light Brigade,
 		  by Alfred, Lord Tennyson ]
+saber-toothed tiger
+	The saber-toothed tiger, a common term for a member of the
+	genus Smilodon, is perhaps the most well-known of the
+	saber-toothed cats.  Notable for the long, dagger-like fangs
+	from which the name of the genus is derived, these apex predators
+	stalked mammoths, bison, and other large herbivores across the
+	plains of prehistoric North America.
+
 saddle
 	The horseman serves the horse,
 	The neat-herd serves the neat,
@@ -4795,9 +5741,18 @@ saddle
 	Things are in the saddle,
 	And ride mankind.
 		[ Ode, by Ralph Waldo Emerson ]
+*safe
+	Theo, are we on schedule?
+	One more to go then it's up to you.  And you better be right,
+	because it looks like this last one is going to take a miracle.
+	It's Christmas, Theo.  It's the time of miracles.  So be of
+	good cheer... and call me when you hit the last lock.
+	   [ Die Hard, directed by John McTiernan, written by
+		Roderick Thorp, Jeb Stuart, and Steven E. de Souza ]
+
 sake
 	Japanese rice wine.
-salamander
+*salamander
 	For hundreds of years, many people believed that salamanders
 	were magical.  In England in the Middle Ages, people thought
 	that fire created salamanders.  When they set fire to damp
@@ -4869,6 +5824,21 @@ sasquatch
 	a Sasquatch -- not Burns's giant Indian, but the hairy apelike
 	creature that we have all come to know.
 		[ The Encyclopedia of Monsters, by Daniel Cohen ]
+satyr
+	Satyrs, also known as fauns or the Free Folk, are fey creatures
+	that delight in singing, dancing, feasting, and debauchery.
+	Satyrs look like male humanoids of stout build, with fur-covered
+	lower bodies and legs and cloven hooves similar to those of a goat.
+	Similarly, goat-like horns top their heads; these come in a variety
+	of shapes and sizes, from small nubs to big curling ones akin to a
+	ram.  They are typically seen with facial hair and wild, curly heads
+	of hair that ranged in length.
+
+	They have only a male sex, as female satyrs are a phenomenon that
+	just never naturally occurs.
+		[ Advanced Dungeons & Dragons,
+			Monster Manual 5th Edition ]
+
 scalpel
 	A scalpel is a very sharp knife used for surgery ... Merely
 	touching a medical scalpel with bare hands to test it will
@@ -4876,13 +5846,13 @@ scalpel
 	curved for greater precision when cutting through tissue.
 		[ Wikipedia, the free encyclopedia ]
 *sceptre of might
-	This mace was created aeons ago in some unknown cave,
+	This heavy mace was created aeons ago in some unknown cave,
 	and has been passed down from generation to generation of
 	cave dwellers.  It is a very mighty mace indeed, and in
 	addition will protect anyone who wields it from magic
 	missile attacks.  When invoked, it causes conflict in the
 	area around it.
-scimitar
+*scimitar
 	Oh, how handsome, how noble was the Vizier Ali Tebelin,
 	my father, as he stood there in the midst of the shot, his
 	scimitar in his hand, his face black with powder!  How his
@@ -4928,6 +5898,15 @@ scroll *
 	I read these words, and read again, and tried
 	My eyes against the heavens, and read again.
 		[ Endymion, by John Keats ]
+secespita
+	The secespita is a long iron sacrificial knife, made of brass
+	and copper from Cyprus, with a solid and rounded ivory handle,
+	which is secured to the hilt by a ring of silver or gold.
+	The flamens and their wives, the flaminicae, who were priests
+	and priestesses of the Ancient Rome, the virgins and the pontiffs
+	made use of it for sacrifices.
+		[ Wikipedia, the free encyclopedia ]
+
 set
 seth
 	The ancient Egyptian god of chaos (Set), the embodiment of
@@ -4943,6 +5922,7 @@ seth
 	dog, the jackal, the gazelle, the donkey, the crocodile, the
 	hippopotamus, and the pig.
 		[ Encyclopedia Mythica, ed. M.F. Lindemans ]
+~*shadowblade
 shad*
 	For the shades--figures of jet black streaking across the
 	white-knobbed ground--were upon her.  Strength was meaningless
@@ -4965,10 +5945,25 @@ shad*
 	silver warded them away.  Only with silver could you fight.
 		[ Shadows for Silence in the Forests of Hell,
 		  by Brandon Sanderson ]
+shadowblade
+	Shrouded in darkness, those that wield Shadowblade can instill
+	fear into the hearts of those who would dare go against them.
+		[]
+
 shaman karnov
 	Making his quarters in the Caves of the Ancestors, Shaman
 	Karnov unceasingly tries to shield his neanderthal people
-	from Tiamat's minions' harassments.
+	from Annam's minions' harassments.
+shambling horror
+	Despite its eldritch appearance, the shambling horror is
+	among the most harmless inhabitants of the Dungeons of
+	Doom.  Many adventurers who have returned from the depths
+	can attest to the varied yet innocuous aspects of this
+	creature.  It is speculated by some that the shambling
+	horror may occasionally possess abilities that are quite
+	lethal, but if this is true, no one has yet observed
+	them and survived to document it.
+
 shan*lai*ching
 	The Chinese god of Mountains and Seas, also the name of an
 	old book (also Shan Hai Tjing), the book of mountains and
@@ -5053,7 +6048,33 @@ shuriken
 	the throat, the other in the middle of her chest.  It wouldn't
 	kill her, but she wouldn't be fighting anyone for a while.
 		[ Jhereg, by Steven Brust ]
-skeleton
+silvanus
+	Silvanus is the Celtic and Faerunian power of wild nature,
+	standing in contrast to the more ordered, agrarian nature
+	represented by the goddess Chauntea.
+
+	His old form is known as the Old Father.  It took the form of
+	an old, bearded human male face, either floating midair among
+	trees or sprouting from the trunk of an especially large and old
+	tree.  The flesh of this form is always brown, gray, and fissured
+	like old wood.
+
+	His young form is known as the Young Strider.  This was a young,
+	long-limbed humanoid male, with particularly long legs, dressed in
+	a suit of armor made of leaves and wielding a wooden mallet.  He most
+	often assumes this form when a sacred grove was threatened or a circle
+	of druids was attacked during their worship.
+
+	Another form he is known to manifest as is the Horned Hunter, an
+	entity similar in appearance to his fellow Celtic god Cerunnos.  This
+	form is an always silent man with burning white eyes, sporting a set
+	of stag antlers and shaggy brown fur that was almost bark-like.  This
+	form always appears among the trees, often just to indicate something
+	by a gesturing, nodding, or pointing before disappearing.
+		[ Faiths & Avatars, by Julia Martin and
+			Eric L. Boyd ]
+
+skeleton*
 	A skeleton is a magically animated undead creature.  Unlike
 	shades, only a humanoid creature can be used to create a
 	skeleton.  No one knows why this is true, but it has become
@@ -5076,6 +6097,7 @@ slasher
 	shall pay for this, and seven heads for the dog, who was a
 	better warrior than many a man."
 		[ Conan The Warrior, by Robert E Howard ]
+~spellbook of sleep
 *sleep
 	Sleep is a death; oh, make me try
 	By sleeping, what it is to die,
@@ -5107,6 +6129,7 @@ sling
 serpent
 water moccasin
 pit viper
+*anaconda
 	Now the serpent was more subtle than any beast of the field
 	which the Lord God had made.  And he said unto the woman, Yea,
 	hath God said, Ye shall not eat of every tree of the garden?
@@ -5138,6 +6161,12 @@ snickersnee
 	    I drew my Snickersnee!
 	--Koko, Lord high executioner of Titipu
 		[ The Mikado, by Sir W.S. Gilbert ]
+snow golem
+	You silly children believe everything you see.  When you're grown
+	up you'll realize that snowmen can't come to life.
+	   [ Frosty the Snowman, directed by Jules Bass and
+		Arthur Rankin Jr., written by Romeo Muller ]
+
 sokoban
 	Sokoban (Japanese for "warehouse keeper") is a transport puzzle
 	in which the player pushes boxes around a maze, viewed from
@@ -5183,7 +6212,7 @@ javelin
 	fireman brake his neck!'  Why, that ain't a picture!
 		[ A Connecticut Yankee in King Arthur's Court,
 		    by Mark Twain ]
-*spellbook*
+*spellbook
 	The Book of Three lay closed on the table.  Taran had never
 	been allowed to read the volume for himself; now he was sure
 	it held more than Dallben chose to tell him.  In the sun-
@@ -5200,6 +6229,659 @@ javelin
 	hands," he advised.  "Otherwise, I shouldn't be surprised if
 	they blistered."
 		[ The Book of Three, by Lloyd Alexander ]
+spellbook of acid blast
+	This spell is a level six attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a ray of acid
+	which explodes once it hits its target.  At skilled or greater,
+	the caster can pick a location to target the spell for area of
+	effect, or choose to cast a ray of acid.  If an area of effect
+	attack type is chosen, the target will be engulfed by a series
+	of acidic explosions that will move around the center of the
+	targeted monster/location.
+
+	Objects caught in the path of the ray or acidic explosions are
+	subject to acid damage if they are not resistant.
+
+spellbook of barkskin
+	This spell is a level two evocation spell.  When cast, the
+	caster's skin is transformed into the bark of a tree,
+	providing a substantial bonus to the caster's armor class.
+	How much protection is provided is dependent on how skilled
+	the caster is in evocation spells.  While active, this spell
+	makes the caster 'thick-skinned', and they are better able to
+	withstand attacks from blunt weapons, but are more susceptible
+	to damage from axe-wielding creatures.  The duration of this
+	spell is also dependent on how skilled the caster is in
+	evocation spells.  If the caster has an aversion to certain
+	materials, this spell will provide relief from touching objects
+	made of those materials while active.
+
+	This spell and the spell 'stoneskin' cannot be active at the
+	same time.
+
+spellbook of burning hands
+	This spell is a level one enchantment spell.  When cast, it
+	engulfs the caster's hands in flame.  If unskilled or basic at
+	casting enchantment spells, the effect last for one successful
+	bare-handed melee hit (worn gloves/gauntlets count as
+	bare-handed).  If skilled or greater in enchantment spells, the
+	effect lasts for a few turns, and recasting the spell can stack,
+	giving up to twenty uses before the effect expires.  Hitting a
+	monster while burning hands is active will cause extra fire
+	damage to it if they are not fire resistant.  The amount of
+	damage given is directly related to how skilled the caster is in
+	enchantment spells.
+
+	The burning hands effect will not work unless the caster attacks
+	bare-handed (not wielding anything).  If the monster being
+	attacked is in water, the effect is nullified.  If the caster is
+	underwater, the effect is cancelled outright (hands are
+	extinguished).
+
+	This spell and the spell 'shocking grasp' cannot be active at
+	the same time.
+
+spellbook of cancellation
+	This spell is a level seven matter spell.  When cast, the caster
+	fires a beam in the selected direction.  Any objects in the path
+	of the beam (on the ground, in the target's inventory) can be
+	cancelled; items will be uncursed and lose enchantment, scrolls
+	and most spellbooks will be blanked, most wands and magical
+	tools will lose their charges, and most potions will be turned
+	into water.  Monsters hit by the beam must pass their monster
+	magic resistance check. If that fails, they will lose most or
+	all of their special attacks.  If the caster casts the spell at
+	themselves, every object in open inventory will be affected as
+	described.
+
+spellbook of cause fear
+	This spell is a level three enchantment spell.  When cast, the
+	effect of the spell will scare any monsters within line of sight
+	that can be scared and do not pass a monster magic resistance
+	check.  Scared monsters will flee from the caster.  A scared
+	monster that is fully healed has a 4% chance to recover per
+	turn.  This spell does not affect tame pets.
+
+spellbook of change metal to wood
+	This spell is a level five evocation spell.  If cast when
+	wielding a metallic object, that object's material will turn
+	into wood if wood is a valid material for that object.  Same
+	rules apply if cast on objects on the ground.  Casting this
+	spell at an iron golem will turn it into a wood golem.
+
+spellbook of charm monster
+	This spell is a level five enchantment spell.  When cast, the
+	spell has a chance to tame all adjacent monsters next to the
+	caster, dependent on passing their monster magic resistance
+	check.  The total number of monsters than can be tamed is based
+	on the caster's charisma attribute (charisma value / 3 = maximum
+	number of pets), with stronger monsters given preference over
+	weaker ones.  If more monsters are tamed than what is allowed,
+	the weakest monsters will either become peaceful or hostile.
+
+	This spell can also be used to pacify an angry shopkeeper
+	(monster MR check always passes).  Monsters that cannot be tamed
+	will at best be made peaceful, or are otherwise unaffected.  If
+	skilled or greater in enchantment spells, this spell can be used
+	to increase the tameness of already tame pets, not to exceed the
+	status of 'domesticated'.
+
+spellbook of clairvoyance
+	This is a level three divination spell, and is also a Samurai's
+	special spell.  When cast, this spell magically maps a 19x11
+	area centered on the caster's location.  If unskilled or basic
+	at casting divination spells, monsters will appear as an I, and
+	objects are shown with a generic description.  At skilled or
+	greater, monsters and objects are shown as if the caster can see
+	them directly.
+
+	This spell will not work if the caster is wearing a cornuthaum
+	and is not a Wizard.
+
+spellbook of cone of cold
+	This spell is a level four attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a ray of frost
+	which explodes once it hits its target.  At skilled or greater,
+	the caster can pick a location to target the spell for area of
+	effect, or choose to cast a ray of frost.  If an area of effect
+	attack type is chosen, the target will be engulfed by a series
+	of icy explosions that will move around the center of the
+	targeted monster/location.  Pools of water in the path of the
+	ray or caught in the area of effect explosions will freeze into
+	solid ice.
+
+	Objects caught in the path of the ray or icy explosions are
+	subject to cold damage if they are not resistant.
+
+spellbook of confuse monster
+	This spell is a level one enchantment spell.  When cast, the
+	caster's hands will glow red; the effect will confuse the next
+	monster attacked in melee if they do not pass a monster magic
+	resistance check.  The effect will work whether bare-handed or
+	wielding a weapon.  If the caster is skilled or greater in
+	enchantment spells, the effect will last for several turns, and
+	recasting the spell can stack, giving up to forty uses before
+	the effect expires.
+
+spellbook of create familiar
+	This spell is a level three clerical spell.  When cast, a monster
+	is created near the caster.  There is a one-third chance of the
+	spell creating an appropriate starting pet, or a two-thirds
+	chance of creating a random monster.  The created monster will
+	be tame if tameable, or will spawn peaceful otherwise.
+
+spellbook of create grass
+	This spell is a level three evocation spell.  When cast, small
+	patches of grass will grow around the caster.  How far out from
+	the caster grass will grow is dependent on how skilled they are
+	in evocation spells.  Grass can be used as a food source for
+	various herbivore pets, and Druids can benefit by standing on a
+	patch of grass.
+
+spellbook of create monster
+	This spell is a level two clerical spell.  When cast, there is
+	a very high chance of a single monster being created, otherwise
+	two to five random monsters will spawn.  Monsters that can
+	appear in groups will count as a single monster.  Monsters
+	created will either be hostile or peaceful depending on your
+	race and/or alignment.
+
+spellbook of create trees
+	This spell is a level five evocation spell.  When cast, a small
+	amount of trees will grow in various open spots around the
+	caster without blocking them in.  How far out from the caster
+	trees will grow is dependent on how skilled they are in
+	evocation spells.  If cast near a dead tree, and the caster is
+	skilled in evocation spells, there is a chance the dead tree
+	will be rejuvenated, and become a live tree.  Druids can benefit
+	by standing next to a live tree.
+
+spellbook of critical healing
+	This spell is a level six healing spell.  When cast at either
+	a monster or yourself, the target of the spell will be healed
+	for a substantial amount of hit points, and the amount can
+	scale based on how skilled the caster is in healing spells.
+	If skilled or greater, there's a 25% chance this spell will act
+	as if 'cure sickness' were cast on the target as well.
+
+	Casting this spell at Pestilence will cause damage rather than
+	heal it.
+
+spellbook of cure blindness
+	This spell is a level two healing spell.  When cast, it cures
+	the caster of intrinsic blindness.
+
+spellbook of cure sickness
+	This spell is a level three healing spell, and is also a
+	Healer's special spell.  When cast at either a monster or
+	yourself, it will cure the target of any illness or disease.
+	If cast at any type of zombie, this spell will cause a small
+	amount of physical damage to them, which can scale based on how
+	skilled the caster is in healing spells.
+
+spellbook of detect food
+	This spell is a level one divination spell.  When cast, this
+	spell will reveal the location of all comestibles, whether on
+	the ground or within a monster's inventory.  If skilled or
+	greater in casting divination spells, the caster will also
+	acquire the food appraisal intrinsic, which will last until
+	the caster receives a warning about food they attempt to eat.
+
+	This is the only spell that does not cause hunger from
+	spellcasting.
+
+spellbook of detect monsters
+	This spell is a level two divination spell.  When cast, all
+	monsters currently on the caster's level are revealed, and the
+	caster can position their cursor over each to see exactly what
+	kind of monster it is.  At unskilled or basic skill in
+	divination spells, the effect of displaying monsters ends as
+	soon as the caster is finished using their cursor to identify
+	the monsters shown.  At skilled or higher, the effect stays
+	active for several turns, and the number of turns will stack
+	with each casting, up to 300 turns.
+
+spellbook of detect treasure
+	This spell is a level four divination spell, and is also a
+	Rogue's special spell.  When cast at unskilled or basic skill
+	in divination spells, the spell reveals the location and object
+	type of every item on the level.  At skilled or higher, it
+	additionally reveals the appearance of every object on the
+	ground and in open inventory, as if the caster had seen them
+	directly.
+
+	Regardless of skill, casting this spell exercises wisdom.
+
+spellbook of detect unseen
+	This spell is a level two divination spell.  When cast, all
+	secret doors and corridors, non-statue traps, portals, mimics,
+	and hidden/submerged/invisible monsters within an eight square
+	radius of the caster are revealed.
+
+spellbook of dig
+	This spell is a level three matter spell.  When cast, the caster
+	fires a ray in the selected direction that digs through walls,
+	or can create holes in the floor.
+
+spellbook of dispel evil
+	This spell is a level five clerical spell.  When cast at a
+	monster that is evil (unaligned), it will take damage dependeing
+	on how skilled the caster is in clerical spells.  A skilled or
+	expert caster can potentially frighten, banish, or even outright
+	destroy its target.
+
+spellbook of drain life
+	This is a level two attack spell.  When cast at a monster that
+	is not resistant to draining, one level is drained from it, as
+	well as a small amount of the monster's maximum hit points.
+	Normal damage is sustained also.
+
+	When cast at an object that has a positive enchantment, its
+	enchantment will be dropped by one if the object does not
+	resist, not to go below zero.
+
+	Casting this spell at yourself has the same effect as it does
+	when cast at a monster.  If your own experience level drops
+	below one, you will die.
+
+spellbook of entangle
+	This spell is a level one evocation spell, and is also a
+	Druid's special spell.  When cast at a monster, surrounding
+	plant life will hold the monster for a brief number of turns,
+	which is dependent on how skilled the caster is in evocation
+	spells.  The target of this spell must be next to a live tree or
+	standing on grass for this spell to work.  The affected target
+	can still function, such as cast spells, or perform ranged
+	attacks, but are otherwise immobile for the duration of the
+	spell.
+
+	The effects of this spell will not work against unsolid,
+	whirly, or phasing monsters.
+
+spellbook of extra healing
+	This spell is a level three healing spell.  When cast at either
+	a monster or yourself, the target of the spell will be healed
+	for a significant amount of hit points, and the amount can
+	scale based on how skilled the caster is in healing spells.
+
+	Casting this spell at Pestilence will cause damage rather than
+	heal it.
+
+spellbook of finger of death
+	This spell is a level seven evocation spell.  When cast at a
+	monster, the ray produced will kill the target instantly,
+	unless the monster is resistant to death magic, has reflection,
+	or is already nonliving.  Monsters with magic resistance will
+	take damage instead of being killed outright.
+
+	If the caster of this spell targets themselves, they will die
+	instantly if not resistant to death magic or nonliving,
+	regardless of reflection or magic resistance.
+
+spellbook of fireball
+	This spell is a level four attack spell, and is also an
+	Infidel's special spell.  When cast as unskilled or basic in
+	attack spells, this spell creates a ray of fire which explodes
+	once it hits its target.  At skilled or greater, the caster can
+	pick a location to target the spell for area of effect, or
+	choose to cast a ray of fire.  If an area of effect attack type
+	is chosen, the target will be engulfed by a series of firey
+	explosions that will move around the center of the targeted
+	monster/location.  Pools of water in the path of the ray or
+	caught in the area of effect explosions can potentially boil
+	away.  Any ice caught in the path or explosions will melt away.
+
+	Objects caught in the path of the ray or firey explosions are
+	subject to fire damage if they are not resistant.
+
+spellbook of force bolt
+	This is a level one attack spell.  When cast, an invisible beam
+	of force travels from the caster to its intended target (line
+	of sight).  Anything within the path of the beam is affected.
+	Monsters will take physical damage, and this damage scales with
+	the skill of the caster, as does the chance to land a hit.  If
+	enough damage occurs, the targeted monster can be knocked back
+	if not steadfast.
+
+	Fragile objects and several terrain features within the path of
+	a force bolt can be destroyed (potions, objects made of glass,
+	boulders, statues, doors, iron bars, etc).
+
+spellbook of haste self
+	This spell is a level three escape spell.  When cast, the
+	caster temporarily gains very fast speed movement, the
+	duration being determined by how skilled the caster is in
+	casting escape spells.  This spell can stack; every time this
+	spell is cast successfully, more turns of very fast speed are
+	added to the duration.  Using this spell exercises dexterity
+	when successfully cast, but will not heal wounded legs.
+
+spellbook of healing
+	This spell is a level one healing spell.  When cast at either
+	a monster or yourself, the target of the spell will be healed
+	for a small amount of hit points, and the amount can scale
+	based on how skilled the caster is in healing spells.
+
+	Casting this spell at Pestilence will cause damage rather than
+	heal it.
+
+spellbook of identify
+	This spell is a level three divination spell.  When cast, if
+	unskilled or basic in casting divination spells, at least one
+	object in open inventory will be fully identified, with a very
+	small chance of identifying 2, 3, 4, or all objects in open
+	inventory.  If skilled or greater in divination spells, there
+	is an 80% chance of 1-4 objects in open inventory being
+	identified, and a 20% chance of identifying all objects.
+
+spellbook of invisibility
+	This spell is a level three escape spell, and is also a Ranger's
+	special spell.  When cast, the caster will become temporarily
+	invisible for several turns.
+
+spellbook of jumping
+	This spell is a level two escape spell.  When cast, the caster
+	can jump to other tile spaces within a certain range, which is
+	directly determined by how skilled the caster is in escape
+	spells.  The caster must be able to see the spot they want to
+	jump to (cannot be blind), nor can the caster jump over monsters
+	(attemping to do so will anger them if peaceful).  Using this
+	spell consumes up to 25 points of nutrition in addition to the
+	normal amount used when casting spells.
+
+spellbook of knock
+	This spell is a level one matter spell.  When cast, the caster
+	fires a beam in the selected direction that will open/unlock
+	any drawbridges or locked containers and doors that it makes
+	contact with, as well as revealing affected secret doors hidden
+	in a wall.  Casting this spell at containers with broken locks
+	and broken doors will repair them.  If the caster is punished
+	(heavy iron ball attached to the caster via an iron chain),
+	casting this spell at themselves will break the chain.  Using
+	this spell against themselves or a monster trapped in various
+	traps can free them.  If the caster is engulfed by a monster,
+	casting this spell at the engulfer will cause them to expel the
+	caster.
+
+spellbook of levitation
+	This spell is a level four escape spell.  When cast, the caster
+	is able to levitate temporarily.  How long the leviation effect
+	lasts is dependent on how skilled the caster is in casting
+	escape spells.  At skilled or higher, the caster is able to stop
+	levitating at will.
+
+spellbook of light
+	This spell is a level one divination spell.  When cast, a
+	circular area within a five square radius around the caster's
+	position is permanently lit.
+
+	Any gremlins caught in the radius of this spell will suffer a
+	small amount of light damage.
+
+spellbook of lightning
+	This spell is a level four attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a bolt of
+	lightning which explodes once it hits its target.  At skilled or
+	greater, the caster can pick a location to target the spell for
+	area of effect, or choose to cast a bolt of lightning.  If an
+	area of effect attack type is chosen, the target will be
+	engulfed by a series of electrical explosions that will move
+	around the center of the targeted monster/location.
+
+	Objects caught in the path of the bolt or electrical explosions
+	are subject to shock damage if they are not resistant.
+
+spellbook of magic mapping
+	This spell is a level five divination spell, and is also an
+	Archeologist's special spell.  When cast, this spell will reveal
+	the entire map; all of the level's walls and corridors, and all
+	staircases are shown.  Secret passages are also revealed, but
+	secret doors are not.
+
+	This spell will also reveal the current location of the magic
+	portal on the Plane of Water if the caster has already formally
+	located the portal via non-magical means.
+
+spellbook of magic missile
+	This spell is a level two attack spell, and is also a Wizard's
+	special spell.  When cast, a ray of magic missiles shoots from
+	the caster to its intended target, hitting any other monsters
+	in its path.  Damage inflicted is directly based on the
+	experience level of the caster.  Monsters with extrinsic magic
+	resistance will only take partial damage, and monsters with
+	reflection are unaffected, as are monsters that are inherently
+	magic resistant.
+
+	Knights in possession of the Magic Mirror of Merlin cause
+	double damage when casting this spell.
+
+spellbook of orb of fire
+	This spell is a level two matter spell.  When cast, a single
+	'tame' orb of fire is spawned, which will seek out any nearby
+	non-tame monsters to explode next to.  Unlike other tame pets,
+	any damage caused by the exploding orb of fire is handled as if
+	the caster were to blame.  Experience gained from any monsters
+	killed by the orb of fire goes to the caster.
+
+spellbook of orb of frost
+	This spell is a level two matter spell.  When cast, a single
+	'tame' orb of frost is spawned, which will seek out any nearby
+	non-tame monsters to explode next to.  Unlike other tame pets,
+	any damage caused by the exploding orb of frost is handled as if
+	the caster were to blame.  Experience gained from any monsters
+	killed by the orb of frost goes to the caster.
+
+spellbook of poison blast
+	This spell is a level five attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a ray of poison
+	that leaves a trail of noxious gas clouds as it travels to its
+	target.  At skilled or greater, the caster can pick a location
+	to target the spell for area of effect, or choose to cast a ray
+	of poison.  If an area of effect attack type is chosen, the
+	target will be engulfed by a series of poisonous explosions that
+	will move around the center of the targeted monster/location,
+	leaving several noxious gas clouds in its wake.
+
+	These gas clouds will linger; any being caught within these gas
+	clouds are subject to poison damage, and can choke and die from
+	the gas if not poison resistant.
+
+spellbook of polymorph
+	This spell is a level six matter spell.  When cast, the caster
+	fires a beam in the selected direction.  Any monsters within the
+	path of the beam that are not magic resistant will change into a
+	random monster.  If the caster uses this spell on themselves,
+	and they do not have the unchanging intrinsic, they will either
+	turn into a random monster, or will become a new version of
+	themselves, with changed hit points, experience level and
+	attributes.  Both monsters and the caster have a very small
+	chance to dying to 'system shock' if polymorphed.
+
+	Casting this spell at objects on the ground can polymorph them
+	into another object of the same object class.
+
+spellbook of power word kill
+	This spell is a level seven attack spell.  When cast, the caster
+	can choose one monster a certain distance away.  How far away
+	the caster can select their target is dependent on how skilled
+	they are in attack spells.  If the target is not resistant to
+	death magic - if they have 100 hit points or less, they are
+	instantly killed, otherwise they will lose two-thirds of their
+	total hit points, and have their maximum hit points decreased.
+	Targets that have full magic resistance will take a significant
+	amount of damage, not to drop below one.
+
+	If the caster casts this spell on themselves, they will die
+	instantly, regardless of what resistances they possess.
+
+spellbook of protection
+	This spell is a level one clerical spell.  When cast, the
+	caster's AC is temporarily decreased.  The amount of AC
+	decreased is dependent on the caster's experience level, the
+	amount of AC already gained from casting it, and the caster's
+	existing AC.  The protection will wear off at a rate of one
+	point of AC every ten turns, or twenty turns if expert in
+	clerical spells.
+
+spellbook of reflection
+	This spell is a level five matter spell.  When cast, a globe of
+	reflection surrounds the caster, and protects the caster the
+	same way as any other source of reflection.  The effect can last
+	for several hundred turns, and the duration is directly
+	dependent on how skilled the caster is in matter spells.
+	The duration of this spell can stack with repeated castings.
+
+spellbook of remove curse
+	This spell is a level three clerical spell, and is also a
+	Priest's special spell.  When cast, if the caster is unskilled
+	or has basic skill in clerical spells, any cursed worn/wielded
+	gear, quivered projectiles, or loadstones in open inventory will
+	become uncursed.  If skilled or greater in clerical spells, all
+	cursed objects in open inventory will become uncursed.
+
+	If the caster is riding a steed, and their steed is wearing a
+	cursed saddle and/or barding, they will become uncursed once
+	this spell is cast.
+
+	Regardless of the caster's skill when cast, if the caster is
+	punished (heavy iron ball attached with an iron chain), the iron
+	chain will be destroyed, unpunishing the caster.
+
+spellbook of repair armor
+	This spell is a level three matter spell, and is also a
+	Valkyrie's special spell.  When cast, if unskilled in casting
+	matter spells, one worn piece of armor is chosen at random,
+	while at basic skill or greater, the caster can choose which
+	worn piece of armor to repair.  The chosen piece of worn armor
+	will have one level of erosion repaired, up to fully repaired
+	(no erosion).
+
+spellbook of restore ability
+	This spell is a level two healing spell, and is also a Monk's
+	special spell.  When cast at yourself, it will restore any lost
+	attribute points, picking one attribute at random.  If skilled
+	or greater in healing spells, all attributes will have their
+	lost points restored.
+
+	If cast at a monster that has been cancelled, this spell will
+	uncancel the target.
+
+spellbook of shocking grasp
+	This spell is a level two enchantment spell.  When cast, it
+	engulfs the caster's hands in electrical energy.  If unskilled
+	or basic at casting enchantment spells, the effect last for one
+	successful bare-handed melee hit (worn gloves/gauntlets count as
+	bare-handed).  If skilled or greater in enchantment spells, the
+	effect lasts for a few turns, and recasting the spell can stack,
+	giving up to twenty uses before the effect expires.  Hitting a
+	monster while shocking grasp is active will cause extra shock
+	damage to it if they are not shock resistant.  The amount of
+	damage given is directly related to how skilled the caster is in
+	enchantment spells.
+
+	The shocking grasp effect will not work unless the caster attacks
+	bare-handed (not wielding anything).
+
+	This spell and the spell 'burning hands' cannot be active at
+	the same time.
+
+spellbook of sleep
+	This spell is a level two enchantment spell.  When cast, the
+	target of the spell will be put to sleep (if not already sleep
+	resistant) for several turns, which is directly determined by
+	the caster's experience level.  Monsters have a chance to resist
+	this spell if they pass their monster magic resistance check.
+	This spell has no effect on already-sleeping or paralyzed
+	monsters.  Attacking a monster in melee affected by this spell
+	has a 10% chance of waking them up.
+
+spellbook of slow monster
+	This spell is a level two enchantment spell.  When cast at a
+	monster that does not pass its monster magic resistance check,
+	it will make them slow (2/3 of normal speed).  If the monster
+	is already fast, their speed is reduced to normal.  If the
+	caster targets themselves with this spell, any intrinsic speed
+	they had is removed.
+
+spellbook of stone to flesh
+	This spell is a level three healing spell.  When cast at either
+	a monster or at yourself, it will halt any processes causing
+	the target to turn into stone.
+
+	Any objects made of mineral or gemstone that are in the path of
+	the spell, or in open inventory of the target, will turn into
+	meat (e.g. a boulder will turn into a huge chunk of meat, rings
+	into a meat ring, and so forth).
+
+	If this spell is cast at a statue of a monster, there is a good
+	chance the statue will reanimate into a living monster.
+
+	If this spell is cast at a stone golem, it will turn it into a
+	flesh golem.
+
+spellbook of stoneskin
+	This spell is a level four evocation spell.  When cast, the
+	caster's skin is transformed into hardened stone, providing a
+	significant bonus to the caster's armor class.  How much
+	protection is provided is dependent on how skilled the caster
+	is in evocation spells.  While active, this spell makes the
+	caster 'thick-skinned', they are better able to withstand
+	attacks from piercing or slashing weapons, and the caster is
+	also resistant to stoning effects.  The duration of this spell
+	is also dependent on how skilled the caster is in evocation
+	spells.  If the caster has an aversion to certain materials,
+	this spell will provide relief from touching objects made of
+	those materials while active.
+
+	This spell and the spell 'barkskin' cannot be active at the
+	same time.
+
+spellbook of summon animal
+	This spell is a level three evocation spell.  When cast, a
+	woodland animal is summoned to aid the caster.  The type and
+	strength/level of this woodland creature is dependent on how
+	skilled the caster is in evocation spells - the greater the
+	skill, the more powerful the woodland animal summoned.
+
+spellbook of summon elemental
+	This spell is a level six evocation spell.  When cast, a
+	random (fire/earth/air/water) elemental is summoned to aid
+	the caster.  The elemental summoned can have 1.5 to 2 times
+	the normal maximum hit points if the caster's skill in
+	evocation spells is high enough.
+
+spellbook of teleport away
+	This spell is a level six escape spell, and is also a Convict's
+	special spell.  When cast at a monster or object on the floor,
+	it will teleport that monster or object to a random spot on the
+	current level (a monster with teleport control will teleport
+	right next to the caster).
+
+	If the caster uses this spell on themselves on a level that
+	allows teleportation, they will teleport to a random safe spot
+	on the current level.  If the caster has teleport control, they
+	can choose their location.
+
+spellbook of turn undead
+	This spell is a level four clerical spell, and is also a Knight's
+	special spell.  When cast at an undead monster, the beam created
+	causes a small amount of damage to the undead target, and will
+	cause it to flee if they fail a resistance check.  Casting this
+	spell at the corpse of a dead monster will revive it.
+
+	Knights in possession of the Magic Mirror of Merlin cause
+	double damage when casting this spell.
+
+spellbook of wizard lock
+	This spell is a level two matter spell.  When cast, the caster
+	fires a beam in the selected direction that will close/lock any
+	drawbridges or unlocked containers and doors that it makes
+	contact with, as well as creating locked doors in doorways
+	within room walls.  This spell can also repair broken locks
+	on doors and containers, but it cannot repair a broken
+	drawbridge.  Casting this spell downward while over a hole will
+	convert it into a trap door.
+
 *spider
 	Eight legged creature capable of spinning webs to trap prey.
 		[]
@@ -5212,6 +6894,13 @@ javelin
 	don't I?"
 	"Why, yes, of course," said Wilbur.
 		[ Charlotte's Web, by E.B. White ]
+splanchomanc*
+anthropomanc*
+	Anthropomancy is a method of divination by the entrails of dead
+	or dying men or women, often virgin female children, through
+	sacrifice.  This practice was sometimes also called splanchomancy.
+		[ Wikipedia, the free encyclopedia ]
+
 *spore
 *sphere
 	The attack by those who want to die -- this is the attack
@@ -5228,6 +6917,7 @@ squeaky board
 	of you to come.  Shut the door, will you?"
 		[ The Light Fantastic, by Terry Pratchett ]
 ~*aesculapius
+~*archmagi
 *staff
 	So they stood, each in his place, neither moving a finger's
 	breadth back, for one good hour, and many blows were given
@@ -5247,12 +6937,32 @@ squeaky board
 	and this time so fairly that he fell heels over head into the
 	water, as the queen pin falls in a game of bowls.
 		[ The Merry Adventures of Robin Hood, by Howard Pyle ]
-*staff of aesculapius
+staff of aesculapius
 	This staff is considered sacred to all healers, as it truly
 	holds the powers of life and death.  When wielded, it
 	protects its user from all life draining attacks, and
 	additionally gives the wielder the power of regeneration.
 	When invoked it performs healing magic.
+~*staff of aesculapius
+~*staff of the archmagi
+staff of *
+	Ged stooped and plucked a blade of wild grass that poked up
+	dry and frail out of the snow where the otak had lain dead.
+	This blade he held up, and as he spoke aloud to it in the
+	True Speech it lengthened, and thickened, and when he was done
+	he held a great staff, a wizard's staff, in his hand.  No
+	banefire burned red along it when the black, flapping creatures
+	from the Court of the Terrenon swooped over him and he struck
+	their wings with it: it blazed only with the white magefire that
+	does not burn but drives away the dark.
+		[ A Wizard of Earthsea, by Ursula K. LeGuin ]
+
+staff of the archmagi
+	"The staff in the hand of a wizard may be more than a prop
+	for age," said Hama.  He looked hard at the ash-staff on
+	which Gandalf leaned.
+		[ The Two Towers, by J.R.R Tolkien ]
+
 stair*
 branch stair*
 	Up he went -- very quickly at first -- then more slowly -- then
@@ -5389,6 +7099,14 @@ straw golem
 	figure was raised above the stalks of corn by means of the
 	pole stuck up its back.
 		[ The Wonderful Wizard of Oz, by L. Frank Baum ]
+striped shirt
+	After about one hour's ride, we arrived at the so-called
+	penitentiary.  [...] Here I was put into a suit of "stripes"
+	--no underwear or socks-- just a two-piece suit of cotton
+	"stripes."
+	   [ I Am a Fugitive from a Georgia Chain Gang!,
+		by Robert Elliott Burns ]
+
 sunsword
 	What you seek is a blade of light,
 	a weapon for vengeance.
@@ -5401,8 +7119,38 @@ susano*o
 	material world.  He has been expelled from heaven and taken
 	up residence on earth.
 		[ Encyclopedia of Gods, by Michael Jordan ]
+sword of annihilation
+	Not much is known about this blade, as very few have lived
+	to tell the tale after encountering the one that wields it.
+	It is said that everything this sword touches is utterly
+	destroyed.  Probably more rumor than anything...
+		[]
+
 tanko
 	Samurai plate armor of the Yamato period (AD 300 - 710).
+tekko
+	Samurai gauntlets made of textiles layered with metal plates
+	or animal hide.
+
+tempest
+	At this hour, lie at my mercy all mine enemies.
+		[ The Tempest, William Shakespeare ]
+
+templar
+templar of *
+	Above all things, whosoever would be a knight of Christ,
+	choosing such holy orders, you in your profession of faith
+	must unite pure diligence and firm perseverence, which is so worthy
+	and so holy, and is known to be so noble, that if it is preserved
+	untainted for ever, you will deserve to keep company with the martyrs
+	who gave their souls for Jesus Christ.  In this religious order
+	has flourished and is revitalised the order of knighthood. [...]
+	God works well with us and our saviour Jesus Christ; He has sent
+	his friends from the Holy City of Jerusalem to the marches of France
+	and Burgundy, who for our salvation and the spread of the true faith
+	do not cease to offer their souls to God, a welcome sacrifice.
+		[ Rule of the Knights Templar, translated by J. M. Upton-Ward ]
+
 tengu
 	The tengu was the most troublesome creature of Japanese
 	legend.  Part bird and part man, with red beak for a nose
@@ -5464,6 +7212,7 @@ thug
 	for another 50 years or so.
 	In common parlance the word is used for any violent "tough".
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+~saber-toothed tiger
 tiger
 	1.  A well-known tropical predator (_Felis tigris_): a
 	feline.  It has a yellowish skin with darker spots or
@@ -5532,6 +7281,23 @@ topaz
 	acid igneous rocks, e.g., granites and rhyolites, and in
 	metamorphic rocks, e.g., gneisses and schists.
 		[ The Columbia Encyclopedia, Sixth Edition ]
+tortle*
+tortle shaman
+sea tortle
+	Tortles are reptilian-looking humanoids with large shells on
+	their backs that are capable of containing their entire bodies.
+	They have leathery skins that vary between olive-green to
+	blue-green hues.  The dorsal portion of their shells is usually
+	darker than their skins, while the ventral portion is lighter,
+	usually with yellowish tones.
+
+	Tortles rarely wear any clothing, favoring instead belts and
+	harnesses to carry their belongings.  They have little tolerance
+	for cold, and usually migrate away from temperate areas when
+	winter approaches.
+		[ The Tortle Package (Wizards of the Coast),
+			by Christopher Perkins and Jeremy Crawford ]
+
 touch*stone
 	"Gold is tried by a touchstone, men by gold."
 		[ Chilon (c. 560 BC) ]
@@ -5596,6 +7362,12 @@ trap*door
 	tragedies of all kinds.
 		[ The Phantom of the Opera, by Gaston Leroux ]
 # takes "trapper or lurker above" when specifying 't'
+trap kit
+	An essential part of any Rogue's starting gear, a trap kit
+	contains the necessary tools and parts needed to craft any
+	number of traps, magical or otherwise.  After several uses,
+	trap kits need to be replenished.
+
 trapper
 trapper or lurker above
 	The trapper is a creature which has evolved a chameleon-like
@@ -5697,6 +7469,13 @@ guide
 	Weasel are always getting involved in.  You know --
 	_excitement_."
 		[ The Colour of Magic, by Terry Pratchett ]
+tymora
+	Tymora, the goddess of good fortune, smiles on risk-takers,
+	the reckless and foolhardy, and other charming ne'er-do-wells.
+	Born from the cleaving in two of the luck goddess Tyche, she is
+	frequently locked in struggle with her twin sister Beshaba,
+	goddess of ill fortune.
+
 tyr
 	Yet remains that one of the Aesir who is called Tyr:
 	he is most daring, and best in stoutness of heart, and he
@@ -5774,7 +7553,7 @@ valkyrie
 		by Herbert Spencer Robinson and Knox Wilson ]
 vampire
 ~vampire bat
-vampire l*
+vampire*
 	He can transform himself to wolf, as we gather from the ship
 	arrival in Whitby, when he tear open the dog; he can be as
 	bat, as Madam Mina saw him on the window at Whitby, and as
@@ -5870,6 +7649,13 @@ wand *
 	fell down at Gandalf's feet.  'Go!' said Gandalf.  With a cry
 	Saruman fell back and crawled away.
 		[ The Two Towers, by J.R.R. Tolkien ]
+warden arianna
+	I believe in two things: discipline and the Bible.  Here you'll
+	receive both.  Put your trust in the Lord; your ass belongs to me.
+	Welcome to Shawshank.
+	   [ The Shawshank Redemption, directed by Frank Darabont,
+		written by Stephen King and Frank Darabont ]
+
 warg
 	Suddenly Aragorn leapt to his feet.  "How the wind howls!"
 	he cried.  "It is howling with wolf-voices.  The Wargs have
@@ -5889,7 +7675,9 @@ warg
 	where the warg howls, there also the orc prowls."
 		[ The Fellowship of the Ring, by J.R.R. Tolkien ]
 ~mjollnir
-war*hammer
+*war*hammer
+*runed*hammer
+*blacksmith*hammer
 	They had come together at the ford of the Trident while the
 	battle crashed around them, Robert with his warhammer and his
 	great antlered helm, the Targaryen prince armored all in
@@ -5955,11 +7743,11 @@ water troll
 # axe and morning star and the umpteen polearms have their own entries;
 # exclusion keys for broadsword and sunsword aren't really necessarily
 # because their entries precede this one
+~*broadsword
+~sunsword
 weapon
 club
 flail
-~*broadsword
-~sunsword
 *sword
 	A weapon is a device for making your enemy change his mind.
 		[ The Vor Game, by Lois McMaster Bujold ]
@@ -6046,6 +7834,14 @@ wolf
 	monkshood.
 		[ The American Heritage Dictionary of
 		    the English Language, Fourth Edition. ]
+* wolverine
+	The wolverine, also called the carcajou or quickhatch, is the
+	largest land-dwelling member of the family Mustelidae.  It is a
+	muscular carnivore and a solitary animal.  The wolverine has a
+	reputation for ferocity and strength out of proportion to its
+	size, with the documented ability to kill prey many times larger
+	than itself.
+
 wood golem
 	Come, old broomstick, you are needed,
 	Take these rags and wrap them round you!
@@ -6066,6 +7862,7 @@ wood golem
 	Brimming full he fills!
 	  [ The Sorcerer's Apprentice, by Johann Wolfgang von Goethe,
 	      translation by Edwin Zeydel ]
+carl
 woodchuck
 	The Usenet Oracle requires an answer to this question!
 
@@ -6080,6 +7877,13 @@ woodchuck
 	and heard the Oracle slam his finger on a computer key, followed
 	by a loud ZZZZOTTTTT and the smell of ozone.
 		[ Excerpted from Internet Oracularity 576.6 ]
+woolly mammoth
+	The woolly mammoth (Mammuthus primigenius) is a species of mammoth
+	that lived during the Pleistocene until its extinction in the
+	Holocene epoch.  It was one of the last in a line of mammoth species,
+	beginning with Mammuthus subplanifrons in the early Pliocene.
+		[ Wikipedia, the free encyclopedia ]
+
 *worm
 long worm tail
 worm tooth
@@ -6133,7 +7937,15 @@ xan
 	man next to him asked, "Gathered Blood, what's wrong?"  So
 	he flew along the row stinging all the seated men until he
 	knew the names of all twelve.
-			[ Popul Vuh, as translated by Ralph Nelson ]
+		[ Popul Vuh, as translated by Ralph Nelson ]
+xiuhcoatl
+	Xiuhcoatl was considered to be the nahual, or spirit form,
+	of the Aztec fire god Xiuhtecuhtli.  It was a lightning-like
+	weapon borne by Huitzilopochtli.  With it, soon after his birth
+	he pierced his sister Coyolxauhqui, destroying her, and also
+	defeated the Centzon Huitznahua.
+	   [ Dioses Prehispanicos de Mexico, by Adela Fernandez ]
+
 xorn
 	A distant cousin of the earth elemental, the xorn has the
 	ability to shift the cells of its body around in such a way
@@ -6144,11 +7956,10 @@ ya
 	The arrow of choice of the samurai, ya are made of very
 	straight bamboo, and are tipped with hardened steel.
 yeenoghu
-	Yeenoghu, the demon lord of gnolls, still exists although
-	all his followers have been wiped off the face of the earth.
-	He casts magic projectiles at those close to him, and a mere
-	gaze into his piercing eyes may hopelessly confuse the
-	battle-weary adventurer.
+	Yeenoghu, the demon lord of gnolls.  He casts magic projectiles
+	at those close to him, and a mere gaze into his piercing eyes
+	may hopelessly confuse the battle-weary adventurer.
+abominable snowman
 yeti
 	The Abominable Snowman, or yeti, is one of the truly great
 	unknown animals of the twentieth century.  It is a large hairy
@@ -6175,6 +7986,7 @@ yumi
 	the yumi-ya, the bow and arrow, the samurai is an extremely
 	accurate and deadly warrior.
 *zombi*
+* witherling
 	The zombi... is a soulless human corpse, still dead, but
 	taken from the grave and endowed by sorcery with a
 	mechanical semblance of life, -- it is a dead body which is
@@ -6188,6 +8000,7 @@ zruty
 # because they'll have matched entries above.  The usual three letter role
 # designation plus " ranks" should always find the set for that role.
 #
+
 arc* ranks
 archeologist
 digger
@@ -6284,11 +8097,12 @@ chirurgeon
 	 Magistra        22 to 25
 	Physician        26 to 29
 	Chirurgeon          30
+~dark kni* ranks
 kni* ranks
 knight
 gallant
 esquire
-bachelor
+bachelor*
 sergeant
 knight
 banneret
@@ -6557,3 +8371,81 @@ discworld novel*
 	  Raising Steam
 	  The Shepherd's Crown
 #
+
+con* ranks
+convict
+detainee
+inmate
+jail-bird
+prisoner
+outlaw
+crook
+desperado
+felon
+fugitive
+	Convict ranks
+	  title            level
+	Detainee          1 to 2
+	Inmate            3 to 5
+	Jail-bird         6 to 9
+	Prisoner         10 to 13
+	Outlaw           14 to 17
+	Crook            18 to 21
+	Desperado        22 to 25
+	Felon            26 to 29
+	Fugitive            30
+
+inf* ranks
+infidel
+apostate
+heathen
+heretic
+idolat*
+cultist
+splanchomancer
+malefic*
+demonologist
+heresiarch
+	Infidel ranks
+	  title            level
+	Apostate          1 to 2
+	Heathen           3 to 5
+	Heretic           6 to 9
+	Idolater,
+	 Idolatress      10 to 13
+	Cultist          14 to 17
+	Splanchomancer   18 to 21
+	Maleficus,
+	 Malefica        22 to 25
+	Demonologist     26 to 29
+	Heresiarch          30
+
+dark kni* ranks
+dark knight
+sniveler
+pawn
+brute
+mercenary
+blackguard
+turncoat
+knave
+vixen
+dark baron*
+dark paladin
+	Dark Knight ranks
+	  title            level
+	Sniveler          1 to 2
+	Pawn              3 to 5
+	Brute             6 to 9
+	Mercenary        10 to 13
+	Blackguard       14 to 17
+	Turncoat         18 to 21
+	Knave,
+	 Vixen           22 to 25
+	Dark Baron,
+	 Dark Baroness   26 to 29
+	Dark Paladin        30
+
+journal
+*adventurer's journal
+	  The Adventurer's Journal
