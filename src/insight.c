@@ -2184,6 +2184,9 @@ youhiding(boolean via_enlghtmt, /* enlightenment line vs topl message */
         if (gy.youmonst.data->mlet == S_EEL) {
             if (is_pool(u.ux, u.uy))
                 Sprintf(bp, " in the %s", waterbody_name(u.ux, u.uy));
+        } else if (gy.youmonst.data == &mons[PM_GIANT_LEECH]) {
+            if (is_sewage(u.ux, u.uy))
+                Sprintf(bp, " in the %s", waterbody_name(u.ux, u.uy));
         } else if (hides_under(gy.youmonst.data)) {
             struct obj *o = svl.level.objects[u.ux][u.uy];
 

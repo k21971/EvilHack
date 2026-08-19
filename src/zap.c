@@ -1085,7 +1085,8 @@ revive(struct obj *corpse, boolean by_hero)
     }
 
     if (corpse->norevive
-        || (mons[montype].mlet == S_EEL && !IS_POOL(levl[x][y].typ))
+        || (mons[montype].mlet == S_EEL
+            && !(IS_POOL(levl[x][y].typ) || IS_PUDDLE(levl[x][y].typ)))
         || (mons[montype].mlet == S_TROLL
             && by_hero && wielding_artifact(ART_TROLLSBANE))) {
         if (cansee(x, y))
@@ -6023,6 +6024,16 @@ zap_over_floor(
                         } else {
                             set_utrap(rn1(50, 20), TT_INFLOOR);
                             You("are firmly stuck in the cooling rock.");
+                        }
+                    } else if (u.uundetected) {
+                        /* surface-hider polyform (eel/piranha/leech)
+                           hidden on water with u.uinwater unset (form
+                           change while flying/levitating); tile is
+                           now ICE so the hide is no longer valid */
+                        maybe_unhide_at(u.ux, u.uy);
+                        if (!u.uundetected) {
+                            docrt();
+                            gv.vision_full_recalc = 1;
                         }
                     }
                 } else if ((mon = m_at(x, y)) != 0) {

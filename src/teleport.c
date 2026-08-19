@@ -134,10 +134,11 @@ goodpos(
             return FALSE;
 
         mdat = mtmp->data;
-        if (is_pool(x, y) && !ignorewater) {
-            /* [what about Breathless?] */
+        if (!ignorewater
+            && (is_pool(x, y) || ((is_puddle(x, y) || is_sewage(x, y))
+                                  && vs_cantflyorswim(mdat)))) {
             if (mtmp == &gy.youmonst)
-                return (Swimming || Amphibious
+                return (Swimming || Amphibious || Breathless
                         || (!Is_waterlevel(&u.uz)
                             && !is_waterwall(x, y)
                             /* water on the Plane of Water has no surface
@@ -149,7 +150,8 @@ goodpos(
                             && !is_waterwall(x, y)
                             && (m_in_air(mtmp) || can_levitate(mtmp)
                                 || can_fly(mtmp))));
-        } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater) {
+        } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
+                   && !is_puddle(x, y)) {
             return FALSE;
         } else if (is_lava(x, y) && !ignorelava) {
             /* 3.6.3: floating eye can levitate over lava but it avoids
@@ -179,6 +181,10 @@ goodpos(
         if (checkscary && (mtmp->m_id ? onscary(x, y, mtmp)
                                       : goodpos_onscary(x, y, mdat)))
             return FALSE;
+        /* master's explicit shallow-water accept is not ported: ACCESSIBLE
+           already covers puddles and sewage, and an early return here would
+           bypass the boulder and mongen-exclusion rejections below (the
+           water-hazard arm above already rejected vs_cantflyorswim) */
     }
     if (!accessible(x, y)) {
         if (!(is_pool(x, y) && ignorewater)

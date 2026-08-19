@@ -288,7 +288,8 @@ attack_checks(
 
     if (mtmp->mundetected && !canseemon(mtmp)
         && !glyph_is_warning(glyph)
-        && (hides_under(mtmp->data) || mtmp->data->mlet == S_EEL)) {
+        && (hides_under(mtmp->data) || mtmp->data->mlet == S_EEL
+            || mtmp->data == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = mtmp->msleeping = 0;
         newsym(mtmp->mx, mtmp->my);
         if (glyph_is_invisible(glyph)) {
@@ -307,7 +308,8 @@ attack_checks(
                 pline("A %s %s %s!", mtmp->mtame ? "tame" : "wild",
                       notseen ? "creature" : (const char *) lmonbuf,
                       notseen ? "is present" : "appears");
-            else if (Blind || (is_pool(mtmp->mx, mtmp->my) && !Underwater))
+            else if (Blind || (is_damp_terrain(mtmp->mx, mtmp->my)
+                               && !Underwater))
                 pline("Wait!  There's a hidden monster there!");
             else if ((obj = svl.level.objects[mtmp->mx][mtmp->my]) != 0)
                 pline("Wait!  There's %s hiding under %s!",
@@ -6045,6 +6047,8 @@ mhitm_ad_webs(
                 hitmsg(magr, mattk);
                 pline("%s entangles you in a web%s", Monnam(magr),
                       (is_pool_or_lava(u.ux, u.uy)
+                       || is_puddle(u.ux, u.uy)
+                       || is_sewage(u.ux, u.uy)
                        || IS_AIR(levl[u.ux][u.uy].typ))
                           ? ", but it has nothing to anchor to."
                           : is_giant(gy.youmonst.data)

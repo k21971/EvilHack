@@ -21,6 +21,7 @@ staticfn boolean m_search_items(struct monst *, coordxy *, coordxy *, int *,
                                 int *) NONNULLPTRS;
 staticfn int postmov(struct monst *, struct permonst *, coordxy, coordxy, int,
                      unsigned, boolean, boolean, boolean) NONNULLPTRS;
+staticfn boolean mon_slowed_by_sewage(struct monst *);
 staticfn boolean leppie_avoidance(struct monst *);
 staticfn void leppie_stash(struct monst *);
 staticfn int m_balks_at_approaching(int, struct monst *, int *, int *);
@@ -872,6 +873,25 @@ m_postmove_effect(struct monst *mtmp)
         create_gas_cloud(x, y, 1, 0, mtmp); /* harmless vapor */
 }
 
+/* returns TRUE if monster is in sewage and should be slowed;
+   handles all immunity checks for sewage movement penalty */
+staticfn boolean
+mon_slowed_by_sewage(struct monst *mtmp)
+{
+    struct permonst *mdat = mtmp->data;
+
+    if (!is_sewage(mtmp->mx, mtmp->my))
+        return FALSE;
+    if (is_flyer(mdat) || is_floater(mdat)
+        || is_clinger(mdat) || is_swimmer(mdat)
+        || passes_walls(mdat) || can_levitate(mtmp) || can_fly(mtmp)
+        || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
+        || resists_slow(r_data(mtmp))
+        || ((mtmp == u.usteed) && Flying))
+        return FALSE;
+    return TRUE;
+}
+
 /* returns 1 if monster died moving, 0 otherwise */
 /* The whole dochugw/m_move/distfleeck/mfndpos section is serious spaghetti
  * code. --KAA
@@ -939,6 +959,12 @@ dochug(struct monst *mtmp)
     /* stunned monsters get un-stunned with larger probability */
     if (mtmp->mstun && !rn2(10))
         mtmp->mstun = 0;
+
+    /* sewage slow effect - purely position-based */
+    if (mon_slowed_by_sewage(mtmp))
+        mon_adjust_speed(mtmp, -2, (struct obj *) 0);
+    else
+        mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
     /* being in midair where gravity is still in effect can be lethal */
     if (is_open_air(mtmp->mx, mtmp->my)
@@ -1260,8 +1286,14 @@ dochug(struct monst *mtmp)
         /* a steed carrying a monster rider is off the map on purpose */
         if (mon_offmap(mtmp) && !mtmp->ridden_by)
             return 1;
-        if (status != MMOVE_DIED)
+        if (status != MMOVE_DIED) {
+            /* update sewage slow after movement for next turn */
+            if (mon_slowed_by_sewage(mtmp))
+                mon_adjust_speed(mtmp, -2, (struct obj *) 0);
+            else
+                mon_adjust_speed(mtmp, 3, (struct obj *) 0);
             distfleeck(mtmp, &inrange, &nearby, &scared); /* recalc */
+        }
 
         switch (status) { /* for pets, cases 0 and 3 are equivalent */
         case MMOVE_NOMOVES:
@@ -2083,7 +2115,8 @@ postmov(
 
         maybe_spin_web(mtmp);
 
-        if (hides_under(ptr) || ptr->mlet == S_EEL) {
+        if (hides_under(ptr) || ptr->mlet == S_EEL
+            || ptr == &mons[PM_GIANT_LEECH]) {
             /* Always set--or reset--mundetected if it's already hidden
                (just in case the object it was hiding under went away);
                usually set mundetected unless monster can't move. */

@@ -3375,6 +3375,11 @@ makemon(
             (void) hideunder(mtmp);
         }
         break;
+    case S_WORM:
+        if (mtmp->data == &mons[PM_GIANT_LEECH] && gi.in_mklev) {
+            (void) hideunder(mtmp);
+        }
+        break;
     case S_EYE:
         if (mtmp->data == &mons[PM_BEHOLDER]) {
             /* chase-active: see mklev.c rationale re the Infidel

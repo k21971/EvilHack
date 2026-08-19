@@ -701,10 +701,12 @@ update_mon_extrinsics(
         case STEALTH:
         case TELEPAT:
             break;
+        case WWALKING:
+            mon->mextrinsics |= MR2_WATERWALK;
+            break;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
         case FLYING:
-        case WWALKING:
             break;
         /* properties which maybe should have an effect but don't */
         case DISPLACED:
@@ -728,6 +730,9 @@ update_mon_extrinsics(
             gi.in_mklev = save_in_mklev;
             break;
         }
+        case WWALKING:
+            mon->mextrinsics &= ~(MR2_WATERWALK);
+            break;
         case FIRE_RES:
         case COLD_RES:
         case SLEEP_RES:

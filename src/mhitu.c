@@ -747,8 +747,12 @@ mattacku(struct monst *mtmp)
                 /* a fish won't voluntarily swap positions
                    when it's in water and hero is over land */
                 || (mtmp->data->mlet == S_EEL
-                    && is_pool(mtmp->mx, mtmp->my)
-                    && !is_pool(u.ux, u.uy))) {
+                    && (is_pool(mtmp->mx, mtmp->my)
+                        || is_puddle(mtmp->mx, mtmp->my))
+                    && !(is_pool(u.ux, u.uy) || is_puddle(u.ux, u.uy)))
+                || (mtmp->data == &mons[PM_GIANT_LEECH]
+                    && is_sewage(mtmp->mx, mtmp->my)
+                    && !is_sewage(u.ux, u.uy))) {
                 /* couldn't find any spot for hero; this used to
                    kill off attacker, but now we just give a "miss"
                    message and keep both mtmp and hero at their
@@ -807,8 +811,10 @@ mattacku(struct monst *mtmp)
                 struct obj *obj = svl.level.objects[u.ux][u.uy];
 
                 if (obj || u.umonnum == PM_TRAPPER
+                    || (u.umonnum == PM_GIANT_LEECH
+                        && is_sewage(u.ux, u.uy))
                     || (gy.youmonst.data->mlet == S_EEL
-                        && is_pool(u.ux, u.uy))) {
+                        && (is_pool(u.ux, u.uy) || is_puddle(u.ux, u.uy)))) {
                     int save_spe = 0; /* suppress warning */
 
                     if (obj) {
@@ -819,7 +825,8 @@ mattacku(struct monst *mtmp)
                     /* note that m_monnam() overrides hallucination, which is
                        what we want when message is from mtmp's perspective */
                     if (gy.youmonst.data->mlet == S_EEL
-                        || u.umonnum == PM_TRAPPER)
+                        || u.umonnum == PM_TRAPPER
+                        || u.umonnum == PM_GIANT_LEECH || !obj)
                         pline(
                              "Wait, %s!  There's a hidden %s named %s there!",
                               m_monnam(mtmp),
@@ -913,7 +920,8 @@ mattacku(struct monst *mtmp)
         tmp = 1;
 
     /* make eels visible the moment they hit/miss us */
-    if (mdat->mlet == S_EEL && mtmp->minvis && cansee(mtmp->mx, mtmp->my)) {
+    if ((mdat->mlet == S_EEL || mdat == &mons[PM_GIANT_LEECH])
+        && mtmp->minvis && cansee(mtmp->mx, mtmp->my)) {
         mtmp->minvis = 0;
         newsym(mtmp->mx, mtmp->my);
     }
@@ -1503,20 +1511,31 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     /*  If the monster is undetected & hits you, you should know where
      *  the attack came from.
      */
-    if (mtmp->mundetected && (hides_under(mdat) || mdat->mlet == S_EEL)) {
+    if (mtmp->mundetected
+        && (hides_under(mdat) || mdat->mlet == S_EEL
+            || mdat == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = 0;
         if (!tp_sensemon(mtmp) && !Detect_monsters) {
             struct obj *obj;
             const char *what;
             char Amonbuf[BUFSZ];
 
-            if ((obj = svl.level.objects[mtmp->mx][mtmp->my]) != 0) {
-                if (Blind && !obj->dknown)
+            /* eels and giant leeches hide in bare water/sewage with
+               no object cover */
+            if ((obj = svl.level.objects[mtmp->mx][mtmp->my]) != 0
+                || is_damp_terrain(mtmp->mx, mtmp->my)) {
+                if (Blind && !(obj && obj->dknown))
                     what = something;
                 else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
                     what = "the water";
-                else
+                else if (is_puddle(mtmp->mx, mtmp->my))
+                    what = "the shallow water";
+                else if (is_sewage(mtmp->mx, mtmp->my))
+                    what = "the raw sewage";
+                else if (obj)
                     what = doname(obj);
+                else
+                    what = something;
 
                 Strcpy(Amonbuf, Amonnam(mtmp));
                 /* mtmp might be invisible with hero unable to see same */
