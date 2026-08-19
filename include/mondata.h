@@ -19,6 +19,10 @@
 #define r_bigmonst(mon) (bigmonst(r_data(mon)))
 #define biggermonst(ptr) ((ptr)->msize > (gy.youmonst.data)->msize)
 #define r_biggermonst(mon) (biggermonst(r_data(mon)))
+/* too small to keep its head above even shallow water, with no way
+   to fly or swim clear of it */
+#define vs_cantflyorswim(ptr) \
+    (verysmall(ptr) && !is_flyer(ptr) && !is_swimmer(ptr) && !amphibious(ptr))
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
@@ -178,6 +182,8 @@
     ((mon_resistancebits(mon) & MR2_LEVITATE) != 0)
 #define can_fly(mon) \
     ((mon_resistancebits(mon) & MR2_FLY) != 0)
+#define can_wwalk(mon) \
+    ((mon_resistancebits(mon) & MR2_WATERWALK) != 0)
 #define has_claws(ptr) \
     (is_gnoll(ptr)                                                       \
      || (is_illithid(ptr)                                                \

@@ -582,6 +582,13 @@ move_bc(int before, int control, coordxy ballx, coordxy bally,
                 newsym(ballx, bally);
         }
     }
+    /* dragging ball or chain through water */
+    if ((control & BC_BALL) && uball->where == OBJ_FLOOR
+        && is_damp_terrain(ballx, bally))
+        (void) water_damage(uball, (char *) 0, FALSE);
+    if ((control & BC_CHAIN) && uchain->where == OBJ_FLOOR
+        && is_damp_terrain(chainx, chainy))
+        (void) water_damage(uchain, (char *) 0, FALSE);
 }
 
 /* return TRUE if the caller needs to place the ball and chain down again */

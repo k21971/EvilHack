@@ -1216,6 +1216,14 @@ test_move(
                          : (Known_lwalking && is_lava(u.ux, u.uy))))))
             return (mode == TEST_TRAP);
 
+        /* known shallow water; hazardous only for a hero too small to
+           keep their head above it who can neither fly nor swim */
+        if (levl[x][y].seenv
+            && (is_puddle(x, y) || is_sewage(x, y))
+            && vs_cantflyorswim(gy.youmonst.data)
+            && !(Levitation || Flying || is_clinger(gy.youmonst.data)))
+            return (mode == TEST_TRAP);
+
         /* known open air where gravity is in effect */
         if ((levl[x][y].seenv && is_open_air(x, y))
             && !(Levitation || Flying || is_clinger(gy.youmonst.data)))
@@ -2003,7 +2011,8 @@ domove_attackmon_at(
      * do_attack().
      */
     if (svc.context.forcefight || !mtmp->mundetected || sensemon(mtmp)
-        || ((hides_under(mtmp->data) || mtmp->data->mlet == S_EEL)
+        || ((hides_under(mtmp->data) || mtmp->data->mlet == S_EEL
+             || mtmp->data == &mons[PM_GIANT_LEECH])
             && !is_safemon(mtmp))) {
         /* target monster might decide to switch places with you... */
         *displaceu = (mtmp->data == &mons[PM_DISPLACER_BEAST] && !rn2(2)
@@ -2556,16 +2565,23 @@ avoid_moving_on_liquid(
          || (svc.context.run < 2 && (!is_lava(x, y) || in_air))
          || svc.context.travel)
         /* and you know you won't fall in */
-        && (in_air || Known_lwalking || (is_pool(x, y) && Known_wwalking))
+        && (in_air || Known_lwalking || (is_pool(x, y) && Known_wwalking)
+            /* shallow water can't be fallen into unless the hero is too
+               small to keep their head above it */
+            || ((is_puddle(x, y) || is_sewage(x, y))
+                && !vs_cantflyorswim(gy.youmonst.data)))
         && !(IS_WATERWALL(levl[x][y].typ) || levl[x][y].typ == LAVAWALL)) {
         /* XXX: should send 'is_clinger(gy.youmonst.data)' here once clinging
            polyforms are allowed to move over water */
         return FALSE; /* liquid is safe to traverse */
-    } else if (is_pool_or_lava(x, y) && levl[x][y].seenv) {
+    } else if ((is_pool_or_lava(x, y) || is_puddle(x, y) || is_sewage(x, y))
+               && levl[x][y].seenv) {
         if (msg && flags.mention_walls) {
             set_msg_xy(x, y);
             You("stop at the edge of the %s.",
-                hliquid(is_pool(x,y) ? "water" : "lava"));
+                hliquid(is_sewage(x, y) ? "sewage"
+                        : !is_lava(x, y) ? "water"
+                          : "lava"));
         }
         return TRUE;
     }
@@ -2825,6 +2841,13 @@ domove_core(void)
         /* check slippery ice */
         slippery_ice_fumbling();
 
+        /* check walking through sewage - slow effect is purely
+           position-based */
+        if (slowed_by_sewage())
+            HSlow |= FROMOUTSIDE;
+        else if (HSlow & FROMOUTSIDE)
+            HSlow &= ~FROMOUTSIDE;
+
         x = u.ux + u.dx;
         y = u.uy + u.dy;
         if (impaired_movement(&x, &y))
@@ -3030,6 +3053,7 @@ domove_core(void)
         disturb_buried_zombies(u.ux, u.uy);
 
     if (hides_under(gy.youmonst.data) || gy.youmonst.data->mlet == S_EEL
+        || gy.youmonst.data == &mons[PM_GIANT_LEECH]
         || u.dx || u.dy)
         (void) hideunder(&gy.youmonst);
 
@@ -3309,6 +3333,26 @@ set_uinwater(int in_out)
     }
 }
 
+/* returns TRUE if player is in sewage and should be slowed;
+   handles all immunity checks for sewage movement penalty */
+boolean
+slowed_by_sewage(void)
+{
+    if (Levitation || !is_sewage(u.ux, u.uy))
+        return FALSE;
+    if (Flying || is_floater(gy.youmonst.data)
+        || is_swimmer(gy.youmonst.data)
+        || maybe_polyd(is_tortle(gy.youmonst.data), Race_if(PM_TORTLE))
+        || is_clinger(gy.youmonst.data) || is_whirly(gy.youmonst.data)
+        || (uarm && Is_dragon_scaled_armor(uarm)
+            && (Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES
+                || Dragon_armor_to_scales(uarm) == BLUE_DRAGON_SCALES))
+        || Wwalking
+        || (uarmf && !strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)))
+        return FALSE;
+    return TRUE;
+}
+
 /* extracted from spoteffects; called by spoteffects to check for entering or
    leaving a pool of water/lava, and by moveloop to check for staying on one;
    returns true to skip rest of spoteffects */
@@ -3316,11 +3360,15 @@ boolean
 pooleffects(
     boolean newspot) /* true if called by spoteffects */
 {
+    boolean shallow_water = (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy));
+
     /* check for leaving water */
     if (u.uinwater) {
         boolean still_inwater = FALSE; /* assume we're getting out */
 
-        if (!is_pool(u.ux, u.uy)) {
+        if (!is_pool(u.ux, u.uy)
+            && !(is_damp_terrain(u.ux, u.uy)
+                 && verysmall(gy.youmonst.data))) {
             if (Is_waterlevel(&u.uz)) {
                 You("pop into an air bubble.");
                 iflags.last_msg = PLNMSG_BACK_ON_GROUND;
@@ -3333,9 +3381,9 @@ pooleffects(
             still_inwater = TRUE;
         } else if (Levitation) {
             You("pop out of the %s like a cork!", hliquid("water"));
-        } else if (Flying) {
+        } else if (EFlying) { /* extrinsic source only */
             You("fly out of the %s.", hliquid("water"));
-        } else if (Wwalking) {
+        } else if (EWwalking) { /* extrinsic source only */
             You("slowly rise above the surface.");
         } else {
             still_inwater = TRUE;
@@ -3354,40 +3402,107 @@ pooleffects(
     }
 
     /* check for entering water or lava */
-    if (!u.ustuck && !Levitation && !Flying && is_pool_or_lava(u.ux, u.uy)) {
-        if (u.usteed && !grounded(u.usteed->data)) {
-            /* floating or clinging steed keeps hero safe (is_flyer() test
-               is redundant; it can't be true since Flying yielded false) */
-            return FALSE;
-        } else if (u.usteed) {
-            /* steed enters pool */
-            dismount_steed(Underwater ? DISMOUNT_FELL : DISMOUNT_GENERIC);
-            /* dismount_steed() -> float_down() -> pickup()
-               (float_down doesn't do autopickup on Air or Water) */
-            if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+    if (!u.ustuck && !Levitation && !Flying) {
+        if (is_pool_or_lava(u.ux, u.uy)
+            || (shallow_water && verysmall(gy.youmonst.data))) {
+            if (u.usteed && !grounded(u.usteed->data)) {
+                /* floating or clinging steed keeps hero safe (is_flyer()
+                   test is redundant; it can't be true since Flying yielded
+                   false) */
                 return FALSE;
-            /* even if we actually end up at same location, float_down()
-               has already done trap and pickup actions of spoteffects() */
-            if (newspot)
-                check_special_room(FALSE); /* spoteffects */
-            return TRUE;
-        }
-        /* not mounted */
-
-        /* if hiding on ceiling then don't automatically enter pool */
-        if (Upolyd && ceiling_hider(&mons[u.umonnum]) && u.uundetected)
-            return FALSE;
-
-        /* drown(),lava_effects() return true if hero changes
-           location while surviving the problem */
-        if (is_lava(u.ux, u.uy)) {
-            if (lava_effects())
+            } else if (u.usteed) {
+                /* steed enters pool */
+                dismount_steed(Underwater ? DISMOUNT_FELL : DISMOUNT_GENERIC);
+                /* dismount_steed() -> float_down() -> pickup()
+                   (float_down doesn't do autopickup on Air or Water) */
+                if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+                    return FALSE;
+                /* even if we actually end up at same location, float_down()
+                   has already done trap and pickup actions of spoteffects() */
+                if (newspot)
+                    check_special_room(FALSE); /* spoteffects */
                 return TRUE;
-        } else if ((!Wwalking || is_waterwall(u.ux,u.uy))
-                   && (newspot || !u.uinwater
-                       || !(Swimming || Amphibious || Breathless))) {
-            if (drown())
-                return TRUE;
+            }
+            /* not mounted */
+
+            /* if hiding on ceiling then don't automatically enter pool */
+            if (Upolyd && ceiling_hider(&mons[u.umonnum]) && u.uundetected)
+                return FALSE;
+
+            /* drown(),lava_effects() return true if hero changes
+               location while surviving the problem */
+            if (is_lava(u.ux, u.uy)) {
+                if (lava_effects())
+                    return TRUE;
+            } else if ((!Wwalking || is_waterwall(u.ux,u.uy))
+                       && (newspot || !u.uinwater
+                           || !(Swimming || Amphibious || Breathless))) {
+                if (drown())
+                    return TRUE;
+            }
+        } else if (shallow_water && !Wwalking) {
+            /* shallow water is waded through, not entered; feedback and
+               consequences but never u.uinwater */
+            if (is_puddle(u.ux, u.uy) && u.umoved)
+                You("splash through the shallow water.");
+
+            if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)
+                && !(is_swimmer(gy.youmonst.data)
+                     || maybe_polyd(is_tortle(gy.youmonst.data),
+                                    Race_if(PM_TORTLE))
+                     || is_clinger(gy.youmonst.data)
+                     || is_whirly(gy.youmonst.data)
+                     || (uarm && Is_dragon_scaled_armor(uarm)
+                         && (Dragon_armor_to_scales(uarm)
+                             == WHITE_DRAGON_SCALES
+                             || Dragon_armor_to_scales(uarm)
+                                == BLUE_DRAGON_SCALES))
+                     || (uarmf
+                         && !strncmp(OBJ_DESCR(objects[uarmf->otyp]),
+                                     "mud ", 4)))) {
+                pline("%s %s difficulty %s through %s.",
+                      u.usteed ? upstart(x_monnam(u.usteed,
+                                                  has_mgivenname(u.usteed)
+                                                      ? ARTICLE_NONE
+                                                      : ARTICLE_THE,
+                                                  (char *) 0,
+                                                  (SUPPRESS_SADDLE
+                                                   | SUPPRESS_BARDING),
+                                                  FALSE))
+                               : "You",
+                      u.usteed ? "has" : "have",
+                      rn2(2) ? "wading" : "trudging",
+                      rn2(2) ? "this sludge" : "the muck");
+            }
+
+            if (!verysmall(gy.youmonst.data) && !rn2(4))
+                wake_nearby(FALSE);
+
+            if (Upolyd && gy.youmonst.data == &mons[PM_GREMLIN]) {
+                (void) split_mon(&gy.youmonst, (struct monst *) 0);
+            } else if (gy.youmonst.data == &mons[PM_IRON_GOLEM]
+                       /* mud boots keep the feet dry */
+                       && (!uarmf
+                           || strncmp(OBJ_DESCR(objects[uarmf->otyp]),
+                                      "mud ", 4))) {
+                int dam = rnd(6);
+
+                Your("%s rust!", makeplural(body_part(FOOT)));
+                if (u.mhmax > dam)
+                    u.mhmax -= dam;
+                losehp(dam, "rusting away", NO_KILLER_PREFIX);
+            } else if (is_longworm(gy.youmonst.data)) {
+                int dam = d(3, 12);
+
+                if (u.mhmax > dam)
+                    u.mhmax -= ((dam + 1) / 2);
+                pline_The("water burns your flesh!");
+                losehp(dam, "contact with water", NO_KILLER_PREFIX);
+            }
+            if (verysmall(gy.youmonst.data))
+                water_damage_chain(gi.invent, FALSE, rnd(3), FALSE);
+            if (!u.usteed && !rn2(3))
+                (void) water_damage(uarmf, "boots", TRUE);
         }
     }
     return FALSE;
@@ -4183,7 +4298,8 @@ lookaround(void)
                     corrct++;
                 }
                 continue;
-            } else if (is_pool_or_lava(x, y)) {
+            } else if (is_pool_or_lava(x, y)
+                       || is_puddle(x, y) || is_sewage(x, y)) {
                 if (infront && avoid_moving_on_liquid(x, y, TRUE))
                     goto stop;
                 continue;

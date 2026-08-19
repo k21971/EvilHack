@@ -537,6 +537,8 @@ maketrap(coordxy x, coordxy y, int typ)
                || (IS_FURNITURE(lev->typ) && (typ != PIT && typ != HOLE))
                || (lev->typ == DRAWBRIDGE_UP && typ == MAGIC_PORTAL)
                || (IS_AIR(lev->typ) && typ != MAGIC_PORTAL)
+               /* webs can't anchor to shallow water */
+               || ((is_puddle(x, y) || is_sewage(x, y)) && typ == WEB)
                || (typ == LEVEL_TELEP && single_level_branch(&u.uz))) {
         /* no trap on top of furniture (caller usually screens the
            location to inhibit this, but wizard mode wishing doesn't)
@@ -4728,7 +4730,7 @@ float_down(
     }
 
     if (Punished && !carried(uball) && !m_at(uball->ox, uball->oy)
-        && (is_pool(uball->ox, uball->oy)
+        && (is_damp_terrain(uball->ox, uball->oy)
             || is_open_air(uball->ox, uball->oy)
             || ((trap = t_at(uball->ox, uball->oy))
                 && (is_pit(trap->ttyp) || is_hole(trap->ttyp))))) {
@@ -4806,7 +4808,7 @@ float_down(
                     You("settle more firmly in the saddle.");
                 } else if (Hallucination) {
                     pline("Bummer!  You've %s.",
-                          is_pool(u.ux, u.uy)
+                          is_damp_terrain(u.ux, u.uy)
                              ? "splashed down"
                              : "hit the ground");
                 } else {
@@ -5871,7 +5873,10 @@ drown(void)
 
     feel_newsym(u.ux, u.uy); /* in case Blind, map the water here */
     /* happily wading in the same contiguous pool */
-    if (u.uinwater && is_pool(u.ux - u.dx, u.uy - u.dy)
+    if (u.uinwater
+        && (is_pool(u.ux - u.dx, u.uy - u.dy)
+            || (is_damp_terrain(u.ux - u.dx, u.uy - u.dy)
+                && verysmall(gy.youmonst.data)))
         && (Swimming || Amphibious || Breathless)) {
         /* water effects on objects every now and then */
         if (!rn2(5))

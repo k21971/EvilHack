@@ -283,6 +283,13 @@ moveloop_core(void)
                 nh_timeout();
                 run_regions();
 
+                /* sewage slow effect: purely position-based, must be
+                   checked every turn even when standing still */
+                if (slowed_by_sewage())
+                    HSlow |= FROMOUTSIDE;
+                else if (HSlow & FROMOUTSIDE)
+                    HSlow &= ~FROMOUTSIDE;
+
                 if (u.ublesscnt)
                     u.ublesscnt--;
 
@@ -841,7 +848,7 @@ regen_hp(int wtcap)
         if (u.mh < 1) { /* shouldn't happen... */
             rehumanize();
         } else if (gy.youmonst.data->mlet == S_EEL
-                   && !is_pool(u.ux, u.uy) && !Is_waterlevel(&u.uz)
+                   && !is_damp_terrain(u.ux, u.uy) && !Is_waterlevel(&u.uz)
                    && !Breathless) {
             /* eel out of water loses hp, similar to monster eels;
                as hp gets lower, rate of further loss slows down */
@@ -869,6 +876,12 @@ regen_hp(int wtcap)
 
     /* !Upolyd */
     } else {
+        /* if a Druid's connection with nature is strong (standing on
+           grass or beside a live tree), their healing speeds up */
+        boolean druid_near_veg = (Role_if(PM_DRUID)
+                                  && (levl[u.ux][u.uy].typ == GRASS
+                                      || nexttotree(u.ux, u.uy)));
+
         /* [when this code was in-line within moveloop(), there was
            no !Upolyd check here, so poly'd hero recovered lost u.uhp
            once u.mh reached u.mhmax; that may have been convenient
@@ -878,17 +891,15 @@ regen_hp(int wtcap)
            with them (pre-idol imbuement). No one can regenerate hit
            points while located in the Valley of the Dead, except for
            Draugr/Vampires */
-        /* TODO-EVILHACK: master speeds a Druid's healing while they stand
-           on grass or beside a live tree by shortening its moves-modulo
-           regeneration interval; 5.0 replaced that interval with a
-           per-turn probability, so the bonus needs a new formula rather
-           than a straight port */
         if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())
             && (!Is_valley(&u.uz)
                 || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
             && !infidel_no_amulet
             && !wielding_artifact(ART_WAND_OF_ORCUS)) {
-            heal = (u.ulevel + (int)ACURR(A_CON)) > rn2(100);
+            /* the near-vegetation multiplier mirrors master's shortened
+               moves-modulo interval (3 -> 2), a 1.5x healing rate */
+            heal = ((u.ulevel + (int) ACURR(A_CON))
+                    * (druid_near_veg ? 3 : 2) / 2) > rn2(100);
 
             /* tortles gain some accelerated regeneration while
                inside their shell */
