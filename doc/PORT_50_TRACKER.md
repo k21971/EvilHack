@@ -8147,8 +8147,35 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       map-conversion reference as planned; full record in the
       Phase 3 vaults.des row + decisions log (frequency
       ratification, all-four-walls subroom rule)
-- [ ] nhl bindings from Phase 2 wired: MAGIC_CHEST, FORGE,
-      MINDEPTH, dead=, door material=, room types
+- [x] nhl bindings from Phase 2 wired - VERIFIED 2026-08-19, all six
+      live with no code needed (verify-and-tick pass; each landed
+      with its Phase 2 row or slice). Evidence, all on branch source:
+      MAGIC_CHEST + FORGE = lspo_feature name/type tables
+      index-aligned ("forge" -> FORGE, "magic chest" -> MAGIC_CHEST);
+      corpus 43 magic-chest uses in 41 files + 10 forge uses in 8
+      files, exactly the knox-slice converter counts (301/43/10);
+      feature-name vocabulary sweep over every des.feature call =
+      zero unknown names (the dungeon.lua nhl_panic class). Forge
+      object params forged_qual=/affixed_gem= bound in lspo_object
+      with the create_object consumer live; zero shipped-level users
+      (engine-verified by the Phase 2 forging battery - authoring
+      capacity, not dead code). MINDEPTH = closed with NO code by
+      the 2026-07-25 ruling; the MINDEPTH(depth) -> mindiff mapping
+      is live end-to-end: 13 mindiff entries in themerms.lua consumed
+      by is_eligible() vs nh.level_difficulty(); zero stray MINDEPTH
+      strings in dat/, src/, include/. dead= = lspo_monster
+      get_table_boolean_opt("dead") -> mondied() + died-tally cancel
+      arm; get_table_boolean's LUA_TNUMBER arm accepts the corpus
+      dead=1 integer form; 6 sites in minetn-1.lua (mines battery
+      proved the gear piles). door material= = lspo_door
+      doormaterials[]/doormaterials2i tables (default/wooden/iron/
+      steel/bronze/gold/stone); corpus sweep 249 uses all in-table
+      (bronze 102, iron 77, gold 31, stone 24, steel 15), zero
+      unknown. room types = room_types[] 32-entry name table incl.
+      the EvilHack adds (armory, nursery, garden, forest, lemurepit,
+      owlbnest; GARDEN=17 in mkroom.h); corpus sweep of type= across
+      every des.room/des.region call = 21 distinct strings, all
+      resolve, zero unknown
 - [x] dat/data.base reconciliation DONE 2026-08-16 (session 46, ONE
       commit d3c3590a7, landed 2026-08-16; the row's old "pure vanilla
       5.0" premise was stale - the vecna slice had already added its
