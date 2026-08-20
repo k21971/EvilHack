@@ -583,6 +583,13 @@
 #define can_corrode(ptr) \
     ((ptr) == &mons[PM_IRON_GOLEM] || (ptr) == &mons[PM_IRON_PIERCER])
 
+/* various monsters move faster underwater vs on land */
+#define is_fast_underwater(ptr) \
+    (is_tortle(ptr) || (ptr) == &mons[PM_WATER_TROLL]                        \
+     || (ptr) == &mons[PM_GIANT_TURTLE] || (ptr) == &mons[PM_BABY_CROCODILE] \
+     || (ptr) == &mons[PM_CROCODILE] || (ptr) == &mons[PM_GIANT_CROCODILE]   \
+     || (ptr) == &mons[PM_BABY_SEA_DRAGON] || (ptr) == &mons[PM_SEA_DRAGON])
+
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */
 /* Maybe someday this could be in mflags... */

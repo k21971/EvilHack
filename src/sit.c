@@ -769,7 +769,8 @@ attrcurse(void)
     case 8:
         if (HFast & INTRINSIC) {
             HFast &= ~INTRINSIC;
-            You_feel("slower.");
+            if (!Slow)
+                You_feel("slower.");
             ret = FAST;
             break;
         }

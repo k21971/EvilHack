@@ -2473,7 +2473,7 @@ potionbreathe(struct obj *obj)
         }
         break;
     case POT_SPEED:
-        if (!Fast)
+        if (!Fast && !Slow)
             Your("knees seem more flexible now.");
         incr_itimeout(&HFast, rnd(5));
         exercise(A_DEX, TRUE);
@@ -3469,13 +3469,22 @@ split_mon(
 void
 speed_up(long duration)
 {
-   if (!Very_fast)
-       You("are suddenly moving %sfaster.", Fast ? "" : "much ");
-   else
-       Your("%s get new energy.", makeplural(body_part(LEG)));
+    /* will fix intrinsic 'slow' */
+    if (Slow) {
+        HSlow = 0;
+        disp.botl = TRUE;
+        if (!ESlow)
+            You("no longer feel sluggish.");
+    }
 
-   exercise(A_DEX, TRUE);
-   incr_itimeout(&HFast, duration);
+    if (!Very_fast && !Slow) {
+        You("are suddenly moving %sfaster.", Fast ? "" : "much ");
+    } else if (!Slow) {
+        Your("%s get new energy.", makeplural(body_part(LEG)));
+    }
+
+    exercise(A_DEX, TRUE);
+    incr_itimeout(&HFast, duration);
 }
 
 /*potion.c*/

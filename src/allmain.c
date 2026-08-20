@@ -140,6 +140,10 @@ u_calc_moveamt(int wtcap)
             /* gain a free action on 1/3 of turns */
             if (rn2(3) == 0)
                 moveamt += NORMAL_SPEED;
+        } else if (Slow) {
+            /* average movement noticeably slower */
+            if (rn2(3) != 0)
+                moveamt -= NORMAL_SPEED / 2;
         }
     }
 
@@ -285,10 +289,15 @@ moveloop_core(void)
 
                 /* sewage slow effect: purely position-based, must be
                    checked every turn even when standing still */
-                if (slowed_by_sewage())
-                    HSlow |= FROMOUTSIDE;
-                else if (HSlow & FROMOUTSIDE)
+                if (slowed_by_sewage()) {
+                    if (!(HSlow & FROMOUTSIDE)) {
+                        HSlow |= FROMOUTSIDE;
+                        disp.botl = TRUE;
+                    }
+                } else if (HSlow & FROMOUTSIDE) {
                     HSlow &= ~FROMOUTSIDE;
+                    disp.botl = TRUE;
+                }
 
                 if (u.ublesscnt)
                     u.ublesscnt--;

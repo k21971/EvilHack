@@ -35,6 +35,7 @@ static const struct propname {
     { STRANGLED, "strangling" },
     { SICK, "fatally sick" },
     { STUNNED, "stunned" },
+    { SLOW, "slow" },
     { CONFUSION, "confused" },
     { HALLUC, "hallucinating" },
     { BLINDED, "blinded" },
@@ -821,6 +822,16 @@ nh_timeout(void)
                 if (!Very_fast)
                     You_feel("yourself slow down%s.",
                              Fast ? " a bit" : "");
+                break;
+            case SLOW:
+                /* suppress the message when still slowed by sewage
+                   or hunger; test before clearing FROMOUTSIDE or the
+                   sewage state is invisible here */
+                if (!Slow) {
+                    You_feel("less sluggish.");
+                    disp.botl = TRUE;
+                }
+                HSlow &= ~FROMOUTSIDE;
                 break;
             case CONFUSION:
                 /* So make_confused works properly */

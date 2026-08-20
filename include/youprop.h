@@ -466,11 +466,10 @@
 
 #define HFast u.uprops[FAST].intrinsic
 #define EFast u.uprops[FAST].extrinsic
-#define Fast (HFast || EFast)
-#define Very_fast ((HFast & ~INTRINSIC) || EFast)
+#define SFast (Underwater && is_fast_underwater(gy.youmonst.data))
+#define Fast ((HFast || EFast || SFast) && !Slow)
+#define Very_fast (((HFast & ~INTRINSIC) || EFast || SFast) && !Slow)
 
-/* TODO-EVILHACK: EvilHack gates Fast and Very_fast on !Slow and
-   adds an SFast underwater form; port with the slow subsystem */
 #define HSlow u.uprops[SLOW].intrinsic
 #define ESlow u.uprops[SLOW].extrinsic
 #define Slow (HSlow || ESlow)

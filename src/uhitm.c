@@ -4674,8 +4674,9 @@ mhitm_ad_slow(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (!negated && HFast && !rn2(4))
+        if (!negated && !Slow && !resists_slow(gy.youmonst.data) && !rn2(3))
             u_slow_down();
+        stop_occupation();
     } else {
         /* mhitm */
         if (!negated && mdef->mspeed != MSLOW) {

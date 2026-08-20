@@ -2035,7 +2035,12 @@ attributes_enlightenment(
     }
     /* movement and non-armor-based protection */
     if (Fast)
-        you_are(Very_fast ? "very fast" : "fast", from_what(FAST));
+        you_are(Very_fast ? "very fast" : "fast",
+                (Underwater && is_fast_underwater(gy.youmonst.data))
+                    ? " from current creature form"
+                    : from_what(FAST));
+    if (Slow)
+        you_are("slow", from_what(SLOW));
     if (Reflecting)
         you_have("reflection", from_what(REFLECTING));
     if (Free_action)
@@ -3752,6 +3757,8 @@ ustatusline(void)
         Strcat(info, ", trapped");
     if (Fast)
         Strcat(info, Very_fast ? ", very fast" : ", fast");
+    if (Slow)
+        Strcat(info, ", slow");
     if (u.uundetected)
         Strcat(info, ", concealed");
     else if (U_AP_TYPE != M_AP_NOTHING)

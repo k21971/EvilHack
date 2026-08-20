@@ -1559,6 +1559,7 @@ rnd_defensive_item(struct monst *mtmp)
 #define MUSE_CAMERA 18
 /*#define MUSE_WAN_UNDEAD_TURNING 20*/ /* also a defensive item so don't
                                      * redefine; nonconsecutive value is ok */
+#define MUSE_WAN_SLOW_MONSTER 21 /* skips the shared undead-turning value */
 
 staticfn boolean
 linedup_chk_corpse(coordxy x, coordxy y)
@@ -1814,6 +1815,11 @@ find_offensive(struct monst *mtmp)
                 || stairway_at(u.ux, u.uy))) {
             gm.m.offensive = obj;
             gm.m.has_offense = MUSE_WAN_TELEPORTATION;
+        }
+        nomore(MUSE_WAN_SLOW_MONSTER);
+        if (obj->otyp == WAN_SLOW_MONSTER && obj->spe > 0 && !Slow) {
+            gm.m.offensive = obj;
+            gm.m.has_offense = MUSE_WAN_SLOW_MONSTER;
         }
         nomore(MUSE_POT_PARALYSIS);
         if (obj->otyp == POT_PARALYSIS && gm.multi >= 0) {
@@ -2702,6 +2708,7 @@ use_offensive(struct monst *mtmp)
     case MUSE_WAN_TELEPORTATION:
     case MUSE_WAN_UNDEAD_TURNING:
     case MUSE_WAN_STRIKING:
+    case MUSE_WAN_SLOW_MONSTER:
         gz.zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         gm.m_using = TRUE;
@@ -3827,7 +3834,7 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (typ == WAN_POLYMORPH)
             return (boolean) (mons[monsndx(mon->data)].difficulty < 6);
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
-            || typ == WAN_UNDEAD_TURNING
+            || typ == WAN_UNDEAD_TURNING || typ == WAN_SLOW_MONSTER
             || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER)
             return TRUE;
         break;

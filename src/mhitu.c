@@ -293,15 +293,22 @@ mpoisons_subj(
     }
 }
 
-/* called when your intrinsic speed is taken away */
+/* called when you are artificially slowed */
 void
 u_slow_down(void)
 {
-    HFast = 0L;
-    if (!Fast)
+    if (defended(&gy.youmonst, AD_SLOW) || resists_slow(gy.youmonst.data)) {
+        You("feel as spry as ever.");
+        return;
+    }
+    if (!Fast && !Slow)
         You("slow down.");
-    else /* speed boots */
-        Your("quickness feels less natural.");
+    else if (!Slow) /* speed of some sort */
+        You("feel a strange lethargy overcome you.");
+    else
+        Your("lethargy seems to be settling in for the long haul.");
+    incr_itimeout(&HSlow, rnd(11) + 12);
+    disp.botl = TRUE;
     exercise(A_DEX, FALSE);
 }
 

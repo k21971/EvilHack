@@ -2843,10 +2843,15 @@ domove_core(void)
 
         /* check walking through sewage - slow effect is purely
            position-based */
-        if (slowed_by_sewage())
-            HSlow |= FROMOUTSIDE;
-        else if (HSlow & FROMOUTSIDE)
+        if (slowed_by_sewage()) {
+            if (!(HSlow & FROMOUTSIDE)) {
+                HSlow |= FROMOUTSIDE;
+                disp.botl = TRUE;
+            }
+        } else if (HSlow & FROMOUTSIDE) {
             HSlow &= ~FROMOUTSIDE;
+            disp.botl = TRUE;
+        }
 
         x = u.ux + u.dx;
         y = u.uy + u.dy;

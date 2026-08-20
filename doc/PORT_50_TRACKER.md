@@ -6390,26 +6390,63 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sibling), and the polyself.c silver-dragon-form reflection bump.
       The forge row's battery already measured the same display/xlog gap
       for forgedarti - close all three conducts in one pass here.
-- [ ] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
-      !Slow gating) NOT PORTED (minted 2026-08-07 by the Monk slice's
-      battery, leg D6). include/youprop.h's own TODO-EVILHACK above
-      the Slow macro already flags the gating half. Master's
-      u_slow_down() (mhitu.c) is a real status setter: internal
-      defended(&youmonst, AD_SLOW)/resists_slow guard ("spry as
-      ever"), three-tier messages (slow down / strange lethargy /
-      settling in for the long haul), incr_itimeout(&HSlow, rnd(11)
-      + 12), exercise. The branch keeps vanilla's Fast-strip-only
-      body (HFast = 0L), so HSlow is only ever written by the hunger
-      arm (eat.c FROMHUNGER) and all seven u_slow_down call sites
-      (mhitu AD_SLOW gaze BUG-1502, zap.c youdefend, muse.c, trap.c,
-      uhitm.c x3 incl. the branch-only mhitm helper site) deliver a
-      Fast strip where master inflicts ~13-23 turns of Slow.
-      Battery-measured: a non-Fast hero gets "You slow down." with
-      ZERO state change. Port the body + the youprop.h !Slow gating,
-      audit master's movement/botl Slow consumers, then re-verify the
-      seven call sites in one pass. The gaze arm's !Slow gate and
-      defended-subject fix landed with the Monk slice and are
-      forward-compatible with this row.
+- [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
+      !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
+      polyself.c rehumanize FROMHUNGER reset, independent live bug
+      with its own bisect window; B = the ladder, BUG-1610..1614).
+      Master's u_slow_down body ported in 5.0 idiom (defended/
+      resists_slow "spry as ever" guard, three-tier messages,
+      incr_itimeout rnd(11)+12, + disp.botl branch adaptation - the
+      conditions[] display is flag-driven); youprop.h Fast/Very_fast
+      now && !Slow plus the SFast underwater form (BUG-1612:
+      is_fast_underwater + mcalcmove pool bump + insight annotation;
+      the TODO-EVILHACK above the Slow macros is discharged);
+      u_calc_moveamt else-if Slow arm; timeout.c case SLOW with the
+      !Slow message gate TESTED BEFORE the FROMOUTSIDE scrub
+      (BUG-1613: master's own BUG-784 gate is a no-op for the
+      sewage case - scrub-first makes !Slow always true there;
+      battery-proven, frozen-unfixed on master) + propertynames
+      { SLOW, "slow" } restored (wizintrinsic staging); speed_up()
+      cure + vapors guard; zapyourself arm unconditional (master
+      parity, vanilla HFast gate dropped); mhitm_ad_slow mhitu arm
+      master gate (!Slow/!resists_slow/rn2(3)) + stop_occupation;
+      insight ^X you_are slow + ustatusline ", slow"; sit.c/eat.c
+      !Slow message guards; muse.c offensive AI (BUG-1611: chooser +
+      beam-group case + searches_for_item row - the mbhitm arms were
+      dead code; mwandexp deliberately NOT granted, reviewer-verified
+      upstream invariant grant-set == gated-set); sewage producers
+      set disp.botl on state flip (BUG-1614: stale painted Slow
+      after leaving sewage). This discharges the damp-terrain row's
+      "timeout.c case SLOW deliberately not ported" deferral.
+      Reviewer CONDITIONAL PASS -> both MEDIUMs fixed pre-battery
+      (mwandexp drop; searches_for_item row). Battery 14 legs + 2
+      confirmation runs ALL PASS, paniclog never existed:
+      wizintrinsic countdown/single expiry message; self-zap 13..23
+      + "long haul" re-zap; blue-scaled-suit "spry as ever"
+      (gdb-staged: a wished "blue dragon scale mail" delivers the
+      ARM_CLOAK scales and defended() reads only uwep/W_ARM, so
+      cloak-slot scales confer no AD_SLOW defense - master-identical
+      shape, observation only); Fast+Slow moveamt sampled 8.43
+      avg/37 turns with zero boosted turns; cure message pair;
+      sewage-standing expiry SILENT with Slow persisting, then
+      silent step-out clear; adult orange dragon passive ~1/3 (the
+      BABY has NO AD_SLOW passive - monsters.h, staging note);
+      lichen slow on an un-hasted hero + occupation stop; soldier
+      floor-pickup -> zap -> skip-while-Slow -> re-zap on expiry;
+      vampire STARVED rehumanize clears all three FROMHUNGER bits;
+      giant-crocodile SFast ^X line + Slow suppression; save/reload
+      timer exact; "You have difficulty trudging through the muck."
+      re-entry live. ROUTED: master rehumanize also calls
+      break_armor() + drop_weapon(1) after the reset block - branch
+      lacks both, pre-existing, routed to the future polyself/
+      break_armor reconcile row (light-guard row precedent). RULED
+      (adaptation): master's cursed-unihorn case-6 Slow dud slot
+      not ported - 5.0's trouble-list rework omits Slow natively
+      and the branch cursed switch numbering differs (a literal
+      port would collide with Deaf); "unicorn horns don't cure
+      slow" holds in both trees. Non-items re-verified: prayer and
+      healing have no Slow handling in either tree; riding bypasses
+      hero Slow in both trees (steed short-circuit).
 - [ ] Racial regen-block subsystem (elf_can_regen/orc_can_regen) NOT
       PORTED (minted 2026-08-07 by the Priest slice's C-hook audit;
       no row existed). Master allmain.c defines both: direct contact
