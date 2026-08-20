@@ -1950,9 +1950,10 @@ poly_obj(struct obj *obj, int id)
     otmp->blessed = obj->blessed;
 
     if (erosion_matters(otmp)) {
-        if (is_flammable(otmp) || is_rustprone(otmp) || is_crackable(otmp))
+        if (is_flammable(otmp) || is_rustprone(otmp) || is_glass(otmp))
             otmp->oeroded = obj->oeroded;
-        if (is_corrodeable(otmp) || is_rottable(otmp))
+        if (is_corrodeable(otmp) || is_rottable(otmp)
+            || is_supermaterial(otmp))
             otmp->oeroded2 = obj->oeroded2;
         if (is_damageable(otmp))
             otmp->oerodeproof = obj->oerodeproof;
@@ -6437,6 +6438,16 @@ destroyable(struct obj *obj, int adtyp)
         /* There used to be a commented out bit of code that would exclude
          * gc.current_wand, but it wasn't used, so it wasn't moved into this
          * function. */
+    } else if (adtyp == AD_LOUD) {
+        /* only glass resonates and shatters; instance material, so a
+           glass ring is shatterable and a bone one is not */
+        if (!is_glass(obj)) {
+            return FALSE;
+        }
+        if (obj->oclass == POTION_CLASS || obj->oclass == RING_CLASS
+            || obj->oclass == TOOL_CLASS || obj->oclass == WAND_CLASS) {
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -6563,6 +6574,9 @@ item_what(int dmgtyp)
  *      [4] burning spellbook
  *      [5] shocked ring
  *      [6] shocked wand
+ *      [7] sonic-shattered potion
+ *      [8] sonic-shattered ring or tool
+ *      [9] sonic-shattered wand
  * (books, rings, and wands don't stack so don't need plural form;
  *  crumbling ring doesn't do damage so doesn't need killer reason)
  * externally referenced from trap.c.
@@ -6576,6 +6590,9 @@ const char *const destroy_strings[][3] = {
     { "catches fire and burns", "", "burning book" },
     { "turns to dust and vanishes", "", "" },
     { "breaks apart and explodes", "", "exploding wand" },
+    { "resonates and shatters", "resonate and shatter", "shattered potion" },
+    { "resonates and shatters", "", "shattered item" },
+    { "vibrates and shatters", "", "shattered wand" },
 };
 
 /* guts of destroy_items();
@@ -6671,6 +6688,37 @@ maybe_destroy_item(
         case WAND_CLASS:
             dindx = 6;
             dmg = rnd(10);
+            break;
+        }
+        break;
+    case AD_LOUD:
+        /* no xresist: there is no sonic resistance property; tempered
+           (erodeproof) glass shrugs the vibration off instead */
+        if (obj->oerodeproof) {
+            skip++;
+            if (u_carry ? !Blind : vis)
+                pline("%s oscillates briefly, but remains intact.",
+                      The(u_carry ? xname(obj)
+                                  : distant_name(obj, xname)));
+            break;
+        }
+        quan = obj->quan;
+        switch (obj->oclass) {
+        case POTION_CLASS:
+            dindx = 7;
+            dmg = rnd(4);
+            break;
+        case RING_CLASS:
+        case TOOL_CLASS:
+            dindx = 8;
+            dmg = 1;
+            break;
+        case WAND_CLASS:
+            dindx = 9;
+            dmg = rnd(6);
+            break;
+        default:
+            skip++;
             break;
         }
         break;
@@ -6773,7 +6821,7 @@ int
 destroy_items(
     struct monst *mon, /* monster whose invent is being subjected to
                         * destruction */
-    int dmgtyp,        /* AD_**** - currently only cold, fire, elec */
+    int dmgtyp,        /* AD_**** - currently cold, fire, elec, loud */
     int dmg_in)        /* the amount of HP damage the attack dealt */
 {
     struct obj *obj;
