@@ -1379,8 +1379,10 @@ add_erosion_words(struct obj *obj, char *prefix)
     if (!is_damageable(obj) && !is_supermaterial(obj) && !iscrys)
         return;
 
-    /* The only cases where any of these bits do double duty are for
-     * rotted food and diluted potions, which are all not is_damageable().
+    /* Two of these bits do double duty: oeroded is orotten on food
+     * (shown as "decayed", same meaning) and odiluted on potions
+     * (excluded by erosion_matters), while oeroded2 is norevive on
+     * corpses (never shown - see the food-class test below).
      */
     if (obj->oeroded && !iscrys) {
         switch (obj->oeroded) {
@@ -1393,9 +1395,12 @@ add_erosion_words(struct obj *obj, char *prefix)
         }
         Strcat(prefix, is_rustprone(obj) ? "rusty "
                        : is_glass(obj) ? "fractured "
-                         : "burnt ");
+                         : (obj->oclass == FOOD_CLASS) ? "decayed "
+                           : "burnt ");
     }
-    if (obj->oeroded2 && !iscrys) {
+    /* oeroded2 doubles as norevive on corpses, so no erosion word
+       for the food class on this axis */
+    if (obj->oeroded2 && !iscrys && obj->oclass != FOOD_CLASS) {
         switch (obj->oeroded2) {
         case 2:
             Strcat(prefix, "very ");
@@ -1415,10 +1420,11 @@ add_erosion_words(struct obj *obj, char *prefix)
         Strcat(prefix, iscrys ? "fixed "
                        : is_rustprone(obj) ? "rustproof "
                          : is_corrodeable(obj) ? "corrodeproof "
-                           : is_flammable(obj) ? "fireproof "
-                             : is_glass(obj) ? "tempered " /* hardened */
-                               : is_rottable(obj) ? "rotproof "
-                                 : "");
+                           : (obj->oclass == FOOD_CLASS) ? "preserved "
+                             : is_flammable(obj) ? "fireproof "
+                               : is_glass(obj) ? "tempered " /* hardened */
+                                 : is_rottable(obj) ? "rotproof "
+                                   : "");
 }
 
 /* used to prevent rust on items where rust makes no difference */
@@ -1433,12 +1439,18 @@ erosion_matters(struct obj *obj)
            non-iron tool, in which case rust also implicitly goes away,
            so there's no particular reason to try to handle the first
            instance differently [this comment belongs in poly_obj()...] */
-        return is_weptool(obj) ? TRUE : FALSE;
+        /* return is_weptool(obj) ? TRUE : FALSE; */
     case WEAPON_CLASS:
     case ARMOR_CLASS:
     case BALL_CLASS:
     case CHAIN_CLASS:
+    case AMULET_CLASS:
+    case RING_CLASS:
+    case WAND_CLASS:
+    case FOOD_CLASS:
         return TRUE;
+    case GEM_CLASS:
+        return (obj->otyp == SLING_BULLET);
     default:
         break;
     }
@@ -1622,6 +1634,7 @@ doname_base(
 
     switch (is_weptool(obj) ? WEAPON_CLASS : obj->oclass) {
     case AMULET_CLASS:
+        add_erosion_words(obj, prefix);
         if (obj->owornmask & W_AMUL)
             Concat(bp, 0, " (being worn)");
         break;
@@ -1773,6 +1786,7 @@ doname_base(
             goto charges;
         break;
     case WAND_CLASS:
+        add_erosion_words(obj, prefix);
  charges:
         if (known)
             ConcatF2(bp, 0, " (%d:%d)", (int) obj->recharged, obj->spe);
@@ -1782,6 +1796,7 @@ doname_base(
             Concat(bp, 0, " (lit)");
         break;
     case RING_CLASS:
+        add_erosion_words(obj, prefix);
  ring:  /* normal rings reach here 'naturally'; meat ring jumps here */
         if (obj->owornmask & W_RINGR)
             Concat(bp, 0, " (on right ");
@@ -1817,6 +1832,7 @@ doname_base(
             else if (rot_amount(obj) > 3L)
                 Strcat(prefix, "rancid ");
         }
+        add_erosion_words(obj, prefix);
         if (obj->otyp == CORPSE) {
             /* (quan == 1) => want corpse_xname() to supply article,
                (quan != 1) => already have count or "some" as prefix;
@@ -4616,7 +4632,8 @@ readobjnam_preparse(struct _readobjnam_data *d)
                    || !strncmpi(d->bp, "fireproof ", l = 10)
                    || !strncmpi(d->bp, "rotproof ", l = 9)
                    || !strncmpi(d->bp, "tempered ", l = 9)
-                   || !strncmpi(d->bp, "crackproof ", l = 11)) {
+                   || !strncmpi(d->bp, "crackproof ", l = 11)
+                   || !strncmpi(d->bp, "preserved ", l = 10)) {
             d->erodeproof = 1;
         } else if (!strncmpi(d->bp, "lit ", l = 4)
                    || !strncmpi(d->bp, "burning ", l = 8)) {
@@ -4706,7 +4723,8 @@ readobjnam_preparse(struct _readobjnam_data *d)
                    || !strncmpi(d->bp, "burnt ", l = 6)
                    || !strncmpi(d->bp, "burned ", l = 7)
                    || !strncmpi(d->bp, "fractured ", l = 10)
-                   || !strncmpi(d->bp, "cracked ", l = 8)) {
+                   || !strncmpi(d->bp, "cracked ", l = 8)
+                   || !strncmpi(d->bp, "decayed ", l = 8)) {
             d->eroded = 1 + d->very;
             d->very = 0;
         } else if (!strncmpi(d->bp, "corroded ", l = 9)
@@ -6119,7 +6137,10 @@ readobjnam(char *bp, struct obj *no_wish)
                          || is_glass(d.otmp)))
             d.otmp->oeroded = d.eroded;
         if (d.eroded2 && (is_corrodeable(d.otmp) || is_rottable(d.otmp)
-                          || is_supermaterial(d.otmp)))
+                          || is_supermaterial(d.otmp))
+            /* oeroded2 doubles as norevive on corpses; a "rotted"
+               wish must not produce a never-revive corpse */
+            && d.otmp->oclass != FOOD_CLASS)
             d.otmp->oeroded2 = d.eroded2;
         /*
          * 3.6.1: earlier versions included `&& !eroded && !eroded2' here,
@@ -6474,7 +6495,8 @@ readobjnam(char *bp, struct obj *no_wish)
                     d.otmp->oeroded = d.eroded;
                 if (d.eroded2
                     && (is_corrodeable(d.otmp) || is_rottable(d.otmp)
-                        || is_supermaterial(d.otmp)))
+                        || is_supermaterial(d.otmp))
+                    && d.otmp->oclass != FOOD_CLASS)
                     d.otmp->oeroded2 = d.eroded2;
                 if (d.erodeproof
                     && (is_damageable(d.otmp) || d.otmp->otyp == CRYSKNIFE))

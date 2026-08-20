@@ -1705,8 +1705,14 @@ seffect_enchant_weapon(struct obj **sobjp)
                   hcolor(scursed ? NH_PURPLE : NH_GOLDEN),
                   scursed ? "glow" : "shield");
         }
-        if (new_erodeproof && (uwep->oeroded || uwep->oeroded2)) {
-            uwep->oeroded = uwep->oeroded2 = 0;
+        if (new_erodeproof
+            && (uwep->oeroded
+                || (uwep->oeroded2 && uwep->oclass != FOOD_CLASS))) {
+            uwep->oeroded = 0;
+            /* oeroded2 doubles as norevive on corpses; that is not
+               erosion, so it is not repaired */
+            if (uwep->oclass != FOOD_CLASS)
+                uwep->oeroded2 = 0;
             pline("%s as good as new!",
                   Yobjnam2(uwep, Blind ? "feel" : "look"));
         }

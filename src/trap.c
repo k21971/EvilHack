@@ -5287,10 +5287,9 @@ fire_damage(
             break;
         }
         if ((!force && (Luck + 5) > rn2(chance))
-            /* note: containers aren't subject to erosion so are never
-               marked fireproof/corrodeproof/&c */
-            /*|| (is_flammable(obj) && obj->oerodeproof)*/
-            ) {
+            /* containers erode now, so a non-flammable material or
+               fireproofing protects them the way it does on 3.6 */
+            || !is_flammable(obj) || obj->oerodeproof) {
             return FALSE;
         }
         /* Container is burnt up - dump contents out */

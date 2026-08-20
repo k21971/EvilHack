@@ -188,8 +188,20 @@ may_generate_eroded(struct obj *otmp)
     /* already erodeproof or cannot be eroded */
     if (otmp->oerodeproof || !erosion_matters(otmp) || !is_damageable(otmp))
         return FALSE;
+    /* extra guard for inherently fixed materials */
+    if (is_supermaterial(otmp) || is_crystal(otmp))
+        return FALSE;
+    /* food is included as a part of erosion_matters(),
+       exclude food from spawning as 'rotten' */
+    if (otmp->oclass == FOOD_CLASS)
+        return FALSE;
+    /* exclude candles */
+    if (Is_candle(otmp))
+        return FALSE;
     /* part of a monster's body and produced when it dies */
-    if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
+    if (otmp->otyp == WORM_TOOTH
+        || otmp->otyp == UNICORN_HORN
+        || otmp->otyp == CRYSKNIFE)
         return FALSE;
     /* artifacts cannot be generated eroded  */
     if (otmp->oartifact)
