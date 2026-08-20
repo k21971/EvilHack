@@ -4252,7 +4252,9 @@ destroy_arm(void)
     for (i = 0; i < hits; i++) {
         otmp = armors[rn2(idx)];
 
-        if (erosion_matters(otmp) && is_damageable(otmp) && !otmp->oerodeproof) {
+        if (erosion_matters(otmp)
+            && (is_damageable(otmp) || is_supermaterial(otmp))
+            && !otmp->oerodeproof) {
             int erosion = obj_erode_type(otmp);
 
             if (erosion != ERODE_NONE) {
