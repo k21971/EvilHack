@@ -16,6 +16,7 @@ staticfn void missmm(struct monst *, struct monst *, int, int,
 staticfn int hitmm(struct monst *, struct monst *, struct attack *,
                  struct obj *, int);
 staticfn int gazemm(struct monst *, struct monst *, struct attack *);
+staticfn int screamm(struct monst *, struct monst *, struct attack *);
 staticfn int gulpmm(struct monst *, struct monst *, struct attack *);
 staticfn int explmm(struct monst *, struct monst *, struct attack *);
 staticfn int mdamagem(struct monst *, struct monst *, struct attack *,
@@ -655,6 +656,11 @@ mattackm(
             res[i] = gazemm(magr, mdef, mattk);
             break;
 
+        case AT_SCRE:
+            strike = 0;
+            res[i] = screamm(magr, mdef, mattk);
+            break;
+
         case AT_EXPL:
             /* D: Prevent explosions from a distance */
             if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
@@ -999,6 +1005,19 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
             mdef->mstun = 1;
     }
 
+    return mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
+}
+
+/* monster screams at another monster; there is no range gate and no
+   cooldown check or charge - only the hero-directed scream has one */
+staticfn int
+screamm(struct monst *magr, struct monst *mdef, struct attack *mattk)
+{
+    Soundeffect(se_scream, 60);
+    if (canseemon(magr) && !Deaf)
+        pline_mon(magr, "%s lets out a %s!", Monnam(magr),
+                  magr->data == &mons[PM_NAZGUL]
+                      ? "bloodcurdling scream" : "deafening roar");
     return mdamagem(magr, mdef, mattk, (struct obj *) 0, 0);
 }
 

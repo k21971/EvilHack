@@ -15,6 +15,7 @@ staticfn void calc_mattacku_vars(struct monst *, boolean *, boolean *,
                                  boolean *, boolean *);
 staticfn void summonmu(struct monst *, boolean);
 staticfn int hitmu(struct monst *, struct attack *);
+staticfn int screamu(struct monst *, struct attack *);
 staticfn int gulpmu(struct monst *, struct attack *);
 staticfn int explmu(struct monst *, struct attack *, boolean);
 staticfn void mayberem(struct monst *, const char *, struct obj *,
@@ -1264,6 +1265,11 @@ mattacku(struct monst *mtmp)
                 sum[i] = buzzmu(mtmp, mattk);
             else
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
+            break;
+
+        case AT_SCRE:
+            if (ranged || !rn2(5)) /* sometimes right next to our hero */
+                sum[i] = screamu(mtmp, mattk);
             break;
 
         default: /* no attack */
@@ -2733,6 +2739,62 @@ gazemu(struct monst *mtmp, struct attack *mattk)
               reactions[react]);
     }
     return M_ATTK_MISS;
+}
+
+/* monster uses a sonic-based attack against you */
+staticfn int
+screamu(struct monst *mtmp, struct attack *mattk)
+{
+    struct mhitm_data mhm;
+
+    switch (mattk->adtyp) {
+    case AD_LOUD:
+        /* the hero must be within earshot, and the monster must be
+           able to see who it is screaming at and have its special
+           ability off cooldown */
+        if (mdistu(mtmp) > 128 || !m_canseeu(mtmp) || mtmp->mspec_used)
+            return M_ATTK_MISS;
+
+        if (!mtmp->mcan && canseemon(mtmp) && Deaf)
+            pline_mon(mtmp, "It looks as if %s is yelling at you.",
+                      mon_nam(mtmp));
+        else if (!mtmp->mcan && !canseemon(mtmp) && Deaf)
+            You("sense a disturbing vibration in the air.");
+        else if (mtmp->mcan && canseemon(mtmp) && !Deaf)
+            pline_mon(mtmp, "%s croaks hoarsely.", Monnam(mtmp));
+        else if (mtmp->mcan && !canseemon(mtmp) && !Deaf)
+            You_hear("a hoarse croak nearby.");
+
+        /* the shout is spent even when it fizzles */
+        mtmp->mspec_used += rn2(6) + 5;
+
+        /* cancellation or hero deafness is total immunity, inventory
+           included */
+        if (mtmp->mcan || Deaf)
+            return M_ATTK_MISS;
+
+        Soundeffect(se_scream, 80);
+        if (m_canseeu(mtmp))
+            pline_mon(mtmp, "%s lets out a %s!", Monnam(mtmp),
+                      mtmp->data == &mons[PM_NAZGUL]
+                          ? "bloodcurdling scream" : "deafening roar");
+        else if (u.usleep && m_canseeu(mtmp) && !Deaf)
+            unmul("You are frightened awake!"); /* unreachable: the
+                       else-arm contradicts its own m_canseeu test;
+                       kept to match EvilHack 3.6 */
+
+        mhm.damage = d((int) mattk->damn, (int) mattk->damd);
+        mhm.hitflags = M_ATTK_MISS;
+        mhm.done = FALSE;
+        mhm.permdmg = FALSE;
+        mhm.specialdmg = 0;
+        mhm.dieroll = 0;
+        mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm);
+        return M_ATTK_HIT;
+    default:
+        break;
+    }
+    return M_ATTK_HIT;
 }
 
 /* mtmp hits you for n points damage */
