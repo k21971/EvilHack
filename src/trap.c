@@ -192,10 +192,12 @@ erode_obj(
     int ef_flags)
 {
     static NEARDATA const char
-        *const action[] = { "smoulder", "rust", "rot", "corrode", "crack" },
-        *const msg[] = { "burnt", "rusted", "rotten", "corroded", "cracked" },
+        *const action[] = { "smoulder", "rust", "rot", "corrode",
+                            "fracture", "deteriorate" },
+        *const msg[] = { "burnt", "rusted", "rotten", "corroded",
+                         "fractured", "deteriorated" },
         *const bythe[] = { "heat", "oxidation", "decay", "corrosion",
-                           "impact" }; /* this could use improvement... */
+                           "fragmentation", "deterioration" };
     boolean vulnerable = FALSE, is_primary = TRUE,
             check_grease = (ef_flags & EF_GREASE) ? TRUE : FALSE,
             print = (ef_flags & EF_VERBOSE) ? TRUE : FALSE,
@@ -242,11 +244,18 @@ erode_obj(
         is_primary = FALSE;
         cost_type = COST_CORRODE;
         break;
-    case ERODE_CRACK: /* crystal armor */
-        vulnerable = is_crackable(otmp);
+    case ERODE_FRACTURE: /* glass; sonic or impact damage */
+        vulnerable = is_glass(otmp);
+        check_grease = FALSE;
         is_primary = TRUE;
         crackers = TRUE;
-        cost_type = COST_CRACK;
+        cost_type = COST_FRACTURE;
+        break;
+    case ERODE_DETERIORATE: /* destructive magic vs supermaterials */
+        vulnerable = is_supermaterial(otmp);
+        check_grease = FALSE;
+        is_primary = FALSE;
+        cost_type = COST_DETERIORATE;
         break;
     default:
         impossible("Invalid erosion type in erode_obj");
@@ -334,7 +343,8 @@ erode_obj(
             if (!crackers)
                 Sprintf(actbuf, "%s away", vtense(ostr, action[type]));
             else
-                Sprintf(actbuf, "shatters");
+                Sprintf(actbuf, "%s and shatters",
+                        vtense(ostr, action[type]));
             pline("%s %s %s!",
                   uvictim ? "Your"
                   : !vismon ? "The" /* visobj */

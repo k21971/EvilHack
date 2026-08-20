@@ -1376,7 +1376,7 @@ add_erosion_words(struct obj *obj, char *prefix)
 
     rknown = (iflags.override_ID == 0) ? obj->rknown : TRUE;
 
-    if (!is_damageable(obj) && !iscrys)
+    if (!is_damageable(obj) && !is_supermaterial(obj) && !iscrys)
         return;
 
     /* The only cases where any of these bits do double duty are for
@@ -1392,7 +1392,7 @@ add_erosion_words(struct obj *obj, char *prefix)
             break;
         }
         Strcat(prefix, is_rustprone(obj) ? "rusty "
-                       : is_crackable(obj) ? "cracked "
+                       : is_glass(obj) ? "fractured "
                          : "burnt ");
     }
     if (obj->oeroded2 && !iscrys) {
@@ -1404,7 +1404,9 @@ add_erosion_words(struct obj *obj, char *prefix)
             Strcat(prefix, "thoroughly ");
             break;
         }
-        Strcat(prefix, is_corrodeable(obj) ? "corroded " : "rotted ");
+        Strcat(prefix, !is_damageable(obj) ? "deteriorated "
+                       : is_corrodeable(obj) ? "corroded "
+                         : "rotted ");
     }
     /* note: it is possible for an item to be both eroded and erodeproof
        (cursed scroll of destroy armor read while confused erodeproofs an
@@ -1414,7 +1416,7 @@ add_erosion_words(struct obj *obj, char *prefix)
                        : is_rustprone(obj) ? "rustproof "
                          : is_corrodeable(obj) ? "corrodeproof "
                            : is_flammable(obj) ? "fireproof "
-                             : is_crackable(obj) ? "tempered " /* hardened */
+                             : is_glass(obj) ? "tempered " /* hardened */
                                : is_rottable(obj) ? "rotproof "
                                  : "");
 }
@@ -4703,11 +4705,13 @@ readobjnam_preparse(struct _readobjnam_data *d)
                    || !strncmpi(d->bp, "rusted ", l = 7)
                    || !strncmpi(d->bp, "burnt ", l = 6)
                    || !strncmpi(d->bp, "burned ", l = 7)
+                   || !strncmpi(d->bp, "fractured ", l = 10)
                    || !strncmpi(d->bp, "cracked ", l = 8)) {
             d->eroded = 1 + d->very;
             d->very = 0;
         } else if (!strncmpi(d->bp, "corroded ", l = 9)
-                   || !strncmpi(d->bp, "rotted ", l = 7)) {
+                   || !strncmpi(d->bp, "rotted ", l = 7)
+                   || !strncmpi(d->bp, "deteriorated ", l = 13)) {
             d->eroded2 = 1 + d->very;
             d->very = 0;
         } else if (!strncmpi(d->bp, "partly eaten ", l = 13)
@@ -6112,9 +6116,10 @@ readobjnam(char *bp, struct obj *no_wish)
         /* wished-for item shouldn't be eroded unless specified */
         d.otmp->oeroded = d.otmp->oeroded2 = 0;
         if (d.eroded && (is_flammable(d.otmp) || is_rustprone(d.otmp)
-                         || is_crackable(d.otmp)))
+                         || is_glass(d.otmp)))
             d.otmp->oeroded = d.eroded;
-        if (d.eroded2 && (is_corrodeable(d.otmp) || is_rottable(d.otmp)))
+        if (d.eroded2 && (is_corrodeable(d.otmp) || is_rottable(d.otmp)
+                          || is_supermaterial(d.otmp)))
             d.otmp->oeroded2 = d.eroded2;
         /*
          * 3.6.1: earlier versions included `&& !eroded && !eroded2' here,
@@ -6465,10 +6470,11 @@ readobjnam(char *bp, struct obj *no_wish)
                 d.otmp->oeroded = d.otmp->oeroded2 = 0;
                 if (d.eroded && (is_flammable(d.otmp)
                                  || is_rustprone(d.otmp)
-                                 || is_crackable(d.otmp)))
+                                 || is_glass(d.otmp)))
                     d.otmp->oeroded = d.eroded;
                 if (d.eroded2
-                    && (is_corrodeable(d.otmp) || is_rottable(d.otmp)))
+                    && (is_corrodeable(d.otmp) || is_rottable(d.otmp)
+                        || is_supermaterial(d.otmp)))
                     d.otmp->oeroded2 = d.eroded2;
                 if (d.erodeproof
                     && (is_damageable(d.otmp) || d.otmp->otyp == CRYSKNIFE))

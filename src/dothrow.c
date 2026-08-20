@@ -2866,7 +2866,7 @@ breakobj(
     boolean explosion = FALSE;
 
     if (is_crackable(obj)) /* if erodeproof, erode_obj() will say so */
-        return (erode_obj(obj, armor_simple_name(obj), ERODE_CRACK,
+        return (erode_obj(obj, armor_simple_name(obj), ERODE_FRACTURE,
                           EF_DESTROY | EF_VERBOSE) == ER_DESTROYED);
 
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
@@ -2965,8 +2965,8 @@ breaktest(
 {
     int nonbreakchance = 1; /* chance for non-artifacts to resist */
 
-    /* glass armor cracks rather than shattering outright - it has to be
-       cracked 4 times before it breaks. Instance material, not the
+    /* glass armor fractures rather than shattering outright - it has to
+       be fractured 4 times before it breaks. Instance material, not the
        object type's, so that any armor rolled as glass behaves the same
        way crystal plate mail and the helm of brilliance always do */
     if (is_crackable(obj))
@@ -3158,7 +3158,7 @@ break_glass_obj(struct obj *obj)
             || !obj->owornmask)
             return FALSE;
         were_gloves = (obj->owornmask & W_ARMG) != 0L;
-        gone = (erode_obj(obj, armor_simple_name(obj), ERODE_CRACK,
+        gone = (erode_obj(obj, armor_simple_name(obj), ERODE_FRACTURE,
                           EF_DESTROY | EF_VERBOSE) == ER_DESTROYED);
         /* erode_obj unwears a monster's gear through
            extract_from_minvent, which has no petrification hook of its

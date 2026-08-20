@@ -4217,12 +4217,14 @@ obj_erode_type(struct obj *otmp)
         return ERODE_BURN;
     else if (is_rustprone(otmp))
         return ERODE_RUST;
-    else if (is_crackable(otmp))
-        return ERODE_CRACK;
+    else if (is_glass(otmp))
+        return ERODE_FRACTURE;
     else if (is_rottable(otmp))
         return ERODE_ROT;
     else if (is_corrodeable(otmp))
         return ERODE_CORRODE;
+    else if (is_supermaterial(otmp))
+        return ERODE_DETERIORATE;
     return ERODE_NONE;
 }
 

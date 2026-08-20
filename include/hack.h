@@ -318,7 +318,8 @@ enum cost_alteration_types {
     COST_RUST    = 16, /* rust damage */
     COST_ROT     = 17, /* rotting attack */
     COST_CORRODE = 18, /* acid damage */
-    COST_CRACK   = 19, /* damage to crystal armor */
+    COST_FRACTURE = 19, /* glass damage */
+    COST_DETERIORATE = 20, /* other material damage */
 };
 
 /* used by unpaid_cost(shk.h) */

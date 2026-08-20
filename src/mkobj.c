@@ -209,7 +209,7 @@ mkobj_erosions(struct obj *otmp)
             maybe_erodeproof(otmp, 1);
         } else {
             if (!rn2(80) && (is_flammable(otmp) || is_rustprone(otmp)
-                             || is_crackable(otmp))) {
+                             || is_glass(otmp))) {
                 do {
                     otmp->oeroded++;
                 } while (otmp->oeroded < 3 && !rn2(9));
@@ -804,7 +804,8 @@ bill_dummy_object(struct obj *otmp)
 static const char *const alteration_verbs[] = {
     "cancel", "drain", "uncharge", "unbless", "uncurse", "disenchant",
     "degrade", "dilute", "erase", "burn", "neutralize", "destroy", "splatter",
-    "bite", "open", "break the lock on", "rust", "rot", "tarnish", "crack",
+    "bite", "open", "break the lock on", "rust", "rot", "tarnish",
+    "fracture", "deteriorate",
 };
 
 /* possibly bill for an object which the player has just modified */
@@ -4850,9 +4851,10 @@ set_material(struct obj *otmp, int material)
     if (!erosion_matters(otmp))
         return;
 
-    /* glass cracking is tracked on the oeroded axis via is_crackable,
-       not on oeroded2 */
-    if (!is_rustprone(otmp) && !is_flammable(otmp) && !is_crackable(otmp))
+    /* glass fracturing is tracked on the oeroded axis, not on oeroded2;
+       supermaterial deterioration (oeroded2) washes off on a material
+       change, like master */
+    if (!is_rustprone(otmp) && !is_flammable(otmp) && !is_glass(otmp))
         otmp->oeroded = 0;
     if (!is_corrodeable(otmp) && !is_rottable(otmp))
         otmp->oeroded2 = 0;
