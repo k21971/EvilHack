@@ -701,8 +701,50 @@ dodrink(void)
             }
             ++drink_ok_extra;
         }
+        /* Or are you standing in shallow water (or on deep water)? */
+        if ((((is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+              && !verysmall(gy.youmonst.data))
+             || (is_pool(u.ux, u.uy) && Wwalking))
+            && !u.uswallow && can_reach_floor(FALSE)) {
+            boolean on_sewage = is_sewage(u.ux, u.uy);
+            char prompt[BUFSZ];
+            const char *liq = hliquid(on_sewage ? "sewage" : "water");
+
+            Sprintf(prompt, "Drink the %s beneath you?", liq);
+            if (y_n(prompt) == 'y') {
+                if (on_sewage) {
+                    if (Hallucination
+                        || y_n("Do you really want to drink raw sewage?")
+                           == 'y') {
+                        int strloss = resist_reduce(rn1(4, 3), SICK_RES);
+
+                        pline("This %s is foul!", liq);
+                        if (how_resistant(SICK_RES) == 100) {
+                            You_feel("mildly nauseous.");
+                            losehp(rnd(4), "upset stomach", KILLED_BY_AN);
+                        }
+                        /* strong sickness resistance can reduce the
+                           loss to nothing; losestr rejects 0 */
+                        if (strloss > 0)
+                            losestr(strloss, "contaminated sewage",
+                                    KILLED_BY);
+                        losehp(resist_reduce(rnd(10), SICK_RES),
+                               "contaminated sewage", KILLED_BY);
+                        exercise(A_CON, FALSE);
+                        return ECMD_TIME;
+                    }
+                } else {
+                    pline("Do you know what lives in that water?");
+                }
+                return ECMD_TIME;
+            }
+            ++drink_ok_extra;
+        }
         /* Or are you surrounded by water? */
-        if (Underwater && !u.uswallow) {
+        if ((Underwater
+             || ((is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+                 && verysmall(gy.youmonst.data)))
+            && !u.uswallow) {
             if (y_n("Drink the water around you?") == 'y') {
                 pline("Do you know what lives in this water?");
                 return ECMD_TIME;
@@ -2659,7 +2701,7 @@ dodip(void)
     char qbuf[QBUFSZ], obuf[QBUFSZ];
     const char *shortestname; /* last resort obj name for prompt */
     uchar here = levl[u.ux][u.uy].typ;
-    boolean is_hands, at_pool = is_pool(u.ux, u.uy),
+    boolean is_hands, at_pool = is_damp_terrain(u.ux, u.uy),
             at_fountain = IS_FOUNTAIN(here), at_sink = IS_SINK(here),
             at_forge = IS_FORGE(here),
             at_here = (!iflags.menu_requested
@@ -2747,6 +2789,21 @@ dodip(void)
                 } else if (u.usteed && !is_swimmer(u.usteed->data)
                            && P_SKILL(P_RIDING) < P_BASIC) {
                     rider_cant_reach(); /* not skilled enough to reach */
+                } else if (IS_SEWAGE(here) && !is_hands) {
+                    if (rn2(3)) {
+                        obj->pickup_prev = 0;
+                        You("see something moving under the surface and"
+                            " abruptly pull away your %s.", xname(obj));
+                    } else if (obj_resists(obj, 0, 0) || obj == uball
+                               || (is_worn(obj) && obj->cursed)) {
+                        obj->pickup_prev = 0;
+                        pline("A creature hiding under the surface tries"
+                              " to grab your %s, but cannot!", xname(obj));
+                    } else {
+                        pline("Without warning, a creature hiding in the"
+                              " muck snatches away your %s!", xname(obj));
+                        useupall(obj);
+                    }
                 } else if (is_hands || obj == uarmg) {
                     if (!is_hands)
                         obj->pickup_prev = 0;
@@ -2758,6 +2815,18 @@ dodip(void)
                     if (water_damage(obj, 0, TRUE) != ER_DESTROYED
                         && obj->in_use)
                         useup(obj);
+                    if (IS_PUDDLE(here) && !rn2(3)
+                        /* if shallow water forms on stairs, don't run
+                           the risk of removing the stairs */
+                        && !On_stairs(u.ux, u.uy)) {
+                        /* shallow water isn't an endless resource like
+                           a pool/moat */
+                        levl[u.ux][u.uy].typ = ROOM;
+                        maybe_unhide_at(u.ux, u.uy);
+                        newsym(u.ux, u.uy);
+                        if (cansee(u.ux, u.uy))
+                            pline_The("puddle dries up.");
+                    }
                 }
                 return ECMD_TIME;
             }

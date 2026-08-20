@@ -3685,6 +3685,9 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
             if (!(e && e->engr_type == ENGRAVE)) {
                 if (is_pool(u.ux, u.uy) || is_ice(u.ux, u.uy))
                     pline1(nothing_happens);
+                else if (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))
+                    pline_The("water at your %s turns slightly %s.",
+                              makeplural(body_part(FOOT)), hcolor("red"));
                 else
                     pline("Blood %ss %s your %s.",
                           is_lava(u.ux, u.uy) ? "boil" : "pool",
@@ -5893,10 +5896,8 @@ zap_over_floor(
                 You_hear("hissing gas.");
             rangemod -= 3;
             lev->typ = ROOM, lev->flags = 0;
-            if ((mon = m_at(x, y)) != 0) {
-                if (is_swimmer(mon->data) && mon->mundetected)
-                    mon->mundetected = 0;
-            }
+            /* unhide any monster (or hero) lurking in it */
+            maybe_unhide_at(x, y);
             newsym(x, y);
         } else if (lev->typ == TREE) {
             if (see_it)

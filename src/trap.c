@@ -1982,6 +1982,39 @@ trapeffect_fire_trap(
         struct permonst *mptr = mtmp->data;
         int orig_dmg = d(2, 4);
 
+        if (is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my)) {
+            /* shallow water turns the tower of flame into a steam bath */
+            if (in_sight)
+                pline_mon(mtmp,
+                          "A cascade of steamy bubbles erupts from the %s"
+                          " under %s!",
+                          surface(tx, ty), mon_nam(mtmp));
+            else if (see_it) {
+                set_msg_xy(tx, ty);
+                You_see("a cascade of steamy bubbles erupt from the %s!",
+                        surface(tx, ty));
+            }
+            if (rn2(2)) {
+                if (in_sight)
+                    pline_The("water evaporates!");
+                levl[tx][ty].typ = ROOM;
+                maybe_unhide_at(tx, ty);
+                newsym(tx, ty);
+            }
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
+                if (in_sight) {
+                    shieldeff(mtmp->mx, mtmp->my);
+                    pline("%s is uninjured.", Monnam(mtmp));
+                }
+            } else if (thitm(0, mtmp, (struct obj *) 0, rnd(3), FALSE,
+                             trap->madeby_u ? TRUE : FALSE))
+                trapkilled = TRUE;
+            if (see_it && t_at(tx, ty))
+                seetrap(t_at(tx, ty));
+            return trapkilled ? Trap_Killed_Mon : mtmp->mtrapped
+                ? Trap_Caught_Mon : Trap_Effect_Finished;
+        }
+
         if (in_sight)
             pline_mon(mtmp,
                  "A %s erupts from the %s under %s!", tower_of_flame,
@@ -1991,7 +2024,7 @@ trapeffect_fire_trap(
             You_see("a %s erupt from the %s!", tower_of_flame,
                     surface(mtmp->mx, mtmp->my));
         }
-        if (resists_fire(mtmp)) {
+        if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
             if (in_sight) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s is uninjured.", Monnam(mtmp));
@@ -2117,6 +2150,19 @@ trapeffect_ice_trap(
                     }
                 }
             }
+        }
+        if (is_puddle(tx, ty) || is_sewage(tx, ty)) {
+            /* the mist freezes the shallow water under the monster;
+               record what the ice was so melting restores it */
+            if (in_sight || see_it)
+                pline_The("water freezes!");
+            levl[tx][ty].icedpool = is_puddle(tx, ty) ? ICED_PUDDLE
+                                                      : ICED_SEWAGE;
+            levl[tx][ty].typ = ICE;
+            start_melt_ice_timeout(tx, ty, 0L);
+            obj_ice_effects(tx, ty, TRUE);
+            maybe_unhide_at(tx, ty);
+            newsym(tx, ty);
         }
         if (DEADMONSTER(mtmp))
             trapkilled = TRUE;
@@ -4912,7 +4958,9 @@ dofiretrap(
      * to be done upon its contents.
      */
 
-    if ((box && !carried(box)) ? is_pool(box->ox, box->oy) : Underwater) {
+    if ((box && !carried(box)) ? is_pool(box->ox, box->oy)
+                               : (Underwater || is_puddle(u.ux, u.uy)
+                                  || is_sewage(u.ux, u.uy))) {
         pline("A cascade of steamy bubbles erupts from %s!",
               the(box ? xname(box) : surface(u.ux, u.uy)));
         if (how_resistant(FIRE_RES) > 50) {
@@ -4920,6 +4968,12 @@ dofiretrap(
             monstseesu(M_SEEN_FIRE);
         } else
             losehp(rnd(3), "boiling water", KILLED_BY);
+        if ((is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy)) && rn2(2)) {
+            pline_The("water evaporates!");
+            levl[u.ux][u.uy].typ = ROOM;
+            maybe_unhide_at(u.ux, u.uy);
+            newsym(u.ux, u.uy);
+        }
         return;
     }
     pline("A %s %s from %s!", tower_of_flame, box ? "bursts" : "erupts",
@@ -5036,6 +5090,19 @@ doicetrap(
     if (rn2(2)) {
         Your("%s become encrusted with ice!", makeplural(body_part(FOOT)));
         u_slow_down();
+    }
+
+    if (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy)) {
+        /* the mist freezes the shallow water underfoot; record what
+           the ice was so melting restores it */
+        pline_The("water freezes!");
+        levl[u.ux][u.uy].icedpool = is_puddle(u.ux, u.uy) ? ICED_PUDDLE
+                                                          : ICED_SEWAGE;
+        levl[u.ux][u.uy].typ = ICE;
+        start_melt_ice_timeout(u.ux, u.uy, 0L);
+        obj_ice_effects(u.ux, u.uy, TRUE);
+        maybe_unhide_at(u.ux, u.uy);
+        newsym(u.ux, u.uy);
     }
 }
 

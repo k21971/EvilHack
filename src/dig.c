@@ -986,7 +986,7 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
         /* crafted magical traps carry their component as ammo */
         deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
         newsym(dig_x, dig_y);
-    } else if (is_pool_or_lava(dig_x, dig_y)) {
+    } else if (is_lava(dig_x, dig_y) || is_damp_terrain(dig_x, dig_y)) {
         pline_The("%s sloshes furiously for a moment, then subsides.",
                   hliquid(is_lava(dig_x, dig_y) ? "lava" : "water"));
         wake_nearby(FALSE); /* splashing */

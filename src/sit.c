@@ -519,7 +519,8 @@ dosit(void)
             There("are no cushions floating nearby.");
         else
             You("sit down on the muddy bottom.");
-    } else if (is_pool(u.ux, u.uy) && !eggs_in_water(gy.youmonst.data)) {
+    } else if (is_damp_terrain(u.ux, u.uy)
+               && !eggs_in_water(gy.youmonst.data)) {
  in_water:
         You("sit in the %s.", hliquid("water"));
         if (Upolyd && u.umonnum == PM_GREMLIN) {

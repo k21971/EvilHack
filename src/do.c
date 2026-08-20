@@ -290,7 +290,7 @@ flooreffects(
         res = TRUE;
     } else if (is_lava(x, y)) {
         res = lava_damage(obj, x, y);
-    } else if (is_pool(x, y)) {
+    } else if (is_damp_terrain(x, y)) {
         /* Reasonably bulky objects (arbitrary) splash when dropped.
          * If you're floating above the water even small things make
          * noise.  Stuff dropped near fountains always misses */
@@ -304,6 +304,15 @@ flooreffects(
             }
             map_background(x, y, 0);
             newsym(x, y);
+        }
+        if (is_puddle(x, y) && !rn2(3)) {
+            /* shallow water isn't an endless resource like a pool/moat */
+            levl[x][y].typ = ROOM;
+            /* unhide any monster (or hero) lurking in it */
+            maybe_unhide_at(x, y);
+            newsym(x, y);
+            if (cansee(x, y))
+                pline_The("puddle dries up.");
         }
         res = water_damage(obj, NULL, FALSE) == ER_DESTROYED;
     } else if (u_at(x, y) && (t = t_at(x, y)) != 0

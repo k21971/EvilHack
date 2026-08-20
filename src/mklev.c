@@ -30,7 +30,7 @@ staticfn void makelevel(void);
 staticfn boolean water_has_kelp(coordxy, coordxy, int, int);
 staticfn boolean bydoor(coordxy, coordxy);
 staticfn void mktrap_victim(struct trap *);
-staticfn int traptype_rnd(unsigned);
+staticfn int traptype_rnd(unsigned, coord *);
 staticfn int traptype_roguelvl(void);
 staticfn struct mkroom *find_branch_room(coord *) NONNULLARG1;
 staticfn struct mkroom *pos_to_room(coordxy, coordxy);
@@ -2057,9 +2057,10 @@ mktrap_victim(struct trap *ttmp)
     otmp->age -= (TAINT_AGE + 1); /* died too long ago to safely eat */
 }
 
-/* pick a random trap type, return NO_TRAP if "too hard" */
+/* pick a random trap type, return NO_TRAP if "too hard"; 'tm' is the
+   fixed target location when the caller has one, or Null */
 staticfn int
-traptype_rnd(unsigned mktrapflags)
+traptype_rnd(unsigned mktrapflags, coord *tm)
 {
     unsigned lvl = level_difficulty();
     int kind = rnd(TRAPNUM - 1);
@@ -2090,13 +2091,19 @@ traptype_rnd(unsigned mktrapflags)
     case SPIKED_PIT:
         if (lvl < 5)
             kind = NO_TRAP;
+        if (tm && (is_puddle(tm->x, tm->y) || is_sewage(tm->x, tm->y)))
+            kind = NO_TRAP;
         break;
     case LANDMINE:
         if (lvl < 6)
             kind = NO_TRAP;
+        if (tm && (is_puddle(tm->x, tm->y) || is_sewage(tm->x, tm->y)))
+            kind = NO_TRAP;
         break;
     case WEB:
         if (lvl < 7 && !(mktrapflags & MKTRAP_NOSPIDERONWEB))
+            kind = NO_TRAP;
+        if (tm && (is_puddle(tm->x, tm->y) || is_sewage(tm->x, tm->y)))
             kind = NO_TRAP;
         break;
     case SPEAR_TRAP_SET:
@@ -2110,6 +2117,8 @@ traptype_rnd(unsigned mktrapflags)
         break;
     case MAGIC_BEAM_TRAP_SET:
         if (lvl < 12)
+            kind = NO_TRAP;
+        if (tm && (is_puddle(tm->x, tm->y) || is_sewage(tm->x, tm->y)))
             kind = NO_TRAP;
         break;
     case FIRE_TRAP_SET:
@@ -2127,6 +2136,12 @@ traptype_rnd(unsigned mktrapflags)
     case HOLE:
         /* make these much less often than other traps */
         if (rn2(7))
+            kind = NO_TRAP;
+        FALLTHROUGH;
+        /*FALLTHRU*/
+    case PIT:
+    case TRAPDOOR:
+        if (tm && (is_puddle(tm->x, tm->y) || is_sewage(tm->x, tm->y)))
             kind = NO_TRAP;
         break;
     }
@@ -2214,7 +2229,7 @@ mktrap(
         kind = ICE_TRAP_SET;
     } else {
         do {
-            kind = traptype_rnd(mktrapflags);
+            kind = traptype_rnd(mktrapflags, tm);
         } while (kind == NO_TRAP);
     }
 

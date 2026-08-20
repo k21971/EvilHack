@@ -211,6 +211,8 @@ thitu(
             pline("It doesn't seem to affect you.");
             monstseesu(M_SEEN_POISON);
         } else if (is_webbing && (is_pool_or_lava(u.ux, u.uy)
+                                  || is_puddle(u.ux, u.uy)
+                                  || is_sewage(u.ux, u.uy)
                                   || IS_AIR(levl[u.ux][u.uy].typ))) {
             /* webbing has nothing to anchor to over liquid or air */
             You("easily disentangle yourself.");

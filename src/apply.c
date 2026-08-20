@@ -2473,7 +2473,8 @@ fig_transform(anything *arg, long timeout)
                 Sprintf(and_vanish, " and %s under %s",
                         locomotion(mtmp->data, "crawl"), doname(mshelter));
             } else if (mtmp->data->mlet == S_MIMIC
-                       || mtmp->data->mlet == S_EEL) {
+                       || mtmp->data->mlet == S_EEL
+                       || mtmp->data == &mons[PM_GIANT_LEECH]) {
                 suppress_see = TRUE;
             } else
                 Strcpy(and_vanish, " and vanish");
@@ -2510,7 +2511,7 @@ fig_transform(anything *arg, long timeout)
                 if (canseemon(figurine->ocarry)
                     && (!mon->wormno || cansee(mon->mx, mon->my)))
                     Sprintf(carriedby, "%s pack", s_suffix(a_monnam(mon)));
-                else if (is_pool(mon->mx, mon->my))
+                else if (is_damp_terrain(mon->mx, mon->my))
                     Strcpy(carriedby, "empty water");
                 else
                     Strcpy(carriedby, "thin air");
@@ -3129,7 +3130,7 @@ use_trap(struct obj *otmp)
         what = "underwater";
     else if (Levitation)
         what = "while levitating";
-    else if (is_pool(u.ux, u.uy))
+    else if (is_damp_terrain(u.ux, u.uy))
         what = "in water";
     else if (is_lava(u.ux, u.uy))
         what = "in lava";
@@ -3401,8 +3402,15 @@ use_whip(struct obj *obj)
                 return ECMD_TIME;
             }
             if (otmp && proficient) {
-                You("wrap your bullwhip around %s on the %s.",
-                    an(singular(otmp, xname)), surface(u.ux, u.uy));
+                /* objects lie *in* water, lava, or sewage; 'on the
+                   fountain' sounds a bit weird, but the object isn't
+                   in the fountain, or else it would be wet */
+                const char *surf_prep = is_damp_terrain(u.ux, u.uy)
+                                        ? "in" : "on";
+
+                You("wrap your bullwhip around %s %s the %s.",
+                    an(singular(otmp, xname)), surf_prep,
+                    surface(u.ux, u.uy));
                 if (rnl(6) || pickup_object(otmp, 1L, TRUE) < 1)
                     pline1(msg_slipsfree);
                 return ECMD_TIME;
@@ -4208,7 +4216,7 @@ use_grapple(struct obj *obj)
         FALLTHROUGH;
     /*FALLTHRU*/
     case 3: /* Surface */
-        if (IS_AIR(levl[cc.x][cc.y].typ) || is_pool(cc.x, cc.y))
+        if (IS_AIR(levl[cc.x][cc.y].typ) || is_damp_terrain(cc.x, cc.y))
             pline_The("hook slices through the %s.", surface(cc.x, cc.y));
         else {
             You("are yanked toward the %s!", surface(cc.x, cc.y));

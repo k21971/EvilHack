@@ -1312,12 +1312,12 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
     cc.x = mon->mx + (dx * range);
     cc.y = mon->my + (dy * range);
     (void) walk_path(&mc, &cc, mhurtle_step, (genericptr_t) mon);
-    if (!DEADMONSTER(mon)) {
-        if (t_at(mon->mx, mon->my))
-            (void) mintrap(mon, FORCEBUNGLE);
-        else
-            (void) minliquid(mon);
-    }
+    /* trap and liquid can both apply on the same square (fire trap on
+       a puddle, etc); mintrap may kill mon, so re-check DEADMONSTER */
+    if (!DEADMONSTER(mon) && t_at(mon->mx, mon->my))
+        (void) mintrap(mon, FORCEBUNGLE);
+    if (!DEADMONSTER(mon))
+        (void) minliquid(mon);
     return;
 }
 

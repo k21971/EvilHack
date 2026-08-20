@@ -189,7 +189,12 @@ hitval(struct obj *otmp, struct monst *mon)
 
     /* trident is highly effective against swimmers */
     if (otmp->otyp == TRIDENT && is_swimmer(ptr)) {
-        if (is_pool(mon->mx, mon->my))
+        /* &youmonst has mx/my == 0 (off-map sentinel); read the real
+           position from u.ux/u.uy when scoring against the player */
+        coordxy dx = (mon == &gy.youmonst) ? u.ux : mon->mx;
+        coordxy dy = (mon == &gy.youmonst) ? u.uy : mon->my;
+
+        if (is_damp_terrain(dx, dy))
             tmp += 4;
         else if (ptr->mlet == S_EEL || ptr->mlet == S_SNAKE)
             tmp += 2;
