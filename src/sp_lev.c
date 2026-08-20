@@ -1317,11 +1317,7 @@ is_ok_location(coordxy x, coordxy y, getloc_flags_t humidity)
         if (!bould || (bould && (humidity & SOLID)))
             return TRUE;
     }
-    /* TODO-EVILHACK: master counts puddles and sewage as WET here via
-       is_damp_terrain(); deferred until the damp-terrain slice teaches
-       minliquid() and the monster water rules about shallow water, so a
-       water-liking monster isn't placed somewhere it can't survive */
-    if ((humidity & WET) && is_pool(x, y))
+    if ((humidity & WET) && is_damp_terrain(x, y))
         return TRUE;
     if ((humidity & HOT) && is_lava(x, y))
         return TRUE;

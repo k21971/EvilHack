@@ -149,14 +149,25 @@ dolavademon(void)
     }
 }
 
+/* m_at() returns the head pointer for every body cell of a long worm,
+   so an overflowing fountain would splash the same worm once per
+   parity-matched cell in range; wormhit[] remembers which worms have
+   already been soaked during a single gush event */
+struct gush_ctx {
+    int poolcnt;
+    boolean wormhit[MAX_NUM_WORMS];
+};
+
 /* Gushing forth along LOS from (u.ux, u.uy) */
 void
 dogushforth(int drinking)
 {
-    int madepool = 0;
+    struct gush_ctx ctx;
 
-    do_clear_area(u.ux, u.uy, 7, gush, (genericptr_t) &madepool);
-    if (!madepool) {
+    ctx.poolcnt = 0;
+    (void) memset((genericptr_t) ctx.wormhit, 0, sizeof ctx.wormhit);
+    do_clear_area(u.ux, u.uy, 7, gush, (genericptr_t) &ctx);
+    if (!ctx.poolcnt) {
         if (drinking)
             Your("thirst is quenched.");
         else
@@ -165,8 +176,9 @@ dogushforth(int drinking)
 }
 
 staticfn void
-gush(coordxy x, coordxy y, genericptr_t poolcnt)
+gush(coordxy x, coordxy y, genericptr_t arg)
 {
+    struct gush_ctx *ctx = (struct gush_ctx *) arg;
     struct monst *mtmp;
     struct trap *ttmp;
 
@@ -178,23 +190,25 @@ gush(coordxy x, coordxy y, genericptr_t poolcnt)
     if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
         return;
 
-    if (!((*(int *) poolcnt)++))
+    if (!(ctx->poolcnt++))
         pline("Water gushes forth from the overflowing fountain!");
 
-    /* Put a pool at x, y */
-    /* TODO-EVILHACK: master leaves a PUDDLE here; a puddle is inert floor
-       until shallow water carries its behavior, and swapping it in now
-       would quietly remove the drowning hazard an overflow creates */
-    set_levltyp(x, y, POOL);
+    /* Put a puddle at x, y */
+    set_levltyp(x, y, PUDDLE);
     levl[x][y].flags = 0;
     /* No kelp! */
     del_engr_at(x, y);
     water_damage_chain(svl.level.objects[x][y], TRUE, 0, TRUE);
 
-    if ((mtmp = m_at(x, y)) != 0)
+    /* m_at returns the head pointer for every body cell of a long worm;
+       skip if we've already hit this worm during this gush event */
+    if ((mtmp = m_at(x, y)) != 0
+        && !(mtmp->wormno && ctx->wormhit[mtmp->wormno])) {
         (void) minliquid(mtmp);
-    else
-        newsym(x, y);
+        if (mtmp->wormno && !DEADMONSTER(mtmp))
+            ctx->wormhit[mtmp->wormno] = TRUE;
+    }
+    newsym(x, y);
 }
 
 /* Find a gem in the sparkling waters. */

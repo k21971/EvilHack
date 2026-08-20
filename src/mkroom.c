@@ -911,14 +911,16 @@ mkswamp(void) /* Michiel Huisjes & Fred de Wilde */
                                            sx, sy, NO_MM_FLAGS);
                             eelct++;
                         }
-                    } else if (!rn2(4)) {
-                        /* TODO-EVILHACK: master fills the other half of the
-                           checkerboard with PUDDLE; holding that back until
-                           shallow water carries its wading, item-damage and
-                           monster-movement behavior, since a puddle here
-                           would be inert floor where a pool is a hazard */
-                        (void) makemon(mkclass(S_FUNGUS, 0), sx, sy,
-                                       NO_MM_FLAGS);
+                    } else {
+                        del_engr_at(sx, sy);
+                        levl[sx][sy].typ = PUDDLE;
+                        if (!rn2(4)) /* swamps tend to be moldy and wet */
+                            (void) makemon(!rn2(30)
+                                              ? &mons[PM_ASSASSIN_VINE]
+                                              : rn2(2)
+                                                 ? mkclass(S_FUNGUS, 0)
+                                                 : &mons[PM_GIANT_MOSQUITO],
+                                           sx, sy, NO_MM_FLAGS);
                     }
                 }
             }
