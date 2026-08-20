@@ -6393,7 +6393,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
       !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
       polyself.c rehumanize FROMHUNGER reset, independent live bug
-      with its own bisect window; B = the ladder, BUG-1610..1614).
+      with its own bisect window, commit 2679a32a4; B = the ladder,
+      BUG-1610..1614, commit 0d4f8ef1a).
       Master's u_slow_down body ported in 5.0 idiom (defended/
       resists_slow "spry as ever" guard, three-tier messages,
       incr_itimeout rnd(11)+12, + disp.botl branch adaptation - the
