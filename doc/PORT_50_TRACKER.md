@@ -7182,60 +7182,101 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       f4d3a8ddc fixed sit.c's reintroduced BUG-329 boots typo
       found during verification. ERODE_FRACTURE deliberately
       deferred to rows D1/D2 below; erosion_matters() width to D4.
-- [ ] D1: AD_LOUD / AT_SCRE sonic combat subsystem unported (NEW,
-      minted 2026-07-31 by the EF_DESTROY parity slice; MEDIUM
-      port gap). Master's executors - mhitu.c screamu() behind the
-      mattacku AT_SCRE arm (damage, deafness, glass fracture,
-      destroy_item of POTION/RING/TOOL/WAND), mhitm.c's two
-      AD_LOUD arms with destroy_mitem, uhitm.c's AT_SCRE polyform
-      arm, and mcastu.c m_destroy_armor() - none exist on the
-      branch. LIVE TODAY: celestial dragon (monsters.h:2540) and
-      Nazgul (:3559) carry AT_SCRE/AD_LOUD attacks with no
-      handler, so the slot is silently skipped in both mattacku
-      and mattackm default arms, and the dochug ranged-scan
-      (monmove.c:1130) counts AT_SCRE as usable so they select
-      ranged targets they cannot attack. Depends on D2 for the
-      glass-shatter leg; destroy_mitem already exists (muse.c).
-- [ ] D2: ERODE_FRACTURE decision (NEW, minted 2026-07-31;
-      decision row, tied to D1). Master's erosion type 4 is
-      ERODE_FRACTURE (is_glass, "fracture"/"fragmentation",
-      COST_FRACTURE) feeding the sonic subsystem; the branch's
-      type 4 is 5.0's ERODE_CRACK (is_crackable crystal armor,
-      COST_CRACK) - same slot, DIFFERENT semantics, a bare port
-      collides. Decide: renumber master's fracture in as a new
-      type alongside crack, or fold the glass fracture into the
-      crack model. COST_FRACTURE/COST_DETERIORATE also absent
-      from the branch COST_ enum.
-- [ ] D3: ERODE_DETERIORATE defined but unhandled (NEW, minted
-      2026-07-31; LOW, latent). include/obj.h defines it (5) but
-      the branch erode_obj() switch has no arm - any caller would
-      hit the impossible() default. Master's arm:
-      is_supermaterial, secondary erosion, COST_DETERIORATE. No
-      branch caller today; lands naturally with D1/D2.
-- [ ] D4: erosion_matters() vanilla-narrow vs master (NEW, minted
-      2026-07-31; MEDIUM port gap; supersedes the REVIEW-LOW
-      SLING_BULLET note's erosion_matters half). Master lets all
-      of TOOL_CLASS fall through (containers included) and adds
-      AMULET/RING/WAND/FOOD and SLING_BULLET; the branch returns
-      TRUE only for weptools + WEAPON/ARMOR/BALL/CHAIN. Until
-      widened, containers cannot erode, which keeps three
-      already-ported master-shape pieces of erode_obj()'s destroy
-      arm dormant (iron-safe bail, box contents dump,
-      water_damage's waterproof-container exterior rust - battery
-      documented the dormancy live: an iron safe in water shows
-      erosion_matters==0 while co-located ball/chain erode; the
-      Amulet also short-circuits at this gate BEFORE the
-      obj_resists guard). Widening is a real balance change
-      (rings/wands/food start eroding) - port deliberately, with
-      the doname/xname erosion-word consumers in the same slice.
-      Related anomaly recorded by the battery: a WIELDED
-      thrice-corroded weapon's dip prompt drops the "thoroughly
-      corroded" adjective that the carried form shows - check the
-      doname worn-suffix path during that slice. NOTE 2026-07-31:
-      BUG-1427 landed master's doname GEM_CLASS SLING_BULLET arm -
-      inert until this row widens erosion_matters, at which point
-      sling-bullet erosion words become visible with no further
-      naming work.
+- [x] D1: AD_LOUD / AT_SCRE sonic combat subsystem (minted
+      2026-07-31 by the EF_DESTROY parity slice) - DONE 2026-08-20
+      (session 51, the D1-D4 slice, nine commits e5076f389 +
+      3e7a83dd5 + 423a229ec + b93605285 + c66b34c06 + 461e59422 +
+      587a78a8c + 4bbaf512b + aff32f77d = BUG-1615..1623).
+      Executors live: mhitm_ad_loud() three-way in the 5.0 AD
+      layer (folds master's screamu damage half + mdamagem +
+      damageum arms), screamu()/screamm() wrappers with the
+      AT_SCRE-specific gates, mattacku/mattackm dispatch arms,
+      hmonas no-op arm, defends() celestial-scales AD_LOUD row,
+      attk_protection AT_SCRE ~0L (BUG-1620 cockatrice fix),
+      destroy_items/maybe_destroy_item AD_LOUD arms +
+      destroy_strings rows 7-9, mcast_destroy_armor reworked to
+      master's EvilHack semantics (Antimagic softens to erodelvl
+      1; crystal-plate immunity unconditional on defender type -
+      CLOSES the BUG-1311 parked design call; BUG-254 melee-only
+      gate in spell_would_be_useless). The dochug mis-targeting
+      symptom resolved by the executors landing; the scan itself
+      was already parity. ROW CORRECTIONS: destroy_mitem did NOT
+      exist (only #if 0 remnants in muse.c) - the live API is
+      destroy_items(); master inflicts STUN, not deafness (Deaf is
+      the defense); the scan reference is monmove.c ~1206.
+      ADAPTATIONS (deliberate): instance is_glass in destroyable()
+      vs master's base oc_material; destroy count scales with
+      damage (DMG_DESTROY_SCALE) replacing master's per-class
+      odds; monsters take shatter dice as damage like the
+      fire/cold/elec arms (master's destroy_mitem dealt none);
+      branch fixes BUG-1618 (defended AD_LOUD monster immunity) +
+      BUG-1619 (stun message only when mechanics ran). DEFERRED
+      with owners: master's remaining melee-only spell list
+      (STUN_YOU/WEAKEN_YOU/CURSE_ITEMS etc.) -> monster-spells
+      follow-up; celestial scales missing from the AD_ELEC
+      defends() arm (master has BLUE || CELESTIAL) + the AD_STUN
+      -> SHIMMERING arm -> dragon-armor row; pager
+      attacktypes[]/damagetypes[] belong to the unported
+      add_mon_info pokedex - WARNING for that port: the tables
+      are positional and must be built for branch ordinals
+      (AT_SCRE 17 / AD_LOUD 49), not copied from master (15/48).
+      Wizmode battery PENDING (maintainer launch approval).
+- [x] D2: ERODE_FRACTURE decision (minted 2026-07-31) - RESOLVED
+      BY MAINTAINER RULING + DONE 2026-08-20 (commit e5076f389 =
+      BUG-1615/1616). Ruling: single widened type, third option
+      beyond the row's two - keep the branch's slot-4 type and its
+      gradual crack model, adopt master's identifiers, values AND
+      word family for ALL glass including crystal armor:
+      ERODE_CRACK -> ERODE_FRACTURE (4), COST_CRACK ->
+      COST_FRACTURE (19), COST_DETERIORATE appended (20),
+      "fractured"/"fragmentation"/"fractures and shatters"/
+      "tempered" everywhere, erode_obj vulnerability widened to
+      is_glass on the PRIMARY axis (materials-slice ruling
+      extends to all glass). The narrow is_crackable macro
+      deliberately stays at the impact-physics sites
+      (breaktest/breakobj/breakmsg/break_glass_obj, hard_helmet)
+      so thrown glass weapons/potions keep shattering outright -
+      the fold option was rejected precisely because widening
+      is_crackable would have flipped thrown glass to a 90%-
+      resist crack model. Wish parse keeps "cracked " as an
+      alias; ERODE_*/COST_* are transient, zero save impact.
+- [x] D3: ERODE_DETERIORATE arm (minted 2026-07-31) - DONE
+      2026-08-20 with D2 (e5076f389 = BUG-1615): is_supermaterial,
+      secondary axis, no grease, COST_DETERIORATE, word tables
+      grown to 6. Live producers: mcast_destroy_armor's material
+      ladder and destroy_arm() via the 587a78a8c gate widening
+      (is_damageable || is_supermaterial - maintainer-adopted
+      balance change: supermaterial armor deteriorates instead of
+      flat-immune vs scroll/curse; curse-marker oerodeproof
+      supermaterials are skipped by the existing !oerodeproof
+      leg). obj_erode_type gained the supermaterial tail arm.
+- [x] D4: erosion_matters() widened to master's classes (minted
+      2026-07-31) - DONE 2026-08-20 (commit aff32f77d =
+      BUG-1621..1623). Master shape: all TOOL_CLASS (containers
+      included) + AMULET/RING/WAND/FOOD + GEM_CLASS SLING_BULLET;
+      POTION_CLASS stays excluded (thrown-potion shatter +
+      odiluted overload are load-bearing). The three dormant
+      destroy-arm pieces (iron-safe bail, box contents dump,
+      waterproof-container exterior rust) and the two inert
+      naming arms (TOOL_CLASS add_erosion_words, BUG-1427
+      sling-bullet words) are LIVE. Riders landed: doname
+      erosion words for AMULET/WAND/RING/FOOD at master's
+      placements (before the charges:/ring: goto labels), food
+      words "decayed " (primary, shares the bit with orotten by
+      design) / "preserved " (erodeproof) with parse arms, no
+      oeroded2 word ever on food (norevive overload),
+      may_generate_eroded FOOD/candle/crysknife/supermaterial
+      guards. REVIEWER-CAUGHT widening casualties fixed in the
+      same commit: BUG-1621 fire_damage container guard
+      (ported-call-lost-precondition; upstream 5.0 ships it
+      commented out, dormant there), BUG-1622 "rotted corpse"
+      wish wrote norevive, BUG-1623 confused enchant weapon
+      cleared norevive (both master-shared, frozen-unfixed
+      there). Dip-prompt anomaly ADJUDICATED NOT-A-BUG: it is
+      upstream-vanilla short_oname() QBUFSZ truncation (the
+      " (weapon in hand)" suffix pushes doname over the budget
+      and it falls back to thesimpleoname), not the worn-suffix
+      path; upstream-cosmetic, no code change.
 - [x] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       weapon.c: the mirror of the blessed arm the branch has - cursed
