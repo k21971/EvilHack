@@ -3557,6 +3557,135 @@ mhitm_ad_elec(
 }
 
 void
+mhitm_ad_loud(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    struct permonst *pd = mdef->data;
+    int orig_dmg = mhm->damage;
+
+    /* the scream-specific gating happens in screamu()/screamm(), so
+       the attack struct itself isn't consulted here */
+    nhUse(mattk);
+
+    if (magr == &gy.youmonst) {
+        /* uhitm; unreachable today - both AT_SCRE carriers are
+           M2_NOPOLY and hmonas() routes AT_SCRE to a no-op - but
+           kept complete in case a polyable screamer is ever added.
+           No stun is inflicted on this leg */
+        if (mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
+            mhm->damage = 0;
+            return;
+        }
+        if (defended(mdef, AD_LOUD)) {
+            if (!Blind)
+                pline("The sonic assault doesn't faze %s.", mon_nam(mdef));
+            mhm->damage = 0;
+            return;
+        }
+        if (!Deaf && !Blind)
+            pline("%s reels from the noise!", Monnam(mdef));
+        if (!rn2(6))
+            erode_armor(mdef, ERODE_FRACTURE);
+        mhm->damage += destroy_items(mdef, AD_LOUD, orig_dmg);
+        if (pd == &mons[PM_GLASS_GOLEM]) {
+            if (canseemon(mdef))
+                pline("%s shatters into a million pieces!", Monnam(mdef));
+            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+            mhm->hitflags |= M_ATTK_DEF_DIED;
+            mhm->damage = 0;
+            return;
+        }
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu; reached via screamu(), which has already run the
+           scream-specific gates (range, line of sight, cooldown,
+           cancellation, deafness) - no hitmsg() here */
+        if (uarmh && uarmh->otyp == TOQUE) {
+            Your("%s protects your ears from the sonic onslaught.",
+                 helm_simple_name(uarmh));
+            mhm->damage = 0;
+            return;
+        }
+        if (uarm
+            && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
+            Your("armor negates the lethal sonic assault.");
+            mhm->damage = 0;
+            return;
+        }
+        if (Stun_resistance || wielding_artifact(ART_TEMPEST)) {
+            You("are unaffected by %s scream.", s_suffix(mon_nam(magr)));
+            mhm->damage = 0;
+            return;
+        }
+        if (!Stunned)
+            Your("mind reels from the noise!");
+        else
+            You("struggle to keep your balance.");
+        make_stunned((HStun & TIMEOUT) + (long) mhm->damage, TRUE);
+        stop_occupation();
+        mdamageu(magr, mhm->damage);
+        /* the weapon globals are re-read for each call on purpose: an
+           EF_DESTROY erosion can free the weapon and clear uwep or
+           uswapwep before returning - do not hoist these into locals */
+        if (!rn2(6))
+            erode_armor(&gy.youmonst, ERODE_FRACTURE);
+        if (!rn2(5))
+            (void) erode_obj(uwep, (char *) 0, ERODE_FRACTURE, EF_DESTROY);
+        if (!rn2(6))
+            (void) erode_obj(uswapwep, (char *) 0, ERODE_FRACTURE,
+                             EF_DESTROY);
+        (void) destroy_items(&gy.youmonst, AD_LOUD, orig_dmg);
+        if (u.umonnum == PM_GLASS_GOLEM) {
+            You("shatter into a million pieces!");
+            rehumanize();
+        }
+        mhm->damage = 0; /* mdamageu() has already been applied */
+    } else {
+        /* mhitm */
+        if (mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
+            mhm->damage = 0;
+            return;
+        }
+        if (defended(mdef, AD_LOUD)) {
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "The sonic assault doesn't faze %s.",
+                          mon_nam(mdef));
+            mhm->damage = 0;
+            return;
+        }
+        if (!mdef->mstun
+            && !(mon_resists_stun(mdef) || defended(mdef, AD_STUN)
+                 || mon_wielding_artifact(mdef, ART_TEMPEST))) {
+            mdef->mstun = 1;
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "%s reels from the noise!", Monnam(mdef));
+        } else if (mdef->mstun && gv.vis && canseemon(mdef)) {
+            pline_mon(mdef, "%s struggles to keep %s balance.",
+                      Monnam(mdef), mhis(mdef));
+        }
+        if (!rn2(6))
+            erode_armor(mdef, ERODE_FRACTURE);
+        mhm->damage += destroy_items(mdef, AD_LOUD, orig_dmg);
+        if (pd == &mons[PM_GLASS_GOLEM]) {
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "%s shatters into a million pieces!",
+                          Monnam(mdef));
+            monkilled(mdef, (char *) 0, AD_LOUD);
+            if (!DEADMONSTER(mdef)) {
+                mhm->hitflags = M_ATTK_MISS;
+                mhm->done = TRUE;
+                return;
+            }
+            mhm->hitflags = (M_ATTK_DEF_DIED
+                             | (grow_up(magr, mdef) ? 0 : M_ATTK_AGR_DIED));
+            mhm->done = TRUE;
+            return;
+        }
+        mdef->mstrategy &= ~STRAT_WAITFORU;
+    }
+}
+
+void
 mhitm_ad_acid(
     struct monst *magr, struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
@@ -6137,6 +6266,7 @@ mhitm_adtyping(
     case AD_DGST: mhitm_ad_dgst(magr, mattk, mdef, mhm); break;
     case AD_HALU: mhitm_ad_halu(magr, mattk, mdef, mhm); break;
     case AD_WEBS: mhitm_ad_webs(magr, mattk, mdef, mhm); break;
+    case AD_LOUD: mhitm_ad_loud(magr, mattk, mdef, mhm); break;
     default:
         mhm->damage = 0;
     }
@@ -7332,6 +7462,14 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
         case AT_BREA:
         case AT_SPIT:
         case AT_GAZE: /* all done using #monster command */
+            dhit = 0;
+            break;
+
+        case AT_SCRE:
+            /* Scream attacks are currently on M2_NOPOLY monsters only.
+               This case can occur only in wizard mode when bypassing
+               polymorph restrictions; include it to prevent an
+               impossible(), but have it do nothing */
             dhit = 0;
             break;
 
