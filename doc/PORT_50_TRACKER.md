@@ -7220,7 +7220,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       add_mon_info pokedex - WARNING for that port: the tables
       are positional and must be built for branch ordinals
       (AT_SCRE 17 / AD_LOUD 49), not copied from master (15/48).
-      Wizmode battery PENDING (maintainer launch approval).
+      BATTERY DONE 2026-08-20 (maintainer-approved, one XL30
+      Valkyrie game + one verification game): scream ladder,
+      cooldown, all four defenses, glass fracture/shatter
+      progression, m-vs-m incl. stun-immune negative and
+      cockatrice (BUG-1620 leg), glass golem both sides, hmonas
+      guard, DESTRY_ARMR full ladder (Antimagic softening,
+      mithril two-hit marker, crystal-plate immunity, range +
+      no-armor gates via a crystal-plate detector), all 7 erosion
+      wishes round-trip incl. save/reload, fireproof chest
+      survives lava fire while a control chest burns, rotted-
+      corpse wish revives (BUG-1622 leg), sling-bullet words,
+      thrown-potion control - ALL PASS; paniclog stayed clean
+      (one line self-inflicted by battery staging, documented in
+      the report, not a build fault). ONE REAL FINDING, FIXED +
+      REVERIFIED same day: BUG-1624 - the ported celestial-scales
+      defense checked uarm only; on this branch scale mail does
+      not exist and scales are a cloak-slot item, so no
+      player-obtainable celestial item could trigger the negate;
+      the ladder now also accepts uarmc scales (4/4 negations +
+      negative control in the verification game). Battery lore
+      recorded: no glass ring description exists and
+      valid_obj_material refuses a forced one, so the RING_CLASS
+      arm of the sonic destroyable() list is currently
+      unreachable for hero rings (kept, future-proof); fire
+      rays/zaps never reach fire_damage() for floor containers
+      (burn_floor_objects covers scrolls/books/globs only,
+      vanilla parity - lava/dig are the real callers); the TOQUE
+      message renders as "hat" via helm_simple_name (master
+      parity).
 - [x] D2: ERODE_FRACTURE decision (minted 2026-07-31) - RESOLVED
       BY MAINTAINER RULING + DONE 2026-08-20 (commit e5076f389 =
       BUG-1615/1616). Ruling: single widened type, third option
@@ -7277,6 +7305,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       " (weapon in hand)" suffix pushes doname over the budget
       and it falls back to thesimpleoname), not the worn-suffix
       path; upstream-cosmetic, no code change.
+- [ ] mattackm position guard drops attack slots vs mounted steeds
+      (minted 2026-08-20 by the D1-D4 sonic battery). mattackm's
+      between-attacks re-check (`i > 0 && m_at(gb.bhitpos) !=
+      mdef`) compares against m_at(), which returns the RIDER on a
+      ridden steed's square - so every attack slot after the first
+      is silently dropped when the defender is a saddled steed.
+      Observed live under Conflict: a Nazgul melee'd its own fell
+      beast with slot 0 only and never reached its scream slot.
+      Pre-existing monster-riding interaction, not a sonic
+      regression - hits any multi-attack monster vs any ridden
+      steed. Scope with the monster-riding subsystem; probable
+      shape: also accept the rider when ERID(rider)->mon_steed ==
+      mdef. Related battery lore for the steed rows: raw mx/my
+      writes on a rider leave the steed at its stale tile until
+      the next update_monsteed() - staging must mirror coords onto
+      the steed.
 - [x] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       weapon.c: the mirror of the blessed arm the branch has - cursed
