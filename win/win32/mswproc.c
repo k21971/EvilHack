@@ -1335,9 +1335,9 @@ print_glyph(window, x, y, glyphinfo, bkglyphinfo)
                    a 1-1 map between glyphs and distinct things on the map).
                 -- bkglyphinfo contains a background glyph for potential use
                    by some graphical or tiled environments to allow the depiction
-                   to fall against a background consistent with the grid 
+                   to fall against a background consistent with the grid
                    around x,y.
-                   
+
 */
 void
 mswin_print_glyph(winid wid, coordxy x, coordxy y,
@@ -1402,7 +1402,6 @@ mswin_raw_print_flush(void)
         strbuf_empty(&raw_print_strbuf);
     }
 }
-
 
 /*
 raw_print(str)  -- Print directly to a screen, or otherwise guarantee that
@@ -2893,6 +2892,7 @@ static mswin_condition_field _condition_fields[CONDITION_COUNT] = {
     { BL_MASK_UNCONSC,   "Out", 0 },
     { BL_MASK_WOUNDEDL,  "Legs", 0 },
     { BL_MASK_HOLDING,   "Uhold", 0 },
+    { BL_MASK_SLOW,      "Slow", 0 },
 };
 
 extern winid WIN_STATUS;
@@ -2972,7 +2972,6 @@ mswin_status_init(void)
             }
         }
     }
-
 
     for (int i = 0; i < MAXBLSTATS; ++i) {
 #ifdef STATUS_HILITES
@@ -3082,11 +3081,11 @@ status_update(int fldindex, genericptr_t ptr, int chg, int percent, int color, u
                    BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
                    BL_LEVELDESC, BL_EXP, BL_CONDITION
                 -- fldindex could also be BL_FLUSH, which is not really
-                   a field index, but is a special trigger to tell the 
+                   a field index, but is a special trigger to tell the
                    windowport that it should output all changes received
                    to this point. It marks the end of a bot() cycle.
                 -- fldindex could also be BL_RESET, which is not really
-                   a field index, but is a special advisory to tell the 
+                   a field index, but is a special advisory to tell the
                    windowport that it should redisplay all its status fields,
                    even if no changes have been presented to it.
                 -- ptr is usually a "char *", unless fldindex is BL_CONDITION.
