@@ -1731,6 +1731,17 @@ rehumanize(void)
     if (emits_light(gy.youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
     polyman("You return to %s form!", gu.urace.adj);
+    /* reset FROMHUNGER conditions in case player was polyd
+       as a vampire, starving, and reverted back to normal
+       form (livesaved or otherwise) */
+    if (HBlinded & FROMHUNGER) {
+        HBlinded &= ~FROMHUNGER;
+        toggle_blindness();
+    }
+    if (HSlow & FROMHUNGER)
+        HSlow &= ~FROMHUNGER;
+    if (HDeaf & FROMHUNGER)
+        HDeaf &= ~FROMHUNGER;
 
     if (u.uhp < 1) {
         /* can only happen if some bit of code reduces u.uhp
