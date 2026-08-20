@@ -3606,8 +3606,11 @@ mhitm_ad_loud(
             mhm->damage = 0;
             return;
         }
-        if (uarm
-            && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
+        /* dragon-scaled body armor, or the scales themselves worn in
+           the cloak slot - scale mail does not exist on this branch */
+        if ((uarm
+             && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES)
+            || (uarmc && uarmc->otyp == CELESTIAL_DRAGON_SCALES)) {
             Your("armor negates the lethal sonic assault.");
             mhm->damage = 0;
             return;
