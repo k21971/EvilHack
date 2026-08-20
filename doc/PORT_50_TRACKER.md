@@ -8344,6 +8344,21 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 - [ ] curses/tty re-port (print_glyph glyph_info signatures; census
       note: win/tty + win/curses file sets are IDENTICAL between
       trees - pure per-file content reconciliation, no add/remove)
+- [ ] X11 status reconciliation (minted 2026-08-20 by the Slow-
+      condition follow-up, BUG-1608): the branch's win/X11/winstat.c
+      references BL_MASK_PARALYZ, which is defined NOWHERE on the
+      branch (botl.h spells it BL_MASK_PARLYZ; upstream NetHack50's
+      own winstat.c uses the correct PARLYZ spelling) - the X11
+      status file does not compile against branch headers today,
+      pre-existing and unrelated to the Slow change. X11's private
+      condition tables also lack every EvilHack-added condition
+      (elf_iron, inlava naming drift, and now slow); win32's
+      mswproc.c table got its Slow row with BUG-1608, X11
+      deliberately did not (elf_iron precedent). Re-sync
+      win/X11/winstat.c from current upstream (fixes the spelling)
+      and then add the EvilHack condition rows in one pass. Note:
+      tty/curses/Qt/chain/shim need nothing - they render conditions
+      from the shared src/botl.c conditions[] table.
 - [ ] HTML dumplog: NetHack50 DUMPHTML base + EvilHack enhancements
       (pet/peaceful highlighting, customcolor swatches, rider fix)
 - [ ] TILE-ART DRIFT: win/share/other.txt is behind the branch's
@@ -8398,6 +8413,15 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       2026-07-17 - only [active]/[inactive] should be colored.
       Port the bracket-scoped rendering into both 5.0 window
       ports, then re-check doorder's rows)
+- [ ] POST-MIGRATION upstream interface-enhancement pull (minted
+      2026-08-20, maintainer): the official 5.0 codebase has taken
+      several updates since the adoption hash that add interface
+      enhancements to X11, MSDOS and other window ports; once the
+      migration is complete, sweep Official_nh50/NetHack50 for the
+      port-side deltas since the adoption point and pull them in
+      (pairs with the X11 status reconciliation row above - a
+      current-upstream re-sync there should ride this pull rather
+      than the stale adoption vintage).
       ALSO OWNS (added 2026-07-27 by the steed battery): master's
       curses perm_invent header prints "Inventory: X/Y weight
       (N/52 slots)"; 5.0's renders no weight or capacity figure at
