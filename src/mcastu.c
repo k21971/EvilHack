@@ -61,7 +61,7 @@ staticfn int m_cure_self(struct monst *, int);
 staticfn void mcast_death_touch(struct monst *);
 staticfn void mcast_clone_wiz(struct monst *);
 staticfn void mcast_summon_mons(struct monst *);
-staticfn void mcast_destroy_armor(void);
+staticfn void mcast_destroy_armor(struct monst *, struct monst *);
 staticfn void mcast_weaken_you(struct monst *, int);
 staticfn void mcast_disappear(struct monst *);
 staticfn void mcast_stun_you(int);
@@ -609,20 +609,142 @@ mcast_summon_mons(struct monst *mtmp)
     }
 }
 
+/* erode or destroy one piece of the target's worn armor. mdef is the
+   hero on the castmu() path today; the monster-defender leg is carried
+   for when castmm() gains innate-spell support. Magic resistance
+   softens the spell to one erosion level rather than blocking it */
 staticfn void
-mcast_destroy_armor(void)
+mcast_destroy_armor(struct monst *mtmp, struct monst *mdef)
 {
-    if (Antimagic) {
-        shieldeff(u.ux, u.uy);
-        monstseesu(M_SEEN_MAGR);
-        pline("A field of force surrounds you!");
-    } else if (!destroy_arm()) {
-        Your("skin itches.");
-    } else {
-        /* monsters only realize you aren't magic-protected if armor is
-           actually destroyed */
-        monstunseesu(M_SEEN_MAGR);
+    boolean udefend = (mdef == &gy.youmonst), worked = FALSE;
+    int erodelvl = rnd(3);
+    struct obj *oatmp;
+
+    if (udefend ? (Antimagic != 0)
+                : (resists_magm(mdef) || defended(mdef, AD_MAGM))) {
+        if (udefend) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_MAGR);
+        } else {
+            shieldeff(mdef->mx, mdef->my);
+        }
+        erodelvl = 1;
     }
+
+    oatmp = some_armor(mdef);
+    if (oatmp) {
+        if (any_quest_artifact(oatmp)) {
+            if (udefend || canseemon(mdef)) {
+                if (!Blind)
+                    pline("%s shines brightly.", The(xname(oatmp)));
+                pline("%s is immune to the destructive magic.",
+                      The(xname(oatmp)));
+            }
+            return; /* no effect */
+        } else if (oatmp->otyp == CRYSTAL_PLATE_MAIL) {
+            /* crystal plate mail can never be destroyed, worn by the
+               hero or by a monster */
+            if (udefend || canseemon(mdef)) {
+                if (!Blind)
+                    pline("%s glimmers brightly.", Yname2(oatmp));
+                pline("%s is immune to the destructive magic.",
+                      Yname2(oatmp));
+            }
+            return; /* no effect */
+        /* TODO: supermaterials should get their own struct obj bit so
+           the oerodeproof marker below isn't needed (breaks saves) */
+        } else if (oatmp->oerodeproof && is_supermaterial(oatmp)) {
+            /* marker from an earlier hit: clear it and let the full
+               spell through */
+            oatmp->oerodeproof = 0;
+        } else if (oatmp->oerodeproof) {
+            /* genuine erodeproofing absorbs one hit and burns off */
+            if (!udefend && !canseemon(mdef))
+                You("smell something strange.");
+            else if (!Blind)
+                pline("%s glows brown for a moment.", Yname2(oatmp));
+            else
+                pline("%s briefly emits an odd smell.", Yname2(oatmp));
+            (void) maybe_erodeproof(oatmp, 0);
+            erodelvl--;
+            worked = TRUE;
+        } else if (is_supermaterial(oatmp) && greatest_erosion(oatmp) == 0) {
+            /* a pristine supermaterial absorbs the whole spell; set
+               the marker so the next hit lands in full */
+            if (!udefend && !canseemon(mdef))
+                You("smell something strange.");
+            else if (!Blind)
+                pline("%s glows brown for a moment.", Yname2(oatmp));
+            else
+                pline("%s briefly emits an odd smell.", Yname2(oatmp));
+            oatmp->oerodeproof = 1;
+            erodelvl = 0;
+        }
+
+        if (greatest_erosion(oatmp) >= MAX_ERODE) {
+            if (objects[oatmp->otyp].oc_oprop == DISINT_RES
+                || obj_resists(oatmp, 0, 90))
+                return;
+            if (udefend) {
+                if (disintegrate_arm(oatmp))
+                    worked = TRUE;
+            } else {
+                if (canseemon(mdef)) {
+                    const char *action;
+
+                    if (is_cloak(oatmp))
+                        action = "crumbles and turns to dust";
+                    else if (is_shirt(oatmp))
+                        action = "crumbles into tiny threads";
+                    else if (is_helmet(oatmp))
+                        action = "turns to dust and is blown away";
+                    else if (is_gloves(oatmp))
+                        action = "vanish";
+                    else if (is_boots(oatmp))
+                        action = "disintegrate";
+                    else if (is_shield(oatmp))
+                        action = is_bracer(oatmp) ? "crumble away"
+                                                  : "crumbles away";
+                    else
+                        action = "turns to dust";
+                    pline_mon(mdef, "%s %s %s!", s_suffix(Monnam(mdef)),
+                              xname(oatmp), action);
+                }
+                m_useupall(mdef, oatmp);
+                worked = TRUE;
+            }
+        } else {
+            int erodetype;
+
+            if (is_corrodeable(oatmp))
+                erodetype = ERODE_CORRODE;
+            else if (is_flammable(oatmp))
+                erodetype = ERODE_BURN;
+            else if (is_glass(oatmp))
+                erodetype = ERODE_FRACTURE;
+            else if (is_supermaterial(oatmp))
+                erodetype = ERODE_DETERIORATE;
+            else
+                erodetype = ERODE_ROT;
+
+            while (erodelvl-- > 0) {
+                if (erode_obj(oatmp, (char *) 0, erodetype, EF_NONE)
+                    != ER_NOTHING)
+                    worked = TRUE;
+            }
+        }
+    } else {
+        if (udefend)
+            Your("body itches.");
+        else if (canseemon(mdef))
+            pline_mon(mdef, "%s seems irritated.", Monnam(mdef));
+    }
+    /* the caster only learns the hero lacks magic protection when the
+       spell actually bites */
+    if (udefend && worked && !Antimagic)
+        monstunseesu(M_SEEN_MAGR);
+    update_inventory();
+    nhUse(mtmp);
 }
 
 staticfn void
@@ -1024,7 +1146,7 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
         dmg = 0;
         break;
     case MCAST_DESTRY_ARMR:
-        mcast_destroy_armor();
+        mcast_destroy_armor(mtmp, &gy.youmonst);
         dmg = 0;
         break;
     case MCAST_WEAKEN_YOU: /* drain strength */
@@ -1202,6 +1324,14 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         break;
     case MCAST_BLIND_YOU:
         if (Blinded)
+            return TRUE;
+        break;
+    case MCAST_DESTRY_ARMR:
+        /* melee-range spell; also pointless when the hero wears no
+           armor */
+        if (distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 1)
+            return TRUE;
+        if (!wearing_armor())
             return TRUE;
         break;
     default:
