@@ -209,7 +209,7 @@ msummon(struct monst *mon)
     return result;
 }
 
-void
+struct monst *
 summon_minion(aligntyp alignment, boolean talk)
 {
     struct monst *mon;
@@ -269,6 +269,7 @@ summon_minion(aligntyp alignment, boolean talk)
         mon->mpeaceful = FALSE;
         /* don't call set_malign(); player was naughty */
     }
+    return mon;
 }
 
 #define Athome (Inhell && (mtmp->cham == NON_PM))

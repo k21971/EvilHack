@@ -27,7 +27,7 @@ static struct _mcast_data mcast_data[] = {
 static int mon_cleric_spells[] = {
     MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU, MCAST_PARALYZE,
     MCAST_VULN_YOU, MCAST_BLIND_YOU, MCAST_INSECTS, MCAST_CURSE_ITEMS,
-    MCAST_LIGHTNING, MCAST_FIRE_PILLAR, MCAST_GEYSER
+    MCAST_LIGHTNING, MCAST_FIRE_PILLAR, MCAST_GEYSER, MCAST_SUMMON_MINION
 };
 static int mon_wizard_spells[] = {
     MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF, MCAST_STUN_YOU,
@@ -73,6 +73,7 @@ staticfn int mcast_lightning(struct monst *, int);
 staticfn void mcast_acid_blast(struct monst *, struct monst *);
 staticfn void mcast_bolt(struct monst *, struct monst *, int);
 staticfn void mcast_vuln_you(struct monst *, struct monst *);
+staticfn void mcast_summon_minion(struct monst *, struct monst *);
 staticfn int mcast_psi_bolt(int);
 staticfn int mcast_open_wounds(int);
 staticfn void mcast_insects(struct monst *);
@@ -247,6 +248,14 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
                 candidate = bolt;
         }
     }
+
+    /* demons never summon minions (they have summonmu for their own
+       kind); tame and peaceful casters never summon reinforcements
+       against the hero's side; all of them call down fire instead
+       (which the cold-caster substitution below may still convert) */
+    if (candidate == MCAST_SUMMON_MINION
+        && (is_demon(mtmp->data) || mtmp->mtame || mtmp->mpeaceful))
+        candidate = MCAST_FIRE_PILLAR;
 
     /* the Ice Queen and Asmodeus are creatures of cold; they conjure
        lightning where other clerical casters would call down fire */
@@ -1215,6 +1224,61 @@ mcast_vuln_you(struct monst *mtmp, struct monst *mdef)
     }
 }
 
+/* summon an aligned servant to the caster's aid. mdef is the hero on
+   the castmu() path today; monster-vs-monster casts are suppressed
+   because summon_minion() only places the summons next to the hero.
+   The hero-caster leg is carried for when castum() gains the
+   clerical list */
+staticfn void
+mcast_summon_minion(struct monst *mtmp, struct monst *mdef)
+{
+    boolean udefend = (mdef == &gy.youmonst);
+    struct monst *minion;
+    aligntyp aligntype;
+
+    if (udefend) {
+        if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            coord bypos;
+
+            /* the Ice Queen conjures one of her own guardians */
+            if (!enexto(&bypos, mtmp->mx, mtmp->my, &mons[PM_SNOW_GOLEM]))
+                return;
+            minion = makemon(&mons[PM_SNOW_GOLEM], bypos.x, bypos.y,
+                             MM_ANGRY);
+            if (minion && canspotmon(minion))
+                pline("A minion of %s appears!", mon_nam(mtmp));
+        } else {
+            aligntype = mon_aligntyp(mtmp);
+            minion = summon_minion(aligntype, FALSE);
+            if (minion) {
+                boolean vassal = (aligntype == A_NONE);
+
+                set_malign(minion);
+                if (canspotmon(minion))
+                    pline("A %s of %s appears!",
+                          vassal ? "vassal" : "servant",
+                          vassal ? "Moloch" : aligns[1 - aligntype].noun);
+            }
+        }
+    } else {
+        boolean yours = (mtmp == &gy.youmonst);
+
+        if (!mdef || DEADMONSTER(mdef))
+            return;
+        /* monster-vs-monster is suppressed; summon_minion() only
+           supports placement next to the hero */
+        if (!yours)
+            return;
+        aligntype = u.ualign.type;
+        minion = summon_minion(aligntype, FALSE);
+        if (minion && canspotmon(minion))
+            pline("A %s of %s appears!",
+                  aligntype == A_NONE ? "vassal" : "servant",
+                  aligntype == A_NONE ? "Moloch"
+                                      : aligns[1 - aligntype].noun);
+    }
+}
+
 staticfn int
 mcast_psi_bolt(int dmg)
 {
@@ -1510,6 +1574,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
         mcast_vuln_you(mtmp, &gy.youmonst);
         dmg = 0;
         break;
+    case MCAST_SUMMON_MINION:
+        mcast_summon_minion(mtmp, &gy.youmonst);
+        dmg = 0;
+        break;
     case MCAST_INSECTS:
         mcast_insects(mtmp);
         dmg = 0;
@@ -1633,6 +1701,15 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
     case MCAST_VULN_YOU:
         /* prayer invulnerability protects against the debuff */
         if (u.uinvulnerable)
+            return TRUE;
+        break;
+    case MCAST_SUMMON_MINION:
+        /* melee-range spell; tame casters never summon reinforcements
+           against their own side, and prayer invulnerability holds
+           the summons off */
+        if (distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 1)
+            return TRUE;
+        if (mtmp->mtame || u.uinvulnerable)
             return TRUE;
         break;
     case MCAST_CLONE_WIZ:
