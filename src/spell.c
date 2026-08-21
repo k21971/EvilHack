@@ -1412,6 +1412,18 @@ cast_entangle(struct monst *mdef, int skill)
     }
 }
 
+int
+cast_metal_to_wood(struct obj *obj, boolean by_you)
+{
+    if (!obj)
+        return 0;
+
+    if (by_you)
+        return metal_to_wood(obj, TRUE);
+    else
+        return metal_to_wood(obj, FALSE);
+}
+
 /* attempting to cast a forgotten spell will cause disorientation */
 staticfn void
 spell_backfire(int spell)
@@ -1784,6 +1796,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_STONE_TO_FLESH:
     case SPE_ENTANGLE:
     case SPE_PSIONIC_WAVE:
+    case SPE_CHANGE_METAL_TO_WOOD:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
                 /* healing and extra healing are actually potion effects,
