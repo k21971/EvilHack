@@ -286,6 +286,9 @@
      || (ptr) == &mons[PM_ELDER_ENT])
 #define is_nymph(ptr) \
     ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
+#define is_rogue(ptr) \
+    ((ptr) == &mons[PM_ROGUE] \
+     || (ptr) == &mons[PM_HOBBIT_PICKPOCKET] || (ptr) == &mons[PM_GOLLUM])
 #define is_pseudodragon(ptr) \
     ((ptr) == &mons[PM_PSEUDODRAGON]             \
      || (ptr) == &mons[PM_ELDER_PSEUDODRAGON]    \

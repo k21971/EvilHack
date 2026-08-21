@@ -2891,6 +2891,10 @@ doseduce(struct monst *mon)
     boolean fem = (mon->data == &mons[PM_AMOROUS_DEMON]
                    && Mgender(mon) == FEMALE); /* otherwise incubus */
     boolean seewho, naked; /* True iff no armor */
+    /* a lawful hero wearing the Gauntlets of Purity is able to
+       resist the seducer's charms */
+    boolean purity = (u.ualign.type == A_LAWFUL && uarmg
+                      && is_art(uarmg, ART_GAUNTLETS_OF_PURITY));
     int attr_tot, tried_gloves = 0;
     char qbuf[QBUFSZ], Who[QBUFSZ];
 
@@ -2899,7 +2903,7 @@ doseduce(struct monst *mon)
                   Monnam(mon), mhe(mon), mon->mcan ? "severe " : "");
         return 0;
     }
-    if (unresponsive()) {
+    if (unresponsive() || purity) {
         pline_mon(mon, "%s seems dismayed at your lack of response.",
                   Monnam(mon));
         return 0;
@@ -3027,7 +3031,8 @@ doseduce(struct monst *mon)
     mayberem(mon, Who, uarmf, "boots");
     if (!tried_gloves)
         mayberem(mon, Who, uarmg, "gloves");
-    mayberem(mon, Who, uarms, "shield");
+    mayberem(mon, Who, uarms,
+             uarms && is_bracer(uarms) ? "bracers" : "shield");
     mayberem(mon, Who, uarmh, helm_simple_name(uarmh));
     if (!uarmc && !uarm)
         mayberem(mon, Who, uarmu, "shirt");
@@ -3184,7 +3189,7 @@ doseduce(struct monst *mon)
         pline("%s demands that you pay %s, but you refuse...",
               noit_Monnam(mon), noit_mhim(mon));
     } else if (u.umonnum == PM_LEPRECHAUN) {
-        pline_mon(mon, "%s tries to take your gold, but fails...",
+        pline_mon(mon, "%s tries to take your money, but fails...",
                   noit_Monnam(mon));
     } else {
         long cost;

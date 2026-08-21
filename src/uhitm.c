@@ -6087,12 +6087,17 @@ mhitm_ad_sedu(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         char buf[BUFSZ];
+        boolean is_robber = (is_animal(magr->data) || is_rogue(magr->data));
+        /* a lawful hero wearing the Gauntlets of Purity is able to
+           resist the seducer's charms */
+        boolean purity = (u.ualign.type == A_LAWFUL && uarmg
+                          && is_art(uarmg, ART_GAUNTLETS_OF_PURITY));
         /* mystic Druids are one with nature and cannot be
            tempted by nymphs */
         boolean druid_mystic = (Role_if(PM_DRUID) && u.ulevel >= 14
                                 && is_nymph(magr->data));
 
-        if (is_animal(magr->data)) {
+        if (is_robber) {
             hitmsg(magr, mattk);
             if (magr->mcan || Hidinshell)
                 return;
@@ -6112,7 +6117,7 @@ mhitm_ad_sedu(
             mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
             mhm->done = TRUE;
             return;
-        } else if (magr->mcan || Hidinshell || druid_mystic) {
+        } else if (magr->mcan || Hidinshell || purity || druid_mystic) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
                       !magr->mcan ? Monnam(magr)
@@ -6136,19 +6141,35 @@ mhitm_ad_sedu(
             return;
         case 0:
             return;
-        default:
-            if (!is_animal(magr->data) && !tele_restrict(magr))
+        default: {
+            /* Covetous thieves (e.g. Graz'zt) normally teleport away
+               and flee after a theft, but being covetous they start to
+               teleport their way back, trapping the hero in a loop where
+               they rarely get to retaliate. Give a covetous thief a
+               chance to stand its ground and keep fighting instead */
+            boolean stand_ground = (is_covetous(magr->data) && *buf
+                                    && rn2(2));
+
+            if (!is_robber && !tele_restrict(magr) && !stand_ground)
                 (void) rloc(magr, RLOC_MSG);
-            if (is_animal(magr->data) && *buf) {
+            if (is_robber && *buf) {
                 if (canseemon(magr))
                     pline_mon(magr, "%s tries to %s away with %s.",
                               Monnam(magr),
                               locomotion(magr->data, "run"), buf);
             }
-            monflee(magr, 0, FALSE, FALSE);
+            if (stand_ground) {
+                if (canseemon(magr))
+                    pline_mon(magr, "%s %s, and stands %s ground.",
+                              Monnam(magr),
+                              rn2(2) ? "sneers at you" : "ridicules you",
+                              mhis(magr));
+            } else
+                monflee(magr, 0, FALSE, FALSE);
             mhm->hitflags = M_ATTK_AGR_DONE; /* return 3??? */
             mhm->done = TRUE;
             return;
+        }
         }
     } else {
         /* mhitm */

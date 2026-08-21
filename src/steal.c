@@ -257,9 +257,19 @@ stealarm(void)
                     (void) mpickobj(mtmp, otmp); /* may free otmp */
                     /* Implies seduction, "you gladly hand over ..."
                        so we don't set mavenge bit here. */
-                    monflee(mtmp, 0, FALSE, FALSE);
-                    if (!tele_restrict(mtmp))
-                        (void) rloc(mtmp, RLOC_MSG);
+                    /* covetous thieves may stand their ground and keep
+                       fighting rather than teleport away and flee */
+                    if (is_covetous(mtmp->data) && rn2(2)) {
+                        if (canseemon(mtmp))
+                            pline("%s %s, and stands %s ground.",
+                                  Monnam(mtmp),
+                                  rn2(2) ? "sneers at you" : "ridicules you",
+                                  mhis(mtmp));
+                    } else {
+                        monflee(mtmp, 0, FALSE, FALSE);
+                        if (!tele_restrict(mtmp))
+                            (void) rloc(mtmp, RLOC_MSG);
+                    }
                     break;
                 }
             }
@@ -416,7 +426,8 @@ steal(struct monst *mtmp, char *objnambuf)
     char Monnambuf[BUFSZ];
     int tmp, could_petrify, armordelay, olddelay, icnt,
         named = 0, retrycnt = 0;
-    boolean monkey_business = is_animal(mtmp->data),
+    /* monkey_business: true iff an animal or rogue is doing the thievery */
+    boolean monkey_business = (is_animal(mtmp->data) || is_rogue(mtmp->data)),
             seen = canspotmon(mtmp),
             was_doffing, was_punished = Punished;
 
