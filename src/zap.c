@@ -2946,6 +2946,7 @@ zapyourself(struct obj *obj, boolean ordinary)
         break;
 
     case WAN_LIGHTNING:
+    case SPE_LIGHTNING:
         learn_it = TRUE;
         orig_dmg = d(12, 6);
         if (how_resistant(SHOCK_RES) < 100) {
@@ -3004,6 +3005,43 @@ zapyourself(struct obj *obj, boolean ordinary)
             monstunseesu(M_SEEN_COLD);
         }
         (void) destroy_items(&gy.youmonst, AD_COLD, orig_dmg);
+        break;
+
+    case SPE_POISON_BLAST:
+        learn_it = TRUE;
+        orig_dmg = d(12, 6);
+        if (how_resistant(POISON_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            You("inhale some apparently harmless gas.");
+            monstseesu(M_SEEN_POISON);
+            ugolemeffects(AD_DRST, orig_dmg);
+        } else {
+            You("just poisoned yourself!");
+            damage = resist_reduce(orig_dmg, POISON_RES);
+            monstunseesu(M_SEEN_POISON);
+        }
+        break;
+
+    case SPE_ACID_BLAST:
+        learn_it = TRUE;
+        orig_dmg = d(12, 6);
+        if (Acid_resistance) {
+            shieldeff(u.ux, u.uy);
+            You("coat yourself in a seemingly harmless substance.");
+            monstseesu(M_SEEN_ACID);
+            ugolemeffects(AD_ACID, orig_dmg);
+        } else {
+            You("cover yourself with slime!  It burns!");
+            damage = orig_dmg;
+            monstunseesu(M_SEEN_ACID);
+        }
+        /* using two weapons at once makes both of them more vulnerable */
+        if (!rn2(u.twoweap ? 3 : 6))
+            acid_damage(uwep);
+        if (u.twoweap && !rn2(3))
+            acid_damage(uswapwep);
+        if (!rn2(6))
+            erode_armor(&gy.youmonst, ERODE_CORRODE);
         break;
 
     case WAN_MAGIC_MISSILE:
@@ -3810,7 +3848,7 @@ weffects(struct obj *obj)
 
         if (otyp == WAN_DIGGING || otyp == SPE_DIG)
             zap_dig();
-        else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_FINGER_OF_DEATH)
+        else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_ACID_BLAST)
             ubuzz(BZ_U_SPELL(BZ_OFS_SPE(otyp)), u.ulevel / 2 + 1);
         else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_LIGHTNING)
             ubuzz(BZ_U_WAND(BZ_OFS_WAN(otyp)),

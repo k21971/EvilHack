@@ -1736,7 +1736,10 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
      */
     case SPE_FIREBALL:
     case SPE_CONE_OF_COLD:
-        if (role_skill >= P_SKILLED) {
+    case SPE_LIGHTNING:
+    case SPE_POISON_BLAST:
+    case SPE_ACID_BLAST:
+        if (role_skill >= P_SKILLED && y_n("Cast advanced spell?") == 'y') {
             if (throwspell()) {
                 cc.x = u.dx;
                 cc.y = u.dy;
@@ -1755,7 +1758,13 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                                 spell_damage_bonus(u.ulevel / 2 + 1), 0,
                                 (otyp == SPE_CONE_OF_COLD)
                                    ? EXPL_FROSTY
-                                   : EXPL_FIERY);
+                                   : (otyp == SPE_LIGHTNING)
+                                      ? EXPL_SHOCK
+                                      : (otyp == SPE_POISON_BLAST)
+                                         ? EXPL_NOXIOUS
+                                         : (otyp == SPE_ACID_BLAST)
+                                            ? EXPL_ACID
+                                            : EXPL_FIERY);
                     }
                     u.dx = cc.x + rnd(3) - 2;
                     u.dy = cc.y + rnd(3) - 2;
@@ -1768,7 +1777,16 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                 }
             }
             break;
-        } /* else */
+        } else if (role_skill >= P_SKILLED) {
+            /* player said not to cast advanced spell; return up to half
+               of the magical energy, unless the cast was forced or the
+               cost was paid as hit points instead of spell power (keep
+               this test in sync with the life force arm above) */
+            if (!force
+                && !(u.ualign.type == A_NONE && !u.uhave.amulet
+                     && !u.uevent.uimbued_idol))
+                u.uen += rnd(energy / 2);
+        }
         FALLTHROUGH;
         /*FALLTHRU*/
 
