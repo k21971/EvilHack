@@ -1571,6 +1571,29 @@ m_calcdistress(struct monst *mtmp)
     if (mtmp->mfleetim && !--mtmp->mfleetim)
         mtmp->mflee = 0;
 
+    /* temp vulnerability timeouts */
+    if (mtmp->vuln_fire > 0) {
+        mtmp->vuln_fire--;
+        if (!mtmp->vuln_fire && canseemon(mtmp))
+            pline("%s is no longer vulnerable to fire.", Monnam(mtmp));
+    }
+    if (mtmp->vuln_cold > 0) {
+        mtmp->vuln_cold--;
+        if (!mtmp->vuln_cold && canseemon(mtmp))
+            pline("%s is no longer vulnerable to cold.", Monnam(mtmp));
+    }
+    if (mtmp->vuln_elec > 0) {
+        mtmp->vuln_elec--;
+        if (!mtmp->vuln_elec && canseemon(mtmp))
+            pline("%s is no longer vulnerable to electricity.",
+                  Monnam(mtmp));
+    }
+    if (mtmp->vuln_acid > 0) {
+        mtmp->vuln_acid--;
+        if (!mtmp->vuln_acid && canseemon(mtmp))
+            pline("%s is no longer vulnerable to acid.", Monnam(mtmp));
+    }
+
     /* spell-conferred buffs wear off (timers tick in mon_regen) */
     if (has_reflection(mtmp) && mtmp->mreflecttime <= 1) {
         if (canseemon(mtmp))

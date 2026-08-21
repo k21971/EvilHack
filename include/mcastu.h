@@ -51,5 +51,7 @@ MONSPELL(ACID_BLAST,   14, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
    there and on the ladder's psi-bolt floor */
 MONSPELL(FIRE_BOLT,   23, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 MONSPELL(ICE_BOLT,    23, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
+/* elemental vulnerability debuff; clerical-ladder pick */
+MONSPELL(VULN_YOU,     5, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 
 #undef MONSPELL

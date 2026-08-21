@@ -26,8 +26,8 @@ static struct _mcast_data mcast_data[] = {
 /* the spells in the list should be in ascending level order */
 static int mon_cleric_spells[] = {
     MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU, MCAST_PARALYZE,
-    MCAST_BLIND_YOU, MCAST_INSECTS, MCAST_CURSE_ITEMS, MCAST_LIGHTNING,
-    MCAST_FIRE_PILLAR, MCAST_GEYSER
+    MCAST_VULN_YOU, MCAST_BLIND_YOU, MCAST_INSECTS, MCAST_CURSE_ITEMS,
+    MCAST_LIGHTNING, MCAST_FIRE_PILLAR, MCAST_GEYSER
 };
 static int mon_wizard_spells[] = {
     MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF, MCAST_STUN_YOU,
@@ -72,6 +72,7 @@ staticfn int mcast_fire_pillar(struct monst *, int);
 staticfn int mcast_lightning(struct monst *, int);
 staticfn void mcast_acid_blast(struct monst *, struct monst *);
 staticfn void mcast_bolt(struct monst *, struct monst *, int);
+staticfn void mcast_vuln_you(struct monst *, struct monst *);
 staticfn int mcast_psi_bolt(int);
 staticfn int mcast_open_wounds(int);
 staticfn void mcast_insects(struct monst *);
@@ -253,6 +254,15 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
         && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mtmp->data == &mons[PM_ASMODEUS]))
         return MCAST_LIGHTNING;
+
+    /* demons (other than Lolth, who keeps her insects) and both
+       Kathryns favor the vulnerability curse; substitute it for half
+       of their insect picks */
+    if (candidate == MCAST_INSECTS && rn2(2)
+        && ((is_demon(mtmp->data) && mtmp->data != &mons[PM_LOLTH])
+            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]))
+        return MCAST_VULN_YOU;
 
     return candidate;
 }
@@ -1067,6 +1077,144 @@ mcast_bolt(struct monst *mtmp, struct monst *mdef, int spellnum)
     }
 }
 
+/* index 0 is never rolled (rnd(4) below); kept so the film colors
+   stay aligned with the elements they announce */
+static const char *const vulntext[] = {
+    "chartreuse polka-dot",
+    "reddish-orange",
+    "purplish-blue",
+    "coppery-yellow",
+    "greenish-mottled"
+};
+
+/* coat the target in a film that makes it vulnerable to one element.
+   mdef is the hero on the castmu() path today; the monster-defender
+   leg is carried for when castmm() gains innate-spell support. The
+   timer writes stay outside every visibility gate; only messages are
+   gated. The film color and the element applied come from the same
+   roll so they can never disagree */
+staticfn void
+mcast_vuln_you(struct monst *mtmp, struct monst *mdef)
+{
+    boolean udefend = (mdef == &gy.youmonst);
+    int i = rnd(4);
+    long dur;
+
+    if (udefend) {
+        pline("A %s film oozes over your %s!",
+              Blind ? "slimy" : vulntext[i], body_part(SKIN));
+        switch (i) {
+        case 1:
+            if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                || mtmp->data == &mons[PM_ASMODEUS]
+                || mtmp->data == &mons[PM_VECNA]) {
+                /* the cold-aligned casters curse with cold instead */
+                if (Vulnerable_cold)
+                    break;
+                dur = rnd(100) + 150;
+                if (Half_spell_damage)
+                    dur = (dur + 1) / 2;
+                incr_itimeout(&HVulnerable_cold, dur);
+                You_feel("extremely chilly.");
+            } else {
+                if (Vulnerable_fire)
+                    break;
+                dur = rnd(100) + 150;
+                if (Half_spell_damage)
+                    dur = (dur + 1) / 2;
+                incr_itimeout(&HVulnerable_fire, dur);
+                You_feel("more inflammable.");
+            }
+            break;
+        case 2:
+            if (Vulnerable_cold)
+                break;
+            dur = rnd(100) + 150;
+            if (Half_spell_damage)
+                dur = (dur + 1) / 2;
+            incr_itimeout(&HVulnerable_cold, dur);
+            You_feel("extremely chilly.");
+            break;
+        case 3:
+            if (Vulnerable_elec)
+                break;
+            dur = rnd(100) + 150;
+            if (Half_spell_damage)
+                dur = (dur + 1) / 2;
+            incr_itimeout(&HVulnerable_elec, dur);
+            You_feel("overly conductive.");
+            break;
+        case 4:
+            if (Vulnerable_acid)
+                break;
+            dur = rnd(100) + 150;
+            if (Half_spell_damage)
+                dur = (dur + 1) / 2;
+            incr_itimeout(&HVulnerable_acid, dur);
+            You_feel("easily corrodable.");
+            break;
+        default:
+            break;
+        }
+    } else {
+        boolean yours = (mtmp == &gy.youmonst);
+
+        if (!mdef || DEADMONSTER(mdef))
+            return;
+        if (yours || canseemon(mdef))
+            pline("A %s film oozes over %s exterior!",
+                  Blind ? "slimy" : vulntext[i], mhis(mdef));
+        switch (i) {
+        case 1:
+            if ((mdef->data->mflags4 & M4_VULNERABLE_FIRE) != 0
+                || mdef->vuln_fire)
+                break;
+            dur = rnd(100) + 150;
+            if (mon_arti_has_spfx(mdef, SPFX_HSPDAM))
+                dur = (dur + 1) / 2;
+            mdef->vuln_fire = (uchar) dur;
+            if (yours || canseemon(mdef))
+                pline("%s is more inflammable.", Monnam(mdef));
+            break;
+        case 2:
+            if ((mdef->data->mflags4 & M4_VULNERABLE_COLD) != 0
+                || mdef->vuln_cold)
+                break;
+            dur = rnd(100) + 150;
+            if (mon_arti_has_spfx(mdef, SPFX_HSPDAM))
+                dur = (dur + 1) / 2;
+            mdef->vuln_cold = (uchar) dur;
+            if (yours || canseemon(mdef))
+                pline("%s is extremely chilly.", Monnam(mdef));
+            break;
+        case 3:
+            if ((mdef->data->mflags4 & M4_VULNERABLE_ELEC) != 0
+                || mdef->vuln_elec)
+                break;
+            dur = rnd(100) + 150;
+            if (mon_arti_has_spfx(mdef, SPFX_HSPDAM))
+                dur = (dur + 1) / 2;
+            mdef->vuln_elec = (uchar) dur;
+            if (yours || canseemon(mdef))
+                pline("%s is overly conductive.", Monnam(mdef));
+            break;
+        case 4:
+            if ((mdef->data->mflags4 & M4_VULNERABLE_ACID) != 0
+                || mdef->vuln_acid)
+                break;
+            dur = rnd(100) + 150;
+            if (mon_arti_has_spfx(mdef, SPFX_HSPDAM))
+                dur = (dur + 1) / 2;
+            mdef->vuln_acid = (uchar) dur;
+            if (yours || canseemon(mdef))
+                pline("%s is easily corrodable.", Monnam(mdef));
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 staticfn int
 mcast_psi_bolt(int dmg)
 {
@@ -1358,6 +1506,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
         mcast_bolt(mtmp, &gy.youmonst, spellnum);
         dmg = 0;
         break;
+    case MCAST_VULN_YOU:
+        mcast_vuln_you(mtmp, &gy.youmonst);
+        dmg = 0;
+        break;
     case MCAST_INSECTS:
         mcast_insects(mtmp);
         dmg = 0;
@@ -1476,6 +1628,11 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
     case MCAST_ICE_BOLT:
         if (m_seenres(mtmp, M_SEEN_COLD) || u.uinvulnerable
             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
+            return TRUE;
+        break;
+    case MCAST_VULN_YOU:
+        /* prayer invulnerability protects against the debuff */
+        if (u.uinvulnerable)
             return TRUE;
         break;
     case MCAST_CLONE_WIZ:

@@ -2747,6 +2747,10 @@ clone_mon(
     m2->mdiseasetime = 0;
     m2->mentangled = 0;
     m2->mentangletime = 0;
+    m2->vuln_fire = 0;
+    m2->vuln_cold = 0;
+    m2->vuln_elec = 0;
+    m2->vuln_acid = 0;
     m2->mextrinsics = 0L;
     m2->mreflecttime = 0;
     m2->mbarkskintime = 0;
