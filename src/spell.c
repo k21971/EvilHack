@@ -1784,8 +1784,10 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
                this test in sync with the life force arm above) */
             if (!force
                 && !(u.ualign.type == A_NONE && !u.uhave.amulet
-                     && !u.uevent.uimbued_idol))
+                     && !u.uevent.uimbued_idol)) {
                 u.uen += rnd(energy / 2);
+                disp.botl = TRUE;
+            }
         }
         FALLTHROUGH;
         /*FALLTHRU*/
