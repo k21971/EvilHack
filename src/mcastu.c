@@ -290,7 +290,7 @@ castmu(
     boolean thinks_it_foundyou,    /* might be mistaken if displaced */
     boolean foundyou)              /* knows hero's precise location */
 {
-    int dmg, ml = mtmp->m_lev;
+    int dmg, ml = min((int) mtmp->m_lev, 50);
     int ret;
     int spellnum = 0;
     short learned_otyp = 0; /* actual learned spell, resolved before msg */
@@ -2580,7 +2580,7 @@ do_untame_pet(struct monst *caster, struct monst *target)
 int
 castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
 {
-    int dmg, ml = mtmp->m_lev;
+    int dmg, ml = min((int) mtmp->m_lev, 50);
     int ret, spellnum = -1, spell_count;
     short learned_otyp = 0;
     boolean undirected;
