@@ -692,7 +692,11 @@ explode(
                              "caught %sself in %s own %s", uhim(),
                              uhis(), str);
                 } else {
-                    svk.killer.format = (!strcmpi(str, "tower of flame")
+                    /* a monster-cast area spell (negative type) kills
+                       as "a <blast>"; hero-caused leftovers reaching
+                       here keep the bare form */
+                    svk.killer.format = (type < 0
+                                     || !strcmpi(str, "tower of flame")
                                      || !strcmpi(str, "fireball"))
                                         ? KILLED_BY_AN
                                         : KILLED_BY;
