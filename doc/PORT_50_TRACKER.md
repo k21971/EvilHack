@@ -2169,6 +2169,151 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       without an override prompt (wizmode); fixture session:
       livelog rank lines fired at XL 14/18/22/26/30 but not
       3/6/10 during #levelchange (unrelated to the slice, watch).
+- [x] Monster innate spell-list expansion (the boss-slice deferred
+      owner: MCAST_ FIRE/ICE_BOLT + CLC_VULN_YOU + CLC_SUMMON_MINION
+      + innate AD_SPEL/CLRC m-v-m dual-target lists + m-v-m geyser +
+      castmm cost reconcile). DONE 2026-08-21, EIGHT commits
+      05270ec81..08d2fe0bb = BUG-1642..1649.
+      RULINGS: cost formula = master's 4-m_lev floor 2 in BOTH
+      castmu/castmm (the deferred reconcile; castmu fumble numerator
+      also back to master's 10, castmm keeps 20 = master's own
+      asymmetry) BUG-1642; scope = named items only, the four
+      remaining arms minted as their own row below.
+      KEY SHAPES: bolt pair expressed as ONE ring rung (FIRE_BOLT
+      level 23) + choose_bolt_spell() rolled at the rung AND at the
+      psi-bolt floor (master's two reach points; a -1 roll falls
+      through to lower rungs); the chooser scan rewritten around a
+      candidate variable so substituted picks run the useless filter
+      (BUG-1643); VULN_YOU = a THREE-SITE lifecycle landing
+      (producer + mcalcdistress decay + clone/montraits clears - the
+      branch had reader-only vuln_* fields); demon/Kathryn extra
+      VULN access = rn2(2) substitution on INSECTS picks (master
+      rungs 7 and 9 collapse onto the branch's single INSECTS entry
+      - recorded mapping judgment) (BUG-1644); SUMMON_MINION
+      downgrade-to-FIRE_PILLAR runs BEFORE the cold-caster lightning
+      conversion (the broader-than-master conversion stays
+      ratified), m-v-m picks rejected in the FILTER (re-roll)
+      rather than master's silent no-op arm, summon_minion()
+      returns struct monst * (BUG-1645); castmm innate wiring
+      threads a target param through spell_would_be_useless/
+      choose_monster_spell/mcast_spell with the MCF_HOSTILE/
+      MCF_SIGHT prechecks youdefend-gated (hero-relative; pets may
+      cast at monsters) + ~15 helpers gained mdef legs + master's
+      "undirected-but-not-really" routing + the AGR_DIED tail fold
+      + BUG-878's double-guard + m-v-m geyser w/ BUG-450+BUG-1128
+      arms (BUG-1646); BUG-708 stop_occupation re-port (BUG-1647).
+      REVIEWER CONDITIONAL PASS -> all four CONCERNs verified vs
+      master and fixed pre-commit: paralyze damage-on-top
+      (BUG-1648, UPSTREAM-SHARED helper-split regression,
+      Official_nh50 d80e19473; artifact ~/nh50-paralyze-dmg.patch);
+      ml clamp at 50 restored in both casters (BUG-1649 - vanilla
+      5.0 has no >50 casters so the adoption never needed it;
+      Demogorgon rolled ~2x); hero-geyser polyform arms (iron golem
+      rusts, fire forms extinguish, armor rust) folded into the
+      castmm commit; prayer-invuln rejects added to the pre-existing
+      INSECTS/OPEN_WOUNDS arms (master parity; master does NOT gate
+      SUMMON_MONS on invulnerability - reviewer claim corrected).
+      DELIBERATE DIVERGENCES: mrndcurse() file-local in mcastu.c
+      (master sit.c; only callers are here) minus the hero-UI
+      update_inventory(); death-touch escape roll floored at 1
+      (master's rn2(mlevel) can hit rn2(0) UB on a level-0
+      species); m-v-m summon/insect makemon calls add MM_NOMSG (5.0
+      idiom); m-v-m self-splash test uses dist2 < 3 = the true 3x3
+      blast footprint (master's distmin < 3 over-cautious; do NOT
+      "fix" backwards); master's melee-range lists for STUN/WEAKEN/
+      CURSE/CONFUSE/PARALYZE/BLIND not re-added (castmm only ever
+      called adjacent via the mhitm monnear gate).
+      MASTER-PARITY WARTS KEPT: vulntext[0] "chartreuse polka-dot"
+      is dead text (rnd(4), no case 0); choose_bolt_spell reads the
+      HERO's Antimagic/Hallucination even on m-v-m picks (master
+      reaches the same read); INSECTS m-v-m summons ants never
+      spiders (youdefend-gated spiders = master shape; Lolth flavor
+      candidate); m-v-m VULN_YOU has no cold-caster fork; real
+      polymorph deliberately KEEPS vuln_* timers on both trees (the
+      new form's own resistances override via vulnerable_to and the
+      timers decay - battery leg T5f initially failed on a
+      mislabeled expectation, reclassified master parity after a
+      master vuln-write census: decay + montraits + cancellation
+      strips are master's only other sites).
+      RIDERS/NOTES FOR OTHER OWNERS: minsects now has its FIRST
+      writer (the m-v-m insects leg) - the corpse_chance consumer +
+      hero-leg setter + clone/montraits clears still ride the
+      minsects pair row (ALL FOUR must land together);
+      mcast_spell's damage tail hardcodes the monster actor
+      (unconditional monkilled) - fine until castum gains the
+      innate lists, then the yours leg needs killed() routing
+      (noted on the castum row below); cancel_monst Vulnerable_*
+      strip stays with the cancellation slice (in-code TODO
+      documents the timers-run-out interim).
+      BATTERY 2026-08-21 (game-tester, one human Archeologist XL30
+      game + save/reload leg, sanity_check on, paniclog NEVER
+      EXISTED - absent at pre-flight and every inter-leg check):
+      14/14 legs PASS after the T5f reclassification. Highlights:
+      both bolts live with ANSI captures (EXPL_FIERY bright red /
+      EXPL_FROSTY bright cyan), resist_reduce pre-blast proven at
+      40% partial (dmg 19 raw vs 10 handed to explode), M_SEEN_
+      FIRE/COLD recorded (seen_resistance 0x2 then 0x6); caster
+      self-kill CLEAN on castmu AND castmm paths (forced blasts,
+      corpse took no further action); IQ choose_bolt_spell tally
+      n=600: ice 394 / fire 0 / defer 206 vs control 194/184/222
+      (she never rolls fire at all - stronger than the "2/3 ice"
+      wording); snow golems placed adjacent to HER, hostile;
+      vassal-of-Moloch and servant-of-law texts live (emin
+      min_align staging); demon downgrade proven by direct-call
+      tally n=400 (Baphomet MINION 0, FIRE_PILLAR 64 vs control 27/
+      29) + range gate (MINION 0 at distmin 3 vs 27 adjacent);
+      castmm naturals landed with mspec_used == 2 == max(2,4-18)
+      (and 3 at forced m_lev 1); AGGRAVATION never picked m-v-m
+      (167 in-game samples + n=400 direct tally 0, positive control
+      at-hero 34); pet splash guard 0/46 blasts near the hero vs
+      14/39 far (p ~ 3e-9); m-v-m geyser iron-golem instakill with
+      pet credit (u.uexp and livelog both unchanged); paralyze HP
+      UNCHANGED both arms (net regen gain during freeze; ring of
+      free action arm reproduced twice); clamp proven (m_lev 106,
+      ml reads 50); stop_occupation broke a pick-axe dig from a
+      ranged undirected cast (the castmu tail site); vuln timers
+      survived save/reload exactly and kept decrementing.
+      BATTERY OBSERVATIONS: at m_lev 1 the fumble roll rn2(10)<10
+      is a certainty - level-1 casters always fumble (master-shape
+      arithmetic, recorded); explode() dam=10 produced a hero HP
+      delta of 9 in the partial-res arm (every other arm exact;
+      unchased); "The titan resists the splash of acid!" from the
+      generic resist() saving throw despite zeroed intrinsics
+      (level-based magic save, pre-existing explode behavior);
+      brown-mold passive printed "mildly chilly" vs a caster
+      carrying mintrinsics MR_COLD (partial-res messaging watch,
+      pre-existing); PM_TEST_MONSTER drifted again despite
+      M3_STATIONARY (SECOND sighting, first in the blast battery -
+      candidate LOW row if it recurs); acceptable_pet_target()
+      refuses melee when target m_lev >= pet m_lev + 5*mhp/mhpmax
+      - 2 (staging lore).
+- [ ] Remaining innate spell arms: MGC_CANCELLATION, MGC_REFLECTION,
+      CLC_PROTECTION, CLC_CALL_UNDEAD (minted 2026-08-21 by the
+      spell-list expansion slice per maintainer scope ruling).
+      Master's ladders carry all four; the branch MONSPELL table has
+      none. Their monster fields exist unwired (mprotection,
+      mprottime, mreflecttime - clone/montraits resets already
+      clear them). MGC_CANCELLATION overlaps the cancellation slice
+      (the cancel_monst strip block + BUG-445's mlined_up
+      discipline + the BUG-878-class m-v-m guards travel with the
+      arm); master's castmm routing exceptions (CANCELLATION,
+      CALL_UNDEAD) rejoin the "undirected-but-not-really" list when
+      these land. Ladder mapping to mint: CANCELLATION level 15,
+      REFLECTION at the rnd(2) AGGRAVATION rung (13), PROTECTION
+      cleric level 2, CALL_UNDEAD cleric level 8, per master's case
+      values.
+- [ ] castum() innate AD_SPEL/AD_CLRC casting for the polymorphed
+      hero (minted 2026-08-21 by the spell-list expansion slice).
+      Branch castum is elemental-only (bails on AD_SPEL/CLRC);
+      master runs the full lists via uspell_would_be_useless. The
+      helper arms already carry dormant `yours` legs (keyed on
+      caster == &gy.youmonst) so the wiring is: castum selection +
+      uspell_would_be_useless port + mcast_spell tail gains the
+      yours kill routing (killed() not monkilled - the tail
+      currently hardcodes the monster actor) + castum's u.uen
+      charging decision for the lists (the elemental free-cast
+      ruling covered elemental only). SUMMON_MINION/INSECTS stay
+      rejected for the hero (master's no-free-pets gate).
 - [x] Monster spellbook learning (struct emsp)
       PORTED + REVIEWED 2026-07-16 (port subagent 38 files
       +2530/-84, reviewer CONDITIONAL PASS 1 blocker + 5 concerns
