@@ -2273,26 +2273,74 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       msicktime/mdiseasetime/msummoned/mbindtimer decrements
       (their slices), TEMPLE DAMAGE-REPAIR SWEEP
       (temple_at_boundary, 24 master sites, 13 files - NEW),
-      HERO SPELL PARITY (16 master spelleffects cases still
-      unwired: LIGHTNING/POISON_BLAST/ACID_BLAST/PSIONIC_WAVE/
-      POWER_WORD_KILL/DISPEL_EVIL/CRITICAL_HEALING/BURNING_HANDS/
-      SHOCKING_GRASP/REPAIR_ARMOR/
-      CREATE_GRASS/CREATE_TREES/ORB_OF_FIRE/ORB_OF_FROST/
-      SUMMON_ANIMAL/SUMMON_ELEMENTAL - default impossible();
-      NEW item; CHANGE_METAL_TO_WOOD wired 2026-08-21 by the
-      Croesus/gold slice incl. cast_metal_to_wood, BUG-1627
-      commit 7611f2500). EXPL RIDERS (2026-08-21, explosion-glyph
-      slice 307c4fdbf): EXPL_ACID/EXPL_SHOCK now exist - when
-      LIGHTNING/POISON_BLAST/ACID_BLAST wire up, port master's
-      skilled-AoE expltype ladder (master spell.c, the
-      SPE_CONE_OF_COLD ternary grows to five arms) AND master's
-      mcastu.c MGC_ACID_BLAST explode() arms WITH BUG-449/453
-      re-applied in 5.0 shape (post-explode DEADMONSTER guard +
-      dmg=0; the branch's mcastu has NO explode() call today);
-      when ORB_OF_FIRE/FROST wire up, port explmm()'s
-      msummoned blame block and the !msummoned gate on the
-      melancholy message (reviewer catch 2026-08-21 - nothing on
-      the branch sets msummoned yet). MASTER-PARITY
+      HERO SPELL PARITY (10 master spelleffects cases still
+      unwired: POWER_WORD_KILL/DISPEL_EVIL/CRITICAL_HEALING/
+      BURNING_HANDS/SHOCKING_GRASP/REPAIR_ARMOR/CREATE_GRASS/
+      CREATE_TREES/ORB_OF_FIRE/ORB_OF_FROST - default
+      impossible(); NEW item; the minted 16-case list was stale -
+      PSIONIC_WAVE/SUMMON_ANIMAL/SUMMON_ELEMENTAL are already
+      wired in the branch switch by their own slices.
+      CHANGE_METAL_TO_WOOD wired 2026-08-21 by the Croesus/gold
+      slice incl. cast_metal_to_wood, BUG-1627 commit 7611f2500.
+      LIGHTNING/POISON_BLAST/ACID_BLAST wired 2026-08-21 by the
+      BLAST-FAMILY SLICE, four code commits: BUG-1636 dd116abd5
+      flash_types ray names (LIVE fix - monster-cast blast rays
+      printed empty names; wand slots filled too), BUG-1637
+      c29302d7f hero wiring (spelleffects cases + five-arm
+      expltype ladder on BZ_U_SPELL + weffects ray gate widened
+      to SPE_ACID_BLAST + zapyourself self-zap arms in branch
+      idiom), BUG-1638 same commit "Cast advanced spell?" prompt
+      + decline refund RESTORED for ALL FIVE blast spells by
+      maintainer RULING (fireball/cone behavior change from
+      promptless auto-AoE; refund gated off forced casts AND the
+      Infidel HP-cost path - master's unconditional Pw gift
+      archived BUG-1639 frozen-unfixed), BUG-1640 e46bfc538
+      MCAST_ACID_BLAST innate spell (MONSPELL level 14 = ml>=15
+      parity; carried m-v-m leg w/ BUG-449/453 guards, dormant
+      until castmm innate support; BUG-882 re-applied as
+      castmu's M_ATTK_AGR_DIED fold + the dochug caller fix,
+      reviewer BLOCKER - the masked return would have processed
+      a self-killed caster through m_move; MON_CASTBALL NOT
+      ported - negative BZ_M_SPELL type + ge.exploder bracket is
+      the branch form, artifact-surge precedent; prayer
+      u.uinvulnerable carve-out kept; landed OUT OF the innate
+      spell-list expansion family - MCAST_ FIRE/ICE_BOLT + the
+      clerical arms remain with that owner), BUG-1641 911fec26b
+      monster-cast area-spell killer article (KILLED_BY_AN on
+      negative-type explosions; also fixes the pre-existing
+      Tempest/Kas surge form). Reviewer CONDITIONAL PASS, all
+      findings fixed pre-commit. BATTERY 2026-08-21 (game-tester,
+      3 games - human Wizard XL30 + human Infidel XL30 + an
+      aborted draugr-Infidel game, draugr cannot chant - racial,
+      not slice): ALL 11 LEGS PASS, paniclog never existed.
+      Highlights: all three ray names live at Unskilled; the
+      prompt on all five spells at Skilled with live ANSI blast
+      captures (shock WHITE, noxious BRIGHT_GREEN, acid YELLOW);
+      decline refunds measured 8/4/14 with net cost below the
+      full deduction and no double charge; Infidel decline proven
+      no-Pw-gift with u.uen staged BELOW uenmax so a refund could
+      not hide; MCAST_ACID_BLAST douse + corrosion riders +
+      resistant dissipate + M_SEEN_ACID 0x80 recorded +
+      useless-gate TRUE 3/3 vs control FALSE 3/3; caster
+      self-kill CLEAN on BOTH caller paths (mhitu attacking titan
+      + dochug mconf undirected titan, forced via breakpoint
+      spellnum override) - corpse took no further action;
+      killer gdb-read at the Die? prompt = "splash of acid"
+      KILLED_BY_AN; prayer gate TRUE under u.uinvulnerable;
+      save/reload intact. BATTERY CATCH fixed same day: the
+      decline refund never re-flagged disp.botl (status line
+      showed stale Pw for one action; master shares the lag,
+      frozen-unfixed there) - one-line follow-up sets it.
+      OBSERVATIONS: 'test monster' is M3_STATIONARY yet drifted
+      (71,4)->(70,6) over a few turns before being pinned -
+      unchased, worth a look if it recurs; poison gas clouds
+      block LOS and can hide ray-name evidence (staging note,
+      pre-existing behavior). The blast-trio EXPL rider is
+      DISCHARGED. EXPL RIDER REMAINING: when ORB_OF_FIRE/FROST
+      wire up, port explmm()'s msummoned blame block and the
+      !msummoned gate on the melancholy message (reviewer catch
+      2026-08-21 - nothing on the branch sets msummoned yet).
+      MASTER-PARITY
       WARTS RECORDED: monster entangle scales off the PLAYER's
       P_SKILL (project-monster-spell-skill follow-up; two sites);
       master PWK hero arm ignores polymorph HP (u.uhp not u.mh -
