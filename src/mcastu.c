@@ -377,13 +377,15 @@ castmu(
         return M_ATTK_MISS;
     }
 
-    nomul(0);
     if (rn2(ml * 10) < (mtmp->mconf ? 100 : 10)) { /* fumbled attack */
         Soundeffect(se_air_crackles, 60);
         if (canseemon(mtmp) && !Deaf) {
             set_msg_xy(mtmp->mx, mtmp->my);
             pline_The("air crackles around %s.", mon_nam(mtmp));
         }
+        /* hostile spellcasters interrupt player actions */
+        if (!mtmp->mpeaceful)
+            stop_occupation();
         return M_ATTK_MISS;
     }
     /* the learned-spell meta doesn't decide which spell is cast until
@@ -521,6 +523,9 @@ castmu(
     } /* switch */
     if (dmg)
         mdamageu(mtmp, dmg);
+    /* hostile spellcasters interrupt player actions */
+    if (!mtmp->mpeaceful)
+        stop_occupation();
     /* an area spell centered on the hero can catch an adjacent caster
        in its own blast */
     if (DEADMONSTER(mtmp))
