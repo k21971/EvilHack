@@ -44,5 +44,7 @@ MONSPELL(UNTAME_PET,    0, MCF_NONE),
    the druid caster ring in place of same-level clerical picks */
 MONSPELL(BARKSKIN,      2, MCF_INDIRECT),
 MONSPELL(STONESKIN,     6, MCF_INDIRECT),
+/* area acid blast; wizard-ladder pick for casters of level 15 up */
+MONSPELL(ACID_BLAST,   14, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 
 #undef MONSPELL

@@ -1271,7 +1271,13 @@ dochug(struct monst *mtmp)
             for (a = &mattk[0]; a < &mattk[NATTK]; a++) {
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
-                    if ((castmu(mtmp, a, FALSE, FALSE) & M_ATTK_HIT)) {
+                    int cres = castmu(mtmp, a, FALSE, FALSE);
+
+                    /* an area spell centered near the caster can
+                       catch the caster in its own blast */
+                    if (cres & M_ATTK_AGR_DIED)
+                        return 1;
+                    if (cres & M_ATTK_HIT) {
                         status = MMOVE_DONE; /* bypass m_move() */
                         break;
                     }

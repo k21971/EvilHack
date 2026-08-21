@@ -32,7 +32,8 @@ static int mon_cleric_spells[] = {
 static int mon_wizard_spells[] = {
     MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF, MCAST_STUN_YOU,
     MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS,
-    MCAST_AGGRAVATION, MCAST_SUMMON_MONS, MCAST_CLONE_WIZ, MCAST_DEATH_TOUCH
+    MCAST_AGGRAVATION, MCAST_ACID_BLAST, MCAST_SUMMON_MONS, MCAST_CLONE_WIZ,
+    MCAST_DEATH_TOUCH
 };
 
 /* self-buff learned spells that can be cast through the undirected path */
@@ -68,6 +69,7 @@ staticfn void mcast_stun_you(int);
 staticfn int mcast_geyser(struct monst *, int);
 staticfn int mcast_fire_pillar(struct monst *, int);
 staticfn int mcast_lightning(struct monst *, int);
+staticfn void mcast_acid_blast(struct monst *, struct monst *);
 staticfn int mcast_psi_bolt(int);
 staticfn int mcast_open_wounds(int);
 staticfn void mcast_insects(struct monst *);
@@ -448,6 +450,10 @@ castmu(
     } /* switch */
     if (dmg)
         mdamageu(mtmp, dmg);
+    /* an area spell centered on the hero can catch an adjacent caster
+       in its own blast */
+    if (DEADMONSTER(mtmp))
+        return M_ATTK_AGR_DIED;
     return ret;
 }
 
@@ -898,6 +904,64 @@ mcast_lightning(struct monst *mtmp, int dmg)
     return dmg;
 }
 
+/* douse the target in a torrent of acid. mdef is the hero on the
+   castmu() path today; the monster-defender leg is carried for when
+   castmm() gains innate-spell support. damage is applied by the
+   explosion itself, so the caller must not apply any on top */
+staticfn void
+mcast_acid_blast(struct monst *mtmp, struct monst *mdef)
+{
+    boolean udefend = (mdef == &gy.youmonst);
+    int ml = min((int) mtmp->m_lev, 50);
+    struct monst *save_exploder;
+
+    if (udefend) {
+        if (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters)
+            pline_mon(mtmp, "%s douses you in a torrent of acid!",
+                      Monnam(mtmp));
+        /* credit the caster for blast kills; save and restore so a
+           chained explosion cannot clobber an outer one */
+        save_exploder = ge.exploder;
+        ge.exploder = mtmp;
+        explode(u.ux, u.uy, BZ_M_SPELL(ZT_ACID), d(ml / 2 + 4, 8), 0,
+                EXPL_ACID);
+        ge.exploder = save_exploder;
+        if (Acid_resistance) {
+            shieldeff(u.ux, u.uy);
+            pline_The("acid dissipates harmlessly.");
+            monstseesu(M_SEEN_ACID);
+        }
+        /* using two weapons at once makes both of them more vulnerable */
+        if (rn2(u.twoweap ? 2 : 3))
+            acid_damage(uwep);
+        if (u.twoweap && rn2(2))
+            acid_damage(uswapwep);
+        if (rn2(4))
+            erode_armor(&gy.youmonst, ERODE_CORRODE);
+    } else {
+        if (!mdef || DEADMONSTER(mdef))
+            return;
+        if (canseemon(mtmp) || canseemon(mdef))
+            pline("%s douses %s in a torrent of acid!", Monnam(mtmp),
+                  mon_nam(mdef));
+        save_exploder = ge.exploder;
+        ge.exploder = mtmp;
+        explode(mdef->mx, mdef->my, BZ_M_SPELL(ZT_ACID), d(ml / 2 + 4, 8),
+                0, EXPL_ACID);
+        ge.exploder = save_exploder;
+        /* the blast may have killed the target; don't touch it after */
+        if (DEADMONSTER(mdef))
+            return;
+        if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
+            shieldeff(mdef->mx, mdef->my);
+            if (canseemon(mdef))
+                pline("But the acid dissipates harmlessly.");
+        }
+        if (rn2(4))
+            erode_armor(mdef, ERODE_CORRODE);
+    }
+}
+
 staticfn int
 mcast_psi_bolt(int dmg)
 {
@@ -1180,6 +1244,10 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
     case MCAST_LIGHTNING:
         dmg = mcast_lightning(mtmp, dmg);
         break;
+    case MCAST_ACID_BLAST:
+        mcast_acid_blast(mtmp, &gy.youmonst);
+        dmg = 0;
+        break;
     case MCAST_INSECTS:
         mcast_insects(mtmp);
         dmg = 0;
@@ -1278,6 +1346,14 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
         break;
     case MCAST_GEYSER:
         if (!rn2(5))
+            return TRUE;
+        break;
+    case MCAST_ACID_BLAST:
+        /* don't waste the cast on a hero proven acid resistant or
+           made invulnerable by prayer, and usually avoid catching
+           itself in a blast centered next to its own position */
+        if (m_seenres(mtmp, M_SEEN_ACID) || u.uinvulnerable
+            || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             return TRUE;
         break;
     case MCAST_CLONE_WIZ:
