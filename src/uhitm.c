@@ -3847,6 +3847,61 @@ mhitm_ad_sgld(
     }
 }
 
+/* Croesus's golden touch: transmute an inventory item to gold */
+void
+mhitm_ad_gold(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    if (magr == &gy.youmonst) {
+        /* uhitm; player can never have this attack - Croesus is the
+           only AD_GOLD monster and is G_UNIQ | M2_NOPOLY, so no
+           polyform grants it; kept for switch completeness so the
+           player path never relies on the default */
+        mhm->damage = 0;
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu */
+        struct obj *gobj;
+
+        hitmsg(magr, mattk);
+        if (!(magr->mcan || Hidinshell)) {
+            if (!rn2(3)) {
+                gobj = rnd_gold_touch_obj(gi.invent);
+                if (gobj) {
+                    if (!Blind)
+                        pline("%s reaches out with a glittering %s!",
+                              Monnam(magr), mbodypart(magr, HAND));
+                    (void) material_to_gold(gobj);
+                } else if (!Blind) {
+                    pline("%s's %s glints, but finds nothing to transmute.",
+                          Monnam(magr), mbodypart(magr, HAND));
+                }
+            }
+            if (!rn2(4))
+                croesus_grab_gold(magr);
+        }
+        mhm->damage = 0;
+    } else {
+        /* mhitm */
+        struct obj *obj;
+        char buf[BUFSZ];
+
+        mhm->damage = 0;
+        if (magr->mcan || rn2(3))
+            return;
+        obj = rnd_gold_touch_obj(mdef->minvent);
+        if (obj) {
+            if (gv.vis && canseemon(mdef)) {
+                Strcpy(buf, s_suffix(mon_nam(mdef)));
+                pline("%s touch turns %s %s to solid gold!",
+                      s_suffix(Monnam(magr)), buf, simpleonames(obj));
+            }
+            set_material(obj, GOLD);
+            obj->owt = weight(obj);
+        }
+    }
+}
+
 void
 mhitm_ad_tlpt(
     struct monst *magr, struct attack *mattk,
@@ -6311,6 +6366,7 @@ mhitm_adtyping(
     case AD_HALU: mhitm_ad_halu(magr, mattk, mdef, mhm); break;
     case AD_WEBS: mhitm_ad_webs(magr, mattk, mdef, mhm); break;
     case AD_LOUD: mhitm_ad_loud(magr, mattk, mdef, mhm); break;
+    case AD_GOLD: mhitm_ad_gold(magr, mattk, mdef, mhm); break;
     default:
         mhm->damage = 0;
     }

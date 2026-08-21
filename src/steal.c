@@ -138,6 +138,47 @@ stealgold(struct monst *mtmp)
     }
 }
 
+/*
+ * Croesus's golden touch may pluck a single gold-material object
+ * straight out of the hero's pack -- anything made of gold,
+ * including artifacts and unique items; he claims all gold for
+ * himself. Unlike a leprechaun he is a vault guardian, so he never
+ * teleports or flees afterward; whatever he takes drops with the
+ * rest of his hoard when he is killed.
+ */
+void
+croesus_grab_gold(struct monst *mtmp)
+{
+    struct obj *ygold;
+
+    /* any gold-material object, no exclusions (same selection as
+       stealgold) */
+    ygold = findgold(gi.invent, FALSE);
+    if (!ygold)
+        return;
+
+    if (ygold->otyp == GOLD_PIECE) {
+        const int gold_price = objects[GOLD_PIECE].oc_cost;
+        long tmp;
+
+        tmp = (somegold(money_cnt(gi.invent)) + gold_price - 1) / gold_price;
+        tmp = min(tmp, ygold->quan);
+        if (tmp < ygold->quan)
+            ygold = splitobj(ygold, tmp);
+        else
+            setnotworn(ygold);
+        Your("purse feels lighter.");
+    } else {
+        pline("%s deftly palms %s!", Monnam(mtmp),
+              ygold->oartifact ? bare_artifactname(ygold)
+                               : yname(ygold));
+        remove_worn_item(ygold, TRUE);
+    }
+    freeinv(ygold);
+    (void) mpickobj(mtmp, ygold); /* may free ygold */
+    disp.botl = TRUE;
+}
+
 /* monster who was stealing from hero has just died */
 void
 thiefdead(void)

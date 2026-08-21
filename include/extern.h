@@ -1852,6 +1852,9 @@ extern struct obj *obj_nexto_xy(struct obj *, coordxy, coordxy, boolean) NONNULL
 extern struct obj *obj_absorb(struct obj **, struct obj **);
 extern struct obj *obj_meld(struct obj **, struct obj **);
 extern void pudding_merge_message(struct obj *, struct obj *) NONNULLARG12;
+extern boolean metal_to_wood(struct obj *, boolean) NO_NNARGS;
+extern boolean material_to_gold(struct obj *) NO_NNARGS;
+extern struct obj *rnd_gold_touch_obj(struct obj *) NO_NNARGS;
 extern void init_obj_material(struct obj *) NONNULLARG1;
 extern boolean valid_obj_material(struct obj *, int) NONNULLARG1;
 extern void set_material(struct obj *, int) NONNULLARG1;
@@ -3360,6 +3363,7 @@ extern void mdrop_obj(struct monst *, struct obj *, boolean) NONNULLARG12;
 extern void mdrop_special_objs(struct monst *) NONNULLARG1;
 extern void relobj(struct monst *, int, boolean) NONNULLARG1;
 extern struct obj *findgold(struct obj *, boolean) NO_NNARGS;
+extern void croesus_grab_gold(struct monst *) NONNULLARG1;
 
 /* ### steed.c ### */
 
@@ -3713,6 +3717,8 @@ extern void mhitm_ad_ssex(struct monst *, struct attack *, struct monst *,
 extern void mhitm_ad_webs(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_loud(struct monst *, struct attack *, struct monst *,
+                          struct mhitm_data *) NONNULLPTRS;
+extern void mhitm_ad_gold(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_adtyping(struct monst *, struct attack *, struct monst *,
                            struct mhitm_data *) NONNULLPTRS;

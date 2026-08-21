@@ -2607,6 +2607,10 @@ can_carry(struct monst *mtmp, struct obj *otmp)
     if (mdat->mlet == S_NYMPH)
         return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
 
+    /* Croesus hoards without limit, like a nymph (but not rocks) */
+    if (mdat == &mons[PM_CROESUS])
+        return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
+
     if (curr_mon_load(mtmp) + newload > max_mon_load(mtmp))
         return 0;
 
