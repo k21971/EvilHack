@@ -33,7 +33,7 @@ static int mon_wizard_spells[] = {
     MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF, MCAST_STUN_YOU,
     MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS,
     MCAST_AGGRAVATION, MCAST_ACID_BLAST, MCAST_SUMMON_MONS, MCAST_CLONE_WIZ,
-    MCAST_DEATH_TOUCH
+    MCAST_DEATH_TOUCH, MCAST_FIRE_BOLT
 };
 
 /* self-buff learned spells that can be cast through the undirected path */
@@ -47,6 +47,7 @@ staticfn void cursetxt(struct monst *, boolean);
 staticfn boolean mon_has_eregen_artifact(struct monst *);
 staticfn boolean is_boss_caster(struct monst *);
 staticfn int druid_ward_subst(struct monst *, int);
+staticfn int choose_bolt_spell(struct monst *);
 staticfn int choose_monster_spell(struct monst *, int);
 staticfn struct monst *find_adjacent_pet(struct monst *);
 staticfn void do_untame_pet(struct monst *, struct monst *);
@@ -70,6 +71,7 @@ staticfn int mcast_geyser(struct monst *, int);
 staticfn int mcast_fire_pillar(struct monst *, int);
 staticfn int mcast_lightning(struct monst *, int);
 staticfn void mcast_acid_blast(struct monst *, struct monst *);
+staticfn void mcast_bolt(struct monst *, struct monst *, int);
 staticfn int mcast_psi_bolt(int);
 staticfn int mcast_open_wounds(int);
 staticfn void mcast_insects(struct monst *);
@@ -150,11 +152,30 @@ druid_ward_subst(struct monst *mtmp, int spellnum)
     return spellnum;
 }
 
+/* roll the element behind the wizard ladder's bolt rung; returns
+   MCAST_FIRE_BOLT, MCAST_ICE_BOLT, MCAST_PSI_BOLT, or -1 to make the
+   caller fall through to another pick. The Ice Queen favors ice; psi
+   bolt is the better choice against a magic-resistant or
+   hallucinating hero */
+staticfn int
+choose_bolt_spell(struct monst *mtmp)
+{
+    switch (rn2(3)) {
+    case 2:
+        return (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+                   ? MCAST_ICE_BOLT : MCAST_FIRE_BOLT;
+    case 1:
+        return MCAST_ICE_BOLT;
+    default:
+        return (Antimagic || Hallucination) ? MCAST_PSI_BOLT : -1;
+    }
+}
+
 staticfn int
 choose_monster_spell(struct monst *mtmp, int adtyp)
 {
     int *list = NULL;
-    int i, spellval, len = 0;
+    int i, candidate, spellval, len = 0;
     int maxlev, spell_count;
 
     /* spells learned from spellbooks get first consideration; the
@@ -198,19 +219,42 @@ choose_monster_spell(struct monst *mtmp, int adtyp)
        spell's own flags decide (the wards are indirect and castable
        by the peaceful circle, unlike the hostile-only picks they
        replace) */
-    for (i = len - 1; i > 0; i--)
-        if (mcast_data[list[i]].level <= spellval
-            && !spell_would_be_useless(mtmp, druid_ward_subst(mtmp, list[i])))
+    candidate = -1;
+    for (i = len - 1; i > 0; i--) {
+        if (mcast_data[list[i]].level > spellval)
+            continue;
+        candidate = druid_ward_subst(mtmp, list[i]);
+        /* the bolt rung stands for a fire/ice/psi choice; roll it
+           now so the chosen element's own resistances decide, and
+           fall through to the next rung when the roll defers */
+        if (candidate == MCAST_FIRE_BOLT) {
+            candidate = choose_bolt_spell(mtmp);
+            if (candidate < 0)
+                continue;
+        }
+        if (!spell_would_be_useless(mtmp, candidate))
             break;
+        candidate = -1;
+    }
+    if (candidate < 0) {
+        candidate = druid_ward_subst(mtmp, list[0]);
+        /* the wizard ladder's floor is itself a bolt chance */
+        if (candidate == MCAST_PSI_BOLT) {
+            int bolt = choose_bolt_spell(mtmp);
+
+            if (bolt >= 0)
+                candidate = bolt;
+        }
+    }
 
     /* the Ice Queen and Asmodeus are creatures of cold; they conjure
        lightning where other clerical casters would call down fire */
-    if (list[i] == MCAST_FIRE_PILLAR
+    if (candidate == MCAST_FIRE_PILLAR
         && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mtmp->data == &mons[PM_ASMODEUS]))
         return MCAST_LIGHTNING;
 
-    return druid_ward_subst(mtmp, list[i]);
+    return candidate;
 }
 
 /* return values:
@@ -964,6 +1008,65 @@ mcast_acid_blast(struct monst *mtmp, struct monst *mdef)
     }
 }
 
+/* blast the target with a fiery or freezing explosion. mdef is the
+   hero on the castmu() path today; the monster-defender leg is
+   carried for when castmm() gains innate-spell support. damage is
+   applied by the explosion itself, so the caller must not apply any
+   on top */
+staticfn void
+mcast_bolt(struct monst *mtmp, struct monst *mdef, int spellnum)
+{
+    boolean udefend = (mdef == &gy.youmonst);
+    boolean firebolt = (spellnum == MCAST_FIRE_BOLT);
+    int ml = min((int) mtmp->m_lev, 50);
+    struct monst *save_exploder;
+
+    if (udefend) {
+        int dmg;
+
+        if (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters)
+            pline_mon(mtmp, "%s blasts you with %s!", Monnam(mtmp),
+                      firebolt ? "fire" : "ice");
+        /* the hero's partial resistance applies up front; explode()
+           itself only handles the all-or-nothing monster resistances */
+        dmg = resist_reduce(d(ml / 5 + 1, 8),
+                            firebolt ? FIRE_RES : COLD_RES);
+        /* credit the caster for blast kills; save and restore so a
+           chained explosion cannot clobber an outer one */
+        save_exploder = ge.exploder;
+        ge.exploder = mtmp;
+        explode(u.ux, u.uy, BZ_M_SPELL(firebolt ? ZT_FIRE : ZT_COLD),
+                dmg, 0, firebolt ? EXPL_FIERY : EXPL_FROSTY);
+        ge.exploder = save_exploder;
+        if (how_resistant(firebolt ? FIRE_RES : COLD_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(firebolt ? M_SEEN_FIRE : M_SEEN_COLD);
+            pline("But you resist the effects.");
+        }
+    } else {
+        if (!mdef || DEADMONSTER(mdef))
+            return;
+        if (canseemon(mtmp) || canseemon(mdef))
+            pline("%s blasts %s with %s!", Monnam(mtmp), mon_nam(mdef),
+                  firebolt ? "fire" : "ice");
+        save_exploder = ge.exploder;
+        ge.exploder = mtmp;
+        explode(mdef->mx, mdef->my, BZ_M_SPELL(firebolt ? ZT_FIRE : ZT_COLD),
+                d(ml / 5 + 1, 8), 0, firebolt ? EXPL_FIERY : EXPL_FROSTY);
+        ge.exploder = save_exploder;
+        /* the blast may have killed the target; don't touch it after */
+        if (DEADMONSTER(mdef))
+            return;
+        if (firebolt ? (resists_fire(mdef) || defended(mdef, AD_FIRE))
+                     : (resists_cold(mdef) || defended(mdef, AD_COLD))) {
+            shieldeff(mdef->mx, mdef->my);
+            if (canseemon(mdef))
+                pline("But %s seems unaffected by the %s.", mon_nam(mdef),
+                      firebolt ? "fire" : "cold");
+        }
+    }
+}
+
 staticfn int
 mcast_psi_bolt(int dmg)
 {
@@ -1250,6 +1353,11 @@ mcast_spell(struct monst *mtmp, int dmg, int spellnum, short learned_otyp)
         mcast_acid_blast(mtmp, &gy.youmonst);
         dmg = 0;
         break;
+    case MCAST_FIRE_BOLT:
+    case MCAST_ICE_BOLT:
+        mcast_bolt(mtmp, &gy.youmonst, spellnum);
+        dmg = 0;
+        break;
     case MCAST_INSECTS:
         mcast_insects(mtmp);
         dmg = 0;
@@ -1355,6 +1463,18 @@ spell_would_be_useless(struct monst *mtmp, int spellnum)
            made invulnerable by prayer, and usually avoid catching
            itself in a blast centered next to its own position */
         if (m_seenres(mtmp, M_SEEN_ACID) || u.uinvulnerable
+            || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
+            return TRUE;
+        break;
+    case MCAST_FIRE_BOLT:
+        /* as acid blast: skip a proven-resistant or invulnerable
+           hero, and usually avoid a blast beside its own position */
+        if (m_seenres(mtmp, M_SEEN_FIRE) || u.uinvulnerable
+            || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
+            return TRUE;
+        break;
+    case MCAST_ICE_BOLT:
+        if (m_seenres(mtmp, M_SEEN_COLD) || u.uinvulnerable
             || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             return TRUE;
         break;

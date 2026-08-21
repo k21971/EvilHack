@@ -46,5 +46,10 @@ MONSPELL(BARKSKIN,      2, MCF_INDIRECT),
 MONSPELL(STONESKIN,     6, MCF_INDIRECT),
 /* area acid blast; wizard-ladder pick for casters of level 15 up */
 MONSPELL(ACID_BLAST,   14, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
+/* area fire and ice blasts; the wizard ladder carries a single bolt
+   rung (fire) and choose_bolt_spell() rolls the actual element, both
+   there and on the ladder's psi-bolt floor */
+MONSPELL(FIRE_BOLT,   23, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
+MONSPELL(ICE_BOLT,    23, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 
 #undef MONSPELL
