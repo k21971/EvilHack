@@ -1967,15 +1967,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       choice mw2/oprops blocks (monster ring/amulet), mon_wielding_
       artifact incl. MON_WEP2 arm (artifact behaviors), AD_ACID
       explosion arms EXPL_ACID/EXPL_SHOCK (explosion-glyph
-      extension - TODO-EVILHACK markers at mhitm.c/uhitm.c sites,
-      acid sphere exists on branch = silent-divergence guard;
-      ESCALATED 2026-08-14 by the purgatory battery: the combat
-      sites gate on FIRE/COLD/ELEC but the DEATH path does not -
-      mon.c's AT_BOOM death arm calls mon_explodes unconditionally,
-      so EVERY acid-sphere death fires "adtyp_to_expltype: bad
-      explosion type 8" into the paniclog and renders the blast
-      EXPL_FIERY; not silent anymore, reproducible with #wizkill
-      on any acid sphere),
+      extension - was ESCALATED 2026-08-14 by the purgatory
+      battery; DISCHARGED 2026-08-21 by the explosion-glyph slice,
+      commit 307c4fdbf = BUG-1634/1635, see that Phase 2 row
+      directly below this one),
       muse offensive-item parity (maxdmg melee gate + master-only
       MUSE_* items), munstone self stone-to-flesh (monster
       spellcasting), hitmsg pierce/slash/whack verbs (mhitu
@@ -2092,6 +2087,88 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       merges stackables (spears rne(2)) - distinct otyps for
       separate gifts; ^G tame prefix silently fails on marilith
       (gdb newedog+initedog recipe works).
+- [x] EXPL_ACID/EXPL_SHOCK explosion-glyph extension (the dual-wield
+      row's ESCALATED deferral, directly above). DONE 2026-08-21,
+      ONE commit 307c4fdbf = BUG-1634 (adtyp_to_expltype missing
+      AD_ACID arm - paniclog impossible + fiery-rendered blast on
+      every acid sphere/Juiblex death; upstream's default arm is
+      unreachable in vanilla whose only AT_BOOM monster is the gas
+      spore, EvilHack's roster made it live) + BUG-1635 (explmu
+      default arm - an acid sphere's AT_EXPL attack on the hero did
+      NOTHING plus a second impossible PER HIT; not in the original
+      escalation, found by the pre-port branch census). Master
+      parity (68183d4ad/6f69fc774/db387d8ae/95d904e96/59e9888a0)
+      re-expressed against 5.0's named-offset glyph architecture -
+      master needed one enum bump + an arithmetic macro; 5.0
+      hand-enumerates the type count, so EVERY consumer grew:
+      EXPL_ACID=7 CLR_YELLOW / EXPL_SHOCK=8 CLR_WHITE appended plus
+      master's frosty->BRIGHT_CYAN and noxious->BRIGHT_GREEN
+      recolors; display.h x7 (three enums, offset chain +
+      re-anchored GLYPH_WARNING_OFF, explosion_to_glyph,
+      glyph_is_explosion bound, doc comment); display.c x3
+      (explodecolors[] is EXPL_MAX-sized and silently zero-fills to
+      CLR_BLACK if not grown; BOTH descending ladders get
+      SHOCK-then-ACID arms between WARNING and FROSTY); glyphs.c
+      expl_type_texts[] (bare implicitly sized static walked at
+      options init = the extended-breath compose_glyph_name
+      SEGFAULT class, closed); earlyarg.c dump rows; combat gates
+      explmm/explmu/explum widened with AD_ACID + master's
+      corrosion payloads (erode_armor 3/4 + acid_damage on both
+      MON_WEPs 1/2 at the two attacker-side sites; explmu's hero
+      side rides explode() itself); artifact.c Tempest->EXPL_SHOCK
+      / Harbinger->EXPL_ACID expltype-argument-only (BUG-1133/434/
+      1305 brackets + friendly-fire gates untouched,
+      reviewer-verified); apply.c WAN_DEATH/WAN_LIGHTNING case
+      split (lightning->EXPL_SHOCK, damage class unchanged);
+      tilemap.c x4; other.txt +18 master tiles pixel-verbatim as
+      191-208 (headers renamed to this tree's positional naming,
+      warnings onward +18; palette letters verified RGB-identical
+      across trees). EDITLEVEL 3->4: struct rm persists raw glyph
+      ids and everything >= GLYPH_WARNING_OFF shifts +18 with
+      sizeof(struct rm) unchanged, so critical_sizes[] CANNOT
+      reject an old save - the bump is the only clean invalidation
+      (first slice to need it; the forest/nymph critical_sizes
+      precedent does not apply to enum-shift breaks).
+      ROUTED: hero AoE expltype ladder + master's mcastu
+      MGC_ACID_BLAST explode arms (BUG-449/453 must re-apply) +
+      the ORB msummoned blame block -> the emsp row's HERO SPELL
+      PARITY item (annotated); flash_types acid slot stays with
+      the extended-breath rider (re-verified producer-less: the
+      blast spells exist only as objects.h entries); tile GATE
+      record -> the TILE-ART DRIFT row. Reviewer PASS, zero
+      actionable findings (all 10 guard checks; adtyp_to_expltype
+      now byte-equivalent to master's). BATTERY 2026-08-21
+      (game-tester, 2 sessions: an EDITLEVEL-3 fixture save
+      session + the 11-leg main run; paniclog NEVER EXISTED in
+      either): stale 1.0.0-3 save refused verbatim ("Version
+      mismatch for file ..." + "is an outdated savefile", fixture
+      left decompressed in place, not deleted); acid sphere
+      AT_EXPL vs hero now a REAL explosion (9 dmg) and AT_BOOM
+      death clean, both live-captured ESC[93m yellow; shocking
+      sphere both paths ESC[97m white (was magenta); regression
+      legs fiery orange / frosty BRIGHT_CYAN / noxious
+      BRIGHT_GREEN (both recolors confirmed live); Juiblex death
+      acid-yellow; explum 7 polyself cycles (defender helmet
+      oeroded2 0->1 gdb-confirmed, bone-gear "not affected"
+      negative controls, clean kill-outright case); explmm m-v-m
+      corrosion reached the defender; Tempest/Harbinger surges
+      white/yellow with "then ebbs" suppression 4/10 attacks and
+      hero-credited blast kills; wand break lightning white 112
+      dmg vs death magenta 80 (case split proven); post-bump
+      save/restore map-memory capture diff'd byte-identical incl.
+      statue glyphs; gdb explodecolors {0,10,3,4,5,9,14,11,15}.
+      UNADJUDICATED OBSERVATIONS: "caught in the Juiblex's
+      explosion" leading-article possessive is master's identical
+      Sprintf shape - left as parity; Tempest in on-foot polearm
+      melee produces NO artifact effects at all (19 force-fight
+      hits, gs.spec_dbon_applies stayed 0 - uhitm.c routes
+      unmounted non-centaur polearm melee to
+      hmon_hitmon_weapon_ranged; surges reachable via #apply
+      range or mounted; pre-existing 5.0 routing, not this
+      slice); #wizwish hands out SPFX_NOWISH forged artifacts
+      without an override prompt (wizmode); fixture session:
+      livelog rank lines fired at XL 14/18/22/26/30 but not
+      3/6/10 during #levelchange (unrelated to the slice, watch).
 - [x] Monster spellbook learning (struct emsp)
       PORTED + REVIEWED 2026-07-16 (port subagent 38 files
       +2530/-84, reviewer CONDITIONAL PASS 1 blocker + 5 concerns
@@ -2204,7 +2281,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       SUMMON_ANIMAL/SUMMON_ELEMENTAL - default impossible();
       NEW item; CHANGE_METAL_TO_WOOD wired 2026-08-21 by the
       Croesus/gold slice incl. cast_metal_to_wood, BUG-1627
-      commit 7611f2500). MASTER-PARITY
+      commit 7611f2500). EXPL RIDERS (2026-08-21, explosion-glyph
+      slice 307c4fdbf): EXPL_ACID/EXPL_SHOCK now exist - when
+      LIGHTNING/POISON_BLAST/ACID_BLAST wire up, port master's
+      skilled-AoE expltype ladder (master spell.c, the
+      SPE_CONE_OF_COLD ternary grows to five arms) AND master's
+      mcastu.c MGC_ACID_BLAST explode() arms WITH BUG-449/453
+      re-applied in 5.0 shape (post-explode DEADMONSTER guard +
+      dmg=0; the branch's mcastu has NO explode() call today);
+      when ORB_OF_FIRE/FROST wire up, port explmm()'s
+      msummoned blame block and the !msummoned gate on the
+      melancholy message (reviewer catch 2026-08-21 - nothing on
+      the branch sets msummoned yet). MASTER-PARITY
       WARTS RECORDED: monster entangle scales off the PLAYER's
       P_SKILL (project-monster-spell-skill follow-up; two sites);
       master PWK hero arm ignores polymorph HP (u.uhp not u.mh -
@@ -2688,7 +2776,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pool/lava/air even now) -> terrain slice; explode() BASE_ZT
       water/drain/stun arms (unreachable until an exploder carries
       those adtyps); flash_types wand/spell poison+acid slots stay
-      "" (no producers; master filled them). SKELETAL NOTES: hero
+      "" (no producers; master filled them; re-verified 2026-08-21
+      by the explosion-glyph slice - the blast spells are still
+      unwired, so the slots stay correctly empty). SKELETAL NOTES:
+      hero
       mbreathtyp not saved (youmonst unsaved; lazy reroll = master
       parity; eventual u.mcham-style mirror); chameleon cycling
       accumulates sd_breath_resist mintrinsics bits (master
@@ -8654,6 +8745,16 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       against other.txt's `# tile N (name)` headers and confirm
       they agree index-by-index. Worth doing as the last step of
       every slice that touches defsym.h.
+      GATE RE-RUN 2026-08-21 (explosion-glyph slice 307c4fdbf,
+      which grew other.txt 243->261 by inserting master's 18
+      acid/shock tiles as 191-208, warnings onward +18): relative
+      alignment through the explosion/warning span is intact and
+      contiguous (tile.c frosty 213 -> acid 214-222 -> shock
+      223-231 -> warning 232+ mirrors the file's 190/191-208/
+      209-214 order); expected-vs-actual indices still differ by
+      exactly the same pre-existing 23-tile cmap deficit measured
+      above. Drift unchanged in character; this row still owns
+      the cmap reconciliation.
 - [ ] menuitemcolor / status branch-labels / UI extras sweep
       (master menuitemcolor renders BRACKET-SCOPED: item color
       applies only to text inside [] - win/curses cursdial.c
