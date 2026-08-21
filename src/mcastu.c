@@ -275,7 +275,9 @@ castmu(
 
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
         /* monst->m_lev is unsigned (uchar), monst->mspec_used is int */
-        mtmp->mspec_used = (int) ((mtmp->m_lev < 8) ? (10 - mtmp->m_lev) : 2);
+        mtmp->mspec_used = 4 - (int) mtmp->m_lev;
+        if (mtmp->mspec_used < 2)
+            mtmp->mspec_used = 2;
         /* many boss-type monsters that have two or more spell attacks
            per turn are never able to fire off their second attack due
            to mspec always being greater than 0, so set it to 0 for
@@ -308,7 +310,7 @@ castmu(
     }
 
     nomul(0);
-    if (rn2(ml * 10) < (mtmp->mconf ? 100 : 20)) { /* fumbled attack */
+    if (rn2(ml * 10) < (mtmp->mconf ? 100 : 10)) { /* fumbled attack */
         Soundeffect(se_air_crackles, 60);
         if (canseemon(mtmp) && !Deaf) {
             set_msg_xy(mtmp->mx, mtmp->my);
@@ -1625,8 +1627,9 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
     /* casting cost, same formula as castmu(); innate elemental
        attacks are gated by mspec but never charge it */
     if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
-        mtmp->mspec_used = (int) ((mtmp->m_lev < 8) ? (10 - mtmp->m_lev)
-                                                    : 2);
+        mtmp->mspec_used = 4 - (int) mtmp->m_lev;
+        if (mtmp->mspec_used < 2)
+            mtmp->mspec_used = 2;
         /* many boss-type monsters have two or more spell attacks per
            turn and would never fire the later ones with mspec above
            0; top tier bosses always reset it, mid tier bosses reset
