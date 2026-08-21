@@ -64,13 +64,12 @@ static const char are_blinded_by_the_flash[] = "are blinded by the flash!";
 static const char *const flash_types[] = {
     "magic missile", /* Wands must be 0-10 */
     "bolt of fire", "bolt of cold", "sleep ray", "death ray",
-    "bolt of lightning", "", "",
+    "bolt of lightning", "bolt of poison gas", "bolt of acid",
     "bolt of water", "dark energy ray", "disorienting ray",
 
     "magic missile", /* Spell equivalents must be 11-21 */
     "fireball", "cone of cold", "sleep ray", "finger of death",
-    "bolt of lightning", /* there is no spell, used for retribution */
-    "", "",
+    "bolt of lightning", "blast of poison gas", "blast of acid",
     "blast of water", "blast of dark energy", "disorienting blast",
 
     "blast of missiles", /* Dragon breath equivalents 22-32 */
