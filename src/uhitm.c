@@ -18,6 +18,7 @@ staticfn void mhitm_really_poison(struct monst *, struct attack *,
 staticfn boolean steal_slips_off(struct monst *, struct obj *) NONNULLPTRS;
 staticfn void pickpocket_watch_responds(struct monst *) NONNULLARG1;
 staticfn void steal_it(struct monst *, struct attack *) NONNULLARG1;
+staticfn struct obj *really_steal(struct obj *, struct monst *) NONNULLPTRS;
 staticfn struct monst *find_steal_target(void);
 /* hitum_cleave() has contradictory information. There's a comment
  * beside the 1st arg 'target' stating non-null, but later on there
@@ -2688,7 +2689,7 @@ steal_it(struct monst *mdef, struct attack *mattk)
     /* the coins are spared whenever the theft is a seduction, even when
        the target is too incapacitated for the strip-it-bare path above */
     if (as_mon)
-        gold = findgold(mdef->minvent);
+        gold = findgold(mdef->minvent, TRUE);
 
     /* prevent gold from being stolen so that steal-item isn't a superset
        of steal-gold; shuffling it out of minvent before selecting next
@@ -2907,7 +2908,7 @@ steal_it(struct monst *mdef, struct attack *mattk)
                 break; /* only taking one item */
             /* the next item comes out of minvent, so take the gold
                back out before looping around to select it */
-            if ((gold = findgold(mdef->minvent)) != 0)
+            if ((gold = findgold(mdef->minvent, TRUE)) != 0)
                 obj_extract_self(gold);
             continue;
         }
@@ -2930,7 +2931,7 @@ steal_it(struct monst *mdef, struct attack *mattk)
         /* take gold out of minvent before making next selection; if it
            is the only thing left, the loop will terminate and it will be
            put back below */
-        if ((gold = findgold(mdef->minvent)) != 0)
+        if ((gold = findgold(mdef->minvent, TRUE)) != 0)
             obj_extract_self(gold);
     }
 
@@ -3737,6 +3738,34 @@ mhitm_ad_acid(
     }
 }
 
+/* hero steals one object from a monster; returns NULL if the object
+   was dropped, destroyed, or the theft has to stop */
+staticfn struct obj *
+really_steal(struct obj *obj, struct monst *mdef)
+{
+    long unwornmask = obj->owornmask;
+
+    /* take the object away from the monster */
+    extract_from_minvent(mdef, obj, TRUE, FALSE);
+    /* give the object to the character */
+    obj = hold_another_object(obj, "You snatched but dropped %s.",
+                              doname(obj), "You steal: ");
+    /* might have dropped obj, and it might have broken or left level */
+    if (!obj || obj->where != OBJ_INVENT)
+        return (struct obj *) 0;
+    if (theft_petrifies(obj))
+        return (struct obj *) 0; /* stop thieving even though hero survived */
+    /* more take-away handling, after theft message */
+    if (unwornmask & W_WEP) { /* stole wielded weapon */
+        possibly_unwield(mdef, FALSE);
+    } else if (unwornmask & W_ARMG) { /* stole worn gloves */
+        mselftouch(mdef, (const char *) 0, TRUE);
+        if (DEADMONSTER(mdef)) /* it's now a statue */
+            return (struct obj *) 0; /* can't continue stealing */
+    }
+    return obj;
+}
+
 /* steal gold */
 void
 mhitm_ad_sgld(
@@ -3748,17 +3777,23 @@ mhitm_ad_sgld(
 
     if (magr == &gy.youmonst) {
         /* uhitm */
-        struct obj *mongold = findgold(mdef->minvent);
+        /* this is you as a leprechaun, so steal
+           real gold only, no lesser coins */
+        struct obj *mongold = findgold(mdef->minvent, FALSE);
 
         if (mongold) {
-            obj_extract_self(mongold);
-            if (merge_choice(gi.invent, mongold)
-                    || inv_cnt(FALSE) < invlet_basic) {
-                addinv(mongold);
+            if (mongold->otyp != GOLD_PIECE) {
+                /* stole a gold non-coin object */
+                (void) really_steal(mongold, mdef);
+            } else if (merge_choice(gi.invent, mongold)
+                       || inv_cnt(FALSE) < invlet_basic) {
                 Your("purse feels heavier.");
+                obj_extract_self(mongold);
+                addinv(mongold);
             } else {
                 You("grab %s's gold, but find no room in your knapsack.",
                     mon_nam(mdef));
+                obj_extract_self(mongold);
                 dropy(mongold);
             }
         }
@@ -3774,6 +3809,7 @@ mhitm_ad_sgld(
     } else {
         /* mhitm */
         char buf[BUFSZ];
+        struct obj *gold;
 
         mhm->damage = 0;
         if (magr->mcan)
@@ -3781,24 +3817,29 @@ mhitm_ad_sgld(
         /* technically incorrect; no check for stealing gold from
          * between mdef's feet...
          */
-        {
-            struct obj *gold = findgold(mdef->minvent);
-
-            if (!gold)
-                return;
-            obj_extract_self(gold);
-            add_to_minv(magr, gold);
-        }
-        mdef->mstrategy &= ~STRAT_WAITFORU;
+        gold = findgold(mdef->minvent, FALSE);
+        if (!gold)
+            return;
         Strcpy(buf, Monnam(magr));
-        if (gv.vis && canseemon(mdef)) {
-            pline("%s steals some gold from %s.", buf, mon_nam(mdef));
-        }
+        /* print before removing from minvent so yname names the owner */
+        if (gv.vis && canseemon(mdef))
+            pline("%s steals %s.", buf, distant_name(gold, yname));
+        /* handles worn/wielded gold gear (masks, extrinsics, mw/mw2) */
+        extract_from_minvent(mdef, gold, TRUE, FALSE);
+        (void) add_to_minv(magr, gold);
+        possibly_unwield(mdef, FALSE);
+        mdef->mstrategy &= ~STRAT_WAITFORU;
         if (!tele_restrict(magr)) {
             boolean couldspot = canspotmon(magr);
 
             mhm->hitflags = M_ATTK_AGR_DONE;
             (void) rloc(magr, RLOC_NOMSG);
+            /* rloc -> rloc_to -> mintrap can kill magr */
+            if (DEADMONSTER(magr)) {
+                mhm->hitflags |= M_ATTK_AGR_DIED;
+                mhm->done = TRUE;
+                return;
+            }
             /* TODO: use RLOC_MSG instead? */
             if (gv.vis && couldspot && !canspotmon(magr))
                 pline("%s suddenly disappears!", buf);

@@ -158,7 +158,7 @@ static const char *const angrytexts[] = {
 long
 money2mon(struct monst *mon, long amount)
 {
-    struct obj *ygold = findgold(gi.invent);
+    struct obj *ygold = findgold(gi.invent, TRUE);
 
     if (amount <= 0) {
         impossible("%s payment in money2mon!", amount ? "negative" : "zero");
@@ -187,7 +187,7 @@ money2mon(struct monst *mon, long amount)
 void
 money2u(struct monst *mon, long amount)
 {
-    struct obj *mongold = findgold(mon->minvent);
+    struct obj *mongold = findgold(mon->minvent, TRUE);
 
     if (amount <= 0) {
         impossible("%s payment in money2u!", amount ? "negative" : "zero");
