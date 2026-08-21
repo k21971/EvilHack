@@ -1233,12 +1233,17 @@ explmm(struct monst *magr, struct monst *mdef, struct attack *mattk)
         noises(magr, mattk);
 
     /* monster explosion types which actually create an explosion */
-    /* TODO-EVILHACK: AD_ACID belongs here too (acid sphere), with
-       corrosion of the defender's wielded weapons; ports with the
-       EXPL_ACID/EXPL_SHOCK explosion-glyph extension */
     if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
-        || mattk->adtyp == AD_ELEC) {
+        || mattk->adtyp == AD_ELEC || mattk->adtyp == AD_ACID) {
         mon_explodes(magr, mattk);
+        if (mdef && mattk->adtyp == AD_ACID) {
+            if (rn2(4))
+                erode_armor(mdef, ERODE_CORRODE);
+            if (rn2(2)) {
+                acid_damage(MON_WEP(mdef));
+                acid_damage(MON_WEP2(mdef));
+            }
+        }
         /* unconditionally set AGR_DIED here; lifesaving is accounted below */
         result = M_ATTK_AGR_DIED | (DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : 0);
         /* kludge to ensure the player gets experience if the

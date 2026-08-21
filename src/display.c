@@ -2021,6 +2021,10 @@ show_glyph(coordxy x, coordxy y, int glyph)
         } else if ((offset = (glyph - GLYPH_WARNING_OFF)) >= 0) {
             /* warn flash */
             text = "warning explosion";
+        } else if ((offset = (glyph - GLYPH_EXPLODE_SHOCK_OFF)) >= 0) {
+            text = "shock explosion";
+        } else if ((offset = (glyph - GLYPH_EXPLODE_ACID_OFF)) >= 0) {
+            text = "acid explosion";
         } else if ((offset = (glyph - GLYPH_EXPLODE_FROSTY_OFF)) >= 0) {
             text = "frosty explosion";
         } else if ((offset = (glyph - GLYPH_EXPLODE_FIERY_OFF)) >= 0) {
@@ -2804,7 +2808,7 @@ const int altarcolors[] = {
 const int explodecolors[EXPL_MAX] = {
     explode_color_dark,   explode_color_noxious, explode_color_muddy,
     explode_color_wet,    explode_color_magical, explode_color_fiery,
-    explode_color_frosty,
+    explode_color_frosty, explode_color_acid,    explode_color_shock,
 };
 
 /* main_walls, mines_walls, gehennom_walls, knox_walls, sokoban_walls */
@@ -2974,6 +2978,12 @@ reset_glyphmap(enum glyphmap_change_triggers trigger)
                 color = NO_COLOR;
             else
                 warn_color(offset);
+        } else if ((offset = (glyph - GLYPH_EXPLODE_SHOCK_OFF)) >= 0) {
+            gmap->sym.symidx = S_expl_tl + offset + SYM_OFF_P;
+            explode_color(expl_shock);
+        } else if ((offset = (glyph - GLYPH_EXPLODE_ACID_OFF)) >= 0) {
+            gmap->sym.symidx = S_expl_tl + offset + SYM_OFF_P;
+            explode_color(expl_acid);
         } else if ((offset = (glyph - GLYPH_EXPLODE_FROSTY_OFF)) >= 0) {
             gmap->sym.symidx = S_expl_tl + offset + SYM_OFF_P;
             explode_color(expl_frosty);

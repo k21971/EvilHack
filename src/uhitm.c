@@ -6483,14 +6483,20 @@ explum(struct monst *mdef, struct attack *mattk)
     case AD_COLD:
     case AD_FIRE:
     case AD_ELEC:
-        /* TODO-EVILHACK: AD_ACID belongs here too (acid sphere form),
-           with corrosion of the defender's wielded weapons; ports with
-           the EXPL_ACID/EXPL_SHOCK explosion-glyph extension */
+    case AD_ACID:
         /* see comment in mon_explodes() and in zap.c for an explanation
            of this encoding; here the player is causing the explosion,
            so it uses the positive hero-breath section */
         explode(u.ux, u.uy, BZ_U_BREATH(BZ_OFS_AD(mattk->adtyp)), tmp,
                 MON_EXPLODE, adtyp_to_expltype(mattk->adtyp));
+        if (mdef && mattk->adtyp == AD_ACID) {
+            if (rn2(4))
+                erode_armor(mdef, ERODE_CORRODE);
+            if (rn2(2)) {
+                acid_damage(MON_WEP(mdef));
+                acid_damage(MON_WEP2(mdef));
+            }
+        }
         if (mdef && DEADMONSTER(mdef)) {
             /* Other monsters may have died too, but return this if the actual
                target died. */

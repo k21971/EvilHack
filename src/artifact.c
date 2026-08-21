@@ -2578,13 +2578,11 @@ artifact_hit(
                 pline("A massive surge of energy courses through the %s!",
                       simpleonames(otmp));
                 ge.exploder = magr;
-                /* no separate shock explosion type exists, so the
-                   magical one stands in for it */
                 explode(youdefend ? u.ux : mdef->mx,
                         youdefend ? u.uy : mdef->my,
                         (youattack ? BZ_U_BREATH(ZT_LIGHTNING)
                                    : BZ_M_BREATH(ZT_LIGHTNING)), d(6, 6),
-                        0, EXPL_MAGICAL);
+                        0, EXPL_SHOCK);
                 ge.exploder = save_exploder;
                 return TRUE;
             }
@@ -2876,13 +2874,11 @@ artifact_hit(
                 pline("A surge of acid flows through the %s!",
                       simpleonames(otmp));
                 ge.exploder = magr;
-                /* no separate acid explosion type exists, so the
-                   noxious one stands in for it */
                 explode(youdefend ? u.ux : mdef->mx,
                         youdefend ? u.uy : mdef->my,
                         (youattack ? BZ_U_BREATH(ZT_ACID)
                                    : BZ_M_BREATH(ZT_ACID)), d(6, 6),
-                        0, EXPL_NOXIOUS);
+                        0, EXPL_ACID);
                 ge.exploder = save_exploder;
                 return TRUE;
             }

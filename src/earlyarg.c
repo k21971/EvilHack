@@ -757,6 +757,8 @@ static const struct enum_dump glyph_offsets_dump[] = {
         dump_go(EXPLODE_MAGICAL_OFF),
         dump_go(EXPLODE_FIERY_OFF),
         dump_go(EXPLODE_FROSTY_OFF),
+        dump_go(EXPLODE_ACID_OFF),
+        dump_go(EXPLODE_SHOCK_OFF),
         dump_go(WARNING_OFF),
         dump_go(STATUE_OFF),
         dump_go(STATUE_MALE_OFF),

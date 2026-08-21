@@ -385,7 +385,8 @@ compose_glyph_name(int glyph, char *buf, size_t bufsz)
         } else if (glyph_is_explosion(glyph)) {
             static const char *const expl_type_texts[] = {
                 "dark",    "noxious", "muddy",  "wet",
-                "magical", "fiery",   "frosty",
+                "magical", "fiery",   "frosty", "acid",
+                "shock",
             };
             static const char *const expl_texts[] = {
                 "tl", "tc", "tr", "ml", "mc",

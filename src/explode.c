@@ -1026,9 +1026,6 @@ int
 adtyp_to_expltype(const int adtyp)
 {
     switch(adtyp) {
-    case AD_ELEC:
-        /* Electricity isn't magical, but there currently isn't an electric
-         * explosion type. Magical is the next best thing. */
     case AD_SPEL:
     case AD_DREN:
     case AD_ENCH:
@@ -1037,6 +1034,10 @@ adtyp_to_expltype(const int adtyp)
         return EXPL_FIERY;
     case AD_COLD:
         return EXPL_FROSTY;
+    case AD_ACID:
+        return EXPL_ACID;
+    case AD_ELEC:
+        return EXPL_SHOCK;
     case AD_DRST:
     case AD_DRDX:
     case AD_DRCO:

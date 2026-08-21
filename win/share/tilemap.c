@@ -90,10 +90,12 @@ int expl_offsets[] = {
     GLYPH_EXPLODE_DARK_OFF, GLYPH_EXPLODE_NOXIOUS_OFF,
     GLYPH_EXPLODE_MUDDY_OFF, GLYPH_EXPLODE_WET_OFF,
     GLYPH_EXPLODE_MAGICAL_OFF, GLYPH_EXPLODE_FIERY_OFF,
-    GLYPH_EXPLODE_FROSTY_OFF,
+    GLYPH_EXPLODE_FROSTY_OFF, GLYPH_EXPLODE_ACID_OFF,
+    GLYPH_EXPLODE_SHOCK_OFF,
 };
 const char *expl_texts[] = {
     "dark", "noxious", "muddy", "wet", "magical", "fiery", "frosty",
+    "acid", "shock",
 };
 
 const char *zap_texts[] = {
@@ -468,7 +470,7 @@ tilename(int set, const int file_entry, int gend UNUSED)
         tilenum += ((S_sw_br - S_sw_tl) + 1);
 
         /* explosions */
-        for (k = expl_dark; k <= expl_frosty; k++) {
+        for (k = expl_dark; k <= expl_shock; k++) {
             for (cmap = S_expl_tl; cmap <= S_expl_br; cmap++) {
                 i = cmap - S_expl_tl;  nhUse(i);
                 if (tilenum == file_entry) {
@@ -635,6 +637,10 @@ init_tilemap(void)
             GLYPH_EXPLODE_FIERY_OFF);
     Fprintf(tilemap_file, "GLYPH_EXPLODE_FROSTY_OFF = %d\n",
             GLYPH_EXPLODE_FROSTY_OFF);
+    Fprintf(tilemap_file, "GLYPH_EXPLODE_ACID_OFF = %d\n",
+            GLYPH_EXPLODE_ACID_OFF);
+    Fprintf(tilemap_file, "GLYPH_EXPLODE_SHOCK_OFF = %d\n",
+            GLYPH_EXPLODE_SHOCK_OFF);
     Fprintf(tilemap_file, "GLYPH_WARNING_OFF = %d\n", GLYPH_WARNING_OFF);
     Fprintf(tilemap_file, "GLYPH_STATUE_OFF = %d\n", GLYPH_STATUE_OFF);
     Fprintf(tilemap_file, "GLYPH_STATUE_MALE_OFF = %d\n",
@@ -1099,7 +1105,7 @@ init_tilemap(void)
     file_entry += ((S_sw_br - S_sw_tl) + 1);
 
     /* explosions */
-    for (k = expl_dark; k <= expl_frosty; k++) {
+    for (k = expl_dark; k <= expl_shock; k++) {
         offset = expl_offsets[k];
         for (cmap = S_expl_tl; cmap <= S_expl_br; cmap++) {
             i = cmap - S_expl_tl;

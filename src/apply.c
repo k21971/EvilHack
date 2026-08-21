@@ -4363,8 +4363,10 @@ do_break_wand(struct obj *obj)
         discard_broken_wand();
         return ECMD_TIME;
     case WAN_DEATH:
-    case WAN_LIGHTNING:
         broken_wand_explode(obj, dmg * 4, EXPL_MAGICAL);
+        return ECMD_TIME;
+    case WAN_LIGHTNING:
+        broken_wand_explode(obj, dmg * 4, EXPL_SHOCK);
         return ECMD_TIME;
     case WAN_FIRE:
         broken_wand_explode(obj, dmg * 2, EXPL_FIERY);

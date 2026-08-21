@@ -324,7 +324,9 @@ enum explosion_types {
     EXPL_MAGICAL = 4,
     EXPL_FIERY = 5,
     EXPL_FROSTY = 6,
-    EXPL_MAX = 7
+    EXPL_ACID = 7,
+    EXPL_SHOCK = 8,
+    EXPL_MAX = 9
 };
 
 /* above plus this redundant? */
@@ -336,16 +338,20 @@ enum expl_types {
     expl_magical,
     expl_fiery,
     expl_frosty,
+    expl_acid,
+    expl_shock,
 };
 
 enum explode_colors {
     explode_color_dark = CLR_BLACK,
-    explode_color_noxious = CLR_GREEN,
+    explode_color_noxious = CLR_BRIGHT_GREEN,
     explode_color_muddy = CLR_BROWN,
     explode_color_wet = CLR_BLUE,
     explode_color_magical = CLR_MAGENTA,
     explode_color_fiery = CLR_ORANGE,
-    explode_color_frosty = CLR_WHITE
+    explode_color_frosty = CLR_BRIGHT_CYAN,
+    explode_color_acid = CLR_YELLOW,
+    explode_color_shock = CLR_WHITE
 };
 enum altar_types {
     altar_unaligned,
@@ -466,6 +472,12 @@ enum glyphmap_change_triggers { gm_nochange, gm_newgame, gm_levelchange,
  * frosty explosions      A set of nine.
  *                        Count: MAXEXPCHAR
  *
+ * acid explosions        A set of nine.
+ *                        Count: MAXEXPCHAR
+ *
+ * shock explosions       A set of nine.
+ *                        Count: MAXEXPCHAR
+ *
  * warning                A set of six representing the different warning
  *                        levels.
  *                        Count: 6
@@ -535,7 +547,9 @@ enum glyph_offsets {
     GLYPH_EXPLODE_MAGICAL_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_WET_OFF),
     GLYPH_EXPLODE_FIERY_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_MAGICAL_OFF),
     GLYPH_EXPLODE_FROSTY_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_FIERY_OFF),
-    GLYPH_WARNING_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_FROSTY_OFF),
+    GLYPH_EXPLODE_ACID_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_FROSTY_OFF),
+    GLYPH_EXPLODE_SHOCK_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_ACID_OFF),
+    GLYPH_WARNING_OFF = (MAXEXPCHARS + GLYPH_EXPLODE_SHOCK_OFF),
     GLYPH_STATUE_OFF = (WARNCOUNT + GLYPH_WARNING_OFF),
     GLYPH_STATUE_MALE_OFF = (GLYPH_STATUE_OFF),
     GLYPH_STATUE_FEM_OFF = (NUMMONS + GLYPH_STATUE_MALE_OFF),
@@ -601,10 +615,12 @@ enum glyph_offsets {
 /* EXPL_FIERY is the default explosion type */
 #define explosion_to_glyph(expltyp, idx) \
     ((idx) - S_expl_tl                                                  \
-     + (((expltyp) == EXPL_FROSTY) ? GLYPH_EXPLODE_FROSTY_OFF           \
-        : ((expltyp) == EXPL_MAGICAL) ? GLYPH_EXPLODE_MAGICAL_OFF       \
-          : ((expltyp) == EXPL_WET) ? GLYPH_EXPLODE_WET_OFF             \
-           : ((expltyp) == EXPL_MUDDY) ? GLYPH_EXPLODE_MUDDY_OFF        \
+     + (((expltyp) == EXPL_SHOCK) ? GLYPH_EXPLODE_SHOCK_OFF             \
+        : ((expltyp) == EXPL_ACID) ? GLYPH_EXPLODE_ACID_OFF             \
+         : ((expltyp) == EXPL_FROSTY) ? GLYPH_EXPLODE_FROSTY_OFF        \
+          : ((expltyp) == EXPL_MAGICAL) ? GLYPH_EXPLODE_MAGICAL_OFF     \
+           : ((expltyp) == EXPL_WET) ? GLYPH_EXPLODE_WET_OFF            \
+            : ((expltyp) == EXPL_MUDDY) ? GLYPH_EXPLODE_MUDDY_OFF       \
              : ((expltyp) == EXPL_NOXIOUS) ? GLYPH_EXPLODE_NOXIOUS_OFF  \
                : GLYPH_EXPLODE_FIERY_OFF))
 
@@ -721,7 +737,7 @@ enum glyph_offsets {
      && (glyph) < (((NUMMONS << 3) + GLYPH_SWALLOW_OFF)))
 #define glyph_is_explosion(glyph) \
     ((glyph) >= GLYPH_EXPLODE_OFF                                       \
-     && (glyph) < (MAXEXPCHARS + GLYPH_EXPLODE_FROSTY_OFF))
+     && (glyph) < (MAXEXPCHARS + GLYPH_EXPLODE_SHOCK_OFF))
 #if 0   /* this is more precise but expands to a lot of unnecessary code */
 #define glyph_is_cmap(glyph) \
     (((glyph) == GLYPH_CMAP_STONE_OFF) \

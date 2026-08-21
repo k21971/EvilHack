@@ -2121,6 +2121,7 @@ explmu(
     case AD_COLD:
     case AD_FIRE:
     case AD_ELEC:
+    case AD_ACID:
         mon_explodes(mtmp, mattk);
         if (!DEADMONSTER(mtmp))
             kill_agr = FALSE; /* lifesaving? */
