@@ -1962,7 +1962,9 @@ mcast_paralyze(struct monst *mtmp, struct monst *mdef)
         nomul(-dmg);
         gm.multi_reason = "paralyzed by a monster";
         gn.nomovemsg = 0;
-        return dmg;
+        /* the freeze is the whole effect; no damage on top - dmg
+           only sized the helplessness for nomul() */
+        return 0;
     } else {
         boolean yours = (mtmp == &gy.youmonst);
 
