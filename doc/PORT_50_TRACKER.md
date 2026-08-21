@@ -745,7 +745,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       yet (hero side live).
       DEFERRED to later
       material slices (reviewer-inventoried): metal_to_wood +
-      material_to_gold (Croesus item), bones.c full pass,
+      material_to_gold (Croesus item - DISCHARGED 2026-08-21 by
+      the Croesus/gold slice, BUG-1626/1627 commits b0d1ba41d +
+      7611f2500), bones.c full pass,
       class-based consumer conversions (breaktest glass, o_material
       detect, poly_zapped, stone_missile, is_flimsy), racial-gear
       macro gaps (is_elven_weapon/is_orcish_obj/is_dwarvish_obj
@@ -2194,13 +2196,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       msicktime/mdiseasetime/msummoned/mbindtimer decrements
       (their slices), TEMPLE DAMAGE-REPAIR SWEEP
       (temple_at_boundary, 24 master sites, 13 files - NEW),
-      HERO SPELL PARITY (17 master spelleffects cases still
+      HERO SPELL PARITY (16 master spelleffects cases still
       unwired: LIGHTNING/POISON_BLAST/ACID_BLAST/PSIONIC_WAVE/
       POWER_WORD_KILL/DISPEL_EVIL/CRITICAL_HEALING/BURNING_HANDS/
-      SHOCKING_GRASP/REPAIR_ARMOR/CHANGE_METAL_TO_WOOD/
+      SHOCKING_GRASP/REPAIR_ARMOR/
       CREATE_GRASS/CREATE_TREES/ORB_OF_FIRE/ORB_OF_FROST/
       SUMMON_ANIMAL/SUMMON_ELEMENTAL - default impossible();
-      NEW item, owns cast_metal_to_wood etc.). MASTER-PARITY
+      NEW item; CHANGE_METAL_TO_WOOD wired 2026-08-21 by the
+      Croesus/gold slice incl. cast_metal_to_wood, BUG-1627
+      commit 7611f2500). MASTER-PARITY
       WARTS RECORDED: monster entangle scales off the PLAYER's
       P_SKILL (project-monster-spell-skill follow-up; two sites);
       master PWK hero arm ignores polymorph HP (u.uhp not u.mh -
@@ -3290,7 +3294,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wield.c orc mithril aversion block (new sweep item below);
       (c) reviewer note: Croesus/jabberwock DATA already carry
       AD_GOLD/AD_BHED with no dispatcher case (damage silently
-      zeroed) - their tracker item is latently urgent. DEFER
+      zeroed) - their tracker item is latently urgent (AD_GOLD
+      half DISCHARGED 2026-08-21, BUG-1626 commit b0d1ba41d;
+      AD_BHED still open with its owner). DEFER
       owners confirmed by reviewer (17/18 valid): hero regen
       overhaul (elf/orc_can_regen + drow-in-light + Druid
       druid_near_veg grass/next-to-tree heal bonus - named per the
@@ -4247,7 +4253,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arms -> druid/matter-spell slice (the doorlock cases and
       bhit routing here are UNREACHABLE until the spells are
       wired - REVIEWER RIDER: finish the dispatcher sweep with
-      that slice or they land half-wired); coord_hash serverseed
+      that slice or they land half-wired; METAL_TO_WOOD HALF
+      DISCHARGED 2026-08-21 by the Croesus/gold slice - all six
+      consumer arms wired, BUG-1627 commit 7611f2500; the
+      STONE_TO_FLESH half was already 5.0-native); coord_hash serverseed
       term -> Phase 6; master's 3 rnd(3) rain/spray
       water_damage_chain producers -> their own subsystems;
       BUG-924 scatter() uball fix -> open-air/ball-flight slice
@@ -5228,7 +5237,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       All of it must land in 5.0 idiom, so the globals are a gX
       vs svX placement decision (log it) and the caches are
       turn-stamped rather than saved.
-- [ ] findgold() gold-material rule (NEW, minted 2026-07-25 by the
+- [x] findgold() gold-material rule (NEW, minted 2026-07-25 by the
       added-commands slice). Master's findgold(chain, only_coins)
       makes gold-MATERIAL objects count as gold; the branch has
       the 1-arg coins-only form, which equals master's
@@ -5238,6 +5247,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       absent from mhitm_ad_sgld(). NOT a blocker for #steal, which
       is why that slice shipped without it: master's steal_it()
       only ever passes TRUE.
+      DONE 2026-08-21 (BUG-1625, commit a10de668a, Croesus/gold
+      slice commit A): 2-arg form ported (reservoir sample over
+      material == GOLD when FALSE, first-coin early return when
+      TRUE); all 17 branch sites master-paired (TRUE: detect x4,
+      makemon, leppie_avoidance x2, shk x2, relobj, steal_it x3,
+      + the branch-only leppie_stash site kept TRUE with an
+      in-code comment - its burial re-fetch is g_at, coins only;
+      FALSE: dochug leprechaun gate x2, stealgold,
+      croesus_grab_gold, both mhitm_ad_sgld monster legs);
+      stealgold() regained master's material floor scan + non-coin
+      inventory arm (message before removal); really_steal()
+      ported for the hero-leprechaun non-coin steal; the m-v-m arm
+      prints via distant_name before extraction and routes worn
+      gold gear through extract_from_minvent (5.0 idiom, strictly
+      covers master's inline worn-mask block) + master's
+      DEADMONSTER-after-rloc check. Master's uninit-buf read in
+      that arm archived as BUG-1632 (frozen-unfixed; branch keeps
+      the unconditional Monnam snapshot). BATTERY 2026-08-21 all
+      green: worn gold helmet stolen with clean slot/mask, floor
+      gold-dagger stack snatched (material scan live), hero-as-
+      leprechaun stole a carried gold dagger ("You steal:") AND a
+      WIELDED gold long sword (possibly_unwield -> monster
+      re-wielded its club), leprechaun-vs-monster gold-material
+      steal under conflict, gold detection still coins-only
+      (non-coin-only carrier did not ping; three coin carriers
+      did).
 - [x] rndmonst A_NONE weight underflow (NEW, minted 2026-07-26 by
       the added-commands BATTERY, which is the only reason it was
       seen; PRE-EXISTING, not that slice's doing). Symptom: 45
@@ -6768,6 +6803,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream are both unbounded here and master is strictly worse
       (it also appends mon_wounds and the wielding clause). The armor
       line itself was written bounded; the function wants an audit.
+- [ ] Pokedex damagetypes[] rider (NEW, minted 2026-08-21 by the
+      Croesus/gold slice). Master's `/`-lookup encyclopedia
+      (add_mon_info + the positional attacktypes[]/damagetypes[]
+      tables, master pager.c) is entirely absent from the branch,
+      so AD_GOLD's "transmute to gold" string had nowhere to land
+      and the slice deliberately made no pager change. WHEN the
+      pokedex ports: rebuild BOTH tables from BRANCH monattk.h
+      ordering, never copy master's byte-faithfully - the branch
+      numbers AD_GOLD 55 (master 60) with different intermediate
+      ADs (AD_FUSE etc.), so master's table would mislabel every
+      damage type from the divergence point up; and carry
+      BUG-1181's fix shape (SIZE(table) bound guards, not
+      LAST_AT/LAST_AD, which the branch does not define).
 - [ ] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -8131,7 +8179,86 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       vector; no steed type is covetous); (d) record-only per the
       row - replmon invariant comment, commit 784fc50d3. Battery
       4/4 legs PASS (details in the archive entries).
-- [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
+- [x] Murder mechanic; Croesus AD_GOLD; seduction attacks table
+      DONE 2026-08-20/21 (session 52, the Croesus/gold slice: five
+      commits a10de668a findgold / b0d1ba41d AD_GOLD / 7611f2500
+      spell / 7f0324630 seduction / tracker+archive; reviewer
+      CONDITIONAL PASS, blocker + concern fixed pre-commit;
+      BUG-1625..1633 archived). THE THREE THIRDS:
+      (1) MURDER MECHANIC: verify-and-close, zero code - the
+      xkilled() cleanup block (set_malign recalc +
+      always_peaceful/isshk gate + > A_CHAOTIC murderer penalty)
+      landed with the alignment-abuse slice and diffs
+      byte-identical to master (one comment-case delta).
+      (2) CROESUS AD_GOLD (BUG-1626): the attack row existed since
+      Phase 1 with no dispatcher case = silent no-op. Ported
+      master 6765a8e10 whole: mkobj.c metal_to_wood/
+      material_to_gold/gold_touch_ok/rnd_gold_touch_obj,
+      croesus_grab_gold() (no-exclusions findgold FALSE grab, no
+      flee/teleport tail - vault-guardian design),
+      three-leg mhitm_ad_gold() after mhitm_ad_sgld, can_carry()
+      hoard clause ahead of the load cap. Deviations archived:
+      BUG-1631 master m-v-m arm lacks the owt refresh (branch
+      ships it), BUG-1633 master's newsym_force(bhitpos) fires
+      without a producer (branch gates on OBJ_FLOOR + obj coords;
+      on this tree the master form would paniclog via newsym's
+      column-0 impossible). NO pager work - the branch has no
+      damagetypes[]/add_mon_info; see the pokedex rider row below.
+      (3) SEDUCTION TABLE (BUG-1628..1630): could_seduce/mayberem
+      + the aasimar arm verified at parity; four gaps fixed -
+      Gauntlets of Purity resistance (inside doseduce = both
+      reach sites, + the AD_SEDU refusal arm), is_rogue() robber
+      classification (three mhitm_ad_sedu sites AND the
+      reviewer-caught steal() monkey_business initializer - the
+      single-path-guard-on-multi-path-dispatch class again),
+      covetous stand-ground at both post-theft sites (hitmu
+      default + stealarm, in sync per the steal-subsystem rule),
+      mayberem bracers wording + "take your money" master
+      wording. Branch 5.0-native extras kept (unresponsive()
+      wider than unconscious(), SetVoice, gloves joke, uenpeak,
+      LARGEST_INT cap = master's 32757 numerically).
+      SPELL RIDER (BUG-1627, maintainer ruled in): change metal
+      to wood wired end to end - see the hero-spell-parity and
+      door/zap rows for the cross-references.
+      BATTERY 2026-08-21 (game-tester, 2 games: lawful dwarven
+      Valkyrie + neutral human Wizard, both XL30; paniclog
+      baseline ABSENT, 10 staging-caused entries all traced to
+      the tester's own gdb errors, ZERO from slice code): ALL
+      LEGS PASS - transmute proc names the PRE-transmute form
+      with gdb material 12->17 + owt 10->15/30->45; glint
+      no-target control after valid_obj_material probe; cancelled
+      Croesus = hitmsg only over 25 turns (wand of cancellation
+      silently resisted 4x first - resist() NOTELL, staging
+      note); worn gold helmet palmed with clean slot + zero
+      owornmask in his minvent; Candelabrum palmed via yname
+      (oartifact==0, so the bare_artifactname arm is correctly
+      untaken - master-identical); purse partials 500->194->93->0
+      matching his minvent; never teleported or fled across ~7
+      grabs; kill drops the full hoard (corpse presence is plain
+      RNG - G2 dropped one); purity blocks BOTH doseduce reach
+      sites ("seems dismayed at your lack of response" on melee
+      AND #chat) and the AD_SEDU charm ("you seem unaffected",
+      nymph + Graz'zt), controls seduce normally with gauntlets
+      off; Graz'zt stand-ground BOTH branches observed (sneers/
+      ridicules + stays put vs vanishes); hobbit pickpocket
+      robber shape (steal + "tries to run away with", no charm,
+      no teleport-between-thefts; empty-pack "nothing to steal!";
+      cursed worn cloak -> "gives up", the monkey_business
+      blocker proven); bracers wording live ("Take off your
+      bracers; it's in the way." - the singular "it's" vs plural
+      bracers is a master-shared cosmetic nit, observation only);
+      spell: floor dagger -> wood (mat 9, owt 3), FIRST-ACTION
+      self-zap clean (no "newsym: attempting screen update"
+      line = the BUG-1633 fix proven), empty-handed self-zap
+      no-op (null guard), iron golem -> wood golem (mnum 374->369
+      same m_id), staged iron door -> "The iron door turns to
+      wood." naming the pre-change material; save/reload keeps
+      material 17 + refreshed owt exactly. SKIPPED (staging, not
+      product): the Croesus m-v-m transmute arm - three staging
+      attempts could not make Croesus melee an item-holding pet
+      (he idles or re-targets the hero); the arm is
+      reviewer-verified static-only, revisit opportunistically
+      with a future conflict battery.
 - [ ] describe_level branch-aware status naming, REMAINING ARMS
       (minted 2026-08-02 by the mines slice; Decisions log ruling).
       Master src/botl.c describe_level() names every branch; the
