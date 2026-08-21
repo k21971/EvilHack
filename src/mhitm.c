@@ -741,10 +741,10 @@ mattackm(
 
         case AT_MAGC:
             /* monster-vs-monster spellcasting: spells learned from
-               spellbooks, the charm-monster untame special, and the
+               spellbooks, the charm-monster untame special, the
                innate elemental casts (hellfire and kin, via castmm
-               adjacent or buzzmm rays at range); the innate
-               AD_SPEL/AD_CLRC spell lists are still hero-target only */
+               adjacent or buzzmm rays at range), and the innate
+               AD_SPEL/AD_CLRC spell lists (castmm) */
             if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
                 || mattk->adtyp == AD_ACID || mattk->adtyp == AD_MAGM) {
                 int mmtmp = !monnear(magr, mdef->mx, mdef->my)
