@@ -907,8 +907,11 @@ shade_glare(struct obj *obj)
 {
     const struct artifact *arti;
 
-    /* any silver object is effective */
-    if (obj->material == SILVER)
+    /* any silver object is effective; bone too, though it gets no bonus */
+    if (obj->material == SILVER || obj->material == BONE)
+        return TRUE;
+    /* any weapon with a +2 enchantment or better is effective */
+    if ((obj->oclass == WEAPON_CLASS || is_weptool(obj)) && obj->spe > 1)
         return TRUE;
     /* non-silver artifacts with bonus against undead also are effective */
     arti = get_artifact(obj);
