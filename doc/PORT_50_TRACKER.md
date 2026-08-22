@@ -2350,8 +2350,57 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       semantics). Commit-split note: the planned per-arm commits
       merged into 96f3ebfea - the hero sweep threads through the
       new filter arms, so separate windows would have fabricated
-      never-compiled states. Battery PENDING (this row updates
-      when it runs).
+      never-compiled states. BATTERY 2026-08-22 (game-tester, 3
+      Wizard games, 19 legs): 18 PASS + B9 PARTIAL (hero-side
+      shop billing "You cancel that, you pay for it!" PASS; the
+      monster-side no-bill leg UNSTAGEABLE - the pickup never
+      billed while the hero was an arch-lich; static by_you gate +
+      reviewer verification stand). Highlights: reflection tiers
+      proven at cast (Dark One MS_NEMESIS rtime=259, master lich
+      158), ray bounce off the globe, ", reflecting" on the
+      stethoscope, save/reload + expiry; protection mprottime==10
+      non-boss, climb-then-plateau 2/4/5/5, the 250-stack probe
+      ERODED (prot 239, gain -11 - no uchar wrap), find_mac delta
+      6 -> 2 -> -99, cross-gate predicate probes all four ways +
+      druid_ward_subst re-point live (PROTECTION->22 BARKSKIN,
+      BLIND_YOU->23 STONESKIN, stand-down once warded);
+      cancellation at hero stripped haze+globe+fire-vuln in one
+      cast THROUGH Antimagic (MR shields only the core),
+      rehumanize, gray-dragon-scales immunity arm with the haze
+      surviving; m-v-m tame-lich vs clay golem kill routed
+      monkilled (uexp unchanged, mvitals died 1->2), paniclog flat
+      across it; mcan reject probe; call undead at-hero 9 spawns
+      clustered on the hero + graveyard flag 0->1, caster-type and
+      range gates probed, m-v-m caster-centred wording captured
+      (coordinate proof of caster-centred spawns NOT obtained -
+      tame casters follow the hero, hostiles preferred the hero);
+      dog.c clamp rtime 20->1 on return then strip+message; castum
+      Pw -25/-8 exactly per form level incl. fumbles, Pw=0 curse
+      line, hellfire FREE (Pw unchanged), ~100 casts with ZERO
+      summons + all five no-free-pets probes refused, kill XP
+      +174 + vanquished (blow not isolated from AT_TUCH melee),
+      CURE_SELF at 10% fires / at 97% never, hero haze uspellprot
+      0->10->14 AC 6->-8, acid blast "You douse..." + self-splash.
+      Paniclog 11 lines ALL self-attributed: 1 unguarded rloc_to
+      onto an occupied tile, 9 "cast directed wizard spell (31)
+      with dmg=0" from the FORCING breakpoint overriding spellnum
+      at mcast_spell entry after castmu already sized dmg=0 for
+      an undirected pick (every unforced window flat), 1 uen >
+      uenmax staging. Anomalies: (a) Game 2 SIGSEGV in
+      _IO_file_underflow under readchar at a Die? prompt with a
+      batch gdb doing call-s into the blocked process - the
+      call-into-stdio tooling class, no core, no paniclog, not
+      product; (b) Game 1 killed by a gdb --More-- hang + timeout
+      SIGTERM (tooling); (c) mprottime NOT caught up across levels
+      (15 stayed 15 while rtime clamped) = the plan's
+      parity-omit default, recorded; (d) montraits copies the
+      ward BITS and zeroes the timers, so a revived monster prints
+      a spurious "globe disappears" next tick - master parity
+      (neither tree clears mextrinsics there), cosmetic, recorded;
+      (e) ICE_BOLT from level-14 casters = the psi-bolt-floor
+      roll, not a gate leak. Lever of the session: a carried Eye
+      of the Aethiopica (SPFX_EREGEN) zeroes mspec_used every
+      turn = cast-every-turn staging without gdb.
 - [x] castum() innate AD_SPEL/AD_CLRC casting for the polymorphed
       hero - DONE 2026-08-22 with the arms row above (commit
       96f3ebfea). Landed on the UNIFIED-FILTER route: selection
