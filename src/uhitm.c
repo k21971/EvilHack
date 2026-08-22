@@ -406,12 +406,19 @@ find_roll_to_hit(
     int *role_roll_penalty)
 {
     int tmp, tmp2;
+    int wepskill, twowepskill, useskill;
 
     *role_roll_penalty = 0; /* default is `none' */
 
+    /* luck is toned down to Luck/3 (xNetHack); the experience level
+       term tapers above level 20 so that a high-level hero does not
+       hit everything automatically - the level 30 bonus below gives
+       the last point back */
     tmp = 1 + abon() + find_mac(mtmp) + u.uhitinc
           + (sgn(Luck) * ((abs(Luck) + 2) / 3))
-          + maybe_polyd(gy.youmonst.data->mlevel, u.ulevel);
+          + maybe_polyd(gy.youmonst.data->mlevel,
+                        (u.ulevel > 20 ? 10 + (u.ulevel / 2)
+                                       : u.ulevel));
 
     /* some actions should occur only once during multiple attacks */
     if (!(*attk_count)++) {
@@ -429,11 +436,18 @@ find_roll_to_hit(
     if (!mtmp->mcanmove)
         tmp += 4;
 
+    /* level adjustment. maxing out has some benefits */
+    if (u.ulevel == 30)
+        tmp += 5;
+
     /* role/race adjustments */
     if (Role_if(PM_MONK) && !Upolyd) {
+        /* the body armor penalty has to bite even for a high-level
+           Monk; bracers do not count as a shield for the unarmed
+           bonus */
         if (uarm)
-            tmp -= (*role_roll_penalty = gu.urole.spelarmr);
-        else if (!uwep && !uarms)
+            tmp -= (*role_roll_penalty = gu.urole.spelarmr) + 20;
+        else if (!uwep && (!uarms || is_bracer(uarms)))
             tmp += (u.ulevel / 3) + 2;
     }
     /* elves get a slight bonus to-hit vs orcs */
@@ -460,6 +474,15 @@ find_roll_to_hit(
             tmp -= 4;
         }
     }
+
+    /* the iron ball weapon skill gives a -4 penalty when unskilled
+       where a non-weapon object gives none; compensate for it */
+    if (uwep && uwep->otyp == HEAVY_IRON_BALL)
+        tmp += 4;
+
+    /* gloves' bonus contributes if unarmed */
+    if (!uwep && uarmg)
+        tmp += uarmg->spe;
 
     /* encumbrance: with a lot of luggage, your agility diminishes */
     if ((tmp2 = near_capacity()) != 0)
@@ -502,6 +525,34 @@ find_roll_to_hit(
         tmp += weapon_hit_bonus((struct obj *) 0);
     }
 
+    /* if unskilled with a weapon/object type (bare-handed is exempt),
+       you'll never have a chance greater than 75% to land a hit */
+    if (uwep && aatyp == AT_WEAP && !u.uswallow) {
+        /* potions make passable improvised weapons; raise the
+           unskilled/restricted to-hit ceiling from 15 to 18 */
+        int hitcap = (uwep->oclass == POTION_CLASS) ? 18 : 15;
+
+        wepskill = weapon_skill_level(uwep);
+        twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
+        /* use the lesser skill of two-weapon or your primary */
+        useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill
+                                                         : wepskill;
+        if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED)
+            && tmp > hitcap) {
+            tmp = hitcap;
+            if (!rn2(5)) {
+                /* using a corpse as a weapon... alrighty then */
+                if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep)) {
+                    You("struggle trying to use the %s as a weapon.",
+                        aobjnam(uwep, (char *) 0));
+                } else if (useskill != P_ISRESTRICTED) {
+                    You("feel like you could use some more practice.");
+                } else {
+                    You("aren't sure you're doing this the right way...");
+                }
+            }
+        }
+    }
     return tmp;
 }
 

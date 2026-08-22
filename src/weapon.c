@@ -2405,6 +2405,29 @@ uwep_skill_type(void)
 }
 
 /*
+ * Effective skill level for a weapon, accounting for artifacts that
+ * confer skill (Glamdring reads as at least Expert in long sword for
+ * a Wizard wielding it). Callers that need the raw skill for
+ * training or advancement keep using P_SKILL() directly
+ */
+int
+weapon_skill_level(struct obj *weapon)
+{
+    int type = weapon_type(weapon);
+    int skill;
+
+    if (type == P_NONE || type == P_BARE_HANDED_COMBAT
+        || type == P_TWO_WEAPON_COMBAT)
+        return P_SKILL(type);
+    skill = P_SKILL(type);
+    if (weapon && weapon == uwep && weapon->oartifact == ART_GLAMDRING
+        && type == P_LONG_SWORD && Role_if(PM_WIZARD)
+        && skill < P_EXPERT)
+        skill = P_EXPERT;
+    return skill;
+}
+
+/*
  * Return hit bonus/penalty based on skill of weapon.
  * weapon can be null, meaning bare-handed combat.
  * Treat restricted weapons as unskilled.
@@ -2424,7 +2447,7 @@ weapon_hit_bonus(struct obj *weapon)
     if (type == P_NONE) {
         bonus = 0;
     } else if (type <= P_LAST_WEAPON) {
-        switch (P_SKILL(type)) {
+        switch (weapon_skill_level(weapon)) {
         default:
             impossible(bad_skill, P_SKILL(type));
             FALLTHROUGH;
@@ -2526,7 +2549,7 @@ weapon_dam_bonus(struct obj *weapon)
     if (type == P_NONE) {
         bonus = 0;
     } else if (type <= P_LAST_WEAPON) {
-        switch (P_SKILL(type)) {
+        switch (weapon_skill_level(weapon)) {
         default:
             impossible("weapon_dam_bonus: bad skill %d", P_SKILL(type));
             FALLTHROUGH;
