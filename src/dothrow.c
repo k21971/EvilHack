@@ -1517,9 +1517,9 @@ toss_up(struct obj *obj, boolean hitsroof)
                fail when they're applicable here); we don't have to worry
                about dmgval()'s artifact light against gremlin or axe
                against woody creature since both involve weapons;
-               hero-as-shade is hypothetical because hero can't polymorph
-               into that form */
-            if (gy.youmonst.data == &mons[PM_SHADE] && !hatemat)
+               hero-as-shade (or ghost) is hypothetical because hero can't
+               polymorph into those forms */
+            if (noncorporeal(gy.youmonst.data) && !shade_glare(obj))
                 dmg = 0;
             if (obj->blessed && mon_hates_blessings(&gy.youmonst))
                 dmg += rnd(4);

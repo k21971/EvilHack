@@ -72,6 +72,7 @@ staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
 staticfn void nohandglow(struct monst *) NONNULLARG1;
 staticfn void first_weapon_hit(struct obj *) NONNULLARG1;
 staticfn boolean shade_aware(struct obj *) NO_NNARGS;
+staticfn boolean unarmed_hits_shade(void);
 
 #define PROJECTILE(obj) ((obj) && is_ammo(obj))
 
@@ -1070,9 +1071,16 @@ staticfn void
 hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
 {
     long spcdmgflg; /* worn mask */
+    boolean unarmed_shade_ok = (!noncorporeal(hmd->mdat)
+                                || unarmed_hits_shade());
 
-    if (hmd->mdat == &mons[PM_SHADE]) {
-        hmd->dmg = 0;
+    if (noncorporeal(hmd->mdat)) {
+        /* bare-handed blows pass harmlessly through a noncorporeal
+           monster unless what makes contact is effective against
+           shades (silver, bone, a +2-or-better glove, or an
+           anti-undead artifact); a blessed item also connects,
+           via the vs-undead bonus added by special_dmgval() below */
+        hmd->dmg = unarmed_shade_ok ? 1 : 0;
     } else {
         /* note: 1..2 or 1..4 can be substantially increased by
            strength bonus or skill bonus, usually both... */
@@ -1080,6 +1088,11 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
         hmd->use_weapon_skill = TRUE;
         hmd->train_weapon_skill = (hmd->dmg > 1);
     }
+
+    /* fighting with fists will get the gloves' bonus (this helper is
+       only reached unarmed, so no wielded weapon is in the way) */
+    if (uarmg && unarmed_shade_ok)
+        hmd->dmg += uarmg->spe;
 
     /* Blessed gloves give bonuses when fighting 'bare-handed'. So do
        rings made of a material the target hates. Note: rings are worn
@@ -1103,7 +1116,7 @@ hmon_hitmon_weapon_ranged(
 {
     /* then do only 1-2 points of damage and don't use or
        train weapon's skill */
-    if (hmd->mdat == &mons[PM_SHADE] && !shade_glare(obj))
+    if (noncorporeal(hmd->mdat) && !shade_glare(obj))
         hmd->dmg = 0;
     else
         hmd->dmg = rnd(2);
@@ -1131,7 +1144,7 @@ hmon_hitmon_weapon_ranged(
             hmd->obj_gone = TRUE;
         }
         hmd->hittxt = TRUE;
-        if (hmd->mdat != &mons[PM_SHADE])
+        if (!noncorporeal(hmd->mdat))
             hmd->dmg++;
     }
 }
@@ -1379,7 +1392,7 @@ hmon_hitmon_potion(
     hmd->hittxt = TRUE;
     /* in case potion effect causes transformation */
     hmd->mdat = mon->data;
-    hmd->dmg = (hmd->mdat == &mons[PM_SHADE]) ? 0 : 1;
+    hmd->dmg = noncorporeal(hmd->mdat) ? 0 : 1;
 }
 
 staticfn void
@@ -1752,7 +1765,7 @@ hmon_hitmon_do_hit(
             if (hmd->doreturn)
                 return;
         } else {
-            if (hmd->mdat == &mons[PM_SHADE] && !shade_aware(obj)) {
+            if (noncorporeal(hmd->mdat) && !shade_aware(obj)) {
                 hmd->dmg = 0;
             } else {
                 hmon_hitmon_misc_obj(hmd, mon, obj);
@@ -2227,7 +2240,7 @@ hmon_hitmon(
         hmon_hitmon_taint(&hmd, mon, obj);
 
     if (hmd.dmg < 1) {
-        boolean mon_is_shade = (mon->data == &mons[PM_SHADE]);
+        boolean mon_is_shade = noncorporeal(mon->data); /* or ghost */
 
         /* make sure that negative damage adjustment can't result
            in inadvertently boosting the victim's hit points */
@@ -2528,8 +2541,35 @@ shade_aware(struct obj *obj)
         || obj->otyp == IRON_CHAIN      /* dmgval handles those first three */
         || obj->otyp == MIRROR          /* silver in the reflective surface */
         || obj->otyp == CLOVE_OF_GARLIC /* causes shades to flee */
-        || objects[obj->otyp].oc_material == SILVER)
+        || obj->material == SILVER
+        || obj->material == BONE)
         return TRUE;
+    return FALSE;
+}
+
+/* True if a bare-handed (unarmed) blow can affect a noncorporeal
+   monster: whatever makes contact - the gloves (treated as the
+   striking weapon), an exposed ring, or the attacker's own body -
+   must be effective against shades (silver, bone, a +2-or-better
+   glove, or an anti-undead artifact); a blessed item also connects,
+   but through the vs-undead bonus in special_dmgval()/dmgval() */
+staticfn boolean
+unarmed_hits_shade(void)
+{
+    /* gloves cover any rings, so they make contact first */
+    if (uarmg)
+        return (shade_glare(uarmg) || uarmg->spe > 1);
+    /* bare hands: an exposed ring, or the body itself, must connect */
+    if (uleft && shade_glare(uleft))
+        return TRUE;
+    if (uright && shade_glare(uright))
+        return TRUE;
+    if (Upolyd) {
+        int bodymat = monmaterial(monsndx(gy.youmonst.data));
+
+        if (bodymat == SILVER || bodymat == BONE)
+            return TRUE;
+    }
     return FALSE;
 }
 
@@ -2547,7 +2587,8 @@ shade_miss(
     boolean youagr = (magr == &gy.youmonst), youdef = (mdef == &gy.youmonst);
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
-    if (mdef->data != &mons[PM_SHADE] || (obj && dmgval(obj, mdef)))
+    if (!noncorporeal(mdef->data)
+        || (obj && (dmgval(obj, mdef) || shade_glare(obj))))
         return FALSE;
 
     if (verbose
@@ -2555,7 +2596,7 @@ shade_miss(
             || (magr == &gy.youmonst && m_next2u(mdef)))) {
         static const char harmlessly_thru[] = " harmlessly through ";
 
-        what = (!obj || shade_aware(obj)) ? "attack" : cxname(obj);
+        what = !obj ? "attack" : cxname(obj);
         target = youdef ? "you" : mon_nam(mdef);
         if (!thrown) {
             whose = youagr ? "Your" : s_suffix(Monnam(magr));
@@ -5354,7 +5395,7 @@ mhitm_ad_phys(
 
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (pd == &mons[PM_SHADE]) {
+        if (noncorporeal(pd)) {
             mhm->damage = 0;
             if (!mhm->specialdmg)
                 impossible("bad shade attack function flow?");
@@ -7517,7 +7558,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     verb = "hit";
                     break;
                 }
-                if (mon->data == &mons[PM_SHADE] && !specialdmg) {
+                if (noncorporeal(mon->data) && !specialdmg) {
                     if (!strcmp(verb, "hit")
                         || (mattk->aatyp == AT_CLAW && humanoid(mon->data)))
                         verb = "attack";
@@ -7592,7 +7633,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     || mon->mhp <= 1 + max(u.udaminc, 1))
                     unconcerned = FALSE;
             }
-            if (mon->data == &mons[PM_SHADE]) {
+            if (noncorporeal(mon->data)) {
                 const char *verb = byhand ? "grasp" : "hug";
 
                 /* hugging a shade; successful if blessed outermost armor
@@ -7654,10 +7695,12 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                purpose, so its ladder judges the miss by the wrong roll */
             if ((dhit = (tmp > (dieroll = rnd(20 + i))))) {
                 wakeup(mon, TRUE);
-                /* can't engulf unsolid creatures */
-                if (mon->data == &mons[PM_SHADE]) {
+                /* can't engulf unsolid or wall-walking creatures */
+                if (noncorporeal(mon->data) || passes_walls(mon->data)) {
                     /* no specialdmg check needed */
-                    Your("attempt to surround %s is harmless.", mon_nam(mon));
+                    Your("attempt to %s %s is futile.",
+                         (mattk->adtyp == AD_DGST ? "engulf" : "surround"),
+                         mon_nam(mon));
                 } else if (failed_grab(&gy.youmonst, mon, mattk)) {
                     ; /* non-shade miss; message already given */
                 } else {

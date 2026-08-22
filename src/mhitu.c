@@ -586,7 +586,7 @@ getmattk(
                && (udefend ? how_resistant(COLD_RES) == 100
                            : resists_cold(mdef))
                /* don't substitute if target is immune to normal damage */
-               && mdef->data != &mons[PM_SHADE]) {
+               && !noncorporeal(mdef->data)) {
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;
         attk->adtyp = AD_PHYS;

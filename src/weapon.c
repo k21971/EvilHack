@@ -351,7 +351,7 @@ dmgval(struct obj *otmp, struct monst *mon)
             || (mon == &gy.youmonst && (Barkskin || Stoneskin))))
         /* thick-skinned or scaled creatures don't feel it */
         tmp = 0;
-    if (ptr == &mons[PM_SHADE] && !shade_glare(otmp))
+    if (noncorporeal(ptr) && !shade_glare(otmp))
         tmp = 0;
 
     /* "very heavy iron ball"; weight increase is in increments */

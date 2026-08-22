@@ -675,7 +675,12 @@ mattackm(
             break;
 
         case AT_ENGL:
-            if (mdef->data == &mons[PM_SHADE]) { /* no silver teeth... */
+            /* D: Prevent engulf from a distance */
+            if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
+                continue;
+
+            if (noncorporeal(mdef->data) /* no silver teeth... */
+                || passes_walls(mdef->data)) {
                 if (gv.vis)
                     pline("%s attempt to engulf %s is futile.",
                           s_suffix(Monnam(magr)), mon_nam(mdef));
@@ -686,9 +691,6 @@ mattackm(
                 strike = 0;
                 break;
             }
-            /* D: Prevent engulf from a distance */
-            if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1)
-                continue;
             /* Engulfing attacks are directed at the hero if possible. -dlc */
             if (engulfing_u(magr)) {
                 strike = 0;
