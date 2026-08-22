@@ -17,6 +17,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
+- Latest slice: 2026-08-22 HERO TO-HIT/AC BALANCE - the three
+  "record now, port deliberately" rows closed in three commits
+  (BUG-1659..1663): find_ac() Dex ladder + Armor of Retribution
+  AC arm; find_roll_to_hit() master parity (taper + FIVE more
+  adoption-dropped arms the row never listed, incl. the unskilled
+  hit cap and weapon_skill_level()/Glamdring); non-polyd kick
+  to-hit roll + kickdmg() parity. Two premise corrections recorded
+  on the rows (master keeps and retunes the block/evade block; the
+  Retribution AC arm had no owner). Reviewer catch = the
+  helper-split regression class again: the new kick roll caller
+  had to bring mon_maybe_unparalyze(). Two rows minted: weapon.c
+  hero skill tables (values + offhand weight + Priest -40) and
+  noncorporeal rules tree-wide. Fourth commit from the battery:
+  shade_glare() regained master's bone + enchantment arms
+  (BUG-1664) - the ported bone-boots kick arm was dead without it.
+  Battery 13/13 PASS (five wizard games, gdb logging breakpoints
+  for the adders, paniclog's only lines were a deliberate gdb
+  invalid-material write); two brief expectations corrected
+  against master (crystal plate mail is GEMSTONE on both trees;
+  bone boots are a shade_glare producer gap, not a kick bug).
+  Watches: martial 1/50 evade and 1/10 block gates sit behind
+  mmove >= 12 so a gnome lord never exercises them; a non-Convict
+  wielding the heavy iron ball has weapon_hit_bonus 0 (weapon_type
+  P_NONE) so the +4 over-compensates for them - master parity
 - Tooling 2026-08-01 (after the slice below): the Phase 3 converter
   GATE row is ALSO closed - ~/des_to_lua.pl gained the terrain
   remap (w -> p) + fatal out-of-vocabulary gate, full-corpus
@@ -6924,7 +6948,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the lightning/altar-splitting message pair - all three
       re-port here (TODO-EVILHACK comment marks the site);
       exist_artifact() covers the one-shot meanwhile.
-- [ ] Kick to-hit roll (non-polyd) NOT PORTED (minted 2026-08-07 by
+- [x] Kick to-hit roll (non-polyd) NOT PORTED (minted 2026-08-07 by
       the Samurai slice's BUG-1246 caitiff-parity port). Master's
       non-polyd kick_monster() path rolls to hit - kickdieroll vs
       find_roll_to_hit with armorpenalty (master dokick.c ~288-292)
@@ -6934,6 +6958,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       naming the rule; when this ports, the new non-polyd call must
       pre-seed the same way or the giri/caitiff double-fire
       (BUG-1246) comes back.
+      PORTED 2026-08-22 (hero to-hit/AC balance slice, BUG-1662 +
+      BUG-1663). PREMISE CORRECTION: master does NOT replace a 5.0
+      dodge/block mechanic - the bulky-armor `ACURR(A_DEX) < rnd(25)`
+      clumsy check and the block/evade block are 3.x vanilla code
+      (upstream's only commit touching them is the 2002 initial
+      import); master b8a11c717 INSERTS the roll after `doit:`
+      before the kick message and 633e3a094 RETUNES the block/evade
+      gates for martial kickers (1/50 evade, 1/10 block, the three
+      martial-arts kick messages), with the barkskin/stoneskin/
+      entangled exclusions from the later spell commits. The
+      branch's whole non-polyd half was byte-identical to vanilla
+      5.0. Ported in one read: the roll (attknum = 1 pre-seed kept;
+      +3 kicking boots / +2 centaur / +1 giant / -2 clumsy; "Your
+      kick misses"), the messages, the retuned gates, r_verysmall/
+      r_bigmonst, can_levitate float wording, noncorporeal() in the
+      polyd arm; kickdmg() parity (barkskin/stoneskin zero damage,
+      BUG-260 ghost-vs-boots shade_glare rules, rn2(Dex/2 + d4)
+      martial die, damage_mon() router, knockback !mentangled +
+      racial size) with the branch-only update_monsteed drag and
+      the BUG-933 guard kept. REVIEWER CATCH: the new roll caller
+      needs mon_maybe_unparalyze() - master kept the 1-in-10
+      unfreeze INSIDE find_roll_to_hit, 5.0 moved it to every
+      caller, so a ported caller must bring it (helper-split
+      regression class, second instance). Battery: see the
+      dashboard entry.
 - [ ] Hero-level to-hit taper NOT PORTED (minted 2026-08-07 by the
       Samurai slice's C-hook audit, found reading find_roll_to_hit
       to verify the caitiff gate). Master's find_roll_to_hit adds
@@ -6943,6 +6992,61 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       often on the branch than on master. Character-balance change:
       record now, port in a deliberate slice per the dex-ladder
       precedent (maintainer ruling 2026-07-28).
+      PORTED 2026-08-22 (hero to-hit/AC balance slice, BUG-1660 +
+      BUG-1661). The row under-counted: reading the whole function
+      against master found FIVE more adoption-dropped arms on no
+      row - the XL30 flat +5 (9952e03a5, tuned with the taper so
+      XL30 nets 30), the Monk body-armor +20 (26fa2ed3e) and the
+      bracer exemption on the unarmed bonus (eb265e378), the
+      Convict heavy iron ball +4 (95bf72013), the unarmed glove
+      enchantment to-hit (fbbd320ab), and the unskilled/restricted
+      75% hit ceiling (b990749e8, potion 18 variant 4d6d8dd24) with
+      its weapon_skill_level() helper (Glamdring-as-Expert; also
+      routed through weapon_hit_bonus/weapon_dam_bonus like master,
+      table VALUES untouched - see the weapon.c skill-tables row
+      below). All ported. NOT ported, by design: master's in-roll
+      msleeping=0 / !rn2(10) unparalyze side effects (5.0 moved
+      them to wakeup() + mon_maybe_unparalyze() at every caller;
+      master's mstone guard inside them is the gradual-stoning
+      rider); hitval's magr arg (attacker-param row). botl_hitbonus
+      does not exist on the branch (deferred, roles-review DEFER
+      list) - WHEN IT LANDS it must carry the taper, the XL30 +5
+      and the hitcap, master's two-site mirror. The glove
+      enchantment DAMAGE half is on the new bare-handed row below.
+- [ ] weapon.c hero weapon-skill tables still vanilla (NEW, minted
+      2026-08-22 by the hero to-hit/AC balance slice, which added
+      weapon_skill_level() and left the values alone on purpose).
+      Branch weapon_hit_bonus() / weapon_dam_bonus() carry 5.0's
+      numbers: hit Skilled +2 / Expert +3 vs master +3 / +5, the
+      two-weapon ladder (master -9/-5/-3/0 vs vanilla -9/-7/-5/-3)
+      plus master's offhand `maxweight` block (20/30/40/70, 200 for
+      giants or STR 25, -30 over the limit - the "dual-wield offhand
+      weight" DEFER-list item lives HERE), the giant bare-handed
+      +1/+2, the riding penalties, and the Priest edged-weapon -40;
+      weapon_dam_bonus likewise (77 + 17 changed lines against
+      master, `git show master:src/weapon.c` weapon_hit_bonus/
+      weapon_dam_bonus). Character-balance change - diff the WHOLE
+      of both functions in one deliberate slice; master also has a
+      third weapon_skill_level() consumer in botl_hitbonus (absent,
+      see its deferral).
+- [ ] Noncorporeal hit rules tree-wide + hmon_hitmon_barehanded()
+      (NEW, minted 2026-08-22 by the hero to-hit/AC balance slice).
+      shade_glare() itself regained master's bone and +2-weapon
+      arms with this slice (BUG-1664, battery-surfaced: the
+      ported kickdmg bone-boots arm was dead without it), but its
+      CONSUMERS still carry vanilla 5.0's `== &mons[PM_SHADE]`
+      test where master tests noncorporeal() (ghosts too):
+      dmgval (weapon.c), hmon_hitmon_weapon_ranged and the
+      bare-handed arm (uhitm.c), the dothrow self-hit arm; and
+      master's bare-handed damage arm adds the worn gloves'
+      enchantment when fighting unarmed (f36c827ef - the to-hit
+      half landed with BUG-1660), gated on unarmed_hits_shade()
+      (uhitm.c, absent here; memory
+      reference-noncorporeal-hit-rules, BUG-1289: the blessed +1d4
+      leak is INTENDED). Ghosts are currently hit by anything on
+      the branch. One sweep of every shade_glare()/PM_SHADE site
+      against master's list (`git grep -n 'shade_glare(' master --
+      src`); port as a unit, never piecemeal.
 - [x] Shop pricing racial adjustments (shk_racial_adjustments) -
       ALREADY PORTED, ticked 2026-07-27 after verification rather
       than after a port. The row was never a work item: the
@@ -7217,7 +7321,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       damage type from the divergence point up; and carry
       BUG-1181's fix shape (SIZE(table) bound guards, not
       LAST_AT/LAST_AD, which the branch does not define).
-- [ ] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
+- [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
       dropped it silently and no keyword sweep would have found it.
@@ -7235,6 +7339,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       existing Ashmar/Retribution behaviour row, noted here because
       both gaps are in find_ac() and one read of the function should
       close both.
+      PORTED 2026-08-22 (hero to-hit/AC balance slice, BUG-1659).
+      Ladder + the one-sided clamp (master b2116c240 fixed an
+      assignment-in-condition typo that zeroed the penalties too;
+      02318d039 widened the gate from heavy-metallic-only to the
+      five rigid materials - both ported in their fixed form) +
+      the Retribution -5 arm, ahead of the 5.0 AC_MAX cap. ROW
+      CORRECTION: the "existing Ashmar/Retribution behaviour row"
+      is the `Vecna-relics/Ashmar/Retribution worn acurr
+      force-arms` DEFER item inside the [x] ARTIFACTS SLICE row -
+      attribute forcing only, it never owned the AC arm; taken
+      here. Liveness is master parity: neither tree hooks attribute
+      or encumbrance changes into find_ac(); the once-per-input
+      find_ac() in moveloop (allmain.c) refreshes it one input
+      late. BATTERY-CORRECTED EXPECTATION: crystal plate mail is
+      GEMSTONE on BOTH trees (objects.c/objects.h), not GLASS, and
+      GEMSTONE is in none of the five rigid-material arms - so an
+      Armor of Retribution wearer keeps the Dex bonus on master
+      too; master parity, not a gap. Unadjudicated watch for the
+      maintainer: whether GEMSTONE belongs in the rigid gate is a
+      master design question (the 2021 widening listed bone/stone/
+      wood/glass and skipped it).
 - [ ] is_hard() vs hard_helmet(), tree-wide (NEW, minted 2026-07-28 by
       the combat damage/AC slice). master has NO hard_helmet() at all -
       git grep over master's whole src/ finds zero - and uses is_hard()
