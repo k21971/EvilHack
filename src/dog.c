@@ -974,6 +974,26 @@ mon_catchup_elapsed_time(
         else
             mtmp->mbindtimer -= imv;
     }
+    /* spell-conferred wards run down too; clamp to 1 so the expiry
+       pass strips the ward, with its message, on the next tick */
+    if (mtmp->mreflecttime) {
+        if (imv >= mtmp->mreflecttime)
+            mtmp->mreflecttime = 1;
+        else
+            mtmp->mreflecttime -= imv;
+    }
+    if (mtmp->mbarkskintime) {
+        if (imv >= mtmp->mbarkskintime)
+            mtmp->mbarkskintime = 1;
+        else
+            mtmp->mbarkskintime -= imv;
+    }
+    if (mtmp->mstoneskintime) {
+        if (imv >= mtmp->mstoneskintime)
+            mtmp->mstoneskintime = 1;
+        else
+            mtmp->mstoneskintime -= imv;
+    }
 
     /* might recover from temporary trouble */
     if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2)
