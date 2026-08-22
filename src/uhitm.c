@@ -7569,12 +7569,12 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                  || gy.youmonst.data->mlet == S_VAMPIRE
                  || gy.youmonst.data->mlet == S_GNOME) && !weapon_used)
                 goto use_weapon;
-            /* elemental casts (hellfire and kin) work when the hero
-               is polymorphed into such a caster; the innate
-               AD_SPEL/AD_CLRC monster spell lists have no
-               hero-as-caster implementation yet */
+            /* the elemental casts (hellfire and kin) and the innate
+               wizard and clerical spell lists all route through
+               castum(); anything else falls out of the attack */
             if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
-                || mattk->adtyp == AD_ACID || mattk->adtyp == AD_MAGM) {
+                || mattk->adtyp == AD_ACID || mattk->adtyp == AD_MAGM
+                || mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
                 sum[i] = castum(mon, mattk);
                 continue;
             }

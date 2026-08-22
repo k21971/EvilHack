@@ -25,9 +25,10 @@ static struct _mcast_data mcast_data[] = {
 /* spell lists for specific monster casters */
 /* the spells in the list should be in ascending level order */
 static int mon_cleric_spells[] = {
-    MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_CONFUSE_YOU, MCAST_PARALYZE,
-    MCAST_VULN_YOU, MCAST_BLIND_YOU, MCAST_INSECTS, MCAST_CURSE_ITEMS,
-    MCAST_LIGHTNING, MCAST_FIRE_PILLAR, MCAST_GEYSER, MCAST_SUMMON_MINION
+    MCAST_OPEN_WOUNDS, MCAST_CURE_SELF, MCAST_PROTECTION, MCAST_CONFUSE_YOU,
+    MCAST_PARALYZE, MCAST_VULN_YOU, MCAST_BLIND_YOU, MCAST_INSECTS,
+    MCAST_CALL_UNDEAD, MCAST_CURSE_ITEMS, MCAST_LIGHTNING,
+    MCAST_FIRE_PILLAR, MCAST_GEYSER, MCAST_SUMMON_MINION
 };
 static int mon_wizard_spells[] = {
     MCAST_PSI_BOLT, MCAST_CURE_SELF, MCAST_HASTE_SELF, MCAST_STUN_YOU,
@@ -60,6 +61,9 @@ staticfn boolean mhas_castable_offensive_spell(struct monst *,
 staticfn boolean mhas_useful_selfbuff_spell(struct monst *);
 staticfn int mcount_castable_spells(struct monst *);
 staticfn int m_cure_self(struct monst *, int);
+staticfn void mcast_protection(struct monst *);
+staticfn void mcast_cancellation(struct monst *, struct monst *);
+staticfn void mcast_call_undead(struct monst *, struct monst *);
 staticfn void mcast_death_touch(struct monst *, struct monst *);
 staticfn void mcast_clone_wiz(struct monst *);
 staticfn void mcast_summon_mons(struct monst *, struct monst *);
@@ -152,7 +156,7 @@ druid_ward_subst(struct monst *mtmp, int spellnum)
         return spellnum;
     if (spellnum == MCAST_BLIND_YOU)
         return MCAST_STONESKIN;
-    if (spellnum == MCAST_CONFUSE_YOU)
+    if (spellnum == MCAST_PROTECTION)
         return MCAST_BARKSKIN;
     return spellnum;
 }
@@ -213,8 +217,10 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
     /* max spell level in this monster spell list */
     maxlev = mcast_data[list[len - 1]].level;
 
-    /* which level spell to cast? */
-    spellval = rn2(mtmp->m_lev);
+    /* which level spell to cast? The hero's polymorphed casting level
+       comes from the form (gy.youmonst.m_lev is never maintained) */
+    spellval = rn2((mtmp == &gy.youmonst) ? mons[u.umonnum].mlevel
+                                          : (int) mtmp->m_lev);
     if (spellval > maxlev && rn2(maxlev))
         spellval = rn2(maxlev);
 
@@ -234,8 +240,12 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
            the chosen spell's own flags and usefulness decide, and
            fall through to the next rung when the pick proves
            useless */
-        if (candidate == MCAST_AGGRAVATION && rn2(2))
+        if (candidate == MCAST_CONFUSE_YOU && rn2(2))
+            candidate = MCAST_PROTECTION;
+        else if (candidate == MCAST_AGGRAVATION && rn2(2))
             candidate = MCAST_REFLECTION;
+        else if (candidate == MCAST_SUMMON_MONS && !rn2(3))
+            candidate = MCAST_CANCELLATION;
         candidate = druid_ward_subst(mtmp, candidate);
         /* the bolt rung stands for a fire/ice/psi choice; roll it
            now so the chosen element's own resistances decide, and
@@ -544,6 +554,17 @@ castmu(
 staticfn int
 m_cure_self(struct monst *mtmp, int dmg)
 {
+    if (mtmp == &gy.youmonst) {
+        /* the polymorphed hero heals the form's HP pool */
+        if (u.mh < u.mhmax) {
+            You("feel better.");
+            if ((u.mh += d(3, 6)) > u.mhmax)
+                u.mh = u.mhmax;
+            disp.botl = TRUE;
+            dmg = 0;
+        }
+        return dmg;
+    }
     if (mtmp->mhp < mtmp->mhpmax) {
         if (canseemon(mtmp))
             pline_mon(mtmp, "%s looks better.", Monnam(mtmp));
@@ -552,6 +573,48 @@ m_cure_self(struct monst *mtmp, int dmg)
         dmg = 0;
     }
     return dmg;
+}
+
+/* clerical protection self-ward. The monster leg mirrors the hero
+   spell's diminishing-returns formula inline since cast_protection()
+   is hero-only. find_mac() already subtracts mprotection, so adding
+   it back reconstructs the unwarded AC (the u.uac + u.uspellprot
+   idiom). The gain applies unconditionally: a non-positive gain
+   erodes a tall stack toward its equilibrium level, and since the
+   subtrahend can never exceed the current stack the sum stays at
+   least one - the uchar cannot wrap */
+staticfn void
+mcast_protection(struct monst *mtmp)
+{
+    int ml, natac, loglev = 0, gain;
+
+    if (mtmp == &gy.youmonst) {
+        cast_protection(P_SKILL(spell_skilltype(SPE_PROTECTION)));
+        return;
+    }
+    ml = min((int) mtmp->m_lev, 50);
+    natac = find_mac(mtmp) + mtmp->mprotection;
+    for (; ml > 0; ml /= 2)
+        loglev++;
+    gain = loglev
+           - (int) mtmp->mprotection / (4 - min(3, (10 - natac) / 10));
+    /* the timer arms on first acquisition whether or not the caster
+       is seen; the per-turn step-down depends on it */
+    if (gain && !mtmp->mprotection)
+        mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
+                           || mtmp->data->msound == MS_NEMESIS
+                           || mtmp->data->msound == MS_LEADER) ? 20 : 10;
+    if (mtmp->mpeaceful && mtmp->ispriest && inhistemple(mtmp)) {
+        ; /* cut down on the temple spam */
+    } else if (gain && canseemon(mtmp)) {
+        if (mtmp->mprotection)
+            pline_The("%s haze around %s becomes more dense.",
+                      hcolor(NH_GOLDEN), mon_nam(mtmp));
+        else
+            pline_The("air around %s begins to shimmer with a %s haze.",
+                      mon_nam(mtmp), hcolor(NH_GOLDEN));
+    }
+    mtmp->mprotection += gain;
 }
 
 /* unlike the finger of death spell which behaves like a wand of death,
@@ -765,8 +828,8 @@ mcast_summon_mons(struct monst *mtmp, struct monst *mdef)
             return;
         if (!yours && !rn2(10) && Inhell) {
             /* in Gehennom the summons is sometimes the caster's own
-               demonic kin; the hero-caster analogue (a demon familiar)
-               arrives with the hero-casting wiring */
+               demonic kin; the hero never reaches this helper - the
+               no-free-pets clause rejects the pick at selection */
             (void) msummon(mtmp);
         } else {
             int i, j, makeindex, tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
@@ -1089,6 +1152,15 @@ mcast_weaken_you(struct monst *mtmp, struct monst *mdef, int dmg)
 staticfn void
 mcast_disappear(struct monst *mtmp)
 {
+    if (mtmp == &gy.youmonst) {
+        /* the hero turns invisible */
+        if (!(HInvis & INTRINSIC)) {
+            HInvis |= FROMOUTSIDE;
+            if (!Blind && !BInvis)
+                self_invis_message();
+        }
+        return;
+    }
     if (!mtmp->minvis && !mtmp->invis_blkd) {
         if (canseemon(mtmp))
             pline_mon(mtmp, "%s suddenly %s!", Monnam(mtmp),
@@ -1369,7 +1441,9 @@ staticfn void
 mcast_acid_blast(struct monst *mtmp, struct monst *mdef)
 {
     boolean udefend = (mdef == &gy.youmonst);
-    int ml = min((int) mtmp->m_lev, 50);
+    boolean yours = (mtmp == &gy.youmonst);
+    int ml = yours ? mons[u.umonnum].mlevel
+                   : min((int) mtmp->m_lev, 50);
     struct monst *save_exploder;
 
     if (udefend) {
@@ -1398,14 +1472,22 @@ mcast_acid_blast(struct monst *mtmp, struct monst *mdef)
     } else {
         if (!mdef || DEADMONSTER(mdef))
             return;
-        if (canseemon(mtmp) || canseemon(mdef))
+        if (yours)
+            You("douse %s in a torrent of acid!", mon_nam(mdef));
+        else if (canseemon(mtmp) || canseemon(mdef))
             pline("%s douses %s in a torrent of acid!", Monnam(mtmp),
                   mon_nam(mdef));
-        save_exploder = ge.exploder;
-        ge.exploder = mtmp;
-        explode(mdef->mx, mdef->my, BZ_M_SPELL(ZT_ACID), d(ml / 2 + 4, 8),
-                0, EXPL_ACID);
-        ge.exploder = save_exploder;
+        /* a hero-cast blast attributes through the positive zap type;
+           the exploder bracket is the monster-caster equivalent */
+        if (!yours) {
+            save_exploder = ge.exploder;
+            ge.exploder = mtmp;
+        }
+        explode(mdef->mx, mdef->my,
+                yours ? BZ_U_SPELL(ZT_ACID) : BZ_M_SPELL(ZT_ACID),
+                d(ml / 2 + 4, 8), 0, EXPL_ACID);
+        if (!yours)
+            ge.exploder = save_exploder;
         /* the blast may have killed the target; don't touch it after */
         if (DEADMONSTER(mdef))
             return;
@@ -1427,8 +1509,10 @@ staticfn void
 mcast_bolt(struct monst *mtmp, struct monst *mdef, int spellnum)
 {
     boolean udefend = (mdef == &gy.youmonst);
+    boolean yours = (mtmp == &gy.youmonst);
     boolean firebolt = (spellnum == MCAST_FIRE_BOLT);
-    int ml = min((int) mtmp->m_lev, 50);
+    int ml = yours ? mons[u.umonnum].mlevel
+                   : min((int) mtmp->m_lev, 50);
     struct monst *save_exploder;
 
     if (udefend) {
@@ -1456,14 +1540,24 @@ mcast_bolt(struct monst *mtmp, struct monst *mdef, int spellnum)
     } else {
         if (!mdef || DEADMONSTER(mdef))
             return;
-        if (canseemon(mtmp) || canseemon(mdef))
+        if (yours)
+            You("blast %s with %s!", mon_nam(mdef),
+                firebolt ? "fire" : "ice");
+        else if (canseemon(mtmp) || canseemon(mdef))
             pline("%s blasts %s with %s!", Monnam(mtmp), mon_nam(mdef),
                   firebolt ? "fire" : "ice");
-        save_exploder = ge.exploder;
-        ge.exploder = mtmp;
-        explode(mdef->mx, mdef->my, BZ_M_SPELL(firebolt ? ZT_FIRE : ZT_COLD),
+        /* a hero-cast blast attributes through the positive zap type;
+           the exploder bracket is the monster-caster equivalent */
+        if (!yours) {
+            save_exploder = ge.exploder;
+            ge.exploder = mtmp;
+        }
+        explode(mdef->mx, mdef->my,
+                yours ? BZ_U_SPELL(firebolt ? ZT_FIRE : ZT_COLD)
+                      : BZ_M_SPELL(firebolt ? ZT_FIRE : ZT_COLD),
                 d(ml / 5 + 1, 8), 0, firebolt ? EXPL_FIERY : EXPL_FROSTY);
-        ge.exploder = save_exploder;
+        if (!yours)
+            ge.exploder = save_exploder;
         /* the blast may have killed the target; don't touch it after */
         if (DEADMONSTER(mdef))
             return;
@@ -1475,6 +1569,84 @@ mcast_bolt(struct monst *mtmp, struct monst *mdef, int spellnum)
                       firebolt ? "fire" : "cold");
         }
     }
+}
+
+/* cancel the target's magic. A directed spell: the line-up is
+   re-checked here at execution, so a fight that moved off-axis
+   wastes the cast, and the messages sit inside the guards - a
+   failed line-up is silent. mdef is the hero on the castmu() path
+   and a monster target on the castmm() path; the hero-caster leg
+   needs no line-up since the hero picked an adjacent target */
+staticfn void
+mcast_cancellation(struct monst *mtmp, struct monst *mdef)
+{
+    boolean udefend = (mdef == &gy.youmonst);
+    boolean yours = (mtmp == &gy.youmonst);
+    struct monst *save_buzzer;
+
+    if (udefend) {
+        if (lined_up(mtmp)) {
+            if (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters)
+                pline_mon(mtmp, "%s %s a cancellation spell!",
+                          Monnam(mtmp), rn2(2) ? "evokes" : "conjures up");
+            else if (!Deaf)
+                You_hear("a powerful spell being %s.",
+                         rn2(2) ? "spoken" : "uttered");
+            (void) cancel_monst(&gy.youmonst, (struct obj *) 0, FALSE,
+                                TRUE, FALSE);
+        }
+    } else {
+        if (!mdef || DEADMONSTER(mdef))
+            return;
+        if (yours) {
+            /* the hero as attacker routes a possible clay-golem kill
+               through killed() for normal credit */
+            You("%s a cancellation spell!",
+                rn2(2) ? "evoke" : "conjure up");
+            (void) cancel_monst(mdef, (struct obj *) 0, TRUE, TRUE,
+                                FALSE);
+        } else if (m_lined_up(mdef, mtmp, FALSE)) {
+            if (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters)
+                pline_mon(mtmp, "%s %s a cancellation spell!",
+                          Monnam(mtmp), rn2(2) ? "evokes" : "conjures up");
+            /* credit a possible clay-golem kill to the caster; save
+               and restore so an outer beam's blame is not clobbered.
+               The cancel may kill the target - no reads after it */
+            save_buzzer = gb.buzzer;
+            gb.buzzer = mtmp;
+            (void) cancel_monst(mdef, (struct obj *) 0, FALSE, TRUE,
+                                FALSE);
+            gb.buzzer = save_buzzer;
+        }
+    }
+}
+
+/* call forth undead around the target. mdef is the hero on the
+   castmu() path; the monster-vs-monster leg summons around the
+   caster itself and never reads the target, which may already be
+   gone. The summons are ordinary makemon() spawns - their attitude
+   comes from their species, not from the caster */
+staticfn void
+mcast_call_undead(struct monst *mtmp, struct monst *mdef)
+{
+    coord mm;
+    boolean udefend = (mdef == &gy.youmonst);
+    boolean yours = (mtmp == &gy.youmonst);
+
+    if (udefend || yours) {
+        /* hero casts are rejected by the useless filter (no free
+           pets); the leg is kept for safety */
+        mm.x = u.ux;
+        mm.y = u.uy;
+        pline("Undead creatures are called forth from the grave!");
+    } else {
+        mm.x = mtmp->mx;
+        mm.y = mtmp->my;
+        if (canseemon(mtmp))
+            pline("%s calls forth undead creatures from the grave!",
+                  Monnam(mtmp));
+    }
+    mkundead(&mm, FALSE, NO_MINVENT);
 }
 
 /* index 0 is never rolled (rnd(4) below); kept so the film colors
@@ -1617,8 +1789,8 @@ mcast_vuln_you(struct monst *mtmp, struct monst *mdef)
 /* summon an aligned servant to the caster's aid. mdef is the hero on
    the castmu() path; monster-vs-monster casts are suppressed both
    here and in the useless filter because summon_minion() only places
-   the summons next to the hero. The hero-caster leg is carried for
-   when castum() gains the clerical list */
+   the summons next to the hero. Hero casts are rejected by the
+   useless filter (no free pets); the leg is kept for safety */
 staticfn void
 mcast_summon_minion(struct monst *mtmp, struct monst *mdef)
 {
@@ -2120,7 +2292,14 @@ mcast_spell(struct monst *mtmp, struct monst *mdef, int dmg, int spellnum,
         dmg = 0;
         break;
     case MCAST_HASTE_SELF:
-        mon_adjust_speed(mtmp, 1, (struct obj *) 0);
+        if (mtmp == &gy.youmonst) {
+            if (!(HFast & INTRINSIC)) {
+                You("are suddenly moving faster.");
+                HFast |= INTRINSIC;
+            }
+        } else {
+            mon_adjust_speed(mtmp, 1, (struct obj *) 0);
+        }
         dmg = 0;
         break;
     case MCAST_CURE_SELF:
@@ -2182,6 +2361,18 @@ mcast_spell(struct monst *mtmp, struct monst *mdef, int dmg, int spellnum,
         cast_reflection(mtmp, P_SKILL(spell_skilltype(SPE_REFLECTION)));
         dmg = 0;
         break;
+    case MCAST_PROTECTION:
+        mcast_protection(mtmp);
+        dmg = 0;
+        break;
+    case MCAST_CANCELLATION:
+        mcast_cancellation(mtmp, mdef);
+        dmg = 0;
+        break;
+    case MCAST_CALL_UNDEAD:
+        mcast_call_undead(mtmp, mdef);
+        dmg = 0;
+        break;
     case MCAST_OPEN_WOUNDS:
         dmg = mcast_open_wounds(mtmp, mdef, dmg);
         break;
@@ -2197,10 +2388,18 @@ mcast_spell(struct monst *mtmp, struct monst *mdef, int dmg, int spellnum,
     if (dmg) {
         if (udefend) {
             mdamageu(mtmp, dmg);
-        } else if (damage_mon(mdef, dmg, adtyp, FALSE)) {
-            if (mtmp->mtame)
-                set_pet_killer(mtmp);
-            monkilled(mdef, "", adtyp);
+        } else {
+            boolean yours = (mtmp == &gy.youmonst);
+
+            if (damage_mon(mdef, dmg, adtyp, yours)) {
+                if (yours) {
+                    killed(mdef);
+                } else {
+                    if (mtmp->mtame)
+                        set_pet_killer(mtmp);
+                    monkilled(mdef, "", adtyp);
+                }
+            }
         }
     }
 }
@@ -2222,6 +2421,11 @@ staticfn boolean
 spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
 {
     boolean youdefend = (mdef == &gy.youmonst);
+    /* the polymorphed hero casts through castum(); hero-caster
+       clauses read the hero's own state - gy.youmonst's monster
+       fields (m_lev, mhp, mtame, permspeed, mextrinsics, mx/my)
+       are never maintained */
+    boolean yours = (mtmp == &gy.youmonst);
 
     /* Some spells don't require the player to really be there and can be cast
      * by the monster when you're invisible, yet still shouldn't be cast when
@@ -2292,9 +2496,10 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
             if (m_seenres(mtmp, M_SEEN_ACID) || u.uinvulnerable
                 || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
                 return TRUE;
-        } else {
+        } else if (!yours) {
             /* a caster that is not itself acid resistant usually
-               refuses a blast within its own radius */
+               refuses a blast within its own radius; the hero is
+               free to splash an adjacent blast onto both of them */
             if (!(resists_acid(mtmp) || defended(mtmp, AD_ACID))
                 && dist2(mtmp->mx, mtmp->my, mdef->mx, mdef->my) < 3
                 && rn2(5))
@@ -2312,7 +2517,7 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
             if (m_seenres(mtmp, M_SEEN_FIRE) || u.uinvulnerable
                 || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
                 return TRUE;
-        } else {
+        } else if (!yours) {
             if (!(resists_fire(mtmp) || defended(mtmp, AD_FIRE))
                 && dist2(mtmp->mx, mtmp->my, mdef->mx, mdef->my) < 3
                 && rn2(5))
@@ -2327,7 +2532,7 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
             if (m_seenres(mtmp, M_SEEN_COLD) || u.uinvulnerable
                 || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
                 return TRUE;
-        } else {
+        } else if (!yours) {
             if (!(resists_cold(mtmp) || defended(mtmp, AD_COLD))
                 && dist2(mtmp->mx, mtmp->my, mdef->mx, mdef->my) < 3
                 && rn2(5))
@@ -2357,8 +2562,8 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         break;
     case MCAST_SUMMON_MONS:
         /* tame and peaceful casters never summon reinforcements
-           against the hero's side */
-        if (mtmp->mtame || mtmp->mpeaceful)
+           against the hero's side, and the hero gets no free pets */
+        if (yours || mtmp->mtame || mtmp->mpeaceful)
             return TRUE;
         break;
     case MCAST_INSECTS:
@@ -2366,8 +2571,8 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         if (youdefend && u.uinvulnerable)
             return TRUE;
         /* as summon monsters: no reinforcements from the hero's own
-           side */
-        if (mtmp->mtame || mtmp->mpeaceful)
+           side, and no free pets */
+        if (yours || mtmp->mtame || mtmp->mpeaceful)
             return TRUE;
         break;
     case MCAST_OPEN_WOUNDS:
@@ -2377,7 +2582,7 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         break;
     case MCAST_CLONE_WIZ:
         /* only the Wizard is allowed to clone himself */
-        if (!mtmp->iswiz || svc.context.no_of_wizards > 1)
+        if (yours || !mtmp->iswiz || svc.context.no_of_wizards > 1)
             return TRUE;
         if (mtmp->mtame || mtmp->mpeaceful)
             return TRUE;
@@ -2397,37 +2602,102 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         break;
     case MCAST_HASTE_SELF:
         /* haste self when already fast */
-        if (mtmp->permspeed == MFAST)
+        if (yours ? (Fast != 0) : (mtmp->permspeed == MFAST))
             return TRUE;
         break;
     case MCAST_DISAPPEAR:
         /* invisibility when already invisible */
-        if (mtmp->minvis || mtmp->invis_blkd)
+        if (yours ? ((HInvis & INTRINSIC) != 0)
+                  : (mtmp->minvis || mtmp->invis_blkd))
             return TRUE;
         /* peaceful monster won't cast invisibility if you can't see
            invisible,
            same as when monsters drink potions of invisibility.  This doesn't
            really make a lot of sense, but lets the player avoid hitting
            peaceful monsters by mistake */
-        if (mtmp->mpeaceful && !See_invisible)
+        if (!yours && mtmp->mpeaceful && !See_invisible)
             return TRUE;
         break;
     case MCAST_CURE_SELF:
-        /* healing when already healed */
-        if (mtmp->mhp == mtmp->mhpmax)
+        /* healing when already healed; the hero holds the cure until
+           significantly hurt */
+        if (yours ? (u.mh * 4) > u.mhmax : (mtmp->mhp == mtmp->mhpmax))
             return TRUE;
         break;
     case MCAST_BARKSKIN:
     case MCAST_STONESKIN:
-        /* the two skin wards are mutually exclusive */
+        if (yours) {
+            /* the hero's wards are property-based; the two are
+               mutually exclusive and neither stacks with the haze */
+            if (u.uspellprot)
+                return TRUE;
+            if (Barkskin && spellnum == MCAST_STONESKIN)
+                return TRUE;
+            if (Stoneskin && spellnum == MCAST_BARKSKIN)
+                return TRUE;
+            break;
+        }
+        /* the two skin wards are mutually exclusive, and neither
+           stacks with the protection haze */
         if (has_barkskin(mtmp) || has_stoneskin(mtmp))
+            return TRUE;
+        if (mtmp->mprotection)
+            return TRUE;
+        break;
+    case MCAST_PROTECTION:
+        /* the skin wards supersede the haze */
+        if (yours ? (Barkskin || Stoneskin)
+                  : (has_barkskin(mtmp) || has_stoneskin(mtmp)))
             return TRUE;
         break;
     case MCAST_REFLECTION:
         /* reflection when already reflecting, whether from the spell
-           or from gear */
-        if (has_reflection(mtmp) || mon_reflects(mtmp, (char *) 0))
+           or from gear; the hero may re-cast to extend the timeout */
+        if (!yours
+            && (has_reflection(mtmp) || mon_reflects(mtmp, (char *) 0)))
             return TRUE;
+        break;
+    case MCAST_CANCELLATION:
+        if (youdefend) {
+            /* prayer invulnerability protects */
+            if (u.uinvulnerable)
+                return TRUE;
+        } else {
+            /* no point re-cancelling a cancelled target; the hero
+               may still want the buff strips and the item pass */
+            if (!yours && mdef->mcan)
+                return TRUE;
+            /* tame and peaceful casters never risk the hero this
+               close to the fight */
+            if ((mtmp->mtame || mtmp->mpeaceful)
+                && distu(mdef->mx, mdef->my) < 3)
+                return TRUE;
+        }
+        break;
+    case MCAST_CALL_UNDEAD:
+        /* no free pets for the hero, whatever the form */
+        if (yours)
+            return TRUE;
+        /* only undead or demonic casters, evil priests, and quest
+           nemeses have this in their repertoire */
+        if (!is_undead(mtmp->data) && !is_demon(mtmp->data)
+            && !(mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL)
+            && mtmp->data->msound != MS_NEMESIS)
+            return TRUE;
+        /* no reinforcements from the hero's own side */
+        if (mtmp->mtame || mtmp->mpeaceful)
+            return TRUE;
+        /* melee-range spell; prayer invulnerability holds the
+           summons off */
+        if (youdefend) {
+            if (distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 1)
+                return TRUE;
+            if (u.uinvulnerable)
+                return TRUE;
+        } else {
+            if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) > 1)
+                return TRUE;
+        }
         break;
     case MCAST_BLIND_YOU:
         if (youdefend) {
@@ -2447,7 +2717,8 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
             if (!wearing_armor())
                 return TRUE;
         } else {
-            if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) > 1)
+            if (distmin(yours ? u.ux : mtmp->mx, yours ? u.uy : mtmp->my,
+                        mdef->mx, mdef->my) > 1)
                 return TRUE;
             if (!(mdef->misc_worn_check & W_ARMOR))
                 return TRUE;
@@ -2856,6 +3127,7 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
             && spellnum != MCAST_ICE_BOLT
             && spellnum != MCAST_INSECTS
             && spellnum != MCAST_SUMMON_MINION
+            && spellnum != MCAST_CALL_UNDEAD
             && spellnum != MCAST_VULN_YOU
             && spellnum != MCAST_OPEN_WOUNDS)
             starget = &gy.youmonst;
@@ -2869,14 +3141,16 @@ castmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
     return ret;
 }
 
-/* the hero, polymorphed into a form with an elemental AT_MAGC attack,
-   casts at an adjacent monster; the innate AD_SPEL/AD_CLRC monster
-   spell lists have no hero-as-caster implementation yet, so those
-   attack slots do not route here */
+/* the hero, polymorphed into a form with an AT_MAGC attack, casts at
+   an adjacent monster: the elemental attack types inline, the innate
+   wizard and clerical spell lists through the shared dispatcher */
 int
 castum(struct monst *mtmp, struct attack *mattk)
 {
     int dmg, ml = mons[u.umonnum].mlevel;
+    int spellnum = 0;
+    boolean directed = TRUE;
+    boolean lists = (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC);
 
     /* guard against casting another spell attack at an already dead
        monster; some monsters have multiple AT_MAGC attacks */
@@ -2884,23 +3158,47 @@ castum(struct monst *mtmp, struct attack *mattk)
         return M_ATTK_MISS;
 
     if ((mattk->adtyp != AD_FIRE && mattk->adtyp != AD_COLD
-         && mattk->adtyp != AD_ACID && mattk->adtyp != AD_MAGM) || !ml)
+         && mattk->adtyp != AD_ACID && mattk->adtyp != AD_MAGM && !lists)
+        || !ml)
         return M_ATTK_MISS;
+
+    if (lists) {
+        int cnt = 40;
+
+        do {
+            spellnum = choose_monster_spell(&gy.youmonst, mtmp,
+                                            (int) mattk->adtyp);
+        } while (--cnt > 0
+                 && spell_would_be_useless(&gy.youmonst, mtmp, spellnum));
+        if (cnt == 0) {
+            You("have no spells to cast right now!");
+            return M_ATTK_MISS;
+        }
+        directed = !is_undirected_spell(&gy.youmonst, spellnum);
+    }
 
     /* unable to cast spells? */
     if (u.uen < ml) {
-        You("point at %s, then curse.", mon_nam(mtmp));
+        if (directed)
+            You("point at %s, then curse.", mon_nam(mtmp));
+        else
+            You("point all around, then curse.");
         return M_ATTK_MISS;
     }
-    /* innate elemental casts drain no energy; only the wizard and
-       clerical spell lists charge power */
+    /* innate elemental casts drain no energy; the wizard and clerical
+       spell lists charge power, spent even on a fumble */
+    if (lists) {
+        u.uen -= ml;
+        disp.botl = TRUE;
+    }
 
     if (rn2(ml * 10) < (Confusion ? 100 : 20)) { /* fumbled attack */
         pline_The("air crackles around you.");
         return M_ATTK_MISS;
     }
 
-    You("cast a spell at %s!", mon_nam(mtmp));
+    You("cast a spell%s%s!", directed ? " at " : "",
+        directed ? mon_nam(mtmp) : "");
 
     /* as these are spells, the damage is related to the level
        of the form casting the spell */
@@ -2980,6 +3278,12 @@ castum(struct monst *mtmp, struct attack *mattk)
                 pline("Some missiles bounce off!");
             dmg = (dmg + 1) / 2;
         }
+        break;
+    case AD_SPEL:
+    case AD_CLRC:
+        mcast_spell(&gy.youmonst, mtmp, dmg, spellnum, 0,
+                    (int) mattk->adtyp);
+        dmg = 0; /* done by the spell casting functions */
         break;
     }
 

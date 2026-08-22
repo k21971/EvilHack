@@ -58,5 +58,15 @@ MONSPELL(SUMMON_MINION, 14, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 /* reflection self-ward; the wizard ladder's aggravation rung rolls
    between the two */
 MONSPELL(REFLECTION,   13, MCF_INDIRECT),
+/* protection self-ward; clerical-ladder pick sharing its rung with
+   the confusion spell */
+MONSPELL(PROTECTION,    2, MCF_INDIRECT),
+/* cancel the target's magic; reached through the wizard ladder's
+   summoning rung roll. A directed spell, unlike the other late
+   wizard picks */
+MONSPELL(CANCELLATION, 15, MCF_HOSTILE|MCF_SIGHT),
+/* summon undead at the caster; clerical-ladder pick, melee range,
+   undead/demonic/evil-priest casters only */
+MONSPELL(CALL_UNDEAD,   8, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 
 #undef MONSPELL

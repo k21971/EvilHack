@@ -2757,6 +2757,8 @@ clone_mon(
     m2->mstoneskintime = 0;
     m2->mlevitatetime = 0;
     m2->mjumptime = 0;
+    m2->mprotection = 0;
+    m2->mprottime = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
     m2->mw = (struct obj *) 0;

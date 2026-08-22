@@ -1571,6 +1571,27 @@ m_calcdistress(struct monst *mtmp)
     if (mtmp->mfleetim && !--mtmp->mfleetim)
         mtmp->mflee = 0;
 
+    /* the protection ward steps down one level at a time; the timer
+       reloads while any protection remains. The post-decrement lets
+       a zero timer fire the turn it is reached; the brief wrap the
+       decrement leaves behind is overwritten by the reload and is
+       unreachable once the ward is gone */
+    if (mtmp->mprotection) {
+        if (mtmp->mprottime-- == 0) {
+            mtmp->mprotection--;
+            if (canseemon(mtmp) && !rn2(4))
+                pline_The("%s haze around %s %s.",
+                          hcolor(NH_GOLDEN), mon_nam(mtmp),
+                          mtmp->mprotection ? "becomes less dense"
+                                            : "disappears");
+            if (mtmp->mprotection)
+                mtmp->mprottime = (mtmp->iswiz || is_prince(mtmp->data)
+                                   || mtmp->data->msound == MS_NEMESIS
+                                   || mtmp->data->msound == MS_LEADER)
+                                      ? 20 : 10;
+        }
+    }
+
     /* temp vulnerability timeouts */
     if (mtmp->vuln_fire > 0) {
         mtmp->vuln_fire--;

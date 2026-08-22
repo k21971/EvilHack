@@ -939,6 +939,8 @@ montraits(
         mtmp2->mreflecttime = 0;
         mtmp2->mbarkskintime = 0;
         mtmp2->mstoneskintime = 0;
+        mtmp2->mprotection = 0;
+        mtmp2->mprottime = 0;
         /* when traits are for a shopkeeper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */
         if (mtmp2->isshk) {
