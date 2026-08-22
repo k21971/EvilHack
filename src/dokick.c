@@ -31,6 +31,11 @@ staticfn void drop_to(coord *, schar, coordxy, coordxy) NONNULLARG1;
 
 static const char kick_passes_thru[] = "kick passes harmlessly through";
 
+static const char *const martial_arts_kick[] = {
+    "pivot and roundhouse kick", "leap up and butterfly kick",
+    "spin around and back kick"
+};
+
 /* kicking damage when not poly'd into a form with a kick attack */
 staticfn void
 kickdmg(struct monst *mon, boolean clumsy)
@@ -54,16 +59,19 @@ kickdmg(struct monst *mon, boolean clumsy)
         dmg /= 2;
 
     /* kicking a dragon or an elephant will not harm it */
-    if (thick_skinned(mon->data))
+    if (thick_skinned(mon->data)
+        || has_barkskin(mon) || has_stoneskin(mon))
         dmg = 0;
 
-    /* attacking a shade is normally useless */
-    if (mon->data == &mons[PM_SHADE])
+    /* kicking a shade is normally useless, unless the boots are
+       made of something that can touch it */
+    if (noncorporeal(mon->data) && !(uarmf && shade_glare(uarmf)))
         dmg = 0;
 
     specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF, &hated_obj);
 
-    if (mon->data == &mons[PM_SHADE] && !specialdmg) {
+    if (noncorporeal(mon->data) && !specialdmg
+        && !(uarmf && shade_glare(uarmf))) {
         pline_The("%s.", kick_passes_thru);
         /* doesn't exercise skill or abuse alignment or frighten pet,
            and shades have no passive counterattack */
@@ -88,7 +96,7 @@ kickdmg(struct monst *mon, boolean clumsy)
         if (martial()) {
             if (dmg > 1)
                 kick_skill = P_MARTIAL_ARTS;
-            dmg += rn2(ACURR(A_DEX) / 2 + 1);
+            dmg += rn2(ACURR(A_DEX) / 2 + rnd(4));
         }
         /* a good kick exercises your dex */
         exercise(A_DEX, TRUE);
@@ -100,9 +108,10 @@ kickdmg(struct monst *mon, boolean clumsy)
         searmsg(&gy.youmonst, mon, hated_obj, TRUE);
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
-        mon->mhp -= dmg;
-    if (!DEADMONSTER(mon) && martial() && !bigmonst(mon->data) && !rn2(3)
-        && mon->mcanmove && mon != u.ustuck && !mon->mtrapped) {
+        damage_mon(mon, dmg, AD_PHYS, TRUE);
+    if (!DEADMONSTER(mon) && martial() && !r_bigmonst(mon) && !rn2(3)
+        && mon->mcanmove && mon != u.ustuck && !mon->mtrapped
+        && !mon->mentangled) {
         /* see if the monster has a place to move into */
         mdx = mon->mx + u.dx;
         mdy = mon->my + u.dy;
@@ -173,7 +182,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
     /* anger target even if wild miss will occur */
     setmangry(mon, TRUE);
 
-    if (Levitation && !rn2(3) && verysmall(mon->data)
+    if (Levitation && !rn2(3) && r_verysmall(mon)
         && !is_flyer(mon->data)) {
         pline("Floating in the air, you miss wildly!");
         exercise(A_DEX, FALSE);
@@ -228,7 +237,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
             kickdieroll = rnd(20);
             specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF,
                                         &hated_obj);
-            if (mon->data == &mons[PM_SHADE] && !specialdmg) {
+            if (noncorporeal(mon->data) && !specialdmg) {
                 /* doesn't matter whether it would have hit or missed,
                    and shades have no passive counterattack */
                 Your("%s %s.", kick_passes_thru, mon_nam(mon));
@@ -282,13 +291,54 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
     else if (uarm && objects[uarm->otyp].oc_bulky && ACURR(A_DEX) < rnd(25))
         clumsy = TRUE;
  doit:
-    You("kick %s.", mon_nam(mon));
-    if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon->data))
+    /* check if kick hits based on monster's AC */
+    {
+        /* attknum starts at 1: kick_monster() already called
+           check_caitiff() above, so find_roll_to_hit() must not
+           repeat it */
+        int kickdieroll, armorpenalty, attknum = 1;
+        int tmp = find_roll_to_hit(mon, AT_KICK, (struct obj *) 0, &attknum,
+                                   &armorpenalty);
+
+        mon_maybe_unparalyze(mon);
+
+        /* kicking boots improve accuracy */
+        if (uarmf && uarmf->otyp == KICKING_BOOTS)
+            tmp += 3;
+        /* centaurs are natural kickers */
+        if (maybe_polyd(is_centaur(gy.youmonst.data), Race_if(PM_CENTAUR)))
+            tmp += 2;
+        /* giants have powerful legs */
+        if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT)))
+            tmp += 1;
+
+        /* clumsy kicks are less accurate */
+        if (clumsy)
+            tmp -= 2;
+
+        kickdieroll = rnd(20);
+
+        if (tmp <= kickdieroll) {
+            /* missed */
+            Your("kick misses %s.", mon_nam(mon));
+            (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+            return;
+        }
+    }
+
+    if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
+        You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))],
+            mon_nam(mon));
+    else
+        You("kick %s.", mon_nam(mon));
+
+    if (!rn2(martial() ? 50 : clumsy ? 3 : 4) && (clumsy || !r_bigmonst(mon))
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
         && !mon->mstun && !mon->mconf && !mon->msleeping
-        && mon->data->mmove >= 12) {
-        if (!nohands(mon->data) && !rn2(martial() ? 5 : 3)) {
+        && !has_barkskin(mon) && !has_stoneskin(mon)
+        && !mon->mentangled && mon->data->mmove >= 12) {
+        if (!nohands(mon->data) && !rn2(martial() ? 10 : 3)) {
             pline("%s blocks your %skick.", Monnam(mon),
                   clumsy ? "clumsy " : "");
             (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
@@ -300,7 +350,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
                 pline("%s %s, %s evading your %skick.", Monnam(mon),
                       (can_teleport(mon->data) && !noteleport_level(mon))
                           ? "teleports"
-                          : is_floater(mon->data)
+                          : (is_floater(mon->data) || can_levitate(mon))
                                 ? "floats"
                                 : is_flyer(mon->data) ? "swoops"
                                                       : (nolimbs(mon->data)
