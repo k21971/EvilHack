@@ -3225,7 +3225,7 @@ find_ac(void)
                           Race_if(PM_GIANT) ? 6
                           : Race_if(PM_TORTLE) ? 0
                             : mons[u.umonnum].ac);
-    int racial_bonus, tortle_ac;
+    int racial_bonus, dex_adjust_ac, tortle_ac;
 
     /* wearing racial armor is worth a bit of extra AC; orcs get a
        slightly larger bonus to compensate for their sub-standard
@@ -3323,6 +3323,9 @@ find_ac(void)
             uac -= 3;
     }
 
+    if (uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)
+        uac -= 5;
+
     /* Druids get a slight AC bonus for wearing
        wooden armor */
     if (Role_if(PM_DRUID)) {
@@ -3389,7 +3392,38 @@ find_ac(void)
     tortle_ac = 0;
     if (Race_if(PM_TORTLE) && u.ulevel > 2)
         tortle_ac -= min((u.ulevel - 3) / 3 + 1, 10);
-    uac += tortle_ac;
+
+    /* Dexterity affects your base AC; positive is a penalty */
+    dex_adjust_ac = 0;
+    if (ACURR(A_DEX) <= 6)
+        dex_adjust_ac += 3;
+    else if (ACURR(A_DEX) <= 9)
+        dex_adjust_ac += 1;
+    else if (ACURR(A_DEX) <= 14)
+        dex_adjust_ac -= 0;
+    else if (ACURR(A_DEX) <= 16)
+        dex_adjust_ac -= 1;
+    else if (ACURR(A_DEX) <= 18)
+        dex_adjust_ac -= 2;
+    else if (ACURR(A_DEX) <= 20)
+        dex_adjust_ac -= 3;
+    else if (ACURR(A_DEX) <= 23)
+        dex_adjust_ac -= 4;
+    else if (ACURR(A_DEX) >= 24)
+        dex_adjust_ac -= 5;
+
+    /* wearing body armor made of certain rigid materials negates
+       any beneficial dexterity bonus; so does being encumbered in
+       any way. A low-dexterity penalty still applies */
+    if ((uarm && (is_heavy_metallic(uarm)
+                  || is_bone(uarm) || is_stone(uarm)
+                  || is_wood(uarm) || is_glass(uarm)))
+        || (near_capacity() >= SLT_ENCUMBER)) {
+        if (dex_adjust_ac < 0)
+            dex_adjust_ac = 0;
+    }
+
+    uac += dex_adjust_ac + tortle_ac;
 
     /* put a cap on armor class [5.0: was +127,-128, now reduced to +/- 99 */
     if (abs(uac) > AC_MAX)
