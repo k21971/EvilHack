@@ -3647,6 +3647,12 @@ mstatusline(struct monst *mtmp)
                          : ", [? speed]");
     if (mtmp->minvis)
         Strcat(info, ", invisible");
+    if (has_reflection(mtmp))
+        Strcat(info, ", reflecting");
+    if (has_barkskin(mtmp))
+        Strcat(info, ", has barkskin");
+    if (has_stoneskin(mtmp))
+        Strcat(info, ", has stoneskin");
     if (mtmp == u.ustuck) {
         struct permonst *pm = u.ustuck->data;
 
