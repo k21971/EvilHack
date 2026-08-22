@@ -578,6 +578,7 @@ boolean
 do_attack(struct monst *mtmp)
 {
     struct permonst *mdat = mtmp->data;
+    unsigned maxweight;
 
     /* This section of code provides protection against accidentally
      * hitting peaceful (like '@') and tame (like 'd') monsters.
@@ -667,6 +668,71 @@ do_attack(struct monst *mtmp)
 
     if (u.twoweap && !can_twoweapon())
         untwoweapon();
+
+    /* feedback for twoweaponing w/ offhand weapon being too heavy;
+       weapon_hit_bonus() carries a twin of this ladder for the
+       actual penalty - keep the two in sync */
+    maxweight = 0;
+    switch (P_SKILL(P_TWO_WEAPON_COMBAT)) {
+    case P_ISRESTRICTED:
+    case P_UNSKILLED:
+        maxweight = 20; /* can use tridents/javelins, crysknives,
+                           unicorn horns or anything lighter */
+        break;
+    case P_BASIC:
+        maxweight = 30; /* can use short swords/spears or a mace */
+        break;
+    case P_SKILLED:
+        maxweight = 40; /* can use sabers/long swords */
+        break;
+    case P_EXPERT:
+        maxweight = 70; /* expert level can offhand any one-handed
+                           weapon */
+        break;
+    }
+
+    if (ACURR(A_STR) == STR19(25)
+        || maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT)))
+        maxweight = 200;
+
+    if (u.twoweap && uswapwep && uswapwep->owt > maxweight) {
+        Your("%s seem%s very %s.",
+             xname(uswapwep), uswapwep->quan == 1 ? "s" : "",
+             rn2(2) ? "unwieldy" : "cumbersome");
+        if (!rn2(10))
+            Your("%s %s too heavy to fight offhand with effectively.",
+                 xname(uswapwep), uswapwep->quan == 1 ? "is" : "are");
+    }
+
+    /* feedback for priests using non-blunt weapons */
+    if (uwep && Role_if(PM_CLERIC)
+        && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
+        && (is_pierce(uwep) || is_slash(uwep) || is_ammo(uwep))) {
+        if (!rn2(4))
+            pline("%s has %s you from using %s weapons such as %s!",
+                  align_gname(u.ualign.type),
+                  rn2(2) ? "forbidden" : "prohibited",
+                  is_slash(uwep) ? "edged" : "piercing",
+                  ansimpleoname(uwep));
+        exercise(A_WIS, FALSE);
+        if (!rn2(10)) {
+            if (!uwep->oartifact) {
+                /* priests can receive bladed weapons via altar
+                   sacrifice. don't punish them if they try to
+                   use them.
+
+                   TODO: create a bitfield in struct artifact to
+                   flag artifacts that are actually gifted, so we
+                   can check against that instead of making all
+                   artifacts ok to try and use */
+                Your("behavior has displeased %s.",
+                     align_gname(u.ualign.type));
+                adjalign(-1);
+                record_abuse_event_dtl(-1, ABUSE_FORBIDDEN_WEAPON,
+                                       uwep->otyp + 1, 0);
+            }
+        }
+    }
 
     if (gu.unweapon) {
         gu.unweapon = FALSE;

@@ -2537,6 +2537,28 @@ thitmonst(
                reads obj, and the thrown case is covered just above */
             if (hmode == HMON_APPLIED && !o_on(obj_oid, gi.invent))
                 return 1;
+            /* a kicked weapon that broke on impact (hero_breaks() in
+               hmon()) is gone too; dealloc_obj() clears the kicked
+               tracker the same way it clears the thrown one */
+            if (hmode == HMON_KICKED && !gk.kickedobj)
+                return 1;
+            /* Priests firing/throwing edged weapons is frowned upon by
+               their deity */
+            if (Role_if(PM_CLERIC) && (is_pierce(obj) || is_slash(obj))) {
+                if (!rn2(4)) {
+                    pline("%s %s weapons such as %s %s %s!",
+                          ammo_and_launcher(obj, uwep) ? "Firing"
+                                                       : "Throwing",
+                          is_slash(obj) ? "edged" : "piercing",
+                          ansimpleoname(obj),
+                          rn2(2) ? "angers" : "displeases",
+                          align_gname(u.ualign.type));
+                    adjalign(-1);
+                    record_abuse_event_dtl(-1, ABUSE_FORBIDDEN_WEAPON,
+                                           obj->otyp + 1, 0);
+                }
+                exercise(A_WIS, FALSE);
+            }
 
             /* projectiles other than magic stones sometimes disappear
                when thrown; projectiles aren't among the types of weapon

@@ -2436,6 +2436,7 @@ int
 weapon_hit_bonus(struct obj *weapon)
 {
     int type, wep_type, skill, bonus = 0;
+    unsigned maxweight = 0;
     static const char bad_skill[] = "weapon_hit_bonus: bad skill %d";
 
     wep_type = weapon_type(weapon);
@@ -2460,10 +2461,10 @@ weapon_hit_bonus(struct obj *weapon)
             bonus = 0;
             break;
         case P_SKILLED:
-            bonus = 2;
+            bonus = 3;
             break;
         case P_EXPERT:
-            bonus = 3;
+            bonus = 5;
             break;
         }
     } else if (type == P_TWO_WEAPON_COMBAT) {
@@ -2480,28 +2481,67 @@ weapon_hit_bonus(struct obj *weapon)
             bonus = -9;
             break;
         case P_BASIC:
-            bonus = -7;
-            break;
-        case P_SKILLED:
             bonus = -5;
             break;
-        case P_EXPERT:
+        case P_SKILLED:
             bonus = -3;
             break;
+        case P_EXPERT:
+            bonus = 0; /* if you're an expert, there shouldn't be a penalty */
+            break;
+        }
+        /* Heavy things are hard to use in your offhand unless you're
+           very good at what you're doing, or are very strong (see below).
+           do_attack() carries a twin of this ladder for its feedback;
+           keep the two in sync */
+        switch (P_SKILL(P_TWO_WEAPON_COMBAT)) {
+        default:
+            impossible(bad_skill, P_SKILL(P_TWO_WEAPON_COMBAT));
+            FALLTHROUGH;
+            /* FALLTHRU */
+        case P_ISRESTRICTED:
+        case P_UNSKILLED:
+            maxweight = 20; /* can use tridents/javelins, crysknives,
+                               unicorn horns or anything lighter */
+            break;
+        case P_BASIC:
+            maxweight = 30; /* can use short swords/spears or a mace */
+            break;
+        case P_SKILLED:
+            maxweight = 40; /* can use sabers/long swords */
+            break;
+        case P_EXPERT:
+            maxweight = 70; /* expert level can offhand any one-handed
+                               weapon */
+            break;
+        }
+
+        /* basically no restrictions if you're a giant, or have giant
+           strength */
+        if (ACURR(A_STR) == STR19(25)
+            || maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT)))
+            maxweight = 200;
+
+        if (uswapwep && uswapwep->owt > maxweight) {
+            /* feedback handled in do_attack() */
+            bonus = -30;
         }
     } else if (type == P_BARE_HANDED_COMBAT) {
         /*
-         *        b.h. m.a.
-         * unskl:  +1  n/a
-         * basic:  +1   +3
-         * skild:  +2   +4
-         * exprt:  +2   +5
-         * mastr:  +3   +6
-         * grand:  +3   +7
+         *        b.h. m.a. giant b.h. m.a.
+         * unskl:  +1  n/a         +3  n/a
+         * basic:  +1   +3         +3   +4
+         * skild:  +2   +4         +4   +5
+         * exprt:  +2   +5         +4   +6
+         * mastr:  +3   +8         +5   +9
+         * grand:  +3  +11         +5  +12
          */
         bonus = P_SKILL(type);
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 2) * (martial_bonus() ? 2 : 1)) / 2;
+        /* extra boost for master/GM */
+        if (bonus > 5)
+            bonus += ((bonus - 5) * 2);
 
         /* giants have naturally powerful fists */
         if (Race_if(PM_GIANT))
@@ -2527,6 +2567,13 @@ weapon_hit_bonus(struct obj *weapon)
             bonus -= 2;
     }
 
+    /* Priests using edged weapons is frowned upon by their deity */
+    if (uwep && Role_if(PM_CLERIC)
+        && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
+        && (is_pierce(uwep) || is_slash(uwep) || is_ammo(uwep))) {
+        /* feedback handled in do_attack() */
+        bonus = -40;
+    }
     return bonus;
 }
 
