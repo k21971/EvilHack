@@ -2287,33 +2287,101 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       candidate LOW row if it recurs); acceptable_pet_target()
       refuses melee when target m_lev >= pet m_lev + 5*mhp/mhpmax
       - 2 (staging lore).
-- [ ] Remaining innate spell arms: MGC_CANCELLATION, MGC_REFLECTION,
-      CLC_PROTECTION, CLC_CALL_UNDEAD (minted 2026-08-21 by the
-      spell-list expansion slice per maintainer scope ruling).
-      Master's ladders carry all four; the branch MONSPELL table has
-      none. Their monster fields exist unwired (mprotection,
-      mprottime, mreflecttime - clone/montraits resets already
-      clear them). MGC_CANCELLATION overlaps the cancellation slice
-      (the cancel_monst strip block + BUG-445's mlined_up
-      discipline + the BUG-878-class m-v-m guards travel with the
-      arm); master's castmm routing exceptions (CANCELLATION,
-      CALL_UNDEAD) rejoin the "undirected-but-not-really" list when
-      these land. Ladder mapping to mint: CANCELLATION level 15,
-      REFLECTION at the rnd(2) AGGRAVATION rung (13), PROTECTION
-      cleric level 2, CALL_UNDEAD cleric level 8, per master's case
-      values.
-- [ ] castum() innate AD_SPEL/AD_CLRC casting for the polymorphed
-      hero (minted 2026-08-21 by the spell-list expansion slice).
-      Branch castum is elemental-only (bails on AD_SPEL/CLRC);
-      master runs the full lists via uspell_would_be_useless. The
-      helper arms already carry dormant `yours` legs (keyed on
-      caster == &gy.youmonst) so the wiring is: castum selection +
-      uspell_would_be_useless port + mcast_spell tail gains the
-      yours kill routing (killed() not monkilled - the tail
-      currently hardcodes the monster actor) + castum's u.uen
-      charging decision for the lists (the elemental free-cast
-      ruling covered elemental only). SUMMON_MINION/INSECTS stay
-      rejected for the hero (master's no-free-pets gate).
+- [x] Remaining innate spell arms: MGC_CANCELLATION, MGC_REFLECTION,
+      CLC_PROTECTION, CLC_CALL_UNDEAD - DONE 2026-08-22 (session
+      56) as one slice with the castum row below AND the
+      cancel_monst rework (maintainer pulled it forward per this
+      row's own "travels with the arm" wording - the zap.c
+      TODO-EVILHACK is DISCHARGED). THREE code commits: db8f547ec
+      REFLECTION, 96f3ebfea the other three arms + castum,
+      5b37285e7 cancel_monst rework; riders 326c8bd63 (dog.c ward
+      catch-up = BUG-1657) + 0788fd555 (mstatusline ward lines =
+      BUG-1658); BUG-1650..1658 archived. Branch names MCAST_*.
+      Ladder mapping landed as RUNG ROLLS before the substitution
+      and useless tests (the bolt-rung pattern - the array walk
+      cannot express master's shared case values): the confusion
+      rung coins PROTECTION (master's even 2/3 split), the
+      aggravation rung coins REFLECTION, the summoning rung rolls
+      CANCELLATION 1-in-3 (= master's 15 vs 16-17 ratio);
+      PROTECTION is also a cleric-list rung so peaceful casters
+      whose confusion pick dies on the hostile-only gate fall
+      through to warding; CALL_UNDEAD sits after INSECTS at the
+      shared level-8 rung. druid_ward_subst() re-keyed BARKSKIN
+      off the PROTECTION pick (the BUG-1533 confusion stand-in
+      RETIRED); the mprotection<->skin-ward cross-gates restored
+      both ways. CANCELLATION is DIRECTED (master 62e4e4221 -
+      master's dead castmm exception-list entry did not resurrect
+      directedness) with the lined_up/m_lined_up execution
+      discipline (BUG-445 shape, messages inside the guards), a
+      gb.buzzer credit bracket on the m-v-m call (deviation,
+      BUG-1655 archives master's credit loss) and youattack=TRUE
+      on the hero leg (deviation, BUG-1656); CALL_UNDEAD joined
+      castmm's undirected-but-not-really exclusion list (without
+      it the self-buff redirect aims m-v-m summons at the HERO)
+      and summons at the CASTER on m-v-m, mkundead with
+      NO_MINVENT and no MM_ANGRY = master parity, casting message
+      on canseemon by RULING (house seecaster rule waived).
+      CORRECTION to this row's minting note: clone/montraits did
+      NOT already clear the protection pair - the clears landed
+      WITH the producer (master's montraits still keeps
+      mprotection on a dead clock, BUG-1654 frozen-unfixed).
+      mprottime decays on master's step-down/reload idiom in
+      m_calcdistress (boss tier 20 : 10), NOT in mon_regen.
+      cancel_monst rework: master's strip blocks (protection/
+      reflection/skins/vulns/touch charges) on both target legs
+      (master's two byte-identical monster blocks fold into one
+      else-leg), dragon-scale/Retribution/Eyes-of-the-Overworld/
+      Tiamat immunity pre-checks, the random item pass, strips
+      BEFORE the resisted gate; kept 5.0's !youattack refinement
+      in the hero Antimagic resist (self-zap never resists);
+      cancel_item by_you billing (BUG-1651) + SCR_CONSECRATION
+      exemption (BUG-1652) + vampire-blood->blood (BUG-1653, both
+      reviewer catches) + AD_CNCL golem kill parity; BUG-1650
+      dead-target guards (zap.c tail + artifact.c Mb_hit). NOVELS
+      RULED 5.0-WINS: cancellation blanks them via blank_novel
+      (master exempts SPE_NOVEL; deliberate upstream-wins
+      deviation). Reviewer CONDITIONAL PASS zero blockers, all
+      findings fixed pre-commit; monster-path neutrality of the
+      hero sweep proven clause by clause. Edge deviations
+      recorded: level-16-18 casters coin 2:1 where master gave
+      CANCELLATION deterministically at 15; level-3 clerics coin
+      where master forced PROTECTION at spellval 2; a useless
+      coin-pick skips its sibling within one walk (bolt-precedent
+      semantics). Commit-split note: the planned per-arm commits
+      merged into 96f3ebfea - the hero sweep threads through the
+      new filter arms, so separate windows would have fabricated
+      never-compiled states. Battery PENDING (this row updates
+      when it runs).
+- [x] castum() innate AD_SPEL/AD_CLRC casting for the polymorphed
+      hero - DONE 2026-08-22 with the arms row above (commit
+      96f3ebfea). Landed on the UNIFIED-FILTER route: selection
+      reuses choose_monster_spell + the single
+      spell_would_be_useless with caster = &gy.youmonst (master's
+      separate uspell_would_be_useless folds in as yours-gated
+      clauses - one choke point per reference-learned-spell-
+      gating; NOT ported as a second filter); the ladder walk and
+      the blast dice read mons[u.umonnum].mlevel (gy.youmonst's
+      monster fields are never maintained - the BUG-877 class;
+      every hero clause is yours-gated). u.uen -= ml + disp.botl
+      for the lists only, deducted BEFORE the fumble roll (spent
+      even on a fumble, master order; elemental free-cast ruling
+      preserved and battery-checkable). mcast_spell's tail routes
+      kills by actor: killed() for the hero, set_pet_killer/
+      monkilled for monsters. Hero legs landed where the filter
+      routes them: m_cure_self (holds until u.mh*4 <= u.mhmax,
+      BUG-447 form), HASTE_SELF (HFast intrinsic), mcast_disappear
+      (HInvis + self_invis_message), mcast_acid_blast + mcast_bolt
+      (second-person messages, BZ_U_SPELL attribution - branch
+      explode() attributes via type >= 0, NOT master's olet
+      trick; exploder bracket gated !yours). No-free-pets bars
+      SUMMON_MONS/INSECTS/SUMMON_MINION/CALL_UNDEAD/CLONE_WIZ for
+      the hero; AGGRAVATION stays monster-only (BUG-878 layers
+      hold); REFLECTION re-castable by the hero (extends the
+      timeout); CANCELLATION skips the mcan re-cancel reject for
+      the hero (strips still matter). uhitm.c AT_MAGC dispatch
+      opened to the lists (was a silent fallthrough to AT_NONE).
+      The mcast_summon_mons Gehennom demon-kin comment updated -
+      the hero never reaches the helper.
 - [x] Monster spellbook learning (struct emsp)
       PORTED + REVIEWED 2026-07-16 (port subagent 38 files
       +2530/-84, reviewer CONDITIONAL PASS 1 blocker + 5 concerns
@@ -9335,6 +9403,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-08-22 | Innate-spell-arms slice rulings (AskUserQuestion x3): (1) the cancel_monst rework travels WITH the MGC_CANCELLATION arm - full strip blocks/immunities/item pass land now, discharging the zap.c TODO-EVILHACK deferral (the "cancellation slice" owner is CLOSED; the AD_CNCL passive and Magicbane arms strengthen as recorded); (2) NOVELS keep 5.0's cancel-to-blank via blank_novel - master's SPE_NOVEL exemption NOT ported, deliberate upstream-wins deviation; (3) CLC_CALL_UNDEAD's casting message stays on master's canseemon(caster) - the BUG-705 seecaster house rule's inventory never classified this message and parity wins. Also approved with the plan: gb.buzzer bracket + youattack=TRUE kill-attribution deviations (BUG-1655/1656 archive master's forms) | maintainer |
 | 2026-08-19 | Damp-sweep hardening deviations RATIFIED (AskUserQuestion): (1) every ported trap-freeze site carries the icedpool ladder (ICED_PUDDLE/ICED_SEWAGE) + start_melt_ice_timeout + obj_ice_effects + newsym where master writes bare typ=ICE - master's own paths melt a frozen puddle into a MOAT (BUG-1604, frozen-unfixed); (2) terrain writes use the hero-aware maybe_unhide_at() instead of master's swimmer-only inline unhide (also swept onto the terrain slice's fire boil-away arm). Corollaries recorded by the coordinator with the slice: master's goodpos explicit late shallow-water accept NOT ported (ACCESSIBLE subsumes it; an early return would bypass the branch's boulder + LR_MONGEN-exclusion rejects; deviation: boulder-on-puddle rejects where master accepts); the monster ice-freeze message is visibility-gated where master prints it unconditionally (off-screen terrain leak, matches the steam arm); water_damage/water_damage_chain ported coordinate-free (master's trailing x,y are dead - immediately overwritten via get_obj_location; do NOT "restore" them) | maintainer |
 | 2026-08-19 | Druid near-vegetation regen formula RATIFIED (AskUserQuestion, rides the damp sweep): heal = ((ulevel + CON) * (near_veg ? 3 : 2) / 2) > rn2(100) - a 1.5x probability multiplier, the 5.0-idiom equivalent of master's moves-modulo interval 3 -> 2 at XL10+; closes the terrain slice's allmain.c TODO. The Druid/Infidel dmgval-hitval terrain arms stay on the attacker-param-threading row | maintainer |
 | 2026-08-16 | ROGUE LEVEL KEPT: 5.0's re-activated vanilla tribute level stays active (base 15 range 4, always placed at DoD depth 15-18; master inherits 3.6's commented-out entry and never places it) - the adopt-upstream-additions precedent (Tutorial/themerms/bigrm-13/minend) extended to a whole level; data-only toggle, reversible any time, new games only. BUG-1105 rogue_vision guard re-ported live with it | maintainer |
