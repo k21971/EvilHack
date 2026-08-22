@@ -1401,9 +1401,11 @@ unturn_you(void)
     }
 }
 
-/* cancel obj, possibly carried by you or a monster */
+/* cancel obj, possibly carried by you or a monster; by_you is TRUE
+   when the hero instigated the cancellation and eats the shop bill
+   for any alteration */
 void
-cancel_item(struct obj *obj)
+cancel_item(struct obj *obj, boolean by_you)
 {
     int otyp = obj->otyp;
 
@@ -1459,8 +1461,8 @@ cancel_item(struct obj *obj)
             break;
         }
     }
-    /* cancelled item might not be in hero's possession but
-       cancellation is presumed to be instigated by hero */
+    /* cancelled item might not be in hero's possession, and the
+       cancellation might not be the hero's doing */
     if (objects[otyp].oc_magic
         || (obj->spe && (obj->oclass == ARMOR_CLASS
                          || obj->oclass == WEAPON_CLASS || is_weptool(obj)))
@@ -1477,18 +1479,23 @@ cancel_item(struct obj *obj)
             && otyp != WAN_CANCELLATION /* can't cancel cancellation */
             && otyp != MAGIC_LAMP /* cancelling doesn't remove djinni */
             && otyp != CANDELABRUM_OF_INVOCATION) {
-            costly_alteration(obj, COST_CANCEL);
+            if (by_you)
+                costly_alteration(obj, COST_CANCEL);
             obj->spe = cancelled_spe;
         }
         switch (obj->oclass) {
         case SCROLL_CLASS:
-            costly_alteration(obj, COST_CANCEL);
-            obj->otyp = SCR_BLANK_PAPER;
-            obj->spe = 0;
+            if (otyp != SCR_CONSECRATION) {
+                if (by_you)
+                    costly_alteration(obj, COST_CANCEL);
+                obj->otyp = SCR_BLANK_PAPER;
+                obj->spe = 0;
+            }
             break;
         case SPBOOK_CLASS:
             if (otyp != SPE_CANCELLATION && otyp != SPE_BOOK_OF_THE_DEAD) {
-                costly_alteration(obj, COST_CANCEL);
+                if (by_you)
+                    costly_alteration(obj, COST_CANCEL);
                 obj->otyp = SPE_BLANK_PAPER;
                 set_material(obj, PAPER);
                 /* cancelling a novel is more involved than a spellbook */
@@ -1497,8 +1504,12 @@ cancel_item(struct obj *obj)
             }
             break;
         case POTION_CLASS:
-            costly_alteration(obj, (otyp != POT_WATER) ? COST_CANCEL
-                                   : obj->cursed ? COST_UNCURS : COST_UNBLSS);
+            if (by_you)
+                costly_alteration(obj,
+                                  (otyp != POT_WATER)
+                                      ? COST_CANCEL
+                                      : obj->cursed ? COST_UNCURS
+                                                    : COST_UNBLSS);
             if (otyp == POT_SICKNESS || otyp == POT_SEE_INVISIBLE
                 || otyp == POT_DROW_POISON) {
                 /* sickness is "biologically contaminated" fruit juice;
@@ -1507,6 +1518,9 @@ cancel_item(struct obj *obj)
                    juice, it similarly cancels; drow poison is fruit
                    juice fermented with a black fungus */
                 obj->otyp = POT_FRUIT_JUICE;
+            } else if (otyp == POT_VAMPIRE_BLOOD) {
+                /* the potency cancels but it stays blood */
+                obj->otyp = POT_BLOOD;
             } else {
                 obj->otyp = POT_WATER;
                 obj->odiluted = 0; /* same as any other water */
@@ -2532,7 +2546,7 @@ bhito(struct obj *obj, struct obj *otmp)
             break;
         case WAN_CANCELLATION:
         case SPE_CANCELLATION:
-            cancel_item(obj);
+            cancel_item(obj, !svc.context.mon_moving);
             newsym(obj->ox, obj->oy); /* might change color */
             break;
         case SPE_DRAIN_LIFE:
@@ -3528,34 +3542,282 @@ boolean
 cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
              boolean allow_cancel_kill, boolean self_cancel)
 {
-    /* TODO-EVILHACK: the cancellation rework (dragon-scale immunities
-       plus immediate stripping of spell buffs such as reflection,
-       barkskin, stoneskin, burning hands, and shocking grasp, and
-       clearing of the Vulnerable_* elemental vulnerability props)
-       ports with the cancellation slice; until then those buffs and
-       vulnerabilities simply run out via their own timers */
     static const char
         writing_vanishes[] = "Some writing vanishes from %s head!",
         your[] = "your"; /* should be extern */
     boolean youdefend = (mdef == &gy.youmonst);
+    int onum = 0, oindex = 0, cnt = 0;
+    struct obj *otmp;
+    /* magic resistance does not shield the hero's own deliberate
+       self-zap, and it only protects the cancellation core at the
+       bottom - the buff strips and the inventory pass land anyway */
+    boolean resisted = (youdefend && !youattack && Antimagic)
+                       || (!youdefend
+                           && resist(mdef, obj ? obj->oclass : 0, 0,
+                                     NOTELL));
 
-    if (youdefend ? (!youattack && Antimagic)
-                  : resist(mdef, obj ? obj->oclass : 0, 0, NOTELL))
-        return FALSE; /* resisted cancellation */
+    if (obj && obj->otyp == WAN_CANCELLATION)
+        makeknown(obj->otyp);
 
     if (self_cancel) { /* 1st cancel inventory */
-        struct obj *otmp;
-
         for (otmp = (youdefend ? gi.invent : mdef->minvent); otmp;
              otmp = otmp->nobj)
-            cancel_item(otmp);
+            cancel_item(otmp, youattack);
 
         if (youdefend) {
+            You_feel(
+                "magical energies being absorbed from your exact location.");
             disp.botl = TRUE; /* potential AC change */
             find_ac();
             /* update_inventory(); -- handled by caller */
         }
+    } else {
+        /* shield effect if the target has magic resistance - it does
+           not protect against cancellation */
+        if (youdefend && Antimagic)
+            shieldeff(u.ux, u.uy);
+        if (!youdefend && resisted)
+            shieldeff(mdef->mx, mdef->my);
+
+        if (youdefend) {
+            if (rn2(10) && uarm && Is_dragon_scaled_armor(uarm)
+                && (Dragon_armor_to_scales(uarm) == GRAY_DRAGON_SCALES
+                    || Dragon_armor_to_scales(uarm)
+                       == CHROMATIC_DRAGON_SCALES)) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a wave of energy dissipate around you.");
+                return FALSE;
+            } else if (rn2(3)
+                       && ((Role_if(PM_MONK) && ublindf
+                            && ublindf->oartifact
+                               == ART_EYES_OF_THE_OVERWORLD)
+                           || (uarm && uarm->oartifact
+                                       == ART_ARMOR_OF_RETRIBUTION))) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a wave of energy dissipate around you.");
+                return FALSE;
+            } else if (Upolyd
+                       && gy.youmonst.data == &mons[PM_GRAY_DRAGON]) {
+                shieldeff(u.ux, u.uy);
+                You_feel("a wave of energy dissipate around you.");
+                return FALSE;
+            } else {
+                You_feel(
+                    "magical energies being absorbed from your vicinity.");
+                if (u.uspellprot) {
+                    pline_The("%s haze around you disappears.",
+                              hcolor(NH_GOLDEN));
+                    u.usptime = u.uspmtime = u.uspellprot = 0;
+                    disp.botl = TRUE; /* potential AC change */
+                    find_ac();
+                }
+                if (HReflecting > 0) {
+                    pline("The shimmering globe around you disappears.");
+                    HReflecting = 0;
+                }
+                if (HBarkskin) {
+                    HBarkskin = 0;
+                    Your("%s returns to normal.",
+                         mbodypart(&gy.youmonst, SKIN));
+                }
+                if (HStoneskin) {
+                    HStoneskin = 0;
+                    Your("%s returns to normal.",
+                         mbodypart(&gy.youmonst, SKIN));
+                }
+                if (HVulnerable_fire) {
+                    HVulnerable_fire = 0;
+                    You("are no longer vulnerable to fire.");
+                }
+                if (HVulnerable_cold) {
+                    HVulnerable_cold = 0;
+                    You("are no longer vulnerable to cold.");
+                }
+                if (HVulnerable_elec) {
+                    HVulnerable_elec = 0;
+                    You("are no longer vulnerable to electricity.");
+                }
+                if (HVulnerable_acid) {
+                    HVulnerable_acid = 0;
+                    You("are no longer vulnerable to acid.");
+                }
+                if (u.umburn) {
+                    u.umburn = 0;
+                    Your("%s stop burning %s.",
+                         is_bird(gy.youmonst.data)
+                             ? "talons" : makeplural(body_part(HAND)),
+                         hcolor(NH_ORANGE));
+                }
+                if (u.umshock) {
+                    u.umshock = 0;
+                    Your("%s stop shimmering %s.",
+                         is_bird(gy.youmonst.data)
+                             ? "talons" : makeplural(body_part(HAND)),
+                         hcolor(NH_BLUE));
+                }
+                if (u.umconf) {
+                    u.umconf = 0;
+                    Your("%s stop tingling.",
+                         is_bird(gy.youmonst.data)
+                             ? "talons" : makeplural(body_part(HAND)));
+                }
+            }
+        } else {
+            /* one monster-target leg serves both the hero attacking
+               and monster-vs-monster; the original carries the block
+               twice, byte-identical */
+            if (rn2(10) && (otmp = which_armor(mdef, W_ARM)) != 0
+                && Is_dragon_scaled_armor(otmp)
+                && (Dragon_armor_to_scales(otmp) == GRAY_DRAGON_SCALES
+                    || Dragon_armor_to_scales(otmp)
+                       == CHROMATIC_DRAGON_SCALES)) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else if (rn2(3) && (otmp = which_armor(mdef, W_ARM)) != 0
+                       && otmp->oartifact == ART_ARMOR_OF_RETRIBUTION) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else if (mdef->data == &mons[PM_TIAMAT]
+                       || mdef->data == &mons[PM_GRAY_DRAGON]) {
+                shieldeff(mdef->mx, mdef->my);
+                if (canseemon(mdef))
+                    You("sense a wave of energy dissipate around %s.",
+                        mon_nam(mdef));
+                return FALSE;
+            } else {
+                if (!mdef->mcan && canseemon(mdef))
+                    pline("Magical energies are absorbed from %s.",
+                          mon_nam(mdef));
+                if (mdef->mprotection) {
+                    if (canseemon(mdef))
+                        pline_The("%s haze around %s %s.",
+                                  hcolor(NH_GOLDEN), mon_nam(mdef),
+                                  "disappears");
+                    mdef->mprotection = mdef->mprottime = 0;
+                }
+                if (has_reflection(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s shimmering globe disappears.",
+                              s_suffix(Monnam(mdef)));
+                    mdef->mextrinsics &= ~(MR2_REFLECTION);
+                    mdef->mreflecttime = 0;
+                }
+                if (has_barkskin(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s %s returns to normal.",
+                              s_suffix(Monnam(mdef)),
+                              mbodypart(mdef, SKIN));
+                    mdef->mextrinsics &= ~(MR2_BARKSKIN);
+                    mdef->mbarkskintime = 0;
+                }
+                if (has_stoneskin(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s %s returns to normal.",
+                              s_suffix(Monnam(mdef)),
+                              mbodypart(mdef, SKIN));
+                    mdef->mextrinsics &= ~(MR2_STONESKIN);
+                    mdef->mstoneskintime = 0;
+                }
+                if (mdef->vuln_fire) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to fire.",
+                              Monnam(mdef));
+                    mdef->vuln_fire = 0;
+                }
+                if (mdef->vuln_cold) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to cold.",
+                              Monnam(mdef));
+                    mdef->vuln_cold = 0;
+                }
+                if (mdef->vuln_elec) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to electricity.",
+                              Monnam(mdef));
+                    mdef->vuln_elec = 0;
+                }
+                if (mdef->vuln_acid) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to acid.",
+                              Monnam(mdef));
+                    mdef->vuln_acid = 0;
+                }
+                if (mdef->mburnhands) {
+                    mdef->mburnhands = 0;
+                    if (canseemon(mdef))
+                        pline("%s %s stop burning.",
+                              s_suffix(Monnam(mdef)),
+                              makeplural(mbodypart(mdef, HAND)));
+                }
+                if (mdef->mshockgrasp) {
+                    mdef->mshockgrasp = 0;
+                    if (canseemon(mdef))
+                        pline("%s %s stop shimmering.",
+                              s_suffix(Monnam(mdef)),
+                              makeplural(mbodypart(mdef, HAND)));
+                }
+            }
+        }
+
+        /* a few carried items get cancelled outright */
+        for (otmp = (youdefend ? gi.invent : mdef->minvent); otmp;
+             otmp = otmp->nobj) {
+            /* gold isn't subject to being cursed or blessed */
+            if (otmp->oclass == COIN_CLASS)
+                continue;
+            onum++;
+        }
+        if (onum) {
+            int hero_count = ((!!Antimagic) + (!!Half_spell_damage) + 1);
+            int mon_count = rnd(3);
+
+            for (cnt = rnd(6 / (youdefend ? hero_count : mon_count));
+                 cnt > 0; cnt--) {
+                oindex = rnd(onum);
+                /* if random count is higher than number of objects in
+                   inventory, clamp count to be no greater than number
+                   of objects in inventory */
+                if (cnt > onum)
+                    cnt = onum;
+                for (otmp = (youdefend ? gi.invent : mdef->minvent);
+                     otmp; otmp = otmp->nobj) {
+                    /* as above */
+                    if (otmp->oclass == COIN_CLASS)
+                        continue;
+                    if (--oindex == 0)
+                        break; /* found the target */
+                }
+                if (!otmp)
+                    continue; /* next target */
+
+                if (otmp->blessed && !otmp->oartifact
+                    && !obj_resists(otmp, 0, 0) && !rn2(5)) {
+                    pline("%s!", Yobjnam2(otmp, "resist"));
+                    continue;
+                }
+                if (((otmp->oartifact && spec_ability(otmp, SPFX_INTEL))
+                     || obj_resists(otmp, 0, 0)) && rn2(10) < 8) {
+                    pline("%s!", Tobjnam(otmp, "resist"));
+                    continue;
+                }
+                cancel_item(otmp, youattack);
+            }
+            if (youdefend) {
+                disp.botl = TRUE; /* potential AC change */
+                find_ac();
+            }
+            update_inventory();
+        }
     }
+
+    if (resisted)
+        return FALSE;
 
     /* now handle special cases */
     if (youdefend) {
@@ -3581,6 +3843,13 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
         mdef->mcan = 1;
         /* force shapeshifter into its base form or mimic to unhide */
         normal_shape(mdef);
+        /* the forced form change can drop the target into a handless
+           polymorph; mon_break_armor then sheds cockatrice gloves and
+           mselftouch petrifies it. The cancel itself succeeded (mcan
+           is set), so report TRUE - and skip writes through the dead
+           struct */
+        if (DEADMONSTER(mdef))
+            return TRUE;
 
         if (mdef->data == &mons[PM_CLAY_GOLEM]) {
             if (canseemon(mdef))
@@ -3593,7 +3862,7 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                 } else {
                     if (gb.buzzer && gb.buzzer->mtame)
                         set_pet_killer(gb.buzzer);
-                    monkilled(mdef, "", AD_SPEL);
+                    monkilled(mdef, "", AD_CNCL);
                 }
             }
         }

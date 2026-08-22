@@ -2138,9 +2138,13 @@ Mb_hit(struct monst *magr, /* attacker */
                     disp.botl = TRUE;
                     You("lose magical energy!");
                 }
-            } else {
-                /* canceled shapeshifter/vamp may have changed forms, so
-                   update its name if necessary */
+            } else if (!DEADMONSTER(mdef)) {
+                /* the cancel itself can prove fatal (a forced form
+                   change into a handless polymorph sheds cockatrice
+                   gloves and mselftouch petrifies); skip post-cancel
+                   state writes through the dead struct.
+                   A canceled shapeshifter/vamp may have changed
+                   forms, so update its name if necessary */
                 if (mdef->data != old_mdat)
                     Strcpy(hittee, mon_nam(mdef));
                 if (mdef->data == &mons[PM_CLAY_GOLEM])
