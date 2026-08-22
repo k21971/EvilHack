@@ -55,5 +55,8 @@ MONSPELL(ICE_BOLT,    23, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 MONSPELL(VULN_YOU,     5, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 /* summon an aligned servant; clerical-ladder pick, melee range only */
 MONSPELL(SUMMON_MINION, 14, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
+/* reflection self-ward; the wizard ladder's aggravation rung rolls
+   between the two */
+MONSPELL(REFLECTION,   13, MCF_INDIRECT),
 
 #undef MONSPELL

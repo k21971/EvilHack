@@ -228,7 +228,15 @@ choose_monster_spell(struct monst *mtmp, struct monst *mdef, int adtyp)
     for (i = len - 1; i > 0; i--) {
         if (mcast_data[list[i]].level > spellval)
             continue;
-        candidate = druid_ward_subst(mtmp, list[i]);
+        candidate = list[i];
+        /* some rungs stand for a random pick between same-level
+           spells; roll before the substitution and useless tests so
+           the chosen spell's own flags and usefulness decide, and
+           fall through to the next rung when the pick proves
+           useless */
+        if (candidate == MCAST_AGGRAVATION && rn2(2))
+            candidate = MCAST_REFLECTION;
+        candidate = druid_ward_subst(mtmp, candidate);
         /* the bolt rung stands for a fire/ice/psi choice; roll it
            now so the chosen element's own resistances decide, and
            fall through to the next rung when the roll defers */
@@ -2170,6 +2178,10 @@ mcast_spell(struct monst *mtmp, struct monst *mdef, int dmg, int spellnum,
         cast_stoneskin(mtmp, P_SKILL(spell_skilltype(SPE_STONESKIN)));
         dmg = 0;
         break;
+    case MCAST_REFLECTION:
+        cast_reflection(mtmp, P_SKILL(spell_skilltype(SPE_REFLECTION)));
+        dmg = 0;
+        break;
     case MCAST_OPEN_WOUNDS:
         dmg = mcast_open_wounds(mtmp, mdef, dmg);
         break;
@@ -2409,6 +2421,12 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
     case MCAST_STONESKIN:
         /* the two skin wards are mutually exclusive */
         if (has_barkskin(mtmp) || has_stoneskin(mtmp))
+            return TRUE;
+        break;
+    case MCAST_REFLECTION:
+        /* reflection when already reflecting, whether from the spell
+           or from gear */
+        if (has_reflection(mtmp) || mon_reflects(mtmp, (char *) 0))
             return TRUE;
         break;
     case MCAST_BLIND_YOU:
