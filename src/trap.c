@@ -7998,6 +7998,95 @@ unconscious(void)
                     || !strncmp(gn.nomovemsg, "You are consci", 14))));
 }
 
+/* Derived from lava_effects(): hero can burn in Gehennom
+   without adequate fire resistance */
+static const char in_hell_killer[] = "the flames of hell";
+
+boolean
+in_hell_effects(void)
+{
+    int dmg = resist_reduce(d(1, 6), FIRE_RES);
+    boolean usurvive, boil_away;
+    static int hell_death_attempts = 0;
+
+    if (likes_lava(gy.youmonst.data)) {
+        if (iflags.debug_fuzzer)
+            hell_death_attempts = 0; /* reset counter - we're fine */
+        return FALSE;
+    }
+
+    usurvive = how_resistant(FIRE_RES) == 100
+               || (dmg < (Upolyd ? u.mh : u.uhp));
+
+    if (how_resistant(FIRE_RES) < 100) {
+        if (how_resistant(FIRE_RES) >= 50) {
+            if (rn2(3))
+                pline_The("flames of hell are slowly %s you alive!",
+                          rn2(2) ? "roasting" : "burning");
+        } else {
+            pline_The("flames of hell are %s you alive!",
+                      rn2(2) ? "roasting" : "burning");
+        }
+        if (usurvive) {
+            losehp(dmg, in_hell_killer, KILLED_BY);
+            if (iflags.debug_fuzzer)
+                hell_death_attempts = 0; /* reset - still alive */
+            return FALSE;
+        }
+
+        if (wizard)
+            usurvive = TRUE;
+
+        /* Fuzzer protection: prevent infinite hell loops */
+        if (iflags.debug_fuzzer) {
+            hell_death_attempts++;
+            /* after 2 failed attempts, grant temporary fire resistance
+               and teleport to safety */
+            if (hell_death_attempts >= 2) {
+                Your("body rapidly adapts to the infernal heat!");
+                /* deliberately guarded, unlike master's unconditional
+                   grant: a timeout write on a nonzero intrinsic word
+                   would rewrite a stored partial-resistance percentage,
+                   so only an empty word gets the temporary grant; a
+                   partial holder still escapes via the teleport below */
+                if (!HFire_resistance) {
+                    You("develop temporary fire resistance!");
+                    /* grant enough turns to escape */
+                    set_itimeout(&HFire_resistance, 50L);
+                }
+                hell_death_attempts = 0;
+                /* try to find a safe spot on this level first */
+                if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    You("are magically transported to safety!");
+                    return FALSE; /* successfully escaped hell flames */
+                }
+                /* if no safe spot on this level, level teleport */
+                You("feel a powerful force pulling you away!");
+                level_tele();
+                return FALSE; /* continue turn */
+            }
+        }
+
+        boil_away = (u.umonnum == PM_WATER_ELEMENTAL
+                     || u.umonnum == PM_STEAM_VORTEX
+                     || u.umonnum == PM_WATER_TROLL
+                     || u.umonnum == PM_BABY_SEA_DRAGON
+                     || u.umonnum == PM_SEA_DRAGON
+                     || u.umonnum == PM_FOG_CLOUD);
+
+        svk.killer.format = KILLED_BY;
+        Strcpy(svk.killer.name, in_hell_killer);
+        urgent_pline("You %s...",
+                     boil_away ? "boil away" : "are roasted alive");
+        done(DIED);
+        return TRUE;
+    }
+
+    if (iflags.debug_fuzzer)
+        hell_death_attempts = 0; /* reset - full resistance */
+    return FALSE;
+}
+
 /* Derived from lava_effects(): hero can freeze in the
    Ice Queen branch without adequate cold resistance */
 static const char in_iceq_killer[] = "freezing to death";
@@ -8015,7 +8104,8 @@ in_iceq_effects(void)
         return FALSE;
     }
 
-    usurvive = how_resistant(COLD_RES) == 100 || (dmg < u.uhp);
+    usurvive = how_resistant(COLD_RES) == 100
+               || (dmg < (Upolyd ? u.mh : u.uhp));
 
     if (how_resistant(COLD_RES) < 100) {
         if (how_resistant(COLD_RES) >= 50) {

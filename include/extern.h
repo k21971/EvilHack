@@ -3608,6 +3608,7 @@ extern boolean launch_in_progress(void);
 extern void force_launch_placement(void);
 extern boolean uteetering_at_seen_pit(struct trap *) NO_NNARGS;
 extern boolean uescaped_shaft(struct trap *) NO_NNARGS;
+extern boolean in_hell_effects(void);
 extern boolean in_iceq_effects(void);
 extern boolean lava_effects(void);
 extern void sink_into_lava(void);

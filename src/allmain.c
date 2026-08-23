@@ -481,9 +481,10 @@ moveloop_core(void)
                     }
                 }
 
-                /* TODO-EVILHACK: master calls in_hell_effects() here
-                   (Gehennom ambient fire); ports with the flames-of-hell
-                   row */
+                /* Running around in Gehennom without
+                   100% fire resistance */
+                if (Inhell && !Is_valley(&u.uz))
+                    in_hell_effects();
 
                 /* Running around in the Ice Queen branch without
                    100% cold resistance */
