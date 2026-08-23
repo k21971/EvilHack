@@ -3635,6 +3635,7 @@ extern int find_roll_to_hit(struct monst *, uchar, struct obj *,
 extern boolean force_attack(struct monst *, boolean) NONNULLARG1;
 extern boolean do_attack(struct monst *) NONNULLARG1;
 extern boolean hmon(struct monst *, struct obj *, int, int) NONNULLARG1;
+extern int shield_dmg(struct obj *, struct monst *) NONNULLPTRS;
 extern boolean shade_miss(struct monst *, struct monst *, struct obj *,
                           boolean, boolean) NONNULLARG12;
 extern void mhitm_ad_rust(struct monst *, struct attack *, struct monst *,

@@ -39,6 +39,8 @@ staticfn void hmon_hitmon_potion(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_misc_obj(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
+staticfn void hmon_hitmon_shield(struct _hitmon_data *, struct monst *,
+                             struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_do_hit(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
 staticfn void hmon_hitmon_dmg_recalc(struct _hitmon_data *, struct obj *);
@@ -1131,6 +1133,34 @@ hitum(struct monst *mon, struct attack *uattk)
         }
     }
 
+    /* random shield bash if wearing a shield and are skilled
+       in using shields */
+    if (uarms && !is_bracer(uarms) && P_SKILL(P_SHIELD) >= P_BASIC
+        && !(gm.multi < 0 || u.umortality > oldumort
+             || u.uinwater || !malive
+             || !isok(x, y) || m_at(x, y) != mon)
+        /* suppress bashes with 'F' */
+        && !svc.context.forcefight) {
+        int bash_chance = (P_SKILL(P_SHIELD) == P_MASTER) ? !rn2(3)
+                          : (P_SKILL(P_SHIELD) == P_EXPERT) ? !rn2(4)
+                            : (P_SKILL(P_SHIELD) == P_SKILLED) ? !rn2(6)
+                              : !rn2(8);
+
+        if (bash_chance) {
+            tmp = find_roll_to_hit(mon, uattk->aatyp, uarms, &attknum,
+                                   &armorpenalty);
+            mon_maybe_unparalyze(mon);
+            dieroll = rnd(20);
+            mhit = (tmp > dieroll || u.uswallow);
+            malive = known_hitum(mon, uarms, &mhit, tmp, armorpenalty,
+                                 uattk, dieroll);
+            /* second passive counter-attack only occurs if second attack
+               hits */
+            if (mhit)
+                (void) passive(mon, uarms, mhit, malive, AT_WEAP, FALSE);
+        }
+    }
+
     /* your race may grant extra natural attacks; illithids and draugr
        don't use their extra attack every turn, vampires only rarely,
        and centaurs are strong enough to not need their extra kick
@@ -1505,6 +1535,34 @@ hmon_hitmon_potion(
     hmd->dmg = noncorporeal(hmd->mdat) ? 0 : 1;
 }
 
+/* hero bashes monster with the worn shield (hitum()'s random shield
+   bash); skill is not trained by bashing, only by blocking */
+staticfn void
+hmon_hitmon_shield(
+    struct _hitmon_data *hmd,
+    struct monst *mon,
+    struct obj *obj)    /* obj is uarms, a shield but not bracers */
+{
+    hmd->dmg = shield_dmg(obj, mon);
+    You("bash %s with %s%s", mon_nam(mon), ysimple_name(obj),
+        canseemon(mon) ? exclam(hmd->dmg) : ".");
+
+    /* potential for shield with an object property to do additional
+       damage */
+    if (!rn2(4) && (obj->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
+        (void) artifact_hit(&gy.youmonst, mon, obj, &hmd->dmg,
+                            hmd->dieroll);
+        if (DEADMONSTER(mon)) {
+            hmd->already_killed = TRUE;
+            hmd->destroyed = TRUE;
+        }
+    }
+    if (!hmd->destroyed && mon_hates_material(mon, obj->material)) {
+        /* dmgval() already added damage, but track hated_obj */
+        hmd->hated_obj = obj;
+    }
+}
+
 staticfn void
 hmon_hitmon_misc_obj(
     struct _hitmon_data *hmd,
@@ -1877,6 +1935,8 @@ hmon_hitmon_do_hit(
         } else {
             if (noncorporeal(hmd->mdat) && !shade_aware(obj)) {
                 hmd->dmg = 0;
+            } else if (obj == uarms && is_shield(obj) && !is_bracer(obj)) {
+                hmon_hitmon_shield(hmd, mon, obj);
             } else {
                 hmon_hitmon_misc_obj(hmd, mon, obj);
             }
@@ -2205,7 +2265,19 @@ hmon_hitmon_msg_hit(
             hit(mshot_xname(obj), mon, exclam(hmd->dmg));
         else if (!flags.verbose)
             You("hit it.");
-        else /* hand_to_hand */
+        else if (obj && obj == uarms && is_shield(obj)) {
+            /* hmon_hitmon_shield() already announced the bash; placing
+               the stagger here because of the order of events */
+            if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT
+                && !(mon_resists_stun(mon) || defended(mon, AD_STUN)
+                     || mon_wielding_artifact(mon, ART_TEMPEST))) {
+                if (canspotmon(mon))
+                    pline("%s %s from the force of your blow!",
+                          Monnam(mon),
+                          makeplural(stagger(hmd->mdat, "stagger")));
+                mon->mstun = 1;
+            }
+        } else /* hand_to_hand */
             You("%s %s%s",
                 (obj && (is_shield(obj)
                          || obj->otyp == HEAVY_IRON_BALL)) ? "bash"
@@ -2384,7 +2456,8 @@ hmon_hitmon(
     } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj && !Upolyd) {
         hmon_hitmon_stagger(&hmd, mon, obj);
     } else if (!hmd.unarmed && hmd.dmg > 1 && !thrown && !Upolyd
-               && !u.twoweap && uwep) {
+               && !u.twoweap && uwep && obj == uwep) {
+        /* single weapon hit; a shield bash doesn't knock back */
         maybe_knockback = TRUE;
     }
 
@@ -8951,6 +9024,30 @@ light_hits_light_hater(struct monst *mon, int dmg)
     } else if (cansee(mon->mx, mon->my) && !canspotmon(mon)) {
         map_invisible(mon->mx, mon->my);
     }
+}
+
+/* damage done by bashing with the worn shield (hitum()) */
+int
+shield_dmg(struct obj *obj, struct monst *mon)
+{
+    int tmp = 0;
+
+    if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
+        /* dmgval for shields is just one point,
+           plus whatever material damage applies */
+        tmp = dmgval(obj, mon);
+
+        /* add extra damage based on the type of shield */
+        if (obj->otyp == SMALL_SHIELD)
+            tmp += rn2(3) + 1;
+        else
+            tmp += rnd(6) + 2;
+
+        /* sprinkle on a bit more damage if shield skill is high enough */
+        if (P_SKILL(P_SHIELD) >= P_EXPERT)
+            tmp += rnd(4);
+    }
+    return tmp;
 }
 
 /*uhitm.c*/
