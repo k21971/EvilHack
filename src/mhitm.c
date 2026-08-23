@@ -1301,6 +1301,7 @@ mdamagem(
     mhm.permdmg = 0;
     mhm.specialdmg = 0;
     mhm.dieroll = dieroll;
+    mhm.mwep = mwep;
     mhm.done = FALSE;
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */

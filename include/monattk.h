@@ -111,6 +111,9 @@ struct mhitm_data {
     boolean permdmg;
     int specialdmg;
     int dieroll;
+    /* weapon swung for this AT_WEAP hit - the off-hand one for a
+       dual-wielder's second swing - or Null when no weapon was used */
+    struct obj *mwep;
 };
 
 /*

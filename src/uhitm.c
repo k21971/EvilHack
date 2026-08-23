@@ -5675,7 +5675,10 @@ mhitm_ad_phys(
                 }
             }
         } else { /* hand to hand weapon */
-            struct obj *otmp = MON_WEP(magr);
+            /* the weapon the caller chose for this swing - mattacku()
+               alternates between the two wielded slots - rather than a
+               fresh look at the primary slot */
+            struct obj *otmp = mhm->mwep;
 
             if (mattk->aatyp == AT_WEAP && otmp) {
                 struct obj *marmg;
@@ -5772,7 +5775,7 @@ mhitm_ad_phys(
                        cached copy so nothing below reads it */
                     if (!o_on(wep_id, magr->minvent)) {
                         mon_currwep_gone(otmp);
-                        otmp = (struct obj *) 0;
+                        otmp = mhm->mwep = (struct obj *) 0;
                     }
                 }
                 /* monster attacking with a poisoned weapon; a coating
@@ -5850,7 +5853,7 @@ mhitm_ad_phys(
                     /* mattacku() cached this weapon in a file static of
                        its own; clear that or passiveum() drains it */
                     mon_currwep_gone(otmp);
-                    otmp = (struct obj *) 0;
+                    otmp = mhm->mwep = (struct obj *) 0;
                 }
             } else if (mattk->aatyp != AT_TUCH || mhm->damage != 0
                        || magr != u.ustuck) {
@@ -5860,7 +5863,9 @@ mhitm_ad_phys(
         }
     } else {
         /* mhitm */
-        struct obj *mwep = MON_WEP(magr);
+        /* the weapon mattackm() chose for this swing, off-hand included;
+           it passes Null for every non-weapon attack */
+        struct obj *mwep = mhm->mwep;
         boolean vis = canseemon(magr) && canseemon(mdef);
 
         if (mattk->aatyp != AT_WEAP && mattk->aatyp != AT_CLAW)
@@ -5921,7 +5926,7 @@ mhitm_ad_phys(
                 /* same hazard as the mhitu arm above: the weapon can be
                    destroyed outright, and the poison check below reads it */
                 if (!o_on(wep_id, magr->minvent))
-                    mwep = (struct obj *) 0;
+                    mwep = mhm->mwep = (struct obj *) 0;
             }
             if (mwep && (mwep->opoisoned || permapoisoned(mwep))
                 && is_poisonable(mwep)
@@ -6826,6 +6831,7 @@ damageum(
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
     mhm.specialdmg = specialdmg;
+    mhm.mwep = (struct obj *) 0;
     mhm.done = FALSE;
 
     if (is_demon(gy.youmonst.data) && !rn2(13) && !uwep
