@@ -17,7 +17,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-22/23 HITUM() MASTER PARITY + SHIELD BASH +
+- Latest slice: 2026-08-23 COMBAT RESIDUE (BUG-1680..1690, six code
+  commits). The six-row cluster the hitum() slice's close-out named:
+  is_poisonable() widened to master (BUG-1680, arm-level poison/taint
+  flags in the melee helper), monster poisoned-weapon arms RULED to
+  master's every-hit + wear-off (BUG-1681), the off-hand damage row
+  closed by threading the swung weapon through struct mhitm_data
+  (BUG-1682, + BUG-1683 the upstream-shared claw-inherits-weapon-dmgval
+  casualty, artifact ~/nh50-claw-weapon-damage.patch), hard_helmet()
+  RULED to master's is_hard() (BUG-1684), the launcher range table
+  (BUG-1685) + archery gloves (BUG-1686). The hand-thrown-ammo poison
+  row CLOSED PREMISE-FALSE (vanilla design on all three trees;
+  upstream-table entry retracted). Reviewer pass folded four
+  same-function parity arms into a sixth commit: two-hander shatter
+  verb/flee odds - the unported half of the Monk-qi commit (BUG-1687),
+  Rogue backstab while two-weaponing + Shadowblade rider (BUG-1688),
+  barkskin/stoneskin in both mhitm_ad_phys kick gates (BUG-1689),
+  thrown-object Luck/2 to-hit (BUG-1690). Rows minted: mberserk
+  subsystem, Kas/needle poison feedback (LOW), weaponless-AT_WEAP
+  stall investigation (LOW, battery observation). Watches: knockback
+  still judges by the primary weapon; mpoisons_subj too
+  (master-identical). Battery 18/18 PASS across a Valkyrie and a
+  Rogue game, paniclog never created; premise corrections recorded on
+  the rows (cursed scroll of earth bypasses helmet_protects; hero
+  #kick's barkskin gate lives in dokick.c, the mhitm_ad_phys hero arm
+  is the polyd path; ranged-arm damage logs above rnd(2) via the Str
+  bonus downstream). Grimtooth "diseased" coward line adjudicated
+  NOT-A-BUG (gate byte-identical to master and to the poison helper).
+- Previous slice: 2026-08-22/23 HITUM() MASTER PARITY + SHIELD BASH +
   MONK QI (BUG-1672..1679, three code commits a0bd6004f / aeaa85812 / 27427e855). The four rows the
   noncorporeal slice minted, plus three untracked master hitum() arms
   the scoping found: cursed-weapon self-hit, bloodthirsty per-hand
@@ -6869,7 +6896,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       behavior in mind when reconciling. The Xiuhcoatl pager blurb
       "Can burn through flammable doors and trees" (pager deferral)
       advertises this feature - port them together or the blurb lies.
-- [ ] dothrow.c launcher range table NOT PORTED (minted 2026-08-06 by
+- [x] dothrow.c launcher range table NOT PORTED (minted 2026-08-06 by
       the Archeologist slice's reviewer while proving the range>0
       gate's producer absent). Master's throwit() range overrides for
       fired ammo - Crossbow of Carl +12, dark elven hand crossbow +8,
@@ -6882,6 +6909,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arms still routed HERE - both quest launchers are now live in
       game and fire at vanilla range until this row lands; the whole
       table ports together, no partial port.
+      PORTED 2026-08-23 (combat-residue slice, BUG-1685), whole table
+      in one read: urange capped at 9; fired ammo crossbow +10 / dark
+      elven hand crossbow +8 / Crossbow of Carl +12; elven bow, dark
+      elven bow, yumi += urange+2; orcish bow += urange-2; bow +=
+      urange (Longbow of Diana +3); sling += urange/2. Upstream's
+      "You aren't wielding an X, so you throw by hand" arm kept (the
+      only deliberate delta); the Levitation recoil now uses the
+      capped urange - master parity. BATTERY: all eight launcher
+      combinations at Str 18/01 match the computed table exactly
+      (elven 20, bow 18, Diana 21, orcish 16, crossbow 19, hand
+      crossbow 17, Carl 21, sling 13) and Str 25 still reads
+      urange=9 - the cap holds.
 - [ ] Conduct wiring reconciliation (reflection/antimagic/forgedarti)
       NOT PORTED (minted 2026-08-06 by the Knight slice's C-hook audit).
       The u.uconduct counter fields and topten.c token-string readers
@@ -7615,7 +7654,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       maintainer: whether GEMSTONE belongs in the rigid gate is a
       master design question (the 2021 widening listed bone/stone/
       wood/glass and skipped it).
-- [ ] is_hard() vs hard_helmet(), tree-wide (NEW, minted 2026-07-28 by
+- [x] is_hard() vs hard_helmet(), tree-wide (NEW, minted 2026-07-28 by
       the combat damage/AC slice). master has NO hard_helmet() at all -
       git grep over master's whole src/ finds zero - and uses is_hard()
       at every falling-object site. hard_helmet() is upstream 5.0's
@@ -7628,7 +7667,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       protection against ANY falling object on the branch where it
       would on master. Decide once, tree-wide; do not settle it a site
       at a time.
-- [ ] Monster off-hand weapon rolls damage from the primary (NEW,
+      RULED 2026-08-23 (AskUserQuestion): MASTER PARITY. hard_helmet()
+      keeps its name (5.0 idiom, single choke point) and answers with
+      is_hard() after the Null/is_helmet guard; all fourteen callers
+      follow - ball, dothrow, read x2, potion, trap, mhitu, objnam
+      helm/hat naming, dig, muse x2 (monster helmet decisions), hack,
+      zap. Grounding for the ruling: metal_materials rolls BONE 50 +
+      WOOD 50 + MINERAL 10 per ~1000, so about one random metal helm
+      in nine was soft on the branch. BUG-1684. BATTERY (with a brief
+      premise correction: a CURSED scroll of earth passes
+      !scursed as helmet_protects, so neither helmet line can print -
+      the leg needs an uncursed scroll): wooden and bone helmets both
+      "Fortunately, you are wearing a hard helmet." with damage
+      capped at 2; LEATHER elven helm control "Your elven helm does
+      not protect you." with uncapped damage; helm_simple_name says
+      "helm" for the wooden helmet and "hat" for the elven helm on
+      the takeoff line.
+- [x] Monster off-hand weapon rolls damage from the primary (NEW,
       minted 2026-07-28 by the combat damage/AC slice; PRE-EXISTING,
       not that slice's doing, and surfaced by its reviewer).
       mattackm() and mhitu.c's mattacku() both select the off-hand
@@ -7644,6 +7699,73 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       key off that pointer, the off-hand swing also erodes and can
       destroy the wrong weapon. Fix is to thread the swung weapon into
       mhitm_ad_phys rather than recompute it.
+      PORTED 2026-08-23 (combat-residue slice, BUG-1682). struct
+      mhitm_data gained mwep, the weapon the caller chose for the
+      swing: mdamagem() stores its by-value mwep (mattackm()'s
+      MON_WEP2 pick for 2nd+ AT_WEAP), hitmu() stores mattacku()'s
+      mon_currwep, the screamu and damageum initializers store Null;
+      mhitm_ad_phys() reads it in both arms and clears it alongside
+      the local where rustm()/break_glass_obj() destroy the weapon
+      mid-hit. SECOND CASUALTY of the same recompute (BUG-1683,
+      UPSTREAM-SHARED): every tree resets mwep per attack in
+      mattackm() and passes Null for AT_CLAW, master's mdamagem()
+      uses the parameter, but 5.0's local recompute plus its
+      != AT_WEAP && != AT_CLAW filter let a wielder's claw inherit
+      the weapon's dmgval in m-v-m; artifact
+      ~/nh50-claw-weapon-damage.patch. WATCHES (reviewer, LOW):
+      mhitm_knockback() and both callers' weapon_used flag still key
+      on MON_WEP(magr) - a dual-wielder's off-hand swing is judged
+      for knockback (Ogresmasher chance included) by the primary; no
+      master counterpart, thread mhm.mwep when the signature is next
+      touched. mpoisons_subj() names "weapon" vs "attack" from the
+      primary slot too - master-identical, cosmetic; the battery saw
+      "attack was tainted" for an off-hand-only coating. BATTERY:
+      drow warrior staged mw=+0 short sword / mw2=+20 elven dagger,
+      four chains m-v-m and four m-v-u: first swing always mwep==mw,
+      second always mwep==mw2 with damage tracking the +20 blade
+      (+21..+25 vs +5..+7), taint on the off-hand fires on the
+      SECOND swing only (both directions, hero knocked out through
+      it); troll wielding a long sword: AT_CLAW and AT_BITE enter
+      with mwep NULL and no weapon damage, 4/4 chains.
+- [ ] Monster berserk subsystem (mberserk) half-ported (minted
+      2026-08-23 by the combat-residue slice; found reading
+      mhitm_ad_phys() whole, confirmed by its reviewer). The branch
+      has the monst.h bitfield and ONE consumer (monmove.c onscary,
+      ported with the hdgn boss slice); master also has the
+      producers - mon.c mcalcdistress low-HP rage (mhp < mhpmax/3,
+      cleared on recovery) and the muse.c cursed-booze rage - the
+      1/3 extra d(damn,damd) damage arms in both monster damage
+      paths (master mhitm.c mdamagem and mhitu.c hitmu; both live in
+      mhitm_ad_phys() on the branch), the mon.c mm_aggression
+      berserk arm, and the clone/poly resets (makemon.c clone_mon,
+      zap.c). Dormant today (no producer), but the flag is allocated
+      and one consumer is live. Port as one row: producers + damage
+      arms + aggression + resets.
+- [ ] LOW: hero Sword of Kas / barbed needle poison-feedback arms
+      (minted 2026-08-23 by the combat-residue slice). Master's
+      hmon_hitmon() runs the hero poisoned-weapon block for iskas
+      and isneedle too (the "dishonorably"/"evil coward" alignment
+      hit, the +rnd(6)/poiskilled roll, no wear-off); the branch
+      delivers the Sword of Kas's poison through its DRST artifact
+      attack only and the fired barbed needle through its own
+      misc-object case. Decide whether master's double-dip
+      (artifact DRST plus the hero poison block) is intended
+      before porting.
+- [ ] LOW investigation: weaponless AT_WEAP-only monster never
+      attacked (battery observation 2026-08-23, unadjudicated, NOT
+      this slice's doing - weapon selection untouched). A hostile,
+      awake, adjacent stone giant with mw == 0 and an EMPTY
+      inventory produced zero attack messages over ~30 turns
+      (msleeping=0 mfrozen=0 mcanmove=1 mpeaceful=0 mflee=0
+      mstrategy=0, mux/muy on the hero, movement consumed each
+      turn), including after being hit; after mongets(CLUB) +
+      weapon_check=NEED_WEAPON it attacked immediately. The
+      mattacku() AT_WEAP entry handles the no-weapon case
+      (mon_wield_item returns 0 with NEED_WEAPON set and the chain
+      falls through to a bare-handed hitmu), so the stall is
+      upstream of mattacku - monmove/m_move fight decision is the
+      first suspect. Check master with the same staging before
+      diagnosing.
 - [x] objnam.c wish tables and plural handling (NEW, minted AND closed
       2026-07-28 by the oddities the combat/AC battery reported while
       staging test gear). Phase 1's object swap ec925f41a brought
@@ -8321,7 +8443,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pre-specified the exclusion; they stay - they gate the
       unported container-cracking port. Pet residual minted as a
       LOW row below.
-- [ ] is_poisonable() range narrower than master (NEW, minted
+- [x] is_poisonable() range narrower than master (NEW, minted
       2026-07-31 by the BUG-1420/1421 battery; MEDIUM port gap,
       affects poison AND taint). Branch include/obj.h keeps
       upstream 5.0's ammo/missile-only form (oc_skill in
@@ -8334,7 +8456,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (readobjnam gates on the same macro). Widening changes
       generation too (mksobj poison/taint rolls and makemon drow
       producers gate on it) - audit consumers before flipping.
-- [ ] Hand-thrown ammo never applies poison or taint (NEW, minted
+      PORTED 2026-08-23 (combat-residue slice, BUG-1680). Macro now
+      master's form (WEAPON_CLASS, !is_launcher, oc_dir != WHACK)
+      with upstream's permapoisoned rider kept (a no-op for
+      Grimtooth, an orcish dagger, but upstream-shaped). Consumer
+      audit: every branch site has a byte-equivalent master twin at
+      the same gate (generation mkobj 1/100 + 1/100 drow taint,
+      makemon drow kits 1/3, dip, wish, doname, cancel, monster
+      throws x4, uhitm x6; nhlobj just emits an extra Lua key);
+      strict superset of the old set, so no save carries a stale
+      opoisoned that stops applying. hmon_hitmon_weapon_melee()
+      regained master's ARM-LEVEL flag placement (the checks sat in
+      the thrown-ammo tail, which a wielded poisoned dagger never
+      reaches); permapoisoned excluded there so 5.0's dieroll<=5
+      Grimtooth limiter stays its only path. The monster-side arms
+      were RULED to master in the same slice - BUG-1681, recorded on
+      the hand-thrown row below. BATTERY: dip coats an elven dagger
+      ("forms a coating") and a drow-poison spear ("thick inky
+      coating"), mace stays "Interesting..."; wishes keep both
+      adjectives; wielded poisoned dagger poisons every melee hit
+      with the "evil coward" line each hit until the record gate
+      closes at -10; thrown poisoned dagger poisons; wear-off at the
+      nominal 1/9 ("Your dagger is no longer poisoned.", ocoated1
+      back to 0); Grimtooth 6/23 poisoned (26.1% vs nominal 25%,
+      dierolls all <=5), never wears off; opoisoned survives
+      save/restore on hero and monster weapons by o_id.
+- [x] Hand-thrown ammo never applies poison or taint (NEW, minted
       2026-07-31 by the BUG-1421 battery; MEDIUM port gap,
       upstream-shared). hmon_hitmon_weapon() routes is_ammo &&
       (thrown != HMON_THROWN || !ammo_and_launcher) to
@@ -8348,6 +8495,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       5.0 regression vs 3.6 (master's monolithic hmon_hitmon
       applies poison on every WEAPON_CLASS hit); also entered in
       the Upstream-reportable table.
+      CLOSED 2026-08-23 WITHOUT CODE - THE PREMISE IS FALSE ON ALL
+      THREE TREES. Master's ranged arm (launcher / hand-held missile
+      / pole / is_ammo without its launcher) has NO poison check;
+      master sets ispoisoned only at the END of the melee else arm,
+      vanilla 3.6 inside that arm's thrown-ammo tail, upstream 5.0
+      the same. Hand-thrown ammo takes the 1-2 damage ranged arm and
+      never poisons anywhere - vanilla design, not a 5.0 regression.
+      The 2026-07-31 Upstream-reportable entry is RETRACTED. The
+      slice reviewer independently reached the same reading, and the
+      battery's negative control confirmed it live: a hand-thrown
+      poisoned arrow hit with ispois=0 and no hmon_hitmon_poison
+      call, the same arrow fired from a bow poisoned (and the ranged
+      arm's LOGGED damage was 5, not the bare rnd(2) - the hero Str
+      bonus lands downstream, a brief-expectation note, not a bug).
+      The row's blast radius DID surface a real ruling: with blades
+      poisonable the monster-side poisoned-weapon arms carry real
+      weight, and the trees differ - upstream 5.0 poisons on 25% of
+      hits (dieroll<=5 vs the hero at hpdamchance 10; !rn2(4) vs a
+      monster for rn1(10,6)) and the coating never wears off; master
+      (= 3.6) poisons on EVERY hit (hpdamchance 30 vs the hero;
+      rnd(6) or a 1-in-30 lethal dose vs a monster) with wear-off
+      1-in-(10 - wt/10). RULED master parity (AskUserQuestion) =
+      BUG-1681, own commit; Grimtooth keeps the 5.0 limiters and
+      never wears off; the m-v-m lethal dose raises the hit's damage
+      to the victim's mhp so mdamagem()'s ordinary kill path owns
+      the death; the "was poisoned!" announcement is kept (master
+      builds that buffer and never prints it). BATTERY: m-v-u 8/8
+      hits poisoned with the header line each hit, wear-off at the
+      nominal 1/9 and the line stops cleanly after; m-v-m poison arm
+      entered on 100% of coated hits across every sample (6/6, 9/9,
+      19/19, 2/2), rn2(30) split 24 damage / 1 deadly / 2 resist,
+      the deadly kill raised dmg to defhp=3887 and died through the
+      ordinary pet-kill path (orc ate the corpse, no hero credit),
+      gnome zombie resisted 9/9 with the "doesn't seem to affect"
+      line, wear-off 6/36 vs nominal 1/10.
 - [ ] Pets still fetch the two rare bags (NEW, minted 2026-07-31
       with BUG-1416; LOW, master-shared). dogmove.c dog_invent()
       picks up floor items via the nofetch class filter and never
@@ -8739,7 +8921,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       three non-branch arms (skeletal dragon, skeleton warrior,
       zombie/skeleton split) apply to every graveyard in the game
       immediately.
-- [ ] dothrow.c archery glove tuning still vanilla (NEW, minted
+- [x] dothrow.c archery glove tuning still vanilla (NEW, minted
       2026-08-16 by the Vecna slice's BUG-1583 fix). The missing
       EvilHack glove CASE LABELS landed with that bug (the
       impossible() was reachable on four types), but master's
@@ -8749,6 +8931,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       left alone - that is archery balance content, not a port gap
       in the glove set. Port with whatever row owns EvilHack's
       weapon/armor numeric tuning.
+      PORTED 2026-08-23 with the range table (BUG-1686): gauntlets
+      of fumbling -9, gauntlets of dexterity +1 in its own case,
+      master's comments carried. BATTERY: measured to-hit deltas
+      power -2 / none 0 / dexterity +1 / fumbling -9.
 - [ ] Gauntlets of Purity wear-restriction + piety message (NEW,
       minted 2026-08-16 by the Vecna slice). The branch has the
       artifact (artilist, forging recipe, muse reflection arm) but
@@ -9716,6 +9902,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-08-23 | uhitm.c mhitm_ad_phys() m-v-m arm re-reads MON_WEP(magr) instead of the weapon mdamagem() received, and its `!= AT_WEAP && != AT_CLAW -> 0` filter keeps the wielded weapon for AT_CLAW, so a weapon-wielder's claw (Yeenoghu, troll) adds the weapon's dmgval to its claw damage in monster-vs-monster combat; mattackm() passes Null for claws and 3.6's mdamagem() used the parameter. Fix: carry the chosen weapon in struct mhitm_data (artifact ~/nh50-claw-weapon-damage.patch) | found on branch (combat-residue reviewer); not yet sent |
+| 2026-08-23 | mhitm.c mdamagem(): a knockback that moves the defender returns before `mdef->mhp -= mhm.damage`, so the 1-in-6 mhurtle swallows the whole hit's damage - every AD_PHYS handler's damage, upstream-identical in Official_nh50. Carried as an upstream quirk; no branch change | found on branch (combat-residue reviewer); not yet sent |
 | 2026-08-22 | uhitm.c hmon_hitmon_weapon_melee() Healer anatomy bonus (min(3, kills/6) for a wielded knife) is added AFTER dmgval() already returned 0 for a shade, so a Healer with six shade kills damages the next one for up to 3 with an iron knife that "passes harmlessly through". Upstream-only feature (EvilHack master never had it). Fixed on the branch with a !noncorporeal() gate (BUG-1679); artifact ~/nh50-healer-anatomy-shade.patch in upstream idiom (P_KNIFE, PM_SHADE) | fixed on branch; not yet sent |
 | 2026-08-16 | sp_lev.c des.door wall-form with state="secret" stores the raw D_SECRET bit (0x20) in levl[].doormask: the coord-less lspo_door path passes tmpd.mask = D_SECRET into create_door(), whose `dd->mask == -1` test then skips the random locked/trapped rolls and writes the mask verbatim - despite rm.h documenting D_SECRET as "only used by sp_lev.c, NOT in rm-struct". Consequences: scripted secret doors are never locked or trapped, and after discovery the doormask reads 0x24 (0x20\|D_CLOSED) until the first open/close clears it. Benign today (every doormask consumer bit-tests) but a latent contract violation. Byte-identical in NetHack50 and Official_nh50; upstream's own Mausoleum themed room and several shipped levels use the form. Surfaced by the vaults->themerms battery's secret-door leg; no branch fix (upstream-shared door API, behavior accepted) | observation only; not sent |
 | 2026-08-16 | mklev.c mklev_sanity_check()'s "room N not connected?" test validates smeq/joined bookkeeping, not reachability: a level whose corridors dead-end into two flood-fill components (5-room + 4-room, 5 tiles of solid stone between them) raised NO impossible in the vaults->themerms battery, while an independent flood fill split it cleanly. "paniclog clean" therefore does not imply "level connected". Same checker shape upstream. Natural rate measured at ~0.4% of rooms isolated (1/265) | observation only; not sent |
@@ -9753,7 +9941,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
 | 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | FIXED on branch 2026-07-31 BUG-1442 (mon_arrive clear-mask); report artifact ~/nh50-mon-endgame-migr.patch applies clean to both upstream trees; upstream unreported. Astral no-op family FIXED on branch 2026-07-31 BUG-1444 (m_into_limbo per session ruling; still live upstream - the artifact's sibling note stands) |
 | 2026-07-31 | sp_lev.c rndtrap() rolls TRAPPED_DOOR/TRAPPED_CHEST out of rnd(TRAPNUM - 1); maketrap() silently rejects both, so roughly seven percent of fill_empty_maze() trap placements evaporate. Upstream's own rndtrap() has the same roll over its 24/25 values. Branch fixed by BUG-1429 (exclusion cases + the restored retry cap); upstream still affected | fixed on branch; upstream unreported |
-| 2026-07-31 | uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | found on branch (BUG-1421 battery); not yet sent |
+| 2026-07-31 | RETRACTED 2026-08-23 - premise false on all three trees (master sets ispoisoned only in the melee arm too; its ranged arm has no poison check; vanilla design, battery-confirmed live). Original claim: uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | retracted |
 | 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent |
 | 2026-07-31 | trap.c cnv_trap_obj() runs `if (u.utrap && u_at(ttmp->tx, ttmp->ty)) reset_utrap(TRUE);` with no TT_BURIEDBALL carve-out, silently freeing a Punished hero from a buried iron ball when a co-located trap converts to objects; upstream's own delfloortrap() carries the carve-out (the same defeat EvilHack fixed at deltrap_with_ammo(), BUG-1422 - EvilHack has no cnv_trap_obj to fix). Reviewer find, verified in Official_nh50 | found (no branch counterpart); not yet sent |
 | 2026-08-01 | dungeon.c init_dungeon_levels()/init_dungeon_branches() fill their proto_dungeon arrays BEFORE the LEV_LIMIT/BRANCH_LIMIT panics that follow the loops - the lua_len count is file-driven and unbounded, so an oversized dungeon.lua corrupts final_lev[] (later dereferenced by place_level), tmpbranch[], then pd's own counters (which can suppress the panic itself), and past ~25 slots over the limit the init_dungeons() stack frame - instead of the intended clean panic. 3.6's compiled loader checked before Fread-filling, and its dgn_comp.y compile-time validation layer was dropped by the Lua rewrite, so the runtime guard's ordering is the only protection left. Byte-identical in NetHack50 and Official_nh50 (both functions). Battery-proven end-to-end on the branch: padded nhdat -> clean pre-loop panic, write breakpoints unhit | fixed on branch (BUG-1453, pre-loop bounds); report artifact ~/nh50-dungeon-init-guards.patch; not yet sent |
@@ -9833,6 +10021,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-08-23 | Combat-residue slice rulings (AskUserQuestion x2): (1) helmet hardness tree-wide = master's is_hard() (metallic, glass, wood, bone, stone) - hard_helmet() keeps its name and answers with is_hard(); upstream 5.0's metallic-or-glass rule dropped; (2) monster-side poisoned-weapon arms = master (every hit, hpdamchance 30 vs the hero, rnd(6) or 1-in-30 lethal vs a monster, coating wears off 1-in-(10-wt/10)); upstream 5.0's 25% gates and never-wears-off dropped; the permanently poisoned artifact keeps 5.0's limiters and never wears off. Also recorded: the hand-thrown-ammo poison row closed as premise-false (vanilla design on all three trees), its upstream-reportable entry retracted | maintainer |
 | 2026-08-22 | hitum() parity slice rulings (AskUserQuestion x2): (1) Monk extra attacks vs upstream 5.0 double_punch() = LAYER - keep the skill-scaled second bare-handed hit for every role, guarantee it for a Monk at Grand Master, exempt bracers, add master's 1/8 shield feedback and master's Monk Master+ 1/3 random kick; (2) the three untracked master hitum() arms found while scoping (cursed-weapon self-hit, bloodthirsty per-hand forced_attack, shield bash) join the slice - whole hitum() parity in one deliberate slice, the find_roll_to_hit() precedent | maintainer |
 | 2026-08-22 | Weapon-skill tables + noncorporeal slice rulings (AskUserQuestion x2): (1) the martial-arts master/GM to-hit boost ports master's CODE as-is (`bonus += (bonus - 5) * 2`: Master +8, Grand Master +11) and the comment table is regenerated from the code - master's own table (+7/+9, written in the same commit cd5c574bb) had drifted from its formula; (2) the Monk grand-master "channel your qi" weapon-break arm is NOT taken with the noncorporeal slice - own row. Corollary recorded by the coordinator: the Monk GM second fist / Master kick vs 5.0 double_punch() conflict is minted as a row AWAITING a ruling, nothing picked | maintainer |
 | 2026-08-22 | Innate-spell-arms slice rulings (AskUserQuestion x3): (1) the cancel_monst rework travels WITH the MGC_CANCELLATION arm - full strip blocks/immunities/item pass land now, discharging the zap.c TODO-EVILHACK deferral (the "cancellation slice" owner is CLOSED; the AD_CNCL passive and Magicbane arms strengthen as recorded); (2) NOVELS keep 5.0's cancel-to-blank via blank_novel - master's SPE_NOVEL exemption NOT ported, deliberate upstream-wins deviation; (3) CLC_CALL_UNDEAD's casting message stays on master's canseemon(caster) - the BUG-705 seecaster house rule's inventory never classified this message and parity wins. Also approved with the plan: gb.buzzer bracket + youattack=TRUE kill-attribution deviations (BUG-1655/1656 archive master's forms) | maintainer |
