@@ -2363,7 +2363,8 @@ thitmonst(
      * Certain items which don't in themselves do damage ignore 'tmp'.
      * Distance and monster size affect chance to hit.
      */
-    tmp = -1 + Luck + find_mac(mon) + u.uhitinc
+    /* luck counts for half as much here as in melee */
+    tmp = -1 + ((Luck / 2) + 1) + find_mac(mon) + u.uhitinc
           + maybe_polyd(gy.youmonst.data->mlevel, u.ulevel);
     if (ACURR(A_DEX) < 4)
         tmp -= 3;

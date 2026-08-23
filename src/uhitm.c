@@ -1371,7 +1371,7 @@ hmon_hitmon_weapon_melee(
         hmd->dmg += min(3, svm.mvitals[monsndx(mon->data)].died / 6);
 
     /* special attack actions */
-    if (!hmd->train_weapon_skill || mon == u.ustuck || u.twoweap
+    if (!hmd->train_weapon_skill || mon == u.ustuck
         /* Cleaver can hit up to three targets at once so don't
            let it also hit from behind or shatter foes' weapons */
         || (hmd->hand_to_hand && is_art(obj, ART_CLEAVER))) {
@@ -1380,7 +1380,14 @@ hmon_hitmon_weapon_melee(
                /* multi-shot throwing is too powerful here */
                && hmd->hand_to_hand) {
         You("strike %s from behind!", mon_nam(mon));
-        hmd->dmg += rnd(u.ulevel);
+        /* fighting with two weapons halves the bonus die */
+        if (u.twoweap)
+            hmd->dmg += rnd(max(1, u.ulevel / 2)) + 1;
+        else
+            hmd->dmg += rnd(u.ulevel);
+        /* significant bonus if wielding Shadowblade in primary hand */
+        if (obj == uwep && is_art(obj, ART_SHADOWBLADE))
+            hmd->dmg += (u.ulevel / 2) + 1;
         hmd->hittxt = TRUE;
     } else if (obj == uwep && obj->oclass == WEAPON_CLASS
                && ((hmd->dieroll == 2
@@ -1421,27 +1428,37 @@ hmon_hitmon_weapon_melee(
          * the obj_resists chance is increased so the shatter
          * chance is decreased; if less rusty, then vice versa.
          */
+        /* the verb follows the material: wood and bone splinter, the
+           soft metals break, everything else shatters */
+        const char *breakverb = (monwep->material == WOOD
+                                 || monwep->material == BONE)
+                                    ? "splinter"
+                                    : (monwep->material == PLATINUM
+                                       || monwep->material == GOLD
+                                       || monwep->material == SILVER
+                                       || monwep->material == COPPER)
+                                      ? "break" : "shatter";
+
         setmnotwielded(mon, monwep);
         mon->weapon_check = NEED_WEAPON;
         if (canseemon(mon))
             /* Yobjnam2(X,"shatter") yields "Shk's X shatters" if X is owned
                by a shop or "Mon's X shatters" if X is carried by a monster
                (or "{Your|The} X shatters" if {carried by hero|last resort})*/
-            Strcpy(buf, Yobjnam2(monwep, "shatter"));
+            Strcpy(buf, Yobjnam2(monwep, breakverb));
         else /* hero is blind or can't see invisible mon */
             /* construct "Its weapon shatters"; not an exact replacement
                for Yobjnam2() if an unseen mon other than the shopkeeper
                is wielding a shop-owned weapon; telepathy or extended
                monster detection will name mon but not its weapon */
             Sprintf(buf, "%s weapon%s %s", s_suffix(Monnam(mon)),
-                    plur(monwep->quan), otense(monwep, "shatter"));
+                    plur(monwep->quan), otense(monwep, breakverb));
         buf[sizeof buf - sizeof from_your_blow] = '\0';
         pline("%s%s", buf, from_your_blow);
         m_useupall(mon, monwep);
         /* If someone just shattered MY weapon, I'd flee! */
-        if (rn2(4)) {
+        if (!rn2(4))
             monflee(mon, d(2, 3), TRUE, TRUE);
-        }
         hmd->hittxt = TRUE;
     }
 
@@ -5632,7 +5649,8 @@ mhitm_ad_phys(
                    || mattk->aatyp == AT_CLAW
                    || mattk->aatyp == AT_TUCH
                    || mattk->aatyp == AT_HUGS) {
-            if (thick_skinned(pd))
+            if (thick_skinned(pd) || has_barkskin(mdef)
+                || has_stoneskin(mdef))
                 mhm->damage = (mattk->aatyp == AT_KICK) ? 0
                               : (mhm->damage + 1) / 2;
             /* add ring(s) of increase damage */
@@ -5873,7 +5891,9 @@ mhitm_ad_phys(
 
         if (shade_miss(magr, mdef, mwep, FALSE, vis)) {
             mhm->damage = 0;
-        } else if (mattk->aatyp == AT_KICK && thick_skinned(pd)) {
+        } else if (mattk->aatyp == AT_KICK
+                   && (thick_skinned(pd) || has_barkskin(mdef)
+                       || has_stoneskin(mdef))) {
             /* [no 'kicking boots' check needed; monsters with kick attacks
                can't wear boots and monsters that wear boots don't kick] */
             mhm->damage = 0;
