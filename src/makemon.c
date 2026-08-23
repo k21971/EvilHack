@@ -2932,6 +2932,8 @@ newmonhp(struct monst *mon, int mndx)
         mon->mhpmax = mon->mhp = d(basehp, 8);
         if (is_home_elemental(ptr))
             mon->mhpmax = (mon->mhp *= 3); /* leave 'basehp' as-is */
+        if (is_mplayer(ptr))
+            mon->mhpmax = mon->mhp = ((mon->mhp * 5) + 1) / 4;
     }
 
     /* if d(X,8) rolled a 1 all X times, give a boost;
@@ -3847,6 +3849,9 @@ rndmonst_adj(int minadj, int maxadj)
             continue;
         if (Inpurg && !likes_purg(ptr))
             continue;
+        /* reduce the number of player monsters that could spawn */
+        if (is_mplayer(ptr) && rn2(3))
+            continue;
 
         /*
          * Weighted reservoir sampling:  select ptr with a
@@ -4117,7 +4122,8 @@ mkclass_aligned(char class, int spc, /* special mons[].geno handling */
                 && mons[MONSi(last)].difficulty > mons[MONSi(last - 1)].difficulty
                 && rn2(2))
                 break;
-            if ((k = (mons[MONSi(last)].geno & G_FREQ)) > 0
+            if ((k = (is_mplayer(&mons[MONSi(last)]) ? 1 : 5)
+                     * (mons[MONSi(last)].geno & G_FREQ)) > 0
                 || (k = (zero_freq_for_entire_class ? 1 : 0)) > 0) {
                 /* skew towards lower value monsters at lower exp. levels
                    (this used to be done in the next loop, but that didn't

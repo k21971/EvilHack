@@ -1017,7 +1017,8 @@ fill_ordinary_room(
     if (((u.uhave.amulet
           && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol))
          || !rn2(3)) && somexyspace(croom, &pos)) {
-        tmonst = makemon((struct permonst *) 0, pos.x, pos.y, MM_NOGRP);
+        tmonst = makemon((struct permonst *) 0, pos.x, pos.y,
+                         MM_NOGRP | MM_MPLAYEROK);
         if (tmonst && tmonst->data == &mons[PM_GIANT_SPIDER]
             && !occupied(pos.x, pos.y))
             (void) maketrap(pos.x, pos.y, WEB);

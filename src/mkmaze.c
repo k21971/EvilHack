@@ -1212,7 +1212,7 @@ populate_maze(void)
     }
     for (i = rn1(5, 7); i; i--) {
         mazexy(&mm);
-        (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
+        (void) makemon((struct permonst *) 0, mm.x, mm.y, MM_MPLAYEROK);
     }
     for (i = rn1(6, 7); i; i--) {
         mazexy(&mm);
