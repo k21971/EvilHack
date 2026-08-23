@@ -860,13 +860,15 @@ Helmet_off(void)
     return 0;
 }
 
-/* hard helms provide better protection against falling rocks */
+/* hard helms provide better protection against falling rocks; any rigid
+   material counts, so a wooden, bone or stone helm is as hard as a metal
+   or glass one (and prints as a "helm" rather than a "hat") */
 boolean
 hard_helmet(struct obj *obj)
 {
     if (!obj || !is_helmet(obj))
         return FALSE;
-    return (is_metallic(obj) || is_crackable(obj)) ? TRUE : FALSE;
+    return is_hard(obj) ? TRUE : FALSE;
 }
 
 staticfn int
