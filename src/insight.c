@@ -1875,8 +1875,12 @@ attributes_enlightenment(
         you_can("walk through walls", from_what(PASSES_WALLS));
 
     /*** Physical attributes ***/
-    if (Regeneration)
+    if (Regeneration && elf_can_regen() && orc_can_regen())
         enl_msg("You regenerate", "", "d", "", from_what(REGENERATION));
+    if (!elf_can_regen())
+        you_are("in direct contact with cold iron", "");
+    if (!orc_can_regen())
+        you_are("in direct contact with mithril", "");
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
     if (maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE))) {

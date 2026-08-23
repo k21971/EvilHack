@@ -100,6 +100,8 @@ extern unsigned FITSuint_(unsigned long long, const char *, int) NONNULLARG2;
 
 extern void early_init(int, char *[]);
 extern int current_monclock(void);
+extern boolean elf_can_regen(void);
+extern boolean orc_can_regen(void);
 extern void moveloop_core(void);
 extern void moveloop(boolean);
 extern void stop_occupation(void);

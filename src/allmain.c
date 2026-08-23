@@ -27,6 +27,10 @@ staticfn void interrupt_multi(const char *);
 static long prev_dgl_extrainfo = 0;
 #endif
 
+/* cached racial regen-block state for the moveloop transition
+   messages; initialized in moveloop_preamble() */
+static boolean mvl_elf_regen, mvl_orc_regen;
+
 /*ARGSUSED*/
 void
 early_init(int argc, char *argv[])
@@ -116,6 +120,11 @@ moveloop_preamble(boolean resuming)
         iflags.debug_fuzzer = fuzzer_impossible_panic;
         iflags.fuzzerpending = FALSE;
     }
+
+    /* cache racial regen-block state so the moveloop can report
+       transitions */
+    mvl_elf_regen = elf_can_regen();
+    mvl_orc_regen = orc_can_regen();
 
     program_state.in_moveloop = 1;
     /* for perm_invent preset at startup, display persistent inventory after
@@ -730,6 +739,29 @@ moveloop_core(void)
         curs_on_u();
     }
 
+    {
+        boolean can_elf_now = elf_can_regen();
+        boolean can_orc_now = orc_can_regen();
+
+        if (mvl_elf_regen != can_elf_now) {
+            if (!Hallucination)
+                You_feel("%s.", mvl_elf_regen ? "itchy" : "relief");
+            else
+                You_feel("%s.", can_elf_now ? "magnetic"
+                                            : "like... gnarly dude");
+            mvl_elf_regen = can_elf_now;
+        }
+
+        if (mvl_orc_regen != can_orc_now) {
+            if (!Hallucination)
+                You_feel("%s.", mvl_orc_regen ? "tingly" : "relief");
+            else
+                You_feel("%s.", can_orc_now ? "non-magnetic"
+                                            : "like... whoa");
+            mvl_orc_regen = can_orc_now;
+        }
+    }
+
     m_everyturn_effect(&gy.youmonst);
 
     svc.context.move = 1;
@@ -864,6 +896,104 @@ init_mchest(void)
     gm.mchest->where = OBJ_MCHEST;
 }
 
+/* elves and drow cannot regenerate hit points while in direct
+   contact with cold iron; layered clothing or gloves shield the
+   skin, as do quest artifacts and bark- or stone-like skin */
+boolean
+elf_can_regen(void)
+{
+    if (Barkskin || Stoneskin)
+        return TRUE; /* protects skin from adverse material effects */
+
+    if (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
+        || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))) {
+        if (uwep && is_iron(uwep)
+            && !is_quest_artifact(uwep) && !uarmg)
+            return FALSE;
+        if (uarm && is_iron(uarm) && !uarmu)
+            return FALSE;
+        if (uarmu && is_iron(uarmu))
+            return FALSE;
+        if (uarmc && is_iron(uarmc)
+            && !uarmu && !uarm)
+            return FALSE;
+        if (uarmh && is_iron(uarmh)
+            && !is_quest_artifact(uarmh))
+            return FALSE;
+        if (uarms && is_iron(uarms) && !uarmg)
+            return FALSE;
+        if (uarmg && is_iron(uarmg))
+            return FALSE;
+        if (uarmf && is_iron(uarmf))
+            return FALSE;
+        if (uleft && is_iron(uleft)
+            && !(uarmg && is_art(uarmg, ART_HAND_OF_VECNA)))
+            return FALSE;
+        if (uright && is_iron(uright))
+            return FALSE;
+        if (uamul && is_iron(uamul)
+            && !is_quest_artifact(uamul)
+            && !uarmu && !uarm)
+            return FALSE;
+        if (ublindf && is_iron(ublindf))
+            return FALSE;
+        if (uchain && is_iron(uchain))
+            return FALSE;
+        if (uswapwep && is_iron(uswapwep)
+            && u.twoweap && !uarmg)
+            return FALSE;
+    }
+    return TRUE;
+}
+
+/* orcs cannot regenerate hit points while in direct contact with
+   mithril; same layering rules as elf_can_regen() */
+boolean
+orc_can_regen(void)
+{
+    if (Barkskin || Stoneskin)
+        return TRUE; /* protects skin from adverse material effects */
+
+    if (maybe_polyd(is_orc(gy.youmonst.data), Race_if(PM_ORC))) {
+        if (uwep && is_mithril(uwep)
+            && !is_quest_artifact(uwep) && !uarmg)
+            return FALSE;
+        if (uarm && is_mithril(uarm) && !uarmu)
+            return FALSE;
+        if (uarmu && is_mithril(uarmu))
+            return FALSE;
+        if (uarmc && is_mithril(uarmc)
+            && !uarmu && !uarm)
+            return FALSE;
+        if (uarmh && is_mithril(uarmh)
+            && !is_quest_artifact(uarmh))
+            return FALSE;
+        if (uarms && is_mithril(uarms) && !uarmg)
+            return FALSE;
+        if (uarmg && is_mithril(uarmg))
+            return FALSE;
+        if (uarmf && is_mithril(uarmf))
+            return FALSE;
+        if (uleft && is_mithril(uleft)
+            && !(uarmg && is_art(uarmg, ART_HAND_OF_VECNA)))
+            return FALSE;
+        if (uright && is_mithril(uright))
+            return FALSE;
+        if (uamul && is_mithril(uamul)
+            && !is_quest_artifact(uamul)
+            && !uarmu && !uarm)
+            return FALSE;
+        if (ublindf && is_mithril(ublindf))
+            return FALSE;
+        if (uchain && is_mithril(uchain))
+            return FALSE;
+        if (uswapwep && is_mithril(uswapwep)
+            && u.twoweap && !uarmg)
+            return FALSE;
+    }
+    return TRUE;
+}
+
 staticfn void
 regen_pw(int wtcap)
 {
@@ -982,7 +1112,8 @@ regen_hp(int wtcap)
            with them (pre-idol imbuement). No one can regenerate hit
            points while located in the Valley of the Dead, except for
            Draugr/Vampires */
-        if (u.uhp < u.uhpmax && (encumbrance_ok || U_CAN_REGEN())
+        if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
+            && (encumbrance_ok || U_CAN_REGEN())
             && (!Is_valley(&u.uz)
                 || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
             && !infidel_no_amulet
