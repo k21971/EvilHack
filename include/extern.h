@@ -99,6 +99,7 @@ extern unsigned FITSuint_(unsigned long long, const char *, int) NONNULLARG2;
 /* ### allmain.c ### */
 
 extern void early_init(int, char *[]);
+extern int current_monclock(void);
 extern void moveloop_core(void);
 extern void moveloop(boolean);
 extern void stop_occupation(void);

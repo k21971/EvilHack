@@ -1233,7 +1233,8 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define MM_NOSTEED      0x02000000L /* don't create a steed for a monster
                                      * that would otherwise spawn mounted */
 #define MM_IGNOREAIR    0x04000000L /* ignore open air when positioning */
-/* 27 bits used */
+#define MM_MPLAYEROK    0x08000000L /* allow random mplayer generation */
+/* 28 bits used */
 
 /* flags for mhidden_description() (pager.c; used for mimics and hiders) */
 #define MHID_PREFIX  1 /* include ", mimicking " prefix */

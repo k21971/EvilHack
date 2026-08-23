@@ -527,6 +527,10 @@ chat_with_leader(struct monst *mtmp)
             qt_pager("assignquest");
             exercise(A_WIS, TRUE);
             Qstat(got_quest) = TRUE;
+            /* snapshot "accepted early" so the elevated spawn rate in
+               allmain.c does not lapse once we level past 13 */
+            if (u.ulevel < 14)
+                Qstat(got_quest_early) = TRUE;
 
             /* phrasing is a bit clumsy but allows #chronicle to provide a
                clue to players who are reaching the quest for first time;

@@ -3116,6 +3116,7 @@ makemon(
             byyou = u_at(x, y),
             allow_minvent = ((mmflags & NO_MINVENT) == 0),
             countbirth = ((mmflags & MM_NOCOUNTBIRTH) == 0),
+            no_mplayer = ((mmflags & MM_MPLAYEROK) == 0),
             allowtail = ((mmflags & MM_NOTAIL) == 0);
     mmflags_nht gpflags = (((mmflags & MM_IGNOREWATER) ? MM_IGNOREWATER : 0)
                            | GP_CHECKSCARY | GP_AVOID_MONPOS);
@@ -3185,6 +3186,7 @@ makemon(
                  /* in Sokoban, don't accept a giant on first try;
                     after that, boulder carriers are fair game */
                  && ((tryct == 1 && throws_rocks(ptr) && In_sokoban(&u.uz))
+                     || (is_mplayer(ptr) && no_mplayer)
                      || !goodpos(x, y, &fakemon, gpflags)));
         mndx = monsndx(ptr);
     }

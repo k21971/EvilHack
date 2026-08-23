@@ -1581,6 +1581,9 @@ attributes_enlightenment(
         enl_msg("Your alignment abuse value ", "is", "was", buf, "");
     }
 
+    Sprintf(buf, "%2.2fx", (float) MIN_MONGEN_RATE / current_monclock());
+    enl_msg("Monster generation rate ", "is ", "was ", buf, "");
+
     /*** Resistances to troubles ***/
     if (Invulnerable)
         you_are("invulnerable", from_what(INVULNERABLE));

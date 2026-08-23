@@ -288,6 +288,14 @@ typedef struct mapseen {
     struct cemetery *final_resting_place; /* same as level.bonesinfo */
 } mapseen;
 
+/* random monster generation rate bounds: the rn2() divisor for the
+   per-turn spawn roll ranges from MIN_MONGEN_RATE (slowest) down to
+   MAX_MONGEN_RATE (fastest) as the game progresses */
+enum monster_generation {
+    MIN_MONGEN_RATE = 80,
+    MAX_MONGEN_RATE = 10
+};
+
 #endif /* !MAKEDEFS_C && !MDLIB_C */
 
 #endif /* DUNGEON_H */

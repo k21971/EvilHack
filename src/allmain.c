@@ -82,6 +82,10 @@ moveloop_preamble(boolean resuming)
            clairvoyance (wizard with cornuthaum perhaps?); without this,
            first "random" occurrence would always kick in on turn 1 */
         svc.context.seer_turn = (long) rnd(30);
+        /* don't make it obvious when monsters will start speeding up;
+           saved with the rest of context so the curve survives restore
+           instead of re-rolling each session */
+        svc.context.timeout_start = (long) rnd(10000) + 25000L;
         /* give hero initial movement points; new game only--for restore,
            pending movement points were included in the save file */
         u.umovement = NORMAL_SPEED;
@@ -171,14 +175,91 @@ u_calc_moveamt(int wtcap)
         u.umovement = 0;
 }
 
-/* small chance of generating a new random monster */
+/* the rn2() divisor for this turn's random spawn roll, from
+   MIN_MONGEN_RATE (slowest) down to MAX_MONGEN_RATE (fastest);
+   exported so enlightenment can display the effective rate */
+int
+current_monclock(void)
+{
+    int monclock = MIN_MONGEN_RATE;
+    long past_clock;
+
+    if (u.uevent.invoked) {
+        /* performing the invocation gets the entire dungeon riled up */
+        monclock = MAX_MONGEN_RATE;
+    } else {
+        /* spawn rate slowly climbs after context.timeout_start turns */
+        past_clock = svm.moves - svc.context.timeout_start;
+        if (past_clock > 0)
+            monclock = (int) ((MIN_MONGEN_RATE * 30000L)
+                              / (past_clock + 30000L));
+        /* various events will double the normal spawn rate; each of
+           these is sticky so the floor never regresses */
+        if (monclock > (MIN_MONGEN_RATE / 2)) {
+            if (u.uevent.gehennom_entered) /* entering gehennom */
+                monclock = (MIN_MONGEN_RATE / 2);
+            else if (u.uevent.uhand_of_elbereth) /* crowned */
+                monclock = (MIN_MONGEN_RATE / 2);
+            else if (svq.quest_status.got_quest_early) /* early quest */
+                monclock = (MIN_MONGEN_RATE / 2);
+        }
+        /* entering the first tier demon boss level */
+        if (monclock > (MIN_MONGEN_RATE / 3) && u.uevent.hella_entered)
+            monclock = (MIN_MONGEN_RATE / 3);
+        /* entering the third tier demon boss level */
+        if (monclock > (MIN_MONGEN_RATE / 4) && u.uevent.hellc_entered)
+            monclock = (MIN_MONGEN_RATE / 4);
+        /* killing the Wizard of Yendor for the first time */
+        if (monclock > (MIN_MONGEN_RATE / 6) && u.uevent.udemigod)
+            monclock = (MIN_MONGEN_RATE / 6);
+    }
+    /* make sure we don't fall off either end */
+    if (monclock < MAX_MONGEN_RATE)
+        monclock = MAX_MONGEN_RATE;
+    if (monclock > MIN_MONGEN_RATE)
+        monclock = MIN_MONGEN_RATE;
+    return monclock;
+}
+
+/* From SporkHack and UnNetHack (modified).
+ * Vanilla generates a critter every 70-ish turns. The rate accelerates
+ * to every 50 or so below the Castle, and 'round every 25 turns once
+ * you've done the Invocation.
+ *
+ * We will push it even further. Monsters post-Invocation will almost
+ * always appear on the stairs (if present), and much more frequently;
+ * this should certainly make it seem like you're wading back through
+ * the teeming hordes.
+ *
+ * Aside from that, a more general clock should be put on things; after
+ * about 30,000 turns, the frequency rate of appearance and difficulty
+ * of monsters generated will slowly increase until it reaches the
+ * point it will be at as if you were post-Invocation.
+ *
+ * The rate increases linearly with turns. The rule of thumb is that at
+ * turn x the rate is approximately (x / 30000) times the normal rate.
+ * Maximal rate is 8x the normal rate.
+ */
 staticfn void
 maybe_generate_rnd_mon(void)
 {
-    if (!rn2(u.uevent.udemigod ? 25
-             : (depth(&u.uz) > depth(&stronghold_level)) ? 50
-             : 70))
-        (void) makemon((struct permonst *) 0, 0, 0, NO_MM_FLAGS);
+    if (!rn2(current_monclock())) {
+        stairway *stway;
+
+        if (u.uevent.invoked
+            && (stway = stairway_find_type_dir(FALSE, TRUE)) != 0
+            && rn2(10))
+            (void) makemon((struct permonst *) 0, stway->sx, stway->sy,
+                           MM_ADJACENTOK | MM_MPLAYEROK);
+        else if (u.uevent.invoked
+                 && ((stway = stairway_find_special_dir(FALSE)) != 0
+                     || (stway = stairway_find_special_dir(TRUE)) != 0)
+                 && rn2(10))
+            (void) makemon((struct permonst *) 0, stway->sx, stway->sy,
+                           MM_ADJACENTOK | MM_MPLAYEROK);
+        else
+            (void) makemon((struct permonst *) 0, 0, 0, MM_MPLAYEROK);
+    }
 }
 
 #if defined(MICRO) || defined(WIN32)
