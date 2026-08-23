@@ -5680,8 +5680,6 @@ mhitm_ad_phys(
             if (mattk->aatyp == AT_WEAP && otmp) {
                 struct obj *marmg;
                 int tmp;
-                boolean was_poisoned = (otmp->opoisoned
-                                        || permapoisoned(otmp));
 
                 if (otmp->otyp == CORPSE
                     && touch_petrifies(&mons[otmp->corpsenm])) {
@@ -5777,20 +5775,32 @@ mhitm_ad_phys(
                         otmp = (struct obj *) 0;
                     }
                 }
-                if (was_poisoned && gm.mhitu_dieroll <= 5) {
+                /* monster attacking with a poisoned weapon; a coating
+                   applies on every hit and wears off with use, while a
+                   permanently poisoned weapon is limited by the die roll
+                   and never loses its venom */
+                if (otmp && (otmp->opoisoned || permapoisoned(otmp))
+                    && is_poisonable(otmp)
+                    && (!permapoisoned(otmp) || gm.mhitu_dieroll <= 5)) {
                     char buf[BUFSZ];
 
-                    /* similar to mhitm_really_poison, but we don't use the
-                     * exact same values, nor do we want same 1/8 chance of
-                     * poison taking (use 1/4, same as in the mhitm case). */
                     Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
                             mpoisons_subj(magr, mattk));
-                    /* arbitrary, but most poison sources in the game are
-                     * strength-based. With hpdamchance = 10, HP damage occurs
-                     * 1/2 of the time and it will hit Str rest of the time.
-                     * (This is the same as poisoned ammo.) */
+                    /* most poison sources in the game are strength-based */
                     poisoned(buf, A_STR, pmname(magr->data, Mgender(magr)),
-                             10, FALSE);
+                             30, FALSE);
+                    if (!permapoisoned(otmp)) {
+                        int nopoison = (10 - (otmp->owt / 10));
+
+                        if (nopoison < 2)
+                            nopoison = 2;
+                        if (!rn2(nopoison)) {
+                            otmp->opoisoned = FALSE;
+                            if (canseemon(magr))
+                                pline("%s %s is no longer poisoned.",
+                                      s_suffix(Monnam(magr)), xname(otmp));
+                        }
+                    }
                 }
                 /* monster attacking with a tainted (drow-poisoned)
                    weapon */
@@ -5913,12 +5923,44 @@ mhitm_ad_phys(
                 if (!o_on(wep_id, magr->minvent))
                     mwep = (struct obj *) 0;
             }
-            if (mwep && (mwep->opoisoned || permapoisoned(mwep)) && !rn2(4)) {
-                /* 1/4 chance of weapon poison applying is the same as in
-                 * uhitm and mhitu cases. But since we don't need to call
-                 * any special functions or go through tangled hmon_hitmon
-                 * code, we can just jump straight to the poisoning. */
-                mhitm_really_poison(magr, mattk, mdef, mhm);
+            if (mwep && (mwep->opoisoned || permapoisoned(mwep))
+                && is_poisonable(mwep)
+                && (!permapoisoned(mwep) || !rn2(4))) {
+                /* monster attacking with a poisoned weapon; like the
+                   monster-vs-hero arm, a coating applies on every hit
+                   and wears off with use, while a permanently poisoned
+                   weapon keeps the 1/4 limit and never loses its venom */
+                if (gv.vis && canspotmon(magr))
+                    pline("%s %s was poisoned!", s_suffix(Monnam(magr)),
+                          mpoisons_subj(magr, mattk));
+                if (resists_poison(mdef) || defended(mdef, AD_DRST)) {
+                    if (gv.vis && canspotmon(mdef) && canspotmon(magr))
+                        pline_The("poison doesn't seem to affect %s.",
+                                  mon_nam(mdef));
+                } else if (rn2(30)) {
+                    mhm->damage += rnd(6);
+                } else {
+                    /* lethal dose; raise the damage to the victim's
+                       remaining hit points so the caller's ordinary
+                       kill path handles the death, keeping growth and
+                       pet-kill attribution on the usual route */
+                    if (gv.vis && canspotmon(mdef))
+                        pline_The("poison was deadly...");
+                    if (mhm->damage < mdef->mhp)
+                        mhm->damage = mdef->mhp;
+                }
+                if (!permapoisoned(mwep)) {
+                    int nopoison = (10 - (mwep->owt / 10));
+
+                    if (nopoison < 2)
+                        nopoison = 2;
+                    if (!rn2(nopoison)) {
+                        mwep->opoisoned = FALSE;
+                        if (gv.vis && canspotmon(magr))
+                            pline("%s %s is no longer poisoned.",
+                                  s_suffix(Monnam(magr)), xname(mwep));
+                    }
+                }
             }
             if (mwep && mwep->otainted && is_poisonable(mwep)) {
                 /* monster attacking with a tainted (drow-poisoned)
