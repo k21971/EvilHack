@@ -17,7 +17,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-22 (later) WEAPON-SKILL TABLES + NONCORPOREAL
+- Latest slice: 2026-08-22/23 HITUM() MASTER PARITY + SHIELD BASH +
+  MONK QI (BUG-1672..1679, three code commits a0bd6004f / aeaa85812 / 27427e855). The four rows the
+  noncorporeal slice minted, plus three untracked master hitum() arms
+  the scoping found: cursed-weapon self-hit, bloodthirsty per-hand
+  forced_attack (the branch attacked with the WRONG hand), shield bash
+  (entirely absent). RULINGS: Monk extra attacks vs 5.0 double_punch()
+  = LAYER (chance kept for all, Monk GM guaranteed, bracers exempt,
+  Master+ kick ported, kick_monster() exported); whole hitum() parity
+  in one slice. Commit A hitum() (cursed weapon, forced_attack, Monk
+  fist/kick, katana bracer sibling); B shield bash (shield_dmg(),
+  hmon_hitmon_shield(), stagger arm, oprops rider = DEFER item
+  discharged, gated out of 5.0's knockback - reviewer catch); C Monk
+  qi + getmattk Shadowblade + Healer anatomy gate (PREMISE CORRECTION:
+  master has no Healer arm, it is upstream's - artifact
+  ~/nh50-healer-anatomy-shade.patch). Watches: the Monk kick rolls to
+  hit twice (master parity); armor hitbon aliases a_ac (+1..+2,
+  master-shared). Battery 11/11 PASS, five XL30 games,
+  breakpoint-counted rates all within noise; paniclog only from named
+  gdb staging writes
+- Previous slice: 2026-08-22 (later) WEAPON-SKILL TABLES + NONCORPOREAL
   HIT RULES - the two rows the to-hit/AC slice minted, closed in two
   code commits ae4402b81 + 0cae1b05f (BUG-1665..1671). Commit A: weapon_hit_bonus() master
   parity (Skilled +3/Expert +5, two-weapon -9/-5/-3/0, the offhand
@@ -883,7 +902,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (extra_pref/RIN_* muse sites), detect-magic ITEM_MAGICAL
       (SPE_DETECT_MAGIC absent), dragon-scales merge oprops strip,
       trap-kit transfer, terrain-burning fire-weapon, greased/
-      oilskin theft-slip trio, shield-bash rider, thrown-slip
+      oilskin theft-slip trio, shield-bash rider (DISCHARGED
+      2026-08-22, BUG-1676), thrown-slip
       self-hit, monster teleport-AI (decide_to_teleport),
       pet-stash filter, vulnerable_to/mon_underwater severity,
       "tainted " xname prefix (drow-poison - producers exist,
@@ -7158,7 +7178,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ghost/xorn and fog cloud vs xorn "futile" with the engulf/
       surround split, tame purple worm vs xorn prints the m-v-m line
       (Monnam form: "The purple worm's attempt...").
-- [ ] Monk grand-master bare-handed "channel/focus your qi" weapon
+- [x] Monk grand-master bare-handed "channel/focus your qi" weapon
       break NOT PORTED (minted 2026-08-22 by the noncorporeal slice;
       RULING: own row, not that slice). Master 24d2f7a59: a Monk at
       Grand Master martial arts, fighting bare-handed with no body
@@ -7174,7 +7194,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       FQ-guard deferral list already names "monk qi weapon-break FQ
       guards" - this is that item's owner). hmd->dieroll and
       hmd->unarmed exist.
-- [ ] Monk extra attacks vs 5.0 double_punch() - DESIGN CONFLICT,
+      PORTED 2026-08-22 (hitum() parity slice, BUG-1677, commit C =
+      27427e855). Master's `!= FQ_SUPERIOR && rn2(2)` form kept (same
+      as the ported two-handed shatter arm). BATTERY 2026-08-22/23
+      PASS: GM Monk vs a stone giant
+      (bigmonst, immune to the unarmed stagger knockback that pushes
+      a test monster out of melee) broke its iron long sword once in
+      110 attacks, MON_WEP NULL after; mithril 0/69; bracers 0/92.
+- [x] Monk extra attacks vs 5.0 double_punch() - DESIGN CONFLICT,
       needs a maintainer ruling (minted 2026-08-22 by the
       noncorporeal slice's scoping). Master hitum(): (a) a Monk at
       Grand Master martial arts ALWAYS gets a second bare-handed
@@ -7194,14 +7221,66 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       top of double_punch (double-dipping), or gate double_punch to
       Monk/Samurai. Not silently picked. The wiki snapshot
       (EVILHACK_MECHANICS) documents the master behavior.
-- [ ] mhitu.c getmattk() AT_WEAP substitution list dropped
+      RULED + PORTED 2026-08-22 (hitum() parity slice, BUG-1674/1675,
+      commit A = a0bd6004f): LAYER - double_punch() keeps upstream's
+      chance for every role, returns TRUE for a Monk at GM, exempts
+      bracers (they are SHIELD()-macro W_ARMS objects, so 5.0's
+      `!uarms` had blocked a bracer-wearing Monk entirely); master's
+      1/8 "extra attack is ineffective while wearing <shield>" line
+      lands in hitum(); master's Monk Master+ 1/3 random kick ported
+      (kick_monster() exported again). Sibling: the Samurai katana
+      shatter gate gains the bracer exemption. The SAME scoping found
+      hitum() missing three more untracked master arms - cursed-weapon
+      self-hit (7c87f6f30), bloodthirsty per-hand forced_attack
+      (3b24e71e4: the branch attacked with the WRONG hand - plain
+      primary swung, off-hand Stormbringer never did), shield bash
+      (c798d64f1, entirely absent) - RULED into the slice as whole
+      hitum() parity (BUG-1672/1673/1676, commits A + B = a0bd6004f + aeaa85812).
+      WATCHES (master parity): the Monk kick rolls to hit in hitum()
+      AND again in kick_monster() (BUG-259's roll postdates the arm);
+      hitval()'s oc_hitbon aliases a_ac for armor so the boots/shield
+      rolls get +1..+2; the bash inherits find_roll_to_hit()'s
+      uwep-keyed unskilled cap. DEVIATIONS recorded: the cursed block
+      returns malive not 0; known_hitum()'s blade message prints only
+      for the forcing artifact; bash_chance rolled only when a shield
+      is worn; gt.twohits 0 for the bash; the bash is gated out of
+      5.0's knockback (judges uwep - reviewer catch); the hitum() kick
+      gate does not repeat kick_monster()'s unparalyze roll. The
+      "shield-bash rider" (oprops) DEFER item is DISCHARGED here.
+      BATTERY 2026-08-22/23 (five XL30 games, breakpoint-counted)
+      ALL PASS: cursed sword 17 odd events in ~140 (1/7), Infidel 0/60;
+      off-hand Stormbringer vs a peaceful = exactly one known_hitum
+      call and it was Stormbringer's (the inversion is gone), Kas
+      "vicious blade"; double_punch Valkyrie Expert 38%, Monk GM
+      30/30 and 25/25 with bracers, 0/45 with a shield + the 1/8
+      line; Monk kick 32-33% with martial kick messages, F 0/25,
+      armor and wounded-legs refusals at their compound rates (1/24,
+      1/9 - the brief had quoted the inner rolls); katana+bracers
+      shatter reached once (the gate needs Skilled, not Basic); shield
+      bash 16/26/32% by skill, ONE line per bash across 58, stagger
+      3/26 at Expert, frost rider 4/20, bracers/F/unskilled 0, conduct
+      intact after 13 bare-handed bashes, a forced-glass shield
+      fractured to destruction under bashing with no crash, "knock"
+      never printed; paniclog lines only from the two named gdb
+      staging writes (invalid material 22 on a small shield; direct
+      oartifact write skipping registration). Brief corrections: the
+      Sword of Kas is bimanual (no off-hand case); safepet displaces a
+      peaceful so the prompt control needs safe_dog off; exclam()
+      prints a period at damage <= 4; a wooden small shield's dmgval
+      is 0 so Skilled bashes do 1-3; a Valkyrie starts wearing a
+      small shield.
+- [x] mhitu.c getmattk() AT_WEAP substitution list dropped
       ART_SHADOWBLADE (LOW, minted 2026-08-22 by the noncorporeal
       slice's reviewer/explorer). Master ef63e53ad lists
       STORMBRINGER / SHADOWBLADE / VORPAL_BLADE as the artifacts
       whose wielder's non-AD_PHYS AT_WEAP attack is rewritten to
       AD_PHYS; the branch keeps only Stormbringer + Vorpal Blade.
       One-line parity, land with the next mhitu.c slice.
-- [ ] Healer anatomy bonus applies on top of a zeroed noncorporeal
+      PORTED 2026-08-22 (BUG-1678, commit C = 27427e855). BATTERY
+      2026-08-22/23 PASS: a barrow wight wielding a gdb-made
+      Shadowblade returns AD_PHYS from getmattk() (AD_DRLI without),
+      48 hits with zero drain lines.
+- [x] Healer anatomy bonus applies on top of a zeroed noncorporeal
       dmgval (LOW, minted 2026-08-22 by the noncorporeal slice's
       reviewer; UPSTREAM-SHARED with both master and vanilla 5.0).
       hmon_hitmon_weapon_melee() adds min(3, species kills/6) for a
@@ -7210,6 +7289,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       with a +0 iron dagger. Decide: gate on
       !noncorporeal(hmd->mdat) like the giant club arm beside it, and
       send upstream as a patch artifact if taken.
+      PREMISE CORRECTION + FIXED 2026-08-22 (BUG-1679, commit C =
+      27427e855): master has NO Healer anatomy arm at all - it is
+      upstream 5.0's feature, not "shared with master". Gated on
+      !noncorporeal(); artifact ~/nh50-healer-anatomy-shade.patch
+      (upstream idiom: P_KNIFE + PM_SHADE test). BATTERY 2026-08-22/23
+      PASS: Healer dagger Expert with 12 ghost
+      kills, +0 iron dagger 20/20 passes harmlessly (bonus site
+      reached 0 times); vs a gnome noble with 12 kills the +2 lands
+      every hit.
 - [x] Shop pricing racial adjustments (shk_racial_adjustments) -
       ALREADY PORTED, ticked 2026-07-27 after verification rather
       than after a port. The row was never a work item: the
@@ -7458,6 +7546,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       STILL UNPORTED, master's other P_SKILL(P_SHIELD) consumers: the
       shield-bash chance in uhitm.c (three sites) and the muse.c gate.
       Training the skill now pays in AC but not yet in offense.
+      UPDATE 2026-08-22: the uhitm.c shield bash LANDED (BUG-1676);
+      the muse.c Expert-shield battle-axe hook resist (master
+      muse.c) is the one consumer still open - it rides with the
+      muse.c AI slice.
 - [ ] pager farlook remainder (NEW, minted 2026-07-27 by the
       glass/blocker slice, which ported the armor-weight half). master's
       ", wielding %s" + MON_WEP2 arm is already claimed by the
@@ -9624,6 +9716,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-08-22 | uhitm.c hmon_hitmon_weapon_melee() Healer anatomy bonus (min(3, kills/6) for a wielded knife) is added AFTER dmgval() already returned 0 for a shade, so a Healer with six shade kills damages the next one for up to 3 with an iron knife that "passes harmlessly through". Upstream-only feature (EvilHack master never had it). Fixed on the branch with a !noncorporeal() gate (BUG-1679); artifact ~/nh50-healer-anatomy-shade.patch in upstream idiom (P_KNIFE, PM_SHADE) | fixed on branch; not yet sent |
 | 2026-08-16 | sp_lev.c des.door wall-form with state="secret" stores the raw D_SECRET bit (0x20) in levl[].doormask: the coord-less lspo_door path passes tmpd.mask = D_SECRET into create_door(), whose `dd->mask == -1` test then skips the random locked/trapped rolls and writes the mask verbatim - despite rm.h documenting D_SECRET as "only used by sp_lev.c, NOT in rm-struct". Consequences: scripted secret doors are never locked or trapped, and after discovery the doormask reads 0x24 (0x20\|D_CLOSED) until the first open/close clears it. Benign today (every doormask consumer bit-tests) but a latent contract violation. Byte-identical in NetHack50 and Official_nh50; upstream's own Mausoleum themed room and several shipped levels use the form. Surfaced by the vaults->themerms battery's secret-door leg; no branch fix (upstream-shared door API, behavior accepted) | observation only; not sent |
 | 2026-08-16 | mklev.c mklev_sanity_check()'s "room N not connected?" test validates smeq/joined bookkeeping, not reachability: a level whose corridors dead-end into two flood-fill components (5-room + 4-room, 5 tiles of solid stone between them) raised NO impossible in the vaults->themerms battery, while an independent flood fill split it cleanly. "paniclog clean" therefore does not imply "level connected". Same checker shape upstream. Natural rate measured at ~0.4% of rooms isolated (1/265) | observation only; not sent |
 | 2026-08-16 | objnam.c doname_base() Glib "; slippery" splice never replaces the paren: `Concat(bp, 1, "; slippery)")` relies on the Concat macro's documented "delta 1 = replace the final character", but Concat expands to strncat, which appends at the string TERMINATOR regardless of where its dst pointer aims - the delta only loosens the bound. Every worn-glove item with slippery fingers renders "a pair of leather gloves (being worn); slippery)". Verbatim in NetHack50 and Official_nh50; every other paren-replacement site in the file uses the Snprintf-based ConcatF1/ConcatF2 forms, which do overwrite - this is the only plain-Concat delta=1 use in any tree. Branch fix (BUG-1589) = the ConcatF1 form; battery-caught by the Vecna slice's Glib-composition leg and re-confirmed on the fixed binary in both the Hand-of-Vecna and ordinary-gloves shapes | fixed on branch with the Vecna slice; not yet sent |
@@ -9740,6 +9833,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-08-22 | hitum() parity slice rulings (AskUserQuestion x2): (1) Monk extra attacks vs upstream 5.0 double_punch() = LAYER - keep the skill-scaled second bare-handed hit for every role, guarantee it for a Monk at Grand Master, exempt bracers, add master's 1/8 shield feedback and master's Monk Master+ 1/3 random kick; (2) the three untracked master hitum() arms found while scoping (cursed-weapon self-hit, bloodthirsty per-hand forced_attack, shield bash) join the slice - whole hitum() parity in one deliberate slice, the find_roll_to_hit() precedent | maintainer |
 | 2026-08-22 | Weapon-skill tables + noncorporeal slice rulings (AskUserQuestion x2): (1) the martial-arts master/GM to-hit boost ports master's CODE as-is (`bonus += (bonus - 5) * 2`: Master +8, Grand Master +11) and the comment table is regenerated from the code - master's own table (+7/+9, written in the same commit cd5c574bb) had drifted from its formula; (2) the Monk grand-master "channel your qi" weapon-break arm is NOT taken with the noncorporeal slice - own row. Corollary recorded by the coordinator: the Monk GM second fist / Master kick vs 5.0 double_punch() conflict is minted as a row AWAITING a ruling, nothing picked | maintainer |
 | 2026-08-22 | Innate-spell-arms slice rulings (AskUserQuestion x3): (1) the cancel_monst rework travels WITH the MGC_CANCELLATION arm - full strip blocks/immunities/item pass land now, discharging the zap.c TODO-EVILHACK deferral (the "cancellation slice" owner is CLOSED; the AD_CNCL passive and Magicbane arms strengthen as recorded); (2) NOVELS keep 5.0's cancel-to-blank via blank_novel - master's SPE_NOVEL exemption NOT ported, deliberate upstream-wins deviation; (3) CLC_CALL_UNDEAD's casting message stays on master's canseemon(caster) - the BUG-705 seecaster house rule's inventory never classified this message and parity wins. Also approved with the plan: gb.buzzer bracket + youattack=TRUE kill-attribution deviations (BUG-1655/1656 archive master's forms) | maintainer |
 | 2026-08-19 | Damp-sweep hardening deviations RATIFIED (AskUserQuestion): (1) every ported trap-freeze site carries the icedpool ladder (ICED_PUDDLE/ICED_SEWAGE) + start_melt_ice_timeout + obj_ice_effects + newsym where master writes bare typ=ICE - master's own paths melt a frozen puddle into a MOAT (BUG-1604, frozen-unfixed); (2) terrain writes use the hero-aware maybe_unhide_at() instead of master's swimmer-only inline unhide (also swept onto the terrain slice's fire boil-away arm). Corollaries recorded by the coordinator with the slice: master's goodpos explicit late shallow-water accept NOT ported (ACCESSIBLE subsumes it; an early return would bypass the branch's boulder + LR_MONGEN-exclusion rejects; deviation: boulder-on-puddle rejects where master accepts); the monster ice-freeze message is visibility-gated where master prints it unconditionally (off-screen terrain leak, matches the steam arm); water_damage/water_damage_chain ported coordinate-free (master's trailing x,y are dead - immediately overwritten via get_obj_location; do NOT "restore" them) | maintainer |
