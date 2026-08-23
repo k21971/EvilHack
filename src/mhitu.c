@@ -573,6 +573,7 @@ getmattk(
                    || (weap && ((weap->otyp == CORPSE
                                  && touch_petrifies(&mons[weap->corpsenm]))
                                 || is_art(weap, ART_STORMBRINGER)
+                                || is_art(weap, ART_SHADOWBLADE)
                                 || is_art(weap, ART_VORPAL_BLADE))))) {
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;

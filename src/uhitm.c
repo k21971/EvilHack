@@ -1211,6 +1211,7 @@ staticfn void
 hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
 {
     long spcdmgflg; /* worn mask */
+    struct obj *monwep;
     boolean unarmed_shade_ok = (!noncorporeal(hmd->mdat)
                                 || unarmed_hits_shade());
 
@@ -1227,6 +1228,38 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
         hmd->dmg = rnd(!martial_bonus() ? 2 : 4);
         hmd->use_weapon_skill = TRUE;
         hmd->train_weapon_skill = (hmd->dmg > 1);
+    }
+
+    /* monks have a chance to break their opponents wielded weapon
+       under certain conditions */
+    if (hmd->dieroll == 5 && hmd->unarmed && Role_if(PM_MONK)
+        && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
+        && (monwep = MON_WEP(mon)) != 0
+        && !is_flimsy(monwep)
+        && !is_mithril(monwep)
+        && !is_crystal(monwep)
+        && monwep->forged_qual != FQ_EXCEPTIONAL
+        && (monwep->forged_qual != FQ_SUPERIOR && rn2(2))
+        && !obj_resists(monwep,
+                        (monwep->forged_qual == FQ_INFERIOR ? 30 : 50)
+                        + 15 * greatest_erosion(monwep), 100)) {
+        setmnotwielded(mon, monwep);
+        mon->weapon_check = NEED_WEAPON;
+        You("%s your qi.  %s from the force of your blow!",
+            rn2(2) ? "channel" : "focus",
+            Yobjnam2(monwep, (monwep->material == WOOD
+                              || monwep->material == BONE)
+                             ? "splinter"
+                             : (monwep->material == PLATINUM
+                                || monwep->material == GOLD
+                                || monwep->material == SILVER
+                                || monwep->material == COPPER)
+                               ? "break" : "shatter"));
+        m_useupall(mon, monwep);
+        /* If someone just shattered MY weapon, I'd flee! */
+        if (!rn2(4))
+            monflee(mon, d(2, 3), TRUE, TRUE);
+        hmd->hittxt = TRUE;
     }
 
     /* fighting with fists will get the gloves' bonus (this helper is
@@ -1332,7 +1365,9 @@ hmon_hitmon_weapon_melee(
     /* Healer with anatomy knowledge */
     if (Role_if(PM_HEALER) && hmd->hand_to_hand
         && obj->oclass == WEAPON_CLASS
-        && objects[obj->otyp].oc_skill == P_DAGGER)
+        && objects[obj->otyp].oc_skill == P_DAGGER
+        /* no anatomy to exploit on a noncorporeal target */
+        && !noncorporeal(hmd->mdat))
         hmd->dmg += min(3, svm.mvitals[monsndx(mon->data)].died / 6);
 
     /* special attack actions */
