@@ -336,10 +336,12 @@ struct obj {
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
+/* any piercing or slashing weapon can take a poison coating, not only
+   ammo and missiles; a permanently poisoned artifact always counts */
 #define is_poisonable(otmp)                          \
     ((otmp->oclass == WEAPON_CLASS                   \
-      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
-      && objects[otmp->otyp].oc_skill <= -P_BOW)     \
+      && !is_launcher(otmp)                          \
+      && objects[otmp->otyp].oc_dir != WHACK)        \
      || permapoisoned(otmp))
 #define uslinging() (uwep && objects[uwep->otyp].oc_skill == P_SLING)
 /* 'is_quest_artifact()' only applies to the current role's artifact */

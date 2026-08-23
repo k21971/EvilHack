@@ -1510,11 +1510,14 @@ hmon_hitmon_weapon_melee(
                 hmd->dmg++;
             hmd->train_weapon_skill = (hmd->dmg > 0);
         }
-        if (obj->opoisoned && is_poisonable(obj))
-            hmd->ispoisoned = TRUE;
-        if (obj->otainted && is_poisonable(obj))
-            hmd->istainted = TRUE;
     }
+    /* a poison or drow-poison coating applies on every hit that reaches
+       this arm, wielded or thrown; a permanently poisoned weapon is
+       limited by the die roll below instead */
+    if (obj->opoisoned && is_poisonable(obj) && !permapoisoned(obj))
+        hmd->ispoisoned = TRUE;
+    if (obj->otainted && is_poisonable(obj))
+        hmd->istainted = TRUE;
     /* permapoisoned is non-ammo/missile, limit the poison */
     if (permapoisoned(obj) && hmd->dieroll <= 5)
         hmd->ispoisoned = TRUE;
