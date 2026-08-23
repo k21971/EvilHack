@@ -884,6 +884,7 @@ extern void quickmimic(struct monst *) NONNULLARG1;
 
 extern boolean ghitm(struct monst *, struct obj *) NONNULLPTRS;
 extern void container_impact_dmg(struct obj *, coordxy, coordxy) NONNULLARG1;
+extern void kick_monster(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern int dokick(void);
 extern boolean ship_object(struct obj *, coordxy, coordxy, boolean);
 extern void obj_delivery(boolean);

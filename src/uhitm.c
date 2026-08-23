@@ -799,11 +799,16 @@ known_hitum(
             /* hmon() might destroy weapon; remember aspect for cutworm */
             slice_or_chop = (weapon && (is_blade(weapon) || is_axe(weapon)));
 
-    if (go.override_confirmation) {
+    if (go.override_confirmation
+        && (is_art(weapon, ART_STORMBRINGER)
+            || is_art(weapon, ART_SWORD_OF_KAS))) {
         /* this may need to be generalized if weapons other than
-           Stormbringer acquire similar anti-social behavior... */
+           Stormbringer and the Sword of Kas acquire similar anti-social
+           behavior... */
         if (flags.verbose)
-            Your("bloodthirsty blade attacks!");
+            Your("%s blade attacks!",
+                 is_art(weapon, ART_STORMBRINGER) ? "bloodthirsty"
+                                                  : "vicious");
     }
 
     if (!*mhit) {
@@ -931,8 +936,9 @@ hitum_cleave(
     return (target && DEADMONSTER(target)) ? FALSE : TRUE;
 }
 
-/* returns True if hero is fighting without a weapon and without a shield and
-   has sufficient skill in bare-handed/martial arts to attack twice */
+/* returns True if hero is fighting without a weapon and without a shield
+   (bracers are not a shield for this purpose) and has sufficient skill in
+   bare-handed/martial arts to attack twice */
 staticfn boolean
 double_punch(void)
 {
@@ -947,23 +953,66 @@ double_punch(void)
      *  skilled     (3) : 20%
      *  expert      (4) : 40%
      *  master      (5) : 60%
-     *  grandmaster (6) : 80%
+     *  grandmaster (6) : 80%  (100% for a Monk)
      */
-    if (!uwep && !uarms && skl_lvl > P_BASIC)
-        return (skl_lvl - P_BASIC) > rn2(5);
-    return FALSE;
+    if (uwep || skl_lvl <= P_BASIC)
+        return FALSE;
+    /* a real shield gets in the way; hitum() gives the occasional
+       feedback for a Monk who would otherwise be guaranteed the blow */
+    if (uarms && !is_bracer(uarms))
+        return FALSE;
+    /* a Monk who has reached Grand Master always strikes twice */
+    if (Role_if(PM_MONK) && skl_lvl == P_GRAND_MASTER)
+        return TRUE;
+    return (skl_lvl - P_BASIC) > rn2(5);
 }
 
 /* hit target monster; returns TRUE if it still lives */
 staticfn boolean
 hitum(struct monst *mon, struct attack *uattk)
 {
-    boolean malive, wep_was_destroyed = FALSE;
+    boolean malive = TRUE, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep,
         *secondwep = u.twoweap ? uswapwep : (struct obj *) 0;
     unsigned secondwep_id = secondwep ? secondwep->o_id : 0;
     int tmp, dieroll, mhit, armorpenalty, attknum = 0,
         x = u.ux + u.dx, y = u.uy + u.dy, oldumort = u.umortality;
+
+    /* using cursed weapons can sometimes do unexpected things.
+       no need to set a condition for cursed secondary weapon
+       if twoweaponing, as that isn't possible */
+    if (uwep && uwep->cursed && !rn2(7) && u.ualign.type != A_NONE) {
+        if (!rn2(5)) {
+            You("swing wildly and miss!");
+        } else {
+            char tmpbuf[BUFSZ];
+            int dmg_wep = dmgval(uwep, &gy.youmonst);
+
+            Your("cursed %s turns against you!", simpleonames(uwep));
+            You("hit yourself in the %s!", body_part(FACE));
+            if (uwep->oartifact
+                || ((uwep->oclass == WEAPON_CLASS
+                     || is_weptool(uwep) || is_bullet(uwep))
+                    && uwep->oprops))
+                /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
+                (void) artifact_hit((struct monst *) 0, &gy.youmonst, uwep,
+                                    &dmg_wep, rn1(18, 2));
+            if (dmg_wep > 0)
+                dmg_wep += u.udaminc;
+            if (dmg_wep < 0)
+                dmg_wep = 0; /* beware negative rings of increase damage */
+            dmg_wep = Maybe_Half_Phys(dmg_wep);
+            if (Hate_material(uwep->material)) {
+                /* dmgval() already added extra damage */
+                searmsg(&gy.youmonst, &gy.youmonst, uwep, FALSE);
+                exercise(A_CON, FALSE);
+            }
+            Sprintf(tmpbuf, "hitting %sself in the face", uhim());
+            losehp(dmg_wep, tmpbuf, KILLED_BY);
+        }
+        /* the target was never touched; it is still alive */
+        return malive;
+    }
 
     /* Cleaver attacks three spots, 'mon' and one on either side of 'mon';
        it can't be part of dual-wielding but we guard against that anyway;
@@ -984,19 +1033,39 @@ hitum(struct monst *mon, struct attack *uattk)
     if (tmp > dieroll)
         exercise(A_DEX, TRUE);
 
-    /* gb.bhitpos is set up by caller */
-    malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk, dieroll);
-    if (wepbefore && !uwep)
-        wep_was_destroyed = TRUE;
-    (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
+    /* if twoweaponing with Stormbringer or the Sword of Kas, don't force
+       both attacks -- only from the actual 'bloodthirsty' weapon(s) */
+#define forced_attack(w) \
+    (is_art((w), ART_STORMBRINGER) || is_art((w), ART_SWORD_OF_KAS))
+    if ((!go.override_confirmation || forced_attack(uwep))
+        && !(gm.multi < 0 || u.umortality > oldumort)) {
+        /* gb.bhitpos is set up by caller */
+        malive = known_hitum(mon, uwep, &mhit, tmp, armorpenalty, uattk,
+                             dieroll);
+        if (wepbefore && !uwep)
+            wep_was_destroyed = TRUE;
+        (void) passive(mon, uwep, mhit, malive, AT_WEAP, wep_was_destroyed);
+    }
+
+    /* a Monk who has reached Grand Master skill in martial arts always
+       gets the second blow below unless a real shield is in the way;
+       occasionally say so (bracers don't count, see double_punch()) */
+    if (!gt.twohits && !uwep && Role_if(PM_MONK)
+        && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
+        && uarms && !is_bracer(uarms) && !rn2(8)
+        && !(gm.multi < 0 || u.umortality > oldumort)
+        && malive && m_at(x, y) == mon)
+        pline("Your extra attack is ineffective while wearing %s.",
+              an(xname(uarms)));
 
     /* second attack for two-weapon combat or skilled unarmed combat;
-       won't occur if Stormbringer overrode confirmation (assumes
-       Stormbringer is primary weapon), or if hero became paralyzed by
-       passive counter-attack, or if hero was killed by passive
-       counter-attack and got life-saved, or if monster was killed or
-       knocked to different location */
-    if (gt.twohits && !(go.override_confirmation
+       won't occur if Stormbringer or the Sword of Kas overrode
+       confirmation and the secondary weapon isn't the bloodthirsty one,
+       or if hero became paralyzed by passive counter-attack, or if hero
+       was killed by passive counter-attack and got life-saved, or if
+       monster was killed or knocked to different location */
+    if (gt.twohits && !((go.override_confirmation
+                         && !forced_attack(secondwep))
                         || gm.multi < 0 || u.umortality > oldumort
                         || !malive || m_at(x, y) != mon
                         /* the first passive counter-attack may have
@@ -1019,7 +1088,48 @@ hitum(struct monst *mon, struct attack *uattk)
             (void) passive(mon, secondwep, mhit, malive, AT_WEAP,
                            (secondwep_id != 0 && !secondwep));
     }
+#undef forced_attack
     gt.twohits = 0;
+
+    /* random kick attack for a Monk who has reached Master skill
+       or greater in martial arts */
+    if (!rn2(3) && !uwep && Role_if(PM_MONK)
+        && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
+        /* physical restrictions */
+        && !(u.usteed || u.uswallow || u.uinwater
+             || gm.multi < 0 || u.umortality > oldumort
+             || !malive || m_at(x, y) != mon)
+        /* suppress automatically if deadly and cannot be prevented with
+           boots */
+        && !((Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
+             && ((touch_petrifies(mon->data) && !Stone_resistance)
+                 || (how_resistant(DISINT_RES) < 50
+                     && (mon->data == &mons[PM_BLACK_DRAGON]
+                         || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+        /* suppress manually via forcefight */
+        && !svc.context.forcefight) {
+        if (uarm) {
+            if (!rn2(8))
+                pline("Your extra kick attack is ineffective while wearing %s.",
+                      xname(uarm));
+        } else if (Wounded_legs) {
+            if (!rn2(3))
+                legs_in_no_shape("kicking", FALSE);
+        } else {
+            /* kick_monster() rolls to hit again and handles the
+               paralysis shake-off itself */
+            tmp = find_roll_to_hit(mon, uattk->aatyp, uarmf, &attknum,
+                                   &armorpenalty);
+            dieroll = rnd(20);
+            mhit = (tmp > dieroll || u.uswallow);
+            /* kick passive counter-attack only occurs if kick attack hits,
+               kick_monster() will prevent kick attack vs monsters that
+               shouldn't be touched bare-skinned for races that can't wear
+               boots */
+            if (mhit && !DEADMONSTER(mon))
+                kick_monster(mon, x, y);
+        }
+    }
 
     /* your race may grant extra natural attacks; illithids and draugr
        don't use their extra attack every turn, vampires only rarely,
@@ -1211,7 +1321,7 @@ hmon_hitmon_weapon_melee(
                && ((hmd->dieroll == 2
                     && (bimanual(obj) || Race_if(PM_GIANT)
                         || (Role_if(PM_SAMURAI) && obj->otyp == KATANA
-                            && !uarms))
+                            && (!uarms || is_bracer(uarms))))
                     && ((wtype = uwep_skill_type()) != P_NONE
                         && P_SKILL(wtype) >= P_SKILLED))
                    /* giants can shatter weapons on other near-best

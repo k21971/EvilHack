@@ -15,7 +15,6 @@
 
 staticfn void kickdmg(struct monst *, boolean);
 staticfn boolean maybe_kick_monster(struct monst *, coordxy, coordxy);
-staticfn void kick_monster(struct monst *, coordxy, coordxy);
 staticfn int kick_object(coordxy, coordxy, char *) NONNULLARG3;
 staticfn int really_kick_object(coordxy, coordxy);
 staticfn char *kickstr(char *, const char *) NONNULLPTRS;
@@ -167,7 +166,7 @@ maybe_kick_monster(struct monst *mon, coordxy x, coordxy y)
     return (boolean) (mon != 0);
 }
 
-staticfn void
+void
 kick_monster(struct monst *mon, coordxy x, coordxy y)
 {
     boolean clumsy = FALSE;
