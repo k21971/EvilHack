@@ -17,7 +17,40 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-23 COMBAT RESIDUE (BUG-1680..1690, six code
+- Latest slice: 2026-08-23 (later) ALLMAIN TRIO (BUG-1691..1696,
+  four code commits 4d80ddfb5 / 8ea383348 / 6bd028b4b / 334a3e771).
+  The three per-turn allmain.c rows closed in one slice. Flames of
+  hell ported in the iceq-sibling idiom (premise correction: master's
+  in_hell_effects has NO gear/heat/luck arms - the payload is a
+  resist-reduced d(1,6) burn + death path, ~26/80 lines fuzzer
+  scaffolding), Upolyd wrong-pool usurvive predicate fixed in BOTH
+  hazard twins (BUG-1692, master frozen-unfixed). monclock RULED
+  full master parity: current_monclock() pure exported function,
+  dead timeout_start wired live at zero save-format cost,
+  got_quest_early + EDITLEVEL 5, MM_MPLAYEROK + makemon reject,
+  stair-biased post-invocation spawns on the stairway list,
+  udemigod monmax_difficulty 256, insight.c readout. Racial
+  regen-block ported whole (binary heal-gate conjunct - no formula
+  adaptation needed after all; mvl_ statics carry master's
+  moveloop locals). Reviewer CONDITIONAL PASS -> two HIGH lost
+  preconditions fixed in the fourth commit: MIN_QUEST_LEVEL never
+  lowered to master's 10 so got_quest_early was dead on arrival
+  (BUG-1694), and the mplayer shaping cluster (rndmonst 2-in-3
+  thinning, mkclass_aligned 1:5, newmonhp 5/4, four MM_MPLAYEROK
+  level-gen whitelist sites) completed the gate (BUG-1695) - the
+  mplayer random-generation deltas row is CLOSED (only the
+  des-placed name/sex row remains). sfctool GOTCHA: not covered by
+  make all - it sat at EDITLEVEL 3 refusing every save until
+  rebuilt; export/unconvert round trip then reproduced the context
+  and q_score blobs byte-identically. Batteries 8/8 + 13/13 + 6/6
+  PASS across six games (rungs rendered 2.00x/3.08x/8.00x; flames
+  tombstone "killed by the flames of hell"; barkskin lifts the
+  iron block mid-wield; 60/60 unflagged spawns mplayer-free while
+  natural level-gen mplayers returned), paniclog never created.
+  Watches: wizard-usurvive dead store kept in both twins (master
+  parity); post-udemigod intervene() cadence rn1(200,50) routed to
+  the harassment sub-slice row
+- Previous slice: 2026-08-23 COMBAT RESIDUE (BUG-1680..1690, six code
   commits). The six-row cluster the hitum() slice's close-out named:
   is_poisonable() widened to master (BUG-1680, arm-level poison/taint
   flags in the melee helper), monster poisoned-weapon arms RULED to
@@ -6564,7 +6597,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       air cell; flying traversal; object destroyed; Amulet rloco'd
       in-level exactly-1; engrave refusal; dismount plummet with
       abuse counter + align -1; nest stability post-BUG-1456).
-- [ ] Flames of hell (in_hell_effects) ambient fire subsystem (NEW,
+- [x] Flames of hell (in_hell_effects) ambient fire subsystem (NEW,
       minted 2026-08-05 by the gehennom slice; maintainer ruled own
       row). Master allmain.c calls trap.c in_hell_effects() every
       turn the hero is in Gehennom outside the Valley: periodic fire
@@ -6581,7 +6614,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       decide whether in_hell_effects sits beside it or partially
       merges. BUG sweep hits to carry: BUG-284/285 mention it only
       incidentally (sink_into_lava counters), verify at port time.
-- [ ] monclock / MIN_MONGEN_RATE spawn-rate ladder reconcile (NEW,
+      DONE 2026-08-23 (BUG-1691/1692, commit 4d80ddfb5): ported in
+      the iceq-sibling idiom (guarded fuzzer grant, svk/gy renames,
+      urgent_pline death). PREMISE CORRECTION: master's function
+      has NO gear/heat/luck/alignment arms - the "larger than the
+      headline" caution was false (~26/80 lines are fuzzer
+      scaffolding). Sits BESIDE the 5.0 temperature layer (no
+      hero-damage consumer exists to merge with); master's
+      Inhell && !Is_valley gate kept. BUG-284/285 verified:
+      sink_into_lava-only prior-art mentions - but their
+      wrong-pool CLASS was live in the usurvive predicate of BOTH
+      twins, fixed as BUG-1692 (master frozen-unfixed). Stacks
+      with sink_into_lava by design (per-turn vs per-action
+      blocks, shared immunity boundary). Battery 6 flames legs
+      PASS incl. the FROMFORM-stripped salamander isolation and
+      the tombstone text.
+- [x] monclock / MIN_MONGEN_RATE spawn-rate ladder reconcile (NEW,
       minted 2026-08-05 by the gehennom slice; maintainer ruled own
       row). Master allmain.c tightens the random spawn-rate floor as
       the game progresses, keyed on gehennom_entered, hella_entered
@@ -6595,6 +6643,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       scheduler, translate its intent into 5.0-native knobs, or
       ratify the 5.0 pacing and retire timeout_start + the BUG-660
       remainder.
+      DONE 2026-08-23 (BUG-1693..1695, commits 8ea383348 +
+      334a3e771): RULED full master ladder. current_monclock() =
+      pure exported function (no bare global; insight.c calls it);
+      timeout_start wired live at ZERO save-format cost (the
+      Phase 1 placeholder was already serialized); got_quest_early
+      at master's struct position, EDITLEVEL 4 -> 5; MM_MPLAYEROK
+      0x08000000 + makemon retry reject; stair bias via
+      stairway_find_type_dir(FALSE, TRUE) + both special_dir
+      polarities (= master's either-direction sstairs);
+      monmax_difficulty udemigod 256; ^X readout unguarded (the
+      function is always in [10,80]). REVIEWER HIGH: the
+      got_quest_early setter was dead - master's MIN_QUEST_LEVEL
+      10 (ad4398c78) never traveled; ported in the follow-up
+      commit (BUG-1694), questpgr %R follows the define. BUG-660's
+      remainder (carried on this row since 2026-08-05) is
+      discharged. sfctool GOTCHA
+      recorded (see dashboard). Batteries: rungs rendered
+      2.00x/3.08x/8.00x; timeout_start=25639 survived two round
+      trips un-rerolled; the quest bit = the single q_score bit
+      delta; XL10 assignment live vs XL14 negative control.
 - [x] Mplayer kit reconciliation (NEW, minted 2026-08-01 by the
       endgame-slice battery, which made the branch's first real
       Astral visit). Astral creation fires impossible("bad mplayer
@@ -6728,7 +6796,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       erac mercenaries/mplayers show normal peace_minded variance
       (identical-data gnomes split peaceful/hostile), alignments
       all in {-1,0,1}, 33-turn stability, paniclog never created.
-- [ ] mplayer random-generation deltas (minted 2026-08-13 by the
+- [x] mplayer random-generation deltas (minted 2026-08-13 by the
       mplayer-kit slice; NOT taken there - 5.0 rewrote monster
       generation, verify each against the 5.0-native mechanism
       before porting): master-only is_mplayer sites with no branch
@@ -6744,6 +6812,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       generation outside the create_mplayers batch, correct kit,
       no fake Amulet. The cluster is LIVE; port each delta after
       checking the 5.0-native mechanism it lands in.
+      CLOSED 2026-08-23 (BUG-1695, commits 8ea383348 + 334a3e771,
+      with the monclock slice): all four deltas landed - makemon
+      no_mplayer retry reject + MM_MPLAYEROK whitelist at the four
+      level-gen sites master flags (mklev room populate, mkmaze +
+      sp_lev maze fillers, sp_lev des monsters OR-ed into
+      mm_flags), rndmonst_adj 2-in-3 thinning, mkclass_aligned
+      1-vs-5 frequency weight (zero-freq fallback arm untouched),
+      newmonhp mplayer 5/4 boost (master's monmaxhp arm on the
+      5.0 d8 roll - its "matters only if they random-generate"
+      precondition went live with the gate). The des-placed
+      name/sex mismatch row below is the only mplayer remainder.
+      Battery: 60/60 unflagged random spawns produced no mplayer;
+      natural level gen produced a wizard + an infidel across 49
+      wizmakemaps with a breakpoint log proving the flag on every
+      random pick.
 - [ ] des-placed mplayer name/sex mismatch (minted 2026-08-13 by
       the kit-slice battery, Anomaly 1): sp_lev create_monster
       does `mtmp->female = m->female` UNCONDITIONALLY after the
@@ -6775,7 +6858,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       as one sub-slice): (a) intervene() 8-case rework (branch is
       6-case; master adds the distinct "apprehensive" case, the
       invoked-gated case-6 earthquake with wakeup/awaken_monsters,
-      and case-7 nasty-at-upstairs); (b) nasty() centered_on_stairs
+      and case-7 nasty-at-upstairs; RIDER 2026-08-23 from the
+      monclock slice: master also halves the post-udemigod reset
+      cadence - intervene() rescheduled at rn1(100, 50) where the
+      branch keeps vanilla's rn1(200, 50); port the reset value
+      with the 8-case rework so it does not fall between rows);
+      (b) nasty() centered_on_stairs
       boolean (2nd arg; xupstair -> stairway_find_type_dir/
       choose_stairs on 5.0; touches extern.h + mcastu.c caller);
       (c) do_earthquake/awaken_monsters de-static + master
@@ -6996,7 +7084,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       slow" holds in both trees. Non-items re-verified: prayer and
       healing have no Slow handling in either tree; riding bypasses
       hero Slow in both trees (steed short-circuit).
-- [ ] Racial regen-block subsystem (elf_can_regen/orc_can_regen) NOT
+- [x] Racial regen-block subsystem (elf_can_regen/orc_can_regen) NOT
       PORTED (minted 2026-08-07 by the Priest slice's C-hook audit;
       no row existed). Master allmain.c defines both: direct contact
       with cold iron blocks elf/drow hero regeneration, mithril
@@ -7019,6 +7107,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master's moves-modulo-rate interval, so the heal-gate half
       needs formula adaptation (same class as the Druid-regen note
       in the damp-terrain row), not a straight port.
+      DONE 2026-08-23 (BUG-1696, commit 6bd028b4b): ported whole in
+      branch idiom (is_art() for the Vecna glove, TRUE/FALSE,
+      gy/gu renames). The heal gate needed NO formula adaptation -
+      it is a binary conjunct on the !Upolyd arm, orthogonal to
+      the probability model (the caution applied to rate arms,
+      premise corrected). Caches: master's moveloop() locals ->
+      mvl_ file-scope statics seeded in moveloop_preamble (both
+      new-game and restore paths). insight.c gained the contact
+      pair and the "You regenerate" suppression. NOT here (still
+      open on their rows): drow-in-light multipliers, Orcus
+      self-curse, Gauntlets of Purity (BUG-564 rides Purity).
+      Battery 7 legs PASS incl. glove/undershirt layering on both
+      races, barkskin bypass with re-block on expiry, and the ^X
+      suppression A/B.
 - [ ] frac_altar (fractured altar) subsystem NOT PORTED (minted
       2026-08-06 by the Knight slice's crowning-parity port). Master
       levl[x][y].frac_altar: crowning cracks the altar the hero is
@@ -10021,6 +10123,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-08-23 | allmain-trio slice ruling (AskUserQuestion): monclock spawn pacing = FULL master ladder (rate ladder + hidden 30k clock + sticky floors + post-invocation stair-biased mplayer-allowed spawns + udemigod monmax_difficulty 256 + ^X readout + both BUG-660 halves). Riders recorded by the coordinator: MIN_QUEST_LEVEL 14 -> 10 (master ad4398c78) ported when the reviewer proved got_quest_early unreachable without it; the mplayer shaping cluster (thinning / mkclass weight / HP boost / level-gen whitelist) folded in, closing the mplayer random-generation deltas row; the Upolyd usurvive predicate fixed in BOTH hazard twins per the BUG-1423 pool-exclusivity precedent; flames of hell sits BESIDE the 5.0 temperature layer (no hero-damage consumer exists to merge with) | maintainer |
 | 2026-08-23 | Combat-residue slice rulings (AskUserQuestion x2): (1) helmet hardness tree-wide = master's is_hard() (metallic, glass, wood, bone, stone) - hard_helmet() keeps its name and answers with is_hard(); upstream 5.0's metallic-or-glass rule dropped; (2) monster-side poisoned-weapon arms = master (every hit, hpdamchance 30 vs the hero, rnd(6) or 1-in-30 lethal vs a monster, coating wears off 1-in-(10-wt/10)); upstream 5.0's 25% gates and never-wears-off dropped; the permanently poisoned artifact keeps 5.0's limiters and never wears off. Also recorded: the hand-thrown-ammo poison row closed as premise-false (vanilla design on all three trees), its upstream-reportable entry retracted | maintainer |
 | 2026-08-22 | hitum() parity slice rulings (AskUserQuestion x2): (1) Monk extra attacks vs upstream 5.0 double_punch() = LAYER - keep the skill-scaled second bare-handed hit for every role, guarantee it for a Monk at Grand Master, exempt bracers, add master's 1/8 shield feedback and master's Monk Master+ 1/3 random kick; (2) the three untracked master hitum() arms found while scoping (cursed-weapon self-hit, bloodthirsty per-hand forced_attack, shield bash) join the slice - whole hitum() parity in one deliberate slice, the find_roll_to_hit() precedent | maintainer |
 | 2026-08-22 | Weapon-skill tables + noncorporeal slice rulings (AskUserQuestion x2): (1) the martial-arts master/GM to-hit boost ports master's CODE as-is (`bonus += (bonus - 5) * 2`: Master +8, Grand Master +11) and the comment table is regenerated from the code - master's own table (+7/+9, written in the same commit cd5c574bb) had drifted from its formula; (2) the Monk grand-master "channel your qi" weapon-break arm is NOT taken with the noncorporeal slice - own row. Corollary recorded by the coordinator: the Monk GM second fist / Master kick vs 5.0 double_punch() conflict is minted as a row AWAITING a ruling, nothing picked | maintainer |
