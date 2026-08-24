@@ -17,7 +17,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-23 (later) ALLMAIN TRIO (BUG-1691..1696,
+- Latest slice: 2026-08-23 (later still) MBERSERK + SATYR BOOZE +
+  SKITTISH AI (BUG-1697..1700, two code commits b08789993 / 3d1bb546a).
+  Session 60's first-listed candidate taken whole. The berserk state
+  had a bit and one consumer and no way in: producer (1-in-15 rage
+  below a third HP, calm past half, three message arms, flee cleared
+  with its 5.0 timer), both mhitm_ad_phys damage arms, mm_aggression
+  lash-out, m_move override past the launcher hang-back, clone_mon +
+  montraits resets. SCOPING found the second producer - the satyr
+  booze feature - untracked and unported (catch/quaff/pacify-or-
+  enrage/floor pickup, commit B), and M3_SKITTISH a flag with NO
+  consumer; the reviewer widened the m_move-only skittish port to
+  master's three dochug/m_move consumers (BUG-1699) and caught the
+  master-shared max-tame pet fall-through into the cursed arm
+  (BUG-1700, tame nesting fix). Data parity: berserker set =
+  master's 32 minus Koa (deliberately removed); skittish set
+  identical. Save format untouched (bit pre-existed). Watches:
+  skittish !mberserk conjunct + post-cast clause dead on both trees;
+  pager APPENDCs ride the Pokedex row. Rows minted: support-caster
+  hang-back arm, clone/montraits reset-width remainder, over-capacity
+  monster stall (battery observation, LOW).
+  Batteries 15/15 + 7/7 PASS across two games (breakpoint-counted
+  damage rate 0.341; appr trace proves the override off-line),
+  paniclog never created; premise corrections on the row (lined-up
+  archer never reaches m_move on either tree; mquaffmsg description
+  naming; pickup load/nearer-item gates). Not-a-bug: revived
+  hero-killed pet returns peaceful (wary_dog design).
+- Previous slice: 2026-08-23 (later) ALLMAIN TRIO (BUG-1691..1696,
   four code commits 4d80ddfb5 / 8ea383348 / 6bd028b4b / 334a3e771).
   The three per-turn allmain.c rows closed in one slice. Flames of
   hell ported in the iceq-sibling idiom (premise correction: master's
@@ -7717,6 +7743,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       damage type from the divergence point up; and carry
       BUG-1181's fix shape (SIZE(table) bound guards, not
       LAST_AT/LAST_AD, which the branch does not define).
+      RIDER (2026-08-23, mberserk slice): master pager.c add_mon_info
+      APPENDC(is_berserker(pm), "go berserk") and
+      APPENDC(is_skittish(pm), "skittish") land here with the table;
+      both macros are live on the branch since that slice.
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -7829,7 +7859,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       SECOND swing only (both directions, hero knocked out through
       it); troll wielding a long sword: AT_CLAW and AT_BITE enter
       with mwep NULL and no weapon damage, 4/4 chains.
-- [ ] Monster berserk subsystem (mberserk) half-ported (minted
+- [x] Monster berserk subsystem (mberserk) half-ported (minted
       2026-08-23 by the combat-residue slice; found reading
       mhitm_ad_phys() whole, confirmed by its reviewer). The branch
       has the monst.h bitfield and ONE consumer (monmove.c onscary,
@@ -7843,6 +7873,103 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zap.c). Dormant today (no producer), but the flag is allocated
       and one consumer is live. Port as one row: producers + damage
       arms + aggression + resets.
+      PORTED 2026-08-23 (mberserk slice, BUG-1697 + BUG-1699 commit
+      b08789993, BUG-1698 + BUG-1700 commit 3d1bb546a). Whole row in
+      one read: is_berserker() added (the macro was missing too),
+      m_calcdistress() producer after mon_regen() with master's three
+      message arms and the flee clear (mfleetim cleared beside mflee,
+      the 5.0 timed-flee pair), both damage arms in uhitm.c
+      mhitm_ad_phys() (monster-vs-hero hand-to-hand arm, monster-vs-
+      monster arm ahead of shade_miss - master's `physical:` label
+      coverage of AD_WERE/HEAL/SAMU/CLOB/STUN preserved by 5.0's
+      routing), mm_aggression() lash-out arm after the pseudodragon
+      arm, m_move() override after m_balks_at_approaching()
+      (neutralizes its -2 throw-and-return range case as master's did
+      its launcher arm), clone_mon() + montraits() resets (master's
+      zap.c site IS montraits - newcham never cleared it on master
+      either). SECOND PRODUCER: the satyr booze feature (master
+      82fb02f27) had no row and no port - landed whole in commit B
+      (BUG-1698: thitmonst catch, MUSE_POT_BOOZE find/use_misc,
+      searches_for_item floor pickup) with one deliberate delta, the
+      max-tame pet nesting (BUG-1700, master frozen-unfixed).
+      SCOPING CATCH: master's c45e07dc8 edits the skittish keep-away
+      arm, and M3_SKITTISH turned out to be a flag with NO consumer on
+      the branch; the reviewer widened the m_move-only port to all
+      three master consumers (BUG-1699: dochug move-before-attack,
+      post-cast keep-moving, m_move keep-away). Data parity verified:
+      berserker set = master's 32 minus Koa (deliberately removed on
+      the branch), skittish set identical; both flags EvilHack-only.
+      WATCHES: skittish !mberserk conjunct and the post-cast clause
+      are dead on both trees (no skittish berserker, no skittish
+      AD_SPEL/CLRC caster); master pager "go berserk"/"skittish"
+      APPENDCs ride the Pokedex row; hallucinated-name "He" mismatch
+      in the satyr lines is master-shared cosmetic. ROWS MINTED:
+      m_move support-caster hang-back arm (LOW, with the support
+      cluster), clone_mon/montraits reset-width remainder (LOW),
+      over-capacity monster stall (LOW investigation, battery
+      observation).
+      BATTERY: 22/22 PASS across two Valkyrie games (2026-08-23/24; run 1 berserk+
+      skittish 15/15, run 2 satyr 7/7), paniclog never created. Rage at
+      5/30 HP ("flies into a berserker rage!" T:56, flee pair cleared),
+      "seems to go berserk!", "You hear an enraged roar nearby!", 95
+      rage-eligible soldier-ant turns without one, hysteresis exact at
+      mhp == mhpmax/2, damage arm 14/41 bonuses (0.341) vs 0/17 calm,
+      Elbereth ignored then "turns to flee" after healing, corridor
+      lash-out on the first turn vs none calm, off-line archer appr
+      1->-1 calm vs 1->1 berserk closing in two moves, clones 0/0/0 vs
+      original 1, undead-turning revival 0 from traits carrying 1,
+      save/restore kept the bit; deer hovered at distmin 2-4 (never
+      adjacent, no kicks), five forced adjacencies = five retreats,
+      cornered it kicked; satyr caught/drank/sated (peaceful), cursed
+      rage (hostile+berserk, threw a dagger), slept satyr hit on the
+      head instead, floor booze fetched from three squares and drunk,
+      tame 5->6, max-tame 20 stayed 20/peaceful/calm through 6
+      adjacent turns. PREMISE CORRECTIONS: a lined-up launcher user
+      never reaches m_move() on either tree (dochug's ranged scan
+      shoots and returns first) so the override shows off-line only;
+      mquaffmsg names an unknown potion by description ("drinks an
+      orange potion!"); wizard wishes arrive unidentified with
+      bknown 0; floor pickup needs load < 75% and no nearer
+      qualifying item in m_search_items' radius-5 box (a carried satyr
+      corpse at 299% load and a closer elven short sword each defeated
+      a staging attempt). ADJUDICATED NOT-A-BUG: a revived pet the hero
+      killed returns peaceful, not tame (wary_dog killed_by_u, vanilla);
+      genesis satyrs often asleep (S_NYMPH makemon sleep roll); hero
+      armor loss to an unseen caster on Dlvl 1 (consistent with the
+      destroy-armor monster spell, not chased).
+- [ ] LOW: m_move() "Support casters hang back" arm NOT PORTED (minted
+      2026-08-23 by the mberserk slice, found while placing the berserk
+      appr override). Master monmove.c m_move(): a hostile is_support()
+      caster within dist2 < 16 of the hero sets appr = -1 while the
+      hero is above a quarter of max HP ((u.uhpmax / u.uhp) < 4). The
+      branch has the macro (mondata.h) with one dogmove.c consumer and
+      no m_move arm. Belongs with the support-caster feature - the
+      Phase 5 m_initgrp row already carries BUG-936 (is_support()/
+      m_respond ally-heal never setting mspec_used, also unported);
+      port the hang-back with that cluster, not alone.
+- [ ] LOW: clone_mon()/montraits() transient-reset width, master vs
+      branch (minted 2026-08-23 by the mberserk slice, which added
+      mberserk to both lists). Master's BUG-625 clone_mon() list also
+      clears mcansee/mblinded/mstun/mconf/mwither/msummoned/minsects/
+      mbreakboulder/uexp/wormno; the branch's clone_mon() clears the
+      spell-conferred subset only (sick/disease/entangle/vuln/
+      mextrinsics + timers/protection). Master's montraits() list also
+      clears mwither/msummoned/minsects/mbreakboulder/uexp; the branch
+      block stops at the vuln/protection timers. One row for the
+      family; each missing bit is a permanent-on-the-copy inheritance
+      of the BUG-625 class (the tick loop only decrements the original).
+- [ ] LOW investigation: monster holding more than it can carry stops
+      acting (battery observation 2026-08-23, unadjudicated, NOT the
+      mberserk slice's doing). A hostile Uruk-hai that picked up a
+      418-weight large box ("The Uruk-hai picks up a large box.")
+      then stood at distance 10 for 7+ turns, neither approaching nor
+      shooting its full quiver; extracting the box via gdb restored
+      normal approach at once. Master's m_stash_items() loop is NOT
+      on the branch (unported), so that is not the producer; check
+      what an over-capacity minvent does to m_move()/mfndpos or the
+      dochug ranged scan, and whether master's can_carry() "already
+      overloaded -> 0" pre-check (mon.c) travelled - the branch's
+      can_carry() tests curr + newload only.
 - [ ] LOW: hero Sword of Kas / barbed needle poison-feedback arms
       (minted 2026-08-23 by the combat-residue slice). Master's
       hmon_hitmon() runs the hero poisoned-weapon block for iskas
