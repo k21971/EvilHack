@@ -31,6 +31,9 @@ staticfn boolean domove_fight_ironbars(coordxy, coordxy);
 staticfn boolean domove_fight_web(coordxy, coordxy);
 staticfn boolean domove_swap_with_pet(struct monst *,
                                     coordxy, coordxy) NONNULLARG1;
+staticfn struct obj *wielded_fire_weapon(void);
+staticfn void domove_fight_burn(coordxy, coordxy, const char *,
+                                struct obj *) NONNULLPTRS;
 staticfn boolean domove_fight_empty(coordxy, coordxy);
 staticfn boolean air_turbulence(void);
 staticfn void slippery_ice_fumbling(void);
@@ -2307,6 +2310,115 @@ domove_swap_with_pet(
     return !didnt_move;
 }
 
+/* the wielded weapon whose fire lets forcefight burn through flammable
+   doors and trees: fire and fire-plus-cold artifacts and fire-property
+   weapons, in either hand while two-weaponing; Null when there is none */
+staticfn struct obj *
+wielded_fire_weapon(void)
+{
+    if (uwep && (attacks(AD_FIRE, uwep) || attacks(AD_FUSE, uwep)))
+        return uwep;
+    if (u.twoweap && uswapwep
+        && (attacks(AD_FIRE, uswapwep) || attacks(AD_FUSE, uswapwep)))
+        return uswapwep;
+    return (struct obj *) 0;
+}
+
+/* force-fight a closed door or a tree at (x,y) with a fire weapon: the
+   flames burn through a flammable door, reduce a tree to a dead tree and
+   a dead tree to nothing; 'target' is the caller's name for the spot */
+staticfn void
+domove_fight_burn(coordxy x, coordxy y, const char *target,
+                  struct obj *fireobj)
+{
+    struct rm *lev = &levl[x][y];
+
+    You("strike %s with %s...", target, ysimple_name(fireobj));
+    if (IS_DOOR(lev->typ)) {
+        if ((lev->doormask & D_TRAPPED) && In_sokoban(&u.uz)) {
+            /* a trapped sokoban prize door is never destroyed */
+            pline_The("door remains intact.");
+        } else if (!door_flammable(lev)) {
+            /* a metal or stone door won't burn */
+            pline_The("door is unharmed by the flames.");
+        } else {
+            boolean shopdoor = (*in_rooms(x, y, SHOPBASE) != '\0');
+
+            /* add_damage before the terrain change so the shopkeeper
+               repairs the closed door rather than the doorway left
+               behind */
+            if (shopdoor)
+                add_damage(x, y, SHOP_DOOR_COST);
+            /* TODO-EVILHACK: also bill temple-boundary door damage once
+               temple_at_boundary ports with the temple damage-repair
+               sweep */
+            lev->doormask = D_NODOOR;
+            recalc_block_point(x, y); /* vision: can see through */
+            newsym(x, y);
+            feel_newsym(x, y);
+            if (!Blind)
+                pline_The("door is consumed in flames!");
+            else
+                You("smell smoke.");
+            if (shopdoor)
+                pay_for_damage("burn away", FALSE);
+        }
+    } else if (lev->typ == TREE) {
+        if (!may_dig(x, y)) {
+            /* nothing happens - it's petrified */
+            pline("But it remains intact.");
+        } else {
+            if (!Blind)
+                pline_The("tree burns to a crisp!");
+            else
+                You("smell smoke.");
+            lev->typ = DEADTREE;
+            newsym(x, y);
+            feel_newsym(x, y);
+            /* Druids are penalized hardest for killing a live tree */
+            if (Role_if(PM_DRUID)) {
+                You_feel("very guilty.");
+                adjalign(-15);
+                record_abuse_event(-15, ABUSE_DESTROY_TREE);
+                change_luck(-7);
+                /* deity becomes "very" angry */
+                u.ugangr += 5;
+            } else if (Race_if(PM_ELF)) {
+                /* Elves are also penalized, but not as severely */
+                You_feel("guilty.");
+                adjalign(-5);
+                record_abuse_event(-5, ABUSE_DESTROY_TREE);
+                change_luck(-2);
+            } else if (Role_if(PM_RANGER)) {
+                /* Rangers are penalized mildly */
+                You_feel("a little guilty.");
+                adjalign(-2);
+                record_abuse_event(-2, ABUSE_DESTROY_TREE);
+            }
+        }
+    } else if (lev->typ == DEADTREE) {
+        if (!may_dig(x, y)) {
+            /* nothing happens - it's petrified */
+            pline("But it remains intact.");
+        } else {
+            if (!Blind)
+                pline_The("dead tree burns to ashes!");
+            else
+                You("smell smoke.");
+            lev->typ = ROOM, lev->flags = 0;
+            recalc_block_point(x, y); /* vision: can see through */
+            newsym(x, y);
+            feel_newsym(x, y);
+        }
+    }
+    /* striking with the flames reveals a fire-property weapon's nature */
+    if ((fireobj->oprops & ITEM_FIRE)
+        && !(fireobj->oprops_known & ITEM_FIRE)) {
+        fireobj->oprops_known |= ITEM_FIRE;
+        update_inventory();
+    }
+}
+
 /* force-fight (x,y) which doesn't have anything to fight */
 staticfn boolean
 domove_fight_empty(coordxy x, coordxy y)
@@ -2326,7 +2438,7 @@ domove_fight_empty(coordxy x, coordxy y)
         /* remembered an 'I' && didn't use a move command */
         || (glyph_is_invisible(glyph) && !m_at(x, y)
             && !svc.context.nopick)) {
-        struct obj *boulder = 0;
+        struct obj *boulder = 0, *fireobj;
         boolean explo = (Upolyd && attacktype(gy.youmonst.data, AT_EXPL)),
                 solid = (off_edge || (!accessible(x, y)
                                       || IS_FURNITURE(levl[x][y].typ)));
@@ -2398,6 +2510,17 @@ domove_fight_empty(coordxy x, coordxy y)
                5.0: furniture too */
         } else {
             Strcpy(buf, "thin air");
+        }
+
+        /* a fire weapon burns through flammable doors and trees; exact
+           terrain tests rather than IS_TREES() because arboreal STONE
+           is displayed as a tree but has nothing to burn */
+        if (svc.context.forcefight && !Underwater
+            && (levl[x][y].typ == TREE || levl[x][y].typ == DEADTREE
+                || closed_door(x, y))
+            && (fireobj = wielded_fire_weapon()) != 0) {
+            domove_fight_burn(x, y, buf, fireobj);
+            return TRUE;
         }
 
  futile:
