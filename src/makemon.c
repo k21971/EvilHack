@@ -2747,6 +2747,8 @@ clone_mon(
     m2->mdiseasetime = 0;
     m2->mentangled = 0;
     m2->mentangletime = 0;
+    /* rage is per-monster state, not inherited */
+    m2->mberserk = 0;
     m2->vuln_fire = 0;
     m2->vuln_cold = 0;
     m2->vuln_elec = 0;

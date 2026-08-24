@@ -932,6 +932,7 @@ montraits(
         mtmp2->msick = 0;
         mtmp2->mdiseased = 0;
         mtmp2->mentangled = 0;
+        mtmp2->mberserk = 0;
         mtmp2->vuln_fire = 0;
         mtmp2->vuln_cold = 0;
         mtmp2->vuln_elec = 0;

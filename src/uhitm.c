@@ -5698,6 +5698,10 @@ mhitm_ad_phys(
                fresh look at the primary slot */
             struct obj *otmp = mhm->mwep;
 
+            /* a berserk attacker sometimes hits much harder */
+            if (magr->mberserk && !rn2(3))
+                mhm->damage += d((int) mattk->damn, (int) mattk->damd);
+
             if (mattk->aatyp == AT_WEAP && otmp) {
                 struct obj *marmg;
                 int tmp;
@@ -5888,6 +5892,10 @@ mhitm_ad_phys(
 
         if (mattk->aatyp != AT_WEAP && mattk->aatyp != AT_CLAW)
             mwep = 0;
+
+        /* a berserk attacker sometimes hits much harder */
+        if (magr->mberserk && !rn2(3))
+            mhm->damage += d((int) mattk->damn, (int) mattk->damd);
 
         if (shade_miss(magr, mdef, mwep, FALSE, vis)) {
             mhm->damage = 0;

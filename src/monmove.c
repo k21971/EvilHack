@@ -1255,7 +1255,8 @@ dochug(struct monst *mtmp)
         || (mdat->mlet == S_LEPRECHAUN && !findgold(gi.invent, FALSE)
             && (findgold(mtmp->minvent, FALSE) || rn2(2)))
         || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
-        || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful) {
+        || is_skittish(mdat) || (!mtmp->mcansee && !rn2(4))
+        || mtmp->mpeaceful) {
 
         /* Possibly cast an undirected spell if not attacking you */
         /* note that most of the time castmu() will pick a directed
@@ -1278,7 +1279,10 @@ dochug(struct monst *mtmp)
                     if (cres & M_ATTK_AGR_DIED)
                         return 1;
                     if (cres & M_ATTK_HIT) {
-                        status = MMOVE_DONE; /* bypass m_move() */
+                        /* skittish casters keep moving after a
+                           successful cast; others stop here */
+                        if (!is_skittish(mdat))
+                            status = MMOVE_DONE; /* bypass m_move() */
                         break;
                     }
                 }
@@ -2342,11 +2346,20 @@ m_move(struct monst *mtmp, int after)
             && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
             appr = 0;
 
+        /* does this monster like to play keep-away? */
+        if (is_skittish(ptr) && (dist2(omx, omy, ggx, ggy) < 10)
+            && !mtmp->mberserk)
+            appr = -1;
+
         if (appr == 1 && leppie_avoidance(mtmp))
             appr = -1;
 
         /* hostiles with ranged weapon or attack try to stay away */
         appr = m_balks_at_approaching(appr, mtmp, &preferredrange_min, &preferredrange_max);
+
+        /* ... unless they are currently berserk */
+        if (mtmp->mberserk)
+            appr = 1;
 
         if (!should_see && can_track(ptr)) {
             coord *cp;

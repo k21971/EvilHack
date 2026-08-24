@@ -1510,6 +1510,33 @@ m_calcdistress(struct monst *mtmp)
     /* regenerate hit points */
     mon_regen(mtmp, FALSE);
 
+    /* berserkers fly into a rage when badly hurt and calm down once
+       they have recovered past half health */
+    if (is_berserker(mtmp->data) && !noattacks(mtmp->data)) {
+        if (mtmp->mhp < (mtmp->mhpmax / 3) && !mtmp->mberserk
+            && !mtmp->mfrozen && !rn2(15)) {
+            if (canseemon(mtmp) && humanoid(mtmp->data)
+                && !mindless(mtmp->data)) {
+                pline_mon(mtmp, "%s flies into a berserker rage!",
+                          Monnam(mtmp));
+            } else if (canseemon(mtmp)) { /* animal/mindless */
+                pline_mon(mtmp, "%s seems to go berserk!", Monnam(mtmp));
+            } else {
+                You_hear("an enraged %s %s!",
+                         !rn2(3) ? "roar" : rn2(2) ? "bellow" : "howl",
+                         (distu(mtmp->mx, mtmp->my) > (6 * 6))
+                             ? "in the distance" : "nearby");
+            }
+            mtmp->mberserk = 1;
+            /* rage overrides fear; clear the timed flee with it so a
+               stale timer never ticks against an already-clear flag */
+            mtmp->mflee = 0;
+            mtmp->mfleetim = 0;
+        } else if (mtmp->mhp > (mtmp->mhpmax / 2)) {
+            mtmp->mberserk = 0;
+        }
+    }
+
     /* sick monsters can die from their illness */
     if (mtmp->msick && mtmp->msicktime <= 1) {
         if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
@@ -3166,6 +3193,12 @@ mm_aggression(
 
     /* pseudodragons *really* like to hunt for rodents */
     if (is_pseudodragon(magr->data) && is_rat(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* berserk monsters sometimes lash out at everything
+       when trying to attack you */
+    if (magr->mberserk && !magr->mpeaceful
+        && !rn2(3) && m_canseeu(magr))
         return ALLOW_M | ALLOW_TM;
 
     /* Various other combinations such as dog vs cat, cat vs rat, and

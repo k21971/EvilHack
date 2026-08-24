@@ -442,6 +442,8 @@
      || (ptr) == &mons[PM_ARCH_PRIEST] || (ptr) == &mons[PM_ACOLYTE]    \
      || (ptr) == &mons[PM_ALIGNED_PRIEST])
 #define is_stationary(ptr) (((ptr)->mflags3 & M3_STATIONARY) != 0)
+#define is_skittish(ptr) (((ptr)->mflags3 & M3_SKITTISH) != 0)
+#define is_berserker(ptr) (((ptr)->mflags3 & M3_BERSERK) != 0)
 /* monsters not technically killed, but defeated instead */
 #define is_defeated(ptr) \
     ((ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                  \
