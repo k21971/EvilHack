@@ -2438,6 +2438,13 @@ thitmonst(
         }
     }
 
+    /* satyrs happily catch a thrown bottle of booze and drink it later */
+    if (obj->otyp == POT_BOOZE && is_satyr(mon->data) && !helpless(mon)) {
+        pline("%s happily catches the bottle.", Monnam(mon));
+        (void) mpickobj(mon, obj); /* may merge and free obj */
+        return 1;
+    }
+
     /* don't make game unwinnable if naive player throws artifact
        at leader... (kicked artifact is ok too; HMON_APPLIED could
        occur if quest artifact polearm or grapnel ever gets added) */

@@ -2929,6 +2929,7 @@ rnd_offensive_item(struct monst *mtmp)
 #define MUSE_POT_POLYMORPH 9
 #define MUSE_BAG 10
 #define MUSE_SPELLBOOK 11
+#define MUSE_POT_BOOZE 12
 
 /* spells that monsters can learn from spellbooks.
    Excludes: racial abilities (psionic wave), spells with existing
@@ -3192,6 +3193,12 @@ find_misc(struct monst *mtmp)
      * container and not know whether it is trapped.
      */
     for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+        /* satyrs drink any booze they get hold of; a cursed potion
+           sends them into a rage rather than pacifying them */
+        if (obj->otyp == POT_BOOZE && is_satyr(mtmp->data)) {
+            gm.m.misc = obj;
+            gm.m.has_misc = MUSE_POT_BOOZE;
+        }
         /* Monsters shouldn't recognize cursed items; this kludge is
            necessary to prevent serious problems though... */
         if (obj->otyp == POT_GAIN_LEVEL
@@ -3716,6 +3723,37 @@ use_misc(struct monst *mtmp)
         }
         /*NOTREACHED*/
         return 0;
+    case MUSE_POT_BOOZE:
+        if (!otmp)
+            panic(MissingMiscellaneousItem, "potion of booze");
+        mquaffmsg(mtmp, otmp);
+        if (vismon)
+            pline_mon(mtmp, "%s looks confused.", Monnam(mtmp));
+        if (mtmp->mtame) {
+            /* a pet only grows fonder; the cap is an overflow clamp,
+               not a route into the hostile arms below */
+            if (mtmp->mtame < 20)
+                mtmp->mtame++;
+        } else if (otmp->cursed) {
+            if (vismon)
+                pline_mon(mtmp, "He flies into a drunken rage!");
+            mtmp->mpeaceful = 0;
+            set_malign(mtmp);
+            mtmp->mberserk = 1;
+        } else {
+            if (vismon)
+                pline_mon(mtmp, "He is sated.");
+            mtmp->mpeaceful = 1;
+            set_malign(mtmp);
+        }
+        mtmp->mconf = 1;
+        m_useup(mtmp, otmp);
+        if (oseen)
+            makeknown(POT_BOOZE);
+        /* refresh symbol when changing from hostile to
+           peaceful or vice versa */
+        newsym(mtmp->mx, mtmp->my);
+        return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -3845,6 +3883,8 @@ searches_for_item(struct monst *mon, struct obj *obj)
             || typ == POT_SLEEPING || typ == POT_ACID || typ == POT_CONFUSION)
             return TRUE;
         if (typ == POT_BLINDNESS && !attacktype(mon->data, AT_GAZE))
+            return TRUE;
+        if (typ == POT_BOOZE && is_satyr(mon->data))
             return TRUE;
         break;
     case SCROLL_CLASS:
