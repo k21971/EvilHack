@@ -17,7 +17,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-23 (later still) MBERSERK + SATYR BOOZE +
+- Latest slice: 2026-08-24 FORCEFIGHT FIRE-BURN (BUG-1701..1707, one
+  code commit + tracker). Session 61's first-listed candidate: a fire
+  weapon (Fire Brand/Dichotomy/Xiuhcoatl/Angelslayer or an ITEM_FIRE
+  weapon, either hand) now burns a closed flammable door to a doorway
+  and a tree to a dead tree to nothing via F-fight, ported as
+  wielded_fire_weapon() + domove_fight_burn() in the 5.0
+  domove_fight_* family. Four rulings, all master-deviating on
+  purpose where the siblings disagree with master: closed doors only
+  + add_damage-before-mutation + doorway result (master phantom-burns
+  open/broken/absent doors, records the doorway for shop repair and
+  turns the square into ROOM - BUG-1702/1703/1704 frozen-unfixed);
+  attacks() predicate on both hands; the bare-handed burning-hands
+  arm rides a NEW HIGH row (the whole hero burning hands / shocking
+  grasp system is unported and casting either spell reaches
+  spelleffects()'s impossible() - a paniclog for any hero who learns
+  the book); inline Druid/Elf/Ranger guilt ladder. Reviewer
+  CONDITIONAL PASS -> exact TREE/DEADTREE gate (IS_TREES admitted
+  arboreal rock: "You strike the tree..." then nothing, master-shared
+  BUG-1706), forcefight required in the gate (remembered-'I' plain
+  move burned doors, master-shared BUG-1707), feel_newsym for the
+  blind hero. Master naming quirk kept (ysimple_name -> "your short
+  sword" for Fire Brand); BUG-1705 = master naming the primary when
+  the off-hand artifact burned. Battery 11/11 PASS across Val/Dru/
+  Ran-elf/Ran-hum games (damagelist keeps the closed mask and the
+  shopkeeper repairs a closed door; guilt -15/-7/+5, -5/-2, -2);
+  the single paniclog line was the tester's own staging. Reviewer-fix
+  mini-battery 6/6 PASS (arboreal rock "harmlessly attacked", the
+  remembered-'I' plain move harmless while F burns, blind memory
+  tree->dead tree, fire axe digs instead of burning), paniclog never
+  created. Rows minted: HIGH hero burning hands/shocking grasp, LOW
+  0x20 shop-door flag watch. Pager blurb dependency discharged on the
+  forge-slice deferral note.
+- Previous slice: 2026-08-23 (later still) MBERSERK + SATYR BOOZE +
   SKITTISH AI (BUG-1697..1700, two code commits b08789993 / 3d1bb546a).
   Session 60's first-listed candidate taken whole. The berserk state
   had a bit and one consumer and no way in: producer (1-in-15 rage
@@ -1516,7 +1548,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (Phase 4 - NOTE S_forge insertion shifts every cmap tile
       after sink; master tile exists to copy), pager forge-recipe
       /journal lookup subsystem (extended obj/artifact lookup UI;
-      get_forge_recipe exported ready), percent-resist sites,
+      get_forge_recipe exported ready; NOTE 2026-08-24: master
+      7a6acfc1a's arti_special[] blurb "Can burn through flammable
+      doors and trees." for Fire Brand/Dichotomy/Angelslayer/
+      Xiuhcoatl is TRUE on the branch since the forcefight fire-burn
+      slice landed - port the table without fear of a lying blurb),
+      percent-resist sites,
       hack_artifacts non-forge retargets (Dirge/Priest/Caveman -
       artifact/crowning slice), botl_hitbonus FQ display
       (SCORE_ON_BOTL extension), monk qi weapon-break FQ guards,
@@ -6996,7 +7033,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       impossible). Master's rloc_to clears mtrapped unconditionally
       before the re-check. One-line parity candidate; ride the next
       teleport.c slice.
-- [ ] hack.c forcefight fire-burn (fire_wep/burnhd) NOT PORTED (minted
+- [x] hack.c forcefight fire-burn (fire_wep/burnhd) NOT PORTED (minted
       2026-08-06 by the Archeologist slice's C-hook audit). Master's
       forcefight block computes burnhd (u.umburn burning-hands form,
       bare-handed) and fire_wep (wielded ITEM_FIRE-oprop weapon or
@@ -7010,6 +7047,122 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       behavior in mind when reconciling. The Xiuhcoatl pager blurb
       "Can burn through flammable doors and trees" (pager deferral)
       advertises this feature - port them together or the blurb lies.
+      DONE 2026-08-24 (BUG-1701..1707, session 62; code commit A =
+      src/hack.c, commit B = tracker). Ported as two staticfns in the
+      5.0 domove_fight_* family: wielded_fire_weapon() returns the
+      responsible object (uwep, then uswapwep while two-weaponing)
+      via the web arm's attacks(AD_FIRE|AD_FUSE) predicate - on the
+      branch that is exactly master's set (Fire Brand/Xiuhcoatl/
+      Angelslayer FIRE, Dichotomy FUSE, ITEM_FIRE weapons/weptools);
+      domove_fight_burn() holds the door/tree/dead-tree arms, gated in
+      domove_fight_empty() after the target-name chain and before
+      `futile:`. FOUR RULINGS (AskUserQuestion, all recommended
+      options): (1) doors = sibling parity with the zap.c fire beam -
+      closed_door() only, add_damage() BEFORE the mask change, result
+      = doorway (DOOR + D_NODOOR); master's arm fires on ANY door typ
+      (phantom doorway/open/broken burn, BUG-1702), records the
+      doorway for shop repair (BUG-1703) and converts the square to
+      ROOM (BUG-1704) - all master frozen-unfixed; (2) attacks() on
+      both hands (deliberate delta: an ITEM_FIRE off-hand weapon also
+      qualifies); (3) the bare-handed burnhd arm RIDES the new HIGH
+      hero burning-hands row below (nohandburn() and every producer
+      absent - payload-partial routing); (4) tree-guilt ladder inline
+      (4th copy; Druid -15 / Elf -5 / Ranger -2, the Ranger tier is
+      the branch-only 028cbf44a ruling). Other deltas: !Underwater in
+      the gate; ITEM_FIRE learn arm guarded on !oprops_known;
+      pay_for_damage("burn away") only for a shop door (dig.c idiom);
+      temple_at_boundary billing = TODO-EVILHACK comment (temple
+      sweep row). REVIEWER CONDITIONAL PASS, all three taken: HIGH
+      IS_TREES() admitted arboreal STONE (displayed as a tree, no arm
+      matched - "You strike the tree..." then nothing, master-shared,
+      BUG-1706) -> exact typ tests; MEDIUM the remembered-'I' plain-
+      move path burned doors without F (the dig arm re-gates on
+      forcefight, master-shared, BUG-1707) -> svc.context.forcefight
+      in the gate; LOW feel_newsym after TREE->DEADTREE for the blind
+      hero. Master naming quirk kept: ysimple_name() -> minimal_xname
+      drops oartifact, so the strike line says "your short sword" for
+      Fire Brand (master identical; BUG-1705 = master naming the
+      PRIMARY when the off-hand artifact burned). BATTERY 11/11 PASS
+      (Val/Dru/Ran-elf/Ran-hum games): doorway typ 24 flags 0 +
+      farlook "doorway"; iron door unharmed; shop door billed 400zm
+      with damagelist flags 4 (original closed mask) and repaired
+      back to D_CLOSED; tree->dead tree->ashes with align/luck/ugangr
+      unchanged for a Valkyrie; petrified intact; unknown "long sword
+      of fire" -> oprops_known 0x1 + inventory name; off-hand Fire
+      Brand named by base type "short sword" beside a primary long
+      sword; mundane sword harmless; open/doorway/broken -> "You
+      attack thin air."; Dichotomy/Xiuhcoatl/Angelslayer each burn;
+      blind "You smell smoke."; guilt ladder -15/-7/+5 abuse 15 +
+      #conduct event, elf -5/-2, ranger -2. The one paniclog line was
+      the tester's own staging (typ=DOOR without block_point()).
+      REVIEWER-FIX MINI-BATTERY 6/6 PASS (two Valkyrie games):
+      regression burn exact; arboreal rock (svl.level.flags.arboreal
+      = 1, typ 0 farlooked "tree") -> "You harmlessly attack the
+      tree." only, typ 0 kept; map_invisible() on a closed door then a
+      plain move -> "You harmlessly attack the closed door.", I
+      cleared, flags 4 kept, then F burned it; blind live-tree strike
+      -> "You smell smoke." and farlook "dead tree" (remembered glyph
+      advanced tree->dead tree); "axe of fire" -> "You start chopping
+      at the door." ... "You break through the door with your axe."
+      (D_BROKEN after 7 turns, dig arm precedence); paniclog never
+      created (the tester's G1 abort was its own gdb -batch docrt()
+      SIGTERM - never batch-call message-generating functions with a
+      --More-- pending; C-r redraw instead). Tester premise fixes:
+      map_invisible() has no can-see guard; wall_info/doormask/
+      opoisoned are #define aliases (flags / ocoated1) in gdb.
+      NOT-A-BUG: the wished "axe of fire" arrived poisoned - mkobj.c
+      mksobj() rolls `is_poisonable() && !rn2(100)` on every generated
+      weapon (master mkobj.c identical) and axes became poisonable
+      when BUG-1680 widened is_poisonable() to master's form; a 1%
+      generation roll, wish parser exonerated (only "poisoned " sets
+      d->ispoisoned).
+      WHEN THE ma_break (Monk qi boulder/statue) deferral lands it
+      goes AHEAD of the burn arm, as on master. Wish wording gotcha:
+      `long sword of fire`, not `fire long sword`.
+- [ ] LOW: random shop door carried doormask bit 0x20 (watch, minted
+      2026-08-24 by the forcefight fire-burn battery). Dlvl 8
+      #wizmakemap produced a shop subroom inside a THEMEROOM whose
+      door had flags 0x24 = D_CLOSED | 0x20; rm.h documents 0x20 as
+      pool-only (ICED_MOAT) and D_SECRET as sp_lev-only (sp_lev.c
+      strips it at the door site on both trees). closed_door() still
+      passed and opening the door normalised it to D_ISOPEN, so
+      harmless so far; find the producer (themeroom/mkroom shop-door
+      path?) before any consumer starts testing the full mask.
+- [ ] HIGH: hero burning hands / shocking grasp spell effects NOT
+      PORTED (NEW, minted 2026-08-24 by the forcefight fire-burn
+      slice's scoping). The branch carries only the you.h fields
+      (u.umburn, u.umshock) and one zap.c reset; the monster-side
+      twin (mburnhands, mcastu/mhitm/mhitu/muse) IS live. Casting
+      either spell as the hero falls into spelleffects()'s `default:
+      impossible("Unknown spell %d attempted.")` (spell.c) - a
+      paniclog entry for any hero who learns either book, energy
+      spent, no effect. Master payload (~400 lines): spell.c routing
+      (`case SPE_BURNING_HANDS: case SPE_SHOCKING_GRASP:` -> seffects,
+      master ~L1791); read.c seffects() producers (~L1527-1660: charge
+      accrual, blessed = skilled multi-charge, confused self-burn/
+      numb arms, mutual exclusion "already engulfed in flame"/
+      "already energized", burn_away_slime); uhitm.c consumers x3 per
+      spell (hmon damage arm ~L1938/1972 with the enchantment-skill
+      die, hmon feedback arm ~L2277/2315 with the vaporize/
+      completelyburns/wood golem/green slime/blight/ent instant-kill
+      list and the 1-in-4 underwater extinguish, hmonas claw/touch/
+      kick arm ~L4695/4758 incl. destroy_mitem rolls) + nohandburn()/
+      nohandshock() charge-use messages (~L5865-5915); invent.c
+      "(engulfed in flame)"/"(energized)" hands tag (~L1913); cmd.c
+      enlightenment lines (~L3595); trap.c water extinguish (~L4826).
+      RIDER (Q3 ruling 2026-08-24): the forcefight bare-handed arm
+      from master hack.c domove_core - burnhd = u.umburn &&
+      weapon_type(uwep) == P_BARE_HANDED_COMBAT, "You place your
+      %s on %s..." then the same door/tree/deadtree effects as the
+      landed fire-weapon arm (call domove_fight_burn() with a Null
+      fireobj or a hands flag), then nohandburn() to use a charge -
+      lands with this row. BUG-397 (hmonas sum[i] after a burning
+      hands kill) is part of this payload - re-apply it. Branch
+      helpers already present: how_resistant, burn_away_slime,
+      is_bird, can_vaporize, vulnerable_to, completelyburns,
+      mon_underwater, damage_mon, golemeffects; master's
+      destroy_mitem(mon, class, adtyp) is 5.0's destroy_items(mon,
+      adtyp, dmg) (the return-discard ruling applies).
 - [x] dothrow.c launcher range table NOT PORTED (minted 2026-08-06 by
       the Archeologist slice's reviewer while proving the range>0
       gate's producer absent). Master's throwit() range overrides for
