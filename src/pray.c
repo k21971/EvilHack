@@ -1860,6 +1860,83 @@ water_prayer(boolean bless_water)
     return (boolean) (changed > 0L);
 }
 
+int
+moffer(struct monst *mtmp)
+{
+    struct obj *otmp, *nextobj;
+
+    /* loop based on select_hwep */
+    for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
+        nextobj = otmp->nobj;
+        if (otmp->otyp == AMULET_OF_YENDOR && In_endgame(&u.uz)
+            && !mtmp->mpeaceful && !mindless(mtmp->data)
+            && !is_animal(mtmp->data)
+            && a_align(mtmp->mx, mtmp->my) == sgn(mon_aligntyp(mtmp))) {
+            if (canseemon(mtmp))
+                pline("%s raises the Amulet of Yendor high above the altar!",
+                      Monnam(mtmp));
+            else
+                You("sense a disturbance in the natural order of things.  "
+                    "The Amulet of Yendor has been sacrificed!");
+            /* game is now unwinnable... oops */
+            m_useup(mtmp, otmp);
+            livelog_printf(LL_ARTIFACT,
+                           "failed their quest! %s has sacrificed "
+                           "the Amulet of Yendor, ascending",
+                           upstart(x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                            SUPPRESS_IT, TRUE)));
+            if (is_demon(mtmp->data) || mtmp->iswiz) {
+                if (canseemon(mtmp))
+                    pline("%s gains ultimate power, %s, and erases you "
+                          "from existence.",
+                          Monnam(mtmp),
+                          Deaf ? "smirks at you" : "laughs fiendishly");
+                else
+                    You("have been erased from existence.");
+                Sprintf(svk.killer.name, "%s wrath",
+                        s_suffix(x_monnam(mtmp, ARTICLE_A, (char *) 0,
+                                          SUPPRESS_IT, FALSE)));
+                svk.killer.format = KILLED_BY;
+                done(DIED);
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s accepts the Amulet and gains dominion over "
+                          "the gods, and %s ascends to demigodhood!",
+                          a_gname_at(mtmp->mx, mtmp->my), mon_nam(mtmp));
+                else
+                    You("sense that %s has gained dominion over the gods "
+                        "as its vassal ascends to demigodhood.",
+                        a_gname_at(mtmp->mx, mtmp->my));
+                if (Luck >= 10) {
+                    if (canseemon(mtmp))
+                        pline("Luckily for you, %s does not smite you with "
+                              "their newfound power, and you are allowed "
+                              "to live.",
+                              mon_nam(mtmp));
+                    else
+                        pline("Somehow, you are allowed to live.");
+                    pline("However, your quest ends here...");
+                    done(ESCAPED);
+                } else {
+                    if (canseemon(mtmp))
+                        pline("The Demigod of %s looks down upon you, and "
+                              "squashes you like the ant that you are.",
+                              a_gname_at(mtmp->mx, mtmp->my));
+                    else
+                        You("are squashed like an insect!");
+                    Sprintf(svk.killer.name, "%s indifference",
+                            s_suffix(x_monnam(mtmp, ARTICLE_A, (char *) 0,
+                                              SUPPRESS_IT, FALSE)));
+                    svk.killer.format = KILLED_BY;
+                    done(DIED);
+                }
+            }
+            return MMOVE_DONE;
+        }
+    }
+    return MMOVE_NOTHING;
+}
+
 void
 godvoice(aligntyp g_align, const char *words)
 {

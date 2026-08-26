@@ -2256,8 +2256,8 @@ m_move(struct monst *mtmp, int after)
     }
     ptr = mtmp->data; /* mintrap() can change mtmp->data -dlc */
 
-    /* held fast by magical vegetation; can still attack */
-    if (mtmp->mentangled)
+    /* doesn't move, but can still attack */
+    if (is_stationary(ptr) || mtmp->mentangled)
         return MMOVE_NOTHING;
 
     /* a monster being ridden goes where its rider takes it; it can
@@ -2271,6 +2271,15 @@ m_move(struct monst *mtmp, int after)
             finish_meating(mtmp);
         return MMOVE_DONE; /* still eating */
     }
+
+    /* Offering takes precedence over everything else */
+    if (IS_ALTAR(levl[mtmp->mx][mtmp->my].typ)) {
+        int offer = moffer(mtmp);
+
+        if (offer != MMOVE_NOTHING)
+            return offer;
+    }
+
     if (hides_under(ptr) && OBJ_AT(mtmp->mx, mtmp->my)
         && can_hide_under_obj(svl.level.objects[mtmp->mx][mtmp->my])
         && rn2(10))
