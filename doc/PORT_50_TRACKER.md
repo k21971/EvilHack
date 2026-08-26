@@ -17,7 +17,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-26 (fifth) MONSTER AMULET SACRIFICE ON
+- Latest slice: 2026-08-26 (sixth) ATTACKER-PARAM THREADING (one
+  code commit 28ab8163d, 15 files + tracker; BUG-1717
+  frozen-unfixed, BUG-1718/1719 branch fixes). Session 67's NEXT
+  candidate: the second features-sweep HIGH row closed - master
+  c3906572e whole: hitval()/dmgval()/omon_adj() lead with struct
+  monst *magr (mon -> mdef), ohitmon's magr feeds the combat math,
+  ~40 call sites across 15 files, extern.h attributes relaxed to
+  NONNULLARG23 (magr NULL-legal). Six deferred arms landed
+  (Infidel cursed +1/+rnd(2), Druid wood-on-grass/tree +2,
+  druid_form/vampire_form barehanded +rn1(5,2), Tortle spear +2
+  incl. MONSTER Tortles, elf/drow thrower +1 vs orcs); the
+  weapon.c TODO-EVILHACK deferral discharged. Rulings: drow
+  light/dark omon_adj arm gated to the hero attacker (BUG-1717
+  frozen-unfixed on master); dmgval regains the adoption-dropped
+  low-AC arm (rnd(-mac) reduction, BUG-1718, previously
+  unrecorded); omon_adj regains the gradual-stoning wake guard
+  (BUG-1719). Reviewer PASS no conditions (three LOW forward-notes
+  annotated on the damage_mon/monster-ring/thrown-slip deferral
+  rows). Battery 3 games, gdb call matrices, all arms proven with
+  monster/NULL controls flat; paniclog's 2 entries =
+  battery-staging artifacts. Open Phase 2 rows: 59.
+- Previous slice: 2026-08-26 (fifth) MONSTER AMULET SACRIFICE ON
   ASTRAL (moffer; one code commit 270cec8dc + tracker; BUG-1715
   frozen-unfixed, BUG-1716 branch fix). Session 66's first-listed
   candidate: the features-sweep HIGH row closed - master's pray.c
@@ -644,7 +665,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       .objects, cg.zeroany, disp.botl, 5.0 menu API, ismnum()
       instead of the safe_* macros, IS_TREE only). Port-alongs:
       damage_mon core -> mon.c (vulnerability/HPHDAM/emsp/display
-      hooks = TODO-EVILHACK), move_chain_to -> ball.c, monst.h
+      hooks = TODO-EVILHACK; its caller sweep must include do.c
+      flooreffects' boulder-into-pit m-v-m arm, raw mhp -= dmgval
+      where master routes damage_mon - the comment there no longer
+      names it; noted 2026-08-26), move_chain_to -> ball.c, monst.h
       mtk_attk field, materialnm[] UPDATED IN PLACE in decl.c -
       5.0 already carried a vanilla-ordered copy, so the enum swap
       HAD to be paired with this array (silent name-shift class!).
@@ -1211,12 +1235,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Moloch-hellfire/Dirge oprops (sacrifice + Infidel + Dirge),
       fountain.c forge-transfer + property gems + sp_lev
       affixed-gem (Forging), monster ring/amulet wearing
-      (extra_pref/RIN_* muse sites), detect-magic ITEM_MAGICAL
+      (extra_pref/RIN_* muse sites; when it lands, find_mac() also
+      needs master's RIN_INCREASE_DAMAGE/ACCURACY worn-loop
+      exclusion - find_mac now feeds dmgval's low-AC arm too,
+      noted 2026-08-26), detect-magic ITEM_MAGICAL
       (SPE_DETECT_MAGIC absent), dragon-scales merge oprops strip,
       trap-kit transfer, terrain-burning fire-weapon, greased/
       oilskin theft-slip trio, shield-bash rider (DISCHARGED
       2026-08-22, BUG-1676), thrown-slip
-      self-hit, monster teleport-AI (decide_to_teleport),
+      self-hit (must also carry master's throwit slip-gate Priest
+      conjunct - Role_if(PM_PRIEST) && pierce/slash beside the
+      Infidel carve-out; noted 2026-08-26), monster teleport-AI
+      (decide_to_teleport),
       pet-stash filter, vulnerable_to/mon_underwater severity,
       "tainted " xname prefix (drow-poison - producers exist,
       display does not; LANDED 2026-07-31 with BUG-1421's parity
@@ -10048,7 +10078,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cross-aligned, animal and main-dungeon controls inert; the
       test monster pinned at (14,16) across 10 turns and still
       melees.
-- [ ] Attacker-param threading for hitval()/dmgval()/omon_adj() NOT
+- [x] Attacker-param threading for hitval()/dmgval()/omon_adj() NOT
       PORTED (minted 2026-08-26 by the features-coverage sweep;
       HIGH - three tracker sites already defer TO this row: the
       damp-sweep riders row's "dmgval-hitval arms", row 7598's
@@ -10061,6 +10091,61 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hit/+rnd(2) vs lawful or neutral foes, and the omon_adj half.
       Archive: Attacker Threaded Through hitval()/dmgval()/
       ohitmon()/omon_adj() (May 13 2026).
+      DONE 2026-08-26 (session 68, commit 28ab8163d). Master's
+      c3906572e whole (final state byte-identical to it, df1fdcd03
+      is comment-only): magr leads all three signatures, mon ->
+      mdef, ohitmon's existing magr now feeds omon_adj/dmgval plus
+      the revived elf/drow-vs-orc damage++; ~40 call sites across
+      15 files (hero, real combatant, chooser mtmp in the
+      weapon-pick AI, NULL for trap/debris/boulder; read.c
+      scroll-of-earth keys on its byu flag); extern.h
+      NONNULLARG12/NONNULLPTRS -> NONNULLARG23 (magr NULL-legal).
+      Six arms landed: Infidel cursed +1/+rnd(2) vs lawful or
+      neutral, Druid wood +2 on GRASS/nexttotree, druid_form/
+      vampire_form barehanded +rn1(5,2), Tortle spear/trident +2
+      (monster Tortles included - the headline fix), elf/drow
+      thrower +1 vs orcs; the weapon.c TODO-EVILHACK deferral is
+      discharged (closes the damp-sweep riders deferral and the
+      2026-08-19 Decisions-log deferral; this row's "row 7598"
+      back-ref = the taper row text at :7711). RULINGS
+      (AskUserQuestion): omon_adj's drow light/dark arm gated
+      magr == &gy.youmonst - BUG-1717 frozen-unfixed, master warps
+      monster-vs-monster and anonymous throws by the HERO's race
+      and tile lighting; dmgval regains master's low-AC arm
+      (find_mac < 0 subtracts rnd(-mac); BUG-1718, adoption drop,
+      previously unrecorded anywhere); rider: omon_adj regains the
+      gradual-stoning wake guard (mstone 1..2 never re-mobilized
+      by a noticed throw; BUG-1719, same adoption-drop class).
+      MASTER-PARITY KEPT: thitm passes NULL (its umade flag is
+      kill credit, not a combat attacker); oselect_recurse's
+      &gy.youmonst DEFENDER (pre-existing pet-scoring leak,
+      deliberately untouched); score_artifact_weapon's reserved
+      magr stays UNUSED (heuristic mirror - divergence recorded
+      here); omon_adj's msleeping wake stays at the thitmonst hit
+      sites (upstream 5.0 design, do not re-flag on master
+      diffs); master m_throw's extra verbose param is inert
+      (every master caller passes TRUE, branch literal TRUE
+      equivalent). Reviewer PASS, no conditions; its three LOW
+      forward-notes annotated on the damage_mon, monster-ring and
+      thrown-slip deferral rows (2026-08-26). Battery 3 games
+      (Infidel, Druid-tortle, Ranger-drow), gdb call matrices at
+      -O0: Infidel deltas +1 flat / +1.6 avg vs lawful+neutral
+      with chaotic and monster/NULL attackers flat (BUG-492/496
+      regression proof, histogram matches the rnd(4)+rnd(2)
+      convolution); Druid +2 on grass AND beside a tree, iron and
+      non-hero flat; wolf-form barehanded spread exactly rn1(5,2);
+      hero AND monster tortle spear +2 with NULL/non-tortle 0 and
+      a polymorphed tortle correctly denied (mon_has_race
+      !Upolyd); elf->orc damage++ x4, non-orc x6 at +0; drow +7
+      dark/-3 lit hero-only with monster/NULL 0 in both lighting
+      states; low-AC mac=-4 matrix identical for all three
+      attacker kinds with the 1-floor reached; mstone 1..2 held
+      across 40 noticed throws per phase while 0 and 3+ wake;
+      arrow-trap and weapon-pick smoke clean. Paniclog: 2 entries,
+      both the battery's own tree-over-engraved-staircase terrain
+      wish, none from the feature. Battery gotcha recorded:
+      genesis "peaceful watch captain" arrives gnomish - the ERAC
+      racial overlay wins in mon_aligntyp (neutral, not lawful).
 - [ ] Flying macro big_wings half-port - LIVE DIVERGENCE (minted
       2026-08-26 by the features-coverage sweep; MED). races-R2
       ported check_wings() (do_wear.c sets BFlying |= W_ARM for
