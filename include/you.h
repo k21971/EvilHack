@@ -627,6 +627,9 @@ struct _hitmon_data {
     boolean already_killed;
     boolean offmap;
     boolean destroyed;
+    boolean burnkill;      /* burning hands will ignite the target
+                            * outright; decided in the damage arm so
+                            * the feedback arm agrees with it */
     boolean dryit;
     boolean doreturn;
     boolean retval;

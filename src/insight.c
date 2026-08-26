@@ -1748,6 +1748,26 @@ attributes_enlightenment(
         }
         enl_msg(You_, "will confuse", "would have confused", buf, "");
     }
+    if (u.umburn) { /* burning hands charges, like 'u.umconf' */
+        Strcpy(buf, " monsters when hitting them bare-handed");
+        if (wizard && !final) {
+            if (u.umburn == 1)
+                Strcat(buf, " (next hit only)");
+            else /* u.umburn > 1 */
+                Sprintf(eos(buf), " (next %u hits)", u.umburn);
+        }
+        enl_msg(You_, "will burn", "would have burned", buf, "");
+    }
+    if (u.umshock) { /* shocking grasp charges, like 'u.umconf' */
+        Strcpy(buf, " monsters when hitting them bare-handed");
+        if (wizard && !final) {
+            if (u.umshock == 1)
+                Strcat(buf, " (next hit only)");
+            else /* u.umshock > 1 */
+                Sprintf(eos(buf), " (next %u hits)", u.umshock);
+        }
+        enl_msg(You_, "will shock", "would have shocked", buf, "");
+    }
     if (Food_sense)
         you_can("recognize detrimental food", from_what(FOOD_SENSE));
 

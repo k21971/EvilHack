@@ -25,6 +25,8 @@ staticfn void seffect_enchant_armor(struct obj **);
 staticfn boolean disintegrate_cursed_armor(void);
 staticfn void seffect_destroy_armor(struct obj **);
 staticfn void seffect_confuse_monster(struct obj **);
+staticfn void seffect_burning_hands(struct obj **);
+staticfn void seffect_shocking_grasp(struct obj **);
 staticfn void seffect_scare_monster(struct obj **);
 staticfn void seffect_remove_curse(struct obj **);
 staticfn void seffect_create_monster(struct obj **);
@@ -1487,6 +1489,122 @@ seffect_confuse_monster(struct obj **sobjp)
 }
 
 staticfn void
+seffect_burning_hands(struct obj **sobjp)
+{
+    struct obj *sobj = *sobjp;
+    boolean sblessed = sobj->blessed,
+            confused = (Confusion != 0);
+    const char *hands = is_bird(gy.youmonst.data)
+                          ? "talons" : makeplural(body_part(HAND));
+
+    if (u.umshock) {
+        Your("%s are already energized.", hands);
+    } else if (u.uinwater) {
+        Your("%s glow for a brief moment, then return to normal.", hands);
+    } else if (confused) {
+        /* can't cast spells when confused, but including this
+           here in case this ever becomes a scroll that can
+           be read */
+        if (!sblessed) {
+            if (Blind)
+                Your("%s feel warm.", hands);
+            else
+                Your("%s are engulfed in a %s flame.", hands,
+                     hcolor(NH_PURPLE));
+            if (how_resistant(FIRE_RES) < 100)
+                losehp(1, "burning hands", KILLED_BY);
+        } else {
+            if (Blind)
+                Your("%s feels warm.", body_part(HEAD));
+            else
+                pline("A %s flame engulfs your %s.",
+                      hcolor(NH_PURPLE), body_part(HEAD));
+            if (how_resistant(FIRE_RES) < 100)
+                losehp(6, "burning hands", KILLED_BY);
+        }
+    } else {
+        if (!sblessed) {
+            if (Blind)
+                Your("%s feel hot.", hands);
+            else
+                Your("%s are engulfed in a%s%s flame.", hands,
+                     u.umburn ? " bright " : "n ", hcolor(NH_ORANGE));
+            u.umburn++;
+        } else {
+            if (Blind)
+                Your("%s feel %s hot.", hands,
+                     u.umburn ? "extremely" : "very");
+            else
+                Your("%s are engulfed in a %s %s flame.", hands,
+                     u.umburn ? "searing" : "brilliant", hcolor(NH_ORANGE));
+            /* after a while, repeated uses become less effective */
+            if (u.umburn >= 20)
+                u.umburn++;
+            else
+                u.umburn += rn1(4, 2);
+        }
+        burn_away_slime();
+    }
+}
+
+staticfn void
+seffect_shocking_grasp(struct obj **sobjp)
+{
+    struct obj *sobj = *sobjp;
+    boolean sblessed = sobj->blessed,
+            confused = (Confusion != 0);
+    const char *hands = is_bird(gy.youmonst.data)
+                          ? "talons" : makeplural(body_part(HAND));
+
+    if (u.umburn) {
+        Your("%s are already engulfed in flame.", hands);
+    } else if (confused) {
+        /* can't cast spells when confused, but including this
+           here in case this ever becomes a scroll that can
+           be read */
+        if (!sblessed) {
+            if (Blind)
+                Your("%s feel numb.", hands);
+            else
+                Your("%s are surrounded by a %s aura.", hands,
+                     hcolor(NH_PURPLE));
+            if (how_resistant(SHOCK_RES) < 100)
+                losehp(1, "shocking grasp", KILLED_BY);
+        } else {
+            if (Blind)
+                Your("%s feels numb.", body_part(HEAD));
+            else
+                pline("A %s aura surrounds your %s.",
+                      hcolor(NH_PURPLE), body_part(HEAD));
+            if (how_resistant(SHOCK_RES) < 100)
+                losehp(6, "shocking grasp", KILLED_BY);
+        }
+    } else {
+        if (!sblessed) {
+            if (Blind)
+                Your("%s feel energized.", hands);
+            else
+                Your("%s are surrounded by a %s%s aura.", hands,
+                     u.umshock ? "bright " : "", hcolor(NH_BLUE));
+            u.umshock++;
+        } else {
+            if (Blind)
+                Your("%s feel %s energized.", hands,
+                     u.umshock ? "extremely" : "very");
+            else
+                Your("%s are surrounded by a%s %s aura.", hands,
+                     u.umshock ? "n energetic" : " brilliant",
+                     hcolor(NH_BLUE));
+            /* after a while, repeated uses become less effective */
+            if (u.umshock >= 20)
+                u.umshock++;
+            else
+                u.umshock += rn1(4, 2);
+        }
+    }
+}
+
+staticfn void
 seffect_scare_monster(struct obj **sobjp)
 {
     struct obj *sobj = *sobjp;
@@ -2275,6 +2393,12 @@ seffects(
     case SCR_CONFUSE_MONSTER:
     case SPE_CONFUSE_MONSTER:
         seffect_confuse_monster(&sobj);
+        break;
+    case SPE_BURNING_HANDS:
+        seffect_burning_hands(&sobj);
+        break;
+    case SPE_SHOCKING_GRASP:
+        seffect_shocking_grasp(&sobj);
         break;
     case SCR_SCARE_MONSTER:
     case SPE_CAUSE_FEAR:

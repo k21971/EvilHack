@@ -71,6 +71,7 @@ staticfn void start_engulf(struct monst *) NONNULLARG1;
 staticfn void end_engulf(void);
 staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
 staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
+staticfn int enchant_skill_dice(void);
 staticfn void nohandglow(struct monst *) NONNULLARG1;
 staticfn void first_weapon_hit(struct obj *) NONNULLARG1;
 staticfn boolean shade_aware(struct obj *) NO_NNARGS;
@@ -2443,6 +2444,7 @@ hmon_hitmon(
     hmd.already_killed = FALSE;
     hmd.offmap = FALSE;
     hmd.destroyed = FALSE;
+    hmd.burnkill = FALSE;
     hmd.dryit = FALSE;
     hmd.doreturn = FALSE;
     hmd.retval = FALSE;
@@ -2500,6 +2502,42 @@ hmon_hitmon(
             hmd.destroyed = TRUE;
         }
         hmd.hittxt = TRUE;
+    }
+
+    /* burning hands spell, fire damage; feedback and usage tracking
+       are placed further down */
+    if (!hmd.destroyed && u.umburn
+        && hmd.hand_to_hand && !obj && !hmd.obj_gone) {
+        if (resists_fire(mon) || defended(mon, AD_FIRE)
+            || mon_underwater(mon)) {
+            shieldeff(mon->mx, mon->my);
+            golemeffects(mon, AD_FIRE, hmd.dmg);
+        } else {
+            (void) destroy_items(mon, AD_FIRE, hmd.dmg);
+
+            if (completelyburns(mon->data)
+                || mon->data == &mons[PM_WOOD_GOLEM]
+                || mon->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mon->data) && !rn2(10))
+                || (mon->data == &mons[PM_ENT] && !rn2(10))
+                || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12)))
+                hmd.burnkill = TRUE; /* ignites outright, no extra damage */
+            else
+                hmd.dmg += d(enchant_skill_dice(), 4);
+        }
+    }
+
+    /* shocking grasp spell, electric damage; feedback and usage
+       tracking are placed further down */
+    if (!hmd.destroyed && u.umshock
+        && hmd.hand_to_hand && !obj && !hmd.obj_gone) {
+        if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+            shieldeff(mon->mx, mon->my);
+            golemeffects(mon, AD_ELEC, hmd.dmg);
+        } else {
+            (void) destroy_items(mon, AD_ELEC, hmd.dmg);
+            hmd.dmg += d(enchant_skill_dice(), 6);
+        }
     }
 
     if (hmd.jousting) {
@@ -2591,6 +2629,58 @@ hmon_hitmon(
                 hmd.destroyed = TRUE;
             }
         }
+    }
+
+    /* burning hands spell feedback and charge use, placed here due to
+       order of events; skip it if a joust hurtled the monster off the
+       level */
+    if (!hmd.destroyed && !hmd.offmap && u.umburn
+        && hmd.hand_to_hand && !obj && !hmd.obj_gone) {
+        if (resists_fire(mon) || defended(mon, AD_FIRE)
+            || mon_underwater(mon)) {
+            if (!Blind)
+                Your("%s don't burn %s!",
+                     makeplural(body_part(HAND)), mon_nam(mon));
+        } else {
+            You("%s %s with your %s!",
+                can_vaporize(mon->data)
+                  ? "vaporize part of"
+                  : vulnerable_to(mon, AD_FIRE)
+                    ? "severely burn" : "burn",
+                mon_nam(mon), makeplural(body_part(HAND)));
+
+            if (!rn2(4)
+                && (mon_underwater(mon) || can_vaporize(mon->data))) {
+                u.umburn = 0;
+                Your("%s are extinguished.", makeplural(body_part(HAND)));
+            }
+
+            if (hmd.burnkill) {
+                if (!hmd.already_killed)
+                    pline("%s ignites and turns to ash!", Monnam(mon));
+                hmd.destroyed = TRUE;
+            }
+        }
+        nohandburn();
+    }
+
+    /* shocking grasp spell feedback and charge use, placed here due to
+       order of events */
+    if (!hmd.destroyed && !hmd.offmap && u.umshock
+        && hmd.hand_to_hand && !obj && !hmd.obj_gone) {
+        if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+            if (!Blind)
+                Your("%s don't shock %s!",
+                     makeplural(body_part(HAND)), mon_nam(mon));
+        } else {
+            You("%s %s with your %s!",
+                vulnerable_to(mon, AD_ELEC)
+                  ? "severely shock"
+                  : rn2(2)
+                    ? "jolt" : "shock",
+                mon_nam(mon), makeplural(body_part(HAND)));
+        }
+        nohandshock();
     }
 
     if (hmd.lightobj)
@@ -7878,6 +7968,107 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     }
                     sum[i] = damageum(mon, mattk, specialdmg);
                 }
+                /* burning hands spell; like master, this applies even
+                   when the claw or touch itself passed harmlessly
+                   through a noncorporeal monster */
+                if (u.umburn && !DEADMONSTER(mon)
+                    && (mattk->aatyp == AT_CLAW
+                        || mattk->aatyp == AT_TUCH
+                        || mattk->aatyp == AT_KICK)) {
+                    if (resists_fire(mon) || defended(mon, AD_FIRE)
+                        || mon_underwater(mon)) {
+                        shieldeff(mon->mx, mon->my);
+                        golemeffects(mon, AD_FIRE, tmp);
+                        if (!Blind)
+                            Your("%s don't burn %s!",
+                                 is_bird(gy.youmonst.data)
+                                   ? "talons"
+                                   : makeplural(body_part(HAND)),
+                                 mon_nam(mon));
+                    } else {
+                        int firedmg = d(enchant_skill_dice(), 4);
+
+                        You("%s %s with your %s!",
+                            can_vaporize(mon->data)
+                              ? "vaporize part of"
+                              : vulnerable_to(mon, AD_FIRE)
+                                ? "severely burn" : "burn",
+                            mon_nam(mon),
+                            is_bird(gy.youmonst.data)
+                              ? "talons"
+                              : makeplural(body_part(HAND)));
+
+                        if (!rn2(4)
+                            && (mon_underwater(mon)
+                                || can_vaporize(mon->data))) {
+                            u.umburn = 0;
+                            Your("%s are extinguished.",
+                                 is_bird(gy.youmonst.data)
+                                   ? "talons"
+                                   : makeplural(body_part(HAND)));
+                        }
+
+                        (void) destroy_items(mon, AD_FIRE, firedmg);
+
+                        if (completelyburns(mon->data)
+                            || mon->data == &mons[PM_WOOD_GOLEM]
+                            || mon->data == &mons[PM_GREEN_SLIME]
+                            || (is_blight(mon->data) && !rn2(10))
+                            || (mon->data == &mons[PM_ENT] && !rn2(10))
+                            || (mon->data == &mons[PM_ELDER_ENT]
+                                && !rn2(12))) {
+                            pline("%s ignites and turns to ash!",
+                                  Monnam(mon));
+                            killed(mon);
+                            if (DEADMONSTER(mon))
+                                sum[i] = M_ATTK_DEF_DIED;
+                        } else {
+                            if (damage_mon(mon, firedmg, AD_FIRE, TRUE)) {
+                                xkilled(mon, XKILL_GIVEMSG);
+                                if (DEADMONSTER(mon))
+                                    sum[i] = M_ATTK_DEF_DIED;
+                            }
+                        }
+                    }
+                    nohandburn();
+                }
+                /* shocking grasp spell */
+                if (u.umshock && !DEADMONSTER(mon)
+                    && (mattk->aatyp == AT_CLAW
+                        || mattk->aatyp == AT_TUCH
+                        || mattk->aatyp == AT_KICK)) {
+                    if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+                        shieldeff(mon->mx, mon->my);
+                        golemeffects(mon, AD_ELEC, tmp);
+                        if (!Blind)
+                            Your("%s don't shock %s!",
+                                 is_bird(gy.youmonst.data)
+                                   ? "talons"
+                                   : makeplural(body_part(HAND)),
+                                 mon_nam(mon));
+                    } else {
+                        int elecdmg = d(enchant_skill_dice(), 6);
+
+                        You("%s %s with your %s!",
+                            vulnerable_to(mon, AD_ELEC)
+                              ? "severely shock"
+                              : rn2(2)
+                                ? "jolt" : "shock",
+                            mon_nam(mon),
+                            is_bird(gy.youmonst.data)
+                              ? "talons"
+                              : makeplural(body_part(HAND)));
+
+                        (void) destroy_items(mon, AD_ELEC, elecdmg);
+
+                        if (damage_mon(mon, elecdmg, AD_ELEC, TRUE)) {
+                            xkilled(mon, XKILL_GIVEMSG);
+                            if (DEADMONSTER(mon))
+                                sum[i] = M_ATTK_DEF_DIED;
+                        }
+                    }
+                    nohandshock();
+                }
             } else { /* !dhit */
                 missum(mon, tmp, dieroll, mattk,
                        (tmp + armorpenalty > dieroll));
@@ -9030,6 +9221,72 @@ nohandglow(struct monst *mon)
             Your("%s no longer glow so brightly %s.", hands, hcolor(NH_RED));
     }
     u.umconf--;
+}
+
+/* extra damage dice for the burning hands and shocking grasp spells,
+   scaled by enchantment spell skill */
+staticfn int
+enchant_skill_dice(void)
+{
+    return (P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
+             ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
+               ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
+                 ? 2 : 1;
+}
+
+/* use up a burning hands charge, with feedback; flames on the hero's
+   hands stay visible while invisible, unlike nohandglow's glow */
+void
+nohandburn(void)
+{
+    char *hands = makeplural(body_part(HAND));
+
+    if (!u.umburn)
+        return;
+    if (u.umburn == 1) {
+        if (Blind)
+            Your("%s no longer feel hot.",
+                 is_bird(gy.youmonst.data) ? "talons" : hands);
+        else
+            Your("%s stop burning %s.",
+                 is_bird(gy.youmonst.data) ? "talons" : hands,
+                 hcolor(NH_ORANGE));
+    } else {
+        if (Blind)
+            pline_The("burning sensation in your %s lessens.",
+                      is_bird(gy.youmonst.data) ? "talons" : hands);
+        else
+            Your("%s no longer burn so brightly.",
+                 is_bird(gy.youmonst.data) ? "talons" : hands);
+    }
+    u.umburn--;
+}
+
+/* use up a shocking grasp charge, with feedback */
+void
+nohandshock(void)
+{
+    char *hands = makeplural(body_part(HAND));
+
+    if (!u.umshock)
+        return;
+    if (u.umshock == 1) {
+        if (Blind)
+            Your("%s no longer feel energized.",
+                 is_bird(gy.youmonst.data) ? "talons" : hands);
+        else
+            Your("%s stop shimmering %s.",
+                 is_bird(gy.youmonst.data) ? "talons" : hands,
+                 hcolor(NH_BLUE));
+    } else {
+        if (Blind)
+            pline_The("energetic sensation in your %s lessens.",
+                      is_bird(gy.youmonst.data) ? "talons" : hands);
+        else
+            Your("%s no longer shimmer so brightly.",
+                 is_bird(gy.youmonst.data) ? "talons" : hands);
+    }
+    u.umshock--;
 }
 
 /* returns 1 if light flash has noticeable effect on 'mtmp', 0 otherwise */

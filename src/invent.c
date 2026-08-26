@@ -1753,9 +1753,11 @@ getobj_hands_txt(const char *action, char *qbuf)
     } else if (!strcmp(action, "write with")) {
         Sprintf(qbuf, "your %s", body_part(FINGERTIP));
     } else if (!strcmp(action, "wield")) {
-        Sprintf(qbuf, "your %s %s%s", uarmg ? "gloved" : "bare",
+        Sprintf(qbuf, "your %s %s%s%s%s", uarmg ? "gloved" : "bare",
                 makeplural(body_part(HAND)),
-                !uwep ? " (wielded)" : "");
+                !uwep ? " (wielded)" : "",
+                u.umburn ? " (engulfed in flame)" : "",
+                u.umshock ? " (energized)" : "");
     } else if (!strcmp(action, "ready")) {
         Sprintf(qbuf, "empty quiver%s",
                 !uquiver ? " (nothing readied)" : "");
@@ -3384,8 +3386,10 @@ display_pickinv(
 
                 /* like doname() below, makeplural() returns an obuf[] */
                 formattedobj = makeplural(body_part(HAND));
-                Sprintf(barehands, "%s %s (no weapon)",
-                        uarmg ? "gloved" : "bare", formattedobj);
+                Sprintf(barehands, "%s %s (no weapon)%s%s",
+                        uarmg ? "gloved" : "bare", formattedobj,
+                        u.umburn ? " (engulfed in flame)" : "",
+                        u.umshock ? " (energized)" : "");
                 add_menu(win, &nul_glyphinfo, &any, ilet, 0,
                          ATR_NONE, clr, barehands, MENU_ITEMFLAGS_NONE);
             } else {

@@ -5967,6 +5967,12 @@ drown(void)
             (Amphibious || Swimming || Breathless) ? '.' : '!');
         if (!Swimming && !is_solid)
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
+        if (u.umburn) {
+            u.umburn = 0;
+            Your("%s are extinguished.",
+                 is_bird(gy.youmonst.data)
+                   ? "talons" : makeplural(body_part(HAND)));
+        }
     }
 
     water_damage_chain(gi.invent, FALSE, 0, TRUE);
