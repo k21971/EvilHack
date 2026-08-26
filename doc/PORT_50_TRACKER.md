@@ -17,7 +17,50 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-26 HERO BURNING HANDS / SHOCKING GRASP
+- Latest slice: 2026-08-26 (later) MONSTER BFS PATHFINDING
+  (BUG-1712/1713, one code commit 5f0aa3617 + tracker). Session 63's
+  first-listed candidate: the whole system in one slice - master's
+  seven-commit lineage (5e43d539d/8a30d8554/cf61d6b6f/72134de80/
+  42f3b35f5/0f5d5417e/0cf0dcf0b, the cf61d6b6f refactored loop shape
+  ported) as gp.pathfind_* globals (escape_pathfind_* renamed
+  pathfind_escape_* so the first-letter rule keeps one struct - the
+  row's required gX-vs-svX log), the mon.c BFS core after mfndpos(),
+  the m_move() selection splice, lean invalidation (goto_level +
+  the BUG-1256 mkobj primitives + fracture_rock; master's redundant
+  moverock hooks dropped - the branch routes every boulder move
+  through the primitives), and #wizpathfind/#wizescapepath in
+  wizcmds.c - the LAST unported piece of the cmd.c delta. Three
+  rulings (gp rename / lean hooks / shared mon_escape_target()
+  helper - so #wizescapepath works on Astral, which master's inline
+  copy did not). Ported-with-fix: master's mmoved=2 mtrack overload
+  escapes its loop, skips postmov and returns "monster died" to
+  dochug - on 5.0, 2 IS MMOVE_DIED - replaced by a pf_best_mtrack
+  boolean with reviewer-proven transition equivalence (BUG-1712
+  frozen-unfixed); the escape arm gated on a real escape_goal_set
+  flag over master's vacuous gx && gy (escape-less level = escape
+  map rooted at the hero, re-rooted every hero move, BUG-1713
+  frozen-unfixed); BUG-262's accessible() guard restored at BOTH
+  branch can_tunnel-disable sites (lost in the 5.0 rebase);
+  getitems gate regained !mon_has_amulet. BATTERY-CAUGHT PORT BUG
+  fixed pre-commit: stairway_find_type_dir() has no same-dungeon
+  filter and rooted the escape map at the Sokoban BRANCH stair
+  (both test carriers migrated into Sokoban); replaced with the
+  master precedence walk (staircase up -> ladder up -> branch up ->
+  branch down) and retest-proven (target dnum 0, migration to
+  dlevel 7). Battery 11 + 2-retest scenarios across two games,
+  paniclog never created: same-turn recompute for scroll-of-earth/
+  teleport/fracture; a soldier solved a boulder maze on monotone
+  map distances while a jackal wandered; a mattock dwarf dug into
+  the rock-phased hero's square; the xorn "failure" CLEARED as the
+  shared can_track/gettrack footprint override (after initrack():
+  perfect greedy diagonal through STONE); Amulet captain + master
+  lich marched overland to the regular upstairs into migrating_mons
+  (BUG-257 holds); dead-end backtrack, save/restore cache rebuild.
+  Rows minted: LOW poly_obj boulder-transition invalidation gap
+  (master-shared), LOW novelty-over-mtrack dead-end march/dither
+  (master-shared). Master-parity kept: canseemon-gated escape
+  pline; the y == 0 target idiom.
+- Previous slice: 2026-08-26 HERO BURNING HANDS / SHOCKING GRASP
   (BUG-1708..1711, two code commits 964507403 / 0ce60a975). Session
   62's first-listed candidate: the HIGH impossible()-class row closed
   whole - master's ~400-line hero side (b5cffd7e1 + six follow-ups)
@@ -5864,7 +5907,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       COSMETIC, MASTER-PARITY, LEFT AS-IS: a dropped designated
       shield keeps the tag in its drop message, because doname()
       runs while carried() is still true.
-- [ ] Monster BFS pathfinding: intelligent + escape distance maps
+- [x] Monster BFS pathfinding: intelligent + escape distance maps
       (NEW, minted 2026-07-25 by the added-commands slice). NOT a
       checklist item before now, and the two wizard commands that
       view it CANNOT ship without it - #wizpathfind and
@@ -5881,6 +5924,102 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       All of it must land in 5.0 idiom, so the globals are a gX
       vs svX placement decision (log it) and the caches are
       turn-stamped rather than saved.
+      PORTED + REVIEWED + BATTERY PASSED 2026-08-26, commit
+      5f0aa3617 (11 files +588/-19, zero-warning clean build).
+      Master lineage carried whole: 5e43d539d base, 8a30d8554
+      hooks+wiz cmd, cf61d6b6f refactored loop shape (the shape
+      ported), 72134de80 escape half, 42f3b35f5 Astral altar,
+      0f5d5417e BUG-262, 0cf0dcf0b BUG-1256 primitives.
+      THREE RULINGS (AskUserQuestion, all recommended): globals ->
+      gp with master's escape_pathfind_* RENAMED pathfind_escape_*
+      so the first-letter rule keeps the subsystem in one struct
+      (positional g_init_p initializers; transient, never saved -
+      this is the row's required gX-vs-svX log entry); LEAN
+      invalidation set - goto_level + the BUG-1256 place_object/
+      remove_object primitives + fracture_rock's in-place otyp
+      mutation - with master's two redundant hack.c moverock hooks
+      dropped (verified: branch push = remove/place_object,
+      trapdoor swallow = useupf -> delobj -> remove_object);
+      SHARED mon_escape_target() helper for the m_move goal block
+      and #wizescapepath, which therefore works on Astral (master's
+      inline wiz copy omitted the aligned-altar arm and reported
+      "No escape target" there).
+      PORTED-WITH-FIX: master overloads mmoved=2 for an mtrack-only
+      incumbent; the value ESCAPES the selection loop, skips
+      postmov (gated mmoved == 1 || 3) and returns "monster died"
+      to dochug - and on 5.0, 2 IS MMOVE_DIED. Port carries the
+      incumbent's mtrack status in a separate pf_best_mtrack
+      boolean, only ever sets MMOVE_MOVED; reviewer proved
+      transition-for-transition equivalence (BUG-1712 frozen-
+      unfixed). Escape arm gated on a real escape_goal_set flag
+      instead of master's vacuous gx && gy - always nonzero, so a
+      carrier on an escape-less level roots the escape map at the
+      hero and re-roots it every hero move (BUG-1713 frozen-
+      unfixed). BUG-262's accessible() guard was missing on BOTH
+      branch can_tunnel-disable sites (the 5.0 rebase duplicated
+      the logic into mon_allowflags and the fix never traveled);
+      restored at both. getitems gate regained master's
+      !mon_has_amulet conjunct. compute_* narrowed to staticfn
+      (nothing external calls them). pathfind_passable()'s comment
+      corrected: closed doors ARE passable (typ DOOR regardless of
+      doormask; master's comment claims they are walls) - mfndpos()
+      stays the per-monster authority, so the map only ranks.
+      BATTERY-CAUGHT PORT BUG, fixed pre-commit: the helper first
+      used stairway_find_type_dir(), which has no same-dungeon
+      filter and returned the Sokoban BRANCH stair heading the
+      gs.stairs chain - both test carriers migrated INTO Sokoban.
+      Replaced with a precedence walk (regular staircase up ->
+      ladder up -> branch up -> branch down = master's xupstair/
+      xupladder/sstairs order); retest proved target (60,16)
+      dnum 0 and migration to dlevel 7. Also a -Wshadow trip:
+      a local named `ladder` is rm.h's #define ladder flags.
+      BATTERY 11 scenarios + 2 retests across two games (paniclog
+      never created): closed door carries a map distance, boulder
+      squares blank; stamps persist across a search turn, recompute
+      on dist2 > 9 and on level change (both stamps gdb-verified
+      0); scroll-of-earth ring, boulder teleport and wand-of-
+      striking fracture each recomputed SAME turn; a soldier
+      solved a boulder maze with strictly monotone map distances -
+      leaving the greedy local minimum to do it - while a jackal
+      wandered; a mattock dwarf dug INTO the rock-phased hero's
+      square from inside the old <= 8 suppression band; the xorn
+      probe CLEARED - its wall-crawling was the shared can_track/
+      gettrack footprint override (utrack held the teleport-in
+      square; after initrack() it cut a perfect greedy diagonal
+      through STONE, every occupied square pf == -1); Amulet
+      captain and master lich both marched overland to the regular
+      upstairs and landed in migrating_mons with otyp 255 (BUG-257
+      covetous gates hold - no warp); dead-end backtrack out over
+      own track while still acting the same turn; save/restore
+      rebuilt caches from zero stamps.
+      MASTER-PARITY, LEFT AS-IS: the escape pline is canseemon-
+      gated at the escape moment (telepathy needs blindness, so a
+      visible-earlier but out-of-LOS escape is silent - observed
+      both batteries); mon_escape_target's *tx && *ty return idiom
+      would drop a y == 0 target (master-identical, unreachable in
+      practice); the two LOW watch rows below.
+- [ ] LOW watch: poly_obj() boulder<->non-boulder transitions
+      (polymorph zap on a boulder, stone-to-flesh) update vision
+      via block_point/unblock_point but never invalidate the
+      pathfind caches - master-shared gap (master's poly_obj
+      identical; its invalidation census has hooks only in do.c/
+      hack.c/mkobj.c/fracture_rock), bounded by
+      PATHFIND_STALE_TURNS (10) or hero movement. Minted
+      2026-08-26 by the pathfinding slice's reviewer. Candidate
+      beyond-master hardening: invalidate beside the vision calls
+      in the OBJ_FLOOR arm.
+- [ ] LOW watch: the pathfind selection's novelty-over-mtrack
+      preference (a non-mtrack candidate always displaces an
+      mtrack incumbent, even a strictly worse one) marched an
+      Amulet carrier ~20 squares INTO a dead-end corridor with
+      monotonically RISING escape distance before it turned
+      around, and stalled it ~9-50 turns dithering wherever every
+      good square sat in its 4-slot mtrack - master-shared by
+      construction (identical take conditions, reviewer-proven
+      equivalence). Minted 2026-08-26 by the pathfinding slice's
+      battery. Candidate tuning if it ever bites in play: prefer
+      non-mtrack only when not dominated, or widen the mtrack
+      window - a behavior divergence needing its own ruling.
 - [x] findgold() gold-material rule (NEW, minted 2026-07-25 by the
       added-commands slice). Master's findgold(chain, only_coins)
       makes gold-MATERIAL objects count as gold; the branch has
