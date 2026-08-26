@@ -17,7 +17,47 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-26 (later still) FEATURES-ARCHIVE COVERAGE
+- Latest slice: 2026-08-26 (fourth) UNLOGGED NUMERIC-CONSTANT SWEEP
+  (Phase 2 closing sweep 2 of 2 - BOTH CLOSING SWEEPS DONE; one code
+  commit ea8a75559, 15 files +89/-53, + tracker; BUG-1714
+  frozen-unfixed). Value-level diff of master vs vanilla merge-base
+  44b6612fd over src/+include/, provenance vs the adopted 5.0 tree
+  74d1133c2 (only vanilla==5.0 != master = an EvilHack tweak the
+  adoption reverted): 627 pairs bucketed (285 enum-shift, 130
+  census-covered content, 101 already slice-restored, 73
+  restructured w/ targeted sampling per ruling, 5 benign collisions,
+  4 branch-owned numbering) -> 29 REVERTED candidates -> 16
+  confirmed and RESTORED: XP curve flattened from level 17
+  (320000L*(lev-14)); TROUBLE_WITHERING prayer arm (wither live on
+  branch, prayer could not fix it) + fix-loop cap 20; emits_light
+  3-tier ladder - activates the ported-but-dead shadow-dragon
+  darkness aura at radii 2/3; spell_hit_bonus Skilled+4/Expert+6 +
+  is_wand free-hands arm threaded through zap_hit; gold wish cap
+  25000; DUMPLOG_MSG_COUNT 100; demigod harassment rn1(100,50);
+  magic-trap rn2(15); Heart-of-Ahriman obj_resists 100; tether
+  glyph type 5; dothrow helmet clamp dmg-2 + coupled "only slightly
+  protects" message; placement retry caps 500 (mkroom x3, makemon);
+  worn-mask %10lx x3; FCMASK default 0644; RE-PORTS of reverted
+  fixes BUG-648 (quest-filler find_level NULL panic + fillname[16])
+  and BUG-1108 (rndexp diff>0 guard). PORTED-WITH-FIX: master's
+  is_wand off-by-one (type <= MAX_ZT admits ZT_SPELL(0) = the magic
+  missile SPELL into the wand arm, a 7-point d20 swing) fixed by
+  the exact wand-section test type < BZ_U_SPELL(0) - BUG-1714
+  frozen-unfixed (the arm is dead for real wands on both trees; the
+  misrouted spell was its only reachable consumer). NOT restored,
+  each with a documented reason: LARGEST_INT (own row, row-9749
+  coupling), CHECK_INACCESSIBLES (rndvault retired), fieldorder
+  width (status-extras row), cursed-unihorn switch (deafness
+  already upstream - collision, upstream kept). TWO RULINGS
+  (AskUserQuestion, both recommended): restore in-session
+  (COCKNEST-precedent class, no battery - play-verification
+  candidates flagged: XP curve, spell to-hit, darkness radii);
+  targeted sampling for the restructured residual. Reviewer
+  CONDITIONAL PASS -> all actionable findings applied pre-commit
+  (dothrow coupled message, rndexp rationale comment, BUG-1714
+  adjudication). Clean builds both passes, zero diagnostics. Audit
+  table doc/claude/NUMERIC_SWEEP.md (local). Open Phase 2 rows: 61.
+- Previous slice: 2026-08-26 (later still) FEATURES-ARCHIVE COVERAGE
   SWEEP (Phase 2 closing sweep 1 of 2; tracker-only commit, no code).
   Session 63/64's first-listed remaining candidate taken whole: all
   129 archive items (57 Features Index entries + 72 dated sections -
@@ -10096,7 +10136,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       WORK: walk the Phase 1 field tables; for each field grep for
       a writer; writer-less fields get a pointer to their owning
       row or a new row.
-- [ ] SWEEP: UNLOGGED NUMERIC-CONSTANT diff, master vs branch (NEW,
+- [x] SWEEP: UNLOGGED NUMERIC-CONSTANT diff, master vs branch (NEW,
       minted 2026-07-25 by the special-room-types slice). The two
       archive sweeps above are KEYWORD-driven and therefore cannot
       catch an EvilHack tweak that was never archived - by
@@ -10119,6 +10159,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Highest-yield targets are the files whose slices are already
       committed, since those are the ones where a reverted constant
       is now invisible.
+      DONE 2026-08-26 (session 66, commit ea8a75559 + this tracker
+      commit; BUG-1714 frozen-unfixed). Extraction exactly as
+      specified: digit-stripped line pairing over the
+      vanilla(44b6612fd)-vs-master diff, provenance vs the adopted
+      5.0 tree (74d1133c2). 627 pairs bucketed (285 enum-shift, 130
+      census-covered content, 101 already slice-restored, 73
+      restructured with targeted sampling, 5 benign collisions, 4
+      branch-owned numbering) -> 29 REVERTED candidates -> 16
+      confirmed and restored, incl. the XP-curve flattening,
+      TROUBLE_WITHERING prayer arm, emits_light 3-tier ladder
+      (activates the ported-but-dead shadow-dragon darkness aura),
+      spell_hit_bonus Skilled+4/Expert+6 + is_wand arm, gold wish
+      cap 25000, and RE-PORTS of reverted fixes BUG-648 and
+      BUG-1108. 13 non-restores each carry a documented reason
+      (LARGEST_INT stays on its own row; rndvault flag shift;
+      fieldorder width; cursed-unihorn deafness already upstream).
+      Full audit table: doc/claude/NUMERIC_SWEEP.md (local).
 - [ ] Per-subsystem: BUGFIXES_ARCHIVE.md keyword sweep as it lands
 
 ## Phase 3 - Levels and quests (233 lua files from 36 .des)
