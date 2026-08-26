@@ -17,7 +17,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-26 (fourth) UNLOGGED NUMERIC-CONSTANT SWEEP
+- Latest slice: 2026-08-26 (fifth) MONSTER AMULET SACRIFICE ON
+  ASTRAL (moffer; one code commit 270cec8dc + tracker; BUG-1715
+  frozen-unfixed, BUG-1716 branch fix). Session 66's first-listed
+  candidate: the features-sweep HIGH row closed - master's pray.c
+  moffer() (b0de2f2b6/7b05c44b1/72134de80/c95dceead/85486467a) in
+  5.0 idiom between water_prayer and godvoice, the terminal
+  consumer of the live escape/chase system (the BFS walked
+  carriers onto the coaligned Astral altar where nothing then
+  happened); call site at the TOP OF m_move() after the meating
+  early-return - the row's "called from dochug" claim was wrong.
+  Rulings (AskUserQuestion): gate gains !mpeaceful matching
+  mon_escape_with_amulet's gate set (BUG-1715 frozen-unfixed: on
+  master a peaceful or tame intelligent carrier - the hero's pet
+  included - standing on its coaligned Astral altar ends the
+  game); livelog names the monster upstart+ARTICLE_THE (muse.c
+  BUG-384 style) while the killer strings keep master's
+  unconditional indefinite form. RIDER: restored master's
+  is_stationary() half of the m_move early return, silently
+  dropped by the 5.0 adoption (BUG-1716; EvilHack-native macro,
+  no upstream line to carry it) - M3_STATIONARY monsters took
+  normal moves (the recorded test-monster drift sightings), and
+  the restoration keeps stationary monsters from reaching moffer
+  (master's exact ordering). Reviewer PASS; load-bearing quirk
+  recorded: sgn(A_NONE) == -1 matches the chaotic altar = the
+  only route to the iswiz/demon arm (marilith-proven). Battery
+  8/8, paniclog never created: both DIED arms + the ESCAPED ender
+  (death=escaped (with the Amulet)); blind-hero killer naming ("a
+  stone giant's indifference"); an UNSTAGED organic firing (a
+  priestess of Loki picked a loose Amulet off the floor and
+  sacrificed it); peaceful carriers inert until angered;
+  cross-aligned/animal/main-dungeon controls inert; test monster
+  pinned and still melees. Open Phase 2 rows: 60.
+- Previous slice: 2026-08-26 (fourth) UNLOGGED NUMERIC-CONSTANT SWEEP
   (Phase 2 closing sweep 2 of 2 - BOTH CLOSING SWEEPS DONE; one code
   commit ea8a75559, 15 files +89/-53, + tracker; BUG-1714
   frozen-unfixed). Value-level diff of master vs vanilla merge-base
@@ -9971,7 +10003,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       8104 monster-lookup expansion, 10157 use_256color stub, 8091
       ", scared" arm, 10259 chokepoint-is-upstream note) and the
       stale describe_level REMAINING-ARMS row closed as discharged.
-- [ ] moffer() monster Amulet sacrifice on Astral NOT PORTED (minted
+- [x] moffer() monster Amulet sacrifice on Astral NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; HIGH). The Amulet
       escape/chase system is live (compute_escape_pathfind_map, the
       Astral aligned-altar goal in monmove.c) but its terminal
@@ -9981,6 +10013,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       offer it - hostile carrier = game over, the mechanic's whole
       threat. Archive: Monster Amulet Escape System / Chase to
       Planes (Jan 11 2026). Sweep items I19/I20.
+      DONE 2026-08-26 (session 67, commit 270cec8dc). Premise
+      correction: master's single call site is the TOP OF m_move()
+      (after the meating early-return, before set_apparxy), not
+      dochug - the row's dochug claim was wrong. Master's final
+      text (b0de2f2b6 origin, 7b05c44b1 seen/unseen arms,
+      72134de80 intelligence gate, c95dceead/85486467a) landed in
+      5.0 idiom between water_prayer and godvoice (killer ->
+      svk.killer, return MMOVE_DONE/MMOVE_NOTHING). Two rulings:
+      the gate gains !mpeaceful matching mon_escape_with_amulet's
+      gate set (BUG-1715 frozen-unfixed on master: a peaceful or
+      tame intelligent carrier - the hero's pet included, tame
+      monsters reach the call before the dog_move dispatch -
+      standing on its coaligned Astral altar ends the game);
+      livelog names the monster upstart+ARTICLE_THE matching the
+      muse.c BUG-384 style, while the killer strings keep master's
+      unconditional indefinite form. RIDER: restored master's
+      is_stationary() half of the m_move early return, silently
+      dropped by the 5.0 adoption (BUG-1716; is_stationary is
+      EvilHack-native so no upstream line carried it) -
+      M3_STATIONARY monsters took normal moves (the recorded
+      test-monster drift sightings), and the restoration also
+      keeps stationary monsters from reaching moffer, master's
+      exact ordering. Reviewer-verified load-bearing quirk:
+      sgn(A_NONE) == -1 matches the chaotic altar - the only route
+      to the iswiz/demon flavor arm (proven by the marilith
+      battery leg), do not "fix". Battery 8/8, paniclog never
+      created: both DIED arms and the ESCAPED ender with master's
+      text (xlogfile death=escaped (with the Amulet)); blind-hero
+      unseen arms with the killer still named ("killed by a stone
+      giant's indifference"); an UNSTAGED priestess of Loki picked
+      a loose Amulet off the floor and sacrificed it in ordinary
+      play; three peaceful on-altar carriers inert until angered;
+      cross-aligned, animal and main-dungeon controls inert; the
+      test monster pinned at (14,16) across 10 turns and still
+      melees.
 - [ ] Attacker-param threading for hitval()/dmgval()/omon_adj() NOT
       PORTED (minted 2026-08-26 by the features-coverage sweep;
       HIGH - three tracker sites already defer TO this row: the
