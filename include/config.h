@@ -754,7 +754,7 @@ typedef unsigned char uchar;
 #endif /* DUMPLOG */
 #ifdef DUMPLOG_CORE
 #ifndef DUMPLOG_MSG_COUNT
-#define DUMPLOG_MSG_COUNT   50
+#define DUMPLOG_MSG_COUNT   100
 #endif /* DUMPLOG_MSG_COUNT */
 #endif
 

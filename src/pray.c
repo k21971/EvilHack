@@ -77,11 +77,12 @@ static const char *const godvoices[] = {
  * order to have the values be meaningful.
  */
 
-#define TROUBLE_STONED 14
-#define TROUBLE_SLIMED 13
-#define TROUBLE_STRANGLED 12
-#define TROUBLE_LAVA 11
-#define TROUBLE_SICK 10
+#define TROUBLE_STONED 15
+#define TROUBLE_SLIMED 14
+#define TROUBLE_STRANGLED 13
+#define TROUBLE_LAVA 12
+#define TROUBLE_SICK 11
+#define TROUBLE_WITHERING 10
 #define TROUBLE_STARVING 9
 #define TROUBLE_REGION 8 /* stinking cloud */
 #define TROUBLE_HIT 7
@@ -228,6 +229,8 @@ in_trouble(void)
         return TROUBLE_LAVA;
     if (Sick)
         return TROUBLE_SICK;
+    if (HWithering && !BWithering)
+        return TROUBLE_WITHERING;
     if (u.uhs >= WEAK)
         return TROUBLE_STARVING;
     if (region_danger())
@@ -445,6 +448,13 @@ fix_worst_trouble(int trouble)
     case TROUBLE_SICK:
         You_feel("better.");
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
+        break;
+    case TROUBLE_WITHERING:
+        set_itimeout(&HWithering, (long) 0);
+        if (!Withering)
+            You("stop withering.");
+        else
+            You_feel("a little less dessicated.");
         break;
     case TROUBLE_REGION:
         /* stinking cloud, with hero vulnerable to HP loss */
@@ -1538,7 +1548,7 @@ pleased(aligntyp g_align)
             /*FALLTHRU*/
         case 2:
             /* up to 9 troubles */
-            while ((trouble = in_trouble()) > 0 && (++tryct < 10))
+            while ((trouble = in_trouble()) > 0 && (++tryct < 20))
                 fix_worst_trouble(trouble);
             break;
 

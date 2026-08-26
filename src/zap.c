@@ -27,7 +27,7 @@ staticfn void maybe_explode_trap(struct trap *, struct obj *,
                                boolean *) NONNULLARG3;
 staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
 staticfn void bounce_dir(coordxy, coordxy, int *, int *, int) NO_NNARGS;
-staticfn int zap_hit(int, int);
+staticfn int zap_hit(int, int, boolean);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
 staticfn int adtyp_to_prop(int);
 staticfn void backfire(struct obj *) NONNULLARG1;
@@ -35,7 +35,7 @@ staticfn int zap_ok(struct obj *) NO_NNARGS;
 /* all callers of boxlock_invent() pass a NONNULL obj, and boxlock
  * boxlock_invent() calls boxlock() which has nonnull arg. */
 staticfn void boxlock_invent(struct obj *) NONNULLARG1;
-staticfn int spell_hit_bonus(int);
+staticfn int spell_hit_bonus(int, boolean);
 staticfn int maybe_destroy_item(struct monst *, struct obj *, int) NONNULLPTRS;
 staticfn boolean destroyable(struct obj *, int);
 
@@ -2229,7 +2229,7 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
         && objects[obj->otyp].oc_material != GEMSTONE)
         return 0;
     /* Heart of Ahriman usually resists; ordinary items rarely do */
-    if (obj_resists(obj, 2, 98))
+    if (obj_resists(obj, 2, 100))
         return 0;
 
     (void) get_obj_location(obj, &oox, &ooy, 0);
@@ -4172,25 +4172,30 @@ spell_damage_bonus(
  * spell class and dexterity.
  */
 staticfn int
-spell_hit_bonus(int skill)
+spell_hit_bonus(int skill, boolean is_wand)
 {
     int hit_bon = 0;
     int dex = ACURR(A_DEX);
 
-    switch (P_SKILL(spell_skilltype(skill))) {
-    case P_ISRESTRICTED:
-    case P_UNSKILLED:
-        hit_bon = -4;
-        break;
-    case P_BASIC:
-        hit_bon = 0;
-        break;
-    case P_SKILLED:
-        hit_bon = 2;
-        break;
-    case P_EXPERT:
-        hit_bon = 3;
-        break;
+    if (is_wand) {
+        if (!uwep) /* easier to aim with hands free */
+            hit_bon = 3;
+    } else {
+        switch (P_SKILL(spell_skilltype(skill))) {
+        case P_ISRESTRICTED:
+        case P_UNSKILLED:
+            hit_bon = -4;
+            break;
+        case P_BASIC:
+            hit_bon = 0;
+            break;
+        case P_SKILLED:
+            hit_bon = 4;
+            break;
+        case P_EXPERT:
+            hit_bon = 6;
+            break;
+        }
     }
 
     if (dex < 4)
@@ -5580,10 +5585,11 @@ bounce_dir(coordxy sx, coordxy sy,
 staticfn int
 zap_hit(
     int ac,
-    int type) /* either hero cast spell type or 0 */
+    int type, /* either hero cast spell type or 0 */
+    boolean is_wand)
 {
     int chance = rn2(20);
-    int spell_bonus = type ? spell_hit_bonus(type) : 0;
+    int spell_bonus = type ? spell_hit_bonus(type, is_wand) : 0;
 
     /* small chance for naked target to avoid being hit */
     if (!chance)
@@ -5705,6 +5711,7 @@ dobuzz(
     coord save_bhitpos;
     boolean shopdamage = FALSE,
             fireball = (type == ZT_SPELL(ZT_FIRE)), /* set once */
+            is_wand = (type >= 0 && type < BZ_U_SPELL(0)),
             gas_hit = FALSE; /* will be set during each iteration */
     struct obj *otmp;
     int spell_type;
@@ -5783,7 +5790,7 @@ dobuzz(
  buzzmonst:
             gn.notonhead = (mon->mx != gb.bhitpos.x
                             || mon->my != gb.bhitpos.y);
-            if (!forcemiss && zap_hit(find_mac(mon), spell_type)) {
+            if (!forcemiss && zap_hit(find_mac(mon), spell_type, is_wand)) {
                 if (mon_reflects(mon, (char *) 0)) {
                     if (cansee(mon->mx, mon->my)) {
                         hit(flash_str(fltyp, FALSE), mon, exclam(0));
@@ -5902,7 +5909,7 @@ dobuzz(
             if (u.usteed && !rn2(3) && !mon_reflects(u.usteed, (char *) 0)) {
                 mon = u.usteed;
                 goto buzzmonst;
-            } else if (!forcemiss && zap_hit((int) u.uac, 0)) {
+            } else if (!forcemiss && zap_hit((int) u.uac, 0, FALSE)) {
                 range -= 2;
                 pline_dir(xytodir(-dx, -dy), "%s %s you!",
                           The(flash_str(fltyp, FALSE)),

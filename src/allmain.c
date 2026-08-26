@@ -548,7 +548,7 @@ moveloop_core(void)
                         u.udg_cnt--;
                     if (!u.udg_cnt) {
                         intervene();
-                        u.udg_cnt = rn1(200, 50);
+                        u.udg_cnt = rn1(100, 50);
                     }
                 }
 /* XXX This should be recoded to use something like regions - a list of

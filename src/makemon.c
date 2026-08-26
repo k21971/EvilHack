@@ -3050,7 +3050,7 @@ makemon_rnd_goodpos(
         ny = rn2(ROWNO);
         good = (!gi.in_mklev && cansee(nx,ny)) ? FALSE
                                               : goodpos(nx, ny, mon, gpflags);
-    } while ((++tryct < 50) && !good);
+    } while ((++tryct < 500) && !good);
 
     if (!good) {
         /* else go through all map positions, twice, first round

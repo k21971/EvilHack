@@ -5320,8 +5320,8 @@ readobjnam_postparse1(struct _readobjnam_data *d)
         || !BSTRCMPI(d->bp, d->p - 7, "zorkmid")
         || !strcmpi(d->bp, "gold") || !strcmpi(d->bp, "money")
         || !strcmpi(d->bp, "coin") || *d->bp == GOLD_SYM) {
-        if (d->cnt > 5000 && !wizard)
-            d->cnt = 5000;
+        if (d->cnt > 25000 && !wizard)
+            d->cnt = 25000;
         else if (d->cnt < 1)
             d->cnt = 1;
         d->otmp = mksobj(GOLD_PIECE, FALSE, FALSE);

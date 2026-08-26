@@ -2841,7 +2841,7 @@ trapeffect_magic_trap(
 {
     if (mtmp == &gy.youmonst) {
         seetrap(trap);
-        if (!rn2(30)) {
+        if (!rn2(15)) {
             /* hero-crafted magic traps carry their crafting
                component as ammo; the explosion consumes it */
             deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);

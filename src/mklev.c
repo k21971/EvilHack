@@ -1337,11 +1337,16 @@ makelevel(void)
     } else if (svd.dungeons[u.uz.dnum].fill_lvl[0]) {
         makemaz(svd.dungeons[u.uz.dnum].fill_lvl);
     } else if (In_quest(&u.uz)) {
-        char fillname[9];
+        char fillname[16];
         s_level *loc_lev;
 
         Sprintf(fillname, "%s-loca", gu.urole.filecode);
         loc_lev = find_level(fillname);
+        /* find_level() returns NULL when the named proto isn't
+           in sp_levchn; without this guard loc_lev->dlevel.dlevel
+           would segfault on any role whose -loca level is missing */
+        if (!loc_lev)
+            panic("find_level failed for quest filler: %s", fillname);
 
         Sprintf(fillname, "%s-fil", gu.urole.filecode);
         Strcat(fillname,

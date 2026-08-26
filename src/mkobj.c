@@ -3954,14 +3954,14 @@ sanity_check_worn(struct obj *obj)
     }
     if (n > 1) {
         /* multiple bits set */
-        Sprintf(maskbuf, "worn mask (multiple) 0x%08lx", obj->owornmask);
+        Sprintf(maskbuf, "worn mask (multiple) 0x%10lx", obj->owornmask);
         insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
     }
     if ((owornmask & ~allmask) != 0L
         || (carried(obj) && (owornmask & W_SADDLE) != 0L)
         || (carried(obj) && (owornmask & W_BARDING) != 0L)) {
         /* non-wearable bit(s) set */
-        Sprintf(maskbuf, "worn mask (bogus)) 0x%08lx", obj->owornmask);
+        Sprintf(maskbuf, "worn mask (bogus)) 0x%10lx", obj->owornmask);
         insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
     }
     if (n == 1 && (carried(obj) || (owornmask & (W_BALL | W_CHAIN)) != 0L)) {
@@ -4039,7 +4039,7 @@ sanity_check_worn(struct obj *obj)
             break;
         }
         if (what) {
-            Sprintf(maskbuf, "worn mask 0x%08lx != %s", obj->owornmask, what);
+            Sprintf(maskbuf, "worn mask 0x%10lx != %s", obj->owornmask, what);
             insane_object(obj, ofmt0, maskbuf, (struct monst *) 0);
         }
     }

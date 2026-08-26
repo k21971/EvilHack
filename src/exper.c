@@ -17,9 +17,9 @@ newuexp(int lev)
         return 0L;
     if (lev < 10)
         return (10L * (1L << lev));
-    if (lev < 20)
+    if (lev < 17)
         return (10000L * (1L << (lev - 10)));
-    return (10000000L * ((long) (lev - 19)));
+    return (320000L * ((long) (lev - 14)));
 }
 
 staticfn int
@@ -387,7 +387,11 @@ rndexp(boolean gaining) /* gaining XP via potion vs setting XP for polyself */
     /* make sure that `diff' is an argument which rn2() can handle */
     while (diff >= (long) LARGEST_INT)
         diff /= 2L, factor *= 2L;
-    result = minexp + factor * (long) rn2((int) diff);
+    /* diff can be 0 if u.ulevel == 0 (newuexp(-1) and newuexp(0) both
+       return 0); rn2(0) divides by zero */
+    result = minexp;
+    if (diff > 0)
+        result += factor * (long) rn2((int) diff);
     /* 3.4.1:  if already at level 30, add to current experience
        points rather than to threshold needed to reach the current
        level; otherwise blessed potions of gain level can result

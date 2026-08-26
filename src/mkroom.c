@@ -1081,7 +1081,7 @@ somexy(struct mkroom *croom, coord *c)
     if (croom->irregular) {
         i = (int) ((croom - svr.rooms) + ROOMOFFSET);
 
-        while (try_cnt++ < 100) {
+        while (try_cnt++ < 500) {
             c->x = somex(croom);
             c->y = somey(croom);
             if (!levl[c->x][c->y].edge && (int) levl[c->x][c->y].roomno == i)
@@ -1104,7 +1104,7 @@ somexy(struct mkroom *croom, coord *c)
 
     /* Check that coords doesn't fall into a subroom or into a wall */
 
-    while (try_cnt++ < 100) {
+    while (try_cnt++ < 500) {
         c->x = somex(croom);
         c->y = somey(croom);
         if (IS_WALL(levl[c->x][c->y].typ))
@@ -1116,7 +1116,7 @@ somexy(struct mkroom *croom, coord *c)
  you_lose:
         ;
     }
-    if (try_cnt >= 100)
+    if (try_cnt >= 500)
         return FALSE;
     return TRUE;
 }

@@ -215,7 +215,6 @@
 #define SERVER_ADMIN_MSG_CKFREQ 25
 #endif
 
-
 /*
  * Some terminals or terminal emulators send two character sequence "ESC c"
  * when Alt+c is pressed.  The altmeta run-time option allows the user to
@@ -233,7 +232,7 @@
 #endif
 
 #ifndef FCMASK
-#define FCMASK 0660 /* file creation mask */
+#define FCMASK 0644 /* file creation mask */
 #endif
 
 /* fcntl(2) is a POSIX-portable call for manipulating file descriptors.
