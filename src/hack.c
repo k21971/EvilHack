@@ -33,7 +33,7 @@ staticfn boolean domove_swap_with_pet(struct monst *,
                                     coordxy, coordxy) NONNULLARG1;
 staticfn struct obj *wielded_fire_weapon(void);
 staticfn void domove_fight_burn(coordxy, coordxy, const char *,
-                                struct obj *) NONNULLPTRS;
+                                struct obj *) NONNULLARG3;
 staticfn boolean domove_fight_empty(coordxy, coordxy);
 staticfn boolean air_turbulence(void);
 staticfn void slippery_ice_fumbling(void);
@@ -2326,14 +2326,20 @@ wielded_fire_weapon(void)
 
 /* force-fight a closed door or a tree at (x,y) with a fire weapon: the
    flames burn through a flammable door, reduce a tree to a dead tree and
-   a dead tree to nothing; 'target' is the caller's name for the spot */
+   a dead tree to nothing; 'target' is the caller's name for the spot;
+   a Null 'fireobj' means bare hands aflame with the burning hands
+   spell, which costs a charge */
 staticfn void
 domove_fight_burn(coordxy x, coordxy y, const char *target,
                   struct obj *fireobj)
 {
     struct rm *lev = &levl[x][y];
 
-    You("strike %s with %s...", target, ysimple_name(fireobj));
+    if (!fireobj)
+        You("place your %s on %s...",
+            makeplural(body_part(HAND)), target);
+    else
+        You("strike %s with %s...", target, ysimple_name(fireobj));
     if (IS_DOOR(lev->typ)) {
         if ((lev->doormask & D_TRAPPED) && In_sokoban(&u.uz)) {
             /* a trapped sokoban prize door is never destroyed */
@@ -2411,8 +2417,10 @@ domove_fight_burn(coordxy x, coordxy y, const char *target,
             feel_newsym(x, y);
         }
     }
+    if (!fireobj)
+        nohandburn(); /* use up a charge */
     /* striking with the flames reveals a fire-property weapon's nature */
-    if ((fireobj->oprops & ITEM_FIRE)
+    if (fireobj && (fireobj->oprops & ITEM_FIRE)
         && !(fireobj->oprops_known & ITEM_FIRE)) {
         fireobj->oprops_known |= ITEM_FIRE;
         update_inventory();
@@ -2512,13 +2520,16 @@ domove_fight_empty(coordxy x, coordxy y)
             Strcpy(buf, "thin air");
         }
 
-        /* a fire weapon burns through flammable doors and trees; exact
-           terrain tests rather than IS_TREES() because arboreal STONE
-           is displayed as a tree but has nothing to burn */
+        /* a fire weapon or hands aflame with the burning hands spell
+           burn through flammable doors and trees; exact terrain tests
+           rather than IS_TREES() because arboreal STONE is displayed
+           as a tree but has nothing to burn */
         if (svc.context.forcefight && !Underwater
             && (levl[x][y].typ == TREE || levl[x][y].typ == DEADTREE
                 || closed_door(x, y))
-            && (fireobj = wielded_fire_weapon()) != 0) {
+            && ((fireobj = wielded_fire_weapon()) != 0
+                || (u.umburn
+                    && weapon_type(uwep) == P_BARE_HANDED_COMBAT))) {
             domove_fight_burn(x, y, buf, fireobj);
             return TRUE;
         }
