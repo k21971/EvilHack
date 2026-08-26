@@ -17,7 +17,52 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-24 FORCEFIGHT FIRE-BURN (BUG-1701..1707, one
+- Latest slice: 2026-08-26 HERO BURNING HANDS / SHOCKING GRASP
+  (BUG-1708..1711, two code commits 964507403 / 0ce60a975). Session
+  62's first-listed candidate: the HIGH impossible()-class row closed
+  whole - master's ~400-line hero side (b5cffd7e1 + six follow-ups)
+  in 5.0 idiom: spell.c scroll-duplicates routing (Skilled+ = blessed
+  pseudo), read.c seffect_burning_hands()/seffect_shocking_grasp()
+  producers (mutual exclusion, in-water fizzle, +1 / +rn1(4,2)
+  accrual with the >=20 soft cap), uhitm.c damage arms in the
+  hmon_hitmon driver + feedback/charge arms after the Vecna frost
+  feedback + hmonas claw/touch/kick arms (BUG-397 re-applied as
+  M_ATTK_DEF_DIED), nohandburn()/nohandshock() + enchant_skill_dice(),
+  insight.c enl_msg lines with wizard charge counts, invent.c hands
+  tags, trap.c drown extinguish, hack.c bare-handed forcefight arm
+  (Null fireobj to domove_fight_burn() = hands, charge spent whatever
+  the outcome - the rider from the fire-burn slice's Q3 ruling).
+  Three rulings: polyform shock die d(N,6) (master's d4 slip =
+  BUG-1709 frozen-unfixed), umconf-idiom enlightenment over master's
+  you_are lines, tags on both the wield prompt and the inuse row.
+  Ported-with-fix: single instant-ignite roll threaded via the
+  transient hmd.burnkill flag (master rolls the blight/ent gates
+  independently in its two arms, BUG-1710); "feels warm/numb" head
+  grammar (BUG-1711). Reviewer CONDITIONAL PASS -> MEDIUM taken:
+  hmonas arms hoisted out of the hit-connected else so a claw
+  passing harmlessly through a ghost still burns it (master's
+  position; the branch-only failed_grab break still skips them as a
+  miss). Battery 12/12 PASS in one Wizard game (Basic + forced-Expert
+  tiers: +5/+5/+4/+4 stacking, d(2,4)..d(4,6) deltas via damage_mon
+  breakpoint, straw/paper/wood golem ignite-to-ash, 1-HP-newt
+  killing-blow-no-charge quirk, owlbear paws / raven talons, ghost
+  burn-through, water extinguish once with umshock kept, forcefight
+  door/iron/tree each one charge, save/restore persistence);
+  paniclog never created. The T12b self-zap cancellation expectation
+  was a brief error: self_cancel strips inventory only on both trees
+  (vanilla contract) - a gray dragon's passive AD_CNCL proved the
+  real clear ("Your hands stop burning orange.", counters zeroed).
+  Master-parity quirks kept on the record: killing-blow-by-base-
+  damage costs no charge; dead mon_underwater conjunct in the
+  extinguish roll; charge spent on resist; forcefight hands message
+  has no talons form. Rows minted: hmonas resist branch heals
+  resistant golems by the to-hit value (LOW master-shared),
+  hallucinated colors break the producer a/an articles (LOW
+  master-shared), "gloves"-form wishes rejected while "gauntlets"
+  work (LOW investigation). Save format untouched (fields already
+  serialized); Wizard-kit-has-no-weapon anomaly dismissed (master
+  parity, kits identical).
+- Previous slice: 2026-08-24 FORCEFIGHT FIRE-BURN (BUG-1701..1707, one
   code commit + tracker). Session 61's first-listed candidate: a fire
   weapon (Fire Brand/Dichotomy/Xiuhcoatl/Angelslayer or an ITEM_FIRE
   weapon, either hand) now burns a closed flammable door to a doorway
@@ -2730,11 +2775,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       msicktime/mdiseasetime/msummoned/mbindtimer decrements
       (their slices), TEMPLE DAMAGE-REPAIR SWEEP
       (temple_at_boundary, 24 master sites, 13 files - NEW),
-      HERO SPELL PARITY (10 master spelleffects cases still
+      HERO SPELL PARITY (8 master spelleffects cases still
       unwired: POWER_WORD_KILL/DISPEL_EVIL/CRITICAL_HEALING/
-      BURNING_HANDS/SHOCKING_GRASP/REPAIR_ARMOR/CREATE_GRASS/
-      CREATE_TREES/ORB_OF_FIRE/ORB_OF_FROST - default
-      impossible(); NEW item; the minted 16-case list was stale -
+      REPAIR_ARMOR/CREATE_GRASS/CREATE_TREES/ORB_OF_FIRE/
+      ORB_OF_FROST - default impossible();
+      BURNING_HANDS/SHOCKING_GRASP wired 2026-08-26 by the hero
+      burning hands slice (BUG-1708); NEW item; the minted 16-case
+      list was stale -
       PSIONIC_WAVE/SUMMON_ANIMAL/SUMMON_ELEMENTAL are already
       wired in the branch switch by their own slices.
       CHANGE_METAL_TO_WOOD wired 2026-08-21 by the Croesus/gold
@@ -7128,9 +7175,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       passed and opening the door normalised it to D_ISOPEN, so
       harmless so far; find the producer (themeroom/mkroom shop-door
       path?) before any consumer starts testing the full mask.
-- [ ] HIGH: hero burning hands / shocking grasp spell effects NOT
+- [x] HIGH: hero burning hands / shocking grasp spell effects NOT
       PORTED (NEW, minted 2026-08-24 by the forcefight fire-burn
-      slice's scoping). The branch carries only the you.h fields
+      slice's scoping). LANDED 2026-08-26 as BUG-1708..1711, commits
+      964507403 (system) + 0ce60a975 (forcefight rider); payload,
+      rulings, reviewer hoist and battery in the Dashboard latest-
+      slice entry and the archive entries. Original row kept below
+      for the payload map. The branch carries only the you.h fields
       (u.umburn, u.umshock) and one zap.c reset; the monster-side
       twin (mburnhands, mcastu/mhitm/mhitu/muse) IS live. Casting
       either spell as the hero falls into spelleffects()'s `default:
@@ -7163,6 +7214,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mon_underwater, damage_mon, golemeffects; master's
       destroy_mitem(mon, class, adtyp) is 5.0's destroy_items(mon,
       adtyp, dmg) (the return-discard ruling applies).
+- [ ] LOW: hmonas burning hands / shocking grasp resist branches
+      heal resistant golems by the to-hit value (minted 2026-08-26,
+      reviewer catch on the ported arms, master-shared verbatim):
+      both polyform arms call golemeffects(mon, AD_FIRE/AD_ELEC, tmp)
+      where hmonas's tmp is find_roll_to_hit()'s to-hit number, not
+      damage - an iron golem clawed with burning hands is healed
+      ~15-30 HP per hit. The hmon_hitmon arms correctly pass hmd.dmg.
+      Kept for parity this slice; a fix wants a ruling on what the
+      heal amount should be (the elemental die is the natural pick)
+      and a master patch note.
+- [ ] LOW: hallucinated colors break the producer articles (minted
+      2026-08-26, reviewer catch, master-shared verbatim): the
+      unblessed burning hands message hardcodes "a%s%s flame" with
+      "n " (right for "orange", wrong for a hallucinated consonant
+      color: "an red flame") and the unblessed shocking grasp
+      "a %s%s aura" is its mirror ("a orange aura"). An() exists;
+      deviating from master's literal strings wants a ruling.
+      seffect_confuse_monster shares the shape ("a"/hcolor pairs)
+      - sweep siblings if fixed.
+- [ ] LOW investigation: "gloves"-form wishes rejected while
+      "gauntlets" forms work (minted 2026-08-26, battery
+      observation): wizard wishes for "blessed +0 pair of leather
+      gloves" / "pair of gloves" / "gloves" all returned "Nothing
+      fitting that description exists in the game." though
+      GLOVES("gloves", "old gloves", ...) is in objects.h;
+      "gauntlets" and "gauntlets of protection" wish fine. Check
+      objnam.c wish parsing on the branch vs master (material-prefix
+      interaction suspected); may be master-shared.
 - [x] dothrow.c launcher range table NOT PORTED (minted 2026-08-06 by
       the Archeologist slice's reviewer while proving the range>0
       gate's producer absent). Master's throwit() range overrides for
