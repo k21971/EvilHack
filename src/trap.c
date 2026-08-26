@@ -1468,7 +1468,7 @@ trapeffect_shooting_trap(
         seetrap(trap);
         pline("%s shoots out at you!", An(xname(otmp)));
         {
-            int dam = dmgval(otmp, &gy.youmonst);
+            int dam = dmgval((struct monst *) 0, otmp, &gy.youmonst);
 
             if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
                 ; /* nothing */
@@ -4103,7 +4103,7 @@ launch_obj(
                 break;
             }
         } else if (u_at(x, y)) {
-            int dam = dmgval(singleobj, &gy.youmonst);
+            int dam = dmgval((struct monst *) 0, singleobj, &gy.youmonst);
 
             if (gm.multi)
                 nomul(0);
@@ -7955,7 +7955,7 @@ thitm(
         if (d_override) {
             dam = d_override;
         } else if (obj) {
-            dam = dmgval(obj, mon);
+            dam = dmgval((struct monst *) 0, obj, mon);
             if (dam < 1)
                 dam = 1;
             if (mon_hates_material(mon, obj->material)

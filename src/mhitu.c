@@ -1227,7 +1227,7 @@ mattacku(struct monst *mtmp)
                                                    ART_SNICKERSNEE)
                                         && m_next2u(mtmp));
 
-                        hittmp = hitval(mon_currwep, &gy.youmonst);
+                        hittmp = hitval(mtmp, mon_currwep, &gy.youmonst);
                         tmp += hittmp;
                         had_wep = TRUE;
                         mswings(mtmp, mon_currwep, bash);

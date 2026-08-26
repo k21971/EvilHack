@@ -515,7 +515,7 @@ mattackm(
             if (mwep) {
                 if (gv.vis)
                     mswingsm(magr, mdef, mwep);
-                tmp += hitval(mwep, mdef);
+                tmp += hitval(magr, mwep, mdef);
             }
             FALLTHROUGH;
             /*FALLTHRU*/
@@ -545,7 +545,7 @@ mattackm(
             strike = (tmp > dieroll);
             /* KMH -- don't accumulate to-hit bonuses */
             if (mwep)
-                tmp -= hitval(mwep, mdef);
+                tmp -= hitval(magr, mwep, mdef);
             /* tiny or small animals have a chance to dodge a zombie's
                bite attack due to zombies being mindless and slow */
             if (strike && racial_zombie(magr) && mattk->aatyp == AT_BITE

@@ -1491,7 +1491,7 @@ toss_up(struct obj *obj, boolean hitsroof)
                 harmless = (stone_missile(obj)
                             && passes_rocks(gy.youmonst.data)),
                 artimsg = FALSE;
-        int dmg = dmgval(obj, &gy.youmonst);
+        int dmg = dmgval(&gy.youmonst, obj, &gy.youmonst);
 
         if ((obj->oartifact
              || ((obj->oclass == WEAPON_CLASS || is_weptool(obj)
@@ -2234,26 +2234,29 @@ return_throw_to_inv(
 
 /* an object may hit a monster; various factors adjust chance of hitting */
 int
-omon_adj(struct monst *mon, struct obj *obj, boolean mon_notices)
+omon_adj(struct monst *magr, struct monst *mdef, struct obj *obj,
+         boolean mon_notices)
 {
     int tmp = 0;
 
     /* size of target affects the chance of hitting */
-    tmp += (mon->data->msize - MZ_MEDIUM); /* -2..+5 */
+    tmp += (mdef->data->msize - MZ_MEDIUM); /* -2..+5 */
     /* sleeping target is more likely to be hit */
-    if (mon->msleeping) {
+    if (mdef->msleeping) {
         tmp += 2;
     }
     /* ditto for immobilized target */
-    if (!mon->mcanmove || !mon->data->mmove) {
+    if (!mdef->mcanmove || !mdef->data->mmove) {
         tmp += 4;
-        if (mon_notices && mon->data->mmove && !rn2(10)) {
-            mon->mcanmove = 1;
-            mon->mfrozen = 0;
+        if (mon_notices && mdef->data->mmove && !rn2(10)) {
+            if (!mdef->mstone || mdef->mstone > 2)
+                mdef->mcanmove = 1;
+            mdef->mfrozen = 0;
         }
     }
     /* drow are affected by being in both the light or the dark */
-    if (maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))) {
+    if (magr == &gy.youmonst
+        && maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))) {
         if (spot_is_dark(u.ux, u.uy))
             tmp += (u.ulevel / 6) + 2;
         else
@@ -2271,7 +2274,7 @@ omon_adj(struct monst *mon, struct obj *obj, boolean mon_notices)
     default:
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
             || obj->oclass == GEM_CLASS)
-            tmp += hitval(obj, mon);
+            tmp += hitval(magr, obj, mdef);
         break;
     }
     return tmp;
@@ -2412,7 +2415,7 @@ thitmonst(
         }
     }
 
-    tmp += omon_adj(mon, obj, TRUE);
+    tmp += omon_adj(&gy.youmonst, mon, obj, TRUE);
     if (racial_orc(mon)
         && (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
             || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))))

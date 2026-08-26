@@ -910,7 +910,8 @@ scatter(
 
                         if (gm.multi)
                             nomul(0);
-                        dam = dmgval(stmp->obj, &gy.youmonst);
+                        dam = dmgval((struct monst *) 0, stmp->obj,
+                                     &gy.youmonst);
                         hitvalu = 8 + stmp->obj->spe;
                         if (bigmonst(gy.youmonst.data))
                             hitvalu++;

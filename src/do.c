@@ -229,8 +229,10 @@ flooreffects(
                        dropped by a scroll of earth read by a monster */
                     if (svc.context.mon_moving) {
                         /* normally we'd use ohitmon() but it can call
-                           drop_throw() which calls flooreffects() */
-                        damage = dmgval(obj, mtmp);
+                           drop_throw() which calls flooreffects();
+                           the boulder-pusher isn't tracked here, so
+                           no attacker */
+                        damage = dmgval((struct monst *) 0, obj, mtmp);
                         mtmp->mhp -= damage;
                         if (DEADMONSTER(mtmp)) {
                             if (canspotmon(mtmp))

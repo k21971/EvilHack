@@ -581,7 +581,7 @@ ohitmon(
     if (vis)
         observe_object(otmp);
 
-    tmp = 5 + find_mac(mtmp) + omon_adj(mtmp, otmp, FALSE);
+    tmp = 5 + find_mac(mtmp) + omon_adj(magr, mtmp, otmp, FALSE);
     /* High level monsters will be more likely to hit */
     /* This check applies only if this monster is the target
      * the archer was aiming at. */
@@ -617,14 +617,14 @@ ohitmon(
     } else {
         boolean harmless = (stone_missile(otmp) && passes_rocks(mtmp->data));
 
-        damage = dmgval(otmp, mtmp);
+        damage = dmgval(magr, otmp, mtmp);
         if (otmp->otyp == ACID_VENOM
             && (resists_acid(mtmp) || defended(mtmp, AD_ACID)))
             damage = 0;
-#if 0 /* can't use this because we don't have the attacker */
-        if (is_orc(mtmp->data) && is_elf(?magr?))
+        /* elven types hate orcs */
+        if (magr && (racial_elf(magr) || racial_drow(magr))
+            && racial_orc(mtmp))
             damage++;
-#endif
         if (ismimic)
             seemimic(mtmp);
         mtmp->msleeping = 0;
@@ -1027,7 +1027,7 @@ m_throw(
                 {
                     int dam, hitv;
 
-                    dam = dmgval(singleobj, &gy.youmonst);
+                    dam = dmgval(mon, singleobj, &gy.youmonst);
                     hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                     if (hitv < -4)
                         hitv = -4;
@@ -1723,7 +1723,7 @@ thrwmu(struct monst *mtmp)
                   obj_is_pname(otmp) ? the(onm) : an(onm));
         }
 
-        dam = dmgval(otmp, &gy.youmonst);
+        dam = dmgval(mtmp, otmp, &gy.youmonst);
         hitv = 3 - distmin(u.ux, u.uy, mtmp->mx, mtmp->my);
         if (hitv < -4)
             hitv = -4;

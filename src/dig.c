@@ -404,7 +404,7 @@ dig(void)
         } else if (ttmp && ttmp->ttyp == BEAR_TRAP && u.utrap) {
             if (rnl(7) > (Fumbling ? 1 : 4)) {
                 char kbuf[BUFSZ];
-                int dmg = dmgval(uwep, &gy.youmonst) + dbon();
+                int dmg = dmgval(&gy.youmonst, uwep, &gy.youmonst) + dbon();
 
                 if (dmg < 1)
                     dmg = 1;

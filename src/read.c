@@ -2499,7 +2499,8 @@ drop_boulder_on_player(
     if (!amorphous(gy.youmonst.data) && !Passes_walls
         && !noncorporeal(gy.youmonst.data) && !unsolid(gy.youmonst.data)) {
         You("are hit by %s!", doname(otmp2));
-        dmg = (int) (dmgval(otmp2, &gy.youmonst) * otmp2->quan);
+        dmg = (int) (dmgval((byu ? &gy.youmonst : (struct monst *) 0),
+                            otmp2, &gy.youmonst) * otmp2->quan);
         if (uarmh && helmet_protects) {
             if (otmp2->owt >= 400 && is_glass(uarmh)
                 && break_glass_obj(uarmh)) {
@@ -2555,7 +2556,8 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
                      s_suffix(mon_nam(mtmp)), mbodypart(mtmp, STOMACH),
                      body_part(HEAD));
 
-        mdmg = dmgval(otmp2, mtmp) * otmp2->quan;
+        mdmg = dmgval((byu ? &gy.youmonst : (struct monst *) 0), otmp2, mtmp)
+               * otmp2->quan;
         if (helmet) {
             /* helmet, not uarmh: master passed the hero's helm here
                until BUG-737 */

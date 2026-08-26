@@ -523,7 +523,7 @@ find_roll_to_hit(
      */
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
         if (weapon)
-            tmp += hitval(weapon, mtmp);
+            tmp += hitval(&gy.youmonst, weapon, mtmp);
         tmp += weapon_hit_bonus(weapon);
     } else if (aatyp == AT_KICK && martial_bonus()) {
         tmp += weapon_hit_bonus((struct obj *) 0);
@@ -989,7 +989,7 @@ hitum(struct monst *mon, struct attack *uattk)
             You("swing wildly and miss!");
         } else {
             char tmpbuf[BUFSZ];
-            int dmg_wep = dmgval(uwep, &gy.youmonst);
+            int dmg_wep = dmgval(&gy.youmonst, uwep, &gy.youmonst);
 
             Your("cursed %s turns against you!", simpleonames(uwep));
             You("hit yourself in the %s!", body_part(FACE));
@@ -1348,13 +1348,13 @@ hmon_hitmon_weapon_melee(
 
     /* "normal" weapon usage */
     hmd->use_weapon_skill = TRUE;
-    hmd->dmg = dmgval(obj, mon);
+    hmd->dmg = dmgval(&gy.youmonst, obj, mon);
     /* giants are more effective with club-like weapons; roll the
        damage twice and take the better result, plus one */
     if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT))
         && objects[obj->otyp].oc_skill == P_CLUB
         && !noncorporeal(hmd->mdat)) {
-        int dmg2 = dmgval(obj, mon);
+        int dmg2 = dmgval(&gy.youmonst, obj, mon);
 
         if (hmd->dmg < dmg2)
             hmd->dmg = dmg2;
@@ -1629,7 +1629,7 @@ hmon_hitmon_misc_obj(
     case BOULDER:         /* 1d20 */
     case HEAVY_IRON_BALL: /* 1d25 */
     case IRON_CHAIN:      /* 1d4+1 */
-        hmd->dmg = dmgval(obj, mon);
+        hmd->dmg = dmgval(&gy.youmonst, obj, mon);
         if (mon_hates_material(mon, obj->material)) {
             /* dmgval() already added damage, but track hated_obj */
             hmd->hated_obj = obj;
@@ -1843,7 +1843,7 @@ hmon_hitmon_misc_obj(
             hmd->dmg = 0;
         } else {
             Your("venom burns %s!", mon_nam(mon));
-            hmd->dmg = dmgval(obj, mon);
+            hmd->dmg = dmgval(&gy.youmonst, obj, mon);
         }
         {
             boolean more_than_1 = (obj->quan > 1L);
@@ -1867,7 +1867,7 @@ hmon_hitmon_misc_obj(
             hmd->dmg = 0;
         } else {
             Your("barbed needle stings %s!", mon_nam(mon));
-            hmd->dmg = dmgval(obj, mon);
+            hmd->dmg = dmgval(&gy.youmonst, obj, mon);
         }
         {
             boolean more_than_1 = (obj->quan > 1L);
@@ -2916,7 +2916,7 @@ shade_miss(
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
     if (!noncorporeal(mdef->data)
-        || (obj && (dmgval(obj, mdef) || shade_glare(obj))))
+        || (obj && (dmgval(magr, obj, mdef) || shade_glare(obj))))
         return FALSE;
 
     if (verbose
@@ -5810,7 +5810,7 @@ mhitm_ad_phys(
                         }
                     }
                 }
-                mhm->damage += dmgval(otmp, mdef);
+                mhm->damage += dmgval(magr, otmp, mdef);
                 if ((marmg = which_armor(magr, W_ARMG)) != 0
                     && marmg->otyp == GAUNTLETS_OF_POWER)
                     mhm->damage += rn1(4, 3); /* 3..6 */
@@ -6005,7 +6005,7 @@ mhitm_ad_phys(
                     return;
             }
 
-            mhm->damage += dmgval(mwep, mdef);
+            mhm->damage += dmgval(magr, mwep, mdef);
             if ((marmg = which_armor(magr, W_ARMG)) != 0
                 && marmg->otyp == GAUNTLETS_OF_POWER)
                 mhm->damage += rn1(4, 3); /* 3..6 */
@@ -9406,7 +9406,7 @@ shield_dmg(struct obj *obj, struct monst *mon)
     if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
         /* dmgval for shields is just one point,
            plus whatever material damage applies */
-        tmp = dmgval(obj, mon);
+        tmp = dmgval(&gy.youmonst, obj, mon);
 
         /* add extra damage based on the type of shield */
         if (obj->otyp == SMALL_SHIELD)

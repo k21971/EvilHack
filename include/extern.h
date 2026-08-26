@@ -911,7 +911,8 @@ extern boolean harmless_missile(struct obj *) NONNULLARG1;
 extern boolean throwing_weapon(struct obj *) NONNULLARG1;
 extern boolean throwit_mon_hit(struct obj *, struct monst *) NONNULLARG1;
 extern void throwit(struct obj *, long, boolean, struct obj *) NONNULLARG1;
-extern int omon_adj(struct monst *, struct obj *, boolean) NONNULLPTRS;
+extern int omon_adj(struct monst *, struct monst *, struct obj *,
+                    boolean) NONNULLARG23;
 extern boolean should_mulch_missile(struct obj *);
 extern int thitmonst(struct monst *, struct obj *) NONNULLPTRS;
 extern int hero_breaks(struct obj *, coordxy, coordxy, unsigned);
@@ -3990,8 +3991,8 @@ extern int vms_get_saved_games(const char *, char ***);
 /* ### weapon.c ### */
 
 extern const char *weapon_descr(struct obj *) NONNULLARG1;
-extern int hitval(struct obj *, struct monst *) NONNULLARG12;
-extern int dmgval(struct obj *, struct monst *) NONNULLARG12;
+extern int hitval(struct monst *, struct obj *, struct monst *) NONNULLARG23;
+extern int dmgval(struct monst *, struct obj *, struct monst *) NONNULLARG23;
 extern int special_dmgval(struct monst *, struct monst *, long,
                           struct obj **) NONNULLARG12;
 extern void searmsg(struct monst *, struct monst *, struct obj *,

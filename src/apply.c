@@ -3557,7 +3557,7 @@ use_whip(struct obj *obj)
                            so proficient at catching weapons */
                         int dam, hitvalu, hitu;
 
-                        dam = dmgval(otmp, &gy.youmonst);
+                        dam = dmgval(&gy.youmonst, otmp, &gy.youmonst);
                         hitvalu = 8 + otmp->spe;
                         hitu = thitu(hitvalu, Maybe_Half_Phys(dam),
                                      &otmp, (char *) 0);
