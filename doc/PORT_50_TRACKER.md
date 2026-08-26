@@ -17,7 +17,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-26 (later) MONSTER BFS PATHFINDING
+- Latest slice: 2026-08-26 (later still) FEATURES-ARCHIVE COVERAGE
+  SWEEP (Phase 2 closing sweep 1 of 2; tracker-only commit, no code).
+  Session 63/64's first-listed remaining candidate taken whole: all
+  129 archive items (57 Features Index entries + 72 dated sections -
+  the row's ~100 was an estimate) audited against the branch with
+  symbol-level evidence; six read-only agent batches, main-context
+  re-verification of EVERY non-PORTED verdict (rename-aware greps,
+  master cross-checks); per-item table in
+  doc/claude/FEATURES_COVERAGE_SWEEP.md (local). Two rulings
+  (AskUserQuestion, both recommended): audit trail in doc/claude/
+  with tracker summary (class-sweep precedent); mint-only session
+  (no src changes, no build, no battery). Tally: PORTED 80 (2 with
+  a gap arm), ROUTED 17, GAP 24 items, BRANCH-NATIVE 3, N/A 5. The
+  24 gaps consolidate into 21 minted rows (after the flipped sweep
+  row): 2 HIGH - moffer() monster Amulet sacrifice on Astral (the
+  ported escape system's terminal consumer, absent branch-wide) and
+  attacker-param threading (the row three tracker sites already
+  deferred to); 11 MED incl. the Flying-macro big_wings half-port
+  (LIVE DIVERGENCE: hard body armor on a big_wings form blocks ring
+  and steed flight too), god-gift subsystem, monster looting, CHA
+  pet cap, temple damage-repair, Guidebook/docs cluster,
+  per-alignment altar overview, Amulet-stable-on-Astral, selective
+  remove curse, drawbridge crush, honey badger; 8 LOW incl. the
+  inert persistent-fields audit (ulastprayed class). Plus 6
+  annotations on existing rows (menu-glyph consumer,
+  artifact-encyclopedia arm, monster-lookup expansion content,
+  use_256color stub, ", scared" arm, fuzzer chokepoint note) and
+  one STALE ROW CLOSED (describe_level REMAINING ARMS -
+  Vecna/Hidden arms verified live in botl.c). Verified
+  upstream-superseded, no port needed: menu glyphs (menuobjsyms),
+  paranoid autoall (0cd337c78), register removal, curses_getch
+  fuzzer arm. Archive's stale Chronological index fixed (six
+  missing titles). Open Phase 2 rows: 43 - 2 closed + 21 minted
+  = 62.
+- Previous slice: 2026-08-26 (later) MONSTER BFS PATHFINDING
   (BUG-1712/1713, one code commit 5f0aa3617 + tracker). Session 63's
   first-listed candidate: the whole system in one slice - master's
   seven-commit lineage (5e43d539d/8a30d8554/cf61d6b6f/72134de80/
@@ -6575,6 +6609,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Druids." / "No shield spellcasting penalty.") - both backing
       behaviors live on branch (do_wear.c find_ac, spell.c
       percent_success).
+      SWEEP ADD (2026-08-26, features-coverage sweep): this row
+      also owns the artifact-encyclopedia arm (master's
+      name_to_arti/add_arti_info + the ~120-row arti_specials[]
+      named above) and must carry the object/artifact lookup
+      EXPANSION content (archive Object lookup + Artifact lookup
+      attribute expansions, Jul 2026: oc_prob normalization etc.),
+      not just master's baseline functions.
 - [ ] LOW: litroom() with a MONSTER centre (drow darkness aura,
       aasimar light aura - the monmove.c callers) reaches
       do_clear_area() WITHOUT the hero-centre `min_x < 1 -> 1`
@@ -8093,7 +8134,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ", wielding %s" + MON_WEP2 arm is already claimed by the
       "pager.c probe wielding-both display" deferral; the
       hallucinatory_armor() helper and the hallucinatory-weapon else
-      branch have no owner yet.
+      branch have no owner yet. SWEEP ADD (2026-08-26,
+      features-coverage sweep): also carry master pager.c's
+      ", scared" mflee append in look_at_monster (two-line arm,
+      absent on branch; archive Fleeing State in Farlook Output,
+      Jun 10 2026).
 - [ ] look_at_monster buffer accumulation (NEW, minted 2026-07-27 by
       the glass/blocker slice). buf is BUFSZ and every clause before
       the new armor line appends unbounded, including player-nameable
@@ -8118,6 +8163,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       APPENDC(is_berserker(pm), "go berserk") and
       APPENDC(is_skittish(pm), "skittish") land here with the table;
       both macros are live on the branch since that slice.
+      SWEEP ADD (2026-08-26, features-coverage sweep): when
+      add_mon_info ports it must carry the FULL Monster Lookup
+      Attribute Expansion content (archive Jul 11 2026: Collects/
+      wildshape/floor-eater lines etc.), not just master's baseline
+      function - the expansion entries have no other owner.
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -8954,6 +9004,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       undiggable, beam-absorbing, shrapnel) hang off a property the
       player cannot see, and lock.c's newsym_force "redraw with the
       new color" comment describes behavior that does not exist.
+      SWEEP ADD (2026-08-26, features-coverage sweep): the same
+      material_color() producer also drives master's menu-glyph
+      material colors (archive Menu Glyph Material Colors, Jan 5
+      2026) - port that consumer with this row.
       DEPENDENCY: belongs with the Phase 4 color rows - carry it
       onto their list when that phase opens.
 - [x] SUPPRESS_RIDER farlook hedge unported (NEW, minted 2026-07-30
@@ -9826,7 +9880,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (he idles or re-targets the hero); the arm is
       reviewer-verified static-only, revisit opportunistically
       with a future conflict battery.
-- [ ] describe_level branch-aware status naming, REMAINING ARMS
+- [x] describe_level branch-aware status naming, REMAINING ARMS
       (minted 2026-08-02 by the mines slice; Decisions log ruling).
       Master src/botl.c describe_level() names every branch; the
       mines arms + minetn_level plumbing landed with the mines C
@@ -9856,12 +9910,192 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arms slot in between when their predicates land). Mines-slice
       shape note: self-identifying arms set addbranch = FALSE (knox
       precedent) and the numeric status form stays out of livelog
-      prose (see the In_mines arm's addbranch split)
+      prose (see the In_mines arm's addbranch split).
+      CLOSED 2026-08-26 by the features-coverage sweep: the only
+      two outstanding arms landed with their slices - Vecna:%-2d
+      and Hidden:%-2d verified live in botl.c (WizTwr and the
+      endgame naming too); nothing remains.
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
       (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
-- [ ] SWEEP: FEATURES_ARCHIVE.md Features Index (57 entries) +
+- [x] SWEEP: FEATURES_ARCHIVE.md Features Index (57 entries) +
       dated 2026 sections (~100) - tick each off as covered by the
-      subsystems above or added here; nothing skipped silently
+      subsystems above or added here; nothing skipped silently.
+      DONE 2026-08-26 (session 65): actual scope 57 index entries +
+      72 dated sections = 129 items, each audited with symbol-level
+      evidence; per-item table in
+      doc/claude/FEATURES_COVERAGE_SWEEP.md (local). Tally: PORTED
+      80 (2 with a gap arm), ROUTED 17, GAP 24 items, BRANCH-NATIVE
+      3, N/A 5. The 24 gap items consolidate into the 21 rows
+      minted directly below, plus 6 annotations on existing rows
+      (8949 menu-glyph consumer, 6549 artifact-encyclopedia arm,
+      8104 monster-lookup expansion, 10157 use_256color stub, 8091
+      ", scared" arm, 10259 chokepoint-is-upstream note) and the
+      stale describe_level REMAINING-ARMS row closed as discharged.
+- [ ] moffer() monster Amulet sacrifice on Astral NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; HIGH). The Amulet
+      escape/chase system is live (compute_escape_pathfind_map, the
+      Astral aligned-altar goal in monmove.c) but its terminal
+      consumer is missing branch-wide: master's pray.c moffer()
+      (called from master monmove.c dochug) lets an intelligent
+      monster that reaches a coaligned Astral altar with the Amulet
+      offer it - hostile carrier = game over, the mechanic's whole
+      threat. Archive: Monster Amulet Escape System / Chase to
+      Planes (Jan 11 2026). Sweep items I19/I20.
+- [ ] Attacker-param threading for hitval()/dmgval()/omon_adj() NOT
+      PORTED (minted 2026-08-26 by the features-coverage sweep;
+      HIGH - three tracker sites already defer TO this row: the
+      damp-sweep riders row's "dmgval-hitval arms", row 7598's
+      "hitval's magr arg", the Decisions log 2026-08-19 Druid regen
+      ruling; plus the TODO-EVILHACK beside Is_weapon in weapon.c).
+      Branch hitval/dmgval are still 2-param (only ohitmon's magr
+      landed); master threads struct monst *magr first
+      (attacker-param-threading memory). Blocks: Druid wooden-
+      weapon +2 on grass/near-tree, Infidel cursed-weapon +1 to
+      hit/+rnd(2) vs lawful or neutral foes, and the omon_adj half.
+      Archive: Attacker Threaded Through hitval()/dmgval()/
+      ohitmon()/omon_adj() (May 13 2026).
+- [ ] Flying macro big_wings half-port - LIVE DIVERGENCE (minted
+      2026-08-26 by the features-coverage sweep; MED). races-R2
+      ported check_wings() (do_wear.c sets BFlying |= W_ARM for
+      hard body armor on big_wings forms) but youprop.h Flying is
+      still stock 5.0 ((HFlying || EFlying || steed) && !BFlying):
+      master's ~W_ARMOR carve-out + FROMFORM/FROMRACE masking are
+      missing, so body armor on an aasimar (or any big_wings form)
+      now blocks ring-of-flying AND steed flight too, not just the
+      innate wings. Archive: Aasimar Angelic Wings (May 10 2026).
+- [ ] God-gift subsystem NOT PORTED (minted 2026-08-26 by the
+      features-coverage sweep; MED - this is the owner several
+      closed rows defer to as "god-gift subsystem (record_gift)").
+      you.h ugift_history is a dead Phase 1 field: record_gift,
+      make_spellbook_gift, apply_racial_substitution and the gift
+      streak breaker are all absent from branch pray.c. Archive:
+      Gift Deduplication (Dec 8 2025), Sacrifice System Refactor
+      (Dec 10 2025), Gift Streak Breaker (Feb 12 2026); the
+      crowning rework note travels per row 3991's prose.
+- [ ] Monster looting NOT PORTED (minted 2026-08-26 by the
+      features-coverage sweep; MED - the owner four rows' prose
+      defers to as "monster looting"). find_items_recurse (master
+      muse.c x6) is absent: monsters cannot search carried
+      containers for defensive/offensive/misc items. Also carries
+      find_best_armor_recurse container recursion, m_stash_items,
+      and the is_better_armor terms those rows name. Archive:
+      muse.c find_*_recurse() Consolidation (Dec 20 2025) + the
+      armor half of Monster Container Extraction (Dec 21 2025).
+- [ ] CHA-based pet cap NOT PORTED (minted 2026-08-26 by the
+      features-coverage sweep; MED). The whole subsystem is
+      missing, not just master's optimization: the allmain.c
+      per-turn pass (master numdogs, ACURR(A_CHA)/3 cap) untaming
+      the weakest excess pet is absent branch-wide. Archive: Pet
+      Limit Optimization (Nov 30 2025; base feature predates the
+      archive window).
+- [ ] Temple damage-repair sweep NOT PORTED (minted 2026-08-26 by
+      the features-coverage sweep; MED - converts the prose
+      deferral inside the hero-spell-parity row's DEFER list into a
+      real row; five in-code TODO-EVILHACK comments already name it
+      in music.c, mthrowu.c x3, muse.c, hack.c).
+      temple_repair_damage/temple_at_boundary - 24 master call
+      sites across 13 files. Archive: Temple Priest Repair System
+      (Nov 30 2025).
+- [ ] Guidebook + dat help docs NOT RE-DERIVED (minted 2026-08-26
+      by the features-coverage sweep; MED - Phase 0's "wholesale
+      re-derived later" promise had no row). Arms: (1) Guidebook
+      .mn/.tex content - EvilHack races/commands/Fighting section
+      (forcefight, monk kick, shield bash), #shield and
+      paranoid_confirmation:Autoall entries, version strings; (2)
+      dat/cmdhelp + hh EvilHack deltas and branding (5.0 #if 0s
+      the cmdhelp read path - verify player visibility first); (3)
+      in-game Guidebook access code (master dispfile_guidebook,
+      GUIDEBOOK define, Makefile.dat wiring); (4) util/stripbs.c
+      ferror fix. Archive: Guidebook Extended Commands Sync + dat/
+      Help Files Sync (Dec 28 2025), In-Game Guidebook Access +
+      Forcefight Documentation (Feb 26 2026), Documentation and
+      Guidebook Infrastructure (Feb-Mar 2026). Untracked 3.6-era
+      leftovers noted in the tree: dat/vaults.dat, dat/Guidebook.
+- [ ] Per-alignment overview altar tracking NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; MED - overview
+      struct is save-coupled, rides the VERSION_SANITY path).
+      dungeon.h still vanilla Bitfield(naltar,2); master's
+      ALTR_GET per-alignment counts and msalign display are
+      absent. Archive: Per-Alignment Dungeon Overview Altar
+      Tracking (Feb 23 2026).
+- [ ] Amulet of Yendor stable on Astral NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; MED). No Amulet
+      block in branch flooreffects(); obj.h orecursive alias has
+      ZERO consumers (dangling half-port; master uses it in do.c
+      and mkobj.c). Archive: Amulet of Yendor Stable on Astral
+      Plane (Apr 2026).
+- [ ] Selective remove curse at clerical skill NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; MED).
+      selective_remove_curse/cursed_obj_filter absent; branch
+      SPE_REMOVE_CURSE still rides the shared scroll fallthrough
+      with the P_SKILLED arm only. Archive: Selective Remove Curse
+      at Expert Clerical Skill (May 10 2026).
+- [ ] Drawbridge destruction on monster crush NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; MED).
+      e_survives_unique/maybe_destroy_drawbridge absent (master
+      dbridge.c x7). Archive: Drawbridge Destruction on Monster
+      Crush (Mar 2026).
+- [ ] Honey badger beehive seeking NOT PORTED (minted 2026-08-26
+      by the features-coverage sweep; MED). The monster and its
+      peaceful-ignore lists exist, but master monmove.c's two seek
+      arms, meatjelly() (the badger cannot eat royal jelly at
+      all), and the mklev beehive-rate rider are all absent.
+      Archive: Honey Badger Beehive Seeking (Dec 27 2025).
+- [ ] Acidic corpse conf/stun self-cure NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; LOW).
+      MUSE_ACIDIC_CORPSE/MUSE_ACID_BLOB_CORPSE absent (branch has
+      only MUSE_LIZARD_CORPSE). Archive: Acidic Corpse as Conf/
+      Stun Cure for Acid-Resistant Monsters (May 2 2026).
+- [ ] Loyal pet following while eating NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; LOW). master
+      dog.c keepdogs lets mtame >= 15 pets follow through stairs
+      while meating ("follows, still eating."); branch sets
+      stay_behind unconditionally. The pet-orders slice ported the
+      PETSTRAT_STAY arm only. Archive: Loyal Pet Following
+      (Jan 10 2026).
+- [ ] Dumplog message grouping NOT PORTED (minted 2026-08-26 by
+      the features-coverage sweep; LOW). Branch dump_plines is
+      vanilla 5.0; master's is_hp_tracking_msg skip + "(Nx)"
+      duplicate collapse are absent. Archive: Dumplog Message
+      Grouping (Nov 30 2025).
+- [ ] LARGEST_INT 2^31-1 widening NOT PORTED (minted 2026-08-26 by
+      the features-coverage sweep; LOW). Branch and upstream keep
+      32767. COUPLING: the succubus/incubus-cost ratification in
+      the mhitu row assumes 32767 - re-porting the widening must
+      pin that mhitu.c site (and the cmd.c repeat cap) to 32767 or
+      the ruling is voided. Archive: LARGEST_INT Raised to 2^31-1
+      (Feb 23 2026).
+- [ ] Rust-trap dousing of pure-flame monsters NOT PORTED (minted
+      2026-08-26 by the features-coverage sweep; LOW). The
+      zap/mcastu completelydoused arms landed; the
+      trapeffect_rust_trap completelydoused -> thitm d(6,6) branch
+      did not. Archive: Significant Water Attacks Extinguish
+      Pure-Flame Monsters (May 10 2026).
+- [ ] Spot-lighting readouts NOT PORTED (minted 2026-08-26 by the
+      features-coverage sweep; LOW - single implementation owner
+      for master's append_spot_lighting + both consumers; the
+      farlook half is also noted inside the "#up out of water" row
+      with its See_underwater coupling - the code lands HERE).
+      Arms: probing/mstatusline ", in light/darkness" readout +
+      farlook lit-state of the selected spot. Archive: Lit/Dark
+      Tile Readout in Monster Probing (May 10 2026) + Farlook
+      Reports Lit State of the Selected Spot (Jul 8 2026).
+- [ ] ulastprayed writer/reader NOT WIRED (minted 2026-08-26 by
+      the features-coverage sweep; LOW). you.h ulastprayed exists
+      (Phase 1 field enumeration) with no dopray setter, no
+      enlightenment line, no u_init initializer. Archive: Show the
+      turn the hero last prayed in enlightenment (May 31 2026).
+- [ ] SWEEP: inert persistent fields (minted 2026-08-26 by the
+      features-coverage sweep; LOW). Phase 1 enumerated master
+      fields into the 5.0 structs before their subsystems ported;
+      some are still writer-less and score false-PORTED on keyword
+      greps. Known instances: ulastprayed (row above),
+      ugift_history (god-gift row), orecursive (Astral-Amulet
+      row), flag.h use_256color stub (truecolor row note); the
+      gehennom _entered bits were the same shape (since wired).
+      WORK: walk the Phase 1 field tables; for each field grep for
+      a writer; writer-less fields get a pointer to their owning
+      row or a new row.
 - [ ] SWEEP: UNLOGGED NUMERIC-CONSTANT diff, master vs branch (NEW,
       minted 2026-07-25 by the special-room-types slice). The two
       archive sweeps above are KEYWORD-driven and therefore cannot
@@ -10156,7 +10390,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 - [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
       with upstream coloratt/utf8map (nh50-color-architecture
-      memory: 5.0 ships 16-color baseline, truecolor opt-in)
+      memory: 5.0 ships 16-color baseline, truecolor opt-in).
+      SWEEP ADD (2026-08-26, features-coverage sweep): flag.h
+      use_256color is a DANGLING STUB (zero consumers, not an
+      upstream field) - wire or remove it with this row; the HI_*
+      macros exist as base-16 stand-ins (color.h deferral comment
+      names map_color_256to16), so this port changes VALUES, not
+      symbols.
 - [ ] unicode.c vs upstream utf8map.c reconciliation
 - [ ] curses/tty re-port (print_glyph glyph_info signatures; census
       note: win/tty + win/curses file sets are IDENTICAL between
@@ -10256,7 +10496,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       branch: BUG-579's update_inventory() calls in mount_steed and
       dismount_steed are correct but have nothing to refresh, so
       that fix stays latent until this row lands. Re-check it then.
-- [ ] Fuzzer input hook (curses_getch chokepoint) re-established
+- [ ] Fuzzer input hook (curses_getch chokepoint) re-established.
+      SWEEP NOTE (2026-08-26, features-coverage sweep): the
+      chokepoint itself is upstream-provided (curses_getch
+      debug_fuzzer/randomkey arm live in win/curses/cursmisc.c via
+      the 5.0 adoption); this row's remaining scope is the
+      end-to-end EvilHack fuzzer harness, not the hook.
 
 ## Phase 5 - Bugfix triage sweep
 
