@@ -2071,6 +2071,9 @@ struct ext_func_tab extcmdlist[] = {
     { '\0',   "wizdispmacros", "validate the display macro ranges",
               wiz_display_macros, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
 #endif
+    { '\0',   "wizescapepath", "show escape pathfinding distance map",
+              wiz_show_escape_pathfind, IFBURIED | AUTOCOMPLETE | WIZMODECMD,
+              NULL },
     { '\0',   "wizfliplevel", "flip the level",
               wiz_flip_level, IFBURIED | WIZMODECMD, NULL },
     { C('g'), "wizgenesis", "create a monster",
@@ -2100,6 +2103,8 @@ struct ext_func_tab extcmdlist[] = {
     { '\0',   "wizmondiff", "validate the difficulty ratings of monsters",
               wiz_mon_diff, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
 #endif
+    { '\0',   "wizpathfind", "show monster pathfinding distance map",
+              wiz_show_pathfind, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizpious", "become pious",
               wiz_pious, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0',   "wizrumorcheck", "verify rumor boundaries",

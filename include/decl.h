@@ -791,6 +791,16 @@ struct instance_globals_p {
     /* invent.c */
     int perm_invent_toggling_direction;
 
+    /* mon.c */
+    /* transient distance-map caches for monster pathfinding; rebuilt on
+       demand from the current level, never saved */
+    short pathfind_dist[COLNO][ROWNO]; /* BFS distance from hero */
+    long pathfind_turn;                /* turn stamp; 0 = invalid */
+    coordxy pathfind_px, pathfind_py;  /* hero pos when map was computed */
+    short pathfind_escape_dist[COLNO][ROWNO]; /* BFS from escape target */
+    long pathfind_escape_turn;
+    coordxy pathfind_escape_tx, pathfind_escape_ty; /* target coords */
+
     /* pickup.c */
     boolean picked_filter;
     int pickup_encumbrance; /* when picking up multiple items in a single

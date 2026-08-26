@@ -12,6 +12,9 @@ staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
 staticfn void m_calcdistress(struct monst *);
 staticfn boolean monlineu(struct monst *, int, int);
+staticfn boolean pathfind_passable(coordxy, coordxy);
+staticfn void compute_pathfind_map(void);
+staticfn void compute_escape_pathfind_map(coordxy, coordxy);
 staticfn long mm_2way_aggression(struct monst *, struct monst *);
 staticfn long mm_displacement(struct monst *, struct monst *);
 staticfn void icequeenrevive(struct monst *);
@@ -2710,7 +2713,8 @@ mon_allowflags(struct monst *mtmp)
 
     if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
-            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
+            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8)
+        && accessible(mtmp->mux, mtmp->muy))
         can_tunnel = FALSE;
 
     if (mtmp->mtame)
@@ -3058,6 +3062,214 @@ mfndpos(
     }
     data->cnt = cnt;
     return cnt;
+}
+
+/*
+ * Pathfinding for intelligent monsters using BFS distance maps.
+ */
+
+/* BFS queue for pathfinding - static to avoid stack allocation; used as a
+   non-circular FIFO, safe because the distance array doubles as the
+   visited set so each cell is enqueued at most once */
+static coord pf_queue[COLNO * ROWNO];
+static int pf_head, pf_tail;
+
+/* check if terrain is passable for standard walking */
+staticfn boolean
+pathfind_passable(coordxy x, coordxy y)
+{
+    int typ;
+
+    if (!isok(x, y))
+        return FALSE;
+
+    /* boulders block most monsters */
+    if (sobj_at(BOULDER, x, y))
+        return FALSE;
+
+    typ = levl[x][y].typ;
+
+    /*
+     * Only ACCESSIBLE terrain is passable for pathfinding. This
+     * includes floor, corridors and doors. Doors count as passable
+     * regardless of doormask (a closed door still has DOOR terrain);
+     * the map only ranks candidate squares, and mfndpos() remains the
+     * per-monster authority on whether a door can actually be entered,
+     * opened or broken.
+     */
+    return ACCESSIBLE(typ);
+}
+
+/* Compute distance map using BFS from player position. Sets
+   gp.pathfind_dist[x][y] to shortest walking distance from player,
+   or PATHFIND_UNREACHABLE if no path exists */
+staticfn void
+compute_pathfind_map(void)
+{
+    int i;
+    coord c;
+    short dist;
+    coordxy nx, ny;
+    static const schar dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    static const schar dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+
+    /* Initialize all cells as unreachable.
+       PATHFIND_UNREACHABLE is -1; memset with 0xFF gives -1 for short */
+    memset(gp.pathfind_dist, 0xFF, sizeof gp.pathfind_dist);
+
+    /* player position = distance 0 */
+    gp.pathfind_dist[u.ux][u.uy] = 0;
+
+    /* initialize queue with player position */
+    pf_head = pf_tail = 0;
+    pf_queue[pf_tail].x = u.ux;
+    pf_queue[pf_tail].y = u.uy;
+    pf_tail++;
+
+    /* BFS flood fill */
+    while (pf_head != pf_tail) {
+        c = pf_queue[pf_head++];
+        dist = gp.pathfind_dist[c.x][c.y];
+
+        /* check all 8 neighbors */
+        for (i = 0; i < 8; i++) {
+            nx = c.x + dx[i];
+            ny = c.y + dy[i];
+
+            /* skip invalid or already-visited cells */
+            if (!isok(nx, ny)
+                || gp.pathfind_dist[nx][ny] != PATHFIND_UNREACHABLE)
+                continue;
+
+            /* check if passable */
+            if (!pathfind_passable(nx, ny))
+                continue;
+
+            /* diagonal squeeze check - can't cut through corners */
+            if (dx[i] && dy[i]) {
+                if (!pathfind_passable(c.x + dx[i], c.y)
+                    && !pathfind_passable(c.x, c.y + dy[i]))
+                    continue;
+            }
+
+            gp.pathfind_dist[nx][ny] = dist + 1;
+            pf_queue[pf_tail].x = nx;
+            pf_queue[pf_tail].y = ny;
+            pf_tail++;
+        }
+    }
+
+    /* record when and where map was computed */
+    gp.pathfind_turn = svm.moves;
+    gp.pathfind_px = u.ux;
+    gp.pathfind_py = u.uy;
+}
+
+/* ensure pathfind map is current before use */
+void
+ensure_pathfind_map(void)
+{
+    /* recompute if: never computed, player moved significantly, or stale */
+    if (gp.pathfind_turn == 0
+        || dist2(u.ux, u.uy, gp.pathfind_px, gp.pathfind_py)
+           > PATHFIND_STALE_DIST
+        || svm.moves - gp.pathfind_turn > PATHFIND_STALE_TURNS)
+        compute_pathfind_map();
+}
+
+/* check if monster should use pathfinding; returns TRUE for
+   intelligent, non-animal monsters */
+boolean
+mon_uses_pathfinding(struct monst *mtmp)
+{
+    struct permonst *ptr = mtmp->data;
+
+    /* phasing monsters don't need pathfinding, they can pass through
+       walls directly via greedy movement */
+    if (passes_walls(ptr))
+        return FALSE;
+
+    /* innate tunnelers (rock moles, umber hulks) don't need
+       pathfinding - they can dig through any diggable terrain */
+    if (racial_tunnels(mtmp) && !racial_needspick(mtmp))
+        return FALSE;
+
+    return !mindless(ptr) && !is_animal(ptr);
+}
+
+/* compute escape pathfind map from a specific target position, for
+   Amulet carriers who need to reach stairs/portals */
+staticfn void
+compute_escape_pathfind_map(coordxy target_x, coordxy target_y)
+{
+    int i;
+    coord c;
+    short dist;
+    coordxy nx, ny;
+    static const schar dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    static const schar dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+
+    /* initialize all cells as unreachable */
+    memset(gp.pathfind_escape_dist, 0xFF, sizeof gp.pathfind_escape_dist);
+
+    /* target position = distance 0 */
+    gp.pathfind_escape_dist[target_x][target_y] = 0;
+
+    /* initialize queue with target position */
+    pf_head = pf_tail = 0;
+    pf_queue[pf_tail].x = target_x;
+    pf_queue[pf_tail].y = target_y;
+    pf_tail++;
+
+    /* BFS flood fill */
+    while (pf_head != pf_tail) {
+        c = pf_queue[pf_head++];
+        dist = gp.pathfind_escape_dist[c.x][c.y];
+
+        /* check all 8 neighbors */
+        for (i = 0; i < 8; i++) {
+            nx = c.x + dx[i];
+            ny = c.y + dy[i];
+
+            /* skip invalid or already-visited cells */
+            if (!isok(nx, ny)
+                || gp.pathfind_escape_dist[nx][ny] != PATHFIND_UNREACHABLE)
+                continue;
+
+            /* check if passable */
+            if (!pathfind_passable(nx, ny))
+                continue;
+
+            /* diagonal squeeze check */
+            if (dx[i] && dy[i]) {
+                if (!pathfind_passable(c.x + dx[i], c.y)
+                    && !pathfind_passable(c.x, c.y + dy[i]))
+                    continue;
+            }
+
+            gp.pathfind_escape_dist[nx][ny] = dist + 1;
+            pf_queue[pf_tail].x = nx;
+            pf_queue[pf_tail].y = ny;
+            pf_tail++;
+        }
+    }
+
+    /* record when and for which target map was computed */
+    gp.pathfind_escape_turn = svm.moves;
+    gp.pathfind_escape_tx = target_x;
+    gp.pathfind_escape_ty = target_y;
+}
+
+/* ensure escape pathfind map is current for given target */
+void
+ensure_escape_pathfind_map(coordxy target_x, coordxy target_y)
+{
+    /* recompute if: never computed, target changed, or stale */
+    if (gp.pathfind_escape_turn == 0
+        || gp.pathfind_escape_tx != target_x
+        || gp.pathfind_escape_ty != target_y
+        || svm.moves - gp.pathfind_escape_turn > PATHFIND_STALE_TURNS)
+        compute_escape_pathfind_map(target_x, target_y);
 }
 
 /* Part of mm_aggression that represents two-way aggression.  To avoid

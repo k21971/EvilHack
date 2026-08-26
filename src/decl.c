@@ -642,6 +642,13 @@ static const struct instance_globals_p g_init_p = {
     DUMMY, /* primary_syms */
     /* invent.c */
     0,       /* perm_invent_toggling_direction */
+    /* mon.c */
+    { { 0 } }, /* pathfind_dist */
+    0L, /* pathfind_turn */
+    0, 0, /* pathfind_px, pathfind_py */
+    { { 0 } }, /* pathfind_escape_dist */
+    0L, /* pathfind_escape_turn */
+    0, 0, /* pathfind_escape_tx, pathfind_escape_ty */
     /* pickup.c */
     FALSE, /* picked_filter */
     0, /* pickup_encumbrance */

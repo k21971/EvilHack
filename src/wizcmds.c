@@ -653,6 +653,109 @@ wiz_show_vision(void)
     return ECMD_OK;
 }
 
+/* #wizpathfind command - show BFS distance map for monster pathfinding */
+int
+wiz_show_pathfind(void)
+{
+    winid win;
+    int x, y;
+    short d;
+    char row[COLNO + 1];
+
+    ensure_pathfind_map();
+
+    win = create_nhwindow(NHW_TEXT);
+    Sprintf(row, "Pathfind distance from player (computed turn %ld, now %ld)",
+            gp.pathfind_turn, svm.moves);
+    putstr(win, 0, row);
+    putstr(win, 0,
+       "Legend: @ = you | 0-9 = dist | a-z = 10-35 | + = 36+ | space = unreachable");
+    putstr(win, 0, "");
+    for (y = 0; y < ROWNO; y++) {
+        for (x = 1; x < COLNO; x++) {
+            if (u_at(x, y)) {
+                row[x] = '@';
+            } else {
+                d = gp.pathfind_dist[x][y];
+                if (d == PATHFIND_UNREACHABLE)
+                    row[x] = ' ';
+                else if (d < 10)
+                    row[x] = '0' + d;
+                else if (d < 36)
+                    row[x] = 'a' + (d - 10);
+                else
+                    row[x] = '+';
+            }
+        }
+        /* remove trailing spaces */
+        for (x = COLNO - 1; x >= 1; x--)
+            if (row[x] != ' ')
+                break;
+        row[x + 1] = '\0';
+
+        putstr(win, 0, &row[1]);
+    }
+    display_nhwindow(win, TRUE);
+    destroy_nhwindow(win);
+    return ECMD_OK;
+}
+
+/* #wizescapepath command - show escape BFS distance map for Amulet
+   carriers */
+int
+wiz_show_escape_pathfind(void)
+{
+    winid win;
+    int x, y;
+    short d;
+    char row[COLNO + 1];
+    coordxy tx, ty;
+
+    if (!mon_escape_target((struct monst *) 0, &tx, &ty)) {
+        pline("No escape target found on this level.");
+        return ECMD_OK;
+    }
+
+    ensure_escape_pathfind_map(tx, ty);
+
+    win = create_nhwindow(NHW_TEXT);
+    Sprintf(row, "Escape pathfind to (%d, %d) (computed turn %ld, now %ld)",
+            (int) tx, (int) ty, gp.pathfind_escape_turn, svm.moves);
+    putstr(win, 0, row);
+    putstr(win, 0,
+       "Legend: < = target | @ = you | 0-9 = dist | a-z = 10-35 | + = 36+ | space = unreachable");
+    putstr(win, 0, "");
+    for (y = 0; y < ROWNO; y++) {
+        for (x = 1; x < COLNO; x++) {
+            if (x == tx && y == ty) {
+                row[x] = '<';
+            } else if (u_at(x, y)) {
+                row[x] = '@';
+            } else {
+                d = gp.pathfind_escape_dist[x][y];
+                if (d == PATHFIND_UNREACHABLE)
+                    row[x] = ' ';
+                else if (d < 10)
+                    row[x] = '0' + d;
+                else if (d < 36)
+                    row[x] = 'a' + (d - 10);
+                else
+                    row[x] = '+';
+            }
+        }
+        /* remove trailing spaces */
+        for (x = COLNO - 1; x >= 1; x--)
+            if (row[x] != ' ')
+                break;
+        row[x + 1] = '\0';
+
+        putstr(win, 0, &row[1]);
+    }
+    display_nhwindow(win, TRUE);
+    destroy_nhwindow(win);
+    return ECMD_OK;
+}
+
 /* #wmode command */
 int
 wiz_show_wmodes(void)

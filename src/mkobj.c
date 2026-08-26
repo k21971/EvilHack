@@ -2616,8 +2616,13 @@ place_object(struct obj *otmp, coordxy x, coordxy y)
 
     obj_no_longer_held(otmp);
     if (otmp->otyp == BOULDER) {
-        if (!otmp2 || otmp2->otyp != BOULDER)
+        if (!otmp2 || otmp2->otyp != BOULDER) {
             block_point(x, y); /* vision */
+            /* boulder now blocks this square; refresh monster
+               pathfinding */
+            gp.pathfind_turn = 0;
+            gp.pathfind_escape_turn = 0;
+        }
     }
 
     /* non-boulder object goes under boulders so that map will show boulder
@@ -2814,8 +2819,15 @@ remove_object(struct obj *otmp)
         panic("remove_object: obj where=%d, not on floor", otmp->where);
     extract_nexthere(otmp, &svl.level.objects[x][y]);
     extract_nobj(otmp, &fobj);
-    if (otmp->otyp == BOULDER)
+    if (otmp->otyp == BOULDER) {
         recalc_block_point(x, y); /* vision */
+        if (!sobj_at(BOULDER, x, y)) {
+            /* square no longer blocked by a boulder; refresh monster
+               pathfinding */
+            gp.pathfind_turn = 0;
+            gp.pathfind_escape_turn = 0;
+        }
+    }
     if (otmp->timed)
         obj_timer_checks(otmp, x, y, 0);
 }

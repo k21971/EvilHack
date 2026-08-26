@@ -1387,6 +1387,11 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define MMOVE_DONE    3 /* monster used up all actions */
 #define MMOVE_NOMOVES 4 /* monster has no valid locations to move to */
 
+/* monster pathfinding constants */
+#define PATHFIND_UNREACHABLE (-1) /* cannot reach from map's root position */
+#define PATHFIND_STALE_DIST  9    /* recompute if hero moved dist2 > this */
+#define PATHFIND_STALE_TURNS 10   /* recompute if older than this many turns */
+
 /*** some utility macros ***/
 #define y_n(query) yn_function(query, ynchars, 'n', TRUE)
 #define ynq(query) yn_function(query, ynqchars, 'q', TRUE)

@@ -2144,6 +2144,79 @@ postmov(
     return mmoved;
 }
 
+/* Find the level's escape route for a monster carrying the Amulet:
+   stairs or ladder up (or a branch stairway) in the dungeon, the magic
+   portal on the Planes, the aligned altar on Astral. With a null mtmp
+   (wizard-mode map display), the Astral scan uses the hero's alignment.
+   Returns TRUE and sets *tx, *ty if a target was found */
+boolean
+mon_escape_target(struct monst *mtmp, coordxy *tx, coordxy *ty)
+{
+    *tx = *ty = 0;
+    if (!In_endgame(&u.uz)) {
+        stairway *stway, *sw_stair = 0, *sw_ladder = 0,
+                 *sw_brup = 0, *sw_brdn = 0;
+
+        /* in the dungeon: seek a way up to escape - the level's
+           regular staircase up first, then a ladder up, then a branch
+           stairway (such as the one leading off the dungeon's top
+           level) when no regular stairs or ladder lead up */
+        for (stway = gs.stairs; stway; stway = stway->next) {
+            if (stway->tolev.dnum == u.uz.dnum) {
+                if (stway->up) {
+                    if (!stway->isladder && !sw_stair)
+                        sw_stair = stway;
+                    else if (stway->isladder && !sw_ladder)
+                        sw_ladder = stway;
+                }
+            } else if (stway->up) {
+                if (!sw_brup)
+                    sw_brup = stway;
+            } else {
+                if (!sw_brdn)
+                    sw_brdn = stway;
+            }
+        }
+        stway = sw_stair ? sw_stair
+                         : sw_ladder ? sw_ladder
+                                     : sw_brup ? sw_brup : sw_brdn;
+        if (stway) {
+            *tx = stway->sx;
+            *ty = stway->sy;
+        }
+    } else if (!Is_astralevel(&u.uz)) {
+        /* on the elemental planes: seek the magic portal to the next
+           plane */
+        struct trap *ttrap;
+
+        for (ttrap = gf.ftrap; ttrap; ttrap = ttrap->ntrap) {
+            if (ttrap->ttyp == MAGIC_PORTAL) {
+                *tx = ttrap->tx;
+                *ty = ttrap->ty;
+                break;
+            }
+        }
+    } else {
+        /* on Astral: seek the aligned altar to sacrifice the Amulet;
+           covetous monsters use tactics(), but non-covetous
+           intelligent monsters need this fallback */
+        aligntyp malign = mtmp ? sgn(mon_aligntyp(mtmp))
+                               : sgn(u.ualign.type);
+        coordxy x, y;
+
+        for (x = 1; x < COLNO; x++)
+            for (y = 0; y < ROWNO; y++)
+                if (IS_ALTAR(levl[x][y].typ) && a_align(x, y) == malign) {
+                    *tx = x;
+                    *ty = y;
+                    goto found_altar;
+                }
+ found_altar:
+        ;
+    }
+    return (boolean) (*tx && *ty);
+}
+
 /* Handles the movement of a standard monster.
  * Return values:
  * 0: did not move, but can still attack and do other stuff;
@@ -2160,6 +2233,7 @@ m_move(struct monst *mtmp, int after)
     boolean can_tunnel = 0;
     boolean can_open = 0, can_unlock = 0 /*, doorbuster = 0 */;
     boolean getitems = FALSE;
+    boolean escape_goal_set = FALSE;
     boolean avoid = FALSE;
     boolean better_with_displacing = FALSE;
     unsigned seenflgs;
@@ -2372,7 +2446,25 @@ m_move(struct monst *mtmp, int after)
         }
     }
 
-    if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
+    /* intelligent monsters with the Amulet of Yendor seek an escape
+       route; mindless and animal monsters don't understand the
+       Amulet's significance */
+    if (mon_has_amulet(mtmp) && !mtmp->mpeaceful
+        && !mindless(ptr) && !is_animal(ptr)
+        && !(mtmp->ispriest && inhistemple(mtmp))) {
+        coordxy etx, ety;
+
+        if (mon_escape_target(mtmp, &etx, &ety)) {
+            ggx = etx;
+            ggy = ety;
+            appr = 1; /* approach escape route, override flee tendency */
+            escape_goal_set = TRUE;
+        }
+    }
+
+    if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))
+        /* monsters with the Amulet don't stop to pick up objects */
+        && !mon_has_amulet(mtmp)) {
         boolean in_line = (lined_up(mtmp)
              && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)
                  <= (racial_throws_rocks(&gy.youmonst) ? 20
@@ -2391,10 +2483,12 @@ m_move(struct monst *mtmp, int after)
         return postmov(mtmp, ptr, omx, omy, mmoved,
                        seenflgs, can_tunnel, can_unlock, can_open);
 
-    /* don't tunnel if hostile and close enough to prefer a weapon */
+    /* don't tunnel if hostile and close enough to prefer a weapon,
+       unless the player is in terrain that requires digging to reach */
     if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
-            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
+            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8)
+        && accessible(mtmp->mux, mtmp->muy))
         can_tunnel = FALSE;
 
     nix = omx;
@@ -2428,6 +2522,38 @@ m_move(struct monst *mtmp, int after)
         }
         better_with_displacing =
             should_displace(mtmp, &mfp, ggx, ggy);
+
+        /* Check once whether this monster steers by the BFS distance
+           maps, and bring the relevant map up to date before the loop
+           rather than checking every iteration */
+        {
+            /* Amulet carriers always use escape pathfinding once an
+               escape target exists, regardless of appr - they need to
+               reach the target; other intelligent monsters use the
+               player-rooted map when approaching */
+            boolean use_escape_pf = (escape_goal_set
+                                     && mon_uses_pathfinding(mtmp));
+            /* don't use pathfinding if the goal is in inaccessible
+               terrain (such as rock) - the BFS can't find a path
+               there, so greedy movement works better for tunneling
+               monsters */
+            boolean use_pathfinding = (!use_escape_pf && appr == 1
+                                       && mon_uses_pathfinding(mtmp)
+                                       && accessible(ggx, ggy));
+            /* invariant: cur_pfdist always holds the active map's
+               value at the current best candidate (nix, niy) */
+            short cur_pfdist = PATHFIND_UNREACHABLE;
+            /* whether the current best candidate lies in mtrack;
+               a non-mtrack candidate always displaces an mtrack one */
+            boolean pf_best_mtrack = FALSE;
+
+            if (use_escape_pf) {
+                ensure_escape_pathfind_map(ggx, ggy);
+                cur_pfdist = gp.pathfind_escape_dist[nix][niy];
+            } else if (use_pathfinding) {
+                ensure_pathfind_map();
+                cur_pfdist = gp.pathfind_dist[nix][niy];
+            }
         for (i = 0; i < cnt; i++) {
             if (avoid && (mfp.info[i] & NOTONL))
                 continue;
@@ -2448,23 +2574,97 @@ m_move(struct monst *mtmp, int after)
                             goto nxti;
             }
 
-            nearer = ((ndist = dist2(nx, ny, ggx, ggy)) < nidist);
+            /* Intelligent monsters use pathfinding when approaching:
+               most steer by the BFS map rooted at the player, Amulet
+               carriers by the map rooted at the escape target */
+            if (use_pathfinding || use_escape_pf) {
+                short new_pfdist = use_escape_pf
+                                       ? gp.pathfind_escape_dist[nx][ny]
+                                       : gp.pathfind_dist[nx][ny];
 
-            if ((appr == 1 && nearer) || (appr == -1 && !nearer)
-                || (!appr && !rn2(++chcnt))
-                || (appr == -2
-                    && ((ndist <= preferredrange_min && !nearer)
-                        || (ndist >= preferredrange_max && nearer)))
-                || (mmoved == MMOVE_NOTHING)) {
-                nix = nx;
-                niy = ny;
-                nidist = ndist;
-                chi = i;
-                mmoved = MMOVE_MOVED;
+                /*
+                 * Pick the reachable adjacent square with minimum
+                 * distance. To prevent oscillation when backtracking
+                 * around obstacles, a square outside the monster's
+                 * recent movement track always beats one inside it;
+                 * mtrack squares are only a fallback.
+                 */
+                if (new_pfdist != PATHFIND_UNREACHABLE) {
+                    boolean in_mtrack = FALSE;
+                    boolean dominated, should_update = FALSE;
+
+                    /* is this square in recent movement track? */
+                    mtrk = &mtmp->mtrack[0];
+                    for (j = 0; j < jcnt; mtrk++, j++) {
+                        if (nx == mtrk->x && ny == mtrk->y) {
+                            in_mtrack = TRUE;
+                            break;
+                        }
+                    }
+
+                    /* is this worse than current best candidate? */
+                    dominated = (cur_pfdist != PATHFIND_UNREACHABLE
+                                 && new_pfdist > cur_pfdist);
+
+                    if (in_mtrack) {
+                        /* mtrack: take if first, or if no non-mtrack
+                           candidate yet and not worse than current
+                           best */
+                        if (mmoved == MMOVE_NOTHING
+                            || (pf_best_mtrack && !dominated))
+                            should_update = TRUE;
+                    } else {
+                        /* non-mtrack: always preferred over mtrack;
+                           take if replacing mtrack, first, or better */
+                        if (mmoved == MMOVE_NOTHING || pf_best_mtrack
+                            || !dominated)
+                            should_update = TRUE;
+                    }
+
+                    if (should_update) {
+                        nix = nx;
+                        niy = ny;
+                        cur_pfdist = new_pfdist;
+                        pf_best_mtrack = in_mtrack;
+                        chi = i;
+                        mmoved = MMOVE_MOVED;
+                    }
+                } else if (mmoved == MMOVE_NOTHING) {
+                    /* unreachable - fall back to greedy movement if
+                       no candidate has been banked yet */
+                    nearer = ((ndist = dist2(nx, ny, ggx, ggy)) < nidist);
+                    if (nearer) {
+                        nix = nx;
+                        niy = ny;
+                        nidist = ndist;
+                        cur_pfdist = PATHFIND_UNREACHABLE;
+                        pf_best_mtrack = FALSE;
+                        chi = i;
+                        mmoved = MMOVE_MOVED;
+                    }
+                }
+            } else {
+                /* original greedy behavior for non-intelligent,
+                   fleeing or wandering monsters */
+                nearer = ((ndist = dist2(nx, ny, ggx, ggy)) < nidist);
+
+                if ((appr == 1 && nearer) || (appr == -1 && !nearer)
+                    || (!appr && !rn2(++chcnt))
+                    || (appr == -2
+                        && ((ndist <= preferredrange_min && !nearer)
+                            || (ndist >= preferredrange_max && nearer)))
+                    || (mmoved == MMOVE_NOTHING)) {
+                    nix = nx;
+                    niy = ny;
+                    nidist = ndist;
+                    chi = i;
+                    mmoved = MMOVE_MOVED;
+                }
             }
  nxti:
             ;
         }
+        } /* end use_pathfinding/cur_pfdist scope */
     }
 
     if (mmoved != MMOVE_NOTHING) {

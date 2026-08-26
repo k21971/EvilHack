@@ -1923,6 +1923,9 @@ extern int can_carry(struct monst *, struct obj *) NONNULLARG12;
 extern long mon_allowflags(struct monst *) NONNULLARG1;
 extern boolean m_in_air(struct monst *) NONNULLARG1;
 extern int mfndpos(struct monst *, struct mfndposdata *, long) NONNULLPTRS;
+extern void ensure_pathfind_map(void);
+extern boolean mon_uses_pathfinding(struct monst *) NONNULLARG1;
+extern void ensure_escape_pathfind_map(coordxy, coordxy);
 extern long mm_aggression(struct monst *, struct monst *) NONNULLARG12;
 extern boolean monnear(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void dmonsfree(void);
@@ -2117,6 +2120,7 @@ extern boolean can_ooze(struct monst *) NONNULLARG1;
 extern boolean can_fog(struct monst *) NONNULLARG1;
 extern boolean should_displace(struct monst *, const struct mfndposdata *,
                                coordxy, coordxy) NONNULLPTRS;
+extern boolean mon_escape_target(struct monst *, coordxy *, coordxy *);
 extern boolean undesirable_disp(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern boolean can_hide_under_obj(struct obj *);
 
@@ -4178,6 +4182,8 @@ extern int wiz_migrate_mons(void);
 extern int wiz_panic(void);
 extern int wiz_polyself(void);
 extern int wiz_rumor_check(void);
+extern int wiz_show_escape_pathfind(void);
+extern int wiz_show_pathfind(void);
 extern int wiz_show_seenv(void);
 extern int wiz_show_stats(void);
 extern int wiz_show_vision(void);

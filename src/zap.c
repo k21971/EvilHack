@@ -6662,6 +6662,12 @@ fracture_rock(struct obj *obj) /* no texts here! */
     }
     if (by_you && obj->otyp == BOULDER)
         sokoban_guilt();
+    if (obj->otyp == BOULDER) {
+        /* the boulder-gated hooks in place_object()/remove_object()
+           won't fire once otyp has changed; refresh pathfinding here */
+        gp.pathfind_turn = 0;
+        gp.pathfind_escape_turn = 0;
+    }
 
     obj->otyp = ROCK;
     obj->oclass = GEM_CLASS;

@@ -2042,6 +2042,9 @@ goto_level(
 
     /* Reset the screen. */
     vision_reset(); /* reset the blockages */
+    /* invalidate pathfinding caches - new level, new distances */
+    gp.pathfind_turn = 0;
+    gp.pathfind_escape_turn = 0;
     reset_glyphmap(gm_levelchange);
     notice_mon_off(); /* not noticing monsters yet! */
     docrt(); /* does a full vision recalc */
