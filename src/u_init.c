@@ -1858,6 +1858,26 @@ ini_inv_obj_substitution(const struct trobj *trop, struct obj *obj)
     return obj->otyp;
 }
 
+/* look up the racial starting-inventory substitute for an object type
+   (e.g. SPEAR -> DWARVISH_SPEAR for dwarves); returns the substituted
+   otyp, or the original if no substitution applies. Exported for the
+   divine gift machinery, which hands out racial gear where possible */
+short
+racial_inv_substitution(short otyp)
+{
+    int i;
+
+    if (gu.urace.mnum == PM_HUMAN)
+        return otyp;
+
+    for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
+        if (inv_subs[i].race_pm == gu.urace.mnum
+            && otyp == inv_subs[i].item_otyp)
+            return inv_subs[i].subs_otyp;
+    }
+    return otyp;
+}
+
 /* returns: TRUE to stop generating items from this trobj,
    FALSE for normal behaviour */
 staticfn boolean

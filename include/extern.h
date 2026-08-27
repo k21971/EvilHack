@@ -3632,6 +3632,7 @@ extern void trap_sanity_check(void);
 extern void u_init_misc(void);
 extern void u_init_inventory_attrs(void);
 extern void u_init_skills_discoveries(void);
+extern short racial_inv_substitution(short);
 
 /* ### uhitm.c ### */
 

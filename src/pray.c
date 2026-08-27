@@ -16,6 +16,10 @@ staticfn void at_your_feet(const char *);
 staticfn struct obj *dropped_gift(struct obj *);
 staticfn void gpiousu(void);
 staticfn void gcrownu(void);
+staticfn boolean gift_recently_given(short);
+staticfn void record_gift(short);
+staticfn struct obj *make_spellbook_gift(short);
+staticfn void bestow_spellbook_gift(short, boolean);
 staticfn void give_spell(void);
 staticfn void pleased(aligntyp);
 staticfn void fry_by_god(aligntyp, boolean);
@@ -28,7 +32,8 @@ staticfn void offer_negative_valued(boolean, aligntyp);
 staticfn void offer_fake_amulet(struct obj *, boolean, aligntyp);
 staticfn void offer_different_alignment_altar(struct obj *, aligntyp);
 staticfn void sacrifice_your_race(struct obj *, boolean, aligntyp);
-staticfn int bestow_artifact(uchar);
+staticfn boolean bestow_regular_gift(aligntyp, int);
+staticfn int bestow_artifact(uchar, aligntyp, int, int);
 staticfn int sacrifice_value(struct obj *);
 staticfn int eval_offering(struct obj *, aligntyp);
 staticfn void offer_corpse(struct obj *, boolean, aligntyp);
@@ -1387,82 +1392,124 @@ gcrownu(void)
     return;
 }
 
+/* Check if object type was recently given as a gift */
+staticfn boolean
+gift_recently_given(short otyp)
+{
+    int i;
+
+    for (i = 0; i < MAX_GIFT_HISTORY; i++)
+        if (u.ugift_history[i] == otyp)
+            return TRUE;
+    return FALSE;
+}
+
+/* Record a gift in the circular history buffer */
+staticfn void
+record_gift(short otyp)
+{
+    u.ugift_history[u.ugift_hist_idx] = otyp;
+    u.ugift_hist_idx = (u.ugift_hist_idx + 1) % MAX_GIFT_HISTORY;
+}
+
+/* Generate a divine spellbook gift for prayer rewards or sacrifice
+   gifts. max_spell: SPE_SUMMON_ELEMENTAL for druids, SPE_ORB_OF_FROST
+   otherwise. Returns object or NULL on failure */
+staticfn struct obj *
+make_spellbook_gift(short max_spell)
+{
+    struct obj *otmp;
+    int trycnt = u.ulevel + 1;
+
+    otmp = mkobj(SPBOOK_no_NOVEL, TRUE);
+    if (!otmp)
+        return (struct obj *) 0;
+
+    while (--trycnt > 0) {
+        if (otmp->otyp != SPE_BLANK_PAPER) {
+            if (known_spell(otmp->otyp) <= spe_Unknown
+                && !P_RESTRICTED(spell_skilltype(otmp->otyp))
+                && !gift_recently_given((short) otmp->otyp))
+                break; /* usable, not yet known, not recently gifted */
+        } else {
+            if ((!objects[SPE_BLANK_PAPER].oc_name_known
+                 || carrying(MAGIC_MARKER)) && u.uconduct.literate
+                && !gift_recently_given((short) otmp->otyp))
+                break;
+        }
+        otmp->otyp = rnd_class(svb.bases[SPBOOK_CLASS], max_spell);
+        set_material(otmp, objects[otmp->otyp].oc_material);
+    }
+    return otmp;
+}
+
+/* create and bestow a spellbook gift; shared by the prayer reward and
+   the sacrifice spellbook arms (an illiterate hero has the spell put
+   directly into their mind instead of receiving the book). The
+   sacrifice flag adds that path's extras */
+staticfn void
+bestow_spellbook_gift(short max_spell, boolean sacrifice)
+{
+    struct obj *otmp;
+    short gift_otyp;
+    boolean learned;
+
+    otmp = make_spellbook_gift(max_spell);
+    if (!otmp)
+        return;
+
+    gift_otyp = otmp->otyp; /* save before potential obfree */
+
+    if (!u.uconduct.literate && otmp->otyp != SPE_BLANK_PAPER
+        && known_spell(otmp->otyp) <= spe_Unknown) {
+        learned = (force_learn_spell(otmp->otyp) != '\0');
+        if (learned)
+            pline("Divine knowledge of the spell '%s' fills your mind!",
+                  OBJ_NAME(objects[otmp->otyp]));
+        obfree(otmp, (struct obj *) 0);
+        otmp = (struct obj *) 0;
+        if (learned)
+            livelog_printf(LL_DIVINEGIFT | (sacrifice ? LL_ARTIFACT : 0L),
+                           "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                           OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
+    } else {
+        bless(otmp);
+        otmp->oeroded = otmp->oeroded2 = 0;
+        at_your_feet("A spellbook");
+        place_object(otmp, u.ux, u.uy);
+        newsym(u.ux, u.uy);
+        livelog_printf(LL_DIVINEGIFT | (sacrifice ? LL_ARTIFACT : 0L),
+                       "had %s given to %s by %s",
+                       an(xname(otmp)), uhim(), u_gname());
+        if (!Hallucination && !Blind) {
+            otmp->dknown = 1;
+            makeknown(otmp->otyp);
+        }
+    }
+    if (sacrifice) {
+        godvoice(u.ualign.type, "Use this gift skillfully!");
+        if (!otmp || is_magic(otmp))
+            u.ugifts++;
+        u.ublesscnt = rnz(300 + (50 * u.ugifts));
+        exercise(A_WIS, TRUE);
+    }
+    record_gift(gift_otyp);
+}
+
 staticfn void
 give_spell(void)
 {
-    struct obj *otmp;
-    char spe_let;
-    int spe_knowledge, trycnt = u.ulevel + 1;
-
     /* cavepersons or those of the draugr race don't mess around
        with spells, so do nothing */
     if (Role_if(PM_CAVE_DWELLER) || Race_if(PM_DRAUGR))
         return;
 
-    /* not yet known spells and forgotten spells are given preference over
-       usable ones; also, try to grant spell that hero could gain skill in
-       (even though being restricted doesn't prevent learning and casting) */
-    otmp = mkobj(SPBOOK_no_NOVEL, TRUE);
-    while (--trycnt > 0) {
-        if (otmp->otyp != SPE_BLANK_PAPER) {
-            if (known_spell(otmp->otyp) <= spe_Unknown
-                && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
-                break; /* forgotten or not yet known */
-        } else {
-            /* blank paper is acceptable if not discovered yet or
-               if hero has a magic marker to write something on it
-               (doesn't matter if marker is out of charges); it will
-               become discovered (below) without needing to be read */
-            if (!objects[SPE_BLANK_PAPER].oc_name_known
-                || carrying(MAGIC_MARKER))
-                break;
-        }
-        otmp->otyp = rnd_class(svb.bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
-        set_material(otmp, objects[otmp->otyp].oc_material);
-    }
-    /*
-     * 25% chance of learning the spell directly instead of
-     * receiving the book for it, unless it's already well known.
-     * The chance is not influenced by whether hero is illiterate.
-     */
-    if (otmp->otyp != SPE_BLANK_PAPER && !rn2(4)
-        && (spe_knowledge = known_spell(otmp->otyp)) != spe_Fresh) {
-        /* force_learn_spell() should only return '\0' if the book
-           is blank paper or the spell is known and has retention
-           of spe_Fresh, so no 'else' case is needed here */
-        if ((spe_let = force_learn_spell(otmp->otyp)) != '\0') {
-            /* for spellbook class, OBJ_NAME() yields the name of
-               the spell rather than "spellbook of <spell-name>" */
-            const char *spe_name = OBJ_NAME(objects[otmp->otyp]);
-
-            if (spe_knowledge == spe_Unknown) /* prior to learning */
-                /* appending "spell 'a'" seems slightly silly but
-                   is similar to "added to your repertoire, as 'a'"
-                   and without any spellbook on hand a novice player
-                   might not recognize that 'spe_name' is a spell */
-                pline("Divine knowledge of %s fills your mind!  Spell '%c'.",
-                      spe_name, spe_let);
-            else
-                Your("knowledge of spell '%c' - %s is %s.",
-                     spe_let, spe_name,
-                     (spe_knowledge == spe_Forgotten) ? "restored"
-                                                      : "refreshed");
-        }
-        obfree(otmp, (struct obj *) 0); /* discard the book */
-    } else {
-        observe_object(otmp);
-        /* don't set bknown */
-        /* discovering blank paper will make it less likely to
-           be given again; small chance to arbitrarily discover
-           some other book type without having to read it first */
-        if (otmp->otyp == SPE_BLANK_PAPER || !rn2(100))
-            makeknown(otmp->otyp);
-        bless(otmp);
-        at_your_feet(upstart(ansimpleoname(otmp)));
-        place_object(otmp, u.ux, u.uy);
-        newsym(u.ux, u.uy);
-    }
-    return;
+    /* not yet known spells are given preference over already known
+       ones; also, try to grant a spell for which there is a skill
+       slot. Druids get access to druid-specific spells */
+    bestow_spellbook_gift(Role_if(PM_DRUID) ? SPE_SUMMON_ELEMENTAL
+                                            : SPE_ORB_OF_FROST,
+                          FALSE);
 }
 
 staticfn void
@@ -2433,35 +2480,401 @@ sacrifice_your_race(
     }
 }
 
-staticfn int
-bestow_artifact(uchar max_giftvalue)
+/* master's SporkHack-derived regular (non-artifact) sacrifice gift: a
+   blessed, enchanted, erosion-proofed plain weapon, piece of armor or
+   spellbook suited to the hero's role and race. Returns TRUE if a
+   gift was bestowed */
+staticfn boolean
+bestow_regular_gift(aligntyp altaralign, int enchantment)
 {
-    int nartifacts = nartifact_exist();
-    boolean do_bestow = u.ulevel > 2 && u.uluck >= 0;
-    if (do_bestow) {
-        /* you were already in pretty good standing */
-        /* The player can gain an artifact */
-        /* The chance goes down as the number of artifacts goes up */
-        if (wizard)
-            do_bestow = y_n("Gift an artifact?") == 'y';
-        else
-            do_bestow = !rn2(6 + (2 * u.ugifts * nartifacts));
+    struct obj *otmp;
+    int typ, ncount = 0, iter = 0;
+    boolean force_weapon = FALSE;
+    boolean force_nonweapon = FALSE;
+    boolean primary_casters, primary_casters_druid,
+            primary_casters_priest, primary_casters_wizard,
+            any_primary_caster;
+
+    /* Primary casting roles */
+    primary_casters = (Role_if(PM_HEALER) || Role_if(PM_INFIDEL));
+    primary_casters_druid = Role_if(PM_DRUID);
+    primary_casters_priest = Role_if(PM_CLERIC);
+    primary_casters_wizard = Role_if(PM_WIZARD);
+    any_primary_caster = (primary_casters || primary_casters_druid
+                          || primary_casters_priest
+                          || primary_casters_wizard);
+
+    /* streak-breaking: if last 2 regular gifts were
+       the same category, force the other category */
+    {
+        int pidx1 = (u.ugift_hist_idx - 1 + MAX_GIFT_HISTORY)
+                    % MAX_GIFT_HISTORY;
+        int pidx2 = (u.ugift_hist_idx - 2 + MAX_GIFT_HISTORY)
+                    % MAX_GIFT_HISTORY;
+        short g1 = u.ugift_history[pidx1];
+        short g2 = u.ugift_history[pidx2];
+
+        if (g1 != STRANGE_OBJECT && g2 != STRANGE_OBJECT) {
+            boolean g1w = (objects[g1].oc_class == WEAPON_CLASS);
+            boolean g2w = (objects[g2].oc_class == WEAPON_CLASS);
+
+            if (g1w && g2w)
+                force_nonweapon = TRUE;
+            else if (!g1w && !g2w)
+                force_weapon = TRUE;
+        }
     }
+
+    if (force_weapon
+        || (!force_nonweapon && rn2(100) >= 50)) { /* Making a weapon */
+        do {
+            iter++;
+            /* Don't give unicorn horns or anything the player's
+               restricted in. Lets also try to dish out suitable
+               gear based on the player's role */
+            if (primary_casters) {
+                typ = (rn2(100) >= 50) ? rnd_class(DAGGER, ATHAME)
+                                       : rnd_class(MACE, FLAIL);
+            } else if (primary_casters_priest) {
+                typ = rnd_class(MACE, FLAIL);
+            } else if (primary_casters_druid) {
+                typ = (rn2(100) >= 60)
+                        ? rnd_class(MACE, FLAIL)
+                        : !rn2(6) ? rnd_class(DAGGER, ATHAME)
+                                  : rn2(3) ? SCIMITAR : SABER;
+            } else if (Role_if(PM_MONK)) {
+                if (!u.uconduct.weaphit)
+                    typ = SHURIKEN;
+                else
+                    typ = (rn2(100) >= 25)
+                            ? rnd_class(QUARTERSTAFF, STAFF_OF_EVOCATION)
+                            : BROADSWORD;
+            } else if (primary_casters_wizard) {
+                if (!u.uconduct.weaphit) {
+                    /* Making a spellbook; Druid/evocation spells
+                       purposely omitted */
+                    bestow_spellbook_gift(SPE_ORB_OF_FROST, TRUE);
+                    return TRUE;
+                } else {
+                    typ = (rn2(100) >= 50)
+                            ? rnd_class(QUARTERSTAFF, STAFF_OF_EVOCATION)
+                            : rnd_class(DAGGER, ATHAME);
+                }
+            } else { /* remaining roles */
+                typ = rnd_class(SPEAR, KATANA);
+            }
+
+            /* apply starting inventory subs - so we'll get racial
+               gear if possible */
+            typ = racial_inv_substitution((short) typ);
+
+            /* The issue here is it blocks elves from getting
+               basically anything, since most (non-elven) weapons are
+               base mat iron... if we have the WRONG race, then let's
+               not do that */
+            otmp = mksobj(typ, FALSE, FALSE);
+            if (is_elven_obj(otmp) && !Race_if(PM_ELF))
+                typ = 0;
+            else if (is_drow_obj(otmp) && !Race_if(PM_DROW))
+                typ = 0;
+            else if (is_orcish_obj(otmp) && !Race_if(PM_ORC))
+                typ = 0;
+
+            obfree(otmp, (struct obj *) 0);
+            otmp = (struct obj *) 0;
+
+            if (typ && !P_RESTRICTED(objects[typ].oc_skill)) {
+                /* prefer novel gifts, but accept duplicates after
+                   many tries; ncount tracks valid (non-restricted)
+                   weapon attempts only */
+                ncount++;
+                if (!gift_recently_given((short) typ) || ncount > 200)
+                    break;
+            }
+            /* iter provides a safety limit in case all weapons are
+               rejected by racial checks or skill restrictions */
+        } while (ncount < 1000 && iter < 10000);
+    } else if (any_primary_caster && !Race_if(PM_DRAUGR) && !rn2(3)) {
+        /* Making a spellbook */
+        bestow_spellbook_gift(primary_casters_druid ? SPE_SUMMON_ELEMENTAL
+                                                    : SPE_ORB_OF_FROST,
+                              TRUE);
+        return TRUE;
+    } else { /* Making armor */
+        iter = 0; /* reset safety counter for armor loop */
+        do {
+            iter++;
+            /* even chance for each slot
+               giants and tortles are evenly distributed among armor
+               they can wear. monks and centaurs end up more likely
+               to receive certain kinds, but them's the breaks */
+            switch (Race_if(PM_GIANT) ? rn1(4, 2)
+                                      : Race_if(PM_TORTLE) ? rn1(3, 3)
+                                                           : rn2(6)) {
+            case 0:
+                /* body armor (inc. shirts) */
+                if (any_primary_caster) {
+                    typ = (rn2(100) >= 50)
+                            ? rnd_class(ARMOR, JACKET)
+                            : (rn2(100) >= 16)
+                                ? STUDDED_ARMOR
+                                : CRYSTAL_PLATE_MAIL;
+                } else {
+                    typ = rnd_class(PLATE_MAIL, T_SHIRT);
+                }
+                if (!Role_if(PM_MONK)
+                    || (typ == T_SHIRT || typ == HAWAIIAN_SHIRT)) {
+                    break; /* monks only can have shirts */
+                } /* monks have (almost) double chance for cloaks */
+                FALLTHROUGH;
+                /* FALLTHRU */
+            case 1:
+                /* cloak */
+                typ = rnd_class(MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT);
+                break;
+            case 2:
+                /* boots */
+                if (any_primary_caster) {
+                    typ = (rn2(100) >= 66)
+                            ? LOW_BOOTS
+                            : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
+                } else {
+                    typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
+                }
+                if (!Race_if(PM_CENTAUR)) {
+                    break;
+                } /* centaurs have double chances to get a shield */
+                FALLTHROUGH;
+                /* FALLTHRU */
+            case 3:
+                /* shield */
+                if (primary_casters || primary_casters_priest
+                    || primary_casters_wizard) {
+                    if (Race_if(PM_DROW)) {
+                        typ = (rn2(100) >= 12)
+                                ? DARK_ELVEN_BRACERS
+                                : (rn2(100) >= 50)
+                                    ? SHIELD_OF_REFLECTION
+                                    : SHIELD_OF_MOBILITY;
+                    } else {
+                        typ = (rn2(100) >= 12)
+                                ? SMALL_SHIELD
+                                : rnd_class(SHIELD_OF_REFLECTION,
+                                            SHIELD_OF_MOBILITY);
+                    }
+                } else if (primary_casters_druid) {
+                    typ = (rn2(100) >= 34)
+                            ? BRACERS
+                            : SMALL_SHIELD;
+                } else {
+                    if (Race_if(PM_DROW))
+                        typ = rnd_class(SMALL_SHIELD,
+                                        SHIELD_OF_REFLECTION);
+                    else
+                        typ = rnd_class(SMALL_SHIELD,
+                                        SHIELD_OF_MOBILITY);
+                }
+                if (!Role_if(PM_MONK)) {
+                    break;
+                } /* monks have double chances to get gloves */
+                FALLTHROUGH;
+                /* FALLTHRU */
+            case 4:
+                /* gloves */
+                if (any_primary_caster) {
+                    typ = (rn2(100) >= 33)
+                            ? GLOVES
+                            : rnd_class(GAUNTLETS_OF_POWER,
+                                        GAUNTLETS_OF_DEXTERITY);
+                } else {
+                    typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
+                }
+                break;
+            case 5:
+                /* helm */
+                if (any_primary_caster) {
+                    if (Role_if(PM_WIZARD)) {
+                        typ = (rn2(100) >= 50)
+                                ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
+                                : rnd_class(HELM_OF_BRILLIANCE,
+                                            HELM_OF_TELEKINESIS);
+                        if (typ == HELMET)
+                            typ = CORNUTHAUM;
+                    } else {
+                        typ = (rn2(100) >= 50)
+                                ? rnd_class(FEDORA, ELVEN_HELM)
+                                : rnd_class(HELM_OF_BRILLIANCE,
+                                            HELM_OF_TELEKINESIS);
+                        if (typ == HELMET)
+                            typ = TOQUE;
+                    }
+                } else {
+                    typ = rnd_class(ELVEN_HELM, HELM_OF_TELEKINESIS);
+                }
+                break;
+            default:
+                typ = HAWAIIAN_SHIRT; /* Ace Ventura approved. Alrighty
+                                         then */
+                break;
+            }
+
+            /* Same as weapons, apply racial gear substitutions */
+            typ = racial_inv_substitution((short) typ);
+
+            /* if we have the WRONG object, then let's not do that */
+            otmp = mksobj(typ, FALSE, FALSE);
+            if (is_elven_armor(otmp) && !Race_if(PM_ELF))
+                typ = 0;
+            else if (is_drow_armor(otmp) && !Race_if(PM_DROW))
+                typ = 0;
+            else if (is_orcish_armor(otmp) && !Race_if(PM_ORC))
+                typ = 0;
+            else if (is_dwarvish_armor(otmp) && !Race_if(PM_DWARF))
+                typ = 0;
+            else if (otmp->otyp == LARGE_SPLINT_MAIL && !Race_if(PM_GIANT)
+                     && !Role_if(PM_SAMURAI))
+                typ = 0;
+            else if (otmp->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
+                typ = 0;
+
+            obfree(otmp, (struct obj *) 0);
+            otmp = (struct obj *) 0;
+
+            /* prefer novel gifts, but accept duplicates after many
+               tries; ncount tracks valid (non-restricted) armor
+               attempts only */
+            if (typ) {
+                ncount++;
+                if (gift_recently_given((short) typ) && ncount <= 200)
+                    typ = 0;
+            }
+            /* iter provides a safety limit in case all armor is
+               rejected by racial checks */
+        } while (ncount < 1000 && !typ && iter < 10000);
+    }
+
+    if (typ) {
+        ncount = 0;
+        otmp = mksobj(typ, FALSE, FALSE);
+        while ((((Race_if(PM_ELF) || Race_if(PM_DROW))
+                 && otmp->material == IRON)
+                || (Race_if(PM_ORC) && otmp->material == MITHRIL)
+                || (Race_if(PM_ILLITHID) && is_helmet(otmp)
+                    && is_heavy_metallic(otmp))
+                || (Role_if(PM_INFIDEL) && otmp->material == SILVER)
+                || (Race_if(PM_VAMPIRE) && otmp->material == SILVER)
+                || (Role_if(PM_DRUID) && is_metallic(otmp)
+                    && (is_helmet(otmp) || is_shield(otmp)
+                        || is_bracer(otmp) || is_boots(otmp)
+                        || is_gloves(otmp) || is_suit(otmp))))
+               && ncount++ < 500) {
+            obfree(otmp, (struct obj *) 0);
+            otmp = mksobj(typ, FALSE, FALSE);
+        }
+
+        if (otmp) {
+            if (otmp->otyp == SHURIKEN)
+                otmp->quan = (long) rn1(7, 14); /* 14-20 count */
+            if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
+                && !objects[otmp->otyp].oc_magic)
+                otmp = create_oprop(otmp, FALSE);
+            if (altaralign == A_NONE) {
+                curse(otmp);
+            } else {
+                if (u.ualign.abuse < 30)
+                    bless(otmp);
+                else
+                    otmp->blessed = otmp->cursed = 0;
+            }
+            otmp->spe = enchantment;
+            if (u.ualign.abuse < 30)
+                maybe_erodeproof(otmp, 1);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
+                && !objects[otmp->otyp].oc_magic
+                && (is_metallic(otmp) || is_crystal(otmp)))
+                otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
+                                           : FQ_EXCEPTIONAL;
+            if (altaralign > A_CHAOTIC
+                && otmp->oclass == WEAPON_CLASS) {
+                /* lawful or neutral altar */
+                otmp->opoisoned = otmp->otainted = 0;
+                if (otmp->oprops & ITEM_VENOM) {
+                    otmp->oprops = 0L;
+                    if (rn2(2))
+                        otmp->oprops |= ITEM_FIRE;
+                    else
+                        otmp->oprops |= ITEM_FROST;
+                }
+            }
+            otmp->owt = weight(otmp);
+            at_your_feet(otmp->quan > 1L ? "Some objects"
+                                         : "An object");
+            place_object(otmp, u.ux, u.uy);
+            stackobj(otmp);
+            newsym(u.ux, u.uy);
+            if (altaralign == A_NONE)
+                godvoice(u.ualign.type, "Use this gift ominously!");
+            else
+                godvoice(u.ualign.type, "Use this gift valorously!");
+            if (is_magic(otmp))
+                u.ugifts++;
+            u.ublesscnt = rnz(300 + (50 * u.ugifts));
+            exercise(A_WIS, TRUE);
+            if (!Hallucination && !Blind) {
+                otmp->dknown = 1;
+                makeknown(otmp->otyp);
+            }
+            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                           "had %s entrusted to %s by %s",
+                           doname(otmp), uhim(), u_gname());
+            record_gift((short) otmp->otyp);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+staticfn int
+bestow_artifact(uchar max_giftvalue, aligntyp altaralign,
+                int arti_gift_odds, int enchantment)
+{
+    boolean do_bestow;
+
+    /* you were already in pretty good standing */
+    /* The player can gain an artifact */
+    /* The chance goes down as the number of gifts and artifact
+       wishes goes up */
+    if (wizard)
+        do_bestow = y_n("Gift an artifact?") == 'y';
+    else
+        do_bestow = !rn2(arti_gift_odds);
 
     if (do_bestow) {
         struct obj *otmp;
-        /* mk_artifact() with NULL obj and a_align() arg can return NULL */
+        /* mk_artifact() with NULL obj and a_align() arg can return NULL;
+           spe is set from the alignment-abuse ladder below, so skip the
+           adjust_spe pass */
         otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy),
-                           max_giftvalue, TRUE);
+                           max_giftvalue, FALSE);
         if (otmp) {
             char buf[BUFSZ];
 
             artifact_origin(otmp, ONAME_GIFT | ONAME_KNOW_ARTI);
-            if (otmp->spe < 0)
-                otmp->spe = 0;
-            if (otmp->cursed)
-                uncurse(otmp);
-            otmp->oerodeproof = TRUE;
+            if (altaralign == A_NONE) {
+                curse(otmp);
+            } else {
+                if (u.ualign.abuse < 30)
+                    bless(otmp);
+                else
+                    otmp->blessed = otmp->cursed = 0;
+            }
+            otmp->spe = enchantment;
+            if (u.ualign.abuse < 30)
+                maybe_erodeproof(otmp, 1);
+            otmp->forged_qual = FQ_NORMAL;
+            if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
+                otmp->opoisoned = otmp->otainted = 0;
             Strcpy(buf, (Hallucination ? "a doodad"
                             : Blind ? "an object"
                             : ansimpleoname(otmp)));
@@ -2472,7 +2885,7 @@ bestow_artifact(uchar max_giftvalue)
             dropy(otmp);
             godvoice(u.ualign.type, "Use my gift wisely!");
             u.ugifts++;
-            u.ublesscnt = rnz(300 + (50 * nartifacts));
+            u.ublesscnt = rnz(300 + (50 * u.ugifts));
             exercise(A_WIS, TRUE);
             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                             "was bestowed with %s by %s",
@@ -2810,8 +3223,64 @@ resolve_offering(struct obj *otmp, int value, boolean highaltar,
         }
     } else {
         int orig_luck, luck_increase;
+        int nchance = u.ulevel + 12;
+        /* having never abused your alignment slightly increases
+           the odds of receiving a gift from your deity.
+           the more artifacts the player wishes for, the lower
+           the chances of receiving an artifact gift via sacrifice */
+        int reg_gift_odds  = ((u.ualign.abuse == 0) ? 5 : 6)
+                             + (2 * u.ugifts);
+        int arti_gift_odds = ((u.ualign.abuse == 0) ? 6 : 10)
+                             + (2 * u.ugifts)
+                             + (2 * u.uconduct.wisharti);
+        /* how much alignment has been abused can determine the
+           amount of enchantment on gifted weapons and armor */
+        int enchantment =
+            ((u.ualign.abuse == 0) ? (rn2(3) + 3)          /* +3 to +5 */
+             : (u.ualign.abuse < 5) ? (rn2(2) + 2)         /* +2 to +3 */
+               : (u.ualign.abuse < 15) ? (rn2(2) + 1)      /* +1 to +2 */
+                 : (u.ualign.abuse < 30) ? 0               /* +0 to +0 */
+                   : (u.ualign.abuse < 50) ? (rn2(2) - 1)  /* +0 to -1 */
+                     : (rn2(3) - 3));                      /* -1 to -3 */
 
-        if (bestow_artifact(value))
+        /* you were already in pretty good standing
+         *
+         * The player can gain an artifact;
+         * The chance goes down as the number of wishes for an artifact
+         * goes up.
+         *
+         * From SporkHack (heavily modified):
+         * The player can also get handed just a plain old hunk of
+         * weaponry or piece of armor, but it will be blessed, +3 to +5,
+         * fire/rustproof, and if it's a weapon, it'll be in one of the
+         * player's available skill slots. The lower level you are, the
+         * more likely it is that you'll get a hunk of ordinary 'junk'
+         * rather than an artifact.
+         *
+         * Note that no artifact is guaranteed; it's still subject to the
+         * chances of generating one of those in the first place. These
+         * are just the chances that an artifact will even be considered
+         * as a gift.
+         *
+         * If your role has a guaranteed first sacrifice gift, you will
+         * not receive a non-artifact item as a gift until you've gotten
+         * your guaranteed artifact. You must be experience level 4 or
+         * greater to receive an artifact gift (guaranteed or not).
+         *
+         * [revamped as of version 0.9.0]
+         * level  4: 20% chance level  6: 30% chance level  8: 40% chance
+         * level 11: 50% chance level 13: 60% chance level 15: 70% chance
+         * level 17: 80% chance level 18: 90% chance
+         * level 20 or greater: 100% chance
+         */
+        if ((!awaiting_guaranteed_gift() || u.ulevel <= 3)
+            && rn2(10) >= (int) ((nchance * nchance) / 100)) {
+            if (u.uluck >= 0 && !rn2(reg_gift_odds)
+                && bestow_regular_gift(altaralign, enchantment))
+                return;
+        } else if (u.ulevel >= 4 && u.uluck >= 0
+                   && bestow_artifact(value, altaralign, arti_gift_odds,
+                                      enchantment))
             return;
 
         orig_luck = u.uluck;
