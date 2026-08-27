@@ -372,6 +372,74 @@ moveloop_core(void)
 
                 l_nhcore_call(NHCORE_MOVELOOP_TURN);
 
+                /* if you have too many pets on the level, untame the
+                   weakest ones */
+                {
+                    int numdogs = 0;
+                    int num_candidates = 0;
+                    int limit = ACURR(A_CHA) / 3;
+                    /* untameable pets (excludes steed); cap:
+                       overflow is self-correcting across turns */
+                    struct monst *candidates[50];
+                    struct monst *curmon;
+
+                    /* single pass: count all pets, collect
+                       untameable candidates */
+                    for (curmon = fmon; curmon; curmon = curmon->nmon) {
+                        /* skip minions: they carry emin rather than edog,
+                           so EDOG() below would NULL-deref */
+                        if (curmon->mtame && !curmon->msummoned
+                            && !curmon->isminion) {
+                            numdogs++;
+                            /* steed counts toward limit but is
+                               never untamed */
+                            if (curmon != u.usteed && num_candidates < 50)
+                                candidates[num_candidates++] = curmon;
+                        }
+                    }
+
+                    /* untame weakest pets until under limit */
+                    while (numdogs > limit && num_candidates > 0) {
+                        int i, weakest_idx = 0;
+                        int numties = 1;
+                        struct monst *weakdog;
+
+                        /* find weakest candidate (lowest m_lev,
+                           random tie-break) */
+                        for (i = 1; i < num_candidates; i++) {
+                            if (candidates[i]->m_lev
+                                < candidates[weakest_idx]->m_lev) {
+                                weakest_idx = i;
+                                numties = 1;
+                            } else if (candidates[i]->m_lev
+                                       == candidates[weakest_idx]->m_lev) {
+                                if (!rn2(++numties))
+                                    weakest_idx = i;
+                            }
+                        }
+
+                        weakdog = candidates[weakest_idx];
+
+                        /* remove from candidates (swap with last element) */
+                        candidates[weakest_idx] = candidates[--num_candidates];
+
+                        /* untame the pet */
+                        weakdog->mtame = 0;
+                        weakdog->uexp = 0;
+                        /* if former pet was abused, or just
+                           at random, become hostile */
+                        if (rn2(EDOG(weakdog)->abuse + 1) || !rn2(3)) {
+                            weakdog->mpeaceful = 0;
+                            set_malign(weakdog);
+                            newsym(weakdog->mx, weakdog->my);
+                        }
+                        if (weakdog->mleashed)
+                            m_unleash(weakdog, TRUE);
+
+                        numdogs--;
+                    }
+                }
+
                 if (Glib)
                     glibr();
                 nh_timeout();
