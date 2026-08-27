@@ -10413,13 +10413,62 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       find_*_recurse() Consolidation (Dec 20 2025) + the armor
       half of Monster Container Extraction (Dec 21 2025) +
       Intelligent monsters stash (Jan 2019 lineage).
-- [ ] CHA-based pet cap NOT PORTED (minted 2026-08-26 by the
-      features-coverage sweep; MED). The whole subsystem is
-      missing, not just master's optimization: the allmain.c
-      per-turn pass (master numdogs, ACURR(A_CHA)/3 cap) untaming
-      the weakest excess pet is absent branch-wide. Archive: Pet
-      Limit Optimization (Nov 30 2025; base feature predates the
-      archive window).
+- [x] CHA-based pet cap PORTED 2026-08-27 (commit 14a69b7ea, 1
+      file; no BUG ids - clean feature port). Master's final
+      state (lineage: 12968f555 origin do-while, 9f319d1e9
+      !rn2(3) random-hostility arm, c95414025 uexp clear,
+      1ae9be6f8 newsym, c12532397 single-pass candidates rewrite
+      = FEATURES_ARCHIVE "Pet Limit Optimization", 488cc92b8
+      isminion guard + BUG-565 set_malign) restored verbatim in
+      moveloop_core()'s once-per-turn section, after the
+      NHCORE_MOVELOOP_TURN hook and before the Glib check -
+      master's position relative to glibr/nh_timeout/
+      run_regions. Zero idiom adaptation: every symbol identical
+      on branch (msummoned, isminion, uexp Bitfield(1),
+      EDOG/abuse, m_unleash, set_malign); no struct or save
+      change. Sibling sweeps clean: numdogs has no master
+      consumer outside allmain.c; BUG-633's isminion-guarded
+      edog pattern already on branch (dog.c abuse_dog); no
+      competing branch pet limit. MASTER-PARITY KEPT (recorded,
+      do not fix): steed counts toward the limit but is never
+      untamed (CHA >= 3 so limit >= 1; a mounted low-CHA hero's
+      only allowed pet can be the steed); minions neither count
+      nor untame; msummoned pets never count; newsym fires only
+      on the hostile transition (a peaceful ex-pet keeps its
+      stale glyph); migrating mydogs pets exempt (per-level cap
+      by design); candidates cap 50 self-corrects across turns;
+      reviewer LOW note - a tame monster killed earlier the
+      same turn (mcalcdistress) stays counted until dmonsfree,
+      the same one-turn window as master, benign. REVIEWER PASS
+      zero conditions (EDOG NULL-deref producer census: every
+      nonzero-mtame producer either creates edog or sets
+      isminion; RNG stream call-for-call master-identical, none
+      consumed on under-limit turns). BATTERY 10/10 (human
+      Valkyrie XL30, 60 turns, sanity_check on, paniclog never
+      created; gdb svl.level.monlist reads by m_id as
+      instrument): headline = the 2 lowest-m_lev of 8 pets
+      untamed in ONE turn at CHA 18, uexp cleared; 15-round
+      tie-break spread across all four equal-level kittens
+      (chi-square p~0.17 vs uniform) with the m_lev-24 mammoth
+      surviving 15/15; abuse=10 victim hostile 4/5 with malign
+      -9 -> 3 (set_malign) and same-turn farlook flip (newsym);
+      45 abuse-0 untames = exactly 15 hostile / 30 peaceful
+      (the 1/3 arm); mounted steed at m_lev 1 never selected
+      across 3 over-cap ticks while still counted (4 ground
+      pets + steed vs limit 4 fired); msummoned kitten neither
+      counted nor victimized (both readings); leashed victim
+      untamed + "pulls free of its leash!" with leashmon
+      cleared and the leash reusable; staged mtame=1/isminion=1
+      /edog=NULL cleric at m_lev 0 = no crash, never counted,
+      never untamed (both readings); CHA 3 floor keeps exactly
+      1 pet; 18-turn under-limit control byte-stable; limit
+      recomputed live per turn (raising CHA pre-tick suppresses
+      the untame, dropping it re-fires). Battery anomaly
+      resolved as harness artifact: a stale malign=3 on a
+      re-tamed pony came from a staging script restoring
+      mtame/mpeaceful without malign; the corrected script
+      never reproduced it. Archive: Pet Limit Optimization
+      (Nov 30 2025; base feature predates the archive window).
 - [ ] Temple damage-repair sweep NOT PORTED (minted 2026-08-26 by
       the features-coverage sweep; MED - converts the prose
       deferral inside the hero-spell-parity row's DEFER list into a
