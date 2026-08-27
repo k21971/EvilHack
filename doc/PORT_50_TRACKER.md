@@ -7566,6 +7566,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sibling), and the polyself.c silver-dragon-form reflection bump.
       The forge row's battery already measured the same display/xlog gap
       for forgedarti - close all three conducts in one pass here.
+      ANNOTATION 2026-08-27 (Flying-macro slice): armor_provides_extrinsic
+      is also what grants EFlying|W_ARM for CELESTIAL dragon-SCALED body
+      armor (scales-as-cloak works today via oc_oprop; scaled W_ARM armor
+      grants nothing). When porting it, master's dragon_armor_handling
+      CELESTIAL_DRAGON_SCALES case must travel too, INCLUDING the
+      f8ebd89db cramped_wings BFlying muck in the puton arm - the
+      Flying-macro W_ARMOR carve-out (landed 2026-08-27) is its
+      precondition.
 - [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
       !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
       polyself.c rehumanize FROMHUNGER reset, independent live bug
@@ -10146,7 +10154,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wish, none from the feature. Battery gotcha recorded:
       genesis "peaceful watch captain" arrives gnomish - the ERAC
       racial overlay wins in mon_aligntyp (neutral, not lawful).
-- [ ] Flying macro big_wings half-port - LIVE DIVERGENCE (minted
+- [x] Flying macro big_wings half-port - LIVE DIVERGENCE (minted
       2026-08-26 by the features-coverage sweep; MED). races-R2
       ported check_wings() (do_wear.c sets BFlying |= W_ARM for
       hard body armor on big_wings forms) but youprop.h Flying is
@@ -10155,6 +10163,42 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       missing, so body armor on an aasimar (or any big_wings form)
       now blocks ring-of-flying AND steed flight too, not just the
       innate wings. Archive: Aasimar Angelic Wings (May 10 2026).
+      DONE 2026-08-27 (BUG-1720). Master's macro restored verbatim
+      in 5.0 idiom (raceptr(&gy.youmonst); the stray comment-
+      splicing trailing backslash dropped) - the row's "ring of
+      flying" was loose: the branch's extrinsic sources are the
+      AMULET of flying (W_AMUL) and celestial dragon scales as
+      cloak (W_ARMC). Commit-archaeology sibling sweep (6972e3e62
+      -> f8ebd89db -> 9b36ba220) surfaced three consumer sites,
+      all latent pre-fix: insight.c "would fly" gate && !Flying +
+      the W_ARM "wings weren't confined" arm; attrib.c is_innate
+      FLYING/(BFlying & W_ARMOR) FROM_NONE guard; and hack.c
+      switch_terrain "start flying." && !was_flying (BATTERY-
+      CAUGHT: without it the else-if (BFlying) arm re-announced
+      flight on every terrain change while W_ARM persisted -
+      mounting printed it twice). Verified already correct on
+      branch: check_wings body, Armor_off/Armor_gone post-setworn
+      ordering. MASTER-PARITY KEPT: trap.c float_down block
+      (unguarded on both trees, correct - only runs when
+      levitation just ended); dosinkfall's hand-rolled
+      !(HFlying||EFlying) test; the switch_terrain !Passes_walls
+      You_cant guard NOT taken (f41dde394 Staff-of-the-Archmagi
+      lineage, separate subsystem). NOT IN SCOPE: celestial
+      dragon-SCALED body armor EFlying grant absent branch-wide
+      (armor_provides_extrinsic unported) - annotated onto the
+      conduct-wiring row with the f8ebd89db cramped_wings
+      precondition note. Reviewer PASS no conditions. BATTERY
+      12/12 + 3/3 retest (aasimar Priest XL30 + vampire Barbarian
+      control, gdb bit reads): amulet-on while armored = "You are
+      now in flight." with blocked still W_ARM; celestial scales
+      cloak same; ki-rin mount Fly+Ride via steed disjunct alone,
+      zero "start flying" lines post-rider; ^X confined-wings arm
+      and non-innate attribution; levitation I_SPECIAL|W_ARM
+      stack + resume on expiry; mounted+armored save/restore
+      bit-identical; amorous-demon FROMFORM leg (winged gargoyle
+      breaks out of armor by design; erinys M2_NOPOLY, vrock
+      bigmonst); vampire control blocked==0 in plate mail.
+      Paniclog never created.
 - [ ] God-gift subsystem NOT PORTED (minted 2026-08-26 by the
       features-coverage sweep; MED - this is the owner several
       closed rows defer to as "god-gift subsystem (record_gift)").
