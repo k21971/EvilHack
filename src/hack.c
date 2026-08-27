@@ -3452,7 +3452,7 @@ switch_terrain(void)
         /* [minor bug: we don't know whether this is beginning flight or
            resuming it; that could be tracked so that this message could
            be adjusted to "resume flying", but isn't worth the effort...] */
-        if (Flying)
+        if (Flying && !was_flying)
             You("start flying.");
     }
     if ((!!Levitation ^ was_levitating) || (!!Flying ^ was_flying))

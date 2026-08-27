@@ -327,9 +327,17 @@
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
-#define Flying                                                      \
-    ((HFlying || EFlying || (u.usteed && is_flyer(u.usteed->data))) \
-     && !BFlying)
+/* FROMRACE is excluded from the bypass alongside FROMFORM so that
+   races whose flight comes from big_wings() (aasimar at level 15+
+   with clean alignment) are subject to the same hard-armor block
+   used for FROMFORM wings; non-winged FROMRACE flyers (vampires,
+   illithids at level 12+) still fall through the
+   (HFlying && !big_wings(...)) disjunct */
+#define Flying \
+    ((((EFlying || (HFlying & ~FROMFORM & ~FROMRACE)                        \
+       || (HFlying && !big_wings(raceptr(&gy.youmonst))))                   \
+       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR)) \
+     || (HFlying && !BFlying))
 /* May touch surface; does not override any others */
 
 #define HWwalking u.uprops[WWALKING].intrinsic /* see lava_effects() */

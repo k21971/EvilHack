@@ -1837,7 +1837,7 @@ attributes_enlightenment(
         BLevitation = save_BLev;
     }
     /* actively flying handled earlier as a status condition */
-    if (BFlying) { /* flight is blocked */
+    if (BFlying && !Flying) { /* flight is blocked */
         long save_BFly = BFlying;
 
         BFlying = 0L;
@@ -1859,7 +1859,9 @@ attributes_enlightenment(
                              ? if_surroundings_permitted
                              /* two or more of levitation, surroundings,
                                 and being trapped in the floor */
-                             : " if circumstances permitted",
+                             : (save_BFly == W_ARM)
+                                ? " if your wings weren't confined"
+                                : " if circumstances permitted",
                     "");
         }
         BFlying = save_BFly;

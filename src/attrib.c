@@ -1027,6 +1027,8 @@ is_innate(int propidx)
         return FROM_LYCN;
     if (propidx == FAST && Very_fast)
         return FROM_NONE; /* can't become very fast innately */
+    if (propidx == FLYING && (BFlying & W_ARMOR))
+        return FROM_NONE; /* not from form, as that is blocked */
     if ((innateness = innately(&u.uprops[propidx].intrinsic)) != FROM_NONE)
         return innateness;
     if (propidx == JUMPING && Role_if(PM_KNIGHT)
