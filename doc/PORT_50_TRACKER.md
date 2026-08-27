@@ -1530,10 +1530,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       exclude BAG_OF_TREASURE and BAG_OF_DEVOURING explicitly -
       m_stash_items runs at creation, so Croesus would otherwise
       stash straight into his own guaranteed bag; noted by the
-      bags slice 2026-07-26), setmnotwielded2
-      dual-wield drop, mon_bimanual, big_wings W_ARM, monster
+      bags slice 2026-07-26) (DISCHARGED 2026-08-27 by the
+      monster-looting slice, commit 0ed4ae627 - both rare-bag
+      exclusions in the bag-selection loop, battery proof =
+      Croesus's guaranteed bag empty at creation and untouched
+      in play), setmnotwielded2
+      dual-wield drop, mon_bimanual, big_wings W_ARM (DISCHARGED
+      2026-08-27, rode find_best_armor_recurse), monster
       ring-wearing (extra_pref rework, W_RINGL/R, Nazgul ring,
-      cursed_glove gating), armor_bonus/material_bonus AC.
+      cursed_glove gating; the 2026-08-27 monster-looting slice
+      ADDED obligations here: convert the six new 2-arg
+      extra_pref call sites - find_best_armor_recurse x2 +
+      is_better_armor x4 - to the 3-arg slot form when the
+      BUG-1266 rework ports, add the W_RINGL/W_RINGR cases to
+      find_best_armor_recurse, and take BUG-1268's m_dowear
+      empty-hand ordering), armor_bonus/material_bonus AC.
       SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
       4 wizard games on the fresh install, sanity_check ON every
       turn): PANICLOG EMPTY, zero crashes/impossibles. PASSED
@@ -1900,7 +1911,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cursed treasure bag weighs its contents x10 and so makes
       !can_carry true, which is exactly the crack-it-open case -
       TODO-EVILHACK markers left at both sites by the bags slice
-      2026-07-26), iron safes
+      2026-07-26; NOTE 2026-08-27: the monster-looting slice
+      removed the branch's 5.0 muse.c mloot_container/MUSE_BAG
+      rummager, so this port re-lands master's mon.c
+      mloot_container fresh with its mpickstuff callers - no
+      name collision remains), iron safes
       (generation arms + stethoscope cracking + lock_action
       flavor), magic detection (marker above), cursed-tool
       break, Is_container range to BAG_OF_DEVOURING (bags
@@ -2385,7 +2400,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pet consumers of would_prefer_*/mon_wants_ammo + is_better_
       armor mon_bimanual (pet order), mhitu steed-retaliation
       acceptable_pet_target (steed), m_stash_items + m_dowear
-      container armor extraction (monster looting), worn.c ring-
+      container armor extraction (monster looting - DISCHARGED
+      2026-08-27 by the monster-looting slice, commit 0ed4ae627,
+      see that row), worn.c ring-
       choice mw2/oprops blocks (monster ring/amulet), mon_wielding_
       artifact incl. MON_WEP2 arm (artifact behaviors), AD_ACID
       explosion arms EXPL_ACID/EXPL_SHOCK (explosion-glyph
@@ -2394,7 +2411,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       commit 307c4fdbf = BUG-1634/1635, see that Phase 2 row
       directly below this one),
       muse offensive-item parity (maxdmg melee gate + master-only
-      MUSE_* items), munstone self stone-to-flesh (monster
+      MUSE_* items; the 2026-08-27 monster-looting slice created
+      the landing site - new arms go into check_offensive_item/
+      check_misc_item/check_defensive_item, and its reviewer
+      censused the absent set: MUSE_POT_RESTORE_ABILITY +
+      MUSE_BAG_OF_TRICKS defensive, SCR_CHARGING, PAN_FLUTE,
+      DWARVISH_BEARDED_AXE disarm, FIGURINE/WAN_WISHING/
+      REMOVE_CURSE/POT_HALLUCINATION and the other master-only
+      offensive/misc ids), munstone self stone-to-flesh (monster
       spellcasting), hitmsg pierce/slash/whack verbs (mhitu
       flavor), break_glass_obj setmnotwielded2 (glass shatter),
       pager.c probe wielding-both display, pickup.c exchange_
@@ -3960,9 +3984,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       intrinsic-corpse logic + pool/lava/open-air drop avoidance
       -> pet feeding/behavior slice(s); could_use_item/
       is_better_armor terms + find_best_armor_recurse container
-      recursion + m_stash_items -> monster looting; W_ARM
+      recursion + m_stash_items -> monster looting (DISCHARGED
+      2026-08-27, commit 0ed4ae627, see that row); W_ARM
       big_wings/dragon-scales/JACKET candidate restriction ->
-      monster armor (big_wings absent on branch); worn.c ring/
+      monster armor (big_wings absent on branch) (DISCHARGED
+      2026-08-27 by the monster-looting slice - no such row ever
+      existed, big_wings landed session 69, the conjunct rode
+      the new find_best_armor_recurse); worn.c ring/
       amulet candidate blocks -> monster ring/amulet; mhitu.c
       steed-retaliation apt x3 + x_monnam "barded " adjective +
       do_barding plumbing -> steed/saddle/barding; PETSTRAT_STAY
@@ -6953,7 +6981,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the attacker; "stone hide" in missum against "stony hide" in the
       other two.
       NOT PORTED, recorded below as their own rows: extra_pref's rework
-      (monster ring-wearing), is_better_armor (monster looting), the
+      (monster ring-wearing), is_better_armor (monster looting -
+      PORTED 2026-08-27, commit 0ed4ae627), the
       remaining Ashmar/Retribution behaviour sites, the dmgval
       body-material arms, the glass piercer, rustm's EF_DESTROY.
 - [x] Open-air terrain - PORTED 2026-08-02 with the tower slice
@@ -9118,7 +9147,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       push. Flagged-at-design-time gaps in the same family:
       dismount triple-failure mongone (master steed.c), mhitu eel
       puddle/sewage refinements, goodpos hero-water Breathless
-      question comment.
+      question comment. SWEEP ADD (2026-08-27, monster-looting
+      reviewer): muse.c find_defensive's WAN_DIGGING arm lacks
+      master's !can_levitate conjunct in BOTH the kept flat loop
+      and the new check_defensive_item - fix both together.
 - [ ] Door-material display color unported (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM port gap). master's
       mapglyph.c colors non-wood doors via
@@ -10299,15 +10331,88 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ominously!". Battery lore: maybe_erodeproof early-returns on
       supermaterials, so STEEL gifts read oerodeproof 0 (intended;
       every non-supermaterial gift proofed).
-- [ ] Monster looting NOT PORTED (minted 2026-08-26 by the
-      features-coverage sweep; MED - the owner four rows' prose
-      defers to as "monster looting"). find_items_recurse (master
-      muse.c x6) is absent: monsters cannot search carried
-      containers for defensive/offensive/misc items. Also carries
-      find_best_armor_recurse container recursion, m_stash_items,
-      and the is_better_armor terms those rows name. Archive:
-      muse.c find_*_recurse() Consolidation (Dec 20 2025) + the
-      armor half of Monster Container Extraction (Dec 21 2025).
+- [x] Monster looting PORTED 2026-08-27 (commit 0ed4ae627, 9
+      files; BUG-1721/1722 branch fixes + master frozen-unfixed).
+      Scope = the CARRIED-container side only; floor-container
+      looting (mpickstuff arm, likes_contents, m_move goal splice,
+      key pickup, master's mon.c mloot_container) stays with the
+      magic-chest row's deferral and both TODO-EVILHACK markers
+      stay. PREMISE CORRECTION: could_use_item() was an unlisted
+      prerequisite (sole caller of is_better_armor, called by
+      m_stash_items) and came whole with its consumers -
+      droppables keep-gate, dog_invent pickup boost + stash tail,
+      dog_goal apport weave, thitmonst pet catch - reviving
+      mon_wants_spellbook (BUG-1157) from dead code. STRUCTURE:
+      the three checkers are built from the BRANCH's flat-loop
+      arms (branch MUSE numbering kept; BUG-1416/1521/1611/1698
+      content intact); find_defensive keeps its flat loop AND
+      gains the recursion pass (master's final shape - the only
+      category with both); find_offensive/find_misc replaced
+      their loops; m_use_undead_turning inlined into its checker
+      arm with its comments. FOUR RULINGS (AskUserQuestion, all
+      recommended): MUSE_BAG + muse.c mloot_container DROPPED
+      (recursion + on-demand extraction supersedes; the branch
+      rummager pulls 1-4 RANDOM items and would oscillate
+      against m_stash_items; the floor slice re-lands master's
+      mon.c mloot_container); m_stash_items gains an oreserved
+      skip = BUG-1721 (reserved item stashed = uncollectable by
+      the flat-walking take order and belay release); the W_ARM
+      big_wings/dragon-scales/JACKET conjunct INCLUDED (blocker
+      resolved by session 69; the pet-order deferral to the
+      row-less "monster armor" owner discharged); and the
+      recursion skips olocked + cursed-mbag containers =
+      BUG-1722 (battery-caught: the thrown-potion path skips
+      precheck by design, so a potion was hurled out of a locked
+      chest; find_best_armor_recurse deliberately keeps master's
+      unguarded shape - no throw path, extraction refuses
+      locked). ADAPTATIONS: find_best_armor_recurse carries an
+      extra creation param (the branch-only W_ARMC
+      mummy-wrapping minvis/w_blocks gate needs it); extra_pref
+      exported 2-arg (the 3-arg slot form = BUG-1266 belongs to
+      monster ring-wearing, obligation annotated on the B2 map);
+      NO W_RINGL/W_RINGR cases (same owner);
+      objects[].oc_charged stands in for master's 3.6-only
+      is_chargeable() in could_use_item; inediate() macro added;
+      cures_stoning exported; svm.moves/obj_to_any/safe_mons/
+      gp.propellor/pline_mon idiom. MASTER-PARITY KEPT (recorded,
+      do not fix): offensive potions in UNLOCKED containers are
+      thrown directly (no extraction turn; container owt briefly
+      stale - no owt sanity check exists); the creation junk cull
+      destroys Croesus's duplicate two-handed sword (the gold one
+      loses the select_hwep ranking to the +3 mitem sword - both
+      trees); rare bags are excluded as stash DESTINATIONS but
+      remain stashable ITEMS into a plain sack (contents stay
+      sealed - master's searches_for_item would allow it too);
+      contained POT_VAMPIRE_BLOOD is not findable (master's
+      checker lacks the flat-loop arm); a pet handed a plain
+      sack drops it (hero-dupe bag rule). REVIEWER PASS zero
+      conditions; its census: master-only checker arms NOT added
+      (their own rows) = MUSE_POT_RESTORE_ABILITY +
+      MUSE_BAG_OF_TRICKS defensive, SCR_CHARGING/
+      find_best_item_to_charge, PAN_FLUTE, DWARVISH_BEARDED_AXE
+      disarm, FIGURINE/WAN_WISHING/REMOVE_CURSE/POT_HALLUCINATION
+      offensive-misc set -> the muse offensive-item parity
+      deferral; WAN_DIGGING lacks master's !can_levitate in both
+      the flat loop and checker -> flagged onto the can_levitate
+      sweep row. BATTERY 10/10 (human Valkyrie XL30, 467 turns,
+      sanity_check on, paniclog clean) + RETEST 3/3: contained
+      defensive quaff and offensive zap via the "removes ... from
+      the bag" extraction turn; locked-chest and cursed-BoH
+      no-ops; armor-from-sack extract-then-wear with worn-mask
+      gdb proof; oreserved plate mail untouched 16 turns while
+      gold was stashed into the same sack, belay re-wear;
+      hostile stash beyond dist2 8 only, Amulet carrier never;
+      Croesus's rare bag stays sealed with worn gold kit intact;
+      drow warrior keeps mw AND mw2 through creation; pet
+      catches a useful thrown ring, duplicate ring misses with
+      zero damage; both rare bags inert through 20+ lined-up and
+      low-HP turns; retest = one monster with all three container
+      states, locked chest and cursed BoH byte-identical across
+      35+ turns while the plain sack's potion was extracted and
+      drunk on consecutive turns. Archive: muse.c
+      find_*_recurse() Consolidation (Dec 20 2025) + the armor
+      half of Monster Container Extraction (Dec 21 2025) +
+      Intelligent monsters stash (Jan 2019 lineage).
 - [ ] CHA-based pet cap NOT PORTED (minted 2026-08-26 by the
       features-coverage sweep; MED). The whole subsystem is
       missing, not just master's optimization: the allmain.c
