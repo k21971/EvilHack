@@ -1781,7 +1781,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hack_artifacts non-forge retargets (Dirge/Priest/Caveman -
       artifact/crowning slice), botl_hitbonus FQ display
       (SCORE_ON_BOTL extension), monk qi weapon-break FQ guards,
-      pray.c sacrifice-gift FQ sites (sacrifice rework),
+      pray.c sacrifice-gift FQ sites (sacrifice rework; DISCHARGED
+      2026-08-27 by the god-gift slice - the abuse-gated
+      FQ_SUPERIOR/FQ_EXCEPTIONAL roll lives in bestow_regular_gift
+      and gift artifacts get FQ_NORMAL),
       Blacksmith's Cookbook tribute passages (Phase 3 dat),
       MAGIC_KEY bones rewrite (magic chests). NITs left as
       master/upstream parity: mkforge transient nforges overcount
@@ -4762,7 +4765,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       retwoweapon brackets, dothrow return-cycle callers, detect.c
       offhand search); invoke_taming blessed + invoke_healing
       Withering; awaiting_guaranteed_gift dead-by-design (consumer
-      pray.c:2609 = prayer owner). REVIEW: CONDITIONAL PASS, 1
+      pray.c:2609 = prayer owner; WIRED 2026-08-27 - the god-gift
+      slice's precedence ladder in resolve_offering is now the
+      branch caller). REVIEW: CONDITIONAL PASS, 1
       blocker (BUG-1352) + all concerns fixed or assigned same day;
       reviewer verified the reseat-caller census closes (no missed
       site) and CHANNEL/DEATH_MAGIC ladders arm-by-arm.
@@ -7685,7 +7690,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       WITHOUT the frac_altar==0 gate, the frac_altar=1 write and
       the lightning/altar-splitting message pair - all three
       re-port here (TODO-EVILHACK comment marks the site);
-      exist_artifact() covers the one-shot meanwhile.
+      exist_artifact() covers the one-shot meanwhile. THIRD
+      CONSUMER (2026-08-27, god-gift slice): the ported sacrifice
+      gift ladder landed frac-altar-less - master's three arms
+      slot into it verbatim when this row ports: the
+      `|| frac_altar == 1` regular-branch force in
+      resolve_offering's precedence gate, the `&& frac_altar == 0`
+      guard on the artifact arm, and the frac_altar=1 write +
+      lightning/altar-splitting message pair inside
+      bestow_artifact (master pray.c ~3055-3065).
 - [x] Kick to-hit roll (non-polyd) NOT PORTED (minted 2026-08-07 by
       the Samurai slice's BUG-1246 caitiff-parity port). Master's
       non-polyd kick_monster() path rolls to hit - kickdieroll vs
@@ -10199,7 +10212,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       breaks out of armor by design; erinys M2_NOPOLY, vrock
       bigmonst); vampire control blocked==0 in plate mail.
       Paniclog never created.
-- [ ] God-gift subsystem NOT PORTED (minted 2026-08-26 by the
+- [x] God-gift subsystem NOT PORTED (minted 2026-08-26 by the
       features-coverage sweep; MED - this is the owner several
       closed rows defer to as "god-gift subsystem (record_gift)").
       you.h ugift_history is a dead Phase 1 field: record_gift,
@@ -10208,6 +10221,84 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Gift Deduplication (Dec 8 2025), Sacrifice System Refactor
       (Dec 10 2025), Gift Streak Breaker (Feb 12 2026); the
       crowning rework note travels per row 3991's prose.
+      DONE 2026-08-27. PREMISE CORRECTIONS: the branch lacked the
+      ENTIRE regular-gift system (vanilla 5.0 has no non-artifact
+      sacrifice gift), not just the three enhancement layers; and
+      "crowning racial gear rejects" from the races-row deferral is
+      ALREADY DISCHARGED (gcrownu racial arms verified line-parallel
+      with master - BUG-1490/1491/1497 did that work; no crowning
+      changes in this slice). Master's subsystem (4377e6f58 dedup,
+      e57edd3ac refactor, 896394c1f streak breaker + load-bearing
+      follow-ups 35254587d iter caps, 85486467a stackobj, 1744e506f
+      learned gate) restored in the 5.0 helper structure:
+      gift_recently_given/record_gift verbatim; make_spellbook_gift
+      on SPBOOK_no_NOVEL + known_spell-enum idiom; apply_racial_
+      substitution replaced by exported u_init.c
+      racial_inv_substitution beside ini_inv_obj_substitution
+      (table stays static const - ruling); master's THREE verbatim
+      spellbook-bestowal copies factored into ONE
+      bestow_spellbook_gift (sacrifice flag = LL_ARTIFACT +
+      godvoice + is_magic-gated ugifts++ + ublesscnt; reviewer
+      byte-checked each copy against the factored body);
+      bestow_regular_gift = master's whole regular arm (zero-RNG
+      streak-breaker forced arms, weapon/spellbook/armor ladders,
+      inverted armor dedup, material re-roll 500 cap, SHURIKEN
+      rn1(7,14), abuse-gated oprop/FQ rolls, poison scrub,
+      place_object+stackobj order); bestow_artifact MERGE ruling:
+      5.0's 4-arg mk_artifact value cap + wizard y_n lever kept
+      (the prompt replaces the arti odds roll in wizmode), master
+      economy grafted (arti_gift_odds, A_NONE curse, abuse-tier
+      bless/enchantment incl. negative spe - adjust_spe now FALSE
+      since the ladder overwrites spe, maybe_erodeproof gate,
+      FQ_NORMAL, poison scrub, ublesscnt rnz(300+50*ugifts)
+      post-increment, caller-side u.ulevel >= 4 replacing the old
+      > 2); resolve_offering gains master's shared odds/enchantment
+      block + precedence ladder wiring awaiting_guaranteed_gift
+      (its FIRST branch caller - row "dead-by-design" discharged);
+      give_spell body = master's prayer path (vanilla 25%
+      direct-learn dropped per plan approval; LL_DIVINEGIFT only,
+      no godvoice, record_gift always). ABUSE SIGN FLIP: master
+      counts abuse negative, branch unsigned positive - all eight
+      (abuse * -1) < N became abuse < N (tiers 5/15/30/50 = the
+      insight.c ladder). is_magic macro added to obj.h verbatim.
+      frac_altar OMITTED throughout (owner row annotated). RANGE
+      VERIFICATION: 16/18 rnd_class spans byte-identical; shield
+      spans + spellbook span differ ONLY by adopted 5.0 content
+      (drain/shock shields, SPE_CHAIN_LIGHTNING) = giftable by
+      design of the adoption ruling. MASTER-PARITY KEPT (do not
+      fix): spellbook livelog logs the UNidentified description
+      (livelog precedes makeknown - "had a gold spellbook given to
+      him"); regular-gift livelog omits BUC/enchant (bknown unset
+      at log time); restore does not clamp ugift_hist_idx (OOB
+      only on a hostile save, master identical); weapon-loop
+      iter-cap exit can materialize a P_RESTRICTED typ (needs
+      10000 consecutive rejects). Reviewer PASS zero conditions.
+      BATTERY 13/13, four games (dwarf Valkyrie, Priest, Monk,
+      Infidel; ~120 sacrifices; paniclog never created): headline
+      regular gift (shield of mobility spe+5 blessed, history[0]
+      recorded, idx advanced, "entrusted to her by Tyr"); dwarvish
+      substitutions (LONG_SWORD->DWARVISH_BEARDED_AXE, SHORT_SWORD
+      ->DWARVISH_SHORT_SWORD, SPEAR->DWARVISH_SPEAR; unmapped pass
+      through); streak breaker BOTH directions across five seeds;
+      dedup: 18/20 eligible weapons history-blocked -> gift was
+      one of the two free otyps; full-block -> the documented
+      ncount>200 duplicate fallback, no hang; abuse tiers 10/35 =
+      spe+1 blessed proofed / spe-1 unblessed unproofed, reset
+      restores +3..+5; odds-fail luck tail incl. the declined
+      wizard prompt and the luck-cap silent case; save/restore
+      50-slot history + idx diff-identical; Priest spellbook arm
+      (Priests START illiterate - literacy broken via scroll
+      first, BOTH arms exercised) with prayer path lltype=8 vs
+      sacrifice lltype=72 and no godvoice on prayer; Monk pacifist
+      20-shuriken x2 (an oprop stack bumped ugifts via is_magic, a
+      plain stack did not); artifact merge (Fire Brand spe=5
+      blessed FQ_NORMAL via the enchantment ladder, gift history
+      untouched - artifacts deliberately unrecorded); XL3 gate =
+      zero artifact prompts in 11 sacrifices while 2 regular gifts
+      landed; Infidel unaligned-altar gift CURSED + "Use this gift
+      ominously!". Battery lore: maybe_erodeproof early-returns on
+      supermaterials, so STEEL gifts read oerodeproof 0 (intended;
+      every non-supermaterial gift proofed).
 - [ ] Monster looting NOT PORTED (minted 2026-08-26 by the
       features-coverage sweep; MED - the owner four rows' prose
       defers to as "monster looting"). find_items_recurse (master
