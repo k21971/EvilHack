@@ -2240,6 +2240,7 @@ setup_mon_inventory(struct monst *mtmp)
     m_initinv(mtmp); /* add on a few special items incl. more armor */
     m_dowear(mtmp, TRUE);
     mon_wield_item(mtmp);
+    (void) m_stash_items(mtmp, TRUE);
 }
 
 staticfn void

@@ -4707,4 +4707,147 @@ del_soko_prizes(void)
         svc.context.achieveo.soko_prize_oid[i] = 0;
 }
 
+/* intelligent monsters put things into containers */
+int
+m_stash_items(struct monst *mon, boolean creation)
+{
+    boolean putitems = FALSE;
+    char buf[BUFSZ];
+    struct obj *obj, *nobj, *bag = (struct obj *) 0;
+    struct obj *wep = (struct obj *) 0, *hwep = (struct obj *) 0;
+    struct obj *rwep = (struct obj *) 0, *proj = (struct obj *) 0;
+
+    /* hard to use a bag without hands */
+    if (nohands(mon->data))
+        return 0;
+
+    /* hostile monsters won't stop to stash items when player
+       is nearby */
+    if (!creation && !mon->mpeaceful
+        && dist2(mon->mx, mon->my, u.ux, u.uy) <= 8)
+        return 0;
+
+    for (obj = mon->minvent; obj; obj = obj->nobj) {
+        if (!Is_nonprize_container(obj)
+            || obj->otyp == BAG_OF_TRICKS
+            || obj->otyp == BAG_OF_TREASURE
+            || obj->otyp == BAG_OF_DEVOURING
+            || obj->olocked)
+            continue;
+        if (obj->otyp == BAG_OF_HOLDING && !obj->cursed) {
+            bag = obj;
+            break;
+        } else if (!bag
+            || (obj->otyp == OILSKIN_SACK
+                && bag->otyp != OILSKIN_SACK)
+            || (obj->otyp == SACK
+                && (bag->otyp != OILSKIN_SACK
+                    && bag->otyp != SACK))) {
+            bag = obj;
+        }
+    }
+
+    if (!bag && !creation)
+        return 0;
+
+    if (bag)
+        Sprintf(buf, "%s %s", mhis(mon), xname(bag));
+
+    if (attacktype(mon->data, AT_WEAP)) {
+        wep = MON_WEP(mon);
+        hwep = select_hwep(mon);
+        proj = select_rwep(mon);
+        rwep = gp.propellor;
+    }
+
+    for (obj = mon->minvent; obj; obj = nobj) {
+        nobj = obj->nobj;
+        /* objects that won't or can't be stashed */
+        if (obj == bag
+            || obj->owornmask
+            || obj == wep || obj == hwep || obj == rwep || obj == proj
+            /* unworn at the hero's request; stashing it would hide it
+               from the follow-up take order and the belay release */
+            || obj->oreserved
+            || (!mon->mtame && searches_for_item(mon, obj))
+            || (mon->mtame && could_use_item(mon, obj, TRUE, TRUE))
+            || (bag && Is_mbag(bag) && mbag_explodes(obj, 0))
+            || (obj->otyp == LOADSTONE && obj->cursed)
+            || (obj->otyp == AMULET_OF_YENDOR
+                || obj->otyp == FAKE_AMULET_OF_YENDOR
+                || obj->otyp == BELL_OF_OPENING
+                || obj->otyp == CANDELABRUM_OF_INVOCATION
+                || obj->otyp == SPE_BOOK_OF_THE_DEAD
+                || (is_quest_artifact(obj) && !u.uevent.qcompleted)
+                || obj->otyp == ICE_BOX || Is_box(obj)
+                || obj->otyp == BOULDER
+                || (obj->otyp == CORPSE && inediate(mon->data))
+                || (is_graystone(obj) && obj->otyp != TOUCHSTONE)
+                || (obj->otyp == STATUE
+                    && bigmonst(&safe_mons(obj->corpsenm)))))
+            continue;
+
+        /* prevent pets from stashing random junk armor and weapons, unless
+         * they have a blessed bag of holding -- in which case, sure, they
+         * can go hog wild */
+        if (bag && mon->mtame && !(Is_mbag(bag) && bag->blessed)
+            && (obj->oclass == ARMOR_CLASS || obj->oclass == WEAPON_CLASS)
+            /* keep/stash "special" (magical/artifact) weapons and armor */
+            && !obj->oartifact && !objects[obj->otyp].oc_magic
+            && (obj->oprops & ITEM_PROP_MASK) == 0L
+            /* if the player explicitly gave it to their pet, go ahead and
+             * (maybe) stash it anyway */
+            && !obj->invlet)
+            continue;
+
+        if (creation) {
+            /* exception: balrogs are generated with two weapons */
+            if (mon->data == &mons[PM_BALROG]
+                && obj->otyp == BULLWHIP)
+                continue;
+
+            /* at creation time, this is a junk item we don't need,
+             * so presumably they got rid of it */
+            if (obj->oclass == WEAPON_CLASS
+                || obj->oclass == ARMOR_CLASS) {
+                obj_extract_self(obj);
+                obfree(obj, (struct obj *) 0);
+                continue;
+            } else if (!bag)
+                continue;
+        }
+
+        obj_extract_self(obj);
+
+        if (obj->otyp == LOADSTONE)
+            curse(obj);
+        else if (obj->otyp == FIGURINE && obj->timed)
+            (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
+
+        if (obj_is_burning(obj))
+            (void) snuff_lit(obj, TRUE);
+
+        if (bag->otyp == ICE_BOX && !age_is_relative(obj)) {
+            obj->age = svm.moves - obj->age;
+            if (obj->otyp == CORPSE && obj->timed) {
+                long rot_alarm = stop_timer(ROT_CORPSE, obj_to_any(obj));
+
+                (void) stop_timer(REVIVE_MON, obj_to_any(obj));
+                if (rot_alarm)
+                    obj->norevive = 1;
+            }
+        }
+
+        putitems = TRUE;
+
+        if (!creation && canseemon(mon))
+            pline_mon(mon, "%s puts %s into %s.",
+                      Monnam(mon), distant_name(obj, doname), buf);
+
+        (void) add_to_container(bag, obj);
+        bag->owt = weight(bag);
+    }
+    return (putitems && !creation);
+}
+
 /*pickup.c*/

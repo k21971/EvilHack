@@ -1230,6 +1230,11 @@ dochug(struct monst *mtmp)
         }
     }
 
+    /* check to see if we should stash something; monsters with the
+       Amulet skip stashing */
+    if (!mon_has_amulet(mtmp) && m_stash_items(mtmp, FALSE))
+        return 0;
+
     /*
      * PHASE THREE: Now the actual movement phase
      */

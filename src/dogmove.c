@@ -20,6 +20,269 @@ staticfn struct monst *best_target(struct monst *, boolean);
 staticfn boolean can_reach_location(struct monst *, coordxy, coordxy, coordxy,
                                   coordxy) NONNULLARG1;
 staticfn boolean mnum_leashable(int);
+staticfn boolean is_better_armor(struct monst *, struct obj *) NONNULLPTRS;
+
+/*
+ * See if this armor is better than what we're wearing.
+ */
+staticfn boolean
+is_better_armor(struct monst *mtmp, struct obj *otmp)
+{
+    struct obj *obj;
+    struct obj *best = (struct obj *) 0;
+
+    if (otmp->oclass != ARMOR_CLASS)
+        return FALSE;
+
+    if (cantweararm(mtmp)
+        && !(is_cloak(otmp) && mtmp->data->msize == MZ_SMALL))
+        return FALSE;
+
+    if (is_shirt(otmp) && (mtmp->misc_worn_check & W_ARM))
+        return FALSE;
+
+    if (is_shield(otmp)
+        && ((mtmp == &gy.youmonst)
+               ? (uwep && bimanual(uwep))
+               : (MON_WEP(mtmp) && mon_bimanual(mtmp, MON_WEP(mtmp)))))
+        return FALSE;
+
+    if (is_gloves(otmp) && nohands(mtmp->data))
+        return FALSE;
+
+    if (is_boots(otmp)
+        && (slithy(mtmp->data) || mtmp->data->mlet == S_CENTAUR))
+        return FALSE;
+
+    if (is_helmet(otmp)
+        && !is_flimsy(otmp)
+        && num_horns(mtmp->data) > 0)
+        return FALSE;
+
+    obj = (mtmp == &gy.youmonst) ? gi.invent : mtmp->minvent;
+
+    for (; obj; obj = obj->nobj) {
+        if (is_cloak(otmp) && !is_cloak(obj))
+            continue;
+        if (is_suit(otmp) && !is_suit(obj))
+            continue;
+        if (is_shirt(otmp) && !is_shirt(obj))
+            continue;
+        if (is_boots(otmp) && !is_boots(obj))
+            continue;
+        if (is_shield(otmp) && !is_shield(obj))
+            continue;
+        if (is_helmet(otmp) && !is_helmet(obj))
+            continue;
+        if (is_gloves(otmp) && !is_gloves(obj))
+            continue;
+
+        if (!obj->owornmask)
+            continue;
+
+        if (!best
+            || (armor_bonus(obj) + extra_pref(mtmp, obj)
+                > armor_bonus(best) + extra_pref(mtmp, best)))
+            best = obj;
+    }
+
+    return ((best == (struct obj *) 0)
+            || (armor_bonus(otmp) + extra_pref(mtmp, otmp)
+                > armor_bonus(best) + extra_pref(mtmp, best)));
+}
+
+/*
+ * See if a monst could use this item in an offensive or defensive capacity.
+ */
+boolean
+could_use_item(struct monst *mtmp, struct obj *otmp,
+               boolean check_if_better, boolean stashing)
+{
+    boolean can_use =
+        /* make sure this is an intelligent monster */
+        (mtmp && !is_animal(mtmp->data) && !mindless(mtmp->data)
+         && !nohands(mtmp->data) && otmp
+         /* food */
+         && ((dogfood(mtmp, otmp) < APPORT)
+             /* better weapons */
+             || (attacktype(mtmp->data, AT_WEAP)
+             && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+             && (!check_if_better
+                 || would_prefer_hwep(mtmp, otmp)
+                 || would_prefer_rwep(mtmp, otmp)))
+             /* ammo for any launcher monster has (pets pick up
+                opportunistically) */
+             || mon_wants_ammo(mtmp, otmp)
+             /* learnable / in-progress spellbook for a spellcaster */
+             || mon_wants_spellbook(mtmp, otmp)
+             /* better armor */
+             || (otmp->oclass == ARMOR_CLASS
+                 && (!check_if_better || is_better_armor(mtmp, otmp)))
+             /* useful amulets */
+             || otmp->otyp == AMULET_OF_LIFE_SAVING
+             || otmp->otyp == AMULET_OF_REFLECTION
+             || otmp->otyp == AMULET_OF_FLYING
+             || otmp->otyp == AMULET_OF_MAGIC_RESISTANCE
+             || otmp->otyp == AMULET_OF_GUARDING
+             || otmp->otyp == AMULET_OF_ESP
+             /* bags */
+             || otmp->otyp == BAG_OF_HOLDING
+             || otmp->otyp == BAG_OF_TRICKS
+             || otmp->otyp == OILSKIN_SACK
+             || otmp->otyp == SACK
+             /* misc magic items that muse can use */
+             || otmp->otyp == SCR_TELEPORTATION
+             || otmp->otyp == SCR_EARTH
+             || otmp->otyp == SCR_REMOVE_CURSE
+             || otmp->otyp == SCR_CHARGING
+             || otmp->otyp == SCR_FIRE
+             || otmp->otyp == SCR_STINKING_CLOUD
+             || otmp->otyp == WAN_WISHING
+             || otmp->otyp == WAN_DEATH
+             || otmp->otyp == WAN_DIGGING
+             || otmp->otyp == WAN_FIRE
+             || otmp->otyp == WAN_COLD
+             || otmp->otyp == WAN_LIGHTNING
+             || otmp->otyp == WAN_MAGIC_MISSILE
+             || otmp->otyp == WAN_STRIKING
+             || otmp->otyp == WAN_TELEPORTATION
+             || otmp->otyp == WAN_POLYMORPH
+             || otmp->otyp == WAN_CANCELLATION
+             || otmp->otyp == WAN_UNDEAD_TURNING
+             || otmp->otyp == POT_HEALING
+             || otmp->otyp == POT_EXTRA_HEALING
+             || otmp->otyp == POT_FULL_HEALING
+             || otmp->otyp == POT_RESTORE_ABILITY
+             || otmp->otyp == POT_PARALYSIS
+             || otmp->otyp == POT_BLINDNESS
+             || otmp->otyp == POT_CONFUSION
+             || otmp->otyp == POT_HALLUCINATION
+             || otmp->otyp == POT_ACID
+             || otmp->otyp == POT_POLYMORPH
+             || otmp->otyp == POT_OIL
+             || otmp->otyp == RIN_INVISIBILITY
+             || otmp->otyp == RIN_FIRE_RESISTANCE
+             || otmp->otyp == RIN_COLD_RESISTANCE
+             || otmp->otyp == RIN_POISON_RESISTANCE
+             || otmp->otyp == RIN_SHOCK_RESISTANCE
+             || otmp->otyp == RIN_REGENERATION
+             || otmp->otyp == RIN_TELEPORTATION
+             || otmp->otyp == RIN_TELEPORT_CONTROL
+             || otmp->otyp == RIN_SLOW_DIGESTION
+             || otmp->otyp == RIN_INCREASE_DAMAGE
+             || otmp->otyp == RIN_INCREASE_ACCURACY
+             || otmp->otyp == RIN_PROTECTION
+             || otmp->otyp == RIN_LEVITATION
+             || otmp->otyp == RIN_FREE_ACTION
+             || otmp->otyp == RIN_ANCIENT
+             || otmp->otyp == RIN_LUSTROUS
+             || otmp->otyp == FROST_HORN
+             || otmp->otyp == FIRE_HORN
+             || otmp->otyp == MAGIC_HARP
+             || otmp->otyp == DRUM_OF_EARTHQUAKE
+             || otmp->otyp == FIGURINE
+             || otmp->otyp == EUCALYPTUS_LEAF
+             || otmp->otyp == MISTLETOE
+             || otmp->otyp == UNICORN_HORN
+             /* vampires hoard blood potions to drink when hungry */
+             || (is_vampire(mtmp->data)
+                 && (otmp->otyp == POT_BLOOD
+                     || otmp->otyp == POT_VAMPIRE_BLOOD))
+             || cures_stoning(mtmp, otmp, FALSE)));
+
+    /* don't try to pick up uball/uchain */
+    if (otmp == uball || otmp == uchain)
+        return FALSE;
+
+    if (can_use) {
+        /* arbitrary - greedy monsters keep any item you can use */
+        if (likes_gold(mtmp->data) && !stashing)
+            return TRUE;
+        if (otmp->oclass == ARMOR_CLASS) {
+            return !check_if_better || !is_better_armor(&gy.youmonst, otmp);
+        } else if (objects[otmp->otyp].oc_charged && otmp->spe <= 0) {
+            return FALSE;  /* used charges or was cancelled? */
+        } else if (Is_mbag(otmp) && otmp->cursed) {
+            return FALSE;
+        } else {
+            /* Check whether the monster has an item like this already.
+               Prevent hoarding of multiple, identical items */
+            struct obj *otmp2;
+
+            for (otmp2 = mtmp->minvent; otmp2; otmp2 = otmp2->nobj) {
+                if (otmp->o_id == otmp2->o_id)
+                    continue;
+                if (Is_nonprize_container(otmp)) {
+                    if (stashing)
+                        return TRUE; /* don't stash one bag in another */
+                    if (otmp2->otyp >= SACK && otmp2->otyp <= BAG_OF_HOLDING
+                        && otmp->otyp < otmp2->otyp)
+                        return FALSE;
+                }
+                if (otmp->otyp == otmp2->otyp) {
+                    /* Exception: ammo stacks, so more is always useful */
+                    if (is_ammo(otmp) || is_missile(otmp)
+                        || throwing_weapon(otmp))
+                        continue;
+                    if (stashing)
+                        goto hero_dupe_check;
+                    return FALSE;
+                }
+            }
+
+            /* these aren't typically super-special or unique types of items,
+             * so just hang onto them if they will be useful -- the hero can
+             * use #loot to take them if need be */
+            if (otmp->oclass == POTION_CLASS || otmp->oclass == SCROLL_CLASS
+                || otmp->oclass == RING_CLASS || otmp->oclass == AMULET_CLASS
+                || (otmp->oclass == WAND_CLASS && otmp->otyp != WAN_DEATH
+                    && otmp->otyp != WAN_WISHING))
+                return TRUE;
+
+            /* if item is already in monster's inventory and we are
+             * considering whether to stash it in a bag, at this point we can
+             * be satisfied that it should stay out */
+            if (stashing)
+                return TRUE;
+
+            /* on the other hand, if considering whether to pick the item up
+             * or drop it, only do so if the hero has one already, so as not
+             * to steal an important item from the hero */
+ hero_dupe_check:
+            /* Ammo is always useful for pets - don't require hero to have
+               it */
+            if (is_ammo(otmp) || is_missile(otmp) || throwing_weapon(otmp))
+                return TRUE;
+            for (otmp2 = gi.invent; otmp2; otmp2 = otmp2->nobj) {
+                if (cures_stoning(mtmp, otmp, FALSE)) {
+                    /* don't take an item that cures stoning unless the hero
+                     * already has one */
+                    if (cures_stoning(&gy.youmonst, otmp2, FALSE)) {
+                        return stashing ? FALSE : TRUE;
+                    }
+                } else if (Is_nonprize_container(otmp)) {
+                    if (stashing)
+                        return TRUE; /* don't stash one bag in another */
+                    /* don't take a bag unless the hero has one that is of the
+                     * same quality or better -- this relies on the fact that
+                     * bag otyps are contiguous and in order of preference */
+                    if (otmp2->otyp >= SACK && otmp2->otyp <= BAG_OF_HOLDING
+                        && otmp->otyp <= otmp2->otyp) {
+                        return TRUE;
+                    }
+                } else if (otmp->otyp == otmp2->otyp
+                           || (otmp->oclass == FOOD_CLASS
+                               && otmp2->oclass == FOOD_CLASS)) {
+                    return stashing ? FALSE : TRUE;
+                }
+            }
+            return stashing ? TRUE : FALSE;
+        }
+    } else if (otmp->otyp == ROCK && stashing) {
+        return TRUE;
+    }
+    return FALSE;
+}
 
 /* pick a carried item for pet to drop */
 struct obj *
@@ -144,7 +407,8 @@ droppables(struct monst *mon)
                     && !would_prefer_rwep(mon, obj)
                     && (rwep != &hands_obj
                         || (!is_ammo(obj) && !is_launcher(obj)))
-                    && (rwep == &hands_obj || !ammo_and_launcher(obj, rwep)))))
+                    && (rwep == &hands_obj || !ammo_and_launcher(obj, rwep))
+                    && !could_use_item(mon, obj, TRUE, FALSE))))
             return obj;
     }
 
@@ -543,8 +807,10 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
                    must not let it hoard more */
                 && !(nohands(mtmp->data) && droppables(mtmp))
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-                if (rn2(20) < edog->apport + 3) {
-                    if (rn2(udist) || !rn2(edog->apport)) {
+                boolean can_use = could_use_item(mtmp, obj, TRUE, FALSE);
+
+                if (can_use || rn2(20) < edog->apport + 3) {
+                    if (can_use || rn2(udist) || !rn2(edog->apport)) {
                         otmp = obj;
                         if (carryamt != obj->quan)
                             otmp = splitobj(obj, carryamt);
@@ -574,7 +840,7 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
             }
         }
     }
-    return 0;
+    return m_stash_items(mtmp, FALSE);
 }
 
 /* set dog's goal -- gtyp, gx, gy;
@@ -586,7 +852,7 @@ dog_goal(
     int after, int udist, int whappr)
 {
     coordxy omx, omy;
-    boolean in_masters_sight, dog_has_minvent;
+    boolean in_masters_sight, dog_has_minvent, can_use;
     struct obj *obj;
     xint16 otyp;
     int appr;
@@ -657,10 +923,12 @@ dog_goal(
                     }
                 } else if (gg.gtyp == UNDEF && in_masters_sight
                            && !(edog->petstrat & PETSTRAT_NOAPPORT)
-                           && !dog_has_minvent
+                           && ((can_use = could_use_item(mtmp, obj,
+                                                         TRUE, FALSE))
+                               || !dog_has_minvent)
                            && (!levl[omx][omy].lit || levl[u.ux][u.uy].lit)
                            && (otyp == MANFOOD || m_cansee(mtmp, nx, ny))
-                           && edog->apport > rn2(8)
+                           && (can_use || edog->apport > rn2(8))
                            && can_carry(mtmp, obj) > 0) {
                     gg.gx = nx;
                     gg.gy = ny;

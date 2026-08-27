@@ -869,6 +869,8 @@ extern void wary_dog(struct monst *, boolean) NONNULLARG1;
 
 extern boolean cursed_object_at(coordxy, coordxy);
 extern struct obj *droppables(struct monst *) NONNULLARG1;
+extern boolean could_use_item(struct monst *, struct obj *, boolean,
+                              boolean) NO_NNARGS;
 extern int dog_nutrition(struct monst *, struct obj *) NONNULLPTRS;
 extern boolean m_eat_grass(struct monst *) NONNULLARG1;
 extern int dog_eat(struct monst *, struct obj *,
@@ -2249,6 +2251,8 @@ extern boolean munstone(struct monst *, boolean) NONNULLARG1;
 extern boolean munslime(struct monst *, boolean) NONNULLARG1;
 extern boolean mon_wants_spellbook(struct monst *,
                                    struct obj *) NONNULLARG1;
+extern boolean cures_stoning(struct monst *, struct obj *,
+                             boolean) NONNULLPTRS;
 extern boolean mcast_ray_spell(struct monst *, coordxy, coordxy,
                                int) NONNULLARG1;
 extern boolean mcast_immediate_spell(struct monst *, coordxy, coordxy,
@@ -2647,6 +2651,7 @@ extern boolean reroll_menu(void);
 extern struct obj *pick_obj(struct obj *) NONNULLARG1;
 extern void encumber_msg(void);
 extern int container_at(coordxy, coordxy, boolean);
+extern int m_stash_items(struct monst *, boolean) NONNULLARG1;
 extern int doloot(void);
 extern void observe_quantum_cat(struct obj *, boolean, boolean) NONNULLARG1;
 extern boolean container_gone(int(*)(struct obj *)) NONNULLARG1;
@@ -4252,6 +4257,7 @@ extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
                                   boolean) NONNULLARG12;
 /* no NONNULLARG1: keeps master's defensive impossible() on a null obj */
 extern int armor_bonus(struct obj *);
+extern int extra_pref(struct monst *, struct obj *) NONNULLARG1;
 extern struct obj *armor_blocker(struct monst *, int *, int) NONNULLPTRS;
 extern int find_mac(struct monst *) NONNULLARG1;
 extern void m_dowear(struct monst *, boolean) NONNULLARG1;
