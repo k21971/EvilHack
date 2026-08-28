@@ -9248,7 +9248,7 @@ show_menu_controls(winid win, boolean dolist)
         putstr(win, 0, "");
         Sprintf(buf, mc_fmt, "Search",
                 visctrl(get_menu_cmd_key(MENU_SEARCH)),
-                "Exter a target string and invert all matching entries");
+                "Enter a target string and invert all matching entries");
         putstr(win, 0, buf);
         /* separator before hardcoded */
         putstr(win, 0, "");
