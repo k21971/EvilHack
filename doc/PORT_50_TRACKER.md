@@ -10911,12 +10911,46 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sonic/roar damage (observation only, master-parity
       unverified). Archive: Amulet of Yendor Stable on Astral
       Plane (Apr 2026).
-- [ ] Selective remove curse at clerical skill NOT PORTED (minted
-      2026-08-26 by the features-coverage sweep; MED).
-      selective_remove_curse/cursed_obj_filter absent; branch
-      SPE_REMOVE_CURSE still rides the shared scroll fallthrough
-      with the P_SKILLED arm only. Archive: Selective Remove Curse
-      at Expert Clerical Skill (May 10 2026).
+- [x] Selective remove curse at clerical skill PORTED (2026-08-28,
+      master 13cbf4ac3 with the read.c half of BUG-1242 10db2807e
+      already in master tip; two commits: A code, B tracker).
+      cursed_obj_filter/selective_remove_curse into read.c
+      master-verbatim (staticfn/ANSI, &gi.invent, INCLUDE_VENOM
+      comment's panic wording adapted to 5.0's curses
+      impossible); spelleffects SPE_REMOVE_CURSE carved out of
+      the scroll fallthrough group: P_EXPERT + !Confusion +
+      y_n("Cast remove curse selectively?") routes to the menu,
+      decline/confused/lower skill fall through unchanged (the
+      branch spelleffects has no confused local; FALLTHROUGH
+      idiom); extern.h prototype mirrors master's placement.
+      Reviewer PASS with one HIGH cross-file sibling landed
+      in-slice: BUG-1730 - master BUG-1242's SECOND hunk
+      (menu_remarm INCLUDE_VENOM, do_wear.c take-off menu) was
+      silently dropped by the tree adoption; ported same commit
+      (see archive). Reviewer note kept: the branch has no
+      wiz_cast Expert bypass, and spelleffects_check fails every
+      confused cast pre-switch, so the !Confusion guard is
+      defensive there (still load-bearing for the
+      force/artifact-invoke path, which skips that check;
+      master shares the pre-switch confused fail except under
+      wiz_cast). BATTERY 10/10 PASS + stretch (human Priest
+      XL30, sanity_check on, legs 1-10 zero paniclog): subset
+      pick uncursed only the picks, menu listed only cursed
+      items; decline = full auto-uncurse; ESC silent with the
+      item still cursed; empty-set message; confused cast never
+      prompts (fails pre-switch by design); Skilled control no
+      prompt; quivered cursed venom LISTED in the menu
+      (INCLUDE_VENOM proven live on 5.0); cursed steed saddle
+      auto-uncursed with amber glow even on an ESC'd menu;
+      unpunish fired (silent - matches unpunish construction);
+      BUC bits and Expert skill byte-identical across
+      save/restore; stretch shop-water pick fired
+      costly_alteration ("you pay for it!", unpaid cleared).
+      The battery's two paniclog lines were its own staging
+      artifact (gdb-morphed wand-to-potion left an invalid
+      material), not the feature. Pw spent in every outcome
+      (15 Pw, deducted pre-prompt). Archive: Selective Remove
+      Curse at Expert Clerical Skill (May 10 2026); BUG-1730.
 - [ ] Drawbridge destruction on monster crush NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; MED).
       e_survives_unique/maybe_destroy_drawbridge absent (master
