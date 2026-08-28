@@ -53,14 +53,14 @@
 .if n .do ftr CR R  \" if formatting for a terminal, substitute R for CR
 .                   \" (the substitution affects both '\f' and '.ft')
 .
-.ds h0 NetHack Guidebook
+.ds h0 EvilHack Guidebook
 .ds h1 \" empty
 .ds h2 %
-.ds vr NetHack 5.0.0
+.ds vr EvilHack 1.0.0
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 July 4, 2026
+.ds f2 August 28, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -79,10 +79,10 @@
 .
 .mt
 A Guide to the Mazes of Menace
-(Guidebook for NetHack)
+(Guidebook for EvilHack)
 .au
 Original version - Eric S. Raymond
-(Edited and expanded for \*(vr by Mike Stephenson and others)
+(Edited and expanded for \*(vr by Keith Simpson and others)
 .sp 1
 \*(f2
 .hn 1
@@ -135,7 +135,7 @@ dungeon....
 .hn 1
 What is going on here?
 .pg
-You have just begun a game of NetHack.  Your goal is to grab as much
+You have just begun a game of EvilHack.  Your goal is to grab as much
 treasure as you can, retrieve the Amulet of Yendor, and escape the
 Mazes of Menace alive.
 .pg
@@ -154,11 +154,29 @@ and a great two-handed sword.
 \fICavemen\fP and \fICavewomen\fP start with exceptional strength but,
 unfortunately, with neolithic weapons.
 .pg
+\fIConvicts\fP are escaped prisoners who are on the run, actively
+wanted by the Yendorian authorities.  All they have to their name is
+an attached heavy iron ball & chain, and their striped prison t-shirt.
+Due to their life in prison, Convicts have developed an immunity to all
+forms of illness.  Otherwise they are fairly weak, and are always hungry.
+Convicts have a special affinity with rats, and are able to tame them.
+.pg
+\fIDruids\fP are primal spellcasters of considerable power and
+versatility, who gain their power through being at one with nature
+or through a connection to a powerful deity or nature spirit.  Guardians
+of the wilderness, druids see themselves less as masters of the natural
+order and more as an extension of its will.
+.pg
 \fIHealers\fP are wise in medicine and apothecary.  They know the
 herbs and simples that can restore vitality, ease pain, anesthetize,
 and neutralize poisons; and with their instruments, they can divine a
 being's state of health or sickness.  Their medical practice earns them
 quite reasonable amounts of money, with which they enter the dungeon.
+.pg
+\fIInfidels\fP are cultists of the evil god Moloch.  They are quite
+proficient in black magics, but less so in the physical combat.  As an
+Infidel, your goal is not to retrieve the Amulet, but to return it to its
+hiding place within Gehennom.
 .pg
 \fIKnights\fP are distinguished from the common skirmisher by their
 devotion to the ideals of chivalry and by the surpassing excellence of
@@ -200,6 +218,36 @@ and easy to overcome at first sight, an experienced Wizard is a deadly foe.
 You may also choose the race of your character (within limits; most
 roles have restrictions on which races are eligible for them):
 .pg
+\fIAasimar\fP are a race of celestial heritage, descended from the union of
+mortals and divine beings.  They are devoted to the cause of law and
+righteousness, and their celestial nature grants them various resistances
+and abilities as they grow in experience.  An Aasimar that stays true to
+their faith may receive extraordinary divine gifts, but those who stray
+from the path of righteousness will find their celestial powers diminished
+or even stripped away entirely.  Aasimar also possess a natural aura of
+light that they can invoke at will.
+.pg
+\fICentaurs\fP are a strong and proud race that have the upper body of a
+humanoid, and the lower body of a large horse.  They are adept at physical
+combat, especially with ranged weapons, and have the ability to jump great
+distances when the need arises.  They can wear all armor that other typical
+humanoid races can wear, except for boots.
+.pg
+\fIDraugr\fP are an undead race that are very similar to zombies but still
+have free will and can reason, unlike their undead zombie brethren.  Draugr
+are immune to things like poison, disease and death magic, and can revive
+a number of times before being permanently destroyed.  However, they are
+exteremely suscepible to fire, and are unable to learn or cast spells or
+obtain intrinsic telepathy due to their almost-but-not-quite mindless
+nature.
+.pg
+\fIDrow\fP (also known as 'dark elves') are a dark-skinned sub-race of Elves
+that shun the light whenever possible and prefer living underground.  They
+share many physical attributes with their elven cousins, including their
+aversion to iron.  Drow weapons and most armor are crafted out of a material
+known as adamantine, whose quality can rivial that of mithril, but becomes
+brittle in the light and can shatter with use unless shrouded in darkness.
+.pg
 \fIDwarves\fP are smaller than humans or elves, but are stocky and solid
 individuals.  Dwarves' most notable trait is their great expertise in mining
 and metalwork.  Dwarvish armor is said to be second in quality not even to the
@@ -209,19 +257,54 @@ mithril armor of the Elves.
 on will escape an Elf.  The quality of Elven craftsmanship often gives
 them an advantage in arms and armor.
 .pg
+\fIGiants\fP are humanoid in appearance, but are much larger.  Due to their
+size, they are unable to wear many armor types found within the dungeon.
+However, they can one-hand weapons that are two-handed for the other smaller
+races, and they can carry and toss boulders as if they were rocks.  Giants
+are a bit slower than other races, but their size and immense strength tend
+to make up for this shortcoming.
+.pg
 \fIGnomes\fP are smaller than but generally similar to dwarves.  Gnomes are
 known to be expert miners, and it is known that a secret underground mine
 complex built by this race exists within the Mazes of Menace, filled with
 both riches and danger.
 .pg
+\fIHobbits\fP (also known as Halflings) are one of the smallest humanoid
+races, roughly half the size of a typical human.  Very quick and robust,
+they excel at ranged weapon combat, especially with slings and small blades.
+Hobbits are known for their love of food; they can innately sense if food
+is safe to eat, and they can eat many times their weight before becoming
+satiated.
+.pg
 \fIHumans\fP are by far the most common race of the surface world, and
 are thus the norm to which other races are often compared.  Although
 they have no special abilities, they can succeed in any role.
+.pg
+\fIIllithids\fP are an ancient race that have natural psychic ability.
+They are extremely intelligent and make excellent spellcasters, but are
+one of the weakest races physically.  While Illithids can eat regular food,
+they prefer to use their tentacle-like mouth to feed on other creatures
+brains for sustenance.  Mind flayers are the wild cousins of the Illithid
+race.  Illithids also possess innate telekinetic ability, allowing them
+to push and pull objects and creatures with their mind.
 .pg
 \fIOrcs\fP are a cruel and barbaric race that hate every living thing
 (including other orcs).  Above all others, Orcs hate Elves with a passion
 unequalled, and will go out of their way to kill one at any opportunity.
 The armor and weapons fashioned by the Orcs are typically of inferior quality.
+.pg
+\fITortles\fP are a humanoid turtle race known for their strength and wisdom.
+Their natural shells provide excellent protection against physical attacks,
+but it also prevents them from wearing most types of armor.  They can also
+hide inside their shells for an extended period of time, making them nearly
+impervious to physical attacks.  Tortles are natural swimmers, and can
+survive underwater indefinitely unaided.
+.pg
+\fIVampires\fP are an extremely powerful undead race that enjoy immunity to
+a great deal of various attack types, but are susceptible to fire and have
+a severe aversion to silver.  Vampires do not eat regular food, but instead
+drian the blood from their victims to survive.  They also have the ability
+to shapechange into either a vampire bat, a warg, or a fog cloud at will.
 .hn 1
 What do all those things on the screen mean?
 .pg
@@ -229,25 +312,25 @@ On the screen is kept a map of where you have
 been and what you have seen on the current dungeon level; as you
 explore more of the level, it appears on the screen in front of you.
 .pg
-When NetHack's ancestor \fIrogue\fP first appeared, its screen
+When EvilHack's ancestor \fIrogue\fP first appeared, its screen
 orientation was almost unique among computer fantasy games.  Since
 then, screen orientation has become the norm rather than the
-exception; NetHack continues this fine tradition.  Unlike text
+exception; EvilHack continues this fine tradition.  Unlike text
 adventure games that accept commands in pseudo-English sentences and
-explain the results in words, NetHack commands are all one or two
+explain the results in words, EvilHack commands are all one or two
 keystrokes and the results are displayed graphically on the screen.  A
 minimum screen size of 24 lines by 80 columns is recommended; if the
 screen is larger, only a 21x80 section will be used for the map.
 .pg
-NetHack can even be played by blind players, with the assistance of Braille
-readers or speech synthesisers.  Instructions for configuring NetHack for
+EvilHack can even be played by blind players, with the assistance of Braille
+readers or speech synthesisers.  Instructions for configuring EvilHack for
 the blind are included later in this document.
 .pg
-NetHack generates a new dungeon every time you play it; even the
+EvilHack generates a new dungeon every time you play it; even the
 authors still find it an entertaining and exciting game despite
 having won several times.
 .pg
-NetHack offers a variety of display options.  The options available to you
+EvilHack offers a variety of display options.  The options available to you
 will vary from port to port, depending on the capabilities of your
 hardware and software, and whether various compile-time options were
 enabled when your executable was created.  The three possible display
@@ -261,11 +344,11 @@ colors in the Guidebook, and because it is common to all ports, we will
 use the default ASCII characters from the monochrome character display
 when referring to things you might see on the screen during your game.
 .pg
-In order to understand what is going on in NetHack, first you must
-understand what NetHack is doing with the screen.
-The NetHack screen
+In order to understand what is going on in EvilHack, first you must
+understand what EvilHack is doing with the screen.
+The EvilHack screen
 replaces the \(lqYou see ...\(rq descriptions of text adventure games.
-Figure 1 is a sample of what a NetHack screen might look like.
+Figure 1 is a sample of what a EvilHack screen might look like.
 The way the screen looks for you depends on your platform.
 .
 .\" (Either generated by hand or else the composite of two different
@@ -459,7 +542,7 @@ The message line (top)
 The top line of the screen is reserved for messages that describe
 things that are impossible to represent visually.
 If you see a
-\(lq\fB\-\-More\-\-\fP\(rq on the top line, this means that NetHack has
+\(lq\fB\-\-More\-\-\fP\(rq on the top line, this means that EvilHack has
 another message to display on the screen, but it wants to make certain
 that you've read the one that is there first.
 To read the next message, just press the space bar.
@@ -532,7 +615,7 @@ An iron ball.
 .lp \f(CR_\fP
 An altar, or an iron chain.
 .lp \f(CR{\fP
-A fountain or a sink.
+A fountain, a sink, or a forge.
 .lp \f(CR}\fP
 A pool of water or moat or a wall of water
 or a pool of lava or a wall of lava.
@@ -567,11 +650,11 @@ Commands can be initiated by typing one or two characters to which
 the command is bound to, or typing the command name in the extended
 commands entry.
 Some commands, like \(lqsearch\(rq, do not require that any more
-information be collected by NetHack.
+information be collected by EvilHack.
 Other commands might require additional information, for
 example a direction, or an object to be used.
 For those commands that
-require additional information, NetHack will present you with either a
+require additional information, EvilHack will present you with either a
 menu of choices or with a command line prompt requesting information.
 Which you are presented with will depend chiefly on how you have set the
 .op menustyle
@@ -1199,7 +1282,7 @@ If that happens, you can use the extended command \(lq#terrain\(rq instead.
 Perform an extended command.
 .lp ""
 .pg
-As you can see, the authors of NetHack
+As you can see, the authors of EvilHack
 used up all the letters, so this is a way to introduce the less frequently
 used commands.
 What extended commands are available depends on what features the game was
@@ -1357,6 +1440,11 @@ Default key is \(oqf\(cq.
 Force a lock.
 Autocompletes.
 Default key is \(oqM-f\(cq.
+.lp "#forge   "
+Combine two objects at a forge to create a new object,
+or affix various gemstones to a weapon.
+Autocompletes.
+Default key is \(oqM-F\(cq.
 .lp #genocided
 List any monster types which have been genocided.
 In explore mode and debug mode it also shows types which have become
@@ -1479,6 +1567,10 @@ No default key.
 Precede with the \(oqm\(cq prefix to execute the simpler options command.
 (Mainly useful if you use \f(CRBINDING=O:optionsfull\fP to switch
 \(oq\f(CRO\fP\(cq from simple options back to traditional advanced options.)
+.lp "#order   "
+Give orders to a pet.
+Requires adjacency (or telepathy with both you and your pet).
+Autocompletes.
 .lp #overview
 Display information you've discovered about the dungeon.
 Any visited level
@@ -1579,6 +1671,10 @@ is on.
 .lp "#remove  "
 Remove an accessory (ring, amulet, etc).
 Default key is \(oqR\(cq.
+.lp #removeimarkers
+Remove remembered invisible monster markers (\(oqI\(cq) from the map.
+Autocompletes.
+Default key is \(oq\(haU\(cq.
 .lp "#repeat  "
 Repeat the previous command.
 Default key is \(oq\(haA\(cq.
@@ -1667,13 +1763,21 @@ given.
 Using the \(oq\f(CRm\fP\(cq prefix will force a menu and it will include
 primary weapon, alternate weapon even when not dual-wielding, and also
 whatever is currently assigned to the quiver slot.
+.lp #shapechange
+Vampire's shapechanging ability.
+Change into vampire bat, warg, or fog cloud form, or back to normal.
+Autocompletes.
 .lp "#shell   "
-Do a shell escape, switching from NetHack to a subprocess.
+Do a shell escape, switching from EvilHack to a subprocess.
 Can be disabled at the time the program is built.
 When enabled, access for specific users can be controlled by the system
 configuration file.
 Use the shell command \(oq\f(CRexit\fP\(cq to return to the game.
 Default key is \(oq!\(cq.
+.lp "#shield  "
+Toggle wearing a shield (sword and board) on or off.
+Autocompletes.
+Default key is \(oq{\(cq.
 .lp "#showgold"
 Report the gold in your inventory, including gold you know about in
 containers you're carrying.  If you are inside a shop, report any credit
@@ -1697,8 +1801,12 @@ Default key is \(oqM-s\(cq.
 Show memory usage statistics.
 Autocompletes.
 Debug mode only.
+.lp "#steal   "
+Attempt to steal from an adjacent monster.
+Rogues and Convicts only; must have bare hands.
+Autocompletes.
 .lp "#suspend "
-Suspend the game, switching from NetHack to the terminal it was started
+Suspend the game, switching from EvilHack to the terminal it was started
 from without performing save-and-exit.
 Can be disabled at the time the program is built.
 When enabled, mainly useful for \fItty\fP and \fIcurses\fP interfaces on
@@ -1714,6 +1822,10 @@ Default key is \(oqT\(cq.
 .lp #takeoffall
 Remove all armor.
 Default key is \(oqA\(cq.
+.lp #telekinesis
+Use telekinetic powers to push or pull an object or creature.
+Autocompletes.
+Default key is \(oq\(haK\(cq.
 .lp #teleport
 Teleport around the level.
 Default key is \(oq\(haT\(cq.
@@ -1833,7 +1945,7 @@ monsters answering \(oq\f(CRa\fP\(cq will let you choose from the sort menu.
 Autocompletes.
 Default key is \(oqM-V\(cq.
 .lp "#version "
-Print compile time options for this version of NetHack.
+Print compile time options for this version of EvilHack.
 .lp ""
 The second paragraph lists the user interface(s) that are included.
 If there are more than one, you can use the
@@ -1867,6 +1979,10 @@ Default key is \(oq/\(cq.
 .lp "#wield   "
 Wield a weapon.
 Default key is \(oqw\(cq.
+.lp #wildshape
+Druid's shapechanging ability.
+Change into a creature form based on experience level.
+Autocompletes.
 .lp "#wipe    "
 Wipe off your face.
 Autocompletes.
@@ -1880,6 +1996,10 @@ Autocompletes.
 Debug mode only.
 .lp #wizcast
 Cast any spell.
+Debug mode only.
+.lp #wizcrown
+Become crowned.
+Autocompletes.
 Debug mode only.
 .lp #wizdetect
 Reveal hidden things (secret doors or traps or unseen monsters)
@@ -1914,11 +2034,19 @@ Teleport to another level.
 Autocompletes.
 Debug mode only.
 Default key is \(oq\(haV\(cq.
+.lp #wizmakemap
+Recreate the current level.
+Autocompletes.
+Debug mode only.
 .lp "#wizmap  "
 Map the level.
 Autocompletes.
 Debug mode only.
 Default key is \(oq\(haF\(cq.
+.lp #wizpious
+Become pious.
+Autocompletes.
+Debug mode only.
 .lp #wizrumorcheck
 Verify rumor boundaries by displaying first and last true rumors and
 first and last false rumors.
@@ -1934,6 +2062,10 @@ Autocompletes.
 Debug mode only.
 .lp #wizsmell
 Smell monster.
+Autocompletes.
+Debug mode only.
+.lp #wiztelekinesis
+Hurtle a monster across the map.
 Autocompletes.
 Debug mode only.
 .lp #wizwhere
@@ -1968,8 +2100,8 @@ On other systems, if typing \(lqAlt\(rq plus another key transmits a
 two character sequence consisting of an \fBEscape\fP
 followed by the other key, you may set the
 .op altmeta
-option to have NetHack combine them into meta+<key>.
-(This combining action only takes place when NetHack is expecting a
+option to have EvilHack combine them into meta+<key>.
+(This combining action only takes place when EvilHack is expecting a
 command to execute, not when accepting input to name something or to
 make a wish.)
 .pg
@@ -2000,6 +2132,8 @@ option is enabled)
 #enhance
 .lp M-f
 #force
+.lp M-F
+#forge
 .lp M-g
 #genocided
 .lp M-i
@@ -2180,12 +2314,12 @@ There is a special multi-level branch of the dungeon with pre-mapped levels
 based on the classic computer game \(lq\fISokoban\fP.\(rq
 In that game, you operate as a warehouse worker who pushes crates around
 obstacles to position them at designated locations.
-In NetHack, the goal is to push boulders into pits or holes until those
+In EvilHack, the goal is to push boulders into pits or holes until those
 traps have all been nullified, giving access to whatever is beyond them.
 In the Sokoban game, you can only move in the four cardinal compass
 directions, and a crate in its final destination blocks further access
 to that spot.
-In the Sokoban levels of NetHack, you can move diagonally (unless that
+In the Sokoban levels of EvilHack, you can move diagonally (unless that
 would let you pass between two neighboring boulders) but you can only
 push boulders in the four cardinal directions, and a boulder which fills
 a pit or hole removes both the boulder and the trap so opens up normal
@@ -2194,7 +2328,7 @@ With careful foresight, it is possible to complete all of the levels
 according to the traditional rules of Sokoban.
 (Hint: to solve Sokoban puzzles, you often need to move things away from
 their eventual destinations in order to open up more room to maneuver.)
-Since NetHack does not support an \fIundo\fP capability, some allowances
+Since EvilHack does not support an \fIundo\fP capability, some allowances
 are permitted in case you get stuck.
 For example, each level has at least one extra boulder.
 Also, it is possible to drop everything in order to be able to squeeze
@@ -2438,6 +2572,15 @@ If you guess that the monster has moved and you don't wish to fight,
 you can use the \(oqm\(cq command to move without fighting;
 likewise, if you don't remember a monster but want to try fighting anyway,
 you can use the \(oqF\(cq command.
+.pg
+The \(oqF\(cq prefix also has other uses when interacting with
+dungeon features and terrain.
+Additionally, \(oqF\(cq suppresses automatic bonus attacks:
+Monks with Master or higher skill in martial arts will not perform
+random kick attacks, and characters wielding a shield at Basic or
+higher skill will not attempt shield bashes.
+This is useful against monsters with passive attacks that can
+damage or destroy your boots or shield.
 .hn 2
 Your pet
 .pg
@@ -2521,13 +2664,13 @@ location ordinarily wouldn't be seen any more.
 Objects
 .pg
 When you find something in the dungeon, it is common to want to pick
-it up.  In NetHack, this is accomplished by using the \(oq,\(cq command.
+it up.  In EvilHack, this is accomplished by using the \(oq,\(cq command.
 If
 .op autopickup
 option is on, you will automatically pick up the object
 by walking over, unless you move with the \(oqm\(cq prefix.
 .pg
-If you're carrying too many items, NetHack will tell you so and you won't
+If you're carrying too many items, EvilHack will tell you so and you won't
 be able to pick up anything more.
 Otherwise, it will add the object(s) to your pack and tell
 you what you just picked up.
@@ -2543,7 +2686,7 @@ will get slower and you'll burn calories faster, requiring food more frequently
 to cope with it.  Eventually, you'll be so overloaded that you'll either have
 to discard some of what you're carrying or collapse under its weight.
 .pg
-NetHack will tell you how badly you have loaded yourself.
+EvilHack will tell you how badly you have loaded yourself.
 If you are encumbered, one of the conditions
 \f(CRBurdened\fP, \f(CRStressed\fP, \f(CRStrained\fP,
 \f(CROvertaxed\fP, or \f(CROverloaded\fP will be
@@ -2551,7 +2694,7 @@ shown on the bottom line status display.
 .pg
 When you pick up an object, it is assigned an inventory letter.  Many
 commands that operate on objects must ask you to find out which object
-you want to use.  When NetHack asks you to choose a particular object
+you want to use.  When EvilHack asks you to choose a particular object
 you are carrying, you are usually presented with a list of inventory
 letters to choose from (see Commands, above).
 .pg
@@ -2560,7 +2703,7 @@ scrolls and potions, are given descriptions which vary according to
 type.  During a game, any two objects with the same description are
 the same type.  However, the descriptions will vary from game to game.
 .pg
-When you use one of these objects, if its effect is obvious, NetHack
+When you use one of these objects, if its effect is obvious, EvilHack
 will remember what it is for you.
 If its effect isn't extremely obvious, you will be asked what you want
 to call this type of object so you will recognize it later.
@@ -2726,7 +2869,7 @@ other worn items.
 .pg
 Those of you in the audience who are AD&D players, be aware that each
 weapon which existed in AD&D does roughly the same damage to monsters in
-NetHack.
+EvilHack.
 Some of the more obscure weapons (such as the \fIaklys\fP,
 \fIlucern hammer\fP, and \fIbec-de-corbin\fP) are defined in an
 appendix to \fIUnearthed Arcana\fP, an AD&D supplement.
@@ -2773,7 +2916,7 @@ You'll be prompted for a direction as above, but you don't
 have to specify which item to throw each time you use \(oqf\(cq.
 There is also an option,
 .op autoquiver,
-which has NetHack choose another item to automatically fill your
+which has EvilHack choose another item to automatically fill your
 quiver (or quiver sack, or have at the ready) when the inventory slot used
 for \(oqQ\(cq runs out.
 If your quiver is empty,
@@ -2908,7 +3051,7 @@ protection than others.  Your armor class is a measure of this
 protection.  Armor class (AC) is measured as in AD&D, with 10 being
 the equivalent of no armor, and lower numbers meaning better armor.
 Each suit of armor which exists in AD&D gives the same protection in
-NetHack.
+EvilHack.
 .pg
 Here is a list of the armor class values provided by suits of armor:
 .
@@ -2922,16 +3065,15 @@ Here is a list of the armor class values provided by suits of armor:
 .TS
 center;
 l r.
-Dragon scale mail	1
 Plate mail, Crystal plate mail	3
-Bronze plate mail, Splint mail,	\&
-   Banded mail, Dwarvish mithril-coat	4
-Chain mail, Elven mithril-coat	5
+Splint mail, Banded mail,	\&
+   Dwarvish chain mail	4
+Chain mail, Elven chain mail	5
 Scale mail, Orcish chain mail	6
-Ring mail, Studded leather armor,	\&
+Ring mail, Studded armor,	\&
    Dragon scales	7
-Leather armor, Orcish ring mail	8
-Leather jacket	9
+Armor, Orcish ring mail	8
+Jacket	9
 none	10
 .TE
 .pg
@@ -3032,14 +3174,14 @@ cursed, or read while the hero is confused.
 .pg
 A mail daemon may run up and deliver mail to you as a
 \fIscroll of mail\fP (on versions compiled with this feature).
-To use this feature on versions where NetHack mail delivery is triggered
+To use this feature on versions where EvilHack mail delivery is triggered
 by electronic mail appearing in your system mailbox,
-you must let NetHack know where to look for new mail by setting
+you must let EvilHack know where to look for new mail by setting
 the \(lqMAIL\(rq environment variable to the file name of your mailbox.
 You may also want to set the \(lqMAILREADER\(rq environment
-variable to the file name of your favorite reader, so NetHack can shell to it
+variable to the file name of your favorite reader, so EvilHack can shell to it
 when you read the scroll.
-On versions of NetHack where mail is randomly generated internal to the game,
+On versions of EvilHack where mail is randomly generated internal to the game,
 these environment variables are ignored.
 You can disable the mail daemon by turning off the
 .op mail
@@ -3344,7 +3486,7 @@ the top one of a pile.
 .hn 1
 Conduct
 .pg
-As if winning NetHack were not difficult enough, certain players
+As if winning EvilHack were not difficult enough, certain players
 seek to challenge themselves by imposing restrictions on the
 way they play the game.
 The game automatically tracks some of
@@ -3424,7 +3566,7 @@ attach no special meaning to them.
 A pauper starts the game with no possessions, no spells, and no weapon or
 spell skills (and if playing as a knight, your pony will not have a saddle).
 Can only be initiated by starting a new game with \f(CROPTIONS=pauper\fP
-set in your run-time configurtion file or \f(CRNETHACKOPTIONS\fP environment
+set in your run-time configurtion file or \f(CREVILHACKOPTIONS\fP environment
 variable.
 Once the game is underway, you can acquire and use items, spells, and skills
 in the usual way.
@@ -3435,7 +3577,7 @@ using such a wielded weapon.  You are still permitted to throw,
 fire, and kick weapons; use a wand, spell, or other type of item;
 or fight with your hands and feet.
 .pg
-In NetHack, a pacifist refuses to cause the death of any other monster
+In EvilHack, a pacifist refuses to cause the death of any other monster
 (i.e. if you would get experience for the death).  This is a particularly
 difficult challenge, although it is still possible to gain experience
 by other means.
@@ -3583,7 +3725,7 @@ the Castle level's drawbridge or can be given to you via prayer boon.
 .pg
 \fIBlind\fP, \fIDeaf\fP, \fINudist\fP,
 and \fIPauper\fP are also conducts, and they can only be
-enabled by setting the correspondingly named option in NETHACKOPTIONS
+enabled by setting the correspondingly named option in EVILHACKOPTIONS
 or run-time configuration file prior to game start.
 In the case of \fIBlind\fP and \fIDeaf\fP, the option also enforces the
 conduct.
@@ -3593,8 +3735,8 @@ substantial progress into the dungeon.
 .hn 1
 Options
 .pg
-Due to variations in personal tastes and conceptions of how NetHack
-should do things, there are options you can set to change how NetHack
+Due to variations in personal tastes and conceptions of how EvilHack
+should do things, there are options you can set to change how EvilHack
 behaves.
 .hn 2
 Setting the options
@@ -3603,37 +3745,37 @@ Options may be set in a number of ways.
 Within the game, the \(oqO\(cq
 command allows you to view all options and change most of them.
 You can also set options automatically by placing them in a configuration
-file, or in the NETHACKOPTIONS environment variable.
-Some versions of NetHack also have front-end programs that allow
+file, or in the EVILHACKOPTIONS environment variable.
+Some versions of EvilHack also have front-end programs that allow
 you to set options before starting the game or a global configuration
 for system administrators.
 .hn 2
 Using a configuration file
 .pg
 .\" hw: don't hyphenate file names; percent-sign doesn't need special handling
-.hw .nethackrc defaults.nh nethack.exe nethackW.exe %USERPROFILE%\\NetHack\\
+.hw .evilhackrc defaults.nh evilhack.exe evilhackW.exe %USERPROFILE%\\NetHack\\
 The default name of the configuration file varies on different
 operating systems.
 .pg
 On
 .UX ,
 Linux,
-and macOS it is \(lq.nethackrc\(rq in the user's home directory.
+and macOS it is \(lq.evilhackrc\(rq in the user's home directory.
 The file may not exist, but it is a normal ASCII text file and
 can be created with any text editor.
 .pg
-On Windows, the name is \(lq.nethackrc\(rq located in the folder
+On Windows, the name is \(lq.evilhackrc\(rq located in the folder
 \(lq%USERPROFILE%\\NetHack\\\(rq.
 The file may not exist,
 but it is a normal ASCII text file can can be created with any
 text editor.
-After running NetHack for the first time, you should find a default
-template for the configuration file named \(lq.nethackrc.template\(rq
+After running EvilHack for the first time, you should find a default
+template for the configuration file named \(lq.evilhackrc.template\(rq
 in \(lq%USERPROFILE%\\NetHack\\\(rq.
-If you have not created the configuration file, NetHack will create
+If you have not created the configuration file, EvilHack will create
 one for you using the default template file.
 .pg
-On MS-DOS, it is \(lqdefaults.nh\(rq in the same folder as nethack.exe.
+On MS-DOS, it is \(lqdefaults.nh\(rq in the same folder as evilhack.exe.
 .pg
 Any line in the configuration file starting with \(oq\f(CR#\fP\(cq is treated
 as a comment and ignored.
@@ -3680,8 +3822,8 @@ OPTIONS=!legacy,autopickup,pickup_types:$\(dq=/!?+
 .lp HACKDIR
 [not available on Unix]
 .br
-Default location of files NetHack needs. On Windows HACKDIR
-defaults to the location of the NetHack.exe or NetHackw.exe file
+Default location of files EvilHack needs. On Windows HACKDIR
+defaults to the location of the EvilHack.exe or EvilHackw.exe file
 so setting HACKDIR to override that is not usually necessary or recommended.
 .lp LEVELDIR
 [not available on Unix]
@@ -3779,7 +3921,7 @@ See the \(lqConfiguring User Sounds\(rq section.
 .lp SYMBOLS
 Override one or more symbols in the symbol set used for all dungeon
 levels except for the special rogue level.
-See the \(lqModifying NetHack Symbols\(rq section.
+See the \(lqModifying EvilHack Symbols\(rq section.
 .lp ""
 Example:
 .sd
@@ -3804,7 +3946,7 @@ Example:
 .SD n \" begin display without indentation
 Here is an example of configuration file contents:
 .ED
-.\" [conditional indentation; see description of NETHACKOPTIONS below]
+.\" [conditional indentation; see description of EVILHACKOPTIONS below]
 .ds sD i  \" typesetter; display indentation acceptable and preferred
 .if n .ds sD n  \" terminal; suppress indentation
 .SD \*(sD \" string variable sD will expand to either 'i' or 'n'
@@ -3830,9 +3972,9 @@ OPTIONS=!splash_screen
 .pg
 \ \" another dummy paragraph [.BR 2]
 .hn 2
-Using the NETHACKOPTIONS environment variable
+Using the EVILHACKOPTIONS environment variable
 .pg
-The NETHACKOPTIONS variable is a comma-separated list of initial
+The EVILHACKOPTIONS variable is a comma-separated list of initial
 values for the various options.
 Some can only be turned on or off.
 You turn one of these on by adding the name of the option to the list,
@@ -3856,17 +3998,17 @@ you would enter the command
 .ds sD i  \" typesetter; display indentation acceptable and preferred
 .if n .ds sD n  \" terminal; suppress indentation
 .SD \*(sD
-\f(CR% setenv NETHACKOPTIONS "color,\\!leg,name:Blue Meanie,fruit:lime"\fP
+\f(CR% setenv EVILHACKOPTIONS "color,\\!leg,name:Blue Meanie,fruit:lime"\fP
 .ED
 in \fIcsh\fP (note the need to escape the \(oq!\(cq since it's special
 to that shell), or the pair of commands
 .SD \*(sD
-\f(CR$ NETHACKOPTIONS="color,!leg,name:Blue Meanie,fruit:lime"\fP
-\f(CR$ export NETHACKOPTIONS\fP
+\f(CR$ EVILHACKOPTIONS="color,!leg,name:Blue Meanie,fruit:lime"\fP
+\f(CR$ export EVILHACKOPTIONS\fP
 .ED
 in \fIsh\fP, \fIksh\fP, or \fIbash\fP.
 .pg
-The NETHACKOPTIONS value is effectively the same as a single OPTIONS
+The EVILHACKOPTIONS value is effectively the same as a single OPTIONS
 directive in a configuration file.
 The \(lqOPTIONS=\(rq prefix is implied and comma separated options are
 processed from right to left.
@@ -3874,10 +4016,10 @@ Other types of configuration directives such as BIND or MSGTYPE are
 not allowed.
 .pg
 Instead of a comma-separated list of options,
-NETHACKOPTIONS can be set to the full name of a configuration file you
+EVILHACKOPTIONS can be set to the full name of a configuration file you
 want to use.
 If that full name doesn't start with a slash, precede it with \(oq\f(CR@\fP\(cq
-(at-sign) to let NetHack know that the rest is intended as a file name.
+(at-sign) to let EvilHack know that the rest is intended as a file name.
 If it does start with \(oq\f(CR/\fP\(cq, the at-sign is optional.
 .hn 2
 Customization options
@@ -4133,10 +4275,10 @@ a text query with possible menu letters. Default is off.
 .lp "fruit   "
 Name a fruit after something you enjoy eating (for example \(lqfruit:mango\(rq)
 (default \(lqslime mold\(rq).
-Basically a nostalgic whimsy that NetHack uses from time to time.
+Basically a nostalgic whimsy that EvilHack uses from time to time.
 You should set this to something you find more appetizing than slime mold.
 Apples, oranges, pears, bananas, and melons
-already exist in NetHack, so don't use those.
+already exist in EvilHack, so don't use those.
 .lp "gender  "
 Your starting gender (\f(CRgender:male\fP or \f(CRgender:female\fP).
 You may specify just the first letter.
@@ -4171,6 +4313,9 @@ Turning help off makes just looking at things faster, since you aren't
 interrupted with the \(lqMore info?\(rq prompt, but it also means that
 you might miss some interesting and/or important information.
 Persistent.
+.lp hawkname
+Name your starting hawk (for example \(lqhawkname:Betty\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp herecmd_menu
 When using a windowport that supports mouse and clicking on yourself or
 next to you, show a menu of possible actions for the location.
@@ -4216,6 +4361,9 @@ resizing the status panel.
 To resize that, use the \f(CR#optionsfull\fP command to toggle the
 \fIhitpointbar\fP option off, perform the resize while it's off, then
 use the same command to toggle it back on.)
+.lp homunname
+Name your starting homunculus (for example \(lqhomunname:Steve\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp horsename
 Name your starting horse (for example \(lqhorsename:Trigger\(rq).
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
@@ -4432,7 +4580,7 @@ The GENERICUSERS= setting in sysconf controls which
 names are considered generic.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 .lp "news    "
-Read the NetHack news file, if present (default on).
+Read the EvilHack news file, if present (default on).
 Since the news is shown at the beginning of the game, there's no point
 in setting this with the \(oqO\(cq command.
 .lp "nudist  "
@@ -4679,6 +4827,9 @@ a stack of multiple items).
 Many players may want to turn this on while identifying objects, and then
 turn it back off again for general play.
 Default is off.
+.lp pseudoname
+Name your starting pseudodragon (for example \(lqpseudoname:Carl\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp pushweapon
 Using the \(oqw\(cq (wield) command when already wielding
 something pushes the old item into your alternate weapon slot (default off).
@@ -4707,6 +4858,9 @@ If \f(CRrace\fP is not specified, there is no default value;
 player will be prompted unless role forces a choice for race.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 Persistent.
+.lp ratname
+Name your starting rat (for example \(lqratname:Squeak\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp reroll
 Allows rerolling your character's starting inventory and attributes (default
 false).  Persistent.
@@ -4821,7 +4975,7 @@ or you are making screenshots or streaming video.
 Using the
 .op statuslines:3
 option is recommended so that there will be more room available for
-status information, unless you're using NetHack's \fIQt\fP interface
+status information, unless you're using EvilHack's \fIQt\fP interface
 or your terminal emulator window displays fewer than 25 lines.
 Persistent.
 .lp ""
@@ -4891,7 +5045,7 @@ default;
 order by monster difficulty rating; ties broken by internal index;
 .PL \f(CRa\fP
 order alphabetically, first any unique monsters then all the others;
-.\" note: 'A' and 'C' can be set in RC file or NETHACKOPTIONS but not by 'O'
+.\" note: 'A' and 'C' can be set in RC file or EVILHACKOPTIONS but not by 'O'
 .\" .PL \f(CRA\fP
 .\" order alphabetically, unique monsters intermixed with other monsters;
 .\" .PL \f(CRC\fP
@@ -4912,6 +5066,9 @@ Allow sounds to be emitted from an integrated sound library (default on).
 Display a sparkly effect when a monster (including yourself) is hit by an
 attack to which it is resistant (default on).
 Persistent.
+.lp spidername
+Name your starting spider (for example \(lqspidername:Phil\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp spot_monsters
 Show a message when hero notices a monster (default is off).
 .lp standout
@@ -4924,7 +5081,7 @@ See \(lqConfiguring Status Hilites\(rq for further information.
 .lp status_updates
 Allow updates to the status lines at the bottom of the screen (default true).
 .lp suppress_alert
-This option may be set to a NetHack version level to suppress
+This option may be set to a EvilHack version level to suppress
 alert notification messages about feature changes for that
 and prior versions (for example \(lqsuppress_alert:3.3.1\(rq).
 .lp "symset  "
@@ -4952,9 +5109,9 @@ Persistent.
 Draw a tombstone graphic upon your death (default on).
 Persistent.
 .lp toptenwin
-Put the ending display in a NetHack window instead of on stdout (default off).
+Put the ending display in a EvilHack window instead of on stdout (default off).
 Setting this option makes the score list visible when a windowing version
-of NetHack is started without a parent window, but it no longer leaves
+of EvilHack is started without a parent window, but it no longer leaves
 the score list around after game end on a terminal or emulating window.
 .lp "travel  "
 Allow the travel command via mouse click (default on).
@@ -5041,7 +5198,7 @@ When used, it should be the first option set since its value might
 enable or disable the availability of various other options.
 For multiple lines in a configuration file, that would be the first
 non-comment line.
-For a comma-separated list in NETHACKOPTIONS or an OPTIONS line in a
+For a comma-separated list in EVILHACKOPTIONS or an OPTIONS line in a
 configuration file,
 that would
 be the \fIrightmost\fP option in the list.
@@ -5074,7 +5231,7 @@ Where to align or place the message window (top, bottom, left, or right)
 Where to align or place the status window (top, bottom, left, or right).
 .lp ascii_map
 .hw DECgraphics IBMgraphics \" don't hyphenate these
-If NetHack can, it should display the map using simple
+If EvilHack can, it should display the map using simple
 characters (letters and punctuation) rather than \fItiles\fP graphics.
 In some cases, characters can be augmented with line-drawing symbols;
 use the
@@ -5087,70 +5244,70 @@ to \fITrue\fP forces
 .op tiled_map
 to be \fIFalse\fP.
 .lp "color   "
-If NetHack can, it should display color if it can for different monsters,
+If EvilHack can, it should display color if it can for different monsters,
 objects, and dungeon features (default on).
 .lp eight_bit_tty
-If NetHack can, it should pass eight-bit character values (for example,
+If EvilHack can, it should pass eight-bit character values (for example,
 specified with the
 .op traps
 option) straight through to your terminal (default off).
 .lp font_map
-if NetHack can, it should use a font by the chosen name for the map window.
+if EvilHack can, it should use a font by the chosen name for the map window.
 .lp font_menu
-If NetHack can, it should use a font by the chosen name for menu windows.
+If EvilHack can, it should use a font by the chosen name for menu windows.
 .lp font_message
-If NetHack can, it should use a font by the chosen name for the message window.
+If EvilHack can, it should use a font by the chosen name for the message window.
 .lp font_status
-If NetHack can, it should use a font by the chosen name for the status window.
+If EvilHack can, it should use a font by the chosen name for the status window.
 .lp font_text
-If NetHack can, it should use a font by the chosen name for text windows.
+If EvilHack can, it should use a font by the chosen name for text windows.
 .lp font_size_map
-If NetHack can, it should use this size font for the map window.
+If EvilHack can, it should use this size font for the map window.
 .lp font_size_menu
-If NetHack can, it should use this size font for menu windows.
+If EvilHack can, it should use this size font for menu windows.
 .lp font_size_message
-If NetHack can, it should use this size font for the message window.
+If EvilHack can, it should use this size font for the message window.
 .lp font_size_status
-If NetHack can, it should use this size font for the status window.
+If EvilHack can, it should use this size font for the status window.
 .lp font_size_text
-If NetHack can, it should use this size font for text windows.
+If EvilHack can, it should use this size font for text windows.
 .lp fullscreen
-If NetHack can, it should try to display on the entire screen rather than
+If EvilHack can, it should try to display on the entire screen rather than
 in a window.
 .lp "guicolor "
 Use color text and/or highlighting attributes when displaying some
 non-map data (such as menu selector letters).
 Curses interface only; default is on.
 .lp large_font
-If NetHack can, it should use a large font.
+If EvilHack can, it should use a large font.
 .lp map_mode
-If NetHack can, it should display the map in the manner specified.
+If EvilHack can, it should display the map in the manner specified.
 .lp player_selection
-If NetHack can, it should pop up dialog boxes, or use prompts for character
+If EvilHack can, it should pop up dialog boxes, or use prompts for character
 selection.
 .lp popup_dialog
-If NetHack can, it should pop up dialog boxes for input.
+If EvilHack can, it should pop up dialog boxes for input.
 .lp preload_tiles
-If NetHack can, it should preload tiles into memory.
+If EvilHack can, it should preload tiles into memory.
 For example, in the protected mode MS-DOS version, control whether tiles
 get pre-loaded into RAM at the start of the game.  Doing so
 enhances performance of the tile graphics, but uses more memory. (default on).
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 .lp scroll_amount
-If NetHack can, it should scroll the display by this number of cells
+If EvilHack can, it should scroll the display by this number of cells
 when the hero reaches the scroll_margin.
 .lp scroll_margin
-If NetHack can, it should scroll the display when the hero or cursor
+If EvilHack can, it should scroll the display when the hero or cursor
 is this number of cells away from the edge of the window.
 .lp selectsaved
-If NetHack can, it should display a menu of existing saved games for the
+If EvilHack can, it should display a menu of existing saved games for the
 player to choose from at game startup, if it can.
 Not all ports support this option.
 .lp softkeyboard
 Display an onscreen keyboard.
 Handhelds are most likely to support this option.
 .lp splash_screen
-If NetHack can, it should display an opening splash screen when it starts
+If EvilHack can, it should display an opening splash screen when it starts
 up (default yes).
 .lp statuslines
 Number of lines for traditional below-the-map status display.
@@ -5177,10 +5334,10 @@ original format, with the status window spread out vertically.
 A value of \f(CR2\fP makes status be slightly condensed, moving some
 fields to different lines to eliminate one whole line, reducing the
 height needed.
-(If NetHack has been built using a version of \f(CRQt\fP
+(If EvilHack has been built using a version of \f(CRQt\fP
 older than \f(CRqt-5.9\fP,
 .op statuslines
-can only be set in the run-time configuration file or via NETHACKOPTIONS,
+can only be set in the run-time configuration file or via EVILHACKOPTIONS,
 not during play with the \(oq\f(CRO\fP\(cq command.)
 .lp "term_cols\ \ \fIand\fP"
 .lp term_rows
@@ -5192,7 +5349,7 @@ Default is the current window size.
 .lp tile_file
 Specify the name of an alternative tile file to override the default.
 .lp ""
-Note: the X11 interface uses X resources rather than NetHack's options
+Note: the X11 interface uses X resources rather than EvilHack's options
 to select an alternate tile file.
 See \f(CRNetHack.ad\fP, the sample X \(lqapplication defaults\(rq file.
 .lp tile_height
@@ -5200,7 +5357,7 @@ Specify the preferred height of each tile in a tile capable port.
 .lp tile_width
 Specify the preferred width of each tile in a tile capable port
 .lp tiled_map
-If NetHack can, it should display the map using \fItiles\fP graphics
+If EvilHack can, it should display the map using \fItiles\fP graphics
 rather than simple characters (letters and punctuation, possibly
 augmented by line-drawing symbols).
 Setting
@@ -5211,9 +5368,9 @@ to be \fIFalse\fP.
 .lp use_darkgray
 Use bold black instead of blue for black glyphs (TTY only).
 .lp use_inverse
-If NetHack can, it should display inverse when the game specifies it.
+If EvilHack can, it should display inverse when the game specifies it.
 .lp vary_msgcount
-If NetHack can, it should display this number of messages at a time in
+If EvilHack can, it should display this number of messages at a time in
 the message window.
 .lp windowborders
 Whether to draw boxes around the map, status area, message area, and
@@ -5243,7 +5400,7 @@ setting the value to 3 or 4 instead will keep borders for the map, message,
 and status windows but have room for two additional lines of inventory
 plus widen each inventory line by two columns.
 .lp windowcolors
-If NetHack can, it should display all windows of a particular style
+If EvilHack can, it should display all windows of a particular style
 with the specified foreground and background colors.
 Windows GUI and curses windowport only.
 The format is
@@ -5265,12 +5422,12 @@ captiontext, graytext, greytext, highlight, highlighttext,
 inactiveborder, inactivecaption, menu, menutext, scrollbar,
 window, windowframe, windowtext).
 .lp wraptext
-If NetHack can, it should wrap long lines of text if they don't fit in
+If EvilHack can, it should wrap long lines of text if they don't fit in
 the visible area of the window.
 .hn 2
 Crash Report Options
 .pg
-Please note that NetHack does not send \fBany\fP information off your
+Please note that EvilHack does not send \fBany\fP information off your
 computer unless you manually click submit on a form.
 .si
 .lp "OPTION=crash_email:\fIemail_address\fP
@@ -5289,12 +5446,12 @@ Platform-specific Customization options
 Here are explanations of options that are used by specific platforms or ports
 to customize and change the port behavior.
 .lp altkeyhandling
-Select an alternate way to handle keystrokes (Win32 tty NetHack only).
+Select an alternate way to handle keystrokes (Win32 tty EvilHack only).
 The name of the handling type is one of \(lqdefault\(rq, \(lqray\(rq,
 \(lq340\(rq.
 .lp "altmeta "
 On systems where this option is available, it can be
-set to tell NetHack to convert a two character sequence beginning with
+set to tell EvilHack to convert a two character sequence beginning with
 ESC into a meta-shifted version of the second character (default off).
 .lp ""
 This conversion is only done for commands, not for other input prompts.
@@ -5303,7 +5460,7 @@ command\(empreceded by \fBn\fP if the
 .op number_pad
 option is set\(emis
 also subject to this conversion, so attempting to
-abort the count by typing ESC will leave NetHack waiting for another
+abort the count by typing ESC will leave EvilHack waiting for another
 character to complete the two character sequence.
 Type a second ESC to finish cancelling such a count.
 At other prompts a single ESC suffices.
@@ -5311,24 +5468,24 @@ At other prompts a single ESC suffices.
 Use BIOS calls to update the screen
 display quickly and to read the keyboard (allowing the use of arrow
 keys to move) on machines with an IBM PC compatible BIOS ROM (default off,
-OS/2, PC, and ST NetHack only).
+OS/2, PC, and ST EvilHack only).
 .lp "rawio   "
 Force raw (non-cbreak) mode for faster output and more
 bulletproof input (MS-DOS sometimes treats \(oq\(haP\(cq as a printer toggle
-without it) (default off, OS/2, PC, and ST NetHack only).
+without it) (default off, OS/2, PC, and ST EvilHack only).
 Note:  DEC Rainbows hang if this is turned on.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 .lp subkeyvalue
-(Win32 tty NetHack only).
+(Win32 tty EvilHack only).
 May be used to alter the value of keystrokes that the operating system
-returns to NetHack to help compensate for international keyboard issues.
+returns to EvilHack to help compensate for international keyboard issues.
 OPTIONS=subkeyvalue:171/92
-will return 92 to NetHack, if 171 was originally going to be returned.
+will return 92 to EvilHack, if 171 was originally going to be returned.
 You can use multiple subkeyvalue assignments in the configuration file
 if needed.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 .lp video
-Set the video mode used (PC NetHack only).
+Set the video mode used (PC EvilHack only).
 Values are \(lqautodetect\(rq, \(lqdefault\(rq, \(lqvga\(rq, or \(lqvesa\(rq.
 Setting \(lqvesa\(rq will cause the game to display tiles, using the full
 capability of the VGA hardware.
@@ -5344,14 +5501,14 @@ Set the VGA mode resolution height (MS-DOS only, with video:vesa)
 Set the VGA mode resolution width (MS-DOS only, with video:vesa)
 .lp videocolors
 Set the color palette for PC systems using NO_TERMS
-(default 4-2-6-1-5-3-15-12-10-14-9-13-11, (PC NetHack only).
+(default 4-2-6-1-5-3-15-12-10-14-9-13-11, (PC EvilHack only).
 The order of colors is red, green, brown, blue, magenta, cyan,
 bright.white, bright.red, bright.green, yellow, bright.blue,
 bright.magenta, and bright.cyan.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
 .lp videoshades
 Set the intensity level of the three gray scales available
-(default dark normal light, PC NetHack only).
+(default dark normal light, PC EvilHack only).
 If the game display is difficult to read, try adjusting these scales;
 if this does not correct the problem, try !color.
 Cannot be set with the \(oq\f(CRO\fP\(cq command.
@@ -5359,9 +5516,9 @@ Cannot be set with the \(oq\f(CRO\fP\(cq command.
 Regular Expressions
 .pg
 Regular expressions are normally POSIX extended regular expressions. It is
-possible to compile NetHack without regular expression support on a platform
+possible to compile EvilHack without regular expression support on a platform
 where there is no regular expression library. While this is not true of any
-modern platform, if your NetHack was built this way, patterns are instead glob
+modern platform, if your EvilHack was built this way, patterns are instead glob
 patterns; regardless, this document refers to both as \(oqregular
 expressions.\(cq
 This applies to Autopickup exceptions, Message types, Menu colors,
@@ -5606,7 +5763,7 @@ wait for user with more-prompt;
 show the message once, but not again if no other message is shown in between.
 .PE
 .lp ""
-Here's an example of message types using NetHack's internal
+Here's an example of message types using EvilHack's internal
 pattern matching facility:
 .sd
 .si
@@ -5660,7 +5817,7 @@ Allowed attributes are none, bold, dim, italic, underline, blink, and inverse.
 Note that the platform used may interpret the attributes any way it
 wants.
 .lp ""
-Here's an example of menu colors using NetHack's internal
+Here's an example of menu colors using EvilHack's internal
 pattern matching facility:
 .sd
 .si
@@ -5720,7 +5877,7 @@ For example:
 .sd
 .si
 .ft CR
-SOUNDDIR=C:\\nethack\\sounds
+SOUNDDIR=C:\\evilhack\\sounds
 SOUND=MESG "This door is locked" "lock.wav" 100
 SOUND=MESG hide "^You miss the " "swing.wav" 75
 .ft
@@ -5730,7 +5887,7 @@ SOUND=MESG hide "^You miss the " "swing.wav" 75
 .hn 2
 Configuring Status Hilites
 .pg
-Your copy of NetHack may have been compiled with support for
+Your copy of EvilHack may have been compiled with support for
 \(lqStatus Hilites\(rq.
 If so, you can customize your game display by setting thresholds to
 change the color or appearance of fields in the status display.
@@ -5777,7 +5934,7 @@ For example, on some display systems a request for bold might yield
 blink or vice versa.
 On others, issuing an attribute request while another is already
 set up will replace the earlier attribute rather than combine with it.
-Since NetHack issues attribute requests sequentially (at least with
+Since EvilHack issues attribute requests sequentially (at least with
 the \f(CRtty\fP interface) rather than all at once, the only way a
 situation like that can be controlled is to specify just one attribute.
 .pg
@@ -5914,9 +6071,9 @@ OPTION=hilite_status: condition/lev+fly/red&inverse
 .ed
 .BR 0 \" without this, the next section seems too close to this one
 .hn 2
-Modifying NetHack Symbols
+Modifying EvilHack Symbols
 .pg
-NetHack can load entire symbol sets from the symbol file.
+EvilHack can load entire symbol sets from the symbol file.
 .pg
 The options that are used to select a particular symbol set from the
 symbol file are:
@@ -5930,7 +6087,7 @@ You can also override one or more symbols using the SYMBOLS and
 ROGUESYMBOLS configuration file options.
 Symbols are specified as name:value pairs.
 Note that
-NetHack escape-processes the value string in conventional C fashion.
+EvilHack escape-processes the value string in conventional C fashion.
 This means that \\ is a prefix to take the following character literally.
 Thus \\ needs to be represented as \\\\.
 The special prefix form \\m switches on the meta bit in the symbol value,
@@ -5947,12 +6104,13 @@ control character.
 .\" to be too wide when generating plain text output.  Two spaces leaves
 .\" some room between the symbol character and name.)  Entries in first
 .\" column now use constant-width Roman font to approximate TeX tt font.
+.ll +30n
 .TS
-center;
+;
 l s s
-l1fCR l1 l.
+lfCR l l.
 .\"TABLE_START
-NetHack Symbols
+EvilHack Symbols
 \ \ 	Symbol Name	Description
 \_	\_	\_
 \ 	S_air	(air)
@@ -5970,6 +6128,7 @@ B	S_bat	(bat or bird)
 \(ha	S_bear_trap	(bear trap)
 \-	S_blcorn	(bottom left corner)
 b	S_blob	(blob)
+\(ha	S_bolt_trap	(bolt trap)
 +	S_book	(spellbook)
 )	S_boomleft	(boomerang open left)
 (	S_boomright	(boomerang open right)
@@ -5986,8 +6145,9 @@ c	S_cockatrice	(cockatrice)
 $	S_coin	(pile of coins)
 #	S_corr	(corridor)
 \-	S_crwall	(wall)
-#	S_darkroom	(dark room)
+\.	S_darkroom	(dark room)
 \(ha	S_dart_trap	(dart trap)
+#	S_deadtree	(dead tree)
 &	S_demon	(major demon)
 *	S_digbeam	(dig beam)
 >	S_dnladder	(ladder down)
@@ -5998,6 +6158,7 @@ D	S_dragon	(dragon)
 E	S_elemental	(elemental)
 #	S_engrcorr	(engraving in a corridor)
 \`	S_engroom	(engraving in a room)
+#	S_ent	(tree-like creature)
 /	S_expl_tl	(explosion top left)
 \-	S_expl_tc	(explosion top center)
 \\	S_expl_tr	(explosion top right)
@@ -6013,6 +6174,7 @@ f	S_feline	(cat or other feline)
 \(ha	S_fire_trap	(fire trap)
 !	S_flashbeam	(flash beam)
 %	S_food	(piece of food)
+{	S_forge	(forge)
 {	S_fountain	(fountain)
 F	S_fungus	(fungus or mold)
 *	S_gem	(gem or rock)
@@ -6020,6 +6182,7 @@ F	S_fungus	(fungus or mold)
 H	S_giant	(giant humanoid)
 G	S_gnome	(gnome)
 \'	S_golem	(golem)
+\.	S_grass	(grass)
 |	S_grave	(grave)
 g	S_gremlin	(gremlin)
 \-	S_hbeam	(horizontal beam [zap animation])
@@ -6032,6 +6195,7 @@ g	S_gremlin	(gremlin)
 h	S_humanoid	(humanoid)
 \-	S_hwall	(horizontal wall)
 \.	S_ice	(ice)
+\(ha	S_ice_trap	(ice trap)
 i	S_imp	(imp or minor demon)
 I	S_invisible	(invisible monster)
 J	S_jabberwock	(jabberwock)
@@ -6048,6 +6212,8 @@ y	S_light	(light)
 #	S_litcorr	(lit corridor)
 :	S_lizard	(lizard)
 \\	S_lslant	(diagonal beam [zap animation])
+\(ha	S_magic_beam_trap	(magic beam trap)
+(	S_magic_chest	(magic chest)
 \(ha	S_magic_portal	(magic portal)
 \(ha	S_magic_trap	(magic trap)
 m	S_mimic	(mimic)
@@ -6057,14 +6223,17 @@ N	S_naga	(naga)
 \.	S_ndoor	(doorway without door)
 n	S_nymph	(nymph)
 O	S_ogre	(ogre)
+8	S_orb	(summoned orb)
 o	S_orc	(orc)
 p	S_piercer	(piercer)
 \(ha	S_pit	(pit)
+{	S_plant	(plants, vines)
 #	S_poisoncloud	(poison cloud)
 \(ha	S_polymorph_trap	(polymorph trap)
 }	S_pool	(water)
 !	S_potion	(potion)
 P	S_pudding	(pudding or ooze)
+}	S_puddle	(shallow water)
 q	S_quadruped	(quadruped)
 Q	S_quantmech	(quantum mechanic)
 \&=	S_ring	(ring)
@@ -6075,10 +6244,14 @@ r	S_rodent	(rodent)
 /	S_rslant	(diagonal beam [zap animation])
 \(ha	S_rust_trap	(rust trap)
 R	S_rustmonst	(rust monster or disenchanter)
+\.	S_sand	(sand)
 ?	S_scroll	(scroll)
-#	S_sink	(sink)
+}	S_sewage	(sewage)
+{	S_sink	(sink)
+z	S_skeleton	(skeleton)
 \(ha	S_sleeping_gas_trap	(sleeping gas trap)
 S	S_snake	(snake)
+\(ha	S_spear_trap	(spear trap)
 s	S_spider	(arachnid or centipede)
 \(ha	S_spiked_pit	(spiked pit)
 \(ha	S_squeaky_board	(squeaky board)
@@ -6104,6 +6277,8 @@ s	S_spider	(arachnid or centipede)
 |	S_tlwall	(wall)
 (	S_tool	(useful item (pick-axe, key, lamp...))
 \(ha	S_trap_door	(trap door)
+\(ha	S_trapped_chest	(trapped chest)
+\(ha	S_trapped_door	(trapped door)
 t	S_trapper	(trapper or lurker above)
 \-	S_trcorn	(top right corner)
 #	S_tree	(tree)
@@ -6120,7 +6295,7 @@ V	S_vampire	(vampire)
 #	S_vcdbridge	(vertical raised drawbridge)
 +	S_vcdoor	(closed door in vertical wall)
 \.	S_venom	(splash of venom)
-\(ha	S_vibrating_square	(vibrating square)
+\(ti	S_vibrating_square	(vibrating square)
 \.	S_vodbridge	(vertical lowered drawbridge)
 \-	S_vodoor	(open door in vertical wall)
 v	S_vortex	(vortex)
@@ -6136,11 +6311,11 @@ x	S_xan	(xan or other extraordinary insect)
 X	S_xorn	(xorn)
 Y	S_yeti	(apelike creature)
 Z	S_zombie	(zombie)
-z	S_zruty	(zruty)
 \ 	S_pet_override	(any pet if ACCESSIBILITY=1 is set)
 \ 	S_hero_override	(hero if ACCESSIBILITY=1 is set)
 .\"TABLE_END  Do not delete this line.
 .TE
+.ll -30n
 .\" don't hyphenate file name across lines
 .hw sysconf
 .pg
@@ -6164,7 +6339,7 @@ sequences, you can customize your game display by assigning Unicode
 codepoint values and \fIred-green-blue\fP colors to glyph
 representations. The customizations can be specified for use with a symset that
 has a UTF8 handler within the symbols file such as the enhanced1 set, or
-individually within your nethack.rc file.
+individually within your .evilhackrc file.
 .pg
 The format for defining a glyph representation is:
 .SD n
@@ -6185,19 +6360,19 @@ OPTIONS=glyph:G_pool/U+224B/0-0-160
 .ft
 .ED
 The list of acceptable glyphnames can be produced by
-\fBnethack \-\-dumpglyphnames\fP.
-Individual NetHack glyphs can be specified using the G_ prefix,
+\fBevilhack \-\-dumpglyphnames\fP.
+Individual EvilHack glyphs can be specified using the G_ prefix,
 or you can use an S_ symbol for a glyphname and store the custom
-representation for all NetHack glyphs that would map to that
+representation for all EvilHack glyphs that would map to that
 particular symbol.
 .pg
 You will need to select a symset with a UTF8 handler to enable the
 display of the customizations, such as the Enhanced symset.
 .hn 2
-Configuring NetHack for Play by the Blind
+Configuring EvilHack for Play by the Blind
 .pg
-NetHack can be set up to use only standard ASCII characters for making
-maps of the dungeons. This makes even the MS-DOS versions of NetHack
+EvilHack can be set up to use only standard ASCII characters for making
+maps of the dungeons. This makes even the MS-DOS versions of EvilHack
 (which use special line-drawing characters by default) completely
 accessible to the blind who use speech and/or Braille access technologies.
 Players will require a good working knowledge of their screen-reader's
@@ -6213,11 +6388,11 @@ gives you the row and column of your review cursor and the PC cursor.
 These co-ordinates are often useful in giving players a better sense of the
 overall location of items on the screen.
 .pg
-NetHack can also be compiled with support for sending the game messages
+EvilHack can also be compiled with support for sending the game messages
 to an external program, such as a text-to-speech synthesizer.
 If the \(lq#version\(rq extended command shows \(lqexternal program as a
-message handler\(rq, your NetHack has been compiled with the capability.
-When compiling NetHack from source on Linux and other POSIX systems,
+message handler\(rq, your EvilHack has been compiled with the capability.
+When compiling EvilHack from source on Linux and other POSIX systems,
 define MSGHANDLER to enable it.
 To use
 the capability, set the environment variable NETHACK_MSGHANDLER to an
@@ -6272,11 +6447,11 @@ Give a message of damage taken and how many hit points are left.
 .hn 2
 Global Configuration for System Administrators
 .pg
-If NetHack is compiled with the SYSCF option, a system administrator
+If EvilHack is compiled with the SYSCF option, a system administrator
 should set up a global configuration; this is a file in the
 same format as the traditional per-user configuration file (see above).
 This file should be named sysconf and placed in the same directory as
-the other NetHack support files.
+the other EvilHack support files.
 The options recognized in this file are listed below.  Any option not
 set uses a compiled-in default (which may not be appropriate for your
 system).
@@ -6302,7 +6477,7 @@ GENERICUSERS\ =\ A list of user names that should prompt ``Who are you?''
 rather than become a character's name.
 .lp
 MSGHANDLER\ =\ A path and filename of executable.  Whenever a message-window
-message is shown, NetHack runs this program.  The program will get
+message is shown, EvilHack runs this program.  The program will get
 the message as the only parameter.
 .lp
 MAXPLAYERS\ =\ Limit the maximum number of games that can be running
@@ -6315,6 +6490,10 @@ RECOVER\ =\ A string explaining how to recover a game on this system
 .lp
 SEDUCE\ =\ 0 or 1 to disable or enable, respectively, the SEDUCE option.
 When disabled, incubi and succubi behave like nymphs.
+.lp
+SERVERSEED\ =\ A number that is added into the game's deterministic hash
+functions. Intended for use on multi-user systems where the administrator
+wants to prevent players from being able to calculate the hash result.
 .lp
 CHECK_PLNAME\ =\ Setting this to 1 will make the EXPLORERS, WIZARDS, and
 SHELLERS check for the player name instead of the user's login name.
@@ -6400,13 +6579,13 @@ invoked.
 .hn 1
 Scoring
 .pg
-NetHack maintains a list of the top scores or scorers on your machine,
+EvilHack maintains a list of the top scores or scorers on your machine,
 depending on how it is set up.  In the latter case, each account on
 the machine can post only one non-winning score on this list.  If
 you score higher than someone else on this list, or better your
 previous score, you will be inserted in the proper place under your
 current name.  How many scores are kept can also be set up when
-NetHack is compiled.
+EvilHack is compiled.
 .pg
 Your score is chiefly based upon how much experience you gained, how
 much loot you accumulated, how deep you explored, and how the game
@@ -6419,12 +6598,12 @@ live, or quit and stop with whatever you have.  If you quit, you keep
 all your gold, but if you swing and live, you might find more.
 .pg
 If you just want to see what the current top players/games list is, you
-can type \fBnethack \-s all\fP on most versions.
+can type \fBEvilHack \-s all\fP on most versions.
 .
 .hn 1
 Explore mode
 .pg
-NetHack is an intricate and difficult game.
+EvilHack is an intricate and difficult game.
 Novices might falter
 in fear, aware of their ignorance of the means to survive.
 Well, fear not.
@@ -6883,6 +7062,11 @@ at
 .UR https://www.nethack.org/ .
 .BR 1
 .pg
+EvilHack (this variant) was initially based on NetHack 3.6.2, created by
+\fBKeith Simpson\fP. Development began on October 20, 2018, and was first
+released to the public in April 2019. The GitHub repository for EvilHack
+can be found at
+.UR https://github.com/k21971/EvilHack/ .
 .hn 2
 Special Thanks
 .pg
