@@ -2878,6 +2878,7 @@ extern int charge_ok(struct obj *) NO_NNARGS;
 extern void recharge(struct obj *, int) NONNULLARG1;
 extern boolean valid_cloud_pos(coordxy, coordxy);
 extern int seffects(struct obj *) NONNULLARG1;
+extern void selective_remove_curse(void);
 extern void drop_boulder_on_player(boolean, boolean, boolean, boolean);
 extern boolean drop_boulder_on_monster(coordxy, coordxy, boolean, boolean);
 extern void wand_explode(struct obj *, int) NONNULLARG1;

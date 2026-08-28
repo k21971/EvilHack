@@ -1856,6 +1856,17 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
 
     /* these are all duplicates of scroll effects */
     case SPE_REMOVE_CURSE:
+        /* at expert skill (clerical), offers a selective uncurse
+           menu so that the player can keep specific items cursed
+           (e.g. an Infidel keeping cursed artifact gear) instead
+           of having every cursed item auto-uncursed */
+        if (role_skill >= P_EXPERT && !Confusion
+            && y_n("Cast remove curse selectively?") == 'y') {
+            selective_remove_curse();
+            break;
+        }
+        FALLTHROUGH;
+    /*FALLTHRU*/
     case SPE_CONFUSE_MONSTER:
     case SPE_BURNING_HANDS:
     case SPE_SHOCKING_GRASP:
