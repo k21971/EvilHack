@@ -2561,7 +2561,9 @@ bhito(struct obj *obj, struct obj *otmp)
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY:
             /* special container that is immune to magic */
-            if (obj->otyp == CRYSTAL_CHEST) {
+            if (obj->otyp == CRYSTAL_CHEST
+                || (obj->otyp == AMULET_OF_YENDOR
+                    && Is_sanctum(&u.uz))) {
                 res = 0;
                 break;
             }

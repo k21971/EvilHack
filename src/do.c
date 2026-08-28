@@ -290,6 +290,24 @@ flooreffects(
         bury_objs(x, y);
         newsym(x, y);
         res = TRUE;
+    } else if (obj->otyp == AMULET_OF_YENDOR
+               && (obj->cursed ? rn2(3) : obj->blessed
+                               ? !rn2(16) : !rn2(4))
+               && !(is_open_air(x, y) || Is_sanctum(&u.uz)
+                    || Is_astralevel(&u.uz))) {
+        /* prevent recursive call of teleportation through flooreffects */
+        if (!obj->orecursive) {
+            if (cansee(x, y))
+                pline("As the amulet touches the %s, it teleports away!",
+                      surface(x, y));
+            obj->orecursive = TRUE;
+            rloco(obj);
+            obj->orecursive = FALSE;
+            res = TRUE;
+        } else {
+            gb.bhitpos = save_bhitpos;
+            return res;
+        }
     } else if (is_lava(x, y)) {
         res = lava_damage(obj, x, y);
     } else if (is_damp_terrain(x, y)) {

@@ -1342,6 +1342,8 @@ mksobj(int otyp, boolean init, boolean artif)
     otmp->otyp = otyp;
     otmp->where = OBJ_FREE;
     unknow_object(otmp); /* set up dknown and known: non-0 for some things */
+    if (otmp->otyp == AMULET_OF_YENDOR)
+        otmp->orecursive = FALSE;
     otmp->corpsenm = NON_PM;
     otmp->lua_ref_cnt = 0;
     otmp->pickup_prev = 0;

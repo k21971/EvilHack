@@ -2414,7 +2414,13 @@ u_teleport_mon(
     struct monst *mtmp,
     boolean give_feedback)
 {
+    struct obj *otmp;
     coord cc;
+
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        if (otmp->otyp == AMULET_OF_YENDOR && Is_sanctum(&u.uz))
+            return FALSE;
+    }
 
     if (svl.level.flags.stasis_until >= svm.moves) {
         if (give_feedback)
