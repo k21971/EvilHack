@@ -10571,21 +10571,194 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       AI shape); Minetown watch arrests door-kickers
       (pre-existing). Archive: Temple Priest Repair System
       (Nov 30 2025).
-- [ ] Guidebook + dat help docs NOT RE-DERIVED (minted 2026-08-26
-      by the features-coverage sweep; MED - Phase 0's "wholesale
-      re-derived later" promise had no row). Arms: (1) Guidebook
-      .mn/.tex content - EvilHack races/commands/Fighting section
-      (forcefight, monk kick, shield bash), #shield and
-      paranoid_confirmation:Autoall entries, version strings; (2)
-      dat/cmdhelp + hh EvilHack deltas and branding (5.0 #if 0s
-      the cmdhelp read path - verify player visibility first); (3)
-      in-game Guidebook access code (master dispfile_guidebook,
-      GUIDEBOOK define, Makefile.dat wiring); (4) util/stripbs.c
-      ferror fix. Archive: Guidebook Extended Commands Sync + dat/
+- [x] Guidebook + dat help docs RE-DERIVED (2026-08-28, three
+      commits: A code/build/infra + dat files, B Guidebook content,
+      C tracker; BUG-1726/1727 master frozen-unfixed minted).
+      RULINGS (AskUserQuestion 2026-08-28): cmdhelp reader stays 5.0
+      dynamic-only (the #if 0 dlb_fopen(CMDHELPFILE) path in
+      dowhatdoes_core kept; NetHack50's re-enable NOT taken; the
+      file still ships in nhdat and its content was synced);
+      Guidebook.txt switched to master's unpaginated ONEPAGECMD
+      form (one-time pagination+groff-1.23 resync churn accepted);
+      content = FULL FILTERED re-derivation (spec = diff master vs
+      vanilla-3.6, .mn 1027 lines / .tex 1059, translated onto the
+      5.0 sources hunk-by-hunk, every hunk gated on branch reality;
+      the 4689-line master-vs-branch diff is 3.6->5.0 base drift,
+      unusable as a spec).
+      ARM 4 stripbs: errno != EOF -> ferror(stdin) (master
+      e73dc81ed); both 5.0 reference trees carry the bug ->
+      Upstream-reportable row + artifact ~/nh50-stripbs-ferror.patch
+      (git apply --check clean on BOTH trees); no BUG id
+      (master-parity restoration). Proven: printf 'a\bb' exits 0.
+      ARM 2 infra: 1P one-page register (Gbk-1pg-pfx.mn) + tmac.nh
+      .BR guard (master e3f1a725d; the ~237-line tbl dead space
+      proven fixed - max blank run 10 in Guidebook.dat);
+      Makefile.doc STRIPBS/COLCMD enabled + Guidebook.txt
+      ONEPAGECMD via $(GUIDEBOOK_MN) (5.0's dated.mn NH_DATESUB
+      indirection KEPT - gbdates-pre/post.500 hints derive the
+      rendered date from the last Guidebook.mn commit; the .ds f2 /
+      \date literals are no-git fallbacks set to the slice date;
+      committed .txt matches a same-day rebuild byte-for-byte);
+      both one-page rules gained a $(STRIPBS) prereq (reviewer
+      MEDIUM - doc-only builds on a clean tree otherwise truncate
+      the target before failing; master shares the gap); 5.0's
+      .pl \n(nlu one-page suffix kept (replaces master's EOF--EOF
+      sed).
+      ARM 3 in-game Guidebook: GUIDEBOOK define (global.h, after
+      USAGEHELP), dispfile_guidebook + "The EvilHack Guidebook."
+      menu row between usagehelp and license (master's position;
+      dohelp dispatch is index-safe: a_int = i + 1 with
+      function-pointer gates - reviewer verified); Makefile.top
+      DATHELP + expanded .PHONY Guidebook target (3 doc targets +
+      cp dat/Guidebook) + dlb: Guidebook prereq (master b483ac2c6
+      race fix); Makefile.dat clean rule; Makefile.nmake
+      copy-from-Guidebook.txt rule + nhdat prereq + dlb.lst +
+      clean del (master 95ef622d5 porthelp pattern). NOT wired
+      (master parity - master never wired them): VMS
+      Makefile_top.vms DATHELP, xcodeproj dlb list (its Build
+      Guidebook phase is doc-render only), vs/files.props DlbList
+      (no generation step for the untracked dat file);
+      sys/windows/GNUmakefile stale by soko/gehennom precedent.
+      ARM 1 dat files (merged, never overwritten): cmdhelp {
+      shield + M-F/M-g + M-v branding; hh ^U removeimarkers + M-F
+      forge; help branding x5 + { sink/fountain/forge + } shallow
+      water/sewage + ^U row + master's one-line # form; wizhelp
+      #wizcrown + #wizpious (5.0 natively documents
+      #wizcast/#wizkill/#wiztelekinesis); opthelp NO change (pet
+      names landed with BUG-1544; 256-color note routes to Phase
+      4); keyhelp/history/optmenu/luahelper untouched.
+      GUIDEBOOK CONTENT (.mn + .tex parallel twins; .tex in 5.0
+      idiom - plain \item labels, texttt, textunderscore,
+      textasciicircum/tilde, url): identity (.ds h0 / .ds vr
+      EvilHack 1.0.0, title page, Keith Simpson attribution);
+      roles Convict+Druid+Infidel; all 9 races (prose typos
+      exteremely/suscepible/rivial/drian kept master-verbatim);
+      12 extended-command entries (#forge #order #removeimarkers
+      #shapechange #shield #steal #telekinesis #wildshape
+      #wizcrown #wizmakemap #wizpious #wiztelekinesis + M-F meta
+      row; #genocided/#wizkill 5.0-native; keys verified vs cmd.c:
+      { M-F ^U ^K); Fighting F-prefix bonus-attack paragraph
+      (monk kick + shield bash verified live in uhitm.c); armor
+      table re-derived from branch objects.h AC values in 5.0's
+      condensed/two-column formats (bronze plate mail + dragon
+      scale mail rows DROPPED - neither object exists in EITHER
+      tree; master still lists dragon scale mail = master latent,
+      frozen note; mithril-coat->chain mail renames, studded/
+      armor/jacket material names; all values reviewer-verified);
+      5 pet-name options (hawkname homunname pseudoname ratname
+      spidername - the only live-and-undocumented options);
+      symbols tables synced to branch defsym.h: 11 master rows
+      (deadtree ent forge grass ice_trap orb plant puddle sand
+      sewage skeleton) + 6 more the reviewer found absent from
+      master's AND upstream's tables (bolt/spear/magic-beam traps,
+      magic chest, trapped door/chest), zruty deleted (branch z
+      class = SKELETON), stale glyph cells corrected vs defsym
+      (sink {, darkroom \., vibrating square \(ti - stale in
+      master AND Official_nh50), master's one-page table format
+      (.ll +-30n, uncentered, lfCR spec; master's grass/ice_trap
+      space-separated cells = latent tbl column bug,
+      tab-normalized, frozen note); { overview line "A fountain, a
+      sink, or a forge." (master's text omits sink; sink IS { in
+      branch defsym); sysconf SERVERSEED entry; variant credit
+      paragraph at history end; EVILHACKOPTIONS/.evilhackrc/
+      evilhack branding throughout (112 auto master-pairs + 35
+      manual on .mn; 142 rule-based + stragglers on .tex; history
+      and upstream credits keep NetHack); .tex "ths"->"the"
+      (master parity) + "iron ball \&" escape (master's bare & =
+      latent LaTeX error, frozen note; NO LaTeX on this box - .tex
+      verified by static escape/balance audit only, 0 unescaped &);
+      #shapechange forms corrected to vampire bat/warg/fog cloud
+      (reviewer LOW: master says wolf - never a form in either
+      tree, M2_VAMPIRE_FORM = warg/fog cloud/vampire bat);
+      config.nh master's exact 2 brandings (~/.evilhackrc +
+      EvilHack.exe; NetHackw.exe on the continuation line kept =
+      master byte-parity).
+      FILTERED OUT with routes: 256-color/CUSTOMCOLOR/use_256color/
+      truecolor/customcolors/#showcolors + Custom Glyph Colors
+      section + opthelp palette note + MENUCOLOR numeric +
+      hilite_status 202 example -> Phase 4 customcolor row;
+      #wizspell + wizhelp ^S row -> spell-parity owner (no
+      wizspell in branch cmd.c; 5.0's #wizcast is unbound);
+      UTF8graphics symset paragraphs -> symset/UTF-8 owner (no
+      UTF8graphics in branch dat/symbols); dangling-option docs ->
+      the new options-wiring row below; paranoid default
+      pray+quit (branch = 5.0's pray swim trap, options.c) ->
+      options-parity; help_menu_items' other NetHack strings +
+      welcome() greeting + %USERPROFILE%\NetHack folder
+      (windsys.c still \NetHack\; doc keeps the true folder,
+      .evilhackrc filename rebranded) + sys/windows/porthelp ->
+      branding follow-up; crashreport doc lines + cr-5.0.0.html
+      URL kept (sysopt.crashreporturl default points upstream -
+      branding follow-up should re-point before release);
+      NETHACK_MSGHANDLER kept (master's own Guidebook keeps it).
+      MASTER-PARITY NOTES: paranoid_confirm:AutoAll at the
+      menustyle cross-ref is a valid option-name abbreviation, NOT
+      a typo (the survey's typo call was wrong; no fix, no
+      upstream report); BUG-1726 = master's S_ghost bare-backslash
+      cell renders literal \f[1] in every master build (branch
+      keeps 5.0's backslash-space; reviewer caught the slice
+      initially copying master's cell); BUG-1727 = master's credit
+      .UR sits mid-line and renders literally (branch breaks the
+      line; master's .tex twin uses \url, unaffected); upstream
+      5.0 tex sink/darkroom glyph cells were stale too (fixed here
+      with the .mn ones); NROFF -W warning flags not added to the
+      5.0 NROFF_FLAGS hints mechanism (verification ran them
+      manually: 0 warnings).
+      CLEANUP: stale master-build artifacts dat/vaults.dat DELETED
+      and dat/Guidebook overwritten by the new build product; the
+      Jul-11 dat/*.lev stray set noted, out of row scope.
+      INTERIM: between commits A and B a build regenerates the
+      still-vanilla .txt unpaginated (tracked .txt diff); commits
+      land together. Post-commit builds regenerate .txt via
+      dated.mn with the Guidebook.mn commit date (byte-identical
+      only same-day; upstream-inherited property).
+      REVIEWER CONDITIONAL PASS -> all findings fixed pre-commit
+      (2 MEDIUM render defects = BUG-1726/1727 class above, 1
+      MEDIUM prereq gap, 5 LOW incl. the six missing symbol rows
+      and wolf->warg); reviewer verified menu dispatch, every
+      key/option/AC/symbol vs cmd.c/optlist.h/objects.h/defsym.h,
+      dlb packaging on all three wired platforms, serial make
+      ordering, render cleanliness (no f[1], no literal .UR, 0
+      lines > 80).
+      BATTERY 8/8 PASS (2 games: wizard Valkyrie + NORMAL-play
+      illithid Wizard; paniclog never existed): ? menu exact row
+      order with "The EvilHack Guidebook." rendering
+      title/attribution/"August 28, 2026" + Aasimar prose +
+      #shield entry at its alphabetical position; adjacent-row
+      dispatch clean both sides (menu-controls + license = no
+      index shift); non-wizard menu ends at Support information
+      with the Guidebook present and the wizhelp row absent, same
+      render; & { -> "toggle shield use (sword and board)
+      (#shield)" and & M-F -> the forge description (harness note:
+      tmux must send the raw meta byte 0xC6 - ESC+F cancels the
+      prompt); hh ^U + M-F rows in place; wizhelp
+      #wizcrown/#wizpious alphabetized; help banner "Welcome to
+      EvilHack!" + {/} lines + ^U. Battery anomalies: options.c
+      "Exter a target string" typo (pre-existing 5.0 string,
+      candidate one-word direct fix); welcome() "welcome to
+      NetHack!" pline = the known Phase 0 re-brand gap (branding
+      follow-up). Archive: Guidebook Extended Commands Sync + dat/
       Help Files Sync (Dec 28 2025), In-Game Guidebook Access +
       Forcefight Documentation (Feb 26 2026), Documentation and
-      Guidebook Infrastructure (Feb-Mar 2026). Untracked 3.6-era
-      leftovers noted in the tree: dat/vaults.dat, dat/Guidebook.
+      Guidebook Infrastructure (Feb-Mar 2026).
+- [ ] Ownerless option wirings NOT PORTED (minted 2026-08-28 by
+      the Guidebook slice; LOW - the Phase 1 flag.h row's "wiring
+      with subsystems" model left these with no owning subsystem
+      row). Dangling flag.h/iflags fields with zero options.c
+      registration and zero consumers on the branch:
+      autoall_menu (master: boolopt + do.c drop_everything +
+      pickup.c loot_everything arms), hilite_hidden_stairs,
+      showmondamage, show_realtime + realtime_format,
+      underline_peacefuls (wc2 field; cursmain.c mention only),
+      plus the start-state option hallucinating (no field),
+      master's wizweight->invweight rename (branch keeps 5.0's
+      wizweight), and master's sparkle frame-count semantics
+      (branch keeps 5.0's boolean per the Phase 1 ruling). Their
+      Guidebook/opthelp entries travel with the wiring (filtered
+      out of the 2026-08-28 re-derivation). Master's paranoid
+      default "pray quit" vs branch "pray swim trap" also parks
+      here. Archive: the options half of Documentation and
+      Guidebook Infrastructure + master e84a85d5a.
 - [ ] Per-alignment overview altar tracking NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; MED - overview
       struct is save-coupled, rides the VERSION_SANITY path).
@@ -11339,6 +11512,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-08-28 | util/stripbs.c tests `errno != EOF` at end of input - errno is never -1 and is never cleared, so the filter exits EXIT_FAILURE on every normal EOF; any make rule checking the pipeline status (e.g. stripbs as COLCMD for Guidebook generation) sees failure with complete output. Fix: `ferror(stdin)` (EvilHack master e73dc81ed). Byte-identical in NetHack50 and Official_nh50; artifact ~/nh50-stripbs-ferror.patch verified `git apply --check` on both trees | fixed on branch (docs slice); not yet sent |
 | 2026-08-23 | uhitm.c mhitm_ad_phys() m-v-m arm re-reads MON_WEP(magr) instead of the weapon mdamagem() received, and its `!= AT_WEAP && != AT_CLAW -> 0` filter keeps the wielded weapon for AT_CLAW, so a weapon-wielder's claw (Yeenoghu, troll) adds the weapon's dmgval to its claw damage in monster-vs-monster combat; mattackm() passes Null for claws and 3.6's mdamagem() used the parameter. Fix: carry the chosen weapon in struct mhitm_data (artifact ~/nh50-claw-weapon-damage.patch) | found on branch (combat-residue reviewer); not yet sent |
 | 2026-08-23 | mhitm.c mdamagem(): a knockback that moves the defender returns before `mdef->mhp -= mhm.damage`, so the 1-in-6 mhurtle swallows the whole hit's damage - every AD_PHYS handler's damage, upstream-identical in Official_nh50. Carried as an upstream quirk; no branch change | found on branch (combat-residue reviewer); not yet sent |
 | 2026-08-22 | uhitm.c hmon_hitmon_weapon_melee() Healer anatomy bonus (min(3, kills/6) for a wielded knife) is added AFTER dmgval() already returned 0 for a shade, so a Healer with six shade kills damages the next one for up to 3 with an iron knife that "passes harmlessly through". Upstream-only feature (EvilHack master never had it). Fixed on the branch with a !noncorporeal() gate (BUG-1679); artifact ~/nh50-healer-anatomy-shade.patch in upstream idiom (P_KNIFE, PM_SHADE) | fixed on branch; not yet sent |
