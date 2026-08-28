@@ -121,11 +121,16 @@
 .
 .\" .BR - hard line break with vertical padding inserted
 .\"    $1 - repeat count for amount of padding (optional; default is 1)
+.\"    In one-page mode (register 1P), just insert spacing without the
+.\"    digit-width space that interacts with tbl keeps to produce dead space.
 .de BR
 .ie \\.$==0 .nr bR 1v
 .el .nr bR 0\\$1v
+.ie \\n(1P .sp 1v
+.el \{\
 \0
 .sp \\n(bR
+.\}
 .br
 ..
 .\" .UR url

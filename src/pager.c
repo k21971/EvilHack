@@ -40,6 +40,7 @@ staticfn void dispfile_optmenu(void);
 staticfn void dispfile_license(void);
 staticfn void dispfile_debughelp(void);
 staticfn void dispfile_usagehelp(void);
+staticfn void dispfile_guidebook(void);
 staticfn void hmenu_doextversion(void);
 staticfn void hmenu_dohistory(void);
 staticfn void hmenu_dowhatis(void);
@@ -2906,6 +2907,12 @@ dispfile_usagehelp(void)
 }
 
 staticfn void
+dispfile_guidebook(void)
+{
+    display_file(GUIDEBOOK, TRUE);
+}
+
+staticfn void
 hmenu_doextversion(void)
 {
     (void) doextversion();
@@ -2963,6 +2970,7 @@ static const struct {
     { hmenu_doextlist, "List of extended commands." },
     { domenucontrols, "List menu control keys." },
     { dispfile_usagehelp, "Description of NetHack's command line." },
+    { dispfile_guidebook, "The EvilHack Guidebook." },
     { dispfile_license, "The NetHack license." },
     { docontact, "Support information." },
 #ifdef PORT_HELP

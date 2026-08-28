@@ -33,9 +33,9 @@ GUIDEBOOK ?= Guidebook		# regular ASCII file
 # recognize the option.  Sigh.
 #
 # col is unnecessary, but harmless, with groff.  See grotty(1).
-COLCMD ?= col -bx
+#COLCMD ?= col -bx
 #COLCMD ?= col -b
-#COLCMD ?= $(STRIPBS)
+COLCMD ?= $(STRIPBS)
 
 # The command to use to generate a PostScript file
 # PSCMD ?= ditroff | psdit
@@ -61,8 +61,8 @@ GUIDECMD ?= $(GUIDE_PREFORMAT) | $(NROFF) -c -Tascii $(NROFF_FLAGS) | $(COLCMD)
 GUIDEBOOK_TEX_SRC ?= Guidebook.tex
 GUIDEBOOK_TEX ?= $(GUIDEBOOK_TEX_SRC)
 
-#STRIPBS ?= ../util/stripbs
-# STRIPBS often comes from a hints file, or is empty
+STRIPBS ?= ../util/stripbs
+# STRIPBS may also come from a hints file
 
 # targets
 #
@@ -124,10 +124,11 @@ DISTRIB = Guidebook.txt evilhack.txt recover.txt \
 distrib: $(DISTRIB)
 	@echo "Plain text documentation is up to date."
 
-Guidebook.txt	: $(GUIDEBOOK_MN) tmac.n tmac.nh $(NEEDMAKEDEFS)
-	$(GUIDECMD) > $@
+Guidebook.txt	: Gbk-1pg-pfx.mn Gbk-1pg-sfx.mn $(GUIDEBOOK_MN) tmac.n tmac.nh \
+		  $(NEEDMAKEDEFS) $(STRIPBS)
+	$(ONEPAGECMD) > $@
 Guidebook.dat	: Gbk-1pg-pfx.mn Gbk-1pg-sfx.mn $(GUIDEBOOK_MN) tmac.n tmac.nh \
-		  $(NEEDMAKEDEFS)
+		  $(NEEDMAKEDEFS) $(STRIPBS)
 	$(ONEPAGECMD) > $@
 
 # plain text output

@@ -51,6 +51,7 @@ for Escape (or vice versa) and ^_ for #retravel but none of the others.
 Game commands:
 ^D    kick      kick (a door, or something else)
 ^T    Tport     teleport (if you can)
+^U    removeimarkers  remove remembered 'I' monster markers
 ^X    show      show your attributes
 a     apply     apply or use a tool (pick-axe, key, camera, etc.)
 A     takeoffall  choose multiple items of armor, accessories, and weapons
@@ -124,6 +125,7 @@ M-C   conduct   view optional challenges
 M-d   dip       dip an object into something
 M-e   enhance   show weapon and spell skills, can improve them if eligible
 M-f   force     force a lock
+M-F   forge     use a forge to combine objects or affix gemstones
 M-g   genocided list genocided and extinct monster types, if any
 M-i   invoke    invoke an object's special powers
 M-j   jump      jump to another location

@@ -25,6 +25,7 @@
 #define OPTIONFILE "opthelp"    /* file explaining runtime options */
 #define OPTMENUHELP "optmenu"   /* file explaining #options command */
 #define USAGEHELP "usagehlp"    /* file explaining command line use */
+#define GUIDEBOOK "Guidebook"   /* the EvilHack Guidebook */
 #define OPTIONS_USED "options"  /* compile-time options, for #version */
 #define SYMBOLS "symbols"       /* replacement symbol sets */
 #define EPITAPHFILE "epitaph"   /* random epitaphs on graves */
@@ -609,8 +610,6 @@ enum opt {
 #undef NHOPT_ENUM
     OPTCOUNT
 };
-
-
 
 #define SFCTOOL_BIT (1UL << 30)
 

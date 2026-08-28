@@ -35,7 +35,7 @@ int main(int argc UNUSED, char *argv[] UNUSED)
                 *prev = *cp;
             }
         } else {
-            if (errno != EOF)
+            if (ferror(stdin))
                 trouble = 1;
             if (*prev)
                 fputc(*prev, stdout);

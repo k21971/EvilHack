@@ -95,7 +95,8 @@ LUA_VERSION = 5.4.8
 # The CSS file is required for HTML end-of-game dump logs.
 CSS = NHdump.css
 
-DATHELP = help hh cmdhelp keyhelp history opthelp optmenu usagehlp wizhelp
+DATHELP = help hh cmdhelp keyhelp history opthelp optmenu usagehlp wizhelp \
+	Guidebook
 
 SPEC_LEVS = bigrm-*.lua castle-?.lua forest.lua goblintown*.lua hdgn.lua \
 	hella-?.lua hellb-?.lua hellc-?.lua icequeen-?.lua \
@@ -192,8 +193,10 @@ submodules/lua/lua.h:
 # Note: many of the dependencies below are here to allow parallel make
 # to generate valid output
 
+.PHONY: Guidebook
 Guidebook:
-	( cd doc ; $(MAKE) Guidebook )
+	( cd doc ; $(MAKE) Guidebook Guidebook.dat Guidebook.txt )
+	cp doc/Guidebook.dat dat/Guidebook
 
 Guidebook.txt:
 	( cd doc ; $(MAKE) Guidebook.txt )
@@ -282,7 +285,7 @@ title.img:
 check-dlb: options
 	@if egrep -s librarian dat/options ; then $(MAKE) dlb ; else true ; fi
 
-dlb:
+dlb: Guidebook
 	( cd util ; $(MAKE) dlb )
 	( cd dat ; LC_ALL=C ; ../util/dlb cf nhdat $(DATDLB) )
 

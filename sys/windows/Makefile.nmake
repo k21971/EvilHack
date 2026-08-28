@@ -2201,10 +2201,14 @@ $(OGUI)dlb_main.o: $(UTIL)dlb_main.c $(INCL)config.h $(INCL)dlb.h
 $(DAT)porthelp: $(MSWSYS)porthelp
 	@copy $(MSWSYS)porthelp $@ >nul
 
+$(DAT)Guidebook: $(DOC)Guidebook.txt
+	@copy $(DOC)Guidebook.txt $@ >nul
+
 !IF ("$(USE_DLB)"=="Y")
 nhdat$(NHV):	$(U)dlb.exe $(DAT)data $(DAT)oracles $(OPTIONS_FILE) $(LUA_FILES) \
 	$(DAT)rumors $(DAT)help $(DAT)hh $(DAT)cmdhelp $(DAT)keyhelp \
-	$(DAT)history $(DAT)opthelp $(DAT)optmenu $(DAT)wizhelp $(DAT)porthelp \
+	$(DAT)history $(DAT)opthelp $(DAT)optmenu $(DAT)wizhelp $(DAT)Guidebook \
+	$(DAT)porthelp \
 	$(DAT)license $(DAT)engrave $(DAT)epitaph $(DAT)bogusmon $(DAT)tribute
 	@echo Building $@
 	@cd $(DAT)
@@ -2223,6 +2227,7 @@ nhdat$(NHV):	$(U)dlb.exe $(DAT)data $(DAT)oracles $(OPTIONS_FILE) $(LUA_FILES) \
 	@echo opthelp >>dlb.lst
 	@echo optmenu >>dlb.lst
 	@echo wizhelp >>dlb.lst
+	@echo Guidebook >>dlb.lst
 	@echo license >>dlb.lst
 	@echo engrave >>dlb.lst
 	@echo epitaph >>dlb.lst
@@ -2884,6 +2889,7 @@ spotless: clean
 	if exist $(DAT)epitaph          del $(DAT)epitaph
 	if exist $(DAT)bogusmon         del $(DAT)bogusmon
 	if exist $(DAT)porthelp	        del $(DAT)porthelp
+	if exist $(DAT)Guidebook        del $(DAT)Guidebook
 	if exist nhdat$(NHV).	        del nhdat$(NHV).
 	if exist outldirx86.tag         del outldirx86.tag
 	if exist ottydirx86.tag         del ottydirx86.tag

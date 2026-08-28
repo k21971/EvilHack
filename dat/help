@@ -1,6 +1,6 @@
-        Welcome to NetHack!                ( description of version 3.6 )
+        Welcome to EvilHack!            ( description of current version )
 
-        NetHack is a Dungeons and Dragons like game where you (the adventurer)
+        EvilHack is a Dungeons and Dragons like game where you (the adventurer)
 descend into the depths of the dungeon in search of the Amulet of Yendor,
 reputed to be hidden somewhere below the twentieth level.  You begin your
 adventure with a pet that can help you in many ways, and can be trained
@@ -10,15 +10,14 @@ attack a monster by trying to move onto the space a monster is on (but often
 it is much wiser to leave it alone).
 
         Unlike most adventure games, which give you a verbal description of
-your location, NetHack gives you a visual image of the dungeon level you are
+your location, EvilHack gives you a visual image of the dungeon level you are
 on.
 
-        NetHack uses the following symbols:
+        EvilHack uses the following symbols:
 
         - and |  The walls of a room, possibly also open doors or a grave.
         .        The floor of a room or a doorway.
-        #        A corridor, or iron bars, or a tree, or possibly a kitchen
-                 sink (if your dungeon has sinks), or a drawbridge.
+        #        A corridor, or iron bars, or a type of tree, or a drawbridge.
         >        Stairs down: a way to the next level.
         <        Stairs up: a way to the previous level.
         @        You (usually), or another human.
@@ -38,8 +37,9 @@ on.
         "        An amulet, or a spider web.
         0        An iron ball.
         _        An altar, or an iron chain.
-        {        A fountain.
-        }        A pool of water or moat or a pool of lava.
+        {        A sink, fountain, or a forge.
+        }        A pool of water or moat or a pool of lava
+                 or shallow water or sewage.
         \        An opulent throne.
         `        A boulder or statue.
         A to Z, a to z, and several others:  Monsters.
@@ -75,7 +75,7 @@ b j n   1 2 3           g<dir>:   run in direction <dir> until something
                 used but 'y' and 'z' are swapped.
 
 Commands:
-        NetHack knows the following commands:
+        EvilHack knows the following commands:
         ?       Help menu.
         /       What-is, tell what a symbol represents.  You may choose to
                 specify a location or give a symbol argument.  Enabling the
@@ -146,6 +146,7 @@ Commands:
         t       Throw an object or shoot a projectile.
         T       Take off armor.
         ^T      Teleport, if you are able.
+        ^U      Remove remembered 'I' monster markers from the map.
         v       Displays the version number.
         V       Display a longer identification of the version, including the
                 history of the game.
