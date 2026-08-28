@@ -10852,11 +10852,64 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream's mon_arrive still lacks the clear, but placement
       now launders it except on the ridden-steed early-return
       path).
-- [ ] Amulet of Yendor stable on Astral NOT PORTED (minted
-      2026-08-26 by the features-coverage sweep; MED). No Amulet
-      block in branch flooreffects(); obj.h orecursive alias has
-      ZERO consumers (dangling half-port; master uses it in do.c
-      and mkobj.c). Archive: Amulet of Yendor Stable on Astral
+- [x] Amulet of Yendor stable on Astral PORTED whole (2026-08-28,
+      the full teleport-on-drop feature: master a19c091cb origin
+      + 44138afd4 Astral exclusion = final state; two commits:
+      A code, B tracker). flooreffects() Amulet arm
+      master-verbatim (beatitude odds cursed 2/3, uncursed 1/4,
+      blessed 1/16; open-air/Sanctum/Astral exclusions; the
+      orecursive guard breaks the rloco -> flooreffects
+      re-teleport chain; kept master's redundant recursive-arm
+      early return), bhitpos -> gb.bhitpos idiom; mksobj
+      orecursive=FALSE init anchored after unknow_object() (5.0
+      moved the dknown init there); the obj.h alias was already
+      present - the inert-fields sweep instance, now wired.
+      RULING (AskUserQuestion 2026-08-28): master's Jan 2024
+      Sanctum-teleport pair rode in-slice, both master-verbatim
+      and previously unowned by any row - 44c8d57b2 zap.c bhito
+      refuses wand/spell of teleport at the floor Amulet in the
+      Sanctum (beside the CRYSTAL_CHEST guard) and ffd359e03
+      teleport.c u_teleport_mon silently refuses teleporting an
+      Amulet-carrying monster there (guard above the branch's
+      stasis arm; disjoint levels so order is inert). Archive
+      sweep pre-port: no BUGFIXES entries on the block; the
+      adjacent family (open-air migration 841652730 + sewage
+      obj_resists 3cb26d842, BUG-1539 escape system, BUG-1519
+      covetous gates) already on branch. Reviewer PASS zero
+      conditions (all ~40 flooreffects callers audited incl. the
+      EvilHack-only telekinesis.c pair - rloco does its own shop
+      billing so the skipped remote_burglary cannot double-bill;
+      olocked alias census: branch dropped sokoprize so
+      orecursive is the sole alias and every olocked writer is
+      container-gated; recursion-guard safety: the Amulet is
+      indestructible on every inner landing path - lava/water
+      obj_resists, open-air migrates, guarded arm declines - so
+      the post-rloco clear can never touch freed memory; RNG
+      roll order byte-identical to master). BATTERY 10/10 PASS
+      (human Wizard XL30, sanity_check on, paniclog never
+      existed): 8/9 cursed drops teleported with exactly one
+      "teleports away!" per drop and gdb-read destinations,
+      1 stayed; blessed 1/20 + uncursed 2/8 teleports (both
+      outcomes both BUCs); olocked bit 0 after every event incl.
+      in-minvent and post-restore; Astral 10 cursed drops zero
+      teleports; Sanctum 12 cursed drops zero teleports, zap at
+      the floor Amulet silently refused with the charge spent
+      (control on D:1 relocated it), staged gnome-lord carrier
+      zap silently refused (control on D:1 teleported the
+      carrier); open-air drop on wizard1 AIR routed to the hellc
+      migration arm (wizard-mode 1:13 destination pline), not
+      the teleport arm; monster death-drop fired the arm cleanly
+      (and the 1/3 stay branch on a second kill); save/restore
+      with the Amulet in inventory and on floor - same o_id,
+      same square, bit 0. Battery finds recorded separately:
+      set_malign() museum-copy NULL-mextra SIGSEGV on Astral =
+      master BUG-360 fix bc681431d silently unported
+      (upstream-5.0-shared unsafe EPRI/EMIN guard shape; own
+      slice candidate); Sanctum high priest of Moloch confirmed
+      carrying the real Amulet (harness-brief error, not a bug);
+      #wizintrinsic invulnerable does not gate Astral
+      sonic/roar damage (observation only, master-parity
+      unverified). Archive: Amulet of Yendor Stable on Astral
       Plane (Apr 2026).
 - [ ] Selective remove curse at clerical skill NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; MED).
@@ -10924,9 +10977,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       fields into the 5.0 structs before their subsystems ported;
       some are still writer-less and score false-PORTED on keyword
       greps. Known instances: ulastprayed (row above),
-      ugift_history (god-gift row), orecursive (Astral-Amulet
-      row), flag.h use_256color stub (truecolor row note); the
-      gehennom _entered bits were the same shape (since wired).
+      ugift_history (god-gift row), flag.h use_256color stub
+      (truecolor row note); the gehennom _entered bits and
+      orecursive (Astral-Amulet slice 2026-08-28) were the same
+      shape (since wired).
       WORK: walk the Phase 1 field tables; for each field grep for
       a writer; writer-less fields get a pointer to their owning
       row or a new row.
