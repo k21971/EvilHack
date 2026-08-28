@@ -908,6 +908,11 @@ montraits(
         mtmp2->mavenge = 0;
         mtmp2->meating = 0;
         mtmp2->mleashed = 0;
+        /* the revived monster is a fresh on-floor monster; traits
+           stored by older binaries can carry stale lifecycle bits
+           (MON_ENDGAME_FREE from an endgame death), which would make
+           mon_offmap() read an on-map monster as off-map forever */
+        mtmp2->mstate = MON_FLOOR;
         /* never inherit a steed relationship from stored traits; the
            erid's mon_steed pointer is meaningless here, so raw-free it
            (NOT free_erid, which would dereference that stale pointer) */

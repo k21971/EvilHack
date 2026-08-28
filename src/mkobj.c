@@ -2449,7 +2449,13 @@ save_mtraits(struct obj *obj, struct monst *mtmp)
             mtmp2->mhp = mtmp2->mhpmax;
         if (mtmp2->mhp < 1)
             mtmp2->mhp = 0;
-        mtmp2->mstate &= ~MON_DETACH;
+        /* every mstate bit is lifecycle/transit bookkeeping that is
+           meaningless in a stored snapshot. m_detach() sets
+           MON_ENDGAME_FREE on any monster dying in the endgame, so
+           keeping the copied bits would make a later revival (Rider,
+           troll, undead turning, animated statue) read as permanently
+           off-map */
+        mtmp2->mstate = MON_FLOOR;
         /* A corpse or statue records a single dead monster; its stored
            traits must never carry a steed relationship. monstone()
            snapshots a still-mounted rider before m_detach() severs the
