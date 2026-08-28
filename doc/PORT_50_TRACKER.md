@@ -10469,13 +10469,107 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mtame/mpeaceful without malign; the corrected script
       never reproduced it. Archive: Pet Limit Optimization
       (Nov 30 2025; base feature predates the archive window).
-- [ ] Temple damage-repair sweep NOT PORTED (minted 2026-08-26 by
-      the features-coverage sweep; MED - converts the prose
-      deferral inside the hero-spell-parity row's DEFER list into a
-      real row; five in-code TODO-EVILHACK comments already name it
-      in music.c, mthrowu.c x3, muse.c, hack.c).
-      temple_repair_damage/temple_at_boundary - 24 master call
-      sites across 13 files. Archive: Temple Priest Repair System
+- [x] Temple damage-repair sweep PORTED 2026-08-27 (session 73;
+      minted 2026-08-26 by the features-coverage sweep; MED).
+      Master's subsystem (5c2c314fa origin + 417386bfd mbhit bars
+      billing + bd88edc3e BUG-568/569 - final state) restored in
+      5.0 idiom: priest.c temple_at_boundary + staticfn
+      temple_repair_damage + temple_remove_damage + the factored
+      temple_damage_match predicate; pri_move repair call;
+      m_detach ispriest croaked-discard hook; add_damage
+      dominated_by_temple gate (the door arm calls
+      temple_at_boundary instead of master's inlined duplicate of
+      the same loop - recorded adaptation; cost forced 0L); and
+      the caller sweep - 22 temple_at_boundary arms + 8 direct
+      in_rooms(TEMPLE) arms across dig/dokick/hack/lock/monmove/
+      mthrowu/muse/music/trap/zap.c (the row's "24 sites"
+      undercounted the in_rooms kind), discharging all five
+      TODO-EVILHACK markers plus the deferred halves of BUG-1432
+      (lock.c), BUG-1547 (mthrowu.c) and BUG-1701 (hack.c).
+      PREMISE CORRECTIONS: still_chewing bars, postmov bars and
+      the whole hero bhit IRONBARS feature lacked even the SHOP
+      halves - all restored (the dacbad5a7 blow-apart +
+      W_NONDIGGABLE vibrate arms were an unowned gap; shopbars +
+      pay_for_damage("destroy") at bhit exit); the branch-only
+      mthrowu hammer-smash site gained the same temple arm.
+      RULINGS (AskUserQuestion x3, 2026-08-27): hero bars arms
+      ported in-slice; temple catchup ADDED beyond master -
+      fix_temple_damage() called from fix_shop_damage's tail,
+      silent via the once=NULL contract (the planned catchup
+      param proved unnecessary: the prayer pline is the
+      function's only message); door-match probe + conditional
+      fix (probe REPRODUCED it -> BUG-1724). Shop-side halves:
+      repair_damage gains the IRONBARS "rematerialize" message
+      arm (master's batched saw_bars translated to 5.0's
+      per-entry shape); getcad gains a dugbars param (master's
+      pay_for_damage local; 3 call sites, all four "shop"/"door"
+      ternaries now 3-way); discard_damage_struct exported for
+      the catchup walker. 5.0-invariant riders on the temple copy
+      (recorded adaptations): levl flags restore for non-door
+      terrain, del_engr_at x2, stop_picking/stop_occupation on a
+      restored picked-at door, uball OBJ_FLOOR guard, uint8
+      litter, newsym-before-block ordering (upstream display
+      fix). BUG-1723 (reviewer-caught branch sibling): shop
+      repair_damage's LANDMINE/BEAR_TRAP arm minted a duplicate
+      and tripped deltrap's ammo guard on the DESIGNED
+      set-trap-in-shop flow - now salvages the real object via
+      DELTRAP_RETURN_AMMO; the temple arm uses DESTROY_AMMO per
+      the no-conversion design (the BUG-1359 sweep had covered
+      trap.c only). BUG-1724 (master frozen-unfixed): boundary
+      -door entries whose in_rooms(TEMPLE) is empty - the exact
+      doors temple_at_boundary was invented for - never matched
+      the repair/discard walker (Valley of the Dead door (74,11)
+      sits in ANOTHER room's wall row; entry immortal on
+      master); temple_damage_match adds a shroom-pinned
+      8-neighbor scan for IS_DOOR entries, shared by all three
+      walkers. BUG-1725 (master frozen-unfixed): both repair
+      routines' unconditional block_point marks restored
+      see-through IRONBARS vision-blocking (sanity-check
+      impossible per turn on branch, silent wrong LOS on
+      master; pre-slice reachable via BUG-1547's billing) ->
+      recalc_block_point in both. MASTER-PARITY KEPT (do not
+      fix): priestless-temple wall damage appends an inert
+      costed entry; dig's wall arm uses plain in_rooms(TEMPLE)
+      vs the door arm's boundary helper, and zap_dig's door arm
+      likewise in_rooms (boundary doors of zap-dug temples go
+      unrecorded - master's mixed predicates kept per site);
+      apply.c set_trap has no temple arm (priests only remove a
+      hero-set trap when a damage entry already exists at the
+      spot); temples repair the whole list per pri_move with
+      batched messages while 5.0 shops fix one entry per move;
+      no priest anger for temple damage (origin-commit design);
+      pay_for_damage stays shop-only everywhere;
+      temple_at_boundary's scan reaches one ring beyond
+      in_rooms, so a bars square in that outer shell can gain an
+      orphan 0-cost entry (master-identical geometry). Reviewer:
+      CONDITIONAL PASS -> both HIGHs (the deltrap-ammo pair)
+      fixed in-slice, LOWs recorded as the parity notes above.
+      BATTERY 11/12 + 5/5 retest (Wizard XL30 Minetown+Valley,
+      Valkyrie XL30 retest; paniclog clean after the fixes):
+      headline door repair (cost-0 typ-24 entry, "intones a
+      prayer" + "The temple door reappears!", D_CLOSED); wall
+      repair with typ AND flags both restored + 3 dropped items
+      litter-scattered onto temple squares; trap removal for
+      hero-set AND maketrap'd bear traps with ZERO beartrap
+      objects left and no impossible; BUG-1723 o_id-identical
+      salvage into the shk's minvent; catchup repaired
+      silent-on-arrival; priest-death discard with 12-turn
+      no-repair proof; force-bolt/striking bars all four
+      sub-cases incl. the thrown-dagger control; shop bars
+      billed 300 + the new "How dare you destroy my iron bars?"
+      + "Suddenly, the iron bars rematerialize!"; rust-monster
+      0-cost and polyd-hero SHOP_BARS_COST chew billing;
+      shop-wall control (wand-dig 200 = SHOP_WALL_COST -
+      initially misread as double-billing; pick-axe vs shop
+      wall is refused by dig()'s hardness arm, wand path used);
+      save/restore entry byte-identical; retest: shop bars
+      vision clean 20+ turns with a wall repair still blocking
+      1/1, temple bars message + vision clean, Valley boundary
+      door REPAIRED then croak-DISCARDED. Observed non-defects:
+      a peaceful priest's dochug cast arm can consume moves
+      before pri_move (repair delayed ~12 turns; both trees'
+      AI shape); Minetown watch arrests door-kickers
+      (pre-existing). Archive: Temple Priest Repair System
       (Nov 30 2025).
 - [ ] Guidebook + dat help docs NOT RE-DERIVED (minted 2026-08-26
       by the features-coverage sweep; MED - Phase 0's "wholesale
