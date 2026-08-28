@@ -9158,6 +9158,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reviewer): muse.c find_defensive's WAN_DIGGING arm lacks
       master's !can_levitate conjunct in BOTH the kept flat loop
       and the new check_defensive_item - fix both together.
+      SWEEP ADD (2026-08-28, drawbridge-crush reviewer):
+      dbridge.c e_survives_at's pool and lava arms are data-only
+      is_flyer/is_floater - master adds || can_levitate(emon) to
+      both; an item-levitating monster on an operating moat/lava
+      drawbridge drowns/burns on branch where master spares it.
 - [ ] Door-material display color unported (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM port gap). master's
       mapglyph.c colors non-wood doors via
@@ -10951,11 +10956,80 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       material), not the feature. Pw spent in every outcome
       (15 Pw, deducted pre-prompt). Archive: Selective Remove
       Curse at Expert Clerical Skill (May 10 2026); BUG-1730.
-- [ ] Drawbridge destruction on monster crush NOT PORTED (minted
-      2026-08-26 by the features-coverage sweep; MED).
-      e_survives_unique/maybe_destroy_drawbridge absent (master
-      dbridge.c x7). Archive: Drawbridge Destruction on Monster
-      Crush (Mar 2026).
+- [x] Drawbridge destruction on monster crush PORTED (2026-08-28,
+      master afa95f28a + b39906843 final odds + 6aa31605f review
+      fixes; two commits: A code, B tracker). e_survives_unique
+      (non-hero G_UNIQ minus PM_LONG_WORM_TAIL survives the
+      crush: half HP min 1, silent relocate - master's
+      rloc(,TRUE) mapped to RLOC_NOMSG, vanilla 5.0's own
+      translation of the old boolean, so STRAT_APPEARMSG uniques
+      stay silent - then "thrown clear"; wrapped in the 5.0
+      DISABLE/RESTORE_WARNING_FORMAT_NONLITERAL pragma pair) +
+      maybe_destroy_drawbridge (unique survived -> always
+      destroy; else max_result > 2 && rn2(4) < max_result - 2:
+      tiny/small 0%, medium 25%, large 50%, huge 75%, gigantic
+      100% - msize 7 so max_result 8; master's wrong
+      "gigantic=6" comment corrected to 8); do_entity void ->
+      int (0 no crush / msize+1 kill / -1 unique survived) at
+      all three crush sites; close/open capture both results,
+      call maybe_destroy_drawbridge, early-return via nokiller()
+      when !IS_DRAWBRIDGE (destroy_drawbridge covers the skipped
+      cleanup - reviewer-verified superset incl. wake 500 >=
+      purgatory 200); close's sound gate widened to OBJ_AT(x,y)
+      || OBJ_AT(x2,y2) (portcullis-only items no longer crushed
+      silently); destroy_drawbridge wraps the flying-debris and
+      chunk-of-metal kills in e_survives_unique. Protected-zone
+      strain guards were ALREADY on branch (Phase 3 prep) -
+      only the crush machinery moved. THREE silently-reverted
+      master fixes rode the code commit (archive sweep
+      pre-port): BUG-1731 = master BUG-365 efce1fb44 worm
+      relocation (segment stays put and drowns, head via
+      rloc_to, non-worm arm keeps the riding slice's
+      update_monsteed; conditional ex/ey update); BUG-1732 =
+      master BUG-681 (destroy recursion guard MOAT -> MOAT ||
+      LAVAPOOL); BUG-1733 = master BUG-680 (create_drawbridge
+      entry isok + isok(x2,y2) - still live post-BUG-1586: y2
+      can be ROWNO for a bottom-row DB_SOUTH bridge). Reviewer
+      PASS (master parity line-for-line minus adjudicated 5.0
+      deltas; all 13 close/open/destroy callers audited - none
+      reads bridge state after the call; rloc's ridden_by
+      redirect identical both trees; MED routed out of slice:
+      branch e_survives_at lacks master's can_levitate arms ->
+      SWEEP-ADDED to the can_levitate consumer-sweep row).
+      BATTERY 9/10 + T8 partial-by-construction + bonus PASS
+      (human Valkyrie XL30, sanity_check on, paniclog never
+      existed for the whole battery; controlled moat/lava
+      bridge built on D:4 via gdb create_drawbridge after the
+      Castle rolled the lava variant): negative control intact;
+      6/6 tiny/small crushes zero destructions; 3/3 purple-worm
+      (gigantic, wormno 0) destructions with iron-chain scatter
+      and result1=8 readback; 21 medium crushes 4 destructions
+      (19%, P~.29 vs 25%) every one with result1=3 logged;
+      uniques on all three crush paths - Medusa span-open (mhp
+      118->59, thrown clear, NO teleport message, bridge
+      destroyed), Croesus span-close (result -1 readback,
+      92->46) and portcullis-close (46->23); worm HEAD
+      relocated via logged rloc_to_core + remove_worm, zero
+      orphan level.monsters entries on a full-map sweep; worm
+      SEGMENT: head NOT teleported (no rloc_to_core hit), worm
+      drowned, bridge intact, orphan scan 0; T8 lava+lifesave:
+      no-flight leg is master parity (e_died's own enexto +
+      teleds lifesave arm moves the hero off the square BEFORE
+      the recursion guard - byte-identical on master; a
+      lifesaved hero burning same-turn is unreachable by
+      construction since every e_survives_at-true hero state
+      also floats above lava), flying leg proved the LAVAPOOL
+      half live (DO_ENTITY re-entry with typ=21 logged, no
+      impossible); portcullis-only item sound gate fired twice
+      plus silent empty control; save/restore x2 clean; bonus:
+      Valley bridge strain guard refused with a rat on the
+      span. Non-defects recorded: "It is thrown clear" names an
+      out-of-view landed unique "It" (pre-rloc e_inview gate +
+      post-rloc Monnam, master-identical cosmetics); lifesave
+      partial-HP restore + CON 18->16 across two saves =
+      savelife() givehp/CON-cost mechanics, not damage.
+      Archive: Drawbridge Destruction on Monster Crush
+      (Mar 2026); BUG-1731 BUG-1732 BUG-1733.
 - [ ] Honey badger beehive seeking NOT PORTED (minted 2026-08-26
       by the features-coverage sweep; MED). The monster and its
       peaceful-ignore lists exist, but master monmove.c's two seek
@@ -11686,6 +11760,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-08-28 | dbridge.c do_entity() relocates drawbridge entities with bare remove_monster + place_monster: a long worm HEAD riding the bridge orphans its tail segments; a tail SEGMENT on the span teleports the HEAD without clearing its old level.monsters entry - two grid entries for one worm plus orphaned segments (save corruption on the next save/restore). EvilHack master found and fixed this in shared vanilla code as BUG-365 (efce1fb44: segment stays put and dies via the terrain survival check, head goes through rloc_to); the bare shape is byte-identical in NetHack50 and Official_nh50 (dbridge.c ~682-692) and reachable in vanilla (castle drawbridge + long worm). Branch fix (BUG-1731) = master-verbatim re-port riding the drawbridge-crush slice; battery-proven in both directions (head: logged rloc_to_core + zero-orphan full-map level.monsters sweep; segment: no head teleport, worm drowned, bridge state consistent) | fixed on branch (BUG-1731); not yet sent |
 | 2026-08-28 | set_malign() dereferences NULL mextra through its raw EPRI()/EMIN() guard conditions (the 5.0 macros are loads, (mon)->mextra->epri/emin, so the "guard" itself faults): xkilled()'s museum stack copy zeroes mextra while preserving ispriest/isminion, and the branch's BUG-358 stale-malign recalc under cleanup: passes the copy - killing an engulfing minion from inside SIGSEGVs (reproduced live on Astral: summoned water elemental of Thoth, core captured by the Amulet-slice battery). Silent revert of master BUG-360 (bc681431d) by the 5.0 tree adoption. Upstream Official_nh50 makemon.c ~2328 carries the same unsafe shape but has NO set_malign call anywhere in xkilled and every upstream caller passes live monsters where flag => mextra holds - latent-unreachable there. Branch fix (BUG-1729): has_epri()/has_emin() safe macros, master-verbatim; museum falls to data->maligntyp with the *5 scaling intact = master's fixed semantics. Master-shared latent siblings left per parity: m_detach's ispriest && EPRI temple arm (mon.c), priest.c x2, minion.c msummon atyp ternary | fixed on branch (BUG-1729); upstream latent-unreachable - NO report needed |
 | 2026-08-28 | Rider revival restores stale MON_ENDGAME_FREE: m_detach() sets the bit on any monster dying in the endgame (mon.c), save_mtraits() strips only MON_DETACH from the corpse's trait snapshot (mkobj.c), and montraits()'s revival fixup list never normalizes mstate - so a Rider killed on Astral revives (replmon) onto the floor chain with mstate 0x20, which mon_offmap() reads as off-map: per-turn "floor mon ... 0x00000020" sanity impossibles, and per the BUG-1442 analysis iter_mons consumers skip the monster (a revived Rider left inert; state survives save/restore). REFINES BUG-1442's sibling note (c), which called the bit write-only/no-fix-needed - true only until the corpse snapshot resurrects it. Battery-caught live by the overview-altar slice (Famine, mstate 0x20, on-chain at (40,3), 30 per-turn impossibles). Producer parity: Official_nh50 mon.c ~2794 set + mkobj.c ~2192 MON_DETACH-only strip = same shape upstream. Master (3.6) unaffected - no mstate. Branch fix (BUG-1728): the BUG-1264 dual-chokepoint idiom - save_mtraits stores mstate = MON_FLOOR (every lifecycle/transit bit is meaningless in a snapshot; also closes the tame-steed-corpse MON_OFFMAP and monstone live-snapshot latents per the reviewer census) and montraits resets the revived copy to MON_FLOOR (heals traits already inside saves/bones). UPSTREAM ALREADY FIXED post-freeze with a DIFFERENT shape (issue #1647, nhmall 2026-07-30 - commits 59080106b + 1e749c28c + 404e949e9, after the reference-tree freeze): place_monster clears the new MON_OFF_MAP_BITS mask (incl. ENDGAME_FREE/ENDGAME_MIGR/BUBBLEMOVE/PARKED) and mon_offmap becomes a bit-mask test ignoring OBLITERATE/STILL_ARRIVING - that heals the revival at placement (replmon -> place_monster) but leaves stored omonst data stale; composes cleanly with the branch's snapshot scrub. Trio port = its own checklist row (minted 2026-08-28) | fixed on branch (BUG-1728, commit 32c92f1c0); upstream already fixed post-freeze (issue #1647) - NO report needed |
 | 2026-08-28 | options.c menucontrols help window typo: the Search command row reads "Exter a target string and invert all matching entries" - "Exter" should be "Enter". Byte-identical in NetHack50 and Official_nh50 (battery-caught by the 2026-08-28 Guidebook slice, fixed with the overview-altar slice); artifact ~/nh50-options-exter-typo.patch verified `git apply --check` on both trees | fixed on branch; not yet sent |
