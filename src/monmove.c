@@ -2052,8 +2052,10 @@ postmov(
                         }
                     }
                 }
-                /* if it's a shop door, schedule repair */
+                /* if it's a shop or temple door, schedule repair */
                 if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
+                    add_damage(mtmp->mx, mtmp->my, 0L);
+                else if (temple_at_boundary(mtmp->mx, mtmp->my))
                     add_damage(mtmp->mx, mtmp->my, 0L);
             }
 #undef UnblockDoor
@@ -2068,6 +2070,12 @@ postmov(
                 if (canseemon(mtmp))
                     pline_mon(mtmp, "%s eats through the iron bars.",
                               Monnam(mtmp));
+                /* add_damage before terrain change so original type
+                   is saved */
+                if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
+                    add_damage(mtmp->mx, mtmp->my, 0L);
+                else if (temple_at_boundary(mtmp->mx, mtmp->my))
+                    add_damage(mtmp->mx, mtmp->my, 0L);
                 dissolve_bars(mtmp->mx, mtmp->my);
                 return MMOVE_DONE;
             } else if (flags.verbose && canseemon(mtmp))

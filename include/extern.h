@@ -2799,6 +2799,9 @@ extern int move_special(struct monst *, boolean, schar, boolean, boolean,
                         coordxy, coordxy, coordxy, coordxy) NONNULLARG1;
 extern char temple_occupied(char *) NONNULLARG1;
 extern boolean inhistemple(struct monst *) NO_NNARGS;
+extern boolean temple_at_boundary(coordxy, coordxy);
+extern void temple_remove_damage(struct monst *, boolean) NO_NNARGS;
+extern void fix_temple_damage(void);
 extern int pri_move(struct monst *) NONNULLARG1;
 extern void priestini(d_level *, struct mkroom *, int, int, boolean) NONNULLARG12;
 extern aligntyp mon_aligntyp(struct monst *) NONNULLARG1;
@@ -3182,6 +3185,7 @@ extern void sellobj(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern int doinvbill(int);
 extern struct monst *shkcatch(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern void add_damage(coordxy, coordxy, long);
+extern void discard_damage_struct(struct damage *);
 extern void fix_shop_damage(void);
 extern int shk_move(struct monst *) NONNULLARG1;
 extern void after_shk_move(struct monst *) NONNULLARG1;

@@ -47,7 +47,7 @@ typedef struct sortbill_item Bill;
 
 staticfn void makekops(coord *);
 staticfn void getcad(struct monst *, const char *, coordxy, coordxy, boolean,
-                     boolean, boolean);
+                     boolean, boolean, boolean);
 staticfn void call_kops(struct monst *, boolean);
 staticfn void kops_gone(boolean);
 
@@ -115,7 +115,6 @@ staticfn void rouse_shk(struct monst *, boolean);
 staticfn boolean shk_impaired(struct monst *);
 staticfn boolean repairable_damage(struct damage *, struct monst *);
 staticfn struct damage *find_damage(struct monst *);
-staticfn void discard_damage_struct(struct damage *);
 staticfn void discard_damage_owned_by(struct monst *);
 staticfn void shk_fixes_damage(struct monst *);
 staticfn uint8 litter_getpos(uint8 *, coordxy, coordxy, struct monst *);
@@ -4815,18 +4814,35 @@ add_damage(
 {
     struct damage *tmp_dam;
     char *shops;
+    char *temples;
+    boolean dominated_by_temple = FALSE;
 
     if (IS_DOOR(levl[x][y].typ)) {
         struct monst *mtmp;
 
-        /* Don't schedule for repair unless it's a real shop entrance */
+        /* Don't schedule for repair unless it's a real shop entrance
+           or temple entrance */
         for (shops = in_rooms(x, y, SHOPBASE); *shops; shops++)
             if ((mtmp = shop_keeper(*shops)) != 0
                 && x == ESHK(mtmp)->shd.x && y == ESHK(mtmp)->shd.y)
                 break;
-        if (!*shops)
-            return;
+        if (!*shops) {
+            /* not a shop door - check for a temple door by looking at
+               adjacent squares (doors are on room boundaries) */
+            if (!temple_at_boundary(x, y))
+                return; /* neither shop nor temple door */
+            dominated_by_temple = TRUE;
+        }
+    } else {
+        /* for non-door damage, check if in a temple */
+        temples = in_rooms(x, y, TEMPLE);
+        if (*temples && findpriest(*temples))
+            dominated_by_temple = TRUE;
     }
+
+    /* temples don't track damage costs (no billing) */
+    if (dominated_by_temple)
+        cost = 0L;
     for (tmp_dam = svl.level.damagelist; tmp_dam; tmp_dam = tmp_dam->next)
         if (tmp_dam->place.x == x && tmp_dam->place.y == y) {
             tmp_dam->cost += cost;
@@ -4917,7 +4933,7 @@ find_damage(struct monst *shkp)
     return NULL;
 }
 
-staticfn void
+void
 discard_damage_struct(struct damage *dam)
 {
     if (!dam)
@@ -5162,34 +5178,52 @@ repair_damage(
 
     ttmp = t_at(x, y);
     if (ttmp) {
-        switch (ttmp->ttyp) {
+        int ttyp = ttmp->ttyp;
+        boolean trap_was_seen = (ttmp->tseen && cansee(ttmp->tx, ttmp->ty));
+
+        switch (ttyp) {
         case LANDMINE:
         case BEAR_TRAP:
-            /* convert to an object */
-            otmp = mksobj((ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP,
-                          TRUE, FALSE);
-            otmp->quan = 1L;
-            otmp->owt = weight(otmp);
+            /* traps of these types carry the real trap object as ammo
+               (a hero-set trap may be crafted with special material or
+               enchantment); salvage that for the shopkeeper instead of
+               minting a duplicate */
+            otmp = deltrap_with_ammo(ttmp, DELTRAP_RETURN_AMMO);
+            if (!otmp) {
+                /* shouldn't happen - every generated or set trap of
+                   these types carries its object as ammo */
+                otmp = mksobj((ttyp == LANDMINE) ? LAND_MINE : BEARTRAP,
+                              TRUE, FALSE);
+                otmp->quan = 1L;
+                otmp->owt = weight(otmp);
+            }
             if (!catchup) {
                 if (canseemon(shkp) && dist2(x, y, shkp->mx, shkp->my) <= 2)
                     pline("%s untraps %s.", Shknam(shkp), ansimpleoname(otmp));
-                else if (ttmp->tseen && cansee(ttmp->tx, ttmp->ty))
-                    pline("The %s vanishes.", trapname(ttmp->ttyp, TRUE));
+                else if (trap_was_seen)
+                    pline("The %s vanishes.", trapname(ttyp, TRUE));
             }
-            (void) mpickobj(shkp, otmp);
+            while (otmp) {
+                struct obj *onext = otmp->nobj;
+
+                otmp->nobj = (struct obj *) 0;
+                (void) mpickobj(shkp, otmp);
+                otmp = onext;
+            }
             break;
         case HOLE:
         case PIT:
         case SPIKED_PIT:
-            if (!catchup && ttmp->tseen && cansee(ttmp->tx, ttmp->ty))
-                pline("The %s is filled in.", trapname(ttmp->ttyp, TRUE));
+            if (!catchup && trap_was_seen)
+                pline("The %s is filled in.", trapname(ttyp, TRUE));
+            (void) deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
             break;
         default:
-            if (!catchup && ttmp->tseen && cansee(ttmp->tx, ttmp->ty))
-                pline("The %s vanishes.", trapname(ttmp->ttyp, TRUE));
+            if (!catchup && trap_was_seen)
+                pline("The %s vanishes.", trapname(ttyp, TRUE));
+            (void) deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
             break;
         }
-        deltrap(ttmp);
         del_engr_at(x, y);
         if (seeit)
             newsym(x, y);
@@ -5225,7 +5259,9 @@ repair_damage(
        spot showing its repaired wall */
     if (seeit)
         newsym(x, y);
-    block_point(x, y);
+    /* restored iron bars are see-through; only block vision when the
+       restored terrain actually blocks */
+    recalc_block_point(x, y);
 
     if (catchup)
         return 1; /* repair occurred while off level so no messages */
@@ -5237,6 +5273,8 @@ repair_damage(
             pline("Suddenly, a section of the wall closes up!");
         } else if (IS_DOOR(tmp_dam->typ)) {
             pline("Suddenly, the shop door reappears!");
+        } else if (tmp_dam->typ == IRONBARS) {
+            pline("Suddenly, the iron bars rematerialize!");
         }
         newsym(x, y);
     } else if (IS_WALL(tmp_dam->typ)) {
@@ -5283,6 +5321,9 @@ fix_shop_damage(void)
                 discard_damage_struct(damg);
         }
     }
+
+    /* temple damage entries share the damage list; priests catch up too */
+    fix_temple_damage();
 }
 
 /*
@@ -5551,7 +5592,7 @@ makekops(coord *mm)
 staticfn void
 getcad(
     struct monst *shkp, const char *dmgstr, coordxy x, coordxy y,
-    boolean uinshp, boolean animal, boolean pursue)
+    boolean uinshp, boolean animal, boolean pursue, boolean dugbars)
 {
     boolean dugwall = (!strcmp(dmgstr, "dig into")    /* wand */
                     || !strcmp(dmgstr, "damage")); /* pick-axe */
@@ -5563,22 +5604,24 @@ getcad(
         if (!Deaf) {
             SetVoice(shkp, 0, 80, 0);
             verbalize("How dare you %s my %s?", dmgstr,
-                        dugwall ? "shop" : "door");
+                        dugwall ? "shop" : dugbars ? "iron bars" : "door");
         } else {
             pline("%s is %s that you decided to %s %s %s!",
                     Shknam(shkp), ROLL_FROM(angrytexts),
-                    dmgstr, noit_mhis(shkp), dugwall ? "shop" : "door");
+                    dmgstr, noit_mhis(shkp),
+                    dugwall ? "shop" : dugbars ? "iron bars" : "door");
         }
     } else {
         if (!Deaf) {
             pline("%s shouts:", Shknam(shkp));
             SetVoice(shkp, 0, 80, 0);
             verbalize("Who dared %s my %s?", dmgstr,
-                        dugwall ? "shop" : "door");
+                        dugwall ? "shop" : dugbars ? "iron bars" : "door");
         } else {
             pline("%s is %s that someone decided to %s %s %s!",
                     Shknam(shkp), ROLL_FROM(angrytexts),
-                    dmgstr, noit_mhis(shkp), dugwall ? "shop" : "door");
+                    dmgstr, noit_mhis(shkp),
+                    dugwall ? "shop" : dugbars ? "iron bars" : "door");
         }
     }
     hot_pursuit(shkp);
@@ -5592,7 +5635,7 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
     boolean uinshp = (*u.ushops != '\0');
     char qbuf[80];
     coordxy x, y;
-    boolean animal, pursue;
+    boolean animal, pursue, dugbars;
     struct damage *tmp_dam, *appear_here = 0;
     long cost_of_damage = 0L;
     unsigned int nearest_shk = (ROWNO * ROWNO) + (COLNO * COLNO),
@@ -5643,6 +5686,9 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
     if (!cost_of_damage || !shkp)
         return;
 
+    /* check if the damage was to iron bars */
+    dugbars = (appear_here && appear_here->typ == IRONBARS);
+
     animal = (shkp->data->msound <= MS_ANIMAL);
     pursue = FALSE;
     x = appear_here->place.x;
@@ -5662,7 +5708,7 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
         if (!cansee(shkp->mx, shkp->my))
             return;
         pursue = TRUE;
-        getcad(shkp, dmgstr, x, y, uinshp, animal, pursue);
+        getcad(shkp, dmgstr, x, y, uinshp, animal, pursue, dugbars);
         return;
     }
 
@@ -5674,7 +5720,7 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
         }
         pursue = um_dist(shkp->mx, shkp->my, 1);
         if (pursue) {
-            getcad(shkp, dmgstr, x, y, uinshp, animal, pursue);
+            getcad(shkp, dmgstr, x, y, uinshp, animal, pursue, dugbars);
             return;
         }
     } else {
@@ -5709,7 +5755,7 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
     if ((um_dist(x, y, 1) && !uinshp) || cant_mollify
         || (money_cnt(gi.invent) + ESHK(shkp)->credit) < cost_of_damage
         || !rn2(50)) {
-        getcad(shkp, dmgstr, x, y, uinshp, animal, pursue);
+        getcad(shkp, dmgstr, x, y, uinshp, animal, pursue, dugbars);
         return;
     }
 

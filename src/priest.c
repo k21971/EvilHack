@@ -11,6 +11,31 @@
 
 staticfn boolean histemple_at(struct monst *, coordxy, coordxy);
 staticfn boolean has_shrine(struct monst *);
+staticfn int temple_repair_damage(struct monst *, struct damage *, int *);
+staticfn boolean temple_damage_match(struct monst *, struct damage *);
+
+/* Check if position (x,y) is at a temple boundary (for door damage tracking).
+   Doors are on room boundaries, so we check adjacent squares for temple
+   interior */
+boolean
+temple_at_boundary(coordxy x, coordxy y)
+{
+    int dx, dy;
+    char *temples;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            if (dx == 0 && dy == 0)
+                continue;
+            if (!isok(x + dx, y + dy))
+                continue;
+            temples = in_rooms(x + dx, y + dy, TEMPLE);
+            if (*temples && findpriest(*temples))
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
 
 void
 newepri(struct monst *mtmp)
@@ -171,6 +196,312 @@ inhistemple(struct monst *priest)
 }
 
 /*
+ * Temple damage repair functions - modeled on shop repair in shk.c
+ */
+
+/* 0: repair postponed, 1: silent repair, 2: normal repair, 3: untrap */
+staticfn int
+temple_repair_damage(
+    struct monst *priest,
+    struct damage *tmp_dam,
+    int *once)
+{
+    coordxy x, y;
+    uint8 litter[9];
+    struct monst *mtmp;
+    struct obj *otmp;
+    struct trap *ttmp;
+    int i, k, ix, iy, disposition = 1;
+    boolean stop_picking = FALSE;
+
+    if ((svm.moves - tmp_dam->when) < REPAIR_DELAY)
+        return 0;
+    if (priest->msleeping || !priest->mcanmove)
+        return 0;
+    x = tmp_dam->place.x;
+    y = tmp_dam->place.y;
+    if (!IS_ROOM(tmp_dam->typ)) {
+        if ((u_at(x, y) && !Passes_walls)
+            || (x == priest->mx && y == priest->my)
+            || ((mtmp = m_at(x, y)) != 0 && !passes_walls(mtmp->data)))
+            return 0;
+    }
+    ttmp = t_at(x, y);
+    if (ttmp && u_at(x, y) && !Passes_walls)
+        return 0;
+
+    if (once && *once) {
+        if (canseemon(priest))
+            pline("%s intones a prayer.", Monnam(priest));
+        else if (!Deaf && mdistu(priest) <= (BOLT_LIM / 2) * (BOLT_LIM / 2))
+            You_hear("someone chanting a prayer.");
+        *once = 0;
+    }
+
+    if (ttmp) {
+        /* just remove traps, don't convert to objects like shopkeepers;
+           crafted traps carry their object as ammo, so destroy that
+           along with the trap rather than tripping deltrap's guard */
+        (void) deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+        del_engr_at(x, y);
+        if (cansee(x, y))
+            newsym(x, y);
+        disposition = 3;
+    }
+    if (IS_ROOM(tmp_dam->typ)
+        || (tmp_dam->typ == levl[x][y].typ
+            && (!IS_DOOR(tmp_dam->typ) || levl[x][y].doormask > D_BROKEN)))
+        return disposition;
+
+    if (closed_door(x, y))
+        stop_picking = picking_at(x, y);
+
+    /* door or wall repair; restore original terrain type;
+       rm.doormask and rm.wall_info are both overlaid on rm.flags
+       so the new flags value needs to match the restored typ */
+    levl[x][y].typ = tmp_dam->typ;
+    if (IS_DOOR(tmp_dam->typ))
+        levl[x][y].doormask = D_CLOSED;
+    else /* not a door; set rm.wall_info or whatever old flags are relevant */
+        levl[x][y].flags = tmp_dam->flags;
+
+    (void) memset((genericptr_t) litter, 0, sizeof litter);
+#define NEED_UPDATE 1
+#define OPEN 2
+#define INTEMPLE 4
+#define horiz(i) ((i % 3) - 1)
+#define vert(i) ((i / 3) - 1)
+    k = 0;
+    if (svl.level.objects[x][y] && !IS_ROOM(levl[x][y].typ)) {
+        for (i = 0; i < 9; i++) {
+            ix = x + horiz(i);
+            iy = y + vert(i);
+            if (i == 4 || !isok(ix, iy) || !ZAP_POS(levl[ix][iy].typ))
+                continue;
+            litter[i] = OPEN;
+            if (*in_rooms(ix, iy, TEMPLE) == EPRI(priest)->shroom) {
+                litter[i] |= INTEMPLE;
+                ++k;
+            }
+        }
+    }
+    if (k > 0) {
+        /* handle ball & chain */
+        if (Punished && !u.uswallow
+            && ((uchain->ox == x && uchain->oy == y)
+                || (uball->where == OBJ_FLOOR
+                    && uball->ox == x && uball->oy == y))) {
+            unplacebc();
+            placebc();
+        }
+        while ((otmp = svl.level.objects[x][y]) != 0) {
+            if (otmp->otyp == BOULDER || otmp->otyp == ROCK) {
+                obj_extract_self(otmp);
+                obfree(otmp, (struct obj *) 0);
+            } else {
+                int trylimit = 50;
+
+                do {
+                    i = rn2(9);
+                } while (--trylimit && !(litter[i] & INTEMPLE));
+                if ((litter[i] & (OPEN | INTEMPLE)) != 0) {
+                    ix = x + horiz(i);
+                    iy = y + vert(i);
+                } else {
+                    ix = priest->mx;
+                    iy = priest->my;
+                }
+                remove_object(otmp);
+                place_object(otmp, ix, iy);
+                litter[i] |= NEED_UPDATE;
+            }
+        }
+    }
+
+    del_engr_at(x, y);
+    /* needed if hero has line-of-sight to the former gap from outside
+       the temple but is farther than one step away; once the light
+       inside the temple is blocked, this spot won't redraw showing
+       its repaired wall */
+    if (cansee(x, y)) {
+        if (IS_WALL(tmp_dam->typ))
+            levl[x][y].seenv = SVALL;
+        newsym(x, y);
+    }
+    /* restored iron bars are see-through; only block vision when the
+       restored terrain actually blocks */
+    recalc_block_point(x, y);
+    for (i = 0; i < 9; i++)
+        if (litter[i] & NEED_UPDATE)
+            newsym(x + horiz(i), y + vert(i));
+
+    if (stop_picking)
+        stop_occupation();
+
+    if (disposition < 3)
+        disposition = 2;
+    return disposition;
+#undef NEED_UPDATE
+#undef OPEN
+#undef INTEMPLE
+#undef vert
+#undef horiz
+}
+
+/* does a damage entry lie in this priest's temple? */
+staticfn boolean
+temple_damage_match(struct monst *priest, struct damage *dam)
+{
+    coordxy x = dam->place.x, y = dam->place.y;
+    int dx, dy;
+
+    if (*in_rooms(x, y, TEMPLE) == EPRI(priest)->shroom)
+        return TRUE;
+    /* temple doors sit on room boundaries where in_rooms() can come up
+       empty (the reason temple_at_boundary() exists), so a recorded
+       door entry is matched through the same adjacency scan, pinned to
+       this priest's temple */
+    if (IS_DOOR(dam->typ)) {
+        for (dx = -1; dx <= 1; dx++)
+            for (dy = -1; dy <= 1; dy++) {
+                if ((dx == 0 && dy == 0) || !isok(x + dx, y + dy))
+                    continue;
+                if (*in_rooms(x + dx, y + dy, TEMPLE)
+                    == EPRI(priest)->shroom)
+                    return TRUE;
+            }
+    }
+    return FALSE;
+}
+
+/* Process temple damage repairs when priest is in their temple */
+void
+temple_remove_damage(struct monst *priest, boolean croaked)
+{
+    struct damage *tmp_dam, *tmp2_dam;
+    boolean did_repair = FALSE, saw_door = FALSE, saw_floor = FALSE,
+            saw_bars = FALSE;
+    int saw_walls = 0, saw_untrap = 0, feedback;
+    schar temple_room;
+
+    if (!priest || !priest->ispriest || !EPRI(priest))
+        return;
+
+    temple_room = EPRI(priest)->shroom;
+    feedback = !croaked;
+    tmp_dam = svl.level.damagelist;
+    tmp2_dam = 0;
+
+    while (tmp_dam) {
+        coordxy x = tmp_dam->place.x, y = tmp_dam->place.y;
+        int disposition = 0;
+        unsigned old_doormask = 0;
+
+        if (temple_damage_match(priest, tmp_dam)) {
+            if (IS_DOOR(levl[x][y].typ))
+                old_doormask = levl[x][y].doormask;
+
+            if (croaked) {
+                /* priest died, just discard the damage entry */
+                disposition = 1;
+            } else {
+                disposition = temple_repair_damage(priest, tmp_dam, &feedback);
+            }
+        }
+
+        if (!disposition) {
+            tmp2_dam = tmp_dam;
+            tmp_dam = tmp_dam->next;
+            continue;
+        }
+
+        if (disposition > 1) {
+            did_repair = TRUE;
+            if (cansee(x, y)) {
+                if (IS_WALL(levl[x][y].typ)) {
+                    saw_walls++;
+                } else if (IS_DOOR(levl[x][y].typ)
+                           && !(old_doormask & (D_ISOPEN | D_CLOSED))) {
+                    saw_door = TRUE;
+                } else if (levl[x][y].typ == IRONBARS) {
+                    saw_bars = TRUE;
+                } else if (disposition == 3) {
+                    saw_untrap++;
+                } else {
+                    saw_floor = TRUE;
+                }
+            }
+        }
+
+        tmp_dam = tmp_dam->next;
+        if (!tmp2_dam) {
+            free((genericptr_t) svl.level.damagelist);
+            svl.level.damagelist = tmp_dam;
+        } else {
+            free((genericptr_t) tmp2_dam->next);
+            tmp2_dam->next = tmp_dam;
+        }
+    }
+
+    if (!did_repair || croaked)
+        return;
+
+    /* Generate repair messages */
+    if (saw_walls) {
+        pline("Suddenly, %s section%s of wall close%s up!",
+              (saw_walls == 1) ? "a" : (saw_walls < 5) ? "some" : "several",
+              (saw_walls == 1) ? "" : "s",
+              (saw_walls == 1) ? "s" : "");
+    }
+    if (saw_door)
+        pline("The temple door reappears!");
+    if (saw_bars)
+        pline("Suddenly, the iron bars rematerialize!");
+    if (saw_floor)
+        pline("The floor is repaired!");
+    if (saw_untrap && !saw_walls && !saw_door && !saw_bars && !saw_floor) {
+        if (canseemon(priest))
+            pline("%s removes a trap.", Monnam(priest));
+    }
+    if (!saw_walls && !saw_door && !saw_bars && !saw_floor && !saw_untrap) {
+        /* repairs happened but player didn't see them */
+        if (*in_rooms(u.ux, u.uy, TEMPLE) == temple_room)
+            You_feel("a sense of divine restoration.");
+        else if (!Deaf && !rn2(10))
+            Norep("The atmosphere seems calmer.");
+    }
+}
+
+/* catch up on temple repairs for time spent off level; called via
+   fix_shop_damage() since temple entries share the damage list */
+void
+fix_temple_damage(void)
+{
+    struct monst *priest;
+    struct damage *damg, *nextdamg;
+
+    /* if this level has no tracked damage, there's nothing to do */
+    if (!svl.level.damagelist)
+        return;
+
+    for (priest = fmon; priest; priest = priest->nmon) {
+        if (DEADMONSTER(priest) || !priest->ispriest || !EPRI(priest))
+            continue;
+        /* same gate pri_move() applies before repairing */
+        if (!histemple_at(priest, priest->mx, priest->my))
+            continue;
+        for (damg = svl.level.damagelist; damg; damg = nextdamg) {
+            nextdamg = damg->next;
+            if (!temple_damage_match(priest, damg))
+                continue;
+            /* no 'once' feedback; repair silently while catching up */
+            if (temple_repair_damage(priest, damg, (int *) 0))
+                discard_damage_struct(damg);
+        }
+    }
+}
+
+/*
  * pri_move: return 1: moved  0: didn't  -1: let m_move do it  -2: died
  */
 int
@@ -185,6 +516,9 @@ pri_move(struct monst *priest)
 
     if (!histemple_at(priest, omx, omy))
         return -1;
+
+    /* repair temple damage when priest is in their temple */
+    temple_remove_damage(priest, FALSE);
 
     temple = EPRI(priest)->shroom;
 

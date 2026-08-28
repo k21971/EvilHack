@@ -1981,9 +1981,8 @@ hit_bars(
                 if (*in_rooms(barsx, barsy, SHOPBASE))
                     add_damage(barsx, barsy,
                                your_fault ? SHOP_BARS_COST : 0L);
-                /* TODO-EVILHACK: also bill temple-boundary bars damage
-                   once temple_at_boundary ports with the temple
-                   damage-repair sweep */
+                else if (temple_at_boundary(barsx, barsy))
+                    add_damage(barsx, barsy, 0L);
                 dissolve_bars(barsx, barsy);
             }
         }
@@ -2002,9 +2001,8 @@ hit_bars(
             /* add_damage before terrain change so original type is saved */
             if (*in_rooms(barsx, barsy, SHOPBASE))
                 add_damage(barsx, barsy, your_fault ? SHOP_BARS_COST : 0L);
-            /* TODO-EVILHACK: also bill temple-boundary bars damage once
-               temple_at_boundary ports with the temple damage-repair
-               sweep */
+            else if (temple_at_boundary(barsx, barsy))
+                add_damage(barsx, barsy, 0L);
             dissolve_bars(barsx, barsy);
         }
     } else {
@@ -2052,9 +2050,8 @@ hit_bars(
                    is saved */
                 if (*in_rooms(barsx, barsy, SHOPBASE))
                     add_damage(barsx, barsy, SHOP_BARS_COST);
-                /* TODO-EVILHACK: also bill temple-boundary bars damage
-                   once temple_at_boundary ports with the temple
-                   damage-repair sweep */
+                else if (temple_at_boundary(barsx, barsy))
+                    add_damage(barsx, barsy, 0L);
                 dissolve_bars(barsx, barsy);
                 noise = noise * 2;
             }

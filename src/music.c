@@ -511,9 +511,8 @@ do_earthquake(int force, boolean player_caused)
                     pline_The("door collapses.");
                 if (*in_rooms(x, y, SHOPBASE))
                     add_damage(x, y, 0L);
-                /* TODO-EVILHACK: also bill temple-boundary door damage
-                   once temple_at_boundary ports with the temple
-                   damage-repair sweep */
+                else if (temple_at_boundary(x, y))
+                    add_damage(x, y, 0L);
                 break;
             }
         }

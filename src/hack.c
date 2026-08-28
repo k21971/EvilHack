@@ -767,6 +767,8 @@ still_chewing(coordxy x, coordxy y)
         if (*in_rooms(x, y, SHOPBASE)) {
             add_damage(x, y, SHOP_WALL_DMG);
             dmgtxt = "damage";
+        } else if (*in_rooms(x, y, TEMPLE)) {
+            add_damage(x, y, 0L);
         }
         digtxt = "chew a hole in the wall.";
         if (svl.level.flags.is_maze_lev) {
@@ -795,6 +797,11 @@ still_chewing(coordxy x, coordxy y)
         digtxt = u_at(x, y)
                  ? "devour the iron bars."
                  : "eat through the bars.";
+        /* add_damage before terrain change so original type is saved */
+        if (*in_rooms(x, y, SHOPBASE))
+            add_damage(x, y, SHOP_BARS_COST);
+        else if (temple_at_boundary(x, y))
+            add_damage(x, y, 0L);
         dissolve_bars(x, y);
     } else if (lev->typ == SDOOR) {
         if (lev->doormask & D_TRAPPED) {
@@ -810,6 +817,8 @@ still_chewing(coordxy x, coordxy y)
         if (*in_rooms(x, y, SHOPBASE)) {
             add_damage(x, y, SHOP_DOOR_COST);
             dmgtxt = "break";
+        } else if (temple_at_boundary(x, y)) {
+            add_damage(x, y, 0L);
         }
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
@@ -2355,9 +2364,8 @@ domove_fight_burn(coordxy x, coordxy y, const char *target,
                behind */
             if (shopdoor)
                 add_damage(x, y, SHOP_DOOR_COST);
-            /* TODO-EVILHACK: also bill temple-boundary door damage once
-               temple_at_boundary ports with the temple damage-repair
-               sweep */
+            else if (temple_at_boundary(x, y))
+                add_damage(x, y, 0L);
             lev->doormask = D_NODOOR;
             recalc_block_point(x, y); /* vision: can see through */
             newsym(x, y);

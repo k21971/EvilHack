@@ -2516,13 +2516,12 @@ mbhit(
                 if (doorlock(obj, gb.bhitpos.x, gb.bhitpos.y)) {
                     if (gz.zap_oseen)
                         makeknown(otyp);
-                    /* if a shop door gets broken, add it to
-                       the shk's fix list (no cost to player)
-                       TODO-EVILHACK: also list temple-boundary door
-                       damage once temple_at_boundary ports with the
-                       temple damage-repair sweep */
+                    /* if a shop or temple door gets broken, add it to
+                       the repair list (no cost to player) */
                     if (levl[gb.bhitpos.x][gb.bhitpos.y].doormask == D_BROKEN
-                        && *in_rooms(gb.bhitpos.x, gb.bhitpos.y, SHOPBASE))
+                        && (*in_rooms(gb.bhitpos.x, gb.bhitpos.y, SHOPBASE)
+                            || temple_at_boundary(gb.bhitpos.x,
+                                                  gb.bhitpos.y)))
                         add_damage(gb.bhitpos.x, gb.bhitpos.y, 0L);
                 }
                 break;
@@ -2530,10 +2529,10 @@ mbhit(
         } else if (ltyp == IRONBARS
                    && !(levl[x][y].wall_info & W_NONDIGGABLE)
                    && (otyp == WAN_STRIKING || otyp == SPE_FORCE_BOLT)) {
-            /* add_damage before terrain change so original type is saved;
-               TODO-EVILHACK: temple-boundary arm with the temple
-               damage-repair sweep */
+            /* add_damage before terrain change so original type is saved */
             if (*in_rooms(x, y, SHOPBASE))
+                add_damage(x, y, 0L);
+            else if (temple_at_boundary(x, y))
                 add_damage(x, y, 0L);
             levl[x][y].typ = ROOM;
             if (cansee(x, y))

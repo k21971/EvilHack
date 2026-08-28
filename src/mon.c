@@ -4228,6 +4228,8 @@ m_detach(
         thiefdead(); /* reset theft-in-progress data */
     if (mtmp->isshk)
         shkgone(mtmp);
+    if (mtmp->ispriest && EPRI(mtmp))
+        temple_remove_damage(mtmp, TRUE);
     if (mtmp->wormno)
         wormgone(mtmp);
     if (In_endgame(&u.uz))

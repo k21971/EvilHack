@@ -1067,6 +1067,8 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
         if (shopdoor) {
             add_damage(x, y, SHOP_DOOR_COST);
             pay_for_damage("break", FALSE);
+        } else if (temple_at_boundary(x, y)) {
+            add_damage(x, y, 0L);
         }
         if (in_town(x, y))
             (void) get_iter_mons(watchman_thief_arrest);

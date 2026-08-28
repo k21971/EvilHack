@@ -180,6 +180,8 @@ picklock(void)
                 unblock_point(u.ux + u.dx, u.uy + u.dy);
                 if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                     add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
+                else if (temple_at_boundary(u.ux + u.dx, u.uy + u.dy))
+                    add_damage(u.ux + u.dx, u.uy + u.dy, 0L);
             } else {
                 /* trap gone, door stays; preserve the lock or unlock
                    the hero was actually performing */
@@ -1037,6 +1039,8 @@ doopen_indir(coordxy x, coordxy y)
                 door->doormask = D_NODOOR;
                 if (*in_rooms(cc.x, cc.y, SHOPBASE))
                     add_damage(cc.x, cc.y, SHOP_DOOR_COST);
+                else if (temple_at_boundary(cc.x, cc.y))
+                    add_damage(cc.x, cc.y, 0L);
             } else {
                 /* non-destructive: the door just opens */
                 door->doormask = D_ISOPEN;
@@ -1508,6 +1512,8 @@ doorlock(struct obj *otmp, coordxy x, coordxy y)
         /* door was destroyed */
         wake_nearto(x, y, loudness);
         if (*in_rooms(x, y, SHOPBASE))
+            add_damage(x, y, 0L);
+        else if (temple_at_boundary(x, y))
             add_damage(x, y, 0L);
     }
 

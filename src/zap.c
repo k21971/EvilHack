@@ -4524,7 +4524,7 @@ bhit(
     struct obj *obj = *pobj;
     struct trap *ttmp;
     uchar typ;
-    boolean shopdoor = FALSE, point_blank = TRUE;
+    boolean shopdoor = FALSE, shopbars = FALSE, point_blank = TRUE;
     boolean in_skip = FALSE, allow_skip = FALSE;
     boolean tethered_weapon = FALSE;
     int skiprange_start = 0, skiprange_end = 0, skipcount = 0;
@@ -4583,6 +4583,45 @@ bhit(
         if (IS_WATERWALL(typ) || typ == LAVAWALL) {
             if (weapon == THROWN_WEAPON || weapon == KICKED_WEAPON)
                 break;
+        }
+
+        /* force bolt or wand of striking can blow iron bars apart */
+        if (typ == IRONBARS
+            && !(levl[x][y].wall_info & W_NONDIGGABLE) && obj
+            && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON)
+                 && obj->otyp == SPE_FORCE_BOLT)
+                || (weapon == ZAPPED_WAND && obj->otyp == WAN_STRIKING))) {
+            /* add_damage before terrain change so original type is saved */
+            if (*in_rooms(x, y, SHOPBASE)) {
+                shopbars = TRUE;
+                add_damage(x, y, SHOP_BARS_COST);
+            } else if (temple_at_boundary(x, y)) {
+                add_damage(x, y, 0L);
+            }
+            levl[x][y].typ = ROOM;
+            if (cansee(x, y))
+                pline_The("iron bars are blown apart!");
+            else if (!Deaf)
+                You_hear("a lot of loud clanging sounds!");
+            wake_nearto(x, y, 20 * 20);
+            newsym(x, y);
+            /* stop the bolt here; it takes a lot of energy to destroy
+               bars */
+            range = 0;
+            break;
+        } else if (typ == IRONBARS
+                   && (levl[x][y].wall_info & W_NONDIGGABLE) != 0 && obj
+                   && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON)
+                        && obj->otyp == SPE_FORCE_BOLT)
+                       || (weapon == ZAPPED_WAND
+                           && obj->otyp == WAN_STRIKING))) {
+            if (cansee(x, y))
+                pline_The("iron bars vibrate, but are otherwise intact.");
+            else if (!Deaf)
+                You_hear("an intense sustained hum.");
+            wake_nearto(x, y, 8 * 8);
+            range = 0;
+            break;
         }
 
         /* iron bars will block anything big enough and break some things */
@@ -4761,10 +4800,13 @@ bhit(
                 if (doorlock(obj, x, y)) {
                     if (cansee(x, y) || (obj->otyp == WAN_STRIKING && !Deaf))
                         learnwand(obj);
-                    if (levl[x][y].doormask == D_BROKEN
-                        && *in_rooms(x, y, SHOPBASE)) {
-                        shopdoor = TRUE;
-                        add_damage(x, y, SHOP_DOOR_COST);
+                    if (levl[x][y].doormask == D_BROKEN) {
+                        if (*in_rooms(x, y, SHOPBASE)) {
+                            shopdoor = TRUE;
+                            add_damage(x, y, SHOP_DOOR_COST);
+                        } else if (temple_at_boundary(x, y)) {
+                            add_damage(x, y, 0L);
+                        }
                     }
                 }
                 break;
@@ -4824,6 +4866,9 @@ bhit(
         tmp_at(DISP_END, 0);
 
     if (shopdoor)
+        pay_for_damage("destroy", FALSE);
+
+    if (shopbars)
         pay_for_damage("destroy", FALSE);
 
  bhit_done:
@@ -6457,6 +6502,8 @@ zap_over_floor(
                     add_damage(x, y, (type >= 0) ? SHOP_BARS_COST : 0L);
                     if (type >= 0)
                         *shopdamage = TRUE;
+                } else if (temple_at_boundary(x, y)) {
+                    add_damage(x, y, 0L);
                 }
                 dissolve_bars(x, y);
             }
@@ -6584,6 +6631,8 @@ zap_over_floor(
                     *shopdamage = TRUE;
                 } else /* caused by monster */
                     add_damage(x, y, 0L);
+            } else if (temple_at_boundary(x, y)) {
+                add_damage(x, y, 0L);
             }
             lev->doormask = new_doormask;
             recalc_block_point(x, y); /* vision */
