@@ -10827,6 +10827,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       init_mapseen gdb-call is the harness workaround). Archive:
       Per-Alignment Dungeon Overview Altar Tracking (Feb 23
       2026).
+- [ ] Upstream #1647 mstate trio NOT PORTED (minted 2026-08-28 by
+      the BUG-1728 slice; post-freeze upstream adoption - needs its
+      own consumer audit, ruling 2026-08-28 kept it out of the
+      BUG-1728 slice). nhmall 2026-07-30 commits 59080106b
+      (place_monster clears ENDGAME_FREE/ENDGAME_MIGR) + 1e749c28c
+      (MON_OFF_MAP_BITS macro; mon_offmap becomes a bit-mask test
+      ignoring OBLITERATE/STILL_ARRIVING; place_monster uses the
+      macro) + 404e949e9 (PARKED joins the mask), fixing upstream
+      issue #1647 - the class-level companion to branch BUG-1728's
+      snapshot scrub (the two compose; neither reference tree has
+      them - fetch <sha>.patch from github NetHack/NetHack at port
+      time). Port audit surface: every branch mon_offmap consumer
+      and both mon_sanity_check masks (floor-mon arm +
+      migrating-loop mask), place_monster callers, interactions
+      with the branch's family spot-fixes BUG-1394 (BUBBLEMOVE
+      bubble-restore clear), BUG-1442 (mon_arrive ENDGAME_MIGR
+      mask), BUG-1444 (m_into_limbo), BUG-1551 (see_monsters !mx
+      skip), and the open BUG-1552 parked-guard sanity carve-out
+      (PARKED reading off-map by mask may be its intended
+      resolution). At port time also re-audit which
+      upstream-reportable rows #1647 moots before anything is sent
+      (the BUG-1442 artifact's ENDGAME_MIGR half at minimum -
+      upstream's mon_arrive still lacks the clear, but placement
+      now launders it except on the ridden-steed early-return
+      path).
 - [ ] Amulet of Yendor stable on Astral NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; MED). No Amulet
       block in branch flooreffects(); obj.h orecursive alias has
@@ -11573,7 +11598,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-08-28 | Rider revival restores stale MON_ENDGAME_FREE: m_detach() sets the bit on any monster dying in the endgame (mon.c), save_mtraits() strips only MON_DETACH from the corpse's trait snapshot (mkobj.c), and montraits()'s revival fixup list never normalizes mstate - so a Rider killed on Astral revives (replmon) onto the floor chain with mstate 0x20, which mon_offmap() reads as off-map: per-turn "floor mon ... 0x00000020" sanity impossibles, and per the BUG-1442 analysis iter_mons consumers skip the monster (a revived Rider left inert; state survives save/restore). REFINES BUG-1442's sibling note (c), which called the bit write-only/no-fix-needed - true only until the corpse snapshot resurrects it. Battery-caught live by the overview-altar slice (Famine, mstate 0x20, on-chain at (40,3), 30 per-turn impossibles). Producer parity: Official_nh50 mon.c ~2794 set + mkobj.c ~2192 MON_DETACH-only strip = same shape upstream. Master (3.6) unaffected - no mstate. Candidate fix shape: normalize the revived monster's mstate to MON_FLOOR in montraits()'s explicit-fixup list (covers bones-stored traits too), or widen save_mtraits' strip to all transit/death bits | traced (root cause + producer chain); fix pending plan approval; not yet sent |
+| 2026-08-28 | Rider revival restores stale MON_ENDGAME_FREE: m_detach() sets the bit on any monster dying in the endgame (mon.c), save_mtraits() strips only MON_DETACH from the corpse's trait snapshot (mkobj.c), and montraits()'s revival fixup list never normalizes mstate - so a Rider killed on Astral revives (replmon) onto the floor chain with mstate 0x20, which mon_offmap() reads as off-map: per-turn "floor mon ... 0x00000020" sanity impossibles, and per the BUG-1442 analysis iter_mons consumers skip the monster (a revived Rider left inert; state survives save/restore). REFINES BUG-1442's sibling note (c), which called the bit write-only/no-fix-needed - true only until the corpse snapshot resurrects it. Battery-caught live by the overview-altar slice (Famine, mstate 0x20, on-chain at (40,3), 30 per-turn impossibles). Producer parity: Official_nh50 mon.c ~2794 set + mkobj.c ~2192 MON_DETACH-only strip = same shape upstream. Master (3.6) unaffected - no mstate. Branch fix (BUG-1728): the BUG-1264 dual-chokepoint idiom - save_mtraits stores mstate = MON_FLOOR (every lifecycle/transit bit is meaningless in a snapshot; also closes the tame-steed-corpse MON_OFFMAP and monstone live-snapshot latents per the reviewer census) and montraits resets the revived copy to MON_FLOOR (heals traits already inside saves/bones). UPSTREAM ALREADY FIXED post-freeze with a DIFFERENT shape (issue #1647, nhmall 2026-07-30 - commits 59080106b + 1e749c28c + 404e949e9, after the reference-tree freeze): place_monster clears the new MON_OFF_MAP_BITS mask (incl. ENDGAME_FREE/ENDGAME_MIGR/BUBBLEMOVE/PARKED) and mon_offmap becomes a bit-mask test ignoring OBLITERATE/STILL_ARRIVING - that heals the revival at placement (replmon -> place_monster) but leaves stored omonst data stale; composes cleanly with the branch's snapshot scrub. Trio port = its own checklist row (minted 2026-08-28) | fixed on branch (BUG-1728, commit 32c92f1c0); upstream already fixed post-freeze (issue #1647) - NO report needed |
 | 2026-08-28 | options.c menucontrols help window typo: the Search command row reads "Exter a target string and invert all matching entries" - "Exter" should be "Enter". Byte-identical in NetHack50 and Official_nh50 (battery-caught by the 2026-08-28 Guidebook slice, fixed with the overview-altar slice); artifact ~/nh50-options-exter-typo.patch verified `git apply --check` on both trees | fixed on branch; not yet sent |
 | 2026-08-28 | util/stripbs.c tests `errno != EOF` at end of input - errno is never -1 and is never cleared, so the filter exits EXIT_FAILURE on every normal EOF; any make rule checking the pipeline status (e.g. stripbs as COLCMD for Guidebook generation) sees failure with complete output. Fix: `ferror(stdin)` (EvilHack master e73dc81ed). Byte-identical in NetHack50 and Official_nh50; artifact ~/nh50-stripbs-ferror.patch verified `git apply --check` on both trees | fixed on branch (docs slice); not yet sent |
 | 2026-08-23 | uhitm.c mhitm_ad_phys() m-v-m arm re-reads MON_WEP(magr) instead of the weapon mdamagem() received, and its `!= AT_WEAP && != AT_CLAW -> 0` filter keeps the wielded weapon for AT_CLAW, so a weapon-wielder's claw (Yeenoghu, troll) adds the weapon's dmgval to its claw damage in monster-vs-monster combat; mattackm() passes Null for claws and 3.6's mdamagem() used the parameter. Fix: carry the chosen weapon in struct mhitm_data (artifact ~/nh50-claw-weapon-damage.patch) | found on branch (combat-residue reviewer); not yet sent |
