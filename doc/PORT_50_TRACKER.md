@@ -7727,7 +7727,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       resolve_offering's precedence gate, the `&& frac_altar == 0`
       guard on the artifact arm, and the frac_altar=1 write +
       lightning/altar-splitting message pair inside
-      bestow_artifact (master pray.c ~3055-3065).
+      bestow_artifact (master pray.c ~3055-3065). FOURTH CONSUMER
+      (2026-08-28, overview-altar slice): the ported per-alignment
+      overview tracking landed master 851cc48a0's display arms for
+      the fractured buckets (ALTR_TEMPLF_SH/ALTR_STANDF_SH) as
+      deliberately-dead code, but the recalc shift pick in
+      count_feat_lastseentyp's ALTAR case (dungeon.c) omits
+      master's two levl frac_altar ternaries - only that ternary
+      pair ports here (TODO-EVILHACK comment marks the site).
 - [x] Kick to-hit roll (non-polyd) NOT PORTED (minted 2026-08-07 by
       the Samurai slice's BUG-1246 caitiff-parity port). Master's
       non-polyd kick_monster() path rolls to hit - kickdieroll vs
@@ -10572,8 +10579,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (pre-existing). Archive: Temple Priest Repair System
       (Nov 30 2025).
 - [x] Guidebook + dat help docs RE-DERIVED (2026-08-28, three
-      commits: A code/build/infra + dat files, B Guidebook content,
-      C tracker; BUG-1726/1727 master frozen-unfixed minted).
+      commits: A c17de75be code/build/infra + dat files (13 files),
+      B de9adc797 Guidebook content (4 files), C 561a14d1e tracker;
+      BUG-1726/1727 master frozen-unfixed minted).
       RULINGS (AskUserQuestion 2026-08-28): cmdhelp reader stays 5.0
       dynamic-only (the #if 0 dlb_fopen(CMDHELPFILE) path in
       dowhatdoes_core kept; NetHack50's re-enable NOT taken; the
@@ -10759,13 +10767,66 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       default "pray quit" vs branch "pray swim trap" also parks
       here. Archive: the options half of Documentation and
       Guidebook Infrastructure + master e84a85d5a.
-- [ ] Per-alignment overview altar tracking NOT PORTED (minted
-      2026-08-26 by the features-coverage sweep; MED - overview
-      struct is save-coupled, rides the VERSION_SANITY path).
-      dungeon.h still vanilla Bitfield(naltar,2); master's
-      ALTR_GET per-alignment counts and msalign display are
-      absent. Archive: Per-Alignment Dungeon Overview Altar
-      Tracking (Feb 23 2026).
+- [x] Per-alignment overview altar tracking PORTED whole
+      (2026-08-28, master 851cc48a0 = final state, its only
+      dungeon.c follow-up 6ce6f4157 touched no altar code; three
+      commits: A altar code, B options.c "Exter" typo fix,
+      C tracker). Archive sweep pre-port: BUG-307/308 superseded
+      by the rewrite itself; BUG-309's Amask2msa mask fix already
+      carried by 5.0 align.h. RULINGS (AskUserQuestion 2026-08-28,
+      all recommended): save break ACCEPTED - sizeof(mapseen_feat)
+      8 -> 12 (mapseen 384 -> 392, compile-probed), version.c
+      critical_sizes[] rejects old saves gracefully, no rev0
+      uplift/EDITLEVEL bump (forging-slice precedent + master
+      parity - the 5.0 revision.h machinery stays unused);
+      fractured display arms (ALTR_TEMPLF_SH/ALTR_STANDF_SH)
+      LANDED as deliberately-dead master-verbatim code (the
+      frac_altar row's fourth consumer shrinks to the recalc
+      ternary pair); vanilla-5.0 ADD2NTOBUF macro DELETED (only
+      consumer replaced). ADAPTATIONS: MSA_UNKNOWN lives in
+      align.h next to MSA_NONE (5.0 keeps MSA there; master's
+      MSA_LAWFUL/NEUTRAL/CHAOTIC = 3.6 residue, not re-added);
+      ALTR_* macro block above mapseen_feat in dungeon.h; the
+      tile-scan arm keeps 5.0's mimic-aware altarmask_at() (safer
+      than master's raw levl read - reviewer bonus note) and
+      lives in count_feat_lastseentyp's ALTAR case; the 5.0-only
+      Valley/Sanctum auto-annotations (no master counterpart)
+      translate naltar>0 to the enumerated altar[0..4] OR.
+      MASTER-PARITY KEPT: a temple whose altar tile was never
+      mapped displays nothing (ntemple gone, display is
+      altar-driven); actual per-altar deity display replaces
+      5.0's only-if-your-god gating; unseen-Astral altars move
+      MSA_NONE -> MSA_UNKNOWN (deity-less, no longer read as
+      Moloch); counts cap at 3 per category. Reviewer PASS zero
+      conditions (index-safety census over all 13 altarmask
+      producers + the mimic MCORPSENM path = range always
+      {0,1,2,4}-masked-to-0..3 or explicit 4; save layer verified
+      generic - historical whole-struct writers, exportascii
+      stubs empty; LOW: theoretical BUFSZ overflow needs an
+      impossible feature-complete level, master-shared, no
+      action). BATTERY 8/8 PASS (chaotic orc Barbarian XL30;
+      sanity_check on; all paniclog lines = staging artifacts):
+      Minetown "a temple to Mitra" for a Set worshipper with
+      altar[3]=0x01 in gdb; custom mixed level = three entries
+      three deities (temple bucket 0x01 vs standalone 0x10 bytes
+      exact); Astral unknown->known transition (deity-less
+      "A temple" altar[4], then "A temple to Set" altar[1] after
+      SVALL) + simultaneous "A temple to Set, some temples";
+      Valley "A temple to Moloch" + valley=1 via the any-altar
+      OR; altar conversion rescan moved the byte between indices
+      (10 00 10.. -> 10 10 00..); save/restore byte-identical
+      across all 8 mapseen entries; OLD-FORMAT SAVE REJECTION
+      graceful - "comparison of critical bytes mismatched at 12
+      (struct mapseen_feat)" then fresh-game offer, no crash;
+      mimic-as-altar farlook counts a phantom neutral temple
+      alongside the real one, no crash. Battery finds recorded
+      elsewhere: Rider-revival stale MON_ENDGAME_FREE (upstream
+      table, fix pending); #wizloaddes discards the level's
+      mapseen entry permanently (makemap_prepost rm_mapseen,
+      nothing recreates it - pre-existing test-command behavior,
+      init_mapseen gdb-call is the harness workaround). Archive:
+      Per-Alignment Dungeon Overview Altar Tracking (Feb 23
+      2026).
 - [ ] Amulet of Yendor stable on Astral NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; MED). No Amulet
       block in branch flooreffects(); obj.h orecursive alias has
@@ -11512,6 +11573,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-08-28 | Rider revival restores stale MON_ENDGAME_FREE: m_detach() sets the bit on any monster dying in the endgame (mon.c), save_mtraits() strips only MON_DETACH from the corpse's trait snapshot (mkobj.c), and montraits()'s revival fixup list never normalizes mstate - so a Rider killed on Astral revives (replmon) onto the floor chain with mstate 0x20, which mon_offmap() reads as off-map: per-turn "floor mon ... 0x00000020" sanity impossibles, and per the BUG-1442 analysis iter_mons consumers skip the monster (a revived Rider left inert; state survives save/restore). REFINES BUG-1442's sibling note (c), which called the bit write-only/no-fix-needed - true only until the corpse snapshot resurrects it. Battery-caught live by the overview-altar slice (Famine, mstate 0x20, on-chain at (40,3), 30 per-turn impossibles). Producer parity: Official_nh50 mon.c ~2794 set + mkobj.c ~2192 MON_DETACH-only strip = same shape upstream. Master (3.6) unaffected - no mstate. Candidate fix shape: normalize the revived monster's mstate to MON_FLOOR in montraits()'s explicit-fixup list (covers bones-stored traits too), or widen save_mtraits' strip to all transit/death bits | traced (root cause + producer chain); fix pending plan approval; not yet sent |
+| 2026-08-28 | options.c menucontrols help window typo: the Search command row reads "Exter a target string and invert all matching entries" - "Exter" should be "Enter". Byte-identical in NetHack50 and Official_nh50 (battery-caught by the 2026-08-28 Guidebook slice, fixed with the overview-altar slice); artifact ~/nh50-options-exter-typo.patch verified `git apply --check` on both trees | fixed on branch; not yet sent |
 | 2026-08-28 | util/stripbs.c tests `errno != EOF` at end of input - errno is never -1 and is never cleared, so the filter exits EXIT_FAILURE on every normal EOF; any make rule checking the pipeline status (e.g. stripbs as COLCMD for Guidebook generation) sees failure with complete output. Fix: `ferror(stdin)` (EvilHack master e73dc81ed). Byte-identical in NetHack50 and Official_nh50; artifact ~/nh50-stripbs-ferror.patch verified `git apply --check` on both trees | fixed on branch (docs slice); not yet sent |
 | 2026-08-23 | uhitm.c mhitm_ad_phys() m-v-m arm re-reads MON_WEP(magr) instead of the weapon mdamagem() received, and its `!= AT_WEAP && != AT_CLAW -> 0` filter keeps the wielded weapon for AT_CLAW, so a weapon-wielder's claw (Yeenoghu, troll) adds the weapon's dmgval to its claw damage in monster-vs-monster combat; mattackm() passes Null for claws and 3.6's mdamagem() used the parameter. Fix: carry the chosen weapon in struct mhitm_data (artifact ~/nh50-claw-weapon-damage.patch) | found on branch (combat-residue reviewer); not yet sent |
 | 2026-08-23 | mhitm.c mdamagem(): a knockback that moves the defender returns before `mdef->mhp -= mhm.damage`, so the 1-in-6 mhurtle swallows the whole hit's damage - every AD_PHYS handler's damage, upstream-identical in Official_nh50. Carried as an upstream quirk; no branch change | found on branch (combat-residue reviewer); not yet sent |
