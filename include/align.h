@@ -141,6 +141,7 @@ typedef struct align { /* alignment & record */
 #define Amask2msa(x) ((((x) & AM_MASK) == 4) ? 3 : (x) & AM_MASK)
 #define Msa2amask(x) (((x) == 3) ? 4 : (x))
 #define MSA_NONE    0  /* unaligned or multiple alignments */
+#define MSA_UNKNOWN 4  /* Astral unseen altar */
 
 /* alignment change reasons for uchangealign(attrib.c) */
 enum uchangealign_reasons {

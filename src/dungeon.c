@@ -2981,9 +2981,10 @@ init_mapseen(d_level *lev)
 #define OF_INTEREST(feat) \
     ((feat).nfount || (feat).nsink || (feat).nforge \
      || (feat).nmagicchest || (feat).nthrone   \
-     || (feat).naltar || (feat).ngrave || (feat).ntree || (feat).nshop  \
-     || (feat).ndeadtree || (feat).ngrass || (feat).nsand \
-     || (feat).ntemple)
+     || (feat).altar[0] || (feat).altar[1] || (feat).altar[2] \
+     || (feat).altar[3] || (feat).altar[4] \
+     || (feat).ngrave || (feat).ntree || (feat).nshop  \
+     || (feat).ndeadtree || (feat).ngrass || (feat).nsand)
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -3146,17 +3147,22 @@ count_feat_lastseentyp(
     case ALTAR:
         /* get the altarmask for this location; might be a mimic */
         atmp = altarmask_at(x, y);
-        /* convert to index: 0..3 */
-        atmp = (Is_astralevel(&u.uz) && (levl[x][y].seenv & SVALL) != SVALL)
-               ? MSA_NONE
-               : Amask2msa(atmp);
-        if (!mptr->feat.naltar)
-            mptr->feat.msalign = atmp;
-        else if (mptr->feat.msalign != atmp)
-            mptr->feat.msalign = MSA_NONE;
-        count = mptr->feat.naltar + 1;
-        if (count <= 3)
-            mptr->feat.naltar = count;
+        /* convert to index: 0..3, or MSA_UNKNOWN */
+        if (Is_astralevel(&u.uz) && (levl[x][y].seenv & SVALL) != SVALL)
+            atmp = MSA_UNKNOWN;
+        else
+            atmp = Amask2msa(atmp);
+        {
+            char *templs = in_rooms(x, y, TEMPLE);
+            boolean in_temple = (*templs != '\0');
+            int shift;
+
+            /* TODO-EVILHACK: master splits each arm on
+               levl[x][y].frac_altar (ALTR_TEMPLF_SH/ALTR_STANDF_SH);
+               those ternaries land with the frac_altar subsystem */
+            shift = in_temple ? ALTR_TEMPLE_SH : ALTR_STAND_SH;
+            ALTR_INC(mptr->feat.altar[atmp], shift);
+        }
         break;
         /*  An automatic annotation is added to the Castle and
          *  to Fort Ludios once their structure's main entrance
@@ -3298,11 +3304,7 @@ recalc_mapseen(void)
                 count = mptr->feat.nshop + 1;
                 if (count <= 3)
                     mptr->feat.nshop = count;
-            } else if (svr.rooms[i].rtype == TEMPLE) {
-                /* altar and temple alignment handled below */
-                count = mptr->feat.ntemple + 1;
-                if (count <= 3)
-                    mptr->feat.ntemple = count;
+            /* temple tracking handled per-altar in tile scan below */
             } else if (svr.rooms[i].orig_rtype == DELPHI) {
                 mptr->flags.oracle = 1;
             }
@@ -3342,15 +3344,20 @@ recalc_mapseen(void)
        assume that both of those levels only contain one altar, so add the
        annotation if that altar has been mapped (seen or magic mapping) */
     if (Is_valley(&u.uz)) {
-        /* don't clear valley if naltar==0; maybe altar got destroyed? */
-        if (mptr->feat.naltar > 0)
+        /* don't clear valley if no altar tracked; maybe altar got
+           destroyed? */
+        if (mptr->feat.altar[0] || mptr->feat.altar[1]
+            || mptr->feat.altar[2] || mptr->feat.altar[3]
+            || mptr->feat.altar[4])
             mptr->flags.valley = 1;
 
     /* Sanctum and Gateway-to-Sanctum are mutually exclusive automatic
        annotations but handling that is tricky because they're stored
        with data for different levels */
     } else if (Is_sanctum(&u.uz)) {
-        if (mptr->feat.naltar > 0)
+        if (mptr->feat.altar[0] || mptr->feat.altar[1]
+            || mptr->feat.altar[2] || mptr->feat.altar[3]
+            || mptr->feat.altar[4])
             mptr->flags.msanctum = 1;
 
         if (mptr->flags.msanctum) {
@@ -3642,21 +3649,6 @@ tunesuffix(
     } while (0)
 #define ADDNTOBUF(nam, var) ADDNTOBUF_CORE(nam, var, FALSE)
 #define ADDNTOBUF_MASS(nam, var) ADDNTOBUF_CORE(nam, var, TRUE)
-/* ADD2NTOBUF: for "M temples and N altars"; seen_string() is safe to use
-   multiple times within one expression; so is plur() */
-#define ADD2NTOBUF(nam, var, nam2, var2) \
-    do {                                                                \
-        if (var && var2) {                                              \
-            Sprintf(eos(buf), "%s%s %s%s and %s %s%s", COMMA,           \
-                    seen_string((var), (nam)), (nam), plur(var),        \
-                    seen_string((var2), (nam2)), (nam2), plur(var2));   \
-        } else if (var) {                                               \
-            ADDNTOBUF(nam, var);                                        \
-        } else if (var2) {                                              \
-            ADDNTOBUF(nam2, var2);                                      \
-        }                                                               \
-    } while (0)
-
 staticfn void
 print_mapseen(
     winid win, mapseen *mptr,
@@ -3745,22 +3737,60 @@ print_mapseen(
                 Sprintf(eos(buf), "%s%s", COMMA,
                         an(shop_string(mptr->feat.shoptype)));
         }
-        if (mptr->feat.naltar > 0 || mptr->feat.ntemple > 0) {
-            unsigned atmp;
+        /* Temple altars -- per-alignment display */
+        {
+            int ai;
+            for (ai = 0; ai <= MSA_UNKNOWN; ai++) {
+                boolean is_unknown = (ai == MSA_UNKNOWN);
+                aligntyp al = is_unknown ? A_NONE
+                              : Amask2align(Msa2amask(ai));
+                int cnt;
 
-            /* being aware of a temple doesn't guarantee being aware of its
-               altar (via entrance message when entering while blinded, or
-               possibly it being out of view in an irregularly shaped room);
-               FIXME: if all temples present have been desecrated, we ought
-               to say so */
-            ADD2NTOBUF("temple", mptr->feat.ntemple,
-                       "altar", mptr->feat.naltar);
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_TEMPLE_SH);
+                if (cnt) {
+                    ADDNTOBUF("temple", cnt);
+                    if (!is_unknown)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(al));
+                }
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_TEMPLF_SH);
+                if (cnt) {
+                    ADDNTOBUF("temple", cnt);
+                    if (!is_unknown)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(al));
+                    Strcat(buf, " (fractured)");
+                }
+            }
+        }
+        /* Standalone altars -- per-alignment display */
+        {
+            int ai;
+            for (ai = 0; ai <= MSA_UNKNOWN; ai++) {
+                boolean is_unknown = (ai == MSA_UNKNOWN);
+                aligntyp al = is_unknown ? A_NONE
+                              : Amask2align(Msa2amask(ai));
+                int cnt;
 
-            /* only print out altar's god if they are all to your god */
-            atmp = mptr->feat.msalign;              /*    0,  1,  2,  3 */
-            atmp = Msa2amask(atmp);                 /*    0,  1,  2,  4 */
-            if (Amask2align(atmp) == u.ualign.type) /* -128, -1,  0, +1 */
-                Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_STAND_SH);
+                if (cnt) {
+                    ADDNTOBUF("altar", cnt);
+                    if (!is_unknown)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(al));
+                }
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_STANDF_SH);
+                if (cnt) {
+                    ADDNTOBUF("fractured altar", cnt);
+                    if (!is_unknown)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(al));
+                }
+            }
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);
         ADDNTOBUF("forge", mptr->feat.nforge);
