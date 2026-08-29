@@ -8717,10 +8717,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       unported. It is also the one See_underwater consumer with no branch
       counterpart - when it lands it must carry
       `if (See_underwater) vision_reset();` before its docrt(), exactly
-      as pooleffects() does. Same note for master's pager.c
-      append_spot_lighting(), whose "in light"/"in darkness" farlook
-      annotation is likewise unported and carries the other missing
-      See_underwater site.
+      as pooleffects() does. (The other formerly-missing
+      See_underwater site, master's pager.c append_spot_lighting()
+      farlook annotation, landed 2026-08-29 via the spot-lighting
+      readouts row - its submerged predicate now consumes
+      See_underwater on the branch; only this row's doup() block
+      and its vision_reset coupling remain unported.)
 - [x] Plane of Water floods paniclog under sanity_check (NEW, minted
       2026-07-29 by the goggles battery; PRE-EXISTING, unrelated to that
       slice - it fired on arrival, before any goggles interaction).
@@ -11349,15 +11351,60 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       siblings) plus a git log check for which master commit added
       the clause and why; sits two lines above completelydoused in
       the header.
-- [ ] Spot-lighting readouts NOT PORTED (minted 2026-08-26 by the
-      features-coverage sweep; LOW - single implementation owner
-      for master's append_spot_lighting + both consumers; the
-      farlook half is also noted inside the "#up out of water" row
-      with its See_underwater coupling - the code lands HERE).
-      Arms: probing/mstatusline ", in light/darkness" readout +
-      farlook lit-state of the selected spot. Archive: Lit/Dark
-      Tile Readout in Monster Probing (May 10 2026) + Farlook
-      Reports Lit State of the Selected Spot (Jul 8 2026).
+- [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
+      by the features-coverage sweep; LOW - single implementation
+      owner for master's append_spot_lighting + both consumers).
+      Net master state ported, NOT the union of the two commits:
+      21938cdee (May 10 2026) supplied the probing half (branch
+      src/insight.c mstatusline/ustatusline inline Strcat pairs,
+      first into info[] so the wizard tameness parenthetical stays
+      adjacent to its adjective) and 7d5f1128a (Jul 8 2026) the
+      farlook half (append_spot_lighting helper + two call sites
+      at the end of do_screen_description's didlook block, out_str
+      only); 7d5f1128a DELETED the May self_lookat/look_at_monster
+      appends (selection-only ruling) so those were never re-added.
+      Adaptations: staticfn/ANSI/coordxy + NONNULLARG1; the hero-
+      spot check uses u_at(); mstatusline lives in insight.c on
+      5.0. 5.0's GLYPH_UNEXPLORED/GLYPH_NOTHING (split-off 3.6
+      S_stone roles) fall outside glyph_is_cmap/glyph_is_object so
+      the arm condition excludes them with no extra term; the
+      S_stone guard pairs with the branch's own TER_DETECT key.
+      Preconditions verified: vision_recalc Blind branch still
+      computes COULD_SEE; checkfile key = firstmatch copy; all
+      seven do_screen_description callers render firstmatch only,
+      so autodescribe/getpos menu/HTML tooltip/a11y stay clean by
+      construction. Reviewer PASS (parity byte-verified vs master;
+      site census 5=5; one out-of-scope LOW minted as the
+      mstatusline tameness-ladder row below). BATTERY 7/7
+      master-parity PASS (Valkyrie XL30, paniclog never existed):
+      lit/dark farlook incl. same-square flip via cursed scroll of
+      light; probing leads info before tame/peaceful; stale
+      monster glyph mute (m_at gate); unexplored mute; blind
+      terrain mute vs blind probing live; swallowed self-probe
+      ", in darkness"; encyclopedia key clean ("kitten" resolves);
+      couldsee=0 mute. Adjudicated in-battery: default-options
+      "(dark part of a room), in darkness" on an in-LOS S_darkroom
+      cmap glyph IS master behavior (master display.c renders
+      dark_room-ON remembered dark floor as S_darkroom, guard only
+      excludes S_stone; the quiet variant is dark_room-OFF ->
+      GLYPH_NOTHING on branch / S_stone on master - both mute).
+      Archive: Lit/Dark Tile Readout in Monster Probing (May 10
+      2026) + Farlook Reports Lit State of the Selected Spot
+      (Jul 8 2026).
+- [ ] mstatusline tameness-tier ladder NOT PORTED (minted
+      2026-08-29 by the spot-lighting slice's reviewer via
+      whole-function diff; LOW). Master d47c00704 ("Fix: minor
+      issues with pets acting as a helper", 2024-07-24) replaced
+      the plain ", tame" adjective with a six-tier mtame ladder
+      (>=20 fiercely loyal / >=15 loyal / >=10 domesticated /
+      >=5 tame / >=2 somewhat tame / ==1 nearly wild) and
+      prefixed the wizard parenthetical (" (tameness %d" vs
+      branch " (%d"); branch insight.c mstatusline keeps
+      vanilla's single ", tame". The commit's dogmove/keepdogs
+      arm is owned by the "Loyal pet following while eating" row
+      above; this row owns the readout arm. The tier thresholds
+      pair with that row's mtame >= 15 follow gate - port or
+      adjudicate the two rows together.
 - [ ] ulastprayed writer/reader NOT WIRED (minted 2026-08-26 by
       the features-coverage sweep; LOW). you.h ulastprayed exists
       (Phase 1 field enumeration) with no dopray setter, no
