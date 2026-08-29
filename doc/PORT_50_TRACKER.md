@@ -10800,7 +10800,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Guidebook/opthelp entries travel with the wiring (filtered
       out of the 2026-08-28 re-derivation). Master's paranoid
       default "pray quit" vs branch "pray swim trap" also parks
-      here. Archive: the options half of Documentation and
+      here. COUPLING (2026-08-29, dumplog-grouping slice): wiring
+      showmondamage must extend end.c is_hp_tracking_msg - the
+      branch filter matches only showdamage's "[HP " prefix
+      (master filtered "(MHP " too), so an unfiltered monster-
+      damage line would clutter dumps and break message grouping. Archive: the options half of Documentation and
       Guidebook Infrastructure + master e84a85d5a.
 - [x] Per-alignment overview altar tracking PORTED whole
       (2026-08-28, master 851cc48a0 = final state, its only
@@ -11200,11 +11204,59 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stay_behind unconditionally. The pet-orders slice ported the
       PETSTRAT_STAY arm only. Archive: Loyal Pet Following
       (Jan 10 2026).
-- [ ] Dumplog message grouping NOT PORTED (minted 2026-08-26 by
-      the features-coverage sweep; LOW). Branch dump_plines is
-      vanilla 5.0; master's is_hp_tracking_msg skip + "(Nx)"
-      duplicate collapse are absent. Archive: Dumplog Message
-      Grouping (Nov 30 2025).
+- [x] Dumplog message grouping PORTED (2026-08-29, master
+      db29be7f8 = the whole feature, no follow-ups per git log -S
+      on all three symbols; two commits: A code src/end.c only,
+      B tracker). is_hp_tracking_msg + the "(Nx)" consecutive-
+      duplicate collapse in dump_plines, master's loop verbatim
+      minus four adjudicated adaptations: (1) gs.saved_plines/
+      gs.saved_pline_index globals replace master's extern locals;
+      (2) staticfn/ANSI style; (3) the filter prefix is "[HP "
+      NOT master's "(HP "/"(MHP " - branch showdamage() prints
+      "[HP %i, %i left]" byte-identical to vanilla 5.0 (upstream
+      adopted the feature with bracket styling; master's
+      parenthesized form, its "(HP %i, killed)" variant and
+      showmondamage have no branch emitters - the delta is
+      vanilla-5.0 parity, not a silent revert; the only "[HP "
+      emitter tree-wide is hack.c showdamage, so no false
+      positives; COUPLING note added to the Ownerless-option-
+      wirings row: wiring showmondamage must extend the filter);
+      (4) master's unbounded Sprintf(" %s (%dx)") replaced by
+      Snprintf - a saved pline can approach BUFSZ-1 chars so
+      master's form can overflow buf[BUFSZ] = BUG-1737 master
+      frozen-unfixed (branch Snprintf truncates silently + NUL-
+      terminates, nh_snprintf). Master's FREE_ALL_MEMORY
+      restructure carried (frees move to a second pass after the
+      loop; prev_msg aliases a slot until the final flush and
+      FREE_ALL_MEMORY is LIVE on the branch, config.h). The
+      config.h DUMPLOG_MSG_COUNT 50->100 half of db29be7f8 was
+      already on branch (ea8a75559). report.c's crash-report
+      readers of the same ring stay raw BY DESIGN (filtering there
+      would hide crash context). DUMPHTML needs no sibling -
+      dump_putstr fans one putstr to both text and HTML files.
+      Archive sweep pre-port: zero hits on the dump_plines
+      surface. Reviewer PASS (leg-by-leg reduction verified; the
+      one LOW is pre-existing upstream-verbatim "#endif /*
+      DUMPLOG */" comment naming half the guard - out of scope).
+      BATTERY 5/5 PASS (two wizmode games past T:100, sysconf
+      DUMPLOGFILE temporarily rerouted then restored byte-exact,
+      showdamage on, paniclog never existed): staged jackal runs
+      produced "The jackal bites! (10x)" and "(9x)" with the
+      interleaved [HP...] lines NOT splitting the runs and zero
+      "[HP" anywhere in either dump; an independent replay of the
+      captured raw ring through the documented algorithm
+      reproduced the dump section byte-equal; HTML section
+      list-identical to text; ^P history and gs.saved_plines still
+      carry every individual repeat and every [HP...] line
+      (dump-only filter); zero "(1x)" suffixes, singletons
+      one-per-line with the single leading space; bounded-write
+      proof = two gdb-staged identical 250-char messages dumped as
+      exactly 255 chars (" " + message + " (2x" with the closing
+      paren cut by the bound), clean exit, no crash. Non-defect
+      notes: the quit-sequence prompts occupy the newest ring
+      slots (pre-existing); ^P topline merging makes its text
+      differ cosmetically from the per-pline ring. Archive:
+      Dumplog Message Grouping (Nov 30 2025).
 - [ ] LARGEST_INT 2^31-1 widening NOT PORTED (minted 2026-08-26 by
       the features-coverage sweep; LOW). Branch and upstream keep
       32767. COUPLING: the succubus/incubus-cost ratification in
