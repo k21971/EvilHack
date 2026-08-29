@@ -691,9 +691,9 @@ mon_arrive(struct monst *mtmp, int when)
     /* some monsters might need to do something special upon arrival
        _after_ the current level has been fully set up; see dochug() */
     mtmp->mstrategy |= STRAT_ARRIVE;
-    /* the transit is over; that includes an endgame plane-bump, whose
-       flag would otherwise survive forever - place_monster() preserves
-       it and the ridden-steed arrival never reaches place_monster() */
+    /* the transit is over; that includes an endgame plane-bump - clear
+       its flag here because the ridden-steed arrival below never
+       reaches place_monster()'s own clear */
     mtmp->mstate &= ~(MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR);
 
     /* make sure mnexto(rloc_to(set_apparxy())) doesn't use stale data */
