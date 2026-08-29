@@ -11264,12 +11264,91 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pin that mhitu.c site (and the cmd.c repeat cap) to 32767 or
       the ruling is voided. Archive: LARGEST_INT Raised to 2^31-1
       (Feb 23 2026).
-- [ ] Rust-trap dousing of pure-flame monsters NOT PORTED (minted
-      2026-08-26 by the features-coverage sweep; LOW). The
-      zap/mcastu completelydoused arms landed; the
-      trapeffect_rust_trap completelydoused -> thitm d(6,6) branch
-      did not. Archive: Significant Water Attacks Extinguish
-      Pure-Flame Monsters (May 10 2026).
+- [x] Rust-trap dousing of pure-flame monsters PORTED (2026-08-29,
+      the last missing arm of master 9d38f549e - macro + zap zhitm/
+      zhitu + mcastu geyser arms had already re-landed via
+      5e3874faf/f4d7eaaa0; the trap.c arm entered via master
+      ancestry and was erased by the 5.0 trapeffect_* rewrite; two
+      commits: A code src/trap.c + mondata.h comment rider, B
+      tracker). trapeffect_rust_trap() monster arm gains master's
+      third else-if after completelyrusts and gremlin:
+      completelydoused -> "sputters and steams violently!" +
+      thitm(0, mtmp, NULL, d(6,6), FALSE, madeby_u) ->
+      trapkilled. Master-verbatim except pline -> pline_mon
+      (branch monster-arm idiom, matching the completelyrusts
+      sibling); thitm kept master's 6-arg umade signature so the
+      call transplants whole, and its d_override path carries the
+      BUG-916 attribution shape (umade -> mon_xkilled else
+      monkilled) by construction. mondata.h rider: the macro's
+      stale "(sea dragon breath)" comment widened to master's
+      final text (the branch comment predated the mcastu arm).
+      Reviewer PASS (token-for-token vs master; chain exclusivity;
+      post-thitm return safety matches 10+ trapeffect siblings;
+      consumer census = three completelydoused consumers on both
+      trees, feature now complete). BATTERY functional 5/5 PASS
+      (dwarven Valkyrie XL30, sanity_check on, paniclog never
+      existed): full-HP fire elemental doused for 16 (in 6..36)
+      via the real m_move -> mintrap -> trapeffect chain and kept
+      acting; madeby_u=1 kill = +277 XP (mon_xkilled) + vanquished
+      entry + no corpse; madeby_u=0 fire-vortex kill = zero XP
+      (monkilled) + no corpse; iron golem still dies via
+      completelyrusts, gremlin split observed both ways, ordinary
+      soldier got splash-only with mtrapseen learning; save/
+      restore preserved 17 traps + 7 monsters exactly and a
+      post-restore trigger dealt 25. REACHABILITY ADJUDICATION
+      FOUND (battery T0, refuting the plan's risk note): all four
+      doused species are M1_FLY, and the branch's vanilla-5.0
+      mintrap gate (floor_trigger includes RUST_TRAP_SET;
+      check_in_air skips hurtling/floater/flyer) short-circuits
+      BEFORE trapeffect dispatch - the arm is natural-movement
+      unreachable on the branch (battery cleared M1_FLY in memory
+      to exercise it), while master's 3.6 mintrap RUST_TRAP_SET
+      case has no flyer gate and the arm is LIVE there. Kept the
+      arm (master parity; the gate, not the arm, is the
+      questionable piece) and minted the general flyer-gate
+      divergence as its own row below. Non-defect notes:
+      "killed" vs "destroyed" death wording = nonliving() (fire
+      vortex nonliving, fire elemental not); approach-AI
+      non-greedy stepping forced a saturated trap field for
+      deterministic triggering.
+- [ ] Floor-trigger flyer gate divergence: 5.0 check_in_air vs
+      master's per-case gating (NEW, minted 2026-08-29 by the
+      rust-trap-dousing battery; design adjudication needed;
+      upstream-5.0-intended semantics). Branch mintrap
+      short-circuits every floor_trigger() trap (ARROW/BOLT/DART/
+      ROCK/SQKY/BEAR/LANDMINE/ROLLING_BOULDER/SLP_GAS/RUST/FIRE/
+      ICE/PIT/SPIKED_PIT...) for hurtling, floating and flying
+      monsters via one centralized check_in_air() gate; master
+      (3.6 shape) instead gates per-case (SQKY_BOARD flyer break
+      etc.) and its RUST_TRAP_SET case affects flyers. Concrete
+      consequences on the branch: a flying monster takes NO
+      rust-trap armor splash and the newly ported
+      completelydoused arm is natural-movement dead for its own
+      four species (all M1_FLY); fire/sleep-gas floor traps
+      likely diverge for flyers the same way (unaudited).
+      Adjudication: accept 5.0's centralized semantics, or carve
+      specific traps (rust = wall-nozzle spray; gas clouds) out
+      of floor_trigger/check_in_air to restore master behavior -
+      needs a per-trap master-vs-branch matrix and a check of
+      hero-side dotrap symmetry (same gate at trap.c:3695) before
+      any code. The ported douse arm stays correct either way and
+      goes live the moment the gate ruling restores reachability.
+      Archive: Significant Water Attacks Extinguish Pure-Flame
+      Monsters (May 10 2026).
+- [ ] weirdnonliving S_ORB clause NOT PORTED (NEW, minted
+      2026-08-29 by the rust-trap-dousing slice's inventory; LOW;
+      unlogged divergence - zero archive/tracker records existed).
+      Master include/mondata.h weirdnonliving is
+      (is_golem || S_VORTEX || S_ORB); branch keeps vanilla 5.0's
+      (is_golem || S_VORTEX) - the S_ORB clause never re-landed
+      after the 5.0 header adoption, so S_ORB-class monsters
+      (orb of fire etc.) are not weirdnonliving -> not nonliving
+      on the branch while they are on master. Port needs its own
+      consumer audit of nonliving()/weirdnonliving readers
+      (undead-turning, drain-life immunity, mind-attack gates and
+      siblings) plus a git log check for which master commit added
+      the clause and why; sits two lines above completelydoused in
+      the header.
 - [ ] Spot-lighting readouts NOT PORTED (minted 2026-08-26 by the
       features-coverage sweep; LOW - single implementation owner
       for master's append_spot_lighting + both consumers; the
