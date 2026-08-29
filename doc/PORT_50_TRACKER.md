@@ -11030,12 +11030,86 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       savelife() givehp/CON-cost mechanics, not damage.
       Archive: Drawbridge Destruction on Monster Crush
       (Mar 2026); BUG-1731 BUG-1732 BUG-1733.
-- [ ] Honey badger beehive seeking NOT PORTED (minted 2026-08-26
-      by the features-coverage sweep; MED). The monster and its
-      peaceful-ignore lists exist, but master monmove.c's two seek
-      arms, meatjelly() (the badger cannot eat royal jelly at
-      all), and the mklev beehive-rate rider are all absent.
-      Archive: Honey Badger Beehive Seeking (Dec 27 2025).
+- [x] Honey badger beehive seeking PORTED (2026-08-29, master
+      c9eac2ef4 feature + 38ab439e2 final 1-in-2 rate; the mklev
+      text carries BUG-642's somexyspace gate and BUG-1087's
+      level-wide-ecology comment; two commits: A code 5 files,
+      B tracker). LAST features-sweep MED row - that sweep's MED
+      band is now fully drained. is_royaljelly into obj.h
+      (master position, after mhealup); meatjelly() into mon.c
+      between meatmetal and meatobj in the Gollum-slice 5.0
+      eater shape - svl.level.objects walk, is_royaljelly
+      continue-filter, pline_mon/Soundeffect messaging,
+      m_consume_obj replacing master's manual block
+      (reviewer-verified leg-by-leg reduction: for
+      LUMP_OF_ROYAL_JELLY it is exactly heal-by-weight capped at
+      mhpmax + whole-stack delobj), master-verbatim deltas
+      meating = owt/2 + 1 and the mtame/dog.c early return;
+      extern.h prototype; monmove.c goal-override arm at
+      master's relative position before the amulet-escape block
+      (gx/gy -> ggx/ggy, coordxy jx/jy; hostile-only, nearest
+      jelly by dist2, override only when found) + post-move eat
+      arm between the corpse_eater and Gollum arms (== 2 ->
+      MMOVE_DIED, gollum shape); mklev.c fill_ordinary_room
+      spawn rider before the traps block. Reviewer CONDITIONAL
+      PASS resolved in-slice: HIGH - the ported has_beehive gate
+      was DEAD code on 5.0 (mkzoo no longer stocks at creation;
+      fill_zoo/fill_special_room set the flag only AFTER the
+      ordinary-room fills; 3.6 master stocked immediately, so
+      master's read was live - pattern-ported-call-lost-
+      precondition) -> gate rewritten to
+      search_special(BEEHIVE) room presence, which mkzoo's
+      rtype write makes live pre-fill; MED - master's
+      searches_for_item royal-jelly arm (e0756a1f6) initially
+      ported, then REMOVED after the battery + source proved it
+      dead code in BOTH trees: searches_for_item opens with an
+      is_animal early return and badgers are M1_ANIMAL, so
+      master's arm never executed since the day it was written
+      (the reviewer's peaceful-badger-master-behavior claim was
+      disproven - review-the-reviewer; branch peaceful-badger
+      behavior = master exactly). Minted BUG-1734 (master
+      frozen-unfixed: the goal arm's best_dist sentinel
+      COLNO*ROWNO = 1680 < max dist2 6641, so jelly beyond
+      ~41 columns is silently ignored; branch keeps parity,
+      one-word fix is a follow-up adjudication candidate) and
+      BUG-1735 (master frozen-unfixed: the dead
+      searches_for_item arm; branch deliberately omits it -
+      census sweeps must not re-flag; making it live for
+      peaceful badgers would be a beyond-master design change,
+      maintainer's call). LOW census notes: eat.c is_edible
+      badger arm not ported - functionally redundant on branch
+      (no FOOD_CLASS rejection can hit a badger-polymorphed
+      hero); subroom/THEMEROOM roll-scope delta inherent to
+      fill_ordinary_room (all sibling fillers share it);
+      grow_up-death-invisible eater idiom is upstream-shared
+      calibration context. BATTERY 8/8 legs PASS after the
+      in-slice resolutions (human Valkyrie XL30, sanity_check
+      on before AND after restore, paniclog never existed):
+      spawn proof via SHOPTYPE=b forced beehives - 21 badgers
+      across 42 candidate ordinary rooms on 6 generations =
+      50.0% (nominal rn2(2)), all hostile/awake, never in the
+      hive room, 4 control generations zero badgers zero jelly;
+      seek - ggx/ggy readback = jelly square, badger walked
+      away from the adjacent hero, still melee'd when blocked;
+      nearest-first live reversal when a closer stack dropped
+      (dist2 26 vs 49); eat both branches - seen "eats 5 lumps
+      of royal jelly!" and unseen smacking sound, meating
+      6 = owt 10/2+1, heal +2 = per-object oc_weight capped,
+      stack deleted, meating gated movement 6 turns; revert -
+      ggx/ggy back to mux/muy after last jelly; 1680-sentinel
+      quirk probed one-tile-sharp (dist2 1700 ignored, 1602
+      engaged) = BUG-1734 evidence; peaceful goal-gate 40/40
+      turns never jelly; tame meatjelly returned 0 live at the
+      postmov call site and the pet handled the jelly via
+      dog.c pickup instead; gcube/Gollum eater regressions
+      clean; save/restore with feature state intact + 41
+      turns burned silent. Non-defects observed: post-restore
+      hostile badger damage rate vs an XL30 AC:5 Valkyrie
+      (137 -> 12 HP in ~6 turns; species is meant to be
+      vicious, recorded only); wizard-mode number_pad n-count
+      prefix not applied to 'd' drop (whole stack dropped) -
+      unrelated to slice, follow-up candidate. Archive: Honey
+      Badger Beehive Seeking (Dec 27 2025); BUG-1734 BUG-1735.
 - [ ] Acidic corpse conf/stun self-cure NOT PORTED (minted
       2026-08-26 by the features-coverage sweep; LOW).
       MUSE_ACIDIC_CORPSE/MUSE_ACID_BLOB_CORPSE absent (branch has
