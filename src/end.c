@@ -28,6 +28,7 @@ ATTRNORETURN staticfn void really_done(int) NORETURN;
 staticfn void savelife(int);
 staticfn boolean should_query_disclose_option(int, char *);
 #if defined(DUMPLOG) || defined(DUMPHTML)
+staticfn boolean is_hp_tracking_msg(const char *);
 staticfn void dump_plines(void);
 extern void dump_start_screendump(void); /* defined in windows.c */
 extern void dump_end_screendump(void);
@@ -605,25 +606,71 @@ should_query_disclose_option(int category, char *defquery)
 }
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
+/* check if a message is HP tracking output that should be filtered
+   from the dumplog (showdamage) */
+staticfn boolean
+is_hp_tracking_msg(const char *msg)
+{
+    /* filter "[HP -X, Y left]" style messages */
+    return (msg && !strncmp(msg, "[HP ", 4));
+}
+
+/* output the latest messages, grouping consecutive identical messages
+   with a count suffix like "(9x)" - similar to UnNetHack */
 staticfn void
 dump_plines(void)
 {
-    int i, j;
+    int i, j, count;
     char buf[BUFSZ], **strp;
+    char *prev_msg = NULL;
 
-    Strcpy(buf, " "); /* one space for indentation */
     putstr(0, ATR_HEADING, "Latest messages:");
+    count = 0;
+
     for (i = 0, j = (int) gs.saved_pline_index; i < DUMPLOG_MSG_COUNT;
          ++i, j = (j + 1) % DUMPLOG_MSG_COUNT) {
         strp = &gs.saved_plines[j];
         if (*strp) {
-            copynchars(&buf[1], *strp, BUFSZ - 1 - 1);
-            putstr(0, 0, buf);
-#ifdef FREE_ALL_MEMORY
-            free(*strp), *strp = 0;
-#endif
+            /* skip HP tracking messages - they clutter the dumplog
+               and break message grouping */
+            if (is_hp_tracking_msg(*strp))
+                continue;
+
+            if (prev_msg && !strcmp(prev_msg, *strp)) {
+                /* same as previous message - increment count */
+                count++;
+            } else {
+                /* different message - output previous if any */
+                if (prev_msg) {
+                    if (count > 1)
+                        Snprintf(buf, sizeof buf, " %s (%dx)",
+                                 prev_msg, count);
+                    else
+                        Snprintf(buf, sizeof buf, " %s", prev_msg);
+                    putstr(0, 0, buf);
+                }
+                prev_msg = *strp;
+                count = 1;
+            }
         }
     }
+
+    /* output final accumulated message */
+    if (prev_msg) {
+        if (count > 1)
+            Snprintf(buf, sizeof buf, " %s (%dx)", prev_msg, count);
+        else
+            Snprintf(buf, sizeof buf, " %s", prev_msg);
+        putstr(0, 0, buf);
+    }
+
+#ifdef FREE_ALL_MEMORY
+    /* free all saved messages */
+    for (i = 0; i < DUMPLOG_MSG_COUNT; i++) {
+        if (gs.saved_plines[i])
+            free(gs.saved_plines[i]), gs.saved_plines[i] = 0;
+    }
+#endif
 }
 #endif  /* DUMPLOG */
 
