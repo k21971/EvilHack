@@ -559,7 +559,7 @@
 #define completelyrusts(ptr) ((ptr) == &mons[PM_IRON_GOLEM])
 
 /* instantly extinguished by a significant water attack
-   (sea dragon breath) */
+   (sea dragon breath, monster geyser spell) */
 #define completelydoused(ptr) \
     ((ptr) == &mons[PM_FLAMING_SPHERE]     \
      || (ptr) == &mons[PM_ORB_OF_FIRE]     \
