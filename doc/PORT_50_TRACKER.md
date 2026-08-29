@@ -11313,30 +11313,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       vortex nonliving, fire elemental not); approach-AI
       non-greedy stepping forced a saturated trap field for
       deterministic triggering.
-- [ ] Floor-trigger flyer gate divergence: 5.0 check_in_air vs
-      master's per-case gating (NEW, minted 2026-08-29 by the
-      rust-trap-dousing battery; design adjudication needed;
-      upstream-5.0-intended semantics). Branch mintrap
-      short-circuits every floor_trigger() trap (ARROW/BOLT/DART/
-      ROCK/SQKY/BEAR/LANDMINE/ROLLING_BOULDER/SLP_GAS/RUST/FIRE/
-      ICE/PIT/SPIKED_PIT...) for hurtling, floating and flying
-      monsters via one centralized check_in_air() gate; master
-      (3.6 shape) instead gates per-case (SQKY_BOARD flyer break
-      etc.) and its RUST_TRAP_SET case affects flyers. Concrete
-      consequences on the branch: a flying monster takes NO
-      rust-trap armor splash and the newly ported
-      completelydoused arm is natural-movement dead for its own
-      four species (all M1_FLY); fire/sleep-gas floor traps
-      likely diverge for flyers the same way (unaudited).
-      Adjudication: accept 5.0's centralized semantics, or carve
-      specific traps (rust = wall-nozzle spray; gas clouds) out
-      of floor_trigger/check_in_air to restore master behavior -
-      needs a per-trap master-vs-branch matrix and a check of
-      hero-side dotrap symmetry (same gate at trap.c:3695) before
-      any code. The ported douse arm stays correct either way and
-      goes live the moment the gate ruling restores reachability.
-      Archive: Significant Water Attacks Extinguish Pure-Flame
-      Monsters (May 10 2026).
+- [x] Floor-trigger flyer gate divergence ADJUDICATED 2026-08-29:
+      5.0's centralized semantics ACCEPTED, no code change
+      (maintainer ruling, in their words: "i agree with 5.0's
+      method; flying creatures should not trigger ground-based
+      traps"). (Row minted 2026-08-29 by the rust-trap-dousing
+      battery.) Branch mintrap short-circuits every
+      floor_trigger() trap (ARROW/BOLT/DART/ROCK/SQKY/BEAR/
+      LANDMINE/ROLLING_BOULDER/SLP_GAS/RUST/FIRE/ICE/PIT/
+      SPIKED_PIT/HOLE/TRAPDOOR) for hurtling, floating and flying
+      monsters via one check_in_air() gate; master (3.6 shape)
+      gated per-case and let e.g. RUST_TRAP_SET affect flyers.
+      The general ruling covers the whole floor_trigger list, so
+      the per-trap master-vs-branch matrix the row wanted is moot.
+      Hero-side symmetry CONFIRMED before closing: dotrap uses
+      the identical floor_trigger()+check_in_air() pair (hero
+      Levitation/Flying, with the TOOKPLUNGE/VIASITTING carve-out
+      so deliberate plunges still trigger), and m_harmless_trap
+      routes pet/AI avoidance through the same gate - hero and
+      monster behavior are consistent under the ruling.
+      Consequence, recorded on purpose: the rust-trap
+      completelydoused arm (ported 2026-08-29, row above) stays
+      DORMANT in natural play by design - all four doused species
+      are M1_FLY; the arm remains as correct master-parity text
+      reachable only via polymorph-shape edge cases or staged
+      M1_FLY clearing. Do NOT carve rust/gas out of
+      floor_trigger to "revive" it. Archive: Significant Water
+      Attacks Extinguish Pure-Flame Monsters (May 10 2026).
 - [ ] weirdnonliving S_ORB clause NOT PORTED (NEW, minted
       2026-08-29 by the rust-trap-dousing slice's inventory; LOW;
       unlogged divergence - zero archive/tracker records existed).
@@ -11405,20 +11408,40 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       above; this row owns the readout arm. The tier thresholds
       pair with that row's mtame >= 15 follow gate - port or
       adjudicate the two rows together.
-- [ ] ulastprayed writer/reader NOT WIRED (minted 2026-08-26 by
-      the features-coverage sweep; LOW). you.h ulastprayed exists
-      (Phase 1 field enumeration) with no dopray setter, no
-      enlightenment line, no u_init initializer. Archive: Show the
-      turn the hero last prayed in enlightenment (May 31 2026).
+- [x] ulastprayed writer/reader WIRED (2026-08-29; minted
+      2026-08-26 by the features-coverage sweep; LOW). Master
+      45daafcc1 = the symbol's whole history (xNetHack-derived);
+      the you.h field and the generated sfo_you/sfi_you
+      serializer entries pre-existed on the branch, so the wiring
+      is save-neutral. dopray() stamps (int) svm.moves (the one
+      adaptation - the branch has no bare moves macro) at prayer
+      INITIATION, after the can_pray bail and before the wizard
+      force-gods block; status_enlightenment (insight.c hosts it
+      on 5.0) appends master's cmd.c block verbatim after the
+      nudity report - "You prayed on turn N."/"You have never
+      prayed.", !final = live-only; u_init.c documentary zero
+      beside ublesscnt. Sentinel 0 safe (svm.moves starts at 1).
+      Reviewer PASS (three hunks byte-diffed vs master; dopray
+      walk found no 5.0-only early return between can_pray and
+      the wizard block; census 5=5). BATTERY 7/7 PASS (Valkyrie,
+      paniclog never existed): fresh-game "You have never
+      prayed."; prayed T:15, resolved T:18, reads 15 (initiation
+      stamping); force-gods answered n and y both record; potion-
+      of-enlightenment route identical; survives save/restore;
+      ABSENT from end-of-game disclosure. Caveat on the row: the
+      nudity-line runtime interaction went unexercised (armor
+      worn throughout) - that ordering is source/reviewer-
+      verified only. Archive: Show the turn the hero last prayed
+      in enlightenment (May 31 2026).
 - [ ] SWEEP: inert persistent fields (minted 2026-08-26 by the
       features-coverage sweep; LOW). Phase 1 enumerated master
       fields into the 5.0 structs before their subsystems ported;
       some are still writer-less and score false-PORTED on keyword
-      greps. Known instances: ulastprayed (row above),
-      ugift_history (god-gift row), flag.h use_256color stub
-      (truecolor row note); the gehennom _entered bits and
-      orecursive (Astral-Amulet slice 2026-08-28) were the same
-      shape (since wired).
+      greps. Known instances: ulastprayed (row above, since wired
+      2026-08-29), ugift_history (god-gift row), flag.h
+      use_256color stub (truecolor row note); the gehennom
+      _entered bits and orecursive (Astral-Amulet slice
+      2026-08-28) were the same shape (since wired).
       WORK: walk the Phase 1 field tables; for each field grep for
       a writer; writer-less fields get a pointer to their owning
       row or a new row.
