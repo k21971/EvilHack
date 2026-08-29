@@ -1023,6 +1023,19 @@ fill_ordinary_room(
             && !occupied(pos.x, pos.y))
             (void) maketrap(pos.x, pos.y, WEB);
     }
+    /* honey badgers thematically follow beehives: roll per ordinary
+       room for an even (1-in-2) spawn when this level contains a
+       beehive (level-wide ecology, not a per-room association). Test
+       the room itself rather than has_beehive: special rooms are
+       stocked after the ordinary-room fills, so the flag is not yet
+       set here. Fresh somexyspace gate so pos is always written
+       before the occupied() read below */
+    if (search_special(BEEHIVE) != (struct mkroom *) 0
+        && somexyspace(croom, &pos)) {
+        if (!occupied(pos.x, pos.y) && rn2(2))
+            (void) makemon(&mons[PM_HONEY_BADGER], pos.x, pos.y,
+                           NO_MM_FLAGS);
+    }
     /* put traps and mimics inside */
     x = 8 - (level_difficulty() / 6);
     if (x <= 1)

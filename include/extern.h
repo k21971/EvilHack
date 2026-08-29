@@ -1912,6 +1912,7 @@ extern int movemon(void);
 extern void meatbox(struct monst *, struct obj *) NONNULLPTRS;
 extern void m_consume_obj(struct monst *, struct obj *) NONNULLPTRS;
 extern int meatmetal(struct monst *) NONNULLARG1;
+extern int meatjelly(struct monst *) NONNULLARG1;
 extern int meatobj(struct monst *) NONNULLARG1;
 extern int meatcorpse(struct monst *) NONNULLARG1;
 extern int gollum_eat(struct monst *) NONNULLARG1;

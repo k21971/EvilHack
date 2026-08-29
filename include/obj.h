@@ -415,6 +415,7 @@ struct obj {
          || dmgtype(&mons[(obj)->corpsenm], AD_POLY)))
 #define mlevelgain(obj) (ofood(obj) && (obj)->corpsenm == PM_WRAITH)
 #define mhealup(obj) (ofood(obj) && (obj)->corpsenm == PM_NURSE)
+#define is_royaljelly(o) ((o)->otyp == LUMP_OF_ROYAL_JELLY)
 /* the product of drain_level() is the amount of nutrition points
    subtracted from a corpses base nutrition value (example: a jackal
    corpse has 250 nutrition, a vampire feeding [draining blood] from

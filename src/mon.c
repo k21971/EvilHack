@@ -2080,6 +2080,49 @@ meatmetal(struct monst *mtmp)
     return 0;
 }
 
+/* monster eats royal jelly */
+int
+meatjelly(struct monst *mtmp)
+{
+    struct obj *otmp;
+    struct permonst *original_ptr = mtmp->data;
+    coordxy x = mtmp->mx, y = mtmp->my;
+
+    /* If a pet, eating is handled separately, in dog.c */
+    if (mtmp->mtame)
+        return 0;
+
+    /* Eats topmost royal jelly if it is there */
+    for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere) {
+        if (!is_royaljelly(otmp))
+            continue;
+
+        if (cansee(x, y) && canseemon(mtmp)) {
+            /* call distant_name() for its possible side-effects even if
+               the result won't be printed */
+            char *otmpname = distant_name(otmp, doname);
+
+            if (flags.verbose)
+                pline_mon(mtmp, "%s eats %s!", Monnam(mtmp), otmpname);
+        } else {
+            Soundeffect(se_masticating_sound, 50);
+            if (flags.verbose)
+                You_hear("a smacking sound.");
+        }
+        mtmp->meating = otmp->owt / 2 + 1;
+
+        /* heal-by-weight is handled inside m_consume_obj() */
+        m_consume_obj(mtmp, otmp);
+        /* in case it polymorphed or died */
+        if (mtmp->data != original_ptr)
+            return !mtmp->data ? 2 : 1;
+
+        newsym(x, y);
+        return 1;
+    }
+    return 0;
+}
+
 /* monster eats a pile of objects */
 int
 meatobj(struct monst *mtmp) /* for gelatinous cubes */
