@@ -3594,6 +3594,10 @@ mstatusline(struct monst *mtmp)
     char info[BUFSZ], monnambuf[BUFSZ];
 
     info[0] = 0;
+    if (spot_is_dark(mtmp->mx, mtmp->my))
+        Strcat(info, ", in darkness");
+    else
+        Strcat(info, ", in light");
     if (mtmp->mtame) {
         Strcat(info, ", tame");
         if (wizard) {
@@ -3738,6 +3742,10 @@ ustatusline(void)
     size_t ln;
 
     info[0] = '\0';
+    if (spot_is_dark(u.ux, u.uy))
+        Strcat(info, ", in darkness");
+    else
+        Strcat(info, ", in light");
     if (Sick) {
         if (u.usick_type & SICK_ZOMBIE) {
             Strcat(info, ", turning into a zombie");

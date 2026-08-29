@@ -13,6 +13,8 @@
 
 staticfn boolean is_swallow_sym(int);
 staticfn int append_str(char *, const char *) NONNULLPTRS;
+staticfn void append_spot_lighting(char *, coordxy, coordxy,
+                                   boolean) NONNULLARG1;
 staticfn void trap_description(char *, int, coordxy, coordxy) NONNULLARG1;
 staticfn void look_at_object(char *, coordxy, coordxy, int) NONNULLARG1;
 staticfn void look_at_monster(char *, char *, struct monst *,
@@ -379,6 +381,35 @@ object_from_map(
     }
     *obj_p = otmp;
     return fakeobj; /* when True, caller needs to dealloc *obj_p */
+}
+
+/* append ", in darkness" or ", in light" for the spot at (x, y); a
+   spot holding a described creature is reported unconditionally the
+   way probing does, since some combat mechanics key off it even for
+   creatures merely sensed; otherwise stay quiet unless the hero has
+   an unobstructed view of the spot and could occupy it - with clear
+   line of sight, a spot too dark to make out is thereby known to be
+   dark (vision_recalc computes could-see even while blind, for the
+   benefit of monsters, so blindness must be checked explicitly) */
+staticfn void
+append_spot_lighting(
+    char *buf, /* output buffer, assumed to be of size BUFSZ */
+    coordxy x, coordxy y,
+    boolean mon_spot)
+{
+    if (!isok(x, y))
+        return;
+    if (!mon_spot) {
+        boolean submerged = (Underwater && !Is_waterlevel(&u.uz)
+                             && !See_underwater);
+
+        if (Blind || !couldsee(x, y) || u.uswallow || submerged)
+            return;
+        if (!(ACCESSIBLE(levl[x][y].typ) || is_pool_or_lava(x, y)))
+            return;
+    }
+    (void) strncat(buf, spot_is_dark(x, y) ? ", in darkness" : ", in light",
+                   BUFSZ - strlen(buf) - 1);
 }
 
 staticfn void
@@ -1740,6 +1771,20 @@ do_screen_description(
                 (void) strncat(out_str, temp_buf,
                                BUFSZ - strlen(out_str) - 1);
             }
+        }
+        /* is the described spot lit or dark */
+        if (found && glyph_is_monster(glyph)) {
+            /* only while a creature is actually there; a remembered
+               creature glyph must not reveal the spot's current state */
+            if (m_at(cc.x, cc.y) != 0 || u_at(cc.x, cc.y))
+                append_spot_lighting(out_str, cc.x, cc.y, TRUE);
+        } else if (found
+                   && (glyph_is_cmap(glyph) || glyph_is_object(glyph))
+                   /* skip the stone glyph so detection browsing stays
+                      quiet about spots it deliberately describes as
+                      unreconnoitered */
+                   && glyph != cmap_to_glyph(S_stone)) {
+            append_spot_lighting(out_str, cc.x, cc.y, FALSE);
         }
     }
 
