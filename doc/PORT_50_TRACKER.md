@@ -8775,7 +8775,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       it is theirs too. Fix is to skip any monster with mx == 0, which
       strictly subsumes PARKEDMONSTER; newsym() on column 0 is never
       valid, so nothing legitimate is lost.
-- [ ] mon_sanity_check() exempts the parked guard's position but not its
+- [x] mon_sanity_check() exempts the parked guard's position but not its
       mstate (NEW, minted 2026-07-29 by the see_monsters battery, which
       hit it during the vault-guard regression test; NOT that fix's doing
       - display.c cannot touch mstate). One line, on an ordinary level,
@@ -8817,6 +8817,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       WATCH FOR: whether a guard can also be parked while the hero is
       off-level or the level is being saved - if so the carve-out needs
       to hold there too. Not investigated.
+      RESOLVED 2026-08-29 BY THE #1647 TRIO PORT (BUG-1736) - the
+      planned one-line carve-out was never needed and was NOT added.
+      With MON_PARKED in place_monster()'s widened clear mask, the
+      parkguard() set-then-place sequence strips the bit at placement
+      (place_monster's own isok arm reads it BEFORE the tail clear, so
+      the silent <0,0> pass still works), leaving the parked guard at
+      mstate 0x00000000 before any sanity pass can run - the complaint
+      is unproducible rather than exempted, and the checker keeps full
+      strength for a guard off-map for any OTHER reason (DETACH etc.
+      stay in the mask). Nothing load-bearing reads the bit itself:
+      movemon's guard arm keys on PARKEDMONSTER coords, and
+      restfakecorr's clear plus restore.c's back-fill (immediately
+      re-stripped by restore's placement loop) are redundant-but-
+      harmless upstream-verbatim survivors. That also answers the
+      WATCH FOR: a save taken while parked restores through back-fill
+      -> placement-strip to the same mstate-0 state, sanity-clean.
+      Battery evidence (the row's own VERIFY BY scenario, D:2 vault,
+      sanity_check on): logging breakpoints on the parkguard
+      post-place statement and on the impossible() itself -
+      PARKGUARD-POST readbacks m_id=369 isgd=1 mx=0 my=0
+      mstate=0x00000000 across moves 113-115, the impossible
+      breakpoint NEVER fired, full escort/teardown lifecycle clean,
+      no dmonsfree complaints, paniclog untouched. Two refinements
+      for the record: parkguard()/place_monster(grd,0,0) re-enters
+      per gd_move_cleanup retry while clear_fcorr returns FALSE (4x
+      in this repro), so the pre-port emission was per-park-call, not
+      strictly once per escort; and "Suddenly, the guard disappears."
+      only prints when the hero can see the guard at teardown
+      (vault.c gates it on see_guard) - "The corridor disappears."
+      is the reliable teardown marker.
 - [ ] levl vision blocking on the Plane of Water (NEW, minted 2026-07-29
       by the see_monsters battery). THIRD paniclog source on that level,
       4 lines, always in pairs on one square, two bursts in 187 turns:
@@ -10832,31 +10862,79 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       init_mapseen gdb-call is the harness workaround). Archive:
       Per-Alignment Dungeon Overview Altar Tracking (Feb 23
       2026).
-- [ ] Upstream #1647 mstate trio NOT PORTED (minted 2026-08-28 by
-      the BUG-1728 slice; post-freeze upstream adoption - needs its
-      own consumer audit, ruling 2026-08-28 kept it out of the
-      BUG-1728 slice). nhmall 2026-07-30 commits 59080106b
-      (place_monster clears ENDGAME_FREE/ENDGAME_MIGR) + 1e749c28c
-      (MON_OFF_MAP_BITS macro; mon_offmap becomes a bit-mask test
-      ignoring OBLITERATE/STILL_ARRIVING; place_monster uses the
-      macro) + 404e949e9 (PARKED joins the mask), fixing upstream
-      issue #1647 - the class-level companion to branch BUG-1728's
-      snapshot scrub (the two compose; neither reference tree has
-      them - fetch <sha>.patch from github NetHack/NetHack at port
-      time). Port audit surface: every branch mon_offmap consumer
-      and both mon_sanity_check masks (floor-mon arm +
-      migrating-loop mask), place_monster callers, interactions
-      with the branch's family spot-fixes BUG-1394 (BUBBLEMOVE
-      bubble-restore clear), BUG-1442 (mon_arrive ENDGAME_MIGR
-      mask), BUG-1444 (m_into_limbo), BUG-1551 (see_monsters !mx
-      skip), and the open BUG-1552 parked-guard sanity carve-out
-      (PARKED reading off-map by mask may be its intended
-      resolution). At port time also re-audit which
-      upstream-reportable rows #1647 moots before anything is sent
-      (the BUG-1442 artifact's ENDGAME_MIGR half at minimum -
-      upstream's mon_arrive still lacks the clear, but placement
-      now launders it except on the ridden-steed early-return
-      path).
+- [x] Upstream #1647 mstate trio PORTED whole (2026-08-29, final
+      state of nhmall 2026-07-30 commits 59080106b + 1e749c28c +
+      404e949e9; two commits: A code, B tracker). include/monst.h:
+      MON_OFF_MAP_BITS = OFFMAP|DETACH|LIMBO|MIGRATING|ENDGAME_FREE
+      |ENDGAME_MIGR|BUBBLEMOVE|PARKED and mon_offmap() becomes
+      ((mstate & MON_OFF_MAP_BITS) != 0) - OBLITERATE and
+      STILL_ARRIVING alone no longer read off-map; src/steed.c
+      place_monster() tail clear widens to ~(MON_OFF_MAP_BITS)
+      (branch keeps its two local divergences: the isok-arm
+      MON_PARKED/PARKEDMONSTER disjunct and the ERID colocation
+      exemption). Both hunks byte-identical to the NetHack50
+      reference tree, which NOW CARRIES the trio (it merged
+      upstream 2026-08-18, HEAD d01f8cc7e) - this row's original
+      "neither reference tree has them" note was stale;
+      Official_nh50 (f41f1aa09) remains pre-trio. Citation
+      corrections: this row's "BUG-1551" is BUG-1395 (see_monsters
+      !mx skip) and its "BUG-1552" is the unnumbered parked-guard
+      row above (real BUG-1551/1552 are unrelated mthrowu/mplayer
+      fixes). CONSUMER AUDIT (18 mon_offmap sites, 55
+      place_monster callers, full 57-ref mstate census,
+      reviewer-verified): only two semantic deltas, no
+      FALSE->TRUE flips. (a) OBLITERATE-only/STILL_ARRIVING-only
+      no longer off-map - unreachable live: OBLITERATE's sole
+      setter (elemental_clog victim arm) is immediately followed
+      by mongone -> DETACH+dead, and STILL_ARRIVING's lifetime is
+      entirely inside mon_arrive() where no mon_offmap consumer
+      runs (its exclusion from the mask is load-bearing for
+      see_monsters' explicit-bit skip surviving the placement
+      inside mon_arrive). (b) placement now also strips
+      ENDGAME_FREE/ENDGAME_MIGR/BUBBLEMOVE/PARKED - ENDGAME_FREE
+      write-only on live monsters (class backstop behind
+      BUG-1728's snapshot scrub; restore's placement loop launders
+      stale bits inside old saves on load); ENDGAME_MIGR
+      unaffected (migrating monsters never pass through
+      place_monster; BUG-1442's mon_arrive clear stays
+      load-bearing for the ridden-steed arrival that returns
+      before placement - dog.c's rationale comment reworded this
+      slice, reviewer LOW, since "place_monster preserves it" is
+      now false); BUBBLEMOVE unreachable while carried (mx=0;
+      BUG-1394's clear-before-mnearto stays load-bearing for the
+      mnearto-fail -> elemental_clog path that never places);
+      PARKED = the parked-guard row's resolution (BUG-1736, see
+      that row). Kept verbatim as upstream-parity: the covetous
+      tactics arm's bare `if (mtmp->mstate)` (upstream kept it
+      bare post-trio; divergence from masked mon_offmap
+      unreachable), mon_sanity_check (floor arm inherits the
+      macro; migrating-loop mask untouched upstream), the six
+      branch-only `&& !ridden_by` conjuncts (ridden steeds carry
+      OFFMAP, still in the mask), restfakecorr/restore.c PARKED
+      clear+back-fill (redundant-but-harmless, upstream keeps
+      both). Reviewer PASS (byte parity + all audit claims
+      re-verified against bodies; the monst.h 83-col line kept as
+      upstream-verbatim). BATTERY 7/7 PASS (human Valkyrie XL30,
+      sanity_check on, paniclog created only by deliberate
+      staging): negative control clean; vault-guard escort with a
+      logging breakpoint on the sanity impossible = ZERO fires,
+      parked-window readback mstate 0x00000000 (see the
+      parked-guard row); gdb-staged ENDGAME_FREE produced the
+      expected per-turn impossibles then a teleport-wand
+      re-placement cleared the bit and the monster resumed acting
+      (stationary + mobile samples); pet mon_arrive clean; Nazgul
+      + fell beast pair = steed mstate exactly 0x01 with both
+      acting, clean rider-death dismount; save/restore laundered
+      a staged 0x20 via restore's placement loop with all m_ids/HP
+      intact; Plane of Water 20 turns clean (17-monster dump all
+      mstate 0). Battery build note: the first game leg ran a
+      binary linked before the dog.c comment reword, the second
+      after - identical code, comment-only delta. Upstream-report
+      re-audit done: BUG-1442 artifact PARTIALLY mooted (annotated
+      on its upstream-table row - upstream mon_arrive still lacks
+      the clear and its early-return arms never reach placement);
+      BUG-1444's Astral no-op report untouched by #1647 (no
+      placement on that path); BUG-1728's row already NO-report.
 - [x] Amulet of Yendor stable on Astral PORTED whole (2026-08-28,
       the full teleport-on-drop feature: master a19c091cb origin
       + 44138afd4 Astral exclusion = final state; two commits:
@@ -11876,7 +11954,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-29 | display.c `see_monsters()` calls `newsym(mon->mx, mon->my)` on every live monster after skipping only DEADMONSTER, PARKEDMONSTER and MON_STILL_ARRIVING - but a monster in transit inside a Plane of Water bubble has `mx = my = 0` and is none of those, and `newsym()` rejects column 0 with `impossible("newsym: attempting screen update for <0,0>")`. Note PARKEDMONSTER is `isgd && mx == 0`, so the loop already special-cases one kind of off-map monster and misses the general case. Backtrace: movebubbles -> mv_bubble -> mnearto -> mon_leaving_level -> unstuck -> docrt -> docrt_flags -> see_monsters -> newsym(0,0). Byte-identical loop in NetHack50 and Official_nh50. Branch fix makes the skip `DEADMONSTER(mon) \|\| !mon->mx`, which strictly subsumes PARKEDMONSTER; `!mon->mx` rather than `mon_offmap()` so the display path does not depend on mstate bookkeeping being correct | fixed on branch; not yet sent |
 | 2026-07-29 | mon.c `mon_sanity_check()` carves the parked vault guard out of its position test - `if (!isok(x, y) && !(mtmp->isgd && x == 0 && y == 0))` - but not out of its final `mon_offmap()` test, so the `MON_PARKED` bit that `parkguard()` (vault.c) legitimately sets while the temporary corridor is torn down trips `impossible("floor mon (%s) with mstate set to 0x%08lx")` once per guard departure. The state is correct and the check is incomplete, which is the inverse of the MON_BUBBLEMOVE bug above. Identical in NetHack50 and Official_nh50 | found on branch; fix pending |
 | 2026-07-26 | uhitm.c joust-shatter use-after-free created by 5.0's own split of hmon_hitmon() into helpers: `hmon_hitmon_jousting()` takes `obj` BY VALUE, and its `hmd->jousting < 0` arm runs `useup(obj); obj = (struct obj *) 0;`, so only the helper's local is cleared. Back in `hmon_hitmon()` the caller's `obj` is now dangling and is still read by `hmon_hitmon_pet/splitmon/msg_hit`, the `oprops` venom arm, and above all `if (hmd.unpoisonmsg) { assert(obj != NULL); Strcpy(hmd.saved_oname, cxname(obj)); }` - the neighbouring assert cannot catch it because the pointer is non-NULL and freed. Reachable with a poisoned lance: shatter is `joust_dieroll == 0` and `rnl(50) == 49`. 3.6's single-function form had the NULL-deref variant instead (EvilHack BUG-896). Identical in Official_nh50 (uhitm.c, the shatter arm and the unpoisonmsg tail). Branch fix adds `hmd->obj_gone`, set by the helper and consumed by the caller, which then drops its own pointer; the unpoisonmsg sites gate on `obj` and on `saved_oname[0]` | fixed on branch (BUG-1390); not yet sent |
-| 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | FIXED on branch 2026-07-31 BUG-1442 (mon_arrive clear-mask); report artifact ~/nh50-mon-endgame-migr.patch applies clean to both upstream trees; upstream unreported. Astral no-op family FIXED on branch 2026-07-31 BUG-1444 (m_into_limbo per session ruling; still live upstream - the artifact's sibling note stands) |
+| 2026-07-29 | dog.c mon_arrive() never clears MON_ENDGAME_MIGR: elemental_clog() sets it when an Elemental Plane is too full and bumps a monster to the next one, mon_arrive() clears only MIGRATING\|LIMBO, and place_monster() deliberately preserves it - so the migrated monster lands permanently frozen on the destination plane (mon_offmap() is mstate != MON_FLOOR, so it never moves, gets no regen/timeouts, and draws a sanity complaint per turn under sanity_check). Fix shape per BUG-1394's own reasoning: add the bit to mon_arrive()'s clear mask. Same family: elemental_clog() on Astral with no candidate leaves the caller off-map forever. Verified byte-identical in NetHack50 and Official_nh50 | FIXED on branch 2026-07-31 BUG-1442 (mon_arrive clear-mask); report artifact ~/nh50-mon-endgame-migr.patch applies clean to both upstream trees; upstream unreported. Astral no-op family FIXED on branch 2026-07-31 BUG-1444 (m_into_limbo per session ruling; still live upstream - the artifact's sibling note stands). #1647-port re-audit 2026-08-29: upstream's place_monster now clears ENDGAME_MIGR at placement (MON_OFF_MAP_BITS), laundering the common arrival path, but upstream mon_arrive still lacks the clear and its early-return arms (hero-steed arrival, failed-arrival relmon) never reach placement - the artifact's mechanism note stands, so it is PARTIALLY mooted; retained unreported, sending stays a separate maintainer decision. Official_nh50 (f41f1aa09) remains pre-#1647, so the artifact still applies clean there; NetHack50 (d01f8cc7e, merged upstream 2026-08-18) now carries the trio |
 | 2026-07-31 | sp_lev.c rndtrap() rolls TRAPPED_DOOR/TRAPPED_CHEST out of rnd(TRAPNUM - 1); maketrap() silently rejects both, so roughly seven percent of fill_empty_maze() trap placements evaporate. Upstream's own rndtrap() has the same roll over its 24/25 values. Branch fixed by BUG-1429 (exclusion cases + the restored retry cap); upstream still affected | fixed on branch; upstream unreported |
 | 2026-07-31 | RETRACTED 2026-08-23 - premise false on all three trees (master sets ispoisoned only in the melee arm too; its ranged arm has no poison check; vanilla design, battery-confirmed live). Original claim: uhitm.c hand-thrown ammo never applies weapon poison: hmon_hitmon_weapon() routes `is_ammo && (thrown != HMON_THROWN \|\| !ammo_and_launcher(obj, uwep))` to hmon_hitmon_weapon_ranged(), but `hmd->ispoisoned` is set only in hmon_hitmon_weapon_melee()'s thrown-ammo tail, which such throws never reach - a poisoned arrow thrown without its bow hits with no poison effect at all. Thrown darts are is_missile, take the melee helper, and work. 3.6's monolithic hmon_hitmon() set ispoisoned for every WEAPON_CLASS hit, so this is a 5.0 refactor regression. Routing and flag placement byte-identical in NetHack50 | retracted |
 | 2026-07-31 | trap.c sink_into_lava() reduces only `u.uhp` even when the hero is polymorphed - the dormant real-form pool, while the active `u.mh` never shrinks (their own rehumanize() comment calls reducing u.uhp while poly'd a code bug). The branch's exclusive-pool form (BUG-1423) is the fix shape. Identical in NetHack50 and Official_nh50 | fixed on branch (BUG-1423, exclusive form); not yet sent |
