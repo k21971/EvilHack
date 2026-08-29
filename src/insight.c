@@ -1320,6 +1320,14 @@ status_enlightenment(int mode, int final)
         else
             you_are("not wearing any armor", "");
     }
+    /* report when the hero last prayed */
+    if (!final) {
+        if (u.ulastprayed > 0) {
+            Sprintf(buf, " on turn %d", u.ulastprayed);
+            enlght_line(You_, "prayed", buf, "");
+        } else
+            you_have_never("prayed");
+    }
 }
 
 /* extracted from status_enlightenment() to reduce clutter there */

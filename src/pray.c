@@ -3445,6 +3445,8 @@ dopray(void)
     if (!can_pray(TRUE))
         return ECMD_OK;
 
+    u.ulastprayed = (int) svm.moves;
+
     if (wizard && gp.p_type >= 0) {
         static const char forcesuccess[] = "Force the gods to be pleased?";
 
