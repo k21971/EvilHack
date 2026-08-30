@@ -1675,6 +1675,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     int otyp, skill, role_skill, res = ECMD_OK;
     boolean physical_damage = FALSE;
     struct obj *pseudo;
+    struct monst *mtmp;
     coord cc;
 
     if (!force && spelleffects_check(spell, &res, &energy))
@@ -1884,6 +1885,27 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
         (void) seffects(pseudo);
         break;
 
+    case SPE_ORB_OF_FIRE:
+    case SPE_ORB_OF_FROST:
+        You("conjure elemental energy...");
+        for (n = 0; n < max(role_skill - 1, 1); n++) {
+            mtmp = make_helper((pseudo->otyp == SPE_ORB_OF_FIRE)
+                                   ? PM_ORB_OF_FIRE : PM_ORB_OF_FROST,
+                               u.ux, u.uy);
+            if (!mtmp) {
+                pline("But it quickly fades away.");
+                break;
+            } else {
+                mtmp->mtame = 10;
+                mtmp->mhpmax = mtmp->mhp = 1;
+                if (role_skill >= P_SKILLED)
+                    mtmp->msummoned = rnd(100) + 100;
+                else
+                    mtmp->msummoned = rnd(50) + 50;
+                mtmp->uexp = 1;
+            }
+        }
+        break;
     case SPE_SUMMON_ANIMAL:
         (void) make_woodland_animal(u.ux, u.uy);
         break;

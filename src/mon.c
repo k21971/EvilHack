@@ -1645,6 +1645,22 @@ m_calcdistress(struct monst *mtmp)
             pline("%s is no longer vulnerable to acid.", Monnam(mtmp));
     }
 
+    /* temporarily summoned beings wink out when their time is up */
+    if (mtmp->msummoned && mtmp->msummoned == 1) {
+        struct obj *obj, *nextobj;
+
+        if (canseemon(mtmp))
+            pline_mon(mtmp, Hallucination ? "%s folds in on itself!"
+                                          : "%s winks out of existence.",
+                      Monnam(mtmp));
+        for (obj = mtmp->minvent; obj; obj = nextobj) {
+            nextobj = obj->nobj;
+            mdrop_obj(mtmp, obj, FALSE);
+        }
+        mongone(mtmp);
+        return;
+    }
+
     /* spell-conferred buffs wear off (timers tick in mon_regen) */
     if (has_reflection(mtmp) && mtmp->mreflecttime <= 1) {
         if (canseemon(mtmp))
@@ -5324,7 +5340,7 @@ monkilled(
               *fltxt ? " by the " : "", fltxt);
     else
         /* sad feeling is deferred until after potential life-saving */
-        iflags.sad_feeling = mdef->mtame ? TRUE : FALSE;
+        iflags.sad_feeling = (mdef->mtame && !mdef->msummoned) ? TRUE : FALSE;
 
     /* no corpse if digested or disintegrated or flammable golem burnt up;
        no corpse for a paper golem means no scrolls; golems that rust or
@@ -5369,7 +5385,7 @@ mon_xkilled(
               *fltxt ? " by the " : "", fltxt);
     else
         /* sad feeling is deferred until after potential life-saving */
-        iflags.sad_feeling = mdef->mtame ? TRUE : FALSE;
+        iflags.sad_feeling = (mdef->mtame && !mdef->msummoned) ? TRUE : FALSE;
 
     /* no corpse if digested or disintegrated or flammable golem burnt
        up; mirrors monkilled()'s routing */
@@ -5462,6 +5478,7 @@ xkilled(
                                  || is_watch(mtmp->data))));
     boolean uni_same = (is_unicorn(mtmp->data)
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
+    boolean orb = (mtmp->data->mlet == S_ORB);
 
     /* potential pet message; always clear global flag */
     be_sad = iflags.sad_feeling;
@@ -5488,7 +5505,7 @@ xkilled(
             !(wasinside || canspotmon(mtmp)) ? "it"
               : !mtmp->mtame ? mon_nam(mtmp)
                 : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
-                           "poor",
+                           orb ? "conjured" : "poor",
                            namedpet ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0,
                            FALSE));
     }
@@ -5753,7 +5770,9 @@ xkilled(
         else if (u.ualign.type == A_NONE && mdat->maligntyp == A_LAWFUL)
             adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
-        if (u.ualign.type == A_NONE) {
+        if (orb) {
+            ; /* no effect */
+        } else if (u.ualign.type == A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("a bit remorseful.");
             else
@@ -5771,7 +5790,9 @@ xkilled(
             record_abuse_event_mon(-15, ABUSE_KILL_PET, mtmp);
         }
         /* your god is mighty displeased... */
-        if (!Hallucination) {
+        if (orb) {
+            ; /* no effect */
+        } else if (!Hallucination) {
             if (u.ualign.type == A_NONE) {
                 You_hear("sinister laughter off in the distance...");
             } else {
@@ -5784,10 +5805,14 @@ xkilled(
         }
         if (!unique_corpstat(mdat)) {
             boolean mname = has_mgivenname(mtmp);
-            livelog_printf(LL_KILLEDPET, "murdered %s%s%s faithful %s",
-                           mname ? MGIVENNAME(mtmp) : "",
-                           mname ? ", " : "",
-                           uhis(), pmname(mdat, Mgender(mtmp)));
+
+            if (orb)
+                ; /* no effect */
+            else
+                livelog_printf(LL_KILLEDPET, "murdered %s%s%s faithful %s",
+                               mname ? MGIVENNAME(mtmp) : "",
+                               mname ? ", " : "",
+                               uhis(), pmname(mdat, Mgender(mtmp)));
         }
     } else if (mtmp->mpeaceful) {
         if (u.ualign.type != A_NONE) {

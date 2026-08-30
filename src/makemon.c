@@ -2750,6 +2750,8 @@ clone_mon(
     m2->mentangletime = 0;
     /* rage is per-monster state, not inherited */
     m2->mberserk = 0;
+    /* kills by the clone are not credited to the hero */
+    m2->uexp = 0;
     m2->vuln_fire = 0;
     m2->vuln_cold = 0;
     m2->vuln_elec = 0;
@@ -2760,6 +2762,8 @@ clone_mon(
     m2->mstoneskintime = 0;
     m2->mlevitatetime = 0;
     m2->mjumptime = 0;
+    /* clone is not itself a temporary summon */
+    m2->msummoned = 0;
     m2->mprotection = 0;
     m2->mprottime = 0;
     m2->mcloned = 1;

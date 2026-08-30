@@ -1705,6 +1705,7 @@ on_fire(struct permonst *mptr, struct attack *mattk)
 
     switch (monsndx(mptr)) {
     case PM_FLAMING_SPHERE:
+    case PM_ORB_OF_FIRE:
     case PM_FIRE_VORTEX:
     case PM_FIRE_ELEMENTAL:
     case PM_SALAMANDER:
@@ -1716,6 +1717,7 @@ on_fire(struct permonst *mptr, struct attack *mattk)
         what = "boiling";
         break;
     case PM_ICE_VORTEX:
+    case PM_ORB_OF_FROST:
     case PM_GLASS_GOLEM:
         what = "melting";
         break;

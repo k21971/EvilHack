@@ -937,6 +937,7 @@ montraits(
         mtmp2->msick = 0;
         mtmp2->mdiseased = 0;
         mtmp2->mentangled = 0;
+        mtmp2->msummoned = 0;
         mtmp2->mberserk = 0;
         mtmp2->vuln_fire = 0;
         mtmp2->vuln_cold = 0;
@@ -947,6 +948,8 @@ montraits(
         mtmp2->mstoneskintime = 0;
         mtmp2->mprotection = 0;
         mtmp2->mprottime = 0;
+        /* kills by the revived monster are not credited to the hero */
+        mtmp2->uexp = 0;
         /* when traits are for a shopkeeper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */
         if (mtmp2->isshk) {

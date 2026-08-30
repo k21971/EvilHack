@@ -454,6 +454,8 @@ mon_regen(struct monst *mon, boolean digest_meal)
         mon->mtk_attk--;
     if (mon->mbindtimer)
         mon->mbindtimer--;
+    if (mon->msummoned)
+        mon->msummoned--;
     if (mon->msicktime)
         mon->msicktime--;
     if (mon->mdiseasetime)

@@ -346,6 +346,34 @@ elemental(void)
     return 0;
 }
 
+/* from Slash'EM
+   currently only used for orbs of fire/frost
+   created by their respective spells */
+struct monst *
+make_helper(int mnum, coordxy x, coordxy y)
+{
+    struct permonst *pm;
+    struct monst *mtmp = 0;
+    int trycnt = 100;
+
+    do {
+        pm = &mons[mnum];
+        mtmp = makemon(pm, x, y,
+                       MM_EDOG | MM_IGNOREWATER
+                           | MM_IGNORELAVA | MM_IGNOREAIR | NO_MINVENT);
+    } while (!mtmp && --trycnt > 0);
+
+    if (!mtmp)
+        return (struct monst *) 0; /* genocided */
+
+    initedog(mtmp, TRUE);
+    mtmp->msleeping = 0;
+    set_malign(mtmp); /* more alignment changes */
+    newsym(mtmp->mx, mtmp->my);
+
+    return mtmp;
+}
+
 struct monst *
 make_woodland_animal(coordxy x, coordxy y)
 {
@@ -955,6 +983,12 @@ mon_catchup_elapsed_time(
             mtmp->mfleetim = 1;
         else
             mtmp->mfleetim -= imv;
+    }
+    if (mtmp->msummoned) {
+        if (imv >= mtmp->msummoned - 1)
+            mtmp->msummoned = 2;
+        else
+            mtmp->msummoned -= imv;
     }
     if (mtmp->msicktime) {
         if (imv >= mtmp->msicktime)

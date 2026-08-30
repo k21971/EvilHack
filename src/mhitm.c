@@ -1275,7 +1275,28 @@ explmm(struct monst *magr, struct monst *mdef, struct attack *mattk)
         if (was_leashed)
             Your("leash falls slack.");
     }
-    if (magr->mtame) /* give this one even if it was visible */
+    /* Player can potentially get the blame for orbs of fire/frost */
+    if (magr->msummoned && !(result & M_ATTK_DEF_DIED)) {
+        if (P_SKILL(P_MATTER_SPELL) < P_BASIC) {
+            /* no skill, potential alignment record ding */
+            setmangry(mdef, TRUE);
+        } else {
+            if (mdef->mpeaceful) {
+                /* peaceful becomes hostile, but no alignment record ding */
+                mdef->mpeaceful = 0;
+                set_malign(mdef);
+                newsym(mdef->mx, mdef->my);
+                if (canspotmon(mdef)) {
+                    if (humanoid(mdef->data)
+                        || mdef->isshk || mdef->isgd)
+                        pline("%s gets agitated!", Monnam(mdef));
+                    else if (flags.verbose && !Deaf)
+                        growl(mdef);
+                }
+            }
+        }
+    }
+    if (magr->mtame && !magr->msummoned) /* give this one even if it was visible */
         You(brief_feeling, "melancholy");
 
     return result;
