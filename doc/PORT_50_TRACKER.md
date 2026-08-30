@@ -11200,13 +11200,62 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MUSE_ACIDIC_CORPSE/MUSE_ACID_BLOB_CORPSE absent (branch has
       only MUSE_LIZARD_CORPSE). Archive: Acidic Corpse as Conf/
       Stun Cure for Acid-Resistant Monsters (May 2 2026).
-- [ ] Loyal pet following while eating NOT PORTED (minted
-      2026-08-26 by the features-coverage sweep; LOW). master
-      dog.c keepdogs lets mtame >= 15 pets follow through stairs
-      while meating ("follows, still eating."); branch sets
-      stay_behind unconditionally. The pet-orders slice ported the
-      PETSTRAT_STAY arm only. Archive: Loyal Pet Following
-      (Jan 10 2026).
+- [x] Loyal pet following while eating PORTED 2026-08-30 (minted
+      2026-08-26 by the features-coverage sweep; LOW), one slice
+      with the mstatusline tameness-tier ladder row below - the
+      >=15 "loyal" wording pairs with the >=15 follow gate.
+      keepdogs stay-behind arm now master net c444f6a3a: meating
+      pets with mtame >= 15 print "follows, still eating." and
+      cross with meating persisting (51fe82c76); the outer
+      condition gained || mtmp->mentangled and the three-way
+      eating/entangled/trapped message (979393c66's keepdogs arm
+      the entangle slice missed - producers live, term reachable);
+      pets_only trifles-clear gained mtmp->mentangled = 0.
+      PETSTRAT_STAY precedence preserved by arm order. TWO
+      RE-PORTS of archived master fixes folded in, same block:
+      BUG-1738 = BUG-349 recurrence, LIVE - the steed arm called
+      5.0's mdrop_special_objs whose drop set includes
+      is_quest_artifact(), so a ridden steed silently dropped the
+      hero's quest artifact every level change; replaced with
+      master's selective four-otyp loop (Amulet/Book/Candelabrum/
+      Bell via mdrop_obj TRUE). BUG-1739 = BUG-632 guard re-port
+      (ce189e1c1): DEADMONSTER continue after the mintrap escape
+      attempt - reviewer trap-path analysis DOWNGRADED it to
+      defense-in-depth on BOTH trees (the already-trapped mintrap
+      branch only clears/fills/converts holding traps and cannot
+      kill or migrate; mtrapped setters are bear trap/pit/web/
+      earthquake/steed, none teleport-class); ported verbatim as
+      cheap insurance. Vanilla 5.0 shares BOTH shapes (keepdogs
+      byte-checked in NetHack50) - upstream-carry candidates
+      recorded in nh50-upstream-bugs-to-carry. Adaptations:
+      pline_mon, finish_meating kept in pets_only, block-local
+      obj/nobj, 80-col rewraps; 5.0 shapes (helpless(), has_edog,
+      mon_leave, keep_mon_accessible) untouched. Reviewer PASS,
+      zero findings (whole-function keepdogs diff = adjudicated
+      deltas only; !helpless == master's msleeping/mcanmove pair;
+      mon_leave carries master's inline residency/wormno/
+      no_charge blocks; meating survives mon_arrive by design).
+      BATTERY 8/8 PASS (dwarven Valkyrie XL30, paniclog never
+      existed): natural meating via thrown gnome corpse; mtame 15
+      follows mid-meal (meating 12 -> arrives 10 -> finishes at
+      0), mtame 14 control stays; entangled overrides mtame 20;
+      pit-trapped pet fails escape roll, "is still trapped.",
+      frees itself later; PETSTRAT_STAY (petstrat=4) outranks
+      loyal-follow; steed leg backtrace-proven - exactly ONE
+      keepdogs-sourced mdrop_obj (the Bell, found at the precise
+      departure square) and Gjallar retained in steed minvent
+      across transitions both directions; ordinary-loot control
+      transition hit ZERO drop breakpoints. Battery observation
+      (not a slice defect, undiagnosed): on a later steed turn
+      after arrival, dog_invent -> relobj can hand the quest
+      artifact back at the hero's feet ("The saddled pony drops a
+      horn named Gjallar.", verbosely, turn/adjacency dependent) -
+      ordinary pet-inventory droppables path, item never lost;
+      investigate vs master droppables() only if it bites in
+      play. Wish lore: "the Orb of Fate" does not exist in
+      EvilHack (artilist.h #if 0, "Replaced by Gjallar").
+      Archive: Loyal Pet Following (Jan 10 2026); BUG-1738/
+      BUG-1739 entries added with the slice commit.
 - [x] Dumplog message grouping PORTED (2026-08-29, master
       db29be7f8 = the whole feature, no follow-ups per git log -S
       on all three symbols; two commits: A code src/end.c only,
@@ -11528,20 +11577,44 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Archive: Lit/Dark Tile Readout in Monster Probing (May 10
       2026) + Farlook Reports Lit State of the Selected Spot
       (Jul 8 2026).
-- [ ] mstatusline tameness-tier ladder NOT PORTED (minted
+- [x] mstatusline tameness-tier ladder PORTED 2026-08-30 (minted
       2026-08-29 by the spot-lighting slice's reviewer via
-      whole-function diff; LOW). Master d47c00704 ("Fix: minor
-      issues with pets acting as a helper", 2024-07-24) replaced
-      the plain ", tame" adjective with a six-tier mtame ladder
-      (>=20 fiercely loyal / >=15 loyal / >=10 domesticated /
-      >=5 tame / >=2 somewhat tame / ==1 nearly wild) and
-      prefixed the wizard parenthetical (" (tameness %d" vs
-      branch " (%d"); branch insight.c mstatusline keeps
-      vanilla's single ", tame". The commit's dogmove/keepdogs
-      arm is owned by the "Loyal pet following while eating" row
-      above; this row owns the readout arm. The tier thresholds
-      pair with that row's mtame >= 15 follow gate - port or
-      adjudicate the two rows together.
+      whole-function diff; LOW), one slice with the Loyal-pet-
+      following row above (shared reviewer/battery evidence
+      there). Master d47c00704's readout arm landed byte-verbatim
+      in branch insight.c mstatusline (master hosts it in
+      priest.c): six-tier mtame ladder (>=20 fiercely loyal /
+      >=15 loyal / >=10 domesticated / >=5 tame / >=2 somewhat
+      tame / ==1 nearly wild) directly after the spot-lighting
+      ", in light" Strcat, wizard parenthetical now
+      " (tameness %d" with the hungry/apport tail unchanged; no
+      else for mtame==0 (unreachable, master parity). Reviewer
+      sweep: this is the branch's ONLY ", tame" emitter (pager.c
+      farlook "tame " prefix is master-identical - d47c00704
+      never touched it). Battery leg 1: all six adjectives +
+      "(tameness N; hungry 1000; apport 3)" captured on one
+      stethoscoped pet re-staged across the tiers. The commit's
+      dogmove.c hunk (pet-helper mtame >= 10 gate, nolimbs ->
+      nohands, !u.usteed) has NO branch target - the pet-helper
+      feature is entirely unported, row minted below with those
+      riders attached.
+- [ ] Pet-helper feature NOT PORTED (minted 2026-08-30 by the
+      tameness-ladder slice; LOW/MED - player-visible pet AI
+      feature; unlogged: no FEATURES_ARCHIVE entry, zero tracker
+      coverage until now). Master 31f78b83d ("Pets can help the
+      player other than fighting under certain cirmcumstances
+      [sic]"): ~118-line dogmove.c helper block (adjacent tame
+      AD_CLRC caster heals the hero at <= 12.5% max HP,
+      cure-sickness arm, strong pet pulls the hero out of a
+      pit/beartrap, more) + mcastu.c/mon.c/mondata.c support
+      arms. MUST land WITH master d47c00704's riders or the call
+      sites regress the fixed bugs (pattern-ported-call-lost-
+      precondition): the mtame >= 10 helper gate, the
+      nolimbs -> nohands pit-pull predicate, and the !u.usteed
+      guard (a ridden steed must not pull its own rider out of a
+      pit and fall in). Prescribed history check before porting:
+      git log master src/dogmove.c for later helper-block
+      tweaks beyond d47c00704.
 - [x] ulastprayed writer/reader WIRED (2026-08-29; minted
       2026-08-26 by the features-coverage sweep; LOW). Master
       45daafcc1 = the symbol's whole history (xNetHack-derived);
