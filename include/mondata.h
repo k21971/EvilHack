@@ -521,7 +521,8 @@
      *  Note too: that was with 1990s hardware and before fumarole smoke
      *  blocking line of sight was added, so might no longer be necessary.] */
 #define likes_lava(ptr) \
-    (ptr == &mons[PM_FIRE_ELEMENTAL] || ptr == &mons[PM_SALAMANDER])
+    ((ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER]   \
+     || (ptr) == &mons[PM_LAVA_DEMON] || (ptr) == &mons[PM_LAVA_GREMLIN])
 #define pm_invisible(ptr) \
     ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT])
 

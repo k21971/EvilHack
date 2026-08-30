@@ -8215,6 +8215,10 @@ lava_effects(void)
     }
     feel_newsym(u.ux, u.uy); /* in case Blind, map the lava here */
     burn_away_slime();
+
+    if (Upolyd && gy.youmonst.data == &mons[PM_LAVA_GREMLIN])
+        (void) split_mon(&gy.youmonst, (struct monst *) 0);
+
     if (likes_lava(gy.youmonst.data))
         return FALSE;
 
