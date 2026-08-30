@@ -11622,26 +11622,61 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       clean. Battery lore: hero split clones arrive TAME and
       blow past the CHA/3 pet cap into hostile clone spam -
       G_EXTINCT mvflags or CHA 25 are the staging levers.
-- [ ] lava-gremlin AD_CURS day/night arms NOT PORTED (minted
-      2026-08-30 by the likes_lava slice's reviewer; MED -
-      behavioral, the monster's signature mechanic). f7a9fef57
-      made lava gremlins "creatures of bright light" - AD_CURS
-      steal/cancel triggers by DAY only (inverse of the
-      gremlin's night-only); master net also restructured the
-      uvm arm (uhitm.c:3564-3575: whole roll gated on !rn2(10),
-      clay-golem writing-vanish kill moved outside any time
-      gate, mcan cancel restricted to (GREMLIN && night()) ||
-      (LAVA_GREMLIN && !night())). Branch mhitm_ad_curs carries
-      NONE of the three arms (uhitm.c:4572 uvm keeps the
-      vanilla night-gated shape; :4588 mvu and :4609 mvm have
-      only the !night() PM_GREMLIN return): branch lava
-      gremlins steal intrinsics 24/7 (strictly stronger than
-      master) and a hero-polyform's chuckle-cancel is inverted
-      to night. Port = all three legs of the unified handler vs
-      master net mhitu.c:2602 / mhitm.c:2231 /
-      uhitm.c:3564-3575; battery day+night pairs both
-      directions. BUG-1407's AD_CURS farm-exploit note applies
-      to the mon_give_prop neighborhood.
+- [x] lava-gremlin AD_CURS day/night arms PORTED 2026-08-30
+      (minted 2026-08-30 by the likes_lava slice's reviewer;
+      MED - behavioral, the monster's signature mechanic;
+      closing this discharges the likes_lava row's reviewer
+      condition). All three legs of mhitm_ad_curs converged on
+      master NET (f7a9fef57 + 47bac8ada's uvm restructure -
+      NOT the raw f7a9fef57 early-break, which 47bac8ada
+      superseded; ed751c6ab whitespace-only; nothing later):
+      uvm outer gate drops night() (!rn2(10) && !mdef->mcan),
+      the clay-golem writing-vanish kill is now hour-free, and
+      cancel+chuckle is hour-gated per species via
+      (GREMLIN && night()) || (LAVA_GREMLIN && !night()) on the
+      else-if; mvu and mvm gain the night-blocks-lava-gremlin
+      early return after their gremlin gates. Adaptations: pa
+      for master's youmonst.data (identity-proven in the uvm
+      leg), return for break, mvm gates compact. PRESERVED on
+      purpose: the branch's 5.0-native
+      mon_give_prop(magr, attrcurse()) (master has bare
+      attrcurse(); BUG-1407's 0-return no-op contract lives
+      there - the new gate adds no second path), the
+      Soundeffect/pline_mon idioms, and all three clay-golem
+      kill neighborhoods (BUG-920/1650/1308/1656 shapes
+      untouched). hates_light() verified byte-identical both
+      trees (lava gremlin correctly excluded - "immune to
+      camera flashing"). Reviewer PASS zero findings. BATTERY
+      13/13 PASS across TWO clock-forced games (TZ=UTC-14 day /
+      TZ=UTC-2 night, night() gdb-verified 0/1; human Valkyrie
+      XL30 x2; paniclog never existed; gdb breakpoint
+      instrumentation counted every invocation): DAY - lava
+      gremlin 7/37 steals ("chuckles." + "You feel more
+      conductive.", SHOCK_RES 100 -> 0 hero-side, MR_ELEC into
+      the gremlin's mintrinsics - mon_give_prop writes
+      mintrinsics, not mextrinsics), normal gremlin 0/43,
+      hero-as-lava-gremlin 2/35 cancels, hero-as-gremlin 0/70
+      with 5 WON rolls consumed silently (direct species-gate
+      proof), hero-as-gremlin vs clay golem at its OFF hours
+      1/21 writing-vanish kill + XP +261 (the restructure's
+      proof - old branch code blocked this outside night),
+      m-v-m lava gremlin 3/32 cancels, day clay-hero
+      rehumanize clean. NIGHT - lava gremlin 0/41 with 41/41
+      new-gate hits (100% early-returned), normal gremlin 4/41
+      REAL steals (BUG-1407 regression: how_resistant
+      100 -> 0), hero-as-gremlin 4/39 cancels (every won roll
+      converted), hero-as-lava-gremlin 0/38 with 8 won rolls
+      consumed, m-v-m lava 0/29 (29/29 gate hits) vs
+      normal-gremlin 4/33 + mvm clay "is destroyed!"
+      regression, night clay-hero no-op (34/34 gate hits, no
+      rehumanize). Battery anomalies recorded: clay golem is
+      NOT M2_NOPOLY on this build (a stale harness note said
+      golems refuse #polyself); conflict-ring gremlin brawls
+      self-cancel the aggressor (amcan=1 then suppresses its
+      later procs via !magr->mcan - correct code, battery
+      staging must guard magr->mcan); attrcurse cannot strip
+      FROMOUTSIDE grants (BUG-1357 pin) - stage stealable
+      slots as HAVEPARTIAL|100 (0x10000064).
 - [ ] lava_death_attempts fuzzer counter NOT PORTED (minted
       2026-08-30 by the likes_lava slice's reviewer; LOW - trio
       asymmetry). Master lava_effects carries a static
