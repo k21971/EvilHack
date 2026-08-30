@@ -11340,20 +11340,77 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       M1_FLY clearing. Do NOT carve rust/gas out of
       floor_trigger to "revive" it. Archive: Significant Water
       Attacks Extinguish Pure-Flame Monsters (May 10 2026).
-- [ ] weirdnonliving S_ORB clause NOT PORTED (NEW, minted
-      2026-08-29 by the rust-trap-dousing slice's inventory; LOW;
-      unlogged divergence - zero archive/tracker records existed).
-      Master include/mondata.h weirdnonliving is
-      (is_golem || S_VORTEX || S_ORB); branch keeps vanilla 5.0's
-      (is_golem || S_VORTEX) - the S_ORB clause never re-landed
-      after the 5.0 header adoption, so S_ORB-class monsters
-      (orb of fire etc.) are not weirdnonliving -> not nonliving
-      on the branch while they are on master. Port needs its own
-      consumer audit of nonliving()/weirdnonliving readers
-      (undead-turning, drain-life immunity, mind-attack gates and
-      siblings) plus a git log check for which master commit added
-      the clause and why; sits two lines above completelydoused in
-      the header.
+- [x] weirdnonliving S_ORB clause PORTED 2026-08-29, widened to
+      FOUR same-commit clauses (minted 2026-08-29 by the
+      rust-trap-dousing slice's inventory; LOW; unlogged
+      divergence). The prescribed history check found master
+      c5366037b (2025-04-12, the orbs feature: S_ORB class, orb
+      of fire/frost conjured by the renamed matter spells; the
+      commit's own rationale: "These orbs are nonliving") also
+      added S_ORB/PM_ORB_OF_FIRE to is_floater, flaming and
+      likes_fire - all four mondata.h clauses landed this slice,
+      master-verbatim (flaming is deliberately an intermediate
+      form: vanilla's four entries + orb appended last, because
+      master's lava demon/gremlin/Balrog/Mephistopheles entries
+      are a different commit's gap, row below). Consumer audit
+      done (full two-tree nonliving diff): SAFE - no branch-only
+      consumer's logic assumed nonliving(orb)==FALSE (the three
+      branch-only sites: pager.c "defunct", uhitm.c "expires",
+      mcastu.c BUG-1163 drain-life AI gate - all read correctly);
+      ~11 master-only consumers (AD_WTHR, zombie mm_aggression,
+      Secespita, showmondamage, pager "nonliving" label) are
+      unported features, future dependencies not risks. The
+      xkilled no-alignment-penalty exemption for own orbs is a
+      SEPARATE mechanism (orb boolean), unported - remainder row
+      below. Reviewer PASS (byte-verified vs master; ORB census
+      in mondata.h now fully closed; backslash hygiene). BATTERY
+      5/5 PASS + two bonus arms (Valkyrie XL30; paniclog clean
+      through leg 4; leg 5's single entry deliberate, removed
+      after): "You destroy the orb of frost/fire!" vs
+      m-#wizkill "is destroyed."; wand-of-death ray = shieldeff
+      glyph captured, gdb hp 50/50 unchanged twice (first
+      uncontrolled attempt's explosion was the orb's own AT_EXPL
+      turn, not the ray); orb of fire "burns a spider web!"
+      (flaming arm, gdb-staged web wall); fire-vortex/jackal
+      regression wording clean; Stormbringer "draws the animating
+      force" (gdb-verified resists_drli=0, defended=0 - orbs
+      drainable by design, master parity) and AD_DRLI kill
+      "expires!"; SPE_DRAIN_LIFE spell prints "suddenly seems
+      weaker!" (zap.c path, no nonliving wording - correct).
+      is_floater untested at runtime (no cheap consumer leg;
+      M1_FLY already covers flight paths). Battery anomaly ruled
+      master-consistent: cross-alignment artifact wish-touch
+      blast has no wizard Override prompt on master either
+      (Override gates use-restriction arms only).
+- [ ] Orbs-feature remainder NOT PORTED (minted 2026-08-29 by the
+      S_ORB clause slice; MED, raised from LOW for the LIVE BUG:
+      the orb spellbooks exist on the branch with gen prob 15 AND
+      pray.c's god-gift path actively bestows SPE_ORB_OF_FROST
+      (bestow_spellbook_gift), but src/spell.c has no
+      SPE_ORB_OF_FIRE/FROST cases and no make_helper() - casting
+      the learned spell reaches spelleffects'
+      impossible("Unknown spell %d attempted.") + paniclog line,
+      REPRODUCED by the slice battery: learn from wished book,
+      cast, "1788036263 wizard: impossible Unknown spell 1
+      attempted."). Master c5366037b arms still missing:
+      spell.c casting cases + make_helper() (conjure tame orb),
+      mon.c xkilled orb exemptions (orb boolean: no alignment
+      penalty/livelog for destroying your own conjured orb,
+      "conjured" article instead of "poor"), mondata.c on_fire()
+      orb cases, mhitm.c P_MATTER_SPELL peaceful-anger skill
+      gate. The mondata.h clause prerequisite landed (row above).
+      EVILHACK_MECHANICS.md:1927 documents the master behavior
+      the branch does not yet implement.
+- [ ] flaming() dd0610d45 remainder NOT PORTED (minted 2026-08-29
+      by the S_ORB clause slice; LOW; unlogged divergence, zero
+      archive records). Master dd0610d45 (2023-09-18, "Include
+      more monsters as 'flaming'") added PM_LAVA_DEMON,
+      PM_LAVA_GREMLIN, PM_BALROG, PM_MEPHISTOPHELES to flaming();
+      branch keeps vanilla's four entries (+ the orb from the row
+      above). Needs its own flaming()-consumer pass (web-burning,
+      water-vs-flame arms in mhitm/mhitu/uhitm, trap.c) before
+      the four entries land; when it lands, converge the macro on
+      master's exact list order (orb stays last).
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
