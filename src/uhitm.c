@@ -4569,14 +4569,15 @@ mhitm_ad_curs(
 
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (night() && !rn2(10) && !mdef->mcan) {
+        if (!rn2(10) && !mdef->mcan) {
             if (pd == &mons[PM_CLAY_GOLEM]) {
                 if (!Blind)
                     pline("Some writing vanishes from %s head!",
                           s_suffix(mon_nam(mdef)));
                 xkilled(mdef, XKILL_NOMSG);
                 /* Don't return yet; keep hp<1 and mhm.damage=0 for pet msg */
-            } else {
+            } else if ((pa == &mons[PM_GREMLIN] && night())
+                       || (pa == &mons[PM_LAVA_GREMLIN] && !night())) {
                 mdef->mcan = 1;
                 You("chuckle.");
             }
@@ -4586,6 +4587,8 @@ mhitm_ad_curs(
         /* mhitu */
         hitmsg(magr, mattk);
         if (!night() && pa == &mons[PM_GREMLIN])
+            return;
+        if (night() && pa == &mons[PM_LAVA_GREMLIN])
             return;
         if (!magr->mcan && !rn2(10)) {
             if (!Deaf) {
@@ -4607,6 +4610,8 @@ mhitm_ad_curs(
     } else {
         /* mhitm */
         if (!night() && (pa == &mons[PM_GREMLIN]))
+            return;
+        if (night() && (pa == &mons[PM_LAVA_GREMLIN]))
             return;
         if (!magr->mcan && !rn2(10)) {
             mdef->mcan = 1; /* cancelled regardless of lifesave */
