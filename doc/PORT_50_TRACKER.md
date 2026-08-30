@@ -11502,31 +11502,110 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       by an orb explosion draws no guilt (mon_moving
       attribution, master-shared). EVILHACK_MECHANICS.md:1927
       behavior now implemented.
-- [ ] flaming() dd0610d45 remainder NOT PORTED (minted 2026-08-29
-      by the S_ORB clause slice; LOW; unlogged divergence, zero
-      archive records). Master dd0610d45 (2023-09-18, "Include
-      more monsters as 'flaming'") added PM_LAVA_DEMON,
-      PM_LAVA_GREMLIN, PM_BALROG, PM_MEPHISTOPHELES to flaming();
-      branch keeps vanilla's four entries (+ the orb from the row
-      above). Needs its own flaming()-consumer pass (web-burning,
-      water-vs-flame arms in mhitm/mhitu/uhitm, trap.c) before
-      the four entries land; when it lands, converge the macro on
-      master's exact list order (orb stays last).
-- [ ] on_fire() enum refactor NOT PORTED (minted 2026-08-30 by the
-      orbs-remainder slice; LOW; unlogged divergence, zero archive
-      records). Master 9a1f49746 ("Also regularize engulfing fire
-      attacks") rebuilt on_fire() around enum on_fire_types
-      (ON_FIRE_DEAD/ON_FIRE_ENGULF/default forms, youmonst
-      "boil away"/"boils away" variants) and widened the case
-      lists (water troll, baby/adult sea dragon, acid sphere join
-      the boil group; snow golem, abominable snowman,
-      freezing sphere join the melt group). Branch keeps the
-      vanilla-5.0 string-returning shape - the orb cases landed
-      there in branch shape (fire -> "already on fire", frost ->
-      "melting"); converge both orb entries on master's exact
-      lists when this row lands. Needs the consumer sweep first
-      (branch consumers: uhitm.c x3, dogmove.c, mon.c minliquid -
-      master adds more callers with the enum).
+- [x] flaming() dd0610d45 remainder PORTED 2026-08-30 (minted
+      2026-08-29 by the S_ORB clause slice; LOW; unlogged
+      divergence, zero archive records). Macro converged on
+      master's net 9-entry list byte-verbatim (backslash columns
+      included), orb last. Consumer pass done: all 15 branch
+      sites are master-shared shapes or coherent branch-only
+      lists (hack.c pet-swap + trap.c WEB classifier carry
+      racial_drow and read the same macro, so the AI decision
+      and combat layers widen in lockstep - the BUG-1607 class
+      cannot recur here). Archive-sweep payoff: restores the
+      ratified premise of the Significant Water feature
+      (9d38f549e, FEATURES_ARCHIVE May 10 2026) - lava demon/
+      gremlin/balrog/Mephistopheles "shouldn't vanish to a
+      splash of water" BECAUSE flaming(); that rationale had
+      been silently unbacked since tree adoption. Behavior
+      deltas, all master parity: the four become slimeproof
+      (+AD_SLIM burn-away arms + polyself unslime), web-immune/
+      web-burning, non-snuffing engulfers (unreachable - none
+      has AT_ENGL), and lose the fog-cloud Breathless damage
+      waiver as polyforms. Adjudicated: sp_lev pm_to_humidity
+      keeps the 5.0-native likes_fire() HOT gate (upstream 5.0
+      replaced master's 3.6 flaming() gate; balrog/Mephisto get
+      no script lava placement - deliberate, see the likes_lava
+      row below). Reviewer PASS (byte-identical vs master net).
+      BATTERY: lava demon "burns a spider web!" + balrog
+      hero-side web burn (gdb u.utrap 0); Slimed hero polyd
+      balrog -> "The slime burns away!" + Slime cleared (wording
+      note: web article renders "a" via a_your[madeby_u],
+      master-shared).
+- [x] on_fire() enum refactor PORTED 2026-08-30 (minted 2026-08-30
+      by the orbs-remainder slice; LOW; unlogged divergence, zero
+      archive records). Master net c444f6a3a shape: enum
+      on_fire_types in hack.h after enum getpos_retval (master's
+      own anchor), signature (struct monst *, enum on_fire_types)
+      NONNULLARG1, body with master's widened groups (boil +water
+      troll/baby+adult sea dragon/acid sphere; melt +snow golem/
+      Abominable Snowman/freezing sphere with orb of frost
+      converged last; fully-melts = glass+gold golem, no iron
+      golem - 37cd16499; stone/clay/earth "burns to a crisp";
+      gas group +shocking sphere/antimatter vortex "burns away";
+      youmonst second-person variants). Adaptations: ANSI
+      signature, gy.youmonst, comment-style periods stripped,
+      two over-80 ternaries wrapped. Caller census 9/9 = master:
+      three mhitm_ad_fire arms re-argued (uhitm/mhitu/mhitm),
+      dogmove unslime (fireattk local + dmgtype_fromattack
+      DELETED - the BUG-1440 NULL-mattk hazard class is retired,
+      no mattk param exists), minliquid (strcmp chain + dummy
+      attack struct deleted), and FOUR new callers:
+      pickup_checks ON_FIRE_DEAD, gulpmu + gulpum
+      ON_FIRE_ENGULF, lava_effects ON_FIRE_DEAD (branch
+      urgent_pline kept; dead boil_away death-loop assignment
+      removed - the sink-path reassignment dominates all
+      remaining reads). NOT touched, adjudicated:
+      in_hell_effects boil_away ternary (master keeps it too);
+      minliquid survival arm mhp -= 1 vs master damage_mon and
+      its bare resists_fire gate (defended sweep row below);
+      "already on fire" group has no DEAD arm (master-shared,
+      unreachable - reviewer: do not fix). Save-neutral.
+      Reviewer PASS zero defects. BATTERY 10/10 PASS (human
+      Valkyrie XL30, paniclog never existed): all five live
+      groups incl. both orb regressions; HUG "being roasted" vs
+      touch "on fire"; minliquid 3rd-person melts/boils/burns
+      away + default crisp; ENGULF both directions ("You are
+      burning to a crisp!" / gold golem "is melting away!");
+      pickup on lava crisp-vs-boil by polyform; lava_effects
+      "You melt away..." as ice vortex vs "burn to a crisp"
+      control; pet-unslime BUG-1440 repro clean.
+- [ ] likes_lava() widening NOT PORTED (minted 2026-08-30 by the
+      flaming/on_fire slice's reviewer, battery-confirmed; MED -
+      visible divergence on lava-native levels). Master
+      905a40e27 ("Lava demons like lava", + endgame.des Plane of
+      Fire pit-viper -> lava-demon swap) and f7a9fef57 ("add
+      lava gremlins", which split in lava like gremlins in
+      water) widened likes_lava() to four members; branch keeps
+      vanilla's fire elemental + salamander. Live repro (battery
+      T10, wizard3): lava-placed lava demons hit the
+      fire-resistant minliquid arm - "burns slightly" 1 HP/turn,
+      fire_damage_chain boils their carried potions, rloc off
+      the lava "vanishes!" - while salamanders sit at home;
+      fire.lua/sanctum/hellfill/wizportal/Con-goal also place
+      them on lava. Consumer pass when landing: minliquid
+      full-exemption gate, pickup_checks, likes_fire ->
+      pm_to_humidity HOT placement (keep the 5.0-native
+      likes_fire gate - upstream 5.0 replaced master's flaming()
+      gate there, adjudicated 2026-08-30), lava-gremlin
+      lava-split arm reachability, and dat/fire.lua parity with
+      master's endgame.des half.
+- [ ] defended() engulf/liquid coverage sweep NOT PORTED (minted
+      2026-08-30 by the flaming/on_fire slice's pre-port
+      exploration; LOW; BUG-1607 decision-vs-combat class).
+      Master carries || defended(mdef, AD_COLD/AD_FIRE) in
+      gulpum's engulf arms (master uhitm.c:4247/4258) and
+      || defended(mtmp, AD_FIRE) in minliquid's lava death gate
+      (master mon.c:1038); branch has bare resists_* at the
+      matching sites (uhitm.c gulpum AD_COLD/AD_FIRE, mon.c
+      minliquid). Two closed rows already defer items "into a
+      defended() sweep": the dogfood defended() additions and
+      the can_touch_safely gloveless defended(AD_STON) inert
+      inconsistency - this row is that sweep's home. Sweep =
+      grep defended( master vs branch, port missing terms with
+      per-site battery. Rider: master's minliquid survival arm
+      routes damage_mon(1, AD_FIRE) where branch keeps vanilla
+      mhp -= 1 - adjudicate under the partial-resistance
+      rulings when this lands.
 - [ ] montraits/clone_mon transient-reset drift (minted 2026-08-30
       by the orbs-remainder slice's reviewer; LOW). Branch
       montraits (zap.c) lacks master's mtmp2->mwither = 0 (field
@@ -11606,7 +11685,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       [sic]"): ~118-line dogmove.c helper block (adjacent tame
       AD_CLRC caster heals the hero at <= 12.5% max HP,
       cure-sickness arm, strong pet pulls the hero out of a
-      pit/beartrap, more) + mcastu.c/mon.c/mondata.c support
+      pit/beartrap, tears the hero free of a web - the TT_WEB
+      arm BUG-1440's archive entry flags as unported - and
+      more) + mcastu.c/mon.c/mondata.c support
       arms. MUST land WITH master d47c00704's riders or the call
       sites regress the fixed bugs (pattern-ported-call-lost-
       precondition): the mtame >= 10 helper gate, the
