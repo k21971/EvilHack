@@ -2073,7 +2073,7 @@ extern int big_to_little(int);
 extern boolean big_little_match(int, int);
 extern const char *locomotion(const struct permonst *, const char *) NONNULLARG12;
 extern const char *stagger(const struct permonst *, const char *) NONNULLARG12;
-extern const char *on_fire(struct permonst *, struct attack *) NONNULLARG12;
+extern const char *on_fire(struct monst *, enum on_fire_types) NONNULLARG1;
 extern const char *msummon_environ(struct permonst *, const char **) NONNULLARG12;
 extern const struct permonst *raceptr(struct monst *) NONNULLARG1;
 extern boolean olfaction(struct permonst *) NONNULLARG1;

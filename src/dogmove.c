@@ -1543,15 +1543,12 @@ dog_move(
        turning into green slime */
     if (dmgtype(mtmp->data, AD_FIRE) && !mtmp->mcan && Slimed
         && distu(mtmp->mx, mtmp->my) < 3) {
-        struct attack *fireattk =
-            dmgtype_fromattack(mtmp->data, AD_FIRE, AT_ANY);
-
         if (attacktype(mtmp->data, AT_BREA))
             pline_mon(mtmp, "%s breathes fire on you!", Monnam(mtmp));
         else if (attacktype(mtmp->data, AT_GAZE) && !Blind && mtmp->mcansee)
             pline_mon(mtmp, "%s looks at you with a fiery gaze!",
                       Monnam(mtmp));
-        pline("You're %s!", on_fire(gy.youmonst.data, fireattk));
+        pline("You're %s!", on_fire(&gy.youmonst, ON_FIRE));
         if (completelyburns(gy.youmonst.data)) {
             You("go up in flames!");
             burn_away_slime();

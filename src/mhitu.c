@@ -1963,7 +1963,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                 ugolemeffects(AD_FIRE, tmp);
                 tmp = 0;
             } else {
-                You("are burning to a crisp!");
+                You("are %s!", on_fire(&gy.youmonst, ON_FIRE_ENGULF));
                 tmp = resist_reduce(tmp, FIRE_RES);
                 monstunseesu(M_SEEN_FIRE);
             }

@@ -579,6 +579,14 @@ enum getpos_retval {
     LOOK_VERBOSE     = 3  /* ':' -- show more info w/o asking */
 };
 
+/* Different ways fire damage can be dealt for on_fire */
+enum on_fire_types {
+    ON_FIRE         = 0, /* standard fire damage attack */
+    ON_FIRE_HUG     = 1, /* hugged by fire damage monster */
+    ON_FIRE_ENGULF  = 2, /* engulfed by fire damage monster */
+    ON_FIRE_DEAD    = 3  /* killed by fire damage */
+};
+
 struct h2o_ctx {
     int dkn_boom, unk_boom; /* track dknown, !dknown separately */
     boolean ctx_valid;

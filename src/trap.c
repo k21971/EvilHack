@@ -8329,9 +8329,6 @@ lava_effects(void)
                   (burncount - burnmesgcount == 1) ? "has" : "have");
 
         /* s/he died... */
-        boil_away = (u.umonnum == PM_WATER_ELEMENTAL
-                     || u.umonnum == PM_STEAM_VORTEX
-                     || u.umonnum == PM_FOG_CLOUD);
         /* burn to death; if hero is life-saved on the first pass, try
            to teleport to safety; if that fails, burn all over again */
         for (burncount = 0; burncount < 2; ++burncount) {
@@ -8340,8 +8337,7 @@ lava_effects(void)
                because lifesaving resets them */
             svk.killer.format = KILLED_BY;
             Strcpy(svk.killer.name, lava_killer);
-            urgent_pline("You %s...", boil_away ? "boil away"
-                                                : "burn to a crisp");
+            urgent_pline("You %s...", on_fire(&gy.youmonst, ON_FIRE_DEAD));
             done(BURNING);
             if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
                 break; /* successful life-save */
