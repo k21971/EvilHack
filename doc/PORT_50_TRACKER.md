@@ -2981,10 +2981,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       msicktime/mdiseasetime/msummoned/mbindtimer decrements
       (their slices), TEMPLE DAMAGE-REPAIR SWEEP
       (temple_at_boundary, 24 master sites, 13 files - NEW),
-      HERO SPELL PARITY (8 master spelleffects cases still
+      HERO SPELL PARITY (6 master spelleffects cases still
       unwired: POWER_WORD_KILL/DISPEL_EVIL/CRITICAL_HEALING/
-      REPAIR_ARMOR/CREATE_GRASS/CREATE_TREES/ORB_OF_FIRE/
-      ORB_OF_FROST - default impossible();
+      REPAIR_ARMOR/CREATE_GRASS/CREATE_TREES - default
+      impossible(); ORB_OF_FIRE/ORB_OF_FROST wired 2026-08-30 by
+      the orbs-remainder slice;
       BURNING_HANDS/SHOCKING_GRASP wired 2026-08-26 by the hero
       burning hands slice (BUG-1708); NEW item; the minted 16-case
       list was stale -
@@ -3046,10 +3047,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       unchased, worth a look if it recurs; poison gas clouds
       block LOS and can hide ray-name evidence (staging note,
       pre-existing behavior). The blast-trio EXPL rider is
-      DISCHARGED. EXPL RIDER REMAINING: when ORB_OF_FIRE/FROST
-      wire up, port explmm()'s msummoned blame block and the
-      !msummoned gate on the melancholy message (reviewer catch
-      2026-08-21 - nothing on the branch sets msummoned yet).
+      DISCHARGED. EXPL RIDER (explmm msummoned blame block + the
+      !msummoned melancholy gate, reviewer catch 2026-08-21):
+      DISCHARGED 2026-08-30 by the orbs-remainder slice, which
+      also landed the msummoned producer.
       MASTER-PARITY
       WARTS RECORDED: monster entangle scales off the PLAYER's
       P_SKILL (project-monster-spell-skill follow-up; two sites);
@@ -3797,9 +3798,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       !ugking clamp), potion (Valley cursed gain-level while
       Cerberus lives); mon_xkilled + XKILL_INDIRECT + thitm umade
       param through all 12 callers + magic-trap/anti-magic monster
-      arms + explmm exp kludge - uexp machinery live but DORMANT
-      until a producer (hero spell parity: ORB_OF_FIRE/FROST) sets
-      mon->uexp; mondata.h can_sting/is_defeated + resists_drli
+      arms + explmm exp kludge - uexp machinery went LIVE
+      2026-08-30 when the orbs-remainder slice landed the
+      mon->uexp producer; mondata.h can_sting/is_defeated + resists_drli
       boss arms; calendar.c kathryn/bourbon/ozzy_bday (5.0 home of
       time helpers).
       NEW DEFERRED OWNERS from this slice: monster innate spell-
@@ -11382,25 +11383,76 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master-consistent: cross-alignment artifact wish-touch
       blast has no wizard Override prompt on master either
       (Override gates use-restriction arms only).
-- [ ] Orbs-feature remainder NOT PORTED (minted 2026-08-29 by the
-      S_ORB clause slice; MED, raised from LOW for the LIVE BUG:
-      the orb spellbooks exist on the branch with gen prob 15 AND
-      pray.c's god-gift path actively bestows SPE_ORB_OF_FROST
-      (bestow_spellbook_gift), but src/spell.c has no
-      SPE_ORB_OF_FIRE/FROST cases and no make_helper() - casting
-      the learned spell reaches spelleffects'
-      impossible("Unknown spell %d attempted.") + paniclog line,
-      REPRODUCED by the slice battery: learn from wished book,
-      cast, "1788036263 wizard: impossible Unknown spell 1
-      attempted."). Master c5366037b arms still missing:
-      spell.c casting cases + make_helper() (conjure tame orb),
-      mon.c xkilled orb exemptions (orb boolean: no alignment
-      penalty/livelog for destroying your own conjured orb,
-      "conjured" article instead of "poor"), mondata.c on_fire()
-      orb cases, mhitm.c P_MATTER_SPELL peaceful-anger skill
-      gate. The mondata.h clause prerequisite landed (row above).
-      EVILHACK_MECHANICS.md:1927 documents the master behavior
-      the branch does not yet implement.
+- [x] Orbs-feature remainder PORTED 2026-08-30 (minted 2026-08-29
+      by the S_ORB clause slice; MED for the LIVE BUG: casting a
+      learned orb spell reached spelleffects'
+      impossible("Unknown spell %d attempted.") + paniclog -
+      FIXED, battery leg 1 re-ran the exact repro clean). Port =
+      master NET state c444f6a3a, wider than the minted four-arm
+      list once the msummoned/uexp producer census ran: spell.c
+      SPE_ORB_OF_FIRE/FROST cases (mtame 10, 1 HP,
+      msummoned rnd(50)+50 / rnd(100)+100 at Skilled+, uexp 1) +
+      make_helper() in dog.c (master home; ANSI/coordxy) +
+      extern.h decl; mhitm.c explmm P_MATTER_SPELL blame block in
+      its BUG-419 final form (set_malign after mpeaceful=0) +
+      !msummoned melancholy gate (the 2026-08-21 EXPL rider,
+      DISCHARGED); mon.c xkilled orb exemptions ("conjured"
+      article, no remorse/adjalign/abuse-event, no
+      thunder/laughter, no LL_KILLEDPET) + monkilled/mon_xkilled
+      sad-feeling gates (branch iflags.sad_feeling idiom) +
+      m_calcdistress wink-out expiry (9966b2066 mdrop_obj form;
+      pline_mon/return/block-local adaptations); monmove.c
+      mon_regen msummoned decrement; dog.c catchup clamp-to-2;
+      mondata.c on_fire orb cases in the branch's vanilla-5.0
+      string shape (fire -> "already on fire", frost ->
+      "melting"; master's enum refactor is the 9a1f49746 row
+      below); makemon.c clone_mon msummoned+uexp resets; zap.c
+      montraits msummoned reset + the REVIEWER-CAUGHT uexp reset
+      (master zap.c:1018, same 244dc959a lineage - a revived orb
+      statue would have credited its kills to the hero forever).
+      Save-neutral: structlevel saves, both fields pre-existed in
+      monst.h. NOT ported, adjudicated: fightm
+      !(conflict && mm_aggression) hunk (5.0 fightm has no such
+      gate - callers gate Conflict; superseded); dog_move
+      "summoned" variable (dead logic - dog_hunger no-ops
+      without edog; branch's if (edog && ...) supersedes);
+      dat/symbols S_orb symset lines (branch dat/symbols lacks
+      ALL EvilHack monster-class entries incl. S_ent/S_plant -
+      symset/UTF-8 owner; defsym '8' renders meanwhile);
+      minliquid sad_feeling producer left ungated (5.0-native,
+      no master counterpart, unreachable for flying orbs);
+      own-orb kill still costs generic change_luck(-1) (master
+      parity wart). Reviewer CONDITIONAL PASS -> montraits uexp
+      fixed pre-commit; census msummoned 17 branch = 18 master
+      minus the dead dog_move line, uexp mapped 1:1; reviewer
+      note for a future port: master mhitm.c:2873 m-v-m active
+      disintegration (AD_DISN) kill site carries the
+      uexp ? mon_xkilled : monkilled shape - branch has no such
+      handler yet. BATTERY 10/10 PASS (human Wizard XL30,
+      paniclog never existed): Unskilled cast 1 orb / Skilled 2;
+      fields gdb-verified (summ 73; 114/194 at Skilled;
+      1/turn decrement); blame gates both ways ("gets agitated!"
+      + align 0 unchanged at Skilled vs "gets angry!" + align
+      -5 ding at Unskilled); XP credit uexp 4800000->4800001 via
+      explmm's exp kludge WITHOUT killer-conduct bump (master
+      parity - orb-explosion kills route monkilled + manual
+      more_experienced, so they never break the killer conduct;
+      the conduct livelog fired only on the hero's own F-attack);
+      own-kill "You destroy the conjured orb of fire!" with zero
+      guilt/thunder/livelog; wink-out expiry; save/restore fields
+      intact; dug-hole level-follow summ 58 and off-level ^V
+      catchup clamped to EXACTLY 2 then expired; statue-revival
+      leg petrified a pet orb and stone-to-fleshed it back
+      (mrevived=1 proves the montraits path): uexp 0,
+      msummoned 0, revived PEACEFUL with montraits-restored
+      38/38 HP (master-shared path); sphere regressions and
+      farlook "a summoned orb (tame orb of fire)" clean.
+      In-battery adjudications: the Skilled double-cast prints
+      one arrival line - 5.0 makemon appear-message uses Norep()
+      so the duplicate is engine-deduped; collateral pet killed
+      by an orb explosion draws no guilt (mon_moving
+      attribution, master-shared). EVILHACK_MECHANICS.md:1927
+      behavior now implemented.
 - [ ] flaming() dd0610d45 remainder NOT PORTED (minted 2026-08-29
       by the S_ORB clause slice; LOW; unlogged divergence, zero
       archive records). Master dd0610d45 (2023-09-18, "Include
@@ -11411,6 +11463,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       water-vs-flame arms in mhitm/mhitu/uhitm, trap.c) before
       the four entries land; when it lands, converge the macro on
       master's exact list order (orb stays last).
+- [ ] on_fire() enum refactor NOT PORTED (minted 2026-08-30 by the
+      orbs-remainder slice; LOW; unlogged divergence, zero archive
+      records). Master 9a1f49746 ("Also regularize engulfing fire
+      attacks") rebuilt on_fire() around enum on_fire_types
+      (ON_FIRE_DEAD/ON_FIRE_ENGULF/default forms, youmonst
+      "boil away"/"boils away" variants) and widened the case
+      lists (water troll, baby/adult sea dragon, acid sphere join
+      the boil group; snow golem, abominable snowman,
+      freezing sphere join the melt group). Branch keeps the
+      vanilla-5.0 string-returning shape - the orb cases landed
+      there in branch shape (fire -> "already on fire", frost ->
+      "melting"); converge both orb entries on master's exact
+      lists when this row lands. Needs the consumer sweep first
+      (branch consumers: uhitm.c x3, dogmove.c, mon.c minliquid -
+      master adds more callers with the enum).
+- [ ] montraits/clone_mon transient-reset drift (minted 2026-08-30
+      by the orbs-remainder slice's reviewer; LOW). Branch
+      montraits (zap.c) lacks master's mtmp2->mwither = 0 (field
+      exists and ticks on the branch - a revived statue keeps a
+      stale wither timer); montraits and clone_mon both lack
+      minsects/mbreakboulder resets whose owning features are
+      unported (land those lines with their features). Audit both
+      blocks against master zap.c ~995-1020 / makemon.c
+      ~3035-3060 and the clone-state-reset ruling before touching
+      - the branch subsets were deliberate at their slices' time.
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
