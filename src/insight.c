@@ -3607,9 +3607,20 @@ mstatusline(struct monst *mtmp)
     else
         Strcat(info, ", in light");
     if (mtmp->mtame) {
-        Strcat(info, ", tame");
+        if (mtmp->mtame >= 20)
+            Strcat(info, ", fiercely loyal");
+        else if (mtmp->mtame >= 15)
+            Strcat(info, ", loyal");
+        else if (mtmp->mtame >= 10)
+            Strcat(info, ", domesticated");
+        else if (mtmp->mtame >= 5)
+            Strcat(info, ", tame");
+        else if (mtmp->mtame >= 2)
+            Strcat(info, ", somewhat tame");
+        else if (mtmp->mtame == 1)
+            Strcat(info, ", nearly wild");
         if (wizard) {
-            Sprintf(eos(info), " (%d", mtmp->mtame);
+            Sprintf(eos(info), " (tameness %d", mtmp->mtame);
             if (!mtmp->isminion)
                 Sprintf(eos(info), "; hungry %ld; apport %d",
                         EDOG(mtmp)->hungrytime, EDOG(mtmp)->apport);

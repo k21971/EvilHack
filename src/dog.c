@@ -1212,6 +1212,7 @@ keepdogs(
                unlike level change for steed, don't bother trying
                to achieve a normal trap escape first */
             mtmp->mtrapped = 0;
+            mtmp->mentangled = 0;
             finish_meating(mtmp);
             mtmp->msleeping = 0;
             mtmp->mfrozen = 0;
@@ -1231,24 +1232,57 @@ keepdogs(
             int num_segs;
             boolean stay_behind = FALSE;
 
-            if (mtmp->mtrapped)
+            if (mtmp->mtrapped) {
                 (void) mintrap(mtmp, NO_TRAP_FLAGS); /* try to escape */
+                /* fire/polymorph/land-mine traps can kill a low-HP pet;
+                   don't drag a dead mtmp through to relmon() below */
+                if (DEADMONSTER(mtmp))
+                    continue;
+            }
             if (mtmp == u.usteed) {
+                struct obj *obj, *nobj;
+
                 /* make sure steed is eligible to accompany hero */
-                mtmp->mtrapped = 0;       /* escape trap */
-                mtmp->meating = 0;        /* terminate eating */
-                mdrop_special_objs(mtmp); /* drop Amulet */
+                mtmp->mtrapped = 0; /* escape trap */
+                mtmp->meating = 0;  /* terminate eating */
+                /* Drop items with level-crossing restrictions
+                   that shouldn't travel between levels on a
+                   steed: the Amulet and invocation items.
+                   Unlike mdrop_special_objs(), do NOT drop the
+                   quest artifact or other artifacts - the hero
+                   is actively riding their mount and controls
+                   what it carries */
+                for (obj = mtmp->minvent; obj; obj = nobj) {
+                    nobj = obj->nobj;
+                    if (obj->otyp == AMULET_OF_YENDOR
+                        || obj->otyp == SPE_BOOK_OF_THE_DEAD
+                        || obj->otyp == CANDELABRUM_OF_INVOCATION
+                        || obj->otyp == BELL_OF_OPENING)
+                        mdrop_obj(mtmp, obj, TRUE);
+                }
             } else if (!pets_only && has_edog(mtmp)
                        && (EDOG(mtmp)->petstrat & PETSTRAT_STAY)) {
                 /* pet ordered to stay on this level */
                 if (canseemon(mtmp))
                     pline_mon(mtmp, "%s stays behind.", Monnam(mtmp));
                 stay_behind = TRUE;
-            } else if (mtmp->meating || mtmp->mtrapped) {
-                if (canseemon(mtmp))
-                    pline_mon(mtmp, "%s is still %s.", Monnam(mtmp),
-                             mtmp->meating ? "eating" : "trapped");
-                stay_behind = TRUE;
+            } else if (mtmp->meating || mtmp->mtrapped
+                       || mtmp->mentangled) {
+                /* loyal pets (tameness 15+) will follow even while eating */
+                if (mtmp->meating && !mtmp->mtrapped && !mtmp->mentangled
+                    && mtmp->mtame >= 15) {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s follows, still eating.",
+                                  Monnam(mtmp));
+                    /* meating persists - continues eating on arrival */
+                } else {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s is still %s.", Monnam(mtmp),
+                                  mtmp->meating ? "eating"
+                                                : mtmp->mentangled ? "entangled"
+                                                                   : "trapped");
+                    stay_behind = TRUE;
+                }
             } else if (mon_has_amulet(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s seems very disoriented for a moment.",
