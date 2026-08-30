@@ -11569,26 +11569,91 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pickup on lava crisp-vs-boil by polyform; lava_effects
       "You melt away..." as ice vortex vs "burn to a crisp"
       control; pet-unslime BUG-1440 repro clean.
-- [ ] likes_lava() widening NOT PORTED (minted 2026-08-30 by the
-      flaming/on_fire slice's reviewer, battery-confirmed; MED -
-      visible divergence on lava-native levels). Master
-      905a40e27 ("Lava demons like lava", + endgame.des Plane of
-      Fire pit-viper -> lava-demon swap) and f7a9fef57 ("add
-      lava gremlins", which split in lava like gremlins in
-      water) widened likes_lava() to four members; branch keeps
-      vanilla's fire elemental + salamander. Live repro (battery
-      T10, wizard3): lava-placed lava demons hit the
-      fire-resistant minliquid arm - "burns slightly" 1 HP/turn,
-      fire_damage_chain boils their carried potions, rloc off
-      the lava "vanishes!" - while salamanders sit at home;
-      fire.lua/sanctum/hellfill/wizportal/Con-goal also place
-      them on lava. Consumer pass when landing: minliquid
-      full-exemption gate, pickup_checks, likes_fire ->
-      pm_to_humidity HOT placement (keep the 5.0-native
-      likes_fire gate - upstream 5.0 replaced master's flaming()
-      gate there, adjudicated 2026-08-30), lava-gremlin
-      lava-split arm reachability, and dat/fire.lua parity with
-      master's endgame.des half.
+- [x] likes_lava() widening PORTED 2026-08-30 (minted 2026-08-30
+      by the flaming/on_fire slice's reviewer; MED). Macro
+      converged on master net mondata.h:621-623 byte-verbatim
+      (905a40e27 lava demon + f7a9fef57 lava gremlin +
+      113aae435's (ptr) parenthesization - the branch's bare ptr
+      was a latent hygiene bug); f7a9fef57's missing hero-side
+      lava-gremlin split added to lava_effects() between
+      burn_away_slime and the likes_lava exemption
+      (split-then-exempt ordering; branch idioms gy.youmonst +
+      (struct monst *) 0 matching the hack.c water twin).
+      Everything else was already present: minliquid lava/forge
+      split arm (with 90bed621b's blowupforge fixup; the
+      vestigial dryup() already dropped - both trees' dryup
+      no-ops off fountains), cmd.c #monster forge split,
+      polyself hint, fire.lua monster parity (4 lava demons, 0
+      pit vipers - endgame.des delta-diff row 2026-08-01).
+      Adjudicated NOT ported: mfndpos wantlava/has_cold_feet
+      (BUG-1413 ruling - owned by the water-walking-riders and
+      Icequeen-riders rows); monmove m_move item-seek lava
+      guard (5.0 restructure superseded); lava_death_attempts
+      fuzzer counter (row below); the 5.0 safe-move m-prefix
+      confirm still prompts before lava entry for immune
+      polyforms (upstream-uniform UX, master 3.6 has no such
+      prompt either - leave). Reviewer CONDITIONAL PASS: diff
+      byte-faithful, all 22 consumers safe (minliquid
+      rn2(3)-miss now a clean alive no-op; hero split bounded -
+      cloneu NULLs at mh <= 1); the condition = f7a9fef57's
+      AD_CURS day/night arms missing from mhitm_ad_curs, minted
+      below. The reviewer's stand-still-never-resplits cadence
+      prediction was WRONG on both trees: allmain's !u.umoved
+      pooleffects(FALSE) caller re-fires lava_effects every
+      stationary turn on master too (no newspot gate on the
+      lava branch) - per-turn hero re-split IS master parity,
+      code-verified. BATTERY 9/10 arms PASS + that adjudication
+      (human Valkyrie XL30, paniclog never existed): lava demon
+      parked 10 turns on lava - zero messages, hp 62/62,
+      minvent intact (session-89 T10 inverted; items still
+      boiled on the #wizkill death-drop, normal); AI crossed a
+      2-wide lava wall undamaged; sanctum census: all FOUR des
+      lava demons ON typ=21 at map+offset coords, stable across
+      turns; monster gremlin cascade splits 2/3 with clean
+      no-op 1/3 (halvings only, never -1; 1/1 floor stable 5
+      turns); hero entry split exact (24/24 -> 12/12, tame
+      clone, utrap 0, gear intact, 3 entries) and mh <= 1 stop
+      proven; drinkforge survived twice ("You take a sip of
+      molten lava." / fire-elemental arrival); #sit "The lava
+      feels warm."; pickup in lava permitted (weight prompt
+      only); TT_LAVA -> polyself gremlin "The lava now feels
+      soothing." + utrap 0; BUG-1314 inverse bites same-turn on
+      unpoly; water-gremlin fountain and salamander regressions
+      clean. Battery lore: hero split clones arrive TAME and
+      blow past the CHA/3 pet cap into hostile clone spam -
+      G_EXTINCT mvflags or CHA 25 are the staging levers.
+- [ ] lava-gremlin AD_CURS day/night arms NOT PORTED (minted
+      2026-08-30 by the likes_lava slice's reviewer; MED -
+      behavioral, the monster's signature mechanic). f7a9fef57
+      made lava gremlins "creatures of bright light" - AD_CURS
+      steal/cancel triggers by DAY only (inverse of the
+      gremlin's night-only); master net also restructured the
+      uvm arm (uhitm.c:3564-3575: whole roll gated on !rn2(10),
+      clay-golem writing-vanish kill moved outside any time
+      gate, mcan cancel restricted to (GREMLIN && night()) ||
+      (LAVA_GREMLIN && !night())). Branch mhitm_ad_curs carries
+      NONE of the three arms (uhitm.c:4572 uvm keeps the
+      vanilla night-gated shape; :4588 mvu and :4609 mvm have
+      only the !night() PM_GREMLIN return): branch lava
+      gremlins steal intrinsics 24/7 (strictly stronger than
+      master) and a hero-polyform's chuckle-cancel is inverted
+      to night. Port = all three legs of the unified handler vs
+      master net mhitu.c:2602 / mhitm.c:2231 /
+      uhitm.c:3564-3575; battery day+night pairs both
+      directions. BUG-1407's AD_CURS farm-exploit note applies
+      to the mon_give_prop neighborhood.
+- [ ] lava_death_attempts fuzzer counter NOT PORTED (minted
+      2026-08-30 by the likes_lava slice's reviewer; LOW - trio
+      asymmetry). Master lava_effects carries a static
+      death-loop counter (master trap.c:7006; reset in the
+      likes_lava exemption and both survival tails, escape at
+      >= 2 attempts); the branch ported the derived siblings'
+      counters (hell_death_attempts trap.c:8031,
+      freezing_death_attempts trap.c:8120) but lava_effects has
+      none - the only one of the trio without fuzzer death-loop
+      protection. Port master's counter shape into the branch
+      lava_effects when fuzzer lava loops surface, or with the
+      fuzzer-support owner slice.
 - [ ] defended() engulf/liquid coverage sweep NOT PORTED (minted
       2026-08-30 by the flaming/on_fire slice's pre-port
       exploration; LOW; BUG-1607 decision-vs-combat class).
