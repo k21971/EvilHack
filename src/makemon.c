@@ -2740,8 +2740,12 @@ clone_mon(
 
     m2->mundetected = 0;
     m2->mtrapped = 0;
-    /* clones start fresh: clear spell-conferred transient state that
-       would otherwise never time out coherently on the clone */
+    /* clones start fresh: clear transient status bits and spell-conferred
+       state that would otherwise never time out coherently on the clone */
+    m2->mcansee = 1;
+    m2->mblinded = 0;
+    m2->mstun = 0;
+    m2->mconf = 0;
     m2->msick = 0;
     m2->msicktime = 0;
     m2->mdiseased = 0;
@@ -2774,6 +2778,10 @@ clone_mon(
     m2->mleashed = 0;
     /* only one of the two can be the monster the rider is sitting on */
     m2->ridden_by = 0;
+    /* Defensive: long-worm callers must allocate a new wormno via
+       get_wormno()/initworm() after clone_mon returns, else both
+       monsters would walk the same wtails[] chain */
+    m2->wormno = 0;
     /* Max HP the same, but current HP halved for both.  The caller
      * might want to override this by halving the max HP also.
      * When current HP is odd, the original keeps the extra point.
