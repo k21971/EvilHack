@@ -11727,14 +11727,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       are unported) - the "minsects pair row" the spell-list
       RIDERS note and the Racial-monsters NIT list cite was never
       minted; minted below, both reset lines ride it.
-      mbreakboulder: dead master-only int, superseded by 5.0's
-      mspec_used boulder-break cooldown (mbreath-slice ruling) -
-      never needs a reset; pre-release struct-cleanup candidate,
-      record only. montraits() unchanged (its extra mprotection
-      clear is the BUG-1654 fix, kept). wormno safety: cutworm()
-      is the only long-worm caller and assigns new_worm->wormno =
-      new_wnum after the call; the pudding splits (mhitm/uhitm)
-      and split_mon (gremlin/pudding/cold-fed) cannot pass a long
+      mbreakboulder: CORRECTED 2026-09-02 by the maintainer
+      (master 6ebf3b03a) - this record and commits
+      4554e8875/d4b83275b first called the field 'dead and
+      superseded by 5.0's mspec_used cooldown'; wrong. The field
+      is dead on the branch only because master's boulder-break
+      work is unported: 6ebf3b03a deliberately moved boulder
+      breaking OFF mspec_used (the spellcasting cooldown, as the
+      3.7 TODO said) onto the dedicated mbreakboulder timer, and
+      the branch still runs vanilla 5.0's mspec_used form. Its
+      reset lines ride the boulder-break row minted below.
+      montraits() unchanged (its extra mprotection clear is the
+      BUG-1654 fix, kept). wormno safety: cutworm() is the only
+      long-worm caller and assigns new_worm->wormno = new_wnum
+      after the call; the pudding splits (mhitm/uhitm) and
+      split_mon (gremlin/pudding/cold-fed) cannot pass a long
       worm; nothing inside clone_mon reads m2->wormno. Reviewer
       PASS zero defects (programmatic assignment-set diff vs
       master: only mwither/minsects/mbreakboulder master-only,
@@ -11816,6 +11823,43 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       corpses), and the clone_mon/montraits minsects=0 resets. All
       four land together; battery = summon insects both
       directions, kill ~20, count corpses; resets by gdb read.
+- [ ] monster boulder-breaking extensions + mbreakboulder cooldown
+      NOT PORTED (minted 2026-09-02 after the maintainer corrected
+      the clone-reset record's 'superseded' claim; MED -
+      behavioral, plus a spellcasting-cooldown collision). Branch
+      m_can_break_boulder/m_break_boulder (monmove.c) are vanilla
+      5.0 byte-verbatim: riders always, shk/priest/MS_LEADER gated
+      on !mspec_used, mutters-only message, mspec_used +=
+      rn1(20,10), no peaceful gate. Master net = four commits:
+      6eb8f12fd (2023-04-20, modified port of 3.7 200cc21) adds
+      the !mpeaceful outer gate (peacefuls never break), the
+      Oracle, and the mutters/whispers variant; ec602a1ea
+      (2023-07-05) lets any monster wielding a pick/digging tool
+      break boulders (using_pick: '<Mon> swings <his> <tool>.'
+      when the spot is seen, else You_hear a crumbling sound; the
+      pick path skips the cooldown); 6f210b1fa (2025-02-18, the
+      covetous normal-movement commit) adds
+      is_dprince/is_dlord/MS_NEMESIS to the breaker list;
+      6ebf3b03a (2025-04-11) replaces mspec_used with the
+      dedicated mbreakboulder int ('mspec_used is for monster
+      spellcasting'), unique_corpstat breakers reload rn1(4,2) vs
+      rn1(20,10), mon_regen decrements it, dog.c mon_catchup
+      decays it, montraits resets it alongside the
+      vuln/mprottime/ward timers, and any MS_LEADER may break
+      (branch already has MS_LEADER via 5.0). BUG-625 fa9b555e9
+      adds the clone_mon reset. Branch impact today: a hostile
+      shk/priest/quest leader that breaks a boulder has its
+      SPELLCASTING suppressed for 10-29 turns (priests and leaders
+      cast) and a caster mid-cooldown cannot break; demon
+      lords/princes, nemeses, the Oracle and pick-wielders cannot
+      break at all (covetous monsters stall behind boulders - the
+      reason 6f210b1fa widened the list); peaceful
+      shk/priests/leaders DO break. 6f210b1fa's movement half is
+      itself unported (parked as item (d) on the music.c
+      earthquake reconcile row), so its breaker-list arm lands
+      here regardless. Port = the whole cluster on master's final
+      shape; the clone_mon/montraits mbreakboulder=0 resets land
+      here.
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
