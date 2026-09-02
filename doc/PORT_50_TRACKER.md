@@ -8528,17 +8528,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Phase 5 m_initgrp row already carries BUG-936 (is_support()/
       m_respond ally-heal never setting mspec_used, also unported);
       port the hang-back with that cluster, not alone.
-- [ ] LOW: clone_mon()/montraits() transient-reset width, master vs
-      branch (minted 2026-08-23 by the mberserk slice, which added
-      mberserk to both lists). Master's BUG-625 clone_mon() list also
-      clears mcansee/mblinded/mstun/mconf/mwither/msummoned/minsects/
-      mbreakboulder/uexp/wormno; the branch's clone_mon() clears the
-      spell-conferred subset only (sick/disease/entangle/vuln/
-      mextrinsics + timers/protection). Master's montraits() list also
-      clears mwither/msummoned/minsects/mbreakboulder/uexp; the branch
-      block stops at the vuln/protection timers. One row for the
-      family; each missing bit is a permanent-on-the-copy inheritance
-      of the BUG-625 class (the tick loop only decrements the original).
+- [x] LOW: clone_mon()/montraits() transient-reset width, master
+      vs branch (minted 2026-08-23 by the mberserk slice) - CLOSED
+      2026-09-02 by the clone-reset slice; the family record lives
+      on the 2026-08-30 montraits/clone_mon drift row
+      (msummoned/uexp had already landed with the orbs remainder;
+      mcansee/mblinded/mstun/mconf/wormno landed 2026-09-02;
+      mwither/minsects/mbreakboulder ride the owner rows minted
+      there).
 - [ ] LOW investigation: monster holding more than it can carry stops
       acting (battery observation 2026-08-23, unadjudicated, NOT the
       mberserk slice's doing). A hostile Uruk-hai that picked up a
@@ -11706,16 +11703,119 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       routes damage_mon(1, AD_FIRE) where branch keeps vanilla
       mhp -= 1 - adjudicate under the partial-resistance
       rulings when this lands.
-- [ ] montraits/clone_mon transient-reset drift (minted 2026-08-30
-      by the orbs-remainder slice's reviewer; LOW). Branch
-      montraits (zap.c) lacks master's mtmp2->mwither = 0 (field
-      exists and ticks on the branch - a revived statue keeps a
-      stale wither timer); montraits and clone_mon both lack
-      minsects/mbreakboulder resets whose owning features are
-      unported (land those lines with their features). Audit both
-      blocks against master zap.c ~995-1020 / makemon.c
-      ~3035-3060 and the clone-state-reset ruling before touching
-      - the branch subsets were deliberate at their slices' time.
+- [x] montraits/clone_mon transient-reset drift PORTED 2026-09-02
+      (minted 2026-08-30 by the orbs-remainder slice's reviewer;
+      LOW; closes the 2026-08-23 mberserk-slice family row as
+      well). clone_mon() (makemon.c) gains master's BUG-625
+      (fa9b555e9) mcansee=1/mblinded/mstun/mconf clears at the top
+      of the branch's "clones start fresh" block and the defensive
+      wormno=0 after the ridden_by clear, master comment verbatim;
+      branch order and comments kept (06310ad06 authored the block
+      as a spell-conferred subset, 68f3d320e/48f0bf3c8/ab70e04e8
+      widened it piecemeal - the status bits were a scope
+      omission, vanilla 5.0 clears none of them). The clone's
+      assignment SET now equals master's minus three dead-field
+      lines. CORRECTION to this row's minting note: mwither does
+      NOT tick on the branch - rg 'WTHR' src/*.c = 0 hits; mwither
+      has resets and the mcastu/muse cure-self reads only, no
+      writer, no decrement. The whole AD_WTHR withering system is
+      unported (row minted below), so no branch corpse or statue
+      can carry a wither timer and the montraits mwither=0 line is
+      a no-op today - it rides that row. minsects: write-only on
+      the branch (mcast_insects m-v-m leg sets it; the
+      hero-targeting leg's setter and the corpse_chance consumer
+      are unported) - the "minsects pair row" the spell-list
+      RIDERS note and the Racial-monsters NIT list cite was never
+      minted; minted below, both reset lines ride it.
+      mbreakboulder: dead master-only int, superseded by 5.0's
+      mspec_used boulder-break cooldown (mbreath-slice ruling) -
+      never needs a reset; pre-release struct-cleanup candidate,
+      record only. montraits() unchanged (its extra mprotection
+      clear is the BUG-1654 fix, kept). wormno safety: cutworm()
+      is the only long-worm caller and assigns new_worm->wormno =
+      new_wnum after the call; the pudding splits (mhitm/uhitm)
+      and split_mon (gremlin/pudding/cold-fed) cannot pass a long
+      worm; nothing inside clone_mon reads m2->wormno. Reviewer
+      PASS zero defects (programmatic assignment-set diff vs
+      master: only mwither/minsects/mbreakboulder master-only,
+      only misc_worn_check/ridden_by branch-only; every helper
+      between the new wormno clear and the return audited - the
+      one reachable reader is tamedog()'s redraw_worm on a TAME
+      cut worm, which used to walk the parent's already-split
+      chain with the copied wormno and now correctly skips,
+      cutworm's place_wsegs doing the real placement; LOW
+      informational = this row's mwither wording, corrected
+      above). BATTERY 4/4 PASS (human Valkyrie XL30, T:121,
+      paniclog never existed): staged pudding (gdb mcansee=0
+      mblinded=50 mstun=1 mconf=1, stethoscope "confused, blind,
+      stunned") split by a blessed +7 iron long sword - clone m_id
+      63 read mcansee=1 mblinded=0 mstun=0 mconf=0 and
+      stethoscoped "in light." while the parent kept all four
+      (mblinded 50 -> 49 -> 48 per turn); tame pudding split kept
+      mtame 5 on the clone (F bypasses the pet confirmation); long
+      worm cut in half at T:110 - new worm wormno 1 vs parent 3,
+      both non-zero, new worm mcloned=0 (cutworm's reset survives
+      the clear), both halves biting and moving for 9 turns under
+      sanity_check with no impossible(); gremlin uncursed-water
+      split clone clean (split_mon halves mhpmax too, 38/38 ->
+      19/19 both). Battery lore -> gameplay.md: the hero-side
+      pudding split message is "The black pudding divides as you
+      hit it!"; a hit on the tail-END segment goes through
+      shrink_worm() silently, so a worm needs two visible tail
+      segments before any cut/split roll; pmnames[2] is the base
+      name (index 0 is MALE and NULL for genderless species - gdb
+      $_streq on it aborts).
+- [ ] AD_WTHR withering system NOT PORTED (minted 2026-09-02 by
+      the clone-reset slice's exploration; MED - the signature
+      attack of 14 monsters.h entries, mummies and kin, is inert).
+      The branch carries scaffolding only: monattk.h AD_WTHR, the
+      14 ATTK entries, monst.h mwither/mwither_from_u, prop.h
+      WITHERING with the pray.c TROUBLE_WITHERING cure (the
+      numeric-sweep header's "wither live on branch" note was
+      wrong), polyself.c BWithering pre-wire, artifact.c invoke
+      cure, mcastu/muse cure-self reads. No code consumes AD_WTHR
+      (rg 'WTHR' src/*.c = 0 hits): monster claws reach
+      mhitm_adtyping's default: mhm->damage = 0 (zero damage, no
+      effect, both directions) and nothing sets HWithering. Master
+      net sites - monster side: mhitm.c:2718 and uhitm.c:3870 arms
+      (withertime = max(2,tmp); mwither += withertime with
+      UCHAR_MAX clamp; mhpmax-- when withertime >= 8;
+      nonliving/vampshifter/cancelled immune; mwither_from_u
+      FALSE/TRUE for kill credit), mon.c:1393-1406 mcalcdistress
+      tick (rnd(2) minus 1 for regenerators per turn, "withers
+      away completely!" -> xkilled NOCORPSE|NOMSG or monkilled
+      AD_WTHR, mwither_from_u cleared at 0), mon.c:7291 newcham
+      cure for nonliving/vampshifter forms (aad139a8d),
+      mon.c:5037/5067 monkilled no-corpse routing (the branch
+      monkilled lacks the AD_WTHR term), monmove.c:371 mon_regen
+      !mwither gate (the artifacts row's "wither owner" deferral
+      lands here), dog.c:1010 catch-up gate, potion.c:1893-1922
+      healing-potion cures, priest.c:1479, zap.c:649 cure-spell
+      arm, pager.c:1928 "wither" label, u_init.c:1583 known-attack
+      list, plus the clone_mon/montraits mwither=0 resets. Hero
+      side: mhitu.c:2808 arm (hitmsg; incr_itimeout(&HWithering,
+      min(255,max(2,dmg))); maxhp-- at >= 8 unless BWithering;
+      nonliving/vampire/zombie immune; "You begin to wither away!"
+      / "Your withering speeds up!" / "You feel dessicated for a
+      moment."), allmain.c:486 per-turn HP loss and :1097/:1165
+      regeneration block, botl.c :184/:909 status field,
+      cmd.c:2983 ^X line, end.c:1782. Master commits: 3fb3081f4
+      (mummies wither), 8997c26c2 (overhaul), 4e2f188b1,
+      aad139a8d, BUG-1305 attribution. Archive-sweep the BUGFIXES
+      'wither' entries before porting.
+- [ ] minsects producer/consumer pair NOT PORTED (minted
+      2026-09-02 by the clone-reset slice; LOW; the row the
+      spell-list slice's RIDERS note and the Racial-monsters NIT
+      list both cite as "the minsects pair row" but never minted).
+      Branch has the monst.h bit and ONE setter (mcast_insects
+      m-v-m leg, tamed/peaceful per caster); missing: the
+      hero-targeting leg's setter (the MM_ANGRY|MM_NOMSG makemon
+      in mcast_insects; master mcastu.c:1894), corpse_chance's
+      rn2(50) && mon->minsects -> return FALSE no-corpse arm
+      (master mon.c:4785 - CLC_INSECTS summons rarely leave
+      corpses), and the clone_mon/montraits minsects=0 resets. All
+      four land together; battery = summon insects both
+      directions, kill ~20, count corpses; resets by gdb read.
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
