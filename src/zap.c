@@ -949,6 +949,7 @@ montraits(
         mtmp2->mstoneskintime = 0;
         mtmp2->mprotection = 0;
         mtmp2->mprottime = 0;
+        mtmp2->mbreakboulder = 0;
         /* kills by the revived monster are not credited to the hero */
         mtmp2->uexp = 0;
         /* when traits are for a shopkeeper, dummy monster 'mtmp' won't
@@ -6742,6 +6743,9 @@ fracture_rock(struct obj *obj) /* no texts here! */
     obj->owt = weight(obj);
     obj->dknown = obj->bknown = obj->rknown = 0;
     obj->known = objects[obj->otyp].oc_uses_known ? 0 : 1;
+    /* a boulder thrown by a giant hero would otherwise hand its
+       LOST_THROWN down to the rocks, and pickup_thrown autopicks them */
+    obj->how_lost = LOST_NONE;
     dealloc_oextra(obj);
 
     if (obj->where == OBJ_FLOOR) {

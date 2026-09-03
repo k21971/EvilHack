@@ -249,10 +249,20 @@ mon_yells(struct monst *mon, const char *shout)
 boolean
 m_can_break_boulder(struct monst *mtmp)
 {
-    return (is_rider(mtmp->data)
-            || (!mtmp->mspec_used
-                && (mtmp->isshk || mtmp->ispriest
-                    || (mtmp->data->msound == MS_LEADER))));
+    /* peaceful monsters never break boulders; the Riders and any monster
+       wielding a pick may break one every turn, the rest wait out the
+       mbreakboulder cooldown (mspec_used is for monster spellcasting) */
+    return (!mtmp->mpeaceful
+            && (is_rider(mtmp->data)
+                || (MON_WEP(mtmp) && is_pick(MON_WEP(mtmp)))
+                || (!mtmp->mbreakboulder
+                    && (is_dprince(mtmp->data)
+                        || is_dlord(mtmp->data)
+                        || mtmp->isshk
+                        || mtmp->ispriest
+                        || mtmp->data->msound == MS_LEADER
+                        || mtmp->data->msound == MS_NEMESIS
+                        || mtmp->data == &mons[PM_ORACLE]))));
 }
 
 /* monster mtmp breaks boulder at x,y */
@@ -260,17 +270,34 @@ void
 m_break_boulder(struct monst *mtmp, coordxy x, coordxy y)
 {
     struct obj *otmp;
+    boolean using_pick = (MON_WEP(mtmp) && is_pick(MON_WEP(mtmp)));
 
     if (m_can_break_boulder(mtmp) && ((otmp = sobj_at(BOULDER, x, y)) != 0)) {
-        if (!is_rider(mtmp->data)) {
-            if (!Deaf && (mdistu(mtmp) < 4*4)) {
+        if (mdistu(mtmp) < 4 * 4) {
+            if (using_pick) {
+                if (cansee(x, y)) {
+                    if (canspotmon(mtmp))
+                        set_msg_xy(mtmp->mx, mtmp->my);
+                    pline("%s swings %s %s.", Monnam(mtmp), mhis(mtmp),
+                          simpleonames(MON_WEP(mtmp)));
+                } else if (!Deaf) {
+                    You_hear("a crumbling sound.");
+                }
+            } else if (!Deaf) {
                 if (canspotmon(mtmp))
                     set_msg_xy(mtmp->mx, mtmp->my);
-                pline("%s mutters %s.",
-                      Monnam(mtmp),
+                pline("%s %s %s.", Monnam(mtmp),
+                      rn2(2) ? "mutters" : "whispers",
                       mtmp->ispriest ? "a prayer" : "an incantation");
             }
-            mtmp->mspec_used += rn1(20, 10);
+        }
+        /* the Riders never tire; unique breakers (demon bosses, nemeses,
+           quest leaders, the Oracle) recover far faster than the rest */
+        if (!is_rider(mtmp->data)) {
+            if (unique_corpstat(mtmp->data))
+                mtmp->mbreakboulder += rn1(4, 2);
+            else
+                mtmp->mbreakboulder += rn1(20, 10);
         }
         if (cansee(x, y)) {
             set_msg_xy(x, y);
@@ -454,6 +481,8 @@ mon_regen(struct monst *mon, boolean digest_meal)
         mon->mtk_attk--;
     if (mon->mbindtimer)
         mon->mbindtimer--;
+    if (mon->mbreakboulder)
+        mon->mbreakboulder--;
     if (mon->msummoned)
         mon->msummoned--;
     if (mon->msicktime)

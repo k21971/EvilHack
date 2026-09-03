@@ -1053,6 +1053,7 @@ mon_catchup_elapsed_time(
         else
             mtmp->meating -= imv;
     }
+    /* spellcasting 'power' */
     if (imv > mtmp->mspec_used)
         mtmp->mspec_used = 0;
     else
@@ -1067,6 +1068,11 @@ mon_catchup_elapsed_time(
         mtmp->mtk_attk = 0;
     else
         mtmp->mtk_attk -= imv;
+    /* breaking boulders */
+    if (imv > mtmp->mbreakboulder)
+        mtmp->mbreakboulder = 0;
+    else
+        mtmp->mbreakboulder -= imv;
 
     /* reduce tameness for every 150 moves you are separated */
     if (mtmp->mtame) {

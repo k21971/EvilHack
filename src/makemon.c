@@ -2769,6 +2769,8 @@ clone_mon(
     m2->mjumptime = 0;
     /* clone is not itself a temporary summon */
     m2->msummoned = 0;
+    /* nor does it inherit the parent's boulder-breaking cooldown */
+    m2->mbreakboulder = 0;
     m2->mprotection = 0;
     m2->mprottime = 0;
     m2->mcloned = 1;
