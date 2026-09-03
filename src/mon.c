@@ -1504,7 +1504,8 @@ m_calcdistress(struct monst *mtmp)
             return;
     }
 
-    /* regenerate hit points */
+    /* regenerate hit points; a withering monster gains none, but the
+       call still has to run for the mspec_used and timer decrements */
     mon_regen(mtmp, FALSE);
 
     /* berserkers fly into a rage when badly hurt and calm down once
@@ -1580,6 +1581,26 @@ m_calcdistress(struct monst *mtmp)
                 mondied(mtmp);
         }
         return;
+    }
+
+    /* wither away */
+    if (mtmp->mwither) {
+        mtmp->mhp -= (rnd(2) - (regenerates(mtmp->data) ? 1 : 0));
+        if (DEADMONSTER(mtmp)) {
+            if (canspotmon(mtmp))
+                pline_mon(mtmp, "%s withers away completely!",
+                          Monnam(mtmp));
+            /* the line above announces the death, so no fltxt: a
+               non-null one would add a second "is destroyed" line */
+            if (mtmp->mwither_from_u)
+                xkilled(mtmp, XKILL_NOCORPSE | XKILL_NOMSG);
+            else
+                monkilled(mtmp, (char *) 0, AD_WTHR);
+            return;
+        }
+        mtmp->mwither--; /* one turn closer to recovery */
+        if (!mtmp->mwither)
+            mtmp->mwither_from_u = FALSE; /* clear player responsibility */
     }
 
     /* possibly polymorph shapechangers and lycanthropes */
@@ -5336,12 +5357,14 @@ monkilled(
         /* sad feeling is deferred until after potential life-saving */
         iflags.sad_feeling = (mdef->mtame && !mdef->msummoned) ? TRUE : FALSE;
 
-    /* no corpse if digested or disintegrated or flammable golem burnt up;
-       no corpse for a paper golem means no scrolls; golems that rust or
-       rot completely are described as "falling to pieces" so they do
-       leave a corpse (which means staves for wood golem, leather armor for
-       leather golem, iron chains for iron golem, not a regular corpse) */
+    /* no corpse if digested, disintegrated, withered or flammable golem
+       burnt up; no corpse for a paper golem means no scrolls; golems
+       that rust or rot completely are described as "falling to pieces"
+       so they do leave a corpse (which means staves for wood golem,
+       leather armor for leather golem, iron chains for iron golem, not
+       a regular corpse) */
     gd.disintegested = (how == AD_DGST || how == -AD_RBRE
+                       || how == AD_WTHR || how == AD_DISN
                        || (how == AD_FIRE && completelyburns(mptr)));
     if (gd.disintegested)
         mondead(mdef); /* never leaves a corpse */
@@ -5381,9 +5404,10 @@ mon_xkilled(
         /* sad feeling is deferred until after potential life-saving */
         iflags.sad_feeling = (mdef->mtame && !mdef->msummoned) ? TRUE : FALSE;
 
-    /* no corpse if digested or disintegrated or flammable golem burnt
-       up; mirrors monkilled()'s routing */
-    if (how == AD_DGST || how == -AD_RBRE
+    /* no corpse if digested, disintegrated, withered or flammable golem
+       burnt up; mirrors monkilled()'s routing */
+    if (how == AD_DGST || how == -AD_RBRE || how == AD_WTHR
+        || how == AD_DISN
         || (how == AD_FIRE && completelyburns(mdef->data)))
         xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE | XKILL_INDIRECT);
     else
@@ -7941,10 +7965,23 @@ newcham(
 
     possibly_unwield(mtmp, polyspot); /* might lose use of weapon */
     mon_break_armor(mtmp, polyspot);
+    /* mon_break_armor() may kill the monster if it's the player's steed
+       and the new form lands over pool/lava/open-air or has nowhere
+       to go (saddle-strip dismount cascade); mirror new_were() */
+    if (DEADMONSTER(mtmp))
+        return 1; /* polymorph itself succeeded */
     if (!(mtmp->misc_worn_check & W_ARMG))
         mselftouch(mtmp, "No longer petrify-resistant, ",
                    !svc.context.mon_moving);
     check_gear_next_turn(mtmp);
+
+    /* withering has no purchase on a form that cannot wither */
+    if (mtmp->mwither && (nonliving(mdat) || is_vampshifter(mtmp))) {
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s is no longer withering away.",
+                      Monnam(mtmp));
+        mtmp->mwither = 0;
+    }
 
     /* This ought to re-test can_carry() on each item in the inventory
      * rather than just checking ex-giants & boulders, but that'd be

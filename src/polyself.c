@@ -700,6 +700,7 @@ polyself(int psflags)
 {
     char buf[BUFSZ];
     int old_light, new_light, mntmp, class, tryct, gvariant = NEUTRAL;
+    int old_wither, new_wither;
     boolean forcecontrol = ((psflags & POLY_CONTROLLED) != 0),
             low_control = ((psflags & POLY_LOW_CTRL) != 0),
             monsterpoly = ((psflags & POLY_MONSTER) != 0),
@@ -728,6 +729,7 @@ polyself(int psflags)
         }
     }
     old_light = emits_light(gy.youmonst.data);
+    old_wither = Withering;
     mntmp = NON_PM;
 
     /* a tortle's shell doesn't come along to a new form */
@@ -966,6 +968,19 @@ polyself(int psflags)
         if (new_light)
             new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
                              monst_to_any(&gy.youmonst));
+    }
+    new_wither = Withering;
+    if (old_wither && !new_wither) {
+        You("are no longer withering away.");
+        /* currently the only way to have BWithering is to be nonliving,
+           but another source of BWithering might not necessarily cure
+           it, hence this arbitrary distinction */
+        if (nonliving(gy.youmonst.data))
+            /* intrinsic withering has no foothold on a dead body */
+            set_itimeout(&HWithering, (long) 0);
+    } else if (!old_wither && new_wither) {
+        /* only happens with extrinsic withering */
+        You("begin to wither away!");
     }
     /* only remove racial flying if the new form can't fly, and
        preserve it for races that naturally gain flight at certain

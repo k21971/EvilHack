@@ -1371,6 +1371,11 @@ peffect_extra_healing(struct obj *otmp)
     healup(16 + d(4 + 2 * bcsign(otmp), 8),
            otmp->blessed ? 5 : !otmp->cursed ? 2 : 0, !otmp->cursed,
            TRUE);
+    if (otmp->blessed && Withering) {
+        set_itimeout(&HWithering, (long) 0);
+        if (!Withering)
+            You("are no longer withering away.");
+    }
     (void) make_hallucinated(0L, TRUE, 0L);
     exercise(A_CON, TRUE);
     exercise(A_STR, TRUE);
@@ -1391,6 +1396,11 @@ peffect_full_healing(struct obj *otmp)
            multiple potions will only get half of them back */
         u.ulevelmax -= 1;
         pluslvl(FALSE);
+    }
+    if (!otmp->cursed && Withering) {
+        set_itimeout(&HWithering, (long) 0);
+        if (!Withering)
+            You("are no longer withering away.");
     }
     (void) make_hallucinated(0L, TRUE, 0L);
     exercise(A_STR, TRUE);
@@ -2119,16 +2129,51 @@ potionhit(struct monst *mon, struct obj *obj, int how)
         switch (obj->otyp) {
         case POT_FULL_HEALING:
             cureblind = TRUE;
+            if (mon->msick || mon->mdiseased) {
+                if (canseemon(mon))
+                    pline_mon(mon, "%s is no longer ill.", Monnam(mon));
+                mon->msick = mon->mdiseased = 0;
+            }
+            if (mon->mwither) {
+                if (canseemon(mon))
+                    pline_mon(mon, "%s is no longer withering away.",
+                              Monnam(mon));
+                mon->mwither = 0;
+            }
             FALLTHROUGH;
             /*FALLTHRU*/
         case POT_EXTRA_HEALING:
-            if (!obj->cursed)
+            if (!obj->cursed) {
                 cureblind = TRUE;
+                if (mon->msick || mon->mdiseased) {
+                    if (canseemon(mon))
+                        pline_mon(mon, "%s is no longer ill.", Monnam(mon));
+                    mon->msick = mon->mdiseased = 0;
+                }
+                if (mon->mwither) {
+                    if (canseemon(mon))
+                        pline_mon(mon, "%s is no longer withering away.",
+                                  Monnam(mon));
+                    mon->mwither = 0;
+                }
+            }
             FALLTHROUGH;
             /*FALLTHRU*/
         case POT_HEALING:
-            if (obj->blessed)
+            if (obj->blessed) {
                 cureblind = TRUE;
+                if (mon->msick || mon->mdiseased) {
+                    if (canseemon(mon))
+                        pline_mon(mon, "%s is no longer ill.", Monnam(mon));
+                    mon->msick = mon->mdiseased = 0;
+                }
+                if (mon->mwither) {
+                    if (canseemon(mon))
+                        pline_mon(mon, "%s is no longer withering away.",
+                                  Monnam(mon));
+                    mon->mwither = 0;
+                }
+            }
             if (mon->data == &mons[PM_PESTILENCE])
                 goto do_illness;
             FALLTHROUGH;

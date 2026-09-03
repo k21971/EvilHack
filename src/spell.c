@@ -1963,6 +1963,11 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
             You("are %s ill.", was_sick ? "no longer" : "not");
         if (was_slimed)
             make_slimed(0L, "The slime disappears!");
+        if (Withering) {
+            set_itimeout(&HWithering, (long) 0);
+            if (!Withering)
+                You("are no longer withering away.");
+        }
         break;
     }
     case SPE_CREATE_FAMILIAR:

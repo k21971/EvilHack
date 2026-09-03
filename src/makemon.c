@@ -2748,6 +2748,7 @@ clone_mon(
     m2->mconf = 0;
     m2->msick = 0;
     m2->msicktime = 0;
+    m2->mwither = 0;
     m2->mdiseased = 0;
     m2->mdiseasetime = 0;
     m2->mentangled = 0;

@@ -1582,7 +1582,15 @@ really_done(int how)
         int mnum = !Upolyd ? gu.urace.mnum : u.umonnum,
             was_already_grave = IS_GRAVE(levl[u.ux][u.uy].typ);
 
-        corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy, svp.plname);
+        if (!Withering) {
+            /* withering suppresses the actual corpse from being created
+               but still allows creation of a grave (and it doesn't
+               matter whether or not withering was the actual cause of
+               death; dying while withering is assumed to just wither
+               the rest of the body without any vitality to stop it) */
+            corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy,
+                                     svp.plname);
+        }
         Sprintf(pbuf, "%s, ", svp.plname);
         formatkiller(eos(pbuf), sizeof pbuf - Strlen(pbuf), how, TRUE);
         make_grave(u.ux, u.uy, pbuf);

@@ -2893,6 +2893,7 @@ static mswin_condition_field _condition_fields[CONDITION_COUNT] = {
     { BL_MASK_WOUNDEDL,  "Legs", 0 },
     { BL_MASK_HOLDING,   "Uhold", 0 },
     { BL_MASK_SLOW,      "Slow", 0 },
+    { BL_MASK_WITHER,    "Wither", 0 },
 };
 
 extern winid WIN_STATUS;
@@ -2927,7 +2928,7 @@ mswin_status_init(void)
     for (int i = 0; i < SIZE(_condition_fields); i++) {
         ci = cond_idx[i];
         mswin_condition_field * condition_field = &_condition_fields[ci];
-        nhassert(condition_field->mask == (1 << ci));
+        nhassert(condition_field->mask == (1L << ci));
         condition_field->bit_position = ci;
     }
 

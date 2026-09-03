@@ -5502,6 +5502,68 @@ mhitm_ad_poly(
     }
 }
 
+/* withering: the delayed-damage touch of mummies and kin; the victim
+   loses hit points every turn and cannot regenerate until the timer
+   runs out */
+void
+mhitm_ad_wthr(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    struct permonst *pd = mdef->data;
+    boolean negated = mhitm_mgc_atk_negated(magr, mdef, FALSE);
+    uchar withertime = (uchar) min(255, max(2, mhm->damage));
+    boolean lose_maxhp = (withertime >= 8); /* if already withering */
+
+    mhm->damage = 0; /* doesn't deal immediate damage */
+
+    if (mdef == &gy.youmonst) {
+        /* mhitu */
+        hitmsg(magr, mattk);
+        if (nonliving(pd) || racial_vampire(mdef) || racial_zombie(mdef)
+            || negated)
+            return;
+        if (Withering)
+            Your("withering speeds up!");
+        else if (!BWithering)
+            You("begin to wither away!");
+        else
+            You_feel("dessicated for a moment.");
+        incr_itimeout(&HWithering, withertime);
+
+        if (lose_maxhp && !BWithering) {
+            if (Upolyd && u.mhmax > 1) {
+                u.mhmax--;
+                u.mh = min(u.mh, u.mhmax);
+            } else if (u.uhpmax > 1) {
+                u.uhpmax--;
+                u.uhp = min(u.uhp, u.uhpmax);
+            }
+        }
+    } else {
+        /* uhitm and mhitm */
+        if (nonliving(pd) /* is_fleshy() would also exempt fungi, blobs
+                             and jellies */
+            || is_vampshifter(mdef) || negated)
+            return;
+        if (canseemon(mdef))
+            pline_mon(mdef, "%s is withering away!", Monnam(mdef));
+
+        if (mdef->mwither + withertime > UCHAR_MAX)
+            mdef->mwither = UCHAR_MAX;
+        else
+            mdef->mwither += withertime;
+
+        if (lose_maxhp && mdef->mhpmax > 1) {
+            mdef->mhpmax--;
+            mdef->mhp = min(mdef->mhp, mdef->mhpmax);
+        }
+        /* the hero gets credit for the eventual death; a monster
+           attacker, pet or not, does not */
+        mdef->mwither_from_u = (magr == &gy.youmonst);
+    }
+}
+
 void
 mhitm_ad_famn(
     struct monst *magr,
@@ -6933,6 +6995,7 @@ mhitm_adtyping(
     case AD_SLOW: mhitm_ad_slow(magr, mattk, mdef, mhm); break;
     case AD_CONF: mhitm_ad_conf(magr, mattk, mdef, mhm); break;
     case AD_POLY: mhitm_ad_poly(magr, mattk, mdef, mhm); break;
+    case AD_WTHR: mhitm_ad_wthr(magr, mattk, mdef, mhm); break;
     case AD_DISE: mhitm_ad_dise(magr, mattk, mdef, mhm); break;
     case AD_SAMU: mhitm_ad_samu(magr, mattk, mdef, mhm); break;
     case AD_DETH: mhitm_ad_deth(magr, mattk, mdef, mhm); break;

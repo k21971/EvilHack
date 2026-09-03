@@ -1085,6 +1085,8 @@ status_enlightenment(int mode, int final)
                 you_are("terminally sick from food poisoning", "");
         }
     }
+    if (Withering)
+        you_are("withering away", "");
     if (Vomiting)
         you_are("nauseated", "");
     if (Stunned)
@@ -3676,6 +3678,8 @@ mstatusline(struct monst *mtmp)
     }
     if (mtmp->mdiseased)
         Strcat(info, ", dying from disease");
+    if (mtmp->mwither)
+        Strcat(info, ", withering away");
     if (mtmp->msleeping)
         Strcat(info, ", asleep");
 #if 0 /* unfortunately mfrozen covers temporary sleep and being busy

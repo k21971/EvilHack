@@ -762,7 +762,7 @@ draw_vertical(boolean border)
     cond_count = 0;
     if (curses_condition_bits) {
         for (i = 0; i < CONDITION_COUNT; ++i)
-            if (curses_condition_bits & (1 << i))
+            if (curses_condition_bits & (1L << i))
                 ++cond_count;
     }
     per_line = 2; /* will be changed to 3 if status becomes too tall */

@@ -439,10 +439,10 @@ mon_regen(struct monst *mon, boolean digest_meal)
 {
     boolean mon_orcus_wield = mon_wielding_artifact(mon, ART_WAND_OF_ORCUS);
 
-    /* only the undead can regenerate in the Valley of the Dead; the
-       Wand of Orcus suppresses regeneration for any wielder short of
-       a demon prince */
-    if ((!mon_orcus_wield || is_dprince(mon->data))
+    /* a withering monster does not heal at all; only the undead can
+       regenerate in the Valley of the Dead; the Wand of Orcus
+       suppresses regeneration for any wielder short of a demon prince */
+    if (!mon->mwither && (!mon_orcus_wield || is_dprince(mon->data))
         && (!Is_valley(&u.uz) || is_undead(r_data(mon)))
         && (svm.moves % 20 == 0 || mon_prop(mon, REGENERATION)))
         healmon(mon, 1, 0);

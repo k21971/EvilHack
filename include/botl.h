@@ -98,6 +98,7 @@ enum blconditions {
     bl_woundedl,
     bl_holding,
     bl_slow,
+    bl_wither,
 
     CONDITION_COUNT
 };
@@ -136,7 +137,8 @@ enum blconditions {
 #define BL_MASK_WOUNDEDL     0x10000000L
 #define BL_MASK_HOLDING      0x20000000L
 #define BL_MASK_SLOW         0x40000000L
-#define BL_MASK_BITS            31 /* number of mask bits that can be set */
+#define BL_MASK_WITHER       0x80000000L /* last bit of a 32-bit long */
+#define BL_MASK_BITS            32 /* number of mask bits that can be set */
 /* clang-format on */
 
 struct conditions_t {

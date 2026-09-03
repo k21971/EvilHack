@@ -112,6 +112,7 @@ static const struct propname {
     { REFLECTING, "reflecting" },
     { FREE_ACTION, "free action" },
     { FIXED_ABIL, "fixed abilities" },
+    { WITHERING, "withering away" },
     { LIFESAVED, "life will be saved" },
     {  0, 0 },
 };
@@ -817,6 +818,10 @@ nh_timeout(void)
                 }
                 done_timeout(POISONING, SICK);
                 u.usick_type = 0;
+                break;
+            case WITHERING:
+                You("are no longer withering away.");
+                disp.botl = TRUE;
                 break;
             case FAST:
                 if (!Very_fast)
