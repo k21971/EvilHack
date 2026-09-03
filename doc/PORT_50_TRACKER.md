@@ -3311,9 +3311,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dogfood defended() additions (defended sweep); corpse_chance
       Sunsword/Hammer zombie-corpse-dissolve (artifact behaviors -
       Trollsbane sibling also absent); zap.c bhitm cure-sickness
-      monster arm (spell is self-only on branch; NOTE zap_steed
-      default list mentions SPE_CURE_SICKNESS -> would impossible()
-      if ever reachable, pre-existing).
+      monster arm (spell is self-only on branch; RIDER 2026-09-03
+      wither slice: that arm also clears mtmp->mwither, and
+      SPE_CRITICAL_HEALING's 1-in-4 msick/mwither clear plus the
+      zapyourself Withering cures - master zap.c:617/649-664/
+      3306/3331 - travel with the hero spell-parity wiring; NOTE
+      zap_steed default list mentions SPE_CURE_SICKNESS -> would
+      impossible() if ever reachable, pre-existing).
       STYLE NOTE: pline "Mmmm...  tainted meat!" keeps master's
       double space byte-identical (player-facing text; the comment
       style checker flags it - false positive).
@@ -3526,7 +3530,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       fix via an hmd out-flag gives both. DEFERRALS RECORDED:
       erid steed-dismount arms on webbing hits (separate_steed_
       and_rider absent) -> steed/barding slice; shambler_init
-      damg_melee_types AD_WEBS -> shambling-horror slice;
+      damg_melee_types AD_WEBS and AD_WTHR (wither slice
+      2026-09-03) -> shambling-horror slice;
       break_glass_obj spit_object exemption -> glass/blocker combat
       slice; thitu thrower-bracket for the new zero-damage
       projectiles -> kill-attribution slice; puddle/sewage
@@ -8328,6 +8333,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Attribute Expansion content (archive Jul 11 2026: Collects/
       wildshape/floor-eater lines etc.), not just master's baseline
       function - the expansion entries have no other owner.
+      RIDER (2026-09-03, wither slice): damagetypes[AD_WTHR] =
+      "withering" (master pager.c:870) and the AD-label helper's
+      `case AD_WTHR: return "wither";` (master pager.c:1928) land
+      here with the tables; the attack is live on the branch now.
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -11772,44 +11781,117 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       segments before any cut/split roll; pmnames[2] is the base
       name (index 0 is MALE and NULL for genderless species - gdb
       $_streq on it aborts).
-- [ ] AD_WTHR withering system NOT PORTED (minted 2026-09-02 by
-      the clone-reset slice's exploration; MED - the signature
-      attack of 14 monsters.h entries, mummies and kin, is inert).
-      The branch carries scaffolding only: monattk.h AD_WTHR, the
-      14 ATTK entries, monst.h mwither/mwither_from_u, prop.h
-      WITHERING with the pray.c TROUBLE_WITHERING cure (the
-      numeric-sweep header's "wither live on branch" note was
-      wrong), polyself.c BWithering pre-wire, artifact.c invoke
-      cure, mcastu/muse cure-self reads. No code consumes AD_WTHR
-      (rg 'WTHR' src/*.c = 0 hits): monster claws reach
-      mhitm_adtyping's default: mhm->damage = 0 (zero damage, no
-      effect, both directions) and nothing sets HWithering. Master
-      net sites - monster side: mhitm.c:2718 and uhitm.c:3870 arms
-      (withertime = max(2,tmp); mwither += withertime with
-      UCHAR_MAX clamp; mhpmax-- when withertime >= 8;
-      nonliving/vampshifter/cancelled immune; mwither_from_u
-      FALSE/TRUE for kill credit), mon.c:1393-1406 mcalcdistress
-      tick (rnd(2) minus 1 for regenerators per turn, "withers
-      away completely!" -> xkilled NOCORPSE|NOMSG or monkilled
-      AD_WTHR, mwither_from_u cleared at 0), mon.c:7291 newcham
-      cure for nonliving/vampshifter forms (aad139a8d),
-      mon.c:5037/5067 monkilled no-corpse routing (the branch
-      monkilled lacks the AD_WTHR term), monmove.c:371 mon_regen
-      !mwither gate (the artifacts row's "wither owner" deferral
-      lands here), dog.c:1010 catch-up gate, potion.c:1893-1922
-      healing-potion cures, priest.c:1479, zap.c:649 cure-spell
-      arm, pager.c:1928 "wither" label, u_init.c:1583 known-attack
-      list, plus the clone_mon/montraits mwither=0 resets. Hero
-      side: mhitu.c:2808 arm (hitmsg; incr_itimeout(&HWithering,
-      min(255,max(2,dmg))); maxhp-- at >= 8 unless BWithering;
-      nonliving/vampire/zombie immune; "You begin to wither away!"
-      / "Your withering speeds up!" / "You feel dessicated for a
-      moment."), allmain.c:486 per-turn HP loss and :1097/:1165
-      regeneration block, botl.c :184/:909 status field,
-      cmd.c:2983 ^X line, end.c:1782. Master commits: 3fb3081f4
-      (mummies wither), 8997c26c2 (overhaul), 4e2f188b1,
-      aad139a8d, BUG-1305 attribution. Archive-sweep the BUGFIXES
-      'wither' entries before porting.
+- [x] AD_WTHR withering system PORTED 2026-09-03 (minted 2026-09-02
+      by the clone-reset slice; MED - the signature attack of 14
+      monsters.h entries was inert). One new mhitm_ad_wthr() in
+      uhitm.c merges master's mhitu.c:2808 / uhitm.c:3870 /
+      mhitm.c:2718 arms - mhitm_mgc_atk_negated() reproduces all
+      three master negation predicates per attacker type (reviewer
+      verified: mcan||armpro roll for a monster attacker, roll only
+      for the hero); withertime = (uchar) min(255, max(2, roll)) on
+      all three legs (BUG-413's clamp widened from mhitu only);
+      mwither_from_u = (magr == hero), m-v-m never credits (master
+      parity, BUG-1305 pet-DoT credit still deferred). Monster tick
+      in m_calcdistress after the disease block, return-after-kill,
+      xkilled(NOCORPSE|NOMSG) for hero credit else monkilled(mtmp,
+      (char *) 0, AD_WTHR) - NULL per the BUG-1219 fltxt rule;
+      master's "" doubled the death line = BUG-1743 frozen-unfixed;
+      the NULL arm gives a SEEN tame victim the sad-feeling line
+      (upstream NULL-caller quirk, recorded). monkilled/mon_xkilled
+      AD_WTHR terms; newcham nonliving/vampshifter cure; mon_regen
+      and dog.c catch-up gates (master's off-level comment kept);
+      clone_mon and zap.c poly resets. Hero: moveloop tick (rnd(2)
+      minus 1 with Regeneration, losehp "withered away") and both
+      regen_hp gates heal && !(Withering && heal > 0); timeout.c
+      name + expiry; insight ^X + mstatusline; end.c no corpse with
+      the grave kept (corpse NULL is safe through savebones);
+      polyself old/new wither messages. Cures: peffect_extra_healing
+      (blessed) / peffect_full_healing (!cursed); potionhit monster
+      cures under master's BUC rules INCLUDING master's msick/
+      mdiseased "is no longer ill." blocks from the same hunk
+      (4d1384473's thrown-potion half, which the branch potionhit
+      also lacked - Decision A, coupled sibling); spell.c
+      SPE_CURE_SICKNESS self-cure (the branch home of master's
+      zapyourself arm; cure sickness is self-only on the branch).
+      Status: bl_wither + BL_MASK_WITHER 0x80000000L = bit 31,
+      BL_MASK_BITS 32 - the LAST free bit, a 33rd condition needs a
+      wider mask type; conditions[] rank 6 "Wither"/"Wthr"/"Wth",
+      condtests "wither" opt_out, "all" + "major_troubles" aliases,
+      classic bot2 line, windows.c genl_status_update +
+      dump_render_status rows (the branch's Slow backfilled in both
+      - Decision B), mswproc row; X11/Qt per-condition tables and
+      Guidebook.mn's condition lists untouched (Slow precedent -
+      Decision C). REVIEWER CONDITIONAL PASS -> three coupled fixes
+      in the same commit: cursstat.c/mswproc.c 1 << 31 UB at
+      condition index 31 (BUG-1742); monkilled/mon_xkilled missing
+      master's AD_DISN term (BUG-1740 - the four artifact.c
+      monster-attacker incinerations, Annihilation/Trollsbane/
+      Sunsword/Hammer, left corpses since the artifacts slice; the
+      hero-wielded paths use xkilled NOCORPSE and were fine);
+      newcham BUG-985 DEADMONSTER guard re-port after
+      mon_break_armor (BUG-1741 - this slice's plan wrongly claimed
+      it present without reading newcham; new_were() had it).
+      Reviewer notes kept as-is: potionhit cures clear the msick/
+      mdiseased flags only (master parity; muse.c's self-cure also
+      clears msickbyu/mdiseabyu/msicktime/mdiseasetime while mon.c's
+      unicorn-horn cure does not - LOW idiom question, unchanged);
+      "You feel dessicated for a moment." sits on the BWithering
+      else-branch behind the nonliving/vampire/zombie return and is
+      unreachable on both trees (dead text, parity); RIN_INCREASE_
+      DAMAGE is not folded into mhm.damage before adtyping on the
+      branch (5.0 difference, roll excludes ring bonus). NOT here
+      (owners, riders added): u_init.c damg_melee_types AD_WTHR
+      (shambling-horror), pager.c "withering"/"wither" labels
+      (pokedex row), zap.c bhitm SPE_CURE_SICKNESS / SPE_CRITICAL_
+      HEALING mwither clears + zapyourself Withering cures (hero
+      spell-parity rows). BATTERY 15/15 + follow-up 4/4 PASS (human
+      Valkyrie XL30 x3 + vampiric Rogue; paniclog clean except one
+      tester-staging rloc_to placement line): timer = roll exactly
+      (1d4 -> 2..4; giant mummy 3d4 hit table of 11 rows, every
+      roll >= 8 cost 1 uhpmax, the 8 lost max HP NOT restored by
+      full healing); per-turn loss 1-2, 0-1 with Regeneration, regen
+      blocked hero and monster (troll 0-1, never a gain); "speeds
+      up"; ^X, stethoscope ", withering away", " Wither" on tty,
+      curses ("Wither Lev") and the dumplog status; expiry message
+      with regen resuming; cure matrix exact (blessed extra /
+      uncursed full / spell; uncursed extra does NOT; thrown healing
+      blessed-only, extra !cursed, full any BUC, each also curing a
+      staged msick); golem polyform immune (hitmsg only), poly-into-
+      golem cures, vampire race immune, mcan=1 no proc; u-v-m credit
+      +22 xp with "withers away completely!" once and no corpse;
+      m-v-m no credit; UCHAR_MAX clamp 255; polymorph-to-vortex
+      cures; off-level timer and hp frozen (test monster 40/50-60
+      after 32 turns away); gremlin clone mwither 0 vs parent 59;
+      save/restore timer 18 kept; death "withered away" -> GRAVE typ
+      34, no corpse, dumplog "Wither"; Annihilation monster-wielded
+      proc -> no corpse (control corpse); dead-steed dismount
+      cascade clean. Battery anomalies: a gdb-tamed dark elven
+      captain killed the hero's little dog with no Conflict (row
+      minted below); genesis "tame captain" fuzzy-matched dark elven
+      captain and dropped the tame prefix (gameplay lore).
+- [ ] m_calcdistress() lacks master's BUG-1314 dead-monster
+      continuation after decide_to_shapeshift (minted 2026-09-03 by
+      the wither slice's reviewer; LOW). Master mon.c:1517-1524
+      follows the shapeshift call with `if (DEADMONSTER(mtmp))
+      continue;` ("the shape change might have killed it"); the
+      branch runs were_change() and the timer writes on a monster
+      newcham() can now leave dead through the dismount cascade (the
+      BUG-1741 guard returns 1 on the dead steed). The newcham_
+      deferred/minliquid half of BUG-1314 is adjudicated N/A on the
+      branch (5.0 newcham does not tail-call minliquid - Izchak
+      row); this one-line continuation is the remaining piece.
+      Battery: ridden chameleon steed over water forced into a
+      non-rideable form.
+- [ ] pet-vs-pet melee without Conflict observed (minted 2026-09-03
+      from the wither follow-up battery; LOW, uninvestigated). A
+      gdb-tamed dark elven captain (newedog + initedog, mtame 5)
+      wielding the Sword of Annihilation attacked and killed the
+      hero's tame little dog with no Conflict active ("The deadly
+      blade partially disintegrates the little dog! The little dog
+      is killed!"); dogmove's target filter is supposed to skip tame
+      targets without Conflict. Reproduce with an ordinary tame
+      melee monster beside a pet before blaming the gdb taming or
+      the artifact; compare master first.
 - [ ] minsects producer/consumer pair NOT PORTED (minted
       2026-09-02 by the clone-reset slice; LOW; the row the
       spell-list slice's RIDERS note and the Racial-monsters NIT
@@ -12285,6 +12367,41 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       PHASE 3 IS COMPLETE.
 
 ## Phase 4 - Display and UI
+
+- [ ] UPSTREAM CATCH-UP + PLATFORM PARITY (maintainer directive
+      2026-09-03, recorded by the wither slice; blocks nothing today,
+      owns the merge-time work). The branch's 5.0 base is the
+      adoption tip (nh50/master 74d1133c2, == Official_nh50, which is
+      FROZEN there); NetHack50 tracks upstream and by 2026-09-01
+      (593193cdf) carries significantly more macOS, X11, Qt, MSDOS and
+      Amiga platform support than this build. When the latest 5.0 is
+      pulled in, EvilHack must be brought to FULL support on every
+      platform 5.0 supports - not just tty/curses on Linux. Known
+      display gaps to fold in at that point: (1) win/X11/winstat.c is
+      untouched since adoption and hand-lists 19 condition masks in
+      tt_condorder[] / mask_to_fancyfield[] / the F_ field switches
+      and status_indices[] layout; it lacks the branch's Slow and
+      Wither AND eight vanilla 5.0 conditions (bareh, elf_iron,
+      glowhands, icy, parlyz, slippery, submerged, woundedl) that
+      upstream added afterwards in the Xft rewrite (ddbea3b72
+      "Implement remaining status labels" and its neighbours) - so
+      the file is replaced wholesale by the merge; add Slow/Wither
+      rows to the NEW tables then, mirroring master 3fb3081f4's X11
+      placement (F_WITHER beside F_TERMILL). (2) win/Qt/qt_stat.cpp
+      renders 13 hard-coded condition widgets tested against hero
+      properties (no BL_MASK reads; upstream HEAD is still the same
+      shape) - add slow/wither NetHackQtLabelledIcon members, init-
+      list entries, show/hide arms and layout slots (Slow/Withering
+      properties), or adopt a mask-driven loop if upstream has one by
+      then. (3) doc/Guidebook.mn's two condition-flag lists (fatal/
+      non-fatal names and the statushilites "condition" flags) still
+      show the classic 13 on both trees - add slow and wither with the
+      Guidebook date bump. (4) neither X11 nor Qt dev packages are
+      installed on the build host (pkg-config x11/xt/xaw7/xpm and
+      Qt5/Qt6 absent) - installing libxaw7-dev + libxpm-dev and a Qt
+      toolchain is part of this row so the ports compile-check here.
+      Master never touched X11/Qt (EvilHack 3.6 shipped tty/curses
+      only); 5.0's broader platform support is the reason to do it.
 
 - [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
       with upstream coloratt/utf8map (nh50-color-architecture
