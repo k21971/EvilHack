@@ -3336,8 +3336,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       breamm gate+setter field swap, mon_regen decrement (after
       mspec_used, master order), dog.c mon_catchup decay arms for
       mbreath_attk AND mtk_attk (the mtk arm was a telekinesis-slice
-      gap; mbreakboulder decay deferred - field verified dead on
-      branch, boulder-break still runs on mspec_used per 5.0 base),
+      gap; the mbreakboulder decay arm deferred here as 'field dead
+      on branch' LANDED 2026-09-03 with the boulder-break slice -
+      the field was unported, not dead),
       getmattk AT_ENGL breath-block + AD_DISE/AD_DISN AT_TUCH arms +
       neothelid rn2(2) forced-engulf, munslime/muse_unslime swaps,
       nasty() arrival-delay trio (mtk_attk also a telekinesis-slice
@@ -11745,7 +11746,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       breaking OFF mspec_used (the spellcasting cooldown, as the
       3.7 TODO said) onto the dedicated mbreakboulder timer, and
       the branch still runs vanilla 5.0's mspec_used form. Its
-      reset lines ride the boulder-break row minted below.
+      reset lines rode the boulder-break row minted below (LANDED
+      2026-09-03).
       montraits() unchanged (its extra mprotection clear is the
       BUG-1654 fix, kept). wormno safety: cutworm() is the only
       long-worm caller and assigns new_worm->wormno = new_wnum
@@ -11905,43 +11907,116 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       corpses), and the clone_mon/montraits minsects=0 resets. All
       four land together; battery = summon insects both
       directions, kill ~20, count corpses; resets by gdb read.
-- [ ] monster boulder-breaking extensions + mbreakboulder cooldown
-      NOT PORTED (minted 2026-09-02 after the maintainer corrected
-      the clone-reset record's 'superseded' claim; MED -
-      behavioral, plus a spellcasting-cooldown collision). Branch
-      m_can_break_boulder/m_break_boulder (monmove.c) are vanilla
-      5.0 byte-verbatim: riders always, shk/priest/MS_LEADER gated
-      on !mspec_used, mutters-only message, mspec_used +=
-      rn1(20,10), no peaceful gate. Master net = four commits:
-      6eb8f12fd (2023-04-20, modified port of 3.7 200cc21) adds
-      the !mpeaceful outer gate (peacefuls never break), the
-      Oracle, and the mutters/whispers variant; ec602a1ea
-      (2023-07-05) lets any monster wielding a pick/digging tool
-      break boulders (using_pick: '<Mon> swings <his> <tool>.'
-      when the spot is seen, else You_hear a crumbling sound; the
-      pick path skips the cooldown); 6f210b1fa (2025-02-18, the
-      covetous normal-movement commit) adds
-      is_dprince/is_dlord/MS_NEMESIS to the breaker list;
-      6ebf3b03a (2025-04-11) replaces mspec_used with the
-      dedicated mbreakboulder int ('mspec_used is for monster
-      spellcasting'), unique_corpstat breakers reload rn1(4,2) vs
-      rn1(20,10), mon_regen decrements it, dog.c mon_catchup
-      decays it, montraits resets it alongside the
-      vuln/mprottime/ward timers, and any MS_LEADER may break
-      (branch already has MS_LEADER via 5.0). BUG-625 fa9b555e9
-      adds the clone_mon reset. Branch impact today: a hostile
-      shk/priest/quest leader that breaks a boulder has its
-      SPELLCASTING suppressed for 10-29 turns (priests and leaders
-      cast) and a caster mid-cooldown cannot break; demon
-      lords/princes, nemeses, the Oracle and pick-wielders cannot
-      break at all (covetous monsters stall behind boulders - the
-      reason 6f210b1fa widened the list); peaceful
-      shk/priests/leaders DO break. 6f210b1fa's movement half is
-      itself unported (parked as item (d) on the music.c
-      earthquake reconcile row), so its breaker-list arm lands
-      here regardless. Port = the whole cluster on master's final
-      shape; the clone_mon/montraits mbreakboulder=0 resets land
-      here.
+- [x] monster boulder-breaking extensions + mbreakboulder cooldown
+      PORTED 2026-09-03 (minted 2026-09-02 after the maintainer
+      corrected the clone-reset record's 'superseded' claim; MED -
+      behavioral, plus a spellcasting-cooldown collision). Port =
+      master NET c444f6a3a (6eb8f12fd + ec602a1ea + 6f210b1fa's
+      breaker-list arm + 6ebf3b03a + fa9b555e9's clone reset) INTO
+      the 5.0 bodies: m_can_break_boulder() = master's predicate
+      verbatim (!mpeaceful outer gate; Riders and MON_WEP is_pick
+      wielders every turn; !mbreakboulder && (is_dprince || is_dlord
+      || isshk || ispriest || MS_LEADER || MS_NEMESIS || PM_ORACLE));
+      m_break_boulder() = master's message block (mdistu < 16: pick +
+      cansee(x,y) 'swings <his> <tool>' / pick + unseen + !Deaf
+      You_hear crumbling / else !Deaf mutters|whispers a prayer|an
+      incantation, the Riders included) + master's cooldown block
+      (!is_rider: unique_corpstat ? rn1(4,2) : rn1(20,10) onto
+      mbreakboulder, never mspec_used) + the two 5.0-only hunks KEPT
+      (set_msg_xy location hints 30d2eeea4, shop bill_dummy_object
+      unpaid tail 447da0948); mon_regen decrements after mbindtimer
+      (master's slot); dog.c mon_catchup decays after the mtk_attk
+      arm with master's comments (incl. the "spellcasting 'power'"
+      label on the mspec_used block); zap.c montraits and makemon.c
+      clone_mon clear it (the two lines the clone-reset slice
+      deferred here). No signature, header or save-format change
+      (monst.h field pre-existed; makemon zeroes via cg.zeromonst).
+      Callers untouched and already master-shaped on 5.0:
+      mon_allowflags() (replaces master's three allowflags sites),
+      m_move's ALLOW_ROCK arm behind the BUG-932 guard, pri_move.
+      Decisions: A Rider speech = master's (upstream 200cc21 gated
+      the line on !is_rider; master 6eb8f12fd moved it out -
+      'feedback adjusted' - deliberate); B 5.0 set_msg_xy +
+      bill_dummy_object kept (improvements, no conflict); C pick
+      path accrues the cooldown but the predicate ignores it for
+      pick-wielders (master parity; the field is += so a pick
+      dwarf reached 49 in the battery - harmless int). CORRECTION
+      to this row's minting text: 6f210b1fa's covetous close-range
+      movement half was NOT unported - it landed 2026-08-13 as item
+      (d) of the music.c earthquake reconcile row (55bcb5a8d,
+      BUG-1558..1561: tactics() rn2(20) && distu<=8 early-out to
+      m_move, m_move distu>8 warp-only postmov tail), so demon
+      bosses and nemeses reach the ALLOW_ROCK arm and the widened
+      list is fully live. Archive sweep clean (BUG-932 guard and
+      BUG-1256 pathfind invalidation already on the branch).
+      REVIEWER PASS zero defects (term-by-term parity; the field's
+      seven reader/writer sites = master's seven; callers, mfndpos
+      ALLOW_ROCK semantics and covetous reachability traced live) +
+      one LOW taken (dog.c block order) + one out-of-scope defect
+      taken as a coupled sibling in the same commit: BUG-1744
+      fracture_rock() lost master's BUG-383 was_thrown reset when
+      5.0 renamed the field to how_lost - a giant hero's thrown
+      boulder, broken by a force bolt or by m_break_boulder, handed
+      LOST_THROWN to the 7-66 rocks and pickup_thrown autopicked
+      them (upstream 5.0 shares the gap); fix obj->how_lost =
+      LOST_NONE in the same slot. Reviewer's second out-of-scope
+      lead -> LOW row below (6f210b1fa minion.c newsym hunks).
+      BATTERY 10/10 PASS (one human Valkyrie XL30 game, T:216,
+      sanity_check on, paniclog never created): Oracle 'It mutters
+      an incantation. The boulder falls apart.' brk=2 then 2->1->0
+      tick with can_break flipping 0->1 at 0 and a second break at
+      0; priest 'mutters/whispers a prayer' brk=13 exact roll with
+      mspec_used 50->49 (one regen tick only) and 'casts a spell!'
+      in the same message batch while brk=9 = the decoupling proof;
+      peaceful priest/shk/Oracle probes 0 and never break; dwarf
+      'swings his pick-axe' then breaks again at brk~20 (cooldown
+      ignored), blind hero hears 'a crumbling sound.' with neither
+      cansee line; Yeenoghu brk=4, Lord Surtur (msound 37) brk=4;
+      Death breaks every blocked turn brk=0 while mounted on its
+      Pale Horse; mon_catchup 20->17 after 4 turns away, 25->0
+      after 47; montraits troll corpse traits brk=15 -> revived
+      brk=0 with mspec_used carried (40->39); clone_mon pudding
+      clone brk=0 parent 6 with mspec_used copied to both; hill
+      giant can_break=0 stands on a two-boulder square; tamed pick
+      dwarf can_break 1->0. FACTS the battery established (harness
+      lore -> gameplay.md): the Oracle's species speed is 0 at rest
+      and setmangry() raises mons[PM_ORACLE].mmove to 18 when she is
+      angered (mon.c, both trees), so the PM_ORACLE arm is live in
+      real play - the battery's gdb lever (mpeaceful=0 + set_malign)
+      bypassed setmangry and left her immobile, and the tester's
+      mmove=12 write was a harness artifact, NOT evidence of dead
+      code (first recorded as 'dead code on both trees', corrected
+      by the maintainer the same session); '^G aligned priest'
+      yields an ispriest=0 'aligned
+      cleric' (lever: call newepri + ispriest=1); genesis'd dwarves
+      carry a pick but do not wield it off diggable terrain (a
+      natural mountain dwarf on Dlvl 2 wielded one and probed
+      can_break=1 unaided); demon lords/nemeses arrive with
+      STRAT_WAITFORU and a boulder ring blocks their LOS (lever:
+      mstrategy=0); boulders block LOS so an enclosed hero reads
+      'It mutters' - the boulder square itself stays cansee.
+      Anomaly (observation only): the pick-break line shares
+      mswings()'s '<Mon> swings <his> <weapon>.' shape; only
+      simpleonames vs xname distinguishes them.
+      FOLLOW-UP 3/3 PASS on the rebuilt binary (second game, hill-
+      giant polyform, paniclog never created): the thrown boulder
+      read how_lost=1, the 41 rocks from a wand-of-striking break
+      read how_lost=0 and stayed on the floor while a how_lost=1
+      dagger on the SAME square was autopicked on the same step
+      (pickup_thrown live, rocks excluded solely by the reset); the
+      reordered mon_catchup decayed mspec_used/mbreath_attk/mtk_attk
+      /mbreakboulder 20->17 together after 3 elapsed moves and
+      25->0 together after 42.
+- [ ] LOW minion.c bribe-refusal redraw (6f210b1fa's two newsym hunks)
+      NOT PORTED (minted 2026-09-03 by the boulder-break slice's
+      reviewer). Master 6f210b1fa added newsym(mtmp->mx, mtmp->my)
+      after both mpeaceful = 0 + set_malign() flips in demon_talk()
+      (src/minion.c: the no-gold/cannot-move refusal and the 'gets
+      angry...' refusal) so the demon's glyph drops its peaceful
+      highlight at once; the branch (and upstream 5.0) redraw only
+      on the next newsym of that square. Cosmetic, two lines; fell
+      between the covetous close-range row (item (d), 55bcb5a8d)
+      and the boulder-break row. Take with any minion.c slice.
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
