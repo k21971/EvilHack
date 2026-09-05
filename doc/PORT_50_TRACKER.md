@@ -1544,7 +1544,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is_better_armor x4 - to the 3-arg slot form when the
       BUG-1266 rework ports, add the W_RINGL/W_RINGR cases to
       find_best_armor_recurse, and take BUG-1268's m_dowear
-      empty-hand ordering), armor_bonus/material_bonus AC.
+      empty-hand ordering; 2026-09-05 levitation-slice obligation:
+      worn.c's OFF LEVITATION/FLYING arms clear MR2_LEVITATE/
+      MR2_FLY unconditionally (master shape - one worn source per
+      property today), so once RIN_LEVITATION and levitation boots
+      are both wearable, removing one must re-scan the remaining
+      worn gear like the resistance OFF arms or a levitating
+      monster over water drowns; BUG-271 #1 (searches_for_item
+      RIN_LEVITATION) and BUG-502 (extra_pref RIN_LEVITATION
+      can_fly) ride here too), armor_bonus/material_bonus AC.
       SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
       4 wizard games on the fresh install, sanity_check ON every
       turn): PANICLOG EMPTY, zero crashes/impossibles. PASSED
@@ -5800,7 +5808,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (f) monster worn LEVITATION/FLYING extrinsics: branch worn.c
       update_mon_extrinsics still lists both as "should have an
       effect but aren't implemented" (WWALKING was split out and
-      implemented by this sweep); master sets MR2_LEVITATE/MR2_FLY;
+      implemented by this sweep); master sets MR2_LEVITATE/MR2_FLY
+      - LANDED 2026-09-05 with the can_levitate/can_fly sweep slice
+      (producer ported in master's shape with BUG-1138 gating);
       (g) mfndpos wantpool lacks master's BABY_SEA_DRAGON/SEA_DRAGON
       terms and wantlava/wantice (salamander/frost salamander) are
       absent entirely; wantice also needs has_cold_feet (icequeen
@@ -7615,6 +7625,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       f8ebd89db cramped_wings BFlying muck in the puton arm - the
       Flying-macro W_ARMOR carve-out (landed 2026-08-27) is its
       precondition.
+      ANNOTATION 2026-09-05 (levitation/flight slice): the MONSTER
+      half is the same helper - update_mon_extrinsics() computes
+      `which` from oc_oprop, so celestial dragon-SCALED body armor
+      confers no MR2_FLY to monsters until armor_provides_extrinsic
+      lands (bare scales and the amulet of flying do, since that
+      slice ported the LEVITATION/FLYING producer). Related hero
+      gap on both trees (reviewer LOW): the Flying macro reads
+      is_flyer(u.usteed->data) only, never can_fly(u.usteed), so
+      pooleffects/swim_move_danger now keep a hero dry on an
+      amulet-of-flying steed while dotrap's check_in_air still
+      fires floor triggers under the pair - BUG-271 class; take it
+      when the macro is next touched.
 - [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
       !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
       polyself.c rehumanize FROMHUNGER reset, independent live bug
@@ -9181,28 +9203,142 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       enexto_core_mon with its feature: apply.c hooked-axe pit
       escape, mon.c larva-host steed displacement, uhitm.c
       underwater swim-under displace.
-- [ ] can_levitate/can_fly consumer sweep beyond goodpos/
-      minliquid/mfndpos (NEW 2026-07-31; MEDIUM - upgraded from
-      the planned LOW after the battery produced a live kill).
-      steed.c's dismount drop check reads data-only grounded(mdat)
-      where master guards with !can_levitate - battery repro,
-      twice: a saddled pony with verified MR2_LEVITATE dismounted
-      over water -> "The saddled pony falls into the water! The
-      saddled pony is killed!" (the have_spot/ride-onto-water
-      path; the converted no-dry-tile fallback is a different
-      arm). Also data-only: trap.c pit/hole arms, do.c boulder
-      push. Flagged-at-design-time gaps in the same family:
-      dismount triple-failure mongone (master steed.c), mhitu eel
-      puddle/sewage refinements, goodpos hero-water Breathless
-      question comment. SWEEP ADD (2026-08-27, monster-looting
-      reviewer): muse.c find_defensive's WAN_DIGGING arm lacks
-      master's !can_levitate conjunct in BOTH the kept flat loop
-      and the new check_defensive_item - fix both together.
-      SWEEP ADD (2026-08-28, drawbridge-crush reviewer):
-      dbridge.c e_survives_at's pool and lava arms are data-only
-      is_flyer/is_floater - master adds || can_levitate(emon) to
-      both; an item-levitating monster on an operating moat/lava
-      drawbridge drowns/burns on branch where master spares it.
+- [x] can_levitate/can_fly consumer sweep beyond goodpos/
+      minliquid/mfndpos PORTED 2026-09-05 (minted 2026-07-31;
+      MEDIUM after the BUG-1413 battery's live kill: steed.c's
+      dismount drop check read data-only grounded(mdat) where
+      master guards with !can_levitate - "The saddled pony falls
+      into the water! The saddled pony is killed!"). Port = master
+      NET c444f6a3a of 8f39a646a (rings/boots of levitation) +
+      662e9cef4 (amulets of flying) + BUG-271 1bb8e5ebf + BUG-527
+      d0453b239 + BUG-1138 6d4c19723; 11 files +110/-33, no
+      signature/header/save-format change; commit A a3040a7a4.
+      KEY EXPLORATION
+      FINDING: the PRODUCER was unported - branch worn.c
+      update_mon_extrinsics() stubbed LEVITATION/FLYING ("should
+      have an effect but aren't implemented", the damp-sweep riders
+      row's item (f)), so nothing set MR2_FLY and only the
+      SPE_LEVITATION self-cast set MR2_LEVITATE; a consumer sweep
+      alone would have stayed dormant -> producer TAKEN here
+      (maintainer ruling): ON/OFF LEVITATION and FLYING cases in
+      master's shape with BUG-1138's message gating (pline_mon
+      idiom; master ignores `silently` there, parity kept - the
+      creation-time message cannot fire because monsters dress
+      before vision_reset), enabling levitation boots (W_ARMF),
+      the amulet of flying (W_AMUL) and bare celestial dragon
+      scales; dragon-SCALED body armor still confers nothing to
+      monsters (armor_provides_extrinsic unported -> conduct-wiring
+      row annotated). CONSUMER TERMS (master parity; branch
+      m_in_air()/grounded() readers gain "|| can_levitate ||
+      can_fly", is_floater readers gain "|| can_levitate" - flyers
+      may take stairs and dig): dbridge.c e_survives_at pool+lava;
+      dig.c digactualhole pit (flies/floats verb) + hole arms;
+      hack.c pooleffects steed arm; mon.c minliquid_core two
+      post-survival arms + mpickgold gate; muse.c find_defensive
+      stairs/ladder x4 + hole-trap arm + WAN_DIGGING flat loop AND
+      check_defensive_item (the 2026-08-27 SWEEP ADD) +
+      searches_for_item WAN_DIGGING + muse_unslime over/onto;
+      insight.c mstatusline ", levitating" (master priest.c);
+      steed.c mount_steed reach + "magically floats up" + dismount
+      drop arm (THE KILL); trap.c trapeffect_pit/hole arms, the
+      vibrating-square "beneath <mon>" message (this row's
+      "landmine" attribution was wrong - master's 4-term site is
+      case VIBRATING_SQUARE), float_up steed arm, float_down x2;
+      wizard.c tactics artifact pickup. 5.0-IDIOM CHOICES: (a)
+      trap.c check_in_air() monster arms gain both terms - it is
+      5.0's single gate for m_harmless_trap (mfndpos avoidance =
+      master's pit/hole/bear/squeaky !can_levitate arms) and
+      mintrap's floor-trigger skip; DELIBERATE superset: a
+      levitating monster now skips every 5.0 floor trigger like 5.0
+      flyers and the levitating hero (master's mintrap still
+      catches a levitator in a bear trap - a master inconsistency,
+      not carried); FORCETRAP/HURTLING bypass it into
+      trapeffect_pit/hole's own arms; (b) the floater/levitator
+      pickup restriction (Hdgn riders item (b), CLOSED here) lands
+      in dogmove.c could_reach_item() - 5.0 routes m_search_items,
+      mpickstuff and every pet fetch/eat decision through it (seven
+      callers) - carrying mpickstuff's beholder/Tal'Gath exemption
+      so they keep "magically gathering up"; mpickgold gets master's
+      gate verbatim (dead on branch: only vault guards call it, 5.0
+      gold goes via mpickstuff). RULINGS (2026-09-05, plan
+      AskUserQuestion): producer in scope; can_fly ADDED at the 8
+      steed/entity airborne sites where master has only
+      can_levitate (BUG-1747 master frozen-unfixed: a steed wearing
+      an amulet of flying is not Flying for the hero and drowns on
+      dismount on master). RE-CARRIES: BUG-1745 = master BUG-527
+      (dismount triple-failure mongone, this row's design-time
+      flag; the 5.0 `(void)` third enexto placed the steed on stale
+      coordinates); BUG-1746 = BUG-271 parts 4+5 (float_up steed
+      arm; the paranoid-swim gate, which 5.0 rewrote into
+      swim_move_danger/u_simple_floortyp with no steed term at all
+      - u_in_air now mirrors the pooleffects arm). VERIFIED PRESENT,
+      no edit: the mhitu.c eel/leech puddle+sewage drop-arm
+      refinements and the goodpos hero-water comment (both
+      design-time flags of this row); goodpos x3, mfndpos x3,
+      monmove.c sewage + open-air, mcastu.c x4, dokick.c, dogmove.c
+      open-air, the mlevitatetime tick, SPE_LEVITATION, steed spear
+      trap x2. ROUTED, not edited: muse.c RIN_LEVITATION
+      searches_for_item + worn.c extra_pref ring/oprop scoring
+      (BUG-271 #1, BUG-502) -> monster ring-wearing (Racial umbrella
+      tail); uhitm.c/hack.c "swim underneath" block (BUG-271 #2) ->
+      damp-sweep rider (b); maybe_freeze_underfoot (BUG-271 #3) ->
+      icequeen rider (a); mloot_container + container likes ->
+      container-looting; create_pit_under (BUG-679) -> its own
+      slice; do.c boulder-fill !m_in_air and trap.c squeaky/bear/
+      landmine-currents/rolling-boulder m_in_air arms left
+      data-only (master has is_flyer-only or no term; reachable
+      only under FORCETRAP/HURTLING now that check_in_air gates the
+      rest). Known master limitation carried: mextrinsics is one
+      non-refcounted bitmask (boots + spell, or the spell timer
+      expiring under boots, clears the bit early - BUG-1138 note;
+      ring-wearing obligation recorded on the Racial umbrella tail).
+      REVIEWER PASS zero defects (term-by-term parity vs master's
+      95 sites; check_in_air's three callers traced with the is_you
+      arms unchanged; could_reach_item's seven callers with the
+      exemption reaching mpickstuff's gold arm; mongone on the
+      displaced steed leaves the engulfer on the map via
+      mon_leaving_level's onmap guard - verified by hand) + three
+      LOW parity notes: the bitmask (above), the hero Flying macro
+      ignoring can_fly(u.usteed) on both trees (-> conduct-wiring
+      row annotation), mstatusline's unbounded info[] (shared
+      upstream shape). BATTERY 9 legs, every sub-case in both
+      polarities PASS (two human Valkyrie XL30 games, sanity_check
+      on; paniclog's single line "impossible levl[44][4] vision
+      blocking" = the tester's runtime create_drawbridge staging
+      without the unblock_point the drawbridge lore prescribes, not
+      slice code): boots "starts to float in the air!" 0x0->0x400,
+      m_dowear swap-out "floats gently back to the stairs"
+      0x400->0x0, BUG-1138 no-repeat with the bit pre-set; amulet
+      "starts to fly!" 0x400000, winged gargoyle silent with the
+      bit set; THE KILL: levitating pony ridden onto a moat with no
+      message, 4 turns over water alive, dismount over water
+      survived, control "The saddled pony falls into the water! You
+      kill the poor saddled pony! You feel very guilty."; swim
+      warning "You avoid stepping into the moat." fired for the
+      control only; potion of levitation while mounted = no "cannot
+      stay on", timeout "You settle more firmly in the saddle.",
+      control dismounted; ring-levitating hero (Lev_at_will off)
+      mounts the levitating pony, "You cannot reach the saddled
+      pony." for the control; levitating tame dwarf 10 turns over
+      rations+dagger never picks up or eats, control picks up on
+      turn 2; peaceful beholder "magically gathers up some gold";
+      bear trap/pit/landmine/squeaky board: mintrap 0 +
+      m_harmless_trap 1 + check_in_air 1 vs controls caught/
+      exploded/squeaking, FORCETRAP pit "doesn't fall into the
+      pit.", dug pit "floats over"/"flies over" by bit; wand of
+      digging never zapped in 15 turns vs control hole on turn 4;
+      downstairs held 10 turns vs control "escapes downstairs!" on
+      turn 2; probing ", levitating"; moat drawbridge closing:
+      levitating orc "falls from the bridge." and SURVIVES on the
+      moat square, grounded control "smashing and crushing" dead.
+      RIDER (cosmetic, master parity, not fixed): do_entity()'s
+      survive branch prints "%s falls from the bridge." for any
+      survivor that is neither is_flyer nor is_floater, so a
+      gear-levitating/flying monster (and a Levitating hero) prints
+      it while staying put; master identical. Battery
+      observations: second pet-vs-pet kill -> that row; genesis'd
+      tame dwarf "Level 0 HP 2(2)" -> LOW row minted; harness lore
+      -> gameplay.md.
 - [ ] Door-material display color unported (NEW, minted 2026-07-30
       by the 2026-07-29 review; MEDIUM port gap). master's
       mapglyph.c colors non-wood doors via
@@ -11893,7 +12029,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is killed!"); dogmove's target filter is supposed to skip tame
       targets without Conflict. Reproduce with an ordinary tame
       melee monster beside a pet before blaming the gdb taming or
-      the artifact; compare master first.
+      the artifact; compare master first. SECOND OCCURRENCE
+      2026-09-05 (levitation battery): a genesis'd tame winged
+      gargoyle hit and killed a genesis'd tame dwarf ("The winged
+      gargoyle hits the dwarf. The dwarf is killed!"), both
+      mtame > 0 and mpeaceful = 1 by gdb read - ordinary ^G
+      taming, no artifact, so the gdb-taming explanation is out.
+- [ ] wizard-genesis'd tame dwarf probes "Level 0 HP 2(2)" (minted
+      2026-09-05 from the levitation battery; LOW, uninvestigated).
+      Two ^G "tame dwarf" creations on D:1 under a human Valkyrie
+      XL30 read m_lev 0 / mhpmax 2 via wand of probing, while
+      genesis'd tame gnome lord/winged gargoyle/pony and hostile
+      dwarves came out at normal HP (pony 14, orcs 12-19, gargoyle
+      46). adj_lev() (makemon.c) cannot return 0 for mlevel 2 at
+      depth 1 with u.ulevel 30 (2 -> 1 at depth 1, +7 for XL30,
+      capped at 3), so either tamedog()/the tame genesis arm
+      lowers it or the tester's gdb staging (edog apport/hungrytime
+      writes on the same dwarf) clobbered m_lev. Reproduce on a
+      clean game before blaming code; compare master's
+      create_particular tame arm.
 - [ ] minsects producer/consumer pair NOT PORTED (minted
       2026-09-02 by the clone-reset slice; LOW; the row the
       spell-list slice's RIDERS note and the Racial-monsters NIT
@@ -12776,7 +12930,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       is entirely unported and entangled with the monster-
       levitation feature (can_levitate); the hdgn slice landed
       only the "magically gathers up" wording that decorates the
-      exemption on master.
+      exemption on master. LANDED 2026-09-05 with the
+      can_levitate/can_fly sweep slice: the gate lives in dogmove.c
+      could_reach_item() (5.0's single choke point for
+      m_search_items, mpickstuff and pet fetch/eat) with the
+      beholder/Tal'Gath exemption, plus master's mpickgold gate
+      verbatim; master's can_carry carries no such gate (census).
       (c) master's pager.c APPENDC no_geno_vecna/vlad/talgath
       "can't be genocided until its leader is destroyed/killed"
       lookup lines ride the unported monster-lookup (pokedex)
