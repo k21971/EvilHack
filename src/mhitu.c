@@ -1730,7 +1730,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     int tim_tmp;
     struct obj *otmp2, *nextobj;
     int i;
-    boolean physical_damage = FALSE;
+    boolean physical_damage = FALSE, total_digestion = FALSE;
 
     if (!u.uswallow) { /* swallows you */
         int omx = mtmp->mx, omy = mtmp->my;
@@ -1862,7 +1862,9 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             tmp = 0;
         } else if (u.uswldtim == 0) {
             pline("%s totally digests you!", Monnam(mtmp));
-            tmp = u.uhp;
+            /* the whole of the pool mdamageu() will charge */
+            tmp = Upolyd ? u.mh : u.uhp;
+            total_digestion = TRUE;
             if (Half_physical_damage)
                 tmp *= 2; /* sorry */
         } else {
@@ -2054,8 +2056,10 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     }
 
     if (physical_damage) {
-        /* same damage reduction for AC as in hitmu */
-        if (u.uac < 0)
+        /* same damage reduction for AC as in hitmu; total digestion
+           is the whole of the current pool by design and armor does
+           not spare any of it */
+        if (u.uac < 0 && !total_digestion)
             tmp -= rnd(-u.uac);
         if (tmp < 0)
             tmp = 1;

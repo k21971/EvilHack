@@ -2703,11 +2703,14 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
                       Monnam(caster));
 
         if (youdefend) {
-            /* casting at player */
+            /* casting at player; while polymorphed the live pool is
+               u.mh, u.uhp is the dormant real body */
+            int curhp = Upolyd ? u.mh : u.uhp;
+
             if (immune_death_magic(gy.youmonst.data) || Death_resistance) {
                 shieldeff(u.ux, u.uy);
                 You("are immune to %s word of power!", l_monnam(caster));
-            } else if (u.uhp <= threshold) {
+            } else if (curhp <= threshold) {
                 /* in kill range */
                 if (Antimagic) {
                     int dmg = d(8, 6);
@@ -2716,8 +2719,8 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
                     if (Half_spell_damage)
                         dmg /= 2;
                     You("tremble in pain, but resist the deadly spell!");
-                    if (dmg >= u.uhp)
-                        dmg = u.uhp - 1;
+                    if (dmg >= curhp)
+                        dmg = curhp - 1;
                     if (dmg > 0)
                         losehp(dmg, "power word kill", KILLED_BY_AN);
                 } else {
@@ -2735,16 +2738,27 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
                     if (Half_spell_damage)
                         dmg /= 2;
                     You("tremble in pain, but resist the deadly spell!");
-                    if (dmg >= u.uhp)
-                        dmg = u.uhp - 1;
+                    if (dmg >= curhp)
+                        dmg = curhp - 1;
                     if (dmg > 0)
                         losehp(dmg, "power word kill", KILLED_BY_AN);
                 } else {
+                    int loss = rn1(9, 4);
+
                     You("tremble in agony, but resist the deadly spell!");
-                    setuhpmax(max(u.uhpmax - rn1(9, 4), 1), FALSE);
-                    u.uhp /= 3;
-                    if (u.uhp < 1)
-                        u.uhp = 1;
+                    /* setuhpmax() acts on the polyform's maximum while
+                       polymorphed, so feed it that pool's value */
+                    setuhpmax(max((Upolyd ? u.mhmax : u.uhpmax) - loss, 1),
+                              FALSE);
+                    if (Upolyd) {
+                        u.mh /= 3;
+                        if (u.mh < 1)
+                            u.mh = 1;
+                    } else {
+                        u.uhp /= 3;
+                        if (u.uhp < 1)
+                            u.uhp = 1;
+                    }
                     disp.botl = TRUE;
                 }
             }

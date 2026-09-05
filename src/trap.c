@@ -8232,7 +8232,8 @@ lava_effects(void)
     if (likes_lava(gy.youmonst.data))
         return FALSE;
 
-    usurvive = how_resistant(FIRE_RES) == 100 || (Wwalking && dmg < u.uhp);
+    usurvive = how_resistant(FIRE_RES) == 100
+               || (Wwalking && dmg < (Upolyd ? u.mh : u.uhp));
     /*
      * A timely interrupt might manage to salvage your life
      * but not your gear.  For scrolls and potions this
@@ -8402,9 +8403,10 @@ lava_effects(void)
             monstseesu(M_SEEN_FIRE);
         else
             monstunseesu(M_SEEN_FIRE);
-        if (u.uhp > 1)
-            losehp(!boil_away ? 1 : (u.uhp / 2), lava_killer,
-                   KILLED_BY); /* lava damage */
+        /* gate and amount come from the pool losehp() will charge */
+        if ((Upolyd ? u.mh : u.uhp) > 1)
+            losehp(!boil_away ? 1 : ((Upolyd ? u.mh : u.uhp) / 2),
+                   lava_killer, KILLED_BY); /* lava damage */
     }
 
  burn_stuff:

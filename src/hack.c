@@ -4683,7 +4683,7 @@ maybe_wail(void)
 
         who = (Role_if(PM_WIZARD) || Role_if(PM_VALKYRIE)) ? gu.urole.name.m
                                                            : "Elf";
-        if (u.uhp == 1) {
+        if ((Upolyd ? u.mh : u.uhp) == 1) {
             pline("%s is about to die.", who);
         } else {
             for (i = 0, powercnt = 0; i < SIZE(powers); ++i)
@@ -4696,8 +4696,9 @@ maybe_wail(void)
         }
     } else {
         Soundeffect(se_wailing_of_the_banshee, 75);
-        You_hear(u.uhp == 1 ? "the wailing of the Banshee..."
-                            : "the howling of the CwnAnnwn...");
+        You_hear((Upolyd ? u.mh : u.uhp) == 1
+                     ? "the wailing of the Banshee..."
+                     : "the howling of the CwnAnnwn...");
     }
 }
 

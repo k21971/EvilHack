@@ -5345,11 +5345,20 @@ zhitu(
             shieldeff(sx, sy);
             monstseesu(M_SEEN_DEATH);
             if (Is_valley(&u.uz)) {
-                u.uhpmax += u.uhpmax / 6;
-                if (u.uhpmax > 200)
-                    u.uhpmax = 200;
+                if (Upolyd) {
+                    u.mhmax += u.mhmax / 6;
+                    if (u.mhmax > 200)
+                        u.mhmax = 200;
+                } else {
+                    u.uhpmax += u.uhpmax / 6;
+                    if (u.uhpmax > 200)
+                        u.uhpmax = 200;
+                }
             }
-            u.uhp = u.uhpmax;
+            if (Upolyd)
+                u.mh = u.mhmax;
+            else
+                u.uhp = u.uhpmax;
             You_feel("restored.");
             disp.botl = TRUE;
             break;

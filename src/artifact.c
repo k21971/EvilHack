@@ -1859,7 +1859,7 @@ score_artifact_weapon(
     }
 
     /* save-or-die expected value, scaled by target HP */
-    hp = yours ? u.uhpmax : mdef->mhpmax;
+    hp = yours ? (Upolyd ? u.mhmax : u.uhpmax) : mdef->mhpmax;
     if (hp < 1)
         hp = 1;
     switch (otmp->oartifact) {
