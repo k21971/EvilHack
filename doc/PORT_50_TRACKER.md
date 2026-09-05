@@ -9724,21 +9724,82 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       migrating/limbo guard in update_monsteed. Rider-death arm =
       the BUG-1259 orphan signature; noted on that investigation
       as a possible Track 2 producer.
-- [ ] Wrong HP pool consulted under polymorph, non-lava sites (NEW,
-      minted 2026-07-31 from the BUG-1423 fix round; MEDIUM;
-      pre-existing, one row for the family). Two confirmed sites
-      read/write the dormant u.uhp while Upolyd: (1) muse.c
-      power-word-kill youdefend branch - the kill-zone gate
-      (u.uhp <= threshold), BOTH damage clamps (dmg = u.uhp - 1,
-      whose losehp then charges u.mh), and the resisted arm's
-      setuhpmax + u.uhp /= 3 (reviewer find); (2) trap.c
-      lava_effects boil-away arm - the u.uhp > 1 gate and the
-      u.uhp / 2 amount feed a losehp that charges u.mh (battery
-      find; the !boil_away flat-1 path behaved). Intended shape
-      per BUG-1423: gate/clamp/reduce on Upolyd ? u.mh : u.uhp,
-      potionbreathe sickness form. Sweep the rest of the u.uhp
-      readers in decision code before fixing - these two came from
-      one review pass, the family is likely wider.
+- [x] Wrong HP pool consulted under polymorph, non-lava sites FIXED
+      2026-09-05 (minted 2026-07-31 from the BUG-1423 fix round;
+      MEDIUM; one row for the family) = BUG-1748, commit A a4b8b0468.
+      SWEEP (the row's precondition): all 268 `u.uhp` lines classified
+      (38 guarded ternaries, the rest by context) - seven wrong-pool
+      decision sites, all shared by master (frozen-unfixed): (1)
+      muse.c mcast_nodir_spell PWK youdefend - gate, both Antimagic
+      clamps and the resisted arm (whose setuhpmax(u.uhpmax-based,
+      FALSE) call wrote u.mhmax from the REAL max while polymorphed -
+      a pool mix on top of the u.uhp /= 3 thirding); (2) trap.c
+      lava_effects sink arm gate + boil-away amount; (3) trap.c
+      lava_effects usurvive `Wwalking && dmg < u.uhp` (BUG-1692's
+      in_hell/in_iceq shape missed here); (4) zap.c zhitu death-ray
+      "restored" arm lacked the Upolyd form its zapyourself twin has;
+      (5) hack.c maybe_wail Banshee/CwnAnnwn choice; (6) mhitu.c
+      gulpmu AD_DGST total digestion tmp = u.uhp (a form with u.mh
+      above the real uhp survived) - RULED lethal-to-form, plus the
+      reviewer-surfaced coupled sibling: 5.0's gulpmu tail applied the
+      negative-AC reduction to the total-digestion amount (3.6 and
+      master never did; Official_nh50 identical), so any hero with
+      negative AC survived it in either pool - exempted via a
+      total_digestion flag (upstream 5.0 regression, reportable); (7)
+      artifact.c score_artifact_weapon hp scaling (LOW, RULED in). Fix
+      = the tree idiom (Upolyd ? u.mh : u.uhp; exclusive one-pool
+      action; zhitu mirrors zapyourself verbatim); no helper minted
+      (38 inline sites are the convention). ADJUDICATED NOT defects:
+      Ice Queen `u.uhp <= 0 && !Lifesaved` real-death checks (mon.c
+      x3, dothrow.c); cmd.c wildshape/vampire-shape early revert
+      halves the ORIGINAL form's HP by design; attrib.c poisoned()
+      documented real-body op; zap.c Reflecting drain-life arm +
+      artifact.c drain-life attacker heal act on the permanent real
+      max like losexp; potionbreathe healing vapors heal both pools
+      (upstream); throne, nurse, Vecna, royal jelly, explode, fire
+      trap, invoke_healing, withering, passive counter, dothrow
+      stamina, carrying_too_much all structurally guarded. Master
+      identical at all seven; (5) and (6) are vanilla shapes
+      (upstream-reportable). REVIEWER PASS zero defects (each hunk
+      checked against the pool idiom; setuhpmax's FALSE arm confirmed
+      to write u.mhmax and clamp u.mh when polymorphed, so the old
+      argument really was a pool mix; curhp never stale; zhitu and
+      zapyourself textually parallel under the same condition; 183-hit
+      sibling sweep found no missed decision read) + one LOW inside
+      the diff TAKEN (the max() macro double-rolled rn1(9, 4) - roll
+      hoisted into a local) + the coupled AD_DGST negative-AC sibling
+      above. BATTERY 6/6 PASS + follow-up 3/3 with u.uac pinned at -10
+      inside a gulpmu breakpoint: polymorphed ghoul charged n = 190 =
+      its whole live pool and returned to human form with the real
+      60/210 untouched; unpolymorphed n = 60 = u.uhp, "You die..."
+      (wizard Die? declined) - the pre-fix 5.0 shape would have spared
+      rnd(10) in both; PWK re-confirm: u.mhmax 150->144 on a single
+      roll, u.mh 48 = (150-6)/3 because setuhpmax() clamps the live
+      pool to the new maximum before the thirding, exactly as its
+      real-body arm does (one human Valkyrie XL30 game to T:304 ending
+      in the Valley, sanity_check on, paniclog never existed): PWK
+      gate - titan u.mh 150 / u.uhp 50 took the "tremble in agony" arm
+      (u.mh 150->50, u.mhmax 200->195, real body 50/208 untouched)
+      where the dormant 50 would have killed outright; Antimagic clamp
+      - Grey-elf u.mh 20 / u.uhp 150 landed at u.mh 1 with u.uhp 150;
+      unpolymorphed controls thirded u.uhp 150->50 and hit the
+      instant-death arm at 50 (wizard Die? declined); lava - non-boil
+      form lost exactly 1 from u.mh (99/200, real 150/208 untouched),
+      boil_away forced at a breakpoint halved u.mh 99->50 with u.uhp
+      untouched (the natural boil arm is only reachable at 100% fire
+      resistance - structural, noted), usurvive read at a breakpoint:
+      dmg 25 vs u.mh 100 = 1 with u.uhp 5, dmg 19 vs u.mh 3 = 0 with
+      u.uhp 200; death ray on a polymorphed ghoul - u.mh 5->50
+      (=u.mhmax), real 200/208 untouched, in the Valley u.mhmax 60->70
+      and 195->200 cap with u.uhpmax 208 untouched, unpolymorphed
+      control lethal twice (declined); wail - u.mh 2->1 with u.uhp 100
+      printed "Valkyrie is about to die.", u.mh 3->2 printed "your
+      life force is running out."; digestion - ghoul u.mh 200 / u.uhp
+      60, u.uswldtim 0: "totally digests you! You return to human
+      form! You get regurgitated!" with the real body 60/208
+      untouched; scorer - Vorpal Blade vs the polymorphed hero scored
+      9 at u.mhmax 50 and 17 at u.mhmax 200 (+8 = 200/20 - 50/20) with
+      u.uhpmax 208 throughout.
 - [x] REVIEW-LOW (2026-07-29): #undef EYEWEAR missing at the
       objects.h macro-cleanup block - upstream has it. (This and the
       REVIEW-LOW rows below were minted 2026-07-30 as one batch; fix
