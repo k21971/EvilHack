@@ -1316,8 +1316,11 @@ check_in_air(struct monst *mtmp, unsigned trflags)
             plunged = (trflags & (TOOKPLUNGE | VIASITTING)) != 0;
 
     return ((trflags & HURTLING) != 0
-            || (is_you ? Levitation : is_floater(mtmp->data))
-            || ((is_you ? Flying : is_flyer(mtmp->data)) && !plunged));
+            || (is_you ? Levitation
+                       : (is_floater(mtmp->data) || can_levitate(mtmp)))
+            || ((is_you ? Flying
+                        : (is_flyer(mtmp->data) || can_fly(mtmp)))
+                && !plunged));
 }
 
 /* return TRUE if mtmp is wearing shoes made of iron (iron/kicking) */
@@ -2525,7 +2528,8 @@ trapeffect_pit(
         const char *fallverb;
 
         fallverb = "falls";
-        if (!grounded(mptr) || (mtmp->wormno && count_wsegs(mtmp) > 5)) {
+        if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
+            || (mtmp->wormno && count_wsegs(mtmp) > 5)) {
             if (forcetrap && !Sokoban) {
                 /* openfallingtrap; not inescapable here */
                 if (in_sight) {
@@ -2589,7 +2593,8 @@ trapeffect_hole(
                        trapname(tt, TRUE));
             return Trap_Effect_Finished; /* don't activate it after all */
         }
-        if (!grounded(mptr) || (mtmp->wormno && count_wsegs(mtmp) > 5)
+        if (!grounded(mptr) || can_levitate(mtmp) || can_fly(mtmp)
+            || (mtmp->wormno && count_wsegs(mtmp) > 5)
             || mptr->msize >= MZ_HUGE) {
             if (forcetrap && !Sokoban) {
                 /* openfallingtrap; not inescapable here */
@@ -3380,7 +3385,8 @@ trapeffect_vibrating_square(
             if (in_sight) {
                 char buf[BUFSZ], *p, *monnm = mon_nam(mtmp);
 
-                if (nolimbs(mtmp->data) || m_in_air(mtmp)) {
+                if (nolimbs(mtmp->data) || m_in_air(mtmp)
+                    || can_levitate(mtmp) || can_fly(mtmp)) {
                     /* just "beneath <mon>" */
                     Strcpy(buf, monnm);
                 } else {
@@ -4714,7 +4720,8 @@ float_up(void)
         You("start to float in the air!");
     }
     if (u.usteed && !is_floater(u.usteed->data)
-        && !is_flyer(u.usteed->data)) {
+        && !is_flyer(u.usteed->data)
+        && !can_fly(u.usteed) && !can_levitate(u.usteed)) {
         if (Lev_at_will) {
             pline("%s magically floats up!", Monnam(u.usteed));
         } else {
@@ -4847,7 +4854,8 @@ float_down(
         } else if (is_open_air(u.ux, u.uy)
                    && !(u.usteed && (is_floater(u.usteed->data)
                                      || is_flyer(u.usteed->data)
-                                     || can_levitate(u.usteed)))) {
+                                     || can_levitate(u.usteed)
+                                     || can_fly(u.usteed)))) {
             if (!Flying) {
                 You("are no longer flying.");
                 You("plummet several thousand feet to your death.");
@@ -4873,7 +4881,9 @@ float_down(
                         dismount_steed(DISMOUNT_FELL);
                     selftouch("As you fall, you");
                 } else if (u.usteed && (is_floater(u.usteed->data)
-                                        || is_flyer(u.usteed->data))) {
+                                        || is_flyer(u.usteed->data)
+                                        || can_levitate(u.usteed)
+                                        || can_fly(u.usteed))) {
                     You("settle more firmly in the saddle.");
                 } else if (Hallucination) {
                     pline("Bummer!  You've %s.",

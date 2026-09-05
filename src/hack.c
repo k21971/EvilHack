@@ -1889,7 +1889,12 @@ u_locomotion(const char *def)
 staticfn schar
 u_simple_floortyp(coordxy x, coordxy y)
 {
-    boolean u_in_air = (Levitation || Flying || !grounded(gy.youmonst.data));
+    /* mirror the gating pooleffects() uses: an airborne steed keeps the
+       hero clear of the liquid, and worn levitation or flight counts */
+    boolean u_in_air = (Levitation || Flying || !grounded(gy.youmonst.data)
+                        || (u.usteed && (!grounded(u.usteed->data)
+                                         || can_levitate(u.usteed)
+                                         || can_fly(u.usteed))));
 
     if (is_waterwall(x, y))
         return WATER; /* wall of water, fly/lev does not matter */
@@ -3552,7 +3557,9 @@ pooleffects(
     if (!u.ustuck && !Levitation && !Flying) {
         if (is_pool_or_lava(u.ux, u.uy)
             || (shallow_water && verysmall(gy.youmonst.data))) {
-            if (u.usteed && !grounded(u.usteed->data)) {
+            if (u.usteed && (!grounded(u.usteed->data)
+                             || can_levitate(u.usteed)
+                             || can_fly(u.usteed))) {
                 /* floating or clinging steed keeps hero safe (is_flyer()
                    test is redundant; it can't be true since Flying yielded
                    false) */

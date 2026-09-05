@@ -1330,7 +1330,7 @@ minliquid_core(struct monst *mtmp)
                 }
             }
             if (!DEADMONSTER(mtmp)) {
-                if (m_in_air(mtmp)) {
+                if (m_in_air(mtmp) || can_levitate(mtmp) || can_fly(mtmp)) {
                     ; /* vampshifter in wolf form can revert to vampire lord
                        * and become a flyer so not need to teleport */
                 } else if (likes_lava(mtmp->data)) {
@@ -1403,7 +1403,7 @@ minliquid_core(struct monst *mtmp)
             else
                 xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp)) {
-                if (m_in_air(mtmp)) {
+                if (m_in_air(mtmp) || can_levitate(mtmp) || can_fly(mtmp)) {
                     ; /* vampshifter in wolf form can revert to vampire lord
                        * and become a flyer so not need to teleport */
                 } else {
@@ -2501,7 +2501,13 @@ mpickgold(struct monst *mtmp)
     struct obj *gold;
     int mat_idx;
 
-    if ((gold = g_at(mtmp->mx, mtmp->my)) != 0) {
+    /* levitating/floating monsters can't reach the ground, just
+       like levitating players; beholders and Tal'Gath are exempt */
+    if ((gold = g_at(mtmp->mx, mtmp->my)) != 0
+        && !((is_floater(mtmp->data)
+              && !(mtmp->data == &mons[PM_BEHOLDER]
+                   || mtmp->data == &mons[PM_TAL_GATH]))
+             || can_levitate(mtmp))) {
         mat_idx = objects[gold->otyp].oc_material;
         obj_extract_self(gold);
         add_to_minv(mtmp, gold);

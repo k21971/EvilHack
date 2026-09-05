@@ -706,10 +706,23 @@ update_mon_extrinsics(
         case WWALKING:
             mon->mextrinsics |= MR2_WATERWALK;
             break;
-        /* properties which should have an effect but aren't implemented */
-        case LEVITATION:
-        case FLYING:
+        case LEVITATION: {
+            boolean was_levitating = can_levitate(mon);
+
+            mon->mextrinsics |= MR2_LEVITATE;
+            if (!unseen && !was_levitating)
+                pline_mon(mon, "%s starts to float in the air!", Monnam(mon));
             break;
+        }
+        case FLYING: {
+            boolean could_fly = (is_flyer(mon->data) || is_floater(mon->data)
+                                 || can_levitate(mon) || can_fly(mon));
+
+            mon->mextrinsics |= MR2_FLY;
+            if (!unseen && !could_fly)
+                pline_mon(mon, "%s starts to fly!", Monnam(mon));
+            break;
+        }
         /* properties which maybe should have an effect but don't */
         case DISPLACED:
         case FUMBLING:
@@ -734,6 +747,20 @@ update_mon_extrinsics(
         }
         case WWALKING:
             mon->mextrinsics &= ~(MR2_WATERWALK);
+            break;
+        case LEVITATION:
+            mon->mextrinsics &= ~(MR2_LEVITATE);
+            if (!unseen && !can_levitate(mon))
+                pline_mon(mon, "%s floats gently back to the %s.",
+                          Monnam(mon), surface(mon->mx, mon->my));
+            break;
+        case FLYING:
+            mon->mextrinsics &= ~(MR2_FLY);
+            if (!unseen
+                && !(is_flyer(mon->data) || is_floater(mon->data)
+                     || can_levitate(mon) || can_fly(mon)))
+                pline_mon(mon, "%s lands on the %s.",
+                          Monnam(mon), surface(mon->mx, mon->my));
             break;
         case FIRE_RES:
         case COLD_RES:

@@ -1051,7 +1051,8 @@ mount_steed(
     }
 
     /* Is the player impaired? */
-    if (!force && !is_floater(ptr) && !is_flyer(ptr) && Levitation
+    if (!force && !is_floater(ptr) && !is_flyer(ptr)
+        && !can_levitate(mtmp) && !can_fly(mtmp) && Levitation
         && !Lev_at_will) {
         You("cannot reach %s.", mon_nam(mtmp));
         return (FALSE);
@@ -1089,7 +1090,8 @@ mount_steed(
     /* Success */
     maybewakesteed(mtmp);
     if (!force) {
-        if (Levitation && !is_floater(ptr) && !is_flyer(ptr))
+        if (Levitation && !is_floater(ptr) && !is_flyer(ptr)
+            && !can_levitate(mtmp) && !can_fly(mtmp))
             /* Must have Lev_at_will at this point */
             pline("%s magically floats up!", Monnam(mtmp));
         You("mount %s.", mon_nam(mtmp));
@@ -1430,9 +1432,13 @@ dismount_steed(
         if (!enexto_core_mon(&steedcc, u.ux, u.uy, mtmp, NO_MM_FLAGS)
             /* no spot? must have been engulfed by a lurker-above over
                water or lava; try requesting a location for a flyer */
-            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT]))
+            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT])
             /* still no spot; last resort is any spot within bounds */
-            (void) enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST]);
+            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST])) {
+            /* nowhere at all to place the steed; dismiss it so the
+               !DEADMONSTER wrapper below skips placement safely */
+            mongone(mtmp);
+        }
     }
 
     if (!DEADMONSTER(mtmp)) {
@@ -1458,7 +1464,7 @@ dismount_steed(
             struct permonst *mdat = mtmp->data;
 
             /* The steed may drop into water/lava */
-            if (grounded(mdat)) {
+            if (grounded(mdat) && !can_levitate(mtmp) && !can_fly(mtmp)) {
                 if (is_pool(u.ux, u.uy)) {
                     /* the dramatic message belongs to the steed that
                        drowns; one that swims gets a neutral one */

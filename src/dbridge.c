@@ -424,12 +424,16 @@ e_survives_at(struct entity *etmp, coordxy x, coordxy y)
                                           || Swimming || Flying || Levitation))
                           || is_swimmer(etmp->edata)
                           || is_flyer(etmp->edata)
-                          || is_floater(etmp->edata));
+                          || is_floater(etmp->edata)
+                          || can_levitate(etmp->emon)
+                          || can_fly(etmp->emon));
     /* must force call to lava_effects in e_died if is_u */
     if (is_lava(x, y))
         return (boolean) ((is_u(etmp) && (Levitation || Flying))
                           || likes_lava(etmp->edata)
-                          || is_flyer(etmp->edata));
+                          || is_flyer(etmp->edata)
+                          || can_levitate(etmp->emon)
+                          || can_fly(etmp->emon));
     if (is_db_wall(x, y))
         return (boolean) (is_u(etmp) ? Passes_walls
                           : passes_walls(etmp->edata));

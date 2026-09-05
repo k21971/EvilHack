@@ -532,7 +532,8 @@ tactics(struct monst *mtmp)
                 if (DEADMONSTER(mtmp))
                     return 0;
 
-                if ((otmp = on_ground(which_arti(targ))) != 0) {
+                if ((otmp = on_ground(which_arti(targ))) != 0
+                    && !can_levitate(mtmp)) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline("%s picks up %s.", Monnam(mtmp),
                               distant_name(otmp, doname));

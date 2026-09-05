@@ -3703,6 +3703,8 @@ mstatusline(struct monst *mtmp)
                          : ", [? speed]");
     if (mtmp->minvis)
         Strcat(info, ", invisible");
+    if (can_levitate(mtmp))
+        Strcat(info, ", levitating");
     if (has_reflection(mtmp))
         Strcat(info, ", reflecting");
     if (has_barkskin(mtmp))

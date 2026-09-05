@@ -2048,7 +2048,14 @@ could_reach_item(struct monst *mon, coordxy nx, coordxy ny)
         /* if open air and can't fly/float and gravity is in effect */
         && (!is_open_air(nx, ny) || m_in_air(mon)
             || is_clinger(mon->data) || can_levitate(mon) || can_fly(mon))
-        && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon)))
+        && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon))
+        /* levitating/floating monsters can't reach the ground, just
+           like levitating players; beholders and Tal'Gath gather
+           telekinetically and are exempt */
+        && !((is_floater(mon->data)
+              && !(mon->data == &mons[PM_BEHOLDER]
+                   || mon->data == &mons[PM_TAL_GATH]))
+             || can_levitate(mon)))
         return TRUE;
     return FALSE;
 }

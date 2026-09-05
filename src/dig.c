@@ -810,10 +810,12 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             if (oldobjs != newobjs) /* something unearthed */
                 (void) pickup(1);   /* detects pit */
         } else if (mtmp) {
-            if (is_flyer(mtmp->data) || is_floater(mtmp->data)) {
+            if (is_flyer(mtmp->data) || is_floater(mtmp->data)
+                || can_levitate(mtmp) || can_fly(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s %s over the pit.", Monnam(mtmp),
-                          (is_flyer(mtmp->data)) ? "flies" : "floats");
+                          (is_flyer(mtmp->data) || can_fly(mtmp))
+                              ? "flies" : "floats");
             } else if (mtmp != madeby)
                 (void) mintrap(mtmp, NO_TRAP_FLAGS);
         }
@@ -867,6 +869,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             if (mtmp) {
                 /*[don't we need special sokoban handling here?]*/
                 if (!grounded(mtmp->data)
+                    || can_levitate(mtmp) || can_fly(mtmp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE)
                     return;

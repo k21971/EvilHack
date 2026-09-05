@@ -768,12 +768,12 @@ find_defensive(struct monst *mtmp, boolean tryescape)
     } else if (levl[x][y].typ == STAIRS) {
         stway = stairway_at(x,y);
         if (stway && !stway->up && stway->tolev.dnum == u.uz.dnum) {
-            if (!is_floater(mtmp->data))
+            if (!(is_floater(mtmp->data) || can_levitate(mtmp)))
                 gm.m.has_defense = MUSE_DOWNSTAIRS;
         } else if (stway && stway->up && stway->tolev.dnum == u.uz.dnum) {
             gm.m.has_defense = MUSE_UPSTAIRS;
         } else if (stway &&  stway->tolev.dnum != u.uz.dnum) {
-            if (stway->up || !is_floater(mtmp->data))
+            if (stway->up || !(is_floater(mtmp->data) || can_levitate(mtmp)))
                 gm.m.has_defense = MUSE_SSTAIRS;
         }
     } else if (levl[x][y].typ == LADDER) {
@@ -781,10 +781,10 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         if (stway && stway->up && stway->tolev.dnum == u.uz.dnum) {
             gm.m.has_defense = MUSE_UP_LADDER;
         } else if (stway && !stway->up && stway->tolev.dnum == u.uz.dnum) {
-            if (!is_floater(mtmp->data))
+            if (!(is_floater(mtmp->data) || can_levitate(mtmp)))
                 gm.m.has_defense = MUSE_DN_LADDER;
         } else if (stway && stway->tolev.dnum != u.uz.dnum) {
-            if (stway->up || !is_floater(mtmp->data))
+            if (stway->up || !(is_floater(mtmp->data) || can_levitate(mtmp)))
                 gm.m.has_defense = MUSE_SSTAIRS;
         }
     } else {
@@ -828,6 +828,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             /* use trap if it's the correct type */
             if (is_hole(t->ttyp)
                 && !is_floater(mtmp->data)
+                && !can_levitate(mtmp)
                 && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
                 && Can_fall_thru(&u.uz)) {
                 gt.trapx = xx;
@@ -891,6 +892,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !stuck && !t
             && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
             && !is_floater(mtmp->data)
+            && !can_levitate(mtmp)
             /* monsters digging in Sokoban can ruin things */
             && !Sokoban
             /* digging wouldn't be effective; assume they know that */
@@ -1013,6 +1015,7 @@ check_defensive_item(
     if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !ctx->stuck && !ctx->t
         && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
         && !is_floater(mtmp->data)
+        && !can_levitate(mtmp)
         /* monsters digging in Sokoban can ruin things */
         && !Sokoban
         /* digging wouldn't be effective; assume they know that */
@@ -3982,7 +3985,7 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (obj->spe <= 0)
             return FALSE;
         if (typ == WAN_DIGGING)
-            return (boolean) !is_floater(mon->data);
+            return (boolean) !(is_floater(mon->data) || can_levitate(mon));
         if (typ == WAN_POLYMORPH)
             return (boolean) (mons[monsndx(mon->data)].difficulty < 6);
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
@@ -4500,7 +4503,8 @@ muse_unslime(
             if (vis)
                 pline("%s %s %s %s fire trap!", Mnam,
                       vtense(fakename[0], locomotion(mon->data, "move")),
-                      is_floater(mon->data) ? "over" : "onto",
+                      (is_floater(mon->data) || can_levitate(mon))
+                          ? "over" : "onto",
                       trap->tseen ? "the" : "a");
         }
         (void) mintrap(mon, FORCETRAP);
