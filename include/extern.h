@@ -1300,6 +1300,7 @@ extern int still_chewing(coordxy, coordxy);
 extern void movobj(struct obj *, coordxy, coordxy);
 extern boolean may_dig(coordxy, coordxy);
 extern boolean may_passwall(coordxy, coordxy);
+extern boolean may_passtree(coordxy, coordxy);
 extern boolean bad_rock(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern int cant_squeeze_thru(struct monst *) NONNULLARG1;
 extern boolean invocation_pos(coordxy, coordxy);

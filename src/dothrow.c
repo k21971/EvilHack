@@ -863,7 +863,9 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
     lev = &levl[x][y];
     ltyp = lev->typ;
 
-    if (!Passes_walls || !(may_pass = may_passwall(x, y))) {
+    if (!(Passes_walls && (may_pass = may_passwall(x, y)))
+        && !(IS_TREES(ltyp) && Passes_trees
+             && (may_pass = may_passtree(x, y)))) {
         const char *why = NULL;
         int searxtra = 0;
         boolean diagonal = (u.ux - x) != 0 && (u.uy - y) != 0,
@@ -872,7 +874,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
 
         if (IS_OBSTRUCTED(levl[x][y].typ)
             || closed_door(x, y) || odoor_diag) {
-            why = IS_TREE(ltyp) ? "bumping into a tree"
+            why = IS_TREES(ltyp) ? "bumping into a tree"
                   : IS_OBSTRUCTED(ltyp) ? "bumping into a wall"
                     : odoor_diag ? "bumping into a door frame"
                       : "bumping into a closed door";

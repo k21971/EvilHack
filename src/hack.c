@@ -959,6 +959,13 @@ may_passwall(coordxy x, coordxy y)
 }
 
 boolean
+may_passtree(coordxy x, coordxy y)
+{
+    return (boolean) !(IS_TREES(levl[x][y].typ)
+                       && (levl[x][y].wall_info & W_NONPASSWALL));
+}
+
+boolean
 bad_rock(struct monst *mon, coordxy x, coordxy y)
 {
     return (boolean) ((Sokoban && sobj_at(BOULDER, x, y))
@@ -966,7 +973,10 @@ bad_rock(struct monst *mon, coordxy x, coordxy y)
                           && (!racial_tunnels(mon) || racial_needspick(mon)
                               || !may_dig(x, y))
                           && !(passes_walls(mon->data)
-                               && may_passwall(x, y))));
+                               && may_passwall(x, y))
+                          && !(IS_TREES(levl[x][y].typ)
+                               && (mon == &gy.youmonst && Passes_trees)
+                               && may_passtree(x, y))));
 }
 
 /* caller has already decided that it's a tight diagonal; check whether a
@@ -1036,6 +1046,9 @@ test_move(
         if (Blind && mode == DO_MOVE)
             feel_location(x, y);
         if (Passes_walls && may_passwall(x, y)) {
+            ; /* do nothing */
+        } else if (IS_TREES(tmpr->typ)
+                   && Passes_trees && may_passtree(x, y)) {
             ; /* do nothing */
         } else if (Underwater) {
             /* note: if water_friction() changes direction due to
@@ -4549,6 +4562,8 @@ crawl_destination(coordxy x, coordxy y)
         return FALSE; /* poly'd into a grid bug... */
     if (Passes_walls)
         return TRUE; /* or a xorn... */
+    if (Passes_trees && IS_TREES(levl[x][y].typ))
+        return TRUE;
     /* pool could be next to a door, conceivably even inside a shop */
     if (IS_DOOR(levl[x][y].typ) && (!doorless_door(x, y) || block_door(x, y)))
         return FALSE;
