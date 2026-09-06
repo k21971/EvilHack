@@ -8825,19 +8825,60 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       changed underwater play for a whole race, not just for goggles
       wearers. Battery-verified against a non-tortle control at the same
       level.
-- [ ] Amphibious is missing racial_tortle (NEW, minted 2026-07-29 by the
+- [x] Amphibious is missing racial_tortle (NEW, minted 2026-07-29 by the
       goggles slice, which edited the same macro block and deliberately
-      did not touch this). master's Amphibious is
-      `(HMagical_breathing || EMagical_breathing || amphibious(...)
-      || racial_tortle(&youmonst))`; the branch is at plain upstream 5.0
-      and lacks the last term, though racial_tortle exists here and is
-      used in 18 places. A tortle therefore survives deep water only via
-      the Swimming disjunct in drown(), and reads Amphibious == FALSE at
-      telekinesis.c and polyself.c. Kept out of the goggles commit because
-      it makes a whole race amphibious - a gameplay change that wants its
-      own row, per the standing ruling. Note See_underwater legitimately
-      references racial_tortle as part of its own content; that is not
-      this gap.
+      did not touch this) - PORTED 2026-09-06, BUG-1751, commit 35873e79e
+      (youprop.h, mhitu.c, exper.c, do_wear.c). master's Amphibious is
+      `(HMagical_breathing || EMagical_breathing || amphibious(...) ||
+      racial_tortle(&youmonst))` (62e1db0b4, 2022-08-25, replacing a
+      weight_cap() hack that OR'd M1_AMPHIBIOUS into the ROLE permonst -
+      already absent here); the branch was at plain upstream 5.0. WHY
+      THE TERM MATTERS: the hero's youmonst.data is the role's permonst,
+      so amphibious() never sees mons[PM_TORTLE]'s M1_AMPHIBIOUS (both
+      trees carry it); mon_has_race's hero arm is !Upolyd-gated on both
+      trees, so a polymorphed tortle drops the term on both; tortles get
+      HSwimming from attrib.c trt_abil[] at XL1, which is why the gap
+      was quiet (drown() let them survive via Swimming). Twelve branch
+      consumers (telekinesis.c "can't concentrate underwater",
+      teleport.c, dbridge.c, hack.c, mhitu.c fog-cloud damage zeroing,
+      exper.c eel AD_WRAP +1000, insight.c "breathe water", trap.c
+      drown() x4, uhitm.c). Design intent explicit: Guidebook "natural
+      swimmers, and can survive underwater indefinitely unaided"; wiki
+      "breathe underwater and inside water elementals and sea dragons".
+      RIDERS in the same commit: mhitu.c fog-cloud message ternary
+      amphibious(youmonst.data) -> Amphibious (master dca5845ab - a
+      tortle took 0 damage while reading "can barely breathe!"); the
+      last two unported hunks of master 32aebb7db's 8-file Breathless
+      sweep: exper.c `&& !Breathless` on the eel bonus, do_wear.c
+      Amulet_off underwater arm `!cant_drown(form) && !Swimming` ->
+      `!Breathless && !Amphibious && !Swimming` (message-only delta: a
+      racially breathless hero "inhaled an unhealthy amount of water"
+      before drown() said it was not drowning). Direct-form readers
+      swept: amphibious(gy.youmonst.data) only inside the youprop.h
+      macros and at the fog message. REVIEWER PASS, term-for-term parity
+      at all four hunks; reviewer notes for OTHER rows: master
+      62e1db0b4's detect.c mfind0() rider (`mundetected &&
+      !mon_visible(mtmp)` + PM_GIANT_LEECH; needs master's EvilHack
+      mon_visible underwater arms, display.h) is unported -> belongs to
+      the See_underwater/goggles row family; master's SEA_DRAGON_SCALES
+      do_wear arm has no branch site (object absent) -> the dragon-scale
+      slice must carry it; wizard-mode from_what(MAGICAL_BREATHING)
+      prints no source for the racial term (master-identical). BATTERY
+      2/2 PASS (2026-09-06, Samurai/tortle vs Valkyrie/human control,
+      Barbarian/draugr for the riders): `^X` swim innately + breathe
+      water (control neither); "You fall into the pool of water.  Your
+      wakizashi rusts!  But you aren't drowning.  You touch bottom."
+      submerged with the map visible vs the control's "!  You sink like
+      a rock. ... You try to crawl out"; telekinesis menu opened
+      submerged; fog cloud "feel comforted." HP unchanged vs control's
+      "can barely breathe!" -5; polymorphed (fire ant) the tortle kept
+      swim (FROMRACE survives polymon's FROMFORM-only PROPSET,
+      master-identical) and lost breathe water; draugr amulet removal
+      under water printed no inhale line and no drowning; electric-eel
+      XP +216 draugr vs +1216 human. Harness: the `pool` terrain wish
+      does not submerge - step off and back on with the m prefix. Note
+      See_underwater legitimately references racial_tortle as part of
+      its own content; that was never this gap.
 - [ ] #up out of water (NEW, minted 2026-07-29 by the goggles slice).
       master's doup() opens with an `if (u.uinwater && (HWwalking ||
       HFlying))` block letting a hero with intrinsic water walking or
@@ -8852,6 +8893,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       readouts row - its submerged predicate now consumes
       See_underwater on the branch; only this row's doup() block
       and its vision_reset coupling remain unported.)
+      Reviewer note 2026-09-06 (BUG-1751 slice): master 62e1db0b4's detect.c
+      mfind0() rider (`mundetected && !mon_visible(mtmp)` + PM_GIANT_LEECH,
+      which needs master's EvilHack mon_visible underwater arms in
+      display.h) is also unported - it rides this See_underwater family.
 - [x] Plane of Water floods paniclog under sanity_check (NEW, minted
       2026-07-29 by the goggles battery; PRE-EXISTING, unrelated to that
       slice - it fired on arrival, before any goggles interaction).
@@ -9226,22 +9271,89 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       " (weapon in hand)" suffix pushes doname over the budget
       and it falls back to thesimpleoname), not the worn-suffix
       path; upstream-cosmetic, no code change.
-- [ ] mattackm position guard drops attack slots vs mounted steeds
-      (minted 2026-08-20 by the D1-D4 sonic battery). mattackm's
-      between-attacks re-check (`i > 0 && m_at(gb.bhitpos) !=
-      mdef`) compares against m_at(), which returns the RIDER on a
-      ridden steed's square - so every attack slot after the first
-      is silently dropped when the defender is a saddled steed.
-      Observed live under Conflict: a Nazgul melee'd its own fell
-      beast with slot 0 only and never reached its scream slot.
-      Pre-existing monster-riding interaction, not a sonic
-      regression - hits any multi-attack monster vs any ridden
-      steed. Scope with the monster-riding subsystem; probable
-      shape: also accept the rider when ERID(rider)->mon_steed ==
-      mdef. Related battery lore for the steed rows: raw mx/my
-      writes on a rider leave the steed at its stale tile until
-      the next update_monsteed() - staging must mirror coords onto
-      the steed.
+- [x] mattackm position guard drops attack slots vs mounted steeds
+      (minted 2026-08-20 by the D1-D4 sonic battery) - FIXED 2026-09-06,
+      BUG-1749 + sibling BUG-1750, commit 4c05d0767 (mhitm.c, monmove.c,
+      dogmove.c). Row as minted: mattackm's between-attacks re-check (`i
+      > 0 && m_at(gb.bhitpos) != mdef`, 5.0-only, master has none)
+      compares against m_at(), which on a ridden steed's square returns
+      the RIDER (monster steed: MON_OFFMAP via steed_off_map, mx/my
+      mirrored by update_monsteed) or NOTHING (u.usteed: removed from
+      level.monsters by mount_steed, mstate stays MON_FLOOR, mx/my ==
+      u.ux/u.uy) - so every slot after the first was dropped against any
+      ridden steed via mattacku's "attack your steed instead" arm
+      (bhitpos = hero square) and fightm under Conflict (bhitpos = the
+      steed's mirrored coords). DESIGN-CHECK FINDING: a second chain-
+      ender, the loop tail's `if (mon_offmap(mdef)) return res[i];`,
+      returned after slot 0 for any monster-ridden steed regardless of
+      the guard. FIX: staticfn mdef_at_bhitpos() = plain m_at match OR
+      (mdef == u.usteed || mdef->ridden_by) with coords == bhitpos
+      (coordinate form, not the ERID lookup the row proposed - every
+      separation path re-places the steed on the map where the plain arm
+      covers it; a teleported pair changes coords and is rejected; the
+      helper only ADDS acceptance since a ridden steed is never gulped);
+      tail exemption `&& !mdef->ridden_by` (the dochug / mcalcdistress
+      idiom). SIBLING SWEEP = BUG-1750, the same guard's precondition:
+      the dochug ranged scan (EvilHack-only, mfind_target -> mattackm)
+      never set bhitpos - master's identical scan was safe because
+      master's loop never read it (pattern-ported-call-lost-
+      precondition) - so a hostile whose ranged slot is not slot 0
+      (winter wolf / hell hound bite+breath, black naga bite+spit,
+      Juiblex, Yeenoghu, Dispater, Vlad) fired it at range only when
+      bhitpos was coincidentally right; both pet ranged arms in
+      dogmove.c aimed bhitpos at the PET's own square (pet_ranged_attk
+      shape = vanilla 5.0) so a pet winter wolf never breathed at a
+      lined-up target; m_throw() walks bhitpos along the flight path
+      without restoring it (dobuzz does) so a missed throw/spit that
+      flew past dropped the attacker's later ranged slots (vanilla-
+      shared). Fix: the scan and both pet arms aim bhitpos at the target
+      (notonhead FALSE; mfind_target/find_targ return heads); mattackm
+      saves/restores bhitpos + notonhead around thrwmm() and the
+      breamm/spitmm pair (hitum_cleave shape; the notonhead half was a
+      reviewer LOW, taken). REVIEWER PASS (no CRIT/HIGH/MED): all 14
+      mattackm call sites classified with their bhitpos source; no other
+      bhitpos/notonhead reader in the chain changes (ranged arms never
+      reach failed_grab/ad_drin/ad_wrap; passivemm gated on distmin <=
+      1; every caller re-sets before a return attack); the
+      migrate-mid-chain corner (rider rloc'd onto a level teleporter,
+      steed follows with ridden_by set and mx = 0) falls through to
+      `continue` on coords and returns struck?HIT:MISS - callers test
+      only the bits. UPSTREAM-REPORTABLE (three rows in the table, one
+      artifact ~/nh50-mattackm-target-recheck.patch): the u.usteed arm,
+      the pet_ranged_attk bhitpos, the m_throw clobber; the dochug scan
+      and the ridden_by arms are EvilHack-only. Observations NOT taken
+      (master parity): a conflicted rider attacks its OWN steed through
+      fightm (steed coords == rider coords, monnear true - master's
+      fightm iterates fmon the same way); a missile aimed at a ridden
+      steed hits the rider or the hero (m_throw's m_at walk). Gameplay
+      note: restoring the ranged slots is master parity but a real
+      difficulty change vs the branch as played so far (hostiles with
+      melee-first/ranged-later slots now fire the ranged slot from the
+      dochug scan). BATTERY 6/6 PASS on the mattackm legs (2026-09-06,
+      sanity_check on, gdb probe at the getmattk line; one Valkyrie
+      game): hero's steed took every slot from orc-captain/sewer
+      rat/warg rounds ("The orc-captain hits the saddled pony." x2,
+      bhitpos == hero square == pony coords); 49 Conflict rounds vs
+      ridden wargs (soldier ant, goblin-captain vs its own warg,
+      orc-captain) all six slots, gdb warg mstate=1 + ridden_by == rider
+      m_id; hostile winter wolf breathed at a pet three times from slot
+      1 (staging needs mberserk or Conflict - mm_aggression refuses
+      hostile-vs-pet in mfind_target); tame winter wolf breathed at a
+      lined-up hill orc from slot 1; black naga spit x3 with save ==
+      mdef at the restore line and slots 2-5 reached (the venom stopped
+      on the defender each time - the fly-past corner stands by
+      inspection); purple worm engulf chain stopped after the swallow
+      slot. Paniclog: one TESTER-caused line (a gdb rloc_to onto an
+      occupied square, plus a SIGTERM'd gdb that killed game A - the
+      BUG-1406 harness hazard again), nothing from the code.
+      OBSERVATIONS: 2 of 49 rounds (weapon-wielders, one vs a non-ridden
+      ant) ended after slot 0 silently - consistent with the AT_WEAP
+      wield-return, not steed-specific; two genesis'd pets read mtame=0
+      between gdb dumps (unexplained, rides the pet LOW rows); `^G
+      orc-captain` spawns mounted on a warg like goblin-captain. Related
+      battery lore for the steed rows: raw mx/my writes on a rider leave
+      the steed at its stale tile until the next update_monsteed() -
+      staging must mirror coords onto the steed.
 - [x] dmgval() missing the cursed-vs-angel/aasimar bonus arm (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       weapon.c: the mirror of the blessed arm the branch has - cursed
@@ -13169,6 +13281,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-06 | mhitm.c mattackm()'s between-attacks re-check `m_at(gb.bhitpos) != mdef` never matches the hero's steed: mount_steed() removes it from level.monsters (bare remove_monster) so m_at(u.ux,u.uy) is NULL, and mattacku()'s "attack your steed instead" arm aims bhitpos at the hero square - a multi-attack monster attacking the hero's steed lands slot 0 only (fightm under Conflict too). Fix: accept `mdef == u.usteed && u_at(bhitpos)` in the re-check. Official_nh50 identical | fixed on branch (BUG-1749); artifact ~/nh50-mattackm-target-recheck.patch, not yet sent |
+| 2026-09-06 | dogmove.c pet_ranged_attk() sets `gb.bhitpos = mtmp->mx,my` (the PET's own square) before mattackm(mtmp, mtarg), so the re-check compares the pet with its target and every ranged slot after slot 0 is dropped - a pet winter wolf / hell hound (bite slot 0, breath slot 1) never breathes at a lined-up target. Fix: aim bhitpos at mtarg (find_targ returns worm heads). Official_nh50 identical | fixed on branch (BUG-1750); same artifact, not yet sent |
+| 2026-09-06 | mthrowu.c m_throw() sets bhitpos to the launch point and walks it along the flight path without restoring it (zap.c dobuzz() saves/restores), so after a thrown weapon or spit that missed and flew past, mattackm()'s re-check compares the far square and drops the attacker's later ranged slots (Juiblex: a slot-1 spit miss kills the slot-3 cast). Fix: save/restore bhitpos + notonhead around thrwmm() and the breamm/spitmm pair in mattackm(). Official_nh50 identical | fixed on branch (BUG-1750); same artifact, not yet sent |
 | 2026-08-28 | dbridge.c do_entity() relocates drawbridge entities with bare remove_monster + place_monster: a long worm HEAD riding the bridge orphans its tail segments; a tail SEGMENT on the span teleports the HEAD without clearing its old level.monsters entry - two grid entries for one worm plus orphaned segments (save corruption on the next save/restore). EvilHack master found and fixed this in shared vanilla code as BUG-365 (efce1fb44: segment stays put and dies via the terrain survival check, head goes through rloc_to); the bare shape is byte-identical in NetHack50 and Official_nh50 (dbridge.c ~682-692) and reachable in vanilla (castle drawbridge + long worm). Branch fix (BUG-1731) = master-verbatim re-port riding the drawbridge-crush slice; battery-proven in both directions (head: logged rloc_to_core + zero-orphan full-map level.monsters sweep; segment: no head teleport, worm drowned, bridge state consistent) | fixed on branch (BUG-1731); not yet sent |
 | 2026-08-28 | set_malign() dereferences NULL mextra through its raw EPRI()/EMIN() guard conditions (the 5.0 macros are loads, (mon)->mextra->epri/emin, so the "guard" itself faults): xkilled()'s museum stack copy zeroes mextra while preserving ispriest/isminion, and the branch's BUG-358 stale-malign recalc under cleanup: passes the copy - killing an engulfing minion from inside SIGSEGVs (reproduced live on Astral: summoned water elemental of Thoth, core captured by the Amulet-slice battery). Silent revert of master BUG-360 (bc681431d) by the 5.0 tree adoption. Upstream Official_nh50 makemon.c ~2328 carries the same unsafe shape but has NO set_malign call anywhere in xkilled and every upstream caller passes live monsters where flag => mextra holds - latent-unreachable there. Branch fix (BUG-1729): has_epri()/has_emin() safe macros, master-verbatim; museum falls to data->maligntyp with the *5 scaling intact = master's fixed semantics. Master-shared latent siblings left per parity: m_detach's ispriest && EPRI temple arm (mon.c), priest.c x2, minion.c msummon atyp ternary | fixed on branch (BUG-1729); upstream latent-unreachable - NO report needed |
 | 2026-08-28 | Rider revival restores stale MON_ENDGAME_FREE: m_detach() sets the bit on any monster dying in the endgame (mon.c), save_mtraits() strips only MON_DETACH from the corpse's trait snapshot (mkobj.c), and montraits()'s revival fixup list never normalizes mstate - so a Rider killed on Astral revives (replmon) onto the floor chain with mstate 0x20, which mon_offmap() reads as off-map: per-turn "floor mon ... 0x00000020" sanity impossibles, and per the BUG-1442 analysis iter_mons consumers skip the monster (a revived Rider left inert; state survives save/restore). REFINES BUG-1442's sibling note (c), which called the bit write-only/no-fix-needed - true only until the corpse snapshot resurrects it. Battery-caught live by the overview-altar slice (Famine, mstate 0x20, on-chain at (40,3), 30 per-turn impossibles). Producer parity: Official_nh50 mon.c ~2794 set + mkobj.c ~2192 MON_DETACH-only strip = same shape upstream. Master (3.6) unaffected - no mstate. Branch fix (BUG-1728): the BUG-1264 dual-chokepoint idiom - save_mtraits stores mstate = MON_FLOOR (every lifecycle/transit bit is meaningless in a snapshot; also closes the tame-steed-corpse MON_OFFMAP and monstone live-snapshot latents per the reviewer census) and montraits resets the revived copy to MON_FLOOR (heals traits already inside saves/bones). UPSTREAM ALREADY FIXED post-freeze with a DIFFERENT shape (issue #1647, nhmall 2026-07-30 - commits 59080106b + 1e749c28c + 404e949e9, after the reference-tree freeze): place_monster clears the new MON_OFF_MAP_BITS mask (incl. ENDGAME_FREE/ENDGAME_MIGR/BUBBLEMOVE/PARKED) and mon_offmap becomes a bit-mask test ignoring OBLITERATE/STILL_ARRIVING - that heals the revival at placement (replmon -> place_monster) but leaves stored omonst data stale; composes cleanly with the branch's snapshot scrub. Trio port = its own checklist row (minted 2026-08-28) | fixed on branch (BUG-1728, commit 32c92f1c0); upstream already fixed post-freeze (issue #1647) - NO report needed |
