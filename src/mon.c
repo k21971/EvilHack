@@ -1604,8 +1604,17 @@ m_calcdistress(struct monst *mtmp)
     }
 
     /* possibly polymorph shapechangers and lycanthropes */
-    if (ismnum(mtmp->cham))
+    if (ismnum(mtmp->cham)) {
         decide_to_shapeshift(mtmp);
+        /* the shape change might have killed it: newcham() can strip a
+           hero saddle (mon_break_armor's dismount cascade), dismiss a
+           steed it can no longer carry its rider on, or petrify it on a
+           wielded cockatrice corpse (mselftouch); nothing below may run
+           on a detached monster - the msummoned wink-out would
+           m_detach() it a second time */
+        if (DEADMONSTER(mtmp))
+            return;
+    }
     were_change(mtmp);
 
     /* gradually time out temporary problems */
@@ -6758,6 +6767,9 @@ normal_shape(struct monst *mon)
         unsigned mcan = mon->mcan;
 
         (void) newcham(mon, &mons[mcham], NC_SHOW_MSG);
+        /* reverting might have killed it */
+        if (DEADMONSTER(mon))
+            return;
         mon->cham = NON_PM;
         /* newcham() may uncancel a polymorphing monster; override that */
         if (mcan)
@@ -7852,6 +7864,10 @@ newcham(
                 pline("%s falls from %s mount as %s transforms!",
                       Monnam(rider), mhis(rider), oldmhe);
             separate_steed_and_rider(rider);
+            /* with nowhere to place the steed, the separation dismisses
+               it - and the steed is mtmp */
+            if (DEADMONSTER(mtmp))
+                return 1;
         } else {
             /* the rider is gone but the steed is still flagged as ridden;
                it was taken off the map when mounted, so put it back as a
@@ -7979,6 +7995,9 @@ newcham(
     if (!(mtmp->misc_worn_check & W_ARMG))
         mselftouch(mtmp, "No longer petrify-resistant, ",
                    !svc.context.mon_moving);
+    /* a wielded cockatrice corpse petrifies the new form outright */
+    if (DEADMONSTER(mtmp))
+        return 1; /* polymorph itself succeeded */
     check_gear_next_turn(mtmp);
 
     /* withering has no purchase on a form that cannot wither */
