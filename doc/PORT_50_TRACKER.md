@@ -12282,19 +12282,68 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       captain killed the hero's little dog with no Conflict (row
       minted below); genesis "tame captain" fuzzy-matched dark elven
       captain and dropped the tame prefix (gameplay lore).
-- [ ] m_calcdistress() lacks master's BUG-1314 dead-monster
+- [x] m_calcdistress() lacks master's BUG-1314 dead-monster
       continuation after decide_to_shapeshift (minted 2026-09-03 by
-      the wither slice's reviewer; LOW). Master mon.c:1517-1524
-      follows the shapeshift call with `if (DEADMONSTER(mtmp))
-      continue;` ("the shape change might have killed it"); the
-      branch runs were_change() and the timer writes on a monster
-      newcham() can now leave dead through the dismount cascade (the
-      BUG-1741 guard returns 1 on the dead steed). The newcham_
-      deferred/minliquid half of BUG-1314 is adjudicated N/A on the
-      branch (5.0 newcham does not tail-call minliquid - Izchak
-      row); this one-line continuation is the remaining piece.
-      Battery: ridden chameleon steed over water forced into a
-      non-rideable form.
+      the wither slice's reviewer; LOW) - PORTED 2026-09-06, BUG-1752
+      + BUG-1753, commit 69b069b40 (mon.c only). The guard sits in
+      master's position (between the shift and were_change - new_were
+      heals before its own dead check) as a `return` (iter_mons's
+      per-monster form of master's `continue`). WHY IT MATTERED HERE
+      AND NOT IN VANILLA: vanilla 5.0 runs three timer decrements
+      after the shift; the branch appended the mprotection ward, the
+      vuln_* timeouts, buff expiry and the msummoned wink-out, whose
+      mongone() is a second m_detach() = the "already detached?"
+      impossible. The killers are inside newcham (the branch newcham
+      has NO minliquid tail; the Izchak-row adjudication stands):
+      mon_break_armor's saddle-strip dismount cascade (BUG-1741
+      guard), rider-side separate_steed_and_rider (guarded), and TWO
+      UNGUARDED producers a Plan-agent design check found and this
+      slice fixed as BUG-1753: the steed-side
+      separate_steed_and_rider(rider) call (steed.c can mongone the
+      steed when there is nowhere to place it - and the steed IS
+      mtmp; newcham then ran hideunder/initworm/the "turns into"
+      pline/possibly_unwield/mon_break_armor on it) and the
+      mselftouch() call (a wielded cockatrice corpse petrifies the
+      new form; check_gear_next_turn, the wither cure, the boulder
+      walk, poly_steed and set_apparxy/monflee then ran on it) -
+      both now `return 1` in the BUG-1741 shape; plus normal_shape()
+      (rescham/restore_cham) regains master rescham's "reverting
+      might have killed it" continuation, which the 5.0 refactor into
+      normal_shape dropped. Master status: the two newcham holes are
+      master-shared (frozen-unfixed); the mselftouch one is also
+      vanilla-shared -> upstream-reportable row below. REVIEWER PASS
+      (all three killers verified live from m_calcdistress - the
+      hero's steed IS iterated because mount_steed's bare
+      remove_monster leaves mstate MON_FLOOR; both returns consistent
+      with the BUG-1741 contract; every caller acting on newcham's 1
+      tolerates a dead monster; restore_cham's callers keep using the
+      monster afterwards but their only lethal path is the
+      master-shared mselftouch). BATTERY 3/3 PASS (2026-09-06,
+      Valkyrie/human XL30; water = a gdb-set POOL square under the
+      mounted pair, hero on a ring of levitation; sanity_check was NOT
+      on for this game - see the EVILHACKOPTIONS row below; paniclog
+      never created): 15+ natural chameleon shifts while mounted - four
+      land dismount cascades with the steed alive afterwards ("Your
+      mumak turns into a saddled grid bug!  You fall off of the saddled
+      grid bug! ... The grid bug's saddle falls off.", gdb mhp 4 mstate
+      0) and a rideable-form shift that kept the saddle ("You adjust
+      yourself in the saddle on your new blue dragon."); the over-water
+      shift: "Your warhorse turns into a saddled Woodland-elf!  You
+      float off of the saddled Woodland-elf!  The saddled Woodland-elf
+      falls into the water!  The saddled Woodland-elf is killed!" with
+      NOTHING further spoken for it that turn (the saddle-falls-off
+      line every surviving cascade prints was absent =
+      mon_break_armor's post-death guard held; no
+      wink-out/ward/vulnerability text), the new m_calcdistress return
+      firing exactly once, on that turn, with mhp 0 mstate 2
+      DEADMONSTER 1; the optional mselftouch leg was staged too: "Your
+      elder minotaur turns into an Aleax!  No longer petrify-resistant,
+      the Aleax touches the cockatrice corpse.  The Aleax is slowing
+      down.  The Aleax turns to stone." then only the hero's pet-death
+      guilt, no second death line, chameleon gone from the monster
+      list. Harness: a shift into a handless or stone-resistant form
+      enters mselftouch with mw NULL (silent) - expected, not a
+      failure.
 - [ ] pet-vs-pet melee without Conflict observed (minted 2026-09-03
       from the wither follow-up battery; LOW, uninvestigated). A
       gdb-tamed dark elven captain (newedog + initedog, mtame 5)
@@ -12323,19 +12372,45 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       writes on the same dwarf) clobbered m_lev. Reproduce on a
       clean game before blaming code; compare master's
       create_particular tame arm.
-- [ ] minsects producer/consumer pair NOT PORTED (minted
+- [x] minsects producer/consumer pair NOT PORTED (minted
       2026-09-02 by the clone-reset slice; LOW; the row the
       spell-list slice's RIDERS note and the Racial-monsters NIT
-      list both cite as "the minsects pair row" but never minted).
-      Branch has the monst.h bit and ONE setter (mcast_insects
-      m-v-m leg, tamed/peaceful per caster); missing: the
-      hero-targeting leg's setter (the MM_ANGRY|MM_NOMSG makemon
-      in mcast_insects; master mcastu.c:1894), corpse_chance's
-      rn2(50) && mon->minsects -> return FALSE no-corpse arm
-      (master mon.c:4785 - CLC_INSECTS summons rarely leave
-      corpses), and the clone_mon/montraits minsects=0 resets. All
-      four land together; battery = summon insects both
-      directions, kill ~20, count corpses; resets by gdb read.
+      list both cite as "the minsects pair row" but never minted) -
+      PORTED 2026-09-06, BUG-1754, commit ffe4521be (mcastu.c,
+      mon.c, makemon.c, zap.c). All four pieces together: the
+      hero-targeting leg's `minsects = 1` after its MM_ANGRY makemon
+      (the m-v-m leg's setter was f4d7eaaa0's only piece - no
+      recorded decision to skip the rest), corpse_chance's
+      `if (rn2(50) && mon->minsects) return FALSE;` placed right after
+      the 5.0 gm.mswallower argument fix-up (the arm reads neither
+      magr nor was_swallowed; upstream hunk stays first), and the
+      clone_mon/montraits `minsects = 0` resets - the last two
+      master-only assignments in the session-92 programmatic diff.
+      Consumer audit: all five corpse_chance callers attach no meaning
+      to FALSE beyond "no corpse" (xkilled's treasure drop runs before
+      and independently; mondied gates only make_corpse; the two
+      digestion sites skip only nutrition); the AT_BOOM loop inside
+      corpse_chance is unreachable for S_ANT/S_SPIDER/S_SNAKE (a summon
+      later polymorphed into a gas spore loses its explosion 49/50 -
+      master-identical, kept). Copy paths: split_mon -> clone_mon;
+      save_mtraits -> montraits; makemon zeroes; newcham's
+      set_mon_data keeps the bit through polymorph on both trees.
+      Existing monst.h bit, not save-breaking. REVIEWER PASS,
+      byte-for-byte intent at all four sites. BATTERY 5/5 PASS
+      (2026-09-06; sanity_check enabled by gdb from T:11): gdb-called
+      mcast_insects(caster, &youmonst) with a hostile level-15 aligned
+      cleric -> "The priest of Tyr summons insects!", 6 hostile summons
+      all minsects 1 (control genesis'd soldier ant 0);
+      monster-vs-monster: hostile caster at a jackal -> 6 hostile
+      summons minsects 1, peaceful caster at a grid bug -> 4 PEACEFUL
+      summons minsects 1 (disposition follows the caster); 26 summons
+      #wizkilled -> 0 corpses versus 28 control soldier ants -> 5
+      corpses; a gremlin with gdb-set minsects 1 splashed twice -> both
+      clones read 0, parent still 1; an ogre with minsects 1 stoned by
+      a wielded cockatrice corpse then stone-to-flesh -> revived
+      monster (mrevived 1) reads 0. Harness: `^G tame aligned priest`
+      silently yields a PEACEFUL cleric (tamedog refuses priests) -
+      used as the peaceful-caster case.
 - [x] monster boulder-breaking extensions + mbreakboulder cooldown
       PORTED 2026-09-03 (minted 2026-09-02 after the maintainer
       corrected the clone-reset record's 'superseded' claim; MED -
@@ -12436,16 +12511,139 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reordered mon_catchup decayed mspec_used/mbreath_attk/mtk_attk
       /mbreakboulder 20->17 together after 3 elapsed moves and
       25->0 together after 42.
-- [ ] LOW minion.c bribe-refusal redraw (6f210b1fa's two newsym hunks)
+- [x] LOW minion.c bribe-refusal redraw (6f210b1fa's two newsym hunks)
       NOT PORTED (minted 2026-09-03 by the boulder-break slice's
-      reviewer). Master 6f210b1fa added newsym(mtmp->mx, mtmp->my)
-      after both mpeaceful = 0 + set_malign() flips in demon_talk()
-      (src/minion.c: the no-gold/cannot-move refusal and the 'gets
-      angry...' refusal) so the demon's glyph drops its peaceful
-      highlight at once; the branch (and upstream 5.0) redraw only
-      on the next newsym of that square. Cosmetic, two lines; fell
-      between the covetous close-range row (item (d), 55bcb5a8d)
-      and the boulder-break row. Take with any minion.c slice.
+      reviewer) - PORTED 2026-09-06 as BUG-1758 inside a demon_talk
+      parity + hero-race demon slice, BUG-1755..1759, commit
+      01bccdecd (minion.c, dog.c, engrave.c, pray.c, shk.c,
+      uhitm.c, dokick.c, artifact.c). The pre-port diff found the
+      row sitting on a larger unrowed gap: demon_talk()'s body was
+      still vanilla 5.0 (the demon-lord behaviors slice recorded
+      "B2 demon_talk body untouched"; its battery paid 300 of 10000
+      gold). PORTED WITH IT: (1) BUG-1757 master's demand formula
+      0f2ef1168/147accaab/179b6a105 `rn1(4000, 1000) + 1000 *
+      (1 - same-alignment-sign)` via mon_aligntyp() (1000..4999
+      coaligned, 2000..5999 otherwise), the `cash <= 0` refusal gate
+      (now the live no-gold gate; `!demand` is dead but kept as
+      master's text) and 7b9c8a00d's `|| rn2(3)` unmeetable roll
+      (the four archdevils cannot always be bought; in that arm the
+      CHA scowl test is provably unreachable - offer clamped to cash,
+      gap >= 125, CHA capped at 25 - so the only outcome is "gets
+      angry", master-identical); the reconciled STRAT_APPEARMSG
+      one-shot reproduces master's "one ask, 2/3 unbuyable" flow.
+      Kept as 5.0 on purpose: the tele_restrict-gated rloc(RLOC_MSG)
+      in the Good-hunting arm (matches the branch's monmove sibling;
+      master's --More-- is a 3.6 message-window artefact), the Deaf
+      "says something" wording, the single post-arm livelog.
+      (2) BUG-1755 the hero-is-demon test `mlet == S_DEMON` ->
+      `is_demon(raceptr(&gy.youmonst))` - the last vanilla remnant
+      of a family the branch had reconciled elsewhere (monmove.c's
+      whisper arm said "Good hunting" to a crowned Infidel while
+      demon_talk demanded gold; the arms disagreed for the
+      raceptr-vs-mlet cases: S_DEMON forms without MH_DEMON such as
+      sandestin/Riders/djinni, Tiamat, a demon-race hero in a
+      non-demon form) + the SIBLING SWEEP of every remaining
+      form-only site (master tests the race at 17 sites): engrave.c
+      ENGR_BLOOD, pray.c dopray "seems to ignore you" (5.0's
+      is_vampshifter term kept), shk.c cad(), uhitm.c damageum's
+      hell-p gate gains master's `u.umonnum != PM_DEMON` exclusion,
+      dokick.c gains master ed53802ce's silver-kick refusal ("You
+      can't bring yourself to kick anything made of silver." - the
+      branch's Hate_material sear needs bare feet and burns; a
+      different trigger and outcome; the commit's dothrow.c hunk no
+      longer exists on master), artifact.c bane_applies() gains
+      master 7e9e55805's demon-race Demonbane/Hammer arm beside its
+      drow and undead arms. DELIBERATE DEVIATION (uhitm.c): master
+      widened the hell-p gate to maybe_polyd(is_demon(form),
+      Race_if(PM_DEMON)) (6972e3e62) and then, because a crowned
+      Infidel farmed "virtually unlimited pets", put `if (!Upolyd &&
+      Race_if(PM_DEMON)) return;` inside demonpet() (0e5101bd0) - the
+      pair composes to "no hell-p for a natural demon-race hero" but
+      the gate still burns its 1-in-13 roll as a silent M_ATTK_MISS.
+      The branch keeps its form-only gate (same outcome, no wasted
+      hit), adds the PM_DEMON exclusion and ports the demonpet guard
+      as defense in depth; master's wasted hit is frozen-unfixed.
+      The REVIEWER caught that the naive widening plus (3) would
+      have composed into master's pet farm (HIGH, fixed pre-commit;
+      pattern-two-correct-slices-compose-wrong). (3) BUG-1756 dog.c
+      tamedog: the race test AND master 0e8fefcc3's PM_LAVA_DEMON
+      exemption - fountain.c dolavademon() tames the forge-summoned
+      lava demon through tamedog and its "offers to aid you" arm was
+      dead code for every non-demon hero on the branch. (4) BUG-1759
+      dokick.c: master 5df9a6f19's `if (kickedobj->oartifact)
+      u.uconduct.artitouch++` (kicking an artifact breaks the
+      artifactless conduct; in neither vanilla 3.6.7 nor 5.0) - a
+      reviewer LOW taken in the same function. REVIEWER: CONDITIONAL
+      PASS -> the HIGH fixed; whole-function demon_talk diff found no
+      other unlisted delta beyond 5.0 improvements; tree-wide census
+      of both trees found no remaining site where master tests the
+      race and the branch the form; Sick_resistance macro delta
+      adjudicated in the decisions log. BATTERY 7/7 PASS plus one
+      expectation error of the brief's own (2026-09-06,
+      Knight/human/lawful XL30; demon race by gdb urace.mnum 376 -> 456
+      with the form unchanged; sanity_check enabled by gdb from T:16;
+      paniclog never created): seven fresh Mephistopheles demands all
+      inside the two bands - 10641/10786/8186/8090/8390 (= cash +
+      641/786/722/626/926, unmeetable) and 2536/2848 (meetable), 2 of 7
+      meetable; refusal -> "You refuse.  Mephistopheles gets angry..."
+      with mpeaceful 0 before the next hero turn; no gold ->
+      "Mephistopheles appears before you." and nothing else, hostile at
+      once, and the redraw proven by the remembered-invisible marker
+      becoming the '&' on that screen (this build has NO peaceful-glyph
+      highlighting - underline_peacefuls has no consumer, its own row -
+      so the colour half is unobservable); pay 2536 -> "Mephistopheles
+      vanishes, laughing about cowardly mortals." + livelog "bribed
+      Mephistopheles with 2536 zorkmids for safe passage"; balrog-form
+      control "Good hunting, Sister." + vanish; the demon-race Knight
+      got "Good hunting, Brother." both via #chat and via the natural
+      adjacent-whisper path (the two arms now agree); silver kick "You
+      can't bring yourself to kick anything made of silver." with the
+      object unmoved (iron dagger control kicked away); Demonbane wield
+      -> two Override? prompts, n -> "You can't handle your silver
+      heavy mace named Demonbane!" 17 then 10 damage, uwep NULL (human
+      control: wielded, no prompt, no damage) - answering y to both
+      still refuses with the same MATERIAL wording: Demonbane is a
+      SILVER mace and the demon race hates silver (retouch_object's
+      hatemat arm, pre-existing and master-identical), so the brief's
+      'y wields it' expectation was wrong, not the code; the bane arm
+      itself is proven by the prompts (and a floor pickup as the demon
+      race raised one Override prompt too); blood engraving "You see a
+      message scrawled in blood here." (human: dust); #turn as a lawful
+      demon-race hero "For some reason, Lugh seems to ignore you."
+      (human control chants; the string lives in doturn(), not dopray
+      as the plan said); hell-p: 65 barehanded swings as the natural
+      demon race -> never, demonpet breakpoint 0 hits, every swing
+      landing ("You claw the test monster.  You sting the test
+      monster."); as a vrock "Some hell-p has arrived!  A vrock
+      suddenly appears next to you!" repeatedly with arrivals mtame 5;
+      human control never; kicking Excalibur -> artitouch 0 -> 1 by gdb
+      (the #conduct screen never lists artitouch - it is an xlogfile
+      achievement); tamedog by gdb call: lava demon as human returns 1
+      (mtame 5), vrock as human 0, vrock as demon race 1. Observation,
+      master parity: a refused tamedog still leaves the monster
+      peaceful (vanilla's "worst case, at least it'll be peaceful").
+      Genesis grammar slip "The invisible Mephistopheles appear next to
+      you." -> upstream table.
+- [ ] LOW harness/option bug: set_wizonly options from EVILHACKOPTIONS
+      (or the rc) are silently dropped on a -D launch (minted 2026-09-06
+      by the demon-race battery, seen in all three games): after
+      `EVILHACKOPTIONS='sanity_check' evilhack -D`, gdb reads
+      iflags.sanity_check 0 with flags.debug 1, nothing is printed, and
+      the option is not offered in the O menu either. Mechanism (read,
+      not yet runtime-proven): sys/unix/unixmain.c calls initoptions()
+      - which parses the environment and rc - BEFORE process_options()
+      sets `wizard = TRUE` for -D, and options.c's string-option lookup
+      drops `set_wizonly` entries while !wizard (two gates). Vanilla
+      5.0's unixmain has the identical ordering; master 3.6 also calls
+      initoptions() first (its acceptance of the env setting was never
+      re-verified). CONSEQUENCE: every branch battery that recorded
+      "sanity_check on via EVILHACKOPTIONS" since the 2026-07-13
+      detectors slice may have run WITHOUT the sanity checks unless it
+      was set in-game; the game-tester now enables it by gdb
+      (`set iflags.sanity_check = 1`) right after launch - gameplay.md
+      carries the recipe. Candidate fix: recognize -D in
+      early_options() (or defer the wizonly rejection until after
+      process_options()); upstream-shareable once proven.
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
@@ -13281,6 +13479,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | observed; not reported, no patch |
+| 2026-09-06 | mon.c newcham() runs its tail on a monster mselftouch() just petrified: after `mselftouch(mtmp, "No longer petrify-resistant, ", ...)` (no gloves, wielded cockatrice corpse, new form not stone-resistant -> minstapetrify -> monstone) vanilla continues into check_gear_next_turn(), the boulder walk (per-iteration guarded) and the Elbereth re-check on a dead monster, and normal_shape() (rescham/restore_cham) then writes cham/mcan, newsyms and runs new_were()/seemimic() on it. Branch fix: `if (DEADMONSTER(mtmp)) return 1;` after the mselftouch call (the shape of the existing mon_break_armor guard) and `if (DEADMONSTER(mon)) return;` after normal_shape's newcham (3.6.x carried the latter as a `continue` in rescham). Vanilla-shared per Official_nh50 mon.c newcham()/normal_shape(). | branch-fixed (BUG-1753); artifact ~/nh50-newcham-mselftouch-dead-tail.patch (git apply --check clean vs Official_nh50 f41f1aa09) |
 | 2026-09-06 | mhitm.c mattackm()'s between-attacks re-check `m_at(gb.bhitpos) != mdef` never matches the hero's steed: mount_steed() removes it from level.monsters (bare remove_monster) so m_at(u.ux,u.uy) is NULL, and mattacku()'s "attack your steed instead" arm aims bhitpos at the hero square - a multi-attack monster attacking the hero's steed lands slot 0 only (fightm under Conflict too). Fix: accept `mdef == u.usteed && u_at(bhitpos)` in the re-check. Official_nh50 identical | fixed on branch (BUG-1749); artifact ~/nh50-mattackm-target-recheck.patch, not yet sent |
 | 2026-09-06 | dogmove.c pet_ranged_attk() sets `gb.bhitpos = mtmp->mx,my` (the PET's own square) before mattackm(mtmp, mtarg), so the re-check compares the pet with its target and every ranged slot after slot 0 is dropped - a pet winter wolf / hell hound (bite slot 0, breath slot 1) never breathes at a lined-up target. Fix: aim bhitpos at mtarg (find_targ returns worm heads). Official_nh50 identical | fixed on branch (BUG-1750); same artifact, not yet sent |
 | 2026-09-06 | mthrowu.c m_throw() sets bhitpos to the launch point and walks it along the flight path without restoring it (zap.c dobuzz() saves/restores), so after a thrown weapon or spit that missed and flew past, mattackm()'s re-check compares the far square and drops the attacker's later ranged slots (Juiblex: a slot-1 spit miss kills the slot-3 cast). Fix: save/restore bhitpos + notonhead around thrwmm() and the breamm/spitmm pair in mattackm(). Official_nh50 identical | fixed on branch (BUG-1750); same artifact, not yet sent |
@@ -13447,6 +13647,7 @@ trees, different content - Phase 0 rename).
 | 2026-08-01 | Castle wand chest: upstream 5.0's added potion of gain level (nh50 a8800a9ac anti-frustration guarantee) DROPPED everywhere - strict master parity on the chest contents (wand of wishing +2 recharged:1 only) across all three castle variants. A deliberate deviation from the adopt-upstream collision default | maintainer |
 | 2026-08-01 | castle-2 court monsters GET the shuffle on branch (master's castle-2 $monster register lacks SHUFFLE while castle-1/3 and vanilla all shuffle = master oversight, BUG-1455 frozen-unfixed): dat/castle-2.lua carries shuffle(monster) | maintainer |
 | 2026-07-25 | RNDVAULT rtype DROPPED rather than ported: 5.0's THEMEROOM occupies its exact role (both trees carry the same "treat like OROOM so random content still lands" test), which follows directly from the ratified 2026-07-18 rndvaults-to-themerooms decision. Consequence: SHOPBASE 14->20 and CANDLESHOP 31, NOT master's 21/32. This also incidentally FIXES a live master bug - mapseen_feat.shoptype is Bitfield(5) and recalc_mapseen stores a raw rtype, so master's CANDLESHOP 32 truncates to 0, the "mixed shop types" sentinel, and a known candle shop annotates as "untended shop" in the overview. Constraint recorded at the enum; do NOT re-add RNDVAULT | coordinator |
+| 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
 | 2026-07-25 | EvilHack terrain enum placement mirrors MASTER'S RELATIVE ORDER (DEADTREE after TREE; GRASS/SAND after ICE; PUDDLE/SEWAGE after CLOUD) rather than appending at the end - this keeps every range macro's meaning without rewriting it: IS_OBSTRUCTED(<POOL) catches DEADTREE as solid, IS_ROOM(>=ROOM) catches GRASS/SAND as walkable floor, IS_FURNITURE(STAIRS..ALTAR) is undisturbed. MAX_TYPE 39->44, MATCH_WALL 40->45, xFLOOR..xWATERWALL +5; terrain_descr[]/levltyp[]/type_names[] are positional and shift with them. 5.0's open-ended `ACCESSIBLE(typ) >= DOOR` deliberately LEFT ALONE (master bounds it `<= SEWAGE`; the open form already spanned MAX_TYPE before this change and is not a bug) | coordinator |
