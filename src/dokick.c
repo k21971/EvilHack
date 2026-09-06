@@ -619,6 +619,16 @@ really_kick_object(coordxy x, coordxy y)
         return 1;
     }
 
+    if (is_demon(raceptr(&gy.youmonst))
+        && gk.kickedobj->material == SILVER) {
+        You_cant("bring yourself to kick anything made of silver.");
+        return 1;
+    }
+
+    /* kicking an artifact is touching it */
+    if (gk.kickedobj->oartifact)
+        u.uconduct.artitouch++;
+
     if (!uarmf && gk.kickedobj->otyp == CORPSE
         && touch_petrifies(&mons[gk.kickedobj->corpsenm])
         && !Stone_resistance) {

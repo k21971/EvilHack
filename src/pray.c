@@ -3701,7 +3701,7 @@ doturn(void)
     }
 
     if ((u.ualign.type != A_CHAOTIC
-         && (is_demon(gy.youmonst.data)
+         && (is_demon(raceptr(&gy.youmonst))
              || is_undead(gy.youmonst.data) || is_vampshifter(&gy.youmonst)))
         || u.ugangr > 6) { /* "Die, mortal!" */
         pline("For some reason, %s seems to ignore you.", Gname);

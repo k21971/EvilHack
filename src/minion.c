@@ -314,7 +314,7 @@ demon_talk(struct monst *mtmp)
             pline("%s appears before you.", Amonnam(mtmp));
         newsym(mtmp->mx, mtmp->my);
     }
-    if (gy.youmonst.data->mlet == S_DEMON) { /* Won't blackmail their own. */
+    if (is_demon(raceptr(&gy.youmonst))) { /* Won't blackmail their own. */
         if (!Deaf)
             pline("%s says, \"Good hunting, %s.\"", Amonnam(mtmp),
                   flags.female ? "Sister" : "Brother");
@@ -326,12 +326,13 @@ demon_talk(struct monst *mtmp)
         return 1;
     }
     cash = money_cnt(gi.invent);
-    demand = (cash * (rnd(80) + 20 * Athome))
-           / (100 * (1 + (sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))));
+    demand = rn1(4000, 1000)
+             + (1000 * (1 - (sgn(u.ualign.type) == sgn(mon_aligntyp(mtmp)))));
 
-    if (!demand || gm.multi < 0) { /* you have no gold or can't move */
+    if (!demand || gm.multi < 0 || cash <= 0) { /* no gold or can't move */
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* became hostile */
         return 0;
     } else {
         /* make sure that the demand is unmeetable if the monster
@@ -341,7 +342,7 @@ demon_talk(struct monst *mtmp)
            mongone() gets rid of the monster; force combat anyway;
            also make it unmeetable if the player is Deaf, to simplify
            handling that case as player-won't-pay] */
-        if (mon_has_amulet(mtmp) || Deaf)
+        if (mon_has_amulet(mtmp) || Deaf || rn2(3))
             /* 125: 5*25 in case hero has maximum possible charisma */
             demand = cash + (long) rn1(1000, 125);
 
@@ -363,6 +364,7 @@ demon_talk(struct monst *mtmp)
             pline("%s gets angry...", Amonnam(mtmp));
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* became hostile */
             return 0;
         }
     }

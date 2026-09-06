@@ -3046,6 +3046,10 @@ demonpet(void)
     struct permonst *pm;
     struct monst *dtmp;
 
+    /* crowned infidels shouldn't get virtually unlimited pets */
+    if (!Upolyd && Race_if(PM_DEMON))
+        return;
+
     pline("Some hell-p has arrived!");
     i = !rn2(6) ? ndemon(u.ualign.type) : NON_PM;
     pm = i != NON_PM ? &mons[i] : gy.youmonst.data;
@@ -7026,8 +7030,12 @@ damageum(
     mhm.mwep = (struct obj *) 0;
     mhm.done = FALSE;
 
+    /* only a demon FORM gets hell-p: a hero of the demon race in natural
+       form is excluded inside demonpet(), so admitting the race here
+       would only turn 1 in 13 of those hits into a silent miss */
     if (is_demon(gy.youmonst.data) && !rn2(13) && !uwep
-        && u.umonnum != PM_AMOROUS_DEMON && u.umonnum != PM_BALROG) {
+        && u.umonnum != PM_AMOROUS_DEMON && u.umonnum != PM_BALROG
+        && u.umonnum != PM_DEMON) {
         demonpet();
         return M_ATTK_MISS;
     }

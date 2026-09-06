@@ -6376,7 +6376,7 @@ cad(
 {
     const char *res = 0;
 
-    switch (is_demon(gy.youmonst.data) ? 3 : poly_gender()) {
+    switch (is_demon(raceptr(&gy.youmonst)) ? 3 : poly_gender()) {
     case 0:
         res = "cad";
         break;

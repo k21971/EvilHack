@@ -1516,6 +1516,11 @@ bane_applies(const struct artifact *oart, struct monst *mon)
                 || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
             if (!wizard || y_n("Override?") != 'y')
                 return TRUE;
+        } else if (is_demon(raceptr(&gy.youmonst))
+            && (oart == &artilist[ART_DEMONBANE]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+            if (!wizard || y_n("Override?") != 'y')
+                return TRUE;
         }
     } else {
         if (racial_drow(mon)

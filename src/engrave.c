@@ -586,7 +586,7 @@ doengrave_ctx_init(struct _doengrave_ctx *de)
 
     if (de->oep)
         de->oetype = de->oep->engr_type;
-    if (is_demon(gy.youmonst.data)
+    if (is_demon(raceptr(&gy.youmonst))
         || maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE)))
         de->type = ENGR_BLOOD;
 
