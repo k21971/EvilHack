@@ -38,8 +38,24 @@ static const struct innate {
                  { 15, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
 
-  hea_abil[] = { { 1, &(HPoison_resistance), "", "" },
+  con_abil[] = { { 1, &(HSick_resistance), "", "" },
+                 { 7, &(HPoison_resistance), "healthy", "" },
+                 { 20, &(HSearching), "perceptive", "unaware" },
+                 { 0, 0, 0, 0 } },
+
+  dru_abil[] = { { 1, &(HStealth), "", "" },
+                 { 7, &(HSleep_resistance), "awake", "tired" },
+                 { 10, &(HSearching), "perceptive", "unaware" },
+                 { 14, &(HPasses_trees), "less solid", "more solid" },
+                 { 0, 0, 0, 0 } },
+
+  hea_abil[] = { { 3, &(HPoison_resistance), "healthy", "" },
+                 { 15, &(HSick_resistance), "hale", "" },
+                 { 0, 0, 0, 0 } },
+
+  inf_abil[] = { { 1, &(HFire_resistance), "", "" },
                  { 15, &(HWarning), "sensitive", "" },
+                 { 20, &(HShock_resistance), "insulated", "conductive" },
                  { 0, 0, 0, 0 } },
 
   kni_abil[] = { { 7, &(HFast), "quick", "slow" }, { 0, 0, 0, 0 } },
@@ -55,6 +71,12 @@ static const struct innate {
                  { 13, &(HCold_resistance), "warm", "cooler" },
                  { 15, &(HShock_resistance), "insulated", "conductive" },
                  { 17, &(HTeleport_control), "controlled", "uncontrolled" },
+                 { 20, &(HTelepat), "a strange mental acuity",
+                   "mentally dulled" },
+                 { 23, &(HWwalking), "unsinkable", "like you might sink" },
+                 { 25, &(HStone_resistance), "limber", "stiff" },
+                 { 27, &(HDisint_resistance), "firm", "less firm" },
+                 { 30, &(HSick_resistance), "hale", "" },
                  { 0, 0, 0, 0 } },
 
   pri_abil[] = { { 15, &(HWarning), "sensitive", "" },
@@ -67,14 +89,14 @@ static const struct innate {
                  { 0, 0, 0, 0 } },
 
   rog_abil[] = { { 1, &(HStealth), "", "" },
-                 { 10, &(HSearching), "perceptive", "" },
+                 { 10, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
   sam_abil[] = { { 1, &(HFast), "", "" },
                  { 15, &(HStealth), "stealthy", "" },
                  { 0, 0, 0, 0 } },
 
-  tou_abil[] = { { 10, &(HSearching), "perceptive", "" },
+  tou_abil[] = { { 10, &(HSearching), "perceptive", "unaware" },
                  { 20, &(HPoison_resistance), "hardy", "" },
                  { 0, 0, 0, 0 } },
 
@@ -906,7 +928,10 @@ role_abil(int r)
         { PM_ARCHEOLOGIST, arc_abil },
         { PM_BARBARIAN, bar_abil },
         { PM_CAVE_DWELLER, cav_abil },
+        { PM_CONVICT, con_abil },
+        { PM_DRUID, dru_abil },
         { PM_HEALER, hea_abil },
+        { PM_INFIDEL, inf_abil },
         { PM_KNIGHT, kni_abil },
         { PM_MONK, mon_abil },
         { PM_CLERIC, pri_abil },
@@ -1272,7 +1297,14 @@ adjabil(int oldlevel, int newlevel)
         abil++;
     }
 
-    if (oldlevel > 0) {
+    if (Role_if(PM_MONK) && newlevel >= 25 && Stoned)
+        make_stoned(0L, "You no longer seem to be petrifying.",
+                    0, (char *) 0);
+
+    /* don't lose infidel skill slots when crowning; probably good to have
+       the symmetry regardless (newlevel == 0 should never happen elsewhere,
+       but if it does we probably don't want lost skill slots there either) */
+    if (oldlevel > 0 && newlevel > 0) {
         if (newlevel > oldlevel)
             add_weapon_skill(newlevel - oldlevel);
         else
