@@ -2019,6 +2019,7 @@ mcast_insects(struct monst *mtmp, struct monst *mdef)
             != 0) {
             success = TRUE;
             mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0;
+            mtmp2->minsects = 1;
             set_malign(mtmp2);
         }
     }

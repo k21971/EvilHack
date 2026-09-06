@@ -940,6 +940,7 @@ montraits(
         mtmp2->mentangled = 0;
         mtmp2->msummoned = 0;
         mtmp2->mberserk = 0;
+        mtmp2->minsects = 0;
         mtmp2->vuln_fire = 0;
         mtmp2->vuln_cold = 0;
         mtmp2->vuln_elec = 0;

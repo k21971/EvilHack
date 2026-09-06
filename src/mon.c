@@ -5110,6 +5110,11 @@ corpse_chance(
     if (!magr && gm.mswallower && attacktype(gm.mswallower->data, AT_ENGL))
         magr = gm.mswallower, was_swallowed = TRUE; /* for gas spore boom */
 
+    /* insects/snakes/spiders brought about by the
+       monster spell CLC_INSECTS rarely leave a corpse */
+    if (rn2(50) && mon->minsects)
+        return FALSE;
+
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline_mon(mon, "%s body crumbles into dust.",

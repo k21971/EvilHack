@@ -2755,6 +2755,8 @@ clone_mon(
     m2->mentangletime = 0;
     /* rage is per-monster state, not inherited */
     m2->mberserk = 0;
+    /* nor is being a spell summon */
+    m2->minsects = 0;
     /* kills by the clone are not credited to the hero */
     m2->uexp = 0;
     m2->vuln_fire = 0;
