@@ -1158,7 +1158,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       class-based consumer conversions (breaktest glass, o_material
       detect, poly_zapped, stone_missile, is_flimsy), racial-gear
       macro gaps (is_elven_weapon/is_orcish_obj/is_dwarvish_obj
-      lack EvilHack's added otyps - ELVEN_LONG_SWORD etc.), NITs:
+      lack EvilHack's added otyps - ELVEN_LONG_SWORD etc. -
+      DISCHARGED: 418f9fa63 carried them; verified term-identical
+      to master's macro block 2026-09-06), NITs:
       valid_obj_material(NO_MATERIAL) leading reject,
       matdensities[] 5-bit-field OOB clamp on restore,
       init_dummyobj material, is_rottable dead BONE test (master
@@ -5688,7 +5690,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       knox slice ported it, 2026-08-01; makeriver/mkrivers until the
       mines slice ported them, 2026-08-02 - see the mines.des row and
       the Decisions log); SCR_CONSECRATION altar-on-sand/grass (object
-      exists, read.c case does not). dat/symbols AmigaFont
+      exists, read.c case does not; RIDER 2026-09-06 from the
+      frac_altar slice: master's case also writes
+      levl[u.ux][u.uy].frac_altar = 0 after altarmask, like every
+      other altar-creation site - carry it when the case ports).
+      dat/symbols AmigaFont
       deliberately skipped - that set also has no
       S_forge/S_magic_chest/S_lavawall rows, so skipping matches both
       the branch's own precedent and upstream's.
@@ -7732,38 +7738,131 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Battery 7 legs PASS incl. glove/undershirt layering on both
       races, barkskin bypass with re-block on expiry, and the ^X
       suppression A/B.
-- [ ] frac_altar (fractured altar) subsystem NOT PORTED (minted
-      2026-08-06 by the Knight slice's crowning-parity port). Master
-      levl[x][y].frac_altar: crowning cracks the altar the hero is
-      crowned on (all four alignment arms in gcrownu, master pray.c
-      ~899/932/967/1021 - lightning-strike message pair, one-shot via
-      the frac_altar==0 gate); the field, its save/restore, display and
-      any other consumers need enumeration from master before the
-      writes can port. The Knight slice deliberately left the crowning
-      arms without the crack (subsystem absent on branch; branch
-      mklev.c has one comment referencing frac_altar bits - start the
-      enumeration there and at master rm.h). SECOND CONSUMER
-      (2026-08-12, DKnight slice): the Dirge sacrifice gift
-      (BUG-1546, pray.c sacrifice_your_race) ports master's block
-      WITHOUT the frac_altar==0 gate, the frac_altar=1 write and
-      the lightning/altar-splitting message pair - all three
-      re-port here (TODO-EVILHACK comment marks the site);
-      exist_artifact() covers the one-shot meanwhile. THIRD
-      CONSUMER (2026-08-27, god-gift slice): the ported sacrifice
-      gift ladder landed frac-altar-less - master's three arms
-      slot into it verbatim when this row ports: the
+- [x] frac_altar (fractured altar) subsystem PORTED 2026-09-06 (minted
+      2026-08-06 by the Knight slice's crowning-parity port; MED - the
+      row the Knight, DKnight/BUG-1546, god-gift and overview-altar
+      slices all deferred into) = commit A 458e462bf (rm.h, do.c,
+      dungeon.c, invent.c, mklev.c, mkmaze.c, mkroom.c, objnam.c,
+      pager.c, pray.c, sp_lev.c, both rumor files). Port = master NET
+      c444f6a3a (c7b584e09/a990e3213 sacrifice-gift arms, b6e24ac21
+      + b7c33e695 crowning revamp, 5d8807e87 Dirge gate, 6d078abc8 =
+      BUG-1084 initializer count; f280ae688/851cc48a0's display side
+      was already on the branch): the levl bit; resets at every
+      altar-creation site (mkaltar, mktemple, create_altar,
+      polymorph_sink, the terrain wish - master's read.c
+      SCR_CONSECRATION reset rides the terrain-types row); the
+      "fractured " prefix in dfeature_at() and lookat(); the
+      count_feat_lastseentyp ternary pair; the eleven pray.c
+      gates/writes (four crowning arms, Dirge gate + set,
+      permaconversion set, 1/100 plain-conversion set, gift
+      precedence force, artifact-arm guard + set); the wizard wish
+      "fractured <align> altar" reading d->fruitbuf (the erosion
+      strip eats the prefix from bp - master's reason too); master's
+      two rumors at alphabetical position. 5.0-IDIOM CHOICES: one
+      staticfn fracture_altar() (set + sighted/blind message pair,
+      unconditional like master's nine verbatim copies; the crowning
+      callers keep their on_altar()/intact gate); lookat()'s
+      AM_SANCTUM "high " test and set_levltyp() at three creation
+      sites kept. LAYOUT RULING (reviewer MEDIUM, taken): the first
+      cut put the bit in master's slot before material -
+      sizeof(struct rm) stays 12 so critical_sizes[] accepts old
+      saves while every material bit shifts on read, the BUG-1571
+      class; the plan premise "the branch never bumped EDITLEVEL"
+      was a `git log -S` artifact (-S cannot see a value-only
+      #define edit; -G shows five Phase 2 bumps) - fixed by the
+      BUG-1571 rule: bit moved to the container TAIL after material
+      with the rule comment, older saves/bones read it as unset, no
+      EDITLEVEL bump; zerorm + movebubbles water_pos/air_pos
+      initializers carry the twelfth zero and their field-order
+      comments; the mkgate() comment no longer claims the flags byte
+      aliases frac_altar (it never did; master's comment shares the
+      error, frozen). REVIEWER PASS WITH NOTES: term-by-term parity
+      at all 27 master sites; fruitbuf integrity traced (copied at
+      readobjnam entry after mungspaces, before preparse; no
+      postparse stage writes it); fourth crowning arm confirmed
+      inside the Infidel block; struct rm construction sweep complete
+      (two positional initializers, whole-struct copies in
+      flip_level/save_spot/nowhere, raw whole-struct
+      historical_sfo_rm/sfi_rm, no fieldlevel rm enumerator, no
+      RLECOMP on 5.0); resolve_offering outcomes match master for
+      awaiting-guaranteed / ulevel <= 3 / normal. Reviewer LOW notes
+      recorded, no change: "blessed lawful altar" now yields a
+      random-alignment altar because alignment parses from fruitbuf
+      (master identical; the pre-diff branch parsed the stripped
+      bp); the bestow_artifact helper rolls rn2(arti_gift_odds) only
+      after the intact test where master rolls first (RNG-stream
+      nuance from the god-gift refactor; the wizard prompt is skipped
+      on a fractured altar); PLAUSIBLE wizard-only stale bit:
+      #wizloadlua des.terrain onto a live level writes typ via
+      set_levltyp without a reset, so a dug or earthquaked fractured
+      altar re-made that way stays fractured (no master equivalent;
+      creation-time Lua runs on zerorm-fresh cells). BATTERY 21/21
+      PASS on the first (mid-struct) build - four games, human
+      Valkyrie x3 + chaotic human Knight, XL30, sanity_check on,
+      paniclog never existed: wish/look/farlook/overview intact vs
+      fractured ("There is a fractured altar to Tyr (lawful) here.",
+      "A fractured altar to Tyr." standalone, "A temple to Tyr
+      (fractured)" after a Minetown gift); #wizcrown on an altar =
+      lightning + bit 1, off-altar control crowned without either,
+      blindfolded = "surge of energy"; save/restore kept all four
+      bits; artifact gift on intact = "Gift an artifact?" -> Mjollnir
+      + lightning, two offers on the fractured altar = no prompt, no
+      lightning (four-leaf clover, then a regular cloak of
+      invisibility); Dirge: fractured control first (long sword
+      untouched, oartifact 0, ugangr 0 / record 10), intact -> Dirge
+      (oartifact 23) + lightning; conversion of the hero (record -1)
+      -> "Loki accepts your allegiance." + lightning; plain
+      conversion unforced = no lightning / bit 0, forced by a
+      breakpoint jump onto the fracture_altar() call = lightning /
+      bit 1; creation resets by gdb on a random mkaltar altar, two
+      Minetown temple altars and a sink polymorphed into an altar
+      (potion of polymorph dipped: zap_updown() has no polymorph arm
+      on 5.0, the brief's zap staging was wrong - polymorph_sink's
+      real callers are the ring-down-the-sink and potion-dip paths).
+      RE-CONFIRMATION 12/12 PASS on the installed tail-layout build
+      (one fresh lawful Valkyrie XL30, paniclog absent): crown, both
+      wishes, artifact gift + no-prompt repeat, and an R3 cell dump
+      (fractured altar, a wall with material 24 = the field's top
+      bit set by gdb, a wished iron door with material 12 + candig 1,
+      the wished fractured and intact altars) byte-identical before
+      save and after restore, sizeof 12 in both processes; final
+      overview "A fractured altar to Loki, an altar to Odin, some
+      fractured altars to Tyr." Observation for the door-material
+      color row: a generated D:1 had material 0 on every cell, so
+      terrain materials are not yet assigned on the branch. Battery
+      observations (adjudicated): #wizwish adds
+      rn1(100, 50) to u.ublesscnt (5.0 makewish), so an #offer right
+      after a wish lands in the "hopeful feeling" arm - clear it by
+      gdb after the corpse wish; bestow_regular_gift's "An object
+      appears at your feet!" for a sighted hero is master's own
+      at_your_feet("An object") (parity); chaotic own-race sacrifice
+      summoned Baphomet then Dispater (EvilHack design, replay
+      hazard). Harness lore -> gameplay.md. RIDER MINTED: the
+      dat/rumors reconciliation LOW row (93 .tru / 44 .fal
+      master-only lines remain; Phase 3 section next to data.base).
+      Original row: master levl[x][y].frac_altar: crowning cracks the
+      altar the hero is crowned on (all four alignment arms in
+      gcrownu, master pray.c ~899/932/967/1021 - lightning-strike
+      message pair, one-shot via the frac_altar==0 gate); the
+      field, its save/restore, display and any other consumers
+      needed enumeration from master before the writes could port.
+      The Knight slice deliberately left the crowning arms without
+      the crack. SECOND CONSUMER (2026-08-12, DKnight slice): the
+      Dirge sacrifice gift (BUG-1546, pray.c sacrifice_your_race)
+      ported master's block WITHOUT the frac_altar==0 gate, the
+      frac_altar=1 write and the lightning/altar-splitting message
+      pair. THIRD CONSUMER (2026-08-27, god-gift slice): the ported
+      sacrifice gift ladder landed frac-altar-less - the
       `|| frac_altar == 1` regular-branch force in
       resolve_offering's precedence gate, the `&& frac_altar == 0`
       guard on the artifact arm, and the frac_altar=1 write +
-      lightning/altar-splitting message pair inside
-      bestow_artifact (master pray.c ~3055-3065). FOURTH CONSUMER
-      (2026-08-28, overview-altar slice): the ported per-alignment
-      overview tracking landed master 851cc48a0's display arms for
-      the fractured buckets (ALTR_TEMPLF_SH/ALTR_STANDF_SH) as
-      deliberately-dead code, but the recalc shift pick in
-      count_feat_lastseentyp's ALTAR case (dungeon.c) omits
-      master's two levl frac_altar ternaries - only that ternary
-      pair ports here (TODO-EVILHACK comment marks the site).
+      message pair inside bestow_artifact. FOURTH CONSUMER
+      (2026-08-28, overview-altar slice): the display arms for the
+      fractured buckets (ALTR_TEMPLF_SH/ALTR_STANDF_SH) landed as
+      deliberately-dead code; the recalc shift pick in
+      count_feat_lastseentyp's ALTAR case (dungeon.c) omitted
+      master's two levl frac_altar ternaries. All four discharged
+      by this slice.
 - [x] Kick to-hit roll (non-polyd) NOT PORTED (minted 2026-08-07 by
       the Samurai slice's BUG-1246 caitiff-parity port). Master's
       non-polyd kick_monster() path rolls to hit - kickdieroll vs
@@ -10542,7 +10641,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       counts abuse negative, branch unsigned positive - all eight
       (abuse * -1) < N became abuse < N (tiers 5/15/30/50 = the
       insight.c ladder). is_magic macro added to obj.h verbatim.
-      frac_altar OMITTED throughout (owner row annotated). RANGE
+      frac_altar OMITTED throughout (owner row annotated; LANDED
+      2026-09-06 by the frac_altar slice - precedence-gate force,
+      artifact-arm guard and the bestow_artifact fracture). RANGE
       VERIFICATION: 16/18 rnd_class spans byte-identical; shield
       spans + spellbook span differ ONLY by adopted 5.0 content
       (drain/shock shields, SPE_CHAIN_LIGHTNING) = giftable by
@@ -11028,7 +11129,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       fractured display arms (ALTR_TEMPLF_SH/ALTR_STANDF_SH)
       LANDED as deliberately-dead master-verbatim code (the
       frac_altar row's fourth consumer shrinks to the recalc
-      ternary pair); vanilla-5.0 ADD2NTOBUF macro DELETED (only
+      ternary pair - LANDED 2026-09-06 by the frac_altar slice);
+      vanilla-5.0 ADD2NTOBUF macro DELETED (only
       consumer replaced). ADAPTATIONS: MSA_UNKNOWN lives in
       align.h next to MSA_NONE (5.0 keeps MSA there; master's
       MSA_LAWFUL/NEUTRAL/CHAOTIC = 3.6 residue, not re-added);
@@ -12650,6 +12752,16 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       withholds the generated stats block; skeletal pony / wolverine /
       Tal'Gath-class stragglers are uncovered in BOTH parents,
       candidates for a future content pass, not this row.
+- [ ] dat/rumors.tru + rumors.fal EvilHack lines NOT PORTED (minted
+      2026-09-06 by the frac_altar slice; LOW content-data gap).
+      Sorted diff against master c444f6a3a: 93 .tru and 44 .fal
+      master-only lines remain after this slice added its two
+      fractured-altar rumors (Phase 3 slices have been adding their
+      own level rumors at alphabetical position the same way, so the
+      branch files are neither vanilla 5.0 nor master's). Port shape =
+      the data.base row's entry-level merge at alphabetical position;
+      hold back master lines that name unported content until their
+      owner slices land (check each against the tree).
 - [x] GATE: every level wizmode-walked (W column full) - CLOSED
       2026-08-20 with the medusa re-walk; the last three W cells were
       vecna (walked 2026-08-19), bigroom (ruled no-walk, ticked
