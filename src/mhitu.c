@@ -1881,7 +1881,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                 flaming(gy.youmonst.data)
                     ? "are smoldering out!"
                     : Breathless ? "find it mildly uncomfortable."
-                                 : amphibious(gy.youmonst.data)
+                                 : Amphibious
                                        ? "feel comforted."
                                        : "can barely breathe!");
             if ((Amphibious || Breathless) && !flaming(gy.youmonst.data))

@@ -355,7 +355,8 @@
 #define HMagical_breathing u.uprops[MAGICAL_BREATHING].intrinsic
 #define EMagical_breathing u.uprops[MAGICAL_BREATHING].extrinsic
 #define Amphibious \
-    (HMagical_breathing || EMagical_breathing || amphibious(gy.youmonst.data))
+    (HMagical_breathing || EMagical_breathing                          \
+     || amphibious(gy.youmonst.data) || racial_tortle(&gy.youmonst))
 /* Get wet, may go under surface */
 
 /* see while submerged, rather than only feeling the adjacent water;

@@ -1560,7 +1560,7 @@ Amulet_off(void)
         early_off_msg = TRUE;
 
         if (Underwater) {
-            if (!cant_drown(gy.youmonst.data) && !Swimming) {
+            if (!Breathless && !Amphibious && !Swimming) {
                 You("suddenly inhale an unhealthy amount of %s!",
                     hliquid("water"));
                 mkn = TRUE; /* in case of life-saving */
