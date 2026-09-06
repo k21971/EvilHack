@@ -1329,6 +1329,15 @@ dodown(void)
         if (trap && (uteetering_at_seen_pit(trap) || uescaped_shaft(trap))) {
             dotrap(trap, TOOKPLUNGE);
             return ECMD_TIME;
+        } else if (is_pool(u.ux, u.uy) && !is_waterwall(u.ux, u.uy)
+                   && !u.uinwater && !u.usteed
+                   && (HWwalking || (HFlying && Flying))) {
+            /* Monks that have intrinsic water walking, or Illithids
+               that have obtained flight, but still wish to go for a
+               dip in the pool; a water wall is entered by walking,
+               and "up" cannot leave one */
+            (void) drown();
+            return ECMD_TIME;
         } else if (!trap || !is_hole(trap->ttyp)
                    || !Can_fall_thru(&u.uz) || !trap->tseen) {
             if (flags.autodig && !svc.context.nopick
@@ -1426,6 +1435,25 @@ doup(void)
     /* "up" to get out of a pit... */
     if (u.utrap && u.utraptype == TT_PIT) {
         climb_pit();
+        return ECMD_TIME;
+    }
+
+    /* "up" to get out of a pool if you have intrinsic water walking
+       or flying; not from inside an engulfer, and not from a water
+       wall where flight stays blocked and the water would just take
+       you back */
+    if (u.uinwater && !u.uswallow && !is_waterwall(u.ux, u.uy)
+        && (HWwalking || (HFlying && Flying))) {
+        boolean was_underwater = (Underwater && !Is_waterlevel(&u.uz));
+
+        You("%s out of the water.", HWwalking ? "step up" : "fly");
+        set_uinwater(0); /* u.uinwater = 0; leave the water */
+        if (was_underwater) { /* restore vision */
+            if (See_underwater)
+                vision_reset();
+            docrt();
+            gv.vision_full_recalc = 1;
+        }
         return ECMD_TIME;
     }
 

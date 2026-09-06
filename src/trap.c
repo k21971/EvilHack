@@ -5985,7 +5985,10 @@ drown(void)
     }
 
     if (!u.uinwater) {
-        You("%s into the %s%c", is_solid ? "plunge" : "fall",
+        You("%s into the %s%c",
+            (is_solid ? "plunge"
+             : HWwalking ? "step down"
+               : (HFlying && Flying) ? "fly down" : "fall"),
             waterbody_name(u.ux, u.uy),
             (Amphibious || Swimming || Breathless) ? '.' : '!');
         if (!Swimming && !is_solid)
