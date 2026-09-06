@@ -1413,7 +1413,9 @@ pet_ranged_attk(struct monst *mtmp, boolean forced)
              */
             mstatus = M_ATTK_HIT;
         } else {
-            gb.bhitpos.x = mtmp->mx, gb.bhitpos.y = mtmp->my;
+            /* the target's square, not the pet's: mattackm()'s
+               between-attacks re-check compares m_at(bhitpos) to mtarg */
+            gb.bhitpos.x = mtarg->mx, gb.bhitpos.y = mtarg->my;
             gn.notonhead = FALSE;
             mstatus = mattackm(mtmp, mtarg);
 
@@ -1658,7 +1660,8 @@ dog_move(
                 && acceptable_pet_target(mtmp, mon, TRUE)) {
                 int res;
 
-                gb.bhitpos.x = mtmp->mx, gb.bhitpos.y = mtmp->my;
+                /* the target's square, not the pet's (see above) */
+                gb.bhitpos.x = mon->mx, gb.bhitpos.y = mon->my;
                 gn.notonhead = FALSE;
                 res = mattackm(mtmp, mon);
 

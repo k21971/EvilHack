@@ -24,6 +24,7 @@ staticfn int mdamagem(struct monst *, struct monst *, struct attack *,
 staticfn void mswingsm(struct monst *, struct monst *, struct obj *);
 staticfn int passivemm(struct monst *, struct monst *, boolean, int,
                      struct obj *);
+staticfn boolean mdef_at_bhitpos(struct monst *);
 
 staticfn void
 noises(struct monst *magr, struct attack *mattk)
@@ -337,6 +338,18 @@ mdisplacem(
     return M_ATTK_HIT;
 }
 
+/* is mdef still at the square the attack was aimed at? a ridden steed is
+   off the map (m_at() yields the rider; the hero's steed square is empty)
+   but its coordinates are kept in step with its rider */
+staticfn boolean
+mdef_at_bhitpos(struct monst *mdef)
+{
+    if (m_at(gb.bhitpos.x, gb.bhitpos.y) == mdef)
+        return TRUE;
+    return ((mdef == u.usteed || mdef->ridden_by)
+            && mdef->mx == gb.bhitpos.x && mdef->my == gb.bhitpos.y);
+}
+
 /*
  * mattackm() -- a monster attacks another monster.
  *
@@ -377,6 +390,8 @@ mattackm(
     struct obj *mwep;
     struct permonst *pa, *pd;
     unsigned wep_id;
+    coord save_bhitpos; /* m_throw() walks bhitpos along the flight path */
+    boolean save_notonhead;
 
     if (!magr || !mdef)
         return M_ATTK_MISS; /* mike@genat */
@@ -466,7 +481,7 @@ mattackm(
         res[i] = M_ATTK_MISS;
 
         /* target might no longer be there */
-        if (i > 0 && (m_at(gb.bhitpos.x, gb.bhitpos.y) != mdef
+        if (i > 0 && (!mdef_at_bhitpos(mdef)
                       || DEADMONSTER(magr) || DEADMONSTER(mdef)))
             continue;
 
@@ -482,8 +497,14 @@ mattackm(
         switch (mattk->aatyp) {
         case AT_WEAP: /* "hand to hand" attacks */
             if (distmin(magr->mx, magr->my, mdef->mx, mdef->my) > 1) {
-                /* D: Do a ranged attack here! */
+                /* D: Do a ranged attack here! The missile walk leaves
+                   bhitpos wherever the missile stopped; the between-attacks
+                   re-check needs the target's square back */
+                save_bhitpos = gb.bhitpos;
+                save_notonhead = gn.notonhead;
                 strike = (thrwmm(magr, mdef) == M_ATTK_MISS) ? 0 : 1;
+                gb.bhitpos = save_bhitpos;
+                gn.notonhead = save_notonhead;
                 if (strike)
                     /* don't really know if we hit or not; pretend we did */
                     res[i] |= M_ATTK_HIT;
@@ -723,9 +744,17 @@ mattackm(
              * mention a part of player tactics when fighting dragons.
              */
             if (!monnear(magr, mdef->mx, mdef->my)) {
-                int mmtmp = ((mattk->aatyp == AT_BREA)
-                             ? breamm(magr, mattk, mdef)
-                             : spitmm(magr, mattk, mdef));
+                int mmtmp;
+
+                /* spitmm() walks bhitpos like a thrown missile (breamm()
+                   restores its own); see the AT_WEAP ranged arm */
+                save_bhitpos = gb.bhitpos;
+                save_notonhead = gn.notonhead;
+                mmtmp = ((mattk->aatyp == AT_BREA)
+                         ? breamm(magr, mattk, mdef)
+                         : spitmm(magr, mattk, mdef));
+                gb.bhitpos = save_bhitpos;
+                gn.notonhead = save_notonhead;
 
                 strike = (mmtmp == M_ATTK_MISS) ? 0 : 1;
                 /* We don't really know if we hit or not; pretend we did. */
@@ -802,8 +831,9 @@ mattackm(
         /* return if aggressor can no longer attack */
         if ((res[i] & M_ATTK_AGR_DONE) || helpless(magr))
             return res[i];
-        /* eg. defender was knocked into a level teleport trap */
-        if (mon_offmap(mdef))
+        /* eg. defender was knocked into a level teleport trap; a steed
+           carrying a monster rider is off the map on purpose */
+        if (mon_offmap(mdef) && !mdef->ridden_by)
             return res[i];
         if (res[i] & M_ATTK_HIT)
             struck = 1; /* at least one hit */

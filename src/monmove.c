@@ -1250,10 +1250,15 @@ dochug(struct monst *mtmp)
         if (mtmp2 && mtmp2 != mtmp
             && (mtmp2 != &gy.youmonst
                 || dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 8)) {
-            /* mattacku() returns nonzero only when the attacker died */
-            res = (mtmp2 == &gy.youmonst)
-                      ? (mattacku(mtmp) ? M_ATTK_AGR_DIED : M_ATTK_MISS)
-                      : mattackm(mtmp, mtmp2);
+            if (mtmp2 == &gy.youmonst) {
+                /* mattacku() returns nonzero only when the attacker died */
+                res = mattacku(mtmp) ? M_ATTK_AGR_DIED : M_ATTK_MISS;
+            } else {
+                /* mattackm()'s between-attacks re-check reads bhitpos */
+                gb.bhitpos.x = mtmp2->mx, gb.bhitpos.y = mtmp2->my;
+                gn.notonhead = FALSE;
+                res = mattackm(mtmp, mtmp2);
+            }
             if (res & M_ATTK_AGR_DIED)
                 return 1; /* oops */
 
