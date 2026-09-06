@@ -184,6 +184,10 @@ struct rm {
     Bitfield(edge, 1);   /* marks boundaries for special rooms*/
     Bitfield(candig, 1); /* Exception to Can_dig_down; was a trapdoor */
     Bitfield(material, 5); /* obj_material_types; 0 == default (wood) */
+    /* a new bit lands at the container's tail, in the zeroed padding,
+       so older saves read it as unset and no earlier bit shifts */
+    Bitfield(frac_altar, 1); /* whether altar can be used to sacrifice
+                                for artifacts */
 };
 
 /*

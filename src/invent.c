@@ -4163,7 +4163,8 @@ dfeature_at(coordxy x, coordxy y, char *buf)
     else if (IS_MAGIC_CHEST(ltyp))
         cmap = S_magic_chest; /* "magic chest" */
     else if (IS_ALTAR(ltyp)) {
-        Sprintf(altbuf, "%saltar to %s (%s)",
+        Sprintf(altbuf, "%s%saltar to %s (%s)",
+                lev->frac_altar ? "fractured " : "",
                 (lev->altarmask & AM_SANCTUM) ? "high " : "",
                 a_gname(),
                 align_str(Amask2align(lev->altarmask & ~AM_SHRINE)));

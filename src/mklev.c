@@ -886,9 +886,9 @@ void
 clear_level_structures(void)
 {
     /* glyph, typ, seenv, flags, horizontal, lit, waslit,
-       roomno, edge, candig, material */
+       roomno, edge, candig, material, frac_altar */
     static struct rm zerorm = { GLYPH_UNEXPLORED,
-                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     coordxy x, y;
     struct rm *lev;
 
@@ -2551,6 +2551,7 @@ mkaltar(struct mkroom *croom)
     /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
     al = rn2((int) A_LAWFUL + 2) - 1;
     levl[m.x][m.y].altarmask = Align2amask(al);
+    levl[m.x][m.y].frac_altar = 0;
 }
 
 staticfn void
@@ -2981,8 +2982,8 @@ mkgate(void)
         levl[a][b].typ = ROOM;
         /* clear residual ladder bits in the aliased flags byte;
            ROOM tiles don't consume flags but the byte aliases
-           doormask/altarmask/drawbridgemask/looted/icedpool/
-           frac_altar, so leaving stale bits behind invites
+           doormask/altarmask/drawbridgemask/looted/icedpool,
+           so leaving stale bits behind invites
            confusion if the tile is later transmuted */
         levl[a][b].flags = 0;
     }

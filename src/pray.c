@@ -15,6 +15,7 @@ staticfn void angrygods(aligntyp);
 staticfn void at_your_feet(const char *);
 staticfn struct obj *dropped_gift(struct obj *);
 staticfn void gpiousu(void);
+staticfn void fracture_altar(void);
 staticfn void gcrownu(void);
 staticfn boolean gift_recently_given(short);
 staticfn void record_gift(short);
@@ -891,6 +892,21 @@ dropped_gift(struct obj *obj)
     return obj;
 }
 
+/* a divine event has 'used up' the altar the hero is standing on:
+   crowning, conversion and artifact gifts crack it, and a fractured
+   altar no longer yields artifact gifts */
+staticfn void
+fracture_altar(void)
+{
+    levl[u.ux][u.uy].frac_altar = 1;
+    if (!Blind)
+        pline("A bolt of lightning from above strikes the altar,"
+              " nearly splitting it in two!");
+    else
+        You("feel a surge of energy as the altar you're standing on"
+            " shudders violently!");
+}
+
 staticfn void
 gcrownu(void)
 {
@@ -959,6 +975,8 @@ gcrownu(void)
         livelog_printf(LL_DIVINEGIFT,
                        "was crowned \"The Hand of Elbereth\" by %s",
                        u_gname());
+        if (on_altar() && levl[u.ux][u.uy].frac_altar == 0)
+            fracture_altar();
         break;
     case A_NEUTRAL:
         u.uevent.uhand_of_elbereth = 2;
@@ -986,6 +1004,8 @@ gcrownu(void)
         verbalize("Thou shalt be my Envoy of Balance!");
         livelog_printf(LL_DIVINEGIFT, "became %s Envoy of Balance",
                        s_suffix(u_gname()));
+        if (on_altar() && levl[u.ux][u.uy].frac_altar == 0)
+            fracture_altar();
         break;
     case A_CHAOTIC:
         u.uevent.uhand_of_elbereth = 3;
@@ -1010,6 +1030,8 @@ gcrownu(void)
         verbalize("Thou art chosen to %s for My Glory!", what);
         livelog_printf(LL_DIVINEGIFT, "was chosen to %s for the Glory of %s",
                        what, u_gname());
+        if (on_altar() && levl[u.ux][u.uy].frac_altar == 0)
+            fracture_altar();
         break;
     case A_NONE:
         u.uevent.uhand_of_elbereth = 4;
@@ -1065,6 +1087,8 @@ gcrownu(void)
                 retouch_equipment(2); /* silver */
                 monstseesu(M_SEEN_FIRE | M_SEEN_POISON | M_SEEN_SLEEP);
             }
+            if (on_altar() && levl[u.ux][u.uy].frac_altar == 0)
+                fracture_altar();
         }
         break;
     }
@@ -2302,6 +2326,7 @@ offer_different_alignment_altar(
             /* Beware, Conversion is costly */
             change_luck(-3);
             u.ublesscnt += 300;
+            fracture_altar();
         } else {
             u.ugangr += 3;
             adjalign(-5);
@@ -2343,6 +2368,9 @@ offer_different_alignment_altar(
             if (rnl(u.ulevel) > 6 && u.ualign.record > 0
                 && rnd(u.ualign.record) > (3 * ALIGNLIM) / 4)
                 summon_minion(altaralign, TRUE);
+            /* very small chance fracturing an altar after conversion */
+            if (!rn2(100))
+                fracture_altar();
             /* anger priest; test handles bones files */
             if ((pri = findpriest(temple_occupied(u.urooms)))
                 && !p_coaligned(pri))
@@ -2450,6 +2478,7 @@ sacrifice_your_race(
     /* create Dirge from player's longsword here if possible */
     if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
         && !u.ugangr && u.ualign.record > 0
+        && levl[u.ux][u.uy].frac_altar == 0
         && uwep && (uwep->otyp == LONG_SWORD
                     || uwep->otyp == ELVEN_LONG_SWORD
                     || uwep->otyp == ORCISH_LONG_SWORD
@@ -2457,10 +2486,6 @@ sacrifice_your_race(
         && !uwep->oartifact
         && !(uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
         && !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
-        /* TODO-EVILHACK: master also one-shots this per altar via the
-           frac_altar gate and marks the altar fractured, with its
-           lightning-strike message pair; those arms land with the
-           frac_altar subsystem */
         Your("sword melts in your hand and transforms into something new!");
         uwep->oprops = uwep->oprops_known = 0L;
         uwep->otyp = LONG_SWORD;
@@ -2473,6 +2498,9 @@ sacrifice_your_race(
         (void) maybe_erodeproof(uwep, 1);
         exercise(A_WIS, TRUE);
         u.uconduct.artitouch++;
+        /* sacrifice to obtain an artifact 'uses up'
+           the altar */
+        fracture_altar();
         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                        "had Dirge gifted to %s by the grace of %s",
                        uhim(), align_gname(u.ualign.type));
@@ -2887,6 +2915,13 @@ bestow_artifact(uchar max_giftvalue, aligntyp altaralign,
             u.ugifts++;
             u.ublesscnt = rnz(300 + (50 * u.ugifts));
             exercise(A_WIS, TRUE);
+            /* altar has now been 'used up', sacrificing for
+               artifact gifts cannot happen from this specific
+               altar anymore.
+
+               TODO: figure a way to exempt a roles' guaranteed
+               sacrifice gift */
+            fracture_altar();
             livelog_printf (LL_DIVINEGIFT | LL_ARTIFACT,
                             "was bestowed with %s by %s",
                             artiname(otmp->oartifact),
@@ -3274,11 +3309,13 @@ resolve_offering(struct obj *otmp, int value, boolean highaltar,
          * level 20 or greater: 100% chance
          */
         if ((!awaiting_guaranteed_gift() || u.ulevel <= 3)
-            && rn2(10) >= (int) ((nchance * nchance) / 100)) {
+            && (rn2(10) >= (int) ((nchance * nchance) / 100)
+                || levl[u.ux][u.uy].frac_altar == 1)) {
             if (u.uluck >= 0 && !rn2(reg_gift_odds)
                 && bestow_regular_gift(altaralign, enchantment))
                 return;
         } else if (u.ulevel >= 4 && u.uluck >= 0
+                   && levl[u.ux][u.uy].frac_altar == 0
                    && bestow_artifact(value, altaralign, arti_gift_odds,
                                       enchantment))
             return;

@@ -523,6 +523,7 @@ polymorph_sink(void)
         /* 3.6.3: this used to pass 'rn2(A_LAWFUL + 2) - 1' to
            Align2amask() but that evaluates its argument more than once */
         algn = rn2(3) - 1; /* -1 (A_Cha) or 0 (A_Neu) or +1 (A_Law) */
+        levl[u.ux][u.uy].frac_altar = 0;
         levl[u.ux][u.uy].altarmask = ((Inhell && rn2(3)) ? AM_NONE
                                       : Align2amask(algn));
         break;

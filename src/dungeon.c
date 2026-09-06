@@ -3157,10 +3157,14 @@ count_feat_lastseentyp(
             boolean in_temple = (*templs != '\0');
             int shift;
 
-            /* TODO-EVILHACK: master splits each arm on
-               levl[x][y].frac_altar (ALTR_TEMPLF_SH/ALTR_STANDF_SH);
-               those ternaries land with the frac_altar subsystem */
-            shift = in_temple ? ALTR_TEMPLE_SH : ALTR_STAND_SH;
+            if (in_temple)
+                shift = levl[x][y].frac_altar
+                        ? ALTR_TEMPLF_SH
+                        : ALTR_TEMPLE_SH;
+            else
+                shift = levl[x][y].frac_altar
+                        ? ALTR_STANDF_SH
+                        : ALTR_STAND_SH;
             ALTR_INC(mptr->feat.altar[atmp], shift);
         }
         break;

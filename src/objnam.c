@@ -4192,20 +4192,35 @@ wizterrainwish(struct _readobjnam_data *d)
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 5, "altar")) {
         aligntyp al;
+        boolean fractured = FALSE;
+        char *abp;
 
         lev->typ = ALTAR;
-        if (!strncmpi(bp, "chaotic ", 8))
+        /* check for "fractured" prefix in the original wish string
+           (fruitbuf) since "fractured" gets stripped as an erosion
+           prefix */
+        abp = d->fruitbuf;
+        if (!strncmpi(abp, "fractured ", 10)) {
+            fractured = TRUE;
+            abp += 10;
+        }
+        /* check alignment from the original string */
+        if (!strncmpi(abp, "chaotic ", 8))
             al = A_CHAOTIC;
-        else if (!strncmpi(bp, "neutral ", 8))
+        else if (!strncmpi(abp, "neutral ", 8))
             al = A_NEUTRAL;
-        else if (!strncmpi(bp, "lawful ", 7))
+        else if (!strncmpi(abp, "lawful ", 7))
             al = A_LAWFUL;
-        else if (!strncmpi(bp, "unaligned ", 10))
+        else if (!strncmpi(abp, "unaligned ", 10))
             al = A_NONE;
         else /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
             al = !rn2(6) ? A_NONE : (rn2((int) A_LAWFUL + 2) - 1);
         lev->altarmask = Align2amask(al); /* overlays 'flags' */
-        pline("%s altar.", An(align_str(al)));
+        lev->frac_altar = fractured;
+        if (fractured)
+            pline("A fractured %s altar.", align_str(al));
+        else
+            pline("%s altar.", An(align_str(al)));
         madeterrain = TRUE;
     } else if (!BSTRCMPI(bp, p - 5, "grave")
                || !BSTRCMPI(bp, p - 9, "headstone")) {
