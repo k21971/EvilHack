@@ -872,6 +872,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       role_init variant swaps; skills.h final enum (P_KNIFE/
       P_MORNING_STAR folded away, THIEVERY/SHIELD/PET_HANDLING
       added); femalenum columns merged to NAMS-era mnum
+      FOLLOW-UP CLOSED 2026-09-06: the ROLE ability tables
+      (arc..wiz_abil + role_abil()) had stayed vanilla 5.0's through
+      this port - Convict/Druid/Infidel had no table, the Monk's five
+      high-level rows, master's Healer table and the Rogue/Tourist
+      "unaware" strings were missing; ported by BUG-1760 (Phase 2
+      role-tables slice). Arc/Val keep 5.0's rework by ruling.
 - [x] u_init.c port DONE 2026-07-12b (subagent, verified; zero
       warnings): all role/race inventories + 22 skill tables incl.
       Skill_Dra_*; trquan column adapted to min/max; 6 TODO-EVILHACK
@@ -8879,7 +8885,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       does not submerge - step off and back on with the m prefix. Note
       See_underwater legitimately references racial_tortle as part of
       its own content; that was never this gap.
-- [ ] #up out of water (NEW, minted 2026-07-29 by the goggles slice).
+- [x] #up out of water (NEW, minted 2026-07-29 by the goggles slice).
       master's doup() opens with an `if (u.uinwater && (HWwalking ||
       HFlying))` block letting a hero with intrinsic water walking or
       flying step or fly out of a pool; the branch's doup() has no such
@@ -8897,6 +8903,65 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mfind0() rider (`mundetected && !mon_visible(mtmp)` + PM_GIANT_LEECH,
       which needs master's EvilHack mon_visible underwater arms in
       display.h) is also unported - it rides this See_underwater family.
+      PORTED 2026-09-06 (role-tables/water-entry/underwater-sight
+      slice; BUG-1764..1767 in commits C + D, hashes in the archive):
+      master's whole intrinsic-water family, not just doup() - the
+      dodown() dip arm (0d4dce6/6657a6645), the doup() exit arm, the
+      drown() "step down"/"fly down" verbs, and 57017945f's
+      Known_wwalking/Known_lwalking HWwalking terms (both lava
+      clauses read how_resistant(FIRE_RES) == 100, the reviewer's
+      partial-resistance MEDIUM). Five hardening guards beyond master,
+      ratified with the plan and in the decisions log: `!u.uinwater`,
+      `!u.usteed`, `!u.uswallow`, `!is_waterwall` on BOTH arms (the
+      battery found `>` accepted from inside a Plane of Water wall
+      while `<` refused), and `HFlying && Flying`. The family's last
+      members landed with it: master's mon_visible() water clauses
+      (7ef047e6a) with M_IN_WATER hoisted to mondata.h in 5.0's
+      cant_drown spelling (= master's set: master's amphibious()
+      folds M1_BREATHLESS), the mfind0() `!mon_visible` + giant-leech
+      riders (62e1db0b4, d0bc44711) in both hider lists, and
+      cf07f5671's blind-warning re-find arm. NOT ported: master's
+      white-dragon-scales Known_wwalking term (da03fc274) - upstream
+      and the branch give white scales slow digestion (ruling row
+      below). Scoping this row found the attrib.c role-table gap
+      (BUG-1760/1761), the Druid tree-passing consumers (BUG-1762 +
+      BUG-1768 master's figurine-in-rock hole) and the #wizintrinsic
+      names (BUG-1763). REVIEWER CONDITIONAL PASS -> both MEDIUMs
+      taken (figurine wall hole, Known_lwalking partial leak), one
+      LOW taken (dead-tree bump reason), two master-parity LOWs
+      recorded (crawl_destination tree return dead behind goodpos;
+      postadjabil has no telepathy refresh). BATTERY 2026-09-06
+      (Monk/human XL30, Samurai/tortle XL30; paniclog clean apart
+      from tester-staged lines): `>` "You step down into the pool of
+      water.  You sink like a rock. ... But you aren't drowning.  You
+      touch bottom.", second `>` refused, `<` "You step up out of the
+      water.", silent pool-to-pool moves, "You are back on solid
+      ground.", the crawl-out without magical breathing, flight-only
+      "You fly down into the pool of water." / "You fly out of the
+      water." (with HWwalking set the walking wording wins), an
+      amulet of flying donned underwater pops out by pooleffects
+      while gdb-granted intrinsic flight stays under (BUG-1599
+      control), Swimming-only `<` "You can't go up here."; paranoid
+      swim: XL30 bootless steps onto water silently, XL22 "You avoid
+      stepping into the pool of water.  (Tip: ...)", lava walked with
+      full fire res, 50% partial "You avoid stepping into the molten
+      lava."; underwater sight: a mundetected eel drawn beside the
+      submerged tortle and never "found" by `s`, hidden again from
+      land; a raven 5 squares out over the pool neither drawn nor
+      listed, drawn at 2; a human zombie at 5 drawn; a giant leech
+      hidden in sewage found from land; blind + warning: four searches
+      beside a warned-of stalker printed no "unseen monster" line,
+      three with the blindfold off did. Brief error, not a failure:
+      the wand-ray "passes over" expectation - zap.c's M_IN_WATER use
+      is bhit()'s thrown-object skip path; rays hit eels on both
+      trees. CONFIRMATION RUN after the review fixes (Druid XL13/14, Monk XL30
+      on Dlvl 5): the figurine toward a wall "You cannot place a
+      figurine in solid rock!" at both levels, toward a tree still
+      accepted; fireproof rknown boots with 50% fire res "You avoid
+      stepping into the molten lava.", with 100% walked; `>` on a
+      Plane of Water WATER square "You can't go down here." and `<`
+      "You can't go up here.". Open Phase 2 rows: 44 (43 - 2 closed
+      + 3 minted).
 - [x] Plane of Water floods paniclog under sanity_check (NEW, minted
       2026-07-29 by the goggles battery; PRE-EXISTING, unrelated to that
       slice - it fired on arrival, before any goggles interaction).
@@ -12124,6 +12189,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       routes damage_mon(1, AD_FIRE) where branch keeps vanilla
       mhp -= 1 - adjudicate under the partial-resistance
       rulings when this lands.
+      SIZED 2026-09-06 (role-tables slice scoping): master 293
+      defended() sites vs branch 167. Real deficits: mon.c 18 vs 2,
+      muse.c 19 vs 5, mthrowu.c 16 vs 5, explode.c 7 vs 0, worn.c 8
+      vs 2, trap.c 16 vs 9, zap.c 17 vs 11, dog.c 5 vs 1, plus singles
+      in apply/polyself/potion/region/sp_lev/teleport; mhitm/mhitu/
+      uhitm 88 vs 47 is the 5.0 mhitm_ad_* merge, not a deficit. A
+      full slice with a per-file audit table, not a LOW filler.
 - [x] montraits/clone_mon transient-reset drift PORTED 2026-09-02
       (minted 2026-08-30 by the orbs-remainder slice's reviewer;
       LOW; closes the 2026-08-23 mberserk-slice family row as
@@ -12624,7 +12696,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       peaceful (vanilla's "worst case, at least it'll be peaceful").
       Genesis grammar slip "The invisible Mephistopheles appear next to
       you." -> upstream table.
-- [ ] LOW harness/option bug: set_wizonly options from EVILHACKOPTIONS
+- [ ] LOW: from_what() master-only hallucination arm (minted
+      2026-09-06 by the role-tables slice's attrib.c diff). Master's
+      from_what() prints " permanently" for HALLUC when
+      u.uroleplay.hallu is set (d743b0cc3 conducts); the branch has
+      the field with a topten.c reader only - the hallucinating
+      start-state roleplay option is unwired (Ownerless option
+      wirings row). The arm travels with that wiring.
+- [ ] LOW: remembered-map paint while submerged (minted 2026-09-06 by
+      the underwater-sight slice's design check + battery). Master
+      7ef047e6a wrapped docrt()'s memory loop and newsym()'s
+      remembered-glyph path in `if (!Underwater)`; the branch's
+      docrt() (display.c) still paints the remembered map when
+      Underwater && See_underwater, and the battery saw a plain
+      submerged Monk (no See_underwater) get the FULL room map back
+      on a ^R redraw, the restricted view returning on the next
+      move. Intent unverified (5.0's under_water() handling differs);
+      check what a submerged hero should see of remembered terrain
+      before porting.
+- [ ] White dragon scales secondary property: master water walking vs
+      upstream 5.0 slow digestion (minted 2026-09-06 by the
+      Known_wwalking port; needs a RULING). Master do_wear.c gives
+      WHITE_DRAGON_SCALES `EWwalking |= W_ARM` and da03fc274 added a
+      matching Known_wwalking term; upstream 5.0 (NetHack50
+      do_wear.c) gives white scales and scale mail ESlow_digestion
+      and the branch follows upstream. Feature collision: adopt
+      upstream's slow digestion or restore EvilHack's water walking;
+      the Known_wwalking/paranoid-swim term follows the ruling (NOT
+      ported by BUG-1765).
+- [x] LOW harness/option bug: set_wizonly options from EVILHACKOPTIONS
       (or the rc) are silently dropped on a -D launch (minted 2026-09-06
       by the demon-race battery, seen in all three games): after
       `EVILHACKOPTIONS='sanity_check' evilhack -D`, gdb reads
@@ -12644,6 +12744,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       carries the recipe. Candidate fix: recognize -D in
       early_options() (or defer the wizonly rejection until after
       process_options()); upstream-shareable once proven.
+      CLOSED 2026-09-06 AS A HARNESS MISREAD (role-tables slice, no
+      code): the runtime probe read `iflags.sanity_check` 1 with
+      `flags.debug` 1 at T:1 in two games launched with the recorded
+      line (Valkyrie/human, Samurai/tortle), and the checker proved
+      live from that launch alone (a tester-staged vision-blocking
+      violation logged). Code reading agrees: options.c has NO
+      parse-time set_wizonly gate (optfn_boolean rejects only
+      set_in_config outside the initial pass and set_wiznofuz during
+      it; the three `set_wizonly && !wizard` tests are the O menu and
+      the option listings), cfgfiles.c rcfile() parses
+      EVILHACKOPTIONS as extra options even with --no-evilhackrc, and
+      nothing writes iflags.sanity_check afterwards (the
+      heed/disregard helpers only flip `disregarded`). The session-98
+      reading was wrong; every earlier "sanity_check on via
+      EVILHACKOPTIONS" battery claim stands; gameplay.md's CORRECTION
+      bullet reverted, the gdb write kept as belt-and-braces.
 - [x] Spot-lighting readouts PORTED (2026-08-29; minted 2026-08-26
       by the features-coverage sweep; LOW - single implementation
       owner for master's append_spot_lighting + both consumers).
@@ -13608,6 +13724,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-06 | Role-tables slice rulings (AskUserQuestion x2): (1) the attrib.c role-table parity gap found while scoping the `#up out of water` row rides that slice (Convict/Druid/Infidel had no table, the Monk lacked the five high-level rows, Healer/Rogue/Tourist rows differed); (2) Archeologist and Valkyrie keep upstream 5.0's reworked rows (Arc searching @1 / stealth @5 / fast @10; Val stealth @3) - EvilHack never touched them, feature-collision rule. Corollaries ratified with the plan: M_IN_WATER hoisted in 5.0's `S_EEL || cant_drown` spelling (= master's set, since master's amphibious() folds M1_BREATHLESS); the dodown/doup arms carry five hardening guards beyond master (`!u.uinwater`, `!u.usteed`, `!u.uswallow`, `!is_waterwall` on both arms, `HFlying && Flying`); hurtle_step keeps the branch's tree-first "bumping into a tree" reason (now IS_TREES); both Known_lwalking clauses read how_resistant(FIRE_RES) == 100; master's figurine-in-rock hole closed on the branch (BUG-1768, frozen-unfixed on master) | maintainer |
 | 2026-09-06 | EDITLEVEL frozen at 0 for the whole migration (five Phase 2 slices had bumped it 0 -> 5, others - the forging and overview-altar slices - deliberately had not): saves and bones break freely until the v1.0.0 cutover, nothing is near production; critical_sizes[] still rejects size-changing layouts, same-size bit shifts are accepted silently. The BUG-1571 tail-placement rule stays as a battery courtesy (a mid-session rebuild must not silently misread a tester's save), no longer a save-compat requirement. patchlevel.h back to the adoption value 0; the rule lives in CLAUDE.md Restrictions | maintainer |
 | 2026-08-23 | allmain-trio slice ruling (AskUserQuestion): monclock spawn pacing = FULL master ladder (rate ladder + hidden 30k clock + sticky floors + post-invocation stair-biased mplayer-allowed spawns + udemigod monmax_difficulty 256 + ^X readout + both BUG-660 halves). Riders recorded by the coordinator: MIN_QUEST_LEVEL 14 -> 10 (master ad4398c78) ported when the reviewer proved got_quest_early unreachable without it; the mplayer shaping cluster (thinning / mkclass weight / HP boost / level-gen whitelist) folded in, closing the mplayer random-generation deltas row; the Upolyd usurvive predicate fixed in BOTH hazard twins per the BUG-1423 pool-exclusivity precedent; flames of hell sits BESIDE the 5.0 temperature layer (no hero-damage consumer exists to merge with) | maintainer |
 | 2026-08-23 | Combat-residue slice rulings (AskUserQuestion x2): (1) helmet hardness tree-wide = master's is_hard() (metallic, glass, wood, bone, stone) - hard_helmet() keeps its name and answers with is_hard(); upstream 5.0's metallic-or-glass rule dropped; (2) monster-side poisoned-weapon arms = master (every hit, hpdamchance 30 vs the hero, rnd(6) or 1-in-30 lethal vs a monster, coating wears off 1-in-(10-wt/10)); upstream 5.0's 25% gates and never-wears-off dropped; the permanently poisoned artifact keeps 5.0's limiters and never wears off. Also recorded: the hand-thrown-ammo poison row closed as premise-false (vanilla design on all three trees), its upstream-reportable entry retracted | maintainer |
