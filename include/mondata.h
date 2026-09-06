@@ -97,6 +97,10 @@
 #define mon_underwater(mon) \
     (is_swimmer((mon)->data) && is_pool((mon)->mx, (mon)->my))
 #define cant_drown(ptr) (is_swimmer(ptr) || amphibious(ptr) || breathless(ptr))
+/* monster that belongs in the water: eels plus anything that cannot drown;
+   the same set as S_EEL || amphibious || is_swimmer would be with an
+   amphibious() that also covers M1_BREATHLESS */
+#define M_IN_WATER(ptr) ((ptr)->mlet == S_EEL || cant_drown(ptr))
 #define passes_walls(ptr) (((ptr)->mflags1 & M1_WALLWALK) != 0L)
 #define amorphous(ptr) (((ptr)->mflags1 & M1_AMORPHOUS) != 0L)
 #define noncorporeal(ptr) ((ptr)->mlet == S_GHOST)

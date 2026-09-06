@@ -51,8 +51,6 @@ staticfn void wish_history_menu(char *);
 
 #define is_hero_spell(type) ((type) >= ZT_SPELL(0) && (type) < ZT_BREATH(0))
 
-#define M_IN_WATER(ptr) ((ptr)->mlet == S_EEL || cant_drown(ptr))
-
 static const char are_blinded_by_the_flash[] = "are blinded by the flash!";
 
 /*

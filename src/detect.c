@@ -1734,9 +1734,10 @@ findone(coordxy zx, coordxy zy, genericptr_t whatfound)
             seemimic(mtmp);
             /*foundone(zx, zy, mon_to_glyph(mtmp, rn2_on_display_rng);*/
             found_p->num_mons++;
-        } else if (mtmp->mundetected && (is_hider(mtmp->data)
-                                         || hides_under(mtmp->data)
-                                         || mtmp->data->mlet == S_EEL)) {
+        } else if (mtmp->mundetected
+                   && (is_hider(mtmp->data) || hides_under(mtmp->data)
+                       || mtmp->data->mlet == S_EEL
+                       || mtmp->data == &mons[PM_GIANT_LEECH])) {
             flash_glyph_at(zx, zy, mon_to_glyph(mtmp, rn2_on_display_rng),
                            FOUND_FLASH_COUNT);
             mtmp->mundetected = 0;
@@ -2024,9 +2025,10 @@ mfind0(struct monst *mtmp, boolean via_warning)
         /* this used to only be executed if a !canspotmon() test passed
            but that failed to bring sensed monsters out of hiding */
         found_something = !canspotmon(mtmp);
-        if (mtmp->mundetected && (is_hider(mtmp->data)
-                                  || hides_under(mtmp->data)
-                                  || mtmp->data->mlet == S_EEL)) {
+        if (mtmp->mundetected && !mon_visible(mtmp)
+            && (is_hider(mtmp->data) || hides_under(mtmp->data)
+                || mtmp->data->mlet == S_EEL
+                || mtmp->data == &mons[PM_GIANT_LEECH])) {
             if (via_warning && found_something) {
                 set_msg_xy(x, y);
                 Your("danger sense causes you to take a second %s.",
@@ -2040,11 +2042,16 @@ mfind0(struct monst *mtmp, boolean via_warning)
     }
 
     if (found_something) {
-        if (!canspotmon(mtmp) && glyph_is_invisible(levl[x][y].glyph))
-            return -1; /* Found invisible monster in square which already has
-                        * 'I' in it.  Logically, this should still take time
-                        * and lead to `return 1', but if we did that the hero
-                        * would keep finding the same monster every turn. */
+        if (!canspotmon(mtmp)
+            /* don't "find" a monster when you already see it via warning
+               and won't gain further information */
+            && ((Blind && warning_of(mtmp))
+                /* Found invisible monster in square which already has
+                 * 'I' in it.  Logically, this should still take time
+                 * and lead to `return 1', but if we did that the hero
+                 * would keep finding the same monster every turn. */
+                || glyph_is_invisible(levl[x][y].glyph)))
+            return -1;
         exercise(A_WIS, TRUE);
         if (!canspotmon(mtmp)) {
             map_invisible(x, y);
