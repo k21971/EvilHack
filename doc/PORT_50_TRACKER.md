@@ -7649,6 +7649,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       amulet-of-flying steed while dotrap's check_in_air still
       fires floor triggers under the pair - BUG-271 class; take it
       when the macro is next touched.
+      ANNOTATION 2026-09-07 (dragon-scaled armor wear-path slice):
+      armor_provides_extrinsic() LANDED (src/worn.c: hero setworn/
+      setnotworn, monster update_mon_extrinsics, obj_has_prop), so the
+      antimagic/reflection conduct writers can hang off its return
+      exactly as master's setworn does; celestial dragon-SCALED body
+      armor now grants EFlying|W_ARM to the hero and MR2_FLY to monsters.
 - [x] Slow-status ladder (u_slow_down HSlow timeout + Fast/Very_fast
       !Slow gating) DONE 2026-08-20, TWO COMMITS (A = BUG-1609
       polyself.c rehumanize FROMHUNGER reset, independent live bug
@@ -12316,11 +12322,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stinking-cloud scroll; the Pale Horse steed's AD_DRLI bite spams
       "Farvel level N" during Death tests. Open Phase 2 rows: 47 (44 - 2
       closed + 5 minted).
-- [ ] Dragon-scale secondary table = feature collision (minted
-      2026-09-06 by the defended() sweep; absorbs the white-scales
-      ruling row above and the AD_LOUD slice's dangling "-> dragon-
-      armor row" deferral). do_wear.c dragon_armor_handling() is
-      upstream 5.0's body (switch on otyp = bare scales only;
+- [x] Dragon-scale secondary table = feature collision PORTED
+      2026-09-07 (minted 2026-09-06 by the defended() sweep; absorbs
+      the white-scales ruling row above and the AD_LOUD slice's
+      dangling "-> dragon-armor row" deferral). do_wear.c
+      dragon_armor_handling() is upstream 5.0's body (switch on otyp =
+      bare scales only;
       black=drain, gold=hallucination, orange=free action, white=slow
       digestion, red=infravision) where master's switches on
       Dragon_armor_to_scales() (scaled armor too) and carries
@@ -12336,6 +12343,141 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       leg reads shadow (doseduce). Needs ONE ruling (adopt upstream's
       secondaries or restore EvilHack's) covering the white-scales
       Known_wwalking term (da03fc274, not ported by BUG-1765).
+      PORTED 2026-09-07 (RULING, AskUserQuestion x2: restore EvilHack's
+      table; the enchant-armor meld + polyself do_merge ride, the
+      small consumer sites and the freeze-underfoot trio stay on their
+      rows). Landed: armor_provides_extrinsic() (hero setworn/
+      setnotworn, monster update_mon_extrinsics `which`, and
+      obj_has_prop() - beyond master, so the alternate-source loop no
+      longer clears a monster resistance a scaled suit still confers,
+      BUG-1784); master's dragon_armor_handling() table on
+      Dragon_armor_to_scales() with 5.0's wielding_corpse() guard kept
+      for yellow AND chromatic (chromatic-scaled armor is a light
+      source AND stoning-res-bearing, so the callers' light-off-before-
+      handler order is real, not conceptual: the off arms are pure and
+      Armor_off/Armor_gone/Cloak_off/the meld capture was_flying and
+      call check_flight_landing() after the handler - this also fixes
+      master's dead Armor_gone landing arm, BUG-1791 frozen-unfixed);
+      Known_wwalking's white-scaled term, Known_lwalking's conjoined
+      with full fire resistance (freeze-underfoot trio unported; lava
+      still burns), master's slippery-ice term NOT added (COLD_RES
+      primary already satisfies how_resistant there; master's uarm term
+      would exempt a steed from the rider's suit); steal.c dummy
+      dragonscales (BUG-1786); break_armor in_use across Armor_gone/
+      useup (BUG-1787, new reach). Producer: read.c meld block placed
+      ahead of special_armor/same_color/s (BUG-1788) + Armor of
+      Retribution guards (BUG-1789); polyself armor_to_dragon(mon),
+      mergarm (scaled suit or bare cloak-slot scales), skinback slot by
+      owornmask, POLY_DRACONIAN, uskin W_ARMC|I_SPECIAL round-trip
+      through setworn/sanity/sanity_check_worn (BUG-1790, which was a
+      latent branch crash: looted scaled suit + polymorph indexed
+      mvitals[NON_PM]); dragon_scales_color + "<color>-scaled " prefix
+      + noarmor (BUG-1792). Archive BUG-1782..1794. REVIEWER CONDITIONAL
+      PASS, every actionable finding taken: CRITICAL - lava_effects()'s
+      single protect_oid slot burned the second in-use item (potion/
+      scroll + the suit break_armor
+      is destroying, now reachable through check_flight_landing) and the
+      caller used freed memory after life-saving; master and upstream 5.0
+      share the hole via destroy armor + levitation boots over lava -
+      four-slot array + lava_protected() (BUG-1793, upstream artifact
+      ~/nh50-lava-effects-in-use.patch, apply --check clean on both 5.0
+      trees); HIGH - the meld's explicit del_light_source() left lamplit
+      set and 5.0's dealloc_obj() deletes again -> end_burn(scales)
+      (into BUG-1788); MEDIUM - the colour-change off-call ran before
+      setnotworn so a submerged sea-scales replacement drowned a move
+      late -> unworn first with the suit in_use (BUG-1788); MEDIUM - a
+      merged giant can wear a second chromatic set and re-read: "Your
+      skin is already scaled." + guards before the merge message
+      (BUG-1790); LOW - skinback() setnotworn()s a displaced occupant.
+      LOW parity notes NOT taken: u.mtimedone is rescaled after a
+      declined/failed POLY_DRACONIAN polyself (master parity);
+      monster-worn sea/shadow/shimmering-scaled suits get only their
+      primary through update_mon_extrinsics - MAGICAL_BREATHING/
+      ULTRAVISION/DISPLACED have no monster arm there (pre-existing for
+      bare scales, worn.c TODO).
+      BATTERY (first run, old binary, 12 legs over two games): meld/
+      colour-change/same-colour messages and names as master; all 11
+      colours'
+      primary + secondary extrinsic bits read W_ARM while worn and 0
+      after T (white WWALKING, shimmering DISPLACED+STUN_RES, sea
+      MAGICAL_BREATHING+SWIMMING, celestial FLYING+SLEEP+SHOCK with
+      "You are now in flight."/"You land.", shadow ULTRAVISION+SLEEP+
+      DRAIN with the darkness aura, chromatic all nine + REFLECTING,
+      gold INFRAVISION+CLAIRVOYANT, yellow/green/orange/blue); stun and
+      sickness cured on wear; celestial removal over a pool via T and
+      via #polyself storm giant (Armor_gone) both "You stop flying. You
+      fall into the pool of water!" with no panic; yellow and chromatic
+      removal while wielding a cockatrice bare-handed petrify, with
+      "The plate mail stops shining." BEFORE the stoning line; polyself
+      merge/rehumanize round-trip, celestial-scaled -> blue dragon,
+      chromatic-scaled -> red dragon; confused meld -> "Become a white
+      dragon?" decline/accept; genesis'd archeologist dropped a yellow-
+      scaled splint mail, worn + #polyself * merged with no crash (the
+      old mvitals[NON_PM] path); white-scaled plate: water unprompted,
+      lava refused until a ring of fire resistance; genesis'd valkyrie in
+      white-scaled chain mail read MR_COLD and lost it when polymorph
+      tore the suit off (steal.c dummy); giant with chromatic scales as
+      the sole armor: merge -> red dragon, W_ARMC uskin survived save +
+      restore with sanity_check on, rehumanize returned the scales to
+      the cloak slot. TWO CATCHES fixed same day: the reviewer's
+      del_light_source impossible reproduced on lit-over-lit melds;
+      sanity_check_worn logged "worn (armor skin)" every turn a scaled
+      SUIT was embedded (upstream's Is_dragon_scales test; master has
+      Is_dragon_armor) - into BUG-1790; plus the makeplural possessive
+      "Your plate mails aura" (BUG-1794, master-shared). BRIEF ERRORS:
+      5.0 refuses unknown-safe lava outright ("You avoid stepping into
+      the molten lava" + m-prefix tip) rather than prompting; celestial
+      and chromatic dragons are no-poly targets (the suit maps to blue/
+      red); enchant armor melds worn scales without a target prompt
+      (master's shape; the wiki's "select the scales" is stale).
+      Observations, not defects: a non-light colour over a lit suit
+      goes dark silently (end_burn, master parity); bare chromatic
+      scales give MR only (design); a genesis'd player monster's white-
+      scaled suit confers MR_COLD but no MR2_WATERWALK (monster
+      secondaries: the LOW note above). CONFIRMATION RUN (fixed
+      binary): seven legs
+      on the fixed binary, paniclog never created: an embedded scaled suit
+      with sanity_check on stayed quiet over 40 turns; red -> shadow ->
+      chromatic -> gold lit-over-lit melds clean ("Your plate mail's aura
+      becomes darker." / "shines brighter."; cursed shadow over blessed
+      shadow = "much darker"); celestial-scaled leather as the sole flight
+      source over lava + amulet of life saving + #polyself mastodon =
+      "You break out of your armor!  You stop flying.  You fall into the
+      molten lava!", saved, game continues with the in-use alternate
+      weapon intact and no panic; sea-scaled plate submerged, red scales
+      melded = "Its scales change from sea to red!" then "You suddenly
+      inhale an unhealthy amount of water!" at once; giant chromatic
+      merge/rehumanize clean with the set back in the cloak slot. The
+      reviewer's second-set-while-merged state proved UNREACHABLE (a
+      merged hero is a handless dragon, skinback fires on any form
+      change), so its read.c arm was dropped before commit. NOT STAGED:
+      a monster wearing a scaled suit plus bare scales of the same colour
+      (no genesis'd player monster spawned with a suit this run, and
+      gdb-handed armor was never worn) - the obj_has_prop fix stays
+      code-verified. Observation -> LOW row: potion of polymorph +
+      intrinsic polymorph control naming mastodon ran newman() while
+      #polyself accepted it. Commit hashes: A/B TBD in the archive
+      (BUG-1782..1794) until landed.
+- [ ] Dragon-scaled armor consumer sites NOT PORTED (minted 2026-09-07
+      by the wear-path slice; the scope ruling left them off: LOW).
+      Master: shk.c getprice +150% of the scales' cost for a scaled
+      suit (3922); the shadow-scaled-armor darkness sites - timeout.c
+      burn_object `armor` term (1800), light.c end_burn skip in the
+      light-source save/restore walk (702), monmove.c "flees from the
+      painful light" name pick (540), worn.c m_dowear "aura of
+      darkness" message (1172); zap.c's youattack gray/chromatic
+      cancel-resist site (3697; the youdefend and mon-vs-mon sites are
+      on the branch). Nine lines; take them with any light/shk touch.
+- [ ] Potion of polymorph with intrinsic polymorph control ran newman()
+      for a legal form while wearing dragon armor (minted 2026-09-07 by
+      the wear-path confirmation battery; LOW, unread). Celestial-scaled
+      leather armor worn, #wizintrinsic polymorph control, quaff a
+      blessed potion of polymorph, answer "mastodon" (polyok) -> "You
+      feel like a new woman!" and re-rolled attributes, no polymorph;
+      #polyself with the same name -> "You turn into a mastodon!".
+      polyself() cancels the potion's forcecontrol when draconian (the
+      5.0 low_control line, master shape) and the intrinsic-control
+      prompt path follows; where newman() comes from is unread.
 - [ ] Monster attack-handler arms ABSENT (minted 2026-09-06 by the
       defended() sweep audit; the mhitm slice's "-> monster attack-
       handler subsystems" deferral had no row): passiveum() and
@@ -13688,6 +13830,14 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       (g) shirt_msgs: this slice added only the Ice Queen line;
       master's other EvilHack T-shirt additions (Alhoons, Cerberus,
       magic marker, etc.) await a flavor-text reconcile.
+      ANNOTATION 2026-09-07 (wear-path slice): white dragon-scaled armor
+      now confers EWwalking (BUG-1783) and is a Known_wwalking source;
+      its Known_lwalking term is CONJOINED with how_resistant(FIRE_RES)
+      == 100 because (a) is unported and lava_effects() still burns a
+      water-walking hero - drop the conjunct when (a) lands. Master's
+      slippery-ice white term stays out for good: COLD_RES arrives as
+      the primary through armor_provides_extrinsic() and master's uarm
+      term would exempt a steed from the rider's suit.
 - [ ] Hdgn-slice riders on unported features (minted 2026-08-15 by
       the hdgn slice): (a) master's monster gradual-stoning
       subsystem is payload-partial on the branch - the mstone/
@@ -13780,6 +13930,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-07 | trap.c lava_effects() protects only one in-use inventory item (protect_oid) and impossible()s then burns any other: a scroll of destroy armor (scroll->in_use) destroying levitation or water walking boots (destroy_arm sets armor->in_use) over lava leaves two, and the loser's caller useup()s freed memory after life-saving | artifact ~/nh50-lava-effects-in-use.patch (four-slot protect list + lava_protected()); git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf; not yet sent |
 | 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean); artifact ~/nh50-mtele-trap-moved-mon.patch (git apply --check clean vs both trees), not yet sent |
 | 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | observed; not reported, no patch |
 | 2026-09-06 | mon.c newcham() runs its tail on a monster mselftouch() just petrified: after `mselftouch(mtmp, "No longer petrify-resistant, ", ...)` (no gloves, wielded cockatrice corpse, new form not stone-resistant -> minstapetrify -> monstone) vanilla continues into check_gear_next_turn(), the boulder walk (per-iteration guarded) and the Elbereth re-check on a dead monster, and normal_shape() (rescham/restore_cham) then writes cham/mcan, newsyms and runs new_were()/seemimic() on it. Branch fix: `if (DEADMONSTER(mtmp)) return 1;` after the mselftouch call (the shape of the existing mon_break_armor guard) and `if (DEADMONSTER(mon)) return;` after normal_shape's newcham (3.6.x carried the latter as a `continue` in rescham). Vanilla-shared per Official_nh50 mon.c newcham()/normal_shape(). | branch-fixed (BUG-1753); artifact ~/nh50-newcham-mselftouch-dead-tail.patch (git apply --check clean vs Official_nh50 f41f1aa09) |
@@ -13910,6 +14061,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-07 | Dragon-scale secondary table rulings (AskUserQuestion x2): (1) the hero side of dragon-scaled body armor goes to EVILHACK MASTER'S TABLE (do_wear.c dragon_armor_handling on Dragon_armor_to_scales: gold infravision+clairvoyance, silver cold, white water walking, shimmering displacement+stun, sea swimming, celestial sleep+shock+flight, shadow sleep+drain, chromatic everything) with armor_provides_extrinsic() for the primaries; upstream 5.0's black-drain/gold-hallucination/white-slow-digestion/red-infravision secondaries dropped; 5.0's wielding_corpse guard kept on yellow and chromatic removal; (2) the enchant-armor meld + polyself do_merge producer rides the slice, the small consumer sites (shk pricing, shadow-darkness sites, zap youattack cancel) and the white-scales freeze-underfoot trio stay on their rows. Corollaries ratified with the plan: Known_lwalking's white term is fire-gated (lava burns without the freeze trio), master's slippery-ice white term is not added (COLD_RES primary covers it; would exempt a steed), obj_has_prop reads through the helper (beyond master), off arms pure with the callers owning the landing check | maintainer |
 | 2026-09-06 | defended() sweep rulings (AskUserQuestion x3): (1) defends()'s dragon-scale rows go to MASTER'S WHOLE TABLE now (gray||chromatic MR, white||silver cold, orange||shadow sleep, shadow drain - not black, blue||celestial shock, shimmering stun; vanilla's AD_HALU/AD_PLYS rows dropped, no caller) even though the hero twin do_wear.c dragon_armor_handling() is still upstream's - the residual (black-scales hero keeps 5.0's Drain_resistance while defended() reads shadow) rides the new dragon-scale secondary table row; (2) the monster teleport-trap magic-resistance gate is NARROWED to teleport-type traps (mtele_trap verbatim; mlevel_tele_trap only for tt == LEVEL_TELEP) - holes, trap doors and magic portals keep working on MR monsters, a deliberate deviation from master's top-of-function gate; (3) death-magic parity = BOTH the zhitm ZT_DEATH tiers (MR monsters take half death-ray damage, master edd0454ec) and the hero Death_resistance gate against Death's touch. Corollaries ratified with the plan/review: dobuzz's "resists the death magic" line is gated tmp > 0 (master prints it after the immune tier zeroed the damage); explode()'s wand-class death field keeps is_vampshifter beside immune_death_magic (master lacks it); 5.0's class-agnostic destroy_items() is guarded whole underwater (master still boils potions); mtele_trap() reports whether it moved the monster so trapeffect_telep_trap() no longer claims Trap_Moved_Mon for a monster the gate left standing | maintainer |
 | 2026-09-06 | Role-tables slice rulings (AskUserQuestion x2): (1) the attrib.c role-table parity gap found while scoping the `#up out of water` row rides that slice (Convict/Druid/Infidel had no table, the Monk lacked the five high-level rows, Healer/Rogue/Tourist rows differed); (2) Archeologist and Valkyrie keep upstream 5.0's reworked rows (Arc searching @1 / stealth @5 / fast @10; Val stealth @3) - EvilHack never touched them, feature-collision rule. Corollaries ratified with the plan: M_IN_WATER hoisted in 5.0's `S_EEL || cant_drown` spelling (= master's set, since master's amphibious() folds M1_BREATHLESS); the dodown/doup arms carry five hardening guards beyond master (`!u.uinwater`, `!u.usteed`, `!u.uswallow`, `!is_waterwall` on both arms, `HFlying && Flying`); hurtle_step keeps the branch's tree-first "bumping into a tree" reason (now IS_TREES); both Known_lwalking clauses read how_resistant(FIRE_RES) == 100; master's figurine-in-rock hole closed on the branch (BUG-1768, frozen-unfixed on master) | maintainer |
 | 2026-09-06 | EDITLEVEL frozen at 0 for the whole migration (five Phase 2 slices had bumped it 0 -> 5, others - the forging and overview-altar slices - deliberately had not): saves and bones break freely until the v1.0.0 cutover, nothing is near production; critical_sizes[] still rejects size-changing layouts, same-size bit shifts are accepted silently. The BUG-1571 tail-placement rule stays as a battery courtesy (a mid-session rebuild must not silently misread a tester's save), no longer a save-compat requirement. patchlevel.h back to the adoption value 0; the rule lives in CLAUDE.md Restrictions | maintainer |
