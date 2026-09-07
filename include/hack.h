@@ -773,7 +773,10 @@ enum polyself_flags {
     POLY_CONTROLLED = 0x01,
     POLY_MONSTER    = 0x02,
     POLY_REVERT     = 0x04,
-    POLY_LOW_CTRL   = 0x08
+    POLY_LOW_CTRL   = 0x08,
+    /* enchanting worn dragon scales: merge with them and become the
+       dragon; polymorph control may only decline */
+    POLY_DRACONIAN  = 0x10
 };
 
 struct repo { /* repossession context */

@@ -26,7 +26,6 @@ staticfn void polyman(const char *, const char *);
 staticfn void dropp(struct obj *);
 staticfn void break_armor(void);
 staticfn void drop_weapon(int);
-staticfn int armor_to_dragon(int);
 staticfn void newman(void);
 staticfn void polysense(void);
 
@@ -705,7 +704,8 @@ polyself(int psflags)
             low_control = ((psflags & POLY_LOW_CTRL) != 0),
             monsterpoly = ((psflags & POLY_MONSTER) != 0),
             formrevert = ((psflags & POLY_REVERT) != 0),
-            draconian = (uarm && Is_dragon_armor(uarm)),
+            draconian = (!uskin && armor_to_dragon(&gy.youmonst) != NON_PM),
+            draconian_only = ((psflags & POLY_DRACONIAN) != 0),
             iswere = (ismnum(u.ulycn)),
             isvamp = (is_vampire(gy.youmonst.data)
                       || is_vampshifter(&gy.youmonst)
@@ -748,6 +748,8 @@ polyself(int psflags)
 
     if (monsterpoly && isvamp)
         goto do_vampyr;
+    if (draconian_only)
+        goto do_merge;
 
     if (controllable_poly || forcecontrol) {
         buf[0] = '\0';
@@ -777,7 +779,7 @@ polyself(int psflags)
                 class = name_to_monclass(buf, &mntmp);
                 if (class && mntmp == NON_PM)
                     mntmp = (draconian && class == S_DRAGON)
-                            ? armor_to_dragon(uarm->otyp)
+                            ? armor_to_dragon(&gy.youmonst)
                             : mkclass_poly(class);
 
             /* placeholder monsters are for corpses and all flagged
@@ -857,7 +859,8 @@ polyself(int psflags)
         if (!tryct)
             pline1(thats_enough_tries);
         /* allow skin merging, even when polymorph is controlled */
-        if (draconian && (tryct <= 0 || mntmp == armor_to_dragon(uarm->otyp)))
+        if (draconian
+            && (tryct <= 0 || mntmp == armor_to_dragon(&gy.youmonst)))
             goto do_merge;
         if (isvamp && (tryct <= 0 || mntmp == PM_WOLF || mntmp == PM_FOG_CLOUD
                        || is_bat(&mons[mntmp])))
@@ -866,21 +869,43 @@ polyself(int psflags)
         /* special changes that don't require polyok() */
         if (draconian) {
  do_merge:
-            /* TODO-EVILHACK: master also merges dragon scales worn in
-               the cloak slot (giants) into uskin here; that extension
-               interlocks with uskin save/restore and rehumanize and
-               ports with a dragon-scales follow-up */
-            mntmp = armor_to_dragon(uarm->otyp);
+            /* armor_to_dragon() reads uskin first, so a hero who became
+               a dragon by merging with armor can't be wearing other
+               dragon armor while polymorphed */
+            mntmp = armor_to_dragon(&gy.youmonst);
+            if (mntmp == NON_PM) {
+                impossible("polyself: no dragon armor to merge with?");
+                return;
+            }
+            if (controllable_poly) {
+                Sprintf(buf, "Become %s?",
+                        an(pmname(&mons[mntmp], gvariant)));
+                if (y_n(buf) != 'y')
+                    return;
+            }
             if (!(svm.mvitals[mntmp].mvflags & G_GENOD)) {
-                unsigned was_lit = uarm->lamplit;
-                int arm_light = artifact_light(uarm) ? arti_light_radius(uarm)
-                                                     : 0;
+                /* a dragon-scaled suit, else bare scales worn as a
+                   cloak (giants can wear them with no suit under) */
+                struct obj **mergarm =
+                    (uarm && Is_dragon_scaled_armor(uarm)) ? &uarm
+                    : (uarmc && Is_dragon_scales(uarmc)) ? &uarmc
+                      : (struct obj **) 0;
+                unsigned was_lit = mergarm ? (*mergarm)->lamplit : 0;
+                int arm_light = (mergarm && artifact_light(*mergarm))
+                                    ? arti_light_radius(*mergarm) : 0;
 
+                if (uskin) {
+                    impossible("Already merged with some armor!");
+                    return;
+                } else if (!mergarm) {
+                    impossible("No dragon armor / dragon cloak to merge?");
+                    return;
+                }
                 /* allow G_EXTINCT */
-                /* dragon scales remain intact as uskin */
                 You("merge with your scaly armor.");
-                uskin = uarm;
-                uarm = (struct obj *) 0;
+                /* dragon scales remain intact as uskin */
+                uskin = *mergarm;
+                *mergarm = (struct obj *) 0;
                 /* save/restore hack */
                 uskin->owornmask |= I_SPECIAL;
                 if (was_lit)
@@ -1174,7 +1199,7 @@ polymon(int mntmp)
 #endif
     }
 
-    if (uskin && mntmp != armor_to_dragon(uskin->otyp))
+    if (uskin && mntmp != armor_to_dragon(&gy.youmonst))
         skinback(FALSE);
     break_armor();
     drop_weapon(1);
@@ -2471,17 +2496,24 @@ void
 skinback(boolean silently)
 {
     if (uskin) {
+        /* bare scales go back to the cloak slot, a dragon-scaled suit
+           to the body slot */
+        struct obj **slot = (uskin->owornmask & W_ARMC) ? &uarmc : &uarm;
         int old_light = arti_light_radius(uskin);
 
         if (!silently)
             Your("skin returns to its original form.");
-        uarm = uskin;
+        if (*slot)
+            impossible("skinback: %s slot already holds %s",
+                       (slot == &uarmc) ? "cloak" : "suit",
+                       simpleonames(*slot));
+        *slot = uskin;
         uskin = (struct obj *) 0;
         /* undo save/restore hack */
-        uarm->owornmask &= ~I_SPECIAL;
+        (*slot)->owornmask &= ~I_SPECIAL;
 
-        if (artifact_light(uarm))
-            maybe_adjust_light(uarm, old_light);
+        if (artifact_light(*slot))
+            maybe_adjust_light(*slot, old_light);
     }
 }
 
@@ -2713,13 +2745,40 @@ ugolemeffects(int damtype, int dam)
     }
 }
 
-staticfn int
-armor_to_dragon(int atyp)
+/* the dragon a hero or monster would become through worn dragon armor:
+   embedded scales first, then the suit, then the cloak; NON_PM if none */
+int
+armor_to_dragon(struct monst *mon)
 {
-    /* dragon scales only; dragon-scaled body armor ports with the
-       object-properties subsystem */
-    if (atyp >= FIRST_DRAGON_SCALES && atyp <= LAST_DRAGON_SCALES)
-        return FIRST_DRAGON + (atyp - FIRST_DRAGON_SCALES);
+    struct obj *array[3]; /* skin, body, cloak */
+    int i;
+
+    if (mon == &gy.youmonst) {
+        array[0] = uskin;
+        array[1] = uarm;
+        array[2] = uarmc;
+    } else {
+        array[0] = (struct obj *) 0;
+        array[1] = which_armor(mon, W_ARM);
+        array[2] = which_armor(mon, W_ARMC);
+    }
+
+    for (i = 0; i < 3; ++i) {
+        if (array[i] && Is_dragon_armor(array[i])) {
+            int pm = Dragon_armor_to_pm(array[i]);
+
+            if (pm == PM_CHROMATIC_DRAGON)
+                return PM_RED_DRAGON;
+            else if (pm == PM_CELESTIAL_DRAGON)
+                /* their scales grant shock resistance... */
+                return PM_BLUE_DRAGON;
+            /* catchall for nopoly cases that aren't handled above */
+            else if (!polyok(&mons[pm]))
+                return PM_RED_DRAGON;
+            else
+                return pm;
+        }
+    }
     return NON_PM;
 }
 

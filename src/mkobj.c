@@ -1907,7 +1907,10 @@ maybe_adjust_light(struct obj *obj, int old_range)
                     || (Is_dragon_armor(obj)
                         && (Dragon_armor_to_scales(obj)
                             == SHADOW_DRAGON_SCALES)))
-                    pline("%s aura becomes %s%s.", makeplural(buf),
+                    pline("%s aura becomes %s%s.",
+                          !strcmp(buf, "It") ? "Its"
+                          : !strcmp(buf, "They") ? "Their"
+                            : s_suffix(buf),
                           (abs(delta) > 1) ? "much " : "",
                           (delta > 0) ? "darker" : "less dark");
                 else
@@ -3942,10 +3945,12 @@ sanity_check_worn(struct obj *obj)
         allmask |= wearbits[i];
     }
     if (obj == uskin) {
-        /* embedded dragon scales have an extra bit set;
+        /* embedded dragon scales (a dragon-scaled suit from the body
+           slot, bare scales from the cloak slot) have an extra bit set;
            make sure it's set, then suppress it */
         embedded = TRUE;
-        if ((owornmask & (W_ARM | I_SPECIAL)) == (W_ARM | I_SPECIAL))
+        if ((owornmask & I_SPECIAL) != 0L
+            && (owornmask & (W_ARM | W_ARMC)) != 0L)
             owornmask &= ~I_SPECIAL;
         else
             n = 0,  owornmask = ~0; /* force insane_object("bogus") below */
@@ -3982,8 +3987,8 @@ sanity_check_worn(struct obj *obj)
                 what = embedded ? "skin" : "suit";
             break;
         case W_ARMC:
-            if (obj != uarmc)
-                what = "cloak";
+            if (obj != (embedded ? uskin : uarmc))
+                what = embedded ? "skin" : "cloak";
             break;
         case W_ARMH:
             if (obj != uarmh)
@@ -4059,9 +4064,9 @@ sanity_check_worn(struct obj *obj)
         if (owornmask & W_ARMOR) {
             if (obj->oclass != ARMOR_CLASS)
                 what = "armor";
-            /* 3.6: dragon scale mail reverts to dragon scales when
-               becoming embedded in poly'd hero's skin */
-            if (embedded && !Is_dragon_scales(obj))
+            /* embedded skin is bare dragon scales from the cloak slot
+               or a dragon-scaled suit from the body slot */
+            if (embedded && !Is_dragon_armor(obj))
                 what = "skin";
         } else if (owornmask & W_WEAPONS) {
             /* monsters don't maintain quiver; alt weapon is valid

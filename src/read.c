@@ -1180,7 +1180,8 @@ seffect_enchant_armor(struct obj **sobjp)
         exercise(A_STR, !scursed);
         return;
     }
-    if (confused) {
+    /* dragon scales are handled below and shouldn't/can't become fixed */
+    if (confused && !Is_dragon_scales(otmp)) {
         old_erodeproof = (otmp->oerodeproof != 0);
         new_erodeproof = !scursed;
         otmp->oerodeproof = 0; /* for messages */
@@ -1208,10 +1209,119 @@ seffect_enchant_armor(struct obj **sobjp)
         otmp->oerodeproof = new_erodeproof ? 1 : 0;
         return;
     }
+    /* Dragon scales worn over body armor meld into it, making it
+       dragon-scaled */
+    if (Is_dragon_scales(otmp)) { /* guarantees that worn cloak is scales,
+                                     but NOT existence of uarm */
+        /* no body armor under the scales = the scales are enchanted
+           directly onto you (no such thing as a scaled shirt); the
+           wearer will polymorph.  Also caused by a confused scroll,
+           after the scales meld. */
+        boolean poly_after_merge = (!uarm || confused);
+        int old_light = artifact_light(otmp) ? arti_light_radius(otmp) : 0;
+
+        if (uarm) {
+            struct obj *scales = uarmc;
+            struct obj *armor = uarm;
+            boolean was_flying = !!Flying;
+
+            if (is_art(armor, ART_ARMOR_OF_RETRIBUTION)) {
+                pline("%s refuses to meld into the %s.",
+                      Yname2(scales), artiname(armor->oartifact));
+                return;
+            }
+
+            pline("%s hardens and melds into your %s%s", Yname2(scales),
+                  suit_simple_name(armor),
+                  Is_dragon_scaled_armor(armor) ? "." : "!");
+
+            if (Is_dragon_scaled_armor(armor)) {
+                if (Dragon_armor_to_scales(armor) == scales->otyp) {
+                    /* scales match armor already; just use up scales */
+                    pline("Its scales still seem %s.",
+                          dragon_scales_color(armor));
+                } else {
+                    /* armor is already scaled but the new scales are
+                       different and will replace the old ones */
+                    pline("Its scales change from %s to %s!",
+                          dragon_scales_color(armor),
+                          dragon_scales_color(scales));
+                }
+            }
+            /* unworn first, like the callers of dragon_armor_handling():
+               losing sea scales underwater drowns right here, and the
+               suit stays in hand across drown()'s emergency_disrobe() */
+            armor->in_use = 1;
+            setnotworn(armor);
+            if (Is_dragon_scaled_armor(armor)
+                && Dragon_armor_to_scales(armor) != scales->otyp) {
+                /* remove properties of old scales */
+                dragon_armor_handling(armor, FALSE, TRUE);
+            }
+            armor->in_use = 0;
+            /* don't allow a suit of armor with an object property
+               to co-exist with merged dragon scales */
+            if ((armor->oprops & ITEM_PROP_MASK) != 0L) {
+                oprops_off(armor, W_ARM);
+                armor->oprops &= ~(ITEM_PROP_MASK);
+            }
+            armor->dragonscales = scales->otyp;
+            armor->cursed = 0;
+            if (sblessed) {
+                armor->oeroded = armor->oeroded2 = 0;
+                armor->blessed = 1;
+            }
+            setworn(armor, W_ARM);
+            check_wings(TRUE);
+            dragon_armor_handling(armor, TRUE, TRUE);
+            gk.known = TRUE;
+            if (otmp->unpaid)
+                alter_cost(otmp, 0L); /* shop bill */
+
+            /* handle gold/chromatic dragon-scaled armor... */
+            if (scales->lamplit) {
+                if (armor->lamplit) {
+                    /* if melding lit dragon scales onto already lit
+                       dragon-scaled armor, avoid attaching a duplicate
+                       light source to the armor; put the scales out while
+                       artifact_light() still holds for them so lamplit is
+                       cleared too - dealloc_obj() deletes the light source
+                       of anything still marked lit */
+                    end_burn(scales, FALSE);
+                } else {
+                    /* this will set armor->lamplit */
+                    obj_move_light_source(scales, armor);
+                }
+                /* may be different radius depending on BUC of armor */
+                maybe_adjust_light(armor, old_light);
+            } else if (armor->lamplit) {
+                /* scales not lit but armor is: melding non-gold scales
+                   onto gold/chromatic-scaled armor, which will no longer
+                   be a light source */
+                end_burn(armor, FALSE);
+            }
+            useup(scales);
+            /* the replaced scales may have been the hero's flight */
+            check_flight_landing(was_flying);
+        }
+        if (poly_after_merge) {
+            polyself(POLY_DRACONIAN);
+            /* adjust duration for scroll beatitude - a blessed scroll
+               will give you more time as a dragon, a cursed scroll
+               less */
+            u.mtimedone = (u.mtimedone * (bcsign(sobj) + 2) / 2);
+        }
+        if (!scursed || !uarm)
+            return;
+        /* continue with regular cursed-enchant logic on the resulting
+           armor piece */
+        otmp = uarm;
+    }
     /* elven armor vibrates warningly when enchanted beyond a limit */
     special_armor = is_elven_armor(otmp)
         || (Race_if(PM_DROW) && is_drow_armor(otmp))
         || is_art(otmp, ART_HAND_OF_VECNA)
+        || is_art(otmp, ART_ARMOR_OF_RETRIBUTION)
         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
     if (scursed)
         same_color = (otmp->otyp == BLACK_DRAGON_SCALES);
@@ -1230,6 +1340,17 @@ seffect_enchant_armor(struct obj **sobjp)
                be destroyed this way */
             pline("%s violently %s%s%s for a while, but nothing else"
                   " happens.", Yname2(otmp),
+                  otense(otmp, Blind ? "vibrate" : "glow"),
+                  (!Blind && !same_color) ? " " : "",
+                  (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
+                                                      : NH_SILVER));
+            otmp->in_use = FALSE;
+            return;
+        }
+        if (otmp == uarm && is_art(otmp, ART_ARMOR_OF_RETRIBUTION)) {
+            /* the Armor of Retribution is indestructible */
+            pline("%s violently %s%s%s for a while, but remains intact.",
+                  Yname2(otmp),
                   otense(otmp, Blind ? "vibrate" : "glow"),
                   (!Blind && !same_color) ? " " : "",
                   (Blind || same_color) ? "" : hcolor(scursed ? NH_BLACK
@@ -1286,9 +1407,6 @@ seffect_enchant_armor(struct obj **sobjp)
     if (scursed)
         s = -s;
 
-    /* TODO-EVILHACK: enchanting worn dragon scales melds them onto
-       body armor (obj->dragonscales); that system ports with the
-       object-properties subsystem */
     pline("%s %s%s%s%s for a %s.", Yname2(otmp),
           (s == 0) ? "violently " : "",
           otense(otmp, Blind ? "vibrate" : "glow"),

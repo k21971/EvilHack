@@ -2474,6 +2474,7 @@ extern const char *armor_simple_name(struct obj *) NONNULL NONNULLARG1;
 /* suit_simple_name has its code in a NULL arg test
    conditional block, preventing NONNULLARG1 */
 extern const char *suit_simple_name(struct obj *) NONNULL NO_NNARGS;
+extern char *dragon_scales_color(struct obj *) NONNULL NO_NNARGS;
 /* cloak_simple_name has its code in a NULL arg test
    conditional block, preventing NONNULLARG1 */
 extern const char *cloak_simple_name(struct obj *) NONNULL NO_NNARGS;
@@ -2729,6 +2730,7 @@ extern int dopoly(void);
 extern int domindblast(void);
 extern void uunstick(void);
 extern void skinback(boolean);
+extern int armor_to_dragon(struct monst *);
 extern const char *mbodypart(struct monst *, int) NONNULLARG1;
 extern const char *body_part(int);
 extern int poly_gender(void);

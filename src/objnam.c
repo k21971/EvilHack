@@ -1688,6 +1688,13 @@ doname_base(
                 }
             }
         }
+        if (Is_dragon_scaled_armor(obj)) {
+            char scalebuf[30], *colorstr = dragon_scales_color(obj);
+
+            Sprintf(scalebuf, "%s-scaled ", colorstr);
+            Strcat(prefix, scalebuf);
+            releaseobuf(colorstr); /* don't consume an extra obuf */
+        }
         FALLTHROUGH;
         /*FALLTHRU*/
     case WEAPON_CLASS:
@@ -6683,6 +6690,40 @@ armor_simple_name(struct obj *armor)
         break;
     }
     return result;
+}
+
+/* Return the dragon color associated with a piece of dragon armor.
+   E.g. red-scaled chain mail => "red"; blue dragon scales => "blue". */
+char *
+dragon_scales_color(struct obj *obj)
+{
+    char *buf = nextobuf();
+    const char *name, *endp;
+    int colorlen;
+
+    if (!obj) {
+        impossible("dragon_scales_color: null obj");
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    if (!Is_dragon_armor(obj)) {
+        impossible("getting color of non-dragon-armor (otyp=%d, scales=%d)",
+                   obj->otyp, obj->dragonscales);
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    name = pmname(&mons[Dragon_armor_to_pm(obj)], NEUTRAL);
+    endp = strstri(name, " dragon");
+    if (!endp) {
+        impossible("dragon_scales_color found non-dragon monster (%s)",
+                   name);
+        Strcpy(buf, "bugged color");
+        return buf;
+    }
+    colorlen = (int) (endp - name);
+    (void) strncpy(buf, name, colorlen);
+    buf[colorlen] = '\0';
+    return buf;
 }
 
 const char *
