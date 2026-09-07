@@ -2125,7 +2125,10 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
                 if (Is_waterlevel(&u.uz)) {
                     levl[x][y].typ = AIR;
                     levl[x][y].lit = 1;
-                    unblock_point(x, y);
+                    /* a bubble drawn earlier in this pass may already
+                       have put a boulder (or a gas cloud still lies)
+                       on a square we also cover; respect it */
+                    recalc_block_point(x, y);
                 } else if (Is_airlevel(&u.uz)) {
                     levl[x][y].typ = CLOUD;
                     levl[x][y].lit = 1;
@@ -2165,6 +2168,11 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
                    from here rather than deal_with_overcrowding() */
                 if (!mnearto(mon, cons->x, cons->y, TRUE, RLOC_NOMSG))
                     elemental_clog(mon);
+                /* placement does not block light for a monster still
+                   disguised as a boulder or a closed door; re-derive the
+                   square we actually landed on, however we got there */
+                if (!DEADMONSTER(mon) && !mon_offmap(mon))
+                    recalc_block_point(mon->mx, mon->my);
                 break;
             }
 
@@ -2177,6 +2185,13 @@ mv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)
 
                 if (mtmp) {
                     mnexto(mtmp, RLOC_NOMSG);
+                    /* unlike mnearto()'s eviction of a monster in the
+                       way, mnexto() never reveals a mimic: its old square
+                       (now the hero's) stays blocked and its new one was
+                       placed without a block; re-derive both */
+                    recalc_block_point(u.ux, u.uy);
+                    if (!DEADMONSTER(mtmp) && !mon_offmap(mtmp))
+                        recalc_block_point(mtmp->mx, mtmp->my);
                 }
                 break;
             }
