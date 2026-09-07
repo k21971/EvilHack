@@ -65,13 +65,20 @@ staticfn int QSORTCALLBACK cmp_weights(const void *, const void *);
 #define Known_wwalking \
     (((uarmf && uarmf->otyp == WATER_WALKING_BOOTS \
        && objects[WATER_WALKING_BOOTS].oc_name_known) \
+      || (uarm && Is_dragon_scaled_armor(uarm) \
+          && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES) \
       || HWwalking) \
      && !u.usteed)
 /* lava is only known-safe with full fire resistance, since a partial
    percentage still burns in lava_effects(); the boots clause keeps its
-   own uarmf guard because Known_wwalking no longer implies boots */
+   own uarmf guard because Known_wwalking no longer implies boots.
+   White dragon-scaled armor is a water walking source, not a lava one:
+   its wearer still burns without full fire resistance */
 #define Known_lwalking \
-    ((HWwalking && how_resistant(FIRE_RES) == 100 && !u.usteed) \
+    (((HWwalking \
+       || (uarm && Is_dragon_scaled_armor(uarm) \
+           && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) \
+      && how_resistant(FIRE_RES) == 100 && !u.usteed) \
      || (uarmf && Known_wwalking && how_resistant(FIRE_RES) == 100 \
          && uarmf->oerodeproof && uarmf->rknown))
 

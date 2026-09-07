@@ -1484,6 +1484,10 @@ break_armor(void)
 
             You("break out of your armor!");
             exercise(A_STR, FALSE);
+            /* the off arms of scaled armor can reach drown() and
+               spoteffects(); keep emergency_disrobe() from dropping the
+               suit before useup() */
+            otmp->in_use = 1;
             (void) Armor_gone();
             useup(otmp);
         }

@@ -111,7 +111,7 @@ setworn(struct obj *obj, long mask)
                     if (wp->w_mask & ~W_QUIVER) {
                         /* leave as "x = x <op> y", here and below, for broken
                          * compilers */
-                        p = objects[oobj->otyp].oc_oprop;
+                        p = armor_provides_extrinsic(oobj);
                         u.uprops[p].extrinsic =
                             u.uprops[p].extrinsic & ~wp->w_mask;
                         /* if the hero removed an extrinsic-granting item,
@@ -141,7 +141,7 @@ setworn(struct obj *obj, long mask)
                         || ((wp->w_mask & W_SWAPWEP) && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
-                            p = objects[obj->otyp].oc_oprop;
+                            p = armor_provides_extrinsic(obj);
                             u.uprops[p].extrinsic =
                                 u.uprops[p].extrinsic | wp->w_mask;
                             if ((p = w_blocks(obj, mask)) != 0)
@@ -195,7 +195,7 @@ setnotworn(struct obj *obj)
 
             *(wp->w_obj) = (struct obj *) 0;
             unworn |= wp->w_mask;
-            p = objects[obj->otyp].oc_oprop;
+            p = armor_provides_extrinsic(obj);
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             monstunseesu_prop(p); /* remove this extrinsic from seenres */
             obj->owornmask &= ~wp->w_mask;
@@ -609,7 +609,8 @@ mon_adjust_speed(
 boolean
 obj_has_prop(struct obj *obj, int which)
 {
-    if (objects[obj->otyp].oc_oprop == which)
+    /* dragon-scaled armor confers its scales' property */
+    if (armor_provides_extrinsic(obj) == which)
         return TRUE;
 
     if (!obj->oprops)
@@ -670,7 +671,7 @@ update_mon_extrinsics(
     int unseen;
     uchar mask;
     struct obj *otmp;
-    int which = (int) objects[obj->otyp].oc_oprop,
+    int which = armor_provides_extrinsic(obj),
         altwhich = altprop(obj);
     long props = obj->oprops;
     long i = 0L;
@@ -926,6 +927,25 @@ armor_bonus(struct obj *armor)
         bon += 5;
 
     return bon;
+}
+
+/* Determine the extrinsic property a piece of armor provides: its own
+   oc_oprop, or the scales' for dragon-scaled armor whose base type has
+   none.  Based on item_provides_extrinsic in NetHack Fourk, but less
+   general. */
+int
+armor_provides_extrinsic(struct obj *armor)
+{
+    int prop;
+
+    if (!armor)
+        return 0;
+
+    prop = objects[armor->otyp].oc_oprop;
+    if (!prop && Is_dragon_armor(armor))
+        return objects[Dragon_armor_to_scales(armor)].oc_oprop;
+
+    return prop;
 }
 
 /* An attack missed by a margin the defender's armor can account for:

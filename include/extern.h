@@ -801,6 +801,8 @@ extern int stop_donning(struct obj *); /* doseduce() calls with NULL */
 extern void check_wings(boolean);
 extern int Armor_off(void);
 extern int Armor_gone(void);
+extern void dragon_armor_handling(struct obj *, boolean, boolean);
+extern void check_flight_landing(boolean);
 extern int Helmet_off(void);
 extern boolean hard_helmet(struct obj *);
 extern void wielding_corpse(struct obj *, struct obj *, boolean);
@@ -4267,6 +4269,7 @@ extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
                                   boolean) NONNULLARG12;
 /* no NONNULLARG1: keeps master's defensive impossible() on a null obj */
 extern int armor_bonus(struct obj *);
+extern int armor_provides_extrinsic(struct obj *);
 extern int extra_pref(struct monst *, struct obj *) NONNULLARG1;
 extern struct obj *armor_blocker(struct monst *, int *, int) NONNULLPTRS;
 extern int find_mac(struct monst *) NONNULLARG1;

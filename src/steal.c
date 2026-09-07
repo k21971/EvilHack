@@ -938,6 +938,7 @@ mdrop_obj(
     int saved_otyp = obj->otyp;
     char saved_oclass = obj->oclass;
     long saved_oprops = obj->oprops;
+    int saved_dragonscales = obj->dragonscales;
     /* call distant_name() for its possible side-effects even if the result
        might not be printed, and do it before extracting obj from minvent */
     char *obj_name = distant_name(obj, doname);
@@ -979,6 +980,7 @@ mdrop_obj(
         dummy.otyp = saved_otyp;
         dummy.oclass = saved_oclass;
         dummy.oprops = saved_oprops;
+        dummy.dragonscales = saved_dragonscales;
         update_mon_extrinsics(mon, &dummy, FALSE, TRUE);
     }
     /* If flooreffects() destroyed a saddle, the steed must have been

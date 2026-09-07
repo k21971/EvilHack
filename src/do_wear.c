@@ -29,7 +29,6 @@ staticfn int Helmet_on(void);
 staticfn int Gloves_on(void);
 staticfn int Shield_on(void);
 staticfn int Shirt_on(void);
-staticfn void dragon_armor_handling(struct obj *, boolean, boolean);
 staticfn void toggle_armor_light(struct obj *, boolean);
 staticfn void Amulet_on(struct obj *) NONNULLARG1;
 staticfn void learnring(struct obj *, boolean);
@@ -613,14 +612,7 @@ Cloak_off(void)
         /* the scales were already removed by the setworn() above */
         float_vs_flight(); /* probably not needed here */
         check_wings(TRUE); /* form with wings that can already fly? */
-        if (was_flying && !Flying) {
-            disp.botl = TRUE; /* status: 'Fly' Off */
-            You("%s.", (is_pool_or_lava(u.ux, u.uy)
-                        || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
-                          ? "stop flying"
-                          : "land");
-            spoteffects(TRUE);
-        }
+        check_flight_landing(was_flying);
         break;
     case MUMMY_WRAPPING:
         if (Invis && !Blind) {
@@ -1162,8 +1154,13 @@ Shirt_off(void)
     return 0;
 }
 
-/* handle extra abilities for hero wearing dragon scale armor */
-staticfn void
+/* handle extra abilities for hero wearing dragon-scaled body armor;
+   the scales' primary property is conferred by setworn() through
+   armor_provides_extrinsic(), this adds their secondary effects (bare
+   scales worn in the cloak slot confer only their primary, see
+   Cloak_on()).  The off arms only clear bits: the callers have already
+   unworn the armor and own the flight-landing check */
+void
 dragon_armor_handling(
     struct obj *otmp,   /* armor being put on or taken off */
     boolean puton,      /* True: on, False: off */
@@ -1172,14 +1169,40 @@ dragon_armor_handling(
     if (!otmp)
         return;
 
-    switch (otmp->otyp) {
-        /* grey: no extra effect */
-        /* silver: no extra effect */
-    case BLACK_DRAGON_SCALES:
+    switch (Dragon_armor_to_scales(otmp)) {
+        /* gray, red, black: no extra effect */
+    case GREEN_DRAGON_SCALES:
         if (puton) {
-            EDrain_resistance |= W_ARM;
+            ESick_resistance |= W_ARM;
+            if (Sick)
+                make_sick(0L, (char *) 0, TRUE, SICK_ALL);
         } else {
-            EDrain_resistance &= ~W_ARM;
+            ESick_resistance &= ~W_ARM;
+        }
+        break;
+    case GOLD_DRAGON_SCALES:
+        /* light is handled by toggle_armor_light() */
+        if (puton) {
+            EInfravision |= W_ARM;
+            EClairvoyant |= W_ARM;
+        } else {
+            EInfravision &= ~W_ARM;
+            EClairvoyant &= ~W_ARM;
+        }
+        see_monsters();
+        break;
+    case ORANGE_DRAGON_SCALES:
+        if (puton) {
+            Free_action |= W_ARM;
+        } else {
+            Free_action &= ~W_ARM;
+        }
+        break;
+    case SILVER_DRAGON_SCALES:
+        if (puton) {
+            ECold_resistance |= W_ARM;
+        } else {
+            ECold_resistance &= ~W_ARM;
         }
         break;
     case BLUE_DRAGON_SCALES:
@@ -1193,36 +1216,12 @@ dragon_armor_handling(
                 You("slow down.");
         }
         break;
-    case GREEN_DRAGON_SCALES:
-        if (puton) {
-            ESick_resistance |= W_ARM;
-        } else {
-            ESick_resistance &= ~W_ARM;
-        }
-        break;
-    case RED_DRAGON_SCALES:
-        if (puton) {
-            EInfravision |= W_ARM;
-        } else {
-            EInfravision &= ~W_ARM;
-        }
-        see_monsters();
-        break;
-    case GOLD_DRAGON_SCALES:
-        (void) make_hallucinated((long) !puton,
-                                 program_state.restoring ? FALSE : TRUE,
-                                 W_ARM);
-        break;
-    case ORANGE_DRAGON_SCALES:
-        if (puton) {
-            Free_action |= W_ARM;
-        } else {
-            Free_action &= ~W_ARM;
-        }
-        break;
     case YELLOW_DRAGON_SCALES:
         if (puton) {
             EStone_resistance |= W_ARM;
+            if (Stone_resistance && Stoned)
+                make_stoned(0L, "You no longer seem to be petrifying.", 0,
+                            (char *) 0);
         } else {
             EStone_resistance &= ~W_ARM;
 
@@ -1234,13 +1233,131 @@ dragon_armor_handling(
         break;
     case WHITE_DRAGON_SCALES:
         if (puton) {
-            ESlow_digestion |= W_ARM;
+            EWwalking |= W_ARM;
         } else {
-            ESlow_digestion &= ~W_ARM;
+            EWwalking &= ~W_ARM;
+        }
+        break;
+    case SHIMMERING_DRAGON_SCALES:
+        if (puton) {
+            toggle_displacement(otmp, (EDisplaced & ~W_ARM), TRUE);
+            if (Stunned)
+                make_stunned(0L, TRUE);
+            EStun_resistance |= W_ARM;
+        } else {
+            toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);
+            EStun_resistance &= ~W_ARM;
+        }
+        break;
+    case SEA_DRAGON_SCALES:
+        if (puton) {
+            if (Strangled) {
+                You("can suddenly breathe again!");
+                Strangled = 0L;
+            }
+            ESwimming |= W_ARM;
+        } else {
+            ESwimming &= ~W_ARM;
+            /* the armor's magical breathing went with it */
+            if (Underwater && !Breathless && !Amphibious && !Swimming) {
+                You("suddenly inhale an unhealthy amount of %s!",
+                    hliquid("water"));
+                (void) drown();
+            }
+        }
+        break;
+    case CELESTIAL_DRAGON_SCALES:
+        if (puton) {
+            ESleep_resistance |= W_ARM;
+            EShock_resistance |= W_ARM;
+
+            /* setworn() has already set extrinsic flying */
+            float_vs_flight(); /* block flying if levitating */
+            check_wings(TRUE); /* form with wings that can already fly? */
+
+            if (Flying) {
+                boolean already_flying;
+                long cramped_wings = BFlying;
+
+                /* to determine whether this flight is new we have to muck
+                   about in the Flying intrinsic (actually extrinsic) */
+                EFlying &= ~W_ARM;
+                BFlying &= ~W_ARM;
+                already_flying = !!Flying;
+                BFlying |= cramped_wings;
+                EFlying |= W_ARM;
+
+                if (!already_flying) {
+                    disp.botl = TRUE; /* status: 'Fly' On */
+                    You("are now in flight.");
+                }
+            }
+        } else {
+            ESleep_resistance &= ~W_ARM;
+            EShock_resistance &= ~W_ARM;
+        }
+        break;
+    case SHADOW_DRAGON_SCALES:
+        /* ultravision is the primary property, darkness is handled by
+           toggle_armor_light() */
+        if (puton) {
+            ESleep_resistance |= W_ARM;
+            EDrain_resistance |= W_ARM;
+        } else {
+            ESleep_resistance &= ~W_ARM;
+            EDrain_resistance &= ~W_ARM;
+        }
+        break;
+    case CHROMATIC_DRAGON_SCALES:
+        /* magic resistance is the primary property, light is handled by
+           toggle_armor_light() */
+        if (puton) {
+            EPoison_resistance |= W_ARM;
+            EFire_resistance |= W_ARM;
+            ECold_resistance |= W_ARM;
+            ESleep_resistance |= W_ARM;
+            EDisint_resistance |= W_ARM;
+            EShock_resistance |= W_ARM;
+            EAcid_resistance |= W_ARM;
+            EStone_resistance |= W_ARM;
+            EReflecting |= W_ARM;
+            if (Stone_resistance && Stoned)
+                make_stoned(0L, "You no longer seem to be petrifying.", 0,
+                            (char *) 0);
+        } else {
+            EPoison_resistance &= ~W_ARM;
+            EFire_resistance &= ~W_ARM;
+            ECold_resistance &= ~W_ARM;
+            ESleep_resistance &= ~W_ARM;
+            EDisint_resistance &= ~W_ARM;
+            EShock_resistance &= ~W_ARM;
+            EAcid_resistance &= ~W_ARM;
+            EStone_resistance &= ~W_ARM;
+            EReflecting &= ~W_ARM;
+
+            /* as for yellow scales above */
+            wielding_corpse(uwep, otmp, on_purpose);
+            wielding_corpse(uswapwep, otmp, on_purpose);
         }
         break;
     default:
         break;
+    }
+}
+
+/* the caller has just unworn a flight-granting piece of armor (celestial
+   dragon scales, bare or scaled onto a suit); land unless something else
+   keeps the hero aloft */
+void
+check_flight_landing(boolean was_flying)
+{
+    if (was_flying && !Flying) {
+        disp.botl = TRUE; /* status: 'Fly' Off */
+        You("%s.", (is_pool_or_lava(u.ux, u.uy)
+                    || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
+                      ? "stop flying"
+                      : "land");
+        spoteffects(TRUE);
     }
 }
 
@@ -1341,6 +1458,7 @@ int
 Armor_off(void)
 {
     struct obj *otmp = uarm;
+    boolean was_flying = !!Flying;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
     if (otmp)
@@ -1359,6 +1477,7 @@ Armor_off(void)
     if (was_arti_light)
         toggle_armor_light(otmp, FALSE);
     dragon_armor_handling(otmp, FALSE, TRUE);
+    check_flight_landing(was_flying);
 
     return 0;
 }
@@ -1373,6 +1492,7 @@ int
 Armor_gone(void)
 {
     struct obj *otmp = uarm;
+    boolean was_flying = !!Flying;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
 
     if (otmp)
@@ -1394,6 +1514,7 @@ Armor_gone(void)
             pline("%s shining.", Tobjnam(otmp, "stop"));
     }
     dragon_armor_handling(otmp, FALSE, FALSE);
+    check_flight_landing(was_flying);
 
     return 0;
 }
