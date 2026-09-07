@@ -3419,27 +3419,31 @@ passiveum(
                      looks strange coming immediately after player has
                      been told that hero has reverted to normal form */
                   !Upolyd ? "" : "your ", hliquid("acid"));
-            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)
+                || mon_underwater(mtmp)) {
                 pline_mon(mtmp, "%s is not affected.", Monnam(mtmp));
                 tmp = 0;
             }
         } else
             tmp = 0;
-        if (!rn2(30))
-            erode_armor(mtmp, ERODE_CORRODE);
-        if (!rn2(6)) {
-            struct obj *mwp = MON_WEP(mtmp);
-            struct obj *mwp2 = MON_WEP2(mtmp);
+        if (!Underwater) {
+            if (!rn2(30))
+                erode_armor(mtmp, ERODE_CORRODE);
+            if (!rn2(6)) {
+                struct obj *mwp = MON_WEP(mtmp);
+                struct obj *mwp2 = MON_WEP2(mtmp);
 
-            /* acid_damage() can now destroy a weapon; when a wielded
-               slot empties, tell mattacku()'s cached weapon pointer
-               so it does not dangle for the rest of the attack chain */
-            acid_damage(mwp);
-            if (mwp && MON_WEP(mtmp) != mwp)
-                mon_currwep_gone(mwp);
-            acid_damage(mwp2);
-            if (mwp2 && MON_WEP2(mtmp) != mwp2)
-                mon_currwep_gone(mwp2);
+                /* acid_damage() can now destroy a weapon; when a
+                   wielded slot empties, tell mattacku()'s cached
+                   weapon pointer so it does not dangle for the rest
+                   of the attack chain */
+                acid_damage(mwp);
+                if (mwp && MON_WEP(mtmp) != mwp)
+                    mon_currwep_gone(mwp);
+                acid_damage(mwp2);
+                if (mwp2 && MON_WEP2(mtmp) != mwp2)
+                    mon_currwep_gone(mwp2);
+            }
         }
         return assess_dmg(mtmp, tmp);
     case AD_STON: /* cockatrice */
@@ -3548,7 +3552,8 @@ passiveum(
             tmp = 0;
             break;
         case AD_FIRE: /* Red mold */
-            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                || mon_underwater(mtmp)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline_mon(mtmp, "%s is mildly warm.", Monnam(mtmp));
                 golemeffects(mtmp, AD_FIRE, tmp);

@@ -1753,18 +1753,21 @@ passivemm(
             if (canseemon(magr))
                 pline("%s is splashed by %s %s!", buf,
                       s_suffix(mon_nam(mdef)), hliquid("acid"));
-            if (resists_acid(magr) || defended(magr, AD_ACID)) {
+            if (resists_acid(magr) || defended(magr, AD_ACID)
+                || mon_underwater(magr)) {
                 if (canseemon(magr))
                     pline("%s is not affected.", Monnam(magr));
                 tmp = 0;
             }
         } else
             tmp = 0;
-        if (!rn2(30))
-            erode_armor(magr, ERODE_CORRODE);
-        if (!rn2(6)) {
-            acid_damage(MON_WEP(magr));
-            acid_damage(MON_WEP2(magr));
+        if (!mon_underwater(magr)) {
+            if (!rn2(30))
+                erode_armor(magr, ERODE_CORRODE);
+            if (!rn2(6)) {
+                acid_damage(MON_WEP(magr));
+                acid_damage(MON_WEP2(magr));
+            }
         }
         goto assess_dmg;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
@@ -1840,7 +1843,8 @@ passivemm(
             tmp = 0;
             break;
         case AD_FIRE:
-            if (resists_fire(magr) || defended(magr, AD_FIRE)) {
+            if (resists_fire(magr) || defended(magr, AD_FIRE)
+                || mon_underwater(magr)) {
                 if (canseemon(magr)) {
                     pline_mon(magr, "%s is mildly warmed.", Monnam(magr));
                     golemeffects(magr, AD_FIRE, tmp);

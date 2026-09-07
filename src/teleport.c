@@ -2104,7 +2104,8 @@ tele_restrict(struct monst *mon)
     return FALSE;
 }
 
-void
+/* monster stepped onto a teleport trap; returns TRUE if it was moved */
+boolean
 mtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)
 {
     char *monname;
@@ -2112,7 +2113,10 @@ mtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)
     /* don't print feedback here: a monster stepping on a trap and not
        teleporting from it isn't visible */
     if (noteleport_level(mtmp))
-        return;
+        return FALSE;
+    /* magic resistance shrugs off the trap's magic */
+    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
+        return FALSE;
 
     if (teleport_pet(mtmp, FALSE)) {
         /* save name with pre-movement visibility */
@@ -2144,7 +2148,9 @@ mtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)
                 pline("%s suddenly disappears!", monname);
             seetrap(trap);
         }
+        return TRUE;
     }
+    return FALSE;
 }
 
 /* return Trap_Effect_Finished if still on level, Trap_Moved_Mon if not */
@@ -2159,6 +2165,12 @@ mlevel_tele_trap(
 
     if (mtmp == u.ustuck) /* probably a vortex */
         return Trap_Effect_Finished; /* temporary? kludge */
+    /* magic resistance shrugs off a level teleporter's magic; holes,
+       trap doors and magic portals also route through here and are
+       deliberately left effective against a resistant monster */
+    if (tt == LEVEL_TELEP
+        && (resists_magm(mtmp) || defended(mtmp, AD_MAGM)))
+        return Trap_Effect_Finished;
     if (teleport_pet(mtmp, force_it)) {
         d_level tolevel;
         int migrate_typ = MIGR_RANDOM;

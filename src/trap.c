@@ -2637,8 +2637,10 @@ trapeffect_telep_trap(
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
-        mtele_trap(mtmp, trap, in_sight);
-        return Trap_Moved_Mon;
+        /* a monster the trap could not move (no-teleport level, magic
+           resistance, a pet that refused) is still standing on it */
+        return mtele_trap(mtmp, trap, in_sight) ? Trap_Moved_Mon
+                                                : Trap_Effect_Finished;
     }
     return Trap_Effect_Finished;
 }

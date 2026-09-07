@@ -1580,6 +1580,7 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
 {
     int typ = breath_adtyp(mtmp, mattk);
     boolean utarget = (mtarg == &gy.youmonst);
+    boolean target_resists = FALSE;
 
     if (m_lined_up(mtarg, mtmp, TRUE)) {
         if (mtmp->mcan) {
@@ -1599,6 +1600,62 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
         if (utarget && (m_seenres(mtmp, cvt_adtyp_to_mseenres(typ))
                         || m_seenres(mtmp, M_SEEN_REFL)))
             return M_ATTK_HIT;
+
+        /* monster target: check its actual resistance/reflection for
+           this breath type; don't waste the attack if it fully resists
+           or would reflect the breath back from point-blank range */
+        if (!utarget) {
+            switch (typ) {
+            case AD_MAGM:
+                target_resists = (resists_magm(mtarg)
+                                  || defended(mtarg, AD_MAGM));
+                break;
+            case AD_FIRE:
+                target_resists = (resists_fire(mtarg)
+                                  || defended(mtarg, AD_FIRE));
+                break;
+            case AD_COLD:
+                target_resists = (resists_cold(mtarg)
+                                  || defended(mtarg, AD_COLD));
+                break;
+            case AD_SLEE:
+                target_resists = (resists_sleep(mtarg)
+                                  || defended(mtarg, AD_SLEE));
+                break;
+            case AD_DISN:
+                target_resists = (resists_disint(mtarg)
+                                  || defended(mtarg, AD_DISN));
+                break;
+            case AD_ELEC:
+                target_resists = (resists_elec(mtarg)
+                                  || defended(mtarg, AD_ELEC));
+                break;
+            case AD_DRST:
+                target_resists = (resists_poison(mtarg)
+                                  || defended(mtarg, AD_DRST));
+                break;
+            case AD_ACID:
+                target_resists = (resists_acid(mtarg)
+                                  || defended(mtarg, AD_ACID));
+                break;
+            case AD_DRLI:
+                target_resists = (resists_drli(mtarg)
+                                  || defended(mtarg, AD_DRLI));
+                break;
+            case AD_STUN:
+                target_resists = (mon_resists_stun(mtarg)
+                                  || defended(mtarg, AD_STUN));
+                break;
+            case AD_WATR: /* physical; no monster resistance bit */
+            default:
+                target_resists = FALSE;
+                break;
+            }
+            if (target_resists
+                || (mon_reflects(mtarg, (char *) 0)
+                    && monnear(mtmp, mtarg->mx, mtarg->my)))
+                return M_ATTK_MISS;
+        }
 
         if (!mtmp->mbreath_attk && rn2(3)) {
             if (BZ_VALID_ADTYP(typ)) {

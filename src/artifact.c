@@ -2217,7 +2217,8 @@ Mb_hit(struct monst *magr, /* attacker */
         if (youdefend) {
             make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
         } else if (!DEADMONSTER(mdef)) {
-            if (!(mon_resists_stun(mdef) || defended(mdef, AD_STUN)))
+            if (!(mon_resists_stun(mdef) || defended(mdef, AD_STUN)
+                  || mon_wielding_artifact(mdef, ART_TEMPEST)))
                 mdef->mstun = 1;
         }
         /* avoid extra stun message below if we used mb_verb["stun"] above */

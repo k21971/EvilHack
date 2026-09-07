@@ -89,8 +89,7 @@ explosionmask(
             break;
         case AD_DISN:
             if ((olet == WAND_CLASS)
-                ? (nonliving(m->data) || is_demon(m->data)
-                   || is_vampshifter(m))
+                ? (immune_death_magic(m->data) || is_vampshifter(m))
                 : (resists_disint(m) || defended(m, AD_DISN)))
                 res = EXPL_MON;
             break;

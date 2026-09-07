@@ -3852,15 +3852,18 @@ mhitm_ad_fire(
             return;
             /* Don't return yet; keep hp<1 and mhm.damage=0 for pet msg */
         }
-        if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
+        if (resists_fire(mdef) || defended(mdef, AD_FIRE)
+            || mon_underwater(mdef)) {
             if (!Blind)
                 pline_The("fire doesn't heat %s!", mon_nam(mdef));
             golemeffects(mdef, AD_FIRE, mhm->damage);
             shieldeff(mdef->mx, mdef->my);
             mhm->damage = 0;
         }
-        mhm->damage += destroy_items(mdef, AD_FIRE, orig_dmg);
-        ignite_items(mdef->minvent);
+        if (!mon_underwater(mdef)) {
+            mhm->damage += destroy_items(mdef, AD_FIRE, orig_dmg);
+            ignite_items(mdef->minvent);
+        }
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
@@ -3930,8 +3933,10 @@ mhitm_ad_fire(
             golemeffects(mdef, AD_FIRE, mhm->damage);
             mhm->damage = 0;
         }
-        mhm->damage += destroy_items(mdef, AD_FIRE, orig_dmg);
-        ignite_items(mdef->minvent);
+        if (!mon_underwater(mdef)) {
+            mhm->damage += destroy_items(mdef, AD_FIRE, orig_dmg);
+            ignite_items(mdef->minvent);
+        }
     }
 }
 
@@ -4192,7 +4197,8 @@ mhitm_ad_acid(
 {
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (resists_acid(mdef) || defended(mdef, AD_ACID))
+        if (resists_acid(mdef) || defended(mdef, AD_ACID)
+            || mon_underwater(mdef))
             mhm->damage = 0;
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
@@ -4216,7 +4222,8 @@ mhitm_ad_acid(
             mhm->damage = 0;
             return;
         }
-        if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
+        if (resists_acid(mdef) || defended(mdef, AD_ACID)
+            || mon_underwater(mdef)) {
             if (gv.vis && canseemon(mdef))
                 pline("%s is covered in %s, but it seems harmless.",
                       Monnam(mdef), hliquid("acid"));
@@ -4225,11 +4232,13 @@ mhitm_ad_acid(
             pline_mon(mdef, "%s is covered in %s!", Monnam(mdef), hliquid("acid"));
             pline("It burns %s!", mon_nam(mdef));
         }
-        if (!rn2(30))
-            erode_armor(mdef, ERODE_CORRODE);
-        if (!rn2(6)) {
-            acid_damage(MON_WEP(mdef));
-            acid_damage(MON_WEP2(mdef));
+        if (!mon_underwater(mdef)) {
+            if (!rn2(30))
+                erode_armor(mdef, ERODE_CORRODE);
+            if (!rn2(6)) {
+                acid_damage(MON_WEP(mdef));
+                acid_damage(MON_WEP2(mdef));
+            }
         }
     }
 }
@@ -5657,10 +5666,11 @@ mhitm_ad_deth(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         pline_mon(magr, "%s reaches out with its deadly touch.", Monnam(magr));
-        if (is_undead(pd)) {
-            /* still does some damage */
-            mhm->damage = (mhm->damage + 1) / 2;
-            pline("Was that the touch of death?");
+        if (Death_resistance || immune_death_magic(pd)) {
+            /* still does normal damage */
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
+            You("are unaffected by death magic.");
             return;
         }
         switch (rn2(20)) {

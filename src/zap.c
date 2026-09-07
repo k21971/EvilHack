@@ -5012,7 +5012,8 @@ zhitm(
             tmp = spell_damage_bonus(tmp);
         break;
     case ZT_FIRE:
-        if (resists_fire(mon) || defended(mon, AD_FIRE)) {
+        if (resists_fire(mon) || defended(mon, AD_FIRE)
+            || mon_underwater(mon)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -5052,6 +5053,7 @@ zhitm(
         break;
     case ZT_DEATH:                              /* death/disintegration */
         if (abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
+            tmp = d(4, 6);
             if (mon->data == &mons[PM_DEATH]) {
                 healmon(mon, mon->mhpmax * 3 / 2, mon->mhpmax / 2);
                 if (mon->mhpmax >= MAGIC_COOKIE)
@@ -5075,29 +5077,44 @@ zhitm(
                 tmp = 0;
                 break;
             }
-            if (nonliving(mon->data) || is_demon(mon->data)
-                || is_vampshifter(mon) || resists_magm(mon)) {
+            if (immune_death_magic(mon->data) || defended(mon, AD_DETH)
+                || is_vampshifter(mon)) {
                 /* similar to player */
                 sho_shieldeff = TRUE;
+                tmp = 0;
+                break;
+            }
+            if (resists_magm(mon) || defended(mon, AD_MAGM)) {
+                /* magic resistance blunts the ray to half damage;
+                   type stays as-is so the saving throw still applies */
+                sho_shieldeff = TRUE;
+                tmp = (tmp + 1) / 2;
+                if (spellcaster)
+                    tmp = spell_damage_bonus(tmp);
                 break;
             }
             type = -1; /* so they don't get saving throws */
         } else {
-            struct obj *otmp2;
+            struct obj *otmp2, *suit = which_armor(mon, W_ARM);
 
-            if (resists_disint(mon) || defended(mon, AD_DISN)) {
+            if (resists_disint(mon) || defended(mon, AD_DISN)
+                || (suit && suit->otyp == CRYSTAL_PLATE_MAIL
+                    && suit->oartifact)) {
+                /* fully resistant, or wearing an artifact suit that
+                   withstands the blast and shields its wearer */
                 sho_shieldeff = TRUE;
             } else if (mon->misc_worn_check & W_ARMS) {
                 /* destroy shield; victim survives */
                 *ootmp = which_armor(mon, W_ARMS);
-            } else if (mon->misc_worn_check & W_ARM) {
+            } else if (suit && suit->otyp != CRYSTAL_PLATE_MAIL) {
                 /* destroy suit, also cloak if present */
-                *ootmp = which_armor(mon, W_ARM);
+                *ootmp = suit;
                 if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
                     m_useup(mon, otmp2);
             } else {
-                /* no suit, victim dies; destroy cloak
-                   and shirt now in case target gets life-saved */
+                /* no suit, or one that cannot be sacrificed to the
+                   blast; victim dies; destroy cloak and shirt now in
+                   case target gets life-saved */
                 tmp = MAGIC_COOKIE;
                 if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
                     m_useup(mon, otmp2);
@@ -5141,7 +5158,8 @@ zhitm(
         tmp = d(nd, 6);
         break;
     case ZT_ACID:
-        if (resists_acid(mon) || defended(mon, AD_ACID)) {
+        if (resists_acid(mon) || defended(mon, AD_ACID)
+            || mon_underwater(mon)) {
             sho_shieldeff = TRUE;
             break;
         }
@@ -5935,6 +5953,14 @@ dobuzz(
                             /* normal non-fatal hit */
                             if (sayhit || canseemon(mon)) {
                                 hit(flash_str(fltyp, FALSE), mon, exclam(tmp));
+                                if (damgtype == ZT_DEATH
+                                    && fltyp != ZT_BREATH(ZT_DEATH)
+                                    && tmp > 0 && canseemon(mon)
+                                    && (resists_magm(mon)
+                                        || defended(mon, AD_MAGM)))
+                                    pline("%s resists the death magic, "
+                                          "but appears drained!",
+                                          Monnam(mon));
                                 if (damgtype == ZT_DRAIN && canseemon(mon)) {
                                     const char *life = nonliving(mon->data)
                                                        ? "animating force"
