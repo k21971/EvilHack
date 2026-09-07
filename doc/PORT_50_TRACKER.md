@@ -12172,7 +12172,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       protection. Port master's counter shape into the branch
       lava_effects when fuzzer lava loops surface, or with the
       fuzzer-support owner slice.
-- [ ] defended() engulf/liquid coverage sweep NOT PORTED (minted
+- [x] defended() engulf/liquid coverage sweep PORTED 2026-09-06 (minted
       2026-08-30 by the flaming/on_fire slice's pre-port
       exploration; LOW; BUG-1607 decision-vs-combat class).
       Master carries || defended(mdef, AD_COLD/AD_FIRE) in
@@ -12196,6 +12196,189 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       in apply/polyself/potion/region/sp_lev/teleport; mhitm/mhitu/
       uhitm 88 vs 47 is the 5.0 mhitm_ad_* merge, not a deficit. A
       full slice with a per-file audit table, not a LOW filler.
+      CORRECTION 2026-09-06: the "88 vs 47 is the merge" reading
+      was WRONG - 20 MISSING gates and 23 ABSENT arms sat under
+      that delta (audit below).
+      PORTED 2026-09-06 (defended() sweep slice; BUG-1769..1781,
+      commits A + B, hashes in the archive). AUDIT (three agents,
+      every site re-read; master sites -> PRESENT/COVERED / MISSING
+      = edited / ABSENT = owner): mon.c 18 -> 6 present (mfndpos x4
+      via m_harmless_trap) / 7 edited (m_poisongas_ok, minliquid_core
+      + master's damage_mon(1, AD_FIRE) survival routing, m_consume_obj
+      = meatmetal/meatjelly/gollum_eat, meatobj x2, can_touch_safely +
+      safe_touch_petrifies + safe_mons, hideunder) / 2 absent (mstone
+      countdown -> Hdgn riders (a); meatfood -> creeping-mound row
+      below); muse.c 19 -> 5 / 5 (find_defensive corpse-wielder,
+      searches_for_item corpse+tin, munstone, mon_consume_unstone +
+      damage_mon routing) / 9 absent (RING_CLASS wants -> monster
+      ring-wearing; acidic-corpse cure row; MUSE_POT_OIL/mmake_wish/
+      MUSE_SCR_FIRE `#if 0` -> muse offense row below); dog.c 5 -> 1 /
+      3 (+ the 5.0-only opoisoned gate) / 0; worn.c 8 -> 2 / 0 / 6
+      (extra_pref ring scoring -> ring-wearing); mondata.c 7 -> 3 / 4
+      (max_passive_dmg, attacker subject) / 0, plus defended()'s
+      adult-dragon bound yellow -> celestial (BUG-1771) and defends()'s
+      AD_FUSE arm (BUG-1770) + master's dragon-scale table (BUG-1772,
+      ruling); eat.c 2 -> 2; apply.c 1 -> flint sparks (damp riders
+      (a)); polyself.c dogaze 1 edited; potion.c 2 edited; region.c 1
+      edited; sp_lev.c 1 edited; teleport.c 2 -> BOTH gates absent
+      entirely -> restored (BUG-1774, narrowed by ruling); trap.c 16
+      -> 9 / 6 (slp-gas, poly, steedintrap x2, minstapetrify,
+      mselftouch) / 5 (monster chest_trap arm -> row below); zap.c 17
+      -> 11 / 3 bhitm + ZT_DEATH tiers (BUG-1776) / dobuzz message
+      rides the tiers; mthrowu.c 16 -> 5 / 1 (ohitmon egg) / 10 =
+      breamm target switch absent entirely -> restored (BUG-1775);
+      explode.c 7 -> 0 / 7 (explosionmask) / 0; spell.c 2 -> hero
+      Power Word Kill (hero-spell-parity row); artifact.c 36 -> 33 (+2
+      in invoke_death_magic) / Mb_hit Tempest (BUG-1778) / spec_dbon
+      AD_DISN/AD_DETH/AD_FUSE-alternate clauses = DEAD on master too
+      (attacks() maps only ITEM_FIRE/FROST/SHOCK/VENOM for
+      non-artifacts); uhitm.c 28 -> 22 / 8 (hmon_hitmon_misc_obj
+      corpse/egg/venom, do_stone_mon, gulpum x4) / AD_PSYC melee case
+      (attack-handler row); mhitu.c 21 -> 4+merged / 7 (getmattk lich
+      substitution, gulpmu x2, passiveum x5) / dragon-scaled-armor
+      passive block + AD_DISN/DRST/DISE cases (attack-handler row);
+      mhitm.c 39 -> 15+merged / 7 (mdisplacem, mdamagem head,
+      mon_poly, passivemm x4) / scale block + AD_DISN/DRST/MAGM +
+      mattackm wielded-corpse + mdamagem AD_DETH table + AD_DISN
+      melee (attack-handler row); telekinesis.c 2 stoning choosers
+      widened (BUG-1773, master-shared, frozen-unfixed there).
+      SAME-EXPRESSION RIDERS (commit B): mon_underwater fire/acid
+      immunity + master's item-loss/erosion guards (BUG-1779), zhitm
+      ZT_DISN artifact crystal plate (BUG-1777), explode wand-class
+      immune_death_magic + is_vampshifter (BUG-1780), hero
+      Death_resistance vs Death's touch (BUG-1781). NOT edited: muse.c
+      `#if 0` sites, immune_to_trap() monster arms (hero-only caller),
+      master's max_passive_dmg AD_DISE/AD_STON terms (5.0 shape, damd
+      0 today). REVIEWER CONDITIONAL PASS -> HIGH taken (5.0's
+      trapeffect_telep_trap returned Trap_Moved_Mon for a monster the
+      new MR gate never moved - m_move() forged MMOVE_DIED for it;
+      mtele_trap now returns boolean; vanilla shares the mismatch,
+      upstream table; the reviewer's swap-places pet-abuse symptom
+      proved unreachable on all three trees - hack.c never displaces
+      a peaceful onto a trapped square), both MEDIUMs taken
+      (is_vampshifter kept in the explode arm; underwater item/erosion
+      guards), three LOWs taken
+      (dead undead arm behind the hero gate, mon_consume_unstone
+      damage_mon, safe_mons). 
+      BATTERY 22/22 PASS 2026-09-07 (evilhack-game-tester, 3 Valkyrie
+      games, paniclog never created, ~40 gdb inferior calls,
+      save/restore round trip clean; 2 BRIEF-ERRORS, no code defects):
+      Fire Brand wielder in lava "burns slightly" mhp -1 + relocated vs
+      control "burns to a crisp"; Sword of Kas wielder can_touch_safely
+      1 / can_carry 3 vs 0 / 0, yellow-scaled corpse-wielder silent
+      through mselftouch vs "is slowing down"; dogfood() CADAVER vs
+      POISON and the scaled dog ate the corpse; orange scales on a
+      sleeping-gas trap mfrozen 0 vs 14, gray scales on a poly trap
+      "resists!" vs polymorphed; Magicbane wielder and a species-MR gray
+      dragon stay on TELEP_TRAP_SET and LEVEL_TELEP while gray-scaled
+      gnomes STILL fall through TRAPDOOR and HOLE (ruling 2); scroll of
+      fire 0 vs 25 on a Fire Brand wielder; fire-vortex engulf "seems
+      mildly hot" 0 vs 20; blue-jelly passive 0 vs 79 (passiveum), pet
+      Frost Brand 0 vs 44 (passivemm), max_passive_dmg 30 -> 0; breamm
+      logging: 8 turns lined up on a fire elemental with mbreath_attk
+      pinned at 0, breathes at a gnome (cooldown 12..7), adjacent
+      reflector refused (M_ATTK_MISS, cooldown 0) while 3 squares out it
+      breathed and ate the reflection; wand of death at a gray-scaled
+      gnome "resists the death magic, but appears drained!" losses 5-10
+      x6, species-MR gray dragon 9/3, Angel and horned devil 0 with no
+      line, Valley zombie healed and clamped at 200; Armor of
+      Retribution wearer unhurt with the suit intact, plain crystal
+      plate wearer dead with the plate on the floor, plate mail wearer
+      alive minus the suit; Magicbane vs a Tempest wielder mstun 0 over
+      ~45 hits vs control stunned in 6 (the stun MESSAGE still prints
+      for exempt targets - master parity); defended() matrix off live
+      scale wearers = master table (shadow SLEE+DRLI, black DISN only,
+      silver COLD, shimmering STUN, yellow ACID+STON), adult shadow
+      dragon DRLI 1 and celestial ELEC 1 + LOUD 1 (bound fix), a drain
+      blast drained the black-scaled gnome (m_lev 4 -> 3) and not the
+      shadow-scaled one; Gauntlets of Purity vs Death "You are
+      unaffected by death magic." x10 vs the control drain lines, lich
+      polyform the same with "Was that the touch of death?" absent from
+      ^P; Dichotomy wielder defended FIRE 1 AND COLD 1, unhurt by fire
+      and ice traps vs 7/27; Secespita wielder in a gas cloud 300/300 vs
+      215 (still coughs and is blinded - the gate is damage-only); zhitm
+      fire/acid 0 underwater vs 18-25 on land, mhitm_ad_fire underwater
+      0 with 5 scrolls intact vs 25 with the stack burned 5 -> 2 -> 0,
+      acid twin 0 vs 25; broken wand of death: vampire bat and horned
+      devil 300/300, gnomes 236; MR hostile crossing nine teleport traps
+      logged trapret 0 + dochug PHASE FOUR status MMOVE_MOVED every move
+      and attacked on arrival. BRIEF-ERRORS: the pet-swap-onto-teleport-
+      trap scenario is unreachable on all three trees (hack.c refuses to
+      displace a peaceful onto any trapped square except an immune web,
+      so the Trap_Moved_Mon guilt arm cannot fire through a swap; the
+      boolean return's live consumers are m_move MMOVE_DIED and
+      mhurtle); shadow dragons carry MR_SLEEP innately (baby and adult),
+      so the sleep-ray leg cannot discriminate. Observations, not
+      defects: a red-dragon polyform swallows small monsters whole and
+      kills them outright; the wand-of-fire RAY evaporates a pool before
+      the underwater arm can matter (direct zhitm calls used);
+      can_center_cloud refused two lit distu-13 targets for the
+      stinking-cloud scroll; the Pale Horse steed's AD_DRLI bite spams
+      "Farvel level N" during Death tests. Open Phase 2 rows: 47 (44 - 2
+      closed + 5 minted).
+- [ ] Dragon-scale secondary table = feature collision (minted
+      2026-09-06 by the defended() sweep; absorbs the white-scales
+      ruling row above and the AD_LOUD slice's dangling "-> dragon-
+      armor row" deferral). do_wear.c dragon_armor_handling() is
+      upstream 5.0's body (switch on otyp = bare scales only;
+      black=drain, gold=hallucination, orange=free action, white=slow
+      digestion, red=infravision) where master's switches on
+      Dragon_armor_to_scales() (scaled armor too) and carries
+      silver=cold, shimmering=displacement+stun res, sea=swimming+
+      strangulation cure, celestial=sleep+shock+flight (the
+      f8ebd89db cramped_wings muck; conduct-wiring row annotation),
+      shadow=sleep+drain, chromatic=everything, white=water walking,
+      gold=infravision+clairvoyance, green/yellow cures. The monster
+      half (defends() rows) already went to master's table by the
+      2026-09-06 ruling (BUG-1772), so until this lands the hero side
+      is INCONSISTENT with it: a hero in black scales keeps 5.0's
+      Drain_resistance while resists_drli(&gy.youmonst)'s defended()
+      leg reads shadow (doseduce). Needs ONE ruling (adopt upstream's
+      secondaries or restore EvilHack's) covering the white-scales
+      Known_wwalking term (da03fc274, not ported by BUG-1765).
+- [ ] Monster attack-handler arms ABSENT (minted 2026-09-06 by the
+      defended() sweep audit; the mhitm slice's "-> monster attack-
+      handler subsystems" deferral had no row): passiveum() and
+      passivemm() dragon-scaled-armor passive blocks (master mhitu.c
+      4681-4900 / mhitm.c 3290-3480: green poison, black
+      disintegration, white cold, red fire, yellow acid on the
+      attacker, each `resists_* || defended`); passiveum AD_DISN/
+      AD_DRST/AD_DISE/AD_SLOW/AD_SLEE cases and passivemm AD_DISN/
+      AD_DRST/AD_MAGM cases; mattackm()'s wielded-cockatrice-corpse
+      block (master mhitm.c ~660); mdamagem()'s AD_DETH death table
+      for mon-vs-mon (master mhitm.c 2540-2600: immune_death_magic ||
+      defended(AD_DETH) immunity, MR/resist() tiers - the branch
+      mhitm_ad_deth redirects to drli with NO immunity gate) and
+      AD_DISN melee case (mhitm_adtyping has neither AD_DISN nor
+      AD_PSYC - a black-dragon or beholder melee disintegration and a
+      psychic melee hit are silent no-ops; master uhitm.c damageum
+      AD_PSYC + mhitm.c mdamagem AD_DISN with the crystal-plate
+      shape). Nine master defended() sites ride with these.
+- [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
+      sweep audit; the mhitm slice's "-> muse offense" deferral had
+      no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
+      lit-oil throw; the icequeen slice deliberately left the case-10
+      else-arm out), mmake_wish() (master muse.c ~5145: monster wand/
+      lamp wishing, MR gate on case 6), and MUSE_SCR_FIRE - the branch
+      keeps vanilla's `#if 0` copies (muse.c 2134/3055); when enabled
+      carry BUG-389's `||` resist shape, BUG-1319's set_pet_killer,
+      and the two defended(AD_FIRE) terms the sweep could not edit
+      inside dead code. Four master defended() sites ride with these.
+- [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
+      defended() sweep audit): the monster exists (include/monsters.h)
+      but master's meatfood() (mon.c ~2100: eats food items, cockatrice
+      corpse/egg gates with `resists_ston || defended`) and its
+      monmove.c caller are unported, so the mound never eats. Two
+      master defended() sites ride with it.
+- [ ] Monster chest_trap() arm ABSENT (minted 2026-09-06 by the
+      defended() sweep audit; the artifacts-B DEFER list named an
+      owner report file only): master chest_trap(mon, obj, bodypart,
+      disarm) has a full monster/hero split (needle prick, tower of
+      flame from the box, electric ring/wand destruction, stun/
+      hallucination arm - five `resists_* || defended` gates) and
+      mon.c calls it when a monster opens a trapped box; the branch
+      chest_trap(obj, bodypart, disarm) is hero-only and mon.c never
+      calls it, so monsters never trigger chest traps.
 - [x] montraits/clone_mon transient-reset drift PORTED 2026-09-02
       (minted 2026-08-30 by the orbs-remainder slice's reviewer;
       LOW; closes the 2026-08-23 mberserk-slice family row as
@@ -12714,7 +12897,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       move. Intent unverified (5.0's under_water() handling differs);
       check what a submerged hero should see of remembered terrain
       before porting.
-- [ ] White dragon scales secondary property: master water walking vs
+- [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
       WHITE_DRAGON_SCALES `EWwalking |= W_ARM` and da03fc274 added a
@@ -12724,6 +12907,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream's slow digestion or restore EvilHack's water walking;
       the Known_wwalking/paranoid-swim term follows the ruling (NOT
       ported by BUG-1765).
+      ABSORBED 2026-09-06 by the dragon-scale secondary table row
+      below (one ruling for the whole table; the term rides that row).
 - [x] LOW harness/option bug: set_wizonly options from EVILHACKOPTIONS
       (or the rc) are silently dropped on a -D launch (minted 2026-09-06
       by the demon-race battery, seen in all three games): after
@@ -13595,6 +13780,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean); artifact ~/nh50-mtele-trap-moved-mon.patch (git apply --check clean vs both trees), not yet sent |
 | 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | observed; not reported, no patch |
 | 2026-09-06 | mon.c newcham() runs its tail on a monster mselftouch() just petrified: after `mselftouch(mtmp, "No longer petrify-resistant, ", ...)` (no gloves, wielded cockatrice corpse, new form not stone-resistant -> minstapetrify -> monstone) vanilla continues into check_gear_next_turn(), the boulder walk (per-iteration guarded) and the Elbereth re-check on a dead monster, and normal_shape() (rescham/restore_cham) then writes cham/mcan, newsyms and runs new_were()/seemimic() on it. Branch fix: `if (DEADMONSTER(mtmp)) return 1;` after the mselftouch call (the shape of the existing mon_break_armor guard) and `if (DEADMONSTER(mon)) return;` after normal_shape's newcham (3.6.x carried the latter as a `continue` in rescham). Vanilla-shared per Official_nh50 mon.c newcham()/normal_shape(). | branch-fixed (BUG-1753); artifact ~/nh50-newcham-mselftouch-dead-tail.patch (git apply --check clean vs Official_nh50 f41f1aa09) |
 | 2026-09-06 | mhitm.c mattackm()'s between-attacks re-check `m_at(gb.bhitpos) != mdef` never matches the hero's steed: mount_steed() removes it from level.monsters (bare remove_monster) so m_at(u.ux,u.uy) is NULL, and mattacku()'s "attack your steed instead" arm aims bhitpos at the hero square - a multi-attack monster attacking the hero's steed lands slot 0 only (fightm under Conflict too). Fix: accept `mdef == u.usteed && u_at(bhitpos)` in the re-check. Official_nh50 identical | fixed on branch (BUG-1749); artifact ~/nh50-mattackm-target-recheck.patch, not yet sent |
@@ -13724,6 +13910,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-06 | defended() sweep rulings (AskUserQuestion x3): (1) defends()'s dragon-scale rows go to MASTER'S WHOLE TABLE now (gray||chromatic MR, white||silver cold, orange||shadow sleep, shadow drain - not black, blue||celestial shock, shimmering stun; vanilla's AD_HALU/AD_PLYS rows dropped, no caller) even though the hero twin do_wear.c dragon_armor_handling() is still upstream's - the residual (black-scales hero keeps 5.0's Drain_resistance while defended() reads shadow) rides the new dragon-scale secondary table row; (2) the monster teleport-trap magic-resistance gate is NARROWED to teleport-type traps (mtele_trap verbatim; mlevel_tele_trap only for tt == LEVEL_TELEP) - holes, trap doors and magic portals keep working on MR monsters, a deliberate deviation from master's top-of-function gate; (3) death-magic parity = BOTH the zhitm ZT_DEATH tiers (MR monsters take half death-ray damage, master edd0454ec) and the hero Death_resistance gate against Death's touch. Corollaries ratified with the plan/review: dobuzz's "resists the death magic" line is gated tmp > 0 (master prints it after the immune tier zeroed the damage); explode()'s wand-class death field keeps is_vampshifter beside immune_death_magic (master lacks it); 5.0's class-agnostic destroy_items() is guarded whole underwater (master still boils potions); mtele_trap() reports whether it moved the monster so trapeffect_telep_trap() no longer claims Trap_Moved_Mon for a monster the gate left standing | maintainer |
 | 2026-09-06 | Role-tables slice rulings (AskUserQuestion x2): (1) the attrib.c role-table parity gap found while scoping the `#up out of water` row rides that slice (Convict/Druid/Infidel had no table, the Monk lacked the five high-level rows, Healer/Rogue/Tourist rows differed); (2) Archeologist and Valkyrie keep upstream 5.0's reworked rows (Arc searching @1 / stealth @5 / fast @10; Val stealth @3) - EvilHack never touched them, feature-collision rule. Corollaries ratified with the plan: M_IN_WATER hoisted in 5.0's `S_EEL || cant_drown` spelling (= master's set, since master's amphibious() folds M1_BREATHLESS); the dodown/doup arms carry five hardening guards beyond master (`!u.uinwater`, `!u.usteed`, `!u.uswallow`, `!is_waterwall` on both arms, `HFlying && Flying`); hurtle_step keeps the branch's tree-first "bumping into a tree" reason (now IS_TREES); both Known_lwalking clauses read how_resistant(FIRE_RES) == 100; master's figurine-in-rock hole closed on the branch (BUG-1768, frozen-unfixed on master) | maintainer |
 | 2026-09-06 | EDITLEVEL frozen at 0 for the whole migration (five Phase 2 slices had bumped it 0 -> 5, others - the forging and overview-altar slices - deliberately had not): saves and bones break freely until the v1.0.0 cutover, nothing is near production; critical_sizes[] still rejects size-changing layouts, same-size bit shifts are accepted silently. The BUG-1571 tail-placement rule stays as a battery courtesy (a mid-session rebuild must not silently misread a tester's save), no longer a save-compat requirement. patchlevel.h back to the adoption value 0; the rule lives in CLAUDE.md Restrictions | maintainer |
 | 2026-08-23 | allmain-trio slice ruling (AskUserQuestion): monclock spawn pacing = FULL master ladder (rate ladder + hidden 30k clock + sticky floors + post-invocation stair-biased mplayer-allowed spawns + udemigod monmax_difficulty 256 + ^X readout + both BUG-660 halves). Riders recorded by the coordinator: MIN_QUEST_LEVEL 14 -> 10 (master ad4398c78) ported when the reviewer proved got_quest_early unreachable without it; the mplayer shaping cluster (thinning / mkclass weight / HP boost / level-gen whitelist) folded in, closing the mplayer random-generation deltas row; the Upolyd usurvive predicate fixed in BOTH hazard twins per the BUG-1423 pool-exclusivity precedent; flames of hell sits BESIDE the 5.0 temperature layer (no hero-damage consumer exists to merge with) | maintainer |
