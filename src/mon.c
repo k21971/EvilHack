@@ -385,7 +385,8 @@ m_poisongas_ok(struct monst *mtmp)
         return M_POISONGAS_OK;
     if (is_you && (u.uinvulnerable || Breathless || Underwater))
         return M_POISONGAS_OK;
-    if (is_you ? Poison_resistance : resists_poison(mtmp))
+    if (is_you ? Poison_resistance
+               : (resists_poison(mtmp) || defended(mtmp, AD_DRST)))
         return M_POISONGAS_MINOR;
     return M_POISONGAS_BAD;
 }
@@ -1306,7 +1307,7 @@ minliquid_core(struct monst *mtmp)
                 if (rloc(mtmp, RLOC_MSG))
                     return 0;
             }
-            if (!resists_fire(mtmp)) {
+            if (!(resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
                 if (cansee(mtmp->mx, mtmp->my))
                     pline_mon(mtmp, "%s %s.", Monnam(mtmp),
                               on_fire(mtmp, ON_FIRE_DEAD));
@@ -1319,7 +1320,7 @@ minliquid_core(struct monst *mtmp)
                 else
                     xkilled(mtmp, XKILL_NOMSG);
             } else {
-                mtmp->mhp -= 1;
+                damage_mon(mtmp, 1, AD_FIRE, FALSE);
                 if (DEADMONSTER(mtmp)) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline_mon(mtmp, "%s surrenders to the fire.",
@@ -2012,7 +2013,7 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
         if (mstone) {
             if (poly_when_stoned(mtmp->data)) {
                 mon_to_stone(mtmp);
-            } else if (!resists_ston(mtmp)) {
+            } else if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
                 if (vis)
                     pline_mon(mtmp, "%s turns to stone!",
                               Monnam(mtmp));
@@ -2068,7 +2069,8 @@ meatmetal(struct monst *mtmp)
         if ((mtmp->data == &mons[PM_RUST_MONSTER] && !is_rustprone(otmp))
             || (otmp->otyp == AMULET_OF_STRANGULATION
                 || otmp->otyp == RIN_SLOW_DIGESTION)
-            || (otmp->opoisoned && !resists_poison(mtmp))
+            || (otmp->opoisoned
+                && !(resists_poison(mtmp) || defended(mtmp, AD_DRST)))
             || is_mines_prize(otmp) || is_soko_prize(otmp))
             continue;
         if (is_metallic(otmp) && !obj_resists(otmp, 5, 95)
@@ -2205,7 +2207,7 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
         /* untouchable (or inaccessible) items */
         } else if ((otmp->otyp == CORPSE
                     && touch_petrifies(&mons[otmp->corpsenm])
-                    && !resists_ston(mtmp))
+                    && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                    /* don't engulf boulders and statues or ball&chain */
                    || otmp->oclass == ROCK_CLASS
                    || otmp == uball || otmp == uchain
@@ -2224,10 +2226,13 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
                       included for emphasis */
                    || (otmp->otyp == AMULET_OF_STRANGULATION
                        || otmp->otyp == RIN_SLOW_DIGESTION)
-                   || (otmp->opoisoned && !resists_poison(mtmp))
+                   || (otmp->opoisoned
+                       && !(resists_poison(mtmp)
+                            || defended(mtmp, AD_DRST)))
                    /* cockatrice corpses handled above; this
                       touch_petrifies() check catches eggs */
-                   || (mstoning(otmp) && !resists_ston(mtmp))
+                   || (mstoning(otmp)
+                       && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                    || (otmp->otyp == GLOB_OF_GREEN_SLIME
                        && !slimeproof(mtmp->data))) {
             /* engulf */
@@ -2308,7 +2313,8 @@ meatcorpse(
         /* skip some corpses */
         if (vegan(corpsepm) /* ignore veggy corpse even if omnivorous */
             /* don't eat harmful corpses */
-            || (flesh_petrifies(corpsepm) && !resists_ston(mtmp)))
+            || (flesh_petrifies(corpsepm)
+                && !(resists_ston(mtmp) || defended(mtmp, AD_STON))))
             continue;
         if (is_rider(corpsepm)) {
             boolean revived_it = revive_corpse(otmp);
@@ -2676,10 +2682,11 @@ can_touch_safely(struct monst *mtmp, struct obj *otmp)
     int otyp = otmp->otyp;
     struct permonst *mdat = mtmp->data;
 
-    if (otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])
-        && !(mtmp->misc_worn_check & W_ARMG) && !resists_ston(mtmp))
+    if (otyp == CORPSE && safe_touch_petrifies(otmp->corpsenm)
+        && !(mtmp->misc_worn_check & W_ARMG)
+        && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
         return FALSE;
-    if (otyp == CORPSE && is_rider(&mons[otmp->corpsenm]))
+    if (otyp == CORPSE && is_rider(&safe_mons(otmp->corpsenm)))
         return FALSE;
     if (mon_hates_material(mtmp, otmp->material)
         && (otyp != BELL_OF_OPENING || !is_covetous(mdat)))
@@ -7159,7 +7166,8 @@ hideunder(struct monst *mtmp)
             seenobj = ansimpleoname(otmp);
         /* most monsters won't hide under a cockatrice corpse but they
            can hide under a pile containing more than just such corpses */
-        if (is_u ? !Stone_resistance : !resists_ston(mtmp))
+        if (is_u ? !Stone_resistance
+                 : !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
             while (otmp && otmp->otyp == CORPSE
                    && touch_petrifies(&mons[otmp->corpsenm]))
                 otmp = otmp->nexthere;

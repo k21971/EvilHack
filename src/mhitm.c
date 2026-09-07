@@ -288,7 +288,8 @@ mdisplacem(
      */
     gv.vis = (canspotmon(magr) && canspotmon(mdef));
 
-    if (touch_petrifies(pd) && !resists_ston(magr)) {
+    if (touch_petrifies(pd)
+        && !(resists_ston(magr) || defended(magr, AD_STON))) {
         if (!which_armor(magr, W_ARMG)) {
             if (poly_when_stoned(pa)) {
                 mon_to_stone(magr);
@@ -1357,7 +1358,7 @@ mdamagem(
 
     if ((touch_petrifies(pd) /* or flesh_petrifies() */
          || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
-        && !resists_ston(magr)) {
+        && !(resists_ston(magr) || defended(magr, AD_STON))) {
         long protector = attk_protection((int) mattk->aatyp),
              wornitems = magr->misc_worn_check;
 
@@ -1549,7 +1550,7 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
         char Before[BUFSZ];
 
         Strcpy(Before, Monnam(mdef));
-        if (resists_magm(mdef)) {
+        if (resists_magm(mdef) || defended(mdef, AD_MAGM)) {
             /* Magic resistance */
             if (gv.vis)
                 shieldeff_mon(mdef);
@@ -1752,7 +1753,7 @@ passivemm(
             if (canseemon(magr))
                 pline("%s is splashed by %s %s!", buf,
                       s_suffix(mon_nam(mdef)), hliquid("acid"));
-            if (resists_acid(magr)) {
+            if (resists_acid(magr) || defended(magr, AD_ACID)) {
                 if (canseemon(magr))
                     pline("%s is not affected.", Monnam(magr));
                 tmp = 0;
@@ -1812,7 +1813,7 @@ passivemm(
             }
             return 1;
         case AD_COLD:
-            if (resists_cold(magr)) {
+            if (resists_cold(magr) || defended(magr, AD_COLD)) {
                 if (canseemon(magr)) {
                     pline_mon(magr, "%s is mildly chilly.", Monnam(magr));
                     golemeffects(magr, AD_COLD, tmp);
@@ -1839,7 +1840,7 @@ passivemm(
             tmp = 0;
             break;
         case AD_FIRE:
-            if (resists_fire(magr)) {
+            if (resists_fire(magr) || defended(magr, AD_FIRE)) {
                 if (canseemon(magr)) {
                     pline_mon(magr, "%s is mildly warmed.", Monnam(magr));
                     golemeffects(magr, AD_FIRE, tmp);
@@ -1851,7 +1852,7 @@ passivemm(
                 pline_mon(magr, "%s is suddenly very hot!", Monnam(magr));
             break;
         case AD_ELEC:
-            if (resists_elec(magr)) {
+            if (resists_elec(magr) || defended(magr, AD_ELEC)) {
                 if (canseemon(magr)) {
                     pline_mon(magr, "%s is mildly tingled.", Monnam(magr));
                     golemeffects(magr, AD_ELEC, tmp);

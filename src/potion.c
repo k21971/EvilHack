@@ -2197,7 +2197,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 /* won't happen, see prior goto */
                 || dmgtype(mon->data, AD_PEST)
                 /* most common case */
-                || resists_poison(mon)) {
+                || resists_poison(mon) || defended(mon, AD_DRST)) {
                 if (canseemon(mon))
                     pline("%s looks unharmed.", Monnam(mon));
                 break;
@@ -2310,7 +2310,8 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 explode_oil(obj, tx, ty);
             break;
         case POT_ACID:
-            if (!resists_acid(mon) && !resist(mon, POTION_CLASS, 0, NOTELL)) {
+            if (!(resists_acid(mon) || defended(mon, AD_ACID))
+                && !resist(mon, POTION_CLASS, 0, NOTELL)) {
                 pline("%s %s in pain!", Monnam(mon),
                       is_silent(mon->data) ? "writhes" : "shrieks");
                 if (!is_silent(mon->data))

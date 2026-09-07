@@ -585,7 +585,8 @@ getmattk(
        physical if target will resist */
     } else if (indx == 0 && attk->aatyp == AT_TUCH && attk->adtyp == AD_COLD
                && (udefend ? how_resistant(COLD_RES) == 100
-                           : resists_cold(mdef))
+                           : (resists_cold(mdef)
+                              || defended(mdef, AD_COLD)))
                /* don't substitute if target is immune to normal damage */
                && !noncorporeal(mdef->data)) {
         *alt_attk_buf = *attk;
@@ -1792,7 +1793,8 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             unleash_all();
         }
 
-        if (touch_petrifies(gy.youmonst.data) && !resists_ston(mtmp)) {
+        if (touch_petrifies(gy.youmonst.data)
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
             /* put the attacker back where it started;
                the resulting statue will end up there
                [note: if poly'd hero could ride or non-poly'd hero could
@@ -2075,7 +2077,8 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
 
     if (!u.uswallow) {
         ; /* life-saving has already expelled swallowed hero */
-    } else if (touch_petrifies(gy.youmonst.data) && !resists_ston(mtmp)) {
+    } else if (touch_petrifies(gy.youmonst.data)
+               && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
         pline("%s very hurriedly %s you!", Monnam(mtmp),
               digests(mtmp->data) ? "regurgitates"
               : enfolds(mtmp->data) ? "releases"
@@ -3416,7 +3419,7 @@ passiveum(
                      looks strange coming immediately after player has
                      been told that hero has reverted to normal form */
                   !Upolyd ? "" : "your ", hliquid("acid"));
-            if (resists_acid(mtmp)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
                 pline_mon(mtmp, "%s is not affected.", Monnam(mtmp));
                 tmp = 0;
             }
@@ -3448,7 +3451,7 @@ passiveum(
         if (MON_WEP(mtmp) != 0)
             wornitems |= W_ARMG;
 
-        if (!resists_ston(mtmp)
+        if (!(resists_ston(mtmp) || defended(mtmp, AD_STON))
             && (protector == 0L
                 || (protector != ~0L
                     && (wornitems & protector) != protector))) {
@@ -3519,7 +3522,7 @@ passiveum(
             }
             return M_ATTK_HIT;
         case AD_COLD: /* Brown mold or blue jelly */
-            if (resists_cold(mtmp)) {
+            if (resists_cold(mtmp) || defended(mtmp, AD_COLD)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline_mon(mtmp, "%s is mildly chilly.", Monnam(mtmp));
                 golemeffects(mtmp, AD_COLD, tmp);
@@ -3545,7 +3548,7 @@ passiveum(
             tmp = 0;
             break;
         case AD_FIRE: /* Red mold */
-            if (resists_fire(mtmp)) {
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline_mon(mtmp, "%s is mildly warm.", Monnam(mtmp));
                 golemeffects(mtmp, AD_FIRE, tmp);
@@ -3555,7 +3558,7 @@ passiveum(
             pline_mon(mtmp, "%s is suddenly very hot!", Monnam(mtmp));
             break;
         case AD_ELEC:
-            if (resists_elec(mtmp)) {
+            if (resists_elec(mtmp) || defended(mtmp, AD_ELEC)) {
                 shieldeff(mtmp->mx, mtmp->my);
                 pline_mon(mtmp, "%s is slightly tingled.", Monnam(mtmp));
                 golemeffects(mtmp, AD_ELEC, tmp);

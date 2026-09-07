@@ -76,34 +76,34 @@ explosionmask(
         case AD_PHYS:
             break;
         case AD_MAGM:
-            if (resists_magm(m))
+            if (resists_magm(m) || defended(m, AD_MAGM))
                 res = EXPL_MON;
             break;
         case AD_FIRE:
-            if (resists_fire(m))
+            if (resists_fire(m) || defended(m, AD_FIRE))
                 res = EXPL_MON;
             break;
         case AD_COLD:
-            if (resists_cold(m))
+            if (resists_cold(m) || defended(m, AD_COLD))
                 res = EXPL_MON;
             break;
         case AD_DISN:
             if ((olet == WAND_CLASS)
                 ? (nonliving(m->data) || is_demon(m->data)
                    || is_vampshifter(m))
-                : !!resists_disint(m))
+                : (resists_disint(m) || defended(m, AD_DISN)))
                 res = EXPL_MON;
             break;
         case AD_ELEC:
-            if (resists_elec(m))
+            if (resists_elec(m) || defended(m, AD_ELEC))
                 res = EXPL_MON;
             break;
         case AD_DRST:
-            if (resists_poison(m))
+            if (resists_poison(m) || defended(m, AD_DRST))
                 res = EXPL_MON;
             break;
         case AD_ACID:
-            if (resists_acid(m))
+            if (resists_acid(m) || defended(m, AD_ACID))
                 res = EXPL_MON;
             break;
         default:

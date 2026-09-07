@@ -1467,7 +1467,8 @@ dogfood(struct monst *mon, struct obj *obj)
             starving, mblind;
     int fx;
 
-    if (obj->opoisoned && !resists_poison(mon))
+    if (obj->opoisoned
+        && !(resists_poison(mon) || defended(mon, AD_DRST)))
         return POISON;
     if (is_quest_artifact(obj) || obj_resists(obj, 0, 95))
         return obj->cursed ? TABU : APPORT;
@@ -1489,7 +1490,7 @@ dogfood(struct monst *mon, struct obj *obj)
             return TABU;
         if ((obj->otyp == CORPSE || obj->otyp == EGG)
             && flesh_petrifies(fptr) /* c*ckatrice or Medusa */
-            && !resists_ston(mon))
+            && !(resists_ston(mon) || defended(mon, AD_STON)))
             return POISON;
         if (obj->otyp == LUMP_OF_ROYAL_JELLY
             && mon->data == &mons[PM_KILLER_BEE]) {
@@ -1568,8 +1569,10 @@ dogfood(struct monst *mon, struct obj *obj)
             if ((peek_at_iced_corpse_age(obj) + 50L <= svm.moves
                  && !(fx == PM_LIZARD || fx == PM_LICHEN)
                  && mptr->mlet != S_FUNGUS)
-                || (acidic(fptr) && !resists_acid(mon))
-                || (poisonous(fptr) && !resists_poison(mon))
+                || (acidic(fptr)
+                    && !(resists_acid(mon) || defended(mon, AD_ACID)))
+                || (poisonous(fptr)
+                    && !(resists_poison(mon) || defended(mon, AD_DRST)))
                 || (obj->zombie_corpse && !(resists_sick(mon)
                                             || defended(mon, AD_DISE))))
                 return POISON;

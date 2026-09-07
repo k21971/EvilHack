@@ -105,7 +105,7 @@ defended(struct monst *mon, int adtyp)
     /* if 'mon' is an adult dragon, treat it as if it was wearing scales
        so that it has the same benefit as a hero wearing dragon scales */
     mndx = monsndx(mon->data);
-    if (mndx >= PM_GRAY_DRAGON && mndx <= PM_YELLOW_DRAGON) {
+    if (mndx >= PM_GRAY_DRAGON && mndx <= PM_CELESTIAL_DRAGON) {
         /* a dragon is its own suit...  if mon is poly'd hero, we don't
            care about embedded scales (uskin) because being a dragon with
            embedded scales is no better than just being a dragon */
@@ -1004,10 +1004,17 @@ max_passive_dmg(struct monst *mdef, struct monst *magr)
                 || (adtyp == AD_DCAY && completelyrots(magr->data))
                 || (adtyp == AD_RUST && completelyrusts(magr->data))) {
                 dmg = magr->mhp;
-            } else if ((adtyp == AD_ACID && !resists_acid(magr))
-                       || (adtyp == AD_COLD && !resists_cold(magr))
-                       || (adtyp == AD_FIRE && !resists_fire(magr))
-                       || (adtyp == AD_ELEC && !resists_elec(magr))
+            } else if ((adtyp == AD_ACID
+                        && !(resists_acid(magr) || defended(magr, AD_ACID)))
+                       || (adtyp == AD_COLD
+                           && !(resists_cold(magr)
+                                || defended(magr, AD_COLD)))
+                       || (adtyp == AD_FIRE
+                           && !(resists_fire(magr)
+                                || defended(magr, AD_FIRE)))
+                       || (adtyp == AD_ELEC
+                           && !(resists_elec(magr)
+                                || defended(magr, AD_ELEC)))
                        || adtyp == AD_PHYS) {
                 dmg = mdef->data->mattk[i].damn;
                 if (!dmg)

@@ -185,7 +185,7 @@ tk_push_obj(struct obj *obj, int dx, int dy, int range)
                 if ((obj->otyp == CORPSE || obj->otyp == EGG)
                     && ismnum(obj->corpsenm)
                     && touch_petrifies(&mons[obj->corpsenm])
-                    && !resists_ston(mtmp)) {
+                    && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
                     minstapetrify(mtmp, !svc.context.mon_moving);
                 } else {
                     if (damage_mon(mtmp, dmg, AD_PHYS, TRUE))
@@ -694,7 +694,7 @@ m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
                 if ((obj->otyp == CORPSE || obj->otyp == EGG)
                     && ismnum(obj->corpsenm)
                     && touch_petrifies(&mons[obj->corpsenm])
-                    && !resists_ston(target)) {
+                    && !(resists_ston(target) || defended(target, AD_STON))) {
                     minstapetrify(target, !svc.context.mon_moving);
                 } else {
                     if (damage_mon(target, dmg, AD_PHYS, FALSE)) {

@@ -2130,7 +2130,7 @@ dogaze(void)
                     int dmg = d(2, 6), orig_dmg = dmg, lev = (int) u.ulevel;
 
                     You("attack %s with a fiery gaze!", mon_nam(mtmp));
-                    if (resists_fire(mtmp)) {
+                    if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
                         pline_The("fire doesn't burn %s!", mon_nam(mtmp));
                         dmg = 0;
                     }

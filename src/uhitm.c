@@ -1668,7 +1668,7 @@ hmon_hitmon_misc_obj(
             observe_object(obj);
             if (!munstone(mon, TRUE))
                 minstapetrify(mon, TRUE);
-            if (resists_ston(mon))
+            if (resists_ston(mon) || defended(mon, AD_STON))
                 break;
             /* note: hp may be <= 0 even if munstoned==TRUE */
             hmd->doreturn = TRUE;
@@ -1723,7 +1723,7 @@ hmon_hitmon_misc_obj(
             useup_eggs(obj);
             if (!munstone(mon, TRUE))
                 minstapetrify(mon, TRUE);
-            if (resists_ston(mon))
+            if (resists_ston(mon) || defended(mon, AD_STON))
                 break;
             hmd->doreturn = TRUE;
             hmd->retval = !DEADMONSTER(mon);
@@ -1838,7 +1838,7 @@ hmon_hitmon_misc_obj(
         hmd->dmg = 0;
         break;
     case ACID_VENOM: /* thrown (or spit) */
-        if (resists_acid(mon)) {
+        if (resists_acid(mon) || defended(mon, AD_ACID)) {
             Your("venom hits %s harmlessly.", mon_nam(mon));
             hmd->dmg = 0;
         } else {
@@ -5766,7 +5766,7 @@ do_stone_mon(
         mhm->damage = 0;
         return;
     }
-    if (!resists_ston(mdef)) {
+    if (!(resists_ston(mdef) || defended(mdef, AD_STON))) {
         if (gv.vis && canseemon(mdef))
             pline_mon(mdef, "%s turns to stone!", Monnam(mdef));
         /* both callers are on the monster-attacker path, so magr is
@@ -7357,7 +7357,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 break;
             case AD_ACID:
                 pline("%s is covered with your goo!", Monnam(mdef));
-                if (resists_acid(mdef)) {
+                if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
                     pline("It seems harmless to %s.", mon_nam(mdef));
                     dam = 0;
                 }
@@ -7379,7 +7379,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 if (rn2(2)) {
                     pline_The("air around %s crackles with electricity.",
                               mon_nam(mdef));
-                    if (resists_elec(mdef)) {
+                    if (resists_elec(mdef) || defended(mdef, AD_ELEC)) {
                         pline("%s seems unhurt.", Monnam(mdef));
                         dam = 0;
                     }
@@ -7389,7 +7389,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 break;
             case AD_COLD:
                 if (rn2(2)) {
-                    if (resists_cold(mdef)) {
+                    if (resists_cold(mdef) || defended(mdef, AD_COLD)) {
                         pline("%s seems mildly chilly.", Monnam(mdef));
                         dam = 0;
                     } else
@@ -7400,7 +7400,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 break;
             case AD_FIRE:
                 if (rn2(2)) {
-                    if (resists_fire(mdef)) {
+                    if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
                         pline("%s seems mildly hot.", Monnam(mdef));
                         dam = 0;
                     } else

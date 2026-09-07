@@ -1825,8 +1825,8 @@ trapeffect_slp_gas_trap(
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
 
-        if (!resists_sleep(mtmp) && !breathless(mtmp->data)
-            && !helpless(mtmp)) {
+        if (!(resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
+            && !breathless(mtmp->data) && !helpless(mtmp)) {
             if (sleep_monst(mtmp, rnd(25), -1) && in_sight) {
                 pline_mon(mtmp,
                           "%s suddenly falls asleep!", Monnam(mtmp));
@@ -3115,7 +3115,7 @@ trapeffect_poly_trap(
                 shoes->owornmask = W_ARMF;
                 update_mon_extrinsics(mtmp, shoes, TRUE, TRUE);
             }
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             shieldeff_mon(mtmp);
         } else if (!resist(mtmp, WAND_CLASS, 0, NOTELL)) {
             (void) newcham(mtmp, (struct permonst *) 0, NC_SHOW_MSG);
@@ -3837,8 +3837,8 @@ steedintrap(struct trap *trap, struct obj *otmp)
         }
         break;
     case SLP_GAS_TRAP_SET:
-        if (!resists_sleep(steed) && !breathless(steed->data)
-            && !helpless(steed)) {
+        if (!(resists_sleep(steed) || defended(steed, AD_SLEE))
+            && !breathless(steed->data) && !helpless(steed)) {
             if (sleep_monst(steed, rnd(25), -1))
                 /* no in_sight check here; you can feel it even if blind */
                 pline("%s suddenly falls asleep!", Monnam(steed));
@@ -3859,7 +3859,8 @@ steedintrap(struct trap *trap, struct obj *otmp)
         steedhit = TRUE;
         break;
     case POLY_TRAP_SET:
-        if (!resists_magm(steed) && !resist(steed, WAND_CLASS, 0, NOTELL)) {
+        if (!(resists_magm(steed) || defended(steed, AD_MAGM))
+            && !resist(steed, WAND_CLASS, 0, NOTELL)) {
             /* newcham() will probably end up calling poly_steed() */
             (void) newcham(steed, (struct permonst *) 0, NC_SHOW_MSG);
         }
@@ -4587,7 +4588,7 @@ instapetrify(const char *str)
 void
 minstapetrify(struct monst *mon, boolean byplayer)
 {
-    if (resists_ston(mon))
+    if (resists_ston(mon) || defended(mon, AD_STON))
         return;
     if (poly_when_stoned(mon->data)) {
         mon_to_stone(mon);
@@ -4648,7 +4649,7 @@ mselftouch(
     struct obj *mwep = MON_WEP(mon);
 
     if (mwep && mwep->otyp == CORPSE && touch_petrifies(&mons[mwep->corpsenm])
-        && !resists_ston(mon)) {
+        && !(resists_ston(mon) || defended(mon, AD_STON))) {
         if (cansee(mon->mx, mon->my)) {
             pline_mon(mon, "%s%s touches %s.", arg ? arg : "",
                   arg ? mon_nam(mon) : Monnam(mon),

@@ -726,7 +726,7 @@ ohitmon(
         if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
             if (!munstone(mtmp, FALSE))
                 minstapetrify(mtmp, FALSE);
-            if (resists_ston(mtmp))
+            if (resists_ston(mtmp) || defended(mtmp, AD_STON))
                 damage = 0;
         }
 

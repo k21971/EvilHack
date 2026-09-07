@@ -202,7 +202,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     case SPE_FORCE_BOLT:
         reveal_invis = TRUE;
         learn_it = cansee(gb.bhitpos.x, gb.bhitpos.y);
-        if (resists_magm(mtmp)) { /* match effect on player */
+        if (resists_magm(mtmp)
+            || defended(mtmp, AD_MAGM)) { /* match effect on player */
             if (disguised_mimic && !disguised_as_mon(mtmp))
                 seemimic(mtmp);
             shieldeff(mtmp->mx, mtmp->my);
@@ -276,7 +277,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             /* if a long worm has mcorpsenm set, it was polymorphed by
                the current zap and shouldn't be affected if hit again */
             ;
-        } else if (resists_magm(mtmp)) {
+        } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             /* magic resistance protects from polymorph traps, so make
                it guard against involuntary polymorph attacks too... */
             shieldeff_mon(mtmp);
@@ -561,7 +562,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             dmg *= 2;
         if (otyp == SPE_DRAIN_LIFE)
             dmg = spell_damage_bonus(dmg);
-        if (resists_drli(mtmp)) {
+        if (resists_drli(mtmp) || defended(mtmp, AD_DRLI)) {
             shieldeff_mon(mtmp);
         } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                    && !DEADMONSTER(mtmp)) {

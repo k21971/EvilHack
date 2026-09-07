@@ -735,7 +735,8 @@ find_defensive(struct monst *mtmp, boolean tryescape)
     if (!mtmp->mpeaceful && !nohands(mtmp->data)
         && uwep && uwep->otyp == CORPSE
         && touch_petrifies(&mons[uwep->corpsenm])
-        && !poly_when_stoned(mtmp->data) && !resists_ston(mtmp)
+        && !poly_when_stoned(mtmp->data)
+        && !(resists_ston(mtmp) || defended(mtmp, AD_STON))
         && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
         /* could use m_carrying(), then nxtobj() when matching wand
            is empty, but direct traversal is actually simpler here */
@@ -4056,11 +4057,13 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (typ == CORPSE && !obj->zombie_corpse)
             return (boolean) (((mon->misc_worn_check & W_ARMG) != 0L
                                && touch_petrifies(&mons[obj->corpsenm]))
-                              || (!resists_ston(mon)
+                              || (!(resists_ston(mon)
+                                    || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, FALSE)));
         if (typ == TIN)
             return (boolean) (mcould_eat_tin(mon)
-                              && (!resists_ston(mon)
+                              && (!(resists_ston(mon)
+                                    || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG && ismnum(obj->corpsenm))
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
@@ -4259,7 +4262,7 @@ munstone(struct monst *mon, boolean by_you)
     struct obj *obj;
     boolean tinok;
 
-    if (resists_ston(mon))
+    if (resists_ston(mon) || defended(mon, AD_STON))
         return FALSE;
     if (mon->meating || helpless(mon))
         return FALSE;
@@ -4312,8 +4315,8 @@ mon_consume_unstone(
     m_useup(mon, obj);
     /* obj is now gone */
 
-    if (acid && !tinned && !resists_acid(mon)) {
-        mon->mhp -= rnd(15);
+    if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
+        damage_mon(mon, rnd(15), AD_ACID, FALSE);
         if (vis)
             pline_mon(mon, "%s has a very bad case of stomach acid.", Monnam(mon));
         if (DEADMONSTER(mon)) {

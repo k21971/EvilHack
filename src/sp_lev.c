@@ -2474,7 +2474,8 @@ create_object(object *o, struct mkroom *croom)
             /* makemon without rndmonst() might create a group */
             was = makemon(&mons[wastyp], 0, 0, MM_NOCOUNTBIRTH|MM_NOMSG);
             if (was) {
-                if (!resists_ston(was) && !poly_when_stoned(&mons[wastyp])) {
+                if (!(resists_ston(was) || defended(was, AD_STON))
+                    && !poly_when_stoned(&mons[wastyp])) {
                     (void) propagate(wastyp, TRUE, FALSE);
                     break;
                 }

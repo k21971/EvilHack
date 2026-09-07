@@ -1150,7 +1150,7 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
                 mtmp->mblinded = 1;
                 mtmp->mcansee = 0;
             }
-            if (resists_poison(mtmp))
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
                 return FALSE;
             mtmp->mhp -= rnd(dam) + 5;
             if (DEADMONSTER(mtmp)) {
