@@ -9180,10 +9180,68 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       - sweep the callers before fixing. Player effect: a relocated
       hidden mimic does not hide what is behind it. Batch with any
       mimic/vision touch.
-- [ ] dmonsfree "0 removed != 1 pending" on endgame entry - LIVE CAPTURE
+- [x] dmonsfree "0 removed != 1 pending" on endgame entry - LIVE CAPTURE
       of the BUG-370 class (NEW, minted 2026-09-07 by the bubble-vision
       smoke battery; the CRASH_TRACKING.md entry has awaited a
-      non-#wizmakemap capture since April). Verbatim: `impossible
+      non-#wizmakemap capture since April). CLOSED 2026-09-07 (BUG-1797,
+      hash in the archive; upstream-table row + artifact
+      ~/nh50-savelev-freeing-purge-drain.patch): static analysis found
+      the whole chain, no mongone() caller audit was needed. NOT the
+      original BUG-370 strand (like BUG-1158, a distinct producer with
+      the same signature; CRASH_TRACKING.md keeps that entry open).
+      MECHANISM: `@0 mm#0` dates the detach to Dlvl 1's GENERATION -
+      svm.moves stays 0 until u_init_role() via u_init_inventory_attrs(),
+      which newgame() runs after mklev() and makedog(); the "Statuary"
+      themed room (no mindiff) calls des.trap("statue") d(3) times ->
+      maketrap(STATUE_TRAP) -> mk_trap_statue(): makemon() places a real
+      donor at a random square (rndmonnum_adj(3,6) = the wood nymph), its
+      inventory goes into the statue, mongone() detaches it - purge count
+      1, donor on fmon, and ordinary-level generation never drains (no
+      dmonsfree() in mklev.c; only makemaz's load_special path). Harmless
+      until the climb: #wizwish takes no time, and goto_level() enters
+      the endgame (or leaves the tutorial) with savelev() in FREEING
+      mode, whose "purge any dead monsters" drain sat INSIDE the
+      `mode != FREEING` block - savemonchn() freed the detached donor
+      without crediting the count, and the entrance plane's own
+      creation-time drain (mkmaze.c load_special; hence [50mons] =
+      air.lua's 50 des.monster calls, no pet yet) reported it with the
+      m_id on no list. Real-play producers: any m_detach() between the
+      last movemon() of a turn and the `<` - mcalcdistress() summoned
+      expiry, run_regions() gas-cloud kills, timers, keepdogs() ->
+      mintrap() killing a trapped pet during the climb (the BUG-632 guard
+      correctly leaves it on fmon); entry paths `<` on Dlvl 1 with the
+      Amulet and the wizard-only #wizlevelport `?` menu. Effect: an
+      impossible() + paniclog line on arrival, self-healing, no UAF.
+      Every other FREEING teardown drains first (freedynamicdata, cmd.c
+      level regen); upstream's wiz_kill() carries a private drain whose
+      comment names this exact symptom (one producer patched, not the
+      gate). FIX: the drain hoisted ahead of the mode test in
+      savelev_core() (one hunk, src/save.c); dobjsfree() left in the
+      WRITING block (objs_deleted entries are unreferenced and
+      moveloop_core() frees them next iteration). Plan-agent design
+      check and reviewer PASS (no findings; one housekeeping addendum to
+      the BUG-1158 entry). BATTERY (9 games, unfixed snapshot vs fixed
+      install, gdb `call maketrap(x,y,STATUE_TRAP)` and the gdb-free
+      `#wizwish` "statue trap" lever, purge 0 -> 1 read back each time
+      with the donor at the fmon head, mhp 0, mstate MON_DETACH):
+      POSITIVE CONTROLS on the unfixed binary reproduced all three entry
+      paths - `<` with the wished Amulet -> Plane of Air "0 removed != 1
+      pending [50mons] ... quivering blob ... mm#1 by mongone+158 NOT
+      FOUND any list"; #wizlevelport `?` -> Plane of Earth, hobbit mummy;
+      tutorial #quit -> "on level 1, the Dungeons of Doom [SAVING]",
+      snake. CONFIRMATION on the fixed binary: the same three legs
+      produced no paniclog line at all, and a background dmonsfree
+      logging breakpoint captured the predicted pair - a hit with purge 1
+      / saving 1 in savelev_core <- savelev <- goto_level <- prev_level,
+      then the makemaz("water") load_special hit with purge 0.
+      REGRESSION: ordinary `>` change with a pending donor clean (the
+      WRITING path always drained), save + restore + 15 turns clean;
+      three virgin Dlvl 1s read purge 0 at T:1 (no Statuary rolled).
+      Paniclog end state 3 lines, all from unfixed-binary legs. Lore ->
+      gameplay.md (tutorial exit restores the pre-tutorial hero incl. XL;
+      #wizlevelport `?` needs Enter and fabricates the Amulet; the unfixed
+      snapshot's comm is truncated for ps -C). Original text:
+      Verbatim: `impossible
       dmonsfree: 0 removed != 1 pending on Plane of Air [MOVELOOP]
       [50mons] Recent: wood nymph(64,4)#22@0 mm#0 by 0x604044
       addr=0x1d8ffc40 [mid#22 NOT FOUND any list, detached by 0x604044
@@ -14029,6 +14087,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-07 | save.c savelev_core() runs its "purge any dead monsters" dmonsfree() only inside the `mode != FREEING` block, but goto_level() tears the level down in FREEING mode on entering the endgame or leaving the tutorial, so a monster m_detach()ed since the last drain (a statue trap made without time passing - a fresh level with a Statuary themed room starts that way - a summoned monster expiring in mcalcdistress(), a gas-cloud kill in run_regions(), a trapped pet killed by mintrap() inside keepdogs()) is freed by savemonchn() with iflags.purge_monsters still counting it; the next dmonsfree() (the load_special drain while the entrance plane is built) reports "dmonsfree: 0 removed doesn't match 1 pending" with the monster on no list. wiz_kill() already works around the same symptom with a private dmonsfree(). Official_nh50 and NetHack50 identical | fixed on branch (BUG-1797: the drain hoisted ahead of the mode test in savelev_core); artifact ~/nh50-savelev-freeing-purge-drain.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | trap.c lava_effects() protects only one in-use inventory item (protect_oid) and impossible()s then burns any other: a scroll of destroy armor (scroll->in_use) destroying levitation or water walking boots (destroy_arm sets armor->in_use) over lava leaves two, and the loser's caller useup()s freed memory after life-saving | artifact ~/nh50-lava-effects-in-use.patch (four-slot protect list + lava_protected()); git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf; not yet sent |
 | 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean); artifact ~/nh50-mtele-trap-moved-mon.patch (git apply --check clean vs both trees), not yet sent |
