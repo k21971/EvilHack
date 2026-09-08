@@ -70,6 +70,9 @@ extern const char hexdd[33];
 /* material strings */
 extern const char *materialnm[];
 
+/* property names, indexed by 'interest' rather than property number */
+extern const struct propname propertynames[];
+
 /* current mon class symbols */
 extern uchar monsyms[MAXMCLASSES];
 

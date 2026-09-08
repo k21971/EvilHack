@@ -171,6 +171,12 @@ struct prop {
 #define I_SPECIAL   0x40000000L /* Property is controllable */
 };
 
+/* property number to display name; the table lives in timeout.c */
+struct propname {
+    int prop_num;
+    const char *prop_name;
+};
+
 /*** Definitions for backwards compatibility ***/
 #define LEFT_RING W_RINGL
 #define RIGHT_RING W_RINGR

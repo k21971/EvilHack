@@ -2189,7 +2189,8 @@ howmonseen(struct monst *mon)
        cansee is true for both normal and astral vision,
        but couldsee it not true for astral vision */
     if ((mon->wormno ? worm_known(mon) : (cansee(mon->mx, mon->my)
-                                          && couldsee(mon->mx, mon->my)))
+                                          && couldsee(mon->mx, mon->my)
+                                          && !uv_cansee(mon->mx, mon->my)))
         && mon_visible(mon) && !mon->minvis)
         how_seen |= MONSEEN_NORMAL;
     /* see invisible */
@@ -2198,6 +2199,9 @@ howmonseen(struct monst *mon)
     /* infravision */
     if ((!mon->minvis || See_invisible) && see_with_infrared(mon))
         how_seen |= MONSEEN_INFRAVIS;
+    /* ultravision */
+    if (useemon && uv_cansee(mon->mx, mon->my))
+        how_seen |= MONSEEN_ULTRAVIS;
     /* telepathy */
     if (tp_sensemon(mon))
         how_seen |= MONSEEN_TELEPAT;

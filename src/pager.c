@@ -21,6 +21,16 @@ staticfn void look_at_monster(char *, char *, struct monst *,
                                                coordxy, coordxy) NONNULLARG13;
 /* lookat() can return Null */
 staticfn struct permonst *lookat(coordxy, coordxy, char *, char *) NONNULLPTRS;
+staticfn char *hallucinatory_armor(char *) NONNULLARG1;
+staticfn const char *attacktype_name(int);
+staticfn const char *damagetype_name(int);
+staticfn void add_mon_info(winid, struct permonst *) NONNULLARG2;
+staticfn const char *material_noun(int);
+staticfn void add_obj_info(winid, short);
+staticfn const char *arti_adtyp_str(int, boolean);
+staticfn const char *arti_invprop_str(int);
+staticfn void add_mhflag_names(unsigned long, char *) NONNULLARG2;
+staticfn void add_arti_info(winid, int);
 staticfn boolean checkfile(char *, struct permonst *, unsigned,
                                                             char *) NO_NNARGS;
 staticfn int add_cmap_descr(int, int, int, int, coord,
@@ -516,28 +526,53 @@ look_at_monster(
         Strcat(buf, ", leashed to you");
     if (mtmp->mentangled && cansee(mtmp->mx, mtmp->my))
         Strcat(buf, ", entangled");
-    if (canseemon(mtmp) && !Blind
-        && (accurate || program_state.gameover)
-        && (mtmp->misc_worn_check & W_ARMOR) != 0L) {
-        int base_ac = 0, arm_ct = 0;
-        long atype;
-        struct obj *otmp;
+    if (canseemon(mtmp) && !Blind) {
+        if (accurate || program_state.gameover) {
+            if ((mtmp->misc_worn_check & W_ARMOR) != 0L) {
+                int base_ac = 0, arm_ct = 0;
+                long atype;
+                struct obj *otmp;
 
-        for (atype = W_ARM; (atype & W_ARMOR) != 0L; atype <<= 1) {
-            if (!(otmp = which_armor(mtmp, atype)))
-                continue;
-            /* don't count armor->spe, since this represents only what
-               the hero can see from afar - a monster with +8 gloves will
-               still seem "lightly armored" from a distance */
-            base_ac += armor_bonus(otmp) - otmp->spe;
-            arm_ct++;
+                for (atype = W_ARM; (atype & W_ARMOR) != 0L; atype <<= 1) {
+                    if (!(otmp = which_armor(mtmp, atype)))
+                        continue;
+                    /* don't count armor->spe, since this represents only
+                       what the hero can see from afar - a monster with +8
+                       gloves will still seem "lightly armored" from a
+                       distance */
+                    base_ac += armor_bonus(otmp) - otmp->spe;
+                    arm_ct++;
+                }
+
+                /* bounded: buf has already accumulated name, riding, held
+                   and leashed clauses, any of which can be player-named */
+                Snprintf(eos(buf), BUFSZ - strlen(buf),
+                         ", wearing %s%sarmor",
+                         arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
+                         base_ac > 9 ? "heavy "
+                                     : base_ac < 6 ? "light " : "");
+            }
+        } else {
+            /* hallucination dresses and arms the monster at random;
+               display-only randomness stays off the core RNG and no
+               real object is created for the name */
+            if (rn2_on_display_rng(3)) {
+                char harmor[BUFSZ];
+
+                Snprintf(eos(buf), BUFSZ - strlen(buf), ", wearing %s",
+                         hallucinatory_armor(harmor));
+            }
+            if (rn2_on_display_rng(3)) {
+                int htyp;
+
+                do {
+                    htyp = rn2_on_display_rng(NUM_OBJECTS);
+                } while (htyp <= STRANGE_OBJECT
+                         || !OBJ_NAME(objects[htyp]));
+                Snprintf(eos(buf), BUFSZ - strlen(buf), ", wielding %s",
+                         an(simple_typename(htyp)));
+            }
         }
-
-        /* bounded: buf has already accumulated name, riding, held and
-           leashed clauses, any of which can be player-named */
-        Snprintf(eos(buf), BUFSZ - strlen(buf), ", wearing %s%sarmor",
-                 arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
-                 base_ac > 9 ? "heavy " : base_ac < 6 ? "light " : "");
     }
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
         struct trap *t = t_at(mtmp->mx, mtmp->my);
@@ -549,6 +584,11 @@ look_at_monster(
             t->tseen = 1;
         }
     }
+
+    /* fleeing state is read from the monster's posture, so the
+       hero must actually see it, not just sense it */
+    if (mtmp->mflee && canseemon(mtmp))
+        Strcat(buf, ", scared");
 
     /* we know the hero sees a monster at this location, but if it's shown
        due to persistent monster detection he might remember something else */
@@ -577,6 +617,12 @@ look_at_monster(
             if (how_seen & MONSEEN_INFRAVIS) {
                 Strcat(monbuf, "infravision");
                 how_seen &= ~MONSEEN_INFRAVIS;
+                if (how_seen)
+                    Strcat(monbuf, ", ");
+            }
+            if (how_seen & MONSEEN_ULTRAVIS) {
+                Strcat(monbuf, "ultravision");
+                how_seen &= ~MONSEEN_ULTRAVIS;
                 if (how_seen)
                     Strcat(monbuf, ", ");
             }
@@ -777,7 +823,7 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
             && !(u.uswallow || iflags.save_uswallow)) {
             unsigned how = 0;
 
-            if (Infravision)
+            if (Infravision || Ultravision)
                 how |= 1;
             if (Unblind_telepat)
                 how |= 2;
@@ -786,7 +832,9 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
 
             if (how)
                 Sprintf(eos(buf), " [seen: %s%s%s%s%s]",
-                        (how & 1) ? "infravision" : "",
+                        (how & 1) ? (Infravision ? "infravision"
+                                                 : "ultravision")
+                                  : "",
                         /* add comma if telep and infrav */
                         ((how & 3) > 2) ? ", " : "",
                         (how & 2) ? "telepathy" : "",
@@ -927,6 +975,1824 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
     return (pm && !Hallucination) ? pm : (struct permonst *) 0;
 }
 
+staticfn char *
+hallucinatory_armor(char *buf)
+{
+#define HARMOR_FMT_HIS_HIS 0
+#define HARMOR_FMT_HIS 4
+    static const char *harmors[] = {
+        "%s heart on %s sleeve",
+        /* HARMOR_FMT_HIS_HIS */
+        "out %s welcome",
+        "%s birthday suit",
+        "%s church clothes",
+        "%s sunglasses at night",
+        /* HARMOR_FMT_HIS */
+        "a fursuit",
+        "a rented tux",
+        "cosplay",
+        "a fig leaf",
+        "nothing but a smile",
+        "a wool coat",
+        "fun socks",
+        "expensive sneakers",
+        "heels",
+        "a little black dress",
+        "some stylin' threads",
+        "a smug look",
+        "footie pajamas",
+        "hand-me-downs",
+        "a sundress",
+        "a ballgown",
+        "a towel",
+        "a trucker hat",
+        "a bald cap",
+        "all black everything",
+        "the emperor's new clothes",
+        "rose-colored glasses",
+        "blue suede shoes",
+        "a raspberry beret",
+        "flip flops",
+        "bejeweled leather battle shorts",
+        "an itsy bitsy teenie weenie yellow polka dot bikini",
+        "the pants in the relationship",
+        "a lei",
+        "a ten gallon hat",
+        "a tutu",
+        "an ushanka",
+        "MOPP level 4 gear",
+    };
+
+    /* the pronoun entries above, split so the format stays a literal */
+    static const struct {
+        const char *pre, *post;
+    } harmor_his[] = {
+        { "out ", " welcome" },
+        { "", " birthday suit" },
+        { "", " church clothes" },
+        { "", " sunglasses at night" },
+    };
+    int harmor_idx = rn2_on_display_rng(SIZE(harmors));
+
+    if (harmor_idx <= HARMOR_FMT_HIS_HIS) {
+        const char *his = genders[rn2_on_display_rng(3)].his;
+
+        Sprintf(buf, "%s heart on %s sleeve", his, his);
+    } else if (harmor_idx <= HARMOR_FMT_HIS) {
+        int hidx = harmor_idx - HARMOR_FMT_HIS_HIS - 1;
+
+        Sprintf(buf, "%s%s%s", harmor_his[hidx].pre,
+                genders[rn2_on_display_rng(3)].his, harmor_his[hidx].post);
+    } else {
+        Strcpy(buf, harmors[harmor_idx]);
+    }
+
+    return buf;
+}
+
+/* display name for an AT_ or AD_ value; the order of the cases follows
+   monattk.h, and any value without a name gets a null pointer so the
+   caller can complain instead of reading past a table */
+staticfn const char *
+attacktype_name(int aatyp)
+{
+    switch (aatyp) {
+    case AT_NONE:
+        return "passive";
+    case AT_CLAW:
+        return "claw";
+    case AT_BITE:
+        return "bite";
+    case AT_KICK:
+        return "kick";
+    case AT_BUTT:
+        return "butt";
+    case AT_TUCH:
+        return "touch";
+    case AT_STNG:
+        return "sting";
+    case AT_HUGS:
+        return "bearhug";
+    case AT_SPIT:
+        return "spit";
+    case AT_ENGL:
+        return "engulf";
+    case AT_BREA:
+        return "breathe";
+    case AT_EXPL:
+        return "explode";
+    case AT_BOOM:
+        return "explode on death";
+    case AT_GAZE:
+        return "gaze";
+    case AT_TENT:
+        return "tentacle";
+    case AT_SCRE:
+        return "scream";
+    case AT_WEAP:
+        return "weapon";
+    case AT_MAGC:
+        return "spellcast";
+    default:
+        break;
+    }
+    return (const char *) 0;
+}
+
+staticfn const char *
+damagetype_name(int adtyp)
+{
+    switch (adtyp) {
+    case AD_PHYS:
+        return "physical";
+    case AD_MAGM:
+        return "magic missile";
+    case AD_FIRE:
+        return "fire";
+    case AD_COLD:
+        return "cold";
+    case AD_SLEE:
+        return "sleep";
+    case AD_DISN:
+        return "disintegration";
+    case AD_ELEC:
+        return "shock";
+    case AD_DRST:
+        return "strength poison";
+    case AD_ACID:
+        return "acid";
+    case AD_BLND:
+        return "blind";
+    case AD_STUN:
+        return "stun";
+    case AD_SLOW:
+        return "slow";
+    case AD_PLYS:
+        return "paralyze";
+    case AD_DRLI:
+        return "level drain";
+    case AD_DREN:
+        return "energy drain";
+    case AD_LEGS:
+        return "wound leg";
+    case AD_STON:
+        return "petrify";
+    case AD_STCK:
+        return "sticky";
+    case AD_SGLD:
+        return "steal gold";
+    case AD_SITM:
+        return "steal item";
+    case AD_SEDU:
+        return "charm";
+    case AD_TLPT:
+        return "teleport";
+    case AD_RUST:
+        return "rust";
+    case AD_CONF:
+        return "confuse";
+    case AD_DGST:
+        return "digest";
+    case AD_HEAL:
+        return "heal";
+    case AD_WRAP:
+        return "drown";
+    case AD_WERE:
+        return "lycanthropy";
+    case AD_DRDX:
+        return "dexterity poison";
+    case AD_DRCO:
+        return "constitution poison";
+    case AD_DRIN:
+        return "eat brains";
+    case AD_DISE:
+        return "disease";
+    case AD_DCAY:
+        return "decay";
+    case AD_SSEX:
+        return "seduce";
+    case AD_HALU:
+        return "hallucination";
+    case AD_DETH:
+        return "Death special";
+    case AD_PEST:
+        return "Pestilence special";
+    case AD_FAMN:
+        return "Famine special";
+    case AD_SLIM:
+        return "slime";
+    case AD_ENCH:
+        return "disenchant";
+    case AD_CORR:
+        return "corrode";
+    case AD_POLY:
+        return "polymorph";
+    case AD_WATR:
+        return "water";
+    case AD_CNCL:
+        return "cancel";
+    case AD_BHED:
+        return "behead";
+    case AD_LUCK:
+        return "affects luck";
+    case AD_PSYC:
+        return "psionic";
+    case AD_LOUD:
+        return "sonic";
+    case AD_CLOB:
+        return "knock-back";
+    case AD_WTHR:
+        return "withering";
+    case AD_PITS:
+        return "create pit";
+    case AD_WEBS:
+        return "web";
+    case AD_FUSE:
+        return "fire and cold";
+    case AD_GOLD:
+        return "transmute to gold";
+    case AD_CLRC:
+        return "clerical";
+    case AD_SPEL:
+        return "arcane";
+    case AD_RBRE:
+        return "random breath";
+    case AD_SAMU:
+        return "steal Amulet";
+    case AD_CURS:
+        return "steal intrinsic";
+    default:
+        break;
+    }
+    return (const char *) 0;
+}
+
+/* Add some information to an encyclopedia window which is printing information
+ * about a monster. */
+staticfn void
+add_mon_info(winid datawin, struct permonst *pm)
+{
+    char buf[BUFSZ];
+    char buf2[BUFSZ];
+    const char *atnam, *adnam;
+    int i, gen = pm->geno;
+    int freq = (gen & G_FREQ);
+    int pct = max(5, (int) (pm->cwt / 90));
+    int mon_align = (pm->maligntyp == -128) ? A_NONE : sgn(pm->maligntyp);
+    boolean uniq = !!(gen & G_UNIQ);
+    boolean hell = !!(gen & G_HELL);
+    boolean nohell = !!(gen & G_NOHELL);
+    boolean nogen = !!(gen & G_NOGEN);
+    boolean iceq = is_iceq_only(pm);
+    int mndx = monsndx(pm);
+    unsigned long mflag2 = pm->mflags2;
+    unsigned int mflag3 = pm->mflags3;
+    unsigned int mflag4 = pm->mflags4;
+
+#define ADDRESIST(condition, str) \
+    if (condition) {              \
+        if (*buf)                 \
+            Strcat(buf, ", ");    \
+        Strcat(buf, str);         \
+    }
+#define ADDMR(field, res, str)    \
+    if (field & (res)) {          \
+        if (*buf)                 \
+            Strcat(buf, ", ");    \
+        Strcat(buf, str);         \
+    }
+#define APPENDC(cond, str)        \
+    if (cond) {                   \
+        if (*buf)                 \
+            Strcat(buf, ", ");    \
+        Strcat(buf, str);         \
+    }
+#define ADDPCTRES(cond, amt, str)    \
+    if (cond) {                      \
+        if (*buf)                    \
+            Strcat(buf, ", ");       \
+        Sprintf(eos(buf), "%d%% %s", \
+                amt, str);           \
+    }
+
+#define MONPUTSTR(str) putstr(datawin, ATR_NONE, str)
+
+    /* differentiate the two forms of werecreatures */
+    Strcpy(buf2, "");
+    if (is_were(pm) && pm != &mons[PM_RAT_KING])
+        Sprintf(buf2, " (%s form)", pm->mlet == S_HUMAN ? "human" : "animal");
+
+    Snprintf(buf, sizeof buf, "Monster lookup for \"%s\"%s:",
+             pm->pmnames[NEUTRAL], buf2);
+    putstr(datawin, ATR_BOLD, buf);
+    MONPUTSTR("");
+
+    /* Misc */
+    Sprintf(buf, "Difficulty %d, speed %d, base level %d, base AC %d.",
+            pm->difficulty, pm->mmove, pm->mlevel, pm->ac);
+    MONPUTSTR(buf);
+    Sprintf(buf, "Magic saving throw %d, weight %u, alignment: %s.",
+            pm->mr, pm->cwt,
+            (mon_align == A_LAWFUL) ? "lawful"
+              : (mon_align == A_NEUTRAL) ? "neutral"
+                : (mon_align == A_CHAOTIC) ? "chaotic" : "unaligned (evil)");
+    MONPUTSTR(buf);
+
+    /* Generation */
+    if (uniq)
+        Strcpy(buf, "Unique.");
+    else if (freq == 0)
+        Strcpy(buf, "Not randomly generated.");
+    else
+        Sprintf(buf, "Normally %s%s, %s.",
+                hell ? "only appears in Gehennom" :
+                nohell ? "only appears outside Gehennom" :
+                nogen ? "only appears specially" :
+                iceq ? "only appears in the Ice Queen's realm" :
+                "appears in any branch",
+                (gen & G_SGROUP) ? " in groups" :
+                (gen & G_LGROUP) ? " in large groups" : "",
+                freq >= 5 ? "very common" :
+                freq == 4 ? "common" :
+                freq == 3 ? "slightly rare" :
+                freq == 2 ? "rare" : "very rare");
+    MONPUTSTR(buf);
+
+    /* Resistances */
+    buf[0] = '\0';
+    ADDRESIST(pm_resistance(pm, MR_FIRE), "fire");
+    ADDRESIST(pm_resistance(pm, MR_COLD), "cold");
+    ADDRESIST(pm_resistance(pm, MR_SLEEP), "sleep");
+    ADDRESIST(pm_resistance(pm, MR_DISINT), "disintegration");
+    ADDRESIST(pm_resistance(pm, MR_ELEC), "shock");
+    ADDRESIST(pm_resistance(pm, MR_POISON), "poison");
+    ADDRESIST(pm_resistance(pm, MR_ACID), "acid");
+    ADDRESIST(pm_resistance(pm, MR_STONE), "petrification");
+    ADDRESIST(pm_resistance(pm, MR_PSYCHIC), "psionic attacks");
+    ADDRESIST(resists_drain(pm), "life-drain");
+    ADDRESIST(ptr_resists_sick(pm), "sickness");
+    ADDRESIST(resists_mgc(pm), "magic");
+    ADDRESIST(resists_stun(pm), "stun");
+    ADDRESIST(resists_slow(pm), "slow");
+    ADDRESIST(immune_death_magic(pm), "death magic");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Resists %s.", buf);
+        MONPUTSTR(buf2);
+    } else {
+        MONPUTSTR("Has no resistances.");
+    }
+
+    /* Corpse conveyances */
+    buf[0] = '\0';
+    ADDPCTRES(intrinsic_possible(FIRE_RES, pm), pct, "fire");
+    ADDPCTRES(intrinsic_possible(COLD_RES, pm), pct, "cold");
+    ADDPCTRES(intrinsic_possible(SHOCK_RES, pm), pct, "shock");
+    ADDPCTRES(intrinsic_possible(SLEEP_RES, pm), pct, "sleep");
+    ADDPCTRES(intrinsic_possible(POISON_RES, pm), pct, "poison");
+    ADDPCTRES(intrinsic_possible(DISINT_RES, pm), pct, "disintegration");
+    /* acid, stone, and psionic resistance aren't currently conveyable */
+    if (*buf)
+        Strcat(buf, " resistance");
+    APPENDC(intrinsic_possible(TELEPORT, pm), "teleportation");
+    APPENDC(intrinsic_possible(TELEPORT_CONTROL, pm), "teleport control");
+    APPENDC(intrinsic_possible(TELEPAT, pm), "telepathy");
+    /* There are a bunch of things that happen in cpostfx (levels for wraiths,
+     * stunning for bats...) but only count the ones that actually behave like
+     * permanent intrinsic gains.
+     * If you find yourself listing multiple things here for the same effect,
+     * that may indicate the property should be added to psuedo_intrinsics. */
+    APPENDC(pm == &mons[PM_QUANTUM_MECHANIC], "speed or slowness");
+    APPENDC(pm == &mons[PM_MIND_FLAYER] || pm == &mons[PM_MASTER_MIND_FLAYER],
+            "intelligence");
+    if (is_were(pm)) {
+        /* Weres need a bit of special handling, since 1) you always get
+         * lycanthropy so "may convey" could imply the player might not contract
+         * it; 2) the animal forms are flagged as G_NOCORPSE, but still have a
+         * meaningless listed corpse nutrition value which shouldn't print. */
+        if (pm->mlet == S_HUMAN) {
+            Sprintf(buf2, "Provides %d nutrition when eaten.", pm->cnutrit);
+            MONPUTSTR(buf2);
+        }
+        MONPUTSTR("Corpse conveys lycanthropy.");
+    } else if (pm->mlet == S_PUDDING) {
+        if (*buf) {
+            Snprintf(buf2, sizeof buf2, "May drop globs that convey %s.", buf);
+            MONPUTSTR(buf2);
+        } else {
+            MONPUTSTR("May drop globs.");
+        }
+    } else if (!(gen & G_NOCORPSE)) {
+        Sprintf(buf2, "Provides %d nutrition when eaten.", pm->cnutrit);
+        MONPUTSTR(buf2);
+        if (*buf) {
+            Snprintf(buf2, sizeof buf2, "Corpse conveys %s.", buf);
+            MONPUTSTR(buf2);
+        } else
+            MONPUTSTR("Corpse conveys no intrinsics.");
+    } else
+        MONPUTSTR("Leaves no corpse.");
+
+    /* Flag descriptions */
+    buf[0] = '\0';
+    APPENDC(is_male(pm), "male");
+    APPENDC(is_female(pm), "female");
+    APPENDC(is_neuter(pm), "genderless");
+    APPENDC(pm->msize == MZ_TINY, "tiny");
+    APPENDC(pm->msize == MZ_SMALL, "small");
+    APPENDC(pm->msize == MZ_LARGE, "large");
+    APPENDC(pm->msize == MZ_HUGE, "huge");
+    APPENDC(pm->msize == MZ_GIGANTIC, "gigantic");
+    if (!(*buf)) {
+        /* for nonstandard sizes */
+        if (verysmall(pm)) {
+            APPENDC(TRUE, "small");
+        } else if (bigmonst(pm)) {
+            APPENDC(TRUE, "big");
+        }
+    }
+    APPENDC(humanoid(pm), "humanoid");
+    APPENDC(is_animal(pm), "animal-bodied");
+    APPENDC(slithy(pm), "serpentine");
+
+    /* inherent characteristics: "Monster is X." */
+    APPENDC(!(gen & G_GENO), "ungenocideable");
+    APPENDC(breathless(pm), "breathless");
+    if (!breathless(pm))
+        APPENDC(amphibious(pm), "amphibious");
+    APPENDC(amorphous(pm), "amorphous");
+    APPENDC(noncorporeal(pm), "incorporeal");
+    if (!noncorporeal(pm))
+        APPENDC(unsolid(pm), "unsolid");
+    APPENDC(acidic(pm), "acidic");
+    APPENDC(poisonous(pm), "poisonous");
+    APPENDC(regenerates(pm), "regenerating");
+    APPENDC(is_floater(pm), "floating");
+    ADDRESIST(pm_resistance(pm, MR2_LEVITATE), "floating");
+    APPENDC(pm_invisible(pm), "invisible");
+    APPENDC(is_undead(pm), "undead");
+    if (!is_undead(pm))
+        APPENDC(nonliving(pm), "nonliving");
+    APPENDC(mindless(pm), "mindless");
+    APPENDC(!haseyes(pm), "eyeless");
+    APPENDC(nolimbs(pm), "limbless");
+    if (!nolimbs(pm))
+        APPENDC(nohands(pm), "handless");
+    APPENDC(!has_head(pm), "headless");
+    APPENDC(telepathic(pm), "telepathic");
+    ADDRESIST(pm_resistance(pm, MR2_TELEPATHY), "telepathic");
+    APPENDC(is_displaced(pm), "displaced");
+    ADDRESIST(pm_resistance(pm, MR2_DISPLACED), "displaced");
+    APPENDC(strongmonst(pm), "strong");
+    APPENDC(is_skittish(pm), "skittish");
+    APPENDC(is_accurate(pm), "accurate");
+    APPENDC(is_stationary(pm), "stationary");
+    APPENDC(infravisible(pm), "infravisible");
+    APPENDC(carnivorous(pm), "carnivorous");
+    APPENDC(herbivorous(pm), "herbivorous");
+    APPENDC(metallivorous(pm), "metallivorous");
+    APPENDC(inediate(pm), "inediate");
+    APPENDC(is_covetous(pm), "covetous");
+    APPENDC(always_hostile(pm), "always hostile");
+    APPENDC(always_peaceful(pm), "always peaceful");
+    APPENDC(extra_nasty(pm), "extra-nasty");
+    APPENDC(is_shapeshifter(pm), "a shapeshifter");
+    APPENDC(is_lord(pm), "nobility among its kind");
+    APPENDC(is_prince(pm), "royalty among its kind");
+    APPENDC(is_minion(pm), "a minion of a deity");
+    APPENDC(is_mercenary(pm), "a mercenary");
+    APPENDC(hates_material(pm, IRON), "harmed by iron")
+    APPENDC(hates_material(pm, MITHRIL), "harmed by mithril")
+    APPENDC(hates_material(pm, SILVER), "harmed by silver")
+    APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
+    APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
+    APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");
+    APPENDC((mflag4 & M4_VULNERABLE_ACID) != 0, "vulnerable to acid");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Is %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* "Monster wants X." */
+    APPENDC((mflag3 & M3_WANTSAMUL) != 0, "the Amulet of Yendor");
+    APPENDC((mflag3 & M3_WANTSBELL) != 0, "the Bell of Opening");
+    APPENDC((mflag3 & M3_WANTSBOOK) != 0, "the Book of the Dead");
+    APPENDC((mflag3 & M3_WANTSCAND) != 0, "the Candelabrum");
+    APPENDC((mflag3 & M3_WANTSARTI) != 0, "quest artifacts");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Wants %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* "Monster collects X." */
+    APPENDC(likes_gold(pm), "gold");
+    APPENDC(likes_gems(pm), "gems");
+    APPENDC(likes_objs(pm), "weapons and food");
+    APPENDC(likes_magic(pm), "magic items");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Collects %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* inherent abilities: "Monster can X." */
+    APPENDC(perceives(pm), "see invisible");
+    APPENDC(hides_under(pm), "hide under objects");
+    if (!hides_under(pm))
+        APPENDC(is_hider(pm), "hide");
+    APPENDC(is_swimmer(pm), "swim");
+    if (!is_floater(pm))
+        APPENDC(is_flyer(pm), "fly");
+    APPENDC(passes_walls(pm), "phase through walls");
+    APPENDC(can_teleport(pm), "teleport");
+    APPENDC(is_clinger(pm), "cling to the ceiling");
+    APPENDC(is_jumper(pm), "jump");
+    ADDRESIST(pm_resistance(pm, MR2_JUMPING), "jump");
+    ADDRESIST(pm_resistance(pm, MR2_WATERWALK), "walk on water");
+    APPENDC(lays_eggs(pm), "lay eggs");
+    APPENDC(webmaker(pm), "spin webs");
+    APPENDC(needspick(pm), "mine");
+    APPENDC(throws_rocks(pm), "throw boulders");
+    APPENDC(is_displacer(pm), "shove other monsters out of its way");
+    APPENDC(is_berserker(pm), "go berserk");
+    APPENDC(is_support(pm), "support allies")
+    APPENDC(can_flollop(pm), "flollop");
+    APPENDC(is_reviver(pm), "revive");
+    if (!needspick(pm))
+        APPENDC(tunnels(pm), "dig");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Can %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* "Monster can't X." */
+    APPENDC(non_tameable(pm), "be tamed");
+    APPENDC(no_geno_vecna(pm), "be genocided until its leader is destroyed");
+    APPENDC(no_geno_vlad(pm), "be genocided until its leader is destroyed");
+    APPENDC(no_geno_talgath(pm), "be genocided until its leader is killed");
+    APPENDC(is_defeated(pm), "be killed");
+    APPENDC(notake(pm), "pick up items");
+    APPENDC(hates_light(pm), "stand the light");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Can't %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* Full-line remarks */
+    if (touch_petrifies(pm))
+        MONPUTSTR("Petrifies by touch.");
+    if (infravision(pm))
+        MONPUTSTR("Has infravision.");
+    if (ultravision(pm))
+        MONPUTSTR("Has ultravision.");
+    if (thick_skinned(pm))
+        MONPUTSTR("Has a thick hide.");
+    if (control_teleport(pm))
+        MONPUTSTR("Has teleport control.");
+    if (is_domestic(pm) && !non_tameable(pm))
+        MONPUTSTR("Can be tamed by feeding.");
+    if (pm == &mons[PM_GELATINOUS_CUBE])
+        MONPUTSTR("Eats objects off the floor.");
+    if (pm == &mons[PM_CREEPING_MOUND])
+        MONPUTSTR("Eats food off the floor.");
+    if (pm == &mons[PM_HONEY_BADGER])
+        MONPUTSTR("Eats royal jelly off the floor.");
+    if (pm == &mons[PM_GOLLUM])
+        MONPUTSTR("Eats fish, goblin, and bat corpses off the floor.");
+    if (is_wanderer(pm))
+        MONPUTSTR("Wanders about randomly.");
+    if ((mflag2 & M2_STALK) != 0L)
+        MONPUTSTR("Follows you to other levels.");
+    if ((mflag3 & M3_WAITFORU) != 0)
+        MONPUTSTR("Waits for you to arrive.");
+    if ((mflag3 & M3_CLOSE) != 0)
+        MONPUTSTR("Waits for you to get close.");
+    if (your_race(pm))
+        MONPUTSTR("Is the same race as you.");
+    if (!(gen & G_NOCORPSE)) {
+        if (vegan(pm))
+            MONPUTSTR("May be eaten by vegans.");
+        else if (vegetarian(pm))
+            MONPUTSTR("May be eaten by vegetarians.");
+        else if (has_blood(pm))
+            MONPUTSTR("May be fed upon by vampires.");
+    }
+    if (emits_light(pm)) {
+        if (pm == &mons[PM_SHADOW_DRAGON]
+            || pm == &mons[PM_BABY_SHADOW_DRAGON])
+            MONPUTSTR("Emits darkness.");
+        else
+            MONPUTSTR("Emits light.");
+    }
+    if (all_druid_forms(mndx)) {
+        Sprintf(buf, "Is a druid wildshape form (experience level %d).",
+                druid_form_A(mndx) ? 3
+                  : druid_form_B(mndx) ? 8
+                    : druid_form_C(mndx) ? 14 : 20);
+        MONPUTSTR(buf);
+    }
+    if (all_vampire_forms(mndx))
+        MONPUTSTR("Is a vampire shapechange form.");
+    Sprintf(buf, "Is %sa valid polymorph form.",
+            polyok(pm) ? "" : "not ");
+    MONPUTSTR(buf);
+
+    /* Attacks */
+    buf[0] = buf2[0] = '\0';
+    for (i = 0; i < NATTK; i++) {
+        char dicebuf[20]; /* should be a safe limit */
+        struct attack *attk = &(pm->mattk[i]);
+        if (attk->damn) {
+            Sprintf(dicebuf, "%dd%d", attk->damn, attk->damd);
+        } else if (attk->damd) {
+            Sprintf(dicebuf, "(level + 1)d%d", attk->damd);
+        } else {
+            if (!attk->aatyp && !attk->adtyp) {
+                /* no attack in this slot */
+                continue;
+            } else {
+                /* real attack, but 0d0 damage */
+                dicebuf[0] = '\0';
+            }
+        }
+        atnam = attacktype_name(attk->aatyp);
+        adnam = damagetype_name(attk->adtyp);
+        if (!atnam) {
+            impossible("add_mon_info: unknown attack type %d", attk->aatyp);
+        } else if (!adnam) {
+            impossible("add_mon_info: unknown damage type %d", attk->adtyp);
+        /* hack to display gelatinous cubes' (and potentially shambling
+           horrors') suffocation attack correctly---swimming won't save you! */
+        } else if (attk->aatyp == AT_ENGL && attk->adtyp == AD_WRAP
+                   && !(pm == &mons[PM_SEA_DRAGON]
+                        || pm == &mons[PM_WATER_ELEMENTAL])) {
+            Sprintf(buf2, "%s%s%s %s", dicebuf, ((*dicebuf) ? " " : ""),
+                    atnam, "suffocate");
+            APPENDC(TRUE, buf2);
+        } else {
+            Sprintf(buf2, "%s%s%s %s", dicebuf, ((*dicebuf) ? " " : ""),
+                    atnam, adnam);
+            APPENDC(TRUE, buf2);
+        }
+    }
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Attacks: %s", buf);
+        MONPUTSTR(buf2);
+    } else
+        MONPUTSTR("Has no attacks.");
+}
+#undef ADDRESIST
+#undef ADDMR
+#undef ADDPCTRES
+#undef APPENDC
+#undef MONPUTSTR
+
+/* materialnm[] uses adjectival forms; two entries differ as nouns */
+staticfn const char *
+material_noun(int mat)
+{
+    if (mat == WOOD)
+        return "wood";
+    if (mat == VEGGY)
+        return "vegetable matter";
+    return materialnm[mat];
+}
+
+/* Add some information to an encyclopedia window which is printing information
+ * about an object. */
+staticfn void
+add_obj_info(winid datawin, short otyp)
+{
+    struct objclass oc = objects[otyp];
+    char olet = oc.oc_class;
+    char buf[BUFSZ];
+    char buf2[BUFSZ];
+    boolean weptool = (olet == TOOL_CLASS && oc.oc_skill != P_NONE);
+    boolean gemammo = (olet == GEM_CLASS
+                       && (otyp == FLINT || otyp == SLING_BULLET
+                           || otyp == ROCK));
+    const char *dir = (oc.oc_dir == NODIR ? "Non-directional"
+                                          : (oc.oc_dir == IMMEDIATE ? "Beam"
+                                                                    : "Ray"));
+    const struct forge_recipe *recipe;
+    boolean has_recipes;
+    const struct trap_recipe *trecipe;
+    boolean has_trecipes;
+    struct obj dummy;
+    int mat, j, totprob, pmil;
+
+#define OBJPUTSTR(str) putstr(datawin, ATR_NONE, str)
+#define ADDCLASSPROP(cond, str)          \
+    if (cond) {                          \
+        if (*buf) { Strcat(buf, ", "); } \
+        Strcat(buf, str);                \
+    }
+
+    Sprintf(buf, "Object lookup for \"%s\":", safe_typename(otyp));
+    putstr(datawin, ATR_BOLD, buf);
+    OBJPUTSTR("");
+
+    if (olet == WEAPON_CLASS || weptool || gemammo) {
+        const int skill = oc.oc_skill;
+        const char *dmgtyp = "blunt";
+        const char *sdambon = "";
+        const char *ldambon = "";
+
+        if (skill >= 0) {
+            Sprintf(buf, "%s-handed weapon%s using the %s skill.",
+                    (oc.oc_bimanual ? "Two" : "Single"),
+                    (weptool ? "-tool" : ""),
+                    skill_name(skill));
+        } else if (skill <= -P_BOW && oc.oc_skill >= -P_CROSSBOW) {
+            /* Minor assumption: the skill name will be the same as the launcher
+             * itself. Currently this is only bow and crossbow. */
+            Sprintf(buf, "Ammunition meant to be fired from a %s.",
+                    skill_name(-skill));
+        } else {
+            Sprintf(buf, "Thrown missile using the %s skill.",
+                    skill_name(-skill));
+        }
+        OBJPUTSTR(buf);
+
+        if (oc.oc_dir & PIERCE) {
+            dmgtyp = "piercing";
+            if (oc.oc_dir & SLASH) {
+                dmgtyp = "piercing/slashing";
+            }
+        } else if (oc.oc_dir & SLASH) {
+            dmgtyp = "slashing";
+        }
+        Sprintf(buf, "Deals %s damage.", dmgtyp);
+        OBJPUTSTR(buf);
+
+        /* Ugh. Can we just get rid of dmgval() and put its damage bonuses into
+         * the object class? */
+        switch (otyp) {
+        case IRON_CHAIN:
+        case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
+        case MACE:
+        case DARK_ELVEN_MACE:
+        case HEAVY_MACE:
+        case DARK_ELVEN_HEAVY_MACE:
+        case ROD:
+        case WAR_HAMMER:
+        case HEAVY_WAR_HAMMER:
+        case FLAIL:
+        case TRIPLE_HEADED_FLAIL:
+        case SPETUM:
+        case TRIDENT:
+            sdambon = " + 1";
+            break;
+        case BATTLE_AXE:
+        case BARDICHE:
+        case BILL_GUISARME:
+        case GUISARME:
+        case LUCERN_HAMMER:
+        case MORNING_STAR:
+        case ORCISH_MORNING_STAR:
+        case RANSEUR:
+        case BROADSWORD:
+        case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
+        case RUNESWORD:
+        case VOULGE:
+            sdambon = " + 1d4";
+            break;
+        }
+        /* and again, because /large/ damage is entirely separate. Bleah. */
+        switch (otyp) {
+        case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
+        case MORNING_STAR:
+        case ORCISH_MORNING_STAR:
+        case PARTISAN:
+        case RUNESWORD:
+        case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
+        case BROADSWORD:
+            ldambon = " + 1";
+            break;
+        case FLAIL:
+        case RANSEUR:
+        case VOULGE:
+            ldambon = " + 1d4";
+            break;
+        case HALBERD:
+        case SPETUM:
+            ldambon = " + 1d6";
+            break;
+        case BATTLE_AXE:
+        case BARDICHE:
+        case TRIDENT:
+            ldambon = " + 2d4";
+            break;
+        case TSURUGI:
+        case DWARVISH_MATTOCK:
+        case TWO_HANDED_SWORD:
+            ldambon = " + 2d6";
+            break;
+        case TRIPLE_HEADED_FLAIL:
+            ldambon = " + 3d6";
+            break;
+        }
+        Sprintf(buf,
+               "Damage: 1d%d%s versus small and 1d%d%s versus large monsters.",
+                oc.oc_wsdam, sdambon, oc.oc_wldam, ldambon);
+        OBJPUTSTR(buf);
+        Sprintf(buf, "Has a %s%d %s to hit.", (oc.oc_hitbon >= 0 ? "+" : ""),
+                oc.oc_hitbon, (oc.oc_hitbon >= 0 ? "bonus" : "penalty"));
+        OBJPUTSTR(buf);
+        if (skill >= P_BOW && skill <= P_CROSSBOW) {
+            Sprintf(buf, "Fires %s.",
+                    (skill == P_BOW) ? "arrows"
+                      : (skill == P_CROSSBOW) ? "crossbow bolts"
+                        : "sling bullets, stones, and gems");
+            OBJPUTSTR(buf);
+        }
+        if (olet == WEAPON_CLASS
+            && !(skill >= P_BOW && skill <= P_CROSSBOW)
+            && oc.oc_dir != WHACK)
+            OBJPUTSTR("Can be coated with poison.");
+        if (olet == WEAPON_CLASS
+            && skill >= -P_SHURIKEN && skill <= -P_BOW)
+            OBJPUTSTR("Normally generated in stacks.");
+    }
+    if (olet == ARMOR_CLASS) {
+        /* Indexes here correspond to ARM_SHIELD, etc; not the W_* masks.
+         * Expects ARM_SUIT = 0, all the way up to ARM_SHIRT = 6. */
+        const char *armorslots[] = {
+            "torso", "shield", "helm", "gloves", "boots", "cloak", "shirt"
+        };
+        Sprintf(buf, "%s, worn in the %s slot.",
+                (oc.oc_bulky ? "Bulky armor" : "Armor"),
+                armorslots[oc.oc_armcat]);
+
+        OBJPUTSTR(buf);
+        Sprintf(buf, "Base AC %d, magic cancellation %d.",
+                oc.a_ac, oc.a_can);
+        OBJPUTSTR(buf);
+        Sprintf(buf, "Takes %d turn%s to put on or remove.",
+                oc.oc_delay, (oc.oc_delay == 1 ? "" : "s"));
+        OBJPUTSTR(buf);
+    }
+    if (olet == FOOD_CLASS) {
+        if (otyp == TIN || otyp == CORPSE) {
+            OBJPUTSTR("Comestible providing varied nutrition.");
+            OBJPUTSTR("Takes various amounts of turns to eat.");
+            OBJPUTSTR("May or may not be vegetarian.");
+        } else {
+            Sprintf(buf, "Comestible providing %d nutrition.", oc.oc_nutrition);
+            OBJPUTSTR(buf);
+            Sprintf(buf, "Takes %d turn%s to eat.", oc.oc_delay,
+                    (oc.oc_delay == 1 ? "" : "s"));
+            OBJPUTSTR(buf);
+            /* TODO: put special-case VEGGY foods in a list which can be
+             * referenced by doeat(), so there's no second source for this. */
+            if (oc.oc_material == FLESH && otyp != EGG) {
+                OBJPUTSTR("Is not vegetarian.");
+            } else {
+                /* is either VEGGY food or egg */
+                switch (otyp) {
+                case PANCAKE:
+                case FORTUNE_COOKIE:
+                case EGG:
+                case CREAM_PIE:
+                case CANDY_BAR:
+                case LUMP_OF_ROYAL_JELLY:
+                    OBJPUTSTR("Is vegetarian but not vegan.");
+                    break;
+                default:
+                    OBJPUTSTR("Is vegan.");
+                }
+            }
+        }
+    }
+    if (olet == POTION_CLASS) {
+        /* nothing special */
+        OBJPUTSTR("Potion.");
+    }
+    if (olet == SCROLL_CLASS) {
+        /* nothing special (ink is covered below) */
+        OBJPUTSTR("Scroll.");
+    }
+    if (olet == SPBOOK_CLASS) {
+        if (otyp == SPE_BLANK_PAPER) {
+            OBJPUTSTR("Spellbook.");
+        } else if (otyp == SPE_NOVEL || otyp == SPE_BOOK_OF_THE_DEAD) {
+            OBJPUTSTR("Book.");
+        } else {
+            Sprintf(buf, "Level %d spellbook, in the %s school. %s spell.",
+                    oc.oc_level, spelltypemnemonic(oc.oc_skill), dir);
+            OBJPUTSTR(buf);
+            Sprintf(buf, "Takes %d actions to read.", oc.oc_delay);
+            OBJPUTSTR(buf);
+        }
+    }
+    if (olet == WAND_CLASS) {
+        Sprintf(buf, "%s wand.", dir);
+        OBJPUTSTR(buf);
+    }
+    if (olet == RING_CLASS) {
+        OBJPUTSTR(oc.oc_charged ? "Chargeable ring." : "Ring.");
+        /* see material comment below; only show toughness status if this
+         * particular ring is already identified... */
+        if (oc.oc_tough && oc.oc_name_known) {
+            OBJPUTSTR("Is made of a hard material.");
+        }
+    }
+    if (olet == GEM_CLASS && !gemammo) {
+        if (oc.oc_material == MINERAL) {
+            OBJPUTSTR("Type of stone.");
+        } else if (oc.oc_material == GLASS) {
+            OBJPUTSTR("Piece of colored glass.");
+        } else {
+            OBJPUTSTR("Precious gem.");
+        }
+        /* can do unconditionally, these aren't randomized */
+        if (oc.oc_tough) {
+            OBJPUTSTR("Is made of a hard material.");
+        }
+    }
+    if (olet == TOOL_CLASS && !weptool) {
+        const char *subclass = "tool";
+        switch (otyp) {
+        case LARGE_BOX:
+        case CHEST:
+        case ICE_BOX:
+        case IRON_SAFE:
+        case CRYSTAL_CHEST:
+        case HIDDEN_CHEST:
+        case SACK:
+        case OILSKIN_SACK:
+        case BAG_OF_HOLDING:
+        case BAG_OF_TREASURE:
+        case BAG_OF_DEVOURING:
+            subclass = "container";
+            break;
+        case SKELETON_KEY:
+        case LOCK_PICK:
+        case CREDIT_CARD:
+        case MAGIC_KEY:
+            subclass = "unlocking tool";
+            break;
+        case TALLOW_CANDLE:
+        case WAX_CANDLE:
+        case LANTERN:
+        case OIL_LAMP:
+        case MAGIC_LAMP:
+            subclass = "light source";
+            break;
+        case LAND_MINE:
+        case BEARTRAP:
+            subclass = "trap which can be set";
+            break;
+        case PEA_WHISTLE:
+        case MAGIC_WHISTLE:
+        case BELL:
+        case LEATHER_DRUM:
+        case DRUM_OF_EARTHQUAKE:
+            subclass = "atonal instrument";
+            break;
+        case BUGLE:
+        case MAGIC_FLUTE:
+        case PAN_FLUTE:
+        case FLUTE:
+        case TOOLED_HORN:
+        case FIRE_HORN:
+        case FROST_HORN:
+        case HARP:
+        case MAGIC_HARP:
+            subclass = "tonal instrument";
+            break;
+        case BLACKSMITH_HAMMER:
+            subclass = "forging tool";
+            break;
+        }
+        Sprintf(buf, "%s%s.", (oc.oc_charged ? "chargeable " : ""), subclass);
+        /* capitalize first letter of buf */
+        buf[0] -= ('a' - 'A');
+        OBJPUTSTR(buf);
+    }
+    if (olet == AMULET_CLASS) {
+        OBJPUTSTR("Amulet.");
+    }
+    if (olet == COIN_CLASS) {
+        OBJPUTSTR("Coin.");
+    }
+    if (olet == ROCK_CLASS) {
+        OBJPUTSTR(otyp == STATUE ? "Statue." : "Boulder.");
+    }
+    if (olet == BALL_CLASS) {
+        OBJPUTSTR("Heavy iron ball.");
+    }
+    if (olet == CHAIN_CLASS) {
+        OBJPUTSTR("Chain.");
+    }
+    if (olet == VENOM_CLASS) {
+        OBJPUTSTR("Venom.");
+    }
+
+    /* cost, wt should go next */
+    Sprintf(buf, "Base cost %d, weighs %u aum.", oc.oc_cost, oc.oc_weight);
+    OBJPUTSTR(buf);
+
+    /* generation frequency, only for the object classes that are part
+       of mkobj's random mixture */
+    if (olet == WEAPON_CLASS || olet == ARMOR_CLASS || olet == RING_CLASS
+        || olet == AMULET_CLASS || olet == TOOL_CLASS || olet == FOOD_CLASS
+        || olet == POTION_CLASS || olet == SCROLL_CLASS
+        || olet == SPBOOK_CLASS || olet == WAND_CLASS
+        || olet == GEM_CLASS) {
+        if (!oc.oc_prob) {
+            OBJPUTSTR("Not randomly generated.");
+        } else {
+            /* oc_prob values are relative weights, normalized over the
+               class total at selection time (see mkobj); not every
+               class sums its weights to 1000 */
+            totprob = 0;
+            for (j = svb.bases[(int) olet];
+                 j < NUM_OBJECTS && objects[j].oc_class == olet; j++)
+                totprob += objects[j].oc_prob;
+            pmil = (oc.oc_prob * 1000 + totprob / 2) / totprob;
+            if (pmil == 0)
+                Sprintf(buf, "Makes up less than 0.1%% of randomly"
+                             " generated %s.",
+                        (olet == GEM_CLASS) ? "gems and stones"
+                                            : def_oc_syms[(int) olet].name);
+            else
+                Sprintf(buf, "Makes up %d.%d%% of randomly generated %s.",
+                        pmil / 10, pmil % 10,
+                        (olet == GEM_CLASS) ? "gems and stones"
+                                            : def_oc_syms[(int) olet].name);
+            OBJPUTSTR(buf);
+        }
+    }
+
+    /* Scrolls or spellbooks: ink cost */
+    if (olet == SCROLL_CLASS || olet == SPBOOK_CLASS) {
+        if (otyp == SCR_BLANK_PAPER || otyp == SPE_BLANK_PAPER) {
+            OBJPUTSTR("Can be written on.");
+        } else if (otyp == SPE_NOVEL || otyp == SPE_BOOK_OF_THE_DEAD
+                   || otyp == SCR_CONSECRATION) {
+            OBJPUTSTR("Cannot be written.");
+        } else {
+            Sprintf(buf, "Takes %d to %d ink to write.",
+                    ink_cost(otyp)/2, ink_cost(otyp)-1);
+            OBJPUTSTR(buf);
+        }
+    }
+
+    /* power conferred */
+    if (oc.oc_oprop) {
+        int i;
+        for (i = 0; propertynames[i].prop_name; ++i) {
+            /* hack for alchemy smocks because everything about alchemy smocks
+             * is a hack */
+            if (propertynames[i].prop_num == ACID_RES
+                && otyp == ALCHEMY_SMOCK) {
+                OBJPUTSTR("Confers acid resistance.");
+                continue;
+            }
+            if (oc.oc_oprop == propertynames[i].prop_num) {
+                /* proper grammar */
+                const char *confers = "Makes you";
+                const char *effect = propertynames[i].prop_name;
+                switch (propertynames[i].prop_num) {
+                    /* special overrides because prop_name is bad */
+                    case STRANGLED:
+                        effect = "choke";
+                        break;
+                    case LIFESAVED:
+                        effect = "life saving";
+                        /* FALLTHRU */
+                    /* for things that don't work with "Makes you" */
+                    case GLIB:
+                    case WOUNDED_LEGS:
+                    case DETECT_MONSTERS:
+                    case SEE_INVIS:
+                    case HUNGER:
+                    case WARNING:
+                    /* don't do special warn_of_mon */
+                    case SEARCHING:
+                    case INFRAVISION:
+                    case ULTRAVISION:
+                    case AGGRAVATE_MONSTER:
+                    case CONFLICT:
+                    case JUMPING:
+                    case TELEPORT_CONTROL:
+                    case SWIMMING:
+                    case SLOW_DIGESTION:
+                    case HALF_SPDAM:
+                    case HALF_PHDAM:
+                    case REGENERATION:
+                    case ENERGY_REGENERATION:
+                    case PROTECTION:
+                    case PROT_FROM_SHAPE_CHANGERS:
+                    case POLYMORPH_CONTROL:
+                    case FREE_ACTION:
+                    case FIXED_ABIL:
+                    case MAGICAL_BREATHING:
+                    case PASSES_WALLS:
+                    case PASSES_TREES:
+                        confers = "Confers";
+                        break;
+                    default:
+                        break;
+                }
+                if (strstri(propertynames[i].prop_name, "resistance"))
+                    confers = "Confers";
+                Sprintf(buf, "%s %s.", confers, effect);
+                OBJPUTSTR(buf);
+            }
+        }
+    }
+
+    buf[0] = '\0';
+    ADDCLASSPROP(oc.oc_magic, "inherently magical");
+    ADDCLASSPROP(oc.oc_nowish, "not wishable");
+    if (*buf) {
+        Snprintf(buf2, sizeof buf2, "Is %s.", buf);
+        OBJPUTSTR(buf2);
+    }
+
+    /* Material.
+     * Note that we should not show the material of certain objects if they are
+     * subject to description shuffling that includes materials. If the player
+     * has already discovered this object, though, then it's fine to show the
+     * material.
+     * Object classes where this may matter: rings, wands. All randomized tools
+     * share materials, and all scrolls and potions are the same material. */
+    if (!(olet == RING_CLASS || olet == WAND_CLASS) || oc.oc_name_known) {
+        Sprintf(buf, "Normally made of %s.", material_noun(oc.oc_material));
+        OBJPUTSTR(buf);
+
+        /* other materials this object type can randomly generate as;
+           the dummy stands in for a generic non-artifact instance */
+        dummy = cg.zeroobj;
+        dummy.otyp = otyp;
+        dummy.oclass = olet;
+        buf[0] = '\0';
+        for (mat = 1; mat < NUM_MATERIAL_TYPES; mat++) {
+            if (mat == (int) oc.oc_material)
+                continue;
+            if (valid_obj_material(&dummy, mat)) {
+                ADDCLASSPROP(TRUE, material_noun(mat));
+            }
+        }
+        if (*buf) {
+            Snprintf(buf2, sizeof buf2, "Can also be made of %s.", buf);
+            OBJPUTSTR(buf2);
+        }
+    }
+
+    /* TODO: prevent obj lookup from displaying with monster database entry
+     * (e.g. scroll of light gives "light" monster database) */
+
+    /* Full-line remarks */
+    if (oc.oc_merge) {
+        OBJPUTSTR("Merges with identical items.");
+    }
+    if (oc.oc_unique) {
+        OBJPUTSTR("Unique item.");
+    }
+
+    /* forge recipes */
+    has_recipes = FALSE;
+
+    for (recipe = fusions; recipe->result_typ; recipe++) {
+        if (otyp == recipe->typ1 || otyp == recipe->typ2
+            || otyp == recipe->result_typ) {
+            if (!has_recipes) {
+                OBJPUTSTR("");
+                OBJPUTSTR("Forging recipes (#forge):");
+                has_recipes = TRUE;
+            }
+            Sprintf(buf, "  %ld %s + %ld %s = %s", recipe->quan_typ1,
+                    OBJ_NAME(objects[recipe->typ1]), recipe->quan_typ2,
+                    OBJ_NAME(objects[recipe->typ2]),
+                    OBJ_NAME(objects[recipe->result_typ]));
+            OBJPUTSTR(buf);
+        }
+    }
+
+    /* potion alchemy combinations: no recipe table to iterate yet */
+
+    /* crafting traps */
+    has_trecipes = FALSE;
+
+    for (trecipe = trap_fusions; trecipe->result_typ; trecipe++) {
+        if (otyp == trecipe->comp || otyp == trecipe->result_typ) {
+            if (!has_trecipes) {
+                OBJPUTSTR("");
+                OBJPUTSTR("Trap crafting recipes (using trap kit):");
+                has_trecipes = TRUE;
+            }
+            Sprintf(buf, "  trap kit + %ld %s%s = %s", trecipe->quan,
+                    (objects[trecipe->comp].oc_class == WAND_CLASS
+                     ? "wand of "
+                     : objects[trecipe->comp].oc_class == POTION_CLASS
+                       ? "potion of " : ""),
+                    OBJ_NAME(objects[trecipe->comp]),
+                    OBJ_NAME(objects[trecipe->result_typ]));
+            OBJPUTSTR(buf);
+        }
+    }
+}
+
+/* convert damage type to readable string. If 'defense' is TRUE, returns
+   the resistance name (e.g., "magic") rather than the attack name
+   (e.g., "magic missile") */
+staticfn const char *
+arti_adtyp_str(int adtyp, boolean defense)
+{
+    switch (adtyp) {
+    case AD_PHYS:
+        return "physical";
+    case AD_MAGM:
+        return defense ? "magic" : "magic missile";
+    case AD_FIRE:
+        return "fire";
+    case AD_COLD:
+        return "cold";
+    case AD_SLEE:
+        return "sleep";
+    case AD_DISN:
+        return "disintegration";
+    case AD_ELEC:
+        return "shock";
+    case AD_DRST:
+        return "poison";
+    case AD_ACID:
+        return "acid";
+    case AD_DRLI:
+        return "drain life";
+    case AD_STUN:
+        return "stun";
+    case AD_BLND:
+        return "blindness";
+    case AD_SLOW:
+        return "slow";
+    case AD_PLYS:
+        return defense ? "free action" : "paralysis";
+    case AD_DREN:
+        return "drain energy";
+    case AD_STON:
+        return "petrification";
+    case AD_DISE:
+        return "disease";
+    case AD_DETH:
+        return "death";
+    case AD_LOUD:
+        return "sonic";
+    case AD_WTHR:
+        return "wither";
+    case AD_FUSE:
+        return "fire and cold";
+    default:
+        return (const char *) 0;
+    }
+}
+
+/* convert invoke property to readable string */
+staticfn const char *
+arti_invprop_str(int invprop)
+{
+    switch (invprop) {
+    case TAMING:
+        return "taming";
+    case HEALING:
+        return "major healing";
+    case ENERGY_BOOST:
+        return "energy boost";
+    case UNTRAP:
+        return "detect and disarm traps";
+    case CHARGE_OBJ:
+        return "charging";
+    case LEV_TELE:
+        return "level teleport";
+    case CREATE_PORTAL:
+        return "branchporting";
+    case ENLIGHTENING:
+        return "enlightenment";
+    case CREATE_AMMO:
+        return "create ammunition";
+    case SHADOWBLADE:
+        return "cause fear / aura of darkness";
+    case PHASING:
+        return "phasing";
+    case CHANNEL:
+        return "convert altar / use figurine";
+    case DEATH_MAGIC:
+        return "death magic";
+    case COMMAND_UNDEAD:
+        return "command undead";
+    case FLING_POISON:
+        return "fling poison";
+    case FIRESTORM:
+        return "firestorm";
+    case SNOWSTORM:
+        return "snowstorm";
+    case BLINDING_RAY:
+        return "blinding ray";
+    case CONFLICT:
+        return "conflict";
+    case LEVITATION:
+        return "levitation";
+    case INVIS:
+        return "invisibility";
+    case FIRE_RES:
+        return "fire resistance";
+    case COLD_RES:
+        return "cold resistance";
+    case SHOCK_RES:
+        return "shock resistance";
+    case ACID_RES:
+        return "acid resistance";
+    case POISON_RES:
+        return "poison resistance";
+    case SICK_RES:
+        return "sickness resistance";
+    case TELEPAT:
+        return "telepathy";
+    case WARNING:
+        return "warning";
+    default:
+        return (const char *) 0;
+    }
+}
+
+/* Helper macro: append to comma-separated list */
+#define ADDTOLIST(list, item) \
+    do { \
+        if ((list)[0]) \
+            Strcat((list), ", "); \
+        Strcat((list), (item)); \
+    } while (0)
+
+/* MH_ monster-race flags mapped to display names, in output order;
+   MH_UNDEAD (both zombie bits) must stay first so that either bit
+   reads as "undead" */
+static const struct mh_name {
+    unsigned long flag;
+    const char *name;
+} mh_names[] = {
+    { MH_UNDEAD, "undead" },
+    { MH_DEMON, "demons" },
+    { MH_DRAGON, "dragons" },
+    { MH_GIANT, "giants" },
+    { MH_ORC, "orcs" },
+    { MH_TROLL, "trolls" },
+    { MH_OGRE, "ogres" },
+    { MH_ELF, "elves" },
+    { MH_HUMAN, "humans" },
+    { MH_WERE, "lycanthropes" },
+    { MH_VAMPIRE, "vampires" },
+    { MH_ANGEL, "angels" },
+    { MH_JABBERWOCK, "jabberwocks" },
+    { MH_SPIDER, "spiders" },
+    { MH_DROW, "drow" },
+    { MH_WRAITH, "wraiths" },
+    { MH_AASIMAR, "aasimar" },
+    { MH_DWARF, "dwarves" },
+    { MH_GNOME, "gnomes" },
+    { MH_HOBBIT, "hobbits" },
+    { MH_CENTAUR, "centaurs" },
+    { MH_ILLITHID, "illithids" },
+    { MH_TORTLE, "tortles" },
+    { MH_GNOLL, "gnolls" },
+};
+
+/* append the display name of each monster-race flag set in mtype */
+staticfn void
+add_mhflag_names(unsigned long mtype, char *outbuf)
+{
+    int i;
+
+    for (i = 0; i < SIZE(mh_names); i++) {
+        if (mtype & mh_names[i].flag)
+            ADDTOLIST(outbuf, mh_names[i].name);
+    }
+}
+
+/* per-artifact behaviors hardcoded in the game logic that the artilist
+   data cannot express; shown under "Other properties" in the lookup */
+static const struct arti_special {
+    short artinum;
+    const char *line;
+} arti_specials[] = {
+    { ART_MAGICBANE,
+      "Magical hits may probe, stun, scare, or cancel the target." },
+    { ART_MAGICBANE, "Protects your inventory from curses while wielded." },
+    { ART_MAGICBANE, "Wielder takes extra damage from anti-magic fields." },
+    { ART_STAFF_OF_THE_ARCHMAGI,
+      "Protects your inventory from curses while wielded." },
+    { ART_STAFF_OF_THE_ARCHMAGI,
+      "Shines with light while wielded (an aura of darkness for drow)." },
+    { ART_TEMPEST, "Shock hits may unleash a lightning explosion." },
+    { ART_TEMPEST, "Protects your inventory from electrical damage." },
+    { ART_HARBINGER, "Acid hits may unleash an acid explosion." },
+    { ART_HARBINGER, "May instantly slay giants." },
+    { ART_HARBINGER, "Raises strength to maximum while wielded." },
+    { ART_HARBINGER, "Prevents knockback and protects your gear from acid." },
+    { ART_DICHOTOMY, "Hits may explode in fire or frost." },
+    { ART_DICHOTOMY, "Protects your gear from fire and cold." },
+    { ART_DICHOTOMY, "Can burn through flammable doors and trees." },
+    { ART_VORPAL_BLADE, "Damage bonus applies to every target." },
+    { ART_VORPAL_BLADE, "Beheaded trolls and zombies cannot revive." },
+    { ART_VORPAL_BLADE, "Always beheads jabberwocks." },
+    { ART_TSURUGI_OF_MURAMASA, "May bisect its target outright." },
+    { ART_SWORD_OF_KAS, "Deals triple damage to Vecna and double to liches." },
+    { ART_SWORD_OF_KAS, "Raises strength to maximum while wielded." },
+    { ART_SWORD_OF_KAS,
+      "Bloodthirsty: attacks peaceful creatures without asking." },
+    { ART_WAND_OF_ORCUS,
+      "Hits may drain the soul or permanently reduce maximum HP." },
+    { ART_WAND_OF_ORCUS, "Blocks natural HP regeneration while wielded." },
+    { ART_WAND_OF_ORCUS, "Always blasts you when touched." },
+    { ART_SWORD_OF_ANNIHILATION,
+      "Hits may disintegrate the target and its armor." },
+    { ART_GIANTSLAYER, "May instantly slay giants." },
+    { ART_GIANTSLAYER, "Raises strength to maximum while wielded." },
+    { ART_GIANTSLAYER, "Prevents knockback." },
+    { ART_OGRESMASHER, "May instantly slay ogres." },
+    { ART_OGRESMASHER, "Knocks smaller foes backwards." },
+    { ART_OGRESMASHER, "Raises constitution to maximum while wielded." },
+    { ART_CLEAVER, "Swings in an arc, striking up to three adjacent foes." },
+    { ART_WEREBANE, "May instantly slay lycanthropes." },
+    { ART_SHADOWBLADE, "May instantly slay lycanthropes." },
+    { ART_SHADOWBLADE, "Deals heavy bonus damage when backstabbing." },
+    { ART_TROLLSBANE, "May instantly slay trolls." },
+    { ART_TROLLSBANE, "Nearby slain trolls never revive." },
+    { ART_ORCRIST, "May instantly slay orcs." },
+    { ART_STING, "May instantly slay orcs." },
+    { ART_STING, "Cuts through webs." },
+    { ART_GLAMDRING, "Wizards can wield it at Expert skill." },
+    { ART_GRIMTOOTH, "May instantly slay elves and drow." },
+    { ART_SUNSWORD, "May incinerate undead, leaving no corpse." },
+    { ART_SUNSWORD, "Nearby slain zombies leave no corpse." },
+    { ART_SUNSWORD, "Shines with light while wielded." },
+    { ART_DEMONBANE, "May banish demons outright." },
+    { ART_DEMONBANE, "Blocks demon summoning and bribery while wielded." },
+    { ART_HAMMER_OF_THE_GODS, "May destroy demons and incinerate undead." },
+    { ART_HAMMER_OF_THE_GODS,
+      "Returns when thrown by a skilled hammer wielder." },
+    { ART_HAMMER_OF_THE_GODS,
+      "Blocks demon summoning and bribery while wielded." },
+    { ART_HAMMER_OF_THE_GODS, "Shines with light while wielded." },
+    { ART_DRAMBORLEG, "Slays balrogs outright." },
+    { ART_DRAMBORLEG, "Damage bonus applies to every target." },
+    { ART_ANGELSLAYER, "May incinerate angels and aasimar." },
+    { ART_ANGELSLAYER, "Its hellfire burns even underwater." },
+    { ART_ANGELSLAYER, "Can burn through flammable doors and trees." },
+    { ART_MITRE_OF_HOLINESS, "Allows prayer within Gehennom while worn." },
+    { ART_FIRE_BRAND, "Can burn through flammable doors and trees." },
+    { ART_MJOLLNIR, "Strikes with thunderclaps that wake nearby monsters." },
+    { ART_MJOLLNIR, "The mighty can throw it; returns to a Valkyrie's hand." },
+    { ART_XIUHCOATL, "The dexterous can throw it, and it returns to hand." },
+    { ART_XIUHCOATL, "Can burn through flammable doors and trees." },
+    { ART_LONGBOW_OF_DIANA,
+      "Fired arrows gain damage, range, and multishot bonuses." },
+    { ART_CROSSBOW_OF_CARL,
+      "Fired bolts gain damage, range, and multishot bonuses." },
+    { ART_CROSSBOW_OF_CARL,
+      "Magically lightened for gnome and hobbit Rangers." },
+    { ART_STORMBRINGER,
+      "Bloodthirsty: attacks peaceful creatures without asking." },
+    { ART_MASTER_KEY_OF_THIEVERY,
+      "Senses nearby traps when held with bare hands." },
+    { ART_MASTER_KEY_OF_THIEVERY,
+      "Unlocks locks by touch for Rogues or when blessed." },
+    { ART_EXCALIBUR, "Grants flawless tracking of monsters." },
+    { ART_EXCALIBUR, "Demons refuse bribes from its wielder." },
+    { ART_GJALLAR, "Blowing it wakes every monster on the level." },
+    { ART_GJALLAR, "Blessed, its blast stuns those nearby." },
+    { ART_IDOL_OF_MOLOCH, "Can be applied as a figurine of a horned devil." },
+    { ART_HAND_OF_VECNA, "Raises strength to maximum while worn." },
+    { ART_HAND_OF_VECNA,
+      "Chills your strikes; bare-handed blows may burst in frost." },
+    { ART_HAND_OF_VECNA,
+      "Merges with your arm; cannot be removed or destroyed." },
+    { ART_EYE_OF_VECNA, "Prized above all other sacrifices." },
+    { ART_EYE_OF_VECNA, "Cannot be destroyed, even by lava." },
+    { ART_GAUNTLETS_OF_PURITY,
+      "Wards off seduction and theft by nymphs and succubi." },
+    { ART_DRAGONBANE, "Cannot be disintegrated by black dragons." },
+    { ART_ASHMAR, "May knock attackers back when it deflects a blow." },
+    { ART_ARMOR_OF_RETRIBUTION, "May knock attackers back when struck." },
+    { ART_BRACERS_OF_THE_FIRST_CIRCLE, "Extra AC for Druids." },
+    { ART_BRACERS_OF_THE_FIRST_CIRCLE, "No shield spellcasting penalty." },
+    { ART_EYES_OF_THE_OVERWORLD,
+      "Shields the wearer from most gaze attacks (not Medusa's)." },
+    { ART_ITHILMAR, "Protects a jousting rider's lance from breaking." },
+    { ART_STRIPED_SHIRT_OF_LIBERATION, "Cannot be removed once worn." },
+    { ART_STRIPED_SHIRT_OF_LIBERATION,
+      "Shopkeepers refuse entry to its wearer." },
+    { ART_STRIPED_SHIRT_OF_LIBERATION,
+      "Its phasing invoke is only reliable for Convicts." },
+    { 0, (const char *) 0 }
+};
+
+/* Add artifact-specific information to the lookup window */
+staticfn void
+add_arti_info(winid datawin, int artinum)
+{
+    const struct artifact *arti;
+    char buf[BUFSZ], buf2[BUFSZ], tmpbuf[BUFSZ];
+    const char *tmp;
+
+#define ARTIPUTSTR(str) putstr(datawin, ATR_NONE, str)
+
+    arti = get_artilist_entry(artinum);
+    if (!arti)
+        return;
+
+    /* Header */
+    Sprintf(buf, "~~~ Artifact: %s ~~~", arti->name);
+    putstr(datawin, ATR_BOLD, buf);
+    ARTIPUTSTR("");
+
+    /* Base type */
+    Sprintf(buf, "Base item: %s.", OBJ_NAME(objects[arti->otyp]));
+    ARTIPUTSTR(buf);
+
+    /* Material - use artifact's material if specified, else base object's */
+    {
+        int mat = arti->material ? arti->material
+                                 : objects[arti->otyp].oc_material;
+
+        Sprintf(buf, "Material: %s.", material_noun(mat));
+        ARTIPUTSTR(buf);
+    }
+
+    /* Price - same computation as arti_cost() */
+    Sprintf(buf, "Base price: %ld zm.",
+            arti->cost ? arti->cost
+                       : 100L * (long) objects[arti->otyp].oc_cost);
+    ARTIPUTSTR(buf);
+
+    /* Alignment */
+    Sprintf(buf, "Alignment: %s.",
+            arti->alignment == A_LAWFUL ? "lawful" :
+            arti->alignment == A_NEUTRAL ? "neutral" :
+            arti->alignment == A_CHAOTIC ? "chaotic" : "unaligned");
+    ARTIPUTSTR(buf);
+
+    /* Role/Race restrictions */
+    if (arti->role != NON_PM || arti->race != NON_PM) {
+        buf2[0] = '\0';
+        if (arti->role != NON_PM) {
+            Strcat(buf2, mons[arti->role].pmnames[NEUTRAL]);
+            if (arti->race != NON_PM)
+                Strcat(buf2, "/");
+        }
+        if (arti->race != NON_PM)
+            Strcat(buf2, mons[arti->race].pmnames[NEUTRAL]);
+        Snprintf(buf, sizeof buf, "Associated role/race: %s.", buf2);
+        ARTIPUTSTR(buf);
+    }
+
+    /* Restrictions/flags - build comma-separated list */
+    buf2[0] = '\0';
+    if (arti->spfx & SPFX_RESTR)
+        ADDTOLIST(buf2, "cannot be #named");
+    if (arti->spfx & SPFX_NOWISH)
+        ADDTOLIST(buf2, "cannot be wished for");
+    if (arti->spfx & SPFX_NOGEN)
+        ADDTOLIST(buf2, "does not randomly spawn");
+    if (arti->spfx & SPFX_FORGED)
+        ADDTOLIST(buf2, "created via forging");
+    if (arti->spfx & SPFX_INTEL)
+        ADDTOLIST(buf2, "intelligent");
+    if (buf2[0]) {
+        Snprintf(buf, sizeof buf, "Restrictions: %s.", buf2);
+        ARTIPUTSTR(buf);
+    }
+
+    /* consequence of restricted/self-willed status (touch_artifact) */
+    if (((arti->spfx & SPFX_RESTR) && arti->alignment != A_NONE)
+        || ((arti->spfx & SPFX_INTEL)
+            && (arti->role != NON_PM || arti->race != NON_PM)))
+        ARTIPUTSTR(
+            "May blast you when touched (wrong alignment, role, or race).");
+
+    /* Forge recipe - for forged artifacts, show what ingredients are needed */
+    if (arti->spfx & SPFX_FORGED) {
+        int typ1, typ2, first_typ1 = 0, idx = 0;
+
+        /* Build recipe string, combining alternates that share the
+           first ingredient */
+        buf[0] = '\0';
+        while (get_forge_recipe(artinum, idx, &typ1, &typ2)) {
+            if (idx == 0) {
+                Sprintf(buf, "Forge recipe: %s + %s",
+                        artiname(typ1), artiname(typ2));
+                first_typ1 = typ1;
+            } else if (typ1 == first_typ1) {
+                /* same first ingredient, just append alternate second */
+                Sprintf(eos(buf), " or %s", artiname(typ2));
+            } else {
+                /* different first ingredient - print current and start new */
+                ARTIPUTSTR(buf);
+                Sprintf(buf, "Forge recipe: %s + %s",
+                        artiname(typ1), artiname(typ2));
+                first_typ1 = typ1;
+            }
+            idx++;
+        }
+        if (buf[0])
+            ARTIPUTSTR(buf);
+    }
+
+    /* Attack properties - build comma-separated list */
+    if (arti->attk.adtyp != AD_PHYS || arti->attk.damn || arti->attk.damd) {
+        buf2[0] = '\0';
+        tmp = arti_adtyp_str(arti->attk.adtyp, FALSE);
+        /* damn = to-hit dice (1d[damn]), damd = damage dice (1d[damd])
+           damd == 0 means double damage (spec_dbon returns max(tmp,1)) */
+        if (arti->attk.damn) {
+            Sprintf(tmpbuf, "+1d%d to-hit", arti->attk.damn);
+            ADDTOLIST(buf2, tmpbuf);
+        }
+        if (arti->attk.damd) {
+            if (tmp && arti->attk.adtyp != AD_PHYS) {
+                Sprintf(tmpbuf, "+1d%d %s damage", arti->attk.damd, tmp);
+            } else {
+                Sprintf(tmpbuf, "+1d%d damage", arti->attk.damd);
+            }
+            ADDTOLIST(buf2, tmpbuf);
+        } else if (arti->attk.damn) {
+            /* damd == 0 with damn > 0 means double damage */
+            if (tmp && arti->attk.adtyp != AD_PHYS) {
+                Sprintf(tmpbuf, "double %s damage", tmp);
+            } else {
+                Strcpy(tmpbuf, "double damage");
+            }
+            ADDTOLIST(buf2, tmpbuf);
+        }
+        if (arti->spfx & SPFX_DRLI)
+            ADDTOLIST(buf2, "drains life");
+        if (arti->spfx & SPFX_BEHEAD)
+            ADDTOLIST(buf2, "beheading");
+        if (buf2[0]) {
+            Snprintf(buf, sizeof buf, "Special attack: %s.", buf2);
+            ARTIPUTSTR(buf);
+        }
+    }
+
+    /* Bonus vs monster types */
+    if (arti->spfx & SPFX_DBONUS) {
+        buf2[0] = '\0';
+        if (arti->spfx & SPFX_DCLAS) {
+            Sprintf(buf2, "class '%c'", (char) arti->mtype);
+        } else if (arti->spfx & SPFX_DFLAGH) {
+            add_mhflag_names(arti->mtype, buf2);
+        } else if (arti->spfx & SPFX_DALIGN) {
+            Strcpy(buf2, "cross-aligned");
+        } else if ((arti->spfx & SPFX_DMONS)
+                   && (int) arti->mtype >= LOW_PM
+                   && (int) arti->mtype < NUMMONS) {
+            Strcpy(buf2, mons[arti->mtype].pmnames[NEUTRAL]);
+        }
+        if (buf2[0]) {
+            Snprintf(buf, sizeof buf, "Damage bonus vs: %s.", buf2);
+            ARTIPUTSTR(buf);
+        }
+    }
+
+    /* Defense/wielded properties - build comma-separated list */
+    buf2[0] = '\0';
+    if (arti->defn.adtyp) {
+        tmp = arti_adtyp_str(arti->defn.adtyp, TRUE);
+        if (tmp) {
+            Sprintf(tmpbuf, "%s resistance", tmp);
+            ADDTOLIST(buf2, tmpbuf);
+        }
+    }
+    if (arti->spfx & SPFX_ESP)
+        ADDTOLIST(buf2, "telepathy");
+    if (arti->spfx & SPFX_WARN) {
+        if (arti->spfx & SPFX_DFLAGH) {
+            /* Build "warns vs X, Y, Z" for specific monster types */
+            char warnbuf[BUFSZ];
+            warnbuf[0] = '\0';
+            add_mhflag_names(arti->mtype, warnbuf);
+            if (warnbuf[0]) {
+                Snprintf(tmpbuf, sizeof tmpbuf, "warns vs %s", warnbuf);
+                /* such artifacts glow when the warned type is near */
+                if (arti->acolor != NO_COLOR)
+                    Sprintf(eos(tmpbuf), " (glows %s)",
+                            clr2colorname(arti->acolor));
+                ADDTOLIST(buf2, tmpbuf);
+            } else {
+                ADDTOLIST(buf2, "warning");
+            }
+        } else {
+            ADDTOLIST(buf2, "warning");
+        }
+    }
+    if (arti->spfx & SPFX_SEEK)
+        ADDTOLIST(buf2, "automatic searching");
+    if (arti->spfx & SPFX_SEARCH)
+        ADDTOLIST(buf2, "enhanced searching");
+    if (arti->spfx & SPFX_HALRES)
+        ADDTOLIST(buf2, "hallucination resistance");
+    if (arti->spfx & SPFX_STLTH)
+        ADDTOLIST(buf2, "stealth");
+    if (arti->spfx & SPFX_REGEN)
+        ADDTOLIST(buf2, "regeneration");
+    if (arti->spfx & SPFX_EREGEN)
+        ADDTOLIST(buf2, "energy regeneration");
+    if (arti->spfx & SPFX_HSPDAM)
+        ADDTOLIST(buf2, "half spell damage");
+    if (arti->spfx & SPFX_HPHDAM)
+        ADDTOLIST(buf2, "half physical damage");
+    if (arti->spfx & SPFX_TCTRL)
+        ADDTOLIST(buf2, "teleport control");
+    if (arti->spfx & SPFX_LUCK)
+        ADDTOLIST(buf2, "luck");
+    if (arti->spfx & SPFX_XRAY)
+        ADDTOLIST(buf2, "x-ray vision");
+    if (arti->spfx & SPFX_REFLECT)
+        ADDTOLIST(buf2, "reflection");
+    if (arti->spfx & SPFX_PROTECT)
+        ADDTOLIST(buf2, "protection");
+    Snprintf(buf, sizeof buf, "While wielded/worn: %s.",
+             buf2[0] ? buf2 : "(none)");
+    ARTIPUTSTR(buf);
+
+    /* Carry properties - build comma-separated list */
+    buf2[0] = '\0';
+    if (arti->cary.adtyp) {
+        tmp = arti_adtyp_str(arti->cary.adtyp, TRUE);
+        if (tmp) {
+            Sprintf(tmpbuf, "%s resistance", tmp);
+            ADDTOLIST(buf2, tmpbuf);
+        }
+    }
+    if (arti->cspfx & SPFX_ESP)
+        ADDTOLIST(buf2, "telepathy");
+    if (arti->cspfx & SPFX_WARN)
+        ADDTOLIST(buf2, "warning");
+    if (arti->cspfx & SPFX_SEEK)
+        ADDTOLIST(buf2, "automatic searching");
+    if (arti->cspfx & SPFX_SEARCH)
+        ADDTOLIST(buf2, "enhanced searching");
+    if (arti->cspfx & SPFX_HALRES)
+        ADDTOLIST(buf2, "hallucination resistance");
+    if (arti->cspfx & SPFX_STLTH)
+        ADDTOLIST(buf2, "stealth");
+    if (arti->cspfx & SPFX_REGEN)
+        ADDTOLIST(buf2, "regeneration");
+    if (arti->cspfx & SPFX_EREGEN)
+        ADDTOLIST(buf2, "energy regeneration");
+    if (arti->cspfx & SPFX_HSPDAM)
+        ADDTOLIST(buf2, "half spell damage");
+    if (arti->cspfx & SPFX_HPHDAM)
+        ADDTOLIST(buf2, "half physical damage");
+    if (arti->cspfx & SPFX_TCTRL)
+        ADDTOLIST(buf2, "teleport control");
+    if (arti->cspfx & SPFX_LUCK)
+        ADDTOLIST(buf2, "luck");
+    if (arti->cspfx & SPFX_XRAY)
+        ADDTOLIST(buf2, "x-ray vision");
+    if (arti->cspfx & SPFX_REFLECT)
+        ADDTOLIST(buf2, "reflection");
+    if (arti->cspfx & SPFX_PROTECT)
+        ADDTOLIST(buf2, "protection");
+    Snprintf(buf, sizeof buf, "While carried: %s.", buf2[0] ? buf2 : "(none)");
+    ARTIPUTSTR(buf);
+
+    /* Invoke property */
+    tmp = arti_invprop_str(arti->inv_prop);
+    Sprintf(buf, "When invoked: %s.", tmp ? tmp : "(none)");
+    ARTIPUTSTR(buf);
+
+    /* behaviors hardcoded in the game logic beyond the artilist data */
+    {
+        const struct arti_special *asp;
+        boolean first = TRUE;
+
+        for (asp = arti_specials; asp->line; asp++) {
+            if (asp->artinum == artinum) {
+                if (first) {
+                    ARTIPUTSTR("Other properties:");
+                    first = FALSE;
+                }
+                Sprintf(buf, "  %s", asp->line);
+                ARTIPUTSTR(buf);
+            }
+        }
+    }
+
+#undef ARTIPUTSTR
+}
+
+#undef ADDTOLIST
+
 /* used to decide whether the context-sensitive inventory action menu for
    item 'otmp' should include the "/ - look up this item" choice */
 boolean
@@ -950,7 +2816,8 @@ ia_checkfile(struct obj *otmp)
  *       lcase() for data.base lookup so that we can have a clean key.
  *       Therefore, we create a copy of inp _just_ for data.base lookup.
  *
- * Returns True if an entry is found, False otherwise.
+ * Returns True if there was something to show (an encyclopedia entry
+ * or generated lookup data), False otherwise.
  */
 staticfn boolean
 checkfile(
@@ -961,12 +2828,15 @@ checkfile(
 {
     dlb *fp;
     char buf[BUFSZ], newstr[BUFSZ], givenname[BUFSZ];
-    char *ep, *dbase_str;
+    char *ep, *dbase_str, *dbase_str_with_material;
     boolean user_typed_name = (chkflags & chkfilUsrTyped) != 0,
             without_asking = (chkflags & chkfilDontAsk) != 0,
             ia_checking = (chkflags & chkfilIaCheck) != 0;
     unsigned long txt_offset = 0L;
     winid datawin = WIN_ERR;
+    short otyp = STRANGE_OBJECT, mat;
+    int artinum = 0;
+    boolean lookat_mon = (pm != (struct permonst *) 0);
     boolean res = FALSE;
 
     fp = dlb_fopen(DATAFILE, "r");
@@ -1029,6 +2899,8 @@ checkfile(
     }
     if (!strncmp(dbase_str, "pair of ", 8))
         dbase_str += 8;
+    else if (!strncmp(dbase_str, "set of ", 7))
+        dbase_str += 7;
     if (!strncmp(dbase_str, "tame ", 5))
         dbase_str += 5;
     else if (!strncmp(dbase_str, "peaceful ", 9))
@@ -1037,6 +2909,8 @@ checkfile(
         dbase_str += 10;
     if (!strncmp(dbase_str, "saddled ", 8))
         dbase_str += 8;
+    if (!strncmp(dbase_str, "barded ", 7))
+        dbase_str += 7;
     if (!strncmp(dbase_str, "blessed ", 8))
         dbase_str += 8;
     else if (!strncmp(dbase_str, "uncursed ", 9))
@@ -1071,13 +2945,41 @@ checkfile(
     if (!strncmp(dbase_str, "moist towel", 11))
         memcpy(dbase_str += 2, "wet", 3); /* skip "mo" replace "ist" */
 
+    /* Remove material, if it exists, but store the original value in
+     * dbase_str_with_material. It should be cut out of dbase_str as a prefix
+     * in order for the alt handling below to function properly.
+     * Note that this assumes that material is always the last thing that needs
+     * to be stripped out (e.g. it will not strip things out if dbase_str is
+     * "silver +0 sword").
+     * This is clunky in how it adds a third possibility that needs to be
+     * pmatch()'ed; a better future refactor of this code would be to collect an
+     * arbitrary number of possible strings as needed, then iterate through
+     * them. */
+    dbase_str_with_material = dbase_str;
+    for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
+        size_t len = strlen(materialnm[mat]);
+
+        /* check for e.g. "gold " without constructing it as a string */
+        if (!strncmp(dbase_str, materialnm[mat], len)
+            && strlen(dbase_str) > len && dbase_str[len] == ' ') {
+            dbase_str_with_material = dbase_str;
+            dbase_str += len + 1;
+            break;
+        }
+    }
+
     /* Make sure the name is non-empty. */
     if (*dbase_str) {
         long pass1offset = -1L;
         int chk_skip, pass = 1;
         boolean yes_to_moreinfo, found_in_file, pass1found_in_file,
                 skipping_entry;
+        boolean data_shown = FALSE; /* the generated block already went
+                                       out on the alternate-name pass */
         char *sp, *ap, *alt = 0; /* alternate description */
+        char *encycl_matched = 0; /* which version of the string matched
+                                     (for later printing) */
+        char matcher[BUFSZ];      /* the string it matched against */
 
         /* adjust the input to remove "named " and "called " */
         if ((ep = strstri(dbase_str, " named ")) != 0) {
@@ -1125,6 +3027,10 @@ checkfile(
 
         pass1found_in_file = FALSE;
         for (pass = !strcmp(alt, dbase_str) ? 0 : 1; pass >= 0; --pass) {
+            long entry_offset = 0L, fseekoffset = 0L;
+            int entry_count = 0;
+            int i;
+
             found_in_file = skipping_entry = FALSE;
             txt_offset = 0L;
             if (dlb_fseek(fp, txt_offset, SEEK_SET) < 0 ) {
@@ -1154,13 +3060,23 @@ checkfile(
                     /* if we match a key that begins with "~", skip
                        this entry */
                     chk_skip = (*buf == '~') ? 1 : 0;
-                    if ((pass == 0 && pmatch(&buf[chk_skip], dbase_str))
-                        || (pass == 1 && alt && pmatch(&buf[chk_skip], alt))) {
+                    encycl_matched = (char *) 0;
+                    if (pass == 0) {
+                        if (pmatch(&buf[chk_skip], dbase_str_with_material))
+                            encycl_matched = dbase_str_with_material;
+                        else if (pmatch(&buf[chk_skip], dbase_str))
+                            encycl_matched = dbase_str;
+                    } else if (pass == 1 && alt
+                               && pmatch(&buf[chk_skip], alt)) {
+                        encycl_matched = alt;
+                    }
+                    if (encycl_matched) {
                         if (chk_skip) {
                             skipping_entry = TRUE;
                             continue;
                         } else {
                             found_in_file = TRUE;
+                            Strcpy(matcher, buf);
                             if (pass == 1)
                                 pass1found_in_file = TRUE;
                             break;
@@ -1168,11 +3084,9 @@ checkfile(
                     }
                 }
             }
-            if (found_in_file) {
-                long entry_offset, fseekoffset;
-                int entry_count;
-                int i;
 
+            /* database entry should exist, now find where it is */
+            if (found_in_file) {
                 /* skip over other possible matches for the info */
                 do {
                     if (!dlb_fgets(buf, BUFSZ, fp))
@@ -1185,68 +3099,203 @@ checkfile(
                     pass1offset = fseekoffset;
                 else if (fseekoffset == pass1offset)
                     goto checkfile_done;
+            }
 
-                yes_to_moreinfo = FALSE;
-                if (!user_typed_name && !without_asking) {
-                    char *entrytext = pass ? alt : dbase_str;
-                    char question[QBUFSZ];
+            /* monster lookup: try to parse as a monster
+             * use dbase_str_with_material here; if it differs from
+             * dbase_str, then it's likely that dbase_str stripped off the
+             * "iron" from "iron golem" or something. */
+            if (!lookat_mon) {
+                pm = (struct permonst *) 0; /* just to be safe */
+                if (!object_not_monster(dbase_str_with_material)) {
+                    int mndx = name_to_mon(dbase_str_with_material,
+                                           (int *) 0);
 
-                    Strcpy(question, "More info about \"");
-                    /* +2 => length of "\"?" */
-                    copynchars(eos(question), entrytext,
-                               (int) (sizeof question - 1
-                                      - (strlen(question) + 2)));
-                    Strcat(question, "\"?");
-                    if (y_n(question) == 'y')
-                        yes_to_moreinfo = TRUE;
+                    if (mndx != NON_PM)
+                        pm = &mons[mndx];
                 }
+            }
 
-                if (user_typed_name || without_asking || yes_to_moreinfo) {
-                    if (dlb_fseek(fp, fseekoffset, SEEK_SET) < 0) {
-                        pline("? Seek error on 'data' file!");
-                        goto checkfile_done;
-                    }
+            /* artifact lookup: try to parse as an artifact name first */
+            artinum = name_to_arti(dbase_str);
+            if (artinum == 0)
+                artinum = name_to_arti(dbase_str_with_material);
+
+            /* object lookup: if artifact found, use its base type;
+             * otherwise try to parse as an object */
+            if (artinum > 0) {
+                const struct artifact *arti = get_artilist_entry(artinum);
+
+                otyp = arti ? arti->otyp : STRANGE_OBJECT;
+            } else {
+                otyp = name_to_otyp(dbase_str_with_material);
+                if (otyp == STRANGE_OBJECT)
+                    otyp = name_to_otyp(dbase_str);
+            }
+
+            /* a picked-from-the-map or inventory artifact arrives as
+               "<base item> named <artifact>", so on the alternate-
+               description pass the artifact name is 'alt'; a player can
+               #name an unrelated object after an artifact, so the base
+               types must agree (an unidentified base item parses as no
+               object at all and is accepted); "called" names label a
+               whole object type and never mean the artifact */
+            if (artinum == 0 && pass == 1 && alt && alt != givenname) {
+                int altnum = name_to_arti(alt);
+                const struct artifact *arti;
+
+                arti = (altnum > 0) ? get_artilist_entry(altnum)
+                                    : (const struct artifact *) 0;
+                if (arti && (otyp == STRANGE_OBJECT || arti->otyp == otyp)) {
+                    artinum = altnum;
+                    otyp = arti->otyp;
+                }
+            }
+
+            /* prompt for more info (if using whatis to navigate the map),
+               but only when there is something to show */
+            yes_to_moreinfo = FALSE;
+            if (!user_typed_name && !without_asking
+                && (found_in_file
+                    || (!data_shown && flags.lookup_data
+                        && (pm || otyp != STRANGE_OBJECT)))) {
+                char *entrytext = pass ? alt : dbase_str;
+                char question[QBUFSZ];
+
+                Strcpy(question, "More info about \"");
+                /* +2 => length of "\"?" */
+                copynchars(eos(question), entrytext,
+                           (int) (sizeof question - 1
+                                  - (strlen(question) + 2)));
+                Strcat(question, "\"?");
+                if (y_n(question) == 'y')
+                    yes_to_moreinfo = TRUE;
+            }
+
+            /* finally, put the appropriate information into a window */
+            if (user_typed_name || without_asking || yes_to_moreinfo) {
+                if (!found_in_file
+                    && (data_shown || (!pm && otyp == STRANGE_OBJECT)
+                        || !flags.lookup_data)) {
+                    if (((user_typed_name && pass == 0
+                          && !pass1found_in_file) || yes_to_moreinfo)
+                        && !data_shown)
+                        pline(
+                          "You don't have any information on those things.");
+                    /* don't print anything otherwise; we don't want it to
+                     * e.g. print a database entry and then print the above
+                     * message. */
+                } else {
+                    boolean do_obj_lookup = FALSE, do_mon_lookup = FALSE;
+
+                    /* something will be shown; the silent probe from the
+                       item-action menu only needs to know that much */
                     res = TRUE;
                     if (ia_checking)
                         goto checkfile_done;
 
-                    datawin = create_nhwindow(NHW_MENU);
-                    for (i = 0; i < entry_count; i++) {
-                        /* room for 1-tab or 8-space prefix + BUFSZ-1 + \0 */
-                        char tabbuf[BUFSZ + 8], *tp;
-
-                        if (!dlb_fgets(tabbuf, BUFSZ, fp))
-                            goto bad_data_file;
-                        tp = tabbuf;
-                        if (!strchr(tp, '\n'))
-                            goto bad_data_file;
-                        (void) strip_newline(tp);
-                        /* text in this file is indented with one tab but
-                           someone modifying it might use spaces instead */
-                        if (*tp == '\t') {
-                            ++tp;
-                        } else if (*tp == ' ') {
-                            /* remove up to 8 spaces (we expect 8-column
-                               tab stops but user might have them set at
-                               something else so we don't require it) */
-                            do {
-                                ++tp;
-                            } while (tp < &tabbuf[8] && *tp == ' ');
-                        } else if (*tp) { /* empty lines are ok */
-                            goto bad_data_file;
+                    if (pm) {
+                        do_mon_lookup = TRUE;
+                        if (!lookat_mon && otyp != STRANGE_OBJECT) {
+                            /* found matches for both and player is NOT
+                             * looking at a monster; ask which they want to
+                             * see */
+                            pline("That matches both a monster and an object.");
+                            if (y_n("Show the monster information?") != 'y') {
+                                do_obj_lookup = TRUE;
+                                do_mon_lookup = FALSE;
+                            }
                         }
-                        /* if a tab after the leading one is found,
-                           convert tabs into spaces; the attributions
-                           at the end of quotes typically have them */
-                        if (strchr(tp, '\t') != 0)
-                            (void) tabexpand(tp);
-                        putstr(datawin, 0, tp);
+                    } else if (otyp != STRANGE_OBJECT) {
+                        do_obj_lookup = TRUE;
+                    }
+                    datawin = create_nhwindow(NHW_MENU);
+
+                    if (!flags.lookup_data || data_shown) {
+                        ; /* nothing to generate, or already shown */
+                    } else if (do_obj_lookup) { /* object lookup info */
+                        if (artinum > 0) {
+                            add_arti_info(datawin, artinum);
+                            putstr(datawin, 0, "");
+                        }
+                        add_obj_info(datawin, otyp);
+                        putstr(datawin, 0, "");
+                    /* secondary to object lookup because there are some
+                     * monsters whose names are substrings of objects, like
+                     * "skeleton" and "skeleton key". */
+                    } else if (do_mon_lookup) { /* monster lookup info */
+                        boolean withheld = FALSE;
+
+                        if (!wizard && (pm == &mons[PM_SHAMBLING_HORROR])
+                            && svm.mvitals[PM_SHAMBLING_HORROR].died < 1)
+                            withheld = TRUE; /* no freebies until killed */
+                        else if (is_rider(pm) && lookat_mon)
+                            withheld = TRUE; /* no stats via farlook */
+                        else
+                            add_mon_info(datawin, pm);
+                        if (is_were(pm) && pm != &mons[PM_RAT_KING]) {
+                            /* also do the alternate form */
+                            putstr(datawin, 0, "");
+                            add_mon_info(datawin,
+                                         &mons[counter_were(monsndx(pm))]);
+                        }
+                        if (!withheld)
+                            putstr(datawin, 0, "");
+                    }
+
+                    /* encyclopedia entry */
+                    if (found_in_file) {
+                        char titlebuf[BUFSZ];
+
+                        if (dlb_fseek(fp, fseekoffset, SEEK_SET) < 0) {
+                            pline("? Seek error on 'data' file!");
+                            goto checkfile_done;
+                        }
+                        Snprintf(titlebuf, sizeof titlebuf,
+                                 "Encyclopedia entry for \"%s\""
+                                 " (matched to \"%s\"):",
+                                 encycl_matched, matcher);
+                        putstr(datawin, ATR_BOLD, titlebuf);
+                        putstr(datawin, ATR_NONE, "");
+
+                        for (i = 0; i < entry_count; i++) {
+                            /* room for 1-tab or 8-space prefix
+                               + BUFSZ-1 + \0 */
+                            char tabbuf[BUFSZ + 8], *tp;
+
+                            if (!dlb_fgets(tabbuf, BUFSZ, fp))
+                                goto bad_data_file;
+                            tp = tabbuf;
+                            if (!strchr(tp, '\n'))
+                                goto bad_data_file;
+                            (void) strip_newline(tp);
+                            /* text in this file is indented with one tab
+                               but someone modifying it might use spaces
+                               instead */
+                            if (*tp == '\t') {
+                                ++tp;
+                            } else if (*tp == ' ') {
+                                /* remove up to 8 spaces (we expect 8-column
+                                   tab stops but user might have them set at
+                                   something else so we don't require it) */
+                                do {
+                                    ++tp;
+                                } while (tp < &tabbuf[8] && *tp == ' ');
+                            } else if (*tp) { /* empty lines are ok */
+                                goto bad_data_file;
+                            }
+                            /* if a tab after the leading one is found,
+                               convert tabs into spaces; the attributions
+                               at the end of quotes typically have them */
+                            if (strchr(tp, '\t') != 0)
+                                (void) tabexpand(tp);
+                            putstr(datawin, 0, tp);
+                        }
                     }
                     display_nhwindow(datawin, FALSE);
                     destroy_nhwindow(datawin), datawin = WIN_ERR;
+                    data_shown = TRUE;
                 }
-            } else if (user_typed_name && pass == 0 && !pass1found_in_file) {
-                pline("You don't have any information on those things.");
             }
         }
     }
@@ -2001,8 +4050,8 @@ do_look(int mode, coord *click_cc)
                     break;
                 }
             if (*out_str)
-                (void) checkfile(out_str, pm, chkfilUsrTyped | chkfilDontAsk,
-                                 (char *) 0);
+                (void) checkfile(out_str, (struct permonst *) 0,
+                                 chkfilUsrTyped | chkfilDontAsk, (char *) 0);
             return ECMD_OK;
           }
         case '?':
@@ -2062,7 +4111,7 @@ do_look(int mode, coord *click_cc)
      */
     do {
         /* Reset some variables. */
-        pm = (struct permonst *) 0;
+        pm = supplemental_pm = (struct permonst *) 0;
         out_str[0] = '\0';
 
         if (from_screen || clicklook) {
@@ -2111,7 +4160,7 @@ do_look(int mode, coord *click_cc)
 
                 supplemental_name[0] = '\0';
                 Strcpy(temp_buf, firstmatch);
-                (void) checkfile(temp_buf, pm,
+                (void) checkfile(temp_buf, supplemental_pm,
                                  (ans == LOOK_VERBOSE) ? chkfilDontAsk
                                                        : chkfilNone,
                                  supplemental_name);

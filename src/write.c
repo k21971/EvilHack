@@ -8,15 +8,16 @@ staticfn int write_ok(struct obj *) NO_NNARGS;
 staticfn char *new_book_description(int, char *) NONNULL NONNULLPTRS;
 
 /*
- * returns base cost of a scroll or a spellbook
+ * returns base cost of a scroll or a spellbook by object type;
+ * also used by the in-game encyclopedia lookup
  */
-staticfn int
-cost(struct obj *otmp)
+int
+ink_cost(short otyp)
 {
-    if (otmp->oclass == SPBOOK_CLASS)
-        return (10 * objects[otmp->otyp].oc_level);
+    if (objects[otyp].oc_class == SPBOOK_CLASS)
+        return (10 * objects[otyp].oc_level);
 
-    switch (otmp->otyp) {
+    switch (otyp) {
 #ifdef MAIL_STRUCTURES
     case SCR_MAIL:
         return 2;
@@ -54,6 +55,13 @@ cost(struct obj *otmp)
         impossible("You can't write such a weird scroll!");
     }
     return 1000;
+}
+
+/* base cost of a scroll or a spellbook object */
+staticfn int
+cost(struct obj *otmp)
+{
+    return ink_cost(otmp->otyp);
 }
 
 /* getobj callback for object to write on */

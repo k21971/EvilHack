@@ -23,12 +23,10 @@ staticfn void see_lamp_flicker(struct obj *, const char *) NONNULLPTRS;
 staticfn void lantern_message(struct obj *) NONNULLARG1;
 staticfn void cleanup_burn(ANY_P *, long) NONNULLARG1;
 
-/* used by wizard mode #timeout and #wizintrinsic; order by 'interest'
-   for timeout countdown, where most won't occur in normal play */
-static const struct propname {
-    int prop_num;
-    const char *prop_name;
-} propertynames[] = {
+/* used by wizard mode #timeout and #wizintrinsic, and by the in-game
+   encyclopedia's object lookup; order by 'interest' for timeout
+   countdown, where most won't occur in normal play */
+const struct propname propertynames[] = {
     { INVULNERABLE, "invulnerable" },
     { STONED, "petrifying" },
     { SLIMED, "becoming slime" },

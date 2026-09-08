@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
       (Edited and expanded for EvilHack 1.0.0 by Keith Simpson and others)
 
-                                August 28, 2026
+                                September 8, 2026
 
 
 
@@ -3832,6 +3832,11 @@
      lit_corridor
        Show corridor squares seen by night vision or a light source held by
        your character as lit (default off).  Persistent.
+
+     lookup_data
+       Show the game's generated statistics for a monster, object, or arti-
+       fact  along  with  its  encyclopedia entry when looking something up
+       with the `/' command (default on).  Persistent.
 
      lootabc
        When  using  a  menu  to interact with a container, use the old `a',

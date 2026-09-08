@@ -47,7 +47,6 @@ staticfn int throwspell(void);
 staticfn void cast_chain_lightning(void);
 staticfn void spell_backfire(int);
 staticfn boolean spelleffects_check(int, int *, int *);
-staticfn const char *spelltypemnemonic(int);
 staticfn boolean can_center_spell_location(coordxy, coordxy);
 staticfn void display_spell_target_positions(boolean);
 staticfn boolean spell_aim_step(genericptr_t, coordxy, coordxy);
@@ -849,7 +848,7 @@ docast(void)
     return ECMD_FAIL;
 }
 
-staticfn const char *
+const char *
 spelltypemnemonic(int skill)
 {
     switch (skill) {

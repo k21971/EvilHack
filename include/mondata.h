@@ -30,6 +30,40 @@
     ((ptr) == &mons[PM_BABY_BLUE_DRAGON] \
      || (ptr) == &mons[PM_BLUE_DRAGON])
 
+/* species-level magic and drain resistance; the instance-level
+   resists_magm() and resists_drli() also consult worn gear */
+#define resists_mgc(ptr) \
+    (dmgtype((ptr), AD_MAGM) || (ptr) == &mons[PM_BABY_GRAY_DRAGON] \
+     || (ptr) == &mons[PM_ARCHON] || (ptr) == &mons[PM_ARCHANGEL]   \
+     || (ptr) == &mons[PM_AASIMAR] || dmgtype((ptr), AD_RBRE)) /* Tiamat */
+
+#define resists_drain(ptr) \
+    (is_undead(ptr) || is_demon(ptr)                            \
+     || is_were(ptr) || is_blight(ptr)                          \
+     || (ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_CERBERUS] \
+     || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]                   \
+     || (ptr) == &mons[PM_SHADOW_DRAGON]                        \
+     || (ptr) == &mons[PM_OZZY]                                 \
+     || (ptr) == &mons[PM_BOURBON]                              \
+     || (ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                \
+     || (ptr) == &mons[PM_KATHRYN_THE_ENCHANTRESS])
+
+/* unique monsters, monsters that covet the Amulet, and various
+   other creatures can't be tamed */
+#define non_tameable(ptr) \
+    (unique_corpstat(ptr) || ((ptr)->mflags3 & M3_WANTSARTI)              \
+     || (ptr) == &mons[PM_BEHOLDER] || (ptr) == &mons[PM_FELL_BEAST]      \
+     || (ptr) == &mons[PM_MAGICAL_EYE]                                    \
+     || (ptr) == &mons[PM_ELDER_MINOTAUR]                                 \
+     || (ptr) == &mons[PM_PALE_HORSE] || (ptr) == &mons[PM_WHITE_HORSE]   \
+     || (ptr) == &mons[PM_BLACK_HORSE] || (ptr) == &mons[PM_SNOW_GOLEM]   \
+     || (ptr) == &mons[PM_ALHOON] || (ptr) == &mons[PM_NEOTHELID]         \
+     || (ptr) == &mons[PM_SHAMBLING_HORROR]                               \
+     || (ptr) == &mons[PM_ARCHANGEL]                                      \
+     || (ptr) == &mons[PM_CELESTIAL_DRAGON]                               \
+     || (ptr) == &mons[PM_GULTHIAS_TREE]                                  \
+     || (ptr) == &mons[PM_BABY_CELESTIAL_DRAGON])
+
 #define immune_poisongas(ptr) ((ptr) == &mons[PM_HEZROU]        \
                                || (ptr) == &mons[PM_VROCK])
 
@@ -444,6 +478,10 @@
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
 #define ultravision(ptr) (((ptr)->mflags3 & M3_ULTRAVISION))
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
+#define is_displaced(ptr) \
+    ((ptr) == &mons[PM_SHIMMERING_DRAGON]         \
+     || (ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] \
+     || (ptr) == &mons[PM_DISPLACER_BEAST])
 #define is_mplayer(ptr) \
     (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
 #define is_watch(ptr) \
@@ -716,6 +754,11 @@
                         ? (ptr)->pmnames[g] : (ptr)->pmnames[NEUTRAL])
 #endif
 #define monsym(ptr) (def_monsyms[(int) (ptr)->mlet].sym)
+
+/* jello-like creatures flollop rather than wince */
+#define can_flollop(ptr) \
+    ((ptr)->mlet == S_BLOB || (ptr)->mlet == S_JELLY \
+     || (ptr)->mlet == S_PUDDING)
 
 /* valid Druid #wildshape forms */
 #define druid_form_A(mndx) \

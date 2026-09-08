@@ -429,6 +429,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(lit_corridor, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.lit_corridor, Term_False,
            "show dark corridors as lit if in sight")
+    NHOPTB(lookup_data, Advanced, 0, opt_out, set_in_game,
+           On, Yes, No, No, NoAlias, &flags.lookup_data, Term_False,
+           "show monster or item data in encyclopedia lookup")
     NHOPTB(lootabc, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.lootabc, Term_False,
            "use a/b/c rather than o/i/c when looting")

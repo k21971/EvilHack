@@ -151,6 +151,8 @@ extern void restore_artifacts(NHFILE *);
 extern const char *artiname(int);
 extern unsigned long arti_prop_spfx(int);
 extern short artifact_material(int);
+extern int name_to_arti(const char *);
+extern const struct artifact *get_artilist_entry(int);
 extern struct obj *mk_particular_artifact(int);
 extern struct obj *mk_artifact(struct obj *, aligntyp, uchar, boolean);
 extern long enforce_oprops_mutex(long);
@@ -2467,6 +2469,8 @@ extern char *makesingular(const char *) NONNULL NO_NNARGS;
    random object */
 extern struct obj *readobjnam(char *, struct obj *) NO_NNARGS;
 extern int rnd_class(int, int);
+extern short name_to_otyp(const char *) NONNULLARG1;
+extern boolean object_not_monster(const char *) NONNULLARG1;
 /* discover_object() passes NULL arg2 to Japanese_item_name(),
  * preventing NONNULLARG2 */
 extern const char *Japanese_item_name(int, const char *) NO_NNARGS;
@@ -3341,6 +3345,7 @@ extern void cast_stoneskin(struct monst *, int);
 extern void cast_entangle(struct monst *, int);
 extern int cast_metal_to_wood(struct obj *, boolean) NO_NNARGS;
 extern int spelleffects(int, boolean, boolean);
+extern const char *spelltypemnemonic(int);
 extern int tport_spell(int);
 extern void losespells(void);
 extern int dovspell(void);
@@ -4290,6 +4295,7 @@ extern void extract_from_minvent(struct monst *, struct obj *, boolean,
 
 /* ### write.c ### */
 
+extern int ink_cost(short);
 extern int dowrite(struct obj *) NONNULLARG1;
 
 /* ### zap.c ### */

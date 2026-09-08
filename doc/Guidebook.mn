@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 August 28, 2026
+.ds f2 September 8, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -4381,6 +4381,10 @@ Persistent.
 .lp lit_corridor
 Show corridor squares seen by night vision or a light source held by your
 character as lit (default off).  Persistent.
+.lp lookup_data
+Show the game's generated statistics for a monster, object, or artifact
+along with its encyclopedia entry when looking something up with the
+\(oq\f(CR/\fP\(cq command (default on).  Persistent.
 .lp "lootabc "
 When using a menu to interact with a container,
 use the old \(oqa\(cq, \(oqb\(cq, and \(oqc\(cq keyboard shortcuts
