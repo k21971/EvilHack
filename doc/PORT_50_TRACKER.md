@@ -1151,7 +1151,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (until then a monster CAN wield instance-silver it hates -
       known interim gap), maybe_arm_silver, barding rerolls, door
       kick sear (terrain materials), pet armor-exchange filter,
-      pager harmed-by lines. Master-parity nits tracked: pickup.c
+      pager harmed-by lines (LANDED 2026-09-08 with the pokedex port,
+      plus the four M4_VULNERABLE_* lines). Master-parity nits tracked: pickup.c
       "a iron container" grammar + searmsg unbounded Sprintf
       (BUG-1315 family) + minimal-comment mismatch - fix master
       first. MR2_BARKSKIN/STONESKIN allocated, no monster producer
@@ -1798,7 +1799,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rides with it), forge tile art in win/share/other.txt
       (Phase 4 - NOTE S_forge insertion shifts every cmap tile
       after sink; master tile exists to copy), pager forge-recipe
-      /journal lookup subsystem (extended obj/artifact lookup UI;
+      /journal lookup subsystem (LANDED 2026-09-08 with the pokedex
+      port: add_obj_info's forge/trap recipe blocks and add_arti_info's
+      "Forge recipe:" line; the four "burn through flammable doors"
+      tips ported as true) (extended obj/artifact lookup UI;
       get_forge_recipe exported ready; NOTE 2026-08-24: master
       7a6acfc1a's arti_special[] blurb "Can burn through flammable
       doors and trees." for Fire Brand/Dichotomy/Angelslayer/
@@ -4469,7 +4473,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       DISCHARGED 2026-08-13 by the mplayer-kit slice (BUG-1555);
       (b) pager.c ASHMAR artifact-info lines have no owner (other
       ASHMAR residuals route to the existing worn-acurr force-arm
-      and knockback-machinery rows). Battery list = reviewer test
+      and knockback-machinery rows) - 2026-09-08: "May knock
+      attackers back when it deflects a blow." LANDED with the pokedex
+      port; the CON and "Prevents knockback." lines are HELD on the
+      artifact behaviour remainder row. Battery list = reviewer test
       recs: owner summon via switch path (Excalibur) + roles-walk
       path (Mitre; was blocker-1 dead) + erosion transfer, hobbit
       threshold ladder + elevenses, gnome egg anathema + prompt +
@@ -4827,7 +4834,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch; branch initedog livelogs the conduct break instead
       of preventing it - pets/taming parity owner); pager artifact
       encyclopedia (name_to_arti/get_artilist_entry) joins the
-      pager recipe-lookup deferral. COMMIT A COMMITTED de7ab107f.
+      pager recipe-lookup deferral (LANDED 2026-09-08, pokedex port;
+      the non_tameable macro now exists for the pets/taming row to
+      wire). COMMIT A COMMITTED de7ab107f.
       COMMIT B (combat behaviors) PORTED + REVIEWED + COORDINATOR-
       FIXED 2026-07-23, COMMIT PENDING (32 files +1848/-236 incl.
       fix round, zero-warning): mon_wielding_artifact + the
@@ -6744,8 +6753,47 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       says "only accepts gold and gems" while tip and horn say "only
       holds", both being master's own strings; oc_nowish blocks only
       non-wizard wishes, so wizmode wishing works by design.
-- [ ] Object-lore display: master's add_obj_info() (NEW, minted
+- [x] Object-lore display: master's add_obj_info() (NEW, minted
       2026-07-26 by the bags slice, which needed one line of it).
+      PORTED 2026-09-08 (pokedex slice, session 104; commit A = the
+      whole encyclopedia block: add_mon_info/add_obj_info/
+      add_arti_info + arti_specials[] + the checkfile() rework, with
+      name_to_arti/get_artilist_entry (artifact.c), name_to_otyp/
+      object_not_monster (objnam.c), ink_cost exported from write.c,
+      spelltypemnemonic exported from spell.c, propertynames[]
+      exported from timeout.c via prop.h/decl.h, the five species-
+      level mondata.h macros resists_mgc/resists_drain/non_tameable/
+      is_displaced/can_flollop, and the lookup_data option registered
+      in optlist.h + opthelp + Guidebook; hash in the archive next to
+      BUG-1798). Every ADD on this row landed: the TSURUGI two-hander
+      arm, the Striped Shirt x3 and Bracers x2 tips, the Jul-2026
+      expansion content (oc_prob normalization over svb.bases[] like
+      mkobj, alternate materials via valid_obj_material on a
+      cg.zeroobj dummy, launcher/poison/stack lines, class lines).
+      HELD OUT: the "Potion alchemy combinations (#dip):" section -
+      the branch has no potion_fusions[] table (new row below); and
+      39 of the 128 arti_specials[] lines whose backing behaviors the
+      2026-09-08 audit found ABSENT (31) or PARTIAL (8) on the branch
+      (maintainer ruling: hold, riders on the owner rows - see the
+      "artifact behaviour remainder" row below and the bane-aura,
+      lock.c, Orcus, Purity and CON force-arm rows). BUG-306's
+      payoff (artifact block from an inventory lookup) lands through a
+      third artifact resolver inside checkfile() - the "named"
+      alternate, accepted only when the base item agrees - rather than
+      master's artiname() caller change, which the branch's
+      singular(xname) input made unnecessary. BUG-269/1181/1183/1185/
+      1328/1570/1697/1701/1762 all carried. REVIEW: CONDITIONAL PASS,
+      every finding fixed pre-commit: HIGH stale supplemental_pm
+      across farlook picks (BUG-1800: reset per pick; master shares
+      the wrong prompt in play, frozen-unfixed; upstream latent, table
+      row + ~/nh50-do_look-supplemental-reset.patch), MEDIUM alt
+      fallback misfiring on player-#named objects (base-type
+      agreement, "called" names excluded), MEDIUM Rider hedge not
+      covering the direct-show pick (now every farlook-sourced pick),
+      LOW two-pass duplicate block (data_shown guard), LOW
+      hallucination arm on the core RNG + a real mkobj() (now the
+      display RNG and a random type name - master parity in output,
+      no state touched), LOW style. BATTERY 2026-09-08 (game-tester agent, one XL30 human Valkyrie game, sanity_check on, saved + restored once): 26/26 legs PASS, paniclog never created. Monster blocks: kitten every line verbatim (difficulty 3 / speed 18 / level 2 / AC 6 / MR 0 / weight 150, "1d6 bite physical"); Croesus "4d10 weapon physical, touch transmute to gold" (AD_GOLD 55 renders); Nazgul "1d10 weapon level drain, 2d25 breathe sleep, 4d4 scream sonic" (AT_SCRE 17 / AD_LOUD 49) with "vulnerable to fire"; kobold shaman "spellcast clerical" (AT_MAGC 255 / AD_CLRC 240); kobold mummy "1d4 claw withering"; werewolf animal + human blocks; typed "human" = "Is the same race as you.". Gates: farlook Death via `:` = Rider text with no block and the `.` prompt says "rider", typed Death = the full block (difficulty 44, MR 100, "8d8 touch Death special" x2); shambling horror with flags.debug forced 0 = text only until one #wizkill (svm.mvitals died 0 -> 1) then the block. Objects: long sword dice/to-hit/poison lines + "Makes up 4.4% of randomly generated weapons." = hand computation (oc_prob 50 over a WEAPON_CLASS total of 1146 -> pmil 44) + "Can also be made of wood, bone, steel, copper, bronze, silver, gold, platinum, mithril, glass, stone."; heavy mace "1d10 + 1 versus small and 1d10 versus large", triple-headed flail "1d12 + 1 ... 1d6 + 3d6"; sling bullet as sling ammunition with no gem line and no data.base title (the item-action menu then offered "Look up information about this" and showed the block); force bolt book "Level 1 ... attack school. Beam spell." / "Takes 5 to 9 ink to write."; unidentified ring type = no "Normally made of" line, after #wizidentify "Normally made of crystal."; forge and trap-kit recipe blocks, no alchemy section. Artifacts: `/i` Excalibur = artifact block (Base price 4000 zm = the artilist cost; Restrictions cannot be #named / does not randomly spawn / intelligent; "May blast you when touched"; "+1d5 to-hit, +1d10 damage"; wielded = drain life resistance, automatic searching, enhanced searching; the two Other properties) + long sword block + the "excalibur" entry, then the "long sword" entry alone in a second window (two prompts exactly on the floor pick); Angelslayer "Damage bonus vs: angels, aasimar." + "warns vs angels, aasimar" (no glow: acolor NO_COLOR); Striped Shirt 3 / Bracers 2 / Ashmar 1 / Giantslayer 3 tips with no "angers giants" line. Option: lookup_data is Advanced (#optionsfull, not `O`); off = titled text only, on = block back, off survives save/restore. Farlook: watchman ", wearing armor" unchanged, gdb mflee=1 -> ", wearing armor, scared, in light"; hallucination gave "wearing a towel, wielding an orcish chain mail", "wearing out her welcome", "wearing an itsy bitsy teenie weenie yellow polka dot bikini, wielding a wand" over 14 looks; invisible + ultravision self = "[seen: ultravision, monster detection]" (canspotself needs a sense, so the bracket never carries ultravision alone); "tame barded pony" -> prompt "pony". dmgval matrix (20 calls per pair, +0 iron mace / bone flail, kitten vs hill giant): mace-vs-small 2..11 with 11s (1d10+1), mace-vs-large 2..10, flail-vs-small 2..13, flail-vs-large 9..19 (floor above a bare 1d6 = the +3d6 live). Review legs: monster then object picks name the object; a dagger #named Excalibur shows dagger data only (naming a long sword Excalibur is refused by the engraving slip); blind + telepathic `:` on Death = no block; "20 daggers" -> dagger, a #called wand -> "wand", "silver long sword" -> long sword, typed skeleton/gold piece/crystal ball resolve as expected. Brief premises corrected by the tester (recorded in gameplay.md): the direct-show farlook key is `:` not `/`; Death's difficulty is 44; Excalibur's role line is absent for non-Knights (hack_artifacts nulls it); #wizintrinsic increments timeouts, it does not toggle; test monster is MZ_MEDIUM. Post-battery micro-fixes (compile-verified, not re-batteried): "Can support allies." grammar, artifact "Material:" as a noun like the object block, no leading blank line when the monster block is withheld, "set of " stripped from lookup keys so `/i` on dragon scales reaches the object block (BUG-1801/1802, master-shared text warts).
       Master's src/pager.c carries a 557-line add_obj_info()
       (1322-1879) called from its `/` lookup, printing per-object
       lore: damage, to-hit, material, weight, container subclass,
@@ -8428,8 +8476,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the muse.c Expert-shield battle-axe hook resist (master
       muse.c) is the one consumer still open - it rides with the
       muse.c AI slice.
-- [ ] pager farlook remainder (NEW, minted 2026-07-27 by the
-      glass/blocker slice, which ported the armor-weight half). master's
+- [x] pager farlook remainder (NEW, minted 2026-07-27 by the
+      glass/blocker slice, which ported the armor-weight half).
+      PORTED 2026-09-08 with the pokedex slice (commit A):
+      hallucinatory_armor() + the hallucinatory wielded-object arm
+      re-nested around the bounded armor clause (display RNG; the
+      wielded name is a random object type, no object created), the
+      ", scared" mflee append after the trapped clause (master's
+      current order; the lit/dark suffix is appended later by
+      do_screen_description), and two finds of the pre-port census:
+      lookat()'s self "[seen: ultravision]" arm and MONSEEN_ULTRAVIS
+      (vision.h bit re-inserted in master's order, howmonseen()'s
+      uv_cansee producer + normal-vision exclusion, apply.c mirror
+      SEENMON mask + dark test, the monbuf arm), plus checkfile()'s
+      "barded " prefix strip. NOT here (unchanged owners): the sober
+      ", wielding X and Y" clause (probe wielding-both deferral -
+      note the hallucinated half landed first); the mon_wounds health
+      clause (Healer wound-sensing row below); the "hiding under
+      <terrain>" arm (terrain-concealment row below). ORIGINAL: master's
       ", wielding %s" + MON_WEP2 arm is already claimed by the
       "pager.c probe wielding-both display" deferral; the
       hallucinatory_armor() helper and the hallucinatory-weapon else
@@ -8445,8 +8509,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       upstream are both unbounded here and master is strictly worse
       (it also appends mon_wounds and the wielding clause). The armor
       line itself was written bounded; the function wants an audit.
-- [ ] Pokedex damagetypes[] rider (NEW, minted 2026-08-21 by the
-      Croesus/gold slice). Master's `/`-lookup encyclopedia
+- [x] Pokedex damagetypes[] rider (NEW, minted 2026-08-21 by the
+      Croesus/gold slice). PORTED 2026-09-08 (pokedex slice, commit A).
+      The positional tables were NOT rebuilt as arrays: the branch
+      renumbers almost every value (AT_SPIT..AT_SCRE 10..17, AT_WEAP
+      254, AT_MAGC 255; AD_ 9..50 all shifted, AD_GOLD 55, AD_CLRC/
+      SPEL/RBRE 240/241/242, AD_SAMU 252, AD_CURS 253) and defines no
+      LAST_AT/LAST_AD, so attacktype_name()/damagetype_name() are
+      switch helpers keyed on the AT_/AD_ symbols with master's labels
+      by SYMBOL ("steal intrinsic" for AD_CURS kept per the pattern
+      memory), returning null for AD_SPC1/AD_SPC2/unknown so
+      add_mon_info's impossible() fires as BUG-1181 intended. Every
+      rider on this row landed: "go berserk"/"skittish", "withering"
+      + arti_adtyp_str "wither", "transmute to gold", the full Jul-11
+      expansion (Collects/wildshape/floor-eater/rank lines - creeping
+      mound keeps "Can't pick up items" by design), plus the riders
+      parked on other rows: "harmed by iron/mithril/silver" and the
+      four "vulnerable to" lines (Materials tail), "only appears in
+      the Ice Queen's realm" (icequeen riders), the three no_geno
+      "can't be genocided until its leader is destroyed/killed" lines
+      (hdgn riders), the Gollum/cube/mound/badger floor-eater lines
+      (goblintown riders), "nonliving" (S_ORB row), the Rider "no
+      stats via farlook" hedge (BUG-1419 row; now gated on the pick
+      being farlook-sourced, which also closes the direct-show leak
+      master shares), the shambling-horror "no freebies until one has
+      been killed" gate and the werecreature alternate-form second
+      block (both unnamed anywhere before this slice). do_look() now
+      passes the monster do_screen_description found (vanilla's never-
+      assigned local was vestigial there; master repurposed it), which
+      is what lets the block fire from farlook at all. ORIGINAL: Master's `/`-lookup encyclopedia
       (add_mon_info + the positional attacktypes[]/damagetypes[]
       tables, master pager.c) is entirely absent from the branch,
       so AD_GOLD's "transmute to gold" string had nowhere to land
@@ -8471,6 +8562,112 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "withering" (master pager.c:870) and the AD-label helper's
       `case AD_WTHR: return "wither";` (master pager.c:1928) land
       here with the tables; the attack is live on the branch now.
+- [ ] Potion alchemy recipe table NOT PORTED (NEW, minted 2026-09-08
+      by the pokedex slice; MED). Master's `struct potion_alchemy` +
+      `potion_fusions[]` (hack.h / potion.c, ac335d855 2025-01-23)
+      drive mixtype() from a table; the branch keeps vanilla 5.0's
+      hardcoded mixtype() switch, so any EvilHack-only combination
+      master's table carries is missing here (diff the table against
+      the branch switch when porting - the unicorn-horn-into-drow-
+      poison dip d0c5310d1 is dip.c, not mixtype). RIDER: the
+      encyclopedia's "Potion alchemy combinations (#dip):" section of
+      add_obj_info (master pager.c ~1839-1858) has no table to
+      iterate; the port left it out behind a one-line comment -
+      restore it when the table lands. Untracked before this slice.
+- [ ] dmgval() material-hardness block NOT PORTED (NEW, minted
+      2026-09-08 by the pokedex slice; MED, combat balance). Master
+      weapon.c dmgval() (1c3a05414, 2019) adds per-material damage
+      after enchantment: glass/gemstone +3 on pierce/slash,
+      gold/platinum +1 on whack, mithril +2 and adamantine +3 on
+      pierce/slash, mineral +2 on slash/whack, plastic/paper -2,
+      non-elven wood blade -1, steel/bronze +1 on pierce/slash with
+      steel's extra +1 one time in three. The branch has none of it
+      (the July slice D "dmgval material bonus" was the hated-material
+      sear arm; the Materials tail lists neither). Found by the same
+      audit that restored the nine weapon-case bonuses (BUG-1798,
+      commit B of the pokedex slice). Own slice: balance-visible in
+      every fight; battery = a gdb dmgval matrix per material.
+- [ ] Healer wound sensing NOT PORTED (NEW, minted 2026-09-08 by the
+      pokedex slice; MED gameplay feature). Master do_name.c
+      mon_wounds() (Healer-only "slightly/moderately/badly/seriously/
+      critically wounded", "almost dead/destroyed", hallucinatory
+      adverbs) + print_mon_wounded() (adjective-change message from
+      the hit paths) with their uhitm.c callers, b0ae15f5a 2020-03-28
+      + 8c167232b 2020-10-30; the branch has none of it and 5.0's own
+      monhealthdescr() is #if 0'd, so farlook shows no health text for
+      anyone. RIDER: master pager.c look_at_monster's `, <mon_wounds>`
+      clause (after the name, before the riding clause) rides here;
+      RULING 2026-09-08 (AskUserQuestion): leave farlook without it
+      until the feature ports (not 5.0's monhealthdescr).
+- [ ] Terrain concealment (concealed_spot/explain_terrain) NOT PORTED
+      (NEW, minted 2026-09-08 by the pokedex slice; MED). Master's
+      concealed_spot() + the explain_terrain() macro (display.h) name
+      the terrain a hider hides under; six consumers: apply.c
+      stethoscope, cmd.c #attributes "under <terrain>", dig.c, mhitu.c
+      hidden_under_what(), pager.c mhidden_description ("hiding under
+      the grass"). The terrain row (above, ~5691) recorded the
+      function as unported but no row owned the consumers. RIDER: the
+      pager arm (master pager.c mhidden_description hides_under
+      branch, hidetyp == 1) rides here; the branch arm falls through
+      to the object or "something".
+- [ ] Artifact behaviour remainder = the HELD pokedex tips (NEW,
+      minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
+      The 2026-09-08 audit checked all 128 arti_specials[] lines
+      against the branch: 89 LIVE (ported), 31 ABSENT + 8 PARTIAL
+      held out of the table (ruling: no tip may describe a behavior
+      the branch lacks; each re-enters arti_specials[] when its
+      mechanism lands). Held lines with owners elsewhere: the 17
+      "Its presence angers <X>." / One Ring "Wearing it angers nearby
+      wraiths." lines (bane-aura moveloop arm, rows ~1448/~4877 - the
+      artifact arm is a TODO-EVILHACK stub in allmain.c); Master Key of
+      Thievery + Yendorian Express Card "Never breaks while picking
+      locks." (lock.c cursed-tool breakage, row ~1915); Wand of Orcus
+      "Curses and welds itself to the hand that wields it." (Orcus
+      self-curse, row ~7749); Gauntlets of Purity "Boosts unarmed
+      damage for lawful wearers." + "Slides off wearers who stray from
+      purity." (Purity row ~10435 - its scope now includes the uhitm.c
+      unarmed bonus and the allmain.c slide-off); Ashmar "Raises
+      constitution to maximum and grants extra AC." + Retribution
+      "Raises constitution to maximum; adds AC and carry capacity."
+      (attrib.c CON force-arm rows ~4884/~8499; Retribution's hack.c
+      weight_cap +200/+500 carry arm is ALSO absent - add to that
+      row's scope). Held lines whose mechanism has no other row (this
+      row owns them): Bag of the Hesperides "Lightens its contents
+      more than any bag of holding." / "Keeps its contents dry." /
+      "Nearly impossible to steal." (mkobj.c weight tier past the bag
+      of holding, obj.h Waterproof_container clause, steal.c
+      monster-steals-from-hero refusal; only the hero-steals direction
+      exists via uhitm.c steal_slips_off); Secespita "Sacrifices made
+      with it are worth half again as much." / "Killing with it
+      restores your magical energy." (pray.c sacrifice x1.5 and uhitm.c
+      issecespita - zero code arms on the branch); Dragonbane "Sears
+      dragons that attack the wearer." (mhitu.c/uhitm.c "Dragonbane
+      sears" arm; master's do_wear.c destroy_arm arm is a secondary
+      gap); Magic 8-Ball "Dispenses advice when read." (read.c doread
+      arm); Sword of Kas "Poisons those it strikes." (uhitm.c iskas
+      poison-on-hit; permapoisoned covers only Grimtooth here);
+      Tempest "Wielder cannot be stunned." (five of seven arms live;
+      the chest-trap gas arm - branch trap.c tests bare !Stunned - and
+      the monk-kick arm are missing); Sword of Annihilation "Cannot be
+      destroyed or polymorphed." + Retribution "Resists cancellation
+      and cannot be destroyed." (zap.c obj_resists() exempts both
+      outright on master, feeding cancel_item/destroy/polymorph; the
+      branch keeps the generic 90-100% artifact roll, and master's
+      polyself.c break_armor Retribution arms are absent); Butcher
+      "Magical hits may probe or stun the target." + Archmagi "Magical
+      hits may probe, stun, or scare the target." (master artifact.c
+      Mb_hit excludes Butcher from scare/cancel and the Staff from
+      cancel and names "the massive triple-headed flail"; the branch
+      runs stock 5.0 Mb_hit for all three, so both do MORE than the
+      tip says); Ashmar "Prevents knockback." (m_is_steadfast lists
+      only Giantslayer/Harbinger/loadstone). MASTER DOC BUG (not held
+      for porting): Xiuhcoatl "Its fire burns even underwater." -
+      only Angelslayer has the underwater exemption on master too and
+      Xiuhcoatl's own hit message prints "hits" when submerged
+      (BUG-1799, frozen-unfixed). Tips still true despite a missing
+      secondary arm (ported): Idol of Moloch (fig_transform idol arm),
+      Dragonbane disintegration (destroy_arm arm), Dichotomy
+      (lava-inventory arm).
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -8626,7 +8823,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       WATCHES: skittish !mberserk conjunct and the post-cast clause
       are dead on both trees (no skittish berserker, no skittish
       AD_SPEL/CLRC caster); master pager "go berserk"/"skittish"
-      APPENDCs ride the Pokedex row; hallucinated-name "He" mismatch
+      APPENDCs ride the Pokedex row (LANDED 2026-09-08); hallucinated-name "He" mismatch
       in the satyr lines is master-shared cosmetic. ROWS MINTED:
       m_move support-caster hang-back arm (LOW, with the support
       cluster), clone_mon/montraits reset-width remainder (LOW),
@@ -9808,7 +10005,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       needs no opt-out (done_in_by formats via pmname); master's
       "no stats via farlook" hedge guards add_mon_info(), which is
       UNPORTED - it must travel with the monster-stats display
-      feature when that ports.
+      feature when that ports. LANDED 2026-09-08 with the pokedex
+      port, gated on the pick being farlook-sourced (lookat_mon)
+      rather than master's !without_asking, which let the direct-show
+      `/`-`/` pick print "Monster lookup for "Death"" for a sensed-only
+      Rider (review finding, master-shared).
 - [x] is_lightblocker_mappear() missing the S_deadtree row (NEW,
       minted 2026-07-30 by the 2026-07-29 review; MEDIUM port gap).
       include/monst.h: the branch macro ends at S_tree where master
@@ -10468,7 +10669,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bypass = BUG-1576 master-frozen-unfixed - plus the in-loop
       alhoon/beholder dark-magic skips). The pager.c lookup line
       CANNOT land (no APPENDC pokedex block on the branch) - re-
-      routed to the pokedex framework rider (hdgn-slice rider (c)).
+      routed to the pokedex framework rider (hdgn-slice rider (c));
+      LANDED 2026-09-08 with the pokedex port.
 - [x] elemental_clog() Astral no-candidate arm is a total no-op (NEW,
       minted 2026-07-31 by the BUG-1442 verification; needs a design
       ruling; upstream-shared). DONE 2026-07-31 as BUG-1444 (commit
@@ -12054,7 +12256,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch-only sites: pager.c "defunct", uhitm.c "expires",
       mcastu.c BUG-1163 drain-life AI gate - all read correctly);
       ~11 master-only consumers (AD_WTHR, zombie mm_aggression,
-      Secespita, showmondamage, pager "nonliving" label) are
+      Secespita, showmondamage, pager "nonliving" label - the label
+      LANDED 2026-09-08 with the pokedex port) are
       unported features, future dependencies not risks. The
       xkilled no-alignment-penalty exemption for own orbs is a
       SEPARATE mechanism (orb boolean), unported - remainder row
@@ -12809,7 +13012,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch (5.0 difference, roll excludes ring bonus). NOT here
       (owners, riders added): u_init.c damg_melee_types AD_WTHR
       (shambling-horror), pager.c "withering"/"wither" labels
-      (pokedex row), zap.c bhitm SPE_CURE_SICKNESS / SPE_CRITICAL_
+      (pokedex row - LANDED 2026-09-08), zap.c bhitm SPE_CURE_SICKNESS / SPE_CRITICAL_
       HEALING mwither clears + zapyourself Withering cures (hero
       spell-parity rows). BATTERY 15/15 + follow-up 4/4 PASS (human
       Valkyrie XL30 x3 + vampiric Rogue; paniclog clean except one
@@ -13657,7 +13860,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       farlook path is / -> /), inventory-atlatl leg, controls;
       paniclog never came into existence. BOUNDARIES kept: pager
       artifact-encyclopedia deferral (name_to_arti/add_*_info/
-      flags.lookup_data + BUG-306/1181/1328) untouched - artifact
+      flags.lookup_data + BUG-306/1181/1328) untouched (lifted
+      2026-09-08 by the pokedex port) - artifact
       KEYS resolve today via the plain pmatch scan, the deferral only
       withholds the generated stats block; skeletal pony / wolverine /
       Tal'Gath-class stragglers are uncovered in BOTH parents,
@@ -13944,7 +14148,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       plain 5.0, branch mon.c has no is_support arm. (b) master
       pager.c's monster-remarks framework (MONPUTSTR): its Gollum
       farlook line ("Eats fish, goblin, and bat corpses off the
-      floor.") rides with that feature - no landing site today.
+      floor.") rides with that feature - no landing site today
+      (LANDED 2026-09-08 with the pokedex port).
       (c) master's create grass/create trees SPELL CASTING ARMS
       are entirely unported (the spellbooks exist in objects.h +
       druid kits, but spell.c has no SPE_CREATE_GRASS/TREES case -
@@ -13972,7 +14177,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       the WoY levelport-immunity lines ride the same feature).
       (d) master's pager.c is_iceq_only() "only appears in the Ice
       Queen's realm" line rides the unported monster-lookup
-      (pokedex) framework, joining the Gollum farlook rider.
+      (pokedex) framework, joining the Gollum farlook rider
+      (LANDED 2026-09-08 with the pokedex port).
       (e) DISCOVERED GAP: branch dat/tribute lacks master's "The
       Blacksmith's Cookbook (13)" passages (the do_name.c title IS
       present, so a titled cookbook reads empty) - the forge-content
@@ -14032,7 +14238,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       lookup lines ride the unported monster-lookup (pokedex)
       framework, joining the Gollum-farlook and is_iceq_only
       riders - this is the genocide-gating row's pager half,
-      deferred by name.
+      deferred by name (LANDED 2026-09-08 with the pokedex port).
       (d) DISCOVERED DIVERGENCE with no owner row: master's
       do_class_genocide is the SporkHack-derived form - a blessed
       scroll class-genocides AT MOST 2 randomly-selected species
@@ -14087,6 +14293,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-08 | pager.c do_look(): the pick loop resets only `pm` and `out_str`, while do_screen_description() writes `*for_supplement` only when lookat() returned a monster and never clears it, so picking a monster and then a non-monster in the same `/` session leaves `supplemental_pm` pointing at the earlier monster; do_supplemental_info() then runs against the stale type (after an orc, an object "called <x> of <y>" gets the Orc-town marauder prompt). Latent and low upstream (that call is the only consumer); on the branch the same pointer now feeds checkfile()'s monster block, where it named the wrong thing. Official_nh50 and NetHack50 identical | fixed on branch (pokedex slice commit A: `pm = supplemental_pm = 0` per pick); artifact ~/nh50-do_look-supplemental-reset.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | save.c savelev_core() runs its "purge any dead monsters" dmonsfree() only inside the `mode != FREEING` block, but goto_level() tears the level down in FREEING mode on entering the endgame or leaving the tutorial, so a monster m_detach()ed since the last drain (a statue trap made without time passing - a fresh level with a Statuary themed room starts that way - a summoned monster expiring in mcalcdistress(), a gas-cloud kill in run_regions(), a trapped pet killed by mintrap() inside keepdogs()) is freed by savemonchn() with iflags.purge_monsters still counting it; the next dmonsfree() (the load_special drain while the entrance plane is built) reports "dmonsfree: 0 removed doesn't match 1 pending" with the monster on no list. wiz_kill() already works around the same symptom with a private dmonsfree(). Official_nh50 and NetHack50 identical | fixed on branch (BUG-1797: the drain hoisted ahead of the mode test in savelev_core); artifact ~/nh50-savelev-freeing-purge-drain.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | trap.c lava_effects() protects only one in-use inventory item (protect_oid) and impossible()s then burns any other: a scroll of destroy armor (scroll->in_use) destroying levitation or water walking boots (destroy_arm sets armor->in_use) over lava leaves two, and the loser's caller useup()s freed memory after life-saving | artifact ~/nh50-lava-effects-in-use.patch (four-slot protect list + lava_protected()); git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf; not yet sent |
@@ -14262,6 +14469,7 @@ trees, different content - Phase 0 rename).
 | 2026-08-01 | Castle wand chest: upstream 5.0's added potion of gain level (nh50 a8800a9ac anti-frustration guarantee) DROPPED everywhere - strict master parity on the chest contents (wand of wishing +2 recharged:1 only) across all three castle variants. A deliberate deviation from the adopt-upstream collision default | maintainer |
 | 2026-08-01 | castle-2 court monsters GET the shuffle on branch (master's castle-2 $monster register lacks SHUFFLE while castle-1/3 and vanilla all shuffle = master oversight, BUG-1455 frozen-unfixed): dat/castle-2.lua carries shuffle(monster) | maintainer |
 | 2026-07-25 | RNDVAULT rtype DROPPED rather than ported: 5.0's THEMEROOM occupies its exact role (both trees carry the same "treat like OROOM so random content still lands" test), which follows directly from the ratified 2026-07-18 rndvaults-to-themerooms decision. Consequence: SHOPBASE 14->20 and CANDLESHOP 31, NOT master's 21/32. This also incidentally FIXES a live master bug - mapseen_feat.shoptype is Bitfield(5) and recalc_mapseen stores a raw rtype, so master's CANDLESHOP 32 truncates to 0, the "mixed shop types" sentinel, and a known candle shop annotates as "untended shop" in the overview. Constraint recorded at the enum; do NOT re-add RNDVAULT | coordinator |
+| 2026-09-08 | Pokedex slice rulings (AskUserQuestion x3, all recommended): (1) the nine dmgval() weapon-case bonuses the port's audit found dropped are restored as a coupled commit B (BUG-1798) so the object lookup's damage line and combat agree on landing; master's material-hardness block gets its own row; (2) arti_specials[] ships only the tips whose backing behavior is live (89 of 128); the 39 ABSENT/PARTIAL lines are held on the owner rows and re-enter when their mechanisms land - no tip may describe a behavior the branch lacks; (3) farlook stays without monster health text; master's Healer-only mon_wounds feature gets its own row (5.0's #if 0'd monhealthdescr is not enabled). Port-shape decisions recorded on the rows: the AT_/AD_ label tables became symbol-keyed switch helpers (the branch renumbers almost every value and defines no LAST_AT/LAST_AD); the "More info about" prompt fires only when something will display (vanilla parity; master prompts unconditionally and then reports nothing); the artifact "named" alternate resolves inside checkfile() with a base-type agreement test instead of master's caller-side artiname(); the Rider hedge keys on the pick being farlook-sourced; the hallucination outfit/weapon arm uses the display RNG and a random type name instead of a created-and-freed object. |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
