@@ -270,10 +270,13 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
         case MORNING_STAR:
+        case ORCISH_MORNING_STAR:
         case PARTISAN:
         case RUNESWORD:
         case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
         case BROADSWORD:
             tmp++;
             break;
@@ -301,6 +304,10 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
         case TWO_HANDED_SWORD:
             tmp += d(2, 6);
             break;
+
+        case TRIPLE_HEADED_FLAIL:
+            tmp += d(3, 6);
+            break;
         }
     } else {
         if (objects[otyp].oc_wsdam)
@@ -308,9 +315,16 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
         switch (otyp) {
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
+        case DARK_ELVEN_CROSSBOW_BOLT:
         case MACE:
+        case DARK_ELVEN_MACE:
+        case HEAVY_MACE:
+        case DARK_ELVEN_HEAVY_MACE:
+        case ROD:
         case WAR_HAMMER:
+        case HEAVY_WAR_HAMMER:
         case FLAIL:
+        case TRIPLE_HEADED_FLAIL:
         case SPETUM:
         case TRIDENT:
             tmp++;
@@ -322,9 +336,11 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
         case GUISARME:
         case LUCERN_HAMMER:
         case MORNING_STAR:
+        case ORCISH_MORNING_STAR:
         case RANSEUR:
         case BROADSWORD:
         case ELVEN_BROADSWORD:
+        case DARK_ELVEN_BROADSWORD:
         case RUNESWORD:
         case VOULGE:
             tmp += rnd(4);
