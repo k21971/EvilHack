@@ -23,6 +23,9 @@ staticfn void see_lamp_flicker(struct obj *, const char *) NONNULLPTRS;
 staticfn void lantern_message(struct obj *) NONNULLARG1;
 staticfn void cleanup_burn(ANY_P *, long) NONNULLARG1;
 
+/* imported from vision.c, for the light-hater range test */
+extern const short circle_radii2[];
+
 /* used by wizard mode #timeout and #wizintrinsic, and by the in-game
    encyclopedia's object lookup; order by 'interest' for timeout
    countdown, where most won't occur in normal play */
@@ -1867,7 +1870,9 @@ burn_object(anything *arg, long timeout)
  * For the latter items, age is when the object was created, so we
  * know when it becomes "bad".
  *
- * This is a "silent" routine - it should not print anything out.
+ * This is a "silent" routine - it should not print anything out, with
+ * one exception: a light-hating hero within range of a newly lit magic
+ * lamp or artifact light source is hurt by it (lightdamage()).
  */
 void
 begin_burn(struct obj *obj, boolean already_lit)
@@ -1875,6 +1880,21 @@ begin_burn(struct obj *obj, boolean already_lit)
     int radius = 3;
     long turns = 0;
     boolean do_timer = TRUE;
+    coordxy objx, objy;
+    struct monst *lmon = (struct monst *) 0;
+
+    /* where the light is and who carries it, for the light-hater test */
+    if (carried(obj)) {
+        objx = u.ux;
+        objy = u.uy;
+    } else if (mcarried(obj)) {
+        lmon = obj->ocarry;
+        objx = lmon->mx;
+        objy = lmon->my;
+    } else {
+        objx = obj->ox;
+        objy = obj->oy;
+    }
 
     if (obj->age == 0 && obj->otyp != MAGIC_LAMP && !artifact_light(obj))
         return;
@@ -1883,6 +1903,13 @@ begin_burn(struct obj *obj, boolean already_lit)
     case MAGIC_LAMP:
         obj->lamplit = 1;
         do_timer = FALSE;
+        /* a cursed magic lamp gives off darkness; while a level is being
+           created the hero's position and line of sight still belong to
+           the previous level, so there is no light-hater test then */
+        if (!obj->cursed && !gi.in_mklev
+            && distu(objx, objy) < circle_radii2[radius]
+            && couldsee(objx, objy))
+            (void) lightdamage(obj, lmon, FALSE, 5);
         break;
 
     case POT_OIL:
@@ -1923,9 +1950,25 @@ begin_burn(struct obj *obj, boolean already_lit)
     default:
         /* [ALI] Support artifact light sources */
         if (artifact_light(obj)) {
+            /* the Staff of the Archmagi in a drow's hands and shadow
+               dragon armor give off darkness rather than light */
+            boolean staff = (is_art(obj, ART_STAFF_OF_THE_ARCHMAGI)
+                             && ((wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                                  && !Upolyd && Race_if(PM_DROW))
+                                 || (lmon && racial_drow(lmon)
+                                     && mon_wielding_artifact(lmon,
+                                                ART_STAFF_OF_THE_ARCHMAGI))));
+            boolean armor = (Is_dragon_armor(obj)
+                             && Dragon_armor_to_scales(obj)
+                                == SHADOW_DRAGON_SCALES);
+
             obj->lamplit = 1;
             do_timer = FALSE;
             radius = arti_light_radius(obj);
+            if (!(staff || armor) && !gi.in_mklev
+                && distu(objx, objy) < circle_radii2[radius]
+                && couldsee(objx, objy))
+                (void) lightdamage(obj, lmon, FALSE, 5);
         } else {
             impossible("begin burn: unexpected %s", xname(obj));
             turns = obj->age;
