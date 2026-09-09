@@ -12838,7 +12838,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       polyself() cancels the potion's forcecontrol when draconian (the
       5.0 low_control line, master shape) and the intrinsic-control
       prompt path follows; where newman() comes from is unread.
-- [ ] Monster attack-handler arms ABSENT (minted 2026-09-06 by the
+- [x] Monster attack-handler arms ABSENT (minted 2026-09-06 by the
       defended() sweep audit; the mhitm slice's "-> monster attack-
       handler subsystems" deferral had no row): passiveum() and
       passivemm() dragon-scaled-armor passive blocks (master mhitu.c
@@ -12856,6 +12856,197 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       psychic melee hit are silent no-ops; master uhitm.c damageum
       AD_PSYC + mhitm.c mdamagem AD_DISN with the crystal-plate
       shape). Nine master defended() sites ride with these.
+      PORTED 2026-09-09 (session 105; commit A = the whole port,
+      commit B = the AD_CLOB dispatcher fix the slice's census
+      surfaced, BUG-1803; hashes in the archive next to BUG-1803..
+      1806). SHAPE: passiveum() (mhitu.c) gained master's hero-worn
+      dragon-scaled armor block and Dragonbane sear, the AD_DISN/
+      AD_CNCL/AD_SLIM and AD_DRST/AD_SLOW/AD_DISE/AD_SLEE arms, the
+      is_dragon()/3 passive-damage divisor and the yellow-dragon acid
+      line; passivemm() (mhitm.c) gained master's aatyp parameter,
+      the monster-worn armor block and Dragonbane, AD_DISN/AD_DRST/
+      AD_MAGM/AD_CNCL/AD_SLIM and AD_SLOW/AD_SLEE; mattackm() the
+      wielded-petrifying-corpse block; mhitm_ad_deth() (uhitm.c)
+      master's m-v-m death table in its monster leg (BUG-1804); new
+      mhitm_ad_disn() for the beholder/Tal'Gath gaze and the
+      antimatter-vortex engulf against monsters (BUG-1805). Helpers:
+      passive_contact_attack()/passive_disint_gear() exported from
+      mhitu.c and shared by both passive functions (the gear helper
+      clears mattacku()'s cached weapon pointer), passive_armor_dmg()/
+      passive_disint_kill() (hero side), passive_agr_killed()/
+      passive_agr_dmg()/passive_disint_agr() (m-v-m, with the damage
+      tail's uexp/pet-killer credit split). The row's "nine"
+      undercounted: 21 master defended() sites landed (passiveum 8,
+      passivemm 8, mattackm 1, AD_DETH 3, AD_DISN 1). AD_CLOB (commit
+      B): include/monsters.h carries the knock-back damage type on
+      27 attack slots (AT_WEAP giants/ogre king/Cyclops/Surtur,
+      AT_CLAW Saint Michael/giant mummy/giant zombie/zruty/Abominable
+      Snowman/snow golem/ents/Annam/Master Kaen, AT_BUTT mastodon/
+      mammoth/minotaurs/Baphomet, AT_KICK Master Po) plus the
+      apply_race() giant overlay and the player-monster Monk kick;
+      mhitm_adtyping() had no case, so every one dealt ZERO damage
+      to hero and monsters, silently (hitmsg() lives in the physical
+      handler), and never knocked back - AD_CLOB now joins the
+      AD_PHYS case and mhitm_knockback()'s qualifier. RULINGS
+      (AskUserQuestion x3, all recommended): AD_CLOB fixed now as
+      coupled commit B; the AD_PSYC arm HELD - no mons[]/ERAC
+      template on either tree carries an AD_PSYC attack (git grep:
+      only monattk.h, uhitm.c damageum, zap.c psychic-blast damage),
+      so master's arm is dead code, revisit if a psionic melee
+      attacker is ever added; the wielded-corpse block petrifies
+      INSTANTLY through the do_stone_mon() sequence (munstone cure
+      chance, poly_when_stoned, monstone) because the branch has no
+      monster stoning countdown - rider on the gradual-stoning row.
+      DEVIATIONS recorded: (1) passivemm kill arms hand monkilled() a
+      NULL text so a visible attacker draws master's "dies!" once -
+      master prints "dies!" AND "is killed!" (BUG-1806, frozen-
+      unfixed); the tame-victim "sad feeling" pairing is kept
+      (upstream idiom); (2) the AD_DETH immune tier deals ordinary
+      damage with no vanilla undead half-damage arm (master parity,
+      BUG-1781 sibling); (3) gazemm() prints "gazes at" on every gaze
+      where master's AD_DISN case is silent on the 4-in-5 no-effect
+      roll (5.0 structure, every gaze type shares it); (4) the AD_DISN
+      kill routes positive AD_DISN (branch no-corpse routing since
+      BUG-1740) and reuses zap.c disint_mon_invent() instead of
+      master's third inline cull copy; (5) m-v-m lines master left
+      ungated are gated on gv.vis, the Dragonbane "dies!" on
+      canseemon; (6) passive_disint_gear() rolls its 1-in-odds per
+      rung, so in the two AD_DISN hide arms (master: one shared roll)
+      an attacker that wields AND wears boots AND kicks can lose its
+      boots after the weapon roll failed (1/6, 5/36, 25/36 vs master's
+      1/6, 0, 5/6) - the black-scaled armor arms are exact (master
+      rolled per rung there); (7) the gray-scales and AD_CNCL cancel
+      sites return on a dead attacker (clay golem) where master
+      continued into the passive loop; (8) the black-scales Rider
+      reintegration returns the attacker alive (master returned
+      MM_AGR_DIED for a living Rider). Sibling census finds routed
+      to new rows below: knockback machinery, monster free-action
+      consumers, the AD_COLD passive arms (LOW). REVIEW: CONDITIONAL
+      PASS -> HIGH taken: with AD_CLOB dispatched, hmonas()'s AT_WEAP
+      arm sent a polymorphed-giant hero's hit on a ghost through
+      damageum() into mhitm_ad_phys()'s shade-flow impossible(); the
+      arm now skips AD_CLOB like AD_PHYS (known_hitum() already dealt
+      the damage); LOWs recorded above (the per-rung roll, the sad-
+      feeling pairing, the 5.0 knockback-then-return shape giants now
+      share, the unreachable Rider fallthrough). BATTERY 2026-09-09
+      (evilhack-game-tester, seven XL30 Valkyrie games incl. one on
+      the pre-change control binary, ~400 gdb inferior calls; no leg
+      produced a paniclog entry - the single line is the tester's own
+      re-heal of detached monsters): T1 black-scaled hero: 83
+      passive_disint_gear calls (all AT_WEAP, odds 12) vs 78
+      passive_armor_dmg (all AD_DISN, rnd(4)) = 5 gear destructions
+      ("bronze spear/knife is disintegrated!"), "partially
+      disintegrates!", one "disintegrated completely!", "dies!"
+      exactly once, black dragon "Your armor does not appear to
+      affect" x2 and never disintegrated; T2 all six colours (green
+      "staggers from the poison!" + "dies!" with hero credit u.uexp
+      +262 and mvitals died +1; white flinches; red burned; yellow
+      seared and critically seared; orange "seems to be moving slower"
+      mspeed 0->1; gray "Magical energies are absorbed" mcan 0->1);
+      T3 "Dragonbane sears the baby red dragon's scaly hide!" x7 +
+      the overwhelms/dies pair, never on non-dragons; T4 hero as
+      black dragon (partial/deadly hide lines, dagger and gloves
+      disintegrated, resistant "does not appear to affect"),
+      antimatter vortex (eyeless form -> Blind -> lines gated off;
+      breakpoint-proved: 12 entries with vortex=1 and odds 3, 7
+      partial / 3 deadly), green dragon (poisoned + HP loss, poison-
+      resistant drow "unaffected by your poisonous hide"; the /3
+      divisor proved: 22 hits, d(16,1)/3 = 5 every time), gray fungus
+      (eyeless; 54 entries, diseased / even worse / resists infection
+      all reached), black fungus (sleep_monst 8/15, mfrozen 8-10),
+      green slime (splash, burns away on a salamander, unaffected on
+      a ghost, 1-in-4 transform to green slime), gray dragon (mcan
+      0->1 x3), yellow dragon ("seared by your acidic hide!"); T5 pet
+      in black scales vs mattackm(soldier, pet) x350: partial x49, a
+      spear disintegrated, one complete with no corpse or gear left,
+      resistant black dragon "armor does not appear to affect", green
+      "staggers" x5, gray mcan flip; T6 Oracle: ordinary pet "hit by
+      magic missiles appearing from thin air!" 38-84 damage; BRIEF
+      ERROR: a gray dragon has a magic-missile breath, so master's
+      species resists_mgc() puts it in the "The missiles bounce off!"
+      zero-damage tier (master-identical) - the gear-MR half-damage
+      tier stays unexercised; T7 "gray dragon's hide absorbs magical
+      energy" 3/14, pet mcan 1; T8 Death vs tame lich "looks no more
+      dead than before" x19 with mhpmax constant, vs tame Angel "is
+      unaffected" x19, vs tame watchman all four outcomes (consumes
+      life force kill, "looks weaker!" mhpmax 900->886->880->858,
+      "Well.  That didn't work..." x4, plain damage); Vecna "gazes at
+      ... looks weaker!" mhpmax 900->803 over six; T9 beholder gaze
+      (mattk[2], gv.vis forced): shield "crumbles away!" then plate
+      mail "turns to dust and blows away!" then "is disintegrated!"
+      with no corpse and no hero credit, Armor of Retribution "basks
+      in the black aura" 14/30 with the suit intact, tame black dragon
+      basks, Death "is disintegrated! / body reintegrates before your
+      eyes! / resurrects!" x6 at full HP; T10 vortex engulf x14: 8
+      acting, the same armor ladder, "is disintegrated!" with zero
+      objects on the square, both monsters on distinct valid squares
+      every call, the vortex's hero-side passive unchanged; T11
+      vampire mage (the AD_DRLI weapon attacker - a vampire lord is
+      AD_PHYS) forced to wield a cockatrice corpse: "turns to stone!"
+      + statue + M_ATTK_DEF_DIED 4/4 (the resistant and lizard
+      controls not run - a gdb-detach abort ended that game); T12
+      FIXED "The hill giant hits!" 1-12 HP and "knocks you backward
+      with a powerful blow!", giant zombie and minotaur hits cost HP,
+      mattackm(giant, pet) 300->267; CONTROL binary: hill giant
+      adjacent ~50 turns = zero messages and HP 500 unchanged,
+      mattackm(giant, kitten) x15 = 13 landed hits printed with mhp
+      400 unchanged - the class proved; T13 acid blob / brown mold /
+      yellow mold / gray fungus passives unchanged, hero-side gray
+      dragon AD_CNCL unchanged, save/restore clean; T15 hero as hill
+      giant vs ghost "passes harmlessly through" x4 with no
+      impossible(), vs a watchman a hardware watchpoint counted
+      exactly one mhp write per landed hit incl. two knockback hits;
+      T16 BLOCKED (no booted kicker on the branch: centaurs cannot
+      wear boots, mplayer monks and a forced cleric used only the
+      weapon; the weapon and gloves rungs were exercised instead);
+      T17 pet dying to a hostile's black scales: "is disintegrated
+      completely!" stood alone in the capture; T18 vortex vs a pet
+      with life saving and no suit: "crumbles under the gaze!  But
+      wait...  medallion begins to glow!", the pet lived, the amulet
+      was consumed, squares valid. Two cores, both harness artifacts
+      (crash analyzer): the tester's gdb scripts used $bx/$by as
+      convenience variables - on x86-64 gdb those alias the low bits
+      of rbx, and the write while the game sat in read() sent libc's
+      first store after the syscall through a clobbered stdin pointer
+      into a read-only page; the second was a detach with an inferior
+      call still live (dummy-frame return into the stack). Harness
+      lore -> gameplay.md.
+- [ ] Knockback machinery (minted 2026-09-09 by the attack-handler
+      slice; every earlier slice's "-> knockback slice" deferral had
+      no row): the branch runs upstream 5.0's mhitm_knockback()
+      (uhitm.c: 1 in 6, AD_PHYS - and since BUG-1803 AD_CLOB - on
+      CLAW/KICK/BUTT/WEAP, attacker two sizes larger than the
+      defender, no engulfer/hugger/sticker, steadfast, 1-2 squares,
+      1 in 4 stun; Ogresmasher 1 in 2), ratified as the branch model
+      by the Monk rows. Master keys knockback on AD_CLOB itself
+      (mhitu.c hitmu: dmg != 0, hero smaller than MZ_HUGE, not stuck,
+      not unsolid, 1 in 6, rnd(2) squares, 1 in 4 stun; mhitm.c
+      mdamagem: tmp > 0 and below the victim's HP, steed dismount)
+      with immunities the branch lacks: Giantslayer or Harbinger
+      wielded, Ashmar worn, Armor of Retribution worn (the HELD
+      "Prevents knockback." pokedex tips ride here). Also deferred
+      here by earlier slices: mbhitm force-bolt knockback, the
+      combat-knockback muse/zap TODO sites, the mid-beam DEADMONSTER/
+      o_on revalidation. Decide: keep 5.0's size gate or restore
+      master's per-adtyp shape.
+- [ ] Monster free-action consumers ABSENT (minted 2026-09-09 by the
+      attack-handler slice; the has_free_action() macro landed with
+      the telekinesis slice but only dogmove.c reads it): master has
+      21 consumer sites - apply.c (3), dogmove.c (2), mhitm.c
+      mdamagem AD_PLYS (2) + passivemm AD_PLYS "stiffens momentarily"
+      (4), mhitu.c passiveum AD_PLYS (2), muse.c (2), potion.c (1),
+      trap.c (1), uhitm.c damageum AD_PLYS (2), worn.c (2); the
+      branch's passiveum, passivemm and mhitm_ad_plys paralysis arms
+      all lack the exemption, so a pet with a ring of free action is
+      still frozen by a floating eye's or gelatinous cube's passive.
+      One slice.
+- [ ] LOW observation (2026-09-09, attack-handler slice): the passive
+      AD_COLD arms keep vanilla 5.0's shape - passiveum heals u.mh by
+      (tmp + rn2(2))/2 and splits any form over the level cap,
+      passivemm heals every cold-passive defender; master gates the
+      passiveum split on S_JELLY/S_FUNGUS forms and passivemm's HP
+      gain on blue jelly / brown mold only. Decide upstream-wins or
+      master parity when the passive family is next touched.
 - [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
@@ -14262,6 +14453,14 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       brain-clause shape; the mutual-telepathy feature (and its
       high-priest carve-out, which only exists relative to that
       clause) needs its own port decision.
+      RIDER (2026-09-09, attack-handler slice): mattackm()'s
+      wielded-petrifying-corpse block (mhitm.c, after hitmm()) was
+      ported with INSTANT petrification through the do_stone_mon()
+      sequence by maintainer ruling; when the countdown engine lands,
+      convert that site to master's `mstone = 5; mstonebyu = FALSE`
+      together with do_stone_mon()'s non-gaze arm. The new
+      mhitm_ad_disn() honours the BUG-1313 damage-zero contract this
+      row asked for.
 
 ## Phase 6 - Infra and server
 
@@ -14470,6 +14669,7 @@ trees, different content - Phase 0 rename).
 | 2026-08-01 | castle-2 court monsters GET the shuffle on branch (master's castle-2 $monster register lacks SHUFFLE while castle-1/3 and vanilla all shuffle = master oversight, BUG-1455 frozen-unfixed): dat/castle-2.lua carries shuffle(monster) | maintainer |
 | 2026-07-25 | RNDVAULT rtype DROPPED rather than ported: 5.0's THEMEROOM occupies its exact role (both trees carry the same "treat like OROOM so random content still lands" test), which follows directly from the ratified 2026-07-18 rndvaults-to-themerooms decision. Consequence: SHOPBASE 14->20 and CANDLESHOP 31, NOT master's 21/32. This also incidentally FIXES a live master bug - mapseen_feat.shoptype is Bitfield(5) and recalc_mapseen stores a raw rtype, so master's CANDLESHOP 32 truncates to 0, the "mixed shop types" sentinel, and a known candle shop annotates as "untended shop" in the overview. Constraint recorded at the enum; do NOT re-add RNDVAULT | coordinator |
 | 2026-09-08 | Pokedex slice rulings (AskUserQuestion x3, all recommended): (1) the nine dmgval() weapon-case bonuses the port's audit found dropped are restored as a coupled commit B (BUG-1798) so the object lookup's damage line and combat agree on landing; master's material-hardness block gets its own row; (2) arti_specials[] ships only the tips whose backing behavior is live (89 of 128); the 39 ABSENT/PARTIAL lines are held on the owner rows and re-enter when their mechanisms land - no tip may describe a behavior the branch lacks; (3) farlook stays without monster health text; master's Healer-only mon_wounds feature gets its own row (5.0's #if 0'd monhealthdescr is not enabled). Port-shape decisions recorded on the rows: the AT_/AD_ label tables became symbol-keyed switch helpers (the branch renumbers almost every value and defines no LAST_AT/LAST_AD); the "More info about" prompt fires only when something will display (vanilla parity; master prompts unconditionally and then reports nothing); the artifact "named" alternate resolves inside checkfile() with a base-type agreement test instead of master's caller-side artiname(); the Rider hedge keys on the pick being farlook-sourced; the hallucination outfit/weapon arm uses the display RNG and a random type name instead of a created-and-freed object. |
+| 2026-09-08 | Attack-handler arms slice rulings (AskUserQuestion x3, all recommended): (1) the AD_CLOB dispatcher gap the slice's census surfaced (27 attack slots dealing zero damage with no hit message and no knockback) is fixed now as a coupled commit B under 5.0's size-gated knockback model; master's AD_CLOB-keyed knockback shape and its artifact immunities go to a newly minted knockback-machinery row; (2) master's damageum AD_PSYC arm is HELD - unreachable on both trees, no attack template carries AD_PSYC; (3) mattackm()'s wielded-petrifying-corpse block petrifies instantly through the do_stone_mon() sequence because the branch has no monster stoning countdown, with a rider on the gradual-stoning row to switch to mstone = 5 when the engine lands. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
