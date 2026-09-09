@@ -7159,6 +7159,7 @@ mhitm_adtyping(
     case AD_LEGS: mhitm_ad_legs(magr, mattk, mdef, mhm); break;
     case AD_WERE: mhitm_ad_were(magr, mattk, mdef, mhm); break;
     case AD_HEAL: mhitm_ad_heal(magr, mattk, mdef, mhm); break;
+    case AD_CLOB: /* knock-back attacks are physical hits too */
     case AD_PHYS: mhitm_ad_phys(magr, mattk, mdef, mhm); break;
     case AD_FIRE: mhitm_ad_fire(magr, mattk, mdef, mhm); break;
     case AD_COLD: mhitm_ad_cold(magr, mattk, mdef, mhm); break;
@@ -7761,7 +7762,7 @@ mhitm_knockback(
         return FALSE;
 
     /* only certain attacks qualify for knockback */
-    if (!((mattk->adtyp == AD_PHYS)
+    if (!((mattk->adtyp == AD_PHYS || mattk->adtyp == AD_CLOB)
           && (mattk->aatyp == AT_CLAW
               || mattk->aatyp == AT_KICK
               || mattk->aatyp == AT_BUTT
@@ -8050,8 +8051,11 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 /* proceed with uswapwep->cursed check, then exit loop */
                 goto passivedone;
             }
-            /* Do not print "You hit" message; known_hitum already did it. */
-            if (dhit && mattk->adtyp != AD_SPEL && mattk->adtyp != AD_PHYS)
+            /* Do not print "You hit" message; known_hitum already did it.
+               A knock-back weapon attack is physical too: its damage
+               was dealt above and its handler would only zero it */
+            if (dhit && mattk->adtyp != AD_SPEL && mattk->adtyp != AD_PHYS
+                && mattk->adtyp != AD_CLOB)
                 sum[i] = damageum(mon, mattk, 0);
             break;
         case AT_CLAW:
