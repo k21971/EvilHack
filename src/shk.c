@@ -4718,6 +4718,33 @@ getprice(struct obj *obj, boolean shk_buying)
         }
         tmp += factor;
     }
+
+    /* object price is affected by its level of erosion,
+       or if made erodeproof. oeroded and oeroded2 can stack,
+       so having an object that is rusted and corroded can
+       greatly decrease its value, both buying from and
+       selling to a shopkeeper */
+    if (obj->oerodeproof)
+        tmp *= 2L;
+
+    if (obj->oeroded) {
+        if (obj->oeroded == 3)
+            tmp /= 3L;
+        else if (obj->oeroded == 2)
+            tmp /= 2L;
+        else if (obj->oeroded == 1)
+            tmp -= 2L; /* light erosion knocks a couple of zorkmids off */
+    }
+
+    if (obj->oeroded2) {
+        if (obj->oeroded2 == 3)
+            tmp /= 3L;
+        else if (obj->oeroded2 == 2)
+            tmp /= 2L;
+        else if (obj->oeroded2 == 1)
+            tmp -= 2L;
+    }
+
     /* object price can also be affected by the build
        quality of said object, currently this only
        affects armor and weaponry */
@@ -4771,6 +4798,12 @@ getprice(struct obj *obj, boolean shk_buying)
             tmp /= 2L;
         break;
     }
+
+    /* in case an object's value drops below zero
+       (erosion cases) */
+    if (tmp < 0L)
+        tmp = 0L;
+
     return tmp;
 }
 
