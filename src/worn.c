@@ -1473,17 +1473,36 @@ m_dowear_type(
         vision_recalc(1);
         if (!creation && best->lamplit && cansee(mon->mx, mon->my)) {
             const char *adesc = arti_light_description(best);
+            boolean shadow = (Is_dragon_armor(best)
+                              && Dragon_armor_to_scales(best)
+                                 == SHADOW_DRAGON_SCALES);
 
-            if (sawmon) /* could already see monster */
-                pline("%s %s to shine %s.", Yname2(best),
-                      otense(best, "begin"), adesc);
-            else if (canseemon(mon)) /* didn't see it until new light */
-                pline("%s %s shining %s.", Yname2(best),
-                      otense(best, "are"), adesc);
-            else if (sawloc) /* saw location but not invisible monster */
-                pline("%s begins to shine %s.", Something, adesc);
-            else /* didn't see location until new light */
-                pline("%s is shining %s.", Something, adesc);
+            if (shadow) {
+                /* shadow dragon armor gives off darkness, not light */
+                if (sawmon) /* could already see monster */
+                    pline("%s %s to cast an aura of darkness.",
+                          Yname2(best), otense(best, "begin"));
+                else if (canseemon(mon)) /* didn't see it until new dark */
+                    pline("%s %s giving off an aura of darkness.",
+                          Yname2(best), otense(best, "are"));
+                else if (sawloc) /* saw location but not invisible monster */
+                    pline("%s begins to cast an aura of darkness.",
+                          Something);
+                else /* didn't see location until new dark */
+                    pline("%s is giving off an aura of darkness.",
+                          Something);
+            } else {
+                if (sawmon) /* could already see monster */
+                    pline("%s %s to shine %s.", Yname2(best),
+                          otense(best, "begin"), adesc);
+                else if (canseemon(mon)) /* didn't see it until new light */
+                    pline("%s %s shining %s.", Yname2(best),
+                          otense(best, "are"), adesc);
+                else if (sawloc) /* saw location but not invisible monster */
+                    pline("%s begins to shine %s.", Something, adesc);
+                else /* didn't see location until new light */
+                    pline("%s is shining %s.", Something, adesc);
+            }
         }
     }
     update_mon_extrinsics(mon, best, TRUE, creation);
@@ -1725,12 +1744,18 @@ mon_break_armor(struct monst *mon, boolean polyspot)
                           cloak_simple_name(otmp));
                 m_lose_armor(mon, otmp, polyspot);
             } else {
-                Soundeffect(se_ripping_sound, 100);
-                if (vis)
-                    pline_mon(mon, "%s %s tears apart!", s_suffix(Monnam(mon)),
-                          cloak_simple_name(otmp));
-                else
-                    You_hear("a ripping sound.");
+                if (Is_dragon_armor(otmp)
+                    && monsndx(mdat) == Dragon_armor_to_pm(otmp)) {
+                    ; /* same as above; no message here */
+                } else {
+                    Soundeffect(se_ripping_sound, 100);
+                    if (vis)
+                        pline_mon(mon, "%s %s tears apart!",
+                                  s_suffix(Monnam(mon)),
+                                  cloak_simple_name(otmp));
+                    else
+                        You_hear("a ripping sound.");
+                }
                 m_useup(mon, otmp);
             }
         }

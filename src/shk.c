@@ -4755,6 +4755,12 @@ getprice(struct obj *obj, boolean shk_buying)
         }
         break;
     case ARMOR_CLASS:
+        /* a suit with dragon scales melded into it is worth the
+           suit plus one and a half times the scales */
+        if (Is_dragon_scaled_armor(obj))
+            tmp += (3L * objects[obj->dragonscales].oc_cost) / 2L;
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case WEAPON_CLASS:
         if (obj->spe > 0)
             tmp += 10L * (long) obj->spe;

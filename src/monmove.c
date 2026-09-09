@@ -698,15 +698,26 @@ monflee(
                     /* tell the player even if the hero is unconscious */
                     pline_mon(mtmp, "%s is frightened.", Monnam(mtmp));
                 } else if (rn2(10) || Deaf) {
-                    /* via flees_light(), will always be either via uwep
-                       (Sunsword) or uarm (gold dragon scales/mail) or both;
-                       TODO? check for both and describe the one which is
-                       emitting light with a bigger radius */
-                    const char *lsrc = (uwep && artifact_light(uwep))
-                                       ? bare_artifactname(uwep)
-                                       : (uarm && artifact_light(uarm))
-                                         ? yname(uarm)
-                                         : "[its imagination?]";
+                    const char *lsrc;
+
+                    /* name the item emitting the light: lit body armor
+                       first (unless it is shadow dragon armor, which
+                       gives off darkness), then a lit shield, then
+                       whichever wielded weapon is lit */
+                    if (uarm && uarm->lamplit && artifact_light(uarm)
+                        && !(Is_dragon_armor(uarm)
+                             && Dragon_armor_to_scales(uarm)
+                                == SHADOW_DRAGON_SCALES))
+                        lsrc = yname(uarm);
+                    else if (uarms && uarms->lamplit && artifact_light(uarms))
+                        lsrc = yname(uarms);
+                    else if (uwep && uwep->lamplit && artifact_light(uwep))
+                        lsrc = bare_artifactname(uwep);
+                    else if (u.twoweap && uswapwep && uswapwep->lamplit
+                             && artifact_light(uswapwep))
+                        lsrc = bare_artifactname(uswapwep);
+                    else
+                        lsrc = "[its imagination?]";
 
                     pline_mon(mtmp, "%s flees from the painful light of %s.",
                           Monnam(mtmp), lsrc);

@@ -2038,6 +2038,12 @@ hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
         }
     }
 
+    /* wearing red dragon-scaled armor gives the wearer
+       a slight damage boost */
+    if (!hmd->destroyed && uarm && Is_dragon_scaled_armor(uarm)
+        && Dragon_armor_to_scales(uarm) == RED_DRAGON_SCALES)
+        dmgbonus += rnd(6);
+
     /*
      * Potential bonus (or penalty) from weapon skill.
      * 'use_weapon_skill' is True for hand-to-hand ordinary weapon,
