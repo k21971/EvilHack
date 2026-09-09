@@ -12818,7 +12818,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       intrinsic polymorph control naming mastodon ran newman() while
       #polyself accepted it. Commit hashes in the archive
       (BUG-1782..1794) until landed.
-- [ ] Dragon-scaled armor consumer sites NOT PORTED (minted 2026-09-07
+- [x] Dragon-scaled armor consumer sites NOT PORTED (minted 2026-09-07
       by the wear-path slice; the scope ruling left them off: LOW).
       Master: shk.c getprice +150% of the scales' cost for a scaled
       suit (3922); the shadow-scaled-armor darkness sites - timeout.c
@@ -12828,6 +12828,87 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       darkness" message (1172); zap.c's youattack gray/chromatic
       cancel-resist site (3697; the youdefend and mon-vs-mon sites are
       on the branch). Nine lines; take them with any light/shk touch.
+      PORTED 2026-09-09 (session 106; commit A = the consumer sites +
+      the census siblings, commit B = the begin_burn() light-hater
+      block, commit C = the erosion price block; hashes in the
+      archive next to BUG-1807..1814). PER-SITE VERDICTS: (1) shk.c
+      getprice scaled term PORTED (BUG-1807); (2) the timeout.c
+      `armor` term was one exemption inside master's WHOLE
+      begin_burn() light-establishment lightdamage() block, which the
+      branch lacked entirely (no lmon carrier, no objx/objy, no calls
+      in the magic-lamp or artifact arms, no circle_radii2[] table;
+      the "begin_burn light slice" deferrals of the artifacts and
+      races rows had no row) - PORTED as commit B (BUG-1812) with
+      master's circle_radii2[] as `const short` in vision.c; (3) the
+      light.c snuff_light_source() shadow term is REDUNDANT on both
+      trees - obj_is_burning() admits a non-ignitable only through
+      artifact_light(), which already returns TRUE for worn shadow
+      armor, so the walk continues before master's extra term could
+      matter - closed without code; (4) monmove.c: the flees_light
+      macro was already master-shaped, only the name picker was
+      upstream's - PORTED with master's precedence (BUG-1808); (5)
+      worn.c m_dowear "aura of darkness" quartet PORTED (BUG-1809);
+      (6) zap.c's youattack cancel-resist site was ALREADY PRESENT
+      since the cancel_monst rework 5b37285e7 (2026-08-22) - the row
+      was mis-minted from master's line list. CENSUS (125 master hits
+      of the dragon-armor macros vs the branch): red dragon-scaled
+      +rnd(6) melee bonus ABSENT -> ported in A (BUG-1811, ruling);
+      mon_break_armor() cloak leg printed "tears apart" for a
+      dragon's own scales -> ported in A (BUG-1810); white-scale ice
+      fumbling = the wear-path slice's recorded drop; has_cold_feet =
+      the freeze-underfoot row; bones.c savebones ukiller looting
+      absent -> row minted; begin_burn caller diff: off-hand artifact
+      light on two-weapon (wield.c setuswapwep/dotwoweapon) and
+      poly_obj lit-state carry-over absent -> rows minted (the
+      twoweap arms of flees_light and the new picker are dead until
+      the former lands). getprice erosion block (forge slice's
+      "separate decision" NIT) -> ported as commit C (BUG-1814,
+      ruling). DEVIATIONS: begin_burn's two lightdamage() calls are
+      gated on !gi.in_mklev - goto_level() runs mklev() before
+      vision_reset() and vision_recalc() refuses while in_mklev, so
+      creation-time m_dowear/mon_wield_item of a lit item would test
+      the PREVIOUS level's hero square and vision table (master
+      latent, BUG-1813 frozen-unfixed); the staff exemption's monster
+      leg is expressed through the carrier (lmon) instead of master's
+      OBJ_MINVENT/ocarry test (same semantics); erosion's light tier
+      is written `tmp -= 2L` (master's `(3L / 2L) + 1L` is 2) and the
+      odiluted/orotten/norevive aliasing of the erosion bits is
+      carried as master behavior (diluted potions, rotten food and
+      frozen corpses lose 2 zm; a 1-2 zm item such as an arrow with
+      light erosion clamps to 0 and get_cost()'s master-shared
+      `if (!tmp) tmp = 5L` fallback then sells it at 5 zm - reviewer
+      MEDIUM, recorded as parity); the red bonus rolls only on a
+      positive-damage hit (5.0's helper precondition), so it never
+      reaches a noncorporeal target where master's unconditional
+      roll lets red scales hurt a shade - the branch keeps the
+      noncorporeal rule (reviewer LOW, deliberate); a drow's wizkit
+      "lit magic lamp" hurts before the first prompt (reviewer LOW,
+      wizard-only, archive note). RULINGS
+      (AskUserQuestion x3, all recommended) in the Decisions log.
+      BATTERY 2026-09-09 (game-tester, two XL30 games: human Valkyrie
+      T:215, drow Ranger T:122; paniclog never created): T1 gdb
+      getprice() gray-scaled plate mail 1650 vs plain 600; T5 rusty /
+      very rusty / thoroughly rusty / rustproof / rusty corroded plate
+      mail 598 / 300 / 200 / 1200 / 596, diluted potion of healing 98,
+      rusty arrow 0 (clamp), shk_buying identical; T2 gremlin (a)
+      shield of light only -> "... painful light of your shield of
+      light." (b) plus a shadow-scaled suit -> the shield again, (c)
+      gold-scaled suit + Sunsword -> the suit ("your plate mail" - the
+      xname-prefix row below), never Sunsword; T3 orc-captain "puts on
+      a blessed shadow-scaled +0 plate mail.  The orc-captain's plate
+      mail begins to cast an aura of darkness."; T6 logging
+      breakpoints: plain suit delta +1 on 9 hits, red suit delta 1 +
+      {1,6,3,6,1,1}, six bare-handed punches on a shade "pass
+      harmlessly through" with dmg_recalc never entered; T4 drow:
+      blessed magic lamp "Ow, that light hurts!" HP -2/-4, cursed lamp
+      silent, gold scales worn "Ow" + shine, shadow scales silent +
+      aura, an adjacent orc-captain donning gold scales "Ow" HP -1,
+      donning shadow scales silent. Staging facts (gameplay.md):
+      hostile monsters never don armor within 3 squares of the hero
+      (dochug I_SPECIAL dist2 > 9) - the tester flipped mpeaceful via
+      gdb; observation: the hero's red-scaled passive burned the
+      attacking shade (master's arm has no noncorporeal gate either;
+      not a row). Open Phase 2 rows: 55 (52 - 1 closed + 4 minted).
 - [ ] Potion of polymorph with intrinsic polymorph control ran newman()
       for a legal form while wearing dragon armor (minted 2026-09-07 by
       the wear-path confirmation battery; LOW, unread). Celestial-scaled
@@ -13047,6 +13128,59 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       passiveum split on S_JELLY/S_FUNGUS forms and passivemm's HP
       gain on blue jelly / brown mold only. Decide upstream-wins or
       master parity when the passive family is next touched.
+- [ ] Killer loots the hero's death pile in bones ABSENT (minted
+      2026-09-09 by the dragon-scaled consumer-sites census): master
+      savebones() (src/bones.c ~648-700) keeps `ukiller` (the monster
+      that killed the hero) when the hero does not rise from the
+      grave, lets it take each floor item at the death square with a
+      1 in 8 chance, anything it already owned, and - if it is a
+      demon lord or prince ("greedy") - half of the artifacts, dragon
+      armor (Is_dragon_armor), amulets of life saving, bags of
+      holding, magic markers and unicorn horns, subject to
+      touch_artifact()/can_carry(); it then m_dowear()s the loot and
+      a greedy killer is removed 1 in 3 (mongone + dmonsfree) so
+      low-dungeon demon-prince bones do not loop. The branch's
+      savebones() has no ukiller leg at all (upstream 5.0 shape).
+      Whole feature; needs the ukiller producer trace on the branch
+      (where master sets it in done()/mon.c) before the leg. LOW.
+- [ ] Off-hand artifact light on two-weapon ABSENT (minted 2026-09-09
+      by the dragon-scaled consumer-sites slice's begin_burn caller
+      diff): master's setuswapwep() (src/wield.c ~300-330) ends the
+      old off-hand artifact's light and begin_burn()s a newly set
+      off-hand artifact when u.twoweap, with the drow-Staff "casts an
+      aura of darkness!" / "stops shining" text, and dotwoweapon()
+      toggles it (BUG-993/996 in the archive cover master's ordering
+      traps: setuswapwep with the obj already in W_SWAPWEP, and the
+      missing obj == uwep early return). The branch's setuswapwep()
+      is 5.0's plus the ITEM_EXCEL luck wiring only, so an off-hand
+      Sunsword never lights and the u.twoweap arms of flees_light()
+      and of the gremlin name picker (ported 2026-09-09) are dead
+      code. Take with the next wield.c touch; sweep BUG-956/993/996
+      first. MEDIUM.
+- [ ] poly_obj() lit-state carry-over ABSENT (minted 2026-09-09 by the
+      dragon-scaled consumer-sites slice's begin_burn caller diff):
+      master's poly_obj() (src/zap.c ~2150-2185) ends the old
+      object's light and, when the new form can be lit (magic lamp,
+      oil lamp, lantern, candle, potion of oil with the fuel carried
+      over, artifact light), sets lamplit and begin_burn()s it,
+      otherwise clears lamplit and any stray burn timer. Upstream
+      5.0 drops the light with the old object (obfree ->
+      dealloc_obj's obj_sheds_light gate) and the new object comes
+      out unlit; the branch follows 5.0. Cosmetic/parity. LOW.
+- [ ] LOW: a melded dragon-scaled suit's xname() lacks the scaled
+      prefix (minted 2026-09-09 by the consumer-sites battery;
+      master-shared): doname_base() adds "<color>-scaled " to the
+      prefix buffer, so inventory, pick-up and put-on lines read
+      "gold-scaled +1 plate mail", but every xname()-based form -
+      yname()/Yname2()/yobjnam()/Tobjnam() - says plain "plate mail":
+      verified on the gremlin flee line ("the painful light of your
+      plate mail") and the monster aura line ("The orc-captain's plate
+      mail begins to cast an aura of darkness."); the hero-side
+      toggle_armor_light() Yname2() text is the same path (unverified).
+      Loose scales are fine (their otyp carries the name). Master's
+      objnam.c has the same doname-only prefix. Decide whether the
+      prefix moves into xname() (every consumer, wish parsing
+      unaffected) or stays a doname prefix. Cosmetic.
 - [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
@@ -14670,6 +14804,7 @@ trees, different content - Phase 0 rename).
 | 2026-07-25 | RNDVAULT rtype DROPPED rather than ported: 5.0's THEMEROOM occupies its exact role (both trees carry the same "treat like OROOM so random content still lands" test), which follows directly from the ratified 2026-07-18 rndvaults-to-themerooms decision. Consequence: SHOPBASE 14->20 and CANDLESHOP 31, NOT master's 21/32. This also incidentally FIXES a live master bug - mapseen_feat.shoptype is Bitfield(5) and recalc_mapseen stores a raw rtype, so master's CANDLESHOP 32 truncates to 0, the "mixed shop types" sentinel, and a known candle shop annotates as "untended shop" in the overview. Constraint recorded at the enum; do NOT re-add RNDVAULT | coordinator |
 | 2026-09-08 | Pokedex slice rulings (AskUserQuestion x3, all recommended): (1) the nine dmgval() weapon-case bonuses the port's audit found dropped are restored as a coupled commit B (BUG-1798) so the object lookup's damage line and combat agree on landing; master's material-hardness block gets its own row; (2) arti_specials[] ships only the tips whose backing behavior is live (89 of 128); the 39 ABSENT/PARTIAL lines are held on the owner rows and re-enter when their mechanisms land - no tip may describe a behavior the branch lacks; (3) farlook stays without monster health text; master's Healer-only mon_wounds feature gets its own row (5.0's #if 0'd monhealthdescr is not enabled). Port-shape decisions recorded on the rows: the AT_/AD_ label tables became symbol-keyed switch helpers (the branch renumbers almost every value and defines no LAST_AT/LAST_AD); the "More info about" prompt fires only when something will display (vanilla parity; master prompts unconditionally and then reports nothing); the artifact "named" alternate resolves inside checkfile() with a base-type agreement test instead of master's caller-side artiname(); the Rider hedge keys on the pick being farlook-sourced; the hallucination outfit/weapon arm uses the display RNG and a random type name instead of a created-and-freed object. |
 | 2026-09-08 | Attack-handler arms slice rulings (AskUserQuestion x3, all recommended): (1) the AD_CLOB dispatcher gap the slice's census surfaced (27 attack slots dealing zero damage with no hit message and no knockback) is fixed now as a coupled commit B under 5.0's size-gated knockback model; master's AD_CLOB-keyed knockback shape and its artifact immunities go to a newly minted knockback-machinery row; (2) master's damageum AD_PSYC arm is HELD - unreachable on both trees, no attack template carries AD_PSYC; (3) mattackm()'s wielded-petrifying-corpse block petrifies instantly through the do_stone_mon() sequence because the branch has no monster stoning countdown, with a rider on the gradual-stoning row to switch to mstone = 5 when the engine lands. | maintainer |
+| 2026-09-09 | Dragon-scaled consumer-sites slice rulings (AskUserQuestion x3, all recommended): (1) the row's timeout.c `armor` term rides inside master's whole begin_burn() light-establishment lightdamage() block, which the branch lacked and no row tracked - PORTED NOW as a coupled commit B, with one deviation: both calls are gated on !gi.in_mklev because goto_level() builds the new level before vision_reset(), so creation-time lit gear would otherwise be tested against the previous level's hero square (master latent, frozen-unfixed); (2) getprice()'s erosion price block (the forge slice's "separate decision" gap) is PORTED NOW as commit C, written `tmp -= 2L` for the light tier, with the odiluted/orotten/norevive aliasing (diluted potions, rotten food and frozen corpses lose 2 zm) carried as master behavior; (3) the red dragon-scaled armor +rnd(6) melee bonus the census surfaced rides commit A. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
