@@ -22,9 +22,18 @@ staticfn int explmm(struct monst *, struct monst *, struct attack *);
 staticfn int mdamagem(struct monst *, struct monst *, struct attack *,
                     struct obj *, int);
 staticfn void mswingsm(struct monst *, struct monst *, struct obj *);
+staticfn int passive_agr_killed(struct monst *, struct monst *, int, int,
+                               int);
+staticfn int passive_agr_dmg(struct monst *, struct monst *, int, int, int,
+                            int);
+staticfn int passive_disint_agr(struct monst *, struct monst *, int, int);
 staticfn int passivemm(struct monst *, struct monst *, boolean, int,
-                     struct obj *);
+                     struct obj *, int);
 staticfn boolean mdef_at_bhitpos(struct monst *);
+
+/* the Oracle's passive retaliation */
+static const char thin_air_missiles[] =
+    "%s is hit by magic missiles appearing from thin air!";
 
 staticfn void
 noises(struct monst *magr, struct attack *mattk)
@@ -582,6 +591,9 @@ mattackm(
                 strike = 0;
             }
             if (strike) {
+                short type = 0;
+                int corpsenm = NON_PM;
+
                 /* for eel AT_TUCH+AD_WRAP attack: can't grab an unsolid
                    target; the unsolid test is redundant since failed_grab
                    checks it too, but is cheap and avoids calling failed_grab
@@ -609,12 +621,43 @@ mattackm(
                 }
 
                 wep_id = mwep ? mwep->o_id : 0;
+                if (mwep) {
+                    type = mwep->otyp;
+                    corpsenm = mwep->corpsenm;
+                }
                 res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
                 /* hitmm() takes mwep by value and rustm() down that path
                    can erode it out of existence, so re-check it here for
                    the pudding-split test below and for passivemm() */
                 if (mwep && !o_on(wep_id, magr->minvent))
                     mwep = (struct obj *) 0;
+                if (res[i] == M_ATTK_HIT && mwep && type == CORPSE
+                    && safe_touch_petrifies(corpsenm)
+                    && !(resists_ston(mdef) || defended(mdef, AD_STON))) {
+                    /* a wielded petrifying corpse also stones the target
+                       of a non-physical weapon attack, whose damage
+                       handler never looks at the weapon; there is no
+                       gradual-stoning countdown for monsters yet, so the
+                       blow petrifies outright, the way do_stone_mon()
+                       resolves a physical hit */
+                    if (munstone(mdef, FALSE)) {
+                        ; /* ate a cure, which may itself have been fatal */
+                    } else if (poly_when_stoned(mdef->data)) {
+                        mon_to_stone(mdef);
+                    } else {
+                        if (gv.vis && canseemon(mdef))
+                            pline_mon(mdef, "%s turns to stone!",
+                                      Monnam(mdef));
+                        if (magr->mtame)
+                            set_pet_killer(magr);
+                        monstone(mdef);
+                    }
+                    if (DEADMONSTER(mdef))
+                        res[i] = (M_ATTK_DEF_DIED
+                                  | (grow_up(magr, mdef) ? 0
+                                                         : M_ATTK_AGR_DIED));
+                    break;
+                }
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
                     && (mwep && (mwep->material == IRON
@@ -823,7 +866,8 @@ mattackm(
         if (attk && !(res[i] & M_ATTK_AGR_DIED)
             && distmin(magr->mx, magr->my, mdef->mx, mdef->my) <= 1)
             res[i] = passivemm(magr, mdef, strike,
-                               (res[i] & M_ATTK_DEF_DIED), mwep);
+                               (res[i] & M_ATTK_DEF_DIED), mwep,
+                               (int) mattk->aatyp);
 
         if (res[i] & M_ATTK_DEF_DIED)
             return res[i];
@@ -1711,6 +1755,74 @@ mswingsm(
     }
 }
 
+/* passivemm(): the defender's passive effect killed the attacker;
+   credit the kill the way the damage tail does and hand back the result
+   mattackm() expects. The caller has already printed a death message,
+   so monkilled() gets no text of its own. */
+staticfn int
+passive_agr_killed(
+    struct monst *magr,
+    struct monst *mdef,
+    int adtyp,
+    int mdead,
+    int mhit)
+{
+    gz.zombify = FALSE; /* attacker's corpse never zombifies */
+    if (mdef->mtame)
+        set_pet_killer(mdef);
+    if (mdef->uexp)
+        /* hero-conjured helper's passive counterattack; the hero
+           gets credit and experience */
+        mon_xkilled(magr, (char *) 0, adtyp);
+    else
+        monkilled(magr, (char *) 0, adtyp);
+    return (mdead | mhit | M_ATTK_AGR_DIED);
+}
+
+/* passivemm(): the defender's armor or hide damaged the attacker;
+   returns 0 while it lives, otherwise the result to hand back */
+staticfn int
+passive_agr_dmg(
+    struct monst *magr,
+    struct monst *mdef,
+    int dmg,
+    int adtyp,
+    int mdead,
+    int mhit)
+{
+    if (damage_mon(magr, dmg, adtyp, FALSE)) {
+        if (canseemon(magr))
+            pline_mon(magr, "%s dies!", Monnam(magr));
+        return passive_agr_killed(magr, mdef, adtyp, mdead, mhit);
+    }
+    return 0;
+}
+
+/* passivemm(): the defender's armor or hide disintegrated the attacker
+   outright; Riders reintegrate, everything else dies without a corpse */
+staticfn int
+passive_disint_agr(
+    struct monst *magr,
+    struct monst *mdef,
+    int mdead,
+    int mhit)
+{
+    disint_mon_invent(magr);
+    if (is_rider(magr->data)) {
+        if (canseemon(magr)) {
+            pline_mon(magr, "%s body reintegrates before your %s!",
+                      s_suffix(Monnam(magr)),
+                      (eyecount(gy.youmonst.data) == 1)
+                          ? body_part(EYE)
+                          : makeplural(body_part(EYE)));
+            pline_mon(magr, "%s resurrects!", Monnam(magr));
+        }
+        magr->mhp = magr->mhpmax;
+        return (mdead | mhit);
+    }
+    return passive_agr_killed(magr, mdef, AD_DISN, mdead, mhit);
+}
+
 /*
  * Passive responses by defenders.  Does not replicate responses already
  * handled above.  Returns same values as mattackm.
@@ -1721,7 +1833,8 @@ passivemm(
     struct monst *mdef,
     boolean mhitb,
     int mdead,
-    struct obj *mwep)
+    struct obj *mwep,
+    int aatyp)
 {
     struct permonst *mddat = mdef->data;
     struct permonst *madat = magr->data;
@@ -1729,8 +1842,169 @@ passivemm(
     struct attack *mdattk = has_erac(mdef) ? ERAC(mdef)->mattk
                                            : mddat->mattk;
     char buf[BUFSZ];
-    int i, tmp;
+    int i, tmp, res;
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
+    struct obj *passive_armor;
+
+    /* dragon-scaled body armor strikes back at whatever hit its wearer */
+    if ((passive_armor = which_armor(mdef, W_ARM)) != 0) {
+        if (mhitb && !rn2(3) && Is_dragon_scaled_armor(passive_armor)) {
+            int otyp = Dragon_armor_to_scales(passive_armor);
+
+            switch (otyp) {
+            case GREEN_DRAGON_SCALES:
+                if (resists_poison(magr) || defended(magr, AD_DRST))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline_mon(magr, "%s staggers from the poison!",
+                                      Monnam(magr));
+                        res = passive_agr_dmg(magr, mdef, rnd(4), AD_DRST,
+                                              mdead, mhit);
+                        if (res)
+                            return res;
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline_mon(magr, "%s is fatally poisoned!",
+                                  Monnam(magr));
+                    return passive_agr_killed(magr, mdef, AD_DRST, mdead,
+                                              mhit);
+                }
+                break;
+            case BLACK_DRAGON_SCALES:
+                if (resists_disint(magr) || defended(magr, AD_DISN)) {
+                    if (canseemon(magr) && !rn2(3)) {
+                        shieldeff(magr->mx, magr->my);
+                        pline("%s armor does not appear to affect %s.",
+                              s_suffix(Monnam(mdef)), mon_nam(magr));
+                    }
+                } else if (passive_contact_attack(aatyp)
+                           /* a weapon, boots or gloves go first */
+                           && !passive_disint_gear(magr, aatyp, 12, TRUE)) {
+                    if (rn2(40)) {
+                        if (canseemon(magr))
+                            pline_mon(magr, "%s partially disintegrates!",
+                                      Monnam(magr));
+                        res = passive_agr_dmg(magr, mdef, rnd(4), AD_DISN,
+                                              mdead, mhit);
+                        if (res)
+                            return res;
+                    } else {
+                        if (canseemon(magr))
+                            pline_mon(magr, "%s is disintegrated completely!",
+                                      Monnam(magr));
+                        return passive_disint_agr(magr, mdef, mdead, mhit);
+                    }
+                }
+                break;
+            case ORANGE_DRAGON_SCALES:
+                if (!rn2(3))
+                    mon_adjust_speed(magr, -1, (struct obj *) 0);
+                break;
+            case WHITE_DRAGON_SCALES:
+                if (resists_cold(magr) || defended(magr, AD_COLD))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline_mon(magr, "%s flinches from the cold!",
+                                      Monnam(magr));
+                        res = passive_agr_dmg(magr, mdef, rnd(4), AD_COLD,
+                                              mdead, mhit);
+                        if (res)
+                            return res;
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline_mon(magr, "%s is frozen solid!", Monnam(magr));
+                    res = passive_agr_dmg(magr, mdef, d(6, 6), AD_COLD,
+                                          mdead, mhit);
+                    if (res)
+                        return res;
+                }
+                break;
+            case RED_DRAGON_SCALES:
+                if (resists_fire(magr) || defended(magr, AD_FIRE)
+                    || mon_underwater(magr))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline_mon(magr, "%s is burned!", Monnam(magr));
+                        res = passive_agr_dmg(magr, mdef, rnd(4), AD_FIRE,
+                                              mdead, mhit);
+                        if (res)
+                            return res;
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline_mon(magr, "%s is severely burned!",
+                                  Monnam(magr));
+                    res = passive_agr_dmg(magr, mdef, d(6, 6), AD_FIRE,
+                                          mdead, mhit);
+                    if (res)
+                        return res;
+                }
+                break;
+            case YELLOW_DRAGON_SCALES:
+                if (resists_acid(magr) || defended(magr, AD_ACID)
+                    || mon_underwater(magr))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline_mon(magr, "%s is seared!", Monnam(magr));
+                        res = passive_agr_dmg(magr, mdef, rnd(4), AD_ACID,
+                                              mdead, mhit);
+                        if (res)
+                            return res;
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline_mon(magr, "%s is critically seared!",
+                                  Monnam(magr));
+                    res = passive_agr_dmg(magr, mdef, d(6, 6), AD_ACID,
+                                          mdead, mhit);
+                    if (res)
+                        return res;
+                }
+                break;
+            case GRAY_DRAGON_SCALES:
+                if (!rn2(6)) {
+                    /* not the hero's attack; the armor's wearer gets the
+                       credit and the blame if the cancellation kills a
+                       clay golem attacker */
+                    if (mdef->mtame)
+                        set_pet_killer(mdef);
+                    (void) cancel_monst(magr, (struct obj *) 0, FALSE,
+                                        TRUE, FALSE);
+                    set_pet_killer((struct monst *) 0);
+                    if (DEADMONSTER(magr))
+                        return (mdead | mhit | M_ATTK_AGR_DIED);
+                }
+                break;
+            default: /* all other types of armor, just pass on through */
+                break;
+            }
+        }
+    }
+    /* Dragonbane sears the dragon that just struck its wearer */
+    if ((passive_armor = which_armor(mdef, W_ARMG)) != 0
+        && passive_armor->otyp == GLOVES
+        && passive_armor->oartifact == ART_DRAGONBANE
+        && is_dragon(magr->data) && !rn2(3)) {
+        if (canseemon(magr))
+            pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(magr)));
+        if (damage_mon(magr, rnd(6) + 2, AD_PHYS, FALSE)) {
+            if (canseemon(magr)) {
+                pline("Dragonbane's power overwhelms %s!", mon_nam(magr));
+                pline_mon(magr, "%s dies!", Monnam(magr));
+            }
+            return passive_agr_killed(magr, mdef, AD_PHYS, mdead, mhit);
+        }
+    }
 
     for (i = 0;; i++) {
         if (i >= NATTK)
@@ -1750,9 +2024,14 @@ passivemm(
     case AD_ACID:
         if (mhitb && !rn2(2)) {
             Strcpy(buf, Monnam(magr));
-            if (canseemon(magr))
-                pline("%s is splashed by %s %s!", buf,
-                      s_suffix(mon_nam(mdef)), hliquid("acid"));
+            if (canseemon(magr)) {
+                if (mddat == &mons[PM_YELLOW_DRAGON])
+                    pline("%s is seared by %s acidic hide!", buf,
+                          s_suffix(mon_nam(mdef)));
+                else
+                    pline("%s is splashed by %s %s!", buf,
+                          s_suffix(mon_nam(mdef)), hliquid("acid"));
+            }
             if (resists_acid(magr) || defended(magr, AD_ACID)
                 || mon_underwater(magr)) {
                 if (canseemon(magr))
@@ -1770,10 +2049,133 @@ passivemm(
             }
         }
         goto assess_dmg;
+    case AD_DISN: { /* black dragon, antimatter vortex */
+        boolean vortex = (mddat == &mons[PM_ANTIMATTER_VORTEX]);
+
+        if (mhitb && !mdef->mcan) {
+            if (resists_disint(magr) || defended(magr, AD_DISN)) {
+                if (canseemon(magr) && !rn2(3)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline("%s deadly %s does not appear to affect %s.",
+                          s_suffix(Monnam(mdef)), vortex ? "form" : "hide",
+                          mon_nam(magr));
+                }
+            } else if (passive_contact_attack(aatyp)
+                       /* a weapon, boots or gloves go first */
+                       && !passive_disint_gear(magr, aatyp, vortex ? 3 : 6,
+                                               FALSE)) {
+                if (vortex ? rn2(10) : rn2(20)) {
+                    if (canseemon(magr))
+                        pline("%s %s partially disintegrates %s!",
+                              s_suffix(Monnam(mdef)),
+                              vortex ? "form" : "hide", mon_nam(magr));
+                    tmp = rn2(6) + 1;
+                    goto assess_dmg;
+                }
+                if (canseemon(magr))
+                    pline("%s deadly %s disintegrates %s!",
+                          s_suffix(Monnam(mdef)), vortex ? "form" : "hide",
+                          mon_nam(magr));
+                return passive_disint_agr(magr, mdef, mdead, mhit);
+            }
+        }
+        break;
+    }
+    case AD_DRST: /* green dragon */
+        if (mhitb && !mdef->mcan && !rn2(3)) {
+            if (resists_poison(magr) || defended(magr, AD_DRST)) {
+                if (canseemon(magr) && !rn2(5))
+                    pline("%s poisonous hide doesn't seem to affect %s.",
+                          s_suffix(Monnam(mdef)), mon_nam(magr));
+            } else if (rn2(20)) {
+                if (canseemon(magr))
+                    pline_mon(magr, "%s is poisoned!", Monnam(magr));
+                tmp = rn2(4) + 1;
+                goto assess_dmg;
+            } else {
+                if (canseemon(magr))
+                    pline("%s poisonous hide was deadly...",
+                          s_suffix(Monnam(mdef)));
+                return passive_agr_killed(magr, mdef, AD_DRST, mdead, mhit);
+            }
+        }
+        break;
+    case AD_MAGM: /* the Oracle: wrath of the gods for attacking her */
+        if (mhitb) {
+            if (resists_mgc(magr->data)) {
+                tmp = 0;
+                if (canseemon(magr)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline_mon(magr, thin_air_missiles, Monnam(magr));
+                    pline_The("missiles bounce off!");
+                }
+            } else if (resists_magm(magr) || defended(magr, AD_MAGM)) {
+                tmp = (tmp + 1) / 2;
+                if (canseemon(magr)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline_mon(magr, (madat == &mons[PM_WOODCHUCK])
+                                        ? "ZOT!" : thin_air_missiles,
+                              Monnam(magr));
+                    pline("Some missiles bounce off!");
+                }
+                goto assess_dmg;
+            } else {
+                if (canseemon(magr))
+                    pline_mon(magr, (madat == &mons[PM_WOODCHUCK])
+                                        ? "ZOT!" : thin_air_missiles,
+                              Monnam(magr));
+                goto assess_dmg;
+            }
+        }
+        break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
         if (mhitb && !mdef->mcan && mwep) {
             (void) drain_item(mwep, FALSE);
             /* No message */
+        }
+        break;
+    case AD_CNCL: /* gray dragon */
+        if (mhitb && !rn2(6)) {
+            if (canseemon(magr))
+                pline("%s hide absorbs magical energy from %s.",
+                      s_suffix(Monnam(mdef)), mon_nam(magr));
+            /* not the hero's attack; the defender gets the credit and
+               the blame if the cancellation kills a clay golem */
+            if (mdef->mtame)
+                set_pet_killer(mdef);
+            (void) cancel_monst(magr, mwep, FALSE, TRUE, FALSE);
+            set_pet_killer((struct monst *) 0);
+            if (DEADMONSTER(magr))
+                return (mdead | mhit | M_ATTK_AGR_DIED);
+        }
+        break;
+    case AD_SLIM: /* green slime */
+        if (mhitb && !mdef->mcan && !rn2(3)) {
+            if (gv.vis)
+                pline("Its slime splashes onto %s!", mon_nam(magr));
+            if (flaming(magr->data)) {
+                if (gv.vis)
+                    pline_The("slime burns away!");
+                tmp = 0;
+            } else if (slimeproof(magr->data)) {
+                if (gv.vis && canseemon(magr))
+                    pline_mon(magr, "%s is unaffected.", Monnam(magr));
+                tmp = 0;
+            } else if (!rn2(4)) {
+                if (!munslime(magr, FALSE) && !DEADMONSTER(magr)) {
+                    if (newcham(magr, &mons[PM_GREEN_SLIME],
+                                (gv.vis && canseemon(magr)) ? NC_SHOW_MSG
+                                                            : NO_NC_FLAGS))
+                        magr->mstrategy &= ~STRAT_WAITFORU;
+                }
+                /* the cure attempt could have been fatal, potentially
+                   to both monsters (scroll of fire) */
+                if (DEADMONSTER(magr))
+                    return (mdead | mhit | M_ATTK_AGR_DIED);
+                if (DEADMONSTER(mdef))
+                    return (mdead | mhit | M_ATTK_DEF_DIED);
+                tmp = 0;
+            }
         }
         break;
     default:
@@ -1884,6 +2286,18 @@ passivemm(
                           magr->mdiseased ? "even worse" : "diseased");
             magr->mdiseased = 1;
             magr->mdiseabyu = FALSE;
+            break;
+        case AD_SLOW: /* orange dragon */
+            if (mhitb && !mdef->mcan && magr->mspeed != MSLOW && !rn2(3))
+                mon_adjust_speed(magr, -1, (struct obj *) 0);
+            tmp = 0;
+            break;
+        case AD_SLEE: /* black fungus */
+            if (sleep_monst(magr, rn2(3) + 8, -1)) {
+                if (canseemon(magr))
+                    pline_mon(magr, "%s loses consciousness.", Monnam(magr));
+                slept_monst(magr);
+            }
             break;
         default:
             tmp = 0;

@@ -1665,6 +1665,9 @@ extern void rustm(struct monst *, struct obj *);
 /* ### mhitu.c ### */
 
 extern void mon_currwep_gone(struct obj *);
+extern boolean passive_contact_attack(int);
+extern boolean passive_disint_gear(struct monst *, int, int, boolean)
+    NONNULLARG1;
 extern void hitmsg(struct monst *, struct attack *) NONNULLARG12;
 extern const char *mswings_verb(struct obj *, boolean) NONNULLARG1;
 extern const char *mpoisons_subj(struct monst *, struct attack *) NONNULLARG12;
@@ -3729,6 +3732,8 @@ extern void mhitm_ad_famn(struct monst *, struct attack *, struct monst *,
 extern void mhitm_ad_pest(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_deth(struct monst *, struct attack *, struct monst *,
+                          struct mhitm_data *) NONNULLPTRS;
+extern void mhitm_ad_disn(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_halu(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;

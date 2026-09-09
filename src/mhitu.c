@@ -22,6 +22,8 @@ staticfn void mayberem(struct monst *, const char *, struct obj *,
                        const char *);
 staticfn int assess_dmg(struct monst *, int);
 staticfn int passiveum(struct permonst *, struct monst *, struct attack *);
+staticfn int passive_armor_dmg(struct monst *, int, int);
+staticfn int passive_disint_kill(struct monst *);
 
 #define ld() ((yyyymmdd((time_t) 0) - (getyear() * 10000L)) == 0xe5)
 
@@ -34,6 +36,78 @@ mon_currwep_gone(struct obj *obj)
 {
     if (obj && mon_currwep == obj)
         mon_currwep = (struct obj *) 0;
+}
+
+/* is aatyp a physical contact attack, one that a disintegrating hide or
+   suit of armor can reach back through? */
+boolean
+passive_contact_attack(int aatyp)
+{
+    switch (aatyp) {
+    case AT_WEAP:
+    case AT_CLAW:
+    case AT_TUCH:
+    case AT_KICK:
+    case AT_BITE:
+    case AT_HUGS:
+    case AT_BUTT:
+    case AT_STNG:
+    case AT_TENT:
+        return TRUE;
+    default:
+        break;
+    }
+    return FALSE;
+}
+
+/* A disintegrating hide or suit of armor reaches for the attacker's
+   gear before the attacker itself: its wielded weapon, its boots on a
+   kick, or its gloves on a bare-handed blow, each with a 1 in odds
+   chance. Dragonbane gloves are spared when spare_dragonbane is set.
+   Returns TRUE when something was destroyed, which spares the
+   attacker's body this time. */
+boolean
+passive_disint_gear(
+    struct monst *magr,
+    int aatyp,
+    int odds,
+    boolean spare_dragonbane)
+{
+    struct obj *otmp;
+
+    if ((otmp = MON_WEP(magr)) != 0 && !rn2(odds)) {
+        if (canseemon(magr))
+            pline_mon(magr, "%s %s is disintegrated!",
+                      s_suffix(Monnam(magr)), xname(otmp));
+        m_useup(magr, otmp);
+        /* mattacku() may have cached the weapon for the rest of the
+           attack chain; a stack only lost one of its members */
+        if (MON_WEP(magr) != otmp)
+            mon_currwep_gone(otmp);
+        return TRUE;
+    }
+    if ((magr->misc_worn_check & W_ARMF) != 0L && aatyp == AT_KICK
+        && !rn2(odds)) {
+        otmp = which_armor(magr, W_ARMF);
+        if (canseemon(magr))
+            pline_mon(magr, "%s %s are disintegrated!",
+                      s_suffix(Monnam(magr)), xname(otmp));
+        m_useup(magr, otmp);
+        return TRUE;
+    }
+    if ((magr->misc_worn_check & W_ARMG) != 0L
+        && (aatyp == AT_WEAP || aatyp == AT_CLAW || aatyp == AT_TUCH)
+        && !MON_WEP(magr) && !rn2(odds)) {
+        otmp = which_armor(magr, W_ARMG);
+        if (spare_dragonbane && otmp->oartifact == ART_DRAGONBANE)
+            return FALSE;
+        if (canseemon(magr))
+            pline_mon(magr, "%s %s are disintegrated!",
+                      s_suffix(Monnam(magr)), xname(otmp));
+        m_useup(magr, otmp);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /* monster hits hero (most callers have been moved to uthim.c) */
@@ -3312,6 +3386,47 @@ assess_dmg(struct monst *mtmp, int tmp)
     return M_ATTK_HIT;
 }
 
+/* the hero's armor or hide damaged the attacker; returns M_ATTK_MISS
+   while it lives, otherwise the passiveum() result to hand back */
+staticfn int
+passive_armor_dmg(struct monst *mtmp, int dmg, int adtyp)
+{
+    if (damage_mon(mtmp, dmg, adtyp, TRUE)) {
+        /* damage_mon() killed the monster */
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s dies!", Monnam(mtmp));
+        xkilled(mtmp, XKILL_NOMSG);
+        if (!DEADMONSTER(mtmp))
+            return M_ATTK_HIT;
+        return M_ATTK_AGR_DIED;
+    }
+    return M_ATTK_MISS;
+}
+
+/* the hero's armor or hide disintegrated the attacker outright; Riders
+   reintegrate, everything else dies without a corpse */
+staticfn int
+passive_disint_kill(struct monst *mtmp)
+{
+    disint_mon_invent(mtmp);
+    if (is_rider(mtmp->data)) {
+        if (canseemon(mtmp)) {
+            pline_mon(mtmp, "%s body reintegrates before your %s!",
+                      s_suffix(Monnam(mtmp)),
+                      (eyecount(gy.youmonst.data) == 1)
+                          ? body_part(EYE)
+                          : makeplural(body_part(EYE)));
+            pline_mon(mtmp, "%s resurrects!", Monnam(mtmp));
+        }
+        mtmp->mhp = mtmp->mhpmax;
+    } else {
+        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+    }
+    if (!DEADMONSTER(mtmp))
+        return M_ATTK_HIT;
+    return M_ATTK_AGR_DIED;
+}
+
 #if 0
 /* returns True if monster has a range attack in its repertoire
    that it will actually utilize. Caller provides the assessment
@@ -3388,8 +3503,160 @@ passiveum(
     struct monst *mtmp,
     struct attack *mattk)
 {
-    int i, tmp;
+    int i, tmp, res;
     struct attack *oldu_mattk = 0;
+
+    /* dragon-scaled body armor strikes back at whatever hit its wearer */
+    if (uarm && Is_dragon_scaled_armor(uarm) && !rn2(3)) {
+        int otyp = Dragon_armor_to_scales(uarm);
+
+        switch (otyp) {
+        case GREEN_DRAGON_SCALES:
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
+                break;
+            if (rn2(20)) {
+                /* regular poison damage (95% chance) */
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s staggers from the poison!",
+                                  Monnam(mtmp));
+                    res = passive_armor_dmg(mtmp, rnd(4), AD_DRST);
+                    if (res != M_ATTK_MISS)
+                        return res;
+                }
+            } else {
+                /* fatal poison (5% chance) */
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is fatally poisoned!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return M_ATTK_HIT;
+                return M_ATTK_AGR_DIED;
+            }
+            break;
+        case BLACK_DRAGON_SCALES:
+            if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
+                if (canseemon(mtmp) && !rn2(3)) {
+                    shieldeff(mtmp->mx, mtmp->my);
+                    Your("armor does not appear to affect %s.",
+                         mon_nam(mtmp));
+                }
+            } else if (passive_contact_attack((int) mattk->aatyp)
+                       /* a weapon, boots or gloves go first */
+                       && !passive_disint_gear(mtmp, (int) mattk->aatyp,
+                                               12, TRUE)) {
+                if (rn2(40)) {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s partially disintegrates!",
+                                  Monnam(mtmp));
+                    res = passive_armor_dmg(mtmp, rnd(4), AD_DISN);
+                    if (res != M_ATTK_MISS)
+                        return res;
+                } else {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s is disintegrated completely!",
+                                  Monnam(mtmp));
+                    return passive_disint_kill(mtmp);
+                }
+            }
+            break;
+        case ORANGE_DRAGON_SCALES:
+            if (!rn2(3))
+                mon_adjust_speed(mtmp, -1, (struct obj *) 0);
+            break;
+        case WHITE_DRAGON_SCALES:
+            if (resists_cold(mtmp) || defended(mtmp, AD_COLD))
+                break;
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s flinches from the cold!",
+                                  Monnam(mtmp));
+                    res = passive_armor_dmg(mtmp, rnd(4), AD_COLD);
+                    if (res != M_ATTK_MISS)
+                        return res;
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is frozen solid!", Monnam(mtmp));
+                res = passive_armor_dmg(mtmp, d(6, 6), AD_COLD);
+                if (res != M_ATTK_MISS)
+                    return res;
+            }
+            break;
+        case RED_DRAGON_SCALES:
+            if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)
+                || mon_underwater(mtmp))
+                break;
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s is burned!", Monnam(mtmp));
+                    res = passive_armor_dmg(mtmp, rnd(4), AD_FIRE);
+                    if (res != M_ATTK_MISS)
+                        return res;
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is severely burned!", Monnam(mtmp));
+                res = passive_armor_dmg(mtmp, d(6, 6), AD_FIRE);
+                if (res != M_ATTK_MISS)
+                    return res;
+            }
+            break;
+        case YELLOW_DRAGON_SCALES:
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)
+                || mon_underwater(mtmp))
+                break;
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline_mon(mtmp, "%s is seared!", Monnam(mtmp));
+                    res = passive_armor_dmg(mtmp, rnd(4), AD_ACID);
+                    if (res != M_ATTK_MISS)
+                        return res;
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is critically seared!",
+                              Monnam(mtmp));
+                res = passive_armor_dmg(mtmp, d(6, 6), AD_ACID);
+                if (res != M_ATTK_MISS)
+                    return res;
+            }
+            break;
+        case GRAY_DRAGON_SCALES:
+            if (!rn2(6)) {
+                /* the hero's armor did it, so the hero gets the credit
+                   and the blame if this kills a clay golem */
+                (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE,
+                                    FALSE);
+                if (DEADMONSTER(mtmp))
+                    return M_ATTK_AGR_DIED;
+            }
+            break;
+        default: /* all other types of armor, just pass on through */
+            break;
+        }
+    }
+
+    /* Dragonbane sears the dragon that just struck its wearer */
+    if (uarmg && uarmg->otyp == GLOVES && uarmg->oartifact == ART_DRAGONBANE
+        && is_dragon(mtmp->data) && !rn2(3)) {
+        if (canseemon(mtmp))
+            pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
+        if (damage_mon(mtmp, rnd(6) + 2, AD_PHYS, TRUE)) {
+            /* damage_mon() killed the monster */
+            if (canseemon(mtmp)) {
+                pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
+                pline_mon(mtmp, "%s dies!", Monnam(mtmp));
+            }
+            xkilled(mtmp, XKILL_NOMSG);
+            if (!DEADMONSTER(mtmp))
+                return M_ATTK_HIT;
+            return M_ATTK_AGR_DIED;
+        }
+    }
 
     /*
      * mattk      == mtmp's attack that hit you;
@@ -3405,20 +3672,28 @@ passiveum(
     }
     if (oldu_mattk->damn)
         tmp = d((int) oldu_mattk->damn, (int) oldu_mattk->damd);
-    else if (oldu_mattk->damd)
-        tmp = d((int) olduasmon->mlevel + 1, (int) oldu_mattk->damd);
-    else
+    else if (oldu_mattk->damd) {
+        /* a dragon form's hide deals a third of the level-scaled roll */
+        if (is_dragon(olduasmon))
+            tmp = d((int) olduasmon->mlevel + 1, (int) oldu_mattk->damd) / 3;
+        else
+            tmp = d((int) olduasmon->mlevel + 1, (int) oldu_mattk->damd);
+    } else
         tmp = 0;
 
     /* These affect the enemy even if you were "killed" (rehumanized) */
     switch (oldu_mattk->adtyp) {
     case AD_ACID:
         if (!rn2(2)) {
-            pline_mon(mtmp, "%s is splashed by %s%s!", Monnam(mtmp),
-                  /* temporary? hack for sequencing issue:  "your acid"
-                     looks strange coming immediately after player has
-                     been told that hero has reverted to normal form */
-                  !Upolyd ? "" : "your ", hliquid("acid"));
+            if (gy.youmonst.data == &mons[PM_YELLOW_DRAGON])
+                pline_mon(mtmp, "%s is seared by your acidic hide!",
+                          Monnam(mtmp));
+            else
+                pline_mon(mtmp, "%s is splashed by %s%s!", Monnam(mtmp),
+                      /* temporary? hack for sequencing issue:  "your acid"
+                         looks strange coming immediately after player has
+                         been told that hero has reverted to normal form */
+                      !Upolyd ? "" : "your ", hliquid("acid"));
             if (resists_acid(mtmp) || defended(mtmp, AD_ACID)
                 || mon_underwater(mtmp)) {
                 pline_mon(mtmp, "%s is not affected.", Monnam(mtmp));
@@ -3446,6 +3721,33 @@ passiveum(
             }
         }
         return assess_dmg(mtmp, tmp);
+    case AD_DISN: { /* black dragon, antimatter vortex */
+        boolean vortex = (gy.youmonst.data == &mons[PM_ANTIMATTER_VORTEX]);
+
+        if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
+            if (canseemon(mtmp) && !rn2(3)) {
+                shieldeff(mtmp->mx, mtmp->my);
+                Your("deadly %s does not appear to affect %s.",
+                     vortex ? "form" : "hide", mon_nam(mtmp));
+            }
+        } else if (passive_contact_attack((int) mattk->aatyp)
+                   /* a weapon, boots or gloves go first */
+                   && !passive_disint_gear(mtmp, (int) mattk->aatyp,
+                                           vortex ? 3 : 6, FALSE)) {
+            if (vortex ? rn2(10) : rn2(20)) {
+                if (canseemon(mtmp))
+                    Your("%s partially disintegrates %s!",
+                         vortex ? "form" : "hide", mon_nam(mtmp));
+                tmp = rn2(6) + 1;
+                return assess_dmg(mtmp, tmp);
+            }
+            if (canseemon(mtmp))
+                Your("deadly %s disintegrates %s!",
+                     vortex ? "form" : "hide", mon_nam(mtmp));
+            return passive_disint_kill(mtmp);
+        }
+        break;
+    }
     case AD_STON: /* cockatrice */
     {
         long protector = attk_protection((int) mattk->aatyp),
@@ -3478,6 +3780,35 @@ passiveum(
                is hero's fault */
             (void) drain_item(mon_currwep, TRUE);
             /* No message */
+        }
+        return M_ATTK_HIT;
+    case AD_CNCL: /* gray dragon */
+        if (!rn2(6)) {
+            /* the hero's hide did it; hero credit if it kills a golem */
+            (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
+            if (DEADMONSTER(mtmp))
+                return M_ATTK_AGR_DIED;
+        }
+        return M_ATTK_HIT;
+    case AD_SLIM: /* green slime */
+        if (!rn2(3)) {
+            Your("slime splashes onto %s!", mon_nam(mtmp));
+            if (flaming(mtmp->data)) {
+                pline_The("slime burns away!");
+            } else if (slimeproof(mtmp->data)) {
+                pline_mon(mtmp, "%s is unaffected.", Monnam(mtmp));
+            } else if (!rn2(4)) {
+                if (!munslime(mtmp, FALSE) && !DEADMONSTER(mtmp)) {
+                    if (newcham(mtmp, &mons[PM_GREEN_SLIME],
+                                canseemon(mtmp) ? NC_SHOW_MSG : NO_NC_FLAGS))
+                        mtmp->mstrategy &= ~STRAT_WAITFORU;
+                }
+                /* the cure attempt or the transform might have killed
+                   it (green slime unable to survive water, lava, or
+                   open air) */
+                if (DEADMONSTER(mtmp))
+                    return M_ATTK_AGR_DIED;
+            }
         }
         return M_ATTK_HIT;
     default:
@@ -3572,6 +3903,57 @@ passiveum(
             }
             pline_mon(mtmp, "%s is jolted with your electricity!",
                       Monnam(mtmp));
+            break;
+        case AD_DRST: /* green dragon */
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
+                if (canseemon(mtmp) && !rn2(5))
+                    pline_mon(mtmp, "%s is unaffected by your poisonous hide.",
+                              Monnam(mtmp));
+                tmp = 0;
+                break;
+            }
+            if (rn2(20)) {
+                /* regular poison damage; assess_dmg() applies it */
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s is poisoned!", Monnam(mtmp));
+            } else {
+                /* deadly poison - instant death */
+                if (canseemon(mtmp))
+                    Your("poisonous hide was deadly...");
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return M_ATTK_HIT;
+                return M_ATTK_AGR_DIED;
+            }
+            break;
+        case AD_SLOW: /* orange dragon */
+            if (!rn2(3))
+                mon_adjust_speed(mtmp, -1, (struct obj *) 0);
+            tmp = 0;
+            break;
+        case AD_DISE: /* gray fungus */
+            if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s resists infection.", Monnam(mtmp));
+                tmp = 0;
+                break;
+            }
+            if (mtmp->mdiseasetime)
+                mtmp->mdiseasetime -= rnd(3);
+            else
+                mtmp->mdiseasetime = rn1(9, 6);
+            if (canseemon(mtmp))
+                pline_mon(mtmp, "%s looks %s.", Monnam(mtmp),
+                          mtmp->mdiseased ? "even worse" : "diseased");
+            mtmp->mdiseased = 1;
+            mtmp->mdiseabyu = TRUE;
+            break;
+        case AD_SLEE: /* black fungus */
+            if (sleep_monst(mtmp, rn2(3) + 8, -1)) {
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s loses consciousness.", Monnam(mtmp));
+                slept_monst(mtmp);
+            }
             break;
         default:
             tmp = 0;

@@ -5701,13 +5701,194 @@ mhitm_ad_deth(
         }
     } else {
  mhitm_deth:
-        /* mhitm; it's possible for Death to hit another monster;
-           if target is undead, it will take some damage but less than an
-           undead hero would; otherwise, just inflict the normal damage */
-        if (is_undead(pd) && mhm->damage > 1)
-            mhm->damage = rnd(mhm->damage / 2);
-        /* simulate Death's touch with drain life attack */
-        mhitm_ad_drli(magr, mattk, mdef, mhm);
+        /* mhitm; it's possible for Death to hit another monster */
+        if (immune_death_magic(pd) || defended(mdef, AD_DETH)) {
+            /* still does normal damage */
+            if (gv.vis)
+                pline_mon(mdef, "%s %s.", Monnam(mdef),
+                          nonliving(pd) ? "looks no more dead than before"
+                                        : "is unaffected");
+            return;
+        }
+        switch (rn2(20)) {
+        case 19:
+        case 18:
+        case 17:
+            if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
+                && !resist(mdef, 0, 0, 0)) {
+                if (gv.vis) {
+                    if (mattk->aatyp == AT_GAZE)
+                        pline("%s annihilates %s with %s deadly gaze!",
+                              Monnam(magr), mon_nam(mdef), mhis(magr));
+                    else
+                        pline("%s consumes %s life force!", Monnam(magr),
+                              s_suffix(mon_nam(mdef)));
+                }
+                /* in case an AT_ENGL AD_DETH attack is created */
+                if (m_at(mdef->mx, mdef->my) == magr) {
+                    remove_monster(mdef->mx, mdef->my);
+                    mdef->mhp = 1; /* it shouldn't be < 1, but make sure */
+                    place_monster(mdef, mdef->mx, mdef->my);
+                }
+                mdef->mhp = 0;
+                if (magr == &gy.youmonst) {
+                    xkilled(mdef, XKILL_NOMSG);
+                } else if (magr->uexp) {
+                    /* hero-conjured helper; hero gets credit and exp */
+                    mon_xkilled(mdef, (char *) 0, AD_DETH);
+                } else {
+                    if (magr->mtame)
+                        set_pet_killer(magr);
+                    monkilled(mdef, (char *) 0, AD_DETH);
+                }
+                mhm->damage = 0;
+                mhm->done = TRUE;
+                if (!DEADMONSTER(mdef)) {
+                    mhm->hitflags = M_ATTK_MISS; /* lifesaved */
+                    return;
+                }
+                mhm->hitflags = M_ATTK_DEF_DIED;
+                if (magr != &gy.youmonst && !grow_up(magr, mdef))
+                    mhm->hitflags |= M_ATTK_AGR_DIED;
+                return;
+            }
+            break; /* resisted; ordinary damage */
+        default: /* case 16 through case 5 */
+            if (gv.vis)
+                pline_mon(mdef, "%s looks weaker!", Monnam(mdef));
+            /* mhp will then still be less than this value */
+            mdef->mhpmax -= rn2(mhm->damage / 2 + 1);
+            if (mdef->mhpmax <= 0) /* protect against invalid value */
+                mdef->mhpmax = 1;
+            break;
+        case 4:
+        case 3:
+        case 2:
+        case 1:
+        case 0:
+            if (resists_magm(mdef) || defended(mdef, AD_MAGM))
+                shieldeff(mdef->mx, mdef->my);
+            if (gv.vis)
+                pline("Well.  That didn't work...");
+            mhm->damage = 0;
+            break;
+        }
+    }
+}
+
+/* disintegration: beholder and Tal'Gath gaze, antimatter vortex engulf.
+   The hero as defender is handled inside gazemu() and gulpmu(), and no
+   hero form gazes or engulfs this way, so only the monster leg acts. */
+void
+mhitm_ad_disn(
+    struct monst *magr,
+    struct attack *mattk UNUSED,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    /* every consequence (armor loss or death) is handled here; no
+       generic HP damage is applied after the dispatch on any path */
+    mhm->damage = 0;
+
+    if (magr == &gy.youmonst) {
+        /* uhitm: dogaze() and gulpum() carry no disintegration arm */
+        ;
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu: gazemu() and gulpmu() handle the hero */
+        ;
+    } else {
+        /* mhitm */
+        struct obj *otmp, *suit;
+
+        /* gazemm() already refused a cancelled gaze; an engulf gets
+           no such check before reaching here */
+        if (rn2(5) || magr->mcan)
+            return;
+        suit = which_armor(mdef, W_ARM);
+        if (resists_disint(mdef) || defended(mdef, AD_DISN)
+            || (suit && suit->otyp == CRYSTAL_PLATE_MAIL
+                && suit->oartifact)) {
+            /* fully resistant, or wearing an artifact suit that
+               withstands the gaze and shields its wearer */
+            if (gv.vis && canseemon(mdef)) {
+                shieldeff(mdef->mx, mdef->my);
+                pline_mon(mdef, "%s basks in the %s aura of %s gaze.",
+                          Monnam(mdef), hcolor(NH_BLACK),
+                          s_suffix(mon_nam(magr)));
+            }
+        } else if ((otmp = which_armor(mdef, W_ARMS)) != 0) {
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "%s %s crumbles away!",
+                          s_suffix(Monnam(mdef)), xname(otmp));
+            m_useup(mdef, otmp);
+        } else if (suit && suit->otyp != CRYSTAL_PLATE_MAIL) {
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "%s %s turns to dust and blows away!",
+                          s_suffix(Monnam(mdef)), xname(suit));
+            m_useup(mdef, suit);
+            if ((otmp = which_armor(mdef, W_ARMC)) != 0) {
+                if (gv.vis && canseemon(mdef))
+                    pline_mon(mdef, "%s %s crumbles and turns to dust!",
+                              s_suffix(Monnam(mdef)), xname(otmp));
+                m_useup(mdef, otmp);
+            }
+        } else {
+            /* no suit, or one that cannot be sacrificed to the gaze;
+               the victim dies */
+            struct obj *m_amulet = mlifesaver(mdef);
+
+            if ((otmp = which_armor(mdef, W_ARMC)) != 0)
+                m_useup(mdef, otmp);
+            if ((otmp = which_armor(mdef, W_ARMU)) != 0)
+                m_useup(mdef, otmp);
+            if (is_rider(mdef->data)) {
+                if (gv.vis && canseemon(mdef)) {
+                    pline_mon(mdef, "%s is disintegrated!", Monnam(mdef));
+                    pline_mon(mdef, "%s body reintegrates before your %s!",
+                              s_suffix(Monnam(mdef)),
+                              (eyecount(gy.youmonst.data) == 1)
+                                  ? body_part(EYE)
+                                  : makeplural(body_part(EYE)));
+                    pline_mon(mdef, "%s resurrects!", Monnam(mdef));
+                }
+                mdef->mhp = mdef->mhpmax;
+                mhm->hitflags = M_ATTK_HIT;
+                mhm->done = TRUE;
+                return;
+            }
+            if (gv.vis && canseemon(mdef)) {
+                if (!m_amulet)
+                    pline_mon(mdef, "%s is disintegrated!", Monnam(mdef));
+                else
+                    pline_mon(mdef, "%s crumbles under the gaze!",
+                              Monnam(mdef));
+            }
+            /* the cull spares a worn amulet of life saving so that it
+               can still operate */
+            disint_mon_invent(mdef);
+            if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */
+                remove_monster(mdef->mx, mdef->my);
+                mdef->mhp = 1; /* it shouldn't be < 1, but make sure */
+                place_monster(mdef, mdef->mx, mdef->my);
+            }
+            mdef->mhp = 0;
+            gz.zombify = FALSE;
+            if (magr->uexp) {
+                /* hero-conjured helper; hero gets credit and exp */
+                mon_xkilled(mdef, (char *) 0, AD_DISN);
+            } else {
+                if (magr->mtame)
+                    set_pet_killer(magr);
+                monkilled(mdef, (char *) 0, AD_DISN);
+            }
+            mhm->done = TRUE;
+            if (!DEADMONSTER(mdef)) {
+                mhm->hitflags = M_ATTK_MISS; /* lifesaved */
+                return;
+            }
+            mhm->hitflags = M_ATTK_DEF_DIED;
+            if (!grow_up(magr, mdef))
+                mhm->hitflags |= M_ATTK_AGR_DIED;
+        }
     }
 }
 
@@ -7013,6 +7194,7 @@ mhitm_adtyping(
     case AD_DISE: mhitm_ad_dise(magr, mattk, mdef, mhm); break;
     case AD_SAMU: mhitm_ad_samu(magr, mattk, mdef, mhm); break;
     case AD_DETH: mhitm_ad_deth(magr, mattk, mdef, mhm); break;
+    case AD_DISN: mhitm_ad_disn(magr, mattk, mdef, mhm); break;
     case AD_PEST: mhitm_ad_pest(magr, mattk, mdef, mhm); break;
     case AD_FAMN: mhitm_ad_famn(magr, mattk, mdef, mhm); break;
     case AD_DGST: mhitm_ad_dgst(magr, mattk, mdef, mhm); break;
