@@ -365,9 +365,47 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
             tmp += 2;
         }
 
-        /* negative enchantment mustn't produce negative damage */
-        if (tmp < 0)
-            tmp = 0;
+        /* adjust for various materials */
+        if (otmp->material == GLASS || otmp->material == GEMSTONE) {
+            /* glass and gemstone are extremely sharp */
+            if (objects[otyp].oc_dir & (PIERCE | SLASH))
+                tmp += 3;
+        } else if (otmp->material == GOLD || otmp->material == PLATINUM) {
+            /* heavy metals, but softer than stone */
+            if (objects[otyp].oc_dir & WHACK)
+                tmp += 1;
+        } else if (otmp->material == MITHRIL) {
+            /* light and sharp */
+            if (objects[otyp].oc_dir & (PIERCE | SLASH))
+                tmp += 2;
+        } else if (otmp->material == ADAMANTINE) {
+            /* also light and very sharp */
+            if (objects[otyp].oc_dir & (PIERCE | SLASH))
+                tmp += 3;
+        } else if (otmp->material == MINERAL) {
+            /* stone is heavy */
+            if (objects[otyp].oc_dir & (SLASH | WHACK))
+                tmp += 2;
+        } else if (otmp->material == PLASTIC || otmp->material == PAPER) {
+            /* just terrible weapons all around */
+            tmp -= 2;
+        } else if (otmp->material == WOOD && !is_elven_weapon(otmp)) {
+            /* poor at holding an edge */
+            if (is_blade(otmp))
+                tmp -= 1;
+        } else if (otmp->material == STEEL || otmp->material == BRONZE) {
+            /* steel/bronze has roughly the same density as iron, but
+               both are stronger and can have a finer edge on bladed
+               weapons */
+            if (objects[otyp].oc_dir & (PIERCE | SLASH)) {
+                tmp += 1;
+                /* technically steel can have a finer edge than bronze,
+                   but we don't want to get too crazy with damage bonuses
+                   here. Sometimes steel blades will get an extra bite */
+                if (!rn2(3) && otmp->material == STEEL)
+                    tmp += 1;
+            }
+        }
     }
 
     /* higher quality weapons can dish out a bit more damage,
