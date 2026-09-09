@@ -8574,7 +8574,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       add_obj_info (master pager.c ~1839-1858) has no table to
       iterate; the port left it out behind a one-line comment -
       restore it when the table lands. Untracked before this slice.
-- [ ] dmgval() material-hardness block NOT PORTED (NEW, minted
+- [x] dmgval() material-hardness block NOT PORTED (NEW, minted
       2026-09-08 by the pokedex slice; MED, combat balance). Master
       weapon.c dmgval() (1c3a05414, 2019) adds per-material damage
       after enchantment: glass/gemstone +3 on pierce/slash,
@@ -8587,6 +8587,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       audit that restored the nine weapon-case bonuses (BUG-1798,
       commit B of the pokedex slice). Own slice: balance-visible in
       every fight; battery = a gdb dmgval matrix per material.
+      PORTED 2026-09-09 (session 107; commit A = src/weapon.c only,
+      hash in the archive next to BUG-1815). SHAPE: master's block
+      after the Druid arm inside the Is_weapon block, spelled with the
+      function's otyp local; the vanilla inner "negative enchantment"
+      clamp removed by RULING (1) (master's materials patch 03e87e1bd
+      clamps once, after the forged-quality term; the only observable
+      delta is a superior/exceptional weapon whose dice + spe +
+      material penalty fall below zero, which floored at 1 and now
+      gives 0: spe <= -2 on a d4 for generated quality (metallic or
+      crystal objects only, and those materials only add), spe <= -1
+      on a wooden blade wished with a quality prefix - the wish parser
+      applies quality with no material gate). DEVIATIONS: none
+      (unbraced one-statement bodies, style).
+      Master behavior recorded: default materials count (d7aac26a3) -
+      rubber hose d4-2/d3-2, athame +1 (+1 more 1/3), every adamantine
+      drow blade +3, dwarvish weapons can roll GEMSTONE 48/1000 and
+      ADAMANTINE 2/1000; elven weapons wood-exempt; wood (9) > LEATHER
+      (8) so wooden weapons are not zeroed by thick_skinned, paper is;
+      GEM_CLASS gems are not Is_weapon; artifacts take the block; no
+      pager text describes it on either tree. CENSUS (Explore agent,
+      12 master files, 14 material-driven damage sites: 10 numeric, 4
+      gating a roll): 12 PRESENT, 2 DIFFERENT by earlier rulings
+      (mhitu.c piercer-drop helmet gate = hard_helmet() per the
+      2026-07-28 ruling and the closed tree-wide row; dothrow.c
+      toss_up less_damage keeps upstream's hated-material exemption,
+      generalized by f5af0ebd4), 0 ABSENT; neither tree's hitval() or
+      base_hitbonus() has a material arm - nothing minted. REVIEW:
+      PASS, nothing above LOW (the clamp delta class, braces style).
+      BATTERY 2026-09-09 (game-tester, one XL30 human Valkyrie game,
+      sanity_check on, paniclog never created): gdb dmgval() matrix x30
+      per weapon vs the starting little dog (small, AC 6): iron dagger
+      1..4, glass 4..7, steel 2..6 (90 calls: sixteen 2s, eight 6s),
+      bronze 2..5 never 6, mithril 3..6, gold/stone daggers 1..4,
+      wooden dagger 0..3, steel long sword 2..10, stone long sword
+      3..10, mace 2..7, gold/platinum mace 3..8, stone mace 4..9,
+      glass/wooden mace 2..7, elven dagger 1..5, dark elven dagger
+      4..8, dark elven mace 2..7, athame 2..6, crystal/adamantine
+      dwarvish short sword 4..10, rubber hose 0..2, wooden axe 0..5;
+      gdb-forced paper dagger 0..2, gemstone 4..7; clamp legs -5
+      superior dagger = thirty 0s, -2 superior 0..3 with three 0s;
+      hill giant (large dice): iron dagger 1..3, glass 4..6, steel
+      long sword 3..14, mace 1..6, rubber hose 0..1, wooden axe 0..3;
+      hill-giant attacker = every small-defender range; live melee at
+      hmon_hitmon_dmg_recalc vs a test monster: twelve glass hits 4..7,
+      twelve iron hits 1..4. Brief premise corrections (gameplay.md):
+      the Valkyrie starts with a +1 spear (master parity) and a random
+      little dog/kitten; the wish parser took every material asked;
+      no sanity spam for a gdb-forced material until a turn elapses.
+      Open Phase 2 rows: 54 (55 - 1 closed + 0 minted).
 - [ ] Healer wound sensing NOT PORTED (NEW, minted 2026-09-08 by the
       pokedex slice; MED gameplay feature). Master do_name.c
       mon_wounds() (Healer-only "slightly/moderately/badly/seriously/
@@ -14805,6 +14854,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-08 | Pokedex slice rulings (AskUserQuestion x3, all recommended): (1) the nine dmgval() weapon-case bonuses the port's audit found dropped are restored as a coupled commit B (BUG-1798) so the object lookup's damage line and combat agree on landing; master's material-hardness block gets its own row; (2) arti_specials[] ships only the tips whose backing behavior is live (89 of 128); the 39 ABSENT/PARTIAL lines are held on the owner rows and re-enter when their mechanisms land - no tip may describe a behavior the branch lacks; (3) farlook stays without monster health text; master's Healer-only mon_wounds feature gets its own row (5.0's #if 0'd monhealthdescr is not enabled). Port-shape decisions recorded on the rows: the AT_/AD_ label tables became symbol-keyed switch helpers (the branch renumbers almost every value and defines no LAST_AT/LAST_AD); the "More info about" prompt fires only when something will display (vanilla parity; master prompts unconditionally and then reports nothing); the artifact "named" alternate resolves inside checkfile() with a base-type agreement test instead of master's caller-side artiname(); the Rider hedge keys on the pick being farlook-sourced; the hallucination outfit/weapon arm uses the display RNG and a random type name instead of a created-and-freed object. |
 | 2026-09-08 | Attack-handler arms slice rulings (AskUserQuestion x3, all recommended): (1) the AD_CLOB dispatcher gap the slice's census surfaced (27 attack slots dealing zero damage with no hit message and no knockback) is fixed now as a coupled commit B under 5.0's size-gated knockback model; master's AD_CLOB-keyed knockback shape and its artifact immunities go to a newly minted knockback-machinery row; (2) master's damageum AD_PSYC arm is HELD - unreachable on both trees, no attack template carries AD_PSYC; (3) mattackm()'s wielded-petrifying-corpse block petrifies instantly through the do_stone_mon() sequence because the branch has no monster stoning countdown, with a rider on the gradual-stoning row to switch to mstone = 5 when the engine lands. | maintainer |
 | 2026-09-09 | Dragon-scaled consumer-sites slice rulings (AskUserQuestion x3, all recommended): (1) the row's timeout.c `armor` term rides inside master's whole begin_burn() light-establishment lightdamage() block, which the branch lacked and no row tracked - PORTED NOW as a coupled commit B, with one deviation: both calls are gated on !gi.in_mklev because goto_level() builds the new level before vision_reset(), so creation-time lit gear would otherwise be tested against the previous level's hero square (master latent, frozen-unfixed); (2) getprice()'s erosion price block (the forge slice's "separate decision" gap) is PORTED NOW as commit C, written `tmp -= 2L` for the light tier, with the odiluted/orotten/norevive aliasing (diluted potions, rotten food and frozen corpses lose 2 zm) carried as master behavior; (3) the red dragon-scaled armor +rnd(6) melee bonus the census surfaced rides commit A. | maintainer |
+| 2026-09-09 | dmgval material-hardness slice ruling (AskUserQuestion x1, recommended): (1) vanilla 5.0's inner "negative enchantment" clamp at the end of dmgval()'s weapon block is DROPPED with the material block - master's materials patch 03e87e1bd removed it and clamps once after the forged-quality term; the branch had carried both, and the only observable delta is a superior or exceptional weapon whose dice plus enchantment plus material penalty fall below zero (spe <= -2 on a d4 with generated quality, which needs a metallic or crystal object; spe <= -1 on a wooden blade wished with a quality prefix, which the wish parser applies with no material gate), which floored at 1 and now gives 0 as on master. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
