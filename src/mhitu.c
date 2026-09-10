@@ -1665,8 +1665,12 @@ hitmu(struct monst *mtmp, struct attack *mattk)
             mhm.damage = 1;
     }
 
+    /* the knockback can dismount the hero onto a trap whose effect
+       kills the attacker; the blow still lands, but a corpse casts no
+       spell-hand riders and draws no passive response */
+
     /* burning hands spell - extra fire damage on unarmed touch attacks */
-    if (mtmp->mburnhands && !MON_WEP(mtmp)
+    if (!DEADMONSTER(mtmp) && mtmp->mburnhands && !MON_WEP(mtmp)
         && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
             || mattk->aatyp == AT_WEAP)) {
         int firedmg = rnd(6) + 2;
@@ -1696,7 +1700,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     }
 
     /* shocking grasp spell - extra shock damage on unarmed touch attacks */
-    if (mtmp->mshockgrasp && !MON_WEP(mtmp)
+    if (!DEADMONSTER(mtmp) && mtmp->mshockgrasp && !MON_WEP(mtmp)
         && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
             || mattk->aatyp == AT_WEAP)) {
         int elecdmg = rnd(6) + 2;
@@ -1770,10 +1774,13 @@ hitmu(struct monst *mtmp, struct attack *mattk)
         mdamageu(mtmp, mhm.damage);
     }
 
-    if (mhm.damage)
+    if (DEADMONSTER(mtmp)) {
+        res = mhm.hitflags | M_ATTK_AGR_DIED;
+    } else if (mhm.damage) {
         res = passiveum(olduasmon, mtmp, mattk);
-    else
+    } else {
         res = M_ATTK_HIT;
+    }
     stop_occupation();
     return res;
 }

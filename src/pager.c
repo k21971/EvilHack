@@ -2498,6 +2498,7 @@ static const struct arti_special {
     { ART_DRAGONBANE, "Cannot be disintegrated by black dragons." },
     { ART_DRAGONBANE, "Its presence angers dragons." },
     { ART_ASHMAR, "May knock attackers back when it deflects a blow." },
+    { ART_ASHMAR, "Prevents knockback." },
     { ART_ARMOR_OF_RETRIBUTION, "May knock attackers back when struck." },
     { ART_BRACERS_OF_THE_FIRST_CIRCLE, "Extra AC for Druids." },
     { ART_BRACERS_OF_THE_FIRST_CIRCLE, "No shield spellcasting penalty." },

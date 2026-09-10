@@ -2556,7 +2556,10 @@ hmon_hitmon(
         hmon_hitmon_stagger(&hmd, mon, obj);
     } else if (!hmd.unarmed && hmd.dmg > 1 && !thrown && !Upolyd
                && !u.twoweap && uwep && obj == uwep) {
-        /* single weapon hit; a shield bash doesn't knock back */
+        /* single weapon hit; a shield bash doesn't knock back - and
+           mhitm_knockback() refuses the hero outright (master's rule:
+           the hero pushes only by jousting or an unarmed stagger), so
+           this upstream arm never fires */
         maybe_knockback = TRUE;
     }
 
@@ -7712,6 +7715,20 @@ boolean
 m_is_steadfast(struct monst *mtmp)
 {
     boolean is_u = (mtmp == &gy.youmonst);
+    struct obj *shield = which_armor(mtmp, W_ARMS),
+               *suit = which_armor(mtmp, W_ARM);
+
+    /* Giantslayer and Harbinger both anchor their wielder, in either
+       hand, and Ashmar and the Armor of Retribution anchor their
+       wearer; the artifacts hold even in the air */
+    if (is_u ? (wielding_artifact(ART_GIANTSLAYER)
+                || wielding_artifact(ART_HARBINGER))
+             : (mon_wielding_artifact(mtmp, ART_GIANTSLAYER)
+                || mon_wielding_artifact(mtmp, ART_HARBINGER)))
+        return TRUE;
+    if ((shield && shield->oartifact == ART_ASHMAR)
+        || (suit && suit->oartifact == ART_ARMOR_OF_RETRIBUTION))
+        return TRUE;
 
     /* must be on the ground (or in water) */
     if ((is_u ? (Flying || Levitation)
@@ -7719,14 +7736,6 @@ m_is_steadfast(struct monst *mtmp)
         || Is_airlevel(&u.uz) /* air or cloud */
         || (Is_waterlevel(&u.uz) && !is_pool(u.ux, u.uy))) /* air bubble */
         return FALSE;
-
-    /* Giantslayer and Harbinger both anchor their wielder,
-       in either hand */
-    if (is_u ? (wielding_artifact(ART_GIANTSLAYER)
-                || wielding_artifact(ART_HARBINGER))
-             : (mon_wielding_artifact(mtmp, ART_GIANTSLAYER)
-                || mon_wielding_artifact(mtmp, ART_HARBINGER)))
-        return TRUE;
 
     /* steadfast if carrying any loadstone (and not floating or flying);
        'is_u' test not needed here; m_carrying() is 'youmonst' aware */
@@ -7740,45 +7749,37 @@ m_is_steadfast(struct monst *mtmp)
     return FALSE;
 }
 
-/* monster hits another monster hard enough to knock it back? */
+/* a monster's knock-back attack hits hard enough to push its target?
+   Only AD_CLOB pushes here: an ordinary physical blow never does,
+   however big the attacker, and the hero pushes only by jousting, an
+   unarmed stagger or an artifact armor's deflection - the master rule;
+   5.0's much-larger-attacker knockback is not used, so the hero-attacker
+   callers get FALSE and the weapon is never examined */
 boolean
 mhitm_knockback(
-    struct monst *magr,   /* attacker; might be hero */
-    struct monst *mdef,   /* defender; might be hero (only if magr isn't)  */
+    struct monst *magr,   /* attacker; the hero is refused */
+    struct monst *mdef,   /* defender; might be hero */
     struct attack *mattk, /* attack type and damage info */
     int *hitflags,        /* modified if magr or mdef dies */
-    boolean weapon_used)  /* True: via weapon hit */
+    boolean weapon_used UNUSED) /* True: via weapon hit */
 {
     char magrbuf[BUFSZ], mdefbuf[BUFSZ];
     struct obj *otmp;
     const char *knockedhow;
     coordxy dx, dy, defx, defy;
     int knockdistance = rn2(3) ? 1 : 2; /* 67%: 1 step, 33%: 2 steps */
-    int chance = 6; /* 1/6 chance of attack knocking back a monster */
-    boolean u_agr = (magr == &gy.youmonst);
     boolean u_def = (mdef == &gy.youmonst);
     boolean was_u = FALSE, dismount = FALSE;
-    struct obj *wep = weapon_used ? (u_agr ? uwep : MON_WEP(magr))
-                                  : (struct obj *) 0;
 
-    if (wep && is_art(wep, ART_OGRESMASHER))
-        chance = 2;
-
-    if (rn2(chance))
+    if (magr == &gy.youmonst || mattk->adtyp != AD_CLOB)
         return FALSE;
 
-    /* only certain attacks qualify for knockback */
-    if (!((mattk->adtyp == AD_PHYS || mattk->adtyp == AD_CLOB)
-          && (mattk->aatyp == AT_CLAW
-              || mattk->aatyp == AT_KICK
-              || mattk->aatyp == AT_BUTT
-              || mattk->aatyp == AT_WEAP)))
+    /* one landed blow in six pushes, whatever it was swung with */
+    if (rn2(6))
         return FALSE;
 
-    /* don't knockback if attacker also wants to grab or engulf */
-    if (attacktype(magr->data, AT_ENGL)
-        || attacktype(magr->data, AT_HUGS)
-        || sticks(magr->data))
+    /* a knock-back blow can't shift a huge hero or one being held */
+    if (u_def && (gy.youmonst.data->msize >= MZ_HUGE || u.ustuck))
         return FALSE;
 
     /* decide where the first step will place the target; not accurate
@@ -7786,8 +7787,8 @@ mhitm_knockback(
        test_move() and for message before actual hurtle */
     defx = u_def ? u.ux : mdef->mx;
     defy = u_def ? u.uy : mdef->my;
-    dx = sgn(defx - (u_agr ? u.ux : magr->mx));
-    dy = sgn(defy - (u_agr ? u.uy : magr->my));
+    dx = sgn(defx - magr->mx);
+    dy = sgn(defy - magr->my);
 
     /* can't move most targets into or out of a doorway diagonally */
     if (u_def) {
@@ -7815,25 +7816,16 @@ mhitm_knockback(
     }
 
     /* monsters must be alive */
-    if ((!u_agr && DEADMONSTER(magr))
-        || (!u_def && DEADMONSTER(mdef)))
+    if (DEADMONSTER(magr) || (!u_def && DEADMONSTER(mdef)))
         return FALSE;
 
-    /* attacker must be much larger than defender */
-    if (!(magr->data->msize > (mdef->data->msize + 1)))
-        return FALSE;
-
-    /* no knockback with a flimsy or non-blunt weapon */
-    if (wep && (is_flimsy(wep) || !is_blunt_weapon(wep)))
-        return FALSE;
-
-    /* needs a solid physical hit */
-    if (unsolid(magr->data))
+    /* needs a solid target */
+    if (unsolid(mdef->data))
         return FALSE;
 
     /* the attack must have hit */
     /* mon-vs-mon code path doesn't set up hitflags */
-    if ((u_agr || u_def) && !(*hitflags & M_ATTK_HIT))
+    if (u_def && !(*hitflags & M_ATTK_HIT))
         return FALSE;
 
     /* steadfast defender cannot be pushed around */
@@ -7857,26 +7849,19 @@ mhitm_knockback(
 
     /* give the message */
     if (u_def || canseemon(mdef)) {
-        Strcpy(magrbuf, u_agr ? "You" : Monnam(magr));
+        Strcpy(magrbuf, Monnam(magr));
         Strcpy(mdefbuf, (u_def || was_u) ? "you" : y_monnam(mdef));
         if (was_u)
             Snprintf(eos(mdefbuf), sizeof mdefbuf - strlen(mdefbuf),
                      " and %s", y_monnam(u.usteed));
         /*
-         * uhitm: You knock the gnome back with a powerful blow!
-         * mhitu: The red dragon knocks you back with a forceful blow!
+         * mhitu: The fire giant knocks you back with a forceful blow!
          * mhitm: The fire giant knocks the gnome back with a forceful strike!
          */
         pline("%s %s %s %s with a %s %s!",
               magrbuf, vtense(magrbuf, "knock"), mdefbuf, knockedhow,
               rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");
-    } else if (u_agr) {
-        /* hero knocks unseen foe back; noticed by touch */
-        You_feel("%s be knocked %s!", some_mon_nam(mdef), knockedhow);
     }
-
-    if (u.ustuck && (u_def || u_agr))
-        unstuck(u.ustuck);
 
     /* do the actual knockback effect */
     if (u_def) {
@@ -7896,24 +7881,19 @@ mhitm_knockback(
             make_stunned((long) (knockdistance + 1), TRUE); /* 2 or 3 */
     } else {
         mhurtle(mdef, dx, dy, knockdistance);
-        if (!u_agr)
-            *hitflags |= M_ATTK_HIT;
+        *hitflags |= M_ATTK_HIT;
         if (DEADMONSTER(mdef)) {
             if (!was_u)
                 *hitflags |= M_ATTK_DEF_DIED;
-        } else if (!rn2(4)) {
-            if (!(mon_resists_stun(mdef) || defended(mdef, AD_STUN)))
-                mdef->mstun = 1;
-            /* if steed and hero were knocked back, update attacker's idea
-               of where hero is */
-            if (mdef == u.usteed)
-                set_apparxy(magr);
+        } else if (mdef == u.usteed) {
+            /* mhurtle() already debilitated the defender (a unique
+               monster shrugs most of that off); if steed and hero were
+               knocked back, update attacker's idea of where hero is */
+            set_apparxy(magr);
         }
     }
-    if (!u_agr) {
-        if (DEADMONSTER(magr))
-            *hitflags |= M_ATTK_AGR_DIED;
-    }
+    if (DEADMONSTER(magr))
+        *hitflags |= M_ATTK_AGR_DIED;
 
     return TRUE;
 }
