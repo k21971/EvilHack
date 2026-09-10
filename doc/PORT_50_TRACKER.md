@@ -8665,10 +8665,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       against the branch: 89 LIVE (ported), 31 ABSENT + 8 PARTIAL
       held out of the table (ruling: no tip may describe a behavior
       the branch lacks; each re-enters arti_specials[] when its
-      mechanism lands). Held lines with owners elsewhere: the 17
-      "Its presence angers <X>." / One Ring "Wearing it angers nearby
-      wraiths." lines (bane-aura moveloop arm, rows ~1448/~4877 - the
-      artifact arm is a TODO-EVILHACK stub in allmain.c); Master Key of
+      mechanism lands). RE-ENTERED 2026-09-09: the 17 "Its presence
+      angers <X>." / One Ring "Wearing it angers nearby wraiths."
+      lines landed with the bane-aura moveloop artifact arms (row
+      ~13234, BUG-1816), so 22 lines stay held. Held lines with
+      owners elsewhere: Master Key of
       Thievery + Yendorian Express Card "Never breaks while picking
       locks." (lock.c cursed-tool breakage, row ~1915); Wand of Orcus
       "Curses and welds itself to the hand that wields it." (Orcus
@@ -13230,6 +13231,175 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       objnam.c has the same doname-only prefix. Decide whether the
       prefix moves into xname() (every consumer, wish parsing
       unaffected) or stays a doname prefix. Cosmetic.
+- [x] Bane-aura moveloop artifact arms PORTED 2026-09-09 (session 108;
+      minted and closed this session - the ARTIFACTS SLICE row's
+      "artifact-bane aura arm of master's allmain moveloop grudge
+      loop" defer line (~4886) and the pokedex umbrella row's held
+      "angers" tips pointed here with no checkbox row; commit A =
+      src/allmain.c + src/pager.c, hash in the archive next to
+      BUG-1816). SHAPE: master's disjunct (9a52a7b01, 62f7244f3,
+      f9a7db8a1, 910f91366, fdea9fa18, 35a7f84ec, 7cf22d066,
+      aa84d12c4) reflowed to 80 columns inside the branch's existing
+      grudge pass: the Dragonbane gloves arm folded into the dragon
+      term beside the Knight arm, then Sting (orc or spider), Orcrist,
+      Glamdring, Grimtooth (elf or drow), Giantslayer, Harbinger,
+      Trollsbane, Ogresmasher, Sunsword, Hammer of the Gods (undead or
+      demon), Werebane, Shadowblade, Demonbane, Angelslayer (angel or
+      aasimar), Vorpal Blade, the One Ring on uleft/uright; the body
+      (pbanned for a shopkeeper in their shop, else setmangry(FALSE) +
+      flag clear + set_malign + newsym + m_unleash + DISMOUNT_THROWN)
+      and the see-you/mindless/coaligned-priest gates were already on
+      the branch. The 17 held pokedex tips re-entered arti_specials[]
+      at master's positions. DEVIATION (reviewer MEDIUM, taken,
+      BUG-1818): a DEADMONSTER(mtmp) skip at the top of the pass -
+      mcalcdistress()/nh_timeout()/run_regions() run before this block
+      in the same once-per-turn section and a monster they kill stays
+      on fmon until the next movemon() dmonsfree() with mx/my,
+      mpeaceful and mcansee intact, so master's loop runs setmangry()
+      on the corpse of a peaceful 'bane target (alignment loss, the
+      abuse event, "gets angry!" about a dead monster); master
+      frozen-unfixed. Master behavior recorded: a peaceful non-tame
+      victim charges alignment through setmangry (chaotic -1, else -5)
+      and records ABUSE_ANGER_PEACEFUL plus the bystander cascade -
+      f4080431e names this path as intended; tame victims are
+      penalty-free; hostility persists after unwielding; a shopkeeper
+      outside their shop is neither banned nor angered; tamedog()'s
+      list agrees arm for arm. CENSUS (18 'banes, master vs branch
+      site counts + MH_ flag carriers): race-flag carrier sets
+      identical (master's extra MH_ELF hits are #if 0
+      Earendil/Elwing/High-elf; djinni and sandestin carry no MH_DEMON
+      on either tree); PRESENT elsewhere: passive_disint_gear
+      spare_dragonbane, the angel Sunsword/Demonbane gifts, Hammer
+      AutoReturn, Shadowblade backstab + drow-dark to-hit arm, the
+      hero-side bane_applies demon arm; OWNED: knockback immunities
+      (row above), off-hand artifact light (row above), Dragonbane
+      sears/destroy_arm (pokedex row); ROWLESS -> the six rows below
+      plus the Mjollnir retarget ported as commit B (ruling). REVIEW:
+      PASS, no HIGH; MEDIUM = the dead-monster window (taken); LOW =
+      no ridden_by carve-out (master parity: the loop flips a
+      monster-ridden peaceful steed hostile while its rider stays
+      peaceful, where tamedog() refuses to touch a ridden steed -
+      noted for a ruling, not changed), the Mjollnir retarget also
+      admits Mjollnir into a cross-aligned Cleric's sacrifice-gift
+      pool through mk_artifact() exactly as on master (recorded), and
+      comment grammar (reworded). BATTERY 2026-09-09 (game-tester):
+      PASS, paniclog never created, two XL30 games plus two gdb-only
+      Priest starts. Chaotic human Barbarian (the brief's orcish
+      Barbarian cannot wield Sting at all - touch_artifact's bane
+      refusal "You can't handle your mithril elven dagger named
+      Sting!", 4 HP, no Override prompt; master behavior): peaceful
+      hill orc + Sting -> "You feel guilty. The hill orc gets angry!",
+      record 10 -> 9, #conduct "Turn 2: angering a peaceful hill orc
+      (-1)"; stays hostile after unwielding (wields an orcish dagger
+      and hits); two peaceful orcs -> record 9 -> 7, exactly -1 each
+      with two #conduct lines and no separate bystander entry; a tame
+      giant spider flips silently with the record unchanged; a tame
+      human zombie beside a wielded Sunsword stays tame over 7 turns
+      (mindless gate); a gdb mcansee=0 orc stays peaceful over 2 turns
+      and flips once sight is restored; DEAD-MONSTER LEG (BUG-1818):
+      gdb breakpoint at the top of the pass calling mondead() on a
+      peaceful orc that could see the hero (mhp 10 -> 0, mstate 2,
+      mpeaceful still 1) -> no "gets angry", record 6 and #conduct
+      unchanged, dmonsfree clean; Minetown: the elven shopkeeper
+      Manlobbi in line of sight of a wielded Grimtooth got pbanned=1
+      and, on entry, "I don't sell to your kind here." while staying
+      peaceful with the record unchanged (the shop door generates
+      closed, zeroing the interior's viz, and the shopkeeper wanders
+      out of the through-door cone - rloc_to put it back); pokedex
+      lookups of Sting, The One Ring, Dragonbane and Hammer of the
+      Gods show the four new lines. Neutral human Valkyrie: a ridden
+      tame baby red dragon + Dragonbane worn -> "You are thrown off of
+      the saddled baby red dragon!" (HP 229 -> 214, Dx 11 -> 10),
+      dragon hostile, record 0 unchanged; a tame wraith + the worn One
+      Ring (wish text "the One Ring") stayed tame because the ring's
+      own invisibility fails m_canseeu for a wraith without
+      see-invisible - a mummy wrapping made it flip the next turn
+      (master-shared: only a see-invisible wraith such as a Nazgul
+      feels the ring while it is worn); a wraith cannot be leashed
+      ("The leash would just fall off.") so the leash leg used a
+      leashed tame giant spider + Sting -> "The giant spider pulls
+      free of its leash!", unleashed and hostile; a tame Aleax +
+      Angelslayer -> hostile, record unchanged; off-hand: Sting as the
+      alternate weapon with two-weapon OFF left a tame giant spider
+      tame over 3 turns, #twoweapon -> "Sting flickers light blue!"
+      and the spider hostile at once; gdb
+      artilist[ART_MJOLLNIR].alignment 0 for the Valkyrie. Lawful
+      human Priest at T:1: Mjollnir 1, Demonbane 1; chaotic Priest -1
+      and -1 (BUG-1817). Harness facts -> gameplay.md. Open Phase 2
+      rows: 60 (54 + 8 minted - 2 closed).
+- [x] Cleric Mjollnir alignment retarget PORTED 2026-09-09 (minted and
+      closed this session by the bane-aura census; commit B =
+      src/artifact.c, hash in the archive next to BUG-1817): master
+      48e5fbdd0 sets artilist[ART_MJOLLNIR].alignment = alignmnt for
+      Priests "for crowning purposes" - the crowning arm (pray.c,
+      ported 2026-09-06) hands a Cleric wielding a heavy war hammer
+      Mjollnir via ONAME_GIFT, Mjollnir is A_NEUTRAL + SPFX_RESTR with
+      role PM_VALKYRIE so the gift-artifact loop never retargets it,
+      and touch_artifact() has no gift exemption, so a lawful or
+      chaotic Priest was blasted on every re-wield of their own gift.
+      Master's explicit Demonbane line NOT re-added: Demonbane's role
+      is PM_CLERIC on both trees and the loop covers it (gdb-verified
+      in the battery: lawful Priest Mjollnir 1 / Demonbane 1, chaotic
+      Priest -1 / -1, Valkyrie Mjollnir 0). DEVIATIONS: none.
+- [ ] AD_BHED dispatcher ABSENT (minted 2026-09-09 by the bane-aura
+      census; deferred rowless by the zombie/were row ~3324 "no
+      mhitm_ad_bhed yet", the artifacts row ~4846 and the steed row
+      ~6965): the vorpal jabberwock (master 9da63f8c2) bites with
+      AD_BHED on both trees, but the branch's mhitm_adtyping() has no
+      case, so its default arm zeroes the strike - the beheading bite
+      is a no-op against the hero, monsters and pets. Master's handler
+      (uhitm.c damageum / mhitm.c mdamagem / mhitu.c hitmu): 1 in 15
+      (always for a jabberwock attacker), headless targets and a
+      Vorpal Blade wielder ("Somehow, you miss %s wildly", the
+      mon_vorpal_wield/vorpal_wield locals) are immune, Ithilmar
+      barding protects a steed, otherwise instadeath by beheading with
+      the hero's normal head-loss text. Port as three mhitm_ad_* legs
+      in the 5.0 dispatcher; sweep BUGFIXES_ARCHIVE for "behead"
+      first. MEDIUM (a generated monster's attack silently absent).
+- [ ] Melee combat wakes nearby monsters ABSENT (minted 2026-09-09 by
+      the bane-aura census): master 10ac6bc6a (xNetHack/SporkHack
+      feature) + e9d93c00a: every hmon() hit rolls
+      !rn2(wield_shadowblade ? 40 : is_rogue ? 20 : Stealth ? 10 : 2)
+      and calls wake_nearto() with combat_noise() of the hero's race
+      (a Rogue gets a quarter radius), so a stealthy hero fights
+      without rousing the level. The branch's hmon path has no wake at
+      all and no combat_noise(); the pokedex says nothing about it.
+      Balance-visible (Stealth's value in melee, Shadowblade's quiet
+      term). MEDIUM.
+- [ ] bane_applies() monster-side demon arm ABSENT (minted 2026-09-09
+      by the bane-aura census): master 7e9e55805 adds, in the !yours
+      block beside the drow and zombie/vampire arms,
+      is_demon(mon->data) vs Demonbane/Hammer of the Gods so a demon
+      monster touching either is refused like the hero-race arm; the
+      branch has only the hero (yours) demon arm (01bccdecd) - row
+      ~13645 over-claimed the monster arm. Master's own comment: "not
+      relevant currently, but cover the bases anyways". LOW.
+- [ ] Hammer of the Gods tether semantics ABSENT (minted 2026-09-09 by
+      the bane-aura census): master 6189cf1e1 treats the Hammer
+      wielded at Skilled hammer as an aklys-style tethered weapon in
+      four sites - wield.c "You secure the tether", dothrow.c
+      throwit() tethered_weapon (range and return along the tether),
+      objnam.c "(tethered weapon in hand)", do_wear.c the two-weapon
+      drop exemption; the branch has only the AutoReturn macro arm
+      (return after a throw) and 5.0's tether is an object-class
+      attribute (arw->tethered) that no artifact sets. The pokedex
+      "Returns when thrown by a skilled hammer wielder." stays true.
+      LOW.
+- [ ] Reading the One Ring's inscription ABSENT (minted 2026-09-09 by
+      the bane-aura census): master 397510c57 (the ring became an
+      artifact) lets doread() read the One Ring - blind: "You feel an
+      engraving on the ring", else "It reads:" + the Ring-verse,
+      breaks literacy with a livelog line; the branch's doread() has
+      no arm, so `r` refuses it as unreadable. Flavor + conduct. LOW.
+- [ ] botl_hitbonus()/BL_TOHIT status field ABSENT (minted 2026-09-09
+      by the bane-aura census; the roles-review DEFER list and row
+      ~7961 "WHEN IT LANDS it must carry the taper, the XL30 +5 and
+      the hitcap" named it with no row): master weapon.c
+      botl_hitbonus() computes the hero's displayed to-hit (Luck,
+      abon, find_mac, level taper, weapon hit bonus, drow-dark
+      Shadowblade arm, ring of increase accuracy) for botl.c's
+      BL_TOHIT status field; the branch has neither. Interlocks the
+      Phase 4 status-line rows (a new status field). LOW.
 - [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
@@ -14855,6 +15025,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-08 | Attack-handler arms slice rulings (AskUserQuestion x3, all recommended): (1) the AD_CLOB dispatcher gap the slice's census surfaced (27 attack slots dealing zero damage with no hit message and no knockback) is fixed now as a coupled commit B under 5.0's size-gated knockback model; master's AD_CLOB-keyed knockback shape and its artifact immunities go to a newly minted knockback-machinery row; (2) master's damageum AD_PSYC arm is HELD - unreachable on both trees, no attack template carries AD_PSYC; (3) mattackm()'s wielded-petrifying-corpse block petrifies instantly through the do_stone_mon() sequence because the branch has no monster stoning countdown, with a rider on the gradual-stoning row to switch to mstone = 5 when the engine lands. | maintainer |
 | 2026-09-09 | Dragon-scaled consumer-sites slice rulings (AskUserQuestion x3, all recommended): (1) the row's timeout.c `armor` term rides inside master's whole begin_burn() light-establishment lightdamage() block, which the branch lacked and no row tracked - PORTED NOW as a coupled commit B, with one deviation: both calls are gated on !gi.in_mklev because goto_level() builds the new level before vision_reset(), so creation-time lit gear would otherwise be tested against the previous level's hero square (master latent, frozen-unfixed); (2) getprice()'s erosion price block (the forge slice's "separate decision" gap) is PORTED NOW as commit C, written `tmp -= 2L` for the light tier, with the odiluted/orotten/norevive aliasing (diluted potions, rotten food and frozen corpses lose 2 zm) carried as master behavior; (3) the red dragon-scaled armor +rnd(6) melee bonus the census surfaced rides commit A. | maintainer |
 | 2026-09-09 | dmgval material-hardness slice ruling (AskUserQuestion x1, recommended): (1) vanilla 5.0's inner "negative enchantment" clamp at the end of dmgval()'s weapon block is DROPPED with the material block - master's materials patch 03e87e1bd removed it and clamps once after the forged-quality term; the branch had carried both, and the only observable delta is a superior or exceptional weapon whose dice plus enchantment plus material penalty fall below zero (spe <= -2 on a d4 with generated quality, which needs a metallic or crystal object; spe <= -1 on a wooden blade wished with a quality prefix, which the wish parser applies with no material gate), which floored at 1 and now gives 0 as on master. | maintainer |
+| 2026-09-09 | Bane-aura artifact-arm slice ruling (AskUserQuestion x1, recommended): the census found seven rowless master absences; six get rows (AD_BHED dispatcher, melee-combat wake, bane_applies monster demon arm, Hammer tether semantics, One Ring inscription reading, botl_hitbonus/BL_TOHIT) and master 48e5fbdd0's two-line Cleric Mjollnir alignment retarget is ported now as its own commit B (src/artifact.c) because the crowning arm it protects already landed 2026-09-06. The setmangry() alignment charge for a peaceful non-tame victim of the 'bane flip is recorded as master parity (f4080431e names that path as intended), not reworked at the spawn site. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
 | 2026-07-25 | COCKNEST depth gate restored to master's `u_depth > 15` from upstream's 16. Provenance established the EvilHack-tweak way: vanilla at merge-base 44b6612fd is 16, upstream 5.0 is 16, master is 15 - a vanilla==5.0 != master triple, so it is an EvilHack change the tree adoption silently reverted, not an upstream improvement to keep. Minted the unlogged-numeric-constant sweep item, since the archive-keyword sweeps cannot catch a tweak that was never archived | maintainer |
