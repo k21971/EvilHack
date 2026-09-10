@@ -111,6 +111,8 @@ hack_artifacts(void)
     }
 
     if (Role_if(PM_CLERIC)) {
+        /* For crowning purposes */
+        artilist[ART_MJOLLNIR].alignment = alignmnt;
         /* The Hammer of the Gods is forged from Demonbane and
            Sunsword; since a priest can reach the forge carrying
            their own retargeted Demonbane, mirror the priest's
