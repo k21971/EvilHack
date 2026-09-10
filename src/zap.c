@@ -178,6 +178,11 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     struct obj *obj;
     boolean disguised_mimic = (mtmp->data->mlet == S_MIMIC
                                && M_AP_TYPE(mtmp) != M_AP_NOTHING);
+    /* a knockback's landing can fire a trap whose beam destroys the
+       wand being zapped; snapshot what the tail needs from it */
+    char saved_oclass = otmp->oclass;
+    unsigned wand_id = otmp->o_id;
+    boolean wand_carried = (otmp->where == OBJ_INVENT);
     /* box_or_door(): mimic appearances that have locks */
 #define box_or_door(monst) \
     ((M_AP_TYPE(monst) == M_AP_OBJECT                                   \
@@ -202,8 +207,10 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     case SPE_FORCE_BOLT:
         reveal_invis = TRUE;
         learn_it = cansee(gb.bhitpos.x, gb.bhitpos.y);
-        if (resists_magm(mtmp)
-            || defended(mtmp, AD_MAGM)) { /* match effect on player */
+        if (gl.last_hurtled == mtmp) {
+            ; /* already hit by this beam and knocked into its path */
+        } else if (resists_magm(mtmp)
+                   || defended(mtmp, AD_MAGM)) { /* match effect on player */
             if (disguised_mimic && !disguised_as_mon(mtmp))
                 seemimic(mtmp);
             shieldeff(mtmp->mx, mtmp->my);
@@ -218,7 +225,23 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             if (otyp == SPE_FORCE_BOLT)
                 dmg = spell_damage_bonus(dmg);
             hit(zap_type_text, mtmp, exclam(dmg));
-            (void) resist(mtmp, otmp->oclass, dmg, TELL);
+            /* a heavy hit knocks the target back a square; it lands on
+               the beam's next square, so remember it and don't hit it
+               again with this beam */
+            if (dmg > 20 && !u.uswallow && !u_at(mtmp->mx, mtmp->my)
+                && !unsolid(mtmp->data) && !m_is_steadfast(mtmp)) {
+                gl.last_hurtled = mtmp;
+                if (dmg < mtmp->mhp) {
+                    pline_The("force of %s knocks %s back!",
+                              (otyp == SPE_FORCE_BOLT) ? "your spell"
+                                                       : "the wand",
+                              mon_nam(mtmp));
+                    mhurtle(mtmp, sgn(mtmp->mx - u.ux),
+                            sgn(mtmp->my - u.uy), 1);
+                }
+            }
+            if (!DEADMONSTER(mtmp))
+                (void) resist(mtmp, saved_oclass, dmg, TELL);
         } else {
             if (!disguised_mimic)
                 miss(zap_type_text, mtmp);
@@ -678,8 +701,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             map_invisible(gb.bhitpos.x, gb.bhitpos.y);
     }
     /* if effect was observable then discover the wand type provided
-       that the wand itself has been seen */
-    if (learn_it)
+       that the wand itself has been seen and still exists */
+    if (learn_it && !(wand_carried && !o_on(wand_id, gi.invent)))
         learnwand(otmp);
     return ret;
 #undef box_or_door
@@ -4111,6 +4134,9 @@ weffects(struct obj *obj)
     int otyp = obj->otyp;
     boolean disclose = FALSE, was_unkn = !objects[otyp].oc_name_known;
 
+    /* the steed and swallowed zaps reach bhitm() without a beam loop
+       to clear the knockback skip marker */
+    gl.last_hurtled = (struct monst *) 0;
     exercise(A_WIS, TRUE);
     if (u.usteed && (objects[otyp].oc_dir != NODIR) && !u.dx && !u.dy
         && (u.dz > 0) && zap_steed(obj)) {
@@ -4542,7 +4568,13 @@ bhit(
     int skiprange_start = 0, skiprange_end = 0, skipcount = 0;
     struct obj *was_returning = (iflags.returning_missile == obj) ? obj
                                 : (struct obj *) 0;
+    /* a knockback's landing can fire a trap whose beam destroys the
+       wand being zapped, and the loop keeps reading it */
+    unsigned obj_id = obj ? obj->o_id : 0;
+    boolean obj_carried = (weapon == ZAPPED_WAND && obj
+                           && obj->where == OBJ_INVENT);
 
+    gl.last_hurtled = (struct monst *) 0;
     if (weapon == KICKED_WEAPON) {
         /* object starts one square in front of player */
         gb.bhitpos.x = u.ux + ddx;
@@ -4773,6 +4805,10 @@ bhit(
                     goto bhit_done;
                 }
                 range -= 3;
+                if (obj_carried && !o_on(obj_id, gi.invent)) {
+                    *pobj = obj = (struct obj *) 0; /* destroyed */
+                    goto bhit_done;
+                }
                 /* while this would work for all wands, it causes massive
                    problems if the mount dies before the rider */
                 if (obj->otyp == WAN_PROBING
@@ -4791,6 +4827,10 @@ bhit(
         if (fhito) {
             if (bhitpile(obj, fhito, x, y, 0))
                 range--;
+            if (obj_carried && !o_on(obj_id, gi.invent)) {
+                *pobj = obj = (struct obj *) 0; /* destroyed */
+                goto bhit_done;
+            }
         } else {
             if (weapon == KICKED_WEAPON
                 && ((obj->oclass == COIN_CLASS && OBJ_AT(x, y))
@@ -4889,6 +4929,7 @@ bhit(
     if (weapon == THROWN_WEAPON || weapon == KICKED_WEAPON)
         transient_light_cleanup();
 
+    gl.last_hurtled = (struct monst *) 0;
     return result;
 }
 

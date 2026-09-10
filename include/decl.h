@@ -588,6 +588,10 @@ struct instance_globals_l {
     /* windows.c */
     struct win_choices *last_winchoice;
 
+    /* zap.c */
+    struct monst *last_hurtled; /* monster most recently hurtled by the
+                                 * current beam; it isn't hit by it twice */
+
     /* new stuff */
     char lua_ver[LUA_VER_BUFSIZ];
     char lua_copyright[LUA_COPYRIGHT_BUFSIZ];

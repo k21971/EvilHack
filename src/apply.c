@@ -4327,6 +4327,7 @@ do_break_wand(struct obj *obj)
     }
 
     gc.current_wand = obj; /* destroy_items might reset this */
+    gl.last_hurtled = (struct monst *) 0; /* bhitm() knockback marker */
     freeinv(obj);       /* hide it from destroy_items instead... */
     setnotworn(obj);    /* so we need to do this ourselves */
 

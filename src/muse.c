@@ -2155,9 +2155,13 @@ check_offensive_item(
 staticfn int
 mbhitm(struct monst *mtmp, struct obj *otmp)
 {
-    int tmp;
+    int tmp, otyp = otmp->otyp;
     boolean reveal_invis = FALSE, learnit = FALSE,
             hits_you = (mtmp == &gy.youmonst);
+    /* the zapper; a knockback's landing can fire a trap whose beam
+       destroys otmp, so take what the tail needs from it up front */
+    struct monst *zapper = mcarried(otmp) ? otmp->ocarry
+                                          : (struct monst *) 0;
 
     if (!hits_you && otmp->otyp != WAN_UNDEAD_TURNING) {
         mtmp->msleeping = 0;
@@ -2168,7 +2172,9 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
         reveal_invis = TRUE;
-        if (hits_you) {
+        if (gl.last_hurtled == mtmp) {
+            ; /* already hit by this beam and knocked into its path */
+        } else if (hits_you) {
             if (Antimagic) {
                 monstseesu(M_SEEN_MAGR); /* monsters notice hero resisting */
                 shieldeff(u.ux, u.uy);
@@ -2178,35 +2184,67 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
             } else if (rnd(20) < 10 + u.uac &&
                        !(gb.buzzer && !gb.buzzer->mwandexp)) {
                 char kbuf[BUFSZ];
-                struct monst *magr = mcarried(otmp) ? otmp->ocarry : 0;
 
                 /* build an attributed killer reason */
                 (void) death_inflicted_by(kbuf,
-                                          (otmp->otyp == WAN_STRIKING)
+                                          (otyp == WAN_STRIKING)
                                               ? "wand of striking"
                                               : "force bolt",
-                                          magr);
+                                          zapper);
                 (void) strsubst(kbuf, "inflicted",
-                                (otmp->otyp == WAN_STRIKING) ? "zapped"
-                                                             : "cast");
+                                (otyp == WAN_STRIKING) ? "zapped"
+                                                       : "cast");
                 monstunseesu(M_SEEN_MAGR); /* mons see hero not resisting */
-                if (otmp->otyp == WAN_STRIKING)
+                if (otyp == WAN_STRIKING)
                     pline_The("wand hits you!");
                 else
                     pline_The("force bolt hits you!");
-                tmp = d(2, (otmp->otyp == WAN_STRIKING) ? 12 : 6);
+                tmp = d(2, (otyp == WAN_STRIKING) ? 12 : 6);
                 /* force bolt damage scales with caster level */
-                if (otmp->otyp == SPE_FORCE_BOLT && mcarried(otmp))
-                    tmp += otmp->ocarry->m_lev / 3;
+                if (otyp == SPE_FORCE_BOLT && zapper)
+                    tmp += zapper->m_lev / 3;
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
-                /* TODO-EVILHACK: the force bolt / wand of striking
-                   knockback effect ports with the combat knockback
-                   slice */
+                /* a heavy hit knocks the hero back a square, or out of
+                   the saddle; an anchoring artifact holds */
+                if (tmp > ((otyp == WAN_STRIKING) ? 16 : 12) && zapper
+                    && !u.ustuck && !m_is_steadfast(&gy.youmonst)) {
+                    int kx = sgn(u.ux - zapper->mx),
+                        ky = sgn(u.uy - zapper->my);
+                    struct obj *saddle = u.usteed
+                                         ? which_armor(u.usteed, W_SADDLE)
+                                         : (struct obj *) 0;
+                    boolean unseat = (u.usteed
+                                      && !(saddle && saddle->cursed));
+
+                    pline_The("force of %s knocks you %s!",
+                              (otyp == WAN_STRIKING) ? "the wand"
+                                                     : "the spell",
+                              unseat ? "out of your saddle" : "back");
+                    gl.last_hurtled = &gy.youmonst;
+                    if (unseat) {
+                        /* u.dx,u.dy pass the preferred direction to
+                           dismount_steed (for DISMOUNT_KNOCKED only) */
+                        u.dx = kx;
+                        u.dy = ky;
+                        dismount_steed(DISMOUNT_KNOCKED);
+                    } else if (u.usteed) {
+                        /* stuck to a cursed saddle: steed and rider go */
+                        mhurtle(u.usteed, kx, ky, 1);
+                    } else {
+                        hurtle(kx, ky, 1, FALSE);
+                    }
+                    /* the landing can fire a trap whose beam kills the
+                       zapper; a live one learns where the hero went */
+                    if (!DEADMONSTER(zapper)) {
+                        zapper->mux = u.ux;
+                        zapper->muy = u.uy;
+                    }
+                }
                 losehp(tmp, kbuf, KILLED_BY_AN);
                 learnit = TRUE;
             } else {
-                if (otmp->otyp == WAN_STRIKING)
+                if (otyp == WAN_STRIKING)
                     pline_The("wand misses you.");
                 else
                     pline_The("force bolt misses you.");
@@ -2219,19 +2257,36 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
             pline("Boing!");
             learnit = TRUE;
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
-            tmp = d(2, (otmp->otyp == WAN_STRIKING) ? 12 : 6);
-            if (otmp->otyp == SPE_FORCE_BOLT && mcarried(otmp))
-                tmp += otmp->ocarry->m_lev / 3;
-            hit(otmp->otyp == WAN_STRIKING ? "wand" : "force bolt",
+            tmp = d(2, (otyp == WAN_STRIKING) ? 12 : 6);
+            if (otyp == SPE_FORCE_BOLT && zapper)
+                tmp += zapper->m_lev / 3;
+            hit(otyp == WAN_STRIKING ? "wand" : "force bolt",
                 mtmp, exclam(tmp));
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
             learnit = TRUE;
+            /* a heavy hit knocks the target back a square; it lands on
+               the beam's next square, so remember it and don't hit it
+               again with this beam; a ridden steed carries its rider */
+            if (!DEADMONSTER(mtmp)
+                && tmp > ((otyp == WAN_STRIKING) ? 16 : 12) && zapper
+                && !unsolid(mtmp->data) && !m_is_steadfast(mtmp)) {
+                gl.last_hurtled = mtmp;
+                if (tmp < mtmp->mhp) {
+                    if (canseemon(mtmp))
+                        pline_The("force of %s knocks %s back!",
+                                  (otyp == WAN_STRIKING) ? "the wand"
+                                                         : "the spell",
+                                  mon_nam(mtmp));
+                    mhurtle(mtmp, sgn(mtmp->mx - zapper->mx),
+                            sgn(mtmp->my - zapper->my), 1);
+                }
+            }
         } else {
-            miss(otmp->otyp == WAN_STRIKING ? "wand" : "force bolt", mtmp);
+            miss(otyp == WAN_STRIKING ? "wand" : "force bolt", mtmp);
         }
         /* need to see the wand being zapped and also the spot where the
            target is hit; don't have to see the target itself though */
-        if (otmp->otyp == WAN_STRIKING && learnit && gz.zap_oseen
+        if (otyp == WAN_STRIKING && learnit && gz.zap_oseen
             && (hits_you || cansee(mtmp->mx, mtmp->my)))
             makeknown(WAN_STRIKING);
         break;
@@ -2468,7 +2523,13 @@ mbhit(
     struct monst *mtmp;
     uchar ltyp;
     int ddx, ddy, otyp = obj->otyp;
+    /* a knockback's landing can fire a trap whose beam kills the zapper
+       or destroys the wand; a spell's pseudo-object has ocarry set but
+       is not linked into minvent, so only a real wand is watched */
+    unsigned obj_id = obj->o_id;
+    boolean obj_in_minvent = (o_on(obj_id, mon->minvent) != 0);
 
+    gl.last_hurtled = (struct monst *) 0;
     gb.bhitpos.x = mon->mx;
     gb.bhitpos.y = mon->my;
     ddx = sgn(gt.tbx);
@@ -2496,8 +2557,15 @@ mbhit(
             (*fhitm)(mtmp, obj);
             range -= 3;
         }
+        if (DEADMONSTER(mon)
+            || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
+            break;
         if (fhito_loc(obj, gb.bhitpos.x, gb.bhitpos.y, fhito))
             range--;
+        /* the same check after the objects on the square */
+        if (DEADMONSTER(mon)
+            || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
+            break;
         ltyp = levl[gb.bhitpos.x][gb.bhitpos.y].typ;
         dbx = x, dby = y;
         if ((otyp == WAN_STRIKING || otyp == SPE_FORCE_BOLT)
@@ -2557,6 +2625,7 @@ mbhit(
             break;
         }
     }
+    gl.last_hurtled = (struct monst *) 0;
 }
 
 staticfn void
@@ -2985,6 +3054,10 @@ use_offensive(struct monst *mtmp)
         gb.buzzer = 0;
         /* note: 'otmp' might have been destroyed (drawbridge destruction) */
         gm.m_using = FALSE;
+        /* the zapper can die in its own beam (a knockback's landing
+           fires a trap, a drawbridge falls) */
+        if (DEADMONSTER(mtmp))
+            return 1;
         if (gm.m.has_offense == MUSE_WAN_STRIKING)
             mtmp->mwandexp = TRUE;
         return 2;

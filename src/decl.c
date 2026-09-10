@@ -494,6 +494,8 @@ static const struct instance_globals_l g_init_l = {
     { UNDEFINED_PTR, 0, 0 }, /* launchplace */
     /* windows.c */
     UNDEFINED_PTR, /* last_winchoice */
+    /* zap.c */
+    UNDEFINED_PTR, /* last_hurtled */
     /* new */
     DUMMY,   /* lua_ver[LUA_VER_BUFSIZ] */
     DUMMY,   /* lua_copyright[LUA_COPYRIGHT_BUFSIZ] */
