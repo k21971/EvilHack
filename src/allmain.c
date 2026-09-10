@@ -661,11 +661,8 @@ moveloop_core(void)
                     in_iceq_effects();
 
                 /* make monsters that innately grudge the hero's race,
-                   role, or alignment hostile should they be tame or
-                   peaceful */
-                /* TODO-EVILHACK: master also runs this pass for the
-                   wielded or worn 'banes; those arms port with the
-                   artifacts slice */
+                   role, or alignment, or that a wielded or worn 'bane is
+                   against, hostile if they are tame or peaceful */
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     boolean is_shkp = has_eshk(mtmp)
                                       && inhishop(mtmp);
@@ -674,6 +671,10 @@ moveloop_core(void)
                     boolean same_align = (sgn(mon_aligntyp(mtmp))
                                           == u.ualign.type);
 
+                    /* a monster killed earlier this turn stays on fmon
+                       until the next dmonsfree() pass */
+                    if (DEADMONSTER(mtmp))
+                        continue;
                     /* monster in question has to see you, not just
                        sense you, before it becomes hostile */
                     if (!(mtmp->mcansee && m_canseeu(mtmp)))
@@ -685,11 +686,48 @@ moveloop_core(void)
                     if (is_prst && p_coaligned(mtmp))
                         continue;
 
-                    if ((Role_if(PM_KNIGHT) && !same_align
+                    if ((((uarmg && uarmg->oartifact == ART_DRAGONBANE)
+                          || (Role_if(PM_KNIGHT) && !same_align))
                          && is_dragon(mtmp->data))
                         || (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
                         || (Role_if(PM_INFIDEL) && is_angel(mtmp->data)
-                            && mon_aligntyp(mtmp) > 0)) {
+                            && mon_aligntyp(mtmp) > 0)
+                        || (wielding_artifact(ART_STING)
+                            && (racial_orc(mtmp) || is_spider(mtmp->data)))
+                        || (wielding_artifact(ART_ORCRIST)
+                            && racial_orc(mtmp))
+                        || (wielding_artifact(ART_GLAMDRING)
+                            && racial_orc(mtmp))
+                        || (wielding_artifact(ART_GRIMTOOTH)
+                            && (racial_elf(mtmp) || racial_drow(mtmp)))
+                        || (wielding_artifact(ART_GIANTSLAYER)
+                            && racial_giant(mtmp))
+                        || (wielding_artifact(ART_HARBINGER)
+                            && racial_giant(mtmp))
+                        || (wielding_artifact(ART_TROLLSBANE)
+                            && is_troll(mtmp->data))
+                        || (wielding_artifact(ART_OGRESMASHER)
+                            && is_ogre(mtmp->data))
+                        || (wielding_artifact(ART_SUNSWORD)
+                            && is_undead(mtmp->data))
+                        || (wielding_artifact(ART_HAMMER_OF_THE_GODS)
+                            && (is_undead(mtmp->data)
+                                || is_demon(mtmp->data)))
+                        || (wielding_artifact(ART_WEREBANE)
+                            && is_were(mtmp->data))
+                        || (wielding_artifact(ART_SHADOWBLADE)
+                            && is_were(mtmp->data))
+                        || (wielding_artifact(ART_DEMONBANE)
+                            && is_demon(mtmp->data))
+                        || (wielding_artifact(ART_ANGELSLAYER)
+                            && (is_angel(mtmp->data)
+                                || is_aasimar(mtmp->data)))
+                        || (wielding_artifact(ART_VORPAL_BLADE)
+                            && is_jabberwock(mtmp->data))
+                        || (uleft && uleft->oartifact == ART_ONE_RING
+                            && is_wraith(mtmp->data))
+                        || (uright && uright->oartifact == ART_ONE_RING
+                            && is_wraith(mtmp->data))) {
                         if (is_shkp) {
                             /* shopkeepers ban you from their shop */
                             ESHK(mtmp)->pbanned = TRUE;
