@@ -1437,9 +1437,13 @@ mdamagem(
     if (mwep && !o_on(wep_id, magr->minvent))
         mwep = (struct obj *) 0;
 
+    /* a knocked-back defender that survived on the map still takes
+       the blow's damage below; an attacker killed by the landing (a
+       land mine, a magic beam trap) stops here with its death flagged,
+       which the equality tests at the tail would otherwise mask */
     if (mhitm_knockback(magr, mdef, mattk, &mhm.hitflags,
                         (MON_WEP(magr) != 0))
-        && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_HIT)) != 0
+        && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED)) != 0
             || mon_offmap(mdef)))
         return mhm.hitflags;
 
