@@ -2949,7 +2949,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       re-verified vs branch objects.h)/mcast_immediate_spell/
       mcast_nodir_spell + monster_uncurse_items; new mbhitm arms
       FORCE_BOLT (death_inflicted_by attribution; knockback
-      TODO -> knockback slice)/POLYMORPH/TURN_UNDEAD (resist
+      TODO -> knockback slice, LANDED 2026-09-10 as
+      BUG-1821)/POLYMORPH/TURN_UNDEAD (resist
       class = otmp->oclass)/SLOW/DRAIN_LIFE/DISPEL_EVIL
       (set_pet_killer TODOs x4 -> kill-attribution)/ENTANGLE.
       Shared helpers: spell.c cast_reflection/barkskin/stoneskin/
@@ -2981,7 +2982,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       parity (SPE_FORCE_BOLT joins WAN_STRIKING at drawbridge +
       door smash + NEW IRONBARS blow-apart arm; mid-beam
       DEADMONSTER/o_on revalidation stays deferred -> knockback
-      slice, branch's cached-otyp mitigates the read half;
+      slice, branch's cached-otyp mitigates the read half -
+      LANDED 2026-09-10 (BUG-1822);
       temple_at_boundary arm TODO - helper has 24 master sites =
       its own temple damage-repair sweep, NEW deferred item);
       polyself SKIN cosmetics (skeleton bones, dragon scales).
@@ -4475,8 +4477,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ASHMAR residuals route to the existing worn-acurr force-arm
       and knockback-machinery rows) - 2026-09-08: "May knock
       attackers back when it deflects a blow." LANDED with the pokedex
-      port; the CON and "Prevents knockback." lines are HELD on the
-      artifact behaviour remainder row. Battery list = reviewer test
+      port; the CON line is HELD on the artifact behaviour remainder
+      row and "Prevents knockback." LANDED 2026-09-10 with the
+      knockback-machinery slice (BUG-1820). Battery list = reviewer test
       recs: owner summon via switch path (Excalibur) + roles-walk
       path (Mitre; was blocker-1 dead) + erosion transfer, hobbit
       threshold ladder + elevenses, gnome egg anathema + prompt +
@@ -8668,7 +8671,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mechanism lands). RE-ENTERED 2026-09-09: the 17 "Its presence
       angers <X>." / One Ring "Wearing it angers nearby wraiths."
       lines landed with the bane-aura moveloop artifact arms (row
-      ~13234, BUG-1816), so 22 lines stay held. Held lines with
+      ~13234, BUG-1816), so 22 lines stayed held; RE-ENTERED
+      2026-09-10: Ashmar "Prevents knockback." with the
+      knockback-machinery slice (BUG-1820), 21 held. Held lines with
       owners elsewhere: Master Key of
       Thievery + Yendorian Express Card "Never breaks while picking
       locks." (lock.c cursed-tool breakage, row ~1915); Wand of Orcus
@@ -8710,7 +8715,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cancel and names "the massive triple-headed flail"; the branch
       runs stock 5.0 Mb_hit for all three, so both do MORE than the
       tip says); Ashmar "Prevents knockback." (m_is_steadfast lists
-      only Giantslayer/Harbinger/loadstone). MASTER DOC BUG (not held
+      only Giantslayer/Harbinger/loadstone - LANDED 2026-09-10,
+      BUG-1820). MASTER DOC BUG (not held
       for porting): Xiuhcoatl "Its fire burns even underwater." -
       only Angelslayer has the underwater exemption on master too and
       Xiuhcoatl's own hit message prints "hits" when submerged
@@ -13142,24 +13148,148 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       into a read-only page; the second was a detach with an inferior
       call still live (dummy-frame return into the stack). Harness
       lore -> gameplay.md.
-- [ ] Knockback machinery (minted 2026-09-09 by the attack-handler
-      slice; every earlier slice's "-> knockback slice" deferral had
-      no row): the branch runs upstream 5.0's mhitm_knockback()
-      (uhitm.c: 1 in 6, AD_PHYS - and since BUG-1803 AD_CLOB - on
-      CLAW/KICK/BUTT/WEAP, attacker two sizes larger than the
-      defender, no engulfer/hugger/sticker, steadfast, 1-2 squares,
-      1 in 4 stun; Ogresmasher 1 in 2), ratified as the branch model
-      by the Monk rows. Master keys knockback on AD_CLOB itself
-      (mhitu.c hitmu: dmg != 0, hero smaller than MZ_HUGE, not stuck,
-      not unsolid, 1 in 6, rnd(2) squares, 1 in 4 stun; mhitm.c
-      mdamagem: tmp > 0 and below the victim's HP, steed dismount)
-      with immunities the branch lacks: Giantslayer or Harbinger
-      wielded, Ashmar worn, Armor of Retribution worn (the HELD
-      "Prevents knockback." pokedex tips ride here). Also deferred
-      here by earlier slices: mbhitm force-bolt knockback, the
-      combat-knockback muse/zap TODO sites, the mid-beam DEADMONSTER/
-      o_on revalidation. Decide: keep 5.0's size gate or restore
-      master's per-adtyp shape.
+- [x] Knockback machinery PORTED 2026-09-10 (session 109; the row minted
+      2026-09-09 by the attack-handler slice; commit A = src/uhitm.c +
+      src/mhitu.c + src/pager.c, B = src/zap.c + src/muse.c +
+      include/decl.h + src/decl.c, C = src/mhitm.c; hashes in the
+      archive next to BUG-1819..1824). RULING (AskUserQuestion x1
+      answered HYBRID, then revised by the maintainer before commit to
+      MASTER'S SHAPE EXACTLY): only a monster's AD_CLOB attack knocks
+      back through mhitm_knockback() - no attacker-size gate, no
+      hugger/engulfer/sticker exclusion, any weapon, 1 in 6, the anchors
+      - and an ordinary AD_PHYS hit never does, however large the
+      attacker; the hero pushes only by jousting, the unarmed stagger
+      and the Ashmar/Retribution deflections (mhurtle_to_doom), so the
+      function refuses a hero attacker and 5.0's much-larger-attacker
+      knockback and its Ogresmasher 1-in-2 chance are not used. CENSUS:
+      27 AD_CLOB carriers on the branch, 22 of them MZ_HUGE/MZ_GIGANTIC
+      and passing 5.0's gate against a human-sized hero; minotaur, ogre
+      king and ent (MZ_LARGE), Master Po and Master Kaen (MZ_HUMAN)
+      failed it; mastodon, woolly mammoth and elder minotaur carry
+      AT_HUGS (5.0's grabber exclusion); a giant with a non-blunt weapon
+      failed the blunt gate; plus the apply_race() giant overlay and the
+      mplayer Monk kick. SHAPE: mhitm_knockback() opens with `if (magr
+      == &gy.youmonst || mattk->adtyp != AD_CLOB) return FALSE;`, the
+      5.0 size, grabber, weapon and attack-type gates and the
+      Ogresmasher chance are deleted, it refuses a huge or held hero and
+      an unsolid defender and drops the 5.0 post-mhurtle monster stun
+      roll; the hero-attacker call sites (hmon_hitmon's single-weapon
+      maybe_knockback, hmonas) stay as upstream structure and get FALSE
+      (BUG-1819); m_is_steadfast() puts the four artifact anchors ahead
+      of the flight test and gains worn Ashmar/Retribution through
+      which_armor() (BUG-1820); hitmu() returns M_ATTK_AGR_DIED after a
+      knockback whose dismount landed the hero on a trap that killed the
+      attacker (BUG-1823, risk-review HIGH); mdamagem() falls through to
+      the blow's damage after a survived knockback (BUG-1824, upstream-
+      shared, patch ~/nh50-mdamagem-knockback-damage.patch - the
+      2026-08-23 carried quirk in the upstream table, now fixed);
+      bhitm() and mbhitm() gain master's force bolt / wand of striking
+      knockback with gl.last_hurtled (instance_globals_l) as the beam
+      skip, reset at bhit()/mbhit() entry and exit (BUG-1821); mbhit()
+      gains master's two mid-beam revalidations, bhit()/bhitm() watch
+      the hero's wand through o_on(gi.invent), use_offensive() returns 1
+      on a zapper killed by its own beam (BUG-1822); the TODO-EVILHACK
+      stub in mbhitm removed; Ashmar "Prevents knockback." re-entered
+      arti_specials[]. DEVIATIONS: (1) distance rn2(3) ? 1 : 2 and the
+      5.0 hero stun (!Stunned, 2-3 turns) kept - master rnd(2) squares
+      and a stacking rnd(2)+1 stun; (2) monster-defender stun comes from
+      mhurtle() only (always for a common monster, 1 in 5 for a unique -
+      BUG-194); (3) Ashmar/Retribution anchor monster wearers too, and
+      the four artifact anchors hold in the air (5.0 wanted the wielder
+      grounded; the loadstone clause keeps the ground test); (4) m-v-m
+      AD_CLOB has no damage gate: 5.0's call precedes mdamagem's damage,
+      so a zero-damage blow can push and a lethal blow throws its victim
+      before it kills, where master required 0 < tmp < mhp (reviewer
+      LOW, left - the function never sees the damage); (5) the hero-
+      attacker callers stay in the code but are inert (master's hero
+      side had no AD_CLOB knockback; keeping the upstream call sites
+      avoids a signature change); (6) the beam knockbacks anchor on
+      m_is_steadfast(), so a loadstone carrier is anchored too; (7) a
+      beam-hurtled steed carries its rider (master DISMOUNT_FELL); (8)
+      the beam skips the hurtled monster and continues (master shape;
+      the upstream SPE_KNOCK `ret = 1` stop idiom rejected so a second
+      monster in line is still hit); (9) the beam direction is taken
+      from the hero or the zapper, not u.dx/u.dy (bhitm is also reached
+      from do_break_wand, zap_steed and the swallowed path); (10)
+      mbhitm's monster leg refuses an unsolid target (master's did not);
+      (11) the hero leg of mbhitm unseats through DISMOUNT_KNOCKED, a
+      cursed saddle hurtles the steed with the rider aboard (master's
+      hurtle() had a DISMOUNT_FELL arm; the branch's has none). REVIEW:
+      CONDITIONAL PASS -> HIGH taken (the narrowed mdamagem early return
+      dropped an attacker killed by the landing - a land mine or magic
+      beam trap fired by mhurtle's mintrap - because the tail's
+      `hitflags == M_ATTK_AGR_DIED` equality tests mask the death when
+      M_ATTK_HIT is set too; the return now fires on M_ATTK_AGR_DIED as
+      well), MED taken (gl.last_hurtled reset at the top of weffects()
+      and in do_break_wand(): the steed, swallowed and broken-wand
+      bhitm() callers have no beam loop to clear it, so a later zap at
+      the same monster was silently skipped), LOWs taken (hitmu delivers
+      the halved damage through the normal tail and skips only the
+      spell- hand riders and passiveum for a dead attacker; mbhitm's
+      hero leg refuses a held hero since hurtle() would refuse silently;
+      decl.c UNDEFINED_PTR) and one LOW recorded, not taken (a
+      Retribution "Prevents knockback." tip - master has only the Ashmar
+      line); delta re-review PASS (two LOW notes, no change: the
+      mdamagem mask is a deliberate departure from upstream's
+      DEF_DIED|HIT form, matching master's AD_CLOB arm and the branch's
+      hero legs, so say so in the commit; a Punished or trapped hero
+      still gets hurtle()'s own refusal line after "knocks you back!" -
+      parity with the melee path). Master-shape rewrite re-reviewed PASS
+      (two LOW notes: the lethal-blow ordering above; knockdistance's
+      rn2(3) initializer still runs before the hero refusal - upstream
+      shape, left; a comment now marks hmon_hitmon's inert
+      maybe_knockback arm). BATTERY 2026-09-10 (game-tester agent; one
+      XL30 human Valkyrie game, T:580, paniclog never created, ~318 gdb-
+      driven steps): PASS 12/12. T1 minotaur: 212 landed clob butts, 28
+      passed rn2(6) (13.2%); 368 landed claws, 69 passed the roll, 0
+      claw knockbacks (12 refused at the size gate, the rest at
+      test_move against the room wall); 6 knockbacks executed (distances
+      1,2,1,2,1,1; 3 stuns): "The minotaur knocks you backward with a
+      powerful blow! You stagger...". T2 anchors: Giantslayer 39 butts/4
+      rolls, Ashmar 31/8, Retribution 23/5, Giantslayer while levitating
+      34/7 - every roll "You don't budge.", hurtle() called 0 times. T3
+      elder minotaur: held (u.ustuck) 25 butts/3 rolls, all refused at
+      the clob held gate; unstuck 29/4, one executed "The elder minotaur
+      knocks you backward with a forceful blow!"; its 58 AD_PHYS claw
+      hits (12 rolls) all refused by the hugger exclusion - brief
+      premise corrected: that exclusion precedes the size gate, so a
+      hugger's AD_PHYS never knocks back. T4 hill giant given a long
+      sword through mongets(): 44 hits/9 rolls/2 executed "...knocks you
+      backward with a powerful strike!"; ogre king (MZ_LARGE) 29/6/2. T5
+      tame hill giant vs a 200-HP gnome lord: three knockbacks, each
+      followed by the blow's damage (169->158, 149->137, 99->87;
+      BUG-1824). T6 hero wand and spell (gdb dmg 25): "The force of the
+      wand knocks the gnome lord back!", moved 1 along the beam, bhitm
+      re-entered at the landing square as a no-op (gl.last_hurtled
+      skip), the second gnome lord in line hit; spell leg the same
+      ("your spell"); against a wall the message prints and the monster
+      stays with no refusal line and no paniclog (mhurtle's silent stop
+      - master shape). T7 monster wand (gdb tmp 20): on foot "The force
+      of the wand knocks you back!" 1 square, gl.last_hurtled ==
+      &gy.youmonst inside mbhit and NULL after; uncursed saddle
+      "...knocks you out of your saddle!  You fall off of the saddled
+      pony!"; cursed saddle "...knocks you back!", still mounted, hero
+      and pony moved 1; Ashmar worn: "The wand hits you!" only. T8 gdb
+      at the mbhit u_at stop: m_useup(mon, obj) -> loop exits,
+      use_offensive 2, the monster keeps acting; mondead(mon) -> loop
+      exits, use_offensive 1; no paniclog. T9 Master Kaen (cham -1;
+      find_mac -28 = ac -10 minus mprotection 18 makes a striking beam
+      unhittable as shipped, so ac/mprotection were zeroed per zap in
+      gdb): 20 knockbacks, mstun set 5/20 (mhurtle's 1-in-5 unique roll;
+      BUG-194 intact). T10 lookup "Ashmar" lists "Prevents knockback.".
+      T11 mondead(magr) right after the m-v-m mhurtle: mdamagem returned
+      0x5 (HIT|AGR_DIED) at once, the gnome lord's HP untouched, no
+      paniclog. T12 broken wand of striking (dmg 25): the gnome lord
+      knocked back, gl.last_hurtled == it after do_break_wand; the next
+      zap entered bhit with the marker NULL and hit it. Brief errors
+      recorded (six, none a code defect): the elder-minotaur claw
+      premise, the bhitm re-entry wording, Kaen's beam to-hit,
+      M_ATTK_AGR_DIED = 0x4 not 0x8, "saddled pony", the break-wand
+      blast order. Observations: the m-v-m message said "back" where the
+      defender then moved (will_hurtle FALSE before the move - upstream
+      cosmetic); a wizard-mode wish delivers Ashmar to a human with a
+      blast on delivery and on wear (SPFX_NOWISH bypassed by !wizard);
+      Master Kaen generates with mprotection 18.
 - [ ] Monster free-action consumers ABSENT (minted 2026-09-09 by the
       attack-handler slice; the has_free_action() macro landed with
       the telekinesis slice but only dogmove.c reads it): master has
@@ -14845,6 +14975,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-10 | mhitu.c hitmu(): mhitm_knockback()'s hero-defender dismount arm runs dismount_steed(DISMOUNT_KNOCKED) -> teleds() -> spoteffects() -> dotrap(), and a land mine there can kill the attacker; the tail then runs the spell-hand riders and passiveum() on the corpse and returns passiveum()'s value, discarding the M_ATTK_AGR_DIED the knockback ORed into the hit flags, so mattacku() carries on with the dead attacker's remaining attacks. Branch fix BUG-1823 (the riders and the passive response skip a dead attacker; the return carries the flag). Companion: mdamagem()'s tail `hitflags == M_ATTK_AGR_DIED` equality tests mask an attacker death whenever M_ATTK_HIT is also set (the branch keeps its early return on M_ATTK_AGR_DIED for that reason) | found on branch (knockback slice risk review); not yet written up as a patch |
 | 2026-09-08 | pager.c do_look(): the pick loop resets only `pm` and `out_str`, while do_screen_description() writes `*for_supplement` only when lookat() returned a monster and never clears it, so picking a monster and then a non-monster in the same `/` session leaves `supplemental_pm` pointing at the earlier monster; do_supplemental_info() then runs against the stale type (after an orc, an object "called <x> of <y>" gets the Orc-town marauder prompt). Latent and low upstream (that call is the only consumer); on the branch the same pointer now feeds checkfile()'s monster block, where it named the wrong thing. Official_nh50 and NetHack50 identical | fixed on branch (pokedex slice commit A: `pm = supplemental_pm = 0` per pick); artifact ~/nh50-do_look-supplemental-reset.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | save.c savelev_core() runs its "purge any dead monsters" dmonsfree() only inside the `mode != FREEING` block, but goto_level() tears the level down in FREEING mode on entering the endgame or leaving the tutorial, so a monster m_detach()ed since the last drain (a statue trap made without time passing - a fresh level with a Statuary themed room starts that way - a summoned monster expiring in mcalcdistress(), a gas-cloud kill in run_regions(), a trapped pet killed by mintrap() inside keepdogs()) is freed by savemonchn() with iflags.purge_monsters still counting it; the next dmonsfree() (the load_special drain while the entrance plane is built) reports "dmonsfree: 0 removed doesn't match 1 pending" with the monster on no list. wiz_kill() already works around the same symptom with a private dmonsfree(). Official_nh50 and NetHack50 identical | fixed on branch (BUG-1797: the drain hoisted ahead of the mode test in savelev_core); artifact ~/nh50-savelev-freeing-purge-drain.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
@@ -14861,7 +14992,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-08-28 | options.c menucontrols help window typo: the Search command row reads "Exter a target string and invert all matching entries" - "Exter" should be "Enter". Byte-identical in NetHack50 and Official_nh50 (battery-caught by the 2026-08-28 Guidebook slice, fixed with the overview-altar slice); artifact ~/nh50-options-exter-typo.patch verified `git apply --check` on both trees | fixed on branch; not yet sent |
 | 2026-08-28 | util/stripbs.c tests `errno != EOF` at end of input - errno is never -1 and is never cleared, so the filter exits EXIT_FAILURE on every normal EOF; any make rule checking the pipeline status (e.g. stripbs as COLCMD for Guidebook generation) sees failure with complete output. Fix: `ferror(stdin)` (EvilHack master e73dc81ed). Byte-identical in NetHack50 and Official_nh50; artifact ~/nh50-stripbs-ferror.patch verified `git apply --check` on both trees | fixed on branch (docs slice); not yet sent |
 | 2026-08-23 | uhitm.c mhitm_ad_phys() m-v-m arm re-reads MON_WEP(magr) instead of the weapon mdamagem() received, and its `!= AT_WEAP && != AT_CLAW -> 0` filter keeps the wielded weapon for AT_CLAW, so a weapon-wielder's claw (Yeenoghu, troll) adds the weapon's dmgval to its claw damage in monster-vs-monster combat; mattackm() passes Null for claws and 3.6's mdamagem() used the parameter. Fix: carry the chosen weapon in struct mhitm_data (artifact ~/nh50-claw-weapon-damage.patch) | found on branch (combat-residue reviewer); not yet sent |
-| 2026-08-23 | mhitm.c mdamagem(): a knockback that moves the defender returns before `mdef->mhp -= mhm.damage`, so the 1-in-6 mhurtle swallows the whole hit's damage - every AD_PHYS handler's damage, upstream-identical in Official_nh50. Carried as an upstream quirk; no branch change | found on branch (combat-residue reviewer); not yet sent |
+| 2026-08-23 | mhitm.c mdamagem(): a knockback that moves the defender returns before `mdef->mhp -= mhm.damage`, so the 1-in-6 mhurtle swallows the whole hit's damage - every AD_PHYS handler's damage, upstream-identical in Official_nh50. Carried as an upstream quirk until 2026-09-10, when the knockback-machinery slice gave AD_CLOB giants master's rules: FIXED on the branch (BUG-1824; the early return now fires only on M_ATTK_DEF_DIED, M_ATTK_AGR_DIED or mon_offmap) | found on branch (combat-residue reviewer); patch ~/nh50-mdamagem-knockback-damage.patch written 2026-09-10; not yet sent |
 | 2026-08-22 | uhitm.c hmon_hitmon_weapon_melee() Healer anatomy bonus (min(3, kills/6) for a wielded knife) is added AFTER dmgval() already returned 0 for a shade, so a Healer with six shade kills damages the next one for up to 3 with an iron knife that "passes harmlessly through". Upstream-only feature (EvilHack master never had it). Fixed on the branch with a !noncorporeal() gate (BUG-1679); artifact ~/nh50-healer-anatomy-shade.patch in upstream idiom (P_KNIFE, PM_SHADE) | fixed on branch; not yet sent |
 | 2026-08-16 | sp_lev.c des.door wall-form with state="secret" stores the raw D_SECRET bit (0x20) in levl[].doormask: the coord-less lspo_door path passes tmpd.mask = D_SECRET into create_door(), whose `dd->mask == -1` test then skips the random locked/trapped rolls and writes the mask verbatim - despite rm.h documenting D_SECRET as "only used by sp_lev.c, NOT in rm-struct". Consequences: scripted secret doors are never locked or trapped, and after discovery the doormask reads 0x24 (0x20\|D_CLOSED) until the first open/close clears it. Benign today (every doormask consumer bit-tests) but a latent contract violation. Byte-identical in NetHack50 and Official_nh50; upstream's own Mausoleum themed room and several shipped levels use the form. Surfaced by the vaults->themerms battery's secret-door leg; no branch fix (upstream-shared door API, behavior accepted) | observation only; not sent |
 | 2026-08-16 | mklev.c mklev_sanity_check()'s "room N not connected?" test validates smeq/joined bookkeeping, not reachability: a level whose corridors dead-end into two flood-fill components (5-room + 4-room, 5 tiles of solid stone between them) raised NO impossible in the vaults->themerms battery, while an independent flood fill split it cleanly. "paniclog clean" therefore does not imply "level connected". Same checker shape upstream. Natural rate measured at ~0.4% of rooms isolated (1/265) | observation only; not sent |
@@ -15025,6 +15156,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-08 | Attack-handler arms slice rulings (AskUserQuestion x3, all recommended): (1) the AD_CLOB dispatcher gap the slice's census surfaced (27 attack slots dealing zero damage with no hit message and no knockback) is fixed now as a coupled commit B under 5.0's size-gated knockback model; master's AD_CLOB-keyed knockback shape and its artifact immunities go to a newly minted knockback-machinery row; (2) master's damageum AD_PSYC arm is HELD - unreachable on both trees, no attack template carries AD_PSYC; (3) mattackm()'s wielded-petrifying-corpse block petrifies instantly through the do_stone_mon() sequence because the branch has no monster stoning countdown, with a rider on the gradual-stoning row to switch to mstone = 5 when the engine lands. | maintainer |
 | 2026-09-09 | Dragon-scaled consumer-sites slice rulings (AskUserQuestion x3, all recommended): (1) the row's timeout.c `armor` term rides inside master's whole begin_burn() light-establishment lightdamage() block, which the branch lacked and no row tracked - PORTED NOW as a coupled commit B, with one deviation: both calls are gated on !gi.in_mklev because goto_level() builds the new level before vision_reset(), so creation-time lit gear would otherwise be tested against the previous level's hero square (master latent, frozen-unfixed); (2) getprice()'s erosion price block (the forge slice's "separate decision" gap) is PORTED NOW as commit C, written `tmp -= 2L` for the light tier, with the odiluted/orotten/norevive aliasing (diluted potions, rotten food and frozen corpses lose 2 zm) carried as master behavior; (3) the red dragon-scaled armor +rnd(6) melee bonus the census surfaced rides commit A. | maintainer |
 | 2026-09-09 | dmgval material-hardness slice ruling (AskUserQuestion x1, recommended): (1) vanilla 5.0's inner "negative enchantment" clamp at the end of dmgval()'s weapon block is DROPPED with the material block - master's materials patch 03e87e1bd removed it and clamps once after the forged-quality term; the branch had carried both, and the only observable delta is a superior or exceptional weapon whose dice plus enchantment plus material penalty fall below zero (spe <= -2 on a d4 with generated quality, which needs a metallic or crystal object; spe <= -1 on a wooden blade wished with a quality prefix, which the wish parser applies with no material gate), which floored at 1 and now gives 0 as on master. | maintainer |
+| 2026-09-10 | Knockback-machinery slice ruling (AskUserQuestion x1 answered HYBRID, then revised by the maintainer to MASTER'S SHAPE EXACTLY before commit): only a monster's AD_CLOB attack knocks back through mhitm_knockback() (no attacker-size gate, no hugger/engulfer/sticker exclusion, any weapon, 1 in 6, the artifact anchors); an ordinary AD_PHYS hit never does, however large the attacker, and the hero pushes only by jousting, the unarmed stagger and the Ashmar/Retribution deflections, so 5.0's much-larger-attacker knockback and its Ogresmasher 1-in-2 chance are dropped. The census that drove it: 27 AD_CLOB carriers on the branch, five of them (minotaur, ogre king, ent, Master Po, Master Kaen) below 5.0's size gate against a human-sized hero, three (mastodon, woolly mammoth, elder minotaur) excluded as huggers, any sword-wielding giant excluded by the blunt-weapon gate. Riders taken without a separate question: the four artifact anchors (Giantslayer, Harbinger, Ashmar, Armor of Retribution) hold in the air and for monster wearers; the 5.0 post-mhurtle monster stun roll dropped because mhurtle() owns the stun (BUG-194); the 2026-08-23 carried mdamagem knockback-damage quirk fixed (BUG-1824) now that AD_CLOB giants push by master's rules; the force-bolt beam keeps master's skip-and-continue shape rather than the upstream SPE_KNOCK stop idiom. | maintainer |
 | 2026-09-09 | Bane-aura artifact-arm slice ruling (AskUserQuestion x1, recommended): the census found seven rowless master absences; six get rows (AD_BHED dispatcher, melee-combat wake, bane_applies monster demon arm, Hammer tether semantics, One Ring inscription reading, botl_hitbonus/BL_TOHIT) and master 48e5fbdd0's two-line Cleric Mjollnir alignment retarget is ported now as its own commit B (src/artifact.c) because the crowning arm it protects already landed 2026-09-06. The setmangry() alignment charge for a peaceful non-tame victim of the 'bane flip is recorded as master parity (f4080431e names that path as intended), not reworked at the spawn site. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
