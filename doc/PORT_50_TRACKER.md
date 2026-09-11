@@ -13592,21 +13592,159 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is PM_CLERIC on both trees and the loop covers it (gdb-verified
       in the battery: lawful Priest Mjollnir 1 / Demonbane 1, chaotic
       Priest -1 / -1, Valkyrie Mjollnir 0). DEVIATIONS: none.
-- [ ] AD_BHED dispatcher ABSENT (minted 2026-09-09 by the bane-aura
-      census; deferred rowless by the zombie/were row ~3324 "no
-      mhitm_ad_bhed yet", the artifacts row ~4846 and the steed row
-      ~6965): the vorpal jabberwock (master 9da63f8c2) bites with
-      AD_BHED on both trees, but the branch's mhitm_adtyping() has no
-      case, so its default arm zeroes the strike - the beheading bite
-      is a no-op against the hero, monsters and pets. Master's handler
-      (uhitm.c damageum / mhitm.c mdamagem / mhitu.c hitmu): 1 in 15
-      (always for a jabberwock attacker), headless targets and a
-      Vorpal Blade wielder ("Somehow, you miss %s wildly", the
-      mon_vorpal_wield/vorpal_wield locals) are immune, Ithilmar
-      barding protects a steed, otherwise instadeath by beheading with
-      the hero's normal head-loss text. Port as three mhitm_ad_* legs
-      in the 5.0 dispatcher; sweep BUGFIXES_ARCHIVE for "behead"
-      first. MEDIUM (a generated monster's attack silently absent).
+- [x] AD_BHED dispatcher PORTED 2026-09-11 (session 111; the row
+      minted 2026-09-09 by the bane-aura census, deferred rowless by
+      the zombie/were row ~3324, the artifacts row ~4846 and the steed
+      row ~6965; commit A = src/uhitm.c + include/extern.h, B =
+      src/artifact.c; hashes in the archive next to BUG-1829..1831).
+      ROW CORRECTION: the guaranteed behead tests the DEFENDER -
+      master's `!rn2(15) || is_jabberwock(<defender>)` on every leg,
+      the Vorpal Blade's own rule - not "a jabberwock attacker"; and
+      the attack is a CLAW (the bites are AD_PHYS). SHAPE: new
+      mhitm_ad_bhed() in the branch's three-leg handler form, dispatched
+      from mhitm_adtyping(); arm order as master's: headless target or
+      Vorpal Blade wielder "misses wildly" (0), Ithilmar barding turns
+      it (0), noncorporeal/amorphous "slices through the neck" then
+      mhitm_ad_phys() (the goto-physical translation upstream used for
+      AD_WERE/AD_HEAL), Cerberus loses a head that grows back for
+      rn2(15)+10 physical, else behead: hero-attacker
+      xkilled(XKILL_GIVEMSG) + damage 0 (damageum's tail returns
+      DEF_DIED without a second kill; lifesaved -> HIT as master),
+      m-v-m the death-touch attribution (uexp -> mon_xkilled, pet ->
+      set_pet_killer + monkilled(NULL, AD_BHED); DEF_DIED | AGR_DIED-
+      unless-grow_up, MISS on lifesave), hero-defender rehumanize() or
+      done(DECAPITATED) with the Vorpal Blade's killer idiom, Hidinshell
+      arm, hitmsg only on the failed roll; monster attackers gated on
+      mcan alone (NO mhitm_mgc_atk_negated - master has no MC roll);
+      wielding_artifact()/mon_wielding_artifact() (both hands) for
+      master's uwep locals; master's texts verbatim incl. "Its attack
+      glances" on the m-v-m leg and the unconditional "You remove one
+      of %s heads!". RULING (AskUserQuestion x1): the Vorpal Blade's
+      artifact_hit() arm switches to is_jabberwock(mdef->data) from
+      vanilla's PM_JABBERWOCK equality - a vorpal jabberwock is now
+      beheaded on every hit (BUG-1831, commit B). DEVIATIONS: (1) the
+      m-v-m leg cancels a troll/zombie BEFORE the death - master sets
+      mcan after mondied(), but the corpse is made inside mondied() and
+      mkcorpstat reads mcan for norevive, so master's troll corpse
+      revives (BUG-1830, master frozen-unfixed; master's mkcorpstat
+      honors mcan only for is_reviver() so its zombie half is inert on
+      every leg, the branch's `mcan && !is_rider` gate makes both halves
+      live); the hero leg's exact condition is used (`racial_zombie ||
+      (is_troll && !mlifesaver)`; mlifesaver() is NULL for the nonliving
+      so a zombie can never be lifesaved-and-cancelled); (2) the
+      hero-attacker neck-slice arm zeroes its own damage for a
+      noncorporeal target with no special damage: hmonas() turns a
+      still-wielding hero's FIRST claw into a weapon swing and calls
+      damageum(mon, mattk, 0) for non-physical adtyps, so a blessed or
+      silver weapon hit on a ghost reaches the handler with specialdmg 0
+      and mhitm_ad_phys() would impossible("bad shade attack function
+      flow?") - master's physical label just zeroes it (risk-review
+      MED; upstream's AD_HEAL/AD_STUN translations carry the same
+      latent route, LOW, not this slice's). RECORDED (master parity, no
+      id): `an(l_monnam(magr))` yields "decapitated by an it" for an
+      unseen attacker; `!flags.verbose` adds "You destroy it!" after the
+      behead; the direct rehumanize() differs from the Vorpal Blade's
+      fatal-damage route under Unchanging; a still-wielding jabberwock-
+      form hero's first claw applies its 3d10 twice (weapon swing +
+      damageum tail); every M1_AMORPHOUS monster is also M1_NOHEAD, so
+      the neck-slice arm only ever reaches ghosts and shades. ROUTED:
+      shambler_init()'s melee table lists AD_BHED -> the shambling-
+      horror row minted below (the attack-handler and wither slices had
+      deferred AD_WEBS/AD_WTHR to a "shambling-horror slice" with no
+      row). Archive sweep: BUG-893, BUG-415, BUG-1305/1306, BUG-1803,
+      BUG-1626. REVIEW: PASS, nothing above LOW - every kill/lifesave
+      chain traced (damageum tail 7419-7446, mdamagem done test after
+      the inert knockback, hitmu tail with damage 0), the artifact.c
+      class test valid for a polymorphed hero (youmonst.data is always
+      &mons[u.umonnum]); LOW recorded: monkilled(NULL fltxt) gives a
+      beheaded PET "You have a sad feeling for a moment, then it
+      passes." where master's bare mondied() printed nothing - the
+      death-touch idiom's existing behavior, not new. RECORDED (master
+      parity, found by the battery): the Hidinshell arm is unreachable
+      against a vorpal jabberwock in its natural attack order - the
+      tortle shell gate on its slot-0 bite ("Your protective shell
+      blocks the vorpal jabberwock's bite!", mattacku, MZ_LARGE or
+      smaller biter) ends the whole attack chain before the claws on
+      both trees; it fired only with the species table reordered
+      claws-first. BATTERY (game-tester, 2026-09-11): PASS on every leg
+      (T1-T4), one neutral human Valkyrie XL30 game, paniclog never
+      created. T1 human form 3 procs / 54 landed claws: "The vorpal
+      jabberwock decapitates you!" -> Die? n -> "OK, so you don't lose
+      your head.", killer at a done() breakpoint "decapitated by a
+      vorpal jabberwock" (NO_KILLER_PREFIX); jabberwock form beheaded
+      on the first landed claw -> "You return to human form!"; shrieker
+      form "Somehow, it misses you wildly." (eyeless form; that claw
+      dealt 0); wielding the Vorpal Blade "Somehow, the vorpal
+      jabberwock misses you wildly."; ghost form (polymon) "slices
+      through your neck." with the 3d10 still landing; the shell line
+      "attack glances harmlessly off of your protective shell." (0
+      damage) after the reorder; cancelled: 58 landed claws, no behead.
+      T2 (unwielded, jabberwock form): "You decapitate the dwarven
+      watchman!  You kill the dwarven watchman!" (1 proc / 11 claws; a
+      120-claw sample gave 5); jabberwock on the first claw; shrieker
+      "Somehow, you miss the shrieker wildly." (0); a frozen plains
+      centaur holding the Vorpal Blade "miss ... wildly"; Ithilmar pony
+      "Your attack glances harmlessly off of the barded pony's
+      barding." (one claw's HP only); Cerberus "You remove one of
+      Cerberus' heads!  You watch in horror as it quickly grows back."
+      proc round 26 vs ordinary rounds 23-45 (the special halved);
+      troll beheaded -> corpse norevive 1, "twitches feebly", no rise
+      in 68 moves (the ordinary-claw control corpse norevive 0 rose in
+      10); human zombie "You destroy the human zombie!" corpse norevive
+      1; ghost with silver gloves "You slice through Frans' neck." with
+      both claws damaging, no paniclog; ghost with a wielded blessed
+      dagger (the weapon-converted claw) the neck-slice line over 10
+      rounds, no paniclog; unarmed without silver only hmonas's "Your
+      attack passes harmlessly through Frans." T3 tame vorpal
+      jabberwock: "The vorpal jabberwock beheads the orcish watchman!"
+      with no kill line (1/19); jabberwock first claw; shrieker
+      "somehow misses the shrieker wildly."; troll beheaded with mcan 1
+      read on the dead monster and corpse norevive 1 (BUG-1830 leg);
+      Cerberus "removes one of Cerberus' heads!" special ~24 unhalved;
+      a hostile one beheaded a tame watchman (mattackm 3, pet dead);
+      cancelled pet vs a vorpal-jabberwock target, 30 rounds, ~50
+      landed claws, 0 beheads. T4 "Vorpal Blade decapitates the vorpal
+      jabberwock!  You kill the vorpal jabberwock!" on the first landed
+      hit, twice; plain-jabberwock control likewise. Twelve
+      brief-premise corrections, none a code defect (-> gameplay.md +
+      the game-tester feedback memory).
+- [ ] shambler_init() ABSENT (minted 2026-09-11 by the AD_BHED slice;
+      the attack-handler slice ~3563 and the wither slice ~13813
+      deferred AD_WEBS/AD_WTHR "to the shambling-horror slice", which
+      had no row): master's allmain.c calls shambler_init() (u_init.c)
+      once per process to randomize the shambling horror's template -
+      mlevel += rnd(15) - 3, mmove rn2(10) + 9, ac rn2(31) - 20, mr
+      rn2(5) * 25, maligntyp rn2(21) - 10, then rnd(4) melee attacks
+      drawn from attk_melee_types (claw/bite/touch/sting/weapon) x
+      damg_melee_types (33 types incl. AD_BHED, AD_WEBS, AD_WTHR,
+      AD_PITS, AD_POLY) with (2 + rn2(5))d(3 + rn2(6)), and rnd(9)/3 - 1
+      further special attacks from attk_spec_types (hugs, spit, engulf,
+      breath, gaze, magic, kick, butt, tentacle) with their own damage
+      lists and (2 + rn2(4))d(6 + rn2(3)), clamped to NATTK. The branch
+      has no shambler_init() at all: its shambling horror generates
+      from the static monsters.h template every game. Whole feature;
+      every AD_/AT_ type the tables name needs a dispatcher case on the
+      branch first (AD_WEBS and AD_WTHR are dispatched; AD_PITS is not
+      - row below). MEDIUM.
+- [ ] AD_PITS dispatcher + create_pit_under() ABSENT (minted 2026-09-11
+      by the AD_BHED slice; the levitation slice ~9986 deferred
+      "create_pit_under (BUG-679) -> its own slice" with no row): the
+      pit fiend's third attack, AT_HUGS AD_PITS 4d4 (monsters.h), has
+      no case in the branch's mhitm_adtyping(), so 5.0's default arm
+      zeroes it - no pit, no damage, and no grab either (the hug's
+      grab lives in mhitm_ad_phys()'s AT_HUGS arm, which AD_PITS never
+      reaches). Master (uhitm.c damageum / mhitm.c mdamagem / mhitu.c
+      hitmu `case AD_PITS`: 1 in 2 per hit, the hug sets u.ustuck
+      first, a cancelled attacker digs nothing) calls dig.c
+      create_pit_under(mdef, magr): refuses non-floor, furniture, air,
+      undestroyable traps and the non-Earth endgame ("You fail to
+      create a pit on the %s under %s." / "%s looks rather piteous."),
+      "stomps the ground!", deepens an existing pit or hole (1 in 40
+      turns a pit into a hole), otherwise digs a pit and drops the
+      target in; its boolean return says whether the 4d4 still apply;
+      BUG-679's mintrap kill-return guard rides with it. Same class as
+      AD_BHED (a generated monster's attack silently absent). Whole
+      helper plus three legs; MEDIUM.
 - [ ] Melee combat wakes nearby monsters ABSENT (minted 2026-09-09 by
       the bane-aura census): master 10ac6bc6a (xNetHack/SporkHack
       feature) + e9d93c00a: every hmon() hit rolls
@@ -15284,6 +15422,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-09 | dmgval material-hardness slice ruling (AskUserQuestion x1, recommended): (1) vanilla 5.0's inner "negative enchantment" clamp at the end of dmgval()'s weapon block is DROPPED with the material block - master's materials patch 03e87e1bd removed it and clamps once after the forged-quality term; the branch had carried both, and the only observable delta is a superior or exceptional weapon whose dice plus enchantment plus material penalty fall below zero (spe <= -2 on a d4 with generated quality, which needs a metallic or crystal object; spe <= -1 on a wooden blade wished with a quality prefix, which the wish parser applies with no material gate), which floored at 1 and now gives 0 as on master. | maintainer |
 | 2026-09-10 | Knockback-machinery slice ruling (AskUserQuestion x1 answered HYBRID, then revised by the maintainer to MASTER'S SHAPE EXACTLY before commit): only a monster's AD_CLOB attack knocks back through mhitm_knockback() (no attacker-size gate, no hugger/engulfer/sticker exclusion, any weapon, 1 in 6, the artifact anchors); an ordinary AD_PHYS hit never does, however large the attacker, and the hero pushes only by jousting, the unarmed stagger and the Ashmar/Retribution deflections, so 5.0's much-larger-attacker knockback and its Ogresmasher 1-in-2 chance are dropped. The census that drove it: 27 AD_CLOB carriers on the branch, five of them (minotaur, ogre king, ent, Master Po, Master Kaen) below 5.0's size gate against a human-sized hero, three (mastodon, woolly mammoth, elder minotaur) excluded as huggers, any sword-wielding giant excluded by the blunt-weapon gate. Riders taken without a separate question: the four artifact anchors (Giantslayer, Harbinger, Ashmar, Armor of Retribution) hold in the air and for monster wearers; the 5.0 post-mhurtle monster stun roll dropped because mhurtle() owns the stun (BUG-194); the 2026-08-23 carried mdamagem knockback-damage quirk fixed (BUG-1824) now that AD_CLOB giants push by master's rules; the force-bolt beam keeps master's skip-and-continue shape rather than the upstream SPE_KNOCK stop idiom. | maintainer |
 | 2026-09-11 | Monster free-action slice rulings (AskUserQuestion x1, three questions): (1) potionhit() POT_PARALYSIS takes master 32af2161a's duration now (3-24 turns, 1-12 diluted; 5.0's dilution-blind rnd(25) dropped) - BUG-1826; (2) mhitm_ad_plys()'s monster-vs-monster leg KEEPS 5.0's 1-in-3 roll (master freezes every landed hit) - LOW row; (3) the hero-attacker leg restores master's mdef->mcanmove gate (upstream 0d445a7a7 dropped it; a paralyzing-form hero reset a long freeze to rnd(10)) - BUG-1827, upstream patch artifact ~/nh50-ad-plys-refreeze.patch. | maintainer |
+| 2026-09-11 | AD_BHED dispatcher slice ruling (AskUserQuestion x1, recommended): the Vorpal Blade's artifact_hit() arm takes master's is_jabberwock(mdef->data) class test (a vorpal jabberwock is beheaded on every landed hit) in place of vanilla's PM_JABBERWOCK equality - BUG-1831, its own commit. | maintainer |
 | 2026-09-09 | Bane-aura artifact-arm slice ruling (AskUserQuestion x1, recommended): the census found seven rowless master absences; six get rows (AD_BHED dispatcher, melee-combat wake, bane_applies monster demon arm, Hammer tether semantics, One Ring inscription reading, botl_hitbonus/BL_TOHIT) and master 48e5fbdd0's two-line Cleric Mjollnir alignment retarget is ported now as its own commit B (src/artifact.c) because the crowning arm it protects already landed 2026-09-06. The setmangry() alignment charge for a peaceful non-tame victim of the 'bane flip is recorded as master parity (f4080431e names that path as intended), not reworked at the spawn site. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
