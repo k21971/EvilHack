@@ -3851,6 +3851,11 @@ passiveum(
                         if (mon_reflects(mtmp,
                                          "Your gaze is reflected by %s %s."))
                             return 1;
+                        if (has_free_action(mtmp)) {
+                            pline_mon(mtmp, "%s stiffens momentarily.",
+                                      Monnam(mtmp));
+                            return M_ATTK_HIT;
+                        }
                         pline_mon(mtmp, "%s is frozen by your gaze!",
                                   Monnam(mtmp));
                         paralyze_monst(mtmp, tmp);
@@ -3858,6 +3863,10 @@ passiveum(
                     }
                 }
             } else { /* gelatinous cube */
+                if (has_free_action(mtmp)) {
+                    pline_mon(mtmp, "%s stiffens momentarily.", Monnam(mtmp));
+                    return M_ATTK_HIT;
+                }
                 pline_mon(mtmp, "%s is frozen by you.", Monnam(mtmp));
                 paralyze_monst(mtmp, tmp);
                 return M_ATTK_AGR_DONE;

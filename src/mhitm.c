@@ -2207,16 +2207,28 @@ passivemm(
                                      canseemon(magr) ? buf : (char *) 0))
                         return (mdead | mhit);
                     Strcpy(buf, Monnam(magr));
-                    if (canseemon(magr))
-                        pline("%s is frozen by %s gaze!", buf,
-                              s_suffix(mon_nam(mdef)));
+                    if (canseemon(magr)) {
+                        if (has_free_action(magr))
+                            pline("%s stiffens momentarily.", buf);
+                        else
+                            pline("%s is frozen by %s gaze!", buf,
+                                  s_suffix(mon_nam(mdef)));
+                    }
+                    if (has_free_action(magr))
+                        return (mdead | mhit);
                     paralyze_monst(magr, tmp);
                     return (mdead | mhit);
                 }
             } else { /* gelatinous cube */
                 Strcpy(buf, Monnam(magr));
-                if (canseemon(magr))
-                    pline("%s is frozen by %s.", buf, mon_nam(mdef));
+                if (canseemon(magr)) {
+                    if (has_free_action(magr))
+                        pline("%s stiffens momentarily.", buf);
+                    else
+                        pline("%s is frozen by %s.", buf, mon_nam(mdef));
+                }
+                if (has_free_action(magr))
+                    return (mdead | mhit);
                 paralyze_monst(magr, tmp);
                 return (mdead | mhit);
             }

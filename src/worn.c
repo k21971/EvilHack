@@ -725,6 +725,9 @@ update_mon_extrinsics(
                 pline_mon(mon, "%s starts to float in the air!", Monnam(mon));
             break;
         }
+        case FREE_ACTION:
+            mon->mextrinsics |= MR2_FREE_ACTION;
+            break;
         case FLYING: {
             boolean could_fly = (is_flyer(mon->data) || is_floater(mon->data)
                                  || can_levitate(mon) || can_fly(mon));
@@ -764,6 +767,9 @@ update_mon_extrinsics(
             if (!unseen && !can_levitate(mon))
                 pline_mon(mon, "%s floats gently back to the %s.",
                           Monnam(mon), surface(mon->mx, mon->my));
+            break;
+        case FREE_ACTION:
+            mon->mextrinsics &= ~(MR2_FREE_ACTION);
             break;
         case FLYING:
             mon->mextrinsics &= ~(MR2_FLY);
