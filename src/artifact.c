@@ -3689,7 +3689,7 @@ artifact_hit(
                 return TRUE;
             }
         } else if (is_art(otmp, ART_VORPAL_BLADE)
-                   && (dieroll == 1 || mdef->data == &mons[PM_JABBERWOCK])) {
+                   && (dieroll == 1 || is_jabberwock(mdef->data))) {
             static const char *const behead_msg[2] = { "%s beheads %s!",
                                                        "%s decapitates %s!" };
 
