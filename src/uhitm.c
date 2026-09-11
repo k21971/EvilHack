@@ -4416,6 +4416,168 @@ mhitm_ad_gold(
     }
 }
 
+/* the vorpal jabberwock's beheading claw: one strike in fifteen, or every
+   strike against a jabberwock (the Vorpal Blade's own rule) */
+void
+mhitm_ad_bhed(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    struct permonst *pd = mdef->data;
+    struct obj *barding;
+
+    if (magr == &gy.youmonst) {
+        /* uhitm */
+        if (!rn2(15) || is_jabberwock(pd)) {
+            if (!has_head(pd)
+                || mon_wielding_artifact(mdef, ART_VORPAL_BLADE)) {
+                if (canseemon(mdef))
+                    pline("Somehow, you miss %s wildly.", mon_nam(mdef));
+                mhm->damage = 0;
+                return;
+            }
+            if ((barding = which_armor(mdef, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR) {
+                if (canseemon(mdef))
+                    Your("attack glances harmlessly off of %s barding.",
+                         s_suffix(mon_nam(mdef)));
+                mhm->damage = 0;
+                return;
+            }
+            if (noncorporeal(pd) || amorphous(pd)) {
+                if (canseemon(mdef))
+                    You("slice through %s %s.",
+                        s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                /* a weapon-converted claw reaches here with no special
+                   damage; master's physical arm just zeroes it */
+                if (noncorporeal(pd) && !mhm->specialdmg)
+                    mhm->damage = 0;
+                else
+                    mhitm_ad_phys(magr, mattk, mdef, mhm);
+                return;
+            }
+            if (pd == &mons[PM_CERBERUS]) {
+                You("remove one of %s heads!", s_suffix(mon_nam(mdef)));
+                if (canseemon(mdef))
+                    You("watch in horror as it quickly grows back.");
+                mhm->damage = rn2(15) + 10;
+                mhitm_ad_phys(magr, mattk, mdef, mhm);
+                return;
+            }
+            if (canseemon(mdef))
+                You("%s %s!", rn2(2) ? "behead" : "decapitate",
+                    mon_nam(mdef));
+            if (racial_zombie(mdef) || (is_troll(pd) && !mlifesaver(mdef)))
+                mdef->mcan = 1; /* no head? no reviving */
+            xkilled(mdef, XKILL_GIVEMSG);
+            mhm->damage = 0; /* damageum() sees the kill, deals nothing */
+        }
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu */
+        if ((!rn2(15) || is_jabberwock(gy.youmonst.data)) && !magr->mcan) {
+            if (!has_head(gy.youmonst.data)
+                || wielding_artifact(ART_VORPAL_BLADE)) {
+                pline_mon(magr, "Somehow, %s misses you wildly.",
+                          mon_nam(magr));
+                mhm->damage = 0;
+                return;
+            }
+            if (noncorporeal(gy.youmonst.data)
+                || amorphous(gy.youmonst.data)) {
+                /* still take regular damage */
+                pline_mon(magr, "%s slices through your %s.",
+                          Monnam(magr), body_part(NECK));
+                return;
+            }
+            if (Hidinshell) {
+                pline_mon(magr,
+                          "%s attack glances harmlessly off of your"
+                          " protective shell.",
+                          s_suffix(Monnam(magr)));
+                mhm->damage = 0;
+                return;
+            }
+            pline_mon(magr, "%s %ss you!", Monnam(magr),
+                      rn2(2) ? "behead" : "decapitate");
+            if (Upolyd) {
+                rehumanize();
+            } else {
+                svk.killer.format = NO_KILLER_PREFIX;
+                Sprintf(svk.killer.name, "decapitated by %s",
+                        an(l_monnam(magr)));
+                done(DECAPITATED);
+            }
+            mhm->damage = 0;
+        } else {
+            hitmsg(magr, mattk);
+        }
+    } else {
+        /* mhitm */
+        if ((!rn2(15) || is_jabberwock(pd)) && !magr->mcan) {
+            char buf[BUFSZ];
+
+            Strcpy(buf, Monnam(magr));
+            if (!has_head(pd)
+                || mon_wielding_artifact(mdef, ART_VORPAL_BLADE)) {
+                if (canseemon(mdef))
+                    pline_mon(mdef, "%s somehow misses %s wildly.", buf,
+                              mon_nam(mdef));
+                mhm->damage = 0;
+                return;
+            }
+            if ((barding = which_armor(mdef, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR) {
+                if (canseemon(mdef))
+                    pline_mon(mdef,
+                        "Its attack glances harmlessly off of %s barding.",
+                              s_suffix(mon_nam(mdef)));
+                mhm->damage = 0;
+                return;
+            }
+            if (noncorporeal(pd) || amorphous(pd)) {
+                if (canseemon(mdef))
+                    pline_mon(mdef, "%s slices through %s %s.", buf,
+                              s_suffix(mon_nam(mdef)), mbodypart(mdef, NECK));
+                mhitm_ad_phys(magr, mattk, mdef, mhm);
+                return;
+            }
+            if (pd == &mons[PM_CERBERUS]) {
+                if (canseemon(mdef)) {
+                    pline_mon(mdef, "%s removes one of %s heads!", buf,
+                              s_suffix(mon_nam(mdef)));
+                    You("watch in horror as it quickly grows back.");
+                }
+                mhm->damage = rn2(15) + 10;
+                mhitm_ad_phys(magr, mattk, mdef, mhm);
+                return;
+            }
+            if (canseemon(mdef))
+                pline_mon(mdef, "%s %ss %s!", buf,
+                          rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+            /* before the death: the corpse is made inside it */
+            if (racial_zombie(mdef) || (is_troll(pd) && !mlifesaver(mdef)))
+                mdef->mcan = 1; /* no head? no reviving */
+            if (magr->uexp) {
+                /* hero-conjured helper; hero gets credit and exp */
+                mon_xkilled(mdef, (char *) 0, AD_BHED);
+            } else {
+                if (magr->mtame)
+                    set_pet_killer(magr);
+                monkilled(mdef, (char *) 0, AD_BHED);
+            }
+            mhm->damage = 0;
+            mhm->done = TRUE;
+            if (!DEADMONSTER(mdef)) {
+                mhm->hitflags = M_ATTK_MISS; /* lifesaved */
+                return;
+            }
+            mhm->hitflags = M_ATTK_DEF_DIED;
+            if (!grow_up(magr, mdef))
+                mhm->hitflags |= M_ATTK_AGR_DIED;
+        }
+    }
+}
+
 void
 mhitm_ad_tlpt(
     struct monst *magr, struct attack *mattk,
@@ -7221,6 +7383,7 @@ mhitm_adtyping(
     case AD_WEBS: mhitm_ad_webs(magr, mattk, mdef, mhm); break;
     case AD_LOUD: mhitm_ad_loud(magr, mattk, mdef, mhm); break;
     case AD_GOLD: mhitm_ad_gold(magr, mattk, mdef, mhm); break;
+    case AD_BHED: mhitm_ad_bhed(magr, mattk, mdef, mhm); break;
     default:
         mhm->damage = 0;
     }
