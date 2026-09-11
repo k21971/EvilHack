@@ -1561,7 +1561,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       worn gear like the resistance OFF arms or a levitating
       monster over water drowns; BUG-271 #1 (searches_for_item
       RIN_LEVITATION) and BUG-502 (extra_pref RIN_LEVITATION
-      can_fly) ride here too), armor_bonus/material_bonus AC.
+      can_fly) ride here too; 2026-09-11 free-action slice
+      obligations: extra_pref's FREE_ACTION oprop arm (return 30) and
+      its RIN_FREE_ACTION/RIN_ANCIENT case with 7e1238ca4's
+      has_free_action gate, m_dowear_type's RIN_FREE_ACTION
+      accept-list entry (5e5123697), and the same OFF-arm re-scan for
+      MR2_FREE_ACTION - update_mon_extrinsics clears it
+      unconditionally (master shape), so a shield of mobility removed
+      beside a worn ring of free action would strip the ring's
+      grant), armor_bonus/material_bonus AC.
       SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
       4 wizard games on the fresh install, sanity_check ON every
       turn): PANICLOG EMPTY, zero crashes/impossibles. PASSED
@@ -13290,17 +13298,130 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cosmetic); a wizard-mode wish delivers Ashmar to a human with a
       blast on delivery and on wear (SPFX_NOWISH bypassed by !wizard);
       Master Kaen generates with mprotection 18.
-- [ ] Monster free-action consumers ABSENT (minted 2026-09-09 by the
-      attack-handler slice; the has_free_action() macro landed with
-      the telekinesis slice but only dogmove.c reads it): master has
-      21 consumer sites - apply.c (3), dogmove.c (2), mhitm.c
-      mdamagem AD_PLYS (2) + passivemm AD_PLYS "stiffens momentarily"
-      (4), mhitu.c passiveum AD_PLYS (2), muse.c (2), potion.c (1),
-      trap.c (1), uhitm.c damageum AD_PLYS (2), worn.c (2); the
-      branch's passiveum, passivemm and mhitm_ad_plys paralysis arms
-      all lack the exemption, so a pet with a ring of free action is
-      still frozen by a floating eye's or gelatinous cube's passive.
-      One slice.
+- [x] Monster free action PORTED 2026-09-11 (session 110; the row
+      minted 2026-09-09 by the attack-handler slice as "consumers
+      ABSENT" - its census had MISSED THE PRODUCER:
+      update_mon_extrinsics() had no FREE_ACTION arm, the property
+      fell into the resistance
+      default where res_to_mr(66) is 0, so nothing on the branch ever
+      set MR2_FREE_ACTION; commit A = src/worn.c + src/apply.c +
+      src/mhitm.c + src/mhitu.c + src/muse.c, B = src/potion.c, C =
+      src/uhitm.c; hashes in the archive next to BUG-1825..1828).
+      RULINGS (AskUserQuestion x1, three questions): (1) potionhit()'s
+      paralysis duration takes master 32af2161a NOW (rnd(22)+2
+      undiluted = 3..24, rnd(12) diluted = 1..12; 5.0 had a
+      dilution-blind rnd(25)) - BUG-1826; (2) mhitm_ad_plys()'s
+      monster-vs-monster leg KEEPS 5.0's !rn2(3) (upstream 654220f84
+      "Unify ad_plys"; master freezes on every landed hit) - LOW row
+      below; (3) the hero-attacker leg RESTORES master's mdef->mcanmove
+      gate (dropped upstream in 0d445a7a7; paralyze_monst() assigns
+      mfrozen, so a paralyzing-form hero reset a long freeze to rnd(10)
+      and reprinted the line) - BUG-1827, upstream-shared, patch
+      ~/nh50-ad-plys-refreeze.patch. SITES: 16 has_free_action() reads
+      ported at six sites - use_mirror floating-eye arm (3, master's
+      future-proof comment carried, return ECMD_TIME), passivemm
+      floating-eye + gelatinous-cube legs (4), passiveum both legs (2,
+      stiffens returns M_ATTK_HIT so the attacker keeps attacking -
+      mattacku breaks only on AGR_DONE), mhitm_ad_plys hero + monster
+      legs (2+2), precheck milky-potion ghost (2, the unconditional
+      return 2 keeps BUG-293's contract), potionhit POT_PARALYSIS (1);
+      dogmove.c (2) were PRESENT (BUG-1327, now live). ROUTED: trap.c
+      chest_trap's monster leg (1) -> the monster chest_trap row
+      (annotated); worn.c extra_pref's FREE_ACTION oprop arm +
+      RIN_FREE_ACTION/RIN_ANCIENT case (2) and 5e5123697's m_dowear_type
+      RIN_FREE_ACTION accept-list entry -> the monster ring-wearing
+      umbrella (annotated, with the OFF-arm re-scan obligation).
+      PARITY: mcastu.c's monster-target paralysis and the Ice Queen's
+      paralyze_monst(100) are ungated on master too; hero-side
+      Free_action sites match master (insight.c + the mhitm_ad_plys
+      hero-defender leg absorb master's cmd.c/mhitu.c sites); no
+      pager/Guidebook text on either tree; master's monster path
+      conveys only a worn item's oc_oprop, so orange dragon-scaled
+      armor gives a monster sleep resistance on both trees.
+      DEVIATIONS: passivemm's stiffens legs return (mdead | mhit) where
+      master returns literal 1 (BUG-1828, master frozen-unfixed - the
+      passive runs on a missed swing too and dogmove.c/monmove.c's HIT
+      test then grants the cube a return attack for a whiff); the
+      hero-leg condition leads with mdef->mcanmove so a frozen target
+      draws no dice and no "avoids harm" line; buf reused for the
+      stiffens line instead of a second Monnam(). RECORDED (no id):
+      use_mirror's arm is unreachable in play (floating eyes are
+      nolimbs, m_dowear refuses - the battery drove it with the gdb bit
+      lever); mextrinsics is saved verbatim and never rebuilt, so a
+      monster already wearing a shield of mobility in a pre-port save
+      stays bitless until it re-dons (EDITLEVEL frozen); use_mirror's
+      unseen "You hear something stop moving." leg is unreachable for
+      a floating eye on BOTH trees - a blind hero's how_seen is 0, so
+      the earlier `!((how_seen & SEENMON) & ~INFRAVIS & ~ULTRAVIS) &&
+      !ultravision()` branch runs first and floating eyes lack
+      M3_ULTRAVISION (the battery drove it with the flag set in
+      memory). REVIEW: PASS, no HIGH/MED; two LOWs -> the OFF-arm
+      obligation on the ring row and the revival stale-bit row below.
+      BATTERY (game-tester, 2026-09-11): PASS on every leg, one XL30
+      human Valkyrie game saved at T:314 and restored, paniclog never
+      created. T1 a tame gnome lord picked up and put on a wished
+      shield of mobility -> mextrinsics 0x80000 under W_ARMS; gdb
+      m_lose_armor -> 0x0; re-worn -> 0x80000. T2 mirror at a floating
+      eye: control "is frozen by its reflection." (mcanmove 0, mfrozen
+      119), bit "stiffens momentarily." (mcanmove 1); unseen control
+      "You hear something stop moving.", unseen bit silent and
+      unfrozen. T3/T8 the shield-wearing pet engaged the eye and the
+      cube at once (bit cleared: refused 14 turns straight) and
+      stiffened on hits AND misses; kitten control "is frozen by the
+      floating eye's gaze!" (mfrozen 125); cube control through
+      mattackm "is frozen by the gelatinous cube." (mfrozen 1);
+      logging breakpoint at the cube leg's return: 7 misses returned
+      0, 4 stiffening hits returned 1. T4 hero as a floating eye: a
+      bit-carrying soldier ant "bites! ... stiffens momentarily. ...
+      stings!" five turns running (the sting lands after the
+      stiffen), control "is frozen by your gaze!" (mfrozen 121); as a
+      gelatinous cube "It stiffens momentarily." and the ant kept
+      attacking, control "It is frozen by you." (mfrozen 2). T5 hero as
+      a ghoul: bit-carrying hobbit "stiffens momentarily." (mcanmove
+      1), control "is frozen by you!" (mfrozen 4); re-freeze gate: a
+      breakpoint at mhitm_ad_plys entry on a hobbit frozen to mfrozen
+      20 saw five entries with mcanmove 0 (mfrozen 8/6/5/4/4), all
+      silent, the only "frozen by you!" after mon_maybe_unparalyze had
+      cleared it the same turn; tame ghoul vs bit-carrier "stiffens
+      momentarily.", control "is frozen by the ghoul." (mfrozen 6). T6
+      precheck() is callable: a blindfolded gdb loop returned 2 at
+      call 35 with the ghost adjacent and the carrier mcanmove 1
+      (control: call 17, mfrozen 3); visible runs printed the ghost
+      line then "stiffens momentarily." / "is frightened to death, and
+      unable to move.". T7 bit-carrier: shards line then "stiffens
+      momentarily.", paralyze_monst never called; an already-frozen
+      control got no extra line and kept mfrozen 20; amt logged at
+      paralyze_monst (gdb return past the freeze): undiluted 15 hits
+      5..22 (never 1-2), diluted 16 hits 1..11. T9 the producer-set
+      bit survived save/restore (0x80000, W_ARMS) and the restored pet
+      still stiffened. Eleven brief-premise corrections, none a code
+      defect (-> gameplay.md + the game-tester feedback memory).
+- [ ] LOW observation (2026-09-11, free-action slice): mhitm_ad_plys()'s
+      monster-vs-monster leg keeps 5.0's `!rn2(3)` (upstream 654220f84
+      "Unify ad_plys", 2020-11-30, applied the hero legs' roll to the
+      merged monster leg); master's mdamagem AD_PLYS freezes on every
+      landed hit that is not cancelled and finds the target mobile.
+      Carriers on the branch: gelatinous cube touch, ghoul claw,
+      guardian naga bite, revenant/Charon/ghost/shade touch, Yeenoghu
+      claw, Lolth bite - a pet ghoul or cube freezes its target one
+      time in three where master freezes every time, and a hostile one
+      freezes a pet likewise. Maintainer ruling 2026-09-11: keep 5.0's
+      roll. Revisit only if the maintainer wants master's odds.
+- [ ] save_mtraits() keeps worn-derived mextrinsics across revival
+      (minted 2026-09-11 by the free-action slice's reviewer; LOW,
+      master-shared): a KEEPTRAITS monster (shopkeeper, pet, unique,
+      reviver, quest leader) that dies wearing extrinsic-granting gear
+      keeps the bits - xkilled()'s mondead()/m_detach() drops the gear
+      through relobj() -> mdrop_obj(), whose OFF arm is gated on
+      !DEADMONSTER (branch src/steal.c, master the same), then
+      save_mtraits() copies the whole monst (`*mtmp2 = *mtmp`) and
+      montraits() never scrubs mextrinsics. A revived pet gnome lord
+      that died in a shield of mobility keeps free action with no
+      shield; MR2_LEVITATE/MR2_FLY/MR2_WATERWALK and worn MR_
+      resistances share the mechanism (the class pre-dates this port).
+      Candidate fix: mask worn-derived bits out in save_mtraits()
+      beside its mstate/ridden_by scrub; verify master and upstream
+      first.
 - [ ] LOW observation (2026-09-09, attack-handler slice): the passive
       AD_COLD arms keep vanilla 5.0's shape - passiveum heals u.mh by
       (tmp + rn2(2))/2 and splits any form over the level cap,
@@ -13554,7 +13675,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hallucination arm - five `resists_* || defended` gates) and
       mon.c calls it when a monster opens a trapped box; the branch
       chest_trap(obj, bodypart, disarm) is hero-only and mon.c never
-      calls it, so monsters never trigger chest traps.
+      calls it, so monsters never trigger chest traps. The free-action
+      slice (2026-09-11) routes master's case 5/4/3 monster leg here
+      too: has_free_action(mon) prints "stiffens momentarily."
+      (canseemon) and skips the freeze, else mcanmove 0 / mfrozen
+      d(5,6) (5e5123697 + 5091b9a40) - carry it with the leg.
 - [x] montraits/clone_mon transient-reset drift PORTED 2026-09-02
       (minted 2026-08-30 by the orbs-remainder slice's reviewer;
       LOW; closes the 2026-08-23 mberserk-slice family row as
@@ -14975,6 +15100,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-11 | uhitm.c mhitm_ad_plys() hero-attacker leg lacks 3.6's `mdef->mcanmove` gate (dropped in 0d445a7a7 when the three legs were merged); paralyze_monst() assigns mfrozen, so a hero in a paralyzing form who keeps hitting a frozen monster reprints "is frozen by you!" one time in three and resets a long freeze to rnd(10). FIXED on the branch (BUG-1827; the test leads the condition) | found on branch (free-action slice); patch ~/nh50-ad-plys-refreeze.patch written 2026-09-11; not yet sent |
 | 2026-09-10 | mhitu.c hitmu(): mhitm_knockback()'s hero-defender dismount arm runs dismount_steed(DISMOUNT_KNOCKED) -> teleds() -> spoteffects() -> dotrap(), and a land mine there can kill the attacker; the tail then runs the spell-hand riders and passiveum() on the corpse and returns passiveum()'s value, discarding the M_ATTK_AGR_DIED the knockback ORed into the hit flags, so mattacku() carries on with the dead attacker's remaining attacks. Branch fix BUG-1823 (the riders and the passive response skip a dead attacker; the return carries the flag). Companion: mdamagem()'s tail `hitflags == M_ATTK_AGR_DIED` equality tests mask an attacker death whenever M_ATTK_HIT is also set (the branch keeps its early return on M_ATTK_AGR_DIED for that reason) | found on branch (knockback slice risk review); not yet written up as a patch |
 | 2026-09-08 | pager.c do_look(): the pick loop resets only `pm` and `out_str`, while do_screen_description() writes `*for_supplement` only when lookat() returned a monster and never clears it, so picking a monster and then a non-monster in the same `/` session leaves `supplemental_pm` pointing at the earlier monster; do_supplemental_info() then runs against the stale type (after an orc, an object "called <x> of <y>" gets the Orc-town marauder prompt). Latent and low upstream (that call is the only consumer); on the branch the same pointer now feeds checkfile()'s monster block, where it named the wrong thing. Official_nh50 and NetHack50 identical | fixed on branch (pokedex slice commit A: `pm = supplemental_pm = 0` per pick); artifact ~/nh50-do_look-supplemental-reset.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | save.c savelev_core() runs its "purge any dead monsters" dmonsfree() only inside the `mode != FREEING` block, but goto_level() tears the level down in FREEING mode on entering the endgame or leaving the tutorial, so a monster m_detach()ed since the last drain (a statue trap made without time passing - a fresh level with a Statuary themed room starts that way - a summoned monster expiring in mcalcdistress(), a gas-cloud kill in run_regions(), a trapped pet killed by mintrap() inside keepdogs()) is freed by savemonchn() with iflags.purge_monsters still counting it; the next dmonsfree() (the load_special drain while the entrance plane is built) reports "dmonsfree: 0 removed doesn't match 1 pending" with the monster on no list. wiz_kill() already works around the same symptom with a private dmonsfree(). Official_nh50 and NetHack50 identical | fixed on branch (BUG-1797: the drain hoisted ahead of the mode test in savelev_core); artifact ~/nh50-savelev-freeing-purge-drain.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
@@ -15157,6 +15283,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-09 | Dragon-scaled consumer-sites slice rulings (AskUserQuestion x3, all recommended): (1) the row's timeout.c `armor` term rides inside master's whole begin_burn() light-establishment lightdamage() block, which the branch lacked and no row tracked - PORTED NOW as a coupled commit B, with one deviation: both calls are gated on !gi.in_mklev because goto_level() builds the new level before vision_reset(), so creation-time lit gear would otherwise be tested against the previous level's hero square (master latent, frozen-unfixed); (2) getprice()'s erosion price block (the forge slice's "separate decision" gap) is PORTED NOW as commit C, written `tmp -= 2L` for the light tier, with the odiluted/orotten/norevive aliasing (diluted potions, rotten food and frozen corpses lose 2 zm) carried as master behavior; (3) the red dragon-scaled armor +rnd(6) melee bonus the census surfaced rides commit A. | maintainer |
 | 2026-09-09 | dmgval material-hardness slice ruling (AskUserQuestion x1, recommended): (1) vanilla 5.0's inner "negative enchantment" clamp at the end of dmgval()'s weapon block is DROPPED with the material block - master's materials patch 03e87e1bd removed it and clamps once after the forged-quality term; the branch had carried both, and the only observable delta is a superior or exceptional weapon whose dice plus enchantment plus material penalty fall below zero (spe <= -2 on a d4 with generated quality, which needs a metallic or crystal object; spe <= -1 on a wooden blade wished with a quality prefix, which the wish parser applies with no material gate), which floored at 1 and now gives 0 as on master. | maintainer |
 | 2026-09-10 | Knockback-machinery slice ruling (AskUserQuestion x1 answered HYBRID, then revised by the maintainer to MASTER'S SHAPE EXACTLY before commit): only a monster's AD_CLOB attack knocks back through mhitm_knockback() (no attacker-size gate, no hugger/engulfer/sticker exclusion, any weapon, 1 in 6, the artifact anchors); an ordinary AD_PHYS hit never does, however large the attacker, and the hero pushes only by jousting, the unarmed stagger and the Ashmar/Retribution deflections, so 5.0's much-larger-attacker knockback and its Ogresmasher 1-in-2 chance are dropped. The census that drove it: 27 AD_CLOB carriers on the branch, five of them (minotaur, ogre king, ent, Master Po, Master Kaen) below 5.0's size gate against a human-sized hero, three (mastodon, woolly mammoth, elder minotaur) excluded as huggers, any sword-wielding giant excluded by the blunt-weapon gate. Riders taken without a separate question: the four artifact anchors (Giantslayer, Harbinger, Ashmar, Armor of Retribution) hold in the air and for monster wearers; the 5.0 post-mhurtle monster stun roll dropped because mhurtle() owns the stun (BUG-194); the 2026-08-23 carried mdamagem knockback-damage quirk fixed (BUG-1824) now that AD_CLOB giants push by master's rules; the force-bolt beam keeps master's skip-and-continue shape rather than the upstream SPE_KNOCK stop idiom. | maintainer |
+| 2026-09-11 | Monster free-action slice rulings (AskUserQuestion x1, three questions): (1) potionhit() POT_PARALYSIS takes master 32af2161a's duration now (3-24 turns, 1-12 diluted; 5.0's dilution-blind rnd(25) dropped) - BUG-1826; (2) mhitm_ad_plys()'s monster-vs-monster leg KEEPS 5.0's 1-in-3 roll (master freezes every landed hit) - LOW row; (3) the hero-attacker leg restores master's mdef->mcanmove gate (upstream 0d445a7a7 dropped it; a paralyzing-form hero reset a long freeze to rnd(10)) - BUG-1827, upstream patch artifact ~/nh50-ad-plys-refreeze.patch. | maintainer |
 | 2026-09-09 | Bane-aura artifact-arm slice ruling (AskUserQuestion x1, recommended): the census found seven rowless master absences; six get rows (AD_BHED dispatcher, melee-combat wake, bane_applies monster demon arm, Hammer tether semantics, One Ring inscription reading, botl_hitbonus/BL_TOHIT) and master 48e5fbdd0's two-line Cleric Mjollnir alignment retarget is ported now as its own commit B (src/artifact.c) because the crowning arm it protects already landed 2026-09-06. The setmangry() alignment charge for a peaceful non-tame victim of the 'bane flip is recorded as master parity (f4080431e names that path as intended), not reworked at the spawn site. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
