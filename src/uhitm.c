@@ -5184,11 +5184,16 @@ mhitm_ad_plys(
 {
     if (magr == &gy.youmonst) {
         /* uhitm */
-        if (!rn2(3) && mhm->damage < mdef->mhp
+        if (mdef->mcanmove && !rn2(3) && mhm->damage < mdef->mhp
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
-            if (!Blind)
-                pline("%s is frozen by you!", Monnam(mdef));
-            paralyze_monst(mdef, rnd(10));
+            if (!Blind) {
+                if (has_free_action(mdef))
+                    pline("%s stiffens momentarily.", Monnam(mdef));
+                else
+                    pline("%s is frozen by you!", Monnam(mdef));
+            }
+            if (!has_free_action(mdef))
+                paralyze_monst(mdef, rnd(10));
         }
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
@@ -5218,9 +5223,13 @@ mhitm_ad_plys(
                 char buf[BUFSZ];
 
                 Strcpy(buf, Monnam(mdef));
-                pline("%s is frozen by %s.", buf, mon_nam(magr));
+                if (has_free_action(mdef))
+                    pline("%s stiffens momentarily.", buf);
+                else
+                    pline("%s is frozen by %s.", buf, mon_nam(magr));
             }
-            paralyze_monst(mdef, rnd(10));
+            if (!has_free_action(mdef))
+                paralyze_monst(mdef, rnd(10));
         }
     }
 }
