@@ -1394,6 +1394,7 @@ newgame(void)
     init_artifacts(); /* before u_init() in case $WIZKIT specifies
                        * any artifacts */
     u_init_misc();
+    shambler_init(); /* roll this game's shambling horror before mklev() */
 
     l_nhcore_init();  /* create a Lua state that lasts until end of game */
     reset_glyphmap(gm_newgame);

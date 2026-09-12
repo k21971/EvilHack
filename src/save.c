@@ -28,6 +28,7 @@ staticfn void savemon(NHFILE *, struct monst *);
 staticfn void savemonchn(NHFILE *, struct monst *) NO_NNARGS;
 staticfn void savetrapchn(NHFILE *, struct trap *) NO_NNARGS;
 staticfn void save_gamelog(NHFILE *);
+staticfn void saveshambler(NHFILE *);
 staticfn void savegamestate(NHFILE *);
 staticfn void savelev_core(NHFILE *, xint8);
 staticfn void save_msghistory(NHFILE *);
@@ -356,6 +357,7 @@ savegamestate(NHFILE *nhfp)
     Sfo_char(nhfp, svp.pl_character, "gamestate-pl_character", sizeof svp.pl_character);
     Sfo_char(nhfp, svp.pl_fruit, "gamestate-pl_fruit", sizeof svp.pl_fruit);
     savefruitchn(nhfp);
+    saveshambler(nhfp);
     savenames(nhfp);
     save_msghistory(nhfp);
     save_gamelog(nhfp);
@@ -1031,6 +1033,47 @@ savefruitchn(NHFILE *nhfp)
     }
     if (release_data(nhfp))
         gf.ffruit = 0;
+}
+
+/* shambler_init() randomizes the shambling horror's template once per game;
+   preserve our delectable aberration so the player can experience the same
+   joy upon reload. Every field after the names and the const index is
+   written - the same coverage as saving the struct minus its name pointer -
+   so a future randomized field cannot silently desync save and restore */
+staticfn void
+saveshambler(NHFILE *nhfp)
+{
+    struct permonst *shambler = &mons[PM_SHAMBLING_HORROR];
+    int i;
+
+    if (!update_file(nhfp))
+        return;
+    Sfo_char(nhfp, &shambler->mlet, "shambler-mlet", 1);
+    Sfo_schar(nhfp, &shambler->mlevel, "shambler-mlevel");
+    Sfo_schar(nhfp, &shambler->mmove, "shambler-mmove");
+    Sfo_schar(nhfp, &shambler->ac, "shambler-ac");
+    Sfo_schar(nhfp, &shambler->mr, "shambler-mr");
+    Sfo_schar(nhfp, &shambler->maligntyp, "shambler-maligntyp");
+    Sfo_ushort(nhfp, &shambler->geno, "shambler-geno");
+    for (i = 0; i < NATTK; i++) {
+        Sfo_uchar(nhfp, &shambler->mattk[i].aatyp, "shambler-mattk_aatyp");
+        Sfo_uchar(nhfp, &shambler->mattk[i].adtyp, "shambler-mattk_adtyp");
+        Sfo_uchar(nhfp, &shambler->mattk[i].damn, "shambler-mattk_damn");
+        Sfo_uchar(nhfp, &shambler->mattk[i].damd, "shambler-mattk_damd");
+    }
+    Sfo_unsigned(nhfp, &shambler->cwt, "shambler-cwt");
+    Sfo_ushort(nhfp, &shambler->cnutrit, "shambler-cnutrit");
+    Sfo_uchar(nhfp, &shambler->msound, "shambler-msound");
+    Sfo_uchar(nhfp, &shambler->msize, "shambler-msize");
+    Sfo_ulong(nhfp, &shambler->mresists, "shambler-mresists");
+    Sfo_uchar(nhfp, &shambler->mconveys, "shambler-mconveys");
+    Sfo_ulong(nhfp, &shambler->mflags1, "shambler-mflags1");
+    Sfo_ulong(nhfp, &shambler->mflags2, "shambler-mflags2");
+    Sfo_ushort(nhfp, &shambler->mflags3, "shambler-mflags3");
+    Sfo_ushort(nhfp, &shambler->mflags4, "shambler-mflags4");
+    Sfo_ulong(nhfp, &shambler->mhflags, "shambler-mhflags");
+    Sfo_uchar(nhfp, &shambler->difficulty, "shambler-difficulty");
+    Sfo_uchar(nhfp, &shambler->mcolor, "shambler-mcolor");
 }
 
 staticfn void

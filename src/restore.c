@@ -20,6 +20,7 @@ staticfn void restmon(NHFILE *, struct monst *);
 staticfn struct monst *restmonchn(NHFILE *);
 staticfn struct fruit *loadfruitchn(NHFILE *);
 staticfn void freefruitchn(struct fruit *);
+staticfn void restshambler(NHFILE *);
 staticfn void rest_levl(NHFILE *);
 staticfn void rest_stairs(NHFILE *);
 #ifndef SFCTOOL
@@ -504,6 +505,44 @@ restmonchn(NHFILE *nhfp)
     return first;
 }
 
+/* the shambling horror's template is per-save (shambler_init()); this
+   intentionally overwrites the static mons[] slot with the saved one - bring
+   RNGesus' most abominable creation back to life. The field list mirrors
+   saveshambler() */
+staticfn void
+restshambler(NHFILE *nhfp)
+{
+    struct permonst *shambler = &mons[PM_SHAMBLING_HORROR];
+    int i;
+
+    Sfi_char(nhfp, &shambler->mlet, "shambler-mlet", 1);
+    Sfi_schar(nhfp, &shambler->mlevel, "shambler-mlevel");
+    Sfi_schar(nhfp, &shambler->mmove, "shambler-mmove");
+    Sfi_schar(nhfp, &shambler->ac, "shambler-ac");
+    Sfi_schar(nhfp, &shambler->mr, "shambler-mr");
+    Sfi_schar(nhfp, &shambler->maligntyp, "shambler-maligntyp");
+    Sfi_ushort(nhfp, &shambler->geno, "shambler-geno");
+    for (i = 0; i < NATTK; i++) {
+        Sfi_uchar(nhfp, &shambler->mattk[i].aatyp, "shambler-mattk_aatyp");
+        Sfi_uchar(nhfp, &shambler->mattk[i].adtyp, "shambler-mattk_adtyp");
+        Sfi_uchar(nhfp, &shambler->mattk[i].damn, "shambler-mattk_damn");
+        Sfi_uchar(nhfp, &shambler->mattk[i].damd, "shambler-mattk_damd");
+    }
+    Sfi_unsigned(nhfp, &shambler->cwt, "shambler-cwt");
+    Sfi_ushort(nhfp, &shambler->cnutrit, "shambler-cnutrit");
+    Sfi_uchar(nhfp, &shambler->msound, "shambler-msound");
+    Sfi_uchar(nhfp, &shambler->msize, "shambler-msize");
+    Sfi_ulong(nhfp, &shambler->mresists, "shambler-mresists");
+    Sfi_uchar(nhfp, &shambler->mconveys, "shambler-mconveys");
+    Sfi_ulong(nhfp, &shambler->mflags1, "shambler-mflags1");
+    Sfi_ulong(nhfp, &shambler->mflags2, "shambler-mflags2");
+    Sfi_ushort(nhfp, &shambler->mflags3, "shambler-mflags3");
+    Sfi_ushort(nhfp, &shambler->mflags4, "shambler-mflags4");
+    Sfi_ulong(nhfp, &shambler->mhflags, "shambler-mhflags");
+    Sfi_uchar(nhfp, &shambler->difficulty, "shambler-difficulty");
+    Sfi_uchar(nhfp, &shambler->mcolor, "shambler-mcolor");
+}
+
 staticfn struct fruit *
 loadfruitchn(NHFILE *nhfp)
 {
@@ -801,6 +840,7 @@ restgamestate(NHFILE *nhfp)
     Sfi_char(nhfp, svp.pl_fruit, "gamestate-pl_fruit", sizeof svp.pl_fruit);
     freefruitchn(gf.ffruit); /* clean up fruit(s) made by initoptions() */
     gf.ffruit = loadfruitchn(nhfp);
+    restshambler(nhfp);
 
     restnames(nhfp);
     restore_msghistory(nhfp);

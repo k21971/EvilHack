@@ -1638,6 +1638,204 @@ u_init_misc(void)
     return;
 }
 
+/* attack/damage structs for shambler_init() */
+static const int attk_melee_types [] =
+    { AT_CLAW, AT_BITE, AT_TUCH, AT_STNG, AT_WEAP };
+
+static const int attk_spec_types [] =
+    { AT_HUGS, AT_SPIT, AT_ENGL, AT_BREA, AT_GAZE,
+      AT_MAGC, AT_KICK, AT_BUTT, AT_TENT
+    };
+
+static const int damg_melee_types [] =
+    { AD_PHYS, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
+      AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
+      AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
+      AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
+      AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
+      AD_DCAY, AD_HALU, AD_ENCH, AD_CORR, AD_BHED,
+      AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
+    };
+
+static const int damg_breath_types [] =
+    { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
+      AD_DRST, AD_WATR, AD_ACID, AD_DRLI, AD_STUN
+    };
+
+static const int damg_spit_types [] =
+    { AD_BLND, AD_ACID, AD_DRST };
+
+static const int damg_gaze_types [] =
+    { AD_FIRE, AD_COLD, AD_SLEE, AD_STUN, AD_SLOW,
+      AD_CNCL
+    };
+
+static const int damg_engulf_types [] =
+    { AD_PLYS, AD_DGST, AD_WRAP };
+
+static const int damg_magic_types [] =
+    { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
+      AD_ACID
+    };
+
+static const int damg_kick_types [] =
+    { AD_PHYS, AD_STUN, AD_LEGS, AD_ENCH, AD_CLOB };
+
+static const int damg_butt_types [] =
+    { AD_PHYS, AD_STUN, AD_CONF, AD_CLOB };
+
+static const int damg_tent_types [] =
+    { AD_PHYS, AD_DRST, AD_ACID, AD_STUN, AD_PLYS,
+      AD_DRLI, AD_DREN, AD_CONF, AD_DRIN, AD_DISE,
+      AD_HALU
+    };
+
+void
+shambler_init(void)
+{
+    int i;
+    struct permonst *shambler = &mons[PM_SHAMBLING_HORROR];
+    struct attack *attkptr;
+    int shambler_attacks;
+
+    /* what a horrible night to have a curse...
+       Assumes shambler_init() is called exactly once per process
+       (allmain.c newgame()); the only other writer of mons[] is
+       monst_globals_init()'s copy from mons_init[], run once in
+       early_init() before any game starts. The `+=` on mlevel is
+       only correct under that assumption; if in-process restart is
+       ever added, cache base values before mutating */
+    shambler->mlevel += rnd(15) - 3;    /* shuffle level */
+    shambler->mmove = rn2(10) + 9;      /* slow to very fast */
+    shambler->ac = rn2(31) - 20;        /* any AC */
+    shambler->mr = rn2(5) * 25;         /* varying amounts of MR */
+    shambler->maligntyp = rn2(21) - 10; /* varying alignment */
+
+    shambler_attacks = rnd(4);
+    for (i = 0; i < shambler_attacks; i++) {
+        attkptr = &shambler->mattk[i];
+        attkptr->aatyp = attk_melee_types[rn2(SIZE(attk_melee_types))];
+        attkptr->adtyp = damg_melee_types[rn2(SIZE(damg_melee_types))];
+        attkptr->damn = 2 + rn2(5);
+        attkptr->damd = 3 + rn2(6);
+    }
+
+    shambler_attacks = shambler_attacks + (rnd(9) / 3) - 1;
+    /* defensive clamp; current max is exactly NATTK, no behavior
+       change but guards against future widening of either seed
+       range walking us off mattk[] */
+    if (shambler_attacks > NATTK)
+        shambler_attacks = NATTK;
+    for (; i < shambler_attacks; i++) {
+        attkptr = &shambler->mattk[i];
+        attkptr->aatyp = attk_spec_types[rn2(SIZE(attk_spec_types))];
+        attkptr->damn = 2 + rn2(4);
+        attkptr->damd = 6 + rn2(3);
+        switch (attkptr->aatyp) {
+        case AT_BREA:
+            attkptr->adtyp = damg_breath_types[rn2(SIZE(damg_breath_types))];
+            break;
+        case AT_SPIT:
+            attkptr->adtyp = damg_spit_types[rn2(SIZE(damg_spit_types))];
+            break;
+        case AT_GAZE:
+            attkptr->adtyp = damg_gaze_types[rn2(SIZE(damg_gaze_types))];
+            break;
+        case AT_ENGL:
+            attkptr->adtyp = damg_engulf_types[rn2(SIZE(damg_engulf_types))];
+            break;
+        case AT_MAGC:
+            attkptr->adtyp = damg_magic_types[rn2(SIZE(damg_magic_types))];
+            break;
+        case AT_KICK:
+            attkptr->adtyp = damg_kick_types[rn2(SIZE(damg_kick_types))];
+            break;
+        case AT_BUTT:
+            attkptr->adtyp = damg_butt_types[rn2(SIZE(damg_butt_types))];
+            break;
+        case AT_TENT:
+            attkptr->adtyp = damg_tent_types[rn2(SIZE(damg_tent_types))];
+            break;
+        case AT_HUGS:
+            attkptr->adtyp = AD_PHYS;
+            break;
+        default:
+            attkptr->adtyp = AD_PHYS;
+            break;
+        }
+    }
+
+    shambler->msize = !rn2(6) ? MZ_GIGANTIC      /* gigantic, or one of */
+                              : rn2(5);          /* tiny/small/medium/large/huge */
+    shambler->cwt = rnd(1000) * 4;               /* random weight (4 - 4000) */
+    shambler->cnutrit = 20;                      /* moot, does not leave a corpse */
+    shambler->msound = rn2(MS_HUMANOID);         /* any but the specials */
+    shambler->mresists = 0;
+
+    for (i = 0; i < rnd(6); i++)
+        shambler->mresists |= (1UL << rn2(9));   /* physical resistances */
+    for (i = 0; i < rnd(5); i++)
+        shambler->mresists |= (0x200 << rn2(9)); /* 'different' resistances, even clumsy */
+    shambler->mconveys = 0;                      /* flagged NOCORPSE */
+
+    /*
+     * now time for the random flags. this will likely produce
+     * a number of complete trainwreck monsters at first, but
+     * every so often something will dial up nasty stuff
+     */
+    shambler->mflags1 = 0;
+    for (i = 0; i < rnd(17); i++)
+        shambler->mflags1 |= (1UL << rn2(32));  /* rolls a random bit position 0-31; M1_ uses
+                                                 * all 32 bits (bit 31 = M1_METALLIVORE). This
+                                                 * is a bit-count, not the count of named M1_
+                                                 * defines in include/monflag.h */
+    shambler->mflags1 &= ~M1_UNSOLID;           /* no ghosts */
+    shambler->mflags1 &= ~M1_WALLWALK;          /* no wall-walkers */
+    shambler->mflags1 &= ~M1_ACID;              /* will never leave a corpse */
+    shambler->mflags1 &= ~M1_POIS;              /* same as above */
+    shambler->mflags1 &= ~M1_HIDE;              /* no hiding/mimicking */
+    shambler->mflags1 &= ~M1_CONCEAL;           /* same as above */
+
+    shambler->mflags2 = 0;
+    for (i = 0; i < rnd(17); i++)
+        shambler->mflags2 |= (1UL << rn2(32));  /* rolls a random bit position 0-31; M2_ has
+                                                 * gaps at bits 6-9 and 15 (no-op when rolled)
+                                                 * but bit 31 is M2_MAGIC so all 32 positions
+                                                 * are needed. Bit-count, not named-define
+                                                 * count */
+    shambler->mflags2 &= ~M2_MERC;              /* no guards */
+    shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
+    shambler->mflags2 &= ~M2_PNAME;             /* not a proper name */
+    shambler->mflags2 &= ~M2_MALE;              /* always genderless */
+    shambler->mflags2 &= ~M2_FEMALE;            /* same as above */
+    shambler->mflags2 &= ~M2_SHAPESHIFTER;      /* no chameleon types */
+    shambler->mflags2 &= ~M2_LORD;              /* isn't royalty */
+    shambler->mflags2 &= ~M2_PRINCE;            /* still isn't royalty */
+    shambler->mflags2 &= ~M2_DOMESTIC;          /* no taming */
+    shambler->mflags2 &= ~M2_DRUID_FORM_A;      /* prevent druids from shapechanging into a shambler */
+    shambler->mflags2 &= ~M2_DRUID_FORM_B;      /* prevent druids from shapechanging into a shambler */
+    shambler->mflags2 &= ~M2_DRUID_FORM_C;      /* prevent druids from shapechanging into a shambler */
+    shambler->mflags2 &= ~M2_DRUID_FORM_D;      /* prevent druids from shapechanging into a shambler */
+    shambler->mflags2 &= ~M2_VAMPIRE_FORM;      /* prevent vampires from shapechanging into a shambler */
+
+    shambler->mflags2 |= M2_NOPOLY;             /* Don't let the player be one of these */
+    shambler->mflags2 |= M2_HOSTILE;            /* always hostile */
+    shambler->mflags2 |= M2_NEUTER;             /* always genderless */
+
+    shambler->mflags3 = 0;
+    for (i = 0; i < rnd(5); i++)
+        shambler->mflags3 |= (1 << rn2(16));    /* rolls a random bit position 0-15; mflags3 is
+                                                 * unsigned short so bits 16+ truncate away.
+                                                 * M3_ has a gap at bit 5 (no-op when rolled).
+                                                 * Bit-count, not named-define count */
+    shambler->mflags3 &= ~M3_WANTSALL;
+    shambler->mflags3 &= ~M3_COVETOUS;          /* no covetous behavior */
+    shambler->mflags3 &= ~M3_WAITMASK;          /* no waiting either */
+    shambler->mflags3 &= ~M3_STATIONARY;        /* no stuck in one spot */
+
+    return;
+}
+
 /* the appropriate set of skills for the role */
 staticfn const struct def_skill *
 skills_for_role(void)

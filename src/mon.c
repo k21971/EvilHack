@@ -3481,6 +3481,13 @@ mm_aggression(
     if (magr->mtame && mdef->data == &mons[PM_LUCIFER])
         return ALLOW_M | ALLOW_TM;
 
+    /* Shambling horrors are nasty. They hate you
+       and all of your friends. Your friends realize
+       this, and they hate shambling horrors too */
+    if (magr->data == &mons[PM_SHAMBLING_HORROR]
+        && mdef->mtame)
+        return ALLOW_M | ALLOW_TM;
+
     /* Neothelids are an abomination
        to mind flayers */
     if (is_mind_flayer(magr->data)
