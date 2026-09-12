@@ -13444,20 +13444,125 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       savebones() has no ukiller leg at all (upstream 5.0 shape).
       Whole feature; needs the ukiller producer trace on the branch
       (where master sets it in done()/mon.c) before the leg. LOW.
-- [ ] Off-hand artifact light on two-weapon ABSENT (minted 2026-09-09
-      by the dragon-scaled consumer-sites slice's begin_burn caller
-      diff): master's setuswapwep() (src/wield.c ~300-330) ends the
-      old off-hand artifact's light and begin_burn()s a newly set
-      off-hand artifact when u.twoweap, with the drow-Staff "casts an
-      aura of darkness!" / "stops shining" text, and dotwoweapon()
-      toggles it (BUG-993/996 in the archive cover master's ordering
-      traps: setuswapwep with the obj already in W_SWAPWEP, and the
-      missing obj == uwep early return). The branch's setuswapwep()
-      is 5.0's plus the ITEM_EXCEL luck wiring only, so an off-hand
-      Sunsword never lights and the u.twoweap arms of flees_light()
-      and of the gremlin name picker (ported 2026-09-09) are dead
-      code. Take with the next wield.c touch; sweep BUG-956/993/996
-      first. MEDIUM.
+- [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
+      114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
+      slice's begin_burn caller diff; commit A = src/wield.c +
+      src/uhitm.c, hash in the archive next to BUG-1836). SHAPE: master
+      69b6960b5's two blocks in setuswapwep() at master's positions -
+      the old off-hand artifact's end_burn() + "stops shining" / "stops
+      its aura of darkness" BEFORE setworn() whenever the slot changes,
+      begin_burn() + "begins to shine <desc>!" / "casts an aura of
+      darkness!" AFTER it while u.twoweap - and uswapwepgone()'s end
+      block, all in the branch's setuwep()/uwepgone() idiom (is_art(),
+      disp.botl untouched); master's comment on the deliberate absence
+      of an obj == uswapwep early return (BUG-996) travels with it. The
+      toggles fall out of the NULL-bracket reseats the branch already
+      carried (dotwoweapon/untwoweapon/retwoweapon, setworn's teardown,
+      setnotworn, the joust arm): the NULL call ends the light, the
+      reseat with u.twoweap set lights it. CALL-SITE AUDIT (reviewer
+      re-verified): every setuswapwep() caller outside wield.c is a
+      NULL call, a set_twoweap(FALSE)-first bracket, a retwoweapon()
+      reseat or a seat with two-weapon combat off; no direct
+      setworn(W_SWAPWEP) exists; remove_worn_item() (throw, poly_obj,
+      ship_object) and the five uswapwepgone() callers (steal, eat,
+      polyself, trap, glass shatter) all end the light before the
+      object leaves; dealloc_obj() finds lamplit 0 afterwards.
+      DEVIATION (one, src/uhitm.c): the joust shatter arm prints
+      "shatters on impact!" before the off-hand reseat again - master's
+      and upstream 5.0's order; with the light in place the reseat's
+      "stops shining" was preceding the shatter it reports (reviewer
+      LOW). RECORDED (master parity): the drow Staff "aura of darkness"
+      arms are unreachable (the ashwood staff is bimanual and
+      can_twoweapon() refuses a two-handed off-hand) - kept as master's
+      text; `x` while two-weaponing and a thrown primary that returns
+      both flicker "stops shining" then "begins to shine" (setworn()
+      cancels two-weapon combat on any weapon slot change on both trees
+      and in 5.0; retwoweapon() relights); BUG-1812's begin_burn()
+      light-hater block hurts a drow or gremlin-form hero on every
+      off-hand light-up (master's timeout.c makes the same call); Blind
+      suppresses the lines while the state toggles. Three dead branch
+      arms go live: flees_light()'s and the gremlin "painful light of"
+      picker's u.twoweap arms (monmove.c) and hmon's lightobj sear on
+      an off-hand swing (dmgval's rnd(8) light-hater bonus was already
+      live). MASTER BUG: BUG-1836 (frozen-unfixed) - master's joust arm
+      clears u.twoweap bare before uwepgone(), so a shattered primary
+      lance leaves the off-hand artifact's W_SWAPWEP extrinsics and
+      light live with two-weapon combat off; the branch's d025b6158
+      reseat already covered the extrinsics and now ends the light.
+      REVIEW (evilhack-code-reviewer): PASS, no HIGH/MED; LOW = the
+      joust message order (taken); NIT = the four-fold "stops shining"
+      block that master shares. BATTERY (game-tester,
+      ~34 min, 276 tool uses, one lawful human Knight XL30 game in a
+      dark corridor, gdb slot reads and gl.light_base walks after every
+      leg, paniclog never created): T1 "You begin two-weapon combat.
+      Sunsword begins to shine brilliantly!" (lamplit 1, an LS_OBJECT of
+      range 3 on uswapwep, three more corridor squares revealed) / "You
+      switch to your primary weapon.  Sunsword stops shining." (lamplit
+      0, light list empty, slot still seated 0x400) / relit on the
+      second toggle-on; T1b Blind: no lines while lamplit, the light
+      source and EWarn_of_mon (0x400) toggle; T2a `x`: "Sunsword stops
+      shining.  i - the blessed +2 Sunsword (weapon in right hand).
+      Sunsword begins to shine brilliantly!  j - a blessed +1 dagger
+      (alternate weapon; not wielded)." with two-weapon combat off; T2b
+      `w` short sword: "k - a short sword (weapon in right hand).
+      Sunsword stops shining.  You are no longer using two weapons at
+      once." with Sunsword still the alternate, unlit (pushweapon off);
+      T3 exactly one "Sunsword stops shining." each on drop, bag stash,
+      nymph theft ("The water nymph disarms your blessed +2 Sunsword
+      (wielded in left hand).  Sunsword stops shining.  The water nymph
+      stole ...") and the newt polymorph ("You find you must drop your
+      weapons!  Sunsword stops shining."), light list empty after each;
+      T4 aklys: "Sunsword stops shining.  The aklys hits the test
+      monster!  The aklys returns to your hand!  Sunsword begins to
+      shine brilliantly!" with u.twoweap back to 1; T5a "The gremlin
+      flees from the painful light of Sunsword." with the primary unlit,
+      no flee line once unlit (the control gremlins closed and hit);
+      T5b "You hit the gremlin.  You hit the gremlin!  Sunsword's
+      radiance penetrates deep into the gremlin's flesh!" on the
+      off-hand swing only; T5c drow-warrior form: "You begin two-weapon
+      combat.  Ow, that light hurts.  Sunsword begins to shine
+      brilliantly!" (rnd(5) = 1 HP; the hurt line precedes the shine
+      line because begin_burn()'s lightdamage() runs before
+      setuswapwep()'s pline - the primary-slot path orders them the
+      same way); T6 forced shatter: "You joust the test monster!  Your
+      lance shatters on impact!  Sunsword stops shining.  You hit the
+      test monster!" - u.twoweap 0, uwep nil, Sunsword seated 0x400
+      with lamplit 0, light list empty, EWarn_of_mon / warntype.obj
+      0x400 / 0x8800 -> 0 / 0 (the BUG-1836 branch-fixed proof); T7 save with the off-hand lit, restore: u.twoweap 1, lamplit 1, exactly one
+      LS_OBJECT whose id.a_obj is the post-restore uswapwep pointer (the
+      light relinked), then "You switch to your primary weapon.  Sunsword
+      stops shining." with the light list empty (the dark-radius
+      sub-check was not staged - the save was taken in a lit room). Premise corrections (-> gameplay.md): W_SWAPWEP is 0x400;
+      Sunsword's SPFX_WARN routes to EWarn_of_mon, not u.uprops[WARNING];
+      unidentified lines read "The crystal long sword named Sunsword
+      ..."; the Knight's pony is pre-saddled and the Knight starts in a
+      large shield; heavy wishes drop for a weak hero (u.amax, STR 25 =
+      125); "The aklys returns to your hand!"; #polyself "drow" is
+      refused and gremlin form cannot two-weapon ("drow warrior" works);
+      genesis'd water nymphs spawn asleep. Anomalies, all upstream- or
+      master-shared: a nymph disarms a welded wielded weapon (both trees
+      gate only rings); the captured off-hand swing still lands after a
+      mid-attack two-weapon cancel (5.0's gt.twohits); #polyself ->
+      human's "You feel like a new woman!" is newman()'s sex change.
+      Census delta -> the m-v-m lit-artifact sear row below.
+- [ ] Monster-vs-monster lit-artifact sear message ABSENT (LOW; minted
+      2026-09-12 by the off-hand artifact light slice's artifact_light()
+      consumer census): master's hitmm() (mhitm.c ~1444-1470) sets
+      lightobj when the attacker's wielded artifact is lit
+      (artifact_light(mwep) && mwep->lamplit) and the defender hates
+      light (mon_hates_light(): gremlin, drow, shadow dragons), and
+      prints "<Artifact>'s radiance penetrates deep into <mdef>['s
+      flesh]!" / "The light sears <mdef>!" / "<Mdef> is seared!" on the
+      hit; the branch's only mon_hates_light() consumer is the
+      hero-attacker arm (uhitm.c hmon_hitmon_weapon -> lightobj), so a
+      Sunsword-wielding monster or pet sears a gremlin silently. Message
+      only: dmgval()'s rnd(8) light-hater bonus is on the branch
+      (weapon.c ~487) and applies to the m-v-m hit; the monster-vs-hero
+      sibling ("radiance penetrates deep into your ...", master mhitu.c
+      ~1687) is on the branch at uhitm.c ~6365. Candidate home:
+      mhitm_ad_phys()'s m-v-m weapon leg (uhitm.c ~6539, where
+      dmgval(magr, mwep, mdef) already adds the bonus), sharing
+      hmon_hitmon_msg_lightobj()'s wording. LOW.
 - [ ] poly_obj() lit-state carry-over ABSENT (minted 2026-09-09 by the
       dragon-scaled consumer-sites slice's begin_burn caller diff):
       master's poly_obj() (src/zap.c ~2150-2185) ends the old
