@@ -13906,24 +13906,188 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hit, twice; plain-jabberwock control likewise. Twelve
       brief-premise corrections, none a code defect (-> gameplay.md +
       the game-tester feedback memory).
-- [ ] shambler_init() ABSENT (minted 2026-09-11 by the AD_BHED slice;
-      the attack-handler slice ~3563 and the wither slice ~13813
-      deferred AD_WEBS/AD_WTHR "to the shambling-horror slice", which
-      had no row): master's allmain.c calls shambler_init() (u_init.c)
-      once per process to randomize the shambling horror's template -
-      mlevel += rnd(15) - 3, mmove rn2(10) + 9, ac rn2(31) - 20, mr
-      rn2(5) * 25, maligntyp rn2(21) - 10, then rnd(4) melee attacks
-      drawn from attk_melee_types (claw/bite/touch/sting/weapon) x
-      damg_melee_types (33 types incl. AD_BHED, AD_WEBS, AD_WTHR,
-      AD_PITS, AD_POLY) with (2 + rn2(5))d(3 + rn2(6)), and rnd(9)/3 - 1
-      further special attacks from attk_spec_types (hugs, spit, engulf,
-      breath, gaze, magic, kick, butt, tentacle) with their own damage
-      lists and (2 + rn2(4))d(6 + rn2(3)), clamped to NATTK. The branch
-      has no shambler_init() at all: its shambling horror generates
-      from the static monsters.h template every game. Whole feature;
-      every AD_/AT_ type the tables name needs a dispatcher case on the
-      branch first (AD_WEBS and AD_WTHR are dispatched; AD_PITS is not
-      - row below). MEDIUM.
+- [x] shambler_init() PORTED 2026-09-12 (session 116; the row minted
+      2026-09-11 by the AD_BHED slice; FIVE commits: A src/mcastu.c castmu
+      AD_ACID arm BUG-1838, B src/uhitm.c + include/extern.h
+      mhitm_ad_cncl() BUG-1839, C src/mhitu.c + src/mon.c + src/teleport.c
+      + src/do.c + src/timeout.c + src/polyself.c + include/extern.h engulf
+      suffocation BUG-1840 (with BUG-1841/1842), D src/u_init.c +
+      src/allmain.c + src/save.c + src/restore.c + src/mon.c +
+      include/extern.h the template port, E this tracker; hashes in the
+      archive next to BUG-1838..1842). ROW CORRECTIONS: the feature is
+      not "once per process" only - master's ab82f300c persists the rolled
+      template per save (saveshambler()/restshambler() in
+      savegamestate()/restgamestate(), after the fruit chain) so a restore
+      brings the same horror back and a bones level cannot smuggle another
+      game's template in; and master's mm_aggression() pet-hate arm
+      ("Shambling horrors are nasty. They hate you and all of your
+      friends") had no branch sibling and no row. SHAPE: master's nine
+      pools and shambler_init() verbatim after u_init_misc() (the `+=` on
+      mlevel comment now names newgame() and monst_globals_init()'s
+      once-per-process memcpy; two ellipsis comments reworded for the
+      style hook; 21 inherited lines over 80 columns kept as master's
+      text), called in newgame() right after u_init_misc() and before
+      mklev(); saveshambler()/restshambler() write every field after the
+      pmnames[]/const pmidx prefix with field-level Sfo_*/Sfi_* primitives
+      (no generated sfo_permonst exists; maligntyp through Sfo_schar so
+      both language-standard paths take the explicit writer) - master's
+      exact coverage (sizeof permonst minus the name pointer); the
+      pet-hate arm after the Lucifer arm in the branch's piecemeal
+      mm_aggression() (master's relative order vs the neothelid arms).
+      PRECONDITION AUDIT (every AD_ the pools name vs the branch's
+      gazemu/gazemm, spitmm, breamm + adtyp_to_zt(), gulpmu/gulpmm,
+      castmu/castmm, buzzmu/buzzmm, mhitm_adtyping): three dead arms, each
+      fixed in its own commit ahead of D: castmu() had no AD_ACID (silent
+      generic damage, no resistance; pool-only reach on both trees),
+      mhitm_adtyping() had no AD_CNCL (the beholder's and Tal'Gath's
+      cancellation gaze at pets was inert; the hero-side and passive arms
+      had been ported, the m-v-m gaze had no row), gulpmu() had no AD_WRAP
+      (the gelatinous cube's, water elemental's, sea dragon's and creeping
+      mound's engulf suffocation - "It's impossible to breathe in here!",
+      Strangled = 4, "You can breathe again." on release, the breathless
+      and magical-breathing lines, the water elemental's inventory
+      wetting - did nothing but the AC clamp's 1 HP). The suffocation port
+      carries master's release in unstuck() as end_engulf_suffocation()
+      (also called from 5.0's teleds(), which ends a swallow with a bare
+      set_ustuck() where master's called unstuck()), master's
+      check_strangling() engulf arms, and - reviewer HIGH/MED - master's
+      two sibling commits the ported one leaned on: e1e2ed9bc's level-tele
+      release (on the branch at goto_level(), the 5.0 choke point, which
+      also closes the cursed potion of gain level that master still leaks
+      - BUG-1842) and a08af5fef's "suffocated by <an engulfer>" death
+      line (timeout.c STRANGLED arm). DEVIATIONS: (1) mhitm_ad_cncl()'s
+      m-v-m leg drops master's inner gaze line + sight gates because the
+      branch's gazemm() runs them for every gaze type before mdamagem()
+      (parity note: master's failed 1-in-3 roll was silent, the branch
+      prints the gaze line first), and reports a cancellation-destroyed
+      clay golem through hitflags/done (the AD_PITS precedent) so
+      mdamagem()'s tail does not monkilled() the corpse; (2) BUG-1841 -
+      master's check_strangling() folds can_be_strangled() into its amulet
+      flag so its "no longer being strangled" arm never fires; the branch
+      gates that arm on `!from_mon` instead (amulet, buried and
+      #wizintrinsic countdowns keep vanilla's clear; the engulf arms own
+      the engulfer's); (3) castmu()'s acid arm has no mon_spell_hits_spot()
+      floor call (master's 3.6 arm touched nothing on the floor; the
+      helper calls acid "[hypothetical]"). RECORDED (master parity): while
+      the engulf countdown runs the engulf's dice damage lands each turn
+      and bypasses the AC reduction; check_strangling()'s off arm is only
+      ever called with noisy FALSE (polymon), so "You don't seem to need
+      air anymore." never prints on either tree; with Strangled = 4 the
+      choke dialogue starts at "You're gasping for air." (master's
+      "immediate 'You find it hard to breathe'" comment was stale); a
+      cancelled clay golem dies to a hostile gazer with monkilled
+      attribution; castmu()'s acid arm ignores partial acid resistance and
+      the Half_spell_damage halving (master's shape, as the MAGM sibling);
+      the m-v-m cancel gaze's dice damage lands on the 2-in-3 no-cancel
+      rolls too; msound = rn2(MS_HUMANOID) draws from 25 sounds on the
+      branch (master 20) because 5.0's enum places MS_BELLOW/CHIRP/MOO/
+      TRUMPET/WERE/ORC below MS_HUMANOID - "every sound below speech" on
+      both trees; difficulty stays the static 15 (master's makedefs
+      monstr[] was static too); a bones-file horror adopts the loading
+      game's template (master's ab82f300c intent). 5.0-ONLY OBSERVATIONS:
+      `#wizmondiff` lists the rolled horror as a difficulty discrepancy
+      (informational; mstrength() has no other runtime caller);
+      `--mongen` dump re-copies mons_init[] on a path that never enters a
+      game; `Sfo_aligntyp` has no other caller and routes through
+      sfo_xint8 under C23 (label only) - the port uses Sfo_schar; `make
+      sfctool` compiled restore.c with restshambler() under -DSFCTOOL.
+      Archive sweep: BUG-333, BUG-923, the Apr-2026 u_init.c review
+      entries, BUG-1401/1308/1129, BUG-1525/1213; FEATURES_ARCHIVE keeps
+      AD_GOLD out of the pools (Croesus-exclusive). REVIEW
+      (evilhack-code-reviewer x2): A PASS, B PASS, D PASS, C CONDITIONAL on
+      the two sibling commits above (HIGH: level_tele()'s release dropped
+      by 5.0 - "killed by strangulation" 1-3 turns after a cursed
+      teleport scroll out of a cube; MED: the death line), plus LOWs taken
+      (hero legs of mhitm_ad_cncl() zero their damage; the off-arm gate;
+      Sfo_schar for maligntyp) and LOWs recorded (80-column inheritance,
+      the Guidebook.txt regeneration artifact kept out of every commit);
+      the focused re-review of the fix hunks PASSED (goto_level()'s
+      capture precedes every clear and no abort path leaves the engulfer;
+      u.ustuck is non-NULL wherever u.uswallow is set on a timeout tick;
+      the two off-arm tests are exclusive on from_mon and bury_you()'s
+      countdown clears exactly as on vanilla; LOW not taken: Snprintf for
+      the death line where master used Sprintf; wizard-only observation:
+      #wizmakemap ends a swallow with raw clears and no release, unreachable
+      outside debug mode).
+      BATTERY (game-tester, ~58 min, 354 tool uses, three neutral human
+      Valkyrie XL30 games - G1 saved, G2 its restore, G3 fresh;
+      sanity_check on): T1 roll mlevel 10 / mmove 18 / ac -14 / mr 75 /
+      align 10, msize 1, cwt 3044, msound 23, mresists 0x28448, flags
+      0x440020 / 0x148041 / 0x20, five attacks (weapon slow 3d6, bite
+      teleport 2d5, touch shock 6d5, weapon poison 3d5, butt stun 3d7),
+      every range and every cleared/set bit as specified, the created
+      horror's data pointer == the template with m_lev 14, "The shambling
+      horror wields an aklys! ... bites! Your position suddenly seems very
+      uncertain! ... touches you! You get zapped! ... butts! You
+      stagger..."; T2 the restore dump identical field for field and the
+      restored horror fights with the same attacks, a fresh process
+      differs in every rolled field (level 12 / speed 16 / AC -13 / MR 50
+      / align -10; sting polymorph 2d5 + weapon sleep 3d7); T3
+      flags.debug 0: text only, after one #wizkill "Difficulty 15, speed
+      16, base level 12, base AC -13. Magic saving throw 50, weight 908,
+      alignment: chaotic. ... Attacks: 2d5 sting polymorph, 3d7 weapon
+      sleep" = the dump; T4 mm_aggression(horror, pet) 0x180000 (reverse
+      0) and "The shambling horror swings its aklys at the kitten. ...
+      The kitten is killed!" (with the hero reachable it beelines for the
+      hero); T5 "casts a spell at you! You're splashed in acid." 34 HP
+      from 8d8 (m_lev 15), ranged "zaps you with a bolt of acid!",
+      #wizintrinsic acid resistance "But you resist the effects." with no
+      loss and the caster switched to "points at you, then curses"; T6
+      seven handler entries in ten turns vs a tame watchman, mcan flipped
+      on the third, tame clay golem "gazes at the clay golem... Magical
+      energies are absorbed from the clay golem. Some writing vanishes
+      from the clay golem's head! The clay golem is destroyed!" one death
+      line and the round over, the beholder's own CNCL gaze (other slots
+      zeroed) flipped a watchman on its third landed gaze, a cancelled
+      gazer 0 entries in 30 turns; T7 "folds itself around you! It's
+      impossible to breathe in here!" Strangled 4 + Strngl, "gasping for
+      air / can no longer breathe / turning blue / You suffocate." with
+      killer "suffocated by the gelatinous cube" NO_KILLER_PREFIX, 1d4 a
+      turn while strangled, release by kill / ^T / ^V / cursed teleport
+      scroll each "You can breathe again." with 0 and five quiet turns
+      after, flesh golem "You can't breathe, but you don't need to." and
+      the rehumanize "You can't breathe in here! You find it hard to
+      breathe." (6 set, 4 by the read after its own tick), #wizintrinsic
+      magical breathing "You can still breathe, though.", water elemental
+      "Your dagger rusts! Your scrolls of identify fade.", a polymorph
+      mid-countdown clears silently; the cursed potion of gain level
+      sub-leg BLOCKED by design ("If you can't breathe air, how can you
+      drink liquid?" - dodrink's Strangled refusal on both trees, so
+      master's potion-path leak is unreachable in play); T8 "breathes
+      water! / a dark energy blast! / a disorienting blast!" with their
+      hit lines; T9 "#wizmondiff: shambling horror [329:12]: calculated:
+      16, hardcoded: 15 (-1)". Paniclog: seven identical "tame watchman
+      is not peaceful (fmon)" lines from the tester's own mtame/mpeaceful
+      staging, none from the code, removed at cleanup. Twelve
+      brief-premise corrections, none a code defect (-> gameplay.md + the
+      game-tester feedback memory): no ring of acid resistance exists
+      (#wizintrinsic instead); enfolders "fold themselves around you";
+      NO_KILLER_PREFIX is 2 (hack.h); 5.0's x_monnam gives the engulfer
+      "the"; declining the strangulation death releases the hero
+      (end.c's unstuck); potions cannot be drunk while strangled; the
+      rehumanize re-arm reads 4 after its own tick; rnd(9)/3 - 1 spans
+      -1..2; the pokedex prints all attacks on one line; `;` via tmux
+      send-keys -l never enters farlook (#glance does); a visible hero in
+      gaze range is always the gaze's target (stage m-v-m gazes with the
+      hero ~10 squares away in a lit room, or blindfolded); the
+      beholder's gaze at pets is rare (~1 per 15 turns). ANOMALY (one
+      dump, outside the slice, unverified): two freshly generated G1
+      level monsters (wolf cub 0/7, deer 0/14) had mhp 0 in the monlist
+      at T:1 - most likely dead monsters awaiting dmonsfree at a --More--
+      after wolf-vs-deer predation; watch for a recurrence.
+- [ ] saveoracle()/savecharon() per-save template persistence ABSENT
+      (minted 2026-09-12 by the shambling horror slice): master's
+      savegamestate() persists mons[PM_ORACLE] and mons[PM_CHARON] the
+      same way it persists the shambling horror (save.c saveoracle()/
+      savecharon() right after saveshambler(), restore.c restoracle()/
+      restcharon()), because setmangry() raises their template mmove to
+      18 when they are angered (mon.c, both trees - tracker ~14632); on
+      the branch an angered Oracle or Charon is slow again after a
+      save/restore, and the sped-up template of one game never leaks into
+      another only because the process ends. Candidate home: generalize
+      saveshambler()/restshambler() into a per-index helper and call it
+      for the three slots at master's positions. MEDIUM (save layout
+      change; EDITLEVEL frozen).
 - [x] AD_PITS dispatcher + create_pit_under() PORTED 2026-09-12 (session
       113; the row minted 2026-09-11 by the AD_BHED slice, the
       levitation slice ~9986 had deferred "create_pit_under (BUG-679) ->
