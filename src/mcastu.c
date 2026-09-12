@@ -518,6 +518,24 @@ castmu(
          * fire, it does not target susceptible floor items with cold */
         mon_spell_hits_spot(mtmp, AD_COLD, u.ux, u.uy);
         break;
+    case AD_ACID:
+        if (!Underwater) {
+            pline("You're splashed in acid.");
+        } else {
+            pline_The("acid dissipates harmlessly in the water around you.");
+            dmg = 0;
+            break;
+        }
+        if (how_resistant(ACID_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            pline("But you resist the effects.");
+            monstseesu(M_SEEN_ACID);
+            dmg = 0;
+        } else {
+            dmg = d((int) ml / 2 + 1, 8);
+            monstunseesu(M_SEEN_ACID);
+        }
+        break;
     case AD_MAGM:
         You("are hit by a shower of missiles!");
         if (Antimagic) {
