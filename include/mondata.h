@@ -780,4 +780,12 @@
 #define all_vampire_forms(mndx) \
     ((mons[mndx].mflags2 & M2_VAMPIRE_FORM) != 0L)
 
+/* Noise that a monster makes when engaged in combat. Assume that vocalizations
+ * account for some noise, so monsters capable of vocalizing make more.
+ * This gets used as an argument to wake_nearto, which expects a squared value,
+ * so we square the result. */
+#define combat_noise(ptr) \
+    ((ptr)->msound ? ((ptr)->msize * 2 + 1) * ((ptr)->msize * 2 + 1) \
+                   : ((ptr)->msize + 1) * ((ptr)->msize + 1))
+
 #endif /* MONDATA_H */

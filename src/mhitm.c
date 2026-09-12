@@ -950,6 +950,10 @@ hitmm(
             hatedhit = (weaponhit && mwep
                         && mon_hates_material(mdef, mwep->material));
 
+    /* Possibly awaken nearby monsters */
+    if ((!is_silent(magr->data) || !helpless(mdef)) && rn2(10))
+        wake_nearto(magr->mx, magr->my, combat_noise(magr->data));
+
     pre_mm_attack(magr, mdef);
 
     compat = !magr->mcan ? could_seduce(magr, mdef, mattk) : 0;

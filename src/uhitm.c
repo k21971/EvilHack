@@ -1196,10 +1196,37 @@ hmon(struct monst *mon,
      int dieroll)
 {
     boolean result, anger_guards;
+    boolean is_rogue = (Role_if(PM_ROGUE) && !Upolyd);
+    boolean wield_shadowblade = is_art(uwep, ART_SHADOWBLADE);
+    coordxy nx = mon->mx, ny = mon->my;
+    int noise = 0;
 
     anger_guards = (mon->mpeaceful
                     && (mon->ispriest || mon->isshk || is_watch(mon->data)));
+
+    /* Awaken nearby monsters. A stealthy hero makes much less noise,
+       playing as a rogue or wielding Shadowblade even less so. The roll
+       and the target's helplessness are judged before the hit lands,
+       but the wake itself runs after the hit resolves: the hit chain
+       reads the target's own sleep (backstab, the confusion message)
+       and gives it its own wake-up and growl at the end, and a wake
+       centered on the target beforehand would clear that state and
+       pre-empt those messages */
+    if (!(is_silent(gy.youmonst.data) && helpless(mon))
+        && !rn2(wield_shadowblade ? 40
+                                  : is_rogue ? 20
+                                             : Stealth ? 10
+                                                       : 2)) {
+        int base_combat_noise = combat_noise(&mons[gu.urace.mnum]);
+
+        noise = is_rogue ? base_combat_noise / 4
+                         : Stealth ? base_combat_noise / 2
+                                   : base_combat_noise;
+    }
+
     result = hmon_hitmon(mon, obj, thrown, dieroll);
+    if (noise)
+        wake_nearto(nx, ny, noise);
     if (mon->ispriest && !rn2(2))
         ghod_hitsu(mon);
     if (anger_guards)
