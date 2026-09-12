@@ -1607,6 +1607,10 @@ hmon_hitmon_potion(
     freeinv(obj);
     potionhit(mon, obj,
               hmd->hand_to_hand ? POTHIT_HERO_BASH : POTHIT_HERO_THROW);
+    /* potionhit() frees the potion; when it was the caller's whole
+       object the caller's pointer is the one left dangling, and the
+       tail must not test or break a used-up potion either way */
+    hmd->obj_gone = TRUE;
     if (DEADMONSTER(mon)) {
         hmd->doreturn = TRUE;
         hmd->retval = FALSE; /* killed */
