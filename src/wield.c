@@ -334,12 +334,37 @@ setuqwep(struct obj *obj)
     return;
 }
 
+/* note: unlike setuwep, no obj == uswapwep early-return guard;
+   callers toggling u.twoweap reseat via NULL bracket so begin_burn
+   inside this function fires on the second call */
 void
 setuswapwep(struct obj *obj)
 {
     struct obj *olduswapwep = uswapwep;
 
+    /* an off-hand artifact only shines while two-weapon combat is
+       active; put it out whenever the slot changes hands */
+    if (obj != uswapwep && artifact_light(uswapwep) && uswapwep->lamplit) {
+        end_burn(uswapwep, FALSE);
+        if (!Blind)
+            pline("%s %s.", Tobjnam(uswapwep, "stop"),
+                  (is_art(uswapwep, ART_STAFF_OF_THE_ARCHMAGI)
+                   && !Upolyd && Race_if(PM_DROW))
+                      ? "its aura of darkness" : "shining");
+    }
     setworn(obj, W_SWAPWEP);
+    if (u.twoweap && uswapwep == obj && artifact_light(uswapwep)
+        && !uswapwep->lamplit) {
+        begin_burn(uswapwep, FALSE);
+        if (!Blind) {
+            if (is_art(uswapwep, ART_STAFF_OF_THE_ARCHMAGI)
+                && !Upolyd && Race_if(PM_DROW))
+                pline("%s an aura of darkness!", Tobjnam(uswapwep, "cast"));
+            else
+                pline("%s to shine %s!", Tobjnam(uswapwep, "begin"),
+                      arti_light_description(uswapwep));
+        }
+    }
     if (uswapwep == obj && u.twoweap && obj && is_botl_artifact(obj))
         disp.botl = TRUE; /* gaining or losing an attribute effect */
     /* wielding or unwielding a weapon of excellence changes Luck */
@@ -1036,6 +1061,14 @@ void
 uswapwepgone(void)
 {
     if (uswapwep) {
+        if (artifact_light(uswapwep) && uswapwep->lamplit) {
+            end_burn(uswapwep, FALSE);
+            if (!Blind)
+                pline("%s %s.", Tobjnam(uswapwep, "stop"),
+                      (is_art(uswapwep, ART_STAFF_OF_THE_ARCHMAGI)
+                       && !Upolyd && Race_if(PM_DROW))
+                          ? "its aura of darkness" : "shining");
+        }
         setworn((struct obj *) 0, W_SWAPWEP);
         update_inventory();
     }

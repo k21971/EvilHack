@@ -2236,20 +2236,22 @@ hmon_hitmon_jousting(
         first_weapon_hit(obj);
 
     if (hmd->jousting < 0) {
+        pline("%s shatters on impact!", Yname2(obj));
         /* (must be either primary or secondary weapon to get here) */
         if (u.twoweap) {
             struct obj *tmp = uswapwep;
 
             /* untwoweapon() is too verbose here; mirror its teardown
                so the off-hand W_SWAPWEP extrinsics are revoked instead
-               of staying seated with two-weapon combat off */
+               of staying seated with two-weapon combat off; the
+               shatter line comes first so an off-hand artifact's
+               "stops shining" follows the loss it reports */
             set_twoweap(FALSE); /* u.twoweap = FALSE */
             setuswapwep((struct obj *) 0);
             setuswapwep(tmp);
         }
         if (obj == uwep)
             uwepgone(); /* set gu.unweapon */
-        pline("%s shatters on impact!", Yname2(obj));
         /* minor side-effect: broken lance won't split puddings */
         useup(obj);
         obj = (struct obj *) 0;
