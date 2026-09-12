@@ -1009,15 +1009,25 @@ nh_timeout(void)
                 }
                 break;
             case STRANGLED:
-                svk.killer.format = KILLED_BY;
-                Strcpy(svk.killer.name,
-                       (u.uburied) ? "suffocation" : "strangulation");
-                done_timeout(DIED, STRANGLED);
-                /* must be declining to die in explore|wizard mode;
-                   treat like being cured of strangulation by prayer */
-                if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
-                    Your("amulet vanishes!");
-                    useup(uamul);
+                if (u.uswallow) {
+                    /* an engulfer's suffocation attack ran out the clock */
+                    svk.killer.format = NO_KILLER_PREFIX;
+                    Sprintf(svk.killer.name, "suffocated by %s",
+                            x_monnam(u.ustuck, ARTICLE_A, (char *) 0,
+                                     (SUPPRESS_IT | SUPPRESS_HALLUCINATION),
+                                     FALSE));
+                    done_timeout(DIED, STRANGLED);
+                } else {
+                    svk.killer.format = KILLED_BY;
+                    Strcpy(svk.killer.name,
+                           (u.uburied) ? "suffocation" : "strangulation");
+                    done_timeout(DIED, STRANGLED);
+                    /* must be declining to die in explore|wizard mode;
+                       treat like being cured of strangulation by prayer */
+                    if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
+                        Your("amulet vanishes!");
+                        useup(uamul);
+                    }
                 }
                 break;
             case FUMBLING:

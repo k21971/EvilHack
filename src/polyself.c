@@ -21,7 +21,7 @@
 
 #include "hack.h"
 
-staticfn void check_strangling(boolean);
+staticfn void check_strangling(boolean, boolean);
 staticfn void polyman(const char *, const char *);
 staticfn void dropp(struct obj *);
 staticfn void break_armor(void);
@@ -225,27 +225,49 @@ steed_vs_stealth(void)
 
 /* for changing into form that's immune to strangulation */
 staticfn void
-check_strangling(boolean on)
+check_strangling(boolean on, boolean noisy)
 {
+    /* suffocating due to being engulfed by something with a suffocation
+       attack, versus due to wearing an amulet of strangulation; we assume
+       that suffocation isn't actually strangulation, and the hero is OK
+       if breathless */
+    boolean from_mon = (u.uswallow && u.ustuck
+                        && attacktype_fordmg(u.ustuck->data,
+                                             AT_ENGL, AD_WRAP));
+    boolean from_amul = (uamul && uamul->otyp == AMULET_OF_STRANGULATION);
+
     /* on -- maybe resume strangling */
     if (on) {
         boolean was_strangled = (Strangled != 0L);
 
         /* when Strangled is already set, polymorphing from one
            vulnerable form into another causes the counter to be reset */
-        if (uamul && uamul->otyp == AMULET_OF_STRANGULATION
-            && can_be_strangled(&gy.youmonst)) {
+        if (from_amul && can_be_strangled(&gy.youmonst)) {
             Strangled = 6L;
             disp.botl = TRUE;
             Your("%s %s your %s!", simpleonames(uamul),
                  was_strangled ? "still constricts" : "begins constricting",
                  body_part(NECK)); /* "throat" */
             makeknown(AMULET_OF_STRANGULATION);
+        } else if (from_mon && !Breathless) {
+            Strangled = 6L;
+            disp.botl = TRUE;
+            if (noisy)
+                You("can't breathe in here!");
         }
 
     /* off -- maybe block strangling */
-    } else {
-        if (Strangled && !can_be_strangled(&gy.youmonst)) {
+    } else if (Strangled) {
+        if (from_mon && Breathless) {
+            Strangled = 0L;
+            disp.botl = TRUE;
+            if (noisy)
+                You("don't seem to need air anymore.");
+        }
+        /* the engulf arms above own a suffocating engulfer's countdown;
+           every other source (the amulet, being buried) ends with a form
+           that cannot be strangled */
+        if (!from_mon && Strangled && !can_be_strangled(&gy.youmonst)) {
             Strangled = 0L;
             disp.botl = TRUE;
             You("are no longer being strangled.");
@@ -319,7 +341,7 @@ polyman(const char *fmt, const char *arg)
         set_itimeout(&HBlinded, 1L);
         make_blinded(0L, TRUE); /* remove blindness */
     }
-    check_strangling(TRUE);
+    check_strangling(TRUE, TRUE);
 
     if (!Levitation && !u.ustuck && is_pool_or_lava(u.ux, u.uy))
         spoteffects(TRUE);
@@ -1154,7 +1176,7 @@ polymon(int mntmp)
             make_slimed(0L, (char *) 0);
         }
     }
-    check_strangling(FALSE); /* maybe stop strangling */
+    check_strangling(FALSE, FALSE); /* maybe stop strangling */
     if (nohands(gy.youmonst.data))
         make_glib(0);
 
@@ -1348,7 +1370,7 @@ polymon(int mntmp)
         You("orient yourself on the web.");
         reset_utrap(TRUE);
     }
-    check_strangling(TRUE); /* maybe start strangling */
+    check_strangling(TRUE, TRUE); /* maybe start strangling */
 
     disp.botl = TRUE;
     gv.vision_full_recalc = 1;

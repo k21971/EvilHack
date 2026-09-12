@@ -5460,6 +5460,21 @@ set_ustuck(struct monst *mtmp)
     }
 }
 
+/* a swallow that was suffocating the hero has just ended (expelled, the
+   engulfer died or changed shape, a teleport out); an amulet of
+   strangulation keeps its own countdown */
+void
+end_engulf_suffocation(void)
+{
+    if (Strangled
+        && !(uamul && uamul->otyp == AMULET_OF_STRANGULATION)) {
+        /* FIXME: What if the hero was being strangled by some other
+           source that isn't the amulet? */
+        Strangled = 0L;
+        You("can breathe again.");
+    }
+}
+
 void
 unstuck(struct monst *mtmp)
 {
@@ -5479,6 +5494,7 @@ unstuck(struct monst *mtmp)
                 placebc();
             gv.vision_full_recalc = 1;
             docrt();
+            end_engulf_suffocation();
         }
 
         /* prevent holder/engulfer from immediately re-holding/re-engulfing

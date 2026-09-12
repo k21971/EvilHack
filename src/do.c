@@ -1671,6 +1671,7 @@ goto_level(
     char whynot[BUFSZ];
     int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
+    boolean was_swallowed = u.uswallow; /* set_ustuck(Null) clears it */
     schar prev_temperature = svl.level.flags.temperature;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
@@ -1852,6 +1853,10 @@ goto_level(
     reset_utrap(FALSE); /* needed in level_tele */
     fill_pit(u.ux, u.uy);
     set_ustuck((struct monst *) 0); /* clear u.ustuck and u.uswallow */
+    /* leaving the level is a release from a suffocating engulfer too;
+       master's level_tele() and branchport reached unstuck() for this */
+    if (was_swallowed)
+        end_engulf_suffocation();
     set_uinwater(0); /* u.uinwater = 0 */
     u.uundetected = 0; /* not hidden, even if means are available */
     if (!iflags.nofollowers) {

@@ -540,6 +540,9 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
             ball_still_in_range = allow_drag = FALSE; /* (redundant) */
         }
         docrt();
+        /* the swallow ended above without unstuck(), which would have
+           stopped a suffocating engulfer's countdown */
+        end_engulf_suffocation();
     }
     if (ball_active && (ball_still_in_range || allow_drag)) {
         int bc_control;

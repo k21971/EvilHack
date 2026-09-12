@@ -1818,6 +1818,8 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     struct obj *otmp2, *nextobj;
     int i;
     boolean physical_damage = FALSE, total_digestion = FALSE;
+    /* for tracking if this is the first engulf */
+    boolean old_uswallow = u.uswallow;
 
     if (!u.uswallow) { /* swallows you */
         int omx = mtmp->mx, omy = mtmp->my;
@@ -1979,6 +1981,44 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                                                : "pummeled with debris");
             exercise(A_STR, FALSE);
         }
+        break;
+    case AD_WRAP:
+        /* Initially pulled from GruntHack, and then improved upon by
+           aosdict for xNetHack (see git commit ee808b): AD_WRAP is used
+           because there's no specific suffocation attack, but it's used
+           for other suffocation-y things like drowning attacks.
+           Generally, only give a message if this is the first engulf, not
+           a subsequent attack when already engulfed */
+        if (Breathless
+            || (Amphibious && (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+                               || mtmp->data == &mons[PM_SEA_DRAGON]))) {
+            if (!old_uswallow) {
+                if (!(HMagical_breathing || EMagical_breathing)) {
+                    /* test this one first, in case breathless and also
+                       wearing magical breathing */
+                    if (Amphibious)
+                        You("can still breathe, though.");
+                    else
+                        You("can't breathe, but you don't need to.");
+                } else {
+                    You("can still breathe, though.");
+                    if (uamul && uamul->otyp == AMULET_OF_MAGICAL_BREATHING)
+                        makeknown(AMULET_OF_MAGICAL_BREATHING);
+                }
+            }
+            tmp = 0;
+        } else if (!Strangled) {
+            if (!old_uswallow)
+                pline("It's impossible to breathe in here!");
+            /* xNetHack sets this timer for 5, GruntHack had it for 3;
+               we'll meet in the middle. nh_timeout()'s choke_dialogue()
+               narrates the countdown from the second text onward */
+            Strangled = 4L;
+            tmp = 0;
+        }
+        if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
+            || mtmp->data == &mons[PM_SEA_DRAGON])
+            water_damage_chain(gi.invent, FALSE, rnd(3), FALSE);
         break;
     case AD_ACID:
         if (Acid_resistance) {
