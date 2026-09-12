@@ -8647,18 +8647,111 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       little dog/kitten; the wish parser took every material asked;
       no sanity spam for a gdb-forced material until a turn elapses.
       Open Phase 2 rows: 54 (55 - 1 closed + 0 minted).
-- [ ] Healer wound sensing NOT PORTED (NEW, minted 2026-09-08 by the
-      pokedex slice; MED gameplay feature). Master do_name.c
-      mon_wounds() (Healer-only "slightly/moderately/badly/seriously/
-      critically wounded", "almost dead/destroyed", hallucinatory
-      adverbs) + print_mon_wounded() (adjective-change message from
-      the hit paths) with their uhitm.c callers, b0ae15f5a 2020-03-28
-      + 8c167232b 2020-10-30; the branch has none of it and 5.0's own
-      monhealthdescr() is #if 0'd, so farlook shows no health text for
-      anyone. RIDER: master pager.c look_at_monster's `, <mon_wounds>`
-      clause (after the name, before the riding clause) rides here;
-      RULING 2026-09-08 (AskUserQuestion): leave farlook without it
-      until the feature ports (not 5.0's monhealthdescr).
+- [x] Healer wound sensing PORTED 2026-09-12 (session 115; the row
+      minted 2026-09-08 by the pokedex slice; commit A = include/extern.h
+      + src/do_name.c + src/uhitm.c + src/mhitm.c + src/zap.c +
+      src/pager.c, no BUG id; commit B = the src/uhitm.c potion-bash fix
+      the review surfaced, BUG-1837, hash in the archive). SHAPE:
+      master's mon_wounds() and print_mon_wounded() (b0ae15f5a +
+      8c167232b) appended to do_name.c,
+      the file that owns nextmbuf(); thresholds, wording and the
+      change-only rule verbatim (> 75% slightly, <= 75% moderately, <=
+      33.3% seriously, <= 25% badly, <= 16.6% critically, <= 10% "almost
+      dead" / "almost destroyed" when nonliving; "damaged" for a
+      non-fleshy monster via the is_fleshy() the searing-message port
+      already carried; hallucination = random adverb/adjective pairs on
+      every damaging hit). Callers at master's positions: hmon_hitmon()'s
+      tail (master's hmon() tail; gated !hmd.destroyed && !hmd.offmap,
+      the branch's off-map convention), mattackm()'s tail for a tame
+      defender (struck && mtame), dobuzz()'s non-fatal arm after the
+      drain message (saved_mhp captured in the reflect-else block's
+      declarations ahead of zhitm(); master captured it after its
+      buzzmonst label), resist()'s else arm around 5.0's `mhp -=`, and
+      look_at_monster()'s clause. Idioms: pline_mon() for the wound
+      line, static const tables, NONNULLARG1 on mon_wounds(). ROW
+      CORRECTION: master's farlook clause sits AFTER the ", riding X" /
+      ", being ridden" clauses and BEFORE ", holding you" (not "after
+      the name, before the riding clause" as minted); ported at master's
+      position; 5.0's dead monhealthdescr() call stays (returns "").
+      RECORDED (parity): Role_if(PM_HEALER) only, polymorphed Healers
+      included; Blind while engulfed = nothing; the first damaging hit on
+      a full-HP monster prints "slightly"; a hit that skips tiers names
+      the new tier only; hmon_hitmon()'s zero-damage early exits skip the
+      print as master's hmon() did; hostile-vs-hostile fights print
+      nothing. REVIEW (evilhack-code-reviewer x2): the full-port pass was
+      CONDITIONAL on one MED it prescribed - the hallucination picks
+      drew from the core RNG on farlook's zero-time path (taken:
+      rn2_on_display_rng(), the branch's display-RNG convention, master
+      has no display RNG) - and surfaced a pre-existing CRITICAL in the
+      neighbouring helper: hmon_hitmon_potion() never raised obj_gone
+      after potionhit() freed the potion, so a single wielded potion
+      bash left hmon_hitmon()'s tail reading freed memory (the ITEM_VENOM
+      test, the poison helper, break_glass_obj(); BUG-1390's eighth
+      by-value helper; master nulls the pointer, upstream's tail only
+      compares it) -> fixed as commit B (BUG-1837); LOW = the 5.0-only
+      pyrolisk-egg bash arm doreturn-exits ahead of the tier line (row
+      below); NIT = resist()'s raw `mhp -=` (the damage_mon router
+      deferral row - keep the saved_mhp bracket when it lands). The
+      focused re-review of the two fix hunks PASSED (one LOW, an
+      81-column line, wrapped; it confirmed potionhit() frees on every
+      path, every later use of obj in hmon_hitmon()'s tail is guarded,
+      and two parity restorations ride with the fix - the glove-property
+      arm fires on a single-potion bash again as master's does, and
+      burning hands stay skipped; upstream's tail never dereferences the
+      pointer, so no upstream artifact). BATTERY (game-tester,
+      ~31 min, 213 tool uses, one neutral human Healer XL30 game plus a
+      Barbarian control game, gdb mhp/mhpmax after every hit, paniclog
+      never created): T1 on a 24-HP captain bare-handed: "The gnomish
+      watch captain is slightly wounded." at 21/24, silent at 20,
+      "moderately" at exactly 18/24 (75%), silent 17..9, "seriously" at
+      7 (7*3 <= 24), "badly" at exactly 6 (25%), "critically" at
+      exactly 4 (16.6%), silent at 3, "almost dead" at 1, no line on the
+      kill, a miss silent; T2 farlook "gnomish watch captain, seriously
+      wounded, wearing light armor" (the clause after the name, ahead of
+      the pokedex wearing/wielding clauses), no clause on a full-HP
+      monster or on the hero at 153/183, "tame kitten, moderately
+      wounded"; T3 under a ring of conflict "The jackal bites the
+      kitten.  The kitten is slightly wounded." at 18/20, silent at 17,
+      "moderately" at 14/20, and no line for the hostile the kitten
+      chewed from 80 to 49 (the article is Monnam's "The", master's
+      form); T4 "The wand hits the dwarven watch captain!  The dwarven
+      watch captain is slightly wounded." (73 -> 65), fire "moderately"
+      (65 -> 47), a striking hit inside a tier silent (47 -> 38), fire
+      "seriously" (38 -> 19), a killing fire zap without a tier line; T5
+      lichen "slightly damaged" then "almost dead" (living, non-fleshy),
+      human zombie "slightly wounded" then "almost destroyed", paper
+      golem "slightly damaged" then "almost destroyed"; T6
+      hallucinating: a line on every in-tier hit ("The shadow is
+      insanely marred.", "The quantum mechanic is absolutely crushed.",
+      "The baluchitherium is insanely pulverized.") and two farlooks of
+      one golem giving different pairs; T7 blind: five "You hit it."
+      across the 75% boundary with no tier line, then farlook "paper
+      golem, moderately damaged" after unblinding; T8 Barbarian: three
+      smites across the 75% boundary with no line and a bare farlook;
+      T9 (BUG-1837) a single wielded potion of acid: "The bottle
+      crashes on the dark elven watch captain's head and breaks into
+      shards. ... shrieks in pain!" then the tier line after the naming
+      prompt, uwep nil and no potion left; a wielded stack of two
+      waters used one per bash with the other still in hand; 20
+      shake-out actions and a clean quit. Ten brief-premise corrections
+      (-> gameplay.md): ^G "watch captain" spawns PEACEFUL with a racial
+      prefix (use the hostile prefix); captains rolled 73-88 HP; the
+      starting +1 gloves make bare hands 3 dmg; the pet line says "The
+      kitten"; adjacent hostiles never attack the pet without conflict;
+      an eating pet (meating) will not fight; the `w` prompt hides
+      potions but takes the letter; the acid bash raises a "Call a ...
+      potion:" prompt before the tier line; farlook's first use shows a
+      --More-- and a tip window. Observation (parity): a monster's
+      thrown missile hitting the pet prints no tier line (not a
+      mattackm() path; master the same).
+- [ ] Pyrolisk-egg bash skips the Healer tier line (LOW; minted
+      2026-09-12 by the Healer wound sensing slice from a reviewer LOW):
+      hmon_hitmon()'s 5.0-only pyrolisk-egg arm (uhitm.c ~1783-1789)
+      damages the target through explode() and then doreturn-exits
+      ahead of the print_mon_wounded() tail, so a Healer bashing with a
+      pyrolisk egg gets no tier line for that hit; master has no
+      pyrolisk arm (parity n/a). Candidate: report the tier before the
+      early return when the target survived. LOW.
 - [ ] Terrain concealment (concealed_spot/explain_terrain) NOT PORTED
       (NEW, minted 2026-09-08 by the pokedex slice; MED). Master's
       concealed_spot() + the explain_terrain() macro (display.h) name
