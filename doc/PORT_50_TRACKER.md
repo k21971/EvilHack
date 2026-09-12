@@ -13726,25 +13726,177 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       every AD_/AT_ type the tables name needs a dispatcher case on the
       branch first (AD_WEBS and AD_WTHR are dispatched; AD_PITS is not
       - row below). MEDIUM.
-- [ ] AD_PITS dispatcher + create_pit_under() ABSENT (minted 2026-09-11
-      by the AD_BHED slice; the levitation slice ~9986 deferred
-      "create_pit_under (BUG-679) -> its own slice" with no row): the
-      pit fiend's third attack, AT_HUGS AD_PITS 4d4 (monsters.h), has
-      no case in the branch's mhitm_adtyping(), so 5.0's default arm
-      zeroes it - no pit, no damage, and no grab either (the hug's
-      grab lives in mhitm_ad_phys()'s AT_HUGS arm, which AD_PITS never
-      reaches). Master (uhitm.c damageum / mhitm.c mdamagem / mhitu.c
-      hitmu `case AD_PITS`: 1 in 2 per hit, the hug sets u.ustuck
-      first, a cancelled attacker digs nothing) calls dig.c
-      create_pit_under(mdef, magr): refuses non-floor, furniture, air,
-      undestroyable traps and the non-Earth endgame ("You fail to
-      create a pit on the %s under %s." / "%s looks rather piteous."),
-      "stomps the ground!", deepens an existing pit or hole (1 in 40
-      turns a pit into a hole), otherwise digs a pit and drops the
-      target in; its boolean return says whether the 4d4 still apply;
-      BUG-679's mintrap kill-return guard rides with it. Same class as
-      AD_BHED (a generated monster's attack silently absent). Whole
-      helper plus three legs; MEDIUM.
+- [x] AD_PITS dispatcher + create_pit_under() PORTED 2026-09-12 (session
+      113; the row minted 2026-09-11 by the AD_BHED slice, the
+      levitation slice ~9986 had deferred "create_pit_under (BUG-679) ->
+      its own slice" rowless; commit A = include/extern.h + src/dig.c +
+      src/teleport.c + src/uhitm.c, hashes in the archive next to
+      BUG-1832..1835). SHAPE: create_pit_under() at master's dig.c
+      position (after the DEBUG bury block) with 5.0's idioms -
+      `mintrap(mdef, NO_TRAP_FLAGS) == Trap_Moved_Mon` for master's `==
+      3`, `dotrap(trap, FORCETRAP)`,
+      `deltrap_with_ammo(DELTRAP_DESTROY_AMMO)`, `Can_dig_down()` as a
+      function, `pline_mon()` for monster-subject lines; BUG-414's
+      hitmsg, BUG-677's land-mine trap re-read and BUG-679's DEADMONSTER
+      guard travel with it. New mhitm_ad_pits() in the three-leg handler
+      form dispatched from mhitm_adtyping(): hero attacker `rn2(2) &&
+      !u.uswallow`; hero defender hitmsg() then `rn2(2)` -> AT_HUGS
+      grabs (set_ustuck + master's mundetected clear; silent, no slip
+      roll, a cancelled fiend included) then digs unless `mcan`; m-v-m
+      `rn2(2) && !magr->mcan`; a FALSE return zeroes the 4d4 on every
+      leg. DEVIATIONS: (1) BUG-1833 - the boulder is looked up at its
+      point of use and only while a pit/hole is still there (master's
+      entry-time pointer is stale after the land mine's scatter
+      fractures or moves it, and a use-after-free when the pit kills its
+      target and the detach's fill_pit() uses the boulder up; the
+      reviewer's residual: a second boulder would be extracted onto a
+      trapless square and lost); (2) BUG-1834 - the existing-pit leg's
+      low-health hole roll tests the CREATOR (`youattack ? u.mh :
+      magr->mhp`) as its comment says; master tested the target, which
+      for a hero target is youmonst's never-written mhp = always low = 1
+      in 10 instead of 1 in 40; (3) the m-v-m leg reports a target the
+      pit killed itself (DEF_DIED + done): master's mdamagem `!tmp` tail
+      did, 5.0's zero-damage exit returns the flags as they stand and
+      mattackm() would run passivemm() on the corpse; (4) BUG-1835 - the
+      BATTERY caught a companion change the port had not opened:
+      master's 8a2d4cd47 also gave teleport.c mlevel_tele_trap()'s
+      vortex kludge a `&& context.mon_moving` term so the hero's own
+      AD_PITS hug can drop the target it holds; the branch had vanilla's
+      bare `mtmp == u.ustuck` refusal and the held zombie never left the
+      level (T2c FAIL -> fixed, re-tested). RECORDED (master parity): a
+      held hero never falls through a hole the fiend opens
+      (fall_through()'s u.ustuck refusal, master trap.c:722); every
+      non-mindless target over a hole and every pit-knowing target
+      escapes mintrap() silently 3 in 4 after the "hurls ... down" line;
+      a pit beside a moat stays dry (no fillholetyp, unlike dighole());
+      a hole in a shop records add_damage but never pay_for_damage;
+      `!flags.verbose` "You destroy it!" for a trap-killed target on the
+      hero leg (damageum tail, as AD_BHED); the hero leg's passive()
+      runs against an off-level target (master's damageum returned 1
+      too); Sokoban pits can be dug (as dighole's pit_only), never holed
+      (no Can_dig_down). RULINGS (AskUserQuestion x1, two questions):
+      BUG-1833 fixed on the branch; the DRAWBRIDGE_DOWN span kept at
+      master's shape -> LOW row below. REVIEW (evilhack-code-reviewer
+      x2): the full-port pass was CONDITIONAL on two MEDs it prescribed
+      - the second-boulder residual (now the fill_pit() gate) and the
+      hole roll's target-not-creator test (BUG-1834) - plus two LOWs:
+      the land-mine scatter can kill the attacker (row below) and the
+      held hero's dead sent-down-hole branch (parity, recorded); the
+      focused re-review of both fix hunks PASSED (every flooreffects()
+      path under the gate reaches useupf(); trap not read after the
+      tail; magr always a real monster when !youattack).
+      BATTERY (game-tester, ~12 h wall clock incl. staging, 240 tool
+      uses, one neutral human Valkyrie XL30 game on Dlvl 5, breakpoint
+      tracers on create_pit_under / the hole-roll line / trapeffect_hole
+      / migrate_to_level): T1 hero defender - "The pit fiend hits! The
+      pit fiend hits again! The pit fiend hits!" then "The pit fiend
+      stomps the ground! A pit opens up beneath you! The pit fiend hurls
+      you down to the bottom! You fall into a pit!" (u.ustuck = the
+      fiend, utrap 2 / TT_PIT, tseen 1, madeby_u 0), 9 digs / 15 hugs,
+      no-dig rounds ~20 HP vs dug rounds ~24 (the pit's rnd(6));
+      levitation "You float back up." with utrap 0 and the 4d4 landing;
+      fountain "The pit fiend looks rather piteous." return FALSE and a
+      15-HP round (the 4d4 dropped); trap door "A trap door breaks apart
+      as a chasm widens beneath it! The pit fiend hurls you down!
+      There's a gaping hole under you! You don't fall in." with utotype
+      0 and later "The chasm below you grows deeper!" x4; land mine
+      "KAABLAMM!!! A land mine blows up!" then the hurl and fall on the
+      new seen pit; cancelled fiend 47 hug rounds, 0 helper calls, 4d4
+      still landing; the hole-roll arm (BUG-1834) never reached in 21
+      full-HP digs and reached on every dig with the fiend at 11/85 (the
+      trace read the hero target's mdef->mhp as 0 every call - master's
+      form was always "low"). T2 hero attacker - "You grab the dwarven
+      watchman! You stomp the ground! A pit opens up beneath the dwarven
+      watchman! You hurl the dwarven watchman down to the bottom! The
+      dwarven watchman falls into your pit!" (madeby_u 1), 9 digs / 12
+      attacks, 3 falls + 6 silent escapes = the 3-in-4 already_seen rate
+      exactly, rnd(6) = 3 on each fall and 0 on each escape; vampire bat
+      "flies back up." (mtrapped 0, no pit damage); stairs "You fail to
+      create a pit on the stairs under the human watchman." (FALSE,
+      refused rounds ~9 HP vs ~20); boulder "KADOOM! The boulder falls
+      into the pit. The boulder hits the human watchman! The boulder
+      fills a pit." (TRUE); spiked-pit kill "The orcish watchman falls
+      into your pit! The orcish watchman is killed!" (FALSE,
+      mon_xkilled's wording with hero credit, no second line); the hole
+      leg FAILED on the first binary (held zombie "groans." and stays -
+      BUG-1835) and was re-tested after the teleport.c fix (result
+      below). T3 tame pit fiend - "The pit fiend squeezes the giant
+      watchman. The pit fiend stomps the ground! A pit opens up beneath
+      the giant watchman! The pit fiend hurls the giant watchman down to
+      the bottom! The giant watchman falls into a pit!" (madeby_u 0), 3
+      digs / 7 hugs, pit damage 5 / 0 / 0; spiked-pit kill "The giant
+      watchman is killed!" with FALSE and nothing further from the pet
+      that round; hole "Suddenly, the human zombie falls into a hole."
+      with migrate_to_level, mstate 4, FALSE; bat "flies back up." x5;
+      cancelled pet 60 hugs, 0 calls; hostile fiend vs a tame watchman
+      "The pit fiend hurls the gnomish watchman down to the bottom!"
+      (mon_nam, no "your"). T4 (BUG-1833) six land-mine detonations
+      under a boulder-sharing target, all the 9-in-10 fracture:
+      "KAABLAMM!!! A land mine blows up! The boulder breaks apart." then
+      the hurl and fall, NO "KADOOM!", every rock stack still where ==
+      OBJ_FLOOR, paniclog untouched; the 1-in-10 flying-boulder case
+      unobserved. T4b two boulders + spiked-pit kill: "The human
+      watchman is killed! The boulder fills a pit." with no KADOOM and
+      BOTH boulders gone - the brief's "boulder #2 stays" was wrong:
+      flooreffects()' fill ends in bury_objs(x, y), whose 5.0
+      bury_an_obj() consumes the square's rocks and boulders ("boulder
+      removal is for #wizbury"; master buries the boulder instead) -
+      upstream-shared, not the helper. Paniclog: 14 identical
+      "impossible tame watchman is not peaceful (fmon)" lines from the
+      tester's own mtame-without-mpeaceful staging (removed; nothing
+      from the port). Twelve brief-premise corrections, none a code
+      defect except T2c (-> gameplay.md + the game-tester feedback
+      memory): "hits again!" on the second weapon slot; "Held" is the
+      opt-in cond_held status field; the `m` prefix's menu_requested
+      turns the fall line into "You carefully lower yourself into the
+      pit." (burn turns with `x`); the hero CAN pull free (7.5%/move);
+      BOULDER is an enum (577) - onames.h is a stub; `^G` "tame
+      watchman" yields a peaceful one (newedog + initedog); the hero
+      hug's own "You grab X!" / "X is being crushed." lines precede the
+      dig; genesis'd watchmen carry race prefixes and fiends spawn with
+      wands/darts; live pit fiends summon more fiends every 10-15 turns
+      (attribute tracer hits by m_id); the pit-kill credit line is "X is
+      killed!" (mon_xkilled) even for a hero-made pit; T4b's buried
+      second boulder; and T2c's held-target refusal, which was real.
+      RE-TEST after the teleport.c fix (game-tester, 87 tool uses, one
+      Valkyrie game, three legs, paniclog absent throughout): two
+      hero-attacker hole legs "You grab the human zombie!  You stomp the
+      ground!  A trap door breaks apart as a chasm widens beneath it!
+      You hurl the human zombie down!  Suddenly, the human zombie falls
+      into a hole." with the helper entered holding the target (u.ustuck
+      = mdef) and returning FALSE with u.ustuck nil, mstate
+      MON_MIGRATING, mx,my 0,0; the hero walked off normally, 20
+      sanity-check turns clean; the monster-driven control leg unchanged
+      (pet hurl, migration, FALSE); all three zombies on
+      gm.migrating_mons; the trap doors read as HOLE with madeby_u 1 on
+      the hero legs only. One anomaly, master-shared and cosmetic: the
+      F-prefix attack leaves an `I` (remembered unseen creature) on the
+      hole square once the target has left the level, because attack()'s
+      forcefight tail maps an unseen surviving target (master
+      uhitm.c:734, same block); a plain move-attack does not.
+- [ ] create_pit_under() turns an open drawbridge span to floor (LOW;
+      minted 2026-09-12 by the AD_PITS slice, maintainer ruling
+      2026-09-12: keep master's shape for now): DRAWBRIDGE_DOWN passes
+      the helper's terrain gate (SPACE_POS, not furniture, not air) and
+      maketrap(PIT) then `IS_ROOM` -> `set_levltyp(ROOM)` rewrites the
+      span permanently (both trees), where dighole() refuses with "The
+      drawbridge seems too hard to dig through." Reachable by a hero
+      polymorphed into a pit fiend at the Castle. Candidate fix: add
+      `typ == DRAWBRIDGE_DOWN || is_drawbridge_wall(x, y) >= 0` to the
+      refusal gate ("You fail to create a pit on the bridge under X." /
+      "looks rather piteous."). LOW.
+- [ ] create_pit_under()'s land-mine leg can kill the attacker (LOW;
+      minted 2026-09-12 by the AD_PITS slice from a reviewer LOW,
+      master-shared): blow_up_landmine() -> scatter(MAY_HIT) flings the
+      objects on the target's square with ohitmon() at whatever is
+      adjacent, the attacker included; a weakened fiend can die there
+      and the helper continues (hurl line with the dead Monnam(magr),
+      returns TRUE), mdamagem() returns HIT without AGR_DIED and
+      mattackm()'s tail runs passivemm() on the dead attacker (master's
+      mdamagem tail has the same shape). Needs objects on the target's
+      square, a lethal 1-in-8 direction and a near-dead fiend.
+      Candidate: re-check DEADMONSTER(magr) after blow_up_landmine() and
+      return FALSE with the hitflags carrying AGR_DIED. LOW.
 - [x] Melee combat noise PORTED 2026-09-11 (session 112; the row
       minted 2026-09-09 by the bane-aura census; one code commit =
       include/mondata.h + src/uhitm.c + src/mhitm.c + src/mhitu.c; no
