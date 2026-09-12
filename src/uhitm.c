@@ -4671,6 +4671,41 @@ mhitm_ad_pits(
 }
 
 void
+mhitm_ad_cncl(
+    struct monst *magr, struct attack *mattk UNUSED,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    if (magr == &gy.youmonst) {
+        /* uhitm: no hero form carries a cancelling attack */
+        mhm->damage = 0;
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu: gazemu() owns the cancellation gaze aimed at the hero */
+        mhm->damage = 0;
+    } else {
+        /* mhitm: the gaze line and its sight gates already ran in
+           gazemm(); only the cancellation roll is left */
+        if (!rn2(3)) {
+            if (magr->mcan) {
+                mhm->damage = 0;
+                return;
+            }
+            /* cancellation only kills clay golems; clear afterward in
+               case no death consumed the attribution */
+            if (magr->mtame)
+                set_pet_killer(magr);
+            (void) cancel_monst(mdef, (struct obj *) 0, FALSE, TRUE, FALSE);
+            set_pet_killer((struct monst *) 0);
+            /* mdamagem()'s tail would run monkilled() on the corpse */
+            if (DEADMONSTER(mdef)) {
+                mhm->damage = 0;
+                mhm->hitflags = M_ATTK_DEF_DIED;
+                mhm->done = TRUE;
+            }
+        }
+    }
+}
+
+void
 mhitm_ad_tlpt(
     struct monst *magr, struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
@@ -7477,6 +7512,7 @@ mhitm_adtyping(
     case AD_GOLD: mhitm_ad_gold(magr, mattk, mdef, mhm); break;
     case AD_BHED: mhitm_ad_bhed(magr, mattk, mdef, mhm); break;
     case AD_PITS: mhitm_ad_pits(magr, mattk, mdef, mhm); break;
+    case AD_CNCL: mhitm_ad_cncl(magr, mattk, mdef, mhm); break;
     default:
         mhm->damage = 0;
     }

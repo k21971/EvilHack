@@ -3772,6 +3772,8 @@ extern void mhitm_ad_bhed(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_pits(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
+extern void mhitm_ad_cncl(struct monst *, struct attack *, struct monst *,
+                          struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_adtyping(struct monst *, struct attack *, struct monst *,
                            struct mhitm_data *) NONNULLPTRS;
 extern boolean do_stone_u(struct monst *) NONNULLARG1;
