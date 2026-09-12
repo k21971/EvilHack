@@ -632,6 +632,7 @@ extern void bury_obj(struct obj *) NONNULLARG1;
 #ifdef DEBUG
 extern int wiz_debug_cmd_bury(void);
 #endif
+extern boolean create_pit_under(struct monst *, struct monst *) NONNULLPTRS;
 
 /* ### display.c ### */
 
@@ -3766,6 +3767,8 @@ extern void mhitm_ad_loud(struct monst *, struct attack *, struct monst *,
 extern void mhitm_ad_gold(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_ad_bhed(struct monst *, struct attack *, struct monst *,
+                          struct mhitm_data *) NONNULLPTRS;
+extern void mhitm_ad_pits(struct monst *, struct attack *, struct monst *,
                           struct mhitm_data *) NONNULLPTRS;
 extern void mhitm_adtyping(struct monst *, struct attack *, struct monst *,
                            struct mhitm_data *) NONNULLPTRS;

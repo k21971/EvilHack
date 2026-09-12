@@ -4605,6 +4605,60 @@ mhitm_ad_bhed(
     }
 }
 
+/* pit fiend's hug: 1 in 2 landed hits digs a pit under the target and
+   hurls it in (create_pit_under); the 4d4 still apply unless the target
+   went down a hole or died in the pit */
+void
+mhitm_ad_pits(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    if (magr == &gy.youmonst) {
+        /* uhitm */
+        if (rn2(2)) {
+            if (!u.uswallow) {
+                if (!create_pit_under(mdef, &gy.youmonst))
+                    mhm->damage = 0;
+            }
+        }
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu */
+        hitmsg(magr, mattk);
+        /* the hug's grab lives in the physical handler, which this
+           damage type never reaches; grab here before digging */
+        if (rn2(2)) {
+            if (mattk->aatyp == AT_HUGS) {
+                set_ustuck(magr);
+                if (magr->mundetected) {
+                    magr->mundetected = 0;
+                    newsym(magr->mx, magr->my);
+                }
+            }
+            if (!magr->mcan) {
+                if (!create_pit_under(&gy.youmonst, magr))
+                    mhm->damage = 0;
+            }
+        }
+    } else {
+        /* mhitm */
+        if (rn2(2)) {
+            if (!magr->mcan) {
+                if (!create_pit_under(mdef, magr)) {
+                    mhm->damage = 0;
+                    /* the pit killed it; mdamagem()'s zero-damage exit
+                       returns the flags as they stand, so report the
+                       death here rather than let the attack chain and
+                       passivemm() run on the corpse */
+                    if (DEADMONSTER(mdef)) {
+                        mhm->hitflags = M_ATTK_DEF_DIED;
+                        mhm->done = TRUE;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void
 mhitm_ad_tlpt(
     struct monst *magr, struct attack *mattk,
@@ -7411,6 +7465,7 @@ mhitm_adtyping(
     case AD_LOUD: mhitm_ad_loud(magr, mattk, mdef, mhm); break;
     case AD_GOLD: mhitm_ad_gold(magr, mattk, mdef, mhm); break;
     case AD_BHED: mhitm_ad_bhed(magr, mattk, mdef, mhm); break;
+    case AD_PITS: mhitm_ad_pits(magr, mattk, mdef, mhm); break;
     default:
         mhm->damage = 0;
     }

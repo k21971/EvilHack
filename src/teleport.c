@@ -2163,8 +2163,12 @@ mlevel_tele_trap(
 {
     int tt = (trap ? trap->ttyp : NO_TRAP);
 
-    if (mtmp == u.ustuck) /* probably a vortex */
+    if (mtmp == u.ustuck && svc.context.mon_moving) {
+        /* ustuck case is probably a vortex, but check mon_moving so that if
+         * hero is forcing a monster into a trap (i.e. with an AD_PITS attack),
+         * this will proc correctly */
         return Trap_Effect_Finished; /* temporary? kludge */
+    }
     /* magic resistance shrugs off a level teleporter's magic; holes,
        trap doors and magic portals also route through here and are
        deliberately left effective against a resistant monster */

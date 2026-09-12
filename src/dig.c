@@ -2471,6 +2471,195 @@ wiz_debug_cmd_bury(void)
 }
 #endif /* DEBUG */
 
+/* magr is attempting to create a pit under mdef via an AD_PITS attack.
+ * This may fail on certain terrains, or if there is a trap there, and do
+ * nothing. With other terrains and traps it has other effects, but all of them
+ * aimed towards getting the target in the bottom of a pit.
+ * Return value: TRUE if AD_PITS damage dice should still be applied; FALSE if
+ * not (because of falling down a hole mainly; it would be nice to also exempt
+ * further damage if the monster is lifesaved, but there's sadly no good way to
+ * check that)
+ */
+boolean
+create_pit_under(struct monst *mdef, struct monst *magr)
+{
+    boolean youdefend = (mdef == &gy.youmonst);
+    boolean youattack = (magr == &gy.youmonst);
+    coordxy x = youdefend ? u.ux : mdef->mx;
+    coordxy y = youdefend ? u.uy : mdef->my;
+    const int typ = levl[x][y].typ;
+    struct trap *trap = t_at(x, y);
+    const boolean canseexy = cansee(x, y);
+    struct obj *boulder;
+    boolean sent_down_hole = FALSE;
+
+    /* check for illegalities: out of bounds, terrain unsuitable for traps,
+     * or trap types that should not be deleted and replaced with pits */
+    if (!isok(x, y) || !SPACE_POS(typ) || IS_FURNITURE(typ) || IS_AIR(typ)
+        || (trap && undestroyable_trap(trap->ttyp))
+        || (In_endgame(&u.uz) && !Is_earthlevel(&u.uz))) {
+        if (youattack) {
+            You("fail to create a pit on the %s under %s.", surface(x, y),
+                mon_nam(mdef));
+        } else if (canseemon(magr)) {
+            pline_mon(magr, "%s looks rather piteous.", Monnam(magr));
+        }
+        return FALSE;
+    }
+    /* player should only be able to do this while polyselfed */
+    if (youattack && !Upolyd) {
+        impossible("player creating pit while not polyselfed?");
+        return FALSE;
+    }
+
+    if (flags.verbose) {
+        if (youattack) {
+            You("stomp the ground!");
+        } else {
+            if (canseemon(magr))
+                pline_mon(magr, "%s stomps the ground!", Monnam(magr));
+        }
+    }
+
+    /* First, do terrain modifications. mdef doesn't react until after this */
+    if (trap && (trap->ttyp == PIT || trap->ttyp == SPIKED_PIT
+                 || trap->ttyp == HOLE)) {
+        boolean make_hole = !rn2(40);
+        /* The existing chasm grows larger. A pit creator that is low on health
+         * is more likely to dig all the way through and turn it into a hole */
+        if (canseexy) {
+            pline_The("%s below %s grows deeper!",
+                      trap->ttyp == HOLE ? "chasm" : "pit",
+                      youdefend ? "you" : mon_nam(mdef));
+        }
+        /* the creator's health, as the comment says: master tested the
+           target's, which for a hero target is youmonst's never-written
+           mhp and read as always low */
+        if (youattack ? (u.mh * 5 <= u.mhmax)
+                      : (magr->mhp * 5 <= magr->mhpmax)) {
+            make_hole = !rn2(10);
+        }
+        if (!Can_dig_down(&u.uz) || trap->ttyp == HOLE)
+            make_hole = FALSE;
+        if (make_hole) {
+            deltrap(trap);
+            trap = maketrap(x, y, HOLE);
+        }
+    } else if (trap && trap->ttyp == TRAPDOOR) {
+        /* There's already a hole under this, so the attack just enlarges it and
+         * removes the door (making it HOLE).
+         * Assume that since there's a trap door already, Can_dig_down is true.
+         */
+        if (canseexy)
+            pline("%s trap door breaks apart as a chasm widens beneath it!",
+                  trap->tseen ? "The" : "A");
+        deltrap(trap);
+        trap = maketrap(x, y, HOLE);
+    } else if (trap && trap->ttyp == LANDMINE) {
+        /* Blow it up. It will become a pit (but nothing falls in yet) */
+        if (!canseexy && !Deaf) {
+            pline("Kaablamm!  You hear an explosion in the distance!");
+        } else if (canseexy) {
+            pline("%sA land mine blows up!", !Deaf ? "KAABLAMM!!! " : "");
+        }
+        blow_up_landmine(trap);
+        /* blow_up_landmine() may free trap: drawbridge destruction,
+           Water/Air level, or liquid-filled detonation site all delete
+           it. Re-acquire; if no pit remains, the hurl attack has
+           nothing to land in */
+        trap = t_at(x, y);
+        if (!trap)
+            return FALSE;
+    } else { /* also includes case of no trap there in the first place */
+        if (trap) {
+            /* Silently delete whatever other sort of trap this is */
+            deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
+        }
+        /* Now we know there is no trap; create a pit */
+        if (canseexy)
+            pline("A pit opens up beneath %s!",
+                  youdefend ? "you" : mon_nam(mdef));
+        trap = maketrap(x, y, PIT);
+    }
+    if (canseexy || youdefend)
+        trap->tseen = 1;
+    if (youattack)
+        trap->madeby_u = 1;
+
+    /* Now that terrain has been modified, take care of mdef.
+     * We have guaranteed that (x,y) now contains either a pit, spiked pit, or
+     * hole */
+    if (youdefend) {
+        reset_utrap(FALSE);
+        pline_mon(magr, "%s hurls you down%s!", Monnam(magr),
+                  is_pit(trap->ttyp) ? " to the bottom" : "");
+        /* Use FORCETRAP to avoid messages about not falling into the pit if
+         * flying or levitating; however, like the !youdefend case below, either
+         * will cause you to skip the pit's actual effects (but you will take
+         * the regular damage from the hurling attack) */
+        dotrap(trap, FORCETRAP);
+        if (u.utotype) { /* nonzero = will goto_level after this */
+            sent_down_hole = TRUE;
+        } else if (Levitation || Flying) {
+            You("%s back up.", Flying ? "fly" : "float");
+            /* utrap should not have been set at all */
+        }
+    } else {
+        wakeup(mdef, FALSE);
+        /* We want to make them be in the trap anew - they won't fall into holes
+         * and such if this is left as 1 */
+        mdef->mtrapped = 0;
+        if (canseemon(mdef)) {
+            if (youattack)
+                You("hurl %s down%s!", mon_nam(mdef),
+                    is_pit(trap->ttyp) ? " to the bottom" : "");
+            else
+                pline_mon(mdef, "%s hurls %s down%s!", Monnam(magr),
+                          mon_nam(mdef),
+                          is_pit(trap->ttyp) ? " to the bottom" : "");
+        }
+        /* This does not set force_mintrap - which for some reason causes
+         * flying monsters not to fall into a pit if true. Thus, they will not
+         * get extra damage for the trap, but will still take the normal damage
+         * from being hurled in */
+        if (mintrap(mdef, NO_TRAP_FLAGS) == Trap_Moved_Mon) {
+            sent_down_hole = TRUE; /* went off level */
+        } else if (!DEADMONSTER(mdef)
+                   && (is_flyer(mdef->data) || is_floater(mdef->data)
+                       || can_levitate(mdef) || can_fly(mdef))) {
+            if (canseemon(mdef))
+                pline_mon(mdef, "%s %s back up.", Monnam(mdef),
+                          (is_flyer(mdef->data) || can_fly(mdef))
+                              ? "flies" : "floats");
+            mdef->mtrapped = 0; /* maybe still held, but not stuck in pit */
+        }
+    }
+
+    /* look for the boulder only now, and only while the pit is still
+       there: the land mine's scatter fractures or moves one read earlier,
+       and a target the pit just killed has already had the boulder
+       dropped in and used up by its detach, taking the pit with it */
+    if ((trap = t_at(x, y)) != 0
+        && (is_pit(trap->ttyp) || is_hole(trap->ttyp))
+        && (boulder = sobj_at(BOULDER, x, y)) != 0) {
+        /* Boulder falls in, plugging the newly created pit and possibly
+         * damaging whoever might have gotten trapped inside */
+        obj_extract_self(boulder);
+        if (!(youdefend && sent_down_hole)) {
+            /* We still always want to plug the hole with the boulder, but it'd
+             * be weird to print this after the player gets messages about
+             * falling through the hole */
+            pline("KADOOM!"); /* ... "The boulder falls into the pit" */
+        }
+        (void) flooreffects(boulder, x, y, "fall");
+    }
+
+    if (sent_down_hole || (!youdefend && DEADMONSTER(mdef))) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 #undef BY_YOU
 #undef BY_OBJECT
 /* for 'onefile' testing, leave STRIDENT defined so that the other instance
