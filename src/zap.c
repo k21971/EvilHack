@@ -5931,6 +5931,7 @@ dobuzz(
                     dy = -dy;
                 } else {
                     boolean mon_could_move = mon->mcanmove;
+                    int saved_mhp = mon->mhp; /* for print_mon_wounded() */
                     int tmp = zhitm(mon, type, nd, &otmp);
 
                     if (is_rider(mon->data)
@@ -6016,6 +6017,7 @@ dobuzz(
                                                   "from %s!", life,
                                                   mon_nam(mon));
                                 }
+                                print_mon_wounded(mon, saved_mhp);
                             }
                         } else {
                             /* some armor was destroyed; no damage done */
@@ -7501,6 +7503,8 @@ resist(struct monst *mtmp, char oclass, int damage, int tell)
     }
 
     if (damage) {
+        int saved_mhp = mtmp->mhp; /* for print_mon_wounded() */
+
         mtmp->mhp -= damage;
         if (DEADMONSTER(mtmp)) {
             if (gm.m_using) {
@@ -7509,6 +7513,8 @@ resist(struct monst *mtmp, char oclass, int damage, int tell)
                 monkilled(mtmp, "", AD_RBRE);
             } else
                 killed(mtmp);
+        } else {
+            print_mon_wounded(mtmp, saved_mhp);
         }
     }
     return resisted;

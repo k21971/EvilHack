@@ -395,7 +395,8 @@ mattackm(
         struck = 0, /* hit at least once */
         res[NATTK], /* results of all attacks */
         weap_attk_idx = 0, /* which AT_WEAP attack (0=primary, 1+=off-hand) */
-        dieroll = 0;
+        dieroll = 0,
+        saved_mhp = (mdef ? mdef->mhp : 0); /* for print_mon_wounded() */
     struct attack *mattk, alt_attk;
     struct obj *mwep;
     struct permonst *pa, *pd;
@@ -883,6 +884,10 @@ mattackm(
         if (res[i] & M_ATTK_HIT)
             struck = 1; /* at least one hit */
     } /* for (;i < NATTK;) loop */
+
+    /* a Healer senses the change in a pet's condition */
+    if (struck && mdef->mtame)
+        print_mon_wounded(mdef, saved_mhp);
 
     return (struck ? M_ATTK_HIT : M_ATTK_MISS);
 }

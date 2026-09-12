@@ -472,6 +472,7 @@ look_at_monster(
 {
     char *name, monnambuf[BUFSZ], healthbuf[BUFSZ];
     boolean accurate = !Hallucination;
+    char *mwounds;
 
     /* an unseen rider is described by the steed it is sitting on */
     if (!canspotmon(mtmp) && has_erid(mtmp)
@@ -500,6 +501,12 @@ look_at_monster(
     }
     if (mtmp->ridden_by)
         Strcat(buf, ", being ridden");
+    /* a Healer senses how badly hurt the monster is */
+    mwounds = mon_wounds(mtmp);
+    if (mwounds) {
+        Strcat(buf, ", ");
+        Strcat(buf, mwounds);
+    }
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
             Strcat(buf, digests(mtmp->data) ? ", swallowing you"

@@ -2450,6 +2450,7 @@ hmon_hitmon(
 {
     struct _hitmon_data hmd;
     boolean maybe_knockback = FALSE;
+    int saved_mhp = mon->mhp; /* for print_mon_wounded() */
 
     hmd.dmg = 0;
     hmd.thrown = thrown;
@@ -2833,6 +2834,10 @@ hmon_hitmon(
                 hmd.destroyed = TRUE;
         }
     }
+    /* a Healer senses the change in the target's condition */
+    if (!hmd.destroyed && !hmd.offmap)
+        print_mon_wounded(mon, saved_mhp);
+
     return hmd.destroyed ? FALSE : TRUE;
 }
 

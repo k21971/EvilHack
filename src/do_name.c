@@ -1718,4 +1718,95 @@ lookup_novel(const char *lookname, int *idx)
     return (const char *) 0;
 }
 
+/* a Healer can sense how badly hurt a monster is; return a description
+   of its wounds ("slightly wounded", "almost dead", ...) or NULL when
+   there is nothing to sense; this lives in do_name.c for nextmbuf() */
+char *
+mon_wounds(struct monst *mon)
+{
+    char *outbuf;
+    const struct permonst *mdat = mon->data;
+    const char *adverb, *adjective;
+
+    /* cases where you can't see wounds */
+    if (!Role_if(PM_HEALER) || !canseemon(mon)
+        || (u.uswallow && mon == u.ustuck && Blind))
+        return (char *) 0;
+    if (mon->mhp == mon->mhpmax || DEADMONSTER(mon))
+        return (char *) 0;
+
+    adjective = is_fleshy(mdat) ? "wounded" : "damaged";
+
+    if (Hallucination) {
+        static const char *const wound_adverbs[] = {
+            "mildly", "mostly", "somewhat", "lightly", "massively",
+            "extremely", "flagrantly", "flamboyantly", "supremely",
+            "excessively", "truly", "terribly", "incredibly",
+            "unbelievably", "obscenely", "insanely", "amazingly",
+            "absolutely"
+        };
+        static const char *const wound_adjectives[] = {
+            "bloodied", "bruised", "crushed", "marred", "blemished",
+            "dinged up", "totaled", "wrecked", "beaten up", "defaced",
+            "pulverized", "battered", "tarnished", "ruined", "mangled"
+        };
+
+        /* display-only randomness stays off the core RNG: farlook
+           reaches here on a zero-time path */
+        adverb = wound_adverbs[rn2_on_display_rng(SIZE(wound_adverbs))];
+        adjective =
+            wound_adjectives[rn2_on_display_rng(SIZE(wound_adjectives))];
+    } else if (mon->mhp * 10 <= mon->mhpmax) {    /* <= 10% */
+        adverb = "almost";
+        adjective = nonliving(mdat) ? "destroyed" : "dead";
+    } else if (mon->mhp * 6 <= mon->mhpmax) {     /* <= 16.6% */
+        adverb = "critically";
+    } else if (mon->mhp * 4 <= mon->mhpmax) {     /* <= 25% */
+        adverb = "badly";
+    } else if (mon->mhp * 3 <= mon->mhpmax) {     /* <= 33.3% */
+        adverb = "seriously";
+    } else if (mon->mhp * 4 <= mon->mhpmax * 3) { /* <= 75% */
+        adverb = "moderately";
+    } else {                                      /* < 100% */
+        adverb = "slightly";
+    }
+
+    outbuf = nextmbuf();
+    Sprintf(outbuf, "%s %s", adverb, adjective);
+    return outbuf;
+}
+
+/* print a message indicating that mon is wounded; it only prints
+   something when the monster's wound adjective changes (for example
+   from slightly wounded to moderately wounded); pre_wound_hp is the
+   monster's hit points before the caller damaged it, so the caller
+   must save that value and pass it through */
+void
+print_mon_wounded(struct monst *mon, int pre_wound_hp)
+{
+    int mcurrhp;
+    char *m_old_wounds, *m_curr_wounds;
+
+    if (!mon) {
+        impossible("print_mon_wounded: null mon!");
+        return;
+    }
+    if (!Role_if(PM_HEALER))
+        return; /* optimization; redundant with the check in mon_wounds */
+    if (mon->mhp == pre_wound_hp && !Hallucination)
+        return; /* impossible for the adjective to change */
+
+    mcurrhp = mon->mhp;
+    mon->mhp = pre_wound_hp;
+    m_old_wounds = mon_wounds(mon);
+    mon->mhp = mcurrhp;
+
+    m_curr_wounds = mon_wounds(mon);
+
+    if (m_curr_wounds
+        && (Hallucination || !m_old_wounds
+            || strcmp(m_old_wounds, m_curr_wounds)))
+        pline_mon(mon, "%s is %s.", Monnam(mon), m_curr_wounds);
+}
+
 /*do_name.c*/

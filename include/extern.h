@@ -781,6 +781,8 @@ extern struct monst *christen_orc(struct monst *, const char *,
                                   const char *) NONNULLARG1;
 extern const char *noveltitle(int *);
 extern const char *lookup_novel(const char *, int *) NONNULLARG1;
+extern char *mon_wounds(struct monst *) NONNULLARG1;
+extern void print_mon_wounded(struct monst *, int);
 #ifndef PMNAME_MACROS
 extern int Mgender(struct monst *) NONNULLARG1;
 extern const char *pmname(struct permonst *, int) NONNULLARG1;
