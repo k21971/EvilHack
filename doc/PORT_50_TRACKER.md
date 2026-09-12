@@ -13745,16 +13745,117 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       BUG-679's mintrap kill-return guard rides with it. Same class as
       AD_BHED (a generated monster's attack silently absent). Whole
       helper plus three legs; MEDIUM.
-- [ ] Melee combat wakes nearby monsters ABSENT (minted 2026-09-09 by
-      the bane-aura census): master 10ac6bc6a (xNetHack/SporkHack
-      feature) + e9d93c00a: every hmon() hit rolls
-      !rn2(wield_shadowblade ? 40 : is_rogue ? 20 : Stealth ? 10 : 2)
-      and calls wake_nearto() with combat_noise() of the hero's race
-      (a Rogue gets a quarter radius), so a stealthy hero fights
-      without rousing the level. The branch's hmon path has no wake at
-      all and no combat_noise(); the pokedex says nothing about it.
-      Balance-visible (Stealth's value in melee, Shadowblade's quiet
-      term). MEDIUM.
+- [x] Melee combat noise PORTED 2026-09-11 (session 112; the row
+      minted 2026-09-09 by the bane-aura census; one code commit =
+      include/mondata.h + src/uhitm.c + src/mhitm.c + src/mhitu.c; no
+      archive id - no master bug found). ROW CORRECTION: master
+      10ac6bc6a has THREE legs, all absent on the branch, not only the
+      hmon path the row named - hitmm() (monster-vs-monster,
+      `(!is_silent(magr) || !helpless(mdef)) && rn2(10)`, centred on
+      the attacker) and hitmu() (monster-vs-hero, `!(is_silent(mdat)
+      && multi < 0) && rn2(10)`, centred on the hero) fire on nine
+      landed hits in ten; only the hero leg was ever retuned
+      (02b4b8372 to 50%, e9d93c00a to the !rn2(40/20/10/2) ladder with
+      the /4 Rogue and /2 Stealth radii). RULING (AskUserQuestion x1,
+      recommended): master's exact shape on all three legs, the monster
+      legs' rn2(10) included - parity, no bug entry. SHAPE:
+      combat_noise() verbatim at the end of mondata.h (helpless() was
+      already 5.0's, monst.h); the hitmm/hitmu blocks at master's
+      positions (first statement / after map_invisible), gm.multi.
+      DEVIATION (pattern-ported-call-lost-precondition): the hero leg
+      lives in the hmon() wrapper, sole caller of hmon_hitmon() - the
+      roll, the target's helplessness and its square are judged BEFORE
+      the hit (master's timing) and wake_nearto() is issued AFTER
+      hmon_hitmon() returns. Master's top-of-hmon_hitmon site was safe
+      because master's find_roll_to_hit() cleared msleeping before
+      hmon, its backstab read mflee only, and its wake_nearto printed
+      nothing; 5.0's find_roll_to_hit() leaves the target asleep
+      through the hit chain, backstabbable() and the "appears confused"
+      gate read helpless(mon), the target's own wakeup(mon, TRUE)
+      (wake_msg "!" + growl) sits at the END of hmon_hitmon, and
+      wake_nearto_core() prints "wakes up." for every sleeper it clears
+      - a pre-hit wake centred on the target (dist2 0) would have
+      cleared its sleep before those reads, stolen the growl and put
+      the bystander form before the hit text. The saved square keeps a
+      jousted or killed target's noise where it was struck; all eight
+      doreturn early exits still roll (master parity). 5.0 SHAPES THAT
+      RIDE EVERY wake_nearto (recorded, not this slice's): wake_msg "X
+      wakes up." per visible sleeper (the Mjollnir precedent ~1297);
+      disturb_buried_zombies() cuts adjacent buried zombies' rise timer
+      to 2/3 per noise; the non-petcall form skips master's tame
+      whistletime/mtrack fix-up. RECORDED (parity or intent, no id):
+      (1) helpless(mon) is read on the pre-hit state, so a hero in a
+      SILENT polyform hitting a SLEEPING target is quiet where master's
+      post-clear read only silenced a paralysed one (no race is
+      MS_SILENT; melee only; the macro's literal intent); (2) on the
+      monster legs bystanders' "wakes up." lines precede the hit text
+      (block at the top, as master); (3) Shadowblade grants Stealth
+      (SPFX_STLTH), so a non-Rogue wielder's radius is 12 with the
+      1-in-40 odds; (4) combat_noise: 25 human/dwarf/elf/satyr, 9
+      gnome/jackal, 81 giants, 49 xorn, 16 gelatinous cube, 1 soldier
+      ant. REVIEW: PASS, nothing above LOW; the deviation argument
+      confirmed from the bodies (find_roll_to_hit, backstabbable and
+      its weapon_melee consumer, the confusion gate, the tail wakeup,
+      wake_nearto_core), hmon() the sole caller, all eight doreturn
+      producers routed through the post-hit wake, the saved square
+      never stale (snapshot precedes the offmap zeroing; hurtled-off
+      targets leave fmon), no other monster's sleep read between the
+      two positions (mhurtle_step, hitum_cleave's per-target order,
+      angry_guards/ghod_hitsu after), is_art() NULL-safe, sibling
+      sweep = master's exact three sites. LOWs: (1) = RECORDED (1);
+      (2) -> the early-exit row minted below; (3) = RECORDED (2).
+      BATTERY: PASS on every leg (T1-T9),
+      game-tester 2026-09-11 (~3.6 h, 245 tool uses), two games
+      (chaotic human Wizard XL30, human Rogue XL30), paniclog never
+      created, wake_nearto/hmon/hitmu/hitmm entry breakpoints as the
+      counters. Hero leg: no Stealth 37/80 fires, dist 25 at the
+      target's square (pooled 70/150 = 0.467 with the drider polyform
+      15/30, the xorn "does no harm" thrown early exit 13/29 and forced
+      killing blows 5/11 - the early exits and kills still roll);
+      Stealth from a ring 15/110 at dist 12 (a dist2 10 sleeper woke,
+      dist2 13 never); Shadowblade 3/116 at dist 12 (Stealth true from
+      the blade alone; the chaotic non-drow hero was blasted on wish
+      delivery AND on the wield, no evade/Override); Rogue 7/141 at
+      dist 6 (dist2 5 woke, dist2 8 never; the backstab line printed on
+      the noise-firing hit). Order with the target gnome msleeping=1
+      mcanmove=0: "You hit the gnome.  The gnome wakes up!  The satyr
+      wakes up." and exactly one WAKE dist 25 that turn; with the gnome
+      able to move "You hit the gnome.  The gnome wakes up!  The gnome
+      screams!  The satyr wakes up.  The satyr wakes up." - growl()'s
+      own wake_nearto(mlevel * 18) runs first and for a level-0 species
+      that is distance 0 = the whole level (vanilla-shared quirk, all
+      trees), then the noise; a dist2 18 satyr woke on the first fire,
+      a dist2 25 satyr stayed asleep through 14. Monster legs: tame
+      hill giant -> dwarf 54/63 at dist 81 on the attacker's square,
+      dwarf -> giant 9/10 at 25; tame soldier ant vs a frozen dwarf
+      0/85 at dist 1, vs the same dwarf awake 72/85; dwarf -> hero
+      39/46 at dist 25 on the hero's square (44 of them with gm.multi
+      < 0 - a vocal attacker stays noisy over a helpless hero);
+      soldier ant -> awake hero 85/94 at dist 1, -> a hero asleep from
+      a potion 0/18; pooled monster legs 261/300 = 0.87. Drider form
+      (MS_SILENT) vs a sleeping satyr 0/27, vs the awake giant 15/30 at
+      the race's 25, not the form's 16. Two brief-premise corrections,
+      none a code defect: the Rogue backstab line is gated on
+      train_weapon_skill (dmg > 1), so 3 of 26 minimum-damage hits on
+      a helpless target printed none; a soldier-ant form's natural
+      attacks never enter hmon() - hmonas() routes claws and bites
+      through damageum() on both trees, so master's noise never fired
+      for them either (parity, the guard is reachable only through a
+      weapon-routed attack). Harness lore -> gameplay.md.
+- [ ] hmon_hitmon() early exits skip the target's wakeup (minted
+      2026-09-11 by the combat-noise review, LOW): 5.0 moved
+      hmon_hitmon's wakeup(mon, TRUE) from the entry (3.6/master: every
+      landed hero hit woke and angered the target before anything
+      else) to the tail inside `!destroyed && !offmap`, and the
+      non-killing doreturn exits never reach it - the artifact
+      zero-damage exit (Vorpal Blade "misses wildly"), the camera, the
+      cockatrice corpse and the petrifying egg on a stone-resistant
+      target, the pyrolisk egg; only the stone-missile exit carries its
+      own wakeup. A sleeping or peaceful target hit that way stays
+      asleep and unangered (a combat-noise fire now wakes it with the
+      "wakes up." form, no growl, no setmangry). Upstream-shared
+      (Official_nh50 uhitm.c: seven bare doreturn producers vs the
+      tail wakeup); candidate upstream note. LOW.
 - [ ] bane_applies() monster-side demon arm ABSENT (minted 2026-09-09
       by the bane-aura census): master 7e9e55805 adds, in the !yours
       block beside the drow and zombie/vampire arms,
@@ -15423,6 +15524,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-10 | Knockback-machinery slice ruling (AskUserQuestion x1 answered HYBRID, then revised by the maintainer to MASTER'S SHAPE EXACTLY before commit): only a monster's AD_CLOB attack knocks back through mhitm_knockback() (no attacker-size gate, no hugger/engulfer/sticker exclusion, any weapon, 1 in 6, the artifact anchors); an ordinary AD_PHYS hit never does, however large the attacker, and the hero pushes only by jousting, the unarmed stagger and the Ashmar/Retribution deflections, so 5.0's much-larger-attacker knockback and its Ogresmasher 1-in-2 chance are dropped. The census that drove it: 27 AD_CLOB carriers on the branch, five of them (minotaur, ogre king, ent, Master Po, Master Kaen) below 5.0's size gate against a human-sized hero, three (mastodon, woolly mammoth, elder minotaur) excluded as huggers, any sword-wielding giant excluded by the blunt-weapon gate. Riders taken without a separate question: the four artifact anchors (Giantslayer, Harbinger, Ashmar, Armor of Retribution) hold in the air and for monster wearers; the 5.0 post-mhurtle monster stun roll dropped because mhurtle() owns the stun (BUG-194); the 2026-08-23 carried mdamagem knockback-damage quirk fixed (BUG-1824) now that AD_CLOB giants push by master's rules; the force-bolt beam keeps master's skip-and-continue shape rather than the upstream SPE_KNOCK stop idiom. | maintainer |
 | 2026-09-11 | Monster free-action slice rulings (AskUserQuestion x1, three questions): (1) potionhit() POT_PARALYSIS takes master 32af2161a's duration now (3-24 turns, 1-12 diluted; 5.0's dilution-blind rnd(25) dropped) - BUG-1826; (2) mhitm_ad_plys()'s monster-vs-monster leg KEEPS 5.0's 1-in-3 roll (master freezes every landed hit) - LOW row; (3) the hero-attacker leg restores master's mdef->mcanmove gate (upstream 0d445a7a7 dropped it; a paralyzing-form hero reset a long freeze to rnd(10)) - BUG-1827, upstream patch artifact ~/nh50-ad-plys-refreeze.patch. | maintainer |
 | 2026-09-11 | AD_BHED dispatcher slice ruling (AskUserQuestion x1, recommended): the Vorpal Blade's artifact_hit() arm takes master's is_jabberwock(mdef->data) class test (a vorpal jabberwock is beheaded on every landed hit) in place of vanilla's PM_JABBERWOCK equality - BUG-1831, its own commit. | maintainer |
+| 2026-09-11 | Melee combat noise slice ruling (AskUserQuestion x1, recommended): all three legs of master 10ac6bc6a take master's exact shape - the hero leg's !rn2(Shadowblade 40 / Rogue 20 / Stealth 10 / 2) ladder with the /4 and /2 radii, and BOTH monster legs' original rn2(10) (nine landed hits in ten; the same inverted-odds shape e9d93c00a corrected on the hero leg only) - parity, no bug entry. | maintainer |
 | 2026-09-09 | Bane-aura artifact-arm slice ruling (AskUserQuestion x1, recommended): the census found seven rowless master absences; six get rows (AD_BHED dispatcher, melee-combat wake, bane_applies monster demon arm, Hammer tether semantics, One Ring inscription reading, botl_hitbonus/BL_TOHIT) and master 48e5fbdd0's two-line Cleric Mjollnir alignment retarget is ported now as its own commit B (src/artifact.c) because the crowning arm it protects already landed 2026-09-06. The setmangry() alignment charge for a peaceful non-tame victim of the 'bane flip is recorded as master parity (f4080431e names that path as intended), not reworked at the spawn site. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
