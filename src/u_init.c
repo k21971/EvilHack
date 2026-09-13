@@ -1700,11 +1700,12 @@ shambler_init(void)
 
     /* what a horrible night to have a curse...
        Assumes shambler_init() is called exactly once per process
-       (allmain.c newgame()); the only other writer of mons[] is
-       monst_globals_init()'s copy from mons_init[], run once in
-       early_init() before any game starts. The `+=` on mlevel is
-       only correct under that assumption; if in-process restart is
-       ever added, cache base values before mutating */
+       (allmain.c newgame()); no other writer touches the shambling
+       horror's slot - monst_globals_init() copies the defaults in
+       early_init() before any game starts, and restmontemplate()
+       never runs in a process that then starts a new game. The `+=`
+       on mlevel is only correct under that assumption; if in-process
+       restart is ever added, cache base values before mutating */
     shambler->mlevel += rnd(15) - 3;    /* shuffle level */
     shambler->mmove = rn2(10) + 9;      /* slow to very fast */
     shambler->ac = rn2(31) - 20;        /* any AC */

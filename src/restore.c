@@ -20,7 +20,7 @@ staticfn void restmon(NHFILE *, struct monst *);
 staticfn struct monst *restmonchn(NHFILE *);
 staticfn struct fruit *loadfruitchn(NHFILE *);
 staticfn void freefruitchn(struct fruit *);
-staticfn void restshambler(NHFILE *);
+staticfn void restmontemplate(NHFILE *, int);
 staticfn void rest_levl(NHFILE *);
 staticfn void rest_stairs(NHFILE *);
 #ifndef SFCTOOL
@@ -505,42 +505,48 @@ restmonchn(NHFILE *nhfp)
     return first;
 }
 
-/* the shambling horror's template is per-save (shambler_init()); this
-   intentionally overwrites the static mons[] slot with the saved one - bring
-   RNGesus' most abominable creation back to life. The field list mirrors
-   saveshambler() */
+/* restore one mons[] template written by savemontemplate(): the shambling
+   horror's per-game roll (shambler_init()) and the Oracle's and Charon's
+   speed raise (setmangry()) - bring RNGesus' most abominable creation back
+   to life. This intentionally overwrites the static mons[] slot;
+   monst_globals_init() copied the defaults in early_init(), before any
+   restore, and nothing reloads them afterwards. The field list mirrors
+   savemontemplate() */
 staticfn void
-restshambler(NHFILE *nhfp)
+restmontemplate(NHFILE *nhfp, int pm)
 {
-    struct permonst *shambler = &mons[PM_SHAMBLING_HORROR];
-    int i;
+    struct permonst *ptr = &mons[pm];
+    int idx, i;
 
-    Sfi_char(nhfp, &shambler->mlet, "shambler-mlet", 1);
-    Sfi_schar(nhfp, &shambler->mlevel, "shambler-mlevel");
-    Sfi_schar(nhfp, &shambler->mmove, "shambler-mmove");
-    Sfi_schar(nhfp, &shambler->ac, "shambler-ac");
-    Sfi_schar(nhfp, &shambler->mr, "shambler-mr");
-    Sfi_schar(nhfp, &shambler->maligntyp, "shambler-maligntyp");
-    Sfi_ushort(nhfp, &shambler->geno, "shambler-geno");
+    Sfi_int(nhfp, &idx, "montemplate-idx");
+    if (idx != pm)
+        panic("restmontemplate: expected %d, read %d", pm, idx);
+    Sfi_char(nhfp, &ptr->mlet, "montemplate-mlet", 1);
+    Sfi_schar(nhfp, &ptr->mlevel, "montemplate-mlevel");
+    Sfi_schar(nhfp, &ptr->mmove, "montemplate-mmove");
+    Sfi_schar(nhfp, &ptr->ac, "montemplate-ac");
+    Sfi_schar(nhfp, &ptr->mr, "montemplate-mr");
+    Sfi_schar(nhfp, &ptr->maligntyp, "montemplate-maligntyp");
+    Sfi_ushort(nhfp, &ptr->geno, "montemplate-geno");
     for (i = 0; i < NATTK; i++) {
-        Sfi_uchar(nhfp, &shambler->mattk[i].aatyp, "shambler-mattk_aatyp");
-        Sfi_uchar(nhfp, &shambler->mattk[i].adtyp, "shambler-mattk_adtyp");
-        Sfi_uchar(nhfp, &shambler->mattk[i].damn, "shambler-mattk_damn");
-        Sfi_uchar(nhfp, &shambler->mattk[i].damd, "shambler-mattk_damd");
+        Sfi_uchar(nhfp, &ptr->mattk[i].aatyp, "montemplate-mattk_aatyp");
+        Sfi_uchar(nhfp, &ptr->mattk[i].adtyp, "montemplate-mattk_adtyp");
+        Sfi_uchar(nhfp, &ptr->mattk[i].damn, "montemplate-mattk_damn");
+        Sfi_uchar(nhfp, &ptr->mattk[i].damd, "montemplate-mattk_damd");
     }
-    Sfi_unsigned(nhfp, &shambler->cwt, "shambler-cwt");
-    Sfi_ushort(nhfp, &shambler->cnutrit, "shambler-cnutrit");
-    Sfi_uchar(nhfp, &shambler->msound, "shambler-msound");
-    Sfi_uchar(nhfp, &shambler->msize, "shambler-msize");
-    Sfi_ulong(nhfp, &shambler->mresists, "shambler-mresists");
-    Sfi_uchar(nhfp, &shambler->mconveys, "shambler-mconveys");
-    Sfi_ulong(nhfp, &shambler->mflags1, "shambler-mflags1");
-    Sfi_ulong(nhfp, &shambler->mflags2, "shambler-mflags2");
-    Sfi_ushort(nhfp, &shambler->mflags3, "shambler-mflags3");
-    Sfi_ushort(nhfp, &shambler->mflags4, "shambler-mflags4");
-    Sfi_ulong(nhfp, &shambler->mhflags, "shambler-mhflags");
-    Sfi_uchar(nhfp, &shambler->difficulty, "shambler-difficulty");
-    Sfi_uchar(nhfp, &shambler->mcolor, "shambler-mcolor");
+    Sfi_unsigned(nhfp, &ptr->cwt, "montemplate-cwt");
+    Sfi_ushort(nhfp, &ptr->cnutrit, "montemplate-cnutrit");
+    Sfi_uchar(nhfp, &ptr->msound, "montemplate-msound");
+    Sfi_uchar(nhfp, &ptr->msize, "montemplate-msize");
+    Sfi_ulong(nhfp, &ptr->mresists, "montemplate-mresists");
+    Sfi_uchar(nhfp, &ptr->mconveys, "montemplate-mconveys");
+    Sfi_ulong(nhfp, &ptr->mflags1, "montemplate-mflags1");
+    Sfi_ulong(nhfp, &ptr->mflags2, "montemplate-mflags2");
+    Sfi_ushort(nhfp, &ptr->mflags3, "montemplate-mflags3");
+    Sfi_ushort(nhfp, &ptr->mflags4, "montemplate-mflags4");
+    Sfi_ulong(nhfp, &ptr->mhflags, "montemplate-mhflags");
+    Sfi_uchar(nhfp, &ptr->difficulty, "montemplate-difficulty");
+    Sfi_uchar(nhfp, &ptr->mcolor, "montemplate-mcolor");
 }
 
 staticfn struct fruit *
@@ -840,7 +846,10 @@ restgamestate(NHFILE *nhfp)
     Sfi_char(nhfp, svp.pl_fruit, "gamestate-pl_fruit", sizeof svp.pl_fruit);
     freefruitchn(gf.ffruit); /* clean up fruit(s) made by initoptions() */
     gf.ffruit = loadfruitchn(nhfp);
-    restshambler(nhfp);
+    /* same slots, same order as savegamestate() */
+    restmontemplate(nhfp, PM_SHAMBLING_HORROR);
+    restmontemplate(nhfp, PM_ORACLE);
+    restmontemplate(nhfp, PM_CHARON);
 
     restnames(nhfp);
     restore_msghistory(nhfp);

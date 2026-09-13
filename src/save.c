@@ -28,7 +28,7 @@ staticfn void savemon(NHFILE *, struct monst *);
 staticfn void savemonchn(NHFILE *, struct monst *) NO_NNARGS;
 staticfn void savetrapchn(NHFILE *, struct trap *) NO_NNARGS;
 staticfn void save_gamelog(NHFILE *);
-staticfn void saveshambler(NHFILE *);
+staticfn void savemontemplate(NHFILE *, int);
 staticfn void savegamestate(NHFILE *);
 staticfn void savelev_core(NHFILE *, xint8);
 staticfn void save_msghistory(NHFILE *);
@@ -357,7 +357,11 @@ savegamestate(NHFILE *nhfp)
     Sfo_char(nhfp, svp.pl_character, "gamestate-pl_character", sizeof svp.pl_character);
     Sfo_char(nhfp, svp.pl_fruit, "gamestate-pl_fruit", sizeof svp.pl_fruit);
     savefruitchn(nhfp);
-    saveshambler(nhfp);
+    /* mons[] templates that change during play; the slot list and its
+       order must match restgamestate() */
+    savemontemplate(nhfp, PM_SHAMBLING_HORROR);
+    savemontemplate(nhfp, PM_ORACLE);
+    savemontemplate(nhfp, PM_CHARON);
     savenames(nhfp);
     save_msghistory(nhfp);
     save_gamelog(nhfp);
@@ -1035,45 +1039,52 @@ savefruitchn(NHFILE *nhfp)
         gf.ffruit = 0;
 }
 
-/* shambler_init() randomizes the shambling horror's template once per game;
-   preserve our delectable aberration so the player can experience the same
-   joy upon reload. Every field after the names and the const index is
-   written - the same coverage as saving the struct minus its name pointer -
-   so a future randomized field cannot silently desync save and restore */
+/* save one mons[] template that changes during play: shambler_init()
+   randomizes the shambling horror once per game, and setmangry() raises
+   the Oracle's and Charon's speed for the rest of the game once they are
+   angered; preserve them so the player gets the same monster back upon
+   reload. Every field after the names and the const index is written -
+   the same coverage as saving the struct minus its name pointers - so a
+   future mutable field cannot silently desync save and restore. Bones
+   never carry templates, so one game's angered Oracle cannot leak into
+   another game. The slot index leads so a restore can tell the slots
+   apart */
 staticfn void
-saveshambler(NHFILE *nhfp)
+savemontemplate(NHFILE *nhfp, int pm)
 {
-    struct permonst *shambler = &mons[PM_SHAMBLING_HORROR];
+    struct permonst *ptr = &mons[pm];
+    int idx = pm;
     int i;
 
     if (!update_file(nhfp))
         return;
-    Sfo_char(nhfp, &shambler->mlet, "shambler-mlet", 1);
-    Sfo_schar(nhfp, &shambler->mlevel, "shambler-mlevel");
-    Sfo_schar(nhfp, &shambler->mmove, "shambler-mmove");
-    Sfo_schar(nhfp, &shambler->ac, "shambler-ac");
-    Sfo_schar(nhfp, &shambler->mr, "shambler-mr");
-    Sfo_schar(nhfp, &shambler->maligntyp, "shambler-maligntyp");
-    Sfo_ushort(nhfp, &shambler->geno, "shambler-geno");
+    Sfo_int(nhfp, &idx, "montemplate-idx");
+    Sfo_char(nhfp, &ptr->mlet, "montemplate-mlet", 1);
+    Sfo_schar(nhfp, &ptr->mlevel, "montemplate-mlevel");
+    Sfo_schar(nhfp, &ptr->mmove, "montemplate-mmove");
+    Sfo_schar(nhfp, &ptr->ac, "montemplate-ac");
+    Sfo_schar(nhfp, &ptr->mr, "montemplate-mr");
+    Sfo_schar(nhfp, &ptr->maligntyp, "montemplate-maligntyp");
+    Sfo_ushort(nhfp, &ptr->geno, "montemplate-geno");
     for (i = 0; i < NATTK; i++) {
-        Sfo_uchar(nhfp, &shambler->mattk[i].aatyp, "shambler-mattk_aatyp");
-        Sfo_uchar(nhfp, &shambler->mattk[i].adtyp, "shambler-mattk_adtyp");
-        Sfo_uchar(nhfp, &shambler->mattk[i].damn, "shambler-mattk_damn");
-        Sfo_uchar(nhfp, &shambler->mattk[i].damd, "shambler-mattk_damd");
+        Sfo_uchar(nhfp, &ptr->mattk[i].aatyp, "montemplate-mattk_aatyp");
+        Sfo_uchar(nhfp, &ptr->mattk[i].adtyp, "montemplate-mattk_adtyp");
+        Sfo_uchar(nhfp, &ptr->mattk[i].damn, "montemplate-mattk_damn");
+        Sfo_uchar(nhfp, &ptr->mattk[i].damd, "montemplate-mattk_damd");
     }
-    Sfo_unsigned(nhfp, &shambler->cwt, "shambler-cwt");
-    Sfo_ushort(nhfp, &shambler->cnutrit, "shambler-cnutrit");
-    Sfo_uchar(nhfp, &shambler->msound, "shambler-msound");
-    Sfo_uchar(nhfp, &shambler->msize, "shambler-msize");
-    Sfo_ulong(nhfp, &shambler->mresists, "shambler-mresists");
-    Sfo_uchar(nhfp, &shambler->mconveys, "shambler-mconveys");
-    Sfo_ulong(nhfp, &shambler->mflags1, "shambler-mflags1");
-    Sfo_ulong(nhfp, &shambler->mflags2, "shambler-mflags2");
-    Sfo_ushort(nhfp, &shambler->mflags3, "shambler-mflags3");
-    Sfo_ushort(nhfp, &shambler->mflags4, "shambler-mflags4");
-    Sfo_ulong(nhfp, &shambler->mhflags, "shambler-mhflags");
-    Sfo_uchar(nhfp, &shambler->difficulty, "shambler-difficulty");
-    Sfo_uchar(nhfp, &shambler->mcolor, "shambler-mcolor");
+    Sfo_unsigned(nhfp, &ptr->cwt, "montemplate-cwt");
+    Sfo_ushort(nhfp, &ptr->cnutrit, "montemplate-cnutrit");
+    Sfo_uchar(nhfp, &ptr->msound, "montemplate-msound");
+    Sfo_uchar(nhfp, &ptr->msize, "montemplate-msize");
+    Sfo_ulong(nhfp, &ptr->mresists, "montemplate-mresists");
+    Sfo_uchar(nhfp, &ptr->mconveys, "montemplate-mconveys");
+    Sfo_ulong(nhfp, &ptr->mflags1, "montemplate-mflags1");
+    Sfo_ulong(nhfp, &ptr->mflags2, "montemplate-mflags2");
+    Sfo_ushort(nhfp, &ptr->mflags3, "montemplate-mflags3");
+    Sfo_ushort(nhfp, &ptr->mflags4, "montemplate-mflags4");
+    Sfo_ulong(nhfp, &ptr->mhflags, "montemplate-mhflags");
+    Sfo_uchar(nhfp, &ptr->difficulty, "montemplate-difficulty");
+    Sfo_uchar(nhfp, &ptr->mcolor, "montemplate-mcolor");
 }
 
 staticfn void

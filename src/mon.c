@@ -6641,6 +6641,8 @@ setmangry(struct monst *mtmp, boolean via_attack)
                 }
             }
         }
+        /* a template change: it lasts the rest of the game and travels
+           with the save (savemontemplate()) */
         if (mtmp->data == &mons[PM_ORACLE])
             mons[PM_ORACLE].mmove = 18;
         if (mtmp->data == &mons[PM_CHARON])
