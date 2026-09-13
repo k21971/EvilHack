@@ -14075,19 +14075,93 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       level monsters (wolf cub 0/7, deer 0/14) had mhp 0 in the monlist
       at T:1 - most likely dead monsters awaiting dmonsfree at a --More--
       after wolf-vs-deer predation; watch for a recurrence.
-- [ ] saveoracle()/savecharon() per-save template persistence ABSENT
-      (minted 2026-09-12 by the shambling horror slice): master's
-      savegamestate() persists mons[PM_ORACLE] and mons[PM_CHARON] the
-      same way it persists the shambling horror (save.c saveoracle()/
-      savecharon() right after saveshambler(), restore.c restoracle()/
-      restcharon()), because setmangry() raises their template mmove to
-      18 when they are angered (mon.c, both trees - tracker ~14632); on
-      the branch an angered Oracle or Charon is slow again after a
-      save/restore, and the sped-up template of one game never leaks into
-      another only because the process ends. Candidate home: generalize
-      saveshambler()/restshambler() into a per-index helper and call it
-      for the three slots at master's positions. MEDIUM (save layout
-      change; EDITLEVEL frozen).
+- [x] saveoracle()/savecharon() per-save template persistence PORTED
+      2026-09-12 (session 117; the row minted 2026-09-12 by the shambling
+      horror slice; TWO commits: A src/save.c + src/restore.c + src/mon.c
+      + src/u_init.c BUG-1843, B this tracker; hash in the archive next
+      to BUG-1843). SHAPE: master's three per-slot writers (0037d8c98 -
+      saveoracle()/savecharon() after saveshambler(), restoracle()/
+      restcharon() after restshambler()) become one per-index helper pair
+      savemontemplate(nhfp, pm)/restmontemplate(nhfp, pm) called for
+      PM_SHAMBLING_HORROR, PM_ORACLE and PM_CHARON at master's positions
+      (after the fruit chain, before the names); session 116's 24-field
+      list is unchanged, tags "montemplate-<field>" (a label only -
+      sfstruct.c's binary writers take myname UNUSED); no extern.h change
+      (staticfn). DEVIATION (taken): each slot leads with its index
+      (Sfo_int/Sfi_int) and the reader panics on a mismatch - the
+      generalization's one new failure mode (the two three-call lists
+      drifting apart) and a stale pre-change dev save both stop with
+      "restmontemplate: expected N, read M" instead of filling the Oracle
+      slot from savenames()' bytes (EDITLEVEL frozen at 0; VERSION_SANITY
+      cannot see a stream-length change). RECORDED (parity): once angered
+      the template stays 18 for the rest of the game even after
+      pacification; bones never carry templates on the branch
+      (savebones()/getbones() write version, uuid, count, id, fruit
+      chain, level) and fixuporacle() keeps a bones Oracle peaceful on
+      the loading game's template - master's 0037d8c98 intent; Valley
+      bones are refused while Cerberus lives (no_bones_level()).
+      ORDERING: monst_globals_init()'s memcpy runs once in early_init()
+      before newgame()/dorecover(); its only other callers are
+      dump_mongen() (the --mongen dump, exits before a game) and
+      makedefs; savestateinlock() (INSURANCE checkpoint, mode WRITING)
+      and dosave0() (WRITING|FREEING) both reach savegamestate() with
+      update_file() true; util/sfctool.c's restgamestate() runs the
+      reader under -DSFCTOOL (`make sfutil` links; impossible() there is
+      sfctool's own returning stub, hence panic()). REVIEW
+      (evilhack-code-reviewer): CONDITIONAL PASS, no CRITICAL/HIGH/MED;
+      field parity proven by a mechanical diff of the 25 Sfo_ vs 25 Sfi_
+      lines; both language-standard paths compiled clean (-std=gnu17
+      too); LOW taken: the shambler_init() preamble's "only other writer
+      of mons[]" census was false on both trees - role_init() (Infidel
+      enemy geno) and set_uasmon() (racial size/speed through a pointer
+      alias) also write mons[] - reworded to claim only the horror's
+      slot; premise corrected: maligntyp on Sfo_schar is stylistic
+      (Sfo_aligntyp compiles through the C23 xint8 arm), kept for
+      consistency with its schar siblings; the Guidebook.txt
+      regeneration kept out of both commits.
+      BATTERY (game-tester, ~47 min, 260 tool uses, three branch human
+      Valkyrie XL30 games - G1 saved/restored then died for bones, G2 the
+      bones load, G3 control + Charon + checkpoint - plus one master game;
+      sanity_check on; paniclog never created in either gamedir): T1
+      "The Oracle gets angry!" 0 -> 18 (gdb), she left her chamber and
+      closed to melee ("The Oracle is suddenly moving faster." self-haste
+      too); after `S` + restore the template read 18 before any input and
+      she crossed the level chasing the hero (monlist walk 31,9 -> 38,11),
+      the horror struct byte-identical to its pre-save dump; T2 Charon
+      (peaceful, meditating, template 0, boxed on the 2x2 dry patch by the
+      Styx so he shuffles in place) 18 after "Charon gets angry!", 18
+      after save + restore, Oracle 0; T3 control 0/0 after restore, horror
+      struct identical; T4 bones: self-zapped wand of death, "Save bones?"
+      y, bonD0.O.gz written; the new process ("Get bones?" y, "Unlink
+      bones?" y) read template 0, the bones Oracle peaceful (fixuporacle)
+      and stationary at her death-time square with G1's ghost, kitten and
+      ant swarm present, and angering her there gave 18; T5 checkpoint:
+      SIGKILL after a level change, "Old game in progress. Destroy [y],
+      Recover [r], or Cancel [n]?" r (in-process SELF_RECOVER, the
+      standalone recover never needed) brought Charon back at 18; T1m
+      master: monlist walk data->mmove 18 before and after the restore,
+      she moved two squares a turn afterwards. PARITY NOTES: a bones
+      Oracle keeps her per-monster MFAST from the dying game's self-haste
+      but the template's 0 keeps her stationary; a bones Oracle who
+      wandered inside her room is left where she died (master's
+      0037d8c98 message says the same); `F` + direction attacks a
+      peaceful with no "Really attack?" on both trees (attack_checks()
+      returns before the confirm under forcefight). Nine brief-premise
+      corrections, none a code defect (-> gameplay.md): Charon stands at
+      game (63,3) far EAST on the Valley (the level file's x=14 is
+      map-local); the recovery prompt's answers are y = DESTROY, r =
+      recover; the branch's getpos "Tip" window needs Enter, not Escape;
+      the wizard death asks all five disclosure questions before "Save
+      bones?"; ^V off the Valley asks "Cerberus is alive.  Override?"
+      first; master's installed binary lacks the PM_ enum symbols in gdb
+      (walk level.monlist on data->mname); master's `m` `.` wait costs no
+      time (use `s`); tmux send-keys needs '\;' for a farlook `;`; the
+      standing rules' abrupt kill is `gdb -batch -p PID -ex kill`. The
+      angered Oracle's spells took a stock XL30 Valkyrie from 166 to 54
+      HP in three turns (gdb HP raise needed to keep the battery alive).
+      Pre-existing, unrelated: the master rc's `symset:Enhanced1` line
+      errors on the installed 3.6.x build.
+      Open Phase 2 rows: 61 (62 - 1 closed + 0 minted).
 - [x] AD_PITS dispatcher + create_pit_under() PORTED 2026-09-12 (session
       113; the row minted 2026-09-11 by the AD_BHED slice, the
       levitation slice ~9986 had deferred "create_pit_under (BUG-679) ->
