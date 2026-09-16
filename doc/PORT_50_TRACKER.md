@@ -13666,20 +13666,79 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       5.0 drops the light with the old object (obfree ->
       dealloc_obj's obj_sheds_light gate) and the new object comes
       out unlit; the branch follows 5.0. Cosmetic/parity. LOW.
-- [ ] LOW: a melded dragon-scaled suit's xname() lacks the scaled
-      prefix (minted 2026-09-09 by the consumer-sites battery;
-      master-shared): doname_base() adds "<color>-scaled " to the
-      prefix buffer, so inventory, pick-up and put-on lines read
-      "gold-scaled +1 plate mail", but every xname()-based form -
-      yname()/Yname2()/yobjnam()/Tobjnam() - says plain "plate mail":
-      verified on the gremlin flee line ("the painful light of your
-      plate mail") and the monster aura line ("The orc-captain's plate
-      mail begins to cast an aura of darkness."); the hero-side
-      toggle_armor_light() Yname2() text is the same path (unverified).
-      Loose scales are fine (their otyp carries the name). Master's
-      objnam.c has the same doname-only prefix. Decide whether the
-      prefix moves into xname() (every consumer, wish parsing
-      unaffected) or stays a doname prefix. Cosmetic.
+- [x] Dragon-scaled xname() prefix FIXED 2026-09-15 (session 118; the
+      LOW "decide" row minted 2026-09-09 by the consumer-sites battery,
+      master-shared; THREE commits: A src/objnam.c + src/invent.c +
+      src/do_name.c + src/pager.c BUG-1844 with BUG-1845 riding it, B
+      src/objnam.c BUG-1846 (reviewer-found xcalled() panic window), C
+      this tracker; hashes in the archive next to the BUG ids). RULING:
+      the word moves into xname() with doname() byte-identical (master's
+      inventory shape kept; only the plain xname lines gain the color).
+      SHAPE: dragon_scaled_prefix() helper; xname_flags() emits
+      "<color>-scaled " ahead of "magical " (the poisoned/tainted
+      strip-from-the-start contract); doname_base() strips it after the
+      tainted check by sliding the name down over the word (reviewer
+      MED: a bp advance would have cost scaled suits 12-17 bytes of
+      suffix room) and re-adds it at the ARMOR_CLASS arm, after the
+      curse word and ahead of erosion/enchantment; loot_xname()
+      zeroes/restores dragonscales so the sortloot key stays "plate
+      mail"; docall_xname() zeroes the copy's corpsenm so the
+      call-a-type prompt names the type only (callable suits: orcish
+      chain/ring mail, dark elven tunic); checkfile() strips a leading
+      "-scaled " token ahead of the "+N " strip so "/i" (singular(xname)
+      key) keeps resolving and the floor farlook (doname key, BUG-1845,
+      master-shared) resolves for the first time; the eroded-floor-suit
+      miss stays (upstream's TODO). GAINED the word:
+      toggle_armor_light() wear/remove lines, m_dowear()'s monster
+      light/aura lines, flees_light()'s gremlin line. UNCHANGED: every
+      doname() line, the simple-name forms (minimal_xname zeroes
+      corpsenm), sort order, wish parsing (no "-scaled" parse on either
+      tree), the dknown-independence of the word. BUG-1846: the armor
+      "called" arm ran propnames() to the region's last byte and then
+      xcalled(), whose no-room path panics (eight bytes needed) - master
+      closed it in BUG-1315's omit path, the 5.0 adoption brought
+      vanilla's xcalled() back; now master's shape in the Concat idiom
+      (omit " called <name>" under eight bytes, truncate otherwise).
+      Reviewer CONDITIONAL PASS -> both MEDs taken; focused re-review
+      PASS (LOWs: comment example -> "shimmering-scaled ", a strlen
+      local; ">= 8" kept for master parity). NEW MED ROW below: the
+      BUG-1315 obufs[] widening. BATTERY: battery 1 (2026-09-15, ~28
+      min, ~195 tool uses, branch Valkyrie + Samurai + master Valkyrie,
+      paniclog absent throughout): T1-T9 and T1m PASS - doname order
+      byte-identical to master ("a blessed gold-scaled +0 plate mail
+      (being worn, radiantly lit)"), the
+      wear/remove/meld-tail/monster-wear/gremlin lines carry the color
+      where master prints plain "plate mail", sortloot order unchanged,
+      `/i` and the map `/` `.` lookup both resolve "plate mail", the
+      call-a-type prompt stays "Call a crude chain mail:", "gold-scaled
+      tanko" for a Samurai. battery 2 (2026-09-16, ~13 min, 54 tool
+      uses, final binary): T10 a 58-char #name keeps " (being worn,
+      radiantly lit)" (the slide), T11 the staged 0x27 called suit
+      renders with " called Zed" omitted and no panic while the 0x21
+      control shows it, T12 regression unchanged; the staging's exact
+      107/107 fill through the "crude chain mail" description arm logged
+      xname's once-per-process "used up entire obuf" diagnostic (no
+      panic, paniclog removed) - the widening row's subject. Anomalies
+      recorded: tty inventory entries are cut at 127 chars regardless of
+      terminal width; the called form says "dragon mail" where the
+      description arm says "crude chain mail"..
+- [ ] obufs[] name-region widening (master BUG-1315, 60d335fd0) NOT
+      PORTED (minted 2026-09-15 by the dragon-scaled xname prefix
+      slice's reviewer): the branch's obufs[NUMOBUF][BUFSZ] slot leaves
+      xname()/doname() a 107-byte name region (BUFSZ - 1 - PREFIX with
+      EvilHack's 148-byte PREFIX) where master widened each slot to
+      PREFIX + BUFSZ + 32 and raised every name-region bound to BUFSZ
+      (BP_HAS_ROOM, the doname backstop, the " named " avail, the
+      corpse_xname adjective avail, the nine xcalled() size args, a
+      final total-length clamp keeping doname() < BUFSZ, and end.c
+      container_contents()'s copynchars companion). On the branch a long
+      name (material + oilskin + properties + " named X", or a scaled
+      suit's color word) drops doname suffixes - " (being worn)",
+      prices, " named " - once the region fills: the BUG-1252/BUG-1298
+      class, cosmetic. The armor "called" arm's panic window is closed
+      separately (BUG-1846). 5.0's Concat/ConcUpdate machinery anchors
+      on buf_end/bp_end = gx.xnamep + BUFSZ - 1, so the port is the slot
+      width, those two anchors and the BUFSZ - PREFIX args. MED.
 - [x] Bane-aura moveloop artifact arms PORTED 2026-09-09 (session 108;
       minted and closed this session - the ARTIFACTS SLICE row's
       "artifact-bane aura arm of master's allmain moveloop grudge
