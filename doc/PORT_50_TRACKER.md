@@ -13768,16 +13768,87 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mhitm_ad_phys()'s m-v-m weapon leg (uhitm.c ~6539, where
       dmgval(magr, mwep, mdef) already adds the bonus), sharing
       hmon_hitmon_msg_lightobj()'s wording. LOW.
-- [ ] poly_obj() lit-state carry-over ABSENT (minted 2026-09-09 by the
-      dragon-scaled consumer-sites slice's begin_burn caller diff):
-      master's poly_obj() (src/zap.c ~2150-2185) ends the old
-      object's light and, when the new form can be lit (magic lamp,
-      oil lamp, lantern, candle, potion of oil with the fuel carried
-      over, artifact light), sets lamplit and begin_burn()s it,
-      otherwise clears lamplit and any stray burn timer. Upstream
-      5.0 drops the light with the old object (obfree ->
-      dealloc_obj's obj_sheds_light gate) and the new object comes
-      out unlit; the branch follows 5.0. Cosmetic/parity. LOW.
+- [x] poly_obj() lit-state carry-over PORTED 2026-09-16 (session 120;
+      the LOW row minted 2026-09-09 by the dragon-scaled consumer-sites
+      slice's begin_burn caller diff; commit A = src/zap.c, hash in the
+      archive next to BUG-1848). Master's block (97a5b5dfd + 7e9bedc7b
+      end_burn(obj, TRUE) + fd373c7b1 else-arm stop_timer) at master's
+      placement: after the worn-slot swap and the floor boulder block,
+      before the shop billing and delobj(). SHAPE: end_burn(obj, TRUE)
+      under obj_sheds_light() (stop_timer -> cleanup_burn deletes the
+      light source, refunds the unused fuel into obj->age, clears
+      lamplit; magic lamp / artifact lights take the forced timerless
+      path), then begin_burn(otmp, FALSE) when the new form is
+      MAGIC_LAMP/OIL_LAMP/LANTERN/candle/POT_OIL/artifact_light with the
+      POT_OIL age copied first (post-refund = the true remaining fuel;
+      fixup_oil() had copied the burning value), else lamplit cleared
+      and any burn timer stopped. DEVIATIONS (behaviour-identical): no
+      `otmp->lamplit = 1` pre-set (begin_burn() owns the flag and leaves
+      it clear on its age-0 early return / start_timer failure -
+      master's pre-set was the one way to a lit flag with no light
+      source); one begin_burn() call for master's five identical arms
+      (the MAGIC_LAMP arm is dead on both trees - the TOOL_CLASS switch
+      already made it an oil lamp; artifact_light(otmp) dead too);
+      `else if (otmp)` matching the if's guard (amulet-of-change path);
+      reviewer LOW taken: the else arm stops the timer BEFORE clearing
+      lamplit (cleanup_burn() refuses an unlit object; master's order
+      would leak the light if the dead arm ever went live). RECORDED:
+      worn lit armor never reaches the block lit (Armor_off/Cloak_off/
+      Shield_off end the burn inside remove_worn_item() above it;
+      set_wear() lights a lit-capable result itself); a cursed magic
+      lamp source (darkness) becomes a light-giving oil lamp (master-
+      identical); reviewer MEDIUM "water_damage()'s diluted arm rewrites
+      a lit potion of oil to water in place" = FALSE POSITIVE on all
+      three trees (water_damage() opens with splash_lit(), master with
+      snuff_lit(), which extinguish a lit potion and return before the
+      arm). NEW ROW below: fixup_oil() "diluted" quirk (LOW,
+      upstream-shared). BATTERY (2026-09-16, ~44 min, 214
+      tool uses, one branch human Valkyrie XL30 game with sanity_check
+      on every turn + one master human Valkyrie XL20 control game;
+      neither paniclog ever created; both save dirs empty after): T1 a
+      pile of 15 lit oil lamps zapped down - 13 polymorphed, the 2
+      lit-capable results (steel lamp, candle) lit with fresh burn
+      timers (new ids) and light entries, the 8 other forms in neither
+      #lightsources nor #timeout, 2 resisters with their original ids,
+      3 destroyed; T2 43 lit-candle dips - 42 non-lightable results
+      unlit with no orphan timers or stale lights, the 43rd "a lantern
+      (lit)" with timer + light, a lit 7-candle stack fused to one
+      looking glass (quan > 1 fuse rule); T3 12 lit oil variants (BUC x
+      diluted x greased; lit potions merge) zapped down - the one oil
+      -> oil result lit with a new timer whose expiry 470 == the old 470
+      exactly, 9 oil -> non-oil results unlit in neither list and all
+      "diluted" (the new row's evidence), 2 destroyed; T4 15 lit magic
+      lamps (lights, no timers) - both relit results gained burn timers,
+      the resister kept its timerless light, no impossible() in
+      #prevmsg; T5 worn gold dragon scales dipped - exactly one "stops
+      shining", light entry gone, no stale row (the studded leather
+      result came out carried-not-worn: body armor cannot take the
+      scales slot, master's same silent path); T6 wielded lit lamp
+      dipped - an iron hook wielded unlit, then a candle wielded and lit
+      with timer + light. Master control T1m-T4m identical outcome
+      classes (relit = new timer ids, resisters = original ids, oil ->
+      oil expiry 405 == 405; master marks none of its oil -> non-oil
+      results diluted - it has no fixup_oil()). Premise corrections ->
+      gameplay.md: #timeout prints "burn_object(<ptr>)" on both trees;
+      lit potions of oil and lit candles merge; "gold dragon scale
+      mail" wishes deliver a set of gold dragon scales (a slot separate
+      from body armor); lit-capable tool results are ~1 in 20-40 dips.
+- [ ] Lit potion of oil polymorphed into another potion comes out
+      "diluted" (LOW, upstream-shared; minted 2026-09-16 by the poly_obj
+      lit-state slice): poly_obj()'s POTION_CLASS arm calls
+      fixup_oil(otmp, obj) (mkobj.c) BEFORE the lit-state block ends the
+      old burn, so it reads the source flask's age while the fuel still
+      lives in the burn timer (begin_burn() zeroes an undiluted flask's
+      age; a diluted one keeps ~1/4); `source->age < MAX_OIL_IN_FLASK`
+      then marks the new non-oil potion odiluted even when the flask was
+      full (battery: 9 of 9 oil -> non-oil results read "diluted" on the
+      branch, 0 of 8 on master). Cosmetic (mixing strength only).
+      Upstream 5.0 has the same fixup_oil() and no lit handling at all;
+      master has no fixup_oil() and never marks dilution here. The oil
+      -> oil arm is unaffected: the block copies obj->age after
+      end_burn()'s refund. Fix shape if ever wanted: end the old burn
+      ahead of the class switch (splits master's block) or have
+      fixup_oil() read the remaining fuel through peek_timer(). LOW.
 - [x] Dragon-scaled xname() prefix FIXED 2026-09-15 (session 118; the
       LOW "decide" row minted 2026-09-09 by the consumer-sites battery,
       master-shared; THREE commits: A src/objnam.c + src/invent.c +
