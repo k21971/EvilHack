@@ -15059,8 +15059,43 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       list. Harness: a shift into a handless or stone-resistant form
       enters mselftouch with mw NULL (silent) - expected, not a
       failure.
-- [ ] pet-vs-pet melee without Conflict observed (minted 2026-09-03
-      from the wither follow-up battery; LOW, uninvestigated). A
+- [x] pet-vs-pet melee without Conflict observed (minted 2026-09-03
+      from the wither follow-up battery; LOW, uninvestigated).
+CLOSED 2026-09-16 (session 122): NOT A DEFECT of the pet guards -
+      master parity. The victim was not tame when it was hit. EvilHack's
+      CHA/3 pet cap in moveloop_core() (src/allmain.c; master's
+      12968f555 "Limit number of pets you can have", ported 2026-08-27
+      as 14a69b7ea; wiki-documented, silent by design) untames the
+      lowest-level pet one turn after the level's pet count exceeds
+      ACURR(A_CHA)/3 - a default Ch:8 hero already owns one pet, so the
+      second genesis'd pet is one too many - and leaves it PEACEFUL two
+      times in three (only rn2(abuse + 1) || !rn2(3) flips it hostile),
+      which is exactly the disposition a pet may attack; both historic
+      incidents (the little dog, the level-0 placeholder dwarf) were the
+      lowest-level pet of the moment. Reproduced on both trees by the
+      battery with a hardware watchpoint on the victim's mtame: branch
+      T:3 write from the cap block, T:4 "The winged gargoyle hits the
+      dwarf.  The dwarf is killed!" via dog_move -> mattackm with
+      mdef->mtame 0 / mpeaceful 1 (the starting kitten was untamed the
+      same turn and killed a few turns later); master T:5 identical
+      ("The winged gargoyle claws the dwarf.  The dwarf is killed!"). The
+      three tame-target guards - mm_aggression()'s pet-pair return,
+      mfndpos()'s ALLOW_TM drop and acceptable_pet_target()'s opening
+      test - read 0 live on every tame pair and held under a
+      break-mattackm bus with the cap lifted (gdb CHA 25): 72 branch + 19
+      master hits, none with both parties tame, over 212 (branch) / 223
+      (master) turns of the incident pair adjacent, the elvenkind-vs-orc
+      and purple-worm-vs-shrieker grudge pairs, and the long-worm
+      exception (a tame long worm does reach m_move_aggress and attacked
+      only a hostile snake); the positive controls (a peaceful Grey-elf
+      beside a tame hill orc) fired both ways on both trees ("The Grey-
+      elf shoots 4 copper elven arrows at the hill orc!" / "The Grey-elf
+      stabs the hill orc."). The return attack at dogmove.c's
+      mattackm(mtmp2, mtmp) is the hostile's retaliation inside the
+      pet's own move, not a pet attack. Harness lesson recorded in
+      gameplay.md: keep genesis'd pets under CHA/3 or raise CHA by gdb
+      before any multi-pet leg.
+      Original text: A
       gdb-tamed dark elven captain (newedog + initedog, mtame 5)
       wielding the Sword of Annihilation attacked and killed the
       hero's tame little dog with no Conflict active ("The deadly
@@ -15074,8 +15109,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       gargoyle hits the dwarf. The dwarf is killed!"), both
       mtame > 0 and mpeaceful = 1 by gdb read - ordinary ^G
       taming, no artifact, so the gdb-taming explanation is out.
-- [ ] wizard-genesis'd tame dwarf probes "Level 0 HP 2(2)" (minted
+- [x] wizard-genesis'd tame dwarf probes "Level 0 HP 2(2)" (minted
       2026-09-05 from the levitation battery; LOW, uninvestigated).
+      CLOSED 2026-09-16 (session 122): NOT A DEFECT, master parity. On
+      both trees the only species named "dwarf" is the level-0 G_NOGEN
+      M2_NOPOLY race placeholder (include/monsters.h; master's monst.c
+      marks it "placeholder"); the Mines' dwarves are "mountain dwarf"
+      (level 2, dat/minefill.lua and master's mines.des alike). ^G
+      "dwarf" runs name_to_mon() -> PM_DWARF and makemon() makes the
+      archetype itself, and newmonhp()'s level-0 arm rolls 1d4 hit
+      points boosted to at least 2 - "Level 0 HP 2(2)" is that roll.
+      adj_lev() cannot return 0 for an mlevel-2 species (one depth
+      decrement, floor 1), so the probe could only have read a level-0
+      permonst. Tameness is irrelevant (the row's "hostile dwarves at
+      normal HP" were mountain dwarves; its numbers are pony/orc/
+      gargoyle HP); the gdb staging was not the cause.
+BATTERY (2026-09-16, game-tester agent, branch game + master
+      control, sanity_check on): PASS. Branch wand-of-probing lines: the
+      tame placeholder "Status of your dwarf (lawful, medium): Level 0
+      HP 2(2) AC 5, in light, tame (tameness 5; hungry 1001; apport
+      8).", with gdb data->mlevel 0, geno & G_NOGEN set, mflags2
+      0x74000001 (M2_NOPOLY bit set), mnum 60; a tame mountain dwarf
+      "Level 3 HP 16(16)"; a hostile ^G dwarf "Level 0 HP 4(4) AC -3"
+      (kit, not level, differs). Master: "Status of the dwarf (female,
+      lawful): Level 0 HP 4(4) AC 5, in light, tame (tameness 5; hungry
+      1001; apport 8)." with byte-identical flag words.
+      The census surfaced the is_placeholder() port gap closed as
+      BUG-1851 (next row). Original text:
       Two ^G "tame dwarf" creations on D:1 under a human Valkyrie
       XL30 read m_lev 0 / mhpmax 2 via wand of probing, while
       genesis'd tame gnome lord/winged gargoyle/pony and hostile
@@ -15087,6 +15147,65 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       writes on the same dwarf) clobbered m_lev. Reproduce on a
       clean game before blaming code; compare master's
       create_particular tame arm.
+- [x] is_placeholder() kept vanilla's four species and lost EvilHack's
+      ten race placeholders (minted 2026-09-16 by the tame-dwarf row's
+      census; port gap, LOW; master omits tortle). CLOSED the same day
+      (session 122, BUG-1851, hash in the archive). include/mondata.h
+      carried upstream 5.0's macro byte-for-byte (orc, giant, elf,
+      human) under vanilla's comment "PM_DWARF and PM_GNOME are normal
+      monsters, not placeholders", false here, and src/polyself.c's
+      substitute-block note repeated it; master lists fourteen
+      (+ centaur, demon, dwarf, gnome, illithid, nymph, drow, aasimar,
+      draugr, vampire) and its own monst.c marks tortle a placeholder
+      too. RULING (AskUserQuestion 2026-09-16): master's fourteen plus
+      PM_TORTLE - the one recorded deviation from master. IMPACT
+      measured zero today: every placeholder is G_NOGEN + M2_NOPOLY;
+      mk_gen_ok()'s callers either keep G_NOGEN in the mask or (the two
+      sp_lev.c class-random calls mkclass(class, G_NOGEN) and
+      mkclass(class, G_NOGEN | G_IGNORE)) reach mkclass_aligned()'s
+      G_FREQ weighting, where a frequency-0 candidate weighs 0 unless
+      the whole class is frequency-0 (mclass_maxf, static data);
+      mkclass_poly() weights by G_FREQ too; accept_newcham_form() and
+      both polyself.c arms fall to polyok(), which rejects M2_NOPOLY (a
+      typed "dwarf" at the polymorph prompt reaches the same "You can't
+      polymorph into a dwarf." on both trees); sp_lev.c's "level names
+      placeholder monster" refusal keys on mlevel 0 + G_NOGEN, not the
+      macro; no dat/*.lua names one of the ten as a monster (elf/human
+      appear only as corpse montypes). Reviewer PASS (no CRITICAL/HIGH/
+      MEDIUM; one LOW wording taken - "never randomly generated" - see
+      the revive row below); its montoostrong() point: a frequency-0
+      candidate that passes mk_gen_ok() is still consulted by the 50%
+      early break that precedes the weight check, which none of the ten
+      could trip today (class minima or difficulty ties; the demon
+      archetype needs level_difficulty() < 26 and every &-class Lua
+      request is in Gehennom; tortle on a :-class request at DL 1-3
+      could, but no Lua level makes one and master's macro has the
+      same hole) - the widening closes those corners. Recorded, not
+      changed (master's shape): "chromatic dragon" (level 0, G_NOGEN,
+      M2_NOPOLY, the scales placeholder) is in neither macro; the
+      demon archetype (level 10) is invisible to sp_lev.c's level-0
+      check.
+BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
+      control on and a potion of polymorph quaffed, typing "dwarf" at
+      the prompt gave "You can't polymorph into a dwarf." with the hero
+      unchanged, and "orc" at the re-prompt gave "You turn into a hill
+      orc!" (the vanilla substitute block intact); Mines-fill and pet
+      legs of the same battery ran on the built binary with no
+      impossible() and no paniclog on either install.
+      Files: include/mondata.h, src/polyself.c.
+- [ ] reviving a racial zombie or mummy corpse makes the level-0 race
+      placeholder (minted 2026-09-16 by the BUG-1851 reviewer; LOW,
+      vanilla- and master-shared, unverified in play).
+      undead_to_corpse() (src/mon.c) gives a dwarf/gnome/orc/elf/drow/
+      human zombie or mummy a corpse whose corpsenm is the race
+      archetype (PM_DWARF and friends), and revive() (src/zap.c) has no
+      placeholder redirect - cant_revive() (src/read.c) handles only
+      guard/shopkeeper/priest/angel/long-worm-tail/unique - so undead
+      turning or stone to flesh on a "dwarf corpse" materialises a
+      level-0 M2_NOPOLY "dwarf". Vanilla 5.0 does the same for its
+      orc/elf/human archetypes; master identical. Candidate: map the
+      archetype to a generatable species of that race in revive(), or
+      refuse the revival; rule master parity first.
 - [x] minsects producer/consumer pair NOT PORTED (minted
       2026-09-02 by the clone-reset slice; LOW; the row the
       spell-list slice's RIDERS note and the Racial-monsters NIT
