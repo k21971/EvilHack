@@ -929,7 +929,12 @@ xname_flags(
             propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             ConcUpdate(buf);
-            xcalled(buf, BUFSZ - PREFIX, "", un);
+            /* the properties may have used up the room; omit the called
+               name rather than take xcalled()'s no-room panic */
+            if (bufspaceleft >= sizeof " called " - 1) {
+                Concat(buf, 0, " called ");
+                Concat(buf, 0, un);
+            }
         } else if (is_soko_prize(obj)) {
             /* deliberately clobbers any prefix; an unclaimed prize
                hides everything but its class */
