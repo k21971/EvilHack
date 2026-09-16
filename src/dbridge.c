@@ -798,11 +798,19 @@ do_entity(struct entity *etmp)
                    place_worm_tail_randomly */
                 rloc_to(etmp->emon, newx, newy);
             } else {
+                struct monst *mon = etmp->emon;
+                /* a light-blocking disguise moves with the monster */
+                boolean blocker = is_lightblocker_mappear(mon);
+
                 remove_monster(etmp->ex, etmp->ey);
-                place_monster(etmp->emon, newx, newy);
+                if (blocker)
+                    recalc_block_point(etmp->ex, etmp->ey);
+                place_monster(mon, newx, newy);
+                if (blocker)
+                    recalc_block_point(newx, newy);
                 /* a rider drags its steed along */
-                update_monsteed(etmp->emon);
-                update_monster_region(etmp->emon);
+                update_monsteed(mon);
+                update_monster_region(mon);
             }
         } else {
             u.ux = newx;

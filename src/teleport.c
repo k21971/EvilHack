@@ -1775,6 +1775,11 @@ rloc_to_core(
 {
     coordxy oldx = mtmp->mx, oldy = mtmp->my;
     boolean resident_shk = mtmp->isshk && inhishop(mtmp);
+    /* a disguise that blocks light travels with the monster, so the square
+       it leaves and the one it lands on both need their blocking
+       re-derived; set_mimic_sym() and seemimic() only cover a monster
+       that stays put */
+    boolean blocker = is_lightblocker_mappear(mtmp);
     boolean preventmsg = (rlocflags & RLOC_NOMSG) != 0;
     boolean vanishmsg = (rlocflags & RLOC_MSG) != 0;
     boolean appearmsg = (mtmp->mstrategy & STRAT_APPEARMSG) != 0;
@@ -1804,10 +1809,14 @@ rloc_to_core(
             remove_monster(oldx, oldy);
             newsym(oldx, oldy); /* update old location */
         }
+        if (blocker)
+            recalc_block_point(oldx, oldy);
     }
 
     mon_track_clear(mtmp);
     place_monster(mtmp, x, y); /* put monster down */
+    if (blocker)
+        recalc_block_point(x, y);
     update_monster_region(mtmp);
     update_monsteed(mtmp); /* drag a monster steed along */
 
