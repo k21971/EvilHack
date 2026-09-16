@@ -9519,9 +9519,86 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       out its own gdb staging; this run got the [31][16] pair during
       plain play with nothing attached, so it is real. Sporadic, so
       expect to need a long instrumented run to catch it.
-- [ ] rloc_to() never re-blocks a still-disguised boulder-mimic (NEW,
+- [x] rloc_to() never re-blocks a still-disguised boulder-mimic (NEW,
       minted 2026-09-07 by the bubble-vision slice's design check and
-      reviewer; LOW observation). rloc_to_core() removes the monster with
+      reviewer; LOW observation). CLOSED 2026-09-16 (session 121,
+      BUG-1850, hash in the archive; upstream-table row + artifact
+      ~/nh50-rloc-to-mimic-block.patch, and the 2026-09-07 bubble
+      artifact trimmed to its draw-arm hunk). Callers swept (Explore
+      agent + the reviewer's remove_monster() census): a disguised
+      mimic never takes its own turn (movemon_singlemon's is_hider
+      gate), the hero's teleport zaps, mbhitm, mhurtle, magic_whistled,
+      the pet swap, mdisplacem and every attack arm reveal first (on
+      master too), and every disguised relocation funnels through
+      rloc_to_core() (u_collide_m arrival - masked by goto_level's
+      vision_reset, newgame's upstairs occupant, put_lregion_here, the
+      bubble arms, revive_nasty, gd_mv_monaway, clear_fcorr,
+      wallify_vault, mkcavepos, e_survives_unique, elemental_clog, the
+      5.0-only tele_trap teledest eviction, invoke_banish, the in_mklev
+      insurance rlocs) except ONE bare pair: do_entity()'s drawbridge
+      occupant move (master- and upstream-shared). FIX: rloc_to_core()
+      captures is_lightblocker_mappear() once and recalc_block_point()s
+      the vacated square after both pick-up arms and the landing square
+      right after place_monster(); do_entity() gets the same captured
+      gate and pair; the three BUG-1796 mv_bubble() recalcs REMOVED
+      (ruled 2026-09-16 - every bubble placement goes through
+      rloc_to_core(); a bubble-carried mimic that elemental_clog()
+      migrates keeps its disguise (mx zeroed at pick-up, so
+      mon_leaving_level's onmap is false) and is blocked on arrival by
+      the landing recalc, the oldx == 0 path). Disguise kept through
+      the relocation (master/upstream behaviour); gated, not
+      unconditional (an unconditional recalc would mask unrelated
+      producers from levl_sanity_check). Reviewer PASS (two LOWs: the
+      CONS_HERO braces restored to the upstream shape; the migration
+      wording above). **Battery** (2026-09-16, game-tester agent, four
+      games): PASS on every leg. T0 positive control on the UNFIXED
+      installed binary reproduced the bug exactly: gdb `rloc_to()` of a
+      corridor boulder-mimic (67,8) -> (62,8) read old square
+      get_viz_clear 1 / does_block 0 and new square 0 / 1, and logged
+      `levl[62][8] vision blocking` + `levl[67][8] vision blocking` on
+      each of 4 actions (8 paniclog lines, quoted then removed, no
+      self-heal). T1 on the fixed binary: the same lever plus three
+      further hops, every pair old 1/1 -> 0/0 and new 0/0 -> 1/1, the
+      corridor squares beyond the "boulder" reading could-see 0 while it
+      stood and 1 after `#wizkill`, paniclog never created. T3 Plane of
+      Water regression, 308 turns of bubble motion observed through one
+      long-lived break-sanity_check gdb bus: 644 boulder-mimic square
+      observations all 1/1, 161 revealed-mimic observations all 0/0, 308
+      hero-square observations all 0/0, two bubble-to-bubble evictions
+      each coming back revealed at 0/0 and three spontaneous
+      re-disguises each re-derived to 1/1, zero lines; the CONS_HERO
+      hero-on-mimic collision did not occur in 308 turns - that arm
+      reaches the same `rloc_to_core()` recalc T1 exercised directly,
+      review-covered. T4: an invisible boulder-mimic without see
+      invisible relocated 0/0 -> 0/0; with a ring of see invisible its
+      square re-derived to 1/1 and the next hop read old 0/0 / new 1/1,
+      zero lines. T5 drawbridge: a sleeping boulder-mimic on the lowered
+      span, bridge raised by a wand of locking ("You see a drawbridge
+      coming up!  The small mimic disappears behind the drawbridge."),
+      the raised span read 0/0 and the DBWALL square 1/1 with the mimic
+      gone, zero lines; the same staging on the UNFIXED binary left the
+      raised span at 1/0 with `levl[9][6] vision blocking` on each of 4
+      actions (4 lines, quoted then removed). TM master control: gdb
+      `rloc_to()` of a corridor boulder-mimic left the stale pair (old
+      square `viz_clear` 0 = still marked blocked with does_block 0; new
+      square 1 = still marked clear with does_block 1), unchanged 4
+      actions later - master frozen-unfixed. Neither paniclog existed at
+      the end (the tester's per-turn u.uhp / mpeaceful writes on the
+      Plane of Water touch nothing in vision). Thirteen brief-premise
+      corrections, none a code defect (harness facts: master's `fmon` is
+      a macro and 3.6 object ids are #defines - master's BOULDER is 557;
+      the branch's `typ` prints as a char; autodescribing an adjacent
+      visible disguised mimic REVEALS it; `set_mimic_sym()` re-rolls
+      m_ap_type to a bare 2; Plane of Water disguises are random
+      objects; a STONE span comes out blocked from `create_drawbridge()`
+      too; ^V needs `?` + Enter for the plane menu).. Recorded, not
+      fixed: montraits()
+      m_ap_type-without-mappearance (new LOW row beside the
+      save_mtraits row); newcham's ridden-steed put-back into an
+      S_MIMIC form and mhurtle_step for non-attack sources are
+      theoretical bare placements with no producer traced. Original
+      text:
+      rloc_to_core() removes the monster with
       a bare remove_monster() and place_monster() has no mimic-block
       step, so any relocation of a monster disguised as a boulder or a
       closed door (mnexto/mnearto displacement, teleport) lands it on an
@@ -13516,6 +13593,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Candidate fix: mask worn-derived bits out in save_mtraits()
       beside its mstate/ridden_by scrub; verify master and upstream
       first.
+- [ ] montraits() copies a revived mimic's saved m_ap_type without its
+      mappearance (minted 2026-09-16 by the rloc_to mimic-block slice's
+      design review and reviewer; LOW, vanilla-shared, unverified):
+      revive() -> montraits() (src/zap.c) makes the fresh monster with
+      makemon() (whose S_MIMIC arm runs set_mimic_sym() and block_point()
+      for the disguise it rolled there), then copies the snapshot's
+      m_ap_type over it but not mappearance, and monstone() snapshots
+      before m_detach()'s seemimic(), so a mimic stoned while disguised
+      and later revived can carry a type/appearance pair from two
+      different disguises with the vision block reflecting the fresh
+      pair. Not a relocation site. Reproduce (stone a disguised mimic,
+      revive the statue, read m_ap_type/mappearance and the square)
+      before fixing; batch with the save_mtraits() revival row above.
 - [ ] LOW observation (2026-09-09, attack-handler slice): the passive
       AD_COLD arms keep vanilla 5.0's shape - passiveum heals u.mh by
       (tmp + rn2(2))/2 and splits any form over the level cap,
@@ -16169,11 +16259,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-16 | teleport.c rloc_to_core() relocates a monster with a bare remove_monster() + place_monster(), neither of which touches the vision table, so a monster still disguised as a boulder / closed door / wall / tree (does_block()'s is_lightblocker_mappear() arm) that is moved by mnexto()/mnearto()/rloc() - the hero arriving on its square, a level-region placement, a vault guard shoving it aside, a Plane of Water bubble landing - leaves its old square blocked and lands on an unblocked square; levl_sanity_check() reports both as "levl[x][y] vision blocking". dbridge.c do_entity() moves a drawbridge's occupant with the same bare pair. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 byte-identical in both files | fixed on branch (BUG-1850: capture is_lightblocker_mappear() once, recalc_block_point() on the vacated square after the pick-up and on the landing square after place_monster(); same pair in do_entity()); artifact ~/nh50-rloc-to-mimic-block.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8); companion to the 2026-09-07 bubble artifact, which is trimmed to its draw-arm hunk; not yet sent |
 | 2026-09-11 | uhitm.c mhitm_ad_plys() hero-attacker leg lacks 3.6's `mdef->mcanmove` gate (dropped in 0d445a7a7 when the three legs were merged); paralyze_monst() assigns mfrozen, so a hero in a paralyzing form who keeps hitting a frozen monster reprints "is frozen by you!" one time in three and resets a long freeze to rnd(10). FIXED on the branch (BUG-1827; the test leads the condition) | found on branch (free-action slice); patch ~/nh50-ad-plys-refreeze.patch written 2026-09-11; not yet sent |
 | 2026-09-10 | mhitu.c hitmu(): mhitm_knockback()'s hero-defender dismount arm runs dismount_steed(DISMOUNT_KNOCKED) -> teleds() -> spoteffects() -> dotrap(), and a land mine there can kill the attacker; the tail then runs the spell-hand riders and passiveum() on the corpse and returns passiveum()'s value, discarding the M_ATTK_AGR_DIED the knockback ORed into the hit flags, so mattacku() carries on with the dead attacker's remaining attacks. Branch fix BUG-1823 (the riders and the passive response skip a dead attacker; the return carries the flag). Companion: mdamagem()'s tail `hitflags == M_ATTK_AGR_DIED` equality tests mask an attacker death whenever M_ATTK_HIT is also set (the branch keeps its early return on M_ATTK_AGR_DIED for that reason) | found on branch (knockback slice risk review); not yet written up as a patch |
 | 2026-09-08 | pager.c do_look(): the pick loop resets only `pm` and `out_str`, while do_screen_description() writes `*for_supplement` only when lookat() returned a monster and never clears it, so picking a monster and then a non-monster in the same `/` session leaves `supplemental_pm` pointing at the earlier monster; do_supplemental_info() then runs against the stale type (after an orc, an object "called <x> of <y>" gets the Orc-town marauder prompt). Latent and low upstream (that call is the only consumer); on the branch the same pointer now feeds checkfile()'s monster block, where it named the wrong thing. Official_nh50 and NetHack50 identical | fixed on branch (pokedex slice commit A: `pm = supplemental_pm = 0` per pick); artifact ~/nh50-do_look-supplemental-reset.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | save.c savelev_core() runs its "purge any dead monsters" dmonsfree() only inside the `mode != FREEING` block, but goto_level() tears the level down in FREEING mode on entering the endgame or leaving the tutorial, so a monster m_detach()ed since the last drain (a statue trap made without time passing - a fresh level with a Statuary themed room starts that way - a summoned monster expiring in mcalcdistress(), a gas-cloud kill in run_regions(), a trapped pet killed by mintrap() inside keepdogs()) is freed by savemonchn() with iflags.purge_monsters still counting it; the next dmonsfree() (the load_special drain while the entrance plane is built) reports "dmonsfree: 0 removed doesn't match 1 pending" with the monster on no list. wiz_kill() already works around the same symptom with a private dmonsfree(). Official_nh50 and NetHack50 identical | fixed on branch (BUG-1797: the drain hoisted ahead of the mode test in savelev_core); artifact ~/nh50-savelev-freeing-purge-drain.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
-| 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
+| 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch TRIMMED 2026-09-16 to the draw-arm hunk (the mimic halves are superseded by the 2026-09-16 rloc_to_core patch; the full 2026-09-07 version kept as ~/nh50-mv-bubble-vision-recalc.patch.2026-09-07-full; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8); not yet sent |
 | 2026-09-07 | trap.c lava_effects() protects only one in-use inventory item (protect_oid) and impossible()s then burns any other: a scroll of destroy armor (scroll->in_use) destroying levitation or water walking boots (destroy_arm sets armor->in_use) over lava leaves two, and the loser's caller useup()s freed memory after life-saving | artifact ~/nh50-lava-effects-in-use.patch (four-slot protect list + lava_protected()); git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf; not yet sent |
 | 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean); artifact ~/nh50-mtele-trap-moved-mon.patch (git apply --check clean vs both trees), not yet sent |
 | 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | observed; not reported, no patch |
