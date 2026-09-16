@@ -48,6 +48,7 @@ staticfn void propnames(char *, int, long, long, boolean, boolean)
                                                             NONNULLARG1;
 staticfn void xcalled(char *, int, const char *, const char *);
 staticfn char *xname_flags(struct obj *, unsigned);
+staticfn char *dragon_scaled_prefix(struct obj *, char *);
 staticfn char *minimal_xname(struct obj *);
 staticfn void add_erosion_words(struct obj *, char *);
 staticfn char *doname_base(struct obj *obj, unsigned);
@@ -693,6 +694,7 @@ xname_flags(
     boolean pluralize = (obj->quan != 1L) && !(cxn_flags & CXN_SINGULAR);
     boolean known, dknown, bknown;
     long orig_opknwn = obj->oprops_known;
+    char scalebuf[30];
 
     gx.xnamep = nextobuf();
     /* set up primary work buffer; the first 'PREFIX' bytes are set
@@ -774,14 +776,17 @@ xname_flags(
     if (obj_is_pname(obj))
         goto nameit;
 
-    /* poisoned/tainted must precede "magical" in buf so that
-       doname_base() can find and strip them from the start */
+    /* poisoned/tainted and the dragon scale color must precede
+       "magical" in buf so that doname_base() can find and strip
+       them from the start */
     if (obj->oclass == WEAPON_CLASS && is_poisonable(obj)) {
         if (obj->opoisoned)
             Strcat(buf, "poisoned ");
         else if (obj->otainted)
             Strcat(buf, "tainted ");
     }
+    /* "<color>-scaled " for dragon-scaled body armor */
+    Strcat(buf, dragon_scaled_prefix(obj, scalebuf));
 
     /* an unidentified object property or unidentified inherent magic
        is announced as simply "magical" when sensed */
@@ -1482,6 +1487,7 @@ doname_base(
     const char *aname = 0;
     int omndx = obj->corpsenm;
     long orig_opknwn = obj->oprops_known;
+    char scalebuf[30];
     char *bp;
     char *bp_eos, *bp_end;
     size_t bpspaceleft;
@@ -1523,6 +1529,25 @@ doname_base(
     if (!strncmp(bp, "tainted ", 8) && obj->otainted) {
         bp += 8; /* doesn't affect bp_eos or bpspaceleft */
         istainted = TRUE;
+    }
+
+    /* xname() puts "<color>-scaled " in front of dragon-scaled body
+       armor; take it off here and put it back at the ARMOR_CLASS arm
+       below so that it lands after the curse state and ahead of
+       erosion and enchantment. Unlike the poisoned/tainted strips,
+       slide the rest of the name down over the word so that the
+       suffixes keep the room they had when it was a prefix word */
+    (void) dragon_scaled_prefix(obj, scalebuf);
+    if (*scalebuf) {
+        size_t n = strlen(scalebuf);
+
+        if (!strncmp(bp, scalebuf, n)) {
+            char *src = bp + n, *dst = bp;
+
+            while ((*dst++ = *src++) != '\0')
+                continue;
+            ConcUpdate(bp); /* bp_eos and bpspaceleft */
+        }
     }
 
     /* fruits are allowed to be given artifact names; when that happens,
@@ -1688,13 +1713,8 @@ doname_base(
                 }
             }
         }
-        if (Is_dragon_scaled_armor(obj)) {
-            char scalebuf[30], *colorstr = dragon_scales_color(obj);
-
-            Sprintf(scalebuf, "%s-scaled ", colorstr);
+        if (*scalebuf)
             Strcat(prefix, scalebuf);
-            releaseobuf(colorstr); /* don't consume an extra obuf */
-        }
         FALLTHROUGH;
         /*FALLTHRU*/
     case WEAPON_CLASS:
@@ -6838,6 +6858,22 @@ dragon_scales_color(struct obj *obj)
     (void) strncpy(buf, name, colorlen);
     buf[colorlen] = '\0';
     return buf;
+}
+
+/* format "<color>-scaled " for dragon-scaled body armor into outbuf
+   (empty for anything else); outbuf needs room for "shimmering-scaled " */
+staticfn char *
+dragon_scaled_prefix(struct obj *obj, char *outbuf)
+{
+    char *colorstr;
+
+    outbuf[0] = '\0';
+    if (Is_dragon_scaled_armor(obj)) {
+        colorstr = dragon_scales_color(obj);
+        Sprintf(outbuf, "%s-scaled ", colorstr);
+        releaseobuf(colorstr); /* don't consume an extra obuf */
+    }
+    return outbuf;
 }
 
 const char *

@@ -309,7 +309,7 @@ staticfn char *
 loot_xname(struct obj *obj)
 {
     struct obj saveo;
-    boolean save_debug;
+    boolean save_debug, scaled;
     char *res, *save_oname;
 
     /*
@@ -321,6 +321,7 @@ loot_xname(struct obj *obj)
     saveo.blessed = obj->blessed, saveo.cursed = obj->cursed;
     saveo.spe = obj->spe;
     saveo.owt = obj->owt;
+    saveo.corpsenm = obj->corpsenm;
     save_oname = has_oname(obj) ? ONAME(obj) : 0;
     save_debug = flags.debug;
     /* suppress "diluted" for potions and "holy/unholy" for water;
@@ -338,6 +339,11 @@ loot_xname(struct obj *obj)
        have the same size adjective hence same "small glob of " prefix */
     if (obj->globby)
         obj->owt = 20; /* weight of a fresh glob (one pudding's worth) */
+    /* suppress "<color>-scaled " on dragon-scaled body armor so that it
+       sorts with other suits of its type rather than by scale color */
+    scaled = Is_dragon_scaled_armor(obj);
+    if (scaled)
+        obj->dragonscales = 0;
     /* suppress user-assigned name */
     if (save_oname && !obj->oartifact)
         ONAME(obj) = 0;
@@ -380,6 +386,8 @@ loot_xname(struct obj *obj)
                       : (obj->owt <= 500) ? "c"
                         : "d");
     }
+    if (scaled)
+        obj->dragonscales = saveo.corpsenm;
     if (save_oname && !obj->oartifact)
         ONAME(obj) = save_oname;
 

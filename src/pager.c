@@ -2952,6 +2952,12 @@ checkfile(
         dbase_str[6] = '\0';
     else if (!strncmp(dbase_str, "figurine of ", 12))
         dbase_str[8] = '\0';
+    /* remove "<color>-scaled " from dragon-scaled body armor; it leads
+       the xname() text that "/i" looks up and precedes the enchantment
+       when picked from the map ("gold-scaled +0 plate mail") */
+    if ((ep = strchr(dbase_str, ' ')) != 0 && ep - dbase_str > 7
+        && !strncmp(ep - 7, "-scaled", 7))
+        dbase_str = ep + 1;
     /* remove enchantment ("+0 aklys"); [for 3.6.0 and earlier, this wasn't
        needed because looking at items on the map used xname() rather than
        doname() hence known enchantment was implicitly suppressed] */
