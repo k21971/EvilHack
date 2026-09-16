@@ -816,6 +816,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 | worn_slot_exempt (poly_obj/worn_slot_sanity) | gw | transient diagnostic exemption, Null between moves, never saved; g_init_w resets it per game (better than master's bare global) |
 | exploder (explode attribution) | ge | transient, save/restore bracketed per explode() call, m_detach clears; never saved (gb.buzzer precedent) |
 | thrower (missile attribution) | gt | transient, bracketed per m_throw/thrwmu flight, m_detach clears; never saved (gb.buzzer precedent) |
+| ukiller (bones looting) | gu | transient death-sequence pointer set beside the killer text in done_in_by()/touch_of_death()/gaze/Orcus, cleared by savelife()/sentient_arise()/m_detach() and savebones()'s dead-killer check; never saved (gb.buzzer precedent) |
 
 ### Content data
 
@@ -13522,21 +13523,132 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       passiveum split on S_JELLY/S_FUNGUS forms and passivemm's HP
       gain on blue jelly / brown mold only. Decide upstream-wins or
       master parity when the passive family is next touched.
-- [ ] Killer loots the hero's death pile in bones ABSENT (minted
-      2026-09-09 by the dragon-scaled consumer-sites census): master
-      savebones() (src/bones.c ~648-700) keeps `ukiller` (the monster
-      that killed the hero) when the hero does not rise from the
-      grave, lets it take each floor item at the death square with a
-      1 in 8 chance, anything it already owned, and - if it is a
-      demon lord or prince ("greedy") - half of the artifacts, dragon
-      armor (Is_dragon_armor), amulets of life saving, bags of
-      holding, magic markers and unicorn horns, subject to
-      touch_artifact()/can_carry(); it then m_dowear()s the loot and
-      a greedy killer is removed 1 in 3 (mongone + dmonsfree) so
-      low-dungeon demon-prince bones do not loop. The branch's
-      savebones() has no ukiller leg at all (upstream 5.0 shape).
-      Whole feature; needs the ukiller producer trace on the branch
-      (where master sets it in done()/mon.c) before the leg. LOW.
+- [x] Killer loots the hero's death pile in bones PORTED 2026-09-16
+      (session 119; the LOW row minted 2026-09-09 by the dragon-scaled
+      consumer-sites census; commit A = include/decl.h + src/decl.c +
+      src/end.c + src/mon.c + src/bones.c + src/mhitu.c + src/mcastu.c
+      + src/artifact.c, hash in the archive next to BUG-1847). Master's
+      whole feature (0efc80b85 + 47784b696, 98a8d8109, cf17e5387,
+      8a41e04d3, 0deb958dc, 9580bea0b, 0b1e207f5, dcb410f4a = BUG-611,
+      e52653a46 = BUG-618): none of it was on the branch. RULING
+      (AskUserQuestion 2026-09-16): COMPOSE BOTH - upstream 5.0's
+      give_to_nearby_mon() adjacent 1-in-8 scatter inside
+      drop_upon_death() (176d5b846) stays and runs first; master's
+      killer leg loots what remains. SHAPE: gu.ukiller (runtime global,
+      never saved; gX/svX log) set in done_in_by() after the killer
+      text with master's "starts to ransack|rummage through|root
+      through your possessions..." / "emits a satisfied belch" lines
+      (!Lifesaved, !DEADMONSTER; adjacency gates the ransack line
+      only), cleared first thing in savelife() (master 0b1e207f5) and
+      in the sentient_arise() survive block (BUG-618 mirror);
+      m_detach() clears it beside gb.buzzer/gt.thrower/ge.exploder
+      (replaces master's three in-loop clears: home-based uniques,
+      wandering steeds, the greedy self-removal); savebones() nulls a
+      DEADMONSTER killer between iter_mons(remove_mon_from_bones) and
+      dmonsfree() (mutual kill: detached before the set) and runs
+      master's leg in the ghost arm (1-in-8 per floor item,
+      find_owner_on_level() owned items, greedy demon lord/prince half
+      of artifacts/dragon armor/life-saving/bags/markers/unihorns,
+      touch_artifact + can_carry + the BUG-611 corpse guard, m_dowear,
+      greedy 1-in-3 mongone + dmonsfree). The three custom-killer
+      sites: Vecna's gaze (mhitu.c) and the Wand of Orcus (artifact.c)
+      set it before done(DIED); touch_of_death() (mcastu.c) sets it
+      after the kbuf build and clears on the survival tail.
+      DEVIATIONS: digests() replaces master's is_swallower() - an
+      AT_ENGL census of both trees (36 attacks, identical tables)
+      selects the same 18 monsters (13 non-sea dragons + lurker above,
+      trapper, purple worm, neothelid, giant anaconda; the sea dragon
+      is AD_WRAP on both), and the branch already uses digests() at
+      every other master is_swallower() site (upstream adopted the
+      vocabulary) - no macro, no row; touch_of_death() serves both
+      Death's melee touch and the MGC_DEATH_TOUCH spell on 5.0 and is
+      no longer an instadeath, so the spell's fatal touch loots too
+      (master's spell path never set the pointer); the drain-strength
+      spell brackets its losestr() call (5.0 dies inside it where
+      master reached done_in_by() afterwards). RECORDED (parity): no
+      bones while swallowed on either tree (the belch is flavor only;
+      the Juiblex mongone-while-swallowed edge is unreachable); the
+      life-saving FAILURE arms (cursed amulet, nonliving hero) keep
+      Lifesaved true at done_in_by() so the line is suppressed although
+      the hero dies; ranged done_in_by() killers (spell psi bolt) loot
+      from afar - only the message is adjacency-gated; beams, monster
+      wand zaps, thrown/fired missiles and explosions never set the
+      pointer on either tree; can_carry()'s partial count takes the
+      whole stack; the uball/uchain guard is dead after unpunish()
+      (reviewer LOW, master-identical); wizard mode can pop
+      touch_artifact()'s "Override?" for a demon prince vs a
+      self-willed lawful artifact right after "Save bones?" (reviewer
+      LOW, master-identical). Reviewer PASS (no CRITICAL/HIGH/MED; the
+      LOWs above). NEW ROWS below: done_in_by() graverise arms (MED),
+      racial killer text (LOW). BATTERY (2026-09-16, ~73 min, 386 tool
+      uses, 16 branch Valkyrie XL30 games + 4 master Valkyrie XL20
+      games; master paniclog absent throughout, the branch paniclog's
+      only two entries were the tester's own gdb rloc_to onto an
+      occupied tile, removed after the run): T1 the adjacent hill orc
+      prints "starts to ransack your possessions...", the
+      christen_monst() snapshot shows it alive holding 3 of 9 hero
+      items (spear, unicorn horn, amulet of life saving WORN via
+      m_dowear), the rest plus the named corpse on the floor; T1r the
+      reloaded bones level carries the orc with that inventory (the
+      stolen amulet life-saved it against #wizkill); T2a Orcus "starts
+      to ransack", took marker + unicorn horn + bag of holding + dagger
+      + spear and left Mjollnir/scales/amulet (arm A); arm B (the
+      1-in-3 removal) NOT sampled - Orcus was the melee killer in 1 of
+      4 runs (a wand of fire, a summoned barbed devil and an acid
+      splash took the others; pointer NULL or the devil, bones clean
+      each time); T3 acid-blob mutual kill: no line, pointer NULL at
+      bones, clean save; T4 Wizard of Yendor melee (mspec_used lever):
+      "starts to rummage through", pointer NULL at bones (sent away),
+      nothing looted, clean; T5a purple worm "emits a satisfied
+      belch", no bones prompt; T5b fog cloud: no line; T6 the amulet
+      life-save prints no line, the starvation death then saves bones
+      with the pointer NULL; T6b the SECOND killer (centaurian soldier)
+      is the recorded looter and wore a looted small shield; T7a a
+      survived "You feel drained..." leaves the pointer NULL; T7b Death
+      (killed by HP loss - the 15% fatal touch_of_death() arm never
+      rolled, review-covered) alive at bones, drew and wore the small
+      shield; T1m master: same wording, killer alive with 2 hero items,
+      corpse on the floor (read back from the bones file - master's
+      christen_monst() runs before the drop); T5m master belch line.
+      OBSERVED, correct by the code: killers with no loot-liking flag
+      (barbed devil, large cave lizard, Death) print no line yet draw
+      items - the leg never checks the flags, master-identical.
+      Master-side oddity not chased: one master Dlvl 6 hill-orc death
+      offered no "Save bones?" (a portal level, most likely). Premise
+      corrections and staging levers -> gameplay memory. Open Phase 2
+      rows: 62 (61 - 1 closed + 2 minted).
+- [ ] done_in_by() graverise arms ABSENT (minted 2026-09-16 by the
+      bones killer-looting slice): master's done_in_by() (src/end.c
+      ~665-699; 0efc80b85's "tweaks to how a player could rise as a
+      spectre" + b23f439ce) raises the hero as a vampire mage (human
+      Wizard killed by a vampire mage), a barrow wight (killed by a
+      Nazgul), a revenant (killed by any S_LICH) and a spectre (killed
+      by a spectre OR dying at XL 22+). The branch keeps only the
+      wraith / mummy / zombie / vampire sovereign / ghoul / mind flayer
+      arms, so a Nazgul kill rises as a plain wraith (the S_WRAITH
+      arm), a vampire mage kill as a vampire sovereign, and lich,
+      spectre and EVERY XL 22+ death leave a ghost with the pile on
+      the floor where master leaves a spectre carrying it - bones
+      content differs for every high-level death, and sentient_arise()
+      already rolls for PM_REVENANT / PM_SPECTRE / PM_BARROW_WIGHT /
+      PM_VAMPIRE_MAGE, dead arms until these land. Port = master's four
+      arms at master's positions ahead of the G_GENOD guard (the
+      battery note: master control games must stay at XL <= 21 to
+      reach the ghost arm). MED.
+- [ ] done_in_by() names a racial monster by its race (minted
+      2026-09-16 by the bones killer-looting battery; LOW,
+      player-facing): the branch's plain-monster arm builds the killer
+      text from pmname(r_data(mtmp)) - the racial slice's r_data()
+      substitution inside upstream 5.0's pmname(mptr) shape - so a
+      centaurian soldier's kill is logged "killed by a centaur" (T6b
+      logfile) while the screen said "The centaurian soldier starts to
+      rummage through your possessions..."; master formats that arm
+      through x_monnam(EXACT_NAME | SUPPRESS_NAME | SUPPRESS_RIDER),
+      which carries the racial adjective ("centaurian soldier").
+      Tombstone, logfile, xlogfile and livelog all take the text. Port
+      = master's x_monnam form (or pmname on mtmp->data plus the
+      branch's racial adjective) for the name while r_data() keeps
+      serving the uniqueness/pname/graverise checks. LOW.
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
