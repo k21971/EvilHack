@@ -517,11 +517,19 @@
      || (ptr) == &mons[PM_GOBLIN_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN] \
      || (ptr) == &mons[PM_HILL_GIANT_SHAMAN]                              \
      || (ptr) == &mons[PM_DROW_CLERIC] || (ptr) == &mons[PM_TORTLE_SHAMAN])
-/* note: placeholder monsters are used for corpses of zombies and mummies;
-   PM_DWARF and PM_GNOME are normal monsters, not placeholders */
-#define is_placeholder(ptr)                             \
-    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT] \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN])
+/* placeholder monsters are the level-0 G_NOGEN race archetypes (the
+   corpsenm of racial corpses via undead_to_corpse() and the racial
+   machinery's mons[] anchors); none is ever randomly generated, chosen
+   by mkclass() or taken as a polymorph form */
+#define is_placeholder(ptr) \
+    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]         \
+     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]      \
+     || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]  \
+     || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]    \
+     || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH] \
+     || (ptr) == &mons[PM_DROW] || (ptr) == &mons[PM_AASIMAR]   \
+     || (ptr) == &mons[PM_DRAUGR] || (ptr) == &mons[PM_VAMPIRE] \
+     || (ptr) == &mons[PM_TORTLE])
 /* return TRUE if the monster tends to revive */
 #define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL)
 /* monsters whose corpses and statues need special handling;

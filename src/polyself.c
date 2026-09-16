@@ -819,10 +819,11 @@ polyself(int psflags)
                     mntmp = rn2(3) ? PM_GREEN_ELF : PM_GREY_ELF;
                 else if (mntmp == PM_GIANT)
                     mntmp = rn2(3) ? PM_STONE_GIANT : PM_HILL_GIANT;
-                /* note: PM_DWARF and PM_GNOME are ordinary monsters and
-                   no longer flagged no-poly so have no need for placeholder
-                   handling; PM_HUMAN is a placeholder without a suitable
-                   substitute so gets handled differently below */
+                /* the other race placeholders (dwarf, gnome, centaur,
+                   illithid, nymph, drow, aasimar, draugr, vampire, demon,
+                   tortle) have no substitute here and fall through with
+                   mntmp unchanged to the !polyok() refusal below, as
+                   PM_HUMAN does */
             }
 
             if (mntmp < LOW_PM) {
