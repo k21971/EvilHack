@@ -803,6 +803,8 @@ static const struct instance_globals_u g_init_u = {
     FALSE, /* update_all */
     /* decl.c */
     FALSE, /* unweapon */
+    /* end.c */
+    (struct monst *) 0, /* ukiller */
     /* revision.c */
     0, /* uplift_needed_rev0_to_rev1 */
     /* role.c */

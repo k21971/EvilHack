@@ -648,6 +648,9 @@ touch_of_death(struct monst *mtmp)
        poly'd into an undead or demon */
     You_feel("drained...");
     (void) death_inflicted_by(kbuf, "the touch of death", mtmp);
+    /* the toucher loots the bones pile if this proves fatal (either
+       arm below can end the game); cleared at the end when it did not */
+    gu.ukiller = mtmp;
 
     if (Upolyd) {
         u.mh = 0;
@@ -669,6 +672,7 @@ touch_of_death(struct monst *mtmp)
         losehp(dmg, kbuf, KILLED_BY);
     }
     svk.killer.name[0] = '\0'; /* not killed if we get here... */
+    gu.ukiller = (struct monst *) 0;
 }
 
 /* articled species name of the monster responsible for a kill, for the
@@ -1132,10 +1136,14 @@ mcast_weaken_you(struct monst *mtmp, struct monst *mdef, int dmg)
                 dmg = 1;
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
+            /* losestr() ends the game from inside the call when the
+               loss is fatal; the caster then loots the bones pile */
+            gu.ukiller = mtmp;
             losestr(rnd(dmg),
                     death_inflicted_by(kbuf, "strength loss", mtmp),
                     KILLED_BY);
             svk.killer.name[0] = '\0'; /* not killed if we get here... */
+            gu.ukiller = (struct monst *) 0;
             monstunseesu(M_SEEN_MAGR);
         }
     } else {

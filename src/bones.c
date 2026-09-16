@@ -600,6 +600,12 @@ savebones(int how, time_t when, struct obj *corpse)
         dismount_steed(DISMOUNT_BONES);
 
     iter_mons(remove_mon_from_bones); /* send various unique monsters away, */
+    /* a killer that died alongside the hero is still on fmon until
+       dmonsfree() frees it; the looting leg below must not reach it
+       (m_detach() ran before the pointer was set, so it could not
+       clear it) */
+    if (gu.ukiller && DEADMONSTER(gu.ukiller))
+        gu.ukiller = (struct monst *) 0;
     dmonsfree();                      /* then discard dead or gone monsters */
 
     forget_engravings(); /* next hero won't have read any engravings yet */
@@ -657,6 +663,59 @@ savebones(int how, time_t when, struct obj *corpse)
     } else { /* u.ugrave_arise == NON_PM */
         /* drop everything */
         drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
+        if (gu.ukiller) {
+            /* If you don't rise from your grave (and are thus carrying
+             * your stuff), the critter that killed you gets some special
+             * handling here.
+             *
+             * First, it gets to loot your body; if it's a demon lord or
+             * prince, it will tend to take all the "good stuff".
+             *
+             * It also gets a chance to be removed as well -- hitting
+             * Yeenoghu bones once is not a big deal, but a persistent
+             * upper-dungeon Yeenoghu from an unlucky fountain quaffer
+             * would be a bit much.
+             */
+            struct obj *otmp, *otmp2;
+            boolean greedy = FALSE;
+
+            /* Actively mean monsters */
+            if (is_dlord(gu.ukiller->data) || is_dprince(gu.ukiller->data))
+                greedy = TRUE;
+
+            for (otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
+                otmp2 = otmp->nexthere; /* mpickobj might free otmp */
+                /* leave the hero's corpse on the floor so the newly
+                   created ghost remains linked to it via obj_attach_mid;
+                   otherwise the corpse ends up locked inside the
+                   killer's inventory */
+                if (otmp == corpse)
+                    continue;
+                if (!rn2(8) || find_owner_on_level(otmp) == gu.ukiller
+                    || (greedy && rn2(2)
+                        && (otmp->oartifact || Is_dragon_armor(otmp)
+                            || otmp->otyp == AMULET_OF_LIFE_SAVING
+                            || Is_allbag(otmp) || otmp->otyp == MAGIC_MARKER
+                            || otmp->otyp == UNICORN_HORN))) {
+                    if (!touch_artifact(otmp, gu.ukiller))
+                        continue;
+                    if (!can_carry(gu.ukiller, otmp))
+                        continue;
+                    if (otmp == uball || otmp == uchain)
+                        continue;
+                    obj_extract_self(otmp);
+                    (void) mpickobj(gu.ukiller, otmp);
+                }
+            }
+            m_dowear(gu.ukiller, TRUE); /* Let them wear it */
+            /* This right here can help prevent an endless loop of low
+             * dungeon level demon prince/lord bones, but some of the more
+             * desirable loot could go with them */
+            if (greedy && !rn2(3)) {
+                mongone(gu.ukiller); /* m_detach() clears gu.ukiller */
+                dmonsfree(); /* have to call this again */
+            }
+        }
         /* trick makemon() into allowing monster creation
          * on your location
          */

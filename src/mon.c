@@ -4264,13 +4264,16 @@ m_detach(
     coordxy mx = mtmp->mx, my = mtmp->my;
 
     /* if mtmp is the pending source of a beam, thrown object, or
-       explosion, forget it since mtmp is going away */
+       explosion, or the hero's killer awaiting the bones pile, forget it
+       since mtmp is going away */
     if (mtmp == gb.buzzer)
         gb.buzzer = 0;
     if (mtmp == gt.thrower)
         gt.thrower = 0;
     if (mtmp == ge.exploder)
         ge.exploder = 0;
+    if (mtmp == gu.ukiller)
+        gu.ukiller = 0;
 
     if (mtmp->mleashed)
         m_unleash(mtmp, FALSE);

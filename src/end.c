@@ -277,6 +277,14 @@ sentient_arise(int how)
     return FALSE;
 }
 
+/* the killer paws through the death pile when it cares about loot and
+   is standing next to the hero */
+#define is_rummager(mon) \
+    ((likes_gold((mon)->data) || likes_gems((mon)->data)     \
+      || likes_objs((mon)->data) || likes_magic((mon)->data) \
+      || is_covetous((mon)->data))                            \
+     && distu((mon)->mx, (mon)->my) < 3)
+
 DISABLE_WARNING_FORMAT_NONLITERAL /* one compiler warns if the format
                                      string is the result of a ? x : y */
 
@@ -400,6 +408,23 @@ done_in_by(struct monst *mtmp, int how)
             && mtmp->m_id == reasonmid) {
             if ((p = strchr(gm.multireasonbuf, ' ')) != 0)
                 *p = '\0';
+        }
+    }
+
+    /* the killer gets to loot the bones pile (savebones()); a digesting
+       engulfer has already eaten its fill, and a monster that died
+       alongside the hero says nothing */
+    gu.ukiller = mtmp;
+    if (!Lifesaved) {
+        if (u.uswallow) {
+            if (u.ustuck == mtmp && !DEADMONSTER(mtmp)
+                && digests(mtmp->data))
+                pline("%s emits a satisfied belch.", Monnam(mtmp));
+        } else if (!DEADMONSTER(mtmp) && is_rummager(mtmp)) {
+            pline("%s starts to %s your possessions...", Monnam(mtmp),
+                  (nohands(mtmp->data) || nolimbs(mtmp->data))
+                      ? "root through"
+                      : rn2(2) ? "ransack" : "rummage through");
         }
     }
 
@@ -854,6 +879,10 @@ savelife(int how)
 {
     int uhpmin;
     int givehp = 50 + 10 * (ACURR(A_CON) / 2);
+
+    /* the hero lives on; the killer must not loot a later, unrelated
+       death's bones pile through a stale pointer */
+    gu.ukiller = (struct monst *) 0;
 
     /* life-drain/level-loss to experience level 0 kills without actually
        reducing ulevel below 1, but include this for bulletproofing */
@@ -1353,6 +1382,7 @@ done(int how)
            from any swallower since the old body is gone */
         svk.killer.name[0] = '\0';
         svk.killer.format = KILLED_BY_AN; /* reset to 0 */
+        gu.ukiller = (struct monst *) 0;
         if (u.uswallow)
             expels(u.ustuck, u.ustuck->data, TRUE);
         cancel_don(); /* new form's armor layout may differ */
@@ -1377,7 +1407,7 @@ done(int how)
                   : (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
                     ? "aren't destroyed" : "don't die");
         iflags.last_msg = PLNMSG_OK_DONT_DIE;
-        savelife(how);
+        savelife(how); /* also clears gu.ukiller */
         survive = TRUE;
     }
 

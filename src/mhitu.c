@@ -2799,6 +2799,7 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                                               mtmp);
                     svk.killer.format = KILLED_BY;
                     Strcpy(svk.killer.name, kbuf);
+                    gu.ukiller = mtmp;
                     done(DIED);
                     dmg = 0;
                     break;

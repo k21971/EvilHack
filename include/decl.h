@@ -1022,6 +1022,9 @@ struct instance_globals_u {
     /* decl.c */
     boolean unweapon;
 
+    /* end.c */
+    struct monst *ukiller; /* monster that killed the hero, for bones */
+
         /* revision.c */
     int uplift_needed_rev0_to_rev1;
 

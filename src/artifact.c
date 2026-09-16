@@ -2789,6 +2789,7 @@ artifact_hit(
                               distant_name(otmp, xname));
                     svk.killer.format = KILLED_BY;
                     Strcpy(svk.killer.name, "the Wand of Orcus");
+                    gu.ukiller = magr; /* Null when there is no wielder */
                     done(DIED);
                     return TRUE;
                 }
