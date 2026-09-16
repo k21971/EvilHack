@@ -2221,6 +2221,31 @@ poly_obj(struct obj *obj, int id)
         }
     }
 
+    /* a lit object loses its light source with the old object; when
+       the new form can be lit, relight it so the polymorph does not
+       snuff a lamp, candle, or oil flask that was left burning */
+    if (obj->lamplit) {
+        /* extinguish the old light source; the timer refund restores
+           obj->age to the unused fuel before it is copied below */
+        if (obj_sheds_light(obj))
+            end_burn(obj, TRUE);
+        if (otmp && (otmp->otyp == MAGIC_LAMP || otmp->otyp == OIL_LAMP
+                     || otmp->otyp == LANTERN || Is_candle(otmp)
+                     || otmp->otyp == POT_OIL || artifact_light(otmp))) {
+            /* a potion of oil burns its age; carry the fuel over */
+            if (otmp->otyp == POT_OIL)
+                otmp->age = obj->age;
+            begin_burn(otmp, FALSE);
+        } else if (otmp) {
+            /* new form can't be lit; a fresh object never carries a
+               burn timer, but stop one before clearing the flag since
+               cleanup_burn() refuses an object that is no longer lit */
+            if (otmp->timed)
+                (void) stop_timer(BURN_OBJECT, obj_to_any(otmp));
+            otmp->lamplit = 0;
+        }
+    }
+
     /* note: if otmp is gone, billing for it was handled by useup() */
     if (((otmp && !carried(otmp)) || obj->unpaid) && costly_spot(ox, oy)) {
         struct monst *shkp = shop_keeper(*in_rooms(ox, oy, SHOPBASE));
