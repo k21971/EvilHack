@@ -1121,7 +1121,10 @@ newsym(coordxy x, coordxy y)
                 goto show_mem;
         } else {
  show_mem:
-            show_glyph(x, y, lev->glyph);
+            /* no remembered map while submerged in ordinary water,
+               apart from the adjacent squares the hero can feel */
+            if (!Underwater || Is_waterlevel(&u.uz) || next2u(x, y))
+                show_glyph(x, y, lev->glyph);
         }
     }
 }
@@ -1841,11 +1844,14 @@ docrt_flags(int refresh_flags)
     if (!nocls)
         cls();
 
-    /* display memory */
-    for (x = 1; x < COLNO; x++) {
-        lev = &levl[x][0];
-        for (y = 0; y < ROWNO; y++, lev++)
-            show_glyph(x, y, lev->glyph);
+    /* display memory; a hero submerged in ordinary water sees only
+       what is currently in view */
+    if (!Underwater || Is_waterlevel(&u.uz)) {
+        for (x = 1; x < COLNO; x++) {
+            lev = &levl[x][0];
+            for (y = 0; y < ROWNO; y++, lev++)
+                show_glyph(x, y, lev->glyph);
+        }
     }
 
     /* see what is to be seen */
