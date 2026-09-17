@@ -14820,6 +14820,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       carry BUG-389's `||` resist shape, BUG-1319's set_pet_killer,
       and the two defended(AD_FIRE) terms the sweep could not edit
       inside dead code. Four master defended() sites ride with these.
+      RIDER 2026-09-17 (rumors slice): the held master rumor "Wish I
+      may, wish I might, don't let that monster steal my wish tonight!"
+      lands with mmake_wish().
 - [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
@@ -15943,8 +15946,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       withholds the generated stats block; skeletal pony / wolverine /
       Tal'Gath-class stragglers are uncovered in BOTH parents,
       candidates for a future content pass, not this row.
-- [ ] dat/rumors.tru + rumors.fal EvilHack lines NOT PORTED (minted
-      2026-09-06 by the frac_altar slice; LOW content-data gap).
+- [x] dat/rumors.tru + rumors.fal EvilHack lines PORTED 2026-09-17
+      (session 123, ONE data commit `Phase 2: EvilHack rumors,
+      epitaphs, bogus monsters, oracle text.` -
+      hash filled after landing; minted 2026-09-06 by the frac_altar
+      slice; LOW content-data gap).
       Sorted diff against master c444f6a3a: 93 .tru and 44 .fal
       master-only lines remain after this slice added its two
       fractured-altar rumors (Phase 3 slices have been adding their
@@ -15953,6 +15959,170 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       the data.base row's entry-level merge at alphabetical position;
       hold back master lines that name unported content until their
       owner slices land (check each against the tree).
+      CLOSED 2026-09-17 (session 123): THREE-WAY entry-level merge
+      (BASE = Official_nh36 = NetHack 3.6.7, sorted-line comm):
+      rumors.tru base 369 / master 465 / branch 405 / NetHack50 390 ->
+      100 master ADDs, 15 already on the branch (Phase 3 + frac_altar
+      slices), 85 candidates; rumors.fal 394 / 427 / 404 / 397 -> 33
+      ADDs, 7 on the branch, 26 candidates. NOT candidates (upstream
+      wins, the data.base collision rule): 7 .tru vanilla lines that
+      upstream 45e830591 reworded or removed (troll/large box, `d'
+      quotes, Juiblex "somewhat", `Elbereth' quotes, "wise choice of
+      donations", garter snake "may not taste good", REMOVED "Being
+      digested is a painfully slow process.") and 17 .fal lines 5.0
+      re-tagged with the `[cookie] ` marker (rumors.c getrumor
+      strips/excludes it; every one has its twin on the branch).
+      RESULT: .tru 75 PORT = 71 adds + 4 IN-PLACE REPLACEMENTS of
+      vanilla lines whose EvilHack rewording is backed by a ported
+      mechanic (gelatinous cube "can do more than just paralyze you"
+      = monsters.h AT_ENGL/AD_WRAP; Fire Brand and Frost Brand "short
+      sword" = artilist.h SHORT_SWORD; "Vlad lives!!! ... in hell"
+      over 5.0's "... near the mazes" - both parents changed base's
+      "in the mazes", RULING AskUserQuestion 2026-09-17: master's), 9
+      HOLD, 1 SKIP; .fal 24 PORT, 2 HOLD. Files 405 -> 476 and 404 ->
+      428. Every candidate's referenced content was checked against
+      the tree (three Explore agents, every HOLD and the surprising
+      PORTs re-verified by hand; one agent PORT overturned: the Bell
+      of Opening line). HELD lines ride the "Rumor-slice riders" row
+      below (a)-(g), the Hdgn-slice riders row (a) monster gradual
+      stoning ("Getting stoned is never a quick process." - written
+      one week after master 2f58ace93; RULING 2026-09-17: hold, the
+      hero-side 5-turn stoning being vanilla) and the Muse offense
+      items row (mmake_wish: "Wish I may, wish I might, don't let that
+      monster steal my wish tonight!"). SKIPPED for good: "Sometimes
+      it's nice to #give to those in need." - master 6047d8b03
+      (2021-04-07) removed #give (replaced by #loot give/take) and
+      left the rumor behind = BUG-1852 master frozen-unfixed, archive
+      entry written. Medusa: "Someone told Medusa what can happen if
+      she looks at herself in a mirror." PORTED on the reflected-gaze
+      arms (mhitu.c gazemu "too far away to notice" / "shields her
+      eyes just in time", master dfed32814 two days before the rumor);
+      the 2021 mirror-APPLY fix 0a91d1688 is NOT on the branch ->
+      riders (h). SIBLING FILES FOLDED IN (RULING 2026-09-17): the
+      same measurement found un-rowed gaps in dat/epitaph.txt (+2
+      master lines: "Hey look a shambling horror, let's melee it.
+      I'm sure it's harmless." / "One, two, five... no three!"),
+      dat/bogusmon.txt (master's "# Particularly bad greek myths"
+      block of 5 names after "millitaur" - master's "/b/tard" is a
+      3.6.7 line 5.0 deleted, kept deleted; master's "+Ijyb" and
+      "+Gloorx Vloq" already exist as "-Ijyb"/"=Gloorx Vloq") and
+      dat/oracles.txt (the dragon-scale oracle body -> master's
+      dragon-scaled-armor wording, the mechanic having landed
+      2026-09-07; 5.0's added Elbereth "sword-arm" clause stays);
+      engrave.txt has no real delta. PLACEMENT: LIS-backbone insertion
+      (scratchpad rumormerge.py, case-insensitive key: backbone
+      387/405 tru, 373/404 fal, 290/401 epitaph) + one manual swap
+      ("Vampires prefer their meals liquid." after "Vampires hate
+      garlic." - the vecna slice's Vecna line sits out of order).
+      Hygiene: all ASCII, longest new line 96 (BUFSZ 256, MD_PAD_RUMORS
+      60), no duplicates, no leading '#'. makedefs -r/-h exit 0, nhdat
+      rebuilt, installed (SHELLDIR= kept, save dir empty, wrapper
+      untouched). REVIEWER CONDITIONAL PASS -> fixed pre-commit: the
+      ported oracle body carried master's 80-column line 21 and
+      outoracle() (rumors.c) reads oracle lines with dlb_fgets(line,
+      COLNO) = 79 bytes per read, so a major consultation drawing it
+      would print "...a dragon's hide ma" / "y" (79-column lines
+      add a stray blank; the practical cap is 78, every other oracle
+      line in both trees is <= 78) - BUG-1853 master frozen-unfixed
+      (a721d48ff), the branch body re-wrapped at 77/76/64 with the
+      wording unchanged; reviewer LOW noted only: "Beholders prefer
+      to sleep. Be grateful." keeps master's single space after the
+      period (verbatim by rule). Hygiene, placement, the three-way
+      set algebra (17 master-only .tru lines - 10 held/skipped = the
+      7 upstream-wins lines; 19 .fal - 2 held = the 17 cookie twins),
+      every HOLD and 20+ PORTs, the generated rumors header
+      (0476/0428, offsets consistent) and the bogusmon prefix codes
+      (`|`/`_` in bogon_codes[], non-personal -> article) all
+      verified by the reviewer. BATTERY (game-tester, two wizard
+      human Valkyrie XL30 games, ~35 min, paniclog never created,
+      save dir empty throughout): T1 #wizrumorcheck T 109/30448/
+      30339 + F 30448/58090/27642, first/last true and false lines
+      and the engraving/epitaph/bogusmon samples all equal the
+      source files' first/last entries (the makedefs default
+      "No matter where..."/"grue" leads each section); T2 29
+      fortune cookies eaten, 29/29 texts matched a source line
+      exactly (14 true / 15 false), one newly ported line drawn
+      ("Be careful what you wish for; you may get two for one."),
+      the `[cookie] ` marker never leaked; T3 six Oracle minors,
+      6/6 matched rumors.tru, none cookie-tagged; T4 on the
+      PRE-FIX installed blob reproduced the split ("...hide ma" /
+      "h" - xcrypt restarts per read, so the leftover byte decodes
+      wrongly); T4b after the re-wrap + reinstall: the target
+      oracle on try 19/20 rendered 77/76/64 byte-identical to the
+      source, all 19 oracle windows clean (max width 78, no blank
+      or one-character lines, no separator leak).
+      Open Phase 2 rows: 61 (61 - 1 closed + 1 minted).
+- [ ] Rumor-slice riders on unported features (minted 2026-09-17 by
+      the rumors slice, session 123): each held master rumor line sits
+      beside the mechanic it names - port the line with the mechanic.
+      (a) MONSTER FLOOR-CONTAINER LOOTING (MED; the closed 2026-08-27
+      monster-looting row scoped itself to CARRIED containers and left
+      the floor side as the magic-chest row's prose deferral - this is
+      its row): master mon.c mloot_container() + mpickstuff()'s
+      unlock-and-loot arm (keyed on a carried SKELETON_KEY / LOCK_PICK
+      / CREDIT_CARD / MAGIC_KEY, magic chests gated on MAGIC_KEY,
+      crystal chests off limits, then chest_trap(mon, ...) - the
+      "Monster chest_trap() arm ABSENT" row's monster leg lands with
+      it), likes_contents + m_move()'s goal-search `|| Is_container(
+      otmp)` clause (BOTH must exclude BAG_OF_TREASURE and
+      BAG_OF_DEVOURING: a cursed treasure bag weighs its contents x10
+      and so is exactly the !can_carry crack-it-open case), the
+      shared magic chest spliced into the walk, searches_for_item()
+      covering keys; TODO-EVILHACK markers at src/mon.c mpickstuff()
+      and src/monmove.c m_move(). Held lines: rumors.tru "Better keep
+      a lock on your stash..."; rumors.fal "Monsters have no interest
+      in your magic chest." and "No need to lock that chest...".
+      (b) BLESSED-STETHOSCOPE EGG IDENTIFICATION (LOW): master
+      748b8f752 apply.c use_stethoscope() egg arm (BUC-graded guess,
+      blessed reliable, hallucination junk name, stale_egg()/NON_PM
+      silence, egg->known); absent on the branch and on 5.0. Held
+      line: rumors.tru "Listening to eggs is a hobby of mine."
+      (c) MAGIC-STAFF SPELL-SCHOOL BONUS (LOW): master spell.c
+      percent_success() STAFFBONUS block (a wielded staff of the
+      spell's school lowers the failure rate); the seven staves exist
+      on the branch as objects but spell.c has no STAFF_OF_* reference.
+      Held line: rumors.tru "They say that one needs the right staff
+      for the right job."
+      (d) PARTIAL REFLECTION REMAINDER (LOW): only zhitu()'s drain-life
+      Reflecting mitigation was restored (2026-07-17 beam slice);
+      master's other six Reflecting arms in zap.c zhitu() are absent -
+      the fire and cold item-destruction guards, sleep-duration
+      reduction, disintegration mitigation, water "partially absorb",
+      halved stun `(Reflecting ? 4 : 2)` (master zap.c ~5350 / 5371 /
+      5380 / 5395-5403 / 5533 / 5597; vanilla 5.0 has none). Held
+      line: rumors.tru "They say that reflection isn't an all or
+      nothing proposition."
+      (e) BELL OF OPENING QUEST CURSE (LOW): master f327090f3 apply.c
+      use_bell() keeps the Bell cursed and refuses ("You must complete
+      your quest for the Bell of Opening to work!") until
+      u.uevent.qcompleted; branch apply.c has no qcompleted reference
+      (the quest.c leader_wantsit side of that commit IS ported). Held
+      line: rumors.tru "They say the Bell of Opening won't work until
+      you finish the job at hand."
+      (f) LEARNED ELBERETH (LOW): master engrave.c learn_elbereth() /
+      maybe_learn_elbereth() and the bogus_elbereth[] / cannot_write[]
+      substitution in make_engr_at() (an unlearned hero engraves a
+      misspelling); the branch keeps only the dead you.h
+      ulearned_elbereth bitfield (nothing sets or reads it). Held
+      line: rumors.tru "You can't use Elbereth until you've learned
+      it.  Oh, wait...".
+      (g) PET INTRINSIC PREFERENCE (LOW): master dog.c
+      can_give_new_mintrinsic() and its three dogfood() arms (a pet
+      rates a corpse that grants it a new intrinsic higher; a
+      satiated vampire pet still drains such a corpse - the dog.c
+      TODO-EVILHACK marker). Held line: rumors.tru "Your pet wants the
+      same intrinsics that you have."
+      (h) MEDUSA MIRROR-APPLY AVOIDANCE (LOW, bug-class re-port; no
+      rumor rides it): master 0a91d1688 "Fix: reflecting Medusa's gaze
+      with a mirror." gave apply.c use_mirror()'s Medusa arm the two
+      guards gazemu() already had - dist2(mx, my, mux, muy) > 8
+      "reflection is too far away for her to notice" and rn2(25)
+      "shields her eyes just in time" - because a mirror could
+      otherwise be applied at her from any distance for an instant
+      kill. The branch's gazemu() arms are ported (mhitu.c) but
+      use_mirror() keeps vanilla's instant stoning (src/apply.c
+      PM_MEDUSA arm): the 2021 oversight is live again. Assign a BUG
+      id when fixed.
 - [x] GATE: every level wizmode-walked (W column full) - CLOSED
       2026-08-20 with the medusa re-walk; the last three W cells were
       vecna (walked 2026-08-19), bigroom (ruled no-walk, ticked
@@ -16298,6 +16468,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       gaze stones INSTANTLY with no rn2(3) gate (BUG-1500's m-v-u
       fix has no m-v-m sibling yet); the port must honor the
       BUG-1313 damage-zero contract in the sibling AD_DISN case.
+      RIDER 2026-09-17 (rumors slice): the held master rumor "Getting
+      stoned is never a quick process." lands with this subsystem.
       (b) master's floater-pickup restriction (mpickgold/
       mpickstuff/can_carry gates: is_floater or can_levitate
       monsters cannot reach the floor, beholder/Tal'Gath exempt)
@@ -16565,6 +16737,7 @@ trees, different content - Phase 0 rename).
 | 2026-09-11 | Monster free-action slice rulings (AskUserQuestion x1, three questions): (1) potionhit() POT_PARALYSIS takes master 32af2161a's duration now (3-24 turns, 1-12 diluted; 5.0's dilution-blind rnd(25) dropped) - BUG-1826; (2) mhitm_ad_plys()'s monster-vs-monster leg KEEPS 5.0's 1-in-3 roll (master freezes every landed hit) - LOW row; (3) the hero-attacker leg restores master's mdef->mcanmove gate (upstream 0d445a7a7 dropped it; a paralyzing-form hero reset a long freeze to rnd(10)) - BUG-1827, upstream patch artifact ~/nh50-ad-plys-refreeze.patch. | maintainer |
 | 2026-09-11 | AD_BHED dispatcher slice ruling (AskUserQuestion x1, recommended): the Vorpal Blade's artifact_hit() arm takes master's is_jabberwock(mdef->data) class test (a vorpal jabberwock is beheaded on every landed hit) in place of vanilla's PM_JABBERWOCK equality - BUG-1831, its own commit. | maintainer |
 | 2026-09-11 | Melee combat noise slice ruling (AskUserQuestion x1, recommended): all three legs of master 10ac6bc6a take master's exact shape - the hero leg's !rn2(Shadowblade 40 / Rogue 20 / Stealth 10 / 2) ladder with the /4 and /2 radii, and BOTH monster legs' original rn2(10) (nine landed hits in ten; the same inverted-odds shape e9d93c00a corrected on the hero leg only) - parity, no bug entry. | maintainer |
+| 2026-09-17 | Rumors slice rulings (AskUserQuestion x1, three questions, all recommended): (1) the Vlad rumor collision - master 7829e667e "They say that Vlad lives!!! ... in hell." vs upstream 45e830591 "... near the mazes." (both parents changed 3.6.7's "in the mazes"; Vlad's Tower attaches to Gehennom base 8 range 5 on both trees) - takes MASTER'S text, replacing the 5.0 line in place; the data.base collision rule (upstream body wins) stays the default for entry bodies, an authored EvilHack rumor is master's shape. (2) The three sibling data files with the same un-rowed gap (dat/epitaph.txt +2 master lines, dat/bogusmon.txt master's 5-name greek-myth block, dat/oracles.txt master's dragon-scaled-armor oracle wording) FOLD INTO the rumors slice - same makedefs data-merge shape, one commit, one battery - instead of a row of their own. (3) "Getting stoned is never a quick process." is HELD with the Hdgn-slice riders (a) monster gradual-stoning subsystem (authorial intent: written one week after master 2f58ace93) rather than ported on the hero-side reading that is vanilla-true today. |
 | 2026-09-09 | Bane-aura artifact-arm slice ruling (AskUserQuestion x1, recommended): the census found seven rowless master absences; six get rows (AD_BHED dispatcher, melee-combat wake, bane_applies monster demon arm, Hammer tether semantics, One Ring inscription reading, botl_hitbonus/BL_TOHIT) and master 48e5fbdd0's two-line Cleric Mjollnir alignment retarget is ported now as its own commit B (src/artifact.c) because the crowning arm it protects already landed 2026-09-06. The setmangry() alignment charge for a peaceful non-tame victim of the 'bane flip is recorded as master parity (f4080431e names that path as intended), not reworked at the spawn site. | maintainer |
 | 2026-09-06 | youprop.h Sick_resistance keeps the vanilla 5.0 macro (intrinsic + extrinsic + defended(AD_DISE)) rather than master's form-clause list (S_FUNGUS/S_ENT/S_PLANT/undead mlets/S_ANGEL/S_DEMON/green dragons): the branch grants those forms through set_uasmon()'s PROPSET(SICK_RES, ptr_resists_sick(mdat)) as a FROMFORM intrinsic, and ptr_resists_sick() is byte-identical on both trees (it covers every clause master's macro lists), so the macro clauses would be redundant. No row; surfaced by the 2026-09-06 demon-race reviewer census. |
 | 2026-07-25 | master's select-and-fill mkgarden(NULL) SPLIT into mkgardenroom() (selection, sets rtype + needfill) and mkgarden()/mkforest() (fill only), because 5.0 defers all filling to fill_special_room() and a literal port would fill every garden twice. Master's lit-room selection requirement is preserved in mkgardenroom rather than routing through mkzoo()/pick_room(), which would have lost it | coordinator |
