@@ -15468,17 +15468,74 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the field with a topten.c reader only - the hallucinating
       start-state roleplay option is unwired (Ownerless option
       wirings row). The arm travels with that wiring.
-- [ ] LOW: remembered-map paint while submerged (minted 2026-09-06 by
-      the underwater-sight slice's design check + battery). Master
-      7ef047e6a wrapped docrt()'s memory loop and newsym()'s
-      remembered-glyph path in `if (!Underwater)`; the branch's
-      docrt() (display.c) still paints the remembered map when
-      Underwater && See_underwater, and the battery saw a plain
-      submerged Monk (no See_underwater) get the FULL room map back
-      on a ^R redraw, the restricted view returning on the next
-      move. Intent unverified (5.0's under_water() handling differs);
-      check what a submerged hero should see of remembered terrain
-      before porting.
+- [x] LOW: remembered-map paint while submerged - FIXED 2026-09-17
+      (session 124, commit `Fix: the remembered map stayed painted
+      while submerged.` - hash filled after landing; BUG-1855; minted
+      2026-09-06 by the underwater-sight slice's design check +
+      battery). Master 7ef047e6a wrapped docrt()'s memory loop and
+      newsym()'s show_mem arm in `if (!Underwater)`; the 09-06 slice
+      (9f1db6ba4) ported that commit's docrt gate, newsym distance
+      filter, vision arm and per-turn docrt() but not the two guards,
+      so a See_underwater hero had the whole remembered dungeon
+      repainted by the per-turn docrt() every turn (5.0's
+      under_water() is master's bar GLYPH_UNEXPLORED - the "differs"
+      note was wrong; 5.0 simply has no See_underwater route into the
+      memory loop). RULING 2026-09-17 (AskUserQuestion, decisions
+      log): refined guards, not master's bare test - `!Underwater ||
+      Is_waterlevel(&u.uz)` on the memory loop (the docrt gate, the
+      newsym filter, under_water() and the per-turn arm all exempt the
+      Plane of Water, where drown() sets u.uinwater for an amphibious
+      hero and a bare guard would blank the remembered bubbles on
+      every full redraw and leave stale outlines from movebubbles()'
+      newsym calls) and `|| next2u(x, y)` on show_mem (keeps 5.0's
+      felt adjacent lava/ice square for a submerged hero without
+      See_underwater; vision marks only pool squares IN_SIGHT there).
+      The row's "plain submerged Monk got the FULL room map on ^R"
+      premise cannot occur on the current code: ^R = doredraw() ->
+      docrt() -> docrt_flags(docrtRecalc), and a hero without
+      See_underwater takes the under_water(1) route (cls + 3x3);
+      battery verdict (session 124): post-fix the magical-breathing-
+      only hero's ^R shows the 3x3 feel view (hero, adjacent water,
+      gold on an adjacent pool square, the adjacent ice), identical
+      before and after ^R and across real turns; giving that hero
+      swimming widened the view to the in-view water row with no
+      remembered room; the tortle saw only `}}}}@` on entry, ^R and
+      two turns, the full magic-mapped level back on exit; master's
+      tortle control byte-identical. No pre-fix run was made, so the
+      09-06 note closes as not reproducible on the fixed code; by code
+      reading the only pre-fix route into the memory loop was
+      See_underwater, so that Monk most likely carried swimming plus
+      magical breathing from #wizintrinsic. Reviewer PASS; two master-parity LOW
+      notes recorded in the archive (out-of-sight pool-square monster
+      glyph persists until the per-action docrt(); Blind + submerged +
+      See_underwater shows a blank map plus felt self and sensed
+      monsters). Sibling gap NOT taken - own row below.
+- [ ] LOW: vision.c does_block() underwater clause NOT PORTED (minted
+      2026-09-17 by the submerged-paint slice, session 124): master
+      7ef047e6a made every non-pool, non-ice square block light while
+      the hero is submerged off the Plane of Water (`Underwater &&
+      !Is_waterlevel(&u.uz) && !IS_POOL(lev->typ) && lev->typ != ICE`
+      -> return 1, ahead of the MOAT clause); the branch's
+      does_block() (src/vision.c) carries only the ported `Underwater
+      && is_moat(x, y) && !See_underwater` term, so a See_underwater
+      hero's line of sight crosses dry land to water beyond it - a
+      second pool across a floor strip is in view on the branch and
+      dark on master (the newsym filter still hides the dry squares
+      themselves). Vision-semantics change (couldsee/cansee for every
+      consumer while submerged); port with a battery of its own. LOW.
+- [ ] LOW observation (2026-09-17, submerged-paint battery): leaving
+      #terrain while submerged with See_underwater repainted only the
+      hero and ONE adjacent water square until the next ^R (tortle
+      game; the in-view row is `}}}}@`); a scroll of magic mapping's
+      exit, which ends in the same map_redisplay() (src/detect.c:
+      reconstrain_map() + docrt() + under_water(2)), repainted the row
+      correctly. reveal_terrain() differs by its own `if
+      (unconstrain_map()) docrt();` ahead of the overlay (land vision
+      computed with u.uinwater zeroed) - suspect the vision arrays the
+      second docrt() reuses. Before this slice the memory loop painted
+      over it; master carries the same guards, so check master's
+      #terrain exit first. Cosmetic (the next action or ^R repaints).
+      LOW.
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -15948,9 +16005,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       candidates for a future content pass, not this row.
 - [x] dat/rumors.tru + rumors.fal EvilHack lines PORTED 2026-09-17
       (session 123, ONE data commit `Phase 2: EvilHack rumors,
-      epitaphs, bogus monsters, oracle text.` -
-      hash filled after landing; minted 2026-09-06 by the frac_altar
-      slice; LOW content-data gap).
+      epitaphs, bogus monsters, oracle text.` = 29528f0f9, tracker
+      0c1dab4ce, landed 2026-09-17; minted 2026-09-06 by the
+      frac_altar slice; LOW content-data gap).
       Sorted diff against master c444f6a3a: 93 .tru and 44 .fal
       master-only lines remain after this slice added its two
       fractured-altar rumors (Phase 3 slices have been adding their
@@ -16120,9 +16177,16 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       "shields her eyes just in time" - because a mirror could
       otherwise be applied at her from any distance for an instant
       kill. The branch's gazemu() arms are ported (mhitu.c) but
-      use_mirror() keeps vanilla's instant stoning (src/apply.c
-      PM_MEDUSA arm): the 2021 oversight is live again. Assign a BUG
-      id when fixed.
+      use_mirror() kept vanilla's instant stoning (src/apply.c
+      PM_MEDUSA arm): the 2021 oversight was live again. PORTED
+      2026-09-17 (session 124, commit `Fix: a mirror stoned Medusa
+      from any distance.` - hash filled after landing; BUG-1854):
+      master's block verbatim with ECMD_TIME returns; reviewer PASS
+      (byte-identical bar the return code; rn2(25) vs gazemu()'s
+      rn2(12) is master's deliberate odds); battery PASS (far apply
+      refused twice at dist2 9 with mux/muy pinned, both averting lines
+      at dist2 4, stoning after 15-20 applies with a statue left;
+      master 0.9.3 control printed the same three line shapes).
 - [x] GATE: every level wizmode-walked (W column full) - CLOSED
       2026-08-20 with the medusa re-walk; the last three W cells were
       vecna (walked 2026-08-19), bigroom (ruled no-walk, ticked
@@ -16687,6 +16751,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-17 | Submerged-paint slice ruling (AskUserQuestion): master 7ef047e6a's two `if (!Underwater)` display guards land REFINED - `!Underwater \|\| Is_waterlevel(&u.uz)` on docrt()'s memory loop and the same plus `\|\| next2u(x, y)` on newsym()'s show_mem - matching the Is_waterlevel exemption their sibling gates (docrt gate, newsym filter, under_water(), per-turn arm) already carry, so the Plane of Water keeps today's display for an amphibious hero (drown() sets u.uinwater there too), and keeping 5.0's felt adjacent lava/ice square for a submerged hero without See_underwater; master-exact would blank the remembered bubbles on every full redraw, leave stale outlines from movebubbles() (the branch has no per-turn docrt there) and blank the adjacent lava/ice | maintainer |
 | 2026-09-07 | Dragon-scale secondary table rulings (AskUserQuestion x2): (1) the hero side of dragon-scaled body armor goes to EVILHACK MASTER'S TABLE (do_wear.c dragon_armor_handling on Dragon_armor_to_scales: gold infravision+clairvoyance, silver cold, white water walking, shimmering displacement+stun, sea swimming, celestial sleep+shock+flight, shadow sleep+drain, chromatic everything) with armor_provides_extrinsic() for the primaries; upstream 5.0's black-drain/gold-hallucination/white-slow-digestion/red-infravision secondaries dropped; 5.0's wielding_corpse guard kept on yellow and chromatic removal; (2) the enchant-armor meld + polyself do_merge producer rides the slice, the small consumer sites (shk pricing, shadow-darkness sites, zap youattack cancel) and the white-scales freeze-underfoot trio stay on their rows. Corollaries ratified with the plan: Known_lwalking's white term is fire-gated (lava burns without the freeze trio), master's slippery-ice white term is not added (COLD_RES primary covers it; would exempt a steed), obj_has_prop reads through the helper (beyond master), off arms pure with the callers owning the landing check | maintainer |
 | 2026-09-06 | defended() sweep rulings (AskUserQuestion x3): (1) defends()'s dragon-scale rows go to MASTER'S WHOLE TABLE now (gray||chromatic MR, white||silver cold, orange||shadow sleep, shadow drain - not black, blue||celestial shock, shimmering stun; vanilla's AD_HALU/AD_PLYS rows dropped, no caller) even though the hero twin do_wear.c dragon_armor_handling() is still upstream's - the residual (black-scales hero keeps 5.0's Drain_resistance while defended() reads shadow) rides the new dragon-scale secondary table row; (2) the monster teleport-trap magic-resistance gate is NARROWED to teleport-type traps (mtele_trap verbatim; mlevel_tele_trap only for tt == LEVEL_TELEP) - holes, trap doors and magic portals keep working on MR monsters, a deliberate deviation from master's top-of-function gate; (3) death-magic parity = BOTH the zhitm ZT_DEATH tiers (MR monsters take half death-ray damage, master edd0454ec) and the hero Death_resistance gate against Death's touch. Corollaries ratified with the plan/review: dobuzz's "resists the death magic" line is gated tmp > 0 (master prints it after the immune tier zeroed the damage); explode()'s wand-class death field keeps is_vampshifter beside immune_death_magic (master lacks it); 5.0's class-agnostic destroy_items() is guarded whole underwater (master still boils potions); mtele_trap() reports whether it moved the monster so trapeffect_telep_trap() no longer claims Trap_Moved_Mon for a monster the gate left standing | maintainer |
 | 2026-09-06 | Role-tables slice rulings (AskUserQuestion x2): (1) the attrib.c role-table parity gap found while scoping the `#up out of water` row rides that slice (Convict/Druid/Infidel had no table, the Monk lacked the five high-level rows, Healer/Rogue/Tourist rows differed); (2) Archeologist and Valkyrie keep upstream 5.0's reworked rows (Arc searching @1 / stealth @5 / fast @10; Val stealth @3) - EvilHack never touched them, feature-collision rule. Corollaries ratified with the plan: M_IN_WATER hoisted in 5.0's `S_EEL || cant_drown` spelling (= master's set, since master's amphibious() folds M1_BREATHLESS); the dodown/doup arms carry five hardening guards beyond master (`!u.uinwater`, `!u.usteed`, `!u.uswallow`, `!is_waterwall` on both arms, `HFlying && Flying`); hurtle_step keeps the branch's tree-first "bumping into a tree" reason (now IS_TREES); both Known_lwalking clauses read how_resistant(FIRE_RES) == 100; master's figurine-in-rock hole closed on the branch (BUG-1768, frozen-unfixed on master) | maintainer |
