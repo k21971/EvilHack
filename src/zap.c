@@ -957,9 +957,12 @@ montraits(
         mtmp2->mstun = 0;
         mtmp2->mconf = 0;
         mtmp2->msick = 0;
+        mtmp2->msicktime = 0;
         mtmp2->mwither = 0;
         mtmp2->mdiseased = 0;
+        mtmp2->mdiseasetime = 0;
         mtmp2->mentangled = 0;
+        mtmp2->mentangletime = 0;
         mtmp2->msummoned = 0;
         mtmp2->mberserk = 0;
         mtmp2->minsects = 0;
@@ -970,6 +973,16 @@ montraits(
         mtmp2->mreflecttime = 0;
         mtmp2->mbarkskintime = 0;
         mtmp2->mstoneskintime = 0;
+        mtmp2->mlevitatetime = 0;
+        mtmp2->mjumptime = 0;
+        /* every mextrinsics bit is item- or spell-conferred; the worn
+           ones survive a corpse or statue snapshot because mdrop_obj()
+           and extract_from_minvent() skip update_mon_extrinsics() on a
+           dead monster, the spell ones would outlive the timers zeroed
+           above. The revived monster owns nothing yet (statue contents
+           are re-worn by animate_statue()'s m_dowear()); clone_mon()
+           makes the same reset */
+        mtmp2->mextrinsics = 0L;
         mtmp2->mprotection = 0;
         mtmp2->mprottime = 0;
         mtmp2->mbreakboulder = 0;
