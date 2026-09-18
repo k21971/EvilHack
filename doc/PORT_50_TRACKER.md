@@ -7805,7 +7805,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mvl_ file-scope statics seeded in moveloop_preamble (both
       new-game and restore paths). insight.c gained the contact
       pair and the "You regenerate" suppression. NOT here (still
-      open on their rows): drow-in-light multipliers, Orcus
+      open on their rows): drow-in-light multipliers (NO row
+      existed - found, minted and closed 2026-09-18, session 128,
+      BUG-1867), Orcus
       self-curse, Gauntlets of Purity (BUG-564 rides Purity).
       Battery 7 legs PASS incl. glove/undershirt layering on both
       races, barkskin bypass with re-block on expiry, and the ^X
@@ -13696,8 +13698,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       adjacent-landing case is the only reachable blocker.
 - [x] LOW: a mimic disguised as a gem or a spellbook draws as the
       strange object FIXED 2026-09-18 (session 127, commit `Fix: a
-      mimic posing as a gem or spellbook drew as a strange object.` -
-      hash filled after landing; BUG-1862; closure notes at the end
+      mimic posing as a gem or spellbook drew as a strange object.` =
+      331a6f095, tracker ed77d338b, landed 2026-09-18; BUG-1862;
+      closure notes at the end
       of this row; minted 2026-09-18 by the revival-traits
       battery, session 126; vanilla-shared, mechanism verified on the
       bodies): display_monster()'s M_AP_OBJECT arm
@@ -15824,7 +15827,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monsters). Sibling gap NOT taken - own row below.
 - [x] LOW: vision.c does_block() underwater clause PORTED 2026-09-18
       (session 127, commit `Fix: a submerged hero's sight crossed dry
-      land.` - hash filled after landing; BUG-1863, with master's
+      land.` = dd39d7a52, tracker ed77d338b, landed 2026-09-18;
+      BUG-1863, with master's
       missing exit rebuilds archived as BUG-1864 frozen-unfixed;
       closure notes at the end of this row; minted
       2026-09-17 by the submerged-paint slice, session 124): master
@@ -15874,8 +15878,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       fixes it) = BUG-1864. Two rows minted below (untracked
       See_underwater flips; the Blind-arm do_light_sources() gap).
 - [x] LOW observation - FIXED 2026-09-18 (session 127, commit `Fix:
-      every second map browse wiped a submerged hero's view.` - hash
-      filled after landing; BUG-1865, master frozen-unfixed; closure
+      every second map browse wiped a submerged hero's view.` =
+      f3d6912a1, tracker ed77d338b, landed 2026-09-18; BUG-1865,
+      master frozen-unfixed; closure
       notes at the end of this row; minted 2026-09-17 by the
       submerged-paint battery): leaving
       #terrain while submerged with See_underwater repainted only the
@@ -15935,8 +15940,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the next rebuild - the BUG-1424 family. Candidate: move the
       old_uwvis compare into polymon() itself and add it to the two
       timeout/region sites and setnotworn()'s eyewear arm. LOW.
-- [ ] LOW: vision_recalc() Blind arm lacks master's
-      do_light_sources() call (minted 2026-09-18 by the session 127
+- [x] LOW: vision_recalc() Blind arm lacks master's
+      do_light_sources() call PORTED 2026-09-18 (session 128, commit
+      `Fix: a blind hero's surroundings ignored carried light and
+      darkness.` - hash filled after landing; BUG-1866; closure notes
+      at the end of this row; minted 2026-09-18 by the session 127
       reviewer's master-parity pass; outside that slice). Master's
       Blind arm ends with do_light_sources(next_array) before its
       `goto skip` ("necessary while blind because we need to know
@@ -15949,6 +15957,83 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       drow carrying a lit lamp in a dark room reads as in darkness.
       Not verified in play. Port = the one call; battery = a blind
       drow's light/dark enlightenment line with a carried lamp. LOW.
+      CLOSURE (session 128): master 86405e372's call lands in the
+      same place, after the arm's newsym() loop and ahead of `goto
+      skip`; that commit's pray.c half was already here. The arm has
+      already pointed gv.viz_array at next_array and view_from() has
+      filled the COULD_SEE bits do_light_sources()'s hero-located arm
+      reads, nothing after `skip:` touches the bits, and the Blind
+      arm was the only `goto skip` path (reviewer sibling sweep: every
+      other arm falls through to the shared call). The gap was
+      level-wide, not only at the hero: monster-side readers (drow
+      monsters' to-hit, the drow / aasimar aura triggers, the
+      stethoscope line for a monster) also read lev->lit alone while
+      the hero was blind. No 5.0-only reader of the bits misbehaves
+      (notice_all_mons() and light.c's mtemplit are IN_SIGHT-gated).
+      Vanilla has no such call and no reader that cares - no upstream
+      artifact. REVIEW PASS. BATTERY PASS (game-tester, pre-fix /
+      post-fix / master 0.9.3, stethoscope clause + gdb viz bits):
+      blind drow in a dark room with a lit oil lamp read "in
+      darkness" bits 0x0 pre-fix, "in light" 0x4 post-fix and on
+      master; blind in a lit room with a lit cursed magic lamp
+      (master's own case) "in light" 0x0 -> "in darkness" 0x8;
+      sighted answers unchanged; a blind snuff / relight cycle
+      flipped the answer four times out of four; an adjacent peaceful
+      gnome's stethoscope line flipped the same way; 31 blind turns
+      walking with sanity_check on, no paniclog on either tree.
+- [x] Drow-in-light regeneration penalties PORTED 2026-09-18 (session
+      128, commit `Drow heroes regenerate more slowly in the light.` -
+      hash filled after landing; BUG-1867; minted AND closed the same
+      day: the Blind-arm row's prerequisite census of master's
+      hero-side spot_is_dark(u.ux, u.uy) readers found them rowless -
+      the BUG-1696 regen-block row and the player-races row's
+      deferral list both name "drow-in-light" as owned elsewhere, and
+      no row existed). Master allmain.c: a drow hero
+      (maybe_polyd(is_drow(), Race_if(PM_DROW))) where
+      !spot_is_dark(u.ux, u.uy) regenerates
+      energy at half rate (LIT_DROW_EREGEN_MULTI 2L, the interval
+      doubled ahead of the Druid mistletoe block) and hit points at a
+      third (LIT_DROW_HREGEN_MULTI 3L on both level bands of the
+      !Upolyd arm; Regeneration and the tortle shell arm untouched).
+      Energy arm = master's text. Hit point arm ADAPTED, RULED
+      (decisions log 2026-09-18): 5.0's regen_hp() rolls (XL + Con)
+      in 100 per turn instead of master's moves-modulo interval, so
+      the term sits beside the Druid near-vegetation multiplier and
+      divides the chance by three - implemented on the die,
+      `chance > rn2(300)`, after the reviewer showed `chance / 3`
+      truncates (an XL1 Con 3-4 drow would have healed 4x-5x slower,
+      not 3x). Druid + drow is unreachable (the Druid allow mask has
+      no MH_DROW), so the two terms never meet. REVIEW PASS. BATTERY
+      PASS, XL30 drow Rogue, Int / Wis set to 7 so every energy gain
+      is 1 point: energy gains per 100 moves dark / lit = 20 / 20
+      pre-fix, 20 / 10 post-fix, 20 / 10 master - all nine windows
+      exact; hit points per 200 moves dark / lit = 87 / 86 pre-fix
+      (ratio 0.99), 84 / 30 post-fix (0.357), master (Con 10, exact
+      modulo counts) 30 per 90 dark and 22 per 200 lit. TIE-IN with
+      the Blind-arm row: a blind drow in a dark room holding a lit
+      oil lamp regenerated at the LIT rate (10 energy, 15 hp per
+      100) and one in a lit room holding a lit cursed magic lamp at
+      the DARK rate (20, 45); the same blind setup pre-fix gave 20.
+      Human control unchanged (20 energy, 45 hp per 100 in a lit
+      room).
+- [ ] LOW: mondata.c same_race() lacks master's EvilHack race arms
+      (minted 2026-09-18 by the session 128 reviewer's master-parity
+      sweep, verified on both bodies; outside that slice; until now
+      only a "same_race zombie arm" mention in the draugr slice's
+      deferral list, never a row). Master tests, ahead of is_giant():
+      is_drow, is_hobbit, is_centaur, is_tortle, is_zombie, is_vampire,
+      is_aasimar; is_gnoll after is_giant; is_illithid where the
+      branch has vanilla's is_mind_flayer; and a giant ant / queen ant
+      pair beside the killer bee pair. Every predicate already exists
+      in the branch's include/mondata.h. Branch consumers: eat.c
+      polymorphed-hero cannibalism, dog.c pet food (a humanoid pet
+      eating its own race), sounds.c, and 5.0's own muse.c caller.
+      Without the arms a pair such as two racial drow forms falls
+      through to the mlet-based tests. Master's remaining consumer,
+      mon.c m_respond()'s support-caster heal, is absent and owned
+      (BUG-936, Phase 5 m_initgrp row). Impact in play NOT evaluated
+      - check arm order against is_undead() for zombie and vampire
+      forms before porting. LOW.
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -17168,6 +17253,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-18 | Drow light and dark slice rulings (AskUserQuestion x1, two questions, both recommended options taken): (1) master's drow-in-light regeneration penalties (allmain.c LIT_DROW_EREGEN_MULTI 2L / LIT_DROW_HREGEN_MULTI 3L) - found ROWLESS by the Blind-arm row's prerequisite census of master's hero-side spot_is_dark() readers - are PORTED NOW as the slice's second commit rather than rowed for later: the battery already needed a drow hero, lit and dark rooms and both lamp kinds, and the blind legs prove the first commit feeds the second; (2) the hit point penalty is ADAPTED to 5.0's per-turn heal roll as a DIVISION OF THE CHANCE BY THREE beside the Druid near-vegetation multiplier (the precedent in the same expression), not as a moves-modulo gate that would put a second idiom in regen_hp() and a visible fixed beat on healing. Session refinement after review: the division is made on the die (`chance > rn2(300)`), an exact third, because `chance / 3` truncates - up to 5x instead of 3x for an XL1 low-Con drow. The energy penalty is master's text unchanged. | maintainer (rulings); session, reviewer-prompted (exact-third form) |
 | 2026-09-18 | Submerged-sight slice rulings (AskUserQuestion x2, both recommended options taken): (1) master 7ef047e6a's does_block() clause lands REFINED - `Underwater && See_underwater && !Is_waterlevel(&u.uz) && !IS_POOL(lev->typ) && lev->typ != ICE` instead of master's bare Underwater test, with the vision tables rebuilt at EVERY on-level water exit (the two ordinary exits unconditionally; the frozen-pool, boulder-fill and terrain-wish exits, which neither tree rebuilt, gain one). In game: a submerged tortle / Eyes of the Overworld / goggles hero no longer sees a second pool across a floor strip, as on master; a plain submerged hero keeps ordinary tables, so a land square that changes while they are under (5.0 funnels ~37 sites through recalc_block_point()) cannot come out sight-blocking after they surface, and a restore while submerged cannot block all dry land; a tortle whose pool freezes, fills with a boulder, or who is wished onto new terrain sees the room at once (master stays blind until a level change - confirmed in play, BUG-1864 frozen-unfixed). Rejected: master's exact shape; master's clause plus gap fixes only. (2) The #terrain-exit repaint row was root-caused by the slice's own battery (under_water()'s static delayed-update flag, set by map_redisplay() and never consumed for a See_underwater hero) and its one-line gate rides this slice as its own commit rather than waiting for a slice of its own (BUG-1865). Session calls inside the approved plan: the rebuild stays per-site, NOT centralized in set_uinwater() (goto_level() calls it just ahead of keepdogs(), whose messages are canseemon()-gated); the mimic object look keeps a real object's generic-far / specific-near / stays-specific rule by reusing M_AP_F_DKNOWN, cleared in bones. | maintainer (rulings); session, plan-approved (fix shapes) |
 | 2026-09-18 | Revival-traits slice ruling (AskUserQuestion, recommended option taken): reviving a racial zombie's or mummy's corpse (undead_to_corpse() -> the level-0 race archetype: dwarf / gnome / orc / elf / drow / human / giant) KEEPS master and vanilla parity - the archetype rises (LVL 0, 1d8 weapon attack, MH_ race flag, G_NOGEN), no revive() redirect to a generatable species and no refusal; revive() has no placeholder gate on any of the three trees, makemon()'s only is_placeholder() consumer is mk_gen_ok() (random class generation), and monsters.h's "orc" entry carries master's own "plain orc for zombie corpses only; not created at random" comment. Fix-shape calls approved with the plan: both montraits() repairs are consumer-side (the reset block gains mextrinsics + the levitation/jump timers, matching clone_mon()'s reset; the full disguise triple m_ap_type / mappearance / MCORPSENM is carried from the fresh monster) rather than save_mtraits() producer scrubs, and both are upstream-shared, so each ships as its own patch artifact | maintainer (ruling); session, plan-approved (fix shapes) |
 | 2026-09-17 | done_in_by parity slice rulings (AskUserQuestion x3, all recommended options taken, plus one plan-approved session call): (1) master's melee weapon death attribution (7cd2a8b36 + 4729b477c - the half the kill-attribution slice 692008bd7 left behind, never rowed) is PORTED NOW as the slice's third commit rather than minted as a deferral row; (2) master's `!unique_corpstat(mptr)` guard on done_in_by()'s "invisible " prefix (113aae435) is PORTED - a unique's name identifies it, "killed by Croesus" not "killed by invisible Croesus" (upstream 5.0 keeps the prefix); (3) master's `is_lord \|\| is_prince -> m_monnam()` arm (ec3aa56b1) is NOT ported: it existed only for master's x_monnam() " noble" -> " lord"/" lady" strsubst, and the branch's NAMS gender triples picked by pmname() already give the gendered title from the plain arm. (4) AskUserQuestion after the battery: a lich's kill rises as a REVENANT for every race (master's outcome) - the lich arm moves ahead of the zombie arm because the 2026-07-16 hybrid zombie_maker() counts liches as zombie makers and master's order would have zombified the 8 zombie-capable races; liches still zombify the monsters they kill. Reviewer MEDIUM taken as a rider on the graverise commit: done()'s no-corpse remap gains DISINTEGRATED (BUG-1859, master frozen-unfixed); reviewer LOW taken as a rider on the melee commit: dealloc_obj() clears mhitu.c's cached monster weapon | maintainer (1, 2, 4); session, plan-approved (3) |
