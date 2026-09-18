@@ -95,7 +95,10 @@ map_redisplay(void)
 {
     reconstrain_map();
     docrt(); /* redraw the screen to remove unseen traps from the map */
-    if (Underwater)
+    /* a hero who sees while submerged is drawn by docrt(), not by the
+       three-by-three view; nothing would ever consume the delayed
+       update, and the next request would clear the screen instead */
+    if (Underwater && !See_underwater)
         under_water(2);
     if (u.uburied)
         under_ground(2);
