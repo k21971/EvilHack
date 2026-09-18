@@ -1111,6 +1111,11 @@ orc_can_regen(void)
     return TRUE;
 }
 
+#define LIT_DROW_EREGEN_MULTI 2L /* Drow energy regeneration
+                                    rate in the light */
+#define LIT_DROW_HREGEN_MULTI 3L /* Drow hit point regeneration
+                                    rate in the light */
+
 staticfn void
 regen_pw(int wtcap)
 {
@@ -1118,6 +1123,12 @@ regen_pw(int wtcap)
     long rate = ((MAXULEV + 8L - u.ulevel)
                  * ((Role_if(PM_WIZARD) || Role_if(PM_INFIDEL)) ? 3L : 4L)
                  / 6L);
+
+    /* energy regeneration rate for Drow while
+       in the light (2x slower) */
+    if (maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))
+        && !spot_is_dark(u.ux, u.uy))
+        rate *= LIT_DROW_EREGEN_MULTI;
 
     /* Druids can have differing rates of energy
        regeneration depending on the amount of
@@ -1220,6 +1231,10 @@ regen_hp(int wtcap)
         boolean druid_near_veg = (Role_if(PM_DRUID)
                                   && (levl[u.ux][u.uy].typ == GRASS
                                       || nexttotree(u.ux, u.uy)));
+        /* Drow heal more slowly in the light (3x slower) */
+        boolean drow_in_light = (maybe_polyd(is_drow(gy.youmonst.data),
+                                             Race_if(PM_DROW))
+                                 && !spot_is_dark(u.ux, u.uy));
 
         /* [when this code was in-line within moveloop(), there was
            no !Upolyd check here, so poly'd hero recovered lost u.uhp
@@ -1237,9 +1252,14 @@ regen_hp(int wtcap)
             && !infidel_no_amulet
             && !wielding_artifact(ART_WAND_OF_ORCUS)) {
             /* the near-vegetation multiplier mirrors master's shortened
-               moves-modulo interval (3 -> 2), a 1.5x healing rate */
-            heal = ((u.ulevel + (int) ACURR(A_CON))
-                    * (druid_near_veg ? 3 : 2) / 2) > rn2(100);
+               moves-modulo interval (3 -> 2), a 1.5x healing rate; a
+               Drow in the light rolls against a die three times the
+               size, master's tripled interval as an exact third */
+            int chance = (u.ulevel + (int) ACURR(A_CON))
+                         * (druid_near_veg ? 3 : 2) / 2;
+
+            heal = chance > rn2(drow_in_light
+                                ? 100 * (int) LIT_DROW_HREGEN_MULTI : 100);
 
             /* tortles gain some accelerated regeneration while
                inside their shell */
@@ -1267,6 +1287,8 @@ regen_hp(int wtcap)
 }
 
 #undef U_CAN_REGEN
+#undef LIT_DROW_EREGEN_MULTI
+#undef LIT_DROW_HREGEN_MULTI
 
 void
 stop_occupation(void)
