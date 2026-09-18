@@ -13578,8 +13578,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       time in three where master freezes every time, and a hostile one
       freezes a pet likewise. Maintainer ruling 2026-09-11: keep 5.0's
       roll. Revisit only if the maintainer wants master's odds.
-- [ ] save_mtraits() keeps worn-derived mextrinsics across revival
-      (minted 2026-09-11 by the free-action slice's reviewer; LOW,
+- [x] save_mtraits() keeps worn-derived mextrinsics across revival
+      FIXED 2026-09-18 (session 126, commit `Fix: a revived monster
+      kept its dead gear's extrinsics.` - hash filled after landing;
+      BUG-1860; closure notes at the end of this row; the LOW row
+      minted 2026-09-11 by the free-action slice's reviewer;
       master-shared): a KEEPTRAITS monster (shopkeeper, pet, unique,
       reviver, quest leader) that dies wearing extrinsic-granting gear
       keeps the bits - xkilled()'s mondead()/m_detach() drops the gear
@@ -13593,9 +13596,49 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Candidate fix: mask worn-derived bits out in save_mtraits()
       beside its mstate/ridden_by scrub; verify master and upstream
       first.
-- [ ] montraits() copies a revived mimic's saved m_ap_type without its
-      mappearance (minted 2026-09-16 by the rloc_to mimic-block slice's
-      design review and reviewer; LOW, vanilla-shared, unverified):
+      CLOSURE (session 126): fixed consumer-side in montraits()'s
+      reset block (mextrinsics = 0L plus the levitation/jump timers,
+      and the reviewer's rider: msicktime / mdiseasetime /
+      mentangletime beside their flags - clone_mon() parity), not in
+      save_mtraits(): the reviewer proved the STATUE snapshot leaks
+      too (monstone() forces mhp = 0 before its extract_from_minvent()
+      loop, whose update_mon_extrinsics() call is !DEADMONSTER-gated
+      on all three trees; the "won't retain any stale item-conferred
+      attributes" comment there is aspirational), so both producers
+      are covered by the one consumer. Master identical,
+      frozen-unfixed; vanilla 5.0 identical (only the worn
+      resistances there) -> artifact ~/nh50-montraits-extrinsics.patch.
+      BATTERY (game-tester, wizard Healer, both installs, paniclogs
+      never created): pre-fix L1 a tame troll wearing a wished amulet
+      of flying ("The troll starts to fly!"), #wizkill, self-revival
+      at the corpse timer - the corpse's omonst kept 0x400000
+      (MR2_FLY), the risen troll read mextrinsics 0x400000 with an
+      empty inventory, and handing the amulet back printed "puts on"
+      with NO fly line; master control L1m the same shape (wand of
+      death kill). Pre-fix L2 a set-var MR2_REFLECTION + mreflecttime
+      60, #wizkill, rise: "The troll's shimmering globe disappears."
+      one turn after the rise with no globe. Pre-fix L5 statue path:
+      petrified (wielded cockatrice corpse) with the amulet worn, the
+      statue's omonst kept 0x400000 and breakpoints at
+      animate_statue()'s seemimic check and its m_dowear() both read
+      0x400000 with the amulet unworn in minvent. Post-fix P1: risen
+      troll 0x0, the re-handed amulet printed "The troll starts to
+      fly!" again; P2: 0x0 / mreflecttime 0 after the rise, no globe
+      line in six turns; P5: both breakpoints 0x0, then m_dowear()
+      re-granted the bit and the game now announces "The troll
+      starts to fly!" on the statue's animation (the "puts on" line
+      stays silent, creation = TRUE) - a visible consequence, pre-fix
+      the stale bit muted it. The snapshots themselves are unchanged
+      by the fix (corpse and statue omonst still carry the bit).
+- [x] montraits() copies a revived mimic's saved m_ap_type without its
+      mappearance FIXED 2026-09-18 (session 126, commit `Fix: a
+      revived mimic carried a mismatched disguise.` - hash filled
+      after landing; BUG-1861; closure notes at the end of this row;
+      the LOW row minted 2026-09-16 by the rloc_to mimic-block
+      slice's design review and reviewer; vanilla-shared, was
+      unverified; the stale vision block is REAL ON MASTER ONLY, the
+      branch and vanilla reveal the fresh mimic inside replmon() ->
+      relmon() -> mon_leaving_level() first, see the notes):
       revive() -> montraits() (src/zap.c) makes the fresh monster with
       makemon() (whose S_MIMIC arm runs set_mimic_sym() and block_point()
       for the disguise it rolled there), then copies the snapshot's
@@ -13606,6 +13649,76 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pair. Not a relocation site. Reproduce (stone a disguised mimic,
       revive the statue, read m_ap_type/mappearance and the square)
       before fixing; batch with the save_mtraits() revival row above.
+      CLOSURE (session 126): REPRODUCED, then fixed - montraits()
+      carries the whole fresh disguise (m_ap_type, mappearance and
+      MCORPSENM via newmcorpsenm() / freemcorpsenm()) before
+      replmon() frees the fresh monster's mextra. Reviewer MEDIUM
+      (verified on the bodies): the stale vision block this row
+      predicted cannot happen on the branch or vanilla 5.0 -
+      replmon() -> relmon(mtmp, NULL) -> mon_leaving_level() reveals
+      the FRESH monster (seemimic() on its own coherent pair,
+      unblocking the square) before place_monster() installs the
+      snapshot, so the branch defect is the incoherent triple on the
+      live monster in the window before the callers' seemimic()
+      (rendered once by montraits()'s newsym(), judged by
+      restore_cham() and by seemimic()'s own unblock test). Master's
+      relmon() has `unhide = (monst_list != 0)`, FALSE for
+      replmon()'s NULL, so there the fresh block survives and the
+      mismatched pair never unblocks it - REAL ON MASTER,
+      frozen-unfixed; vanilla shares the latent shape -> artifact
+      ~/nh50-montraits-mimic-disguise.patch (worded as the triple).
+      BATTERY: pre-fix branch L3 (tame small mimic, gdb
+      set_mimic_sym -> a furniture look, cockatrice-corpse
+      petrification keeps the pair in the statue's omonst, boulder
+      wished on top, stone to flesh) read at animate_statue()'s
+      seemimic check apt=2 (the fresh M_AP_OBJECT) with app=27 (the
+      snapshot's furniture value) and mcorpsenm -1; after the rise
+      viz_clear 1 / does_block 0 - no leak on the branch, as
+      corrected. Post-fix P3: apt=2 app=340 (the huge chunk of meat
+      the same zap made of the boulder, the square's top object -
+      coherent) mcorpsenm -1; P3c corridor staging (the hero on the
+      statue square casting downward forces the MM_ADJACENTOK
+      landing, and a corridor roll IS the boulder look): apt=2
+      app=577 (BOULDER) mcorpsenm -1 coherent, the landing square
+      viz_clear 1 / does_block 0 with line of sight intact,
+      sanity_check on and no "vision blocking" line, paniclog never
+      created. Master L3m round 3 (the same corridor staging): the
+      risen mimic landed on the adjacent corridor square with the
+      fresh boulder look over the stale app 452, and after the rise
+      that square read viz_clear 0 with does_block 0 and the corridor
+      beyond it lost line of sight (viz_array 0x0) - the stale block
+      CONFIRMED on master. Staging lore: a boulder on the statue
+      never yields a boulder look (the same stone-to-flesh zap turns
+      it into meat first, and set_mimic_sym()'s OBJ_AT arm sees the
+      statue itself); goodpos() refuses a boulder square, so the
+      adjacent-landing case is the only reachable blocker.
+- [ ] LOW: a mimic disguised as a gem or a spellbook draws as the
+      strange object (minted 2026-09-18 by the revival-traits
+      battery, session 126; vanilla-shared, mechanism verified on the
+      bodies, not fixed): display_monster()'s M_AP_OBJECT arm
+      (src/display.c) builds its fake object from cg.zeroobj with
+      only otyp and corpsenm set, so oclass stays 0 and dknown 0;
+      obj_is_generic() (include/display.h: !dknown && (POTION_CLASS
+      || FIRST_REAL_GEM..LAST_GLASS_GEM || FIRST_SPELL..LAST_SPELL))
+      is TRUE for a gem or spellbook look, generic_obj_to_glyph()
+      returns oclass + GLYPH_OBJ_OFF = GLYPH_OBJ_OFF + 0 =
+      STRANGE_OBJECT, and map_object()'s near-observation rescue
+      never fires because glyph_is_normal_generic_obj() is strict
+      (`> GLYPH_OBJ_OFF`), so the square draws and is remembered as
+      `]` at any distance (battery: app 562 "worthless piece of
+      white glass", remembered glyph 5050 = GLYPH_OBJ_OFF, after ^R
+      and after a natural redraw) - a mimic tell; the potion look is
+      spared only because the fake oclass is never POTION_CLASS. A
+      real floor gem takes the generic gem glyph from afar and its
+      own glyph within two squares. Official_nh50 f41f1aa09 /
+      NetHack50 a0b9e59d8: the same arm and macros; master 3.6.x has
+      no generic-object display, so unaffected (not verified in
+      play). Candidate: set obj.oclass = objects[obj.otyp].oc_class
+      in the arm, so the fake object follows the generic-from-afar /
+      specific-when-near rule a real object follows (observe_object()
+      would then mark the mimicked appearance as seen, as a real gem
+      does) - upstream-reportable once fixed; own slice with a
+      display battery.
 - [ ] LOW observation (2026-09-09, attack-handler slice): the passive
       AD_COLD arms keep vanilla 5.0's shape - passiveum heals u.mh by
       (tmp + rn2(2))/2 and splits any form over the level cap,
@@ -13709,7 +13822,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rows: 62 (61 - 1 closed + 2 minted).
 - [x] done_in_by() graverise arms PORTED 2026-09-17 (session 125,
       commit `Fix: the hero never rose as a barrow wight, revenant or
-      spectre.` - hash filled after landing; BUG-1856 with BUG-1859
+      spectre.` = c8c090f8c, tracker 917a272cb, landed 2026-09-18;
+      BUG-1856 with BUG-1859
       riding it; closure notes at the end of this row; the MED row
       minted 2026-09-16 by the
       bones killer-looting slice): master's done_in_by() (src/end.c
@@ -13772,7 +13886,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Open Phase 2 rows: 62 (62 - 2 closed + 2 minted).
 - [x] done_in_by() names a racial monster by its race FIXED 2026-09-17
       (session 125, commit `Fix: the death reason named a racial killer
-      by its race.` - hash filled after landing; BUG-1857 with the
+      by its race.` = 428abc0f0, tracker 917a272cb, landed
+      2026-09-18; BUG-1857 with the
       unique-invisible guard riding it; closure notes at the end of this
       row; the LOW row minted
       2026-09-16 by the bones killer-looting battery; LOW,
@@ -13810,8 +13925,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       shape.
 - [x] Melee weapon death attribution ABSENT -> PORTED 2026-09-17
       (session 125; minted and closed in one; commit `Fix: a melee
-      weapon kill never named the wielded weapon.` -
-      hash filled after landing; BUG-1858). Master's death attribution
+      weapon kill never named the wielded weapon.` = a15babb4f,
+      tracker 917a272cb, landed 2026-09-18; BUG-1858). Master's death
+      attribution
       (7cd2a8b36 +
       4729b477c, FEATURES_ARCHIVE "Death attribution") has a ranged
       half - mon_killer_name(), weapon_killer(), the thitu() naming,
@@ -15335,9 +15451,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       legs of the same battery ran on the built binary with no
       impossible() and no paniclog on either install.
       Files: include/mondata.h, src/polyself.c.
-- [ ] reviving a racial zombie or mummy corpse makes the level-0 race
-      placeholder (minted 2026-09-16 by the BUG-1851 reviewer; LOW,
-      vanilla- and master-shared, unverified in play).
+- [x] reviving a racial zombie or mummy corpse makes the level-0 race
+      placeholder CLOSED BY RULING 2026-09-18 (session 126, no code;
+      closure notes at the end of this row; the LOW row minted
+      2026-09-16 by the BUG-1851 reviewer; vanilla- and
+      master-shared, verified in play by the session-126 battery).
       undead_to_corpse() (src/mon.c) gives a dwarf/gnome/orc/elf/drow/
       human zombie or mummy a corpse whose corpsenm is the race
       archetype (PM_DWARF and friends), and revive() (src/zap.c) has no
@@ -15348,6 +15466,27 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       orc/elf/human archetypes; master identical. Candidate: map the
       archetype to a generatable species of that race in revive(), or
       refuse the revival; rule master parity first.
+      CLOSURE (session 126): RULING (AskUserQuestion 2026-09-18,
+      decisions log): keep master and vanilla parity, no code.
+      Precision from the code and the battery: a killed racial
+      zombie's or mummy's corpse carries the undead's OWN traits
+      (make_corpse() passes mtmp into mkcorpstat() for the whole
+      zombie / mummy arm on both trees), so undead turning on it
+      resurrects the zombie or mummy ("The dwarf corpse glows
+      iridescently. The dwarf mummy is resurrected!", battery P4b;
+      the killed dwarf zombie likewise rose as a dwarf zombie); the
+      level-0 archetype rises only from a TRAITLESS archetype corpse
+      - level-generation corpses, tins and eggs (mksobj() rolls
+      undead_to_corpse(rndmonnum())) and wished corpses (oextra
+      NULL): "The dwarf is resurrected!" -> a hostile "dwarf", m_lev
+      0, hp 4, farlook "a humanoid (dwarf)"; master control identical
+      (hp 3). The archetypes are functional monsters (LVL 0, 1d8
+      weapon attack, MH_ race flag, M2_COLLECT), monsters.h's "orc"
+      entry carries master's own "for zombie corpses only" comment,
+      and vanilla's level-0 "human" rises the same way. Master lore:
+      two melee kills of a genesis'd dwarf mummy left no corpse
+      (mummy wrapping only). Open Phase 2 rows: 60 (62 - 3 closed +
+      1 minted: the mimic gem-glyph row).
 - [x] minsects producer/consumer pair NOT PORTED (minted
       2026-09-02 by the clone-reset slice; LOW; the row the
       spell-list slice's RIDERS note and the Racial-monsters NIT
@@ -16755,6 +16894,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-18 | display.c display_monster()'s M_AP_OBJECT arm builds its fake object with otyp and corpsenm only (oclass 0, dknown 0), so a mimic disguised as a gem or a spellbook satisfies obj_is_generic() and generic_obj_to_glyph() yields oclass + GLYPH_OBJ_OFF = the strange-object glyph; map_object()'s near re-observation cannot rescue it (glyph_is_normal_generic_obj() is strict `> GLYPH_OBJ_OFF`), so the disguise draws and is remembered as `]` at any distance - a mimic tell. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | found on branch (session 126 battery; tracker LOW row with the candidate one-line fix); not yet fixed, no artifact yet |
+| 2026-09-18 | zap.c montraits() rebuilds a revived monster from its stored traits but never resets mextrinsics; m_detach() forces mhp = 0 before relobj() -> mdrop_obj(), and monstone() forces it before its extract_from_minvent() loop, and both drop paths gate update_mon_extrinsics() on !DEADMONSTER(mon), so a corpse or statue snapshot keeps every worn-item bit (vanilla: the res_to_mr() resistances, e.g. an alchemy smock's poison and acid) and the revived monster keeps them with no gear, permanently - nothing ever clears a bit with no worn item behind it. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1860: montraits()'s reset block zeroes mextrinsics plus the levitation/jump timers, the clone_mon() reset); artifact ~/nh50-montraits-extrinsics.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8, alone and in sequence with the mimic artifact); not yet sent |
+| 2026-09-18 | zap.c montraits() copies only m_ap_type from the fresh makemon() monster into the stored traits that replmon() installs, so the live revived mimic carries an incoherent triple - the fresh disguise type over the snapshot's mappearance / MCORPSENM - until the callers' seemimic() (revive(), animate_statue()) clears it: rendered once by montraits()'s own newsym() (display_monster() reads the appearance as a cmap index or an otyp by the type, PM_TENGU for a missing corpsenm) and judged by restore_cham() and by seemimic()'s own is_lightblocker_mappear() unblock test. Latent on 5.0 because relmon() -> mon_leaving_level() reveals the fresh monster (unblocking its square) before place_monster() installs the snapshot; on a tree whose relmon() reveals only a migrating monster (EvilHack master) the fresh block survives and the mismatched pair is never unblocked. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1861: carry m_ap_type, mappearance and MCORPSENM from the fresh monster before replmon() frees its mextra); artifact ~/nh50-montraits-mimic-disguise.patch (git apply --check clean vs both trees; worded as the latent triple, no stale-block claim); not yet sent |
 | 2026-09-16 | teleport.c rloc_to_core() relocates a monster with a bare remove_monster() + place_monster(), neither of which touches the vision table, so a monster still disguised as a boulder / closed door / wall / tree (does_block()'s is_lightblocker_mappear() arm) that is moved by mnexto()/mnearto()/rloc() - the hero arriving on its square, a level-region placement, a vault guard shoving it aside, a Plane of Water bubble landing - leaves its old square blocked and lands on an unblocked square; levl_sanity_check() reports both as "levl[x][y] vision blocking". dbridge.c do_entity() moves a drawbridge's occupant with the same bare pair. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 byte-identical in both files | fixed on branch (BUG-1850: capture is_lightblocker_mappear() once, recalc_block_point() on the vacated square after the pick-up and on the landing square after place_monster(); same pair in do_entity()); artifact ~/nh50-rloc-to-mimic-block.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8); companion to the 2026-09-07 bubble artifact, which is trimmed to its draw-arm hunk; not yet sent |
 | 2026-09-11 | uhitm.c mhitm_ad_plys() hero-attacker leg lacks 3.6's `mdef->mcanmove` gate (dropped in 0d445a7a7 when the three legs were merged); paralyze_monst() assigns mfrozen, so a hero in a paralyzing form who keeps hitting a frozen monster reprints "is frozen by you!" one time in three and resets a long freeze to rnd(10). FIXED on the branch (BUG-1827; the test leads the condition) | found on branch (free-action slice); patch ~/nh50-ad-plys-refreeze.patch written 2026-09-11; not yet sent |
 | 2026-09-10 | mhitu.c hitmu(): mhitm_knockback()'s hero-defender dismount arm runs dismount_steed(DISMOUNT_KNOCKED) -> teleds() -> spoteffects() -> dotrap(), and a land mine there can kill the attacker; the tail then runs the spell-hand riders and passiveum() on the corpse and returns passiveum()'s value, discarding the M_ATTK_AGR_DIED the knockback ORed into the hit flags, so mattacku() carries on with the dead attacker's remaining attacks. Branch fix BUG-1823 (the riders and the passive response skip a dead attacker; the return carries the flag). Companion: mdamagem()'s tail `hitflags == M_ATTK_AGR_DIED` equality tests mask an attacker death whenever M_ATTK_HIT is also set (the branch keeps its early return on M_ATTK_AGR_DIED for that reason) | found on branch (knockback slice risk review); not yet written up as a patch |
@@ -16892,6 +17034,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-18 | Revival-traits slice ruling (AskUserQuestion, recommended option taken): reviving a racial zombie's or mummy's corpse (undead_to_corpse() -> the level-0 race archetype: dwarf / gnome / orc / elf / drow / human / giant) KEEPS master and vanilla parity - the archetype rises (LVL 0, 1d8 weapon attack, MH_ race flag, G_NOGEN), no revive() redirect to a generatable species and no refusal; revive() has no placeholder gate on any of the three trees, makemon()'s only is_placeholder() consumer is mk_gen_ok() (random class generation), and monsters.h's "orc" entry carries master's own "plain orc for zombie corpses only; not created at random" comment. Fix-shape calls approved with the plan: both montraits() repairs are consumer-side (the reset block gains mextrinsics + the levitation/jump timers, matching clone_mon()'s reset; the full disguise triple m_ap_type / mappearance / MCORPSENM is carried from the fresh monster) rather than save_mtraits() producer scrubs, and both are upstream-shared, so each ships as its own patch artifact | maintainer (ruling); session, plan-approved (fix shapes) |
 | 2026-09-17 | done_in_by parity slice rulings (AskUserQuestion x3, all recommended options taken, plus one plan-approved session call): (1) master's melee weapon death attribution (7cd2a8b36 + 4729b477c - the half the kill-attribution slice 692008bd7 left behind, never rowed) is PORTED NOW as the slice's third commit rather than minted as a deferral row; (2) master's `!unique_corpstat(mptr)` guard on done_in_by()'s "invisible " prefix (113aae435) is PORTED - a unique's name identifies it, "killed by Croesus" not "killed by invisible Croesus" (upstream 5.0 keeps the prefix); (3) master's `is_lord \|\| is_prince -> m_monnam()` arm (ec3aa56b1) is NOT ported: it existed only for master's x_monnam() " noble" -> " lord"/" lady" strsubst, and the branch's NAMS gender triples picked by pmname() already give the gendered title from the plain arm. (4) AskUserQuestion after the battery: a lich's kill rises as a REVENANT for every race (master's outcome) - the lich arm moves ahead of the zombie arm because the 2026-07-16 hybrid zombie_maker() counts liches as zombie makers and master's order would have zombified the 8 zombie-capable races; liches still zombify the monsters they kill. Reviewer MEDIUM taken as a rider on the graverise commit: done()'s no-corpse remap gains DISINTEGRATED (BUG-1859, master frozen-unfixed); reviewer LOW taken as a rider on the melee commit: dealloc_obj() clears mhitu.c's cached monster weapon | maintainer (1, 2, 4); session, plan-approved (3) |
 | 2026-09-17 | Submerged-paint slice ruling (AskUserQuestion): master 7ef047e6a's two `if (!Underwater)` display guards land REFINED - `!Underwater \|\| Is_waterlevel(&u.uz)` on docrt()'s memory loop and the same plus `\|\| next2u(x, y)` on newsym()'s show_mem - matching the Is_waterlevel exemption their sibling gates (docrt gate, newsym filter, under_water(), per-turn arm) already carry, so the Plane of Water keeps today's display for an amphibious hero (drown() sets u.uinwater there too), and keeping 5.0's felt adjacent lava/ice square for a submerged hero without See_underwater; master-exact would blank the remembered bubbles on every full redraw, leave stale outlines from movebubbles() (the branch has no per-turn docrt there) and blank the adjacent lava/ice | maintainer |
 | 2026-09-07 | Dragon-scale secondary table rulings (AskUserQuestion x2): (1) the hero side of dragon-scaled body armor goes to EVILHACK MASTER'S TABLE (do_wear.c dragon_armor_handling on Dragon_armor_to_scales: gold infravision+clairvoyance, silver cold, white water walking, shimmering displacement+stun, sea swimming, celestial sleep+shock+flight, shadow sleep+drain, chromatic everything) with armor_provides_extrinsic() for the primaries; upstream 5.0's black-drain/gold-hallucination/white-slow-digestion/red-infravision secondaries dropped; 5.0's wielding_corpse guard kept on yellow and chromatic removal; (2) the enchant-armor meld + polyself do_merge producer rides the slice, the small consumer sites (shk pricing, shadow-darkness sites, zap youattack cancel) and the white-scales freeze-underfoot trio stay on their rows. Corollaries ratified with the plan: Known_lwalking's white term is fire-gated (lava burns without the freeze trio), master's slippery-ice white term is not added (COLD_RES primary covers it; would exempt a steed), obj_has_prop reads through the helper (beyond master), off arms pure with the callers owning the landing check | maintainer |
