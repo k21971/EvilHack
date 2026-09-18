@@ -13707,7 +13707,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       offered no "Save bones?" (a portal level, most likely). Premise
       corrections and staging levers -> gameplay memory. Open Phase 2
       rows: 62 (61 - 1 closed + 2 minted).
-- [ ] done_in_by() graverise arms ABSENT (minted 2026-09-16 by the
+- [x] done_in_by() graverise arms PORTED 2026-09-17 (session 125,
+      commit `Fix: the hero never rose as a barrow wight, revenant or
+      spectre.` - hash filled after landing; BUG-1856 with BUG-1859
+      riding it; closure notes at the end of this row; the MED row
+      minted 2026-09-16 by the
       bones killer-looting slice): master's done_in_by() (src/end.c
       ~665-699; 0efc80b85's "tweaks to how a player could rise as a
       spectre" + b23f439ce) raises the hero as a vampire mage (human
@@ -13725,7 +13729,52 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arms at master's positions ahead of the G_GENOD guard (the
       battery note: master control games must stay at XL <= 21 to
       reach the ghost arm). MED.
-- [ ] done_in_by() names a racial monster by its race (minted
+      PORTED 2026-09-17 (session 125): master's block in 5.0 idiom
+      with ONE arm moved by RULING (AskUserQuestion 2026-09-17): the
+      battery's arch-lich leg rose as a human zombie, because the
+      branch's zombie_maker() is the 2026-07-16 HYBRID (racial_zombie
+      OR S_LICH) while master's excludes liches, so master's order
+      (zombie arm before lich arm) gave every lich kill of the 8
+      zombie-capable races a racial zombie and left the revenant arm to
+      the 6 zombieless races; the lich arm now follows the mummy arm
+      and precedes the zombie arm - revenant for every lich kill,
+      master's outcome, while liches keep zombifying the monsters they
+      kill. Final order: wraith|barrow wight, mummy, lich class,
+      zombie, vampire mage, racial vampire, ghoul, Nazgul, larva,
+      spectre-or-XL-22+. Reviewer CONDITIONAL PASS on the pre-ruling
+      shape - byte parity confirmed, sentient_arise()/done()/savebones()
+      consumers generic, the is_lord/is_prince arm correctly absent; the
+      one
+      MEDIUM = the master-shared disintegration sentinel overwrite
+      (passiveum()'s black dragon scales arm pre-sets the no-corpse
+      sentinel then calls done_in_by(), whose chain overwrites it, and
+      done()'s remap lacked DISINTEGRATED - the XL 22+ arm makes it
+      reachable for any hero), fixed in the same commit by adding
+      DISINTEGRATED to done()'s BURNING/DISSOLVED remap (BUG-1859,
+      master frozen-unfixed). Battery:
+      PASS (2026-09-17/18, session 125, game-tester: 22 wizard games, 20
+      branch + 2 master controls, ~55 min; one tester-caused gdb abort
+      with no paniclog). Nazgul kill at XL 20 -> "Your body rises from
+      the dead as a barrow wight..." (u.ugrave_arise 337; before this
+      slice: wraith) and the bones round-trip found a barrow wight named
+      wizard at the death square carrying the pile (oil lamp, food
+      ration, small shield, dagger, spear) with no ghost on the level;
+      arch-lich -> human zombie (359) under master's arm order, revenant
+      (363) after the ruling's arm move; spectre -> spectre (419); XL 22
+      + minotaur -> spectre; human Wizard + vampire mage -> vampire mage
+      (334); human zombie -> human zombie (the zombie arm intact after
+      the move); master control Nazgul -> barrow wight. BUG-1859 leg: XL
+      22 bare-handed vs a dark elven soldier in gdb-staged black dragon-
+      scaled armor -> "deadly armor disintegrates you!", NO rise line,
+      u.ugrave_arise -3 through the tombstone, the bones level holding a
+      ghost and no corpse or spectre. Paniclog never created on either
+      tree; both save dirs empty.
+      Open Phase 2 rows: 62 (62 - 2 closed + 2 minted).
+- [x] done_in_by() names a racial monster by its race FIXED 2026-09-17
+      (session 125, commit `Fix: the death reason named a racial killer
+      by its race.` - hash filled after landing; BUG-1857 with the
+      unique-invisible guard riding it; closure notes at the end of this
+      row; the LOW row minted
       2026-09-16 by the bones killer-looting battery; LOW,
       player-facing): the branch's plain-monster arm builds the killer
       text from pmname(r_data(mtmp)) - the racial slice's r_data()
@@ -13739,6 +13788,96 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       = master's x_monnam form (or pmname on mtmp->data plus the
       branch's racial adjective) for the name while r_data() keeps
       serving the uniqueness/pname/graverise checks. LOW.
+      FIXED 2026-09-17 (session 125): master's x_monnam(ARTICLE_NONE,
+      EXACT_NAME | SUPPRESS_NAME | SUPPRESS_RIDER) form with 5.0's
+      "of"/"called" suffix kept (bones ghost text unchanged); RULING
+      (AskUserQuestion 2026-09-17): master's `!unique_corpstat(mptr)`
+      guard on "invisible " rides the same commit ("killed by Croesus",
+      not "killed by invisible Croesus"); master's is_lord/is_prince ->
+      m_monnam() arm NOT ported (superseded by the NAMS gender triples,
+      decisions log). Reviewer PASS on this commit: racial gate TRUE
+      under SUPPRESS_NAME so a named racial killer keeps the adjective,
+      never "it", no double "invisible ", priest/shk returns
+      unreachable, the only SUPPRESS_NAME given-name shape (a pname
+      species with a given name) unreachable since every M2_PNAME
+      species is G_UNIQ. Battery:
+      PASS: a centaurian soldier's kill logged "killed by a centaurian
+      soldier's copper dagger" in logfile and xlogfile (the screen had
+      named "The centaurian soldier"); Croesus made invisible by wand ->
+      "killed by Croesus' gold two-handed sword" with no "invisible"
+      anywhere ("It hits!" on screen); master control: a giant soldier's
+      kill "killed by a giant soldier's silver short sword", the same
+      shape.
+- [x] Melee weapon death attribution ABSENT -> PORTED 2026-09-17
+      (session 125; minted and closed in one; commit `Fix: a melee
+      weapon kill never named the wielded weapon.` -
+      hash filled after landing; BUG-1858). Master's death attribution
+      (7cd2a8b36 +
+      4729b477c, FEATURES_ARCHIVE "Death attribution") has a ranged
+      half - mon_killer_name(), weapon_killer(), the thitu() naming,
+      gb.buzzer/gt.thrower - which the kill-attribution row (692008bd7,
+      2026-07-17) ported, and a melee half - the killer_weapon global
+      set around hitmu()'s killing blow and done_in_by()'s possessive /
+      "wielded by" composition - which it did not, with no row recording
+      the deferral (killer_weapon: zero hits in src/, include/ and this
+      tracker until this slice). A melee weapon kill therefore read
+      "killed by a gnome lord" where master reads "killed by a gnome
+      lord's dagger", "killed by Sting wielded by a Woodland-elf" or
+      "killed by a dagger wielded by a gnome lord called Bob". RULING
+      (AskUserQuestion 2026-09-17): ported now as this slice's third
+      commit. SHAPE: gk.killer_weapon in struct instance_globals_k with
+      its positional g_init_k entry; hitmu() sets it to mon_currwep for
+      AT_WEAP attacks around the killing mdamageu() and clears it after
+      (the only AT_WEAP damage sink on the branch); dealloc_obj() clears
+      it beside thrownobj/kickedobj and - rider from a reviewer LOW -
+      also calls mon_currwep_gone(obj), closing mhitu.c's pre-existing
+      cached-weapon lifetime gap (an attacker killed between the attack
+      dispatch and hitmu's tail drops its weapon through relobj(); a drop
+      into lava or water frees it with no mon_currwep_gone() call, and
+      passiveum()'s AD_ENCH drain_item() - now also killer_xname() -
+      would read the freed object); done_in_by() composes
+      weapon_killer() (possessive) for simple names and Snprintf("%s
+      wielded by %s") for compound names (imitator, shk, has_ebones =
+      master's former_rank, priest, minion, given name) and artifacts,
+      KILLED_BY. Reviewer PASS on this commit (no dangling window from
+      the set to the read, gk unsaved, init order verified, AT_WEAP
+      adtyp census PHYS/CLOB/DRLI/DRST/CONF/SAMU/STUN). Noted only:
+      weapon_killer() (objnam.c) still Sprintf's into killer.name
+      (master-identical, no diagnostic through the pointer). Battery:
+      PASS: gnome lord -> "killed by a gnome lord's short sword"; Sting
+      handed to a Woodland-elf (gdb mpickobj + check_gear_next_turn,
+      wielded next turn) -> "killed by Sting wielded by a Woodland-elf";
+      a gnome lord named Bob -> "killed by a bone short sword wielded by
+      a gnome lord called Bob" (the tombstone truncates it,
+      logfile/xlogfile carry it whole); jackal bite -> "killed by a
+      jackal", no weapon text; master controls "killed by a giant
+      soldier's silver short sword" and "killed by a Nazgul's long
+      sword" (the branch's Nazgul killed with its scream, hence its
+      plain "killed by a Nazgul" - the attack used, not the naming).
+- [ ] LOW: ranged and spell death reasons name the killer by bare
+      species (minted 2026-09-17 by the done_in_by parity slice's
+      reviewer; master-identical): mon_killer_name() (src/mcastu.c)
+      builds "a soldier's thrown dagger" / "a bolt of fire zapped by a
+      soldier" from pmname(champtr) with no racial adjective and no
+      given name, while the melee reason now reads "a centaurian
+      soldier's long sword" through x_monnam(); master's mcastu.c uses
+      champtr->mname the same way, so this is a parity asymmetry, not a
+      regression. Consistency port = route mon_killer_name() through
+      x_monnam(ARTICLE_A, EXACT_NAME | SUPPRESS_NAME | SUPPRESS_RIDER)
+      or add racial_adj(); decide when the ranged reasons are next
+      touched. LOW.
+- [ ] LOW observation (2026-09-18, done_in_by parity battery): a
+      zombie's poison instadeath skips the graverise arms - the human
+      zombie's poisoned sting ("The poison was deadly...") killed the
+      hero through poisoned() -> done(POISONING) (src/attrib.c) with
+      svk.killer.name "human zombie" and u.ugrave_arise NON_PM, while
+      the same monster's plain hit rose the hero as a human zombie.
+      Only done_in_by() runs the arm chain; poisoned() and the other
+      direct done() producers never reach it. Master-shared (attrib.c
+      poisoned() ends in the same done() call). Candidate: run the arm
+      chain for a monster poisoner (mhitu.c's AD_DRST passes the
+      poisoner's name, not the monster) or accept the plain corpse.
+      LOW.
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
@@ -15470,7 +15609,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wirings row). The arm travels with that wiring.
 - [x] LOW: remembered-map paint while submerged - FIXED 2026-09-17
       (session 124, commit `Fix: the remembered map stayed painted
-      while submerged.` - hash filled after landing; BUG-1855; minted
+      while submerged.` = e72db1934, tracker 9ebfff883, landed
+      2026-09-17; BUG-1855; minted
       2026-09-06 by the underwater-sight slice's design check +
       battery). Master 7ef047e6a wrapped docrt()'s memory loop and
       newsym()'s show_mem arm in `if (!Underwater)`; the 09-06 slice
@@ -16180,7 +16320,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       use_mirror() kept vanilla's instant stoning (src/apply.c
       PM_MEDUSA arm): the 2021 oversight was live again. PORTED
       2026-09-17 (session 124, commit `Fix: a mirror stoned Medusa
-      from any distance.` - hash filled after landing; BUG-1854):
+      from any distance.` = 9bce89466, tracker 9ebfff883, landed
+      2026-09-17; BUG-1854):
       master's block verbatim with ECMD_TIME returns; reviewer PASS
       (byte-identical bar the return code; rn2(25) vs gazemu()'s
       rn2(12) is master's deliberate odds); battery PASS (far apply
@@ -16751,6 +16892,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-17 | done_in_by parity slice rulings (AskUserQuestion x3, all recommended options taken, plus one plan-approved session call): (1) master's melee weapon death attribution (7cd2a8b36 + 4729b477c - the half the kill-attribution slice 692008bd7 left behind, never rowed) is PORTED NOW as the slice's third commit rather than minted as a deferral row; (2) master's `!unique_corpstat(mptr)` guard on done_in_by()'s "invisible " prefix (113aae435) is PORTED - a unique's name identifies it, "killed by Croesus" not "killed by invisible Croesus" (upstream 5.0 keeps the prefix); (3) master's `is_lord \|\| is_prince -> m_monnam()` arm (ec3aa56b1) is NOT ported: it existed only for master's x_monnam() " noble" -> " lord"/" lady" strsubst, and the branch's NAMS gender triples picked by pmname() already give the gendered title from the plain arm. (4) AskUserQuestion after the battery: a lich's kill rises as a REVENANT for every race (master's outcome) - the lich arm moves ahead of the zombie arm because the 2026-07-16 hybrid zombie_maker() counts liches as zombie makers and master's order would have zombified the 8 zombie-capable races; liches still zombify the monsters they kill. Reviewer MEDIUM taken as a rider on the graverise commit: done()'s no-corpse remap gains DISINTEGRATED (BUG-1859, master frozen-unfixed); reviewer LOW taken as a rider on the melee commit: dealloc_obj() clears mhitu.c's cached monster weapon | maintainer (1, 2, 4); session, plan-approved (3) |
 | 2026-09-17 | Submerged-paint slice ruling (AskUserQuestion): master 7ef047e6a's two `if (!Underwater)` display guards land REFINED - `!Underwater \|\| Is_waterlevel(&u.uz)` on docrt()'s memory loop and the same plus `\|\| next2u(x, y)` on newsym()'s show_mem - matching the Is_waterlevel exemption their sibling gates (docrt gate, newsym filter, under_water(), per-turn arm) already carry, so the Plane of Water keeps today's display for an amphibious hero (drown() sets u.uinwater there too), and keeping 5.0's felt adjacent lava/ice square for a submerged hero without See_underwater; master-exact would blank the remembered bubbles on every full redraw, leave stale outlines from movebubbles() (the branch has no per-turn docrt there) and blank the adjacent lava/ice | maintainer |
 | 2026-09-07 | Dragon-scale secondary table rulings (AskUserQuestion x2): (1) the hero side of dragon-scaled body armor goes to EVILHACK MASTER'S TABLE (do_wear.c dragon_armor_handling on Dragon_armor_to_scales: gold infravision+clairvoyance, silver cold, white water walking, shimmering displacement+stun, sea swimming, celestial sleep+shock+flight, shadow sleep+drain, chromatic everything) with armor_provides_extrinsic() for the primaries; upstream 5.0's black-drain/gold-hallucination/white-slow-digestion/red-infravision secondaries dropped; 5.0's wielding_corpse guard kept on yellow and chromatic removal; (2) the enchant-armor meld + polyself do_merge producer rides the slice, the small consumer sites (shk pricing, shadow-darkness sites, zap youattack cancel) and the white-scales freeze-underfoot trio stay on their rows. Corollaries ratified with the plan: Known_lwalking's white term is fire-gated (lava burns without the freeze trio), master's slippery-ice white term is not added (COLD_RES primary covers it; would exempt a steed), obj_has_prop reads through the helper (beyond master), off arms pure with the callers owning the landing check | maintainer |
 | 2026-09-06 | defended() sweep rulings (AskUserQuestion x3): (1) defends()'s dragon-scale rows go to MASTER'S WHOLE TABLE now (gray||chromatic MR, white||silver cold, orange||shadow sleep, shadow drain - not black, blue||celestial shock, shimmering stun; vanilla's AD_HALU/AD_PLYS rows dropped, no caller) even though the hero twin do_wear.c dragon_armor_handling() is still upstream's - the residual (black-scales hero keeps 5.0's Drain_resistance while defended() reads shadow) rides the new dragon-scale secondary table row; (2) the monster teleport-trap magic-resistance gate is NARROWED to teleport-type traps (mtele_trap verbatim; mlevel_tele_trap only for tt == LEVEL_TELEP) - holes, trap doors and magic portals keep working on MR monsters, a deliberate deviation from master's top-of-function gate; (3) death-magic parity = BOTH the zhitm ZT_DEATH tiers (MR monsters take half death-ray damage, master edd0454ec) and the hero Death_resistance gate against Death's touch. Corollaries ratified with the plan/review: dobuzz's "resists the death magic" line is gated tmp > 0 (master prints it after the immune tier zeroed the damage); explode()'s wand-class death field keeps is_vampshifter beside immune_death_magic (master lacks it); 5.0's class-agnostic destroy_items() is guarded whole underwater (master still boils potions); mtele_trap() reports whether it moved the monster so trapeffect_telep_trap() no longer claims Trap_Moved_Mon for a monster the gate left standing | maintainer |
