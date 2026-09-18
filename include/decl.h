@@ -523,6 +523,8 @@ struct instance_globals_k {
 
     /* decl.c */
     struct obj *kickedobj;     /* object in flight due to kicking */
+    /* wielded weapon of a melee kill, for the hero's death reason */
+    struct obj *killer_weapon;
 
     /* read.c */
     boolean known;

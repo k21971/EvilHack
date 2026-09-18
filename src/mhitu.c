@@ -1776,7 +1776,11 @@ hitmu(struct monst *mtmp, struct attack *mattk)
             disp.botl = TRUE;
         }
 
+        /* name the wielded weapon in the death reason; mon_currwep is
+           already NULL'd if the weapon eroded away during this attack */
+        gk.killer_weapon = (mattk->aatyp == AT_WEAP) ? mon_currwep : 0;
         mdamageu(mtmp, mhm.damage);
+        gk.killer_weapon = 0;
     }
 
     if (DEADMONSTER(mtmp)) {

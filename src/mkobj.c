@@ -3122,6 +3122,9 @@ dealloc_obj(struct obj *obj)
         gt.thrownobj = 0;
     if (obj == gk.kickedobj)
         gk.kickedobj = 0;
+    if (obj == gk.killer_weapon)
+        gk.killer_weapon = 0;
+    mon_currwep_gone(obj); /* the attack chain's cached monster weapon */
     if (obj == svc.context.tin.tin) {
         svc.context.tin.tin = (struct obj *) 0;
         svc.context.tin.o_id = 0;

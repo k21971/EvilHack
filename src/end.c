@@ -382,7 +382,31 @@ done_in_by(struct monst *mtmp, int how)
         }
     }
 
-    Strcpy(svk.killer.name, buf);
+    if (gk.killer_weapon) {
+        char mbuf[BUFSZ];
+        /* a possessive ("<mon>'s weapon") only reads well on a simple name;
+           an appositive/genitive/clause name (shopkeeper, bones monster,
+           priest, "called X", or shapeshifter) needs the "by" form instead.
+           simple uniques and titles (Asmodeus, the Wizard of Yendor) stay
+           possessive */
+        boolean compound = (imitator || mtmp->isshk || has_ebones(mtmp)
+                            || mtmp->ispriest || mtmp->isminion
+                            || has_mgivenname(mtmp));
+
+        /* fold the monster's article inline so the reason is one KILLED_BY */
+        Strcpy(mbuf, (svk.killer.format == KILLED_BY_AN) ? an(buf) : buf);
+        /* a proper-noun artifact ("a Woodland-elf's Sting") also reads
+           oddly possessive, so it too uses the "by" form */
+        if (compound || gk.killer_weapon->oartifact)
+            Snprintf(svk.killer.name, sizeof svk.killer.name,
+                     "%s wielded by %s", killer_xname(gk.killer_weapon),
+                     mbuf);
+        else
+            (void) weapon_killer(svk.killer.name, mbuf, "", gk.killer_weapon);
+        svk.killer.format = KILLED_BY;
+    } else {
+        Strcpy(svk.killer.name, buf);
+    }
 
     /* might need to fix up multi_reason if 'mtmp' caused the reason */
     if (gm.multi_reason
