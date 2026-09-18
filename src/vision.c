@@ -610,6 +610,10 @@ vision_recalc(int control)
                     newsym(col, row);
         }
 
+        /* mark temporary light and darkness even though nothing is
+           seen; spot_is_dark() readers still need them while blind */
+        do_light_sources(next_array);
+
         /* skip the normal update loop */
         goto skip;
     } else if (Is_rogue_level(&u.uz)) {
