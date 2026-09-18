@@ -6552,6 +6552,10 @@ zap_over_floor(
                         /* leave the no longer existent water */
                         set_uinwater(0); /* u.uinwater = 0 */
                         u.uundetected = 0;
+                        /* the vision tables may have been built for
+                           the submerged view */
+                        if (!Is_waterlevel(&u.uz))
+                            vision_reset();
                         docrt();
                         gv.vision_full_recalc = 1;
                     } else if (u.utrap && u.utraptype == TT_LAVA) {

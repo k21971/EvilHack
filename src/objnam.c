@@ -4578,8 +4578,14 @@ wizterrainwish(struct _readobjnam_data *d)
            lava, decline to die, and get teleported away to safety) */
         if (u.uinwater && !is_pool(u.ux, u.uy)) {
             set_uinwater(0); /* u.uinwater = 0; leave the water */
+            /* the vision tables may have been built for the submerged
+               view, and the new terrain changes what blocks at <x,y>
+               either way; docrt() does neither */
+            if (!Is_waterlevel(&u.uz))
+                vision_reset();
+            else
+                recalc_block_point(x, y);
             docrt();
-            /* [block/unblock_point handled by docrt -> vision_recalc] */
         } else {
             if (u.utrap && u.utraptype == TT_LAVA && !is_lava(u.ux, u.uy))
                 reset_utrap(FALSE);

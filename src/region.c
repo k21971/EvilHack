@@ -367,7 +367,9 @@ remove_region(NhRegion *reg)
            locations which no longer block line-of-sight, then redrawing
            spots within revised line-of-sight; skip second pass if blind */
         for (pass = 1; pass <= (Blind ? 1 : 2); ++pass) {
-            u.uinwater = (pass == 1) ? 0 : tmp_uinwater;
+            /* a hero who sees while submerged has no moat term to
+               dodge, and dry land does block for that hero */
+            u.uinwater = (pass == 1 && !See_underwater) ? 0 : tmp_uinwater;
 
             for (x = reg->bounding_box.lx; x <= reg->bounding_box.hx; x++)
                 for (y = reg->bounding_box.ly; y <= reg->bounding_box.hy; y++)

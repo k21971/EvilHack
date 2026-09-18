@@ -127,6 +127,10 @@ boulder_hits_pool(
 
             if (fills_up && u.uinwater && distu(rx, ry) == 0) {
                 set_uinwater(0); /* u.uinwater = 0 */
+                /* the vision tables may have been built for the
+                   submerged view, new floor included; nothing fills
+                   up on the Plane of Water */
+                vision_reset();
                 docrt();
                 gv.vision_full_recalc = 1;
                 You("find yourself on dry land again!");
@@ -1449,8 +1453,9 @@ doup(void)
         You("%s out of the water.", HWwalking ? "step up" : "fly");
         set_uinwater(0); /* u.uinwater = 0; leave the water */
         if (was_underwater) { /* restore vision */
-            if (See_underwater)
-                vision_reset();
+            /* the tables may have been built for the submerged view;
+               rebuild whatever the hero can see now */
+            vision_reset();
             docrt();
             gv.vision_full_recalc = 1;
         }
