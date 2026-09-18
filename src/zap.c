@@ -924,7 +924,18 @@ montraits(
         mtmp2->mundetected = mtmp->mundetected;
         mtmp2->mfleetim = mtmp->mfleetim;
         mtmp2->mlstmv = mtmp->mlstmv;
+        /* the disguise makemon() rolled for mtmp is the one on the map
+           and the one set_mimic_sym() may have blocked light for; carry
+           all of it so the callers' seemimic() undoes exactly that block
+           instead of judging the snapshot's stale appearance */
         mtmp2->m_ap_type = mtmp->m_ap_type;
+        mtmp2->mappearance = mtmp->mappearance;
+        if (has_mcorpsenm(mtmp)) {
+            newmcorpsenm(mtmp2); /* allocates mextra when absent */
+            MCORPSENM(mtmp2) = MCORPSENM(mtmp);
+        } else if (has_mcorpsenm(mtmp2)) {
+            freemcorpsenm(mtmp2); /* stale value from the old disguise */
+        }
         /* set these ones explicitly */
         mtmp2->mrevived = 1;
         mtmp2->mavenge = 0;
