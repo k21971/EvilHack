@@ -788,6 +788,10 @@ object_detect(struct obj *detector, /* object doing the detecting */
 
             temp = cg.zeroobj;
             temp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
+            /* obj_to_glyph() draws a potion, gem or spellbook not yet seen
+               up close as its class; the mimic remembers the 'seen' part */
+            temp.oclass = objects[temp.otyp].oc_class;
+            temp.dknown = (M_AP_FLAG(mtmp) & M_AP_F_DKNOWN) ? 1 : 0;
             temp.quan = 1L;
             temp.ox = mtmp->mx;
             temp.oy = mtmp->my;

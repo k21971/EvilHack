@@ -773,6 +773,9 @@ savebones(int how, time_t when, struct obj *corpse)
             mtmp->mtame = mtmp->mpeaceful = 0;
         /* observations about the current hero won't apply to future game */
         mtmp->seen_resistance = M_SEEN_NOTHING;
+        /* nor has the next hero seen an object-mimic's look up close;
+           resetobjs() clears dknown on the real objects */
+        mtmp->m_ap_type &= M_AP_TYPMASK;
     }
     for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap) {
         ttmp->madeby_u = 0;

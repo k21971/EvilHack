@@ -578,9 +578,18 @@ display_monster(
             obj.ox = x;
             obj.oy = y;
             obj.otyp = mon->mappearance;
+            /* a potion, gem or spellbook look is drawn as its class
+               until seen up close, and that needs the class */
+            obj.oclass = objects[obj.otyp].oc_class;
+            /* the fake object is rebuilt for every draw, so the monster
+               remembers whether its look has been seen up close */
+            obj.dknown = (M_AP_FLAG(mon) & M_AP_F_DKNOWN) ? 1 : 0;
             /* might be mimicking a corpse or statue */
             obj.corpsenm = has_mcorpsenm(mon) ? MCORPSENM(mon) : PM_TENGU;
             map_object(&obj, !sensed);
+            /* map_object() observes a generic look that is close enough */
+            if (obj.dknown)
+                mon->m_ap_type |= M_AP_F_DKNOWN;
             break;
         }
 
@@ -1673,6 +1682,7 @@ void
 see_nearby_objects(void)
 {
     struct obj *obj;
+    struct monst *mtmp;
     int glyph;
     coordxy ix, iy, x = u.ux, y = u.uy;
     /* these 'r' and 'neardist' calculations match distant_name(objnam.c) */
@@ -1685,15 +1695,24 @@ see_nearby_objects(void)
         for (ix = x - r; ix <= x + r; ++ix) {
             if (!isok(ix, iy))
                 continue;
+            /* a monster posing as an object whose look has not been seen
+               up close stands in for one; redrawing it does the observing */
+            mtmp = m_at(ix, iy);
+            if (mtmp && (M_AP_TYPE(mtmp) != M_AP_OBJECT
+                         || (M_AP_FLAG(mtmp) & M_AP_F_DKNOWN) != 0))
+                mtmp = (struct monst *) 0;
             /* skip if no object or the object has already been marked as
                having been seen up close */
-            if ((obj = vobj_at(ix, iy)) == 0 || obj->dknown)
+            if ((obj = vobj_at(ix, iy)) != 0 && obj->dknown)
+                obj = (struct obj *) 0;
+            if (!obj && !mtmp)
                 continue;
             /* skip if the spot can't be seen or is too far (diagonal) */
             if (!cansee(ix, iy) || distu(ix, iy) > neardist)
                 continue;
 
-            observe_object(obj);
+            if (obj)
+                observe_object(obj);
             /* operate on remembered glyph rather than current one */
             glyph = levl[ix][iy].glyph;
             if (glyph_is_generic_object(glyph))
