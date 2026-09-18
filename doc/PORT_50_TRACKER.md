@@ -13580,7 +13580,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       roll. Revisit only if the maintainer wants master's odds.
 - [x] save_mtraits() keeps worn-derived mextrinsics across revival
       FIXED 2026-09-18 (session 126, commit `Fix: a revived monster
-      kept its dead gear's extrinsics.` - hash filled after landing;
+      kept its dead gear's extrinsics.` = 242e1b9a0, tracker
+      cbed469e7, landed 2026-09-18;
       BUG-1860; closure notes at the end of this row; the LOW row
       minted 2026-09-11 by the free-action slice's reviewer;
       master-shared): a KEEPTRAITS monster (shopkeeper, pet, unique,
@@ -13632,8 +13633,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       by the fix (corpse and statue omonst still carry the bit).
 - [x] montraits() copies a revived mimic's saved m_ap_type without its
       mappearance FIXED 2026-09-18 (session 126, commit `Fix: a
-      revived mimic carried a mismatched disguise.` - hash filled
-      after landing; BUG-1861; closure notes at the end of this row;
+      revived mimic carried a mismatched disguise.` = 7beff04d4,
+      tracker cbed469e7, landed 2026-09-18; BUG-1861; closure notes
+      at the end of this row;
       the LOW row minted 2026-09-16 by the rloc_to mimic-block
       slice's design review and reviewer; vanilla-shared, was
       unverified; the stale vision block is REAL ON MASTER ONLY, the
@@ -13692,10 +13694,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       it into meat first, and set_mimic_sym()'s OBJ_AT arm sees the
       statue itself); goodpos() refuses a boulder square, so the
       adjacent-landing case is the only reachable blocker.
-- [ ] LOW: a mimic disguised as a gem or a spellbook draws as the
-      strange object (minted 2026-09-18 by the revival-traits
+- [x] LOW: a mimic disguised as a gem or a spellbook draws as the
+      strange object FIXED 2026-09-18 (session 127, commit `Fix: a
+      mimic posing as a gem or spellbook drew as a strange object.` -
+      hash filled after landing; BUG-1862; closure notes at the end
+      of this row; minted 2026-09-18 by the revival-traits
       battery, session 126; vanilla-shared, mechanism verified on the
-      bodies, not fixed): display_monster()'s M_AP_OBJECT arm
+      bodies): display_monster()'s M_AP_OBJECT arm
       (src/display.c) builds its fake object from cg.zeroobj with
       only otyp and corpsenm set, so oclass stays 0 and dknown 0;
       obj_is_generic() (include/display.h: !dknown && (POTION_CLASS
@@ -13719,6 +13724,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       would then mark the mimicked appearance as seen, as a real gem
       does) - upstream-reportable once fixed; own slice with a
       display battery.
+      CLOSURE (session 127): the class alone would have left two
+      subtler tells because the fake object is rebuilt per draw - the
+      look reverting to generic on the next far redraw, and staying
+      generic as the hero walked up (see_nearby_objects() only looked
+      at vobj_at()). SHAPE: the arm sets oclass, seeds dknown from the
+      mimic's existing M_AP_F_DKNOWN bit (include/monst.h; until now
+      set only by object_from_map()'s adjacent farlook) and ORs it
+      back after map_object() has had the chance to observe;
+      see_nearby_objects() also redraws a nearby not-yet-seen
+      M_AP_OBJECT mimic; object_detect()'s cursed-detection mimic
+      object (src/detect.c, same defect - sibling found by the zeroobj
+      sweep) gets the class + seed; savebones() masks the flag off
+      beside seen_resistance (reviewer LOW: resetobjs() clears dknown
+      on real objects, so a bones mimic would have been the one
+      specific gem among generic ones). Sweeps: no raw m_ap_type
+      compare anywhere; every mappearance writer assigns m_ap_type
+      whole. Reviewer PASS (six LOWs, three taken). BATTERY 9/9 PASS
+      pre-fix + post-fix, paniclog never created: pre-fix `]` / glyph
+      5050 at every distance and under cursed detection (a freshly
+      genesis'd mimic rolled a spellbook look and drew `]` untouched);
+      post-fix generic far / specific within two squares / stays
+      specific / new disguise generic again, THE WALK flipped the
+      mimic and a mirrored real unseen diamond on the same step,
+      hallucinating and blind approaches left the flag clear, bones
+      round trip returned it cleared. Upstream artifact
+      ~/nh50-mimic-generic-object-glyph.patch (display.c + detect.c +
+      bones.c; apply --check clean vs Official_nh50 f41f1aa09 and
+      NetHack50 a0b9e59d8), not yet sent.
 - [ ] LOW observation (2026-09-09, attack-handler slice): the passive
       AD_COLD arms keep vanilla 5.0's shape - passiveum heals u.mh by
       (tmp + rn2(2))/2 and splits any form over the level cap,
@@ -15789,7 +15822,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       glyph persists until the per-action docrt(); Blind + submerged +
       See_underwater shows a blank map plus felt self and sensed
       monsters). Sibling gap NOT taken - own row below.
-- [ ] LOW: vision.c does_block() underwater clause NOT PORTED (minted
+- [x] LOW: vision.c does_block() underwater clause PORTED 2026-09-18
+      (session 127, commit `Fix: a submerged hero's sight crossed dry
+      land.` - hash filled after landing; BUG-1863, with master's
+      missing exit rebuilds archived as BUG-1864 frozen-unfixed;
+      closure notes at the end of this row; minted
       2026-09-17 by the submerged-paint slice, session 124): master
       7ef047e6a made every non-pool, non-ice square block light while
       the hero is submerged off the Plane of Water (`Underwater &&
@@ -15802,7 +15839,45 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dark on master (the newsym filter still hides the dry squares
       themselves). Vision-semantics change (couldsee/cansee for every
       consumer while submerged); port with a battery of its own. LOW.
-- [ ] LOW observation (2026-09-17, submerged-paint battery): leaving
+      CLOSURE (session 127): RULING 2026-09-18 (AskUserQuestion,
+      decisions log) = REFINED shape, `Underwater && See_underwater
+      && !Is_waterlevel(&u.uz) && !IS_POOL(lev->typ) && lev->typ !=
+      ICE`. The branch already carried every vision_reset() master
+      added around the clause (drown() entry, the hack.c/do.c exits,
+      seven old_uwvis toggle sites) - only the clause was missing.
+      Exits: the two ordinary ones now rebuild unconditionally inside
+      was_underwater; three that had NO rebuild on either tree gain
+      one - pool frozen under the hero (zap.c), boulder fills the
+      hero's pool (do.c, whose own recalc_block_point() runs while
+      still submerged), wizard terrain wish (objnam.c; its "handled
+      by docrt" comment was false). region.c remove_region() pass 1
+      leaves u.uinwater alone for a See_underwater hero. Centralizing
+      in set_uinwater() REJECTED by the design check: goto_level()
+      calls it just ahead of keepdogs(), whose messages are
+      canseemon()-gated. Master-identical side effects recorded, not
+      changed: viz_clear is level-global, so land monsters' line of
+      sight to other monsters/objects collapses to adjacency while
+      such a hero is submerged (m_canseeu already has !Underwater on
+      the branch); lava blocks but is drawable. Design check + reviewer
+      PASS (LOWs taken: comment wording, a dead Plane of Water guard).
+      BATTERY 10/10 PASS with sanity_check's levl_sanity_check() as
+      the oracle (silent on every leg; paniclog never created):
+      pre-fix far pool drawn across the floor strip (viz_clear 1) vs
+      master `}:` only (viz_clear 0); post-fix master's picture, room
+      back at once on surfacing, ice seen, recalc_block_point() while
+      submerged blocks for the tortle and stays clear for a plain
+      magical-breathing hero, freeze exit / scroll-of-earth boulder
+      fill / goggles toggles / ^V while submerged / dissipating cloud
+      all clean, Plane of Water unchanged. MASTER CONTROL M3 CONFIRMED
+      the frozen-pool bug in play (all dry land viz_clear 0 after the
+      freeze; walking, ten turns and ^R do nothing; only a level change
+      fixes it) = BUG-1864. Two rows minted below (untracked
+      See_underwater flips; the Blind-arm do_light_sources() gap).
+- [x] LOW observation - FIXED 2026-09-18 (session 127, commit `Fix:
+      every second map browse wiped a submerged hero's view.` - hash
+      filled after landing; BUG-1865, master frozen-unfixed; closure
+      notes at the end of this row; minted 2026-09-17 by the
+      submerged-paint battery): leaving
       #terrain while submerged with See_underwater repainted only the
       hero and ONE adjacent water square until the next ^R (tortle
       game; the in-view row is `}}}}@`); a scroll of magic mapping's
@@ -15815,6 +15890,65 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       over it; master carries the same guards, so check master's
       #terrain exit first. Cosmetic (the next action or ^R repaints).
       LOW.
+      CLOSURE (session 127): the magic-mapping contrast was an
+      ORDERING ARTIFACT and the vision-array suspicion was wrong. The
+      pre-fix battery found the exit of ANY full-map browse (#terrain
+      every view, magic mapping) ALTERNATES correct / wiped on
+      successive invocations on BOTH trees (six-run series each;
+      viz_array, viz_clear and the remembered glyphs correct
+      throughout, only gg.gbuf blanked; ^R does not reset the parity;
+      attaching gdb mid-browse flips it). Mechanism: under_water()
+      keeps a static delayed-update flag - mode 2 sets it and returns,
+      the next call of any mode clears the screen and draws the
+      three-by-three. The per-turn under_water(0) consumes it for an
+      ordinary hero; a See_underwater hero is drawn by docrt()
+      everywhere (moveloop, docrt_flags(), drown() all gate
+      under_water() on !See_underwater), so the flag map_redisplay()
+      set stayed up until the NEXT map_redisplay(), whose
+      under_water(2) then wiped the picture docrt() had just painted.
+      FIX (ruling 2026-09-18, AskUserQuestion: take it in this slice):
+      map_redisplay() gates its call on !See_underwater like its three
+      siblings. Master has seven ungated under_water(2) sites in
+      detect.c (5.0 funnels them through map_redisplay()). Delta
+      reviewer PASS (stale-flag residue traced benign: under_water()
+      is unreachable while See_underwater holds, and cls() + 3x3 is
+      the right picture in any other state). BATTERY 4/4 PASS: nine
+      consecutive correct exits, magic mapping then #terrain twice,
+      the static read 0 after an exit, plain magical-breathing hero
+      unchanged.
+- [ ] LOW: See_underwater flips with no toggle site (minted 2026-09-18
+      by the submerged-sight slice, session 127: design check +
+      reviewer, each site verified on the bodies; master-shared).
+      (Underwater && See_underwater) can change while the hero is
+      submerged without reaching a vision_reset() + docrt(): polymon()
+      callers outside the four old_uwvis wrappers (you_were(), the
+      poly_when_stoned() stone golem sites, zap.c flesh golem, end.c,
+      eat.c queen bee, potion.c vampire arms, uhitm.c mind flayer);
+      region_safety()'s timed HMagical_breathing grant (src/region.c)
+      and its expiry (timeout.c case MAGICAL_BREATHING) for an
+      HSwimming hero; worn eyewear destroyed through useupall() ->
+      setnotworn(), which bypasses Blindf_off(). Since session 127
+      every way out of the water rebuilds the tables whatever the hero
+      can see, so nothing outlives surfacing; while still submerged the
+      cost is a wrong view (land sight kept or lost, the map not
+      repainted between the full view and the three-by-three) until
+      the next rebuild - the BUG-1424 family. Candidate: move the
+      old_uwvis compare into polymon() itself and add it to the two
+      timeout/region sites and setnotworn()'s eyewear arm. LOW.
+- [ ] LOW: vision_recalc() Blind arm lacks master's
+      do_light_sources() call (minted 2026-09-18 by the session 127
+      reviewer's master-parity pass; outside that slice). Master's
+      Blind arm ends with do_light_sources(next_array) before its
+      `goto skip` ("necessary while blind because we need to know
+      whether the player (specifically, as Drow race) is in the
+      presence of light or dark"); the branch's arm (src/vision.c)
+      goes straight to skip, so a blind hero's viz_array carries no
+      TEMP_LIT / TEMP_DARK bits and spot_is_dark(u.ux, u.uy)
+      (include/vision.h; consumers uhitm.c to-hit, dothrow.c,
+      fountain.c, insight.c) answers from lev->lit alone - a blind
+      drow carrying a lit lamp in a dark room reads as in darkness.
+      Not verified in play. Port = the one call; battery = a blind
+      drow's light/dark enlightenment line with a carried lamp. LOW.
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -16894,7 +17028,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-18 | display.c display_monster()'s M_AP_OBJECT arm builds its fake object with otyp and corpsenm only (oclass 0, dknown 0), so a mimic disguised as a gem or a spellbook satisfies obj_is_generic() and generic_obj_to_glyph() yields oclass + GLYPH_OBJ_OFF = the strange-object glyph; map_object()'s near re-observation cannot rescue it (glyph_is_normal_generic_obj() is strict `> GLYPH_OBJ_OFF`), so the disguise draws and is remembered as `]` at any distance - a mimic tell. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | found on branch (session 126 battery; tracker LOW row with the candidate one-line fix); not yet fixed, no artifact yet |
+| 2026-09-18 | display.c display_monster()'s M_AP_OBJECT arm builds its fake object with otyp and corpsenm only (oclass 0, dknown 0), so a mimic disguised as a gem or a spellbook satisfies obj_is_generic() and generic_obj_to_glyph() yields oclass + GLYPH_OBJ_OFF = the strange-object glyph; map_object()'s near re-observation cannot rescue it (glyph_is_normal_generic_obj() is strict `> GLYPH_OBJ_OFF`), so the disguise draws and is remembered as `]` at any distance - a mimic tell. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1862, session 127: oclass on the fake object in display_monster() and object_detect(), dknown seeded from and stored back to M_AP_F_DKNOWN, see_nearby_objects() redraws a nearby unseen object-mimic, savebones() clears the flag); artifact ~/nh50-mimic-generic-object-glyph.patch (display.c + detect.c + bones.c; git apply --check clean vs both trees); not yet sent |
 | 2026-09-18 | zap.c montraits() rebuilds a revived monster from its stored traits but never resets mextrinsics; m_detach() forces mhp = 0 before relobj() -> mdrop_obj(), and monstone() forces it before its extract_from_minvent() loop, and both drop paths gate update_mon_extrinsics() on !DEADMONSTER(mon), so a corpse or statue snapshot keeps every worn-item bit (vanilla: the res_to_mr() resistances, e.g. an alchemy smock's poison and acid) and the revived monster keeps them with no gear, permanently - nothing ever clears a bit with no worn item behind it. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1860: montraits()'s reset block zeroes mextrinsics plus the levitation/jump timers, the clone_mon() reset); artifact ~/nh50-montraits-extrinsics.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8, alone and in sequence with the mimic artifact); not yet sent |
 | 2026-09-18 | zap.c montraits() copies only m_ap_type from the fresh makemon() monster into the stored traits that replmon() installs, so the live revived mimic carries an incoherent triple - the fresh disguise type over the snapshot's mappearance / MCORPSENM - until the callers' seemimic() (revive(), animate_statue()) clears it: rendered once by montraits()'s own newsym() (display_monster() reads the appearance as a cmap index or an otyp by the type, PM_TENGU for a missing corpsenm) and judged by restore_cham() and by seemimic()'s own is_lightblocker_mappear() unblock test. Latent on 5.0 because relmon() -> mon_leaving_level() reveals the fresh monster (unblocking its square) before place_monster() installs the snapshot; on a tree whose relmon() reveals only a migrating monster (EvilHack master) the fresh block survives and the mismatched pair is never unblocked. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1861: carry m_ap_type, mappearance and MCORPSENM from the fresh monster before replmon() frees its mextra); artifact ~/nh50-montraits-mimic-disguise.patch (git apply --check clean vs both trees; worded as the latent triple, no stale-block claim); not yet sent |
 | 2026-09-16 | teleport.c rloc_to_core() relocates a monster with a bare remove_monster() + place_monster(), neither of which touches the vision table, so a monster still disguised as a boulder / closed door / wall / tree (does_block()'s is_lightblocker_mappear() arm) that is moved by mnexto()/mnearto()/rloc() - the hero arriving on its square, a level-region placement, a vault guard shoving it aside, a Plane of Water bubble landing - leaves its old square blocked and lands on an unblocked square; levl_sanity_check() reports both as "levl[x][y] vision blocking". dbridge.c do_entity() moves a drawbridge's occupant with the same bare pair. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 byte-identical in both files | fixed on branch (BUG-1850: capture is_lightblocker_mappear() once, recalc_block_point() on the vacated square after the pick-up and on the landing square after place_monster(); same pair in do_entity()); artifact ~/nh50-rloc-to-mimic-block.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8); companion to the 2026-09-07 bubble artifact, which is trimmed to its draw-arm hunk; not yet sent |
@@ -17034,6 +17168,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-18 | Submerged-sight slice rulings (AskUserQuestion x2, both recommended options taken): (1) master 7ef047e6a's does_block() clause lands REFINED - `Underwater && See_underwater && !Is_waterlevel(&u.uz) && !IS_POOL(lev->typ) && lev->typ != ICE` instead of master's bare Underwater test, with the vision tables rebuilt at EVERY on-level water exit (the two ordinary exits unconditionally; the frozen-pool, boulder-fill and terrain-wish exits, which neither tree rebuilt, gain one). In game: a submerged tortle / Eyes of the Overworld / goggles hero no longer sees a second pool across a floor strip, as on master; a plain submerged hero keeps ordinary tables, so a land square that changes while they are under (5.0 funnels ~37 sites through recalc_block_point()) cannot come out sight-blocking after they surface, and a restore while submerged cannot block all dry land; a tortle whose pool freezes, fills with a boulder, or who is wished onto new terrain sees the room at once (master stays blind until a level change - confirmed in play, BUG-1864 frozen-unfixed). Rejected: master's exact shape; master's clause plus gap fixes only. (2) The #terrain-exit repaint row was root-caused by the slice's own battery (under_water()'s static delayed-update flag, set by map_redisplay() and never consumed for a See_underwater hero) and its one-line gate rides this slice as its own commit rather than waiting for a slice of its own (BUG-1865). Session calls inside the approved plan: the rebuild stays per-site, NOT centralized in set_uinwater() (goto_level() calls it just ahead of keepdogs(), whose messages are canseemon()-gated); the mimic object look keeps a real object's generic-far / specific-near / stays-specific rule by reusing M_AP_F_DKNOWN, cleared in bones. | maintainer (rulings); session, plan-approved (fix shapes) |
 | 2026-09-18 | Revival-traits slice ruling (AskUserQuestion, recommended option taken): reviving a racial zombie's or mummy's corpse (undead_to_corpse() -> the level-0 race archetype: dwarf / gnome / orc / elf / drow / human / giant) KEEPS master and vanilla parity - the archetype rises (LVL 0, 1d8 weapon attack, MH_ race flag, G_NOGEN), no revive() redirect to a generatable species and no refusal; revive() has no placeholder gate on any of the three trees, makemon()'s only is_placeholder() consumer is mk_gen_ok() (random class generation), and monsters.h's "orc" entry carries master's own "plain orc for zombie corpses only; not created at random" comment. Fix-shape calls approved with the plan: both montraits() repairs are consumer-side (the reset block gains mextrinsics + the levitation/jump timers, matching clone_mon()'s reset; the full disguise triple m_ap_type / mappearance / MCORPSENM is carried from the fresh monster) rather than save_mtraits() producer scrubs, and both are upstream-shared, so each ships as its own patch artifact | maintainer (ruling); session, plan-approved (fix shapes) |
 | 2026-09-17 | done_in_by parity slice rulings (AskUserQuestion x3, all recommended options taken, plus one plan-approved session call): (1) master's melee weapon death attribution (7cd2a8b36 + 4729b477c - the half the kill-attribution slice 692008bd7 left behind, never rowed) is PORTED NOW as the slice's third commit rather than minted as a deferral row; (2) master's `!unique_corpstat(mptr)` guard on done_in_by()'s "invisible " prefix (113aae435) is PORTED - a unique's name identifies it, "killed by Croesus" not "killed by invisible Croesus" (upstream 5.0 keeps the prefix); (3) master's `is_lord \|\| is_prince -> m_monnam()` arm (ec3aa56b1) is NOT ported: it existed only for master's x_monnam() " noble" -> " lord"/" lady" strsubst, and the branch's NAMS gender triples picked by pmname() already give the gendered title from the plain arm. (4) AskUserQuestion after the battery: a lich's kill rises as a REVENANT for every race (master's outcome) - the lich arm moves ahead of the zombie arm because the 2026-07-16 hybrid zombie_maker() counts liches as zombie makers and master's order would have zombified the 8 zombie-capable races; liches still zombify the monsters they kill. Reviewer MEDIUM taken as a rider on the graverise commit: done()'s no-corpse remap gains DISINTEGRATED (BUG-1859, master frozen-unfixed); reviewer LOW taken as a rider on the melee commit: dealloc_obj() clears mhitu.c's cached monster weapon | maintainer (1, 2, 4); session, plan-approved (3) |
 | 2026-09-17 | Submerged-paint slice ruling (AskUserQuestion): master 7ef047e6a's two `if (!Underwater)` display guards land REFINED - `!Underwater \|\| Is_waterlevel(&u.uz)` on docrt()'s memory loop and the same plus `\|\| next2u(x, y)` on newsym()'s show_mem - matching the Is_waterlevel exemption their sibling gates (docrt gate, newsym filter, under_water(), per-turn arm) already carry, so the Plane of Water keeps today's display for an amphibious hero (drown() sets u.uinwater there too), and keeping 5.0's felt adjacent lava/ice square for a submerged hero without See_underwater; master-exact would blank the remembered bubbles on every full redraw, leave stale outlines from movebubbles() (the branch has no per-turn docrt there) and blank the adjacent lava/ice | maintainer |
