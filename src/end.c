@@ -320,7 +320,7 @@ done_in_by(struct monst *mtmp, int how)
         svk.killer.format = KILLED_BY;
     }
     (void) monhealthdescr(mtmp, TRUE, eos(buf));
-    if (mtmp->minvis)
+    if (mtmp->minvis && !unique_corpstat(mptr))
         Strcat(buf, "invisible ");
     if (distorted)
         Strcat(buf, "hallucinogen-distorted ");
@@ -370,7 +370,11 @@ done_in_by(struct monst *mtmp, int how)
            it overrides the effect of Hallucination on priestname() */
         Strcat(buf, m_monnam(mtmp));
     } else {
-        Strcat(buf, pmname(mptr, Mgender(mtmp)));
+        /* x_monnam() carries the racial adjective ("centaurian soldier")
+           that a bare species name of the race archetype would drop */
+        Strcat(buf, x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
+                             (EXACT_NAME | SUPPRESS_NAME | SUPPRESS_RIDER),
+                             FALSE));
         if (has_mgivenname(mtmp)) {
             Sprintf(eos(buf), " %s %s",
                     has_ebones(mtmp) ? "of" : "called",
