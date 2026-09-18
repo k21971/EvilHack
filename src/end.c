@@ -437,18 +437,35 @@ done_in_by(struct monst *mtmp, int how)
      *  transformation.  (Turning to slime isn't an issue here because
      *  Unchanging prevents that from happening.)
      */
-    if (mptr->mlet == S_WRAITH)
+    if (mptr == &mons[PM_WRAITH] || mptr == &mons[PM_BARROW_WIGHT])
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && gu.urace.mummynum != NON_PM)
         u.ugrave_arise = gu.urace.mummynum;
+    /* liches count as zombie makers (zombie_maker()), so this arm has
+       to precede the zombie arm for a lich's kill to rise as a revenant
+       rather than as a racial zombie */
+    else if (mptr->mlet == S_LICH)
+        u.ugrave_arise = PM_REVENANT;
     else if (zombie_maker(mtmp) && gu.urace.zombienum != NON_PM)
         u.ugrave_arise = gu.urace.zombienum;
+    /* Vampire Mages can produce more of their kind if
+       conditions are just right */
+    else if (mptr == &mons[PM_VAMPIRE_MAGE] && Race_if(PM_HUMAN)
+             && Role_if(PM_WIZARD))
+        u.ugrave_arise = PM_VAMPIRE_MAGE;
     else if (racial_vampire(mtmp) && Race_if(PM_HUMAN))
         u.ugrave_arise = PM_VAMPIRE_SOVEREIGN;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
+    else if (mptr == &mons[PM_NAZGUL])
+        u.ugrave_arise = PM_BARROW_WIGHT;
     else if (mptr == &mons[PM_MIND_FLAYER_LARVA])
         u.ugrave_arise = PM_MIND_FLAYER;
+    /* The player will rise as a spectre if killed by one
+       or if their experience level was rank 7 (level 22)
+       or higher when they died */
+    else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 21)
+        u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a high-end vampire kills the hero
        when ordinary vampires are genocided; ditto for wraiths */
     if (u.ugrave_arise >= LOW_PM
@@ -1505,8 +1522,8 @@ really_done(int how)
     /* maintain ugrave_arise even for !bones_ok */
     if (how == PANICKED)
         u.ugrave_arise = (NON_PM - 3); /* no corpse, no grave */
-    else if (how == BURNING || how == DISSOLVED) /* corpse burns up too */
-        u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
+    else if (how == BURNING || how == DISSOLVED || how == DISINTEGRATED)
+        u.ugrave_arise = (NON_PM - 2); /* leave no corpse: nothing is left */
     else if (how == STONING)
         u.ugrave_arise = LEAVESTATUE; /* statue instead of corpse */
     else if (u.usick_type & SICK_ZOMBIE)
