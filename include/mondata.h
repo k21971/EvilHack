@@ -344,6 +344,12 @@
     ((ptr) == &mons[PM_HAWK]           \
      || (ptr) == &mons[PM_LARGE_HAWK]  \
      || (ptr) == &mons[PM_GIANT_HAWK])
+#define has_beak(ptr) \
+    (is_bird(ptr) || (ptr) == &mons[PM_TENGU] \
+     || (ptr) == &mons[PM_VROCK]              \
+     || (ptr) == &mons[PM_BABY_OWLBEAR]       \
+     || (ptr) == &mons[PM_OWLBEAR]            \
+     || (ptr) == &mons[PM_FELL_BEAST])
 #define is_rat(ptr) \
     ((ptr) == &mons[PM_SEWER_RAT] || (ptr) == &mons[PM_GIANT_RAT]       \
      || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
@@ -709,6 +715,7 @@
 #define has_trunk(ptr) \
     ((ptr) == &mons[PM_MUMAK] || (ptr) == &mons[PM_MASTODON] \
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
+#define is_quadruped(ptr) ((ptr)->mlet == S_QUADRUPED)
 
 /* grazers; will crop a patch of grass down to bare floor */
 #define can_eat_grass(ptr) \

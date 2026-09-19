@@ -6589,18 +6589,12 @@ mhitm_ad_phys(
             if (mwep->oartifact
                 || ((mwep->oclass == WEAPON_CLASS || is_weptool(mwep)
                      || is_bullet(mwep)) && mwep->oprops)) {
-                /* when magr's weapon is an artifact, caller suppressed its
-                   usual 'hit' message in case artifact_hit() delivers one;
-                   now we'll know and might need to deliver skipped message
-                   (note: if there's no message there'll be no auxiliary
-                   damage so the message here isn't coming too late) */
+                /* hitmm() has already named the blow whatever the weapon,
+                   so no line is owed here when artifact_hit() stays
+                   silent; the hit flag is kept as it was */
                 if (!artifact_hit(magr, mdef, mwep, &mhm->damage,
-                                  mhm->dieroll)) {
-                    if (gv.vis)
-                        pline_mon(magr, "%s hits %s.", Monnam(magr),
-                              mon_nam_too(mdef, magr));
+                                  mhm->dieroll))
                     mhm->hitflags |= M_ATTK_HIT;
-                }
                 /* artifact_hit updates 'tmp' but doesn't inflict any
                    damage; however, it might cause carried items to be
                    destroyed and they might do so */
@@ -6846,7 +6840,7 @@ mhitm_ad_heal(
             && (!uarmg || is_art(uarmg, ART_HAND_OF_VECNA))) {
             boolean goaway = FALSE;
 
-            pline_mon(magr, "%s hits!  (I hope you don't mind.)",
+            pline_mon(magr, "%s touches you!  (I hope you don't mind.)",
                       Monnam(magr));
             if (Upolyd) {
                 u.mh += rnd(7);

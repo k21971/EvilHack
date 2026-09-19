@@ -9,6 +9,23 @@
 static const char brief_feeling[] =
     "have a %s feeling for a moment, then it passes.";
 
+/* verb stems for a monster's weapon attack; hitmm() appends the 's' */
+static const char *const mwep_pierce[] = {
+    "pierce", "gore", "stab", "impale", "hit"
+};
+
+static const char *const mwep_slash[] = {
+    "strike", "hack", "cut", "lacerate", "hit"
+};
+
+static const char *const mwep_whack[] = {
+    "smashe", "whack", "pound", "bashe", "hit"
+};
+
+static const char *const mwep_none[] = {
+    "punche", "pummel", "hit"
+};
+
 staticfn void noises(struct monst *, struct attack *);
 staticfn void pre_mm_attack(struct monst *, struct monst *);
 staticfn void missmm(struct monst *, struct monst *, int, int,
@@ -975,23 +992,83 @@ hitmm(
             pline("%s %s %s.", buf, mon_nam(mdef),
                   (compat == 2) ? "engagingly" : "seductively");
         } else {
+            /* every blow names its verb here, artifact weapon or not;
+               mhitm_ad_phys() adds no hit line of its own */
             buf[0] = '\0';
             switch (mattk->aatyp) {
             case AT_BITE:
-                Snprintf(buf, sizeof buf, "%s bites", magr_name);
+                Snprintf(buf, sizeof buf, "%s %s", magr_name,
+                         has_beak(magr->data) ? "pecks" : "bites");
+                break;
+            case AT_KICK:
+                Snprintf(buf, sizeof buf, "%s %s", magr_name,
+                         is_quadruped(magr->data) ? "tramples" : "kicks");
                 break;
             case AT_STNG:
                 Snprintf(buf, sizeof buf, "%s stings", magr_name);
                 break;
             case AT_BUTT:
-                Snprintf(buf, sizeof buf, "%s butts", magr_name);
+                Snprintf(buf, sizeof buf, "%s %s", magr_name,
+                         (has_trunk(magr->data)
+                          || num_horns(magr->data) > 0) ? "gores" : "butts");
                 break;
             case AT_TUCH:
-                Snprintf(buf, sizeof buf, "%s touches", magr_name);
+                if (magr->data == &mons[PM_DEATH])
+                    Snprintf(buf, sizeof buf,
+                             "%s reaches out with its deadly touch towards",
+                             magr_name);
+                else if (magr->data == &mons[PM_GIANT_CENTIPEDE])
+                    Snprintf(buf, sizeof buf, "%s coils its body around",
+                             magr_name);
+                else if (magr->data == &mons[PM_ASSASSIN_VINE])
+                    Snprintf(buf, sizeof buf,
+                             "%s lashes its thorny vines at", magr_name);
+                else
+                    Snprintf(buf, sizeof buf, "%s touches", magr_name);
                 break;
             case AT_TENT:
-                Snprintf(buf, sizeof buf, "%s tentacles suck",
-                         s_suffix(magr_name));
+                if (magr->data == &mons[PM_MEDUSA])
+                    Snprintf(buf, sizeof buf,
+                             "The venomous snakes on %s head attack",
+                             s_suffix(magr_name));
+                else if (magr->data == &mons[PM_DEMOGORGON]
+                         || magr->data == &mons[PM_NEOTHELID])
+                    Snprintf(buf, sizeof buf, "%s tentacles lash out at",
+                             s_suffix(magr_name));
+                else
+                    Snprintf(buf, sizeof buf, "%s tentacles suck",
+                             s_suffix(magr_name));
+                break;
+            case AT_WEAP:
+                if (!mwep) { /* AT_WEAP but isn't wielding anything */
+                    if (has_claws(r_data(magr)))
+                        Snprintf(buf, sizeof buf, "%s claws", magr_name);
+                    else if (has_claws_undead(r_data(magr)))
+                        Snprintf(buf, sizeof buf, "%s scratches",
+                                 magr_name);
+                    else
+                        Snprintf(buf, sizeof buf, "%s %ss", magr_name,
+                                 mwep_none[rn2(SIZE(mwep_none))]);
+                } else if (is_pierce(mwep)) {
+                    Snprintf(buf, sizeof buf, "%s %ss", magr_name,
+                             mwep_pierce[rn2(SIZE(mwep_pierce))]);
+                } else if (is_slash(mwep)) {
+                    Snprintf(buf, sizeof buf, "%s %ss", magr_name,
+                             mwep_slash[rn2(SIZE(mwep_slash))]);
+                } else if (is_whack(mwep)) {
+                    Snprintf(buf, sizeof buf, "%s %ss", magr_name,
+                             mwep_whack[rn2(SIZE(mwep_whack))]);
+                } else {
+                    Snprintf(buf, sizeof buf, "%s hits", magr_name);
+                }
+                break;
+            case AT_CLAW:
+                if (has_claws(r_data(magr)))
+                    Snprintf(buf, sizeof buf, "%s claws", magr_name);
+                else if (has_claws_undead(r_data(magr)))
+                    Snprintf(buf, sizeof buf, "%s scratches", magr_name);
+                else
+                    Snprintf(buf, sizeof buf, "%s hits", magr_name);
                 break;
             case AT_HUGS:
                 if (magr != u.ustuck) {
@@ -1001,12 +1078,7 @@ hitmm(
                 FALLTHROUGH;
                 /*FALLTHRU*/
             default:
-                if (!weaponhit || !mwep
-                    || !(mwep->oartifact
-                         || ((mwep->oclass == WEAPON_CLASS
-                              || is_weptool(mwep) || is_bullet(mwep))
-                             && mwep->oprops)))
-                    Snprintf(buf, sizeof buf, "%s hits", magr_name);
+                Snprintf(buf, sizeof buf, "%s hits", magr_name);
                 break;
             }
             if (*buf)

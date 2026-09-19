@@ -90,6 +90,7 @@ struct objclass {
 #define WHACK     4 /* blunt weapon bashes target */
 #define is_pierce(otmp) (objects[(otmp)->otyp].oc_dir == PIERCE)
 #define is_slash(otmp) (objects[(otmp)->otyp].oc_dir == SLASH)
+#define is_whack(otmp) (objects[(otmp)->otyp].oc_dir == WHACK)
     Bitfield(oc_material, 5); /* one of obj_material_types */
 
     schar oc_subtyp;

@@ -8,6 +8,23 @@
 
 static NEARDATA struct obj *mon_currwep = (struct obj *) 0;
 
+/* verb stems for a monster's weapon attack; hitmsg() appends the 's' */
+static const char *const mwep_pierce[] = {
+    "pierce", "gore", "stab", "impale", "hit"
+};
+
+static const char *const mwep_slash[] = {
+    "strike", "hack", "cut", "lacerate", "hit"
+};
+
+static const char *const mwep_whack[] = {
+    "smashe", "whack", "pound", "bashe", "hit"
+};
+
+static const char *const mwep_none[] = {
+    "punche", "pummel", "hit"
+};
+
 staticfn void missmu(struct monst *, int, int, struct attack *);
 staticfn void mswings(struct monst *, struct obj *, boolean);
 staticfn void wildmiss(struct monst *, struct attack *);
@@ -115,8 +132,10 @@ void
 hitmsg(struct monst *mtmp, struct attack *mattk)
 {
     int compat;
-    const char *verb = 0, *again, *punct = "!";
+    const char *verb = 0, *wepverb = 0, *again, *punct = "!";
     char *Monst_name = Monnam(mtmp);
+    char verbbuf[QBUFSZ], subjbuf[BUFSZ];
+    struct permonst *mdat = mtmp->data;
 
     /* Note: if opposite gender, "seductively";
        if same gender, "engagingly" for nymph, normal msg for others. */
@@ -128,29 +147,79 @@ hitmsg(struct monst *mtmp, struct attack *mattk)
     } else {
         switch (mattk->aatyp) {
         case AT_BITE:
-            verb = "bites";
+            verb = has_beak(mdat) ? "pecks" : "bites";
             break;
         case AT_KICK:
-            if (thick_skinned(gy.youmonst.data))
+            if (thick_skinned(gy.youmonst.data) || Barkskin || Stoneskin)
                 punct = ".";
-            verb = "kicks";
+            verb = is_quadruped(mdat) ? "tramples you" : "kicks";
             break;
         case AT_STNG:
             verb = "stings";
             break;
         case AT_BUTT:
-            verb = "butts";
+            verb = has_trunk(mdat) ? "gores you with its tusks"
+                   : has_antlers(mdat) ? "gores you with its antlers"
+                     : (num_horns(mdat) > 1) ? "gores you with its horns"
+                       : (num_horns(mdat) == 1) ? "gores you with its horn"
+                         : "butts";
             break;
         case AT_TUCH:
-            verb = "touches you";
+            if (mdat == &mons[PM_GIANT_CENTIPEDE])
+                verb = "coils its body around you";
+            else if (mdat == &mons[PM_ASSASSIN_VINE])
+                verb = "lashes its thorny vines at you";
+            else
+                verb = "touches you";
             break;
         case AT_TENT:
-            verb = "tentacles suck your brain";
-            Monst_name = s_suffix(Monst_name);
+            if (mdat == &mons[PM_MEDUSA]) {
+                Snprintf(subjbuf, sizeof subjbuf,
+                         "The venomous snakes on %s head",
+                         s_suffix(mon_nam(mtmp)));
+                Monst_name = subjbuf;
+                verb = rn2(2) ? "lash out at you" : "bite you";
+            } else {
+                verb = (mdat == &mons[PM_DEMOGORGON]
+                        || mdat == &mons[PM_NEOTHELID])
+                       ? "tentacles lash out at you"
+                       : "tentacles suck you";
+                Monst_name = s_suffix(Monst_name);
+            }
             break;
         case AT_EXPL:
         case AT_BOOM:
             verb = "explodes";
+            break;
+        case AT_WEAP:
+            if (!mon_currwep) { /* AT_WEAP but isn't wielding anything */
+                if (has_claws(r_data(mtmp)))
+                    verb = "claws you";
+                else if (has_claws_undead(r_data(mtmp)))
+                    verb = "scratches you";
+                else
+                    wepverb = mwep_none[rn2(SIZE(mwep_none))];
+            } else if (is_pierce(mon_currwep)) {
+                wepverb = mwep_pierce[rn2(SIZE(mwep_pierce))];
+            } else if (is_slash(mon_currwep)) {
+                wepverb = mwep_slash[rn2(SIZE(mwep_slash))];
+            } else if (is_whack(mon_currwep)) {
+                wepverb = mwep_whack[rn2(SIZE(mwep_whack))];
+            } else {
+                verb = "hits you";
+            }
+            if (wepverb) {
+                Snprintf(verbbuf, sizeof verbbuf, "%ss you", wepverb);
+                verb = verbbuf;
+            }
+            break;
+        case AT_CLAW:
+            if (has_claws(r_data(mtmp)))
+                verb = "claws you";
+            else if (has_claws_undead(r_data(mtmp)))
+                verb = "scratches you";
+            else
+                verb = "hits";
             break;
         default:
             verb = "hits";
@@ -341,9 +410,23 @@ mswings(
     struct obj *otemp,  /* attacker's weapon */
     boolean bash)       /* True: polearm used at too close range */
 {
-    if (flags.verbose && !Blind && mon_visible(mtmp)) {
-        pline_mon(mtmp, "%s %s %s%s %s.", Monnam(mtmp),
-                  mswings_verb(otemp, bash),
+    if (flags.verbose && !Blind && canspotmon(mtmp)) {
+        const char *verb;
+
+        /* a polearm used too close and a whip keep their own verbs;
+           anything else picks one of a pair by strike type */
+        if (bash || objects[otemp->otyp].oc_skill == P_WHIP
+            || is_wet_towel(otemp))
+            verb = mswings_verb(otemp, bash);
+        else if (is_pierce(otemp))
+            verb = rn2(2) ? "thrusts" : "jabs";
+        else if (is_slash(otemp))
+            verb = rn2(2) ? "slashes" : "swings";
+        else if (is_whack(otemp))
+            verb = rn2(2) ? "swings" : "swipes";
+        else
+            verb = "swings";
+        pline_mon(mtmp, "%s %s %s%s %s.", Monnam(mtmp), verb,
                   (otemp->quan > 1L) ? "one of " : "",
                   mhis(mtmp), xname(otemp));
     }
@@ -364,7 +447,11 @@ mpoisons_subj(
     } else {
         return (mattk->aatyp == AT_TUCH) ? "contact"
                   : (mattk->aatyp == AT_GAZE) ? "gaze"
-                       : (mattk->aatyp == AT_BITE) ? "bite" : "sting";
+                       /* Medusa's hair-do */
+                       : (mattk->aatyp == AT_TENT) ? "snake bite"
+                            : (mattk->aatyp == AT_BITE) ? "bite"
+                                 : (mattk->aatyp == AT_CLAW) ? "scratch"
+                                      : "sting";
     }
 }
 
