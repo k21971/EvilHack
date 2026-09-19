@@ -1149,7 +1149,8 @@ mattacku(struct monst *mtmp)
                             && failed_grab(mtmp, &gy.youmonst, mattk))
                             continue;
                         if (mattk->aatyp != AT_KICK
-                            || !thick_skinned(gy.youmonst.data))
+                            || (!thick_skinned(gy.youmonst.data)
+                                && !Barkskin && !Stoneskin))
                             sum[i] = hitmu(mtmp, mattk);
                     } else {
                         missmu(mtmp, tmp, j, mattk);
