@@ -2346,6 +2346,30 @@ hmon_hitmon_splitmon(
     }
 }
 
+static const char *const monkattacks[] = {
+    "chop", "strike", "jab", "hit", "punch", "pummel", "backhand"
+};
+
+/* hallucinating monk */
+static const char *const hmonkattacks[] = {
+    "lightly caress", "tickle", "gently stroke", "massage", "snuggle"
+};
+
+/* piercing weapons */
+static const char *const wep_pierce[] = {
+    "pierce", "gore", "stab", "impale", "hit"
+};
+
+/* slashing weapons */
+static const char *const wep_slash[] = {
+    "strike", "slash", "cut", "lacerate", "hit"
+};
+
+/* blunt weapons */
+static const char *const wep_whack[] = {
+    "smash", "whack", "bludgeon", "bash", "hit"
+};
+
 staticfn void
 hmon_hitmon_msg_hit(
     struct _hitmon_data *hmd,
@@ -2372,24 +2396,46 @@ hmon_hitmon_msg_hit(
                           makeplural(stagger(hmd->mdat, "stagger")));
                 mon->mstun = 1;
             }
-        } else /* hand_to_hand */
-            You("%s %s%s",
-                (obj && (is_shield(obj)
-                         || obj->otyp == HEAVY_IRON_BALL)) ? "bash"
-                : (obj && (objects[obj->otyp].oc_skill == P_WHIP
-                           || is_wet_towel(obj))) ? "lash"
-                  : Role_if(PM_BARBARIAN) ? "smite"
-                    : (!obj
-                       && (has_claws(gy.youmonst.data)
-                           || has_claws_undead(gy.youmonst.data)
-                           || (!Upolyd
-                               && (Race_if(PM_DEMON)
-                                   || Race_if(PM_TORTLE)
-                                   || Race_if(PM_ILLITHID)
-                                   || Race_if(PM_DRAUGR)
-                                   || Race_if(PM_VAMPIRE))))) ? "claw"
-                      : "hit",
-                mon_nam(mon), canseemon(mon) ? exclam(hmd->dmg) : ".");
+        } else { /* hand_to_hand */
+            const char *verb;
+            /* oc_dir is a strike type only for things meant to hit with;
+               wands and spellbooks keep a zap direction there */
+            boolean striker = (obj && obj->oclass != WAND_CLASS
+                               && obj->oclass != SPBOOK_CLASS);
+
+            if (!uwep && Role_if(PM_MONK) && !Upolyd)
+                verb = (!Blind && Hallucination)
+                       ? hmonkattacks[rn2(SIZE(hmonkattacks))]
+                       : monkattacks[rn2(SIZE(monkattacks))];
+            else if (obj && (is_shield(obj)
+                             || obj->otyp == HEAVY_IRON_BALL))
+                verb = "bash";
+            else if (obj && (objects[obj->otyp].oc_skill == P_WHIP
+                             || is_wet_towel(obj)))
+                verb = "lash";
+            else if (Role_if(PM_BARBARIAN))
+                verb = "smite"; /* smite me, oh mighty smiter! */
+            else if (!obj
+                     && (has_claws(gy.youmonst.data)
+                         || has_claws_undead(gy.youmonst.data)
+                         || (!Upolyd
+                             && (Race_if(PM_DEMON)
+                                 || Race_if(PM_TORTLE)
+                                 || Race_if(PM_ILLITHID)
+                                 || Race_if(PM_DRAUGR)
+                                 || Race_if(PM_VAMPIRE)))))
+                verb = "claw";
+            else if (striker && is_whack(obj))
+                verb = wep_whack[rn2(SIZE(wep_whack))];
+            else if (striker && is_pierce(obj))
+                verb = wep_pierce[rn2(SIZE(wep_pierce))];
+            else if (striker && is_slash(obj))
+                verb = wep_slash[rn2(SIZE(wep_slash))];
+            else
+                verb = "hit";
+            You("%s %s%s", verb, mon_nam(mon),
+                canseemon(mon) ? exclam(hmd->dmg) : ".");
+        }
     }
 }
 
@@ -8483,12 +8529,16 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     verb = "tentacles";
                     break;
                 case AT_KICK:
-                    verb = "kick";
+                    verb = is_quadruped(gy.youmonst.data) ? "trample"
+                                                          : "kick";
                     specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF,
                                                 &hated_obj);
                     break;
                 case AT_BUTT:
-                    verb = "head butt"; /* mbodypart(mon,HEAD)=="head" */
+                    /* mbodypart(mon,HEAD)=="head" */
+                    verb = (has_trunk(gy.youmonst.data)
+                            || num_horns(gy.youmonst.data) > 0) ? "gore"
+                                                                 : "head butt";
                     /* hypothetical; if any form with a head-butt attack
                        could wear a helmet, it would hit shades when
                        wearing a blessed (or silver) one */
@@ -8496,7 +8546,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                                                 &hated_obj);
                     break;
                 case AT_BITE:
-                    verb = "bite";
+                    verb = has_beak(gy.youmonst.data) ? "peck" : "bite";
                     break;
                 case AT_STNG:
                     verb = "sting";
@@ -8521,7 +8571,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                         Your("tentacles suck %s.", mon_nam(mon));
                     } else {
                         if (mattk->aatyp == AT_CLAW)
-                            verb = "hit"; /* not "claws" */
+                            verb = "claw"; /* not "claws" */
                         You("%s %s.", verb, mon_nam(mon));
                         if (hated_obj && flags.verbose)
                             searmsg(&gy.youmonst, mon, hated_obj, FALSE);
