@@ -8818,7 +8818,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Mb_hit excludes Butcher from scare/cancel and the Staff from
       cancel and names "the massive triple-headed flail"; the branch
       runs stock 5.0 Mb_hit for all three, so both do MORE than the
-      tip says); Ashmar "Prevents knockback." (m_is_steadfast lists
+      tip says; RIDER 2026-09-19, session 131: the scare tier's
+      `!mindless() && !unique_corpstat()` term LANDED with BUG-1877,
+      the Butcher / Staff carve-outs in the same two tests did not;
+      master's hit line is three-way - "magic-absorbing staff" for
+      Magicbane, "powerful staff" for the Staff of the Archmagi,
+      "massive triple-headed flail" for Butcher - where the branch
+      prints 5.0's "magic-absorbing blade" for all, SEEN in the
+      onscary() battery on a quarterstaff Magicbane); Ashmar "Prevents
+      knockback." (m_is_steadfast lists
       only Giantslayer/Harbinger/loadstone - LANDED 2026-09-10,
       BUG-1820). MASTER DOC BUG (not held
       for porting): Xiuhcoatl "Its fire burns even underwater." -
@@ -16149,10 +16157,31 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       BUG-295, BUG-635, BUG-785, BUG-1498. Battery = #sit egg laying
       in queen ant / giant crocodile / giant hawk form, then hatch.
       MED.
+- [ ] LOW (feature): monster-side gnome egg fear is absent (minted
+      2026-09-19, session 131, found by the onscary() slice reviewer's
+      monflee() sibling sweep, verified on both bodies; the hero-side
+      gnome egg anathema is ported, these two monster arms had no
+      row). (a) master mon.c m_respond(): an `is_gnome() &&
+      !is_undead()` monster that is not fleeing, asleep, stunned,
+      confused or frozen checks the hero's inventory one time in 25
+      for an EGG with corpsenm NON_PM - "%s looks at you and is
+      immediately agitated." when seen, `verbalize("Ahhhh!  Eggs!  %s
+      has eggs!!", flags.female ? "She" : "He")` unless Deaf, then
+      `monflee(mtmp, d(2, 6) + 10, TRUE, TRUE)`. The branch's
+      m_respond() has the shrieker, Medusa, zombie and Erinys arms
+      only. (b) master uhitm.c egg-hit arm, between the cockatrice-egg
+      stoning arm and "Splat!": a NON_PM egg against an `is_gnome()
+      && !is_undead()` target - wake_nearto(mlevel * 10) unless
+      is_silent(), `tmp = d(4, 5)`, and on a survivor a 1 in 10
+      cancel_monst() ("Tik Tok of Oz") plus `monflee(mon, d(4, 8) +
+      20, FALSE, TRUE)`, then useup_eggs(). Player-facing text: the
+      She / He pronoun needs the gender-neutral ruling checked before
+      porting. LOW.
 - [x] LOW: mind blast lacks master's neothelid and illithid arms
       PORTED 2026-09-19 (session 130, commit `Fix: mind blast lost its
-      neothelid, illithid and telepathy arms.` - hash filled after
-      landing; BUG-1871; closure notes at the end of this row;
+      neothelid, illithid and telepathy arms.` = 7dd536a98, tracker
+      855ac51a6, landed 2026-09-19;
+      BUG-1871; closure notes at the end of this row;
       minted 2026-09-18 by the session 129 reviewer's is_mind_flayer()
       sibling sweep, verified on both bodies). (a) monmove.c dochug()'s
       gate is `is_mind_flayer(mdat) && !rn2(20)` where master has
@@ -16203,8 +16232,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       feature).
 - [x] LOW: eat.c maybe_cannibal() lacks master's Caveperson ritual
       bonus PORTED 2026-09-19 (session 130, commit `Caveperson heroes
-      gain alignment from ritual cannibalism.` - hash filled after
-      landing; BUG-1872, master's cap bypass BUG-1873 frozen-unfixed;
+      gain alignment from ritual cannibalism.` = 5871494e9, tracker
+      855ac51a6, landed 2026-09-19;
+      BUG-1872, master's cap bypass BUG-1873 frozen-unfixed;
       closure notes at the end of this row;
       minted 2026-09-18, session 129 reviewer, verified on both
       bodies). Master c94917f98 `Few more caveperson tweaks.`
@@ -16236,7 +16266,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: mondata.h is_vampire() is vanilla's `mlet == S_VAMPIRE`
       where master tests `mhflags & MH_VAMPIRE` RESTORED 2026-09-19
       (session 130, commit `Fix: is_vampire() tested the monster
-      class, not the race flag.` - hash filled after landing;
+      class, not the race flag.` = bf70706e5, tracker 855ac51a6,
+      landed 2026-09-19;
       BUG-1869; closure notes at the end of this row;
       minted 2026-09-18,
       session 129, found by the same_race() predicate census). SET-
@@ -16263,8 +16294,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       exclude it from cross-game mons[] matrices.
 - [x] LOW: eldritch ki-rin terms and num_horns() arms dropped in the
       adoption RESTORED 2026-09-19 (session 130, commit `Fix: the
-      eldritch ki-rin and four horned monsters lost master's arms.` -
-      hash filled after landing; BUG-1870; closure notes at the end of
+      eldritch ki-rin and four horned monsters lost master's arms.` =
+      7405f0143, tracker 855ac51a6, landed 2026-09-19;
+      BUG-1870; closure notes at the end of
       this row; minted 2026-09-18 by the session 129 second reviewer
       pass's race-predicate census, every site verified on both
       bodies; "eldritch" had no tracker mention). Master names
@@ -16324,8 +16356,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW (text): do_wear.c boots refusal for centaur, drider and
       satyr forms is 5.0's "You have too many hooves to wear boots."
       FIXED 2026-09-19 (session 130, commit `Fix: driders and satyrs
-      were told they had too many hooves.` - hash filled after
-      landing; BUG-1874, master's centaur-hero "tarsi" BUG-1875
+      were told they had too many hooves.` = 87e1b5dea, tracker
+      855ac51a6, landed 2026-09-19;
+      BUG-1874, master's centaur-hero "tarsi" BUG-1875
       frozen-unfixed; closure notes at the end of this row;
       minted 2026-09-18, session 129 second reviewer pass, verified
       on both bodies). Master: `Your("%s are not shaped correctly to
@@ -16377,8 +16410,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       use_eight_ball(), absent here; the 8-Ball's read arm sits on
       the Artifact behaviour remainder row - confirm that row owns
       the apply arm too. MED (player-facing).
-- [ ] MED: monmove.c onscary() lacks master's scare-immune list
-      (minted 2026-09-19, session 130, found while reading master's
+- [x] MED: monmove.c onscary() lacks master's scare-immune list
+      PORTED 2026-09-19 (session 131, commits `Fix: onscary() lost
+      master's scare-immune list.` and `Fix: mindless and unique
+      monsters could be made to flee.` - hashes filled after landing;
+      BUG-1876, BUG-1877; closure notes at the end of this row;
+      minted 2026-09-19, session 130, found while reading master's
       neothelid sites for the mind blast row; verified on both bodies;
       rowless until now; archive keyword sweep for "onscary" finds no
       fix that explains the divergence). Master's first gate also
@@ -16401,6 +16438,81 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       neothelid, honey badger, player monster, elder minotaur;
       Conflict; tooled horn versus a mindless monster. MED (game
       balance; suggested NEXT slice).
+      CLOSURE 2026-09-19 (session 131). RULED (decisions log):
+      MASTER'S EXACT SHAPE - one gate ahead of the <0,0> return with
+      the eight new terms, S_HUMAN and unique_corpstat() moved in from
+      5.0's magical-only gate (`magical_scare` dropped); plain
+      `Conflict` at master's position; PM_ELDER_MINOTAUR on the
+      Elbereth arm (master's PM_NEOTHELID / S_HUMAN / unique terms
+      there are dead behind the first gate on master too - not
+      copied); 5.0's guardobjects arm kept; goodpos_onscary() synced.
+      The caller census found ONE master-only caller: read.c's scare
+      monster / cause fear loop (the unported half of master
+      363d0bae4) - gate + fleemsg TRUE rode commit A. COMMIT B:
+      monflee()'s mindless() / unique_corpstat() early return (master
+      724b280c0 + 17b002010, rowless, found while reading) WITH both
+      commits' artifact.c Mb_hit() hunk - REVIEWER CATCH: the gate
+      alone would have printed "scares", done nothing and thrown the
+      stun fallback away. Reviewer CONDITIONAL PASS, no blockers.
+      BATTERY (three binaries, game-tester, 2026-09-19; coordinator
+      re-derived the sweep diffs from the raw files): gdb predicate
+      sweep onscary() x {<0,0>, floor scroll, hero's Elbereth square,
+      altar} x Conflict {off, on} over every mons[] row with a
+      data-swapped jackal carrier - POST = MASTER on all 555 shared
+      rows, 0 differing cells in all 8 columns (the 5 / 8 rename-only
+      rows fold by hand and match; shambling horror excluded); PRE ->
+      POST changes 233 / 93 / 94 / 0 cells, every one TRUE -> FALSE,
+      every changed row mindless, S_HUMAN, G_UNIQ or one of the named
+      species, elder minotaur the single Elbereth-only row; Conflict
+      on: PRE unchanged, POST and MASTER FALSE on every row for the
+      scroll and Elbereth with <0,0> and the five vampire altar rows
+      untouched. NOT OBSERVABLE: the Archangel row is 0,0,0,0 on all
+      three binaries - is_lminion() already covers a lawful archangel
+      through mon_aligntyp()'s data fallback, so the explicit term
+      matters only for one carrying a non-lawful EMIN. LIVE: kobold
+      zombie on Elbereth attacks post-fix and on master ("eats your
+      brains!" / "scratches you!"), "turns to flee." pre-fix; straw
+      golem hits a hero standing on the scroll post-fix, fled pre-fix;
+      ring of conflict on: the jackal bites 7 turns of 8 post-fix,
+      kept fleeing pre-fix, flees again with the ring off; tooled
+      horn: soldier mflee 0 post-fix and master, 1 pre-fix ("The
+      centaurian soldier turns to flee."); read scare monster: only
+      "The jackal turns to flee." post-fix and master, pre-fix soldier,
+      zombie, golem and jackal all fled with NO flee line; monflee()
+      by gdb: Oracle 0, kobold zombie 0, jackal 1 post-fix and master,
+      all 1 pre-fix; Mb_hit() with dieroll forced to 3: "probes the
+      kobold zombie" post-fix and master, "scares the kobold zombie!
+      The kobold zombie turns to flee." pre-fix, "scares the jackal"
+      everywhere; goodpos(GP_CHECKSCARY) on the scroll square with a
+      zeroed m_id: zombie 0 -> 1, jackal 0 -> 0, jackal 1 under
+      Conflict. NOT RUN: Elbereth-scroll and Conflict live legs on
+      master (sweep-covered), cause fear (same function as the
+      scroll), the Shadowblade control (code unchanged; its gate is
+      the <0,0> column). Master paniclog byte-identical before and
+      after; the branch paniclog holds two TESTER-INDUCED impossibles
+      from a gdb rloc_to() onto an occupied square during staging.
+      SEEN ON MASTER, already rowed: "The jackal howls in fear!" (the
+      vocal block row below) and the learned-Elbereth engraving gate
+      (features-sweep (f)).
+- [ ] LOW (feature, text): monmove.c monflee() lacks master's
+      scared-monster vocal block (minted 2026-09-19, session 131, found
+      while reading monflee() for the onscary() slice; verified on both
+      bodies; no tracker, features-archive or features-sweep mention).
+      Master 2ba242d39 `Certain scared monsters can scream in fear`
+      (from SporkHack, modified) plus ca0c5c01a, 724b280c0's MS_BUZZ
+      arm, a5255885a, e83462b6f and 3d0fa6e03: when a seen monster
+      starts to flee and is not reacting to light, one time in five
+      (`!rn2(5) && !Deaf && !mindless()`) it vocalizes - MS_SILENT /
+      MS_HISS / MS_BUZZ nothing, MS_BARK / MS_GROWL "howl" (S_FELINE
+      "yowl"), MS_ROAR "trumpet" for the woolly mammoth, mastodon and
+      mumak, everything else growl_sound() - as "%s %s in fear!" or
+      "in terror!", and every monster within dist2 < 19 of it wakes
+      one time in three (`msleeping = 0`). Master's "%s turns to
+      flee." sits OUTSIDE the flinch / light / vocal chain under `if
+      (mtmp->mcanmove)`, so on master it also follows the light and
+      vocal lines; the branch (5.0) prints it from the chain's final
+      else only - decide the message order when porting. growl_sound()
+      is already extern on the branch (sounds.c); use pline_mon(). LOW.
 - [ ] MED: mm_aggression() / mm_2way_aggression() grudge-table residue
       (minted 2026-09-19, session 130; verified on both bodies). The
       2026-08 "mm_aggression is being ported PIECEMEAL per subsystem"
@@ -17560,6 +17672,15 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       BUG-1313 damage-zero contract in the sibling AD_DISN case.
       RIDER 2026-09-17 (rumors slice): the held master rumor "Getting
       stoned is never a quick process." lands with this subsystem.
+      RIDER 2026-09-19 (session 131, onscary() slice): wake-guard
+      census - master guards `mcanmove = 1` with `if (!mtmp->mstone
+      || mtmp->mstone > 2)` at 18 sites, the branch at 5 (were.c,
+      dothrow.c, wizard.c x1, steed.c x2). The 13 unguarded master
+      sites: detect.c x2, mon.c x2, music.c x2 (one awaken_scare()
+      on the branch), pray.c, priest.c, read.c
+      seffect_scare_monster(), shk.c, trap.c, uhitm.c, wizard.c's
+      second site. Inert until the countdown engine lands (mstone
+      has no producer); port them with it, not before.
       (b) master's floater-pickup restriction (mpickgold/
       mpickstuff/can_carry gates: is_floater or can_levitate
       monsters cannot reach the floor, beholder/Tal'Gath exempt)
@@ -17780,6 +17901,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-19 | onscary() slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) master's scare-immune list lands in MASTER'S EXACT SHAPE on 5.0's auditory / magical split - one gate ahead of the <0,0> return, so archangels, honey badgers, both wolverines, beholders, neothelids, every mindless() monster, is_mplayer() AND S_HUMAN + unique_corpstat() resist ANY scaring (floor scroll, Elbereth, tooled horn / drum / bugle, a read scare monster scroll, cause fear, the Shadowblade invoke); 5.0's magical-only gate for humans and uniques goes away, per master ac3461a1c (a bugle must not scare player monsters or uniques) and 363d0bae4 ("immune ... across the board"); (2) 5.0's goodpos_onscary() permonst approximation, which has no master counterpart, is SYNCED with the ported terms rather than left to drift; (3) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer in the plan: master's `if (Conflict) return FALSE;` keeps the plain macro rather than 5.0-style resist_conflict() (master's form; the roll would flicker per mfndpos() square); read.c seffect_scare_monster()'s `onscary(0, 0, mtmp)` gate and fleemsg TRUE ride commit A as the unported half of master 363d0bae4; monflee()'s mindless() / unique_corpstat() early return rides as commit B; the scared-monster vocal block is ROWED, the mstone wake guards join the gradual-stoning row as a rider. | maintainer (rulings); session (Conflict form, read.c gate, monflee gate, rows) |
 | 2026-09-19 | Race-predicate riders slice rulings (AskUserQuestion x1, four questions, all recommended options taken): (1) the boots refusal for centaur / satyr / drider forms and centaur heroes takes MASTER'S text ("Your hooves / tarsi are not shaped correctly to wear boots.") over 5.0's "You have too many hooves"; (2) the Caveperson ritual cannibalism bonus keeps master's scope (inside the allowmsg test - fresh corpse, tin, brain; a tainted corpse earns nothing) but adds its rnd(3) + 2 through adjalign() so ALIGNLIM holds, where master's raw `u.ualign.record +=` - the only raw add in its tree - overshoots the cap (battery: master 10 -> 14 at ALIGNLIM 10, branch stays at 10); (3) three master-parity gaps found while reading the sites (onscary()'s scare-immune list, the grudge-table residue, mbodypart()'s residue) are ROWED, not folded in, with onscary() the suggested next slice; (4) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer: the boots word is chosen by testing for the drider, not by master's is_centaur() / is_satyr() test, because master's test tells an un-polymorphed centaur hero about "tarsi" (reviewer find, reproduced on master 0.9.3 in the battery); master db71f7c6c's antlers fix rides the num_horns() stag arm that made it reachable; domindblast() rides the mind blast commit as its hero-side twin, and 5.0's mindless skip there is KEPT (master's own monster-side blast skips mindless bystanders too). | maintainer (rulings); session (drider test, antlers, domindblast) |
 | 2026-09-18 | same_race slice rulings (AskUserQuestion x2, both recommended options taken): (1) the full battery runs - a gdb same_race() matrix over every ordered monster pair on three binaries plus the eat.c and dogfood() legs in play - rather than the matrix alone or no battery; (2) mon.c genus()'s default arm, found by the slice's reviewer to have lost the same EvilHack races in the adoption (drow, centaur, giant, hobbit, illithid, tortle, vampire), is FOLDED INTO the same commit instead of minted as a row: it is inert today (both callers ask only about MS_GUARDIAN monsters and all 16 hit explicit case labels), so it needs no play battery, but the rebuilt binary's same_race() matrix is re-run so the installed build is the tested one. Not ruled, rowed instead: the reviewer's egg-handling MEDIUM (master f334e3072 / 202a8cb09 companions of the ant pair) changes egg mechanics and wants its own battery. | maintainer (rulings); session (egg row) |
 | 2026-09-18 | Drow light and dark slice rulings (AskUserQuestion x1, two questions, both recommended options taken): (1) master's drow-in-light regeneration penalties (allmain.c LIT_DROW_EREGEN_MULTI 2L / LIT_DROW_HREGEN_MULTI 3L) - found ROWLESS by the Blind-arm row's prerequisite census of master's hero-side spot_is_dark() readers - are PORTED NOW as the slice's second commit rather than rowed for later: the battery already needed a drow hero, lit and dark rooms and both lamp kinds, and the blind legs prove the first commit feeds the second; (2) the hit point penalty is ADAPTED to 5.0's per-turn heal roll as a DIVISION OF THE CHANCE BY THREE beside the Druid near-vegetation multiplier (the precedent in the same expression), not as a moves-modulo gate that would put a second idiom in regen_hp() and a visible fixed beat on healing. Session refinement after review: the division is made on the die (`chance > rn2(300)`), an exact third, because `chance / 3` truncates - up to 5x instead of 3x for an XL1 low-Con drow. The energy penalty is master's text unchanged. | maintainer (rulings); session, reviewer-prompted (exact-third form) |
