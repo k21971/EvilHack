@@ -16020,7 +16020,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       room).
 - [x] LOW: mondata.c same_race() lacks master's EvilHack race arms
       PORTED 2026-09-18 (session 129, commit `Fix: same_race() and
-      genus() lost EvilHack's race arms.` - hash filled after landing;
+      genus() lost EvilHack's race arms.` = d0907ec62, tracker
+      908a41256, landed 2026-09-19;
       BUG-1868; closure notes at the end of this row;
       minted 2026-09-18 by the session 128 reviewer's master-parity
       sweep, verified on both bodies; outside that slice; until now
@@ -16148,8 +16149,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       BUG-295, BUG-635, BUG-785, BUG-1498. Battery = #sit egg laying
       in queen ant / giant crocodile / giant hawk form, then hatch.
       MED.
-- [ ] LOW: mind blast lacks master's neothelid and illithid arms
-      (minted 2026-09-18 by the session 129 reviewer's is_mind_flayer()
+- [x] LOW: mind blast lacks master's neothelid and illithid arms
+      PORTED 2026-09-19 (session 130, commit `Fix: mind blast lost its
+      neothelid, illithid and telepathy arms.` - hash filled after
+      landing; BUG-1871; closure notes at the end of this row;
+      minted 2026-09-18 by the session 129 reviewer's is_mind_flayer()
       sibling sweep, verified on both bodies). (a) monmove.c dochug()'s
       gate is `is_mind_flayer(mdat) && !rn2(20)` where master has
       `(is_mind_flayer(mdat) || mdat == &mons[PM_NEOTHELID])` - a
@@ -16162,6 +16166,29 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       on to. NOT a gap (reviewer claim falsified): the hero-too-far
       `return` - master's `goto toofar` label sits past the monster
       loop, so master skips the bystanders there too. LOW.
+      CLOSED 2026-09-19: (a)-(c) as listed, plus two deltas the row
+      missed (port-whole): the bystander's damage is `int dmg =
+      rnd(15)`, halved for mon_arti_has_spfx(m2, SPFX_HSPDAM) and
+      applied with damage_mon(m2, dmg, AD_DRIN, FALSE) in place of the
+      raw mhp subtraction. 5.0's wakeup(m2, FALSE)-first, pline_mon
+      and the hiding-hero reveal KEPT. HERO-SIDE TWIN (reviewer find,
+      same commit): polyself.c domindblast() had telepathic() x3 and a
+      raw `mtmp->mhp -= dmg` where master has has_telepathy() x3 and
+      damage_mon(..., TRUE); 5.0's mindless skip there kept. Reviewer:
+      term-for-term match with master's block; wakeup(via_attack
+      FALSE) cannot detach or move m2, the cached nmon stays safe; no
+      neothelid-only early return above the gate on either tree.
+      BATTERY: PRE-FIX 702 neothelid dochug() calls, ZERO mind_blast()
+      entries (mind flayer control enters); POST-FIX 39 neothelid
+      entries in one game, "The neothelid concentrates."; master
+      neothelids blast too (19 seen). The opposite-polarity mind
+      flayer bystander: never evaluated, 3000/3000 hp. A plain human
+      given MR2_TELEPATHY (telepathic(data) FALSE) locked on to 21 of
+      30 = 70% against 2 of 30 for an identical human without it.
+      Hero side, same kind of target: blinded, "You lock in on the
+      human's telepathy." 7 of 7 post-fix against "mind" 4 of 24
+      pre-fix; un-blinded, "latent telepathy" 12 of 24. NOT RUN: the
+      SPFX_HSPDAM halving leg (optional; no carrier staged).
 - [ ] MED: scroll of amnesia lacks master's blessed skill-reset prompt
       and the illithid ward (minted 2026-09-18, session 129 reviewer's
       is_illithid() sweep, verified on both bodies; "amnesia" had no
@@ -16174,8 +16201,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       of forget(). Archive: BUG-747 flattened this block's control
       flow on master - port the flattened shape. MED (player-facing
       feature).
-- [ ] LOW: eat.c maybe_cannibal() lacks master's Caveperson ritual
-      bonus (minted 2026-09-18, session 129 reviewer, verified on both
+- [x] LOW: eat.c maybe_cannibal() lacks master's Caveperson ritual
+      bonus PORTED 2026-09-19 (session 130, commit `Caveperson heroes
+      gain alignment from ritual cannibalism.` - hash filled after
+      landing; BUG-1872, master's cap bypass BUG-1873 frozen-unfixed;
+      closure notes at the end of this row;
+      minted 2026-09-18, session 129 reviewer, verified on both
       bodies). Master c94917f98 `Few more caveperson tweaks.`
       (2021-04-15), after the cannibal-penalty block: `if
       (Role_if(PM_CAVEMAN) && your_race(fptr))` -> under allowmsg,
@@ -16183,8 +16214,31 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       `u.ualign.record += rnd(3) + 2`. Note master grants the
       alignment only inside the allowmsg test - decide at port time
       whether that is intended. LOW.
-- [ ] LOW: mondata.h is_vampire() is vanilla's `mlet == S_VAMPIRE`
-      where master tests `mhflags & MH_VAMPIRE` (minted 2026-09-18,
+      CLOSED 2026-09-19, RULED (decisions log): master's scope,
+      alignment through adjalign(rnd(3) + 2). The allowmsg gate is
+      coherent, not an accident: the only allowmsg-FALSE caller is
+      eatcorpse()'s tainted path, which returns before cprefx(), so a
+      tainted same-race corpse earns nothing on either tree. Reach:
+      cprefx() (fresh corpse, tin) and both eat_brains() forms.
+      Master's raw add is the only `u.ualign.record +=` in its tree
+      and overshoots ALIGNLIM (BUG-1873, frozen-unfixed). Reviewer
+      note kept for the record, master parity: resuming a partly eaten
+      same-race corpse re-runs cprefx(), so the bonus can repeat once
+      per turn - the cap bounds it here. BATTERY (human Cavewoman,
+      record staged by gdb): pre-fix no message, 0 -> 0; post-fix and
+      master "You consume the corpse in accordance with ancient
+      ritual.", 0 -> 3, luck and abuse flat, never "You cannibal!";
+      at ALIGNLIM 10 post-fix stays 10 where master goes to 14;
+      tainted human corpse (age set back 400) "Ulch - that meat was
+      tainted!" with no ritual line and no change on both; human
+      Wizard control "You cannibal!  You will regret this!"; an elf
+      corpse gives a Cavewoman nothing.
+- [x] LOW: mondata.h is_vampire() is vanilla's `mlet == S_VAMPIRE`
+      where master tests `mhflags & MH_VAMPIRE` RESTORED 2026-09-19
+      (session 130, commit `Fix: is_vampire() tested the monster
+      class, not the race flag.` - hash filled after landing;
+      BUG-1869; closure notes at the end of this row;
+      minted 2026-09-18,
       session 129, found by the same_race() predicate census). SET-
       EQUAL today on both trees (the seven S_VAMPIRE monsters are
       exactly the seven MH_VAMPIRE carriers, and nothing writes
@@ -16192,8 +16246,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       forms split silently the day a vampire-flagged monster lands
       outside S_VAMPIRE or the reverse. Restore master's definition
       (racial_vampire() beside it already reads the flag). LOW.
-- [ ] LOW: eldritch ki-rin terms and num_horns() arms dropped in the
-      adoption (minted 2026-09-18 by the session 129 second reviewer
+      CLOSED 2026-09-19: master's definition in master's place, above
+      racial_vampire(). Reviewer: 7 S_VAMPIRE entries = 7 MH_VAMPIRE
+      carriers in monsters.h, nothing writes mlet or mhflags at run
+      time (shambler_init() touches neither), all 44 users pass a real
+      &mons[] pointer - no caller can split the two definitions.
+      BATTERY: the two tests agree on every monster of all three
+      binaries (561 / 561 / 564 rows), the same seven names TRUE
+      (vampire, vampire sovereign, noble, royal, mage, Kas, Vlad);
+      genus(i, 0 | 1) byte-identical pre vs post; same_race() 561 x
+      561 identical pre vs post in all 313,600 cells outside the
+      shambling horror's row and column. HARNESS FACT: that slot
+      differs between ANY two games - shambler_init() ORs random bits
+      into mflags2 and same_race()'s is_minion() arm reads M2_MINION
+      out of it (16 cells, the seven minions both ways plus two) - so
+      exclude it from cross-game mons[] matrices.
+- [x] LOW: eldritch ki-rin terms and num_horns() arms dropped in the
+      adoption RESTORED 2026-09-19 (session 130, commit `Fix: the
+      eldritch ki-rin and four horned monsters lost master's arms.` -
+      hash filled after landing; BUG-1870; closure notes at the end of
+      this row; minted 2026-09-18 by the session 129 second reviewer
       pass's race-predicate census, every site verified on both
       bodies; "eldritch" had no tracker mention). Master names
       PM_ELDRITCH_KI_RIN at ten sites, the branch at four of them
@@ -16214,9 +16286,48 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mm_aggression() lacks master's `ki-rin vs eldritch ki-rin`
       arm (the branch has no PM_KI_RIN test there at all; see the
       piecemeal mm_aggression note). LOW.
-- [ ] LOW (text): do_wear.c boots refusal for centaur, drider and
+      CLOSED 2026-09-19: (a)-(f) restored; all ten master
+      PM_ELDRITCH_KI_RIN sites are now on the branch (reviewer count).
+      (d) rode alone - the rest of mbodypart() is the residue row
+      below; (f) went into mm_2way_aggression() after the Nazgul arm -
+      the rest of the grudge table is its own row below. RIDERS: a
+      full diff of the alternate-spelling table found master's
+      "goblin captain" missing too (added; every other difference is
+      a 5.0 rename or addition); master db71f7c6c `Fix: stags have
+      antlers, not horns.` rides the num_horns() stag arm that made
+      its text reachable - has_antlers() plus "antlers" in
+      break_armor() and canwearobj(); its mhitu.c hunk is on the
+      hitmsg() row below. NOT A GAP: master's as_is[] "eldritch
+      ki-rin" entry - singplur_lookup() suffix-matches "ki-rin".
+      Reviewer: no monster of the five kinds is generated or placed
+      with a helmet (m_initweap, m_initinv, the .lua files); 5.0
+      forces alternate spellings to a whole word, so "goblin
+      captains" still finds a goblin, as "orc captains" finds an orc.
+      BATTERY (pre / post / master): num_horns() differs in exactly
+      five rows pre vs post (satyr, stag, elder minotaur, Baphomet
+      0 -> 2, eldritch ki-rin 0 -> 1) and post equals master on every
+      common name; name_to_mon("eldritch ki rin") -1 / 196 / 196,
+      ("goblin captain") goblin / goblin-captain / goblin-captain;
+      mm_aggression() both orders 0 / 0x180000 / 0x180000 and the two
+      seen fighting post-fix; mbodypart(FOOT) "rear claw" / "rear
+      hoof" / "rear hoof"; makeplural unchanged. In play: satyr and
+      elder minotaur forms refuse a dwarvish helm post-fix and on
+      master ("The helm won't fit over your horns."), wore it pre-fix;
+      polymorphing into a satyr drops it; into a stag "Your antlers
+      pierce through your elven helm." then the hat falls, as master,
+      no pierce line pre-fix. A confused eldritch ki-rin: "The tip of
+      the eldritch ki-rin's horn glows!  The eldritch ki-rin seems
+      steadier now." post-fix, stayed confused 32 turns pre-fix
+      (find_defensive() 0 there, 1 for a ki-rin); searches_for_item()
+      on a unicorn horn 1 pre-fix, 0 post-fix (the 30-turn floor-horn
+      watch was NOT run - predicate only).
+- [x] LOW (text): do_wear.c boots refusal for centaur, drider and
       satyr forms is 5.0's "You have too many hooves to wear boots."
-      (minted 2026-09-18, session 129 second reviewer pass, verified
+      FIXED 2026-09-19 (session 130, commit `Fix: driders and satyrs
+      were told they had too many hooves.` - hash filled after
+      landing; BUG-1874, master's centaur-hero "tarsi" BUG-1875
+      frozen-unfixed; closure notes at the end of this row;
+      minted 2026-09-18, session 129 second reviewer pass, verified
       on both bodies). Master: `Your("%s are not shaped correctly to
       wear %s.", ...)` with "hooves" for centaurs and satyrs and
       "tarsi" for a drider - so a hero in drider form is told about
@@ -16224,6 +16335,29 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       line as seen without comparing it. is_satyr() is already in
       the branch's mondata.h. Text collision - master's shape unless
       ruled otherwise. LOW.
+      CLOSED 2026-09-19, RULED master's text (decisions log). The word
+      is NOT chosen master's way: master tests is_centaur() /
+      is_satyr() on youmonst.data, and an un-polymorphed centaur
+      hero's data is the ROLE monster (MH_HUMAN; nothing writes
+      mhflags at run time), so master tells the arm's commonest case
+      "Your tarsi are not shaped correctly" (BUG-1875, master
+      c5f11ceb1, frozen-unfixed; reviewer MEDIUM against this slice's
+      first build, which had copied the test). The branch tests for
+      PM_DRIDER, the one admitted form without hooves. NOTE the arm
+      and break_armor() now lean on each other: the branch's
+      break_armor() boots gate is still vanilla (no satyr, ent,
+      racial centaur / tortle terms - rowed this session, see the
+      break_armor() boots gate row below), so a hero who polymorphs
+      into a satyr keeps boots on but cannot put them back on.
+      BATTERY (pre / post /
+      master): forest centaur and satyr forms "You have too many
+      hooves to wear boots." / "Your hooves are not shaped correctly
+      to wear boots." / same as post; drider form the same pre-fix
+      line / "Your tarsi are not shaped correctly to wear boots." /
+      same as post; centaur-race hero, not polymorphed: "too many
+      hooves" / "Your hooves ..." / master "Your tarsi are not shaped
+      correctly to wear boots." - the master bug seen in play; tortle
+      hero unchanged.
 - [ ] MED: an escaped or empty wish grants a random object (minted
       2026-09-18, caught by the session 129 follow-up battery, then
       verified on both bodies; "forfeit" had no tracker mention).
@@ -16243,6 +16377,190 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       use_eight_ball(), absent here; the 8-Ball's read arm sits on
       the Artifact behaviour remainder row - confirm that row owns
       the apply arm too. MED (player-facing).
+- [ ] MED: monmove.c onscary() lacks master's scare-immune list
+      (minted 2026-09-19, session 130, found while reading master's
+      neothelid sites for the mind blast row; verified on both bodies;
+      rowless until now; archive keyword sweep for "onscary" finds no
+      fix that explains the divergence). Master's first gate also
+      exempts PM_ARCHANGEL, PM_HONEY_BADGER, PM_WOLVERINE,
+      PM_DIRE_WOLVERINE, PM_BEHOLDER, PM_NEOTHELID, every mindless()
+      monster and every is_mplayer(); master has `if (Conflict) return
+      FALSE;` ("Conflicted monsters ignore scary things on the floor")
+      between the altar test and the scare-monster test; and master's
+      Elbereth exclusions add PM_ELDER_MINOTAUR and PM_NEOTHELID. The
+      branch's onscary() is 5.0's auditory / magical split plus the
+      boss flags and mberserk only, so Elbereth and scare monster work
+      here on zombies, golems, beholders, honey badgers and player
+      monsters where master lets them through. mon_allowflags() does
+      not cover it (ALLOW_SSM only for humans and minotaurs, as on
+      master). Port onto the 5.0 split: decide per term whether it
+      belongs to "any type of scaring" (master's single gate ran ahead
+      of the musical <0,0> return, so on master all of them also
+      ignore scary music) or to the magical-only test. Battery =
+      Elbereth and scare monster versus zombie, golem, beholder,
+      neothelid, honey badger, player monster, elder minotaur;
+      Conflict; tooled horn versus a mindless monster. MED (game
+      balance; suggested NEXT slice).
+- [ ] MED: mm_aggression() / mm_2way_aggression() grudge-table residue
+      (minted 2026-09-19, session 130; verified on both bodies). The
+      2026-08 "mm_aggression is being ported PIECEMEAL per subsystem"
+      note never had a row, and these arms have no subsystem slice
+      left to ride. Master-only, mm_aggression(): MS_SELL attacker
+      versus a tame target -> 0; two MS_SOLDIER -> 0; two MS_PRIEST of
+      the same mon_aligntyp() -> 0; shopkeeper or priest versus watch
+      in either order -> 0; woodchuck vs the Oracle; raven vs floating
+      eye; S_SPIDER vs S_ANT / S_XAN; is_bat() vs flying S_ANT / S_XAN;
+      S_FELINE vs is_rat(); Riders and msize >= MZ_HUGE hostiles that
+      can see the hero within distu 5 trample MZ_TINY monsters.
+      mm_2way_aggression(): MS_GUARDIAN vs a hostile that is not a
+      guardian or leader; white vs black unicorn; honey badger vs
+      killer bee / queen bee; is_true_ent() vs is_blight(). Present
+      already: pets, purple worm, Kathryn, Gollum, Lucifer, shambling
+      horror, mind flayer / neothelid pair, larva, pseudodragon,
+      berserk, elf / drow / orc, angel / demon, Nazgul, Purgatory,
+      covetous, ki-rin / eldritch ki-rin (this session); master's
+      "zombies vs all living" arm was RULED (hybrid zombie_maker arm).
+      The four `return 0` truces sit ahead of every ALLOW arm on
+      master - keep that order. MED.
+- [ ] LOW: polyself.c mbodypart() residue (minted 2026-09-19, session
+      130, full body diff on both trees; only the eldritch ki-rin
+      horse-parts term rode the ki-rin row). Master-only: tree_parts[]
+      and plant_parts[] tables with `S_ENT -> tree_parts` and `S_PLANT
+      -> plant_parts` arms; `has_beak(mptr) && part == NOSE -> "beak"`
+      (has_beak() is absent from the branch's mondata.h); is_bird()
+      where the branch tests PM_RAVEN only; is_centaur() where the
+      branch tests S_CENTAUR; PM_WOOLLY_MAMMOTH in the trunk arm;
+      FINGERTIP in the jellyfish / kraken tentacle arm; `is_satyr() &&
+      part == FOOT -> "hoof"`; PM_CAVE_BEAR and PM_GRIZZLY_BEAR in the
+      paw arm; `has_claws() || has_claws_undead()` where the branch
+      has 5.0's AT_CLAW + not_claws[] test (both macros are in the
+      branch's mondata.h); spider_parts[] differs at indices 4-5
+      (FINGERTIP / FOOT: master "pedipalp" / "tarsus", 5.0 "tarsus" /
+      "claw" - decide at port time which to keep; master's drider
+      boots refusal says "tarsi").
+      Player-facing text for ent, plant, bird, bear and satyr forms.
+      LOW.
+- [ ] MED (text): mhitu.c hitmsg() is vanilla 5.0 - master's verbs
+      absent (minted 2026-09-19, session 130; the monster AI /
+      equipment row's "hitmsg pierce/slash/whack verbs -> mhitu
+      flavor" deferral never had a row; verified on both bodies).
+      Master: AT_BITE "pecks" for has_beak(); AT_KICK "tramples you"
+      for is_quadruped() and the '.' punctuation also under Barkskin /
+      Stoneskin; AT_BUTT "gores you with its tusks / antlers / horns /
+      horn" keyed on has_trunk(), has_antlers(), num_horns() (master
+      db71f7c6c's mhitu.c hunk - its other hunks landed this session);
+      AT_TUCH giant centipede "coils its body around you!" and
+      assassin vine "lashes its thorny vines at you!"; AT_TENT Medusa
+      "The venomous snakes on Medusa's head lash out at / bite you!"
+      and Demogorgon / neothelid "tentacles lash out at you!"; AT_WEAP
+      and AT_CLAW claws / scratches via has_claws() /
+      has_claws_undead() and the mwep_none / mwep_pierce / mwep_slash /
+      mwep_whack verb tables. VISIBLE TODAY: Medusa's and a
+      neothelid's AT_TENT hits read "<Monster>'s tentacles suck your
+      brain!". Siblings the session 130 reviewer listed, same verbs:
+      mhitm.c's m-v-m text and uhitm.c's hero head butt. Keep 5.0's
+      "again" suffix. MED (player-facing text).
+- [ ] LOW: neothelid tentacle grab and the trunk grasp text ABSENT
+      (minted 2026-09-19, session 130 reviewer's PM_NEOTHELID sibling
+      sweep, verified on both bodies). Master mhitu.c hitmu() AD_PHYS /
+      AD_CLOB: `(aatyp == AT_HUGS || (aatyp == AT_TENT && data ==
+      PM_NEOTHELID)) && !sticks(youmonst.data)` sets u.ustuck with
+      "grasps you with its trunk!" for has_trunk(), "ensnares you with
+      its tentacles!" for the neothelid, else "grabs you!". The
+      branch's physical-damage handler grabs on AT_HUGS only and
+      always says "grabs you!", so a neothelid's AT_TENT AD_PHYS
+      attack never holds the hero. LOW.
+- [ ] LOW: set_apparxy() cooperative-telepathy arm ABSENT (minted
+      2026-09-19, session 130 reviewer's has_telepathy() sibling
+      sweep, verified on both bodies). Master monmove.c, right after
+      the "monsters which know where you are don't suddenly forget"
+      test: `if (has_telepathy(mtmp) && (HTelepat || ETelepat)) goto
+      found_you;` ("monster can see you via cooperative telepathy",
+      master 49c2a81e1). The branch's set_apparxy() goes straight to
+      the notseen / displacement guess, so a telepathic monster still
+      loses an invisible or displaced telepathic hero. LOW.
+- [ ] MED: Caveperson role arms ABSENT (minted 2026-09-19, session 130
+      reviewer's sweep of master's Role_if(PM_CAVEMAN) sites, each
+      verified on both bodies; "illiterate" and "unrestrict" had no
+      tracker mention). (a) attrib.c newhp(): while u.uconduct.literate
+      is 0 a Caveperson gains rn1(3,2) / rn1(4,3) / rn1(6,3) / rn1(8,5)
+      extra hit points per level (XL < 3 / < 10 / < 18 / else) and
+      exercises Wis; (b) weapon.c unrestrict_weapon_skill() returns
+      early for a Caveperson or Priest on P_DAGGER..P_SABER and
+      P_POLEARMS..P_UNICORN_HORN ("never unrestrict an edged weapon"),
+      so crowning and artifact gifts cannot open those skills; (c)
+      spell.c study_book(): a blessed spellbook is not failure-proof
+      for a Caveperson (`!blessed || (blessed && Role_if(PM_CAVEMAN))`)
+      and read_ability is capped at 16 ("always at least a 20% chance
+      to fail"). The role's other two spell.c terms ride the hero
+      spellcasting row below. Already covered elsewhere: the apply.c
+      flint arms (flint feature row), hack_artifacts' retarget (the
+      artifacts row), prayer and steed arms (ported). NOT a gap
+      (reviewer claim falsified): the monster-side sling / spear
+      volley bonus - mthrowu.c calls 5.0's shared
+      multishot_class_bonus(), which has the PM_CAVE_DWELLER arm. MED
+      (role balance).
+- [ ] MED: hero spellcasting - caster-class armor penalty and
+      per-cast spell memory ABSENT (minted 2026-09-19, session 130,
+      found verifying the Caveperson row's spell.c terms; verified on
+      both bodies; "non_casters", "primary_casters" and "sp_know" had
+      no tracker mention, nor does FEATURES_COVERAGE_SWEEP.md). (a)
+      Master percent_success(), between the chance / splcaster combine
+      and the percentile clamp: wearing body armor other than crystal
+      plate mail costs non-casting roles (Arc, Bar, Cav, Con, Kni,
+      Mon, Ran, Rog, Sam, Tou, Val) 10% per spell level and primary
+      casters (Hea, Pri, Wiz, Inf, Dru) 10% per level less 30 from
+      level 4 spells up. The branch goes from the combine straight to
+      the clamp. (b) Master spelleffects(): each successful cast adds
+      rn1(INT * 10, INT * 3) to sp_know up to KEEN when INT > 6,
+      except for Cavepersons and wizard-mode casts; the branch never
+      touches sp_know on a cast. A FULL percent_success() diff is owed
+      at port time (master's comment also names dexterity and robe /
+      staff factors; the staff bonus is on the features-sweep LOW
+      row). MED (caster balance).
+- [ ] SWEEP: race-predicate site census (minted 2026-09-19, session
+      130, from session 129's census idea - same_race() and genus()
+      were two instances of one class). RAW candidate list, method and
+      the reasons it over-reports are in
+      `doc/claude/race-predicate-census-2026-09.md`: per enclosing
+      function, master's count of EvilHack race predicates
+      (is_/racial_ drow, hobbit, centaur, tortle, illithid, gnoll,
+      aasimar, giant, zombie, vampire; Race_if(PM_<race>)) against
+      the branch's. 156 function + predicate pairs where master leads,
+      bounded by whole-tree deficits of roughly 60 sites; most are
+      5.0 function splits (hitmu, hmon_hitmon, dosacrifice, dotrap,
+      peffects, seffects, u_init, moveloop) that net out against the
+      helpers. Spot-checked and NOT gaps: weight_cap() (moved to
+      set_uasmon()), shk.c racial pricing, zombie_form(), m_initgrp()
+      (rowed, Phase 5). TO DO: net the splits out, then verify the
+      same-name functions first (m_initweap giant / tortle arms,
+      domonnoise gnoll, find_defensive + m_use_healing vampire, the
+      four steed.c vampire / zombie sites, the enlightenment vampire
+      lines, moverock + sokoban_guilt giant, arti_invoke drow) and
+      mint a row per confirmed gap. One 5.0-NATIVE chain also found:
+      polyself.c uasmon_maxStr() maps only orc / elf / dwarf / gnome
+      forms to their race's STR cap - decide whether EvilHack races
+      join it. LOW-MED.
+- [ ] LOW: break_armor() / mon_break_armor() boots gates are vanilla
+      (minted 2026-09-19, session 130; the player-races record's
+      "break_armor boots trigger widening -> races/monsters parity
+      sweep" owner note never had a row; verified on both bodies; the
+      first CONFIRMED gap out of the race-predicate census above).
+      Master polyself.c break_armor(): boots come off for `nohands ||
+      verysmall || slithy || racial_centaur(&youmonst) ||
+      racial_tortle(&youmonst) || is_ent() || is_satyr()`; the branch
+      has 5.0's `... || uptr->mlet == S_CENTAUR`. Master worn.c
+      mon_break_armor(): `handless_or_tiny || slithy ||
+      racial_centaur(mon) || racial_tortle(mon)`; the branch again
+      tests S_CENTAUR. So polymorphing into a satyr, an ent or a
+      tortle form keeps boots on (in satyr form canwearobj() then
+      refuses to put them back), and a racial centaur or tortle
+      monster - a player monster of those races included - keeps
+      them through a polymorph. LOW.
+- [ ] LOW (text): usmellmon() lacks master's elder minotaur arm
+      (minted 2026-09-19, session 130 reviewer, verified on both
+      bodies). Master mon.c: `case PM_ELDER_MINOTAUR: You("notice a
+      strong bovine smell.");` after the rothe / minotaur arm. LOW.
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -17462,6 +17780,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-19 | Race-predicate riders slice rulings (AskUserQuestion x1, four questions, all recommended options taken): (1) the boots refusal for centaur / satyr / drider forms and centaur heroes takes MASTER'S text ("Your hooves / tarsi are not shaped correctly to wear boots.") over 5.0's "You have too many hooves"; (2) the Caveperson ritual cannibalism bonus keeps master's scope (inside the allowmsg test - fresh corpse, tin, brain; a tainted corpse earns nothing) but adds its rnd(3) + 2 through adjalign() so ALIGNLIM holds, where master's raw `u.ualign.record +=` - the only raw add in its tree - overshoots the cap (battery: master 10 -> 14 at ALIGNLIM 10, branch stays at 10); (3) three master-parity gaps found while reading the sites (onscary()'s scare-immune list, the grudge-table residue, mbodypart()'s residue) are ROWED, not folded in, with onscary() the suggested next slice; (4) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer: the boots word is chosen by testing for the drider, not by master's is_centaur() / is_satyr() test, because master's test tells an un-polymorphed centaur hero about "tarsi" (reviewer find, reproduced on master 0.9.3 in the battery); master db71f7c6c's antlers fix rides the num_horns() stag arm that made it reachable; domindblast() rides the mind blast commit as its hero-side twin, and 5.0's mindless skip there is KEPT (master's own monster-side blast skips mindless bystanders too). | maintainer (rulings); session (drider test, antlers, domindblast) |
 | 2026-09-18 | same_race slice rulings (AskUserQuestion x2, both recommended options taken): (1) the full battery runs - a gdb same_race() matrix over every ordered monster pair on three binaries plus the eat.c and dogfood() legs in play - rather than the matrix alone or no battery; (2) mon.c genus()'s default arm, found by the slice's reviewer to have lost the same EvilHack races in the adoption (drow, centaur, giant, hobbit, illithid, tortle, vampire), is FOLDED INTO the same commit instead of minted as a row: it is inert today (both callers ask only about MS_GUARDIAN monsters and all 16 hit explicit case labels), so it needs no play battery, but the rebuilt binary's same_race() matrix is re-run so the installed build is the tested one. Not ruled, rowed instead: the reviewer's egg-handling MEDIUM (master f334e3072 / 202a8cb09 companions of the ant pair) changes egg mechanics and wants its own battery. | maintainer (rulings); session (egg row) |
 | 2026-09-18 | Drow light and dark slice rulings (AskUserQuestion x1, two questions, both recommended options taken): (1) master's drow-in-light regeneration penalties (allmain.c LIT_DROW_EREGEN_MULTI 2L / LIT_DROW_HREGEN_MULTI 3L) - found ROWLESS by the Blind-arm row's prerequisite census of master's hero-side spot_is_dark() readers - are PORTED NOW as the slice's second commit rather than rowed for later: the battery already needed a drow hero, lit and dark rooms and both lamp kinds, and the blind legs prove the first commit feeds the second; (2) the hit point penalty is ADAPTED to 5.0's per-turn heal roll as a DIVISION OF THE CHANCE BY THREE beside the Druid near-vegetation multiplier (the precedent in the same expression), not as a moves-modulo gate that would put a second idiom in regen_hp() and a visible fixed beat on healing. Session refinement after review: the division is made on the die (`chance > rn2(300)`), an exact third, because `chance / 3` truncates - up to 5x instead of 3x for an XL1 low-Con drow. The energy penalty is master's text unchanged. | maintainer (rulings); session, reviewer-prompted (exact-third form) |
 | 2026-09-18 | Submerged-sight slice rulings (AskUserQuestion x2, both recommended options taken): (1) master 7ef047e6a's does_block() clause lands REFINED - `Underwater && See_underwater && !Is_waterlevel(&u.uz) && !IS_POOL(lev->typ) && lev->typ != ICE` instead of master's bare Underwater test, with the vision tables rebuilt at EVERY on-level water exit (the two ordinary exits unconditionally; the frozen-pool, boulder-fill and terrain-wish exits, which neither tree rebuilt, gain one). In game: a submerged tortle / Eyes of the Overworld / goggles hero no longer sees a second pool across a floor strip, as on master; a plain submerged hero keeps ordinary tables, so a land square that changes while they are under (5.0 funnels ~37 sites through recalc_block_point()) cannot come out sight-blocking after they surface, and a restore while submerged cannot block all dry land; a tortle whose pool freezes, fills with a boulder, or who is wished onto new terrain sees the room at once (master stays blind until a level change - confirmed in play, BUG-1864 frozen-unfixed). Rejected: master's exact shape; master's clause plus gap fixes only. (2) The #terrain-exit repaint row was root-caused by the slice's own battery (under_water()'s static delayed-update flag, set by map_redisplay() and never consumed for a See_underwater hero) and its one-line gate rides this slice as its own commit rather than waiting for a slice of its own (BUG-1865). Session calls inside the approved plan: the rebuild stays per-site, NOT centralized in set_uinwater() (goto_level() calls it just ahead of keepdogs(), whose messages are canseemon()-gated); the mimic object look keeps a real object's generic-far / specific-near / stays-specific rule by reusing M_AP_F_DKNOWN, cleared in bones. | maintainer (rulings); session, plan-approved (fix shapes) |
