@@ -1740,8 +1740,10 @@ seffect_scare_monster(struct obj **sobjp)
             if (confused || scursed) {
                 mtmp->mflee = mtmp->mfrozen = mtmp->msleeping = 0;
                 mtmp->mcanmove = 1;
-            } else if (!resist(mtmp, sobj->oclass, 0, NOTELL))
-                monflee(mtmp, 0, FALSE, FALSE);
+            } else if (!resist(mtmp, sobj->oclass, 0, NOTELL)
+                       /* some monsters are immune */
+                       && onscary(0, 0, mtmp))
+                monflee(mtmp, 0, FALSE, TRUE);
             if (!mtmp->mtame)
                 ct++; /* pets don't laugh at you */
         }

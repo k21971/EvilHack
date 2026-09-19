@@ -396,32 +396,32 @@ boolean
 onscary(coordxy x, coordxy y, struct monst *mtmp)
 {
     struct engr *ep;
-    /* <0,0> is used by musical scaring;
+    /* <0,0> is used by musical scaring, and by the fear effects that
+     * have no location (scare monster being read, cause fear), to
+     * check for the immunities below;
      * it doesn't care about scrolls or engravings or dungeon branch */
-    boolean auditory_scare = (x == 0 && y == 0),
-            magical_scare = !auditory_scare;
+    boolean auditory_scare = (x == 0 && y == 0);
 
     /* creatures who are directly resistant to any type of scaring:
-     * Rodney, lawful minions, Angels, the Riders, the branch bosses,
-     * berserk monsters */
+     * Rodney, lawful minions, Angels, Archangels, the Riders, the
+     * branch bosses, player monsters, honey badgers, wolverines,
+     * beholders, neothelids, anything that is mindless, humans,
+     * unique creatures (they have ascended their base monster
+     * instincts), berserk monsters, shopkeepers inside their own
+     * shop, priests inside their own temple */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
+        || mtmp->data == &mons[PM_ARCHANGEL]
+        || mtmp->data == &mons[PM_HONEY_BADGER]
+        || mtmp->data == &mons[PM_BEHOLDER]
+        || mtmp->data == &mons[PM_NEOTHELID]
+        || mtmp->data == &mons[PM_WOLVERINE]
+        || mtmp->data == &mons[PM_DIRE_WOLVERINE]
+        || mindless(mtmp->data) || is_mplayer(mtmp->data)
         || is_rider(mtmp->data)
         || mtmp->isvecna || mtmp->isvlad || mtmp->isgking
-        || mtmp->istalgath || mtmp->ismichael || mtmp->mberserk)
-        return FALSE;
-
-    /* creatures who are directly resistant to magical scaring
-     * based on the mere presence of something at a location:
-     * humans etc.
-     * uniques have ascended their base monster instincts */
-    if (magical_scare
-        && (mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)))
-        return FALSE;
-
-    /* creatues who resist scaring under particular circumstances:
-     * shopkeepers inside their own shop
-     * priests inside their own temple */
-    if ((mtmp->isshk && inhishop(mtmp))
+        || mtmp->istalgath || mtmp->ismichael || mtmp->mberserk
+        || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
+        || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp)))
         return FALSE;
 
@@ -433,6 +433,10 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
         && (racial_vampire(mtmp) || is_vampshifter(mtmp)))
         return TRUE;
 
+    /* conflicted monsters ignore scary things on the floor */
+    if (Conflict)
+        return FALSE;
+
     /* the scare monster scroll doesn't have any of the below
      * restrictions, being its own source of power */
     if (sobj_at(SCR_SCARE_MONSTER, x, y))
@@ -442,7 +446,7 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
      * Creatures who don't (or can't) fear a written Elbereth:
      * all the above plus shopkeepers (even if poly'd into non-human),
      * vault guards (also even if poly'd), blind or peaceful monsters,
-     * humans and elves, and minotaurs.
+     * humans and elves, minotaurs and elder minotaurs.
      *
      * If the player isn't actually on the square OR the player's image
      * isn't displaced to the square, no protection is being granted.
@@ -457,6 +461,7 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
             && !(mtmp->isshk || mtmp->isgd || !mtmp->mcansee
                  || mtmp->mpeaceful
                  || mtmp->data == &mons[PM_MINOTAUR]
+                 || mtmp->data == &mons[PM_ELDER_MINOTAUR]
                  || Inhell || In_endgame(&u.uz)));
 }
 

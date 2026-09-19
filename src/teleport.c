@@ -58,11 +58,18 @@ goodpos_onscary(
 {
     /* onscary() checks Angels and lawful minions; this oversimplifies */
     if (mptr->mlet == S_HUMAN || mptr->mlet == S_ANGEL
-        || is_rider(mptr) || unique_corpstat(mptr))
+        || is_rider(mptr) || unique_corpstat(mptr)
+        || mindless(mptr)
+        || mptr == &mons[PM_HONEY_BADGER] || mptr == &mons[PM_BEHOLDER]
+        || mptr == &mons[PM_NEOTHELID] || mptr == &mons[PM_WOLVERINE]
+        || mptr == &mons[PM_DIRE_WOLVERINE])
         return FALSE;
     /* onscary() checks for vampshifted vampire bats/fog clouds/wolves too */
     if (IS_ALTAR(levl[x][y].typ) && mptr->mlet == S_VAMPIRE)
         return TRUE;
+    /* conflicted monsters ignore scary things on the floor */
+    if (Conflict)
+        return FALSE;
     /* scare monster scroll doesn't have any of the below restrictions,
        being its own source of power */
     if (sobj_at(SCR_SCARE_MONSTER, x, y))
@@ -72,7 +79,8 @@ goodpos_onscary(
         return FALSE;
     /* creatures who don't (or can't) fear a written Elbereth and weren't
        caught by the minions check */
-    if (mptr == &mons[PM_MINOTAUR] || !haseyes(mptr))
+    if (mptr == &mons[PM_MINOTAUR] || mptr == &mons[PM_ELDER_MINOTAUR]
+        || !haseyes(mptr))
         return FALSE;
     return sengr_at("Elbereth", x, y, TRUE) ? TRUE : FALSE;
 }
