@@ -312,6 +312,7 @@
      || (ptr) == &mons[PM_SKELETAL_HORSE]       \
      || (ptr) == &mons[PM_SKELETAL_WARHORSE]    \
      || (ptr) == &mons[PM_SKELETAL_DRAGON])
+#define is_vampire(ptr) (((ptr)->mhflags & MH_VAMPIRE) != 0L)
 #define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
 #define is_aasimar(ptr) (((ptr)->mhflags & MH_AASIMAR) != 0L)
 #define racial_aasimar(mon) mon_has_race(mon, MH_AASIMAR)
@@ -594,8 +595,6 @@
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
      || (ptr) == &mons[PM_ALHOON])
-
-#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
 
 #define hates_light(ptr) \
     ((ptr) == &mons[PM_GREMLIN] || is_drow(ptr) \
