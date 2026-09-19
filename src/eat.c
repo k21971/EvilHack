@@ -913,6 +913,15 @@ maybe_cannibal(int pm, boolean allowmsg)
         change_luck(-rn1(4, 2)); /* -5..-2 */
         return TRUE;
     }
+
+    /* Cavepersons get a bonus for cannibalism */
+    if (Role_if(PM_CAVE_DWELLER) && your_race(fptr)) {
+        if (allowmsg) {
+            You("consume the corpse in accordance with ancient ritual.");
+            adjalign(rnd(3) + 2); /* 3 to 5 point boost */
+        }
+    }
+
     return FALSE;
 }
 
