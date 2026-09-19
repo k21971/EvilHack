@@ -799,7 +799,7 @@ m_arrival(struct monst *mon)
     return -1;
 }
 
-/* a mind flayer unleashes a mind blast  */
+/* a mind flayer or neothelid unleashes a mind blast  */
 staticfn void
 mind_blast(struct monst *mtmp)
 {
@@ -862,12 +862,18 @@ mind_blast(struct monst *mtmp)
             continue;
         if (m2 == mtmp)
             continue;
-        if ((telepathic(m2->data) && (rn2(2) || m2->mblinded)) || !rn2(10)) {
+        if (is_illithid(m2->data))
+            continue;
+        if ((has_telepathy(m2) && (rn2(2) || m2->mblinded)) || !rn2(10)) {
+            int dmg = rnd(15);
+
             /* wake it up first, to bring hidden monster out of hiding */
             wakeup(m2, FALSE);
             if (cansee(m2->mx, m2->my))
                 pline("It locks on to %s.", mon_nam(m2));
-            m2->mhp -= rnd(15);
+            if (mon_arti_has_spfx(m2, SPFX_HSPDAM))
+                dmg = (dmg + 1) / 2;
+            damage_mon(m2, dmg, AD_DRIN, FALSE);
             if (DEADMONSTER(m2)) {
                 if (mtmp->mtame)
                     set_pet_killer(mtmp);
@@ -1158,8 +1164,9 @@ dochug(struct monst *mtmp)
     /* the watch will look around and see if you are up to no good :-) */
     if (is_watch(mdat)) {
         watch_on_duty(mtmp);
-    /* mind flayers can make psychic attacks! */
-    } else if (is_mind_flayer(mdat) && !rn2(20)) {
+    /* mind flayers and neothelids can make psychic attacks! */
+    } else if ((is_mind_flayer(mdat) || mdat == &mons[PM_NEOTHELID])
+               && !rn2(20)) {
         mind_blast(mtmp);
         set_apparxy(mtmp);
         distfleeck(mtmp, &inrange, &nearby, &scared);
