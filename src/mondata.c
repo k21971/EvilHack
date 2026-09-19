@@ -1040,19 +1040,35 @@ same_race(struct permonst *pm1, struct permonst *pm2)
         return is_human(pm2);
     if (is_elf(pm1))
         return is_elf(pm2);
+    if (is_drow(pm1))
+        return is_drow(pm2);
     if (is_dwarf(pm1))
         return is_dwarf(pm2);
     if (is_gnome(pm1))
         return is_gnome(pm2);
     if (is_orc(pm1))
         return is_orc(pm2);
+    if (is_hobbit(pm1))
+        return is_hobbit(pm2);
+    if (is_centaur(pm1))
+        return is_centaur(pm2);
+    if (is_tortle(pm1))
+        return is_tortle(pm2);
+    if (is_zombie(pm1))
+        return is_zombie(pm2);
+    if (is_vampire(pm1))
+        return is_vampire(pm2);
+    if (is_aasimar(pm1))
+        return is_aasimar(pm2);
     /* other creatures are less precise */
     if (is_giant(pm1))
         return is_giant(pm2); /* open to quibbling here */
+    if (is_gnoll(pm1))
+        return is_gnoll(pm2);
     if (is_golem(pm1))
         return is_golem(pm2); /* even moreso... */
-    if (is_mind_flayer(pm1))
-        return is_mind_flayer(pm2);
+    if (is_illithid(pm1))
+        return is_illithid(pm2);
     if (let1 == S_KOBOLD || pm1 == &mons[PM_KOBOLD_ZOMBIE]
         || pm1 == &mons[PM_KOBOLD_MUMMY])
         return (let2 == S_KOBOLD || pm2 == &mons[PM_KOBOLD_ZOMBIE]
@@ -1122,6 +1138,8 @@ same_race(struct permonst *pm1, struct permonst *pm2)
                 || pm2 == &mons[PM_WINGED_GARGOYLE]);
     if (pm1 == &mons[PM_KILLER_BEE] || pm1 == &mons[PM_QUEEN_BEE])
         return (pm2 == &mons[PM_KILLER_BEE] || pm2 == &mons[PM_QUEEN_BEE]);
+    if (pm1 == &mons[PM_GIANT_ANT] || pm1 == &mons[PM_QUEEN_ANT])
+        return (pm2 == &mons[PM_GIANT_ANT] || pm2 == &mons[PM_QUEEN_ANT]);
 
     if (is_longworm(pm1))
         return is_longworm(pm2); /* handles tail */

@@ -715,14 +715,28 @@ genus(int mndx, int mode)
                 mndx = PM_HUMAN;
             else if (is_elf(ptr))
                 mndx = PM_ELF;
+            else if (is_drow(ptr))
+                mndx = PM_DROW;
             else if (is_dwarf(ptr))
                 mndx = PM_DWARF;
             else if (is_gnome(ptr))
                 mndx = PM_GNOME;
             else if (is_orc(ptr))
                 mndx = PM_ORC;
+            else if (is_centaur(ptr))
+                mndx = PM_CENTAUR;
+            else if (is_giant(ptr))
+                mndx = PM_GIANT;
+            else if (is_hobbit(ptr))
+                mndx = PM_HOBBIT;
+            else if (is_illithid(ptr))
+                mndx = PM_ILLITHID;
+            else if (is_tortle(ptr))
+                mndx = PM_TORTLE;
             else if (is_zombie(ptr))
                 mndx = PM_DRAUGR;
+            else if (is_vampire(ptr))
+                mndx = PM_VAMPIRE;
         }
         break;
     }
