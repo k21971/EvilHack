@@ -16412,8 +16412,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the apply arm too. MED (player-facing).
 - [x] MED: monmove.c onscary() lacks master's scare-immune list
       PORTED 2026-09-19 (session 131, commits `Fix: onscary() lost
-      master's scare-immune list.` and `Fix: mindless and unique
-      monsters could be made to flee.` - hashes filled after landing;
+      master's scare-immune list.` = d66ed7168 and `Fix: mindless and
+      unique monsters could be made to flee.` = 2eeec90c0, tracker
+      eef7e185d, landed 2026-09-19;
       BUG-1876, BUG-1877; closure notes at the end of this row;
       minted 2026-09-19, session 130, found while reading master's
       neothelid sites for the mind blast row; verified on both bodies;
@@ -16539,7 +16540,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       horse-parts term rode the ki-rin row). Master-only: tree_parts[]
       and plant_parts[] tables with `S_ENT -> tree_parts` and `S_PLANT
       -> plant_parts` arms; `has_beak(mptr) && part == NOSE -> "beak"`
-      (has_beak() is absent from the branch's mondata.h); is_bird()
+      (has_beak() landed in the branch's mondata.h with the hit verbs
+      slice, session 132 - only this arm is missing now); is_bird()
       where the branch tests PM_RAVEN only; is_centaur() where the
       branch tests S_CENTAUR; PM_WOOLLY_MAMMOTH in the trunk arm;
       FINGERTIP in the jellyfish / kraken tentacle arm; `is_satyr() &&
@@ -16552,8 +16554,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       boots refusal says "tarsi").
       Player-facing text for ent, plant, bird, bear and satyr forms.
       LOW.
-- [ ] MED (text): mhitu.c hitmsg() is vanilla 5.0 - master's verbs
-      absent (minted 2026-09-19, session 130; the monster AI /
+- [x] MED (text): mhitu.c hitmsg() is vanilla 5.0 - master's verbs
+      absent
+      PORTED 2026-09-19 (session 132, commits `Fix: kicks still hurt a
+      hero under barkskin or stoneskin.`, `Fix: monster hit messages
+      lost master's verbs.` and `Fix: the hero's hit messages lost
+      master's verbs.` - hashes filled after landing; BUG-1878,
+      BUG-1879, BUG-1880, plus BUG-1881 = the master-side wand-bash
+      verb bug, frozen-unfixed; closure notes at the end of this row;
+      minted 2026-09-19, session 130; the monster AI /
       equipment row's "hitmsg pierce/slash/whack verbs -> mhitu
       flavor" deferral never had a row; verified on both bodies).
       Master: AT_BITE "pecks" for has_beak(); AT_KICK "tramples you"
@@ -16572,6 +16581,140 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       brain!". Siblings the session 130 reviewer listed, same verbs:
       mhitm.c's m-v-m text and uhitm.c's hero head butt. Keep 5.0's
       "again" suffix. MED (player-facing text).
+      CLOSURE 2026-09-19 (session 132). The caller census (master's 13
+      `rn2(SIZE(...))` verb-table uses, 0 on the branch, plus every
+      has_beak() / is_quadruped() / is_whack() user) widened the row to
+      the WHOLE VERB FAMILY, including two UNROWED finds: uhitm.c
+      hmon_hitmon_msg_hit()'s Monk monkattacks[] / hmonkattacks[] and
+      wep_pierce[] / wep_slash[] / wep_whack[] tables, and mhitu.c
+      mswings()'s verb pairs. RULED (decisions log): (1) whole family,
+      one slice; (2) m-v-m artifact / oprops weapons in MASTER'S EXACT
+      SHAPE - hitmm() always names the blow, 5.0's delayed "hits"
+      fallback in mhitm_ad_phys() removed (it would have doubled the
+      line; `hitflags |= M_ATTK_HIT` kept, hitmm() is the only
+      mdamagem() caller with a weapon); (3) HYBRID - 5.0's hero "bash"
+      (shield, heavy iron ball) / "lash" (whip, wet towel) and monster
+      "bashes with" (polearm adjacent) / "lashes" arms stay AHEAD of
+      master's tables, AT_TENT default is master's "tentacles suck
+      you!", 5.0's " again" kept. LANDED: has_beak(), is_quadruped(),
+      is_whack(); hitmsg() arms through file-static mon_currwep;
+      mswings() pairs; hitmm() arms incl. AT_KICK and Death's "reaches
+      out with its deadly touch towards" (default arm now plain
+      "hits" - its artifact test was dead on master too); hero Monk /
+      weapon tables; hmonas() trample / gore / peck / claw.
+      DELIBERATE DEVIATION: the hero tables skip WAND_CLASS and
+      SPBOOK_CLASS - oc_dir is a zap direction there (NODIR ==
+      PIERCE, IMMEDIATE == SLASH), so master "stabs" with a wand of
+      light (BUG-1881, master frozen-unfixed, CONFIRMED LIVE on
+      master: pierce / stab x5 / impale / gore x2 / hit x2 in 11
+      hits; branch 13 of 13 "You hit"). Reviewer confirmed those are
+      the only two classes that overload oc_dir and that a monster's
+      mw / mw2 can never be one.
+      REVIEWER (CONDITIONAL PASS, no blockers; every claim re-verified
+      on both bodies): H1 - master c5df38caa's OTHER mhitu.c hunk, the
+      mattacku() kick gate `!thick_skinned && !Barkskin && !Stoneskin`,
+      never landed, so the new '.' clause announced a "harmless" kick
+      that still did full damage (seen live on the first build: "The
+      leocrotta tramples you." with Barkskin up) - FIXED as its own
+      commit ahead of the verbs (BUG-1878), new instance of
+      pattern-port-whole-master-commit; M1 mpoisons_subj() AT_TENT
+      "snake bite" / AT_CLAW "scratch" arms (master dacf253d8,
+      887680db8) and M2 the nurse's "touches you!  (I hope you don't
+      mind.)" - both rode commit A; L1 mswings() gate mon_visible() ->
+      canspotmon() (master 9e430ec56, all four arms) - rode commit A;
+      M3 and the player-monster Monk kick stun - TWO NEW ROWS below
+      (a third, the barkskin / stoneskin enlightenment lines, came
+      from a battery 2 anomaly).
+      BATTERY 1 (three binaries, game-tester, six games, first build
+      md5 bb0ab2b3): POST = MASTER on every sampled verb, subject and
+      punctuation; the only differences are the five by-design 5.0
+      keeps and the wand deviation. Hero defender: pecks / bites /
+      claws; tramples only for S_QUADRUPED (leocrotta,
+      baluchitherium, rothe - MY PREDICTION ERROR: pony, horse, stag
+      and unicorn are S_UNICORN and "kick" on master too); tusks /
+      antlers / horns / horn / butts; assassin vine; both Medusa
+      variants; neothelid "lash out at you", mind flayer "suck you"
+      (PRE "suck your brain"); unarmed human punches / pummels / hits;
+      mummy scratches; all 15 weapon-table verbs on POST and the same
+      families on master, PRE always "hits"; " again" on POST only;
+      mswings pairs + "lashes" + "bashes with". m-v-m: pecks /
+      tramples / gores / claws / scratches / weapon verbs / centipede
+      "coils its body around" / Death / Medusa "attack"; Frost Brand
+      wielder = ONE verb line + at most one artifact line on POST and
+      master, never a trailing "hits". Hero: all 7 Monk verbs and all
+      5 hallucinated ones; all 15 weapon verbs (PRE "You hit" 30 of
+      30); lash / bash / smite / claw; leocrotta "trample", giant
+      hawk "peck", minotaur "gore", titanothere "head butt". NOT RUN:
+      Medusa and centipede-vs-hero on master, an oprops wielder, the
+      silent-artifact path (Frost Brand still speaks to a
+      cold-resistant target on both trees).
+      BATTERY 2 (delta, rebuilt binary md5 d8465b56 vs the first
+      build and master, three games, both paniclogs untouched): POST
+      = MASTER on every leg. Kick gate - no skin spell: 28 kick lines
+      in 12 turns; Barkskin: 0 kick lines / 37 bites in 20 turns,
+      Stoneskin 0 / 30 in 18, master with Barkskin 0 / 30 in 20 (the
+      kick is still rolled - "Your rough bark blocks the pony's
+      attack." on a miss); first build with Barkskin: "The leocrotta
+      tramples you." on 10 of 12 turns with HP loss. Poison wording -
+      "The kobold zombie's scratch was poisoned!" x2 and "Medusa's
+      snake bite was poisoned!" x3 on the branch, same on master,
+      "sting" on the first build. Nurse - "The nurse touches you!
+      (I hope you don't mind.)" on the branch and master, "hits!" on
+      the first build; with a weapon wielded "The nurse hits!".
+      mswings() gate - an invisible watchman sensed through an amulet
+      of ESP: "The invisible orcish watchman jabs her spear." on the
+      branch and master, no swing line on the first build; without
+      telepathy no swing line and "It stabs you!". Regression
+      spot-check clean.
+      INCIDENTS (battery 1 only, tester-induced gdb levers,
+      attributed and re-verified by the coordinator; battery 2's
+      brief banned both levers and added nothing): branch paniclog
+      "current hero health (9999) better than maximum" (u.uhp written
+      above a drained u.uhpmax);
+      MASTER PRODUCTION paniclog gained one line, "trapped without a
+      trap (fmon): the gnomish watchman" (mtrapped = 1 written on a
+      trapless square, reverted at once). No saves, bones, locks or
+      processes left on either playground.
+      ALREADY ROWED, seen live: the mumak's "grasps you with its
+      trunk!" (trunk grasp row below). OBSERVATION: the giant
+      centipede's hitmsg() arm is unreachable against the hero on
+      both trees (its only touch is AD_WRAP, which never calls
+      hitmsg()); the arm is live m-v-m.
+- [ ] MED: mhitm_ad_wrap() hero leg is vanilla 5.0 - master's wrap
+      verbs, grab odds and the salamander lava pull ABSENT (minted
+      2026-09-19, session 132 reviewer's whole-commit sweep of master
+      219103dc4 / 71899e6e5 / c839aa4a1, verified on both bodies).
+      Master mhitu.c hitmu() AD_WRAP: grab odds `PM_ASSASSIN_VINE ?
+      rn2(5) : PM_SALAMANDER ? !rn2(6) : !rn2(8)`; wrap verbs "coils
+      its body" (giant centipede) / "wraps its arms" (salamander) /
+      "winds itself" (assassin vine) / "swings itself"; miss text
+      "<Mon> tries to grab you!" (salamander) and "brushes against
+      your body" (centipede); the salamander's "<Mon> pulls you into
+      the lava..." kill. Branch uhitm.c mhitm_ad_wrap(): `!rn2(10)`,
+      `coil ? "coils" : "swings"` keyed on slithy S_SNAKE / S_NAGA,
+      none of the species text, "pulls you into the lava" absent from
+      src/. SEEN LIVE: "The giant centipede swings itself around
+      you!". Text plus grab odds plus an instakill arm - its own
+      slice with a battery. MED.
+- [ ] LOW: player-monster Monk kick stun ABSENT (minted 2026-09-19,
+      session 132 reviewer's sibling sweep, verified on both bodies).
+      Master mhitu.c hitmu() tail (b0de2f2b6): `mattk->aatyp ==
+      AT_KICK && mdat == &mons[PM_MONK] && !rn2(10) &&
+      youmonst.data->msize < MZ_HUGE` -> "You reel from <Mon>'s
+      powerful kick!" unless Stun_resistance or Tempest, then
+      make_stunned((HStun & TIMEOUT) + dmg) and `dmg /= 2`. "reel
+      from" is absent from the branch's src/. LOW.
+- [ ] LOW: enlightenment lacks the barkskin / stoneskin lines (minted
+      2026-09-19, session 132, battery anomaly, verified on both
+      bodies). Master cmd.c, between the "free action" and "fixed
+      abilities" lines: `if (Barkskin) you_have("bark for skin",
+      from_what(BARKSKIN)); if (Stoneskin) you_have("stone for skin",
+      from_what(STONESKIN));` (master c5df38caa, a THIRD unported
+      hunk of that commit - sweep the rest of it when this row is
+      taken). Branch insight.c goes straight from "free action" to
+      "fixed abilities"; SEEN LIVE: ^X shows nothing with Barkskin up
+      while the AC bonus and the "rough bark blocks" miss text work.
+      LOW (player-facing).
 - [ ] LOW: neothelid tentacle grab and the trunk grasp text ABSENT
       (minted 2026-09-19, session 130 reviewer's PM_NEOTHELID sibling
       sweep, verified on both bodies). Master mhitu.c hitmu() AD_PHYS /
@@ -17901,6 +18044,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-19 | Hit verbs slice rulings (AskUserQuestion x1, three questions): (1) SCOPE = the whole verb family in one slice (recommended) - hitmsg(), hitmm(), mswings(), hmonas() and the two unrowed finds (hero Monk / weapon verb tables); (2) m-v-m artifact / oprops weapon hits land in MASTER'S EXACT SHAPE (recommended) - hitmm() always prints the verb line and 5.0's delayed "hits" fallback in mhitm_ad_phys() is removed, so an artifact hit reads as verb line + artifact line exactly as on master; (3) 5.0-only verb extras = HYBRID (maintainer chose this over the recommended master's-exact-shape) - 5.0's hero "bash" (shield / heavy iron ball) and "lash" (whip / wet towel) and the monster "bashes with" (polearm at melee range) and "lashes" arms stay AHEAD of master's tables, everything else is master's, the AT_TENT default text is master's "tentacles suck you!" and 5.0's " again" suffix stays. Session calls, reported at hand-off: the hero tables skip wands and spellbooks (oc_dir is a zap direction there; master bug BUG-1881 confirmed live); the reviewer's H1 kick gate (master c5df38caa's unported mattacku() hunk) lands as its own commit ahead of the verbs; mpoisons_subj() "snake bite" / "scratch", the nurse's "touches you!" and mswings()'s canspotmon() gate ride commit A | maintainer (AskUserQuestion) + session |
 | 2026-09-19 | onscary() slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) master's scare-immune list lands in MASTER'S EXACT SHAPE on 5.0's auditory / magical split - one gate ahead of the <0,0> return, so archangels, honey badgers, both wolverines, beholders, neothelids, every mindless() monster, is_mplayer() AND S_HUMAN + unique_corpstat() resist ANY scaring (floor scroll, Elbereth, tooled horn / drum / bugle, a read scare monster scroll, cause fear, the Shadowblade invoke); 5.0's magical-only gate for humans and uniques goes away, per master ac3461a1c (a bugle must not scare player monsters or uniques) and 363d0bae4 ("immune ... across the board"); (2) 5.0's goodpos_onscary() permonst approximation, which has no master counterpart, is SYNCED with the ported terms rather than left to drift; (3) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer in the plan: master's `if (Conflict) return FALSE;` keeps the plain macro rather than 5.0-style resist_conflict() (master's form; the roll would flicker per mfndpos() square); read.c seffect_scare_monster()'s `onscary(0, 0, mtmp)` gate and fleemsg TRUE ride commit A as the unported half of master 363d0bae4; monflee()'s mindless() / unique_corpstat() early return rides as commit B; the scared-monster vocal block is ROWED, the mstone wake guards join the gradual-stoning row as a rider. | maintainer (rulings); session (Conflict form, read.c gate, monflee gate, rows) |
 | 2026-09-19 | Race-predicate riders slice rulings (AskUserQuestion x1, four questions, all recommended options taken): (1) the boots refusal for centaur / satyr / drider forms and centaur heroes takes MASTER'S text ("Your hooves / tarsi are not shaped correctly to wear boots.") over 5.0's "You have too many hooves"; (2) the Caveperson ritual cannibalism bonus keeps master's scope (inside the allowmsg test - fresh corpse, tin, brain; a tainted corpse earns nothing) but adds its rnd(3) + 2 through adjalign() so ALIGNLIM holds, where master's raw `u.ualign.record +=` - the only raw add in its tree - overshoots the cap (battery: master 10 -> 14 at ALIGNLIM 10, branch stays at 10); (3) three master-parity gaps found while reading the sites (onscary()'s scare-immune list, the grudge-table residue, mbodypart()'s residue) are ROWED, not folded in, with onscary() the suggested next slice; (4) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer: the boots word is chosen by testing for the drider, not by master's is_centaur() / is_satyr() test, because master's test tells an un-polymorphed centaur hero about "tarsi" (reviewer find, reproduced on master 0.9.3 in the battery); master db71f7c6c's antlers fix rides the num_horns() stag arm that made it reachable; domindblast() rides the mind blast commit as its hero-side twin, and 5.0's mindless skip there is KEPT (master's own monster-side blast skips mindless bystanders too). | maintainer (rulings); session (drider test, antlers, domindblast) |
 | 2026-09-18 | same_race slice rulings (AskUserQuestion x2, both recommended options taken): (1) the full battery runs - a gdb same_race() matrix over every ordered monster pair on three binaries plus the eat.c and dogfood() legs in play - rather than the matrix alone or no battery; (2) mon.c genus()'s default arm, found by the slice's reviewer to have lost the same EvilHack races in the adoption (drow, centaur, giant, hobbit, illithid, tortle, vampire), is FOLDED INTO the same commit instead of minted as a row: it is inert today (both callers ask only about MS_GUARDIAN monsters and all 16 hit explicit case labels), so it needs no play battery, but the rebuilt binary's same_race() matrix is re-run so the installed build is the tested one. Not ruled, rowed instead: the reviewer's egg-handling MEDIUM (master f334e3072 / 202a8cb09 companions of the ant pair) changes egg mechanics and wants its own battery. | maintainer (rulings); session (egg row) |
