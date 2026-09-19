@@ -934,12 +934,17 @@ num_horns(struct permonst *ptr)
     switch (monsndx(ptr)) {
     case PM_HORNED_DEVIL: /* ? "more than one" */
     case PM_MINOTAUR:
+    case PM_ELDER_MINOTAUR:
     case PM_ASMODEUS:
+    case PM_BAPHOMET:
     case PM_BALROG:
+    case PM_SATYR:
+    case PM_STAG:
         return 2;
     case PM_WHITE_UNICORN:
     case PM_GRAY_UNICORN:
     case PM_BLACK_UNICORN:
+    case PM_ELDRITCH_KI_RIN:
     case PM_KI_RIN:
         return 1;
     default:
@@ -1270,8 +1275,10 @@ name_to_monplus(
                fuzzymatch() but it isn't able to ignore trailing stuff */
             { "ki rin", PM_KI_RIN, NEUTRAL },
             { "kirin", PM_KI_RIN, NEUTRAL },
+            { "eldritch ki rin", PM_ELDRITCH_KI_RIN, NEUTRAL },
             { "uruk hai", PM_URUK_HAI, NEUTRAL },
             { "orc captain", PM_ORC_CAPTAIN, NEUTRAL },
+            { "goblin captain", PM_GOBLIN_CAPTAIN, NEUTRAL },
             { "woodland elf", PM_WOODLAND_ELF, NEUTRAL },
             { "green elf", PM_GREEN_ELF, NEUTRAL },
             { "grey elf", PM_GREY_ELF, NEUTRAL },

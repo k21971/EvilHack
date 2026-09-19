@@ -3439,6 +3439,11 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
         && racial_hobbit(mdef) && !is_undead(mdef->data))
         return ALLOW_M | ALLOW_TM;
 
+    /* ki-rin vs eldritch ki-rin */
+    if (magr->data == &mons[PM_KI_RIN]
+        && mdef->data == &mons[PM_ELDRITCH_KI_RIN])
+        return ALLOW_M | ALLOW_TM;
+
     /* In Purgatory, lost souls will fight living
        players for a chance at redemption */
     if (In_purgatory(&u.uz)

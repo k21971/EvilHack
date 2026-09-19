@@ -1598,7 +1598,8 @@ break_armor(void)
                 char hornbuf[BUFSZ];
 
                 /* Future possibilities: This could damage/destroy helmet */
-                Sprintf(hornbuf, "horn%s", plur(num_horns(uptr)));
+                Sprintf(hornbuf, has_antlers(uptr) ? "antler%s" : "horn%s",
+                        plur(num_horns(uptr)));
                 Your("%s %s through %s.", hornbuf, vtense(hornbuf, "pierce"),
                      yname(otmp));
             } else {
@@ -2683,6 +2684,7 @@ mbodypart(struct monst *mon, int part)
         return bird_parts[part];
     if (mptr->mlet == S_CENTAUR || mptr->mlet == S_UNICORN
         || mptr == &mons[PM_KI_RIN]
+        || mptr == &mons[PM_ELDRITCH_KI_RIN]
         || (mptr == &mons[PM_ROTHE] && part != HAIR))
         return horse_parts[part];
     if (mptr->mlet == S_LIGHT) {

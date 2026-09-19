@@ -2737,10 +2737,15 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             err++;
         } else if (Upolyd && has_horns(gy.youmonst.data) && !is_flimsy(otmp)) {
             /* (flimsy exception matches polyself handling) */
-            if (noisy)
-                pline_The("%s won't fit over your horn%s.",
-                          helm_simple_name(otmp),
-                          plur(num_horns(gy.youmonst.data)));
+            if (noisy) {
+                if (has_antlers(gy.youmonst.data))
+                    pline_The("%s won't fit over your antlers.",
+                              helm_simple_name(otmp));
+                else
+                    pline_The("%s won't fit over your horn%s.",
+                              helm_simple_name(otmp),
+                              plur(num_horns(gy.youmonst.data)));
+            }
             err++;
         } else
             *mask = W_ARMH;

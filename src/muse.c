@@ -661,7 +661,9 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                 if (obj->otyp == UNICORN_HORN && !obj->cursed)
                     break;
         }
-        if (obj || is_unicorn(mtmp->data) || mtmp->data == &mons[PM_KI_RIN]) {
+        if (obj || is_unicorn(mtmp->data)
+            || mtmp->data == &mons[PM_KI_RIN]
+            || mtmp->data == &mons[PM_ELDRITCH_KI_RIN]) {
             gm.m.defensive = obj;
             gm.m.has_defense = MUSE_UNICORN_HORN;
             return TRUE;
@@ -4115,7 +4117,8 @@ searches_for_item(struct monst *mon, struct obj *obj)
             return (boolean) racial_needspick(mon);
         if (typ == UNICORN_HORN)
             return (boolean) (!obj->cursed && !is_unicorn(mon->data)
-                              && mon->data != &mons[PM_KI_RIN]);
+                              && mon->data != &mons[PM_KI_RIN]
+                              && mon->data != &mons[PM_ELDRITCH_KI_RIN]);
         if (typ == FROST_HORN || typ == FIRE_HORN)
             return (obj->spe > 0 && can_blow(mon));
         /* the two rare bags are excluded by otyp, matching find_misc:
