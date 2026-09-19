@@ -675,6 +675,11 @@ monflee(
     if (DEADMONSTER(mtmp))
         return;
 
+    /* the mindless have nothing to be scared with, and unique
+       monsters have risen above it */
+    if (mindless(mtmp->data) || unique_corpstat(mtmp->data))
+        return;
+
     if (mtmp == u.ustuck)
         release_hero(mtmp); /* expels/unstuck */
 

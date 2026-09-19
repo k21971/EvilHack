@@ -2149,7 +2149,9 @@ Mb_hit(struct monst *magr, /* attacker */
         attack_indx = MB_INDEX_STUN;
         *dmgptr += rnd(4); /* (3..4)d4 */
     }
-    if (dieroll <= scare_dieroll) {
+    /* mindless and unique monsters can't be scared */
+    if (dieroll <= scare_dieroll
+        && !mindless(mdef->data) && !unique_corpstat(mdef->data)) {
         attack_indx = MB_INDEX_SCARE;
         *dmgptr += rnd(4); /* (3..5)d4 */
     }
