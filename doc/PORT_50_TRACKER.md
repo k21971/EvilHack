@@ -15943,7 +15943,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: vision_recalc() Blind arm lacks master's
       do_light_sources() call PORTED 2026-09-18 (session 128, commit
       `Fix: a blind hero's surroundings ignored carried light and
-      darkness.` - hash filled after landing; BUG-1866; closure notes
+      darkness.` = 0b2fb84a6, tracker f8e7fcbd5, landed 2026-09-18;
+      BUG-1866; closure notes
       at the end of this row; minted 2026-09-18 by the session 127
       reviewer's master-parity pass; outside that slice). Master's
       Blind arm ends with do_light_sources(next_array) before its
@@ -15982,8 +15983,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       gnome's stethoscope line flipped the same way; 31 blind turns
       walking with sanity_check on, no paniclog on either tree.
 - [x] Drow-in-light regeneration penalties PORTED 2026-09-18 (session
-      128, commit `Drow heroes regenerate more slowly in the light.` -
-      hash filled after landing; BUG-1867; minted AND closed the same
+      128, commit `Drow heroes regenerate more slowly in the light.` =
+      9f25dc8cc, tracker f8e7fcbd5, landed 2026-09-18; BUG-1867;
+      minted AND closed the same
       day: the Blind-arm row's prerequisite census of master's
       hero-side spot_is_dark(u.ux, u.uy) readers found them rowless -
       the BUG-1696 regen-block row and the player-races row's
@@ -16016,14 +16018,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the DARK rate (20, 45); the same blind setup pre-fix gave 20.
       Human control unchanged (20 energy, 45 hp per 100 in a lit
       room).
-- [ ] LOW: mondata.c same_race() lacks master's EvilHack race arms
-      (minted 2026-09-18 by the session 128 reviewer's master-parity
+- [x] LOW: mondata.c same_race() lacks master's EvilHack race arms
+      PORTED 2026-09-18 (session 129, commit `Fix: same_race() and
+      genus() lost EvilHack's race arms.` - hash filled after landing;
+      BUG-1868; closure notes at the end of this row;
+      minted 2026-09-18 by the session 128 reviewer's master-parity
       sweep, verified on both bodies; outside that slice; until now
       only a "same_race zombie arm" mention in the draugr slice's
       deferral list, never a row). Master tests, ahead of is_giant():
       is_drow, is_hobbit, is_centaur, is_tortle, is_zombie, is_vampire,
       is_aasimar; is_gnoll after is_giant; is_illithid where the
-      branch has vanilla's is_mind_flayer; and a giant ant / queen ant
+      branch has vanilla's is_mind_flayer (an archived master FIX,
+      BUG-1119, master 6d24dd148, lost with the adoption:
+      is_mind_flayer() misses the four other MH_ILLITHID monsters -
+      illithid [the race placeholder], neothelid, mind flayer larva,
+      Dark One; the archive entry named four monsters that exist in
+      neither tree and was corrected 2026-09-18); and a giant ant /
+      queen ant
       pair beside the killer bee pair. Every predicate already exists
       in the branch's include/mondata.h. Branch consumers: eat.c
       polymorphed-hero cannibalism, dog.c pet food (a humanoid pet
@@ -16034,6 +16045,204 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (BUG-936, Phase 5 m_initgrp row). Impact in play NOT evaluated
       - check arm order against is_undead() for zombie and vampire
       forms before porting. LOW.
+      CLOSURE (2026-09-18, session 129): master's arms in master's
+      order; the function body is byte-identical to master's (sed +
+      diff of both bodies). RULING (AskUserQuestion, decisions log):
+      mon.c genus()'s default arm lost the same races the same way
+      (master adds drow after elf; centaur, giant, hobbit, illithid,
+      tortle after orc; vampire after zombie) and rides the same
+      commit - INERT: both callers (sounds.c, objnam.c) ask only
+      about MS_GUARDIAN monsters and all 16 hit explicit case
+      labels. ARM ORDER, evaluated before porting and then measured:
+      the zombie arm sits ahead of giant / kobold / is_undead, the
+      drow and hobbit arms ahead of all three. is_vampire() is
+      mlet-based here and flag-based on master, set-equal (own LOW
+      row below). Reviewer PASS, no CRITICAL / HIGH; one MEDIUM =
+      the ant pair is one hunk of master f334e3072 whose egg-handling
+      companions are absent (rowed below, MED); five out-of-scope
+      finds verified on both bodies and rowed below, one reviewer
+      sub-claim falsified (mind blast `goto toofar`). Second pass on
+      the genus() hunk: PASS, no finding above LOW - whole function
+      at master parity (5.0 renames and ismnum() aside), both
+      callers MS_GUARDIAN-gated, nothing sets MS_GUARDIAN at run
+      time, BUG-1531's three case labels undisturbed; two more
+      out-of-scope finds rowed below (eldritch ki-rin terms, boots
+      refusal text). BATTERY
+      (game-tester, three binaries: preserved pre-fix f8e7fcbd5 build,
+      post-fix, master 0.9.3; human Wizard XL30; branch paniclog
+      never created, master's three lines unchanged): (A) FULL
+      ordered same_race() matrix by gdb, keyed by name - 314,721
+      cells per branch binary, 318,096 on master; post-fix vs master
+      over the 552 common names = 1 differing cell of 304,704, (giant
+      crocodile, crocodile) TRUE here / FALSE on master, pre-existing
+      and owned by the egg row; pre-fix -> post-fix = 218 flips in 35
+      pm1 rows, EVERY one landing on master's value, zero flips for
+      vampires, centaurs, aasimar, elf / gnome / orc / dwarf zombie
+      and every monster outside those rows. F->T: drow forms (7 each;
+      raider <-> warrior already TRUE by the grow-up chain), hobbit
+      forms incl. Gollum (4), tortles (2), gnolls beyond the gnoll ->
+      hunter -> flind chain and living gnoll -> witherling, the seven
+      illithid-flagged forms (4-6), giant ant <-> queen ant, kobold
+      zombie and giant zombie -> the 11 other flagged zombies. T->F:
+      kobold zombie -> the 5 kobold forms; giant zombie -> the 11
+      giants incl. giant mummy, Annam, Cyclops, Lord Surtur; draugr /
+      human / ettin zombie / gnoll witherling -> ghoul and revenant
+      only (brief claim FALSIFIED: their zombie-to-zombie cells were
+      already TRUE through the is_undead S_ZOMBIE arm); drow zombie
+      and hobbit zombie -> the 13 other S_ZOMBIE; drow mummy and
+      hobbit mummy -> the 9 other mummies. All T->F flips are inert
+      at the consumers (dog.c gates on !is_undead(mptr); zombie and
+      mummy PMs leave no such corpses). (B) eat.c in play, "You
+      cannibal!  You will regret this!" + luck loss + Aggravate:
+      drow mage form + drow cleric corpse, drider + drow corpse, mind
+      flayer + neothelid corpse, queen ant + giant ant corpse - silent
+      pre-fix, cannibal post-fix = master; controls flat (Woodland-elf
+      + Grey-elf and hill giant + fire giant cannibal on all three;
+      drow mage + hobbit corpse never). (C) dogfood() by gdb: tame
+      hobbit + hobbit pickpocket corpse, gnoll cleric + gnoll corpse,
+      drow warrior + drow mage corpse (also STARVING - the
+      racial_drow gate), mind flayer + mind flayer larva corpse:
+      CADAVER pre-fix, TABU post-fix = master; a neothelid corpse is
+      POISON on all three and cannot discriminate; controls flat.
+      (D) hill orc #chat identical on all three, human and orc form.
+      FOLLOW-UP on the rebuilt install carrying genus() (md5
+      44250049bf672a13f8122e12643c0eca): the same_race() matrix TSV
+      is byte-identical to the first post-fix run (0 differing
+      cells, the same single cell versus master), so the installed
+      build is the tested one; genus(i, 0 | 1) over every monster on
+      pre-fix / post-fix / master, keyed by name with the 5.0
+      renames folded - post-fix vs master 0 residual differences in
+      1128 rows; pre-fix -> post-fix 78 rows changed (39 monsters,
+      both modes alike: drow 7, centaur 3, giant 11, hobbit 4,
+      illithid 6, tortle 2, vampire 6), all on master's value, with
+      drow / giant / hobbit zombie moving off "draugr" and alhoon to
+      "illithid"; the 16 quest-guardian rows unchanged; wished
+      student / attendant corpses still arrive as archeologist /
+      healer corpses. Both paniclogs clean again. HARNESS FACT, not
+      a gap: a "stone giant corpse" wish loses "stone" to the
+      material parser and delivers a giant corpse on BOTH trees
+      (not_spec_material() checks object names only); "bone devil /
+      glass piercer / iron piercer corpse" are refused on both. One
+      real divergence caught on the way and rowed below (escaped
+      wish grants a random object).
+- [ ] MED: egg handling lacks master's giant crocodile, queen ant and
+      giant hawk arms (minted 2026-09-18 by the session 129 reviewer's
+      port-whole-commit check on the same_race() ant pair, verified on
+      both bodies; rowless until now). Master f334e3072 `Fix: giant
+      crocodiles and their eggs.` + 202a8cb09 `Fix: queen ants were
+      laying queen ant eggs.` (both 2023-01-18): (a) mondata.c
+      big_to_little() opens with `if (montype == PM_GIANT_CROCODILE)
+      return PM_BABY_CROCODILE;`; (b) mon.c can_be_hatched() accepts
+      PM_GIANT_ANT / PM_FIRE_ANT / PM_SOLDIER_ANT outright and adds
+      PM_QUEEN_ANT to the queen bee / winged gargoyle exclusion; (c)
+      mon.c egg_type_from_parent() maps queen ant -> rn2(5) ? giant
+      ant : rn2(3) ? fire ant : soldier ant, giant hawk -> hawk, giant
+      crocodile -> crocodile. The branch is vanilla on all three; only
+      f334e3072's same_race() ant pair rode the same_race() slice.
+      Traced on paper, NOT battery-verified: queen ants lay queen ant
+      eggs; a giant crocodile egg hatches through timeout.c
+      hatch_egg()'s big_to_little() as a crocodile, not a baby
+      crocodile. It is also the one same_race() cell that still
+      differs from master: (giant crocodile, crocodile) TRUE here,
+      FALSE there. Archive sweep at port time - egg fixes on file:
+      BUG-295, BUG-635, BUG-785, BUG-1498. Battery = #sit egg laying
+      in queen ant / giant crocodile / giant hawk form, then hatch.
+      MED.
+- [ ] LOW: mind blast lacks master's neothelid and illithid arms
+      (minted 2026-09-18 by the session 129 reviewer's is_mind_flayer()
+      sibling sweep, verified on both bodies). (a) monmove.c dochug()'s
+      gate is `is_mind_flayer(mdat) && !rn2(20)` where master has
+      `(is_mind_flayer(mdat) || mdat == &mons[PM_NEOTHELID])` - a
+      neothelid never mind blasts here; (b) mind_blast()'s
+      blast_others loop lacks master's `if (is_illithid(m2->data))
+      continue;`, so illithid-class bystanders take the damage; (c)
+      the same loop tests `telepathic(m2->data)` where master tests
+      `has_telepathy(m2)` (the macro is already in the branch's
+      mondata.h), so a monster with acquired telepathy is not locked
+      on to. NOT a gap (reviewer claim falsified): the hero-too-far
+      `return` - master's `goto toofar` label sits past the monster
+      loop, so master skips the bystanders there too. LOW.
+- [ ] MED: scroll of amnesia lacks master's blessed skill-reset prompt
+      and the illithid ward (minted 2026-09-18, session 129 reviewer's
+      is_illithid() sweep, verified on both bodies; "amnesia" had no
+      tracker mention). read.c seffect_amnesia() is vanilla. Master's
+      SCR_AMNESIA: blessed and INT > 12 -> yn "Do you want to reset
+      your skills training?" -> "Your skills training has been
+      reset." + weapon.c reset_weapon_skills() (function and extern
+      both absent here); otherwise an illithid hero or form gets
+      "Your psionic abilities ward off the scroll's magic." in place
+      of forget(). Archive: BUG-747 flattened this block's control
+      flow on master - port the flattened shape. MED (player-facing
+      feature).
+- [ ] LOW: eat.c maybe_cannibal() lacks master's Caveperson ritual
+      bonus (minted 2026-09-18, session 129 reviewer, verified on both
+      bodies). Master c94917f98 `Few more caveperson tweaks.`
+      (2021-04-15), after the cannibal-penalty block: `if
+      (Role_if(PM_CAVEMAN) && your_race(fptr))` -> under allowmsg,
+      "You consume the corpse in accordance with ancient ritual." and
+      `u.ualign.record += rnd(3) + 2`. Note master grants the
+      alignment only inside the allowmsg test - decide at port time
+      whether that is intended. LOW.
+- [ ] LOW: mondata.h is_vampire() is vanilla's `mlet == S_VAMPIRE`
+      where master tests `mhflags & MH_VAMPIRE` (minted 2026-09-18,
+      session 129, found by the same_race() predicate census). SET-
+      EQUAL today on both trees (the seven S_VAMPIRE monsters are
+      exactly the seven MH_VAMPIRE carriers, and nothing writes
+      either field at run time), so no site answers differently; the
+      forms split silently the day a vampire-flagged monster lands
+      outside S_VAMPIRE or the reverse. Restore master's definition
+      (racial_vampire() beside it already reads the flag). LOW.
+- [ ] LOW: eldritch ki-rin terms and num_horns() arms dropped in the
+      adoption (minted 2026-09-18 by the session 129 second reviewer
+      pass's race-predicate census, every site verified on both
+      bodies; "eldritch" had no tracker mention). Master names
+      PM_ELDRITCH_KI_RIN at ten sites, the branch at four of them
+      (dog.c twice, uhitm.c, mm_aggression()'s angel arm). Missing:
+      (a) muse.c find_defensive() unicorn-horn self-cure test lacks
+      `|| mtmp->data == &mons[PM_ELDRITCH_KI_RIN]`; (b) muse.c
+      searches_for_item() UNICORN_HORN arm lacks `&& mon->data !=
+      &mons[PM_ELDRITCH_KI_RIN]`; (c) mondata.c num_horns() lacks
+      PM_ELDRITCH_KI_RIN (one horn) AND four two-horn cases the
+      reviewer did not list - PM_ELDER_MINOTAUR, PM_BAPHOMET,
+      PM_SATYR, PM_STAG (feeds has_horns(): helmet gates, the pet
+      helmet test in dogmove.c); (d) polyself.c mbodypart()'s
+      horse-parts arm lacks the eldritch ki-rin - master's has_beak()
+      NOSE -> "beak" arm above it versus the branch's PM_RAVEN-only
+      bird test was NOT compared, do it at port time; (e) mondata.c's
+      alternate-spelling table has "ki rin" but not master's
+      { "eldritch ki rin", PM_ELDRITCH_KI_RIN }; (f) mon.c
+      mm_aggression() lacks master's `ki-rin vs eldritch ki-rin`
+      arm (the branch has no PM_KI_RIN test there at all; see the
+      piecemeal mm_aggression note). LOW.
+- [ ] LOW (text): do_wear.c boots refusal for centaur, drider and
+      satyr forms is 5.0's "You have too many hooves to wear boots."
+      (minted 2026-09-18, session 129 second reviewer pass, verified
+      on both bodies). Master: `Your("%s are not shaped correctly to
+      wear %s.", ...)` with "hooves" for centaurs and satyrs and
+      "tarsi" for a drider - so a hero in drider form is told about
+      hooves here. The player-races battery recorded the centaur
+      line as seen without comparing it. is_satyr() is already in
+      the branch's mondata.h. Text collision - master's shape unless
+      ruled otherwise. LOW.
+- [ ] MED: an escaped or empty wish grants a random object (minted
+      2026-09-18, caught by the session 129 follow-up battery, then
+      verified on both bodies; "forfeit" had no tracker mention).
+      Master a14c8c824 (2019-03-20, `Remove ability to wish for a
+      random item via Escape or empty buffer.`): zap.c makewish(),
+      after the help arm, turns an empty buffer into "nothing" when
+      `wizard || yn("Really forfeit this wish?") == 'y' || tries >=
+      50` (and on hangup), else loops back to the prompt. The
+      branch's makewish() is 5.0's - ESC becomes an empty string and
+      readobjnam() hands back a random object. SEEN: ESC at the
+      empty prompt gave "n - a white gem.", "o - a key.", "p - a
+      scale mail." on the branch, nothing on master 0.9.3, three of
+      three each way (wizard mode; the yn arm was not exercised).
+      Port against 5.0's shape: wish_history_menu(), resume_wish /
+      term_gone, and tries counted elsewhere. NOTE master's
+      makewish(eight_ball) parameter comes from apply.c
+      use_eight_ball(), absent here; the 8-Ball's read arm sits on
+      the Artifact behaviour remainder row - confirm that row owns
+      the apply arm too. MED (player-facing).
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -17253,6 +17462,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-18 | same_race slice rulings (AskUserQuestion x2, both recommended options taken): (1) the full battery runs - a gdb same_race() matrix over every ordered monster pair on three binaries plus the eat.c and dogfood() legs in play - rather than the matrix alone or no battery; (2) mon.c genus()'s default arm, found by the slice's reviewer to have lost the same EvilHack races in the adoption (drow, centaur, giant, hobbit, illithid, tortle, vampire), is FOLDED INTO the same commit instead of minted as a row: it is inert today (both callers ask only about MS_GUARDIAN monsters and all 16 hit explicit case labels), so it needs no play battery, but the rebuilt binary's same_race() matrix is re-run so the installed build is the tested one. Not ruled, rowed instead: the reviewer's egg-handling MEDIUM (master f334e3072 / 202a8cb09 companions of the ant pair) changes egg mechanics and wants its own battery. | maintainer (rulings); session (egg row) |
 | 2026-09-18 | Drow light and dark slice rulings (AskUserQuestion x1, two questions, both recommended options taken): (1) master's drow-in-light regeneration penalties (allmain.c LIT_DROW_EREGEN_MULTI 2L / LIT_DROW_HREGEN_MULTI 3L) - found ROWLESS by the Blind-arm row's prerequisite census of master's hero-side spot_is_dark() readers - are PORTED NOW as the slice's second commit rather than rowed for later: the battery already needed a drow hero, lit and dark rooms and both lamp kinds, and the blind legs prove the first commit feeds the second; (2) the hit point penalty is ADAPTED to 5.0's per-turn heal roll as a DIVISION OF THE CHANCE BY THREE beside the Druid near-vegetation multiplier (the precedent in the same expression), not as a moves-modulo gate that would put a second idiom in regen_hp() and a visible fixed beat on healing. Session refinement after review: the division is made on the die (`chance > rn2(300)`), an exact third, because `chance / 3` truncates - up to 5x instead of 3x for an XL1 low-Con drow. The energy penalty is master's text unchanged. | maintainer (rulings); session, reviewer-prompted (exact-third form) |
 | 2026-09-18 | Submerged-sight slice rulings (AskUserQuestion x2, both recommended options taken): (1) master 7ef047e6a's does_block() clause lands REFINED - `Underwater && See_underwater && !Is_waterlevel(&u.uz) && !IS_POOL(lev->typ) && lev->typ != ICE` instead of master's bare Underwater test, with the vision tables rebuilt at EVERY on-level water exit (the two ordinary exits unconditionally; the frozen-pool, boulder-fill and terrain-wish exits, which neither tree rebuilt, gain one). In game: a submerged tortle / Eyes of the Overworld / goggles hero no longer sees a second pool across a floor strip, as on master; a plain submerged hero keeps ordinary tables, so a land square that changes while they are under (5.0 funnels ~37 sites through recalc_block_point()) cannot come out sight-blocking after they surface, and a restore while submerged cannot block all dry land; a tortle whose pool freezes, fills with a boulder, or who is wished onto new terrain sees the room at once (master stays blind until a level change - confirmed in play, BUG-1864 frozen-unfixed). Rejected: master's exact shape; master's clause plus gap fixes only. (2) The #terrain-exit repaint row was root-caused by the slice's own battery (under_water()'s static delayed-update flag, set by map_redisplay() and never consumed for a See_underwater hero) and its one-line gate rides this slice as its own commit rather than waiting for a slice of its own (BUG-1865). Session calls inside the approved plan: the rebuild stays per-site, NOT centralized in set_uinwater() (goto_level() calls it just ahead of keepdogs(), whose messages are canseemon()-gated); the mimic object look keeps a real object's generic-far / specific-near / stays-specific rule by reusing M_AP_F_DKNOWN, cleared in bones. | maintainer (rulings); session, plan-approved (fix shapes) |
 | 2026-09-18 | Revival-traits slice ruling (AskUserQuestion, recommended option taken): reviving a racial zombie's or mummy's corpse (undead_to_corpse() -> the level-0 race archetype: dwarf / gnome / orc / elf / drow / human / giant) KEEPS master and vanilla parity - the archetype rises (LVL 0, 1d8 weapon attack, MH_ race flag, G_NOGEN), no revive() redirect to a generatable species and no refusal; revive() has no placeholder gate on any of the three trees, makemon()'s only is_placeholder() consumer is mk_gen_ok() (random class generation), and monsters.h's "orc" entry carries master's own "plain orc for zombie corpses only; not created at random" comment. Fix-shape calls approved with the plan: both montraits() repairs are consumer-side (the reset block gains mextrinsics + the levitation/jump timers, matching clone_mon()'s reset; the full disguise triple m_ap_type / mappearance / MCORPSENM is carried from the fresh monster) rather than save_mtraits() producer scrubs, and both are upstream-shared, so each ships as its own patch artifact | maintainer (ruling); session, plan-approved (fix shapes) |
