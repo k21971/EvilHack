@@ -2785,7 +2785,12 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
                makeplural(body_part(FOOT)) would yield "rear hooves" here,
                which sounds odd, so use hard-coded "hooves" */
             if (noisy)
-                You("have too many hooves to wear %s.", c_boots);
+                Your("%s are not shaped correctly to wear %s.",
+                     /* a centaur hero's data is the role's monster,
+                        so test for the one form without hooves */
+                     (gy.youmonst.data == &mons[PM_DRIDER]) ? "tarsi"
+                                                            : "hooves",
+                     c_boots);
             err++;
         } else if (!Upolyd && Race_if(PM_TORTLE)) {
             /* tortle foot shape is all wrong */
