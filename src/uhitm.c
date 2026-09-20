@@ -6399,7 +6399,10 @@ mhitm_ad_phys(
         }
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
-        if (mattk->aatyp == AT_HUGS && !sticks(pd)) {
+        /* a neothelid holds its prey with the first of its tentacles */
+        if ((mattk->aatyp == AT_HUGS
+             || (mattk->aatyp == AT_TENT && pa == &mons[PM_NEOTHELID]))
+            && !sticks(pd)) {
             if (!u.ustuck && rn2(2)) {
                 if (u_slip_free(magr, mattk)) {
                     mhm->damage = 0;
@@ -6410,7 +6413,15 @@ mhitm_ad_phys(
                         magr->mundetected = 0;
                         newsym(magr->mx, magr->my);
                     }
-                    pline_mon(magr, "%s grabs you!", Monnam(magr));
+                    if (has_trunk(pa))
+                        pline_mon(magr, "%s grasps you with its trunk!",
+                                  Monnam(magr));
+                    else if (pa == &mons[PM_NEOTHELID])
+                        pline_mon(magr,
+                                  "%s ensnares you with its tentacles!",
+                                  Monnam(magr));
+                    else
+                        pline_mon(magr, "%s grabs you!", Monnam(magr));
                     mhm->hitflags |= M_ATTK_HIT;
                 }
             } else if (u.ustuck == magr) {
@@ -6427,6 +6438,10 @@ mhitm_ad_phys(
                         (pa == &mons[PM_ROPE_GOLEM]) ? "choked"
                                                      : "crushed");
                 }
+            } else {
+                /* the blow landed without taking hold */
+                hitmsg(magr, mattk);
+                mhm->hitflags |= M_ATTK_HIT;
             }
         } else { /* hand to hand weapon */
             /* the weapon the caller chose for this swing - mattacku()

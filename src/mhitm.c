@@ -921,9 +921,13 @@ failed_grab(
         /* hug attack: most holders (owlbear, python, pit fiend, &c);
            wrap damage: eel grabbing, trapper/lurker-above engulfing;
            stick-to damage: mimic, lichen;
-           digestion damage: purple worm swallowing */
+           digestion damage: purple worm swallowing;
+           physical tentacle: the neothelid's hold on the hero */
         && (mattk->aatyp == AT_HUGS || mattk->adtyp == AD_WRAP
-            || mattk->adtyp == AD_STCK  || mattk->adtyp == AD_DGST)) {
+            || mattk->adtyp == AD_STCK  || mattk->adtyp == AD_DGST
+            || (mdef == &gy.youmonst && mattk->aatyp == AT_TENT
+                && mattk->adtyp == AD_PHYS
+                && magr->data == &mons[PM_NEOTHELID]))) {
         if ((gv.vis && canspotmon(mdef)) /* mon-vs-mon */
             || magr == &gy.youmonst || mdef == &gy.youmonst) {
             char magrnam[BUFSZ], mdefnam[BUFSZ];

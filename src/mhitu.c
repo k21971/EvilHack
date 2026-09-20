@@ -1749,6 +1749,15 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     if (mhm.done)
         return mhm.hitflags;
 
+    /* player monster monks can sometimes stun with their kick attack */
+    if (mattk->aatyp == AT_KICK && mdat == &mons[PM_MONK]
+        && !rn2(10) && gy.youmonst.data->msize < MZ_HUGE) {
+        if (!(Stun_resistance || wielding_artifact(ART_TEMPEST)))
+            You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
+        make_stunned((HStun & TIMEOUT) + (long) mhm.damage, TRUE);
+        mhm.damage /= 2;
+    }
+
     if ((Upolyd ? u.mh : u.uhp) < 1) {
         /* already dead? call rehumanize() or done_in_by() as appropriate */
         mdamageu(mtmp, 1);
