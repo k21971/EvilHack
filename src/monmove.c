@@ -3062,8 +3062,10 @@ set_apparxy(struct monst *mtmp)
      */
 
     /* pet knows your smell; grabber still has hold of you; monsters which
-       know where you are don't suddenly forget, if you haven't moved away */
-    if (mtmp->mtame || mtmp == u.ustuck || u_at(mx, my)) {
+       know where you are don't suddenly forget, if you haven't moved away;
+       a telepathic monster finds a telepathic hero mind to mind */
+    if (mtmp->mtame || mtmp == u.ustuck || u_at(mx, my)
+        || (has_telepathy(mtmp) && (HTelepat || ETelepat))) {
             mtmp->mux = u.ux;
             mtmp->muy = u.uy;
             return;
