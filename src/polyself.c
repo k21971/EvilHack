@@ -1612,7 +1612,7 @@ break_armor(void)
             }
         }
     }
-    if (nohands(uptr) || verysmall(uptr)) {
+    if (nohands(uptr) || verysmall(uptr) || is_ent(uptr)) {
         if (!(druid_form || vampire_form) && (otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1658,7 +1658,8 @@ break_armor(void)
         }
     }
     if ((nohands(uptr) || verysmall(uptr)
-         || slithy(uptr) || uptr->mlet == S_CENTAUR)
+         || slithy(uptr) || racial_centaur(&gy.youmonst)
+         || racial_tortle(&gy.youmonst) || is_ent(uptr) || is_satyr(uptr))
         && !(druid_form || vampire_form)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))

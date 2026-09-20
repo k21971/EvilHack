@@ -1843,7 +1843,8 @@ mon_break_armor(struct monst *mon, boolean polyspot)
             m_lose_armor(mon, otmp, polyspot);
         }
     }
-    if (handless_or_tiny || slithy(mdat) || mdat->mlet == S_CENTAUR) {
+    if (handless_or_tiny || slithy(mdat) || racial_centaur(mon)
+        || racial_tortle(mon)) {
         if ((otmp = which_armor(mon, W_ARMF)) != 0) {
             if (vis) {
                 if (is_whirly(mon->data))
