@@ -2086,10 +2086,16 @@ attributes_enlightenment(
         you_have("reflection", from_what(REFLECTING));
     if (Free_action)
         you_have("free action", from_what(FREE_ACTION));
+    if (Barkskin)
+        you_have("bark for skin", from_what(BARKSKIN));
+    if (Stoneskin)
+        you_have("stone for skin", from_what(STONESKIN));
     if (Fixed_abil)
         you_have("fixed abilities", from_what(FIXED_ABIL));
-    if (Lifesaved)
+    if (ELifesaved)
         enl_msg("Your life ", "will be", "would have been", " saved", "");
+    if (HLifesaved) /* Draugr race only */
+        you_can("revive a number of times", "");
 
     /*** Miscellany ***/
     if (Luck) {

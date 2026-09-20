@@ -740,6 +740,15 @@ nh_timeout(void)
         }
     }
 
+    /* a small warning that a timed spell ward is about to run out */
+    if (HReflecting == 20 && !Blind)
+        pline_The("shimmering globe around you is starting to fade.");
+
+    if (HBarkskin == 20 || HStoneskin == 20)
+        pline_The("%s covering your %s starts to disappear.",
+                  HBarkskin ? "bark" : "stone",
+                  mbodypart(&gy.youmonst, SKIN));
+
     if (u.ugallop) {
         if (--u.ugallop == 0L && u.usteed)
             pline("%s stops galloping.", Monnam(u.usteed));
