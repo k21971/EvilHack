@@ -8421,6 +8421,10 @@ usmellmon(struct permonst *mdat)
             You("notice a bovine smell.");
             msg_given = TRUE;
             break;
+        case PM_ELDER_MINOTAUR:
+            You("notice a strong bovine smell.");
+            msg_given = TRUE;
+            break;
         case PM_CAVE_DWELLER:
         case PM_BARBARIAN:
         case PM_NEANDERTHAL:
@@ -8449,6 +8453,8 @@ usmellmon(struct permonst *mdat)
         case PM_WEREWOLF:
         case PM_WEREDEMON:
         case PM_OWLBEAR:
+        case PM_CAVE_BEAR:
+        case PM_GRIZZLY_BEAR:
             You("detect an odor reminiscent of an animal's den.");
             msg_given = TRUE;
             break;
@@ -8502,6 +8508,10 @@ usmellmon(struct permonst *mdat)
                 break;
             case S_ZOMBIE:
                 You("smell rotting flesh.");
+                msg_given = TRUE;
+                break;
+            case S_WRAITH:
+                You("smell the stench of decay.");
                 msg_given = TRUE;
                 break;
             case S_EEL:

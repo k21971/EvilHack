@@ -2609,8 +2609,8 @@ mbodypart(struct monst *mon, int part)
                           "posterior", "over stretched", "clitellum",
                           "length", "posterior setae", "setae", "blood",
                           "skin", "prostomium", "stomach", "skin" },
-        *spider_parts[] = { "pedipalp", "eye", "face", "pedipalp", "tarsus",
-                            "claw", "pedipalp", "palped", "cephalothorax",
+        *spider_parts[] = { "pedipalp", "eye", "face", "pedipalp", "pedipalp",
+                            "tarsus", "pedipalp", "palped", "cephalothorax",
                             "leg", "spun out", "cephalothorax", "abdomen",
                             "claw", "hair", "hemolymph", "book lung",
                             "labrum", "digestive tract", "cuticle" },
@@ -2618,14 +2618,17 @@ mbodypart(struct monst *mon, int part)
                           "pelvic fin", "anal fin", "pectoral fin", "finned",
                           "head", "peduncle", "played out", "gills",
                           "dorsal fin", "caudal fin", "scales", "blood",
-                          "gill", "nostril", "stomach", "scales" };
-    /* claw attacks are overloaded in mons[]; most humanoids with
-       such attacks should still reference hands rather than claws */
-    static const char not_claws[] = {
-        S_HUMAN,     S_MUMMY,   S_ZOMBIE, S_ANGEL, S_NYMPH, S_LEPRECHAUN,
-        S_QUANTMECH, S_VAMPIRE, S_ORC,    S_GIANT, /* quest nemeses */
-        '\0' /* string terminator; assert( S_xxx != 0 ); */
-    };
+                          "gill", "nostril", "stomach", "scales" },
+        *tree_parts[] = { "branch",    "eye",      "face",     "twig",
+                          "bud",       "taproot",  "claw",     "clawed",
+                          "crown",     "root",     "addled",   "neck",
+                          "bole",      "bud",      "leaves",   "sap",
+                          "stomata",   "nose",     "interior", "bark" },
+        *plant_parts[] = { "branch",     "visual area", "front",  "leaf",
+                           "leaftip",    "taproot",     "twig",   "twigged",
+                           "apical bud", "root",        "addled", "stem",
+                           "stem",       "root-tip",    "leaves", "sap",
+                           "stomata",    "stomata",     "xylem",  "epidermis" };
     struct permonst *mptr = mon->data;
 
     if (part <= NO_PART) {
@@ -2635,7 +2638,9 @@ mbodypart(struct monst *mon, int part)
 
     /* some special cases */
     if (mptr->mlet == S_DOG || mptr->mlet == S_FELINE
-        || mptr->mlet == S_RODENT || mptr == &mons[PM_OWLBEAR]) {
+        || mptr->mlet == S_RODENT || mptr == &mons[PM_OWLBEAR]
+        || mptr == &mons[PM_CAVE_BEAR]
+        || mptr == &mons[PM_GRIZZLY_BEAR]) {
         switch (part) {
         case HAND:
             return "paw";
@@ -2654,16 +2659,14 @@ mbodypart(struct monst *mon, int part)
         return humanoid_parts[part]; /* yeti/sasquatch, monkey/ape */
     }
     if ((part == HAND || part == HANDED)
-        && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
-             && !strchr(not_claws, mptr->mlet)
-             && mptr != &mons[PM_STONE_GOLEM]
-             && mptr != &mons[PM_AMOROUS_DEMON])
+        && ((humanoid(mptr) && (has_claws(mptr) || has_claws_undead(mptr)))
             || (mon == &gy.youmonst && !Upolyd
                 && (Race_if(PM_DEMON) || Race_if(PM_TORTLE)
                     || Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)
                     || Race_if(PM_VAMPIRE)))))
         return (part == HAND) ? "claw" : "clawed";
-    if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON])
+    if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
+         || mptr == &mons[PM_WOOLLY_MAMMOTH])
         && part == NOSE)
         return "trunk";
     if (mptr == &mons[PM_SHARK] && part == HAIR)
@@ -2672,7 +2675,7 @@ mbodypart(struct monst *mon, int part)
         return "bones"; /* skeletons don't have skin */
     if ((mptr == &mons[PM_JELLYFISH] || mptr == &mons[PM_KRAKEN])
         && (part == ARM || part == FINGER || part == HAND || part == FOOT
-            || part == TOE))
+            || part == TOE || part == FINGERTIP))
         return "tentacle";
     if (mptr == &mons[PM_FLOATING_EYE] && part == EYE)
         return "cornea";
@@ -2681,9 +2684,11 @@ mbodypart(struct monst *mon, int part)
         return humanoid_parts[part];
     if (mptr->mlet == S_COCKATRICE)
         return (part == HAIR) ? snake_parts[part] : bird_parts[part];
-    if (mptr == &mons[PM_RAVEN])
+    if (is_bird(mptr))
         return bird_parts[part];
-    if (mptr->mlet == S_CENTAUR || mptr->mlet == S_UNICORN
+    if (has_beak(mptr) && part == NOSE)
+        return "beak";
+    if (is_centaur(mptr) || mptr->mlet == S_UNICORN
         || mptr == &mons[PM_KI_RIN]
         || mptr == &mons[PM_ELDRITCH_KI_RIN]
         || (mptr == &mons[PM_ROTHE] && part != HAIR))
@@ -2718,6 +2723,12 @@ mbodypart(struct monst *mon, int part)
         return vortex_parts[part];
     if (mptr->mlet == S_FUNGUS)
         return fungus_parts[part];
+    if (mptr->mlet == S_ENT)
+        return tree_parts[part];
+    if (mptr->mlet == S_PLANT)
+        return plant_parts[part];
+    if (is_satyr(mptr) && part == FOOT)
+        return "hoof";
     if (humanoid(mptr))
         return humanoid_parts[part];
     return animal_parts[part];
