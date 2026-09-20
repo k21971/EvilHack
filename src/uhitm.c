@@ -255,8 +255,13 @@ attack_checks(
         if (M_AP_TYPE(mtmp) && !Protection_from_shape_changers) {
             if (!u.ustuck && !mtmp->mflee && dmgtype(mtmp->data, AD_STCK)
                 /* applied pole-arm attack is too far to get stuck */
-                && m_next2u(mtmp))
+                && m_next2u(mtmp)) {
                 set_ustuck(mtmp);
+                if (mtmp->mundetected) {
+                    mtmp->mundetected = 0;
+                    newsym(mtmp->mx, mtmp->my);
+                }
+            }
         }
         /* #H7329 - if hero is on engraved "Elbereth", this will end up
          * assessing an alignment penalty and removing the engraving
@@ -5300,6 +5305,10 @@ mhitm_ad_stck(
         /* uhitm */
         if (!negated && !sticks(pd) && m_next2u(mdef)) {
             set_ustuck(mdef); /* it's now stuck to you */
+            if (mdef->mundetected) {
+                mdef->mundetected = 0;
+                newsym(mdef->mx, mdef->my);
+            }
             if (barbs)
                 Your("barbs stick to %s!", y_monnam(mdef));
         }
@@ -5308,6 +5317,10 @@ mhitm_ad_stck(
         hitmsg(magr, mattk);
         if (!negated && !u.ustuck && !sticks(pd)) {
             set_ustuck(magr);
+            if (magr->mundetected) {
+                magr->mundetected = 0;
+                newsym(magr->mx, magr->my);
+            }
             if (barbs)
                 pline("The barbs stick to you!");
         }
@@ -5345,6 +5358,10 @@ mhitm_ad_wrap(
                         You("%s yourself around %s!",
                             coil ? "coil" : "swing", mon_nam(mdef));
                     set_ustuck(mdef);
+                    if (mdef->mundetected) {
+                        mdef->mundetected = 0;
+                        newsym(mdef->mx, mdef->my);
+                    }
                 }
             } else if (u.ustuck == mdef && !tailmiss) {
                 /* Monsters don't wear amulets of magical breathing */
@@ -5398,6 +5415,10 @@ mhitm_ad_wrap(
                     mhm->damage = 0;
                 } else {
                     set_ustuck(magr); /* before message, for botl update */
+                    if (magr->mundetected) {
+                        magr->mundetected = 0;
+                        newsym(magr->mx, magr->my);
+                    }
                     if (pa == &mons[PM_MIND_FLAYER_LARVA])
                         urgent_pline("%s wraps its tentacles around your %s,"
                                      " attaching itself to your %s!",
@@ -6385,6 +6406,10 @@ mhitm_ad_phys(
                     mhm->hitflags |= M_ATTK_MISS;
                 } else {
                     set_ustuck(magr);
+                    if (magr->mundetected) {
+                        magr->mundetected = 0;
+                        newsym(magr->mx, magr->my);
+                    }
                     pline_mon(magr, "%s grabs you!", Monnam(magr));
                     mhm->hitflags |= M_ATTK_HIT;
                 }
@@ -8769,6 +8794,10 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     uunstick();
                 You("grab %s!", mon_nam(mon));
                 set_ustuck(mon);
+                if (mon->mundetected) {
+                    mon->mundetected = 0;
+                    newsym(mon->mx, mon->my);
+                }
                 if (hated_obj && flags.verbose)
                     searmsg(&gy.youmonst, mon, hated_obj, FALSE);
                 sum[i] = damageum(mon, mattk, specialdmg);
@@ -9782,8 +9811,13 @@ stumble_onto_mimic(struct monst *mtmp)
 
     if (!u.ustuck && !mtmp->mflee && dmgtype(mtmp->data, AD_STCK)
         /* must be adjacent; attack via polearm could be from farther away */
-        && m_next2u(mtmp))
+        && m_next2u(mtmp)) {
         set_ustuck(mtmp);
+        if (mtmp->mundetected) {
+            mtmp->mundetected = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+    }
 
     wakeup(mtmp, FALSE); /* clears mimicking */
     /* if hero is blind, wakeup() won't display the monster even though

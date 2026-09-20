@@ -1031,8 +1031,14 @@ mattacku(struct monst *mtmp)
         else /* see note about m_monnam() above */
             pline("Wait, %s!  That's a %s named %s!", m_monnam(mtmp),
                   pmname(gy.youmonst.data, Ugender), svp.plname);
-        if (sticky)
+        if (sticky) {
             set_ustuck(mtmp);
+            /* the attacker may have struck from cover */
+            if (mtmp->mundetected) {
+                mtmp->mundetected = 0;
+                newsym(mtmp->mx, mtmp->my);
+            }
+        }
         gy.youmonst.m_ap_type = M_AP_NOTHING;
         gy.youmonst.mappearance = 0;
         newsym(u.ux, u.uy);
@@ -1930,6 +1936,9 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
         mtmp->mentangled = 0; /* no longer entangled */
         place_monster(mtmp, u.ux, u.uy);
         set_ustuck(mtmp);
+        /* an engulfer that struck from hiding is hidden no longer */
+        if (mtmp->mundetected)
+            mtmp->mundetected = 0;
         newsym(mtmp->mx, mtmp->my);
         /* 5.0: dismount for all engulfers, not just for purple worms */
         if (u.usteed) {
