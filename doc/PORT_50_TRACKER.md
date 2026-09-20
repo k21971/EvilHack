@@ -8807,9 +8807,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       poison-on-hit; permapoisoned covers only Grimtooth here);
       Tempest "Wielder cannot be stunned." (five of seven arms live;
       the chest-trap gas arm - branch trap.c tests bare !Stunned - and
-      the monk-kick arm are missing); Sword of Annihilation "Cannot be
-      destroyed or polymorphed." + Retribution "Resists cancellation
-      and cannot be destroyed." (zap.c obj_resists() exempts both
+      the monk-kick arm are missing - the monk-kick arm LANDED
+      2026-09-20, session 133, BUG-1883, six of seven live); Sword of
+      Annihilation "Cannot be destroyed or polymorphed." + Retribution
+      "Resists cancellation and cannot be destroyed." (zap.c
+      obj_resists() exempts both
       outright on master, feeding cancel_item/destroy/polymorph; the
       branch keeps the generic 90-100% artifact roll, and master's
       polyself.c break_armor Retribution arms are absent); Butcher
@@ -16156,8 +16158,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       FALSE there. Archive sweep at port time - egg fixes on file:
       BUG-295, BUG-635, BUG-785, BUG-1498. Battery = #sit egg laying
       in queen ant / giant crocodile / giant hawk form, then hatch.
+      RIDER (2026-09-20, session 133, verified on both bodies): in
+      uhitm.c hmon_hitmon_misc_obj()'s EGG case the petrifier
+      egg -> rock arm ends with a bare `place_object()` when thrown;
+      master adds `stackobj(obj); newsym(mon->mx, mon->my);`. Check
+      what the rest of hmon_hitmon() does with `obj` after a stackobj()
+      merge before porting it (the merge can free obj).
       MED.
-- [ ] LOW (feature): monster-side gnome egg fear is absent (minted
+- [x] LOW (feature): monster-side gnome egg fear is absent
+      PORTED 2026-09-20 (session 133, commit `Fix: scared monsters lost
+      master's cries and gnomes their egg fear.` - hash filled after
+      landing; BUG-1884, plus BUG-1886 = the master-side double kill,
+      frozen-unfixed; closure notes at the end of this row; minted
       2026-09-19, session 131, found by the onscary() slice reviewer's
       monflee() sibling sweep, verified on both bodies; the hero-side
       gnome egg anathema is ported, these two monster arms had no
@@ -16177,6 +16189,32 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       20, FALSE, TRUE)`, then useup_eggs(). Player-facing text: the
       She / He pronoun needs the gender-neutral ruling checked before
       porting. LOW.
+      CLOSURE (2026-09-20, session 133): (a) mon.c m_respond_gnome(),
+      called from m_respond() behind `is_gnome() && !is_undead() &&
+      m_canseeu()` - 5.0 calls m_respond() for every monster, so
+      master's dochug() gate moved inside (the zap.c wake callers are
+      thereby stricter than master, which needed no sight there); RNG
+      order as master. The pronoun: the gender-neutral ruling covers
+      rank nouns, this is the hero's own chosen gender, master's text
+      kept. (b) uhitm.c hmon_hitmon_misc_obj() EGG case, after the
+      petrifier arm. REVIEWER C1 = MASTER BUG BUG-1886: the 1 in 10
+      cancel_monst() forces a shapeshifter in gnome form back into its
+      own shape and that can kill it (zap.c documents the death);
+      master then subtracts the damage and calls killed() on the
+      detached monster. The branch sets `already_killed` + `destroyed`
+      and refreshes `hmd->mdat` on a survivor. BATTERY PASS: POST and
+      MASTER "The gnome looks at you and is immediately agitated.
+      "Ahhhh!  Eggs!  She has eggs!!"  The gnome turns to flee.", PRE
+      none in ~140 turns with six gnomes in sight; egg hits POST "You
+      hit the gnome king with an egg." with NO "Splat!", damage sample
+      15, flight, one cancel seen ("Magical energies are absorbed from
+      the gnome king.", mcan 1); master the same shape (damage sample
+      9, "The gnome screams in fear!" is the new flee cry - gnomes are
+      MS_HUMANOID on both trees); PRE "Splat!" and the 1 point path; a
+      wished egg with corpsenm 344 still says "Splat!" on POST (the
+      NON_PM gate). SHORTFALL: 4 confirmed egg hits on POST, not the 10
+      asked for (a wielded stack is used up whole, and the gnome runs
+      out of the throwing line).
 - [x] LOW: mind blast lacks master's neothelid and illithid arms
       PORTED 2026-09-19 (session 130, commit `Fix: mind blast lost its
       neothelid, illithid and telepathy arms.` = 7dd536a98, tracker
@@ -16495,8 +16533,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       SEEN ON MASTER, already rowed: "The jackal howls in fear!" (the
       vocal block row below) and the learned-Elbereth engraving gate
       (features-sweep (f)).
-- [ ] LOW (feature, text): monmove.c monflee() lacks master's
-      scared-monster vocal block (minted 2026-09-19, session 131, found
+- [x] LOW (feature, text): monmove.c monflee() lacks master's
+      scared-monster vocal block
+      PORTED 2026-09-20 (session 133, commit `Fix: scared monsters lost
+      master's cries and gnomes their egg fear.` - hash filled after
+      landing; BUG-1884, plus BUG-1885 = master's dead elephant arm,
+      frozen-unfixed; closure notes at the end of this row; minted
+      2026-09-19, session 131, found
       while reading monflee() for the onscary() slice; verified on both
       bodies; no tracker, features-archive or features-sweep mention).
       Master 2ba242d39 `Certain scared monsters can scream in fear`
@@ -16514,6 +16557,38 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       vocal lines; the branch (5.0) prints it from the chain's final
       else only - decide the message order when porting. growl_sound()
       is already extern on the branch (sounds.c); use pline_mon(). LOW.
+      CLOSURE (2026-09-20, session 133): RULED master's exact message
+      order - "turns to flee." follows the flinch / light / cry chain
+      under `if (mtmp->mcanmove)`; 5.0's Unaware arm and the vrock
+      cloud stay; the wake loop skips DEADMONSTER. RULED DEVIATION =
+      MASTER BUG BUG-1885: master's elephant arm tests MS_ROAR + the
+      three species, but master 9a63bec08 (2025-04-15) retyped them to
+      MS_TRUMPET and never touched monmove.c, so the arm is dead and
+      master prints "roars in fear"; the branch has `case MS_TRUMPET:
+      "trumpet"`. RULED KEPT: the same retype moved MS_LIZARD and
+      MS_PSEUDO monsters out of the silent MS_HISS arm, so they "hiss
+      in fear" on live master and on the branch. DEPENDENCY FOUND:
+      growl_sound() was vanilla - none of EvilHack's sound types, and
+      MS_SILENT returned the noun "commotion" to callers that build
+      "<Monster> <verb>s!" (artifact.c, muse.c, mhitu.c). Master's arms
+      landed with this commit (MS_LIZARD / MS_PSEUDO hiss, MS_WCHUCK
+      growl, MS_GRUNT + MS_ORC grunt - one value on master, two here,
+      MS_TRUMPET roar, MS_BAT squeal, MS_RAPTOR screech, MS_BURBLE,
+      MS_SILENT "quiver" per master f697fd9bc); 5.0's bellow / groan /
+      low stay. yelp(), whimper() and domonnoise() are the NEW sounds.c
+      row. BATTERY PASS (flight by scroll of scare monster): POST
+      "howls" jackal, "yowls" jaguar, "hisses" kitten and crocodile,
+      "grunts" hill orc, "squeals" vampire bat, "trumpets" mumak, snake
+      never; every cry followed by "<Monster> turns to flee."; MASTER
+      the same over 152 flee events with "The mumak roars in terror!"
+      (the ruled difference; the bat was not seen to cry there - two
+      events only); PRE 28 events, no cry. Light-hater POST and MASTER
+      "The gremlin flees from the painful light of Sunsword.  The
+      gremlin turns to flee." (and ""Bright light!"  The gremlin turns
+      to flee."), PRE the first line only. Sleeper wake, POST only:
+      54 candidates inside dist2 < 19 over 4 cries, 11 msleeping
+      writes (20% against a nominal 1 in 3 - small sample; the
+      condition is master's verbatim).
 - [ ] MED: mm_aggression() / mm_2way_aggression() grudge-table residue
       (minted 2026-09-19, session 130; verified on both bodies). The
       2026-08 "mm_aggression is being ported PIECEMEAL per subsystem"
@@ -16535,7 +16610,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "zombies vs all living" arm was RULED (hybrid zombie_maker arm).
       The four `return 0` truces sit ahead of every ALLOW arm on
       master - keep that order. MED.
-- [ ] LOW: polyself.c mbodypart() residue (minted 2026-09-19, session
+- [x] LOW: polyself.c mbodypart() residue
+      PORTED 2026-09-20 (session 133, commit `Fix: smells and body
+      parts lost master's arms.` - hash filled after landing;
+      BUG-1890; closure notes at the end of this row; minted
+      2026-09-19, session
       130, full body diff on both trees; only the eldritch ki-rin
       horse-parts term rode the ki-rin row). Master-only: tree_parts[]
       and plant_parts[] tables with `S_ENT -> tree_parts` and `S_PLANT
@@ -16554,12 +16633,33 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       boots refusal says "tarsi").
       Player-facing text for ent, plant, bird, bear and satyr forms.
       LOW.
+      CLOSURE (2026-09-20, session 133): every item landed; the body
+      now differs from master in idiom only (5.0's `part <= NO_PART`
+      guard kept, not_claws[] removed). spider_parts[] takes MASTER'S
+      values - master c5f11ceb1 changed them on purpose with the
+      drider. BATTERY PASS, EXHAUSTIVE: gdb sweep of mbodypart() over
+      every mons[] row x 20 parts with a data-swapped jackal carrier -
+      POST = MASTER on all 561 shared rows, 0 differing cells
+      (coordinator re-ran the diff from the raw tables; master's three
+      extra rows are the merged gendered pairs). PRE -> POST 369
+      changed cells, all in the expected families: ents and plants,
+      hawks (bird table), beak NOSE for fell beast / owlbear / tengu /
+      vrock, woolly mammoth trunk, jellyfish + kraken FINGERTIP,
+      satyr hoof, cave + grizzly bear paws, spiders / scorpions /
+      centipedes / drider "pedipalp" + "tarsus", and HAND: 60 rows
+      hand -> claw (the Riders, Dispater, Kas, Vlad, Nazgul, alhoon,
+      djinni, demon, draugr, drider, every mummy / zombie / vampire /
+      skeleton, wraith, erinys, flind + gnolls, illithid + mind
+      flayers, salamanders, sandestin, the tortles) and 12 claw ->
+      hand (Gollum, hobbit pickpocket, the ten golems). usmellmon()
+      rode the same commit - see its row.
 - [x] MED (text): mhitu.c hitmsg() is vanilla 5.0 - master's verbs
       absent
       PORTED 2026-09-19 (session 132, commits `Fix: kicks still hurt a
-      hero under barkskin or stoneskin.`, `Fix: monster hit messages
-      lost master's verbs.` and `Fix: the hero's hit messages lost
-      master's verbs.` - hashes filled after landing; BUG-1878,
+      hero under barkskin or stoneskin.` = a83c26af0, `Fix: monster
+      hit messages lost master's verbs.` = 07e523327 and `Fix: the
+      hero's hit messages lost master's verbs.` = 6db304785, tracker
+      06640b94d, landed 2026-09-19; BUG-1878,
       BUG-1879, BUG-1880, plus BUG-1881 = the master-side wand-bash
       verb bug, frozen-unfixed; closure notes at the end of this row;
       minted 2026-09-19, session 130; the monster AI /
@@ -16695,8 +16795,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       none of the species text, "pulls you into the lava" absent from
       src/. SEEN LIVE: "The giant centipede swings itself around
       you!". Text plus grab odds plus an instakill arm - its own
-      slice with a battery. MED.
-- [ ] LOW: player-monster Monk kick stun ABSENT (minted 2026-09-19,
+      slice with a battery.
+      RIDER (2026-09-20, session 133 reviewer, verified on both
+      bodies): mhitu.c u_slip_free() lacks master's `&& mtmp->data !=
+      &mons[PM_SALAMANDER]` on the AD_WRAP "slips off of" text (the
+      salamander's hold is a hug with AD_WRAP damage, so master says
+      "grabs you, but cannot hold onto"). MED.
+- [x] LOW: player-monster Monk kick stun ABSENT
+      PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
+      master's grab, trunk and Monk kick arms.` - hash filled after
+      landing; BUG-1883; closure notes at the end of this row; minted
+      2026-09-19,
       session 132 reviewer's sibling sweep, verified on both bodies).
       Master mhitu.c hitmu() tail (b0de2f2b6): `mattk->aatyp ==
       AT_KICK && mdat == &mons[PM_MONK] && !rn2(10) &&
@@ -16704,7 +16813,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       powerful kick!" unless Stun_resistance or Tempest, then
       make_stunned((HStun & TIMEOUT) + dmg) and `dmg /= 2`. "reel
       from" is absent from the branch's src/. LOW.
-- [ ] LOW: enlightenment lacks the barkskin / stoneskin lines (minted
+      CLOSURE (2026-09-20, session 133): mhitu.c hitmu(), after the
+      `mhm.done` return and ahead of the "already dead?" test and the
+      AC reduction = master's position; make_stunned() carries the
+      stun resistance / Tempest refusal on both trees, so this also
+      closes the artifact-tips row's "monk-kick arm" Tempest note.
+      BATTERY PASS: POST 41 landed kicks, 4 "You reel from its
+      powerful kick!" + Stun; MASTER 38 / 3; PRE 54 / 0; wielding
+      Tempest on POST 43 kicks, 6 stun rolls, no "reel" line ("its"
+      because the genesis monk was unseen each time).
+- [x] LOW: enlightenment lacks the barkskin / stoneskin lines
+      PORTED 2026-09-20 (session 133, commit `Fix: enlightenment and
+      timeout lost master's status lines.` - hash filled after
+      landing; BUG-1889; closure notes at the end of this row; minted
       2026-09-19, session 132, battery anomaly, verified on both
       bodies). Master cmd.c, between the "free action" and "fixed
       abilities" lines: `if (Barkskin) you_have("bark for skin",
@@ -16715,8 +16836,33 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "fixed abilities"; SEEN LIVE: ^X shows nothing with Barkskin up
       while the AC bonus and the "rough bark blocks" miss text work.
       LOW (player-facing).
-- [ ] LOW: neothelid tentacle grab and the trunk grasp text ABSENT
-      (minted 2026-09-19, session 130 reviewer's PM_NEOTHELID sibling
+      CLOSURE (2026-09-20, session 133): WHOLE-COMMIT SWEEP of master
+      c5df38caa done - a per-file census of every barkskin / stoneskin
+      token, master against the branch, each deficit explained: cmd.c
+      + priest.c -> insight.c, mondata.h -> monst.h, objects.c ->
+      objects.h, mcastu.c -> the MCAST_ table form, zap.c's two
+      youattack copies of the cancel arm are one arm here, and
+      mhitu.c's late damage block is the ruled-unported FQ
+      double-count. TWO gaps: these lines, and timeout.c nh_timeout()'s
+      twenty-turn warnings "The bark | stone covering your skin starts
+      to disappear." with its sibling from the reflection spell, "The
+      shimmering globe around you is starting to fade." - all landed.
+      ADJACENT FIND, same commit: insight.c printed the amulet's "Your
+      life will be saved" for a Draugr (5.0 tests the combined
+      Lifesaved); master's split is restored - ELifesaved for the
+      amulet, HLifesaved "You can revive a number of times.". BATTERY
+      PASS: ^X "You have bark for skin." / "You have stone for skin."
+      on POST and MASTER, neither on PRE; the three warnings on POST
+      and MASTER with the timers forced to 23, none on PRE (PRE's
+      "completely disappears." is the older expiry line); Draugr ^X
+      "You can revive a number of times." on POST and MASTER, "Your
+      life will be saved." on PRE. The remaining master-only
+      enlightenment lines are the NEW enlightenment-residue row.
+- [x] LOW: neothelid tentacle grab and the trunk grasp text ABSENT
+      PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
+      master's grab, trunk and Monk kick arms.` - hash filled after
+      landing; BUG-1883; closure notes at the end of this row;
+      minted 2026-09-19, session 130 reviewer's PM_NEOTHELID sibling
       sweep, verified on both bodies). Master mhitu.c hitmu() AD_PHYS /
       AD_CLOB: `(aatyp == AT_HUGS || (aatyp == AT_TENT && data ==
       PM_NEOTHELID)) && !sticks(youmonst.data)` sets u.ustuck with
@@ -16725,7 +16871,33 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch's physical-damage handler grabs on AT_HUGS only and
       always says "grabs you!", so a neothelid's AT_TENT AD_PHYS
       attack never holds the hero. LOW.
-- [ ] LOW: set_apparxy() cooperative-telepathy arm ABSENT (minted
+      CLOSURE (2026-09-20, session 133): uhitm.c mhitm_ad_phys() hero
+      leg - the gate, the three grab lines, and master 69eddfe33's
+      trailing `else hitmsg()` for a hug that lands without taking
+      hold ("Added a missing hit message for various hug/grab attacks
+      against the player"; 5.0 dealt that damage in silence, and the
+      widened gate would have silenced the tentacle too). Whole-commit
+      sweep of 69eddfe33's mhitu.c: getmattk()'s engulf substitute and
+      u_slip_free()'s helmet arms were already here. 5.0 INTEGRATION
+      (reviewer B2): mhitm.c failed_grab() lists the tentacle hold
+      (hero only), so an unsolid hero cannot be held; getmattk()'s
+      re-hold gate is deliberately NOT extended - its substitute would
+      turn the tentacle into a 2d8 claw, or for a neothelid a one in
+      two engulf. master 18a5e0c7e's mundetected clear inside this arm
+      rode the stuck-monster commit (BUG-1882). BATTERY PASS: POST
+      "The neothelid ensnares you with its tentacles!" x2, "You are
+      being crushed." x12, u.ustuck set with u.uswallow 0, "The
+      neothelid's tentacles lash out at you!" when it does not take
+      hold; MASTER the same (x2 / x14 / x42); PRE 87 tentacle hits,
+      never held; fog cloud hero on POST "Its grab attempt passes
+      right through you!" x37, never held. "The mumak grasps you with
+      its trunk!" POST and MASTER, "grabs you!" PRE. Failed hold "The
+      owlbear hits!" POST x21 and MASTER x17, PRE no line with the
+      damage still dealt.
+- [x] LOW: set_apparxy() cooperative-telepathy arm ABSENT
+      PORTED 2026-09-20 (session 133, commit `Fix: telepathic monsters
+      lost track of a telepathic hero.` - hash filled after landing;
+      BUG-1887; closure notes at the end of this row; minted
       2026-09-19, session 130 reviewer's has_telepathy() sibling
       sweep, verified on both bodies). Master monmove.c, right after
       the "monsters which know where you are don't suddenly forget"
@@ -16734,6 +16906,16 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master 49c2a81e1). The branch's set_apparxy() goes straight to
       the notseen / displacement guess, so a telepathic monster still
       loses an invisible or displaced telepathic hero. LOW.
+      CLOSURE (2026-09-20, session 133): the term joined 5.0's early
+      found-you test; the whole-function diff shows nothing else that
+      differs in effect (5.0's displacer beast term stays). BATTERY
+      PASS (invisible hero + amulet of ESP, kobold shaman, mux / muy
+      read at the dochug() call): POST 0 wrong of 22, MASTER 0 of 28,
+      PRE 4 of 45, POST with the amulet off 6 of 39. MY PREDICTION
+      ERROR: the brief expected PRE to be wrong two times in three; the
+      early "already knows your square" return and the do-while's
+      accessible / couldsee rejection fold most one-square guesses back
+      onto the hero, so the honest rate is about one in ten.
 - [ ] MED: Caveperson role arms ABSENT (minted 2026-09-19, session 130
       reviewer's sweep of master's Role_if(PM_CAVEMAN) sites, each
       verified on both bodies; "illiterate" and "unrestrict" had no
@@ -16795,9 +16977,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mint a row per confirmed gap. One 5.0-NATIVE chain also found:
       polyself.c uasmon_maxStr() maps only orc / elf / dwarf / gnome
       forms to their race's STR cap - decide whether EvilHack races
-      join it. LOW-MED.
-- [ ] LOW: break_armor() / mon_break_armor() boots gates are vanilla
-      (minted 2026-09-19, session 130; the player-races record's
+      join it.
+      RIDER (2026-09-20, session 133 reviewer; IDENTICAL ON MASTER, so
+      not a port gap): mbodypart() tests `is_centaur(mptr)` against the
+      hero's data, which for an unpolymorphed Centaur-race hero is the
+      role monster, so that hero gets humanoid parts ("foot") on both
+      trees - the same family as the race tests made against
+      youmonst.data. Note it when the sweep reaches polyself.c.
+      LOW-MED.
+- [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
+      PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
+      tortle forms kept their boots on.` - hash filled after landing;
+      BUG-1888; closure notes at the end of this row;
+      minted 2026-09-19, session 130; the player-races record's
       "break_armor boots trigger widening -> races/monsters parity
       sweep" owner note never had a row; verified on both bodies; the
       first CONFIRMED gap out of the race-predicate census above).
@@ -16812,10 +17004,127 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       refuses to put them back), and a racial centaur or tortle
       monster - a player monster of those races included - keeps
       them through a polymorph. LOW.
-- [ ] LOW (text): usmellmon() lacks master's elder minotaur arm
-      (minted 2026-09-19, session 130 reviewer, verified on both
+      CLOSURE (2026-09-20, session 133): both boots gates are master's;
+      SIBLING in the same function - master's gloves / shield / helmet
+      gate also names is_ent(), restored. All four S_CENTAUR species
+      carry MH_CENTAUR, so the class test -> race test swap loses
+      nothing. The whole-function diff found master-only BODY arms
+      (large splint mail, Armor of Retribution, artifact cloak,
+      chromatic scales) = the NEW break_armor() reconcile row. BATTERY
+      PASS: #polyself with boots, gloves, small shield and helmet worn
+      - satyr "Your boots are pushed off your feet!" POST and MASTER,
+      boots kept on PRE; ent "You drop your gloves!  You can no longer
+      hold your shield!  Your helm falls to the floor!  Your boots are
+      pushed off your feet!" POST and MASTER, PRE no line and all four
+      still worn; sea tortle loses the boots on POST and MASTER, keeps
+      them on PRE (#polyself refuses "tortle" itself, M2_NOPOLY). NOT
+      RUN: the monster side (a racial tortle or centaur monster cannot
+      be given boots without heavy staging; the gate is master's
+      verbatim).
+- [x] LOW (text): usmellmon() lacks master's elder minotaur arm
+      PORTED 2026-09-20 (session 133, commit `Fix: smells and body
+      parts lost master's arms.` - hash filled after landing;
+      BUG-1890; closure notes at the end of this row;
+      minted 2026-09-19, session 130 reviewer, verified on both
       bodies). Master mon.c: `case PM_ELDER_MINOTAUR: You("notice a
       strong bovine smell.");` after the rothe / minotaur arm. LOW.
+      CLOSURE (2026-09-20, session 133): the whole-function diff found
+      THREE master-only arms, not one - also PM_CAVE_BEAR +
+      PM_GRIZZLY_BEAR in the "animal's den" list and `case S_WRAITH:`
+      "You smell the stench of decay."; all landed and the body now
+      differs from master only by the cave dweller rename. BATTERY
+      PASS via #wizsmell: the four strings on POST and MASTER for the
+      elder minotaur, cave bear, grizzly bear and wraith; PRE "That
+      monster seems to not give off any smell." for all four.
+- [x] master 18a5e0c7e "clear mundetected when monsters become stuck
+      to player" was ported at 1 of its 7 sites (minted AND closed
+      2026-09-20, session 133; found reading the hug arm for the
+      neothelid row; "hiding monster stuck" had no tracker or archive
+      entry).
+      PORTED 2026-09-20 (session 133, commit `Fix: a hidden monster
+      could become stuck to the hero.` - hash filled after landing;
+      BUG-1882). The fuzz-found master fix clears mundetected wherever
+      a monster makes itself u.ustuck; the branch had it only in
+      mhitm_ad_pits(), which arrived with that attack's own port, and
+      runs the same mon.c sanity check ("hiding monster stuck to you").
+      RULED: folded in as its own commit in master's PER-SITE shape
+      (centralizing in set_ustuck() offered and declined). Six sites:
+      uhitm.c attack_checks(), mhitm_ad_stck(), mhitm_ad_wrap(),
+      mhitm_ad_phys(), stumble_onto_mimic(), mhitu.c gulpmu(). REVIEWER
+      A1, beyond master (master leaves these bare too = a master gap,
+      frozen-unfixed): the three hero-attacker legs - mhitm_ad_stck(),
+      mhitm_ad_wrap(), hmonas()'s hug - and mattacku()'s concealed
+      sticky hero mimic; the check tests u.ustuck in either direction,
+      and attack_checks() does not reveal a hider under a warning glyph
+      without the fight prefix. Every set_ustuck(<monster>) caller in
+      src/ now clears (replmon and restore only copy the pointer).
+      BATTERY PASS (gdb breakpoint on set_ustuck during a REAL attack,
+      mundetected forced to 1 at the stop, sanity_check on): POST reads
+      0 afterwards and logs nothing for the lichen's touch, the
+      owlbear's hug, the mimic bump and the hero-as-lichen touch; PRE
+      reads 1 and fires "hiding monster stuck to you (fmon)" for the
+      lichen and the owlbear. Those PRE runs left 29 identical lines in
+      the BRANCH playground's paniclog (md5
+      43e53482264661ec1daed0cdfc5ccc33) - tester-induced, not a
+      finding. NOT RUN: eel wrap, engulf, PRE for the mimic and
+      hero-attacker legs.
+- [ ] MED: break_armor() / mon_break_armor() full-body reconcile
+      (minted 2026-09-20, session 133, found by the boots-gate row's
+      whole-function diff; verified on both bodies; "large splint" had
+      no tracker mention). The gates landed with the LOW rows batch;
+      master-only BODY arms remain in polyself.c break_armor(): (a)
+      three LARGE_SPLINT_MAIL arms - worn by a huge humanoid form it
+      stays on, by a huge non-humanoid or a form of MZ_LARGE or less
+      "Your armor falls off!" and it is dropped, never broken, plus the
+      `else if (msize <= MZ_LARGE)` catch-all after sliparm() for a
+      shrinking giant; (b) the Armor of Retribution rides the same arms
+      (never destroyed - see the artifact-tips row's "cannot be
+      destroyed" note); (c) an artifact cloak "falls off!" and is
+      dropped where the branch breaks the clasp or tears it; (d) a huge
+      humanoid keeps CHROMATIC_DRAGON_SCALES worn as a cloak; (e)
+      master calls Shirt_off() before useup(); (f) master rehumanize()
+      calls break_armor() + drop_weapon(1) after the reset block (the
+      note routed here from the slow / hunger slice record). The
+      branch has 5.0's mummy wrapping, alchemy smock and "clasp breaks
+      open" arms that master lacks - decide per arm. OWED: the same
+      whole-function diff for worn.c mon_break_armor() (reviewer saw
+      `verysmall(mdat)` where master has `r_verysmall(mon)`), and
+      do_wear.c canwearobj() has no refusal for a tortle POLYFORM or
+      an ent, so those forms can put the boots straight back on (same
+      on master). MED.
+- [ ] MED: sounds.c lacks the consumer half of master 9a63bec08
+      "Additional monsters sounds" (minted 2026-09-20, session 133,
+      found porting the monflee() cries, confirmed by the reviewer;
+      census per sound type, master sounds.c vs branch: MS_BAT 4 / 1,
+      MS_WCHUCK 3 / 1, MS_RAPTOR 3 / 1, MS_LIZARD 4 / 1, MS_PSEUDO
+      4 / 1, MS_TRUMPET 4 / 2, MS_BURBLE 4 / 2 - the branch's single
+      hit for the first five is the growl_sound() arm this session
+      added). The types and the monsters.h assignments are live, so a
+      bat, woodchuck, raptor, lizard, crocodile, turtle or pseudodragon
+      has NO arm in domonnoise() (#chat, and the tame hungry / content
+      variants), yelp() or whimper(): master yelp() has MS_GRUNT
+      "grunt" / "thrash", the MS_TRUMPET + MS_BAT + MS_WCHUCK group,
+      MS_RAPTOR, the MS_HISS + MS_LIZARD + MS_PSEUDO "hiss" / "recoil"
+      group and MS_BURBLE "whiffle" / "gyre"; whimper() has MS_NEIGH
+      "whinny", MS_TRUMPET "trumpet", the hiss group, MS_BAT "squeal"
+      and MS_BURBLE. Each new yelp() / whimper() arm needs a 5.0
+      Soundeffect se_ choice. beg() was not read. MED (flag without a
+      consumer).
+- [ ] LOW (text): enlightenment residue - six master-only lines
+      (minted 2026-09-20, session 133 reviewer, each verified by grep
+      on both files; the properties and their youprop.h macros are
+      live on the branch, insight.c never mentions them). Master
+      cmd.c: `Psychic_resistance` "psionic resistant", `Stun_resistance`
+      "stun resistant", `Death_resistance` "immune to the effects of
+      death magic", `Lycan_resistance` "immune to lycanthropy" (all
+      four in the resistances block, from_what() of PSYCHIC_RES /
+      STUN_RES / DEATH_RES / WERE_RES), `Ultravision` "ultravision"
+      after the infravision line, and the inediate "survive without
+      having to eat" line (not for a vampire). NOT a gap: master's
+      "warned of the undead" is 5.0's "warned of undead". A string
+      census is only a proxy - do the full attribute-by-attribute diff
+      of master's enlightenment against insight.c when this row is
+      taken. LOW (player-facing).
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -18044,6 +18353,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-20 | LOW rows batch rulings (AskUserQuestion x2, six questions, all recommended options taken): (1) SCOPE = all nine cheap LOW rows in one slice plus the small siblings the sweeps found; the big sibling (break_armor() full-body reconcile) becomes a row, not code; (2) master 18a5e0c7e's mundetected clear is folded in as its own commit in MASTER'S PER-SITE SHAPE - centralizing it inside 5.0's set_ustuck() was offered and declined; (3) monflee() message order = MASTER'S EXACT SHAPE, "turns to flee." after the flinch / light / cry chain whenever the monster can move, so a light-hater prints two lines as on master; 5.0's Unaware "is frightened." arm and the vrock gas cloud stay; (4) battery = POST vs MASTER on every row, PRE only where existing behavior changes; (5) elephants "trumpet in fear" - the branch keys the arm on MS_TRUMPET because master's MS_ROAR + species arm has been dead since master 9a63bec08 retyped them (master prints "roars in fear"); a DELIBERATE DEVIATION, master bug frozen-unfixed; (6) the same retype's other side effect is KEPT as on live master: MS_LIZARD and MS_PSEUDO monsters "hiss in fear" while snakes stay silent. Session calls, reported at hand-off: spider_parts[] FINGERTIP / FOOT take master's "pedipalp" / "tarsus" (master c5f11ceb1 changed them on purpose with the drider); the egg-fear "She" / "He" is the hero's own chosen gender, outside the gender-neutral rank ruling, master's text kept; four set_ustuck() callers beyond master's seven get the same clear (reviewer A1: the three hero-attacker legs and the concealed sticky hero mimic); failed_grab() learns the neothelid's tentacle hold while getmattk()'s re-hold gate is deliberately NOT extended (its substitute attack would turn the tentacle into a 2d8 claw or a one-in-two engulf); the egg arm marks a target that died under cancel_monst() as already_killed (master bug, frozen-unfixed); the Draugr "revive a number of times" enlightenment split rode the status-lines commit | maintainer (AskUserQuestion) + session |
 | 2026-09-19 | Hit verbs slice rulings (AskUserQuestion x1, three questions): (1) SCOPE = the whole verb family in one slice (recommended) - hitmsg(), hitmm(), mswings(), hmonas() and the two unrowed finds (hero Monk / weapon verb tables); (2) m-v-m artifact / oprops weapon hits land in MASTER'S EXACT SHAPE (recommended) - hitmm() always prints the verb line and 5.0's delayed "hits" fallback in mhitm_ad_phys() is removed, so an artifact hit reads as verb line + artifact line exactly as on master; (3) 5.0-only verb extras = HYBRID (maintainer chose this over the recommended master's-exact-shape) - 5.0's hero "bash" (shield / heavy iron ball) and "lash" (whip / wet towel) and the monster "bashes with" (polearm at melee range) and "lashes" arms stay AHEAD of master's tables, everything else is master's, the AT_TENT default text is master's "tentacles suck you!" and 5.0's " again" suffix stays. Session calls, reported at hand-off: the hero tables skip wands and spellbooks (oc_dir is a zap direction there; master bug BUG-1881 confirmed live); the reviewer's H1 kick gate (master c5df38caa's unported mattacku() hunk) lands as its own commit ahead of the verbs; mpoisons_subj() "snake bite" / "scratch", the nurse's "touches you!" and mswings()'s canspotmon() gate ride commit A | maintainer (AskUserQuestion) + session |
 | 2026-09-19 | onscary() slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) master's scare-immune list lands in MASTER'S EXACT SHAPE on 5.0's auditory / magical split - one gate ahead of the <0,0> return, so archangels, honey badgers, both wolverines, beholders, neothelids, every mindless() monster, is_mplayer() AND S_HUMAN + unique_corpstat() resist ANY scaring (floor scroll, Elbereth, tooled horn / drum / bugle, a read scare monster scroll, cause fear, the Shadowblade invoke); 5.0's magical-only gate for humans and uniques goes away, per master ac3461a1c (a bugle must not scare player monsters or uniques) and 363d0bae4 ("immune ... across the board"); (2) 5.0's goodpos_onscary() permonst approximation, which has no master counterpart, is SYNCED with the ported terms rather than left to drift; (3) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer in the plan: master's `if (Conflict) return FALSE;` keeps the plain macro rather than 5.0-style resist_conflict() (master's form; the roll would flicker per mfndpos() square); read.c seffect_scare_monster()'s `onscary(0, 0, mtmp)` gate and fleemsg TRUE ride commit A as the unported half of master 363d0bae4; monflee()'s mindless() / unique_corpstat() early return rides as commit B; the scared-monster vocal block is ROWED, the mstone wake guards join the gradual-stoning row as a rider. | maintainer (rulings); session (Conflict form, read.c gate, monflee gate, rows) |
 | 2026-09-19 | Race-predicate riders slice rulings (AskUserQuestion x1, four questions, all recommended options taken): (1) the boots refusal for centaur / satyr / drider forms and centaur heroes takes MASTER'S text ("Your hooves / tarsi are not shaped correctly to wear boots.") over 5.0's "You have too many hooves"; (2) the Caveperson ritual cannibalism bonus keeps master's scope (inside the allowmsg test - fresh corpse, tin, brain; a tainted corpse earns nothing) but adds its rnd(3) + 2 through adjalign() so ALIGNLIM holds, where master's raw `u.ualign.record +=` - the only raw add in its tree - overshoots the cap (battery: master 10 -> 14 at ALIGNLIM 10, branch stays at 10); (3) three master-parity gaps found while reading the sites (onscary()'s scare-immune list, the grudge-table residue, mbodypart()'s residue) are ROWED, not folded in, with onscary() the suggested next slice; (4) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer: the boots word is chosen by testing for the drider, not by master's is_centaur() / is_satyr() test, because master's test tells an un-polymorphed centaur hero about "tarsi" (reviewer find, reproduced on master 0.9.3 in the battery); master db71f7c6c's antlers fix rides the num_horns() stag arm that made it reachable; domindblast() rides the mind blast commit as its hero-side twin, and 5.0's mindless skip there is KEPT (master's own monster-side blast skips mindless bystanders too). | maintainer (rulings); session (drider test, antlers, domindblast) |
