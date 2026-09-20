@@ -735,9 +735,46 @@ monflee(
                     SetVoice(mtmp, 0, 80, 0);
                     verbalize("Bright light!");
                 }
-            } else {
-                pline_mon(mtmp, "%s turns to flee.", Monnam(mtmp));
+            } else if (!rn2(5) && !Deaf && !mindless(mtmp->data)) {
+                /* some scared monsters cry out, and the noise can
+                   rouse whoever sleeps nearby */
+                const char *verb = 0;
+
+                switch (mtmp->data->msound) {
+                case MS_SILENT:
+                case MS_HISS:
+                case MS_BUZZ:
+                    /* no sound */
+                    break;
+                case MS_BARK:
+                case MS_GROWL:
+                    verb = (mtmp->data->mlet == S_FELINE) ? "yowl" : "howl";
+                    break;
+                case MS_TRUMPET:
+                    verb = "trumpet";
+                    break;
+                default:
+                    verb = growl_sound(mtmp);
+                    break;
+                }
+                if (verb) {
+                    struct monst *mtmp2;
+
+                    pline_mon(mtmp, "%s %s in %s!", Monnam(mtmp),
+                              vtense((char *) 0, verb),
+                              rn2(2) ? "fear" : "terror");
+                    /* check and see who was close enough to hear it */
+                    for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+                        if (DEADMONSTER(mtmp2))
+                            continue;
+                        if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my)
+                            < 19 && !rn2(3))
+                            mtmp2->msleeping = 0;
+                    }
+                }
             }
+            if (mtmp->mcanmove)
+                pline_mon(mtmp, "%s turns to flee.", Monnam(mtmp));
         }
 
         if (mtmp->data == &mons[PM_VROCK] && !mtmp->mspec_used) {

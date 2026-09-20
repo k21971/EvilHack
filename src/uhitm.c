@@ -1789,6 +1789,28 @@ hmon_hitmon_misc_obj(
                 obj->owt = weight(obj);
                 if (hmd->thrown)
                     place_object(obj, mon->mx, mon->my);
+            } else if (obj->corpsenm == NON_PM && is_gnome(hmd->mdat)
+                       && !is_undead(hmd->mdat)) {
+                /* chicken eggs are deadly poison to gnomes */
+                if (!is_silent(hmd->mdat))
+                    wake_nearto(mon->mx, mon->my, hmd->mdat->mlevel * 10);
+                /* not as much damage as ingesting, but still hurts */
+                hmd->dmg = d(4, 5);
+                if (!DEADMONSTER(mon)) {
+                    /* small chance of cancellation (Tik Tok of Oz) */
+                    if (!rn2(10))
+                        (void) cancel_monst(mon, obj, TRUE, FALSE, FALSE);
+                    /* cancelling a shapeshifter forces it back into its
+                       own form, and that change can be the death of it */
+                    if (DEADMONSTER(mon)) {
+                        hmd->already_killed = TRUE;
+                        hmd->destroyed = TRUE;
+                    } else {
+                        hmd->mdat = mon->data;
+                        monflee(mon, d(4, 8) + 20, FALSE, TRUE);
+                    }
+                }
+                useup_eggs(obj);
             } else if (obj->corpsenm == PM_PYROLISK) {
                 useup_eggs(obj);
                 explode(mon->mx, mon->my, BZ_M_SPELL(ZT_FIRE), d(3, 6), 0,

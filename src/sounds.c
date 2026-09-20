@@ -453,13 +453,21 @@ growl_sound(struct monst *mtmp)
     switch (mtmp->data->msound) {
     case MS_MEW:
     case MS_HISS:
+    case MS_LIZARD:
+    case MS_PSEUDO:
         ret = "hiss";
         break;
     case MS_BARK:
     case MS_GROWL:
+    case MS_WCHUCK:
         ret = "growl";
         break;
+    case MS_GRUNT:
+    case MS_ORC:
+        ret = "grunt";
+        break;
     case MS_ROAR:
+    case MS_TRUMPET:
         ret = "roar";
         break;
     case MS_BELLOW:
@@ -469,9 +477,11 @@ growl_sound(struct monst *mtmp)
         ret = "buzz";
         break;
     case MS_SQEEK:
+    case MS_BAT:
         ret = "squeal";
         break;
     case MS_SQAWK:
+    case MS_RAPTOR:
         ret = "screech";
         break;
     case MS_NEIGH:
@@ -486,8 +496,12 @@ growl_sound(struct monst *mtmp)
     case MS_MOO:
         ret = "low";
         break;
+    case MS_BURBLE:
+        ret = "burble";
+        break;
     case MS_SILENT:
-        ret = "commotion";
+        /* a verb, since callers build "<Monster> <verb>s!" from it */
+        ret = "quiver";
         break;
     default:
         ret = "scream";

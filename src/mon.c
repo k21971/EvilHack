@@ -29,6 +29,7 @@ staticfn boolean ok_to_obliterate(struct monst *);
 staticfn void m_respond_shrieker(struct monst *);
 staticfn void m_respond_medusa(struct monst *);
 staticfn void m_respond_zombie(struct monst *);
+staticfn void m_respond_gnome(struct monst *);
 staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
 staticfn void m_restartcham(struct monst *);
@@ -6360,6 +6361,34 @@ m_respond_zombie(struct monst *mtmp)
                          : !rn2(3) ? "a low groaning" : "a low moaning");
 }
 
+/* gnome special action: take fright at the eggs the hero carries;
+   chicken eggs are deadly poison to gnomes */
+staticfn void
+m_respond_gnome(struct monst *mtmp)
+{
+    struct obj *otmp;
+
+    if (rn2(25) || mtmp->mflee || mtmp->msleeping || mtmp->mstun
+        || mtmp->mconf || mtmp->mfrozen)
+        return;
+
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+        if (otmp->otyp == EGG && otmp->corpsenm == NON_PM) {
+            if (canseemon(mtmp))
+                pline_mon(mtmp,
+                          "%s looks at you and is immediately agitated.",
+                          Monnam(mtmp));
+            if (!Deaf) {
+                SetVoice(mtmp, 0, 80, 0);
+                verbalize("Ahhhh!  Eggs!  %s has eggs!!",
+                          flags.female ? "She" : "He");
+            }
+            monflee(mtmp, d(2, 6) + 10, TRUE, TRUE);
+            break;
+        }
+    }
+}
+
 /* monster responds to player action; not the same as a passive attack */
 void
 m_respond(struct monst *mtmp)
@@ -6370,6 +6399,8 @@ m_respond(struct monst *mtmp)
         m_respond_medusa(mtmp);
     if (is_zombie(mtmp->data) && !rn2(10))
         m_respond_zombie(mtmp);
+    if (is_gnome(mtmp->data) && !is_undead(mtmp->data) && m_canseeu(mtmp))
+        m_respond_gnome(mtmp);
     /* Erinyes will inform surrounding monsters of your crimes */
     if (mtmp->data == &mons[PM_ERINYS] && !mtmp->mpeaceful && m_canseeu(mtmp))
         aggravate();
