@@ -479,7 +479,7 @@ staticfn void
 background_enlightenment(int unused_mode UNUSED, int final)
 {
     const char *role_titl, *rank_titl;
-    int innategend, difgend, difalgn;
+    int innategend, difgend, difalgn, difrace;
     char buf[BUFSZ], tmpbuf[BUFSZ];
 
     /* note that if poly'd, we need to use u.mfemale instead of flags.female
@@ -588,12 +588,27 @@ background_enlightenment(int unused_mode UNUSED, int final)
     difalgn = (((u.ualign.type != u.ualignbase[A_CURRENT]) ? 1 : 0)
                + ((u.ualignbase[A_CURRENT] != u.ualignbase[A_ORIGINAL])
                   ? 2 : 0));
+    difrace = gu.urace.mnum != races[flags.initrace].mnum;
     if (difalgn & 1) { /* have temporary alignment so report permanent one */
         Sprintf(buf, "actually %s", align_str(u.ualignbase[A_CURRENT]));
         you_are(buf, "");
         difalgn &= ~1; /* suppress helm from "started out <foo>" message */
     }
-    if (difgend || difalgn) { /* sex change or perm align change or both */
+    if (difrace) { /* permanent race change (Infidel crowning or
+                      fallen aasimar) */
+        buf[0] = '\0';
+        if (difalgn) {
+            Strcat(buf, align_str(u.ualignbase[A_ORIGINAL]));
+            Strcat(buf, " ");
+        }
+        if (difgend) {
+            Strcat(buf, genders[flags.initgend].adj);
+            Strcat(buf, " ");
+        }
+        Strcat(buf, races[flags.initrace].noun);
+        Sprintf(buf, " You started out as %s.", an(buf));
+        enlght_out(buf);
+    } else if (difgend || difalgn) { /* sex change or perm align change */
         Sprintf(buf, " You started out %s%s%s.",
                 difgend ? genders[flags.initgend].adj : "",
                 (difgend && difalgn) ? " and " : "",
@@ -1094,7 +1109,7 @@ status_enlightenment(int mode, int final)
     if (Confusion)
         you_are("confused", "");
     if (Hallucination)
-        you_are("hallucinating", "");
+        you_are("hallucinating", from_what(HALLUC));
     if (Blind) {
         /* check the reasons in same order as from_what() */
         Sprintf(buf, "%s blind",
@@ -1259,10 +1274,22 @@ status_enlightenment(int mode, int final)
         Strcpy(buf, "not hungry");
     if (*buf) { /* (since "not hungry" was added, this will always be True) */
         *buf = lowc(*buf); /* override capitalization */
-        if (!strcmp(buf, "weak"))
-            Strcat(buf, " from severe hunger");
-        else if (!strncmp(buf, "faint", 5)) /* fainting, fainted */
+        if (!strcmp(buf, "weak")) {
+            if (racial_vampire(&gy.youmonst))
+                Strcat(buf, " from severe thirst");
+            else
+                Strcat(buf, " from severe hunger");
+        } else if (!strcmp(buf, "frail")) {
+            /* vampire only, but with some future-proofing */
+            if (racial_vampire(&gy.youmonst))
+                Strcat(buf, " from extreme thirst");
+            else
+                Strcat(buf, " from extreme hunger");
+        } else if (!strncmp(buf, "faint", 5)) { /* fainting, fainted */
             Strcat(buf, " due to starvation");
+        } else if (!strcmp(buf, "starved")) { /* vampire */
+            Strcat(buf, " due to starvation");
+        }
         if (wizard)
             Sprintf(eos(buf), " <%d>", u.uhunger);
         you_are(buf, "");
@@ -1631,6 +1658,8 @@ attributes_enlightenment(
         you_are(buf, from_what(ACID_RES));
     }
     item_resistance_message(AD_ACID, " protected from acid", final);
+    if (Psychic_resistance)
+        you_are("psionic resistant", from_what(PSYCHIC_RES));
     if (Drain_resistance)
         you_are("level-drain resistant", from_what(DRAIN_RES));
     if (Sick_resistance)
@@ -1641,6 +1670,13 @@ attributes_enlightenment(
                 "petrification resistant");
         you_are(buf, from_what(STONE_RES));
     }
+    if (Stun_resistance)
+        you_are("stun resistant", from_what(STUN_RES));
+    if (Death_resistance)
+        you_are("immune to the effects of death magic",
+                from_what(DEATH_RES));
+    if (Lycan_resistance)
+        you_are("immune to lycanthropy", from_what(WERE_RES));
     if (Halluc_resistance)
         enl_msg(You_, "resist", "resisted", " hallucinations",
                 from_what(HALLUC_RES));
@@ -1739,6 +1775,8 @@ attributes_enlightenment(
     }
     if (Infravision)
         you_have("infravision", from_what(INFRAVISION));
+    if (Ultravision)
+        you_have("ultravision", from_what(ULTRAVISION));
     if (Detect_monsters) {
         Strcpy(buf, "sensing the presence of monsters");
         if (wizard) {
@@ -1903,7 +1941,9 @@ attributes_enlightenment(
     if (Breathless)
         you_can("survive without air", from_what(MAGICAL_BREATHING));
     else if (Amphibious)
-        you_can("breathe water", from_what(MAGICAL_BREATHING));
+        you_can("breathe water",
+                amphibious(gy.youmonst.data) ? " from current creature form"
+                                             : from_what(MAGICAL_BREATHING));
     if (Passes_walls)
         you_can("walk through walls", from_what(PASSES_WALLS));
     if (Passes_trees)
@@ -1918,6 +1958,9 @@ attributes_enlightenment(
         you_are("in direct contact with mithril", "");
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
+    if (inediate(raceptr(&gy.youmonst))
+        && !maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE)))
+        you_can("survive without having to eat", "");
     if (maybe_polyd(is_vampire(gy.youmonst.data), Race_if(PM_VAMPIRE))) {
         Sprintf(buf, "must consume blood for survival");
         enl_msg(You_, buf, buf, "", "");
