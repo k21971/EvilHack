@@ -1595,15 +1595,13 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
             return M_ATTK_MISS;
         }
 
-        /* if we've seen the actual resistance, don't bother, or
-           if we're close by and they reflect, just jump the player */
-        if (utarget && (m_seenres(mtmp, cvt_adtyp_to_mseenres(typ))
-                        || m_seenres(mtmp, M_SEEN_REFL)))
-            return M_ATTK_HIT;
-
         /* monster target: check its actual resistance/reflection for
            this breath type; don't waste the attack if it fully resists
-           or would reflect the breath back from point-blank range */
+           or would reflect the breath back from point-blank range.
+           The hero gets no such check: a breather keeps breathing at a
+           hero it has seen resist or reflect, since reflection is only
+           partial and a resisted breath can still destroy carried
+           items */
         if (!utarget) {
             switch (typ) {
             case AD_MAGM:
