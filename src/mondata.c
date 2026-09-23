@@ -205,19 +205,13 @@ Resists_Elem(struct monst *mon, int propindx)
 boolean
 resists_drli(struct monst *mon)
 {
-    struct permonst *ptr = mon->data;
+    const struct permonst *ptr = raceptr(mon); /* handle the hero's race */
     struct obj *armor;
     long slotmask;
 
-    if (is_undead(ptr) || is_demon(ptr) || is_were(ptr)
+    if (resists_drain(ptr) || is_vampshifter(mon)
         /* is_were() doesn't handle hero in human form */
         || (mon == &gy.youmonst && u.ulycn >= LOW_PM)
-        || ptr == &mons[PM_DEATH] || is_vampshifter(mon)
-        /* Cerberus and the Ice Queen boss group cannot be drained */
-        || ptr == &mons[PM_CERBERUS]
-        || ptr == &mons[PM_OZZY] || ptr == &mons[PM_BOURBON]
-        || ptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-        || ptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]
         /* racial overlay: undead, demonic, or lycanthropic race */
         || mon_has_race(mon, MH_UNDEAD | MH_DEMON | MH_WERE))
         return TRUE;
@@ -241,9 +235,7 @@ resists_magm(struct monst *mon)
     long slotmask;
     struct obj *o;
 
-    /* as of 3.2.0:  gray dragons, Angels, Oracle, Yeenoghu */
-    if (dmgtype(ptr, AD_MAGM) || ptr == &mons[PM_BABY_GRAY_DRAGON]
-        || dmgtype(ptr, AD_RBRE)) /* Chromatic Dragon */
+    if (resists_mgc(ptr))
         return TRUE;
     /* check for magic resistance granted by wielded weapon */
     o = is_you ? uwep : MON_WEP(mon);
