@@ -8765,7 +8765,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       function as unported but no row owned the consumers. RIDER: the
       pager arm (master pager.c mhidden_description hides_under
       branch, hidetyp == 1) rides here; the branch arm falls through
-      to the object or "something".
+      to the object or "something". RE-CONFIRMED 2026-09-22 (session
+      134, enlightenment-residue diff): insight.c youhiding() still
+      lacks master's `else if (concealed_spot(u.ux, u.uy)) " under
+      <explain_terrain()>"` arm after the object test; it stays on
+      this row.
 - [ ] Artifact behaviour remainder = the HELD pokedex tips (NEW,
       minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
       The 2026-09-08 audit checked all 128 arti_specials[] lines
@@ -16167,8 +16171,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       MED.
 - [x] LOW (feature): monster-side gnome egg fear is absent
       PORTED 2026-09-20 (session 133, commit `Fix: scared monsters lost
-      master's cries and gnomes their egg fear.` - hash filled after
-      landing; BUG-1884, plus BUG-1886 = the master-side double kill,
+      master's cries and gnomes their egg fear.` = e29c917d5,
+      tracker 94af1f758, landed 2026-09-20;
+      BUG-1884, plus BUG-1886 = the master-side double kill,
       frozen-unfixed; closure notes at the end of this row; minted
       2026-09-19, session 131, found by the onscary() slice reviewer's
       monflee() sibling sweep, verified on both bodies; the hero-side
@@ -16536,8 +16541,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW (feature, text): monmove.c monflee() lacks master's
       scared-monster vocal block
       PORTED 2026-09-20 (session 133, commit `Fix: scared monsters lost
-      master's cries and gnomes their egg fear.` - hash filled after
-      landing; BUG-1884, plus BUG-1885 = master's dead elephant arm,
+      master's cries and gnomes their egg fear.` = e29c917d5,
+      tracker 94af1f758, landed 2026-09-20;
+      BUG-1884, plus BUG-1885 = master's dead elephant arm,
       frozen-unfixed; closure notes at the end of this row; minted
       2026-09-19, session 131, found
       while reading monflee() for the onscary() slice; verified on both
@@ -16612,7 +16618,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master - keep that order. MED.
 - [x] LOW: polyself.c mbodypart() residue
       PORTED 2026-09-20 (session 133, commit `Fix: smells and body
-      parts lost master's arms.` - hash filled after landing;
+      parts lost master's arms.` = be91dd797, tracker 94af1f758,
+      landed 2026-09-20;
       BUG-1890; closure notes at the end of this row; minted
       2026-09-19, session
       130, full body diff on both trees; only the eldritch ki-rin
@@ -16803,8 +16810,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "grabs you, but cannot hold onto"). MED.
 - [x] LOW: player-monster Monk kick stun ABSENT
       PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
-      master's grab, trunk and Monk kick arms.` - hash filled after
-      landing; BUG-1883; closure notes at the end of this row; minted
+      master's grab, trunk and Monk kick arms.` = 18140062c,
+      tracker 94af1f758, landed 2026-09-20;
+      BUG-1883; closure notes at the end of this row; minted
       2026-09-19,
       session 132 reviewer's sibling sweep, verified on both bodies).
       Master mhitu.c hitmu() tail (b0de2f2b6): `mattk->aatyp ==
@@ -16824,8 +16832,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       because the genesis monk was unseen each time).
 - [x] LOW: enlightenment lacks the barkskin / stoneskin lines
       PORTED 2026-09-20 (session 133, commit `Fix: enlightenment and
-      timeout lost master's status lines.` - hash filled after
-      landing; BUG-1889; closure notes at the end of this row; minted
+      timeout lost master's status lines.` = 52de1b85e,
+      tracker 94af1f758, landed 2026-09-20;
+      BUG-1889; closure notes at the end of this row; minted
       2026-09-19, session 132, battery anomaly, verified on both
       bodies). Master cmd.c, between the "free action" and "fixed
       abilities" lines: `if (Barkskin) you_have("bark for skin",
@@ -16860,8 +16869,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       enlightenment lines are the NEW enlightenment-residue row.
 - [x] LOW: neothelid tentacle grab and the trunk grasp text ABSENT
       PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
-      master's grab, trunk and Monk kick arms.` - hash filled after
-      landing; BUG-1883; closure notes at the end of this row;
+      master's grab, trunk and Monk kick arms.` = 18140062c,
+      tracker 94af1f758, landed 2026-09-20;
+      BUG-1883; closure notes at the end of this row;
       minted 2026-09-19, session 130 reviewer's PM_NEOTHELID sibling
       sweep, verified on both bodies). Master mhitu.c hitmu() AD_PHYS /
       AD_CLOB: `(aatyp == AT_HUGS || (aatyp == AT_TENT && data ==
@@ -16896,7 +16906,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       damage still dealt.
 - [x] LOW: set_apparxy() cooperative-telepathy arm ABSENT
       PORTED 2026-09-20 (session 133, commit `Fix: telepathic monsters
-      lost track of a telepathic hero.` - hash filled after landing;
+      lost track of a telepathic hero.` = 427bc7b56, tracker
+      94af1f758, landed 2026-09-20;
       BUG-1887; closure notes at the end of this row; minted
       2026-09-19, session 130 reviewer's has_telepathy() sibling
       sweep, verified on both bodies). Master monmove.c, right after
@@ -16954,7 +16965,16 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       touches sp_know on a cast. A FULL percent_success() diff is owed
       at port time (master's comment also names dexterity and robe /
       staff factors; the staff bonus is on the features-sweep LOW
-      row). MED (caster balance).
+      row). MED (caster balance). RIDER (2026-09-22, session 134,
+      enlightenment-residue diff): insight.c attributes_enlightenment()
+      carries 5.0's "Your spell casting is impaired by metallic
+      armor[, mitigated by your robe]" / "enhanced by wearing a robe"
+      line (no master counterpart; 5.0 calls it a greatly simplified
+      percent_success()). It tests only `uarm && is_metallic(uarm)`,
+      so it misdescribes master's rules: a Knight's clerical spells
+      skip the metal-suit penalty (paladin_bonus), and the caster-class
+      armor penalty in (a) is not mentioned. Reconcile or suppress the
+      line when this row lands.
 - [ ] SWEEP: race-predicate site census (minted 2026-09-19, session
       130, from session 129's census idea - same_race() and genus()
       were two instances of one class). RAW candidate list, method and
@@ -16987,7 +17007,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       LOW-MED.
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
-      tortle forms kept their boots on.` - hash filled after landing;
+      tortle forms kept their boots on.` = dd1fb1fc9, tracker
+      94af1f758, landed 2026-09-20;
       BUG-1888; closure notes at the end of this row;
       minted 2026-09-19, session 130; the player-races record's
       "break_armor boots trigger widening -> races/monsters parity
@@ -17023,7 +17044,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       verbatim).
 - [x] LOW (text): usmellmon() lacks master's elder minotaur arm
       PORTED 2026-09-20 (session 133, commit `Fix: smells and body
-      parts lost master's arms.` - hash filled after landing;
+      parts lost master's arms.` = be91dd797, tracker 94af1f758,
+      landed 2026-09-20;
       BUG-1890; closure notes at the end of this row;
       minted 2026-09-19, session 130 reviewer, verified on both
       bodies). Master mon.c: `case PM_ELDER_MINOTAUR: You("notice a
@@ -17042,7 +17064,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       neothelid row; "hiding monster stuck" had no tracker or archive
       entry).
       PORTED 2026-09-20 (session 133, commit `Fix: a hidden monster
-      could become stuck to the hero.` - hash filled after landing;
+      could become stuck to the hero.` = b25a57f5c, tracker
+      94af1f758, landed 2026-09-20;
       BUG-1882). The fuzz-found master fix clears mundetected wherever
       a monster makes itself u.ustuck; the branch had it only in
       mhitm_ad_pits(), which arrived with that attack's own port, and
@@ -17110,7 +17133,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and MS_BURBLE. Each new yelp() / whimper() arm needs a 5.0
       Soundeffect se_ choice. beg() was not read. MED (flag without a
       consumer).
-- [ ] LOW (text): enlightenment residue - six master-only lines
+- [x] LOW (text): enlightenment residue - six master-only lines
+      PORTED 2026-09-22 (session 134, commits `Fix: a crowned
+      Infidel's enlightenment read past its title table.` (BUG-1891),
+      `Fix: enlightenment lost master's race, resistance and hunger
+      lines.` (BUG-1892), `Fix: a crowned Infidel still grew hungry.`
+      (BUG-1893), `Fix: death resistance did not stop a death ray.`
+      (BUG-1894) - hashes filled after landing; closure notes at the
+      end of this row;
       (minted 2026-09-20, session 133 reviewer, each verified by grep
       on both files; the properties and their youprop.h macros are
       live on the branch, insight.c never mentions them). Master
@@ -17125,6 +17155,165 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       census is only a proxy - do the full attribute-by-attribute diff
       of master's enlightenment against insight.c when this row is
       taken. LOW (player-facing).
+      CLOSURE (2026-09-22, session 134): FULL ATTRIBUTE DIFF done -
+      master cmd.c enlightenment() .. youhiding() against insight.c:
+      a string census (67 master-only literals, every one classified),
+      normalized whole-body diffs of status_enlightenment() and
+      attributes_enlightenment(), side-by-side reads of background /
+      basics / characteristics / one_characteristic; the reviewer
+      repeated the census and every if-condition independently.
+      PORTED: the six lines; background difrace "You started out as
+      <race>." (crowned Infidel -> demon, fallen aasimar -> human);
+      vampire thirst hunger arms; breathe water " from current
+      creature form"; wizard from_what(HALLUC); and BUG-1891, the
+      crowned-Infidel hofe_titles[] out-of-bounds read ("the Emissary
+      of Moloch"). MECHANICS the review found behind restored lines,
+      ported the same slice (rulings 4 and 5): gethungry() race test
+      (BUG-1893 - the 2026-09-06 race / form census missed this site)
+      and the three hero death-magic sites (BUG-1894). NOT GAPS: the
+      warned-of polyd chain (dead on both trees, ruling 3); the luck
+      line (follows the mechanic - NEW MED luck-timeout row below);
+      youhiding " under <terrain>" (Terrain concealment row); the
+      umconf / umburn / umshock phrasing (prior ruling); master's
+      `monclock > 0` divide-by-zero guard (current_monclock() always
+      computes); the alignment abuse sign (reworked, battery-verified);
+      5.0 restructures kept (headings, wallet + hidden gold,
+      Miscellaneous / elapsed time, handedness, pantheon comma and
+      indent, vampshift phrasing, Blind via FROMOUTSIDE / FROMFORM,
+      trap_predicament, engulfed / digested, left / right wounded legs,
+      empty_handed() with master's strings, N_times(), "warned of
+      undead", the 5.0-only lines). one_characteristic() artifact arms
+      identical. NEW ROWS: MED luck-timeout rework, HIGH set_uasmon()
+      race / form properties, MED death-magic outcome shape; RIDER on
+      the percent_success() row (5.0's spell-casting line). BATTERY
+      PASS (game-tester, 18 games, PRE md5 817fe5e9..., POST md5
+      786af459..., MASTER 0.9.3; coordinator re-derived the key lines
+      from the raw captures): A crowned Infidel (gdb field + save /
+      restore re-forced the demon race on all three) - POST = MASTER
+      "You are the Emissary of Moloch." + "You started out as a
+      human."; PRE "You are (null)." (the out-of-bounds word was
+      zero padding before the next static, so no crash this build)
+      and no started-out line; A3 crowned Infidel u.uhunger over 200
+      turns flat on POST (698 -> 698) and MASTER (898 -> 898), PRE
+      898 -> 698, uncrowned POST control 898 -> 698; A2 fallen aasimar
+      "You started out as an aasimar." POST = MASTER, PRE none; B1 the
+      four resistance lines POST = MASTER (same order), PRE none; B2
+      drow "You have ultravision innately." POST = MASTER, PRE none;
+      B3 clay golem inediate POST = MASTER, PRE none, human and vampire
+      controls clean; C vampire thirst / frail / starved / fainting
+      POST = MASTER (POST adds the 5.0 wizard <N>), PRE the bare forms,
+      human weak control unchanged; D crocodile "breathe water from
+      current creature form" POST = MASTER, PRE bare; G death magic
+      with DEATH_RES - wand at self "apparently harmless beam", finger
+      of death "You are unaffected.", wall-bounced ray "You seem
+      unaffected.", Aleax form "You are unaffected.", arch-lich touch
+      of death "You are unaffected." all POST = MASTER, PRE dies (Die?
+      n) on G1-G4, POST control without the property dies; F same-save
+      ^X dump PRE vs POST differs ONLY in the elapsed-time line.
+      Branch paniclog never created; master's unchanged (4 lines).
+      NOT DISTINGUISHED: E (a potion's hallucination is timeout-only,
+      from_what() returns "" on every tree - POST = MASTER = PRE; the
+      code is master's verbatim). MY PREDICTION ERRORS: drow have no
+      infravision on either tree (the brief anchored ultravision after
+      it), and the E expectation above - read the source function
+      before writing an expected suffix. OBSERVED, owned elsewhere:
+      master prints "immune to the effects of death magic from current
+      creature form" for a clay golem, vampire and crowned Infidel,
+      "level-drain resistant" for a vampire, and flies the crowned
+      Infidel - all the NEW HIGH set_uasmon() row; "welcome to
+      NetHack!" (re-brand rows ~4264 / ~11882); "You are normally
+      right-handed." for the crowned demon is 5.0's handedness line
+      reading master's demon / tortle clawed-hand rule (master has no
+      handedness line) - correct by the code.
+- [ ] MED: master's luck-timeout rework ABSENT (minted 2026-09-22,
+      session 134, by the enlightenment-residue row's attribute diff;
+      first named in passing as an owner row "master luck-timeout
+      rework (misc parity, pre-existing)" in a closed row's NEW OWNER
+      ROWS list, but never minted). Master attrib.c has_luckitem()
+      (any confers_luck() item in invent) and timeout.c nh_timeout():
+      when u.uluck != baseluck the timeout is 600 turns, raised to
+      `25000 - 200 * d * d` (d = u.uluck - baseluck) when a luck item
+      is carried and matches the direction (stone_luck(FALSE) 0 slows
+      both ways, > 0 slows good luck, < 0 slows bad luck), halved on
+      `(u.uhave.amulet && u.uachieve.amulet) || u.ugangr`; luck steps
+      one point toward base when `moves >= u.luckturn + timeout`, then
+      u.luckturn = moves. So a luckstone SLOWS the decay (about 5,000
+      to 24,800 turns a point) instead of stopping it. The branch runs
+      5.0's form: a `moves % (300 | 600)` clock, and a luckstone (or
+      stone_luck(TRUE)) in the matching direction STOPS the decay;
+      u.luckturn exists in you.h (Phase 1 field enumeration) but
+      nothing reads or writes it. Also: master set_moreluck() is
+      `!has_luckitem() -> 0, stone_luck(TRUE) >= 0 -> +LUCKADD, else
+      -LUCKADD`; the branch tests `!luckbon && !carrying(LUCKSTONE)`,
+      so net-zero luck artifacts without a luckstone give 0 on the
+      branch and +LUCKADD on master. RIDER: insight.c enlightenment
+      "Bad / Good luck times / timed out slowly for you" under a
+      has_luckitem() gate (the branch prints 5.0's "does / did not
+      time out" under `carrying(LUCKSTONE) || stone_luck(TRUE)`, which
+      is accurate for the branch's current mechanic - change the text
+      only with the mechanic). A full nh_timeout() luck-block diff is
+      owed when taken: the branch's baseluck has a fedora
+      Archeologist +1 and its halving term carries an Infidel /
+      uimbued_idol test that master's `u.uachieve.amulet` form does
+      not - decide each. MED (gameplay: luck decay with a luckstone).
+- [ ] HIGH: polyself.c set_uasmon() lacks master's race and form
+      properties (minted 2026-09-22, session 134, by the
+      enlightenment-residue reviewer; verified on both bodies, master
+      polyself.c ~60-130 against the branch's). Master computes
+      `racedat = raceptr(&youmonst)` and sets, where the branch has
+      nothing or 5.0's form test: PSYCHIC_RES
+      resists_psychic(&youmonst) (ABSENT); DEATH_RES
+      immune_death_magic(racedat) (ABSENT); ULTRAVISION
+      ultravision(racedat) (ABSENT; the branch sets INFRAVISION from
+      the race but not this); JUMPING is_jumper(mdat) (ABSENT);
+      FLYING is_flyer(racedat) && !is_floater(racedat) (the branch
+      tests the form, mdat); DRAIN_RES resists_drain(racedat) (the
+      branch runs 5.0's resists_drli() with uwep suppressed); ANTIMAGIC
+      resists_mgc(mdat) (the branch runs 5.0's dmgtype AD_MAGM / baby
+      gray / AD_RBRE list); STUNNED exempts PM_VAMPIRE_BAT (the branch
+      stuns every is_bat() form). GAME EFFECTS: a crowned (demon)
+      Infidel, not polymorphed, never flies although pray.c prints
+      "Wings sprout from your back" (master: flies unless hard armor
+      folds the wings, via check_wings()) and is not death-immune from
+      the race; forms with M3_ULTRAVISION (ghoul, human mummy, giant
+      centipede, celestial dragons, ...) grant no dark sight
+      (vision.c reads Ultravision); psionic-resistant and jumping forms
+      grant nothing; a vampire hero shapechanged into a vampire bat
+      (polyself.c vampire shapechange list) is permanently stunned
+      FROMFORM. The session-134 restored enlightenment lines
+      ("ultravision", "immune to the effects of death magic", "psionic
+      resistant") print correctly when the property is set; this row
+      is about the property never being set. Needs a whole-function
+      diff (5.0's BLINDED / BLND_RES / mintrinsics additions stay) and
+      its own battery (crowned-demon flight + check_wings, the vampire
+      bat, one form per new property). SEEN LIVE on MASTER in the
+      session-134 battery, absent on the branch: "You are immune to the
+      effects of death magic from current creature form." for a clay
+      golem form, a vampire-race hero and a crowned Infidel; "You are
+      level-drain resistant from current creature form." for a
+      vampire; the crowned Infidel "flying from current creature form"
+      with Fly on the status line. HIGH (gameplay; vampire-race
+      shapechange).
+- [ ] MED: death magic outcome shape vs magic resistance (minted
+      2026-09-22, session 134, beside the three-site Death_resistance
+      port - that port touched only the resistance TEST). (a) zap.c
+      zhitu() ZT_DEATH: master's Antimagic arm costs max HP (d(4,6),
+      halved with Half_spell_damage + shieldeff / M_SEEN_MAGR; "You
+      feel a little drained..." and u.uhpmax -= (dam / 3 + rn2(5)) / 2
+      with reflection, "You feel drained..." and u.uhpmax -= dam / 3 +
+      rn2(5) without), and a Reflecting &&
+      !Antimagic arm does the same; the branch has 5.0's "You aren't
+      affected." for Antimagic and no reflection arm, so magic
+      resistance fully stops a death ray on the branch. (b) mcastu.c
+      touch of death spell on the hero: master has no escape roll -
+      without magic resistance the hero dies (Hallucination: "You have
+      an out of body experience."), with it 8d6 / 2 damage plus
+      u.uhpmax -= dmg / 3 + rn2(5) and "You feel drained..."; the
+      branch runs 5.0's `!Antimagic && rn2(m_lev) > 12` roll into
+      touch_of_death() (drain, not instadeath; also Death's melee
+      touch) and "Lucky for you, it didn't work!" otherwise. Needs a
+      RULING per arm (master's shape vs 5.0's), then a full diff of
+      both functions and Death's melee touch. MED (gameplay).
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -18353,6 +18542,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-22 | Enlightenment residue slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) the luck line ("Bad / Good luck times out slowly for you" on master, "does not time out" on the branch) follows the MECHANICS - the branch runs 5.0's stop-timeout luckstone, so its text is accurate today; master's luck-timeout rework (has_luckitem(), the u.luckturn clock, the slowed timeout) is MINTED as its own MED row and the enlightenment line rides it, not this slice; (2) commits = the out-of-bounds hofe_titles[] read (BUG-1891) separate from the restored lines (BUG-1892), plus the tracker commit; (3) master's long warned-of polyd chain (drow, the undead, giants, dragons, ogres, trolls, angels, aasimar, jabberwocks, wraiths, ...) is SKIPPED and recorded - the only warntype.polyd writer on BOTH trees sets MH_HUMAN \| MH_ELF (the vampire forms), so every extra arm is dead and the output is identical. Two more (AskUserQuestion x2 after the reviewer, both recommended): (4) master's gethungry() RACE test (`!inediate(raceptr())`) ported NOW as its own commit (BUG-1893) so the restored "survive without having to eat" line is true - a crowned, unpolymorphed, non-Draugr Infidel stops burning nutrition each turn (accessory hunger stays); every other race and role monster eats, so nothing else changes; (5) the three hero death-magic sites (zapyourself death, zhitu death ray, touch of death spell) get master's `Death_resistance \|\| immune_death_magic()` test NOW (BUG-1894) so the restored "immune to the effects of death magic" line is true; the set_uasmon() race / form property reconcile is MINTED as a HIGH row, and the death ray / touch of death magic-resistance outcome shape as a MED row needing its own ruling. | maintainer |
 | 2026-09-20 | LOW rows batch rulings (AskUserQuestion x2, six questions, all recommended options taken): (1) SCOPE = all nine cheap LOW rows in one slice plus the small siblings the sweeps found; the big sibling (break_armor() full-body reconcile) becomes a row, not code; (2) master 18a5e0c7e's mundetected clear is folded in as its own commit in MASTER'S PER-SITE SHAPE - centralizing it inside 5.0's set_ustuck() was offered and declined; (3) monflee() message order = MASTER'S EXACT SHAPE, "turns to flee." after the flinch / light / cry chain whenever the monster can move, so a light-hater prints two lines as on master; 5.0's Unaware "is frightened." arm and the vrock gas cloud stay; (4) battery = POST vs MASTER on every row, PRE only where existing behavior changes; (5) elephants "trumpet in fear" - the branch keys the arm on MS_TRUMPET because master's MS_ROAR + species arm has been dead since master 9a63bec08 retyped them (master prints "roars in fear"); a DELIBERATE DEVIATION, master bug frozen-unfixed; (6) the same retype's other side effect is KEPT as on live master: MS_LIZARD and MS_PSEUDO monsters "hiss in fear" while snakes stay silent. Session calls, reported at hand-off: spider_parts[] FINGERTIP / FOOT take master's "pedipalp" / "tarsus" (master c5f11ceb1 changed them on purpose with the drider); the egg-fear "She" / "He" is the hero's own chosen gender, outside the gender-neutral rank ruling, master's text kept; four set_ustuck() callers beyond master's seven get the same clear (reviewer A1: the three hero-attacker legs and the concealed sticky hero mimic); failed_grab() learns the neothelid's tentacle hold while getmattk()'s re-hold gate is deliberately NOT extended (its substitute attack would turn the tentacle into a 2d8 claw or a one-in-two engulf); the egg arm marks a target that died under cancel_monst() as already_killed (master bug, frozen-unfixed); the Draugr "revive a number of times" enlightenment split rode the status-lines commit | maintainer (AskUserQuestion) + session |
 | 2026-09-19 | Hit verbs slice rulings (AskUserQuestion x1, three questions): (1) SCOPE = the whole verb family in one slice (recommended) - hitmsg(), hitmm(), mswings(), hmonas() and the two unrowed finds (hero Monk / weapon verb tables); (2) m-v-m artifact / oprops weapon hits land in MASTER'S EXACT SHAPE (recommended) - hitmm() always prints the verb line and 5.0's delayed "hits" fallback in mhitm_ad_phys() is removed, so an artifact hit reads as verb line + artifact line exactly as on master; (3) 5.0-only verb extras = HYBRID (maintainer chose this over the recommended master's-exact-shape) - 5.0's hero "bash" (shield / heavy iron ball) and "lash" (whip / wet towel) and the monster "bashes with" (polearm at melee range) and "lashes" arms stay AHEAD of master's tables, everything else is master's, the AT_TENT default text is master's "tentacles suck you!" and 5.0's " again" suffix stays. Session calls, reported at hand-off: the hero tables skip wands and spellbooks (oc_dir is a zap direction there; master bug BUG-1881 confirmed live); the reviewer's H1 kick gate (master c5df38caa's unported mattacku() hunk) lands as its own commit ahead of the verbs; mpoisons_subj() "snake bite" / "scratch", the nurse's "touches you!" and mswings()'s canspotmon() gate ride commit A | maintainer (AskUserQuestion) + session |
 | 2026-09-19 | onscary() slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) master's scare-immune list lands in MASTER'S EXACT SHAPE on 5.0's auditory / magical split - one gate ahead of the <0,0> return, so archangels, honey badgers, both wolverines, beholders, neothelids, every mindless() monster, is_mplayer() AND S_HUMAN + unique_corpstat() resist ANY scaring (floor scroll, Elbereth, tooled horn / drum / bugle, a read scare monster scroll, cause fear, the Shadowblade invoke); 5.0's magical-only gate for humans and uniques goes away, per master ac3461a1c (a bugle must not scare player monsters or uniques) and 363d0bae4 ("immune ... across the board"); (2) 5.0's goodpos_onscary() permonst approximation, which has no master counterpart, is SYNCED with the ported terms rather than left to drift; (3) the FULL three-binary battery runs. SESSION CALLS, reported to the maintainer in the plan: master's `if (Conflict) return FALSE;` keeps the plain macro rather than 5.0-style resist_conflict() (master's form; the roll would flicker per mfndpos() square); read.c seffect_scare_monster()'s `onscary(0, 0, mtmp)` gate and fleemsg TRUE ride commit A as the unported half of master 363d0bae4; monflee()'s mindless() / unique_corpstat() early return rides as commit B; the scared-monster vocal block is ROWED, the mstone wake guards join the gradual-stoning row as a rider. | maintainer (rulings); session (Conflict form, read.c gate, monflee gate, rows) |
