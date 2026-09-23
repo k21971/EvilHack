@@ -3814,9 +3814,10 @@ gethungry(void)
        will need to wear an Amulet of Unchanging so still burn a small
        amount of nutrition in the 'moves % 20' ring/amulet check below */
     if ((!Unaware || !rn2(10)) /* slow metabolic rate while asleep */
-        && (carnivorous(gy.youmonst.data)
-            || herbivorous(gy.youmonst.data)
-            || metallivorous(gy.youmonst.data)
+        /* test the race, not the role monster, so that a hero whose
+           race needs no food (a crowned Infidel's demon) doesn't burn
+           nutrition; polymorphed, raceptr() is the current form */
+        && (!inediate(raceptr(&gy.youmonst))
             /* vampires burn hunger even in non-eating shift forms */
             || maybe_polyd(is_vampire(gy.youmonst.data),
                            Race_if(PM_VAMPIRE)))
