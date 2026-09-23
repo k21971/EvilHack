@@ -684,7 +684,8 @@ itemactions(struct obj *otmp)
         /* if already two-weaponing, no special checks needed to toggle off */
         && (u.twoweap
         /* but if not, try to filter most "you can't do that" here */
-            || (could_twoweap(gy.youmonst.data) && !uarms
+            || (could_twoweap(gy.youmonst.data)
+                && (!uarms || is_bracer(uarms))
                 && uwep && MAYBETWOWEAPON(uwep)
                 && uswapwep && MAYBETWOWEAPON(uswapwep)))) {
         Sprintf(buf, "Toggle two-weapon combat %s", u.twoweap ? "off" : "on");

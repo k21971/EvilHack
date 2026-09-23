@@ -486,7 +486,7 @@ check_wornmask_slots(void)
                     (!uwep && !uswapwep) ? " and without " : "",
                     !uswapwep ? "uswapwep" : "");
             why = whybuf;
-        } else if (uarms)
+        } else if (uarms && !is_bracer(uarms))
             why = "while wearing shield";
         else if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep))
             why = "uwep is not a weapon";

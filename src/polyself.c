@@ -180,9 +180,13 @@ set_uasmon(void)
     /* whether the player is flying/floating depends on their steed,
        which won't be known during the restore process: but BFlying
        and BStealth should be set correctly already in that case, so
-       there's nothing to do */
-    if (!program_state.restoring)
+       there's nothing to do; nor is there a wielded weapon to drop,
+       since inventory is read back after this */
+    if (!program_state.restoring) {
+        /* the new form may not be able to hold what the old one did */
+        drop_weapon(1);
         float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
+    }
     polysense();
 
 #ifdef STATUS_HILITES
@@ -299,6 +303,10 @@ polyman(const char *fmt, const char *arg)
         u.umonnum = u.umonster;
         flags.female = u.mfemale;
     }
+
+    /* ahead of set_uasmon(), whose drop_weapon() may have more to say */
+    urgent_pline(fmt, arg);
+
     set_uasmon();
 
     u.mh = u.mhmax = 0;
@@ -318,7 +326,6 @@ polyman(const char *fmt, const char *arg)
 
     newsym(u.ux, u.uy);
 
-    urgent_pline(fmt, arg);
     /* check whether player foolishly genocided self while poly'd */
     if (ugenocided()) {
         /* intervening activity might have clobbered genocide info */
@@ -1756,6 +1763,35 @@ drop_weapon(int alone)
 
             if (updateinv)
                 update_inventory();
+        } else if ((u.twoweap && (bimanual(uwep) || bimanual(uswapwep)))
+                   || (bimanual(uwep) && uarms && !is_bracer(uarms))) {
+            /* only a giant can hold a two-hander in one hand */
+            otmp = bimanual(uwep) ? uwep : uswapwep;
+            which = is_sword(otmp) ? "sword" : weapon_descr(otmp);
+            if (otmp->quan != 1L)
+                which = makeplural(which);
+            if (u.twoweap && bimanual(uwep) && bimanual(uswapwep))
+                which = "weapons";
+            You("can no longer wield your %s with one %s.", which,
+                body_part(HAND));
+            if (u.twoweap) {
+                /* skip untwoweapon()'s own message, but let it reseat
+                   the off-hand weapon */
+                set_twoweap(FALSE);
+                untwoweapon();
+                You("switch to your primary weapon.");
+            /* try to avoid unwielding a cursed weapon */
+            } else if (!uwep->cursed || uarms->cursed) {
+                setuwep((struct obj *) 0);
+                You("let it go.");
+            } else {
+                (void) Shield_off();
+                You("let go of your shield.");
+            }
+            update_inventory();
+        /* must follow the bimanual check, since that never leaves you
+           two-weaponing but this block might leave you wielding a
+           two-hander and wearing a shield */
         } else if (!could_twoweap(gy.youmonst.data)) {
             untwoweapon();
         }
