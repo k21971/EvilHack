@@ -7686,8 +7686,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       equipment writers (master gates via armor_provides_extrinsic(), a
       helper the branch lacks - covers amulet/shield/barding of
       reflection and the "magic resistance from worn gear" antimagic
-      sibling), and the polyself.c silver-dragon-form reflection bump.
-      The forge row's battery already measured the same display/xlog gap
+      sibling), and the polyself.c silver-dragon-form reflection bump
+      together with master polymon()'s adjacent `if
+      (resists_mgc(youmonst.data)) u.uconduct.antimagic++;` (also
+      absent; reviewer-found 2026-09-23 by the set_uasmon() slice, which
+      ported the same resists_mgc() test into set_uasmon()'s ANTIMAGIC
+      arm). The forge row's battery already measured the same display/xlog gap
       for forgedarti - close all three conducts in one pass here.
       ANNOTATION 2026-08-27 (Flying-macro slice): armor_provides_extrinsic
       is also what grants EFlying|W_ARM for CELESTIAL dragon-SCALED body
@@ -17107,8 +17111,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       humanoid keeps CHROMATIC_DRAGON_SCALES worn as a cloak; (e)
       master calls Shirt_off() before useup(); (f) master rehumanize()
       calls break_armor() + drop_weapon(1) after the reset block (the
-      note routed here from the slow / hunger slice record). The
-      branch has 5.0's mummy wrapping, alchemy smock and "clasp breaks
+      note routed here from the slow / hunger slice record; since the
+      2026-09-23 set_uasmon() slice, polyman() -> set_uasmon() already
+      runs drop_weapon(1) on rehumanize, so this arm adds break_armor()
+      and the second, post-break_armor drop_weapon(1), the same pair
+      polymon() already has on both trees). The branch has 5.0's mummy
+      wrapping, alchemy smock and "clasp breaks
       open" arms that master lacks - decide per arm. OWED: the same
       whole-function diff for worn.c mon_break_armor() (reviewer saw
       `verysmall(mdat)` where master has `r_verysmall(mon)`), and
@@ -17135,12 +17143,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       consumer).
 - [x] LOW (text): enlightenment residue - six master-only lines
       PORTED 2026-09-22 (session 134, commits `Fix: a crowned
-      Infidel's enlightenment read past its title table.` (BUG-1891),
-      `Fix: enlightenment lost master's race, resistance and hunger
-      lines.` (BUG-1892), `Fix: a crowned Infidel still grew hungry.`
-      (BUG-1893), `Fix: death resistance did not stop a death ray.`
-      (BUG-1894) - hashes filled after landing; closure notes at the
-      end of this row;
+      Infidel's enlightenment read past its title table.` = fb6ca70f3
+      (BUG-1891), `Fix: enlightenment lost master's race, resistance
+      and hunger lines.` = adf52abee (BUG-1892), `Fix: a crowned
+      Infidel still grew hungry.` = 1d9b0760d (BUG-1893), `Fix: death
+      resistance did not stop a death ray.` = 45cb9da30 (BUG-1894),
+      tracker 11c53a7d6, landed 2026-09-23; closure notes at the end
+      of this row;
       (minted 2026-09-20, session 133 reviewer, each verified by grep
       on both files; the properties and their youprop.h macros are
       live on the branch, insight.c never mentions them). Master
@@ -17256,8 +17265,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Archeologist +1 and its halving term carries an Infidel /
       uimbued_idol test that master's `u.uachieve.amulet` form does
       not - decide each. MED (gameplay: luck decay with a luckstone).
-- [ ] HIGH: polyself.c set_uasmon() lacks master's race and form
-      properties (minted 2026-09-22, session 134, by the
+- [x] HIGH: polyself.c set_uasmon() lacks master's race and form
+      properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
+      and races lost master's granted properties.` (BUG-1895 +
+      BUG-1899), `Fix:
+      vampires, blights and shadow dragons could be level-drained.`
+      (BUG-1896), `Fix: a giant turned small kept a two-hander in one
+      hand.` (BUG-1897 + BUG-1898) - hashes filled after landing;
+      closure notes at the end of this row;
+      (minted 2026-09-22, session 134, by the
       enlightenment-residue reviewer; verified on both bodies, master
       polyself.c ~60-130 against the branch's). Master computes
       `racedat = raceptr(&youmonst)` and sets, where the branch has
@@ -17294,6 +17310,122 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       vampire; the crowned Infidel "flying from current creature form"
       with Fly on the status line. HIGH (gameplay; vampire-race
       shapechange).
+      CLOSURE (2026-09-23): whole-function diff of master
+      polyself.c 41-150 against the branch; every listed arm ported
+      (racedat computed as `Upolyd ? mdat : &mons[gu.urace.mnum]`
+      because raceptr() returns const and immune_death_magic() hands
+      the pointer to the non-const dmgtype(); PSYCHIC_RES through
+      resist_from_form(MR_PSYCHIC), which equals master's
+      resists_psychic(&youmonst) because no code on either tree sets
+      the hero's mextrinsics); 5.0's size block, cham, m_id, BLINDED,
+      BLND_RES, skeletal mintrinsics and restore gates kept. The row's
+      ultravision example list above was WRONG: the polyok
+      M3_ULTRAVISION forms are the drider, baby / adult shadow dragon
+      and the drow mummy / zombie / raider / warrior / mage / cleric
+      (monsters.h census); psionic forms are the mind flayers, the
+      mind flayer larva, skeleton warrior, skeletal dragon and vampire
+      mage. A raceptr() census (master vs branch per file) found only
+      two gaps, both closed here: set_uasmon() and resists_drli().
+      Same slice: resists_drli() / resists_magm() species lists
+      (commit B, ruling 2), master ebf5ef0d2's set_uasmon() half
+      (commit C, ruling 3) and three reviewer-surfaced bracers-as-
+      shield siblings in commit C (zap.c poly_obj() = the unported
+      half of master 57eb04d10; worn.c check_wornmask_slots() and
+      iactions.c, both 5.0-native). REVIEWER (evilhack-code-reviewer,
+      one pass) PASS, no finding in the diff; routed: polymon()'s
+      antimagic conduct bump -> the conduct wiring row; the bracers
+      detector -> fixed in C; stale were.c / allmain.c "Drain_resistance"
+      comments left (identical on master). BATTERY PASS (game-tester,
+      14 games, ~74 min, 569 tool uses; PRE md5
+      786af459e2f4b71c1ed9d7bd19d03490, POST md5
+      9e9f90cfc06aa3d5f4a549a749df3c37, MASTER 0.9.3): POST = MASTER
+      and PRE showing the bug on every leg - crowned Infidel Fly +
+      "You spread your wings." / "You fold your wings under your
+      suit." / "You would fly if your wings weren't confined." /
+      "...and take flight." and a save / restore in plate mail; wand
+      of death at self "The wand shoots an apparently harmless beam at
+      you." (PRE died); vampire hero drain + death-magic lines,
+      resists_drli() 1, drain life at self no level loss (PRE
+      "Goodbye level 5."); vampire bat no Stun and a deterministic walk
+      (PRE Stun, random walk; giant bat still stuns on all three);
+      mind flayer psionic line; drow zombie ultravision + death +
+      drain lines; jumping spider "You can jump" and a 2-square
+      orthogonal jump (PRE "You can't jump very far."); human-form
+      lycanthrope had no drain line on that POST and on MASTER (the
+      first ruling; REVISED after the battery, see below); twig blight and baby shadow dragon resist drain life x5 (PRE lost
+      a level per cast); a de-reflected Archon took no magic-missile
+      damage (PRE 78 -> 72); giant C1-C4 two-hander lines
+      byte-identical to master; bracers: no "Two-weapon insanity"
+      line in 14 turns (PRE 11, tester-induced by design), the item
+      menu offers "Toggle two-weapon combat on", and a dip-polymorphed
+      quarterstaff stayed wielded under bracers (PRE and MASTER dips
+      produced no two-hander in 20 tries - NOT-RUN there); same-save
+      ^X PRE vs POST identical; mounted crowned-Infidel restore clean.
+      Branch paniclog: only the 11 PRE C5a lines. BRIEF ERRORS the
+      tester caught: the psionic wave book is illithid-race-only
+      (spell.c), so the self-cast leg cannot be staged from a
+      polymorphed human; a REFLECTED drain beam never reaches the
+      "You feel drained..." arm (that arm is for engulfed or
+      self-directed breath) - the unreflected variant showed POST =
+      MASTER "The dark energy blast drains your life!" with no level
+      lost; a dwarf is not a polyok form on the branch (hobbit used).
+      RULING REVISED after the battery (maintainer, 2026-09-23): a
+      human-form lycanthrope KEEPS drain resistance - DRAIN_RES is
+      `resists_drain(racedat) || ismnum(u.ulycn)`. Master's loss is a
+      regression of 7b7b9875c (2023), which swapped the uwep-suppressed
+      resists_drli(&youmonst) - the carrier of the u.ulycn term - for
+      resists_drain(racedat); set_ulycn()'s "add or remove
+      lycanthrope's innate intrinsics (Drain_resistance)" call,
+      allmain.c's were_changes comment and is_innate()'s FROM_LYCN
+      attribution all still expect the property (BUG-1899, master
+      frozen-unfixed, fixed in the same commit). POST rebuilt (md5
+      ce1aa46862284c4f892efcc2646881e1; the battery's build kept as
+      scratchpad evilhack_post1); the expected lycanthrope ^X line is
+      PRE's "You are level-drain resistant due to your lycanthropy."
+- [ ] LOW (infra): paniclog PANICLOG_FMT2 timestamp (minted 2026-09-23,
+      session 135; the battery saw eleven impossibles written over a
+      minute all carry one stamp). Master c54cd563c (2026-01-25,
+      "Improve paniclog timestamp format") prints the CURRENT local
+      time as `YYYY-MM-DD HH:MM:SS <plname>: <type> <reason>`; the
+      branch kept vanilla 5.0's `<ubirthday epoch> <plname>: ...`,
+      i.e. the game's start time on every line. linux-debug and
+      hardfought hints both define PANICLOG_FMT2, so production
+      paniclog triage on the branch cannot order or date events.
+      Port master's arm (files.c paniclog()); check whether any
+      server-side tooling parses the epoch form first. LOW.
+- [ ] MED: monster jumping AI absent (minted 2026-09-23, session 135,
+      found by the set_uasmon() slice's is_jumper() census; grep: zero
+      branch hits for `check_mon_jump` or "leaps at you"). Master
+      0baf593b8 (2019-04-02, from SpliceHack) gives m_move() an arm:
+      a hostile monster with can_jump() (jumping boots, MR2_JUMPING)
+      or is_jumper() (jumping spider, zruty, giant centipede, cave
+      lizards) that can see the hero, is not fleeing / confused /
+      stunned / asleep, and stands at dist2 9..20 leaps next to the
+      hero 1 in 3 times ("<Mon> leaps at you!") through apply.c
+      check_mon_jump() + rloc_to(). The branch has the predicates, the
+      mjumptime expiry (mon.c) and the spell / muse users, but no
+      leap. Verify the rest of 0baf593b8 (monster water-walking boots)
+      when taken. MED (gameplay: jumpers close distance).
+- [ ] LOW (text, wizard mode only): from_what()'s form attribution
+      reads " from your creature form" (upstream 5.0 attrib.c) where
+      master prints " from current creature form" (master attrib.c
+      ~1051; minted 2026-09-23, session 135, seen in the session-134
+      and -135 batteries). insight.c's two literal " from current
+      creature form" suffixes (breathe water for an amphibious form,
+      fast underwater) already use master's words, so one ^X screen
+      mixes both. Decide: restore
+      master's wording or keep 5.0's. LOW.
+- [ ] SWEEP: is_bracer() census (minted 2026-09-23, session 135, from
+      the set_uasmon() slice's bracers-as-shield sibling sweep, which
+      fixed the two-weapon / two-hander class only: zap.c poly_obj(),
+      worn.c check_wornmask_slots(), iactions.c). Per-file is_bracer
+      counts where master leads (master / branch, after the slice):
+      apply.c 1 / 0, do_wear.c 11 / 8, muse.c 2 / 0, spell.c 1 / 0
+      (the percent_success() row's metallic-shield rule), steal.c 1 / 0,
+      trap.c 3 / 1, weapon.c 4 / 3, worn.c 5 / 4. uhitm.c leads on the
+      branch (4 / 6). Most look like message texts ("bracers" vs
+      "shield") and martial-arts / shield-skill gates. Classify each
+      site; mint a row per real gap. LOW-MED.
 - [ ] MED: death magic outcome shape vs magic resistance (minted
       2026-09-22, session 134, beside the three-site Death_resistance
       port - that port touched only the resistance TEST). (a) zap.c
@@ -18542,6 +18674,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-23 | set_uasmon() race / form properties slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) DRAIN_RES follows master's race-based `resists_drain(racedat)`, not 5.0's uwep-suppressed resists_drli(&youmonst) - a vampire hero gains FROMFORM drain resistance and worn drain-resistant gear stops leaving a sticky FROMFORM bit; the first answer also took master's loss of a HUMAN-FORM LYCANTHROPE's drain resistance, but after the battery the maintainer REVISED it ("I dont think we should lose the 'level-drain resistant' line"): the arm is `resists_drain(racedat) \|\| ismnum(u.ulycn)`, because master's loss is a 7b7b9875c regression (the u.ulycn term rode the resists_drli() call it replaced; set_ulycn(), allmain.c's were_changes comment and is_innate()'s FROM_LYCN still expect the property) - archived as BUG-1899, master frozen-unfixed; (2) resists_drli() / resists_magm() get master's species macros (raceptr + resists_drain(), resists_mgc()) as their own commit in the slice; (3) the set_uasmon() half of master ebf5ef0d2 (giants wield two-handers one-handed: drop_weapon(1) in set_uasmon(), drop_weapon()'s bimanual arm, polyman()'s message ahead of set_uasmon()) is its own commit in the slice; rehumanize()'s break_armor() + drop_weapon(1) stay on the break_armor reconcile row. Coordinator calls, not asked: master's `Jumping` macro disjunct `\|\| is_jumper(youmonst.data)` NOT ported (redundant with the new PROPSET(JUMPING), same reasoning as the 2026-09-06 Sick_resistance entry); set_uasmon()'s drop_weapon(1) sits inside the existing `!program_state.restoring` gate beside float_vs_flight() (inventory is read back after set_uasmon() at restore, on master too, so no behavior changes); `racedat` is computed as `Upolyd ? mdat : &mons[gu.urace.mnum]` rather than through raceptr(), whose const return would reach the non-const dmgtype() inside immune_death_magic(); the reviewer-surfaced bracers-as-shield siblings of the two-weapon / two-hander class (zap.c poly_obj() = the unported half of master 57eb04d10, worn.c check_wornmask_slots() and iactions.c, both 5.0-native) were fixed in commit C per the cross-file-siblings rule, while other is_bracer() gaps went to a new SWEEP row. | maintainer |
 | 2026-09-22 | Enlightenment residue slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) the luck line ("Bad / Good luck times out slowly for you" on master, "does not time out" on the branch) follows the MECHANICS - the branch runs 5.0's stop-timeout luckstone, so its text is accurate today; master's luck-timeout rework (has_luckitem(), the u.luckturn clock, the slowed timeout) is MINTED as its own MED row and the enlightenment line rides it, not this slice; (2) commits = the out-of-bounds hofe_titles[] read (BUG-1891) separate from the restored lines (BUG-1892), plus the tracker commit; (3) master's long warned-of polyd chain (drow, the undead, giants, dragons, ogres, trolls, angels, aasimar, jabberwocks, wraiths, ...) is SKIPPED and recorded - the only warntype.polyd writer on BOTH trees sets MH_HUMAN \| MH_ELF (the vampire forms), so every extra arm is dead and the output is identical. Two more (AskUserQuestion x2 after the reviewer, both recommended): (4) master's gethungry() RACE test (`!inediate(raceptr())`) ported NOW as its own commit (BUG-1893) so the restored "survive without having to eat" line is true - a crowned, unpolymorphed, non-Draugr Infidel stops burning nutrition each turn (accessory hunger stays); every other race and role monster eats, so nothing else changes; (5) the three hero death-magic sites (zapyourself death, zhitu death ray, touch of death spell) get master's `Death_resistance \|\| immune_death_magic()` test NOW (BUG-1894) so the restored "immune to the effects of death magic" line is true; the set_uasmon() race / form property reconcile is MINTED as a HIGH row, and the death ray / touch of death magic-resistance outcome shape as a MED row needing its own ruling. | maintainer |
 | 2026-09-20 | LOW rows batch rulings (AskUserQuestion x2, six questions, all recommended options taken): (1) SCOPE = all nine cheap LOW rows in one slice plus the small siblings the sweeps found; the big sibling (break_armor() full-body reconcile) becomes a row, not code; (2) master 18a5e0c7e's mundetected clear is folded in as its own commit in MASTER'S PER-SITE SHAPE - centralizing it inside 5.0's set_ustuck() was offered and declined; (3) monflee() message order = MASTER'S EXACT SHAPE, "turns to flee." after the flinch / light / cry chain whenever the monster can move, so a light-hater prints two lines as on master; 5.0's Unaware "is frightened." arm and the vrock gas cloud stay; (4) battery = POST vs MASTER on every row, PRE only where existing behavior changes; (5) elephants "trumpet in fear" - the branch keys the arm on MS_TRUMPET because master's MS_ROAR + species arm has been dead since master 9a63bec08 retyped them (master prints "roars in fear"); a DELIBERATE DEVIATION, master bug frozen-unfixed; (6) the same retype's other side effect is KEPT as on live master: MS_LIZARD and MS_PSEUDO monsters "hiss in fear" while snakes stay silent. Session calls, reported at hand-off: spider_parts[] FINGERTIP / FOOT take master's "pedipalp" / "tarsus" (master c5f11ceb1 changed them on purpose with the drider); the egg-fear "She" / "He" is the hero's own chosen gender, outside the gender-neutral rank ruling, master's text kept; four set_ustuck() callers beyond master's seven get the same clear (reviewer A1: the three hero-attacker legs and the concealed sticky hero mimic); failed_grab() learns the neothelid's tentacle hold while getmattk()'s re-hold gate is deliberately NOT extended (its substitute attack would turn the tentacle into a 2d8 claw or a one-in-two engulf); the egg arm marks a target that died under cancel_monst() as already_killed (master bug, frozen-unfixed); the Draugr "revive a number of times" enlightenment split rode the status-lines commit | maintainer (AskUserQuestion) + session |
 | 2026-09-19 | Hit verbs slice rulings (AskUserQuestion x1, three questions): (1) SCOPE = the whole verb family in one slice (recommended) - hitmsg(), hitmm(), mswings(), hmonas() and the two unrowed finds (hero Monk / weapon verb tables); (2) m-v-m artifact / oprops weapon hits land in MASTER'S EXACT SHAPE (recommended) - hitmm() always prints the verb line and 5.0's delayed "hits" fallback in mhitm_ad_phys() is removed, so an artifact hit reads as verb line + artifact line exactly as on master; (3) 5.0-only verb extras = HYBRID (maintainer chose this over the recommended master's-exact-shape) - 5.0's hero "bash" (shield / heavy iron ball) and "lash" (whip / wet towel) and the monster "bashes with" (polearm at melee range) and "lashes" arms stay AHEAD of master's tables, everything else is master's, the AT_TENT default text is master's "tentacles suck you!" and 5.0's " again" suffix stays. Session calls, reported at hand-off: the hero tables skip wands and spellbooks (oc_dir is a zap direction there; master bug BUG-1881 confirmed live); the reviewer's H1 kick gate (master c5df38caa's unported mattacku() hunk) lands as its own commit ahead of the verbs; mpoisons_subj() "snake bite" / "scratch", the nurse's "touches you!" and mswings()'s canspotmon() gate ride commit A | maintainer (AskUserQuestion) + session |
