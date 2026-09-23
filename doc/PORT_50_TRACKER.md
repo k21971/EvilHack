@@ -17267,11 +17267,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       not - decide each. MED (gameplay: luck decay with a luckstone).
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
-      and races lost master's granted properties.` (BUG-1895 +
-      BUG-1899), `Fix:
-      vampires, blights and shadow dragons could be level-drained.`
-      (BUG-1896), `Fix: a giant turned small kept a two-hander in one
-      hand.` (BUG-1897 + BUG-1898) - hashes filled after landing;
+      and races lost master's granted properties.` = 408713be5
+      (BUG-1895 + BUG-1899), `Fix: vampires, blights and shadow
+      dragons could be level-drained.` = efc7f6477 (BUG-1896), `Fix: a
+      giant turned small kept a two-hander in one hand.` = 16d83a1a0
+      (BUG-1897 + BUG-1898), tracker feae6ed5b, landed 2026-09-23;
       closure notes at the end of this row;
       (minted 2026-09-22, session 134, by the
       enlightenment-residue reviewer; verified on both bodies, master
@@ -17426,7 +17426,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch (4 / 6). Most look like message texts ("bracers" vs
       "shield") and martial-arts / shield-skill gates. Classify each
       site; mint a row per real gap. LOW-MED.
-- [ ] MED: death magic outcome shape vs magic resistance (minted
+- [x] MED: death magic outcome shape vs magic resistance - PORTED
+      2026-09-23 (session 136, partial reflection / death magic slice,
+      commits `Fix: rays at the hero ignored partial reflection and
+      magic resistance.` (BUG-1900..1905, 1909), `Fix: monster magic
+      ignored partial reflection and magic resistance.` (BUG-1900,
+      1902, 1906, 1907, 1910, 1911), `Fix: monsters stopped breathing
+      at a hero they had seen resist.` (BUG-1908) - hashes filled
+      after landing; closure notes at the end of this row;
+      (minted
       2026-09-22, session 134, beside the three-site Death_resistance
       port - that port touched only the resistance TEST). (a) zap.c
       zhitu() ZT_DEATH: master's Antimagic arm costs max HP (d(4,6),
@@ -17446,6 +17454,162 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       touch) and "Lucky for you, it didn't work!" otherwise. Needs a
       RULING per arm (master's shape vs 5.0's), then a full diff of
       both functions and Death's melee touch. MED (gameplay).
+      CLOSURE (2026-09-23): arm (a) turned out to depend on a missing
+      master FEATURE. Hero partial reflection (master 92e32005a,
+      SporkHack) was absent: dobuzz()'s hero arm was 5.0's full
+      reflection, so master's reflection-only death arm, and every
+      other zhitu() Reflecting arm, was unreachable (the rumor-riders
+      row's item (d) had framed only the zhitu() half). Two more
+      untracked master features share the theme "magic resistance and
+      reflection soften magic, they do not stop it": magic-missile
+      halving (master 08b519a7e, SporkHack) and the touch of death
+      revamp (6e6406d82). RULINGS (decisions log 2026-09-23, x2 + a
+      post-battery x3, all master's shape): partial reflection, the
+      death-ray drain, the touch of death, magic missiles folded in,
+      breath AI; after the battery, the castmu() / buzzmu() memory
+      gates, the reflected gas cloud, and the "they're" pronoun fix.
+      WHAT LANDED:
+      - dobuzz() hero arm: "Some of it reflects from your <item>!"
+        (silent when Blind), nd halved, zhitu() always called.
+      - Every zhitu() Reflecting arm; the death arms (MR / MR plus
+        reflection / reflection only).
+      - Magic missiles halved at six sites: zhitu(), zapyourself(),
+        zhitm(), castmu(), the Oracle's passive, and the muse wand
+        pick.
+      - Hero acid under water; clerical lightning's partial
+        reflection (master 17442b734).
+      - 5.0's gas deferral removed from dobuzz(), so a reflected poison
+        ray leaves its cloud as on master.
+      - touch_of_death() rebuilt as master's fatal / MR-drain touch
+        (the spell, and Death's melee touch on 17-19); the touch
+        spell's uselessness gate is master's M_SEEN_DEATH; the wand
+        of death pick has master's M_SEEN_DEATH term.
+      - breamm() and castmu() / buzzmu() lose 5.0's hero
+        resistance-memory gates (the rest are the new SWEEP row
+        below).
+      - The rumor "reflection isn't an all or nothing proposition."
+      DEVIATIONS from master: u.uhpmax cuts go through the new
+      attrib.c drain_uhpmax() (floor 1, and uhp clamped while
+      polymorphed; BUG-1904 master frozen-unfixed); the
+      reflection-only death arm does not record M_SEEN_MAGR (BUG-1905
+      master frozen-unfixed); a sleep ray cut to 0 turns is skipped
+      (BUG-1909 master frozen-unfixed); the touch of death keeps the
+      branch's killer text "the touch of death inflicted by <mon>"
+      (master "touch of death", KILLED_BY_AN).
+      REVIEWER (evilhack-code-reviewer): CONDITIONAL PASS, then a
+      delta PASS. Taken:
+      - MED: uhp above uhpmax while polymorphed (-> the Upolyd
+        clamp).
+      - MED: the wand of magic missile M_SEEN_MAGR gate.
+      - MED: clerical lightning's partial reflection.
+      - LOW: Death's 0-4 M_SEEN_MAGR, the stale-wake-up guard, a
+        comment.
+      The delta's LOW (the region's "enveloped in a cloud" line now
+      prints before the gas ray's hit line) is recorded as cosmetic;
+      the zap door-effects row below is minted from its door note.
+      BATTERY (game-tester, 7 games, ~108 min, 502 tool uses; PRE md5
+      ce1aa46862284c4f892efcc2646881e1, POST md5
+      4a0d40d612ddfd9a141328253b357fc1, MASTER 0.9.3 md5
+      0777d16796d5368eee5d5101150c9e4a): POST = MASTER, and PRE shows
+      the old rule, on D1, S1, R1-R5, T1, T2, M1a/b/c/e/f, B1, W1, W2
+      and L1.
+      - Death ray: MR "You feel drained..." 250(400) -> 235(392); MR
+        plus amulet "a little drained" HPmax -3 / -4; amulet only HP
+        -15 / -17; neither -> Die?; polymorphed hill orc
+        uhp = uhpmax after each of 4 hits, no impossible().
+      - Fire bounce: 13 hits with the reflect line and items intact
+        (the control burned and boiled them).
+      - Reflected sleep 1..6 turns; black dragon "You aren't
+        disintegrated, but that hurts!" with armor worn.
+      - Touch of death without MR -> Die?, with MR -13 HP and -7
+        HPmax, hallucinating -> out-of-body; Death 6 of 30 -> Die?.
+      - Magic missile bounce -4 / -3 / -5, self-zap -7 / -10, the
+        Oracle -14 / -25, gnome lord 100 -> 96 -> 92 and gray dragon
+        unhurt.
+      - A red dragon kept breathing at fire resistance and at
+        reflection (PRE: one breath, then none).
+      - A soldier stopped zapping death after "You feel restored."
+        (PRE: 10 zaps), and kept zapping its wand of magic missile.
+      - Clerical lightning "Some of it bounces off your medallion."
+        -14..-16, not blinded.
+      Gaps: M1d (the castmu() gate, fixed as BUG-1910 after a
+      ruling) and R4 (master's reflected gas leaves a cloud, fixed
+      after a ruling). A1 NOT-RUN (no breath at a submerged hero).
+      Branch paniclog: 2 tester-induced impossible() lines from an
+      unconditioned spell-forcing breakpoint.
+      BRIEF ERRORS: a gray dragon cannot zap (elven wizard form
+      used); the dice halve on EVERY reflected hit of one ray (3d6,
+      2d6, 1d6 - master-identical); the Tourist gains poison
+      resistance at XL20; the amulet shows as "medallion" while
+      unidentified.
+      DELTA BATTERY (after the three post-battery rulings, POST md5
+      2f3ec4765b55beb2523459000cb368e8, 3 games, ~36 min, 243 tool
+      uses): every leg PASS.
+      - X1: an elven wizard cast shower of missiles 8 times in 16
+        turns at an MR hero with seen 0x1 set, halved each time; its
+        only curses were the mspec cooldown after an AD_SPEL cast.
+      - X2: buzzmu() routing confirmed. An Angel zapped magic
+        missiles 5 times on POST and 7 on MASTER, "Some missiles
+        bounce off!" each time; PRE curses once seen 0x1 is set.
+      - X3: a reflected green dragon breath laid clouds up to and on
+        the hero's square ("Some of it reflects from your medallion!
+        Your eyes sting. You cough!"), and poisoned() never ran. Gas
+        at a soldier wearing the amulet laid a cloud on its square
+        (gdb).
+      - X4: "Oh no, they're using the touch of death!" at pg 3, on
+        the hero leg and on a tame caster's monster-target leg;
+        "they's" never appeared.
+      - X5: fire-bounce and death-ray smoke unchanged.
+      Branch paniclog never created; master's unchanged.
+      Observations: the region's "You are enveloped in a cloud of
+      noxious gas!" (5.0 only) prints before the hit line; clouds
+      block sight, which hides "But it reflects" lines and M_SEEN
+      learning; the welcome() "welcome to NetHack!" re-brand gap is
+      already recorded (Phase 0 note).
+      Open Phase 2 rows: 75 (74 - 1 closed + 2 minted).
+- [ ] SWEEP: 5.0 m_seenres attack-memory gates that master lacks
+      (minted 2026-09-23, session 136, by the partial reflection /
+      death magic slice, whose breath-AI ruling dropped the breamm()
+      one). In 5.0 a monster skips an attack once it has SEEN the hero
+      resist it. Master keeps that memory only in muse.c's wand picks
+      and in mcastu.c's per-spell uselessness checks; `git show
+      master:src/mhitu.c` has no m_seenres at all. Branch-only gates,
+      all live (each tests `m_seenres(mtmp,
+      cvt_adtyp_to_mseenres(adtyp))`):
+      (a) mhitu.c gazemu() returns M_ATTK_MISS, so a gazer stops
+      gazing;
+      (b) mcastu.c castmu() only curses (cursetxt) when the hero was
+      seen to resist the attack's element;
+      (c) mcastu.c buzzmu() does the same for ray spells;
+      (d) mhitu.c mon_avoiding_this_attack() / ranged_attk_available(),
+      which monmove.c uses to decide whether a ranged attacker moves
+      and then shoots in the same turn, and whether it hangs back.
+      Since (d) remains, a dragon that saw the hero resist its element
+      still breathes when lined up (master's breamu() shape, landed)
+      but no longer keeps its distance or moves and breathes in one
+      turn. Rule each gate; the breamm() ruling (master's shape) is
+      the precedent. Dropping every gate would orphan the
+      cvt_adtyp_to_mseenres() callers but not the function
+      (monstseesu_ad() uses it). MED (gameplay: monster attack choice).
+      NARROWED the same day, before landing: the battery showed
+      castmu() (b) and buzzmu() (c) stopping magic-missile casters at
+      an MR hero, which master does not. The maintainer ruled both
+      dropped to master's shape in this slice (BUG-1910), so (a) and
+      (d) remain.
+- [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
+      (minted 2026-09-23, session 136. The door-material slice's record
+      deferred them to a "zap door-effects slice" that never had a row;
+      the partial reflection slice's delta reviewer spotted it). Master
+      zap_over_floor()'s door switch has `ZT_POISON_GAS: D_BROKEN, "The
+      door rots away!" / hear "hollow thud."` and `ZT_ACID: D_NODOOR,
+      "The door dissolves!" / hear "hissing."`. On the branch both fall
+      to def_case ("The door absorbs the blast!"). Since the partial
+      reflection slice removed 5.0's gas deferral in dobuzz(), a poison
+      gas ray at a closed door stops there (the -1000 range is no
+      longer thrown away), where master breaks the door. Also recheck
+      the door-material record's note that acid destroys no door on the
+      branch, and the hard_door override (reached only when
+      new_doormask >= 0). LOW (gameplay: doors vs gas and acid).
 - [x] White dragon scales secondary property: master water walking vs
       upstream 5.0 slow digestion (minted 2026-09-06 by the
       Known_wwalking port; needs a RULING). Master do_wear.c gives
@@ -18059,6 +18223,14 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       5380 / 5395-5403 / 5533 / 5597; vanilla 5.0 has none). Held
       line: rumors.tru "They say that reflection isn't an all or
       nothing proposition."
+      DONE 2026-09-23 (session 136, partial reflection / death magic
+      slice, BUG-1900): the rider understated the gap - dobuzz()'s
+      hero arm itself was 5.0's full reflection, so no Reflecting arm
+      could run except through ubreatheu(). Master 92e32005a's
+      dobuzz() half ("Some of it reflects", nd halved, zhitu() always
+      called) and every zhitu() arm listed above (plus lightning, poison
+      gas and acid) landed, and so did the held rumor line (rumors.tru
+      0476 -> 0477 true lines). The rider's other items stay open.
       (e) BELL OF OPENING QUEST CURSE (LOW): master f327090f3 apply.c
       use_bell() keeps the Bell cursed and refuses ("You must complete
       your quest for the Bell of Opening to work!") until
@@ -18674,6 +18846,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-23 | Partial reflection / death magic slice rulings (AskUserQuestion x2, five questions, all recommended options taken; every one = master's shape): (1) HERO PARTIAL REFLECTION vs rays (master 92e32005a, SporkHack): a reflected wand / spell / breath ray still hits the hero at half dice ("Some of it reflects from your <item>!", no line when Blind), and zhitu()'s Reflecting arms spare belongings (no burning, shattering, exploding or eroding), shorten sleep to 1d6 and stun by half, make poison gas harmless and turn disintegration into d(6,6); 5.0's full reflection dropped. Monster reflection stays full on both trees. (2) DEATH RAY vs magic resistance: master's drain (MR: d(4,6) and "You feel drained..." with a max-HP cut; MR + reflection: "a little drained", half the cut; reflection alone: the same as MR), not 5.0's "You aren't affected."; the death-magic MED row's arm (a). (3) TOUCH OF DEATH (master 6e6406d82): no escape roll, fatal without MR even polymorphed, d(8,6)/2 plus a max-HP cut with MR, hallucination harmless; Death's melee touch fatal on 17-19 without MR - not 5.0's escape roll and 50+8d6 drain; the row's arm (b). (4) MAGIC-MISSILE HALVING (master 08b519a7e, SporkHack; found by this slice, never rowed) FOLDED IN: MR halves magic missiles at the hero and at monsters instead of stopping them, a naturally magic-resistant species / form still stops them where master says so. (5) BREATH AI (follow-up question): master's breamu() - a monster breathes at the hero whatever it has seen; 5.0's breamm() m_seenres / M_SEEN_REFL hero gate dropped (keeping it would have let each dragon half-hit a reflecting hero once). Session calls under the approved plan: master's reflection-only death arm's monstseesu(M_SEEN_MAGR) not ported (it teaches monsters a non-MR hero has MR - BUG-1905, master frozen-unfixed); the max-HP cuts floor at 1 through drain_uhpmax() (master's zhitu() had no floor - BUG-1904, master frozen-unfixed); reviewer-surfaced same-feature siblings folded in (clerical lightning's partial reflection, master 17442b734; the wand of magic missile AI gate; Death's touch M_SEEN_MAGR). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-09-23 | set_uasmon() race / form properties slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) DRAIN_RES follows master's race-based `resists_drain(racedat)`, not 5.0's uwep-suppressed resists_drli(&youmonst) - a vampire hero gains FROMFORM drain resistance and worn drain-resistant gear stops leaving a sticky FROMFORM bit; the first answer also took master's loss of a HUMAN-FORM LYCANTHROPE's drain resistance, but after the battery the maintainer REVISED it ("I dont think we should lose the 'level-drain resistant' line"): the arm is `resists_drain(racedat) \|\| ismnum(u.ulycn)`, because master's loss is a 7b7b9875c regression (the u.ulycn term rode the resists_drli() call it replaced; set_ulycn(), allmain.c's were_changes comment and is_innate()'s FROM_LYCN still expect the property) - archived as BUG-1899, master frozen-unfixed; (2) resists_drli() / resists_magm() get master's species macros (raceptr + resists_drain(), resists_mgc()) as their own commit in the slice; (3) the set_uasmon() half of master ebf5ef0d2 (giants wield two-handers one-handed: drop_weapon(1) in set_uasmon(), drop_weapon()'s bimanual arm, polyman()'s message ahead of set_uasmon()) is its own commit in the slice; rehumanize()'s break_armor() + drop_weapon(1) stay on the break_armor reconcile row. Coordinator calls, not asked: master's `Jumping` macro disjunct `\|\| is_jumper(youmonst.data)` NOT ported (redundant with the new PROPSET(JUMPING), same reasoning as the 2026-09-06 Sick_resistance entry); set_uasmon()'s drop_weapon(1) sits inside the existing `!program_state.restoring` gate beside float_vs_flight() (inventory is read back after set_uasmon() at restore, on master too, so no behavior changes); `racedat` is computed as `Upolyd ? mdat : &mons[gu.urace.mnum]` rather than through raceptr(), whose const return would reach the non-const dmgtype() inside immune_death_magic(); the reviewer-surfaced bracers-as-shield siblings of the two-weapon / two-hander class (zap.c poly_obj() = the unported half of master 57eb04d10, worn.c check_wornmask_slots() and iactions.c, both 5.0-native) were fixed in commit C per the cross-file-siblings rule, while other is_bracer() gaps went to a new SWEEP row. | maintainer |
 | 2026-09-22 | Enlightenment residue slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) the luck line ("Bad / Good luck times out slowly for you" on master, "does not time out" on the branch) follows the MECHANICS - the branch runs 5.0's stop-timeout luckstone, so its text is accurate today; master's luck-timeout rework (has_luckitem(), the u.luckturn clock, the slowed timeout) is MINTED as its own MED row and the enlightenment line rides it, not this slice; (2) commits = the out-of-bounds hofe_titles[] read (BUG-1891) separate from the restored lines (BUG-1892), plus the tracker commit; (3) master's long warned-of polyd chain (drow, the undead, giants, dragons, ogres, trolls, angels, aasimar, jabberwocks, wraiths, ...) is SKIPPED and recorded - the only warntype.polyd writer on BOTH trees sets MH_HUMAN \| MH_ELF (the vampire forms), so every extra arm is dead and the output is identical. Two more (AskUserQuestion x2 after the reviewer, both recommended): (4) master's gethungry() RACE test (`!inediate(raceptr())`) ported NOW as its own commit (BUG-1893) so the restored "survive without having to eat" line is true - a crowned, unpolymorphed, non-Draugr Infidel stops burning nutrition each turn (accessory hunger stays); every other race and role monster eats, so nothing else changes; (5) the three hero death-magic sites (zapyourself death, zhitu death ray, touch of death spell) get master's `Death_resistance \|\| immune_death_magic()` test NOW (BUG-1894) so the restored "immune to the effects of death magic" line is true; the set_uasmon() race / form property reconcile is MINTED as a HIGH row, and the death ray / touch of death magic-resistance outcome shape as a MED row needing its own ruling. | maintainer |
 | 2026-09-20 | LOW rows batch rulings (AskUserQuestion x2, six questions, all recommended options taken): (1) SCOPE = all nine cheap LOW rows in one slice plus the small siblings the sweeps found; the big sibling (break_armor() full-body reconcile) becomes a row, not code; (2) master 18a5e0c7e's mundetected clear is folded in as its own commit in MASTER'S PER-SITE SHAPE - centralizing it inside 5.0's set_ustuck() was offered and declined; (3) monflee() message order = MASTER'S EXACT SHAPE, "turns to flee." after the flinch / light / cry chain whenever the monster can move, so a light-hater prints two lines as on master; 5.0's Unaware "is frightened." arm and the vrock gas cloud stay; (4) battery = POST vs MASTER on every row, PRE only where existing behavior changes; (5) elephants "trumpet in fear" - the branch keys the arm on MS_TRUMPET because master's MS_ROAR + species arm has been dead since master 9a63bec08 retyped them (master prints "roars in fear"); a DELIBERATE DEVIATION, master bug frozen-unfixed; (6) the same retype's other side effect is KEPT as on live master: MS_LIZARD and MS_PSEUDO monsters "hiss in fear" while snakes stay silent. Session calls, reported at hand-off: spider_parts[] FINGERTIP / FOOT take master's "pedipalp" / "tarsus" (master c5f11ceb1 changed them on purpose with the drider); the egg-fear "She" / "He" is the hero's own chosen gender, outside the gender-neutral rank ruling, master's text kept; four set_ustuck() callers beyond master's seven get the same clear (reviewer A1: the three hero-attacker legs and the concealed sticky hero mimic); failed_grab() learns the neothelid's tentacle hold while getmattk()'s re-hold gate is deliberately NOT extended (its substitute attack would turn the tentacle into a 2d8 claw or a one-in-two engulf); the egg arm marks a target that died under cancel_monst() as already_killed (master bug, frozen-unfixed); the Draugr "revive a number of times" enlightenment split rode the status-lines commit | maintainer (AskUserQuestion) + session |
