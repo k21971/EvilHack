@@ -37,6 +37,7 @@ void
 set_uasmon(void)
 {
     struct permonst *mdat = &mons[u.umonnum];
+    struct permonst *racedat; /* the race's entry while unpolymorphed */
     boolean was_vampshifter = valid_vampshiftform(gy.youmonst.cham, u.umonnum);
 
     /* large playable races adjust the size, weight, and speed of the
@@ -61,6 +62,9 @@ set_uasmon(void)
     }
 
     set_mon_data(&gy.youmonst, mdat);
+    /* raceptr(&gy.youmonst), without its const: immune_death_magic()
+       hands the pointer to dmgtype() */
+    racedat = Upolyd ? mdat : &mons[gu.urace.mnum];
     gy.youmonst.m_id = 1;
 
     if (Protection_from_shape_changers)
@@ -101,6 +105,7 @@ set_uasmon(void)
     PROPSET(POISON_RES, resist_from_form(MR_POISON));
     PROPSET(ACID_RES, resist_from_form(MR_ACID));
     PROPSET(STONE_RES, resist_from_form(MR_STONE));
+    PROPSET(PSYCHIC_RES, resist_from_form(MR_PSYCHIC));
 
     /* vulnerabilities; the stamped FROMFORM bit only feeds from_what()
        attribution - the Vulnerable_* macros mask it out and re-derive
@@ -109,37 +114,39 @@ set_uasmon(void)
     PROPSET(VULN_COLD, vulnerable_to(&gy.youmonst, AD_COLD));
     PROPSET(VULN_ELEC, vulnerable_to(&gy.youmonst, AD_ELEC));
     PROPSET(VULN_ACID, vulnerable_to(&gy.youmonst, AD_ACID));
-    {
-        /* resists_drli() takes wielded weapon into account; suppress it */
-        struct obj *save_uwep = uwep;
-
-        uwep = 0;
-        PROPSET(DRAIN_RES, resists_drli(&gy.youmonst));
-        uwep = save_uwep;
-    }
+    /* species-level drain and magic resistance; the instance-level
+       resists_drli() and resists_magm() would also count worn gear;
+       a lycanthrope is drain resistant in human form too (is_were()
+       only sees the beast form), which set_ulycn() relies on */
+    PROPSET(DRAIN_RES, resists_drain(racedat) || ismnum(u.ulycn));
     PROPSET(STUN_RES, mon_resists_stun(&gy.youmonst));
-    /* resists_magm() takes wielded, worn, and carried equipment into
-       into account; cheat and duplicate its monster-specific part */
-    PROPSET(ANTIMAGIC, (dmgtype(mdat, AD_MAGM)
-                        || mdat == &mons[PM_BABY_GRAY_DRAGON]
-                        || dmgtype(mdat, AD_RBRE)));
+    PROPSET(ANTIMAGIC, resists_mgc(mdat));
     PROPSET(SICK_RES, ptr_resists_sick(mdat));
+    PROPSET(DEATH_RES, immune_death_magic(racedat));
     PROPSET(WERE_RES, resists_lycan(mdat));
 
-    PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));
+    /* bat forms flit about stunned, except the vampire bat, which is
+       one of a vampire hero's shapechange forms */
+    PROPSET(STUNNED, (mdat == &mons[PM_STALKER]
+                      || (is_bat(mdat) && mdat != &mons[PM_VAMPIRE_BAT])));
     PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));
     PROPSET(SEE_INVIS, perceives(mdat));
     PROPSET(TELEPAT, telepathic(mdat));
-    /* note that Infravision uses mons[race] rather than usual mons[role] */
-    PROPSET(INFRAVISION, infravision(Upolyd ? mdat : &mons[gu.urace.mnum]));
+    /* note that Infravision and Ultravision use mons[race] rather than
+       usual mons[role] */
+    PROPSET(INFRAVISION, infravision(racedat));
+    PROPSET(ULTRAVISION, ultravision(racedat));
     PROPSET(INVIS, pm_invisible(mdat));
     PROPSET(TELEPORT, can_teleport(mdat));
     PROPSET(TELEPORT_CONTROL, control_teleport(mdat));
     PROPSET(LEVITATION, is_floater(mdat));
+    PROPSET(JUMPING, is_jumper(mdat));
     /* floating eye is the only 'floater'; it is also flagged as a 'flyer';
        suppress flying for it so that enlightenment doesn't confusingly
-       show latent flight capability always blocked by levitation */
-    PROPSET(FLYING, (is_flyer(mdat) && !is_floater(mdat)));
+       show latent flight capability always blocked by levitation; this
+       property also checks race instead of role, so a crowned Infidel's
+       demon wings fly (check_wings() below folds them under hard armor) */
+    PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
     /* preserve racial flying for races that gain it at certain levels
        (illithids and vampires at level 12, aasimar at level 15) */
     if ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
