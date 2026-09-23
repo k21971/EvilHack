@@ -6074,6 +6074,7 @@ mhitm_ad_deth(
         case 18:
         case 17:
             if (!Antimagic) {
+                /* fatal unless lifesaved */
                 touch_of_death(magr);
                 mhm->damage = 0;
                 return;
@@ -6089,8 +6090,10 @@ mhitm_ad_deth(
         case 2:
         case 1:
         case 0:
-            if (Antimagic)
+            if (Antimagic) {
                 shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_MAGR);
+            }
             pline("Lucky for you, it didn't work!");
             mhm->damage = 0;
             return;
@@ -9181,13 +9184,19 @@ passive(
         }
         break;
     case AD_MAGM:
-        /* wrath of gods for attacking Oracle */
-        if (Antimagic) {
+        /* wrath of gods for attacking Oracle; magic resistance halves
+           the missiles, a naturally magic-resistant form stops them */
+        You("are hit by magic missiles appearing from thin air!");
+        if (resists_mgc(gy.youmonst.data)) {
             shieldeff(u.ux, u.uy);
+            pline_The("missiles bounce off!");
             monstseesu(M_SEEN_MAGR);
-            pline("A hail of magic missiles narrowly misses you!");
+        } else if (Antimagic) {
+            shieldeff(u.ux, u.uy);
+            pline("Some missiles bounce off!");
+            monstseesu(M_SEEN_MAGR);
+            mdamageu(mon, (tmp + 1) / 2);
         } else {
-            You("are hit by magic missiles appearing from thin air!");
             mdamageu(mon, tmp);
             monstunseesu(M_SEEN_MAGR);
         }

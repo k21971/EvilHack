@@ -350,9 +350,10 @@ castmu(
             return M_ATTK_MISS;
     }
 
-    /* monster unable to cast spells? */
-    if (mtmp->mcan || mtmp->mspec_used || !ml
-        || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk->adtyp))) {
+    /* monster unable to cast spells? (no check of what the hero was
+       seen to resist: resistances and reflection are often partial,
+       so casters keep trying) */
+    if (mtmp->mcan || mtmp->mspec_used || !ml) {
         cursetxt(mtmp, is_undirected_spell(mtmp, spellnum));
         return M_ATTK_MISS;
     }
@@ -538,13 +539,14 @@ castmu(
         break;
     case AD_MAGM:
         You("are hit by a shower of missiles!");
+        dmg = d((int) ml / 2 + 1, 6);
+        /* magic resistance halves the missiles rather than stopping them */
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
-            pline_The("missiles bounce off!");
+            pline("Some missiles bounce off!");
             monstseesu(M_SEEN_MAGR);
-            dmg = 0;
+            dmg = (dmg + 1) / 2;
         } else {
-            dmg = d((int) mtmp->m_lev / 2 + 1, 6);
             monstunseesu(M_SEEN_MAGR);
         }
         /* shower of magic missiles scuffs an engraving */
@@ -635,40 +637,32 @@ mcast_protection(struct monst *mtmp)
     mtmp->mprotection += gain;
 }
 
-/* unlike the finger of death spell which behaves like a wand of death,
-   this monster spell only attacks the hero */
+/* the touch of death (the monster spell, or Death's own touch) lands on
+   a hero who is not immune to death magic: without magic resistance it
+   kills outright, even through polymorph; with it, the hero survives but
+   takes heavy damage and a permanent loss of maximum hit points */
 void
 touch_of_death(struct monst *mtmp)
 {
     char kbuf[BUFSZ];
-    int dmg = 50 + d(8, 6);
-    int drain = dmg / 2;
 
-    /* if we get here, we know that hero isn't magic resistant and isn't
-       poly'd into an undead or demon */
-    You_feel("drained...");
     (void) death_inflicted_by(kbuf, "the touch of death", mtmp);
     /* the toucher loots the bones pile if this proves fatal (either
        arm below can end the game); cleared at the end when it did not */
     gu.ukiller = mtmp;
 
-    if (Upolyd) {
-        u.mh = 0;
-        rehumanize(); /* fatal iff Unchanging */
-    } else if (drain >= u.uhpmax) {
+    if (!Antimagic) {
+        monstunseesu(M_SEEN_MAGR);
         svk.killer.format = KILLED_BY;
         Strcpy(svk.killer.name, kbuf);
         done(DIED);
     } else {
-        /* HP manipulation similar to poisoned(attrib.c) */
-        int olduhp = u.uhp,
-            uhpmin = minuhpmax(3),
-            newuhpmax = u.uhpmax - drain;
+        int dmg = d(8, 6) / 2;
 
-        setuhpmax(max(newuhpmax, uhpmin), FALSE);
-        dmg = adjuhploss(dmg, olduhp); /* reduce pending damage if uhp has
-                                        * already been reduced due to drop
-                                        * in uhpmax */
+        shieldeff(u.ux, u.uy);
+        monstseesu(M_SEEN_MAGR);
+        You("feel drained...");
+        drain_uhpmax(dmg / 3 + rn2(5));
         losehp(dmg, kbuf, KILLED_BY);
     }
     svk.killer.name[0] = '\0'; /* not killed if we get here... */
@@ -726,26 +720,23 @@ mcast_death_touch(struct monst *mtmp, struct monst *mdef)
     boolean udefend = (mdef == &gy.youmonst);
 
     if (udefend) {
-        pline("Oh no, %s's using the touch of death!", mhe(mtmp));
+        int pg = pronoun_gender(mtmp, PRONOUN_HALLU);
+
+        /* 3 is the plural "they", possible when hallucinating */
+        pline("Oh no, %s%s using the touch of death!", genders[pg].he,
+              (pg == 3) ? "'re" : "'s");
         if (Death_resistance || immune_death_magic(gy.youmonst.data)) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_DEATH);
             You("%s.", nonliving(gy.youmonst.data)
                            ? "seem no more dead than before"
                            : "are unaffected");
-        } else if (!Antimagic && rn2(mtmp->m_lev) > 12) {
-            if (Hallucination) {
-                You("have an out of body experience.");
-            } else {
-                touch_of_death(mtmp);
-            }
-            monstunseesu(M_SEEN_MAGR);
+        } else if (Hallucination) {
+            You("have an out of body experience.");
         } else {
-            if (Antimagic) {
-                shieldeff(u.ux, u.uy);
-                monstseesu(M_SEEN_MAGR);
-            }
-            pline("Lucky for you, it didn't work!");
+            /* no escape roll: fatal without magic resistance, a heavy
+               drain with it */
+            touch_of_death(mtmp);
         }
     } else {
         boolean yours = (mtmp == &gy.youmonst);
@@ -758,11 +749,14 @@ mcast_death_touch(struct monst *mtmp, struct monst *mdef)
         } else if (canseemon(mtmp) || tp_sensemon(mtmp)
                    || Detect_monsters) {
             char buf[BUFSZ];
+            int pg = pronoun_gender(mtmp, PRONOUN_HALLU);
 
-            Sprintf(buf, "%s%s", mtmp->mtame ? "Oh no, " : "", mhe(mtmp));
+            /* 3 is the plural "they", possible when hallucinating */
+            Sprintf(buf, "%s%s%s", mtmp->mtame ? "Oh no, " : "",
+                    genders[pg].he, (pg == 3) ? "'re" : "'s");
             if (!mtmp->mtame)
                 *buf = highc(*buf);
-            pline("%s's using the touch of death!", buf);
+            pline("%s using the touch of death!", buf);
         }
 
         /* the escape roll reads the caster's base species level; a
@@ -1411,32 +1405,41 @@ mcast_lightning(struct monst *mtmp, struct monst *mdef, int dmg)
     if (udefend) {
         Soundeffect(se_bolt_of_lightning, 80);
         pline("A bolt of lightning strikes down at you from above!");
-        reflects = ureflects("It bounces off your %s%s.", "");
+        /* reflection is only partial: the hero still takes a lesser
+           bolt, but belongings, terrain and eyes are spared */
+        reflects = ureflects("Some of it bounces off your %s%s.", "");
         orig_dmg = dmg = d(8, 6);
         if (reflects || how_resistant(SHOCK_RES) == 100) {
             shieldeff(u.ux, u.uy);
-            dmg = 0;
             if (reflects) {
+                dmg = resist_reduce(d(4, 6), SHOCK_RES);
                 monstseesu(M_SEEN_REFL);
-                return dmg;
+            } else {
+                monstunseesu(M_SEEN_REFL);
             }
-            pline("You aren't shocked.");
-            monstunseesu(M_SEEN_REFL);
-            monstseesu(M_SEEN_ELEC);
+            if (how_resistant(SHOCK_RES) == 100) {
+                pline("You aren't shocked.");
+                monstseesu(M_SEEN_ELEC);
+                dmg = 0;
+            } else {
+                monstunseesu(M_SEEN_ELEC);
+            }
         } else {
             dmg = resist_reduce(dmg, SHOCK_RES);
             monstunseesu(M_SEEN_ELEC | M_SEEN_REFL);
         }
-        if (Half_spell_damage)
+        if (dmg && Half_spell_damage)
             dmg = (dmg + 1) / 2;
-        (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
-        /* lightning might destroy iron bars if hero is on such a spot;
-           reflection protects terrain here [execution won't get here due
-           to 'if (reflects) break' above] but hero resistance doesn't;
-           do this before maybe blinding the hero via flashburn() */
-        mon_spell_hits_spot(mtmp, AD_ELEC, u.ux, u.uy);
-        /* blind hero; no effect if already blind */
-        (void) flashburn((long) rnd(100), TRUE);
+        if (!reflects) {
+            (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);
+            /* lightning might destroy iron bars if hero is on such a
+               spot; reflection protects terrain here but hero
+               resistance doesn't; do this before maybe blinding the
+               hero via flashburn() */
+            mon_spell_hits_spot(mtmp, AD_ELEC, u.ux, u.uy);
+            /* blind hero; no effect if already blind */
+            (void) flashburn((long) rnd(100), TRUE);
+        }
         return dmg;
     } else {
         boolean yours = (mtmp == &gy.youmonst);
@@ -2507,7 +2510,9 @@ spell_would_be_useless(struct monst *mtmp, struct monst *mdef, int spellnum)
         break;
     case MCAST_DEATH_TOUCH:
         if (youdefend) {
-            if ((Antimagic || Hallucination) && !rn2(2))
+            /* magic resistance only blunts the touch, so keep casting
+               until the hero has been seen to shrug it off entirely */
+            if (m_seenres(mtmp, M_SEEN_DEATH))
                 return TRUE;
         } else {
             /* skip targets death magic cannot kill */
@@ -2770,7 +2775,8 @@ buzzmu(struct monst *mtmp, struct attack *mattk)
     if (!BZ_VALID_ADTYP(mattk->adtyp))
         return M_ATTK_MISS;
 
-    if (mtmp->mcan || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk->adtyp))) {
+    /* like castmu(), no check of what the hero was seen to resist */
+    if (mtmp->mcan) {
         cursetxt(mtmp, FALSE);
         return M_ATTK_MISS;
     }

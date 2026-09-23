@@ -1987,8 +1987,11 @@ check_offensive_item(
 
     if (!ctx->reflection_skip) {
         nomore(MUSE_WAN_DEATH);
+        /* stop zapping death at a hero seen to be healed by it or
+           immune to it, or seen to have magic resistance */
         if (obj->otyp == WAN_DEATH && obj->spe > 0
-            && !m_seenres(mtmp, M_SEEN_MAGR))
+            && !(m_seenres(mtmp, M_SEEN_MAGR)
+                 || m_seenres(mtmp, M_SEEN_DEATH)))
             return MUSE_WAN_DEATH;
 
         nomore(MUSE_WAN_SLEEP);
@@ -2021,9 +2024,10 @@ check_offensive_item(
             && !m_seenres(mtmp, M_SEEN_ELEC))
             return MUSE_WAN_LIGHTNING;
 
+        /* magic resistance only halves magic missiles, so a hero seen
+           to have it is still worth zapping */
         nomore(MUSE_WAN_MAGIC_MISSILE);
-        if (obj->otyp == WAN_MAGIC_MISSILE && obj->spe > 0
-            && !m_seenres(mtmp, M_SEEN_MAGR))
+        if (obj->otyp == WAN_MAGIC_MISSILE && obj->spe > 0)
             return MUSE_WAN_MAGIC_MISSILE;
     }
 
