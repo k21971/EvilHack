@@ -1569,9 +1569,10 @@ attributes_enlightenment(
     enlght_out_attr(ATR_SUBHEAD, final ? "Final Attributes:" : "Attributes:");
 
     if (u.uevent.uhand_of_elbereth) {
-        static const char *const hofe_titles[3] = { "the Hand of Elbereth",
+        static const char *const hofe_titles[4] = { "the Hand of Elbereth",
                                                     "the Envoy of Balance",
-                                                    "the Glory of Arioch" };
+                                                    "the Glory of Arioch",
+                                                    "the Emissary of Moloch" };
         you_are(hofe_titles[u.uevent.uhand_of_elbereth - 1], "");
     }
 
