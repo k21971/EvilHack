@@ -727,8 +727,12 @@ mcast_death_touch(struct monst *mtmp, struct monst *mdef)
 
     if (udefend) {
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
-        if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
-            You("seem no deader than before.");
+        if (Death_resistance || immune_death_magic(gy.youmonst.data)) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
+            You("%s.", nonliving(gy.youmonst.data)
+                           ? "seem no more dead than before"
+                           : "are unaffected");
         } else if (!Antimagic && rn2(mtmp->m_lev) > 12) {
             if (Hallucination) {
                 You("have an out of body experience.");

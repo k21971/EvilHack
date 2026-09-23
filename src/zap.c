@@ -3269,10 +3269,14 @@ zapyourself(struct obj *obj, boolean ordinary)
             disp.botl = TRUE;
             break;
         }
-        if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
+        if (Death_resistance || immune_death_magic(gy.youmonst.data)) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
-                      : "You seem no deader than before.");
+                      : nonliving(gy.youmonst.data)
+                          ? "You seem no more dead than before."
+                          : "You are unaffected.");
             break;
         }
         learn_it = TRUE;
@@ -5470,8 +5474,10 @@ zhitu(
             You_feel("restored.");
             disp.botl = TRUE;
             break;
-        } else if (nonliving(gy.youmonst.data) || is_demon(gy.youmonst.data)) {
+        } else if (Death_resistance
+                   || immune_death_magic(gy.youmonst.data)) {
             shieldeff(sx, sy);
+            monstseesu(M_SEEN_DEATH);
             You("seem unaffected.");
             break;
         } else if (Antimagic) {
