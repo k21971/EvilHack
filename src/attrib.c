@@ -1424,6 +1424,23 @@ setuhpmax(int newmax, boolean even_when_polyd)
     }
 }
 
+/* permanent loss of base maximum hit points from a partly resisted
+   death ray, drain blast or touch of death, taken even while
+   polymorphed; never below 1. In normal form the damage that follows
+   goes through losehp(), which mends a maximum left below current hit
+   points (master's arithmetic, so that is left alone); while
+   polymorphed losehp() only touches u.mh, so clamp here */
+void
+drain_uhpmax(int amt)
+{
+    u.uhpmax -= amt;
+    if (u.uhpmax < 1)
+        u.uhpmax = 1;
+    if (Upolyd && u.uhp > u.uhpmax)
+        u.uhp = u.uhpmax;
+    disp.botl = TRUE;
+}
+
 /* called after setuhpmax() when damage is pending;
    if uhpmax (or mhmax) has been reduced, it might have caused uhp (or mh)
    to be reduced too; if so, recalculate pending loss to account for that */

@@ -3153,15 +3153,25 @@ zapyourself(struct obj *obj, boolean ordinary)
     case WAN_MAGIC_MISSILE:
     case SPE_MAGIC_MISSILE:
         learn_it = TRUE;
+        pline("Idiot!  You've shot yourself!");
+        damage = d(4, 6);
         if (Antimagic) {
+            /* a naturally magic-resistant form shrugs off the missiles;
+               magic resistance from anything else only halves them */
             shieldeff(u.ux, u.uy);
-            pline_The("missiles bounce!");
             monstseesu(M_SEEN_MAGR);
+            if (resists_mgc(gy.youmonst.data)) {
+                pline_The("missiles bounce!");
+                damage = 0;
+            } else {
+                pline("Some of the missiles bounce!");
+                damage = (damage + 1) / 2;
+            }
         } else {
-            damage = d(4, 6);
-            pline("Idiot!  You've shot yourself!");
             monstunseesu(M_SEEN_MAGR);
         }
+        if (Half_spell_damage)
+            damage = (damage + 1) / 2;
         break;
 
     case WAN_POLYMORPH:
@@ -5098,13 +5108,18 @@ zhitm(
     *ootmp = (struct obj *) 0;
     switch (damgtype) {
     case ZT_MAGIC_MISSILE:
-        if (resists_magm(mon) || defended(mon, AD_MAGM)) {
-            sho_shieldeff = TRUE;
-            break;
-        }
         tmp = d(nd, 6);
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
+        /* magic resistance halves magic missiles; only a naturally
+           magic-resistant species shrugs them off entirely */
+        if (resists_magm(mon) || defended(mon, AD_MAGM)) {
+            if (resists_mgc(mon->data))
+                tmp = 0;
+            else
+                tmp = (tmp + 1) / 2;
+            sho_shieldeff = TRUE;
+        }
         break;
     case ZT_FIRE:
         if (resists_fire(mon) || defended(mon, AD_FIRE)
@@ -5355,13 +5370,16 @@ zhitu(
 
     switch (BASE_ZT(abstyp)) {
     case ZT_MAGIC_MISSILE:
+        /* magic resistance halves magic missiles rather than stopping
+           them; Half_spell_damage stacks, below */
+        dam = d(nd, 6);
+        exercise(A_STR, FALSE);
         if (Antimagic) {
             shieldeff(sx, sy);
-            pline_The("missiles bounce off!");
+            pline("Some missiles bounce off!");
             monstseesu(M_SEEN_MAGR);
+            dam = (dam + 1) / 2;
         } else {
-            dam = d(nd, 6);
-            exercise(A_STR, FALSE);
             monstunseesu(M_SEEN_MAGR);
         }
         break;
@@ -5378,7 +5396,8 @@ zhitu(
         }
         if (!Underwater) {
             burn_away_slime();
-            if (burnarmor(&gy.youmonst)) { /* "body hit" */
+            /* a partly reflected ray spares the hero's belongings */
+            if (!Reflecting && burnarmor(&gy.youmonst)) { /* "body hit" */
                 if (!rn2(3))
                     (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dam);
                 if (!rn2(3))
@@ -5397,7 +5416,7 @@ zhitu(
             dam = resist_reduce(orig_dam, COLD_RES);
             monstunseesu(M_SEEN_COLD);
         }
-        if (!rn2(3))
+        if (!Reflecting && !rn2(3))
             (void) destroy_items(&gy.youmonst, AD_COLD, orig_dam);
         break;
     case ZT_SLEEP:
@@ -5406,9 +5425,17 @@ zhitu(
             You("don't feel sleepy.");
             monstseesu(M_SEEN_SLEEP);
         } else {
+            /* sleep ray; a partly reflected one only brings a short nap */
+            int dur = resist_reduce(Reflecting ? d(1, 6) : d(nd, 25),
+                                    SLEEP_RES);
+
             monstunseesu(M_SEEN_SLEEP);
-            /* sleep ray */
-            fall_asleep(-resist_reduce(d(nd, 25), SLEEP_RES), TRUE);
+            if (Reflecting)
+                monstseesu(M_SEEN_REFL);
+            /* partial resistance can cut the nap to nothing; skip it
+               then rather than leave a stale wake-up message behind */
+            if (dur > 0)
+                fall_asleep(-dur, TRUE);
         }
         break;
     case ZT_DEATH:
@@ -5418,6 +5445,13 @@ zhitu(
             if (how_resistant(DISINT_RES) == 100) {
                 You("are not disintegrated.");
                 monstseesu(M_SEEN_DISINT);
+                break;
+            } else if (Reflecting) {
+                /* the blast is partly reflected: no disintegration,
+                   and no armor is sacrificed, but it still hurts */
+                You("aren't disintegrated, but that hurts!");
+                dam = resist_reduce(d(6, 6), DISINT_RES);
+                monstunseesu(M_SEEN_DISINT);
                 break;
             } else if (disn_prot) {
                 break;
@@ -5482,9 +5516,32 @@ zhitu(
             You("seem unaffected.");
             break;
         } else if (Antimagic) {
-            shieldeff(sx, sy);
-            monstseesu(M_SEEN_MAGR);
-            You("aren't affected.");
+            /* magic resistance turns the death ray into a draining
+               hit; reflection on top of it halves the drain */
+            dam = d(4, 6);
+            if (Half_spell_damage) {
+                shieldeff(sx, sy);
+                monstseesu(M_SEEN_MAGR);
+                dam /= 2;
+            }
+            if (Reflecting) {
+                You("feel a little drained...");
+                drain_uhpmax((dam / 3 + rn2(5)) / 2);
+            } else {
+                You("feel drained...");
+                drain_uhpmax(dam / 3 + rn2(5));
+            }
+            break;
+        } else if (Reflecting) {
+            /* reflection alone also saves the hero, at the same cost;
+               there is no magic resistance here for monsters to see */
+            dam = d(4, 6);
+            if (Half_spell_damage) {
+                shieldeff(sx, sy);
+                dam /= 2;
+            }
+            You("feel drained...");
+            drain_uhpmax(dam / 3 + rn2(5));
             break;
         }
         monstunseesu(M_SEEN_MAGR);
@@ -5506,14 +5563,16 @@ zhitu(
             exercise(A_CON, FALSE);
             monstunseesu(M_SEEN_ELEC);
         }
-        if (!rn2(3))
+        if (!Reflecting && !rn2(3))
             (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dam);
         break;
     case ZT_POISON_GAS:
-        poisoned("blast", A_DEX, "poisoned blast", 15, FALSE);
+        if (!Reflecting)
+            poisoned("blast", A_DEX, "poisoned blast", 15, FALSE);
         break;
     case ZT_ACID:
-        if (Acid_resistance) {
+        /* the water around a submerged hero dilutes the acid */
+        if (Acid_resistance || Underwater) {
             pline_The("%s doesn't hurt.", hliquid("acid"));
             monstseesu(M_SEEN_ACID);
             dam = 0;
@@ -5523,13 +5582,16 @@ zhitu(
             exercise(A_STR, FALSE);
             monstunseesu(M_SEEN_ACID);
         }
-        /* using two weapons at once makes both of them more vulnerable */
-        if (!rn2(u.twoweap ? 3 : 6))
-            acid_damage(uwep);
-        if (u.twoweap && !rn2(3))
-            acid_damage(uswapwep);
-        if (!rn2(6))
-            erode_armor(&gy.youmonst, ERODE_CORRODE);
+        if (!(Reflecting || Underwater)) {
+            /* using two weapons at once makes both of them more
+               vulnerable */
+            if (!rn2(u.twoweap ? 3 : 6))
+                acid_damage(uwep);
+            if (u.twoweap && !rn2(3))
+                acid_damage(uswapwep);
+            if (!rn2(6))
+                erode_armor(&gy.youmonst, ERODE_CORRODE);
+        }
         break;
     case ZT_WATER:
         dam = d(nd, 8);
@@ -5538,7 +5600,8 @@ zhitu(
         if (u.umonnum == PM_WATER_ELEMENTAL
             || u.umonnum == PM_BABY_SEA_DRAGON
             || u.umonnum == PM_SEA_DRAGON) {
-            You("absorb the blast of water into your body.");
+            You("%sabsorb the blast of water into your body.",
+                Reflecting ? "partially " : "");
             dam = 0;
             break;
         }
@@ -5555,13 +5618,16 @@ zhitu(
             rehumanize();
             break;
         }
-        /* using two weapons at once makes both of them more vulnerable */
-        if (!rn2(u.twoweap ? 3 : 6))
-            (void) water_damage(uwep, (char *) 0, TRUE);
-        if (u.twoweap && !rn2(3))
-            (void) water_damage(uswapwep, (char *) 0, TRUE);
-        if (!rn2(6))
-            erode_armor(&gy.youmonst, ERODE_RUST);
+        if (!Reflecting) {
+            /* using two weapons at once makes both of them more
+               vulnerable */
+            if (!rn2(u.twoweap ? 3 : 6))
+                (void) water_damage(uwep, (char *) 0, TRUE);
+            if (u.twoweap && !rn2(3))
+                (void) water_damage(uswapwep, (char *) 0, TRUE);
+            if (!rn2(6))
+                erode_armor(&gy.youmonst, ERODE_RUST);
+        }
         break;
     case ZT_DRAIN: {
         const char *life = nonliving(gy.youmonst.data) ? "animating force"
@@ -5579,10 +5645,9 @@ zhitu(
         }
         monstunseesu(M_SEEN_DRLI);
         if (Reflecting) {
-            /* engulfed or self-directed breath bypasses the beam
-               reflection arm; mitigate rather than fully drain */
+            /* partly reflected: mitigate rather than fully drain */
             You("feel drained...");
-            u.uhpmax -= dam / 2 + rn2(5);
+            drain_uhpmax(dam / 2 + rn2(5));
         } else {
             if (Blind)
                 You_feel("a dark energy blast draining your %s!", life);
@@ -5603,7 +5668,9 @@ zhitu(
             monstseesu(M_SEEN_STUN);
         } else {
             monstunseesu(M_SEEN_STUN);
-            make_stunned((HStun & TIMEOUT) + (long) dam / 2, TRUE);
+            /* a partly reflected blast stuns for half as long */
+            make_stunned((HStun & TIMEOUT)
+                         + (long) dam / (Reflecting ? 4 : 2), TRUE);
         }
         break;
     }
@@ -5892,8 +5959,7 @@ dobuzz(
     coord save_bhitpos;
     boolean shopdamage = FALSE,
             fireball = (type == ZT_SPELL(ZT_FIRE)), /* set once */
-            is_wand = (type >= 0 && type < BZ_U_SPELL(0)),
-            gas_hit = FALSE; /* will be set during each iteration */
+            is_wand = (type >= 0 && type < BZ_U_SPELL(0));
     struct obj *otmp;
     int spell_type;
     int hdmgtype = Hallucination ? rn2(6) : damgtype;
@@ -5951,12 +6017,10 @@ dobuzz(
 
         /* hit() and miss() need gb.bhitpos to match the target */
         gb.bhitpos.x = sx, gb.bhitpos.y = sy;
-        gas_hit = (damgtype == ZT_POISON_GAS);
         /* fireballs only damage when they explode; poison gas leaves
-           a trail of 1x1 clouds via zap_over_floor(), but that gets
-           skipped for a hit that is reflected so is deferred until we
-           know whether reflection is happening */
-        if (!fireball && !gas_hit) {
+           a trail of 1x1 clouds via zap_over_floor(), including on a
+           square where the gas is reflected */
+        if (!fireball) {
             range += zap_over_floor(sx, sy, type, &shopdamage, TRUE, 0);
             /* zap with fire -> melt ice -> drown monster, so monster
                found and cached above might not be here any more */
@@ -5978,7 +6042,6 @@ dobuzz(
                         shieldeff(mon->mx, mon->my);
                         (void) mon_reflects(mon,
                                             "But it reflects from %s %s!");
-                        gas_hit = FALSE;
                     }
                     /* water is reflected but doesn't bounce */
                     if (damgtype == ZT_WATER)
@@ -6112,12 +6175,13 @@ dobuzz(
                         || u.umonnum == PM_BABY_SEA_DRAGON
                         || u.umonnum == PM_SEA_DRAGON))
                     range = 0;
+                /* reflection is only partial: the ray bounces back, but
+                   the hero still takes it at half strength; zhitu()
+                   softens the side effects while Reflecting */
                 if (Reflecting) {
-                    if (!Blind) {
-                        (void) ureflects("But %s reflects from your %s!",
+                    if (!Blind)
+                        (void) ureflects("Some of %s reflects from your %s!",
                                          "it");
-                    } else
-                        pline("For some reason you are not affected.");
                     monstseesu(M_SEEN_REFL);
                     dx = -dx;
                     dy = -dy;
@@ -6125,13 +6189,13 @@ dobuzz(
                     if (damgtype == ZT_WATER)
                         range = 0;
                     shieldeff(sx, sy);
-                    gas_hit = FALSE;
+                    nd = (nd + 1) / 2;
                 } else {
-                    /* flash_str here only used for killer; suppress
-                     * hallucination */
-                    zhitu(type, nd, flash_str(fltyp, TRUE), sx, sy);
                     monstunseesu(M_SEEN_REFL);
                 }
+                /* flash_str here only used for killer; suppress
+                 * hallucination */
+                zhitu(type, nd, flash_str(fltyp, TRUE), sx, sy);
             } else if (!Blind) {
                 pline("%s whizzes by you!", The(flash_str(fltyp, FALSE)));
             } else if (damgtype == ZT_LIGHTNING) {
@@ -6142,10 +6206,6 @@ dobuzz(
             stop_occupation();
             nomul(0);
         }
-        /* gas that missed or that hit without being reflected will leave
-           a 1x1 cloud here; the earlier zap_over_floor() was deferred */
-        if (gas_hit)
-            (void) zap_over_floor(sx, sy, type, &shopdamage, TRUE, 0);
 
         /* a death ray, but not a breath weapon, kills a living tree */
         if (levl[sx][sy].typ == TREE && damgtype == ZT_DEATH
