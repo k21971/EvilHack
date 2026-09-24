@@ -17234,7 +17234,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       right-handed." for the crowned demon is 5.0's handedness line
       reading master's demon / tortle clawed-hand rule (master has no
       handedness line) - correct by the code.
-- [ ] MED: master's luck-timeout rework ABSENT (minted 2026-09-22,
+- [x] MED: master's luck-timeout rework ABSENT - PORTED 2026-09-24
+      (session 137, luck timeout slice, commits `Fix: a luckstone
+      stopped luck from timing out.` (BUG-1912, 1913), `Fix: plain
+      helmets ran the helm of speed's wear code.` (BUG-1914), `Fix: a
+      toque blocked squeezing under a door.` (BUG-1915) - hashes
+      filled after landing; closure notes at the end of this row;
+      (minted 2026-09-22,
       session 134, by the enlightenment-residue row's attribute diff;
       first named in passing as an owner row "master luck-timeout
       rework (misc parity, pre-existing)" in a closed row's NEW OWNER
@@ -17265,6 +17271,82 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Archeologist +1 and its halving term carries an Infidel /
       uimbued_idol test that master's `u.uachieve.amulet` form does
       not - decide each. MED (gameplay: luck decay with a luckstone).
+      CLOSURE (session 137, plan bugfix-luck-timeout-rework.md):
+      nh_timeout() runs master's block in 5.0 idiom (timeout 600,
+      `25000 - 200 * d * d` under has_luckitem() in the matching
+      direction, halved, then a step when `svm.moves >= u.luckturn +
+      timeout` and `u.luckturn = (int) svm.moves`); has_luckitem()
+      ported and set_moreluck() keys on it; insight.c prints master's
+      "times out slowly" lines under has_luckitem(). The two items
+      the row said to decide: the Infidel / uimbued_idol halving term
+      STAYS (reviewer-verified equivalent to master's
+      uachieve.amulet, including the Infidel's starting Amulet and
+      the endgame level-teleport; the one edge is master's Idol
+      falling out of a full pack during the imbue, a master quirk);
+      the fedora +1 STAYS by ruling (maintainer 2026-09-24: keep 5.0's
+      lucky fedora, upstream 78289a7f8, over the master-shape
+      recommendation). u.luckturn rides the whole-struct you blob
+      (util/sfdata.c exports it too); no save I/O. FOLDED IN by
+      ruling (the same session's sweep): BUG-1914 Helmet_on() - the
+      Phase 1 gate fix 9dda906cf put HELM_OF_SPEED's arm right after
+      DWARVISH_HELM, so six plain helmets ran the speed code (seen by
+      an otherwise bare hero only, since 5.0's setworn() parks every
+      property-less worn item's mask in u.uprops[0] = their oldprop);
+      BUG-1915 stuff_prevents_passage() lacked master fb5a531e7's
+      TOQUE exemption. REVIEWER PASS (one LOW comment nit taken: the
+      block comment names every luck item and the quest-leader -4).
+      BATTERY (8 games, ~70 min, POST md5
+      fe1bc32b60ce5e425555ed587eb77d28, PRE 2f3ec476..., MASTER
+      0777d167...; moonphase 3, b = 0, b = 1 for the branch
+      Archeologist in the fedora): every leg PASS, POST = MASTER at
+      every shared checkpoint.
+      - No luck item: luck +5 with luckturn = M-590 steps on the 10th
+        turn and luckturn = M-600 on the next turn (both trees at the
+        same moves); PRE stepped only at moves 600.
+      - Uncursed stone: +5 / -5 held 30 turns at M-590 and stepped at
+        M-19990 + 10 turns; PRE frozen across moves 1200 and 1800.
+      - Blessed stone: bad luck 600, good luck 23200; cursed: the
+        reverse; PRE froze the matching side and stepped the other
+        only at a multiple of 600.
+      - Amulet 300 (PRE stepped at moves 4500, a multiple of 300),
+        Amulet + stone 10000, ugangr 300; an Infidel with the
+        unimbued starting Amulet stayed unhalved on both trees.
+      - ^X: POST = MASTER "Bad / Good luck times out slowly for you."
+        by stone BUC, "extra / reduced luck"; PRE "does not time out".
+      - Net-zero excellence items (blessed armor worn, cursed sword
+        wielded): POST = MASTER moreluck 3 with both lines; PRE 0.
+      - Fedora: PRE = POST -1 / +1 on removal / wearing, luck at base
+        1 held; MASTER unchanged.
+      - Plain helmet on a bare Tourist: PRE "You feel yourself speed
+        up." and the etched helmet identified (also dwarvish helm,
+        toque), silent with a dagger wielded; POST = MASTER silent;
+        the helm of speed messages on all three.
+      - Toque: PRE "can't squeeze your possessions through"; POST =
+        MASTER "You ooze under the door."
+      - Save / reload kept luckturn and moves; the step came on
+        schedule. Owed lycanthrope ^X check (session 135) DONE: "You
+        are level-drain resistant due to your lycanthropy."
+      Paniclog clean on both trees. BRIEF ERRORS (mine): master's
+      wizard-mode "Amulet of Yendor" wish yields the cheap plastic
+      imitation (staged by gdb mksobj_at); the helmet appearance is
+      shuffled per game; Infidels start wearing the real Amulet on
+      both trees. NEW ROW: the LOW wish-invlet case row below.
+- [ ] LOW: a wish printed "Q - a leather armor." for an item whose
+      invlet is 'q' (minted 2026-09-24, session 137, battery
+      observation, not reproduced). On both PRE and POST (master not
+      tried), wishing "blessed leather armor of excellence" printed an
+      uppercase "Q -" while gdb read invlet 'q', the W prompt offered
+      "[q or ?*]" and the inventory listed "q - ..."; every other wish
+      that game printed a lowercase letter. pline() and prinv() /
+      xprname() do no case mapping, and nothing in src rewrites an
+      invlet's case, so the letter at print time was 'Q' and something
+      changed it later (an oprops wish / touch path that frees and
+      re-adds the object is one candidate; assigninvlet() cycles from
+      lastinvnr and can pick an uppercase letter while lowercase ones
+      are free). Reproduce first (a Tourist with a full-ish pack, wish
+      the same string, check obj->invlet by gdb right after the
+      message), then trace. LOW (cosmetic unless the item really
+      moves letters).
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
       and races lost master's granted properties.` = 408713be5
@@ -17429,11 +17511,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] MED: death magic outcome shape vs magic resistance - PORTED
       2026-09-23 (session 136, partial reflection / death magic slice,
       commits `Fix: rays at the hero ignored partial reflection and
-      magic resistance.` (BUG-1900..1905, 1909), `Fix: monster magic
-      ignored partial reflection and magic resistance.` (BUG-1900,
-      1902, 1906, 1907, 1910, 1911), `Fix: monsters stopped breathing
-      at a hero they had seen resist.` (BUG-1908) - hashes filled
-      after landing; closure notes at the end of this row;
+      magic resistance.` = 471c0f494 (BUG-1900..1905, 1909), `Fix:
+      monster magic ignored partial reflection and magic resistance.`
+      = 79052f590 (BUG-1900, 1902, 1906, 1907, 1910, 1911), `Fix:
+      monsters stopped breathing at a hero they had seen resist.` =
+      50ec22dc4 (BUG-1908), tracker c607145c3, landed 2026-09-23;
+      closure notes at the end of this row;
       (minted
       2026-09-22, session 134, beside the three-site Death_resistance
       port - that port touched only the resistance TEST). (a) zap.c
@@ -18706,6 +18789,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-23 | mcastu.c touch-of-death announcement `pline("Oh no, %s's using the touch of death!", mhe(mtmp));` (NetHack50 src/mcastu.c:391): pronoun_gender() returns rn2(4) while hallucinating (mondata.c ~1200) and genders[3] is the plural "they" (role.c ~693), so a hallucinating hero can read "Oh no, they's using the touch of death!" | fixed on branch (BUG-1911, 79052f590: pronoun_gender() called once, "'re" for index 3, "'s" otherwise, on the hero leg and the branch's monster-target leg); patch not yet cut |
+| 2026-09-23 | zap.c dobuzz() defers zap_over_floor() for poison gas (NetHack50 src/zap.c ~4871 `if (!fireball && !gas_hit)`) and later calls it as `(void) zap_over_floor(...)` (~5009), discarding its range return; a closed door's def_case prints "The door absorbs the blast!" with a -1000 range adjustment that is thrown away, so the gas ray carries on / bounces after the door "absorbed" it. Upstream fix: restore the range, e.g. `range += zap_over_floor(...)` in the deferred call | fixed on branch (no BUG id of its own; landed inside BUG-1900, 471c0f494 - the branch removed the deferral for a different reason, maintainer ruling: master's shape, a reflected gas ray leaves its cloud); patch not yet cut |
 | 2026-09-18 | display.c display_monster()'s M_AP_OBJECT arm builds its fake object with otyp and corpsenm only (oclass 0, dknown 0), so a mimic disguised as a gem or a spellbook satisfies obj_is_generic() and generic_obj_to_glyph() yields oclass + GLYPH_OBJ_OFF = the strange-object glyph; map_object()'s near re-observation cannot rescue it (glyph_is_normal_generic_obj() is strict `> GLYPH_OBJ_OFF`), so the disguise draws and is remembered as `]` at any distance - a mimic tell. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1862, session 127: oclass on the fake object in display_monster() and object_detect(), dknown seeded from and stored back to M_AP_F_DKNOWN, see_nearby_objects() redraws a nearby unseen object-mimic, savebones() clears the flag); artifact ~/nh50-mimic-generic-object-glyph.patch (display.c + detect.c + bones.c; git apply --check clean vs both trees); not yet sent |
 | 2026-09-18 | zap.c montraits() rebuilds a revived monster from its stored traits but never resets mextrinsics; m_detach() forces mhp = 0 before relobj() -> mdrop_obj(), and monstone() forces it before its extract_from_minvent() loop, and both drop paths gate update_mon_extrinsics() on !DEADMONSTER(mon), so a corpse or statue snapshot keeps every worn-item bit (vanilla: the res_to_mr() resistances, e.g. an alchemy smock's poison and acid) and the revived monster keeps them with no gear, permanently - nothing ever clears a bit with no worn item behind it. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1860: montraits()'s reset block zeroes mextrinsics plus the levitation/jump timers, the clone_mon() reset); artifact ~/nh50-montraits-extrinsics.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8, alone and in sequence with the mimic artifact); not yet sent |
 | 2026-09-18 | zap.c montraits() copies only m_ap_type from the fresh makemon() monster into the stored traits that replmon() installs, so the live revived mimic carries an incoherent triple - the fresh disguise type over the snapshot's mappearance / MCORPSENM - until the callers' seemimic() (revive(), animate_statue()) clears it: rendered once by montraits()'s own newsym() (display_monster() reads the appearance as a cmap index or an otyp by the type, PM_TENGU for a missing corpsenm) and judged by restore_cham() and by seemimic()'s own is_lightblocker_mappear() unblock test. Latent on 5.0 because relmon() -> mon_leaving_level() reveals the fresh monster (unblocking its square) before place_monster() installs the snapshot; on a tree whose relmon() reveals only a migrating monster (EvilHack master) the fresh block survives and the mismatched pair is never unblocked. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1861: carry m_ap_type, mappearance and MCORPSENM from the fresh monster before replmon() frees its mextra); artifact ~/nh50-montraits-mimic-disguise.patch (git apply --check clean vs both trees; worded as the latent triple, no stale-block claim); not yet sent |
@@ -18846,6 +18931,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-24 | Luck timeout slice rulings (AskUserQuestion x1, two questions): (1) the Archeologist's lucky fedora (upstream 78289a7f8: change_luck(+1 / -1) on wearing / removing, baseluck +1 while worn) STAYS - the maintainer chose to keep 5.0's upstream extra over the recommended master's shape (master never had it); the luck timeout itself is master's a78345e6c (luck items slow the decay, never stop it); (2) the two unrelated hat gaps the sweep found fold into the slice as their own commits (recommended): Helmet_on()'s HELM_OF_SPEED fallthrough (BUG-1914, branch-introduced by 9dda906cf) and stuff_prevents_passage()'s missing TOQUE exemption (BUG-1915). Not asked (no ruling needed): the halving term keeps the branch's `(!Role_if(PM_INFIDEL) \|\| u.uevent.uimbued_idol)` translation of master's uachieve.amulet; set_moreluck() and the ^X text take master's shape as the row prescribed | maintainer |
 | 2026-09-23 | Partial reflection / death magic slice rulings (AskUserQuestion x2, five questions, all recommended options taken; every one = master's shape): (1) HERO PARTIAL REFLECTION vs rays (master 92e32005a, SporkHack): a reflected wand / spell / breath ray still hits the hero at half dice ("Some of it reflects from your <item>!", no line when Blind), and zhitu()'s Reflecting arms spare belongings (no burning, shattering, exploding or eroding), shorten sleep to 1d6 and stun by half, make poison gas harmless and turn disintegration into d(6,6); 5.0's full reflection dropped. Monster reflection stays full on both trees. (2) DEATH RAY vs magic resistance: master's drain (MR: d(4,6) and "You feel drained..." with a max-HP cut; MR + reflection: "a little drained", half the cut; reflection alone: the same as MR), not 5.0's "You aren't affected."; the death-magic MED row's arm (a). (3) TOUCH OF DEATH (master 6e6406d82): no escape roll, fatal without MR even polymorphed, d(8,6)/2 plus a max-HP cut with MR, hallucination harmless; Death's melee touch fatal on 17-19 without MR - not 5.0's escape roll and 50+8d6 drain; the row's arm (b). (4) MAGIC-MISSILE HALVING (master 08b519a7e, SporkHack; found by this slice, never rowed) FOLDED IN: MR halves magic missiles at the hero and at monsters instead of stopping them, a naturally magic-resistant species / form still stops them where master says so. (5) BREATH AI (follow-up question): master's breamu() - a monster breathes at the hero whatever it has seen; 5.0's breamm() m_seenres / M_SEEN_REFL hero gate dropped (keeping it would have let each dragon half-hit a reflecting hero once). Session calls under the approved plan: master's reflection-only death arm's monstseesu(M_SEEN_MAGR) not ported (it teaches monsters a non-MR hero has MR - BUG-1905, master frozen-unfixed); the max-HP cuts floor at 1 through drain_uhpmax() (master's zhitu() had no floor - BUG-1904, master frozen-unfixed); reviewer-surfaced same-feature siblings folded in (clerical lightning's partial reflection, master 17442b734; the wand of magic missile AI gate; Death's touch M_SEEN_MAGR). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-09-23 | set_uasmon() race / form properties slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) DRAIN_RES follows master's race-based `resists_drain(racedat)`, not 5.0's uwep-suppressed resists_drli(&youmonst) - a vampire hero gains FROMFORM drain resistance and worn drain-resistant gear stops leaving a sticky FROMFORM bit; the first answer also took master's loss of a HUMAN-FORM LYCANTHROPE's drain resistance, but after the battery the maintainer REVISED it ("I dont think we should lose the 'level-drain resistant' line"): the arm is `resists_drain(racedat) \|\| ismnum(u.ulycn)`, because master's loss is a 7b7b9875c regression (the u.ulycn term rode the resists_drli() call it replaced; set_ulycn(), allmain.c's were_changes comment and is_innate()'s FROM_LYCN still expect the property) - archived as BUG-1899, master frozen-unfixed; (2) resists_drli() / resists_magm() get master's species macros (raceptr + resists_drain(), resists_mgc()) as their own commit in the slice; (3) the set_uasmon() half of master ebf5ef0d2 (giants wield two-handers one-handed: drop_weapon(1) in set_uasmon(), drop_weapon()'s bimanual arm, polyman()'s message ahead of set_uasmon()) is its own commit in the slice; rehumanize()'s break_armor() + drop_weapon(1) stay on the break_armor reconcile row. Coordinator calls, not asked: master's `Jumping` macro disjunct `\|\| is_jumper(youmonst.data)` NOT ported (redundant with the new PROPSET(JUMPING), same reasoning as the 2026-09-06 Sick_resistance entry); set_uasmon()'s drop_weapon(1) sits inside the existing `!program_state.restoring` gate beside float_vs_flight() (inventory is read back after set_uasmon() at restore, on master too, so no behavior changes); `racedat` is computed as `Upolyd ? mdat : &mons[gu.urace.mnum]` rather than through raceptr(), whose const return would reach the non-const dmgtype() inside immune_death_magic(); the reviewer-surfaced bracers-as-shield siblings of the two-weapon / two-hander class (zap.c poly_obj() = the unported half of master 57eb04d10, worn.c check_wornmask_slots() and iactions.c, both 5.0-native) were fixed in commit C per the cross-file-siblings rule, while other is_bracer() gaps went to a new SWEEP row. | maintainer |
 | 2026-09-22 | Enlightenment residue slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) the luck line ("Bad / Good luck times out slowly for you" on master, "does not time out" on the branch) follows the MECHANICS - the branch runs 5.0's stop-timeout luckstone, so its text is accurate today; master's luck-timeout rework (has_luckitem(), the u.luckturn clock, the slowed timeout) is MINTED as its own MED row and the enlightenment line rides it, not this slice; (2) commits = the out-of-bounds hofe_titles[] read (BUG-1891) separate from the restored lines (BUG-1892), plus the tracker commit; (3) master's long warned-of polyd chain (drow, the undead, giants, dragons, ogres, trolls, angels, aasimar, jabberwocks, wraiths, ...) is SKIPPED and recorded - the only warntype.polyd writer on BOTH trees sets MH_HUMAN \| MH_ELF (the vampire forms), so every extra arm is dead and the output is identical. Two more (AskUserQuestion x2 after the reviewer, both recommended): (4) master's gethungry() RACE test (`!inediate(raceptr())`) ported NOW as its own commit (BUG-1893) so the restored "survive without having to eat" line is true - a crowned, unpolymorphed, non-Draugr Infidel stops burning nutrition each turn (accessory hunger stays); every other race and role monster eats, so nothing else changes; (5) the three hero death-magic sites (zapyourself death, zhitu death ray, touch of death spell) get master's `Death_resistance \|\| immune_death_magic()` test NOW (BUG-1894) so the restored "immune to the effects of death magic" line is true; the set_uasmon() race / form property reconcile is MINTED as a HIGH row, and the death ray / touch of death magic-resistance outcome shape as a MED row needing its own ruling. | maintainer |
