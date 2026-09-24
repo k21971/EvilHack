@@ -2630,18 +2630,20 @@ staticfn int
 trapeffect_telep_trap(
     struct monst *mtmp,
     struct trap *trap,
-    unsigned int trflags UNUSED)
+    unsigned int trflags)
 {
     if (mtmp == &gy.youmonst) {
         seetrap(trap);
         tele_trap(trap);
     } else {
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
+        boolean escaping = (trflags & ESCAPETRAP) != 0;
 
         /* a monster the trap could not move (no-teleport level, magic
            resistance, a pet that refused) is still standing on it */
-        return mtele_trap(mtmp, trap, in_sight) ? Trap_Moved_Mon
-                                                : Trap_Effect_Finished;
+        return mtele_trap(mtmp, trap, in_sight, escaping)
+                   ? Trap_Moved_Mon
+                   : Trap_Effect_Finished;
     }
     return Trap_Effect_Finished;
 }

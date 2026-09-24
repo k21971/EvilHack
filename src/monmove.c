@@ -2550,10 +2550,13 @@ m_move(struct monst *mtmp, int after)
         return postmov(mtmp, ptr, omx, omy, MMOVE_MOVED,
                        seenflgs, can_tunnel, can_unlock, can_open);
 
-    /* teleport if that lies in our nature */
-    if (ptr == &mons[PM_TENGU] && !rn2(5) && !mtmp->mcan
-        && !tele_restrict(mtmp)) {
-        if (mtmp->mhp < 7 || mtmp->mpeaceful || rn2(2))
+    /* teleport if that lies in our nature; a monster with teleport
+       control may choose to land next to the hero */
+    if (mon_prop(mtmp, TELEPORT)
+        && !rn2(ptr == &mons[PM_TENGU] ? 5 : 85)
+        && !tele_restrict(mtmp)
+        && !((mtmp->isshk || mtmp->ispriest) && mtmp->mpeaceful)) {
+        if (!decide_to_teleport(mtmp) || rn2(2))
             (void) rloc(mtmp, RLOC_MSG);
         else
             mnexto(mtmp, RLOC_MSG);

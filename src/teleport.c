@@ -2123,23 +2123,44 @@ tele_restrict(struct monst *mon)
     return FALSE;
 }
 
-/* monster stepped onto a teleport trap; returns TRUE if it was moved */
+/* whether a monster with teleport control would rather stay near the
+   hero (land beside it, or refuse a level teleporter) than go anywhere
+   at all */
 boolean
-mtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)
+decide_to_teleport(struct monst *mtmp)
 {
-    char *monname;
+    if (!mon_prop(mtmp, TELEPORT_CONTROL))
+        return FALSE; /* no choice */
+    /* fleeing, hurt or peaceful non-pets just want to be elsewhere */
+    return !((mtmp->mhp < 7 || mtmp->mflee || mtmp->mpeaceful)
+             && !mtmp->mtame);
+}
+
+/* monster stepped onto a teleport trap; returns TRUE if it was moved;
+   'escaping' is set when it jumped onto the trap to get away */
+boolean
+mtele_trap(
+    struct monst *mtmp,
+    struct trap *trap,
+    int in_sight,
+    boolean escaping)
+{
+    char monnamebuf[BUFSZ];
+    coordxy omx = mtmp->mx, omy = mtmp->my;
 
     /* don't print feedback here: a monster stepping on a trap and not
        teleporting from it isn't visible */
     if (noteleport_level(mtmp))
         return FALSE;
-    /* magic resistance shrugs off the trap's magic */
-    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
+    /* magic resistance shrugs off the trap's magic, unless the monster
+       jumped onto the trap to make use of it */
+    if (!escaping && (resists_magm(mtmp) || defended(mtmp, AD_MAGM)))
         return FALSE;
 
     if (teleport_pet(mtmp, FALSE)) {
-        /* save name with pre-movement visibility */
-        monname = Monnam(mtmp);
+        /* save name with pre-movement visibility; copy it, since the
+           relocation below can cycle through Monnam()'s buffers */
+        Strcpy(monnamebuf, Monnam(mtmp));
 
         /* Note: don't remove the trap if a vault.  Other-
          * wise the monster will be stuck there, since
@@ -2157,17 +2178,23 @@ mtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)
                 rloc_to_core(mtmp, trap->teledest.x, trap->teledest.y,
                              RLOC_MSG);
             }
-        } else
+        } else if (escaping || !decide_to_teleport(mtmp)) {
+            /* a monster fleeing through the trap goes anywhere at all */
             (void) rloc(mtmp, RLOC_NONE);
+        } else {
+            mnexto(mtmp, RLOC_NONE);
+        }
 
         if (in_sight) {
             if (canseemon(mtmp))
-                pline("%s seems disoriented.", monname);
+                pline("%s seems disoriented.", monnamebuf);
             else
-                pline("%s suddenly disappears!", monname);
+                pline("%s suddenly disappears!", monnamebuf);
             seetrap(trap);
         }
-        return TRUE;
+        /* an occupied fixed destination, or mnexto() picking the
+           monster's own square next to the hero, leaves it in place */
+        return (mtmp->mx != omx || mtmp->my != omy);
     }
     return FALSE;
 }
@@ -2252,6 +2279,10 @@ mlevel_tele_trap(
                    the hero and then revisited */
                 assign_level(&tolevel, &u.uz);
             } else {
+                /* a monster with teleport control and no reason to
+                   leave chooses to stay */
+                if (decide_to_teleport(mtmp))
+                    return Trap_Effect_Finished;
                 nlev = random_teleport_level();
                 if (nlev == depth(&u.uz)) {
                     if (in_sight)

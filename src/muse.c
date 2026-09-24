@@ -518,7 +518,7 @@ m_tele(
             /* monster is voluntarily entering a teleporation trap; use the
                trap instead of rloc() in case it sends 'victim' to a vault */
             mtmp->mx = gt.trapx, mtmp->my = gt.trapy;
-            (void) mintrap(mtmp, FORCETRAP);
+            (void) mintrap(mtmp, FORCETRAP | ESCAPETRAP);
         }
     }
 }
@@ -1311,6 +1311,8 @@ use_defensive(struct monst *mtmp)
                 if (vismon)
                     pline_mon(mtmp, "%s seems very disoriented for a moment.",
                           Monnam(mtmp));
+            } else if (decide_to_teleport(mtmp)) {
+                ; /* teleport control and no reason to leave: it stays */
             } else if (nlev == depth(&u.uz)) {
                 if (vismon)
                     pline_mon(mtmp, "%s shudders for a moment.", Monnam(mtmp));

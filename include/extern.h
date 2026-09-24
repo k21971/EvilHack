@@ -3514,7 +3514,9 @@ extern boolean rloc(struct monst *, unsigned) NONNULLARG1;
 extern boolean control_mon_tele(struct monst *, coord *cc, unsigned,
                                 boolean) NONNULLARG1;
 extern boolean tele_restrict(struct monst *) NONNULLARG1;
-extern boolean mtele_trap(struct monst *, struct trap *, int) NONNULLARG12;
+extern boolean decide_to_teleport(struct monst *) NONNULLARG1;
+extern boolean mtele_trap(struct monst *, struct trap *, int,
+                          boolean) NONNULLARG12;
 extern int mlevel_tele_trap(struct monst *, struct trap *,
                             boolean, int) NONNULLARG1;
 extern boolean rloco(struct obj *) NONNULLARG1;

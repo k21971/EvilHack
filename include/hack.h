@@ -1384,6 +1384,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define VIASITTING    0x20U /* #sit while at trap location (affects message) */
 #define FAILEDUNTRAP  0x40U /* trap activated by failed untrap attempt */
 #define HURTLING      0x80U /* monster is hurtling through air */
+#define ESCAPETRAP    0x100U /* monster jumped onto the trap to escape */
 
 /* Flags to control test_move in hack.c */
 #define DO_MOVE 0   /* really doing the move */
