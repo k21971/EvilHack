@@ -4699,7 +4699,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       verbatim); pray_revive runs only in the non-A_NONE coaligned
       arm (5.0-only feature; Moloch-doesn't-succor reading);
       sounds.c chat fall-through-to-domonnoise delta; mysteryforce
-      decay term kept + A_NONE exemption (standing collision rule).
+      decay term kept + A_NONE exemption (standing collision rule)
+      [SUPERSEDED 2026-09-24, session 140: master disabled the whole
+      force in `#if 0` (ad34e781a) - the exemption came from inside
+      that dead block; the branch now disables it too, BUG-1924].
       DISPOSITIONS: prayer_done -1 arm stays vanilla-5.0-exact
       (master's praying&& gate + HUnchanging forced-death unported;
       5.0 rehumanize covers intent); ACH_AMUL full-pack-imbue edge
@@ -17575,9 +17578,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ring-wearing deferral (Racial monsters row) and damp rider (c).
 - [x] MED: master's m_move() random-teleport arm absent - PORTED
       2026-09-24 (session 139, random-teleport slice, commit `Fix:
-      only tengu teleported around the level on their own.` (BUG-1920,
-      1921, 1922, 1923) - hash filled after landing; closure notes at
-      the end of this row; minted
+      only tengu teleported around the level on their own.` =
+      349aa59b5 (BUG-1920, 1921, 1922, 1923), tracker 920734e03,
+      landed 2026-09-24; closure notes at the end of this row; minted
       2026-09-24, session 138, beside the jumping arm). Master's
       Monster Ring patch 5880eed5f replaced vanilla's tengu-only arm
       with `mon_prop(mtmp, TELEPORT) && !rn2(tengu ? 5 : 85) &&
@@ -17659,8 +17662,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ..." with a call prompt on the branch; a hurt covetous boss runs
       tactics() toward the up stairs whenever the hero is beyond dist2
       8. NEW ROW: the Amulet's mysterious force (below).
-- [ ] MED: the Amulet's "mysterious force" is live on the branch but
-      REMOVED on master (minted 2026-09-24, session 139, found by the
+- [x] MED: the Amulet's "mysterious force" is live on the branch but
+      REMOVED on master - PORTED 2026-09-24 (session 140, commit `Fix:
+      the Amulet's mysterious force was still live.` (BUG-1924, 1925,
+      1926, 1927, 1928, 1929) - hash filled after landing; closure
+      notes at the end of this row; minted 2026-09-24, session 139,
+      found by the
       random-teleport slice's m_tele() read). Master ad34e781a (2018,
       "Remove the mysterious force... and replace it with nasties
       spawning at the upstairs ...; also disabled being able to
@@ -17686,6 +17693,129 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       vs 5.0's decaying force); recommend master's shape (an authored
       EvilHack design change, not a quirk). MED (gameplay: Amulet run
       difficulty).
+      CLOSURE (session 140, plan
+      /root/.claude/plans/bugfix-amulet-mysterious-force.md):
+      RULINGS (decisions log; three recommended, one not): master's
+      removal for the hero and for monsters; find_defensive() skips a
+      teleport trap m_tele() would refuse; level_tele() takes master's
+      wizard-mode "Override?"; and (maintainer over the recommended
+      master parity) an Amulet carrier is refused the m_move() random
+      blink too. CODE: do.c goto_level() force block in master's
+      `#if 0` (5.0 body kept inside for merges;
+      svc.context.mysteryforce stays in the saved struct, now never
+      written - BUG-1924); muse.c MUSE_UPSTAIRS carrier arm in `#if 0`
+      with a balanced `} else` / `{` form (BUG-1924); m_tele() and the
+      MUSE_SPE_TELEPORT_AWAY_SELF inline copy refuse a carrier / Wizard's
+      Tower monster unconditionally (BUG-1925); find_defensive() pick
+      guards - no teleport trap for a carrier or on a Wizard's Tower
+      level, no self-teleport spell on a Wizard's Tower level (5.0's
+      noteleport_level() exempts covetous monsters from the natural
+      flag, so a covetous caster reached the permanent refusal there
+      and would recast it every third turn) - BUG-1927, master's trap
+      loop frozen-unfixed; level_tele() wizard Override for every term
+      of that block (BUG-1926); m_move() blink refusal with "<Mon>
+      seems disoriented for a moment." when seen, then a normal move
+      (BUG-1928). Out of scope, master shape kept: the other monster
+      self-teleports (dochug flee blink, steal.c after-theft escape,
+      unicorn dodge, mhitu / mhitm / uhitm, mon.c, minion.c).
+      REVIEWER CONDITIONAL PASS -> all actionable findings taken: MEDIUM
+      the self-teleport spell pick (above); LOW the known-noteleport
+      teleport-trap re-pick - a hurt monster on a Gehennom level made
+      no-teleport by a demon lord's court (or an active stasis effect;
+      mktrap only skips flagged levels) jumped onto the trap, was
+      refused, and re-picked the trap under its feet every turn; the
+      trap pick now reads the knowledge bit m_tele() already sets
+      (`!(mon_knows_traps(TELEP_TRAP_SET) && noteleport_level())`, the
+      wand / scroll picks' test) - BUG-1929, upstream 5.0 has it
+      (table below); LOW comment wording x2. Kept: the stale
+      context.h mysteryforce comment (upstream struct text) and
+      master's extra parentheses in level_tele(). Delta review PASS.
+      BATTERY (3 games, ~78 min; POST md5
+      299b3cf96f99247dec9c04bdc9934fc1 = installed, PRE
+      ef09afd382c91c22748a1c0a2b98cb63, MASTER
+      0777d16796d5368eee5d5101150c9e4a; paniclog clean on both trees):
+      L1 30 up-climbs from Gehennom dunlev 2 carrying the Amulet - POST
+      30/30 and MASTER 30/30 to the Valley, mysteryforce stayed 0; PRE
+      4 force lines (sent to Hell:3/5/3/4, mysteryforce 0 -> 11). L2
+      hurt soldier carrier on the Gehennom up stairs - POST 16/16 and
+      MASTER 6/6 "escapes upstairs!" (migrating to dlevel 1); PRE 2 of
+      16 force lines, migrating DOWN to dlevel 3. L3 12 uncursed
+      scrolls of teleportation - POST 12/12 and MASTER 12/12 "seems
+      disoriented for a moment." staying put, PRE 5 of 12 (7
+      teleports). L4 carrier next to a teleport trap - POST never
+      jumped (find_defensive() probe 0 with the Amulet, 7 without;
+      the control without the Amulet jumped and teleported); PRE
+      jumped 8 times (4 refused, 4 teleported); MASTER jumped and was
+      refused on 9 consecutive turns standing on the trap (the frozen
+      loop). L4b Gehennom with a frozen Yeenoghu, trap flag clear -
+      PRE jumped and was refused 8/8 turns; POST once, knowledge bit
+      set, no further jump in 11 turns; Yeenoghu killed -> POST jumped
+      and teleported. L5 two peaceful tengu, one carrying the Amulet -
+      POST carrier 26 blink rolls, 0 relocations, 26 "seems
+      disoriented" lines; control 20 rolls = 20 relocations; PRE (28 /
+      27) and MASTER (24 / 34) both blink. L5b arch-lich knowing
+      teleport away on wizard2 - find_defensive() probe PRE 21
+      (MUSE_SPE_TELEPORT_AWAY_SELF) 6/6, POST 0 6/6; POST control on
+      D12 21 6/6. L6 ^V carrying the Amulet and in Sokoban - POST =
+      MASTER "You feel very disoriented for a moment." + Override? (n
+      stays, y reaches the level prompt); PRE straight to the prompt.
+      L7 save / reload: refusal and control blink continue, ordinary
+      climb normal. BRIEF ERRORS (mine): PRE's force fires on ANY
+      upward same-dungeon non-portal level change, ^V included (4 of 8
+      upward ^V with the Amulet), not only stairs; master's second
+      "Amulet of Yendor" wish in a game gives the cheap plastic
+      imitation (made_amulet); message forms "reads an uncursed scroll
+      of teleportation!" (BUC known) and master's "(NN aum)" suffix
+      (rc invweight). Tester lore: "seems disoriented." (no "for a
+      moment") is mtele_trap()'s successful in-view landing, not a
+      refusal. NEW ROWS (open Phase 2 rows +1 net: one closed, two
+      minted): MED master find_defensive() Amulet-carrier HP-check
+      skip; LOW 5.0's covetous noteleport exemption vs master's
+      tele_restrict() (both below).
+- [ ] MED: master find_defensive() lets an intelligent Amulet carrier
+      skip the HP check (minted 2026-09-24, session 140, by the
+      mysterious-force slice). Master 72134de80 ("Intelligent monsters
+      with Amulet of Yendor now properly flee to escape") wrapped the
+      `fraction` HP gate as `if (!(mon_has_amulet(mtmp) &&
+      !mindless(mtmp->data) && !is_animal(mtmp->data)) && (mhp >=
+      mhpmax || ...)) return FALSE;`, and d4f0c1d05 added `&&
+      !(mtmp->ispriest && inhistemple(mtmp))` (the Sanctum's high
+      priest of Moloch guards the Amulet). The branch's 5.0
+      find_defensive() keeps the plain gate inside `if (!tryescape)`
+      with no carrier term, so a healthy carrier never looks for a
+      defensive escape; the rest of the escape subsystem (BUG-1539
+      mon_escape_with_amulet(), the BFS escape goal in m_move(), the
+      covetous tactics() skip) is on the branch. Weigh before porting:
+      with the skip, every turn a healthy carrier within dist2 25 of
+      the hero runs the whole defensive selection - it takes a trap
+      door, the down stairs (MUSE_DOWNSTAIRS), a wand of digging or a
+      bugle as readily as the up stairs, and zaps / casts teleport at
+      the hero; the session-140 pick guards (BUG-1927 / 1929) keep the
+      teleport-trap and self-spell halves loop-free. Check master's
+      behavior in play before choosing master's exact shape. MED
+      (gameplay: the Amulet-thief chase).
+- [ ] LOW: 5.0's noteleport_level() exempts covetous monsters from a
+      level's natural no-teleport flag (`noteleport && !is_covetous`;
+      upstream, Official_nh50 identical); master's tele_restrict() has
+      no exemption (minted 2026-09-24, session 140, by the
+      mysterious-force slice's reviewer). Every tele_restrict() /
+      noteleport_level() caller therefore lets a covetous monster
+      teleport on Sokoban, the Wizard's Tower levels, Vlad's Tower
+      and other flagged levels where master refuses: the ported
+      m_move() random blink (the Wizard of Yendor blinks 1 in 85 on
+      his Tower levels), the dochug flee blink, m_tele()'s wand /
+      scroll self-teleport (a covetous non-carrier on a Wizard's Tower
+      level burns every charge / scroll into the permanent refusal),
+      and the at-hero arms: a covetous Amulet carrier (the Wizard after
+      stealing it) picks MUSE_WAN_TELEPORTATION /
+      MUSE_SPE_TELEPORT_AWAY at a hero whom scrolltele() always
+      refuses there, and the mon_learns_traps() calls in those arms
+      and mcastu.c's offensive usefulness filter read the CASTER's
+      noteleport_level(), so it never learns (the wand runs dry, the
+      spell repeats every ~3 turns). Suggested fix for the at-hero
+      arms: test noteleport_level(&gy.youmonst). Decide: keep 5.0's
+      exemption (tactics() already warps covetous monsters freely) or
+      restore master's refusal for the non-tactics callers. LOW.
 - [ ] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
       displacement consumers absent (minted 2026-09-24, session 138,
       by the jumping slice's reviewer; master 16124aee8, "Monsters
@@ -19011,6 +19141,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); patch not yet cut |
 | 2026-09-23 | mcastu.c touch-of-death announcement `pline("Oh no, %s's using the touch of death!", mhe(mtmp));` (NetHack50 src/mcastu.c:391): pronoun_gender() returns rn2(4) while hallucinating (mondata.c ~1200) and genders[3] is the plural "they" (role.c ~693), so a hallucinating hero can read "Oh no, they's using the touch of death!" | fixed on branch (BUG-1911, 79052f590: pronoun_gender() called once, "'re" for index 3, "'s" otherwise, on the hero leg and the branch's monster-target leg); patch not yet cut |
 | 2026-09-23 | zap.c dobuzz() defers zap_over_floor() for poison gas (NetHack50 src/zap.c ~4871 `if (!fireball && !gas_hit)`) and later calls it as `(void) zap_over_floor(...)` (~5009), discarding its range return; a closed door's def_case prints "The door absorbs the blast!" with a -1000 range adjustment that is thrown away, so the gas ray carries on / bounces after the door "absorbed" it. Upstream fix: restore the range, e.g. `range += zap_over_floor(...)` in the deferred call | fixed on branch (no BUG id of its own; landed inside BUG-1900, 471c0f494 - the branch removed the deferral for a different reason, maintainer ruling: master's shape, a reflected gas ray leaves its cloud); patch not yet cut |
 | 2026-09-18 | display.c display_monster()'s M_AP_OBJECT arm builds its fake object with otyp and corpsenm only (oclass 0, dknown 0), so a mimic disguised as a gem or a spellbook satisfies obj_is_generic() and generic_obj_to_glyph() yields oclass + GLYPH_OBJ_OFF = the strange-object glyph; map_object()'s near re-observation cannot rescue it (glyph_is_normal_generic_obj() is strict `> GLYPH_OBJ_OFF`), so the disguise draws and is remembered as `]` at any distance - a mimic tell. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1862, session 127: oclass on the fake object in display_monster() and object_detect(), dknown seeded from and stored back to M_AP_F_DKNOWN, see_nearby_objects() redraws a nearby unseen object-mimic, savebones() clears the flag); artifact ~/nh50-mimic-generic-object-glyph.patch (display.c + detect.c + bones.c; git apply --check clean vs both trees); not yet sent |
@@ -19153,6 +19284,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-24 | Amulet mysterious-force slice rulings (AskUserQuestion x1, four questions): (1) MASTER'S REMOVAL (recommended, taken): the hero's Gehennom climb force and the monster MUSE_UPSTAIRS force go in master's `#if 0` (ad34e781a / f6063dcd8), and a carrier's / Wizard's Tower monster's own item and trap teleports are always refused, dropping 5.0's rn2(3) (5.0's decaying svc.context.mysteryforce and the Infidel exemption go with it; master's nasty() at the up stairs remains the Amulet-run obstacle); (2) TRAP LOOP (recommended, taken): find_defensive() skips a teleport trap that m_tele() would refuse, so a hurt carrier never re-jumps onto the trap under its feet every turn as on master (frozen-unfixed there); (3) WIZARD level_tele() (recommended, taken): master's "You feel very disoriented for a moment." + "Override?" for every term of that block, replacing 5.0's silent `&& !wizard` bypass; (4) BLINK (maintainer chose the NON-recommended option over master parity): an Amulet carrier is refused the m_move() random blink too ("<Mon> seems disoriented for a moment." when seen, then a normal move), matching master's stated intent that monsters cannot teleport with the Amulet; the other monster self-teleports keep master's shape | maintainer |
 | 2026-09-24 | Monster random-teleport slice rulings (AskUserQuestion x2, three questions): (1) TELEPORT AI = master's shape, all callers (recommended, taken): master 5880eed5f's m_move() blink for every TELEPORT monster (1 in 85, tengu 1 in 5) and decide_to_teleport() - a monster with teleport control that is not hurt (mhp < 7), fleeing or peaceful, or is tame, lands next to the hero half the time from its blink and always from a teleport trap, and refuses a level teleporter. (2) 5.0's portal / level-teleporter DISORIENTATION STAYS (the maintainer kept the upstream extra over the recommended master's shape): the hero is stunned 3 turns by a magic portal ("You feel slightly dizzy.") and confused 3 turns by a level teleporter without teleport control, and a monster without species teleport control arrives confused (upstream 6a65b412 + bb238b5ef); master has none of it ("You feel dizzy for a moment, but the sensation passes."). Adopted 5.0 extra, no code change. (3) after the review, the fourth master caller - the cursed / confused scroll of teleportation in use_defensive() - follows master's shape (recommended, taken): a controlled monster that is not fleeing stays and the scroll is used up. In practice this is only the Wizard and unique bosses, because m_flee() marks every other reader fleeing. Folded under ruling (1) without a further question: a monster that jumps onto a teleport trap to escape lands at random and ignores the trap's magic resistance gate, because master's voluntary jump was a plain rloc() (the new ESCAPETRAP trap flag) | maintainer |
 | 2026-09-24 | Monster jumping slice rulings (AskUserQuestion x3, all recommended options taken; every one is a fix of a master quirk, frozen-unfixed on master): (1) HERO JUMP: master 8134cd208's iron-bars line goes in the shared check_jump(), so iron bars refuse the hero's #jump up front as on master (5.0 let it start and crash into the bars, BUG-1918); (2) LEAP PATH: tested against the leaping MONSTER's wall phasing (with may_passwall()) and boulder throwing, not the hero's (BUG-1919); (3) BLIND LEAP: `mtmp->mcansee` joins m_canseeu() in the gate; (4) after the reviewer pass (multi-select, all four taken): IS_OBSTRUCTED squares (trees, secret doors / corridors) block the leap path, plus walls of water (folded in from the second review round with the same rationale: the squares that stop the hero's own jump); the leaper must know where the hero is (mux,muy == u.ux,u.uy, no hiding or mimicking hero; the walking code's animal / mindless blindness to a tortle in its shell or a shapechanged Druid / Vampire folded in, its intelligent-monster 1-in-6 not mirrored); no landing in the hero's sanctuary (mfndpos()'s test); an intelligent Amulet carrier does not leap. | maintainer |
 | 2026-09-24 | Luck timeout slice rulings (AskUserQuestion x1, two questions): (1) the Archeologist's lucky fedora (upstream 78289a7f8: change_luck(+1 / -1) on wearing / removing, baseluck +1 while worn) STAYS - the maintainer chose to keep 5.0's upstream extra over the recommended master's shape (master never had it); the luck timeout itself is master's a78345e6c (luck items slow the decay, never stop it); (2) the two unrelated hat gaps the sweep found fold into the slice as their own commits (recommended): Helmet_on()'s HELM_OF_SPEED fallthrough (BUG-1914, branch-introduced by 9dda906cf) and stuff_prevents_passage()'s missing TOQUE exemption (BUG-1915). Not asked (no ruling needed): the halving term keeps the branch's `(!Role_if(PM_INFIDEL) \|\| u.uevent.uimbued_idol)` translation of master's uachieve.amulet; set_moreluck() and the ^X text take master's shape as the row prescribed | maintainer |
