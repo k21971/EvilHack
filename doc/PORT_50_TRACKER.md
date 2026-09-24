@@ -1577,7 +1577,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MR2_LEVITATE even while worn gear still grants them (master
       shape; rare, as the monster jumping / levitation spells are
       cast only by a monster lacking the property) - re-scan worn
-      gear there too), armor_bonus/material_bonus AC.
+      gear there too; 2026-09-24 displacement / telepathy slice
+      obligation: extra_pref's DISPLACED arm (`obj_has_prop(obj,
+      DISPLACED) && !has_displacement(mon)` return 30, between
+      REFLECTING and FREE_ACTION) - has_displacement() and the worn
+      MR2_DISPLACED bit are live (BUG-1930), and the DISPLACED /
+      TELEPAT OFF arms already re-scan worn gear), armor_bonus/
+      material_bonus AC.
       SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
       4 wizard games on the fresh install, sanity_check ON every
       turn): PANICLOG EMPTY, zero crashes/impossibles. PASSED
@@ -13020,7 +13026,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       monster-worn sea/shadow/shimmering-scaled suits get only their
       primary through update_mon_extrinsics - MAGICAL_BREATHING/
       ULTRAVISION/DISPLACED have no monster arm there (pre-existing for
-      bare scales, worn.c TODO).
+      bare scales, worn.c TODO). DISPLACED DISCHARGED 2026-09-24
+      (session 141, BUG-1930): shimmering scales and scaled suits now
+      give a monster MR2_DISPLACED; MAGICAL_BREATHING and ULTRAVISION
+      stay open.
       BATTERY (first run, old binary, 12 legs over two games): meld/
       colour-change/same-colour messages and names as master; all 11
       colours'
@@ -15142,7 +15151,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       inside dead code. Four master defended() sites ride with these.
       RIDER 2026-09-17 (rumors slice): the held master rumor "Wish I
       may, wish I might, don't let that monster steal my wish tonight!"
-      lands with mmake_wish().
+      lands with mmake_wish(). RIDER 2026-09-24 (displacement /
+      telepathy slice): mmake_wish() case 4 (`!has_displacement(mon)`
+      cloak of displacement) and case 13 (`!has_telepathy(mon)` helm of
+      telepathy) can use the now-live macros and worn bits
+      (BUG-1930).
 - [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
@@ -17664,8 +17677,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       8. NEW ROW: the Amulet's mysterious force (below).
 - [x] MED: the Amulet's "mysterious force" is live on the branch but
       REMOVED on master - PORTED 2026-09-24 (session 140, commit `Fix:
-      the Amulet's mysterious force was still live.` (BUG-1924, 1925,
-      1926, 1927, 1928, 1929) - hash filled after landing; closure
+      the Amulet's mysterious force was still live.` = f37a4fc10
+      (BUG-1924, 1925, 1926, 1927, 1928, 1929), tracker b9e56ead5,
+      landed 2026-09-24; closure
       notes at the end of this row; minted 2026-09-24, session 139,
       found by the
       random-teleport slice's m_tele() read). Master ad34e781a (2018,
@@ -17816,8 +17830,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       arms: test noteleport_level(&gy.youmonst). Decide: keep 5.0's
       exemption (tactics() already warps covetous monsters freely) or
       restore master's refusal for the non-tactics callers. LOW.
-- [ ] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
-      displacement consumers absent (minted 2026-09-24, session 138,
+- [x] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
+      displacement consumers absent - PORTED 2026-09-24 (session 141,
+      commit `Monster displacement and telepathy from worn gear.`
+      (BUG-1930, 1931, 1932, 1933) - hash filled after landing; closure
+      notes at the end of this row; minted 2026-09-24, session 138,
       by the jumping slice's reviewer; master 16124aee8, "Monsters
       gain displacement from wearing items that grant it", from
       SpliceHack, and 9ac03c5d2 for the worn MR2_TELEPATHY arm).
@@ -17840,6 +17857,73 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mon_give_prop() has no TELEPAT case. Official 5.0 has no
       monster displacement (master-only content). Port whole. MED
       (gameplay: displaced monsters are hard to hit on master).
+      CLOSURE (session 141): plan
+      /root/.claude/plans/feature-monster-displacement-telepathy.md.
+      RULINGS (AskUserQuestion x1, four questions, decisions log):
+      (1) the hero's swing on the image is spent like a clean miss,
+      hero and monster stay put (master returns "evaded", so its hero
+      walks into the square and the monster is mnexto()'d aside);
+      (2) quirk fixes, all three: the OFF arms re-scan the other worn
+      gear, the hug arm rolls the image only when the hug would land,
+      and only a monster the hero can see casts an image; (3) master's
+      mutual-telepathy tp_sensemon() clause folded in (Hdgn rider (f)
+      discharged); (4) can_give_new_mintrinsic() stays on the Rumor
+      rider (g). PORTED: has_displacement(); update_mon_extrinsics()
+      ON arms + re-scanning OFF arms (BUG-1930); do_attack() shimmer
+      arm (check_caitiff, then the line, then missum()'s wakeup, goto
+      atk_done), mattackm() melee + hug image arms, the hero's
+      polyform displacement as PROPSET(DISPLACED, is_displaced(mdat))
+      in set_uasmon() (BUG-1931; master 8b47b54e9's youprop.h hunk,
+      found by the reviewer); mon_give_prop() TELEPAT (BUG-1932);
+      _tp_sensemon() mutual clause + the hero telepathy gain / loss
+      redraws (eat.c, pray.c, sit.c, mon.c "You murderer!", attrib.c
+      postadjabil() gains master 7b7b9875c's HTelepat arm without its
+      Blind gate) + update_mon_extrinsics()'s sensed-state redraw
+      (BUG-1933). DEFERRED BY PRECEDENT: extra_pref()'s DISPLACED arm
+      -> the ring-wearing row; mmake_wish() cases 4 / 13 -> the Muse
+      offense items row. 5.0's shared mon_givit() / attrcurse() path
+      means hostile corpse-eaters and a gremlin that steals the hero's
+      telepathy gain it too (resistances already did; master: pets
+      only). Monster-side image keeps master's shape (no attacker
+      sight gate; the image line is followed by missmm()'s miss line).
+      REVIEWER CONDITIONAL PASS -> all taken: MEDIUM hero polyform
+      displacement (above); LOW redraw sites; LOW check_caitiff in the
+      shimmer arm; delta review PASS, its two LOWs taken (three more
+      Blind-gated redraws; caitiff line ahead of the shimmer line).
+      Putting on a helm of telepathy / amulet of ESP still does not
+      redraw (vanilla; it lagged in range before this). BATTERY (7
+      games, POST caa57c4ec02a3d2fd0ce4b995d1ec701, PRE
+      299b3cf96f99247dec9c04bdc9934fc1, MASTER
+      0777d16796d5368eee5d5101150c9e4a; paniclog clean on both trees):
+      all six legs PASS. A: helm + amulet of ESP + displacement cloak
+      = 0x12000; helm off keeps 0x12000 on POST, MASTER drops to
+      0x2000 with the amulet still worn; cloak off beside a
+      shimmering-scaled suit keeps 0x2000 (MASTER 0x0); save/restore
+      keeps the bits; PRE 0x0. B: Rat King 26/80 shimmers, shimmering
+      dragon 19/80, hero and monster squares unchanged and T+1 every
+      time, no surprise line; blindfolded 0/44, invisible target 0/41,
+      PRE 0/25; MASTER 5/31 and the hero stepped onto the King's
+      square while the King was shoved next to it (swapped 3 of 5);
+      "attacks you by surprise!" needs mcanmove; master's blind swing
+      shimmers "The image of it ..." + "You attack thin air.". C:
+      owlbear (bite-claw-hug on both trees) 168/226 = 74% image; POST
+      hug image lines 8, every one with both earlier attacks hitting;
+      MASTER 25 of 26 hug image lines after a missed earlier attack.
+      D: floating eye -> "blinks a few times." + 0x10000 on POST and
+      MASTER, PRE nothing; a worn-telepathy pet: MASTER silent, POST
+      prints (5.0's rule). E: unblind hero eating a floating eye shows
+      a far frozen shaman and helm-wearer at once on POST (MASTER only
+      after ^R), the plain goblin never; three Astral high priests with
+      0x10000 stay unsensed while a druid / cave dweller / convict with
+      worn telepathy show. F: shimmering-dragon hero ^X "You are
+      displaced from your creature form." and 12/12 "strikes at your
+      displaced image" (MASTER the same, no suffix; PRE none); a
+      lawful Knight's shimmer swing prints "You caitiff!" first; a
+      shimmer on a peaceful angers it ("You feel guilty.  The human
+      gets angry!"). D3 lock-on for a helm-wearing human 11/24 vs a
+      plain human 2/24 (code odds 55% / 10%). NEW ROWS: none (open
+      Phase 2 rows -1 net: one closed, Hdgn rider (f) discharged, none
+      minted).
 - [ ] LOW (text, wizard mode only): from_what()'s form attribution
       reads " from your creature form" (upstream 5.0 attrib.c) where
       master prints " from current creature form" (master attrib.c
@@ -18685,7 +18769,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       rates a corpse that grants it a new intrinsic higher; a
       satiated vampire pet still drains such a corpse - the dog.c
       TODO-EVILHACK marker). Held line: rumors.tru "Your pet wants the
-      same intrinsics that you have."
+      same intrinsics that you have." RIDER 2026-09-24 (session 141,
+      displacement / telepathy slice, ruling: kept here): master's
+      function also carries a TELEPAT term, `intrinsic_possible(TELEPAT,
+      ptr) && !(mon_has_intrinsic(MR2_TELEPATHY, mon) ||
+      telepathic(mon->data))`; MR2_TELEPATHY from corpses is live now
+      (BUG-1932, mon_give_prop()), so port the term with the function.
       (h) MEDUSA MIRROR-APPLY AVOIDANCE (LOW, bug-class re-port; no
       rumor rides it): master 0a91d1688 "Fix: reflecting Medusa's gaze
       with a mirror." gave apply.c use_mirror()'s Medusa arm the two
@@ -19101,7 +19190,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       ported only the Tal'Gath exclusion into the branch's
       brain-clause shape; the mutual-telepathy feature (and its
       high-priest carve-out, which only exists relative to that
-      clause) needs its own port decision.
+      clause) needs its own port decision. DISCHARGED 2026-09-24
+      (session 141, BUG-1933, displacement / telepathy slice by
+      ruling): both arms ported, plus the hero telepathy gain / loss
+      redraws the clause needs.
       RIDER (2026-09-09, attack-handler slice): mattackm()'s
       wielded-petrifying-corpse block (mhitm.c, after hitmm()) was
       ported with INSTANT petrification through the do_stone_mon()
@@ -19141,7 +19233,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); patch not yet cut |
+| 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); artifact ~/nh50-teleport-trap-repick.patch (cut 2026-09-24 with maintainer approval: the knowledge term only, upstream's TELEP_TRAP name - the Amulet / Wizard's Tower terms are the branch's master-removal ruling and stay out; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8), not yet sent |
 | 2026-09-23 | mcastu.c touch-of-death announcement `pline("Oh no, %s's using the touch of death!", mhe(mtmp));` (NetHack50 src/mcastu.c:391): pronoun_gender() returns rn2(4) while hallucinating (mondata.c ~1200) and genders[3] is the plural "they" (role.c ~693), so a hallucinating hero can read "Oh no, they's using the touch of death!" | fixed on branch (BUG-1911, 79052f590: pronoun_gender() called once, "'re" for index 3, "'s" otherwise, on the hero leg and the branch's monster-target leg); patch not yet cut |
 | 2026-09-23 | zap.c dobuzz() defers zap_over_floor() for poison gas (NetHack50 src/zap.c ~4871 `if (!fireball && !gas_hit)`) and later calls it as `(void) zap_over_floor(...)` (~5009), discarding its range return; a closed door's def_case prints "The door absorbs the blast!" with a -1000 range adjustment that is thrown away, so the gas ray carries on / bounces after the door "absorbed" it. Upstream fix: restore the range, e.g. `range += zap_over_floor(...)` in the deferred call | fixed on branch (no BUG id of its own; landed inside BUG-1900, 471c0f494 - the branch removed the deferral for a different reason, maintainer ruling: master's shape, a reflected gas ray leaves its cloud); patch not yet cut |
 | 2026-09-18 | display.c display_monster()'s M_AP_OBJECT arm builds its fake object with otyp and corpsenm only (oclass 0, dknown 0), so a mimic disguised as a gem or a spellbook satisfies obj_is_generic() and generic_obj_to_glyph() yields oclass + GLYPH_OBJ_OFF = the strange-object glyph; map_object()'s near re-observation cannot rescue it (glyph_is_normal_generic_obj() is strict `> GLYPH_OBJ_OFF`), so the disguise draws and is remembered as `]` at any distance - a mimic tell. Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8 identical | fixed on branch (BUG-1862, session 127: oclass on the fake object in display_monster() and object_detect(), dknown seeded from and stored back to M_AP_F_DKNOWN, see_nearby_objects() redraws a nearby unseen object-mimic, savebones() clears the flag); artifact ~/nh50-mimic-generic-object-glyph.patch (display.c + detect.c + bones.c; git apply --check clean vs both trees); not yet sent |
@@ -19284,6 +19376,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-24 | Monster displacement / telepathy slice rulings (AskUserQuestion x1, four questions; every recommended option taken plus one): (1) HERO SWING (recommended): a swing drawn by a displaced monster's image ("The image of X shimmers and vanishes!", 1 in 4) is spent like a clean miss - hero and monster stay on their squares and the turn is used; master's arm returns "evaded" with the monster unmoved, so its hero walks into the square, "X attacks you by surprise!" when X can move, and mnexto() shoves X aside (frozen-unfixed there); (2) QUIRKS (multi-select, all three taken): the worn DISPLACED / TELEPAT OFF arms re-scan the other worn gear (master clears the bit on any one removal, e.g. a helm of telepathy off beside a worn amulet of ESP), the hug arm rolls the image only when the hug would land (master prints it after missed earlier attacks), and only a monster the hero can see casts an image (NOT recommended as a default, chosen: master also fools a blind hero, "The image of it ..."); (3) MUTUAL TELEPATHY (recommended): master's tp_sensemon() first clause and its Astral high-priest exemption folded in (Hdgn rider (f)); (4) PET TREATS (recommended): can_give_new_mintrinsic() stays on the Rumor rider (g), its TELEPAT term recorded there. Precedent defaults: extra_pref()'s DISPLACED arm rides the ring-wearing row, mmake_wish()'s arms the Muse offense row; the monster-side image keeps master's shape | maintainer |
 | 2026-09-24 | Amulet mysterious-force slice rulings (AskUserQuestion x1, four questions): (1) MASTER'S REMOVAL (recommended, taken): the hero's Gehennom climb force and the monster MUSE_UPSTAIRS force go in master's `#if 0` (ad34e781a / f6063dcd8), and a carrier's / Wizard's Tower monster's own item and trap teleports are always refused, dropping 5.0's rn2(3) (5.0's decaying svc.context.mysteryforce and the Infidel exemption go with it; master's nasty() at the up stairs remains the Amulet-run obstacle); (2) TRAP LOOP (recommended, taken): find_defensive() skips a teleport trap that m_tele() would refuse, so a hurt carrier never re-jumps onto the trap under its feet every turn as on master (frozen-unfixed there); (3) WIZARD level_tele() (recommended, taken): master's "You feel very disoriented for a moment." + "Override?" for every term of that block, replacing 5.0's silent `&& !wizard` bypass; (4) BLINK (maintainer chose the NON-recommended option over master parity): an Amulet carrier is refused the m_move() random blink too ("<Mon> seems disoriented for a moment." when seen, then a normal move), matching master's stated intent that monsters cannot teleport with the Amulet; the other monster self-teleports keep master's shape | maintainer |
 | 2026-09-24 | Monster random-teleport slice rulings (AskUserQuestion x2, three questions): (1) TELEPORT AI = master's shape, all callers (recommended, taken): master 5880eed5f's m_move() blink for every TELEPORT monster (1 in 85, tengu 1 in 5) and decide_to_teleport() - a monster with teleport control that is not hurt (mhp < 7), fleeing or peaceful, or is tame, lands next to the hero half the time from its blink and always from a teleport trap, and refuses a level teleporter. (2) 5.0's portal / level-teleporter DISORIENTATION STAYS (the maintainer kept the upstream extra over the recommended master's shape): the hero is stunned 3 turns by a magic portal ("You feel slightly dizzy.") and confused 3 turns by a level teleporter without teleport control, and a monster without species teleport control arrives confused (upstream 6a65b412 + bb238b5ef); master has none of it ("You feel dizzy for a moment, but the sensation passes."). Adopted 5.0 extra, no code change. (3) after the review, the fourth master caller - the cursed / confused scroll of teleportation in use_defensive() - follows master's shape (recommended, taken): a controlled monster that is not fleeing stays and the scroll is used up. In practice this is only the Wizard and unique bosses, because m_flee() marks every other reader fleeing. Folded under ruling (1) without a further question: a monster that jumps onto a teleport trap to escape lands at random and ignores the trap's magic resistance gate, because master's voluntary jump was a plain rloc() (the new ESCAPETRAP trap flag) | maintainer |
 | 2026-09-24 | Monster jumping slice rulings (AskUserQuestion x3, all recommended options taken; every one is a fix of a master quirk, frozen-unfixed on master): (1) HERO JUMP: master 8134cd208's iron-bars line goes in the shared check_jump(), so iron bars refuse the hero's #jump up front as on master (5.0 let it start and crash into the bars, BUG-1918); (2) LEAP PATH: tested against the leaping MONSTER's wall phasing (with may_passwall()) and boulder throwing, not the hero's (BUG-1919); (3) BLIND LEAP: `mtmp->mcansee` joins m_canseeu() in the gate; (4) after the reviewer pass (multi-select, all four taken): IS_OBSTRUCTED squares (trees, secret doors / corridors) block the leap path, plus walls of water (folded in from the second review round with the same rationale: the squares that stop the hero's own jump); the leaper must know where the hero is (mux,muy == u.ux,u.uy, no hiding or mimicking hero; the walking code's animal / mindless blindness to a tortle in its shell or a shapechanged Druid / Vampire folded in, its intelligent-monster 1-in-6 not mirrored); no landing in the hero's sanctuary (mfndpos()'s test); an intelligent Amulet carrier does not leap. | maintainer |
