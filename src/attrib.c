@@ -549,15 +549,25 @@ stone_luck(boolean include_uncursed)
     return sgn((int) bonchance);
 }
 
+/* is the hero carrying anything that confers luck, whatever its BUC? */
+boolean
+has_luckitem(void)
+{
+    struct obj *otmp;
+
+    for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+        if (confers_luck(otmp))
+            return TRUE;
+    return FALSE;
+}
+
 /* there has just been an inventory change affecting a luck-granting item */
 void
 set_moreluck(void)
 {
-    int luckbon = stone_luck(TRUE);
-
-    if (!luckbon && !carrying(LUCKSTONE))
+    if (!has_luckitem())
         u.moreluck = 0;
-    else if (luckbon >= 0)
+    else if (stone_luck(TRUE) >= 0)
         u.moreluck = LUCKADD;
     else
         u.moreluck = -LUCKADD;
