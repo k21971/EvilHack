@@ -664,6 +664,9 @@ Helmet_on(void)
     case ELVEN_HELM:
     case DARK_ELVEN_HELM:
     case DWARVISH_HELM:
+    case ORCISH_HELM:
+    case HELM_OF_TELEPATHY:
+        break;
     case HELM_OF_SPEED:
         if (!oldprop && !(HFast & TIMEOUT)) {
             makeknown(uarmh->otyp);
@@ -677,9 +680,6 @@ Helmet_on(void)
         else
             You_feel("your mind expand with telekinetic power.");
         makeknown(uarmh->otyp);
-        break;
-    case ORCISH_HELM:
-    case HELM_OF_TELEPATHY:
         break;
     case HELM_OF_CAUTION:
         see_monsters();
