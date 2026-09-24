@@ -50,6 +50,7 @@ staticfn int flip_through_book(struct obj *);
 staticfn int flip_coin(struct obj *);
 staticfn boolean figurine_location_checks(struct obj *, coord *, boolean);
 staticfn boolean check_jump(genericptr_t, coordxy, coordxy);
+staticfn boolean check_mon_jump_step(genericptr_t, coordxy, coordxy);
 staticfn boolean is_valid_jump_pos(coordxy, coordxy, int, boolean);
 staticfn boolean get_valid_jump_position(coordxy, coordxy);
 staticfn boolean get_valid_polearm_position(coordxy, coordxy);
@@ -1936,6 +1937,44 @@ check_jump(genericptr arg, coordxy x, coordxy y)
     if (sobj_at(BOULDER, x, y) && !racial_throws_rocks(&gy.youmonst))
         return FALSE;
     return TRUE;
+}
+
+/* callback routine for walk_path() when a monster leaps; check_jump()
+   tests the hero's own wall phasing and boulder throwing, so a leaping
+   monster gets its own copy of those tests; the hero's jump is also
+   stopped by trees, secret doors or corridors and walls of water when
+   it moves (via hurtle_step()), but a leap just places the monster, so
+   reject them here; a leap is never limited by its trajectory, so only
+   a closed door blocks it at a doorway */
+staticfn boolean
+check_mon_jump_step(genericptr arg, coordxy x, coordxy y)
+{
+    struct monst *mtmp = (struct monst *) arg;
+    struct rm *lev = &levl[x][y];
+
+    if (passes_walls(mtmp->data) && may_passwall(x, y))
+        return TRUE;
+    if (IS_OBSTRUCTED(lev->typ) || is_waterwall(x, y))
+        return FALSE;
+    if (lev->typ == IRONBARS)
+        return FALSE;
+    if (closed_door(x, y))
+        return FALSE;
+    if (sobj_at(BOULDER, x, y) && !racial_throws_rocks(mtmp))
+        return FALSE;
+    return TRUE;
+}
+
+/* can monster 'mtmp' leap from its spot to <x,y> without an obstacle
+   in the way? */
+boolean
+check_mon_jump(struct monst *mtmp, coordxy x, coordxy y)
+{
+    coord mc, tc;
+
+    mc.x = mtmp->mx, mc.y = mtmp->my;
+    tc.x = x, tc.y = y; /* target */
+    return walk_path(&mc, &tc, check_mon_jump_step, (genericptr_t) mtmp);
 }
 
 staticfn boolean

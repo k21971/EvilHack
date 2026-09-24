@@ -717,6 +717,9 @@ update_mon_extrinsics(
         case WWALKING:
             mon->mextrinsics |= MR2_WATERWALK;
             break;
+        case JUMPING:
+            mon->mextrinsics |= MR2_JUMPING;
+            break;
         case LEVITATION: {
             boolean was_levitating = can_levitate(mon);
 
@@ -740,7 +743,6 @@ update_mon_extrinsics(
         /* properties which maybe should have an effect but don't */
         case DISPLACED:
         case FUMBLING:
-        case JUMPING:
             break;
         default:
             mon->mextrinsics |= (unsigned short) res_to_mr(which);
@@ -761,6 +763,9 @@ update_mon_extrinsics(
         }
         case WWALKING:
             mon->mextrinsics &= ~(MR2_WATERWALK);
+            break;
+        case JUMPING:
+            mon->mextrinsics &= ~(MR2_JUMPING);
             break;
         case LEVITATION:
             mon->mextrinsics &= ~(MR2_LEVITATE);

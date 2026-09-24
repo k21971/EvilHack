@@ -129,6 +129,7 @@ extern const char *beautiful(void);
 extern void check_leash(coordxy, coordxy);
 extern boolean um_dist(coordxy, coordxy, xint16);
 extern boolean snuff_candle(struct obj *) NONNULLPTRS;
+extern boolean check_mon_jump(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern boolean snuff_lit(struct obj *, boolean) NONNULLPTRS;
 extern boolean splash_lit(struct obj *) NONNULLPTRS;
 extern boolean catch_lit(struct obj *) NONNULLPTRS;
@@ -3505,6 +3506,7 @@ extern void level_tele(void);
 extern void domagicportal(struct trap *) NONNULLARG1;
 extern void tele_trap(struct trap *) NONNULLARG1;
 extern void level_tele_trap(struct trap *, unsigned) NONNULLARG1;
+extern boolean rloc_pos_ok(coordxy, coordxy, struct monst *) NONNULLARG3;
 extern void rloc_to(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void rloc_to_flag(struct monst *, coordxy, coordxy,
                          unsigned) NONNULLARG1;

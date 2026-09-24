@@ -21,6 +21,7 @@ staticfn boolean m_search_items(struct monst *, coordxy *, coordxy *, int *,
                                 int *) NONNULLPTRS;
 staticfn int postmov(struct monst *, struct permonst *, coordxy, coordxy, int,
                      unsigned, boolean, boolean, boolean) NONNULLPTRS;
+staticfn boolean m_leap_at_u(struct monst *) NONNULLARG1;
 staticfn boolean mon_slowed_by_sewage(struct monst *);
 staticfn boolean leppie_avoidance(struct monst *);
 staticfn void leppie_stash(struct monst *);
@@ -2336,6 +2337,54 @@ mon_escape_target(struct monst *mtmp, coordxy *tx, coordxy *ty)
     return (boolean) (*tx && *ty);
 }
 
+/* a jumper leaps to the spot next to the hero if that lies in its
+   nature, it can see the hero and knows where the hero is, and it isn't
+   otherwise incapacitated in some way; returns TRUE if it leapt */
+staticfn boolean
+m_leap_at_u(struct monst *mtmp)
+{
+    struct permonst *ptr = mtmp->data;
+    coordxy x, y;
+    int dist;
+
+    if (!(can_jump(mtmp) || is_jumper(ptr)) || mtmp->mpeaceful
+        || !mtmp->mcansee || !m_canseeu(mtmp)
+        /* fooled by displacement, or the hero is hiding or mimicking */
+        || mtmp->mux != u.ux || mtmp->muy != u.uy
+        || u.uundetected || U_AP_TYPE != M_AP_NOTHING
+        || mtmp->mflee || mtmp->mconf || mtmp->mstun || mtmp->msleeping)
+        return FALSE;
+    /* as when approaching on foot, an unintelligent monster doesn't
+       realize that a hiding tortle or a shapechanged Druid or Vampire
+       is a creature */
+    if ((Hidinshell || druid_form || vampire_form)
+        && (is_animal(ptr) || mindless(ptr)))
+        return FALSE;
+    /* an intelligent monster with the Amulet seeks an escape route
+       instead */
+    if (mon_has_amulet(mtmp) && !mindless(ptr) && !is_animal(ptr))
+        return FALSE;
+    dist = dist2(mtmp->mx, mtmp->my, u.ux, u.uy);
+    if (rn2(3) || dist > 20 || dist <= 8)
+        return FALSE;
+
+    /* land next to the hero, on the side the leap comes from */
+    x = u.ux + sgn(mtmp->mx - u.ux);
+    y = u.uy + sgn(mtmp->my - u.uy);
+    if (!rloc_pos_ok(x, y, mtmp) || !check_mon_jump(mtmp, x, y))
+        return FALSE;
+    /* like mfndpos(), keep a hostile out of the hero's sanctuary */
+    if (in_your_sanctuary((struct monst *) 0, x, y)
+        && !*in_rooms(mtmp->mx, mtmp->my, TEMPLE)
+        && !is_minion(ptr) && !is_rider(ptr))
+        return FALSE;
+
+    rloc_to(mtmp, x, y);
+    if (canseemon(mtmp))
+        pline_mon(mtmp, "%s leaps at you!", Monnam(mtmp));
+    return TRUE;
+}
+
 /* Handles the movement of a standard monster.
  * Return values:
  * 0: did not move, but can still attack and do other stuff;
@@ -2495,6 +2544,11 @@ m_move(struct monst *mtmp, int after)
         return MMOVE_DIED;
     }
 #endif
+
+    /* jump toward the hero if that lies in our nature */
+    if (m_leap_at_u(mtmp))
+        return postmov(mtmp, ptr, omx, omy, MMOVE_MOVED,
+                       seenflgs, can_tunnel, can_unlock, can_open);
 
     /* teleport if that lies in our nature */
     if (ptr == &mons[PM_TENGU] && !rn2(5) && !mtmp->mcan
