@@ -2428,7 +2428,7 @@ void
 mon_give_prop(struct monst *mtmp, int prop)
 {
     const char *msg = NULL;
-    unsigned short intrinsic = 0; /* MR_* constant */
+    unsigned long intrinsic = 0L; /* MR_* or MR2_* constant */
 
     /* Pets don't have all the fields that the hero does, so they can't get
        all the same intrinsics.  If it happens to choose strength gain or
@@ -2452,21 +2452,34 @@ mon_give_prop(struct monst *mtmp, int prop)
     case POISON_RES:
         msg = "%s looks healthy.";
         break;
+    case TELEPAT:
+        /* there is no mind to open up in a mindless monster */
+        if (mindless(mtmp->data))
+            return;
+        intrinsic = MR2_TELEPATHY;
+        if (haseyes(mtmp->data))
+            msg = "%s blinks a few times.";
+        break;
     default:
         return; /* can't give it */
         break;
     }
-    intrinsic = res_to_mr(prop);
+    if (!intrinsic)
+        intrinsic = res_to_mr(prop);
 
     /* Don't give message if it already had this property intrinsically, but
        still do grant the intrinsic if it only had it from mresists.
        Do print the message if it only had this property extrinsically, which
        is why mon_resistancebits isn't used here. */
-    if ((mtmp->data->mresists | mtmp->mintrinsics) & intrinsic)
+    if (((mtmp->data->mresists | mtmp->mintrinsics) & intrinsic)
+        || (prop == TELEPAT && telepathic(r_data(mtmp))))
         msg = (const char *) 0;
 
     if (intrinsic)
         mtmp->mintrinsics |= intrinsic;
+    /* a telepathic hero may sense it now */
+    if (prop == TELEPAT)
+        newsym(mtmp->mx, mtmp->my);
 
     if (canseemon(mtmp) && msg) {
         DISABLE_WARNING_FORMAT_NONLITERAL
@@ -5757,8 +5770,9 @@ xkilled(
             HTelepat &= ~INTRINSIC;
             change_luck(-2);
             You("murderer!");
-            if (Blind && !Blind_telepat)
-                see_monsters(); /* can't sense monsters any more */
+            /* can't sense monsters any more, telepathic ones even when
+               not blind */
+            see_monsters();
         }
     }
     if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)

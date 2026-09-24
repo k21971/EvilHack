@@ -719,8 +719,9 @@ attrcurse(void)
     case 4:
         if (HTelepat & INTRINSIC) {
             HTelepat &= ~INTRINSIC;
-            if (Blind && !Blind_telepat)
-                see_monsters(); /* Can't sense mons anymore! */
+            /* can't sense mons anymore, telepathic ones even when
+               not blind */
+            see_monsters();
             Your("senses fail!");
             ret = TELEPAT;
             break;

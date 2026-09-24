@@ -220,6 +220,9 @@
 #define has_telepathy(mon) \
     (telepathic(r_data(mon)) \
      || (mon_resistancebits(mon) & MR2_TELEPATHY) != 0)
+/* displacement from worn gear; is_displaced() covers the species */
+#define has_displacement(mon) \
+    ((mon_resistancebits(mon) & MR2_DISPLACED) != 0)
 #define can_jump(mon) \
     ((mon_resistancebits(mon) & MR2_JUMPING) != 0)
 #define can_levitate(mon) \

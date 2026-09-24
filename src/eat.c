@@ -1310,9 +1310,9 @@ givit(int type, struct permonst *ptr)
             You_feel(Hallucination ? "in touch with the cosmos."
                                    : "a strange mental acuity.");
             HTelepat |= FROMOUTSIDE;
-            /* If blind, make sure monsters show up. */
-            if (Blind)
-                see_monsters();
+            /* make sure monsters show up; telepathic ones can be sensed
+               even when not blind */
+            see_monsters();
         }
         break;
     case ACID_RES:

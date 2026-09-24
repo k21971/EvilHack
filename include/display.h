@@ -39,17 +39,22 @@
  * noticeably slower processing.
  */
 #define _tp_sensemon(mon) \
-    (/* The hero can always sense a monster IF:        */  \
-     /* 1. the monster has a brain to sense            */  \
-     (!mindless(mon->data))                                \
-     /* (and the monster is not Tal'Gath)              */  \
-      && mon->data != &mons[PM_TAL_GATH]                   \
-     /* AND     2a. hero is blind and telepathic       */  \
-      && ((Blind && Blind_telepat)                         \
-          /* OR 2b. hero is using a telepathy inducing */  \
-          /*        object and in range                */  \
-          || (Unblind_telepat                              \
-              && (mdistu(mon) <= u.unblind_telepat_range))))
+    (/* The hero can always sense a monster IF:          */      \
+     /* 1. the hero and the monster are both telepathic  */      \
+     ((HTelepat || ETelepat) && has_telepathy(mon)               \
+      /* (and the monster is not a high priest on Astral) */     \
+      && !((mon)->data == &mons[PM_HIGH_PRIEST]                  \
+           && Is_astralevel(&u.uz)))                             \
+     /* OR 2. the monster has a brain to sense           */      \
+     || (!mindless((mon)->data)                                  \
+         /* (and the monster is not Tal'Gath)            */      \
+         && (mon)->data != &mons[PM_TAL_GATH]                    \
+         /* AND 3a. hero is blind and telepathic         */      \
+         && ((Blind && Blind_telepat)                            \
+             /* OR 3b. hero is using a telepathy inducing */     \
+             /*        object and in range                */     \
+             || (Unblind_telepat                                 \
+                 && (mdistu(mon) <= u.unblind_telepat_range)))))
 
 /* organized to perform cheaper tests first;
    is_pool() vs is_pool_or_lava(): hero who is underwater can see adjacent

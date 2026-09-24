@@ -595,6 +595,13 @@ mattackm(
             /* KMH -- don't accumulate to-hit bonuses */
             if (mwep)
                 tmp -= hitval(magr, mwep, mdef);
+            if ((is_displaced(mdef->data) || has_displacement(mdef))
+                && rn2(4)) {
+                if (gv.vis && canspotmon(mdef))
+                    pline_mon(mdef, "%s attacks the displaced image of %s.",
+                              Monnam(magr), mon_nam(mdef));
+                strike = 0;
+            }
             /* tiny or small animals have a chance to dodge a zombie's
                bite attack due to zombies being mindless and slow */
             if (strike && racial_zombie(magr) && mattk->aatyp == AT_BITE
@@ -709,6 +716,14 @@ mattackm(
         case AT_HUGS: /* automatic if prev two attacks succeed */
             strike = (i >= 2 && res[i - 1] == M_ATTK_HIT
                       && res[i - 2] == M_ATTK_HIT);
+            /* only a hug that would land can go to the image */
+            if (strike && (is_displaced(mdef->data) || has_displacement(mdef))
+                && rn2(4)) {
+                if (gv.vis && canspotmon(mdef))
+                    pline_mon(mdef, "%s attacks the displaced image of %s.",
+                              Monnam(magr), mon_nam(mdef));
+                strike = 0;
+            }
             if (strike) {
                 /* note: monsters with hug attacks don't wear cloaks or gloves
                    so this doesn't need a special case for hugging a shade

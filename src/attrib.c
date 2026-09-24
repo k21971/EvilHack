@@ -924,7 +924,9 @@ postadjabil(long *ability)
 {
     if (!u.ulevel) /* initializing hero; don't attempt screen update yet */
         return;
-    if (ability == &(HWarning) || ability == &(HSee_invisible))
+    /* telepathic monsters can be sensed even when not blind */
+    if (ability == &(HWarning) || ability == &(HSee_invisible)
+        || ability == &(HTelepat))
         see_monsters();
 }
 

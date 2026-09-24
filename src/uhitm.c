@@ -770,6 +770,21 @@ do_attack(struct monst *mtmp)
         return FALSE;
     }
 
+    /* a displaced monster's image can draw the swing; only an image the
+       hero sees can fool the hero, and the swing is spent on it while
+       the monster stays where it is, as with a clean miss */
+    if ((is_displaced(mtmp->data) || has_displacement(mtmp))
+        && !u.uswallow && canseemon(mtmp) && !rn2(4)) {
+        /* knight's chivalry or samurai's giri, before a peaceful
+           target is angered; ahead of the swing's result as usual */
+        check_caitiff(mtmp);
+        pline("The image of %s shimmers and vanishes!", mon_nam(mtmp));
+        if (!helpless(mtmp))
+            wakeup(mtmp, TRUE);
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
+        goto atk_done;
+    }
+
     if (Upolyd)
         (void) hmonas(mtmp, NON_PM, TRUE);
     else

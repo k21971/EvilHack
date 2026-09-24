@@ -164,6 +164,7 @@ set_uasmon(void)
     PROPSET(PASSES_WALLS, passes_walls(mdat));
     PROPSET(REGENERATION, regenerates(mdat));
     PROPSET(REFLECTING, (mdat == &mons[PM_SILVER_DRAGON]));
+    PROPSET(DISPLACED, is_displaced(mdat));
     PROPSET(BLINDED, !haseyes(mdat));
     PROPSET(BLND_RES, (dmgtype_fromattack(mdat, AD_BLND, AT_EXPL)
                        || dmgtype_fromattack(mdat, AD_BLND, AT_GAZE)));

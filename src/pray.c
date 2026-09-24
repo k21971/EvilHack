@@ -1832,8 +1832,8 @@ pleased(aligntyp g_align)
             if (!(HTelepat & INTRINSIC) && !Race_if(PM_DRAUGR)) {
                 HTelepat |= FROMOUTSIDE;
                 pline(msg, "Telepathy");
-                if (Blind)
-                    see_monsters();
+                /* telepathic monsters show up even when not blind */
+                see_monsters();
             } else if (!(HFast & INTRINSIC)) {
                 HFast |= FROMOUTSIDE;
                 pline(msg, "Speed");

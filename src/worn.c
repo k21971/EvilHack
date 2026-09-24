@@ -678,7 +678,7 @@ update_mon_extrinsics(
     boolean on,
     boolean silently)
 {
-    int unseen;
+    int unseen, unsensed;
     uchar mask;
     struct obj *otmp;
     int which = armor_provides_extrinsic(obj),
@@ -687,6 +687,7 @@ update_mon_extrinsics(
     long i = 0L;
 
     unseen = !canseemon(mon);
+    unsensed = !sensemon(mon);
     if (!which && !altwhich)
         goto maybe_blocks;
 
@@ -712,13 +713,18 @@ update_mon_extrinsics(
         /* properties which have no effect for monsters */
         case CLAIRVOYANT:
         case STEALTH:
-        case TELEPAT:
             break;
         case WWALKING:
             mon->mextrinsics |= MR2_WATERWALK;
             break;
         case JUMPING:
             mon->mextrinsics |= MR2_JUMPING;
+            break;
+        case DISPLACED:
+            mon->mextrinsics |= MR2_DISPLACED;
+            break;
+        case TELEPAT:
+            mon->mextrinsics |= MR2_TELEPATHY;
             break;
         case LEVITATION: {
             boolean was_levitating = can_levitate(mon);
@@ -741,7 +747,6 @@ update_mon_extrinsics(
             break;
         }
         /* properties which maybe should have an effect but don't */
-        case DISPLACED:
         case FUMBLING:
             break;
         default:
@@ -767,6 +772,25 @@ update_mon_extrinsics(
         case JUMPING:
             mon->mextrinsics &= ~(MR2_JUMPING);
             break;
+        case DISPLACED:
+        case TELEPAT: {
+            /* another worn item may grant the same property (a helm of
+               telepathy with an amulet of ESP, a cloak of displacement
+               over shimmering-scaled mail); wielded gear doesn't count
+               since wielding never granted it */
+            unsigned long mr2 = (which == DISPLACED) ? MR2_DISPLACED
+                                                     : MR2_TELEPATHY;
+
+            for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+                if (otmp == obj || !(otmp->owornmask & ~W_WEAPONS))
+                    continue;
+                if (obj_has_prop(otmp, which))
+                    break;
+            }
+            if (!otmp)
+                mon->mextrinsics &= ~mr2;
+            break;
+        }
         case LEVITATION:
             mon->mextrinsics &= ~(MR2_LEVITATE);
             if (!unseen && !can_levitate(mon))
@@ -904,8 +928,10 @@ update_mon_extrinsics(
     if (!on && mon == u.usteed && obj->otyp == SADDLE)
         dismount_steed(DISMOUNT_FELL);
 
-    /* if couldn't see it but now can, or vice versa, update display */
-    if (!silently && (unseen ^ !canseemon(mon)))
+    /* if couldn't see it but now can, or vice versa, update display;
+       likewise for a telepathic hero sensing it */
+    if (!silently
+        && ((unseen ^ !canseemon(mon)) || (unsensed ^ !sensemon(mon))))
         newsym(mon->mx, mon->my);
 }
 
