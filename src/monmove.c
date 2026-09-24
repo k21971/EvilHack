@@ -2556,12 +2556,20 @@ m_move(struct monst *mtmp, int after)
         && !rn2(ptr == &mons[PM_TENGU] ? 5 : 85)
         && !tele_restrict(mtmp)
         && !((mtmp->isshk || mtmp->ispriest) && mtmp->mpeaceful)) {
-        if (!decide_to_teleport(mtmp) || rn2(2))
-            (void) rloc(mtmp, RLOC_MSG);
-        else
-            mnexto(mtmp, RLOC_MSG);
-        return postmov(mtmp, ptr, omx, omy, MMOVE_MOVED,
-                       seenflgs, can_tunnel, can_unlock, can_open);
+        /* the Amulet refuses this blink, as m_tele() refuses its
+           carrier's item and trap teleports; it then moves normally */
+        if (mon_has_amulet(mtmp)) {
+            if (canseemon(mtmp))
+                pline_mon(mtmp, "%s seems disoriented for a moment.",
+                          Monnam(mtmp));
+        } else {
+            if (!decide_to_teleport(mtmp) || rn2(2))
+                (void) rloc(mtmp, RLOC_MSG);
+            else
+                mnexto(mtmp, RLOC_MSG);
+            return postmov(mtmp, ptr, omx, omy, MMOVE_MOVED,
+                           seenflgs, can_tunnel, can_unlock, can_open);
+        }
     }
  not_special:
     if (u.uswallow && !mtmp->mflee && u.ustuck != mtmp)

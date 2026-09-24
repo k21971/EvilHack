@@ -1244,10 +1244,10 @@ level_tele(void)
          || (u.usteed && mon_has_amulet(u.usteed))
          || (In_quest(&u.uz) && !svq.quest_status.killed_nemesis
              && !(Role_if(PM_ROGUE) && Is_nemesis(&u.uz)))
-         || In_purgatory(&u.uz))
-        && !wizard) {
+         || In_purgatory(&u.uz))) {
         You_feel("very disoriented for a moment.");
-        return;
+        if (!wizard || y_n("Override?") != 'y')
+            return;
     }
     /* Being in the presence of demon lords/princes can negate
        level teleportation most of the time */

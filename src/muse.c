@@ -498,7 +498,7 @@ m_tele(
         /* monster learns that teleportation isn't useful here */
         if (noteleport_level(mtmp))
             mon_learns_traps(mtmp, TELEP_TRAP_SET);
-    } else if ((mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) && !rn2(3)) {
+    } else if (mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) {
         if (vismon)
             pline_mon(mtmp, "%s seems disoriented for a moment.", Monnam(mtmp));
     } else if (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
@@ -842,7 +842,14 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                 gt.trapy = yy;
                 gm.m.has_defense = MUSE_TRAPDOOR;
                 break; /* no need to look at any other spots */
-            } else if (t->ttyp == TELEP_TRAP_SET) {
+            } else if (t->ttyp == TELEP_TRAP_SET
+                       /* m_tele() would refuse the jump, or it already
+                          learned that teleporting fails here; don't keep
+                          re-picking the trap underfoot every turn */
+                       && !mon_has_amulet(mtmp)
+                       && !On_W_tower_level(&u.uz)
+                       && !(mon_knows_traps(mtmp, TELEP_TRAP_SET)
+                            && noteleport_level(mtmp))) {
                 gt.trapx = xx;
                 gt.trapy = yy;
                 gm.m.has_defense = MUSE_TELEPORT_TRAP;
@@ -881,7 +888,10 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         if (mon_has_amulet(mtmp))
             gm.m.has_defense = MUSE_SPE_TELEPORT_AWAY;
         else if (!(mtmp->isshk && inhishop(mtmp)) && !mtmp->isgd
-                 && !mtmp->ispriest)
+                 && !mtmp->ispriest
+                 /* a covetous caster passes noteleport_level() here
+                    but the self-teleport would always be refused */
+                 && !On_W_tower_level(&u.uz))
             gm.m.has_defense = MUSE_SPE_TELEPORT_AWAY_SELF;
     }
 
@@ -1244,8 +1254,7 @@ use_defensive(struct monst *mtmp)
             /* monster learns that teleportation isn't useful here */
             if (noteleport_level(mtmp))
                 mon_learns_traps(mtmp, TELEP_TRAP_SET);
-        } else if ((mon_has_amulet(mtmp) || On_W_tower_level(&u.uz))
-                   && !rn2(3)) {
+        } else if (mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) {
             if (vismon)
                 pline_mon(mtmp, "%s seems disoriented for a moment.",
                           Monnam(mtmp));
@@ -1503,6 +1512,8 @@ use_defensive(struct monst *mtmp)
         if (ledger_no(&u.uz) == 1)
             /* impossible; level 1 upstairs are SSTAIRS */
             return mon_escape(mtmp, vismon);
+#if 0 /* disabling the mysterious force level teleportation for monsters
+         while carrying the Amulet */
         if (Inhell && mon_has_amulet(mtmp) && !rn2(4)
             && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
             if (vismon)
@@ -1515,7 +1526,9 @@ use_defensive(struct monst *mtmp)
                chance for a random position on the current level */
             migrate_to_level(mtmp, ledger_no(&u.uz) + 1, MIGR_RANDOM,
                              (coord *) 0);
-        } else {
+        } else
+#endif
+        {
             if (vismon)
                 pline_mon(mtmp, "%s escapes upstairs!", Monnam(mtmp));
             migrate_to_level(mtmp, ledger_no(&(stway->tolev)),
