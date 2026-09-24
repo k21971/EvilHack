@@ -1570,7 +1570,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MR2_FREE_ACTION - update_mon_extrinsics clears it
       unconditionally (master shape), so a shield of mobility removed
       beside a worn ring of free action would strip the ring's
-      grant), armor_bonus/material_bonus AC.
+      grant; 2026-09-24 jumping-slice obligations: extra_pref's
+      JUMPING arm (`!can_jump(mon)` return 10, beside WWALKING's),
+      and mcalcdistress()'s spell-timer expiry clears MR2_JUMPING and
+      MR2_LEVITATE even while worn gear still grants them (master
+      shape; rare, as the monster jumping / levitation spells are
+      cast only by a monster lacking the property) - re-scan worn
+      gear there too), armor_bonus/material_bonus AC.
       SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
       4 wizard games on the fresh install, sanity_check ON every
       turn): PANICLOG EMPTY, zero crashes/impossibles. PASSED
@@ -5831,7 +5837,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       not just the term;
       (c) can_wwalk AI consumers: worn.c extra_pref WWALKING scoring
       (master worn.c:1626) and muse.c water-walking-boots gift kit
-      (master muse.c:5253);
+      (master muse.c:5253); extra_pref's JUMPING arm sits beside it
+      (2026-09-24, jumping slice - its worn producer landed there);
       (d) mattacku mimic-sticky reveal block (master mhitu.c:926-940,
       "was hidden under" after set_ustuck) - pre-existing structural
       gap adjacent to the ported reveal arms;
@@ -17236,10 +17243,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       handedness line) - correct by the code.
 - [x] MED: master's luck-timeout rework ABSENT - PORTED 2026-09-24
       (session 137, luck timeout slice, commits `Fix: a luckstone
-      stopped luck from timing out.` (BUG-1912, 1913), `Fix: plain
-      helmets ran the helm of speed's wear code.` (BUG-1914), `Fix: a
-      toque blocked squeezing under a door.` (BUG-1915) - hashes
-      filled after landing; closure notes at the end of this row;
+      stopped luck from timing out.` = 7583fc0dd (BUG-1912, 1913),
+      `Fix: plain helmets ran the helm of speed's wear code.` =
+      4717c6243 (BUG-1914), `Fix: a toque blocked squeezing under a
+      door.` = 133882a1a (BUG-1915), tracker 2c58cb287, landed
+      2026-09-24; closure notes at the end of this row;
       (minted 2026-09-22,
       session 134, by the enlightenment-residue row's attribute diff;
       first named in passing as an owner row "master luck-timeout
@@ -17475,7 +17483,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       paniclog triage on the branch cannot order or date events.
       Port master's arm (files.c paniclog()); check whether any
       server-side tooling parses the epoch form first. LOW.
-- [ ] MED: monster jumping AI absent (minted 2026-09-23, session 135,
+- [x] MED: monster jumping AI absent - PORTED 2026-09-24 (session
+      138, monster jumping slice, commits `Fix: a jump at iron bars
+      crashed instead of being refused.` (BUG-1918), `Fix: monsters
+      never leapt at the hero.` (BUG-1916, 1917, 1919) - hashes
+      filled after landing; closure notes at the end of this row;
+      (minted 2026-09-23, session 135,
       found by the set_uasmon() slice's is_jumper() census; grep: zero
       branch hits for `check_mon_jump` or "leaps at you"). Master
       0baf593b8 (2019-04-02, from SpliceHack) gives m_move() an arm:
@@ -17488,6 +17501,123 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mjumptime expiry (mon.c) and the spell / muse users, but no
       leap. Verify the rest of 0baf593b8 (monster water-walking boots)
       when taken. MED (gameplay: jumpers close distance).
+      CLOSURE (session 138, plan bugfix-monster-jumping-ai.md): master
+      0baf593b8 + ba1072d70 (leap gates) + 8134cd208 (iron bars)
+      ported. m_leap_at_u() (monmove.c) runs from m_move() between the
+      MAIL_STRUCTURES block and the tengu teleport arm (master order)
+      and returns through postmov(MMOVE_MOVED), so the landing
+      square's trap and door code run as for a step; check_mon_jump()
+      + a monster walk_path callback (apply.c); rloc_pos_ok() public,
+      keeping 5.0's GP_CHECKSCARY. AUDIT of the rest of 0baf593b8:
+      the water-walking half (minliquid / mfndpos can_wwalk, worn
+      WWALKING arms) and the hero's is_jumper Jumping term (set_uasmon
+      PROPSET) were already on the branch; the worn JUMPING arms were
+      ABSENT (update_mon_extrinsics listed JUMPING as "maybe should
+      have an effect", so worn jumping boots gave a monster nothing:
+      BUG-1917, ported). RULINGS (decisions log 2026-09-24): iron bars
+      stop the hero's #jump too (master's shape, BUG-1918); the leap's
+      path is tested against the MONSTER, not the hero (BUG-1919); a
+      blinded jumper does not leap (mcansee); and, after the reviewer
+      pass, the leap path rejects IS_OBSTRUCTED squares and walls of
+      water, needs mux,muy == the hero's square and no hiding or
+      mimicking hero, skips animals facing a tortle in its shell or a
+      shapechanged Druid / Vampire, refuses a landing in the hero's
+      sanctuary, and skips an intelligent Amulet carrier - all master
+      quirks, frozen-unfixed there. REVIEWER: PASS, then PASS on the
+      delta (every LOW taken; the Hidinshell / druid / vampire and
+      water-wall LOWs from the second round folded in under the same
+      rulings, the intelligent-monster 1-in-6 overlook not mirrored:
+      it would add an RNG draw). BATTERY (6 games, ~78 min, POST md5
+      64cf44f8b5fdc278588c5fa3fd575776, PRE fe1bc32b..., MASTER
+      0777d167...; gdb logging of every leap check and every rloc_to
+      backtrace):
+      - Leap: jumping spider 9 of 14 approaches on POST, 5 of 14 on
+        MASTER, 0 of 14 on PRE; every landing at hero + sign(offset).
+      - Gates on POST: peaceful, blinded, confused, stunned, invisible
+        hero, dist2 25/26 and 8 - no leaps; MASTER's blinded spider
+        leapt 7 times in 12 approaches.
+      - Displacement (gdb-wrong mux,muy - a stationary hero is never
+        mis-guessed): POST 0 leaps on 13 wrong-guess checks, 4 on 16
+        right ones; MASTER leapt on wrong guesses beside the real
+        square.
+      - Jumping boots on a hill orc: 0x20000 set on POST and MASTER,
+        not on PRE; leaps 7 / 12 POST, 10 / 12 MASTER, 0 PRE; removal
+        clears it. Spell state (gdb bit + mjumptime 40): 12 leaps,
+        silent expiry, then none; PRE none.
+      - Iron bars line: 0 leaps on both trees with a human hero; hero
+        in xorn form: MASTER 9 leaps through the bars, POST 0 of 59.
+      - Hero #jump at bars: POST = MASTER "There is an obstacle
+        preventing that jump."; PRE crashed ("You crash into some
+        iron bars.  Ouch!", 2 HP) and stayed put - the brief's
+        "PRE jumps past" was wrong.
+      - Tree on the leap path, off the sight line: MASTER 2 leaps
+        across, POST 0 of 16. Tortle in its shell: MASTER 8 leaps,
+        POST 0 of 40. Real Amulet in the orc's pack: 0 of 18, it made
+        for the exits; 4 of 6 after it was taken.
+      - Sanctuary (gdb-built temple): MASTER 7 leaps in from the
+        corridor, POST 0 of 15; the POST spider walked onto the
+        doorway and leapt from there twice - svl.level.flags.has_temple
+        was never set by the staging, so mfndpos()'s own guard was
+        off, and from inside the temple room the leap follows
+        mfndpos()'s rule (staging artifact).
+      - Squeaky board on the landing square triggered on both trees;
+        Knight L-jump / "Illegal move!" / boots regression and save /
+        restore passed.
+      Paniclog clean on both trees. BRIEF ERRORS (mine): PRE's bars
+      jump (above); Elbereth on the landing square scares nothing on
+      either tree (5.0 onscary() needs the hero on it), so the
+      scare-monster-scroll arm of rloc_pos_ok() stayed unstaged
+      (code-verified); master's m_lose_armor() takes two arguments.
+      NEW ROWS: master's m_move() random-teleport arm and the monster
+      DISPLACED / TELEPATHY extrinsics (below). NOTES added to the
+      ring-wearing deferral (Racial monsters row) and damp rider (c).
+- [ ] MED: master's m_move() random-teleport arm absent (minted
+      2026-09-24, session 138, beside the jumping arm). Master's
+      Monster Ring patch 5880eed5f replaced vanilla's tengu-only arm
+      with `mon_prop(mtmp, TELEPORT) && !rn2(tengu ? 5 : 85) &&
+      !tele_restrict(mtmp) && !((isshk || ispriest) && mpeaceful)`,
+      then `if (!decide_to_teleport(mtmp) || rn2(2)) rloc() else
+      mnexto()` - decide_to_teleport() (master teleport.c) is TRUE
+      only for a monster with TELEPORT_CONTROL that is tame or is not
+      low on hp, fleeing or peaceful. Master's mon_prop(TELEPORT) =
+      an uncancelled M1_TPORT species or worn / artifact gear with the
+      property. The branch runs 5.0's tengu-only arm (`!mtmp->mcan`,
+      `mhp < 7 || mpeaceful`), so leprechauns, nymphs, quantum
+      mechanics, genetic engineers, agents and the Wizard (every
+      M1_TPORT species, the same list on both trees) never blink
+      around the level. decide_to_teleport() also has a master
+      mtele_trap() caller (a controlled monster lands next to the
+      hero); the branch's mtele_trap() lacks it, while its
+      u_teleport_mon() has a separate `TELEPORT_CONTROL && rn2(13)`
+      arm - reconcile both. The oprops row's
+      DEFERRED list names "monster teleport-AI (decide_to_teleport)";
+      this row owns it. Rings of teleportation feeding mon_prop()
+      belong to the ring-wearing deferral. Needs a RULING (master's
+      shape vs 5.0's tengu-only arm). MED (gameplay).
+- [ ] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
+      displacement consumers absent (minted 2026-09-24, session 138,
+      by the jumping slice's reviewer; master 16124aee8, "Monsters
+      gain displacement from wearing items that grant it", from
+      SpliceHack, and 9ac03c5d2 for the worn MR2_TELEPATHY arm).
+      Master update_mon_extrinsics() sets / clears
+      MR2_DISPLACED and MR2_TELEPATHY for worn DISPLACED / TELEPAT
+      items; the branch lists TELEPAT under "no effect for monsters"
+      and DISPLACED under "maybe should have an effect", and nothing
+      on the branch sets either bit, so has_telepathy()'s MR2 leg
+      (read by mind blast, set_apparxy() and sounds.c) is dead. Also
+      absent: master's has_displacement() (mondata.h) and its
+      consumers - uhitm.c "The image of %s shimmers and vanishes!"
+      (the hero's attack on a displaced monster), mhitm.c x2 "%s
+      attacks the displaced image of %s." (is_displaced() shimmering
+      dragons / displacer beast feed them too), muse.c's cloak of
+      displacement gift arm, worn.c extra_pref()'s DISPLACED scoring;
+      and master dog_givit()'s TELEPAT arm (MR2_TELEPATHY, "%s blinks
+      a few times.", from the pet intrinsic patch 49c2a81e1) plus the
+      TELEPAT term of eat.c can_give_new_mintrinsic() (corpses that
+      would grant a pet something new are treats) - the branch
+      mon_give_prop() has no TELEPAT case. Official 5.0 has no
+      monster displacement (master-only content). Port whole. MED
+      (gameplay: displaced monsters are hard to hit on master).
 - [ ] LOW (text, wizard mode only): from_what()'s form attribution
       reads " from your creature form" (upstream 5.0 attrib.c) where
       master prints " from current creature form" (master attrib.c
@@ -18931,6 +19061,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-24 | Monster jumping slice rulings (AskUserQuestion x3, all recommended options taken; every one is a fix of a master quirk, frozen-unfixed on master): (1) HERO JUMP: master 8134cd208's iron-bars line goes in the shared check_jump(), so iron bars refuse the hero's #jump up front as on master (5.0 let it start and crash into the bars, BUG-1918); (2) LEAP PATH: tested against the leaping MONSTER's wall phasing (with may_passwall()) and boulder throwing, not the hero's (BUG-1919); (3) BLIND LEAP: `mtmp->mcansee` joins m_canseeu() in the gate; (4) after the reviewer pass (multi-select, all four taken): IS_OBSTRUCTED squares (trees, secret doors / corridors) block the leap path, plus walls of water (folded in from the second review round with the same rationale: the squares that stop the hero's own jump); the leaper must know where the hero is (mux,muy == u.ux,u.uy, no hiding or mimicking hero; the walking code's animal / mindless blindness to a tortle in its shell or a shapechanged Druid / Vampire folded in, its intelligent-monster 1-in-6 not mirrored); no landing in the hero's sanctuary (mfndpos()'s test); an intelligent Amulet carrier does not leap. | maintainer |
 | 2026-09-24 | Luck timeout slice rulings (AskUserQuestion x1, two questions): (1) the Archeologist's lucky fedora (upstream 78289a7f8: change_luck(+1 / -1) on wearing / removing, baseluck +1 while worn) STAYS - the maintainer chose to keep 5.0's upstream extra over the recommended master's shape (master never had it); the luck timeout itself is master's a78345e6c (luck items slow the decay, never stop it); (2) the two unrelated hat gaps the sweep found fold into the slice as their own commits (recommended): Helmet_on()'s HELM_OF_SPEED fallthrough (BUG-1914, branch-introduced by 9dda906cf) and stuff_prevents_passage()'s missing TOQUE exemption (BUG-1915). Not asked (no ruling needed): the halving term keeps the branch's `(!Role_if(PM_INFIDEL) \|\| u.uevent.uimbued_idol)` translation of master's uachieve.amulet; set_moreluck() and the ^X text take master's shape as the row prescribed | maintainer |
 | 2026-09-23 | Partial reflection / death magic slice rulings (AskUserQuestion x2, five questions, all recommended options taken; every one = master's shape): (1) HERO PARTIAL REFLECTION vs rays (master 92e32005a, SporkHack): a reflected wand / spell / breath ray still hits the hero at half dice ("Some of it reflects from your <item>!", no line when Blind), and zhitu()'s Reflecting arms spare belongings (no burning, shattering, exploding or eroding), shorten sleep to 1d6 and stun by half, make poison gas harmless and turn disintegration into d(6,6); 5.0's full reflection dropped. Monster reflection stays full on both trees. (2) DEATH RAY vs magic resistance: master's drain (MR: d(4,6) and "You feel drained..." with a max-HP cut; MR + reflection: "a little drained", half the cut; reflection alone: the same as MR), not 5.0's "You aren't affected."; the death-magic MED row's arm (a). (3) TOUCH OF DEATH (master 6e6406d82): no escape roll, fatal without MR even polymorphed, d(8,6)/2 plus a max-HP cut with MR, hallucination harmless; Death's melee touch fatal on 17-19 without MR - not 5.0's escape roll and 50+8d6 drain; the row's arm (b). (4) MAGIC-MISSILE HALVING (master 08b519a7e, SporkHack; found by this slice, never rowed) FOLDED IN: MR halves magic missiles at the hero and at monsters instead of stopping them, a naturally magic-resistant species / form still stops them where master says so. (5) BREATH AI (follow-up question): master's breamu() - a monster breathes at the hero whatever it has seen; 5.0's breamm() m_seenres / M_SEEN_REFL hero gate dropped (keeping it would have let each dragon half-hit a reflecting hero once). Session calls under the approved plan: master's reflection-only death arm's monstseesu(M_SEEN_MAGR) not ported (it teaches monsters a non-MR hero has MR - BUG-1905, master frozen-unfixed); the max-HP cuts floor at 1 through drain_uhpmax() (master's zhitu() had no floor - BUG-1904, master frozen-unfixed); reviewer-surfaced same-feature siblings folded in (clerical lightning's partial reflection, master 17442b734; the wand of magic missile AI gate; Death's touch M_SEEN_MAGR). | maintainer (1-5); session, plan-approved (rest) |
 | 2026-09-23 | set_uasmon() race / form properties slice rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) DRAIN_RES follows master's race-based `resists_drain(racedat)`, not 5.0's uwep-suppressed resists_drli(&youmonst) - a vampire hero gains FROMFORM drain resistance and worn drain-resistant gear stops leaving a sticky FROMFORM bit; the first answer also took master's loss of a HUMAN-FORM LYCANTHROPE's drain resistance, but after the battery the maintainer REVISED it ("I dont think we should lose the 'level-drain resistant' line"): the arm is `resists_drain(racedat) \|\| ismnum(u.ulycn)`, because master's loss is a 7b7b9875c regression (the u.ulycn term rode the resists_drli() call it replaced; set_ulycn(), allmain.c's were_changes comment and is_innate()'s FROM_LYCN still expect the property) - archived as BUG-1899, master frozen-unfixed; (2) resists_drli() / resists_magm() get master's species macros (raceptr + resists_drain(), resists_mgc()) as their own commit in the slice; (3) the set_uasmon() half of master ebf5ef0d2 (giants wield two-handers one-handed: drop_weapon(1) in set_uasmon(), drop_weapon()'s bimanual arm, polyman()'s message ahead of set_uasmon()) is its own commit in the slice; rehumanize()'s break_armor() + drop_weapon(1) stay on the break_armor reconcile row. Coordinator calls, not asked: master's `Jumping` macro disjunct `\|\| is_jumper(youmonst.data)` NOT ported (redundant with the new PROPSET(JUMPING), same reasoning as the 2026-09-06 Sick_resistance entry); set_uasmon()'s drop_weapon(1) sits inside the existing `!program_state.restoring` gate beside float_vs_flight() (inventory is read back after set_uasmon() at restore, on master too, so no behavior changes); `racedat` is computed as `Upolyd ? mdat : &mons[gu.urace.mnum]` rather than through raceptr(), whose const return would reach the non-const dmgtype() inside immune_death_magic(); the reviewer-surfaced bracers-as-shield siblings of the two-weapon / two-hander class (zap.c poly_obj() = the unported half of master 57eb04d10, worn.c check_wornmask_slots() and iactions.c, both 5.0-native) were fixed in commit C per the cross-file-siblings rule, while other is_bracer() gaps went to a new SWEEP row. | maintainer |
