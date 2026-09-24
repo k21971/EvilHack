@@ -1256,7 +1256,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       self-hit (must also carry master's throwit slip-gate Priest
       conjunct - Role_if(PM_PRIEST) && pierce/slash beside the
       Infidel carve-out; noted 2026-08-26), monster teleport-AI
-      (decide_to_teleport),
+      (decide_to_teleport; DISCHARGED 2026-09-24, session 139,
+      BUG-1920),
       pet-stash filter, vulnerable_to/mon_underwater severity,
       "tainted " xname prefix (drow-poison - producers exist,
       display does not; LANDED 2026-07-31 with BUG-1421's parity
@@ -17485,9 +17486,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       server-side tooling parses the epoch form first. LOW.
 - [x] MED: monster jumping AI absent - PORTED 2026-09-24 (session
       138, monster jumping slice, commits `Fix: a jump at iron bars
-      crashed instead of being refused.` (BUG-1918), `Fix: monsters
-      never leapt at the hero.` (BUG-1916, 1917, 1919) - hashes
-      filled after landing; closure notes at the end of this row;
+      crashed instead of being refused.` = a8f62f78c (BUG-1918),
+      `Fix: monsters never leapt at the hero.` = fcffc2953 (BUG-1916,
+      1917, 1919), tracker ae9b912ce, landed 2026-09-24; closure
+      notes at the end of this row;
       (minted 2026-09-23, session 135,
       found by the set_uasmon() slice's is_jumper() census; grep: zero
       branch hits for `check_mon_jump` or "leaps at you"). Master
@@ -17571,7 +17573,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       NEW ROWS: master's m_move() random-teleport arm and the monster
       DISPLACED / TELEPATHY extrinsics (below). NOTES added to the
       ring-wearing deferral (Racial monsters row) and damp rider (c).
-- [ ] MED: master's m_move() random-teleport arm absent (minted
+- [x] MED: master's m_move() random-teleport arm absent - PORTED
+      2026-09-24 (session 139, random-teleport slice, commit `Fix:
+      only tengu teleported around the level on their own.` (BUG-1920,
+      1921, 1922, 1923) - hash filled after landing; closure notes at
+      the end of this row; minted
       2026-09-24, session 138, beside the jumping arm). Master's
       Monster Ring patch 5880eed5f replaced vanilla's tengu-only arm
       with `mon_prop(mtmp, TELEPORT) && !rn2(tengu ? 5 : 85) &&
@@ -17594,6 +17600,92 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       this row owns it. Rings of teleportation feeding mon_prop()
       belong to the ring-wearing deferral. Needs a RULING (master's
       shape vs 5.0's tengu-only arm). MED (gameplay).
+      CLOSURE (session 139, plan
+      /root/.claude/plans/bugfix-monster-random-teleport-ai.md):
+      RULINGS (decisions log): master's shape for all FOUR master
+      callers of decide_to_teleport() - the m_move() blink, mtele_trap()
+      (land next to the hero), mlevel_tele_trap() (refuse a level
+      teleporter) and, found by the reviewer, use_defensive()'s cursed
+      / confused scroll of teleportation (stay; in practice only the
+      Wizard and unique bosses, since m_flee() marks every other reader
+      fleeing); 5.0's portal stun / level-teleporter confusion KEPT
+      (maintainer chose the upstream extra). u_teleport_mon()'s
+      TELEPORT_CONTROL arm was already master's (no reconcile needed).
+      REVIEWER CONDITIONAL PASS -> all taken: HIGH - 5.0 routes the
+      voluntary MUSE_TELEPORT_TRAP jump through m_tele() -> mintrap()
+      -> mtele_trap() (master: plain rloc()), so an escaping boss the
+      AI never marks fleeing would have landed NEXT TO the hero; new
+      trap flag ESCAPETRAP (0x100U, hack.h) makes the jump always
+      rloc(); sibling BUG-1922 (same class, found while fixing): the
+      MR gate BUG-1774 put in mtele_trap() refused an escaping MR
+      monster, which then re-jumped every turn - ESCAPETRAP skips it
+      (BUG-1774's "shared quirk" note was wrong about master,
+      corrected in the archive); LOW - mtele_trap() returns whether
+      the square changed (BUG-1923; also the occupied fixed-destination
+      arm; upstream artifact revised); LOW comment. Rider BUG-1921
+      (master BUG-774's Monnam() snapshot, lost in the port). Two delta
+      reviews PASS. BATTERY (4 games, ~98 min; POST md5
+      ef09afd382c91c22748a1c0a2b98cb63 = installed, PRE
+      64cf44f8b5fdc278588c5fa3fd575776, MASTER
+      0777d16796d5368eee5d5101150c9e4a; paniclog clean on both trees):
+      L1 peaceful water nymphs - POST 20 m_move blinks in 1634 nymph
+      moves (1/82, all rloc), MASTER 12 in 1600, PRE 0 in 1575;
+      cancelled nymphs 0 on POST and MASTER. L2 mtele_trap() x10 per
+      case - healthy hostile tengu adjacent 10/10 POST = MASTER, PRE
+      0/10; fleeing / hurt / peaceful tengu and a water nymph 0/10 on
+      all trees; tame tengu 10/10 POST = MASTER, PRE 0/10; POST
+      returned 0 exactly when the square did not change, PRE returned
+      1 regardless. L3 level teleporter - healthy tengu stayed 6/6 POST
+      = MASTER, PRE left 6/6; fleeing tengu left on all trees. L4
+      Sokoban - POST 6 "A mysterious force prevents the water nymph
+      from teleporting!" in 717 nymph moves, MASTER 9 tele_restrict()
+      hits in 680 (its line hidden by the tester rc's MSGTYPE), PRE 0.
+      L5 fleeing tengu - POST 23 m_move blinks all rloc, PRE 13 of 24
+      mnexto (adjacent); non-fleeing control about half mnexto on both.
+      L6a Ashikaga Takauji at a quarter HP jumping onto the trap -
+      random landings on all trees (5 each). L6b the same in a cloak
+      of magic resistance - POST 4 and MASTER 3 random escapes, PRE
+      jumped at T16 and stayed on the trap, re-jumping T18 and T19.
+      L6c cursed scroll - POST = MASTER he stays and the scroll is
+      used up; at mhp 5 and for a soldier he leaves on all trees; PRE
+      he left. Save / reload - blinks continue. BRIEF ERRORS (mine):
+      a "teleportation trap" wish gives the trap-kit TOOL - wish
+      "teleportation trap trap"; genesis'd nymphs spawn asleep; mfleetim
+      is 7 bits (max 127); a tengu leaving by level teleporter is NOT
+      confused (5.0 spares a species with teleport control; nymphs are
+      confused); random_teleport_level() returns this level 1 in 5, so
+      PRE's "shudders" is common; master says "jumps onto a teleport
+      trap!"; an unidentified scroll reads "reads a scroll labeled
+      ..." with a call prompt on the branch; a hurt covetous boss runs
+      tactics() toward the up stairs whenever the hero is beyond dist2
+      8. NEW ROW: the Amulet's mysterious force (below).
+- [ ] MED: the Amulet's "mysterious force" is live on the branch but
+      REMOVED on master (minted 2026-09-24, session 139, found by the
+      random-teleport slice's m_tele() read). Master ad34e781a (2018,
+      "Remove the mysterious force... and replace it with nasties
+      spawning at the upstairs ...; also disabled being able to
+      teleport at all if you have the Amulet") wrapped goto_level()'s
+      hero arm in `#if 0`, and f6063dcd8 (2019) did the same for
+      monsters: use_defensive() MUSE_UPSTAIRS's Amulet-carrier arm is
+      `#if 0`, and mon_tele's Amulet / Wizard's Tower test lost vanilla's
+      `&& !rn2(3)`, so a monster carrying the Amulet (or on a Wizard's
+      Tower level) never teleports ("seems disoriented for a moment").
+      The branch runs 5.0's forms: do.c goto_level() sends the hero
+      back down 1 climb in 4 (with 5.0's svc.context.mysteryforce
+      decay and master's A_NONE exemption - the Infidel slice's RATIFY
+      QUEUE item "mysteryforce decay term kept + A_NONE exemption"
+      ported the exemption out of master's DISABLED block without
+      noticing the `#if 0`); muse.c MUSE_UPSTAIRS sends an Amulet
+      carrier down 1 in 4 in Gehennom; m_tele() teleports an Amulet
+      carrier or a Wizard's Tower monster 2 times in 3. Master's
+      replacement (intervene() case 7, nasty() at the up stairs)
+      is already on the branch (Wizard-harassment row, 55bcb5a8d), so
+      the branch has BOTH. The hero-side tele() Amulet block already
+      matches master (no rn2(3)). Check level_tele() and the
+      wizard-mode overrides with it. Needs a RULING (master's removal
+      vs 5.0's decaying force); recommend master's shape (an authored
+      EvilHack design change, not a quirk). MED (gameplay: Amulet run
+      difficulty).
 - [ ] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
       displacement consumers absent (minted 2026-09-24, session 138,
       by the jumping slice's reviewer; master 16124aee8, "Monsters
@@ -18931,7 +19023,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-09-07 | save.c savelev_core() runs its "purge any dead monsters" dmonsfree() only inside the `mode != FREEING` block, but goto_level() tears the level down in FREEING mode on entering the endgame or leaving the tutorial, so a monster m_detach()ed since the last drain (a statue trap made without time passing - a fresh level with a Statuary themed room starts that way - a summoned monster expiring in mcalcdistress(), a gas-cloud kill in run_regions(), a trapped pet killed by mintrap() inside keepdogs()) is freed by savemonchn() with iflags.purge_monsters still counting it; the next dmonsfree() (the load_special drain while the entrance plane is built) reports "dmonsfree: 0 removed doesn't match 1 pending" with the monster on no list. wiz_kill() already works around the same symptom with a private dmonsfree(). Official_nh50 and NetHack50 identical | fixed on branch (BUG-1797: the drain hoisted ahead of the mode test in savelev_core); artifact ~/nh50-savelev-freeing-purge-drain.patch (git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf); not yet sent |
 | 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch TRIMMED 2026-09-16 to the draw-arm hunk (the mimic halves are superseded by the 2026-09-16 rloc_to_core patch; the full 2026-09-07 version kept as ~/nh50-mv-bubble-vision-recalc.patch.2026-09-07-full; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8); not yet sent |
 | 2026-09-07 | trap.c lava_effects() protects only one in-use inventory item (protect_oid) and impossible()s then burns any other: a scroll of destroy armor (scroll->in_use) destroying levitation or water walking boots (destroy_arm sets armor->in_use) over lava leaves two, and the loser's caller useup()s freed memory after life-saving | artifact ~/nh50-lava-effects-in-use.patch (four-slot protect list + lava_protected()); git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf; not yet sent |
-| 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean); artifact ~/nh50-mtele-trap-moved-mon.patch (git apply --check clean vs both trees), not yet sent |
+| 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean; BUG-1923 2026-09-24: TRUE only when the monster's square changed, which also covers a fixed-destination teleporter whose destination holds the hero or another monster - that arm returned TRUE while moving nothing); artifact ~/nh50-mtele-trap-moved-mon.patch (REVISED 2026-09-24 to the position test, git apply --check clean vs both trees), not yet sent |
 | 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | observed; not reported, no patch |
 | 2026-09-06 | mon.c newcham() runs its tail on a monster mselftouch() just petrified: after `mselftouch(mtmp, "No longer petrify-resistant, ", ...)` (no gloves, wielded cockatrice corpse, new form not stone-resistant -> minstapetrify -> monstone) vanilla continues into check_gear_next_turn(), the boulder walk (per-iteration guarded) and the Elbereth re-check on a dead monster, and normal_shape() (rescham/restore_cham) then writes cham/mcan, newsyms and runs new_were()/seemimic() on it. Branch fix: `if (DEADMONSTER(mtmp)) return 1;` after the mselftouch call (the shape of the existing mon_break_armor guard) and `if (DEADMONSTER(mon)) return;` after normal_shape's newcham (3.6.x carried the latter as a `continue` in rescham). Vanilla-shared per Official_nh50 mon.c newcham()/normal_shape(). | branch-fixed (BUG-1753); artifact ~/nh50-newcham-mselftouch-dead-tail.patch (git apply --check clean vs Official_nh50 f41f1aa09) |
 | 2026-09-06 | mhitm.c mattackm()'s between-attacks re-check `m_at(gb.bhitpos) != mdef` never matches the hero's steed: mount_steed() removes it from level.monsters (bare remove_monster) so m_at(u.ux,u.uy) is NULL, and mattacku()'s "attack your steed instead" arm aims bhitpos at the hero square - a multi-attack monster attacking the hero's steed lands slot 0 only (fightm under Conflict too). Fix: accept `mdef == u.usteed && u_at(bhitpos)` in the re-check. Official_nh50 identical | fixed on branch (BUG-1749); artifact ~/nh50-mattackm-target-recheck.patch, not yet sent |
@@ -19061,6 +19153,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-24 | Monster random-teleport slice rulings (AskUserQuestion x2, three questions): (1) TELEPORT AI = master's shape, all callers (recommended, taken): master 5880eed5f's m_move() blink for every TELEPORT monster (1 in 85, tengu 1 in 5) and decide_to_teleport() - a monster with teleport control that is not hurt (mhp < 7), fleeing or peaceful, or is tame, lands next to the hero half the time from its blink and always from a teleport trap, and refuses a level teleporter. (2) 5.0's portal / level-teleporter DISORIENTATION STAYS (the maintainer kept the upstream extra over the recommended master's shape): the hero is stunned 3 turns by a magic portal ("You feel slightly dizzy.") and confused 3 turns by a level teleporter without teleport control, and a monster without species teleport control arrives confused (upstream 6a65b412 + bb238b5ef); master has none of it ("You feel dizzy for a moment, but the sensation passes."). Adopted 5.0 extra, no code change. (3) after the review, the fourth master caller - the cursed / confused scroll of teleportation in use_defensive() - follows master's shape (recommended, taken): a controlled monster that is not fleeing stays and the scroll is used up. In practice this is only the Wizard and unique bosses, because m_flee() marks every other reader fleeing. Folded under ruling (1) without a further question: a monster that jumps onto a teleport trap to escape lands at random and ignores the trap's magic resistance gate, because master's voluntary jump was a plain rloc() (the new ESCAPETRAP trap flag) | maintainer |
 | 2026-09-24 | Monster jumping slice rulings (AskUserQuestion x3, all recommended options taken; every one is a fix of a master quirk, frozen-unfixed on master): (1) HERO JUMP: master 8134cd208's iron-bars line goes in the shared check_jump(), so iron bars refuse the hero's #jump up front as on master (5.0 let it start and crash into the bars, BUG-1918); (2) LEAP PATH: tested against the leaping MONSTER's wall phasing (with may_passwall()) and boulder throwing, not the hero's (BUG-1919); (3) BLIND LEAP: `mtmp->mcansee` joins m_canseeu() in the gate; (4) after the reviewer pass (multi-select, all four taken): IS_OBSTRUCTED squares (trees, secret doors / corridors) block the leap path, plus walls of water (folded in from the second review round with the same rationale: the squares that stop the hero's own jump); the leaper must know where the hero is (mux,muy == u.ux,u.uy, no hiding or mimicking hero; the walking code's animal / mindless blindness to a tortle in its shell or a shapechanged Druid / Vampire folded in, its intelligent-monster 1-in-6 not mirrored); no landing in the hero's sanctuary (mfndpos()'s test); an intelligent Amulet carrier does not leap. | maintainer |
 | 2026-09-24 | Luck timeout slice rulings (AskUserQuestion x1, two questions): (1) the Archeologist's lucky fedora (upstream 78289a7f8: change_luck(+1 / -1) on wearing / removing, baseluck +1 while worn) STAYS - the maintainer chose to keep 5.0's upstream extra over the recommended master's shape (master never had it); the luck timeout itself is master's a78345e6c (luck items slow the decay, never stop it); (2) the two unrelated hat gaps the sweep found fold into the slice as their own commits (recommended): Helmet_on()'s HELM_OF_SPEED fallthrough (BUG-1914, branch-introduced by 9dda906cf) and stuff_prevents_passage()'s missing TOQUE exemption (BUG-1915). Not asked (no ruling needed): the halving term keeps the branch's `(!Role_if(PM_INFIDEL) \|\| u.uevent.uimbued_idol)` translation of master's uachieve.amulet; set_moreluck() and the ^X text take master's shape as the row prescribed | maintainer |
 | 2026-09-23 | Partial reflection / death magic slice rulings (AskUserQuestion x2, five questions, all recommended options taken; every one = master's shape): (1) HERO PARTIAL REFLECTION vs rays (master 92e32005a, SporkHack): a reflected wand / spell / breath ray still hits the hero at half dice ("Some of it reflects from your <item>!", no line when Blind), and zhitu()'s Reflecting arms spare belongings (no burning, shattering, exploding or eroding), shorten sleep to 1d6 and stun by half, make poison gas harmless and turn disintegration into d(6,6); 5.0's full reflection dropped. Monster reflection stays full on both trees. (2) DEATH RAY vs magic resistance: master's drain (MR: d(4,6) and "You feel drained..." with a max-HP cut; MR + reflection: "a little drained", half the cut; reflection alone: the same as MR), not 5.0's "You aren't affected."; the death-magic MED row's arm (a). (3) TOUCH OF DEATH (master 6e6406d82): no escape roll, fatal without MR even polymorphed, d(8,6)/2 plus a max-HP cut with MR, hallucination harmless; Death's melee touch fatal on 17-19 without MR - not 5.0's escape roll and 50+8d6 drain; the row's arm (b). (4) MAGIC-MISSILE HALVING (master 08b519a7e, SporkHack; found by this slice, never rowed) FOLDED IN: MR halves magic missiles at the hero and at monsters instead of stopping them, a naturally magic-resistant species / form still stops them where master says so. (5) BREATH AI (follow-up question): master's breamu() - a monster breathes at the hero whatever it has seen; 5.0's breamm() m_seenres / M_SEEN_REFL hero gate dropped (keeping it would have let each dragon half-hit a reflecting hero once). Session calls under the approved plan: master's reflection-only death arm's monstseesu(M_SEEN_MAGR) not ported (it teaches monsters a non-MR hero has MR - BUG-1905, master frozen-unfixed); the max-HP cuts floor at 1 through drain_uhpmax() (master's zhitu() had no floor - BUG-1904, master frozen-unfixed); reviewer-surfaced same-feature siblings folded in (clerical lightning's partial reflection, master 17442b734; the wand of magic missile AI gate; Death's touch M_SEEN_MAGR). | maintainer (1-5); session, plan-approved (rest) |
