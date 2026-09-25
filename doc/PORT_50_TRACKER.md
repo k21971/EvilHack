@@ -17867,9 +17867,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a POST carrier "picks up a gem." on its way to the stairs.
 - [x] MED: master 72134de80's dochug / m_move carrier hunks NOT
       PORTED - PORTED 2026-09-25 (session 143, commit `Amulet
-      carriers flee instead of fighting.` (BUG-1937, 1938, 1939,
-      1940) - hash filled after landing; closure notes at the end of
-      this row; minted 2026-09-25, session 142, by the Amulet-carrier
+      carriers flee instead of fighting.` = 69e3c6f3f (BUG-1937,
+      1938, 1939, 1940), tracker 188bf968d, landed 2026-09-25;
+      closure notes at the end of this row; minted 2026-09-25,
+      session 142, by the Amulet-carrier
       defensive-escape slice's reviewer and battery). The commit's
       find_defensive() half, ranged-attack skip and stash skip are on
       the branch (89dfbd4e7, this slice); five hunks are not, and
@@ -17914,7 +17915,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
             leaving u.ustuck dangling. Now an engulfer (or a carrier
             the hero's sticky form holds) refuses to escape, and a
             holder lets go (release_hero(), exported) before each
-            escape arm (BUG-1939);
+            escape arm (BUG-1939). [Correction 2026-09-25, session
+            144: the dangling state was MASTER-only. On the branch,
+            migrate_to_level() -> relmon() -> mon_leaving_level() ->
+            unstuck() (upstream 6880d37b3) already expelled or
+            released the hero silently, so BUG-1939's branch change
+            is a behavior ruling (engulfer refuses, holder gets the
+            release line), not a pointer fix.];
         (4) (e) gated for carriers only, with the general upstream
             pickup change minted as a new row below;
         (5)-(6) after battery 1: getmattk() exemption for an engulfing
@@ -18015,8 +18022,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       change contradicts the commit's own claim); check NetHack50's
       current postmov first. MED (gameplay: combat tempo, peaceful
       and pet item handling).
-- [ ] MED: a monster HOLDING the hero can leave the level with u.ustuck
-      still set (minted 2026-09-25, session 143, by the Amulet-carrier
+- [x] MED: a monster HOLDING the hero can leave the level with u.ustuck
+      still set - CLOSED 2026-09-25 (session 144, commit `Monsters
+      holding the hero let go when they leave the level.` (BUG-1941)
+      - hash filled after landing; closure notes at the end of this
+      row. The premise was FALSE on the branch: only master dangles.
+      Minted 2026-09-25, session 143, by the Amulet-carrier
       flee slice's reviewer; master-shared and upstream-shared,
       Official_nh50 identical). BUG-1939 fixed this for
       mon_escape_with_amulet() only. Two other muse.c arms migrate a
@@ -18043,6 +18054,91 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Suggested fix: release_hero() before those two
       migrate_to_level() calls, or one guard inside migrate_to_level().
       MED (state corruption; rare to stage).
+      CLOSURE (session 144; plan
+      /root/.claude/plans/bugfix-holder-leaves-level-release.md):
+      FINDING: on the branch, migrate_to_level() -> relmon() ->
+      mon_leaving_level() -> unstuck() (upstream 6880d37b3, also in
+      Official_nh50 and NetHack50) always clears the hold, silently,
+      and drops an engulfed hero at the engulfer's square. BUG-1835's
+      2026-09-12 retest had already seen this. The "EFFECT" above is
+      master-only: master's relmon() has no mon_leaving_level(). The
+      same holds for BUG-1939 (correction note on the carrier-flee
+      row above). No upstream report is needed.
+      RULING (AskUserQuestion; the maintainer chose the non-default
+      "records + release message" over records only): release_hero()
+      goes just before both migrate_to_level() calls, so a holder
+      prints "You get released!" as it leaves. That matches BUG-1939
+      and monflee().
+        (a) The call sits after the Lucifer / Ice Queen / same-level
+            refusal (a refused rise keeps its hold) and before the
+            rise line.
+        (b) The call sits in the migrate-only arm, after every
+            refusal.
+      A hero whose sticky form holds the monster loses the grip
+      silently (release_hero() does nothing there; rloc_to_core()
+      also unsticks silently).
+      REVIEWER CONDITIONAL PASS. MEDIUM taken: (b)'s release line fell
+      between the `iflags.last_msg = PLNMSG_enum` reset and the
+      trycall() test, so a blind, deaf hero held by an already-fleeing
+      monster would get a "Call a scroll" prompt for a read it never
+      perceived. The code now saves and restores last_msg around the
+      call (lint.h ifdebug idiom). Delta review PASS. LOW minted as
+      the steed row below; the LOW comment-wording note was optional
+      and not taken.
+      BATTERY (3 games, ~45 min; POST
+      57899025d83badc83e36f9469bc7f15b, PRE
+      048988b0dd44165f5644dc90f7603e85 = HEAD code built in a scratch
+      tree, MASTER 0777d16796d5368eee5d5101150c9e4a; branch paniclog
+      never created, master's unchanged; every leg 2 of 2):
+        * A, a salamander holder with a cursed gain level:
+            - POST "drinks ...!  You get released!  The salamander
+              rises up, through the ceiling!";
+            - PRE silent, with the unstuck() backtrace
+              mon_leaving_level <- relmon <- migrate_to_level <-
+              use_misc;
+            - MASTER u.ustuck == migrating_mons head (mx 0), "You are
+              being held, and cannot go up.", cleared by one step.
+        * B, an already-fleeing holder with a cursed scroll:
+            - POST "reads a scroll labeled ...!  You get released!";
+            - PRE silent, u.ustuck nil;
+            - MASTER dangling.
+        * B control, mflee 0: exactly one release line, from
+          monflee() and before the read line.
+        * B2, a blind and deaf hero with a dknown scroll: only "You get
+          released!", with no trycall and no Call prompt.
+        * C, the hero's lichen or owlbear form holds a hill orc:
+            - POST and PRE silent, u.ustuck nil;
+            - MASTER dangling.
+        * D, POST save and restore after A: clean.
+      Harness lore:
+        * an unseen, non-ustuck monster's mpickobj() calls
+          unknow_object() (dknown 0), so stage dknown AFTER the
+          handover;
+        * an eyeless lichen hero is Blind, so it never sees the rise
+          line;
+        * master's #wizkill ignores the m prefix, so the pet kill
+          counts as the hero's.
+- [ ] LOW: a rider whose STEED holds the hero is not treated as stuck
+      (minted 2026-09-25, session 144, by the holder-leaves-level
+      slice's reviewer; traced in code, not reproduced). A ridden steed
+      still attacks: movemon() keeps a ridden steed acting, and m_move()
+      returns MMOVE_NOTHING for it. A woolly mammoth has AT_HUGS, and
+      frost giants ride mammoths in the Ice Queen's realm
+      (makemon.c). u.ustuck is then the steed, not the rider:
+        * find_defensive() and find_misc() test only `mtmp ==
+          u.ustuck`, so the rider can still pick the stairs, ladders,
+          trap doors, the digging wand, cursed gain level or a cursed
+          teleport scroll;
+        * migrate_to_level() takes the steed along (its steed
+          recursion), and mon_leaving_level() drops the hold silently;
+        * release_hero(mtmp) (BUG-1939 / BUG-1941) and
+          mon_escape_with_amulet()'s stuck refusal name the rider, so
+          they do nothing.
+      Branch: no dangling pointer, only a silent release plus a
+      physical exit the rider's own hold would refuse. Master: dangles
+      (no mon_leaving_level()). Decide: treat `has_erid(mtmp) &&
+      ERID(mtmp)->mon_steed == u.ustuck` as stuck in both finders
+      and in mon_escape_with_amulet(), or accept it. LOW.
 - [ ] LOW: 5.0's noteleport_level() exempts covetous monsters from a
       level's natural no-teleport flag (`noteleport && !is_covetous`;
       upstream, Official_nh50 identical); master's tele_restrict() has
