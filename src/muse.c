@@ -757,8 +757,13 @@ find_defensive(struct monst *mtmp, boolean tryescape)
     if (!tryescape) {
         /* do we try to heal? */
         fraction = u.ulevel < 10 ? 5 : u.ulevel < 14 ? 4 : 3;
-        if (mtmp->mhp >= mtmp->mhpmax
-            || (mtmp->mhp >= 10 && mtmp->mhp * fraction >= mtmp->mhpmax))
+        /* a hostile Amulet carrier wants to escape regardless of its
+           health (mindless and animal ones returned above); a priest
+           in its own temple guards the Amulet instead */
+        if (!(mon_has_amulet(mtmp) && !mtmp->mpeaceful
+              && !(mtmp->ispriest && inhistemple(mtmp)))
+            && (mtmp->mhp >= mtmp->mhpmax
+                || (mtmp->mhp >= 10 && mtmp->mhp * fraction >= mtmp->mhpmax)))
             return FALSE;
 
         if (mtmp->mpeaceful) {
@@ -938,8 +943,10 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             }
         }
         nomore(MUSE_SCR_TELEPORTATION);
-        if (obj->otyp == SCR_TELEPORTATION && mtmp->mcansee
-            && haseyes(mtmp->data)
+        if (obj->otyp == SCR_TELEPORTATION
+            /* an Amulet carrier's teleport is always refused */
+            && !mon_has_amulet(mtmp)
+            && mtmp->mcansee && haseyes(mtmp->data)
             && (!obj->cursed || (!(mtmp->isshk && inhishop(mtmp))
                                  && !mtmp->isgd && !mtmp->ispriest))) {
             /* see WAN_TELEPORTATION case above */
@@ -1056,8 +1063,10 @@ check_defensive_item(
     }
 
     nomore(MUSE_SCR_TELEPORTATION);
-    if (obj->otyp == SCR_TELEPORTATION && mtmp->mcansee
-        && haseyes(mtmp->data)
+    if (obj->otyp == SCR_TELEPORTATION
+        /* an Amulet carrier's teleport is always refused */
+        && !mon_has_amulet(mtmp)
+        && mtmp->mcansee && haseyes(mtmp->data)
         && (!obj->cursed || (!(mtmp->isshk && inhishop(mtmp))
                              && !mtmp->isgd && !mtmp->ispriest))) {
         /* see WAN_TELEPORTATION case above */
