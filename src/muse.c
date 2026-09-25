@@ -1343,7 +1343,15 @@ use_defensive(struct monst *mtmp)
                     verbalize("Nooooo!");
                 }
             } else {
+                int save_plnmsg = iflags.last_msg;
+
                 get_level(&flev, nlev);
+                /* a holder lets go as it leaves (m_flee() above
+                   skips this for a monster already fleeing); the
+                   release line says nothing about the scroll, so keep
+                   it out of the trycall() test below */
+                release_hero(mtmp);
+                iflags.last_msg = save_plnmsg;
                 migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
                                  (coord *) 0);
             }
@@ -3702,6 +3710,9 @@ use_misc(struct monst *mtmp)
                     || (Is_sanctum(&u.uz)
                         && mtmp->data == &mons[PM_LUCIFER]))
                     goto skipmsg;
+                /* a holder lets go as it leaves; migrate_to_level()
+                   would otherwise free the hero without a word */
+                release_hero(mtmp);
                 if (vismon) {
                     pline_mon(mtmp, "%s rises up, through the %s!",
                               Monnam(mtmp),
