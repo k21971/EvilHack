@@ -2566,6 +2566,19 @@ mpickgold(struct monst *mtmp)
     }
 }
 
+/* most monsters don't pick up corpses: a nymph may take any, anyone
+   else only the few types let through here to can_carry();
+   m_search_items() uses this too, so a monster doesn't go after a
+   corpse it won't take */
+boolean
+mon_refuses_corpse(struct monst *mtmp, struct obj *otmp)
+{
+    return (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH
+            && !touch_petrifies(&mons[otmp->corpsenm])
+            && otmp->corpsenm != PM_LIZARD
+            && !acidic(&mons[otmp->corpsenm]));
+}
+
 /* monster picks up one item stack from the map location they are at */
 boolean
 mpickstuff(struct monst *mtmp)
@@ -2610,11 +2623,7 @@ mpickstuff(struct monst *mtmp)
         /* Nymphs take everything.  Most monsters don't pick up corpses. */
         if (mon_would_take_item(mtmp, otmp)) {
 
-            if (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH
-                /* let a handful of corpse types thru to can_carry() */
-                && !touch_petrifies(&mons[otmp->corpsenm])
-                && otmp->corpsenm != PM_LIZARD
-                && !acidic(&mons[otmp->corpsenm]))
+            if (mon_refuses_corpse(mtmp, otmp))
                 continue;
             if (!can_touch_safely(mtmp, otmp))
                 continue;

@@ -19,7 +19,8 @@ staticfn boolean soko_allow_web(struct monst *);
 staticfn boolean m_search_items(struct monst *, coordxy *, coordxy *, int *,
                                 int *) NONNULLPTRS;
 staticfn int postmov(struct monst *, struct permonst *, coordxy, coordxy, int,
-                     unsigned, boolean, boolean, boolean) NONNULLPTRS;
+                     unsigned, boolean, boolean, boolean,
+                     boolean) NONNULLPTRS;
 staticfn boolean m_leap_at_u(struct monst *) NONNULLARG1;
 staticfn boolean mon_slowed_by_sewage(struct monst *);
 staticfn boolean leppie_avoidance(struct monst *);
@@ -1972,7 +1973,14 @@ m_search_items(
                    BAG_OF_DEVOURING, which master's own arm does; a
                    cursed bag of treasure weighs its contents x10, so
                    !can_carry is exactly the case a dropped one hits */
+                /* skip a corpse mpickstuff() would refuse, as master's
+                   search did; one underfoot would otherwise hold the
+                   monster in place turn after turn. A gelatinous cube
+                   still goes for one: postmov()'s meatobj() eats it
+                   before any pickup */
                 if (((mon_would_take_item(mtmp, otmp)
+                      && (!mon_refuses_corpse(mtmp, otmp)
+                          || ptr == &mons[PM_GELATINOUS_CUBE])
                       && (can_carry(mtmp, otmp) > 0))
                      || mon_would_consume_item(mtmp, otmp))
                     && can_touch_safely(mtmp, otmp)) {
@@ -2012,7 +2020,8 @@ postmov(
     unsigned seenflgs,
     boolean can_tunnel,
     boolean can_unlock,
-    boolean can_open)
+    boolean can_open,
+    boolean getitems)
 {
     coordxy nix, niy;
     int etmp, trapret;
@@ -2254,10 +2263,26 @@ postmov(
                     return MMOVE_DIED;
             }
 
-            /* a monster with the Amulet doesn't stop to pick up
-               objects */
-            if (!mon_has_amulet(mtmp) && mpickstuff(mtmp))
-                mmoved = MMOVE_DONE;
+            /* getitems is FALSE on the special-move paths (pets, whose
+               pickup is dog_invent()'s, a shopkeeper, guard or priest
+               making its own move, a covetous monster attacking an
+               intruder or staying back to warp, leaps and blinks);
+               otherwise it is m_move()'s test, which skips a monster
+               closing in on the hero in line, one carrying the
+               Amulet, and most peacefuls */
+            if (getitems) {
+                int pctload = (curr_mon_load(mtmp) * 100)
+                              / max_mon_load(mtmp);
+
+                /* gold is scooped up for free: it costs no move and
+                   skips can_carry(), so a peaceful that passed the
+                   test takes it too */
+                if (likes_gold(ptr) && pctload < 95
+                    && g_at(mtmp->mx, mtmp->my))
+                    mpickgold(mtmp);
+                if (mpickstuff(mtmp))
+                    mmoved = MMOVE_DONE;
+            }
 
             if (mtmp->minvis) {
                 newsym(mtmp->mx, mtmp->my);
@@ -2491,7 +2516,7 @@ m_move(struct monst *mtmp, int after)
     /* my dog gets special treatment */
     if (mtmp->mtame) {
         return postmov(mtmp, ptr, omx, omy, dog_move(mtmp, after),
-                       seenflgs, can_tunnel, can_unlock, can_open);
+                       seenflgs, can_tunnel, can_unlock, can_open, FALSE);
     }
 
     /* and the acquisitive monsters get special treatment */
@@ -2519,14 +2544,14 @@ m_move(struct monst *mtmp, int after)
                 return MMOVE_DIED;
             mmoved = MMOVE_MOVED;
             return postmov(mtmp, ptr, omx, omy, mmoved,
-                           seenflgs, can_tunnel, can_unlock, can_open);
+                           seenflgs, can_tunnel, can_unlock, can_open, FALSE);
         }
         /* beyond close range covetous monsters rely on their warping
            tactics rather than walking; only assume normal movement
            once near the hero */
         if (distu(mtmp->mx, mtmp->my) > 8)
             return postmov(mtmp, ptr, omx, omy, mmoved,
-                           seenflgs, can_tunnel, can_unlock, can_open);
+                           seenflgs, can_tunnel, can_unlock, can_open, FALSE);
         /* otherwise continue with normal AI routine */
     }
 
@@ -2550,7 +2575,7 @@ m_move(struct monst *mtmp, int after)
         case 1:
             return postmov(mtmp, ptr, omx, omy,
                            (xm != 1) ? MMOVE_NOTHING : MMOVE_MOVED,
-                           seenflgs, can_tunnel, can_unlock, can_open);
+                           seenflgs, can_tunnel, can_unlock, can_open, FALSE);
         }
     }
 
@@ -2568,7 +2593,7 @@ m_move(struct monst *mtmp, int after)
     /* jump toward the hero if that lies in our nature */
     if (m_leap_at_u(mtmp))
         return postmov(mtmp, ptr, omx, omy, MMOVE_MOVED,
-                       seenflgs, can_tunnel, can_unlock, can_open);
+                       seenflgs, can_tunnel, can_unlock, can_open, FALSE);
 
     /* teleport if that lies in our nature; a monster with teleport
        control may choose to land next to the hero */
@@ -2588,7 +2613,7 @@ m_move(struct monst *mtmp, int after)
             else
                 mnexto(mtmp, RLOC_MSG);
             return postmov(mtmp, ptr, omx, omy, MMOVE_MOVED,
-                           seenflgs, can_tunnel, can_unlock, can_open);
+                           seenflgs, can_tunnel, can_unlock, can_open, FALSE);
         }
     }
  not_special:
@@ -2704,6 +2729,8 @@ m_move(struct monst *mtmp, int after)
         }
     }
 
+    /* getitems gates both the search for items below and the pickup
+       in passing that postmov() does at the end of the move */
     if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))
         /* monsters with the Amulet don't stop to pick up objects */
         && !mon_has_amulet(mtmp)) {
@@ -2723,7 +2750,7 @@ m_move(struct monst *mtmp, int after)
 
     if (getitems && m_search_items(mtmp, &ggx, &ggy, &mmoved, &appr))
         return postmov(mtmp, ptr, omx, omy, mmoved,
-                       seenflgs, can_tunnel, can_unlock, can_open);
+                       seenflgs, can_tunnel, can_unlock, can_open, getitems);
 
     /* don't tunnel if hostile and close enough to prefer a weapon,
        unless the player is in terrain that requires digging to reach */
@@ -3014,7 +3041,7 @@ m_move(struct monst *mtmp, int after)
             worm_nomove(mtmp);
     }
     return postmov(mtmp, ptr, omx, omy, mmoved,
-                   seenflgs, can_tunnel, can_unlock, can_open);
+                   seenflgs, can_tunnel, can_unlock, can_open, getitems);
 }
 
 /* The part of m_move that deals with a monster attacking another monster (and

@@ -1934,6 +1934,7 @@ extern int gollum_eat(struct monst *) NONNULLARG1;
 extern void mon_give_prop(struct monst *, int) NONNULLARG1;
 extern void mon_givit(struct monst *, struct permonst *) NONNULLARG12;
 extern void mpickgold(struct monst *) NONNULLARG1;
+extern boolean mon_refuses_corpse(struct monst *, struct obj *) NONNULLARG12;
 extern boolean mpickstuff(struct monst *) NONNULLARG1;
 extern int curr_mon_load(struct monst *) NONNULLARG1;
 extern int max_mon_load(struct monst *) NONNULLARG1;
