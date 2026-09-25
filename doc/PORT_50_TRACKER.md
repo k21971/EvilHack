@@ -17786,8 +17786,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       minted): MED master find_defensive() Amulet-carrier HP-check
       skip; LOW 5.0's covetous noteleport exemption vs master's
       tele_restrict() (both below).
-- [ ] MED: master find_defensive() lets an intelligent Amulet carrier
-      skip the HP check (minted 2026-09-24, session 140, by the
+- [x] MED: master find_defensive() lets an intelligent Amulet carrier
+      skip the HP check - PORTED 2026-09-25 (session 142, commit
+      `Amulet carriers use defensive escapes at full health.`
+      (BUG-1934, 1935, 1936) - hash filled after landing; closure
+      notes at the end of this row; minted 2026-09-24, session 140, by the
       mysterious-force slice). Master 72134de80 ("Intelligent monsters
       with Amulet of Yendor now properly flee to escape") wrapped the
       `fraction` HP gate as `if (!(mon_has_amulet(mtmp) &&
@@ -17807,6 +17810,88 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the hero; the session-140 pick guards (BUG-1927 / 1929) keep the
       teleport-trap and self-spell halves loop-free. Check master's
       behavior in play before choosing master's exact shape. MED
+      (gameplay: the Amulet-thief chase).
+      CLOSURE (session 142): plan
+      /root/.claude/plans/feature-amulet-carrier-defensive-escape.md.
+      RULINGS (AskUserQuestion x1, three questions, all recommended
+      options plus both quirk fixes): (1) master's exact skip, not an
+      escape-only subset and not the plain gate; (2) quirk fixes, both
+      taken - a peaceful or tame carrier keeps the HP gate (BUG-1935,
+      master frozen-unfixed: a full-HP peaceful or tame carrier near
+      the hero drank its healing potions), and a carrier never picks
+      a scroll of teleportation at any HP, cornered included
+      (BUG-1936, master frozen-unfixed: m_tele() always refuses it
+      and the scroll is used up); (3) no master observation game
+      before planning, the battery's MASTER legs covered it. PORTED
+      (src/muse.c only): BUG-1934 the gate inside `if (!tryescape)`
+      skips for `mon_has_amulet() && !mpeaceful && !(ispriest &&
+      inhistemple())`; master's mindless / is_animal terms dropped as
+      redundant (find_defensive() returns FALSE for both at its top,
+      master's too); the scroll term sits on both the inventory-loop
+      pick and check_defensive_item() (find_items_recurse() rescans
+      open inventory). REVIEWER PASS; LOWs recorded, no change: the
+      Castle (no staircase, only an arrival region) lets a carrier
+      next to a trap door take MUSE_TRAPDOOR, which use_defensive()
+      refuses on Is_botlevel() every turn, hiding its wand / spell
+      and skipping find_misc() (it still moves); the covetous
+      teleport-away recast on the LOW row below is now reachable at
+      full HP; a cornered (tryescape) PEACEFUL non-tame carrier skips
+      the peaceful arm and zaps / casts teleport at the hero (in
+      practice only the Infidel's Sanctum high priest of Moloch,
+      boxed in). The reviewer's out-of-scope MEDIUM (72134de80's
+      dochug / m_move carrier hunks unported) is the new row below.
+      BATTERY (3 games, ~44 min; POST 71877d4b92cb5ebdc3e097d4cadf2e6c
+      = installed, PRE caa57c4ec02a3d2fd0ce4b995d1ec701, MASTER
+      0777d16796d5368eee5d5101150c9e4a; paniclog clean on both
+      trees; hill orc carriers, find_defensive() probes with the
+      hero at dist2 <= 25 and mux/muy on the hero): all legs PASS. A
+      wand of teleportation: POST 15 / MASTER 15 / PRE 0, POST and
+      MASTER zap the hero away, controls 0. B wand of digging POST 5
+      / MASTER 5 / PRE 0 ("has made a hole in the floor", falls
+      through); on the down stairs POST 9 / MASTER 9 / PRE 0
+      ("escapes downstairs!"). C peaceful carrier with a potion of
+      healing POST 0 / PRE 0 / MASTER 3 (drinks it, mhpmax 9 -> 10);
+      tame carrier the same. D teleport scroll: full HP POST 0 /
+      PRE 0 / MASTER 1 ("seems disoriented for a moment.", scroll
+      gone); wounded POST 0 (kept) / PRE 1 / MASTER 1; POST scroll in
+      a carried sack 0 (1 without the Amulet); POST wounded
+      non-carrier 1 and teleports. E Minetown priest with the Amulet
+      and a wand: in its temple 0, outside 15. F item-less carrier
+      still "escapes upstairs with the Amulet!" on POST and PRE. G
+      boxed-in wounded carrier find_defensive($m, 1): POST 0, PRE 1.
+      Tester observation that minted the pickup half of the new row:
+      a POST carrier "picks up a gem." on its way to the stairs.
+- [ ] MED: master 72134de80's dochug / m_move carrier hunks NOT
+      PORTED (minted 2026-09-25, session 142, by the Amulet-carrier
+      defensive-escape slice's reviewer and battery). The commit's
+      find_defensive() half, ranged-attack skip and stash skip are on
+      the branch (89dfbd4e7, this slice); five hunks are not, and
+      without them master's "it stops attacking and pathfinds toward
+      the nearest escape route" does not hold. (a) dochug's move-phase
+      gate: master adds `|| (mon_has_amulet(mtmp) && !mindless &&
+      !is_animal && !(ispriest && inhistemple))`, so a carrier next to
+      the hero always moves; the branch's gate has no carrier term,
+      so a nearby, unscared, unfleeing carrier skips m_move() and
+      stands and fights. (b) the engulfer arm: master stops an
+      engulfing intelligent carrier from attacking after its move;
+      the branch returns mattacku() unconditionally. (c) the
+      standard-attack gate: master skips melee for an intelligent
+      carrier (priest in its temple excepted); the branch has no
+      term. (d) m_move(): master sets `appr = -1` for any carrier
+      before the escape goal overrides it to 1 where a target exists,
+      so on a level with no escape target (the Castle) master's
+      carrier flees the hero and the branch's approaches. (e) master's
+      getitems block (`!mon_has_amulet(mtmp)`) is also where likegold
+      / likegems / likeobjs / likemagic / likerock are set, so a
+      master carrier picks up NOTHING in postmov; the branch kept the
+      getitems gate (m_search_items()), but 5.0's postmov calls
+      mpickstuff(), which reads mon_would_take_item() and ignores it,
+      so a branch carrier picks up gems and items in passing (seen in
+      the session 142 battery). Port in 5.0 idiom; weigh (a) against
+      the ported m_move() escape goal (appr 1) and the dochug flee
+      logic; a battery wants a carrier adjacent to the hero on POST
+      vs MASTER (moves away, never hits), an engulfing carrier, a
+      carrier on the Castle, and a carrier walking over a gem. MED
       (gameplay: the Amulet-thief chase).
 - [ ] LOW: 5.0's noteleport_level() exempts covetous monsters from a
       level's natural no-teleport flag (`noteleport && !is_covetous`;
@@ -17830,10 +17915,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       arms: test noteleport_level(&gy.youmonst). Decide: keep 5.0's
       exemption (tactics() already warps covetous monsters freely) or
       restore master's refusal for the non-tactics callers. LOW.
+      Note (2026-09-25, session 142): since BUG-1934 a carrier skips
+      find_defensive()'s HP gate, so the covetous carrier's endless
+      teleport-away recast at the hero no longer needs it to be hurt.
 - [x] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
       displacement consumers absent - PORTED 2026-09-24 (session 141,
-      commit `Monster displacement and telepathy from worn gear.`
-      (BUG-1930, 1931, 1932, 1933) - hash filled after landing; closure
+      commit `Monster displacement and telepathy from worn gear.` =
+      fc5523125 (BUG-1930, 1931, 1932, 1933), tracker 880e609a3,
+      landed 2026-09-24; closure
       notes at the end of this row; minted 2026-09-24, session 138,
       by the jumping slice's reviewer; master 16124aee8, "Monsters
       gain displacement from wearing items that grant it", from
