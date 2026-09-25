@@ -1709,10 +1709,17 @@ mon_escape_with_amulet(struct monst *mtmp)
     if (!mon_has_amulet(mtmp) || mtmp->mpeaceful
         || mindless(mtmp->data) || is_animal(mtmp->data))
         return 0;
+    /* a carrier the hero is inside of, or that the hero's own sticky
+       form holds, cannot leave; find_defensive() refuses an engulfer
+       the same way. A carrier merely holding the hero lets go as it
+       escapes below */
+    if (mtmp == u.ustuck && (u.uswallow || sticks(gy.youmonst.data)))
+        return 0;
 
     /* Check for stairs or a ladder at monster's location */
     if ((stway = stairway_at(x, y)) != 0) {
         if (stway->tolev.dnum != u.uz.dnum) {
+            release_hero(mtmp);
             /* On a dungeon branch (master's special stairs)? */
             if (!u.uz.dnum && u.uz.dlevel == 1 && stway->up) {
                 /* Escaping to the Planes! */
@@ -1754,6 +1761,7 @@ mon_escape_with_amulet(struct monst *mtmp)
         }
         if (stway->up) {
             /* On same-dungeon stairs or ladder going up? */
+            release_hero(mtmp);
             if (vismon)
                 pline("%s escapes up%s with the Amulet!", Monnam(mtmp),
                       stway->isladder ? " the ladder" : "stairs");
@@ -1769,6 +1777,7 @@ mon_escape_with_amulet(struct monst *mtmp)
     /* Check for magic portal (elemental planes) */
     ttrap = t_at(x, y);
     if (ttrap && ttrap->ttyp == MAGIC_PORTAL) {
+        release_hero(mtmp);
         if (vismon)
             pline("%s enters the portal with the Amulet!", Monnam(mtmp));
         migrate_to_level(mtmp, ledger_no(&ttrap->dst), MIGR_PORTAL,

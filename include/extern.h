@@ -2120,6 +2120,8 @@ extern void m_everyturn_effect(struct monst *) NONNULLARG1;
 extern void m_postmove_effect(struct monst *) NONNULLARG1;
 extern int dochugw(struct monst *, boolean) NONNULLARG1;
 extern boolean onscary(coordxy, coordxy, struct monst *) NONNULLARG3;
+extern void release_hero(struct monst *) NONNULLARG1;
+extern boolean m_flees_with_amulet(struct monst *) NONNULLARG1;
 extern struct monst *find_pmmonst(int);
 extern int bee_eat_jelly(struct monst *, struct obj *) NONNULLARG12;
 extern void monflee(struct monst *, int, boolean, boolean) NONNULLARG1;

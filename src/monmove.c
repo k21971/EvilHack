@@ -10,7 +10,6 @@
 staticfn void msg_mon_movement(struct monst *, coordxy, coordxy) NONNULLARG1;
 staticfn void watch_on_duty(struct monst *);
 staticfn int disturb(struct monst *);
-staticfn void release_hero(struct monst *);
 staticfn void distfleeck(struct monst *, int *, int *, int *);
 staticfn int m_arrival(struct monst *);
 staticfn void mind_blast(struct monst *);
@@ -555,7 +554,7 @@ disturb(struct monst *mtmp)
 }
 
 /* ungrab/expel held/swallowed hero */
-staticfn void
+void
 release_hero(struct monst *mon)
 {
     if (mon == u.ustuck) {
@@ -566,6 +565,18 @@ release_hero(struct monst *mon)
             You("get released!");
         }
     }
+}
+
+/* an intelligent monster carrying the Amulet of Yendor runs for an
+   escape route rather than fight; mindless and animal monsters don't
+   understand the Amulet's significance, and a priest in its temple
+   guards the Amulet */
+boolean
+m_flees_with_amulet(struct monst *mtmp)
+{
+    return (mon_has_amulet(mtmp)
+            && !mindless(mtmp->data) && !is_animal(mtmp->data)
+            && !(mtmp->ispriest && inhistemple(mtmp)));
 }
 
 struct monst *
@@ -1294,9 +1305,7 @@ dochug(struct monst *mtmp)
        Pets skip this scan entirely; their ranged combat runs inside
        dog_move where the petstrat orders, acceptable_pet_target and
        friendly-fire gates all apply */
-    if (!mtmp->mtame
-        && (!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat)
-            || (mtmp->ispriest && inhistemple(mtmp)))
+    if (!mtmp->mtame && !m_flees_with_amulet(mtmp)
         && ((((attacktype(mdat, AT_BREA) || attacktype(mdat, AT_SPIT))
               && !mtmp->mbreath_attk)
              || (((attacktype(mdat, AT_GAZE) && mdat != &mons[PM_MEDUSA])
@@ -1363,7 +1372,10 @@ dochug(struct monst *mtmp)
             && (findgold(mtmp->minvent, FALSE) || rn2(2)))
         || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
         || is_skittish(mdat) || (!mtmp->mcansee && !rn2(4))
-        || mtmp->mpeaceful) {
+        || mtmp->mpeaceful
+        /* an Amulet carrier next to the hero moves off rather than
+           stand and fight */
+        || m_flees_with_amulet(mtmp)) {
 
         /* Possibly cast an undirected spell if not attacking you */
         /* note that most of the time castmu() will pick a directed
@@ -1463,7 +1475,13 @@ dochug(struct monst *mtmp)
     /* Now, attack the player if possible - one attack set per monst */
     if (status != MMOVE_DONE && (!mtmp->mpeaceful
                                  || (Conflict && !resist_conflict(mtmp)))) {
-        if (((inrange && !scared) || panicattk) && !noattacks(mdat)
+        if (((inrange && !scared
+              /* an Amulet carrier runs rather than fights, but keeps
+                 its grip on a hero it has already engulfed and still
+                 lashes out when cornered */
+              && (!m_flees_with_amulet(mtmp) || engulfing_u(mtmp)))
+             || panicattk)
+            && !noattacks(mdat)
             /* [is this hp check really needed?] */
             && (Upolyd ? u.mh : u.uhp) > 0) {
             if (mattacku(mtmp))
@@ -2236,7 +2254,9 @@ postmov(
                     return MMOVE_DIED;
             }
 
-            if (mpickstuff(mtmp))
+            /* a monster with the Amulet doesn't stop to pick up
+               objects */
+            if (!mon_has_amulet(mtmp) && mpickstuff(mtmp))
                 mmoved = MMOVE_DONE;
 
             if (mtmp->minvis) {
@@ -2628,6 +2648,12 @@ m_move(struct monst *mtmp, int after)
         if (mtmp->mberserk)
             appr = 1;
 
+        /* any monster holding the Amulet keeps away from the hero; the
+           escape goal below turns an intelligent hostile carrier toward
+           its way out when the level has one */
+        if (mon_has_amulet(mtmp))
+            appr = -1;
+
         if (!should_see && can_track(ptr)) {
             coord *cp;
 
@@ -2667,9 +2693,7 @@ m_move(struct monst *mtmp, int after)
     /* intelligent monsters with the Amulet of Yendor seek an escape
        route; mindless and animal monsters don't understand the
        Amulet's significance */
-    if (mon_has_amulet(mtmp) && !mtmp->mpeaceful
-        && !mindless(ptr) && !is_animal(ptr)
-        && !(mtmp->ispriest && inhistemple(mtmp))) {
+    if (!mtmp->mpeaceful && m_flees_with_amulet(mtmp)) {
         coordxy etx, ety;
 
         if (mon_escape_target(mtmp, &etx, &ety)) {
@@ -2971,8 +2995,7 @@ m_move(struct monst *mtmp, int after)
            or portal. Exception: priests in their temple guard the
            Amulet. Update old position display before the early
            return */
-        if (mon_has_amulet(mtmp) && !mindless(ptr) && !is_animal(ptr)
-            && !(mtmp->ispriest && inhistemple(mtmp))) {
+        if (m_flees_with_amulet(mtmp)) {
             if (mon_escape_with_amulet(mtmp)) {
                 newsym(omx, omy); /* clear the vacated spot */
                 /* the monster left the level; report it the same way

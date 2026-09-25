@@ -686,12 +686,16 @@ getmattk(
        and can't re-hold/re-engulf until it has been decremented to zero;
        likewise for transformation by genetic engineer; an engulfer whose
        breath/spit attack is cooling down (mbreath_attk) can't engulf
-       either */
-    } else if ((magr->mspec_used && (attk->aatyp == AT_ENGL
-                                     || attk->aatyp == AT_HUGS
-                                     || attk->adtyp == AD_STCK
-                                     || attk->adtyp == AD_POLY))
-               || (magr->mbreath_attk && attk->aatyp == AT_ENGL)) {
+       either; an Amulet carrier that already has the hero inside keeps
+       its engulf regardless, or a spell or breath cooldown picked up
+       while running for an exit would stall its engulf attack */
+    } else if (!(udefend && attk->aatyp == AT_ENGL && engulfing_u(magr)
+                 && m_flees_with_amulet(magr))
+               && ((magr->mspec_used && (attk->aatyp == AT_ENGL
+                                         || attk->aatyp == AT_HUGS
+                                         || attk->adtyp == AD_STCK
+                                         || attk->adtyp == AD_POLY))
+                   || (magr->mbreath_attk && attk->aatyp == AT_ENGL))) {
         boolean wimpy = (attk->damd == 0); /* lichen, violet fungus */
 
         /* can't re-engulf or re-grab yet; switch to simpler attack */
