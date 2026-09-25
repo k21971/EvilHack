@@ -17989,9 +17989,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       fleeing carrier still hurt the hero; an expulsion does not end
       the attack round. Open Phase 2 rows net +1 (one closed, two
       minted below).
-- [ ] MED: 5.0's postmov picks items up in passing for every monster
-      (minted 2026-09-25, session 143, by the Amulet-carrier flee
-      slice).
+- [x] MED: 5.0's postmov picks items up in passing for every monster
+      - PORTED 2026-09-25 (session 144, commit `Restore master's
+      rules for monsters picking items up in passing.` (BUG-1942,
+      1943, 1944) - hash filled after landing; closure notes at the
+      end of this row; minted 2026-09-25, session 143, by the
+      Amulet-carrier flee slice).
       MASTER (3.6): m_move set the pickup flags (likegold, likegems,
       likeobjs, likemagic, likerock, uses_items; setlikes) only inside
       its getitems block, gated `(!mpeaceful || !rn2(10)) &&
@@ -18022,11 +18025,97 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       change contradicts the commit's own claim); check NetHack50's
       current postmov first. MED (gameplay: combat tempo, peaceful
       and pet item handling).
+      CLOSURE (session 144; plan
+      /root/.claude/plans/bugfix-postmov-pickup-gate.md):
+      NetHack50's postmov is still ungated (a0b9e59d8); the only later
+      upstream touch is 7b32ce02e (a tame + cursed gate).
+      CORRECTION: "peacefuls pick up whatever they walk over" was
+      wrong. can_carry() refuses a peaceful non-tame monster on both
+      trees. Since 6c9700ab2 peacefuls took no gold either. The real
+      extra pickers were:
+        * pets, bypassing dog_invent()'s NOAPPORT order, handless
+          limit, apport and shop odds;
+        * monsters closing in on the hero in line;
+        * covetous monsters, leapers and blinkers;
+        * a shopkeeper outside its shop.
+      RULINGS (AskUserQuestion, all recommended):
+        (1) master's gate: postmov() takes m_move()'s getitems, and
+            the six special-move call sites pass FALSE (BUG-1942;
+            BUG-1938's carrier term folds into it);
+        (2) master's free gold scoop: mpickgold() before
+            mpickstuff(), which costs no move and also serves a
+            peaceful that passed the 1-in-10 roll (BUG-1943);
+        (3) upstream: record only (table row below).
+      Kept from 5.0: one stack per mpickstuff() call (master took
+      up to one per class).
+      FOLDED IN (second AskUserQuestion; the reviewer's out-of-scope
+      MEDIUM, confirmed by probe P6): BUG-1944. m_search_items() took
+      an ordinary corpse as a goal, so a hostile collector out of line
+      with the hero stood on a newt corpse. Old POST stayed 13 turns
+      and PRE 15, with no attack; MASTER left at once. The fix:
+        * mpickstuff()'s corpse clause becomes mon_refuses_corpse()
+          (src/mon.c, exported);
+        * the search's take-arm skips a refused corpse;
+        * a gelatinous cube is exempt: reviewer HIGH, master had a
+          cube arm, and meatobj() eats the corpse first.
+      REVIEWER PASS (gate); CONDITIONAL PASS (BUG-1944, HIGH taken);
+      delta reviews PASS. Comment LOWs taken.
+      BATTERY 1 (3 games, ~74 min; POST
+      7e3c6f813187cac7629a1bdcd8fefc1c, PRE
+      57899025d83badc83e36f9469bc7f15b = HEAD 8e9c3af1e code, MASTER
+      0777d16796d5368eee5d5101150c9e4a; paniclogs clean). POST = MASTER
+      on every count:
+        * P1, a "don't pick up" gray dragon pet: 0 / 0 / PRE 19;
+        * P2, a handless "don't drop" pet carrying one wand: kept 1 /
+          kept 1 / PRE 5 stacks;
+        * P3, an orc closing in down a row of arrows (3 runs): 0 / 0
+          / PRE 6 each;
+        * P4, control, orc out of line: 2 / 2 / 2;
+        * P5a, a peaceful dwarf over gold for 150 turns: 6 scoops / 6
+          / PRE 0;
+        * P5b, a hostile dwarf on gold plus a dagger: both in one
+          turn on POST and MASTER, one per turn on PRE.
+      BATTERY 2 (POST dd8e8226c337ad8946bbb9fb77236c60 only, ~20 min):
+        * S1: the orc left the corpse on its first move and attacked,
+          3 of 3;
+        * nymph takes a corpse;
+        * lizard corpse underfoot picked up;
+        * ghoul and cube walk to a corpse and eat it;
+        * dagger pickup intact;
+        * a lizard corpse 2 squares off the orc's path is set as the
+          goal but ignored (the pathfinding row below; master
+          identical).
+      Harness lore: an orc 6-8 squares away in a middle row drifts to
+      the room's bottom row. The BFS tie-break prefers that
+      equal-length path, so stage lined-up approaches along a wall
+      row.
+- [ ] LOW: muse.c mon_likes_objpile_at() (find_offensive()'s
+      MUSE_WAN_TELEPORTATION gate) counts an ordinary corpse under the
+      hero as a pile the monster likes, through mon_would_take_item()'s
+      likes_objs FOOD_CLASS arm. A collector may then spend a
+      teleportation charge moving the hero off a pile it will never
+      pick up. That is a wasted charge plus a free relocation, not a
+      stall. Minted 2026-09-25, session 144, by the BUG-1944
+      reviewer; upstream-shared; master has no such function.
+      Suggested: `mon_would_take_item && !mon_refuses_corpse` there.
+      LOW.
+- [ ] LOW: EvilHack's BFS pathfinding ignores an item goal. When appr
+      == 1, m_move()'s use_pathfinding steers an intelligent monster
+      by the hero-rooted map (gp.pathfind_dist), not by the ggx/ggy
+      that m_search_items() chose. So a monster that sets an item off
+      its path as the goal walks to the hero instead: battery S3, a
+      lizard corpse 2 squares away, 2 of 2 tries. It picks up only
+      what lies on its path or underfoot. Master is identical
+      (use_pathfinding at master monmove.c ~2059), so this is
+      master-shared. Minted 2026-09-25, session 144. Decide:
+      intended (approach wins), or build a goal-rooted map for item
+      goals. LOW.
 - [x] MED: a monster HOLDING the hero can leave the level with u.ustuck
       still set - CLOSED 2026-09-25 (session 144, commit `Monsters
-      holding the hero let go when they leave the level.` (BUG-1941)
-      - hash filled after landing; closure notes at the end of this
-      row. The premise was FALSE on the branch: only master dangles.
+      holding the hero let go when they leave the level.` =
+      1db25b3ce (BUG-1941), tracker 8e9c3af1e, landed 2026-09-25;
+      closure notes at the end of this row. The premise was FALSE on
+      the branch: only master dangles.
       Minted 2026-09-25, session 143, by the Amulet-carrier
       flee slice's reviewer; master-shared and upstream-shared,
       Official_nh50 identical). BUG-1939 fixed this for
@@ -19568,6 +19657,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-25 | 6c9700ab2 ("Monster movement and object pickup cleanup ... There should be no real difference in behaviour") replaced 3.6's like-flag pickup with an ungated `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov (NetHack50 src/monmove.c:1682). The getitems block's retained comment ("Monsters in combat won't pick stuff up, avoiding the situation where you toss arrows at it and it has nothing better to do than pick the arrows up") is now false. Pets, shopkeepers, guards, priests, covetous monsters and monsters closing in on the hero in line all pick up in passing. The same commit's search filter (mon_would_take_item) makes an ordinary corpse a goal that mpickstuff() refuses, so a collector out of line with the hero stands on it (branch battery: 13-15 turns without attacking) | fixed on branch (BUG-1942, 1943, 1944; master's gate, gold scoop and a corpse filter); record only - maintainer ruled no patch this slice (upstream already layered 7b32ce02e on the new behavior) |
 | 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); artifact ~/nh50-teleport-trap-repick.patch (cut 2026-09-24 with maintainer approval: the knowledge term only, upstream's TELEP_TRAP name - the Amulet / Wizard's Tower terms are the branch's master-removal ruling and stay out; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8), not yet sent |
 | 2026-09-23 | mcastu.c touch-of-death announcement `pline("Oh no, %s's using the touch of death!", mhe(mtmp));` (NetHack50 src/mcastu.c:391): pronoun_gender() returns rn2(4) while hallucinating (mondata.c ~1200) and genders[3] is the plural "they" (role.c ~693), so a hallucinating hero can read "Oh no, they's using the touch of death!" | fixed on branch (BUG-1911, 79052f590: pronoun_gender() called once, "'re" for index 3, "'s" otherwise, on the hero leg and the branch's monster-target leg); patch not yet cut |
 | 2026-09-23 | zap.c dobuzz() defers zap_over_floor() for poison gas (NetHack50 src/zap.c ~4871 `if (!fireball && !gas_hit)`) and later calls it as `(void) zap_over_floor(...)` (~5009), discarding its range return; a closed door's def_case prints "The door absorbs the blast!" with a -1000 range adjustment that is thrown away, so the gas ray carries on / bounces after the door "absorbed" it. Upstream fix: restore the range, e.g. `range += zap_over_floor(...)` in the deferred call | fixed on branch (no BUG id of its own; landed inside BUG-1900, 471c0f494 - the branch removed the deferral for a different reason, maintainer ruling: master's shape, a reflected gas ray leaves its cloud); patch not yet cut |
