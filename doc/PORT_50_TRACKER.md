@@ -17788,9 +17788,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       tele_restrict() (both below).
 - [x] MED: master find_defensive() lets an intelligent Amulet carrier
       skip the HP check - PORTED 2026-09-25 (session 142, commit
-      `Amulet carriers use defensive escapes at full health.`
-      (BUG-1934, 1935, 1936) - hash filled after landing; closure
-      notes at the end of this row; minted 2026-09-24, session 140, by the
+      `Amulet carriers use defensive escapes at full health.` =
+      ff2ee33d4 (BUG-1934, 1935, 1936), tracker c132db2b1, landed
+      2026-09-25; closure notes at the end of this row; minted
+      2026-09-24, session 140, by the
       mysterious-force slice). Master 72134de80 ("Intelligent monsters
       with Amulet of Yendor now properly flee to escape") wrapped the
       `fraction` HP gate as `if (!(mon_has_amulet(mtmp) &&
@@ -17830,7 +17831,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master's too); the scroll term sits on both the inventory-loop
       pick and check_defensive_item() (find_items_recurse() rescans
       open inventory). REVIEWER PASS; LOWs recorded, no change: the
-      Castle (no staircase, only an arrival region) lets a carrier
+      Castle (no staircase, only an arrival region; CORRECTED by the
+      session 143 battery: the Castle's des.levregion "stair-up"
+      places a real up staircase, so only its way down is trap
+      doors) lets a carrier
       next to a trap door take MUSE_TRAPDOOR, which use_defensive()
       refuses on Is_botlevel() every turn, hiding its wand / spell
       and skipping find_misc() (it still moves); the covetous
@@ -17861,8 +17865,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       boxed-in wounded carrier find_defensive($m, 1): POST 0, PRE 1.
       Tester observation that minted the pickup half of the new row:
       a POST carrier "picks up a gem." on its way to the stairs.
-- [ ] MED: master 72134de80's dochug / m_move carrier hunks NOT
-      PORTED (minted 2026-09-25, session 142, by the Amulet-carrier
+- [x] MED: master 72134de80's dochug / m_move carrier hunks NOT
+      PORTED - PORTED 2026-09-25 (session 143, commit `Amulet
+      carriers flee instead of fighting.` (BUG-1937, 1938, 1939,
+      1940) - hash filled after landing; closure notes at the end of
+      this row; minted 2026-09-25, session 142, by the Amulet-carrier
       defensive-escape slice's reviewer and battery). The commit's
       find_defensive() half, ranged-attack skip and stash skip are on
       the branch (89dfbd4e7, this slice); five hunks are not, and
@@ -17893,6 +17900,149 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       vs MASTER (moves away, never hits), an engulfing carrier, a
       carrier on the Castle, and a carrier walking over a gem. MED
       (gameplay: the Amulet-thief chase).
+      CLOSURE (session 143): plan
+      /root/.claude/plans/feature-amulet-carrier-flee-hunks.md.
+      RULINGS (AskUserQuestion x5):
+        (1) master's exact `appr = -1` for EVERY carrier, including
+            mindless, animal and peaceful ones;
+        (2) master's movement-gate and phase-four skips, with two
+            deviations: hunk (b) NOT ported (an engulfer that already
+            has the hero inside keeps its engulf turns) and 5.0's
+            cornered panicattk kept;
+        (3) quirk fix for a master-shared bug: mon_escape_with_amulet()
+            migrated a carrier that was engulfing or holding the hero,
+            leaving u.ustuck dangling. Now an engulfer (or a carrier
+            the hero's sticky form holds) refuses to escape, and a
+            holder lets go (release_hero(), exported) before each
+            escape arm (BUG-1939);
+        (4) (e) gated for carriers only, with the general upstream
+            pickup change minted as a new row below;
+        (5)-(6) after battery 1: getmattk() exemption for an engulfing
+            carrier (BUG-1940), first built for all engulfers, then
+            NARROWED to carriers once the reviewer showed it would
+            roughly double neothelid digestion speed (69eddfe33's coin
+            flip).
+      PORTED:
+        * src/monmove.c: m_flees_with_amulet() helper (exported;
+          replaces the three inline copies); (a) movement-gate term;
+          (c) phase-four term exempting engulfing_u() and leaving
+          panicattk; (d) `appr = -1` after the berserk override;
+          (e) postmov `!mon_has_amulet() && mpickstuff()` (BUG-1937,
+          BUG-1938).
+        * src/muse.c: the stuck refusal and releases.
+        * src/mhitu.c: the carrier engulf exemption.
+        * include/extern.h: release_hero, m_flees_with_amulet.
+      REVIEWER PASS x3. LOWs taken: comment wording. LOWs recorded, no
+      change:
+        * m_leap_at_u() keeps its own three-term carrier test
+          (equivalent: an in-temple priest never reaches it);
+        * a holder that walks away from the hero releases it silently
+          (inherited 5.0 dochug code, master the same);
+        * trapped, entangled or eating carriers never panic-attack.
+      BATTERY 1 (4 games, ~83 min; POST
+      86387180e9b153713eb243c871fe5c21, PRE
+      71877d4b92cb5ebdc3e097d4cadf2e6c, MASTER
+      0777d16796d5368eee5d5101150c9e4a; branch paniclog never created,
+      master's unchanged). Counts are POST / MASTER / PRE:
+        * adjacent carrier: 0 / 0 / 7 attacks; escapes;
+        * mindless zombie carrier: moves away while not adjacent,
+          attacks while adjacent, on both trees; PRE approaches;
+        * Juiblex engulf, Amulet dropped inside: MASTER migrated with
+          uswallow=1, u.ustuck->mx=0; POST refused on the stairs x2,
+          and a save/restore was consistent;
+        * salamander hold: POST "You get released!" then escapes;
+          MASTER escapes, u.ustuck dangling;
+        * cornered + scared: 5 / 0 / 6;
+        * pickups over items: 0 / 0 / 2 (PRE threw the dagger);
+        * temple priest: fights inside its temple, flees outside, both
+          trees;
+        * plain orc attacks;
+        * peaceful carrier: POST trends away, PRE wanders; MASTER
+          orbited at d2 1-2 with appr -1 on every move (goal-square
+          difference, not investigated);
+        * lichen-form hero holding a carrier: no escape;
+        * leprechaun-dodge escape clean;
+        * pet carrier's dog_invent() normal.
+      Leg B's premise was FALSE: the Castle has a real up staircase
+      (des.levregion "stair-up"), so (d)'s escape-less case is rarer
+      than this row assumed. Battery 1 also found BUG-1940.
+      BATTERY 2 (POST 1b207b69ff592820db7056b123af469f, code-identical
+      to the landed build; ~29 min; paniclog clean):
+        * Juiblex carrier: 25/25 engulfed rounds reached gulpmu (17
+          with mspec_used > 0); uswldtim 25 -> 0; expelled on the
+          normal timer; on the stairs x3 with no migration;
+        * non-carrier Juiblex swapped for 3 turns (master parity);
+        * neothelid coin flip 22/36, a neothelid carrier included;
+        * a fresh engulf is still blocked by the cooldown;
+        * adjacent hill orc carrier: 0 attacks;
+        * plain orc attacks.
+      Observed, master parity: a carrier stalls while the hero stands
+      on its best step (ALLOW_U); a carrier crossing a dungeon magic
+      portal (DL3 Goblin Town) escapes through it; spells from a
+      fleeing carrier still hurt the hero; an expulsion does not end
+      the attack round. Open Phase 2 rows net +1 (one closed, two
+      minted below).
+- [ ] MED: 5.0's postmov picks items up in passing for every monster
+      (minted 2026-09-25, session 143, by the Amulet-carrier flee
+      slice).
+      MASTER (3.6): m_move set the pickup flags (likegold, likegems,
+      likeobjs, likemagic, likerock, uses_items; setlikes) only inside
+      its getitems block, gated `(!mpeaceful || !rn2(10)) &&
+      !Is_rogue_level && !mon_has_amulet` and then `appr != 1 ||
+      !in_line` ("Monsters in combat won't pick stuff up").
+      postmov's mpickgold() / mpickstuff() calls read those flags. So
+      these picked up NOTHING at the end of a move:
+        * a monster in combat;
+        * 90% of peacefuls;
+        * every path that jumps to postmov before that block: pets
+          via dog_move (dog_invent() is their only pickup),
+          shopkeepers, guards, priests, covetous monsters.
+      UPSTREAM 6c9700ab2 (paxed 2023-02-01, "Monster movement and
+      object pickup cleanup ... There should be no real difference in
+      behaviour", code from NetHack4) replaced this with an ungated
+      `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov. The
+      getitems gate now only controls m_search_items() (goal
+      seeking).
+      EFFECT on the branch:
+        * a hostile stepping onto arrows the hero shot at it picks
+          them up and, through MMOVE_DONE, loses its attack that turn;
+        * peacefuls pick up whatever they walk over;
+        * pets also pick up in postmov, on top of dog_invent().
+      The carrier case is gated by BUG-1938. DECIDE: restore master's
+      gate (thread getitems, or a likes equivalent, into postmov, and
+      skip pickup on the pet / shk / guard / priest / covetous paths)
+      or keep 5.0's behavior. Upstream-report candidate (the behavior
+      change contradicts the commit's own claim); check NetHack50's
+      current postmov first. MED (gameplay: combat tempo, peaceful
+      and pet item handling).
+- [ ] MED: a monster HOLDING the hero can leave the level with u.ustuck
+      still set (minted 2026-09-25, session 143, by the Amulet-carrier
+      flee slice's reviewer; master-shared and upstream-shared,
+      Official_nh50 identical). BUG-1939 fixed this for
+      mon_escape_with_amulet() only. Two other muse.c arms migrate a
+      holder without releasing the hero:
+        (a) use_misc() MUSE_POT_GAIN_LEVEL, cursed: "rises up, through
+            the ceiling!" then migrate_to_level(). find_misc() refuses
+            only `u.uswallow && stuck`, so a monster merely holding
+            the hero (pit fiend, salamander, couatl, guardian naga)
+            can pick it.
+        (b) use_defensive() MUSE_SCR_TELEPORTATION, cursed or
+            confused, level-teleports through migrate_to_level(). Its
+            m_flee() reaches monflee() -> release_hero() only when
+            fleetim > 0, and fleetim is 0 for a monster already
+            fleeing. monflee() also returns before release_hero() for
+            a unique monster.
+      Other level exits already refuse or release a stuck monster:
+      find_defensive()'s stuck gate (stairs, trap doors, teleport
+      traps, the digging wand); mlevel_tele_trap()'s u.ustuck check;
+      migrate_mon()'s unstuck().
+      EFFECT: u.ustuck points at a monster on migrating_mons. `<` is
+      refused while the hero counts as held, and a save/restore
+      leaves ustuck_mid dangling. domove's escape_from_sticky_mon()
+      clears it the next time the hero tries to move (!m_next2u).
+      Suggested fix: release_hero() before those two
+      migrate_to_level() calls, or one guard inside migrate_to_level().
+      MED (state corruption; rare to stage).
 - [ ] LOW: 5.0's noteleport_level() exempts covetous monsters from a
       level's natural no-teleport flag (`noteleport && !is_covetous`;
       upstream, Official_nh50 identical); master's tele_restrict() has
