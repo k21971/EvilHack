@@ -25,7 +25,7 @@ staticfn boolean m_leap_at_u(struct monst *) NONNULLARG1;
 staticfn boolean mon_slowed_by_sewage(struct monst *);
 staticfn boolean leppie_avoidance(struct monst *);
 staticfn void leppie_stash(struct monst *);
-staticfn int m_balks_at_approaching(int, struct monst *, int *, int *);
+staticfn int m_balks_at_approaching(int, struct monst *);
 staticfn boolean stuff_prevents_passage(struct monst *);
 staticfn int vamp_shift(struct monst *, struct permonst *, boolean);
 staticfn void maybe_spin_web(struct monst *);
@@ -1713,23 +1713,12 @@ leppie_stash(struct monst *mtmp)
 /* does monster want to avoid you?
  *  returns the original value of appr if not.
  *  returns -1 if so.
- *  returns -2 if monster wants to adhere to a particular range,
- *             which may actually be further away,
- *             and sets *pdistmin and *pdistmax to describe that range
  */
 staticfn int
-m_balks_at_approaching(int oldappr, struct monst *mtmp, int *pdistmin,
-                       int *pdistmax)
+m_balks_at_approaching(int oldappr, struct monst *mtmp)
 {
-    struct obj *mwep = MON_WEP(mtmp);
     coordxy x = mtmp->mx, y = mtmp->my, ux = mtmp->mux, uy = mtmp->muy;
     int edist = dist2(x, y, ux, uy);
-    const struct throw_and_return_weapon *arw;
-
-    if (pdistmin)
-        *pdistmin = 0;
-    if (pdistmax)
-        *pdistmax = 0;
 
     /* peaceful, far away, or can't see you */
     if (mtmp->mpeaceful || (edist >= 5 * 5) || !m_canseeu(mtmp))
@@ -1744,30 +1733,9 @@ m_balks_at_approaching(int oldappr, struct monst *mtmp, int *pdistmin,
         && edist <= MON_POLE_DIST)
         return -1;
 
-    /* is using a throw-and-return weapon; provide min and max preferred range
-     */
-    if (mwep && (arw = autoreturn_weapon(mwep)) != 0) {
-        if (pdistmin)
-            *pdistmin = 2 * 2;
-        if (pdistmax)
-            *pdistmax = arw->range;
-        return -2;
-    }
-
-    /* can attack from distance, and hp loss or attack not used;
-       breath/spit runs on its own cooldown, other distance attacks
-       on spellcast power; a monster that has seen the hero resist
-       every ranged attack it has stops hanging back */
-    if (ranged_attk_available(mtmp)
-        && ((mtmp->mhp < (mtmp->mhpmax+1) / 3)
-            || ((attacktype(mtmp->data, AT_BREA)
-                 || attacktype(mtmp->data, AT_SPIT))
-                && !mtmp->mbreath_attk)
-            || ((attacktype(mtmp->data, AT_MAGC)
-                 || attacktype(mtmp->data, AT_GAZE))
-                && !mtmp->mspec_used)))
-        return -1;
-
+    /* a distance attack or a throw-and-return weapon earns no
+       keep-away here; M3_SKITTISH, tested in m_move(), picks the
+       monsters that keep their distance */
     return oldappr; /* leaves appr unchanged */
 }
 
@@ -2453,8 +2421,7 @@ m_move(struct monst *mtmp, int after)
     boolean better_with_displacing = FALSE;
     unsigned seenflgs;
     struct permonst *ptr;
-    int chi, mmoved = MMOVE_NOTHING, /* not strictly nec.: chi >= 0 will do */
-        preferredrange_min = 0, preferredrange_max = 0;
+    int chi, mmoved = MMOVE_NOTHING; /* not strictly nec.: chi >= 0 will do */
     struct mfndposdata mfp;
     long flag;
     coordxy omx = mtmp->mx, omy = mtmp->my;
@@ -2668,8 +2635,9 @@ m_move(struct monst *mtmp, int after)
         if (appr == 1 && leppie_avoidance(mtmp))
             appr = -1;
 
-        /* hostiles with ranged weapon or attack try to stay away */
-        appr = m_balks_at_approaching(appr, mtmp, &preferredrange_min, &preferredrange_max);
+        /* hostiles with a launcher and ammo, or a polearm in reach,
+           try to stay away */
+        appr = m_balks_at_approaching(appr, mtmp);
 
         /* ... unless they are currently berserk */
         if (mtmp->mberserk)
@@ -2921,9 +2889,6 @@ m_move(struct monst *mtmp, int after)
 
                 if ((appr == 1 && nearer) || (appr == -1 && !nearer)
                     || (!appr && !rn2(++chcnt))
-                    || (appr == -2
-                        && ((ndist <= preferredrange_min && !nearer)
-                            || (ndist >= preferredrange_max && nearer)))
                     || (mmoved == MMOVE_NOTHING)) {
                     nix = nx;
                     niy = ny;
