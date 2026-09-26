@@ -18609,10 +18609,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Open Phase 2 rows net +2 (one closed, three minted).
 - [x] MED: 5.0 m_balks_at_approaching() keep-away arms that master's
       m_move() lacks - CLOSED 2026-09-26 (session 146, commit `Restore
-      master's approach for ranged attackers and aklys wielders.`
-      (BUG-1947, 1948) - hash filled after landing; closure notes at
-      the end of this row; minted 2026-09-26, session 145, by the
-      m_seenres SWEEP slice). Master's approach block keeps away
+      master's approach for ranged attackers and aklys wielders.` =
+      654aaea2d (BUG-1947, 1948), tracker 5b05ccefc, landed
+      2026-09-26; ruling (2) REVERSED the same day, commit `Polearm
+      wielders close in as on master.` (BUG-1949) - hash filled after
+      landing; closure and reversal notes at the end of this row; minted
+      2026-09-26, session 145, by the m_seenres SWEEP slice).
+      Master's approach block keeps away
       only for skittish monsters, the leprechaun, hostiles with a
       launcher and ammo (5.0 has that arm too), support casters
       (their own LOW row) and Amulet carriers. 5.0 adds three arms,
@@ -18700,6 +18703,45 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         10-20 through the dropped gaze arm - the brief's parity claim
         was wrong.
       Open Phase 2 rows net 0 (one closed, one minted).
+      REVERSAL of ruling (2), same day (BUG-1949): asked in detail
+      about the B5(a) observation, the session laid out why the kept
+      arm never made a stand-off. The arm can only answer "move away",
+      and in open terrain that always leaves polearm reach (a thrust
+      needs a move ending at dist2 <= 5), so a back-off turn never
+      attacks. The dist2-8 diagonal is outside both reach and the arm.
+      EvilHack's pathfinding avoids the monster's recent squares and
+      so steers it onto that diagonal. Once adjacent, dochug never
+      calls m_move() again. The maintainer took the recommended
+      option: drop the arm too (master's exact shape; the offered
+      alternatives were keep-as-is and a real stand-off as new
+      EvilHack design). m_balks_at_approaching() is now master's
+      launcher arm alone. REVIEWER PASS: helper plus call site equal
+      master's conjunction and ordering (support casters stay their
+      own LOW row); MON_POLE_DIST keeps its thrwmu() reach consumer
+      (= master's POLE_LIM 5); select_rwep()'s dist2 <= 5 pick and
+      both keep-wielded polearm guards match master.
+      RE-TEST (~19 min; POST2 229ffc7c0ee32806df9f1113a1bf243d, PRE2
+      a79eff9db893a6f2e2dca49f03da50a8 = 5b05ccefc code; no master
+      launch; paniclogs clean; exit-line breakpoints on every helper
+      return):
+      - R1 halberd soldier, start dist2 9 lined up: POST2 appr 1 at 9
+        and 5, 1 thrust ("swings a wooden angled poleaxe") on the step
+        to dist2 5, a silent step to adjacent, then melee 5 of 5
+        actions; PRE2 the B5(a) shape (polearm -1 at 5, out to 13, in
+        via the dist2-8 diagonal, then melee).
+      - R2 start dist2 4 and 5: POST2 steps adjacent (silent), then
+        melee 3 of 3 each time; PRE2 backs off to 10 / 13 first, then
+        closes via the diagonal.
+      - R4 launcher parity: a Woodland-elf with a bow gets -1 from the
+        launcher arm (the helper's only -1) at dist2 10 and 20, parks
+        at 18 and shoots 6 times, then appr 1 and melee once out of
+        arrows.
+      Every move that ended adjacent gave no attack that action (7 of
+      7, both builds: dochug's distfleeck() recalc). Staging notes: the
+      genesis name is "soldier" with a random race; genesis'd soldiers
+      wear a small shield, and select_rwep() skips a two-handed
+      polearm while one is worn (as on master), so the shield was
+      stripped for the thrust.
 - [ ] MED: 5.0 monster aklys throwing that master lacks (minted
       2026-09-26, session 146, by the keep-away arms slice; RULING
       needed). Upstream 0bdf9830e ("throw-and-return weapons used by
@@ -20027,6 +20069,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-26 | Keep-away arms ruling (2) REVERSED after the battery: the polearm stand-off is dropped too, restoring master's exact approach shape (BUG-1949). Asked in detail, the session explained that the kept arm never produced a stand-off: it can only answer "move away", and stepping away in open terrain always leaves polearm reach, so a back-off turn never attacks; the dist2-8 diagonal is outside both reach and the arm; EvilHack's pathfinding avoids the monster's recent squares and so steers it onto that diagonal; and once adjacent, dochug never calls m_move() again. The battery's halberd soldier got 1 thrust in 4 actions (PRE 2 in 6) and then plain melee, against master's one thrust and melee from its third action (code reading). Three options were offered: drop it (recommended), keep it, or design a real stand-off as new EvilHack work. The maintainer chose to drop it | maintainer |
 | 2026-09-26 | Keep-away arms rulings (AskUserQuestion x1, three questions): (1) RANGED HANG-BACK = master's shape (recommended): 5.0's m_balks_at_approaching() arm for breath, spit, gaze and spell attackers (attack ready or below a third of HP, within dist2 25) dropped - dragons, hell hounds, cobras, nagas, pyrolisks, umber hulks, Medusa and boss casters close in as on master, and keep-away stays with master's own M3_SKITTISH flag and launcher+ammo arm (BUG-1947); (2) POLEARM STAND-OFF = keep 5.0 (the maintainer's pick over the recommended master's shape): polearm wielders within dist2 5 back off and thrust from a knight's move, still meleeing when the hero steps adjacent; (3) AKLYS RANGE = dropped (recommended): the -2 preferred-range arm and its m_move() plumbing removed, so aklys wielders walk up (BUG-1948), and 5.0's monster aklys throwing itself minted as its own MED row rather than folded in. Session calls, plan-approved: ranged_attk_available() and mon_avoiding_this_attack() left as uncalled upstream helpers; the reviewer's LOW comment narrowing taken | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-26 | m_seenres SWEEP gates (a)/(d) rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) GAZE MEMORY = master's shape: gazers keep gazing whatever they have seen - a pyrolisk or magical eye still says "The fire feels mildly hot." and burns armor, scrolls, potions and spellbooks on a fire-resistant hero, a cold gaze still freezes potions (upstream 0a3d02b9d's gazemu() gate dropped, BUG-1945); (2) RANGED MEMORY = split: dochug's move-then-attack takes master's memory-free ranged_attk() test (every breath/spit/gaze/spell monster moves and attacks in one turn when not adjacent), while 5.0's hang-back arm keeps the memory, so a monster that has seen the hero resist every ranged attack it has walks up as on master (upstream 9a42d7090's dochug hunk reverted, BUG-1946); (3) 5.0's three m_balks_at_approaching() keep-away arms (ranged hang-back, polearm stand-off, throw-and-return range) minted as their own MED row rather than folded in. Session calls, plan-approved: the AT_WEAP term reads mtmp->data (reviewer LOW, master's ranged_attk(mtmp) shape); the battery's two unrowed 5.0 layers (worn-gear item protection, 9942b65df; monstunseesu forgetting) minted as rows for their own rulings | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-24 | Monster displacement / telepathy slice rulings (AskUserQuestion x1, four questions; every recommended option taken plus one): (1) HERO SWING (recommended): a swing drawn by a displaced monster's image ("The image of X shimmers and vanishes!", 1 in 4) is spent like a clean miss - hero and monster stay on their squares and the turn is used; master's arm returns "evaded" with the monster unmoved, so its hero walks into the square, "X attacks you by surprise!" when X can move, and mnexto() shoves X aside (frozen-unfixed there); (2) QUIRKS (multi-select, all three taken): the worn DISPLACED / TELEPAT OFF arms re-scan the other worn gear (master clears the bit on any one removal, e.g. a helm of telepathy off beside a worn amulet of ESP), the hug arm rolls the image only when the hug would land (master prints it after missed earlier attacks), and only a monster the hero can see casts an image (NOT recommended as a default, chosen: master also fools a blind hero, "The image of it ..."); (3) MUTUAL TELEPATHY (recommended): master's tp_sensemon() first clause and its Astral high-priest exemption folded in (Hdgn rider (f)); (4) PET TREATS (recommended): can_give_new_mintrinsic() stays on the Rumor rider (g), its TELEPAT term recorded there. Precedent defaults: extra_pref()'s DISPLACED arm rides the ring-wearing row, mmake_wish()'s arms the Muse offense row; the monster-side image keeps master's shape | maintainer |
