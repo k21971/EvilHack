@@ -18612,11 +18612,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master's approach for ranged attackers and aklys wielders.` =
       654aaea2d (BUG-1947, 1948), tracker 5b05ccefc, landed
       2026-09-26; ruling (2) REVERSED the same day, commit `Polearm
-      wielders close in as on master.` (BUG-1949) - hash filled after
-      landing; closure and reversal notes at the end of this row; minted
-      2026-09-26, session 145, by the m_seenres SWEEP slice).
-      Master's approach block keeps away
-      only for skittish monsters, the leprechaun, hostiles with a
+      wielders close in as on master.` = 500e50988 (BUG-1949), tracker
+      8740252b5; closure and reversal notes at the end of this row;
+      minted 2026-09-26, session 145, by the m_seenres SWEEP slice).
+      Master's approach block keeps away only for skittish
+      monsters, the leprechaun, hostiles with a
       launcher and ammo (5.0 has that arm too), support casters
       (their own LOW row) and Amulet carriers. 5.0 adds three arms,
       none rowed until now: (1) a hostile with a distance attack
@@ -18771,10 +18771,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       without a canseemon() test); the miss arm "The aklys flies back
       toward the gnome lord, hitting his arm!" drops it and leaves
       him unarmed. MED (gameplay: monster weapon use).
-- [ ] MED: 5.0's worn-gear item protection that master lacks (minted
-      2026-09-26, session 145, by the m_seenres SWEEP battery; RULING
-      needed). Upstream 9942b65df ("Resistances gained from worn or
-      wielded items also protect inventory", tidied by 7ca995199):
+- [x] MED: 5.0's worn-gear item protection that master lacks - CLOSED
+      2026-09-26 (session 147, commit `Restore master's item
+      destruction and port the scroll of consecration.`
+      (BUG-1950..1955) - hash filled after landing; closure notes at
+      the end of this row; minted 2026-09-26, session 145, by the
+      m_seenres SWEEP battery). Upstream 9942b65df ("Resistances
+      gained from worn or wielded items also protect inventory",
+      tidied by 7ca995199):
       zap.c u_adtyp_resistance_obj() returns 99 when the resistance
       comes from W_ARMOR / W_ACCESSORY / W_WEP / W_ART, 90 for a
       worn dwarvish cloak against fire and cold, and
@@ -18787,6 +18791,145 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mechanic (item destruction); ask whether to keep it (upstream
       extra) or restore master's shape. MED (gameplay: item
       destruction).
+      CLOSURE (session 147). RULING (AskUserQuestion, recommended):
+      MASTER'S SHAPE - master's only inventory shields are the wielded
+      forged artifacts (Tempest 2177b017a: "the incentive to want to
+      actually use this forged artifact"; Dichotomy; Harbinger via
+      erode_armor()). BUG-1950 removes u_adtyp_resistance_obj(),
+      inventory_resistance_check(), item_what(), adtyp_to_prop(), the
+      five call sites (maybe_destroy_item, erode_obj ERODE_BURN and
+      ERODE_CORRODE, acid_damage, the zhitu disn_prot arm - that one
+      unreachable, since any extrinsic DISINT_RES reads 100 in
+      how_resistant()) and insight.c item_resistance_message(). The
+      first reviewer pass (PASS) raised three older gaps in the same
+      code; a second AskUserQuestion folded all three in and ruled
+      5.0's shock recharge: BUG-1951 drops 5.0's `chargeit`
+      (ef6a88e1e; master's shape, recommended); BUG-1952 restores
+      master's 2-in-3 lightning resist for erodeproof or
+      supermaterial rings and wands (18d071a82 hero, 826c7c657
+      monsters; monster text uses distant_name like the AD_LOUD
+      sibling); BUG-1953 makes a monster's worn ring answer to the
+      MONSTER's gloves (upstream 5.0 bug: it read the hero's uarmg;
+      upstream table row added); BUG-1954 ports the scroll of
+      consecration (read case - reading it hit impossible() - via
+      set_levltyp() plus master's flags/altarmask/frac_altar writes;
+      write.c ink_cost() 1000 and the dowrite refusal - writing it
+      hit impossible() too; bones blanking; obj_resists();
+      destroyable() fire; fire_damage() smoke; water_damage(); lava
+      glow). The second reviewer pass (PASS) found BUG-1955:
+      ink_cost() had no SCR_MAGIC_DETECTION case, so a `/` lookup of
+      that scroll logged impossible() in ordinary play (the same
+      class as master 5d0a12f52); a sweep confirmed all 25 scroll
+      types now have a case. Its two LOW message-placement items
+      ride the lava row below. Files: include/extern.h,
+      src/bones.c, src/insight.c, src/read.c, src/trap.c,
+      src/write.c, src/zap.c.
+      BATTERY (game-tester, ~100 min; POST
+      9afe538ceba5b126d6296e92cadf6ad9, PRE
+      229ffc7c0ee32806df9f1113a1bf243d = 8740252b5 code; no master
+      launch; human neutral Wizard XL30 on both; POST paniclog clean,
+      PRE gained exactly the four expected impossible() lines).
+      Counts are POST / PRE over identical stimuli:
+      - W1 fire, ring of fire resistance: identify 19/20 vs 0/20
+        burned, water 20/20 vs 5/20 (PRE's one 1% leak).
+      - W2 cold, ring of cold resistance: 19/20 vs 7/20 potions (PRE
+        one leak).
+      - W3 shock, ring of shock resistance on a bare hand: 12/12 vs
+        0/12 spare rings and wands.
+      - W4 worn flammable armor: 10 vs 0 burn messages; POST gloves
+        and cloak smouldered away.
+      - W5 acid, yellow dragon scales worn: 1 vs 0 scroll fades, 1 vs
+        0 corrosions; POST also printed master's "not affected by
+        corrosion." for the scales (PRE's shield returned before it).
+      - W6 enlightenment: PRE "Your items are protected from fire by
+        your ring of fire resistance." and the hooded cloak's
+        "somewhat protected" lines; POST none.
+      - W7 parity: wielded Dichotomy (fire and cold), Tempest
+        (lightning) and Harbinger (acid on worn armor) lost nothing
+        on either build.
+      - W8 parity: black dragon scales vs disintegration breath,
+        "You are not disintegrated." on both.
+      - W9 charged +1 rings: POST 6/6 "turns to dust"; PRE 5 "spins
+        clockwise" and 5 "pulsates momentarily, then explodes!".
+      - W10: POST fixed items lost 6/12 vs controls 10/12, with 31
+        "resists!" lines, all on fixed items; PRE fixed 12/12 vs
+        controls 11/12, no "resists!".
+      - W11 monster rings (frozen gnome lord): hero gloved, POST 2
+        destroyed, PRE 0 (8 of 8 rolls skipped on the hero's
+        gloves); monster gloved, POST 0 (skips on its gloves), PRE
+        2; fixed unworn ring, POST 3 "The gnome lord's magical bronze
+        ring resists!", PRE 1 destroyed.
+      - W12 reading consecration: floor gives "A neutral altar appears
+        before you!" (altar to Thoth, frac_altar 0); confused and
+        cursed give unaligned altars to Moloch; a doorway gives
+        "Nothing happens." with the scroll gone; sand gives an altar.
+        PRE: "What weird effect is this? (425)".
+      - W13 immunities: POST's consecration survived fire zaps (PRE
+        burned on zap 1), a #dip in water (PRE blanked) and a
+        polymorph zap (PRE's became enchant weapon), and 5 fire-trap
+        triggers intact (PRE burned on the 4th). The brief expected a
+        "Smoke rises" line at the fire trap; its premise was wrong -
+        the hero's fire trap sends carried items through
+        destroy_items(), which skips the scroll silently, as master's
+        destroy_one_item() does.
+      - W14 write and lookup: POST "No mere dungeon adventurer could
+        write that."; `/` consecration "Cannot be written." on both;
+        `/` magic detection "Takes 8 to 15 ink to write." (PRE: two
+        impossible() lines from one lookup, then "Takes 500 to 999").
+      Battery lore: wishing "fire trap" gives the trap-kit tool,
+      "fire trapx" places the trap. Open Phase 2 rows net +1 (one
+      closed; the HIGH magic detection and MED lava rows minted).
+- [ ] MED: lava's inventory burn is not master's (minted 2026-09-26,
+      session 147, by the worn-gear item protection slice; RULING
+      needed). Master lava_effects() `burn_stuff:` runs
+      `fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy)` unless
+      Dichotomy is wielded (a6e0803e7, the repair-armor /
+      fooproofing commit). fire_damage() gives every flammable,
+      non-fireproof item a (Luck + 5) > rn2(20) save (about a 75%
+      burn chance at Luck 0): containers other than ice box, iron
+      safe and crystal chest burn up and dump their contents,
+      scrolls, spellbooks and potions go as WHOLE STACKS (delobj),
+      and other flammable items erode through erode_obj(ERODE_BURN,
+      EF_DESTROY). The branch runs 5.0's damage-capped
+      `destroy_items(&gy.youmonst, AD_FIRE, dmg)` plus
+      `ignite_items(gi.invent)`: no container burns, no armor or
+      weapon erodes, and at most dmg / DMG_DESTROY_SCALE stacks are
+      touched, each losing about a third of its count. Dichotomy's
+      guard holds on both trees (destroyable()). Also check the
+      protect_oid in-use exemption (2026-09-07 decisions-log row)
+      survives a switch to the chain. MED (gameplay: lava item
+      loss).
+      RIDERS (message-only, from the session 147 reviewer; rule
+      them with this row): (a) fire_damage()'s "Smoke rises from
+      ..." arm for the Book of the Dead and the scroll of
+      consecration sits after the luck roll (5.0 layout), so it
+      prints about 75% of the time at Luck 0; master tests both
+      before the is_flammable / container / luck logic and prints
+      on every call. The protection is identical either way. (b)
+      master 4bed05499 also put the lava death loop's "%s into
+      flame!" line for worn in-use items behind `!Blind`; the
+      branch prints it while blind (5.0 form). If ported, bump
+      burnmesgcount only when the line prints, so 5.0's "Other
+      item(s) ... destroyed" summary still counts what the blind
+      hero never saw.
+- [ ] HIGH: the scroll of magic detection has NO read effect (minted
+      2026-09-26, session 147, by the worn-gear item protection
+      slice while porting the consecration read case beside it).
+      Branch seffects() has no SCR_MAGIC_DETECTION case, so reading
+      one falls to `impossible("What weird effect is this? (%u)")` -
+      a paniclog line in ordinary play: it is a random scroll
+      (objects.h prob 25) and nothing else in src/ handles it (only
+      the detect.c TODO-EVILHACK marker in observe_recursively()).
+      Master read.c `case SCR_MAGIC_DETECTION: if
+      (magic_detect(sobj)) return 1; known = TRUE;` plus detect.c
+      magic_detect() and its do_mdetect / do_dknown_of / maybe_map
+      helpers, which also walk the shared magic chest chain and carry
+      the crystal chest guard and do_dknown_of's sokoban/mines prize
+      skip (all listed on that marker). Deferred as "magic detection
+      (marker above)" inside the CLOSED magic chest row (366e7ac34)
+      with no open row until now. Also check the spellbook side and
+      any wand or monster use master gives it. HIGH (live paniclog
+      producer; missing EvilHack content).
 - [ ] LOW: 5.0's monster-memory forgetting (monstunseesu) that master
       lacks (minted 2026-09-26, session 145, by the m_seenres SWEEP
       battery; RULING needed). Master's seen_resistance bits are only
@@ -19612,6 +19755,18 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       exactly the same pre-existing 23-tile cmap deficit measured
       above. Drift unchanged in character; this row still owns
       the cmap reconciliation.
+      UPDATE 2026-09-26 (session 147, worn-gear item protection
+      slice): win/share/objects.txt has the SAME drift for objects
+      and this row now owns it too. The branch file has 483 tiles
+      against master's 566, and 150 of master's tile names are
+      absent (EvilHack objects such as the scrolls of magic
+      detection and consecration, master tiles 405 and 406).
+      Reconcile objects.txt against the branch objects[] order.
+      (tilemap.c's EXTRA_SCROLL_DESCR_COUNT counts from
+      SCR_STINKING_CLOUD where master counts from SCR_CONSECRATION,
+      but its only use, the !MAIL_STRUCTURES "stamped / mail"
+      alias, evaluates to SCR_BLANK_PAPER - 1 either way: no
+      change needed there.)
 - [ ] menuitemcolor / status branch-labels / UI extras sweep
       (master menuitemcolor renders BRACKET-SCOPED: item color
       applies only to text inside [] - win/curses cursdial.c
@@ -19925,6 +20080,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-26 | zap.c maybe_destroy_item() AD_ELEC RING_CLASS arm spares a WORN ring behind non-metallic gloves with `(obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg)` (Official_nh50 src/zap.c:5878) - the HERO's glove slot, even when `carrier` is a monster (destroy_items(mon, AD_ELEC, ...) from a lightning ray, uhitm/mhitm/mcastu/artifact shock hits). While the hero wears leather gloves every monster's worn ring is spared; a monster in its own leather gloves loses its ring. 3.6's destroy_mitem() used `which_armor(mtmp, W_ARMG)`. Branch fix: `which_armor(carrier, W_ARMG)` (it returns uarmg for &gy.youmonst). Battery-confirmed both directions (session 147 W11) | fixed on branch (BUG-1953, commit hash filled after landing); patch artifact not cut yet |
 | 2026-09-25 | 6c9700ab2 ("Monster movement and object pickup cleanup ... There should be no real difference in behaviour") replaced 3.6's like-flag pickup with an ungated `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov (NetHack50 src/monmove.c:1682). The getitems block's retained comment ("Monsters in combat won't pick stuff up, avoiding the situation where you toss arrows at it and it has nothing better to do than pick the arrows up") is now false. Pets, shopkeepers, guards, priests, covetous monsters and monsters closing in on the hero in line all pick up in passing. The same commit's search filter (mon_would_take_item) makes an ordinary corpse a goal that mpickstuff() refuses, so a collector out of line with the hero stands on it (branch battery: 13-15 turns without attacking) | fixed on branch (BUG-1942, 1943, 1944; master's gate, gold scoop and a corpse filter); record only - maintainer ruled no patch this slice (upstream already layered 7b32ce02e on the new behavior) |
 | 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); artifact ~/nh50-teleport-trap-repick.patch (cut 2026-09-24 with maintainer approval: the knowledge term only, upstream's TELEP_TRAP name - the Amulet / Wizard's Tower terms are the branch's master-removal ruling and stay out; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8), not yet sent |
 | 2026-09-23 | mcastu.c touch-of-death announcement `pline("Oh no, %s's using the touch of death!", mhe(mtmp));` (NetHack50 src/mcastu.c:391): pronoun_gender() returns rn2(4) while hallucinating (mondata.c ~1200) and genders[3] is the plural "they" (role.c ~693), so a hallucinating hero can read "Oh no, they's using the touch of death!" | fixed on branch (BUG-1911, 79052f590: pronoun_gender() called once, "'re" for index 3, "'s" otherwise, on the hero leg and the branch's monster-target leg); patch not yet cut |
@@ -20069,6 +20225,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-26 | Worn-gear item protection ruling (AskUserQuestion x1, recommended option taken): MASTER'S SHAPE - 5.0's worn-gear inventory shield (upstream 9942b65df + 7ca995199: 99% per item when the resistance comes from worn, wielded or W_ART-carried gear, 90% for a worn dwarvish cloak vs fire and cold) is dropped with its enlightenment lines. Resistance rings, dragon scales and scaled armor, the shield of shock resistance, a wielded Fire Brand / Frost Brand / Mjollnir and the dwarvish cloak protect the hero only; scrolls burn, potions boil or freeze, rings and wands blow up, worn armor burns or corrodes and acid blanks scrolls as on master. Only master's authored shields remain: a wielded Tempest (shock; master 2177b017a: "the incentive to want to actually use this forged artifact"), Dichotomy (fire and cold) and Harbinger (worn armor vs acid), for the hero and monsters alike (BUG-1950). Session calls, plan-approved: the behavior-neutral disn_prot arm goes with it (any extrinsic DISINT_RES already reads 100% in how_resistant()); lava's inventory burn divergence (master fire_damage_chain, a6e0803e7) minted as its own row. SECOND ROUND (AskUserQuestion x1, two questions, after the first reviewer pass): (2) SHOCK RECHARGE = master's shape (recommended): 5.0's chargeit (ef6a88e1e) is dropped, so a shocked charged ring turns to dust like any ring instead of a 2-in-3 recharge that could add +1 or explode, and a monster's charged ring is no longer silently spared (BUG-1951); (3) FOLD-INS (multi-select, all three taken, the consecration port against the suggestion to make it its own slice): master's erodeproof/supermaterial ring and wand lightning resist (BUG-1952), the monster's own gloves for its worn ring (upstream bug, BUG-1953) and the whole scroll of consecration port (BUG-1954). Session call under the sibling rule: ink_cost()'s missing SCR_MAGIC_DETECTION case (BUG-1955, the same impossible() class as the consecration ink_cost case, master 5d0a12f52); magic detection's missing read effect minted as a HIGH row rather than folded in | maintainer (rulings 1-3); session, plan-approved (rest) |
 | 2026-09-26 | Keep-away arms ruling (2) REVERSED after the battery: the polearm stand-off is dropped too, restoring master's exact approach shape (BUG-1949). Asked in detail, the session explained that the kept arm never produced a stand-off: it can only answer "move away", and stepping away in open terrain always leaves polearm reach, so a back-off turn never attacks; the dist2-8 diagonal is outside both reach and the arm; EvilHack's pathfinding avoids the monster's recent squares and so steers it onto that diagonal; and once adjacent, dochug never calls m_move() again. The battery's halberd soldier got 1 thrust in 4 actions (PRE 2 in 6) and then plain melee, against master's one thrust and melee from its third action (code reading). Three options were offered: drop it (recommended), keep it, or design a real stand-off as new EvilHack work. The maintainer chose to drop it | maintainer |
 | 2026-09-26 | Keep-away arms rulings (AskUserQuestion x1, three questions): (1) RANGED HANG-BACK = master's shape (recommended): 5.0's m_balks_at_approaching() arm for breath, spit, gaze and spell attackers (attack ready or below a third of HP, within dist2 25) dropped - dragons, hell hounds, cobras, nagas, pyrolisks, umber hulks, Medusa and boss casters close in as on master, and keep-away stays with master's own M3_SKITTISH flag and launcher+ammo arm (BUG-1947); (2) POLEARM STAND-OFF = keep 5.0 (the maintainer's pick over the recommended master's shape): polearm wielders within dist2 5 back off and thrust from a knight's move, still meleeing when the hero steps adjacent; (3) AKLYS RANGE = dropped (recommended): the -2 preferred-range arm and its m_move() plumbing removed, so aklys wielders walk up (BUG-1948), and 5.0's monster aklys throwing itself minted as its own MED row rather than folded in. Session calls, plan-approved: ranged_attk_available() and mon_avoiding_this_attack() left as uncalled upstream helpers; the reviewer's LOW comment narrowing taken | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-26 | m_seenres SWEEP gates (a)/(d) rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) GAZE MEMORY = master's shape: gazers keep gazing whatever they have seen - a pyrolisk or magical eye still says "The fire feels mildly hot." and burns armor, scrolls, potions and spellbooks on a fire-resistant hero, a cold gaze still freezes potions (upstream 0a3d02b9d's gazemu() gate dropped, BUG-1945); (2) RANGED MEMORY = split: dochug's move-then-attack takes master's memory-free ranged_attk() test (every breath/spit/gaze/spell monster moves and attacks in one turn when not adjacent), while 5.0's hang-back arm keeps the memory, so a monster that has seen the hero resist every ranged attack it has walks up as on master (upstream 9a42d7090's dochug hunk reverted, BUG-1946); (3) 5.0's three m_balks_at_approaching() keep-away arms (ranged hang-back, polearm stand-off, throw-and-return range) minted as their own MED row rather than folded in. Session calls, plan-approved: the AT_WEAP term reads mtmp->data (reviewer LOW, master's ranged_attk(mtmp) shape); the battery's two unrowed 5.0 layers (worn-gear item protection, 9942b65df; monstunseesu forgetting) minted as rows for their own rulings | maintainer (1-3); session, plan-approved (rest) |
