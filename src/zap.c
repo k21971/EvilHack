@@ -29,6 +29,8 @@ staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
 staticfn void bounce_dir(coordxy, coordxy, int *, int *, int) NO_NNARGS;
 staticfn int zap_hit(int, int, boolean);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
+staticfn int mon_charge_ring(struct monst *, struct obj *,
+                             boolean) NONNULLARG12;
 staticfn void backfire(struct obj *) NONNULLARG1;
 staticfn int zap_ok(struct obj *) NO_NNARGS;
 /* all callers of boxlock_invent() pass a NONNULL obj, and boxlock
@@ -7101,6 +7103,35 @@ const char *const destroy_strings[][3] = {
     { "vibrates and shatters", "", "shattered wand" },
 };
 
+/* electricity charging a monster's chargeable ring; the counterpart of
+   recharge()'s uncursed ring arm, which only handles the hero's
+   inventory; returns the damage an exploding ring does its carrier */
+staticfn int
+mon_charge_ring(struct monst *mon, struct obj *obj, boolean vis)
+{
+    int dmg = 0;
+
+    /* destruction depends on current state, not adjustment */
+    if (obj->spe > rn2(7) || obj->spe <= -5) {
+        if (vis)
+            pline("%s %s %s momentarily, then %s!", s_suffix(Monnam(mon)),
+                  distant_name(obj, xname), otense(obj, "pulsate"),
+                  otense(obj, "explode"));
+        dmg = rnd(3 * abs(obj->spe));
+        /* the blast is physical; mirror the Half_physical_damage
+           halving the hero gets */
+        if (mon_arti_has_spfx(mon, SPFX_HPHDAM))
+            dmg = (dmg + 1) / 2;
+        m_useup(mon, obj); /* takes care of a worn ring */
+    } else {
+        if (vis)
+            pline("%s %s %s clockwise for a moment.", s_suffix(Monnam(mon)),
+                  distant_name(obj, xname), otense(obj, "spin"));
+        obj->spe++;
+    }
+    return dmg;
+}
+
 /* guts of destroy_items();
    caller must decide whether obj is eligible, though there's one case (Book
    of the Dead) in which an eligible item shouldn't be destroyed (it prints a
@@ -7120,6 +7151,7 @@ maybe_destroy_item(
     const char *mult;
     boolean u_carry = (carrier == &gy.youmonst);
     boolean vis = !u_carry && canseemon(carrier);
+    boolean chargeit = FALSE;
 
     xresist = skip = 0;
     /* lint suppression */
@@ -7181,6 +7213,11 @@ maybe_destroy_item(
             if (((obj->owornmask & W_RING) && gloves && !is_metallic(gloves))
                 || obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;
+                break;
+            }
+            /* a chargeable ring may soak up the current instead */
+            if (objects[obj->otyp].oc_charged && rn2(3)) {
+                chargeit = TRUE;
                 break;
             }
             if ((obj->oerodeproof || is_supermaterial(obj)) && rn2(3)) {
@@ -7248,7 +7285,12 @@ maybe_destroy_item(
         break;
     }
 
-    if (!skip) {
+    if (chargeit) {
+        if (u_carry)
+            recharge(obj, 0);
+        else
+            dmg = mon_charge_ring(carrier, obj, vis);
+    } else if (!skip) {
         char osym = obj->oclass; /* for checking glob of slime after it's
                                        destroyed */
         if (obj->in_use)
