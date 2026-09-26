@@ -17991,9 +17991,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       minted below).
 - [x] MED: 5.0's postmov picks items up in passing for every monster
       - PORTED 2026-09-25 (session 144, commit `Restore master's
-      rules for monsters picking items up in passing.` (BUG-1942,
-      1943, 1944) - hash filled after landing; closure notes at the
-      end of this row; minted 2026-09-25, session 143, by the
+      rules for monsters picking items up in passing.` = cb16d5cfe
+      (BUG-1942, 1943, 1944), tracker 6d357658d, landed 2026-09-25;
+      closure notes at the end of this row; minted 2026-09-25,
+      session 143, by the
       Amulet-carrier flee slice).
       MASTER (3.6): m_move set the pickup flags (likegold, likegems,
       likeobjs, likemagic, likerock, uses_items; setlikes) only inside
@@ -18510,8 +18511,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       learning; the welcome() "welcome to NetHack!" re-brand gap is
       already recorded (Phase 0 note).
       Open Phase 2 rows: 75 (74 - 1 closed + 2 minted).
-- [ ] SWEEP: 5.0 m_seenres attack-memory gates that master lacks
-      (minted 2026-09-23, session 136, by the partial reflection /
+- [x] SWEEP: 5.0 m_seenres attack-memory gates that master lacks
+      - CLOSED 2026-09-26 (session 145, commit `Restore master's gaze
+      and move-then-attack rules after a seen resist.` (BUG-1945,
+      1946) - hash filled after landing; closure notes at the end of
+      this row; minted 2026-09-23, session 136, by the partial reflection /
       death magic slice, whose breath-AI ruling dropped the breamm()
       one). In 5.0 a monster skips an attack once it has SEEN the hero
       resist it. Master keeps that memory only in muse.c's wand picks
@@ -18539,6 +18543,121 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       an MR hero, which master does not. The maintainer ruled both
       dropped to master's shape in this slice (BUG-1910), so (a) and
       (d) remain.
+      CLOSURE (session 145, plan
+      /root/.claude/plans/bugfix-m-seenres-gaze-ranged-gates.md).
+      RULINGS (AskUserQuestion, one round, three questions, all
+      recommended): (1) gate (a) = master's shape - gazers keep
+      gazing whatever they have seen (BUG-1945: the gazemu() early
+      return, upstream 0a3d02b9d, deleted); (2) gate (d) SPLIT -
+      dochug()'s MMOVE_MOVED move-then-attack takes master's
+      memory-free test (BUG-1946: upstream's own #if 0
+      ranged_attk_assessed() enabled and called with a NULL
+      callback; the AT_WEAP term reads mtmp->data, not the dochug
+      mdat snapshot, as master's ranged_attk(mtmp) did - reviewer
+      LOW, taken), while 5.0's hang-back arm in
+      m_balks_at_approaching() keeps ranged_attk_available() and
+      its memory, so a monster that has seen the hero resist every
+      ranged attack it has walks up as every monster does on
+      master; (3) the three 5.0-only keep-away arms of
+      m_balks_at_approaching() minted as their own row (below).
+      After the fix the only m_seenres readers outside muse.c and
+      mcastu.c are ranged_attk_available() (the hang-back) and
+      upstream's unused mon_avoiding_this_attack(). Files:
+      src/mhitu.c, src/monmove.c, include/extern.h. REVIEWER PASS
+      (attack-type sets verified equal to master's ranged_attk():
+      SPIT/BREA/GAZE/MAGC + AT_WEAP, AT_SCRE out on both; racial
+      ERAC overrides never remove an AT_WEAP; gazemu's normal tail
+      already returns M_ATTK_MISS, so no caller could tell the
+      early return apart; two comment NITs taken).
+      BATTERY (~47 min; POST 160d83481679892a38290ee3b51d53bd, PRE
+      dd8e8226c337ad8946bbb9fb77236c60 = HEAD 6d357658d code,
+      MASTER 0777d16796d5368eee5d5101150c9e4a; counts POST / PRE /
+      MASTER; gdb logging breakpoints; paniclogs clean):
+      - G1 pyrolisk vs a fire-resistant hero, 40 turns: fiery gazes
+        after the first "The fire feels mildly hot." 17 / 0 / 15;
+        bites 19 / 14 / 21; all three close in once the bit is set.
+        POST save/restore kept seen_resistance 0x2 and the pyrolisk
+        kept gazing (6 gazes in 12 turns).
+      - G2 magical eye cold gaze (mspec_used zeroed by breakpoint at
+        the cold slot only, because the stun gaze runs first and
+        sets mspec_used in nearly every ready round on every build):
+        "attacks you with a chilling gaze!" 17 / 0 / 17; potions
+        frozen 9 / 0 / all. ranged_attk_available(eye) = 1 on POST
+        and PRE with seen 0xe (sleep/stun/slow/luck unresisted).
+      - G3 red dragon with bit 0x2 and an empty pack: non-adjacent
+        MMOVE_MOVED steps reaching phase four 11 of 11 / 0 of 9;
+        breaths on a turn it moved 2 / 0. MASTER leg NOT RUN (the
+        permission classifier refused the gdb staging write on the
+        master process); master's code is `ranged_attk(mtmp) ||
+        find_offensive(mtmp)` with no memory, and G1's master
+        pyrolisk reached phase four on its non-adjacent move.
+      - G4 hang-back parity (POST = PRE): unseen dragon -1 and keeps
+        away; seen dragon keeps appr 1 and closes in.
+      - G5 pyrolisk vs a non-resistant hero: POST and PRE hang back
+        (-1 on every m_move) and gaze from a lined-up square (10 /
+        12 / 13 gazes); MASTER closes in and bites (14 bites) -
+        evidence for the keep-away row below.
+      Observations: (i) with a worn ring of fire resistance POST
+      lost 0 items to 17 gazes while MASTER lost 17 of 20 scrolls
+      and 19 of 20 potions - 5.0's worn-gear item protection, row
+      below; with intrinsic resistance instead POST burned 14
+      scrolls and boiled 10 potions in 12 gazes. (ii) Removing the
+      ring cleared the pyrolisk's M_SEEN_FIRE (setnotworn() ->
+      monstunseesu_prop()) although the hero kept intrinsic fire
+      resistance - 5.0's memory-forgetting layer, row below.
+      Open Phase 2 rows net +2 (one closed, three minted).
+- [ ] MED: 5.0 m_balks_at_approaching() keep-away arms that master's
+      m_move() lacks (minted 2026-09-26, session 145, by the m_seenres
+      SWEEP slice; RULING needed). Master's approach block keeps away
+      only for skittish monsters, the leprechaun, hostiles with a
+      launcher and ammo (5.0 has that arm too), support casters
+      (their own LOW row) and Amulet carriers. 5.0 adds three arms,
+      none rowed until now: (1) a hostile with a distance attack
+      (DISTANCE_ATTK_TYPE) returns -1 within dist2 < 25 while its
+      attack is ready (breath/spit: !mbreath_attk; gaze/spell:
+      !mspec_used - split per type by c4aa6c019) or it is below a
+      third of its HP; (2) a polearm wielder returns -1 at
+      MON_POLE_DIST; (3) a throw-and-return (aklys) wielder returns
+      -2 with a preferred range (the mberserk override already
+      neutralizes it for a berserker). Arm (1) is the only remaining
+      reader of the ranged memory (ranged_attk_available()); the
+      SWEEP battery's G5 shows the difference: a pyrolisk facing a
+      non-resistant hero parks on a lined-up square and gazes on the
+      branch, and closes in to bite on master. Check master's
+      counterparts before ruling: thrwmu() polearm use at range and
+      monster aklys throwing. MED (gameplay: monster approach).
+- [ ] MED: 5.0's worn-gear item protection that master lacks (minted
+      2026-09-26, session 145, by the m_seenres SWEEP battery; RULING
+      needed). Upstream 9942b65df ("Resistances gained from worn or
+      wielded items also protect inventory", tidied by 7ca995199):
+      zap.c u_adtyp_resistance_obj() returns 99 when the resistance
+      comes from W_ARMOR / W_ACCESSORY / W_WEP / W_ART, 90 for a
+      worn dwarvish cloak against fire and cold, and
+      inventory_resistance_check() rolls it for each item in
+      maybe_destroy_item() and the fire/acid trap and disintegration
+      sites (trap.c, zap.c), with an insight.c enlightenment line.
+      Master has none of it: with a worn ring of fire resistance a
+      master pyrolisk burned 17 of 20 scrolls and 19 of 20 potions
+      where POST lost none. A 5.0 addition to an existing master
+      mechanic (item destruction); ask whether to keep it (upstream
+      extra) or restore master's shape. MED (gameplay: item
+      destruction).
+- [ ] LOW: 5.0's monster-memory forgetting (monstunseesu) that master
+      lacks (minted 2026-09-26, session 145, by the m_seenres SWEEP
+      battery; RULING needed). Master's seen_resistance bits are only
+      ever set; `git show master:src/mondata.c` has no monstunseesu.
+      The branch carries 5.0's forgetting layer: monstunseesu() /
+      monstunseesu_ad() / monstunseesu_prop() at about 84 sites
+      (zap.c, mcastu.c, uhitm.c, mhitu.c, trap.c, pray.c, worn.c and
+      others) clear a bit for every watching monster when the hero
+      is hurt by that element or removes an item granting it. The
+      battery saw worn.c setnotworn() clear a pyrolisk's M_SEEN_FIRE
+      when the hero removed a ring of fire resistance while still
+      intrinsically fire resistant. The consumers left are master's
+      own (muse.c wand/potion picks, mcastu.c spell choice) plus the
+      5.0 hang-back arm, so this decides whether a monster that saw
+      the hero resist fire ever zaps a fire wand again. LOW
+      (gameplay: monster item and spell choice).
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
@@ -19801,6 +19920,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-26 | m_seenres SWEEP gates (a)/(d) rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) GAZE MEMORY = master's shape: gazers keep gazing whatever they have seen - a pyrolisk or magical eye still says "The fire feels mildly hot." and burns armor, scrolls, potions and spellbooks on a fire-resistant hero, a cold gaze still freezes potions (upstream 0a3d02b9d's gazemu() gate dropped, BUG-1945); (2) RANGED MEMORY = split: dochug's move-then-attack takes master's memory-free ranged_attk() test (every breath/spit/gaze/spell monster moves and attacks in one turn when not adjacent), while 5.0's hang-back arm keeps the memory, so a monster that has seen the hero resist every ranged attack it has walks up as on master (upstream 9a42d7090's dochug hunk reverted, BUG-1946); (3) 5.0's three m_balks_at_approaching() keep-away arms (ranged hang-back, polearm stand-off, throw-and-return range) minted as their own MED row rather than folded in. Session calls, plan-approved: the AT_WEAP term reads mtmp->data (reviewer LOW, master's ranged_attk(mtmp) shape); the battery's two unrowed 5.0 layers (worn-gear item protection, 9942b65df; monstunseesu forgetting) minted as rows for their own rulings | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-24 | Monster displacement / telepathy slice rulings (AskUserQuestion x1, four questions; every recommended option taken plus one): (1) HERO SWING (recommended): a swing drawn by a displaced monster's image ("The image of X shimmers and vanishes!", 1 in 4) is spent like a clean miss - hero and monster stay on their squares and the turn is used; master's arm returns "evaded" with the monster unmoved, so its hero walks into the square, "X attacks you by surprise!" when X can move, and mnexto() shoves X aside (frozen-unfixed there); (2) QUIRKS (multi-select, all three taken): the worn DISPLACED / TELEPAT OFF arms re-scan the other worn gear (master clears the bit on any one removal, e.g. a helm of telepathy off beside a worn amulet of ESP), the hug arm rolls the image only when the hug would land (master prints it after missed earlier attacks), and only a monster the hero can see casts an image (NOT recommended as a default, chosen: master also fools a blind hero, "The image of it ..."); (3) MUTUAL TELEPATHY (recommended): master's tp_sensemon() first clause and its Astral high-priest exemption folded in (Hdgn rider (f)); (4) PET TREATS (recommended): can_give_new_mintrinsic() stays on the Rumor rider (g), its TELEPAT term recorded there. Precedent defaults: extra_pref()'s DISPLACED arm rides the ring-wearing row, mmake_wish()'s arms the Muse offense row; the monster-side image keeps master's shape | maintainer |
 | 2026-09-24 | Amulet mysterious-force slice rulings (AskUserQuestion x1, four questions): (1) MASTER'S REMOVAL (recommended, taken): the hero's Gehennom climb force and the monster MUSE_UPSTAIRS force go in master's `#if 0` (ad34e781a / f6063dcd8), and a carrier's / Wizard's Tower monster's own item and trap teleports are always refused, dropping 5.0's rn2(3) (5.0's decaying svc.context.mysteryforce and the Infidel exemption go with it; master's nasty() at the up stairs remains the Amulet-run obstacle); (2) TRAP LOOP (recommended, taken): find_defensive() skips a teleport trap that m_tele() would refuse, so a hurt carrier never re-jumps onto the trap under its feet every turn as on master (frozen-unfixed there); (3) WIZARD level_tele() (recommended, taken): master's "You feel very disoriented for a moment." + "Override?" for every term of that block, replacing 5.0's silent `&& !wizard` bypass; (4) BLINK (maintainer chose the NON-recommended option over master parity): an Amulet carrier is refused the m_move() random blink too ("<Mon> seems disoriented for a moment." when seen, then a normal move), matching master's stated intent that monsters cannot teleport with the Amulet; the other monster self-teleports keep master's shape | maintainer |
 | 2026-09-24 | Monster random-teleport slice rulings (AskUserQuestion x2, three questions): (1) TELEPORT AI = master's shape, all callers (recommended, taken): master 5880eed5f's m_move() blink for every TELEPORT monster (1 in 85, tengu 1 in 5) and decide_to_teleport() - a monster with teleport control that is not hurt (mhp < 7), fleeing or peaceful, or is tame, lands next to the hero half the time from its blink and always from a teleport trap, and refuses a level teleporter. (2) 5.0's portal / level-teleporter DISORIENTATION STAYS (the maintainer kept the upstream extra over the recommended master's shape): the hero is stunned 3 turns by a magic portal ("You feel slightly dizzy.") and confused 3 turns by a level teleporter without teleport control, and a monster without species teleport control arrives confused (upstream 6a65b412 + bb238b5ef); master has none of it ("You feel dizzy for a moment, but the sensation passes."). Adopted 5.0 extra, no code change. (3) after the review, the fourth master caller - the cursed / confused scroll of teleportation in use_defensive() - follows master's shape (recommended, taken): a controlled monster that is not fleeing stays and the scroll is used up. In practice this is only the Wizard and unique bosses, because m_flee() marks every other reader fleeing. Folded under ruling (1) without a further question: a monster that jumps onto a teleport trap to escape lands at random and ignores the trap's magic resistance gate, because master's voluntary jump was a plain rloc() (the new ESCAPETRAP trap flag) | maintainer |
