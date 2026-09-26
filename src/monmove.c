@@ -1452,11 +1452,12 @@ dochug(struct monst *mtmp)
             if (helpless(mtmp))
                 return 0;
             /* Monsters can move and then shoot on same turn;
-               our hero can't.  Is that fair? */
+               our hero can't. Is that fair? Any ranged attack
+               counts, whatever the monster has seen the hero resist */
             if (!nearby
-                && (ranged_attk_available(mtmp)
-                            || attacktype(mdat, AT_WEAP)
-                            || find_offensive(mtmp)))
+                && (ranged_attk_assessed(mtmp, NULL)
+                    || attacktype(mtmp->data, AT_WEAP)
+                    || find_offensive(mtmp)))
                 break;
             /* a monster that's digesting you can move at the
              * same time -dlc
@@ -1755,7 +1756,8 @@ m_balks_at_approaching(int oldappr, struct monst *mtmp, int *pdistmin,
 
     /* can attack from distance, and hp loss or attack not used;
        breath/spit runs on its own cooldown, other distance attacks
-       on spellcast power */
+       on spellcast power; a monster that has seen the hero resist
+       every ranged attack it has stops hanging back */
     if (ranged_attk_available(mtmp)
         && ((mtmp->mhp < (mtmp->mhpmax+1) / 3)
             || ((attacktype(mtmp->data, AT_BREA)

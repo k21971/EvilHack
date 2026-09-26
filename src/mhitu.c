@@ -2448,9 +2448,6 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             mcanseeu = (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
                         && mtmp->mcansee);
 
-    if (m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk->adtyp)))
-        return M_ATTK_MISS;
-
     is_medusa = (mtmp->data == &mons[PM_MEDUSA]);
     reflectable = (Reflecting && couldsee(mtmp->mx, mtmp->my) && is_medusa);
     /* assumes that hero has to see monster's gaze in order to be
@@ -3594,11 +3591,11 @@ passive_disint_kill(struct monst *mtmp)
     return M_ATTK_AGR_DIED;
 }
 
-#if 0
 /* returns True if monster has a range attack in its repertoire
    that it will actually utilize. Caller provides the assessment
    callback (optional). Callback returns 0 if the attack is
-   active */
+   active; with no callback, any range attack in the repertoire
+   counts */
 
 boolean
 ranged_attk_assessed(
@@ -3616,7 +3613,6 @@ ranged_attk_assessed(
         }
     return FALSE;
 }
-#endif
 
 /* can be used as ranged_attk_assessed() callback.
    Returns TRUE if monster is avoiding use of this attack */
