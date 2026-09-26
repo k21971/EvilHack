@@ -18513,9 +18513,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Open Phase 2 rows: 75 (74 - 1 closed + 2 minted).
 - [x] SWEEP: 5.0 m_seenres attack-memory gates that master lacks
       - CLOSED 2026-09-26 (session 145, commit `Restore master's gaze
-      and move-then-attack rules after a seen resist.` (BUG-1945,
-      1946) - hash filled after landing; closure notes at the end of
-      this row; minted 2026-09-23, session 136, by the partial reflection /
+      and move-then-attack rules after a seen resist.` = a8988bd19
+      (BUG-1945, 1946), tracker 397f323b0, landed 2026-09-26;
+      closure notes at the end of this row; minted 2026-09-23,
+      session 136, by the partial reflection /
       death magic slice, whose breath-AI ruling dropped the breamm()
       one). In 5.0 a monster skips an attack once it has SEEN the hero
       resist it. Master keeps that memory only in muse.c's wand picks
@@ -18606,9 +18607,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monstunseesu_prop()) although the hero kept intrinsic fire
       resistance - 5.0's memory-forgetting layer, row below.
       Open Phase 2 rows net +2 (one closed, three minted).
-- [ ] MED: 5.0 m_balks_at_approaching() keep-away arms that master's
-      m_move() lacks (minted 2026-09-26, session 145, by the m_seenres
-      SWEEP slice; RULING needed). Master's approach block keeps away
+- [x] MED: 5.0 m_balks_at_approaching() keep-away arms that master's
+      m_move() lacks - CLOSED 2026-09-26 (session 146, commit `Restore
+      master's approach for ranged attackers and aklys wielders.`
+      (BUG-1947, 1948) - hash filled after landing; closure notes at
+      the end of this row; minted 2026-09-26, session 145, by the
+      m_seenres SWEEP slice). Master's approach block keeps away
       only for skittish monsters, the leprechaun, hostiles with a
       launcher and ammo (5.0 has that arm too), support casters
       (their own LOW row) and Amulet carriers. 5.0 adds three arms,
@@ -18626,6 +18630,105 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch, and closes in to bite on master. Check master's
       counterparts before ruling: thrwmu() polearm use at range and
       monster aklys throwing. MED (gameplay: monster approach).
+      CLOSURE (session 146, plan
+      /root/.claude/plans/bugfix-keep-away-arms-ranged-aklys.md).
+      Master checks: thrwmu() thrusts a wielded polearm at dist2 <=
+      POLE_LIM (5, same reach) but m_move() never stands off, so a
+      master polearm wielder steps in and melees; master's rwep[] has
+      no AKLYS and no throw-and-return table, so no master monster
+      throws an aklys. Master's keep-away set is authored: M3_SKITTISH
+      (2018 SporkHack import: beholder, magical eye, Tal'Gath, bat,
+      deer, snark) and the launcher arm (32a4d488a, the 2020-07-05 port
+      of 3.7's bddb80f13, before upstream added its spit arm
+      f38cb6371 and its breath/polearm arms bc8dd9262; 9a42d7090
+      widened the ranged arm to every DISTANCE_ATTK_TYPE, 0bdf9830e
+      added the -2 aklys range). RULINGS (AskUserQuestion, one round,
+      three questions): (1) ranged hang-back = master's shape,
+      dropped (BUG-1947); (2) polearm stand-off = KEEP 5.0, the
+      maintainer's pick over the recommended master's shape - no code
+      change; (3) aklys range = dropped with its -2 plumbing
+      (pdistmin/pdistmax, preferredrange_min/max, the greedy loop's
+      appr == -2 clause; BUG-1948), and 5.0's monster aklys throwing
+      minted as its own MED row (below). ranged_attk_available() and
+      mon_avoiding_this_attack() stay as uncalled upstream helpers, so
+      the m_seenres memory no longer touches movement. File:
+      src/monmove.c. REVIEWER PASS (appr is only -1/0/1 at every
+      reader incl. m_search_items(); guard, launcher and polearm arms
+      token-identical and the launcher arm equal to master's; berserk
+      and Amulet overrides still follow; one LOW comment narrowing
+      taken; expect conflicts at these hunks on upstream pulls).
+      BATTERY (~41 min; POST a79eff9db893a6f2e2dca49f03da50a8, PRE
+      160d83481679892a38290ee3b51d53bd = HEAD 397f323b0 code, MASTER
+      0777d16796d5368eee5d5101150c9e4a; counts POST / PRE / MASTER;
+      gdb logging at the berserk test after the call; paniclogs
+      clean). PREMISE CORRECTED: a lined-up distance attacker at
+      dist2 > 8 with its attack ready never reaches m_move() on any
+      build - dochug's ranged scan (master's own block, same > 8
+      gate) fires mattacku() first - so the arms only mattered at
+      dist2 <= 8 or off the line, and the legs were restaged there.
+      - B1 pyrolisk (non-resistant hero): at dist2 16 lined up both
+        builds gazed from the spot (11 / 7 gazes, 0 m_move calls; its
+        fire gaze sets no cooldown). From dist2 4: POST appr 1,
+        adjacent next action, 6 bites + 5 gazes; PRE appr -1 at 4, 10,
+        20, 13, parked lined up at dist2 18, 7 gazes, 0 bites. MASTER
+        banked from session 145 G5 (closes in, 14 bites).
+      - B2 red dragon (hero with reflection): from dist2 16 with the
+        breath ready, 1 / 5 / 1 breaths before closing; POST and
+        MASTER then approached 16, 10, 8 and meleed; PRE closed only
+        once the cooldown was set. From dist2 4: POST adjacent next
+        action (bite, engulf); PRE appr -1 at 4, 10, 20, 13, parked
+        at dist2 18 and breathed 4 times.
+      - B3 hell hound pup at 10 of 42/45 HP, breath cooldown 200,
+        mflee 0 throughout: POST appr 1 at 16, 9, 4, then 6 bites;
+        PRE appr -1 at every dist2 below 25, 0 bites in 15 turns.
+      - B4 gnome lord with a wielded aklys: lined up at dist2 16 both
+        threw from the spot (9 / 8 throws, ranged scan). Off the line
+        at dist2 10: POST appr 1 at 10, 8, adjacent, 1 throw then 7
+        melee rounds; PRE appr -2 at 10, 8, 10, settled lined up at
+        dist2 16 and threw 10 times. From dist2 4 PRE logged -2 yet
+        still stepped adjacent (the -2 clause never held 4 as a
+        floor). MASTER skipped (would need gdb writes; code reading).
+      - B5 parity POST = PRE: (a) halberd soldier appr -1 only at
+        dist2 <= 5 ("swings an angled poleaxe", "bashes with" when
+        adjacent); from dist2 8 it stepped straight to adjacent and
+        stayed there bashing, so in play the kept arm is one step
+        back at dist2 4-5, not a held stand-off; (b) Woodland-elf with
+        a bow keeps away inside dist2 25, parks lined up at 18 and
+        fires 9 shots, then appr 1 once out of arrows. (c) NOT parity,
+        by design: the magical eye keeps away only inside dist2 10 on
+        POST (M3_SKITTISH, master's arm) where PRE also hung back at
+        10-20 through the dropped gaze arm - the brief's parity claim
+        was wrong.
+      Open Phase 2 rows net 0 (one closed, one minted).
+- [ ] MED: 5.0 monster aklys throwing that master lacks (minted
+      2026-09-26, session 146, by the keep-away arms slice; RULING
+      needed). Upstream 0bdf9830e ("throw-and-return weapons used by
+      monsters", 2025): weapon.c arwep[] (AKLYS, range AKLYS_LIM
+      squared = 16, tethered) lets select_rwep() pick an aklys for a
+      monster that is neither mindless nor an animal, within that
+      range and in sight; mthrowu.c thrwmu() then throws it whenever
+      lined up (always_toss skips the rn2 hold-fire roll against a
+      retreating hero), and m_throw() / return_from_mtoss() bring it
+      back 99 times in 100 (a wielded one flies back along its
+      tether). Master has none of it: `git show master:src/weapon.c`
+      rwep[] has no AKLYS and there is no throw-and-return table, so
+      a master monster only swings an aklys in melee (hwep[] lists
+      it). Aklys wielders on both trees come from m_initweap()'s
+      default case 5 (weapon users that are not strongmonst) and from
+      pickups. The keep-away slice's ruling 3 already dropped 5.0's
+      -2 preferred-range arm, so a branch aklys wielder now walks up
+      throwing it as it comes and then melees. Ask whether to keep
+      the throwing (a 5.0 addition) or restore master's melee-only
+      aklys. Battery observations (session 146 B4, both branch
+      builds): "The gnome lord wields an aklys!  The gnome lord
+      secures the tether on the aklys."; a lined-up wielder at dist2
+      16 throws every turn from the spot through dochug's ranged scan
+      (9 throws in one run); "The aklys returns to the gnome lord's
+      hand!" prints only once per 500 turns (upstream's static
+      do_not_annoy throttle in return_from_mtoss(), which also prints
+      without a canseemon() test); the miss arm "The aklys flies back
+      toward the gnome lord, hitting his arm!" drops it and leaves
+      him unarmed. MED (gameplay: monster weapon use).
 - [ ] MED: 5.0's worn-gear item protection that master lacks (minted
       2026-09-26, session 145, by the m_seenres SWEEP battery; RULING
       needed). Upstream 9942b65df ("Resistances gained from worn or
@@ -18658,6 +18761,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       5.0 hang-back arm, so this decides whether a monster that saw
       the hero resist fire ever zaps a fire wand again. LOW
       (gameplay: monster item and spell choice).
+      UPDATE 2026-09-26 (session 146): the keep-away arms slice
+      dropped the hang-back arm (BUG-1947), so ranged_attk_available()
+      has no caller left and the memory's only consumers are master's
+      own (muse.c, mcastu.c).
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
@@ -19920,6 +20027,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-26 | Keep-away arms rulings (AskUserQuestion x1, three questions): (1) RANGED HANG-BACK = master's shape (recommended): 5.0's m_balks_at_approaching() arm for breath, spit, gaze and spell attackers (attack ready or below a third of HP, within dist2 25) dropped - dragons, hell hounds, cobras, nagas, pyrolisks, umber hulks, Medusa and boss casters close in as on master, and keep-away stays with master's own M3_SKITTISH flag and launcher+ammo arm (BUG-1947); (2) POLEARM STAND-OFF = keep 5.0 (the maintainer's pick over the recommended master's shape): polearm wielders within dist2 5 back off and thrust from a knight's move, still meleeing when the hero steps adjacent; (3) AKLYS RANGE = dropped (recommended): the -2 preferred-range arm and its m_move() plumbing removed, so aklys wielders walk up (BUG-1948), and 5.0's monster aklys throwing itself minted as its own MED row rather than folded in. Session calls, plan-approved: ranged_attk_available() and mon_avoiding_this_attack() left as uncalled upstream helpers; the reviewer's LOW comment narrowing taken | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-26 | m_seenres SWEEP gates (a)/(d) rulings (AskUserQuestion x1, three questions, all recommended options taken): (1) GAZE MEMORY = master's shape: gazers keep gazing whatever they have seen - a pyrolisk or magical eye still says "The fire feels mildly hot." and burns armor, scrolls, potions and spellbooks on a fire-resistant hero, a cold gaze still freezes potions (upstream 0a3d02b9d's gazemu() gate dropped, BUG-1945); (2) RANGED MEMORY = split: dochug's move-then-attack takes master's memory-free ranged_attk() test (every breath/spit/gaze/spell monster moves and attacks in one turn when not adjacent), while 5.0's hang-back arm keeps the memory, so a monster that has seen the hero resist every ranged attack it has walks up as on master (upstream 9a42d7090's dochug hunk reverted, BUG-1946); (3) 5.0's three m_balks_at_approaching() keep-away arms (ranged hang-back, polearm stand-off, throw-and-return range) minted as their own MED row rather than folded in. Session calls, plan-approved: the AT_WEAP term reads mtmp->data (reviewer LOW, master's ranged_attk(mtmp) shape); the battery's two unrowed 5.0 layers (worn-gear item protection, 9942b65df; monstunseesu forgetting) minted as rows for their own rulings | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-24 | Monster displacement / telepathy slice rulings (AskUserQuestion x1, four questions; every recommended option taken plus one): (1) HERO SWING (recommended): a swing drawn by a displaced monster's image ("The image of X shimmers and vanishes!", 1 in 4) is spent like a clean miss - hero and monster stay on their squares and the turn is used; master's arm returns "evaded" with the monster unmoved, so its hero walks into the square, "X attacks you by surprise!" when X can move, and mnexto() shoves X aside (frozen-unfixed there); (2) QUIRKS (multi-select, all three taken): the worn DISPLACED / TELEPAT OFF arms re-scan the other worn gear (master clears the bit on any one removal, e.g. a helm of telepathy off beside a worn amulet of ESP), the hug arm rolls the image only when the hug would land (master prints it after missed earlier attacks), and only a monster the hero can see casts an image (NOT recommended as a default, chosen: master also fools a blind hero, "The image of it ..."); (3) MUTUAL TELEPATHY (recommended): master's tp_sensemon() first clause and its Astral high-priest exemption folded in (Hdgn rider (f)); (4) PET TREATS (recommended): can_give_new_mintrinsic() stays on the Rumor rider (g), its TELEPAT term recorded there. Precedent defaults: extra_pref()'s DISPLACED arm rides the ring-wearing row, mmake_wish()'s arms the Muse offense row; the monster-side image keeps master's shape | maintainer |
 | 2026-09-24 | Amulet mysterious-force slice rulings (AskUserQuestion x1, four questions): (1) MASTER'S REMOVAL (recommended, taken): the hero's Gehennom climb force and the monster MUSE_UPSTAIRS force go in master's `#if 0` (ad34e781a / f6063dcd8), and a carrier's / Wizard's Tower monster's own item and trap teleports are always refused, dropping 5.0's rn2(3) (5.0's decaying svc.context.mysteryforce and the Infidel exemption go with it; master's nasty() at the up stairs remains the Amulet-run obstacle); (2) TRAP LOOP (recommended, taken): find_defensive() skips a teleport trap that m_tele() would refuse, so a hurt carrier never re-jumps onto the trap under its feet every turn as on master (frozen-unfixed there); (3) WIZARD level_tele() (recommended, taken): master's "You feel very disoriented for a moment." + "Override?" for every term of that block, replacing 5.0's silent `&& !wizard` bypass; (4) BLINK (maintainer chose the NON-recommended option over master parity): an Amulet carrier is refused the m_move() random blink too ("<Mon> seems disoriented for a moment." when seen, then a normal move), matching master's stated intent that monsters cannot teleport with the Amulet; the other monster self-teleports keep master's shape | maintainer |
