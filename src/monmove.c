@@ -1728,13 +1728,8 @@ m_balks_at_approaching(int oldappr, struct monst *mtmp)
     if (m_has_launcher_and_ammo(mtmp))
         return -1;
 
-    /* is using a polearm and in range */
-    if (MON_WEP(mtmp) && is_pole(MON_WEP(mtmp))
-        && edist <= MON_POLE_DIST)
-        return -1;
-
-    /* a distance attack or a throw-and-return weapon earns no
-       keep-away here; M3_SKITTISH, tested in m_move(), picks the
+    /* a distance attack, a polearm or a throw-and-return weapon earns
+       no keep-away here; M3_SKITTISH, tested in m_move(), picks the
        monsters that keep their distance */
     return oldappr; /* leaves appr unchanged */
 }
@@ -2635,8 +2630,7 @@ m_move(struct monst *mtmp, int after)
         if (appr == 1 && leppie_avoidance(mtmp))
             appr = -1;
 
-        /* hostiles with a launcher and ammo, or a polearm in reach,
-           try to stay away */
+        /* hostiles with a launcher and ammo try to stay away */
         appr = m_balks_at_approaching(appr, mtmp);
 
         /* ... unless they are currently berserk */
