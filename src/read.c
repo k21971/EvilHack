@@ -40,6 +40,7 @@ staticfn void seffect_fire(struct obj **);
 staticfn void seffect_earth(struct obj **);
 staticfn void seffect_punishment(struct obj **);
 staticfn void seffect_stinking_cloud(struct obj **);
+staticfn void seffect_consecration(struct obj **);
 staticfn void seffect_blank_paper(struct obj **);
 staticfn void seffect_teleportation(struct obj **);
 staticfn void seffect_gold_detection(struct obj **);
@@ -2301,6 +2302,43 @@ seffect_stinking_cloud(struct obj **sobjp)
     do_stinking_cloud(sobj, already_known);
 }
 
+/* create an unfractured altar underfoot; unaligned (Moloch's) when
+   read confused, cursed or in Gehennom */
+staticfn void
+seffect_consecration(struct obj **sobjp)
+{
+    struct obj *sobj = *sobjp;
+    boolean confused = (Confusion != 0);
+    aligntyp deity;
+
+    gk.known = TRUE;
+    if (In_endgame(&u.uz) || Is_sanctum(&u.uz)) {
+        You_cant("create an altar in this place.");
+        return;
+    }
+
+    if (confused || sobj->cursed || In_hell(&u.uz))
+        deity = A_NONE;
+    else
+        deity = u.ualign.type;
+
+    if ((levl[u.ux][u.uy].typ == ROOM
+         || levl[u.ux][u.uy].typ == SAND
+         || levl[u.ux][u.uy].typ == GRASS)
+        && set_levltyp(u.ux, u.uy, ALTAR)) {
+        /* clear union-aliased flags (looted, etc.) before
+           writing altarmask through the same byte */
+        levl[u.ux][u.uy].flags = 0;
+        levl[u.ux][u.uy].altarmask = Align2amask(deity);
+        levl[u.ux][u.uy].frac_altar = 0;
+        if (!Blind)
+            pline("%s altar appears before you!", An(align_str(deity)));
+        newsym(u.ux, u.uy);
+    } else {
+        pline1(nothing_happens);
+    }
+}
+
 staticfn void
 seffect_blank_paper(struct obj **sobjp UNUSED)
 {
@@ -2584,6 +2622,9 @@ seffects(
         break;
     case SCR_STINKING_CLOUD:
         seffect_stinking_cloud(&sobj);
+        break;
+    case SCR_CONSECRATION:
+        seffect_consecration(&sobj);
         break;
     default:
         impossible("What weird effect is this? (%u)", otyp);

@@ -222,8 +222,6 @@ erode_obj(
 
     switch (type) {
     case ERODE_BURN:
-        if (uvictim && inventory_resistance_check(AD_FIRE))
-            return ER_NOTHING;
         vulnerable = is_flammable(otmp);
         check_grease = FALSE;
         cost_type = COST_BURN;
@@ -239,8 +237,6 @@ erode_obj(
         cost_type = COST_ROT;
         break;
     case ERODE_CORRODE:
-        if (uvictim && inventory_resistance_check(AD_ACID))
-            return ER_NOTHING;
         vulnerable = is_corrodeable(otmp);
         is_primary = FALSE;
         cost_type = COST_CORRODE;
@@ -5347,7 +5343,8 @@ fire_damage(
     } else if (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS) {
         if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
             return FALSE;
-        if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+        if (obj->otyp == SPE_BOOK_OF_THE_DEAD
+            || obj->otyp == SCR_CONSECRATION) {
             if (in_sight)
                 pline("Smoke rises from %s.", the(xname(obj)));
             return FALSE;
@@ -5474,9 +5471,6 @@ acid_damage(struct obj *obj)
 
     victim = carried(obj) ? &gy.youmonst : mcarried(obj) ? obj->ocarry : NULL;
     vismon = victim && (victim != &gy.youmonst) && canseemon(victim);
-
-    if (victim == &gy.youmonst && inventory_resistance_check(AD_ACID))
-        return;
 
     if (obj->greased) {
         grease_protect(obj, (char *) 0, victim);
@@ -5633,6 +5627,7 @@ water_damage(
         return ER_NOTHING;
     } else if (obj->oclass == SCROLL_CLASS) {
         if (obj->otyp == SCR_BLANK_PAPER
+            || obj->otyp == SCR_CONSECRATION
 #ifdef MAIL_STRUCTURES
             || obj->otyp == SCR_MAIL
 #endif
@@ -8346,7 +8341,8 @@ lava_effects(void)
             if (lava_protected(obj->o_id, protect_oid, nprotect)) {
                 /* skip protected item; caller expects to retain access */
                 obj->in_use = 1; /* was cleared when recording protect_oid */
-            } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+            } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD
+                       || obj->otyp == SCR_CONSECRATION) {
                 if (usurvive && !Blind)
                     pline("%s glows a strange %s, but remains intact.",
                           The(xname(obj)), hcolor("dark red"));

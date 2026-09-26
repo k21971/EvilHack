@@ -42,6 +42,7 @@ ink_cost(short otyp)
     case SCR_REMOVE_CURSE:
     case SCR_ENCHANT_WEAPON:
     case SCR_CHARGING:
+    case SCR_MAGIC_DETECTION:
         return 16;
     case SCR_SCARE_MONSTER:
     case SCR_STINKING_CLOUD:
@@ -50,6 +51,8 @@ ink_cost(short otyp)
         return 20;
     case SCR_GENOCIDE:
         return 30;
+    case SCR_CONSECRATION:
+        return 1000; /* can never be written */
     case SCR_BLANK_PAPER:
     default:
         impossible("You can't write such a weird scroll!");
@@ -245,7 +248,7 @@ dowrite(struct obj *pen)
             useup(paper);
         }
         return ECMD_TIME;
-    } else if (i == SPE_BOOK_OF_THE_DEAD) {
+    } else if (i == SPE_BOOK_OF_THE_DEAD || i == SCR_CONSECRATION) {
         pline("No mere dungeon adventurer could write that.");
         return ECMD_TIME;
     } else if (by_descr && paper->oclass == SPBOOK_CLASS

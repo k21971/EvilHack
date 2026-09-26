@@ -4389,9 +4389,6 @@ extern int zap_over_floor(coordxy, coordxy, int, boolean *,
 extern void mon_spell_hits_spot(struct monst *, int, coordxy x, coordxy y);
 extern void fracture_rock(struct obj *) NONNULLARG1;
 extern boolean break_statue(struct obj *) NONNULLARG1;
-extern int u_adtyp_resistance_obj(int);
-extern boolean inventory_resistance_check(int);
-extern char *item_what(int);
 extern int destroy_items(struct monst *, int, int) NONNULLARG1;
 extern void disint_mon_invent(struct monst *) NONNULLARG1;
 extern int resist(struct monst *, char, int, int) NONNULLARG1;

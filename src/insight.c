@@ -38,7 +38,6 @@ staticfn int QSORTCALLBACK vanqsort_cmp(const genericptr, const genericptr);
 staticfn int num_extinct(void);
 staticfn int num_gone(int, int *);
 staticfn char *size_str(int);
-staticfn void item_resistance_message(int, const char *, int);
 
 extern const char *const hu_stat[];  /* hunger status from eat.c */
 extern const char *const enc_stat[]; /* encumbrance status from botl.c */
@@ -1560,24 +1559,6 @@ weapon_insight(int final)
     } /* skill applies */
 }
 
-staticfn void
-item_resistance_message(
-    int adtyp,
-    const char *prot_message,
-    int final)
-{
-    int protection = u_adtyp_resistance_obj(adtyp);
-
-    if (protection) {
-        boolean somewhat = protection < 99;
-
-        enl_msg("Your items ",
-                somewhat ? "are somewhat" : "are",
-                somewhat ? "were somewhat" : "were",
-                prot_message, item_what(adtyp));
-    }
-}
-
 /* attributes: intrinsics and the like, other non-obvious capabilities */
 staticfn void
 attributes_enlightenment(
@@ -1631,23 +1612,18 @@ attributes_enlightenment(
     Sprintf(buf, "%d%% fire resistant", how_resistant(FIRE_RES));
     if (Fire_resistance)
         you_are(buf, "");
-    item_resistance_message(AD_FIRE, " protected from fire", final);
     Sprintf(buf, "%d%% cold resistant", how_resistant(COLD_RES));
     if (Cold_resistance)
         you_are(buf, "");
-    item_resistance_message(AD_COLD, " protected from cold", final);
     Sprintf(buf, "%d%% sleep resistant", how_resistant(SLEEP_RES));
     if (Sleep_resistance)
         you_are(buf, "");
     Sprintf(buf, "%d%% disintegration resistant", how_resistant(DISINT_RES));
     if (Disint_resistance)
         you_are(buf, "");
-    item_resistance_message(AD_DISN, " protected from disintegration", final);
     Sprintf(buf, "%d%% shock resistant", how_resistant(SHOCK_RES));
     if (Shock_resistance)
         you_are(buf, "");
-    item_resistance_message(AD_ELEC, " protected from electric shocks",
-                            final);
     Sprintf(buf, "%d%% poison resistant", how_resistant(POISON_RES));
     if (Poison_resistance)
         you_are(buf, "");
@@ -1657,7 +1633,6 @@ attributes_enlightenment(
                 "acid resistant");
         you_are(buf, from_what(ACID_RES));
     }
-    item_resistance_message(AD_ACID, " protected from acid", final);
     if (Psychic_resistance)
         you_are("psionic resistant", from_what(PSYCHIC_RES));
     if (Drain_resistance)

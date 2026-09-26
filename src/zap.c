@@ -29,7 +29,6 @@ staticfn void zap_map(coordxy, coordxy, struct obj *) NONNULLARG3;
 staticfn void bounce_dir(coordxy, coordxy, int *, int *, int) NO_NNARGS;
 staticfn int zap_hit(int, int, boolean);
 staticfn void disintegrate_mon(struct monst *, int, const char *) NONNULLARG1;
-staticfn int adtyp_to_prop(int);
 staticfn void backfire(struct obj *) NONNULLARG1;
 staticfn int zap_ok(struct obj *) NO_NNARGS;
 /* all callers of boxlock_invent() pass a NONNULL obj, and boxlock
@@ -1709,6 +1708,7 @@ obj_resists(struct obj *obj,
         || obj->otyp == SPE_BOOK_OF_THE_DEAD
         || obj->otyp == CANDELABRUM_OF_INVOCATION
         || obj->otyp == BELL_OF_OPENING
+        || obj->otyp == SCR_CONSECRATION
         || (obj->otyp == CORPSE && is_rider(&mons[obj->corpsenm]))) {
         return TRUE;
     } else {
@@ -5440,8 +5440,6 @@ zhitu(
         break;
     case ZT_DEATH:
         if (abstyp == ZT_BREATH(ZT_DEATH)) {
-            boolean disn_prot = inventory_resistance_check(AD_DISN);
-
             if (how_resistant(DISINT_RES) == 100) {
                 You("are not disintegrated.");
                 monstseesu(M_SEEN_DISINT);
@@ -5452,8 +5450,6 @@ zhitu(
                 You("aren't disintegrated, but that hurts!");
                 dam = resist_reduce(d(6, 6), DISINT_RES);
                 monstunseesu(M_SEEN_DISINT);
-                break;
-            } else if (disn_prot) {
                 break;
             } else if (how_resistant(DISINT_RES) >= 50) {
                 You("aren't disintegrated, but that really hurts!");
@@ -7035,8 +7031,10 @@ destroyable(struct obj *obj, int adtyp)
         return FALSE;
     }
     if (adtyp == AD_FIRE) {
-        /* fire-magic items are immune */
-        if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL) {
+        /* fire-magic items are immune, as is the scroll of
+           consecration */
+        if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL
+            || obj->otyp == SCR_CONSECRATION) {
             return FALSE;
         }
         if (obj->otyp == GLOB_OF_GREEN_SLIME || obj->oclass == POTION_CLASS
@@ -7071,119 +7069,6 @@ destroyable(struct obj *obj, int adtyp)
         }
     }
     return FALSE;
-}
-
-/* convert attack damage AD_foo to property resistance */
-staticfn int
-adtyp_to_prop(int dmgtyp)
-{
-    switch (dmgtyp) {
-    case AD_COLD:
-        return COLD_RES;
-    case AD_FIRE:
-        return FIRE_RES;
-    case AD_ELEC:
-        return SHOCK_RES;
-    case AD_ACID:
-        return ACID_RES;
-    case AD_DISN:
-        return DISINT_RES;
-    default:
-        break;
-    }
-    return 0; /* prop_types start at 1 */
-}
-
-/* Is hero wearing or wielding an object with resistance to attack
-   damage type? Returns the percentage protection that the object gives. */
-int
-u_adtyp_resistance_obj(int dmgtyp)
-{
-    int prop = adtyp_to_prop(dmgtyp);
-
-    if (!prop)
-        return 0;
-
-    /* FIXME? these percentages (99 and 90) seem too high... */
-
-    /* items that give an extrinsic resistance when worn or wielded or
-       carried give 99% protection to your items */
-    if ((u.uprops[prop].extrinsic & (W_ARMOR | W_ACCESSORY | W_WEP | W_ART))
-        != 0L)
-        return 99;
-
-    /* worn dwarvish cloaks give 90% protection against heat and cold to
-       carried items */
-    if (uarmc && uarmc->otyp == DWARVISH_CLOAK
-        && (dmgtyp == AD_COLD || dmgtyp == AD_FIRE))
-        return 90;
-
-    return 0;
-}
-
-/* Rolls to see whether an object in inventory resists damage from the
-   given damage type, due to an equipped item protecting it. Use
-   u_adtyp_resistance_obj to discover whether objects are protected in
-   general (e.g. for enlightenment) and this function to actually do
-   the roll to see whether a specific object is protected.
-
-   This function doesn't check for other reasons why an object might
-   be protected; you will usually need to do an obj_resists() call
-   too. */
-boolean
-inventory_resistance_check(int dmgtyp)
-{
-    int prob = u_adtyp_resistance_obj(dmgtyp);
-
-    if (!prob)
-        return FALSE;
-
-    return rn2(100) < prob;
-}
-
-/* for enlightenment; currently only useful in wizard mode; cf from_what() */
-char *
-item_what(int dmgtyp)
-{
-    static char whatbuf[50];
-    const char *what = 0;
-    int prop = adtyp_to_prop(dmgtyp);
-    long xtrinsic = u.uprops[prop].extrinsic;
-
-    whatbuf[0] = '\0';
-    if (wizard) {
-        if (!prop || !xtrinsic) {
-            ; /* 'what' stays Null */
-        } else if (xtrinsic & W_ARMC) {
-            what = cloak_simple_name(uarmc);
-        } else if (xtrinsic & W_ARM) {
-            what = suit_simple_name(uarm); /* "dragon {scales,mail}" */
-        } else if (xtrinsic & W_ARMU) {
-            what = shirt_simple_name(uarmu);
-        } else if (xtrinsic & W_ARMH) {
-            what = helm_simple_name(uarmh);
-        } else if (xtrinsic & W_ARMG) {
-            what = gloves_simple_name(uarmg);
-        } else if (xtrinsic & W_ARMF) {
-            what = boots_simple_name(uarmf);
-        } else if (xtrinsic & W_ARMS) {
-            what = shield_simple_name(uarms);
-        } else if (xtrinsic & (W_AMUL | W_TOOL)) {
-            what = simpleonames((xtrinsic & W_AMUL) ? uamul : ublindf);
-        } else if (xtrinsic & W_RING) {
-            if ((xtrinsic & W_RING) == W_RING) /* both */
-                what = "rings";
-            else
-                what = simpleonames((xtrinsic & W_RINGL) ? uleft : uright);
-        } else if (xtrinsic & W_WEP) {
-            what = simpleonames(uwep);
-        }
-        /* format the output to be ready for enl_msg() to append it to
-           "Your items {are,were} protected against <damage-type>" */
-        if (what) /* strlen(what) will be less than 30 */
-            Sprintf(whatbuf, " by your %.40s", what);
-    }
-    return whatbuf;
 }
 
 /*
@@ -7235,16 +7120,11 @@ maybe_destroy_item(
     const char *mult;
     boolean u_carry = (carrier == &gy.youmonst);
     boolean vis = !u_carry && canseemon(carrier);
-    boolean chargeit = FALSE;
 
     xresist = skip = 0;
     /* lint suppression */
     dmg = dindx = 0;
     quan = 0L;
-
-    /* external worn item protects inventory? */
-    if (u_carry && inventory_resistance_check(dmgtyp))
-        return 0;
 
     switch (dmgtyp) {
     case AD_COLD:
@@ -7292,21 +7172,40 @@ maybe_destroy_item(
                                : resists_elec(carrier)));
         quan = obj->quan;
         switch (obj->oclass) {
-        case RING_CLASS:
+        case RING_CLASS: {
+            struct obj *gloves = which_armor(carrier, W_ARMG);
+
             /* The Ring of P'hul and the One Ring are not affected,
-               artifacts are off-limits per destroy_item() */
-            if (((obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg))
+               artifacts are off-limits per destroy_item(); a worn ring
+               is shielded by its wearer's own non-metallic gloves */
+            if (((obj->owornmask & W_RING) && gloves && !is_metallic(gloves))
                 || obj->otyp == RIN_SHOCK_RESISTANCE) {
                 skip++;
                 break;
-            } else if (objects[obj->otyp].oc_charged && rn2(3)) {
-                chargeit = TRUE;
+            }
+            if ((obj->oerodeproof || is_supermaterial(obj)) && rn2(3)) {
+                if (u_carry)
+                    Your("%s resists!", xname(obj));
+                else if (vis)
+                    pline("%s %s resists!", s_suffix(Monnam(carrier)),
+                          distant_name(obj, xname));
+                skip++;
                 break;
             }
             dindx = 5;
             dmg = 0;
             break;
+        }
         case WAND_CLASS:
+            if ((obj->oerodeproof || is_supermaterial(obj)) && rn2(3)) {
+                if (u_carry)
+                    Your("%s resists!", xname(obj));
+                else if (vis)
+                    pline("%s %s resists!", s_suffix(Monnam(carrier)),
+                          distant_name(obj, xname));
+                skip++;
+                break;
+            }
             dindx = 6;
             dmg = rnd(10);
             break;
@@ -7349,11 +7248,7 @@ maybe_destroy_item(
         break;
     }
 
-    if (chargeit) {
-        /* FIXME: recharge only handles items in hero's inventory */
-        if (u_carry)
-            recharge(obj, 0);
-    } else if (!skip) {
+    if (!skip) {
         char osym = obj->oclass; /* for checking glob of slime after it's
                                        destroyed */
         if (obj->in_use)
