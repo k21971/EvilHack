@@ -15156,6 +15156,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cloak of displacement) and case 13 (`!has_telepathy(mon)` helm of
       telepathy) can use the now-live macros and worn bits
       (BUG-1930).
+      RIDER 2026-09-26 (session 147): the rest of the master-only
+      muse set that the Monster AI/equipment and monster-looting
+      reviewers deferred to "the muse offensive-item parity" (no row
+      of its own until now) rides here: MUSE_POT_RESTORE_ABILITY and
+      MUSE_BAG_OF_TRICKS defensive, SCR_CHARGING /
+      find_best_item_to_charge, PAN_FLUTE, DWARVISH_BEARDED_AXE
+      disarm, and the FIGURINE / WAN_WISHING / REMOVE_CURSE /
+      POT_HALLUCINATION offensive-misc set. When SCR_CHARGING ports,
+      reuse zap.c mon_charge_ring() (BUG-1956; add a curse_bless
+      parameter) instead of copying master's monster arm in
+      recharge(): flat 3 * |spe| damage, mondied() with no kill
+      credit, and an ungated spin message.
 - [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
@@ -18773,8 +18785,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       him unarmed. MED (gameplay: monster weapon use).
 - [x] MED: 5.0's worn-gear item protection that master lacks - CLOSED
       2026-09-26 (session 147, commit `Restore master's item
-      destruction and port the scroll of consecration.`
-      (BUG-1950..1955) - hash filled after landing; closure notes at
+      destruction and port the scroll of consecration.` = 6ace2e519
+      (BUG-1950..1955), tracker c920f7e78; closure notes at
       the end of this row; minted 2026-09-26, session 145, by the
       m_seenres SWEEP battery). Upstream 9942b65df ("Resistances
       gained from worn or wielded items also protect inventory",
@@ -18879,6 +18891,54 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Battery lore: wishing "fire trap" gives the trap-kit tool,
       "fire trapx" places the trap. Open Phase 2 rows net +1 (one
       closed; the HIGH magic detection and MED lava rows minted).
+      REVERSAL of ruling (2), same day (BUG-1956, commit hash filled
+      after landing): asked to go over 5.0's shock method, the
+      maintainer chose "upstream's version plus fixing it so it's
+      symmetric". 5.0's chargeit returns in its upstream place: a
+      chosen chargeable ring gets the 2-in-3 charge roll right after
+      the gloves skip, BEFORE master's erodeproof resist, so a fixed
+      charged ring still charges. The hero goes through recharge(obj,
+      0): +1, "spins clockwise", or "pulsates momentarily, then
+      explodes!" when spe > rn2(7), for rnd(3 * |spe|). The new
+      mon_charge_ring() gives a monster's ring the same odds (upstream
+      silently spared it), with seen-only messages; the explosion
+      damage returns to the caller like a wand blast, not zeroed by
+      shock resistance (it is physical, as for the hero), halved for
+      an SPFX_HPHDAM artifact carrier (mirroring the hero's
+      Maybe_Half_Phys, as mcastu.c does; reviewer MEDIUM, taken), and
+      m_useup() handles a worn ring. BUG-1951 stands reversed.
+      REVIEWER CONDITIONAL PASS -> PASS after the MEDIUM: the hero
+      path equals upstream (same RNG order); monster AC and ring
+      lookups read spe when used, so no refresh is needed; no use of
+      obj after it is freed. Its LOW items: four monster shock callers
+      drop item-blast damage (master parity, own LOW row minted);
+      monster SCR_CHARGING should reuse mon_charge_ring() (rider on
+      the Muse offense items row).
+      RE-TEST (~25 min, maintainer-approved; POST
+      3f3afaf5baa2d978d09d9618a999524c, PRE2
+      9afe538ceba5b126d6296e92cadf6ad9 = 6ace2e519 code; no master
+      launch; the patch added no paniclog line - the 8 present are the
+      tester's own gdb material-write staging, "invalid material 12"):
+      - R1 hero, six +0 charged rings, 8 lightning self-zaps: POST 14
+        "spins clockwise", 5 "pulsates momentarily, then explodes!"
+        (spe 2, 2, 3, 2, 3; 25 HP), 4 resists on supermaterial rings,
+        1 dust; no +0 ring exploded on its first charge. PRE2 4 dust
+        and 13 resists, no spins or explosions, spe unchanged.
+      - R2 seen gnome lord, wand ray: "The gnome lord's magical jade
+        ring spins clockwise for a moment." then "... pulsates
+        momentarily, then explodes!"; explosion damage 1 and 2 (spe 1
+        and 2) added on top of the bolt; minvent empty at the end.
+      - R3 a gdb-worn +5 ring exploded for 8: the W_RINGL bit cleared
+        (I_SPECIAL left set = check_gear_next_turn() on a frozen
+        monster), no impossible().
+      - R4 blindfolded hero: no ring messages while the charge
+        function still ran (spe rose unseen).
+      - R5 fixed charged rings: 7 spins, 4 resists, 2 explosions;
+        the charge roll comes first, as designed.
+      - R6 an HPHDAM carrier (Gjallar): raw 7 halved to 4.
+      Observed: monster ring lines print before "The bolt of
+      lightning hits the gnome lord!" (destroy_items runs inside
+      zhitm(), as wand blasts do).
 - [ ] MED: lava's inventory burn is not master's (minted 2026-09-26,
       session 147, by the worn-gear item protection slice; RULING
       needed). Master lava_effects() `burn_stuff:` runs
@@ -18912,6 +18972,22 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       burnmesgcount only when the line prints, so 5.0's "Other
       item(s) ... destroyed" summary still counts what the blind
       hero never saw.
+- [ ] LOW: four monster shock callers drop the item-blast damage
+      (minted 2026-09-26, session 147, by the symmetric recharge
+      reviewer). destroy_items(mon, AD_ELEC, ...) returns what
+      exploding wands (rnd(10) each) and, since BUG-1956, exploding
+      charged rings (rnd(3 * |spe|)) do to a monster, but these
+      callers cast it to void: uhitm.c hero shocking grasp (could add
+      to hmd.dmg), uhitm.c polyformed shocking grasp (elecdmg before
+      damage_mon()), mhitm.c monster shocking grasp (mhm.damage; its
+      death path follows), mcastu.c castmm lightning (the resisting
+      case zeroes dmg first). So a seen "breaks apart and explodes!"
+      or "pulsates momentarily, then explodes!" there does no harm.
+      Master discards destroy_mitem() at the same sites, so this is
+      master parity; ruling: keep, or add the damage (it changes wand
+      blasts too). The adding callers (zap.c ray, uhitm.c weapon
+      hits, artifact.c, explode.c) all handle the death. LOW
+      (gameplay: monster damage from item blasts).
 - [ ] HIGH: the scroll of magic detection has NO read effect (minted
       2026-09-26, session 147, by the worn-gear item protection
       slice while porting the consecration read case beside it).
@@ -20080,7 +20156,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-26 | zap.c maybe_destroy_item() AD_ELEC RING_CLASS arm spares a WORN ring behind non-metallic gloves with `(obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg)` (Official_nh50 src/zap.c:5878) - the HERO's glove slot, even when `carrier` is a monster (destroy_items(mon, AD_ELEC, ...) from a lightning ray, uhitm/mhitm/mcastu/artifact shock hits). While the hero wears leather gloves every monster's worn ring is spared; a monster in its own leather gloves loses its ring. 3.6's destroy_mitem() used `which_armor(mtmp, W_ARMG)`. Branch fix: `which_armor(carrier, W_ARMG)` (it returns uarmg for &gy.youmonst). Battery-confirmed both directions (session 147 W11) | fixed on branch (BUG-1953, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-26 | zap.c maybe_destroy_item() AD_ELEC RING_CLASS arm spares a WORN ring behind non-metallic gloves with `(obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg)` (Official_nh50 src/zap.c:5878) - the HERO's glove slot, even when `carrier` is a monster (destroy_items(mon, AD_ELEC, ...) from a lightning ray, uhitm/mhitm/mcastu/artifact shock hits). While the hero wears leather gloves every monster's worn ring is spared; a monster in its own leather gloves loses its ring. 3.6's destroy_mitem() used `which_armor(mtmp, W_ARMG)`. Branch fix: `which_armor(carrier, W_ARMG)` (it returns uarmg for &gy.youmonst). Battery-confirmed both directions (session 147 W11) | fixed on branch (BUG-1953, 6ace2e519); patch artifact not cut yet |
 | 2026-09-25 | 6c9700ab2 ("Monster movement and object pickup cleanup ... There should be no real difference in behaviour") replaced 3.6's like-flag pickup with an ungated `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov (NetHack50 src/monmove.c:1682). The getitems block's retained comment ("Monsters in combat won't pick stuff up, avoiding the situation where you toss arrows at it and it has nothing better to do than pick the arrows up") is now false. Pets, shopkeepers, guards, priests, covetous monsters and monsters closing in on the hero in line all pick up in passing. The same commit's search filter (mon_would_take_item) makes an ordinary corpse a goal that mpickstuff() refuses, so a collector out of line with the hero stands on it (branch battery: 13-15 turns without attacking) | fixed on branch (BUG-1942, 1943, 1944; master's gate, gold scoop and a corpse filter); record only - maintainer ruled no patch this slice (upstream already layered 7b32ce02e on the new behavior) |
 | 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); artifact ~/nh50-teleport-trap-repick.patch (cut 2026-09-24 with maintainer approval: the knowledge term only, upstream's TELEP_TRAP name - the Amulet / Wizard's Tower terms are the branch's master-removal ruling and stay out; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8), not yet sent |
 | 2026-09-23 | mcastu.c touch-of-death announcement `pline("Oh no, %s's using the touch of death!", mhe(mtmp));` (NetHack50 src/mcastu.c:391): pronoun_gender() returns rn2(4) while hallucinating (mondata.c ~1200) and genders[3] is the plural "they" (role.c ~693), so a hallucinating hero can read "Oh no, they's using the touch of death!" | fixed on branch (BUG-1911, 79052f590: pronoun_gender() called once, "'re" for index 3, "'s" otherwise, on the hero leg and the branch's monster-target leg); patch not yet cut |
@@ -20225,6 +20301,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-26 | Worn-gear slice ruling (2) REVERSED after landing: asked to go over 5.0's shock method, the maintainer chose a SYMMETRIC version of upstream's charged-ring recharge (ef6a88e1e) over master's shape. A chargeable ring chosen by lightning gets a 2-in-3 charge roll (before master's erodeproof resist): +1 ("spins clockwise"), or an explosion when spe > rn2(7) or spe <= -5 for rnd(3 * abs(spe)). Repeated shocks therefore ratchet a ring upward until it blows. Monsters now get the same roll through mon_charge_ring() (upstream's recharge() is hero-only, so it silently spared them); explosion damage goes to the carrier. BUG-1956 (BUG-1951 reversed) | maintainer |
 | 2026-09-26 | Worn-gear item protection ruling (AskUserQuestion x1, recommended option taken): MASTER'S SHAPE - 5.0's worn-gear inventory shield (upstream 9942b65df + 7ca995199: 99% per item when the resistance comes from worn, wielded or W_ART-carried gear, 90% for a worn dwarvish cloak vs fire and cold) is dropped with its enlightenment lines. Resistance rings, dragon scales and scaled armor, the shield of shock resistance, a wielded Fire Brand / Frost Brand / Mjollnir and the dwarvish cloak protect the hero only; scrolls burn, potions boil or freeze, rings and wands blow up, worn armor burns or corrodes and acid blanks scrolls as on master. Only master's authored shields remain: a wielded Tempest (shock; master 2177b017a: "the incentive to want to actually use this forged artifact"), Dichotomy (fire and cold) and Harbinger (worn armor vs acid), for the hero and monsters alike (BUG-1950). Session calls, plan-approved: the behavior-neutral disn_prot arm goes with it (any extrinsic DISINT_RES already reads 100% in how_resistant()); lava's inventory burn divergence (master fire_damage_chain, a6e0803e7) minted as its own row. SECOND ROUND (AskUserQuestion x1, two questions, after the first reviewer pass): (2) SHOCK RECHARGE = master's shape (recommended): 5.0's chargeit (ef6a88e1e) is dropped, so a shocked charged ring turns to dust like any ring instead of a 2-in-3 recharge that could add +1 or explode, and a monster's charged ring is no longer silently spared (BUG-1951); (3) FOLD-INS (multi-select, all three taken, the consecration port against the suggestion to make it its own slice): master's erodeproof/supermaterial ring and wand lightning resist (BUG-1952), the monster's own gloves for its worn ring (upstream bug, BUG-1953) and the whole scroll of consecration port (BUG-1954). Session call under the sibling rule: ink_cost()'s missing SCR_MAGIC_DETECTION case (BUG-1955, the same impossible() class as the consecration ink_cost case, master 5d0a12f52); magic detection's missing read effect minted as a HIGH row rather than folded in | maintainer (rulings 1-3); session, plan-approved (rest) |
 | 2026-09-26 | Keep-away arms ruling (2) REVERSED after the battery: the polearm stand-off is dropped too, restoring master's exact approach shape (BUG-1949). Asked in detail, the session explained that the kept arm never produced a stand-off: it can only answer "move away", and stepping away in open terrain always leaves polearm reach, so a back-off turn never attacks; the dist2-8 diagonal is outside both reach and the arm; EvilHack's pathfinding avoids the monster's recent squares and so steers it onto that diagonal; and once adjacent, dochug never calls m_move() again. The battery's halberd soldier got 1 thrust in 4 actions (PRE 2 in 6) and then plain melee, against master's one thrust and melee from its third action (code reading). Three options were offered: drop it (recommended), keep it, or design a real stand-off as new EvilHack work. The maintainer chose to drop it | maintainer |
 | 2026-09-26 | Keep-away arms rulings (AskUserQuestion x1, three questions): (1) RANGED HANG-BACK = master's shape (recommended): 5.0's m_balks_at_approaching() arm for breath, spit, gaze and spell attackers (attack ready or below a third of HP, within dist2 25) dropped - dragons, hell hounds, cobras, nagas, pyrolisks, umber hulks, Medusa and boss casters close in as on master, and keep-away stays with master's own M3_SKITTISH flag and launcher+ammo arm (BUG-1947); (2) POLEARM STAND-OFF = keep 5.0 (the maintainer's pick over the recommended master's shape): polearm wielders within dist2 5 back off and thrust from a knight's move, still meleeing when the hero steps adjacent; (3) AKLYS RANGE = dropped (recommended): the -2 preferred-range arm and its m_move() plumbing removed, so aklys wielders walk up (BUG-1948), and 5.0's monster aklys throwing itself minted as its own MED row rather than folded in. Session calls, plan-approved: ranged_attk_available() and mon_avoiding_this_attack() left as uncalled upstream helpers; the reviewer's LOW comment narrowing taken | maintainer (1-3); session, plan-approved (rest) |
