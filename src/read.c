@@ -45,6 +45,7 @@ staticfn void seffect_blank_paper(struct obj **);
 staticfn void seffect_teleportation(struct obj **);
 staticfn void seffect_gold_detection(struct obj **);
 staticfn void seffect_food_detection(struct obj **);
+staticfn void seffect_magic_detection(struct obj **);
 staticfn void seffect_identify(struct obj **);
 staticfn void seffect_magic_mapping(struct obj **);
 #ifdef MAIL_STRUCTURES
@@ -2390,6 +2391,17 @@ seffect_food_detection(struct obj **sobjp)
 }
 
 staticfn void
+seffect_magic_detection(struct obj **sobjp)
+{
+    struct obj *sobj = *sobjp;
+
+    if (magic_detect(sobj))
+        *sobjp = 0; /* nothing detected: strange_feeling -> useup */
+    else
+        gk.known = TRUE;
+}
+
+staticfn void
 seffect_identify(struct obj **sobjp)
 {
     struct obj *sobj = *sobjp;
@@ -2596,6 +2608,9 @@ seffects(
     case SCR_FOOD_DETECTION:
     case SPE_DETECT_FOOD:
         seffect_food_detection(&sobj);
+        break;
+    case SCR_MAGIC_DETECTION:
+        seffect_magic_detection(&sobj);
         break;
     case SCR_IDENTIFY:
     case SPE_IDENTIFY:

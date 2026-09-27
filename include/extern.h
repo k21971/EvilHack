@@ -577,6 +577,7 @@ extern int gold_detect(struct obj *) NONNULLARG1;
 extern int food_detect(struct obj *);
 extern int object_detect(struct obj *, int);
 extern int monster_detect(struct obj *, int);
+extern int magic_detect(struct obj *);
 extern int trap_detect(struct obj *);
 extern const char *level_distance(d_level *) NONNULL NONNULLARG1;
 extern void use_crystal_ball(struct obj **) NONNULLARG1;

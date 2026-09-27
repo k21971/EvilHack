@@ -27,6 +27,9 @@ staticfn void map_redisplay(void);
 staticfn void browse_map(unsigned, const char *);
 staticfn void map_monst(struct monst *, boolean);
 staticfn void observe_recursively(struct obj *);
+staticfn int do_mdetect(struct obj *, boolean);
+staticfn boolean maybe_map(struct obj *);
+staticfn void map_mimic_object(struct monst *);
 staticfn boolean check_map_spot(coordxy, coordxy, char, unsigned);
 staticfn boolean clear_stale_map(char, unsigned);
 staticfn void sense_trap(struct trap *, coordxy, coordxy, int);
@@ -255,16 +258,85 @@ observe_recursively(struct obj *obj)
     struct obj *otmp;
 
     observe_object(obj);
-    /* TODO-EVILHACK: when the magic detection subsystem ports
-       (SCR_MAGIC_DETECTION has no effect yet), master's magic_detect
-       also walks the shared magic chest chain and its do_mdetect/
-       do_dknown_of/maybe_map helpers carry this same crystal chest
-       resistance guard, plus do_dknown_of's sokoban/mines prize skip */
     /* the crystal chest resists; its contents stay hidden */
     if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
             observe_recursively(otmp);
     }
+}
+
+/* count the magic objects in obj and its contents, marking each one as
+   magical; a blessed detector also reveals what they are */
+staticfn int
+do_mdetect(struct obj *obj, boolean blessed)
+{
+    int ct = 0;
+    struct obj *otmp;
+
+    if (is_magic(obj)) {
+        ct++;
+        obj->oprops_known |= ITEM_MAGICAL;
+        if (blessed) {
+            /* the knowledge is magical, so it arrives even while
+               hallucinating, which observe_object() would skip */
+            obj->dknown = 1;
+            discover_object(obj->otyp, FALSE, TRUE, FALSE);
+            obj->oprops_known |= obj->oprops;
+            if ((objects[obj->otyp].oc_magic || obj->oartifact)
+                && !is_soko_prize(obj))
+                makeknown(obj->otyp);
+        }
+    }
+    /* the crystal chest resists; its contents stay hidden */
+    if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
+        for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+            ct += do_mdetect(otmp, blessed);
+    }
+    return ct;
+}
+
+/* map obj if it is magic, else the first magic object it contains;
+   return TRUE if something was mapped */
+staticfn boolean
+maybe_map(struct obj *obj)
+{
+    struct obj *otmp;
+
+    if (is_magic(obj)) {
+        map_object(obj, 1);
+        return TRUE;
+    }
+    /* magic containers are mapped above; a mundane one may still hold
+       magic items */
+    if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
+        for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
+            otmp->ox = obj->ox;
+            otmp->oy = obj->oy;
+            if (maybe_map(otmp))
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/* map the object that a mimic is posing as */
+staticfn void
+map_mimic_object(struct monst *mtmp)
+{
+    struct obj temp;
+
+    temp = cg.zeroobj;
+    temp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
+    /* obj_to_glyph() draws a potion, gem or spellbook not yet seen
+       up close as its class; the mimic remembers the 'seen' part */
+    temp.oclass = objects[temp.otyp].oc_class;
+    temp.dknown = (M_AP_FLAG(mtmp) & M_AP_F_DKNOWN) ? 1 : 0;
+    temp.quan = 1L;
+    temp.ox = mtmp->mx;
+    temp.oy = mtmp->my;
+    /* used for mimicking a corpse or statue */
+    temp.corpsenm = has_mcorpsenm(mtmp) ? MCORPSENM(mtmp) : PM_TENGU;
+    map_object(&temp, 1);
 }
 
 /* Check whether the location has an outdated object displayed on it. */
@@ -710,13 +782,13 @@ object_detect(struct obj *detector, /* object doing the detecting */
             if (do_dknown)
                 observe_recursively(obj);
         }
+        /* no break once ct is set; later monsters' carried items
+           still get observed */
         if ((is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
              && (!class || class == objects[mtmp->mappearance].oc_class))
             || (findgold(mtmp->minvent, TRUE)
-                && (!class || class == COIN_CLASS))) {
+                && (!class || class == COIN_CLASS)))
             ct++;
-            break;
-        }
     }
 
     if (!clear_stale_map(!class ? ALL_CLASSES : class, 0) && !ct) {
@@ -787,20 +859,7 @@ object_detect(struct obj *detector, /* object doing the detecting */
         /* Allow a mimic to override the detected objects it is carrying. */
         if (is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
             && (!class || class == objects[mtmp->mappearance].oc_class)) {
-            struct obj temp;
-
-            temp = cg.zeroobj;
-            temp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
-            /* obj_to_glyph() draws a potion, gem or spellbook not yet seen
-               up close as its class; the mimic remembers the 'seen' part */
-            temp.oclass = objects[temp.otyp].oc_class;
-            temp.dknown = (M_AP_FLAG(mtmp) & M_AP_F_DKNOWN) ? 1 : 0;
-            temp.quan = 1L;
-            temp.ox = mtmp->mx;
-            temp.oy = mtmp->my;
-            /* used for mimicking a corpse or statue */
-            temp.corpsenm = has_mcorpsenm(mtmp) ? MCORPSENM(mtmp) : PM_TENGU;
-            map_object(&temp, 1);
+            map_mimic_object(mtmp);
         } else if (findgold(mtmp->minvent, TRUE)
                    && (!class || class == COIN_CLASS)) {
             struct obj gold;
@@ -875,7 +934,9 @@ monster_detect(struct obj *otmp, /* detecting object (if any) */
 
             if (otmp && otmp->cursed && helpless(mtmp)) {
                 mtmp->msleeping = mtmp->mfrozen = 0;
-                mtmp->mcanmove = 1;
+                /* a monster turning to stone stays paralyzed */
+                if (!mtmp->mstone || mtmp->mstone > 2)
+                    mtmp->mcanmove = 1;
                 woken = TRUE;
             }
         }
@@ -898,6 +959,177 @@ monster_detect(struct obj *otmp, /* detecting object (if any) */
 
         map_redisplay();
     }
+    return 0;
+}
+
+/* TODO: other magical types of creature? */
+#define MAGICMONSTER(mon) (attacktype((mon)->data, AT_MAGC))
+
+/*
+ * Used for scrolls. Returns:
+ *
+ *      1 - nothing was detected
+ *      0 - something was detected
+ */
+int
+magic_detect(struct obj *detector) /* object doing the detecting */
+{
+    coordxy x, y;
+    char stuff[BUFSZ];
+    int is_cursed = (detector && detector->cursed);
+    int do_pknown = (detector && detector->oclass == SCROLL_CLASS
+                     && detector->blessed);
+    int ct = 0, ctu = 0;
+    struct obj *obj;
+    struct monst *mtmp;
+    int ter_typ = TER_DETECT | TER_OBJ;
+    boolean woken = FALSE;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || PARKEDMONSTER(mtmp))
+            continue;
+        if (MAGICMONSTER(mtmp)) {
+            ter_typ |= TER_MON;
+            ct++;
+            break;
+        }
+    }
+
+    if (Upolyd && attacktype(gy.youmonst.data, AT_MAGC))
+        ctu++;
+
+    if (Hallucination || Confusion)
+        Strcpy(stuff, something);
+    else
+        Strcpy(stuff, "magic");
+
+    for (obj = gi.invent; obj; obj = obj->nobj) {
+        /* the scroll being read does not detect itself; the rest of
+           its stack is still carried magic */
+        if (obj == detector && obj->quan == 1L)
+            continue;
+        /* count these towards ctu (unlike object detection).
+           you always know whether you're carrying objects,
+           but not necessarily whether those objects are magic */
+        ctu += do_mdetect(obj, do_pknown);
+    }
+
+    for (obj = fobj; obj; obj = obj->nobj) {
+        if (u_at(obj->ox, obj->oy))
+            ctu += do_mdetect(obj, do_pknown);
+        else
+            ct += do_mdetect(obj, do_pknown);
+    }
+
+    /* Walk the shared mchest contents once, regardless of how many
+       chest tiles exist on the level; otherwise multi-chest levels
+       would count every item per chest tile */
+    if (gm.mchest) {
+        boolean chest_at_u = IS_MAGIC_CHEST(levl[u.ux][u.uy].typ);
+
+        for (obj = gm.mchest->cobj; obj; obj = obj->nobj) {
+            if (chest_at_u)
+                ctu += do_mdetect(obj, do_pknown);
+            else
+                ct += do_mdetect(obj, do_pknown);
+        }
+    }
+
+    for (obj = svl.level.buriedobjlist; obj; obj = obj->nobj) {
+        if (u_at(obj->ox, obj->oy))
+            ctu += do_mdetect(obj, do_pknown);
+        else
+            ct += do_mdetect(obj, do_pknown);
+    }
+
+    if (u.usteed)
+        u.usteed->mx = u.ux, u.usteed->my = u.uy;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || PARKEDMONSTER(mtmp))
+            continue;
+        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+            ct += do_mdetect(obj, do_pknown);
+        /* no break once ct is set; later monsters' carried items
+           still get marked */
+        if (is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
+            && objects[mtmp->mappearance].oc_magic)
+            ct++;
+    }
+
+    if (!clear_stale_map(ALL_CLASSES, 0) && !ct) {
+        if (!ctu) {
+            if (detector)
+                strange_feeling(detector, "You feel mundane.");
+            return 1;
+        }
+        You("sense %s nearby.", stuff);
+        return 0;
+    }
+
+    cls();
+
+    (void) unconstrain_map();
+    /* Map all buried objects first */
+    for (obj = svl.level.buriedobjlist; obj; obj = obj->nobj)
+        (void) maybe_map(obj);
+    /*
+     * Map the first magic object found at each location, top of the
+     * pile first. Objects on the floor override buried objects.
+     */
+    for (x = 1; x < COLNO; x++)
+        for (y = 0; y < ROWNO; y++)
+            for (obj = svl.level.objects[x][y]; obj; obj = obj->nexthere)
+                if (maybe_map(obj))
+                    break;
+
+    /* Objects in the monster's inventory override floor objects */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || PARKEDMONSTER(mtmp))
+            continue;
+        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+            obj->ox = mtmp->mx; /* at monster location */
+            obj->oy = mtmp->my;
+            if (maybe_map(obj))
+                break;
+        }
+        /* Allow a mimic to override the detected objects it is carrying */
+        if (is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
+            && objects[mtmp->mappearance].oc_magic)
+            map_mimic_object(mtmp);
+    }
+
+    /* Magical monsters override objects */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || PARKEDMONSTER(mtmp)
+            || !MAGICMONSTER(mtmp))
+            continue;
+        map_monst(mtmp, TRUE);
+        if (is_cursed && helpless(mtmp)) {
+            mtmp->msleeping = mtmp->mfrozen = 0;
+            /* a monster turning to stone stays paralyzed */
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
+            woken = TRUE;
+        }
+    }
+    if (!glyph_is_object(glyph_at(u.ux, u.uy))) {
+        newsym(u.ux, u.uy);
+        ter_typ |= TER_MON;
+    }
+    You("detect the %s of %s.", ct ? "presence" : "absence", stuff);
+    if (woken)
+        pline("%s detects the presence of you.", upstart(stuff));
+
+    if (!ct) {
+        display_nhwindow(WIN_MAP, TRUE);
+    } else {
+        EDetect_monsters |= I_SPECIAL;
+        browse_map(ter_typ, "magical object");
+        EDetect_monsters &= ~I_SPECIAL;
+    }
+
+    map_redisplay();
     return 0;
 }
 
