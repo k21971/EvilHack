@@ -18754,7 +18754,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wear a small shield, and select_rwep() skips a two-handed
       polearm while one is worn (as on master), so the shield was
       stripped for the thrust.
-- [ ] MED: 5.0 monster aklys throwing that master lacks (minted
+- [x] MED: 5.0 monster aklys throwing that master lacks - KEPT AND
+      FIXED 2026-09-27 (session 150, commit `Keep monster aklys
+      throwing and fix its flaws.`, hash filled after landing
+      (BUG-1972..1978); closure notes at the end of this row; minted
       2026-09-26, session 146, by the keep-away arms slice; RULING
       needed). Upstream 0bdf9830e ("throw-and-return weapons used by
       monsters", 2025): weapon.c arwep[] (AKLYS, range AKLYS_LIM
@@ -18783,6 +18786,113 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       without a canseemon() test); the miss arm "The aklys flies back
       toward the gnome lord, hitting his arm!" drops it and leaves
       him unarmed. MED (gameplay: monster weapon use).
+      CLOSURE (session 150, plan
+      /root/.claude/plans/bugfix-monster-aklys-throwing-flaws.md).
+      Master's melee-only aklys is inherited vanilla, not an
+      EvilHack design. RULINGS (AskUserQuestion, three rounds):
+      - Round 1: KEEP 5.0's throwing and FIX ITS FLAWS, the
+        maintainer's pick over the recommended master's shape.
+        - BUG-1972: the "returns to the <mon>'s hand!" line prints
+          on every return the hero can see (canseemon). It had one
+          static 500-turn throttle for every monster and no
+          visibility test ("returns to its hand!").
+        - BUG-1973: a monster target beyond the tether's dist2 16
+          gets the monster's other missiles. thrwmm() sets
+          gm.mtarget before its mon_wield_item() and select_rwep()
+          calls, and the arwep pick measures to it. It had
+          measured to mux/muy (a pet's is the hero), then thrown up
+          to 8 squares on "the tether".
+        - BUG-1974: the aklys returns after hitting a monster or
+          missing one on its last square. ohitmon() holds it back
+          through a new file static, after the target's
+          passive_obj(). Two fold-ins under the ruling: the
+          hero-hit arm runs the hero's passive_obj() too, and a
+          dead-thrower guard drops the aklys where it stopped.
+        - BUG-1975: a welded aklys is never thrown. The pick copies
+          rwep[]'s cursed-in-hand test with its Infidel exemption,
+          and thrwmu() drops `&& !mwelded(otmp)`. The plan's first
+          draft said PRE threw it "from up to 8 squares"; wrong,
+          corrected before the battery: within 4 squares, minus
+          always_toss.
+      - Round 2: master mthrowu.c fixes lost in the adoption.
+        BUG-1976 is master 3f1966513's volley stop at a dead target
+        (upstream-shared). BUG-1977 is the thrwmm()/spitmm()
+        archer/target save/restore (3f1966513, 326c09fe3),
+        defensive only.
+      - Round 3, after reviewer pass 1:
+        - BUG-1978 (CRITICAL, reviewer-found, master 5b33d1a1e lost
+          in the adoption): m_throw()'s pre-flight bars check could
+          break a glass or inferior dagger or aklys and then call
+          drop_throw(NULL), a SIGSEGV. Fixed with master's
+          `if (singleobj)` guard.
+        - The dagger fallback. The first draft's thrwmm() range
+          gate left an aklys-and-daggers carrier standing still
+          (BUG-1973 reworked).
+      Unchanged by design:
+      - always_toss and the 4-square gate against the hero.
+      - Harbinger is thrown on its tether like the hero's.
+      - An aklys-only monster near the hero holds its turn against
+        a lined-up target out of reach, as master's pet launcher
+        gate does beyond dist2 36.
+      - The pet and hostile ranged-attack entry gates (dogmove.c,
+        monmove.c) still measure select_rwep() to the hero.
+      - The polearm tier also measures to the hero, and thrwmm()
+        refuses polearms (master-shared).
+      - A monster carrying two aklyses may throw the unwielded one
+        untethered.
+      Files: src/mthrowu.c, src/weapon.c.
+      REVIEWER two passes: CONDITIONAL (BUG-1978 + dagger
+      fallback), then PASS.
+      BATTERY (game-tester, ~43 min; POST
+      0ab6052eb8acf0ba32300aee6c22c51a, PRE
+      f105e80c7aeb7faaf4cbd6547337dd58 = HEAD 41a96ffcb code, MASTER
+      0.9.3 for T7). Every leg passed; no premise was contradicted.
+      - Return line: POST gave 16 hand lines in 16 seen throws and
+        none blind. PRE gave 1 in 15 seen; blind, in a fresh
+        process, "The thonged club returns to its hand!".
+      - Pet at 6 squares: POST ran thrwmm() 5 times with no throw.
+        PRE threw it and it stayed at the newt.
+      - Pet at 3 squares: POST hits and forced misses all returned
+        (MON_WEP = the aklys); PRE dropped it both ways.
+      - Dagger fallback: POST threw its 5 daggers at 6 squares and
+        never the aklys. With a bow instead, it wielded the bow and
+        shot.
+      - Rust passives: a rust monster target rusted the returning
+        aklys (PRE dropped it rusted). A rust-monster hero rusted
+        it twice on POST, and 0 times in 7 hits on PRE.
+      - Welded aklys: POST never threw it at dist2 16, 9 or 4 and
+        meleed. PRE threw it 5 times and it came back welded.
+      - Gas spore: it killed a 1-HP thrower, and the aklys lay on
+        the spore's square with no impossible(). It was not drawn
+        until ^R; drop_throw() now runs before tmp_at(DISP_END),
+        final POST 41f60760d6b08b836602722265757935. The T6
+        re-test on it showed ')' on the spore's square at once (no
+        ^R), with the drop traced before DISP_END.
+      - Volley at a 1-HP target: POST and MASTER fired 1 arrow per
+        killing volley (20 -> 17); PRE fired them all (20 -> 13).
+      - The hero's aklys still stops at 4 squares and returns.
+      - Glass daggers beside iron bars: POST shattered 3 cleanly.
+        PRE SIGSEGV in drop_throw(obj=0x0), m_throw <- monshoot <-
+        thrwmu; no paniclog line.
+      Branch paniclog none; master's unchanged. 2 snaps in 44
+      returns, both pet throws at monsters: within odds.
+      UNVERIFIED, no row: a pet dropped a gdb-staged bow and picked
+      it up 2 turns later. droppables() keeps launchers while the
+      ranged pick needs none, so check against PRE before minting.
+      NEW ROW: LOW hero catches thrown items (below). The branch's
+      "welcome to NetHack!" line rides the existing branding row.
+- [ ] LOW: 5.0's hero catches thrown items; master has none (minted
+      2026-09-27, session 150, by the aklys slice). Upstream
+      41b208743 ("Hero has a small chance of catching items thrown
+      at them", 2026-03-25) adds mthrowu.c u_catch_thrown_obj().
+      While not blind, confused, stunned or fumbling, with a free
+      hand, it catches a non-venom missile (not a tethered aklys) 1
+      time in (100 - Dex, minus 20 more for a Monk or Rogue) and
+      puts it in inventory via hold_another_object(): "You catch the
+      dagger!". Master has no counterpart; only the unicorn-form gem
+      catch. A pure 5.0 addition to monster missile play. Ruling
+      needed: keep it or restore master's shape. LOW (gameplay:
+      missiles thrown at the hero).
 - [x] MED: 5.0's worn-gear item protection that master lacks - CLOSED
       2026-09-26 (session 147, commit `Restore master's item
       destruction and port the scroll of consecration.` = 6ace2e519
@@ -18942,10 +19052,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       zhitm(), as wand blasts do).
 - [x] MED: lava's inventory burn is not master's - RESTORED
       2026-09-27 (session 149, commit `Restore master's lava
-      inventory burn.`, hash filled after landing (BUG-1961..1971);
-      closure notes at the end of this row; minted 2026-09-26,
-      session 147, by the worn-gear item protection slice; RULING
-      needed). Master lava_effects() `burn_stuff:` runs
+      inventory burn.` = dfedd36aa (BUG-1961..1971), tracker
+      41a96ffcb; closure notes at the end of this row; minted
+      2026-09-26, session 147, by the worn-gear item protection
+      slice; RULING needed). Master lava_effects() `burn_stuff:` runs
       `fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy)` unless
       Dichotomy is wielded (a6e0803e7, the repair-armor /
       fooproofing commit). fire_damage() gives every flammable,
@@ -20333,9 +20443,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-27 | priest.c ghod_hitsu() saves gc.current_wand, zeroes it around the god's lightning and restores it afterwards (Official_nh50 src/priest.c:866, from 4021a63bc "wand/spell/breath killer reason"). The bolt's destroy_items(AD_ELEC) can destroy the very wand the hero is zapping at the temple priest. maybe_destroy_item()'s `obj == gc.current_wand` clear then compares against the zeroed global, and the restore hands dozap() the freed wand (`obj = gc.current_wand; ... obj->spe`), which is the "Are we having fun yet? ... ghod_hitsu ... free(obj)" chain dozap's own comment describes. The zeroing only protected zhitu()'s "zapped/played" verb, which a BZ_M_SPELL bolt never reads. Branch fix: drop the three current_wand lines (master has none); battery-confirmed (session 149: the bolt destroyed the zapped wand of striking on try 11, current_wand NULL, no crash) | fixed on branch (BUG-1971, commit hash filled after landing); patch artifact not cut yet |
-| 2026-09-27 | zap.c dozap() self-zap branch never sets gc.current_wand around zapyourself() (Official_nh50 src/zap.c:2671), zapyourself() ends with an unguarded `learnwand(obj)` (:3812), and dealloc_obj() (src/mkobj.c:2745) clears thrownobj/kickedobj but not current_wand. An effect that frees the self-zapped wand mid-zap, such as polyself back onto lava followed by lava_effects() destroying a wooden wand in a life-saved death, leaves learnwand() and dozap's `obj->spe` reading freed memory. Master fixed both (BUG-688 36cfb0b19, BUG-1197 ee6b3ad38); the branch re-ports them. Battery-confirmed (session 149: a self-zapped wooden wand of polymorph burned away in lava, learnwand skipped, current_wand NULL) | fixed on branch (BUG-1970, commit hash filled after landing); patch artifact not cut yet |
-| 2026-09-27 | trap.c lava_effects() death loop caches `obj2 = obj->nobj` (Official_nh50 src/trap.c:6896) across remove_worn_item(). Gloves_off() with a wielded cockatrice corpse stones the hero, life-saving calls useup(uamul), and if the amulet was the next item the loop reads freed memory. Branch fix: save the next item's o_id, and restart from gi.invent when o_on() no longer finds it (a second visit is harmless in that loop). Battery-confirmed (session 149: burnt gloves, cockatrice corpse, worn life saving at the next invlet; clean) | fixed on branch (BUG-1968, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | 0bdf9830e monster aklys throwing, four gaps. (1) return_from_mtoss()'s "returns to <mon>'s hand!" uses one `static long do_not_annoy` 500-turn throttle for every monster, with no canseemon() test (Official_nh50 src/mthrowu.c:883): an unseen thrower prints "returns to its hand!". (2) select_rwep()'s arwep pick measures dist2 to mux/muy (src/weapon.c:593), but thrwmm() (:984) throws at another monster, so a pet next to the hero throws its aklys up to 8 squares "on its tether". (3) ohitmon() drop_throw()s any missile that hits a monster, or misses it on the last square (:494, :358), so a thrown aklys never returns after a monster hit, though m_throw()'s own comment (:659) marks "stops forward motion at hit monster/hero, triggers return" as done. (4) The arwep pick lacks rwep[]'s "don't throw a cursed weapon-in-hand" test and thrwmu() skips its tether arm for `mwelded(otmp)` (:1241), so a monster throws its welded aklys. Branch fixes: canseemon() and no throttle; a target-aware pick via gm.mtarget; a file static that lets ohitmon() leave the tethered weapon for m_throw() to return (after passive_obj()); the welded test. Battery-confirmed (session 150 T1-T5) | fixed on branch (BUG-1972..1975, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | priest.c ghod_hitsu() saves gc.current_wand, zeroes it around the god's lightning and restores it afterwards (Official_nh50 src/priest.c:866, from 4021a63bc "wand/spell/breath killer reason"). The bolt's destroy_items(AD_ELEC) can destroy the very wand the hero is zapping at the temple priest. maybe_destroy_item()'s `obj == gc.current_wand` clear then compares against the zeroed global, and the restore hands dozap() the freed wand (`obj = gc.current_wand; ... obj->spe`), which is the "Are we having fun yet? ... ghod_hitsu ... free(obj)" chain dozap's own comment describes. The zeroing only protected zhitu()'s "zapped/played" verb, which a BZ_M_SPELL bolt never reads. Branch fix: drop the three current_wand lines (master has none); battery-confirmed (session 149: the bolt destroyed the zapped wand of striking on try 11, current_wand NULL, no crash) | fixed on branch (BUG-1971, dfedd36aa); patch artifact not cut yet |
+| 2026-09-27 | zap.c dozap() self-zap branch never sets gc.current_wand around zapyourself() (Official_nh50 src/zap.c:2671), zapyourself() ends with an unguarded `learnwand(obj)` (:3812), and dealloc_obj() (src/mkobj.c:2745) clears thrownobj/kickedobj but not current_wand. An effect that frees the self-zapped wand mid-zap, such as polyself back onto lava followed by lava_effects() destroying a wooden wand in a life-saved death, leaves learnwand() and dozap's `obj->spe` reading freed memory. Master fixed both (BUG-688 36cfb0b19, BUG-1197 ee6b3ad38); the branch re-ports them. Battery-confirmed (session 149: a self-zapped wooden wand of polymorph burned away in lava, learnwand skipped, current_wand NULL) | fixed on branch (BUG-1970, dfedd36aa); patch artifact not cut yet |
+| 2026-09-27 | trap.c lava_effects() death loop caches `obj2 = obj->nobj` (Official_nh50 src/trap.c:6896) across remove_worn_item(). Gloves_off() with a wielded cockatrice corpse stones the hero, life-saving calls useup(uamul), and if the amulet was the next item the loop reads freed memory. Branch fix: save the next item's o_id, and restart from gi.invent when o_on() no longer finds it (a second visit is harmless in that loop). Battery-confirmed (session 149: burnt gloves, cockatrice corpse, worn life saving at the next invlet; clean) | fixed on branch (BUG-1968, dfedd36aa); patch artifact not cut yet |
 | 2026-09-27 | detect.c object_detect() monster count loop ends with `ct++; break;` (Official_nh50 src/detect.c:680-682) as soon as a monster carries gold or, with a cursed detector, poses as an object. The same loop runs the blessed detector's do_dknown observe pass on each monster's inventory, so every monster later in fmon never has its items observed. The gold arm fires whatever the BUC, so a blessed potion of object detection (or detect treasure cast at Skilled or better) under-delivers on any level with a gold carrier. ct is read only as a boolean. Branch fix: drop the break. Battery-confirmed (session 148 L6: the later monster's wand dknown 1 vs PRE 0) | fixed on branch (BUG-1959, 4b51d244a); patch artifact not cut yet |
 | 2026-09-26 | zap.c maybe_destroy_item() AD_ELEC RING_CLASS arm spares a WORN ring behind non-metallic gloves with `(obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg)` (Official_nh50 src/zap.c:5878) - the HERO's glove slot, even when `carrier` is a monster (destroy_items(mon, AD_ELEC, ...) from a lightning ray, uhitm/mhitm/mcastu/artifact shock hits). While the hero wears leather gloves every monster's worn ring is spared; a monster in its own leather gloves loses its ring. 3.6's destroy_mitem() used `which_armor(mtmp, W_ARMG)`. Branch fix: `which_armor(carrier, W_ARMG)` (it returns uarmg for &gy.youmonst). Battery-confirmed both directions (session 147 W11) | fixed on branch (BUG-1953, 6ace2e519); patch artifact not cut yet |
 | 2026-09-25 | 6c9700ab2 ("Monster movement and object pickup cleanup ... There should be no real difference in behaviour") replaced 3.6's like-flag pickup with an ungated `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov (NetHack50 src/monmove.c:1682). The getitems block's retained comment ("Monsters in combat won't pick stuff up, avoiding the situation where you toss arrows at it and it has nothing better to do than pick the arrows up") is now false. Pets, shopkeepers, guards, priests, covetous monsters and monsters closing in on the hero in line all pick up in passing. The same commit's search filter (mon_would_take_item) makes an ordinary corpse a goal that mpickstuff() refuses, so a collector out of line with the hero stands on it (branch battery: 13-15 turns without attacking) | fixed on branch (BUG-1942, 1943, 1944; master's gate, gold scoop and a corpse filter); record only - maintainer ruled no patch this slice (upstream already layered 7b32ce02e on the new behavior) |
@@ -20482,6 +20594,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-27 | Monster aklys throwing rulings (AskUserQuestion x3). ROUND 1 (before the plan): KEEP 5.0's monster aklys throwing and FIX ITS FLAWS (the maintainer's pick; master's melee-only aklys, inherited vanilla, was the recommended option). The option text named three flaws: the throttled return line (BUG-1972), pet and monster-vs-monster throws ignoring the tether (BUG-1973), and no return after hitting a monster (BUG-1974). Research findings under the same rationale were folded in at plan approval: the welded aklys (BUG-1975), the hero-hit passive and the dead-thrower guard (inside BUG-1974). ROUND 2 (multi-select, all three recommended options taken): fold in master mthrowu.c fixes lost in the adoption - the volley stop at a dead target (BUG-1976) and the thrwmm()/spitmm() archer/target save/restore (BUG-1977). ROUND 3 (after reviewer pass 1, both recommended options taken): fold in the reviewer's CRITICAL, master 5b33d1a1e's pre-flight bars guard (BUG-1978, a SIGSEGV); a monster target beyond the tether gets the monster's OTHER missiles (the target-aware pick via gm.mtarget) instead of the first draft's hold. SESSION CALLS: an aklys-only monster still holds its turn against a far target (master's launcher-gate shape); the dead-thrower drop moved before tmp_at(DISP_END) after the battery showed the aklys undrawn; the hero-catch extra minted as its own LOW row rather than ruled here. | maintainer (rulings); session (rest) |
 | 2026-09-27 | Lava inventory burn rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): (1) MASTER'S BURN: a hero who survives lava (full fire resistance or water walking) runs fire_damage() on every open-inventory item on every lava entry (a6e0803e7, the maintainer's authored intent), replacing 5.0's damage-capped destroy_items(), which cost a fully fire-resistant hero nothing (BUG-1961). (2) POTIONS BOIL: master's cdaf4409d / 9902d22ef made glass potions immune in fire_damage() and the lava death as a side effect, while comments beside both edits still say they boil; treated as a master regression, frozen-unfixed there (BUG-1963). The maintainer added that potions are never meant to be fireproof or tempered in any way; no branch path sets it (the wish sites sit inside erosion_matters()). (3) FOLD-INS, all four: fire_damage()'s master gate and smoke placement (BUG-1964), the lava-death is_flammable() predicate restoring master's Hand/Eye of Vecna fix (BUG-1962), the blind flame line (BUG-1966), lava_damage()'s per-object predicate (BUG-1965). ROUND 2 (after reviewer pass 1): (4) CENTRAL in_use GUARD in Boots_off() / Ring_off_or_gone() instead of master's per-site o_id checks (BUG-1967); in play the item being removed is spared from that one burn, where master's may burn up. (5) FOLD-INS: the death-loop next-item look-ahead (BUG-1968) and the seducer ring / wand holes (BUG-1969, BUG-1970). Session calls under the sibling rule, from reviewer passes 2-3: master BUG-688 and BUG-1197 re-ported (BUG-1970), glibr's uright re-check, the in_use mark limited to lava (and trap squares for the ring), and the upstream ghod_hitsu() current_wand restore dropped (BUG-1971). The master paranoid-swim decline penalty (2c50b94ab) became its own LOW row | maintainer (1-5); session (rest) |
 | 2026-09-27 | Scroll of magic detection port rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): FIX BOTH master drawing bugs (BUG-1958). A monster now shows its first MAGIC carried item; master passed only its first item to maybe_map(), so a dagger-then-wand carrier showed nothing although the scroll said "presence". A floor pile now shows its top-most magic item; master drew every one, leaving the bottom-most. ROUND 2 (after the reviewer): (1) SKIP THE SCROLL BEING READ (BUG-1960). On master the scroll counted itself, being still in the pack and oc_magic, so "You feel mundane." never printed and the scroll always self-identified. Now, with nothing else magic, the read gives "You feel mundane.", uses up the scroll and prompts to call it, while the rest of a stack still counts. (2) FOLD IN the reviewer's sibling: 5.0's object_detect() drops the same `ct++; break;` cutoff (BUG-1959, upstream table row). SESSION CALLS: the removal of that break in magic_detect() itself (the mimic arm; made during implementation, not in the plan; reviewer-verified). Plan-approved: dknown set unconditionally with the type marked encountered; is_soko_prize() skipping Sokoban prizes only; clear_stale_map() kept at two arguments (master's `magic` argument was dead); map_mimic_object() extracted and shared; monster_detect() gains master's mstone wake guard early (the gradual-stoning census is updated). | maintainer (rulings); session (rest) |
 | 2026-09-26 | Worn-gear slice ruling (2) REVERSED after landing: asked to go over 5.0's shock method, the maintainer chose a SYMMETRIC version of upstream's charged-ring recharge (ef6a88e1e) over master's shape. A chargeable ring chosen by lightning gets a 2-in-3 charge roll (before master's erodeproof resist): +1 ("spins clockwise"), or an explosion when spe > rn2(7) or spe <= -5 for rnd(3 * abs(spe)). Repeated shocks therefore ratchet a ring upward until it blows. Monsters now get the same roll through mon_charge_ring() (upstream's recharge() is hero-only, so it silently spared them); explosion damage goes to the carrier. BUG-1956 (BUG-1951 reversed) | maintainer |
