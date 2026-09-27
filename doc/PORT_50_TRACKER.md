@@ -18891,22 +18891,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Battery lore: wishing "fire trap" gives the trap-kit tool,
       "fire trapx" places the trap. Open Phase 2 rows net +1 (one
       closed; the HIGH magic detection and MED lava rows minted).
-      REVERSAL of ruling (2), same day (BUG-1956, commit hash filled
-      after landing): asked to go over 5.0's shock method, the
-      maintainer chose "upstream's version plus fixing it so it's
-      symmetric". 5.0's chargeit returns in its upstream place: a
-      chosen chargeable ring gets the 2-in-3 charge roll right after
-      the gloves skip, BEFORE master's erodeproof resist, so a fixed
-      charged ring still charges. The hero goes through recharge(obj,
-      0): +1, "spins clockwise", or "pulsates momentarily, then
-      explodes!" when spe > rn2(7), for rnd(3 * |spe|). The new
-      mon_charge_ring() gives a monster's ring the same odds (upstream
-      silently spared it), with seen-only messages; the explosion
-      damage returns to the caller like a wand blast, not zeroed by
-      shock resistance (it is physical, as for the hero), halved for
-      an SPFX_HPHDAM artifact carrier (mirroring the hero's
-      Maybe_Half_Phys, as mcastu.c does; reviewer MEDIUM, taken), and
-      m_useup() handles a worn ring. BUG-1951 stands reversed.
+      REVERSAL of ruling (2), same day (BUG-1956, commit `Lightning
+      charges rings again, for monsters as well as the hero.` =
+      5e2c0a3f2, tracker eb7bf9d39): asked to go over 5.0's shock
+      method, the maintainer chose "upstream's version plus fixing it so
+      it's symmetric". 5.0's chargeit returns in its upstream place: a
+      chosen chargeable ring gets the 2-in-3 charge roll right after the
+      gloves skip, BEFORE master's erodeproof resist, so a fixed charged
+      ring still charges. The hero goes through recharge(obj, 0): +1,
+      "spins clockwise", or "pulsates momentarily, then explodes!" when
+      spe > rn2(7), for rnd(3 * |spe|). The new mon_charge_ring() gives
+      a monster's ring the same odds (upstream silently spared it), with
+      seen-only messages; the explosion damage returns to the caller
+      like a wand blast, not zeroed by shock resistance (it is physical,
+      as for the hero), halved for an SPFX_HPHDAM artifact carrier
+      (mirroring the hero's Maybe_Half_Phys, as mcastu.c does; reviewer
+      MEDIUM, taken), and m_useup() handles a worn ring. BUG-1951 stands
+      reversed.
       REVIEWER CONDITIONAL PASS -> PASS after the MEDIUM: the hero
       path equals upstream (same RNG order); monster AC and ring
       lookups read spe when used, so no refresh is needed; no use of
@@ -18988,7 +18989,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       blasts too). The adding callers (zap.c ray, uhitm.c weapon
       hits, artifact.c, explode.c) all handle the death. LOW
       (gameplay: monster damage from item blasts).
-- [ ] HIGH: the scroll of magic detection has NO read effect (minted
+- [x] HIGH: the scroll of magic detection has NO read effect - PORTED
+      2026-09-27 (session 148, commit `Port the scroll of magic
+      detection.`, hash filled after landing (BUG-1957..1960);
+      closure notes at the end of this row; minted
       2026-09-26, session 147, by the worn-gear item protection
       slice while porting the consecration read case beside it).
       Branch seffects() has no SCR_MAGIC_DETECTION case, so reading
@@ -19006,6 +19010,47 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       with no open row until now. Also check the spellbook side and
       any wand or monster use master gives it. HIGH (live paniclog
       producer; missing EvilHack content).
+      CLOSURE (session 148). Master check: the scroll is master's
+      only detector (no spellbook, wand, potion or muse.c use;
+      write.c's ink case was BUG-1955). BUG-1957 ports it:
+      read.c seffect_magic_detection() plus detect.c magic_detect()
+      in object_detect()'s 5.0 idiom, and do_mdetect() with
+      do_dknown_of's magic arm folded in. In that arm dknown is
+      unconditional (as on master) and the type is marked
+      encountered. is_soko_prize() skips Sokoban prizes only (master
+      skips no Mines prize; the marker's wording was loose). The
+      crystal chest guard stays. map_mimic_object() is extracted
+      from object_detect() and shared. clear_stale_map() keeps two
+      arguments, because master's `magic` argument was dead under
+      ALL_CLASSES. monster_detect() gains master's mstone wake
+      guard (the gradual-stoning row's census is updated).
+      RULINGS (AskUserQuestion, two rounds, all recommended):
+      - BUG-1958: master's drawing bugs are fixed. A monster now
+        shows its first MAGIC item (master checked only its first
+        item). A pile shows its top-most magic item (master left
+        the bottom-most).
+      - BUG-1960: the scroll being read no longer detects itself.
+        On master "You feel mundane." could never print. The rest
+        of a stack still counts.
+      - BUG-1959 (reviewer sibling): the `ct++; break;` side-effect
+        cutoff is fixed in magic_detect() and in 5.0's
+        object_detect(). The upstream table has a new row.
+      The TODO-EVILHACK marker in observe_recursively() is removed.
+      REVIEWER PASS. BATTERY (~40 min; POST
+      2b55556da1b0561a21c3885acfc2df9b, PRE
+      3f3afaf5baa2d978d09d9618a999524c, MASTER
+      0777d16796d5368eee5d5101150c9e4a): every leg PASS, and every
+      designed POST / MASTER difference was seen. The branch
+      paniclog gained only the expected PRE impossible() line plus
+      one line from the tester's own gdb staging; master's is
+      unchanged. Details in BUGFIXES_ARCHIVE BUG-1957..1960.
+      Battery notes:
+      - Magic chest contents are counted but never drawn (master
+        parity).
+      - A lone read right after #levelchange prints
+        strange_feeling()'s beginner wording ("You have a strange
+        feeling for a moment, then it passes.") while
+        flags.beginner is 1.
 - [ ] LOW: 5.0's monster-memory forgetting (monstunseesu) that master
       lacks (minted 2026-09-26, session 145, by the m_seenres SWEEP
       battery; RULING needed). Master's seen_resistance bits are only
@@ -20073,6 +20118,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       seffect_scare_monster(), shk.c, trap.c, uhitm.c, wizard.c's
       second site. Inert until the countdown engine lands (mstone
       has no producer); port them with it, not before.
+      UPDATE 2026-09-27 (session 148, magic detection slice): the
+      approved plan guarded detect.c's two sites early:
+      monster_detect(), and magic_detect(), which was ported whole
+      with its guard. That leaves the branch at 7 guarded sites and
+      11 unguarded master sites. Both new guards are inert.
       (b) master's floater-pickup restriction (mpickgold/
       mpickstuff/can_carry gates: is_floater or can_levitate
       monsters cannot reach the floor, beholder/Tal'Gath exempt)
@@ -20137,6 +20187,26 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 - [ ] Emergency-save recovery vs 5.0 SELF_RECOVER + CRASHREPORT
 - [ ] Deploy scripts; xlogfile field-set scoreboard check (plan §9.3)
 - [ ] Fuzzer harness re-target (paths, randomkey hook)
+- [ ] LOW: branding follow-up (minted 2026-09-27, session 148). Several
+      rows defer re-brand gaps to a "branding follow-up" that had no
+      row. Collected here:
+      - allmain.c welcome() still says "welcome to NetHack!" (master:
+        "welcome to EvilHack!").
+      - include/hack.h has DEVTEAM_EMAIL "devteam@nethack.org" and
+        DEVTEAM_URL "https://www.nethack.org/" (master:
+        "admin@hardfought.org" and
+        "https://github.com/k21971/EvilHack"). impossible() tells
+        players to "report these messages to devteam@nethack.org"
+        (seen in the session 148 battery); end.c, mail.c and
+        pager.c use them too.
+      - help_menu_items' other NetHack strings.
+      - The Windows %USERPROFILE%\NetHack folder (windsys.c) and
+        sys/windows/porthelp.
+      - sysopt.crashreporturl's default points upstream (re-point it
+        before release).
+      mail.c's "Welcome to NetHack." junk mail line is the same on
+      master; keep it. Sweep `rg -i nethack` over the player-facing
+      strings when this lands. LOW (branding).
 
 ## Phase 7 - Validation and release
 
@@ -20156,6 +20226,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-27 | detect.c object_detect() monster count loop ends with `ct++; break;` (Official_nh50 src/detect.c:680-682) as soon as a monster carries gold or, with a cursed detector, poses as an object. The same loop runs the blessed detector's do_dknown observe pass on each monster's inventory, so every monster later in fmon never has its items observed. The gold arm fires whatever the BUC, so a blessed potion of object detection (or detect treasure cast at Skilled or better) under-delivers on any level with a gold carrier. ct is read only as a boolean. Branch fix: drop the break. Battery-confirmed (session 148 L6: the later monster's wand dknown 1 vs PRE 0) | fixed on branch (BUG-1959, commit hash filled after landing); patch artifact not cut yet |
 | 2026-09-26 | zap.c maybe_destroy_item() AD_ELEC RING_CLASS arm spares a WORN ring behind non-metallic gloves with `(obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg)` (Official_nh50 src/zap.c:5878) - the HERO's glove slot, even when `carrier` is a monster (destroy_items(mon, AD_ELEC, ...) from a lightning ray, uhitm/mhitm/mcastu/artifact shock hits). While the hero wears leather gloves every monster's worn ring is spared; a monster in its own leather gloves loses its ring. 3.6's destroy_mitem() used `which_armor(mtmp, W_ARMG)`. Branch fix: `which_armor(carrier, W_ARMG)` (it returns uarmg for &gy.youmonst). Battery-confirmed both directions (session 147 W11) | fixed on branch (BUG-1953, 6ace2e519); patch artifact not cut yet |
 | 2026-09-25 | 6c9700ab2 ("Monster movement and object pickup cleanup ... There should be no real difference in behaviour") replaced 3.6's like-flag pickup with an ungated `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov (NetHack50 src/monmove.c:1682). The getitems block's retained comment ("Monsters in combat won't pick stuff up, avoiding the situation where you toss arrows at it and it has nothing better to do than pick the arrows up") is now false. Pets, shopkeepers, guards, priests, covetous monsters and monsters closing in on the hero in line all pick up in passing. The same commit's search filter (mon_would_take_item) makes an ordinary corpse a goal that mpickstuff() refuses, so a collector out of line with the hero stands on it (branch battery: 13-15 turns without attacking) | fixed on branch (BUG-1942, 1943, 1944; master's gate, gold scoop and a corpse filter); record only - maintainer ruled no patch this slice (upstream already layered 7b32ce02e on the new behavior) |
 | 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); artifact ~/nh50-teleport-trap-repick.patch (cut 2026-09-24 with maintainer approval: the knowledge term only, upstream's TELEP_TRAP name - the Amulet / Wizard's Tower terms are the branch's master-removal ruling and stay out; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8), not yet sent |
@@ -20301,6 +20372,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-27 | Scroll of magic detection port rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): FIX BOTH master drawing bugs (BUG-1958). A monster now shows its first MAGIC carried item; master passed only its first item to maybe_map(), so a dagger-then-wand carrier showed nothing although the scroll said "presence". A floor pile now shows its top-most magic item; master drew every one, leaving the bottom-most. ROUND 2 (after the reviewer): (1) SKIP THE SCROLL BEING READ (BUG-1960). On master the scroll counted itself, being still in the pack and oc_magic, so "You feel mundane." never printed and the scroll always self-identified. Now, with nothing else magic, the read gives "You feel mundane.", uses up the scroll and prompts to call it, while the rest of a stack still counts. (2) FOLD IN the reviewer's sibling: 5.0's object_detect() drops the same `ct++; break;` cutoff (BUG-1959, upstream table row). SESSION CALLS: the removal of that break in magic_detect() itself (the mimic arm; made during implementation, not in the plan; reviewer-verified). Plan-approved: dknown set unconditionally with the type marked encountered; is_soko_prize() skipping Sokoban prizes only; clear_stale_map() kept at two arguments (master's `magic` argument was dead); map_mimic_object() extracted and shared; monster_detect() gains master's mstone wake guard early (the gradual-stoning census is updated). | maintainer (rulings); session (rest) |
 | 2026-09-26 | Worn-gear slice ruling (2) REVERSED after landing: asked to go over 5.0's shock method, the maintainer chose a SYMMETRIC version of upstream's charged-ring recharge (ef6a88e1e) over master's shape. A chargeable ring chosen by lightning gets a 2-in-3 charge roll (before master's erodeproof resist): +1 ("spins clockwise"), or an explosion when spe > rn2(7) or spe <= -5 for rnd(3 * abs(spe)). Repeated shocks therefore ratchet a ring upward until it blows. Monsters now get the same roll through mon_charge_ring() (upstream's recharge() is hero-only, so it silently spared them); explosion damage goes to the carrier. BUG-1956 (BUG-1951 reversed) | maintainer |
 | 2026-09-26 | Worn-gear item protection ruling (AskUserQuestion x1, recommended option taken): MASTER'S SHAPE - 5.0's worn-gear inventory shield (upstream 9942b65df + 7ca995199: 99% per item when the resistance comes from worn, wielded or W_ART-carried gear, 90% for a worn dwarvish cloak vs fire and cold) is dropped with its enlightenment lines. Resistance rings, dragon scales and scaled armor, the shield of shock resistance, a wielded Fire Brand / Frost Brand / Mjollnir and the dwarvish cloak protect the hero only; scrolls burn, potions boil or freeze, rings and wands blow up, worn armor burns or corrodes and acid blanks scrolls as on master. Only master's authored shields remain: a wielded Tempest (shock; master 2177b017a: "the incentive to want to actually use this forged artifact"), Dichotomy (fire and cold) and Harbinger (worn armor vs acid), for the hero and monsters alike (BUG-1950). Session calls, plan-approved: the behavior-neutral disn_prot arm goes with it (any extrinsic DISINT_RES already reads 100% in how_resistant()); lava's inventory burn divergence (master fire_damage_chain, a6e0803e7) minted as its own row. SECOND ROUND (AskUserQuestion x1, two questions, after the first reviewer pass): (2) SHOCK RECHARGE = master's shape (recommended): 5.0's chargeit (ef6a88e1e) is dropped, so a shocked charged ring turns to dust like any ring instead of a 2-in-3 recharge that could add +1 or explode, and a monster's charged ring is no longer silently spared (BUG-1951); (3) FOLD-INS (multi-select, all three taken, the consecration port against the suggestion to make it its own slice): master's erodeproof/supermaterial ring and wand lightning resist (BUG-1952), the monster's own gloves for its worn ring (upstream bug, BUG-1953) and the whole scroll of consecration port (BUG-1954). Session call under the sibling rule: ink_cost()'s missing SCR_MAGIC_DETECTION case (BUG-1955, the same impossible() class as the consecration ink_cost case, master 5d0a12f52); magic detection's missing read effect minted as a HIGH row rather than folded in | maintainer (rulings 1-3); session, plan-approved (rest) |
 | 2026-09-26 | Keep-away arms ruling (2) REVERSED after the battery: the polearm stand-off is dropped too, restoring master's exact approach shape (BUG-1949). Asked in detail, the session explained that the kept arm never produced a stand-off: it can only answer "move away", and stepping away in open terrain always leaves polearm reach, so a back-off turn never attacks; the dist2-8 diagonal is outside both reach and the arm; EvilHack's pathfinding avoids the monster's recent squares and so steers it onto that diagonal; and once adjacent, dochug never calls m_move() again. The battery's halberd soldier got 1 thrust in 4 actions (PRE 2 in 6) and then plain melee, against master's one thrust and melee from its third action (code reading). Three options were offered: drop it (recommended), keep it, or design a real stand-off as new EvilHack work. The maintainer chose to drop it | maintainer |
