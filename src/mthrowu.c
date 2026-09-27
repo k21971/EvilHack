@@ -38,6 +38,11 @@ static NEARDATA const int sd_breathtypes[] = {
    the rest of the stack */
 static struct obj *ammo_stack = 0;
 
+/* a wielded throw-and-return weapon in flight from m_throw(); ohitmon()
+   leaves it for m_throw() to pull back along its tether instead of
+   dropping it, and clears this when a passive response destroys it */
+static struct obj *tethered_missile = 0;
+
 /* hallucinatory ray types */
 static const char *const hallublasts[] = {
     "asteroids", "beads", "bubbles", "butterflies", "champagne", "chaos",
@@ -407,7 +412,8 @@ monshoot(struct monst *mtmp, struct obj *otmp, struct obj *mwep)
            if mtmp gets killed (shot kills adjacent gas spore and
            triggers explosion, perhaps), inventory will be dropped
            and otmp might go away via merging into another stack */
-        if (DEADMONSTER(mtmp) && gm.m_shot.i < gm.m_shot.n)
+        if ((DEADMONSTER(mtmp) || (mtarg && DEADMONSTER(mtarg)))
+            && gm.m_shot.i < gm.m_shot.n)
             /* cancel pending shots (perhaps ought to give a message here
                since we gave one above about throwing/shooting N missiles) */
             break; /* endmultishot(FALSE); */
@@ -599,7 +605,9 @@ ohitmon(
                 pline("It is missed.");
         }
         if (!range) { /* Last position; object drops */
-            (void) drop_throw(otmp, 0, mtmp->mx, mtmp->my);
+            /* unless its tether pulls it back to the thrower */
+            if (otmp != tethered_missile)
+                (void) drop_throw(otmp, 0, mtmp->mx, mtmp->my);
             return 1;
         }
     } else if (otmp->oclass == POTION_CLASS) {
@@ -789,6 +797,15 @@ ohitmon(
         if (!DEADMONSTER(mtmp) && !svc.context.mon_moving)
             setmangry(mtmp, TRUE);
 
+        if (otmp == tethered_missile) {
+            /* m_throw() pulls it back along its tether; the target's
+               passive response still gets at it, as in drop_throw() */
+            if (!DEADMONSTER(mtmp)
+                && passive_obj(mtmp, otmp, (struct attack *) 0)
+                       == ER_DESTROYED)
+                tethered_missile = (struct obj *) 0;
+            return TRUE;
+        }
         objgone = drop_throw(otmp, 1, gb.bhitpos.x, gb.bhitpos.y);
         if (!objgone && range == -1) { /* special case */
             obj_extract_self(otmp);    /* free it for motion again */
@@ -940,7 +957,11 @@ m_throw(
     }
 
     if (MT_FLIGHTCHECK(TRUE, 0)) {
-        (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
+        /* MT_FLIGHTCHECK includes a call to hits_bars, which can end up
+           destroying singleobj and setting it to null if it's any of
+           certain breakable objects like glass weapons */
+        if (singleobj)
+            (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
         ammo_stack = (struct obj *) 0;
         return;
     }
@@ -974,6 +995,8 @@ m_throw(
              */
         }
     }
+    if (tethered_weapon)
+        tethered_missile = singleobj; /* see ohitmon() */
     while (range-- > 0) { /* Actually the loop is always exited by break */
         singleobj->ox = gb.bhitpos.x += dx;
         singleobj->oy = gb.bhitpos.y += dy;
@@ -986,8 +1009,18 @@ m_throw(
                give message and skip it in order to keep going */
             mtmp = (struct monst *) 0;
         } else if (mtmp) {
-            if (ohitmon(mon, mtmp, singleobj, range, TRUE))
+            if (ohitmon(mon, mtmp, singleobj, range, TRUE)) {
+                /* ohitmon() held a tethered weapon back for its return
+                   journey, or cleared tethered_missile when a passive
+                   response destroyed it */
+                if (tethered_weapon) {
+                    if (tethered_missile)
+                        return_flightpath = TRUE;
+                    else
+                        singleobj = (struct obj *) 0;
+                }
                 break;
+            }
         } else if (u_at(gb.bhitpos.x, gb.bhitpos.y)) {
             if (gm.multi)
                 nomul(0);
@@ -1174,6 +1207,12 @@ m_throw(
             if (hitu) {
                 if (!tethered_weapon) {
                     (void) drop_throw(singleobj, hitu, u.ux, u.uy);
+                } else if (passive_obj(&gy.youmonst, singleobj,
+                                       (struct attack *) 0)
+                           == ER_DESTROYED) {
+                    /* the hero's passive response consumed it, as it
+                       would in drop_throw() */
+                    singleobj = (struct obj *) 0;
                 } else {
                     /* ready for return journey */
                     return_flightpath = TRUE;
@@ -1218,11 +1257,21 @@ m_throw(
     }
     tmp_at(gb.bhitpos.x, gb.bhitpos.y);
     nh_delay_output();
-    if (arw && return_flightpath)
+    if (tethered_weapon)
+        tethered_missile = (struct obj *) 0;
+    if (return_flightpath && DEADMONSTER(mon)) {
+        /* the thrower died while its weapon was in flight (the monster
+           it hit was a gas spore beside it, perhaps); nothing is left
+           to pull it back; drop it before ending the tether display,
+           whose redraw of the path then shows it */
+        (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
+        tmp_at(DISP_END, 0);
+    } else if (arw && return_flightpath) {
         return_from_mtoss(mon, singleobj, tethered_weapon);
         /* mon could be DEADMONSTER now */
-    else
+    } else {
         tmp_at(DISP_END, 0);
+    }
     gm.mesg_given = 0; /* reset */
 
     if (blindinc) {
@@ -1272,20 +1321,14 @@ return_from_mtoss(
         x = magr->mx;
         y = magr->my;
         if (!impaired && rn2(100)) {
-            /* FIXME: this should be moved to struct g (gd these days) */
-            static long do_not_annoy = 0;
-
-            if (!do_not_annoy || (svm.moves - do_not_annoy) > 500L) {
+            if (canseemon(magr))
                 pline("%s to %s %s!", Tobjnam(otmp, "return"),
                       s_suffix(mon_nam(magr)), mbodypart(magr, HAND));
-                do_not_annoy = svm.moves;
-            }
-            if (otmp) {
-                add_to_minv(magr, otmp);
-                if (tethered_weapon) {
-                    magr->mw = otmp;
-                    otmp->owornmask |= W_WEP;
-                }
+            /* add_to_minv() returns 1 when otmp merged into another
+               stack and was freed; only a separate object is wielded */
+            if (otmp && !add_to_minv(magr, otmp) && tethered_weapon) {
+                magr->mw = otmp;
+                otmp->owornmask |= W_WEP;
             }
             if (cansee(x, y))
                 newsym(x, y);
@@ -1368,19 +1411,29 @@ thrwmm(struct monst *mtmp, struct monst *mtarg)
     struct obj *otmp, *mwep;
     coordxy x, y;
     boolean ispole;
+    int res = M_ATTK_MISS;
+    /* Save outer archer/target in case monshoot() ends up calling back
+       into another ranged attack (e.g. an explosion or passive
+       retaliation fires a shot of its own) and clobbers the pointers */
+    struct monst *saved_archer = gm.marcher, *saved_target = gm.mtarget;
+
+    /* set the target first: select_rwep(), here and inside
+       mon_wield_item(), measures a throw-and-return weapon's reach to
+       it, so a target beyond the tether gets the other missiles */
+    gm.mtarget = mtarg;
 
     /* Polearms won't be applied by monsters against other monsters */
     if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)) {
         mtmp->weapon_check = NEED_RANGED_WEAPON;
         /* mon_wield_item resets weapon_check as appropriate */
         if (mon_wield_item(mtmp) != 0)
-            return M_ATTK_MISS;
+            goto done;
     }
 
     /* Pick a weapon */
     otmp = select_rwep(mtmp);
     if (!otmp)
-        return M_ATTK_MISS;
+        goto done;
     ispole = is_pole(otmp);
 
     x = mtmp->mx;
@@ -1395,17 +1448,17 @@ thrwmm(struct monst *mtmp, struct monst *mtarg)
             if (ammo_and_launcher(otmp, mwep)
                 && dist2(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my)
                    > PET_MISSILE_RANGE2)
-                return M_ATTK_MISS; /* Out of range */
-            /* Set target monster */
-            gm.mtarget = mtarg;
+                goto done; /* Out of range */
             gm.marcher = mtmp;
             monshoot(mtmp, otmp, mwep); /* multishot shooting or throwing */
-            gm.marcher = gm.mtarget = (struct monst *) 0;
             nomul(0);
-            return M_ATTK_HIT;
+            res = M_ATTK_HIT;
         }
     }
-    return M_ATTK_MISS;
+ done:
+    gm.marcher = saved_archer;
+    gm.mtarget = saved_target;
+    return res;
 }
 
 /* monster spits substance at monster */
@@ -1463,6 +1516,8 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
             break;
         }
         if (!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,tx,ty))) {
+            struct monst *saved_target;
+
             if (canseemon(mtmp)) {
                 if (mtmp->data == &mons[PM_SNOW_GOLEM])
                     pline("%s throws a snowball!", Monnam(mtmp));
@@ -1473,11 +1528,14 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                 else
                     pline("%s spits venom!", Monnam(mtmp));
             }
+            /* Save outer target in case m_throw() ends up reentering a
+               ranged path and clobbers the pointer */
+            saved_target = gm.mtarget;
             if (!utarg)
                 gm.mtarget = mtarg;
             m_throw(mtmp, mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
                     distmin(mtmp->mx,mtmp->my,tx,ty), otmp);
-            gm.mtarget = (struct monst *) 0;
+            gm.mtarget = saved_target;
             nomul(0);
 
             /* If this is a pet, it'll get hungry. Minions and
@@ -1793,7 +1851,9 @@ thrwmu(struct monst *mtmp)
         gt.thrower = 0;
         stop_occupation();
         return TRUE;
-    } else if ((arw = autoreturn_weapon(otmp)) != 0 && !mwelded(otmp)) {
+    } else if ((arw = autoreturn_weapon(otmp)) != 0) {
+        /* select_rwep() never offers a welded one, except to an
+           Infidel, who still keeps to the tether's range */
         rang = dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy);
         if (rang > arw->range || !couldsee(mtmp->mx, mtmp->my))
             return FALSE; /* Out of range, or intervening wall */

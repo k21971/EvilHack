@@ -1186,16 +1186,26 @@ select_rwep(struct monst *mtmp)
      */
     for (i = 0; i < SIZE(arwep); i++) {
         const struct throw_and_return_weapon *arw = &arwep[i];
+        /* while a monster aims at another monster (thrwmm() sets
+           gm.mtarget), the tether's reach is measured to that target
+           rather than to where the monster thinks the hero is, so a
+           farther target gets the other missiles below */
+        coordxy tx = gm.mtarget ? gm.mtarget->mx : mtmp->mux,
+                ty = gm.mtarget ? gm.mtarget->my : mtmp->muy;
 
         if (!mindless(mtmp->data) && !is_animal(mtmp->data) && !mweponly
-            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= arw->range
+            && dist2(mtmp->mx, mtmp->my, tx, ty) <= arw->range
             && couldsee(mtmp->mx, mtmp->my)) {
             if ((((mtmp->misc_worn_check & W_ARMS) == 0)
                  || !objects[arw->otyp].oc_bimanual)
                 && !mon_hates_material(mtmp,
                                        objects[arw->otyp].oc_material)) {
+                /* like the rwep[] pick below, never throw a cursed
+                   weapon-in-hand; the hero can't throw a welded one */
                 if ((otmp = oselect(mtmp, arw->otyp)) != 0
-                    && (otmp == mwep || !mweponly)) {
+                    && (otmp == mwep || !mweponly)
+                    && !(otmp == mwep && mwelded(otmp)
+                         && mtmp->data != &mons[PM_INFIDEL])) {
                     gp.propellor = otmp; /* force the monster to wield it */
                     return otmp;
                 }
