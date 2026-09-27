@@ -18940,7 +18940,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Observed: monster ring lines print before "The bolt of
       lightning hits the gnome lord!" (destroy_items runs inside
       zhitm(), as wand blasts do).
-- [ ] MED: lava's inventory burn is not master's (minted 2026-09-26,
+- [x] MED: lava's inventory burn is not master's - RESTORED
+      2026-09-27 (session 149, commit `Restore master's lava
+      inventory burn.`, hash filled after landing (BUG-1961..1971);
+      closure notes at the end of this row; minted 2026-09-26,
       session 147, by the worn-gear item protection slice; RULING
       needed). Master lava_effects() `burn_stuff:` runs
       `fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy)` unless
@@ -18973,6 +18976,110 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       burnmesgcount only when the line prints, so 5.0's "Other
       item(s) ... destroyed" summary still counts what the blind
       hero never saw.
+      CLOSURE (session 149). The row understated the gap: with
+      `dmg = resist_reduce(d(6,6), FIRE_RES)` a fully
+      fire-resistant hero took 0 and destroy_items() touched
+      nothing at all. RULINGS (AskUserQuestion, two rounds, all
+      recommended options taken):
+      - BUG-1961, master's burn: burn_stuff runs fire_damage() on
+        each inventory item behind master's Dichotomy guard. A
+        local loop skips in_use items (5.0's destroyable() did;
+        the branch's doread()/dopotion() rely on it).
+      - BUG-1963, potions boil: master's 2023 cdaf4409d /
+        9902d22ef made glass potions immune as a side effect,
+        while the comments beside both edits still say they boil.
+        Archived as master frozen-unfixed; the branch carves
+        POTION_CLASS into both predicates. The maintainer added
+        that potions are never meant to be fireproof or tempered.
+        No branch path sets it: the wish sites are inside
+        erosion_matters(), which excludes potions.
+      - Fold-ins: BUG-1964 fire_damage()'s master gate (fireproof
+        items skipped silently, no "Somehow ... not affected by
+        the heat."; rider a, smoke on every call); BUG-1962 the
+        lava-death predicate (master 9902d22ef, lost: a life-saved
+        lava death destroyed the Hand and Eye of Vecna); BUG-1966
+        rider b (blind flame line); BUG-1965 lava_damage()'s
+        per-object is_flammable() (a mithril elven dagger survives)
+        and the(xname) message.
+      ROUND 2 (after reviewer pass 1): BUG-1967 central in_use
+      guard. Boots_off() and Ring_off_or_gone() mark the item
+      being removed while the hero floats down, over lava only
+      (the ring also over a trap square). It covers the unported
+      master BUG-1210 do_takeoff() hunk, glibr(), the shocked and
+      charged ring sites and learnring(). Other fold-ins:
+      - BUG-1968: the next-item look-ahead in both lava loops. The
+        death-loop half is upstream-shared (upstream table row).
+      - BUG-1969: doseduce() held pointers.
+      Reviewer passes 2 and 3 (session calls under the sibling
+      rule):
+      - BUG-1970: master BUG-688 and BUG-1197 (dealloc_obj() and
+        self-zap current_wand), lost in the adoption.
+      - glibr()'s uright re-check.
+      - BUG-1971: upstream ghod_hitsu() restored a freed
+        current_wand (upstream table row).
+      Files: src/apply.c, src/do_wear.c, src/mhitu.c, src/mkobj.c,
+      src/priest.c, src/trap.c, src/zap.c.
+      REVIEWER three passes: CONDITIONAL, CONDITIONAL, PASS.
+      BATTERY (game-tester, ~70 min; POST
+      d78b195aba03cc3fab76bb69fb6b6ea5, PRE
+      2b55556da1b0561a21c3885acfc2df9b, MASTER 0.9.3; paniclog
+      clean on every build; no crash). All legs matched:
+      - Full fire resistance at Luck -10: POST lost the scrolls,
+        spellbook, sack and potions; the cloak, unicorn horn and
+        quarterstaff smouldered and a fireproof armor stayed
+        silent. PRE lost nothing. MASTER was as POST but kept the
+        potions.
+      - Each lava square a water walker crossed burned again.
+      - Dichotomy and an in_use stack spared everything.
+      - "Smoke rises" printed on every entry (none on PRE).
+      - A life-saved death kept the Hand and Eye on POST and
+        MASTER; PRE destroyed both.
+      - A blind death printed only the summary line.
+      - Levitating drops: the mithril dagger and the fireproof
+        item's rknown (PRE set it to 1) behaved as ruled.
+      - The removal guard kept A-removed boots and an R-removed
+        wooden ring.
+      - The cockatrice and life-saving look-ahead ran clean in
+        both loops.
+      - A wooden wand of polymorph self-zapped in lava burned
+        away without a use-after-free.
+      - The temple priest's bolt destroyed the zapped wand (try
+        11) cleanly.
+      Two brief errors: a potion dropped while levitating
+      shatters before it reaches the lava, and PRE never made a
+      wished potion fireproof either. The installed binary
+      afterwards is c170934fab771de2b5be8e0b406836e6: the same
+      code minus that no-op wish edit.
+      NEW ROWS: LOW paranoid-swim decline penalty; LOW destroyed
+      levitation boots skip float_down() (both below). Noted,
+      no row: sp_lev.c's `eroded < 0` sets oerodeproof with no
+      class check, but no current .lua file puts it on a potion.
+- [ ] LOW: master's paranoid-swim decline penalty is absent (minted
+      2026-09-27, session 149, by the lava burn slice). Master
+      2c50b94ab ("Paranoid water/lava") asks "Really enter the
+      water?" / "Really enter the lava?" under paranoid_confirm:swim
+      and, on a no, prints "You narrowly avoid falling/plunging into
+      the <moat/pool/lava>." Declining costs no turn (context.move =
+      0), but there is a penalty. For water, 1 in 3 the boots go
+      through water_damage() ("Your boots get wet."). For lava, 1
+      in 2: "Molten lava splashes onto your <boots>." and
+      fire_damage(uarmf, TRUE), or with no boots a resist-reduced
+      d(1,4) foot burn. The branch has 5.0's swim_move_danger(): no
+      query, "You avoid stepping into the lava." and a tip, and no
+      splash. Ruling needed: master's query and penalty, or 5.0's
+      refusal. LOW (gameplay: paranoid movement next to water and
+      lava).
+- [ ] LOW: destroyed levitation boots skip float_down() (minted
+      2026-09-27, session 149, by the lava burn slice's reviewer;
+      master-shared). erode_obj()'s destroy arm brackets
+      remove_worn_item() with in_lava_effects++ (the BUG-303/325
+      recursion guard), and Boots_off() skips float_down() whenever
+      in_lava_effects is set. So levitation boots destroyed by an
+      erosion source other than lava stop the hero levitating with
+      no landing effects (trap, pool, pickup) until the next move.
+      One example is burnarmor() from a fire self-zap while
+      levitating. Record, or narrow the bracket to the lava case.
+      LOW (gameplay: landing effects one move late).
 - [ ] LOW: four monster shock callers drop the item-blast damage
       (minted 2026-09-26, session 147, by the symmetric recharge
       reviewer). destroy_items(mon, AD_ELEC, ...) returns what
@@ -18991,7 +19098,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (gameplay: monster damage from item blasts).
 - [x] HIGH: the scroll of magic detection has NO read effect - PORTED
       2026-09-27 (session 148, commit `Port the scroll of magic
-      detection.`, hash filled after landing (BUG-1957..1960);
+      detection.` = 4b51d244a (BUG-1957..1960), tracker 57c7a9718;
       closure notes at the end of this row; minted
       2026-09-26, session 147, by the worn-gear item protection
       slice while porting the consecration read case beside it).
@@ -20226,7 +20333,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-27 | detect.c object_detect() monster count loop ends with `ct++; break;` (Official_nh50 src/detect.c:680-682) as soon as a monster carries gold or, with a cursed detector, poses as an object. The same loop runs the blessed detector's do_dknown observe pass on each monster's inventory, so every monster later in fmon never has its items observed. The gold arm fires whatever the BUC, so a blessed potion of object detection (or detect treasure cast at Skilled or better) under-delivers on any level with a gold carrier. ct is read only as a boolean. Branch fix: drop the break. Battery-confirmed (session 148 L6: the later monster's wand dknown 1 vs PRE 0) | fixed on branch (BUG-1959, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | priest.c ghod_hitsu() saves gc.current_wand, zeroes it around the god's lightning and restores it afterwards (Official_nh50 src/priest.c:866, from 4021a63bc "wand/spell/breath killer reason"). The bolt's destroy_items(AD_ELEC) can destroy the very wand the hero is zapping at the temple priest. maybe_destroy_item()'s `obj == gc.current_wand` clear then compares against the zeroed global, and the restore hands dozap() the freed wand (`obj = gc.current_wand; ... obj->spe`), which is the "Are we having fun yet? ... ghod_hitsu ... free(obj)" chain dozap's own comment describes. The zeroing only protected zhitu()'s "zapped/played" verb, which a BZ_M_SPELL bolt never reads. Branch fix: drop the three current_wand lines (master has none); battery-confirmed (session 149: the bolt destroyed the zapped wand of striking on try 11, current_wand NULL, no crash) | fixed on branch (BUG-1971, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | zap.c dozap() self-zap branch never sets gc.current_wand around zapyourself() (Official_nh50 src/zap.c:2671), zapyourself() ends with an unguarded `learnwand(obj)` (:3812), and dealloc_obj() (src/mkobj.c:2745) clears thrownobj/kickedobj but not current_wand. An effect that frees the self-zapped wand mid-zap, such as polyself back onto lava followed by lava_effects() destroying a wooden wand in a life-saved death, leaves learnwand() and dozap's `obj->spe` reading freed memory. Master fixed both (BUG-688 36cfb0b19, BUG-1197 ee6b3ad38); the branch re-ports them. Battery-confirmed (session 149: a self-zapped wooden wand of polymorph burned away in lava, learnwand skipped, current_wand NULL) | fixed on branch (BUG-1970, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | trap.c lava_effects() death loop caches `obj2 = obj->nobj` (Official_nh50 src/trap.c:6896) across remove_worn_item(). Gloves_off() with a wielded cockatrice corpse stones the hero, life-saving calls useup(uamul), and if the amulet was the next item the loop reads freed memory. Branch fix: save the next item's o_id, and restart from gi.invent when o_on() no longer finds it (a second visit is harmless in that loop). Battery-confirmed (session 149: burnt gloves, cockatrice corpse, worn life saving at the next invlet; clean) | fixed on branch (BUG-1968, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | detect.c object_detect() monster count loop ends with `ct++; break;` (Official_nh50 src/detect.c:680-682) as soon as a monster carries gold or, with a cursed detector, poses as an object. The same loop runs the blessed detector's do_dknown observe pass on each monster's inventory, so every monster later in fmon never has its items observed. The gold arm fires whatever the BUC, so a blessed potion of object detection (or detect treasure cast at Skilled or better) under-delivers on any level with a gold carrier. ct is read only as a boolean. Branch fix: drop the break. Battery-confirmed (session 148 L6: the later monster's wand dknown 1 vs PRE 0) | fixed on branch (BUG-1959, 4b51d244a); patch artifact not cut yet |
 | 2026-09-26 | zap.c maybe_destroy_item() AD_ELEC RING_CLASS arm spares a WORN ring behind non-metallic gloves with `(obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg)` (Official_nh50 src/zap.c:5878) - the HERO's glove slot, even when `carrier` is a monster (destroy_items(mon, AD_ELEC, ...) from a lightning ray, uhitm/mhitm/mcastu/artifact shock hits). While the hero wears leather gloves every monster's worn ring is spared; a monster in its own leather gloves loses its ring. 3.6's destroy_mitem() used `which_armor(mtmp, W_ARMG)`. Branch fix: `which_armor(carrier, W_ARMG)` (it returns uarmg for &gy.youmonst). Battery-confirmed both directions (session 147 W11) | fixed on branch (BUG-1953, 6ace2e519); patch artifact not cut yet |
 | 2026-09-25 | 6c9700ab2 ("Monster movement and object pickup cleanup ... There should be no real difference in behaviour") replaced 3.6's like-flag pickup with an ungated `if (mpickstuff(mtmp)) mmoved = MMOVE_DONE;` in postmov (NetHack50 src/monmove.c:1682). The getitems block's retained comment ("Monsters in combat won't pick stuff up, avoiding the situation where you toss arrows at it and it has nothing better to do than pick the arrows up") is now false. Pets, shopkeepers, guards, priests, covetous monsters and monsters closing in on the hero in line all pick up in passing. The same commit's search filter (mon_would_take_item) makes an ordinary corpse a goal that mpickstuff() refuses, so a collector out of line with the hero stands on it (branch battery: 13-15 turns without attacking) | fixed on branch (BUG-1942, 1943, 1944; master's gate, gold scoop and a corpse filter); record only - maintainer ruled no patch this slice (upstream already layered 7b32ce02e on the new behavior) |
 | 2026-09-24 | muse.c find_defensive() picks MUSE_TELEPORT_TRAP for any adjacent (or underfoot) teleport trap with no no-teleport knowledge test (Official_nh50 src/muse.c ~627 `} else if (t->ttyp == TELEP_TRAP) {`), while m_tele()'s tele_restrict() refusal does call mon_learns_traps(TELEP_TRAP). Teleport traps exist on levels that are no-teleport only for monsters - noteleport_level()'s Gehennom demon court (a demon lord or prince on the level) and an active stasis effect; mktrap() only skips levels with the flag - so a hurt monster there jumps onto the trap, is refused ("A mysterious force prevents <mon> from teleporting!"), and re-picks the trap under its own feet every turn, spending every move. The wand and scroll picks already read the knowledge (`!noteleport_level(mtmp) \|\| !mon_knows_traps(mtmp, TELEP_TRAP)`) | fixed on branch (BUG-1929, session 140: the trap pick adds `!(mon_knows_traps(mtmp, TELEP_TRAP_SET) && noteleport_level(mtmp))`; battery: PRE refused 8/8 turns beside a frozen Yeenoghu, POST once, then the pick resumed when Yeenoghu died); artifact ~/nh50-teleport-trap-repick.patch (cut 2026-09-24 with maintainer approval: the knowledge term only, upstream's TELEP_TRAP name - the Amulet / Wizard's Tower terms are the branch's master-removal ruling and stay out; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8), not yet sent |
@@ -20372,6 +20482,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-27 | Lava inventory burn rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): (1) MASTER'S BURN: a hero who survives lava (full fire resistance or water walking) runs fire_damage() on every open-inventory item on every lava entry (a6e0803e7, the maintainer's authored intent), replacing 5.0's damage-capped destroy_items(), which cost a fully fire-resistant hero nothing (BUG-1961). (2) POTIONS BOIL: master's cdaf4409d / 9902d22ef made glass potions immune in fire_damage() and the lava death as a side effect, while comments beside both edits still say they boil; treated as a master regression, frozen-unfixed there (BUG-1963). The maintainer added that potions are never meant to be fireproof or tempered in any way; no branch path sets it (the wish sites sit inside erosion_matters()). (3) FOLD-INS, all four: fire_damage()'s master gate and smoke placement (BUG-1964), the lava-death is_flammable() predicate restoring master's Hand/Eye of Vecna fix (BUG-1962), the blind flame line (BUG-1966), lava_damage()'s per-object predicate (BUG-1965). ROUND 2 (after reviewer pass 1): (4) CENTRAL in_use GUARD in Boots_off() / Ring_off_or_gone() instead of master's per-site o_id checks (BUG-1967); in play the item being removed is spared from that one burn, where master's may burn up. (5) FOLD-INS: the death-loop next-item look-ahead (BUG-1968) and the seducer ring / wand holes (BUG-1969, BUG-1970). Session calls under the sibling rule, from reviewer passes 2-3: master BUG-688 and BUG-1197 re-ported (BUG-1970), glibr's uright re-check, the in_use mark limited to lava (and trap squares for the ring), and the upstream ghod_hitsu() current_wand restore dropped (BUG-1971). The master paranoid-swim decline penalty (2c50b94ab) became its own LOW row | maintainer (1-5); session (rest) |
 | 2026-09-27 | Scroll of magic detection port rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): FIX BOTH master drawing bugs (BUG-1958). A monster now shows its first MAGIC carried item; master passed only its first item to maybe_map(), so a dagger-then-wand carrier showed nothing although the scroll said "presence". A floor pile now shows its top-most magic item; master drew every one, leaving the bottom-most. ROUND 2 (after the reviewer): (1) SKIP THE SCROLL BEING READ (BUG-1960). On master the scroll counted itself, being still in the pack and oc_magic, so "You feel mundane." never printed and the scroll always self-identified. Now, with nothing else magic, the read gives "You feel mundane.", uses up the scroll and prompts to call it, while the rest of a stack still counts. (2) FOLD IN the reviewer's sibling: 5.0's object_detect() drops the same `ct++; break;` cutoff (BUG-1959, upstream table row). SESSION CALLS: the removal of that break in magic_detect() itself (the mimic arm; made during implementation, not in the plan; reviewer-verified). Plan-approved: dknown set unconditionally with the type marked encountered; is_soko_prize() skipping Sokoban prizes only; clear_stale_map() kept at two arguments (master's `magic` argument was dead); map_mimic_object() extracted and shared; monster_detect() gains master's mstone wake guard early (the gradual-stoning census is updated). | maintainer (rulings); session (rest) |
 | 2026-09-26 | Worn-gear slice ruling (2) REVERSED after landing: asked to go over 5.0's shock method, the maintainer chose a SYMMETRIC version of upstream's charged-ring recharge (ef6a88e1e) over master's shape. A chargeable ring chosen by lightning gets a 2-in-3 charge roll (before master's erodeproof resist): +1 ("spins clockwise"), or an explosion when spe > rn2(7) or spe <= -5 for rnd(3 * abs(spe)). Repeated shocks therefore ratchet a ring upward until it blows. Monsters now get the same roll through mon_charge_ring() (upstream's recharge() is hero-only, so it silently spared them); explosion damage goes to the carrier. BUG-1956 (BUG-1951 reversed) | maintainer |
 | 2026-09-26 | Worn-gear item protection ruling (AskUserQuestion x1, recommended option taken): MASTER'S SHAPE - 5.0's worn-gear inventory shield (upstream 9942b65df + 7ca995199: 99% per item when the resistance comes from worn, wielded or W_ART-carried gear, 90% for a worn dwarvish cloak vs fire and cold) is dropped with its enlightenment lines. Resistance rings, dragon scales and scaled armor, the shield of shock resistance, a wielded Fire Brand / Frost Brand / Mjollnir and the dwarvish cloak protect the hero only; scrolls burn, potions boil or freeze, rings and wands blow up, worn armor burns or corrodes and acid blanks scrolls as on master. Only master's authored shields remain: a wielded Tempest (shock; master 2177b017a: "the incentive to want to actually use this forged artifact"), Dichotomy (fire and cold) and Harbinger (worn armor vs acid), for the hero and monsters alike (BUG-1950). Session calls, plan-approved: the behavior-neutral disn_prot arm goes with it (any extrinsic DISINT_RES already reads 100% in how_resistant()); lava's inventory burn divergence (master fire_damage_chain, a6e0803e7) minted as its own row. SECOND ROUND (AskUserQuestion x1, two questions, after the first reviewer pass): (2) SHOCK RECHARGE = master's shape (recommended): 5.0's chargeit (ef6a88e1e) is dropped, so a shocked charged ring turns to dust like any ring instead of a 2-in-3 recharge that could add +1 or explode, and a monster's charged ring is no longer silently spared (BUG-1951); (3) FOLD-INS (multi-select, all three taken, the consecration port against the suggestion to make it its own slice): master's erodeproof/supermaterial ring and wand lightning resist (BUG-1952), the monster's own gloves for its worn ring (upstream bug, BUG-1953) and the whole scroll of consecration port (BUG-1954). Session call under the sibling rule: ink_cost()'s missing SCR_MAGIC_DETECTION case (BUG-1955, the same impossible() class as the consecration ink_cost case, master 5d0a12f52); magic detection's missing read effect minted as a HIGH row rather than folded in | maintainer (rulings 1-3); session, plan-approved (rest) |
