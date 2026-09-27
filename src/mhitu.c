@@ -3137,6 +3137,7 @@ int
 doseduce(struct monst *mon)
 {
     struct obj *ring, *nring;
+    unsigned nringid;
     boolean fem = (mon->data == &mons[PM_AMOROUS_DEMON]
                    && Mgender(mon) == FEMALE); /* otherwise incubus */
     boolean seewho, naked; /* True iff no armor */
@@ -3174,13 +3175,19 @@ doseduce(struct monst *mon)
 
     for (ring = gi.invent; ring; ring = nring) {
         nring = ring->nobj;
+        nringid = nring ? nring->o_id : 0;
         if (ring->otyp != RIN_ADORNMENT)
             continue;
         if (fem) {
             if (ring->owornmask && uarmg) {
                 /* don't take off worn ring if gloves are in the way */
-                if (!tried_gloves++)
+                if (!tried_gloves++) {
                     mayberem(mon, Who, uarmg, "gloves");
+                    /* bare hands on a wielded cockatrice corpse can end
+                       in life-saving, which uses up the amulet */
+                    if (nring && o_on(nringid, gi.invent) != nring)
+                        nring = (struct obj *) 0;
+                }
                 if (uarmg)
                     continue; /* next ring might not be worn */
             }
@@ -3203,6 +3210,10 @@ doseduce(struct monst *mon)
             freeinv(ring);
             (void) mpickobj(mon, ring);
         } else {
+            /* a replaced ring of levitation can drop the hero into lava,
+               whose burn can use up rings we still hold */
+            unsigned ringid = ring->o_id;
+
             if (uleft && uright && uleft->otyp == RIN_ADORNMENT
                 && uright->otyp == RIN_ADORNMENT)
                 break;
@@ -3210,8 +3221,12 @@ doseduce(struct monst *mon)
                 continue;
             if (uarmg) {
                 /* don't put on ring if gloves are in the way */
-                if (!tried_gloves++)
+                if (!tried_gloves++) {
                     mayberem(mon, Who, uarmg, "gloves");
+                    /* see above */
+                    if (nring && o_on(nringid, gi.invent) != nring)
+                        nring = (struct obj *) 0;
+                }
                 if (uarmg)
                     break; /* no point trying further rings */
             }
@@ -3248,16 +3263,20 @@ doseduce(struct monst *mon)
                 Ring_gone(uright);
                 /* ring removal might cause loss of levitation which could
                    drop hero onto trap that transports hero somewhere else */
-                if (u.utotype || !m_next2u(mon))
+                if (u.utotype || !m_next2u(mon) || !o_on(ringid, gi.invent))
                     return 1;
+                if (nring && o_on(nringid, gi.invent) != nring)
+                    nring = (struct obj *) 0;
                 setworn(ring, RIGHT_RING);
             } else if (uleft && uleft->otyp != RIN_ADORNMENT) {
                 /* see "replaces" note above */
                 pline("%s replaces %s with %s.",
                       Who, yname(uleft), yname(ring));
                 Ring_gone(uleft);
-                if (u.utotype || !m_next2u(mon))
+                if (u.utotype || !m_next2u(mon) || !o_on(ringid, gi.invent))
                     return 1;
+                if (nring && o_on(nringid, gi.invent) != nring)
+                    nring = (struct obj *) 0;
                 setworn(ring, LEFT_RING);
             } else
                 impossible("ring replacement");

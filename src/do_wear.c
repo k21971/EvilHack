@@ -397,6 +397,7 @@ Boots_off(void)
     struct obj *otmp = uarmf;
     int otyp;
     long oldprop;
+    boolean was_in_use;
 
     if (!otmp) {
         svc.context.takeoff.mask &= ~W_ARMF;
@@ -429,7 +430,14 @@ Boots_off(void)
             && !iflags.in_lava_effects) {
             /* make boots known in case you survive the drowning */
             makeknown(otyp);
+            /* in_use keeps lava_effects() from burning up the boots
+               while our caller still holds them; only over lava, since
+               a hangup or death meanwhile uses up an in_use item */
+            was_in_use = otmp->in_use;
+            if (is_lava(u.ux, u.uy))
+                otmp->in_use = 1;
             spoteffects(TRUE);
+            otmp->in_use = was_in_use;
         }
         break;
     case DARK_ELVEN_BOOTS:
@@ -445,8 +453,15 @@ Boots_off(void)
             && !svc.context.takeoff.cancelled_don) {
             /* lava_effects() sets in_lava_effects and calls Boots_off()
                so hero is already in midst of floating down */
-            if (!iflags.in_lava_effects)
+            if (!iflags.in_lava_effects) {
+                /* in_use keeps lava_effects() from burning up the boots
+                   while our caller still holds them (see above) */
+                was_in_use = otmp->in_use;
+                if (is_lava(u.ux, u.uy))
+                    otmp->in_use = 1;
                 (void) float_down(0L, 0L);
+                otmp->in_use = was_in_use;
+            }
             makeknown(otyp);
         } else {
             float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
@@ -2002,7 +2017,16 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
         break;
     case RIN_LEVITATION:
         if (!(BLevitation & FROMOUTSIDE)) {
+            /* in_use keeps lava_effects() from burning up the ring while
+               we and our caller still hold it; only over lava, or over a
+               trap that could teleport a lava walker onto it, since a
+               hangup or death meanwhile uses up an in_use item */
+            boolean was_in_use = obj->in_use;
+
+            if (is_lava(u.ux, u.uy) || t_at(u.ux, u.uy))
+                obj->in_use = 1;
             (void) float_down(0L, 0L);
+            obj->in_use = was_in_use;
             if (!Levitation)
                 learnring(obj, TRUE);
         } else {
@@ -3614,7 +3638,9 @@ glibr(void)
             dropx(otmp);
             cmdq_clear(CQ_CANNED);
         }
-        if (rightfall) {
+        /* the left ring's removal can land the hero in lava, whose burn
+           can use up the right ring */
+        if (rightfall && uright) {
             otmp = uright;
             Ring_off(uright);
             dropx(otmp);

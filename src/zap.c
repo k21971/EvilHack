@@ -2981,13 +2981,17 @@ dozap(void)
             pline("%s glows and fades.", The(xname(obj)));
         /* make him pay for knowing !NODIR */
     } else if (need_dir && !u.dx && !u.dy && !u.dz) {
-        if ((damage = zapyourself(obj, TRUE)) != 0) {
-            char buf[BUFSZ];
+        char buf[BUFSZ];
 
-            Sprintf(buf, "zapped %sself with %s",
-                    uhim(), killer_xname(obj));
+        /* the effect may free obj; capture the killer name first, then
+           track obj across the effect via current_wand */
+        Sprintf(buf, "zapped %sself with %s", uhim(), killer_xname(obj));
+        gc.current_wand = obj;
+        damage = zapyourself(obj, TRUE);
+        obj = gc.current_wand; /* Null if the effect freed it */
+        gc.current_wand = 0;
+        if (damage)
             losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
-        }
     } else {
         /*      Are we having fun yet?
          * weffects -> buzz(obj->otyp) -> zhitm (temple priest) ->
@@ -3030,10 +3034,19 @@ boxlock_invent(struct obj *obj)
 int
 zapyourself(struct obj *obj, boolean ordinary)
 {
+    /* some effects (polyself or self-teleport onto lava, destroy_items()
+       on a lightning or fire zap) can free obj mid-effect; track it via
+       current_wand so the code after the effect never uses freed memory;
+       a caller (dozap, break_wand) may already own current_wand for this
+       obj, so only take and release ownership when it isn't already
+       pointing at obj */
+    boolean track_wand = (gc.current_wand != obj);
     boolean learn_it = FALSE;
     int damage = 0;
     int orig_dmg = 0; /* for passing to destroy_items() */
 
+    if (track_wand)
+        gc.current_wand = obj; /* effect may free obj */
     switch (obj->otyp) {
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
@@ -3448,9 +3461,12 @@ zapyourself(struct obj *obj, boolean ordinary)
         impossible("zapyourself: object %d used?", obj->otyp);
         break;
     }
+    obj = gc.current_wand; /* Null if the effect freed the wand */
+    if (track_wand)
+        gc.current_wand = 0;
     /* if effect was observable then discover the wand type provided
        that the wand itself has been seen */
-    if (learn_it)
+    if (obj && learn_it)
         learnwand(obj);
     return damage;
 }

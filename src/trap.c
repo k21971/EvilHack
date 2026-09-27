@@ -5294,6 +5294,19 @@ fire_damage(
     if (catch_lit(obj))
         return FALSE;
 
+    /* special BotD feedback - should it be the "dark red" message? */
+    if (obj->otyp == SPE_BOOK_OF_THE_DEAD
+        || obj->otyp == SCR_CONSECRATION) {
+        if (in_sight)
+            pline("Smoke rises from %s.", the(xname(obj)));
+        return FALSE;
+    }
+
+    /* potions are glass rather than flammable, but they still boil */
+    if ((!is_flammable(obj) && obj->oclass != POTION_CLASS)
+        || obj->oerodeproof)
+        return FALSE;
+
     if (Is_container(obj) || obj->otyp == STATUE) {
         switch (obj->otyp) {
         case STATUE:
@@ -5311,12 +5324,8 @@ fire_damage(
             chance = 20;
             break;
         }
-        if ((!force && (Luck + 5) > rn2(chance))
-            /* containers erode now, so a non-flammable material or
-               fireproofing protects them the way it does on 3.6 */
-            || !is_flammable(obj) || obj->oerodeproof) {
+        if (!force && (Luck + 5) > rn2(chance))
             return FALSE;
-        }
         /* Container is burnt up - dump contents out */
         if (in_sight)
             pline("%s catches fire and burns.", Yname2(obj));
@@ -5341,14 +5350,6 @@ fire_damage(
           */
         return FALSE;
     } else if (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS) {
-        if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
-            return FALSE;
-        if (obj->otyp == SPE_BOOK_OF_THE_DEAD
-            || obj->otyp == SCR_CONSECRATION) {
-            if (in_sight)
-                pline("Smoke rises from %s.", the(xname(obj)));
-            return FALSE;
-        }
         dindx = (obj->oclass == SCROLL_CLASS) ? 3 : 4;
         if (in_sight)
             pline("%s %s.", Yname2(obj),
@@ -5405,7 +5406,7 @@ fire_damage_chain(
 boolean
 lava_damage(struct obj *obj, coordxy x, coordxy y)
 {
-    int otyp = obj->otyp, ocls = obj->oclass;
+    int otyp = obj->otyp;
 
     /* the Amulet, invocation items, and Rider corpses are never destroyed
        (let Book of the Dead fall through to fire_damage() to get feedback) */
@@ -5415,14 +5416,12 @@ lava_damage(struct obj *obj, coordxy x, coordxy y)
        destroyed by lava */
     if (is_art(obj, ART_EYE_OF_VECNA) || is_art(obj, ART_HAND_OF_VECNA))
         return FALSE;
-    /* destroy liquid (venom), wax, veggy, flesh, paper (except for scrolls
-       and books--let fire damage deal with them), cloth, leather, wood, bone
-       unless it's inherently or explicitly fireproof or contains something;
-       note: potions are glass so fall through to fire_damage() and boil */
-    if (objects[otyp].oc_material < DRAGON_HIDE
-        && ocls != SCROLL_CLASS && ocls != SPBOOK_CLASS
-        && objects[otyp].oc_oprop != FIRE_RES
-        && otyp != WAN_FIRE && otyp != FIRE_HORN
+    /* destroy anything made of a flammable material (wax, veggy, flesh,
+       paper, cloth, spider silk, leather, wood, bone, plastic), candles
+       and fire-themed items aside, unless it's fireproof or contains
+       something; note: potions are glass so fall through to fire_damage()
+       and boil */
+    if (is_flammable(obj)
         /* assumes oerodeproof isn't overloaded for some other purpose on
            non-eroding items */
         && !obj->oerodeproof
@@ -5446,7 +5445,7 @@ lava_damage(struct obj *obj, coordxy x, coordxy y)
                 pline_The("molten lava in the forge incinerates %s.",
                           the(xname(obj)));
             } else {
-                You_see("%s hit lava and burn up!", doname(obj));
+                You_see("%s hit lava and burn up!", the(xname(obj)));
             }
         }
         if (carried(obj)) { /* shouldn't happen */
@@ -8232,6 +8231,7 @@ lava_effects(void)
 {
     struct obj *obj, *obj2, *nextobj;
     boolean usurvive, boil_away;
+    unsigned nextoid;
     unsigned protect_oid[4]; /* items a caller still expects to hold */
     int nprotect = 0;
     int burncount = 0, burnmesgcount = 0;
@@ -8254,9 +8254,9 @@ lava_effects(void)
                || (Wwalking && dmg < (Upolyd ? u.mh : u.uhp));
     /*
      * A timely interrupt might manage to salvage your life
-     * but not your gear.  For scrolls and potions this
-     * will destroy whole stacks, where fire resistant hero
-     * survivor only loses partial stacks via destroy_items().
+     * but not your gear. Everything flagged here is lost,
+     * where a survivor's gear only runs the fire_damage()
+     * gauntlet at burn_stuff below.
      *
      * Flag items to be destroyed before any messages so
      * that player causing hangup at --More-- won't get an
@@ -8286,11 +8286,10 @@ lava_effects(void)
                 }
                 continue;
             }
-            /* set obj->in_use for items which will be destroyed below */
-            if ((is_organic(obj) || obj->oclass == POTION_CLASS)
+            /* set obj->in_use for items which will be destroyed below;
+               potions are glass rather than flammable, but they boil */
+            if ((is_flammable(obj) || obj->oclass == POTION_CLASS)
                 && !obj->oerodeproof
-                && objects[obj->otyp].oc_oprop != FIRE_RES
-                && obj->otyp != SCR_FIRE && obj->otyp != SPE_FIREBALL
                 && !obj_resists(obj, 0, 0)) /* for invocation items */
                 obj->in_use = 1;
         }
@@ -8303,7 +8302,7 @@ lava_effects(void)
      * thing to come into contact with lava makes sense.)
      */
     if (uarmf && (uarmf->in_use
-                  || (is_organic(uarmf) && !uarmf->oerodeproof))) {
+                  || (is_flammable(uarmf) && !uarmf->oerodeproof))) {
         obj = uarmf;
         pline("%s into flame!", Yobjnam2(obj, "burst"));
         ++burnmesgcount;
@@ -8338,6 +8337,7 @@ lava_effects(void)
 
         for (obj = gi.invent; obj; obj = obj2) {
             obj2 = obj->nobj;
+            nextoid = obj2 ? obj2->o_id : 0;
             if (lava_protected(obj->o_id, protect_oid, nprotect)) {
                 /* skip protected item; caller expects to retain access */
                 obj->in_use = 1; /* was cleared when recording protect_oid */
@@ -8348,7 +8348,8 @@ lava_effects(void)
                           The(xname(obj)), hcolor("dark red"));
             } else if (obj->in_use) {
                 if (obj->owornmask) {
-                    if (usurvive) {
+                    /* a blind hero is left to the summary below */
+                    if (usurvive && !Blind) {
                         pline("%s into flame!", Yobjnam2(obj, "burst"));
                         ++burnmesgcount;
                     }
@@ -8357,6 +8358,13 @@ lava_effects(void)
                 useupall(obj);
                 ++burncount;
             }
+            /* removing a worn item can kill the hero (lost gloves and a
+               wielded cockatrice corpse) and life-saving then uses up
+               the amulet, which may be the next item; if the next item
+               is gone, start over, since every item already handled is
+               either gone or unaffected by a second visit */
+            if (obj2 && !o_on(nextoid, gi.invent))
+                obj2 = gi.invent;
         }
         if (usurvive && burncount > burnmesgcount)
             pline("%s item%s in your inventory %s been destroyed.",
@@ -8433,8 +8441,21 @@ lava_effects(void)
     }
 
  burn_stuff:
-     (void) destroy_items(&gy.youmonst, AD_FIRE, dmg);
-    ignite_items(gi.invent);
+    /* each item runs the fire_damage() gauntlet, as a fire_damage_chain()
+       would, except one a caller still has in use: the scroll being read,
+       or the items protected above */
+    if (!wielding_artifact(ART_DICHOTOMY)) {
+        for (obj = gi.invent; obj; obj = obj2) {
+            obj2 = obj->nobj;
+            nextoid = obj2 ? obj2->o_id : 0;
+            if (!obj->in_use)
+                (void) fire_damage(obj, FALSE, u.ux, u.uy);
+            /* a worn item burning away can kill the hero the same way
+               (see above); stop rather than burn anything twice */
+            if (obj2 && !o_on(nextoid, gi.invent))
+                break;
+        }
+    }
     return FALSE;
 }
 

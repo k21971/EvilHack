@@ -1285,7 +1285,6 @@ ghod_hitsu(struct monst *priest)
 {
     struct mkroom *troom;
     struct monst *oldbuzzer;
-    struct obj *oldcurrwand;
     coordxy x, y, ax, ay;
     int roomno = (int) temple_occupied(u.urooms);
 
@@ -1350,14 +1349,13 @@ ghod_hitsu(struct monst *priest)
         break;
     }
 
-    /* bolt of lightning cast by unspecified monster */
-    oldcurrwand = gc.current_wand;
-    gc.current_wand = 0;
+    /* bolt of lightning cast by unspecified monster; current_wand is left
+       alone, since a spell bolt never reads it and restoring it would
+       bring back a wand the bolt destroyed */
     oldbuzzer = gb.buzzer;
     gb.buzzer = 0;
     buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 6, x, y, sgn(gt.tbx), sgn(gt.tby));
     gb.buzzer = oldbuzzer;
-    gc.current_wand = oldcurrwand;
     exercise(A_WIS, FALSE);
 }
 
