@@ -17,7 +17,45 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Latest slice: 2026-08-26 (sixth) ATTACKER-PARAM THREADING (one
+- Phase 2 status (refreshed 2026-09-27, after session 150): 262 rows
+  closed, 82 open. Of the open rows:
+  - 15 MED: 10 master behaviors the 5.0 base lacks or reshaped
+    (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
+    mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
+    amnesia skill reset, Caveperson role arms, hero spellcasting
+    penalty + sp_know, mm_aggression() grudge residue, obufs[]
+    widening) and 5 unported master features (potion alchemy
+    table, terrain concealment, door-material colors, pet-helper
+    AI, the held artifact pokedex tips).
+  - 3 SWEEP: race-predicate census, is_bracer() census, inert
+    persistent fields.
+  - 13 untagged: port gaps (Muse offense items, creeping mound
+    meatfood(), monster chest_trap(), Gauntlets of Purity wear
+    gate, nasties[] reconcile, wizard.c covetousness residue,
+    des-placed mplayer sex, look_at_monster buffer, "pairs of"),
+    rows that wait on other work (endgame plane order with Phase
+    3's endgame.lua, Convict/Infidel pet names with their quest
+    tracks, damp riders with their features), and the standing
+    per-subsystem archive sweep.
+  - 51 LOW: small parity rows, quirks and watch/record-only items.
+    The queue starts with the monster shock callers, monstunseesu,
+    the covetous noteleport exemption and steed-holds-hero; the
+    hero-catches-thrown-items row needs a ruling and the
+    wish-invlet row a reproduction.
+- Latest slice: 2026-09-27 (session 150) MONSTER AKLYS THROWING KEPT
+  AND FIXED (code b67faba77, tracker de07fa3c8; BUG-1972..1978).
+  5.0's monster aklys throwing stays, with its flaws fixed (return
+  line, tether reach against monster targets with a fallback to
+  other missiles, return after a monster hit, no welded throw), plus
+  three lost master mthrowu.c fixes and the reviewer-found iron-bars
+  SIGSEGV. Detail: the closed row's closure notes and the Decisions
+  log.
+- Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
+  was not refreshed in that window. Each slice is recorded in its
+  closed row's closure notes, the Decisions log and the upstream
+  table.
+- Previous slice (dashboard last refreshed here before 2026-09-27):
+  2026-08-26 (sixth) ATTACKER-PARAM THREADING (one
   code commit 28ab8163d, 15 files + tracker; BUG-1717
   frozen-unfixed, BUG-1718/1719 branch fixes). Session 67's NEXT
   candidate: the second features-sweep HIGH row closed - master
@@ -37,7 +75,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   annotated on the damage_mon/monster-ring/thrown-slip deferral
   rows). Battery 3 games, gdb call matrices, all arms proven with
   monster/NULL controls flat; paniclog's 2 entries =
-  battery-staging artifacts. Open Phase 2 rows: 59.
+  battery-staging artifacts. Open Phase 2 rows then: 59.
 - Previous slice: 2026-08-26 (fifth) MONSTER AMULET SACRIFICE ON
   ASTRAL (moffer; one code commit 270cec8dc + tracker; BUG-1715
   frozen-unfixed, BUG-1716 branch fix). Session 66's first-listed
@@ -18756,8 +18794,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       stripped for the thrust.
 - [x] MED: 5.0 monster aklys throwing that master lacks - KEPT AND
       FIXED 2026-09-27 (session 150, commit `Keep monster aklys
-      throwing and fix its flaws.`, hash filled after landing
-      (BUG-1972..1978); closure notes at the end of this row; minted
+      throwing and fix its flaws.` = b67faba77 (BUG-1972..1978),
+      tracker de07fa3c8; closure notes at the end of this row; minted
       2026-09-26, session 146, by the keep-away arms slice; RULING
       needed). Upstream 0bdf9830e ("throw-and-return weapons used by
       monsters", 2025): weapon.c arwep[] (AKLYS, range AKLYS_LIM
@@ -20443,8 +20481,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, commit hash filled after landing); patch artifact not cut yet |
-| 2026-09-27 | 0bdf9830e monster aklys throwing, four gaps. (1) return_from_mtoss()'s "returns to <mon>'s hand!" uses one `static long do_not_annoy` 500-turn throttle for every monster, with no canseemon() test (Official_nh50 src/mthrowu.c:883): an unseen thrower prints "returns to its hand!". (2) select_rwep()'s arwep pick measures dist2 to mux/muy (src/weapon.c:593), but thrwmm() (:984) throws at another monster, so a pet next to the hero throws its aklys up to 8 squares "on its tether". (3) ohitmon() drop_throw()s any missile that hits a monster, or misses it on the last square (:494, :358), so a thrown aklys never returns after a monster hit, though m_throw()'s own comment (:659) marks "stops forward motion at hit monster/hero, triggers return" as done. (4) The arwep pick lacks rwep[]'s "don't throw a cursed weapon-in-hand" test and thrwmu() skips its tether arm for `mwelded(otmp)` (:1241), so a monster throws its welded aklys. Branch fixes: canseemon() and no throttle; a target-aware pick via gm.mtarget; a file static that lets ohitmon() leave the tethered weapon for m_throw() to return (after passive_obj()); the welded test. Battery-confirmed (session 150 T1-T5) | fixed on branch (BUG-1972..1975, commit hash filled after landing); patch artifact not cut yet |
+| 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, b67faba77); patch artifact not cut yet |
+| 2026-09-27 | 0bdf9830e monster aklys throwing, four gaps. (1) return_from_mtoss()'s "returns to <mon>'s hand!" uses one `static long do_not_annoy` 500-turn throttle for every monster, with no canseemon() test (Official_nh50 src/mthrowu.c:883): an unseen thrower prints "returns to its hand!". (2) select_rwep()'s arwep pick measures dist2 to mux/muy (src/weapon.c:593), but thrwmm() (:984) throws at another monster, so a pet next to the hero throws its aklys up to 8 squares "on its tether". (3) ohitmon() drop_throw()s any missile that hits a monster, or misses it on the last square (:494, :358), so a thrown aklys never returns after a monster hit, though m_throw()'s own comment (:659) marks "stops forward motion at hit monster/hero, triggers return" as done. (4) The arwep pick lacks rwep[]'s "don't throw a cursed weapon-in-hand" test and thrwmu() skips its tether arm for `mwelded(otmp)` (:1241), so a monster throws its welded aklys. Branch fixes: canseemon() and no throttle; a target-aware pick via gm.mtarget; a file static that lets ohitmon() leave the tethered weapon for m_throw() to return (after passive_obj()); the welded test. Battery-confirmed (session 150 T1-T5) | fixed on branch (BUG-1972..1975, b67faba77); patch artifact not cut yet |
 | 2026-09-27 | priest.c ghod_hitsu() saves gc.current_wand, zeroes it around the god's lightning and restores it afterwards (Official_nh50 src/priest.c:866, from 4021a63bc "wand/spell/breath killer reason"). The bolt's destroy_items(AD_ELEC) can destroy the very wand the hero is zapping at the temple priest. maybe_destroy_item()'s `obj == gc.current_wand` clear then compares against the zeroed global, and the restore hands dozap() the freed wand (`obj = gc.current_wand; ... obj->spe`), which is the "Are we having fun yet? ... ghod_hitsu ... free(obj)" chain dozap's own comment describes. The zeroing only protected zhitu()'s "zapped/played" verb, which a BZ_M_SPELL bolt never reads. Branch fix: drop the three current_wand lines (master has none); battery-confirmed (session 149: the bolt destroyed the zapped wand of striking on try 11, current_wand NULL, no crash) | fixed on branch (BUG-1971, dfedd36aa); patch artifact not cut yet |
 | 2026-09-27 | zap.c dozap() self-zap branch never sets gc.current_wand around zapyourself() (Official_nh50 src/zap.c:2671), zapyourself() ends with an unguarded `learnwand(obj)` (:3812), and dealloc_obj() (src/mkobj.c:2745) clears thrownobj/kickedobj but not current_wand. An effect that frees the self-zapped wand mid-zap, such as polyself back onto lava followed by lava_effects() destroying a wooden wand in a life-saved death, leaves learnwand() and dozap's `obj->spe` reading freed memory. Master fixed both (BUG-688 36cfb0b19, BUG-1197 ee6b3ad38); the branch re-ports them. Battery-confirmed (session 149: a self-zapped wooden wand of polymorph burned away in lava, learnwand skipped, current_wand NULL) | fixed on branch (BUG-1970, dfedd36aa); patch artifact not cut yet |
 | 2026-09-27 | trap.c lava_effects() death loop caches `obj2 = obj->nobj` (Official_nh50 src/trap.c:6896) across remove_worn_item(). Gloves_off() with a wielded cockatrice corpse stones the hero, life-saving calls useup(uamul), and if the amulet was the next item the loop reads freed memory. Branch fix: save the next item's o_id, and restart from gi.invent when o_on() no longer finds it (a second visit is harmless in that loop). Battery-confirmed (session 149: burnt gloves, cockatrice corpse, worn life saving at the next invlet; clean) | fixed on branch (BUG-1968, dfedd36aa); patch artifact not cut yet |
