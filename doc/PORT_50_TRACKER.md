@@ -17,17 +17,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-28, after session 153): 265 rows
-  closed, 83 open. Of the open rows:
-  - 17 MED: 10 master behaviors the 5.0 base lacks or reshaped
+- Phase 2 status (refreshed 2026-09-28, after session 154): 266 rows
+  closed, 84 open. Of the open rows:
+  - 18 MED: 10 master behaviors the 5.0 base lacks or reshaped
     (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
     mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
     amnesia skill reset, Caveperson role arms, hero spellcasting
     penalty + sp_know, mm_aggression() grudge residue, obufs[]
     widening), 6 unported master features (potion alchemy table,
     terrain concealment, door-material colors, pet-helper AI, the
-    held artifact pokedex tips, the boojum "vanish" arm) and the
-    covetous freeze in a Gehennom demon court (needs a ruling).
+    held artifact pokedex tips, the boojum "vanish" arm), the
+    covetous freeze in a Gehennom demon court (needs a ruling) and
+    a hurt ridden steed fleeing by stairs alone (reproduced).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -39,24 +40,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 49 LOW: small parity rows, quirks and watch/record-only items.
-    The queue starts with steed-holds-hero; the
-    hero-catches-thrown-items row needs a ruling and the
+    The named LOW queue is drained; the hero-catches-thrown-items
+    row and the rider farlook-text row need rulings, and the
     wish-invlet row a reproduction.
-- Latest slice: 2026-09-28 (session 153) COVETOUS NO-TELEPORT
-  EXEMPTION REMOVED, MASTER'S SHAPE (code and tracker hashes filled
-  after landing; BUG-1985/1986). 5.0's covetous exemption came with
-  upstream's wand of stasis, which the branch declined. A level's
-  no-teleport flag now stops a covetous monster's own teleports
-  (wands, scrolls, spells, blinks, theft escapes) as on master;
-  tactics() warps and the bribe demons' departures still ignore it,
-  as on master. BUG-1986 (upstream too): a hero polymorphed into a
-  master lich or arch-lich no longer teleports on no-teleport
-  levels. Two MED rows minted (boojum "vanish" arm, covetous court
-  freeze). Detail: the closed row's closure notes and the
-  Decisions log.
-- Previous slice: 2026-09-28 (session 152) MONSTER-MEMORY FORGETTING
-  KEPT, GAPS FIXED (code 72f7c9312, tracker ca4527200;
-  BUG-1981..1984).
+- Latest slice: 2026-09-28 (session 154) RIDER AND STEED HOLD AS ONE
+  PAIR (code and tracker hashes filled after landing;
+  BUG-1987/1988). A rider whose steed holds the hero now counts as
+  a holder: no stair, trap or dig escape, and its other exits say
+  "You get released!". A ridden steed held by the hero's sticky
+  form holds its rider too ("The <steed> cannot escape from you!").
+  Master dangles u.ustuck in the first case. Rows minted: MED
+  steed fleeing by stairs alone (reproduced), LOW rider farlook
+  text. Detail: the closed row's closure notes and the Decisions
+  log.
+- Previous slice: 2026-09-28 (session 153) COVETOUS NO-TELEPORT
+  EXEMPTION REMOVED, MASTER'S SHAPE (code 0f66f9596, tracker
+  ff9538154; BUG-1985/1986).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -18266,7 +18265,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
           line;
         * master's #wizkill ignores the m prefix, so the pet kill
           counts as the hero's.
-- [ ] LOW: a rider whose STEED holds the hero is not treated as stuck
+- [x] LOW: a rider whose STEED holds the hero is not treated as stuck
+      - THE PAIR NOW COUNTS AS ONE HOLDER, BOTH WAYS 2026-09-28
+      (session 154, commit `Treat a rider and its steed as one holder.`
+      = (hash filled after landing), BUG-1987, 1988; closure notes at
+      the end of this row). Original text:
       (minted 2026-09-25, session 144, by the holder-leaves-level
       slice's reviewer; traced in code, not reproduced). A ridden steed
       still attacks: movemon() keeps a ridden steed acting, and m_move()
@@ -18287,10 +18290,144 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (no mon_leaving_level()). Decide: treat `has_erid(mtmp) &&
       ERID(mtmp)->mon_steed == u.ustuck` as stuck in both finders
       and in mon_escape_with_amulet(), or accept it. LOW.
+      CLOSURE (session 154, plan
+      /root/.claude/plans/bugfix-rider-steed-hold-pair.md):
+      TRACE: confirmed. mhitm_ad_phys()'s AT_HUGS arm calls
+      set_ustuck() on the ridden steed ("grasps you with its
+      trunk"), and engulf_target() refuses ridden steeds, so a steed
+      can only hold, never engulf. mount_up() lets any rider climb a
+      saddled mumak, mastodon, mammoth, couatl or giant centipede.
+      mon_can_ride() and mon_can_be_ridden() both exclude u.ustuck, so
+      a holder is never mounted. The suggested expression is NULL ==
+      NULL when a rider has no steed and the hero is free, so the
+      helper tests u.ustuck first.
+      SECOND CASE, found while tracing (BUG-1988): the hero can hold
+      the steed. mattacku()'s hidden-mimic arm calls set_ustuck() on
+      whichever attacker touches a sticky mimic hero; the steed is
+      created after its rider, so it sits ahead of it on fmon and
+      usually attacks first. Then itsstuck(rider) was FALSE, the rider
+      walked the steed out of the grip, and update_monsteed() skipped
+      its release under sticks(), so u.ustuck stayed on an
+      out-of-reach steed until the hero's next move. The rider also
+      took stairs, holes and the Amulet escape that a held monster is
+      refused.
+      RULING (AskUserQuestion x2, both recommended): (1) steed holds
+      hero -> the pair counts as holding; (2) hero holds steed -> the
+      pair is held.
+      FIX: new steed.c ustuck_self_or_steed(mtmp) returns mtmp if it
+      is u.ustuck, the steed if the rider's steed is, else null.
+      Callers: find_defensive() and find_misc() `stuck` (stairs,
+      ladders, trap doors, holes, teleport traps, both digging-wand
+      tests, the poly trap); mon_escape_with_amulet()'s refusal;
+      release_hero() (the cursed teleport scroll, cursed gain level
+      and Amulet exits now print "You get released!");
+      itsstuck() ("The <steed> cannot escape from you!");
+      set_apparxy(); mlevel_tele_trap()'s refusal; and tamedog(),
+      whose two holder blocks fold into one (the old steed arm passed
+      the rider's data to expels(), unreachable). update_monsteed()
+      now ends the grip in both directions when the rider leaves
+      reach, silently when the hero is the holder (as
+      rloc_to_core() does for a directly held monster). Left alone:
+      monflee(), the conflict release, m_move()'s post-move unstuck,
+      rloc_to_core()'s own arm, and the death, polymorph, restrap and
+      engulf-only sites.
+      REVIEWER PASS (no HIGH or MED). LOWs taken as same-predicate
+      siblings: digactualhole()'s early return (a hole dug under the
+      rider left the pair on the level), the martial-arts reel gate
+      in dokick.c, and the wand of opening / knock arm in bhitm()
+      (zapping the rider now releases the hold). Delta review PASS; a
+      comment wording tweak was taken. Two reviewer LOWs became rows
+      below (farlook text; a steed fleeing alone).
+      BATTERY (~52 min, 15 legs; POST 1ed482f0dd81622a62024d0019b348a4,
+      PRE 1cf14e69ab2a7c4c25a31f31e14052eb = HEAD ff9538154 code,
+      MASTER 0777d16796d5368eee5d5101150c9e4a; Monk games, branch
+      paniclog never created, master's unchanged), all PASS:
+        * L1, hurt frost giant on the down stairs, mammoth holds the
+          hero: POST find_defensive() 0, the rider stayed 8 turns and
+          the hold held; PRE picked MUSE_DOWNSTAIRS, "The frost giant
+          escapes downstairs!" and the hold ended silently. MASTER:
+          the same escape, and u.ustuck still pointed at the steed at
+          <0,0> on migrating_mons (dangling; cleared by gdb).
+        * L2 digging wand: POST not picked; PRE dug through silently.
+        * L3 cursed scroll / cursed gain level and L4 the Amulet on the
+          up stairs: POST "You get released!" after the read or quaff
+          line and before the rise or escape line; PRE had no release
+          line.
+        * L5, a giant-mimic hero holds the steed, rider fleeing: POST
+          "The woolly mammoth cannot escape from you!" every turn, the
+          pair stayed; PRE the pair walked 3 squares off with u.ustuck
+          still set, cleared silently on the hero's next move.
+        * L6 rloc() of the rider: POST u.ustuck 0 at once; PRE it
+          lingered. L7 the Amulet on the up stairs: POST refused, PRE
+          escaped.
+        * L8 level teleporter by lever: POST returned 0, the pair
+          stayed; PRE "Suddenly, the frost giant disappears out of
+          sight." and a silent release.
+        * L9 tamedog() and a direct owlbear's monflee(): identical on
+          both builds. L10 POST save/restore: u.ustuck relinked to the
+          steed, the finder still refused.
+        * L11 hole under a hill orc rider: POST the pair stayed; PRE
+          it fell silently. L12 kicks: POST no reel in 12; PRE reeled
+          on the 3rd kick with "You get released!". L13 wand of
+          opening at the rider: POST "You are released by the saddled
+          woolly mammoth."; PRE nothing.
+        * L14 (record): farlook on the rider reads "frost giant,
+          riding a saddled woolly mammoth", with no holding text (new
+          LOW row below). #wizkill's cursor text for the square did
+          show "saddled woolly mammoth, holding you".
+        * L15 (record): a hurt fell beast under a Nazgul on the up
+          stairs escaped ALONE (new MED row below).
+        * Natural staging check: hiding as a mimic, "It gets stuck on
+          you." stuck the steed, not the rider.
+      Master: the steed-holds case dangles u.ustuck (BUG-1987) and the
+      hero-holds case is the same silent drag (BUG-1988); both
+      frozen-unfixed there. EvilHack-only feature, so there is no
+      upstream row.
+- [ ] LOW: farlook and probing on a rider don't show its steed's hold
+      (minted 2026-09-28, session 154, by the rider/steed hold
+      slice's reviewer; battery L14). u.ustuck is the off-map steed,
+      so lookat()'s monster text (pager.c) and mstatusline()
+      (insight.c) test `u.ustuck == mtmp` on the rider and print only
+      ", riding a saddled woolly mammoth". The hero can't farlook the
+      steed itself. The status line's UHold and #wizkill's cursor
+      text ("saddled woolly mammoth, holding you") do show it. An
+      unseen rider already falls back to describing the steed.
+      Decide the wording (for example ", riding a saddled woolly
+      mammoth, which is holding you" / "which you are holding") with
+      the maintainer, then use ustuck_self_or_steed() in both. LOW
+      (display only).
+- [ ] MED: a hurt ridden steed can flee by stairs alone, leaving its
+      rider pointing at a migrating monster (minted 2026-09-28,
+      session 154, by the rider/steed hold slice's reviewer;
+      REPRODUCED by battery L15 on POST). movemon() keeps a ridden
+      steed acting, and dochug() runs set_apparxy() and then
+      find_defensive() for it like any monster. find_defensive()'s
+      stairs and ladder arms have no ridden_by exclusion (only the
+      trap arm has one), so a hurt steed that is neither animal nor
+      mindless picks MUSE_UPSTAIRS on its rider's square. Battery: a
+      Nazgul's fell beast at mhp 1 on the up stairs -> "The saddled
+      fell beast escapes upstairs!"; the steed went to
+      migrating_mons with ridden_by still set, and the Nazgul stayed
+      on the level with erid->mon_steed pointing at it. No sanity or
+      paniclog complaint appeared at once (update_monsteed() skips a
+      MON_MIGRATING steed), but the next separate_steed_and_rider()
+      (the rider's death or migration) would place a migrating
+      monster. Candidate steeds (not M1_ANIMAL, not mindless): a
+      Nazgul's fell beast (always mounted), and a saddled couatl or
+      dragon that a rider climbs; horses, wargs, spiders, lizards and
+      mammoths are animals and never reach the finder. The
+      battery's direct probe returned 0 only because a new steed's
+      mux/muy was still <0,0>; dochug() sets them before the finder.
+      Master has the same finder shape (untested there). Also check
+      the other self-migrating picks (digging wand, cursed scroll,
+      trap doors) and find_misc() for a ridden steed. Suggested fix:
+      a ridden steed makes no escape of its own (treat ridden_by like
+      immobile in the finders), or the pair leaves together. MED
+      (dangling state; every Nazgul arrives riding a fell beast).
 - [x] LOW: 5.0's noteleport_level() exempts covetous monsters from a
       level's natural no-teleport flag - MASTER'S SHAPE RESTORED
       2026-09-28 (session 153, commit `Restore master's no-teleport
-      refusal for covetous monsters.` = (hash filled after landing),
+      refusal for covetous monsters.` = 0f66f9596, tracker ff9538154,
       BUG-1985, 1986; closure notes at the end of this row; minted
       2026-09-24, session 140, by the mysterious-force slice's
       reviewer). Original text:
@@ -20781,7 +20918,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-28 | 07fc4904c ("Add a new wand, the wand of stasis") put a covetous exemption into noteleport_level() (Official_nh50 src/teleport.c:38, `svl.level.flags.noteleport && !is_covetous(mon->data)`) so that tactics() kept warping on no-teleport levels, but the predicate also answers for the hero. noteleport_level(&gy.youmonst) reads gy.youmonst.data, and master lich and arch-lich are polyok with M3_WANTSBOOK, so a hero polymorphed into either one teleports in Sokoban, Vlad's Tower, the Castle and on Medusa's island, where the unpolymorphed hero gets "A mysterious force prevents you from teleporting!" (the Wizard's Tower levels still stop it through scrolltele()'s later On_W_tower_level() arm). Sites: scrolltele() :854, tele_trap() :1502, the cursed magic whistle apply.c:503. The exemption also reaches every monster self-teleport caller (m_tele(), the m_move() blink, steal escapes, mbhitm()). Minimal upstream fix: exempt only a monster, `&& mon != &gy.youmonst`; the branch instead drops the exemption and gives tactics() its own court/stasis predicate (master's shape) | fixed on branch (BUG-1985/1986, hash filled after landing); patch artifact not cut yet |
+| 2026-09-28 | 07fc4904c ("Add a new wand, the wand of stasis") put a covetous exemption into noteleport_level() (Official_nh50 src/teleport.c:38, `svl.level.flags.noteleport && !is_covetous(mon->data)`) so that tactics() kept warping on no-teleport levels, but the predicate also answers for the hero. noteleport_level(&gy.youmonst) reads gy.youmonst.data, and master lich and arch-lich are polyok with M3_WANTSBOOK, so a hero polymorphed into either one teleports in Sokoban, Vlad's Tower, the Castle and on Medusa's island, where the unpolymorphed hero gets "A mysterious force prevents you from teleporting!" (the Wizard's Tower levels still stop it through scrolltele()'s later On_W_tower_level() arm). Sites: scrolltele() :854, tele_trap() :1502, the cursed magic whistle apply.c:503. The exemption also reaches every monster self-teleport caller (m_tele(), the m_move() blink, steal escapes, mbhitm()). Minimal upstream fix: exempt only a monster, `&& mon != &gy.youmonst`; the branch instead drops the exemption and gives tactics() its own court/stasis predicate (master's shape) | fixed on branch (BUG-1985/1986, 0f66f9596); patch artifact not cut yet |
 | 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, 72f7c9312); patch artifact not cut yet |
 | 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, b67faba77); patch artifact not cut yet |
 | 2026-09-27 | 0bdf9830e monster aklys throwing, four gaps. (1) return_from_mtoss()'s "returns to <mon>'s hand!" uses one `static long do_not_annoy` 500-turn throttle for every monster, with no canseemon() test (Official_nh50 src/mthrowu.c:883): an unseen thrower prints "returns to its hand!". (2) select_rwep()'s arwep pick measures dist2 to mux/muy (src/weapon.c:593), but thrwmm() (:984) throws at another monster, so a pet next to the hero throws its aklys up to 8 squares "on its tether". (3) ohitmon() drop_throw()s any missile that hits a monster, or misses it on the last square (:494, :358), so a thrown aklys never returns after a monster hit, though m_throw()'s own comment (:659) marks "stops forward motion at hit monster/hero, triggers return" as done. (4) The arwep pick lacks rwep[]'s "don't throw a cursed weapon-in-hand" test and thrwmu() skips its tether arm for `mwelded(otmp)` (:1241), so a monster throws its welded aklys. Branch fixes: canseemon() and no throttle; a target-aware pick via gm.mtarget; a file static that lets ohitmon() leave the tethered weapon for m_throw() to return (after passive_obj()); the welded test. Battery-confirmed (session 150 T1-T5) | fixed on branch (BUG-1972..1975, b67faba77); patch artifact not cut yet |
@@ -20934,6 +21071,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-28 | Rider/steed hold rulings (AskUserQuestion x2, session 154, both recommended options taken). (1) When a rider's steed holds the hero, the PAIR COUNTS AS HOLDING: the rider refuses the stair, ladder, trap door, hole, teleport-trap, digging-wand and poly-trap escapes a holder is refused, always knows where the hero is, and its remaining exits (cursed teleport scroll, cursed gain level, the Amulet escapes) print "You get released!" first, as BUG-1939/1941 do for direct holders. (2) When the hero's sticky form holds a ridden steed, the PAIR IS HELD: "The <steed> cannot escape from you!", no stair, trap or dig escape, no Amulet escape; a teleport of the rider ends the grip silently. Implemented through ustuck_self_or_steed() (BUG-1987/1988); hero-side siblings (a hole dug under the rider, the martial-arts reel, a wand of opening at the rider) follow the same rule. Master's shape (the rider ignores the hold; master also leaves u.ustuck dangling) was declined | maintainer |
 | 2026-09-28 | Covetous no-teleport exemption ruling (AskUserQuestion x1, session 153, recommended option taken): MASTER'S SHAPE. 5.0's `!is_covetous` exemption in noteleport_level() (upstream 07fc4904c, the wand-of-stasis commit, which the branch declined 2026-07-12) is dropped, so a level's natural no-teleport flag stops covetous monsters' own teleports (m_tele() wands and scrolls, the self-teleport spell, the m_move() blink, the Wizard's Amulet-theft escape, Graz'zt's post-theft teleport, beams and quantum mechanics on them) and they learn it, as on master. The ten sites where master tests nothing keep ignoring the flag through the new covetous_noteleport() (court + stasis only): tactics()'s seven warp gates, dochug()'s two MS_BRIBE departures, demon_talk()'s "Good hunting". The same change fixes BUG-1986, a hero polymorphed into a master lich or arch-lich teleporting on no-teleport levels (upstream bug too). The Gehennom demon court stays 5.0-native (BUG-772 adjudication); its covetous-freeze composite is a new MED row needing its own ruling | maintainer |
 | 2026-09-28 | Monster-memory forgetting ruling (AskUserQuestion x1, session 152). "Keep it and fix its gaps", over the recommended master shape (never forget; master's memory is EvilHack's own, 1262a588d). 5.0's monstunseesu() layer stays, and its gear hook now also covers artifact grants, EvilHack armor properties and polymorph reversion. Folded in under the ruling's "every resistance source" rationale, at plan approval: dragon-scale secondaries, the alchemy smock's acid, and M_SEEN_DEATH in both converters (BUG-1981..1983). Semantics as upstream's: watchers forget when a source goes away, even if another remains. Session calls, plan- or review-approved: (1) every hook forgets only a grant that was actually seated, because the branch tears W_SWAPWEP down on every reseat; the same guard is on upstream's worn.c hook, and a NetHack50 merge must keep it. (2) Master's missing savebones() reset is archived as BUG-1984, frozen-unfixed. (3) The monstseesu() setter-parity census was minted as its own SWEEP row. | maintainer (ruling); session, plan- and review-approved (rest) |
 | 2026-09-27 | Monster item-blast damage ruling (AskUserQuestion x1, session 151). Monster-target callers of destroy_items() ADD its return at all ten former discard sites. Those are the LOW row's four shock callers (the hero's shocking grasp in hmon and hmonas, a monster's mshockgrasp, castmm lightning) plus six fire/cold siblings (the hero's burning hands in hmon and hmonas, the Hand of Vecna cold, a monster's mburnhands, the castmm avalanche and fire pillar). The recommended "keep master's discard" was declined. This SUPERSEDES the 2026-08-26 hero burning hands "return-discard ruling". MAINTAINER FYI mid-implementation: master's missing behavior is a bug, and the `(void)` casts there were unintended. So BUG-1979 is recorded as a master bug, frozen-unfixed on master. Session rules: dmg_in stays the attack's own damage (the stack count is unchanged), and the item damage is added after the spell or physical halving. Fold-in BUG-1980 (the fire pillar's ice-melt drowning double death, branch-only) was taken inside the approved plan. The pet-kill credit for that drowning got its own LOW row rather than an inline set_pet_killer(). | maintainer (ruling, master-bug call); session (rest) |
