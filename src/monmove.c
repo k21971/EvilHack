@@ -1169,7 +1169,7 @@ dochug(struct monst *mtmp)
 
                 if (is_demon(raceptr(&gy.youmonst))) {
                     /* "Good hunting, brother" */
-                    if (!tele_restrict(mtmp))
+                    if (!covetous_noteleport(mtmp))
                         (void) rloc(mtmp, RLOC_MSG);
                     /* rloc can fire mintrap at the destination and
                        kill mtmp; stop before later code derefs it */
@@ -1188,7 +1188,7 @@ dochug(struct monst *mtmp)
             } else if (demon_talk(mtmp))
                 return 1; /* you paid it off */
         } else { /* either let the player pass, or pacified somehow */
-            if (!tele_restrict(mtmp))
+            if (!covetous_noteleport(mtmp))
                 (void) rloc(mtmp, RLOC_MSG); /* either way no bribe demands */
             /* rloc can fire mintrap at the destination and kill mtmp */
             if (DEADMONSTER(mtmp))

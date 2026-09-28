@@ -321,7 +321,7 @@ demon_talk(struct monst *mtmp)
         else if (canseemon(mtmp))
             pline("%s %s something.", Amonnam(mtmp),
                   says());
-        if (!tele_restrict(mtmp))
+        if (!covetous_noteleport(mtmp))
             (void) rloc(mtmp, RLOC_MSG);
         return 1;
     }

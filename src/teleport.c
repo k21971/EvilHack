@@ -30,14 +30,24 @@ m_blocks_teleporting(struct monst *mtmp)
 boolean
 noteleport_level(struct monst *mon)
 {
+    /* natural no-teleport level; it holds covetous monsters too, and a
+       hero polymorphed into a covetous form */
+    if (svl.level.flags.noteleport)
+        return TRUE;
+
+    return covetous_noteleport(mon);
+}
+
+/* the part of noteleport_level() that also holds a covetous monster's
+   tactics() warps and an MS_BRIBE demon's departure, which ignore a
+   level's natural no-teleport flag */
+boolean
+covetous_noteleport(struct monst *mon)
+{
     /* demon court in Gehennom prevent others from teleporting */
     if (In_hell(&u.uz) && !(is_dlord(mon->data) || is_dprince(mon->data)))
         if (get_iter_mons(m_blocks_teleporting))
             return TRUE;
-
-    /* natural no-teleport level; covetous monsters can bypass these */
-    if (svl.level.flags.noteleport && !is_covetous(mon->data))
-        return TRUE;
 
     /* wand of stasis prevents teleportation while the effect is active
        (even for covetous monsters) */

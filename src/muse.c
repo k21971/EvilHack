@@ -894,8 +894,9 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             gm.m.has_defense = MUSE_SPE_TELEPORT_AWAY;
         else if (!(mtmp->isshk && inhishop(mtmp)) && !mtmp->isgd
                  && !mtmp->ispriest
-                 /* a covetous caster passes noteleport_level() here
-                    but the self-teleport would always be refused */
+                 /* the self-teleport is always refused on a Wizard's
+                    Tower level; don't spend even the first cast that
+                    would teach the caster so */
                  && !On_W_tower_level(&u.uz))
             gm.m.has_defense = MUSE_SPE_TELEPORT_AWAY_SELF;
     }
