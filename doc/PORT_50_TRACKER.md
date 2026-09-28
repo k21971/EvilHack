@@ -17,7 +17,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-27, after session 151): 263 rows
+- Phase 2 status (refreshed 2026-09-28, after session 152): 264 rows
   closed, 82 open. Of the open rows:
   - 15 MED: 10 master behaviors the 5.0 base lacks or reshaped
     (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
@@ -27,8 +27,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     widening) and 5 unported master features (potion alchemy
     table, terrain concealment, door-material colors, pet-helper
     AI, the held artifact pokedex tips).
-  - 3 SWEEP: race-predicate census, is_bracer() census, inert
-    persistent fields.
+  - 4 SWEEP: race-predicate census, is_bracer() census, inert
+    persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
     meatfood(), monster chest_trap(), Gauntlets of Purity wear
     gate, nasties[] reconcile, wizard.c covetousness residue,
@@ -37,21 +37,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 51 LOW: small parity rows, quirks and watch/record-only items.
-    The queue starts with monstunseesu, the covetous noteleport
-    exemption and steed-holds-hero; the hero-catches-thrown-items
-    row needs a ruling and the wish-invlet row a reproduction.
-- Latest slice: 2026-09-27 (session 151) MONSTER ITEM-BLAST DAMAGE
-  (code and tracker hashes filled after landing; BUG-1979/1980).
-  Ten monster-target elemental sites now add the damage a monster's
-  exploding wands and rings and its boiling or shattering potions
-  do. That is master bug BUG-1979, frozen-unfixed on master. The
-  fold-in BUG-1980 fixes the fire pillar's ice-melt drowning double
-  death. One LOW row was minted (pet-kill credit for that drowning).
-  Detail: the closed row's closure notes and the Decisions log.
-- Previous slice: 2026-09-27 (session 150) MONSTER AKLYS THROWING
-  KEPT AND FIXED (code b67faba77, tracker de07fa3c8;
-  BUG-1972..1978).
+  - 50 LOW: small parity rows, quirks and watch/record-only items.
+    The queue starts with the covetous noteleport exemption and
+    steed-holds-hero; the hero-catches-thrown-items row needs a
+    ruling and the wish-invlet row a reproduction.
+- Latest slice: 2026-09-28 (session 152) MONSTER-MEMORY FORGETTING
+  KEPT, GAPS FIXED (code and tracker hashes filled after landing;
+  BUG-1981..1984). 5.0's monstunseesu() layer stays. Watching
+  monsters now also forget a resistance when the hero loses it
+  from any of these:
+  - an artifact;
+  - an EvilHack armor property;
+  - the alchemy smock;
+  - dragon-scale secondaries;
+  - a polymorph form.
+  M_SEEN_DEATH is now mapped, and every hook forgets only a grant
+  that was actually seated. BUG-1984: master's bones monsters keep
+  the dead hero's seen resistances (frozen-unfixed). One SWEEP row
+  was minted (monstseesu() setter parity). Detail: the closed row's
+  closure notes and the Decisions log.
+- Previous slice: 2026-09-27 (session 151) MONSTER ITEM-BLAST DAMAGE
+  (code ba78d410c, tracker 3e1dfaf0b; BUG-1979/1980).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -19233,8 +19239,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       LOW (gameplay: landing effects one move late).
 - [x] LOW: four monster shock callers drop the item-blast damage -
       FIXED 2026-09-27 (session 151, commit `Add monster item-blast
-      damage at the ten discard sites.` = (hash filled after
-      landing), BUG-1979/1980; closure notes at the end of this row;
+      damage at the ten discard sites.` = ba78d410c, tracker
+      3e1dfaf0b, BUG-1979/1980; closure notes at the end of this row;
       minted 2026-09-26, session 147, by the symmetric recharge
       reviewer). destroy_items(mon, AD_ELEC, ...) returns what
       exploding wands (rnd(10) each) and, since BUG-1956, exploding
@@ -19353,9 +19359,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         strange_feeling()'s beginner wording ("You have a strange
         feeling for a moment, then it passes.") while
         flags.beginner is 1.
-- [ ] LOW: 5.0's monster-memory forgetting (monstunseesu) that master
-      lacks (minted 2026-09-26, session 145, by the m_seenres SWEEP
-      battery; RULING needed). Master's seen_resistance bits are only
+- [x] LOW: 5.0's monster-memory forgetting (monstunseesu) that master
+      lacks - KEPT AND GAPS FIXED 2026-09-28 (session 152, commit
+      `Close the gaps in monsters forgetting a lost resistance.` =
+      (hash filled after landing), BUG-1981..1984; closure notes at
+      the end of this row; minted 2026-09-26, session 145, by the
+      m_seenres SWEEP battery). Master's seen_resistance bits are only
       ever set; `git show master:src/mondata.c` has no monstunseesu.
       The branch carries 5.0's forgetting layer: monstunseesu() /
       monstunseesu_ad() / monstunseesu_prop() at about 84 sites
@@ -19373,6 +19382,113 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dropped the hang-back arm (BUG-1947), so ranged_attk_available()
       has no caller left and the memory's only consumers are master's
       own (muse.c, mcastu.c).
+      RULING (AskUserQuestion, 2026-09-28): "Keep it and fix its
+      gaps", over the recommended master shape (never forget). Master's
+      memory is EvilHack's own (1262a588d, 2019, from SporkHack). 5.0's
+      forgetting stays: upstream 38cda5ad5's gear-removal hook and
+      8fa53d6ac's "sees the element hurt you". The gear hook now also
+      covers every resistance source the hero can take off at will,
+      so the ring-swap trick fails for all of them. The option named
+      three sources: artifacts, EvilHack armor properties, polymorph
+      reversion. Research added two more under the same rationale,
+      folded in at plan approval: dragon-scale secondaries, and
+      M_SEEN_DEATH, which was missing from both converters.
+      Semantics as upstream's: watchers forget when a SOURCE goes
+      away, even if the hero still resists another way, and relearn
+      on the next test.
+      CLOSURE (session 152, plan
+      /root/.claude/plans/bugfix-monster-memory-forgetting-gaps.md):
+      - BUG-1981 (gear sources the hook missed):
+        - set_artifact_intrinsic() forgets a defn/cary grant, with
+          AD_FUSE giving fire and cold, and an SPFX_REFLECT grant,
+          when the slot bit was actually set.
+        - do_wear.c lose_extrinsic() backs oprops_off()'s five
+          resistances, Cloak_off()'s alchemy smock acid, and every
+          tracked secondary in dragon_armor_handling()'s off arms.
+        - worn.c setworn()/setnotworn() now forget only a grant that
+          was seated.
+        Reason for that last change: the branch tears W_SWAPWEP down
+        on every reseat (untwoweapon() on every `w`, doswapweapon(),
+        #twoweapon on), where upstream skips the swap slot. So a
+        future NetHack50 merge must not restore upstream's
+        unconditional monstunseesu_prop().
+      - BUG-1982: set_uasmon() forgets FROMFORM resistances the new
+        form lacks, through staticfn form_seenres(). It is skipped
+        while restoring.
+      - BUG-1983: cvt_adtyp_to_mseenres() gains AD_DETH and
+        cvt_prop_to_mseenres() gains DEATH_RES. This changes no live
+        caller: explode.c makes no AD_DETH blast, and the mhitu.c
+        helpers are uncalled.
+      - BUG-1984: master savebones() never clears seen_resistance.
+        Master bug, frozen-unfixed. The branch carries upstream
+        ea57b9d8c. Archive only.
+      Not covered, by scope (the hero cannot drop these at will):
+      gremlin intrinsic theft, timed full-strength grants expiring,
+      FROMRACE changes. The "sees you hurt" half still resets them.
+      Nothing is learned underwater (m_canseeu() is false there).
+      Files: src/artifact.c, src/do_wear.c, src/mondata.c,
+      src/polyself.c, src/worn.c.
+      REVIEWER FAIL, then PASS. The first pass found:
+      - HIGH: the artifact hook keyed on the mask pointer alone, so
+        every `w` with an artifact readied in the alternate slot
+        forgot, and so did #twoweapon on while gaining the grant.
+      - MED: the alchemy smock's acid.
+      - LOW: an interrupted donning forgot secondaries never seated.
+      All were fixed with per-bit snapshots. The same guard went on
+      upstream's worn.c hook. The re-review PASSED. NIT taken: the
+      "x = x <op> y" comment was moved back over its assignment.
+      NITs noted: M_SEEN_DRLI/STUN/DISINT have no m_seenres() reader
+      yet; the read.c same-colour re-meld still forgets once (a real
+      unseat).
+      BATTERY (~33 min; POST 0ef39ffa9527e9d6261a40cd6ddc2d50, PRE
+      3918d51ad8f04a08c6e91eef1dee6933 = HEAD 3e1dfaf0b code; lawful
+      human Valkyrie XL30, a frozen peaceful gnome lord watching,
+      bits set to 0xfff by gdb before each action; paniclog never
+      created). 25 of 26 checks as briefed. Results are POST / PRE:
+      - Fire Brand `w-`: 0xffd / 0xfff.
+      - Off-hand reseats (`w`, `x` to primary, #twoweapon on):
+        0xfff on both.
+      - `x` back to the alternate slot, and #twoweapon off: 0xffd /
+        0xfff.
+      - A ring of fire resistance readied as the alternate, then
+        `w`: 0xfff / 0xffd. PRE's upstream hook forgot spuriously.
+      - The Platinum Yendorian Express Card dropped or bagged: 0xffe
+        / 0xfff. The Idol of Moloch dropped while the card is still
+        carried: 0xfff. The Orb of Detection is compiled out.
+      - Gauntlets of Purity off: 0xcff / 0xfff.
+      - Dwarvish cloak of fire off: 0xffd / 0xfff.
+      - Alchemy smock off: 0xf3f / 0xfbf.
+      - Silver-scaled suit off: 0xefb / 0xeff.
+      - Chromatic-scaled suit off: 0xe00 / 0xffe.
+      - An interrupted celestial donning (remove_worn_item() while
+        afternmv = Armor_on): 0xfff.
+      - Rehumanize from red dragon: 0xffd / 0xfff.
+      - Red dragon to hell hound: 0xfff.
+      - Invisible hero: 0xfff.
+      - Save/restore: kept.
+      - AI: a trapped hostile gnome lord with a wand of fire and only
+        the FIRE bit set. POST: no zap in 13 lined-up turns while the
+        hero wielded Fire Brand, then "The gnome lord zaps an ebony
+        wand!" on its first action after `w-`. PRE: no zap in 20.
+      The one miss was the brief's own expectation. Entering red
+      dragon form cleared COLD (0xffb), because a Valkyrie's base
+      form grants cold FROMFORM beside FROMEXPER. That is a source
+      really lost, and it matches the ruling ("fires even if you
+      still resist another way").
+- [ ] SWEEP: monstseesu() SETTER parity with master (minted
+      2026-09-28, session 152, by the forgetting-gaps slice). The
+      branch's setter calls sit where 5.0 put them, and master's sit
+      elsewhere. Per-bit counts (master / branch):
+      - REFL 13 / 6: master's ureflects() sets it on all nine arms;
+        the branch sets it at call sites.
+      - FIRE 27 / 21: most of the gap is master read.c.
+      - ACID 11 / 9.
+      - The rest are equal or near.
+      Census each master setter against the branch: a missing one
+      leaves a watcher unaware of a resistance master teaches it
+      (muse.c wand picks, mcastu.c spell choice, the reflection_skip
+      that blocks every ray wand). SWEEP (gameplay: monster item and
+      spell choice).
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
@@ -20528,6 +20644,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, hash filled after landing); patch artifact not cut yet |
 | 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, b67faba77); patch artifact not cut yet |
 | 2026-09-27 | 0bdf9830e monster aklys throwing, four gaps. (1) return_from_mtoss()'s "returns to <mon>'s hand!" uses one `static long do_not_annoy` 500-turn throttle for every monster, with no canseemon() test (Official_nh50 src/mthrowu.c:883): an unseen thrower prints "returns to its hand!". (2) select_rwep()'s arwep pick measures dist2 to mux/muy (src/weapon.c:593), but thrwmm() (:984) throws at another monster, so a pet next to the hero throws its aklys up to 8 squares "on its tether". (3) ohitmon() drop_throw()s any missile that hits a monster, or misses it on the last square (:494, :358), so a thrown aklys never returns after a monster hit, though m_throw()'s own comment (:659) marks "stops forward motion at hit monster/hero, triggers return" as done. (4) The arwep pick lacks rwep[]'s "don't throw a cursed weapon-in-hand" test and thrwmu() skips its tether arm for `mwelded(otmp)` (:1241), so a monster throws its welded aklys. Branch fixes: canseemon() and no throttle; a target-aware pick via gm.mtarget; a file static that lets ohitmon() leave the tethered weapon for m_throw() to return (after passive_obj()); the welded test. Battery-confirmed (session 150 T1-T5) | fixed on branch (BUG-1972..1975, b67faba77); patch artifact not cut yet |
 | 2026-09-27 | priest.c ghod_hitsu() saves gc.current_wand, zeroes it around the god's lightning and restores it afterwards (Official_nh50 src/priest.c:866, from 4021a63bc "wand/spell/breath killer reason"). The bolt's destroy_items(AD_ELEC) can destroy the very wand the hero is zapping at the temple priest. maybe_destroy_item()'s `obj == gc.current_wand` clear then compares against the zeroed global, and the restore hands dozap() the freed wand (`obj = gc.current_wand; ... obj->spe`), which is the "Are we having fun yet? ... ghod_hitsu ... free(obj)" chain dozap's own comment describes. The zeroing only protected zhitu()'s "zapped/played" verb, which a BZ_M_SPELL bolt never reads. Branch fix: drop the three current_wand lines (master has none); battery-confirmed (session 149: the bolt destroyed the zapped wand of striking on try 11, current_wand NULL, no crash) | fixed on branch (BUG-1971, dfedd36aa); patch artifact not cut yet |
@@ -20679,6 +20796,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-28 | Monster-memory forgetting ruling (AskUserQuestion x1, session 152). "Keep it and fix its gaps", over the recommended master shape (never forget; master's memory is EvilHack's own, 1262a588d). 5.0's monstunseesu() layer stays, and its gear hook now also covers artifact grants, EvilHack armor properties and polymorph reversion. Folded in under the ruling's "every resistance source" rationale, at plan approval: dragon-scale secondaries, the alchemy smock's acid, and M_SEEN_DEATH in both converters (BUG-1981..1983). Semantics as upstream's: watchers forget when a source goes away, even if another remains. Session calls, plan- or review-approved: (1) every hook forgets only a grant that was actually seated, because the branch tears W_SWAPWEP down on every reseat; the same guard is on upstream's worn.c hook, and a NetHack50 merge must keep it. (2) Master's missing savebones() reset is archived as BUG-1984, frozen-unfixed. (3) The monstseesu() setter-parity census was minted as its own SWEEP row. | maintainer (ruling); session, plan- and review-approved (rest) |
 | 2026-09-27 | Monster item-blast damage ruling (AskUserQuestion x1, session 151). Monster-target callers of destroy_items() ADD its return at all ten former discard sites. Those are the LOW row's four shock callers (the hero's shocking grasp in hmon and hmonas, a monster's mshockgrasp, castmm lightning) plus six fire/cold siblings (the hero's burning hands in hmon and hmonas, the Hand of Vecna cold, a monster's mburnhands, the castmm avalanche and fire pillar). The recommended "keep master's discard" was declined. This SUPERSEDES the 2026-08-26 hero burning hands "return-discard ruling". MAINTAINER FYI mid-implementation: master's missing behavior is a bug, and the `(void)` casts there were unintended. So BUG-1979 is recorded as a master bug, frozen-unfixed on master. Session rules: dmg_in stays the attack's own damage (the stack count is unchanged), and the item damage is added after the spell or physical halving. Fold-in BUG-1980 (the fire pillar's ice-melt drowning double death, branch-only) was taken inside the approved plan. The pet-kill credit for that drowning got its own LOW row rather than an inline set_pet_killer(). | maintainer (ruling, master-bug call); session (rest) |
 | 2026-09-27 | Monster aklys throwing rulings (AskUserQuestion x3). ROUND 1 (before the plan): KEEP 5.0's monster aklys throwing and FIX ITS FLAWS (the maintainer's pick; master's melee-only aklys, inherited vanilla, was the recommended option). The option text named three flaws: the throttled return line (BUG-1972), pet and monster-vs-monster throws ignoring the tether (BUG-1973), and no return after hitting a monster (BUG-1974). Research findings under the same rationale were folded in at plan approval: the welded aklys (BUG-1975), the hero-hit passive and the dead-thrower guard (inside BUG-1974). ROUND 2 (multi-select, all three recommended options taken): fold in master mthrowu.c fixes lost in the adoption - the volley stop at a dead target (BUG-1976) and the thrwmm()/spitmm() archer/target save/restore (BUG-1977). ROUND 3 (after reviewer pass 1, both recommended options taken): fold in the reviewer's CRITICAL, master 5b33d1a1e's pre-flight bars guard (BUG-1978, a SIGSEGV); a monster target beyond the tether gets the monster's OTHER missiles (the target-aware pick via gm.mtarget) instead of the first draft's hold. SESSION CALLS: an aklys-only monster still holds its turn against a far target (master's launcher-gate shape); the dead-thrower drop moved before tmp_at(DISP_END) after the battery showed the aklys undrawn; the hero-catch extra minted as its own LOW row rather than ruled here. | maintainer (rulings); session (rest) |
 | 2026-09-27 | Lava inventory burn rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): (1) MASTER'S BURN: a hero who survives lava (full fire resistance or water walking) runs fire_damage() on every open-inventory item on every lava entry (a6e0803e7, the maintainer's authored intent), replacing 5.0's damage-capped destroy_items(), which cost a fully fire-resistant hero nothing (BUG-1961). (2) POTIONS BOIL: master's cdaf4409d / 9902d22ef made glass potions immune in fire_damage() and the lava death as a side effect, while comments beside both edits still say they boil; treated as a master regression, frozen-unfixed there (BUG-1963). The maintainer added that potions are never meant to be fireproof or tempered in any way; no branch path sets it (the wish sites sit inside erosion_matters()). (3) FOLD-INS, all four: fire_damage()'s master gate and smoke placement (BUG-1964), the lava-death is_flammable() predicate restoring master's Hand/Eye of Vecna fix (BUG-1962), the blind flame line (BUG-1966), lava_damage()'s per-object predicate (BUG-1965). ROUND 2 (after reviewer pass 1): (4) CENTRAL in_use GUARD in Boots_off() / Ring_off_or_gone() instead of master's per-site o_id checks (BUG-1967); in play the item being removed is spared from that one burn, where master's may burn up. (5) FOLD-INS: the death-loop next-item look-ahead (BUG-1968) and the seducer ring / wand holes (BUG-1969, BUG-1970). Session calls under the sibling rule, from reviewer passes 2-3: master BUG-688 and BUG-1197 re-ported (BUG-1970), glibr's uright re-check, the in_use mark limited to lava (and trap squares for the ring), and the upstream ghod_hitsu() current_wand restore dropped (BUG-1971). The master paranoid-swim decline penalty (2c50b94ab) became its own LOW row | maintainer (1-5); session (rest) |
