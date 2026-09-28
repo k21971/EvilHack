@@ -11,6 +11,7 @@ staticfn boolean morgue_mon_sound(struct monst *);
 staticfn boolean zoo_mon_sound(struct monst *);
 staticfn boolean temple_priest_sound(struct monst *);
 staticfn boolean mon_is_gecko(struct monst *);
+staticfn int pet_mood(struct monst *);
 staticfn int dochat(void);
 staticfn struct monst *find_commandable_pet(void);
 staticfn struct monst *responsive_mon_at(int, int);
@@ -558,20 +559,39 @@ yelp(struct monst *mtmp)
             se = se_canine_yelp;
             yelp_verb = (!Deaf) ? "yelp" : "recoil";
             break;
+        case MS_GRUNT:
+        case MS_ORC:
+            se = (mtmp->data->msound == MS_ORC) ? se_orc_grunt : se_grunt;
+            yelp_verb = (!Deaf) ? "grunt" : "thrash";
+            break;
         case MS_ROAR:
+        case MS_TRUMPET:
             yelp_verb = (!Deaf) ? "snarl" : "bluff";
             break;
         case MS_SQEEK:
+        case MS_BAT:
+        case MS_WCHUCK:
             se = se_squeal;
             yelp_verb = (!Deaf) ? "squeal" : "quiver";
             break;
         case MS_SQAWK:
+        case MS_RAPTOR:
             se = se_avian_screak;
             yelp_verb = (!Deaf) ? "screak" : "thrash";
+            break;
+        case MS_HISS:
+        case MS_LIZARD:
+        case MS_PSEUDO:
+            se = se_hiss;
+            yelp_verb = (!Deaf) ? "hiss" : "recoil";
             break;
         case MS_WAIL:
             se = se_wail;
             yelp_verb = (!Deaf) ? "wail" : "cringe";
+            break;
+        case MS_BURBLE:
+            se = se_jabberwock_burble;
+            yelp_verb = (!Deaf) ? "whiffle" : "gyre";
             break;
         }
     if (yelp_verb) {
@@ -607,7 +627,23 @@ whimper(struct monst *mtmp)
         case MS_BARK:
             whimper_verb = "whine";
             break;
+        case MS_NEIGH:
+            se = se_equine_whinny;
+            whimper_verb = "whinny";
+            break;
+        case MS_TRUMPET:
+            se = se_elephant_trumpet;
+            whimper_verb = "trumpet";
+            break;
+        case MS_HISS:
+        case MS_LIZARD:
+        case MS_PSEUDO:
+            se = se_hiss;
+            whimper_verb = "hiss";
+            break;
         case MS_SQEEK:
+        case MS_BAT:
+        case MS_BURBLE:
             se = se_squeal;
             whimper_verb = "squeal";
             break;
@@ -742,6 +778,7 @@ cry_sound(struct monst *mtmp)
         ret = (ptr->mlet == S_EEL) ? "gurgle" : "chitter";
         break;
     case MS_HISS: /* chickatrice, pyrolisk, snakes */
+    case MS_LIZARD: /* lizards, crocodiles */
         ret = "hiss";
         break;
     case MS_ROAR: /* baby dragons; have them growl instead of roar */
@@ -755,7 +792,11 @@ cry_sound(struct monst *mtmp)
         ret = "buzz";
         break;
     case MS_SQAWK: /* ravens */
+    case MS_RAPTOR: /* hawks */
         ret = "screech";
+        break;
+    case MS_NEIGH: /* pegasi */
+        ret = "whinny";
         break;
     case MS_GRUNT: /* gargoyles */
         ret = "grunt";
@@ -784,6 +825,27 @@ mon_is_gecko(struct monst *mon)
        be due to hallucination or to mimickery since mon isn't one */
     glyph = glyph_at(mon->mx, mon->my);
     return (boolean) (glyph_to_mon(glyph) == PM_GECKO);
+}
+
+/* what a tame animal's noises convey when chatted to; the tables in
+   domonnoise() are indexed by these */
+enum pet_moods { PET_DISTRESSED, PET_HUNGRY, PET_WELL_FED, PET_CONTENT };
+
+/* caller has checked mtmp->mtame; the Astral guardian angel is tame
+   but has no edog (it is a minion), so it is never hungry or well fed */
+staticfn int
+pet_mood(struct monst *mtmp)
+{
+    if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped || mtmp->mentangled
+        || mtmp->mtame < 5)
+        return PET_DISTRESSED;
+    if (!has_edog(mtmp))
+        return PET_CONTENT;
+    if (svm.moves > EDOG(mtmp)->hungrytime)
+        return PET_HUNGRY;
+    if (EDOG(mtmp)->hungrytime > svm.moves + 1000)
+        return PET_WELL_FED;
+    return PET_CONTENT;
 }
 
 DISABLE_WARNING_FORMAT_NONLITERAL
@@ -866,6 +928,7 @@ domonnoise(struct monst *mtmp)
                                       || u.umonnum == PM_VAMPIRE_MAGE));
         boolean nightchild = (Upolyd && (u.umonnum == PM_WOLF
                                          || u.umonnum == PM_WINTER_WOLF
+                                         || u.umonnum == PM_WARG
                                          || u.umonnum == PM_WINTER_WOLF_CUB));
         const char *racenoun = (flags.female && gu.urace.individual.f)
                                ? gu.urace.individual.f
@@ -957,51 +1020,113 @@ domonnoise(struct monst *mtmp)
         if (flags.moonphase == FULL_MOON && night()) {
             pline_msg = "howls.";
         } else if (mtmp->mpeaceful) {
-            if (mtmp->mtame
-                && (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
-                    || svm.moves > EDOG(mtmp)->hungrytime || mtmp->mtame < 5))
+            int mood = mtmp->mtame ? pet_mood(mtmp) : PET_CONTENT;
+
+            if (mood == PET_DISTRESSED)
                 pline_msg = "whines.";
-            else if (mtmp->mtame && EDOG(mtmp)->hungrytime > svm.moves + 1000)
-                pline_msg = "yips.";
-            else {
-                if (ptr != &mons[PM_DINGO]) /* dingos do not actually bark */
-                    pline_msg = "barks.";
-            }
+            else if (mood == PET_HUNGRY)
+                pline_msg = "whines hungrily.";
+            else if (mood == PET_WELL_FED)
+                pline_msg = "yips contentedly.";
+            else if (ptr != &mons[PM_DINGO]) /* dingos do not actually bark */
+                pline_msg = "barks.";
         } else {
             pline_msg = "growls.";
         }
         break;
     case MS_MEW:
         if (mtmp->mtame) {
-            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
-                || mtmp->mtame < 5) {
+            switch (pet_mood(mtmp)) {
+            case PET_DISTRESSED:
                 Soundeffect(se_feline_yowl, 80);
                 pline_msg = "yowls.";
-            } else if (svm.moves > EDOG(mtmp)->hungrytime) {
+                break;
+            case PET_HUNGRY:
                 Soundeffect(se_feline_meow, 80);
                 pline_msg = "meows.";
-            } else if (EDOG(mtmp)->hungrytime > svm.moves + 1000) {
+                break;
+            case PET_WELL_FED:
                 Soundeffect(se_feline_purr, 40);
                 pline_msg = "purrs.";
-            } else {
+                break;
+            default:
                 Soundeffect(se_feline_mew, 60);
                 pline_msg = "mews.";
+                break;
             }
             break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/
     case MS_GROWL:
+        if (mtmp->mtame) {
+            static const char *const growl_moods[] = {
+                "snarls.", "makes a low rumble.", "rumbles contentedly.",
+                "rumbles.",
+            };
+
+            Soundeffect(se_growl, 60);
+            pline_msg = growl_moods[pet_mood(mtmp)];
+            break;
+        }
         Soundeffect((mtmp->mpeaceful ? se_snarl : se_growl), 80);
         pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
         break;
     case MS_ROAR:
+        if (mtmp->mtame) {
+            static const char *const roar_moods[] = {
+                "roars.", "huffs.", "exhales contentedly.", "snorts.",
+            };
+
+            Soundeffect(se_roar, 60);
+            pline_msg = roar_moods[pet_mood(mtmp)];
+            break;
+        }
         Soundeffect((mtmp->mpeaceful ? se_snarl : se_roar), 80);
         pline_msg = mtmp->mpeaceful ? "snarls." : "roars!";
         break;
     case MS_SQEEK:
+        if (mtmp->mtame) {
+            static const char *const sqeek_moods[] = {
+                "hisses.", "squeals hungrily.",
+                "bruxes contentedly.", /* chatters or grinds its teeth */
+                "chitters.",
+            };
+
+            Soundeffect(se_squeal, 60);
+            pline_msg = sqeek_moods[pet_mood(mtmp)];
+            break;
+        }
         Soundeffect(se_squeak, 80);
-        pline_msg = "squeaks.";
+        pline_msg = mtmp->mpeaceful ? "squeaks." : "loudly squeaks!";
+        break;
+    case MS_BAT:
+        if (mtmp->mtame) {
+            static const char *const bat_moods[] = {
+                "screeches.", "clicks hungrily.", "clicks contentedly.",
+                "chirps.",
+            };
+
+            Soundeffect(se_squeak, 60);
+            pline_msg = bat_moods[pet_mood(mtmp)];
+            break;
+        }
+        Soundeffect((mtmp->mpeaceful ? se_squeak : se_screech), 80);
+        pline_msg = mtmp->mpeaceful ? "squeaks." : "screeches.";
+        break;
+    case MS_WCHUCK:
+        if (mtmp->mtame) {
+            static const char *const wchuck_moods[] = {
+                "squeals.", "whistles hungrily.", "chirps contentedly.",
+                "grunts.",
+            };
+
+            Soundeffect(se_squeal, 60);
+            pline_msg = wchuck_moods[pet_mood(mtmp)];
+            break;
+        }
+        Soundeffect((mtmp->mpeaceful ? se_canine_bark : se_growl), 80);
+        pline_msg = mtmp->mpeaceful ? "barks." : "growls!";
         break;
     case MS_SQAWK:
         if (ptr == &mons[PM_RAVEN] && !mtmp->mpeaceful) {
@@ -1011,7 +1136,43 @@ domonnoise(struct monst *mtmp)
             pline_msg = "squawks.";
         }
         break;
+    case MS_RAPTOR:
+        if (mtmp->mtame) {
+            static const char *const raptor_moods[] = {
+                "screams frantically.", "whistles shrilly.",
+                "chirps contentedly.", "whistles.",
+            };
+
+            Soundeffect(se_shrill_whistle, 60);
+            pline_msg = raptor_moods[pet_mood(mtmp)];
+            break;
+        }
+        Soundeffect(se_screech, 80);
+        pline_msg = mtmp->mpeaceful ? "screams." : "screams!";
+        break;
     case MS_HISS:
+    case MS_LIZARD:
+    case MS_PSEUDO:
+        if (mtmp->mtame) {
+            static const char *const hiss_moods[] = {
+                "hisses frantically.", "hisses hungrily.",
+                "hisses contentedly.", "softly hisses.",
+            };
+            static const char *const lizard_moods[] = {
+                "hisses frantically.", "grunts hungrily.",
+                "grunts contentedly.", "grunts.",
+            };
+            static const char *const pseudo_moods[] = {
+                "snarls.", "rumbles.", "purrs.", "softly hisses.",
+            };
+            const char *const *moods = (msound == MS_LIZARD) ? lizard_moods
+                                       : (msound == MS_PSEUDO) ? pseudo_moods
+                                         : hiss_moods;
+
+            Soundeffect(se_hiss, 60);
+            pline_msg = moods[pet_mood(mtmp)];
+            break;
+        }
         if (!mtmp->mpeaceful) {
             Soundeffect(se_hiss, 80);
             pline_msg = "hisses!";
@@ -1024,20 +1185,43 @@ domonnoise(struct monst *mtmp)
         pline_msg = mtmp->mpeaceful ? "drones." : "buzzes angrily.";
         break;
     case MS_GRUNT:
-        Soundeffect(se_grunt, 60);
-        pline_msg = "grunts.";
+    case MS_ORC: /* orcs grunt like the other brutes */
+        Soundeffect((msound == MS_ORC) ? se_orc_grunt : se_grunt, 60);
+        if (mtmp->mtame) {
+            static const char *const grunt_moods[] = {
+                "grunts.", "jabbers hungrily.", "gabbles contentedly.",
+                "jabbers.",
+            };
+
+            pline_msg = grunt_moods[pet_mood(mtmp)];
+            break;
+        }
+        pline_msg = mtmp->mpeaceful ? "grunts." : "grunts!";
         break;
     case MS_NEIGH:
-        if (mtmp->mtame < 5) {
-            Soundeffect(se_equine_neigh, 60);
-            pline_msg = "neighs.";
-        } else if (svm.moves > EDOG(mtmp)->hungrytime) {
-            Soundeffect(se_equine_whinny, 60);
-            pline_msg = "whinnies.";
-        } else {
-            Soundeffect(se_equine_whicker, 60);
-            pline_msg = "whickers.";
+        if (mtmp->mtame) {
+            switch (pet_mood(mtmp)) {
+            case PET_DISTRESSED:
+                Soundeffect(se_equine_neigh, 60);
+                pline_msg = "neighs.";
+                break;
+            case PET_HUNGRY:
+                Soundeffect(se_equine_whinny, 60);
+                pline_msg = "whinnies.";
+                break;
+            case PET_WELL_FED:
+                Soundeffect(se_equine_whicker, 60);
+                pline_msg = "whickers contentedly.";
+                break;
+            default:
+                Soundeffect(se_equine_whicker, 60);
+                pline_msg = "whickers.";
+                break;
+            }
+            break;
         }
+        Soundeffect(se_equine_neigh, 60);
+        pline_msg = mtmp->mpeaceful ? "neighs." : "neighs!";
         break;
     case MS_MOO:
         Soundeffect(se_bovine_moo, 80);
@@ -1069,13 +1253,39 @@ domonnoise(struct monst *mtmp)
         break;
     case MS_BURBLE:
         Soundeffect(se_jabberwock_burble, 60);
-        pline_msg = "burbles.";
+        if (mtmp->mtame) {
+            static const char *const burble_moods[] = {
+                "burbles frantically.", "whiffles hungrily.",
+                "whiffles contentedly.", "whiffles.",
+            };
+
+            pline_msg = burble_moods[pet_mood(mtmp)];
+            break;
+        }
+        pline_msg = mtmp->mpeaceful ? "burbles." : "burbles!";
         break;
-    case MS_TRUMPET:
-        Soundeffect(se_elephant_trumpet, 60);
-        pline_msg = "trumpets!";
-        wake_nearto(mtmp->mx, mtmp->my, 11 * 11);
+    case MS_TRUMPET: {
+        boolean trumpets = TRUE;
+
+        if (mtmp->mtame) {
+            static const char *const trumpet_moods[] = {
+                "trumpets.", "snorts hungrily.", "rumbles contentedly.",
+                "snorts.",
+            };
+            int mood = pet_mood(mtmp);
+
+            pline_msg = trumpet_moods[mood];
+            trumpets = (mood == PET_DISTRESSED);
+        } else {
+            pline_msg = mtmp->mpeaceful ? "trumpets." : "trumpets!";
+        }
+        /* only an actual trumpet blast is loud enough to wake others */
+        if (trumpets) {
+            Soundeffect(se_elephant_trumpet, 60);
+            wake_nearto(mtmp->mx, mtmp->my, 11 * 11);
+        }
         break;
+    }
     case MS_SHRIEK:
         Soundeffect(se_shriek, 60);
         pline_msg = "shrieks.";
@@ -1099,16 +1309,18 @@ domonnoise(struct monst *mtmp)
         static const char *const laugh_msg[4] = {
             "giggles.", "chuckles.", "snickers.", "laughs.",
         };
+        static const char *const gnoll_msg[5] = {
+            "cackles.", "woops.", "yips.", "laughs.", "growls.",
+        };
         Soundeffect(se_laughter, 60);
-        pline_msg = laugh_msg[rn2(4)];
+        if (is_gnoll(ptr))
+            pline_msg = gnoll_msg[rn2(5)];
+        else
+            pline_msg = laugh_msg[rn2(4)];
         break;
     }
     case MS_MUMBLE:
         pline_msg = "mumbles incomprehensibly.";
-        break;
-    case MS_ORC: /* this used to be an alias for grunt, now it is distinct */
-        Soundeffect(se_orc_grunt, 60);
-        pline_msg = "grunts.";
         break;
     case MS_DJINNI:
         if (mtmp->mtame) {
@@ -1161,6 +1373,8 @@ domonnoise(struct monst *mtmp)
             verbl_msg = !rn2(3) ? "Huh?" : rn2(2) ? "What?" : "Eh?";
         else if (!mtmp->mcansee)
             verbl_msg = "I can't see!";
+        else if (mtmp->mentangled)
+            verbl_msg = "I'm entangled!";
         else if (mtmp->mtrapped) {
             struct trap *t = t_at(mtmp->mx, mtmp->my);
 
@@ -1209,7 +1423,12 @@ domonnoise(struct monst *mtmp)
                                  u.uevent.ucerberus ? 3 : 0);
         } else if (likes_magic(ptr))
             pline_msg = "talks about spellcraft.";
-        else if (racial_centaur(mtmp))
+        else if (is_true_ent(ptr)) {
+            if (!rn2(100))
+                pline_msg = "asks if you've seen any entwives recently.";
+            else
+                pline_msg = "discusses the state of the forest.";
+        } else if (racial_centaur(mtmp))
             pline_msg = "discusses hunting.";
         else if (racial_gnome(mtmp)) {
             if (mtmp->mpeaceful && Ingtown) {
@@ -1240,6 +1459,7 @@ domonnoise(struct monst *mtmp)
         } else
             switch (monsndx(ptr)) {
             case PM_HOBBIT:
+            case PM_HOBBIT_PICKPOCKET:
                 /* 5.0: the 'complains' message used to be given if the
                    hobbit's current hit points were at 10 below max or
                    less, but their max is normally less than 10 so it

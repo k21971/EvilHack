@@ -26,42 +26,42 @@ enum ms_sounds {
     MS_GURGLE   = 15,   /* gurgles, as liquid or through saliva */
     MS_BURBLE   = 16,   /* burbles (jabberwock) */
     MS_TRUMPET  = 17,   /* trumpets (elephant) */
-    MS_ANIMAL   = 17,   /* up to here are animal noises */
+    MS_BAT      = 18,   /* bats */
+    MS_WCHUCK   = 19,   /* woodchucks don't sound like rodents */
+    MS_RAPTOR   = 20,   /* birds of prey */
+    MS_LIZARD   = 21,   /* lizard (and turtle) hiss specialization */
+    MS_PSEUDO   = 22,   /* pseudodragon hiss specialization */
+    MS_ANIMAL   = 22,   /* up to here are animal noises */
     /* FIXME? the grunt "speaks own language" case above
        shouldn't be classified as animal */
-    MS_SHRIEK   = 18,   /* wakes up others */
-    MS_BONES    = 19,   /* rattles bones (skeleton) */
-    MS_LAUGH    = 20,   /* grins, smiles, giggles, and laughs */
-    MS_MUMBLE   = 21,   /* says something or other */
-    MS_IMITATE  = 22,   /* imitates others (leocrotta) */
-    MS_WERE     = 23,   /* lycanthrope in human form */
-    MS_ORC      = 24,   /* intelligent brutes */
+    MS_SHRIEK   = 23,   /* wakes up others */
+    MS_BONES    = 24,   /* rattles bones (skeleton) */
+    MS_LAUGH    = 25,   /* grins, smiles, giggles, and laughs */
+    MS_MUMBLE   = 26,   /* says something or other */
+    MS_IMITATE  = 27,   /* imitates others (leocrotta) */
+    MS_WERE     = 28,   /* lycanthrope in human form */
+    MS_ORC      = 29,   /* intelligent brutes */
     /* from here onward, speech can be comprehended */
-    MS_HUMANOID = 25,   /* generic traveling companion */
-    MS_ARREST   = 26,   /* "Stop in the name of the law!" (Kops) */
-    MS_SOLDIER  = 27,   /* army and watchmen expressions */
-    MS_GUARD    = 28,   /* "Please drop that gold and follow me." */
-    MS_DJINNI   = 29,   /* "Thank you for freeing me!" */
-    MS_NURSE    = 30,   /* "Take off your shirt, please." */
-    MS_SEDUCE   = 31,   /* "Hello, sailor." (Nymphs) */
-    MS_VAMPIRE  = 32,   /* vampiric seduction, Vlad's exclamations */
-    MS_BRIBE    = 33,   /* asks for money, or berates you */
-    MS_CUSS     = 34,   /* berates (demons) or intimidates (Wiz) */
-    MS_RIDER    = 35,   /* astral level special monsters */
-    MS_LEADER   = 36,   /* your class leader */
-    MS_NEMESIS  = 37,   /* your nemesis */
-    MS_GUARDIAN = 38,   /* your leader's guards */
-    MS_SELL     = 39,   /* demand payment, complain about shoplifters */
-    MS_ORACLE   = 40,   /* do a consultation */
-    MS_PRIEST   = 41,   /* ask for contribution; do cleansing */
-    MS_SPELL    = 42,   /* spellcaster not matching any of the above */
-    MS_BOAST    = 43,   /* giants */
-    MS_GROAN    = 44,   /* zombies groan */
-    MS_BAT      = 45,   /* bats */
-    MS_WCHUCK   = 46,   /* woodchucks don't sound like rodents */
-    MS_RAPTOR   = 47,   /* birds of prey */
-    MS_LIZARD   = 48,   /* lizard (and turtle) hiss specialization */
-    MS_PSEUDO   = 49,   /* pseudodragon hiss specialization */
+    MS_HUMANOID = 30,   /* generic traveling companion */
+    MS_ARREST   = 31,   /* "Stop in the name of the law!" (Kops) */
+    MS_SOLDIER  = 32,   /* army and watchmen expressions */
+    MS_GUARD    = 33,   /* "Please drop that gold and follow me." */
+    MS_DJINNI   = 34,   /* "Thank you for freeing me!" */
+    MS_NURSE    = 35,   /* "Take off your shirt, please." */
+    MS_SEDUCE   = 36,   /* "Hello, sailor." (Nymphs) */
+    MS_VAMPIRE  = 37,   /* vampiric seduction, Vlad's exclamations */
+    MS_BRIBE    = 38,   /* asks for money, or berates you */
+    MS_CUSS     = 39,   /* berates (demons) or intimidates (Wiz) */
+    MS_RIDER    = 40,   /* astral level special monsters */
+    MS_LEADER   = 41,   /* your class leader */
+    MS_NEMESIS  = 42,   /* your nemesis */
+    MS_GUARDIAN = 43,   /* your leader's guards */
+    MS_SELL     = 44,   /* demand payment, complain about shoplifters */
+    MS_ORACLE   = 45,   /* do a consultation */
+    MS_PRIEST   = 46,   /* ask for contribution; do cleansing */
+    MS_SPELL    = 47,   /* spellcaster not matching any of the above */
+    MS_BOAST    = 48,   /* giants */
+    MS_GROAN    = 49,   /* zombies groan */
 };
 
 #define MR_FIRE         0x01 /* resists fire */
