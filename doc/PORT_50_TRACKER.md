@@ -17,16 +17,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-28, after session 152): 264 rows
-  closed, 82 open. Of the open rows:
-  - 15 MED: 10 master behaviors the 5.0 base lacks or reshaped
+- Phase 2 status (refreshed 2026-09-28, after session 153): 265 rows
+  closed, 83 open. Of the open rows:
+  - 17 MED: 10 master behaviors the 5.0 base lacks or reshaped
     (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
     mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
     amnesia skill reset, Caveperson role arms, hero spellcasting
     penalty + sp_know, mm_aggression() grudge residue, obufs[]
-    widening) and 5 unported master features (potion alchemy
-    table, terrain concealment, door-material colors, pet-helper
-    AI, the held artifact pokedex tips).
+    widening), 6 unported master features (potion alchemy table,
+    terrain concealment, door-material colors, pet-helper AI, the
+    held artifact pokedex tips, the boojum "vanish" arm) and the
+    covetous freeze in a Gehennom demon court (needs a ruling).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -37,27 +38,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 50 LOW: small parity rows, quirks and watch/record-only items.
-    The queue starts with the covetous noteleport exemption and
-    steed-holds-hero; the hero-catches-thrown-items row needs a
-    ruling and the wish-invlet row a reproduction.
-- Latest slice: 2026-09-28 (session 152) MONSTER-MEMORY FORGETTING
-  KEPT, GAPS FIXED (code and tracker hashes filled after landing;
-  BUG-1981..1984). 5.0's monstunseesu() layer stays. Watching
-  monsters now also forget a resistance when the hero loses it
-  from any of these:
-  - an artifact;
-  - an EvilHack armor property;
-  - the alchemy smock;
-  - dragon-scale secondaries;
-  - a polymorph form.
-  M_SEEN_DEATH is now mapped, and every hook forgets only a grant
-  that was actually seated. BUG-1984: master's bones monsters keep
-  the dead hero's seen resistances (frozen-unfixed). One SWEEP row
-  was minted (monstseesu() setter parity). Detail: the closed row's
-  closure notes and the Decisions log.
-- Previous slice: 2026-09-27 (session 151) MONSTER ITEM-BLAST DAMAGE
-  (code ba78d410c, tracker 3e1dfaf0b; BUG-1979/1980).
+  - 49 LOW: small parity rows, quirks and watch/record-only items.
+    The queue starts with steed-holds-hero; the
+    hero-catches-thrown-items row needs a ruling and the
+    wish-invlet row a reproduction.
+- Latest slice: 2026-09-28 (session 153) COVETOUS NO-TELEPORT
+  EXEMPTION REMOVED, MASTER'S SHAPE (code and tracker hashes filled
+  after landing; BUG-1985/1986). 5.0's covetous exemption came with
+  upstream's wand of stasis, which the branch declined. A level's
+  no-teleport flag now stops a covetous monster's own teleports
+  (wands, scrolls, spells, blinks, theft escapes) as on master;
+  tactics() warps and the bribe demons' departures still ignore it,
+  as on master. BUG-1986 (upstream too): a hero polymorphed into a
+  master lich or arch-lich no longer teleports on no-teleport
+  levels. Two MED rows minted (boojum "vanish" arm, covetous court
+  freeze). Detail: the closed row's closure notes and the
+  Decisions log.
+- Previous slice: 2026-09-28 (session 152) MONSTER-MEMORY FORGETTING
+  KEPT, GAPS FIXED (code 72f7c9312, tracker ca4527200;
+  BUG-1981..1984).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -18288,11 +18287,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (no mon_leaving_level()). Decide: treat `has_erid(mtmp) &&
       ERID(mtmp)->mon_steed == u.ustuck` as stuck in both finders
       and in mon_escape_with_amulet(), or accept it. LOW.
-- [ ] LOW: 5.0's noteleport_level() exempts covetous monsters from a
+- [x] LOW: 5.0's noteleport_level() exempts covetous monsters from a
+      level's natural no-teleport flag - MASTER'S SHAPE RESTORED
+      2026-09-28 (session 153, commit `Restore master's no-teleport
+      refusal for covetous monsters.` = (hash filled after landing),
+      BUG-1985, 1986; closure notes at the end of this row; minted
+      2026-09-24, session 140, by the mysterious-force slice's
+      reviewer). Original text:
+      5.0's noteleport_level() exempts covetous monsters from a
       level's natural no-teleport flag (`noteleport && !is_covetous`;
       upstream, Official_nh50 identical); master's tele_restrict() has
-      no exemption (minted 2026-09-24, session 140, by the
-      mysterious-force slice's reviewer). Every tele_restrict() /
+      no exemption. Every tele_restrict() /
       noteleport_level() caller therefore lets a covetous monster
       teleport on Sokoban, the Wizard's Tower levels, Vlad's Tower
       and other flagged levels where master refuses: the ported
@@ -18313,6 +18318,99 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Note (2026-09-25, session 142): since BUG-1934 a carrier skips
       find_defensive()'s HP gate, so the covetous carrier's endless
       teleport-away recast at the hero no longer needs it to be hurt.
+      CLOSURE (session 153, plan
+      /root/.claude/plans/bugfix-covetous-noteleport-exemption.md):
+      ORIGIN: upstream 07fc4904c ("Add a new wand, the wand of
+      stasis", 2026-03-19). Before it, 3.7's tactics() tested nothing,
+      like master. The commit added seven noteleport_level() gates to
+      tactics() so that stasis stops covetous warps, and put the
+      exemption inside noteleport_level() so tactics() kept ignoring
+      the natural flag; every other caller inherited it. The branch
+      declined the wand (decisions log 2026-07-12; stasis_until has no
+      writer), so the exemption only widened the flag.
+      RULING (AskUserQuestion x1, recommended option taken): master's
+      shape.
+      - BUG-1985: noteleport_level() tests the natural flag for every
+        monster and the hero first, then returns the new
+        covetous_noteleport() (the demon-court and stasis arms,
+        verbatim). The ten sites where master tests nothing use
+        covetous_noteleport(): tactics()'s seven warp gates, dochug()'s
+        two MS_BRIBE departures and demon_talk()'s "Good hunting".
+        The five MS_BRIBE demons are all lords or princes, exempt from
+        the court, and stasis is dormant, so those three are master's
+        bare rloc(). Every other caller now reads master's refusal:
+        m_tele(), the m_move() 1-in-85 blink, the dochug flee blink,
+        the self-teleport spell, the wand / scroll / trap picks, the
+        TELEP_TRAP_SET learn arms, the Wizard's stealamulet() escape,
+        Graz'zt's post-theft teleport, mbhitm() and the quantum
+        mechanic on a covetous target, the Juiblex engulf arm of
+        u_teleport_mon(), rnd_defensive_item()'s creation reroll, the
+        mcastu.c usefulness filter.
+      - BUG-1986 (branch and upstream): noteleport_level(&gy.youmonst)
+        read the polymorph form, and master lich and arch-lich are
+        polyok and M3_WANTSBOOK, so a hero in either form teleported
+        in Sokoban, Vlad's Tower, the Castle and on Medusa's island
+        (scroll, ^T, zap at self, a hero-set trap, the cursed magic
+        whistle). Fixed by the same change. Upstream-reportable table
+        row added.
+      muse.c: the stale "a covetous caster passes noteleport_level()"
+      comment rewritten. The On_W_tower_level() trap and spell pick
+      guards (BUG-1927) now only save the first attempt, because all
+      three Wizard's Tower levels are flagged and tele_restrict()
+      refuses and teaches first; the "disoriented" arms' W-tower term
+      is dead there, as on master.
+      Files: include/extern.h, src/minion.c, src/monmove.c,
+      src/muse.c, src/teleport.c, src/wizard.c. No save-format change.
+      REVIEWER PASS, zero defects in the diff. Taken: the LOW comment
+      wording ("an MS_BRIBE demon's departure"). Recorded, not taken:
+      - LOW, at-hero residue under the court: a lord or prince carrying
+        the Amulet in its unflagged Gehennom lair is exempt from the
+        court, but its presence blocks the hero, so its at-hero wand /
+        spell pick never learns and it zaps until empty. Master loops
+        too (its 9-in-10 demon-lord block is never learned either).
+        Record only.
+      - MED, pre-existing: covetous non-lords freeze beyond close range
+        in a Gehennom demon court -> NEW ROW below.
+      - Cosmetic: master's "Good hunting" arm has a --More-- before its
+        rloc(); the branch does not. Not taken.
+      BATTERY (evilhack-game-tester, ~66 min, 3 games; POST
+      1cf14e69ab2a7c4c25a31f31e14052eb installed, PRE
+      0ef39ffa9527e9d6261a40cd6ddc2d50 = HEAD ca4527200 code, MASTER
+      0777d16796d5368eee5d5101150c9e4a; branch paniclog never created,
+      master paniclog unchanged): 11/11 PASS on all three builds.
+      - L1/L1b lich-form hero in Sokoban, scroll and zap at self:
+        POST = MASTER "A mysterious force prevents you from
+        teleporting!", position unchanged; PRE "You materialize in a
+        different location!". L1c unpolymorphed control: refused on
+        all three.
+      - L2 hurt master lich, scroll, Sokoban (direct find_defensive()
+        / use_defensive() lever): POST = MASTER read + mysterious
+        force, stays, mtrapseen 0x5000 -> 0x15000, 12 re-calls never
+        re-pick the scroll; PRE "vanishes!", learns nothing, re-picks.
+        L2b on D:1: teleports on all three.
+      - L3 tactics() warp in Sokoban: all three warp, no tele_restrict()
+        call from tactics() (POST/PRE "A master lich suddenly appears
+        next to you!", MASTER a short mnearto() jump).
+      - L4 the Wizard steals the Amulet in Sokoban: POST = MASTER
+        mysterious force, he stays and walks; PRE "The Wizard of
+        Yendor vanishes!", onto the up stairs, gone by T:79.
+      - L5 Graz'zt: POST 4 thefts and MASTER 4 of 5, mysterious force
+        on each (tele_restrict() runs before the stand-ground roll on
+        both trees); PRE never, "Graz'zt vanishes!".
+      - L6 engulfed by Juiblex, zap a wand of teleportation: POST =
+        MASTER "You are no longer inside Juiblex!", uswallow 0; PRE
+        moved Juiblex through the teleport-control arm with the hero
+        still inside.
+      - L7 peaceful Dispater (STRAT_APPEARMSG cleared) leaves by rloc()
+        on all three, no mysterious-force line.
+      - L8 POST save / restore as a lich in Sokoban: still refused.
+      BRIEF ERRORS (mine): scrolltele()'s gate is skipped in wizard
+      mode on both trees (`&& !wizard`; the tester cleared flags.debug
+      around each read); master's /root/.evilhackrc has `MSGTYPE=hide
+      "A mysterious force prevents the *"` (read saved_plines[]);
+      master gdb symbols differ (level.monlist, 'muse.c'::m).
+      NEW ROWS (open Phase 2 rows +1 net: one closed, two minted):
+      MED boojum "vanish" arm absent; MED covetous court freeze.
 - [x] MED: monster worn DISPLACED / TELEPATHY extrinsics and the
       displacement consumers absent - PORTED 2026-09-24 (session 141,
       commit `Monster displacement and telepathy from worn gear.` =
@@ -19362,7 +19460,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: 5.0's monster-memory forgetting (monstunseesu) that master
       lacks - KEPT AND GAPS FIXED 2026-09-28 (session 152, commit
       `Close the gaps in monsters forgetting a lost resistance.` =
-      (hash filled after landing), BUG-1981..1984; closure notes at
+      72f7c9312, tracker ca4527200, BUG-1981..1984; closure notes at
       the end of this row; minted 2026-09-26, session 145, by the
       m_seenres SWEEP battery). Master's seen_resistance bits are only
       ever set; `git show master:src/mondata.c` has no monstunseesu.
@@ -19489,6 +19587,45 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (muse.c wand picks, mcastu.c spell choice, the reflection_skip
       that blocks every ray wand). SWEEP (gameplay: monster item and
       spell choice).
+- [ ] MED: master's boojum "vanish" arm is absent (minted 2026-09-28,
+      session 153, by the covetous no-teleport slice's census). Master
+      91977c174 (the SporkHack monster import) gave the boojum's
+      AD_TLPT claw its own arm in mhitu.c: `if (uncancelled ||
+      mtmp->mnum == PM_BOOJUM)`, so a boojum lands it even when
+      cancelled or blocked by the hero's magic cancellation.
+      For a boojum the hero turns invisible for d(6,100) turns
+      (incr_itimeout(&HInvis, ...)) with "You suddenly vanish!", or,
+      on a no-teleport level, "You suddenly become transparent!" /
+      "vanish!" (See_invisible picks the word; nothing prints if
+      already Invis), and is then teleported (tele()). The branch's
+      mhitm_ad_tlpt() hero arm has no PM_BOOJUM test: a negated
+      boojum does nothing ("You are not affected."), and a landed one
+      gives the quantum mechanic's "Your position suddenly seems
+      [very ]uncertain!" with no invisibility. `rg PM_BOOJUM src/` finds only the snark
+      transform in mon.c. Port the arm into mhitm_ad_tlpt(); check
+      the monster-vs-monster arm too. MED (gameplay: the boojum's
+      signature attack).
+- [ ] MED: a covetous non-lord freezes beyond close range in a
+      Gehennom demon court (minted 2026-09-28, session 153, by the
+      covetous no-teleport slice's reviewer; pre-existing, PRE has
+      it). Two gates combine: 5.0's demon court
+      (noteleport_level()'s In_hell arm, m_blocks_teleporting(), now
+      covetous_noteleport()) turns off every tactics() warp for a
+      covetous monster that is not a demon lord or prince whenever a
+      live lord or prince is on the level (the peaceful invisible
+      bribe demons in their lairs count), and master's m_move()
+      covetous gate (6f210b1fa, ported as BUG-1561) returns before
+      normal movement at distu > 8. So the Wizard of Yendor after
+      resurrect(), a master lich, an arch-lich or an alhoon stands
+      still until the hero comes within about 3 squares. Master
+      always warps (its tactics() has no gate); upstream has no
+      distu > 8 gate, so it walks. Decide: drop the court from the
+      tactics() gates (master's literal shape: covetous warps ignore
+      the court), or let the m_move() gate fall through when
+      covetous_noteleport() is TRUE (walk instead). Reproduce first:
+      an arch-lich in a hella lair with its lord alive, hero more
+      than 3 squares away, 20+ turns. MED (gameplay: Gehennom
+      covetous AI).
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
@@ -20644,7 +20781,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, hash filled after landing); patch artifact not cut yet |
+| 2026-09-28 | 07fc4904c ("Add a new wand, the wand of stasis") put a covetous exemption into noteleport_level() (Official_nh50 src/teleport.c:38, `svl.level.flags.noteleport && !is_covetous(mon->data)`) so that tactics() kept warping on no-teleport levels, but the predicate also answers for the hero. noteleport_level(&gy.youmonst) reads gy.youmonst.data, and master lich and arch-lich are polyok with M3_WANTSBOOK, so a hero polymorphed into either one teleports in Sokoban, Vlad's Tower, the Castle and on Medusa's island, where the unpolymorphed hero gets "A mysterious force prevents you from teleporting!" (the Wizard's Tower levels still stop it through scrolltele()'s later On_W_tower_level() arm). Sites: scrolltele() :854, tele_trap() :1502, the cursed magic whistle apply.c:503. The exemption also reaches every monster self-teleport caller (m_tele(), the m_move() blink, steal escapes, mbhitm()). Minimal upstream fix: exempt only a monster, `&& mon != &gy.youmonst`; the branch instead drops the exemption and gives tactics() its own court/stasis predicate (master's shape) | fixed on branch (BUG-1985/1986, hash filled after landing); patch artifact not cut yet |
+| 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, 72f7c9312); patch artifact not cut yet |
 | 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, b67faba77); patch artifact not cut yet |
 | 2026-09-27 | 0bdf9830e monster aklys throwing, four gaps. (1) return_from_mtoss()'s "returns to <mon>'s hand!" uses one `static long do_not_annoy` 500-turn throttle for every monster, with no canseemon() test (Official_nh50 src/mthrowu.c:883): an unseen thrower prints "returns to its hand!". (2) select_rwep()'s arwep pick measures dist2 to mux/muy (src/weapon.c:593), but thrwmm() (:984) throws at another monster, so a pet next to the hero throws its aklys up to 8 squares "on its tether". (3) ohitmon() drop_throw()s any missile that hits a monster, or misses it on the last square (:494, :358), so a thrown aklys never returns after a monster hit, though m_throw()'s own comment (:659) marks "stops forward motion at hit monster/hero, triggers return" as done. (4) The arwep pick lacks rwep[]'s "don't throw a cursed weapon-in-hand" test and thrwmu() skips its tether arm for `mwelded(otmp)` (:1241), so a monster throws its welded aklys. Branch fixes: canseemon() and no throttle; a target-aware pick via gm.mtarget; a file static that lets ohitmon() leave the tethered weapon for m_throw() to return (after passive_obj()); the welded test. Battery-confirmed (session 150 T1-T5) | fixed on branch (BUG-1972..1975, b67faba77); patch artifact not cut yet |
 | 2026-09-27 | priest.c ghod_hitsu() saves gc.current_wand, zeroes it around the god's lightning and restores it afterwards (Official_nh50 src/priest.c:866, from 4021a63bc "wand/spell/breath killer reason"). The bolt's destroy_items(AD_ELEC) can destroy the very wand the hero is zapping at the temple priest. maybe_destroy_item()'s `obj == gc.current_wand` clear then compares against the zeroed global, and the restore hands dozap() the freed wand (`obj = gc.current_wand; ... obj->spe`), which is the "Are we having fun yet? ... ghod_hitsu ... free(obj)" chain dozap's own comment describes. The zeroing only protected zhitu()'s "zapped/played" verb, which a BZ_M_SPELL bolt never reads. Branch fix: drop the three current_wand lines (master has none); battery-confirmed (session 149: the bolt destroyed the zapped wand of striking on try 11, current_wand NULL, no crash) | fixed on branch (BUG-1971, dfedd36aa); patch artifact not cut yet |
@@ -20796,6 +20934,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-28 | Covetous no-teleport exemption ruling (AskUserQuestion x1, session 153, recommended option taken): MASTER'S SHAPE. 5.0's `!is_covetous` exemption in noteleport_level() (upstream 07fc4904c, the wand-of-stasis commit, which the branch declined 2026-07-12) is dropped, so a level's natural no-teleport flag stops covetous monsters' own teleports (m_tele() wands and scrolls, the self-teleport spell, the m_move() blink, the Wizard's Amulet-theft escape, Graz'zt's post-theft teleport, beams and quantum mechanics on them) and they learn it, as on master. The ten sites where master tests nothing keep ignoring the flag through the new covetous_noteleport() (court + stasis only): tactics()'s seven warp gates, dochug()'s two MS_BRIBE departures, demon_talk()'s "Good hunting". The same change fixes BUG-1986, a hero polymorphed into a master lich or arch-lich teleporting on no-teleport levels (upstream bug too). The Gehennom demon court stays 5.0-native (BUG-772 adjudication); its covetous-freeze composite is a new MED row needing its own ruling | maintainer |
 | 2026-09-28 | Monster-memory forgetting ruling (AskUserQuestion x1, session 152). "Keep it and fix its gaps", over the recommended master shape (never forget; master's memory is EvilHack's own, 1262a588d). 5.0's monstunseesu() layer stays, and its gear hook now also covers artifact grants, EvilHack armor properties and polymorph reversion. Folded in under the ruling's "every resistance source" rationale, at plan approval: dragon-scale secondaries, the alchemy smock's acid, and M_SEEN_DEATH in both converters (BUG-1981..1983). Semantics as upstream's: watchers forget when a source goes away, even if another remains. Session calls, plan- or review-approved: (1) every hook forgets only a grant that was actually seated, because the branch tears W_SWAPWEP down on every reseat; the same guard is on upstream's worn.c hook, and a NetHack50 merge must keep it. (2) Master's missing savebones() reset is archived as BUG-1984, frozen-unfixed. (3) The monstseesu() setter-parity census was minted as its own SWEEP row. | maintainer (ruling); session, plan- and review-approved (rest) |
 | 2026-09-27 | Monster item-blast damage ruling (AskUserQuestion x1, session 151). Monster-target callers of destroy_items() ADD its return at all ten former discard sites. Those are the LOW row's four shock callers (the hero's shocking grasp in hmon and hmonas, a monster's mshockgrasp, castmm lightning) plus six fire/cold siblings (the hero's burning hands in hmon and hmonas, the Hand of Vecna cold, a monster's mburnhands, the castmm avalanche and fire pillar). The recommended "keep master's discard" was declined. This SUPERSEDES the 2026-08-26 hero burning hands "return-discard ruling". MAINTAINER FYI mid-implementation: master's missing behavior is a bug, and the `(void)` casts there were unintended. So BUG-1979 is recorded as a master bug, frozen-unfixed on master. Session rules: dmg_in stays the attack's own damage (the stack count is unchanged), and the item damage is added after the spell or physical halving. Fold-in BUG-1980 (the fire pillar's ice-melt drowning double death, branch-only) was taken inside the approved plan. The pet-kill credit for that drowning got its own LOW row rather than an inline set_pet_killer(). | maintainer (ruling, master-bug call); session (rest) |
 | 2026-09-27 | Monster aklys throwing rulings (AskUserQuestion x3). ROUND 1 (before the plan): KEEP 5.0's monster aklys throwing and FIX ITS FLAWS (the maintainer's pick; master's melee-only aklys, inherited vanilla, was the recommended option). The option text named three flaws: the throttled return line (BUG-1972), pet and monster-vs-monster throws ignoring the tether (BUG-1973), and no return after hitting a monster (BUG-1974). Research findings under the same rationale were folded in at plan approval: the welded aklys (BUG-1975), the hero-hit passive and the dead-thrower guard (inside BUG-1974). ROUND 2 (multi-select, all three recommended options taken): fold in master mthrowu.c fixes lost in the adoption - the volley stop at a dead target (BUG-1976) and the thrwmm()/spitmm() archer/target save/restore (BUG-1977). ROUND 3 (after reviewer pass 1, both recommended options taken): fold in the reviewer's CRITICAL, master 5b33d1a1e's pre-flight bars guard (BUG-1978, a SIGSEGV); a monster target beyond the tether gets the monster's OTHER missiles (the target-aware pick via gm.mtarget) instead of the first draft's hold. SESSION CALLS: an aklys-only monster still holds its turn against a far target (master's launcher-gate shape); the dead-thrower drop moved before tmp_at(DISP_END) after the battery showed the aklys undrawn; the hero-catch extra minted as its own LOW row rather than ruled here. | maintainer (rulings); session (rest) |
