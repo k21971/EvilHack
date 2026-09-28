@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-28, after session 155): 267 rows
-  closed, 83 open. Of the open rows:
-  - 17 MED: 10 master behaviors the 5.0 base lacks or reshaped
-    (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
+- Phase 2 status (refreshed 2026-09-28, after session 156): 268 rows
+  closed, 82 open. Of the open rows:
+  - 16 MED: 9 master behaviors the 5.0 base lacks or reshaped
+    (break_armor() reconcile,
     mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
     amnesia skill reset, Caveperson role arms, hero spellcasting
     penalty + sp_know, mm_aggression() grudge residue, obufs[]
@@ -42,21 +42,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     The named LOW queue is drained; the hero-catches-thrown-items
     row and the rider farlook-text row need rulings, and the
     wish-invlet row a reproduction.
-- Latest slice: 2026-09-28 (session 155) A RIDDEN STEED MAKES NO
-  ESCAPE OF ITS OWN (code and tracker hashes filled after landing;
-  BUG-1989..1991). A hurt ridden steed no longer takes stairs,
-  ladders, a digging wand, a cursed or confused teleport scroll or
-  a cursed potion of gain level; only its rider leaves, and takes
-  it along. Riders and steeds skip the deliberate poly-trap step.
-  A steed that left the level with its rider no longer acts again
-  in the same turn (it overwrote its destination and never
-  arrived). Master has the first and third bugs. Detail: the
-  closed row's closure notes and the Decisions log.
-- Previous slice: 2026-09-28 (session 154) RIDER AND STEED HOLD AS
+- Latest slice: 2026-09-28 (session 156) ANIMAL CHAT SOUNDS AND PET
+  MOODS (code and tracker hashes filled after landing;
+  BUG-1992..1995). The consumer half of master 9a63bec08: tame
+  animals' #chat lines follow their mood (distressed, hungry, well
+  fed, content), bats, woodchucks, hawks, lizards, crocodiles,
+  turtles and pseudodragons have lines, yelps and whimpers again,
+  and the five EvilHack animal sound types moved into the animal
+  range (a starving pet bat no longer says "I'm hungry."; master
+  has that bug). Also master's gnoll, ent, entangled, pickpocket and
+  warg lines, and hatchling cries. Rulings: elephants wake others
+  only on a real trumpet, a roarer still roars, gnomes keep 5.0's
+  line. Detail: the closed row's closure notes and the Decisions log.
+- Previous slice: 2026-09-28 (session 155) A RIDDEN STEED MAKES NO
+  ESCAPE OF ITS OWN (code e4e3a3468, tracker ca00e6322;
+  BUG-1989..1991).
+- Earlier slice: 2026-09-28 (session 154) RIDER AND STEED HOLD AS
   ONE PAIR (code 8f3b06f40, tracker 49bac1b07; BUG-1987/1988).
-- Earlier slice: 2026-09-28 (session 153) COVETOUS NO-TELEPORT
-  EXEMPTION REMOVED, MASTER'S SHAPE (code 0f66f9596, tracker
-  ff9538154; BUG-1985/1986).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -17077,7 +17079,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       set_uasmon()), shk.c racial pricing, zombie_form(), m_initgrp()
       (rowed, Phase 5). TO DO: net the splits out, then verify the
       same-name functions first (m_initweap giant / tortle arms,
-      domonnoise gnoll, find_defensive + m_use_healing vampire, the
+      domonnoise gnoll [DONE 2026-09-28, session 156, BUG-1994],
+      find_defensive + m_use_healing vampire, the
       four steed.c vampire / zombie sites, the enlightenment vampire
       lines, moverock + sokoban_guilt giant, arti_invoke drow) and
       mint a row per confirmed gap. One 5.0-NATIVE chain also found:
@@ -17205,7 +17208,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       do_wear.c canwearobj() has no refusal for a tortle POLYFORM or
       an ent, so those forms can put the boots straight back on (same
       on master). MED.
-- [ ] MED: sounds.c lacks the consumer half of master 9a63bec08
+- [x] MED: sounds.c lacks the consumer half of master 9a63bec08 -
+      PORTED 2026-09-28 (session 156, commit `Port master's animal
+      chat sounds and pet moods.` = (hash filled after landing),
+      BUG-1992, 1993, 1994, 1995; closure notes at the end of this
+      row). Original text:
       "Additional monsters sounds" (minted 2026-09-20, session 133,
       found porting the monflee() cries, confirmed by the reviewer;
       census per sound type, master sounds.c vs branch: MS_BAT 4 / 1,
@@ -17223,6 +17230,80 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and MS_BURBLE. Each new yelp() / whimper() arm needs a 5.0
       Soundeffect se_ choice. beg() was not read. MED (flag without a
       consumer).
+      CLOSURE (2026-09-28, session 156): WHOLE-FUNCTION DIFF of
+      domonnoise() / yelp() / whimper() / beg() / growl() against
+      master (normalized; the reviewer repeated it independently).
+      PORTED (BUG-1992): new staticfn pet_mood() (distressed = mconf
+      || mflee || mtrapped || mentangled || mtame < 5; else content
+      without an edog; else hungry / well fed / content from
+      hungrytime) feeding block-local mood tables in domonnoise() for
+      MS_BARK ("whines hungrily." / "yips contentedly."), MS_MEW,
+      MS_GROWL, MS_ROAR, MS_TRUMPET, MS_SQEEK, MS_BAT, MS_WCHUCK,
+      MS_RAPTOR, MS_HISS + MS_LIZARD + MS_PSEUDO, MS_GRUNT + MS_ORC,
+      MS_NEIGH and MS_BURBLE, with master's peaceful / hostile lines;
+      master's yelp() and whimper() arms with 5.0 se_ choices; 5.0's
+      cry_sound() (egg hatching, no master counterpart) gains MS_LIZARD
+      "hiss", MS_RAPTOR "screech" and MS_NEIGH "whinny" (pegasi) - the
+      reviewer's sibling. RANGE BUG (BUG-1993, master too, frozen-
+      unfixed): the five EvilHack types sat at 45-49, above
+      MS_HUMANOID (master 40-44 above 20), so beg() made a starving
+      pet bat, hawk, lizard or pseudodragon out of sight verbalize
+      "I'm hungry." and every other animal-noise test (muteshk() and
+      shk.c's lang, do_name.c, wield.c, the temple priest's
+      speechless flag, the leader remap) read them as speech. Moved to
+      18-22 after MS_TRUMPET, MS_ANIMAL = 22 (5.0's own idiom); saves
+      break through the shambler, Oracle and Charon templates (raw
+      msound; allowed, EDITLEVEL frozen). RESIDUE (BUG-1994): gnoll
+      laughs (master f5dd9f490), ent forest / entwives lines
+      (f98328845), peaceful humanoid "I'm entangled!" (979393c66),
+      PM_HOBBIT_PICKPOCKET with the hobbit (62573d6f9), PM_WARG in the
+      vampire's nightchild (bc3c49400). RULINGS (AskUserQuestion x1,
+      four questions): renumber into the animal range (recommended);
+      elephants take master's lines PLUS 5.0's wake_nearto(11 * 11),
+      but only on actual trumpet lines (over the recommended master
+      shape); hostile MS_ROAR keeps "roars!" (recommended; master's
+      "growls!" is a copy slip = BUG-1995, frozen-unfixed); the gnome
+      default keeps 5.0's "Many enter the dungeon, and few return to
+      the sunlit lands." (over the recommended master "grunts.").
+      Taken without asking: MS_ORC joins MS_GRUNT's arms (one value on
+      master; matches the session 133 growl_sound() ruling). LEFT
+      ALONE: 5.0's MS_ORC reclassification out of the animal range (a
+      starving tame orc out of sight "seems famished." where master's
+      beg() reached domonnoise()), 5.0's dead MS_MOO / MS_BELLOW /
+      MS_CHIRP / MS_GROAN arms, the dead PM_VAMPIRE in `kindred`, the
+      prisoner line, the hobbit HP test, maybe_gasp() (speech types
+      only). GUARD, NOT A BUG: pet_mood() treats a tame monster
+      without an edog as content - the Astral guardian angel is the
+      only such producer, and polymorphing it into a cat, dog or
+      horse would NULL-deref EDOG in vanilla's arms, but the reviewer
+      showed every random-polymorph source shields on the Angel's
+      magic resistance, so the path is gdb-only. REVIEWER PASS (no
+      HIGH/MED; LOWs: the Oracle/Charon save note, taken into the
+      commit message; beg() orc = left alone above; beg() always
+      gives the distressed line because dog_hunger() sets mconf just
+      before it, as on master; per-arm sound effects on tame lines,
+      cosmetic and only with a sound library, not taken). Race-
+      predicate SWEEP row: its "domonnoise gnoll" item is discharged.
+      BATTERY PASS (game-tester, ~79 min; POST 4ec61a2d24472075c10cc9
+      208b65c8e2, PRE 75613e965c447531b490ca23df8c7bdb, MASTER 0.9.3;
+      Valkyrie games; both paniclogs unchanged): every tame line in
+      all four moods for 17 species on POST; PRE bat / hawk / lizard /
+      pseudodragon silent, dog "whines." / "yips.", mumak
+      "trumpets!"; untamed lines incl. "The owlbear roars!" (MASTER
+      "The owlbear growls!"); mumak "snorts." left a sleeper asleep,
+      "trumpets." woke it; kick / leash verbs all as master's;
+      starving blind-hero pet: PRE and MASTER "\"I'm hungry.\"", POST
+      "It screeches." (bat) / "It snarls." (pseudodragon); a
+      shopkeeper turned bat: PRE "\"I'm Cahersiveen, not Fluffy.\"",
+      POST "Bandjar the bat will not accept the name Fluffy."; gdb
+      minion kitten without an edog "mews.", no crash; gnoll
+      "woops." / "cackles.", ent forest, pickpocket One Ring,
+      "\"I'm entangled!\"", warg "Child of the night, ..." on POST
+      only; gnome lord's sunlit line on both; save/restore kept
+      "clicks hungrily."; hatchlings "hissing" / "screeching" /
+      "whinnying" on POST, "chittering" on PRE. MASTER spot checks
+      matched POST (bat "clicks hungrily.", hawk "chirps
+      contentedly.", troll "jabbers.", mumak "snorts hungrily.").
 - [x] LOW (text): enlightenment residue - six master-only lines
       PORTED 2026-09-22 (session 134, commits `Fix: a crowned
       Infidel's enlightenment read past its title table.` = fb6ca70f3
@@ -18400,7 +18481,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] MED: a hurt ridden steed can flee by stairs alone - A RIDDEN
       STEED NOW MAKES NO ESCAPE OF ITS OWN 2026-09-28 (session 155,
       commit `Keep a ridden steed from leaving its rider behind.` =
-      (hash filled after landing), BUG-1989, 1990, 1991; closure
+      e4e3a3468, tracker ca00e6322, BUG-1989, 1990, 1991; closure
       notes at the end of this row). Original text:
       a hurt ridden steed can flee by stairs alone, leaving its
       rider pointing at a migrating monster (minted 2026-09-28,
@@ -21191,6 +21272,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-28 | Animal chat sounds rulings (AskUserQuestion x1, four questions, session 156). (1) SOUND RANGE (recommended): EvilHack's MS_BAT / MS_WCHUCK / MS_RAPTOR / MS_LIZARD / MS_PSEUDO move from 45-49 (above MS_HUMANOID) to 18-22 after MS_TRUMPET with MS_ANIMAL = 22, as 5.0 did for its own animal sounds; every animal-noise test (beg(), muteshk(), do_name.c, wield.c, the priest's speechless flag, the leader remap) now counts them, and saves break through the shambler / Oracle / Charon templates. (2) ELEPHANTS (over the recommended master shape): master's tame / peaceful / hostile lines plus 5.0's wake_nearto(11 * 11), but only when the line is an actual trumpet (tame distressed, peaceful, hostile), never on "snorts hungrily." / "rumbles contentedly." / "snorts.". (3) HOSTILE MS_ROAR (recommended): keeps "roars!"; master's "growls!" is a copy slip from the MS_GROWL block (BUG-1995, frozen-unfixed). (4) GNOME DEFAULT (over the recommended master "grunts."): keep 5.0's "Many enter the dungeon, and few return to the sunlit lands.". Taken without asking: MS_ORC shares MS_GRUNT's arms in domonnoise() and yelp() (one value on master; matches the session 133 growl_sound() ruling). Implemented as BUG-1992..1994 | maintainer |
 | 2026-09-28 | Ridden steed escape rulings (AskUserQuestion x2, session 155, both recommended options taken). (1) A RIDDEN STEED MAKES NO ESCAPE OF ITS OWN: it skips stairs, ladders, branch stairs, digging down, a cursed or confused scroll of teleportation, a cursed potion of gain level and the poly-trap step; it still heals and uses a unicorn horn, and an uncursed teleport still moves the pair together on the level (rloc()'s redirect). Only the rider decides when the pair leaves, and its migration takes the steed. Declined: the pair leaves together on the steed's own escape (a hurt steed would pull an unhurt rider out of a fight, and every exit would need new wording). Matches master's intent (m_move()'s ridden_by return, the trap-door arm's rider/steed exclusion from 556564f4f); master itself has the bug. (2) Fold in the rider's deliberate poly-trap step: riders and steeds skip find_misc()'s poly-trap arm, as they skip the trap-door arm. Implemented as BUG-1989/1991 | maintainer |
 | 2026-09-28 | Rider/steed hold rulings (AskUserQuestion x2, session 154, both recommended options taken). (1) When a rider's steed holds the hero, the PAIR COUNTS AS HOLDING: the rider refuses the stair, ladder, trap door, hole, teleport-trap, digging-wand and poly-trap escapes a holder is refused, always knows where the hero is, and its remaining exits (cursed teleport scroll, cursed gain level, the Amulet escapes) print "You get released!" first, as BUG-1939/1941 do for direct holders. (2) When the hero's sticky form holds a ridden steed, the PAIR IS HELD: "The <steed> cannot escape from you!", no stair, trap or dig escape, no Amulet escape; a teleport of the rider ends the grip silently. Implemented through ustuck_self_or_steed() (BUG-1987/1988); hero-side siblings (a hole dug under the rider, the martial-arts reel, a wand of opening at the rider) follow the same rule. Master's shape (the rider ignores the hold; master also leaves u.ustuck dangling) was declined | maintainer |
 | 2026-09-28 | Covetous no-teleport exemption ruling (AskUserQuestion x1, session 153, recommended option taken): MASTER'S SHAPE. 5.0's `!is_covetous` exemption in noteleport_level() (upstream 07fc4904c, the wand-of-stasis commit, which the branch declined 2026-07-12) is dropped, so a level's natural no-teleport flag stops covetous monsters' own teleports (m_tele() wands and scrolls, the self-teleport spell, the m_move() blink, the Wizard's Amulet-theft escape, Graz'zt's post-theft teleport, beams and quantum mechanics on them) and they learn it, as on master. The ten sites where master tests nothing keep ignoring the flag through the new covetous_noteleport() (court + stasis only): tactics()'s seven warp gates, dochug()'s two MS_BRIBE departures, demon_talk()'s "Good hunting". The same change fixes BUG-1986, a hero polymorphed into a master lich or arch-lich teleporting on no-teleport levels (upstream bug too). The Gehennom demon court stays 5.0-native (BUG-772 adjudication); its covetous-freeze composite is a new MED row needing its own ruling | maintainer |
