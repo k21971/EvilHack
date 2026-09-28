@@ -17,7 +17,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-27, after session 150): 262 rows
+- Phase 2 status (refreshed 2026-09-27, after session 151): 263 rows
   closed, 82 open. Of the open rows:
   - 15 MED: 10 master behaviors the 5.0 base lacks or reshaped
     (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
@@ -38,18 +38,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 51 LOW: small parity rows, quirks and watch/record-only items.
-    The queue starts with the monster shock callers, monstunseesu,
-    the covetous noteleport exemption and steed-holds-hero; the
-    hero-catches-thrown-items row needs a ruling and the
-    wish-invlet row a reproduction.
-- Latest slice: 2026-09-27 (session 150) MONSTER AKLYS THROWING KEPT
-  AND FIXED (code b67faba77, tracker de07fa3c8; BUG-1972..1978).
-  5.0's monster aklys throwing stays, with its flaws fixed (return
-  line, tether reach against monster targets with a fallback to
-  other missiles, return after a monster hit, no welded throw), plus
-  three lost master mthrowu.c fixes and the reviewer-found iron-bars
-  SIGSEGV. Detail: the closed row's closure notes and the Decisions
-  log.
+    The queue starts with monstunseesu, the covetous noteleport
+    exemption and steed-holds-hero; the hero-catches-thrown-items
+    row needs a ruling and the wish-invlet row a reproduction.
+- Latest slice: 2026-09-27 (session 151) MONSTER ITEM-BLAST DAMAGE
+  (code and tracker hashes filled after landing; BUG-1979/1980).
+  Ten monster-target elemental sites now add the damage a monster's
+  exploding wands and rings and its boiling or shattering potions
+  do. That is master bug BUG-1979, frozen-unfixed on master. The
+  fold-in BUG-1980 fixes the fire pillar's ice-melt drowning double
+  death. One LOW row was minted (pet-kill credit for that drowning).
+  Detail: the closed row's closure notes and the Decisions log.
+- Previous slice: 2026-09-27 (session 150) MONSTER AKLYS THROWING
+  KEPT AND FIXED (code b67faba77, tracker de07fa3c8;
+  BUG-1972..1978).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -7673,7 +7675,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is_bird, can_vaporize, vulnerable_to, completelyburns,
       mon_underwater, damage_mon, golemeffects; master's
       destroy_mitem(mon, class, adtyp) is 5.0's destroy_items(mon,
-      adtyp, dmg) (the return-discard ruling applies).
+      adtyp, dmg) (the return-discard ruling applies; SUPERSEDED
+      2026-09-27, session 151: the return is now added, BUG-1979).
 - [ ] LOW: hmonas burning hands / shocking grasp resist branches
       heal resistant golems by the to-hit value (minted 2026-08-26,
       reviewer catch on the ported arms, master-shared verbatim):
@@ -19228,8 +19231,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       One example is burnarmor() from a fire self-zap while
       levitating. Record, or narrow the bracket to the lava case.
       LOW (gameplay: landing effects one move late).
-- [ ] LOW: four monster shock callers drop the item-blast damage
-      (minted 2026-09-26, session 147, by the symmetric recharge
+- [x] LOW: four monster shock callers drop the item-blast damage -
+      FIXED 2026-09-27 (session 151, commit `Add monster item-blast
+      damage at the ten discard sites.` = (hash filled after
+      landing), BUG-1979/1980; closure notes at the end of this row;
+      minted 2026-09-26, session 147, by the symmetric recharge
       reviewer). destroy_items(mon, AD_ELEC, ...) returns what
       exploding wands (rnd(10) each) and, since BUG-1956, exploding
       charged rings (rnd(3 * |spe|)) do to a monster, but these
@@ -19244,6 +19250,47 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       blasts too). The adding callers (zap.c ray, uhitm.c weapon
       hits, artifact.c, explode.c) all handle the death. LOW
       (gameplay: monster damage from item blasts).
+      RULING (AskUserQuestion, 2026-09-27): ADD the damage at all TEN
+      monster-target discard sites. That is the row's four shock callers
+      plus six fire/cold siblings: the hero's burning hands (hmon and
+      hmonas), the Hand of Vecna cold, a monster's burning hands, and
+      the castmm avalanche and fire pillar. This supersedes the
+      2026-08-26 return-discard ruling. The maintainer then noted that
+      master's `(void)` casts were a BUG, so BUG-1979 is a master bug,
+      frozen-unfixed there. dmg_in stays the attack's own damage. The
+      blast is added after the spell or physical halving. The avalanche
+      returns `dmg + itemdmg`.
+      FOLD-IN BUG-1980 (branch-only, found while tracing): the
+      monster-target fire pillar's mon_spell_hits_spot() (from
+      f4d7eaaa0; master used burn_floor_objects()) melts ice and
+      minliquid() drowns the target, and mcast_spell()'s post-switch then
+      killed it again. The fix is `if (DEADMONSTER(mdef) ||
+      mon_offmap(mdef)) return 0;` after the spot effects.
+      REVIEWER PASS in one pass. Of its LOW notes: (1) the off-map arm
+      and (2) the pit wording were taken; (3) the missing pet-kill credit
+      for the drowning got its own LOW row below; (4) the avalanche
+      dmg_in asymmetry and (5) the burnkill message were kept.
+      BATTERY (POST 3918d51ad8f04a08c6e91eef1dee6933, PRE
+      41f60760d6b08b836602722265757935 = HEAD 116331edf code): all nine
+      legs PASS, POST paniclog clean. PRE showed each destroy_items()
+      return missing from the loss (lightning on a shock-resistant
+      giant: 4 rings exploded and mhp stayed 200). PRE's fire pillar on
+      ice gave "The hill orc drowns.  The hill orc is killed!", deaths
+      +2 and an "m_detach: ... already detached?" impossible(). POST
+      drowned it once. Numbers are in the archive entries.
+- [ ] LOW: a tame castmm caster's fire pillar gets no pet-kill credit
+      for a drowning (minted 2026-09-27, session 151, BUG-1980
+      reviewer). The monster-target fire pillar's spot effects can
+      drown the target: minliquid() -> mondied() (mon_moving). The
+      tame caster's set_pet_killer() only runs on mcast_spell()'s
+      damage_mon() path, which BUG-1980 now skips for a dead target,
+      and it never ran before the drowning anyway. grow_up() in
+      mattackm still runs. A bare set_pet_killer() before the spot
+      call would leave the flag set with no guaranteed consumer when
+      nothing dies, so a fix needs a consumer-safe shape (set it,
+      then clear it after the call if the target lived). The same
+      shape applies to any pet-caused drowning through zap_over_floor().
+      LOW (gameplay: pet kill credit / conduct attribution).
 - [x] HIGH: the scroll of magic detection has NO read effect - PORTED
       2026-09-27 (session 148, commit `Port the scroll of magic
       detection.` = 4b51d244a (BUG-1957..1960), tracker 57c7a9718;
@@ -20632,6 +20679,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-27 | Monster item-blast damage ruling (AskUserQuestion x1, session 151). Monster-target callers of destroy_items() ADD its return at all ten former discard sites. Those are the LOW row's four shock callers (the hero's shocking grasp in hmon and hmonas, a monster's mshockgrasp, castmm lightning) plus six fire/cold siblings (the hero's burning hands in hmon and hmonas, the Hand of Vecna cold, a monster's mburnhands, the castmm avalanche and fire pillar). The recommended "keep master's discard" was declined. This SUPERSEDES the 2026-08-26 hero burning hands "return-discard ruling". MAINTAINER FYI mid-implementation: master's missing behavior is a bug, and the `(void)` casts there were unintended. So BUG-1979 is recorded as a master bug, frozen-unfixed on master. Session rules: dmg_in stays the attack's own damage (the stack count is unchanged), and the item damage is added after the spell or physical halving. Fold-in BUG-1980 (the fire pillar's ice-melt drowning double death, branch-only) was taken inside the approved plan. The pet-kill credit for that drowning got its own LOW row rather than an inline set_pet_killer(). | maintainer (ruling, master-bug call); session (rest) |
 | 2026-09-27 | Monster aklys throwing rulings (AskUserQuestion x3). ROUND 1 (before the plan): KEEP 5.0's monster aklys throwing and FIX ITS FLAWS (the maintainer's pick; master's melee-only aklys, inherited vanilla, was the recommended option). The option text named three flaws: the throttled return line (BUG-1972), pet and monster-vs-monster throws ignoring the tether (BUG-1973), and no return after hitting a monster (BUG-1974). Research findings under the same rationale were folded in at plan approval: the welded aklys (BUG-1975), the hero-hit passive and the dead-thrower guard (inside BUG-1974). ROUND 2 (multi-select, all three recommended options taken): fold in master mthrowu.c fixes lost in the adoption - the volley stop at a dead target (BUG-1976) and the thrwmm()/spitmm() archer/target save/restore (BUG-1977). ROUND 3 (after reviewer pass 1, both recommended options taken): fold in the reviewer's CRITICAL, master 5b33d1a1e's pre-flight bars guard (BUG-1978, a SIGSEGV); a monster target beyond the tether gets the monster's OTHER missiles (the target-aware pick via gm.mtarget) instead of the first draft's hold. SESSION CALLS: an aklys-only monster still holds its turn against a far target (master's launcher-gate shape); the dead-thrower drop moved before tmp_at(DISP_END) after the battery showed the aklys undrawn; the hero-catch extra minted as its own LOW row rather than ruled here. | maintainer (rulings); session (rest) |
 | 2026-09-27 | Lava inventory burn rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): (1) MASTER'S BURN: a hero who survives lava (full fire resistance or water walking) runs fire_damage() on every open-inventory item on every lava entry (a6e0803e7, the maintainer's authored intent), replacing 5.0's damage-capped destroy_items(), which cost a fully fire-resistant hero nothing (BUG-1961). (2) POTIONS BOIL: master's cdaf4409d / 9902d22ef made glass potions immune in fire_damage() and the lava death as a side effect, while comments beside both edits still say they boil; treated as a master regression, frozen-unfixed there (BUG-1963). The maintainer added that potions are never meant to be fireproof or tempered in any way; no branch path sets it (the wish sites sit inside erosion_matters()). (3) FOLD-INS, all four: fire_damage()'s master gate and smoke placement (BUG-1964), the lava-death is_flammable() predicate restoring master's Hand/Eye of Vecna fix (BUG-1962), the blind flame line (BUG-1966), lava_damage()'s per-object predicate (BUG-1965). ROUND 2 (after reviewer pass 1): (4) CENTRAL in_use GUARD in Boots_off() / Ring_off_or_gone() instead of master's per-site o_id checks (BUG-1967); in play the item being removed is spared from that one burn, where master's may burn up. (5) FOLD-INS: the death-loop next-item look-ahead (BUG-1968) and the seducer ring / wand holes (BUG-1969, BUG-1970). Session calls under the sibling rule, from reviewer passes 2-3: master BUG-688 and BUG-1197 re-ported (BUG-1970), glibr's uright re-check, the in_use mark limited to lava (and trap squares for the ring), and the upstream ghod_hitsu() current_wand restore dropped (BUG-1971). The master paranoid-swim decline penalty (2c50b94ab) became its own LOW row | maintainer (1-5); session (rest) |
 | 2026-09-27 | Scroll of magic detection port rulings (AskUserQuestion x2, all recommended options taken). ROUND 1 (plan): FIX BOTH master drawing bugs (BUG-1958). A monster now shows its first MAGIC carried item; master passed only its first item to maybe_map(), so a dagger-then-wand carrier showed nothing although the scroll said "presence". A floor pile now shows its top-most magic item; master drew every one, leaving the bottom-most. ROUND 2 (after the reviewer): (1) SKIP THE SCROLL BEING READ (BUG-1960). On master the scroll counted itself, being still in the pack and oc_magic, so "You feel mundane." never printed and the scroll always self-identified. Now, with nothing else magic, the read gives "You feel mundane.", uses up the scroll and prompts to call it, while the rest of a stack still counts. (2) FOLD IN the reviewer's sibling: 5.0's object_detect() drops the same `ct++; break;` cutoff (BUG-1959, upstream table row). SESSION CALLS: the removal of that break in magic_detect() itself (the mimic arm; made during implementation, not in the plan; reviewer-verified). Plan-approved: dknown set unconditionally with the type marked encountered; is_soko_prize() skipping Sokoban prizes only; clear_stale_map() kept at two arguments (master's `magic` argument was dead); map_mimic_object() extracted and shared; monster_detect() gains master's mstone wake guard early (the gradual-stoning census is updated). | maintainer (rulings); session (rest) |
