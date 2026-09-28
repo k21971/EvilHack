@@ -56,6 +56,7 @@ staticfn boolean better_not_take_that_off(struct obj *) NONNULLARG1;
 staticfn boolean is_wearable_shield(struct obj *) NONNULLARG1;
 staticfn boolean free_shieldhand(void);
 staticfn struct obj *find_altshield(void);
+staticfn unsigned long lose_extrinsic(int, long);
 
 /* plural "fingers" or optionally "gloves" */
 const char *
@@ -244,22 +245,39 @@ oprops_on(struct obj *otmp, long mask)
     }
 }
 
+/* take a worn item's grant of 'prop' away from the hero; return the
+   M_SEEN_foo bit that monsters watching should forget, as for an item's
+   base property in setworn(), if the item was actually granting it (an
+   interrupted donning never got that far) */
+staticfn unsigned long
+lose_extrinsic(int prop, long mask)
+{
+    unsigned long seenres = M_SEEN_NOTHING;
+
+    if (u.uprops[prop].extrinsic & mask)
+        seenres = cvt_prop_to_mseenres((uchar) prop);
+    u.uprops[prop].extrinsic &= ~mask;
+    return seenres;
+}
+
 /* undo oprops_on(); called while the item is still worn */
 void
 oprops_off(struct obj *otmp, long mask)
 {
     long props = otmp->oprops;
+    unsigned long seenres_lost = M_SEEN_NOTHING;
 
     if (props & ITEM_FIRE)
-        EFire_resistance &= ~mask;
+        seenres_lost |= lose_extrinsic(FIRE_RES, mask);
     if (props & ITEM_FROST)
-        ECold_resistance &= ~mask;
+        seenres_lost |= lose_extrinsic(COLD_RES, mask);
     if (props & ITEM_DRLI)
-        EDrain_resistance &= ~mask;
+        seenres_lost |= lose_extrinsic(DRAIN_RES, mask);
     if (props & ITEM_SHOCK)
-        EShock_resistance &= ~mask;
+        seenres_lost |= lose_extrinsic(SHOCK_RES, mask);
     if (props & ITEM_VENOM)
-        EPoison_resistance &= ~mask;
+        seenres_lost |= lose_extrinsic(POISON_RES, mask);
+    monstunseesu(seenres_lost);
     if (props & ITEM_OILSKIN)
         otmp->oprops_known |= ITEM_OILSKIN;
     if (props & ITEM_ESP) {
@@ -647,7 +665,7 @@ Cloak_off(void)
         break;
     /* Alchemy smock gives poison _and_ acid resistance */
     case ALCHEMY_SMOCK:
-        EAcid_resistance &= ~WORN_CLOAK;
+        monstunseesu(lose_extrinsic(ACID_RES, WORN_CLOAK));
         break;
     default:
         impossible(unknown_type, c_cloak, otyp);
@@ -1181,6 +1199,8 @@ dragon_armor_handling(
     boolean puton,      /* True: on, False: off */
     boolean on_purpose) /* voluntary removal; not applicable for putting on */
 {
+    unsigned long seenres_lost = M_SEEN_NOTHING;
+
     if (!otmp)
         return;
 
@@ -1217,7 +1237,7 @@ dragon_armor_handling(
         if (puton) {
             ECold_resistance |= W_ARM;
         } else {
-            ECold_resistance &= ~W_ARM;
+            seenres_lost = lose_extrinsic(COLD_RES, W_ARM);
         }
         break;
     case BLUE_DRAGON_SCALES:
@@ -1261,7 +1281,7 @@ dragon_armor_handling(
             EStun_resistance |= W_ARM;
         } else {
             toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);
-            EStun_resistance &= ~W_ARM;
+            seenres_lost = lose_extrinsic(STUN_RES, W_ARM);
         }
         break;
     case SEA_DRAGON_SCALES:
@@ -1308,8 +1328,8 @@ dragon_armor_handling(
                 }
             }
         } else {
-            ESleep_resistance &= ~W_ARM;
-            EShock_resistance &= ~W_ARM;
+            seenres_lost = lose_extrinsic(SLEEP_RES, W_ARM)
+                           | lose_extrinsic(SHOCK_RES, W_ARM);
         }
         break;
     case SHADOW_DRAGON_SCALES:
@@ -1319,8 +1339,8 @@ dragon_armor_handling(
             ESleep_resistance |= W_ARM;
             EDrain_resistance |= W_ARM;
         } else {
-            ESleep_resistance &= ~W_ARM;
-            EDrain_resistance &= ~W_ARM;
+            seenres_lost = lose_extrinsic(SLEEP_RES, W_ARM)
+                           | lose_extrinsic(DRAIN_RES, W_ARM);
         }
         break;
     case CHROMATIC_DRAGON_SCALES:
@@ -1340,15 +1360,15 @@ dragon_armor_handling(
                 make_stoned(0L, "You no longer seem to be petrifying.", 0,
                             (char *) 0);
         } else {
-            EPoison_resistance &= ~W_ARM;
-            EFire_resistance &= ~W_ARM;
-            ECold_resistance &= ~W_ARM;
-            ESleep_resistance &= ~W_ARM;
-            EDisint_resistance &= ~W_ARM;
-            EShock_resistance &= ~W_ARM;
-            EAcid_resistance &= ~W_ARM;
+            seenres_lost = lose_extrinsic(POISON_RES, W_ARM)
+                           | lose_extrinsic(FIRE_RES, W_ARM)
+                           | lose_extrinsic(COLD_RES, W_ARM)
+                           | lose_extrinsic(SLEEP_RES, W_ARM)
+                           | lose_extrinsic(DISINT_RES, W_ARM)
+                           | lose_extrinsic(SHOCK_RES, W_ARM)
+                           | lose_extrinsic(ACID_RES, W_ARM)
+                           | lose_extrinsic(REFLECTING, W_ARM);
             EStone_resistance &= ~W_ARM;
-            EReflecting &= ~W_ARM;
 
             /* as for yellow scales above */
             wielding_corpse(uwep, otmp, on_purpose);
@@ -1358,6 +1378,7 @@ dragon_armor_handling(
     default:
         break;
     }
+    monstunseesu(seenres_lost);
 }
 
 /* the caller has just unworn a flight-granting piece of armor (celestial

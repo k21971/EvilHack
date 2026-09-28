@@ -111,15 +111,18 @@ setworn(struct obj *obj, long mask)
                        been cleared just above (or by the caller) while
                        the off-hand extrinsics are still seated */
                     if (wp->w_mask & ~W_QUIVER) {
-                        /* leave as "x = x <op> y", here and below, for broken
-                         * compilers */
                         p = armor_provides_extrinsic(oobj);
-                        u.uprops[p].extrinsic =
-                            u.uprops[p].extrinsic & ~wp->w_mask;
                         /* if the hero removed an extrinsic-granting item,
                            nearby monsters will notice and attempt attacks of
-                           that type again */
-                        monstunseesu_prop(p);
+                           that type again; the off-hand slot is torn down
+                           on every reseat, so only a grant that was
+                           actually seated counts */
+                        if (u.uprops[p].extrinsic & wp->w_mask)
+                            monstunseesu_prop(p);
+                        /* leave as "x = x <op> y", here and below, for broken
+                         * compilers */
+                        u.uprops[p].extrinsic =
+                            u.uprops[p].extrinsic & ~wp->w_mask;
                         if ((p = w_blocks(oobj, mask)) != 0)
                             u.uprops[p].blocked &= ~wp->w_mask;
                         if (oobj->oartifact || oobj->oprops)
@@ -198,8 +201,10 @@ setnotworn(struct obj *obj)
             *(wp->w_obj) = (struct obj *) 0;
             unworn |= wp->w_mask;
             p = armor_provides_extrinsic(obj);
+            /* remove this extrinsic from seenres, if it was seated */
+            if (u.uprops[p].extrinsic & wp->w_mask)
+                monstunseesu_prop(p);
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
-            monstunseesu_prop(p); /* remove this extrinsic from seenres */
             obj->owornmask &= ~wp->w_mask;
             if (obj->oartifact || obj->oprops)
                 set_artifact_intrinsic(obj, 0, wp->w_mask);

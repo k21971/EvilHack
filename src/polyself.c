@@ -28,9 +28,23 @@ staticfn void break_armor(void);
 staticfn void drop_weapon(int);
 staticfn void newman(void);
 staticfn void polysense(void);
+staticfn unsigned long form_seenres(void);
 
 static const char no_longer_petrify_resistant[] =
     "No longer petrify-resistant, you";
+
+/* the M_SEEN_foo bits for the resistances the hero's form grants */
+staticfn unsigned long
+form_seenres(void)
+{
+    unsigned long seenres = M_SEEN_NOTHING;
+    int prop;
+
+    for (prop = 1; prop <= LAST_PROP; prop++)
+        if (u.uprops[prop].intrinsic & FROMFORM)
+            seenres |= cvt_prop_to_mseenres((uchar) prop);
+    return seenres;
+}
 
 /* update the gy.youmonst.data structure pointer and intrinsics */
 void
@@ -39,6 +53,7 @@ set_uasmon(void)
     struct permonst *mdat = &mons[u.umonnum];
     struct permonst *racedat; /* the race's entry while unpolymorphed */
     boolean was_vampshifter = valid_vampshiftform(gy.youmonst.cham, u.umonnum);
+    unsigned long old_seenres = form_seenres();
 
     /* large playable races adjust the size, weight, and speed of the
        hero's base monster entry; the undead races shamble along more
@@ -170,6 +185,12 @@ set_uasmon(void)
                        || dmgtype_fromattack(mdat, AD_BLND, AT_GAZE)));
 #undef PROPSET
 #undef resist_from_form
+
+    /* once the hero loses a form's resistance, monsters watching will
+       try that element again, as for an item's base property in
+       setworn(); nobody watches a game being restored */
+    if (!program_state.restoring)
+        monstunseesu(old_seenres & ~form_seenres());
 
     /* nonliving monster forms and the undead by race cannot wither */
     if (nonliving(mdat) || racial_zombie(&gy.youmonst)

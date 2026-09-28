@@ -1930,6 +1930,7 @@ cvt_adtyp_to_mseenres(uchar adtyp)
     case AD_ACID: return M_SEEN_ACID;
     case AD_DRLI: return M_SEEN_DRLI;
     case AD_STUN: return M_SEEN_STUN;
+    case AD_DETH: return M_SEEN_DEATH;
     /* M_SEEN_REFL has no corresponding AD_foo type */
     /* AD_WATR deliberately has no bit: water breath is a physical
        attack that cannot be resisted, so there is nothing to learn */
@@ -1953,6 +1954,7 @@ cvt_prop_to_mseenres(uchar prop)
     case REFLECTING: return M_SEEN_REFL;
     case DRAIN_RES: return M_SEEN_DRLI;
     case STUN_RES: return M_SEEN_STUN;
+    case DEATH_RES: return M_SEEN_DEATH;
     default: return M_SEEN_NOTHING;
     }
 }

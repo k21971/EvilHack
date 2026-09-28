@@ -1151,6 +1151,7 @@ set_artifact_intrinsic(
     struct obj *obj;
     uchar dtyp;
     long spfx;
+    unsigned long seenres_lost = M_SEEN_NOTHING;
 
     if (oart == &artilist[ART_NONARTIFACT] && !otmp->oprops)
         return;
@@ -1218,17 +1219,29 @@ set_artifact_intrinsic(
             }
         }
     }
+    /* once the hero loses a grant this item was actually giving,
+       monsters watching will try that element again, as for an item's
+       base property in setworn(); an off-hand weapon is torn down on
+       every reseat whether or not it was granting anything */
     if (mask) {
-        if (on)
+        if (on) {
             *mask |= wp_mask;
-        else
+        } else {
+            if (*mask & wp_mask)
+                seenres_lost |= (dtyp == AD_FUSE)
+                                    ? M_SEEN_FIRE
+                                    : cvt_adtyp_to_mseenres(dtyp);
             *mask &= ~wp_mask;
+        }
     }
     if (mask2) { /* second resistance for AD_FUSE */
-        if (on)
+        if (on) {
             *mask2 |= wp_mask;
-        else
+        } else {
+            if (*mask2 & wp_mask)
+                seenres_lost |= M_SEEN_COLD;
             *mask2 &= ~wp_mask;
+        }
     }
 
     /* intrinsics from the spfx field; there could be more than one */
@@ -1355,6 +1368,8 @@ set_artifact_intrinsic(
         gv.vision_full_recalc = 1;
     }
     if (spfx & SPFX_REFLECT) {
+        long had_refl = EReflecting & wp_mask;
+
         if (is_art(otmp, ART_MAGIC_MIRROR_OF_MERLIN)) {
             if (on) {
                 EReflecting |= wp_mask;
@@ -1387,6 +1402,8 @@ set_artifact_intrinsic(
             } else
                 EReflecting &= ~wp_mask;
         }
+        if (had_refl && !(EReflecting & wp_mask))
+            seenres_lost |= M_SEEN_REFL;
     }
     if (spfx & SPFX_PROTECT) {
         if (on)
@@ -1408,6 +1425,8 @@ set_artifact_intrinsic(
         else
             EBlnd_resist &= ~wp_mask;
     }
+
+    monstunseesu(seenres_lost);
 }
 
 /* touch_artifact()'s return value isn't sufficient to tell whether it
