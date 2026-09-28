@@ -1570,7 +1570,7 @@ mdamagem(
                       makeplural(mbodypart(magr, HAND)));
             mhm.damage += firedmg;
             if (!rn2(4))
-                (void) destroy_items(mdef, AD_FIRE, firedmg);
+                mhm.damage += destroy_items(mdef, AD_FIRE, firedmg);
         }
         magr->mburnhands--;
         if (!magr->mburnhands && canseemon(magr))
@@ -1597,7 +1597,7 @@ mdamagem(
                       mhis(magr), makeplural(mbodypart(magr, HAND)));
             mhm.damage += elecdmg;
             if (!rn2(4))
-                (void) destroy_items(mdef, AD_ELEC, elecdmg);
+                mhm.damage += destroy_items(mdef, AD_ELEC, elecdmg);
         }
         magr->mshockgrasp--;
         if (!magr->mshockgrasp && canseemon(magr))

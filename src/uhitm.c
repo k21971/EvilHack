@@ -2188,7 +2188,7 @@ hmon_hitmon_vecna_relics(struct _hitmon_data *hmd, struct monst *mon)
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_COLD, hmd->dmg);
         } else {
-            (void) destroy_items(mon, AD_COLD, hmd->dmg);
+            hmd->dmg += destroy_items(mon, AD_COLD, hmd->dmg);
             hmd->dmg += rnd(5) + 7; /* 8-12 hit points of cold damage */
         }
     }
@@ -2641,7 +2641,7 @@ hmon_hitmon(
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_FIRE, hmd.dmg);
         } else {
-            (void) destroy_items(mon, AD_FIRE, hmd.dmg);
+            hmd.dmg += destroy_items(mon, AD_FIRE, hmd.dmg);
 
             if (completelyburns(mon->data)
                 || mon->data == &mons[PM_WOOD_GOLEM]
@@ -2663,7 +2663,7 @@ hmon_hitmon(
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_ELEC, hmd.dmg);
         } else {
-            (void) destroy_items(mon, AD_ELEC, hmd.dmg);
+            hmd.dmg += destroy_items(mon, AD_ELEC, hmd.dmg);
             hmd.dmg += d(enchant_skill_dice(), 6);
         }
     }
@@ -8698,7 +8698,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                                    : makeplural(body_part(HAND)));
                         }
 
-                        (void) destroy_items(mon, AD_FIRE, firedmg);
+                        firedmg += destroy_items(mon, AD_FIRE, firedmg);
 
                         if (completelyburns(mon->data)
                             || mon->data == &mons[PM_WOOD_GOLEM]
@@ -8749,7 +8749,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                               ? "talons"
                               : makeplural(body_part(HAND)));
 
-                        (void) destroy_items(mon, AD_ELEC, elecdmg);
+                        elecdmg += destroy_items(mon, AD_ELEC, elecdmg);
 
                         if (damage_mon(mon, elecdmg, AD_ELEC, TRUE)) {
                             xkilled(mon, XKILL_GIVEMSG);

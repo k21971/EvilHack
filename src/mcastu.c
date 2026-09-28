@@ -1289,6 +1289,7 @@ mcast_geyser(struct monst *mtmp, struct monst *mdef, int dmg)
         return dmg;
     } else {
         boolean yours = (mtmp == &gy.youmonst);
+        int itemdmg = 0;
 
         if (!mdef || DEADMONSTER(mdef))
             return 0;
@@ -1301,7 +1302,7 @@ mcast_geyser(struct monst *mtmp, struct monst *mdef, int dmg)
                  "An avalanche of ice and snow slams into %s from nowhere!",
                       mon_nam(mdef));
             dmg = d(8, 8);
-            (void) destroy_items(mdef, AD_COLD, dmg);
+            itemdmg = destroy_items(mdef, AD_COLD, dmg);
         } else {
             if (yours || canseemon(mdef))
                 pline("A sudden geyser slams into %s from nowhere!",
@@ -1340,7 +1341,9 @@ mcast_geyser(struct monst *mtmp, struct monst *mdef, int dmg)
            hero gets */
         if (dmg > 0 && mon_arti_has_spfx(mdef, SPFX_HPHDAM))
             dmg = (dmg + 1) / 2;
-        return dmg;
+        /* shattered potions hurt on top of that, unhalved, as the
+           hero's own do */
+        return dmg + itemdmg;
     }
 }
 
@@ -1388,9 +1391,14 @@ mcast_fire_pillar(struct monst *mtmp, struct monst *mdef, int dmg)
             dmg = (dmg + 1) / 2;
         (void) burnarmor(mdef);
         /* item destruction dmg */
-        (void) destroy_items(mdef, AD_FIRE, orig_dmg);
+        dmg += destroy_items(mdef, AD_FIRE, orig_dmg);
         /* burn up flammable items on the floor, melt ice terrain */
         mon_spell_hits_spot(mtmp, AD_FIRE, mdef->mx, mdef->my);
+        /* the spot effects (melting ice, a boiled-away pool's new pit)
+           may have killed the target or sent it off the map; that is
+           already handled, so leave nothing for castmm to apply */
+        if (DEADMONSTER(mdef) || mon_offmap(mdef))
+            return 0;
         return dmg;
     }
 }
@@ -1461,7 +1469,9 @@ mcast_lightning(struct monst *mtmp, struct monst *mdef, int dmg)
         }
         if (dmg > 0 && mon_arti_has_spfx(mdef, SPFX_HSPDAM))
             dmg = (dmg + 1) / 2;
-        (void) destroy_items(mdef, AD_ELEC, orig_dmg);
+        /* item destruction dmg; a charged ring can still blow up on a
+           resisting target */
+        dmg += destroy_items(mdef, AD_ELEC, orig_dmg);
         return dmg;
     }
 }
