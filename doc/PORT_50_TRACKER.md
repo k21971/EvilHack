@@ -17,18 +17,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-28, after session 154): 266 rows
-  closed, 84 open. Of the open rows:
-  - 18 MED: 10 master behaviors the 5.0 base lacks or reshaped
+- Phase 2 status (refreshed 2026-09-28, after session 155): 267 rows
+  closed, 83 open. Of the open rows:
+  - 17 MED: 10 master behaviors the 5.0 base lacks or reshaped
     (sounds.c consumer half of 9a63bec08, break_armor() reconcile,
     mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
     amnesia skill reset, Caveperson role arms, hero spellcasting
     penalty + sp_know, mm_aggression() grudge residue, obufs[]
     widening), 6 unported master features (potion alchemy table,
     terrain concealment, door-material colors, pet-helper AI, the
-    held artifact pokedex tips, the boojum "vanish" arm), the
-    covetous freeze in a Gehennom demon court (needs a ruling) and
-    a hurt ridden steed fleeing by stairs alone (reproduced).
+    held artifact pokedex tips, the boojum "vanish" arm) and the
+    covetous freeze in a Gehennom demon court (needs a ruling).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -43,17 +42,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     The named LOW queue is drained; the hero-catches-thrown-items
     row and the rider farlook-text row need rulings, and the
     wish-invlet row a reproduction.
-- Latest slice: 2026-09-28 (session 154) RIDER AND STEED HOLD AS ONE
-  PAIR (code and tracker hashes filled after landing;
-  BUG-1987/1988). A rider whose steed holds the hero now counts as
-  a holder: no stair, trap or dig escape, and its other exits say
-  "You get released!". A ridden steed held by the hero's sticky
-  form holds its rider too ("The <steed> cannot escape from you!").
-  Master dangles u.ustuck in the first case. Rows minted: MED
-  steed fleeing by stairs alone (reproduced), LOW rider farlook
-  text. Detail: the closed row's closure notes and the Decisions
-  log.
-- Previous slice: 2026-09-28 (session 153) COVETOUS NO-TELEPORT
+- Latest slice: 2026-09-28 (session 155) A RIDDEN STEED MAKES NO
+  ESCAPE OF ITS OWN (code and tracker hashes filled after landing;
+  BUG-1989..1991). A hurt ridden steed no longer takes stairs,
+  ladders, a digging wand, a cursed or confused teleport scroll or
+  a cursed potion of gain level; only its rider leaves, and takes
+  it along. Riders and steeds skip the deliberate poly-trap step.
+  A steed that left the level with its rider no longer acts again
+  in the same turn (it overwrote its destination and never
+  arrived). Master has the first and third bugs. Detail: the
+  closed row's closure notes and the Decisions log.
+- Previous slice: 2026-09-28 (session 154) RIDER AND STEED HOLD AS
+  ONE PAIR (code 8f3b06f40, tracker 49bac1b07; BUG-1987/1988).
+- Earlier slice: 2026-09-28 (session 153) COVETOUS NO-TELEPORT
   EXEMPTION REMOVED, MASTER'S SHAPE (code 0f66f9596, tracker
   ff9538154; BUG-1985/1986).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
@@ -18268,7 +18269,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a rider whose STEED holds the hero is not treated as stuck
       - THE PAIR NOW COUNTS AS ONE HOLDER, BOTH WAYS 2026-09-28
       (session 154, commit `Treat a rider and its steed as one holder.`
-      = (hash filled after landing), BUG-1987, 1988; closure notes at
+      = 8f3b06f40, tracker 49bac1b07, BUG-1987, 1988; closure notes at
       the end of this row). Original text:
       (minted 2026-09-25, session 144, by the holder-leaves-level
       slice's reviewer; traced in code, not reproduced). A ridden steed
@@ -18396,7 +18397,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mammoth, which is holding you" / "which you are holding") with
       the maintainer, then use ustuck_self_or_steed() in both. LOW
       (display only).
-- [ ] MED: a hurt ridden steed can flee by stairs alone, leaving its
+- [x] MED: a hurt ridden steed can flee by stairs alone - A RIDDEN
+      STEED NOW MAKES NO ESCAPE OF ITS OWN 2026-09-28 (session 155,
+      commit `Keep a ridden steed from leaving its rider behind.` =
+      (hash filled after landing), BUG-1989, 1990, 1991; closure
+      notes at the end of this row). Original text:
+      a hurt ridden steed can flee by stairs alone, leaving its
       rider pointing at a migrating monster (minted 2026-09-28,
       session 154, by the rider/steed hold slice's reviewer;
       REPRODUCED by battery L15 on POST). movemon() keeps a ridden
@@ -18424,6 +18430,120 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a ridden steed makes no escape of its own (treat ridden_by like
       immobile in the finders), or the pair leaves together. MED
       (dangling state; every Nazgul arrives riding a fell beast).
+      CLOSURE NOTES (session 155; plan
+      /root/.claude/plans/bugfix-ridden-steed-escapes-alone.md, copy
+      of delightful-wobbling-lightning.md):
+      TRACE: dochug() runs find_defensive()/find_misc() for a ridden
+      steed before m_move()'s ridden_by return. migrate_to_level()
+      recurses rider -> steed only; rloc() already redirects a ridden
+      steed to its rider. Reachable steeds (can_saddle, not animal,
+      not mindless): fell beast, couatl, white/gray/black unicorn,
+      ki-rin, eldritch ki-rin, skeletal dragon, baby and adult
+      dragons, plains/forest/mountain centaurs (hands: the item arms
+      too). Producers, all in muse.c: the stairs/ladder/branch-stairs
+      gate (and mon_escape() on level 1), the digging wand (hole; the
+      pit branch ran mintrap() on the off-map steed), a cursed or
+      confused teleport scroll, a cursed potion of gain level, and
+      the poly-trap step (it would clear the rider's map slot; only
+      the NOGEN "centaur" is under difficulty 6). Census of every
+      other exit: all rloc() paths redirect; mon_escape_with_amulet()
+      and m_move()'s find_defensive(TRUE) sit after the ridden_by
+      return; keepdogs() skips riders and steeds; digactualhole(),
+      mlevel_tele_trap(), the m_into_limbo() callers and the water
+      bubbles see only the rider (m_at()); invoke_banish() and
+      dlords_stalk need a demon, and no rideable monster is one.
+      The trap-door arm's exclusion came from master 556564f4f
+      (SpliceHack 7febec7); the stairs arm was just missed. The
+      steed that left alone later arrived through mon_arrive()'s
+      ridden_by arm with no rider and was never placed: the
+      steed-orphan investigation's "off-map steed with ridden_by
+      set" signature. A spider cannot take this path: giant and
+      gargantuan spiders (krm26's drow cleric steed) are M1_ANIMAL
+      on master and the branch, so the finders return first. The
+      second bug below is rider-driven and can involve one.
+      SECOND BUG found while tracing (BUG-1990): movemon() walks an
+      iter_mons_safe() snapshot, and movemon_singlemon() let every
+      ridden_by monster past its off-map skip. With the rider ahead
+      of its steed on fmon (a mount_up() pair whose rider is newer)
+      a rider's stairs escape migrated the steed along, then the
+      steed acted from the snapshot and set_apparxy() overwrote
+      mux/muy, its migration destination; it never arrived. The
+      rider makes the choice here, so any steed is exposed, including
+      a drow's giant spider - but only as a mount_up() pair (only
+      drow may climb spiders; makemon() puts a drow cleric's own
+      spider ahead of it on fmon).
+      RULINGS (AskUserQuestion x2, both recommended): (1) a ridden
+      steed makes no escape of its own; only the rider leaves and
+      takes it; (2) fold in the rider's poly-trap step (riders and
+      steeds skip it, like the trap-door arm).
+      FIX: find_defensive()'s stairs gate refuses a ridden steed (the
+      trap arm keeps only has_erid); the digging wand (both scans),
+      a cursed or confused teleport scroll (both scans) and a cursed
+      potion of gain level refuse it; find_misc()'s poly-trap arm
+      refuses riders and steeds. Healing, the unicorn horn and an
+      uncursed teleport (the pair moves together) still work.
+      movemon_singlemon() exempts a steed only when its off-map bits
+      are exactly MON_OFFMAP.
+      REVIEWER PASS (no HIGH or MED). LOW taken: the exact-match
+      MON_OFFMAP test over a MIGRATING|LIMBO mask. LOW not taken
+      (record only): mon_arrive()'s ridden_by arm assumes a missing
+      rider sits on failed_arrivals, so a steed that ever migrates
+      alone by another route would arrive unplaced; no such route
+      remains, and guarding it would be a band-aid.
+      BATTERY (~49 min; POST 75613e965c447531b490ca23df8c7bdb, PRE
+      1ed482f0dd81622a62024d0019b348a4 = HEAD 49bac1b07 code, MASTER
+      0.9.3; Monk games; POST paniclog never created, master's
+      unchanged), all as briefed:
+        * L1 fell beast at 1 HP under a Nazgul on the up stairs: POST
+          stayed 31 turns, link intact; PRE and MASTER "The saddled
+          fell beast escapes upstairs!" within two turns, the Nazgul
+          left pointing at the migrating steed.
+        * L2 the Nazgul's own escape: "The Nazgul escapes upstairs!",
+          both on migrating_mons with the same destination, arrived
+          mounted. L8 save/restore kept the link.
+        * L3 a hurt ridden forest centaur: POST never used a wand of
+          digging, a cursed teleport scroll, a cursed gain level (at
+          full HP) or, while confused, an uncursed scroll; PRE used
+          each at once and left alone ("has made a hole in the
+          floor", "rises up, through the ceiling!", "mispronounces
+          the magic words").
+        * L4 an uncursed scroll teleported the centaur and its orc
+          together on the level; L5 a potion of healing was drunk.
+        * L6 a hill orc on a warg by a poly trap: PRE "deliberately
+          jumps onto a polymorph trap!  Transforming, the hill orc
+          falls from the saddled warg!"; POST stayed 21 turns.
+        * L7 a mount_up() pair, orc ahead of horse on fmon: after
+          "The hill orc escapes upstairs!" the horse read mux/muy 0/9
+          on POST (the destination; arrived mounted) and 61/10 on PRE
+          (the hero's square; never arrived, the orc arrived pointing
+          at it).
+        * PRE also arrived the L3a centaur on D:8 at <0,0> with
+          ridden_by set: "mon claims to be at <0,0>?" x2 in its
+          paniclog.
+      MASTER LEG M1 (~20 min, added at the maintainer's request to
+      test whether a drow's spider could be krm26's orphan): a drow
+      cleric (gdb makemon() with MM_NOSTEED; ^G gave a pre-mounted
+      one 3 times of 3 against a 1-in-7 roll, unexplained) directly
+      ahead of a saddled giant spider on fmon climbed it, then fled:
+      "The drow cleric escapes upstairs!". The spider sat on
+      migrating_mons with mux/muy (36,13), the hero's square,
+      instead of D:4. The drow arrived alone; master's
+      update_monsteed() copied its coordinates onto the stranded
+      spider. Killing the drow put the spider on the map while it
+      was not on fmon (free_erid() cleared ridden_by, then
+      place_monster()): visible, inert for 11 turns, "map mon ...
+      not in fmon list!" every turn. After save and restore it was
+      off the map and still stranded on migrating_mons. That is the
+      inverse of krm26's orphan (on fmon, off the map, attacking
+      invisibly), so neither bug here is its producer; BUG-1426
+      stays the best fit. The leg added 18 sanity lines to master's
+      var/paniclog (4 -> 22).
+      Master: BUG-1989 and BUG-1991 have the same shape there;
+      master's movemon() saves nmtmp before the move, so BUG-1990
+      fires there only when the steed is the rider's immediate
+      successor on fmon, and then walks into migrating_mons (leg M1
+      confirmed the steed half); all frozen-unfixed. EvilHack-only
+      feature, so there is no upstream row.
 - [x] LOW: 5.0's noteleport_level() exempts covetous monsters from a
       level's natural no-teleport flag - MASTER'S SHAPE RESTORED
       2026-09-28 (session 153, commit `Restore master's no-teleport
@@ -21071,6 +21191,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-28 | Ridden steed escape rulings (AskUserQuestion x2, session 155, both recommended options taken). (1) A RIDDEN STEED MAKES NO ESCAPE OF ITS OWN: it skips stairs, ladders, branch stairs, digging down, a cursed or confused scroll of teleportation, a cursed potion of gain level and the poly-trap step; it still heals and uses a unicorn horn, and an uncursed teleport still moves the pair together on the level (rloc()'s redirect). Only the rider decides when the pair leaves, and its migration takes the steed. Declined: the pair leaves together on the steed's own escape (a hurt steed would pull an unhurt rider out of a fight, and every exit would need new wording). Matches master's intent (m_move()'s ridden_by return, the trap-door arm's rider/steed exclusion from 556564f4f); master itself has the bug. (2) Fold in the rider's deliberate poly-trap step: riders and steeds skip find_misc()'s poly-trap arm, as they skip the trap-door arm. Implemented as BUG-1989/1991 | maintainer |
 | 2026-09-28 | Rider/steed hold rulings (AskUserQuestion x2, session 154, both recommended options taken). (1) When a rider's steed holds the hero, the PAIR COUNTS AS HOLDING: the rider refuses the stair, ladder, trap door, hole, teleport-trap, digging-wand and poly-trap escapes a holder is refused, always knows where the hero is, and its remaining exits (cursed teleport scroll, cursed gain level, the Amulet escapes) print "You get released!" first, as BUG-1939/1941 do for direct holders. (2) When the hero's sticky form holds a ridden steed, the PAIR IS HELD: "The <steed> cannot escape from you!", no stair, trap or dig escape, no Amulet escape; a teleport of the rider ends the grip silently. Implemented through ustuck_self_or_steed() (BUG-1987/1988); hero-side siblings (a hole dug under the rider, the martial-arts reel, a wand of opening at the rider) follow the same rule. Master's shape (the rider ignores the hold; master also leaves u.ustuck dangling) was declined | maintainer |
 | 2026-09-28 | Covetous no-teleport exemption ruling (AskUserQuestion x1, session 153, recommended option taken): MASTER'S SHAPE. 5.0's `!is_covetous` exemption in noteleport_level() (upstream 07fc4904c, the wand-of-stasis commit, which the branch declined 2026-07-12) is dropped, so a level's natural no-teleport flag stops covetous monsters' own teleports (m_tele() wands and scrolls, the self-teleport spell, the m_move() blink, the Wizard's Amulet-theft escape, Graz'zt's post-theft teleport, beams and quantum mechanics on them) and they learn it, as on master. The ten sites where master tests nothing keep ignoring the flag through the new covetous_noteleport() (court + stasis only): tactics()'s seven warp gates, dochug()'s two MS_BRIBE departures, demon_talk()'s "Good hunting". The same change fixes BUG-1986, a hero polymorphed into a master lich or arch-lich teleporting on no-teleport levels (upstream bug too). The Gehennom demon court stays 5.0-native (BUG-772 adjudication); its covetous-freeze composite is a new MED row needing its own ruling | maintainer |
 | 2026-09-28 | Monster-memory forgetting ruling (AskUserQuestion x1, session 152). "Keep it and fix its gaps", over the recommended master shape (never forget; master's memory is EvilHack's own, 1262a588d). 5.0's monstunseesu() layer stays, and its gear hook now also covers artifact grants, EvilHack armor properties and polymorph reversion. Folded in under the ruling's "every resistance source" rationale, at plan approval: dragon-scale secondaries, the alchemy smock's acid, and M_SEEN_DEATH in both converters (BUG-1981..1983). Semantics as upstream's: watchers forget when a source goes away, even if another remains. Session calls, plan- or review-approved: (1) every hook forgets only a grant that was actually seated, because the branch tears W_SWAPWEP down on every reseat; the same guard is on upstream's worn.c hook, and a NetHack50 merge must keep it. (2) Master's missing savebones() reset is archived as BUG-1984, frozen-unfixed. (3) The monstseesu() setter-parity census was minted as its own SWEEP row. | maintainer (ruling); session, plan- and review-approved (rest) |
