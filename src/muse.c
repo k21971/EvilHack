@@ -625,7 +625,8 @@ find_defensive(struct monst *mtmp, boolean tryescape)
     struct trap *t;
     int fraction;
     coordxy x = mtmp->mx, y = mtmp->my;
-    boolean stuck = (mtmp == u.ustuck),
+    /* a rider is as stuck as the steed it sits on */
+    boolean stuck = (ustuck_self_or_steed(mtmp) != 0),
             immobile = (mtmp->data->mmove == 0);
     stairway *stway;
 
@@ -1719,10 +1720,12 @@ mon_escape_with_amulet(struct monst *mtmp)
         || mindless(mtmp->data) || is_animal(mtmp->data))
         return 0;
     /* a carrier the hero is inside of, or that the hero's own sticky
-       form holds, cannot leave; find_defensive() refuses an engulfer
-       the same way. A carrier merely holding the hero lets go as it
-       escapes below */
-    if (mtmp == u.ustuck && (u.uswallow || sticks(gy.youmonst.data)))
+       form holds (directly or by the steed it rides), cannot leave;
+       find_defensive() refuses an engulfer the same way. A carrier
+       merely holding the hero, or riding a steed that holds the
+       hero, lets go as it escapes below */
+    if (ustuck_self_or_steed(mtmp)
+        && (u.uswallow || sticks(gy.youmonst.data)))
         return 0;
 
     /* Check for stairs or a ladder at monster's location */
@@ -3469,7 +3472,8 @@ find_misc(struct monst *mtmp)
     coordxy xx, yy;
     int pmidx = NON_PM;
     boolean immobile = (mdat->mmove == 0);
-    boolean stuck = (mtmp == u.ustuck);
+    /* a rider is as stuck as the steed it sits on */
+    boolean stuck = (ustuck_self_or_steed(mtmp) != 0);
 
     gm.m.misc = (struct obj *) 0;
     gm.m.has_misc = 0;

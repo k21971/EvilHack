@@ -444,9 +444,10 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         if (disguised_mimic && box_or_door(mtmp))
             that_is_a_mimic(mtmp, MIM_REVEAL); /*seemimic()*/
         wake = FALSE; /* don't want immediate counterattack */
-        if (mtmp == u.ustuck) {
-            /* zapping either holder/holdee or self [zapyourself()] will
-               release hero from holder's grasp or holdee from hero's grasp */
+        if (ustuck_self_or_steed(mtmp)) {
+            /* zapping either holder/holdee (or its rider) or self
+               [zapyourself()] will release hero from holder's grasp or
+               holdee from hero's grasp */
             release_hold();
             learn_it = TRUE;
 

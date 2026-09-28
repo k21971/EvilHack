@@ -47,15 +47,19 @@ update_monsteed(struct monst *mtmp)
        stamped over; mon_arrive() syncs it when it arrives */
     if (steed->mstate & (MON_MIGRATING | MON_LIMBO))
         return;
-    /* if the steed has the hero grabbed and its rider is carrying it
-       out of reach, release the grab; skip the test while the rider is
-       off the map (a water bubble picking the pair up zeroes the
-       rider's coordinates first) - rloc_to_core re-checks adjacency
-       once the rider is placed again */
-    if (steed == u.ustuck && !u.uswallow && !sticks(gy.youmonst.data)
+    /* if its rider is carrying the steed out of reach, the hold between
+       the steed and the hero ends: a steed that has the hero grabbed
+       lets go, and the hero's own sticky grip on the steed slips off
+       without a word, as rloc_to_core() does for a monster held
+       directly; skip the test while the rider is off the map (a water
+       bubble picking the pair up zeroes the rider's coordinates
+       first) - rloc_to_core re-checks adjacency once the rider is
+       placed again */
+    if (steed == u.ustuck && !u.uswallow
         && isok(mtmp->mx, mtmp->my) && !m_next2u(mtmp)) {
         unstuck(steed);
-        You("get released!");
+        if (!sticks(gy.youmonst.data))
+            You("get released!");
     }
     steed->mx = mtmp->mx;
     steed->my = mtmp->my;
@@ -318,6 +322,21 @@ get_mon_rider(struct monst *mtmp)
         if (mtmp->ridden_by == mtmp2->m_id)
             return mtmp2;
     }
+    return (struct monst *) 0;
+}
+
+/* the monster through which mtmp and the hero are stuck together,
+   whichever of them holds the other: mtmp itself, or the steed it is
+   riding; null if there is no such hold */
+struct monst *
+ustuck_self_or_steed(struct monst *mtmp)
+{
+    if (!u.ustuck)
+        return (struct monst *) 0;
+    if (mtmp == u.ustuck)
+        return mtmp;
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed == u.ustuck)
+        return u.ustuck;
     return (struct monst *) 0;
 }
 

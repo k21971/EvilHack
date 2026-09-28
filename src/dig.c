@@ -873,8 +873,10 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE)
                     return;
-                if (mtmp == u.ustuck) /* probably a vortex */
-                    return;           /* temporary? kludge */
+                /* probably a vortex, or a rider whose steed holds or is
+                   held by the hero */
+                if (ustuck_self_or_steed(mtmp))
+                    return; /* temporary? kludge */
 
                 if (teleport_pet(mtmp, FALSE)) {
                     d_level tolevel;

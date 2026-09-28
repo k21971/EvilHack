@@ -554,15 +554,18 @@ disturb(struct monst *mtmp)
     return 0;
 }
 
-/* ungrab/expel held/swallowed hero */
+/* ungrab/expel held/swallowed hero; a rider's steed may be the one
+   doing the holding */
 void
 release_hero(struct monst *mon)
 {
-    if (mon == u.ustuck) {
+    struct monst *holder = ustuck_self_or_steed(mon);
+
+    if (holder) {
         if (u.uswallow) {
-            expels(mon, mon->data, TRUE);
+            expels(holder, holder->data, TRUE);
         } else if (!sticks(gy.youmonst.data)) {
-            unstuck(mon); /* let go */
+            unstuck(holder); /* let go */
             You("get released!");
         }
     }
@@ -1588,8 +1591,11 @@ mon_would_consume_item(struct monst *mtmp, struct obj *otmp)
 boolean
 itsstuck(struct monst *mtmp)
 {
-    if (sticks(gy.youmonst.data) && mtmp == u.ustuck && !u.uswallow) {
-        pline_mon(mtmp, "%s cannot escape from you!", Monnam(mtmp));
+    /* holding a ridden steed holds its rider too */
+    struct monst *held = ustuck_self_or_steed(mtmp);
+
+    if (sticks(gy.youmonst.data) && held && !u.uswallow) {
+        pline_mon(held, "%s cannot escape from you!", Monnam(held));
         return TRUE;
     }
     return FALSE;
@@ -3137,10 +3143,11 @@ set_apparxy(struct monst *mtmp)
      * do cheapest and/or most likely tests first
      */
 
-    /* pet knows your smell; grabber still has hold of you; monsters which
-       know where you are don't suddenly forget, if you haven't moved away;
-       a telepathic monster finds a telepathic hero mind to mind */
-    if (mtmp->mtame || mtmp == u.ustuck || u_at(mx, my)
+    /* pet knows your smell; grabber, or a rider whose steed is locked
+       to you, still has hold of you; monsters which know where you are
+       don't suddenly forget, if you haven't moved away; a telepathic
+       monster finds a telepathic hero mind to mind */
+    if (mtmp->mtame || ustuck_self_or_steed(mtmp) || u_at(mx, my)
         || (has_telepathy(mtmp) && (HTelepat || ETelepat))) {
             mtmp->mux = u.ux;
             mtmp->muy = u.uy;

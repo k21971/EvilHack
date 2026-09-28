@@ -1675,6 +1675,7 @@ tamedog(
     boolean givemsg)
 {
     boolean blessed_scroll = FALSE;
+    struct monst *holder;
 
     if (obj && (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS)) {
         blessed_scroll = obj->blessed ? TRUE : FALSE;
@@ -1823,19 +1824,13 @@ tamedog(
         ERID(mtmp)->mon_steed->mfleetim = 0;
     }
 
-    /* make grabber let go now, whether it becomes tame or not */
-    if (mtmp == u.ustuck) {
+    /* make grabber let go now, whether it becomes tame or not; a
+       rider's steed lets go along with it */
+    if ((holder = ustuck_self_or_steed(mtmp)) != 0) {
         if (u.uswallow)
-            expels(mtmp, mtmp->data, TRUE);
+            expels(holder, holder->data, TRUE);
         else if (!(Upolyd && sticks(gy.youmonst.data)))
-            unstuck(mtmp);
-    }
-
-    if (has_erid(mtmp) && ERID(mtmp)->mon_steed == u.ustuck) {
-        if (u.uswallow)
-            expels(ERID(mtmp)->mon_steed, mtmp->data, TRUE);
-        else if (!(Upolyd && sticks(gy.youmonst.data)))
-            unstuck(ERID(mtmp)->mon_steed);
+            unstuck(holder);
     }
 
     /* feeding it treats makes it tamer */

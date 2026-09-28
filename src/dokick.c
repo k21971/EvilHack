@@ -108,8 +108,10 @@ kickdmg(struct monst *mon, boolean clumsy)
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
         damage_mon(mon, dmg, AD_PHYS, TRUE);
+    /* a monster stuck to the hero, or a rider whose steed is, stays
+       put */
     if (!DEADMONSTER(mon) && martial() && !r_bigmonst(mon) && !rn2(3)
-        && mon->mcanmove && mon != u.ustuck && !mon->mtrapped
+        && mon->mcanmove && !ustuck_self_or_steed(mon) && !mon->mtrapped
         && !mon->mentangled) {
         /* see if the monster has a place to move into */
         mdx = mon->mx + u.dx;

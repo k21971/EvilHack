@@ -2219,10 +2219,11 @@ mlevel_tele_trap(
 {
     int tt = (trap ? trap->ttyp : NO_TRAP);
 
-    if (mtmp == u.ustuck && svc.context.mon_moving) {
+    if (ustuck_self_or_steed(mtmp) && svc.context.mon_moving) {
         /* ustuck case is probably a vortex, but check mon_moving so that if
          * hero is forcing a monster into a trap (i.e. with an AD_PITS attack),
-         * this will proc correctly */
+         * this will proc correctly; a rider whose steed holds or is held by
+         * the hero stays behind the same way */
         return Trap_Effect_Finished; /* temporary? kludge */
     }
     /* magic resistance shrugs off a level teleporter's magic; holes,
