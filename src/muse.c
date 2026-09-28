@@ -776,7 +776,10 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         }
     }
 
-    if (stuck || immobile || mtmp->mtrapped || mtmp->mentangled) {
+    /* a ridden steed goes only where its rider takes it; leaving on its
+       own would strand the rider pointing at a departed steed */
+    if (stuck || immobile || mtmp->ridden_by
+        || mtmp->mtrapped || mtmp->mentangled) {
         ; /* fleeing by stairs or traps is not possible */
     } else if (levl[x][y].typ == STAIRS) {
         stway = stairway_at(x,y);
@@ -835,8 +838,9 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             if ((t = t_at(xx, yy)) == 0
                 || (!ignore_boulders && sobj_at(BOULDER, xx, yy))
                 || onscary(xx, yy, mtmp)
-                /* a mounted monster and its steed stay put */
-                || has_erid(mtmp) || mtmp->ridden_by)
+                /* a mounted monster stays put (its steed was ruled
+                   out above) */
+                || has_erid(mtmp))
                 continue;
             /* use trap if it's the correct type */
             if (is_hole(t->ttyp)
@@ -914,6 +918,8 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         if (gm.m.has_defense == MUSE_WAN_DIGGING)
             break;
         if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !stuck && !t
+            /* a ridden steed would fall through without its rider */
+            && !mtmp->ridden_by
             && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
             && !is_floater(mtmp->data)
             && !can_levitate(mtmp)
@@ -950,7 +956,11 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             && !mon_has_amulet(mtmp)
             && mtmp->mcansee && haseyes(mtmp->data)
             && (!obj->cursed || (!(mtmp->isshk && inhishop(mtmp))
-                                 && !mtmp->isgd && !mtmp->ispriest))) {
+                                 && !mtmp->isgd && !mtmp->ispriest))
+            /* a cursed or confused read sends the reader to another
+               level, which a ridden steed would reach without its
+               rider */
+            && !(mtmp->ridden_by && (obj->cursed || mtmp->mconf))) {
             /* see WAN_TELEPORTATION case above */
             if (!noteleport_level(mtmp)
                 || !mon_knows_traps(mtmp, TELEP_TRAP_SET)) {
@@ -1039,6 +1049,8 @@ check_defensive_item(
 
     nomore(MUSE_WAN_DIGGING);
     if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !ctx->stuck && !ctx->t
+        /* a ridden steed would fall through without its rider */
+        && !mtmp->ridden_by
         && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
         && !is_floater(mtmp->data)
         && !can_levitate(mtmp)
@@ -1070,7 +1082,10 @@ check_defensive_item(
         && !mon_has_amulet(mtmp)
         && mtmp->mcansee && haseyes(mtmp->data)
         && (!obj->cursed || (!(mtmp->isshk && inhishop(mtmp))
-                             && !mtmp->isgd && !mtmp->ispriest))) {
+                             && !mtmp->isgd && !mtmp->ispriest))
+        /* a cursed or confused read sends the reader to another level,
+           which a ridden steed would reach without its rider */
+        && !(mtmp->ridden_by && (obj->cursed || mtmp->mconf))) {
         /* see WAN_TELEPORTATION case above */
         if (!noteleport_level(mtmp)
             || !mon_knows_traps(mtmp, TELEP_TRAP_SET))
@@ -3540,6 +3555,9 @@ find_misc(struct monst *mtmp)
         return FALSE;
 
     if (!stuck && !immobile && !mtmp->mtrapped && !mtmp->mentangled
+        /* a mounted monster and its steed stay put, as in
+           find_defensive()'s trap arm; the step moves only one of them */
+        && !has_erid(mtmp) && !mtmp->ridden_by
         && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
         boolean ignore_boulders = (verysmall(mdat) || racial_throws_rocks(mtmp)
@@ -3604,10 +3622,12 @@ check_misc_item(
 
     nomore(MUSE_POT_GAIN_LEVEL);
     /* Monsters shouldn't recognize cursed items; this kludge is
-       necessary to prevent serious problems though */
+       necessary to prevent serious problems though (a ridden steed
+       would rise through the ceiling without its rider) */
     if (obj->otyp == POT_GAIN_LEVEL
         && (!obj->cursed
-            || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest)))
+            || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest
+                && !mtmp->ridden_by)))
         return MUSE_POT_GAIN_LEVEL;
 
     nomore(MUSE_BULLWHIP);

@@ -1781,8 +1781,14 @@ movemon_singlemon(struct monst *mtmp)
 
     /* monster isn't on this map anymore; a steed carrying a monster rider
        is off the map but stays on the fmon list at its rider's square and
-       is still able to attack from there */
-    if (mon_offmap(mtmp) && !mtmp->ridden_by) {
+       is still able to attack from there. A steed with any other off-map
+       bit has left the level with its rider and stays skipped:
+       iter_mons_safe()'s snapshot still lists it when the rider moved
+       first, and acting in transit would overwrite the destination kept
+       in its mux/muy */
+    if (mon_offmap(mtmp)
+        && (!mtmp->ridden_by
+            || (mtmp->mstate & MON_OFF_MAP_BITS) != MON_OFFMAP)) {
         mtmp->movement = 0;
         return FALSE;
     }
