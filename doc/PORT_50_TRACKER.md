@@ -17,13 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-29, after session 158): 270 rows
-  closed, 86 open. Of the open rows:
-  - 16 MED: 8 master behaviors the 5.0 base lacks or reshaped
-    (greased gear resisting theft - NEXT, escaped-wish forfeit, egg
-    handling, amnesia skill reset, Caveperson role arms, hero
-    spellcasting penalty + sp_know, mm_aggression() grudge residue,
-    obufs[] widening), 7 unported master features (potion alchemy
+- Phase 2 status (refreshed 2026-09-29, after session 159): 271 rows
+  closed, 85 open. Of the open rows:
+  - 15 MED: 7 master behaviors the 5.0 base lacks or reshaped
+    (escaped-wish forfeit - NEXT, egg handling, amnesia skill reset,
+    Caveperson role arms, hero spellcasting penalty + sp_know,
+    mm_aggression() grudge residue, obufs[] widening), 7 unported
+    master features (potion alchemy
     table, terrain concealment, door-material colors, pet-helper
     AI, the held artifact pokedex tips, the boojum "vanish" arm,
     assassin vine growth + Gulthias blight spawning) and the
@@ -45,31 +45,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     row (seen live), break_armor()'s cached form, and
     cloak_simple_name()'s dragon-scales name. Session 158 minted the
     hero hug's doubled "is being crushed." row.
-- Latest slice: 2026-09-29 (session 158) WRAP ATTACKS AND THE
-  STATIONARY HUG PORTED FROM MASTER (code and tracker hashes filled
-  after landing; BUG-2012..2020).
-  - Assassin vines and tree blights hug again; the Gulthias tree
-    hugs without its two claw hits. A monster only squeezes a hero
-    next to it.
-  - Wrappers use master's odds (vine 4 in 5, salamander 1 in 6,
-    others 1 in 8), rolled only when not held, and master's species
-    lines.
-  - A salamander in lava pulls a held hero in ("incinerated in
-    molten lava"); a salamander-form hero in lava pulls its target
-    in.
-  - Slip-off text for greased and oilskin gear follows master and
-    names the item right. A hero engulfing as a water elemental
-    suffocates its prey.
-  - Rulings: intended odds; keep 5.0's snake lines; spare a
-    fire-loving hero form; master's slip wording, monster-vs-monster
-    only when seen; the stationary hug needs to have found you;
-    theft grease is the next slice.
+- Latest slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
+  PORTED FROM MASTER (code and tracker hashes filled after landing;
+  BUG-2021..2031).
+  - Greased gear, oilskin cloaks and sacks, the Bag of the
+    Hesperides and oilskin-property gear resist every thief:
+    monsters robbing the hero, the hero robbing a monster, and
+    monsters robbing each other. Uncursed gear is never taken; a
+    cursed item goes 1 time in 4; the grease wears off 1 in 2.
+  - The Wizard, nemeses and player monsters: grease guards a quest
+    artifact but not the Amulet or the invocation items; the Wizard
+    leaves the hero's own quest artifact alone; player monsters go
+    only for the Amulet; stolen armor goes on at once.
+  - A thieving nymph picks a monster's item at random. The hero's
+    own theft no longer rolls the slip check twice.
+  - Rulings: master's code odds everywhere; fold in the three
+    stealamulet() gaps.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-09-29 (session 157) POLYMORPH ARMOR HANDLING
+- Previous slice: 2026-09-29 (session 158) WRAP ATTACKS AND THE
+  STATIONARY HUG PORTED FROM MASTER (code 77a47c48e, tracker
+  e1342ae47; BUG-2012..2020).
+- Earlier slice: 2026-09-29 (session 157) POLYMORPH ARMOR HANDLING
   RECONCILED WITH MASTER (code dc3b7a129, tracker 0842a0d35;
   BUG-1996..2011).
-- Earlier slice: 2026-09-28 (session 156) ANIMAL CHAT SOUNDS AND PET
-  MOODS (code 0a9626794, tracker 81a54619f; BUG-1992..1995).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -1640,7 +1638,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       DISPLACED) && !has_displacement(mon)` return 30, between
       REFLECTING and FREE_ACTION) - has_displacement() and the worn
       MR2_DISPLACED bit are live (BUG-1930), and the DISPLACED /
-      TELEPAT OFF arms already re-scan worn gear), armor_bonus/
+      TELEPAT OFF arms already re-scan worn gear; 2026-09-29
+      greased-theft slice obligation: stealamulet() now calls
+      m_dowear(mtmp, TRUE) after a theft (master 4042b8973,
+      BUG-2028), and master's m_dowear() also fills W_RINGL /
+      W_RINGR, so a Wizard who steals the Ring of P'hul puts it on
+      at once on master but not on the branch - covered once the
+      ring slots port), armor_bonus/
       material_bonus AC.
       SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
       4 wizard games on the fresh install, sanity_check ON every
@@ -7560,6 +7564,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       impossible). Master's rloc_to clears mtrapped unconditionally
       before the re-check. One-line parity candidate; ride the next
       teleport.c slice.
+      NOTE (2026-09-29, session 159 Plan agent, verified in trap.c):
+      the same difference decides whether rloc() can kill. The
+      branch calls mintrap() with mtrapped still set, so mintrap()
+      only clears the flag (no trap there) or takes its non-lethal
+      "still in the trap" arm; master clears mtrapped first, so the
+      landing square's trap fires and can kill. The branch's
+      post-rloc DEADMONSTER guards (AD_SGLD, AD_SEDU m-v-m, the
+      Demonic-Blackmail arms) are therefore defensive today and go
+      live if master's clear-before-mintrap ports.
 - [x] hack.c forcefight fire-burn (fire_wep/burnhd) NOT PORTED (minted
       2026-08-06 by the Archeologist slice's C-hook audit). Master's
       forcefight block computes burnhd (u.umburn burning-hands form,
@@ -16889,8 +16902,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] MED: mhitm_ad_wrap() hero leg is vanilla 5.0 - master's wrap
       verbs, grab odds and the salamander lava pull ABSENT -
       PORTED 2026-09-29 (session 158, commit `Port master's wrap
-      attacks and the stationary hug.` = (hash filled after
-      landing), BUG-2012 through 2020; closure notes at the end of
+      attacks and the stationary hug.` = 77a47c48e, tracker
+      e1342ae47, BUG-2012 through 2020; closure notes at the end of
       this row). Original text:
       (minted
       2026-09-19, session 132 reviewer's whole-commit sweep of master
@@ -17003,7 +17016,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hugs, saw it 2-3 times a round (PRE, seen live). Fix: drop the
       wrap leg's AT_HUGS line (hmonas() already printed it) and check
       the shade path. LOW (text).
-- [ ] MED: greased gear does not resist theft (minted 2026-09-29,
+- [x] MED: greased gear does not resist theft - PORTED 2026-09-29
+      (session 159, commit `Port master's greased-gear theft
+      resistance.` = (hash filled after landing), BUG-2021 through
+      2031; closure notes at the end of this row). Original text:
+      (minted 2026-09-29,
       session 158, found by the wrap-attack slice's Plan-agent sweep;
       maintainer ruling: its own slice, next). Master bd4e606d1
       (2023, "Greased objects have a chance to resist being
@@ -17032,6 +17049,87 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       objnam.c slippery_gear_name() (added by the wrap-attack slice)
       for the item names; master's steal() uses cloak_simple_name(),
       which calls a hat or a sack a "cloak".
+      CLOSURE (2026-09-29, session 159): whole-arm diff of master's
+      steal(), stealamulet(), mdamagem() AD_SEDU and steal_it()
+      against the branch (master commits bd4e606d1, be03b5b3f,
+      1e51b2855, 6489ff112, c40e7c6f0). A Plan agent checked the plan
+      against the tree; the reviewer passed it (three LOWs taken).
+      - The row's "33%" question was already settled: be03b5b3f, the
+        day after bd4e606d1, moved the grease wear-off from 1 in 3 to
+        1 in 2. Only the resist odds needed a ruling.
+      - PORTED:
+        - steal.c thief_slips_off(): one home for the slippery test
+          and the ruled odds, shared by all four sites;
+        - steal() (BUG-2021): master's arm after the boulder retry,
+          "Someone" / "Something" for an unseen thief; the druid /
+          vampire-form check moved below it (master's order);
+        - stealamulet() (BUG-2022): the grease arm, gated on
+          !obj_resists(otmp, 0, 0);
+        - the m-v-m leg: the seen-gated slip arm (BUG-2023),
+          master's random pick (BUG-2024), and a defensive
+          DEADMONSTER(magr) guard after the nymph's rloc (BUG-2025;
+          unreachable on the branch today, see the rloc_to_core row);
+        - steal_slips_off() now calls thief_slips_off().
+      - FOLDED (untracked master stealamulet() features, ruling 2):
+        - the Wizard spares the hero's own quest artifact
+          (4f994e9d4, is_stealable_item(); BUG-2026);
+        - player monsters skip quest artifacts for the Amulet
+          (b0de2f2b6; BUG-2027);
+        - a thief puts stolen armor on at once (4042b8973,
+          m_dowear(mtmp, TRUE); BUG-2028). The branch m_dowear() has
+          no ring slots, so a stolen Ring of P'hul stays unworn:
+          obligation added to the monster ring-wearing deferral.
+      - FIXED BEYOND MASTER: steal_it() rolled the slip check twice on
+        the first item (pre-loop and the loop's first pass), so a
+        cursed slippery item was stolen 1 in 16, not the ruled 1 in 4
+        (BUG-2029, master frozen-unfixed; found by the Plan agent).
+      - MASTER BUGS (frozen-unfixed): the double roll (BUG-2029); the
+        slip text - a bag called a "cloak", "Its hands", "Asmodeus's"
+        (BUG-2030); the AD_SEDU leg's dead-thief fallthrough into the
+        burning-hands / shocking-grasp riders and its stale `buf` in
+        "suddenly disappears" (BUG-2031).
+      - RULINGS (AskUserQuestion x1, two questions, both
+        recommended): master's code odds (uncursed never stolen,
+        cursed 1 in 4, grease wears off 1 in 2), the same in every
+        direction; fold in the three stealamulet() gaps.
+      - PARITY QUIRKS KEPT: grease protects a fake Amulet from a
+        non-Wizard thief; the Wizard still covets the hero's own
+        quest artifact he can no longer steal; a two-claw nymph whose
+        first claw wore the grease off may steal the bare item with
+        its second claw (a m-v-m slip does not end the round).
+      - BATTERY PASS (game-tester, POST
+        adbbf493782646204293a0ce0639c08a, PRE
+        d8d5aa6af80c19f87e5874440267a6e9, MASTER 0.9.3; XL30
+        Valkyrie and Druid games, eight legs). Per-leg lines are in
+        the archive entries. Highlights:
+        - live nymph: POST "The water nymph's hands slip off of your
+          greased dagger!", blind "Someone's hands ...", PRE stolen;
+        - cursed oilskin sack: POST 10/40 stolen, MASTER 19/80;
+          unidentified sack POST "slippery bag", MASTER "slippery
+          cloak";
+        - wolf-form Druid, greased bracers: POST = MASTER slip, PRE
+          "appears confused";
+        - stealamulet(): the Wizard takes the Amulet over the own QA
+          6/6 (PRE the QA 6/6); a hostile valkyrie takes nothing
+          from a QA-only hero; the Wizard wears stolen Bracers of
+          the First Circle at once (owornmask 8; PRE 0);
+        - m-v-m: seen slip line, silent when blind, random pick
+          7/5/7 (PRE 17/17 the first item);
+        - hero steals a cursed oilskin sack: POST 28%, PRE 9%,
+          MASTER 5%.
+        - Paniclogs: master unchanged at 22 lines. The branch
+          paniclog (cleared at the maintainer's word before the
+          battery; the session-158 lines were staging) gained one
+          staging line - a stale gdb pointer handed to mpickobj()
+          ("add_to_minv: obj where=4, not free") - and was cleared
+          again.
+      - BRIEF ERROR (mine): no cloak stays on in a druid or vampire
+        form (break_armor()), so L3 used greased bracers in wolf form.
+      - NOT TRACKED (all trees or 5.0-native): "You steal:  k - a
+        bag." has two spaces; POST and PRE print "The water nymph
+        vanishes!" after a theft or slip on the hero (5.0's
+        RLOC_MSG), master prints nothing; a Druid at XL14+ is immune
+        to nymphs (druid_mystic, master too).
 - [ ] MED: assassin vines never spread and the Gulthias tree never
       spawns blights (minted 2026-09-29, session 158, wrap-attack
       reviewer). Master's mcalcdistress() (mon.c) has two blocks the
@@ -21542,6 +21640,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-29 | Greased-theft rulings (AskUserQuestion x1, two questions, session 159, both as recommended). (1) MASTER'S CODE ODDS over bd4e606d1's commit message: uncursed or blessed slippery gear (greased, oilskin cloak or sack, Bag of the Hesperides, ITEM_OILSKIN) is never stolen, a cursed item is stolen 1 time in 4, and the grease wears off 1 in 2 per failed attempt (be03b5b3f had already replaced the message's 33%); the same in every direction - so steal_it()'s double roll, which made a cursed item 1 in 16, is fixed (BUG-2029). (2) FOLD IN THE THREE UNTRACKED stealamulet() FEATURES: the Wizard spares the hero's own quest artifact (4f994e9d4), player monsters skip quest artifacts (b0de2f2b6), a thief wears stolen armor at once (4042b8973). | maintainer |
 | 2026-09-29 | Wrap-attack rulings (AskUserQuestion x2, six questions, session 158, all as recommended). (1) HELD ODDS, MASTER'S INTENT: grab odds vine 4 in 5, salamander 1 in 6, others 1 in 8, rolled only while nothing holds the hero; master's precedence slip (a held hero re-grabbed, a hold stolen) archived as BUG-2016. (2) KEEP 5.0'S SNAKE / NAGA COIL LINES next to master's centipede, salamander and vine lines (master's python text is vanilla, not authored). (3) SPARE A FIRE-LOVING HERO FORM from the salamander's lava pull, mirroring master's own hero-side `!likes_fire()` test; fire resistance protects nobody (BUG-2017). (4) MASTER'S SLIP WORDING "The attack slips off of / cannot hold onto ...", a monster-vs-monster slip printed only when the hero sees the target. (5) THE STATIONARY / TREE BLIGHT HUG NEEDS `foundyou`; master's grabs a hero whose guess is 2+ squares off (BUG-2018). (6) GREASED-GEAR THEFT (master bd4e606d1) IS ITS OWN SLICE, next; MED row minted. | maintainer |
 | 2026-09-29 | Polymorph armor rulings (AskUserQuestion x4, five questions, session 157). (1) CLOAKS, MASTER'S SHAPE (recommended): a non-artifact cloak worn into a form that bursts armor "tears apart!" and is destroyed, dragon scales included; an artifact cloak "falls off!"; chromatic scales stay worn on a huge humanoid; 5.0's WrappingAllowed() mummy wrapping kept. Upstream ceaffcbd4 (2026-01-11, cloaks survive, to soften polytraps) declined. (2) TORTLE-FORM BOOTS REFUSED (recommended; master bug frozen-unfixed). (3) ARTIFACT SHIRTS FALL OFF for the hero and monsters (recommended; master destroys the Striped Shirt of Liberation, which is inconsistent with its own artifact-cloak arm). (4) REHUMANIZE TIMING: master's INSTANT break_armor() with a guard at each known holder, chosen over the recommended deferral of the gear check to the start of the next move; the deferral would have closed the "gear freed inside losehp()" class at once, with one in-play difference (the shedding lines one move later). (5) A MONSTER'S ARTIFACT SUIT FALLS OFF (recommended; matches the hero's Armor of Retribution and ruling 3). |
 | 2026-09-28 | Animal chat sounds rulings (AskUserQuestion x1, four questions, session 156). (1) SOUND RANGE (recommended): EvilHack's MS_BAT / MS_WCHUCK / MS_RAPTOR / MS_LIZARD / MS_PSEUDO move from 45-49 (above MS_HUMANOID) to 18-22 after MS_TRUMPET with MS_ANIMAL = 22, as 5.0 did for its own animal sounds; every animal-noise test (beg(), muteshk(), do_name.c, wield.c, the priest's speechless flag, the leader remap) now counts them, and saves break through the shambler / Oracle / Charon templates. (2) ELEPHANTS (over the recommended master shape): master's tame / peaceful / hostile lines plus 5.0's wake_nearto(11 * 11), but only when the line is an actual trumpet (tame distressed, peaceful, hostile), never on "snorts hungrily." / "rumbles contentedly." / "snorts.". (3) HOSTILE MS_ROAR (recommended): keeps "roars!"; master's "growls!" is a copy slip from the MS_GROWL block (BUG-1995, frozen-unfixed). (4) GNOME DEFAULT (over the recommended master "grunts."): keep 5.0's "Many enter the dungeon, and few return to the sunlit lands.". Taken without asking: MS_ORC shares MS_GRUNT's arms in domonnoise() and yelp() (one value on master; matches the session 133 growl_sound() ruling). Implemented as BUG-1992..1994 | maintainer |
