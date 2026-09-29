@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-28, after session 156): 268 rows
-  closed, 82 open. Of the open rows:
-  - 16 MED: 9 master behaviors the 5.0 base lacks or reshaped
-    (break_armor() reconcile,
-    mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
+- Phase 2 status (refreshed 2026-09-29, after session 157): 269 rows
+  closed, 84 open. Of the open rows:
+  - 15 MED: 8 master behaviors the 5.0 base lacks or reshaped
+    (mhitm_ad_wrap() hero leg, escaped-wish forfeit, egg handling,
     amnesia skill reset, Caveperson role arms, hero spellcasting
     penalty + sp_know, mm_aggression() grudge residue, obufs[]
     widening), 6 unported master features (potion alchemy table,
@@ -38,27 +37,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 49 LOW: small parity rows, quirks and watch/record-only items.
-    The named LOW queue is drained; the hero-catches-thrown-items
-    row and the rider farlook-text row need rulings, and the
-    wish-invlet row a reproduction.
-- Latest slice: 2026-09-28 (session 156) ANIMAL CHAT SOUNDS AND PET
-  MOODS (code and tracker hashes filled after landing;
-  BUG-1992..1995). The consumer half of master 9a63bec08: tame
-  animals' #chat lines follow their mood (distressed, hungry, well
-  fed, content), bats, woodchucks, hawks, lizards, crocodiles,
-  turtles and pseudodragons have lines, yelps and whimpers again,
-  and the five EvilHack animal sound types moved into the animal
-  range (a starving pet bat no longer says "I'm hungry."; master
-  has that bug). Also master's gnoll, ent, entangled, pickpocket and
-  warg lines, and hatchling cries. Rulings: elephants wake others
-  only on a real trumpet, a roarer still roars, gnomes keep 5.0's
-  line. Detail: the closed row's closure notes and the Decisions log.
-- Previous slice: 2026-09-28 (session 155) A RIDDEN STEED MAKES NO
+  - 52 LOW: small parity rows, quirks and watch/record-only items.
+    The hero-catches-thrown-items row and the rider farlook-text row
+    need rulings, and the wish-invlet row a reproduction. Session
+    157 minted three: the accessory_or_armor_on() touch-before-wear
+    row (seen live), break_armor()'s cached form, and
+    cloak_simple_name()'s dragon-scales name.
+- Latest slice: 2026-09-29 (session 157) POLYMORPH ARMOR HANDLING
+  RECONCILED WITH MASTER (code and tracker hashes filled after
+  landing; BUG-1996..2011).
+  - Break_armor() gets master's arms back. Large splint mail stays
+    on a huge humanoid. Otherwise it and the Armor of Retribution
+    fall off whole. Cloaks tear apart again (artifact cloaks fall
+    off; chromatic scales stay on a huge humanoid).
+  - Shirt properties no longer outlive the shirt, and artifact shirts
+    fall off.
+  - Returning to your own form now sheds gear that form can't wear:
+    a centaur's boots, a tortle's suit, a giant's plate mail. This
+    covers rehumanize() and newman().
+  - Tortle forms can't re-wear boots.
+  - The instant shedding is guarded at every caller found to hold
+    the gear across the damage: forge, touch checks, light-hater
+    donning, sink crash, jumping, lighting a weapon.
+  - Rulings: master's cloak shape; master's instant timing, not
+    deferred.
+  - Detail: the closed row's closure notes and the Decisions log.
+- Previous slice: 2026-09-28 (session 156) ANIMAL CHAT SOUNDS AND PET
+  MOODS (code 0a9626794, tracker 81a54619f; BUG-1992..1995).
+- Earlier slice: 2026-09-28 (session 155) A RIDDEN STEED MAKES NO
   ESCAPE OF ITS OWN (code e4e3a3468, tracker ca00e6322;
   BUG-1989..1991).
-- Earlier slice: 2026-09-28 (session 154) RIDER AND STEED HOLD AS
-  ONE PAIR (code 8f3b06f40, tracker 49bac1b07; BUG-1987/1988).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -17180,7 +17188,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       43e53482264661ec1daed0cdfc5ccc33) - tester-induced, not a
       finding. NOT RUN: eel wrap, engulf, PRE for the mimic and
       hero-attacker legs.
-- [ ] MED: break_armor() / mon_break_armor() full-body reconcile
+- [x] MED: break_armor() / mon_break_armor() full-body reconcile -
+      PORTED 2026-09-29 (session 157, commit `Reconcile polymorph armor
+      handling with master.` = (hash filled after landing), BUG-1996
+      through 2011; closure notes at the end of this row). Original
+      text:
       (minted 2026-09-20, session 133, found by the boots-gate row's
       whole-function diff; verified on both bodies; "large splint" had
       no tracker mention). The gates landed with the LOW rows batch;
@@ -17208,9 +17220,107 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       do_wear.c canwearobj() has no refusal for a tortle POLYFORM or
       an ent, so those forms can put the boots straight back on (same
       on master). MED.
+      CLOSURE (2026-09-29, session 157): WHOLE-FUNCTION DIFF of
+      break_armor(), rehumanize(), newman(), mon_break_armor() and the
+      canwearobj() boots gate against master. A Plan agent audited
+      every rehumanize() caller; the reviewer made three passes.
+      - PORTED:
+        - suit arms (BUG-1996): large splint mail stays on a huge
+          humanoid, otherwise it and the Armor of Retribution fall
+          off whole; master's `msize <= MZ_LARGE` catch-all. The
+          stays-worn arm skips cancel_don() / end_burn(), a
+          refinement: master's cancel_don() there left a suit worn
+          without Armor_on();
+        - cloak arm, master's shape by ruling (BUG-1997);
+        - Shirt_off() in both shirt arms (BUG-1998, a regression of
+          ef579bc8c);
+        - rehumanize()'s break_armor() + drop_weapon(1) (BUG-1999, a
+          regression of 585ef3226), and the same pair in newman() (BUG-2000,
+          master too);
+        - canwearobj() refuses boots via racial_tortle(&gy.youmonst)
+          (BUG-2001). The "ent" half of the OWED note was wrong:
+          canwearobj() refuses an ent all armor on both trees;
+        - artifact shirts fall off, hero and monster (BUG-2002);
+        - mon_break_armor(): the bracers text (BUG-2003) and
+          r_verysmall (no reachable difference), plus an artifact suit
+          falling off (BUG-2010).
+      - KEPT (5.0): WrappingAllowed() for the mummy wrapping (matches
+        canwearobj() / m_dowear()), the eyewear arm,
+        passes_thru_clothes, and BUG-1787's in_use (now with the
+        useupp() o_id rescan, BUG-2005).
+      - NEW REACH GUARDED (BUG-2004, 2006-2009; master has every one
+        since 585ef3226, frozen-unfixed). An instant break_armor()
+        inside losehp() frees or drops gear that callers hold:
+        - the forge (trap.c lava_damage(), fountain.c dipforge() case
+          22);
+        - touch_artifact() / retouch_object(): o_id re-checks, the
+          saddle exempt by in_invent;
+        - begin_burn(): lightdamage() moved last;
+        - toggle_armor_light() and accessory_or_armor_on()'s on_msg():
+          o_id re-checks;
+        - dosinkfall(): W_ARMF is cleared when the boots are gone;
+        - hurtle_jump(): restores only I_SPECIAL;
+        - setuswapwep(), ready_weapon() (goto) and the two dothrow.c
+          returning-weapon lines: gated on the weapon still being held.
+      - BUG-2011 (branch): Cloak_off() / Shirt_off() / Shield_off()
+        now clear cancelled_don. 5.0's cancel_don() flags a pending
+        Cloak_on, and EvilHack's scales take 5 turns to don, so the
+        flag leaked into the next Helmet / Gloves / Boots / Armor off
+        and skipped its reversal (the helm of brilliance's Int/Wis).
+      - RULINGS (AskUserQuestion x4, five questions): master's cloak
+        shape (recommended; upstream ceaffcbd4 declined); tortle-form
+        boots refused (recommended); artifact shirts fall off
+        (recommended); rehumanize() keeps master's INSTANT timing with
+        per-site guards (over the recommended deferral to the next
+        move); a monster's artifact suit falls off (recommended).
+      - REVIEWER: pass 1 FAIL (the light-hater use-after-free and the
+        sink levitation), pass 2 FAIL (its own LOW-7 touch_blasted gate
+        was clobbered by the nested retouch_equipment(2), plus the
+        setuswapwep() NULL), pass 3 CONDITIONAL PASS (the
+        cancelled_don leak), then fixed.
+      - BATTERY PASS (game-tester, ~78 min; POST 4be2904c4320d262201db
+        d2536a5e3f7, PRE 4ec61a2d24472075c10cc9208b65c8e2, MASTER 0.9.3;
+        giant / human / centaur / tortle games; branch paniclog never
+        created, master's unchanged at 22 lines): all 18 legs as
+        briefed; per-leg lines in the archive entries.
+      - Battery anomalies:
+        - A1: a revert during W still puts the item on. New LOW row
+          below.
+        - A2: scales are named "cloak". New LOW row below.
+        - A3: self-cancellation reverts a magic-resistant hero on the
+          branch only. Already ruled: 5.0's !youattack refinement was
+          kept.
+        - A4: "You float gently to the floor." right after "You crash
+          to the floor!" (master code path).
+        - Not tracked: PRE's "male dwarf lord" status title; a
+          "leather cloak" wish gives a random leather cloak; a
+          chameleon under monpolycontrol accepts a player-monster form
+          on the branch.
+- [ ] LOW: accessory_or_armor_on() touch-tests before setworn()
+      (minted 2026-09-29, session 157; both trees; SEEN LIVE in that
+      slice's battery, POST and PRE). retouch_object()'s burn can
+      rehumanize the hero before the item is worn. For example, a
+      giant in drow warrior form at 1 HP wears an iron tanko: "The
+      iron of your gold-scaled tanko burns your skin!  You return to
+      giant form!  You finish your dressing maneuver." The giant then
+      wears plate mail that canwearobj() would refuse. Fix: re-run
+      canwearobj() when the form changed across retouch_object(), or
+      refuse. LOW.
+- [ ] LOW: break_armor() caches `uptr` at entry (minted 2026-09-29,
+      session 157, reviewer; branch - master re-reads the form). A
+      nested rehumanize inside an off arm (celestial scales' loss of
+      flight, then lava, then losehp()) leaves the remaining arms
+      testing the old form. The paths are contrived. Re-read the form
+      after each arm, or record. LOW.
+- [ ] LOW: cloak_simple_name() lacks master's dragon-scales arm
+      (minted 2026-09-29, session 157 battery A2). Master returns "set
+      of dragon scales" for Is_dragon_scales() (EvilHack's scales are
+      cloaks). The branch says "Your cloak tears apart!", "The clasp
+      on your cloak ...", "You cannot wear armor over a cloak." for
+      scales. One-line port; check its callers. LOW (text).
 - [x] MED: sounds.c lacks the consumer half of master 9a63bec08 -
       PORTED 2026-09-28 (session 156, commit `Port master's animal
-      chat sounds and pet moods.` = (hash filled after landing),
+      chat sounds and pet moods.` = 0a9626794, tracker 81a54619f,
       BUG-1992, 1993, 1994, 1995; closure notes at the end of this
       row). Original text:
       "Additional monsters sounds" (minted 2026-09-20, session 133,
@@ -18864,6 +18974,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       branch (4 / 6). Most look like message texts ("bracers" vs
       "shield") and martial-arts / shield-skill gates. Classify each
       site; mint a row per real gap. LOW-MED.
+      PROGRESS (2026-09-29, session 157): the worn.c gap was
+      mon_break_armor()'s "can no longer wear <its> bracers!" text,
+      now ported (BUG-2003); worn.c is 5 / 6. do_wear.c
+      canwearobj()'s `already_wearing(c_bracers)` text (seen in that
+      slice's diff) stays in the sweep.
 - [x] MED: death magic outcome shape vs magic resistance - PORTED
       2026-09-23 (session 136, partial reflection / death magic slice,
       commits `Fix: rays at the hero ignored partial reflection and
@@ -21272,6 +21387,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-29 | Polymorph armor rulings (AskUserQuestion x4, five questions, session 157). (1) CLOAKS, MASTER'S SHAPE (recommended): a non-artifact cloak worn into a form that bursts armor "tears apart!" and is destroyed, dragon scales included; an artifact cloak "falls off!"; chromatic scales stay worn on a huge humanoid; 5.0's WrappingAllowed() mummy wrapping kept. Upstream ceaffcbd4 (2026-01-11, cloaks survive, to soften polytraps) declined. (2) TORTLE-FORM BOOTS REFUSED (recommended; master bug frozen-unfixed). (3) ARTIFACT SHIRTS FALL OFF for the hero and monsters (recommended; master destroys the Striped Shirt of Liberation, which is inconsistent with its own artifact-cloak arm). (4) REHUMANIZE TIMING: master's INSTANT break_armor() with a guard at each known holder, chosen over the recommended deferral of the gear check to the start of the next move; the deferral would have closed the "gear freed inside losehp()" class at once, with one in-play difference (the shedding lines one move later). (5) A MONSTER'S ARTIFACT SUIT FALLS OFF (recommended; matches the hero's Armor of Retribution and ruling 3). |
 | 2026-09-28 | Animal chat sounds rulings (AskUserQuestion x1, four questions, session 156). (1) SOUND RANGE (recommended): EvilHack's MS_BAT / MS_WCHUCK / MS_RAPTOR / MS_LIZARD / MS_PSEUDO move from 45-49 (above MS_HUMANOID) to 18-22 after MS_TRUMPET with MS_ANIMAL = 22, as 5.0 did for its own animal sounds; every animal-noise test (beg(), muteshk(), do_name.c, wield.c, the priest's speechless flag, the leader remap) now counts them, and saves break through the shambler / Oracle / Charon templates. (2) ELEPHANTS (over the recommended master shape): master's tame / peaceful / hostile lines plus 5.0's wake_nearto(11 * 11), but only when the line is an actual trumpet (tame distressed, peaceful, hostile), never on "snorts hungrily." / "rumbles contentedly." / "snorts.". (3) HOSTILE MS_ROAR (recommended): keeps "roars!"; master's "growls!" is a copy slip from the MS_GROWL block (BUG-1995, frozen-unfixed). (4) GNOME DEFAULT (over the recommended master "grunts."): keep 5.0's "Many enter the dungeon, and few return to the sunlit lands.". Taken without asking: MS_ORC shares MS_GRUNT's arms in domonnoise() and yelp() (one value on master; matches the session 133 growl_sound() ruling). Implemented as BUG-1992..1994 | maintainer |
 | 2026-09-28 | Ridden steed escape rulings (AskUserQuestion x2, session 155, both recommended options taken). (1) A RIDDEN STEED MAKES NO ESCAPE OF ITS OWN: it skips stairs, ladders, branch stairs, digging down, a cursed or confused scroll of teleportation, a cursed potion of gain level and the poly-trap step; it still heals and uses a unicorn horn, and an uncursed teleport still moves the pair together on the level (rloc()'s redirect). Only the rider decides when the pair leaves, and its migration takes the steed. Declined: the pair leaves together on the steed's own escape (a hurt steed would pull an unhurt rider out of a fight, and every exit would need new wording). Matches master's intent (m_move()'s ridden_by return, the trap-door arm's rider/steed exclusion from 556564f4f); master itself has the bug. (2) Fold in the rider's deliberate poly-trap step: riders and steeds skip find_misc()'s poly-trap arm, as they skip the trap-door arm. Implemented as BUG-1989/1991 | maintainer |
 | 2026-09-28 | Rider/steed hold rulings (AskUserQuestion x2, session 154, both recommended options taken). (1) When a rider's steed holds the hero, the PAIR COUNTS AS HOLDING: the rider refuses the stair, ladder, trap door, hole, teleport-trap, digging-wand and poly-trap escapes a holder is refused, always knows where the hero is, and its remaining exits (cursed teleport scroll, cursed gain level, the Amulet escapes) print "You get released!" first, as BUG-1939/1941 do for direct holders. (2) When the hero's sticky form holds a ridden steed, the PAIR IS HELD: "The <steed> cannot escape from you!", no stair, trap or dig escape, no Amulet escape; a teleport of the rider ends the grip silently. Implemented through ustuck_self_or_steed() (BUG-1987/1988); hero-side siblings (a hole dug under the rider, the martial-arts reel, a wand of opening at the rider) follow the same rule. Master's shape (the rider ignores the hold; master also leaves u.ustuck dangling) was declined | maintainer |
