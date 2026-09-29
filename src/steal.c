@@ -8,6 +8,7 @@
 staticfn int unstolenarm(void);
 staticfn int stealarm(void);
 staticfn void worn_item_removal(struct monst *, struct obj *);
+staticfn boolean is_stealable_item(struct obj *, struct monst *);
 
 /* proportional subset of gold; return value actually fits in an int */
 long
@@ -413,6 +414,20 @@ worn_item_removal(
     remove_worn_item(obj, TRUE);
 }
 
+/* greased or oilskin gear is hard to get a grip on, so an attempt to
+   steal it fails; a cursed item still sticks to the thief's hand 1 time
+   in 4; shared by every direction of theft */
+boolean
+thief_slips_off(struct obj *obj)
+{
+    if (!obj->greased && obj->otyp != OILSKIN_CLOAK
+        && obj->otyp != OILSKIN_SACK
+        && !is_art(obj, ART_BAG_OF_THE_HESPERIDES)
+        && !(obj->oprops & ITEM_OILSKIN))
+        return FALSE;
+    return (!obj->cursed || rn2(4));
+}
+
 /* Returns 1 when something was stolen (or at least, when N should flee now),
  * returns -1 if the monster died in the attempt.
  * Avoid stealing the object 'stealoid'.
@@ -530,20 +545,32 @@ steal(struct monst *mtmp, char *objnambuf)
     if (otmp->o_id == gs.stealoid)
         return 0;
 
+    if (otmp->otyp == BOULDER && !racial_throws_rocks(mtmp)) {
+        if (!retrycnt++)
+            goto retry;
+        goto cant_take;
+    }
+
+    /* greased or oilskin gear is hard to get a grip on */
+    if (thief_slips_off(otmp)) {
+        pline("%s %s slip off of your %s!", s_suffix(Monnambuf),
+              makeplural(mbodypart(mtmp, HAND)), slippery_gear_name(otmp));
+        if (otmp->greased && !rn2(2)) {
+            pline_The("grease wears off.");
+            otmp->greased = 0;
+            update_inventory();
+        }
+        return 1; /* let them flee */
+    }
+
     if ((druid_form || vampire_form)
         && ((otmp == uarm) || (otmp == uarmc)
             || (otmp == uarmu) || (otmp == uarmh)
             || (otmp == uarmg) || (otmp == uarms)
             || (otmp == uarmf))) {
         pline("%s appears confused, being unable to remove %s.",
-              Monnam(mtmp), ysimple_name(otmp));
+              Monnambuf, ysimple_name(otmp));
         return 1; /* let them flee */
-    }
-
-    if (otmp->otyp == BOULDER && !racial_throws_rocks(mtmp)) {
-        if (!retrycnt++)
-            goto retry;
-        goto cant_take;
     }
 
     /* monsters won't take hold of objects made of a material they hate */
@@ -794,7 +821,20 @@ mpickobj(struct monst *mtmp, struct obj *otmp)
     return freed_otmp;
 }
 
-/* called for AD_SAMU (the Wizard and quest nemeses) */
+/* which quest artifacts an AD_SAMU thief will go after */
+staticfn boolean
+is_stealable_item(struct obj *obj, struct monst *mtmp)
+{
+    /* the Wizard leaves the hero's own quest artifact alone */
+    if (mtmp->iswiz && is_quest_artifact(obj))
+        return FALSE;
+    return any_quest_artifact(obj);
+}
+
+/* called for AD_SAMU (the Wizard, quest nemeses, agents sent after an
+   Infidel and player monsters); the Wizard takes any quest artifact but
+   the hero's own, nemeses and agents take any, and player monsters skip
+   quest artifacts to go after the Amulet or the invocation items */
 void
 stealamulet(struct monst *mtmp)
 {
@@ -805,14 +845,16 @@ stealamulet(struct monst *mtmp)
     /* target every quest artifact, not just current role's;
        if hero has more than one, choose randomly so that player
        can't use inventory ordering to influence the theft */
-    for (n = 0, obj = gi.invent; obj; obj = obj->nobj)
-        if (any_quest_artifact(obj))
-            ++n, otmp = obj;
-    if (n > 1) {
-        n = rnd(n);
-        for (otmp = gi.invent; otmp; otmp = otmp->nobj)
-            if (any_quest_artifact(otmp) && !--n)
-                break;
+    if (!is_mplayer(mtmp->data)) {
+        for (n = 0, obj = gi.invent; obj; obj = obj->nobj)
+            if (is_stealable_item(obj, mtmp))
+                ++n, otmp = obj;
+        if (n > 1) {
+            n = rnd(n);
+            for (otmp = gi.invent; otmp; otmp = otmp->nobj)
+                if (is_stealable_item(otmp, mtmp) && !--n)
+                    break;
+        }
     }
 
     if (!otmp) {
@@ -844,6 +886,21 @@ stealamulet(struct monst *mtmp)
     }
 
     if (otmp) { /* we have something to snatch */
+        /* grease protects a quest artifact but nothing that obj_resists()
+           always spares: the Amulet, the invocation items and an
+           Infidel's own quest artifact */
+        if (otmp->greased && thief_slips_off(otmp)
+            && !obj_resists(otmp, 0, 0)) {
+            pline("%s %s slip off of your %s!", s_suffix(Some_Monnam(mtmp)),
+                  makeplural(mbodypart(mtmp, HAND)),
+                  slippery_gear_name(otmp));
+            if (!rn2(2)) {
+                pline_The("grease wears off.");
+                otmp->greased = 0;
+                update_inventory();
+            }
+            return;
+        }
         /* take off outer gear if we're targeting [hypothetical]
            quest artifact suit, shirt, gloves, or rings */
         if ((otmp == uarm || otmp == uarmu) && uarmc)
@@ -875,6 +932,8 @@ stealamulet(struct monst *mtmp)
         freeinv(otmp);
         (void) mpickobj(mtmp, otmp); /* could merge and free otmp but won't */
         pline("%s steals %s!", Some_Monnam(mtmp), buf);
+        /* put on stolen armor at once */
+        m_dowear(mtmp, TRUE);
         if (can_teleport(mtmp->data) && !tele_restrict(mtmp))
             (void) rloc(mtmp, RLOC_MSG);
         encumber_msg();

@@ -3224,13 +3224,7 @@ theft_petrifies(struct obj *otmp)
 staticfn boolean
 steal_slips_off(struct monst *mdef, struct obj *otmp)
 {
-    if (!otmp->greased && otmp->otyp != OILSKIN_CLOAK
-        && otmp->otyp != OILSKIN_SACK
-        && !is_art(otmp, ART_BAG_OF_THE_HESPERIDES)
-        && !(otmp->oprops & ITEM_OILSKIN))
-        return FALSE;
-    /* a cursed item occasionally clings to its owner instead */
-    if (otmp->cursed && !rn2(4))
+    if (!thief_slips_off(otmp))
         return FALSE;
 
     Your("%s slip off of %s %s!", makeplural(body_part(HAND)),
@@ -3282,7 +3276,8 @@ steal_it(struct monst *mdef, struct attack *mattk)
         size = 0, enc = 0, other = 0, cap;
     /* seducing the target strips it bare but leaves its gold alone;
        an ordinary pickpocket takes one item and may take the coins */
-    boolean as_mon = (could_seduce(&gy.youmonst, mdef, mattk) != 0);
+    boolean as_mon = (could_seduce(&gy.youmonst, mdef, mattk) != 0),
+            first_pick = TRUE;
 
     otmp = mdef->minvent;
     if (!otmp || (as_mon && otmp->oclass == COIN_CLASS && !otmp->nobj))
@@ -3500,11 +3495,13 @@ steal_it(struct monst *mdef, struct attack *mattk)
     while (ustealo ? ((otmp = mdef->minvent) != 0) : (otmp != 0)) {
         if (gold) /* put 'mdef's gold back after remembering mdef->minvent */
             mpickobj(mdef, gold), gold = 0;
-        /* only reachable once items have already been stolen; failing to
-           steal a greased object stops further theft so that the loop
-           can't spin on an item that can't be picked up */
-        if (steal_slips_off(mdef, otmp))
+        /* the first pick already had its slip roll above; a later one
+           (seduction strips the target bare) gets its own, and failing
+           it stops further theft so that the loop can't spin on an item
+           that can't be picked up */
+        if (!first_pick && steal_slips_off(mdef, otmp))
             break;
+        first_pick = FALSE;
         unwornmask = otmp->owornmask;
         /* this would take place when doname() formats the object for
            the hold_another_object() call, but we want to do it before
@@ -7297,9 +7294,11 @@ mhitm_ad_samu(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        /* when the Wizard or quest nemesis hits, there's a 1/20 chance
-           to steal a quest artifact (any, not just the one for the hero's
-           own role) or the Amulet or one of the invocation tools */
+        /* when the Wizard, a quest nemesis, an agent sent after an
+           Infidel or a player monster hits, there's a 1/20 chance to
+           steal a quest artifact or the Amulet or one of the invocation
+           tools; the Wizard spares the hero's own quest artifact and
+           player monsters want only the Amulet or the invocation tools */
         if (Hidinshell)
             return;
         if (!rn2(20))
@@ -7458,12 +7457,18 @@ mhitm_ad_sedu(
     } else {
         /* mhitm */
         struct obj *obj;
+        int inv_tmp = 0;
 
         if (magr->mcan)
             return;
-        /* find an object to steal, non-cursed if magr is tame */
+        /* pick an object to steal at random, non-cursed if magr is tame */
         for (obj = mdef->minvent; obj; obj = obj->nobj)
             if (!magr->mtame || !obj->cursed)
+                ++inv_tmp;
+        if (inv_tmp)
+            inv_tmp = rnd(inv_tmp);
+        for (obj = mdef->minvent; obj; obj = obj->nobj)
+            if ((!magr->mtame || !obj->cursed) && --inv_tmp < 1)
                 break;
 
         if (obj) {
@@ -7474,6 +7479,26 @@ mhitm_ad_sedu(
                the saddle, and save it for later messages */
             Strcpy(mdefnambuf,
                    x_monnam(mdef, ARTICLE_THE, (char *) 0, 0, FALSE));
+
+            /* greased or oilskin gear is hard to get a grip on */
+            if (thief_slips_off(obj)) {
+                boolean seeit = (gv.vis && canseemon(mdef));
+
+                if (seeit) {
+                    /* s_suffix() reuses a single buffer */
+                    Strcpy(buf, s_suffix(Monnam(magr)));
+                    pline("%s %s slip off of %s %s!", buf,
+                          makeplural(mbodypart(magr, HAND)),
+                          s_suffix(mdefnambuf), slippery_gear_name(obj));
+                }
+                if (obj->greased && !rn2(2)) {
+                    if (seeit)
+                        pline_The("grease wears off.");
+                    obj->greased = 0;
+                }
+                mhm->damage = 0;
+                return;
+            }
 
             if (u.usteed == mdef && obj == which_armor(mdef, W_SADDLE))
                 /* "You can no longer ride <steed>." */
@@ -7502,6 +7527,14 @@ mhitm_ad_sedu(
 
                 mhm->hitflags = M_ATTK_AGR_DONE;
                 (void) rloc(magr, RLOC_NOMSG);
+                /* a thief that dies in transit must not act again;
+                   rloc_to_core()'s mintrap() can't kill one today */
+                if (DEADMONSTER(magr)) {
+                    mhm->hitflags |= M_ATTK_AGR_DIED;
+                    mhm->done = TRUE;
+                    mhm->damage = 0;
+                    return;
+                }
                 /* TODO: use RLOC_MSG instead? */
                 if (gv.vis && couldspot && !canspotmon(magr))
                     pline("%s suddenly disappears!", buf);

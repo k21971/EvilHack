@@ -3401,6 +3401,7 @@ extern void stealgold(struct monst *) NONNULLARG1;
 extern void thiefdead(void);
 extern boolean unresponsive(void);
 extern void remove_worn_item(struct obj *, boolean) NONNULLARG1;
+extern boolean thief_slips_off(struct obj *) NONNULLARG1;
 extern int steal(struct monst *, char *) NONNULLARG1;
 /* mpickobj() contains a test for NULL arg2 obj and a code path
    that leads to impossible(). Prevents NONNULLARG12. */
