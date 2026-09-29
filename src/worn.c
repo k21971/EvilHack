@@ -1756,12 +1756,17 @@ mon_break_armor(struct monst *mon, boolean polyspot)
     struct obj *otmp;
     struct permonst *mdat = mon->data;
     boolean vis = cansee(mon->mx, mon->my),
-            handless_or_tiny = (nohands(mdat) || verysmall(mdat)),
+            handless_or_tiny = (nohands(mdat) || r_verysmall(mon)),
             noride = FALSE;
     const char *pronoun = mhim(mon), *ppronoun = mhis(mon);
 
     if (breakarm(mon)) {
-        if ((otmp = which_armor(mon, W_ARM)) != 0) {
+        if ((otmp = which_armor(mon, W_ARM)) != 0 && otmp->oartifact) {
+            /* an artifact suit comes off whole, as the hero's does */
+            if (vis)
+                pline_mon(mon, "%s armor falls off!", s_suffix(Monnam(mon)));
+            m_lose_armor(mon, otmp, polyspot);
+        } else if (otmp) {
             if (Is_dragon_armor(otmp)
                 && monsndx(mdat) == Dragon_armor_to_pm(otmp)) {
                 ; /* no message here;
@@ -1802,12 +1807,19 @@ mon_break_armor(struct monst *mon, boolean polyspot)
             }
         }
         if ((otmp = which_armor(mon, W_ARMU)) != 0) {
-            if (vis)
-                pline_mon(mon, "%s shirt rips to shreds!",
-                          s_suffix(Monnam(mon)));
-            else
-                You_hear("a ripping sound.");
-            m_useup(mon, otmp);
+            if (otmp->oartifact) {
+                if (vis)
+                    pline_mon(mon, "%s shirt falls off!",
+                              s_suffix(Monnam(mon)));
+                m_lose_armor(mon, otmp, polyspot);
+            } else {
+                if (vis)
+                    pline_mon(mon, "%s shirt rips to shreds!",
+                              s_suffix(Monnam(mon)));
+                else
+                    You_hear("a ripping sound.");
+                m_useup(mon, otmp);
+            }
         }
     } else if (sliparm(mon)) {
         /* sliparm checks whirly, noncorporeal, and small or under */
@@ -1860,8 +1872,9 @@ mon_break_armor(struct monst *mon, boolean polyspot)
         if ((otmp = which_armor(mon, W_ARMS)) != 0) {
             Soundeffect(se_clank, 50);
             if (vis)
-                pline_mon(mon, "%s can no longer hold %s shield!",
-                          Monnam(mon), ppronoun);
+                pline_mon(mon, "%s can no longer %s %s %s!", Monnam(mon),
+                          is_bracer(otmp) ? "wear" : "hold", ppronoun,
+                          is_bracer(otmp) ? "bracers" : "shield");
             else
                 You_hear("a clank.");
             m_lose_armor(mon, otmp, polyspot);
@@ -1889,7 +1902,7 @@ mon_break_armor(struct monst *mon, boolean polyspot)
                 else
                     pline_mon(mon, "%s boots %s off %s feet!",
                               s_suffix(Monnam(mon)),
-                          verysmall(mdat) ? "slide" : "are pushed", ppronoun);
+                          r_verysmall(mon) ? "slide" : "are pushed", ppronoun);
             }
             m_lose_armor(mon, otmp, polyspot);
         }

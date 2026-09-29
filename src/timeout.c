@@ -1933,7 +1933,7 @@ begin_burn(struct obj *obj, boolean already_lit)
 {
     int radius = 3;
     long turns = 0;
-    boolean do_timer = TRUE;
+    boolean do_timer = TRUE, hurts_hater = FALSE;
     coordxy objx, objy;
     struct monst *lmon = (struct monst *) 0;
 
@@ -1963,7 +1963,7 @@ begin_burn(struct obj *obj, boolean already_lit)
         if (!obj->cursed && !gi.in_mklev
             && distu(objx, objy) < circle_radii2[radius]
             && couldsee(objx, objy))
-            (void) lightdamage(obj, lmon, FALSE, 5);
+            hurts_hater = TRUE;
         break;
 
     case POT_OIL:
@@ -2022,7 +2022,7 @@ begin_burn(struct obj *obj, boolean already_lit)
             if (!(staff || armor) && !gi.in_mklev
                 && distu(objx, objy) < circle_radii2[radius]
                 && couldsee(objx, objy))
-                (void) lightdamage(obj, lmon, FALSE, 5);
+                hurts_hater = TRUE;
         } else {
             impossible("begin burn: unexpected %s", xname(obj));
             turns = obj->age;
@@ -2052,6 +2052,12 @@ begin_burn(struct obj *obj, boolean already_lit)
         else
             impossible("begin_burn: can't get obj position");
     }
+
+    /* last, with the light source in place: the damage can return a
+       polymorphed hero to a form whose break_armor() destroys the worn
+       armor being lit, so nothing may touch obj after this */
+    if (hurts_hater)
+        (void) lightdamage(obj, lmon, FALSE, 5);
 }
 
 /*

@@ -1492,6 +1492,8 @@ touch_artifact(struct obj *obj, struct monst *mon)
         || (yours && oart == &artilist[ART_WAND_OF_ORCUS])) {
         int dmg;
         char buf[BUFSZ];
+        unsigned oid = obj->o_id;
+        boolean in_invent = (obj->where == OBJ_INVENT);
 
         if (!yours)
             return 0;
@@ -1505,6 +1507,10 @@ touch_artifact(struct obj *obj, struct monst *mon)
             dmg += d((u.ualign.record > 50 ? 6 : 8), 10);
         Sprintf(buf, "touching %s", oart->name);
         losehp(dmg, buf, KILLED_BY); /* magic damage, not physical */
+        /* returning to a natural form can make break_armor() drop the
+           worn artifact, even into lava */
+        if (in_invent && o_on(oid, gi.invent) != obj)
+            return 0;
         exercise(A_WIS, FALSE);
     }
 
@@ -5117,6 +5123,9 @@ retouch_object(
     boolean loseit)    /* whether to drop it if hero can longer touch it */
 {
     struct obj *obj = *objp;
+    unsigned oid = obj->o_id;
+    /* a steed's saddle comes here from the steed's inventory */
+    boolean in_invent = (obj->where == OBJ_INVENT), touched;
 
     /* allow hero (specifically, vampires or a crowned Infidel)
        in silver-hating form to try to perform invocation ritual */
@@ -5125,7 +5134,14 @@ retouch_object(
         return 1;
     }
 
-    if (touch_artifact(obj, &gy.youmonst)) {
+    touched = touch_artifact(obj, &gy.youmonst);
+    /* the blast can return the hero to a natural form whose
+       break_armor() drops what the polymorphed one wore */
+    if (in_invent && o_on(oid, gi.invent) != obj) {
+        *objp = 0;
+        return 0;
+    }
+    if (touched) {
         char buf[BUFSZ];
         int dmg = 0;
         boolean hatemat = Hate_material(obj->material),
@@ -5173,6 +5189,12 @@ retouch_object(
             Sprintf(buf, "handling %s that was made of %s",
                     killer_xname(obj), materialnm[obj->material]);
         losehp(dmg, buf, KILLED_BY);
+        /* returning to a natural form can make break_armor() drop or
+           destroy the worn item */
+        if (in_invent && o_on(oid, gi.invent) != obj) {
+            *objp = 0;
+            return 0;
+        }
         exercise(A_CON, FALSE);
         /* concession to those wishing to use gear made of an adverse
          * material: don't make them totally unable to use them. In fact,

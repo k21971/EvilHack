@@ -443,9 +443,15 @@ dipforge(struct obj *obj)
             /* Avoid destroying the same item twice (lava_damage) */
             return;
         } else {
+            unsigned oid = obj->o_id;
+
             pline("Molten lava surges up and splashes all over you!");
             losehp(resist_reduce(d(3, 8), FIRE_RES),
                    "dipping into a forge", KILLED_BY);
+            /* returning to a natural form that can't wear the dipped
+               item may already have destroyed it */
+            if (!o_on(oid, gi.invent) && !obj_here(obj, u.ux, u.uy))
+                return;
         }
         break;
     case 23:

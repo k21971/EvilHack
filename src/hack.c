@@ -908,6 +908,10 @@ dosinkfall(void)
             }
         ELevitation = save_ELev;
         HLevitation = save_HLev;
+        /* the crash can return a polymorphed hero to a natural form
+           whose break_armor() pushes the boots off */
+        if (!uarmf || uarmf->otyp != LEVITATION_BOOTS)
+            ELevitation &= ~W_ARMF;
     }
 
     /*

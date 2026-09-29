@@ -5436,10 +5436,16 @@ lava_damage(struct obj *obj, coordxy x, coordxy y)
                       otense(obj, "burn"));
             } else if (IS_FORGE(levl[u.ux][u.uy].typ)) {
                 if ((obj->owornmask & W_ARMOR) != 0L && carried(obj)) {
+                    unsigned oid = obj->o_id;
+
                     You("were still wearing your %s!", xname(obj));
                     losehp(resist_reduce(d(2, 6), FIRE_RES),
                            "dipping a worn object into a forge",
                            KILLED_BY);
+                    /* returning to a natural form that can't wear it
+                       may already have destroyed it */
+                    if (!o_on(oid, gi.invent) && !obj_here(obj, u.ux, u.uy))
+                        return TRUE;
                 }
                 /* use the() to properly handle artifacts */
                 pline_The("molten lava in the forge incinerates %s.",

@@ -670,6 +670,9 @@ Cloak_off(void)
     default:
         impossible(unknown_type, c_cloak, otyp);
     }
+    /* dragon scales take several turns to don, so cancel_don() can
+       flag a cloak; don't let that reach the next xxx_off() */
+    svc.context.takeoff.cancelled_don = FALSE;
     if (was_arti_light)
         toggle_armor_light(otmp, FALSE);
     return 0;
@@ -1132,6 +1135,7 @@ Shield_off(void)
     }
 
     setworn((struct obj *) 0, W_ARMS);
+    svc.context.takeoff.cancelled_don = FALSE;
     if (was_arti_light)
         toggle_armor_light(otmp, FALSE);
     return 0;
@@ -1184,6 +1188,7 @@ Shirt_off(void)
     }
 
     setworn((struct obj *) 0, W_ARMU);
+    svc.context.takeoff.cancelled_don = FALSE;
     return 0;
 }
 
@@ -1449,7 +1454,14 @@ toggle_armor_light(struct obj *armor, boolean on)
 
     if (on) {
         if (artifact_light(armor) && !armor->lamplit) {
+            unsigned oid = armor->o_id;
+
             begin_burn(armor, FALSE);
+            /* the light can hurt a light-hating hero back into a natural
+               form whose break_armor() destroys this armor, or can't
+               touch it and takes it off */
+            if (o_on(oid, gi.invent) != armor || !armor->lamplit)
+                return;
             if (!Blind) {
                 if (shadow)
                     pline("%s %s an aura of darkness!",
@@ -2837,8 +2849,8 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
                                                             : "hooves",
                      c_boots);
             err++;
-        } else if (!Upolyd && Race_if(PM_TORTLE)) {
-            /* tortle foot shape is all wrong */
+        } else if (racial_tortle(&gy.youmonst)) {
+            /* tortle foot shape is all wrong, race or polymorphed form */
             if (noisy)
                 Your("%s are not shaped correctly to wear %s.",
                      makeplural(body_part(FOOT)), c_boots);
@@ -3166,8 +3178,13 @@ accessory_or_armor_on(struct obj *obj)
                 gn.nomovemsg = "You finish your dressing maneuver.";
             }
         } else {
+            unsigned oid = obj->o_id;
+
             unmul(""); /* call afternmv, clear it+nomovemsg+multi_reason */
-            on_msg(obj);
+            /* a lit suit or cloak can hurt a light-hating hero back into
+               a natural form whose break_armor() destroys it */
+            if (o_on(oid, gi.invent) == obj && (obj->owornmask & mask))
+                on_msg(obj);
         }
         svc.context.takeoff.mask = svc.context.takeoff.what = 0L;
         /* gw.wasinwater = 0U; // can't clear this yet; Boots_on() needs it

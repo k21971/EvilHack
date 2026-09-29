@@ -277,6 +277,11 @@ ready_weapon(struct obj *wep)
 
         if (artifact_light(wep) && !wep->lamplit) {
             begin_burn(wep, FALSE);
+            /* the light can hurt a light-hating hero back into a natural
+               form that can't handle the weapon and drops it (maybe into
+               lava) */
+            if (uwep != wep)
+                goto wielded;
             if (!Blind) {
                 if (is_art(wep, ART_STAFF_OF_THE_ARCHMAGI)
                     && !Upolyd && Race_if(PM_DROW))
@@ -320,6 +325,7 @@ ready_weapon(struct obj *wep)
             }
         }
     }
+ wielded:
     if ((had_wep != (uwep != 0)) && condtests[bl_bareh].enabled)
         disp.botl = TRUE;
     return res;
@@ -356,7 +362,9 @@ setuswapwep(struct obj *obj)
     if (u.twoweap && uswapwep == obj && artifact_light(uswapwep)
         && !uswapwep->lamplit) {
         begin_burn(uswapwep, FALSE);
-        if (!Blind) {
+        /* the light can hurt a light-hating hero back into a natural
+           form that can't handle the weapon and drops it */
+        if (!Blind && uswapwep == obj && obj->lamplit) {
             if (is_art(uswapwep, ART_STAFF_OF_THE_ARCHMAGI)
                 && !Upolyd && Race_if(PM_DROW))
                 pline("%s an aura of darkness!", Tobjnam(uswapwep, "cast"));

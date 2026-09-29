@@ -816,7 +816,11 @@ hurtle_jump(genericptr_t arg, coordxy x, coordxy y)
     /* prevent jumping over water from being placed in that water */
     EWwalking |= I_SPECIAL;
     res = hurtle_step(arg, x, y);
-    EWwalking = save_EWwalking;
+    /* take back only the flag set here; a crash along the way can
+       return a polymorphed hero to a natural form whose break_armor()
+       pushes water walking boots off */
+    if (!(save_EWwalking & I_SPECIAL))
+        EWwalking &= ~I_SPECIAL;
     return res;
 }
 
@@ -1762,8 +1766,12 @@ throwit(
             /* retouch_object may NULL obj (e.g. hero changed state
                mid-flight and can no longer safely handle the artifact) */
             if (obj && artifact_light(obj) && !obj->lamplit) {
+                unsigned oid = obj->o_id;
+
                 begin_burn(obj, FALSE);
-                if (!Blind)
+                /* the light can hurt a light-hating hero back into a
+                   natural form that can't handle the weapon */
+                if (!Blind && o_on(oid, gi.invent) == obj && obj->lamplit)
                     pline("%s to shine %s!", Tobjnam(obj, "begin"),
                           arti_light_description(obj));
             }
@@ -1990,8 +1998,13 @@ throwit(
                     /* retouch_object may NULL obj */
                     if (obj) {
                         if (artifact_light(obj) && !obj->lamplit) {
+                            unsigned oid = obj->o_id;
+
                             begin_burn(obj, FALSE);
-                            if (!Blind)
+                            /* the light can hurt a light-hating hero back
+                               into a natural form that can't handle it */
+                            if (!Blind && o_on(oid, gi.invent) == obj
+                                && obj->lamplit)
                                 pline("%s to shine %s!",
                                       Tobjnam(obj, "begin"),
                                       arti_light_description(obj));

@@ -24,6 +24,7 @@
 staticfn void check_strangling(boolean, boolean);
 staticfn void polyman(const char *, const char *);
 staticfn void dropp(struct obj *);
+staticfn void useupp(struct obj *, unsigned);
 staticfn void break_armor(void);
 staticfn void drop_weapon(int);
 staticfn void newman(void);
@@ -559,6 +560,10 @@ newman(void)
                    ? gu.urace.individual.m
                    : gu.urace.noun;
     polyman("You feel like a new %s!", newform);
+    /* when this ends a polymorph, the original form may not fit what
+       the polymorphed one wore */
+    break_armor();
+    drop_weapon(1);
 
     newgend = poly_gender();
     /* note: newman() bypasses achievements for new ranks attained and
@@ -1551,6 +1556,17 @@ dropp(struct obj *obj)
     }
 }
 
+/* useup() jacket for break_armor(); the xxx_off() call ahead of it can
+   reach drown() or lava_effects(), whose item damage may already have
+   destroyed obj, so look it up by o_id instead of trusting the pointer
+   (compare wornarm_destroyed()) */
+staticfn void
+useupp(struct obj *obj, unsigned oid)
+{
+    if (o_on(oid, gi.invent) == obj)
+        useup(obj);
+}
+
 staticfn void
 break_armor(void)
 {
@@ -1559,43 +1575,77 @@ break_armor(void)
 
     if (breakarm(&gy.youmonst)) {
         if ((otmp = uarm) != 0) {
-            if (donning(otmp))
-                cancel_don();
-            /* for gold DSM, we don't want Armor_gone() to report that it
-               stops shining _after_ we've been told that it is destroyed */
-            if (otmp->lamplit)
-                end_burn(otmp, FALSE);
+            if (otmp->otyp == LARGE_SPLINT_MAIL && humanoid(uptr)
+                && uptr->msize >= MZ_HUGE) {
+                ; /* the outsized suit still fits a huge humanoid */
+            } else {
+                unsigned oid = otmp->o_id;
 
-            You("break out of your armor!");
-            exercise(A_STR, FALSE);
-            /* the off arms of scaled armor can reach drown() and
-               spoteffects(); keep emergency_disrobe() from dropping the
-               suit before useup() */
-            otmp->in_use = 1;
-            (void) Armor_gone();
-            useup(otmp);
+                if (donning(otmp))
+                    cancel_don();
+                /* for gold DSM, we don't want Armor_gone() to report that
+                   it stops shining _after_ we've been told that it is
+                   destroyed */
+                if (otmp->lamplit)
+                    end_burn(otmp, FALSE);
+                if (otmp->otyp == LARGE_SPLINT_MAIL
+                    || is_art(otmp, ART_ARMOR_OF_RETRIBUTION)) {
+                    /* outsized or unbreakable: it comes off whole */
+                    Your("armor falls off!");
+                    (void) Armor_gone();
+                    dropp(otmp);
+                } else {
+                    You("break out of your armor!");
+                    exercise(A_STR, FALSE);
+                    /* the off arms of scaled armor can reach drown() and
+                       spoteffects(); keep emergency_disrobe() from
+                       dropping the suit before it is used up */
+                    otmp->in_use = 1;
+                    (void) Armor_gone();
+                    useupp(otmp, oid);
+                }
+            }
         }
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
-            if (otmp->otyp == MUMMY_WRAPPING) {
-                /* doesn't have a clasp to break open */
-                Your("%s tears apart!", cloak_simple_name(otmp));
-                (void) Cloak_off();
-                useup(otmp);
-            } else if (otmp->otyp == ALCHEMY_SMOCK) {
-                pline_The("knot on your %s is pulled apart!", cloak_simple_name(otmp));
+            if (otmp->oartifact) {
+                if (donning(otmp))
+                    cancel_don();
+                Your("%s falls off!", cloak_simple_name(otmp));
                 (void) Cloak_off();
                 dropp(otmp);
+            } else if (otmp->otyp == CHROMATIC_DRAGON_SCALES
+                       && humanoid(uptr) && uptr->msize >= MZ_HUGE) {
+                ; /* the scales just fit a huge humanoid: still worn */
             } else {
-                pline_The("clasp on your %s breaks open!", cloak_simple_name(otmp));
+                unsigned oid = otmp->o_id;
+
+                if (donning(otmp))
+                    cancel_don();
+                /* end any light first so "stops shining" cannot follow
+                   the destruction message */
+                if (otmp->lamplit)
+                    end_burn(otmp, FALSE);
+                Your("%s tears apart!", cloak_simple_name(otmp));
+                /* celestial scales' loss of flight can reach spoteffects()
+                   and drown(); keep emergency_disrobe() from dropping the
+                   cloak before it is used up */
+                otmp->in_use = 1;
                 (void) Cloak_off();
-                dropp(otmp);
+                useupp(otmp, oid);
             }
         }
-        if (uarmu) {
-            Your("shirt rips to shreds!");
-            useup(uarmu);
+        if ((otmp = uarmu) != 0) {
+            if (otmp->oartifact) {
+                Your("shirt falls off!");
+                (void) Shirt_off();
+                dropp(otmp);
+            } else {
+                Your("shirt rips to shreds!");
+                (void) Shirt_off();
+                useup(otmp);
+            }
         }
     } else if (sliparm(&gy.youmonst)) {
         if ((otmp = uarm) != 0 && racial_exception(&gy.youmonst, otmp) < 1) {
@@ -1612,6 +1662,8 @@ break_armor(void)
         if ((otmp = uarmc) != 0
             /* mummy wrapping adapts to small and very big sizes */
             && (otmp->otyp != MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
+            if (donning(otmp))
+                cancel_don();
             if (is_whirly(uptr))
                 Your("%s falls, unsupported!", cloak_simple_name(otmp));
             else
@@ -1624,7 +1676,16 @@ break_armor(void)
                 You("seep right through your shirt!");
             else
                 You("become much too small for your shirt!");
-            setworn((struct obj *) 0, otmp->owornmask & W_ARMU);
+            (void) Shirt_off();
+            dropp(otmp);
+        }
+    /* catch what breakarm() and sliparm() don't handle */
+    } else if (uptr->msize <= MZ_LARGE) {
+        if ((otmp = uarm) != 0 && otmp->otyp == LARGE_SPLINT_MAIL) {
+            if (donning(otmp))
+                cancel_don();
+            Your("armor falls around you!");
+            (void) Armor_gone();
             dropp(otmp);
         }
     }
@@ -1876,6 +1937,10 @@ rehumanize(void)
         HSlow &= ~FROMHUNGER;
     if (HDeaf & FROMHUNGER)
         HDeaf &= ~FROMHUNGER;
+
+    /* the original form may not fit what the polymorphed one wore */
+    break_armor();
+    drop_weapon(1);
 
     if (u.uhp < 1) {
         /* can only happen if some bit of code reduces u.uhp
