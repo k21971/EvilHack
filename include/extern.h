@@ -2471,6 +2471,7 @@ extern char *Yname2(struct obj *) NONNULL NONNULLARG1;
 extern char *ysimple_name(struct obj *) NONNULL NONNULLARG1;
 extern char *Ysimple_name2(struct obj *) NONNULL NONNULLARG1;
 extern char *simpleonames(struct obj *) NONNULL NONNULLARG1;
+extern char *slippery_gear_name(struct obj *) NONNULL NONNULLARG1;
 extern char *ansimpleoname(struct obj *) NONNULL NONNULLARG1;
 extern char *thesimpleoname(struct obj *) NONNULL NONNULLARG1;
 extern char *actualoname(struct obj *) NONNULL NONNULLARG1;

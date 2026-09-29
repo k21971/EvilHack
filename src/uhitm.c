@@ -66,7 +66,8 @@ staticfn boolean hmon_hitmon(struct monst *, struct obj *, int, int)
                              NONNULLARG1;
 staticfn int joust(struct monst *, struct obj *) NONNULLARG12;
 staticfn void demonpet(void);
-staticfn boolean m_slips_free(struct monst *, struct attack *) NONNULLPTRS;
+staticfn boolean m_slips_free(struct monst *, struct monst *,
+                              struct attack *) NONNULLPTRS;
 staticfn void start_engulf(struct monst *) NONNULLARG1;
 staticfn void end_engulf(void);
 staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
@@ -3077,10 +3078,10 @@ shade_miss(
     return TRUE;
 }
 
-/* check whether slippery clothing protects from hug or wrap attack */
-/* [currently assumes that you are the attacker] */
+/* check whether slippery clothing protects from hug or wrap attack;
+   magr is the hero or, for a mind flayer larva's attack, a monster */
 staticfn boolean
-m_slips_free(struct monst *mdef, struct attack *mattk)
+m_slips_free(struct monst *magr, struct monst *mdef, struct attack *mattk)
 {
     struct obj *obj;
 
@@ -3105,23 +3106,27 @@ m_slips_free(struct monst *mdef, struct attack *mattk)
             obj = which_armor(mdef, W_ARMU); /* shirt */
     }
 
-    /* if monster's cloak/armor is greased, your grab slips off; this
-       protection might fail (33% chance) when the armor is cursed */
+    /* if monster's cloak/armor is greased, the grab slips off; this
+       protection might fail (33% chance) when the armor is cursed;
+       the wording suits both the hero's attack and a monster's */
     if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK
                 || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
-        You("%s %s %s %s!",
-            (mattk->adtyp == AD_WRAP) ? "slip off of"
-                                      : "grab, but cannot hold onto",
-            s_suffix(mon_nam(mdef)), obj->greased ? "greased" : "slippery",
-            /* avoid "slippery slippery cloak"
-               for undiscovered oilskin cloak */
-            (obj->greased || objects[obj->otyp].oc_name_known)
-                ? xname(obj)
-                : cloak_simple_name(obj));
+        boolean seeit = (magr == &gy.youmonst || canseemon(mdef));
+
+        if (seeit)
+            pline_The("attack %s %s %s!",
+                      ((mattk->adtyp == AD_WRAP
+                        && magr->data != &mons[PM_SALAMANDER])
+                       || (mattk->adtyp == AD_DRIN
+                           && racial_zombie(magr)))
+                          ? "slips off of"
+                          : "cannot hold onto",
+                      s_suffix(mon_nam(mdef)), slippery_gear_name(obj));
 
         if (obj->greased && !rn2(2)) {
-            pline_The("grease wears off.");
+            if (seeit)
+                pline_The("grease wears off.");
             obj->greased = 0;
         }
         return TRUE;
@@ -3219,8 +3224,6 @@ theft_petrifies(struct obj *otmp)
 staticfn boolean
 steal_slips_off(struct monst *mdef, struct obj *otmp)
 {
-    const char *adj, *what;
-
     if (!otmp->greased && otmp->otyp != OILSKIN_CLOAK
         && otmp->otyp != OILSKIN_SACK
         && !is_art(otmp, ART_BAG_OF_THE_HESPERIDES)
@@ -3230,17 +3233,8 @@ steal_slips_off(struct monst *mdef, struct obj *otmp)
     if (otmp->cursed && !rn2(4))
         return FALSE;
 
-    adj = otmp->greased ? "greased" : "slippery";
-    what = (otmp->greased || objects[otmp->otyp].oc_name_known)
-               ? xname(otmp)
-               : simpleonames(otmp);
-    /* an unidentified oilskin cloak is already called a slippery
-       cloak, so the adjective would otherwise be said twice */
-    if (!strncmpi(what, adj, strlen(adj)))
-        adj = "";
-
-    Your("%s slip off of %s %s%s%s!", makeplural(body_part(HAND)),
-         s_suffix(mon_nam(mdef)), adj, *adj ? " " : "", what);
+    Your("%s slip off of %s %s!", makeplural(body_part(HAND)),
+         s_suffix(mon_nam(mdef)), slippery_gear_name(otmp));
     if (otmp->greased && !rn2(2)) {
         pline_The("grease wears off.");
         otmp->greased = 0;
@@ -5171,7 +5165,7 @@ mhitm_ad_drin(
             }
             return;
         }
-        if (m_slips_free(mdef, mattk))
+        if (m_slips_free(magr, mdef, mattk))
             return;
 
         if ((helmet = which_armor(mdef, W_ARMH)) != 0 && rn2(8)) {
@@ -5383,7 +5377,7 @@ mhitm_ad_wrap(
             boolean tailmiss = gn.notonhead;
 
             if (!u.ustuck && !tailmiss && !rn2(10)) {
-                if (m_slips_free(mdef, mattk)) {
+                if (m_slips_free(magr, mdef, mattk)) {
                     mhm->damage = 0;
                 } else {
                     if (gy.youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
@@ -5392,8 +5386,13 @@ mhitm_ad_wrap(
                             s_suffix(mon_nam(mdef)), mbodypart(mdef, HEAD),
                             mbodypart(mdef, FACE));
                     else
-                        You("%s yourself around %s!",
-                            coil ? "coil" : "swing", mon_nam(mdef));
+                        You("%s %s!",
+                            (pa == &mons[PM_GIANT_CENTIPEDE] || coil)
+                                ? "coil yourself around"
+                                : (pa == &mons[PM_SALAMANDER])
+                                    ? "wrap your arms around"
+                                    : "swing yourself around",
+                            mon_nam(mdef));
                     set_ustuck(mdef);
                     if (mdef->mundetected) {
                         mdef->mundetected = 0;
@@ -5402,10 +5401,23 @@ mhitm_ad_wrap(
                 }
             } else if (u.ustuck == mdef && !tailmiss) {
                 /* Monsters don't wear amulets of magical breathing */
-                if (is_pool(u.ux, u.uy) && !cant_drown(pd)
+                /* a hero inside an engulfer is held, not holding, so it
+                   can't drag its engulfer under */
+                if (is_pool(u.ux, u.uy) && !cant_drown(pd) && !u.uswallow
                     && gy.youmonst.data != &mons[PM_MIND_FLAYER_LARVA]) {
                     You("drown %s...", mon_nam(mdef));
                     mhm->damage = mdef->mhp;
+                } else if (is_lava(u.ux, u.uy) && !likes_fire(pd)
+                           && !u.uswallow
+                           && gy.youmonst.data
+                                  != &mons[PM_MIND_FLAYER_LARVA]) {
+                    You("pull %s into the lava...", mon_nam(mdef));
+                    mhm->damage = 0;
+                    xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
+                    /* a lifesaved target was only hit */
+                    mhm->hitflags = DEADMONSTER(mdef) ? M_ATTK_DEF_DIED
+                                                      : M_ATTK_HIT;
+                    mhm->done = TRUE;
                 } else if (mattk->aatyp == AT_HUGS) {
                     pline("%s is being crushed.", Monnam(mdef));
                 } else if (mattk->aatyp == AT_TENT) {
@@ -5435,11 +5447,16 @@ mhitm_ad_wrap(
                     if (gy.youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
                         You("try to attach yourself to %s %s!",
                             s_suffix(mon_nam(mdef)), mbodypart(mdef, FACE));
+                    else if (pa == &mons[PM_SALAMANDER] && !tailmiss)
+                        You("try to grab %s!", mon_nam(mdef));
                     else if (coil && !tailmiss)
                         You("brush against %s.", mon_nam(mdef));
                     else
                         You("brush against %s %s.", s_suffix(mon_nam(mdef)),
-                            tailmiss ? "tail" : mbodypart(mdef, LEG));
+                            tailmiss ? "tail"
+                            : (pa == &mons[PM_GIANT_CENTIPEDE])
+                                ? "body"
+                                : mbodypart(mdef, LEG));
                 }
             }
         } else
@@ -5447,7 +5464,12 @@ mhitm_ad_wrap(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         if ((!magr->mcan || u.ustuck == magr) && !sticks(pd)) {
-            if (!u.ustuck && !rn2(10)) {
+            /* salamanders miss less often than most other monsters,
+               assassin vines rarely miss at all */
+            if (!u.ustuck
+                && (pa == &mons[PM_ASSASSIN_VINE] ? rn2(5)
+                    : pa == &mons[PM_SALAMANDER] ? !rn2(6)
+                    : !rn2(8))) {
                 if (u_slip_free(magr, mattk)) {
                     mhm->damage = 0;
                 } else {
@@ -5462,9 +5484,15 @@ mhitm_ad_wrap(
                                      Some_Monnam(magr), body_part(HEAD),
                                      body_part(FACE));
                     else
-                        urgent_pline("%s %s itself around you!",
-                                     Some_Monnam(magr),
-                                     coil ? "coils" : "swings");
+                        urgent_pline("%s %s around you!", Some_Monnam(magr),
+                                     (pa == &mons[PM_GIANT_CENTIPEDE])
+                                         ? "coils its body"
+                                     : (pa == &mons[PM_SALAMANDER])
+                                         ? "wraps its arms"
+                                     : (pa == &mons[PM_ASSASSIN_VINE])
+                                         ? "winds itself"
+                                     : coil ? "coils itself"
+                                     : "swings itself");
                 }
             } else if (u.ustuck == magr) {
                 if (is_pool(magr->mx, magr->my) && !Swimming && !Amphibious
@@ -5481,6 +5509,17 @@ mhitm_ad_wrap(
                             moat ? "moat" : "pool of water",
                             an(pmname(magr->data, Mgender(magr))));
                     done(DROWNING);
+                } else if (is_lava(magr->mx, magr->my)
+                           && !likes_fire(gy.youmonst.data)
+                           && pa != &mons[PM_MIND_FLAYER_LARVA]) {
+                    /* fire resistance is no help once dragged under */
+                    urgent_pline("%s pulls you into the lava...",
+                                 Monnam(magr));
+                    svk.killer.format = NO_KILLER_PREFIX;
+                    Sprintf(svk.killer.name,
+                            "incinerated in molten lava by %s",
+                            an(pmname(magr->data, Mgender(magr))));
+                    done(DIED);
                 } else if (mattk->aatyp == AT_HUGS) {
                     You("are being crushed.");
                 } else if (mattk->aatyp == AT_TENT) {
@@ -5518,12 +5557,18 @@ mhitm_ad_wrap(
                         pline_mon(magr,
                                   "%s tries to attach itself to your %s!",
                                   Monnam(magr), body_part(FACE));
+                    else if (pa == &mons[PM_SALAMANDER])
+                        pline_mon(magr, "%s tries to grab you!",
+                                  Monnam(magr));
                     else if (coil)
                         pline_mon(magr, "%s brushes against you.",
                                   Monnam(magr));
                     else
                         pline_mon(magr, "%s brushes against your %s.",
-                                  Monnam(magr), body_part(LEG));
+                                  Monnam(magr),
+                                  (pa == &mons[PM_GIANT_CENTIPEDE])
+                                      ? "body"
+                                      : body_part(LEG));
                 }
             }
         } else
@@ -5542,7 +5587,7 @@ mhitm_ad_wrap(
                     pline("%s tries to attach itself to %s %s!",
                           Monnam(magr), s_suffix(mon_nam(mdef)),
                           mbodypart(mdef, FACE));
-            } else if (m_slips_free(mdef, mattk)) {
+            } else if (m_slips_free(magr, mdef, mattk)) {
                 mhm->damage = 0;
             } else {
                 if (canseemon(mdef)) {
@@ -7976,6 +8021,16 @@ gulpum(struct monst *mdef, struct attack *mattk)
                     pline("%s is %s!", Monnam(mdef),
                           enfolds(gy.youmonst.data) ? "being squashed"
                             : "pummeled with your debris");
+                }
+                break;
+            case AD_WRAP:
+                /* suffocation attack; negate damage if breathless */
+                if (breathless(pd)) {
+                    pline("%s doesn't appear to need air to breathe.",
+                          Monnam(mdef));
+                    dam = 0;
+                } else {
+                    pline("%s is being suffocated!", Monnam(mdef));
                 }
                 break;
             case AD_ACID:

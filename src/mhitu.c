@@ -1272,9 +1272,16 @@ mattacku(struct monst *mtmp)
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
-            /* Note: if displaced, prev attacks never succeeded */
-            if ((!range2 && i >= 2 && sum[i - 1] && sum[i - 2])
-                || mtmp == u.ustuck) {
+            /* Note: if displaced, prev attacks never succeeded; a
+               stationary monster or a tree blight hugs the hero it has
+               found next to it without the two lead-in hits, and a
+               holder only squeezes from an adjacent square */
+            if (!ranged
+                && ((i >= 2 && sum[i - 1] && sum[i - 2])
+                    || ((is_stationary(mdat)
+                         || mdat == &mons[PM_TREE_BLIGHT])
+                        && foundyou)
+                    || mtmp == u.ustuck)) {
                 if (!failed_grab(mtmp, &gy.youmonst, mattk))
                     sum[i] = hitmu(mtmp, mattk);
             }
@@ -1587,17 +1594,15 @@ u_slip_free(
     if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK
                 || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
-        pline_mon(mtmp, "%s %s your %s %s!", Monnam(mtmp),
-              (mattk->adtyp == AD_WRAP) ? "slips off of"
+        /* a salamander grabs with its arms rather than coiling */
+        pline_mon(mtmp, "%s %s your %s!", Monnam(mtmp),
+                  (mattk->adtyp == AD_WRAP
+                   && mtmp->data != &mons[PM_SALAMANDER])
+                      ? "slips off of"
                   : (mattk->adtyp == AD_DRIN && racial_zombie(mtmp))
                       ? "bites you, but slips off of"
-                      : "grabs you, but cannot hold onto",
-              obj->greased ? "greased" : "slippery",
-              /* avoid "slippery slippery cloak"
-                 for undiscovered oilskin cloak */
-              (obj->greased || objects[obj->otyp].oc_name_known)
-                  ? xname(obj)
-                  : cloak_simple_name(obj));
+                  : "grabs you, but cannot hold onto",
+                  slippery_gear_name(obj));
 
         if (obj->greased && !rn2(2)) {
             pline_The("grease wears off.");

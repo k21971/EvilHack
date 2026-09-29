@@ -2899,6 +2899,24 @@ simpleonames(struct obj *obj)
     return simpleoname;
 }
 
+/* "greased <item>" or "slippery <item>" for gear that a grab or a theft
+   slips off of; an unidentified oilskin cloak's description already says
+   "slippery", so the adjective isn't repeated */
+char *
+slippery_gear_name(struct obj *obj)
+{
+    const char *adj = obj->greased ? "greased" : "slippery";
+    char *buf, *what = (obj->greased || objects[obj->otyp].oc_name_known)
+                           ? xname(obj)
+                           : simpleonames(obj);
+
+    if (!strncmpi(what, adj, strlen(adj)))
+        return what;
+    buf = nextobuf();
+    Snprintf(buf, BUFSZ, "%s %s", adj, what);
+    return buf;
+}
+
 /* "a scroll" or "scrolls"; "a silver bell" or "the Bell of Opening" */
 char *
 ansimpleoname(struct obj *obj)
