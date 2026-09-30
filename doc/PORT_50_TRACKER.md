@@ -17,12 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-30, after session 161): 272 rows
+- Phase 2 status (refreshed 2026-09-30, after session 162): 273 rows
   closed, 88 open. Of the open rows:
-  - 16 MED: 6 master behaviors the 5.0 base lacks or reshaped
-    (egg handling - NEXT, amnesia skill reset, Caveperson role arms,
-    hero spellcasting penalty + sp_know, mm_aggression() grudge
-    residue, obufs[] widening), 8 unported master features (potion
+  - 15 MED: 5 master behaviors the 5.0 base lacks or reshaped
+    (amnesia skill reset - NEXT, Caveperson role arms, hero
+    spellcasting penalty + sp_know, mm_aggression() grudge residue,
+    obufs[] widening), 8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
     "vanish" arm, assassin vine growth + Gulthias blight spawning,
@@ -41,15 +41,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 55 LOW: small parity rows, quirks and watch/record-only items.
+  - 56 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row, the rider farlook-text row
-    and the WISH_TRACKER row need rulings; the wish-invlet row and
-    the curses term_gone row need a reproduction. Session 157
-    minted three: the accessory_or_armor_on() touch-before-wear
-    row (seen live), break_armor()'s cached form, and
-    cloak_simple_name()'s dragon-scales name. Session 158 minted the
-    hero hug's doubled "is being crushed." row.
-- Latest slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
+    and the WISH_TRACKER row need rulings; the wish-invlet row (seen
+    a second time in session 162) and the curses term_gone row need
+    a reproduction. Session 157 minted three: the
+    accessory_or_armor_on() touch-before-wear row (seen live),
+    break_armor()'s cached form, and cloak_simple_name()'s
+    dragon-scales name. Session 158 minted the hero hug's doubled
+    "is being crushed." row; session 162 the egg-learning row.
+- Latest slice: 2026-09-30 (session 162) EGGS: NO QUEEN ANT EGGS,
+  WORKER EGGS FROM QUEENS, EVERY EGG HATCHES THE SMALLEST FORM
+  (code and tracker commits pending; BUG-2040..2049).
+  - A queen ant lays giant (4 in 5), fire or soldier ant eggs, never
+    a queen ant egg; no wish or random egg makes one. Worker eggs
+    can be wished for and generated. A queen-ant-form hero knows
+    all three worker eggs.
+  - Every egg hatches the smallest form of its line: crocodile and
+    giant crocodile eggs hatch baby crocodiles, every spider egg a
+    cave spider, a giant hawk egg a hawk. Giant crocodiles lay
+    crocodile eggs, giant hawks hawk eggs, giant and gargantuan
+    spiders large spider eggs. Genocide of that smallest form kills
+    the eggs.
+  - Cursed figurines keep master's one-step genocide rule;
+    same_race() is unchanged (master's giant crocodile shortcut
+    not ported). Two eggs thrown at a cockatrice make one stack
+    of rocks.
+  - Rulings: egg-only helper for crocodiles; all three worker eggs
+    known; no queen ant egg (beyond master); smallest form for
+    spiders and hawks too; figurines as master; egg labels keep the
+    grown-up name ("crocodile egg" hatches a baby crocodile).
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
   FORFEITED, NOT RANDOM; THRONE AND FOUNTAIN WISHES AS ON MASTER
   (code 8bfa2121b, tracker 868ef97c8; BUG-2033..2039).
   - ESC or a blank answer at "For what do you wish?" asks "Really
@@ -67,12 +90,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     arm goes to the Artifact behaviour row; fold the throne,
     Vlad-throne and water-demon arms (master's shape).
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
+- Earlier slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
   PORTED FROM MASTER (code 0612d2a42, tracker c860058f4;
   BUG-2021..2031).
-- Earlier slice: 2026-09-29 (session 158) WRAP ATTACKS AND THE
-  STATIONARY HUG PORTED FROM MASTER (code 77a47c48e, tracker
-  e1342ae47; BUG-2012..2020).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -16264,8 +16284,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       glass piercer / iron piercer corpse" are refused on both. One
       real divergence caught on the way and rowed below (escaped
       wish grants a random object).
-- [ ] MED: egg handling lacks master's giant crocodile, queen ant and
-      giant hawk arms (minted 2026-09-18 by the session 129 reviewer's
+- [x] MED: egg handling lacks master's giant crocodile, queen ant and
+      giant hawk arms - PORTED 2026-09-30 (session 162, code and
+      tracker commits pending, BUG-2040 through 2049; closure notes
+      at the end of this row). Original text: (minted 2026-09-18 by
+      the session 129 reviewer's
       port-whole-commit check on the same_race() ant pair, verified on
       both bodies; rowless until now). Master f334e3072 `Fix: giant
       crocodiles and their eggs.` + 202a8cb09 `Fix: queen ants were
@@ -16293,6 +16316,146 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       what the rest of hmon_hitmon() does with `obj` after a stackobj()
       merge before porting it (the merge can free obj).
       MED.
+      CLOSURE 2026-09-30 (session 162). Plan
+      /root/.claude/plans/bugfix-egg-handling-reconcile.md. The
+      monster data already matched master (the workers lost
+      M1_OVIPAROUS, giant hawk gained it); only the helpers were
+      vanilla. RULED (decisions log, six questions over five
+      AskUserQuestion calls plus one ruling in chat): (1) the crocodile rule goes in an egg-only
+      helper, not master's big_to_little() special case, so
+      same_race() stays symmetric; (2) a queen-ant-form hero knows
+      all three worker eggs; (3) NO queen ant egg at all - master
+      keeps one 1 in 77 through BREEDER_EGG (maintainer: "queen ant
+      egg shouldn't be a thing, only eggs for the worker/soldier
+      types"); (4) every egg hatches the smallest form of its line -
+      raised mid-implementation when the spider line (master
+      2b8c15da6, three months after f334e3072) turned out to have
+      the crocodile's shape; (5) cursed figurines keep master's
+      one-step genocide rule - raised by the reviewer; (6) egg
+      labels keep the grown-up name (a giant crocodile lays
+      "crocodile eggs", every spider layer "large spider eggs", as
+      vanilla names a cockatrice egg that hatches a chickatrice);
+      master's giant hawk "hawk egg" stays the one exception - asked
+      on the maintainer's question whether a giant crocodile should
+      lay baby crocodile eggs.
+      - mon.c can_be_hatched(): PM_QUEEN_ANT -> NON_PM outright;
+        giant / fire / soldier ant accepted (BUG-2040).
+      - mon.c egg_type_from_parent(): queen ant -> giant 4 in 5,
+        else fire 2 in 3, else soldier, every time, ahead of the
+        breeder gate; inside it giant hawk -> hawk, giant crocodile
+        -> crocodile, giant / gargantuan spider -> large spider, all
+        "appearances only" (BUG-2040, BUG-2042).
+      - NEW mon.c egg_hatchling(): walks big_to_little() to the
+        bottom of the line; hatch_egg() hatches that form and
+        dead_species()'s egg alternate uses it. Over all 57
+        M1_OVIPAROUS monsters only giant spider, gargantuan spider,
+        giant hawk and giant crocodile hatch differently (reviewer
+        census); anthole, owlbear-nest and des-file eggs unchanged.
+        hatch_egg()'s seen-hatch learning passes
+        big_to_little(egg->corpsenm), so the learned type is what it
+        was (Plan-agent find: the hatchling would have taught
+        crocodile, not giant crocodile, eggs) (BUG-2042).
+      - NEW mon.c dead_figurine_species() for the three cursed-
+        figurine callers (invent.c carry_obj_effects(), mkobj.c
+        set_corpsenm() and curse()), which passed egg = TRUE to
+        dead_species() (a vanilla quirk) and would have inherited
+        the smallest-form rule; one-step check kept. The giant
+        crocodile figurine differs from master (crocodile genocide
+        stops it; master: baby crocodile), a side effect of master's
+        big_to_little() shortcut (BUG-2043).
+      - polyself.c polymon(): a queen ant learns the three worker
+        types, not the queen's (BUG-2040; master learns one random
+        worker, BUG-2045).
+      - uhitm.c: the rider - stackobj() + newsym() after the thrown
+        rock's place_object() (BUG-2046). stackobj() keeps obj and
+        frees the stack it absorbs; nothing after the hit holds that
+        stack. Merges less than master: 5.0 mergable() refuses a
+        LOST_THROWN stack against a non-thrown one and the rock has
+        dknown 0, so only rocks from successive thrown eggs merge.
+      - ARCHIVE SWEEP: BUG-295 / BUG-1498 already on the branch
+        (sit.c); BUG-785's hatch_egg() / learn_egg_type() bounds
+        guards were missing - `!ismnum()` (BUG-2047); BUG-635 site 5
+        was missing in mthrowu.c - safe_touch_petrifies() at
+        ohitmon()'s petrify arm and m_throw()'s case EGG, and an
+        ismnum() test on ohitmon()'s "Splat!" message instead of
+        master's safe_mons(), which prints "a human egg" for a known
+        generic egg (BUG-2048, BUG-2049). Sites 1-3 were guarded;
+        site 4 (meatfood()) is absent.
+      MASTER BUGS frozen-unfixed: BUG-2041 (1-in-77 queen ant egg),
+      BUG-2043 (big_to_little() shortcut: same_race(giant crocodile,
+      crocodile) FALSE, the reverse TRUE - a giant-crocodile-form
+      hero eats crocodile corpses without the cannibal penalty;
+      hatch learning marks crocodile eggs), BUG-2044 (spiders and
+      random giant hawk eggs hatch grown egg-layers), BUG-2045,
+      BUG-2049.
+      REVIEWER: CONDITIONAL PASS (one MEDIUM - the figurine leak,
+      fixed by ruling (5); LOWs taken: comment merge, "cursed"
+      dropped from the new comment); second pass PASS.
+      BATTERY PASS (game-tester, 12 legs; POST
+      c2753533f1bff0e764e6922407e74c52 installed via `make update
+      SHELLDIR=`, PRE b541c820ba8888a125398972f4f7f82b = HEAD's code
+      as a binary-only copy with -d, MASTER 0.9.3; both paniclogs
+      unchanged - branch absent, master 22 lines): 60 queen-ant eggs
+      POST giant 49 / fire 5 / soldier 6 / queen 0, PRE queen 60,
+      MASTER 48 / 10 / 2 / 0 (770 gdb calls MASTER 6 queens, POST
+      0); laid crocodile egg -> baby crocodile (POST, MASTER) vs
+      giant crocodile egg -> crocodile (PRE); giant and gargantuan
+      spider forms POST large spider egg -> cave spider, PRE and
+      MASTER -> large / giant spider; wished giant hawk egg POST
+      hawk, PRE and MASTER large hawk; worker egg wishes typed POST
+      and MASTER, generic PRE; "queen ant egg" x10 POST generic 10,
+      PRE queen 10, MASTER 1 queen; dead_species() and same_race()
+      matrices as BUG-2042 / BUG-2043 record; queen-ant polymorph
+      knowledge POST 0/8/8/8, PRE 8/0/0/0, MASTER 8/8/0/0;
+      cannibalism in giant crocodile form POST and PRE yes, MASTER
+      no; two thrown eggs POST one rock stack of 2, PRE two rocks;
+      out-of-range guards hold (POST only); figurine checks equal on
+      all three for arch-lich and large dog, crocodile as noted; in
+      play a cursed arch-lich figurine gets no transform timer after
+      a master lich genocide and one after a lich genocide.
+      MY BRIEF ERROR: giant hawk is NOT M2_NOPOLY (mflags2 0x4900002
+      on both trees; my regex census misread it) - a Valkyrie
+      polymorphed into one.
+      NOT TRACKED / NOTED: (a) own-laid spider hatchlings came out
+      hostile on POST (both cave spiders) and MASTER (a large
+      spider) - consistent with the CHA-based pet cap, which each
+      turn untames the lowest-level pets over the limit (1 in 3
+      hostile) after the tester had hatched several tame
+      crocodiles; not re-run to prove it. (b) makemon.c
+      mimic-as-egg `!can_be_hatched(mndx)` truthiness test (vanilla,
+      all trees) never reverts NON_PM and now reverts giant ant
+      (index 0) - display-inert. (c) a des-file
+      `des.object({ id = "egg", montype = "queen ant" })` or
+      `montype = "a"` can still make a queen ant egg (sp_lev.c sets
+      corpsenm directly; no shipped .lua does; routing it through
+      can_be_hatched() would turn icequeen-3's pegasus egg into a
+      greater pegasus egg). (d) master hatch_egg()'s extra
+      u.uconduct.pets++ (d743b0cc3) - inert, initedog() already
+      counts. (e) the petrifying-egg arm's instant stoning - owned
+      by the gradual-stoning row. (f) MASTER wishes for an egg with
+      no count sometimes gave 2 eggs; the branch always gave 1.
+      NEW ROW: the LOW egg-learning row below. The wish-invlet LOW
+      row gained a second sighting.
+- [ ] LOW: egg recognition is learned one form up (minted 2026-09-30,
+      session 162, reviewer LOW + battery L12; pre-existing on all
+      trees, widened by this row's mapping arms). learn_egg_type(X)
+      marks little_to_big(X), so polymon()'s two calls miss the eggs
+      a middle-form layer lays: a giant or gargantuan spider hero lays
+      large spider eggs but learns giant / gargantuan spider eggs; a
+      giant crocodile hero lays crocodile eggs but learns giant
+      crocodile eggs; a giant hawk hero learns large hawk eggs, which
+      cannot exist. Identifying a crocodile or large spider egg
+      (fully_identify_obj() -> invent.c learn_egg_type()) marks the
+      next form up too. Laid eggs are always `known`, so only random
+      eggs of the laid kind show as plain "egg" (large spider eggs
+      come from can_be_hatched(cave spider), crocodile eggs from
+      can_be_hatched(baby crocodile)). Battery L12: giant spider form
+      large spider bit 0 on all three trees; POST sets giant spider
+      at polymorph, PRE and MASTER did not (the second call there
+      returns the parent itself). Fix shape to rule on: have
+      learn_egg_type() mark the egg's own type and adjust the
+      callers (hatch_egg() passes big_to_little(egg->corpsenm) now
+      only to compensate). LOW (display only).
 - [x] LOW (feature): monster-side gnome egg fear is absent
       PORTED 2026-09-20 (session 133, commit `Fix: scared monsters lost
       master's cries and gnomes their egg fear.` = e29c917d5,
@@ -18009,6 +18172,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the same string, check obj->invlet by gdb right after the
       message), then trace. LOW (cosmetic unless the item really
       moves letters).
+      SECOND SIGHTING (2026-09-30, session 162 battery, POST): a
+      female human Valkyrie's wish for a cursed figurine of an
+      arch-lich printed "Q - a figurine of an arch-lich." while ^P
+      history and the `i` listing both said "q - ...". Both sightings
+      are BUC-prefixed wishes; not reproduced on demand.
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
       and races lost master's granted properties.` = 408713be5
@@ -21840,6 +22008,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-30 | Egg-handling rulings (session 162; AskUserQuestion x5 with six questions, plus one ruling in chat). (1) CROCODILE EGGS THROUGH AN EGG-ONLY HELPER, not master's big_to_little() special case: the eggs behave as on master, but same_race() stays symmetric, so a giant-crocodile-form hero eating a crocodile corpse is still a cannibal (master exempts it; BUG-2043). (2) A QUEEN-ANT-FORM HERO KNOWS ALL THREE WORKER EGGS (master learns one at random; BUG-2045). (3) NO QUEEN ANT EGG AT ALL, beyond master (maintainer in chat: "queen ant egg shouldn't be a thing, only eggs for the worker/soldier types"); master keeps one 1 in 77 through BREEDER_EGG (BUG-2041). (4) EVERY EGG HATCHES THE SMALLEST FORM OF ITS LINE - spiders and hawks too, not crocodiles only: giant and gargantuan spiders lay large spider eggs and every spider egg hatches a cave spider; a random or wished giant hawk egg hatches a hawk (BUG-2042, BUG-2044). (5) CURSED FIGURINES KEEP MASTER'S ONE-STEP GENOCIDE RULE (own species or the next smaller form), not the new egg rule they would have inherited through dead_species(, TRUE). (6) EGG LABELS KEEP THE GROWN-UP NAME (asked after landing prep, on the maintainer's question whether a giant crocodile should lay baby crocodile eggs): giant crocodiles and crocodiles lay "crocodile eggs" and every spider layer "large spider eggs" - the vanilla convention (an egg is named after the grown form above its hatchling, as a cockatrice egg hatches a chickatrice) and the names random and wished eggs use - while the eggs hatch baby crocodiles and cave spiders; master's giant hawk "hawk egg" stays the one exception. | maintainer |
 | 2026-09-30 | Telekinesis damage and covetous court rulings (AskUserQuestion x1, four questions, session 161 follow-up). (1) BUG-2032 TELEKINESIS DAMAGE CAPPED AT 10 DICE, as recommended: `d(min(max(1, weight / 50), 10), 4)` - boulders, statues and anything weighing 500+ hit for 10-40 (mean 25, about 2.5x a thrown boulder's d20), lighter objects unchanged. (2) SAME ON BOTH SIDES, as recommended: the hero's pushes (tk_push_obj()) take the cap with both m_tk_push_obj() arms. (3) STATUES STAY OPEN TO ALL MIND FLAYERS, as recommended (no new is_master gate). (4) COVETOUS COURT FREEZE: MASTER'S SHAPE, over the recommended "walk when they can't warp": covetous tactics() warps ignore the Gehennom demon court as on master. The question also offered a stasis freeze as a live exploit; that was wrong - the maintainer confirmed the same day that 5.0's wand of stasis is not imported (declined 2026-07-12, stasis_until has no writer), so no stasis clause applies and the court is the freeze's only live cause. | maintainer |
 | 2026-09-30 | Escaped-wish and wish-source rulings (AskUserQuestion x3, six questions, session 161, all as recommended). (1) FIVE FAILED DESCRIPTIONS as in vanilla/5.0: `tries` counts only "Nothing fitting" failures; master's per-prompt `tries++` double count (3 failures, "help" and declined forfeits cost a try, the help text over-counts) is archived as BUG-2035, frozen-unfixed on master; a separate counter bounds declined forfeits at master's 50. (2) A HANGUP AT THE WISH PROMPT KEEPS THE WISH: the term_gone early return also takes program_state.done_hup, so 5.0's resume_wish brings the prompt back on restore instead of master's silent forfeit (BUG-2034). (3) THE 8-BALL #apply WISH ARM goes onto the Artifact behaviour remainder row's Magic 8-Ball entry with its read arm, not this slice. (4) FOLD MASTER'S THRONE WISH NERF (b8757058c, rowless): 1 in 5 of effect 6 grants the wish and removes the throne, else see invisible / mapping. (5) VLAD'S THRONE IS AN ORDINARY THRONE, master's shape: 5.0's special_throne_effect() (3fd30c4ec, guaranteed wish) removed. (6) THE WATER DEMON'S WISH ROLLS AN EXTRA dryup(), master 83530efb1's code (not its "immediately" message). | maintainer |
 | 2026-09-29 | Greased-theft rulings (AskUserQuestion x1, two questions, session 159, both as recommended). (1) MASTER'S CODE ODDS over bd4e606d1's commit message: uncursed or blessed slippery gear (greased, oilskin cloak or sack, Bag of the Hesperides, ITEM_OILSKIN) is never stolen, a cursed item is stolen 1 time in 4, and the grease wears off 1 in 2 per failed attempt (be03b5b3f had already replaced the message's 33%); the same in every direction - so steal_it()'s double roll, which made a cursed item 1 in 16, is fixed (BUG-2029). (2) FOLD IN THE THREE UNTRACKED stealamulet() FEATURES: the Wizard spares the hero's own quest artifact (4f994e9d4), player monsters skip quest artifacts (b0de2f2b6), a thief wears stolen armor at once (4042b8973). | maintainer |
