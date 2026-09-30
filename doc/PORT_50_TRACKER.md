@@ -17,12 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-30, after session 162): 273 rows
-  closed, 88 open. Of the open rows:
-  - 15 MED: 5 master behaviors the 5.0 base lacks or reshaped
-    (amnesia skill reset - NEXT, Caveperson role arms, hero
-    spellcasting penalty + sp_know, mm_aggression() grudge residue,
-    obufs[] widening), 8 unported master features (potion
+- Phase 2 status (refreshed 2026-09-30, after session 163): 274 rows
+  closed, 87 open. Of the open rows:
+  - 14 MED: 4 master behaviors the 5.0 base lacks or reshaped
+    (Caveperson role arms - NEXT, hero spellcasting penalty +
+    sp_know, mm_aggression() grudge residue, obufs[] widening),
+    8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
     "vanish" arm, assassin vine growth + Gulthias blight spawning,
@@ -50,49 +50,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     break_armor()'s cached form, and cloak_simple_name()'s
     dragon-scales name. Session 158 minted the hero hug's doubled
     "is being crushed." row; session 162 the egg-learning row.
-- Latest slice: 2026-09-30 (session 162) EGGS: NO QUEEN ANT EGGS,
-  WORKER EGGS FROM QUEENS, EVERY EGG HATCHES THE SMALLEST FORM
-  (code and tracker commits pending; BUG-2040..2049).
-  - A queen ant lays giant (4 in 5), fire or soldier ant eggs, never
-    a queen ant egg; no wish or random egg makes one. Worker eggs
-    can be wished for and generated. A queen-ant-form hero knows
-    all three worker eggs.
-  - Every egg hatches the smallest form of its line: crocodile and
-    giant crocodile eggs hatch baby crocodiles, every spider egg a
-    cave spider, a giant hawk egg a hawk. Giant crocodiles lay
-    crocodile eggs, giant hawks hawk eggs, giant and gargantuan
-    spiders large spider eggs. Genocide of that smallest form kills
-    the eggs.
-  - Cursed figurines keep master's one-step genocide rule;
-    same_race() is unchanged (master's giant crocodile shortcut
-    not ported). Two eggs thrown at a cockatrice make one stack
-    of rocks.
-  - Rulings: egg-only helper for crocodiles; all three worker eggs
-    known; no queen ant egg (beyond master); smallest form for
-    spiders and hawks too; figurines as master; egg labels keep the
-    grown-up name ("crocodile egg" hatches a baby crocodile).
+- Latest slice: 2026-09-30 (session 163) AMNESIA AS ON MASTER:
+  BLESSED SKILL RESET, ILLITHID WARD, TRAPS FORGOTTEN, MIND FLAYER
+  ODDS (code and tracker commits pending; BUG-2050..2054).
+  - A blessed scroll of amnesia read at Int 13+ asks "Do you want to
+    reset your skills training?". 'y' undoes every skill advance
+    and refunds its slots; practice is kept, so #enhance can spend
+    them again. Otherwise an illithid hero or form is warded
+    ("Your psionic abilities ward off the scroll's magic.").
+  - Amnesia forgets every known trap on the level except the one
+    underfoot and holes; a forgotten trap in view turns to floor at
+    once.
+  - A mind flayer's brain-eating forgets the level's traps on every
+    hit, and half the time also drains skills (1-5 at Luck 0 or
+    less, 1-3 above) and loses spells half of that. Every tentacle
+    that gets through takes its own share (5.0's one-per-turn cap
+    is gone).
+  - Rulings: trap forgetting and the flayer odds as master; Luck
+    matters (beyond master, whose luck term does nothing).
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
+- Previous slice: 2026-09-30 (session 162) EGGS: NO QUEEN ANT EGGS,
+  WORKER EGGS FROM QUEENS, EVERY EGG HATCHES THE SMALLEST FORM
+  (code 4715c6077, tracker 414e91ac5; BUG-2040..2049).
+  - A queen ant lays giant (4 in 5), fire or soldier ant eggs, never
+    a queen ant egg. Every egg hatches the smallest form of its
+    line (baby crocodile, cave spider, hawk); egg labels keep the
+    grown-up name. Cursed figurines keep master's one-step rule.
+  - Detail: the closed row's closure notes.
+- Earlier slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
   FORFEITED, NOT RANDOM; THRONE AND FOUNTAIN WISHES AS ON MASTER
   (code 8bfa2121b, tracker 868ef97c8; BUG-2033..2039).
-  - ESC or a blank answer at "For what do you wish?" asks "Really
-    forfeit this wish?"; 'n' asks for the wish again, 'y' declines
-    it and keeps wishless conduct. Wizard mode declines without
-    asking.
-  - Five unrecognized names still end the prompt with a random
-    item; "help" and a declined forfeit cost nothing. A hangup at
-    the prompt keeps the wish for restore.
-  - A throne's wish result now grants a wish 1 time in 5, then the
-    throne vanishes; otherwise see invisible or mapping. Vlad's
-    throne is an ordinary throne again. A water demon's wish rolls
-    an extra fountain dry-up.
-  - Rulings: five tries; keep the wish on hangup; the 8-Ball apply
-    arm goes to the Artifact behaviour row; fold the throne,
-    Vlad-throne and water-demon arms (master's shape).
-  - Detail: the closed row's closure notes.
-- Earlier slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
-  PORTED FROM MASTER (code 0612d2a42, tracker c860058f4;
-  BUG-2021..2031).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -16285,9 +16272,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       real divergence caught on the way and rowed below (escaped
       wish grants a random object).
 - [x] MED: egg handling lacks master's giant crocodile, queen ant and
-      giant hawk arms - PORTED 2026-09-30 (session 162, code and
-      tracker commits pending, BUG-2040 through 2049; closure notes
-      at the end of this row). Original text: (minted 2026-09-18 by
+      giant hawk arms - PORTED 2026-09-30 (session 162, commit `Port
+      master's queen ant, crocodile and hawk egg rules.` = 4715c6077,
+      tracker 414e91ac5, landed 2026-09-30, BUG-2040 through 2049;
+      closure notes at the end of this row). Original text: (minted 2026-09-18 by
       the session 129 reviewer's
       port-whole-commit check on the same_race() ant pair, verified on
       both bodies; rowless until now). Master f334e3072 `Fix: giant
@@ -16548,8 +16536,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       human's telepathy." 7 of 7 post-fix against "mind" 4 of 24
       pre-fix; un-blinded, "latent telepathy" 12 of 24. NOT RUN: the
       SPFX_HSPDAM halving leg (optional; no carrier staged).
-- [ ] MED: scroll of amnesia lacks master's blessed skill-reset prompt
-      and the illithid ward (minted 2026-09-18, session 129 reviewer's
+- [x] MED: scroll of amnesia lacks master's blessed skill-reset prompt
+      and the illithid ward - PORTED 2026-09-30 (session 163, code and
+      tracker commits pending, BUG-2050 through 2054; closure notes at
+      the end of this row). Original text: (minted 2026-09-18, session 129 reviewer's
       is_illithid() sweep, verified on both bodies; "amnesia" had no
       tracker mention). read.c seffect_amnesia() is vanilla. Master's
       SCR_AMNESIA: blessed and INT > 12 -> yn "Do you want to reset
@@ -16560,6 +16550,65 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       of forget(). Archive: BUG-747 flattened this block's control
       flow on master - port the flattened shape. MED (player-facing
       feature).
+      CLOSED 2026-09-30 (plan
+      /root/.claude/plans/bugfix-amnesia-master-shape.md). The row
+      plus two untracked siblings from the same master feature
+      (321b894a2 "Major amnesia revamp", which keeps trap forgetting
+      on purpose; 2f353db9e), all RULED (Decisions log, three
+      questions):
+      - read.c seffect_amnesia(): master's BUG-747 shape in 5.0 idiom
+        (y_n(), gy.youmonst, return for break). weapon.c NEW
+        reset_weapon_skills() pops u.skill_record, drops each skill a
+        level and refunds slots_required() read after the drop; the
+        practice count stays, so #enhance re-advances at once. Panic
+        text "reset_weapon_skills" (master's says "clear_all_skills").
+        BUG-2050.
+      - read.c NEW forget_traps(): every known trap on the level
+        except the hero's square and unhideable_trap() (holes) loses
+        tseen, and each one cleared is newsym()ed. forget() calls it,
+        becomes extern and takes the skill die as a second argument
+        (scroll: uncursed/cursed 5, blessed 3, as master). 5.0's
+        meverseen clearing stays. BUG-2051 (5.0 04c59fff0 dropped
+        it). The per-trap newsym replaces master's docrt() and fixes
+        master's stale in-view `^` on the flayer path (BUG-2054).
+      - uhitm.c mhitm_ad_drin() hero arm: 5.0 d6dd5c743's 1-in-5
+        losespells / 1-in-5 drain rnd(2), each setting gs.skipdrin,
+        replaced by master's shape: forget_traps() on every hit that
+        reaches the memory step, then 50% forget(rn2(2) ? ALL_SPELLS :
+        0, u.uluck <= 0 ? 5 : 3). No memory-loss skipdrin (the
+        death-count one stays). BUG-2052 (7b19b7ba8 said all arms
+        matched master but kept 5.0's rates). Luck matters by ruling
+        3; master's rnd(4)/rnd(2) term is dead (BUG-2053).
+      REVIEWER PASS, four LOWs taken as notes: u.uluck ignores a
+      luckstone (kept, plan-approved); half of flayer hits now also
+      clear meverseen (cosmetic); the second forget_traps() pass is a
+      no-op as on master; archive master's two quirks (done:
+      BUG-2053/2054). BATTERY PASS (game-tester, about 73 min; POST
+      808e87b7fd9c13e49118e6248f2bbc11 via `make update SHELLDIR=`,
+      PRE c2753533f1bff0e764e6922407e74c52 = session 162's install run
+      from the scratchpad with -d, MASTER 0.9.3; paniclogs unchanged -
+      branch absent, master 22 lines). Scroll legs S1-S8 as expected
+      on all three: POST and MASTER prompt at INT 13, not 12; 'y'
+      takes 7 advances to 0 and weapon_slots 17 -> 29 (12 spent, 12
+      refunded), practice 500 kept, #enhance re-advances all 7; 'n'
+      and INT 12 drain 1-3 with no spell loss and forget the traps;
+      uncursed and cursed forget spells, drain 1-5 and forget the
+      traps while the hero-square trap and the hole keep tseen 1;
+      illithid race and flayer form get the ward (blessed still
+      prompts; 'y' resets); PRE never prompts, wards or forgets a
+      trap. The in-view `^` turns to floor at the first --More-- on
+      POST; MASTER holds it until its docrt(). FLAYER (3 AD_DRIN
+      tentacles; about 100 memory-step hits per run): POST Luck 0
+      forget 52/102, spells 31, drain {1:8 2:9 3:9 4:10 5:16}; POST
+      Luck 1 forget 52/102, spells 27, drain {1:25 2:14 3:13}; MASTER
+      Luck 0 51/102, 34, 1-5; MASTER Luck 1 47/102, 25, still 1-5;
+      PRE 19% spells, 18% drain {1:8 2:10}, never more than one memory
+      event per flayer turn. POST and MASTER reach up to 3 per turn,
+      and traps go on the first hit. D2: on a turn with three
+      trap-forgets and no forget(), MASTER kept `^` on screen with
+      tseen 0 until C-r; POST showed floor at once. Controls (flayer
+      form, illithid race, human zombie) lost no memory on POST or
+      MASTER. NOT RUN: Draugr hero control (optional).
 - [x] LOW: eat.c maybe_cannibal() lacks master's Caveperson ritual
       bonus PORTED 2026-09-19 (session 130, commit `Caveperson heroes
       gain alignment from ritual cannibalism.` = 5871494e9, tracker
@@ -22008,6 +22057,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-30 | Amnesia rulings (session 163; AskUserQuestion x1, three questions). The scroll's blessed skill-reset prompt and illithid ward (the MED row) are master's and needed no ruling; the questions covered two untracked siblings from master 321b894a2 / 2f353db9e. (1) TRAP MEMORY: MASTER'S, as recommended - the scroll's amnesia and a mind flayer's brain-eating forget every known trap on the level except the one at the hero's square and holes (5.0 04c59fff0 had dropped it; BUG-2051). (2) FLAYER ODDS: MASTER'S SHAPE, as recommended - every hit that reaches the memory step forgets the level's traps, then half the time runs forget() (spells lost half of that); 5.0 d6dd5c743's 1-in-5 / 1-in-5 rates and its memory-loss gs.skipdrin are gone, so each tentacle that gets through takes its own share (the death-count skipdrin stays; BUG-2052). (3) LUCK: MAKE IT MATTER, over the recommended "as master plays" - master's `forget(rnd(u.uluck <= 0 ? 4 : 2))` has no effect by Luck (BUG-2053); the branch drains 1-5 skills at u.uluck <= 0 and 1-3 above, spells stay 50%. Session calls, plan-approved: the test reads u.uluck as the 2020 code did, so a luckstone's u.moreluck does not count (reviewer LOW, kept as approved); forget() takes the skill die as a second argument (scroll 5 / blessed 3, as master); forget_traps() newsym()s each trap it clears in place of master's docrt() (fixes master's stale in-view `^` on the flayer path, BUG-2054); 5.0's meverseen clearing stays in forget(), so half of flayer hits also clear it (cosmetic, reviewer LOW). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-30 | Egg-handling rulings (session 162; AskUserQuestion x5 with six questions, plus one ruling in chat). (1) CROCODILE EGGS THROUGH AN EGG-ONLY HELPER, not master's big_to_little() special case: the eggs behave as on master, but same_race() stays symmetric, so a giant-crocodile-form hero eating a crocodile corpse is still a cannibal (master exempts it; BUG-2043). (2) A QUEEN-ANT-FORM HERO KNOWS ALL THREE WORKER EGGS (master learns one at random; BUG-2045). (3) NO QUEEN ANT EGG AT ALL, beyond master (maintainer in chat: "queen ant egg shouldn't be a thing, only eggs for the worker/soldier types"); master keeps one 1 in 77 through BREEDER_EGG (BUG-2041). (4) EVERY EGG HATCHES THE SMALLEST FORM OF ITS LINE - spiders and hawks too, not crocodiles only: giant and gargantuan spiders lay large spider eggs and every spider egg hatches a cave spider; a random or wished giant hawk egg hatches a hawk (BUG-2042, BUG-2044). (5) CURSED FIGURINES KEEP MASTER'S ONE-STEP GENOCIDE RULE (own species or the next smaller form), not the new egg rule they would have inherited through dead_species(, TRUE). (6) EGG LABELS KEEP THE GROWN-UP NAME (asked after landing prep, on the maintainer's question whether a giant crocodile should lay baby crocodile eggs): giant crocodiles and crocodiles lay "crocodile eggs" and every spider layer "large spider eggs" - the vanilla convention (an egg is named after the grown form above its hatchling, as a cockatrice egg hatches a chickatrice) and the names random and wished eggs use - while the eggs hatch baby crocodiles and cave spiders; master's giant hawk "hawk egg" stays the one exception. | maintainer |
 | 2026-09-30 | Telekinesis damage and covetous court rulings (AskUserQuestion x1, four questions, session 161 follow-up). (1) BUG-2032 TELEKINESIS DAMAGE CAPPED AT 10 DICE, as recommended: `d(min(max(1, weight / 50), 10), 4)` - boulders, statues and anything weighing 500+ hit for 10-40 (mean 25, about 2.5x a thrown boulder's d20), lighter objects unchanged. (2) SAME ON BOTH SIDES, as recommended: the hero's pushes (tk_push_obj()) take the cap with both m_tk_push_obj() arms. (3) STATUES STAY OPEN TO ALL MIND FLAYERS, as recommended (no new is_master gate). (4) COVETOUS COURT FREEZE: MASTER'S SHAPE, over the recommended "walk when they can't warp": covetous tactics() warps ignore the Gehennom demon court as on master. The question also offered a stasis freeze as a live exploit; that was wrong - the maintainer confirmed the same day that 5.0's wand of stasis is not imported (declined 2026-07-12, stasis_until has no writer), so no stasis clause applies and the court is the freeze's only live cause. | maintainer |
 | 2026-09-30 | Escaped-wish and wish-source rulings (AskUserQuestion x3, six questions, session 161, all as recommended). (1) FIVE FAILED DESCRIPTIONS as in vanilla/5.0: `tries` counts only "Nothing fitting" failures; master's per-prompt `tries++` double count (3 failures, "help" and declined forfeits cost a try, the help text over-counts) is archived as BUG-2035, frozen-unfixed on master; a separate counter bounds declined forfeits at master's 50. (2) A HANGUP AT THE WISH PROMPT KEEPS THE WISH: the term_gone early return also takes program_state.done_hup, so 5.0's resume_wish brings the prompt back on restore instead of master's silent forfeit (BUG-2034). (3) THE 8-BALL #apply WISH ARM goes onto the Artifact behaviour remainder row's Magic 8-Ball entry with its read arm, not this slice. (4) FOLD MASTER'S THRONE WISH NERF (b8757058c, rowless): 1 in 5 of effect 6 grants the wish and removes the throne, else see invisible / mapping. (5) VLAD'S THRONE IS AN ORDINARY THRONE, master's shape: 5.0's special_throne_effect() (3fd30c4ec, guaranteed wish) removed. (6) THE WATER DEMON'S WISH ROLLS AN EXTRA dryup(), master 83530efb1's code (not its "immediately" message). | maintainer |
