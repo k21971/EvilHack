@@ -17,17 +17,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-29, after session 159): 271 rows
-  closed, 85 open. Of the open rows:
-  - 15 MED: 7 master behaviors the 5.0 base lacks or reshaped
+- Phase 2 status (refreshed 2026-09-30, after the BUG-2032 row was
+  minted): 271 rows closed, 86 open. Of the open rows:
+  - 16 MED: 7 master behaviors the 5.0 base lacks or reshaped
     (escaped-wish forfeit - NEXT, egg handling, amnesia skill reset,
     Caveperson role arms, hero spellcasting penalty + sp_know,
     mm_aggression() grudge residue, obufs[] widening), 7 unported
     master features (potion alchemy
     table, terrain concealment, door-material colors, pet-helper
     AI, the held artifact pokedex tips, the boojum "vanish" arm,
-    assassin vine growth + Gulthias blight spawning) and the
-    covetous freeze in a Gehennom demon court (needs a ruling).
+    assassin vine growth + Gulthias blight spawning), the
+    covetous freeze in a Gehennom demon court (needs a ruling) and
+    the uncapped telekinesis damage (BUG-2032, needs a damage
+    ruling).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -46,7 +48,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     cloak_simple_name()'s dragon-scales name. Session 158 minted the
     hero hug's doubled "is being crushed." row.
 - Latest slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
-  PORTED FROM MASTER (code and tracker hashes filled after landing;
+  PORTED FROM MASTER (code 0612d2a42, tracker c860058f4;
   BUG-2021..2031).
   - Greased gear, oilskin cloaks and sacks, the Bag of the
     Hesperides and oilskin-property gear resist every thief:
@@ -17018,7 +17020,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the shade path. LOW (text).
 - [x] MED: greased gear does not resist theft - PORTED 2026-09-29
       (session 159, commit `Port master's greased-gear theft
-      resistance.` = (hash filled after landing), BUG-2021 through
+      resistance.` = 0612d2a42, tracker c860058f4, BUG-2021 through
       2031; closure notes at the end of this row). Original text:
       (minted 2026-09-29,
       session 158, found by the wrap-attack slice's Plan-agent sweep;
@@ -20324,6 +20326,36 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       an arch-lich in a hella lair with its lord alive, hero more
       than 3 squares away, 20+ turns. MED (gameplay: Gehennom
       covetous AI).
+- [ ] MED: telekinesis damage grows linearly with the object's weight
+      and has no cap - BUG-2032 (minted 2026-09-30 from a player
+      report on master 0.9.3: a Caveman giant with 197 HP died to one
+      mind-flayer-hurled boulder; master frozen-unfixed, the branch
+      carries it). All three push sites in src/telekinesis.c roll
+      `d(max(1, weight / 50), 4)` on `obj->owt`: tk_push_obj() (hero
+      push hits a monster), and m_tk_push_obj()'s hero arm and
+      monster arm. A boulder (6000) is d(120,4), 120-480 with mean
+      300, so it one-shots almost any hero. Half_Physical_damage is
+      the only reduction: no to-hit roll, no AC, no size check.
+      - Exposure: m_dotelekinesis() gives boulders to master mind
+        flayers and alhoons only (`is_master`). Statues have no gate,
+        so a plain flayer can hurl a dragon statue (weight 6750,
+        d(135,4), mean about 338). On the hero side only a boulder
+        needs P_MASTER, so an illithid at any skill can push a heavy
+        statue for the same damage.
+      - RULING NEEDED on the damage shape before planning:
+        (a) cap the dice count (e.g. `min(weight / 50, N)`);
+        (b) give boulders and statues a fixed roll near a thrown
+            boulder's d20;
+        (c) scale sub-linearly (a square root of the weight);
+        (d) (b) plus a statue gate for plain flayers matching the
+            boulder's `is_master` gate.
+        Decide too whether the hero and monster sides stay symmetric
+        (hero boulder pushes are Master-skill only).
+      - Battery: wizard mode, place a boulder between a master mind
+        flayer and a high-HP hero, and log the hit over 20+ pushes
+        PRE vs POST. Repeat with a dragon statue and a plain mind
+        flayer, then with the hero pushing a statue at a monster.
+        MED (gameplay: an unavoidable one-shot kill).
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
