@@ -7595,6 +7595,7 @@ resist(struct monst *mtmp, char oclass, int damage, int tell)
 }
 
 #define MAXWISHTRY 5
+#define MAXWISHDECLINES 50 /* backstop for declined forfeit prompts */
 
 DISABLE_WARNING_FORMAT_NONLITERAL
 
@@ -7754,7 +7755,7 @@ makewish(void)
     char bufcpy[BUFSZ], wish[BUFSZ], promptbuf[QBUFSZ];
     struct obj *otmp, nothing;
     long maybe_LL_arti;
-    int tries = 0;
+    int tries = 0, declines = 0;
     long oldwisharti = u.uconduct.wisharti;
 
     svc.context.resume_wish = 0;
@@ -7764,7 +7765,7 @@ makewish(void)
         You("may wish for an object.");
  retry:
     Strcpy(promptbuf, "For what do you wish");
-    if (iflags.cmdassist && tries > 0)
+    if (iflags.cmdassist && (tries > 0 || declines > 0))
         Strcat(promptbuf, " (enter 'help' for assistance)");
     Strcat(promptbuf, "?");
 
@@ -7773,7 +7774,13 @@ makewish(void)
     else
         getlin(promptbuf, buf);
 
-    if (iflags.term_gone) {
+    /* terminal gone or hangup pending: keep the wish for restore rather
+       than letting the forfeit test below decline it */
+    if (iflags.term_gone
+#ifdef HANGUPHANDLING
+        || program_state.done_hup
+#endif
+        ) {
         if (!iflags.debug_fuzzer)
             svc.context.resume_wish = 1;
         return;
@@ -7787,6 +7794,16 @@ makewish(void)
         buf[0] = '\0'; /* for EDIT_GETLIN */
         goto retry;
     }
+    /* an escaped or empty answer forfeits the wish only once confirmed;
+       YN() keeps the answer out of the do-again queue, where ^A would
+       feed it to the wish prompt */
+    if (buf[0] == '\0') {
+        if (wizard || YN("Really forfeit this wish?") == 'y'
+            || ++declines >= MAXWISHDECLINES)
+            Strcpy(buf, "nothing");
+        else
+            goto retry;
+    }
     /*
      *  Note: if they wished for and got a non-object successfully,
      *  otmp == &hands_obj.  That includes an artifact which has been
@@ -7795,7 +7812,14 @@ makewish(void)
      */
     strcpy(bufcpy, buf);
     otmp = readobjnam(buf, &nothing);
-    if (!otmp) {
+    if (!otmp && iflags.debug_fuzzer) {
+        /* the fuzzer, and only the fuzzer, gets a random object for a
+           string that matches nothing */
+        buf[0] = '\0';
+        otmp = readobjnam(buf, &nothing);
+        if (!otmp)
+            return; /* for safety; should never happen */
+    } else if (!otmp) {
         pline("Nothing fitting that description exists in the game.");
         if (++tries < MAXWISHTRY)
             goto retry;

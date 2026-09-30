@@ -2729,8 +2729,6 @@ grease_ok(struct obj *obj)
     if (!obj)
         return GETOBJ_SUGGEST;
 
-    /* note: if changing the list of ungreasable objects, also change
-       special_throne_effect in sit.c */
     if (obj->oclass == COIN_CLASS)
         return GETOBJ_EXCLUDE;
 
