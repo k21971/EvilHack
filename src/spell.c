@@ -585,11 +585,13 @@ study_book(struct obj *spellbook)
 
         /* Books are often wiser than their readers (Rus.) */
         spellbook->in_use = TRUE;
-        if (!spellbook->blessed && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
+        /* a blessed book is failure-proof, except for a Caveperson */
+        if ((!spellbook->blessed || Role_if(PM_CAVE_DWELLER))
+            && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
             if (spellbook->cursed) {
                 too_hard = TRUE;
             } else {
-                /* uncursed - chance to fail */
+                /* uncursed (or blessed for a Caveperson) - chance to fail */
                 int read_ability = ACURR(A_INT) + 4 + u.ulevel / 2
                                    - 2 * objects[booktype].oc_level
                              + ((ublindf && ublindf->otyp == LENSES) ? 2 : 0);
@@ -606,6 +608,9 @@ study_book(struct obj *spellbook)
                         return 1;
                     }
                 }
+                /* Cavepersons always have at least a 20% chance to fail */
+                if (Role_if(PM_CAVE_DWELLER) && read_ability > 16)
+                    read_ability = 16;
                 /* its up to random luck now */
                 if (rnd(20) > read_ability) {
                     too_hard = TRUE;

@@ -1364,6 +1364,21 @@ newhp(void)
                 hp += rnd(gu.urace.hpadv.hirnd);
         }
 
+        /* Cavepersons who have kept illiterate conduct get a random
+           hit point boost, bigger at higher ranks, and a little
+           wisdom exercise */
+        if (Role_if(PM_CAVE_DWELLER) && !u.uconduct.literate) {
+            if (u.ulevel < 3)
+                hp += rn1(3, 2); /* 1st rank: 2..4 */
+            else if (u.ulevel < 10)
+                hp += rn1(4, 3); /* 2nd and 3rd ranks: 3..6 */
+            else if (u.ulevel < 18)
+                hp += rn1(6, 3); /* 4th and 5th ranks: 3..8 */
+            else
+                hp += rn1(8, 5); /* 6th through 9th ranks: 5..12 */
+            exercise(A_WIS, TRUE);
+        }
+
         /* Aasimar divine vitality: bonus HP per level if
            alignment is completely unblemished or fully atoned */
         if (Race_if(PM_AASIMAR) && u.ualign.abuse == 0)
