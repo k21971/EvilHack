@@ -2019,7 +2019,9 @@ extern void mgender_from_permonst(struct monst *, struct permonst *) NONNULLARG1
 extern int newcham(struct monst *, struct permonst *, unsigned) NONNULLARG1;
 extern int can_be_hatched(int);
 extern int egg_type_from_parent(int, boolean);
+extern int egg_hatchling(int);
 extern boolean dead_species(int, boolean);
+extern boolean dead_figurine_species(int);
 extern void kill_genocided_monsters(void);
 extern void golemeffects(struct monst *, int, int);
 extern boolean angry_guards(boolean);

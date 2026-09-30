@@ -1237,12 +1237,13 @@ hatch_egg(anything *arg, long timeout)
     int i, mnum, hatchcount = 0;
 
     egg = arg->a_obj;
-    /* sterilized while waiting */
-    if (egg->corpsenm == NON_PM)
+    /* sterilized while waiting; guard mons[]/mvitals[] index bounds
+       against save corruption */
+    if (!ismnum(egg->corpsenm))
         return;
 
     mon = mon2 = (struct monst *) 0;
-    mnum = big_to_little(egg->corpsenm);
+    mnum = egg_hatchling(egg->corpsenm);
     /* The identity of one's father is learned, not innate */
     yours = (egg->spe || (!flags.female && carried(egg) && !rn2(2)));
     silent = (timeout != svm.moves); /* hatched while away */
@@ -1374,8 +1375,11 @@ hatch_egg(anything *arg, long timeout)
             break;
         }
 
+        /* learn_egg_type() steps up one form from its argument, and the
+           hatchling can be two or more forms below the egg; hand it the
+           form one step below the egg (the egg is used up only below) */
         if (cansee_hatchspot && knows_egg)
-            learn_egg_type(mnum);
+            learn_egg_type(big_to_little(egg->corpsenm));
 
         if (egg->quan > 0) {
             /* still some eggs left; we didn't split the stack, just
@@ -1404,6 +1408,9 @@ hatch_egg(anything *arg, long timeout)
 void
 learn_egg_type(int mnum)
 {
+    /* defensive: bad corpsenm shouldn't index mvitals[] */
+    if (!ismnum(mnum))
+        return;
     /* baby monsters hatch from grown-up eggs */
     mnum = little_to_big(mnum);
     svm.mvitals[mnum].mvflags |= MV_KNOWS_EGG;

@@ -1304,9 +1304,17 @@ polymon(int mntmp)
     /* you now know what an egg of your type looks like; [moved from
        below in case expels() -> spoteffects() drops hero onto any eggs] */
     if (lays_eggs(gy.youmonst.data)) {
-        learn_egg_type(u.umonnum);
-        /* make queen bees recognize killer bee eggs */
-        learn_egg_type(egg_type_from_parent(u.umonnum, TRUE));
+        if (u.umonnum == PM_QUEEN_ANT) {
+            /* a queen ant lays the eggs of all three worker types and
+               none of its own kind */
+            learn_egg_type(PM_GIANT_ANT);
+            learn_egg_type(PM_FIRE_ANT);
+            learn_egg_type(PM_SOLDIER_ANT);
+        } else {
+            learn_egg_type(u.umonnum);
+            /* make queen bees recognize killer bee eggs */
+            learn_egg_type(egg_type_from_parent(u.umonnum, TRUE));
+        }
     }
 
     if (u.uswallow) {

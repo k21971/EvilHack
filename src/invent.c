@@ -1221,7 +1221,7 @@ carry_obj_effects(struct obj *obj)
     /* Cursed figurines can spontaneously transform when carried. */
     if (obj->otyp == FIGURINE) {
         if (obj->cursed && obj->corpsenm != NON_PM
-            && !dead_species(obj->corpsenm, TRUE)) {
+            && !dead_figurine_species(obj->corpsenm)) {
             attach_fig_transform_timeout(obj);
         }
     }

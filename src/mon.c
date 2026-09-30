@@ -8192,11 +8192,17 @@ can_be_hatched(int mnum)
         mnum = PM_SCORPION;
 
     mnum = little_to_big(mnum);
+    /* a queen ant lays only worker eggs, so no queen ant egg exists */
+    if (mnum == PM_QUEEN_ANT)
+        return NON_PM;
     /*
      * Queen bees lay killer bee eggs (usually), but killer bees don't
-     * grow into queen bees.  Ditto for [winged-]gargoyles.
+     * grow into queen bees. Ditto for [winged-]gargoyles and giant
+     * ants <-> queen ants.
      */
     if (mnum == PM_KILLER_BEE || mnum == PM_GARGOYLE
+        || mnum == PM_GIANT_ANT || mnum == PM_FIRE_ANT
+        || mnum == PM_SOLDIER_ANT
         || (lays_eggs(&mons[mnum])
             && (BREEDER_EGG
                 || (mnum != PM_QUEEN_BEE && mnum != PM_WINGED_GARGOYLE))))
@@ -8210,16 +8216,42 @@ egg_type_from_parent(
     int mnum, /* parent monster; caller must handle lays_eggs() check */
     boolean force_ordinary)
 {
+    /* a queen ant's egg is always a worker's, mostly a giant ant's */
+    if (mnum == PM_QUEEN_ANT)
+        return rn2(5) ? PM_GIANT_ANT
+                      : rn2(3) ? PM_FIRE_ANT
+                               : PM_SOLDIER_ANT;
     if (force_ordinary || !BREEDER_EGG) {
         if (mnum == PM_QUEEN_BEE)
             mnum = PM_KILLER_BEE;
         else if (mnum == PM_WINGED_GARGOYLE)
             mnum = PM_GARGOYLE;
+        else if (mnum == PM_GIANT_HAWK)
+            mnum = PM_HAWK;
+        else if (mnum == PM_GIANT_CROCODILE)
+            mnum = PM_CROCODILE; /* appearances only */
+        else if (mnum == PM_GIANT_SPIDER || mnum == PM_GARGANTUAN_SPIDER)
+            mnum = PM_LARGE_SPIDER; /* appearances only */
     }
     return mnum;
 }
 
 #undef BREEDER_EGG
+
+/* the monster an egg hatches into: the smallest form of its growth
+   line, so an egg from a line of three or more forms (crocodiles,
+   spiders, hawks) skips the forms in between */
+int
+egg_hatchling(int mnum)
+{
+    int prv;
+
+    do {
+        prv = mnum;
+        mnum = big_to_little(mnum);
+    } while (mnum != prv);
+    return mnum;
+}
 
 /* decide whether an egg of the indicated monster type is viable;
    also used to determine whether an egg or tin can be created... */
@@ -8233,13 +8265,28 @@ dead_species(int m_idx, boolean egg)
         return TRUE;
     /*
      * For monsters with both baby and adult forms, genociding either
-     * form kills all eggs of that monster.  Monsters with more than
-     * two forms (small->large->giant mimics) are more or less ignored;
-     * fortunately, none of them have eggs.  Species extinction due to
-     * overpopulation does not kill eggs.
+     * form kills all eggs of that monster. An egg from a line of three
+     * or more forms dies with the smallest form, the one it hatches
+     * into; the forms in between are ignored. Species extinction due
+     * to overpopulation does not kill eggs.
      */
     /* assert(ismnum(m_idx)); */
-    alt_idx = egg ? big_to_little(m_idx) : m_idx;
+    alt_idx = egg ? egg_hatchling(m_idx) : m_idx;
+    return (boolean) ((svm.mvitals[m_idx].mvflags & G_GENOD) != 0
+                      || (svm.mvitals[alt_idx].mvflags & G_GENOD) != 0);
+}
+
+/* decide whether a figurine of the indicated monster type can come to
+   life; genociding its species or the next smaller form stops it, even
+   in a line of three or more forms (unlike an egg's test) */
+boolean
+dead_figurine_species(int m_idx)
+{
+    int alt_idx;
+
+    if (!ismnum(m_idx))
+        return TRUE;
+    alt_idx = big_to_little(m_idx);
     return (boolean) ((svm.mvitals[m_idx].mvflags & G_GENOD) != 0
                       || (svm.mvitals[alt_idx].mvflags & G_GENOD) != 0);
 }

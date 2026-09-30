@@ -1506,7 +1506,7 @@ set_corpsenm(struct obj *obj, int id)
         obj->owt = weight(obj);
         break;
     case FIGURINE:
-        if (obj->corpsenm != NON_PM && !dead_species(obj->corpsenm, TRUE)
+        if (obj->corpsenm != NON_PM && !dead_figurine_species(obj->corpsenm)
             && (carried(obj) || mcarried(obj)))
             attach_fig_transform_timeout(obj);
         obj->owt = weight(obj);
@@ -1995,7 +1995,8 @@ curse(struct obj *otmp)
                || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
     } else if (otmp->otyp == FIGURINE) {
-        if (otmp->corpsenm != NON_PM && !dead_species(otmp->corpsenm, TRUE)
+        if (otmp->corpsenm != NON_PM
+            && !dead_figurine_species(otmp->corpsenm)
             && (carried(otmp) || mcarried(otmp)))
             attach_fig_transform_timeout(otmp);
     } else if (otmp->oclass == SPBOOK_CLASS) {

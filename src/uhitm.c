@@ -1803,8 +1803,13 @@ hmon_hitmon_misc_obj(
                 obj->spe = 0;
                 obj->known = obj->dknown = obj->bknown = 0;
                 obj->owt = weight(obj);
-                if (hmd->thrown)
+                if (hmd->thrown) {
                     place_object(obj, mon->mx, mon->my);
+                    /* stackobj() keeps obj; a floor stack it absorbs is
+                       freed */
+                    stackobj(obj);
+                    newsym(mon->mx, mon->my);
+                }
             } else if (obj->corpsenm == NON_PM && is_gnome(hmd->mdat)
                        && !is_undead(hmd->mdat)) {
                 /* chicken eggs are deadly poison to gnomes */

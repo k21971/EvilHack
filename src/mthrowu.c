@@ -640,8 +640,9 @@ ohitmon(
         if (vis) {
             if (otmp->otyp == EGG) {
                 pline("Splat!  %s is hit with %s egg!", Monnam(mtmp),
-                      otmp->known ? an(mons[otmp->corpsenm].pmnames[NEUTRAL])
-                                  : "an");
+                      (otmp->known && ismnum(otmp->corpsenm))
+                          ? an(mons[otmp->corpsenm].pmnames[NEUTRAL])
+                          : "an");
             } else {
                 char how[BUFSZ];
 
@@ -731,7 +732,7 @@ ohitmon(
                     pline("It is burned!");
             }
         }
-        if (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) {
+        if (otmp->otyp == EGG && safe_touch_petrifies(otmp->corpsenm)) {
             if (!munstone(mtmp, FALSE))
                 minstapetrify(mtmp, FALSE);
             if (resists_ston(mtmp) || defended(mtmp, AD_STON))
@@ -1040,7 +1041,7 @@ m_throw(
 
             switch (singleobj->otyp) {
             case EGG:
-                if (!touch_petrifies(&mons[singleobj->corpsenm])) {
+                if (!safe_touch_petrifies(singleobj->corpsenm)) {
                     impossible("monster throwing egg type %d",
                                singleobj->corpsenm);
                     hitu = 0;
