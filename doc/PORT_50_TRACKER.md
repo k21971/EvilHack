@@ -17,11 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-30, after session 163): 274 rows
-  closed, 87 open. Of the open rows:
-  - 14 MED: 4 master behaviors the 5.0 base lacks or reshaped
-    (Caveperson role arms - NEXT, hero spellcasting penalty +
-    sp_know, mm_aggression() grudge residue, obufs[] widening),
+- Phase 2 status (refreshed 2026-09-30, after session 164): 275 rows
+  closed, 90 open. Of the open rows:
+  - 15 MED: 5 master behaviors the 5.0 base lacks or reshaped
+    (hero spellcasting penalty + sp_know - NEXT, Int exercise from
+    spell learning, mm_aggression() grudge residue, obufs[]
+    widening, the Archeologist / Valkyrie intrinsic schedules -
+    needs a ruling),
     8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
@@ -41,7 +43,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 56 LOW: small parity rows, quirks and watch/record-only items.
+  - 58 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row, the rider farlook-text row
     and the WISH_TRACKER row need rulings; the wish-invlet row (seen
     a second time in session 162) and the curses term_gone row need
@@ -49,37 +51,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     accessory_or_armor_on() touch-before-wear row (seen live),
     break_armor()'s cached form, and cloak_simple_name()'s
     dragon-scales name. Session 158 minted the hero hug's doubled
-    "is being crushed." row; session 162 the egg-learning row.
-- Latest slice: 2026-09-30 (session 163) AMNESIA AS ON MASTER:
-  BLESSED SKILL RESET, ILLITHID WARD, TRAPS FORGOTTEN, MIND FLAYER
-  ODDS (code and tracker commits pending; BUG-2050..2054).
-  - A blessed scroll of amnesia read at Int 13+ asks "Do you want to
-    reset your skills training?". 'y' undoes every skill advance
-    and refunds its slots; practice is kept, so #enhance can spend
-    them again. Otherwise an illithid hero or form is warded
-    ("Your psionic abilities ward off the scroll's magic.").
-  - Amnesia forgets every known trap on the level except the one
-    underfoot and holes; a forgotten trap in view turns to floor at
-    once.
-  - A mind flayer's brain-eating forgets the level's traps on every
-    hit, and half the time also drains skills (1-5 at Luck 0 or
-    less, 1-3 above) and loses spells half of that. Every tentacle
-    that gets through takes its own share (5.0's one-per-turn cap
-    is gone).
-  - Rulings: trap forgetting and the flayer odds as master; Luck
-    matters (beyond master, whose luck term does nothing).
+    "is being crushed." row; session 162 the egg-learning row;
+    session 164 the losexp() level-1 row and the crowning-spellbook
+    row.
+- Latest slice: 2026-09-30 (session 164) CAVEPERSONS AS ON MASTER:
+  ILLITERATE HIT POINTS, NO EDGED SKILLS, NO SAFE BOOKS (code and
+  tracker commits pending; BUG-2055..2057).
+  - A Cave-dweller who has never read gains 2-4 extra hit points per
+    level at XL1-2, 3-6 to XL9, 3-8 to XL17 and 5-12 above, and
+    exercises Wisdom each time.
+  - Crowning, sacrifice gifts and other unrestrict calls can no
+    longer open a restricted weapon skill for a Cave-dweller or a
+    Cleric, except the five blunt ones.
+  - A blessed spellbook can fail a Cave-dweller, and a Cave-dweller
+    always has at least a 20% chance to fail.
+  - Ruling: mint rows for the three adjacent master gaps (Int
+    exercise, losexp() level 1, crowning spellbook for illiterates)
+    and fold none.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-09-30 (session 162) EGGS: NO QUEEN ANT EGGS,
+- Previous slice: 2026-09-30 (session 163) AMNESIA AS ON MASTER:
+  BLESSED SKILL RESET, ILLITHID WARD, TRAPS FORGOTTEN, MIND FLAYER
+  ODDS (code 2e994ba6e, tracker 1f95d6ab3; BUG-2050..2054).
+  - A blessed scroll of amnesia read at Int 13+ offers a skill
+    reset; illithids are warded; amnesia and mind flayers forget
+    traps; flayer skill drain as master, with Luck mattering.
+  - Detail: the closed row's closure notes.
+- Earlier slice: 2026-09-30 (session 162) EGGS: NO QUEEN ANT EGGS,
   WORKER EGGS FROM QUEENS, EVERY EGG HATCHES THE SMALLEST FORM
   (code 4715c6077, tracker 414e91ac5; BUG-2040..2049).
-  - A queen ant lays giant (4 in 5), fire or soldier ant eggs, never
-    a queen ant egg. Every egg hatches the smallest form of its
-    line (baby crocodile, cave spider, hawk); egg labels keep the
-    grown-up name. Cursed figurines keep master's one-step rule.
-  - Detail: the closed row's closure notes.
-- Earlier slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
-  FORFEITED, NOT RANDOM; THRONE AND FOUNTAIN WISHES AS ON MASTER
-  (code 8bfa2121b, tracker 868ef97c8; BUG-2033..2039).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -16537,9 +16536,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pre-fix; un-blinded, "latent telepathy" 12 of 24. NOT RUN: the
       SPFX_HSPDAM halving leg (optional; no carrier staged).
 - [x] MED: scroll of amnesia lacks master's blessed skill-reset prompt
-      and the illithid ward - PORTED 2026-09-30 (session 163, code and
-      tracker commits pending, BUG-2050 through 2054; closure notes at
-      the end of this row). Original text: (minted 2026-09-18, session 129 reviewer's
+      and the illithid ward - PORTED 2026-09-30 (session 163, commit
+      `Port master's amnesia skill reset, illithid ward and trap
+      memory.` = 2e994ba6e, tracker 1f95d6ab3, landed 2026-09-30,
+      BUG-2050 through 2054; closure notes at the end of this row). Original text: (minted 2026-09-18, session 129 reviewer's
       is_illithid() sweep, verified on both bodies; "amnesia" had no
       tracker mention). read.c seffect_amnesia() is vanilla. Master's
       SCR_AMNESIA: blessed and INT > 12 -> yn "Do you want to reset
@@ -17623,7 +17623,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       early "already knows your square" return and the do-while's
       accessible / couldsee rejection fold most one-square guesses back
       onto the hero, so the honest rate is about one in ten.
-- [ ] MED: Caveperson role arms ABSENT (minted 2026-09-19, session 130
+- [x] MED: Caveperson role arms ABSENT - PORTED 2026-09-30 (session
+      164, code and tracker commits pending, BUG-2055 through 2057;
+      closure notes at the end of this row). Original text: (minted
+      2026-09-19, session 130
       reviewer's sweep of master's Role_if(PM_CAVEMAN) sites, each
       verified on both bodies; "illiterate" and "unrestrict" had no
       tracker mention). (a) attrib.c newhp(): while u.uconduct.literate
@@ -17644,6 +17647,123 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       volley bonus - mthrowu.c calls 5.0's shared
       multishot_class_bonus(), which has the PM_CAVE_DWELLER arm. MED
       (role balance).
+      CLOSED 2026-09-30 (plan
+      /root/.claude/plans/bugfix-caveperson-role-arms.md). Master's
+      current code for all three arms (e8ef39919, 834ac635c,
+      5741e0678), no ruling needed; the scope ruling (Decisions log)
+      minted three adjacent rows instead of folding them:
+      - attrib.c newhp(): the illiterate bonus after the role / race
+        hpadv rolls and before the Aasimar bonus (master's RNG order),
+        `!u.uconduct.literate`, no tempnum local, exercise(A_WIS,
+        TRUE) per level. u.uhpinc[] is xint16 on 5.0, so master's
+        127-clamp (BUG-1112) is moot. BUG-2055.
+      - weapon.c unrestrict_weapon_skill(): master's two-range guard
+        for PM_CAVE_DWELLER / PM_CLERIC; the comment says what it
+        blocks (every restricted weapon skill but club, mace, flail,
+        hammer and quarterstaff - master's "never unrestrict an edged
+        weapon" undersells it; doc-only, not archived). Live reach:
+        crowning's closing unrestrict of the wielded weapon, the
+        sacrifice gift, a Caveperson converted to chaotic (the
+        Stormbringer arm guards only Clerics). The BUG-1490 pray.c
+        guards and skill_init's tortle guard become belt-and-braces,
+        as on master. 5.0's skill_compatibility gift filter
+        (artifact.c mk_artifact(), not on master) already makes
+        restricted-skill gifts rarer (a restricted type passes 1 in
+        4). BUG-2056.
+      - spell.c study_book(): `(!spellbook->blessed ||
+        Role_if(PM_CAVE_DWELLER))` (master's `!b || (b && Cav)`
+        simplified) and the read_ability cap of 16 after the Wizard
+        prompt. BUG-2057. 5.0's "Refresh your memory anyway?" check
+        runs before the roll for every role, so a 'n' skips it (master
+        rolls, then learn() says "quite well already"); 5.0 base, not
+        a gap.
+      Plan agent (hunks, interactions, battery math). REVIEWER PASS;
+      LOW taken ("priests" -> "clerics" in the new comment); its
+      claim that mk_artifact() has no restricted-skill filter on
+      either tree was FALSIFIED (branch artifact.c
+      skill_compatibility). BATTERY PASS (game-tester, 9 games, about
+      53 min; POST a489b7726f8c47bdd84aef14066ed134 via `make update
+      SHELLDIR=`, PRE 808e87b7fd9c13e49118e6248f2bbc11 = session 163's
+      install run from the scratchpad with -d, MASTER 0.9.3;
+      paniclogs unchanged - branch absent, master 22 lines). Human
+      Cave-dweller, Con 14, #levelchange 1 -> 30: every uhpinc[] band
+      in range on POST (uhpmax 307) and MASTER (338); PRE 129 with
+      indexes 10-29 all 3. Literate forced to 1 and the Valkyrie
+      control: PRE shape on all three. Wis 3: aexe 0 -> 21 (POST) /
+      20 (MASTER) / 0 (PRE), 29 exercise() hits from newhp on POST
+      and MASTER, 0 on PRE. #levelchange 1: uhpmax back to 16 on all.
+      #wizcrown: a Cave-dweller's long sword and a Cleric's dagger
+      stay restricted on POST and MASTER (PRE opens them to 1 / 2);
+      a Valkyrie's crossbow opens on all three. gdb
+      unrestrict_weapon_skill(1..25): POST == MASTER (Cav keeps
+      {4-8,17,20,21,22,24}, Cleric {1-8,15-18,20-22,24,25}); PRE and
+      Valkyrie open everything. Blessed spellbook of light, fresh
+      book per read, Cave-dweller XL1 Int 18: read_ability 16 x20,
+      fails 5 (POST) / 3 (MASTER) / PRE never rolls; uncursed 4 / 4 /
+      0 (PRE read_ability 20); Int 7 blessed 9 / 10 / 0 of 20;
+      Valkyrie blessed never rolls, uncursed 20 and 0 fails on all.
+      RECORD ONLY: the branch's first failed-read teleport prompt
+      opens a one-time 5.0 farlook tip first; #enhance shows an empty
+      "Spellcasting Skills" header for a Cave-dweller on all three;
+      the branch Valkyrie's "You feel stealthy!" at XL3 led to the
+      intrinsic-schedule row minted below.
+- [ ] MED: Archeologist and Valkyrie intrinsic schedules are 5.0's
+      (minted 2026-09-30, session 164, from the Caveperson battery:
+      a branch Valkyrie printed "You feel stealthy!" at XL3; NEEDS A
+      RULING). Upstream 075c2832a (2023, "Adjust archeologist and
+      valkyrie intrinsics") reached the branch with the adoption:
+      arc_abil[] = searching at 1, stealth at 5 ("stealthy"), fast at
+      10 ("quick" / "slow"); val_abil[] = stealth at 3 ("stealthy").
+      Master: Archeologist stealth and fast at 1, searching at 10
+      ("perceptive" / "unaware"); Valkyrie stealth at 1. Every other
+      role and race table matches master in content (a full diff of
+      attrib.c's *_abil[] tables; race tables differ only in
+      `&(H...)` vs `&H...`). The choice is master's schedule vs
+      5.0's: an Archeologist starting without intrinsic speed is the
+      large one. Check at port time for 5.0 knock-ons (u_init
+      Archeologist kit, enlightenment, Guidebook role text).
+      NUMERIC_SWEEP did not cover the tables. MED (role balance).
+- [ ] MED: Intelligence cannot be exercised (minted 2026-09-30,
+      session 164, found by the Caveperson slice's Plan agent;
+      verified on both bodies; "A_INT" had no exercise mention and
+      3b8ba5835 no tracker mention). Master 3b8ba5835 (2025): learning
+      a spell from a book, or re-reading one to refresh a known spell,
+      exercises Int - exercise() refuses only A_CHA, a polymorphed hero
+      may exercise Wis and Int, and learn() calls exercise(A_INT, TRUE)
+      on both paths. The branch's exercise() returns early for A_INT
+      and A_CHA, and learn() never exercises Int. Port WITH master
+      2db5ee7bf (2025-05-25): exertext[] Int = { "studying hard",
+      "focusing properly" }; the branch's { 0, 0 } would print "You
+      feel smart!  You must have been (null)." (master's own bug
+      before that fix). MED (attribute growth).
+- [ ] LOW: losexp() at experience level 1 subtracts a level's hit
+      points and energy again (minted 2026-09-30, session 164, found by
+      the Caveperson slice's Plan agent; "entry_level" and 7c0ab4d49
+      had no tracker mention). A level-1 losexp() - prayer anger with
+      no drainer, or a drain survived by life-saving - zeroes u.uexp
+      and then falls through to `u.uhpmax -= u.uhpinc[1]` and the
+      matching u.ueninc[1] loss, though that increment was already
+      removed on the drop from XL2 (floored at minuhpmax(10)). Master
+      7c0ab4d49 snapshots entry_level and gates the HP / Pw and
+      polymorph-mhmax decrements on `u.ulevel < entry_level`. Vanilla
+      5.0 has the same shape (Official_nh50 exper.c) - upstream-table
+      candidate once reproduced. The rest of 7c0ab4d49: rndexp()'s
+      diff > 0 guard is already on 5.0; the xchar clamps are moot
+      (5.0 uhpinc / ueninc are xint16); newpw()'s enrnd floor and
+      more_experienced()'s `4L * exper` are defensive only - port
+      them with the gate.
+- [ ] LOW: crowning drops the gift spellbook even for an illiterate
+      hero (minted 2026-09-30, session 164, found by the Caveperson
+      slice's Plan agent; "Divine knowledge" had no tracker mention).
+      Master gcrownu(): when the class gift is a spellbook and
+      u.uconduct.literate is 0 and the spell is unknown,
+      force_learn_spell() teaches it ("Divine knowledge of the spell
+      '%s' fills your mind!") and the book is freed; otherwise the
+      blessed book is dropped. The branch always drops it (Wizard,
+      Druid and Monk gifts), so an illiterate hero must break conduct
+      to use it. force_learn_spell() already exists (spell.c); fold
+      the livelog / u.ugifts / dropped_gift() handling and the
+      known-spell uwep arm around the new branch. LOW (conduct play).
 - [ ] MED: hero spellcasting - caster-class armor penalty and
       per-cast spell memory ABSENT (minted 2026-09-19, session 130,
       found verifying the Caveperson row's spell.c terms; verified on
@@ -22057,6 +22177,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-30 | Caveperson role arms scope (session 164; AskUserQuestion x1, one question, as recommended). The three arms (illiterate HP bonus, the Caveperson / Cleric weapon-skill guard, the blessed-book roll and 16 cap) are master's code and needed no ruling. The Plan agent found three adjacent master gaps with no tracker mention; the ruling MINTS ROWS AND FOLDS NONE, keeping the battery on the Caveperson arms: MED Int exercise (3b8ba5835 + 2db5ee7bf), LOW losexp() level-1 double subtract (7c0ab4d49's entry_level gate), LOW crowning spellbook taught to an illiterate hero. Implementation choices: master's two-range guard kept verbatim with a comment that says what it blocks (every restricted weapon skill but the five blunt ones); master's `!b || (b && Cav)` simplified to `!b || Cav`. | maintainer (scope); session, plan-approved (rest) |
 | 2026-09-30 | Amnesia rulings (session 163; AskUserQuestion x1, three questions). The scroll's blessed skill-reset prompt and illithid ward (the MED row) are master's and needed no ruling; the questions covered two untracked siblings from master 321b894a2 / 2f353db9e. (1) TRAP MEMORY: MASTER'S, as recommended - the scroll's amnesia and a mind flayer's brain-eating forget every known trap on the level except the one at the hero's square and holes (5.0 04c59fff0 had dropped it; BUG-2051). (2) FLAYER ODDS: MASTER'S SHAPE, as recommended - every hit that reaches the memory step forgets the level's traps, then half the time runs forget() (spells lost half of that); 5.0 d6dd5c743's 1-in-5 / 1-in-5 rates and its memory-loss gs.skipdrin are gone, so each tentacle that gets through takes its own share (the death-count skipdrin stays; BUG-2052). (3) LUCK: MAKE IT MATTER, over the recommended "as master plays" - master's `forget(rnd(u.uluck <= 0 ? 4 : 2))` has no effect by Luck (BUG-2053); the branch drains 1-5 skills at u.uluck <= 0 and 1-3 above, spells stay 50%. Session calls, plan-approved: the test reads u.uluck as the 2020 code did, so a luckstone's u.moreluck does not count (reviewer LOW, kept as approved); forget() takes the skill die as a second argument (scroll 5 / blessed 3, as master); forget_traps() newsym()s each trap it clears in place of master's docrt() (fixes master's stale in-view `^` on the flayer path, BUG-2054); 5.0's meverseen clearing stays in forget(), so half of flayer hits also clear it (cosmetic, reviewer LOW). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-30 | Egg-handling rulings (session 162; AskUserQuestion x5 with six questions, plus one ruling in chat). (1) CROCODILE EGGS THROUGH AN EGG-ONLY HELPER, not master's big_to_little() special case: the eggs behave as on master, but same_race() stays symmetric, so a giant-crocodile-form hero eating a crocodile corpse is still a cannibal (master exempts it; BUG-2043). (2) A QUEEN-ANT-FORM HERO KNOWS ALL THREE WORKER EGGS (master learns one at random; BUG-2045). (3) NO QUEEN ANT EGG AT ALL, beyond master (maintainer in chat: "queen ant egg shouldn't be a thing, only eggs for the worker/soldier types"); master keeps one 1 in 77 through BREEDER_EGG (BUG-2041). (4) EVERY EGG HATCHES THE SMALLEST FORM OF ITS LINE - spiders and hawks too, not crocodiles only: giant and gargantuan spiders lay large spider eggs and every spider egg hatches a cave spider; a random or wished giant hawk egg hatches a hawk (BUG-2042, BUG-2044). (5) CURSED FIGURINES KEEP MASTER'S ONE-STEP GENOCIDE RULE (own species or the next smaller form), not the new egg rule they would have inherited through dead_species(, TRUE). (6) EGG LABELS KEEP THE GROWN-UP NAME (asked after landing prep, on the maintainer's question whether a giant crocodile should lay baby crocodile eggs): giant crocodiles and crocodiles lay "crocodile eggs" and every spider layer "large spider eggs" - the vanilla convention (an egg is named after the grown form above its hatchling, as a cockatrice egg hatches a chickatrice) and the names random and wished eggs use - while the eggs hatch baby crocodiles and cave spiders; master's giant hawk "hawk egg" stays the one exception. | maintainer |
 | 2026-09-30 | Telekinesis damage and covetous court rulings (AskUserQuestion x1, four questions, session 161 follow-up). (1) BUG-2032 TELEKINESIS DAMAGE CAPPED AT 10 DICE, as recommended: `d(min(max(1, weight / 50), 10), 4)` - boulders, statues and anything weighing 500+ hit for 10-40 (mean 25, about 2.5x a thrown boulder's d20), lighter objects unchanged. (2) SAME ON BOTH SIDES, as recommended: the hero's pushes (tk_push_obj()) take the cap with both m_tk_push_obj() arms. (3) STATUES STAY OPEN TO ALL MIND FLAYERS, as recommended (no new is_master gate). (4) COVETOUS COURT FREEZE: MASTER'S SHAPE, over the recommended "walk when they can't warp": covetous tactics() warps ignore the Gehennom demon court as on master. The question also offered a stasis freeze as a live exploit; that was wrong - the maintainer confirmed the same day that 5.0's wand of stasis is not imported (declined 2026-07-12, stasis_until has no writer), so no stasis clause applies and the court is the freeze's only live cause. | maintainer |
