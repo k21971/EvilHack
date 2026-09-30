@@ -2485,6 +2485,23 @@ drain_weapon_skill(int n) /* number of skills to drain */
         }
 }
 
+/* blessed scroll of amnesia: undo every recorded skill advance and refund
+   its slots; practice (P_ADVANCE) is kept so the hero can re-#enhance */
+void
+reset_weapon_skills(void)
+{
+    int skill;
+
+    while (u.skills_advanced) {
+        skill = u.skill_record[--u.skills_advanced];
+        if (P_SKILL(skill) <= P_UNSKILLED)
+            panic("reset_weapon_skills (%d)", skill);
+        P_SKILL(skill)--; /* drop skill one level */
+        /* refund the slots that advance used */
+        u.weapon_slots += slots_required(skill);
+    }
+}
+
 int
 weapon_type(struct obj *obj)
 {

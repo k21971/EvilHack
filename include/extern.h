@@ -2904,6 +2904,8 @@ extern void assign_candy_wrapper(struct obj *) NONNULLARG1;
 extern int doread(void);
 extern int charge_ok(struct obj *) NO_NNARGS;
 extern void recharge(struct obj *, int) NONNULLARG1;
+extern void forget_traps(void);
+extern void forget(int, int);
 extern boolean valid_cloud_pos(coordxy, coordxy);
 extern int seffects(struct obj *) NONNULLARG1;
 extern void selective_remove_curse(void);
@@ -4082,6 +4084,7 @@ extern void use_skill(int, int);
 extern void add_weapon_skill(int);
 extern void lose_weapon_skill(int);
 extern void drain_weapon_skill(int);
+extern void reset_weapon_skills(void);
 extern int weapon_type(struct obj *) NO_NNARGS;
 extern int uwep_skill_type(void);
 /* find_roll_to_hit() calls weapon_hit_bonus() with a NULL argument,

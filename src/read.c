@@ -17,7 +17,6 @@ staticfn void stripspe(struct obj *);
 staticfn void p_glow1(struct obj *);
 staticfn void p_glow2(struct obj *, const char *);
 staticfn void p_glow3(struct obj *, const char *);
-staticfn void forget(int);
 staticfn int maybe_tame(struct monst *, struct obj *);
 staticfn boolean can_center_cloud(coordxy, coordxy);
 staticfn void display_stinking_cloud_positions(boolean);
@@ -1037,28 +1036,48 @@ recharge(struct obj *obj, int curse_bless)
     cap_spe(obj);
 }
 
+/* forget all traps on this level except the one at the hero's spot and
+   ones that are always visible; redraw each forgotten trap so one in
+   view doesn't stay on screen */
+void
+forget_traps(void)
+{
+    struct trap *trap;
+
+    for (trap = gf.ftrap; trap; trap = trap->ntrap)
+        if (trap->tseen && !u_at(trap->tx, trap->ty)
+            && !unhideable_trap(trap->ttyp)) {
+            trap->tseen = 0;
+            newsym(trap->tx, trap->ty);
+        }
+}
+
 /*
- * Forget some things (e.g. after reading a scroll of amnesia).  When called,
- * the following are always forgotten:
+ * Forget some things (e.g. after reading a scroll of amnesia or having
+ * a mind flayer eat your brain). When called, the following are always
+ * forgotten:
  *      - felt ball & chain
- *      - skill training
+ *      - traps on this level
+ *      - skill training (1 to 'skills' advances)
  *
  * Other things are subject to flags:
  *      howmuch & ALL_SPELLS    = forget all spells
  */
-staticfn void
-forget(int howmuch)
+void
+forget(int howmuch, int skills)
 {
     struct monst *mtmp;
 
     if (Punished)
         u.bc_felt = 0; /* forget felt ball&chain */
 
+    forget_traps();
+
     if (howmuch & ALL_SPELLS)
         losespells();
 
     /* Forget some skills. */
-    drain_weapon_skill(rnd(howmuch ? 5 : 3));
+    drain_weapon_skill(rnd(skills));
 
     /* forget having seen monsts (affects recognizing unseen ones by sound) */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
@@ -2136,7 +2155,19 @@ seffect_amnesia(struct obj **sobjp)
     boolean sblessed = sobj->blessed;
 
     gk.known = TRUE;
-    forget((!sblessed ? ALL_SPELLS : 0));
+    if (sblessed && ACURR(A_INT) > 12
+        && y_n("Do you want to reset your skills training?") == 'y') {
+        Your("skills training has been reset.");
+        reset_weapon_skills();
+        return;
+    }
+    /* amnesia for cursed/uncursed scrolls, Int 12 or less, or a blessed
+       scroll whose reader declined the skill reset */
+    if (maybe_polyd(is_illithid(gy.youmonst.data), Race_if(PM_ILLITHID))) {
+        Your("psionic abilities ward off the scroll's magic.");
+        return;
+    }
+    forget(sblessed ? 0 : ALL_SPELLS, sblessed ? 3 : 5);
     if (Hallucination) /* Ommmmmm! */
         Your("mind releases itself from mundane concerns.");
     else if (!strncmpi(svp.plname, "Maud", 4))

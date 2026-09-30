@@ -5266,16 +5266,13 @@ mhitm_ad_drin(
         }
         /* adjattrib gives dunce cap message when appropriate */
         (void) adjattrib(A_INT, -rnd(2), FALSE);
-        /* mindless zombies chew on brains but don't steal memories */
+        /* mindless zombies chew on brains but don't steal memories;
+           every tentacle that gets through takes its own share */
         if (!racial_zombie(magr)) {
-            if (!rn2(5)) {
-                losespells();
-                gs.skipdrin = TRUE;
-            }
-            if (!rn2(5)) {
-                drain_weapon_skill(rnd(2));
-                gs.skipdrin = TRUE;
-            }
+            forget_traps();
+            /* bad luck costs more skill training */
+            if (rn2(2))
+                forget(rn2(2) ? ALL_SPELLS : 0, u.uluck <= 0 ? 5 : 3);
         }
     } else {
         /* mhitm */
