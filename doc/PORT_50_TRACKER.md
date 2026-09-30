@@ -17,19 +17,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-30, after the BUG-2032 row was
-  minted): 271 rows closed, 86 open. Of the open rows:
-  - 16 MED: 7 master behaviors the 5.0 base lacks or reshaped
-    (escaped-wish forfeit - NEXT, egg handling, amnesia skill reset,
-    Caveperson role arms, hero spellcasting penalty + sp_know,
-    mm_aggression() grudge residue, obufs[] widening), 7 unported
-    master features (potion alchemy
-    table, terrain concealment, door-material colors, pet-helper
-    AI, the held artifact pokedex tips, the boojum "vanish" arm,
-    assassin vine growth + Gulthias blight spawning), the
-    covetous freeze in a Gehennom demon court (needs a ruling) and
-    the uncapped telekinesis damage (BUG-2032, needs a damage
-    ruling).
+- Phase 2 status (refreshed 2026-09-30, after session 161): 272 rows
+  closed, 88 open. Of the open rows:
+  - 16 MED: 6 master behaviors the 5.0 base lacks or reshaped
+    (egg handling - NEXT, amnesia skill reset, Caveperson role arms,
+    hero spellcasting penalty + sp_know, mm_aggression() grudge
+    residue, obufs[] widening), 8 unported master features (potion
+    alchemy table, terrain concealment, door-material colors,
+    pet-helper AI, the held artifact pokedex tips, the boojum
+    "vanish" arm, assassin vine growth + Gulthias blight spawning,
+    timed see invisible and invisibility), the covetous freeze in a
+    Gehennom demon court (needs a ruling) and the uncapped
+    telekinesis damage (BUG-2032, needs a damage ruling).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -40,36 +39,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 53 LOW: small parity rows, quirks and watch/record-only items.
-    The hero-catches-thrown-items row and the rider farlook-text row
-    need rulings, and the wish-invlet row a reproduction. Session
-    157 minted three: the accessory_or_armor_on() touch-before-wear
+  - 55 LOW: small parity rows, quirks and watch/record-only items.
+    The hero-catches-thrown-items row, the rider farlook-text row
+    and the WISH_TRACKER row need rulings; the wish-invlet row and
+    the curses term_gone row need a reproduction. Session 157
+    minted three: the accessory_or_armor_on() touch-before-wear
     row (seen live), break_armor()'s cached form, and
     cloak_simple_name()'s dragon-scales name. Session 158 minted the
     hero hug's doubled "is being crushed." row.
-- Latest slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
+- Latest slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
+  FORFEITED, NOT RANDOM; THRONE AND FOUNTAIN WISHES AS ON MASTER
+  (code and tracker hashes filled after landing; BUG-2033..2039).
+  - ESC or a blank answer at "For what do you wish?" asks "Really
+    forfeit this wish?"; 'n' asks for the wish again, 'y' declines
+    it and keeps wishless conduct. Wizard mode declines without
+    asking.
+  - Five unrecognized names still end the prompt with a random
+    item; "help" and a declined forfeit cost nothing. A hangup at
+    the prompt keeps the wish for restore.
+  - A throne's wish result now grants a wish 1 time in 5, then the
+    throne vanishes; otherwise see invisible or mapping. Vlad's
+    throne is an ordinary throne again. A water demon's wish rolls
+    an extra fountain dry-up.
+  - Rulings: five tries; keep the wish on hangup; the 8-Ball apply
+    arm goes to the Artifact behaviour row; fold the throne,
+    Vlad-throne and water-demon arms (master's shape).
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-09-29 (session 159) GREASED GEAR RESISTS THEFT,
   PORTED FROM MASTER (code 0612d2a42, tracker c860058f4;
   BUG-2021..2031).
-  - Greased gear, oilskin cloaks and sacks, the Bag of the
-    Hesperides and oilskin-property gear resist every thief:
-    monsters robbing the hero, the hero robbing a monster, and
-    monsters robbing each other. Uncursed gear is never taken; a
-    cursed item goes 1 time in 4; the grease wears off 1 in 2.
-  - The Wizard, nemeses and player monsters: grease guards a quest
-    artifact but not the Amulet or the invocation items; the Wizard
-    leaves the hero's own quest artifact alone; player monsters go
-    only for the Amulet; stolen armor goes on at once.
-  - A thieving nymph picks a monster's item at random. The hero's
-    own theft no longer rolls the slip check twice.
-  - Rulings: master's code odds everywhere; fold in the three
-    stealamulet() gaps.
-  - Detail: the closed row's closure notes.
-- Previous slice: 2026-09-29 (session 158) WRAP ATTACKS AND THE
+- Earlier slice: 2026-09-29 (session 158) WRAP ATTACKS AND THE
   STATIONARY HUG PORTED FROM MASTER (code 77a47c48e, tracker
   e1342ae47; BUG-2012..2020).
-- Earlier slice: 2026-09-29 (session 157) POLYMORPH ARMOR HANDLING
-  RECONCILED WITH MASTER (code dc3b7a129, tracker 0842a0d35;
-  BUG-1996..2011).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -8902,7 +8903,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dragons that attack the wearer." (mhitu.c/uhitm.c "Dragonbane
       sears" arm; master's do_wear.c destroy_arm arm is a secondary
       gap); Magic 8-Ball "Dispenses advice when read." (read.c doread
-      arm); Sword of Kas "Poisons those it strikes." (uhitm.c iskas
+      arm; ADDED 2026-09-30, session 161 ruling: this row also owns
+      the untipped #apply arm - master apply.c use_eight_ball(), a
+      blessed ball shaken grants a wish 1 time in 100000 via
+      makewish(TRUE), whose livelog adds "using the Magic 8-Ball",
+      then the ball winks out; the branch has no EIGHT_BALL case in
+      doapply(), so applying it says "Sorry, I don't know how to use
+      that.", and its makewish() takes no argument); Sword of Kas
+      "Poisons those it strikes." (uhitm.c iskas
       poison-on-hit; permapoisoned covers only Grimtooth here);
       Tempest "Wielder cannot be stunned." (five of seven arms live;
       the chest-trap gas arm - branch trap.c tests bare !Stunned - and
@@ -16548,7 +16556,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hooves" / "Your hooves ..." / master "Your tarsi are not shaped
       correctly to wear boots." - the master bug seen in play; tortle
       hero unchanged.
-- [ ] MED: an escaped or empty wish grants a random object (minted
+- [x] MED: an escaped or empty wish grants a random object - PORTED
+      2026-09-30 (session 161, commit `Port master's forfeit prompt
+      and throne-wish limit.` = (hash filled after landing), BUG-2033
+      through 2039; closure notes at the end of this row). Original
+      text: (minted
       2026-09-18, caught by the session 129 follow-up battery, then
       verified on both bodies; "forfeit" had no tracker mention).
       Master a14c8c824 (2019-03-20, `Remove ability to wish for a
@@ -16567,6 +16579,133 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       use_eight_ball(), absent here; the 8-Ball's read arm sits on
       the Artifact behaviour remainder row - confirm that row owns
       the apply arm too. MED (player-facing).
+      CLOSURE 2026-09-30 (session 161). RULED (decisions log, six
+      questions, all as recommended): five failed descriptions; a
+      hangup keeps the wish; the 8-Ball #apply arm goes to the
+      Artifact behaviour remainder row (it did NOT own it - scope
+      added there); fold three rowless wish-source gaps in master's
+      shape (throne, Vlad's throne, water demon).
+      - zap.c makewish(): ESC or a blank answer asks "Really forfeit
+        this wish?" through YN(), not y_n() - y_n() records the answer
+        for ^A and the core getlin() pops it, so a repeated zap would
+        have wished for "n". 'y' turns the buffer into "nothing" (5.0's
+        "declined to make a wish" livelog, no conduct or ublesscnt
+        change); 'n' re-prompts; wizard mode declines without asking
+        (BUG-2033). `tries` keeps 5.0's meaning (failures only);
+        a separate `declines` counter stops at MAXWISHDECLINES 50
+        (master's `tries >= 50`); the help hint shows after a failure
+        or a decline. Master counts a try per prompt AND per failure:
+        3 unrecognized names, 2 after one "help", and the help text
+        says "four more times" at the first prompt (BUG-2035,
+        frozen-unfixed on master). The term_gone early return also
+        takes program_state.done_hup (HANGUPHANDLING): a SAFERHANGUP
+        hangup that lands outside the terminal read swaps in
+        hup_getlin(), which returns ESC without setting term_gone -
+        stock 5.0 then grants a random object, and with the forfeit
+        test alone the loop would decline the wish; now it saves
+        with resume_wish set (BUG-2034, upstream candidate). Master's
+        fuzzer arm ported (a readobjnam() miss under the fuzzer
+        retries with an empty buffer, NULL-guarded).
+      - sit.c throne effect 6: master b8757058c + 9ac701b1c's tx/ty
+        snapshot - with the luck roll passed, 1 in 5 grants the wish
+        and the throne vanishes (5.0's map_background/newsym_force
+        idiom, cansee wording; skipped if a wizard terrain wish
+        already replaced it); otherwise permanent see invisible
+        ("Your vision becomes crystal clear."), or with Luck < 0 or
+        intrinsic see invisible "A clear image forms in your mind." +
+        mapping, "An awful drone fills your head!" + confusion on a
+        nommap level (BUG-2036). The post-switch random removal
+        gained master's IS_THRONE() test ahead of the wizard "Analyze
+        throne?" question, so a wish does not vanish the throne
+        twice (BUG-2037). Vlad's throne (tower1 has one on both trees)
+        is an ordinary throne again: 5.0's special_throne_effect()
+        (3fd30c4ec, effects 1-4 of 13 a wish, the throne gone only
+        after one) removed with its dispatch and apply.c
+        grease_ok()'s cross-reference (BUG-2038).
+      - fountain.c dowaterdemon(): master 83530efb1's dryup() after
+        the wish - a second 1-in-3 roll, not the "immediately" of its
+        message (BUG-2039).
+      REVIEWER PASS (no blocking); taken: the case-6 IS_THRONE guard
+      and the "of throne effects" comment; its three MED finds became
+      the Vlad and water-demon folds and the see-invisible row below.
+      BATTERY (game-tester; POST b541c820ba8888a125398972f4f7f82b, PRE
+      7b20a8cc48cf4e60eb39f6d9d0ef72d4 built from c860058f4, MASTER
+      0.9.3): wizard ESC and blank = no question, no object, two
+      "declined to make a wish" chronicle lines, "You have used no
+      wishes."; explore forfeit n -> "For what do you wish (enter
+      'help' for assistance)?", y -> nothing, conduct kept (PRE: "g -
+      a shiny ring." at once); POST help "five times", after one
+      failure "four more times", 5 failures end it, a declined
+      forfeit costs none; MASTER help "four more times", ends after
+      3 names with no help and after 2 with one; ^A after a declined
+      zap brings the prompt back live and empty; hangup in read() =
+      EOF -> term_gone path on PRE and POST alike (stock 5.0 resume),
+      the wish back after restore; SIGHUP queued at makewish() entry
+      (outside the read): getlin returns ESC with term_gone 0,
+      done_hup 1 on both - POST saves with resume_wish 1 and the
+      prompt returns after restore, PRE grants "a fortune cookie"
+      (chronicle `made her first wish - "", got "a fortune cookie"`)
+      and saves with resume_wish 0; throne POST 27
+      forced 6s = 8 wishes (one vanish line each, no Analyze
+      question), 1 crystal clear, 18 clear image (PRE 5/5 wishes,
+      throne stays); Vlad throne POST pick 1 = "You feel very
+      repulsive!" + hp loss, pick 5 = "You notice you have no gold!"
+      (PRE pick 1 = wish + "The throne disintegrates, having spent
+      its power."); water demon POST 2 dryup() calls per wish, PRE 1
+      (3 runs each). Paniclog absent (branch), master 22 lines
+      unchanged.
+      NOT TRACKED: a wizard terrain wish of "throne" over stairs
+      leaves the gs.stairs entry, so after the throne vanishes ":"
+      reports the staircase (wizard-only staging); a blind or
+      blindfolded hero still reads "Your vision becomes crystal
+      clear." (master's text; 5.0's case 10 has an eye-tingle
+      fallback).
+- [ ] MED: see invisible and invisibility from most sources are
+      permanent on the branch; master made them timed (minted
+      2026-09-30, session 161, found by that slice's code review; no
+      tracker mention of the commit). Master e9cad292b (2019-03-02,
+      `Most sources of invisibility and see invisible are no longer
+      permanent.`, from SporkHack, "makes rings of invisibility/see
+      invisible and cloaks of invisibility a bit more valuable")
+      touches six files: eat.c (a stalker corpse: timed invisibility,
+      plus timed see invisible when already invisible), fountain.c
+      (drinkfountain's see-invisible arm), mhitu.c (the vanish arm),
+      potion.c (potion of invisibility: blessed no longer permanent;
+      potion of see invisible: timed, longer when blessed, shorter
+      when diluted), sit.c (throne effect 10) and zap.c (a self-zapped
+      wand of make invisible is always temporary). Branch today:
+      sit.c throne case 10, fountain.c and eat.c set FROMOUTSIDE;
+      5.0 already reshaped the potion and wand arms its own way
+      (potion.c permchance, zap.c) - reconcile per arm against
+      master's CURRENT form at each site, not the 2019 diff. Master's
+      throne case 6 non-wish arm (ported in session 161) grants
+      PERMANENT see invisible on master too ("permanent see invisible
+      in this instance") - leave it. MED (game balance).
+- [ ] LOW: master's WISH_TRACKER wish log is absent (minted
+      2026-09-30, session 161, Plan-agent find). Master config.h
+      defines WISH_TRACKER inside the DGAMELAUNCH block; files.c
+      trackwish() appends "<name> wished for <text> (Nth wish, on
+      T:<turn> on <date> at <time> hrs)" to a "wishtracker" data file
+      and makewish() calls it for every granted object; the branch's
+      DGAMELAUNCH block and makewish() have neither. 5.0's LL_WISH
+      livelog ("wished for \"<text>\", got \"<object>\"") may cover the
+      server's need. Ruling needed: port it, or drop it in favor of
+      the livelog (check what the server reads). LOW (server-side).
+- [ ] LOW: curses sets iflags.term_gone on a lone ESC-O and never
+      clears it (upstream 5.0; minted 2026-09-30, session 161,
+      Plan-agent find by code reading; needs a live curses repro).
+      win/curses/cursmisc.c: when ESC O arrives with no third
+      character (getch() returns ERR - alt+shift+O in a terminal that
+      sends ESC for Alt, i.e. M-O, bound to #overview), it sets
+      term_gone = 1 and then treats the keys as M-O. term_gone is
+      only ever read by makewish(), which then returns at once with
+      resume_wish set; moveloop_core() re-calls makewish() every
+      turn, so every later wish prompts, throws the answer away and
+      prompts again until a save and restore. Same code in NetHack50
+      and Official_nh50. Repro: curses interface, alt+shift+O, then
+      zap a wand of wishing. If confirmed, fix in the branch and ship
+      an upstream patch (cross-variant delivery). LOW until
+      reproduced.
 - [x] MED: monmove.c onscary() lacks master's scare-immune list
       PORTED 2026-09-19 (session 131, commits `Fix: onscary() lost
       master's scare-immune list.` = d66ed7168 and `Fix: mindless and
@@ -21519,6 +21658,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-09-30 | zap.c makewish() resumes a wish across a hangup only when `iflags.term_gone` is set (Official_nh50 src/zap.c:6353, from e240efa10 "Restoring a game can return to the wishing prompt"), and only tty's EOF read sets it. A SAFERHANGUP hangup that lands while the game is not in the terminal read runs nhwindows_hangup() first, so the wish getlin() is hup_getlin(), which returns ESC without setting term_gone: the empty answer reaches readobjnam("") and a random object is granted before the hangup save. Seen on the branch's pre-fix binary (SIGHUP queued at makewish() entry: "a fortune cookie", saved with resume_wish 0). Fix: also test program_state.done_hup (under HANGUPHANDLING) in that early return. | fixed on branch (BUG-2034, code hash filled after landing); patch artifact not cut yet |
 | 2026-09-28 | 07fc4904c ("Add a new wand, the wand of stasis") put a covetous exemption into noteleport_level() (Official_nh50 src/teleport.c:38, `svl.level.flags.noteleport && !is_covetous(mon->data)`) so that tactics() kept warping on no-teleport levels, but the predicate also answers for the hero. noteleport_level(&gy.youmonst) reads gy.youmonst.data, and master lich and arch-lich are polyok with M3_WANTSBOOK, so a hero polymorphed into either one teleports in Sokoban, Vlad's Tower, the Castle and on Medusa's island, where the unpolymorphed hero gets "A mysterious force prevents you from teleporting!" (the Wizard's Tower levels still stop it through scrolltele()'s later On_W_tower_level() arm). Sites: scrolltele() :854, tele_trap() :1502, the cursed magic whistle apply.c:503. The exemption also reaches every monster self-teleport caller (m_tele(), the m_move() blink, steal escapes, mbhitm()). Minimal upstream fix: exempt only a monster, `&& mon != &gy.youmonst`; the branch instead drops the exemption and gives tactics() its own court/stasis predicate (master's shape) | fixed on branch (BUG-1985/1986, 0f66f9596); patch artifact not cut yet |
 | 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, 72f7c9312); patch artifact not cut yet |
 | 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, b67faba77); patch artifact not cut yet |
@@ -21672,6 +21812,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-30 | Escaped-wish and wish-source rulings (AskUserQuestion x3, six questions, session 161, all as recommended). (1) FIVE FAILED DESCRIPTIONS as in vanilla/5.0: `tries` counts only "Nothing fitting" failures; master's per-prompt `tries++` double count (3 failures, "help" and declined forfeits cost a try, the help text over-counts) is archived as BUG-2035, frozen-unfixed on master; a separate counter bounds declined forfeits at master's 50. (2) A HANGUP AT THE WISH PROMPT KEEPS THE WISH: the term_gone early return also takes program_state.done_hup, so 5.0's resume_wish brings the prompt back on restore instead of master's silent forfeit (BUG-2034). (3) THE 8-BALL #apply WISH ARM goes onto the Artifact behaviour remainder row's Magic 8-Ball entry with its read arm, not this slice. (4) FOLD MASTER'S THRONE WISH NERF (b8757058c, rowless): 1 in 5 of effect 6 grants the wish and removes the throne, else see invisible / mapping. (5) VLAD'S THRONE IS AN ORDINARY THRONE, master's shape: 5.0's special_throne_effect() (3fd30c4ec, guaranteed wish) removed. (6) THE WATER DEMON'S WISH ROLLS AN EXTRA dryup(), master 83530efb1's code (not its "immediately" message). | maintainer |
 | 2026-09-29 | Greased-theft rulings (AskUserQuestion x1, two questions, session 159, both as recommended). (1) MASTER'S CODE ODDS over bd4e606d1's commit message: uncursed or blessed slippery gear (greased, oilskin cloak or sack, Bag of the Hesperides, ITEM_OILSKIN) is never stolen, a cursed item is stolen 1 time in 4, and the grease wears off 1 in 2 per failed attempt (be03b5b3f had already replaced the message's 33%); the same in every direction - so steal_it()'s double roll, which made a cursed item 1 in 16, is fixed (BUG-2029). (2) FOLD IN THE THREE UNTRACKED stealamulet() FEATURES: the Wizard spares the hero's own quest artifact (4f994e9d4), player monsters skip quest artifacts (b0de2f2b6), a thief wears stolen armor at once (4042b8973). | maintainer |
 | 2026-09-29 | Wrap-attack rulings (AskUserQuestion x2, six questions, session 158, all as recommended). (1) HELD ODDS, MASTER'S INTENT: grab odds vine 4 in 5, salamander 1 in 6, others 1 in 8, rolled only while nothing holds the hero; master's precedence slip (a held hero re-grabbed, a hold stolen) archived as BUG-2016. (2) KEEP 5.0'S SNAKE / NAGA COIL LINES next to master's centipede, salamander and vine lines (master's python text is vanilla, not authored). (3) SPARE A FIRE-LOVING HERO FORM from the salamander's lava pull, mirroring master's own hero-side `!likes_fire()` test; fire resistance protects nobody (BUG-2017). (4) MASTER'S SLIP WORDING "The attack slips off of / cannot hold onto ...", a monster-vs-monster slip printed only when the hero sees the target. (5) THE STATIONARY / TREE BLIGHT HUG NEEDS `foundyou`; master's grabs a hero whose guess is 2+ squares off (BUG-2018). (6) GREASED-GEAR THEFT (master bd4e606d1) IS ITS OWN SLICE, next; MED row minted. | maintainer |
 | 2026-09-29 | Polymorph armor rulings (AskUserQuestion x4, five questions, session 157). (1) CLOAKS, MASTER'S SHAPE (recommended): a non-artifact cloak worn into a form that bursts armor "tears apart!" and is destroyed, dragon scales included; an artifact cloak "falls off!"; chromatic scales stay worn on a huge humanoid; 5.0's WrappingAllowed() mummy wrapping kept. Upstream ceaffcbd4 (2026-01-11, cloaks survive, to soften polytraps) declined. (2) TORTLE-FORM BOOTS REFUSED (recommended; master bug frozen-unfixed). (3) ARTIFACT SHIRTS FALL OFF for the hero and monsters (recommended; master destroys the Striped Shirt of Liberation, which is inconsistent with its own artifact-cloak arm). (4) REHUMANIZE TIMING: master's INSTANT break_armor() with a guard at each known holder, chosen over the recommended deferral of the gear check to the start of the next move; the deferral would have closed the "gear freed inside losehp()" class at once, with one in-play difference (the shedding lines one move later). (5) A MONSTER'S ARTIFACT SUIT FALLS OFF (recommended; matches the hero's Armor of Retribution and ruling 3). |
