@@ -27,8 +27,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     pet-helper AI, the held artifact pokedex tips, the boojum
     "vanish" arm, assassin vine growth + Gulthias blight spawning,
     timed see invisible and invisibility), the covetous freeze in a
-    Gehennom demon court (needs a ruling) and the uncapped
-    telekinesis damage (BUG-2032, needs a damage ruling).
+    Gehennom demon court (ruled 2026-09-30: covetous warps ignore
+    the court, as on master) and the uncapped
+    telekinesis damage (BUG-2032, ruled 2026-09-30: at most 10
+    dice, both sides).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -49,7 +51,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     hero hug's doubled "is being crushed." row.
 - Latest slice: 2026-09-30 (session 161) AN ESCAPED WISH IS
   FORFEITED, NOT RANDOM; THRONE AND FOUNTAIN WISHES AS ON MASTER
-  (code and tracker hashes filled after landing; BUG-2033..2039).
+  (code 8bfa2121b, tracker 868ef97c8; BUG-2033..2039).
   - ESC or a blank answer at "For what do you wish?" asks "Really
     forfeit this wish?"; 'n' asks for the wish again, 'y' declines
     it and keeps wishless conduct. Wizard mode declines without
@@ -16558,7 +16560,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero unchanged.
 - [x] MED: an escaped or empty wish grants a random object - PORTED
       2026-09-30 (session 161, commit `Port master's forfeit prompt
-      and throne-wish limit.` = (hash filled after landing), BUG-2033
+      and throne-wish limit.` = 8bfa2121b, tracker 868ef97c8, BUG-2033
       through 2039; closure notes at the end of this row). Original
       text: (minted
       2026-09-18, caught by the session 129 follow-up battery, then
@@ -20465,6 +20467,23 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       an arch-lich in a hella lair with its lord alive, hero more
       than 3 squares away, 20+ turns. MED (gameplay: Gehennom
       covetous AI).
+      RULED 2026-09-30 (session 161, decisions log): MASTER'S SHAPE -
+      covetous tactics() warps ignore the demon court (in a lord's or
+      prince's level the Wizard, liches and alhoons keep warping next
+      to the hero or to the stairs, as on master). NO STASIS CLAUSE:
+      the maintainer confirmed 2026-09-30 that 5.0's wand of stasis
+      is not imported (declined 2026-07-12; stasis_until has no
+      writer - mklev.c only zeroes it), so covetous_noteleport()'s
+      stasis arm is dormant and the court is the freeze's only live
+      cause. (The ruling question wrongly offered a stasis freeze as
+      a live exploit.) Planning notes: covetous_noteleport() feeds
+      tactics()'s seven warp gates, dochug()'s two MS_BRIBE
+      departures and demon_talk()'s "Good hunting"; the five MS_BRIBE
+      demons are lords or princes and already exempt from the court,
+      so dropping the court from the covetous warp gates leaves
+      tactics() as master has it (no live gate). The court keeps
+      applying to everyone else through noteleport_level(). Reproduce
+      the freeze first, then PRE/POST/MASTER.
 - [ ] MED: telekinesis damage grows linearly with the object's weight
       and has no cap - BUG-2032 (minted 2026-09-30 from a player
       report on master 0.9.3: a Caveman giant with 197 HP died to one
@@ -20495,6 +20514,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         PRE vs POST. Repeat with a dragon statue and a plain mind
         flayer, then with the hero pushing a statue at a monster.
         MED (gameplay: an unavoidable one-shot kill).
+      - RULED 2026-09-30 (session 161, decisions log): (a) CAP AT 10
+        DICE - `d(min(max(1, weight / 50), 10), 4)`: boulders,
+        statues and anything weighing 500+ hit for 10-40 (mean 25),
+        lighter objects unchanged (heavy iron ball 9-36, weapons
+        1-4); SAME ON BOTH SIDES - all three sites, so the hero's
+        Master-skill boulder or statue push is capped too; STATUES
+        STAY OPEN TO ALL FLAYERS (no new is_master gate). Master
+        stays frozen-unfixed; share the cap through one helper or
+        macro rather than three copies.
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
@@ -21658,7 +21686,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-09-30 | zap.c makewish() resumes a wish across a hangup only when `iflags.term_gone` is set (Official_nh50 src/zap.c:6353, from e240efa10 "Restoring a game can return to the wishing prompt"), and only tty's EOF read sets it. A SAFERHANGUP hangup that lands while the game is not in the terminal read runs nhwindows_hangup() first, so the wish getlin() is hup_getlin(), which returns ESC without setting term_gone: the empty answer reaches readobjnam("") and a random object is granted before the hangup save. Seen on the branch's pre-fix binary (SIGHUP queued at makewish() entry: "a fortune cookie", saved with resume_wish 0). Fix: also test program_state.done_hup (under HANGUPHANDLING) in that early return. | fixed on branch (BUG-2034, code hash filled after landing); patch artifact not cut yet |
+| 2026-09-30 | zap.c makewish() resumes a wish across a hangup only when `iflags.term_gone` is set (Official_nh50 src/zap.c:6353, from e240efa10 "Restoring a game can return to the wishing prompt"), and only tty's EOF read sets it. A SAFERHANGUP hangup that lands while the game is not in the terminal read runs nhwindows_hangup() first, so the wish getlin() is hup_getlin(), which returns ESC without setting term_gone: the empty answer reaches readobjnam("") and a random object is granted before the hangup save. Seen on the branch's pre-fix binary (SIGHUP queued at makewish() entry: "a fortune cookie", saved with resume_wish 0). Fix: also test program_state.done_hup (under HANGUPHANDLING) in that early return. | fixed on branch (BUG-2034, 8bfa2121b); patch artifact not cut yet |
 | 2026-09-28 | 07fc4904c ("Add a new wand, the wand of stasis") put a covetous exemption into noteleport_level() (Official_nh50 src/teleport.c:38, `svl.level.flags.noteleport && !is_covetous(mon->data)`) so that tactics() kept warping on no-teleport levels, but the predicate also answers for the hero. noteleport_level(&gy.youmonst) reads gy.youmonst.data, and master lich and arch-lich are polyok with M3_WANTSBOOK, so a hero polymorphed into either one teleports in Sokoban, Vlad's Tower, the Castle and on Medusa's island, where the unpolymorphed hero gets "A mysterious force prevents you from teleporting!" (the Wizard's Tower levels still stop it through scrolltele()'s later On_W_tower_level() arm). Sites: scrolltele() :854, tele_trap() :1502, the cursed magic whistle apply.c:503. The exemption also reaches every monster self-teleport caller (m_tele(), the m_move() blink, steal escapes, mbhitm()). Minimal upstream fix: exempt only a monster, `&& mon != &gy.youmonst`; the branch instead drops the exemption and gives tactics() its own court/stasis predicate (master's shape) | fixed on branch (BUG-1985/1986, 0f66f9596); patch artifact not cut yet |
 | 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, 72f7c9312); patch artifact not cut yet |
 | 2026-09-27 | mthrowu.c monshoot() cancels the rest of a multishot volley only when the SHOOTER dies (Official_nh50 src/mthrowu.c:305). When an early arrow kills the monster the volley was aimed at (thrwmm() sets gm.mtarget), the remaining shots still fly down the same line at whatever is behind. Branch fix: also break on `mtarg && DEADMONSTER(mtarg)` (EvilHack master 3f1966513). Battery-confirmed (session 150 T7: a 1-HP target, POST and MASTER fired 1 arrow per volley, PRE all of them) | fixed on branch (BUG-1976, b67faba77); patch artifact not cut yet |
@@ -21812,6 +21840,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-09-30 | Telekinesis damage and covetous court rulings (AskUserQuestion x1, four questions, session 161 follow-up). (1) BUG-2032 TELEKINESIS DAMAGE CAPPED AT 10 DICE, as recommended: `d(min(max(1, weight / 50), 10), 4)` - boulders, statues and anything weighing 500+ hit for 10-40 (mean 25, about 2.5x a thrown boulder's d20), lighter objects unchanged. (2) SAME ON BOTH SIDES, as recommended: the hero's pushes (tk_push_obj()) take the cap with both m_tk_push_obj() arms. (3) STATUES STAY OPEN TO ALL MIND FLAYERS, as recommended (no new is_master gate). (4) COVETOUS COURT FREEZE: MASTER'S SHAPE, over the recommended "walk when they can't warp": covetous tactics() warps ignore the Gehennom demon court as on master. The question also offered a stasis freeze as a live exploit; that was wrong - the maintainer confirmed the same day that 5.0's wand of stasis is not imported (declined 2026-07-12, stasis_until has no writer), so no stasis clause applies and the court is the freeze's only live cause. | maintainer |
 | 2026-09-30 | Escaped-wish and wish-source rulings (AskUserQuestion x3, six questions, session 161, all as recommended). (1) FIVE FAILED DESCRIPTIONS as in vanilla/5.0: `tries` counts only "Nothing fitting" failures; master's per-prompt `tries++` double count (3 failures, "help" and declined forfeits cost a try, the help text over-counts) is archived as BUG-2035, frozen-unfixed on master; a separate counter bounds declined forfeits at master's 50. (2) A HANGUP AT THE WISH PROMPT KEEPS THE WISH: the term_gone early return also takes program_state.done_hup, so 5.0's resume_wish brings the prompt back on restore instead of master's silent forfeit (BUG-2034). (3) THE 8-BALL #apply WISH ARM goes onto the Artifact behaviour remainder row's Magic 8-Ball entry with its read arm, not this slice. (4) FOLD MASTER'S THRONE WISH NERF (b8757058c, rowless): 1 in 5 of effect 6 grants the wish and removes the throne, else see invisible / mapping. (5) VLAD'S THRONE IS AN ORDINARY THRONE, master's shape: 5.0's special_throne_effect() (3fd30c4ec, guaranteed wish) removed. (6) THE WATER DEMON'S WISH ROLLS AN EXTRA dryup(), master 83530efb1's code (not its "immediately" message). | maintainer |
 | 2026-09-29 | Greased-theft rulings (AskUserQuestion x1, two questions, session 159, both as recommended). (1) MASTER'S CODE ODDS over bd4e606d1's commit message: uncursed or blessed slippery gear (greased, oilskin cloak or sack, Bag of the Hesperides, ITEM_OILSKIN) is never stolen, a cursed item is stolen 1 time in 4, and the grease wears off 1 in 2 per failed attempt (be03b5b3f had already replaced the message's 33%); the same in every direction - so steal_it()'s double roll, which made a cursed item 1 in 16, is fixed (BUG-2029). (2) FOLD IN THE THREE UNTRACKED stealamulet() FEATURES: the Wizard spares the hero's own quest artifact (4f994e9d4), player monsters skip quest artifacts (b0de2f2b6), a thief wears stolen armor at once (4042b8973). | maintainer |
 | 2026-09-29 | Wrap-attack rulings (AskUserQuestion x2, six questions, session 158, all as recommended). (1) HELD ODDS, MASTER'S INTENT: grab odds vine 4 in 5, salamander 1 in 6, others 1 in 8, rolled only while nothing holds the hero; master's precedence slip (a held hero re-grabbed, a hold stolen) archived as BUG-2016. (2) KEEP 5.0'S SNAKE / NAGA COIL LINES next to master's centipede, salamander and vine lines (master's python text is vanilla, not authored). (3) SPARE A FIRE-LOVING HERO FORM from the salamander's lava pull, mirroring master's own hero-side `!likes_fire()` test; fire resistance protects nobody (BUG-2017). (4) MASTER'S SLIP WORDING "The attack slips off of / cannot hold onto ...", a monster-vs-monster slip printed only when the hero sees the target. (5) THE STATIONARY / TREE BLIGHT HUG NEEDS `foundyou`; master's grabs a hero whose guess is 2+ squares off (BUG-2018). (6) GREASED-GEAR THEFT (master bd4e606d1) IS ITS OWN SLICE, next; MED row minted. | maintainer |
