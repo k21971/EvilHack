@@ -17,11 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-01, after session 168): 280 rows
-  closed, 88 open. Of the open rows:
-  - 10 MED: 1 master behavior the 5.0 base reshaped (the
-    Archeologist / Valkyrie intrinsic schedules - needs a ruling),
-    8 unported master features (potion
+- Phase 2 status (refreshed 2026-10-01, after session 168's
+  rulings): 281 rows closed, 87 open. Of the open rows:
+  - 9 MED: 8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
     "vanish" arm, assassin vine growth + Gulthias blight spawning,
@@ -39,8 +37,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 61 LOW: small parity rows, quirks and watch/record-only items.
-    The hero-catches-thrown-items row, the rider farlook-text row
-    and the WISH_TRACKER row need rulings; the wish-invlet row (seen
+    The hero-catches-thrown-items row (keep 5.0's catch for a Monk
+    or Samurai at Skilled+ martial arts with both hands empty), the
+    rider farlook-text row and the WISH_TRACKER row (port it) were
+    ruled 2026-10-01 and are plannable; the wish-invlet row (seen
     a third and fourth time in session 165) and the curses term_gone
     row need a reproduction. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
@@ -51,7 +51,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     row; session 165 the #wizcast skill row and the polymorphed Int
     exercise row; session 166 the ^G "racial" prefix row.
 - Latest slice: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
-  AT 10 DICE (code and tracker commits pending; BUG-2032).
+  AT 10 DICE (code ad2d118e4, tracker c4acecad9; BUG-2032).
   - A telekinetically pushed object hits for at most 10d4, so a
     hurled boulder or a heavy statue does 10-40 (mean 25) instead of
     a one-shot 120-540; the hero's pushes are capped the same way.
@@ -16975,6 +16975,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       livelog ("wished for \"<text>\", got \"<object>\"") may cover the
       server's need. Ruling needed: port it, or drop it in favor of
       the livelog (check what the server reads). LOW (server-side).
+      RULED 2026-10-01 (session 168 follow-up, decisions log): PORT IT,
+      as recommended. Port master's trackwish() and WISH_TRACKER define
+      into the DGAMELAUNCH block, with the makewish() call for every
+      granted object, alongside 5.0's LL_WISH livelog. Plannable. Map
+      the data file to 5.0's file-prefix scheme (which prefix the
+      "wishtracker" file lives under) and check whether the hints file
+      or the install must create it.
 - [ ] LOW: curses sets iflags.term_gone on a lone ESC-O and never
       clears it (upstream 5.0; minted 2026-09-30, session 161,
       Plan-agent find by code reading; needs a live curses repro).
@@ -17858,7 +17865,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "Spellcasting Skills" header for a Cave-dweller on all three;
       the branch Valkyrie's "You feel stealthy!" at XL3 led to the
       intrinsic-schedule row minted below.
-- [ ] MED: Archeologist and Valkyrie intrinsic schedules are 5.0's
+- [x] Archeologist / Valkyrie intrinsic schedules - KEPT 5.0'S
+      (ruled 2026-10-01, session 168 follow-up, decisions log; no code
+      change; closure note at the end of this row). Original text:
+      MED: Archeologist and Valkyrie intrinsic schedules are 5.0's
       (minted 2026-09-30, session 164, from the Caveperson battery:
       a branch Valkyrie printed "You feel stealthy!" at XL3; NEEDS A
       RULING). Upstream 075c2832a (2023, "Adjust archeologist and
@@ -17874,6 +17884,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       large one. Check at port time for 5.0 knock-ons (u_init
       Archeologist kit, enlightenment, Guidebook role text).
       NUMERIC_SWEEP did not cover the tables. MED (role balance).
+      CLOSURE (2026-10-01, session 168 follow-up): RULED KEEP 5.0'S
+      SCHEDULE, against my recommendation of master's. Knock-on check:
+      upstream 075c2832a changes only src/attrib.c (plus its fixes
+      entry). Its Guidebook Archeologist text ("move quickly and sneak
+      up on the local nasties") is byte-identical to the branch's, so
+      the Guidebook needs no edit, and nothing else on the branch
+      depends on the old schedule. The branch already runs 5.0's
+      tables, so nothing to port.
 - [x] MED: Intelligence cannot be exercised - PORTED 2026-10-01
       (session 165, with the hero spellcasting row below, code
       5f0fcc31a, tracker 8b00a1be2, BUG-2060; the battery and the slice's
@@ -19623,6 +19641,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mammoth, which is holding you" / "which you are holding") with
       the maintainer, then use ustuck_self_or_steed() in both. LOW
       (display only).
+      RULED 2026-10-01 (session 168 follow-up, decisions log), as
+      recommended: ", riding a saddled <steed>, which is holding you"
+      when the steed holds the hero, and ", riding a saddled <steed>,
+      which you are holding" when the hero holds the steed - in both
+      lookat() (pager.c) and mstatusline() (insight.c). Plannable.
 - [x] MED: a hurt ridden steed can flee by stairs alone - A RIDDEN
       STEED NOW MAKES NO ESCAPE OF ITS OWN 2026-09-28 (session 155,
       commit `Keep a ridden steed from leaving its rider behind.` =
@@ -20530,6 +20553,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       catch. A pure 5.0 addition to monster missile play. Ruling
       needed: keep it or restore master's shape. LOW (gameplay:
       missiles thrown at the hero).
+      RULED 2026-10-01 (session 168 follow-up, decisions log): KEEP
+      5.0's catch, but ONLY FOR A MARTIAL ARTIST WITH EMPTY HANDS.
+      This is the maintainer's own shape, refined by a follow-up
+      question:
+      - Who: martial_bonus() (Monk or Samurai) with
+        P_SKILL(P_MARTIAL_ARTS) >= P_SKILLED. A fresh Basic character
+        can't catch, and Rogues lose the catch.
+      - Hands: both empty - no uwep, not u.twoweap, no uarms. This
+        replaces 5.0's looser freehand() test, which passes with a
+        weapon wielded.
+      - Odds unchanged: 1 in (100 - Dex), 20 better for a Monk. The
+        Rogue term goes.
+      - 5.0's other gates stay: not Blind / Confusion / Stunned /
+        Fumbling, not VENOM_CLASS, !nohands, the SLT_ENCUMBER weight
+        check, and the branch's tethered-aklys exclusion.
+      Plannable. Check how u_catch_thrown_obj() is reached for EvilHack
+      missiles, and that a Samurai's or Monk's starting kit leaves
+      their hands empty (a Samurai starts wielding a katana, so a
+      Samurai catches only after unwielding). The Guidebook gives no
+      catch text, so no edit is needed.
 - [x] MED: 5.0's worn-gear item protection that master lacks - CLOSED
       2026-09-26 (session 147, commit `Restore master's item
       destruction and port the scroll of consecration.` = 6ace2e519
@@ -21136,9 +21179,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       applying to everyone else through noteleport_level(). Reproduce
       the freeze first, then PRE/POST/MASTER.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
-      168, code and tracker commits pending; closure notes at the end
-      of this row). Original text: MED: telekinesis damage grows
-      linearly with the object's weight
+      168, commit `Fix: cap telekinetic push damage at ten dice.` =
+      ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
+      at the end of this row). Original text: MED: telekinesis
+      damage grows linearly with the object's weight
       and has no cap - BUG-2032 (minted 2026-09-30 from a player
       report on master 0.9.3: a Caveman giant with 197 HP died to one
       mind-flayer-hurled boulder; master frozen-unfixed, the branch
@@ -22560,6 +22604,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-01 | Pending-row rulings (session 168 follow-up; AskUserQuestion x2, seven questions). (1) ARCHEOLOGIST / VALKYRIE INTRINSIC SCHEDULES: KEEP 5.0'S (over the recommended master's schedule) - Archeologist searching at XL1, stealth at XL5, speed at XL10; Valkyrie stealth at XL3. Upstream 075c2832a touches only attrib.c and its Guidebook text matches ours, so the row closes with no code change. (2) HERO CATCHES THROWN ITEMS: KEEP 5.0'S u_catch_thrown_obj() BUT ONLY FOR A MARTIAL ARTIST - the maintainer's own shape, refined by a follow-up question: a Monk or Samurai (martial_bonus()) whose P_MARTIAL_ARTS skill is Skilled or better (recommended), with both hands empty: no wielded weapon, not two-weaponing, no shield (recommended); odds stay 5.0's (Monk 1 in (80 - Dex), Samurai 1 in (100 - Dex); recommended) and 5.0's other gates stay. Rogues lose the catch. (3) WISH_TRACKER: PORT IT, as recommended (master's trackwish() and the wishtracker file for DGAMELAUNCH builds, alongside 5.0's wish livelog). (4) RIDER FARLOOK / PROBING TEXT: ", riding a saddled <steed>, which is holding you" / "..., which you are holding", as recommended. | maintainer |
 | 2026-10-01 | Name-region widening slice rulings (session 167; AskUserQuestion x2, five questions). (1) SCOPE: master's READABLE STRIPED SHIRT (00367be12) and master's nine EvilHack T-SHIRT SLOGANS are folded into the BUG-1315 widening slice (recommended) - master's widening also discloses the striped shirt's text, which the branch could not produce. (2) 5.0's CANDY BAR wrapper arm in the game-end disclosure is KEPT (asked neutrally: a pure upstream flavor addition with no competing master behavior). (3) master's `!distantname` guard on the game-end text is RESTORED (recommended); the question's premise (HTML-dump tooltips showed slogans) was wrong - distant_name() already zeroes o_id at game end - and a follow-up kept the guard anyway as master's shape (recommended). (4) the battery was run (recommended). | maintainer |
 | 2026-10-01 | Grudge-table slice rulings (session 166; AskUserQuestion x2, one question each). (1) 5.0's BABY PURPLE WORM TERM in the purple worm vs shrieker arm is KEPT (over the recommended master's shape): a baby purple worm also goes after shriekers. (2) THE HYBRID ZOMBIE_MAKER ARM MOVES LAST in mm_2way_aggression() (recommended): upstream 5.0 had it last, and the branch's piecemeal ports had put EvilHack arms below it, so its both-mgenmklev `return 0L` hid the covetous arm (a level-created master lich / arch-lich beside the Sanctum's Amulet-carrying high priest). Implementation choices: master's one-way order throughout (the berserk rn2(3) in master's place); the shambling horror and mind flayer vs neothelid arms moved into mm_2way_aggression() as on master; 5.0's Wizard's tower isolation kept first; the ^G "racial" prefix minted as a LOW row, not folded. | maintainer (1-2); session, plan-approved (rest) |
 | 2026-10-01 | Spellcasting slice rulings (session 165; AskUserQuestion x2, four questions). (1) SCOPE: ONE SLICE (recommended) - the hero spellcasting MED row with its owed full percent_success() diff (Dex ladder, Gauntlets of Purity exemption, metal-shield rule, critical healing bonus, spell-staff +50, body-armor penalty), the per-cast sp_know bump, the Int exercise MED row, and two unrowed learn() arms (master's draugr gate with its NULL-book guard, BUG-750's blank-paper guard). (2) 5.0's PLAIN-QUARTERSTAFF CASTING BONUS DROPPED, master's shape (recommended): upstream 780d30eca's splcaster -3 (worth chance / 5 + 3 points) has no master counterpart, where the school staves give +50. (3) THE ^X SPELL-CASTING LINE IS REWRITTEN to master's rules (over the recommended "remove, master's shape"). (4) WORDING "Your spells above level 3 ..." for a primary caster in a non-metal suit (recommended; "of level 4 and up" is 82 columns). Implementation choices: staff_spell_school() switch over master's otyp range; a Knight is told "body armor" (its clerical spells skip the metal term but not the body-armor one); the #wizcast skill (BUG-704) and exerchk()'s polymorphed-Int skip minted as LOW rows, not folded. | maintainer (1-4); session, plan-approved (rest) |
