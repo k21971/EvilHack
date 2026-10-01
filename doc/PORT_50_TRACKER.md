@@ -17,11 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-01, after session 166): 278 rows
-  closed, 90 open. Of the open rows:
-  - 12 MED: 2 master behaviors the 5.0 base lacks or reshaped
-    (obufs[] widening - NEXT, the Archeologist / Valkyrie intrinsic
-    schedules - needs a ruling),
+- Phase 2 status (refreshed 2026-10-01, after session 167): 279 rows
+  closed, 89 open. Of the open rows:
+  - 11 MED: 1 master behavior the 5.0 base reshaped (the
+    Archeologist / Valkyrie intrinsic schedules - needs a ruling),
     8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
@@ -30,7 +29,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Gehennom demon court (ruled 2026-09-30: covetous warps ignore
     the court, as on master) and the uncapped
     telekinesis damage (BUG-2032, ruled 2026-09-30: at most 10
-    dice, both sides).
+    dice, both sides - NEXT).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -53,32 +52,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 164 the losexp() level-1 row and the crowning-spellbook
     row; session 165 the #wizcast skill row and the polymorphed Int
     exercise row; session 166 the ^G "racial" prefix row.
-- Latest slice: 2026-10-01 (session 166) THE GRUDGE TABLE AS ON
-  MASTER: TRUCES, GRUDGES, ARM ORDER (code and tracker commits
-  pending; BUG-2065..2069).
-  - Racial soldiers and watchmen no longer fight each other, nor
-    shopkeepers / priests and the watch, nor priests of one god, and
-    a shopkeeper no longer attacks a pet unprovoked.
-  - Master's grudges fire: woodchuck / Oracle, raven / floating eye,
-    spiders and bats vs ants, cats vs rats, huge monsters trample
-    tiny ones near the hero, quest guardians vs hostiles, white vs
-    black unicorns, honey badgers vs bees, ents vs blights.
-  - Pets hate shambling horrors again (the arm was one-way); the
-    zombie arm runs last, so a covetous lich goes after the
-    Amulet's carrier.
-  - Rulings: keep 5.0's baby purple worm term; move the zombie arm
-    last.
+- Latest slice: 2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
+  READABLE STRIPED SHIRT, BOUNDED NAME CONSUMERS (code and tracker
+  commits pending; BUG-2070..2080).
+  - Object names get a full 255-char region (master BUG-1315): long
+    named / called / propped items keep " (being worn)", prices and
+    the whole name; the dumplog shows complete slogans.
+  - The Convict's striped shirt can be read and is disclosed at game
+    end; master's nine extra T-shirt slogans are in.
+  - Every place that copies a name plus text into a fixed buffer is
+    bounded; five were overflowable before the slice (unlock
+    prompts, chest-explosion death reason, the verb helpers' obuf
+    spill, the barding prompt, the price-quote suffix).
+  - Rulings: fold the striped shirt and slogans in; keep 5.0's
+    candy bar disclosure; master's !distantname guard (redundant on
+    the branch, kept as master's shape).
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-01 (session 165) SPELLCASTING AS ON MASTER:
+- Previous slice: 2026-10-01 (session 166) THE GRUDGE TABLE AS ON
+  MASTER: TRUCES, GRUDGES, ARM ORDER (code 1a6aa9638, tracker
+  4d01f68a7; BUG-2065..2069).
+  - Racial service monsters keep master's truces; master's grudges
+    and arm order; pets hate shambling horrors again; the zombie arm
+    runs last.
+  - Detail: the closed row's closure notes.
+- Earlier slice: 2026-10-01 (session 165) SPELLCASTING AS ON MASTER:
   ARMOR, DEXTERITY AND STAFF TERMS, SPELL MEMORY, INT EXERCISE,
   DRAUGR BOOKS (code 5f0fcc31a, tracker 8b00a1be2; BUG-2058..2064).
-  - percent_success() takes master's full shape; each successful
-    cast refreshes the spell's memory; learning a spell exercises
-    Int; a draugr can't learn from books; ^X in master's terms.
-  - Detail: the two closed rows' closure notes.
-- Earlier slice: 2026-09-30 (session 164) CAVEPERSONS AS ON MASTER:
-  ILLITERATE HIT POINTS, NO EDGED SKILLS, NO SAFE BOOKS (code
-  10407462b, tracker 0d838c105; BUG-2055..2057).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -1486,7 +1485,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wielding_artifact: demon_talk (minion.c) + dprince MS_BRIBE
       genesis (makemon.c) - fixed same pass. (5) NITs still
       deferred-with-subsystems (unchanged): corpse_xname snprintf
-      hardening, minsects producer+consumer pair, sliparm/breakarm
+      hardening (DONE 2026-10-01, BUG-2071), minsects
+      producer+consumer pair, sliparm/breakarm
       druid_form/vampire_form early-returns, MUSE_CAMERA drow
       clause, bad_rock tree-passing exemption.
       NEW FOLLOW-UP (from the fixup-4 sibling audit):
@@ -14129,7 +14129,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the set to the read, gk unsaved, init order verified, AT_WEAP
       adtyp census PHYS/CLOB/DRLI/DRST/CONF/SAMU/STUN). Noted only:
       weapon_killer() (objnam.c) still Sprintf's into killer.name
-      (master-identical, no diagnostic through the pointer). Battery:
+      (master-identical, no diagnostic through the pointer; bounded
+      2026-10-01, BUG-2080). Battery:
       PASS: gnome lord -> "killed by a gnome lord's short sword"; Sting
       handed to a Woodland-elf (gdb mpickobj + check_gear_next_turn,
       wielded next turn) -> "killed by Sting wielded by a Woodland-elf";
@@ -14420,7 +14421,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       recorded: tty inventory entries are cut at 127 chars regardless of
       terminal width; the called form says "dragon mail" where the
       description arm says "crude chain mail"..
-- [ ] obufs[] name-region widening (master BUG-1315, 60d335fd0) NOT
+- [x] obufs[] name-region widening (master BUG-1315, 60d335fd0) -
+      PORTED 2026-10-01 (session 167, code and tracker commits
+      pending, BUG-2070 through 2080; closure notes at the end of
+      this row). Original text: NOT
       PORTED (minted 2026-09-15 by the dragon-scaled xname prefix
       slice's reviewer): the branch's obufs[NUMOBUF][BUFSZ] slot leaves
       xname()/doname() a 107-byte name region (BUFSZ - 1 - PREFIX with
@@ -14437,6 +14441,73 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       separately (BUG-1846). 5.0's Concat/ConcUpdate machinery anchors
       on buf_end/bp_end = gx.xnamep + BUFSZ - 1, so the port is the slot
       width, those two anchors and the BUFSZ - PREFIX args. MED.
+      CLOSURE (session 167, plan
+      /root/.claude/plans/bugfix-obufs-name-region-widening.md):
+      BUG-2070 the port as the row describes - slot PREFIX + BUFSZ +
+      32, buf_end / bp_end at gx.xnamep + PREFIX + BUFSZ - 1, nine
+      xcalled() and nine propnames() args BUFSZ, 5.0's doname "last
+      gasp" panic -> master's clamp (dormant DONAME_FOR_MENU offset
+      kept), end.c copynchars, master's game-end gate (!distantname,
+      STRIPED_SHIRT arm, just_an() motif); paydoname()'s total test
+      unchanged, as on master. BUG-2071 corpse_xname()'s adjective
+      bound (master BUG-583; discharges the deferred NIT "corpse_xname
+      snprintf hardening"). BUG-2072 the readable striped shirt
+      (master 00367be12) and master's nine T-shirt slogans (discharges
+      the icequeen row's rider (g)). A consumer audit (Explore agent,
+      then two reviewer sweeps) found that longer names reach callers
+      that copy a name plus text into fixed buffers, five of them
+      overflowable BEFORE the slice: BUG-2073 lock.c unlock prompts
+      (qbuf[QBUFSZ]; upstream-shared), BUG-2074 chest_trap() buf[80]
+      (upstream + master), BUG-2075 aobjnam() / Tobjnam() verb append
+      spilling into the next obuf, copied back by yobjnam() (PRE
+      printed "glowsglows"; upstream + master), BUG-2076 the
+      pricequotes suffix bounded from bp (NetHack50 fork code),
+      BUG-2079 the barding prompt (the port shrank master's BUFSZ to
+      QBUFSZ). BUG-2077 do_screen_description()'s temp_buf (reviewer
+      HIGH: unreachable before the widening; a 1-byte engraving form
+      is upstream-shared), BUG-2078 nh_snprintf() size 0 wrote str[-1]
+      (upstream), BUG-2080 the rest of the sweep (about 40 sites in 20
+      files plus the() / mshot_xname() / s_suffix() / weapon_killer()
+      / death_inflicted_by() / kickstr(); discharges the BUG-1858
+      row's "weapon_killer() still Sprintf's into killer.name" note).
+      RULINGS (AskUserQuestion x2): fold the shirt and slogans in
+      (recommended); keep 5.0's candy bar arm; master's !distantname
+      guard (recommended) - its premise was wrong (distant_name()
+      already zeroes o_id at game end, so tooltips never showed
+      slogans), kept as master's shape with an accurate comment;
+      battery (recommended). REVIEWER CONDITIONAL PASS (HIGH pager.c
+      temp_buf, LOWs yobjnam verb order, price-quote lines,
+      append_price_quote, nh_snprintf; NITs taken) -> focused
+      re-review PASS (its LOW single-item quote and ")" NIT taken).
+      BATTERY PASS (game-tester, about 55 min; POST
+      5877f2f5da5bf8d91b4ce6835edfc0b1 via `make update SHELLDIR=`, PRE
+      8e51b96cc21c0271d41759e2285d77f3 = session 166's install kept as
+      evilhack.PRE, MASTER 0.9.3; master paniclog unchanged at 22; the
+      branch paniclog - var/paniclog, not the gamedir root - got 8
+      expected lines: xname's once-per-process "used up entire obuf"
+      record on POST's 12-property probe and on PRE, and PRE's two
+      "Query truncated" lines from the lock.c overflow): worn propped
+      plate mail #named 62 chars POST == MASTER (xname 154 / doname
+      172, " (being worn)"), PRE cut at 107; called + named boots 191
+      chars on POST; dumplog slogans complete with closing quote and
+      " (being worn)", striped shirt / smock / Hawaiian / candy bar
+      disclosure, sack contents complete; #read striped shirt POST ==
+      MASTER, PRE "silly thing"; slogans 71 / 80 reachable; farlook,
+      unlock prompts, chest explosion, price quotes (single item and
+      menu), pricequotes + wizweight and a 238-char engraving all
+      bounded, no crash. L6d: the brief expected chwepon()'s whole
+      "glows blue for a moment." to survive a 251-char name; pline's
+      BUFSZ cut (identical on master) makes that impossible - the
+      helper keeps its verb, the message tail goes. RECORD ONLY
+      (master-identical): a region-filling name crowds out doname
+      suffixes ("(weapon in right hand)") and loses message tails to
+      pline's cut ("You see here ... ...NE."); tty drops the last char
+      when wrapping a 255-char line; weapons can't be #called on
+      either tree (both callable[] lists leave out WEAPON_CLASS);
+      master's livelog had no "became literate" line for the shirt
+      read (literate did count). Brief premises corrected by the
+      tester: #read shows shirts under [*] (GETOBJ_DOWNPLAY), tty
+      getlin takes 80 chars per entry.
 - [x] Bane-aura moveloop artifact arms PORTED 2026-09-09 (session 108;
       minted and closed this session - the ARTIFACTS SLICE row's
       "artifact-bane aura arm of master's allmain moveloop grudge
@@ -17069,9 +17140,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       writes (20% against a nominal 1 in 3 - small sample; the
       condition is master's verbatim).
 - [x] MED: mm_aggression() / mm_2way_aggression() grudge-table residue
-      - PORTED 2026-10-01 (session 166, code and tracker commits
-      pending, BUG-2065 through 2069; closure notes at the end of
-      this row). Original text: (minted 2026-09-19, session 130;
+      - PORTED 2026-10-01 (session 166, commit `Port master's grudge
+      table: truces, grudges and arm order.` = 1a6aa9638, tracker
+      4d01f68a7, landed 2026-10-01, BUG-2065 through 2069; closure
+      notes at the end of this row). Original text: (minted 2026-09-19, session 130;
       verified on both bodies). The
       2026-08 "mm_aggression is being ported PIECEMEAL per subsystem"
       note never had a row, and these arms have no subsystem slice
@@ -22130,7 +22202,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       kept master-parity this slice.
       (g) shirt_msgs: this slice added only the Ice Queen line;
       master's other EvilHack T-shirt additions (Alhoons, Cerberus,
-      magic marker, etc.) await a flavor-text reconcile.
+      magic marker, etc.) await a flavor-text reconcile. DONE
+      2026-10-01 (session 167, BUG-2072): all nine in master's order,
+      the Ice Queen line at its master slot.
       ANNOTATION 2026-09-07 (wear-path slice): white dragon-scaled armor
       now confers EWwalking (BUG-1783) and is a Known_wwalking source;
       its Known_lwalking term is CONJOINED with how_resistant(FIRE_RES)
@@ -22278,6 +22352,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-01 | lock.c pick_lock() formats "Unlock it with %s?" and "%s it%s%s?" (with " with " + yname(pick)) into qbuf[QBUFSZ] with Sprintf (Official_nh50 src/lock.c ~486 and ~620). An unidentified skeleton key whose type is #called and which is #named (62 chars each) gives a yname() of about 140-180 chars, overflowing the 128-byte buffer. Branch fixed by BUG-2073 with safe_qbuf() (the door form builds its "Unlock it with " / "Lock it with " prefix into qbuf first). Battery: PRE wrote 128 + NUL and yn_function logged "Query truncated"; POST shortens the name with "...". | branch-fixed (BUG-2073); upstream-reportable |
+| 2026-10-01 | trap.c chest_trap() `char buf[80]` takes `Sprintf(buf, "exploding %s", xname(obj))` (Official_nh50 src/trap.c ~6368); "large box named <62 chars>" is 88 chars. Branch fixed by BUG-2074 (buf[BUFSZ] + Snprintf). | branch-fixed (BUG-2074); upstream-reportable |
+| 2026-10-01 | objnam.c aobjnam() / Tobjnam() append " " + otense() with unbounded Strcat after a cxname()/xname() that can end on the obuf slot's last byte, spilling into the next obufs[] slot (past the array for the last slot); yobjnam() then takes that next slot for shk_your() and strncat()s the overlapping string (branch PRE printed "...glowsglows blue for a moment."). Branch fixed by BUG-2075: a helper trims the name so name + verb fits BUFSZ - 1, and yobjnam() adds the verb after the "your" prefix. | branch-fixed (BUG-2075); upstream-reportable |
+| 2026-10-01 | pager.c do_screen_description(): with an engraving, add_quoted_engraving() fills temp_buf[BUFSZ] to 255 chars and the following bare `Strcat(temp_buf, ")")` writes the 256th char plus NUL (Official_nh50 src/pager.c, the `" (%s"` / ")" block). Needs about 220+ chars of remembered engraving text. Branch fixed by BUG-2077 (Snprintf, then trim so ")" fits what out_str can take). | branch-fixed (BUG-2077); upstream-reportable |
+| 2026-10-01 | hacklib.c nh_snprintf(): on truncation it writes `str[size - 1] = '\0'` even when size is 0, i.e. one byte before the buffer; Concat-family callers pass spaceleft 0 when a name fills its region, chopping its last character. Branch fixed by BUG-2078 (guard size > 0). | branch-fixed (BUG-2078); upstream-reportable |
+| 2026-10-01 | NetHack50 fork (Hardfought, 4fae45220 "Remember price quotes"): doname_base() passes bp to append_price_quote(), whose `len2 < BUFSZ - len - 1` room test measures from that pointer rather than the obuf's name-region end, so the " {buy ...}" quote can run past the obufs[] slot (the fork's region is 175 bytes at +80), and bpspaceleft stays stale for the following wizweight suffix. Branch fixed by BUG-2076 (pass the region start, then ConcUpdate). Battery: PRE broke the quote ("{buy 100-200" with no "}" or weight). | branch-fixed (BUG-2076); fix belongs in the maintainer's NetHack50 fork |
 | 2026-10-01 | spell.c learn() dereferences svc.context.spbook.book with no NULL test (Official_nh50 src/spell.c ~384 `booktype = book->otyp;`). obfree() calls book_disappears(), which clears spbook.book and o_id, but nothing stops the running `learn` occupation, so a book destroyed mid-study without an interrupt reaches the NULL dereference on the next turn. Path: a flaming sphere's AT_EXPL explmu() -> mon_explodes() -> explode() -> destroy_items(AD_FIRE) burns the book; none of explmu(), explode() or losehp() calls stop_occupation(), and an unseen sphere never trips monster_nearby(). Branch fixed by BUG-2062 (master a5ff4bd84's guard at the top of learn(): clear delay / o_id and return 0). Battery: useup() of the book from `break learn` gives PRE SIGSEGV at `booktype = book->otyp`, POST a silent stop. | branch-fixed (BUG-2062); upstream-reportable |
 | 2026-10-01 | spell.c learn() calls cursed_book() on a book that has just faded to blank paper (Official_nh50 src/spell.c ~450 `if (book->cursed)`), and cursed_book() rolls `rn2(objects[bp->otyp].oc_level)` = rn2(0). Reach: book_cursed() slams a cursed book shut with stop_occupation() but keeps spbook.book / delay, the re-read takes study_book()'s "You continue your efforts" arm (~501) and skips the cursed => too_hard gate, and learn() fades the book (spestudied > MAX_SPELL_STUDY, or a polymorphed book at the limit). POSTRELEASE builds print impossible("rn2(0) attempted") and teleport the hero (case 0); a RELEASED build divides by zero. Branch fixed by BUG-2063 (master BUG-750's `&& book->otyp != SPE_BLANK_PAPER`). Battery: PRE impossible + "You feel a wrenching sensation.", POST neither. | branch-fixed (BUG-2063); upstream-reportable |
 | 2026-09-30 | zap.c makewish() resumes a wish across a hangup only when `iflags.term_gone` is set (Official_nh50 src/zap.c:6353, from e240efa10 "Restoring a game can return to the wishing prompt"), and only tty's EOF read sets it. A SAFERHANGUP hangup that lands while the game is not in the terminal read runs nhwindows_hangup() first, so the wish getlin() is hup_getlin(), which returns ESC without setting term_gone: the empty answer reaches readobjnam("") and a random object is granted before the hangup save. Seen on the branch's pre-fix binary (SIGHUP queued at makewish() entry: "a fortune cookie", saved with resume_wish 0). Fix: also test program_state.done_hup (under HANGUPHANDLING) in that early return. | fixed on branch (BUG-2034, 8bfa2121b); patch artifact not cut yet |
@@ -22434,6 +22514,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-01 | Name-region widening slice rulings (session 167; AskUserQuestion x2, five questions). (1) SCOPE: master's READABLE STRIPED SHIRT (00367be12) and master's nine EvilHack T-SHIRT SLOGANS are folded into the BUG-1315 widening slice (recommended) - master's widening also discloses the striped shirt's text, which the branch could not produce. (2) 5.0's CANDY BAR wrapper arm in the game-end disclosure is KEPT (asked neutrally: a pure upstream flavor addition with no competing master behavior). (3) master's `!distantname` guard on the game-end text is RESTORED (recommended); the question's premise (HTML-dump tooltips showed slogans) was wrong - distant_name() already zeroes o_id at game end - and a follow-up kept the guard anyway as master's shape (recommended). (4) the battery was run (recommended). | maintainer |
 | 2026-10-01 | Grudge-table slice rulings (session 166; AskUserQuestion x2, one question each). (1) 5.0's BABY PURPLE WORM TERM in the purple worm vs shrieker arm is KEPT (over the recommended master's shape): a baby purple worm also goes after shriekers. (2) THE HYBRID ZOMBIE_MAKER ARM MOVES LAST in mm_2way_aggression() (recommended): upstream 5.0 had it last, and the branch's piecemeal ports had put EvilHack arms below it, so its both-mgenmklev `return 0L` hid the covetous arm (a level-created master lich / arch-lich beside the Sanctum's Amulet-carrying high priest). Implementation choices: master's one-way order throughout (the berserk rn2(3) in master's place); the shambling horror and mind flayer vs neothelid arms moved into mm_2way_aggression() as on master; 5.0's Wizard's tower isolation kept first; the ^G "racial" prefix minted as a LOW row, not folded. | maintainer (1-2); session, plan-approved (rest) |
 | 2026-10-01 | Spellcasting slice rulings (session 165; AskUserQuestion x2, four questions). (1) SCOPE: ONE SLICE (recommended) - the hero spellcasting MED row with its owed full percent_success() diff (Dex ladder, Gauntlets of Purity exemption, metal-shield rule, critical healing bonus, spell-staff +50, body-armor penalty), the per-cast sp_know bump, the Int exercise MED row, and two unrowed learn() arms (master's draugr gate with its NULL-book guard, BUG-750's blank-paper guard). (2) 5.0's PLAIN-QUARTERSTAFF CASTING BONUS DROPPED, master's shape (recommended): upstream 780d30eca's splcaster -3 (worth chance / 5 + 3 points) has no master counterpart, where the school staves give +50. (3) THE ^X SPELL-CASTING LINE IS REWRITTEN to master's rules (over the recommended "remove, master's shape"). (4) WORDING "Your spells above level 3 ..." for a primary caster in a non-metal suit (recommended; "of level 4 and up" is 82 columns). Implementation choices: staff_spell_school() switch over master's otyp range; a Knight is told "body armor" (its clerical spells skip the metal term but not the body-armor one); the #wizcast skill (BUG-704) and exerchk()'s polymorphed-Int skip minted as LOW rows, not folded. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-09-30 | Caveperson role arms scope (session 164; AskUserQuestion x1, one question, as recommended). The three arms (illiterate HP bonus, the Caveperson / Cleric weapon-skill guard, the blessed-book roll and 16 cap) are master's code and needed no ruling. The Plan agent found three adjacent master gaps with no tracker mention; the ruling MINTS ROWS AND FOLDS NONE, keeping the battery on the Caveperson arms: MED Int exercise (3b8ba5835 + 2db5ee7bf), LOW losexp() level-1 double subtract (7c0ab4d49's entry_level gate), LOW crowning spellbook taught to an illiterate hero. Implementation choices: master's two-range guard kept verbatim with a comment that says what it blocks (every restricted weapon skill but the five blunt ones); master's `!b || (b && Cav)` simplified to `!b || Cav`. | maintainer (scope); session, plan-approved (rest) |
