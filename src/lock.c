@@ -564,10 +564,9 @@ pick_lock(
                 } else if (autounlock
                           && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0) {
                     c = 'q';
-                    if (pick != &dummypick) {
-                        Sprintf(qbuf, "Unlock it with %s?", yname(pick));
-                        c = ynq(qbuf);
-                    }
+                    if (pick != &dummypick)
+                        c = ynq(safe_qbuf(qbuf, "Unlock it with ", "?", pick,
+                                          yname, ysimple_name, "that"));
                     if (c != 'y')
                         return PICKLOCK_DID_NOTHING;
                 } else {
@@ -730,10 +729,13 @@ pick_lock(
                 return PICKLOCK_LEARNED_SOMETHING;
             }
 
-            Sprintf(qbuf, "%s it%s%s?",
+            Sprintf(qbuf, "%s it%s",
                     (door->doormask & D_LOCKED) ? "Unlock" : "Lock",
-                    autounlock ? " with " : "",
-                    autounlock ? yname(pick) : "");
+                    autounlock ? " with " : "?");
+            /* a long key name gets its simple name instead */
+            if (autounlock)
+                (void) safe_qbuf(qbuf, qbuf, "?", pick, yname, ysimple_name,
+                                 "that");
             c = ynq(qbuf);
             if (c != 'y')
                 return PICKLOCK_DID_NOTHING;

@@ -697,15 +697,16 @@ mon_killer_name(
    strsubst("inflicted", verb) to get "zapped/cast/exhaled by <monster>" */
 char *
 death_inflicted_by(
-    char *outbuf,            /* assumed big enough; pm_names are short */
-    const char *deathreason, /* cause of death */
+    char *outbuf,            /* BUFSZ chars; every caller passes one */
+    const char *deathreason, /* cause of death, possibly an object name */
     struct monst *mtmp)      /* monster who caused it */
 {
-    Strcpy(outbuf, deathreason);
+    copynchars(outbuf, deathreason, BUFSZ - 1);
     if (mtmp) {
         char nbuf[BUFSZ];
 
-        Sprintf(eos(outbuf), " inflicted by %s", mon_killer_name(nbuf, mtmp));
+        Snprintf(eos(outbuf), BUFSZ - strlen(outbuf), " inflicted by %s",
+                 mon_killer_name(nbuf, mtmp));
     }
     return outbuf;
 }

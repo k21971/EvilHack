@@ -388,7 +388,7 @@ monshoot(struct monst *mtmp, struct obj *otmp, struct obj *mwep)
         if (multishot > 1) {
             /* "N arrows"; multishot > 1 implies otmp->quan > 1, so
                xname()'s result will already be pluralized */
-            Sprintf(onmbuf, "%d %s", multishot, xname(otmp));
+            Snprintf(onmbuf, sizeof onmbuf, "%d %s", multishot, xname(otmp));
             onm = onmbuf;
         } else {
             /* "an arrow" */

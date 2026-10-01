@@ -706,7 +706,7 @@ itemactions(struct obj *otmp)
         ia_addmenu(win, IA_WHATIS_OBJ, '/', buf);
     }
 
-    Sprintf(buf, "Do what with %s?", the(cxname(otmp)));
+    Snprintf(buf, sizeof buf, "Do what with %s?", the(cxname(otmp)));
     end_menu(win, buf);
 
     n = select_menu(win, PICK_ONE, &selected);

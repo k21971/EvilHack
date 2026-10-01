@@ -346,7 +346,8 @@ s_suffix(const char *s)
 {
     static char buf[BUFSZ];
 
-    Strcpy(buf, s);
+    /* leave room for the longest suffix, "'s" */
+    copynchars(buf, s, BUFSZ - 3);
     if (!strcmpi(buf, "it")) /* it -> its */
         Strcat(buf, "s");
     else if (!strcmpi(buf, "you")) /* you -> your */
@@ -870,7 +871,10 @@ TODO: add set_impossible(), impossible -> func pointer,
                    (n < 0) ? "format error" : "overflow",
                    func, line);
 #endif
-        str[size - 1] = '\0'; /* make sure it is nul terminated */
+        /* make sure it is nul terminated; a zero size wrote nothing,
+           so there is nothing to terminate (str[-1] would be outside) */
+        if (size > 0)
+            str[size - 1] = '\0';
     }
 }
 

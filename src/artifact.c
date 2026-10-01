@@ -3029,8 +3029,8 @@ artifact_hit(
             if (youdefend) {
                 u.ugrave_arise = -3; /* no corpse */
                 svk.killer.format = NO_KILLER_PREFIX;
-                Sprintf(svk.killer.name, "disintegrated by %s",
-                        the(xname(otmp)));
+                Snprintf(svk.killer.name, sizeof svk.killer.name,
+                         "disintegrated by %s", the(xname(otmp)));
                 done(DISINTEGRATED);
             } else { /* you or mon hit monster */
                 disint_mon_invent(mdef);
@@ -3784,8 +3784,8 @@ artifact_hit(
                     *dmgptr = 2 * u.mh + FATAL_DAMAGE_MODIFIER;
                 } else {
                     svk.killer.format = NO_KILLER_PREFIX;
-                    Sprintf(svk.killer.name, "decapitated by %s",
-                            xname(otmp));
+                    Snprintf(svk.killer.name, sizeof svk.killer.name,
+                             "decapitated by %s", xname(otmp));
                     done(DECAPITATED);
                 }
                 /* Should amulets fall off? */
@@ -5184,10 +5184,10 @@ retouch_object(
         if (bane)
             dmg += rnd(10);
         if (bane)
-            Sprintf(buf, "handling %s", killer_xname(obj));
+            Snprintf(buf, sizeof buf, "handling %s", killer_xname(obj));
         else
-            Sprintf(buf, "handling %s that was made of %s",
-                    killer_xname(obj), materialnm[obj->material]);
+            Snprintf(buf, sizeof buf, "handling %s that was made of %s",
+                     killer_xname(obj), materialnm[obj->material]);
         losehp(dmg, buf, KILLED_BY);
         /* returning to a natural form can make break_armor() drop or
            destroy the worn item */

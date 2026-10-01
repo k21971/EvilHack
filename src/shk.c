@@ -5944,8 +5944,15 @@ price_quote(struct obj *first_obj)
             Sprintf(price, "%ld %s%s", cost, currency(cost),
                     (otmp->quan) > 1L ? " each" : "");
         }
-        Sprintf(buf, "%s%s, %s", contentsonly ? the_contents_of : "",
-                doname(otmp), price);
+        {
+            const char *pfx = contentsonly ? the_contents_of : "";
+            /* bound the name rather than the line, so the price stays */
+            int namelen = BUFSZ - 1 - (int) strlen(pfx) - 2 /* ", " */
+                          - (int) strlen(price);
+
+            Snprintf(buf, sizeof buf, "%s%.*s, %s", pfx, max(namelen, 0),
+                     doname(otmp), price);
+        }
         putstr(tmpwin, 0, buf), cnt++;
     }
     if (cnt > 1) {
@@ -5958,12 +5965,21 @@ price_quote(struct obj *first_obj)
         } else {
             /* print cost in slightly different format, so can't reuse buf;
                cost and contentsonly are already set up */
-            Sprintf(buf, "%s%s", contentsonly ? the_contents_of : "",
-                    doname(first_obj));
+            char tail[BUFSZ];
+            int namelen;
+
+            Snprintf(buf, sizeof buf, "%s%s",
+                     contentsonly ? the_contents_of : "", doname(first_obj));
             SetVoice(shkp, 0, 80, 0);
-            verbalize("%s, price %ld %s%s%s", upstart(buf), cost,
-                      currency(cost), (first_obj->quan > 1L) ? " each" : "",
-                      contentsonly ? "." : shk_embellish(first_obj, cost));
+            Snprintf(tail, sizeof tail, ", price %ld %s%s%s", cost,
+                     currency(cost), (first_obj->quan > 1L) ? " each" : "",
+                     contentsonly ? "." : shk_embellish(first_obj, cost));
+            /* a long name would push the price out of the message once it
+               is cut down to BUFSZ; shorten the name instead */
+            namelen = BUFSZ - 1 - (int) strlen(tail);
+            if ((int) strlen(buf) > namelen)
+                buf[max(namelen, 0)] = '\0';
+            verbalize("%s%s", upstart(buf), tail);
         }
     }
     destroy_nhwindow(tmpwin);

@@ -186,7 +186,18 @@ tshirt_text(struct obj *tshirt, char *buf)
            TV show "Game of Thrones" (probably an actual T-shirt too...) */
         "/Valar morghulis/ -- /Valar dohaeris/",
         "Asidonhopo once said: the namesake of my enemy is my enemy",
+        /* actual funny t-shirt slogans that make me chuckle */
+        "Totes Adorbs",
+        "Zonk Track Club",
+        "Licky Chewy's Pogey Bait",
+        "Space Force Gunnery School",
+        "Mandatory Fun Shirt",
+        /* more random stuff */
+        "Alhoons really suck",
+        "I love magic lamp",
         "The Ice Queen Snow Cone Stand, est. 2020",
+        "Cerberus ate my homework",
+        "My firstborn for a magic marker",
     };
 
     Strcpy(buf, shirt_msgs[tshirt->o_id % SIZE(shirt_msgs)]);
@@ -287,6 +298,31 @@ apron_text(struct obj *apron, char *buf)
     return erode_obj_text(apron, buf);
 }
 
+char *
+striped_text(struct obj *striped, char *buf)
+{
+    unsigned msgidx;
+    static const char *const striped_msgs[] = {
+        "AZ# 85",    /* Al Capone */
+        "AZ# 117",   /* George 'Machine Gun' Kelly */
+        "AZ# 594",   /* Robert 'The Birdman of Alcatraz' Stroud */
+        "B-33920",   /* Charles Manson */
+        "227501",    /* Jeffrey Dahmer */
+        "46664",     /* Nelson Mandela */
+        "B5160-8",   /* Hannibal Lecter */
+        "37927",     /* Andy Dufresne */
+        "55170-054", /* Martha Stewart */
+        "1027820",   /* O.J. Simpson */
+    };
+
+    /* mix in the birthday, as hawaiian_motif() does, so that a
+       Convict's starting shirt doesn't show the same number every game */
+    msgidx = striped->o_id ^ (unsigned) ubirthday;
+
+    Strcpy(buf, striped_msgs[msgidx % SIZE(striped_msgs)]);
+    return erode_obj_text(striped, buf);
+}
+
 static const char *const candy_wrappers[] = {
     "",                         /* (none -- should never happen) */
     "Apollo",                   /* Lost */
@@ -385,7 +421,7 @@ doread(void)
         useup(scroll);
         return ECMD_TIME;
     } else if (otyp == T_SHIRT || otyp == ALCHEMY_SMOCK
-               || otyp == HAWAIIAN_SHIRT) {
+               || otyp == STRIPED_SHIRT || otyp == HAWAIIAN_SHIRT) {
         char buf[BUFSZ], *mesg;
         const char *endpunct;
 
@@ -394,8 +430,8 @@ doread(void)
             return ECMD_OK;
         }
         /* can't read shirt worn under suit (under cloak is ok though) */
-        if ((otyp == T_SHIRT || otyp == HAWAIIAN_SHIRT) && uarm
-            && scroll == uarmu) {
+        if ((otyp == T_SHIRT || otyp == STRIPED_SHIRT
+             || otyp == HAWAIIAN_SHIRT) && uarm && scroll == uarmu) {
             pline("%s shirt is obscured by %s%s.",
                   scroll->unpaid ? "That" : "Your", shk_your(buf, uarm),
                   suit_simple_name(uarm));
@@ -409,11 +445,14 @@ doread(void)
         if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT, "became literate by reading %s",
                            (scroll->otyp == T_SHIRT) ? "a T-shirt"
-                           : "an apron");
+                           : (scroll->otyp == STRIPED_SHIRT)
+                             ? "a striped shirt"
+                             : "an apron");
 
         /* populate 'buf[]' */
         mesg = (otyp == T_SHIRT) ? tshirt_text(scroll, buf)
-                                 : apron_text(scroll, buf);
+               : (otyp == STRIPED_SHIRT) ? striped_text(scroll, buf)
+                 : apron_text(scroll, buf);
         endpunct = "";
         if (flags.verbose) {
             int ln = (int) strlen(mesg);
@@ -1187,8 +1226,11 @@ seffect_enchant_armor(struct obj **sobjp)
         && otmp != barding) {
         char qbuf[QBUFSZ];
 
-        Sprintf(qbuf, "Enchant %s %s?", s_suffix(y_monnam(u.usteed)),
-                xname(barding));
+        Snprintf(qbuf, sizeof qbuf, "Enchant %s ",
+                 s_suffix(y_monnam(u.usteed)));
+        /* a long barding name gets its simple name instead */
+        (void) safe_qbuf(qbuf, qbuf, "?", barding, xname, simpleonames,
+                         "barding");
         if (y_n(qbuf) == 'y')
             otmp = barding;
     }

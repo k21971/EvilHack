@@ -1302,8 +1302,10 @@ hold_another_object(
            drop_arg when it is kept in an 'obuf' from doname();
            [should no longer be necessary now that perm_invent update is
            suppressed, but it's cheap to keep as a paranoid precaution] */
-        if (drop_arg)
-            drop_arg = strcpy(buf, drop_arg);
+        if (drop_arg) {
+            copynchars(buf, drop_arg, BUFSZ - 1);
+            drop_arg = buf;
+        }
 
         obj = addinv_core0(obj, (struct obj *) 0, FALSE);
         if (inv_cnt(FALSE) > invlet_basic
@@ -3825,7 +3827,8 @@ dounpaid(
                     char contbuf[BUFSZ];
 
                     /* Shopkeeper knows what to charge for contents */
-                    Sprintf(contbuf, "%s contents", s_suffix(xname(otmp)));
+                    Snprintf(contbuf, sizeof contbuf, "%s contents",
+                             s_suffix(xname(otmp)));
                     putstr(win, 0,
                            xprname((struct obj *) 0, contbuf, CONTAINED_SYM,
                                    TRUE, contcost, 0L));
@@ -4409,9 +4412,9 @@ look_here(
         for (; otmp; otmp = otmp->nexthere) {
             if (otmp->otyp == CORPSE && will_feel_cockatrice(otmp, FALSE)) {
                 felt_cockatrice = TRUE;
-                Sprintf(buf, "%s...",
-                        (puzzling_count) ? doname_with_cgender(otmp)
-                                         : doname(otmp));
+                Snprintf(buf, sizeof buf, "%s...",
+                         (puzzling_count) ? doname_with_cgender(otmp)
+                                          : doname(otmp));
                 putstr(tmpwin, 0, buf);
                 break;
             }

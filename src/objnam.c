@@ -52,6 +52,8 @@ staticfn char *dragon_scaled_prefix(struct obj *, char *);
 staticfn char *minimal_xname(struct obj *);
 staticfn void add_erosion_words(struct obj *, char *);
 staticfn char *doname_base(struct obj *obj, unsigned);
+staticfn void objnam_add_verb(char *, struct obj *, const char *)
+                                                            NONNULLPTRS;
 staticfn boolean singplur_lookup(char *, char *, boolean,
                                const char *const *);
 staticfn char *singplur_compound(char *);
@@ -148,8 +150,14 @@ strprepend(char *s, const char *pref)
     return s - i;
 }
 
-/* manage a pool of BUFSZ buffers, so callers don't have to */
-static char NEARDATA obufs[NUMOBUF][BUFSZ];
+/* manage a pool of buffers, so callers don't have to; each slot
+   reserves PREFIX bytes for doname_base()'s prefix, a full BUFSZ
+   bytes for the object name built by xname() (xname() and doname()
+   results never exceed BUFSZ - 1 chars), plus a small amount of
+   slack for appends made after the name, such as aobjnam()'s verb
+   once a leading "the " has been skipped, or corpse_xname()'s
+   " corpse" after its bounded adjective */
+static char NEARDATA obufs[NUMOBUF][PREFIX + BUFSZ + 32];
 static int obufidx = 0;
 
 staticfn char *
@@ -169,7 +177,7 @@ releaseobuf(char *bufp)
        the pointer our caller has and is passing to us might be into the
        middle of an obuf rather than the address returned by nextobuf() */
     if (bufp >= obufs[obufidx]
-        && bufp < obufs[obufidx] + sizeof obufs[obufidx]) /* obufs[][BUFSZ] */
+        && bufp < obufs[obufidx] + sizeof obufs[obufidx])
         obufidx = (obufidx - 1 + NUMOBUF) % NUMOBUF;
 }
 
@@ -579,7 +587,7 @@ reorder_fruit(boolean forward)
 staticfn void
 xcalled(
     char *buf,       /* eos(obuf) or eos(&obuf[PREFIX]) */
-    int siz,         /* BUFSZ or BUFSZ-PREFIX */
+    int siz,         /* BUFSZ (both regions are that size) */
     const char *pfx, /* usually class string, sometimes more specific */
     const char *sfx) /* user assigned type name */
 {
@@ -700,7 +708,8 @@ xname_flags(
     /* set up primary work buffer; the first 'PREFIX' bytes are set
        aside for use by doname() */
     buf = gx.xnamep + PREFIX; /* leave room for "17 -3 " */
-    buf_end = gx.xnamep + BUFSZ - 1; /* last byte within the obuf[] */
+    /* last byte of the BUFSZ-byte name region within the obuf[] */
+    buf_end = gx.xnamep + PREFIX + BUFSZ - 1;
     buf[0] = '\0';
     ConcUpdate(buf); /* set buf_eos and bufspaceleft */
 
@@ -820,7 +829,7 @@ xname_flags(
         else if (nn && !is_soko_prize(obj))
             Strcat(buf, actualn);
         else if (un && !is_soko_prize(obj))
-            xcalled(buf, BUFSZ - PREFIX, "amulet", un);
+            xcalled(buf, BUFSZ, "amulet", un);
         else if (is_soko_prize(obj))
             /* deliberately clobbers any material prefix; an unclaimed
                prize hides everything but its class */
@@ -850,7 +859,7 @@ xname_flags(
         else if (nn && !is_soko_prize(obj))
             Strcat(buf, actualn);
         else if (un && !is_soko_prize(obj))
-            xcalled(buf, BUFSZ - PREFIX, dn, un);
+            xcalled(buf, BUFSZ, dn, un);
         else if (is_soko_prize(obj))
             /* deliberately clobbers any material prefix */
             Strcpy(buf, "sokoban prize tool");
@@ -858,10 +867,10 @@ xname_flags(
             Strcat(buf, dn);
 
         if (is_barding(obj))
-            propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
+            propnames(buf, BUFSZ, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
         else
-            propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
+            propnames(buf, BUFSZ, obj->oprops, obj->oprops_known,
                       TRUE, !!strstri(buf, " of "));
         ConcUpdate(buf);
 
@@ -889,7 +898,7 @@ xname_flags(
                 /* the appearance names the type outright, so fall back on
                    the generic word the way an unseen shield does below */
                 Strcat(buf, "bracers");
-                propnames(buf, BUFSZ - PREFIX, obj->oprops,
+                propnames(buf, BUFSZ, obj->oprops,
                           obj->oprops_known, FALSE, FALSE);
                 break;
             }
@@ -897,12 +906,12 @@ xname_flags(
         } else if (is_shield(obj) && !dknown) {
             if (obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD) {
                 Strcat(buf, "shield");
-                propnames(buf, BUFSZ - PREFIX, obj->oprops,
+                propnames(buf, BUFSZ, obj->oprops,
                           obj->oprops_known, FALSE, FALSE);
                 break;
             } else if (obj->otyp == SHIELD_OF_REFLECTION) {
                 Strcat(buf, "smooth shield");
-                propnames(buf, BUFSZ - PREFIX, obj->oprops,
+                propnames(buf, BUFSZ, obj->oprops,
                           obj->oprops_known, FALSE, FALSE);
                 break;
             }
@@ -922,11 +931,11 @@ xname_flags(
 
         if (nn && !is_soko_prize(obj)) {
             Concat(buf, 0, actualn);
-            propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
+            propnames(buf, BUFSZ, obj->oprops, obj->oprops_known,
                       FALSE, !!strstri(actualn, " of "));
         } else if (un && !is_soko_prize(obj)) {
             Concat(buf, 0, armor_simple_name(obj));
-            propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
+            propnames(buf, BUFSZ, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             ConcUpdate(buf);
             /* the properties may have used up the room; omit the called
@@ -941,7 +950,7 @@ xname_flags(
             Strcpy(buf, "sokoban prize armor");
         } else {
             Concat(buf, 0, dn);
-            propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
+            propnames(buf, BUFSZ, obj->oprops, obj->oprops_known,
                       FALSE, !!strstri(dn, " of "));
         }
         ConcUpdate(buf);
@@ -1061,7 +1070,7 @@ xname_flags(
                 }
                 Strcat(buf, actualn);
             } else {
-                xcalled(buf, BUFSZ - PREFIX, "", un);
+                xcalled(buf, BUFSZ, "", un);
             }
         } else {
             Strcat(buf, dn);
@@ -1076,7 +1085,7 @@ xname_flags(
             Strcat(buf, " of ");
             Strcat(buf, actualn);
         } else if (un) {
-            xcalled(buf, BUFSZ - PREFIX, "", un);
+            xcalled(buf, BUFSZ, "", un);
         } else if (ocl->oc_magic) {
             Strcat(buf, " labeled ");
             Strcat(buf, dn);
@@ -1091,7 +1100,7 @@ xname_flags(
         else if (nn)
             Sprintf(eos(buf), "wand of %s", actualn);
         else if (un)
-            xcalled(buf, BUFSZ - PREFIX, "wand", un);
+            xcalled(buf, BUFSZ, "wand", un);
         else
             Sprintf(eos(buf), "%s wand", dn);
         break;
@@ -1102,7 +1111,7 @@ xname_flags(
             else if (nn)
                 Strcat(buf, actualn);
             else if (un)
-                xcalled(buf, BUFSZ - PREFIX, "novel", un);
+                xcalled(buf, BUFSZ, "novel", un);
             else
                 Sprintf(eos(buf), "%s book", dn);
             break;
@@ -1114,7 +1123,7 @@ xname_flags(
                 Strcat(buf, "spellbook of ");
             Strcat(buf, actualn);
         } else if (un) {
-            xcalled(buf, BUFSZ - PREFIX, "spellbook", un);
+            xcalled(buf, BUFSZ, "spellbook", un);
         } else
             Sprintf(eos(buf), "%s spellbook", dn);
         break;
@@ -1127,7 +1136,7 @@ xname_flags(
             else
                 Sprintf(eos(buf), "%s ring", actualn);
         } else if (un) {
-            xcalled(buf, BUFSZ - PREFIX, "ring", un);
+            xcalled(buf, BUFSZ, "ring", un);
         } else {
             Sprintf(eos(buf), "%s ring", dn);
         }
@@ -1147,14 +1156,14 @@ xname_flags(
             Strcpy(buf, rock);
         } else if (!nn) {
             if (un)
-                xcalled(buf, BUFSZ - PREFIX, rock, un);
+                xcalled(buf, BUFSZ, rock, un);
             else
                 Sprintf(eos(buf), "%s %s", dn, rock);
         } else {
             Strcat(buf, actualn);
             if (GemStone(typ))
                 Strcat(buf, " stone");
-            propnames(buf, BUFSZ - PREFIX, obj->oprops, obj->oprops_known,
+            propnames(buf, BUFSZ, obj->oprops, obj->oprops_known,
                       TRUE, !!strstri(buf, " of "));
         }
         break;
@@ -1199,7 +1208,12 @@ xname_flags(
            "You were acid resistant because of your alchemy smock \
            with text \"Kiss the cook\"."
        when disclosing attributes anyway */
-    if (program_state.gameover && obj->o_id && bufspaceleft > 0) {
+    if (program_state.gameover && obj->o_id && bufspaceleft > 0
+        /* distantname is non-0 while distant_name() formats an object
+           that isn't seen up close (distant_name() also zeroes o_id at
+           game end, which keeps DUMPHTML map tooltips free of this
+           text) */
+        && !gd.distantname) {
         const char *lbl;
         char tmpbuf[BUFSZ];
 
@@ -1208,19 +1222,27 @@ xname_flags(
         switch (obj->otyp) {
         case T_SHIRT:
         case ALCHEMY_SMOCK:
+        case STRIPED_SHIRT:
             ConcatF1(buf, 0, " with text \"%s\"",
                      (obj->otyp == T_SHIRT) ? tshirt_text(obj, tmpbuf)
-                                            : apron_text(obj, tmpbuf));
+                     : (obj->otyp == STRIPED_SHIRT)
+                       ? striped_text(obj, tmpbuf)
+                       : apron_text(obj, tmpbuf));
             break;
         case CANDY_BAR:
             lbl = candy_wrapper_text(obj);
             if (*lbl)
                 ConcatF1(buf, 0, " labeled \"%s\"", lbl);
             break;
-        case HAWAIIAN_SHIRT:
-            ConcatF1(buf, 0, " with %s motif",
-                     an(hawaiian_motif(obj, tmpbuf)));
+        case HAWAIIAN_SHIRT: {
+            /* just_an() rather than an() so that no obuf is consumed */
+            char anbuf[10];
+            const char *motif = hawaiian_motif(obj, tmpbuf);
+
+            ConcatF2(buf, 0, " with %s%s motif",
+                     just_an(anbuf, motif), motif);
             break;
+        }
         default:
             break;
         }
@@ -1252,7 +1274,8 @@ xname_flags(
         if (!xname_full++) {
             paniclog("xname", (char *) memcpy(buf - 6, "buf[]=", 6));
             /* 'PREFIX' ought to be 'PREFIX+4' if we stripped leading "the" */
-            paniclog("xname", "used up entire obuf[PREFIX..BUFSX-1]");
+            paniclog("xname",
+                     "used up entire obuf[PREFIX..PREFIX+BUFSZ-1]");
         }
     }
 
@@ -1336,6 +1359,9 @@ mshot_xname(struct obj *obj)
            The(), both of which correctly handle this "the " prefix */
         Sprintf(tmpbuf, "the %d%s ", gm.m_shot.i, ordin(gm.m_shot.i));
         onm = strprepend(onm, tmpbuf);
+        /* keep the result within BUFSZ like xname()'s own */
+        if ((int) strlen(onm) > BUFSZ - 1)
+            onm[BUFSZ - 1] = '\0';
     }
     return onm;
 }
@@ -1502,7 +1528,8 @@ doname_base(
        gx.xnamep always points to the start of that buffer;
        'bp_eos' and 'bpspaceleft' are used and updated by Concat*() macros */
     bp = xname(obj);
-    bp_end = gx.xnamep + BUFSZ - 1;
+    /* same end as xname()'s: last byte of the BUFSZ-byte name region */
+    bp_end = gx.xnamep + PREFIX + BUFSZ - 1;
     bp_eos = eos(bp);
     assert(bp_end >= bp_eos); /* ok provided xname() bounds checking works */
     /* size_t cast: convert signed ptrdiff_t to unsigned size_t */
@@ -2059,13 +2086,18 @@ doname_base(
         } else if (nochrg > 0) {
             Concat(bp, 0, " (no charge)");
         } else if (iflags.pricequotes && !objects[obj->otyp].oc_name_known) {
-            append_price_quote(bp, &bp_eos, obj->otyp);
+            /* the quote's BUFSZ room test is measured from the buffer
+               start it is given; pass the name region's start so the
+               quote ends within bp_end, then resync the Concat state */
+            append_price_quote(bp_end - (BUFSZ - 1), &bp_eos, obj->otyp);
+            ConcUpdate(bp);
         }
 
         if (price > 0L)
             record_price_quote(obj->otyp, price / obj->quan, TRUE);
     } else if (iflags.pricequotes && !objects[obj->otyp].oc_name_known) {
-        append_price_quote(bp, &bp_eos, obj->otyp);
+        append_price_quote(bp_end - (BUFSZ - 1), &bp_eos, obj->otyp);
+        ConcUpdate(bp);
     }
 
     if (!strncmp(prefix, "a ", 2)) {
@@ -2096,40 +2128,22 @@ doname_base(
     bp = strprepend(bp, prefix);
 
     /*
-     * Last gasp bounds check.
+     * The prefix plus a name that used its full BUFSZ-byte region can
+     * exceed what callers with char buf[BUFSZ] destinations can hold;
+     * keep the long-standing contract that doname() results fit in
+     * BUFSZ
      *
-     * If caller intends this to be for a menu entry, make sure that
-     * there is some room to combine with menu selector prefix without
-     * exceeding BUFSZ-1.
-     *
-     * offsetbp=4: width of menu entry selector text: "c - " for tty.
-     * For curses, that wastes a char since it only needs 3: "c) ".
-     *
-     * Reaching full BUFSZ-1 length can't happen unless both doname
-     * (BUFSZ-PREFIX) and strprepend (PREFIX) use up all available
-     * space or one of them overflows without being detected.
+     * If caller intends this to be for a menu entry, also leave room to
+     * combine it with the menu selector prefix without exceeding
+     * BUFSZ-1. offsetbp=4: width of menu entry selector text, "c - "
+     * for tty; for curses that wastes a char since it only needs 3,
+     * "c) "
      */
-    if (strlen(bp) > BUFSZ - 1) {
-        paniclog("doname", bp);
-        /* ideally this will never happen; if xnamep is any obuf[]
-           other than the last, overflow here would be relatively
-           benign and we could probably keep going */
-        panic("doname: long object description overflow.");
-        /*NOTREACHED*/
-    } else {
-        static int doname_full = 0;
+    {
         int offsetbp = for_menu ? 4 : 0;
 
-        if (strlen(bp) + offsetbp >= BUFSZ - 1) {
-            /* for !offsetbp, we'll only get here if strlen(bp)==BUFSZ-1 */
-            if (!doname_full++) {
-                paniclog("doname", bp);
-                Sprintf(tmpbuf, "long object description%s.",
-                        offsetbp ? " truncated for menu use" : "");
-                paniclog("doname", tmpbuf);
-            }
+        if ((int) strlen(bp) + offsetbp > BUFSZ - 1)
             bp[BUFSZ - 1 - offsetbp] = '\0';
-        }
     }
 
     /* reset oprops_known to avoid a side effect from the wizard mode
@@ -2300,11 +2314,19 @@ corpse_xname(
         Strcat(nambuf, mrace);
         Strcat(nambuf, mnam);
     } else {
+        /* the adjective can be doname()'s whole prefix; bound it to
+           nambuf's BUFSZ-byte region */
+        int avail = BUFSZ - 1 - (int) strlen(nambuf);
+
         /* adjective positioning depends upon format of monster name */
-        if (possessive) /* Medusa's cursed partly eaten corpse */
-            Sprintf(eos(nambuf), "%s%s %s%s", mrace, mnam, gndr, adjective);
-        else /* cursed partly eaten troll corpse */
-            Sprintf(eos(nambuf), "%s %s%s%s", adjective, gndr, mrace, mnam);
+        if (avail > 0) {
+            if (possessive) /* Medusa's cursed partly eaten corpse */
+                Snprintf(eos(nambuf), (size_t) avail, "%s%s %s%s",
+                         mrace, mnam, gndr, adjective);
+            else /* cursed partly eaten troll corpse */
+                Snprintf(eos(nambuf), (size_t) avail, "%s %s%s%s",
+                         adjective, gndr, mrace, mnam);
+        }
         /* in case adjective has a trailing space, squeeze it out */
         mungspaces(nambuf);
         /* doname() might include a count in the adjective argument;
@@ -2425,7 +2447,9 @@ killer_xname(struct obj *obj)
 
 /* possessive death reason for a monster's weapon kill:
    "<possessor>'s <verb><weapon>", e.g. "a goblin's thrown dagger".
-   possessor already carries its article; verb is "" or "thrown "/"fired " */
+   possessor already carries its article; verb is "" or "thrown "/"fired ";
+   outbuf must hold BUFSZ chars (every caller passes killer.name or a
+   char [BUFSZ]) */
 char *
 weapon_killer(
     char *outbuf,
@@ -2442,7 +2466,7 @@ weapon_killer(
         wnm += 3;
     else if (!strncmpi(wnm, "the ", 4))
         wnm += 4;
-    Sprintf(outbuf, "%s %s%s", s_suffix(possessor), verb, wnm);
+    Snprintf(outbuf, BUFSZ, "%s %s%s", s_suffix(possessor), verb, wnm);
     return outbuf;
 }
 
@@ -2624,7 +2648,7 @@ the(const char *str)
     }
     if (!strncmpi(str, "the ", 4)) {
         buf[0] = lowc(*str);
-        Strcpy(&buf[1], str + 1);
+        copynchars(&buf[1], str + 1, BUFSZ - 2);
         return buf;
     } else if (*str < 'A' || *str > 'Z'
                /* some capitalized monster names want "the", others don't */
@@ -2683,6 +2707,21 @@ The(const char *str)
     return tmp;
 }
 
+/* append " <verb>" to the object name in bp for aobjnam() and
+   Tobjnam(); a name that used its whole region is trimmed so that the
+   verb survives and the result stays within BUFSZ - 1 chars */
+staticfn void
+objnam_add_verb(char *bp, struct obj *otmp, const char *verb)
+{
+    const char *vt = otense(otmp, verb);
+    int room = BUFSZ - 2 - (int) strlen(vt); /* less " " and verb */
+
+    if (room > 0 && (int) strlen(bp) > room)
+        bp[room] = '\0';
+    Strcat(bp, " ");
+    Strcat(bp, vt);
+}
+
 /* returns "count cxname(otmp)" or just cxname(otmp) if count == 1 */
 char *
 aobjnam(struct obj *otmp, const char *verb)
@@ -2694,10 +2733,8 @@ aobjnam(struct obj *otmp, const char *verb)
         Sprintf(prefix, "%ld ", otmp->quan);
         bp = strprepend(bp, prefix);
     }
-    if (verb) {
-        Strcat(bp, " ");
-        Strcat(bp, otense(otmp, verb));
-    }
+    if (verb)
+        objnam_add_verb(bp, otmp, verb);
     return bp;
 }
 
@@ -2705,7 +2742,8 @@ aobjnam(struct obj *otmp, const char *verb)
 char *
 yobjnam(struct obj *obj, const char *verb)
 {
-    char *s = aobjnam(obj, verb);
+    /* verb is added last so that a long name can't push it out */
+    char *s = aobjnam(obj, (const char *) 0);
 
     /* leave off "your" for most of your artifacts, but prepend
      * "your" for unique objects and "foo of bar" quest artifacts */
@@ -2723,6 +2761,8 @@ yobjnam(struct obj *obj, const char *verb)
 
         s = strncat(outbuf, s, space_left);
     }
+    if (verb)
+        objnam_add_verb(s, obj, verb);
     return s;
 }
 
@@ -2742,10 +2782,8 @@ Tobjnam(struct obj *otmp, const char *verb)
 {
     char *bp = The(xname(otmp));
 
-    if (verb) {
-        Strcat(bp, " ");
-        Strcat(bp, otense(otmp, verb));
-    }
+    if (verb)
+        objnam_add_verb(bp, otmp, verb);
     return bp;
 }
 

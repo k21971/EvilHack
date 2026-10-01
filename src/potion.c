@@ -3193,7 +3193,8 @@ potion_dip(struct obj *obj, struct obj *potion)
                 return ECMD_TIME;
             }
             if (potion->quan > 1L)
-                Sprintf(buf, "One of %s", the(xname(potion)));
+                Snprintf(buf, sizeof buf, "One of %s",
+                         the(xname(potion)));
             else
                 Strcpy(buf, The(xname(potion)));
             pline("%s forms a coating on %s.", buf, the(xname(obj)));
@@ -3210,7 +3211,8 @@ potion_dip(struct obj *obj, struct obj *potion)
                 return ECMD_TIME;
             }
             if (potion->quan > 1L)
-                Sprintf(buf, "One of %s", the(xname(potion)));
+                Snprintf(buf, sizeof buf, "One of %s",
+                         the(xname(potion)));
             else
                 Strcpy(buf, The(xname(potion)));
             pline("%s forms a thick inky coating on %s.", buf,

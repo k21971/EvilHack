@@ -2899,6 +2899,7 @@ extern void learnscroll(struct obj *) NONNULLARG1;
 extern char *tshirt_text(struct obj *, char *) NONNULLARG12;
 extern char *hawaiian_motif(struct obj *, char *) NONNULLARG12;
 extern char *apron_text(struct obj *, char *) NONNULLARG12;
+extern char *striped_text(struct obj *, char *) NONNULLARG12;
 extern const char *candy_wrapper_text(struct obj *) NONNULLARG1;
 extern void assign_candy_wrapper(struct obj *) NONNULLARG1;
 extern int doread(void);

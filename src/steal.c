@@ -380,7 +380,9 @@ worn_item_removal(
     const char *verb;
     int strip_art;
 
-    Strcpy(objbuf, doname(obj));
+    /* leave room for the strsubst()s below that grow the name: "a "
+       into "your " (3 more) and "on" into "from" (2 more) */
+    copynchars(objbuf, doname(obj), BUFSZ - 1 - 5);
     /* massage the object description */
     strip_art = !strncmp(objbuf, "the ", 4) ? 4
                 : !strncmp(objbuf, "an ", 3) ? 3

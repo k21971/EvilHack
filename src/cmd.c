@@ -4631,18 +4631,19 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
     if (OBJ_AT(x, y)) {
         struct obj *otmp = svl.level.objects[x][y];
 
-        Sprintf(buf, "Pick up %s", otmp->nexthere ? "items" : doname(otmp));
+        Snprintf(buf, sizeof buf, "Pick up %s",
+                 otmp->nexthere ? "items" : doname(otmp));
         mcmd_addmenu(win, MCMD_PICKUP, buf), ++K;
 
         if (Is_nonprize_container(otmp)) {
-            Sprintf(buf, "Loot %s", doname(otmp));
+            Snprintf(buf, sizeof buf, "Loot %s", doname(otmp));
             mcmd_addmenu(win, MCMD_LOOT, buf), ++K;
 
-            Sprintf(buf, "Tip %s", doname(otmp));
+            Snprintf(buf, sizeof buf, "Tip %s", doname(otmp));
             mcmd_addmenu(win, MCMD_TIP, buf), ++K;
         }
         if (otmp->oclass == FOOD_CLASS) {
-            Sprintf(buf, "Eat %s", doname(otmp));
+            Snprintf(buf, sizeof buf, "Eat %s", doname(otmp));
             mcmd_addmenu(win, MCMD_EAT, buf), ++K;
         }
     }

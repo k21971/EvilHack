@@ -1444,8 +1444,8 @@ query_category(
         char tmpbuf[BUFSZ];
 
         if (num_justpicked == 1)
-            Sprintf(tmpbuf, "Just picked up: %s",
-                    doname(find_justpicked(olist)));
+            Snprintf(tmpbuf, sizeof tmpbuf, "Just picked up: %s",
+                     doname(find_justpicked(olist)));
         else
             Strcpy(tmpbuf, "Items you just picked up");
         invlet = 'P';
@@ -1672,7 +1672,7 @@ carry_count(struct obj *obj,            /* object to pick up... */
         /* some message will be given */
         Strcpy(obj_nambuf, doname(obj));
         if (container) {
-            Sprintf(where, "in %s", the(xname(container)));
+            Snprintf(where, sizeof where, "in %s", the(xname(container)));
             verb = "carry";
         } else {
             Strcpy(where, "lying here");
@@ -4489,8 +4489,8 @@ tipcontainer_gettarget(
             } else {
                 any = cg.zeroany;
                 any.a_obj = !exclude_it ? otmp : 0;
-                Sprintf(buf, "%s%s", !exclude_it ? "" : "    ",
-                        doname(otmp));
+                Snprintf(buf, sizeof buf, "%s%s", !exclude_it ? "" : "    ",
+                         doname(otmp));
                 tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
                 add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE, clr,
@@ -4517,7 +4517,8 @@ tipcontainer_gettarget(
             } else {
                 any = cg.zeroany;
                 any.a_obj = !exclude_it ? otmp : 0;
-                Sprintf(buf, "%s%s", !exclude_it ? "" : "    ", doname(otmp));
+                Snprintf(buf, sizeof buf, "%s%s", !exclude_it ? "" : "    ",
+                         doname(otmp));
                 tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
                 map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
                 add_menu(win, &tmpglyphinfo, &any,
@@ -4527,7 +4528,8 @@ tipcontainer_gettarget(
         }
     }
     if (!skip_targetmenu) {
-        Sprintf(buf, "Where to tip the contents of %s", doname(box));
+        Snprintf(buf, sizeof buf, "Where to tip the contents of %s",
+                 doname(box));
         end_menu(win, buf);
         n = select_menu(win, PICK_ONE, &pick_list);
         destroy_nhwindow(win);
@@ -4751,7 +4753,7 @@ m_stash_items(struct monst *mon, boolean creation)
         return 0;
 
     if (bag)
-        Sprintf(buf, "%s %s", mhis(mon), xname(bag));
+        Snprintf(buf, sizeof buf, "%s %s", mhis(mon), xname(bag));
 
     if (attacktype(mon->data, AT_WEAP)) {
         wep = MON_WEP(mon);

@@ -1022,22 +1022,23 @@ animate_statue(
     if (u_at(x, y) || cause == ANIMATE_SPELL) {
         /* "the|your|Manlobbi's statue [of a wombat]" */
         shkp = shop_keeper(*in_rooms(mon->mx, mon->my, SHOPBASE));
-        Sprintf(statuename, "%s%s", shk_your(tmpbuf, statue),
-                (cause == ANIMATE_SPELL
-                 /* avoid "of a shopkeeper" if it's Manlobbi himself
-                    (if carried, it can't be unpaid--hence won't be
-                    described as "Manlobbi's statue"--because there
-                    wasn't any living shk when statue was picked up) */
-                 && (mon != shkp || carried(statue)))
-                   ? xname(statue)
-                   : "statue");
+        Snprintf(statuename, sizeof statuename, "%s%s",
+                 shk_your(tmpbuf, statue),
+                 (cause == ANIMATE_SPELL
+                  /* avoid "of a shopkeeper" if it's Manlobbi himself
+                     (if carried, it can't be unpaid--hence won't be
+                     described as "Manlobbi's statue"--because there
+                     wasn't any living shk when statue was picked up) */
+                  && (mon != shkp || carried(statue)))
+                    ? xname(statue)
+                    : "statue");
         pline("%s %s!", upstart(statuename), comes_to_life);
     } else if (Hallucination) { /* They don't know it's a statue */
         pline_The("%s suddenly seems more animated.", rndmonnam((char *) 0));
     } else if (cause == ANIMATE_SHATTER) {
         if (cansee(x, y))
-            Sprintf(statuename, "%s%s", shk_your(tmpbuf, statue),
-                    xname(statue));
+            Snprintf(statuename, sizeof statuename, "%s%s",
+                     shk_your(tmpbuf, statue), xname(statue));
         else
             Strcpy(statuename, "a statue");
         pline("Instead of shattering, %s suddenly %s!", statuename,
@@ -7248,7 +7249,7 @@ chest_trap(
     boolean disarm)
 {
     struct obj *otmp = obj, *otmp2;
-    char buf[80];
+    char buf[BUFSZ];
     const char *msg;
     coord cc;
 
@@ -7313,7 +7314,7 @@ chest_trap(
                        && *in_rooms(ox, oy, SHOPBASE) == *u.ushops);
 
             pline("%s!", Tobjnam(obj, "explode"));
-            Sprintf(buf, "exploding %s", xname(obj));
+            Snprintf(buf, sizeof buf, "exploding %s", xname(obj));
 
             if (costly)
                 loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful,

@@ -4581,13 +4581,11 @@ inaccessible_equipment(
                                   && !strcmp(shk_your(cloaktmp, uarmc),
                                              shk_your(suittmp, uarm)));
 
-            *buf = '\0';
-            if (uarmc)
-                Strcat(buf, yname(uarmc));
-            if (uarm && uarmc)
-                Strcat(buf, " and ");
-            if (uarm)
-                Strcat(buf, sameprefix ? xname(uarm) : yname(uarm));
+            /* two long object names can't both fit in buf[] */
+            Snprintf(buf, sizeof buf, "%s%s%s",
+                     uarmc ? yname(uarmc) : "",
+                     (uarm && uarmc) ? " and " : "",
+                     !uarm ? "" : sameprefix ? xname(uarm) : yname(uarm));
             You(need_to_take_off_outer_armor, buf, verb, yname(obj));
         }
         return TRUE;

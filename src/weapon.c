@@ -706,7 +706,7 @@ searmsg(
          * silver bell" shouldn't turn into "silver engraved silver
          * bell") */
         if (!alreadyin) {
-            Sprintf(onamebuf, "%s %s", matname, cxnameobj);
+            Snprintf(onamebuf, sizeof onamebuf, "%s %s", matname, cxnameobj);
         } else {
             Strcpy(onamebuf, cxnameobj);
         }

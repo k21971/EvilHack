@@ -2001,7 +2001,7 @@ container_contents(
                    reports the box as containing "1 item" */
                 cat = SchroedingersBox(box);
 
-                Sprintf(buf, "Contents of %s:", the(xname(box)));
+                Snprintf(buf, sizeof buf, "Contents of %s:", the(xname(box)));
                 putstr(tmpwin, ATR_SUBHEAD, buf);
                 if (!dumping)
                     putstr(tmpwin, 0, "");
@@ -2021,7 +2021,7 @@ container_contents(
                             if (Is_container(obj) || obj->otyp == STATUE)
                                 obj->cknown = obj->lknown = 1;
                         }
-                        Strcpy(&buf[2], doname_with_price(obj));
+                        copynchars(&buf[2], doname_with_price(obj), BUFSZ - 3);
                         putstr(tmpwin, 0, buf);
                     }
                     unsortloot(&sortedcobj);

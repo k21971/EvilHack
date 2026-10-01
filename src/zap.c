@@ -478,8 +478,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         } else if ((obj = which_armor(mtmp, W_SADDLE)) != 0) {
             char buf[BUFSZ];
 
-            Sprintf(buf, "%s %s", s_suffix(Monnam(mtmp)),
-                    distant_name(obj, xname));
+            Snprintf(buf, sizeof buf, "%s %s", s_suffix(Monnam(mtmp)),
+                     distant_name(obj, xname));
             if (cansee(mtmp->mx, mtmp->my)) {
                 if (!canspotmon(mtmp))
                     Strcpy(buf, An(distant_name(obj, xname)));
@@ -2986,7 +2986,8 @@ dozap(void)
 
         /* the effect may free obj; capture the killer name first, then
            track obj across the effect via current_wand */
-        Sprintf(buf, "zapped %sself with %s", uhim(), killer_xname(obj));
+        Snprintf(buf, sizeof buf, "zapped %sself with %s", uhim(),
+                 killer_xname(obj));
         gc.current_wand = obj;
         damage = zapyourself(obj, TRUE);
         obj = gc.current_wand; /* Null if the effect freed it */

@@ -939,7 +939,9 @@ kickstr(char *buf, const char *kickobjnam)
         what = "an iron bar";
     else
         what = "something weird";
-    return strcat(strcpy(buf, "kicking "), what);
+    /* buf is the caller's char [BUFSZ]; kickobjnam can fill one too */
+    Snprintf(buf, BUFSZ, "kicking %s", what);
+    return buf;
 }
 
 staticfn boolean

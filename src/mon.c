@@ -2262,7 +2262,8 @@ meatobj(struct monst *mtmp) /* for gelatinous cubes */
                the result won't be printed */
             otmpname = distant_name(otmp, doname);
             if (ecount == 1)
-                Sprintf(buf, "%s engulfs %s.", Monnam(mtmp), otmpname);
+                Snprintf(buf, sizeof buf, "%s engulfs %s.", Monnam(mtmp),
+                         otmpname);
             else if (ecount == 2)
                 Sprintf(buf, "%s engulfs several objects.", Monnam(mtmp));
             obj_extract_self(otmp);

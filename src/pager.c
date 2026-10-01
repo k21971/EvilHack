@@ -429,6 +429,7 @@ look_at_object(
     int glyph)
 {
     struct obj *otmp = 0;
+    const char *where = 0;
     boolean fakeobj = object_from_map(glyph, x, y, &otmp);
 
     if (otmp) {
@@ -445,22 +446,25 @@ look_at_object(
     }
 
     if (otmp && otmp->where == OBJ_BURIED)
-        Strcat(buf, " (buried)");
+        where = " (buried)";
     /* check TREE before STONE due to level.flags.arboreal */
     else if (IS_TREE(levl[x][y].typ))
         /* "dangling": "hanging" could imply that it's growing on this tree */
-        Snprintf(eos(buf), BUFSZ - strlen(buf), " %s in a tree",
-                 (otmp && is_treefruit(otmp)) ? "dangling" : "stuck");
+        where = (otmp && is_treefruit(otmp)) ? " dangling in a tree"
+                                             : " stuck in a tree";
     else if (levl[x][y].typ == STONE || levl[x][y].typ == SCORR)
-        Strcat(buf, " embedded in stone");
+        where = " embedded in stone";
     else if (IS_WALL(levl[x][y].typ) || levl[x][y].typ == SDOOR)
-        Strcat(buf, " embedded in a wall");
+        where = " embedded in a wall";
     else if (closed_door(x, y))
-        Strcat(buf, " embedded in a door");
+        where = " embedded in a door";
     else if (is_pool(x, y))
-        Strcat(buf, " in water");
+        where = " in water";
     else if (is_lava(x, y))
-        Strcat(buf, " in molten lava"); /* [can this ever happen?] */
+        where = " in molten lava"; /* [can this ever happen?] */
+    /* buf is BUFSZ and the object's name may already fill most of it */
+    if (where)
+        Snprintf(eos(buf), BUFSZ - strlen(buf), "%s", where);
     return;
 }
 
@@ -3840,8 +3844,16 @@ do_screen_description(
             if (look_buf[0] != '\0')
                 *firstmatch = look_buf;
             if (*(*firstmatch)) {
-                Sprintf(temp_buf, " (%s", *firstmatch);
+                /* an object's look_buf[] description can fill BUFSZ */
+                Snprintf(temp_buf, sizeof temp_buf, " (%s", *firstmatch);
                 (void) add_quoted_engraving(cc.x, cc.y, temp_buf, FALSE);
+                {
+                    /* leave room for ')' within what out_str can take */
+                    int room = BUFSZ - 2 - (int) strlen(out_str);
+
+                    if ((int) strlen(temp_buf) > room)
+                        temp_buf[max(room, 0)] = '\0';
+                }
                 Strcat(temp_buf, ")");
                 (void) strncat(out_str, temp_buf,
                                BUFSZ - strlen(out_str) - 1);
