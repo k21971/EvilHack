@@ -41,6 +41,7 @@ staticfn int QSORTCALLBACK spell_cmp(const genericptr, const genericptr);
 staticfn void sortspells(void);
 staticfn boolean spellsortmenu(void);
 staticfn boolean dospellmenu(const char *, int, int *);
+staticfn int staff_spell_school(int);
 staticfn int percent_success(int);
 staticfn char *spellretention(int, char *);
 staticfn int throwspell(void);
@@ -62,6 +63,7 @@ staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
  *      Bar abhor magic (Conan finds it "interferes with his animal instincts")
  *      Cav are ignorant to magic
  *      Hea are very aware of healing magic through medical research
+ *      Inf learned a lot of black magic from their cult
  *      Kni are moderately aware of healing from Paladin training
  *      Mon use magic to attack and defend in lieu of weapons and armor
  *      Pri are very aware of healing magic through theological research
@@ -79,9 +81,11 @@ staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
  *
  *  spelspec, spelsbon:
  *      Arc map masters (SPE_MAGIC_MAPPING)
- *      Bar fugue/berserker (SPE_HASTE_SELF)
- *      Cav born to dig (SPE_DIG)
+ *      Bar to see their enemies driven before them (SPE_CAUSE_FEAR)
+ *      Con to make a getaway (SPE_TELEPORT_AWAY)
+ *      Dru to call on the plants (SPE_ENTANGLE)
  *      Hea to heal (SPE_CURE_SICKNESS)
+ *      Inf to channel hellfire (SPE_FIREBALL)
  *      Kni to turn back evil (SPE_TURN_UNDEAD)
  *      Mon to preserve their abilities (SPE_RESTORE_ABILITY)
  *      Pri to bless (SPE_REMOVE_CURSE)
@@ -89,7 +93,7 @@ staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
  *      Rog to find loot (SPE_DETECT_TREASURE)
  *      Sam to be At One (SPE_CLAIRVOYANCE)
  *      Tou to smile (SPE_CHARM_MONSTER)
- *      Val control the cold (SPE_CONE_OF_COLD)
+ *      Val to maintain their armor (SPE_REPAIR_ARMOR)
  *      Wiz all really, but SPE_MAGIC_MISSILE is their party trick
  *
  *      See percent_success() below for more comments.
@@ -104,6 +108,8 @@ staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
 #define uarmhbon 4 /* Metal helmets interfere with the mind */
 #define uarmgbon 6 /* Casting channels through the hands */
 #define uarmfbon 2 /* All metal interferes to some degree */
+
+#define STAFF_BONUS 50 /* wielding the staff of the spell's school */
 
 /* since the spellbook itself doesn't blow up, don't say just "explodes" */
 static const char explodes[] = "radiates explosive energy";
@@ -182,7 +188,8 @@ cursed_book(struct obj *bp)
     return FALSE;
 }
 
-/* study while confused: returns TRUE if the book is destroyed */
+/* study while confused, or as a draugr (see learn()): returns TRUE if
+   the book is destroyed */
 staticfn boolean
 confused_book(struct obj *spellbook)
 {
@@ -190,8 +197,11 @@ confused_book(struct obj *spellbook)
 
     if (!rn2(3) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
         spellbook->in_use = TRUE; /* in case called from learn() */
-        pline(
+        if (Confusion)
+            pline(
          "Being confused you have difficulties in controlling your actions.");
+        else /* a draugr; the failure has nothing to do with confusion */
+            pline_The("runes are utterly meaningless to your undead mind.");
         display_nhwindow(WIN_MESSAGE, FALSE);
         You("accidentally tear the spellbook to pieces.");
         trycall(spellbook);
@@ -359,11 +369,23 @@ learn(void)
     boolean costly = TRUE, faded_to_blank = FALSE;
     struct obj *book = svc.context.spbook.book;
 
+    /* the book can be destroyed mid-study without interrupting the hero
+       (burned by a fire explosion, for one); book_disappears() has
+       cleared the pointer, so just stop */
+    if (!book) {
+        svc.context.spbook.delay = 0;
+        svc.context.spbook.o_id = 0;
+        return 0;
+    }
+
     /* JDS: lenses give 50% faster reading; 33% smaller read time */
     if (svc.context.spbook.delay && ublindf
         && ublindf->otyp == LENSES && rn2(2))
         svc.context.spbook.delay++;
-    if (Confusion) { /* became confused while learning */
+    /* confusion can set in while studying; and a draugr's undead mind
+       can't make sense of any book but the Book of the Dead */
+    if (Confusion
+        || (Race_if(PM_DRAUGR) && book->otyp != SPE_BOOK_OF_THE_DEAD)) {
         (void) confused_book(book);
         svc.context.spbook.book = 0; /* no longer studying */
         svc.context.spbook.o_id = 0;
@@ -408,7 +430,7 @@ learn(void)
                  spellknow(i) ? "keener" : "restored");
             incrnknow(i, 1);
             book->spestudied++;
-            exercise(A_WIS, TRUE); /* extra study */
+            exercise(A_INT, TRUE); /* extra study */
         }
     } else { /* (spellid(i) == NO_SPELL) */
         /* for a normal book, spestudied will be zero, but for
@@ -433,6 +455,7 @@ learn(void)
             else
                 You("add %s to your repertoire, as '%c'.",
                     splname, spellet(i));
+            exercise(A_INT, TRUE);
         }
     }
     if (i < MAXSPELL) {
@@ -447,7 +470,9 @@ learn(void)
             update_inventory();
     }
 
-    if (book->cursed) { /* maybe a demon cursed it */
+    /* maybe a demon cursed it; a book that just faded to blank paper
+       has no spell level for cursed_book() to roll against */
+    if (book->cursed && book->otyp != SPE_BLANK_PAPER) {
         if (cursed_book(book)) {
             useup(book);
             svc.context.spbook.book = 0;
@@ -1718,6 +1743,19 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     } else {
         u.uen -= energy;
     }
+
+    /* a successful cast refreshes the memory of the spell: with Int 7
+       or more it adds Int * 3 to Int * 13 - 1 turns, up to KEEN;
+       Cavepersons get no such help. A forced cast is skipped, since
+       then spell is an object type rather than a spl_book[] index */
+    if (!force && !Role_if(PM_CAVE_DWELLER) && ACURR(A_INT) > 6) {
+        int intel = ACURR(A_INT);
+
+        svs.spl_book[spell].sp_know += rn1(intel * 10, intel * 3);
+        if (svs.spl_book[spell].sp_know > KEEN)
+            svs.spl_book[spell].sp_know = KEEN;
+    }
+
     disp.botl = TRUE;
     exercise(A_WIS, TRUE);
     /* pseudo is a temporary "false" object containing the spell stats */
@@ -2592,6 +2630,55 @@ dospellmenu(
 
 RESTORE_WARNING_FORMAT_NONLITERAL
 
+/* the roles trained as spellcasters; every other role counts as a
+   non-caster for the body armor penalty in percent_success() */
+boolean
+primary_caster_role(void)
+{
+    return (Role_if(PM_HEALER) || Role_if(PM_CLERIC) || Role_if(PM_WIZARD)
+            || Role_if(PM_INFIDEL) || Role_if(PM_DRUID));
+}
+
+/* a Druid can neither cast nor use wildshape while wearing any metallic
+   armor; cloaks and shirts are checked too in case one is ever made of
+   metal */
+boolean
+druid_metal_blocked(void)
+{
+    return (Role_if(PM_DRUID)
+            && ((uarm && is_metallic(uarm)) || (uarmc && is_metallic(uarmc))
+                || (uarmh && is_metallic(uarmh))
+                || (uarms && is_metallic(uarms))
+                || (uarmg && is_metallic(uarmg))
+                || (uarmf && is_metallic(uarmf))
+                || (uarmu && is_metallic(uarmu))));
+}
+
+/* the spell school a wielded staff aids, P_NONE if none (an ashwood
+   staff aids every school; percent_success() tests that itself) */
+staticfn int
+staff_spell_school(int otyp)
+{
+    switch (otyp) {
+    case STAFF_OF_DIVINATION:
+        return P_DIVINATION_SPELL;
+    case STAFF_OF_HEALING:
+        return P_HEALING_SPELL;
+    case STAFF_OF_HOLINESS:
+        return P_CLERIC_SPELL;
+    case STAFF_OF_MATTER:
+        return P_MATTER_SPELL;
+    case STAFF_OF_ESCAPE:
+        return P_ESCAPE_SPELL;
+    case STAFF_OF_WAR:
+        return P_ATTACK_SPELL;
+    case STAFF_OF_EVOCATION:
+        return P_EVOCATION_SPELL;
+    default:
+        return P_NONE;
+    }
+}
+
 staticfn int
 percent_success(int spell)
 {
@@ -2601,7 +2688,9 @@ percent_success(int spell)
     int chance, splcaster, special, statused;
     int difficulty;
     int skill, skilltype = spell_skilltype(spellid(spell));
-    /* Knights don't get metal armor penalty for clerical spells */
+    int dex = ACURR(A_DEX), dex_adjust;
+    /* Knights skip the metal armor term for clerical spells (the body
+       armor penalty below still applies to them) */
     boolean paladin_bonus = (Role_if(PM_KNIGHT)
                              && skilltype == P_CLERIC_SPELL);
 
@@ -2610,6 +2699,22 @@ percent_success(int spell)
     splcaster = gu.urole.spelbase;
     special = gu.urole.spelheal;
     statused = ACURR(gu.urole.spelstat);
+
+    /* dexterity offsets the casting penalty, for better or worse */
+    if (dex <= 6)
+        dex_adjust = -10;
+    else if (dex <= 9)
+        dex_adjust = -5;
+    else if (dex <= 15)
+        dex_adjust = 0;
+    else if (dex <= 18)
+        dex_adjust = 5;
+    else if (dex <= 20)
+        dex_adjust = 10;
+    else if (dex <= 23)
+        dex_adjust = 15;
+    else
+        dex_adjust = 20;
 
     if (uarm && is_metallic(uarm) && !paladin_bonus)
         splcaster += (uarmc && uarmc->otyp == ROBE) ? gu.urole.spelarmr / 2
@@ -2621,13 +2726,12 @@ percent_success(int spell)
     if (uarms && !(uarms->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCLE))
         splcaster += gu.urole.spelshld;
 
-    if (uwep && uwep->otyp == QUARTERSTAFF)
-        splcaster -= 3; /* Small bonus */
-
     if (!paladin_bonus) {
         if (uarmh && is_metallic(uarmh)) /* && otyp != HELM_OF_BRILLIANCE */
             splcaster += uarmhbon;
-        if (uarmg && is_metallic(uarmg))
+        /* the Gauntlets of Purity don't hinder casting */
+        if (uarmg && is_metallic(uarmg)
+            && uarmg->oartifact != ART_GAUNTLETS_OF_PURITY)
             splcaster += uarmgbon;
         if (uarmf && is_metallic(uarmf))
             splcaster += uarmfbon;
@@ -2657,6 +2761,7 @@ percent_success(int spell)
 
     /* `healing spell' bonus */
     if (spellid(spell) == SPE_HEALING || spellid(spell) == SPE_EXTRA_HEALING
+        || spellid(spell) == SPE_CRITICAL_HEALING
         || spellid(spell) == SPE_CURE_BLINDNESS
         || spellid(spell) == SPE_CURE_SICKNESS
         || spellid(spell) == SPE_RESTORE_ABILITY
@@ -2708,9 +2813,11 @@ percent_success(int spell)
 
     /* Wearing anything but a light shield makes it very awkward
      * to cast a spell.  The penalty is not quite so bad for the
-     * player's role-specific spell.
+     * player's role-specific spell. A metallic shield hinders no
+     * matter how light it is, though bracers are exempt from that.
      */
-    if (uarms && weight(uarms) > (int) objects[SMALL_SHIELD].oc_weight) {
+    if (uarms && ((is_metallic(uarms) && !is_bracer(uarms))
+                  || weight(uarms) > (int) objects[SMALL_SHIELD].oc_weight)) {
         if (spellid(spell) == gu.urole.spelspec) {
             chance /= 2;
         } else {
@@ -2720,11 +2827,34 @@ percent_success(int spell)
 
     /* Finally, chance (based on player intell/wisdom and level) is
      * combined with ability (based on player intrinsics and
-     * encumbrances).  No matter how intelligent/wise and advanced
-     * a player is, intrinsics and encumbrance can prevent casting;
-     * and no matter how able, learning is always required.
+     * encumbrances), and dexterity adjusts the result. No matter
+     * how intelligent/wise and advanced a player is, intrinsics and
+     * encumbrance can prevent casting; and no matter how able,
+     * learning is always required.
      */
-    chance = chance * (20 - splcaster) / 15 - splcaster;
+    chance = chance * (20 - splcaster) / 15 - splcaster + dex_adjust;
+
+    /* wielding the staff of the spell's school is a big help, which
+       matters most to roles that don't cast well */
+    if (uwep && (uwep->otyp == ASHWOOD_STAFF
+                 || (skilltype != P_NONE
+                     && staff_spell_school(uwep->otyp) == skilltype)))
+        chance += STAFF_BONUS;
+
+    /* Body armor other than crystal plate mail hinders casting: a role
+     * that isn't a primary caster loses 10% per spell level, a primary
+     * caster 10% per spell level above 3. The terms above (Int or Wis,
+     * experience level, skill, a robe, dexterity, a school staff) can
+     * offset it.
+     */
+    if (uarm && uarm->otyp != CRYSTAL_PLATE_MAIL) {
+        int splev = spellev(spell);
+
+        if (!primary_caster_role())
+            chance -= splev * 10;
+        else if (splev > 3)
+            chance -= (splev - 3) * 10;
+    }
 
     /* Clamp to percentile */
     if (chance > 100)
@@ -2737,21 +2867,9 @@ percent_success(int spell)
     if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_ILLITHID))
         chance = 100;
 
-    /* Druids will always have 100% failure rate if wearing any sort
-       of metallic armor; checking all armor types here even though
-       some of these currently can never be made of metal (cloaks,
-       shirts) to futureproof any changes */
-    if (Role_if(PM_DRUID)) {
-        if ((uarm && is_metallic(uarm))
-            || (uarmc && is_metallic(uarmc))
-            || (uarmh && is_metallic(uarmh))
-            || (uarms && is_metallic(uarms))
-            || (uarmg && is_metallic(uarmg))
-            || (uarmf && is_metallic(uarmf))
-            || (uarmu && is_metallic(uarmu))) {
-            chance = 0;
-        }
-    }
+    /* Druids always fail while wearing any metallic armor */
+    if (druid_metal_blocked())
+        chance = 0;
 
     return chance;
 }

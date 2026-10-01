@@ -5662,13 +5662,7 @@ dodruidwildshape(void)
             You("lack the strength to use wildshape.");
         } else if (u.ulycn >= LOW_PM) {
             You_cant("use wildshape while infected with lycanthropy.");
-        } else if ((uarm && is_metallic(uarm))
-                   || (uarmc && is_metallic(uarmc))
-                   || (uarmh && is_metallic(uarmh))
-                   || (uarms && is_metallic(uarms))
-                   || (uarmg && is_metallic(uarmg))
-                   || (uarmf && is_metallic(uarmf))
-                   || (uarmu && is_metallic(uarmu))) {
+        } else if (druid_metal_blocked()) {
             You_cant("use wildshape while wearing metallic armor.");
         } else {
             druid_wildshape();

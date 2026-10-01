@@ -1985,21 +1985,40 @@ attributes_enlightenment(
     if (Half_gas_damage)
         enl_msg(You_, "take", "took", " reduced poison gas damage", "");
     if (spellid(0) > NO_SPELL) { /* skip if no spells are known yet */
-        /* greatly simplified edition of percent_success(spell.c)--may need
-           to be suppressed if oversimplification leads to player confusion */
+        /* greatly simplified edition of percent_success() in spell.c:
+           the body armor and robe terms and a Druid's metal ban only;
+           helmets, gloves, boots and shields are left out */
         char cast_adj[QBUFSZ];
-        boolean suit = uarm && is_metallic(uarm),
+        const char *subj = "Your spell casting ", *verb = "is",
+                   *verbed = "was";
+        boolean metal = uarm && is_metallic(uarm),
+                /* crystal plate mail is exempt from the suit penalty */
+                suit = uarm && uarm->otyp != CRYSTAL_PLATE_MAIL,
                 robe = uarmc && uarmc->otyp == ROBE;
 
         *cast_adj = '\0';
-        if (suit) /* omit "wearing" to shorten the text */
-            Sprintf(cast_adj, " impaired by metallic armor%s",
+        if (druid_metal_blocked()) {
+            Strcpy(cast_adj, " blocked by metallic armor");
+        } else if (suit) {
+            /* a Knight's clerical spells skip the metal term but not the
+               body armor one, so a Knight is told only of the latter;
+               omit "wearing" to shorten the text */
+            Sprintf(cast_adj, " impaired by %s armor%s",
+                    (metal && !Role_if(PM_KNIGHT)) ? "metallic" : "body",
                     robe ? ", mitigated by your robe" : "");
-        else if (robe)
+            /* non-metallic body armor hinders a primary caster only
+               above spell level 3 */
+            if (!metal && primary_caster_role()) {
+                subj = "Your spells above level 3 ";
+                verb = "are";
+                verbed = "were";
+            }
+        } else if (robe) {
             Strcpy(cast_adj, " enhanced by wearing a robe");
+        }
 
         if (*cast_adj)
-            enl_msg("Your spell casting ", "is", "was", cast_adj, "");
+            enl_msg(subj, verb, verbed, cast_adj, "");
     }
     /* polymorph and other shape change */
     if (Protection_from_shape_changers)

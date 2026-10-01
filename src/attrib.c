@@ -612,11 +612,12 @@ void
 exercise(int i, boolean inc_or_dec)
 {
     debugpline0("Exercise:");
-    if (i == A_INT || i == A_CHA)
-        return; /* can't exercise these */
+    if (i == A_CHA)
+        return; /* can't exercise charisma */
 
-    /* no physical exercise while polymorphed; the body's temporary */
-    if (Upolyd && i != A_WIS)
+    /* no physical exercise while polymorphed; the body's temporary,
+       but the mind isn't */
+    if (Upolyd && !(i == A_WIS || i == A_INT))
         return;
 
     if (abs(AEXE(i)) < AVAL) {
@@ -631,9 +632,11 @@ exercise(int i, boolean inc_or_dec)
          */
         AEXE(i) += (inc_or_dec) ? (rn2(19) > ACURR(i)) : -rn2(2);
         debugpline3("%s, %s AEXE = %d",
-                    (i == A_STR) ? "Str" : (i == A_WIS) ? "Wis" : (i == A_DEX)
-                                                                      ? "Dex"
-                                                                      : "Con",
+                    (i == A_STR) ? "Str"
+                    : (i == A_INT) ? "Int"
+                      : (i == A_WIS) ? "Wis"
+                        : (i == A_DEX) ? "Dex"
+                          : "Con",
                     (inc_or_dec) ? "inc" : "dec", AEXE(i));
     }
     if (svm.moves > 0 && (i == A_STR || i == A_CON))
@@ -730,7 +733,7 @@ exerper(void)
    phrased as "You must have been [][0]." or "You haven't been [][1]." */
 static NEARDATA const char *const exertext[A_MAX][2] = {
     { "exercising diligently", "exercising properly" },           /* Str */
-    { 0, 0 },                                                     /* Int */
+    { "studying hard", "focusing properly" },                     /* Int */
     { "very observant", "paying attention" },                     /* Wis */
     { "working on your reflexes", "working on reflexes lately" }, /* Dex */
     { "leading a healthy life-style", "watching your health" },   /* Con */
@@ -762,7 +765,7 @@ exerchk(void)
         for (i = 0; i < A_MAX; ++i) {
             ax = AEXE(i);
             /* nothing to do here if no exercise or abuse has occurred
-               (Int and Cha always fall into this category) */
+               (Cha always falls into this category) */
             if (!ax)
                 continue; /* ok to skip nextattrib */
 
@@ -782,7 +785,7 @@ exerchk(void)
 
             debugpline2("exerchk: testing %s (%d).",
                         (i == A_STR) ? "Str"
-                        : (i == A_INT) ? "Int?"
+                        : (i == A_INT) ? "Int"
                           : (i == A_WIS) ? "Wis"
                             : (i == A_DEX) ? "Dex"
                               : (i == A_CON) ? "Con"

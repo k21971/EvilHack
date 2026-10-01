@@ -3364,6 +3364,8 @@ extern void cast_stoneskin(struct monst *, int);
 extern void cast_entangle(struct monst *, int);
 extern int cast_metal_to_wood(struct obj *, boolean) NO_NNARGS;
 extern int spelleffects(int, boolean, boolean);
+extern boolean primary_caster_role(void);
+extern boolean druid_metal_blocked(void);
 extern const char *spelltypemnemonic(int);
 extern int tport_spell(int);
 extern void losespells(void);
