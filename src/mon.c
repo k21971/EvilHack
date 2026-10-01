@@ -3428,24 +3428,16 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
                || In_W_tower(mdef->mx, mdef->my, &u.uz)))
             return 0L;
     }
-    /* liches/zombies vs things that can be zombified
 
-       Note: avoid this on the Castle level, partly for balance reasons
-       (the monster-versus-monster fights clear out significant portions of
-       the Castle and make it easier than it should be), partly for flavor
-       reasons (monsters who attacked other monsters to zombify them would
-       have been counterattacked to death long before the hero arrived).
-
-       Also don't include unique monsters in this, otherwise it leads to
-       them waking up early (e.g. because a zombie decided to attack the
-       Wizard of Yendor). */
-    if (zombie_maker(magr) && zombie_form(mdef->data) != NON_PM) {
-        if (magr->mgenmklev && mdef->mgenmklev)
-            return 0L;
-        if (!Is_stronghold(&u.uz)
-            && !unique_corpstat(magr->data) && !unique_corpstat(mdef->data))
-            return (ALLOW_M | ALLOW_TM);
-    }
+    /* Since the quest guardians are under siege, it makes sense to have
+       them fight hostiles (but we don't want the quest leader to be in
+       danger).
+       NOTE: But don't let still-peaceful guardians fight hostile
+       guardians if the hero manages to annoy one of them */
+    if (magr->data->msound == MS_GUARDIAN && !mdef->mpeaceful
+        && !(mdef->data->msound == MS_GUARDIAN
+             || mdef->data->msound == MS_LEADER))
+        return ALLOW_M | ALLOW_TM;
 
     /* elvenkind vs orcs */
     if ((racial_elf(magr) || racial_drow(magr)) && racial_orc(mdef)
@@ -3463,9 +3455,28 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
         && is_demon(mdef->data))
         return ALLOW_M | ALLOW_TM;
 
+    /* lawful and chaotic unicorns don't play nice with each other;
+       neutral unicorns just don't care */
+    if (magr->data == &mons[PM_WHITE_UNICORN]
+        && mdef->data == &mons[PM_BLACK_UNICORN])
+        return ALLOW_M | ALLOW_TM;
+
     /* Nazgul vs hobbits */
     if (magr->data == &mons[PM_NAZGUL]
         && racial_hobbit(mdef) && !is_undead(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* bees and honey badgers don't play nice */
+    if (magr->data == &mons[PM_HONEY_BADGER]
+        && (mdef->data == &mons[PM_KILLER_BEE]
+            || mdef->data == &mons[PM_QUEEN_BEE]))
+        return ALLOW_M | ALLOW_TM;
+
+    /* Shambling horrors are nasty. They hate you
+       and all of your friends. Your friends realize
+       this, and they hate shambling horrors too */
+    if (magr->data == &mons[PM_SHAMBLING_HORROR]
+        && mdef->mtame)
         return ALLOW_M | ALLOW_TM;
 
     /* ki-rin vs eldritch ki-rin */
@@ -3473,10 +3484,20 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
         && mdef->data == &mons[PM_ELDRITCH_KI_RIN])
         return ALLOW_M | ALLOW_TM;
 
+    /* Neothelids are an abomination
+       to mind flayers */
+    if (is_mind_flayer(magr->data)
+        && mdef->data == &mons[PM_NEOTHELID])
+        return ALLOW_M | ALLOW_TM;
+
     /* In Purgatory, lost souls will fight living
        players for a chance at redemption */
     if (In_purgatory(&u.uz)
         && is_mplayer(magr->data) && mdef->data == &mons[PM_SPECTRE])
+        return ALLOW_M | ALLOW_TM;
+
+    /* Ents despise blights */
+    if (is_true_ent(magr->data) && is_blight(mdef->data))
         return ALLOW_M | ALLOW_TM;
 
     /* covetous monsters will attack whoever has the amulet;
@@ -3486,6 +3507,27 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
              && sgn(magr->data->maligntyp) != sgn(mdef->data->maligntyp)))
         && mon_has_amulet(mdef))
         return ALLOW_M | ALLOW_TM;
+
+    /* liches/zombies vs things that can be zombified; this arm stays
+       last because its level-creation truce must not hide the arms
+       above it
+
+       Note: avoid this on the Castle level, partly for balance reasons
+       (the monster-versus-monster fights clear out significant portions of
+       the Castle and make it easier than it should be), partly for flavor
+       reasons (monsters who attacked other monsters to zombify them would
+       have been counterattacked to death long before the hero arrived).
+
+       Also don't include unique monsters in this, otherwise it leads to
+       them waking up early (e.g. because a zombie decided to attack the
+       Wizard of Yendor) */
+    if (zombie_maker(magr) && zombie_form(mdef->data) != NON_PM) {
+        if (magr->mgenmklev && mdef->mgenmklev)
+            return 0L;
+        if (!Is_stronghold(&u.uz)
+            && !unique_corpstat(magr->data) && !unique_corpstat(mdef->data))
+            return (ALLOW_M | ALLOW_TM);
+    }
 
     return 0L;
 }
@@ -3506,52 +3548,62 @@ mm_aggression(
     if (magr->mtame && mdef->mtame)
         return 0L;
 
+    /* racial shopkeepers would sometimes attack peaceful pets
+       unprovoked; a shopkeeper still defends itself if a pet attacks */
+    if (magr->data->msound == MS_SELL && mdef->mtame)
+        return 0L;
+
+    /* soldiers of different races shouldn't fight each other either;
+       they're all on the same team */
+    if (magr->data->msound == MS_SOLDIER
+        && mdef->data->msound == MS_SOLDIER)
+        return 0L;
+
+    /* priests who follow the same god are willing to set aside their
+       petty racial differences in that god's name */
+    if (magr->data->msound == MS_PRIEST && mdef->data->msound == MS_PRIEST
+        && mon_aligntyp(magr) == mon_aligntyp(mdef))
+        return 0L;
+
+    /* minetown watch and resident shopkeepers/priests have an uneasy
+       truce due to their shared goal of keeping the town running */
+    if (((magr->data->msound == MS_SELL || magr->data->msound == MS_PRIEST)
+         && is_watch(mdef->data))
+        || ((mdef->data->msound == MS_SELL
+             || mdef->data->msound == MS_PRIEST)
+            && is_watch(magr->data)))
+        return 0L;
+
     /* supposedly purple worms are attracted to shrieking because they
        like to eat shriekers, so attack the latter when feasible */
     if ((mndx == PM_PURPLE_WORM || mndx == PM_BABY_PURPLE_WORM)
         && mdef->data == &mons[PM_SHRIEKER])
         return ALLOW_M | ALLOW_TM;
 
-    /* mini-me recently had a bad encounter with a yellowjacket;
-       she now hates all things that can sting */
-    if ((magr->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-         || magr->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
-        && can_sting(mdef->data))
+    /* Grudge patch: put one-way aggressions below here, and two-way
+       aggressions in mm_2way_aggression() */
+
+    /* woodchucks vs the Oracle */
+    if (mndx == PM_WOODCHUCK && mdef->data == &mons[PM_ORACLE])
         return ALLOW_M | ALLOW_TM;
 
-    /* Gollum hates the piranhas, bats, and orcs of his cave */
-    if (magr->data == &mons[PM_GOLLUM]
-        && (mdef->data == &mons[PM_PIRANHA]
-            || is_bat(mdef->data) || mdef->data->mlet == S_ORC))
+    /* ravens like eyes */
+    if (mndx == PM_RAVEN && mdef->data == &mons[PM_FLOATING_EYE])
         return ALLOW_M | ALLOW_TM;
 
-    /* pets will attack Lucifer, regardless of their level */
-    if (magr->mtame && mdef->data == &mons[PM_LUCIFER])
+    /* insect-eating bugs vs insects */
+    if (magr->data->mlet == S_SPIDER
+        && (mdef->data->mlet == S_ANT || mdef->data->mlet == S_XAN))
         return ALLOW_M | ALLOW_TM;
 
-    /* Shambling horrors are nasty. They hate you
-       and all of your friends. Your friends realize
-       this, and they hate shambling horrors too */
-    if (magr->data == &mons[PM_SHAMBLING_HORROR]
-        && mdef->mtame)
+    /* bats vs flying insects */
+    if (is_bat(magr->data)
+        && (mdef->data->mlet == S_ANT || mdef->data->mlet == S_XAN)
+        && (mdef->data->mflags1 & M1_FLY))
         return ALLOW_M | ALLOW_TM;
 
-    /* Neothelids are an abomination
-       to mind flayers */
-    if (is_mind_flayer(magr->data)
-        && mdef->data == &mons[PM_NEOTHELID])
-        return ALLOW_M | ALLOW_TM;
-
-    /* neothelids need brains to survive and
-       will attack anything not mindless */
-    if (magr->data == &mons[PM_NEOTHELID]
-        && !mindless(mdef->data))
-        return ALLOW_M | ALLOW_TM;
-
-    /* mind flayer larvae need live humanoids as hosts
-       so they can mature into adult flayers */
-    if (magr->data == &mons[PM_MIND_FLAYER_LARVA]
-        && can_become_flayer(mdef->data))
+    /* cats vs rats */
+    if (magr->data->mlet == S_FELINE && is_rat(mdef->data))
         return ALLOW_M | ALLOW_TM;
 
     /* pseudodragons *really* like to hunt for rodents */
@@ -3564,9 +3616,42 @@ mm_aggression(
         && !rn2(3) && m_canseeu(magr))
         return ALLOW_M | ALLOW_TM;
 
-    /* Various other combinations such as dog vs cat, cat vs rat, and
-       elf vs orc have been suggested.  For the time being we don't
-       support those. */
+    /* the Riders, and huge/gigantic monsters,
+       will step on the bugs to get to you */
+    if ((is_rider(magr->data) || magr->data->msize >= MZ_HUGE)
+        && m_canseeu(magr) && !magr->mpeaceful
+        && distu(magr->mx, magr->my) <= 5
+        && mdef->data->msize == MZ_TINY)
+        return ALLOW_M | ALLOW_TM;
+
+    /* mind flayer larvae need live humanoids as hosts
+       so they can mature into adult flayers */
+    if (mndx == PM_MIND_FLAYER_LARVA && can_become_flayer(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* neothelids need brains to survive and
+       will attack anything not mindless */
+    if (mndx == PM_NEOTHELID && !mindless(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* mini-me recently had a bad encounter with a yellowjacket;
+       she now hates all things that can sting */
+    if ((mndx == PM_KATHRYN_THE_ICE_QUEEN
+         || mndx == PM_KATHRYN_THE_ENCHANTRESS)
+        && can_sting(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* Gollum hates the piranhas, bats, and orcs of his cave */
+    if (mndx == PM_GOLLUM
+        && (mdef->data == &mons[PM_PIRANHA]
+            || is_bat(mdef->data) || mdef->data->mlet == S_ORC))
+        return ALLOW_M | ALLOW_TM;
+
+    /* pets will attack Lucifer, regardless of their level */
+    if (magr->mtame && mdef->data == &mons[PM_LUCIFER])
+        return ALLOW_M | ALLOW_TM;
+
+    /* now test all two-way aggressions both ways */
     return (mm_2way_aggression(magr, mdef) | mm_2way_aggression(mdef, magr));
 }
 
