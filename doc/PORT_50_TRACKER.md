@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-01, after session 168's
-  rulings): 281 rows closed, 87 open. Of the open rows:
+  rulings): 282 rows closed, 87 open. Of the open rows:
   - 9 MED: 8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
@@ -40,9 +40,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     The hero-catches-thrown-items row (keep 5.0's catch for a Monk
     or Samurai at Skilled+ martial arts with both hands empty), the
     rider farlook-text row and the WISH_TRACKER row (port it) were
-    ruled 2026-10-01 and are plannable; the wish-invlet row (seen
-    a third and fourth time in session 165) and the curses term_gone
-    row need a reproduction. Session 157 minted three: the
+    ruled 2026-10-01 and are plannable. So were seven rows with
+    "decide" clauses, the same day: the Sword of Kas / needle
+    poison block (port master's), the ranged death-reason race
+    (add it), exerchk() Int while polymorphed (fix it), the new
+    uasmon_maxStr() EvilHack-races row (add them), item-goal
+    pathing (build it) and the ^X form wording (5.0's everywhere);
+    the passive AD_COLD row closed as kept 5.0. The wish-invlet
+    row (seen a third and fourth time in session 165) and the curses
+    term_gone row need a reproduction. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
     break_armor()'s cached form, and cloak_simple_name()'s
     dragon-scales name. Session 158 minted the hero hug's doubled
@@ -9174,6 +9180,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       misc-object case. Decide whether master's double-dip
       (artifact DRST plus the hero poison block) is intended
       before porting.
+      RULED 2026-10-01 (session 168 second follow-up, decisions
+      log): PORT MASTER'S DOUBLE DOSE, as recommended. Master's
+      hmon_hitmon() block runs for `ispoisoned || iskas || isvenom
+      || isneedle`:
+      - Samurai: "You dishonorably use a poisoned weapon!" with
+        adjalign(-sgn(u.ualign.type)) and an ABUSE_USE_POISON
+        record.
+      - Lawful hero with record > -10: "evil coward", -1 (Knight -3).
+      - Against a non-resistant target: rn2(10) gives +rnd(6), else
+        poiskilled. A resistant target sets needpoismsg.
+      - The wear-off roll skips Kas and the needle.
+      This comes on top of the Sword of Kas's DRST artifact attack.
+      Plannable.
 - [ ] LOW investigation: weaponless AT_WEAP-only monster never
       attacked (battery observation 2026-08-23, unadjudicated, NOT
       this slice's doing - weapon selection untouched). A hostile,
@@ -13880,7 +13899,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ~/nh50-mimic-generic-object-glyph.patch (display.c + detect.c +
       bones.c; apply --check clean vs Official_nh50 f41f1aa09 and
       NetHack50 a0b9e59d8), not yet sent.
-- [ ] LOW observation (2026-09-09, attack-handler slice): the passive
+- [x] Passive AD_COLD arms - KEPT 5.0'S (ruled 2026-10-01, session
+      168 second follow-up, decisions log, over my recommended
+      master's restriction; no code change). Original text:
+      LOW observation (2026-09-09, attack-handler slice): the passive
       AD_COLD arms keep vanilla 5.0's shape - passiveum heals u.mh by
       (tmp + rn2(2))/2 and splits any form over the level cap,
       passivemm heals every cold-passive defender; master gates the
@@ -14144,6 +14166,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       x_monnam(ARTICLE_A, EXACT_NAME | SUPPRESS_NAME | SUPPRESS_RIDER)
       or add racial_adj(); decide when the ranged reasons are next
       touched. LOW.
+      RULED 2026-10-01 (session 168 second follow-up, decisions log):
+      ADD THE RACE, as recommended - "killed by a centaurian
+      soldier's thrown dagger" / "a bolt of fire zapped by a drow
+      priestess", matching the melee reason. Plannable (pick between
+      x_monnam() and racial_adj() at plan time; keep the given name
+      suppressed as the row describes).
 - [ ] LOW observation (2026-09-18, done_in_by parity battery): a
       zombie's poison instadeath skips the graverise arms - the human
       zombie's poisoned sting ("The poison was deadly...") killed the
@@ -18112,6 +18140,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero returns to normal form. Decide whether exerchk() should
       test `!(i == A_WIS || i == A_INT)` to match exercise(). LOW
       (attribute growth, polymorph play).
+      RULED 2026-10-01 (session 168 second follow-up, decisions log):
+      FIX IT, as recommended - exerchk() skips only attributes other
+      than Wis and Int while Upolyd, matching exercise(). A deliberate
+      divergence from master's literal code, in line with master
+      3b8ba5835's intent. Plannable.
 - [ ] SWEEP: race-predicate site census (minted 2026-09-19, session
       130, from session 129's census idea - same_race() and genus()
       were two instances of one class). RAW candidate list, method and
@@ -18135,7 +18168,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mint a row per confirmed gap. One 5.0-NATIVE chain also found:
       polyself.c uasmon_maxStr() maps only orc / elf / dwarf / gnome
       forms to their race's STR cap - decide whether EvilHack races
-      join it.
+      join it. RULED 2026-10-01 (session 168 second follow-up): YES,
+      split out as its own LOW row (the uasmon_maxStr() row right
+      below this one).
       RIDER (2026-09-20, session 133 reviewer; IDENTICAL ON MASTER, so
       not a port gap): mbodypart() tests `is_centaur(mptr)` against the
       hero's data, which for an unpolymorphed Centaur-race hero is the
@@ -18143,6 +18178,32 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       trees - the same family as the race tests made against
       youmonst.data. Note it when the sweep reaches polyself.c.
       LOW-MED.
+- [ ] LOW: uasmon_maxStr() gives EvilHack race families no race Str
+      cap (minted 2026-10-01, session 168 second follow-up, split out
+      of the race-predicate SWEEP above; RULED the same day, decisions
+      log: ADD EVILHACK RACES, as recommended). 5.0's
+      uasmon_maxStr() (polyself.c) maps is_orc / is_elf / is_dwarf /
+      is_gnome forms to PM_ORC / PM_ELF / PM_DWARF / PM_GNOME, so
+      character_race() finds the hero race and its attrmax[A_STR].
+      Any other form gets a race cap only when it IS a race's base
+      monster. Otherwise strongmonst() forms get STR19(19) for a
+      living is_giant(), else STR18(100), and the rest get 18. There
+      is no master shape (master has no such mapping). Candidate
+      families, from races[] in role.c and their mhflags predicates:
+      is_giant -> PM_GIANT, is_hobbit -> PM_HOBBIT, is_centaur ->
+      PM_CENTAUR, is_drow -> PM_DROW, is_tortle -> PM_TORTLE,
+      is_illithid -> PM_ILLITHID, is_aasimar -> PM_AASIMAR, plus the
+      broad families is_vampire -> PM_VAMPIRE and is_demon ->
+      PM_DEMON. Decide at plan time:
+      - whether is_giant forms take the giant race's cap or keep 5.0's
+        live_H STR19(19) (check the giant race's attrmax);
+      - whether the broad vampire and demon families (vampire lords,
+        demon lords and princes) should map at all, or only their
+        base forms;
+      - draugr (a zombie-family race) like the zombie forms 5.0
+        already throttles.
+      Include a ^X / attribute check in the battery. LOW (polymorph
+      Str caps).
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -19413,6 +19474,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master-shared. Minted 2026-09-25, session 144. Decide:
       intended (approach wins), or build a goal-rooted map for item
       goals. LOW.
+      RULED 2026-10-01 (session 168 second follow-up, decisions log):
+      BUILD GOAL-ROOTED PATHING, over my recommendation to close it
+      as intended. When m_search_items() picks an item goal, the
+      monster should path to ggx/ggy rather than follow the
+      hero-rooted gp.pathfind_dist map. This is a real AI change that
+      diverges from master: give it its own slice, a plan that maps
+      every use_pathfinding consumer, and a battery (the S3 lizard
+      corpse two squares off-path, PRE vs POST). Plannable.
 - [x] MED: a monster HOLDING the hero can leave the level with u.ustuck
       still set - CLOSED 2026-09-25 (session 144, commit `Monsters
       holding the hero let go when they leave the level.` =
@@ -20021,6 +20090,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       fast underwater) already use master's words, so one ^X screen
       mixes both. Decide: restore
       master's wording or keep 5.0's. LOW.
+      RULED 2026-10-01 (session 168 second follow-up, decisions log):
+      KEEP 5.0'S WORDING, over my recommendation of master's - and
+      switch insight.c's two literal " from current creature form"
+      suffixes (breathe water for an amphibious form, fast underwater)
+      to " from your creature form", so the whole ^X screen reads
+      5.0's way. Plannable (text only).
 - [ ] SWEEP: is_bracer() census (minted 2026-09-23, session 135, from
       the set_uasmon() slice's bracers-as-shield sibling sweep, which
       fixed the two-weapon / two-hander class only: zap.c poly_obj(),
@@ -22604,6 +22679,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-01 | Deferred "decide" clause rulings (session 168 second follow-up; AskUserQuestion x2, seven questions). (1) SWORD OF KAS / BARBED NEEDLE: PORT MASTER'S DOUBLE DOSE, as recommended (the hero poisoned-weapon block - Samurai / lawful alignment hit, +rnd(6) or 1-in-10 poiskilled, no wear-off - on top of Kas's DRST artifact attack). (2) PASSIVE AD_COLD ABSORPTION: KEEP 5.0'S, over the recommended master's restriction (every cold-passive defender heals; a hero in any cold-passive form can split); row closed, no code change. (3) RANGED / SPELL DEATH REASONS: ADD THE RACE, as recommended ("a centaurian soldier's thrown dagger"). (4) exerchk() INT WHILE POLYMORPHED: FIX IT, as recommended (Int lands like Wis; diverges from master's literal code, follows 3b8ba5835's intent). (5) uasmon_maxStr(): ADD EVILHACK RACES, as recommended (no master shape; new LOW row with plan-time questions on giants, the broad vampire / demon families and draugr). (6) ITEM-GOAL PATHFINDING: BUILD GOAL-ROOTED PATHING, over the recommended close-as-intended (diverges from master; own slice and battery). (7) ^X FORM WORDING: KEEP 5.0'S " from your creature form", over the recommended master's wording, and switch insight.c's two master-worded suffixes to it. | maintainer |
 | 2026-10-01 | Pending-row rulings (session 168 follow-up; AskUserQuestion x2, seven questions). (1) ARCHEOLOGIST / VALKYRIE INTRINSIC SCHEDULES: KEEP 5.0'S (over the recommended master's schedule) - Archeologist searching at XL1, stealth at XL5, speed at XL10; Valkyrie stealth at XL3. Upstream 075c2832a touches only attrib.c and its Guidebook text matches ours, so the row closes with no code change. (2) HERO CATCHES THROWN ITEMS: KEEP 5.0'S u_catch_thrown_obj() BUT ONLY FOR A MARTIAL ARTIST - the maintainer's own shape, refined by a follow-up question: a Monk or Samurai (martial_bonus()) whose P_MARTIAL_ARTS skill is Skilled or better (recommended), with both hands empty: no wielded weapon, not two-weaponing, no shield (recommended); odds stay 5.0's (Monk 1 in (80 - Dex), Samurai 1 in (100 - Dex); recommended) and 5.0's other gates stay. Rogues lose the catch. (3) WISH_TRACKER: PORT IT, as recommended (master's trackwish() and the wishtracker file for DGAMELAUNCH builds, alongside 5.0's wish livelog). (4) RIDER FARLOOK / PROBING TEXT: ", riding a saddled <steed>, which is holding you" / "..., which you are holding", as recommended. | maintainer |
 | 2026-10-01 | Name-region widening slice rulings (session 167; AskUserQuestion x2, five questions). (1) SCOPE: master's READABLE STRIPED SHIRT (00367be12) and master's nine EvilHack T-SHIRT SLOGANS are folded into the BUG-1315 widening slice (recommended) - master's widening also discloses the striped shirt's text, which the branch could not produce. (2) 5.0's CANDY BAR wrapper arm in the game-end disclosure is KEPT (asked neutrally: a pure upstream flavor addition with no competing master behavior). (3) master's `!distantname` guard on the game-end text is RESTORED (recommended); the question's premise (HTML-dump tooltips showed slogans) was wrong - distant_name() already zeroes o_id at game end - and a follow-up kept the guard anyway as master's shape (recommended). (4) the battery was run (recommended). | maintainer |
 | 2026-10-01 | Grudge-table slice rulings (session 166; AskUserQuestion x2, one question each). (1) 5.0's BABY PURPLE WORM TERM in the purple worm vs shrieker arm is KEPT (over the recommended master's shape): a baby purple worm also goes after shriekers. (2) THE HYBRID ZOMBIE_MAKER ARM MOVES LAST in mm_2way_aggression() (recommended): upstream 5.0 had it last, and the branch's piecemeal ports had put EvilHack arms below it, so its both-mgenmklev `return 0L` hid the covetous arm (a level-created master lich / arch-lich beside the Sanctum's Amulet-carrying high priest). Implementation choices: master's one-way order throughout (the berserk rn2(3) in master's place); the shambling horror and mind flayer vs neothelid arms moved into mm_2way_aggression() as on master; 5.0's Wizard's tower isolation kept first; the ^G "racial" prefix minted as a LOW row, not folded. | maintainer (1-2); session, plan-approved (rest) |
