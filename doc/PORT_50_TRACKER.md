@@ -17,11 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-01, after session 165): 277 rows
+- Phase 2 status (refreshed 2026-10-01, after session 166): 278 rows
   closed, 90 open. Of the open rows:
-  - 13 MED: 3 master behaviors the 5.0 base lacks or reshaped
-    (mm_aggression() grudge residue - NEXT, obufs[] widening, the
-    Archeologist / Valkyrie intrinsic schedules - needs a ruling),
+  - 12 MED: 2 master behaviors the 5.0 base lacks or reshaped
+    (obufs[] widening - NEXT, the Archeologist / Valkyrie intrinsic
+    schedules - needs a ruling),
     8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
@@ -41,7 +41,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 60 LOW: small parity rows, quirks and watch/record-only items.
+  - 61 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row, the rider farlook-text row
     and the WISH_TRACKER row need rulings; the wish-invlet row (seen
     a third and fourth time in session 165) and the curses term_gone
@@ -52,36 +52,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     "is being crushed." row; session 162 the egg-learning row;
     session 164 the losexp() level-1 row and the crowning-spellbook
     row; session 165 the #wizcast skill row and the polymorphed Int
-    exercise row.
-- Latest slice: 2026-10-01 (session 165) SPELLCASTING AS ON MASTER:
+    exercise row; session 166 the ^G "racial" prefix row.
+- Latest slice: 2026-10-01 (session 166) THE GRUDGE TABLE AS ON
+  MASTER: TRUCES, GRUDGES, ARM ORDER (code and tracker commits
+  pending; BUG-2065..2069).
+  - Racial soldiers and watchmen no longer fight each other, nor
+    shopkeepers / priests and the watch, nor priests of one god, and
+    a shopkeeper no longer attacks a pet unprovoked.
+  - Master's grudges fire: woodchuck / Oracle, raven / floating eye,
+    spiders and bats vs ants, cats vs rats, huge monsters trample
+    tiny ones near the hero, quest guardians vs hostiles, white vs
+    black unicorns, honey badgers vs bees, ents vs blights.
+  - Pets hate shambling horrors again (the arm was one-way); the
+    zombie arm runs last, so a covetous lich goes after the
+    Amulet's carrier.
+  - Rulings: keep 5.0's baby purple worm term; move the zombie arm
+    last.
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-01 (session 165) SPELLCASTING AS ON MASTER:
   ARMOR, DEXTERITY AND STAFF TERMS, SPELL MEMORY, INT EXERCISE,
-  DRAUGR BOOKS (code and tracker commits pending; BUG-2058..2064).
-  - percent_success() takes master's full shape: a body-armor penalty
-    for every suit but crystal plate mail (non-casters 10% per spell
-    level, primary casters 10% per level above 3), the Dex ladder,
-    metal shields, the Gauntlets of Purity exemption, the critical
-    healing bonus and +50 for the school's staff; 5.0's plain
-    quarterstaff bonus is gone.
-  - Each successful cast refreshes the spell's memory (Int 7+, not
-    Cavepersons); learning or refreshing a spell exercises Int.
-  - A draugr can't learn from any book but the Book of the Dead;
-    learn() survives a destroyed book and a cursed book faded to
-    blank paper.
-  - ^X tells of body armor, metallic armor, a robe and a Druid's
-    metal ban in master's terms.
-  - Rulings: one slice; drop the quarterstaff bonus; rewrite the ^X
-    line ("above level 3" wording).
+  DRAUGR BOOKS (code 5f0fcc31a, tracker 8b00a1be2; BUG-2058..2064).
+  - percent_success() takes master's full shape; each successful
+    cast refreshes the spell's memory; learning a spell exercises
+    Int; a draugr can't learn from books; ^X in master's terms.
   - Detail: the two closed rows' closure notes.
-- Previous slice: 2026-09-30 (session 164) CAVEPERSONS AS ON MASTER:
+- Earlier slice: 2026-09-30 (session 164) CAVEPERSONS AS ON MASTER:
   ILLITERATE HIT POINTS, NO EDGED SKILLS, NO SAFE BOOKS (code
   10407462b, tracker 0d838c105; BUG-2055..2057).
-  - Illiterate Cave-dwellers gain extra hit points; no edged or
-    ranged skill can be opened for a Cave-dweller or a Cleric; a
-    blessed book can fail a Cave-dweller.
-  - Detail: the closed row's closure notes.
-- Earlier slice: 2026-09-30 (session 163) AMNESIA AS ON MASTER:
-  BLESSED SKILL RESET, ILLITHID WARD, TRAPS FORGOTTEN, MIND FLAYER
-  ODDS (code 2e994ba6e, tracker 1f95d6ab3; BUG-2050..2054).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -17071,8 +17068,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       54 candidates inside dist2 < 19 over 4 cries, 11 msleeping
       writes (20% against a nominal 1 in 3 - small sample; the
       condition is master's verbatim).
-- [ ] MED: mm_aggression() / mm_2way_aggression() grudge-table residue
-      (minted 2026-09-19, session 130; verified on both bodies). The
+- [x] MED: mm_aggression() / mm_2way_aggression() grudge-table residue
+      - PORTED 2026-10-01 (session 166, code and tracker commits
+      pending, BUG-2065 through 2069; closure notes at the end of
+      this row). Original text: (minted 2026-09-19, session 130;
+      verified on both bodies). The
       2026-08 "mm_aggression is being ported PIECEMEAL per subsystem"
       note never had a row, and these arms have no subsystem slice
       left to ride. Master-only, mm_aggression(): MS_SELL attacker
@@ -17092,6 +17092,81 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "zombies vs all living" arm was RULED (hybrid zombie_maker arm).
       The four `return 0` truces sit ahead of every ALLOW arm on
       master - keep that order. MED.
+      CLOSURE NOTES (session 166, plan
+      /root/.claude/plans/bugfix-mm-aggression-grudge-residue.md).
+      Done, src/mon.c only: the four truces right after the pet truce
+      (BUG-2065 - racial soldiers, watchmen, shopkeepers and priests
+      fought each other through the elf / orc and elf / drow arms);
+      the six one-way grudges, the rest of mm_aggression() in
+      master's order so the berserk arm's rn2(3) runs where master's
+      does, and master's "now test all two-way aggressions both ways"
+      comment over 5.0's stale "we don't support those" (BUG-2066);
+      the four two-way grudges, the guardian arm first after 5.0's
+      Wizard's tower isolation (BUG-2067). ROW CORRECTIONS: the
+      "present already" shambling horror arm was one-way (session
+      117 put it in mm_aggression(); master has it in
+      mm_2way_aggression()), so mm_aggression(pet, shambler) was 0 and
+      acceptable_pet_target()'s grudge never lifted a pet's level
+      balk (BUG-2068); the mind flayer vs neothelid arm moved with it
+      (net-equivalent - the neothelid arm covers the reverse). Both
+      moved arms now sit under 5.0's Wizard's tower isolation, which
+      master lacks (negligible). REVIEWER LOW (verified, then RULED):
+      the hybrid zombie_maker arm's both-mgenmklev `return 0L` sat
+      above the EvilHack arms and hid the covetous arm - a
+      level-created master lich / arch-lich (S_LICH, M3_WANTSBOOK)
+      next to the Sanctum's level-created high priest carrying the
+      Amulet got 0 where master ALLOWs; upstream 5.0 had the zombie
+      arm last, the piecemeal ports put arms below it; moved last
+      (BUG-2069; only the covetous cell changes). RULINGS
+      (AskUserQuestion x2): 5.0's baby purple worm term in the
+      shrieker arm KEPT (over my recommended master's shape); the
+      zombie arm moved last (recommended). Reviewer PASS otherwise.
+      BATTERY PASS (game-tester, 3 games, about 46 min; POST
+      8e51b96cc21c0271d41759e2285d77f3 via `make update SHELLDIR=`,
+      PRE d769f3038a41394637863edb38519061 = session 165's install
+      kept at the session scratchpad as evilhack.PRE and run with
+      -d, MASTER 0.9.3; paniclogs unchanged - branch absent, master
+      22 lines): a 25-cell gdb mm_aggression() matrix in both orders
+      (mberserk 0), POST == MASTER on every cell - the truces 0 where
+      PRE gave 0x180000 (elven shopkeeper vs a tame hill orc, elven /
+      orcish soldiers and watchmen, two A_NONE priests, watch vs
+      shopkeeper and priest; priests of different gods still
+      0x180000 on all three), every new grudge 0x180000 where PRE gave
+      0 (an ettin at distu 4 vs a newt; 0 at distu 10+ or peaceful;
+      a peaceful acolyte vs a hostile jackal both ways, 0 vs a
+      peaceful one; a hostile black unicorn vs a tame white one),
+      mm(kitten, shambler) 0x180000 vs PRE 0, an arch-lich vs a nurse
+      carrying the Amulet with both mgenmklev 1 0x180000 vs PRE 0;
+      ruled cells as expected (baby purple worm vs shrieker POST and
+      PRE 0x180000, MASTER 0; a human zombie vs a nurse with both
+      mgenmklev 1 branch 0, MASTER 0x180000). acceptable_pet_target(
+      kitten XL3, shambler m_lev 14..21) POST 1, MASTER 1, PRE 0
+      (max_passive_dmg 0 each time). Live in a dug dead end: peaceful
+      elven + orcish soldiers 25 turns no fight on POST and MASTER,
+      PRE fought to the death; an elven shopkeeper beside a frozen
+      tame hill orc no attack on POST and MASTER, PRE "The elven
+      shopkeeper punches the hill orc." / killed; giant spider vs
+      soldier ant, ent vs twig blight, honey badger vs killer bee,
+      acolyte vs jackal, white vs black unicorn (with the hero
+      invisible - visible, both unicorns teleport away) and an ettin
+      pummelling a newt in its way fought on POST and MASTER. RECORD
+      ONLY: on POST the "vanished" white unicorns later sat on
+      migrating_mons while master's stayed on the level - rloc() plus
+      a later level exit (stairs escape or trap), unrelated to this
+      slice, not traced. MASTER PARITY, NOT CHANGED: prison guards
+      (M2_MERC, MS_BRIBE, may be orc / elf / drow) sit outside the
+      soldier truce on both trees. MINTED: the ^G "racial" prefix LOW
+      row below.
+- [ ] LOW: ^G create-monster has no "racial <race>" prefix (minted
+      2026-10-01, session 166, found by the grudge slice's Plan agent;
+      verified on both bodies; "create_particular" rows never named
+      it). Master read.c create_particular_parse() accepts `racial
+      <race adjective>` (or a monster name) after the peaceful /
+      hostile prefix and stores d->race; create_particular_creation()
+      calls apply_race(mtmp, d->race) and redraws the glyph. The
+      branch's parser stops at the peaceful / hostile prefix, so
+      "racial elven soldier" fails and battery staging needs gdb
+      apply_race(). Wizard mode only. LOW (debug tooling).
 - [x] LOW: polyself.c mbodypart() residue
       PORTED 2026-09-20 (session 133, commit `Fix: smells and body
       parts lost master's arms.` = be91dd797, tracker 94af1f758,
@@ -17735,8 +17810,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Archeologist kit, enlightenment, Guidebook role text).
       NUMERIC_SWEEP did not cover the tables. MED (role balance).
 - [x] MED: Intelligence cannot be exercised - PORTED 2026-10-01
-      (session 165, with the hero spellcasting row below, code and
-      tracker commits pending, BUG-2060; the battery and the slice's
+      (session 165, with the hero spellcasting row below, code
+      5f0fcc31a, tracker 8b00a1be2, BUG-2060; the battery and the slice's
       notes are in that row's closure notes). Done: exercise() refuses
       only Cha and lets a polymorphed hero exercise Wis and Int (its
       debug label names Int); exertext[] Int = { "studying hard",
@@ -17788,8 +17863,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       known-spell uwep arm around the new branch. LOW (conduct play).
 - [x] MED: hero spellcasting - caster-class armor penalty and
       per-cast spell memory ABSENT - PORTED 2026-10-01 (session 165,
-      code and tracker commits pending, BUG-2058 through 2064;
-      closure notes at the end of this row). Original text: (minted
+      commit `Port master's spellcasting armor terms, spell memory and
+      Int exercise.` = 5f0fcc31a, tracker 8b00a1be2, landed
+      2026-10-01, BUG-2058 through 2064; closure notes at the end of
+      this row). Original text: (minted
       2026-09-19, session 130,
       found verifying the Caveperson row's spell.c terms; verified on
       both bodies; "non_casters", "primary_casters" and "sp_know" had
@@ -22357,6 +22434,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-01 | Grudge-table slice rulings (session 166; AskUserQuestion x2, one question each). (1) 5.0's BABY PURPLE WORM TERM in the purple worm vs shrieker arm is KEPT (over the recommended master's shape): a baby purple worm also goes after shriekers. (2) THE HYBRID ZOMBIE_MAKER ARM MOVES LAST in mm_2way_aggression() (recommended): upstream 5.0 had it last, and the branch's piecemeal ports had put EvilHack arms below it, so its both-mgenmklev `return 0L` hid the covetous arm (a level-created master lich / arch-lich beside the Sanctum's Amulet-carrying high priest). Implementation choices: master's one-way order throughout (the berserk rn2(3) in master's place); the shambling horror and mind flayer vs neothelid arms moved into mm_2way_aggression() as on master; 5.0's Wizard's tower isolation kept first; the ^G "racial" prefix minted as a LOW row, not folded. | maintainer (1-2); session, plan-approved (rest) |
 | 2026-10-01 | Spellcasting slice rulings (session 165; AskUserQuestion x2, four questions). (1) SCOPE: ONE SLICE (recommended) - the hero spellcasting MED row with its owed full percent_success() diff (Dex ladder, Gauntlets of Purity exemption, metal-shield rule, critical healing bonus, spell-staff +50, body-armor penalty), the per-cast sp_know bump, the Int exercise MED row, and two unrowed learn() arms (master's draugr gate with its NULL-book guard, BUG-750's blank-paper guard). (2) 5.0's PLAIN-QUARTERSTAFF CASTING BONUS DROPPED, master's shape (recommended): upstream 780d30eca's splcaster -3 (worth chance / 5 + 3 points) has no master counterpart, where the school staves give +50. (3) THE ^X SPELL-CASTING LINE IS REWRITTEN to master's rules (over the recommended "remove, master's shape"). (4) WORDING "Your spells above level 3 ..." for a primary caster in a non-metal suit (recommended; "of level 4 and up" is 82 columns). Implementation choices: staff_spell_school() switch over master's otyp range; a Knight is told "body armor" (its clerical spells skip the metal term but not the body-armor one); the #wizcast skill (BUG-704) and exerchk()'s polymorphed-Int skip minted as LOW rows, not folded. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-09-30 | Caveperson role arms scope (session 164; AskUserQuestion x1, one question, as recommended). The three arms (illiterate HP bonus, the Caveperson / Cleric weapon-skill guard, the blessed-book roll and 16 cap) are master's code and needed no ruling. The Plan agent found three adjacent master gaps with no tracker mention; the ruling MINTS ROWS AND FOLDS NONE, keeping the battery on the Caveperson arms: MED Int exercise (3b8ba5835 + 2db5ee7bf), LOW losexp() level-1 double subtract (7c0ab4d49's entry_level gate), LOW crowning spellbook taught to an illiterate hero. Implementation choices: master's two-range guard kept verbatim with a comment that says what it blocks (every restricted weapon skill but the five blunt ones); master's `!b || (b && Cav)` simplified to `!b || Cav`. | maintainer (scope); session, plan-approved (rest) |
 | 2026-09-30 | Amnesia rulings (session 163; AskUserQuestion x1, three questions). The scroll's blessed skill-reset prompt and illithid ward (the MED row) are master's and needed no ruling; the questions covered two untracked siblings from master 321b894a2 / 2f353db9e. (1) TRAP MEMORY: MASTER'S, as recommended - the scroll's amnesia and a mind flayer's brain-eating forget every known trap on the level except the one at the hero's square and holes (5.0 04c59fff0 had dropped it; BUG-2051). (2) FLAYER ODDS: MASTER'S SHAPE, as recommended - every hit that reaches the memory step forgets the level's traps, then half the time runs forget() (spells lost half of that); 5.0 d6dd5c743's 1-in-5 / 1-in-5 rates and its memory-loss gs.skipdrin are gone, so each tentacle that gets through takes its own share (the death-count skipdrin stays; BUG-2052). (3) LUCK: MAKE IT MATTER, over the recommended "as master plays" - master's `forget(rnd(u.uluck <= 0 ? 4 : 2))` has no effect by Luck (BUG-2053); the branch drains 1-5 skills at u.uluck <= 0 and 1-3 above, spells stay 50%. Session calls, plan-approved: the test reads u.uluck as the 2020 code did, so a luckstone's u.moreluck does not count (reviewer LOW, kept as approved); forget() takes the skill die as a second argument (scroll 5 / blessed 3, as master); forget_traps() newsym()s each trap it clears in place of master's docrt() (fixes master's stale in-view `^` on the flayer path, BUG-2054); 5.0's meverseen clearing stays in forget(), so half of flayer hits also clear it (cosmetic, reviewer LOW). | maintainer (1-3); session, plan-approved (rest) |
