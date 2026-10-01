@@ -8,6 +8,7 @@
 #include "hack.h"
 
 staticfn int tk_max_msize(int);
+staticfn int tk_obj_dmg(int);
 staticfn void tk_push_obj(struct obj *, int, int, int);
 staticfn void tk_pull_obj(struct obj *, int, int);
 staticfn boolean tk_impact(struct monst *, int, int, struct monst *);
@@ -37,6 +38,14 @@ tk_max_msize(int skill)
     default:
         return -1;
     }
+}
+
+/* Damage dealt by a telekinetically pushed object that strikes
+   something: 1d4 per 50 weight (at least one), at most 10 dice */
+staticfn int
+tk_obj_dmg(int weight)
+{
+    return d(min(max(1, weight / 50), 10), 4);
 }
 
 /* Can the player use telekinesis? */
@@ -179,7 +188,7 @@ tk_push_obj(struct obj *obj, int dx, int dy, int range)
                 || (((obj->otyp == CORPSE || obj->otyp == EGG)
                      && ismnum(obj->corpsenm)
                      && touch_petrifies(&mons[obj->corpsenm])))) {
-                dmg = d(max(1, weight / 50), 4);
+                dmg = tk_obj_dmg(weight);
                 pline_The("%s strikes %s!", xname(obj),
                           mon_nam(mtmp));
                 if ((obj->otyp == CORPSE || obj->otyp == EGG)
@@ -629,7 +638,7 @@ m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
                 || (((obj->otyp == CORPSE || obj->otyp == EGG)
                      && ismnum(obj->corpsenm)
                      && touch_petrifies(&mons[obj->corpsenm])))) {
-                dmg = d(max(1, weight / 50), 4);
+                dmg = tk_obj_dmg(weight);
                 pline("%s telekinetically hurls %s at you!",
                       Monnam(mtmp), an(xname(obj)));
                 if ((obj->otyp == CORPSE || obj->otyp == EGG)
@@ -687,7 +696,7 @@ m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
                 || (((obj->otyp == CORPSE || obj->otyp == EGG)
                      && ismnum(obj->corpsenm)
                      && touch_petrifies(&mons[obj->corpsenm])))) {
-                dmg = d(max(1, weight / 50), 4);
+                dmg = tk_obj_dmg(weight);
                 if (canseemon(target))
                     pline("%s strikes %s!", An(xname(obj)),
                           mon_nam(target));
