@@ -17,13 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-09-30, after session 164): 275 rows
+- Phase 2 status (refreshed 2026-10-01, after session 165): 277 rows
   closed, 90 open. Of the open rows:
-  - 15 MED: 5 master behaviors the 5.0 base lacks or reshaped
-    (hero spellcasting penalty + sp_know - NEXT, Int exercise from
-    spell learning, mm_aggression() grudge residue, obufs[]
-    widening, the Archeologist / Valkyrie intrinsic schedules -
-    needs a ruling),
+  - 13 MED: 3 master behaviors the 5.0 base lacks or reshaped
+    (mm_aggression() grudge residue - NEXT, obufs[] widening, the
+    Archeologist / Valkyrie intrinsic schedules - needs a ruling),
     8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
@@ -43,42 +41,47 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 58 LOW: small parity rows, quirks and watch/record-only items.
+  - 60 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row, the rider farlook-text row
     and the WISH_TRACKER row need rulings; the wish-invlet row (seen
-    a second time in session 162) and the curses term_gone row need
-    a reproduction. Session 157 minted three: the
+    a third and fourth time in session 165) and the curses term_gone
+    row need a reproduction. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
     break_armor()'s cached form, and cloak_simple_name()'s
     dragon-scales name. Session 158 minted the hero hug's doubled
     "is being crushed." row; session 162 the egg-learning row;
     session 164 the losexp() level-1 row and the crowning-spellbook
-    row.
-- Latest slice: 2026-09-30 (session 164) CAVEPERSONS AS ON MASTER:
-  ILLITERATE HIT POINTS, NO EDGED SKILLS, NO SAFE BOOKS (code and
-  tracker commits pending; BUG-2055..2057).
-  - A Cave-dweller who has never read gains 2-4 extra hit points per
-    level at XL1-2, 3-6 to XL9, 3-8 to XL17 and 5-12 above, and
-    exercises Wisdom each time.
-  - Crowning, sacrifice gifts and other unrestrict calls can no
-    longer open a restricted weapon skill for a Cave-dweller or a
-    Cleric, except the five blunt ones.
-  - A blessed spellbook can fail a Cave-dweller, and a Cave-dweller
-    always has at least a 20% chance to fail.
-  - Ruling: mint rows for the three adjacent master gaps (Int
-    exercise, losexp() level 1, crowning spellbook for illiterates)
-    and fold none.
+    row; session 165 the #wizcast skill row and the polymorphed Int
+    exercise row.
+- Latest slice: 2026-10-01 (session 165) SPELLCASTING AS ON MASTER:
+  ARMOR, DEXTERITY AND STAFF TERMS, SPELL MEMORY, INT EXERCISE,
+  DRAUGR BOOKS (code and tracker commits pending; BUG-2058..2064).
+  - percent_success() takes master's full shape: a body-armor penalty
+    for every suit but crystal plate mail (non-casters 10% per spell
+    level, primary casters 10% per level above 3), the Dex ladder,
+    metal shields, the Gauntlets of Purity exemption, the critical
+    healing bonus and +50 for the school's staff; 5.0's plain
+    quarterstaff bonus is gone.
+  - Each successful cast refreshes the spell's memory (Int 7+, not
+    Cavepersons); learning or refreshing a spell exercises Int.
+  - A draugr can't learn from any book but the Book of the Dead;
+    learn() survives a destroyed book and a cursed book faded to
+    blank paper.
+  - ^X tells of body armor, metallic armor, a robe and a Druid's
+    metal ban in master's terms.
+  - Rulings: one slice; drop the quarterstaff bonus; rewrite the ^X
+    line ("above level 3" wording).
+  - Detail: the two closed rows' closure notes.
+- Previous slice: 2026-09-30 (session 164) CAVEPERSONS AS ON MASTER:
+  ILLITERATE HIT POINTS, NO EDGED SKILLS, NO SAFE BOOKS (code
+  10407462b, tracker 0d838c105; BUG-2055..2057).
+  - Illiterate Cave-dwellers gain extra hit points; no edged or
+    ranged skill can be opened for a Cave-dweller or a Cleric; a
+    blessed book can fail a Cave-dweller.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-09-30 (session 163) AMNESIA AS ON MASTER:
+- Earlier slice: 2026-09-30 (session 163) AMNESIA AS ON MASTER:
   BLESSED SKILL RESET, ILLITHID WARD, TRAPS FORGOTTEN, MIND FLAYER
   ODDS (code 2e994ba6e, tracker 1f95d6ab3; BUG-2050..2054).
-  - A blessed scroll of amnesia read at Int 13+ offers a skill
-    reset; illithids are warded; amnesia and mind flayers forget
-    traps; flayer skill drain as master, with Luck mattering.
-  - Detail: the closed row's closure notes.
-- Earlier slice: 2026-09-30 (session 162) EGGS: NO QUEEN ANT EGGS,
-  WORKER EGGS FROM QUEENS, EVERY EGG HATCHES THE SMALLEST FORM
-  (code 4715c6077, tracker 414e91ac5; BUG-2040..2049).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -11007,6 +11010,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       to name this instead of the Hand (the Hand's own donning
       interplay landed with the Vecna slice). Belongs to the
       artifact use-restriction row.
+      PROGRESS (2026-10-01, session 165): the Gauntlets' casting
+      exemption (master's percent_success() skips the metal-gloves
+      term for them) landed with the spellcasting slice (BUG-2058);
+      the wear gate and the piety message are still open. Battery
+      side note: a chaotic Dark Knight is blasted wishing for and
+      wearing them on every tree.
 - [x] read.c genocide-throne arms + geno-bit data port (NEW, minted
       2026-07-31 from the b6a2f9576 overstatement row; content/data
       port). Master's do_genocide() has three ~28-line refusal arms
@@ -17624,8 +17633,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       accessible / couldsee rejection fold most one-square guesses back
       onto the hero, so the honest rate is about one in ten.
 - [x] MED: Caveperson role arms ABSENT - PORTED 2026-09-30 (session
-      164, code and tracker commits pending, BUG-2055 through 2057;
-      closure notes at the end of this row). Original text: (minted
+      164, commit `Port master's Caveperson illiteracy, weapon skill
+      and spellbook rules.` = 10407462b, tracker 0d838c105, landed
+      2026-09-30, BUG-2055 through 2057; closure notes at the end of
+      this row). Original text: (minted
       2026-09-19, session 130
       reviewer's sweep of master's Role_if(PM_CAVEMAN) sites, each
       verified on both bodies; "illiterate" and "unrestrict" had no
@@ -17723,7 +17734,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       large one. Check at port time for 5.0 knock-ons (u_init
       Archeologist kit, enlightenment, Guidebook role text).
       NUMERIC_SWEEP did not cover the tables. MED (role balance).
-- [ ] MED: Intelligence cannot be exercised (minted 2026-09-30,
+- [x] MED: Intelligence cannot be exercised - PORTED 2026-10-01
+      (session 165, with the hero spellcasting row below, code and
+      tracker commits pending, BUG-2060; the battery and the slice's
+      notes are in that row's closure notes). Done: exercise() refuses
+      only Cha and lets a polymorphed hero exercise Wis and Int (its
+      debug label names Int); exertext[] Int = { "studying hard",
+      "focusing properly" }; exerchk()'s stale "Int and Cha" comment
+      and "Int?" label fixed; learn() exercises Int after a new spell
+      and on a refresh (the refresh's second Wis exercise becomes
+      Int, as on master). exerchk() still skips Int while
+      polymorphed, as on master - LOW row minted below the spellcasting
+      row. Original text: (minted 2026-09-30,
       session 164, found by the Caveperson slice's Plan agent;
       verified on both bodies; "A_INT" had no exercise mention and
       3b8ba5835 no tracker mention). Master 3b8ba5835 (2025): learning
@@ -17764,8 +17786,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       to use it. force_learn_spell() already exists (spell.c); fold
       the livelog / u.ugifts / dropped_gift() handling and the
       known-spell uwep arm around the new branch. LOW (conduct play).
-- [ ] MED: hero spellcasting - caster-class armor penalty and
-      per-cast spell memory ABSENT (minted 2026-09-19, session 130,
+- [x] MED: hero spellcasting - caster-class armor penalty and
+      per-cast spell memory ABSENT - PORTED 2026-10-01 (session 165,
+      code and tracker commits pending, BUG-2058 through 2064;
+      closure notes at the end of this row). Original text: (minted
+      2026-09-19, session 130,
       found verifying the Caveperson row's spell.c terms; verified on
       both bodies; "non_casters", "primary_casters" and "sp_know" had
       no tracker mention, nor does FEATURES_COVERAGE_SWEEP.md). (a)
@@ -17791,6 +17816,142 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       skip the metal-suit penalty (paladin_bonus), and the caster-class
       armor penalty in (a) is not mentioned. Reconcile or suppress the
       line when this row lands.
+      CLOSURE NOTES (session 165, plan
+      /root/.claude/plans/bugfix-spellcasting-master-shape.md). The
+      owed full percent_success() diff found more than (a) and (b);
+      a learn() read found two unrowed master arms; the role tables'
+      spell fields (spelbase..spelsbon) are identical on both trees.
+      RULINGS (AskUserQuestion x2, four questions): one slice for all
+      of it; 5.0's plain-quarterstaff bonus dropped (master's shape);
+      the ^X line rewritten to master's rules (over the recommended
+      "remove"); "Your spells above level 3" wording (the "of level 4
+      and up" alternative is 82 columns). Landed:
+      - spell.c percent_success() (BUG-2058): Dex ladder in the
+        combine (<=6 -10, <=9 -5, <=15 0, <=18 +5, <=20 +10, <=23 +15,
+        else +20); the Gauntlets of Purity skip the metal-gloves term;
+        a metallic non-bracer shield takes the shield penalty however
+        light; SPE_CRITICAL_HEALING joins the healing-spell bonus;
+        STAFF_BONUS 50 for the school's staff (new staticfn
+        staff_spell_school(), a switch rather than master's otyp range;
+        the ashwood staff aids every school) after the combine; then
+        (a), body armor other than crystal plate mail: non-casters
+        -10 per spell level, primary casters -10 per level above 3.
+        5.0's `uwep->otyp == QUARTERSTAFF` -3 (upstream 780d30eca)
+        removed; upstream 42a6a5df6's rejectcasting() free-hand
+        exemption for a welded quarterstaff is a separate commit and
+        stays. New externs primary_caster_role() (Hea, Cleric, Wiz,
+        Inf, Dru; all 16 roles and the alternate tables match master's
+        two lists) and druid_metal_blocked() (the 7-slot Druid test,
+        also used by cmd.c dodruidwildshape() - reviewer LOW, same
+        behavior). Header comment spelspec lines fixed to role.c (Bar
+        cause fear, no Cav, Con, Dru, Inf, Val repair armor).
+      - spelleffects() (b) (BUG-2059): `!force &&
+        !Role_if(PM_CAVE_DWELLER) && ACURR(A_INT) > 6` adds rn1(Int *
+        10, Int * 3) to sp_know, capped at KEEN, after the energy /
+        life-force cost and before exercise(A_WIS) (master's RNG
+        order). !force is load-bearing: a forced cast's spell is an
+        otyp (the BUG-301 class). Master's comment numbers (180-234
+        at Int 18) are wrong; the real range is Int * 3 to Int * 13 - 1
+        (54-233).
+      - attrib.c + learn(): the Int exercise row above (BUG-2060).
+      - learn(): a draugr reading any book but the Book of the Dead
+        goes through confused_book(), which prints "The runes are
+        utterly meaningless to your undead mind." when not confused
+        (master a5ff4bd84 + ccf51af86 / BUG-755; BUG-2061). Master's
+        NULL-book guard (same commit; BUG-2062) has a live producer:
+        obfree() -> book_disappears() clears spbook.book while the
+        learn occupation runs on (a flaming sphere's explosion burns
+        the book without interrupting the hero). The BUG-750 guard
+        `book->cursed && book->otyp != SPE_BLANK_PAPER` (BUG-2063):
+        5.0's book_cursed() slam-shut plus the "continue your
+        efforts" resume skips study_book()'s cursed gate, so a cursed
+        book that fades to blank reached cursed_book()'s rn2(0).
+        BUG-2062 and BUG-2063 are in the upstream table.
+      - insight.c ^X line (the RIDER; BUG-2064): a Druid in any metal
+        is "blocked by metallic armor"; a suit other than crystal
+        plate is "impaired by metallic armor" (metal, not a Knight)
+        or "impaired by body armor" (a Knight's clerical spells skip
+        the metal term), "Your spells above level 3 ..." for a
+        primary caster in a non-metal suit, ", mitigated by your
+        robe" when robed; a robe alone "enhanced". Master has no line.
+      - dat/rumors.tru: the held "They say that one needs the right
+        staff for the right job." (rumor-riders row item (c)).
+      Plan agent (hunks, NULL-book producer, battery math; its
+      "Wizards start wielding a quarterstaff" was wrong - EvilHack
+      Wizards start with no weapon). REVIEWER PASS (no
+      CRITICAL/HIGH/MED); LOWs: cmd.c sibling folded, pray.c
+      bestow_regular_gift()'s caster split left (master's shape), a
+      plan-wording fix. BATTERY PASS (game-tester, 27 games, about 81
+      min; POST d769f3038a41394637863edb38519061 via `make update
+      SHELLDIR=`, PRE a489b7726f8c47bdd84aef14066ed134 = session 164's
+      install run from the scratchpad with -d, MASTER 0.9.3; master
+      paniclog unchanged at 22 lines; the branch's one new line was
+      PRE's expected T10 rn2(0), archived to the session scratchpad
+      and removed). Fail% (PRE / POST = MASTER): Wizard Int 18 Dex 12
+      Attack Basic fireball - unarmored 77 / 77, Dex 5/18/20/24 77 /
+      87/72/67/57, leather 77 / 87, crystal plate 77 / 77, robe 55 /
+      55, robe + leather 55 / 65, plate 100 / 100, plate + robe 89 /
+      99, staff of war and ashwood 77 / 27, staff of evocation 77 /
+      77, quarterstaff 71 / 77, wooden small shield 84 / 84, mithril
+      small shield 84 / 100, dark elven bracers 84 / 84, gauntlets of
+      power 91 / 91; Valkyrie Wis 18 force bolt - leather 34 / 44,
+      crystal plate 34 / 34, Dex 24 34 / 14; Knight Wis 18 - ring
+      mail protection 17 / 27, ring mail force bolt 95 / 100,
+      gauntlets of power 69 / 69, Gauntlets of Purity 69 / 17;
+      Healer XL30 critical healing 18 / 0, extra healing 0 / 0;
+      Druid in an iron helm 100 and an illithid's psionic wave in
+      plate + mithril shield 0 on all three. sp_know from 10000:
+      POST 10221 / 10147, MASTER 10229 at Int 18; Int 7 +22 / +76;
+      no bump at Int 6, from 19990 (19999 after decay), on a failed
+      cast, for a Caveman, or on #wizcast / #wizspell (no crash);
+      Infidel life-force cast loses HP and bumps (POST 10168, MASTER
+      10069; PRE 10000). Int exercise: learn() calls exercise(A_INT)
+      on POST and MASTER (PRE never; 20 direct exercise(1,1) calls
+      leave PRE at 0), the refresh exercises Int not a second Wis,
+      "You feel smart!  You must have been studying hard." on POST and
+      MASTER, Int builds while polymorphed on POST. Draugr Knight /
+      Infidel: torn 3 of 11 and 4 of 8 (POST), 3 of 12 and 2 of 6
+      (MASTER), nothing learned; PRE learns; Book of the Dead, novel,
+      blank paper and psionic wave the same on all three. NULL book
+      (useup() from `break learn`): POST and MASTER stop silently,
+      PRE SIGSEGV at `booktype = book->otyp`. Cursed blank paper:
+      POST no cursed_book(); PRE impossible("rn2(0) attempted") and
+      a teleport; MASTER (no slam-shut in 3.6) no cursed_book().
+      ^X: every approved rendering on POST, the "were" form at final
+      attributes; PRE as before; MASTER no line. The silver dragon
+      scale mail fixture can't be staged (the wish gives cloak-slot
+      scales); a silver-scaled leather armor gave the "above level
+      3" line and fireball 87 on POST. RECORD ONLY: the wish
+      "studded leather armor" gave boxing gloves on POST (EvilHack
+      names it "studded armor"; master not tried); a wizard-mode
+      #polyself back to the hero's race from hobbit form at XL1
+      asked "Die?" and, declined, left the hero a hobbit (newman()
+      lifesave path; master not tried); the wish-invlet row's third
+      and fourth sightings (see that row); a stale
+      var/whereis/wizard.whereis with playing=1 again remains in the
+      branch playground (end.c clears something_worth_saving before
+      clearlocks(), so a clean end unlinks it - most likely a game
+      killed at teardown, as in session 162).
+- [ ] LOW: #wizcast casts at the hero's skill (minted 2026-10-01,
+      session 165, spellcasting slice; "role_skill" had no tracker
+      mention). Master BUG-704: `role_skill = wiz_cast ? P_EXPERT :
+      P_SKILL(skill)`, the documented #wizspell contract that a
+      wizard-mode cast runs at Expert. The branch's spelleffects()
+      uses P_SKILL(skill) even when `force` is set. `force` is shared
+      with artifact.c invoke_storm_spell(), which brackets the call
+      by setting P_SKILL to P_EXPERT itself, so a `force ? P_EXPERT`
+      test would hard-code a debug promise into a flag that is not
+      debug-only; bracketing P_SKILL inside dowizcast() is the other
+      shape. Wizard mode only. LOW (debug parity).
+- [ ] LOW: exerchk() skips Int while polymorphed, so Int exercise
+      built up in a form never lands (minted 2026-10-01, session 165;
+      master quirk, identical on both trees). Master 3b8ba5835 lets
+      exercise() accumulate Int (and Wis) while Upolyd, but exerchk()
+      still does `if (Upolyd && i != A_WIS) goto nextattrib;`, so the
+      accumulated Int exercise only halves at each check until the
+      hero returns to normal form. Decide whether exerchk() should
+      test `!(i == A_WIS || i == A_INT)` to match exercise(). LOW
+      (attribute growth, polymorph play).
 - [ ] SWEEP: race-predicate site census (minted 2026-09-19, session
       130, from session 129's census idea - same_race() and genus()
       were two instances of one class). RAW candidate list, method and
@@ -18346,6 +18507,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       arch-lich printed "Q - a figurine of an arch-lich." while ^P
       history and the `i` listing both said "q - ...". Both sightings
       are BUC-prefixed wishes; not reproduced on demand.
+      THIRD AND FOURTH SIGHTINGS (2026-10-01, session 165 battery,
+      POST): "blessed +0" wishes printed "Q - a magical ironshod staff
+      (weapon in hands)." for invlet q and "Z - a magical purple
+      spellbook." for invlet z, and `r Z` answered "You don't have that
+      object.", so the object never held the uppercase letter. The same
+      wishes on PRE printed lowercase letters. All four sightings are
+      BUC-prefixed wishes.
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
       and races lost master's granted properties.` = 408713be5
@@ -19704,6 +19872,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       now ported (BUG-2003); worn.c is 5 / 6. do_wear.c
       canwearobj()'s `already_wearing(c_bracers)` text (seen in that
       slice's diff) stays in the sweep.
+      PROGRESS (2026-10-01, session 165): the spell.c site was
+      percent_success()'s metallic-shield rule, now ported with the
+      spellcasting slice (BUG-2058; a metallic shield takes the shield
+      penalty unless it is bracers); spell.c is 1 / 1.
 - [x] MED: death magic outcome shape vs magic resistance - PORTED
       2026-09-23 (session 136, partial reflection / death magic slice,
       commits `Fix: rays at the hero ignored partial reflection and
@@ -21478,6 +21650,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       on the branch as objects but spell.c has no STAFF_OF_* reference.
       Held line: rumors.tru "They say that one needs the right staff
       for the right job."
+      DONE 2026-10-01 (session 165, spellcasting slice, BUG-2058): the
+      staff bonus landed in percent_success() (+50 for the school's
+      staff, the ashwood staff for every school) and the held rumor
+      line is in dat/rumors.tru. Battery: a staff of war or ashwood
+      staff takes a Wizard's fireball from 77% to 27% fail on POST and
+      MASTER; a staff of evocation leaves it at 77%.
       (d) PARTIAL REFLECTION REMAINDER (LOW): only zhitu()'s drain-life
       Reflecting mitigation was restored (2026-07-17 beam slice);
       master's other six Reflecting arms in zap.c zhitu() are absent -
@@ -22023,6 +22201,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-01 | spell.c learn() dereferences svc.context.spbook.book with no NULL test (Official_nh50 src/spell.c ~384 `booktype = book->otyp;`). obfree() calls book_disappears(), which clears spbook.book and o_id, but nothing stops the running `learn` occupation, so a book destroyed mid-study without an interrupt reaches the NULL dereference on the next turn. Path: a flaming sphere's AT_EXPL explmu() -> mon_explodes() -> explode() -> destroy_items(AD_FIRE) burns the book; none of explmu(), explode() or losehp() calls stop_occupation(), and an unseen sphere never trips monster_nearby(). Branch fixed by BUG-2062 (master a5ff4bd84's guard at the top of learn(): clear delay / o_id and return 0). Battery: useup() of the book from `break learn` gives PRE SIGSEGV at `booktype = book->otyp`, POST a silent stop. | branch-fixed (BUG-2062); upstream-reportable |
+| 2026-10-01 | spell.c learn() calls cursed_book() on a book that has just faded to blank paper (Official_nh50 src/spell.c ~450 `if (book->cursed)`), and cursed_book() rolls `rn2(objects[bp->otyp].oc_level)` = rn2(0). Reach: book_cursed() slams a cursed book shut with stop_occupation() but keeps spbook.book / delay, the re-read takes study_book()'s "You continue your efforts" arm (~501) and skips the cursed => too_hard gate, and learn() fades the book (spestudied > MAX_SPELL_STUDY, or a polymorphed book at the limit). POSTRELEASE builds print impossible("rn2(0) attempted") and teleport the hero (case 0); a RELEASED build divides by zero. Branch fixed by BUG-2063 (master BUG-750's `&& book->otyp != SPE_BLANK_PAPER`). Battery: PRE impossible + "You feel a wrenching sensation.", POST neither. | branch-fixed (BUG-2063); upstream-reportable |
 | 2026-09-30 | zap.c makewish() resumes a wish across a hangup only when `iflags.term_gone` is set (Official_nh50 src/zap.c:6353, from e240efa10 "Restoring a game can return to the wishing prompt"), and only tty's EOF read sets it. A SAFERHANGUP hangup that lands while the game is not in the terminal read runs nhwindows_hangup() first, so the wish getlin() is hup_getlin(), which returns ESC without setting term_gone: the empty answer reaches readobjnam("") and a random object is granted before the hangup save. Seen on the branch's pre-fix binary (SIGHUP queued at makewish() entry: "a fortune cookie", saved with resume_wish 0). Fix: also test program_state.done_hup (under HANGUPHANDLING) in that early return. | fixed on branch (BUG-2034, 8bfa2121b); patch artifact not cut yet |
 | 2026-09-28 | 07fc4904c ("Add a new wand, the wand of stasis") put a covetous exemption into noteleport_level() (Official_nh50 src/teleport.c:38, `svl.level.flags.noteleport && !is_covetous(mon->data)`) so that tactics() kept warping on no-teleport levels, but the predicate also answers for the hero. noteleport_level(&gy.youmonst) reads gy.youmonst.data, and master lich and arch-lich are polyok with M3_WANTSBOOK, so a hero polymorphed into either one teleports in Sokoban, Vlad's Tower, the Castle and on Medusa's island, where the unpolymorphed hero gets "A mysterious force prevents you from teleporting!" (the Wizard's Tower levels still stop it through scrolltele()'s later On_W_tower_level() arm). Sites: scrolltele() :854, tele_trap() :1502, the cursed magic whistle apply.c:503. The exemption also reaches every monster self-teleport caller (m_tele(), the m_move() blink, steal escapes, mbhitm()). Minimal upstream fix: exempt only a monster, `&& mon != &gy.youmonst`; the branch instead drops the exemption and gives tactics() its own court/stasis predicate (master's shape) | fixed on branch (BUG-1985/1986, 0f66f9596); patch artifact not cut yet |
 | 2026-09-28 | 38cda5ad5's seen-resistance forgetting misses non-base-property sources (Official_nh50). set_artifact_intrinsic() clears an artifact's defn/cary resistance or its SPFX_REFLECT with no monstunseesu(), so unwielding Fire Brand or dropping a carried MR artifact leaves watchers skipping that element forever. Cloak_off()'s ALCHEMY_SMOCK arm clears EAcid_resistance silently, and mcastu.c's acid-blast check reads M_SEEN_ACID. set_uasmon() drops FROMFORM resistances when the hero leaves a form (rehumanize from a red dragon) with no forget. Branch fix: forget only a grant whose slot bit was actually set (artifact.c per-mask snapshots; do_wear.c lose_extrinsic(); a before/after FROMFORM mask in set_uasmon() via form_seenres(), skipped while restoring). Battery-confirmed (session 152: Fire Brand, Gauntlets of Purity, the card, the smock, rehumanize) | fixed on branch (BUG-1981/1982, 72f7c9312); patch artifact not cut yet |
@@ -22177,6 +22357,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-01 | Spellcasting slice rulings (session 165; AskUserQuestion x2, four questions). (1) SCOPE: ONE SLICE (recommended) - the hero spellcasting MED row with its owed full percent_success() diff (Dex ladder, Gauntlets of Purity exemption, metal-shield rule, critical healing bonus, spell-staff +50, body-armor penalty), the per-cast sp_know bump, the Int exercise MED row, and two unrowed learn() arms (master's draugr gate with its NULL-book guard, BUG-750's blank-paper guard). (2) 5.0's PLAIN-QUARTERSTAFF CASTING BONUS DROPPED, master's shape (recommended): upstream 780d30eca's splcaster -3 (worth chance / 5 + 3 points) has no master counterpart, where the school staves give +50. (3) THE ^X SPELL-CASTING LINE IS REWRITTEN to master's rules (over the recommended "remove, master's shape"). (4) WORDING "Your spells above level 3 ..." for a primary caster in a non-metal suit (recommended; "of level 4 and up" is 82 columns). Implementation choices: staff_spell_school() switch over master's otyp range; a Knight is told "body armor" (its clerical spells skip the metal term but not the body-armor one); the #wizcast skill (BUG-704) and exerchk()'s polymorphed-Int skip minted as LOW rows, not folded. | maintainer (1-4); session, plan-approved (rest) |
 | 2026-09-30 | Caveperson role arms scope (session 164; AskUserQuestion x1, one question, as recommended). The three arms (illiterate HP bonus, the Caveperson / Cleric weapon-skill guard, the blessed-book roll and 16 cap) are master's code and needed no ruling. The Plan agent found three adjacent master gaps with no tracker mention; the ruling MINTS ROWS AND FOLDS NONE, keeping the battery on the Caveperson arms: MED Int exercise (3b8ba5835 + 2db5ee7bf), LOW losexp() level-1 double subtract (7c0ab4d49's entry_level gate), LOW crowning spellbook taught to an illiterate hero. Implementation choices: master's two-range guard kept verbatim with a comment that says what it blocks (every restricted weapon skill but the five blunt ones); master's `!b || (b && Cav)` simplified to `!b || Cav`. | maintainer (scope); session, plan-approved (rest) |
 | 2026-09-30 | Amnesia rulings (session 163; AskUserQuestion x1, three questions). The scroll's blessed skill-reset prompt and illithid ward (the MED row) are master's and needed no ruling; the questions covered two untracked siblings from master 321b894a2 / 2f353db9e. (1) TRAP MEMORY: MASTER'S, as recommended - the scroll's amnesia and a mind flayer's brain-eating forget every known trap on the level except the one at the hero's square and holes (5.0 04c59fff0 had dropped it; BUG-2051). (2) FLAYER ODDS: MASTER'S SHAPE, as recommended - every hit that reaches the memory step forgets the level's traps, then half the time runs forget() (spells lost half of that); 5.0 d6dd5c743's 1-in-5 / 1-in-5 rates and its memory-loss gs.skipdrin are gone, so each tentacle that gets through takes its own share (the death-count skipdrin stays; BUG-2052). (3) LUCK: MAKE IT MATTER, over the recommended "as master plays" - master's `forget(rnd(u.uluck <= 0 ? 4 : 2))` has no effect by Luck (BUG-2053); the branch drains 1-5 skills at u.uluck <= 0 and 1-3 above, spells stay 50%. Session calls, plan-approved: the test reads u.uluck as the 2020 code did, so a luckstone's u.moreluck does not count (reviewer LOW, kept as approved); forget() takes the skill die as a second argument (scroll 5 / blessed 3, as master); forget_traps() newsym()s each trap it clears in place of master's docrt() (fixes master's stale in-view `^` on the flayer path, BUG-2054); 5.0's meverseen clearing stays in forget(), so half of flayer hits also clear it (cosmetic, reviewer LOW). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-09-30 | Egg-handling rulings (session 162; AskUserQuestion x5 with six questions, plus one ruling in chat). (1) CROCODILE EGGS THROUGH AN EGG-ONLY HELPER, not master's big_to_little() special case: the eggs behave as on master, but same_race() stays symmetric, so a giant-crocodile-form hero eating a crocodile corpse is still a cannibal (master exempts it; BUG-2043). (2) A QUEEN-ANT-FORM HERO KNOWS ALL THREE WORKER EGGS (master learns one at random; BUG-2045). (3) NO QUEEN ANT EGG AT ALL, beyond master (maintainer in chat: "queen ant egg shouldn't be a thing, only eggs for the worker/soldier types"); master keeps one 1 in 77 through BREEDER_EGG (BUG-2041). (4) EVERY EGG HATCHES THE SMALLEST FORM OF ITS LINE - spiders and hawks too, not crocodiles only: giant and gargantuan spiders lay large spider eggs and every spider egg hatches a cave spider; a random or wished giant hawk egg hatches a hawk (BUG-2042, BUG-2044). (5) CURSED FIGURINES KEEP MASTER'S ONE-STEP GENOCIDE RULE (own species or the next smaller form), not the new egg rule they would have inherited through dead_species(, TRUE). (6) EGG LABELS KEEP THE GROWN-UP NAME (asked after landing prep, on the maintainer's question whether a giant crocodile should lay baby crocodile eggs): giant crocodiles and crocodiles lay "crocodile eggs" and every spider layer "large spider eggs" - the vanilla convention (an egg is named after the grown form above its hatchling, as a cockatrice egg hatches a chickatrice) and the names random and wished eggs use - while the eggs hatch baby crocodiles and cave spiders; master's giant hawk "hawk egg" stays the one exception. | maintainer |
