@@ -17,19 +17,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-01, after session 167): 279 rows
-  closed, 89 open. Of the open rows:
-  - 11 MED: 1 master behavior the 5.0 base reshaped (the
+- Phase 2 status (refreshed 2026-10-01, after session 168): 280 rows
+  closed, 88 open. Of the open rows:
+  - 10 MED: 1 master behavior the 5.0 base reshaped (the
     Archeologist / Valkyrie intrinsic schedules - needs a ruling),
     8 unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
     "vanish" arm, assassin vine growth + Gulthias blight spawning,
-    timed see invisible and invisibility), the covetous freeze in a
-    Gehennom demon court (ruled 2026-09-30: covetous warps ignore
-    the court, as on master) and the uncapped
-    telekinesis damage (BUG-2032, ruled 2026-09-30: at most 10
-    dice, both sides - NEXT).
+    timed see invisible and invisibility) and the covetous freeze
+    in a Gehennom demon court (ruled 2026-09-30: covetous warps
+    ignore the court, as on master - NEXT).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 13 untagged: port gaps (Muse offense items, creeping mound
@@ -52,32 +50,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 164 the losexp() level-1 row and the crowning-spellbook
     row; session 165 the #wizcast skill row and the polymorphed Int
     exercise row; session 166 the ^G "racial" prefix row.
-- Latest slice: 2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
-  READABLE STRIPED SHIRT, BOUNDED NAME CONSUMERS (code and tracker
-  commits pending; BUG-2070..2080).
-  - Object names get a full 255-char region (master BUG-1315): long
-    named / called / propped items keep " (being worn)", prices and
-    the whole name; the dumplog shows complete slogans.
-  - The Convict's striped shirt can be read and is disclosed at game
-    end; master's nine extra T-shirt slogans are in.
-  - Every place that copies a name plus text into a fixed buffer is
-    bounded; five were overflowable before the slice (unlock
-    prompts, chest-explosion death reason, the verb helpers' obuf
-    spill, the barding prompt, the price-quote suffix).
-  - Rulings: fold the striped shirt and slogans in; keep 5.0's
-    candy bar disclosure; master's !distantname guard (redundant on
-    the branch, kept as master's shape).
+- Latest slice: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
+  AT 10 DICE (code and tracker commits pending; BUG-2032).
+  - A telekinetically pushed object hits for at most 10d4, so a
+    hurled boulder or a heavy statue does 10-40 (mean 25) instead of
+    a one-shot 120-540; the hero's pushes are capped the same way.
+    Objects under 550 roll as before.
+  - Deliberate divergence from master, by the 2026-09-30 ruling
+    (master stays frozen-unfixed).
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-01 (session 166) THE GRUDGE TABLE AS ON
+- Previous slice: 2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
+  READABLE STRIPED SHIRT, BOUNDED NAME CONSUMERS (code 41e6310b5,
+  tracker f870b211e; BUG-2070..2080).
+  - Object names get a full 255-char region (master BUG-1315); the
+    Convict's striped shirt can be read; every name-plus-text buffer
+    is bounded.
+  - Detail: the closed row's closure notes.
+- Earlier slice: 2026-10-01 (session 166) THE GRUDGE TABLE AS ON
   MASTER: TRUCES, GRUDGES, ARM ORDER (code 1a6aa9638, tracker
   4d01f68a7; BUG-2065..2069).
-  - Racial service monsters keep master's truces; master's grudges
-    and arm order; pets hate shambling horrors again; the zombie arm
-    runs last.
-  - Detail: the closed row's closure notes.
-- Earlier slice: 2026-10-01 (session 165) SPELLCASTING AS ON MASTER:
-  ARMOR, DEXTERITY AND STAFF TERMS, SPELL MEMORY, INT EXERCISE,
-  DRAUGR BOOKS (code 5f0fcc31a, tracker 8b00a1be2; BUG-2058..2064).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -14422,9 +14413,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       terminal width; the called form says "dragon mail" where the
       description arm says "crude chain mail"..
 - [x] obufs[] name-region widening (master BUG-1315, 60d335fd0) -
-      PORTED 2026-10-01 (session 167, code and tracker commits
-      pending, BUG-2070 through 2080; closure notes at the end of
-      this row). Original text: NOT
+      PORTED 2026-10-01 (session 167, commit `Port master's
+      full-width object names and readable striped shirt.` =
+      41e6310b5, tracker f870b211e, landed 2026-10-01, BUG-2070
+      through 2080; closure notes at the end of this row).
+      Original text: NOT
       PORTED (minted 2026-09-15 by the dragon-scaled xname prefix
       slice's reviewer): the branch's obufs[NUMOBUF][BUFSZ] slot leaves
       xname()/doname() a 107-byte name region (BUFSZ - 1 - PREFIX with
@@ -21142,7 +21135,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       tactics() as master has it (no live gate). The court keeps
       applying to everyone else through noteleport_level(). Reproduce
       the freeze first, then PRE/POST/MASTER.
-- [ ] MED: telekinesis damage grows linearly with the object's weight
+- [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
+      168, code and tracker commits pending; closure notes at the end
+      of this row). Original text: MED: telekinesis damage grows
+      linearly with the object's weight
       and has no cap - BUG-2032 (minted 2026-09-30 from a player
       report on master 0.9.3: a Caveman giant with 197 HP died to one
       mind-flayer-hurled boulder; master frozen-unfixed, the branch
@@ -21181,6 +21177,56 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         STAY OPEN TO ALL FLAYERS (no new is_master gate). Master
         stays frozen-unfixed; share the cap through one helper or
         macro rather than three copies.
+      CLOSURE (session 168, plan
+      /root/.claude/plans/bugfix-telekinesis-damage-cap.md): the
+      ruled shape. A new staticfn helper, tk_obj_dmg(weight), returns
+      `d(min(max(1, weight / 50), 10), 4)`, and all three strike rolls
+      call it: tk_push_obj() (which also carries tk_pull_obj()'s
+      boulder slide) and both m_tk_push_obj() arms. src/telekinesis.c
+      only, save-neutral. The gates, the stoning, potion and cream pie
+      arms, Maybe_Half_Phys() and tk_impact()'s rnd(6) are unchanged.
+      Correction to the ruling's wording: the roll first changes at
+      weight 550 (500-549 already rolled 10 dice), so a heavy iron
+      ball, a jackal statue and every weapon roll exactly as before.
+      Deliberate divergence from master's formula, by ruling.
+      REVIEWER PASS (one LOW comment nit taken: "(at least one)"). It
+      found no missed site. Every other weight-scaled damage roll in
+      the tree is already capped, except the green slime glob boil in
+      zap.c, which is upstream code and not a hurl.
+      BATTERY PASS (game-tester, 3 games, about 45 min; POST
+      7668413d9f42db95846c6ecc8057df3e via `make update SHELLDIR=`,
+      PRE 5877f2f5da5bf8d91b4ce6835edfc0b1 = session 167's install
+      kept as evilhack.PRE; branch paniclog unchanged at 8 lines):
+      - tk_obj_dmg() unit check: 100 calls each; 500 and up land in
+        10-40 with mean about 25, 480 / 499 in 9-36, 100 in 2-8, 10
+        and 0 in 1-4.
+      - Master mind flayer boulder at the hero: POST live 26 / 27 / 26
+        and 19-33 over 50 calls; PRE live 265 / 307 / 289 and 285-324.
+        At u.uhp 197 the hero took 17 and survived (the player report).
+      - Plain mind flayer, green dragon statue (6750): POST live 29,
+        19-29; PRE live 344, 295-359.
+      - Hero #telekinesis statue push into a brown mold: POST 22-32
+        live, 17-35 over 25 calls; PRE 323-341 live, 314-359.
+      - Boulder push / pull (direct calls): POST 20-33 / 17-31; PRE
+        279-328 / 283-324.
+      - Tame master flayer boulder at a monster: POST 17-35 (live 21);
+        PRE 272-317 (live 288).
+      - Under 500, POST == PRE: heavy iron ball (480) 15-28 / 17-28,
+        jackal statue (450) 16-31 / 17-31, long sword 1-4 / 1-4.
+      Brief premises corrected by the tester:
+      - The Telekinesis intrinsic gives range 3, not 2 (P_SKILLED is 3
+        and indexes ranges[]).
+      - The monster-vs-monster strike line is "A boulder strikes the
+        <target>!" and prints only when canseemon(target).
+      - With the boulder blocking sight, the hurl line reads "It
+        telekinetically hurls a boulder at you!".
+      - #wizintrinsic lists the intrinsic as "telekinetic", a timed
+        intrinsic.
+      RECORD ONLY: one POST game died to the known gdb hazard (inferior
+      calls made while the game was blocked in read()). That was the
+      harness, not the code. The next launch's "Destroy" cleared the
+      lock file; var/whereis/wizard.whereis was rewritten by the
+      battery's launches.
 - [ ] Zap door-effects: ZT_POISON_GAS / ZT_ACID door arms NOT PORTED
       (minted 2026-09-23, session 136. The door-material slice's record
       deferred them to a "zap door-effects slice" that never had a row;
