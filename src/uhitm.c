@@ -4809,6 +4809,17 @@ mhitm_ad_tlpt(
             if (u_teleport_mon(mdef, FALSE) && u_saw_mon
                 && !(canseemon(mdef) || engulfing_u(mdef)))
                 pline("%s suddenly disappears!", nambuf);
+            /* an engulfer teleported on a no-teleport level goes into
+               limbo when rloc() finds no room; the clamp below must not
+               touch a dead or absent defender */
+            if (DEADMONSTER(mdef)
+                || (mon_offmap(mdef) && !mdef->ridden_by)) {
+                if (DEADMONSTER(mdef))
+                    mhm->hitflags |= M_ATTK_DEF_DIED;
+                mhm->damage = 0;
+                mhm->done = TRUE;
+                return;
+            }
             if (mhm->damage >= mdef->mhp) { /* see hitmu(mhitu.c) */
                 if (mdef->mhp == 1)
                     ++mdef->mhp;
@@ -4818,15 +4829,29 @@ mhitm_ad_tlpt(
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         int tmphp;
+        /* a boojum's touch ignores cancellation and magic negation */
+        boolean boojum = (magr->data == &mons[PM_BOOJUM]);
 
         hitmsg(magr, mattk);
-        if (mhitm_mgc_atk_negated(magr, mdef, FALSE)) {
+        if (!boojum && mhitm_mgc_atk_negated(magr, mdef, FALSE)) {
             You("are not affected.");
         } else {
-            if (flags.verbose)
+            if (boojum) {
+                /* "You will softly and suddenly vanish away,
+                    And never be met with again!" */
+                if (!noteleport_level(&gy.youmonst))
+                    You("suddenly vanish!");
+                else if (!Invis && !BInvis && !Blind)
+                    You("suddenly %s!", See_invisible ? "become transparent"
+                                                      : "vanish");
+                incr_itimeout(&HInvis, d(6, 100));
+                /* tele() can fail and leave the hero's glyph stale */
+                newsym(u.ux, u.uy);
+            } else if (flags.verbose) {
                 Your("position suddenly seems %suncertain!",
                      (Teleport_control && !Stunned && !unconscious()) ? ""
                      : "very ");
+            }
             tele();
             /* As of 3.6.2:  make sure damage isn't fatal; previously, it
                was possible to be teleported and then drop dead at
@@ -4874,8 +4899,22 @@ mhitm_ad_tlpt(
                we'll get "it" in the suddenly disappears message */
             if (gv.vis && wasseen)
                 Strcpy(mdef_Monnam, Monnam(mdef));
+            /* a boojum's victim vanishes in more ways than one */
+            if (magr->data == &mons[PM_BOOJUM])
+                mon_set_minvis(mdef, FALSE);
             mdef->mstrategy &= ~STRAT_WAITFORU;
             (void) rloc(mdef, RLOC_NOMSG);
+            /* teleporting the hero's steed moves the hero, who can set
+               it down on a deadly trap; the clamp below must not revive
+               a dead defender */
+            if (DEADMONSTER(mdef)
+                || (mon_offmap(mdef) && !mdef->ridden_by)) {
+                if (DEADMONSTER(mdef))
+                    mhm->hitflags |= M_ATTK_DEF_DIED;
+                mhm->damage = 0;
+                mhm->done = TRUE;
+                return;
+            }
             /* TODO: use RLOC_MSG instead? */
             if (gv.vis && wasseen && !canspotmon(mdef) && mdef != u.usteed)
                 pline("%s suddenly disappears!", mdef_Monnam);

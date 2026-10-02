@@ -3424,8 +3424,9 @@ makemon(
         mtmp->msleeping = 1;
         break;
     case S_JABBERWOCK:
+        break; /* never generated asleep */
     case S_NYMPH:
-        if (rn2(5)
+        if (!is_satyr(ptr) && rn2(5)
             && !(u.uhave.amulet
                  && (!Role_if(PM_INFIDEL) || u.uevent.uimbued_idol)))
             mtmp->msleeping = 1;

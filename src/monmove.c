@@ -1063,6 +1063,27 @@ dochug(struct monst *mtmp)
     /* not frozen or sleeping: wipe out texts written in the dust */
     wipe_engr_at(mtmp->mx, mtmp->my, 1, FALSE);
 
+    /* special snark code: a snark next to the hero may turn out to be
+       a boojum (one in three, fixed by m_id), and the boojum takes
+       over the rest of the snark's move */
+    if (mdat == &mons[PM_SNARK] && mdistu(mtmp) <= 2
+        && mtmp->m_id % 3 < 1) {
+        coordxy sx = mtmp->mx, sy = mtmp->my;
+        struct monst *boojum;
+
+        mongone(mtmp);
+        /* adjacent-ok: should anything be left on the snark's square
+           (a rider it carried), the boojum appears beside it */
+        boojum = makemon(&mons[PM_BOOJUM], sx, sy,
+                         MM_NOMSG | MM_ADJACENTOK);
+        if (!boojum)
+            return 1; /* the snark simply vanished away */
+        mtmp = boojum;
+        mdat = mtmp->data; /* refresh cached permonst */
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "Oh, no, this Snark is a Boojum!");
+    }
+
     /* confused monsters get unconfused with small probability */
     if (mtmp->mconf && !rn2(50))
         mtmp->mconf = 0;
