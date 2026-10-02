@@ -17,12 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-02, after session 170): 285
-  rows closed, 86 open. Of the open rows:
-  - 7 MED: unported master features (potion
+- Phase 2 status (refreshed 2026-10-02, after session 171): 286
+  rows closed, 87 open. Of the open rows:
+  - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
-    pet-helper AI, the held artifact pokedex tips, the boojum
-    "vanish" arm - NEXT, timed see invisible and invisibility).
+    pet-helper AI, the held artifact pokedex tips, timed see
+    invisible and invisibility - its mhitu.c arm landed with the
+    boojum slice).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -33,7 +34,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 63 LOW: small parity rows, quirks and watch/record-only items.
+  - 65 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row (keep 5.0's catch for a Monk
     or Samurai at Skilled+ martial arts with both hands empty), the
     rider farlook-text row and the WISH_TRACKER row (port it) were
@@ -54,13 +55,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     row; session 165 the #wizcast skill row and the polymorphed Int
     exercise row; session 166 the ^G "racial" prefix row; session
     169 the mnearto() move_other unstick row; session 170 the
-    first-polymorph livelog sex row.
-- Latest slice: 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
+    first-polymorph livelog sex row; session 171 the polymorphed
+    hero's burning-hands rider row and the "Phasing" status row.
+- Latest slice: 2026-10-02 (session 171) SNARKS THAT ARE BOOJUMS,
+  THE BOOJUM'S VANISHING TOUCH (code `Port snarks that are boojums
+  and the boojum's vanishing touch.`, tracker `Tracker: snark and
+  boojum slice, burning-hands and Phasing rows.`; hashes pending;
+  BUG-2094..2099).
+  - One snark in three (fixed by m_id) turns out to be a boojum the
+    first time it is awake next to the hero: "Oh, no, this Snark is
+    a Boojum!", as on master (SporkHack). Boojums no longer exist
+    only in wizard mode.
+  - A boojum's teleporting claw ignores cancellation and magic
+    cancellation and leaves the hero invisible for 6-600 turns ("You
+    suddenly vanish!"); its monster victims turn invisible too.
+  - Jabberwocks, snarks, boojums and satyrs are never generated
+    asleep, as on master.
+  - A steed killed by a trap it was teleported onto by an AD_TLPT hit
+    is no longer revived as a 1-HP ghost (upstream-shared).
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
   THE GULTHIAS TREE SPAWNS BLIGHTS, PLANTS AND ENTS ARE VEGAN (code
-  `Port assassin vine growth and Gulthias tree blights.` + `Fix:
-  plants and ents broke vegan conduct and fed vampires.`, tracker
-  `Tracker: vine growth, Gulthias blights and plant vegan().`;
-  hashes pending; BUG-2088..2093).
+  887bf2e4c + b4d362c6a, tracker 1f304f413; BUG-2088..2093).
   - The original vine makes one silent sprout every 30 turns on the
     nearest free square while it is hostile, uncancelled and at 2/3
     HP or better; sprouts in that condition grow 1 in 3 onto a free
@@ -73,16 +89,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   - Plant and ent corpses no longer break vegan conduct, and vampires
     no longer feed on them, as on master.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-02 (session 169) COVETOUS PURSUIT AS ON
+- Earlier slices: 2026-10-02 (session 169) COVETOUS PURSUIT AS ON
   MASTER, DEMON-COURT FREEZE FIXED (code 0547e1f4e, tracker
-  3e4502a50; BUG-2081..2087).
-  - A covetous monster (the Wizard, liches, alhoons, nemeses, demon
-    lords) closes in with silent short jumps and pounces next to the
-    hero, as on master (SporkHack); it no longer freezes in a
-    Gehennom level whose demon lord is alive.
-  - Detail: the closed row's closure notes.
-- Earlier slices: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
-  AT 10 DICE (code ad2d118e4, tracker c4acecad9; BUG-2032);
+  3e4502a50; BUG-2081..2087); 2026-10-01 (session 168) TELEKINESIS
+  DAMAGE CAPPED AT 10 DICE (code ad2d118e4, tracker c4acecad9;
+  BUG-2032);
   2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
   READABLE STRIPED SHIRT, BOUNDED NAME CONSUMERS (code 41e6310b5,
   tracker f870b211e; BUG-2070..2080); 2026-10-01 (session 166) THE
@@ -4803,7 +4814,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       shield hook (muse/combat parity); master luck-timeout rework
       (misc parity, pre-existing); break_armor boots trigger
       widening + makemon S_JABBERWOCK-awake/S_NYMPH-satyr/S_EYE-
-      beholder case shapes (races/monsters parity sweep); Priest
+      beholder case shapes (races/monsters parity sweep) [DISCHARGED
+      2026-10-02, session 171, BUG-2098: J class never asleep, satyrs
+      skip the nymph sleep; S_EYE was already master-equivalent];
+      Priest
       pierce/slash cursed-slip term (Priest parity); amulet-escape
       subsystem (mon_escape_with_amulet + uamulet_on_planes gates -
       NEW owner minted by pass 1); meat-armor worn-suffix display
@@ -15380,6 +15394,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       parameter) instead of copying master's monster arm in
       recharge(): flat 3 * |spe| damage, mondied() with no kill
       credit, and an ungated spin message.
+      RIDER 2026-10-02 (session 171, census of master 91977c174): the
+      "maxdmg melee gate" named in the Phase 2 owner list never got a
+      row of its own and rides here. Master 1a0cb91af ("Monster using
+      wand vs melee AI addition. From SporkHack.") makes
+      use_offensive() return 0 - melee instead - when the monster's
+      summed natural attack dice (damn * damd) exceed 9 or it wields
+      an artifact (MON_WEP or MON_WEP2), it is next to where it thinks
+      the hero is, and the chosen item is not a fire / frost horn or a
+      wand of death, sleep, fire, cold or lightning (master muse.c
+      ~2950-2980). The branch has none of it.
 - [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
@@ -17017,6 +17041,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       throne case 6 non-wish arm (ported in session 161) grants
       PERMANENT see invisible on master too ("permanent see invisible
       in this instance") - leave it. MED (game balance).
+      PARTLY DISCHARGED 2026-10-02 (session 171): the mhitu.c arm (the
+      boojum's vanishing touch) landed in master's current timed form,
+      incr_itimeout(&HInvis, d(6, 100)), with the boojum slice
+      (BUG-2095, uhitm.c mhitm_ad_tlpt()). Five files remain.
 - [ ] LOW: master's WISH_TRACKER wish log is absent (minted
       2026-09-30, session 161, Plan-agent find). Master config.h
       defines WISH_TRACKER inside the DGAMELAUNCH block; files.c
@@ -17696,9 +17724,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] Assassin vine growth + Gulthias blight spawning
       (BUG-2088..2092), plus the vegan() plant / ent clauses
       (BUG-2093) - FIXED 2026-10-02 (session 170, commits `Port
-      assassin vine growth and Gulthias tree blights.` = (hash
-      pending) and `Fix: plants and ents broke vegan conduct and fed
-      vampires.` = (hash pending), tracker (hash pending); closure
+      assassin vine growth and Gulthias tree blights.` = 887bf2e4c
+      and `Fix: plants and ents broke vegan conduct and fed vampires.`
+      = b4d362c6a, tracker 1f304f413, landed 2026-10-02; closure
       notes at the end of this row). Original text: MED: assassin vines never
       spread and the Gulthias tree never
       spawns blights (minted 2026-09-29, session 158, wrap-attack
@@ -21348,7 +21376,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (muse.c wand picks, mcastu.c spell choice, the reflection_skip
       that blocks every ray wand). SWEEP (gameplay: monster item and
       spell choice).
-- [ ] MED: master's boojum "vanish" arm is absent (minted 2026-09-28,
+- [x] Snark -> boojum swap, the boojum's vanishing touch, TLPT death
+      guards, J class and satyrs awake (BUG-2094..2099) - FIXED
+      2026-10-02 (session 171, commit `Port snarks that are boojums
+      and the boojum's vanishing touch.` = (hash pending), tracker
+      (hash pending); closure notes at the end of this row). Original
+      text: MED: master's boojum "vanish" arm is absent (minted 2026-09-28,
       session 153, by the covetous no-teleport slice's census). Master
       91977c174 (the SporkHack monster import) gave the boojum's
       AD_TLPT claw its own arm in mhitu.c: `if (uncancelled ||
@@ -21366,6 +21399,115 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       transform in mon.c. Port the arm into mhitm_ad_tlpt(); check
       the monster-vs-monster arm too. MED (gameplay: the boojum's
       signature attack).
+      CLOSURE (2026-10-02, session 171, plan
+      /root/.claude/plans/bugfix-snark-boojum-vanish.md). PREMISE
+      WRONG: the mon.c PM_BOOJUM hit is a case list - the branch had
+      NO snark -> boojum swap, so boojums (G_NOGEN) never appeared
+      outside wizard mode. An Explore census of every hunk of master
+      91977c174 found four gaps and nothing else snark / boojum
+      related. RULINGS (AskUserQuestion, three questions, all
+      recommended): all four pieces in one slice; on a no-teleport
+      level print the vanish text only when invisibility takes
+      effect; no MASTER battery legs. FIXES: (BUG-2094) monmove.c
+      dochug() swaps a snark with m_id % 3 == 0 for a boojum on its
+      first awake turn within distu 2 ("Oh, no, this Snark is a
+      Boojum!"), the boojum finishing the snark's move; MM_NOMSG
+      keeps 5.0's makemon() appear line out, MM_ADJACENTOK is
+      defensive (a rider left on the square - unreachable, since
+      can_saddle() refuses snarks and no mount_monster() caller
+      picks one), `return 1` if makemon() fails. (BUG-2095)
+      mhitm_ad_tlpt() hero arm: a boojum ignores mcan and MC, adds
+      d(6,100) turns of HInvis (master's current timed form - the
+      timed-invisibility row's mhitu.c arm), "You suddenly vanish!"
+      unless noteleport_level(&gy.youmonst), then tele(); newsym()
+      after the timeout. (BUG-2096) monster victims get
+      mon_set_minvis() before rloc(). (BUG-2097, upstream-shared, a
+      re-port of master's BUG-890 / BUG-898 shape) both monster-
+      defender arms stop with M_ATTK_DEF_DIED when the relocation
+      killed the defender or left it off the map, before the
+      "suddenly disappears!" line and the mhp - 1 clamp; the real
+      lethal route is a TLPT hit on the hero's steed, rloc() ->
+      tele() -> safe_teleds() onto a trap -> steedintrap() (the
+      trapped-mover mintrap() call in rloc_to_core() only rolls
+      escape, so master's BUG-890 rationale does not apply here).
+      (BUG-2098) makemon.c: `case S_JABBERWOCK: break;` and satyrs skip
+      the nymph sleep (master 91977c174 / 4ac81e26f); S_EYE was
+      already master-equivalent. (BUG-2099, master frozen-unfixed, by
+      ruling) the no-teleport vanish text also needs !BInvis and
+      !Blind. PLAN AGENT found the ridden-snark makemon() failure and
+      corrected the death-guard rationale. REVIEWER PASS: LOW-1
+      comment wording taken; LOW-2 (Amulet / Wizard's Tower
+      disorientation still says "You suddenly vanish!") and LOW-3
+      (the swap line under hallucination / for a never-seen snark)
+      NOT taken - master parity; its pre-existing burning-hands find
+      minted as the LOW row below. BATTERY (game-tester, 2 games,
+      about 44 min; POST c817e93d86b5d05fceb566d105932fbf, PRE
+      ec795c2c01eb263029e98e6a3921b694): all legs PASS. L1 six of 12
+      snarks had m_id % 3 == 0 and each swapped on its first move
+      (new m_ids, same-turn attack, no appear line); the other six
+      never swapped in 85-119 dochugs; PRE 0 swaps. L2 asleep out of
+      20: jabberwock 0 / satyr 0 / water nymph 17 / snark 0 (PRE 19
+      / 14 / 17 / 15). L3 every boojum touch "You suddenly vanish!",
+      HInvis +157..442 per touch; a cancelled boojum 3/3 and an MC3
+      hero 4/4 still hit; quantum mechanic vs MC3 2 of 28 landed with
+      no invisibility (PRE: boojum = QM text, mcan 4/4 and MC3 9/10
+      "You are not affected."). L4 no-teleport: vanish / become
+      transparent / silent when already invisible, wrapped or blind;
+      flags.debug 0 gave "A mysterious force prevents you from
+      teleporting!" and the @ vanished at once. L5 conflict: mastodon
+      "suddenly disappears!" with perminvis 1 / minvis 1, a giant
+      mummy (invis_blkd) perminvis 1 / minvis 0, no-teleport level
+      neither (PRE perminvis 0). L6 every reachable square mined
+      (stairs and furniture blocked by monsters), QM vs a 5-HP ridden
+      pony: POST "The saddled pony is killed!" and dmonsfree freed it
+      cleanly; PRE revived it to 1 HP with mstate MON_DETACH, then
+      "dmonsfree: 0 removed != 1 pending" and "mon ... at <6,8> is not
+      there!" every turn (6 paniclog lines, written by the PRE
+      binary). L7 a tame snark became a hostile boojum and its gdb-
+      given dagger was destroyed (master parity). Branch paniclog 8
+      lines after POST; 14 after the PRE leg. RECORD ONLY: a 5-HP
+      steed can survive a land mine and die in the follow-up pit
+      inside the same teleds(); when the mine itself kills the steed,
+      "There is a land mine here." prints before the pit message;
+      impossible() still names devteam@nethack.org before the local
+      support line; the long dmonsfree paniclog line is cut at 285
+      characters; ^G "tame saddled pony" announces "A pony appears
+      next to you." without "saddled"; the welcome line still says
+      "welcome to NetHack!" (known re-brand row).
+- [ ] LOW: a polymorphed hero's burning hands / shocking grasp riders
+      land on a defender that the hero's own AD_TLPT claw has just
+      teleported away (minted 2026-10-02, session 171, by the boojum
+      slice's reviewer; pre-existing, master-shared - master uhitm.c
+      hmonas() ~4695 / ~4758 has the same gate). hmonas() runs both
+      riders right after `sum[i] = damageum(mon, mattk, specialdmg)`
+      and tests only `u.umburn` / `u.umshock`, `!DEADMONSTER(mon)` and
+      the attack type, never that `mon` is still where the hero struck.
+      A hero polymorphed into a quantum mechanic with burning hands up
+      claws a monster: u_teleport_mon() moves it across the level, then
+      "You burn <mon> with your hands!" and the fire damage (possibly a
+      kill) land on the distant monster. Rarer: u_teleport_mon()'s
+      engulfer arm can put the target into limbo when rloc() finds no
+      room, and a rider kill would then hit a migrating monster.
+      Monster-side twins are unreachable (quantum mechanics and
+      boojums are not spellcasters). Fix: also require
+      `m_at(gb.bhitpos.x, gb.bhitpos.y) == mon` (or the off-map test)
+      on both riders. LOW (gameplay: a polymorph + spell combination).
+- [ ] LOW: master's "Phasing" status condition is absent (minted
+      2026-10-02, session 171, found beside the census of master
+      91977c174). Master a8d9fa0fb (2023-05-13, "Add phasing status to
+      botl.") shows " Phasing" on the bottom line and sets
+      BL_MASK_PHASING while Passes_walls (xorn or earth elemental
+      form, phasing artifacts), adds the "phasing" condition name,
+      puts it in the "all" group and in the "movement" hilite group,
+      renames the PASSES_WALLS propertyname
+      to "phasing" in timeout.c, and adds the field to tty, curses,
+      X11, win32 and windows.c's genl status. The branch has no
+      BL_MASK_PHASING at all, keeps "pass thru walls", and its
+      "movement" group is LEV | FLY | RIDE: master's group also holds
+      SLOW (the branch files SLOW under minor_troubles instead, so a
+      hilite_status rule written for master's "movement" misses Slow).
+      Port as one status-field unit with the Phase 4 window-port rows.
+      LOW (status line).
 - [x] Covetous court freeze + master's covetous pursuit
       (BUG-2081..2087) - FIXED 2026-10-02 (session 169, commit `Port
       master's covetous pursuit and fix the demon-court freeze.` =
@@ -22791,6 +22933,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, session 171; hash pending); patch artifact not cut yet |
 | 2026-10-02 | polyself.c polymon() writes the "changed form for the first time, becoming %s" livelog with `pmname(&mons[mntmp], flags.female ? FEMALE : MALE)` (Official_nh50 src/polyself.c ~753) before its `gs.sex_change_ok && !rn2(10)` sex flip (~792), so on a flip the livelog names the old sex (seen on the branch: "becoming a vampire lady" with "You turn into a male vampire lord!" on screen). Minimal upstream fix: write the livelog after the sex is settled | found on branch (LOW row, session 170); not fixed, not sent |
 | 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, 0547e1f4e); patch artifact not cut yet |
 | 2026-10-02 | wizard.c tactics() STRAT_HEAL caches `mx = mtmp->mx, my = mtmp->my` and then calls `expels(mtmp, ...)` for an engulfer holding the hero (Official_nh50 src/wizard.c ~379-382); expels() mnexto()s the monster, so the cached spot is the hero's square. The stair test then reads the stale spot, and if mnearto() to the stairs fails, the "stay where we are" fallback `rloc_to(mtmp, mx, my)` puts the monster on the hero's square. Minimal upstream fix: refresh mx/my after expels() (and stop if expels() sent the monster off the level) | fixed on branch (BUG-2086, 0547e1f4e); patch artifact not cut yet |
@@ -22956,6 +23099,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-02 | Boojum slice rulings (session 171; AskUserQuestion x1, three questions, all recommended). (1) SCOPE: ALL FOUR master pieces with the vanish arm - the snark -> boojum swap (without it boojums never appear outside wizard mode), monster victims turning invisible, the TLPT death guards (master BUG-890 / BUG-898 shape, upstream-shared) and makemon()'s J class / satyrs spawning awake. (2) VANISH TEXT on a no-teleport level only when invisibility takes effect (not already invisible, no mummy wrapping, not blind; the blind term follows zap.c's self-zap) over master's `!Invis`-only gate. (3) NO MASTER LEGS in the battery; master parity rests on code reading. Kept for master parity without a ruling: a tame snark becomes a hostile boojum and its inventory is destroyed by mongone(); the Amulet / Wizard's Tower disorientation still follows "You suddenly vanish!". | maintainer |
 | 2026-10-02 | Vine growth slice rulings (session 170; AskUserQuestion x4, six questions). (1) VINE INTENT: ONLY THE ORIGINAL GROWS (recommended; SUPERSEDED IN PART by (7)), per 71899e6e5's message and the wiki, over master's code (every vine at 2/3 HP grows); sprouts carry the existing mcloned bit, and the diminishing XP for mcloned kills is accepted. (2) RATE: FASTER, because 0.9.3 players expect quick spread (maintainer's addition to option 1), then EVERY 30 TURNS (recommended) with no roll, on the nearest free square through makemon()'s own-square MM_ADJACENTOK path (simulated 8 / 16 / 33 / 66 sprouts at 250 / 500 / 1000 / 2000 turns against master's 2.7 / 7.5 / 31 / 160); a sprout behind a room wall is accepted. Rejected: every 20 turns (12 / 25 / 50 / 100) and master's 1 in 3 every 15 turns (5.6 / 11 / 22 / 45). (3) SILENT (recommended): MM_NOMSG on both spawns, master parity. (4) GULTHIAS BLIGHTS ON THE NEAREST FREE SQUARE like the vine (recommended), over a blight-checked 3x3 or master's exact boulder-prone shape. (5) ONLY HOSTILE PARENTS SPAWN (recommended), over master parity (a pet vine seeds hostile sprouts) and peaceful sprouts. (6) vegan() PLANT / ENT CLAUSES FOLDED IN as a separate commit (recommended) rather than a later row. REVISION after the first battery (maintainer: "assassin vine sprouts should have a chance to grow as well"; AskUserQuestion x2, three questions, all recommended): (7) SPROUTS GROW 1 IN 3, EDGE-ONLY - on the 30-turn gate in the same hostile / uncancelled / 2/3-HP condition, onto master's random 3x3 square if free, never the own square (simulated 8.5 / 20.5 / 57 / 109 / 172 at 250 / 500 / 1000 / 1500 / 2000 turns), over 1 in 6 edge-only and master's exact pick; nearest-free sprouts were shown to fill the area at any odds. (8) THE ROOT CONTROLS THE PATCH - sprouts grow only while an original vine is on the level, over sprouts growing on their own. (9) THE ROOT MUST BE ABLE TO GROW - hostile, uncancelled, at 2/3 HP or better (the reviewer's LOW), so wounding, cancelling or taming it stops the patch too, over any living original | maintainer |
 | 2026-10-01 | Covetous slice rulings (session 169; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: ALL OF MASTER'S tactics() in one slice - the ruled demon-court fix plus master's unported covetous AI found by the whole-function diff (SporkHack pursuit hops + pounce with the map-edge clamp, the peaceful wander, the mflee teleport-flee, the peaceful target gate, m_dowear() after a targeted pickup, aggravate() keeping the bribe tracker), closing the target_on()/strategy() residual row too. (2) HOPS AND POUNCE SILENT, as on master (the one-chance "suddenly appears" stays). (3) Follow-up: the HEAL-TO-STAIRS WARP SILENT TOO - master's STRAT_HEAL fall-through makes a wounded covetous monster shuttle stairs -> hero, and an announced warp would print most turns; the Wizard's Tower flee, item-blocked and monster-has-it warps keep 5.0's announcements. (4) REPRODUCE FIRST, then a PRE/POST/MASTER battery. | maintainer |
 | 2026-10-01 | Deferred "decide" clause rulings (session 168 second follow-up; AskUserQuestion x2, seven questions). (1) SWORD OF KAS / BARBED NEEDLE: PORT MASTER'S DOUBLE DOSE, as recommended (the hero poisoned-weapon block - Samurai / lawful alignment hit, +rnd(6) or 1-in-10 poiskilled, no wear-off - on top of Kas's DRST artifact attack). (2) PASSIVE AD_COLD ABSORPTION: KEEP 5.0'S, over the recommended master's restriction (every cold-passive defender heals; a hero in any cold-passive form can split); row closed, no code change. (3) RANGED / SPELL DEATH REASONS: ADD THE RACE, as recommended ("a centaurian soldier's thrown dagger"). (4) exerchk() INT WHILE POLYMORPHED: FIX IT, as recommended (Int lands like Wis; diverges from master's literal code, follows 3b8ba5835's intent). (5) uasmon_maxStr(): ADD EVILHACK RACES, as recommended (no master shape; new LOW row with plan-time questions on giants, the broad vampire / demon families and draugr). (6) ITEM-GOAL PATHFINDING: BUILD GOAL-ROOTED PATHING, over the recommended close-as-intended (diverges from master; own slice and battery). (7) ^X FORM WORDING: KEEP 5.0'S " from your creature form", over the recommended master's wording, and switch insight.c's two master-worded suffixes to it. | maintainer |
