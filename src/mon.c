@@ -11,6 +11,7 @@ staticfn void sanity_check_single_mon(struct monst *, boolean, const char *);
 staticfn struct obj *make_corpse(struct monst *, unsigned);
 staticfn int minliquid_core(struct monst *);
 staticfn void m_calcdistress(struct monst *);
+staticfn boolean growing_original_vine(struct monst *);
 staticfn boolean monlineu(struct monst *, int, int);
 staticfn boolean pathfind_passable(coordxy, coordxy);
 staticfn void compute_pathfind_map(void);
@@ -1507,6 +1508,17 @@ mcalcdistress(void)
     iter_mons(m_calcdistress);
 }
 
+/* get_iter_mons() callback: an original (not a sprout) assassin vine
+   that is able to grow - hostile, not cancelled and at two-thirds of
+   its maximum hit points or better */
+staticfn boolean
+growing_original_vine(struct monst *mtmp)
+{
+    return (boolean) (mtmp->data == &mons[PM_ASSASSIN_VINE]
+                      && !mtmp->mcloned && !mtmp->mcan && !mtmp->mpeaceful
+                      && mtmp->mhp >= (mtmp->mhpmax * 2) / 3);
+}
+
 staticfn void
 m_calcdistress(struct monst *mtmp)
 {
@@ -1739,6 +1751,49 @@ m_calcdistress(struct monst *mtmp)
         mtmp->mjumptime = 0;
         /* no message - jumping expiration is silent */
     }
+
+    /* an assassin vine spreads across the level: every 30 turns, while
+       it is hostile, not cancelled and at two-thirds of its maximum hit
+       points or better, the original vine sprouts a new one on the
+       nearest free square; while such an original grows on the level,
+       a sprout in the same condition tries one time in three to grow
+       onto a random square next to it, if that square is free, so a
+       patch spreads from its edge; a new sprout starts with one half
+       to one third of its hit points */
+    if (mtmp->data == &mons[PM_ASSASSIN_VINE] && !mtmp->mcan
+        && !mtmp->mpeaceful && mtmp->mhp >= (mtmp->mhpmax * 2) / 3
+        && !((svm.moves + mtmp->mnum) % 30)) {
+        struct monst *grow = (struct monst *) 0;
+
+        if (!mtmp->mcloned) {
+            grow = makemon(mtmp->data, mtmp->mx, mtmp->my,
+                           MM_ADJACENTOK | MM_NOCOUNTBIRTH | MM_NOMSG
+                           | NO_MINVENT);
+        } else if (!rn2(3) && get_iter_mons(growing_original_vine)) {
+            coordxy x = mtmp->mx - 1 + rn2(3), y = mtmp->my - 1 + rn2(3);
+
+            if ((x != mtmp->mx || y != mtmp->my)
+                && goodpos(x, y, mtmp, GP_AVOID_MONPOS))
+                grow = makemon(mtmp->data, x, y,
+                               MM_NOCOUNTBIRTH | MM_NOMSG | NO_MINVENT);
+        }
+        if (grow) {
+            grow->mhp /= rn2(3) ? 2 : 3;
+            grow->mcloned = 1;
+        }
+    }
+
+    /* a Gulthias tree spawns blights: while it is hostile and at
+       two-thirds of its maximum hit points or better, one time in three
+       every 15 turns it makes a twig blight or, less often, a needle
+       blight on the nearest free square */
+    if (mtmp->data == &mons[PM_GULTHIAS_TREE] && !mtmp->mcan
+        && !mtmp->mpeaceful && mtmp->mhp >= (mtmp->mhpmax * 2) / 3
+        && !((svm.moves + mtmp->mnum) % 15) && !rn2(3))
+        (void) makemon(&mons[rn2(6) ? PM_TWIG_BLIGHT : PM_NEEDLE_BLIGHT],
+                       mtmp->mx, mtmp->my,
+                       MM_ADJACENTOK | MM_NOCOUNTBIRTH | MM_NOMSG
+                       | NO_MINVENT);
 
     /* FIXME: mtmp->mlstmv ought to be updated here */
 }
