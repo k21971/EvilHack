@@ -35,20 +35,20 @@ noteleport_level(struct monst *mon)
     if (svl.level.flags.noteleport)
         return TRUE;
 
-    return covetous_noteleport(mon);
-}
-
-/* the part of noteleport_level() that also holds a covetous monster's
-   tactics() warps and an MS_BRIBE demon's departure, which ignore a
-   level's natural no-teleport flag */
-boolean
-covetous_noteleport(struct monst *mon)
-{
     /* demon court in Gehennom prevent others from teleporting */
     if (In_hell(&u.uz) && !(is_dlord(mon->data) || is_dprince(mon->data)))
         if (get_iter_mons(m_blocks_teleporting))
             return TRUE;
 
+    return covetous_noteleport(mon);
+}
+
+/* the part of noteleport_level() that also holds a covetous monster's
+   tactics() warps and an MS_BRIBE demon's departure, which ignore a
+   level's natural no-teleport flag and the demon court */
+boolean
+covetous_noteleport(struct monst *mon UNUSED)
+{
     /* wand of stasis prevents teleportation while the effect is active
        (even for covetous monsters) */
     if (svl.level.flags.stasis_until >= svm.moves)

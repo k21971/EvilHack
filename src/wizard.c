@@ -20,6 +20,8 @@ staticfn struct obj *on_ground(short);  /* might return NULL obj pointer */
 staticfn boolean you_have(int);
 staticfn unsigned long target_on(int, struct monst *) NONNULLARG2;
 staticfn unsigned long strategy(struct monst *) NONNULLARG1;
+staticfn boolean covetous_can_shove(coordxy, coordxy);
+staticfn void covetous_approach(struct monst *) NONNULLARG1;
 
 /* adding more neutral creatures will tend to reduce the number of monsters
    summoned by nasty(); adding more lawful creatures will reduce the number
@@ -269,7 +271,7 @@ target_on(int mask, struct monst *mtmp)
 
     otyp = which_arti(mask);
     if (!mon_has_arti(mtmp, otyp)) {
-        if (you_have(mask)) {
+        if (you_have(mask) && !mtmp->mpeaceful) {
             mtmp->mgoal.x = u.ux;
             mtmp->mgoal.y = u.uy;
             return (STRAT_PLAYER | mask);
@@ -426,6 +428,63 @@ choose_stairs(
         *sx = stway->sx, *sy = stway->sy;
 }
 
+/* may a covetous warp move whatever monster is at <x,y> out of the way?
+   not the one engulfing or holding the hero, nor the rider of such a
+   steed; mnearto() would unstick it */
+staticfn boolean
+covetous_can_shove(coordxy x, coordxy y)
+{
+    struct monst *occ = m_at(x, y);
+
+    return (!occ || !ustuck_self_or_steed(occ));
+}
+
+/* a covetous monster closes in on the hero: it pounces when close
+   enough and uses short jumps until it is; both are silent apart from
+   the one-chance STRAT_APPEARMSG arrival message */
+staticfn void
+covetous_approach(struct monst *mtmp)
+{
+    coordxy stx, sty;
+    int dx, dy;
+
+    /* it has the hero engulfed */
+    if (engulfing_u(mtmp))
+        return;
+
+    if (distu(mtmp->mx, mtmp->my) <= 25) {
+        /* if we're close enough, pounce */
+        boolean couldspot = canspotmon(mtmp);
+
+        mnexto(mtmp, RLOC_NOMSG);
+        if (!mtmp->mstate && (mtmp->mstrategy & STRAT_APPEARMSG)) {
+            /* one chance only; but STRAT_APPEARMSG doubles as the bribe
+               one-shot tracker, so a peaceful blackmail demon keeps it */
+            if (!mtmp->mpeaceful || mtmp->data->msound != MS_BRIBE)
+                mtmp->mstrategy &= ~STRAT_APPEARMSG;
+            if (!couldspot && canspotmon(mtmp))
+                pline_mon(mtmp, "%s suddenly %s!", Amonnam(mtmp),
+                          !Blind ? "appears" : "arrives");
+        }
+        return;
+    }
+
+    /* figure out what direction the hero's in */
+    dx = sgn(u.ux - mtmp->mx);
+    dy = sgn(u.uy - mtmp->my);
+    /* since we're not close enough, use short jumps to change that */
+    stx = mtmp->mx + ((rn2(3) + 4) * dx);
+    sty = mtmp->my + ((rn2(3) + 3) * dy);
+    /* a fixed-length jump toward a hero at or near a map edge can
+       overshoot the boundary; clamp into bounds so the monster keeps
+       advancing instead of freezing (an off-map coord would also index
+       m_at() out of bounds in mnearto) */
+    stx = min(max(stx, 1), COLNO - 1);
+    sty = min(max(sty, 0), ROWNO - 1);
+    (void) mnearto(mtmp, stx, sty, covetous_can_shove(stx, sty),
+                   RLOC_NOMSG);
+}
+
 DISABLE_WARNING_UNREACHABLE_CODE
 
 int
@@ -436,6 +495,34 @@ tactics(struct monst *mtmp)
 
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
+
+    /* if monster is magically scared, don't 'flee' right next to the
+       hero; an engulfer keeps the hero until STRAT_HEAL's expels()
+       instead of carrying it away */
+    if (mtmp->mflee && !engulfing_u(mtmp) && !covetous_noteleport(mtmp)) {
+        coordxy nx, ny;
+        int j;
+
+        mtmp->mavenge = 1;
+        for (j = 0; j < 400; j++) {
+            nx = rnd(COLNO - 1);
+            ny = rn2(ROWNO);
+            if (rloc_pos_ok(nx, ny, mtmp)
+                && distu(nx, ny) > (BOLT_LIM * BOLT_LIM)) {
+                rloc_to(mtmp, nx, ny);
+                /* rloc_to may fire mintrap and kill mtmp */
+                if (DEADMONSTER(mtmp))
+                    return 0;
+                if (mtmp->mhp <= mtmp->mhpmax - 8)
+                    healmon(mtmp, rnd(8), 0);
+                return 1;
+            }
+        }
+        /* we couldn't find someplace far enough away from the hero to
+           run to, which should be very rare, but... and in that case,
+           just fall through so we do something */
+        pline("%s looks around nervously.", Monnam(mtmp));
+    }
 
     /* once a covetous monster gets close enough, they will start
        to move normally 95% of the time */
@@ -457,8 +544,14 @@ tactics(struct monst *mtmp)
     case STRAT_HEAL: /* hide and recover */
         mx = mtmp->mx, my = mtmp->my;
 
-        if (u.uswallow && u.ustuck == mtmp)
+        if (u.uswallow && u.ustuck == mtmp) {
             expels(mtmp, mtmp->data, TRUE);
+            /* expels() moved mtmp off the hero's spot, or off the
+               level if there was no room */
+            if (DEADMONSTER(mtmp) || mtmp->mstate)
+                return 0;
+            mx = mtmp->mx, my = mtmp->my;
+        }
 
         /* if wounded, hole up on or near the stairs (to block them) */
         choose_stairs(&sx, &sy, (mtmp->m_id % 2));
@@ -474,8 +567,10 @@ tactics(struct monst *mtmp)
                 mx = mtmp->mx, my = mtmp->my; /* update cached location */
             }
         } else if (sx && (mx != sx || my != sy)) {
+            /* silent, as is the approach it falls through to */
             if (!covetous_noteleport(mtmp) &&
-                !mnearto(mtmp, sx, sy, TRUE, RLOC_MSG)) {
+                !mnearto(mtmp, sx, sy, covetous_can_shove(sx, sy),
+                         RLOC_NOMSG)) {
                 /* couldn't move to the target spot for some reason,
                    so stay where we are (don't actually need rloc_to()
                    because mtmp is still on the map at <mx,my>... */
@@ -498,8 +593,16 @@ tactics(struct monst *mtmp)
         /*FALLTHRU*/
 
     case STRAT_NONE: /* harass */
-        if (!covetous_noteleport(mtmp) && !rn2(!mtmp->mflee ? 5 : 33))
-            mnexto(mtmp, RLOC_MSG);
+        if (covetous_noteleport(mtmp))
+            return 0;
+        if (mtmp->mpeaceful && !mtmp->mtame
+            && !(mtmp->mstrategy & STRAT_APPEARMSG)) {
+            /* wander aimlessly */
+            if (!rn2(5))
+                (void) rloc(mtmp, RLOC_NOMSG);
+        } else {
+            covetous_approach(mtmp);
+        }
         return 0;
 
     default: /* kill, maim, pillage! */
@@ -516,10 +619,8 @@ tactics(struct monst *mtmp)
             return 0;
         if (u_at(tx, ty) || where == STRAT_PLAYER) {
             /* player is standing on it (or has it) */
-            mx = mtmp->mx, my = mtmp->my;
-            if (covetous_noteleport(mtmp) ||
-                !mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
-                rloc_to(mtmp, mx, my); /* no room? stay put */
+            if (!covetous_noteleport(mtmp))
+                covetous_approach(mtmp);
             return 0;
         }
         if (where == STRAT_GROUND) {
@@ -539,6 +640,13 @@ tactics(struct monst *mtmp)
                               distant_name(otmp, doname));
                     obj_extract_self(otmp);
                     (void) mpickobj(mtmp, otmp);
+                    /* artifact might be armor, attempt to put it on;
+                       a monster reading a spellbook defers that until
+                       the read finishes */
+                    if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0)
+                        check_gear_next_turn(mtmp);
+                    else
+                        m_dowear(mtmp, FALSE);
                     return 1;
                 } else
                     return 0;
@@ -596,7 +704,8 @@ aggravate(void)
             continue;
         if (in_w_tower != In_W_tower(mtmp->mx, mtmp->my, &u.uz))
             continue;
-        mtmp->mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
+        /* STRAT_APPEARMSG stays; it doubles as the bribe-offer tracker */
+        mtmp->mstrategy &= ~STRAT_WAITFORU;
         mtmp->msleeping = 0;
         if (!mtmp->mcanmove && !rn2(5)) {
             mtmp->mfrozen = 0;
@@ -897,13 +1006,8 @@ resurrect(void)
     /* the makemon() and mon_arrive() calls above can both fire mintrap
        on the arrival square; a Wizard killed there dies quietly */
     if (mtmp && !DEADMONSTER(mtmp)) {
-        /* FIXME: when a new wizard is created by makemon(), it gives
-           a "<mon> appears" message, delivered after he's been placed
-           on the map; however, when an existing wizard comes off
-           migrating_mons, he ends up triggering "<mon> vanishes and
-           reappears" on his first move (tactics when hero is carrying
-           the Amulet); setting STRAT_WAITMASK suppresses that but then
-           he just sits wherever he is, "meditating", contradicting the
+        /* clear STRAT_WAITMASK so that he comes after the hero instead
+           of sitting wherever he is, "meditating", contradicting the
            threatening message below */
         mtmp->mstrategy &= ~STRAT_WAITMASK;
 
