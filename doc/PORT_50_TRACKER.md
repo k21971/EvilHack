@@ -17,26 +17,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-01, after session 168's
-  rulings): 282 rows closed, 87 open. Of the open rows:
-  - 9 MED: 8 unported master features (potion
+- Phase 2 status (refreshed 2026-10-02, after session 169): 284
+  rows closed, 86 open. Of the open rows:
+  - 8 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
-    "vanish" arm, assassin vine growth + Gulthias blight spawning,
-    timed see invisible and invisibility) and the covetous freeze
-    in a Gehennom demon court (ruled 2026-09-30: covetous warps
-    ignore the court, as on master - NEXT).
+    "vanish" arm, assassin vine growth + Gulthias blight spawning -
+    NEXT, timed see invisible and invisibility).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
-  - 13 untagged: port gaps (Muse offense items, creeping mound
+  - 12 untagged: port gaps (Muse offense items, creeping mound
     meatfood(), monster chest_trap(), Gauntlets of Purity wear
-    gate, nasties[] reconcile, wizard.c covetousness residue,
+    gate, nasties[] reconcile,
     des-placed mplayer sex, look_at_monster buffer, "pairs of"),
     rows that wait on other work (endgame plane order with Phase
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 61 LOW: small parity rows, quirks and watch/record-only items.
+  - 62 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row (keep 5.0's catch for a Monk
     or Samurai at Skilled+ martial arts with both hands empty), the
     rider farlook-text row and the WISH_TRACKER row (port it) were
@@ -55,8 +53,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     "is being crushed." row; session 162 the egg-learning row;
     session 164 the losexp() level-1 row and the crowning-spellbook
     row; session 165 the #wizcast skill row and the polymorphed Int
-    exercise row; session 166 the ^G "racial" prefix row.
-- Latest slice: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
+    exercise row; session 166 the ^G "racial" prefix row; session
+    169 the mnearto() move_other unstick row.
+- Latest slice: 2026-10-02 (session 169) COVETOUS PURSUIT AS ON
+  MASTER, DEMON-COURT FREEZE FIXED (code `Port master's covetous
+  pursuit and fix the demon-court freeze.`, tracker `Tracker:
+  covetous pursuit and demon-court freeze.`; hashes pending;
+  BUG-2081..2087).
+  - A covetous monster (the Wizard, liches, alhoons, nemeses, demon
+    lords) closes in with silent short jumps and pounces next to the
+    hero, as on master (SporkHack); it no longer freezes in a
+    Gehennom level whose demon lord is alive.
+  - A frightened one teleports far away and heals; a peaceful one
+    wanders and leaves the hero's items alone; a picked-up target
+    artifact is worn; aggravate() keeps a bribe demon's demand.
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
   AT 10 DICE (code ad2d118e4, tracker c4acecad9; BUG-2032).
   - A telekinetically pushed object hits for at most 10d4, so a
     hurled boulder or a heavy statue does 10-40 (mean 25) instead of
@@ -65,16 +77,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   - Deliberate divergence from master, by the 2026-09-30 ruling
     (master stays frozen-unfixed).
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
+- Earlier slices: 2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
   READABLE STRIPED SHIRT, BOUNDED NAME CONSUMERS (code 41e6310b5,
-  tracker f870b211e; BUG-2070..2080).
-  - Object names get a full 255-char region (master BUG-1315); the
-    Convict's striped shirt can be read; every name-plus-text buffer
-    is bounded.
-  - Detail: the closed row's closure notes.
-- Earlier slice: 2026-10-01 (session 166) THE GRUDGE TABLE AS ON
-  MASTER: TRUCES, GRUDGES, ARM ORDER (code 1a6aa9638, tracker
-  4d01f68a7; BUG-2065..2069).
+  tracker f870b211e; BUG-2070..2080); 2026-10-01 (session 166) THE
+  GRUDGE TABLE AS ON MASTER: TRUCES, GRUDGES, ARM ORDER (code
+  1a6aa9638, tracker 4d01f68a7; BUG-2065..2069).
 - Slices 2026-08-27 .. 2026-09-27 (sessions 69-149): this dashboard
   was not refreshed in that window. Each slice is recorded in its
   closed row's closure notes, the Decisions log and the upstream
@@ -7486,7 +7493,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       newcham (proven by the become_flayer Izchak arm, Wizard slice).
       DONE 2026-08-13 (BUG-1558..1561, commit 55bcb5a8d; hash line
       rides the next commit): (a)-(d) all landed, (e) STAYS PARKED
-      ((d) did not port the short-jump shape). Session
+      ((d) did not port the short-jump shape). CORRECTION +
+      DISCHARGE 2026-10-02 (session 169, BUG-2082): the short-jump
+      code was never in 5.0 - it is EvilHack's (SporkHack, master
+      9bbf3096a); the covetous slice ported it as
+      covetous_approach() for both STRAT_NONE and STRAT_PLAYER with
+      94b0d124e's clamp, which supersedes BUG-803's isok() wrap
+      (master's own current shape). Session
       adjudications: wakeup
       stays IN-BODY box-scoped, threaded as wakeup(mtmp,
       player_caused) - master's caller-side fmon sweeps NOT ported
@@ -7511,7 +7524,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       CREATED. NOT taken (master parity quirk, kept): after the
       close-range arm's m_move, dochug may move the monster again
       the same turn (master has shipped this since 6f210b1fa).
-- [ ] wizard.c target_on()/strategy() residual master deltas (minted
+- [x] wizard.c target_on()/strategy() residual master deltas -
+      DISCHARGED 2026-10-02 (session 169) by the covetous slice
+      (commit `Port master's covetous pursuit and fix the
+      demon-court freeze.`): the you_have peaceful gate (BUG-2083)
+      and the mflee opener (BUG-2084, above the close-range arm as
+      ruled); battery L5 / L7 PASS. Original text: wizard.c
+      target_on()/strategy() residual master deltas (minted
       2026-08-06 by the Valkyrie slice's reviewer, not taken with
       BUG-1477): master's is_mplayer covetousness arms (the M_Wants
       early-out exemption; Purgatory-era mplayer covetousness -
@@ -21215,7 +21234,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       transform in mon.c. Port the arm into mhitm_ad_tlpt(); check
       the monster-vs-monster arm too. MED (gameplay: the boojum's
       signature attack).
-- [ ] MED: a covetous non-lord freezes beyond close range in a
+- [x] Covetous court freeze + master's covetous pursuit
+      (BUG-2081..2087) - FIXED 2026-10-02 (session 169, commit `Port
+      master's covetous pursuit and fix the demon-court freeze.` =
+      (hash pending), tracker (hash pending); closure notes at the
+      end of this row). Original text: MED: a covetous non-lord
+      freezes beyond close range in a
       Gehennom demon court (minted 2026-09-28, session 153, by the
       covetous no-teleport slice's reviewer; pre-existing, PRE has
       it). Two gates combine: 5.0's demon court
@@ -21253,6 +21277,124 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       tactics() as master has it (no live gate). The court keeps
       applying to everyone else through noteleport_level(). Reproduce
       the freeze first, then PRE/POST/MASTER.
+      CLOSURE (session 169, plan
+      /root/.claude/plans/bugfix-covetous-court-freeze-and-pursuit.md;
+      src/teleport.c + src/wizard.c, save-neutral):
+      - REPRODUCED FIRST (game-tester, installed = PRE): beside a
+        frozen Juiblex on Hell:3 a full-HP hostile arch-lich 15
+        columns away never moved in 49 turns (35 tactics() calls,
+        every covetous_noteleport() TRUE from the court line);
+        controls: on DL12 and after Juiblex died the 1-in-5 "suddenly
+        appears next to you" warp came back.
+      - SCOPE GREW (whole-function diff vs master): master's covetous
+        AI was mostly absent and unrowed - SporkHack's pursuit and
+        the mflee opener (9bbf3096a, 60a8f60eb), the map-edge clamp
+        (94b0d124e), the peaceful wander / target gate / aggravate()
+        bribe-tracker half of 7f15b78f6, m_dowear() after a targeted
+        pickup (295e480c3). The branch had 5.0's harass instead:
+        beyond distu 8 a covetous monster idled 4 turns in 5
+        everywhere. The parked item (e) of the earthquake slice row
+        ("short-jump code 5.0 deleted") was wrong: it is EvilHack
+        code, now ported.
+      - BUG-2081: the court arm moved from covetous_noteleport() into
+        noteleport_level() (every other caller unchanged);
+        covetous_noteleport() keeps only the dormant stasis arm
+        (`mon UNUSED`). RIDER for any future stasis import: m_move()'s
+        distu > 8 gate would bring the freeze back under stasis.
+      - BUG-2082: new staticfn covetous_approach() (STRAT_NONE and
+        STRAT_PLAYER): pounce (mnexto) within distu 25, else a hop of
+        4-6 columns / 3-5 rows toward the hero, clamped to the map;
+        silent (RLOC_NOMSG), with master's mnexto() tail for the
+        one-chance "suddenly appears" (kept by a peaceful MS_BRIBE
+        demon). Adaptation: an engulfer (Juiblex) skips it - the
+        branch's close-range carve-out would otherwise let it drag
+        the hero every call.
+      - BUG-2083: peaceful untamed covetous monsters without
+        STRAT_APPEARMSG wander (rloc 1 in 5); target_on() skips the
+        hero for a peaceful one; aggravate() keeps STRAT_APPEARMSG.
+      - BUG-2084: master's mflee opener first (before the close-range
+        arm, per the residual row's ruling): teleport beyond
+        BOLT_LIM^2, mavenge, heal rnd(8) under mhpmax - 8, else
+        "looks around nervously" (master's text, unconditional;
+        reviewer LOW to gate it on canspotmon NOT taken - master
+        parity). Engulfers skip it.
+      - BUG-2085: m_dowear() after the STRAT_GROUND pickup, deferred
+        through check_gear_next_turn() mid spellbook read (the
+        dothrow.c catch sibling's convention).
+      - BUG-2086 (upstream too): STRAT_HEAL refreshes mx/my after
+        expels() (the cached spot was the hero's square, so the
+        mnearto-fail rloc_to fallback put the monster there) and
+        returns if expels() sent it off the level.
+      - BUG-2087: the stairs warp and the hop never shove the
+        monster engulfing or holding the hero, nor the rider of such
+        a steed (new staticfn covetous_can_shove(),
+        ustuck_self_or_steed()): the branch's mnearto() runs
+        mon_leaving_level() -> unstuck() on the shoved monster. The
+        stairs half is upstream-shared.
+      - resurrect()'s stale "vanishes and reappears" FIXME rewritten.
+      RULINGS (AskUserQuestion x2, decisions log): all of master's
+      tactics() in one slice; hops and pounce silent; the stairs warp
+      silent too (the STRAT_HEAL fall-through makes a wounded monster
+      shuttle stairs -> hero); reproduce first. Other 5.0 arms (the
+      Wizard's Tower flee, item-blocked, monster-has-it) keep
+      RLOC_MSG.
+      PLAN AGENT: three defects folded before coding (RLOC_NONE would
+      spam "It suddenly appears!" per hop for an invisible bribe lord
+      and spend the one-shot flag; the opener pline placement; the
+      hop could unstick the hero). REVIEWER: PASS; LOW-1 (rider /
+      steed pair) and LOW-3 (expels() limbo return) taken, comment
+      NITs taken; LOW-4 minted below.
+      BATTERY (game-tester, 3 games, about 55 min; POST
+      f8a1e699b35ffb64a917f3157a22547f via `make update SHELLDIR=`,
+      PRE 7668413d9f42db95846c6ecc8057df3e = session 168's install
+      at the session scratchpad run with -d; paniclogs unchanged,
+      branch 8 / master 22): every POST leg PASS, PRE as expected.
+      L1 court: hops 58,6 -> 64,2 -> 68,2 -> 73,1 beside a frozen
+      Juiblex, no messages; noteleport_level() still 1 for a minotaur
+      there. L2 DL10: three hops then a pounce (PRE idled 11 calls,
+      then appeared). L3 the corner: y clamped to 20, closed in. L4
+      Book of the Dead: hops + pounce (PRE appeared on its first
+      call). L5 peaceful: strat 0, two silent rlocs in 22 calls (PRE
+      STRAT_PLAYER, appeared twice). L6 Baalzebub after aggravate():
+      APPEARMSG kept, seven silent hops, "demands 5982 zorkmids" (PRE
+      Geryon: flag cleared, no demand, rloc'd away). L7 flee: every
+      call teleported beyond distu 64, healed 6 twice while under
+      mhpmax - 8 (PRE none). L8 the Dark One put on the Eye of the
+      Aethiopica (W_AMUL; PRE unworn). L9 Juiblex engulfing: 13 calls
+      no relocation, no flee-teleport, wounded -> expelled once
+      (PRE dragged the hero 4 times in 15, "You and Juiblex teleport
+      together."). L10 wounded master lich: silent stairs warp then a
+      pounce back, zero "vanishes" lines (PRE announced). L11 a hop
+      aimed at the hero's engulfing ice vortex: moveother 0, the hero
+      stayed engulfed; L11b the same for a frost giant whose mammoth
+      held the hero. MASTER LEGS BLOCKED: the auto-mode classifier
+      denied both master launches (/usr/games/evilhack and the direct
+      binary, "Interfere With Workloads"); master parity rests on the
+      code reading of both trees (Plan agent + reviewer).
+      BRIEF ERRORS (mine): choose_stairs() picks by m_id parity (odd
+      ids take the down stairs); the mspec_used spell lever also
+      blocks engulfing (gulpmu needs 0); the heal stops once mhp
+      passes mhpmax - 8; a hop aimed at the hero's square lands
+      adjacent, so an approach can end without a pounce (APPEARMSG
+      then stays set).
+      RECORD ONLY: expelled at the map corner, "Brrooaa...  You land
+      hard at some distance." with the hero's position unchanged; a
+      hostile lich attacked the frozen hostile frost giant (the ruled
+      zombie-maker arm).
+- [ ] LOW: mnearto(move_other TRUE) unsticks the hero (minted
+      2026-10-02, session 169, reviewer LOW-4 of the covetous slice).
+      The branch's mnearto() takes the shoved monster off the map
+      through mon_leaving_level(), which calls unstuck(); master's
+      only remove_monster()d it, so a holder that landed adjacent
+      kept its grip. The covetous sites are guarded (BUG-2087,
+      covetous_can_shove()). Unguarded: shk.c home_shk() (paying
+      while held by a monster on the shopkeeper's post), shkcatch()
+      (thrown pick-axe from a doorway, held by a monster just inside),
+      pay_for_damage() (holder on the damaged square), mkmaze.c
+      mv_bubble() (Plane of Water: a bubble's monster lands on an eel
+      wrapping the hero - the likeliest). Decide: guard each site, or
+      centralize in mnearto() (never shove ustuck_self_or_steed();
+      costs home_shk() parking the shopkeeper beside his post). LOW.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -22517,6 +22659,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, hash pending); patch artifact not cut yet |
+| 2026-10-02 | wizard.c tactics() STRAT_HEAL caches `mx = mtmp->mx, my = mtmp->my` and then calls `expels(mtmp, ...)` for an engulfer holding the hero (Official_nh50 src/wizard.c ~379-382); expels() mnexto()s the monster, so the cached spot is the hero's square. The stair test then reads the stale spot, and if mnearto() to the stairs fails, the "stay where we are" fallback `rloc_to(mtmp, mx, my)` puts the monster on the hero's square. Minimal upstream fix: refresh mx/my after expels() (and stop if expels() sent the monster off the level) | fixed on branch (BUG-2086, hash pending); patch artifact not cut yet |
 | 2026-10-01 | lock.c pick_lock() formats "Unlock it with %s?" and "%s it%s%s?" (with " with " + yname(pick)) into qbuf[QBUFSZ] with Sprintf (Official_nh50 src/lock.c ~486 and ~620). An unidentified skeleton key whose type is #called and which is #named (62 chars each) gives a yname() of about 140-180 chars, overflowing the 128-byte buffer. Branch fixed by BUG-2073 with safe_qbuf() (the door form builds its "Unlock it with " / "Lock it with " prefix into qbuf first). Battery: PRE wrote 128 + NUL and yn_function logged "Query truncated"; POST shortens the name with "...". | branch-fixed (BUG-2073); upstream-reportable |
 | 2026-10-01 | trap.c chest_trap() `char buf[80]` takes `Sprintf(buf, "exploding %s", xname(obj))` (Official_nh50 src/trap.c ~6368); "large box named <62 chars>" is 88 chars. Branch fixed by BUG-2074 (buf[BUFSZ] + Snprintf). | branch-fixed (BUG-2074); upstream-reportable |
 | 2026-10-01 | objnam.c aobjnam() / Tobjnam() append " " + otense() with unbounded Strcat after a cxname()/xname() that can end on the obuf slot's last byte, spilling into the next obufs[] slot (past the array for the last slot); yobjnam() then takes that next slot for shk_your() and strncat()s the overlapping string (branch PRE printed "...glowsglows blue for a moment."). Branch fixed by BUG-2075: a helper trims the name so name + verb fits BUFSZ - 1, and yobjnam() adds the verb after the "your" prefix. | branch-fixed (BUG-2075); upstream-reportable |
@@ -22679,6 +22823,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-01 | Covetous slice rulings (session 169; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: ALL OF MASTER'S tactics() in one slice - the ruled demon-court fix plus master's unported covetous AI found by the whole-function diff (SporkHack pursuit hops + pounce with the map-edge clamp, the peaceful wander, the mflee teleport-flee, the peaceful target gate, m_dowear() after a targeted pickup, aggravate() keeping the bribe tracker), closing the target_on()/strategy() residual row too. (2) HOPS AND POUNCE SILENT, as on master (the one-chance "suddenly appears" stays). (3) Follow-up: the HEAL-TO-STAIRS WARP SILENT TOO - master's STRAT_HEAL fall-through makes a wounded covetous monster shuttle stairs -> hero, and an announced warp would print most turns; the Wizard's Tower flee, item-blocked and monster-has-it warps keep 5.0's announcements. (4) REPRODUCE FIRST, then a PRE/POST/MASTER battery. | maintainer |
 | 2026-10-01 | Deferred "decide" clause rulings (session 168 second follow-up; AskUserQuestion x2, seven questions). (1) SWORD OF KAS / BARBED NEEDLE: PORT MASTER'S DOUBLE DOSE, as recommended (the hero poisoned-weapon block - Samurai / lawful alignment hit, +rnd(6) or 1-in-10 poiskilled, no wear-off - on top of Kas's DRST artifact attack). (2) PASSIVE AD_COLD ABSORPTION: KEEP 5.0'S, over the recommended master's restriction (every cold-passive defender heals; a hero in any cold-passive form can split); row closed, no code change. (3) RANGED / SPELL DEATH REASONS: ADD THE RACE, as recommended ("a centaurian soldier's thrown dagger"). (4) exerchk() INT WHILE POLYMORPHED: FIX IT, as recommended (Int lands like Wis; diverges from master's literal code, follows 3b8ba5835's intent). (5) uasmon_maxStr(): ADD EVILHACK RACES, as recommended (no master shape; new LOW row with plan-time questions on giants, the broad vampire / demon families and draugr). (6) ITEM-GOAL PATHFINDING: BUILD GOAL-ROOTED PATHING, over the recommended close-as-intended (diverges from master; own slice and battery). (7) ^X FORM WORDING: KEEP 5.0'S " from your creature form", over the recommended master's wording, and switch insight.c's two master-worded suffixes to it. | maintainer |
 | 2026-10-01 | Pending-row rulings (session 168 follow-up; AskUserQuestion x2, seven questions). (1) ARCHEOLOGIST / VALKYRIE INTRINSIC SCHEDULES: KEEP 5.0'S (over the recommended master's schedule) - Archeologist searching at XL1, stealth at XL5, speed at XL10; Valkyrie stealth at XL3. Upstream 075c2832a touches only attrib.c and its Guidebook text matches ours, so the row closes with no code change. (2) HERO CATCHES THROWN ITEMS: KEEP 5.0'S u_catch_thrown_obj() BUT ONLY FOR A MARTIAL ARTIST - the maintainer's own shape, refined by a follow-up question: a Monk or Samurai (martial_bonus()) whose P_MARTIAL_ARTS skill is Skilled or better (recommended), with both hands empty: no wielded weapon, not two-weaponing, no shield (recommended); odds stay 5.0's (Monk 1 in (80 - Dex), Samurai 1 in (100 - Dex); recommended) and 5.0's other gates stay. Rogues lose the catch. (3) WISH_TRACKER: PORT IT, as recommended (master's trackwish() and the wishtracker file for DGAMELAUNCH builds, alongside 5.0's wish livelog). (4) RIDER FARLOOK / PROBING TEXT: ", riding a saddled <steed>, which is holding you" / "..., which you are holding", as recommended. | maintainer |
 | 2026-10-01 | Name-region widening slice rulings (session 167; AskUserQuestion x2, five questions). (1) SCOPE: master's READABLE STRIPED SHIRT (00367be12) and master's nine EvilHack T-SHIRT SLOGANS are folded into the BUG-1315 widening slice (recommended) - master's widening also discloses the striped shirt's text, which the branch could not produce. (2) 5.0's CANDY BAR wrapper arm in the game-end disclosure is KEPT (asked neutrally: a pure upstream flavor addition with no competing master behavior). (3) master's `!distantname` guard on the game-end text is RESTORED (recommended); the question's premise (HTML-dump tooltips showed slogans) was wrong - distant_name() already zeroes o_id at game end - and a follow-up kept the guard anyway as master's shape (recommended). (4) the battery was run (recommended). | maintainer |
