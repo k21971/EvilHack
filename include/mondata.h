@@ -678,8 +678,9 @@
 #define vegan(ptr)                                                 \
     ((ptr)->mlet == S_BLOB || (ptr)->mlet == S_JELLY               \
      || (ptr)->mlet == S_FUNGUS || (ptr)->mlet == S_VORTEX         \
-     || (ptr)->mlet == S_LIGHT                                     \
+     || (ptr)->mlet == S_LIGHT || (ptr)->mlet == S_PLANT           \
      || ((ptr)->mlet == S_ELEMENTAL && (ptr) != &mons[PM_STALKER]) \
+     || ((ptr)->mlet == S_ENT && (ptr) != &mons[PM_PETRIFIED_ENT]) \
      || ((ptr)->mlet == S_GOLEM && (ptr) != &mons[PM_FLESH_GOLEM]  \
          && (ptr) != &mons[PM_LEATHER_GOLEM]) || noncorporeal(ptr))
 #define vegetarian(ptr) \
