@@ -17,13 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-02, after session 169): 284
+- Phase 2 status (refreshed 2026-10-02, after session 170): 285
   rows closed, 86 open. Of the open rows:
-  - 8 MED: unported master features (potion
+  - 7 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, the boojum
-    "vanish" arm, assassin vine growth + Gulthias blight spawning -
-    NEXT, timed see invisible and invisibility).
+    "vanish" arm - NEXT, timed see invisible and invisibility).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -34,7 +33,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 62 LOW: small parity rows, quirks and watch/record-only items.
+  - 63 LOW: small parity rows, quirks and watch/record-only items.
     The hero-catches-thrown-items row (keep 5.0's catch for a Monk
     or Samurai at Skilled+ martial arts with both hands empty), the
     rider farlook-text row and the WISH_TRACKER row (port it) were
@@ -54,30 +53,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 164 the losexp() level-1 row and the crowning-spellbook
     row; session 165 the #wizcast skill row and the polymorphed Int
     exercise row; session 166 the ^G "racial" prefix row; session
-    169 the mnearto() move_other unstick row.
-- Latest slice: 2026-10-02 (session 169) COVETOUS PURSUIT AS ON
-  MASTER, DEMON-COURT FREEZE FIXED (code `Port master's covetous
-  pursuit and fix the demon-court freeze.`, tracker `Tracker:
-  covetous pursuit and demon-court freeze.`; hashes pending;
-  BUG-2081..2087).
+    169 the mnearto() move_other unstick row; session 170 the
+    first-polymorph livelog sex row.
+- Latest slice: 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
+  THE GULTHIAS TREE SPAWNS BLIGHTS, PLANTS AND ENTS ARE VEGAN (code
+  `Port assassin vine growth and Gulthias tree blights.` + `Fix:
+  plants and ents broke vegan conduct and fed vampires.`, tracker
+  `Tracker: vine growth, Gulthias blights and plant vegan().`;
+  hashes pending; BUG-2088..2093).
+  - The original vine makes one silent sprout every 30 turns on the
+    nearest free square while it is hostile, uncancelled and at 2/3
+    HP or better; sprouts in that condition grow 1 in 3 onto a free
+    neighbouring square, but only while such an original grows on
+    the level, so a patch spreads from its edge and killing or
+    wounding the root stops it (ruled over master's compounding
+    spread).
+  - A hostile Gulthias tree makes a twig or needle blight one time in
+    three every 15 turns, never on a boulder.
+  - Plant and ent corpses no longer break vegan conduct, and vampires
+    no longer feed on them, as on master.
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-02 (session 169) COVETOUS PURSUIT AS ON
+  MASTER, DEMON-COURT FREEZE FIXED (code 0547e1f4e, tracker
+  3e4502a50; BUG-2081..2087).
   - A covetous monster (the Wizard, liches, alhoons, nemeses, demon
     lords) closes in with silent short jumps and pounces next to the
     hero, as on master (SporkHack); it no longer freezes in a
     Gehennom level whose demon lord is alive.
-  - A frightened one teleports far away and heals; a peaceful one
-    wanders and leaves the hero's items alone; a picked-up target
-    artifact is worn; aggravate() keeps a bribe demon's demand.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
-  AT 10 DICE (code ad2d118e4, tracker c4acecad9; BUG-2032).
-  - A telekinetically pushed object hits for at most 10d4, so a
-    hurled boulder or a heavy statue does 10-40 (mean 25) instead of
-    a one-shot 120-540; the hero's pushes are capped the same way.
-    Objects under 550 roll as before.
-  - Deliberate divergence from master, by the 2026-09-30 ruling
-    (master stays frozen-unfixed).
-  - Detail: the closed row's closure notes.
-- Earlier slices: 2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
+- Earlier slices: 2026-10-01 (session 168) TELEKINESIS DAMAGE CAPPED
+  AT 10 DICE (code ad2d118e4, tracker c4acecad9; BUG-2032);
+  2026-10-01 (session 167) FULL-WIDTH OBJECT NAMES,
   READABLE STRIPED SHIRT, BOUNDED NAME CONSUMERS (code 41e6310b5,
   tracker f870b211e; BUG-2070..2080); 2026-10-01 (session 166) THE
   GRUDGE TABLE AS ON MASTER: TRUCES, GRUDGES, ARM ORDER (code
@@ -7526,8 +7532,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the same turn (master has shipped this since 6f210b1fa).
 - [x] wizard.c target_on()/strategy() residual master deltas -
       DISCHARGED 2026-10-02 (session 169) by the covetous slice
-      (commit `Port master's covetous pursuit and fix the
-      demon-court freeze.`): the you_have peaceful gate (BUG-2083)
+      (commit 0547e1f4e): the you_have peaceful gate (BUG-2083)
       and the mflee opener (BUG-2084, above the close-range arm as
       ruled); battery L5 / L7 PASS. Original text: wizard.c
       target_on()/strategy() residual master deltas (minted
@@ -17688,7 +17693,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         vanishes!" after a theft or slip on the hero (5.0's
         RLOC_MSG), master prints nothing; a Druid at XL14+ is immune
         to nymphs (druid_mystic, master too).
-- [ ] MED: assassin vines never spread and the Gulthias tree never
+- [x] Assassin vine growth + Gulthias blight spawning
+      (BUG-2088..2092), plus the vegan() plant / ent clauses
+      (BUG-2093) - FIXED 2026-10-02 (session 170, commits `Port
+      assassin vine growth and Gulthias tree blights.` = (hash
+      pending) and `Fix: plants and ents broke vegan conduct and fed
+      vampires.` = (hash pending), tracker (hash pending); closure
+      notes at the end of this row). Original text: MED: assassin vines never
+      spread and the Gulthias tree never
       spawns blights (minted 2026-09-29, session 158, wrap-attack
       reviewer). Master's mcalcdistress() (mon.c) has two blocks the
       branch's m_calcdistress() lacks:
@@ -17707,6 +17719,126 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       inconclusive-benign)"): the code is absent, not shared. The
       wrap-attack slice made the vine's hug live, so the missing
       growth is now more visible. MED (feature gap).
+      CLOSURE (session 170, plan
+      /root/.claude/plans/bugfix-vine-growth-gulthias-blights.md;
+      src/mon.c + include/mondata.h, save-neutral):
+      - INTENT CHECKED: 71899e6e5's message and the wiki both say
+        sprouts never grow; master's code lets any vine at 2/3 HP
+        grow (BUG-2090, master frozen-unfixed). Simulated on an open
+        40x15 area, master gives 2.7 / 7.5 / 31 / 160 sprouts at 250 /
+        500 / 1000 / 2000 turns (exponential).
+      - RULINGS (AskUserQuestion x4, decisions log): only the original
+        grows, with sprouts marked by the existing mcloned bit; a
+        faster rate because 0.9.3 players expect quick spread (every 30
+        turns with no roll, on the nearest free square, through
+        makemon()'s own-square MM_ADJACENTOK path: 8 / 16 / 33 / 66);
+        silent (MM_NOMSG, master parity); Gulthias blights placed the
+        same way (BUG-2091: master's goodpos() against the
+        rock-throwing tree let a blight spawn on a boulder); only
+        hostile parents spawn (BUG-2092: a pet vine planted hostile
+        sprouts on every level it followed the hero to).
+      - REVISION (maintainer, after the first battery: "assassin vine
+        sprouts should have a chance to grow as well"; AskUserQuestion
+        x2, three questions, all recommended): a sprout in the growing
+        condition tries 1 time in 3 on the same 30-turn gate, onto
+        master's random square in its 3x3 if that square is free, its
+        own square excluded (master's own-square case jumps to the
+        nearest free square, which lets inner sprouts compound: 305
+        against 172 at turn 2000); and only while an original that can
+        itself grow (hostile, uncancelled, at 2/3 HP or better) is on
+        the level, found with get_iter_mons(growing_original_vine), so
+        killing, wounding, cancelling or taming the root stops the
+        whole patch, master's two counterplays. Simulated: 8.5 / 20.5
+        / 57 / 109 / 172 growths at 250 / 500 / 1000 / 1500 / 2000
+        turns (master 2.8 / 8 / 32 / 81 / 162), polynomial (edge-limited)
+        afterwards. Rejected: 1 in 6 edge-only (8.4 / 18.6 / 47 / 81 /
+        121), master's exact pick, and nearest-free sprouts (any odds
+        fill the area: 1 in 10 is full by turn 2000).
+      - BUG-2088 / BUG-2089: both blocks at the end of
+        m_calcdistress(). Master `continue`d after a spawn turn,
+        skipping shapeshift and timeouts; those run earlier on the
+        branch, so nothing is skipped. The tree's modulo test comes
+        before rn2(3).
+      - BUG-2093 (reviewer find, no prior row): vegan() lacked
+        master's S_PLANT (71899e6e5) and non-petrified S_ENT
+        (f1d39f476) clauses. Plant and ent corpses broke vegan /
+        vegetarian conduct, vampires fed on vines, mounds and ents,
+        and the lookup diet line, the pet diet, the taste line and
+        is_fleshy()'s "wounded" all differed from master. Restored as
+        a separate commit (header change, clean rebuild).
+      - PLAN AGENT: iter_mons() is safe (makemon() prepends to fmon,
+        and the next pointer is cached); no group spawns (an explicit
+        species); mcloned's other readers are moot for vines
+        (G_NOCORPSE, MZ_SMALL); found BUG-2091 and BUG-2092. REVIEWER:
+        PASS; LOW polymorphed sprouts keep mcloned (accepted, it
+        damps a polymorph farm); LOW Gulthias comment expanded;
+        BUG-2093. REVISION REVIEWER: PASS; LOW the comment overstated
+        the sprout odds (fixed: a miss is a miss, k/27 per gate for k
+        free neighbours); LOW a tame, cancelled or wounded original
+        still let its sprouts spread (ruled: the root must be able to
+        grow); LOW stale docs (refreshed).
+      - BATTERY 1 (first build, original-only growth; game-tester, 3
+        launches, about 45 min; POST
+        f8ff4f37d4640ec42e4adc3efd1d55ef via `make update SHELLDIR=`,
+        PRE f8a1e699b35ffb64a917f3157a22547f; sanity_check on;
+        paniclog unchanged at 8): L1 10 sprouts in 300 turns, one per
+        gate turn, ring 1 then ring 2, birth HP floor(max/2) or
+        floor(max/3), silent; L2 healed sprouts never sprouted, the
+        original below 2/3 HP made none, and killing it ended growth;
+        L3 a cancelled vine made none in 1100+ turns; L4 10 blights in
+        20 tree gates (9 twig : 1 needle), all in ring 1, none at
+        53/107 HP; L5 a boulder-ringed tree gave 9 blights, all in ring
+        2, never on a boulder; L6 a tame vine and a peaceful tree
+        spawned nothing and resumed once set hostile; L7 a hero next
+        to the vine was never displaced and saw no message; L8 mcloned
+        survived save and restore; L9 PRE spawned nothing; L10 the
+        vegan legs as in the archive (POST conduct kept, 0 / 30
+        vampire feeds against PRE's 9 / 30, "May be eaten by vegans.").
+        No MASTER legs (deviation by ruling).
+      - BATTERY 2 (revision; game-tester, POST only, 1 game, about 1 h
+        27 min, 69 gates; POST ec795c2c01eb263029e98e6a3921b694;
+        sanity_check on; paniclog unchanged): S1 the original's cadence
+        unchanged (10 births in 10 gates, ring 1 then ring 2); S2/S3
+        sprouts grow at their edge - the roll passed 578 of 1743 times
+        with a growing root (0.332), 72 free picks each made a child
+        exactly there, adjacent to the parent, and 506 blocked picks
+        made nothing; isolated sprouts made 9 births against 10.0
+        expected from k/27; S4 a ringed-in sprout never grew; S5 a
+        wounded, cancelled, peaceful, tame or killed root stopped all
+        sprout growth (0 picks in 1542 sprout gate passes; 84 full-HP
+        sprouts made none for 10 gates after the kill), restored roots
+        resumed, and one healthy root of two was enough; S6 an adjacent
+        hero was never displaced and saw no message; S7 off-map and
+        in-rock picks were rejected with no impossible(). BRIEF ERROR
+        (mine): sprouts born at half HP regenerate back to 2/3 within
+        300 turns, so S1's "every sprout below 2/3" was not true; S1
+        still held because the regenerated sprouts' picks were
+        occupied. RECORD ONLY: the branch welcome line still says
+        "welcome to NetHack!" (known re-brand row); once a room is
+        full, the original's nearest-ring births go out through
+        doorways (random within the ring, as ruled).
+      - BRIEF ERRORS (mine): the livelog lines are "ate for the first
+        time - creeping mound corpse" (doeat()) and "consumed animal
+        products for the first time, by eating a creeping mound
+        corpse" (eatcorpse()), not the eating_conducts() forms I
+        quoted.
+      - RECORD ONLY: a giant mosquito appeared on POST DL3 after the
+        tester set rndmongen 0 (no leg affected); a scroll of scare
+        monster does not stop mindless blights (EvilHack onscary(),
+        by design). The polymorph livelog sex mismatch the battery
+        hit was minted as a LOW row below.
+- [ ] LOW: the first-polymorph livelog can name the wrong sex
+      (minted 2026-10-02, session 170, vine battery anomaly; verified
+      on the bodies; UPSTREAM-SHARED, Official_nh50 polyself.c
+      ~753). polymon() writes "changed form for the first time,
+      becoming %s" with pmname(..., flags.female) BEFORE its
+      `sex_change_ok && !rn2(10)` flip, so on a flip the livelog
+      disagrees with the screen: PRE logged "becoming a vampire
+      lady" while the screen
+      said "You turn into a male vampire lord!". Master logs the
+      gender-neutral mons[].mname. Fix shape: move the livelog after
+      the sex is settled (or log the neutral name, as master does).
+      LOW (livelog text).
 - [x] LOW: player-monster Monk kick stun ABSENT
       PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
       master's grab, trunk and Monk kick arms.` = 18140062c,
@@ -21237,9 +21369,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] Covetous court freeze + master's covetous pursuit
       (BUG-2081..2087) - FIXED 2026-10-02 (session 169, commit `Port
       master's covetous pursuit and fix the demon-court freeze.` =
-      (hash pending), tracker (hash pending); closure notes at the
-      end of this row). Original text: MED: a covetous non-lord
-      freezes beyond close range in a
+      0547e1f4e, tracker 3e4502a50, landed 2026-10-02; closure
+      notes at the end of this row). Original text: MED: a covetous
+      non-lord freezes beyond close range in a
       Gehennom demon court (minted 2026-09-28, session 153, by the
       covetous no-teleport slice's reviewer; pre-existing, PRE has
       it). Two gates combine: 5.0's demon court
@@ -22659,8 +22791,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, hash pending); patch artifact not cut yet |
-| 2026-10-02 | wizard.c tactics() STRAT_HEAL caches `mx = mtmp->mx, my = mtmp->my` and then calls `expels(mtmp, ...)` for an engulfer holding the hero (Official_nh50 src/wizard.c ~379-382); expels() mnexto()s the monster, so the cached spot is the hero's square. The stair test then reads the stale spot, and if mnearto() to the stairs fails, the "stay where we are" fallback `rloc_to(mtmp, mx, my)` puts the monster on the hero's square. Minimal upstream fix: refresh mx/my after expels() (and stop if expels() sent the monster off the level) | fixed on branch (BUG-2086, hash pending); patch artifact not cut yet |
+| 2026-10-02 | polyself.c polymon() writes the "changed form for the first time, becoming %s" livelog with `pmname(&mons[mntmp], flags.female ? FEMALE : MALE)` (Official_nh50 src/polyself.c ~753) before its `gs.sex_change_ok && !rn2(10)` sex flip (~792), so on a flip the livelog names the old sex (seen on the branch: "becoming a vampire lady" with "You turn into a male vampire lord!" on screen). Minimal upstream fix: write the livelog after the sex is settled | found on branch (LOW row, session 170); not fixed, not sent |
+| 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, 0547e1f4e); patch artifact not cut yet |
+| 2026-10-02 | wizard.c tactics() STRAT_HEAL caches `mx = mtmp->mx, my = mtmp->my` and then calls `expels(mtmp, ...)` for an engulfer holding the hero (Official_nh50 src/wizard.c ~379-382); expels() mnexto()s the monster, so the cached spot is the hero's square. The stair test then reads the stale spot, and if mnearto() to the stairs fails, the "stay where we are" fallback `rloc_to(mtmp, mx, my)` puts the monster on the hero's square. Minimal upstream fix: refresh mx/my after expels() (and stop if expels() sent the monster off the level) | fixed on branch (BUG-2086, 0547e1f4e); patch artifact not cut yet |
 | 2026-10-01 | lock.c pick_lock() formats "Unlock it with %s?" and "%s it%s%s?" (with " with " + yname(pick)) into qbuf[QBUFSZ] with Sprintf (Official_nh50 src/lock.c ~486 and ~620). An unidentified skeleton key whose type is #called and which is #named (62 chars each) gives a yname() of about 140-180 chars, overflowing the 128-byte buffer. Branch fixed by BUG-2073 with safe_qbuf() (the door form builds its "Unlock it with " / "Lock it with " prefix into qbuf first). Battery: PRE wrote 128 + NUL and yn_function logged "Query truncated"; POST shortens the name with "...". | branch-fixed (BUG-2073); upstream-reportable |
 | 2026-10-01 | trap.c chest_trap() `char buf[80]` takes `Sprintf(buf, "exploding %s", xname(obj))` (Official_nh50 src/trap.c ~6368); "large box named <62 chars>" is 88 chars. Branch fixed by BUG-2074 (buf[BUFSZ] + Snprintf). | branch-fixed (BUG-2074); upstream-reportable |
 | 2026-10-01 | objnam.c aobjnam() / Tobjnam() append " " + otense() with unbounded Strcat after a cxname()/xname() that can end on the obuf slot's last byte, spilling into the next obufs[] slot (past the array for the last slot); yobjnam() then takes that next slot for shk_your() and strncat()s the overlapping string (branch PRE printed "...glowsglows blue for a moment."). Branch fixed by BUG-2075: a helper trims the name so name + verb fits BUFSZ - 1, and yobjnam() adds the verb after the "your" prefix. | branch-fixed (BUG-2075); upstream-reportable |
@@ -22823,6 +22956,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-02 | Vine growth slice rulings (session 170; AskUserQuestion x4, six questions). (1) VINE INTENT: ONLY THE ORIGINAL GROWS (recommended; SUPERSEDED IN PART by (7)), per 71899e6e5's message and the wiki, over master's code (every vine at 2/3 HP grows); sprouts carry the existing mcloned bit, and the diminishing XP for mcloned kills is accepted. (2) RATE: FASTER, because 0.9.3 players expect quick spread (maintainer's addition to option 1), then EVERY 30 TURNS (recommended) with no roll, on the nearest free square through makemon()'s own-square MM_ADJACENTOK path (simulated 8 / 16 / 33 / 66 sprouts at 250 / 500 / 1000 / 2000 turns against master's 2.7 / 7.5 / 31 / 160); a sprout behind a room wall is accepted. Rejected: every 20 turns (12 / 25 / 50 / 100) and master's 1 in 3 every 15 turns (5.6 / 11 / 22 / 45). (3) SILENT (recommended): MM_NOMSG on both spawns, master parity. (4) GULTHIAS BLIGHTS ON THE NEAREST FREE SQUARE like the vine (recommended), over a blight-checked 3x3 or master's exact boulder-prone shape. (5) ONLY HOSTILE PARENTS SPAWN (recommended), over master parity (a pet vine seeds hostile sprouts) and peaceful sprouts. (6) vegan() PLANT / ENT CLAUSES FOLDED IN as a separate commit (recommended) rather than a later row. REVISION after the first battery (maintainer: "assassin vine sprouts should have a chance to grow as well"; AskUserQuestion x2, three questions, all recommended): (7) SPROUTS GROW 1 IN 3, EDGE-ONLY - on the 30-turn gate in the same hostile / uncancelled / 2/3-HP condition, onto master's random 3x3 square if free, never the own square (simulated 8.5 / 20.5 / 57 / 109 / 172 at 250 / 500 / 1000 / 1500 / 2000 turns), over 1 in 6 edge-only and master's exact pick; nearest-free sprouts were shown to fill the area at any odds. (8) THE ROOT CONTROLS THE PATCH - sprouts grow only while an original vine is on the level, over sprouts growing on their own. (9) THE ROOT MUST BE ABLE TO GROW - hostile, uncancelled, at 2/3 HP or better (the reviewer's LOW), so wounding, cancelling or taming it stops the patch too, over any living original | maintainer |
 | 2026-10-01 | Covetous slice rulings (session 169; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: ALL OF MASTER'S tactics() in one slice - the ruled demon-court fix plus master's unported covetous AI found by the whole-function diff (SporkHack pursuit hops + pounce with the map-edge clamp, the peaceful wander, the mflee teleport-flee, the peaceful target gate, m_dowear() after a targeted pickup, aggravate() keeping the bribe tracker), closing the target_on()/strategy() residual row too. (2) HOPS AND POUNCE SILENT, as on master (the one-chance "suddenly appears" stays). (3) Follow-up: the HEAL-TO-STAIRS WARP SILENT TOO - master's STRAT_HEAL fall-through makes a wounded covetous monster shuttle stairs -> hero, and an announced warp would print most turns; the Wizard's Tower flee, item-blocked and monster-has-it warps keep 5.0's announcements. (4) REPRODUCE FIRST, then a PRE/POST/MASTER battery. | maintainer |
 | 2026-10-01 | Deferred "decide" clause rulings (session 168 second follow-up; AskUserQuestion x2, seven questions). (1) SWORD OF KAS / BARBED NEEDLE: PORT MASTER'S DOUBLE DOSE, as recommended (the hero poisoned-weapon block - Samurai / lawful alignment hit, +rnd(6) or 1-in-10 poiskilled, no wear-off - on top of Kas's DRST artifact attack). (2) PASSIVE AD_COLD ABSORPTION: KEEP 5.0'S, over the recommended master's restriction (every cold-passive defender heals; a hero in any cold-passive form can split); row closed, no code change. (3) RANGED / SPELL DEATH REASONS: ADD THE RACE, as recommended ("a centaurian soldier's thrown dagger"). (4) exerchk() INT WHILE POLYMORPHED: FIX IT, as recommended (Int lands like Wis; diverges from master's literal code, follows 3b8ba5835's intent). (5) uasmon_maxStr(): ADD EVILHACK RACES, as recommended (no master shape; new LOW row with plan-time questions on giants, the broad vampire / demon families and draugr). (6) ITEM-GOAL PATHFINDING: BUILD GOAL-ROOTED PATHING, over the recommended close-as-intended (diverges from master; own slice and battery). (7) ^X FORM WORDING: KEEP 5.0'S " from your creature form", over the recommended master's wording, and switch insight.c's two master-worded suffixes to it. | maintainer |
 | 2026-10-01 | Pending-row rulings (session 168 follow-up; AskUserQuestion x2, seven questions). (1) ARCHEOLOGIST / VALKYRIE INTRINSIC SCHEDULES: KEEP 5.0'S (over the recommended master's schedule) - Archeologist searching at XL1, stealth at XL5, speed at XL10; Valkyrie stealth at XL3. Upstream 075c2832a touches only attrib.c and its Guidebook text matches ours, so the row closes with no code change. (2) HERO CATCHES THROWN ITEMS: KEEP 5.0'S u_catch_thrown_obj() BUT ONLY FOR A MARTIAL ARTIST - the maintainer's own shape, refined by a follow-up question: a Monk or Samurai (martial_bonus()) whose P_MARTIAL_ARTS skill is Skilled or better (recommended), with both hands empty: no wielded weapon, not two-weaponing, no shield (recommended); odds stay 5.0's (Monk 1 in (80 - Dex), Samurai 1 in (100 - Dex); recommended) and 5.0's other gates stay. Rogues lose the catch. (3) WISH_TRACKER: PORT IT, as recommended (master's trackwish() and the wishtracker file for DGAMELAUNCH builds, alongside 5.0's wish livelog). (4) RIDER FARLOOK / PROBING TEXT: ", riding a saddled <steed>, which is holding you" / "..., which you are holding", as recommended. | maintainer |
