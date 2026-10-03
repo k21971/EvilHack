@@ -670,19 +670,29 @@ touch_of_death(struct monst *mtmp)
 }
 
 /* articled species name of the monster responsible for a kill, for the
-   death-reason builders: "a goblin", "the Wizard of Yendor", "Asmodeus"
-   (plus " imitating <X>" for a shapeshifter); names by species, like
-   done_in_by() does for the simple cases */
+   death-reason builders: "a goblin", "an elven soldier", "the Wizard of
+   Yendor", "Asmodeus" (plus " imitating <X>" for a shapeshifter); names
+   by race and species, like done_in_by() does for the simple cases */
 char *
 mon_killer_name(
-    char *outbuf, /* assumed big enough; pm_names are short */
+    char *outbuf, /* assumed big enough; pm_names and races are short */
     struct monst *mtmp)
 {
     struct permonst *mptr = mtmp->data,
         *champtr = (ismnum(mtmp->cham)) ? &mons[mtmp->cham] : mptr;
     const char *realnm = pmname(champtr, Mgender(mtmp)),
         *fakenm = pmname(mptr, Mgender(mtmp));
+    char racebuf[BUFSZ];
 
+    /* the race a melee killer's name gets from x_monnam() in
+       done_in_by() ("a centaurian soldier"); its shapeshifter,
+       shopkeeper, priest and minion names carry none */
+    if (champtr == mptr && has_erac(mtmp) && !type_is_pname(mptr)
+        && mptr != &mons[PM_HIGH_PRIEST]
+        && !mtmp->isshk && !mtmp->ispriest && !mtmp->isminion) {
+        Strcat(racial_adj(racebuf, mtmp), realnm);
+        realnm = racebuf;
+    }
     /* greatly simplified extract from done_in_by(); names the real
        species when a shapeshifter is disguised */
     if (!type_is_pname(champtr) && !the_unique_pm(champtr))

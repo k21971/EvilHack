@@ -1917,7 +1917,7 @@ attributes_enlightenment(
         you_can("survive without air", from_what(MAGICAL_BREATHING));
     else if (Amphibious)
         you_can("breathe water",
-                amphibious(gy.youmonst.data) ? " from current creature form"
+                amphibious(gy.youmonst.data) ? " from your creature form"
                                              : from_what(MAGICAL_BREATHING));
     if (Passes_walls)
         you_can("walk through walls", from_what(PASSES_WALLS));
@@ -2116,7 +2116,7 @@ attributes_enlightenment(
     if (Fast)
         you_are(Very_fast ? "very fast" : "fast",
                 (Underwater && is_fast_underwater(gy.youmonst.data))
-                    ? " from current creature form"
+                    ? " from your creature form"
                     : from_what(FAST));
     if (Slow)
         you_are("slow", from_what(SLOW));
@@ -3793,6 +3793,20 @@ mstatusline(struct monst *mtmp)
     }
     if (mtmp->mleashed)
         Strcat(info, ", leashed");
+    /* last, so nothing after it reads as the steed's */
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
+        struct monst *steed = ERID(mtmp)->mon_steed;
+        /* a_monnam()'s naming, but a probe names an unseen steed too */
+        int sflags = has_mgivenname(steed)
+                         ? (SUPPRESS_SADDLE | SUPPRESS_BARDING | SUPPRESS_IT)
+                         : SUPPRESS_IT;
+
+        Snprintf(eos(info), sizeof info - strlen(info), ", riding %s%s",
+                 x_monnam(steed, ARTICLE_A, (char *) 0, sflags, FALSE),
+                 (u.ustuck != steed) ? ""
+                 : !sticks(gy.youmonst.data) ? ", which is holding you"
+                   : ", which you are holding");
+    }
 
     /* avoid "Status of the invisible newt ..., invisible" */
     /* and unlike a normal mon_nam, use "saddled" even if it has a name */

@@ -778,9 +778,10 @@ exerchk(void)
                 hilim = 18;
             if ((ax < 0) ? (ABASE(i) <= lolim) : (ABASE(i) >= hilim))
                 goto nextattrib;
-            /* can't exercise non-Wisdom while polymorphed; previous
-               exercise/abuse gradually wears off without impact then */
-            if (Upolyd && i != A_WIS)
+            /* can't exercise the body (Str, Dex, Con) while polymorphed;
+               previous exercise/abuse gradually wears off without impact
+               then */
+            if (Upolyd && !(i == A_WIS || i == A_INT))
                 goto nextattrib;
 
             debugpline2("exerchk: testing %s (%d).",

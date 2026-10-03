@@ -497,12 +497,6 @@ look_at_monster(
                     ? "peaceful "
                     : "",
             name);
-    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
-        if (is_rider(mtmp->data) && !m_next2u(mtmp) && !canseemon(mtmp))
-            Sprintf(eos(buf), ", riding its steed");
-        else
-            Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->mon_steed));
-    }
     if (mtmp->ridden_by)
         Strcat(buf, ", being ridden");
     /* a Healer senses how badly hurt the monster is */
@@ -555,8 +549,8 @@ look_at_monster(
                     arm_ct++;
                 }
 
-                /* bounded: buf has already accumulated name, riding, held
-                   and leashed clauses, any of which can be player-named */
+                /* bounded: buf has already accumulated the name, which can
+                   be player-named, and the held and leashed clauses */
                 Snprintf(eos(buf), BUFSZ - strlen(buf),
                          ", wearing %s%sarmor",
                          arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
@@ -606,6 +600,21 @@ look_at_monster(
     if (mtmp->mundetected || M_AP_TYPE(mtmp) || visible_region_at(x, y))
         mhidden_description(mtmp, MHID_PREFIX | MHID_ARTICLE | MHID_REGION,
                             eos(buf));
+
+    /* last, so nothing after it reads as the steed's */
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
+        struct monst *steed = ERID(mtmp)->mon_steed;
+        /* the steed is off the map, so its half of a hold shows here */
+        const char *held = (u.ustuck != steed) ? ""
+                           : (Upolyd && sticks(gy.youmonst.data))
+                             ? ", which you are holding"
+                             : ", which is holding you";
+
+        Snprintf(eos(buf), BUFSZ - strlen(buf), ", riding %s%s",
+                 (is_rider(mtmp->data) && !m_next2u(mtmp)
+                  && !canseemon(mtmp)) ? "its steed" : a_monnam(steed),
+                 held);
+    }
 
     if (monbuf) {
         unsigned how_seen = howmonseen(mtmp);
