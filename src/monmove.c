@@ -17,7 +17,9 @@ staticfn boolean holds_up_web(coordxy, coordxy);
 staticfn int count_webbing_walls(coordxy, coordxy);
 staticfn boolean soko_allow_web(struct monst *);
 staticfn boolean m_search_items(struct monst *, coordxy *, coordxy *, int *,
-                                int *) NONNULLPTRS;
+                                int *, boolean *) NONNULLPTRS;
+staticfn boolean m_item_in_reach(struct monst *, coordxy,
+                                 coordxy) NONNULLARG1;
 staticfn int postmov(struct monst *, struct permonst *, coordxy, coordxy, int,
                      unsigned, boolean, boolean, boolean,
                      boolean) NONNULLPTRS;
@@ -1863,13 +1865,15 @@ m_avoid_soko_push_loc(struct monst *mtmp, coordxy nx, coordxy ny)
 /* max distmin() distance for monster to look for items */
 #define SQSRCHRADIUS 5
 
-/* monster looks for items it wants nearby */
+/* monster looks for items it wants nearby; *itemgoal says whether
+   *ggx,*ggy was left on such an item */
 staticfn boolean
 m_search_items(
     struct monst *mtmp,
     coordxy *ggx, coordxy *ggy,
     int *mmoved,
-    int *appr)
+    int *appr,
+    boolean *itemgoal)
 {
     int minr = SQSRCHRADIUS; /* not too far away */
     struct obj *otmp;
@@ -1880,6 +1884,8 @@ m_search_items(
     struct permonst *ptr = mtmp->data;
     struct monst *mtoo;
     boolean costly;
+
+    *itemgoal = FALSE;
 
     /* cut down the search radius if it thinks character is closer. */
     if (distmin(mtmp->mux, mtmp->muy, omx, omy) < SQSRCHRADIUS
@@ -1979,6 +1985,7 @@ m_search_items(
                     minr = distmin(omx, omy, xx, yy);
                     *ggx = otmp->ox;
                     *ggy = otmp->oy;
+                    *itemgoal = TRUE;
                     if (*ggx == omx && *ggy == omy) {
                         *mmoved = MMOVE_DONE; /* actually unnecessary */
                         return TRUE;
@@ -1991,13 +1998,46 @@ m_search_items(
     }
 
  finish_search:
-    if (minr < SQSRCHRADIUS && *appr == -1) {
+    /* a fleeing monster that found an item goes for it unless the hero
+       is close; with the hero close it flees from where the hero seems
+       to be whenever minr shrank, as vanilla's test did. minr can't tell
+       whether an item was found, as it also shrinks for a nearby hero
+       and for a hostile mercenary */
+    if (*appr == -1) {
         if (distmin(omx, omy, mtmp->mux, mtmp->muy) <= 3) {
-            *ggx = mtmp->mux;
-            *ggy = mtmp->muy;
-        } else
+            if (*itemgoal || minr < SQSRCHRADIUS) {
+                *ggx = mtmp->mux;
+                *ggy = mtmp->muy;
+                *itemgoal = FALSE;
+            }
+        } else if (*itemgoal)
             *appr = 1;
     }
+    return FALSE;
+}
+
+/* whether an intelligent monster can walk to the item at tx,ty within
+   SQSRCHRADIUS steps by the goal-rooted map, which stays built for
+   m_move()'s steering. A longer route would carry the item out of the
+   search box partway, turning the monster back toward the hero until
+   it saw the item again. The monster's own square may be terrain the
+   map never enters (a giant on a boulder, a swimmer in water), so the
+   squares next to it are checked, one step further on */
+staticfn boolean
+m_item_in_reach(struct monst *mtmp, coordxy tx, coordxy ty)
+{
+    coordxy x, y;
+    short d;
+
+    ensure_escape_pathfind_map(tx, ty);
+    for (x = mtmp->mx - 1; x <= mtmp->mx + 1; x++)
+        for (y = mtmp->my - 1; y <= mtmp->my + 1; y++) {
+            if (!isok(x, y))
+                continue;
+            d = gp.pathfind_escape_dist[x][y];
+            if (d != PATHFIND_UNREACHABLE && d < SQSRCHRADIUS)
+                return TRUE;
+        }
     return FALSE;
 }
 
@@ -2439,6 +2479,7 @@ m_move(struct monst *mtmp, int after)
     boolean can_open = 0, can_unlock = 0 /*, doorbuster = 0 */;
     boolean getitems = FALSE;
     boolean escape_goal_set = FALSE;
+    boolean item_goal = FALSE, image_goal;
     boolean avoid = FALSE;
     boolean better_with_displacing = FALSE;
     unsigned seenflgs;
@@ -2681,8 +2722,10 @@ m_move(struct monst *mtmp, int after)
         }
     }
 
-    /* Honey badgers prioritize royal jelly over the player */
-    if (ptr == &mons[PM_HONEY_BADGER] && !mtmp->mpeaceful) {
+    /* Honey badgers prioritize royal jelly over the player; a fleeing
+       one runs from the hero instead, as fleeing from the jelly could
+       carry it straight at the hero */
+    if (ptr == &mons[PM_HONEY_BADGER] && !mtmp->mpeaceful && appr == 1) {
         struct obj *otmp;
         int best_dist = COLNO * ROWNO; /* large number */
         coordxy jx = 0, jy = 0;
@@ -2739,9 +2782,35 @@ m_move(struct monst *mtmp, int after)
         }
     }
 
-    if (getitems && m_search_items(mtmp, &ggx, &ggy, &mmoved, &appr))
-        return postmov(mtmp, ptr, omx, omy, mmoved,
-                       seenflgs, can_tunnel, can_unlock, can_open, getitems);
+    if (getitems) {
+        /* the goal and approach from before the search, kept for an
+           item the monster turns out to be unable to walk to */
+        coordxy sgx = ggx, sgy = ggy;
+        int sappr = appr;
+
+        if (m_search_items(mtmp, &ggx, &ggy, &mmoved, &appr, &item_goal))
+            return postmov(mtmp, ptr, omx, omy, mmoved, seenflgs,
+                           can_tunnel, can_unlock, can_open, getitems);
+        /* an intelligent monster gives up an item it has no short
+           walking route to and keeps its old goal and approach, so one
+           the search turned from fleeing toward the item flees on;
+           animals and the mindless stay greedy */
+        if (item_goal && appr == 1 && mon_uses_pathfinding(mtmp)
+            && accessible(ggx, ggy) && !m_item_in_reach(mtmp, ggx, ggy)) {
+            ggx = sgx, ggy = sgy;
+            appr = sappr;
+            item_goal = FALSE;
+        }
+    }
+
+    /* an approaching intelligent monster steers for the square where it
+       thinks the hero is when that isn't the hero's own (displacement,
+       invisibility, being underwater). Decided before mfndpos(), which
+       moves mux,muy onto the hero once it finds the hero next to the
+       monster. A track point stays on the hero-rooted map */
+    image_goal = (!item_goal && !escape_goal_set
+                  && ggx == mtmp->mux && ggy == mtmp->muy
+                  && !u_at(ggx, ggy));
 
     /* don't tunnel if hostile and close enough to prefer a weapon,
        unless the player is in terrain that requires digging to reach */
@@ -2787,17 +2856,22 @@ m_move(struct monst *mtmp, int after)
            maps, and bring the relevant map up to date before the loop
            rather than checking every iteration */
         {
-            /* Amulet carriers always use escape pathfinding once an
-               escape target exists, regardless of appr - they need to
-               reach the target; other intelligent monsters use the
-               player-rooted map when approaching */
-            boolean use_escape_pf = (escape_goal_set
-                                     && mon_uses_pathfinding(mtmp));
+            /* the goal-rooted map serves an Amulet carrier's escape
+               target regardless of appr - it needs to reach the
+               target - and, when approaching, an item goal or the
+               square where the monster thinks the hero is; other
+               approaching intelligent monsters, trackers included,
+               use the player-rooted map */
+            boolean use_goal_pf = (mon_uses_pathfinding(mtmp)
+                                   && (escape_goal_set
+                                       || ((item_goal || image_goal)
+                                           && appr == 1
+                                           && accessible(ggx, ggy))));
             /* don't use pathfinding if the goal is in inaccessible
                terrain (such as rock) - the BFS can't find a path
                there, so greedy movement works better for tunneling
                monsters */
-            boolean use_pathfinding = (!use_escape_pf && appr == 1
+            boolean use_pathfinding = (!use_goal_pf && appr == 1
                                        && mon_uses_pathfinding(mtmp)
                                        && accessible(ggx, ggy));
             /* invariant: cur_pfdist always holds the active map's
@@ -2807,7 +2881,7 @@ m_move(struct monst *mtmp, int after)
                a non-mtrack candidate always displaces an mtrack one */
             boolean pf_best_mtrack = FALSE;
 
-            if (use_escape_pf) {
+            if (use_goal_pf) {
                 ensure_escape_pathfind_map(ggx, ggy);
                 cur_pfdist = gp.pathfind_escape_dist[nix][niy];
             } else if (use_pathfinding) {
@@ -2835,10 +2909,11 @@ m_move(struct monst *mtmp, int after)
             }
 
             /* Intelligent monsters use pathfinding when approaching:
-               most steer by the BFS map rooted at the player, Amulet
-               carriers by the map rooted at the escape target */
-            if (use_pathfinding || use_escape_pf) {
-                short new_pfdist = use_escape_pf
+               most steer by the BFS map rooted at the player; Amulet
+               carriers, item seekers and monsters chasing the hero's
+               image by the map rooted at their goal */
+            if (use_pathfinding || use_goal_pf) {
+                short new_pfdist = use_goal_pf
                                        ? gp.pathfind_escape_dist[nx][ny]
                                        : gp.pathfind_dist[nx][ny];
 

@@ -701,7 +701,8 @@ wiz_show_pathfind(void)
 }
 
 /* #wizescapepath command - show escape BFS distance map for Amulet
-   carriers */
+   carriers; the map is shared with item and hero-image goals, so this
+   re-roots it at the escape target */
 int
 wiz_show_escape_pathfind(void)
 {

@@ -3392,8 +3392,10 @@ mon_uses_pathfinding(struct monst *mtmp)
     return !mindless(ptr) && !is_animal(ptr);
 }
 
-/* compute escape pathfind map from a specific target position, for
-   Amulet carriers who need to reach stairs/portals */
+/* compute the goal-rooted pathfind map from a specific target position:
+   an Amulet carrier's stairs or portal, an item an intelligent monster
+   wants, or the square where it thinks the hero is; one map serves all
+   three and is rebuilt whenever the target changes */
 staticfn void
 compute_escape_pathfind_map(coordxy target_x, coordxy target_y)
 {
@@ -3455,7 +3457,8 @@ compute_escape_pathfind_map(coordxy target_x, coordxy target_y)
     gp.pathfind_escape_ty = target_y;
 }
 
-/* ensure escape pathfind map is current for given target */
+/* ensure the goal-rooted ("escape") pathfind map is current for the
+   given target */
 void
 ensure_escape_pathfind_map(coordxy target_x, coordxy target_y)
 {

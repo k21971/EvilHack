@@ -806,7 +806,9 @@ struct instance_globals_p {
     short pathfind_dist[COLNO][ROWNO]; /* BFS distance from hero */
     long pathfind_turn;                /* turn stamp; 0 = invalid */
     coordxy pathfind_px, pathfind_py;  /* hero pos when map was computed */
-    short pathfind_escape_dist[COLNO][ROWNO]; /* BFS from escape target */
+    /* goal-rooted map: an Amulet carrier's escape target, an item goal
+       or the hero's image; one map, rebuilt when the target changes */
+    short pathfind_escape_dist[COLNO][ROWNO];
     long pathfind_escape_turn;
     coordxy pathfind_escape_tx, pathfind_escape_ty; /* target coords */
 
