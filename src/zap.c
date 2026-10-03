@@ -7807,9 +7807,11 @@ makewish(void)
     }
     /*
      *  Note: if they wished for and got a non-object successfully,
-     *  otmp == &hands_obj.  That includes an artifact which has been
-     *  denied. Wishing for "nothing" requires a separate value to remain
-     *  distinct.
+     *  otmp == &hands_obj. That is a wizard mode terrain or trap wish,
+     *  or an artifact that was refused or went to its previous owner;
+     *  readobjnam() counts the latter as an artifact wish, which is how
+     *  the two are told apart below. Wishing for "nothing" requires a
+     *  separate value to remain distinct.
      */
     strcpy(bufcpy, buf);
     otmp = readobjnam(buf, &nothing);
@@ -7833,21 +7835,25 @@ makewish(void)
            to retain wishless conduct */
         livelog_printf(LL_WISH, "declined to make a wish");
         return;
-    } else if (otmp == &hands_obj) {
+    } else if (otmp == &hands_obj && u.uconduct.wisharti == oldwisharti) {
         wish_history_add(bufcpy);
-        /* wizard mode terrain wish: skip livelogging, etc */
+        /* wizard mode terrain or trap wish: skip livelogging, etc */
         return;
     }
     wish_history_add(bufcpy);
 
-    if (otmp->oartifact) {
+    if (otmp != &hands_obj && otmp->oartifact) {
         /* update artifact bookkeeping; doesn't produce a livelog event */
         artifact_origin(otmp, ONAME_WISH | ONAME_KNOW_ARTI);
     }
 
     /* wisharti conduct handled in readobjnam() */
     maybe_LL_arti = ((oldwisharti < u.uconduct.wisharti) ? LL_ARTIFACT : 0L);
-    Snprintf(wish, sizeof wish, "\"%s\", got \"%s\"", bufcpy, doname(otmp));
+    if (otmp == &hands_obj) /* artifact refused or reclaimed by its owner */
+        Snprintf(wish, sizeof wish, "\"%s\"", bufcpy);
+    else
+        Snprintf(wish, sizeof wish, "\"%s\", got \"%s\"", bufcpy,
+                 doname(otmp));
     /* KMH, conduct */
     if (!u.uconduct.wishes++)
         livelog_printf((LL_CONDUCT | LL_WISH | maybe_LL_arti),
@@ -7859,6 +7865,12 @@ makewish(void)
         livelog_printf((LL_WISH | maybe_LL_arti), "wished for %s", wish);
     /* TODO? maybe generate a second event describing what was received since
        these just echo player's request rather than show actual result */
+
+#ifdef WISH_TRACKER
+    trackwish(bufcpy); /* after the count, so it shows this wish's number */
+#endif
+    if (otmp == &hands_obj)
+        return; /* nothing to hand over; no ublesscnt, as on master */
 
     if (otmp->otyp == CORPSE && !u_safe_from_fatal_corpse(otmp, st_all))
         otmp->wishedfor = 1;

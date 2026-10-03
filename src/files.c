@@ -885,6 +885,35 @@ delete_whereis(void)
 }
 #endif /* WHEREIS_FILE */
 
+#ifdef WISH_TRACKER
+static const char wish_tracker_file[] =
+#ifdef UNIX
+    "wishtracker";
+#else
+    "wishes.txt";
+#endif
+
+/* append a line for this wish to the wishtracker file all games share */
+void
+trackwish(const char *wishstring)
+{
+    FILE *fp;
+    time_t now;
+
+    if (discover) /* explore mode wishes stay out, as in the livelog */
+        return;
+    if ((fp = fopen_datafile(wish_tracker_file, "a", SCOREPREFIX)) != 0) {
+        now = getnow();
+        (void) fprintf(fp, "%s wished for %s (%ld%s wish, on T:%ld"
+                           " on %08ld at %06ld hrs)\n",
+                       svp.plname, wishstring, u.uconduct.wishes,
+                       ordin((int) u.uconduct.wishes), svm.moves,
+                       yyyymmdd(now), hhmmss(now));
+        (void) fclose(fp);
+    }
+}
+#endif /* WISH_TRACKER */
+
 /* ----------  END LEVEL FILE HANDLING ----------- */
 
 /* ----------  BEGIN BONES FILE HANDLING ----------- */

@@ -102,6 +102,8 @@ touch "$HDF_CHROOT/$NHSUBDIR/var/xlogfile"
 chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/xlogfile"
 touch "$HDF_CHROOT/$NHSUBDIR/var/livelog"
 chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/livelog"
+touch "$HDF_CHROOT/$NHSUBDIR/var/wishtracker"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/wishtracker"
 
 RECOVER="$NETHACK_GIT/util/recover"
 

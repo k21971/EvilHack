@@ -1214,6 +1214,9 @@ extern void touch_whereis(void);
 extern void delete_whereis(void);
 extern void signal_whereis(int);
 #endif
+#ifdef WISH_TRACKER
+extern void trackwish(const char *) NONNULLARG1;
+#endif
 #ifdef DEBUG
 extern boolean debugcore(const char *, boolean);
 #endif

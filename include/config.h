@@ -666,6 +666,7 @@ typedef unsigned char uchar;
 #define EXTRAINFO_FN    "/dgldir/extrainfo-nh500/%n.extrainfo"
 #define MAILCKFREQ 5    /* SIMPLE_MAIL is in unixconf.h */
 #define WHEREIS_FILE    "whereis/%n.whereis" /* Write out player's current location to player.whereis */
+#define WISH_TRACKER    /* log all wishes made */
 
 #ifndef NO_CHRONICLE
 /* CHRONICLE - enable #chronicle command, a log of major game events.

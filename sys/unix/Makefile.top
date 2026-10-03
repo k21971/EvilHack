@@ -525,10 +525,10 @@ install: rootcheck $(PRECHECK) $(GAME) recover $(VARDAT) spec_levs sys/unix/sysc
 	( $(MAKE) dofiles )
 # set up some additional files
 	touch $(VARDIR)/perm $(VARDIR)/record $(VARDIR)/logfile $(VARDIR)/xlogfile \
-         $(VARDIR)/livelog
-	-( cd $(VARDIR) ; $(CHOWN) $(GAMEUID) perm record logfile xlogfile livelog ; \
-			$(CHGRP) $(GAMEGRP) perm record logfile xlogfile livelog ; \
-			chmod $(VARFILEPERM) perm record logfile xlogfile livelog )
+         $(VARDIR)/livelog $(VARDIR)/wishtracker
+	-( cd $(VARDIR) ; $(CHOWN) $(GAMEUID) perm record logfile xlogfile livelog wishtracker ; \
+			$(CHGRP) $(GAMEGRP) perm record logfile xlogfile livelog wishtracker ; \
+			chmod $(VARFILEPERM) perm record logfile xlogfile livelog wishtracker )
 # sysconf
 	true; $(SYSCONFINSTALL)
 # other steps from hints file

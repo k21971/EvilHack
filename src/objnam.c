@@ -6466,6 +6466,9 @@ readobjnam(char *bp, struct obj *no_wish)
                certain artifacts to have a forged quality bit */
             d.otmp->forged_qual = FQ_NORMAL;
             d.otmp->quan = 1L;
+            /* makewish() relies on this bump to tell a refused or
+               owner-summoned artifact wish from a wizard terrain or
+               trap wish */
             u.uconduct.wisharti++; /* KMH, conduct */
         }
     }
