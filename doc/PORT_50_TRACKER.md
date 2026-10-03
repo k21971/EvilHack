@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-02, after session 172): 290
-  rows closed, 85 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-03, after session 173): 294
+  rows closed, 83 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,15 +34,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 63 LOW: small parity rows, quirks and watch/record-only items.
-    The rider farlook-text row and the WISH_TRACKER row (port it)
-    were ruled 2026-10-01 and are plannable. So were five rows with
-    "decide" clauses, the same day: the ranged death-reason race
-    (add it), exerchk() Int while polymorphed (fix it), the new
-    uasmon_maxStr() EvilHack-races row (add them), item-goal
-    pathing (build it) and the ^X form wording (5.0's everywhere);
-    the passive AD_COLD row closed as kept 5.0, and the catch and
-    Sword of Kas rows landed in session 172. The wish-invlet
+  - 61 LOW: small parity rows, quirks and watch/record-only items.
+    The WISH_TRACKER row (port it), the uasmon_maxStr()
+    EvilHack-races row (add them) and item-goal pathing (build it)
+    were ruled 2026-10-01 and are plannable; the passive AD_COLD
+    row closed as kept 5.0, the catch and Sword of Kas rows landed
+    in session 172, and the rider hold text, ^X form wording,
+    ranged death-reason race and exerchk() Int rows in session
+    173. The wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
@@ -55,12 +54,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     169 the mnearto() move_other unstick row; session 170 the
     first-polymorph livelog sex row; session 171 the "Phasing"
     status row; session 172 the monster hand-spell riders after an
-    AD_TLPT hit row and the noncorporeal thrown-venom leak row.
-- Latest slice: 2026-10-02 (session 172) MARTIAL-ARTS CATCH,
-  SWORD OF KAS POISON, HAND-SPELL RIDER FIXES (code `Martial-arts
-  catch, Sword of Kas poison and hand-spell rider fixes.`, tracker
-  `Tracker: martial-arts catch, Kas poison and hand-spell rider
-  rows.`; hashes pending; BUG-2100..2105).
+    AD_TLPT hit row and the noncorporeal thrown-venom leak row;
+    session 173 the done_in_by() racial-imitator naming row and the
+    rider / steed text residue row.
+- Latest slice: 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
+  WORDING, RACE IN RANGED DEATH REASONS, POLYMORPHED INT EXERCISE
+  (code `Rider hold text, death-reason race and polymorphed Int
+  exercise.`, tracker `Tracker: rider hold text, death-reason race
+  and Int exercise rows.`;
+  hashes pending; BUG-2106..2109).
+  - Farlook on a monster rider now names its steed last: "goblin
+    outrider, wearing some light armor, riding a saddled wolf". When
+    the steed holds the hero it adds ", which is holding you", and
+    when the hero holds the steed ", which you are holding". A
+    stethoscope or wand of probing on a rider now shows the same
+    riding clause; before, it never mentioned the steed.
+  - Enlightenment says "from your creature form" for breathing water
+    and underwater speed, like its other form attributions.
+  - A thrown weapon, wand bolt or spell from a racial monster now
+    names its race in the death reason: "killed by an elven
+    soldier's thrown dagger", matching melee deaths.
+  - Int exercise from reading spellbooks while polymorphed can now
+    raise Int during the form, as Wis exercise already could. Like
+    Wis, the gain lasts only as long as the form.
+  - Detail: the closed rows' closure notes.
+- Previous slice: 2026-10-02 (session 172) MARTIAL-ARTS CATCH,
+  SWORD OF KAS POISON, HAND-SPELL RIDER FIXES (code c1e2b1189,
+  tracker 2fd4c5c38; BUG-2100..2105).
   - Only a Monk or Samurai at Skilled martial arts or better, with
     nothing wielded and no shield (bracers are fine), catches
     missiles thrown at them, and never while asleep or paralyzed.
@@ -75,22 +95,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     hit a monster the same claw just teleported away, and no longer
     heal fire- or shock-resistant golems by the to-hit roll.
   - Detail: the closed rows' closure notes.
-- Previous slice: 2026-10-02 (session 171) SNARKS THAT ARE BOOJUMS,
+- Earlier slices: 2026-10-02 (session 171) SNARKS THAT ARE BOOJUMS,
   THE BOOJUM'S VANISHING TOUCH (code 34ed5ca2a, tracker dc3dc795f;
-  BUG-2094..2099).
-  - One snark in three (fixed by m_id) turns out to be a boojum the
-    first time it is awake next to the hero: "Oh, no, this Snark is
-    a Boojum!", as on master (SporkHack). Boojums no longer exist
-    only in wizard mode.
-  - A boojum's teleporting claw ignores cancellation and magic
-    cancellation and leaves the hero invisible for 6-600 turns ("You
-    suddenly vanish!"); its monster victims turn invisible too.
-  - Jabberwocks, snarks, boojums and satyrs are never generated
-    asleep, as on master.
-  - A steed killed by a trap it was teleported onto by an AD_TLPT hit
-    is no longer revived as a 1-HP ghost (upstream-shared).
-  - Detail: the closed row's closure notes.
-- Earlier slices: 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
+  BUG-2094..2099); 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
   THE GULTHIAS TREE SPAWNS BLIGHTS, PLANTS AND ENTS ARE VEGAN (code
   887bf2e4c + b4d362c6a, tracker 1f304f413; BUG-2088..2093);
   2026-10-02 (session 169) COVETOUS PURSUIT AS ON
@@ -7760,10 +7767,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-09-27, session 151: the return is now added, BUG-1979).
 - [x] LOW: hmonas() resisted riders heal golems by the spell's die
       (BUG-2103) - FIXED 2026-10-02 (session 172, commit `Martial-arts
-      catch, Sword of Kas poison and hand-spell rider fixes.` = (hash
-      pending), tracker (hash pending); closure notes at the end of
-      this row). Original text: LOW: hmonas burning hands / shocking
-      grasp resist branches
+      catch, Sword of Kas poison and hand-spell rider fixes.` =
+      c1e2b1189, tracker 2fd4c5c38, landed 2026-10-03; closure notes
+      at the end of this row). Original text: LOW: hmonas burning
+      hands / shocking grasp resist branches
       heal resistant golems by the to-hit value (minted 2026-08-26,
       reviewer catch on the ported arms, master-shared verbatim):
       both polyform arms call golemeffects(mon, AD_FIRE/AD_ELEC, tmp)
@@ -9237,9 +9244,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       can_carry() tests curr + newload only.
 - [x] LOW: the Sword of Kas and the hero's barbed needles run the
       hero poison block, and any dipped coating can wear off
-      (BUG-2101, 2104, 2105) - FIXED 2026-10-02 (session 172, commit `Martial-arts catch, Sword
-      of Kas poison and hand-spell rider fixes.` = (hash pending),
-      tracker (hash pending); closure notes at the end of this row).
+      (BUG-2101, 2104, 2105) - FIXED 2026-10-02 (session 172, commit
+      `Martial-arts catch, Sword of Kas poison and hand-spell rider
+      fixes.` = c1e2b1189, tracker 2fd4c5c38, landed 2026-10-03;
+      closure notes at the end of this row).
       Original text: LOW: hero Sword of Kas / barbed needle
       poison-feedback arms
       (minted 2026-08-23 by the combat-residue slice). Master's
@@ -14303,7 +14311,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       soldier's silver short sword" and "killed by a Nazgul's long
       sword" (the branch's Nazgul killed with its scream, hence its
       plain "killed by a Nazgul" - the attack used, not the naming).
-- [ ] LOW: ranged and spell death reasons name the killer by bare
+- [x] LOW: ranged and spell death reasons name the killer's race
+      (BUG-2108) - FIXED 2026-10-03 (session 173, commit `Rider hold
+      text, death-reason race and polymorphed Int exercise.` =
+      (hash pending), tracker (hash pending); closure
+      notes at the end of this row). Original text: LOW: ranged and
+      spell death reasons name the killer by bare
       species (minted 2026-09-17 by the done_in_by parity slice's
       reviewer; master-identical): mon_killer_name() (src/mcastu.c)
       builds "a soldier's thrown dagger" / "a bolt of fire zapped by a
@@ -14321,6 +14334,53 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       priestess", matching the melee reason. Plannable (pick between
       x_monnam() and racial_adj() at plan time; keep the given name
       suppressed as the row describes).
+      CLOSURE (2026-10-03, session 173, plan
+      /root/.claude/plans/bugfix-text-rows-rider-xform-race-int.md).
+      One slice with the rider hold text, ^X form wording and
+      exerchk() Int rows. FIX (BUG-2108, mcastu.c mon_killer_name()):
+      racial_adj() spliced in front of the species name before the
+      an() article, so "an elven soldier" gets its article right.
+      x_monnam() was not used: its priest / shopkeeper paths
+      would rename those killers, and the function's imitator
+      composition would have to be rebuilt. The gate mirrors the race
+      done_in_by()'s plain branch gets from x_monnam(): champtr ==
+      mptr (no shapeshifter; newcham() frees ERAC and reapplies it
+      only for a racial form; the same test as thitu()'s `disguised`),
+      has_erac(), !type_is_pname(), not PM_HIGH_PRIEST, and not
+      isshk / ispriest / isminion (done_in_by()'s branches for those
+      carry no race). The given name stays suppressed. Every ranged
+      reason passes through it: thitu()'s possessive and "by" forms,
+      and death_inflicted_by() (buzz, muse, gaze of death, touch of
+      death, strength loss). Reviewer sweep of the other an(pmname())
+      killer composers (disintegration, cockatrice, Medusa, gas spore,
+      Riders, eels, steed.c, trap.c, dothrow.c, eat.c): none can name
+      a racial monster. Nothing parses the result (the only
+      name_to_mon() readers of killer.name are the sickness and
+      poisoned() paths).
+      BATTERY (game-tester, 1 game per build): POST killer.name "an
+      elven soldier's thrown bone dagger" and "bolt of fire zapped
+      by an elven soldier"; PRE "a soldier's thrown dagger" and "bolt
+      of fire zapped by a soldier" (a centaurian soldier). Direct
+      mon_killer_name() calls: a chameleon newcham()'d into a soldier
+      (its form carries an ERAC) "a chameleon imitating a soldier" on
+      both, and "a jackal" on both. Not covered: no shopkeeper or
+      priest was on the level (the gate excludes them by flag).
+      New row below: done_in_by()'s racial-imitator naming.
+- [ ] LOW: done_in_by() names a racial monster's archetype race where
+      a form belongs (minted 2026-10-03, session 173, by the Plan
+      agent and reviewer; master-shared, end.c done_in_by() takes
+      `mptr = r_data(mtmp)` on both trees). r_data() is the race
+      archetype (&mons[ERAC->rmnum]) for any ERAC monster:
+      (a) a shapeshifter in a racial form takes the imitator branch
+      with fakenm = the race, so a chameleon that newcham()'d into an
+      elven soldier is "killed by a chameleon imitating an elf"
+      (mon_killer_name() says "a chameleon imitating a soldier");
+      (b) the G_UNIQ "the" test reads the race archetype, so a
+      racial high priest (priest.c apply_race()) gives "killed by a
+      high priest of Moloch" where master's intent is "the high
+      priest of Moloch". Cosmetic (death reason, tombstone, xlogfile).
+      Decide whether done_in_by() should test mtmp->data for the
+      imitator name and the unique test. LOW.
 - [ ] LOW observation (2026-09-18, done_in_by parity battery): a
       zombie's poison instadeath skips the graverise arms - the human
       zombie's poisoned sting ("The poison was deadly...") killed the
@@ -18421,7 +18481,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       test would hard-code a debug promise into a flag that is not
       debug-only; bracketing P_SKILL inside dowizcast() is the other
       shape. Wizard mode only. LOW (debug parity).
-- [ ] LOW: exerchk() skips Int while polymorphed, so Int exercise
+- [x] LOW: exerchk() lets Int exercise land while polymorphed
+      (BUG-2109) - FIXED 2026-10-03 (session 173, commit `Rider hold
+      text, death-reason race and polymorphed Int exercise.` =
+      (hash pending), tracker (hash pending); closure
+      notes at the end of this row). Original text: LOW: exerchk()
+      skips Int while polymorphed, so Int exercise
       built up in a form never lands (minted 2026-10-01, session 165;
       master quirk, identical on both trees). Master 3b8ba5835 lets
       exercise() accumulate Int (and Wis) while Upolyd, but exerchk()
@@ -18435,6 +18500,32 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       than Wis and Int while Upolyd, matching exercise(). A deliberate
       divergence from master's literal code, in line with master
       3b8ba5835's intent. Plannable.
+      CLOSURE (2026-10-03, session 173, plan
+      /root/.claude/plans/bugfix-text-rows-rider-xform-race-int.md).
+      PREMISE NOTE: anything that changes the hero's stats while
+      polymorphed changes the form's u.acurr / u.amax, which
+      polyman() (rehumanize) and polymon() (form to form) overwrite
+      from the u.macurr / u.mamax saved at the first polymorph. So
+      Wis exercise gains made in a form already revert on master,
+      5.0 and the branch, and nothing merges them back (no MCURR /
+      MMAX writer in the tree). RE-ASKED (AskUserQuestion, this
+      session): port the one-liner as ruled, over "mind gains
+      persist" and "close as master's". Int now behaves exactly like
+      Wis. FIX (BUG-2109, attrib.c exerchk()): `if (Upolyd && !(i ==
+      A_WIS || i == A_INT)) goto nextattrib;`; the comment names the
+      body (Str, Dex, Con). Nothing else differs for Int in a form:
+      ATTRMAX special-cases only Str, a dunce cap or Fixed_abil fails
+      silently as for Wis, and the only Int exercisers are learn()'s
+      two gains.
+      BATTERY (game-tester, gnome-lord form, Int set to 10 first, Int
+      exercise forced to 100, three checks per build): POST "You feel
+      smart!  You must have been studying hard." each time, form Int
+      10 -> 11 -> 12 -> 13 with the exercise zeroed each time,
+      u.macurr Int still 10, and Int 10 after "You return to human
+      form!". PRE: no message, Int 10, exercise halved 100 -> 50 each
+      check. Controls identical on both builds: Wis in a form ("You
+      must have been very observant.", 10 -> 11, back to 10 on
+      rehumanize) and Int unpolymorphed (10 -> 11).
 - [ ] SWEEP: race-predicate site census (minted 2026-09-19, session
       130, from session 129's census idea - same_race() and genus()
       were two instances of one class). RAW candidate list, method and
@@ -19987,7 +20078,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero-holds case is the same silent drag (BUG-1988); both
       frozen-unfixed there. EvilHack-only feature, so there is no
       upstream row.
-- [ ] LOW: farlook and probing on a rider don't show its steed's hold
+- [x] LOW: farlook and probing on a rider show its steed and the
+      steed's hold (BUG-2106) - FIXED 2026-10-03 (session 173, commit
+      `Rider hold text, death-reason race and polymorphed Int
+      exercise.` = (hash pending), tracker (hash pending); closure
+      notes at the end of this row). Original text: LOW: farlook and
+      probing on a rider don't show its steed's hold
       (minted 2026-09-28, session 154, by the rider/steed hold
       slice's reviewer; battery L14). u.ustuck is the off-map steed,
       so lookat()'s monster text (pager.c) and mstatusline()
@@ -20005,6 +20101,69 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       when the steed holds the hero, and ", riding a saddled <steed>,
       which you are holding" when the hero holds the steed - in both
       lookat() (pager.c) and mstatusline() (insight.c). Plannable.
+      CLOSURE (2026-10-03, session 173, plan
+      /root/.claude/plans/bugfix-text-rows-rider-xform-race-int.md).
+      PREMISE CORRECTED: mstatusline() has no riding clause on either
+      tree (master's copy is in priest.c), so a probe or stethoscope
+      never mentioned the steed at all. RULINGS (AskUserQuestion,
+      this session): the probe line ALWAYS shows ", riding <steed>"
+      plus the hold suffix (over my hold-only pick); farlook moves
+      the riding clause to the END for every rider, so no later
+      clause (wounds, asleep, armor, trapped, scared) reads as the
+      steed's (over my keep-it-after-the-name pick). FIX (BUG-2106):
+      pager.c look_at_monster() drops the clause after the name and
+      re-adds it after mhidden_description() as one bounded
+      Snprintf, with ", which you are holding" when `Upolyd &&
+      sticks(youmonst)` else ", which is holding you" when u.ustuck
+      is the steed (the function's own direct-hold test); the
+      unseen-Rider "its steed" form never meets a suffix (a hold
+      needs the rider adjacent; update_monsteed() releases it). The
+      armor clause's bounded-buffer comment drops "riding".
+      insight.c mstatusline() appends the clause last, after
+      ", leashed" (every earlier append is an unbounded Strcat, so a
+      bounded fill placed last can't be overrun), naming the steed
+      with a_monnam()'s flags plus SUPPRESS_IT so a probe names an
+      unseen steed (reviewer LOW-1 taken: a named steed reads "riding
+      Fluffy", not "a saddled Fluffy"). A ridden steed never engulfs
+      (engulf_target() refuses ridden steeds; an engulfer can't be
+      mounted), so only hold wording exists. Nothing parses the
+      farlook text (checkfile() cuts at the first ", "). The open
+      look_at_monster buffer audit row stays open. Two reviewer LOWs
+      became the row below.
+      BATTERY (game-tester, 1 game per build, POST
+      062de71bace70d125f8f07c392d8ef6c, PRE
+      8bcb26cdd4be85115045035498c8c18a, goblin outrider on a saddled
+      wolf, holds by gdb set_ustuck()): POST farlook "goblin outrider,
+      wearing some light armor, riding a saddled wolf, which is
+      holding you" and stethoscope "...AC 7, in light, riding a
+      saddled wolf, which is holding you."; an owlbear-form hero
+      holding the steed "..., which you are holding" in both; an
+      asleep rider with no hold "goblin outrider, asleep, wearing
+      some light armor, riding a saddled wolf" and "..., asleep,
+      riding a saddled wolf."; a named steed "riding Fluffy" in both.
+      PRE: the riding clause right after the name, no suffix, and no
+      riding text in the probe line. The wand of probing's second line
+      (the steed's own, ", holding you") was the same on both builds.
+      Paniclog absent throughout. RECORD ONLY: a ridden steed attacks
+      while its rider is frozen (m_move() returns early for a ridden
+      steed, "it can still attack from there"; master's m_move() has
+      the same early return); #wizkill on a hostile named steed prints
+      "The saddled Fluffy is killed." (wiz_kill() suppresses "saddled"
+      only for a tame named monster on the branch, master and
+      Official_nh50; wizard mode only).
+- [ ] LOW: rider / steed text residue (minted 2026-10-03, session 173,
+      by the hold-text slice's reviewer; pre-existing, master-shared).
+      (a) Mirror case: when an unseen rider is described by its
+      visible steed (look_at_monster() swaps mtmp to the steed), a
+      hold on the RIDER is lost - a hidden sticky-mimic hero grabs an
+      invisible rider, and farlook says "saddled warg, being ridden"
+      with no hold text, since the direct test compares u.ustuck with
+      the steed. A fix would keep the original mtmp and add a hold
+      suffix to ", being ridden"; wording needs the maintainer.
+      (b) The steed's own probe line (the wand of probing's second
+      hit) has no ", being ridden" clause, while farlook has one; the
+      rider's line now says "riding <steed>" right before it, so the
+      context is clear. LOW (display only).
 - [x] MED: a hurt ridden steed can flee by stairs alone - A RIDDEN
       STEED NOW MAKES NO ESCAPE OF ITS OWN 2026-09-28 (session 155,
       commit `Keep a ridden steed from leaving its rider behind.` =
@@ -20371,7 +20530,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       plain human 2/24 (code odds 55% / 10%). NEW ROWS: none (open
       Phase 2 rows -1 net: one closed, Hdgn rider (f) discharged, none
       minted).
-- [ ] LOW (text, wizard mode only): from_what()'s form attribution
+- [x] LOW: ^X form attribution reads " from your creature form"
+      everywhere (BUG-2107) - FIXED 2026-10-03 (session 173, commit
+      `Rider hold text, death-reason race and polymorphed Int
+      exercise.` = (hash pending), tracker (hash pending); closure
+      notes at the end of this row). Original text:
+      LOW (text, wizard mode only): from_what()'s form attribution
       reads " from your creature form" (upstream 5.0 attrib.c) where
       master prints " from current creature form" (master attrib.c
       ~1051; minted 2026-09-23, session 135, seen in the session-134
@@ -20386,6 +20550,22 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       suffixes (breathe water for an amphibious form, fast underwater)
       to " from your creature form", so the whole ^X screen reads
       5.0's way. Plannable (text only).
+      CLOSURE (2026-10-03, session 173, plan
+      /root/.claude/plans/bugfix-text-rows-rider-xform-race-int.md).
+      FIX (BUG-2107, insight.c attributes_enlightenment()): both
+      literals now read " from your creature form", matching
+      from_what()'s FROM_FORM text; no other copy exists (timeout.c's
+      hits are comments). Correction to the row's "wizard mode only":
+      from_what() is wizard-only, but these two literals are not, so
+      they are the only form attribution an ordinary player sees (^X
+      enlightenment from explore mode, potions and wands, and the
+      end-of-game disclosure). Upstream's insight.c has neither line.
+      BATTERY (game-tester, 1 game per build): newt form POST "You can
+      breathe water from your creature form.", PRE "... from current
+      creature form."; crocodile form underwater (u.uinwater 1) POST
+      "You are very fast from your creature form.", PRE "... from
+      current creature form."; on land "You are fast because of your
+      experience." on both.
 - [ ] SWEEP: is_bracer() census (minted 2026-09-23, session 135, from
       the set_uasmon() slice's bracers-as-shield sibling sweep, which
       fixed the two-weapon / two-hander class only: zap.c poly_obj(),
@@ -20909,8 +21089,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: 5.0's hero catch narrowed to a Skilled, empty-handed
       martial artist who isn't helpless (BUG-2100) - FIXED 2026-10-02
       (session 172, commit `Martial-arts catch, Sword of Kas poison
-      and hand-spell rider fixes.` = (hash pending), tracker (hash
-      pending); closure notes at the end of this row). Original text:
+      and hand-spell rider fixes.` = c1e2b1189, tracker 2fd4c5c38,
+      landed 2026-10-03; closure notes at the end of this row).
+      Original text:
       LOW: 5.0's hero catches thrown items; master has none (minted
       2026-09-27, session 150, by the aklys slice). Upstream
       41b208743 ("Hero has a small chance of catching items thrown
@@ -21625,10 +21806,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "welcome to NetHack!" (known re-brand row).
 - [x] LOW: hmonas() riders need the defender within reach
       (BUG-2102) - FIXED 2026-10-02 (session 172, commit `Martial-arts
-      catch, Sword of Kas poison and hand-spell rider fixes.` = (hash
-      pending), tracker (hash pending); closure notes at the end of
-      this row). Original text: LOW: a polymorphed hero's burning
-      hands / shocking grasp riders
+      catch, Sword of Kas poison and hand-spell rider fixes.` =
+      c1e2b1189, tracker 2fd4c5c38, landed 2026-10-03; closure notes
+      at the end of this row). Original text: LOW: a polymorphed hero's
+      burning hands / shocking grasp riders
       land on a defender that the hero's own AD_TLPT claw has just
       teleported away (minted 2026-10-02, session 171, by the boojum
       slice's reviewer; pre-existing, master-shared - master uhitm.c
@@ -23156,7 +23337,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, hash pending; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
+| 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, c1e2b1189; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
 | 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, 34ed5ca2a); patch artifact not cut yet |
 | 2026-10-02 | polyself.c polymon() writes the "changed form for the first time, becoming %s" livelog with `pmname(&mons[mntmp], flags.female ? FEMALE : MALE)` (Official_nh50 src/polyself.c ~753) before its `gs.sex_change_ok && !rn2(10)` sex flip (~792), so on a flip the livelog names the old sex (seen on the branch: "becoming a vampire lady" with "You turn into a male vampire lord!" on screen). Minimal upstream fix: write the livelog after the sex is settled | found on branch (LOW row, session 170); not fixed, not sent |
 | 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, 0547e1f4e); patch artifact not cut yet |
@@ -23323,6 +23504,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-03 | Text-rows slice rulings (session 173; AskUserQuestion x2, three questions; two re-asked on corrected premises). (1) PROBE LINE ON A RIDER: ALWAYS SHOW ", riding <steed>" plus the hold suffix, over the recommended hold-only clause (the 2026-10-01 ruling assumed mstatusline() already printed a riding clause; it never did, on either tree). (2) exerchk() INT WHILE POLYMORPHED: PORT THE ONE-LINER AS RULED, as recommended, over "mind gains persist" and "close as master's" - told that any stat change made in a form reverts on rehumanize or a form-to-form polymorph (polyman() / polymon() restore u.macurr), as Wis exercise gains already do on every tree; Int now behaves exactly like Wis. (3) FARLOOK CLAUSE ORDER: MOVE THE RIDING CLAUSE LAST FOR EVERY RIDER, over the recommended keep-it-after-the-name, so no later clause (wounds, asleep, armor, trapped, scared) reads as the steed's and farlook matches the probe line. Implementation choices: mon_killer_name() splices racial_adj() (not x_monnam()) with done_in_by()'s raceless branches excluded; the probe clause names the steed with a_monnam()'s flags plus SUPPRESS_IT (reviewer LOW-1). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-10-02 | Hero-combat slice rulings (session 172; AskUserQuestion x4, five questions, all recommended). (1) SLICE ORDER: the hero-combat group (martial-arts catch, Sword of Kas poison, burning-hands reach guard) first among the ten ruled rows. (2) BARBED NEEDLE: KAS ONLY - the 2026-10-01 "double dose" ruling assumed master's isneedle term was live, but it has been dead since 676549370 (the needle case frees the needle and sets obj NULL before the block), so the needle keeps its 0.9.3 sting-only behavior and the dead term is recorded on master (BUG-2101). (3) GOLEM HEAL: FOLDED IN - hmonas()'s resisted riders heal by the spell's own die, d(enchant_skill_dice(), 4) fire / 6 shock, instead of the to-hit number (BUG-2103). Consequence kept without a separate ruling: hmon_hitmon()'s arms still heal by the whole blow (hmd.dmg), so the polymorphed and unpolymorphed hero paths measure the heal differently. (4) CATCH, BRACERS: count as empty hands, `!uarms || is_bracer(uarms)`, the branch's Monk unarmed-bonus idiom. (5) CATCH, HELPLESS: `gm.multi >= 0` added (upstream-shared hole; upstream table row). Kept from 5.0 without a ruling: potions, eggs and cream pies are catchable; Glib is not tested. AFTER THE BATTERY (AskUserQuestion x1, two questions; supersedes part of (2)): (6) COATINGS ALWAYS WEAR OFF - a dipped coating on the Sword of Kas or on a venom-property weapon can wear off like any other (recommended; master's `!iskas && !isvenom` exclusions kept them forever; BUG-2104). (7) HERO BARBED NEEDLES: MASTER'S INTENT (over my keep-the-live-sting pick) - the needle case runs the hero poison block before the needle is used up: alignment hit, +rnd(6) or 1 in 10 deadly; a needle-resisting target (poison resistance or defended AD_DRCO) takes no poison and gets no second resist line (BUG-2105). | maintainer |
 | 2026-10-02 | Boojum slice rulings (session 171; AskUserQuestion x1, three questions, all recommended). (1) SCOPE: ALL FOUR master pieces with the vanish arm - the snark -> boojum swap (without it boojums never appear outside wizard mode), monster victims turning invisible, the TLPT death guards (master BUG-890 / BUG-898 shape, upstream-shared) and makemon()'s J class / satyrs spawning awake. (2) VANISH TEXT on a no-teleport level only when invisibility takes effect (not already invisible, no mummy wrapping, not blind; the blind term follows zap.c's self-zap) over master's `!Invis`-only gate. (3) NO MASTER LEGS in the battery; master parity rests on code reading. Kept for master parity without a ruling: a tame snark becomes a hostile boojum and its inventory is destroyed by mongone(); the Amulet / Wizard's Tower disorientation still follows "You suddenly vanish!". | maintainer |
 | 2026-10-02 | Vine growth slice rulings (session 170; AskUserQuestion x4, six questions). (1) VINE INTENT: ONLY THE ORIGINAL GROWS (recommended; SUPERSEDED IN PART by (7)), per 71899e6e5's message and the wiki, over master's code (every vine at 2/3 HP grows); sprouts carry the existing mcloned bit, and the diminishing XP for mcloned kills is accepted. (2) RATE: FASTER, because 0.9.3 players expect quick spread (maintainer's addition to option 1), then EVERY 30 TURNS (recommended) with no roll, on the nearest free square through makemon()'s own-square MM_ADJACENTOK path (simulated 8 / 16 / 33 / 66 sprouts at 250 / 500 / 1000 / 2000 turns against master's 2.7 / 7.5 / 31 / 160); a sprout behind a room wall is accepted. Rejected: every 20 turns (12 / 25 / 50 / 100) and master's 1 in 3 every 15 turns (5.6 / 11 / 22 / 45). (3) SILENT (recommended): MM_NOMSG on both spawns, master parity. (4) GULTHIAS BLIGHTS ON THE NEAREST FREE SQUARE like the vine (recommended), over a blight-checked 3x3 or master's exact boulder-prone shape. (5) ONLY HOSTILE PARENTS SPAWN (recommended), over master parity (a pet vine seeds hostile sprouts) and peaceful sprouts. (6) vegan() PLANT / ENT CLAUSES FOLDED IN as a separate commit (recommended) rather than a later row. REVISION after the first battery (maintainer: "assassin vine sprouts should have a chance to grow as well"; AskUserQuestion x2, three questions, all recommended): (7) SPROUTS GROW 1 IN 3, EDGE-ONLY - on the 30-turn gate in the same hostile / uncancelled / 2/3-HP condition, onto master's random 3x3 square if free, never the own square (simulated 8.5 / 20.5 / 57 / 109 / 172 at 250 / 500 / 1000 / 1500 / 2000 turns), over 1 in 6 edge-only and master's exact pick; nearest-free sprouts were shown to fill the area at any odds. (8) THE ROOT CONTROLS THE PATCH - sprouts grow only while an original vine is on the level, over sprouts growing on their own. (9) THE ROOT MUST BE ABLE TO GROW - hostile, uncancelled, at 2/3 HP or better (the reviewer's LOW), so wounding, cancelling or taming it stops the patch too, over any living original | maintainer |
