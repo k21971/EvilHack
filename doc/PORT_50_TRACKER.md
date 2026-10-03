@@ -35,6 +35,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 60 LOW: small parity rows, quirks and watch/record-only items.
+    PLANNABLE (ruled 2026-10-03, session 176 follow-up): done_in_by()
+    imitator naming, rider / steed text, the BFS diagonal rule (own
+    battery), the mnearto() shove, and the aasimar drain while
+    polymorphed.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
@@ -60,10 +64,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     diagonal-rule row; session 176 the aasimar stat drain while
     polymorphed row.
 - Latest slice: 2026-10-03 (session 176) POLYMORPHED HEROES GET
-  THEIR FORM'S RACE STRENGTH (code
-  `Give EvilHack race forms their race's Str cap while
-  polymorphed.`, tracker `Tracker: race Str caps for polymorphed
-  heroes.`; hashes pending; BUG-2117).
+  THEIR FORM'S RACE STRENGTH (code 9d038c4af, tracker 58e428eab;
+  BUG-2117).
   - Polymorphed into a form of an EvilHack race, you get that race's
     strength limit, as orc, elf, dwarf and gnome forms already did.
     Living giants rise from 19 to 25, enough to throw Mjollnir as a
@@ -14385,6 +14387,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       priest of Moloch". Cosmetic (death reason, tombstone, xlogfile).
       Decide whether done_in_by() should test mtmp->data for the
       imitator name and the unique test. LOW.
+      RULED 2026-10-03 (session 176 follow-up, decisions log): RACIAL
+      FORM NAME, as recommended - "killed by a chameleon imitating an
+      elven soldier" in BOTH done_in_by() and mon_killer_name()
+      (mcastu.c; today it says "imitating a soldier" and its comment
+      says shapeshifter names carry no race), and the unique test reads
+      the form, so a racial high priest is "the high priest of Moloch".
+      Plannable.
 - [ ] LOW observation (2026-09-18, done_in_by parity battery): a
       zombie's poison instadeath skips the graverise arms - the human
       zombie's poisoned sting ("The poison was deadly...") killed the
@@ -18656,7 +18665,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: uasmon_maxStr() gives EvilHack race families no race Str
       cap (BUG-2117) - FIXED 2026-10-03 (session 176, commit `Give
       EvilHack race forms their race's Str cap while polymorphed.` =
-      (hash pending), tracker (hash pending); closure notes at the end
+      9d038c4af, tracker 58e428eab; closure notes at the end
       of this row).
       Original text: LOW: uasmon_maxStr() gives EvilHack race families
       no race Str
@@ -18738,6 +18747,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       until the next aasimar_check_abuse() (level change, restore,
       priest). Master has the same apply arm. Decide: clamp the saved
       stats too while Upolyd, or record only. LOW.
+      RULED 2026-10-03 (session 176 follow-up, decisions log): CLAMP
+      THE SAVED STATS TOO, as recommended - while Upolyd the drain arm
+      also clamps u.macurr / u.mamax (MCURR / MMAX) against the
+      drained gu.urace.attrmax, so the hero returns to normal form at
+      the drained cap. Verified: every later aasimar_check_abuse()
+      call re-applies the existing penalty (and its clamp), so today's
+      window closes at the next level change, restore, abuse event or
+      atonement. Plannable.
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -20135,6 +20152,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Master-shared. Minted 2026-10-03, session 175, by the Plan
       agent. Decide: match mfndpos() (changes the hero map too), or
       keep it. LOW.
+      RULED 2026-10-03 (session 176 follow-up, decisions log): MATCH
+      MFNDPOS TERRAIN, as recommended - both maps refuse a diagonal
+      only between two bad_rock-like squares (rock, walls, trees; not
+      water, lava or bars), keeping every tight squeeze refused since
+      one map serves every monster, and refuse diagonals into or out
+      of a doorway (mfndpos()'s door rule). Own slice with a battery
+      (pool checkerboard, bars corner, doorway). Plannable.
 - [x] MED: a monster HOLDING the hero can leave the level with u.ustuck
       still set - CLOSED 2026-09-25 (session 144, commit `Monsters
       holding the hero let go when they leave the level.` =
@@ -20436,6 +20460,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hit) has no ", being ridden" clause, while farlook has one; the
       rider's line now says "riding <steed>" right before it, so the
       context is clear. LOW (display only).
+      RULED 2026-10-03 (session 176 follow-up, decisions log): FIX
+      BOTH, as recommended - (a) farlook on the steed of an unseen
+      rider adds ", being ridden by something you are holding" / ",
+      being ridden by something holding you" (mirroring the rider
+      side's ", which you are holding" / ", which is holding you");
+      (b) the steed's probe line gains ", being ridden". Plannable.
 - [x] MED: a hurt ridden steed can flee by stairs alone - A RIDDEN
       STEED NOW MAKES NO ESCAPE OF ITS OWN 2026-09-28 (session 155,
       commit `Keep a ridden steed from leaving its rider behind.` =
@@ -22345,6 +22375,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       wrapping the hero - the likeliest). Decide: guard each site, or
       centralize in mnearto() (never shove ustuck_self_or_steed();
       costs home_shk() parking the shopkeeper beside his post). LOW.
+      RULED 2026-10-03 (session 176 follow-up, decisions log):
+      CENTRALIZE IN mnearto(), as recommended - never shove the
+      monster holding the hero or held by it; the arriving monster
+      lands beside the square instead (check shk.c's `== 2` return
+      test and the covetous guards at plan time). Plannable.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -23785,6 +23820,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-03 | Pending LOW rows ruled (session 176 follow-up; AskUserQuestion x2, five questions, all recommended). (1) done_in_by() IMITATOR NAMING: RACIAL FORM NAME - "a chameleon imitating an elven soldier" in both melee (done_in_by()) and ranged (mon_killer_name()) reasons; the unique test reads the form ("the high priest of Moloch"). (2) RIDER / STEED TEXT: FIX BOTH - the steed of an unseen rider shows the rider's hold (", being ridden by something you are holding" / "... holding you"), and the steed's probe line gains ", being ridden". (3) BFS DIAGONAL RULE: MATCH mfndpos() TERRAIN - only rock / wall / tree corners block a map diagonal (tight squeezes stay refused), and no diagonals through doorways; own slice and battery. (4) mnearto() SHOVE: CENTRALIZE - never shove the hero's holder or held monster. (5) AASIMAR DRAIN WHILE POLYMORPHED: CLAMP THE SAVED STATS TOO. | maintainer |
 | 2026-10-03 | uasmon_maxStr() EvilHack-races slice rulings (session 176; AskUserQuestion x1, four questions, all recommended). (1) GIANTS: LIVING 25, UNDEAD 18/100: living giant forms take the giant race's STR19(25) (5.0 gave 19); giant mummy / giant zombie keep 5.0's 18/100 throttle. (2) BROAD FAMILIES: VAMPIRES ONLY: vampire forms take the vampire race's 19; demons stay unmapped (race_demon is a crowning race outside races[]). (3) ZOMBIES: NO DRAUGR MAPPING: zombie forms keep their living race's cap or 5.0's number. (4) LOWER CAPS: MAP ALL THREE: illithid forms (10), drow forms incl. the drider (18) and hobbit forms (16) take their race's cap although it is below 5.0's number, following 5.0's elf precedent. | maintainer |
 | 2026-10-03 | Goal-rooted pathing slice rulings (session 175; AskUserQuestion x4, five questions). (1) MAP SCOPE: ITEM GOALS AND THE HERO IMAGE (over the recommended item-only scope): when mux/muy is not the hero's true square (displacement, invisibility, underwater), an approaching intelligent monster roots its map at the guess; gettrack() footprints stay on the hero map. (2) UNREACHABLE ITEM: GIVE IT UP (recommended): drop the item goal and keep the pre-search goal and appr, so a fleeing monster keeps fleeing; animals and the mindless stay greedy. (3) ROUTE CAP: 5 STEPS (recommended): a longer route is given up too, so the item stays inside the search box and the monster cannot pace. (4) FLEE FLIP: USE THE ITEM FLAG (recommended; diverges from vanilla and master): only a real item goal turns a fleeing monster around. (5) FLEEING HONEY BADGER (battery L6b find): FLEE FROM THE HERO (recommended): the royal-jelly override applies only while approaching; master's ignored appr, so a fleeing badger fled from the jelly. | maintainer |
 | 2026-10-03 | Wish-tracker slice rulings (session 174; AskUserQuestion x1, three questions). (1) REFUSED AND OWNER-SUMMONED ARTIFACT WISHES (new find: 5.0's makewish() &hands_obj early return skipped their count and livelog): FOLD IN AND LOG THEM IN THE WISHTRACKER TOO (over the recommended master's shape, which counted and livelogged them but wrote no wishtracker line). They count as wishes, livelog in master's text (`wished for "X"`, no "got" part) and skip the ublesscnt bump as on master; wizard terrain / trap wishes stay uncounted (5.0). (2) ORDINAL: ordin() (recommended) - "21st", where master wrote "21th". (3) EXPLORE MODE: SKIP IT in the wishtracker like the livelog (over the recommended master's shape, which logged explore-mode wishes). | maintainer |
