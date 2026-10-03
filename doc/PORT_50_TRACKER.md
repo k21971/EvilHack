@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-02, after session 171): 286
-  rows closed, 87 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-02, after session 172): 290
+  rows closed, 85 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,17 +34,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 65 LOW: small parity rows, quirks and watch/record-only items.
-    The hero-catches-thrown-items row (keep 5.0's catch for a Monk
-    or Samurai at Skilled+ martial arts with both hands empty), the
-    rider farlook-text row and the WISH_TRACKER row (port it) were
-    ruled 2026-10-01 and are plannable. So were seven rows with
-    "decide" clauses, the same day: the Sword of Kas / needle
-    poison block (port master's), the ranged death-reason race
+  - 63 LOW: small parity rows, quirks and watch/record-only items.
+    The rider farlook-text row and the WISH_TRACKER row (port it)
+    were ruled 2026-10-01 and are plannable. So were five rows with
+    "decide" clauses, the same day: the ranged death-reason race
     (add it), exerchk() Int while polymorphed (fix it), the new
     uasmon_maxStr() EvilHack-races row (add them), item-goal
     pathing (build it) and the ^X form wording (5.0's everywhere);
-    the passive AD_COLD row closed as kept 5.0. The wish-invlet
+    the passive AD_COLD row closed as kept 5.0, and the catch and
+    Sword of Kas rows landed in session 172. The wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
@@ -55,12 +53,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     row; session 165 the #wizcast skill row and the polymorphed Int
     exercise row; session 166 the ^G "racial" prefix row; session
     169 the mnearto() move_other unstick row; session 170 the
-    first-polymorph livelog sex row; session 171 the polymorphed
-    hero's burning-hands rider row and the "Phasing" status row.
-- Latest slice: 2026-10-02 (session 171) SNARKS THAT ARE BOOJUMS,
-  THE BOOJUM'S VANISHING TOUCH (code `Port snarks that are boojums
-  and the boojum's vanishing touch.`, tracker `Tracker: snark and
-  boojum slice, burning-hands and Phasing rows.`; hashes pending;
+    first-polymorph livelog sex row; session 171 the "Phasing"
+    status row; session 172 the monster hand-spell riders after an
+    AD_TLPT hit row and the noncorporeal thrown-venom leak row.
+- Latest slice: 2026-10-02 (session 172) MARTIAL-ARTS CATCH,
+  SWORD OF KAS POISON, HAND-SPELL RIDER FIXES (code `Martial-arts
+  catch, Sword of Kas poison and hand-spell rider fixes.`, tracker
+  `Tracker: martial-arts catch, Kas poison and hand-spell rider
+  rows.`; hashes pending; BUG-2100..2105).
+  - Only a Monk or Samurai at Skilled martial arts or better, with
+    nothing wielded and no shield (bracers are fine), catches
+    missiles thrown at them, and never while asleep or paralyzed.
+    Rogues and everyone else no longer catch (5.0 let anyone).
+  - Every Sword of Kas hit now also delivers master's poison: extra
+    damage or a 1-in-10 kill against non-resistant targets, and the
+    Samurai / lawful alignment penalty. So does each barbed needle a
+    hero in needle-blight form spits (master's intent; its term was
+    dead code). A dipped coating can now wear off any weapon, Kas
+    and venom-property weapons included.
+  - A polymorphed hero's burning hands and shocking grasp no longer
+    hit a monster the same claw just teleported away, and no longer
+    heal fire- or shock-resistant golems by the to-hit roll.
+  - Detail: the closed rows' closure notes.
+- Previous slice: 2026-10-02 (session 171) SNARKS THAT ARE BOOJUMS,
+  THE BOOJUM'S VANISHING TOUCH (code 34ed5ca2a, tracker dc3dc795f;
   BUG-2094..2099).
   - One snark in three (fixed by m_id) turns out to be a boojum the
     first time it is awake next to the hero: "Oh, no, this Snark is
@@ -74,22 +90,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   - A steed killed by a trap it was teleported onto by an AD_TLPT hit
     is no longer revived as a 1-HP ghost (upstream-shared).
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
+- Earlier slices: 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
   THE GULTHIAS TREE SPAWNS BLIGHTS, PLANTS AND ENTS ARE VEGAN (code
-  887bf2e4c + b4d362c6a, tracker 1f304f413; BUG-2088..2093).
-  - The original vine makes one silent sprout every 30 turns on the
-    nearest free square while it is hostile, uncancelled and at 2/3
-    HP or better; sprouts in that condition grow 1 in 3 onto a free
-    neighbouring square, but only while such an original grows on
-    the level, so a patch spreads from its edge and killing or
-    wounding the root stops it (ruled over master's compounding
-    spread).
-  - A hostile Gulthias tree makes a twig or needle blight one time in
-    three every 15 turns, never on a boulder.
-  - Plant and ent corpses no longer break vegan conduct, and vampires
-    no longer feed on them, as on master.
-  - Detail: the closed row's closure notes.
-- Earlier slices: 2026-10-02 (session 169) COVETOUS PURSUIT AS ON
+  887bf2e4c + b4d362c6a, tracker 1f304f413; BUG-2088..2093);
+  2026-10-02 (session 169) COVETOUS PURSUIT AS ON
   MASTER, DEMON-COURT FREEZE FIXED (code 0547e1f4e, tracker
   3e4502a50; BUG-2081..2087); 2026-10-01 (session 168) TELEKINESIS
   DAMAGE CAPPED AT 10 DICE (code ad2d118e4, tracker c4acecad9;
@@ -7754,7 +7758,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       destroy_mitem(mon, class, adtyp) is 5.0's destroy_items(mon,
       adtyp, dmg) (the return-discard ruling applies; SUPERSEDED
       2026-09-27, session 151: the return is now added, BUG-1979).
-- [ ] LOW: hmonas burning hands / shocking grasp resist branches
+- [x] LOW: hmonas() resisted riders heal golems by the spell's die
+      (BUG-2103) - FIXED 2026-10-02 (session 172, commit `Martial-arts
+      catch, Sword of Kas poison and hand-spell rider fixes.` = (hash
+      pending), tracker (hash pending); closure notes at the end of
+      this row). Original text: LOW: hmonas burning hands / shocking
+      grasp resist branches
       heal resistant golems by the to-hit value (minted 2026-08-26,
       reviewer catch on the ported arms, master-shared verbatim):
       both polyform arms call golemeffects(mon, AD_FIRE/AD_ELEC, tmp)
@@ -7764,6 +7773,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Kept for parity this slice; a fix wants a ruling on what the
       heal amount should be (the elemental die is the natural pick)
       and a master patch note.
+      CLOSURE (2026-10-02, session 172, plan
+      /root/.claude/plans/bugfix-hero-combat-catch-kas-riders.md).
+      Folded into the hero-combat slice because the reach guard
+      (BUG-2102) edits the same two rider blocks. RULING
+      (AskUserQuestion, recommended): heal by the spell's own die.
+      FIX (BUG-2103, master frozen-unfixed): golemeffects(mon,
+      AD_FIRE, d(enchant_skill_dice(), 4)) and golemeffects(mon,
+      AD_ELEC, d(enchant_skill_dice(), 6)). The hmon_hitmon() arms
+      still pass the whole blow (hmd.dmg), so the two hero paths now
+      measure the heal differently (decisions log). BATTERY
+      (game-tester, quantum mechanic form under the stasis lever):
+      POST iron golem healed exactly dam, 1-2 at one die and 7-12 at
+      four; flesh golem healed exactly (dam + 5) / 6, always 1 at one
+      die. PRE healed by the to-hit number: 24 per claw (iron), 6 per
+      claw from tmp 31 (flesh). The resisted branch still spends a
+      charge on both builds.
 - [ ] LOW: hallucinated colors break the producer articles (minted
       2026-08-26, reviewer catch, master-shared verbatim): the
       unblessed burning hands message hardcodes "a%s%s flame" with
@@ -8920,7 +8945,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       lines landed with the bane-aura moveloop artifact arms (row
       ~13234, BUG-1816), so 22 lines stayed held; RE-ENTERED
       2026-09-10: Ashmar "Prevents knockback." with the
-      knockback-machinery slice (BUG-1820), 21 held. Held lines with
+      knockback-machinery slice (BUG-1820), 21 held; RE-ENTERED
+      2026-10-02: Sword of Kas "Poisons those it strikes." with the
+      Kas poison slice (session 172, BUG-2101), 20 held (counted from
+      both arti_specials[] tables: master 128, branch 108; the count
+      includes Xiuhcoatl's master doc-bug line). Held lines with
       owners elsewhere: Master Key of
       Thievery + Yendorian Express Card "Never breaks while picking
       locks." (lock.c cursed-tool breakage, row ~1915); Wand of Orcus
@@ -8952,9 +8981,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       makewish(TRUE), whose livelog adds "using the Magic 8-Ball",
       then the ball winks out; the branch has no EIGHT_BALL case in
       doapply(), so applying it says "Sorry, I don't know how to use
-      that.", and its makewish() takes no argument); Sword of Kas
-      "Poisons those it strikes." (uhitm.c iskas
-      poison-on-hit; permapoisoned covers only Grimtooth here);
+      that.", and its makewish() takes no argument);
       Tempest "Wielder cannot be stunned." (five of seven arms live;
       the chest-trap gas arm - branch trap.c tests bare !Stunned - and
       the monk-kick arm are missing - the monk-kick arm LANDED
@@ -9208,7 +9235,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dochug ranged scan, and whether master's can_carry() "already
       overloaded -> 0" pre-check (mon.c) travelled - the branch's
       can_carry() tests curr + newload only.
-- [ ] LOW: hero Sword of Kas / barbed needle poison-feedback arms
+- [x] LOW: the Sword of Kas and the hero's barbed needles run the
+      hero poison block, and any dipped coating can wear off
+      (BUG-2101, 2104, 2105) - FIXED 2026-10-02 (session 172, commit `Martial-arts catch, Sword
+      of Kas poison and hand-spell rider fixes.` = (hash pending),
+      tracker (hash pending); closure notes at the end of this row).
+      Original text: LOW: hero Sword of Kas / barbed needle
+      poison-feedback arms
       (minted 2026-08-23 by the combat-residue slice). Master's
       hmon_hitmon() runs the hero poisoned-weapon block for iskas
       and isneedle too (the "dishonorably"/"evil coward" alignment
@@ -9231,6 +9264,84 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       - The wear-off roll skips Kas and the needle.
       This comes on top of the Sword of Kas's DRST artifact attack.
       Plannable.
+      CLOSURE (2026-10-02, session 172, plan
+      /root/.claude/plans/bugfix-hero-combat-catch-kas-riders.md).
+      PREMISE CORRECTED: master's isneedle term has been dead code
+      since it was added (676549370). The same commit's BARBED_NEEDLE
+      case in the misc-object switch frees the needle and sets `obj =
+      NULL`, and the poison block needs `obj`, so on master (live
+      0.9.3) a needle hit is only its own sting. FIRST RE-RULING
+      (AskUserQuestion, recommended): Kas only. SUPERSEDED after the
+      battery: the maintainer asked for the needle comparison and for
+      coatings that always wear off, and ruled (AskUserQuestion x1,
+      two questions): (a) ANY dipped coating can wear off, the Sword
+      of Kas's and a venom-property weapon's included (recommended;
+      master never lets them); (b) the hero's needles get MASTER'S
+      INTENT, the hero poison block (over my keep-the-live-sting
+      pick). FIX (BUG-2101, uhitm.c): the hmon_hitmon_poison() call
+      site also runs for is_art(obj, ART_SWORD_OF_KAS); the block runs
+      once even for a dipped Kas; an artifact_hit() kill returns
+      before it, as on master. FIX (BUG-2104): the wear-off roll is
+      `hmd->ispoisoned && !permapoisoned(obj) && !rn2(nopoison)`;
+      master's `!iskas && !isvenom` existed only because its roll had
+      no coating test (an uncoated Kas would have printed a false
+      "no longer poisoned"), which ispoisoned already covers here;
+      Grimtooth's opoisoned is a creation-time marker that
+      permapoisoned() keeps. Monster-side coatings already wore off
+      the same way. FIX (BUG-2105): the needle case in
+      hmon_hitmon_misc_obj() calls hmon_hitmon_poison() after its
+      sting / harmless line and before the needle is used up; the
+      block treats `defended(mon, AD_DRCO)` as resisted for a needle
+      (the needle case's own test) and sets no needpoismsg for it.
+      Hero needles exist in play only as a needle-blight polyform's
+      #monster spit (venom-class wishes are wizard-mode only; needles
+      never persist). Each needle hit now gives the Samurai / lawful
+      alignment hit and, against a non-resisting target, +rnd(6) or a
+      1-in-10 "The poison was deadly..." (a monster's needle against a
+      monster stays +rnd(6) / 1 in 30, unchanged). A needle spat at
+      a noncorporeal target (S_GHOST, all poison resistant) skips the
+      needle case entirely, so no block and no alignment hit there
+      (delta reviewer LOW-1, left as is: the needle passes through).
+      Delta reviewer PASS; its LOW-2 (a pre-existing leak of a thrown
+      venom / egg / cream pie against a ghost) is minted as the LOW
+      row after the rider rows. pager.c
+      re-enters master's held tip "Poisons those it strikes." in
+      master's order (the held-tips row above is updated). BATTERY
+      (game-tester; Kas owt 103, nopoison 2): POST, a chaotic Rogue's
+      12 hits all entered the block (extra damage, one "The poison
+      was deadly...", no alignment line); a soldier ant got "The
+      poison doesn't seem to affect the soldier ant." each hit; a
+      lawful Monk got "evil coward" each hit until the record reached
+      -10, then nothing; a Samurai got "dishonorably" each hit; a
+      thrown Kas entered the block; the pokedex shows the tip. PRE: no
+      block for an unpoisoned Kas, and a dipped Kas lost its coating 10
+      times in 21 hits (a dipped Kas already ran the block through
+      ispoisoned on PRE). That first battery ran on the Kas-only build (needles stung
+      only; a dipped Kas kept its coating through 20 hits); the
+      BUG-2104 / 2105 legs ran in a delta battery: POST2 (8bcb26cd) vs
+      POST1 (ee658bbf), 6 games, about 51 min, paniclog absent
+      throughout: a dipped Kas (nopoison 2) lost its coating 11 times in
+      31 coated hits and a dipped long sword of venom (nopoison 6) 7 in
+      25, each with "... is no longer poisoned." (POST1 0 of 24 and 0 of
+      21); uncoated Kas 16 and venom sword 15 hits never set
+      unpoisonmsg; Grimtooth entered the block on exactly its 12 dieroll
+      <= 5 hits of 27 and kept opoisoned 1. Needle-blight form (Eyes of
+      the Overworld against the form's blindness): every needle hit
+      entered the block once (28/28, 28/28, 18/18, including a wielded
+      stack of 2), misses never; a chaotic hero got +1..6 on 14 of 15
+      hits and one "The poison was deadly..."; a lawful Monk got "You
+      feel like an evil coward for using a poisoned weapon." after every
+      sting and no line on 29 misses; a Samurai "You dishonorably use a
+      poisoned weapon!" on all 18 hits; a soldier ant got "Your barbed
+      needle hits the soldier ant harmlessly." with no second resist
+      line (the coward line still followed for a lawful hero). POST1
+      never entered the block for a needle (77 hits). Regression
+      spot-checks (Kas block, Skilled Monk catch, QM rider guard) PASS.
+      No AD_DRCO defender exists to stage (no DFNS(AD_DRCO) artifact).
+      Record only: a wished Kas arrives "You are blasted by the
+      crystal two-handed sword named the Sword of Kas' power!" at
+      delivery and again at wield, and can come cursed (it welded
+      twice in six games).
 - [ ] LOW investigation: weaponless AT_WEAP-only monster never
       attacked (battery observation 2026-08-23, unadjudicated, NOT
       this slice's doing - weapon selection untouched). A hostile,
@@ -20795,7 +20906,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ranged pick needs none, so check against PRE before minting.
       NEW ROW: LOW hero catches thrown items (below). The branch's
       "welcome to NetHack!" line rides the existing branding row.
-- [ ] LOW: 5.0's hero catches thrown items; master has none (minted
+- [x] LOW: 5.0's hero catch narrowed to a Skilled, empty-handed
+      martial artist who isn't helpless (BUG-2100) - FIXED 2026-10-02
+      (session 172, commit `Martial-arts catch, Sword of Kas poison
+      and hand-spell rider fixes.` = (hash pending), tracker (hash
+      pending); closure notes at the end of this row). Original text:
+      LOW: 5.0's hero catches thrown items; master has none (minted
       2026-09-27, session 150, by the aklys slice). Upstream
       41b208743 ("Hero has a small chance of catching items thrown
       at them", 2026-03-25) adds mthrowu.c u_catch_thrown_obj().
@@ -20827,6 +20943,38 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       their hands empty (a Samurai starts wielding a katana, so a
       Samurai catches only after unwielding). The Guidebook gives no
       catch text, so no edit is needed.
+      CLOSURE (2026-10-02, session 172, plan
+      /root/.claude/plans/bugfix-hero-combat-catch-kas-riders.md).
+      One slice with the Sword of Kas, burning-hands and golem-heal
+      rows (maintainer's pick of the ruled hero-combat group).
+      RULINGS (AskUserQuestion, this session, both recommended):
+      bracers count as empty hands (`!uarms || is_bracer(uarms)`, the
+      branch idiom from the Monk's unarmed to-hit bonus); a helpless
+      hero can't catch (`gm.multi >= 0`; upstream-shared - Blind does
+      not cover sleep or paralysis, and m_throw()'s `nomul(0)` returns
+      early when multi < 0; upstream table row). FIX (BUG-2100,
+      mthrowu.c u_catch_thrown_obj()): martial_bonus() &&
+      P_SKILL(P_MARTIAL_ARTS) >= P_SKILLED && !uwep && !u.twoweap &&
+      (!uarms || is_bracer(uarms)) && !Hidinshell && gm.multi >= 0 in
+      front of 5.0's gates; freehand() dropped (with !uwep it reduces
+      to !Hidinshell, kept explicitly); Rogue odds term gone (Monk 1
+      in 80 - Dex, Samurai 1 in 100 - Dex). Answers to the plannable
+      notes: u_catch_thrown_obj() has one caller (m_throw(), after
+      ucatchgem() and before potionhit()), so it covers every monster
+      missile; a Monk starts empty-handed, a Samurai only after
+      unwielding the katana; both start at Basic martial arts. Kept
+      from 5.0: potions, eggs and cream pies can be caught; Glib is
+      not tested (reviewer forward-note, outside the ruling).
+      BATTERY (game-tester, 6 games over both builds, about 52 min,
+      catch_chance forced to 1 at the gate): POST caught Skilled
+      empty-handed Monk 6/6 (chance 80 - Dex), bracers 7/7, unwielded
+      Samurai 9/9 (100 - Dex), counted search 4/4 (multi 17-19 at
+      m_throw, 0 at the gate); never Basic Monk 0/4, small shield
+      0/8, katana 0/8, Rogue 0/7 (chance 100 - Dex), sleeping Monk
+      0/9, barbed needles 0/5. PRE caught every gated case (Rogue at
+      80 - Dex, sleeping 15/15) except the needles. POST natural odds
+      (Dex 18): 2 catches in 94 throws. Paniclog absent (0 lines)
+      before and after.
 - [x] MED: 5.0's worn-gear item protection that master lacks - CLOSED
       2026-09-26 (session 147, commit `Restore master's item
       destruction and port the scroll of consecration.` = 6ace2e519
@@ -21379,8 +21527,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] Snark -> boojum swap, the boojum's vanishing touch, TLPT death
       guards, J class and satyrs awake (BUG-2094..2099) - FIXED
       2026-10-02 (session 171, commit `Port snarks that are boojums
-      and the boojum's vanishing touch.` = (hash pending), tracker
-      (hash pending); closure notes at the end of this row). Original
+      and the boojum's vanishing touch.` = 34ed5ca2a, tracker
+      dc3dc795f, landed 2026-10-02; closure notes at the end of this
+      row). Original
       text: MED: master's boojum "vanish" arm is absent (minted 2026-09-28,
       session 153, by the covetous no-teleport slice's census). Master
       91977c174 (the SporkHack monster import) gave the boojum's
@@ -21474,7 +21623,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       characters; ^G "tame saddled pony" announces "A pony appears
       next to you." without "saddled"; the welcome line still says
       "welcome to NetHack!" (known re-brand row).
-- [ ] LOW: a polymorphed hero's burning hands / shocking grasp riders
+- [x] LOW: hmonas() riders need the defender within reach
+      (BUG-2102) - FIXED 2026-10-02 (session 172, commit `Martial-arts
+      catch, Sword of Kas poison and hand-spell rider fixes.` = (hash
+      pending), tracker (hash pending); closure notes at the end of
+      this row). Original text: LOW: a polymorphed hero's burning
+      hands / shocking grasp riders
       land on a defender that the hero's own AD_TLPT claw has just
       teleported away (minted 2026-10-02, session 171, by the boojum
       slice's reviewer; pre-existing, master-shared - master uhitm.c
@@ -21492,6 +21646,75 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       boojums are not spellcasters). Fix: also require
       `m_at(gb.bhitpos.x, gb.bhitpos.y) == mon` (or the off-map test)
       on both riders. LOW (gameplay: a polymorph + spell combination).
+      CLOSURE (2026-10-02, session 172, plan
+      /root/.claude/plans/bugfix-hero-combat-catch-kas-riders.md).
+      FIX (BUG-2102, master frozen-unfixed): `in_reach =
+      (engulfing_u(mon) || (isok(gb.bhitpos.x, gb.bhitpos.y) &&
+      m_at(gb.bhitpos.x, gb.bhitpos.y) == mon))` after the damageum()
+      block gates both riders (declared with compat / specialdmg for
+      C89). It mirrors the attack loop's own skip for later attacks;
+      gb.bhitpos is set by do_attack() on every path into hmonas()
+      (do_attack and hitum's racial extra attacks); a worm tail square
+      returns the worm; engulfing_u() keeps the rider for an engulfer
+      that took the hero along and for the engulfed-dig path, whose
+      bhitpos misses the engulfer; the isok() term covers that sideways
+      dig at the map edge (reviewer LOW-1, taken; LOW-2 comment
+      wording "the attack" taken). A withheld rider spends no charge.
+      CORRECTION to the original text: the monster-side twins are not
+      strictly unreachable. No AD_TLPT attacker (boojum, quantum
+      mechanic) is is_spellcaster(), so none learns the spells in its
+      own form, but newcham() keeps mburnhands / mshockgrasp, so a
+      charged caster polymorphed into either form reaches them - minted
+      as the LOW row below. BATTERY (game-tester, quantum mechanic
+      form, empty hands): POST teleporting claws gave no burn or shock
+      line, the target's HP was unchanged and the charge unspent;
+      under stasis the rider landed; engulfed by a fog cloud the claw
+      teleported with the hero inside ("You and the fog cloud teleport
+      together.  You burn the fog cloud with your hands!"), the rider
+      landed; on a no-teleport level the unstuck, rloc()ed fog cloud
+      got no rider; a long worm's tail under stasis took the rider.
+      PRE: the rider hit the teleported target at its new square every
+      time ("You burn it with your hands!") and hit the unstuck fog
+      cloud; rloc() found room, so the limbo path was not reached;
+      paniclog clean. RECORD ONLY: every hero AD_TLPT teleport of a
+      seen monster prints "<Mon> vanishes!" (rloc RLOC_MSG) and then
+      "<Mon> suddenly disappears!" (mhitm_ad_tlpt) on both builds; one
+      POST claw on a gdb-trapped jackal (magic_negation 0) landed
+      without teleporting or a negation line before the tester's
+      tracing was armed (unchanged code; in_reach correctly stayed 1
+      and the rider landed; 16 later non-stasis claws all teleported -
+      unexplained, possibly a staging leftover).
+- [ ] LOW: monster burning hands / shocking grasp riders land after
+      an AD_TLPT hit moved the defender (minted 2026-10-02, session
+      172, by the hero rider-guard slice's Plan agent; master-shared).
+      mhitm.c mattackm()'s riders (~1554 / ~1582) run after
+      mhitm_ad_tlpt() relocated mdef (its arm sets mhm->done only for a
+      dead or off-map defender), and mhitu.c's riders (~1790 / ~1820)
+      run after tele() moved the hero - after the arm's clamp that keeps
+      a teleporting hit from killing the hero, so the rider's d6+2 can
+      still kill at the destination. Reachable only by polymorph: no
+      AD_TLPT attacker (boojum, quantum mechanic) is is_spellcaster(),
+      so neither learns the spells in muse.c, but newcham() keeps
+      mburnhands / mshockgrasp, so a caster holding charges that a
+      polymorph trap or wand turns into either form carries them. Fix
+      shape: the hero arm's reach test (BUG-2102) - for mhitm a
+      position check against the defender's pre-attack square, for
+      mhitu a check that the hero is still adjacent. LOW (rare).
+- [ ] LOW: a hero's thrown venom, egg or cream pie can leak against a
+      noncorporeal target (minted 2026-10-02, session 172, by the
+      coating / needle delta's reviewer; pre-existing, master-shared -
+      master uhitm.c ~1540 has the same shape). hmon_hitmon_do_hit()'s
+      non-weapon arm zeroes damage and skips hmon_hitmon_misc_obj()
+      for `noncorporeal(mdat) && !shade_aware(obj)` (S_GHOST targets),
+      so no misc arm uses the missile up; only hmon_hitmon()'s
+      hero_breaks() tail can free it, and breaktest()'s
+      obj_resists(obj, 1, 99) lets a non-artifact survive 1 time in
+      100. thitmonst() still returns 1 ("hmon used it up", dothrow.c
+      venom / egg / cream pie arm) and throwit() never places the
+      object, so the OBJ_FREE missile leaks (memory only, no crash).
+      Fix shape: free those classes unconditionally in the noncorporeal
+      arm, or have the thitmonst() arm drop the survivor. LOW
+      (leak).
 - [ ] LOW: master's "Phasing" status condition is absent (minted
       2026-10-02, session 171, found beside the census of master
       91977c174). Master a8d9fa0fb (2023-05-13, "Add phasing status to
@@ -22933,7 +23156,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, session 171; hash pending); patch artifact not cut yet |
+| 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, hash pending; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
+| 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, 34ed5ca2a); patch artifact not cut yet |
 | 2026-10-02 | polyself.c polymon() writes the "changed form for the first time, becoming %s" livelog with `pmname(&mons[mntmp], flags.female ? FEMALE : MALE)` (Official_nh50 src/polyself.c ~753) before its `gs.sex_change_ok && !rn2(10)` sex flip (~792), so on a flip the livelog names the old sex (seen on the branch: "becoming a vampire lady" with "You turn into a male vampire lord!" on screen). Minimal upstream fix: write the livelog after the sex is settled | found on branch (LOW row, session 170); not fixed, not sent |
 | 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, 0547e1f4e); patch artifact not cut yet |
 | 2026-10-02 | wizard.c tactics() STRAT_HEAL caches `mx = mtmp->mx, my = mtmp->my` and then calls `expels(mtmp, ...)` for an engulfer holding the hero (Official_nh50 src/wizard.c ~379-382); expels() mnexto()s the monster, so the cached spot is the hero's square. The stair test then reads the stale spot, and if mnearto() to the stairs fails, the "stay where we are" fallback `rloc_to(mtmp, mx, my)` puts the monster on the hero's square. Minimal upstream fix: refresh mx/my after expels() (and stop if expels() sent the monster off the level) | fixed on branch (BUG-2086, 0547e1f4e); patch artifact not cut yet |
@@ -23099,6 +23323,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-02 | Hero-combat slice rulings (session 172; AskUserQuestion x4, five questions, all recommended). (1) SLICE ORDER: the hero-combat group (martial-arts catch, Sword of Kas poison, burning-hands reach guard) first among the ten ruled rows. (2) BARBED NEEDLE: KAS ONLY - the 2026-10-01 "double dose" ruling assumed master's isneedle term was live, but it has been dead since 676549370 (the needle case frees the needle and sets obj NULL before the block), so the needle keeps its 0.9.3 sting-only behavior and the dead term is recorded on master (BUG-2101). (3) GOLEM HEAL: FOLDED IN - hmonas()'s resisted riders heal by the spell's own die, d(enchant_skill_dice(), 4) fire / 6 shock, instead of the to-hit number (BUG-2103). Consequence kept without a separate ruling: hmon_hitmon()'s arms still heal by the whole blow (hmd.dmg), so the polymorphed and unpolymorphed hero paths measure the heal differently. (4) CATCH, BRACERS: count as empty hands, `!uarms || is_bracer(uarms)`, the branch's Monk unarmed-bonus idiom. (5) CATCH, HELPLESS: `gm.multi >= 0` added (upstream-shared hole; upstream table row). Kept from 5.0 without a ruling: potions, eggs and cream pies are catchable; Glib is not tested. AFTER THE BATTERY (AskUserQuestion x1, two questions; supersedes part of (2)): (6) COATINGS ALWAYS WEAR OFF - a dipped coating on the Sword of Kas or on a venom-property weapon can wear off like any other (recommended; master's `!iskas && !isvenom` exclusions kept them forever; BUG-2104). (7) HERO BARBED NEEDLES: MASTER'S INTENT (over my keep-the-live-sting pick) - the needle case runs the hero poison block before the needle is used up: alignment hit, +rnd(6) or 1 in 10 deadly; a needle-resisting target (poison resistance or defended AD_DRCO) takes no poison and gets no second resist line (BUG-2105). | maintainer |
 | 2026-10-02 | Boojum slice rulings (session 171; AskUserQuestion x1, three questions, all recommended). (1) SCOPE: ALL FOUR master pieces with the vanish arm - the snark -> boojum swap (without it boojums never appear outside wizard mode), monster victims turning invisible, the TLPT death guards (master BUG-890 / BUG-898 shape, upstream-shared) and makemon()'s J class / satyrs spawning awake. (2) VANISH TEXT on a no-teleport level only when invisibility takes effect (not already invisible, no mummy wrapping, not blind; the blind term follows zap.c's self-zap) over master's `!Invis`-only gate. (3) NO MASTER LEGS in the battery; master parity rests on code reading. Kept for master parity without a ruling: a tame snark becomes a hostile boojum and its inventory is destroyed by mongone(); the Amulet / Wizard's Tower disorientation still follows "You suddenly vanish!". | maintainer |
 | 2026-10-02 | Vine growth slice rulings (session 170; AskUserQuestion x4, six questions). (1) VINE INTENT: ONLY THE ORIGINAL GROWS (recommended; SUPERSEDED IN PART by (7)), per 71899e6e5's message and the wiki, over master's code (every vine at 2/3 HP grows); sprouts carry the existing mcloned bit, and the diminishing XP for mcloned kills is accepted. (2) RATE: FASTER, because 0.9.3 players expect quick spread (maintainer's addition to option 1), then EVERY 30 TURNS (recommended) with no roll, on the nearest free square through makemon()'s own-square MM_ADJACENTOK path (simulated 8 / 16 / 33 / 66 sprouts at 250 / 500 / 1000 / 2000 turns against master's 2.7 / 7.5 / 31 / 160); a sprout behind a room wall is accepted. Rejected: every 20 turns (12 / 25 / 50 / 100) and master's 1 in 3 every 15 turns (5.6 / 11 / 22 / 45). (3) SILENT (recommended): MM_NOMSG on both spawns, master parity. (4) GULTHIAS BLIGHTS ON THE NEAREST FREE SQUARE like the vine (recommended), over a blight-checked 3x3 or master's exact boulder-prone shape. (5) ONLY HOSTILE PARENTS SPAWN (recommended), over master parity (a pet vine seeds hostile sprouts) and peaceful sprouts. (6) vegan() PLANT / ENT CLAUSES FOLDED IN as a separate commit (recommended) rather than a later row. REVISION after the first battery (maintainer: "assassin vine sprouts should have a chance to grow as well"; AskUserQuestion x2, three questions, all recommended): (7) SPROUTS GROW 1 IN 3, EDGE-ONLY - on the 30-turn gate in the same hostile / uncancelled / 2/3-HP condition, onto master's random 3x3 square if free, never the own square (simulated 8.5 / 20.5 / 57 / 109 / 172 at 250 / 500 / 1000 / 1500 / 2000 turns), over 1 in 6 edge-only and master's exact pick; nearest-free sprouts were shown to fill the area at any odds. (8) THE ROOT CONTROLS THE PATCH - sprouts grow only while an original vine is on the level, over sprouts growing on their own. (9) THE ROOT MUST BE ABLE TO GROW - hostile, uncancelled, at 2/3 HP or better (the reviewer's LOW), so wounding, cancelling or taming it stops the patch too, over any living original | maintainer |
 | 2026-10-01 | Covetous slice rulings (session 169; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: ALL OF MASTER'S tactics() in one slice - the ruled demon-court fix plus master's unported covetous AI found by the whole-function diff (SporkHack pursuit hops + pounce with the map-edge clamp, the peaceful wander, the mflee teleport-flee, the peaceful target gate, m_dowear() after a targeted pickup, aggravate() keeping the bribe tracker), closing the target_on()/strategy() residual row too. (2) HOPS AND POUNCE SILENT, as on master (the one-chance "suddenly appears" stays). (3) Follow-up: the HEAL-TO-STAIRS WARP SILENT TOO - master's STRAT_HEAL fall-through makes a wounded covetous monster shuttle stairs -> hero, and an announced warp would print most turns; the Wizard's Tower flee, item-blocked and monster-has-it warps keep 5.0's announcements. (4) REPRODUCE FIRST, then a PRE/POST/MASTER battery. | maintainer |
