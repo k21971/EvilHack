@@ -1192,10 +1192,13 @@ polymon(int mntmp)
     if (strongmonst(&mons[mntmp])) {
         ABASE(A_STR) = AMAX(A_STR) = (schar) newMaxStr;
     } else {
-        /* not a strongmonst(); if hero has exceptional strength, remove it
-           (note: removal is temporary until returning to original form);
-           we don't attempt to enforce lower maximum for wimpy forms;
-           unlike for strongmonst, current strength does not get set to max */
+        /* not a strongmonst(); cap strength at the form's race's maximum
+           (18 otherwise), which removes exceptional strength from most
+           forms and clips the forms of a weak race (illithid, hobbit)
+           lower still (note: this is temporary until returning to
+           original form); we don't attempt to enforce lower maximum for
+           other wimpy forms; unlike for strongmonst, current strength does
+           not get set to max */
         AMAX(A_STR) = (schar) newMaxStr;
         /* make sure current is not higher than max (strip exceptional Str) */
         if (ABASE(A_STR) > AMAX(A_STR))
@@ -1482,8 +1485,9 @@ polymon(int mntmp)
 }
 
 /* determine hero's temporary strength value used while polymorphed;
-   hero poly'd into M2_STRONG monster usually gets 18/100 strength but
-   there are exceptions; non-M2_STRONG get maximum strength set to 18 */
+   a form of a player race's kind gets that race's maximum strength
+   (with a few exceptions noted below), any other M2_STRONG form gets
+   18/100 and any other form gets 18 */
 schar
 uasmon_maxStr(void)
 {
@@ -1492,7 +1496,12 @@ uasmon_maxStr(void)
     int mndx = u.umonnum;
     struct permonst *ptr = &mons[mndx];
 
+    /* map the form to its player race for character_race(); a zombie
+       or mummy maps through its living race's flag (undead giants
+       excepted) and draugr isn't used for zombies; demons stay
+       unmapped because race_demon isn't part of races[] */
     if (is_orc(ptr)) {
+        /* orc captains and Uruk-hai keep 18/100 */
         if (mndx != PM_URUK_HAI && mndx != PM_ORC_CAPTAIN)
             mndx = PM_ORC;
     } else if (is_elf(ptr)) {
@@ -1501,6 +1510,24 @@ uasmon_maxStr(void)
         mndx = PM_DWARF;
     } else if (is_gnome(ptr)) {
         mndx = PM_GNOME;
+    } else if (is_giant(ptr)) {
+        /* giant mummies and giant zombies keep the 18/100 throttle */
+        if (!is_undead(ptr))
+            mndx = PM_GIANT;
+    } else if (is_hobbit(ptr)) {
+        mndx = PM_HOBBIT;
+    } else if (is_centaur(ptr)) {
+        mndx = PM_CENTAUR;
+    } else if (is_illithid(ptr)) {
+        mndx = PM_ILLITHID;
+    } else if (is_tortle(ptr)) {
+        mndx = PM_TORTLE;
+    } else if (is_drow(ptr)) {
+        mndx = PM_DROW;
+    } else if (is_vampire(ptr)) {
+        mndx = PM_VAMPIRE;
+    } else if (is_aasimar(ptr)) {
+        mndx = PM_AASIMAR;
 #if 0   /* use the mons[] value for humans */
     } else if (is_human(ptr)) {
         mndx = PM_HUMAN;
@@ -1509,20 +1536,12 @@ uasmon_maxStr(void)
     R = character_race(mndx);
 
     if (strongmonst(ptr)) {
-        /* ettins, titans and minotaurs don't pass the is_giant() test;
-           giant mummies and giant zombies do but we throttle those */
-        boolean live_H = is_giant(ptr) && !is_undead(ptr);
-
-        /* hero orcs are limited to 18/50 for maximum strength, so treat
-           hero poly'd into an orc the same; goblins, orc shamans, and orc
-           zombies don't have strongmonst() attribute so won't get here;
-           hobgoblins and orc mummies do get here and are limited to 18/50
-           like normal orcs; however, orc captains and Uruk-hai retain 18/100
-           strength; hero gnomes are also limited to 18/50; hero elves are
-           limited to 18/00 regardless of whether they're strongmonst, but
-           the two strongmonst types (monarchs and nobles) have current
-           strength set to 18 [by polymon()], the others don't */
-        newMaxStr = R ? R->attrmax[A_STR] : live_H ? STR19(19) : STR18(100);
+        /* a strong form of a mapped race gets that race's maximum,
+           which polymon() also sets as its current strength (18/50
+           for most orcs, 18 for elves and drow, 25 for living giants);
+           orc captains, Uruk-hai, undead giants and strong forms of no
+           player race (ettins, titans, minotaurs) get 18/100 */
+        newMaxStr = R ? R->attrmax[A_STR] : STR18(100);
     } else {
         newMaxStr = R ? R->attrmax[A_STR] : 18; /* 18 is same as STR18(0) */
     }
