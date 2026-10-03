@@ -17,7 +17,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-03, after session 175): 296
+- Phase 2 status (refreshed 2026-10-03, after session 176): 297
   rows closed, 82 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
@@ -35,13 +35,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 60 LOW: small parity rows, quirks and watch/record-only items.
-    The uasmon_maxStr() EvilHack-races row (add them, ruled
-    2026-10-01) is plannable; the
-    passive AD_COLD row closed as kept 5.0, the catch and Sword of
-    Kas rows landed in session 172, the rider hold text, ^X form
+    The passive AD_COLD row closed as kept 5.0, the catch and Sword
+    of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
-    session 173, the WISH_TRACKER row in session 174, and item-goal
-    pathing in session 175. The
+    session 173, the WISH_TRACKER row in session 174, item-goal
+    pathing in session 175, and the uasmon_maxStr() EvilHack-races
+    row in session 176. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -58,42 +57,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     AD_TLPT hit row and the noncorporeal thrown-venom leak row;
     session 173 the done_in_by() racial-imitator naming row and the
     rider / steed text residue row; session 175 the BFS map's
-    diagonal-rule row.
-- Latest slice: 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
+    diagonal-rule row; session 176 the aasimar stat drain while
+    polymorphed row.
+- Latest slice: 2026-10-03 (session 176) POLYMORPHED HEROES GET
+  THEIR FORM'S RACE STRENGTH (code
+  `Give EvilHack race forms their race's Str cap while
+  polymorphed.`, tracker `Tracker: race Str caps for polymorphed
+  heroes.`; hashes pending; BUG-2117).
+  - Polymorphed into a form of an EvilHack race, you get that race's
+    strength limit, as orc, elf, dwarf and gnome forms already did.
+    Living giants rise from 19 to 25, enough to throw Mjollnir as a
+    Valkyrie. Centaur forms rise to 20, and tortle and vampire forms
+    to 19.
+  - Weaker races cap lower: drow forms and the drider drop from
+    18/** to 18, hobbit forms to 16, and mind flayers to 10, which
+    costs carrying capacity. To-hit and damage while polymorphed do
+    not depend on Str.
+  - Giant mummies and zombies stay at 18/**. Demons and zombies keep
+    their old limits.
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
   TO YOUR DISPLACED IMAGE, FLEEING MONSTERS KEEP FLEEING (code
-  `Goal-rooted pathing for item goals and the hero image.`, tracker
-  `Tracker: goal-rooted pathing and fleeing-monster rows.`; hashes
-  pending; BUG-2113..2116).
+  ded214a80, tracker 86cc13a03; BUG-2113..2116).
   - An intelligent monster that spots an item it wants now walks to
-    it, around a short obstacle if need be, instead of ignoring it
-    and heading for you. An item it cannot reach within 5 steps
-    (behind bars, across a moat) is given up.
+    it, around a short obstacle if need be. An item it cannot reach
+    within 5 steps is given up.
   - Against a displaced, invisible or underwater hero, intelligent
-    monsters head for where they think you are, not your true
-    square, so Displacement works as it did before monster
-    pathfinding.
-  - A fleeing monster keeps fleeing: before, one that saw an item, a
-    fleeing soldier, or one 4 squares away could turn and come back
-    at you. A fleeing honey badger now runs from you instead of
-    from the nearest royal jelly.
+    monsters head for where they think you are. A fleeing monster
+    keeps fleeing, and a fleeing honey badger runs from you instead
+    of from the nearest royal jelly.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-03 (session 174) THE WISH TRACKER, REFUSED
+- Earlier slices: 2026-10-03 (session 174) THE WISH TRACKER, REFUSED
   ARTIFACT WISHES COUNT (code 0f12cf204, tracker 924792ea3;
-  BUG-2110..2112).
-  - DGAMELAUNCH builds again keep master's wishtracker file: one
-    line per wish, "wizard wished for blessed +2 long sword (2nd
-    wish, on T:2 on 20261003 at 144737 hrs)". Explore mode wishes
-    stay out of it, as they do in the livelog. Ordinals read 21st
-    and 22nd (master wrote "21th"). The install creates the file.
-  - A refused artifact wish ("For a moment, you feel something in
-    your hands, but it disappears!") and a wish that brings the
-    artifact's previous owner now count as wishes, as on master:
-    they break wishless conduct and are livelogged. Before, a
-    player could summon a quest artifact's owner, kill it for the
-    artifact and still show wishless. They also get a wishtracker
-    line.
-  - Detail: the closed row's closure notes.
-- Earlier slices: 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
+  BUG-2110..2112); 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
   WORDING, RACE IN RANGED DEATH REASONS, POLYMORPHED INT EXERCISE
   (code a512e246f, tracker d5548ffac; BUG-2106..2109); 2026-10-02
   (session 172) MARTIAL-ARTS CATCH,
@@ -18657,7 +18653,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       trees - the same family as the race tests made against
       youmonst.data. Note it when the sweep reaches polyself.c.
       LOW-MED.
-- [ ] LOW: uasmon_maxStr() gives EvilHack race families no race Str
+- [x] LOW: uasmon_maxStr() gives EvilHack race families no race Str
+      cap (BUG-2117) - FIXED 2026-10-03 (session 176, commit `Give
+      EvilHack race forms their race's Str cap while polymorphed.` =
+      (hash pending), tracker (hash pending); closure notes at the end
+      of this row).
+      Original text: LOW: uasmon_maxStr() gives EvilHack race families
+      no race Str
       cap (minted 2026-10-01, session 168 second follow-up, split out
       of the race-predicate SWEEP above; RULED the same day, decisions
       log: ADD EVILHACK RACES, as recommended). 5.0's
@@ -18683,6 +18685,59 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         already throttles.
       Include a ^X / attribute check in the battery. LOW (polymorph
       Str caps).
+      CLOSURE (2026-10-03, session 176, plan
+      /root/.claude/plans/bugfix-uasmon-maxstr-evilhack-races.md).
+      RULINGS (AskUserQuestion x1, four questions; decisions log):
+      living giants take the giant race's 25 and giant mummy / giant
+      zombie keep 5.0's 18/100; vampires map, demons do not
+      (race_demon is outside races[], so character_race() cannot see
+      it); no zombie / draugr mapping; illithid (10), drow incl. the
+      drider (18) and hobbit (16) map although they cap lower (a
+      question of its own: the row did not name them). All four as
+      recommended.
+      FIX (src/polyself.c): uasmon_maxStr() gains is_giant (living
+      only), is_hobbit, is_centaur, is_illithid, is_tortle, is_drow,
+      is_vampire and is_aasimar arms after is_gnome; the aasimar arm
+      is a no-op today (the only MH_AASIMAR monster is the NOPOLY
+      base). 5.0's `live_H ? STR19(19)` arm was dead and is gone. The
+      upstream comment's orc-shaman / orc-mummy / "two strong elves"
+      details were wrong for EvilHack's monsters.h and were rewritten;
+      polymon()'s non-strong comment now says a weak race's forms clip
+      below 18. Plan agent and reviewer (dumper over all 563 monsters):
+      no monster carries two of the twelve race flags, so arm order is
+      cosmetic; nothing new is persisted. REVIEWER: PASS, two LOW
+      comment-wording nits taken.
+      BATTERY (game-tester, PRE ad4384d1ccb65d466d2735e4bd3e338d via
+      -d, POST 85b1abe359056ac31530d09f072eb879, one human Valkyrie
+      game each, XL 30, about 20 min): all legs PASS. Stone / storm
+      giant 19 -> 25, plains centaur 18/** -> 20, sea tortle and
+      vampire lady 18/** -> 19, drow warrior and drider 18/** -> 18,
+      hobbit pickpocket 18 -> 16, mind flayer and master mind flayer
+      18 -> 10; controls unchanged (giant zombie / mummy, hobbit,
+      drow raider, hill orc, goblin, Uruk-hai, elven lady, ettin,
+      human zombie, vrock, balrog). ^X shows only "Your strength is
+      25." while polymorphed (insight.c hides base / peak / limit for
+      Upolyd). weight_cap(): stone giant 25*(acurrstr+Con)+150 with
+      acurrstr 25 POST / 21 PRE; master mind flayer 25*(10+Con)+50
+      POST. Blessed gain ability as a giant / centaur: "You're already
+      as strong as you can get." at 25 / 20. Rehumanize and save /
+      restore while polymorphed keep the right values. A Valkyrie
+      stone giant throws Mjollnir and it returns ("It's too heavy."
+      on PRE); the throw prompt now lists it. Paniclog absent.
+      RECORD ONLY: stat gains made while polymorphed are discarded on
+      the next form change (u.macurr restore; both builds, vanilla
+      shape); "elven lord" resolves to "elven lady" for a female hero.
+      MINTED: the aasimar stat drain while polymorphed row right below.
+- [ ] LOW: the aasimar stat-drain penalty applied while polymorphed
+      misses the saved base stats (minted 2026-10-03, session 176, by
+      the uasmon_maxStr() Plan agent; master-shared). attrib.c's
+      AASIMAR_PEN_STAT_DRAIN apply arm lowers gu.urace.attrmax and
+      clamps ABASE / AMAX, but while Upolyd those are the form's
+      temporary stats; u.macurr / u.mamax keep the higher values, so
+      after rehumanizing the base stats can exceed the drained cap
+      until the next aasimar_check_abuse() (level change, restore,
+      priest). Master has the same apply arm. Decide: clamp the saved
+      stats too while Upolyd, or record only. LOW.
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -19946,7 +20001,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       flee flip needs a real item; a fleeing honey badger runs from the
       hero (BUG-2113..2116) - FIXED 2026-10-03 (session 175, commit
       `Goal-rooted pathing for item goals and the hero image.` =
-      (hash pending), tracker (hash pending); closure notes at the end
+      ded214a80, tracker 86cc13a03; closure notes at the end
       of this row).
       Original text: LOW: EvilHack's BFS pathfinding ignores an item
       goal. When appr
@@ -23730,6 +23785,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-03 | uasmon_maxStr() EvilHack-races slice rulings (session 176; AskUserQuestion x1, four questions, all recommended). (1) GIANTS: LIVING 25, UNDEAD 18/100: living giant forms take the giant race's STR19(25) (5.0 gave 19); giant mummy / giant zombie keep 5.0's 18/100 throttle. (2) BROAD FAMILIES: VAMPIRES ONLY: vampire forms take the vampire race's 19; demons stay unmapped (race_demon is a crowning race outside races[]). (3) ZOMBIES: NO DRAUGR MAPPING: zombie forms keep their living race's cap or 5.0's number. (4) LOWER CAPS: MAP ALL THREE: illithid forms (10), drow forms incl. the drider (18) and hobbit forms (16) take their race's cap although it is below 5.0's number, following 5.0's elf precedent. | maintainer |
 | 2026-10-03 | Goal-rooted pathing slice rulings (session 175; AskUserQuestion x4, five questions). (1) MAP SCOPE: ITEM GOALS AND THE HERO IMAGE (over the recommended item-only scope): when mux/muy is not the hero's true square (displacement, invisibility, underwater), an approaching intelligent monster roots its map at the guess; gettrack() footprints stay on the hero map. (2) UNREACHABLE ITEM: GIVE IT UP (recommended): drop the item goal and keep the pre-search goal and appr, so a fleeing monster keeps fleeing; animals and the mindless stay greedy. (3) ROUTE CAP: 5 STEPS (recommended): a longer route is given up too, so the item stays inside the search box and the monster cannot pace. (4) FLEE FLIP: USE THE ITEM FLAG (recommended; diverges from vanilla and master): only a real item goal turns a fleeing monster around. (5) FLEEING HONEY BADGER (battery L6b find): FLEE FROM THE HERO (recommended): the royal-jelly override applies only while approaching; master's ignored appr, so a fleeing badger fled from the jelly. | maintainer |
 | 2026-10-03 | Wish-tracker slice rulings (session 174; AskUserQuestion x1, three questions). (1) REFUSED AND OWNER-SUMMONED ARTIFACT WISHES (new find: 5.0's makewish() &hands_obj early return skipped their count and livelog): FOLD IN AND LOG THEM IN THE WISHTRACKER TOO (over the recommended master's shape, which counted and livelogged them but wrote no wishtracker line). They count as wishes, livelog in master's text (`wished for "X"`, no "got" part) and skip the ublesscnt bump as on master; wizard terrain / trap wishes stay uncounted (5.0). (2) ORDINAL: ordin() (recommended) - "21st", where master wrote "21th". (3) EXPLORE MODE: SKIP IT in the wishtracker like the livelog (over the recommended master's shape, which logged explore-mode wishes). | maintainer |
 | 2026-10-03 | Text-rows slice rulings (session 173; AskUserQuestion x2, three questions; two re-asked on corrected premises). (1) PROBE LINE ON A RIDER: ALWAYS SHOW ", riding <steed>" plus the hold suffix, over the recommended hold-only clause (the 2026-10-01 ruling assumed mstatusline() already printed a riding clause; it never did, on either tree). (2) exerchk() INT WHILE POLYMORPHED: PORT THE ONE-LINER AS RULED, as recommended, over "mind gains persist" and "close as master's" - told that any stat change made in a form reverts on rehumanize or a form-to-form polymorph (polyman() / polymon() restore u.macurr), as Wis exercise gains already do on every tree; Int now behaves exactly like Wis. (3) FARLOOK CLAUSE ORDER: MOVE THE RIDING CLAUSE LAST FOR EVERY RIDER, over the recommended keep-it-after-the-name, so no later clause (wounds, asleep, armor, trapped, scared) reads as the steed's and farlook matches the probe line. Implementation choices: mon_killer_name() splices racial_adj() (not x_monnam()) with done_in_by()'s raceless branches excluded; the probe clause names the steed with a_monnam()'s flags plus SUPPRESS_IT (reviewer LOW-1). | maintainer (1-3); session, plan-approved (rest) |
