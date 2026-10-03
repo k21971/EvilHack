@@ -1948,6 +1948,9 @@ hmon_hitmon_misc_obj(
             Your("barbed needle stings %s!", mon_nam(mon));
             hmd->dmg = dmgval(&gy.youmonst, obj, mon);
         }
+        /* the needle poisons like a poisoned weapon; this has to run
+           here, before the hit uses the needle up */
+        hmon_hitmon_poison(hmd, mon, obj);
         {
             boolean more_than_1 = (obj->quan > 1L);
 
@@ -2223,17 +2226,22 @@ hmon_hitmon_poison(
         record_abuse_event_dtl(pen, ABUSE_USE_POISON,
                                obj->otyp + 1, 0);
     }
-    /* the venom object property never wears off */
-    if (hmd->ispoisoned && !permapoisoned(obj)
-        && !(obj->oprops & ITEM_VENOM) && !rn2(nopoison)) {
+    /* a coating can wear off any weapon, even one that poisons on its
+       own (the venom property, the Sword of Kas); a permanently
+       poisoned artifact has no coating to lose */
+    if (hmd->ispoisoned && !permapoisoned(obj) && !rn2(nopoison)) {
         /* remove poison now in case obj ends up in a bones file */
         obj->opoisoned = FALSE;
         /* defer "obj is no longer poisoned" until after hit message */
         hmd->unpoisonmsg = TRUE;
     }
-    if (resists_poison(mon))
-        hmd->needpoismsg = TRUE;
-    else if (rn2(10))
+    if (resists_poison(mon)
+        || (obj->otyp == BARBED_NEEDLE && defended(mon, AD_DRCO))) {
+        /* a barbed needle's own hit message has already said that it
+           hit harmlessly */
+        if (obj->otyp != BARBED_NEEDLE)
+            hmd->needpoismsg = TRUE;
+    } else if (rn2(10))
         hmd->dmg += rnd(6);
     else
         hmd->poiskilled = TRUE;
@@ -2606,7 +2614,9 @@ hmon_hitmon(
     if (!hmd.already_killed)
         hmon_hitmon_vecna_relics(&hmd, mon);
 
-    if (hmd.ispoisoned || (obj && (obj->oprops & ITEM_VENOM)))
+    if (hmd.ispoisoned
+        || (obj && ((obj->oprops & ITEM_VENOM)
+                    || is_art(obj, ART_SWORD_OF_KAS))))
         hmon_hitmon_poison(&hmd, mon, obj);
 
     if (hmd.istainted && obj)
@@ -8692,6 +8702,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             dhit = (tmp > dieroll || u.uswallow);
             if (dhit) {
                 int compat, specialdmg;
+                boolean in_reach;
                 struct obj *hated_obj = (struct obj *) 0;
                 const char *verb = 0; /* verb or body part */
 
@@ -8787,17 +8798,24 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     }
                     sum[i] = damageum(mon, mattk, specialdmg);
                 }
+                /* the attack may have teleported the defender away
+                   (AD_TLPT); an engulfer takes the hero along, so it
+                   stays within reach */
+                in_reach = (engulfing_u(mon)
+                            || (isok(gb.bhitpos.x, gb.bhitpos.y)
+                                && m_at(gb.bhitpos.x, gb.bhitpos.y) == mon));
                 /* burning hands spell; like master, this applies even
                    when the claw or touch itself passed harmlessly
                    through a noncorporeal monster */
-                if (u.umburn && !DEADMONSTER(mon)
+                if (u.umburn && in_reach && !DEADMONSTER(mon)
                     && (mattk->aatyp == AT_CLAW
                         || mattk->aatyp == AT_TUCH
                         || mattk->aatyp == AT_KICK)) {
                     if (resists_fire(mon) || defended(mon, AD_FIRE)
                         || mon_underwater(mon)) {
                         shieldeff(mon->mx, mon->my);
-                        golemeffects(mon, AD_FIRE, tmp);
+                        golemeffects(mon, AD_FIRE,
+                                     d(enchant_skill_dice(), 4));
                         if (!Blind)
                             Your("%s don't burn %s!",
                                  is_bird(gy.youmonst.data)
@@ -8852,13 +8870,14 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     nohandburn();
                 }
                 /* shocking grasp spell */
-                if (u.umshock && !DEADMONSTER(mon)
+                if (u.umshock && in_reach && !DEADMONSTER(mon)
                     && (mattk->aatyp == AT_CLAW
                         || mattk->aatyp == AT_TUCH
                         || mattk->aatyp == AT_KICK)) {
                     if (resists_elec(mon) || defended(mon, AD_ELEC)) {
                         shieldeff(mon->mx, mon->my);
-                        golemeffects(mon, AD_ELEC, tmp);
+                        golemeffects(mon, AD_ELEC,
+                                     d(enchant_skill_dice(), 6));
                         if (!Blind)
                             Your("%s don't shock %s!",
                                  is_bird(gy.youmonst.data)

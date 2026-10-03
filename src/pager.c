@@ -2419,6 +2419,7 @@ static const struct arti_special {
     { ART_VORPAL_BLADE, "Its presence angers jabberwocks." },
     { ART_TSURUGI_OF_MURAMASA, "May bisect its target outright." },
     { ART_SWORD_OF_KAS, "Deals triple damage to Vecna and double to liches." },
+    { ART_SWORD_OF_KAS, "Poisons those it strikes." },
     { ART_SWORD_OF_KAS, "Raises strength to maximum while wielded." },
     { ART_SWORD_OF_KAS,
       "Bloodthirsty: attacks peaceful creatures without asking." },

@@ -844,16 +844,20 @@ ucatchgem(
     return FALSE;
 }
 
-/* hero may catch thrown obj. it is added to inventory, if possible */
+/* hero may catch thrown obj. it is added to inventory, if possible;
+   only a martial artist at Skilled or better with empty hands (bracers
+   are fine) who isn't helpless makes the catch */
 staticfn boolean
 u_catch_thrown_obj(struct obj *otmp)
 {
-    int catch_chance = 100 - ACURR(A_DEX)
-                       - ((Role_if(PM_MONK) || Role_if(PM_ROGUE)) ? 20 : 0);
+    int catch_chance = 100 - ACURR(A_DEX) - (Role_if(PM_MONK) ? 20 : 0);
 
-    if (!Blind && !Confusion && !Stunned && !Fumbling
+    if (martial_bonus() && P_SKILL(P_MARTIAL_ARTS) >= P_SKILLED
+        && !uwep && !u.twoweap && (!uarms || is_bracer(uarms))
+        && !Hidinshell && gm.multi >= 0
+        && !Blind && !Confusion && !Stunned && !Fumbling
         && otmp->oclass != VENOM_CLASS
-        && !nohands(gy.youmonst.data) && freehand()
+        && !nohands(gy.youmonst.data)
         && calc_capacity(otmp->owt) <= SLT_ENCUMBER && !rn2(catch_chance)) {
         char buf[BUFSZ];
 
