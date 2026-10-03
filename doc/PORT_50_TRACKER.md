@@ -17,7 +17,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-03, after session 174): 295
+- Phase 2 status (refreshed 2026-10-03, after session 175): 296
   rows closed, 82 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
@@ -35,12 +35,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 60 LOW: small parity rows, quirks and watch/record-only items.
-    The uasmon_maxStr() EvilHack-races row (add them) and item-goal
-    pathing (build it) were ruled 2026-10-01 and are plannable; the
+    The uasmon_maxStr() EvilHack-races row (add them, ruled
+    2026-10-01) is plannable; the
     passive AD_COLD row closed as kept 5.0, the catch and Sword of
     Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
-    session 173, and the WISH_TRACKER row in session 174. The
+    session 173, the WISH_TRACKER row in session 174, and item-goal
+    pathing in session 175. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -56,11 +57,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     status row; session 172 the monster hand-spell riders after an
     AD_TLPT hit row and the noncorporeal thrown-venom leak row;
     session 173 the done_in_by() racial-imitator naming row and the
-    rider / steed text residue row.
-- Latest slice: 2026-10-03 (session 174) THE WISH TRACKER, REFUSED
-  ARTIFACT WISHES COUNT (code `Port the wish tracker and count
-  refused artifact wishes.`, tracker `Tracker: wish tracker and
-  refused artifact wishes.`; hashes pending; BUG-2110..2112).
+    rider / steed text residue row; session 175 the BFS map's
+    diagonal-rule row.
+- Latest slice: 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
+  TO YOUR DISPLACED IMAGE, FLEEING MONSTERS KEEP FLEEING (code
+  `Goal-rooted pathing for item goals and the hero image.`, tracker
+  `Tracker: goal-rooted pathing and fleeing-monster rows.`; hashes
+  pending; BUG-2113..2116).
+  - An intelligent monster that spots an item it wants now walks to
+    it, around a short obstacle if need be, instead of ignoring it
+    and heading for you. An item it cannot reach within 5 steps
+    (behind bars, across a moat) is given up.
+  - Against a displaced, invisible or underwater hero, intelligent
+    monsters head for where they think you are, not your true
+    square, so Displacement works as it did before monster
+    pathfinding.
+  - A fleeing monster keeps fleeing: before, one that saw an item, a
+    fleeing soldier, or one 4 squares away could turn and come back
+    at you. A fleeing honey badger now runs from you instead of
+    from the nearest royal jelly.
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-03 (session 174) THE WISH TRACKER, REFUSED
+  ARTIFACT WISHES COUNT (code 0f12cf204, tracker 924792ea3;
+  BUG-2110..2112).
   - DGAMELAUNCH builds again keep master's wishtracker file: one
     line per wish, "wizard wished for blessed +2 long sword (2nd
     wish, on T:2 on 20261003 at 144737 hrs)". Explore mode wishes
@@ -74,25 +93,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     artifact and still show wishless. They also get a wishtracker
     line.
   - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
+- Earlier slices: 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
   WORDING, RACE IN RANGED DEATH REASONS, POLYMORPHED INT EXERCISE
-  (code a512e246f, tracker d5548ffac; BUG-2106..2109).
-  - Farlook on a monster rider now names its steed last: "goblin
-    outrider, wearing some light armor, riding a saddled wolf". When
-    the steed holds the hero it adds ", which is holding you", and
-    when the hero holds the steed ", which you are holding". A
-    stethoscope or wand of probing on a rider now shows the same
-    riding clause; before, it never mentioned the steed.
-  - Enlightenment says "from your creature form" for breathing water
-    and underwater speed, like its other form attributions.
-  - A thrown weapon, wand bolt or spell from a racial monster now
-    names its race in the death reason: "killed by an elven
-    soldier's thrown dagger", matching melee deaths.
-  - Int exercise from reading spellbooks while polymorphed can now
-    raise Int during the form, as Wis exercise already could. Like
-    Wis, the gain lasts only as long as the form.
-  - Detail: the closed rows' closure notes.
-- Earlier slices: 2026-10-02 (session 172) MARTIAL-ARTS CATCH,
+  (code a512e246f, tracker d5548ffac; BUG-2106..2109); 2026-10-02
+  (session 172) MARTIAL-ARTS CATCH,
   SWORD OF KAS POISON, HAND-SPELL RIDER FIXES (code c1e2b1189,
   tracker 2fd4c5c38; BUG-2100..2105); 2026-10-02 (session 171)
   SNARKS THAT ARE BOOJUMS,
@@ -6364,6 +6368,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       battery. Candidate tuning if it ever bites in play: prefer
       non-mtrack only when not dominated, or widen the mtrack
       window - a behavior divergence needing its own ruling.
+      NOTE 2026-10-03 (session 175): the same selection now also
+      steers by goal maps rooted at an item goal or the hero's
+      displaced / unseen image (BUG-2113..2114). Item routes are
+      capped at 5 steps, so the dead-end march cannot run long there.
 - [x] findgold() gold-material rule (NEW, minted 2026-07-25 by the
       added-commands slice). Master's findgold(chain, only_coins)
       makes gold-MATERIAL objects count as gold; the branch has
@@ -17219,8 +17227,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: master's WISH_TRACKER wish log ported; refused and
       owner-summoned artifact wishes count (BUG-2110..2112) - FIXED
       2026-10-03 (session 174, commit `Port the wish tracker and
-      count refused artifact wishes.` = (hash pending), tracker
-      (hash pending); closure notes at the end of this row).
+      count refused artifact wishes.` = 0f12cf204, tracker
+      924792ea3; closure notes at the end of this row).
       Original text: LOW: master's WISH_TRACKER wish log is absent
       (minted 2026-09-30, session 161, Plan-agent find). Master config.h
       defines WISH_TRACKER inside the DGAMELAUNCH block; files.c
@@ -19934,7 +19942,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       reviewer; upstream-shared; master has no such function.
       Suggested: `mon_would_take_item && !mon_refuses_corpse` there.
       LOW.
-- [ ] LOW: EvilHack's BFS pathfinding ignores an item goal. When appr
+- [x] LOW: goal-rooted pathing for item goals and the hero image; the
+      flee flip needs a real item; a fleeing honey badger runs from the
+      hero (BUG-2113..2116) - FIXED 2026-10-03 (session 175, commit
+      `Goal-rooted pathing for item goals and the hero image.` =
+      (hash pending), tracker (hash pending); closure notes at the end
+      of this row).
+      Original text: LOW: EvilHack's BFS pathfinding ignores an item
+      goal. When appr
       == 1, m_move()'s use_pathfinding steers an intelligent monster
       by the hero-rooted map (gp.pathfind_dist), not by the ggx/ggy
       that m_search_items() chose. So a monster that sets an item off
@@ -19953,6 +19968,118 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       diverges from master: give it its own slice, a plan that maps
       every use_pathfinding consumer, and a battery (the S3 lizard
       corpse two squares off-path, PRE vs POST). Plannable.
+      CLOSURE (2026-10-03, session 175, plan
+      /root/.claude/plans/bugfix-goal-rooted-item-image-pathing.md).
+      FINDS while mapping consumers:
+        (a) a FLEEING monster that found an item with the hero more
+            than 3 away has finish_search flip appr to 1, and the
+            hero map then marched it AT the hero;
+        (b) the hero map is rooted at the TRUE square (u.ux), so under
+            Displacement, invisibility vs no see invisible, or
+            Underwater, an approaching monster ignored set_apparxy()'s
+            image and walked to the real hero, where mfndpos() "finds"
+            the hero once adjacent (BUG-2114, master-shared);
+        (c) Plan agent: finish_search's `minr < SQSRCHRADIUS` "found"
+            signal is also true with no item (minr drops to 4 for a
+            hero within distmin 4 and to 1 for a hostile mercenary),
+            and false for an item at exactly distmin 5 (BUG-2115;
+            vanilla, master and Official_nh50 identical; upstream
+            table row).
+      RULINGS (AskUserQuestion x4; decisions log): items AND the hero
+      image (over my item-only pick); give up an unreachable item and
+      keep the pre-search goal and appr; a 5-step route cap; the flip
+      keys on a real item goal; a fleeing honey badger flees the hero.
+      FIX (src/monmove.c; comments in mon.c, decl.h, wizcmds.c):
+        * m_search_items() reports `*itemgoal`. finish_search turns a
+          fleeing monster toward the item only for a real item goal.
+          Its re-aim at mux when the hero is within 3 keeps the minr
+          test: reviewer MED, as every fleeing hostile there re-aimed
+          before, and a goal set earlier (badger jelly, a footprint)
+          would otherwise stay put.
+        * New m_item_in_reach(): ensures the goal-rooted map at the
+          item and accepts a route of at most SQSRCHRADIUS steps
+          (some square in the monster's 3x3 at map distance < 5). A
+          longer route would carry the item out of the search box and
+          set up pacing (Plan-agent find).
+        * m_move() saves ggx/ggy/appr before the search and restores
+          them when an intelligent monster's accessible item goal is
+          out of reach (BUG-2113). image_goal = goal is mux and not
+          the hero's square; it is decided before mfndpos(), which
+          moves mux onto the hero once adjacent.
+        * use_escape_pf -> use_goal_pf: escape target (any appr), or
+          item / image goal with appr 1 and an accessible goal. The
+          target-keyed escape cache is shared (already invalidated at
+          every terrain site; every reader ensures it first). The hero
+          map is untouched.
+        * The honey badger royal-jelly override gains `appr == 1`
+          (BUG-2116, battery find; master-shared).
+      REVIEWER PASS (CONDITIONAL; MED taken, delta PASS x2). LOWs
+      recorded, not taken:
+        * the map ignores the no-diagonal-through-doors rule, so a
+          route can run 1 step per door past the cap;
+        * the nearest item wins the search, so an unreachable one
+          shadows a reachable one for a turn (battery L8: 1 turn);
+        * a restore can bring back a footprint goal the trap arm had
+          moved off a trapped square (steers by the hero map anyway).
+      A hostile mercenary searches radius 1, so an adjacent item with
+      a 3-5 step detour can still leave its box. MINTED: the map's
+      diagonal rule is stricter than mfndpos() (row below). The
+      novelty-over-mtrack watch row now covers item and image goal
+      maps too (noted there).
+      BATTERY (game-tester; POST c885be49c5fb3a93db11d72d8b6b0a71, PRE
+      2ca5f72df3b4c8ece7e8d43bc4f52291 run with -d, one game each,
+      about 57 min, identical gdb-built arena; POST2
+      ad4384d1ccb65d466d2735e4bd3e338d for the badger gate, about 8
+      min). Discriminator: gdb prints from ensure_escape_pathfind_map
+      / ensure_pathfind_map. PRE never built a goal map outside the
+      Amulet leg.
+        * L1 S3: "The hill orc picks up a lizard corpse." 2 of 2 POST
+          (re-checked on POST2); PRE 0 of 2, walked to the hero.
+        * L2 detour (bar wall, gap): POST through the gap, goal
+          distance 3,2,1,0, picked up the dagger; PRE to the hero.
+        * L3 sealed ring: POST in_reach FALSE, gave up, adjacent to
+          the hero in 7 turns like PRE; never pressed on the bars.
+        * L4: a 20-step route given up, no pacing. Route of exactly 5
+          taken, 6 given up (mirrored geometry).
+        * L5 fleeing with an item: POST fetched the corpse, then fled
+          5 -> 10; PRE hovered at 3-4 and never fetched it.
+        * L6 fleeing, no item, distance 4: POST fled to 9; PRE hovered
+          at 3-4 for 13 moves. Soldier (minr 1): POST fled 5 -> 10,
+          PRE hovered.
+        * L6b fleeing honey badger: FAILED on c885be49 (bounced at 3-4,
+          fleeing the jelly toward the hero; PRE's old flip had hidden
+          it). POST2: distance 4, 3 and a far-side line all fled
+          steadily with the goal on the hero. L6c control: a healthy
+          badger still eats the jelly first.
+        * L7 image (cloak of displacement): POST built goal maps 1
+          square off the hero and "The hill orc strikes at your
+          displaced image and misses you!"; PRE hero map only. Pinned
+          variant: paths split at step 5.
+        * Controls: jackal (0 map calls), undisplaced orc (hero map
+          only, identical paths), Amulet carrier (goal map at the
+          upstairs every move, "escapes upstairs with the Amulet!").
+      Paniclog absent throughout. RECORD ONLY:
+        * a dagger the orc threw landed under the hero and became a
+          fleeing orc's item goal (vanilla shape: an item under the
+          hero counts);
+        * hill orcs refuse mithril items, and wished / created
+          daggers can roll mithril (battery lore);
+        * a fleeing badger tunnels walls (M1_TUNNEL).
+- [ ] LOW: the BFS map's diagonal rule is stricter than mfndpos().
+      compute_pathfind_map() and compute_escape_pathfind_map() refuse
+      a diagonal step whenever both side squares are impassable to
+      the map (water, lava, iron bars, trees, walls, boulders), but
+      mfndpos() refuses only a tight squeeze: bad_rock() on both
+      sides plus cant_squeeze_thru() (src/mon.c, the "diagonal tight
+      squeeze" check; hack.c bad_rock / cant_squeeze_thru). So a
+      route through a pool or lava checkerboard, or past two bars
+      touching at a corner, reads unreachable. Item goals there are
+      given up (equal to PRE), and the hero map routes around a gap
+      the monster could take. The map also ignores the
+      no-diagonal-through-doors rule, which errs the other way.
+      Master-shared. Minted 2026-10-03, session 175, by the Plan
+      agent. Decide: match mfndpos() (changes the hero map too), or
+      keep it. LOW.
 - [x] MED: a monster HOLDING the hero can leave the level with u.ustuck
       still set - CLOSED 2026-09-25 (session 144, commit `Monsters
       holding the hero let go when they leave the level.` =
@@ -23434,6 +23561,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-03 | monmove.c m_search_items() finish_search (Official_nh50 src/monmove.c ~1441) uses `minr < SQSRCHRADIUS` as its "found an item" signal, but minr also drops to 4 when the hero is within distmin 4 and to 1 for a hostile mercenary (~1346-1352). So with NO item a fleeing monster 4 squares away, or a fleeing soldier / watchman more than 3 away, turns to approach the hero; an item at exactly distmin 5 leaves minr 5, so a fleeing monster flees from the item instead of from the hero. 3.4.3 has the same code. Branch fixed by BUG-2115 (an explicit item-goal flag drives the turn; the hero-close re-aim keeps the minr test). Battery: a fleeing hill orc at distance 4 and a fleeing soldier fled steadily on POST; PRE hovered at 3-4. | branch-fixed (BUG-2115); upstream-reportable (behavior; record only) |
 | 2026-10-03 | zap.c makewish() returns early on `otmp == &hands_obj` "wizard mode terrain wish: skip livelogging, etc" (Official_nh50 src/zap.c ~6388), but readobjnam()'s wishing-abuse arm also returns &hands_obj for a refused artifact (is_quest_artifact, or `rn2(nartifact_exist()) > 1`; Official_nh50 src/objnam.c ~5400, whose comment says "charge them for the wish anyway!"). So the refused wish never reaches `u.uconduct.wishes++` or the LL_WISH livelog: wishless conduct survives while readobjnam() already bumped wisharti, and #conduct says "used no wishes". 3.6 returned &zeroobj and still counted. Branch fixed by BUG-2111 (the early return also requires `u.uconduct.wisharti == oldwisharti`; a lost wish counts, livelogs `wished for "X"` and returns before the hand-over). | branch-fixed (BUG-2111); upstream-reportable |
 | 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, c1e2b1189; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
 | 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, 34ed5ca2a); patch artifact not cut yet |
@@ -23602,6 +23730,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-03 | Goal-rooted pathing slice rulings (session 175; AskUserQuestion x4, five questions). (1) MAP SCOPE: ITEM GOALS AND THE HERO IMAGE (over the recommended item-only scope): when mux/muy is not the hero's true square (displacement, invisibility, underwater), an approaching intelligent monster roots its map at the guess; gettrack() footprints stay on the hero map. (2) UNREACHABLE ITEM: GIVE IT UP (recommended): drop the item goal and keep the pre-search goal and appr, so a fleeing monster keeps fleeing; animals and the mindless stay greedy. (3) ROUTE CAP: 5 STEPS (recommended): a longer route is given up too, so the item stays inside the search box and the monster cannot pace. (4) FLEE FLIP: USE THE ITEM FLAG (recommended; diverges from vanilla and master): only a real item goal turns a fleeing monster around. (5) FLEEING HONEY BADGER (battery L6b find): FLEE FROM THE HERO (recommended): the royal-jelly override applies only while approaching; master's ignored appr, so a fleeing badger fled from the jelly. | maintainer |
 | 2026-10-03 | Wish-tracker slice rulings (session 174; AskUserQuestion x1, three questions). (1) REFUSED AND OWNER-SUMMONED ARTIFACT WISHES (new find: 5.0's makewish() &hands_obj early return skipped their count and livelog): FOLD IN AND LOG THEM IN THE WISHTRACKER TOO (over the recommended master's shape, which counted and livelogged them but wrote no wishtracker line). They count as wishes, livelog in master's text (`wished for "X"`, no "got" part) and skip the ublesscnt bump as on master; wizard terrain / trap wishes stay uncounted (5.0). (2) ORDINAL: ordin() (recommended) - "21st", where master wrote "21th". (3) EXPLORE MODE: SKIP IT in the wishtracker like the livelog (over the recommended master's shape, which logged explore-mode wishes). | maintainer |
 | 2026-10-03 | Text-rows slice rulings (session 173; AskUserQuestion x2, three questions; two re-asked on corrected premises). (1) PROBE LINE ON A RIDER: ALWAYS SHOW ", riding <steed>" plus the hold suffix, over the recommended hold-only clause (the 2026-10-01 ruling assumed mstatusline() already printed a riding clause; it never did, on either tree). (2) exerchk() INT WHILE POLYMORPHED: PORT THE ONE-LINER AS RULED, as recommended, over "mind gains persist" and "close as master's" - told that any stat change made in a form reverts on rehumanize or a form-to-form polymorph (polyman() / polymon() restore u.macurr), as Wis exercise gains already do on every tree; Int now behaves exactly like Wis. (3) FARLOOK CLAUSE ORDER: MOVE THE RIDING CLAUSE LAST FOR EVERY RIDER, over the recommended keep-it-after-the-name, so no later clause (wounds, asleep, armor, trapped, scared) reads as the steed's and farlook matches the probe line. Implementation choices: mon_killer_name() splices racial_adj() (not x_monnam()) with done_in_by()'s raceless branches excluded; the probe clause names the steed with a_monnam()'s flags plus SUPPRESS_IT (reviewer LOW-1). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-10-02 | Hero-combat slice rulings (session 172; AskUserQuestion x4, five questions, all recommended). (1) SLICE ORDER: the hero-combat group (martial-arts catch, Sword of Kas poison, burning-hands reach guard) first among the ten ruled rows. (2) BARBED NEEDLE: KAS ONLY - the 2026-10-01 "double dose" ruling assumed master's isneedle term was live, but it has been dead since 676549370 (the needle case frees the needle and sets obj NULL before the block), so the needle keeps its 0.9.3 sting-only behavior and the dead term is recorded on master (BUG-2101). (3) GOLEM HEAL: FOLDED IN - hmonas()'s resisted riders heal by the spell's own die, d(enchant_skill_dice(), 4) fire / 6 shock, instead of the to-hit number (BUG-2103). Consequence kept without a separate ruling: hmon_hitmon()'s arms still heal by the whole blow (hmd.dmg), so the polymorphed and unpolymorphed hero paths measure the heal differently. (4) CATCH, BRACERS: count as empty hands, `!uarms || is_bracer(uarms)`, the branch's Monk unarmed-bonus idiom. (5) CATCH, HELPLESS: `gm.multi >= 0` added (upstream-shared hole; upstream table row). Kept from 5.0 without a ruling: potions, eggs and cream pies are catchable; Glib is not tested. AFTER THE BATTERY (AskUserQuestion x1, two questions; supersedes part of (2)): (6) COATINGS ALWAYS WEAR OFF - a dipped coating on the Sword of Kas or on a venom-property weapon can wear off like any other (recommended; master's `!iskas && !isvenom` exclusions kept them forever; BUG-2104). (7) HERO BARBED NEEDLES: MASTER'S INTENT (over my keep-the-live-sting pick) - the needle case runs the hero poison block before the needle is used up: alignment hit, +rnd(6) or 1 in 10 deadly; a needle-resisting target (poison resistance or defended AD_DRCO) takes no poison and gets no second resist line (BUG-2105). | maintainer |
