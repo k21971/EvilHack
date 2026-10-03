@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-03, after session 173): 294
-  rows closed, 83 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-03, after session 174): 295
+  rows closed, 82 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,14 +34,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 61 LOW: small parity rows, quirks and watch/record-only items.
-    The WISH_TRACKER row (port it), the uasmon_maxStr()
-    EvilHack-races row (add them) and item-goal pathing (build it)
-    were ruled 2026-10-01 and are plannable; the passive AD_COLD
-    row closed as kept 5.0, the catch and Sword of Kas rows landed
-    in session 172, and the rider hold text, ^X form wording,
-    ranged death-reason race and exerchk() Int rows in session
-    173. The wish-invlet
+  - 60 LOW: small parity rows, quirks and watch/record-only items.
+    The uasmon_maxStr() EvilHack-races row (add them) and item-goal
+    pathing (build it) were ruled 2026-10-01 and are plannable; the
+    passive AD_COLD row closed as kept 5.0, the catch and Sword of
+    Kas rows landed in session 172, the rider hold text, ^X form
+    wording, ranged death-reason race and exerchk() Int rows in
+    session 173, and the WISH_TRACKER row in session 174. The
+    wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
@@ -57,12 +57,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     AD_TLPT hit row and the noncorporeal thrown-venom leak row;
     session 173 the done_in_by() racial-imitator naming row and the
     rider / steed text residue row.
-- Latest slice: 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
+- Latest slice: 2026-10-03 (session 174) THE WISH TRACKER, REFUSED
+  ARTIFACT WISHES COUNT (code `Port the wish tracker and count
+  refused artifact wishes.`, tracker `Tracker: wish tracker and
+  refused artifact wishes.`; hashes pending; BUG-2110..2112).
+  - DGAMELAUNCH builds again keep master's wishtracker file: one
+    line per wish, "wizard wished for blessed +2 long sword (2nd
+    wish, on T:2 on 20261003 at 144737 hrs)". Explore mode wishes
+    stay out of it, as they do in the livelog. Ordinals read 21st
+    and 22nd (master wrote "21th"). The install creates the file.
+  - A refused artifact wish ("For a moment, you feel something in
+    your hands, but it disappears!") and a wish that brings the
+    artifact's previous owner now count as wishes, as on master:
+    they break wishless conduct and are livelogged. Before, a
+    player could summon a quest artifact's owner, kill it for the
+    artifact and still show wishless. They also get a wishtracker
+    line.
+  - Detail: the closed row's closure notes.
+- Previous slice: 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
   WORDING, RACE IN RANGED DEATH REASONS, POLYMORPHED INT EXERCISE
-  (code `Rider hold text, death-reason race and polymorphed Int
-  exercise.`, tracker `Tracker: rider hold text, death-reason race
-  and Int exercise rows.`;
-  hashes pending; BUG-2106..2109).
+  (code a512e246f, tracker d5548ffac; BUG-2106..2109).
   - Farlook on a monster rider now names its steed last: "goblin
     outrider, wearing some light armor, riding a saddled wolf". When
     the steed holds the hero it adds ", which is holding you", and
@@ -78,24 +92,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     raise Int during the form, as Wis exercise already could. Like
     Wis, the gain lasts only as long as the form.
   - Detail: the closed rows' closure notes.
-- Previous slice: 2026-10-02 (session 172) MARTIAL-ARTS CATCH,
+- Earlier slices: 2026-10-02 (session 172) MARTIAL-ARTS CATCH,
   SWORD OF KAS POISON, HAND-SPELL RIDER FIXES (code c1e2b1189,
-  tracker 2fd4c5c38; BUG-2100..2105).
-  - Only a Monk or Samurai at Skilled martial arts or better, with
-    nothing wielded and no shield (bracers are fine), catches
-    missiles thrown at them, and never while asleep or paralyzed.
-    Rogues and everyone else no longer catch (5.0 let anyone).
-  - Every Sword of Kas hit now also delivers master's poison: extra
-    damage or a 1-in-10 kill against non-resistant targets, and the
-    Samurai / lawful alignment penalty. So does each barbed needle a
-    hero in needle-blight form spits (master's intent; its term was
-    dead code). A dipped coating can now wear off any weapon, Kas
-    and venom-property weapons included.
-  - A polymorphed hero's burning hands and shocking grasp no longer
-    hit a monster the same claw just teleported away, and no longer
-    heal fire- or shock-resistant golems by the to-hit roll.
-  - Detail: the closed rows' closure notes.
-- Earlier slices: 2026-10-02 (session 171) SNARKS THAT ARE BOOJUMS,
+  tracker 2fd4c5c38; BUG-2100..2105); 2026-10-02 (session 171)
+  SNARKS THAT ARE BOOJUMS,
   THE BOOJUM'S VANISHING TOUCH (code 34ed5ca2a, tracker dc3dc795f;
   BUG-2094..2099); 2026-10-02 (session 170) ASSASSIN VINES SPREAD,
   THE GULTHIAS TREE SPAWNS BLIGHTS, PLANTS AND ENTS ARE VEGAN (code
@@ -14314,7 +14314,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: ranged and spell death reasons name the killer's race
       (BUG-2108) - FIXED 2026-10-03 (session 173, commit `Rider hold
       text, death-reason race and polymorphed Int exercise.` =
-      (hash pending), tracker (hash pending); closure
+      a512e246f, tracker d5548ffac; closure
       notes at the end of this row). Original text: LOW: ranged and
       spell death reasons name the killer by bare
       species (minted 2026-09-17 by the done_in_by parity slice's
@@ -17216,8 +17216,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       boojum's vanishing touch) landed in master's current timed form,
       incr_itimeout(&HInvis, d(6, 100)), with the boojum slice
       (BUG-2095, uhitm.c mhitm_ad_tlpt()). Five files remain.
-- [ ] LOW: master's WISH_TRACKER wish log is absent (minted
-      2026-09-30, session 161, Plan-agent find). Master config.h
+- [x] LOW: master's WISH_TRACKER wish log ported; refused and
+      owner-summoned artifact wishes count (BUG-2110..2112) - FIXED
+      2026-10-03 (session 174, commit `Port the wish tracker and
+      count refused artifact wishes.` = (hash pending), tracker
+      (hash pending); closure notes at the end of this row).
+      Original text: LOW: master's WISH_TRACKER wish log is absent
+      (minted 2026-09-30, session 161, Plan-agent find). Master config.h
       defines WISH_TRACKER inside the DGAMELAUNCH block; files.c
       trackwish() appends "<name> wished for <text> (Nth wish, on
       T:<turn> on <date> at <time> hrs)" to a "wishtracker" data file
@@ -17233,6 +17238,91 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the data file to 5.0's file-prefix scheme (which prefix the
       "wishtracker" file lives under) and check whether the hints file
       or the install must create it.
+      CLOSURE (2026-10-03, session 174, plan
+      /root/.claude/plans/bugfix-wish-tracker-and-lost-artifact-wishes.md).
+      PORT (BUG-2110): config.h `#define WISH_TRACKER` in the
+      DGAMELAUNCH block after WHEREIS_FILE; extern.h
+      `trackwish(const char *) NONNULLARG1`; files.c trackwish()
+      inside the !SFCTOOL level-file region after the whereis code
+      (sfctool compiles files.c with DGAMELAUNCH too). Master's line
+      format kept: "<plname> wished for <typed text> (<N><ord> wish,
+      on T:<turn> on <yyyymmdd> at <hhmmss> hrs)". Adaptations:
+      SCOREPREFIX instead of master's LEVELPREFIX (the same
+      VAR_PLAYGROUND directory after unixmain.c chdirx(); it sits with
+      logfile, xlogfile and livelog), "a" mode, fprintf like
+      livelog_add(), no lock (master had none; one short O_APPEND
+      write), MAC / BEOS names dropped ("wishtracker" on UNIX,
+      "wishes.txt" elsewhere). The install creates it at master's three
+      sites: sys/unix/Makefile.top (touch, chown, chgrp, chmod),
+      hints/macOS.500 (touch + postinstall chmod) and
+      install-to-chroot.sh (touch + chown); fopen "a" also creates it
+      (mode 0644 via FCMASK; the install's VARFILEPERM makes it 0600).
+      RULINGS (AskUserQuestion, this session): ordin() for the ordinal
+      (recommended; BUG-2112: master's hand-rolled suffix wrote "21th",
+      "22th", master frozen-unfixed); explore mode wishes stay out of
+      the file like the livelog (over my log-them-as-master pick;
+      wizard mode still writes, as do fuzzer runs - reviewer LOW,
+      not taken: the livelog has no fuzzer gate either).
+      FOLDED IN (BUG-2111, new find while tracing makewish()): 5.0's
+      makewish() returned early on `otmp == &hands_obj`, meant for
+      wizard terrain / trap wishes, but readobjnam() also returns
+      &hands_obj from the artifact denial arm (own quest artifact,
+      SPFX_NOWISH, the Ranger racial clause, rn2(wisharti) > 1; all
+      !wizard) and the previous-owner summon arm. Those wishes were
+      never counted or livelogged: wishless conduct survived while
+      artifact-wishless broke, #conduct said "used no wishes", and a
+      player could summon another role's quest-artifact owner (that
+      arm always fires for one), kill it for the artifact and keep
+      wishless on the scoreboard. Master returned &zeroobj there and
+      still counted and livelogged. Upstream 5.0 shares it for its own
+      refused quest artifact (upstream table). RULED (over my
+      master's-shape pick): count them, livelog in master's text
+      (`wished for "X"` / `made her first wish - "X"` / first
+      artifact wish, no "got" part), no ublesscnt bump (master), AND a
+      wishtracker line (master wrote none). FIX (zap.c makewish()):
+      the early return now needs `u.uconduct.wisharti == oldwisharti`
+      - the only wisharti writer is readobjnam()'s `if (d.name)`
+      block, every denial / summon clause needs the oartifact only
+      that block's oname() can set, and wizterrainwish() runs at
+      wiztrap: before any object exists (Plan agent and reviewer
+      both traced it); artifact_origin() and doname() are guarded;
+      trackwish() runs after the count; then `return` for a lost
+      wish before the corpse / hold_another_object / ublesscnt code.
+      objnam.c gains a comment at the wisharti bump naming the
+      coupling. Wizard terrain and trap wishes stay uncounted (5.0).
+      REVIEWER PASS (no HIGH / MED): LOW comment wording taken; the
+      fuzzer gate not taken; the stale 5.0 "TODO? maybe generate a
+      second event" comment left as upstream's. A Plan-agent claim
+      that wishing for the Orb of Detection, Heart of Ahriman,
+      Palantir or Orb of Fate hits impossible("Unknown artifact!")
+      is FALSE: all four sit under `#if 0` in artilist.h.
+      BATTERY (game-tester, 1 game per build, about 11 min; POST
+      2ca5f72df3b4c8ece7e8d43bc4f52291, PRE
+      062de71bace70d125f8f07c392d8ef6c run with -d; Valkyrie): POST
+      L3 first wish "the Master Key of Thievery", owner summoned ->
+      #conduct "You have used 1 wish (for an artifact).", livelog
+      lltype 97 `made her first wish - "the Master Key of Thievery"`,
+      wishtracker "wizard wished for the Master Key of Thievery (1st
+      wish, on T:2 on 20261003 at 144630 hrs)"; L1 2nd-4th lines with
+      the typed text and "got" livelogs; L5 "fountain", "squeaky
+      board" and "nothing" add no line or count ("nothing" only
+      "declined to make a wish"); L2 gdb wishes 10 / 20 -> "11th",
+      "21st", then "22nd"; L4 gdb flags.debug = 0, wand wish
+      "Gjallar" -> "For a moment, you feel something in your hands,
+      but it disappears!", line "(24th wish ...)", livelog lltype 65
+      `wished for "Gjallar"`, #conduct 24 wishes (2 for artifacts);
+      L6 #exploremode: wand wishes for a shield and "Gjallar" counted
+      (26 wishes, 3 for artifacts) with no livelog or wishtracker
+      line. PRE: the owner-summon first wish left "You have used no
+      wishes." and no livelog; the next ordinary wish then read
+      "You have used 1 wish (for an artifact)."; the refused
+      "Gjallar" left wishes at 2 with no livelog; no wishtracker
+      file. Paniclog absent throughout. MY BRIEF ERROR: "magic trap"
+      is an EvilHack trap-kit TOOL (objects.h has thirteen trap
+      tools), so it is a counted object wish; "squeaky board" is the
+      terrain-trap lever. RECORD ONLY: a plain #wizkill of the
+      summoned owner credits the hero (murder, Luck -2); use the
+      m-prefixed form in batteries.
 - [ ] LOW: curses sets iflags.term_gone on a lone ESC-O and never
       clears it (upstream 5.0; minted 2026-09-30, session 161,
       Plan-agent find by code reading; needs a live curses repro).
@@ -18484,7 +18574,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: exerchk() lets Int exercise land while polymorphed
       (BUG-2109) - FIXED 2026-10-03 (session 173, commit `Rider hold
       text, death-reason race and polymorphed Int exercise.` =
-      (hash pending), tracker (hash pending); closure
+      a512e246f, tracker d5548ffac; closure
       notes at the end of this row). Original text: LOW: exerchk()
       skips Int while polymorphed, so Int exercise
       built up in a form never lands (minted 2026-10-01, session 165;
@@ -20081,7 +20171,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: farlook and probing on a rider show its steed and the
       steed's hold (BUG-2106) - FIXED 2026-10-03 (session 173, commit
       `Rider hold text, death-reason race and polymorphed Int
-      exercise.` = (hash pending), tracker (hash pending); closure
+      exercise.` = a512e246f, tracker d5548ffac; closure
       notes at the end of this row). Original text: LOW: farlook and
       probing on a rider don't show its steed's hold
       (minted 2026-09-28, session 154, by the rider/steed hold
@@ -20533,7 +20623,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: ^X form attribution reads " from your creature form"
       everywhere (BUG-2107) - FIXED 2026-10-03 (session 173, commit
       `Rider hold text, death-reason race and polymorphed Int
-      exercise.` = (hash pending), tracker (hash pending); closure
+      exercise.` = a512e246f, tracker d5548ffac; closure
       notes at the end of this row). Original text:
       LOW (text, wizard mode only): from_what()'s form attribution
       reads " from your creature form" (upstream 5.0 attrib.c) where
@@ -23297,6 +23387,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       composable *.500 + hints/include/ fragments)
 - [ ] Emergency-save recovery vs 5.0 SELF_RECOVER + CRASHREPORT
 - [ ] Deploy scripts; xlogfile field-set scoreboard check (plan §9.3)
+      RIDER (2026-10-03, session 174): install-to-chroot.sh still
+      deploys to NetHack50's server paths (NHSUBDIR "nh500.0-hdf",
+      dgldir/inprogress-nh500.0-hdf, dgldir/extrainfo-nh500), and
+      config.h's EXTRAINFO_FN reads "/dgldir/extrainfo-nh500/%n.extrainfo"
+      where master has "/dgldir/extrainfo-evil/%n.extrainfo". Re-path
+      both together at cutover. The script now also creates
+      var/wishtracker (WISH_TRACKER port).
 - [ ] Fuzzer harness re-target (paths, randomkey hook)
 - [ ] LOW: branding follow-up (minted 2026-09-27, session 148). Several
       rows defer re-brand gaps to a "branding follow-up" that had no
@@ -23337,6 +23434,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-03 | zap.c makewish() returns early on `otmp == &hands_obj` "wizard mode terrain wish: skip livelogging, etc" (Official_nh50 src/zap.c ~6388), but readobjnam()'s wishing-abuse arm also returns &hands_obj for a refused artifact (is_quest_artifact, or `rn2(nartifact_exist()) > 1`; Official_nh50 src/objnam.c ~5400, whose comment says "charge them for the wish anyway!"). So the refused wish never reaches `u.uconduct.wishes++` or the LL_WISH livelog: wishless conduct survives while readobjnam() already bumped wisharti, and #conduct says "used no wishes". 3.6 returned &zeroobj and still counted. Branch fixed by BUG-2111 (the early return also requires `u.uconduct.wisharti == oldwisharti`; a lost wish counts, livelogs `wished for "X"` and returns before the hand-over). | branch-fixed (BUG-2111); upstream-reportable |
 | 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, c1e2b1189; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
 | 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, 34ed5ca2a); patch artifact not cut yet |
 | 2026-10-02 | polyself.c polymon() writes the "changed form for the first time, becoming %s" livelog with `pmname(&mons[mntmp], flags.female ? FEMALE : MALE)` (Official_nh50 src/polyself.c ~753) before its `gs.sex_change_ok && !rn2(10)` sex flip (~792), so on a flip the livelog names the old sex (seen on the branch: "becoming a vampire lady" with "You turn into a male vampire lord!" on screen). Minimal upstream fix: write the livelog after the sex is settled | found on branch (LOW row, session 170); not fixed, not sent |
@@ -23504,6 +23602,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-03 | Wish-tracker slice rulings (session 174; AskUserQuestion x1, three questions). (1) REFUSED AND OWNER-SUMMONED ARTIFACT WISHES (new find: 5.0's makewish() &hands_obj early return skipped their count and livelog): FOLD IN AND LOG THEM IN THE WISHTRACKER TOO (over the recommended master's shape, which counted and livelogged them but wrote no wishtracker line). They count as wishes, livelog in master's text (`wished for "X"`, no "got" part) and skip the ublesscnt bump as on master; wizard terrain / trap wishes stay uncounted (5.0). (2) ORDINAL: ordin() (recommended) - "21st", where master wrote "21th". (3) EXPLORE MODE: SKIP IT in the wishtracker like the livelog (over the recommended master's shape, which logged explore-mode wishes). | maintainer |
 | 2026-10-03 | Text-rows slice rulings (session 173; AskUserQuestion x2, three questions; two re-asked on corrected premises). (1) PROBE LINE ON A RIDER: ALWAYS SHOW ", riding <steed>" plus the hold suffix, over the recommended hold-only clause (the 2026-10-01 ruling assumed mstatusline() already printed a riding clause; it never did, on either tree). (2) exerchk() INT WHILE POLYMORPHED: PORT THE ONE-LINER AS RULED, as recommended, over "mind gains persist" and "close as master's" - told that any stat change made in a form reverts on rehumanize or a form-to-form polymorph (polyman() / polymon() restore u.macurr), as Wis exercise gains already do on every tree; Int now behaves exactly like Wis. (3) FARLOOK CLAUSE ORDER: MOVE THE RIDING CLAUSE LAST FOR EVERY RIDER, over the recommended keep-it-after-the-name, so no later clause (wounds, asleep, armor, trapped, scared) reads as the steed's and farlook matches the probe line. Implementation choices: mon_killer_name() splices racial_adj() (not x_monnam()) with done_in_by()'s raceless branches excluded; the probe clause names the steed with a_monnam()'s flags plus SUPPRESS_IT (reviewer LOW-1). | maintainer (1-3); session, plan-approved (rest) |
 | 2026-10-02 | Hero-combat slice rulings (session 172; AskUserQuestion x4, five questions, all recommended). (1) SLICE ORDER: the hero-combat group (martial-arts catch, Sword of Kas poison, burning-hands reach guard) first among the ten ruled rows. (2) BARBED NEEDLE: KAS ONLY - the 2026-10-01 "double dose" ruling assumed master's isneedle term was live, but it has been dead since 676549370 (the needle case frees the needle and sets obj NULL before the block), so the needle keeps its 0.9.3 sting-only behavior and the dead term is recorded on master (BUG-2101). (3) GOLEM HEAL: FOLDED IN - hmonas()'s resisted riders heal by the spell's own die, d(enchant_skill_dice(), 4) fire / 6 shock, instead of the to-hit number (BUG-2103). Consequence kept without a separate ruling: hmon_hitmon()'s arms still heal by the whole blow (hmd.dmg), so the polymorphed and unpolymorphed hero paths measure the heal differently. (4) CATCH, BRACERS: count as empty hands, `!uarms || is_bracer(uarms)`, the branch's Monk unarmed-bonus idiom. (5) CATCH, HELPLESS: `gm.multi >= 0` added (upstream-shared hole; upstream table row). Kept from 5.0 without a ruling: potions, eggs and cream pies are catchable; Glib is not tested. AFTER THE BATTERY (AskUserQuestion x1, two questions; supersedes part of (2)): (6) COATINGS ALWAYS WEAR OFF - a dipped coating on the Sword of Kas or on a venom-property weapon can wear off like any other (recommended; master's `!iskas && !isvenom` exclusions kept them forever; BUG-2104). (7) HERO BARBED NEEDLES: MASTER'S INTENT (over my keep-the-live-sting pick) - the needle case runs the hero poison block before the needle is used up: alignment hit, +rnd(6) or 1 in 10 deadly; a needle-resisting target (poison resistance or defended AD_DRCO) takes no poison and gets no second resist line (BUG-2105). | maintainer |
 | 2026-10-02 | Boojum slice rulings (session 171; AskUserQuestion x1, three questions, all recommended). (1) SCOPE: ALL FOUR master pieces with the vanish arm - the snark -> boojum swap (without it boojums never appear outside wizard mode), monster victims turning invisible, the TLPT death guards (master BUG-890 / BUG-898 shape, upstream-shared) and makemon()'s J class / satyrs spawning awake. (2) VANISH TEXT on a no-teleport level only when invisibility takes effect (not already invisible, no mummy wrapping, not blind; the blind term follows zap.c's self-zap) over master's `!Invis`-only gate. (3) NO MASTER LEGS in the battery; master parity rests on code reading. Kept for master parity without a ruling: a tame snark becomes a hostile boojum and its inventory is destroyed by mongone(); the Amulet / Wizard's Tower disorientation still follows "You suddenly vanish!". | maintainer |
