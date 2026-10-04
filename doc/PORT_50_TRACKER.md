@@ -63,33 +63,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     rider / steed text residue row; session 175 the BFS map's
     diagonal-rule row; session 176 the aasimar stat drain while
     polymorphed row.
-- Latest slice: 2026-10-03 (session 176) POLYMORPHED HEROES GET
+- Latest slice: 2026-10-04 (session 177) NETHACK 5.0.0 POST-RELEASE
+  MERGE (merge b4773a429 = NetHack50 c1a37fb6c = official 15fbc6b21;
+  follow-ups (hash pending); BUG-2118..2121).
+  - The branch's 5.0 base moved from the adoption point 74d1133c2 to
+    the last official 5.0.0 commit: 170 vanilla and 9 Hardfought
+    commits, 10 small conflicts. Commits after 15fbc6b21 are 5.0.1
+    work and are not in.
+  - Throwing, firing or kicking things at peaceful or fleeing
+    monsters now counts as a dishonourable attack for Samurai,
+    Knights and Druids, one check per missile. Throws at your own
+    pet, a pet catching gear, feeding or taming, and Kathryn's candy
+    bar do not count; an applied polearm or grapnel still does.
+  - A monster polymorphed or revived over water, lava, open air, a
+    forge, a puddle or sewage meets that terrain at once, not on its
+    own next move. Pets left on another level get hungry while you
+    are away, and the time away now counts across a save, as on
+    master.
+  - Unseen or hallucinated gas spore chains no longer record
+    "killed by a died"; a pet can no longer catch your applied
+    polearm.
+  - Detail: the UPSTREAM CATCH-UP row (Phase 4) and the decisions log.
+- Previous slice: 2026-10-03 (session 176) POLYMORPHED HEROES GET
   THEIR FORM'S RACE STRENGTH (code 9d038c4af, tracker 58e428eab;
-  BUG-2117).
-  - Polymorphed into a form of an EvilHack race, you get that race's
-    strength limit, as orc, elf, dwarf and gnome forms already did.
-    Living giants rise from 19 to 25, enough to throw Mjollnir as a
-    Valkyrie. Centaur forms rise to 20, and tortle and vampire forms
-    to 19.
-  - Weaker races cap lower: drow forms and the drider drop from
-    18/** to 18, hobbit forms to 16, and mind flayers to 10, which
-    costs carrying capacity. To-hit and damage while polymorphed do
-    not depend on Str.
-  - Giant mummies and zombies stay at 18/**. Demons and zombies keep
-    their old limits.
-  - Detail: the closed row's closure notes.
-- Previous slice: 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
+  BUG-2117): forms of EvilHack races take their race's Str cap
+  (living giants 25, centaurs 20, tortles and vampires 19, drow 18,
+  hobbits 16, mind flayers 10).
+- Earlier slices: 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
   TO YOUR DISPLACED IMAGE, FLEEING MONSTERS KEEP FLEEING (code
-  ded214a80, tracker 86cc13a03; BUG-2113..2116).
-  - An intelligent monster that spots an item it wants now walks to
-    it, around a short obstacle if need be. An item it cannot reach
-    within 5 steps is given up.
-  - Against a displaced, invisible or underwater hero, intelligent
-    monsters head for where they think you are. A fleeing monster
-    keeps fleeing, and a fleeing honey badger runs from you instead
-    of from the nearest royal jelly.
-  - Detail: the closed row's closure notes.
-- Earlier slices: 2026-10-03 (session 174) THE WISH TRACKER, REFUSED
+  ded214a80, tracker 86cc13a03; BUG-2113..2116); 2026-10-03 (session
+  174) THE WISH TRACKER, REFUSED
   ARTIFACT WISHES COUNT (code 0f12cf204, tracker 924792ea3;
   BUG-2110..2112); 2026-10-03 (session 173) RIDER HOLD TEXT, ^X FORM
   WORDING, RACE IN RANGED DEATH REASONS, POLYMORPHED INT EXERCISE
@@ -7528,6 +7531,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mechanism needs NO port - branch 5.0 newcham() has no minliquid
       tail call, so liquid checks are natively deferred; call plain
       newcham (proven by the become_flayer Izchak arm, Wizard slice).
+      CORRECTION 2026-10-04 (session 177, BUG-2119): "natively
+      deferred" also meant master's BUG-1314 fix itself (newcham()
+      meets the terrain at once) was missing - a slow form over water
+      or Vlad's chasm hung until its own move. Restored through
+      upstream 9b4a8dfb0's terrain_effects() (5.0.0 catch-up merge)
+      plus EvilHack's forge / puddle / sewage / open-air squares; the
+      deferral wrapper itself is still not needed.
       DONE 2026-08-13 (BUG-1558..1561, commit 55bcb5a8d; hash line
       rides the next commit): (a)-(d) all landed, (e) STAYS PARKED
       ((d) did not port the short-jump shape). CORRECTION +
@@ -22693,6 +22703,27 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       fieldorder width; cursed-unihorn deafness already upstream).
       Full audit table: doc/claude/NUMERIC_SWEEP.md (local).
 - [ ] Per-subsystem: BUGFIXES_ARCHIVE.md keyword sweep as it lands
+- [ ] LOW: terrain-effects coverage beyond newcham / revive_corpse
+      (minted 2026-10-04, session 177, by the follow-up reviewer).
+      9b4a8dfb0's flag (BUG-2119 extended it to EvilHack terrain) is
+      set only by newcham() and revive_corpse(). Not flagged, so the
+      monster still meets the terrain on its own next move: revive()
+      callers that bypass revive_corpse() (zap.c ~1406 / ~2680, the
+      pray.c and mkroom.c revivals), a monster's levitation timing
+      out (mon.c "floats gently"), and a monster losing worn flight
+      gear over water, lava or open air. maybe_set_terrain_effects(
+      mtmp, NULL) at those sites would cover them. Also UNVERIFIED:
+      a walking steed ridden by a flying monster rider over open air
+      may plummet on its first move (rider moves by its own mfndpos,
+      movemon() runs minliquid() on the off-map steed). Master-
+      shared shape apart from BUG-1314's newcham arm. LOW.
+- [ ] LOW: ucatchgem() (mthrowu.c, the unicorn-form gem catch) has
+      no helplessness check (minted 2026-10-04, session 177, merge
+      audit): a sleeping or paralyzed hero polymorphed into a unicorn
+      still catches a thrown gem. BUG-2100 gated the martial-arts
+      catch with `gm.multi >= 0`; this one was left as it was.
+      Master and upstream share it. Decide: same gate, or record
+      only. LOW.
 
 ## Phase 3 - Levels and quests (233 lua files from 36 .des)
 
@@ -23166,40 +23197,76 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 ## Phase 4 - Display and UI
 
-- [ ] UPSTREAM CATCH-UP + PLATFORM PARITY (maintainer directive
-      2026-09-03, recorded by the wither slice; blocks nothing today,
-      owns the merge-time work). The branch's 5.0 base is the
-      adoption tip (nh50/master 74d1133c2, == Official_nh50, which is
-      FROZEN there); NetHack50 tracks upstream and by 2026-09-01
-      (593193cdf) carries significantly more macOS, X11, Qt, MSDOS and
-      Amiga platform support than this build. When the latest 5.0 is
-      pulled in, EvilHack must be brought to FULL support on every
-      platform 5.0 supports - not just tty/curses on Linux. Known
-      display gaps to fold in at that point: (1) win/X11/winstat.c is
-      untouched since adoption and hand-lists 19 condition masks in
-      tt_condorder[] / mask_to_fancyfield[] / the F_ field switches
-      and status_indices[] layout; it lacks the branch's Slow and
-      Wither AND eight vanilla 5.0 conditions (bareh, elf_iron,
-      glowhands, icy, parlyz, slippery, submerged, woundedl) that
-      upstream added afterwards in the Xft rewrite (ddbea3b72
-      "Implement remaining status labels" and its neighbours) - so
-      the file is replaced wholesale by the merge; add Slow/Wither
-      rows to the NEW tables then, mirroring master 3fb3081f4's X11
-      placement (F_WITHER beside F_TERMILL). (2) win/Qt/qt_stat.cpp
-      renders 13 hard-coded condition widgets tested against hero
-      properties (no BL_MASK reads; upstream HEAD is still the same
-      shape) - add slow/wither NetHackQtLabelledIcon members, init-
-      list entries, show/hide arms and layout slots (Slow/Withering
-      properties), or adopt a mask-driven loop if upstream has one by
-      then. (3) doc/Guidebook.mn's two condition-flag lists (fatal/
-      non-fatal names and the statushilites "condition" flags) still
-      show the classic 13 on both trees - add slow and wither with the
-      Guidebook date bump. (4) neither X11 nor Qt dev packages are
-      installed on the build host (pkg-config x11/xt/xaw7/xpm and
-      Qt5/Qt6 absent) - installing libxaw7-dev + libxpm-dev and a Qt
-      toolchain is part of this row so the ports compile-check here.
-      Master never touched X11/Qt (EvilHack 3.6 shipped tty/curses
-      only); 5.0's broader platform support is the reason to do it.
+- [x] UPSTREAM CATCH-UP to official 5.0.0 post-release - MERGED
+      2026-10-04 (session 177; maintainer directive 2026-09-03,
+      split from the platform-parity row below). Merge b4773a429
+      (parents 08931b6cf + NetHack50 c1a37fb6c = official 15fbc6b21,
+      the last 5.0.0 commit; 5.0.1 work after it is NOT in), merge
+      base 74d1133c2. Range: 170 vanilla + 9 Hardfought commits, 113
+      files; 58 upstream-only files landed byte-identical (patch-id
+      checked); 10 textual conflicts (dothrow.c, mon.c newcham,
+      files.c whereis A_NONE index, mthrowu.c catch, cmd.c, dogmove.c,
+      hack.h corpse ages, data.base, Makefile.utl, tilemap.c - HEAD's
+      side there breaks tile.c). Clean-merge breakers fixed in the
+      merge commit: In_tower() deleted by 9f42f8374 -> In_V_tower()
+      (do.c, botl.c); TAINT_AGE now 100 -> troll revive loop uses
+      INEDIBLE_AGE (master's 50); medusa-1 jellyfish -> (01,02) deep
+      water. Duplicate: the mstate trio (c6442e444) merged as a
+      no-op. Follow-ups (hash pending): BUG-2118 explosion death
+      reason, BUG-2119 EvilHack terrains in
+      maybe_set_terrain_effects() (master BUG-1314 behavior back),
+      BUG-2120 mstate tests / clone / steed terrain bits, BUG-2121
+      pet catching the applied uwep; SUPPRESS_BARDING in the new
+      noit_or_your_mon_nam(). Rulings: decisions log 2026-10-03 and
+      2026-10-04. Two reviewer passes (CONDITIONAL PASS each, all
+      conditions met). BATTERIES A (combat / death text / whereis),
+      B (terrain / pets / levels / misc) and A2 (pet-catch re-test):
+      every leg PASS, paniclog clean except U1's reproduction of
+      BUG-2121 on PRE and POST. Notable evidence: troll REVIVE delays
+      max 49 over 29 corpses; slow form over a pool / tower4 open air
+      dies the same turn (PRE survived 1-4 turns); pet left 800 turns
+      with hungrytime = moves comes back hostile (PRE stayed tame,
+      15); tameness decay counts across a save (POST 20 -> 15, PRE
+      only the post-restore leg, 20 -> 18); Infidel whereis
+      align=Una; nested unseen / hallucinated spore deaths "killed by
+      a gas spore's explosion" (PRE "killed by a died"). Battery
+      lore: a scratchpad copy of the install launched with -d needs
+      root-level symlinks to var/ (perm, logfile, xlogfile, livelog,
+      wishtracker, save, whereis, record) - the -d dir is read as the
+      VARDIR root.
+- [ ] PLATFORM PARITY (maintainer directive 2026-09-03: when the
+      latest 5.0 is pulled in, EvilHack must reach FULL support on
+      every platform 5.0 supports - not just tty/curses on Linux).
+      The 5.0.0 catch-up above brought in upstream's X11 Xft rewrite,
+      MS-DOS VGA/VESA decals, tabbed menus, Qt6 pkg-config hints and
+      BMP/GIF/PNG tiles. Remaining (audit 2026-10-03/04): (1) X11
+      win/X11/winstat.c (now upstream's, all 30 vanilla conditions,
+      32-entry colour array exactly full) never shows Slow or Wither:
+      add F_SLOW / F_WITHER after F_WOUNDEDL with NUM_STATS 58, rows
+      after "HurtLegs", tt_condorder[] (Wither after TermIll, Slow
+      after Ride, matching windows.c), mask_to_fancyfield[], the two
+      case switches and status_indices[] (Wither beside TermIll,
+      mirroring master 3fb3081f4). (2) Qt qt_stat.h/.cpp: slow and
+      wither labelled icons, init-list, show/hide, layout (Slow /
+      Withering properties); optional Qt menu entries for forge,
+      order, shapechange, shield, steal, telekinesis, wildshape.
+      (3) doc/Guidebook.mn condition lists: add slow and wither with
+      the date bump. (4) Host packages to compile-check: X11
+      (libx11/xt/xaw7/xmu/xext/xpm/xft, fontconfig, freetype, libpng
+      -dev) and Qt6 (qt6-base-dev, -dev-tools, qt6-multimedia-dev);
+      the DJGPP cross-compiler for MS-DOS; Windows and macOS cannot
+      be compile-checked here. (5) TILE-ART DRIFT: monsters.txt
+      789/1145, objects.txt 483/587, other.txt 261/284 tiles against
+      the generated tile.c (total_tiles_used 3164 incl. the three
+      new decals), so every tile-image port shows wrong art and the
+      decals land on the wrong index until the art is complete.
+      (6) src/telekinesis.c is missing from
+      sys/unix/NetHack.xcodeproj/project.pbxproj,
+      sys/windows/vs/NetHackW/NetHackW.vcxproj and
+      sys/vms/Makefile_src.vms (link failures there). (7)
+      win/win32/mswproc.c ~2931 `1L << ci` with ci = 31 (BL_MASK_BITS
+      is now full at 32) is undefined on a 32-bit long - use 1UL; any
+      further condition needs a wider mask type.
 
 - [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
       with upstream coloratt/utf8map (nh50-color-architecture
@@ -23611,6 +23678,18 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       where master has "/dgldir/extrainfo-evil/%n.extrainfo". Re-path
       both together at cutover. The script now also creates
       var/wishtracker (WISH_TRACKER port).
+      RIDER (2026-10-04, session 177): the 5.0.0 catch-up merge
+      (Hardfought 8a8c36f1e) added more hard-coded `nethack` symlink
+      handling to install-to-chroot.sh and moved `recover` out of
+      var/; re-brand those with the re-path above.
+- [ ] LOW: set_whereisfile() lacks master's BUG-603 hardening
+      (minted 2026-10-04, session 177, merge audit). The branch has
+      the NetHack50 fork's version: it builds the expanded name in an
+      alloc'd buffer and copies it back with an unbounded
+      `Sprintf(whereis_file, "%s", ...)` into the 255-byte array;
+      master's 5a17e1fd7 bounds the prefix, the regularized name and
+      the tail. Port master's shape (and offer the fork the same
+      fix). LOW (needs a very long plname or WHEREIS_FILE).
 - [ ] Fuzzer harness re-target (paths, randomkey hook)
 - [ ] LOW: branding follow-up (minted 2026-09-27, session 148). Several
       rows defer re-brand gaps to a "branding follow-up" that had no
@@ -23651,6 +23730,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-04 | explode.c explode() hero-death MON_EXPLODE arm (15fbc6b21 tree, after fc75a55d8 #1676): the unseen fix writes the bare "explosion" (losing the monster's name) and the seen-but-hallucinating arm still skips the copy (`str == hallu_buf`), so a nested spore chain or a life-saving inside the inner blast (both clear svk.killer.name) still records "killed by a died". explode() already keeps killr_buf, its own copy of the caller's name, for exactly this. | branch-fixed (BUG-2118, killr_buf for the whole arm); upstream-reportable |
+| 2026-10-04 | monmove.c dochug() tactics() return (`if (mtmp->mstate) return 0;`, 15fbc6b21 tree ~785) and makemon.c clone_mon() (copies mstate whole) predate 9b4a8dfb0's pending-terrain bits in mstate (TERRAIN_FALLOUT_MASK): a covetous monster flagged by a polymorph trap loses its action until terrain_effects() runs, and a clone split inside terrain_effects() keeps stale bits. | branch-fixed (BUG-2120: mask / clear); upstream-reportable |
+| 2026-10-04 | 9b4a8dfb0 terrain effects reach newcham() and revive_corpse() only: revive() callers that bypass revive_corpse() (zap.c ~1406 and ~2680, also pray.c / mkroom.c paths on the branch), a monster's levitation timing out, or lost worn flight gear over water / lava are never flagged, so those monsters still wait for their own next move. | upstream-shared; branch LOW row (terrain-effects coverage) |
+| 2026-10-04 | dat/medusa-1.lua 15fbc6b21 "Move jellyfish into water" moves it from (02,02) to (02,03), but both squares are land ('.') in upstream's own medusa-1 map, so the jellyfish still starts out of the water. | branch moved it to deep water (01,02) on its own map; upstream-reportable |
+| 2026-10-04 | cmd.c key-binding list (handler_rebind_keys view): after a CMD_PARAM command is bound with an empty parameter ("Required parameter cannot be empty."), the bind is kept with param NULL and `Sprintf("BIND=%s:%s(%s)")` prints it through %s - glibc shows `toggle((null))`, other C libraries may crash. Seen in battery B (session 177) on the branch; vanilla code. | upstream-reportable (not fixed on branch) |
+| 2026-10-04 | NetHack50 fork (Hardfought) files.c set_whereisfile(): builds the expanded name in an alloc'd buffer and copies it back with `Sprintf(whereis_file, "%s", ...)` into the 255-byte array without a bound - master's BUG-603 (5a17e1fd7) hardening never travelled to the fork or the branch. | branch LOW row; fork-reportable |
+| 2026-10-04 | earlyarg.c genl_prag() (85e080bb5, Windows -a/-g/-p/-r): the default branch reads argv[1] after argv++ (the next argument), per the session-177 audit; unverified on a Windows build. win/share/tile2bmp.c (cc4760553) counts monsters.txt three times, padding nhtiles.bmp with blank rows (harmless). | upstream-reportable (audit, unverified) |
 | 2026-10-03 | monmove.c m_search_items() finish_search (Official_nh50 src/monmove.c ~1441) uses `minr < SQSRCHRADIUS` as its "found an item" signal, but minr also drops to 4 when the hero is within distmin 4 and to 1 for a hostile mercenary (~1346-1352). So with NO item a fleeing monster 4 squares away, or a fleeing soldier / watchman more than 3 away, turns to approach the hero; an item at exactly distmin 5 leaves minr 5, so a fleeing monster flees from the item instead of from the hero. 3.4.3 has the same code. Branch fixed by BUG-2115 (an explicit item-goal flag drives the turn; the hero-close re-aim keeps the minr test). Battery: a fleeing hill orc at distance 4 and a fleeing soldier fled steadily on POST; PRE hovered at 3-4. | branch-fixed (BUG-2115); upstream-reportable (behavior; record only) |
 | 2026-10-03 | zap.c makewish() returns early on `otmp == &hands_obj` "wizard mode terrain wish: skip livelogging, etc" (Official_nh50 src/zap.c ~6388), but readobjnam()'s wishing-abuse arm also returns &hands_obj for a refused artifact (is_quest_artifact, or `rn2(nartifact_exist()) > 1`; Official_nh50 src/objnam.c ~5400, whose comment says "charge them for the wish anyway!"). So the refused wish never reaches `u.uconduct.wishes++` or the LL_WISH livelog: wishless conduct survives while readobjnam() already bumped wisharti, and #conduct says "used no wishes". 3.6 returned &zeroobj and still counted. Branch fixed by BUG-2111 (the early return also requires `u.uconduct.wisharti == oldwisharti`; a lost wish counts, livelogs `wished for "X"` and returns before the hand-over). | branch-fixed (BUG-2111); upstream-reportable |
 | 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, c1e2b1189; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
@@ -23820,6 +23906,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-04 | 5.0.0 catch-up follow-up rulings (session 177; AskUserQuestion x1, two questions, after the merge review). (1) EVILHACK TERRAINS IN maybe_set_terrain_effects(): FOLD IN (recommended) - forge, puddle, sewage and open air are flagged too, so a flyer polymorphed into a walker over Vlad's chasm falls at once (master BUG-1314 behavior; BUG-2119). (2) CAITIFF VS PETS: EXEMPT TAME TARGETS (over my keep-as-ruled pick) - nothing thrown, fired or kicked at the hero's own pet is a dishonourable attack. Coordinator reading, flagged to the maintainer: an APPLIED polearm or grapnel still counts against a pet (master's use_pole / use_grapple always checked; melee on a pet still counts); thrown_caitiff() takes hmode. | maintainer |
+| 2026-10-03 | Upstream 5.0.0 catch-up rulings (session 177; AskUserQuestion x1, four questions). (1) CAITIFF (f11a4b168): UPSTREAM RULE + EXEMPTIONS (over my master's-rule pick) - thrown, fired, kicked and applied objects are dishonourable attacks, checked per attack arm in thitmonst() (one check per missile; a target angered by the first hit no longer counts as peaceful for the rest), exempting a pet catching gear, Kathryn's candy bar and food thrown to tame or befriend; upstream's apply.c deletions kept. (2) UNSEEN EXPLOSION TEXT: MASTER'S FULL NAME (recommended) via killr_buf, not upstream's bare "explosion" (BUG-2118 widened it to every MON_EXPLODE arm after the reviewer's hallucination case). (3) SCOPE: MERGE ONLY (recommended) - X11/Qt Slow/Wither, dev packages and tile art stay in the PLATFORM PARITY row. (4) MEDUSA-1 JELLYFISH: DEEP WATER (over my keep-master pick) - (01,02); upstream's (02,03) and master's (02,02) are both puddles on EvilHack's map. | maintainer |
 | 2026-10-03 | Pending LOW rows ruled (session 176 follow-up; AskUserQuestion x2, five questions, all recommended). (1) done_in_by() IMITATOR NAMING: RACIAL FORM NAME - "a chameleon imitating an elven soldier" in both melee (done_in_by()) and ranged (mon_killer_name()) reasons; the unique test reads the form ("the high priest of Moloch"). (2) RIDER / STEED TEXT: FIX BOTH - the steed of an unseen rider shows the rider's hold (", being ridden by something you are holding" / "... holding you"), and the steed's probe line gains ", being ridden". (3) BFS DIAGONAL RULE: MATCH mfndpos() TERRAIN - only rock / wall / tree corners block a map diagonal (tight squeezes stay refused), and no diagonals through doorways; own slice and battery. (4) mnearto() SHOVE: CENTRALIZE - never shove the hero's holder or held monster. (5) AASIMAR DRAIN WHILE POLYMORPHED: CLAMP THE SAVED STATS TOO. | maintainer |
 | 2026-10-03 | uasmon_maxStr() EvilHack-races slice rulings (session 176; AskUserQuestion x1, four questions, all recommended). (1) GIANTS: LIVING 25, UNDEAD 18/100: living giant forms take the giant race's STR19(25) (5.0 gave 19); giant mummy / giant zombie keep 5.0's 18/100 throttle. (2) BROAD FAMILIES: VAMPIRES ONLY: vampire forms take the vampire race's 19; demons stay unmapped (race_demon is a crowning race outside races[]). (3) ZOMBIES: NO DRAUGR MAPPING: zombie forms keep their living race's cap or 5.0's number. (4) LOWER CAPS: MAP ALL THREE: illithid forms (10), drow forms incl. the drider (18) and hobbit forms (16) take their race's cap although it is below 5.0's number, following 5.0's elf precedent. | maintainer |
 | 2026-10-03 | Goal-rooted pathing slice rulings (session 175; AskUserQuestion x4, five questions). (1) MAP SCOPE: ITEM GOALS AND THE HERO IMAGE (over the recommended item-only scope): when mux/muy is not the hero's true square (displacement, invisibility, underwater), an approaching intelligent monster roots its map at the guess; gettrack() footprints stay on the hero map. (2) UNREACHABLE ITEM: GIVE IT UP (recommended): drop the item goal and keep the pre-search goal and appr, so a fleeing monster keeps fleeing; animals and the mindless stay greedy. (3) ROUTE CAP: 5 STEPS (recommended): a longer route is given up too, so the item stays inside the search box and the monster cannot pace. (4) FLEE FLIP: USE THE ITEM FLAG (recommended; diverges from vanilla and master): only a real item goal turns a fleeing monster around. (5) FLEEING HONEY BADGER (battery L6b find): FLEE FROM THE HERO (recommended): the royal-jelly override applies only while approaching; master's ignored appr, so a fleeing badger fled from the jelly. | maintainer |
