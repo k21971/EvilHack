@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-04, after session 178): 299
-  rows closed, 84 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-04, after session 179): 300
+  rows closed, 83 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,17 +34,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 62 LOW: small parity rows, quirks and watch/record-only items.
-    PLANNABLE (ruled 2026-10-03, session 176 follow-up): the BFS
-    diagonal rule (own battery), the mnearto() shove, and the aasimar
-    drain while polymorphed.
+  - 61 LOW: small parity rows, quirks and watch/record-only items.
+    PLANNABLE (ruled 2026-10-03, session 176 follow-up): the
+    mnearto() shove and the aasimar drain while polymorphed.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
     session 173, the WISH_TRACKER row in session 174, item-goal
     pathing in session 175, the uasmon_maxStr() EvilHack-races row
-    in session 176, and the done_in_by() imitator naming and rider /
-    steed text rows in session 178. The
+    in session 176, the done_in_by() imitator naming and rider /
+    steed text rows in session 178, and the BFS diagonal-rule row in
+    session 179. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -66,26 +66,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     terrain-effects coverage row and the ucatchgem() helplessness
     row; session 178 the mon_killer_name() high priest naming row and
     the poisoned() bare-species row.
-- Latest slice: 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
-  AND RIDER / STEED HOLD TEXT (code (hash pending); BUG-2122..2125).
-  - Death by a shapeshifter in a racial form names the form with its
-    race: "killed by a doppelganger imitating a giant valkyrie", not
-    "... imitating a giant"; ranged and spell reasons too
-    ("imitating an elven soldier", "imitating Medusa").
-  - Death by a Sanctum or Astral high priest reads "killed by the
-    high priest of Moloch", invisible or not (was "a high priest").
-  - Farlook on the steed of an unseen rider shows the rider's hold:
-    ", being ridden by something you are holding" / "... holding
-    you". A wand of probing's steed line says ", being ridden".
-  - Detail: the two closed LOW rows (done_in_by() imitator naming,
-    rider / steed text residue).
-- Previous slice: 2026-10-04 (session 177) NETHACK 5.0.0 POST-RELEASE
-  MERGE (merge b4773a429 = NetHack50 c1a37fb6c = official 15fbc6b21;
-  follow-ups 1a4dc5abd + 72f37ce73, tracker 062d0c84b; BUG-2118..2121):
-  the branch's 5.0 base moved to the last official 5.0.0 commit;
-  thrown, fired and kicked attacks on peacefuls count as
-  dishonourable; detail in the UPSTREAM CATCH-UP row (Phase 4).
-- Earlier slices: 2026-10-03 (session 176) POLYMORPHED HEROES GET
+- Latest slice: 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
+  THE DIAGONALS MONSTERS CAN WALK (code (hash pending); BUG-2126).
+  - Intelligent monsters now path diagonally between two pools, lava
+    squares, iron bars or boulders touching at a corner, as they can
+    walk; only rock, wall and tree corners (and Sokoban boulders)
+    block a path diagonal, and every tight squeeze stays refused.
+  - Paths no longer cut diagonally through an intact doorway, except
+    for the step onto a hero standing in one: monsters still attack
+    a doorway hero from the diagonal flank squares.
+  - Detail: the closed LOW diagonal-rule row.
+- Previous slice: 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
+  AND RIDER / STEED HOLD TEXT (code 7f9f073db, tracker e3170fd29;
+  BUG-2122..2125): shapeshifter death reasons name the racial form
+  ("imitating a giant valkyrie"), Sanctum high priests read "the
+  high priest of Moloch", and the steed of an unseen rider shows the
+  rider's hold; detail in the two closed LOW rows.
+- Earlier slices: 2026-10-04 (session 177) NETHACK 5.0.0
+  POST-RELEASE MERGE (merge b4773a429 = NetHack50 c1a37fb6c = official
+  15fbc6b21; follow-ups 1a4dc5abd + 72f37ce73, tracker 062d0c84b;
+  BUG-2118..2121; detail in the UPSTREAM CATCH-UP row, Phase 4);
+  2026-10-03 (session 176) POLYMORPHED HEROES GET
   THEIR FORM'S RACE STRENGTH (code 9d038c4af, tracker 58e428eab;
   BUG-2117); 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
   TO YOUR DISPLACED IMAGE, FLEEING MONSTERS KEEP FLEEING (code
@@ -14383,7 +14384,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: done_in_by() names a racial monster's archetype race where
       a form belongs (BUG-2122, 2123) - FIXED 2026-10-04 (session 178,
       commit `Racial form death names and rider / steed hold text.` =
-      (hash pending); closure notes at the end of this row). Original
+      7f9f073db, tracker e3170fd29; closure notes at the end of this
+      row). Original
       text: (minted 2026-10-03, session 173, by the Plan
       agent and reviewer; master-shared, end.c done_in_by() takes
       `mptr = r_data(mtmp)` on both trees). r_data() is the race
@@ -20164,7 +20166,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       REVIEWER PASS (CONDITIONAL; MED taken, delta PASS x2). LOWs
       recorded, not taken:
         * the map ignores the no-diagonal-through-doors rule, so a
-          route can run 1 step per door past the cap;
+          route can run 1 step per door past the cap (FIXED
+          2026-10-04, session 179, BUG-2126, with the diagonal-rule
+          row below; only the first step from a monster standing in a
+          doorway can still run 1 past the cap);
         * the nearest item wins the search, so an unreachable one
           shadows a reachable one for a turn (battery L8: 1 turn);
         * a restore can bring back a footprint goal the trap arm had
@@ -20213,9 +20218,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         * hill orcs refuse mithril items, and wished / created
           daggers can roll mithril (battery lore);
         * a fleeing badger tunnels walls (M1_TUNNEL).
-- [ ] LOW: the BFS map's diagonal rule is stricter than mfndpos().
-      compute_pathfind_map() and compute_escape_pathfind_map() refuse
-      a diagonal step whenever both side squares are impassable to
+- [x] LOW: the BFS map's diagonal rule is stricter than mfndpos()
+      (BUG-2126) - FIXED 2026-10-04 (session 179, commit `Fix: the
+      pathfinding maps' diagonal rule now matches monster movement.` =
+      (hash pending); closure notes at the end of this row). Original
+      text: compute_pathfind_map() and compute_escape_pathfind_map()
+      refuse a diagonal step whenever both side squares are impassable to
       the map (water, lava, iron bars, trees, walls, boulders), but
       mfndpos() refuses only a tight squeeze: bad_rock() on both
       sides plus cant_squeeze_thru() (src/mon.c, the "diagonal tight
@@ -20235,6 +20243,97 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       one map serves every monster, and refuse diagonals into or out
       of a doorway (mfndpos()'s door rule). Own slice with a battery
       (pool checkerboard, bars corner, doorway). Plannable.
+      CLOSURE (2026-10-04, session 179, plan
+      /root/.claude/plans/bugfix-pathfind-diagonal-rule.md). FIX
+      (BUG-2126, src/mon.c only, save-neutral): a new staticfn
+      pathfind_diag_ok(cx, cy, nx, ny, doors) replaces the duplicated
+      side-square block in both BFS loops. It refuses a diagonal when
+      both side squares are IS_OBSTRUCTED or a Sokoban boulder; for
+      every monster mon_uses_pathfinding() admits (no wall-walkers, no
+      innate tunnelers) that is exactly bad_rock() (the needspick,
+      passwall and hero-only Passes_trees clauses fold away; a pick in
+      inventory never enters bad_rock()). Every tight squeeze stays
+      refused, as ruled. With `doors` it refuses a step into or out of
+      `IS_DOOR && !doorless_door()` - an intact door or any Rogue-level
+      door, exactly mfndpos()'s door test and the hero's own
+      test_move() idiom. No pathfinding monster is NODIAG (the grid
+      bug is M1_ANIMAL); worm_cross is monster-position based and the
+      maps ignore monsters.
+      RULING 2026-10-04 (this session, AskUserQuestion, recommended):
+      SPARE THE HERO'S SQUARE. The hero map passes `dist > 0`, so the
+      door rule skips steps out of its root: the step onto the hero
+      is a melee attack, and dochug() attacks on monnear() adjacency
+      alone, diagonally into or out of a doorway. The literal ruling
+      would have read a doorway hero's flank squares 2, and the Plan
+      agent's trace had a second intelligent attacker milling behind
+      the first until turn 4 instead of 2. Squeezes stay refused at
+      the root (PRE parity; an exempted squeeze could strand big
+      monsters at a stale root). The goal map passes TRUE: items,
+      stairs, portals and altars are entered.
+      ACCEPTED, RECORDED (no code):
+        * an image goal is attacked, not entered, but one target-keyed
+          map serves all three goals, so an image in an intact doorway
+          gets the strict root (rare);
+        * m_item_in_reach() reads the monster's 3x3, so a monster
+          standing in a doorway or at a squeeze can still accept a
+          6-step route (PRE was looser);
+        * breaking a door, a new door from a wand of locking, or a
+          door <-> wall / bars change invalidates nothing (opening,
+          closing and locking never change an edge); about 30
+          scattered sites, same staleness bound as dug walls (10 turns
+          or hero dist2 > 9);
+        * reviewer LOW: the spared doorway follows the map's root, so
+          after the hero steps out of a doorway its diagonals stay
+          open until the next rebuild (a strict subset of the old
+          every-door leniency; battery L3s).
+      REVIEW: Plan agent (design, equivalence proof, battery
+      geometry); evilhack-code-reviewer PASS (one LOW, above; master's
+      mon.c carries the identical old block twice, master-shared,
+      frozen-unfixed; no other map in src/ tests diagonals the old
+      way).
+      BATTERY PASS (game-tester, one game per build, about 23 min;
+      PRE 7c666b6ddb6b967f1a9150a681cc4afc via -d from a scratchpad
+      copy, POST aaa117fd33cfce9d636b597f21b7e8cd via `make update
+      SHELLDIR=`; gdb-built lit arena on DL1, every value read right
+      after zeroing the stamps; PRE / POST):
+        * L1 pocket, P behind a diagonal whose sides are POOL, MOAT,
+          LAVAPOOL, IRONBARS, STONE + POOL, or two non-Sokoban
+          boulders: -1 / 2 each. Controls -1 / -1: STONE / STONE,
+          TREE / TREE, the boulders with sokoban_rules set. L1j goal
+          map rooted at P: A -1 / 1, hero -1 / 2.
+        * L2 door in a wall column, the squares past it diagonally:
+          open, closed, locked 3 / 4; broken and doorless 3 / 3. L2f
+          goal map rooted behind the open door: 2 / 3; broken 2 / 2.
+        * L3a hero standing in the open door: flank squares and the
+          squares past the door 1 / 1 (spared). L3b hero diagonal to
+          the door: door 1 / 1, past it 2 / 3. L3s stale: after a step
+          back the old map still reads 1 past the door on both; rebuilt
+          2 / 3. L3c root squeeze: STONE / STONE -1 / -1, POOL / POOL
+          -1 / 1.
+        * B1 hill orc in a pocket whose only exit is a pool
+          checkerboard diagonal: POST out through the diagonal and
+          around in 8 moves, then "The hill orc pummels you!"; PRE
+          never left the pocket in 13 turns (awake, mux on the hero).
+        * B2 lizard corpse reachable only across pool diagonals: POST
+          "The hill orc picks up a lizard corpse."; PRE goal map -1
+          everywhere, walked to the hero. B2c STONE sides (tight
+          squeezes): both builds gave the item up, same path.
+        * B3 (optional) two orcs vs a hero in an open doorway: flank
+          squares read 1 on both; the first orc took a diagonal flank
+          at once on both builds.
+      Paniclog absent throughout; save dir empty; launcher md5
+      unchanged. RECORD ONLY:
+        * MY BRIEF ERROR: B2's first hero square (item + (8,+1)) was
+          on a line with the square diagonal to the item, so m_move()'s
+          in_line gate (vanilla and master: "monsters in combat won't
+          pick stuff up", lined_up() within ACURRSTR / 2 + 1) turned
+          the item search off there, and the POST orc paced beside the
+          item for 11 turns. Rerun off the line: pickup. The pacing is
+          the old gate's, seen with any reachable item; PRE never
+          reached this one;
+        * B3 PRE's second orc took a 2-move detour before the front
+          square; the map values match on both builds, so RNG / mtrack
+          variance.
 - [x] MED: a monster HOLDING the hero can leave the level with u.ustuck
       still set - CLOSED 2026-09-25 (session 144, commit `Monsters
       holding the hero let go when they leave the level.` =
@@ -20525,9 +20624,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Official_nh50; wizard mode only).
 - [x] LOW: rider / steed text residue (BUG-2124, 2125) - FIXED
       2026-10-04 (session 178, commit `Racial form death names and
-      rider / steed hold text.` = (hash pending); closure notes at the
-      end of this row). Original text: (minted 2026-10-03, session 173,
-      by the hold-text slice's reviewer; pre-existing, master-shared).
+      rider / steed hold text.` = 7f9f073db, tracker e3170fd29;
+      closure notes at the end of this row). Original text: (minted
+      2026-10-03, session 173, by the hold-text slice's reviewer;
+      pre-existing, master-shared).
       (a) Mirror case: when an unseen rider is described by its
       visible steed (look_at_monster() swaps mtmp to the steed), a
       hold on the RIDER is lost - a hidden sticky-mimic hero grabs an
@@ -24019,6 +24119,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-04 | BFS diagonal-rule slice ruling (session 179; AskUserQuestion x1, one question, recommended). DOORWAY HERO: SPARE THE HERO'S SQUARE - the hero-rooted map skips the new no-diagonal-door rule for steps out of its root, since the step onto the hero is a melee attack and dochug() attacks on monnear() adjacency alone; a doorway hero's flank squares stay at distance 1 as on master. Squeezes stay refused at the root; the goal map applies the door rule everywhere (items, stairs, portals are entered). Refines the 2026-10-03 "match mfndpos() terrain" ruling (BUG-2126). | maintainer |
 | 2026-10-04 | Platform-parity and applied-weapon rulings (session 177 follow-up; AskUserQuestion x1, three questions, all recommended; rulings only, code in future sessions). (1) APPLIED POLEARM / GRAPNEL AT YOUR OWN PET: STILL COUNTS - confirms the coordinator reading in the row below: the tame exemption covers throws, fires and kicks; an applied weapon is a weapon attack like melee, as on master (thrown_caitiff() keeps its `hmode == HMON_APPLIED` arm; no change needed). (2) HOST TOOLCHAINS: INSTALL ALL FOUR - the X11 dev packages, the Qt6 dev packages, the DJGPP MS-DOS cross-compiler (sys/msdos/fetch-cross-compiler.sh) and the Amiga cross toolchain (CROSS_TO_AMIGA hints), so the X11, Qt, MS-DOS and Amiga ports compile-check on this host. (3) WINDOWS / macOS: ADD CI JOBS - Windows and macOS runners in the GitHub Actions workflow (.github/workflows/evilhack-cpp.yml, today ubuntu-24.04 only), build recipes from upstream's azure-pipelines.yml. | maintainer |
 | 2026-10-04 | 5.0.0 catch-up follow-up rulings (session 177; AskUserQuestion x1, two questions, after the merge review). (1) EVILHACK TERRAINS IN maybe_set_terrain_effects(): FOLD IN (recommended) - forge, puddle, sewage and open air are flagged too, so a flyer polymorphed into a walker over Vlad's chasm falls at once (master BUG-1314 behavior; BUG-2119). (2) CAITIFF VS PETS: EXEMPT TAME TARGETS (over my keep-as-ruled pick) - nothing thrown, fired or kicked at the hero's own pet is a dishonourable attack. Coordinator reading, flagged to the maintainer: an APPLIED polearm or grapnel still counts against a pet (master's use_pole / use_grapple always checked; melee on a pet still counts); thrown_caitiff() takes hmode. | maintainer |
 | 2026-10-03 | Upstream 5.0.0 catch-up rulings (session 177; AskUserQuestion x1, four questions). (1) CAITIFF (f11a4b168): UPSTREAM RULE + EXEMPTIONS (over my master's-rule pick) - thrown, fired, kicked and applied objects are dishonourable attacks, checked per attack arm in thitmonst() (one check per missile; a target angered by the first hit no longer counts as peaceful for the rest), exempting a pet catching gear, Kathryn's candy bar and food thrown to tame or befriend; upstream's apply.c deletions kept. (2) UNSEEN EXPLOSION TEXT: MASTER'S FULL NAME (recommended) via killr_buf, not upstream's bare "explosion" (BUG-2118 widened it to every MON_EXPLODE arm after the reviewer's hallucination case). (3) SCOPE: MERGE ONLY (recommended) - X11/Qt Slow/Wither, dev packages and tile art stay in the PLATFORM PARITY row. (4) MEDUSA-1 JELLYFISH: DEEP WATER (over my keep-master pick) - (01,02); upstream's (02,03) and master's (02,02) are both puddles on EvilHack's map. | maintainer |
