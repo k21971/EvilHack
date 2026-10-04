@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-03, after session 176): 297
-  rows closed, 82 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-04, after session 178): 299
+  rows closed, 84 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,17 +34,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 60 LOW: small parity rows, quirks and watch/record-only items.
-    PLANNABLE (ruled 2026-10-03, session 176 follow-up): done_in_by()
-    imitator naming, rider / steed text, the BFS diagonal rule (own
-    battery), the mnearto() shove, and the aasimar drain while
-    polymorphed.
+  - 62 LOW: small parity rows, quirks and watch/record-only items.
+    PLANNABLE (ruled 2026-10-03, session 176 follow-up): the BFS
+    diagonal rule (own battery), the mnearto() shove, and the aasimar
+    drain while polymorphed.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
     session 173, the WISH_TRACKER row in session 174, item-goal
-    pathing in session 175, and the uasmon_maxStr() EvilHack-races
-    row in session 176. The
+    pathing in session 175, the uasmon_maxStr() EvilHack-races row
+    in session 176, and the done_in_by() imitator naming and rider /
+    steed text rows in session 178. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -62,34 +62,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 173 the done_in_by() racial-imitator naming row and the
     rider / steed text residue row; session 175 the BFS map's
     diagonal-rule row; session 176 the aasimar stat drain while
-    polymorphed row.
-- Latest slice: 2026-10-04 (session 177) NETHACK 5.0.0 POST-RELEASE
+    polymorphed row; session 177 (the 5.0.0 catch-up merge) the
+    terrain-effects coverage row and the ucatchgem() helplessness
+    row; session 178 the mon_killer_name() high priest naming row and
+    the poisoned() bare-species row.
+- Latest slice: 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
+  AND RIDER / STEED HOLD TEXT (code (hash pending); BUG-2122..2125).
+  - Death by a shapeshifter in a racial form names the form with its
+    race: "killed by a doppelganger imitating a giant valkyrie", not
+    "... imitating a giant"; ranged and spell reasons too
+    ("imitating an elven soldier", "imitating Medusa").
+  - Death by a Sanctum or Astral high priest reads "killed by the
+    high priest of Moloch", invisible or not (was "a high priest").
+  - Farlook on the steed of an unseen rider shows the rider's hold:
+    ", being ridden by something you are holding" / "... holding
+    you". A wand of probing's steed line says ", being ridden".
+  - Detail: the two closed LOW rows (done_in_by() imitator naming,
+    rider / steed text residue).
+- Previous slice: 2026-10-04 (session 177) NETHACK 5.0.0 POST-RELEASE
   MERGE (merge b4773a429 = NetHack50 c1a37fb6c = official 15fbc6b21;
-  follow-ups (hash pending); BUG-2118..2121).
-  - The branch's 5.0 base moved from the adoption point 74d1133c2 to
-    the last official 5.0.0 commit: 170 vanilla and 9 Hardfought
-    commits, 10 small conflicts. Commits after 15fbc6b21 are 5.0.1
-    work and are not in.
-  - Throwing, firing or kicking things at peaceful or fleeing
-    monsters now counts as a dishonourable attack for Samurai,
-    Knights and Druids, one check per missile. Throws at your own
-    pet, a pet catching gear, feeding or taming, and Kathryn's candy
-    bar do not count; an applied polearm or grapnel still does.
-  - A monster polymorphed or revived over water, lava, open air, a
-    forge, a puddle or sewage meets that terrain at once, not on its
-    own next move. Pets left on another level get hungry while you
-    are away, and the time away now counts across a save, as on
-    master.
-  - Unseen or hallucinated gas spore chains no longer record
-    "killed by a died"; a pet can no longer catch your applied
-    polearm.
-  - Detail: the UPSTREAM CATCH-UP row (Phase 4) and the decisions log.
-- Previous slice: 2026-10-03 (session 176) POLYMORPHED HEROES GET
+  follow-ups 1a4dc5abd + 72f37ce73, tracker 062d0c84b; BUG-2118..2121):
+  the branch's 5.0 base moved to the last official 5.0.0 commit;
+  thrown, fired and kicked attacks on peacefuls count as
+  dishonourable; detail in the UPSTREAM CATCH-UP row (Phase 4).
+- Earlier slices: 2026-10-03 (session 176) POLYMORPHED HEROES GET
   THEIR FORM'S RACE STRENGTH (code 9d038c4af, tracker 58e428eab;
-  BUG-2117): forms of EvilHack races take their race's Str cap
-  (living giants 25, centaurs 20, tortles and vampires 19, drow 18,
-  hobbits 16, mind flayers 10).
-- Earlier slices: 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
+  BUG-2117); 2026-10-03 (session 175) MONSTERS PATH TO ITEMS AND
   TO YOUR DISPLACED IMAGE, FLEEING MONSTERS KEEP FLEEING (code
   ded214a80, tracker 86cc13a03; BUG-2113..2116); 2026-10-03 (session
   174) THE WISH TRACKER, REFUSED
@@ -14382,8 +14380,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       both, and "a jackal" on both. Not covered: no shopkeeper or
       priest was on the level (the gate excludes them by flag).
       New row below: done_in_by()'s racial-imitator naming.
-- [ ] LOW: done_in_by() names a racial monster's archetype race where
-      a form belongs (minted 2026-10-03, session 173, by the Plan
+- [x] LOW: done_in_by() names a racial monster's archetype race where
+      a form belongs (BUG-2122, 2123) - FIXED 2026-10-04 (session 178,
+      commit `Racial form death names and rider / steed hold text.` =
+      (hash pending); closure notes at the end of this row). Original
+      text: (minted 2026-10-03, session 173, by the Plan
       agent and reviewer; master-shared, end.c done_in_by() takes
       `mptr = r_data(mtmp)` on both trees). r_data() is the race
       archetype (&mons[ERAC->rmnum]) for any ERAC monster:
@@ -14404,6 +14405,71 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       says shapeshifter names carry no race), and the unique test reads
       the form, so a racial high priest is "the high priest of Moloch".
       Plannable.
+      CLOSURE (2026-10-04, session 178, plan
+      /root/.claude/plans/bugfix-racial-imitator-rider-steed-text.md;
+      one slice with the rider / steed text row). FIX (BUG-2122,
+      end.c done_in_by()): mptr = mtmp->data. Master's r_data() came
+      with merge fedef75fa (2024, NPC draugr as zombies) while the
+      zombie arm read mptr; today zombie_maker() and racial_vampire()
+      read the race from the monster, and no race archetype or racial
+      form (all S_HUMAN) meets a grave-rise arm, so only the text
+      changes. The imitator branch splices racial_adj() onto the form
+      behind x_monnam()'s gate (has_erac, not pname, not
+      PM_HIGH_PRIEST), onto realnm for a mimicker whose form is its
+      own. The unique test and the "invisible " gate read the form:
+      priestini() gives every temple priest a race, so EVERY Sanctum
+      and Astral high priest was "a high priest of Moloch" - now "the
+      high priest of Moloch", KILLED_BY, invisible or not. A wizard-
+      mode ^G roaming high priest loses its stray "invisible " ("a
+      priest of X"; accepted). FIX (BUG-2123, mcastu.c
+      mon_killer_name()): the race splices onto a shapeshifter's form
+      too, and the form takes done_in_by()'s article rule ("imitating
+      Medusa", was "imitating a Medusa"; plan-approved rider). Found
+      while planning: the common case is the doppelganger - 4 in 7 of
+      its picks are player-monster forms, which carry a race, so "a
+      doppelganger imitating a giant" is now "... a giant valkyrie".
+      end.c's "the %s" shape write became Snprintf (-Wformat-overflow
+      saw fakenm can now be the BUFSZ racenm). REVIEW: Plan agent;
+      evilhack-code-reviewer PASS (no HIGH/MED; LOW gate-comment
+      wording taken). BATTERY (game-tester, 1 game per build; PRE
+      9510f3693816d257ccd9cc12add00b75 via -d from a scratchpad copy,
+      POST 7c666b6ddb6b967f1a9150a681cc4afc; gdb done_in_by() calls
+      read at a `break done`): chameleon as an elven soldier PRE
+      "chameleon imitating an elf" / POST "chameleon imitating an
+      elven soldier"; doppelganger valkyrie PRE "... imitating a
+      giant" / POST "... imitating a centaurian valkyrie" (a natural
+      POST doppelganger: "... imitating a vampiric convict"); Sanctum
+      high priest PRE format 0 "high priest of Moloch" / POST format 1
+      "the high priest of Moloch", minvis PRE 0 "invisible high priest
+      of Moloch" / POST 1 "the high priest of Moloch", killer_weapon
+      POST "a copper heavy mace wielded by the high priest of Moloch";
+      mon_killer_name() PRE "a chameleon imitating a soldier" / POST
+      "a chameleon imitating an elven soldier", Medusa form PRE
+      "imitating a Medusa" / POST "imitating Medusa". Controls
+      unchanged: racial soldier, jackal, a temple "priestess of Odin",
+      draugr knight grave-rise 359 (human zombie), vampiric knight 331
+      (vampire sovereign). Paniclog clean. New LOW rows below:
+      mon_killer_name()'s high priest naming; poisoned() death reasons
+      by bare species.
+- [ ] LOW: mon_killer_name() names a temple high priest "a high
+      priest" (minted 2026-10-04, session 178, battery record;
+      master-shared, master's mcastu.c builds the same name). Ranged
+      and spell death reasons (thitu(), death_inflicted_by()) call
+      the Sanctum high priest "a high priest" and a temple priest "a
+      priestess": the_unique_pm() is FALSE for PM_HIGH_PRIEST and the
+      function never calls priestname(), while done_in_by() now says
+      "the high priest of Moloch" / "priestess of Odin". Session 173
+      kept mon_killer_name() off x_monnam() on purpose (its priest and
+      shopkeeper paths rename those killers). Decide whether ranged
+      reasons should name priests like the melee reason. LOW.
+- [ ] LOW: poisoned-weapon and sting death reasons name the bare
+      species (minted 2026-10-04, session 178, by the Plan agent;
+      master-shared, master's mhitu.c passes mdat->mname). uhitm.c's
+      AD_DRST / AD_DRDX / AD_DRCO arm and its poisoned-weapon arm pass
+      pmname(magr->data) to poisoned(), so a racial killer is "killed
+      by a soldier" with no race and a shapeshifter is named by its
+      form with no "imitating". A fix touches poisoned()'s article
+      handling (attrib.c). LOW.
 - [ ] LOW observation (2026-09-18, done_in_by parity battery): a
       zombie's poison instadeath skips the graverise arms - the human
       zombie's poisoned sting ("The poison was deadly...") killed the
@@ -20457,7 +20523,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "The saddled Fluffy is killed." (wiz_kill() suppresses "saddled"
       only for a tame named monster on the branch, master and
       Official_nh50; wizard mode only).
-- [ ] LOW: rider / steed text residue (minted 2026-10-03, session 173,
+- [x] LOW: rider / steed text residue (BUG-2124, 2125) - FIXED
+      2026-10-04 (session 178, commit `Racial form death names and
+      rider / steed hold text.` = (hash pending); closure notes at the
+      end of this row). Original text: (minted 2026-10-03, session 173,
       by the hold-text slice's reviewer; pre-existing, master-shared).
       (a) Mirror case: when an unseen rider is described by its
       visible steed (look_at_monster() swaps mtmp to the steed), a
@@ -20476,6 +20545,38 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       being ridden by something holding you" (mirroring the rider
       side's ", which you are holding" / ", which is holding you");
       (b) the steed's probe line gains ", being ridden". Plannable.
+      CLOSURE (2026-10-04, session 178, plan
+      /root/.claude/plans/bugfix-racial-imitator-rider-steed-text.md;
+      one slice with the done_in_by() imitator row). FIX (BUG-2124,
+      pager.c look_at_monster()): the function keeps the unseen rider
+      it swaps away from; when u.ustuck is that rider, ", being
+      ridden" gains " by something you are holding" (the riding
+      clause's own Upolyd && sticks() test) or " by something holding
+      you", written bounded (the open look_at_monster buffer row).
+      Steeds are off the map, so farlook reaches one only through
+      that swap; no humanoid engulfs, so no swallow arm. FIX
+      (BUG-2125, insight.c mstatusline()): a ridden steed's Status
+      line gains ", being ridden" AHEAD of the hold clause, as farlook
+      orders them (reviewer LOW taken over the plan's spot beside
+      ", carrying you"); only bhit()'s probing arm reaches a monster's
+      steed, and the hero's own steed never has ridden_by set (its
+      three setters are monster riders). REVIEW: evilhack-code-
+      reviewer PASS. BATTERY (same games as the imitator row; an
+      invisible frozen vampiric knight on a saddled nightmare, hero
+      without see invisible): farlook with an owlbear hero holding
+      the rider PRE "saddled nightmare, being ridden, can't move
+      (...)" / POST "saddled nightmare, being ridden by something you
+      are holding, can't move (...)"; rider holding the human hero
+      POST "... being ridden by something holding you, ..."; controls
+      unchanged - the steed holding gives ", being ridden, holding
+      you", and the visible rider's line ends ", riding a saddled
+      nightmare, which is holding you" or carries ", holding you".
+      Probing: steed line PRE "... AC 4, in light, can't move." /
+      POST "... can't move, being ridden."; with the steed holding,
+      POST "... can't move, being ridden, holding you."; the rider's
+      line, the stethoscope on the knight (rider only) and the
+      stethoscope on the hero's own pony (", carrying you", no "being
+      ridden") unchanged. Paniclog clean.
 - [x] MED: a hurt ridden steed can flee by stairs alone - A RIDDEN
       STEED NOW MAKES NO ESCAPE OF ITS OWN 2026-09-28 (session 155,
       commit `Keep a ridden steed from leaving its rider behind.` =
@@ -23212,7 +23313,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       (do.c, botl.c); TAINT_AGE now 100 -> troll revive loop uses
       INEDIBLE_AGE (master's 50); medusa-1 jellyfish -> (01,02) deep
       water. Duplicate: the mstate trio (c6442e444) merged as a
-      no-op. Follow-ups (hash pending): BUG-2118 explosion death
+      no-op. Follow-ups 1a4dc5abd / 72f37ce73 (tracker 062d0c84b):
+      BUG-2118 explosion death
       reason, BUG-2119 EvilHack terrains in
       maybe_set_terrain_effects() (master BUG-1314 behavior back),
       BUG-2120 mstate tests / clone / steed terrain bits, BUG-2121
@@ -23267,6 +23369,17 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       win/win32/mswproc.c ~2931 `1L << ci` with ci = 31 (BL_MASK_BITS
       is now full at 32) is undefined on a 32-bit long - use 1UL; any
       further condition needs a wider mask type.
+      RULED 2026-10-04 (session 177 follow-up, decisions log):
+      install ALL FOUR toolchains on this host - X11 dev packages,
+      Qt6 dev packages, the DJGPP MS-DOS cross-compiler and the Amiga
+      cross toolchain - and verify Windows and macOS through NEW
+      GitHub Actions jobs (evilhack-cpp.yml gains Windows and macOS
+      runners; recipes from upstream's azure-pipelines.yml). Installs
+      are system changes: ask before running apt / the fetch script.
+      Plannable as slices: (a) toolchain installs + a baseline build
+      of each port as it stands, (b) X11 + Qt Slow/Wither + Guidebook
+      lists, (c) CI jobs + item (6)'s project files + item (7),
+      (d) TILE-ART DRIFT (MS-DOS, X11 and Windows tiles depend on it).
 
 - [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
       with upstream coloratt/utf8map (nh50-color-architecture
@@ -23906,6 +24019,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-04 | Platform-parity and applied-weapon rulings (session 177 follow-up; AskUserQuestion x1, three questions, all recommended; rulings only, code in future sessions). (1) APPLIED POLEARM / GRAPNEL AT YOUR OWN PET: STILL COUNTS - confirms the coordinator reading in the row below: the tame exemption covers throws, fires and kicks; an applied weapon is a weapon attack like melee, as on master (thrown_caitiff() keeps its `hmode == HMON_APPLIED` arm; no change needed). (2) HOST TOOLCHAINS: INSTALL ALL FOUR - the X11 dev packages, the Qt6 dev packages, the DJGPP MS-DOS cross-compiler (sys/msdos/fetch-cross-compiler.sh) and the Amiga cross toolchain (CROSS_TO_AMIGA hints), so the X11, Qt, MS-DOS and Amiga ports compile-check on this host. (3) WINDOWS / macOS: ADD CI JOBS - Windows and macOS runners in the GitHub Actions workflow (.github/workflows/evilhack-cpp.yml, today ubuntu-24.04 only), build recipes from upstream's azure-pipelines.yml. | maintainer |
 | 2026-10-04 | 5.0.0 catch-up follow-up rulings (session 177; AskUserQuestion x1, two questions, after the merge review). (1) EVILHACK TERRAINS IN maybe_set_terrain_effects(): FOLD IN (recommended) - forge, puddle, sewage and open air are flagged too, so a flyer polymorphed into a walker over Vlad's chasm falls at once (master BUG-1314 behavior; BUG-2119). (2) CAITIFF VS PETS: EXEMPT TAME TARGETS (over my keep-as-ruled pick) - nothing thrown, fired or kicked at the hero's own pet is a dishonourable attack. Coordinator reading, flagged to the maintainer: an APPLIED polearm or grapnel still counts against a pet (master's use_pole / use_grapple always checked; melee on a pet still counts); thrown_caitiff() takes hmode. | maintainer |
 | 2026-10-03 | Upstream 5.0.0 catch-up rulings (session 177; AskUserQuestion x1, four questions). (1) CAITIFF (f11a4b168): UPSTREAM RULE + EXEMPTIONS (over my master's-rule pick) - thrown, fired, kicked and applied objects are dishonourable attacks, checked per attack arm in thitmonst() (one check per missile; a target angered by the first hit no longer counts as peaceful for the rest), exempting a pet catching gear, Kathryn's candy bar and food thrown to tame or befriend; upstream's apply.c deletions kept. (2) UNSEEN EXPLOSION TEXT: MASTER'S FULL NAME (recommended) via killr_buf, not upstream's bare "explosion" (BUG-2118 widened it to every MON_EXPLODE arm after the reviewer's hallucination case). (3) SCOPE: MERGE ONLY (recommended) - X11/Qt Slow/Wither, dev packages and tile art stay in the PLATFORM PARITY row. (4) MEDUSA-1 JELLYFISH: DEEP WATER (over my keep-master pick) - (01,02); upstream's (02,03) and master's (02,02) are both puddles on EvilHack's map. | maintainer |
 | 2026-10-03 | Pending LOW rows ruled (session 176 follow-up; AskUserQuestion x2, five questions, all recommended). (1) done_in_by() IMITATOR NAMING: RACIAL FORM NAME - "a chameleon imitating an elven soldier" in both melee (done_in_by()) and ranged (mon_killer_name()) reasons; the unique test reads the form ("the high priest of Moloch"). (2) RIDER / STEED TEXT: FIX BOTH - the steed of an unseen rider shows the rider's hold (", being ridden by something you are holding" / "... holding you"), and the steed's probe line gains ", being ridden". (3) BFS DIAGONAL RULE: MATCH mfndpos() TERRAIN - only rock / wall / tree corners block a map diagonal (tight squeezes stay refused), and no diagonals through doorways; own slice and battery. (4) mnearto() SHOVE: CENTRALIZE - never shove the hero's holder or held monster. (5) AASIMAR DRAIN WHILE POLYMORPHED: CLAMP THE SAVED STATS TOO. | maintainer |
