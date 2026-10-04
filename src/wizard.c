@@ -20,7 +20,6 @@ staticfn struct obj *on_ground(short);  /* might return NULL obj pointer */
 staticfn boolean you_have(int);
 staticfn unsigned long target_on(int, struct monst *) NONNULLARG2;
 staticfn unsigned long strategy(struct monst *) NONNULLARG1;
-staticfn boolean covetous_can_shove(coordxy, coordxy);
 staticfn void covetous_approach(struct monst *) NONNULLARG1;
 
 /* adding more neutral creatures will tend to reduce the number of monsters
@@ -428,17 +427,6 @@ choose_stairs(
         *sx = stway->sx, *sy = stway->sy;
 }
 
-/* may a covetous warp move whatever monster is at <x,y> out of the way?
-   not the one engulfing or holding the hero, nor the rider of such a
-   steed; mnearto() would unstick it */
-staticfn boolean
-covetous_can_shove(coordxy x, coordxy y)
-{
-    struct monst *occ = m_at(x, y);
-
-    return (!occ || !ustuck_self_or_steed(occ));
-}
-
 /* a covetous monster closes in on the hero: it pounces when close
    enough and uses short jumps until it is; both are silent apart from
    the one-chance STRAT_APPEARMSG arrival message */
@@ -482,8 +470,7 @@ covetous_approach(struct monst *mtmp)
        m_at() out of bounds in mnearto) */
     stx = min(max(stx, 1), COLNO - 1);
     sty = min(max(sty, 0), ROWNO - 1);
-    (void) mnearto(mtmp, stx, sty, covetous_can_shove(stx, sty),
-                   RLOC_NOMSG);
+    (void) mnearto(mtmp, stx, sty, TRUE, RLOC_NOMSG);
 }
 
 DISABLE_WARNING_UNREACHABLE_CODE
@@ -571,8 +558,7 @@ tactics(struct monst *mtmp)
         } else if (sx && (mx != sx || my != sy)) {
             /* silent, as is the approach it falls through to */
             if (!covetous_noteleport(mtmp) &&
-                !mnearto(mtmp, sx, sy, covetous_can_shove(sx, sy),
-                         RLOC_NOMSG)) {
+                !mnearto(mtmp, sx, sy, TRUE, RLOC_NOMSG)) {
                 /* couldn't move to the target spot for some reason,
                    so stay where we are (don't actually need rloc_to()
                    because mtmp is still on the map at <mx,my>... */

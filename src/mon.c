@@ -569,6 +569,7 @@ become_flayer(
                                     NO_MM_FLAGS)) {
                     remove_monster(host_x, host_y);
                     place_monster(mon_steed, cc.x, cc.y);
+                    unstuck_if_apart(mon_steed);
                     newsym(cc.x, cc.y);
                 } else {
                     /* no adjacent room; relocate steed elsewhere */
@@ -582,6 +583,8 @@ become_flayer(
                was webbed or pitted would keep a trapped flag with no
                trap under the new location */
             magr->mtrapped = 0;
+            /* nor does it end a sticky hero's hold on it */
+            unstuck_if_apart(magr);
             newsym(old_x, old_y);   /* update old position */
             newsym(host_x, host_y); /* update new position */
         }
@@ -5742,6 +5745,16 @@ unstuck(struct monst *mtmp)
     }
 }
 
+/* a monster moved without rloc_to() keeps a non-engulfing hold on the
+   hero, whichever of them holds the other, only while it stays next to
+   the hero; rloc_to_core() does the same for teleports */
+void
+unstuck_if_apart(struct monst *mtmp)
+{
+    if (mtmp == u.ustuck && !u.uswallow && !m_next2u(mtmp))
+        unstuck(mtmp);
+}
+
 void
 killed(struct monst *mtmp)
 {
@@ -6459,13 +6472,16 @@ maybe_mnexto(struct monst *mtmp)
  *
  * Might be called recursively if 'move_other' is True; if so, that argument
  * will be False on the nested call so there won't be any further recursion.
+ * 'move_other' never moves the monster holding or held by the hero, nor
+ * the rider of such a steed; mtmp lands beside the spot instead.
  */
 int
 mnearto(
     struct monst *mtmp,
     coordxy x,
     coordxy y,
-    boolean move_other, /* make sure mtmp gets to x, y! so move m_at(x, y) */
+    boolean move_other, /* make sure mtmp gets to x, y! so move m_at(x, y)
+                           (unless that is the hero's holder or held one) */
     unsigned int rlocflags)
 {
     struct monst *othermon = (struct monst *) 0;
@@ -6477,12 +6493,18 @@ mnearto(
         return res;
 
     if (move_other && (othermon = m_at(x, y)) != 0) {
-        /* take othermon off the map; it might end up immediately returning
-           but for the moment it is leaving */
-        mon_leaving_level(othermon);
-        othermon->mx = othermon->my = 0; /* 'othermon' is not on the map */
-        othermon->mstate &= ~TERRAIN_FALLOUT_MASK;
-        othermon->mstate |= MON_OFFMAP;
+        if (ustuck_self_or_steed(othermon)) {
+            /* taking it off the map would end the hero's hold; leave it
+               there, so goodpos() fails below and mtmp lands beside it */
+            othermon = (struct monst *) 0;
+        } else {
+            /* take othermon off the map; it might end up immediately
+               returning but for the moment it is leaving */
+            mon_leaving_level(othermon);
+            othermon->mx = othermon->my = 0; /* 'othermon' is not on map */
+            othermon->mstate &= ~TERRAIN_FALLOUT_MASK;
+            othermon->mstate |= MON_OFFMAP;
+        }
     }
 
     newx = x;

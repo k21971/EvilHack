@@ -1980,6 +1980,7 @@ extern void mon_xkilled(struct monst *, const char *, int) NONNULLARG1;
 extern void set_ustuck(struct monst *);
 extern void end_engulf_suffocation(void);
 extern void unstuck(struct monst *) NONNULLARG1;
+extern void unstuck_if_apart(struct monst *) NONNULLARG1;
 extern void killed(struct monst *) NONNULLARG1;
 extern void xkilled(struct monst *, int) NONNULLARG1;
 extern void mon_to_stone(struct monst *) NONNULLARG1;

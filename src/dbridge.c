@@ -811,10 +811,14 @@ do_entity(struct entity *etmp)
                 /* a rider drags its steed along */
                 update_monsteed(mon);
                 update_monster_region(mon);
+                unstuck_if_apart(mon);
             }
         } else {
             u.ux = newx;
             u.uy = newy;
+            /* a hold with a monster left behind ends */
+            if (u.ustuck)
+                unstuck_if_apart(u.ustuck);
         }
         /* update entity position unless worm segment stayed put */
         if (is_u(etmp) || !etmp->emon->wormno

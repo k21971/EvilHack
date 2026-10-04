@@ -4669,6 +4669,7 @@ muse_unslime(
                 worm_move(mon);
             /* a rider drags its steed along */
             update_monsteed(mon);
+            unstuck_if_apart(mon);
             newsym(mon->mx, mon->my);
             if (vis)
                 pline("%s %s %s %s fire trap!", Mnam,

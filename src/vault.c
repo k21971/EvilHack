@@ -159,6 +159,8 @@ parkguard(struct monst *grd)
        monster traversal loops should skip it */
     if (grd == svc.context.polearm.hitmon)
         svc.context.polearm.hitmon = 0;
+    /* off the map, it can't stay held by the hero */
+    unstuck(grd);
     if (grd->mx) {
         remove_monster(grd->mx, grd->my);
         newsym(grd->mx, grd->my);

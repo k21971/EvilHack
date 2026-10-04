@@ -1757,6 +1757,15 @@ apply_aasimar_penalty(int pen_id, boolean apply)
                     ABASE(i) = ATTRMAX(i);
                 if (AMAX(i) > ATTRMAX(i))
                     AMAX(i) = ATTRMAX(i);
+                /* while polymorphed those are the form's stats; the
+                   normal-form ones polyman() restores must meet the
+                   drained cap too */
+                if (Upolyd) {
+                    if (MCURR(i) > drained)
+                        MCURR(i) = drained;
+                    if (MMAX(i) > drained)
+                        MMAX(i) = drained;
+                }
             }
             if (changed && !Upolyd && !program_state.restoring)
                 You_feel("your divine potential diminishing!");

@@ -354,6 +354,10 @@ mdisplacem(
     /* either creature might move into or out of a poison gas cloud */
     update_monster_region(magr);
     update_monster_region(mdef);
+    /* neither the monster shoved aside nor the one displacing it keeps
+       a hold on the hero once out of reach */
+    unstuck_if_apart(mdef);
+    unstuck_if_apart(magr);
 
     if (gv.vis && !quietly)
         pline("%s moves %s out of %s way!", Monnam(magr), mon_nam(mdef),
@@ -1359,6 +1363,7 @@ gulpmm(
             place_monster(magr, dx, dy);
             newsym(dx, dy);
         }
+        unstuck_if_apart(magr);
         /* aggressor moves to <dx,dy> and might encounter trouble there */
         if (minliquid(magr)
             || (t_at(dx, dy)
