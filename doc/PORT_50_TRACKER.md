@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-04, after session 179): 300
-  rows closed, 83 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-04, after session 180): 302
+  rows closed, 84 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,17 +34,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 61 LOW: small parity rows, quirks and watch/record-only items.
-    PLANNABLE (ruled 2026-10-03, session 176 follow-up): the
-    mnearto() shove and the aasimar drain while polymorphed.
+  - 62 LOW: small parity rows, quirks and watch/record-only items.
+    Every ruled row has landed (the mnearto() shove and the aasimar
+    drain in session 180). Plannable without a ruling: session 177's
+    terrain-effects coverage row (its fix is named) and the Phase 6
+    set_whereisfile() BUG-603 row (port master's shape). Awaiting a
+    ruling: session 177's ucatchgem() row, the two session-178 rows
+    and session 180's three.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
     session 173, the WISH_TRACKER row in session 174, item-goal
     pathing in session 175, the uasmon_maxStr() EvilHack-races row
     in session 176, the done_in_by() imitator naming and rider /
-    steed text rows in session 178, and the BFS diagonal-rule row in
-    session 179. The
+    steed text rows in session 178, the BFS diagonal-rule row in
+    session 179, and the mnearto() shove and aasimar drain rows in
+    session 180. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -65,24 +70,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     polymorphed row; session 177 (the 5.0.0 catch-up merge) the
     terrain-effects coverage row and the ucatchgem() helplessness
     row; session 178 the mon_killer_name() high priest naming row and
-    the poisoned() bare-species row.
-- Latest slice: 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
-  THE DIAGONALS MONSTERS CAN WALK (code (hash pending); BUG-2126).
-  - Intelligent monsters now path diagonally between two pools, lava
-    squares, iron bars or boulders touching at a corner, as they can
-    walk; only rock, wall and tree corners (and Sokoban boulders)
-    block a path diagonal, and every tight squeeze stays refused.
-  - Paths no longer cut diagonally through an intact doorway, except
-    for the step onto a hero standing in one: monsters still attack
-    a doorway hero from the diagonal flank squares.
-  - Detail: the closed LOW diagonal-rule row.
-- Previous slice: 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
+    the poisoned() bare-species row; session 180 the aasimar silent
+    changes while polymorphed row, the pay_for_damage() refused-shove
+    anger row and the engulfed-hero split row.
+- Latest slice: 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
+  END WHEN MOVED APART; THE AASIMAR DRAIN REACHES A POLYMORPHED
+  HERO'S STATS (code (hash pending); BUG-2127..2130).
+  - A shopkeeper, covetous monster or water bubble aiming a monster
+    at the square of the monster holding the hero (or held by it)
+    no longer shoves it away; the arriving monster lands beside it
+    and the hold stays.
+  - A hold ends at once when either partner is moved out of reach
+    without a teleport: displacement (master's BUG-1270 half that
+    never reached the branch), an engulfer staying on its victim's
+    square, a slimed monster stepping onto a fire trap, a
+    drawbridge, a mind flayer larva's host, a parked vault guard.
+  - A stat drain applied while polymorphed also caps the hero's
+    normal-form stats, so returning to normal form keeps the drain.
+  - Detail: the closed mnearto() and aasimar drain LOW rows.
+- Previous slice: 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
+  THE DIAGONALS MONSTERS CAN WALK (code 6417394c2, tracker
+  45d58d366; BUG-2126): intelligent monsters path through pool, lava,
+  bars and boulder corners; paths no longer cut diagonally through an
+  intact doorway, except onto a doorway hero; detail in the closed
+  LOW diagonal-rule row.
+- Earlier slices: 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
   AND RIDER / STEED HOLD TEXT (code 7f9f073db, tracker e3170fd29;
-  BUG-2122..2125): shapeshifter death reasons name the racial form
-  ("imitating a giant valkyrie"), Sanctum high priests read "the
-  high priest of Moloch", and the steed of an unseen rider shows the
-  rider's hold; detail in the two closed LOW rows.
-- Earlier slices: 2026-10-04 (session 177) NETHACK 5.0.0
+  BUG-2122..2125); 2026-10-04 (session 177) NETHACK 5.0.0
   POST-RELEASE MERGE (merge b4773a429 = NetHack50 c1a37fb6c = official
   15fbc6b21; follow-ups 1a4dc5abd + 72f37ce73, tracker 062d0c84b;
   BUG-2118..2121; detail in the UPSTREAM CATCH-UP row, Phase 4);
@@ -18689,7 +18703,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       from the u.macurr / u.mamax saved at the first polymorph. So
       Wis exercise gains made in a form already revert on master,
       5.0 and the branch, and nothing merges them back (no MCURR /
-      MMAX writer in the tree). RE-ASKED (AskUserQuestion, this
+      MMAX writer in the tree; CORRECTED 2026-10-04, session 180: the
+      aasimar drain now clamps them downward while Upolyd, BUG-2128 -
+      still nothing raises them). RE-ASKED (AskUserQuestion, this
       session): port the one-liner as ruled, over "mind gains
       persist" and "close as master's". Int now behaves exactly like
       Wis. FIX (BUG-2109, attrib.c exerchk()): `if (Upolyd && !(i ==
@@ -18815,8 +18831,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the next form change (u.macurr restore; both builds, vanilla
       shape); "elven lord" resolves to "elven lady" for a female hero.
       MINTED: the aasimar stat drain while polymorphed row right below.
-- [ ] LOW: the aasimar stat-drain penalty applied while polymorphed
-      misses the saved base stats (minted 2026-10-03, session 176, by
+- [x] LOW: the aasimar stat-drain penalty applied while polymorphed
+      misses the saved base stats (BUG-2128) - FIXED 2026-10-04
+      (session 180, commit `Fix: hero holds on monster moves and the
+      polymorphed aasimar drain.` = (hash pending); closure notes at
+      the end of this row). Original text: LOW: the aasimar
+      stat-drain penalty applied while polymorphed misses the saved
+      base stats (minted 2026-10-03, session 176, by
       the uasmon_maxStr() Plan agent; master-shared). attrib.c's
       AASIMAR_PEN_STAT_DRAIN apply arm lowers gu.urace.attrmax and
       clamps ABASE / AMAX, but while Upolyd those are the form's
@@ -18833,6 +18854,43 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       call re-applies the existing penalty (and its clamp), so today's
       window closes at the next level change, restore, abuse event or
       atonement. Plannable.
+      CLOSURE (2026-10-04, session 180, plan
+      /root/.claude/plans/bugfix-mnearto-hold-aasimar-drain.md). FIX
+      (BUG-2128, src/attrib.c): inside the drain apply loop, while
+      Upolyd, MCURR(i) / MMAX(i) are clamped against `drained`
+      (== gu.urace.attrmax[i]) - not ATTRMAX(i), which for Str while
+      Upolyd is uasmon_maxStr(). Plan agent and reviewer: the only
+      u.macurr writers are polymon()'s save (only when !Upolyd) and
+      the save-file load, which runs before restore.c's
+      aasimar_check_abuse(); newman() reaches the arm (adjabil) before
+      its polyman(); the other attrmax writers rehumanize first.
+      BATTERY B (game-tester, aasimar Samurai XL30, PRE
+      aaa117fd33cfce9d636b597f21b7e8cd via -d from a scratchpad copy,
+      POST fa8813654af77776bb03d1fb9114d22f, about 9 min): all PASS.
+      D1 drained as a wolf (silent on both): PRE macurr 18s, St:18/**
+      and 18s after rehumanizing (a later #levelchange clamps them
+      silently); POST macurr {117,15,17,15,15,17}, St:18/99 In:15
+      Wi:17 Dx:15 Co:15 Ch:17. D2 form to form (owlbear): PRE 18s,
+      POST the caps (the strong form's own Str 18/** is the form's).
+      D4 save / restore while polymorphed: no message, values kept.
+      D5 atonement while polymorphed: attrmax restored, POST stays
+      clamped (atonement never raises stats). D6 unpolymorphed:
+      "You feel your divine potential diminishing!" on both, u.macurr
+      byte-identical. D3 newman while polymorphed: PRE above the caps,
+      POST at them. Paniclog clean. RECORD: penalty and grant changes
+      made while polymorphed are silent and nothing is said on
+      rehumanizing (the drain, and the XL15 wings: "Fly" just vanishes
+      or returns) - minted as a LOW row below.
+- [ ] LOW: aasimar penalty and grant changes made while polymorphed
+      are never announced (minted 2026-10-04, session 180, battery B
+      observation; master-shared). apply_aasimar_penalty() and the
+      aasimar_check_abuse() grant arms gate every message on !Upolyd,
+      so a drain, a stripped intrinsic or the XL15 wings lost (or
+      regained on atonement) while in a form changes silently, and
+      rehumanizing says nothing either: "Fly" just disappears from or
+      returns to the status line. Decide: announce on rehumanize (a
+      pending-message flag), announce at once in a form-neutral
+      wording, or keep silent. LOW (messages only).
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -20221,7 +20279,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: the BFS map's diagonal rule is stricter than mfndpos()
       (BUG-2126) - FIXED 2026-10-04 (session 179, commit `Fix: the
       pathfinding maps' diagonal rule now matches monster movement.` =
-      (hash pending); closure notes at the end of this row). Original
+      6417394c2, tracker 45d58d366, landed 2026-10-04; closure notes
+      at the end of this row). Original
       text: compute_pathfind_map() and compute_escape_pathfind_map()
       refuse a diagonal step whenever both side squares are impassable to
       the map (water, lava, iron bars, trees, walls, boulders), but
@@ -22521,7 +22580,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         a steed (new staticfn covetous_can_shove(),
         ustuck_self_or_steed()): the branch's mnearto() runs
         mon_leaving_level() -> unstuck() on the shoved monster. The
-        stairs half is upstream-shared.
+        stairs half is upstream-shared. SUPERSEDED 2026-10-04 (session
+        180, BUG-2127): mnearto() itself refuses that shove now;
+        covetous_can_shove() is removed and both sites pass TRUE.
       - resurrect()'s stale "vanishes and reappears" FIXME rewritten.
       RULINGS (AskUserQuestion x2, decisions log): all of master's
       tactics() in one slice; hops and pounce silent; the stairs warp
@@ -22572,7 +22633,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hard at some distance." with the hero's position unchanged; a
       hostile lich attacked the frozen hostile frost giant (the ruled
       zombie-maker arm).
-- [ ] LOW: mnearto(move_other TRUE) unsticks the hero (minted
+- [x] LOW: mnearto(move_other TRUE) unsticks the hero (BUG-2127;
+      BUG-2129 / BUG-2130 folded in) - FIXED 2026-10-04 (session 180,
+      commit `Fix: hero holds on monster moves and the polymorphed
+      aasimar drain.` = (hash pending); closure notes at the end of
+      this row). Original text: LOW: mnearto(move_other TRUE)
+      unsticks the hero (minted
       2026-10-02, session 169, reviewer LOW-4 of the covetous slice).
       The branch's mnearto() takes the shoved monster off the map
       through mon_leaving_level(), which calls unstuck(); master's
@@ -22591,6 +22657,91 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       monster holding the hero or held by it; the arriving monster
       lands beside the square instead (check shk.c's `== 2` return
       test and the covetous guards at plan time). Plannable.
+      CLOSURE (2026-10-04, session 180, plan
+      /root/.claude/plans/bugfix-mnearto-hold-aasimar-drain.md).
+      - BUG-2127 (src/mon.c, src/wizard.c): mnearto() leaves an
+        occupant for which ustuck_self_or_steed() is non-NULL in place
+        and sets othermon NULL, so goodpos() fails and mtmp lands
+        beside the square via enexto_core_mon() (result 1). Plan-agent
+        trap avoided: othermon must be NULL, or the enexto-failure arm
+        and the nested call would act on the holder.
+        covetous_can_shove() is removed and both covetous sites pass
+        TRUE again (behavior-neutral; master and upstream pass TRUE).
+        shkcatch()'s `== 2` test: a held hero now sees "<shk> nimbly
+        reaches over and catches" with no yell.
+      - BUG-2129 (fold-in, ruled this session, decisions log): master
+        BUG-1270's mdisplacem() half (e7f497e5e) never reached the
+        branch, and upstream lacks it. A new helper
+        unstuck_if_apart() (mon.c, beside unstuck()) releases a
+        non-engulfing hold when either partner ends non-adjacent;
+        mdisplacem() calls it for the displaced monster and (reviewer
+        LOW-2) the displacer - dog_move() returns MMOVE_NOTHING, so a
+        tame displacer held by a sticky hero never reached dochug's
+        release.
+      - BUG-2130 (reviewer siblings, same class, in scope): the
+        helper after gulpmm()'s defender-died placement,
+        muse_unslime()'s step onto a fire trap, dbridge.c
+        do_entity() (monster and hero branches) and become_flayer()
+        (the dead rider's steed and the new mind flayer); parkguard()
+        calls unstuck() outright.
+      REVIEWER: two passes, PASS / PASS; NITs taken. BATTERIES
+      (game-tester x3, concurrent, PRE
+      aaa117fd33cfce9d636b597f21b7e8cd via -d from scratchpad copies,
+      POST fa8813654af77776bb03d1fb9114d22f; about 34, 9 and 27 min):
+      all legs PASS, paniclogs clean.
+      - A (mnearto): S1 shkcatch PRE "Out of my way, scum!" and the
+        hold lost / POST no yell, "Queyssac nimbly reaches over and
+        catches the pick-axe.", the owlbear stays on the post, hold
+        kept; S1c control identical; S2 home_shk ("returns to his
+        shop") PRE hold lost / POST the shk inside beside his post,
+        hold kept; W1 direct call PRE 2 + lost / POST 1 + kept; H1
+        lichen hero's grip PRE lost / POST kept; C1 / C2 covetous
+        hops at the engulfing ice vortex and at a holding mammoth's
+        frost giant rider: hold kept on both, move_other 0 PRE / 1
+        POST.
+      - C (stale holds): X1 displacer shoves a hugging owlbear 2
+        away: PRE ", holding you" by farlook and "You are being held,
+        and cannot go down." / POST released at once, silently; X1c
+        adjacent control kept on both; X2, G1 (fog cloud), U1
+        (muse_unslime), B1 (xorn on a rising span; the hero moved
+        with Passes_walls), L1 (steed far run; larva side) and P1
+        (parkguard) PRE stale at distance 2 / POST released; L1's near
+        control kept on both. An owlbear on a rising span dies on both
+        builds.
+      RECORDED / MINTED: S3 (forced pay_for_damage with the holder
+      on the doorless shop door) run 2 POST: the shk landed in the
+      corridor, "Queyssac gets angry!", then "Mollified" but
+      eshk->following stayed 1 ("comes and takes all your
+      possessions" at #quit) - minted as the LOW row below. A
+      do_entity() / muse_unslime() engulfed-hero split (the helper
+      skips u.uswallow) - minted below. parkguard()'s MON_PARKED is
+      cleared at once by place_monster() (latent; upstream table).
+- [ ] LOW: a refused mnearto() shove in pay_for_damage() can anger
+      the shopkeeper (minted 2026-10-04, session 180, battery A S3;
+      upstream-shared). When the hero's holder stands on the damaged
+      shop-edge square (door / wall / bars) and the hero is outside
+      every shop, BUG-2127 lands the resident shk on a free square
+      beside it, possibly outside the shop, where rloc_to_core()'s
+      resident-shk rule calls make_angry_shk(); pay_for_damage()'s
+      "Mollified" arm then pacifies him but never clears
+      eshk->following, so he later "comes and takes all your
+      possessions". The pre-shove "Out of my way, scum!" yell stays.
+      Needs a holder on a square damaged that same turn (damage to a
+      door hits closed doors only), so practically unreachable.
+      Decide: guard the site (skip the shove when the occupant is
+      the hero's holder; the shk talks from where he stands), clear
+      `following` in the Mollified arm, or record only. LOW.
+- [ ] LOW: a raw relocation can split an engulfer from the hero it
+      has swallowed (minted 2026-10-04, session 180, reviewer
+      follow-up; upstream-shared). dbridge.c set_entity() prefers the
+      hero on a shared square, so an engulfer on the Castle span
+      never becomes an entity and do_entity()'s `u.ux = newx` moves
+      the hero out from under it while u.uswallow stays set (the
+      passtune can be played while engulfed); muse_unslime() can
+      step a slimed engulfer (Juiblex holding a slimed hero) onto a
+      fire trap and leave u.ux behind. unstuck_if_apart() rightly
+      skips u.uswallow. Decide: gate those moves on the engulf
+      (engulfing_u() / u.uswallow), or expel first. LOW.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -23943,6 +24094,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-04 | mon.c mnearto() with `move_other` TRUE takes the occupant off the map through mon_leaving_level() -> unstuck(), so any caller aiming a monster at the square of the monster engulfing or holding the hero (or held by a sticky hero) frees the hero: wizard.c tactics() STRAT_HEAL (~394), shk.c home_shk() (~1333), shkcatch() (~4398), pay_for_damage() (~5313), mkmaze.c mv_bubble() (~2052). Minimal upstream fix, centralized: in mnearto(), when `othermon == u.ustuck`, set othermon NULL instead of shoving (vanilla has no monster steeds, so no rider clause); mtmp then lands beside the square through enexto. Caveat inherited by the fix: pay_for_damage() can then land a resident shk outside his shop (rloc_to_core() angers him) when the holder stands on the damaged shop-edge square | fixed on branch (BUG-2127, centralized; supersedes the tactics()-only shape of the 2026-10-02 row); patch artifact not cut yet |
+| 2026-10-04 | mhitm.c mdisplacem() moves both monsters with raw remove_monster() / place_monster() and never releases a hold: a displacer (or a Rider) that swaps the monster holding the hero two squares away leaves u.ustuck set at a distance (", holding you"; the stairs refuse "You are being held") until the hero steps; a displacer held by a sticky hero likewise (a pet's dog_move() returns MMOVE_NOTHING, so dochug's moved-case release never runs). Same class at gulpmm()'s defender-died arm, muse.c muse_unslime()'s step onto a fire trap, dbridge.c do_entity() (monster and hero branches) and vault.c parkguard(). Minimal upstream fix: after each raw placement `if (mon == u.ustuck && !u.uswallow && !m_next2u(mon)) unstuck(mon);` (parkguard(): unstuck(grd)) | fixed on branch (BUG-2129 / BUG-2130, helper unstuck_if_apart()); patch artifact not cut yet |
+| 2026-10-04 | vault.c parkguard() sets `grd->mstate \|= MON_PARKED` and then calls place_monster(grd, 0, 0), whose `mstate &= ~(MON_OFF_MAP_BITS)` clears it again (MON_PARKED is in that mask), so a parked guard reads mstate 0 until a save / restore (restore.c's post-5.0.0 fixup sets the bit for an !mx guard). Latent: every reader still uses PARKEDMONSTER() (isgd && mx == 0), and place_monster()'s own check accepts either. Fix: set the bit after place_monster() | branch carries it (latent, no reader); not yet sent |
 | 2026-10-04 | explode.c explode() hero-death MON_EXPLODE arm (15fbc6b21 tree, after fc75a55d8 #1676): the unseen fix writes the bare "explosion" (losing the monster's name) and the seen-but-hallucinating arm still skips the copy (`str == hallu_buf`), so a nested spore chain or a life-saving inside the inner blast (both clear svk.killer.name) still records "killed by a died". explode() already keeps killr_buf, its own copy of the caller's name, for exactly this. | branch-fixed (BUG-2118, killr_buf for the whole arm); upstream-reportable |
 | 2026-10-04 | monmove.c dochug() tactics() return (`if (mtmp->mstate) return 0;`, 15fbc6b21 tree ~785) and makemon.c clone_mon() (copies mstate whole) predate 9b4a8dfb0's pending-terrain bits in mstate (TERRAIN_FALLOUT_MASK): a covetous monster flagged by a polymorph trap loses its action until terrain_effects() runs, and a clone split inside terrain_effects() keeps stale bits. | branch-fixed (BUG-2120: mask / clear); upstream-reportable |
 | 2026-10-04 | 9b4a8dfb0 terrain effects reach newcham() and revive_corpse() only: revive() callers that bypass revive_corpse() (zap.c ~1406 and ~2680, also pray.c / mkroom.c paths on the branch), a monster's levitation timing out, or lost worn flight gear over water / lava are never flagged, so those monsters still wait for their own next move. | upstream-shared; branch LOW row (terrain-effects coverage) |
@@ -23955,7 +24109,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-10-02 | mthrowu.c u_catch_thrown_obj() (Official_nh50 src/mthrowu.c ~533, upstream 41b208743) has no helplessness gate: Blind does not cover sleep, paralysis or fainting, and m_throw()'s `if (gm.multi) nomul(0);` just before the call (~690) returns early when multi < 0 (nomul()'s "bug fix by ab@unido" guard), so a sleeping or paralyzed hero can catch a missile ("You catch the dagger!"). Minimal upstream fix: add `gm.multi >= 0` to the catch conditions (Unaware alone is too narrow: it misses floating-eye paralysis) | fixed on branch (BUG-2100, c1e2b1189; the branch also narrows the catch to Skilled martial artists by ruling); patch artifact not cut yet |
 | 2026-10-02 | uhitm.c mhitm_ad_tlpt() monster-defender arm (Official_nh50 src/uhitm.c ~2944): after `rloc(mdef, RLOC_NOMSG)` it clamps `mhm->damage = mdef->mhp - 1` with no death check. When the defender is the hero's steed, rloc() calls tele(), and teleds() can set the pair down on a trap (safe_teleds() falls back to a trap spot when no trap-free spot is left) where steedintrap() kills the steed; the clamp then yields -1 and mdamagem() does `mdef->mhp -= mhm.damage`, reviving the detached corpse to 1 HP, which dmonsfree() never frees. The hero-attacker arm (~2875, after u_teleport_mon(), whose engulfer arm can send the target into limbo) has the same shape. Minimal upstream fix: after the relocation, stop with M_ATTK_DEF_DIED when DEADMONSTER(mdef), or stop when the defender went off the map | fixed on branch (BUG-2097, 34ed5ca2a); patch artifact not cut yet |
 | 2026-10-02 | polyself.c polymon() writes the "changed form for the first time, becoming %s" livelog with `pmname(&mons[mntmp], flags.female ? FEMALE : MALE)` (Official_nh50 src/polyself.c ~753) before its `gs.sex_change_ok && !rn2(10)` sex flip (~792), so on a flip the livelog names the old sex (seen on the branch: "becoming a vampire lady" with "You turn into a male vampire lord!" on screen). Minimal upstream fix: write the livelog after the sex is settled | found on branch (LOW row, session 170); not fixed, not sent |
-| 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, 0547e1f4e); patch artifact not cut yet |
+| 2026-10-02 | wizard.c tactics() STRAT_HEAL: the heal-to-stairs warp calls `mnearto(mtmp, sx, sy, TRUE, ...)` (Official_nh50 src/wizard.c ~395). mnearto() takes a monster already on the stairs off the map through mon_leaving_level(), which calls unstuck(), so a covetous monster warping onto stairs occupied by the monster engulfing or holding the hero silently frees the hero (3.6's mnearto() only remove_monster()d it). Minimal upstream fix: pass `move_other` FALSE when `m_at(sx, sy)` is u.ustuck (or its rider). The same class reaches shk.c home_shk() / shkcatch() / pay_for_damage() and mkmaze.c mv_bubble() (branch LOW row) | fixed on branch for tactics() (BUG-2087, 0547e1f4e); SUPERSEDED 2026-10-04 by the centralized mnearto() row (BUG-2127) - cut that one instead; patch artifact not cut yet |
 | 2026-10-02 | wizard.c tactics() STRAT_HEAL caches `mx = mtmp->mx, my = mtmp->my` and then calls `expels(mtmp, ...)` for an engulfer holding the hero (Official_nh50 src/wizard.c ~379-382); expels() mnexto()s the monster, so the cached spot is the hero's square. The stair test then reads the stale spot, and if mnearto() to the stairs fails, the "stay where we are" fallback `rloc_to(mtmp, mx, my)` puts the monster on the hero's square. Minimal upstream fix: refresh mx/my after expels() (and stop if expels() sent the monster off the level) | fixed on branch (BUG-2086, 0547e1f4e); patch artifact not cut yet |
 | 2026-10-01 | lock.c pick_lock() formats "Unlock it with %s?" and "%s it%s%s?" (with " with " + yname(pick)) into qbuf[QBUFSZ] with Sprintf (Official_nh50 src/lock.c ~486 and ~620). An unidentified skeleton key whose type is #called and which is #named (62 chars each) gives a yname() of about 140-180 chars, overflowing the 128-byte buffer. Branch fixed by BUG-2073 with safe_qbuf() (the door form builds its "Unlock it with " / "Lock it with " prefix into qbuf first). Battery: PRE wrote 128 + NUL and yn_function logged "Query truncated"; POST shortens the name with "...". | branch-fixed (BUG-2073); upstream-reportable |
 | 2026-10-01 | trap.c chest_trap() `char buf[80]` takes `Sprintf(buf, "exploding %s", xname(obj))` (Official_nh50 src/trap.c ~6368); "large box named <62 chars>" is 88 chars. Branch fixed by BUG-2074 (buf[BUFSZ] + Snprintf). | branch-fixed (BUG-2074); upstream-reportable |
@@ -24119,6 +24273,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-04 | Hold-and-drain slice fold-in (session 180; AskUserQuestion x1, one question, recommended). BUG-1270's LOST mdisplacem() HALF: FOLD IT IN - restore master's release of a grabber shoved out of the hero's reach in this slice rather than minting a row (master e7f497e5e; the dochug() half was already on the branch via 5.0). Session follow-through under the standing cross-file-siblings rule (no separate question): the displacer side of mdisplacem() and the reviewer's same-class siblings (gulpmm(), muse_unslime(), do_entity(), become_flayer(), parkguard()) went into the same commit as BUG-2129 / BUG-2130; covetous_can_shove() was removed as redundant once mnearto() refuses the shove itself. | maintainer (fold-in); session (rest) |
 | 2026-10-04 | BFS diagonal-rule slice ruling (session 179; AskUserQuestion x1, one question, recommended). DOORWAY HERO: SPARE THE HERO'S SQUARE - the hero-rooted map skips the new no-diagonal-door rule for steps out of its root, since the step onto the hero is a melee attack and dochug() attacks on monnear() adjacency alone; a doorway hero's flank squares stay at distance 1 as on master. Squeezes stay refused at the root; the goal map applies the door rule everywhere (items, stairs, portals are entered). Refines the 2026-10-03 "match mfndpos() terrain" ruling (BUG-2126). | maintainer |
 | 2026-10-04 | Platform-parity and applied-weapon rulings (session 177 follow-up; AskUserQuestion x1, three questions, all recommended; rulings only, code in future sessions). (1) APPLIED POLEARM / GRAPNEL AT YOUR OWN PET: STILL COUNTS - confirms the coordinator reading in the row below: the tame exemption covers throws, fires and kicks; an applied weapon is a weapon attack like melee, as on master (thrown_caitiff() keeps its `hmode == HMON_APPLIED` arm; no change needed). (2) HOST TOOLCHAINS: INSTALL ALL FOUR - the X11 dev packages, the Qt6 dev packages, the DJGPP MS-DOS cross-compiler (sys/msdos/fetch-cross-compiler.sh) and the Amiga cross toolchain (CROSS_TO_AMIGA hints), so the X11, Qt, MS-DOS and Amiga ports compile-check on this host. (3) WINDOWS / macOS: ADD CI JOBS - Windows and macOS runners in the GitHub Actions workflow (.github/workflows/evilhack-cpp.yml, today ubuntu-24.04 only), build recipes from upstream's azure-pipelines.yml. | maintainer |
 | 2026-10-04 | 5.0.0 catch-up follow-up rulings (session 177; AskUserQuestion x1, two questions, after the merge review). (1) EVILHACK TERRAINS IN maybe_set_terrain_effects(): FOLD IN (recommended) - forge, puddle, sewage and open air are flagged too, so a flyer polymorphed into a walker over Vlad's chasm falls at once (master BUG-1314 behavior; BUG-2119). (2) CAITIFF VS PETS: EXEMPT TAME TARGETS (over my keep-as-ruled pick) - nothing thrown, fired or kicked at the hero's own pet is a dishonourable attack. Coordinator reading, flagged to the maintainer: an APPLIED polearm or grapnel still counts against a pet (master's use_pole / use_grapple always checked; melee on a pet still counts); thrown_caitiff() takes hmode. | maintainer |
