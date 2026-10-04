@@ -292,7 +292,10 @@ void
 done_in_by(struct monst *mtmp, int how)
 {
     char buf[BUFSZ];
-    struct permonst *mptr = r_data(mtmp),
+    /* the form, not r_data()'s race archetype: the names and the unique
+       test describe the form, and the grave-rise arms below read the
+       race from the monster (zombie_maker(), racial_vampire()) */
+    struct permonst *mptr = mtmp->data,
                     *champtr = ismnum(mtmp->cham) ? &mons[mtmp->cham]
                                                   : mptr;
     boolean distorted = (boolean) (Hallucination && canspotmon(mtmp)),
@@ -326,14 +329,26 @@ done_in_by(struct monst *mtmp, int how)
         Strcat(buf, "hallucinogen-distorted ");
 
     if (imitator) {
-        char shape[BUFSZ];
+        char shape[BUFSZ], racenm[BUFSZ];
         const char *realnm = pmname(champtr, Mgender(mtmp)),
                    *fakenm = pmname(mptr, Mgender(mtmp));
         boolean alt = is_vampshifter(mtmp);
 
+        /* a racial form carries its race, as x_monnam() names it ("a
+           doppelganger imitating a dwarvish valkyrie"); a mimicker's
+           form is its real name unless it is also a shapeshifter */
+        if (has_erac(mtmp) && !type_is_pname(mptr)
+            && mptr != &mons[PM_HIGH_PRIEST]) {
+            Strcat(racial_adj(racenm, mtmp), fakenm);
+            if (!mimicker)
+                fakenm = racenm;
+            else if (champtr == mptr)
+                realnm = racenm;
+        }
         if (mimicker) {
-            /* realnm is already correct because champtr==mptr;
-               set up fake mptr for type_is_pname/the_unique_pm */
+            /* realnm names the real form (or the shapeshifter's innate
+               one, for a shapeshifter pet that ate a mimic); set up fake
+               mptr for type_is_pname/the_unique_pm */
             mptr = &mons[mtmp->mappearance];
             fakenm = pmname(mptr, Mgender(mtmp));
         } else if (alt && strstri(realnm, "vampire")
@@ -348,7 +363,7 @@ done_in_by(struct monst *mtmp, int how)
         if (alt || type_is_pname(mptr)) /* no article */
             Strcpy(shape, fakenm);
         else if (the_unique_pm(mptr)) /* "the"; don't use the() here */
-            Sprintf(shape, "the %s", fakenm);
+            Snprintf(shape, sizeof shape, "the %s", fakenm);
         else /* "a"/"an" */
             Strcpy(shape, an(fakenm));
         /* omit "called" to avoid excessive verbosity */

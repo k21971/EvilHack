@@ -3757,6 +3757,10 @@ mstatusline(struct monst *mtmp)
         Strcat(info, ", has barkskin");
     if (has_stoneskin(mtmp))
         Strcat(info, ", has stoneskin");
+    /* a monster's steed, probed right after its rider; ahead of the
+       hold, as farlook orders them (the hero's steed never has one) */
+    if (mtmp->ridden_by)
+        Strcat(info, ", being ridden");
     if (mtmp == u.ustuck) {
         struct permonst *pm = u.ustuck->data;
 

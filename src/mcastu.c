@@ -672,7 +672,8 @@ touch_of_death(struct monst *mtmp)
 /* articled species name of the monster responsible for a kill, for the
    death-reason builders: "a goblin", "an elven soldier", "the Wizard of
    Yendor", "Asmodeus" (plus " imitating <X>" for a shapeshifter); names
-   by race and species, like done_in_by() does for the simple cases */
+   by race and species, like done_in_by() does for the simple cases and
+   for a shapeshifter's form */
 char *
 mon_killer_name(
     char *outbuf, /* assumed big enough; pm_names and races are short */
@@ -684,22 +685,31 @@ mon_killer_name(
         *fakenm = pmname(mptr, Mgender(mtmp));
     char racebuf[BUFSZ];
 
-    /* the race a melee killer's name gets from x_monnam() in
-       done_in_by() ("a centaurian soldier"); its shapeshifter,
+    /* the race done_in_by() gives the current form, as x_monnam() names
+       it ("a centaurian soldier", "a doppelganger imitating a dwarvish
+       valkyrie"; newcham() keeps a race only for a racial form);
        shopkeeper, priest and minion names carry none */
-    if (champtr == mptr && has_erac(mtmp) && !type_is_pname(mptr)
+    if (has_erac(mtmp) && !type_is_pname(mptr)
         && mptr != &mons[PM_HIGH_PRIEST]
         && !mtmp->isshk && !mtmp->ispriest && !mtmp->isminion) {
-        Strcat(racial_adj(racebuf, mtmp), realnm);
-        realnm = racebuf;
+        Strcat(racial_adj(racebuf, mtmp), fakenm);
+        if (champtr == mptr)
+            realnm = racebuf;
+        else
+            fakenm = racebuf;
     }
     /* greatly simplified extract from done_in_by(); names the real
        species when a shapeshifter is disguised */
     if (!type_is_pname(champtr) && !the_unique_pm(champtr))
         realnm = an(realnm);
     Sprintf(outbuf, "%s%s", the_unique_pm(champtr) ? "the " : "", realnm);
-    if (champtr != mptr)
-        Sprintf(eos(outbuf), " imitating %s", an(fakenm));
+    if (champtr != mptr) {
+        /* the form takes the same article choice ("imitating Medusa") */
+        if (!type_is_pname(mptr) && !the_unique_pm(mptr))
+            fakenm = an(fakenm);
+        Sprintf(eos(outbuf), " imitating %s%s",
+                the_unique_pm(mptr) ? "the " : "", fakenm);
+    }
     return outbuf;
 }
 
