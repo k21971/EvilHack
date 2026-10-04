@@ -98,7 +98,7 @@ void (*input_func)(Widget, XEvent *, String *, Cardinal *);
 int click_x, click_y, click_button; /* Click position on a map window
                                      * (filled by set_button_values()). */
 int updated_inventory; /* used to indicate perm_invent updating */
-color_attr X11_menu_promptstyle = { NO_COLOR, ATR_NONE };
+static color_attr X11_menu_promptstyle = { NO_COLOR, ATR_NONE };
 
 /* X11/Intrinsic.h prototype has an issue if [[NORETURN]] is used
  * rather than the old __attribute((noreturn)) under c23 */
@@ -111,6 +111,9 @@ static void X11_error_handler(String) __attribute__((noreturn));
 #else
 ATTRNORETURN static XtErrorHandler X11_error_handler(String);
 #endif
+
+boolean X11_blink;
+static unsigned blink_interval = 500; /* milliseconds */
 
 static int X11_io_error_handler(Display *);
 
@@ -125,6 +128,40 @@ static XtSignalId X11_sig_id;
 #endif
 #endif
 
+static void init_menu_nhcolors(struct xwindow *);
+static Boolean nhCvtStringToPixel(Display *, XrmValuePtr, Cardinal *,
+                                  XrmValuePtr, XrmValuePtr, XtPointer *);
+static void get_window_frame_extents(Widget, long *, long *, long *, long *);
+#ifndef USE_XFT
+static char *fontname_boldify(const char *);
+#endif
+static void msgkey(Widget, XtPointer, XEvent *, Boolean *);
+static void nh_keyscroll(Widget, XEvent *, String *, Cardinal *);
+static char *X11_getmsghistory(boolean);
+static void X11_putmsghistory(const char *, boolean);
+static void X11_init_nhwindows(int *, char **);
+static void X11_askname(void);
+static void X11_get_nh_event(void);
+static void X11_suspend_nhwindows(const char *);
+static void X11_resume_nhwindows(void);
+static void X11_clear_nhwindow(winid);
+static void X11_display_nhwindow(winid, boolean);
+static void X11_curs(winid, int, int);
+static void X11_putstr(winid, int, const char *);
+static void X11_display_file(const char *, boolean);
+static void X11_mark_synch(void);
+static void X11_wait_synch(void);
+static void X11_raw_print_bold(const char *);
+static int X11_nhgetch(void);
+static int X11_nh_poskey(coordxy *, coordxy *, int *);
+static int X11_doprev_message(void);
+static char X11_yn_function(const char *, const char *, char);
+static void X11_number_pad(int);
+static void X11_delay_output(void);
+static void X11_outrip(winid, int, time_t);
+static void X11_preference_update(const char *);
+static win_request_info *X11_ctrl_nhwindow(winid, int, win_request_info *);
+
 /* Interface definition, for windows.c */
 struct window_procs X11_procs = {
     WPID(X11),
@@ -135,6 +172,7 @@ struct window_procs X11_procs = {
 #ifdef STATUS_HILITES
       | WC2_RESET_STATUS | WC2_HILITE_STATUS
 #endif
+      | WC2_EXTRASTATUS | WC2_HITPOINTBAR
       | WC2_MENU_SHIFT ),
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, /* color availability */
     X11_init_nhwindows,
@@ -199,6 +237,7 @@ static void release_yn_widgets(void);
 static int input_event(int);
 static void win_visible(Widget, XtPointer, XEvent *, Boolean *);
 static void init_standard_windows(void);
+static void blink_callback(XtPointer client_data, XtIntervalId *timer);
 
 /*
  * Local variables.
@@ -209,7 +248,7 @@ static winid message_win = WIN_ERR, /* These are the winids of the message, */
              status_win = WIN_ERR;  /*   are created in init_windows().     */
 static Pixmap icon_pixmap = None;   /* Pixmap for icon.                     */
 
-void
+static void
 X11_putmsghistory(const char *msg, boolean is_restoring)
 {
     if (WIN_MESSAGE != WIN_ERR) {
@@ -220,7 +259,7 @@ X11_putmsghistory(const char *msg, boolean is_restoring)
     }
 }
 
-char *
+static char *
 X11_getmsghistory(boolean init)
 {
     if (WIN_MESSAGE != WIN_ERR) {
@@ -303,7 +342,7 @@ get_nhcolor(struct xwindow *wp, int clr)
     return wp->nh_colors[0];
 }
 
-void
+static void
 init_menu_nhcolors(struct xwindow *wp)
 {
     static const char *mapCLR_to_res[CLR_MAX] = {
@@ -387,7 +426,7 @@ init_menu_nhcolors(struct xwindow *wp)
  * allocate the exact color, they puke and give you something stupid.
  * This is an attempt to find some close readonly cell and use it.
  */
-XtConvertArgRec const nhcolorConvertArgs[] = {
+static XtConvertArgRec const nhcolorConvertArgs[] = {
     { XtWidgetBaseOffset,
       (XtPointer) (ptrdiff_t) XtOffset(Widget, core.screen),
       sizeof (Screen *) },
@@ -496,7 +535,7 @@ nhApproxColor(
     return True;
 }
 
-Boolean
+static Boolean
 nhCvtStringToPixel(
     Display *dpy,
     XrmValuePtr args, Cardinal *num_args,
@@ -589,7 +628,7 @@ nhCvtStringToPixel(
 }
 
 /* Ask the WM for window frame size */
-void
+static void
 get_window_frame_extents(
     Widget w,
     long *top, long *bottom,
@@ -665,8 +704,9 @@ get_widget_window_geometry(
     *y -= top;
 }
 
+#ifndef USE_XFT
 /* Change the full font name string so the weight is "bold" */
-char *
+static char *
 fontname_boldify(const char *fontname)
 {
     static char buf[BUFSZ];
@@ -714,6 +754,7 @@ load_boldfont(struct xwindow *wp, Widget w)
     fontname = fontname_boldify(XGetAtomName(dpy, (Atom)ret));
     wp->boldfs = XLoadQueryFont(dpy, fontname);
 }
+#endif /* !USE_XFT */
 
 /* ARGSUSED */
 static void
@@ -747,29 +788,43 @@ nhFreePixel(
  * assumption of ascent + descent is not always valid.
  */
 Dimension
-nhFontHeight(Widget w)
+nhFontHeight(Widget w, int win_type)
 {
+#ifdef USE_XFT
+
+    XftFont *font = X11_new_font(w, 0, win_type);
+    Dimension height = X11_font_height(font);
+    X11_release_font(w, font);
+    return height;
+
+#else /* !USE_XFT */
+
+    Arg args[1];
+    XFontStruct *fs;
+
+    nhUse(win_type);
+
 #ifdef _XawTextSink_h
-    Widget sink;
+    Widget sink = NULL;
     XawTextPosition pos = 0;
     int resWidth, resHeight;
-    Arg args[1];
 
     XtSetArg(args[0], XtNtextSink, &sink);
     XtGetValues(w, args, 1);
 
-    XawTextSinkFindPosition(sink, pos, 0, 0, 0, &pos, &resWidth, &resHeight);
-    return resHeight;
-#else
-    XFontStruct *fs;
-    Arg args[1];
+    if (sink != NULL) {
+        XawTextSinkFindPosition(sink, pos, 0, 0, 0, &pos, &resWidth, &resHeight);
+        return resHeight;
+    }
+#endif
 
     XtSetArg(args[0], XtNfont, &fs);
     XtGetValues(w, args, 1);
 
     /* Assume font height is ascent + descent. */
-    return = fs->ascent + fs->descent;
-#endif
+    return fs->ascent + fs->descent;
+
+#endif /* ?USE_XFT */
 }
 
 static String *default_resource_data = 0, /* NULL-terminated arrays */
@@ -941,13 +996,13 @@ X11_raw_print(const char *str)
     (void) puts(str);
 }
 
-void
+static void
 X11_raw_print_bold(const char *str)
 {
     (void) puts(str);
 }
 
-void
+static void
 X11_curs(winid window, int x, int y)
 {
     check_winid(window);
@@ -965,7 +1020,7 @@ X11_curs(winid window, int x, int y)
     window_list[window].cursy = y;
 }
 
-void
+static void
 X11_putstr(winid window, int attr, const char *str)
 {
     winid new_win;
@@ -1013,19 +1068,19 @@ X11_putstr(winid window, int attr, const char *str)
 }
 
 /* We do event processing as a callback, so this is a null routine. */
-void
+static void
 X11_get_nh_event(void)
 {
     return;
 }
 
-int
+static int
 X11_nhgetch(void)
 {
     return input_event(EXIT_ON_KEY_PRESS);
 }
 
-int
+static int
 X11_nh_poskey(coordxy *x, coordxy *y, int *mod)
 {
     int val = input_event(EXIT_ON_KEY_OR_BUTTON_PRESS);
@@ -1105,8 +1160,10 @@ X11_create_nhwindow(int type)
         wp->pixel_height = 0;
     wp->keep_window = FALSE;
     wp->nh_colors_inited = FALSE;
+#ifndef USE_XFT
     wp->boldfs = (XFontStruct *) 0;
     wp->boldfs_dpy = (Display *) 0;
+#endif
     wp->title = (char *) 0;
 
     switch (type) {
@@ -1132,7 +1189,7 @@ X11_create_nhwindow(int type)
     return window;
 }
 
-void
+static void
 X11_clear_nhwindow(winid window)
 {
     struct xwindow *wp;
@@ -1158,7 +1215,7 @@ X11_clear_nhwindow(winid window)
     }
 }
 
-void
+static void
 X11_display_nhwindow(winid window, boolean blocking)
 {
     struct xwindow *wp;
@@ -1248,11 +1305,13 @@ X11_destroy_nhwindow(winid window)
         WIN_INVEN = WIN_ERR;
     }
 
+#ifndef USE_XFT
     if (wp->boldfs) {
         XFreeFont(wp->boldfs_dpy, wp->boldfs);
         wp->boldfs = (XFontStruct *) 0;
         wp->boldfs_dpy = (Display *) 0;
     }
+#endif
 
     if (wp->title) {
         free(wp->title);
@@ -1309,7 +1368,7 @@ X11_update_inventory(int arg)
     return;
 }
 
-win_request_info *
+static win_request_info *
 X11_ctrl_nhwindow(
     winid window UNUSED,
     int request UNUSED,
@@ -1332,7 +1391,7 @@ X11_ctrl_nhwindow(
 }
 
 /* The current implementation has all of the saved lines on the screen. */
-int
+static int
 X11_doprev_message(void)
 {
     return 0;
@@ -1355,7 +1414,7 @@ X11_nhbell(void)
     }
 }
 
-void
+static void
 X11_mark_synch(void)
 {
     if (x_inited) {
@@ -1372,7 +1431,7 @@ X11_mark_synch(void)
     }
 }
 
-void
+static void
 X11_wait_synch(void)
 {
     if (x_inited) {
@@ -1382,13 +1441,13 @@ X11_wait_synch(void)
 }
 
 /* Both resume_ and suspend_ are called from ioctl.c and unixunix.c. */
-void
+static void
 X11_resume_nhwindows(void)
 {
     return;
 }
 /* ARGSUSED */
-void
+static void
 X11_suspend_nhwindows(const char *str)
 {
     nhUse(str);
@@ -1398,7 +1457,7 @@ X11_suspend_nhwindows(const char *str)
 
 /* Under X, we don't need to initialize the number pad. */
 /* ARGSUSED */
-void
+static void
 X11_number_pad(int state) /* called from options.c */
 {
     nhUse(state);
@@ -1407,7 +1466,7 @@ X11_number_pad(int state) /* called from options.c */
 }
 
 #ifdef GRAPHIC_TOMBSTONE
-void
+static void
 X11_outrip(winid window, int how, time_t when)
 {
     struct xwindow *wp;
@@ -1507,6 +1566,22 @@ static XtResource resources[] = {
     { nhStr("pilemark_color"), nhStr("Pilemark_color"), XtRPixel,
       sizeof(XtRPixel), XtOffset(AppResources *, pilemark_color), XtRString,
       nhStr("Green") },
+#ifdef USE_XFT
+    { nhStr("font_map"), nhStr("Font_map"), XtRString, sizeof(String),
+      XtOffset(AppResources *, font_map), XtRString, nhStr("mono-10") },
+    { nhStr("font_menu"), nhStr("Font_menu"), XtRString, sizeof(String),
+      XtOffset(AppResources *, font_menu), XtRString, nhStr("sans-10") },
+    { nhStr("font_message"), nhStr("Font_message"), XtRString, sizeof(String),
+      XtOffset(AppResources *, font_message), XtRString, nhStr("sans-10") },
+    { nhStr("font_status"), nhStr("Font_status"), XtRString, sizeof(String),
+      XtOffset(AppResources *, font_status), XtRString, nhStr("sans-10") },
+    { nhStr("font_text"), nhStr("Font_text"), XtRString, sizeof(String),
+      XtOffset(AppResources *, font_text), XtRString, nhStr("mono-10") },
+#ifdef GRAPHIC_TOMBSTONE
+    { nhStr("font_rip"), nhStr("Font_rip"), XtRString, sizeof(String),
+      XtOffset(AppResources *, font_rip), XtRString, nhStr("sans-9") },
+#endif
+#endif
 #ifdef GRAPHIC_TOMBSTONE
     { nhStr("tombstone"), nhStr("Tombstone"), XtRString, sizeof(String),
       XtOffset(AppResources *, tombstone), XtRString, nhStr("rip.xpm") },
@@ -1562,13 +1637,16 @@ X11_io_error_handler(Display *display)
     return 0;
 }
 
-void
+static void
 X11_init_nhwindows(int *argcp, char **argv)
 {
     int i;
     Cardinal num_args;
     Arg args[4];
     uid_t savuid;
+
+    /* Request tabbed menu columns */
+    iflags.menu_tab_sep = TRUE;
 
     /* Init windows to nothing. */
     for (i = 0; i < MAX_WINDOWS; i++)
@@ -1609,6 +1687,7 @@ X11_init_nhwindows(int *argcp, char **argv)
                                (ArgList) args, num_args);
     XtOverrideTranslations(toplevel,
               XtParseTranslationTable("<Message>WM_PROTOCOLS: X11_hangup()"));
+    XtAppAddTimeOut(app_context, blink_interval, blink_callback, NULL);
 
     /* We don't need to realize the top level widget. */
 
@@ -1663,6 +1742,20 @@ X11_init_nhwindows(int *argcp, char **argv)
     /* Display the startup banner in the message window. */
     for (i = 1; i <= 4 + 2; ++i) /* (values beyond 4 yield blank lines) */
         X11_putstr(WIN_MESSAGE, 0, copyright_banner_line(i));
+}
+
+static void
+blink_callback(XtPointer client_data, XtIntervalId *timer)
+{
+    nhUse(timer);
+#ifdef STATUS_HILITES
+    X11_tty_status_blink();
+#endif
+    X11_blink_labels();
+
+    X11_blink = !X11_blink;
+    /* Do it again */
+    XtAppAddTimeOut(app_context, blink_interval, blink_callback, client_data);
 }
 
 /*
@@ -1762,7 +1855,7 @@ d_timeout(XtPointer client_data, XtIntervalId *id)
  * function will send an event to the map window which will be waiting
  * for a sent event.
  */
-void
+static void
 X11_delay_output(void)
 {
     if (!x_inited)
@@ -1852,7 +1945,7 @@ askname_done(Widget w, XtPointer client_data, XtPointer call_data)
 
 /* ask player for character's name to replace generic name "player" (or other
    values; see config.h) after 'nethack -u player' or OPTIONS=name:player */
-void
+static void
 X11_askname(void)
 {
     Widget popup, dialog;
@@ -2070,17 +2163,14 @@ X11_getlin(
 
 /* uses a menu (with no selectors specified) rather than a text window
    to allow previous_page and first_menu actions to move backwards */
-void
+static void
 X11_display_file(const char *str, boolean complain)
 {
     dlb *fp;
     winid newwin;
     struct xwindow *wp;
-    anything any;
-    menu_item *menu_list;
 #define LLEN 128
     char line[LLEN];
-    int clr = 0;
 
     /* Use the port-independent file opener to see if the file exists. */
     fp = dlb_fopen(str, RDTMODE);
@@ -2090,14 +2180,11 @@ X11_display_file(const char *str, boolean complain)
         return; /* it doesn't exist, ignore */
     }
 
-    newwin = X11_create_nhwindow(NHW_MENU);
+    newwin = X11_create_nhwindow(NHW_TEXT);
     wp = &window_list[newwin];
-    X11_start_menu(newwin, MENU_BEHAVE_STANDARD);
 
-    any = cg.zeroany;
     while (dlb_fgets(line, LLEN, fp)) {
-        X11_add_menu(newwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
-                     clr, line, MENU_ITEMFLAGS_NONE);
+        X11_putstr(newwin, 0, line);
     }
     (void) dlb_fclose(fp);
 
@@ -2105,9 +2192,7 @@ X11_display_file(const char *str, boolean complain)
     if (str)
         wp->title = dupstr(str);
 
-    wp->menu_information->permi = FALSE;
-    wp->menu_information->disable_mcolors = TRUE;
-    (void) X11_select_menu(newwin, PICK_NONE, &menu_list);
+    (void) X11_display_nhwindow(newwin, TRUE);
     X11_destroy_nhwindow(newwin);
 }
 
@@ -2396,6 +2481,7 @@ X11_yn_function_core(
             (void) memset(buf2, 'X', 25), buf2[25] = '\0'; /* 25 'X's */
             yn_minwidth = (Dimension) XTextWidth(yn_font, buf2,
                                                  (int) strlen(buf2));
+            X11_wrap_widget_if_Xft(yn_label, NHW_MESSAGE);
         }
     }
 
@@ -2404,6 +2490,7 @@ X11_yn_function_core(
     num_args = 0;
     XtSetArg(args[num_args], XtNlabel, buf); num_args++;
     XtSetValues(yn_label, args, num_args);
+    X11_update_label_if_Xft(yn_label);
 
     /* for !slow, pop up the prompt+response widget */
     if (!appResources.slow) {
@@ -2447,6 +2534,7 @@ X11_yn_function_core(
         num_args = 0;
         XtSetArg(args[num_args], XtNlabel, " "); num_args++;
         XtSetValues(yn_label, args, num_args);
+        X11_update_label_if_Xft(yn_label);
 
         input_func = 0; /* keystrokes now belong to the map */
         highlight_yn(FALSE); /* disguise yn_label as part of map */
@@ -2465,7 +2553,7 @@ X11_yn_function_core(
 
 /* X11-specific edition of yn_function(), the routine called by the core
    to show a prompt and get a single key answer, often 'y' vs 'n' */
-char
+static char
 X11_yn_function(
     const char *ques,     /* prompt text */
     const char *choices,  /* allowed response chars; any char if Null */
@@ -2478,7 +2566,7 @@ X11_yn_function(
 
 /* used when processing window-capability-specific run-time options;
    we support toggling tiles on and off via iflags.wc_tiled_map */
-void
+static void
 X11_preference_update(const char *pref)
 {
     if (!strcmp(pref, "tiled_map")) {
@@ -2509,7 +2597,7 @@ input_event(int exit_condition)
 }
 
 /*ARGSUSED*/
-void
+static void
 msgkey(Widget w, XtPointer data, XEvent *event, Boolean *continue_to_dispatch)
 {
     Cardinal num = 0;
@@ -2570,6 +2658,7 @@ highlight_yn(boolean init)
             XtSetArg(args[0], XtNforeground, vals.foreground);
             XtSetArg(args[1], XtNbackground, vals.background);
             XtSetValues(yn_label, args, TWO);
+            X11_update_label_if_Xft(yn_label);
         }
     } else
         swap_fg_bg(yn_label);
@@ -2637,6 +2726,7 @@ init_standard_windows(void)
         XtSetArg(args[num_args], nhStr(XtNresizable), True); num_args++;
         XtSetArg(args[num_args], nhStr(XtNlabel), " "); num_args++;
         XtSetValues(yn_label, args, num_args);
+        X11_wrap_widget_if_Xft(yn_label, NHW_MESSAGE);
     }
 
     /*
@@ -2702,7 +2792,7 @@ init_standard_windows(void)
      * Resize to at most full-screen.
      */
     {
-#define TITLEBAR_SPACE 18 /* Leave SOME screen for window decorations */
+#define TITLEBAR_SPACE 100 /* Leave SOME screen for window decorations and task bar */
 
         int screen_width = WidthOfScreen(XtScreen(wp->w));
         int screen_height = HeightOfScreen(XtScreen(wp->w)) - TITLEBAR_SPACE;
@@ -2838,7 +2928,7 @@ find_scrollbars(
  * Scroll a viewport, using standard NH 1,2,3,4,6,7,8,9 directions.
  */
 /*ARGSUSED*/
-void
+static void
 nh_keyscroll(Widget viewport, XEvent *event, String *params,
              Cardinal *num_params)
 {
@@ -2924,5 +3014,320 @@ nh_keyscroll(Widget viewport, XEvent *event, String *params,
         }
     }
 }
+
+/* Convert CP437 or DECgraphics to Unicode */
+X11_map_symbol
+X11_glyph_char(const glyph_info *glyphinfo)
+{
+#ifdef ENHANCED_SYMBOLS
+    /* CP437 to Unicode mapping according to the Unicode Consortium */
+    static const uint16 cp437[256] = {
+        0x0020, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
+        0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
+        0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25AC, 0x21A8,
+        0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
+        0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
+        0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
+        0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
+        0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
+        0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
+        0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x004f,
+        0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
+        0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x005f,
+        0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
+        0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
+        0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
+        0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, 0x2302,
+        0x00c7, 0x00fc, 0x00e9, 0x00e2, 0x00e4, 0x00e0, 0x00e5, 0x00e7,
+        0x00ea, 0x00eb, 0x00e8, 0x00ef, 0x00ee, 0x00ec, 0x00c4, 0x00c5,
+        0x00c9, 0x00e6, 0x00c6, 0x00f4, 0x00f6, 0x00f2, 0x00fb, 0x00f9,
+        0x00ff, 0x00d6, 0x00dc, 0x00a2, 0x00a3, 0x00a5, 0x20a7, 0x0192,
+        0x00e1, 0x00ed, 0x00f3, 0x00fa, 0x00f1, 0x00d1, 0x00aa, 0x00ba,
+        0x00bf, 0x2310, 0x00ac, 0x00bd, 0x00bc, 0x00a1, 0x00ab, 0x00bb,
+        0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
+        0x2555, 0x2563, 0x2551, 0x2557, 0x255d, 0x255c, 0x255b, 0x2510,
+        0x2514, 0x2534, 0x252c, 0x251c, 0x2500, 0x253c, 0x255e, 0x255f,
+        0x255a, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256c, 0x2567,
+        0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256b,
+        0x256a, 0x2518, 0x250c, 0x2588, 0x2584, 0x258c, 0x2590, 0x2580,
+        0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4,
+        0x03a6, 0x0398, 0x03a9, 0x03b4, 0x221e, 0x03c6, 0x03b5, 0x2229,
+        0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248,
+        0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0
+    };
+    /* Display DECgraphics as Unicode */
+    static const uint16 decgraphics[128] = {
+        0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+        0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F,
+        0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
+        0x0018, 0x0019, 0x001A, 0x001B, 0x001C, 0x001D, 0x001E, 0x001F,
+        0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
+        0x0028, 0x0029, 0x002A, 0x2192, 0x2190, 0x2191, 0x2193, 0x002F,
+        0x2588, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
+        0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F,
+        0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
+        0x0048, 0x0049, 0x004A, 0x004B, 0x004C, 0x004D, 0x004E, 0x004F,
+        0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
+        0x0058, 0x0059, 0x005A, 0x005B, 0x005C, 0x005D, 0x005E, 0x005F,
+        0x2666, 0x2592, 0x0062, 0x0063, 0x0064, 0x0065, 0x00B0, 0x00B1,
+        0x2591, 0x00A4, 0x2518, 0x2510, 0x250C, 0x2514, 0x253C, 0x23BA,
+        0x23BB, 0x2500, 0x23BC, 0x23BD, 0x251C, 0x2524, 0x2534, 0x252C,
+        0x2502, 0x2264, 0x2265, 0x03C0, 0x2260, 0x00A3, 0x00B7, 0x007F
+    };
+    X11_map_symbol och;
+
+    if (SYMHANDLING(H_UTF8) && glyphinfo->gm.u != NULL && glyphinfo->gm.u->utf8str != NULL) {
+        och = glyphinfo->gm.u->utf32ch;
+    } else {
+        och = (uchar) glyphinfo->ttychar;
+        if (SYMHANDLING(H_IBM)) {
+            och = cp437[och];
+        } else if ((SYMHANDLING(H_DEC) || SYMHANDLING(H_CURS)) && och >= 0x80) {
+            och = decgraphics[och & 0x7F];
+        }
+    }
+
+    return och;
+#else
+    return (char) glyphinfo->ttychar;
+#endif
+}
+
+#ifndef USE_XFT
+/* Given an XFontStruct, return a corresponding bold font */
+XFontStruct *
+X11_bold_font(Display *display, XFontStruct *font)
+{
+    Atom font_atom;
+    if (!XGetFontProperty(font, XA_FONT, &font_atom)) {
+        return NULL;
+    }
+
+    const char *font_name = XGetAtomName(display, font_atom);
+    if (font_name == NULL) {
+        return NULL;
+    }
+
+    char *bold_font = fontname_boldify(font_name);
+    XFontStruct *font2 = XLoadQueryFont(display, bold_font);
+
+    return font2;
+}
+
+/* Given an XFontStruct, return a corresponding italic font */
+XFontStruct *
+X11_italic_font(Display *display, XFontStruct *font)
+{
+    Atom font_atom;
+    if (!XGetFontProperty(font, XA_FONT, &font_atom)) {
+        return NULL;
+    }
+
+    const char *font_name = XGetAtomName(display, font_atom);
+    if (font_name == NULL) {
+        return NULL;
+    }
+
+    /* Proceed to the slant */
+    unsigned dashes = 4;
+    const char *p = font_name;
+    while (dashes != 0) {
+        const char *q = strchr(p, '-');
+        if (q == NULL) {
+            break;
+        }
+        p = q + 1;
+        --dashes;
+    }
+
+    /* Try substituting "i" for the slant */
+    char italic_font[BUFSZ];
+    int pre = (int)(p - font_name);
+    p += strcspn(p, "-");
+    Snprintf(italic_font, sizeof(italic_font), "%.*sI%s", pre, font_name, p);
+    XFontStruct *font2 = XLoadQueryFont(display, italic_font);
+    if (font2 != NULL) {
+        return font2;
+    }
+
+    /* Try substituting "o" */
+    Snprintf(italic_font, sizeof(italic_font), "%.*sO%s", pre, font_name, p);
+    font2 = XLoadQueryFont(display, italic_font);
+
+    return font2;
+}
+
+#ifdef ENHANCED_SYMBOLS
+/* Given an XFontStruct, return a corresponding font that supports Unicode */
+XFontStruct *
+X11_unicode_font(Display *display, XFontStruct *font)
+{
+    Atom font_atom;
+    if (!XGetFontProperty(font, XA_FONT, &font_atom)) {
+        return NULL;
+    }
+
+    const char *font_name = XGetAtomName(display, font_atom);
+    if (font_name == NULL) {
+        return NULL;
+    }
+
+    /* Proceed to the registry name */
+    unsigned dashes = 13;
+    const char *p = font_name;
+    while (dashes != 0) {
+        const char *q = strchr(p, '-');
+        if (q == NULL) {
+            break;
+        }
+        p = q + 1;
+        --dashes;
+    }
+
+    /* Substitute "iso10646-1" for the registry name and encoding */
+    size_t len = (size_t) (p - font_name);
+    char unicode_font[BUFSZ];
+    if (dashes != 0 || len + 11 > sizeof(unicode_font)) {
+        return NULL;
+    }
+
+    memcpy(unicode_font, font_name, len);
+    strcpy(unicode_font + len, "iso10646-1");
+    font_name = unicode_font;
+
+    XFontStruct *unifont = XLoadQueryFont(display, font_name);
+    return unifont;
+}
+#endif /* ENHANCED_SYMBOLS */
+#endif /* !USE_XFT */
+
+#ifdef USE_XFT
+
+/* Open a vector font for the given widget */
+
+extern XftFont *
+X11_new_font(Widget w, unsigned attrs, int win_type)
+{
+    const char *font_name = NULL;
+    const char *iflags_font_name = NULL;
+    int font_size = 0;
+    char name[512];
+
+    switch (win_type) {
+    case NHW_MESSAGE:
+        font_name = appResources.font_message;
+        iflags_font_name = iflags.wc_font_message;
+        font_size = iflags.wc_fontsiz_message;
+        break;
+
+    case NHW_STATUS:
+        font_name = appResources.font_status;
+        iflags_font_name = iflags.wc_font_status;
+        font_size = iflags.wc_fontsiz_status;
+        break;
+
+    case NHW_MAP:
+        font_name = appResources.font_map;
+        iflags_font_name = iflags.wc_font_map;
+        font_size = iflags.wc_fontsiz_map;
+        break;
+
+    case NHW_MENU:
+    case NHW_PERMINVENT:
+        font_name = appResources.font_menu;
+        iflags_font_name = iflags.wc_font_menu;
+        font_size = iflags.wc_fontsiz_menu;
+        break;
+
+    case NHW_TEXT:
+        font_name = appResources.font_text;
+        iflags_font_name = iflags.wc_font_text;
+        font_size = iflags.wc_fontsiz_text;
+        break;
+
+    default:
+        break;
+    }
+
+    if (font_name == NULL) {
+        font_name = "mono-10";
+    }
+
+    /* Override the font name if specified in the configuration file */
+    if (iflags_font_name != NULL) {
+        font_name = iflags_font_name;
+    }
+
+    /*
+     * Specify font size as follows:
+     * * Use any font size specified in the configuration file
+     * * If no such size is specified, use the one in the font name;
+     *   e.g., "Courier-14" specifies 14 points
+     * * If still no size, use 10 points
+     */
+    size_t name_len = strlen(font_name);
+    const char *dash = strrchr(font_name, '-');
+    if (dash) {
+        char *end;
+        long size = strtol(dash + 1, &end, 10);
+        if (*end == '\0') {
+            /* The name ends in a size */
+            name_len = (size_t) (dash - font_name);
+            /* Use font_size if specified;
+               else use the size from font_name */
+            if (font_size <= 0) {
+                font_size = (int) size;
+            }
+        }
+    }
+
+    /* Use 10 if no size specified */
+    if (font_size <= 0) {
+        font_size = 10;
+    }
+
+    /* Set reasonable bounds on the font size */
+    font_size = min(max(font_size, 6), 50);
+
+    Snprintf(name, sizeof(name), "%.*s-%d%s%s",
+            (int) name_len, font_name, font_size,
+            (attrs & HL_BOLD) ? ":bold" : "",
+            (attrs & HL_ITALIC) ? ":italic" : "");
+
+    Display *display = XtDisplay(w);
+    XftFont *font = XftFontOpenName(display, DefaultScreen(display), name);
+
+    return font;
+}
+
+/* Free the font returned by X11_new_font */
+
+void
+X11_release_font(Widget w, XftFont *font)
+{
+    Display *display = XtDisplay(w);
+    XftFontClose(display,  font);
+}
+
+/* Assign a new color having the given RGB components */
+
+void
+X11_new_color(Widget w, Pixel pixel, XftColor *color)
+{
+    XRenderColor rcolor;
+    rcolor.red   = ((pixel >> 16) & 0xFF) * 0x0101;
+    rcolor.green = ((pixel >>  8) & 0xFF) * 0x0101;
+    rcolor.blue  = ((pixel >>  0) & 0xFF) * 0x0101;
+    rcolor.alpha = 0xFFFF;
+
+    Display *display = XtDisplay(w);
+    Screen *screen = DefaultScreenOfDisplay(display);
+    Visual *visual = DefaultVisualOfScreen(screen);
+    Colormap cmap = DefaultColormapOfScreen(screen);
+
+    XftColorAllocValue(display, visual, cmap, &rcolor, color);
+}
+
+#endif /* USE_XFT */
 
 /*winX.c*/

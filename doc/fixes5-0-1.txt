@@ -74,6 +74,24 @@ Some optimizations of the glyph lookup - don't produce names for swallow
 	glyph index in populate_glyphname_hash_indices; build a sorted
 	index for loadsyms so that it can be searched with bsearch
 	(pr #1612 by chasonr)
+stethoscope applied to one monster disguised as another (double-trouble Wizard)
+	mis-described undisguised form (unintended side-effect of 5.0 commit
+	064523e162f8e30bdb76186a854b9d8958f3b340)
+mon_offmap() and place_monster() needed to operate on the same mstate bits
+food_disappears() needed to include a tin check
+cmdstr[] buffer was not being initialized in handler_rebind_keys_add()
+don't catch thrown objects while asleep
+don't refer to pet as "Your pet" until after the taming process has finished
+checkpoint fixes (pr #1660 by k21971)
+upon return to a level, catch up on remaining nutrition value by the same
+	percentage as the catch up for the weight
+after polymorph or revival from corpse, monsters were not interacting with
+	the terrain until that monster's next move
+fix undead corpses (zombies, etc.) now being edible
+alias rings of constitution, strength, and damage, spellbook/scroll of
+	identification
+pets left on another level no longer have their hunger postponed by the
+	time spent away
 
 
 Platform- and/or Interface-Specific Fixes
@@ -139,6 +157,8 @@ Amiga: fix latent issue found in code review: (1L << i) for i==31 (or
 Amiga: fix latent issue found in code review: Drop unused cnt= from
 	amii_display_nhwindow's DoMenuScroll call; the menu return value
 	is consumed elsewhere, not here
+Amiga & Atari: enable USE_BUFFERING for buffered stdio structlevel savefile
+	write path
 curses on Windows: the number of columns was being capped by default
 	at 110 in cursinit.c; try to use the console width if no explicit
 	setting was specified in the config file; impacted both wincon
@@ -203,8 +223,18 @@ MS-DOS: some optimizations for tile handling; change 16-color mode and
 	displayed, with the result cached; Use memcpy when splitting the
 	image into tiles; only load the tileset once (pr #1617 by chasonr)
 MS-DOS: Define a separate palette for VGA text (pr #1620 by chasonr)
+MS-DOS: some conditional cleanup for SUPPRESS_GRAPHICS, TILES_IN_GLYPHMAP,
+	NO_TILES, WANT_WIN_CURSES=1 without WANT_WIN_TTY=1
+	(pr #1632 by chasonr)
+MS-DOS: support decals in all VESA modes and in 16 color mode; support
+	decals in the overview modes as well as the normal map mode;
+	provide correct highlighting for vga_redrawmap and vesa_redrawmap;
+	provide the hilite_pet and hilite_pile flags in the default
+	configuration file (pr #1649 by chasonr)
 musl: musl libc does not have __sighandler_t so don't use it in the
 	macro definition for SIG_RET_TYPE with musl
+tty: allow custom glyph colors if they're basic 16 nethack colors
+	on terminals with less than 256 colors
 WASM: resolve some build failures in 'make CROSS_TO_WASM=1'
 WASM: hints file cross-pre2.500 update to CFLAGS to include -DNHUUID
 Windows: don't demand keypress on intentional exit
@@ -223,9 +253,29 @@ Windows: with SELECTSAVE don't display error messages to a regular player
 Windows: fix startup of GUI NetHackW.exe if there was an explicit
 	OPTIONS=windowtype:tty in the config file
 Windows: fix hilite_pet on the GUI NetHackW.exe when ascii map was selected
-tty: allow custom glyph colors if they're basic 16 nethack colors
-	on terminals with less than 256 colors
+Windows: support -a (alignment) -g (gender) -p (profession) -r (race)
+	command line options via genl_prag() function in earlyarg.c
+Windows: in the event that there is a collision between a menu group
+	accelerator and an individual menu item's accelerator, disregard
+	the group accelerator; only known collision is '$' at this time
 X11: obey timed_delay
+X11: improve status lines with text attributes for status hilites,
+	hitpointbar, some unicode support, 3-line status
+X11: fix menu windows being taller than the screen
+X11: allow menu scrolling by pageup/pagedown/home/end keys
+X11: toggle off perm_invent if user closes the perm inventory window
+X11: fix menu group accelerators
+X11: implement all text attributes for menus
+X11: fix crash when loading a nonexistent font
+X11: use xft to render fonts
+X11: support tab-separated menu columns
+X11: support BMP, GIF and PNG tiles (pr #1666 by chasonr) 
+X11: remove the limit on the number of widgets managed in winlabel.c; it was
+	possible, though difficult, to exceed the limit; tabify the
+	#wizcustom menu and fix X11's handling of that menu; correctly
+	display tabs produced by the unpaid inventory command
+	(pr #1668 by chasonr)
+Unix: don't complain about MAXPLAYERS with unknown command line param
 
 
 General New Features
@@ -286,3 +336,9 @@ unix hints: the Makefiles distributed by sys/unix/setup.sh will now check
 share a single copy of nhuuid generation code between Amiga, Atari, and msdos
 	by way of sys/share/pcmain.c (cherry-pick from pr #1541 by ingpaschke)
 nhgitset.pl: Set up future deprecation of PRE and POST hooks.
+switch to using LUA_VERSION_NUM instead of LUA_VERSION_RELEASE_NUM for Lua
+	version checking
+include a set of decals (petmark and pilemark) in win/share/decals.txt
+	and adjust tile processing to include it
+preserve inactive level timestamps across saving and restoring so that
+	monster catch-up, including tameness loss, retains time spent away

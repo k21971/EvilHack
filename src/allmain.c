@@ -312,6 +312,11 @@ moveloop_core(void)
             encumber_msg();
 
             svc.context.mon_moving = TRUE;
+            /* call terrain_effects during mon_moving phase */
+            if (gp.pending_terrain_effects) {
+                terrain_effects();
+                gp.pending_terrain_effects = no_terrain_effects;
+            }
             do {
                 monscanmove = movemon();
                 if (u.umovement >= NORMAL_SPEED)
@@ -461,10 +466,18 @@ moveloop_core(void)
                     u.ublesscnt--;
 
 #ifdef EXTRAINFO_FN
-                if ((prev_dgl_extrainfo == 0) || (prev_dgl_extrainfo < (svm.moves + 250))) {
+                /* refresh the dgamelaunch watch-menu entry periodically;
+                   rewriting it every turn would be a file create+chmod+
+                   write per turn per live game for no visible benefit */
+                if (prev_dgl_extrainfo == 0
+                    || prev_dgl_extrainfo + 250 < svm.moves) {
                     prev_dgl_extrainfo = svm.moves;
                     mk_dgl_extrainfo();
                 }
+#endif
+#ifdef WHEREIS_FILE
+                /* honour a SIGUSR1 that arrived since the last turn */
+                ck_whereis();
 #endif
 
                 /* One possible result of prayer is healing.  Whether or
@@ -1521,10 +1534,10 @@ newgame(void)
 
     urealtime.realtime = 0L;
     urealtime.start_timing = getnow();
+    program_state.something_worth_saving++; /* useful data now exists */
 #ifdef INSURANCE
     save_currentstate();
 #endif
-    program_state.something_worth_saving++; /* useful data now exists */
 
     /* Success! */
     welcome(TRUE);

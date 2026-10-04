@@ -185,6 +185,8 @@ struct instance_globals_a {
         a chain of objects, use alternate phrasing after the first message */
     struct h2o_ctx acid_ctx;
 
+    long articulo_mortis;
+
     boolean havestate;
 };
 
@@ -820,6 +822,9 @@ struct instance_globals_p {
     /* pline.c */
     unsigned pline_flags;
     char prevmsg[BUFSZ];
+
+    /* mon.c */
+    enum mon_terrain_effects pending_terrain_effects;
 
     /* potion.c */
     int potion_nothing;

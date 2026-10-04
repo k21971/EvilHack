@@ -576,6 +576,9 @@ static const char *const build_opts[] = {
 #ifdef USE_XPM
     "tiles file in XPM format",
 #endif
+#ifdef USE_XFT
+    "font rendering with Xft",
+#endif
 #ifdef GRAPHIC_TOMBSTONE
     "graphical RIP screen",
 #endif
@@ -584,9 +587,6 @@ static const char *const build_opts[] = {
 #endif
 #ifdef PREFIXES_IN_USE
     "variable playground",
-#endif
-#ifdef VISION_TABLES
-    "vision tables",
 #endif
 #ifdef SYSCF
     "system configuration at run-time",

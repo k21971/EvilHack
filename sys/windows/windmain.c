@@ -289,6 +289,9 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
         nethack_exit(EXIT_FAILURE);
     }
 
+    genl_prag(argc, argv); /* command line options for profession, race,
+                            * alignment, gender */
+
     /* Finished processing options, lock all directory paths */
     for (int i = 0; i < PREFIX_COUNT; i++)
         fqn_prefix_locked[i] = TRUE;
@@ -396,8 +399,6 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
        setting of renameallowed; when False, player_selection()
        won't resent renaming as an option */
     iflags.renameallowed = FALSE;
-    /* Obtain the name of the logged on user and incorporate
-     * it into the name. */
     Sprintf(fnamebuf, "%s", svp.plname);
     (void) fname_encode(
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-.", '%',

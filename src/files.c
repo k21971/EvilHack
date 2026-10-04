@@ -38,11 +38,8 @@
 #include "wintty.h" /* more() */
 #endif
 
-#ifdef WHEREIS_FILE
-#include <ctype.h> /* whereis-file tolower() */
-#ifdef UNIX
+#if defined(WHEREIS_FILE) && defined(UNIX)
 #include <sys/stat.h> /* whereis-file chmod() */
-#endif
 #endif
 
 #if (!defined(MAC68K) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
@@ -100,7 +97,11 @@ static char fqn_filename_buffer[FQN_NUMBUF][FQN_MAX_FILENAME];
 #endif
 
 #ifdef WHEREIS_FILE
-char whereis_file[255] = WHEREIS_FILE;
+/* path template; set_whereisfile() rewrites this in place the first time,
+   expanding "%n" to the player name, so it is expanded at most once */
+static char whereis_file[255] = WHEREIS_FILE;
+/* set by the SIGUSR1 handler, consumed by ck_whereis() */
+static volatile sig_atomic_t whereis_signalled = 0;
 #endif
 
 #if !defined(SAVE_EXTENSION)
@@ -120,8 +121,8 @@ char whereis_file[255] = WHEREIS_FILE;
 #endif
 
 #ifdef WHEREIS_FILE
-static void set_whereisfile(void);
-static void write_whereis(boolean);
+staticfn void set_whereisfile(void);
+staticfn void write_whereis(boolean);
 #endif
 
 #ifdef AMIGA
@@ -776,7 +777,7 @@ strcmp_wrap(const void *p, const void *q)
 
 #ifdef WHEREIS_FILE
 /* Set the filename for the whereis file */
-void
+staticfn void
 set_whereisfile(void)
 {
     char *p = (char *) strstr(whereis_file, "%n");
@@ -799,7 +800,7 @@ set_whereisfile(void)
 }
 
 /* Write out information about current game to plname.whereis */
-void
+staticfn void
 write_whereis(boolean playing) /* < True if game is running */
 {
     FILE* fp;
@@ -831,12 +832,11 @@ write_whereis(boolean playing) /* < True if game is running */
             genders[flags.female].filecode,
             aligns[u.ualign.type == A_NONE
                    ? 3 : 1 - u.ualign.type].filecode);
+    /* conduct is always 0: the field is kept so the record layout stays
+       stable for whatever parses it, but encodeconduct() is staticfn in
+       topten.c and not reachable from here */
     Sprintf(eos(whereis_work), "conduct=0x%lx:amulet=%d:ascended=%d:",
-#ifdef RECORD_CONDUCT
-            encodeconduct(),
-#else
             0L,
-#endif
             u.uhave.amulet ? 1 : 0,
             u.uevent.ascended ? 2 : *svk.killer.name ? 1 : 0);
     Sprintf(eos(whereis_work), "playing=%d\n",
@@ -856,11 +856,24 @@ write_whereis(boolean playing) /* < True if game is running */
     }
 }
 
-/** Signal handler to update whereis information. */
+/* SIGUSR1 handler: something outside the game (the web front end) is asking
+   for a refresh.  Only set a flag here -- write_whereis() calls fopen() and
+   malloc(), which are not async-signal-safe and can deadlock against the
+   main line we just interrupted.  ck_whereis() does the work next turn. */
 void
 signal_whereis(int sig_unused UNUSED)
 {
-    touch_whereis();
+    whereis_signalled = 1;
+}
+
+/* called once per turn from moveloop_core() */
+void
+ck_whereis(void)
+{
+    if (whereis_signalled) {
+        whereis_signalled = 0;
+        touch_whereis();
+    }
 }
 
 void
@@ -877,10 +890,12 @@ delete_whereis(void)
          * game isn't active ("playing=0") */
         write_whereis(FALSE);
     } else {
-        /* if data may be unavailable for writing, actually unlink the file */
+        /* data may be unavailable for writing, so remove the file instead;
+         * must go through fqname() -- the template is relative and we have
+         * chdir()'d to HACKDIR, while the file lives under VAR_PLAYGROUND */
         if (strstr(whereis_file, "%n"))
             set_whereisfile();
-        (void) unlink(whereis_file);
+        (void) unlink(fqname(whereis_file, LEVELPREFIX, 0));
     }
 }
 #endif /* WHEREIS_FILE */

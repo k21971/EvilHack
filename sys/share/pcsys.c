@@ -155,8 +155,11 @@ getreturn(const char *str)
     msmsg("Hit <Enter> %s.", str);
 #endif
 #endif
-    while (pgetchar() != '\n')
-        ;
+#if defined(PC_EARLY_OPTIONS)
+    if (isatty(STDOUT_FILENO))
+#endif
+        while (pgetchar() != '\n')
+            ;
     return;
 }
 
@@ -271,7 +274,9 @@ msexit(void)
         restore_colors();
 #endif
     wait_synch();
+#if !(defined(MSDOS) && !defined(TTY_GRAPHICS))
     term_curs_set(1);
+#endif
     return;
 }
 #endif /* MICRO || OS2 */

@@ -73,9 +73,9 @@
  * You may uncomment any/all of the options below.
  *
  */
-#ifndef SUPPRESS_GRAPHICS
+#if defined(TTY_GRAPHICS) && !defined(SUPPRESS_GRAPHICS)
 #if (defined(SCREEN_BIOS) || defined(SCREEN_DJGPPFAST)) && !defined(PC9800)
-#ifdef TILES_IN_GLYPHMAP
+#if defined(TILES_IN_GLYPHMAP) || defined(ENHANCED_SYMBOLS)
 #define SCREEN_VGA /* Include VGA graphics routines in the build */
 #define SCREEN_VESA
 #endif
@@ -148,8 +148,12 @@
                              LEVELDIR, SAVEDIR, BONESDIR, DATADIR,         \
                              SCOREDIR, LOCKDIR, CONFIGDIR, and TROUBLEDIR. \
                              */
-
 #endif /* MSDOS configuration stuff */
+
+/* include early argument processing --dumpenums etc. */
+#if defined(MSDOS)
+#define PC_EARLY_OPTIONS
+#endif
 
 #ifndef PATHLEN
 #define PATHLEN 64  /* maximum pathlength */
@@ -287,6 +291,10 @@
 #define SMALL_MAP
 #endif
 #endif /* End of sanity check block */
+
+#if defined(MSDOS) && defined(SUPPRESS_GRAPHICS)
+#define NO_TERMCAP_HEADERS
+#endif
 
 #if defined(MSDOS) && defined(DLB)
 #define FILENAME_CMP stricmp /* case insensitive */

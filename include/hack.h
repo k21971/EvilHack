@@ -767,6 +767,14 @@ struct plinemsg_type {
 /* bitmask for callers of hide_unhide_msgtypes() */
 #define MSGTYP_MASK_REP_SHOW ((1 << MSGTYP_NOREP) | (1 << MSGTYP_NOSHOW))
 
+enum mon_terrain_effects {
+    no_terrain_effects = 0x00000000,
+    /* these bit values must be beyond the MON_ ranges in monst.h
+       since they get set on mon->mstate */
+    nonflyer_vs_liquid  = 0x10000000,
+    candrown_vs_liquid = 0x20000000,
+};
+
 /* polyself flags */
 enum polyself_flags {
     POLY_NOFLAGS    = 0x00,
@@ -1482,10 +1490,11 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define HEALTHY_TIN (-3)
 
 /* Corpse aging */
-#define TAINT_AGE (50L)        /* age when corpses go bad */
+#define INEDIBLE_AGE  (50L)    /* age when corpse becomes unsafe to eat */
+#define TAINT_AGE    (100L)    /* age when corpse becomes tainted */
+#define ROT_AGE      (250L)    /* age when corpse rots away */
 #define TROLL_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
 #define ZOMBIE_REVIVE_CHANCE 250 /* 1/250 chance for 250 turns ~ 65% chance */
-#define ROT_AGE (250L)         /* age when corpses rot away */
 
 /* Some misc definitions */
 #define POTION_OCCUPANT_CHANCE(n) (13 + 2 * (n))
@@ -1654,8 +1663,10 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define DEVTEAM_EMAIL "devteam@nethack.org"
 #define DEVTEAM_URL "https://www.nethack.org/"
 
+#ifndef __cplusplus
 #if !defined(CROSSCOMPILE) || defined(CROSSCOMPILE_TARGET)
 #include "nhlua.h"
+#endif
 #endif
 
 #if !defined(RECOVER_C)

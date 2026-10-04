@@ -560,7 +560,7 @@ describe_level(
         else
             Sprintf(buf, "Hidden:%-2d", dunlev(&u.uz));
         addbranch = FALSE;
-    } else if (In_tower(&u.uz)) {
+    } else if (In_V_tower(&u.uz)) {
         if (addbranch)
             Sprintf(buf, "Vlad's Tower %d", dunlev(&u.uz));
         else
@@ -4680,9 +4680,13 @@ status_hilite_menu(void)
 #endif
         any = cg.zeroany;
         any.a_int = fld + 1;
-        Sprintf(buf, "%-18s", initblstats[i].fldname);
+        if (iflags.menu_tab_sep) {
+            Sprintf(buf, "%s\t", initblstats[i].fldname);
+        } else {
+            Sprintf(buf, "%-18s ", initblstats[i].fldname);
+        }
         if (count)
-            Sprintf(eos(buf), " (%d defined)", count);
+            Sprintf(eos(buf), "(%d defined)", count);
         add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
                  clr, buf, MENU_ITEMFLAGS_NONE);
     }

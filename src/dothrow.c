@@ -20,6 +20,7 @@ staticfn void swallowit(struct obj *);
 staticfn struct obj *return_throw_to_inv(struct obj *, long, boolean,
                                        struct obj *);
 staticfn void tmiss(struct obj *, struct monst *, boolean);
+staticfn void thrown_caitiff(struct monst *, int) NONNULLARG1;
 staticfn int throw_gold(struct obj *);
 staticfn void check_shop_obj(struct obj *, coordxy, coordxy, boolean);
 staticfn void breakmsg(struct obj *, boolean);
@@ -2315,6 +2316,16 @@ tmiss(struct obj *obj, struct monst *mon, boolean maybe_wakeup)
     return;
 }
 
+/* an object thrown, fired or kicked at a monster is an attack for
+   check_caitiff(), except at the hero's own pet; an applied polearm or
+   grapnel counts even against a pet, as a melee hit does */
+staticfn void
+thrown_caitiff(struct monst *mon, int hmode)
+{
+    if (!mon->mtame || hmode == HMON_APPLIED)
+        check_caitiff(mon);
+}
+
 #define special_obj_hits_leader(obj, mon) \
     ((is_quest_artifact(obj) || objects[obj->otyp].oc_unique    \
       || (obj->otyp == FAKE_AMULET_OF_YENDOR && !obj->known))   \
@@ -2532,6 +2543,9 @@ thitmonst(
 
     dieroll = rnd(20);
 
+    /* each attack arm below calls thrown_caitiff() before anything can
+       anger the target; a pet catching what it was thrown, Kathryn's
+       candy bar and throwing food to tame or befriend are not attacks */
     if (mon->mtame && mon->mcanmove
         && (!(is_animal(mon->data) || mindless(mon->data)))
         && could_use_item(mon, obj, FALSE, FALSE)) {
@@ -2557,6 +2571,7 @@ thitmonst(
         miss(xname(obj), mon);
     } else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                || obj->oclass == GEM_CLASS) {
+        thrown_caitiff(mon, hmode);
         if (hmode == HMON_KICKED) {
             /* throwing adjustments and weapon skill bonus don't apply */
             tmp -= (is_ammo(obj) ? 5 : 3);
@@ -2666,6 +2681,7 @@ thitmonst(
         }
 
     } else if (otyp == HEAVY_IRON_BALL) {
+        thrown_caitiff(mon, hmode);
         exercise(A_STR, TRUE);
         if (tmp >= dieroll) {
             int was_swallowed = guaranteed_hit;
@@ -2680,6 +2696,7 @@ thitmonst(
         }
 
     } else if (otyp == BOULDER) {
+        thrown_caitiff(mon, hmode);
         exercise(A_STR, TRUE);
         if (tmp >= dieroll) {
             exercise(A_DEX, TRUE);
@@ -2692,11 +2709,13 @@ thitmonst(
                 || otyp == ACID_VENOM || otyp == SNOWBALL
                 || otyp == BALL_OF_WEBBING || otyp == BARBED_NEEDLE)
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
+        thrown_caitiff(mon, hmode);
         (void) hmon(mon, obj, hmode, dieroll);
         return 1; /* hmon used it up */
 
     } else if (obj->oclass == POTION_CLASS
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
+        thrown_caitiff(mon, hmode);
         potionhit(mon, obj, POTHIT_HERO_THROW);
         return 1;
 
@@ -2767,6 +2786,7 @@ thitmonst(
         char *monname;
         struct permonst *md = u.ustuck->data;
 
+        thrown_caitiff(mon, hmode);
         /* this assumes that guaranteed_hit is due to swallowing */
         wakeup(mon, TRUE);
         if (obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])) {
@@ -2786,6 +2806,7 @@ thitmonst(
             monname = s_suffix(monname);
         pline("%s into %s%s.", Tobjnam(obj, "vanish"), monname, trail);
     } else {
+        thrown_caitiff(mon, hmode);
         tmiss(obj, mon, TRUE);
     }
 

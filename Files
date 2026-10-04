@@ -630,8 +630,9 @@ Install.X11     NetHack.ad      Window.c        X11-issues.txt
 dialogs.c       ibm.bdf         nethack.rc      nh10.bdf
 nh32icon        nh56icon        nh72icon        nh_icon.xpm
 pet_mark.xbm    pilemark.xbm    rip.xpm         tile2x11.c
-winX.c          winmap.c        winmenu.c       winmesg.c
-winmisc.c       winstat.c       wintext.c       winval.c
+winX.c          winlabel.c      winmap.c        winmenu.c
+winmesg.c       winmisc.c       winstat.c       wintext.c
+winval.c
 
 win/chain:
 (files for stacking window systems)
@@ -650,10 +651,10 @@ NetHackTerm.applescript       recover.pl
 
 win/share:
 (files for versions using optional tiles)
-bmptiles.c     gifread.c      giftiles.c     monsters.txt   nhicns.uu
-nhsplash.xpm   objects.txt    other.txt      ppmwrite.c     renumtiles.pl
-thintile.c     tile.doc       tile.h         tile2bmp.c     tilemap.c
-tileset.c      tiletext.c     tiletxt.c
+bmptiles.c     decals.txt     gifread.c      giftiles.c     monsters.txt
+nhicns.uu      nhsplash.xpm   objects.txt    other.txt      pngtiles.c
+ppmwrite.c     renumtiles.pl  thintile.c     tile.doc       tile.h
+tile2bmp.c     tilemap.c      tileset.c      tiletext.c     tiletxt.c
 
 win/shim:
 (file in top directory)

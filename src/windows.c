@@ -1148,7 +1148,9 @@ static int menu_headings_backup;
 static FILE *dumplog_file;
 static FILE *dumphtml_file;
 
-#if defined(DUMPLOG) || defined(DUMPHTML)
+/* EXTRAINFO_FN builds its filename with dump_fmtstr(), so it needs this
+   block even in a build without DUMPLOG or DUMPHTML */
+#if defined(DUMPLOG) || defined(DUMPHTML) || defined(EXTRAINFO_FN)
 static time_t dumplog_now;
 
 char *
@@ -1267,7 +1269,7 @@ dump_fmtstr(
     *bp = '\0';
     return buf;
 }
-#endif /* DUMPLOG || DUMPHTML */
+#endif /* DUMPLOG || DUMPHTML || EXTRAINFO_FN */
 
 #ifdef DUMPHTML
 /****************************/
@@ -2329,7 +2331,7 @@ mk_dgl_extrainfo(void)
         } else if (In_endgame(&u.uz)) {
             Sprintf(tmpdng, "%s", "End");
             sortval += 256;
-        } else if (In_tower(&u.uz)) {
+        } else if (In_V_tower(&u.uz)) {
             Sprintf(tmpdng, "T%i", dunlev(&u.uz));
             sortval += 235 + (depth(&u.uz));
         } else if (In_sokoban(&u.uz)) {

@@ -1537,8 +1537,10 @@ save_currentstate(void)
     if (flags.ins_chkpt) {
         /* write out just-attained level, with pets and everything */
         nhfp = currentlevel_rewrite();
-        if (!nhfp)
+        if (!nhfp) {
+            program_state.in_checkpoint--;
             return;
+        }
         if (nhfp->structlevel)
             bufon(nhfp->fd);
         nhfp->mode = WRITING;
@@ -1848,10 +1850,6 @@ goto_level(
     svc.context.polearm.hitmon = (struct monst *) 0; /* polearm target */
     /* digging context is level-aware and can actually be resumed if
        hero returns to the previous level without any intervening dig */
-
-#ifdef WHEREIS_FILE
-    touch_whereis();
-#endif
 
     if (falling) /* assuming this is only trap door or hole */
         impact_drop((struct obj *) 0, u.ux, u.uy, newlevel->dlevel);
@@ -2163,7 +2161,7 @@ goto_level(
        would fire upon entering any of the four tower levels if
        entering this branch for the first time, but during normal
        game play the player has to access the cavern level first */
-    if (!In_tower(&u.uz0) && In_tower(&u.uz)
+    if (!In_V_tower(&u.uz0) && In_V_tower(&u.uz)
         && !u.uevent.tower_entered) {
         u.uevent.tower_entered = 1;
         if (!Blind)
@@ -2335,6 +2333,11 @@ goto_level(
     }
 
     assign_level(&u.uz0, &u.uz); /* reset u.uz0 */
+#ifdef WHEREIS_FILE
+    /* must come after u.uz has been assigned the destination above,
+       otherwise this publishes the level the hero just left */
+    touch_whereis();
+#endif
 #ifdef INSURANCE
     save_currentstate();
 #endif
@@ -2549,6 +2552,7 @@ revive_corpse(struct obj *corpse)
                     pline("%s disappears%s!", The(cname), effect);
                 }
             }
+            (void) maybe_set_terrain_effects(mtmp, 0);
             break;
 
         case OBJ_MINVENT: /* probably a nymph's */

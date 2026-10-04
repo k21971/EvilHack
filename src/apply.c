@@ -395,7 +395,10 @@ use_stethoscope(struct obj *obj)
     }
     if ((mtmp = m_at(rx, ry)) != 0) {
         const char *mnm = x_monnam(mtmp, ARTICLE_A, (const char *) 0,
-                                   SUPPRESS_IT | SUPPRESS_INVISIBLE, FALSE);
+                                   (SUPPRESS_IT | SUPPRESS_INVISIBLE
+                                    /* stethoscope reveals true form; seemimic
+                                       below will clear mtmp->mappearance */
+                                    | SUPPRESS_MAPPEARANCE), FALSE);
 
         /* gb.bhitpos needed by mstatusline() iff mtmp is a long worm */
         gb.bhitpos.x = rx, gb.bhitpos.y = ry;
@@ -3943,7 +3946,6 @@ use_pole(struct obj *obj, boolean autohit)
             return ECMD_FAIL;
         }
 
-        check_caitiff(mtmp);
         gn.notonhead = (gb.bhitpos.x != mtmp->mx || gb.bhitpos.y != mtmp->my);
 
         /* Snickersnee allows one free hit from a distance per turn */
@@ -4282,7 +4284,6 @@ use_grapple(struct obj *obj)
             flags.confirm = FALSE;
             (void) attack_checks(mtmp, uwep);
             flags.confirm = save_confirm;
-            check_caitiff(mtmp);
             (void) thitmonst(mtmp, uwep);
             return ECMD_TIME;
         }

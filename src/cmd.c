@@ -677,11 +677,16 @@ doextlist(void)
                     add_menu_heading(menuwin, buf);
                     menushown[pass] = 1;
                 }
-                /* longest ef_txt at present is 14 chars ("removeimarkers"
-                   and "wiztelekinesis");
-                   2nd field will be "    " or " [A]" or " [m]" or "[mA]" */
-                Sprintf(buf, " %-14s %4s %s", efp->ef_txt,
-                        doc_extcmd_flagstr(menuwin, efp), cmd_desc);
+                if (iflags.menu_tab_sep) {
+                    Sprintf(buf, " %s\t%s\t%s", efp->ef_txt,
+                            doc_extcmd_flagstr(menuwin, efp), cmd_desc);
+                } else {
+                    /* longest ef_txt at present is 14 chars
+                       ("removeimarkers" and "wiztelekinesis");
+                       2nd field will be "    " or " [A]" or " [m]" or "[mA]" */
+                    Sprintf(buf, " %-14s %4s %s", efp->ef_txt,
+                            doc_extcmd_flagstr(menuwin, efp), cmd_desc);
+                }
                 add_menu_str(menuwin, buf);
                 ++n;
             }
@@ -2421,7 +2426,9 @@ handler_rebind_keys_add(boolean keyfirst)
     char buf2[QBUFSZ];
     uchar key = '\0';
     int clr = NO_COLOR;
+    char cmdstr[BUFSZ];
 
+    cmdstr[0] = '\0';
     if (keyfirst) {
         pline("Bind which key? ");
         key = pgetchar();
@@ -2475,7 +2482,6 @@ handler_rebind_keys_add(boolean keyfirst)
     destroy_nhwindow(win);
     if (npick > 0) {
         struct Cmd_bind *prevcmd;
-        char cmdstr[BUFSZ];
 
         i = picks->item.a_int;
         free((genericptr_t) picks);
@@ -3079,7 +3085,7 @@ dokeylist(void)
     Sprintf(buf, "%-7s", key2txt(key, buf2));
 #else
     /* first of the keyless commands */
-    Sprintf(buf2, "[%s]", key2txt(key, buf));
+    Snprintf(buf2, sizeof buf2, "[%s]", key2txt(key, buf));
     Sprintf(buf, "%-21s", buf2);
 #endif
     Strcat(buf, " interrupt: break out of NetHack (SIGINT)");

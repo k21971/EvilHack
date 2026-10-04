@@ -60,6 +60,7 @@ static unsigned menu_scrollmask(struct xwindow *);
 static void menu_unscroll(struct xwindow *);
 static Widget menu_create_buttons(struct xwindow *, Widget, Widget);
 static void menu_create_entries(struct xwindow *, struct menu *);
+static unsigned get_col_widths(Widget, X11_Font *, const char *, int **);
 static void destroy_menu_entry_widgets(struct xwindow *);
 static void create_menu_translation_tables(void);
 
@@ -77,6 +78,10 @@ static const char menu_translations[] = "#override\n\
      <Key>Right: scroll(6)\n\
      <Key>Up: scroll(8)\n\
      <Key>Down: scroll(2)\n\
+     <Key>Prior: menu_key(<)\n\
+     <Key>Next: menu_key(>)\n\
+     <Key>Home: menu_key(^)\n\
+     <Key>End: menu_key(|)\n\
      <Btn4Down>: scroll(8)\n\
      <Btn5Down>: scroll(2)\n\
      <Key>: menu_key()";
@@ -85,9 +90,9 @@ static const char menu_entry_translations[] = "#override\n\
      <Btn4Down>: scroll(8)\n\
      <Btn5Down>: scroll(2)";
 
-XtTranslations menu_entry_translation_table = (XtTranslations) 0;
-XtTranslations menu_translation_table = (XtTranslations) 0;
-XtTranslations menu_del_translation_table = (XtTranslations) 0;
+static XtTranslations menu_entry_translation_table = (XtTranslations) 0;
+static XtTranslations menu_translation_table = (XtTranslations) 0;
+static XtTranslations menu_del_translation_table = (XtTranslations) 0;
 
 static void
 create_menu_translation_tables(void)
@@ -168,6 +173,7 @@ menu_select(Widget w, XtPointer client_data, XtPointer call_data)
 
     XtSetArg(args[0], nhStr(XtNlabel), curr->str);
     XtSetValues(w, args, ONE);
+    X11_update_label(w);
 
     if (menu_info->how == PICK_ONE)
         menu_popdown(wp);
@@ -214,6 +220,7 @@ invert_line(struct xwindow *wp, x11_menu_item *curr, int which, long how_many)
         XtSetValues(curr->w, args, ONE);
         curr->pick_count = -1L;
     }
+    X11_update_label(curr->w);
 }
 
 static XEvent fake_perminv_event;
@@ -233,14 +240,14 @@ menu_key(Widget w, XEvent *event, String *params, Cardinal *num_params)
     int count;
     boolean selected_something,
             perminv_scrolling = (event == &fake_perminv_event);
-
-    nhUse(params);
-    nhUse(num_params);
+    Cardinal in_nparams = (num_params ? *num_params : 0);
 
     wp = find_widget(w);
     menu_info = wp->menu_information;
 
-    if (!perminv_scrolling)
+    if (in_nparams) {
+        ch = get_menu_cmd_key(*params[0]);
+    } else if (!perminv_scrolling)
         ch = key_event_to_char((XKeyEvent *) event);
     else
         ch = (char) fake_perminv_event.type;
@@ -256,10 +263,14 @@ menu_key(Widget w, XEvent *event, String *params, Cardinal *num_params)
            overridden if it happens to duplicate a mapped menu command (':'
            to look inside a container vs ':' to select via search string);
            check for group accelerator match too */
-        for (curr = menu_info->curr_menu.base; curr; curr = curr->next)
-            if (curr->identifier.a_void != 0
-                && (curr->selector == ch || curr->gselector == ch))
-                goto make_selection;
+        for (curr = menu_info->curr_menu.base; curr; curr = curr->next) {
+            if (curr->identifier.a_void != 0) {
+                if (curr->selector == ch)
+                    goto make_selection;
+                if (curr->gselector == ch)
+                    goto group_accel;
+            }
+        }
 
         ch = map_menu_cmd(ch);
         if (ch == '\033') { /* quit */
@@ -612,6 +623,8 @@ menu_popdown(struct xwindow *wp)
     wp->w = wp->popup = (Widget) 0;
     if (wp->menu_information->is_active)
         exit_x_event = TRUE;             /* exit our event handler */
+    if (wp->menu_information->permi)
+        iflags.perm_invent = FALSE;
     wp->menu_information->is_up = FALSE; /* menu is down */
 }
 
@@ -841,7 +854,7 @@ X11_add_menu(winid window,
             impossible("Menu item too long (%d).", len);
             len = BUFSZ - 1;
         }
-        Sprintf(buf, "%c %c ", ch ? ch : ' ', preselected ? '+' : '-');
+        Sprintf(buf, "%c\t%c\t", ch ? ch : ' ', preselected ? '+' : '-');
         (void) strncpy(buf + 4, str, len);
         buf[4 + len] = '\0';
         item->str = copy_of(buf);
@@ -1013,6 +1026,9 @@ X11_select_menu(winid window, int how, menu_item **menu_list)
                                                 labelWidgetClass, form,
                                                 args, num_args)
                         : (Widget) 0;
+        if (label) {
+            X11_wrap_widget_if_Xft(label, NHW_MENU);
+        }
 
         all = menu_create_buttons(wp, form, label);
 
@@ -1062,13 +1078,14 @@ X11_select_menu(winid window, int how, menu_item **menu_list)
     menu_create_entries(wp, &menu_info->curr_menu);
 
     /* if viewport will be bigger than the screen, limit its height */
+    XtRealizeWidget(wp->popup); /* need to realize before we get size/pos */
     num_args = 0;
     XtSetArg(args[num_args], XtNwidth, &v_pixel_width); num_args++;
     XtSetArg(args[num_args], XtNheight, &v_pixel_height); num_args++;
     XtGetValues(wp->w, args, num_args);
     if ((Dimension) XtScreen(wp->w)->height * 5 / 6 < v_pixel_height) {
-        /* scrollbar is 14 pixels wide.  Widen the form to accommodate it. */
-        v_pixel_width += 14;
+        /* scrollbar is 17 pixels wide.  Widen the form to accommodate it. */
+        v_pixel_width += 17;
 
         /* shrink to fit vertically */
         v_pixel_height = XtScreen(wp->w)->height * 5 / 6;
@@ -1076,9 +1093,8 @@ X11_select_menu(winid window, int how, menu_item **menu_list)
         num_args = 0;
         XtSetArg(args[num_args], XtNwidth, v_pixel_width); num_args++;
         XtSetArg(args[num_args], XtNheight, v_pixel_height); num_args++;
-        XtSetValues(wp->w, args, num_args);
+        XtSetValues(wp->popup, args, num_args);
     }
-    XtRealizeWidget(wp->popup); /* need to realize before we position */
 
     /* if menu is not up, position it */
     if (!menu_info->is_up) {
@@ -1182,6 +1198,7 @@ menu_create_buttons(struct xwindow *wp, Widget form, Widget under)
     XtSetArg(args[num_args], nhStr(XtNright), XtChainLeft); num_args++;
     ok = XtCreateManagedWidget("OK", commandWidgetClass, form,
                                args, num_args);
+    X11_wrap_widget_if_Xft(ok, NHW_MENU);
     XtAddCallback(ok, XtNcallback, menu_ok, (XtPointer) wp);
     XtSetArg(args[0], XtNwidth, &lblwidth[0]);
     XtGetValues(lblwidget[0] = ok, args, ONE);
@@ -1200,6 +1217,7 @@ menu_create_buttons(struct xwindow *wp, Widget form, Widget under)
     XtSetArg(args[num_args], nhStr(XtNright), XtChainLeft); num_args++;
     cancel = XtCreateManagedWidget("cancel", commandWidgetClass, form,
                                    args, num_args);
+    X11_wrap_widget_if_Xft(cancel, NHW_MENU);
     XtAddCallback(cancel, XtNcallback, menu_cancel, (XtPointer) wp);
     XtSetArg(args[0], XtNwidth, &lblwidth[1]);
     XtGetValues(lblwidget[1] = cancel, args, ONE);
@@ -1217,6 +1235,7 @@ menu_create_buttons(struct xwindow *wp, Widget form, Widget under)
     XtSetArg(args[num_args], nhStr(XtNright), XtChainLeft); num_args++;
     all = XtCreateManagedWidget("all", commandWidgetClass, form,
                                 args, num_args);
+    X11_wrap_widget_if_Xft(all, NHW_MENU);
     XtAddCallback(all, XtNcallback, menu_all, (XtPointer) wp);
     XtSetArg(args[0], XtNwidth, &lblwidth[2]);
     XtGetValues(lblwidget[2] = all, args, ONE);
@@ -1233,6 +1252,7 @@ menu_create_buttons(struct xwindow *wp, Widget form, Widget under)
     XtSetArg(args[num_args], nhStr(XtNright), XtChainLeft); num_args++;
     none = XtCreateManagedWidget("none", commandWidgetClass, form,
                                  args, num_args);
+    X11_wrap_widget_if_Xft(none, NHW_MENU);
     XtAddCallback(none, XtNcallback, menu_none, (XtPointer) wp);
     XtSetArg(args[0], XtNwidth, &lblwidth[3]);
     XtGetValues(lblwidget[3] = none, args, ONE);
@@ -1249,6 +1269,7 @@ menu_create_buttons(struct xwindow *wp, Widget form, Widget under)
     XtSetArg(args[num_args], nhStr(XtNright), XtChainLeft); num_args++;
     invert = XtCreateManagedWidget("invert", commandWidgetClass, form,
                                    args, num_args);
+    X11_wrap_widget_if_Xft(invert, NHW_MENU);
     XtAddCallback(invert, XtNcallback, menu_invert, (XtPointer) wp);
     XtSetArg(args[0], XtNwidth, &lblwidth[4]);
     XtGetValues(lblwidget[4] = invert, args, ONE);
@@ -1266,6 +1287,7 @@ menu_create_buttons(struct xwindow *wp, Widget form, Widget under)
     XtSetArg(args[num_args], nhStr(XtNright), XtChainLeft); num_args++;
     search = XtCreateManagedWidget("search", commandWidgetClass, form,
                                    args, num_args);
+    X11_wrap_widget_if_Xft(search, NHW_MENU);
     XtAddCallback(search, XtNcallback, menu_search, (XtPointer) wp);
     XtSetArg(args[0], XtNwidth, &lblwidth[5]);
     XtGetValues(lblwidget[5] = search, args, ONE);
@@ -1296,13 +1318,46 @@ menu_create_entries(struct xwindow *wp, struct menu *curr_menu)
     Cardinal num_args;
     Dimension cwidth, maxwidth = 0;
 
+    /* Does any line have a selector? */
+    boolean any_canpick = FALSE;
+    for (curr = curr_menu->base; curr; curr = curr->next) {
+        if (curr->identifier.a_void != NULL) {
+            any_canpick = TRUE;
+            break;
+        }
+    }
+
+    int *col_widths = NULL;
+    unsigned num_cols = 0;
+    X11_Font *font;
+#ifdef USE_XFT
+    font = X11_new_font(wp->w, 0, NHW_MENU);
+#endif
+
     for (curr = curr_menu->base; curr; curr = curr->next) {
         char tmpbuf[BUFSZ];
         Widget linewidget;
         String str = (String) curr->str;
         int attr = ATR_NONE;
         int color = NO_COLOR;
-        boolean canpick = (how != PICK_NONE && curr->identifier.a_void);
+        boolean canpick = curr->identifier.a_void != NULL;
+
+        /* Add tabs if needed to align non-selector lines with selector lines */
+        if (any_canpick && !canpick) {
+            char *buf;
+            if (strncmp(str, "    ", 4) == 0) {
+                size_t buf_len = strlen(str);
+                buf = (char *) alloc(buf_len);
+                Snprintf(buf, buf_len, "\t\t%s", str + 4);
+            } else {
+                size_t buf_len = strlen(str) + 3;
+                buf = (char *) alloc(buf_len);
+                Snprintf(buf, buf_len, "\t\t%s", str);
+            }
+            free(curr->str);
+            curr->str = buf;
+            str = buf;
+        }
 
         num_args = 0;
         XtSetArg(args[num_args], nhStr(XtNlabel), str); num_args++;
@@ -1345,25 +1400,54 @@ menu_create_entries(struct xwindow *wp, struct menu *curr_menu)
 
         menulineidx++;
         Sprintf(tmpbuf, "menuline_%s", (canpick) ? "command" : "label");
-        curr->w = linewidget = XtCreateManagedWidget(tmpbuf,
-                                                     canpick
-                                                       ? commandWidgetClass
-                                                       : labelWidgetClass,
-                                                     wp->w, args, num_args);
-
-        if (attr == ATR_BOLD) {
-            load_boldfont(wp, curr->w);
-            num_args = 0;
-            XtSetArg(args[num_args], nhStr(XtNfont),
-                     wp->boldfs); num_args++;
-            XtSetValues(curr->w, args, num_args);
-        }
+        /* Need to create the widget unmanaged, set up the pixmap, and then
+           manage it, or else items in the inventory window get the wrong
+           size */
+        curr->w = linewidget = XtCreateWidget(tmpbuf,
+                                              canpick
+                                                ? commandWidgetClass
+                                                : labelWidgetClass,
+                                              wp->w, args, num_args);
+        X11_wrap_widget(curr->w, NHW_MENU);
+        X11_set_attrs(curr->w, 0x1 << attr);
 
         if (canpick)
             XtAddCallback(linewidget, XtNcallback, menu_select,
                           (XtPointer) curr);
         prevlinewidget = linewidget;
 
+#ifndef USE_XFT /* If Xft, the font is acquired at the start of the loop */
+        num_args = 0;
+        XtSetArg(args[num_args], XtNfont, &font); num_args++;
+        XtGetValues(curr->w, args, num_args);
+#endif
+        /* Get column widths for this line */
+        if (strchr(str, '\t') != NULL) { /* Might be a header if no tab */
+            int *col_widths0;
+            unsigned num_cols0 = get_col_widths(curr->w, font, str, &col_widths0);
+            if (num_cols0 > num_cols) {
+                col_widths = (int *) re_alloc((long *) col_widths, num_cols0 * sizeof(col_widths[0]));
+                memset(col_widths + num_cols, 0, sizeof(col_widths[0]) * (num_cols0 - num_cols));
+                num_cols = num_cols0;
+            }
+            for (unsigned i = 0; i < num_cols0; ++i) {
+                col_widths[i] = max(col_widths[i], col_widths0[i]);
+            }
+            free(col_widths0);
+        }
+    }
+#ifdef USE_XFT
+    X11_release_font(wp->w, font);
+#endif
+
+    /* Set the column widths */
+    for (curr = curr_menu->base; curr; curr = curr->next) {
+        if (strchr(curr->str, '\t') != NULL) { /* Might be a header if no tab */
+            X11_set_column_widths(curr->w, col_widths, num_cols);
+        }
+        XtManageChild(curr->w);
+
+        boolean canpick = (how != PICK_NONE && curr->identifier.a_void);
         if (canpick) {
             /* get the current line width */
             XtSetArg(args[0], XtNwidth, &cwidth);
@@ -1373,6 +1457,8 @@ menu_create_entries(struct xwindow *wp, struct menu *curr_menu)
         }
     }
 
+    free(col_widths);
+
     /* set all selectable menu entries to the maximum width */
     if (how != PICK_NONE) {
         XtSetArg(args[0], XtNwidth, maxwidth);
@@ -1380,6 +1466,52 @@ menu_create_entries(struct xwindow *wp, struct menu *curr_menu)
             if (curr->identifier.a_void)
                 XtSetValues(curr->w, args, ONE);
     }
+}
+
+/* Determine widths of columns */
+/* The last column is deemed to extend to the right margin, and is not included
+   in the returned array */
+static unsigned
+get_col_widths(Widget w, X11_Font *font, const char *str, int **col_widths)
+{
+    int col_spacing = X11_column_width(XtDisplay(w), font, "# ", 2);
+
+    /* Determine the number of columns */
+    unsigned num_cols = 0;
+    size_t i = 0;
+    while (str[i] != '\0') {
+        size_t len = strcspn(str + i, "\t");
+        if (str[i+len] == '\0') {
+            break;
+        }
+        ++num_cols;
+        i += len + 1;
+    }
+
+    /* Allocate width array */
+    int *cwidths = (int *) alloc(sizeof(cwidths[0]) * num_cols);
+    memset(cwidths, 0, sizeof(cwidths[0]) * num_cols);
+
+    /* Get the widths of the columns */
+    unsigned col = 0;
+    i = 0;
+    while (str[i] != '\0') {
+        size_t len = strcspn(str + i, "\t");
+        if (str[i+len] == '\0') {
+            break;
+        }
+        cwidths[col] = X11_column_width(XtDisplay(w), font, str + i, len);
+        if (len > 1) {
+            col_spacing = X11_font_height(font) * 2;
+        }
+        cwidths[col] += col_spacing;
+        ++col;
+        i += len + 1;
+    }
+
+    /* Return */
+    *col_widths = cwidths;
+    return num_cols;
 }
 
 static void

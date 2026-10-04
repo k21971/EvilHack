@@ -202,6 +202,7 @@ static const struct instance_globals_a g_init_a = {
 
     /* trap.c */
     { 0, 0, FALSE }, /* acid_ctx */
+    0L,  /* articulo_mortis */
     TRUE, /* havestate*/
 };
 
@@ -658,6 +659,8 @@ static const struct instance_globals_p g_init_p = {
     /* pline.c */
     0U, /* pline_flags */
     UNDEFINED_VALUES, /* prevmsg */
+    /* mon.c */
+    no_terrain_effects, /* pending_terrain_effects */
     /* potion.c */
     UNDEFINED_VALUE, /* potion_nothing */
     UNDEFINED_VALUE, /* potion_unkn */

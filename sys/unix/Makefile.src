@@ -152,7 +152,7 @@ SYSOBJ ?= $(TARGETPFX)ioctl.o $(TARGETPFX)unixmain.o $(TARGETPFX)unixtty.o \
 # flags for Linux
 #   compile normally
 # CFLAGS = -O2 -fomit-frame-pointer -I../include
-# LFLAGS = -L/usr/X11R6/lib
+# LFLAGS = -L/usr/lib64
 #   OR compile backwards compatible a.out format
 # CFLAGS = -O2 -b i486-linuxaout -fomit-frame-pointer -I../include
 # LFLAGS = -b i486-linuxaout -L/usr/X11R6/lib
@@ -258,11 +258,15 @@ WINCURSESOBJ ?= $(TARGETPFX)cursmain.o $(TARGETPFX)curswins.o \
 WINX11SRC ?= ../win/X11/Window.c ../win/X11/dialogs.c ../win/X11/winX.c \
 	../win/X11/winmap.c  ../win/X11/winmenu.c ../win/X11/winmesg.c \
 	../win/X11/winmisc.c ../win/X11/winstat.c ../win/X11/wintext.c \
-	../win/X11/winval.c $(GENTILECFILE)
+	../win/X11/winval.c ../win/X11/winlabel.c \
+	../win/share/tileset.c ../win/share/bmptiles.c ../win/share/giftiles.c \
+	../win/share/pngtiles.c $(GENTILECFILE)
 WINX11OBJ ?= $(TARGETPFX)Window.o $(TARGETPFX)dialogs.o $(TARGETPFX)winX.o \
 	$(TARGETPFX)winmap.o $(TARGETPFX)winmenu.o $(TARGETPFX)winmesg.o \
 	$(TARGETPFX)winmisc.o $(TARGETPFX)winstat.o $(TARGETPFX)wintext.o \
-	$(TARGETPFX)winval.o
+	$(TARGETPFX)winval.o $(TARGETPFX)winlabel.o \
+	$(TARGETPFX)tileset.o $(TARGETPFX)bmptiles.o $(TARGETPFX)giftiles.o \
+	$(TARGETPFX)pngtiles.o
 #
 # Files for a Qt 3 interface (renamed since nethack 3.6.x)
 #
@@ -640,8 +644,10 @@ DATE_O = $(TARGETPFX)date.o
 all:	$(GAME)
 	@echo ""
 
-create_responsefiles:
+../src/nethack_cc.rsp:
 	echo $(CC_COMPILER_SWITCHES) >$(CC_RESPONSEFILE)
+
+../src/nethack_cxx.rsp:
 	echo $(CXX_COMPILER_SWITCHES) >$(CXX_RESPONSEFILE)
 
 pregame: $(RESPONSEFILES)
@@ -750,7 +756,7 @@ qt3tableview.moc: ../win/Qt3/qt3tableview.h
 	$(QTDIR)/bin/moc -o qt3tableview.moc ../win/Qt3/qt3tableview.h
 
 #	build monst.o and objects.o before executing '$(MAKE) makedefs'
-$(MAKEDEFS): $(FIRSTOBJ) \
+$(MAKEDEFS): $(RESPONSEFILES) $(FIRSTOBJ) \
 		../util/makedefs.c ../src/mdlib.c $(CONFIG_H) \
 		../include/permonst.h ../include/monsters.h \
 		../include/objclass.h ../include/objects.h ../include/sym.h \
@@ -768,7 +774,7 @@ $(MAKEDEFS): $(FIRSTOBJ) \
 	@( cd ../util ; $(MAKE) ../include/pm.h )
 #	Created at build time for configurations which support tiles,
 #	but not by makedefs so not connected to the others.
-../src/tile.c: ../win/share/tilemap.c $(HACK_H)
+../src/tile.c: $(RESPONSEFILES) ../win/share/tilemap.c $(HACK_H)
 	@( cd ../util ; $(MAKE) ../src/tile.c )
 
 #
@@ -797,7 +803,7 @@ $(TARGETPFX)date.o: date.c $(GENTILECFILE) $(HACK_H) $(HACKCSRC)  $(HOBJ) $(TARG
 #	Do NOT include ../dat/gitinfo.txt as either a prerequisite or target.
 #	'makedefs -v' processes it when present and ignores it if not.
 #
-../include/date.h: ../util/makedefs $(VERSOURCES) $(HACK_H)
+../include/date.h: $(RESPONSEFILES) ../util/makedefs $(VERSOURCES) $(HACK_H)
 	-$(SHELL) ../sys/unix/gitinfo.sh $(GITINFO) #before 'makedefs -v'
 	../util/makedefs -v
 
@@ -1076,6 +1082,8 @@ $(TARGETPFX)winX.o: ../win/X11/winX.c $(HACK_H) ../include/dlb.h \
 		../include/winX.h ../include/xwindow.h ../win/X11/nh32icon \
 		../win/X11/nh56icon ../win/X11/nh72icon
 	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/X11/winX.c
+$(TARGETPFX)winlabel.o: ../win/X11/winlabel.c $(HACK_H) ../include/winX.h
+	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/X11/winlabel.c
 $(TARGETPFX)winmap.o: ../win/X11/winmap.c $(HACK_H) ../include/dlb.h \
 		../include/tile2x11.h ../include/winX.h ../include/xwindow.h
 	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/X11/winmap.c
@@ -1095,6 +1103,18 @@ $(TARGETPFX)wintext.o: ../win/X11/wintext.c $(HACK_H) ../include/winX.h \
 	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/X11/wintext.c
 $(TARGETPFX)winval.o: ../win/X11/winval.c $(HACK_H) ../include/winX.h
 	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/X11/winval.c
+$(TARGETPFX)tileset.o: ../win/share/tileset.c $(CONFIG_H) \
+		../include/objclass.h ../include/flag.h ../include/tileset.h
+	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/share/tileset.c
+$(TARGETPFX)bmptiles.o: ../win/share/bmptiles.c $(CONFIG_H) \
+		../include/objclass.h ../include/tileset.h
+	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/share/bmptiles.c
+$(TARGETPFX)giftiles.o: ../win/share/giftiles.c $(CONFIG_H) \
+		../include/objclass.h ../include/tileset.h
+	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/share/giftiles.c
+$(TARGETPFX)pngtiles.o: ../win/share/pngtiles.c $(CONFIG_H) \
+		../include/objclass.h ../include/tileset.h
+	$(TARGET_CC) $(TARGET_CFLAGS) $(X11CFLAGS) -c -o $@ ../win/share/pngtiles.c
 $(TARGETPFX)wc_chainin.o: ../win/chain/wc_chainin.c $(HACK_H)
 	$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ ../win/chain/wc_chainin.c
 $(TARGETPFX)wc_chainout.o: ../win/chain/wc_chainout.c $(HACK_H)

@@ -163,7 +163,7 @@ typedef SSIZE_T ssize_t;
 #endif /* _MSC_VER */
 
 /* The following is needed for prototypes of certain functions */
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__GNUC__)
 #include <process.h> /* Provides prototypes of exit(), spawn()      */
 #endif
 

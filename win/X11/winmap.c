@@ -39,6 +39,7 @@
 #include "hack.h"
 #include "dlb.h"
 #include "winX.h"
+#include "tileset.h"
 
 #ifdef USE_XPM
 #include <X11/xpm.h>
@@ -59,31 +60,49 @@ extern int total_tiles_used, Tile_corr;
 #define NH_INVERSE_COLOR  0x40000000
 #define NH_ENHANCED_COLOR 0x80000000
 
-static X11_map_symbol glyph_char(const glyph_info *glyphinfo);
+#ifdef USE_XFT
+static void X11_get_color(struct xwindow *wp, X11_color nhcolor, XftColor *color);
+static void X11_draw_image_string(XftDraw *draw, XftFont *font,
+                                  XftColor *fgcolor, XftColor *bgcolor,
+                                  int x, int y,
+                                  const X11_map_symbol *string, int length);
+#else /* !USE_XFT */
 static GC X11_make_gc(struct xwindow *wp, struct text_map_info_t *text_map,
                       X11_color color, boolean inverted);
-#ifdef ENHANCED_SYMBOLS
 static void X11_free_gc(struct xwindow *wp, GC gc, X11_color color);
-#endif
-#ifdef ENHANCED_SYMBOLS
-static void X11_set_map_font(struct xwindow *wp);
-#endif
 static void X11_draw_image_string(Display *display, Drawable d,
                                   GC ggc, int x, int y,
                                   const X11_map_symbol *string, int length);
+#ifdef ENHANCED_SYMBOLS
+static void X11_set_map_font(struct xwindow *wp);
+#endif
+#endif /* ?USE_XFT */
 static Font X11_get_map_font(struct xwindow *wp);
+#ifndef USE_XFT
 static XFontStruct *X11_get_map_font_struct(struct xwindow *wp);
+#endif
+static void get_text_gc(struct xwindow *, Font);
 static boolean init_tiles(struct xwindow *);
+static unsigned long color_to_rgb(unsigned, unsigned, unsigned,
+                                  const Visual *);
+static unsigned long shift_color(unsigned color, unsigned long mask);
 static void set_button_values(Widget, int, int, unsigned);
 static void map_check_size_change(struct xwindow *);
 static void map_update(struct xwindow *, int, int, int, int, boolean);
 static void init_text(struct xwindow *);
+static void report_callback(Widget, XtPointer, XtPointer);
 static void map_exposed(Widget, XtPointer, XtPointer);
 static void set_gc(Widget, Font, const char *, Pixel, GC *, GC *);
-static void get_text_gc(struct xwindow *, Font);
 static void map_all_unexplored(struct map_info_t *);
 static void get_char_info(struct xwindow *);
 static void display_cursor(struct xwindow *);
+
+static boolean read_any_tiles(const char *tile_file);
+#ifdef USE_XPM
+static boolean read_xpm_tiles(const char *tile_file);
+#else
+static boolean read_binary_tiles(const char *tile_file);
+#endif
 
 /* Global functions ======================================================= */
 
@@ -136,7 +155,7 @@ X11_print_glyph(
 
         color = glyphinfo->gm.sym.color;
         special = glyphinfo->gm.glyphflags;
-        ch = glyph_char(glyphinfo);
+        ch = X11_glyph_char(glyphinfo);
 
         if (glyphinfo->gm.customcolor != 0) {
             if ((glyphinfo->gm.customcolor & NH_BASIC_COLOR) != 0) {
@@ -194,83 +213,6 @@ X11_print_glyph(
         if (x > map_info->t_stop[y])
             map_info->t_stop[y] = x;
     }
-}
-
-static X11_map_symbol
-glyph_char(const glyph_info *glyphinfo)
-{
-#ifdef ENHANCED_SYMBOLS
-    /* CP437 to Unicode mapping according to the Unicode Consortium */
-    static const uint16 cp437[256] = {
-        0x0020, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
-        0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
-        0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25AC, 0x21A8,
-        0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
-        0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
-        0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
-        0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
-        0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
-        0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
-        0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x004f,
-        0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
-        0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x005f,
-        0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
-        0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
-        0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
-        0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, 0x2302,
-        0x00c7, 0x00fc, 0x00e9, 0x00e2, 0x00e4, 0x00e0, 0x00e5, 0x00e7,
-        0x00ea, 0x00eb, 0x00e8, 0x00ef, 0x00ee, 0x00ec, 0x00c4, 0x00c5,
-        0x00c9, 0x00e6, 0x00c6, 0x00f4, 0x00f6, 0x00f2, 0x00fb, 0x00f9,
-        0x00ff, 0x00d6, 0x00dc, 0x00a2, 0x00a3, 0x00a5, 0x20a7, 0x0192,
-        0x00e1, 0x00ed, 0x00f3, 0x00fa, 0x00f1, 0x00d1, 0x00aa, 0x00ba,
-        0x00bf, 0x2310, 0x00ac, 0x00bd, 0x00bc, 0x00a1, 0x00ab, 0x00bb,
-        0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
-        0x2555, 0x2563, 0x2551, 0x2557, 0x255d, 0x255c, 0x255b, 0x2510,
-        0x2514, 0x2534, 0x252c, 0x251c, 0x2500, 0x253c, 0x255e, 0x255f,
-        0x255a, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256c, 0x2567,
-        0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256b,
-        0x256a, 0x2518, 0x250c, 0x2588, 0x2584, 0x258c, 0x2590, 0x2580,
-        0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4,
-        0x03a6, 0x0398, 0x03a9, 0x03b4, 0x221e, 0x03c6, 0x03b5, 0x2229,
-        0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248,
-        0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0
-    };
-    /* Display DECgraphics as Unicode */
-    static const uint16 decgraphics[128] = {
-        0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
-        0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F,
-        0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
-        0x0018, 0x0019, 0x001A, 0x001B, 0x001C, 0x001D, 0x001E, 0x001F,
-        0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
-        0x0028, 0x0029, 0x002A, 0x2192, 0x2190, 0x2191, 0x2193, 0x002F,
-        0x2588, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
-        0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F,
-        0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
-        0x0048, 0x0049, 0x004A, 0x004B, 0x004C, 0x004D, 0x004E, 0x004F,
-        0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
-        0x0058, 0x0059, 0x005A, 0x005B, 0x005C, 0x005D, 0x005E, 0x005F,
-        0x2666, 0x2592, 0x0062, 0x0063, 0x0064, 0x0065, 0x00B0, 0x00B1,
-        0x2591, 0x00A4, 0x2518, 0x2510, 0x250C, 0x2514, 0x253C, 0x23BA,
-        0x23BB, 0x2500, 0x23BC, 0x23BD, 0x251C, 0x2524, 0x2534, 0x252C,
-        0x2502, 0x2264, 0x2265, 0x03C0, 0x2260, 0x00A3, 0x00B7, 0x007F
-    };
-    X11_map_symbol och;
-
-    if (SYMHANDLING(H_UTF8) && glyphinfo->gm.u != NULL && glyphinfo->gm.u->utf8str != NULL) {
-        och = glyphinfo->gm.u->utf32ch;
-    } else {
-        och = (uchar) glyphinfo->ttychar;
-        if (SYMHANDLING(H_IBM)) {
-            och = cp437[och];
-        } else if ((SYMHANDLING(H_DEC) || SYMHANDLING(H_CURS)) && och >= 0x80) {
-            och = decgraphics[och & 0x7F];
-        }
-    }
-
-    return och;
-#else
-    return (char) glyphinfo->ttychar;
-#endif
 }
 
 #ifdef CLIPPING
@@ -385,22 +327,6 @@ post_process_tiles(void)
 static boolean
 init_tiles(struct xwindow *wp)
 {
-#ifdef USE_XPM
-    XpmAttributes attributes;
-    int errorcode;
-#else
-    FILE *fp = (FILE *) 0;
-    x11_header header;
-    unsigned char *cp, *colormap = (unsigned char *) 0;
-    unsigned char *tb, *tile_bytes = (unsigned char *) 0;
-    int size;
-    XColor *colors = (XColor *) 0;
-    unsigned i;
-    int x, y;
-    int bitmap_pad;
-    int ddepth;
-#endif
-    char buf[BUFSZ];
     Display *dpy = XtDisplay(toplevel);
     Screen *screen = DefaultScreenOfDisplay(dpy);
     struct map_info_t *map_info = (struct map_info_t *) 0;
@@ -409,10 +335,18 @@ init_tiles(struct xwindow *wp)
     boolean result = TRUE;
     XGCValues values;
     XtGCMask mask;
+    const char *tile_file;
 
     /* already have tile information */
     if (tile_pixmap != None)
         goto tiledone;
+
+    /* honor the user's tile file setting */
+    if (iflags.wc_tile_file != NULL && iflags.wc_tile_file[0] != '\0') {
+        tile_file = iflags.wc_tile_file;
+    } else {
+        tile_file = appResources.tile_file;
+    }
 
     map_info = wp->map_information;
     tile_info = &map_info->tile_map;
@@ -420,42 +354,266 @@ init_tiles(struct xwindow *wp)
                   sizeof (struct tile_map_info_t));
 
     /* no tile file name, no tile information */
-    if (!appResources.tile_file[0]) {
+    if (!tile_file[0]) {
         result = FALSE;
         goto tiledone;
     }
 
+    result = read_any_tiles(tile_file);
+    if (!result) {
 #ifdef USE_XPM
+        result = read_xpm_tiles(tile_file);
+    #else
+        result = read_binary_tiles(tile_file);
+#endif
+    }
+
+    if (!result)
+        goto tiledone;
+
+    /* fake an inverted tile by drawing a border around the edges */
+#ifdef USE_WHITE
+    /* use white or black as the border */
+    mask = GCFunction | GCForeground | GCGraphicsExposures;
+    values.graphics_exposures = False;
+    values.foreground = WhitePixelOfScreen(screen);
+    values.function = GXcopy;
+    tile_info->white_gc = XtGetGC(wp->w, mask, &values);
+    values.graphics_exposures = False;
+    values.foreground = BlackPixelOfScreen(screen);
+    values.function = GXcopy;
+    tile_info->black_gc = XtGetGC(wp->w, mask, &values);
+#else
+    /*
+     * Use xor so we don't have to check for special colors.  Xor white
+     * against the upper left pixel of the corridor so that we have a
+     * white rectangle when in a corridor.
+     */
+    mask = GCFunction | GCForeground | GCGraphicsExposures;
+    values.graphics_exposures = False;
+    values.foreground =
+        WhitePixelOfScreen(screen)
+        ^ XGetPixel(tile_image, 0,
+                    tile_height * T_corr);
+    values.function = GXxor;
+    tile_info->white_gc = XtGetGC(wp->w, mask, &values);
+
+    mask = GCFunction | GCGraphicsExposures;
+    values.function = GXCopy;
+    values.graphics_exposures = False;
+    tile_info->black_gc = XtGetGC(wp->w, mask, &values);
+#endif /* USE_WHITE */
+
+ tiledone:
+    if (result) { /* succeeded */
+        tile_info->square_height = tile_height;
+        tile_info->square_width = tile_width;
+        tile_info->square_ascent = 0;
+        tile_info->square_lbearing = 0;
+        tile_info->image_width = image_width;
+        tile_info->image_height = image_height;
+    }
+
+    return result;
+}
+
+static boolean
+read_any_tiles(const char *tile_file)
+{
+    Display *dpy = XtDisplay(toplevel);
+    int ddepth = DefaultDepth(dpy, DefaultScreen(dpy));
+
+    /* Read the image */
+    struct TileSetImage image;
+    boolean result = read_tile_image(&image, tile_file, ddepth >= 15);
+    if (!result) {
+        /* Format not recognized */
+        return FALSE;
+    }
+
+    /* Set the tile dimensions */
+    unsigned image_width = image.width;
+    unsigned image_height = image.height;
+    tile_width = (iflags.wc_tile_width != 0)
+               ? iflags.wc_tile_width
+               : (int) image.tile_width;
+    tile_height = (iflags.wc_tile_height != 0)
+                ? iflags.wc_tile_height
+                : (int) image.tile_height;
+
+    /* Set the tile count */
+    int tile_cols = image.width / tile_width;
+    int tile_rows = image.height / tile_height;
+    tile_count = tile_cols * tile_rows;
+
+    /* Double the size if requested */
+    if (appResources.double_tile_size) {
+        tile_width *= 2;
+        tile_height *= 2;
+        image_height *= 2;
+        image_width *= 2;
+    }
+
+    /* calculate bitmap_pad */
+    int bitmap_pad;
+    if (ddepth > 16)
+        bitmap_pad = 32;
+    else if (ddepth > 8)
+        bitmap_pad = 16;
+    else
+        bitmap_pad = 8;
+
+    /* Convert to XImage */
+    Screen *screen = DefaultScreenOfDisplay(dpy);
+    Visual *visual = DefaultVisualOfScreen(screen);
+    tile_image = XCreateImage(
+            dpy, visual,
+            ddepth,       /* depth */
+            ZPixmap,      /* format */
+            0,            /* offset */
+            (char *) 0,   /* data */
+            image_width,  /* width */
+            image_height, /* height */
+            bitmap_pad,   /* bit pad */
+            0);           /* bytes_per_line */
+
+    if (tile_image == NULL) {
+        X11_raw_print("Failed to allocate XImage");
+        goto tile_error;
+    }
+
+    /* now we know the physical memory requirements, we can allocate space */
+    tile_image->data =
+        (char *) alloc((unsigned) tile_image->bytes_per_line * image_height);
+
+    unsigned char *tile_bytes = image.indexes;
+    XColor colors[256];
+    if (tile_bytes != NULL) { /* tileset uses a palette */
+        size_t size = (size_t) image.width * (size_t) image.height;
+        unsigned num_colors = 0;
+        for (unsigned j = 0; j < size; ++j) {
+            num_colors = max(num_colors, tile_bytes[j] + 1U);
+        }
+        for (unsigned i = 0; i < num_colors; i++) {
+            struct Pixel *cp = &image.palette[i];
+            colors[i].red = cp->r * 256;
+            colors[i].green = cp->g * 256;
+            colors[i].blue = cp->b * 256;
+            colors[i].flags = 0;
+            colors[i].pixel = 0;
+
+            if (!XAllocColor(dpy, DefaultColormapOfScreen(screen), &colors[i])
+                && !nhApproxColor(screen, DefaultColormapOfScreen(screen),
+                                  (char *) 0, &colors[i])) {
+                char buf[BUFSZ];
+                Snprintf(buf, sizeof (buf), "%dth of %u color allocation failed", i,
+                         num_colors);
+                X11_raw_print(buf);
+                goto tile_error;
+            }
+        }
+    }
+
+    /* Convert the pixels */
+    unsigned char *tb = image.indexes;
+    struct Pixel *cp = image.pixels;
+    for (unsigned y = 0; y < image.height; y++) {
+        for (unsigned x = 0; x < image.width; x++) {
+            unsigned long pixel;
+            if (tb == NULL) {
+                pixel = color_to_rgb(cp->r, cp->g, cp->b, visual);
+                ++cp;
+            } else {
+                pixel = colors[*tb++].pixel;
+            }
+            if (appResources.double_tile_size) {
+                XPutPixel(tile_image, x * 2 + 0, y * 2 + 0, pixel);
+                XPutPixel(tile_image, x * 2 + 1, y * 2 + 0, pixel);
+                XPutPixel(tile_image, x * 2 + 0, y * 2 + 1, pixel);
+                XPutPixel(tile_image, x * 2 + 1, y * 2 + 1, pixel);
+            } else {
+                XPutPixel(tile_image, x, y, pixel);
+            }
+        }
+    }
+
+    free_tile_image(&image);
+    return TRUE;
+
+tile_error:
+    free_tile_image(&image);
+    return FALSE;
+}
+
+static unsigned long
+color_to_rgb(unsigned red, unsigned green, unsigned blue, const Visual *visual)
+{
+    return shift_color(red,   visual->red_mask  )
+         | shift_color(green, visual->green_mask)
+         | shift_color(blue,  visual->blue_mask );
+}
+
+static unsigned long
+shift_color(unsigned color, unsigned long mask)
+{
+    unsigned long mask1;
+    unsigned long color1;
+
+    /* Shift color to match mask */
+    mask1 = mask;
+    color1 = color;
+    while (mask1 > 0xFF) {
+        mask1 >>= 1;
+        color1 <<= 1;
+    }
+    while (mask1 < 0x80) {
+        mask1 <<= 1;
+        color1 >>= 1;
+    }
+
+    return mask & color1;
+}
+
+#ifdef USE_XPM
+static boolean
+read_xpm_tiles(const char *tile_file)
+{
+    XpmAttributes attributes;
+    int errorcode;
+
+    char buf[BUFSZ];
+    Display *dpy = XtDisplay(toplevel);
+    unsigned int image_height = 0, image_width = 0;
+
     attributes.valuemask = XpmCloseness;
     attributes.closeness = 25000;
 
-    errorcode = XpmReadFileToImage(dpy, appResources.tile_file, &tile_image,
+    errorcode = XpmReadFileToImage(dpy, tile_file, &tile_image,
                                    0, &attributes);
 
     if (errorcode == XpmColorFailed) {
         Sprintf(buf, "Insufficient colors available to load %s.",
-                appResources.tile_file);
+                tile_file);
         X11_raw_print(buf);
         X11_raw_print("Try closing other colorful applications and restart.");
         X11_raw_print("Attempting to load with inferior colors.");
         attributes.closeness = 50000;
-        errorcode = XpmReadFileToImage(dpy, appResources.tile_file,
+        errorcode = XpmReadFileToImage(dpy, tile_file,
                                        &tile_image, 0, &attributes);
     }
 
     if (errorcode != XpmSuccess) {
         if (errorcode == XpmColorFailed) {
             Sprintf(buf, "Insufficient colors available to load %s.",
-                    appResources.tile_file);
+                    tile_file);
             X11_raw_print(buf);
         } else {
-            Sprintf(buf, "Failed to load %s: %s", appResources.tile_file,
+            Sprintf(buf, "Failed to load %s: %s", tile_file,
                     XpmGetErrorString(errorcode));
             X11_raw_print(buf);
         }
-        result = FALSE;
         X11_raw_print("Switching to text-based mode.");
-        goto tiledone;
+        return FALSE;
     }
 
     /* assume a fixed number of tiles per row */
@@ -463,12 +621,11 @@ init_tiles(struct xwindow *wp)
         || tile_image->width <= TILES_PER_ROW) {
         Sprintf(buf,
                "%s is not a multiple of %d (number of tiles/row) pixels wide",
-                appResources.tile_file, TILES_PER_ROW);
+                tile_file, TILES_PER_ROW);
         X11_raw_print(buf);
         XDestroyImage(tile_image);
         tile_image = 0;
-        result = FALSE;
-        goto tiledone;
+        return FALSE;
     }
 
     /* infer tile dimensions from image size and TILES_PER_ROW */
@@ -481,25 +638,47 @@ init_tiles(struct xwindow *wp)
     }
     tile_width = image_width / TILES_PER_ROW;
     tile_height = image_height / (tile_count / TILES_PER_ROW);
+
+    return TRUE;
+}
+
 #else /* !USE_XPM */
+
+static boolean
+read_binary_tiles(const char *tile_file)
+{
+    FILE *fp = (FILE *) 0;
+    x11_header header;
+    unsigned char *cp, *colormap = (unsigned char *) 0;
+    unsigned char *tb, *tile_bytes = (unsigned char *) 0;
+    int size;
+    XColor *colors = (XColor *) 0;
+    unsigned i;
+    int x, y;
+    int bitmap_pad;
+    int ddepth;
+
+    char buf[BUFSZ];
+    Display *dpy = XtDisplay(toplevel);
+    Screen *screen = DefaultScreenOfDisplay(dpy);
+    unsigned int image_height = 0, image_width = 0;
+    boolean result = FALSE;
+
     /* any less than 16 colours makes tiles useless */
     ddepth = DefaultDepthOfScreen(screen);
     if (ddepth < 4) {
         X11_raw_print("need a screen depth of at least 4");
-        result = FALSE;
         goto tiledone;
     }
 
-    fp = fopen_datafile(appResources.tile_file, RDBMODE, FALSE);
+    fp = fopen_datafile(tile_file, RDBMODE, FALSE);
     if (!fp) {
         X11_raw_print("can't open tile file");
-        result = FALSE;
         goto tiledone;
     }
 
     if ((int) fread((char *) &header, sizeof(header), 1, fp) != 1) {
         X11_raw_print("read of header failed");
-        result = FALSE;
         goto tiledone;
     }
 
@@ -507,7 +686,6 @@ init_tiles(struct xwindow *wp)
         Sprintf(buf, "Wrong tile file version, expected 2, got %lu",
                 header.version);
         X11_raw_print(buf);
-        result = FALSE;
         goto tiledone;
     }
 #ifdef VERBOSE
@@ -523,7 +701,6 @@ ntiles %ld\n",
     colormap = (unsigned char *) alloc((unsigned) size);
     if ((int) fread((char *) colormap, 1, size, fp) != size) {
         X11_raw_print("read of colormap failed");
-        result = FALSE;
         goto tiledone;
     }
 
@@ -542,7 +719,6 @@ ntiles %ld\n",
             Sprintf(buf, "%dth out of %ld color allocation failed", i,
                     header.ncolors);
             X11_raw_print(buf);
-            result = FALSE;
             goto tiledone;
         }
     }
@@ -560,7 +736,6 @@ ntiles %ld\n",
     if ((int) fread((char *) tile_bytes, size, tile_count, fp)
         != tile_count) {
         X11_raw_print("read of tile bytes failed");
-        result = FALSE;
         goto tiledone;
     }
 
@@ -568,7 +743,6 @@ ntiles %ld\n",
         Sprintf(buf, "tile file incomplete, expecting %d tiles, found %lu",
                 total_tiles_used, header.ntiles);
         X11_raw_print(buf);
-        result = FALSE;
         goto tiledone;
     }
 
@@ -604,7 +778,6 @@ ntiles %ld\n",
     if (!tile_image) {
         impossible("init_tiles: insufficient memory to create image");
         X11_raw_print("Resorting to text map.");
-        result = FALSE;
         goto tiledone;
     }
 
@@ -636,47 +809,10 @@ ntiles %ld\n",
             for (x = 0; x < (int) image_width; x++, tb++)
                 XPutPixel(tile_image, x, y, colors[*tb].pixel);
     }
-#endif /* ?USE_XPM */
 
-    /* fake an inverted tile by drawing a border around the edges */
-#ifdef USE_WHITE
-    /* use white or black as the border */
-    mask = GCFunction | GCForeground | GCGraphicsExposures;
-    values.graphics_exposures = False;
-    values.foreground = WhitePixelOfScreen(screen);
-    values.function = GXcopy;
-    tile_info->white_gc = XtGetGC(wp->w, mask, &values);
-    values.graphics_exposures = False;
-    values.foreground = BlackPixelOfScreen(screen);
-    values.function = GXcopy;
-    tile_info->black_gc = XtGetGC(wp->w, mask, &values);
-#else
-    /*
-     * Use xor so we don't have to check for special colors.  Xor white
-     * against the upper left pixel of the corridor so that we have a
-     * white rectangle when in a corridor.
-     */
-    mask = GCFunction | GCForeground | GCGraphicsExposures;
-    values.graphics_exposures = False;
-    values.foreground =
-        WhitePixelOfScreen(screen)
-        ^ XGetPixel(tile_image, 0,
-#if 0
-                    tile_height * glyph2tile[cmap_to_glyph(S_corr)]);
-#else
-                    tile_height * T_corr);
-#endif
-    values.function = GXxor;
-    tile_info->white_gc = XtGetGC(wp->w, mask, &values);
-
-    mask = GCFunction | GCGraphicsExposures;
-    values.function = GXCopy;
-    values.graphics_exposures = False;
-    tile_info->black_gc = XtGetGC(wp->w, mask, &values);
-#endif /* USE_WHITE */
+    result = TRUE;
 
  tiledone:
-#ifndef USE_XPM
     if (fp)
         (void) fclose(fp);
     if (colormap)
@@ -685,19 +821,11 @@ ntiles %ld\n",
         free((genericptr_t) tile_bytes);
     if (colors)
         free((genericptr_t) colors);
-#endif
-
-    if (result) { /* succeeded */
-        tile_info->square_height = tile_height;
-        tile_info->square_width = tile_width;
-        tile_info->square_ascent = 0;
-        tile_info->square_lbearing = 0;
-        tile_info->image_width = image_width;
-        tile_info->image_height = image_height;
-    }
 
     return result;
 }
+
+#endif /* ?USE_XPM */
 
 /*
  * Make sure the map's cursor is always visible.
@@ -916,7 +1044,11 @@ set_gc(
     GC *regular, GC *inverse)
 {
     XGCValues values;
+#ifdef USE_XFT
+    XtGCMask mask = GCFunction | GCForeground | GCBackground;
+#else
     XtGCMask mask = GCFunction | GCForeground | GCBackground | GCFont;
+#endif
     Pixel curpixel;
     Arg arg[1];
 
@@ -1109,6 +1241,16 @@ clear_map_window(struct xwindow *wp)
 static void
 get_char_info(struct xwindow *wp)
 {
+#ifdef USE_XFT
+    struct map_info_t *map_info = wp->map_information;
+    struct text_map_info_t *text_map = &map_info->text_map;
+    XftFont *font = X11_new_font(wp->w, 0, NHW_MAP);
+    text_map->square_width = font->max_advance_width;
+    text_map->square_height = X11_font_height(font);
+    text_map->square_ascent = 0;
+    text_map->square_lbearing = 0;
+    X11_release_font(wp->w, font);
+#else /* !USE_XFT */
     XFontStruct *fs;
     struct map_info_t *map_info = wp->map_information;
     struct text_map_info_t *text_map = &map_info->text_map;
@@ -1140,6 +1282,7 @@ get_char_info(struct xwindow *wp)
 
     if (fs->min_bounds.width != fs->max_bounds.width)
         X11_raw_print("Warning:  map font is not monospaced!");
+#endif /* ?USE_XFT */
 }
 
 /*
@@ -1276,6 +1419,21 @@ set_button_values(Widget w, int x, int y, unsigned int button)
 
     /* Map all buttons but the first to the second click */
     click_button = (button == Button1) ? CLICK_1 : CLICK_2;
+}
+
+/* This ensures that the cursor is visible when we first see the map */
+static void
+report_callback(Widget w, XtPointer client_data,
+            XtPointer widget_data)
+{
+    nhUse(w);
+    XawPannerReport *report = (XawPannerReport *) widget_data;
+    if (report->changed & (XawPRSliderWidth | XawPRSliderHeight)) {
+        struct xwindow *wp = (struct xwindow *) client_data;
+        if (wp->map_information != NULL) {
+            check_cursor_visibility(wp);
+        }
+    }
 }
 
 /*
@@ -1478,47 +1636,141 @@ map_update(struct xwindow *wp, int start_row, int stop_row, int start_col, int s
     } else {
         struct text_map_info_t *text_map = &map_info->text_map;
 
-        {
-            X11_color *c_ptr;
-            X11_map_symbol *t_ptr;
-            int cur_col, win_ystart;
-            X11_color color;
-            GC ggc;
+#ifdef USE_XFT
+        /* Set up font and background color */
+        Display *display = XtDisplay(wp->w);
+        Screen *screen = DefaultScreenOfDisplay(display);
+        Visual *visual = DefaultVisualOfScreen(screen);
+        Colormap cmap = DefaultColormapOfScreen(screen);
 
-            for (row = start_row; row <= stop_row; row++) {
-                win_ystart =
-                    text_map->square_ascent + (row * text_map->square_height);
+        Pixel bgpixel;
+        Arg arg[1];
+        XtSetArg(arg[0], XtNbackground, &bgpixel);
+        XtGetValues(wp->w, arg, 1);
 
-                t_ptr = &(text_map->text[row][start_col]);
-                c_ptr = &(text_map->colors[row][start_col]);
-                cur_col = start_col;
-                while (cur_col <= stop_col) {
-                    color = *c_ptr++;
-                    count = 1;
-                    while ((cur_col + count) <= stop_col && *c_ptr == color) {
-                        count++;
-                        c_ptr++;
-                    }
+        XftDraw *draw = XftDrawCreate(display, XtWindow(wp->w), visual, cmap);
+        XftFont *font = X11_new_font(wp->w, 0, NHW_MAP);
+        XftColor bgcolor;
+        X11_new_color(wp->w, bgpixel, &bgcolor);
+#endif /* USE_XFT */
 
-                    ggc = X11_make_gc(wp, text_map, color, inverted);
-                    X11_draw_image_string(XtDisplay(wp->w), XtWindow(wp->w),
-                                          ggc,
-                                          text_map->square_lbearing
-                                              + (text_map->square_width
-                                                 * (cur_col - COL0_OFFSET)),
-                                          win_ystart, t_ptr, count);
-#ifdef ENHANCED_SYMBOLS
-                    X11_free_gc(wp, ggc, color);
-#endif
+        for (row = start_row; row <= stop_row; row++) {
+            int win_ystart =
+                text_map->square_ascent + (row * text_map->square_height);
 
-                    /* move text pointer and column count */
-                    t_ptr += count;
-                    cur_col += count;
-                } /* col loop */
-            }     /* row loop */
-        }
+            X11_map_symbol *t_ptr = &(text_map->text[row][start_col]);
+            X11_color *c_ptr = &(text_map->colors[row][start_col]);
+            int cur_col = start_col;
+            while (cur_col <= stop_col) {
+                X11_color color = *c_ptr++;
+                count = 1;
+                while ((cur_col + count) <= stop_col && *c_ptr == color) {
+                    count++;
+                    c_ptr++;
+                }
+
+#ifdef USE_XFT
+                XftColor fgcolor;
+                X11_get_color(wp, color, &fgcolor);
+                boolean cur_inv = !!inverted ^ ((color & NH_INVERSE_COLOR) != 0);
+                X11_draw_image_string(draw, font,
+                                      cur_inv ? &bgcolor : &fgcolor,
+                                      cur_inv ? &fgcolor : &bgcolor,
+                                      text_map->square_lbearing
+                                          + (text_map->square_width
+                                             * (cur_col - COL0_OFFSET)),
+                                      win_ystart, t_ptr, count);
+                XftColorFree(display, visual, cmap, &fgcolor);
+#else /* !USE_XFT */
+                GC ggc = X11_make_gc(wp, text_map, color, inverted);
+                X11_draw_image_string(XtDisplay(wp->w), XtWindow(wp->w),
+                                      ggc,
+                                      text_map->square_lbearing
+                                          + (text_map->square_width
+                                             * (cur_col - COL0_OFFSET)),
+                                      win_ystart, t_ptr, count);
+                X11_free_gc(wp, ggc, color);
+#endif /* ?USE_XFT */
+
+                /* move text pointer and column count */
+                t_ptr += count;
+                cur_col += count;
+            } /* col loop */
+        }     /* row loop */
+
+#ifdef USE_XFT
+        /* Free resources from Xft */
+        XftColorFree(display, visual, cmap, &bgcolor);
+        X11_release_font(wp->w, font);
+        XftDrawDestroy(draw);
+#endif /* USE_XFT */
     }
 }
+
+#ifdef USE_XFT
+static void
+X11_get_color(struct xwindow *wp, X11_color nhcolor, XftColor *color)
+{
+    Pixel pixel;
+
+    if ((nhcolor & NH_ENHANCED_COLOR) != 0) {
+        pixel = COLORVAL(nhcolor);
+    } else {
+        static struct {
+            const char *name;
+            Pixel rgb;
+        } map_colors[] = {
+            { XtNblack,          0xFFFFFFFF }, /* CLR_BLACK */
+            { XtNred,            0xFFFFFFFF }, /* CLR_RED */
+            { XtNgreen,          0xFFFFFFFF }, /* CLR_GREEN */
+            { XtNbrown,          0xFFFFFFFF }, /* CLR_BROWN */
+            { XtNblue,           0xFFFFFFFF }, /* CLR_BLUE */
+            { XtNmagenta,        0xFFFFFFFF }, /* CLR_MAGENTA */
+            { XtNcyan,           0xFFFFFFFF }, /* CLR_CYAN */
+            { XtNgray,           0xFFFFFFFF }, /* CLR_GRAY */
+            { XtNforeground,     0xFFFFFFFF }, /* NO_COLOR */
+            { XtNorange,         0xFFFFFFFF }, /* CLR_ORANGE */
+            { XtNbright_green,   0xFFFFFFFF }, /* CLR_BRIGHT_GREEN */
+            { XtNyellow,         0xFFFFFFFF }, /* CLR_YELLOW */
+            { XtNbright_blue,    0xFFFFFFFF }, /* CLR_BRIGHT_BLUE */
+            { XtNbright_magenta, 0xFFFFFFFF }, /* CLR_BRIGHT_MAGENTA */
+            { XtNbright_cyan,    0xFFFFFFFF }, /* CLR_BRIGHT_CYAN */
+            { XtNwhite,          0xFFFFFFFF }, /* CLR_WHITE */
+        };
+        pixel = map_colors[nhcolor & 0xF].rgb;
+        if (pixel == 0xFFFFFFFF) {
+            /* Retrieve resource */
+            Arg arg[1];
+            XtSetArg(arg[0], (char *) map_colors[nhcolor & 0xF].name, &pixel);
+            XtGetValues(wp->w, arg, 1);
+            map_colors[nhcolor & 0xF].rgb = pixel;
+        }
+    }
+
+    X11_new_color(wp->w, pixel, color);
+}
+
+static void
+X11_draw_image_string(
+    XftDraw *draw, XftFont *font,
+    XftColor *fgcolor, XftColor *bgcolor,
+    int x, int y,
+    const X11_map_symbol *string, int length)
+{
+    XftDrawRect(draw, bgcolor, x, y,
+                length * font->max_advance_width,
+                X11_font_height(font));
+
+    int xt = x;
+    int yt = y + font->ascent;
+#ifdef ENHANCED_SYMBOLS
+    XftDrawString32(draw, fgcolor, font, xt, yt, string, length);
+#else /* !ENHANCED_SYMBOLS */
+    XftDrawString8(draw, fgcolor, font, xt, yt, string, length);
+#endif /* ?ENHANCED_SYMBOLS */
+}
+
+#else /* !USE_XFT */
 
 static GC
 X11_make_gc(
@@ -1554,10 +1806,16 @@ X11_make_gc(
                 values.background = bgpixel;
             }
             values.function = GXcopy;
+#ifdef USE_XFT
+            ggc = XtGetGC(wp->w,
+                         GCFunction | GCForeground | GCBackground,
+                         &values);
+#else
             values.font = X11_get_map_font(wp);
             ggc = XtGetGC(wp->w,
                          GCFunction | GCForeground | GCBackground | GCFont,
                          &values);
+#endif
         } else {
             ggc = (cur_inv ? text_map->inv_copy_gc : text_map->copy_gc);
         }
@@ -1581,16 +1839,16 @@ X11_make_gc(
     return ggc;
 }
 
-#ifdef ENHANCED_SYMBOLS
 static void
 X11_free_gc(struct xwindow *wp, GC ggc, X11_color color)
 {
+#ifdef ENHANCED_SYMBOLS
     if ((color & NH_ENHANCED_COLOR) != 0 && iflags.use_color) {
         /* X11_make_gc allocated a new GC */
         XtReleaseGC(wp->w, ggc);
     }
-}
 #endif
+}
 
 static void
 X11_draw_image_string(
@@ -1623,6 +1881,8 @@ X11_draw_image_string(
     XDrawImageString(display, d, ggc, x, y, (char *) string, length);
 #endif /* ?ENHANCED_SYMBOLS */
 }
+
+#endif /* ?USE_XFT */
 
 /* Adjust the number of rows and columns on the given map window */
 void
@@ -1746,10 +2006,11 @@ create_map_window(
         num_args);         /* number of values to set */
 
     XtAddCallback(map, XtNexposeCallback, map_exposed, (XtPointer) 0);
+    XtAddCallback(viewport, XtNreportCallback, report_callback, wp);
 
     map_info = wp->map_information =
         (struct map_info_t *) alloc(sizeof (struct map_info_t));
-#ifdef ENHANCED_SYMBOLS
+#if defined(ENHANCED_SYMBOLS) && !defined(USE_XFT)
     X11_set_map_font(wp);
 #endif
 
@@ -1800,68 +2061,38 @@ create_map_window(
     map_all_unexplored(map_info);
 }
 
-#ifdef ENHANCED_SYMBOLS
+#if defined(ENHANCED_SYMBOLS) && !defined(USE_XFT)
 static void
 X11_set_map_font(struct xwindow *wp)
 {
     struct map_info_t *map_info = wp->map_information;
     XFontStruct *fs;
-    Atom font_atom;
-    const char *font_name;
-    unsigned dashes;
-    const char *p;
-    size_t len;
-    char unicode_font[BUFSZ];
-    Font font_id;
 
     /* Query the configured font for the map */
     fs = WindowFontStruct(wp->w);
-    map_info->text_map.font = fs;
-    if (!XGetFontProperty(fs, XA_FONT, &font_atom)) {
-        return;
-    }
-    font_name = XGetAtomName(XtDisplay(wp->w), font_atom);
-    if (font_name == NULL) {
-        return;
-    }
 
-    /* Proceed to the registry name */
-    dashes = 13;
-    p = font_name;
-    while (dashes != 0) {
-        const char *q = strchr(p, '-');
-        if (q == NULL) {
-            break;
-        }
-        p = q + 1;
-        --dashes;
-    }
-
-    /* Substitute "iso10646-1" for the registry name and encoding */
-    len = (size_t) (p - font_name);
-    if (dashes != 0 || len + 11 > sizeof(unicode_font)) {
-        return;
-    }
-
-    memcpy(unicode_font, font_name, len);
-    strcpy(unicode_font + len, "iso10646-1");
-    font_name = unicode_font;
-
-    font_id = XLoadFont(XtDisplay(wp->w), font_name);
-    map_info->text_map.font = XQueryFont(XtDisplay(wp->w), font_id);
-    if (map_info->text_map.font == NULL) {
+    XFontStruct *unifont = X11_unicode_font(XtDisplay(wp->w), fs);
+    if (unifont != NULL) {
+        map_info->text_map.font = unifont;
+    } else {
         /* Fallback in case no iso10646 */
         map_info->text_map.font = fs;
     }
 }
-#endif
+#endif /* ENHANCED_SYMBOLS && !USE_XFT */
 
 static Font
 X11_get_map_font(struct xwindow *wp)
 {
+#ifdef USE_XFT
+    nhUse(wp);
+    return 0;
+#else /* !USE_XFT */
     return X11_get_map_font_struct(wp)->fid;
+#endif /* ?USE_XFT */
 }
 
+#ifndef USE_XFT
 static XFontStruct *
 X11_get_map_font_struct(struct xwindow *wp)
 {
@@ -1877,6 +2108,7 @@ X11_get_map_font_struct(struct xwindow *wp)
     return WindowFontStruct(wp->w);
 #endif
 }
+#endif /* USE_XFT */
 
 /*
  * Destroy this map window.
@@ -1901,7 +2133,7 @@ destroy_map_window(struct xwindow *wp)
         }
 
         /* Free the font structure if we allocated one */
-#ifdef ENHANCED_SYMBOLS
+#if defined(ENHANCED_SYMBOLS) && !defined(USE_XFT)
         XFreeFont(XtDisplay(wp->w), text_map->font);
 #endif
 

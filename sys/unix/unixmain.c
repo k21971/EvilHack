@@ -328,7 +328,7 @@ main(int argc, char *argv[])
 static void
 process_options(int argc, char *argv[])
 {
-    char *arg, *origarg;
+    char *arg, *origarg = 0;
     int i, l;
 
     config_error_init(FALSE, "command line", FALSE);
@@ -454,22 +454,8 @@ process_options(int argc, char *argv[])
         }
     }
 
-    if (argc > 1) {
-        int mxplyrs = atoi(argv[1]);
-        boolean mx_ok = (mxplyrs > 0);
-#ifdef SYSCF
-        config_error_add("%s%s%s",
-                         mx_ok ? "MAXPLAYERS are set in sysconf file"
-                               : "Expected MAXPLAYERS, found \"",
-                         mx_ok ? "" : argv[1], mx_ok ? "" : "\"");
-#else
-        /* XXX This is deprecated in favor of SYSCF with MAXPLAYERS */
-        if (mx_ok)
-            gl.locknum = mxplyrs;
-        else
-            config_error_add("Invalid MAXPLAYERS \"%s\"", argv[1]);
-#endif
-    }
+    if (argc > 1 && origarg)
+        config_error_add("Unknown option: %.60s", origarg);
 #ifdef MAX_NR_OF_PLAYERS
     /* limit to compile-time limit */
     if (!gl.locknum || gl.locknum > MAX_NR_OF_PLAYERS)
@@ -608,10 +594,24 @@ sethanguphandler(void (*handler)(int))
 #ifdef SIGXCPU
     (void) signal(SIGXCPU, (SIG_RET_TYPE) handler);
 #endif
+#endif /* ?SA_RESTART */
+
 #ifdef WHEREIS_FILE
+    /* Deliberately outside the SA_RESTART split above: this used to sit in
+     * the !SA_RESTART branch, which never runs on Linux, so the handler was
+     * never installed.  Unlike SIGHUP, a whereis refresh must NOT abort a
+     * pending read, so ask for restart where sigaction is available.
+     * signal_whereis() only sets a flag; ck_whereis() does the writing from
+     * the move loop. */
+#ifdef SA_RESTART
+    (void) memset((genericptr_t) &sact, 0, sizeof sact);
+    sact.sa_handler = (SIG_RET_TYPE) signal_whereis;
+    sact.sa_flags = SA_RESTART;
+    (void) sigaction(SIGUSR1, &sact, (struct sigaction *) 0);
+#else
     (void) signal(SIGUSR1, (SIG_RET_TYPE) signal_whereis);
 #endif
-#endif /* ?SA_RESTART */
+#endif /* WHEREIS_FILE */
 }
 
 #ifdef PORT_HELP

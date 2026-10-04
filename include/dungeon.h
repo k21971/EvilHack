@@ -151,7 +151,6 @@ typedef struct branch {
 #define Is_forest(x)          (Lcheck(x, &forest_level))
 
 #define In_sokoban(x) ((x)->dnum == sokoban_dnum)
-#define In_tower(x) ((x)->dnum == tower_dnum)
 #define Inhell In_hell(&u.uz) /* now gehennom */
 #define Ingtown In_goblintown(&u.uz)
 #define Iniceq In_icequeen_branch(&u.uz)

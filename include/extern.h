@@ -356,8 +356,10 @@ extern boolean ozzy_bday(void);
 
 /* ### cfgfiles.c ### */
 
+#ifndef __cplusplus
 #if !defined(CROSSCOMPILE) || defined(CROSSCOMPILE_TARGET)
 extern int l_get_config_errors(lua_State *) NONNULLARG1;
+#endif
 #endif
 extern int do_write_config_file(void);
 extern boolean parse_config_line(char *) NONNULLARG1;
@@ -753,9 +755,11 @@ extern char *x_monnam(struct monst *, int, const char *, int, boolean) NONNULLAR
 extern char *l_monnam(struct monst *) NONNULLARG1;
 extern char *mon_nam(struct monst *) NONNULLARG1;
 extern char *noit_mon_nam(struct monst *) NONNULLARG1;
+extern char *noit_or_your_mon_nam(struct monst *) NONNULLARG1;
 extern char *some_mon_nam(struct monst *) NONNULLARG1;
 extern char *Monnam(struct monst *) NONNULLARG1;
 extern char *noit_Monnam(struct monst *) NONNULLARG1;
+extern char *noit_or_your_Monnam(struct monst *) NONNULLARG1;
 extern char *Some_Monnam(struct monst *) NONNULLARG1;
 extern char *noname_monnam(struct monst *, int) NONNULLARG1;
 extern char *m_monnam(struct monst *) NONNULLARG1;
@@ -1027,6 +1031,7 @@ extern void early_options(int *argc_p, char ***argv_p, char **hackdir_p);
 #ifdef WIN32
 int windows_early_options(const char *);
 #endif
+extern void genl_prag(int, char **); /* profession, race, align, gender */
 
 /* ### eat.c ### */
 
@@ -1213,6 +1218,7 @@ extern int nhclose(int);
 extern void touch_whereis(void);
 extern void delete_whereis(void);
 extern void signal_whereis(int);
+extern void ck_whereis(void);
 #endif
 #ifdef WISH_TRACKER
 extern void trackwish(const char *) NONNULLARG1;
@@ -1223,9 +1229,6 @@ extern boolean debugcore(const char *, boolean);
 extern void reveal_paths(int);
 extern boolean read_tribute(const char *, const char *, int, char *, int,
                             unsigned);
-#ifdef EXTRAINFO_FN
-extern void mk_dgl_extrainfo(void);
-#endif
 extern boolean Death_quote(char *, int) NONNULLARG1;
 extern void livelog_add(long ll_type, const char *) NONNULLARG2;
 ATTRNORETURN extern void do_deferred_showpaths(int) NORETURN;
@@ -2042,6 +2045,9 @@ extern void see_monster_closeup(struct monst *, boolean) NONNULLARG1;
 extern void see_nearby_monsters(void);
 extern void shieldeff_mon(struct monst *) NONNULLARG1;
 extern void flash_mon(struct monst *) NONNULLARG1;
+extern boolean maybe_set_terrain_effects(struct monst *,
+                                         struct permonst *) NONNULLARG1;
+extern void terrain_effects(void);
 
 /* ### mondata.c ### */
 
@@ -2172,9 +2178,6 @@ extern void mplayer_talk(struct monst *) NONNULLARG1;
 #ifndef WIN32
 extern int tgetch(void);
 #endif
-#ifndef TOS
-extern char switchar(void);
-#endif
 #ifndef __GO32__
 extern long freediskspace(char *);
 #ifdef MSDOS
@@ -2294,6 +2297,8 @@ extern void awaken_soldiers(struct monst *) NONNULLARG1;
 extern int do_play_instrument(struct obj *) NONNULLARG1;
 enum instruments obj_to_instr(struct obj *) NONNULLARG1;
 
+#ifndef __cplusplus
+
 /* ### nhlsel.c ### */
 
 #if !defined(CROSSCOMPILE) || defined(CROSSCOMPILE_TARGET)
@@ -2362,11 +2367,12 @@ extern int get_table_boolean_opt(lua_State *, const char *, int) NONNULLARG12;
 extern int get_table_option(lua_State *, const char *, const char *,
                             const char *const *) NO_NNARGS;
 /* extern int str_lines_max_width(const char *); */
-extern const char *get_lua_version(void);
 extern void nhl_pushhooked_open_table(lua_State *L) NONNULLARG1;
 extern void free_tutorial(void);
 extern void tutorial(boolean);
 #endif /* !CROSSCOMPILE || CROSSCOMPILE_TARGET */
+#endif /* not __cplusplus */
+extern const char *get_lua_version(void);
 
 #endif /* MAKEDEFS_C MDLIB_C CPPREGEX_C */
 
@@ -2637,6 +2643,9 @@ extern void gettty(void);
 extern void settty(const char *);
 extern void setftty(void);
 ATTRNORETURN extern void error(const char *, ...) PRINTF_F(1, 2) NORETURN;
+#ifdef ENHANCED_SYMBOLS
+extern void tty_utf8graphics_fixup(void);
+#endif
 #if defined(TIMED_DELAY) && defined(_MSC_VER)
 extern void msleep(unsigned);
 #endif
@@ -3002,9 +3011,10 @@ void restore_gamelog(NHFILE *);
 boolean restgamestate(NHFILE *);
 void restore_msghistory(NHFILE *);
 #endif
-extern void rest_adjust_levelflags(long);
+extern void rest_adjust_levelflags(long, boolean);
 extern void moves_to_relative_time(long *);
 extern void relative_time_to_moves(long *);
+extern void bones_time_adjust(long *);
 extern boolean revision_increment(int, int, uchar *);
 
 /* ### revision.c ### */
@@ -3310,6 +3320,7 @@ extern enum soundlib_ids soundlib_id_from_opt(char *);
 
 /* ### sp_lev.c ### */
 
+#ifndef __cplusplus
 #if !defined(CROSSCOMPILE) || defined(CROSSCOMPILE_TARGET)
 extern boolean match_maptyps(xint16, xint16);
 extern void create_des_coder(void);
@@ -3350,6 +3361,7 @@ extern void l_register_des(lua_State *) NONNULLARG1;
 extern int get_table_objclass(lua_State *) NONNULLARG1;
 extern int get_table_objtype(lua_State *) NONNULLARG1;
 #endif /* !CROSSCOMPILE || CROSSCOMPILE_TARGET */
+#endif /* not __cplusplus */
 
 /* ### spell.c ### */
 
@@ -3577,9 +3589,6 @@ extern void timer_sanity_check(void);
 
 /* ### topten.c ### */
 
-#ifdef RECORD_CONDUCT
-extern long encodeconduct(void);
-#endif
 extern void formatkiller(char *, unsigned, int, boolean) NONNULLARG1;
 extern int observable_depth(d_level *) NONNULLARG1;
 extern void topten(int, time_t);
@@ -4174,9 +4183,14 @@ extern void dump_end_screendump(void);
 extern void html_print_glyph(winid, coordxy, coordxy, const glyph_info *,
                              const glyph_info *);
 #endif
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML) || defined(EXTRAINFO_FN)
 extern char *dump_fmtstr(const char *, char *, boolean) NONNULLPTRS;
+#endif
+#ifdef DUMPLOG
 extern void livelog_dump_url(unsigned int);
+#endif
+#ifdef EXTRAINFO_FN
+extern void mk_dgl_extrainfo(void);
 #endif
 extern void dump_open_log(time_t);
 extern void dump_close_log(void);
