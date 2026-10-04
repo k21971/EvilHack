@@ -14,6 +14,8 @@ staticfn void m_calcdistress(struct monst *);
 staticfn boolean growing_original_vine(struct monst *);
 staticfn boolean monlineu(struct monst *, int, int);
 staticfn boolean pathfind_passable(coordxy, coordxy);
+staticfn boolean pathfind_diag_ok(coordxy, coordxy, coordxy, coordxy,
+                                  boolean);
 staticfn void compute_pathfind_map(void);
 staticfn void compute_escape_pathfind_map(coordxy, coordxy);
 staticfn long mm_2way_aggression(struct monst *, struct monst *);
@@ -3295,6 +3297,33 @@ pathfind_passable(coordxy x, coordxy y)
     return ACCESSIBLE(typ);
 }
 
+/* may the maps join <cx,cy> to its diagonal neighbor <nx,ny>? Mirrors
+   mfndpos()'s terrain rules for a diagonal step, for every monster at
+   once since one map serves them all. A tight squeeze runs between two
+   squares bad_rock() refuses, which for any monster that uses the maps
+   (no wall-walkers, no innate tunnelers) means rock, walls, trees,
+   secret doors and corridors, or a Sokoban boulder - never water, lava
+   or iron bars; the squeeze stays refused even for a monster small and
+   light enough to fit. With 'doors' set, a step into or out of a
+   doorway holding a door, open or shut, is refused as well, as is any
+   doorway on the Rogue level */
+staticfn boolean
+pathfind_diag_ok(
+    coordxy cx, coordxy cy,
+    coordxy nx, coordxy ny,
+    boolean doors)
+{
+    if (doors && ((IS_DOOR(levl[cx][cy].typ) && !doorless_door(cx, cy))
+                  || (IS_DOOR(levl[nx][ny].typ) && !doorless_door(nx, ny))))
+        return FALSE;
+    /* the side squares share their coordinates with the two ends, so
+       they need no isok() */
+    return !((IS_OBSTRUCTED(levl[nx][cy].typ)
+              || (Sokoban && sobj_at(BOULDER, nx, cy)))
+             && (IS_OBSTRUCTED(levl[cx][ny].typ)
+                 || (Sokoban && sobj_at(BOULDER, cx, ny))));
+}
+
 /* Compute distance map using BFS from player position. Sets
    gp.pathfind_dist[x][y] to shortest walking distance from player,
    or PATHFIND_UNREACHABLE if no path exists */
@@ -3340,12 +3369,13 @@ compute_pathfind_map(void)
             if (!pathfind_passable(nx, ny))
                 continue;
 
-            /* diagonal squeeze check - can't cut through corners */
-            if (dx[i] && dy[i]) {
-                if (!pathfind_passable(c.x + dx[i], c.y)
-                    && !pathfind_passable(c.x, c.y + dy[i]))
-                    continue;
-            }
+            /* diagonal: mfndpos()'s squeeze and door rules; the door
+               rule spares the step onto the hero, which is an attack,
+               and monnear() lets a monster attack into or out of a
+               doorway diagonally */
+            if (dx[i] && dy[i]
+                && !pathfind_diag_ok(c.x, c.y, nx, ny, dist > 0))
+                continue;
 
             gp.pathfind_dist[nx][ny] = dist + 1;
             pf_queue[pf_tail].x = nx;
@@ -3437,12 +3467,14 @@ compute_escape_pathfind_map(coordxy target_x, coordxy target_y)
             if (!pathfind_passable(nx, ny))
                 continue;
 
-            /* diagonal squeeze check */
-            if (dx[i] && dy[i]) {
-                if (!pathfind_passable(c.x + dx[i], c.y)
-                    && !pathfind_passable(c.x, c.y + dy[i]))
-                    continue;
-            }
+            /* diagonal: mfndpos()'s squeeze and door rules, the root
+               included, since a monster enters its item or escape
+               square; an image goal is attacked instead, but one
+               target-keyed map serves all three and an image in a
+               doorway is rare */
+            if (dx[i] && dy[i]
+                && !pathfind_diag_ok(c.x, c.y, nx, ny, TRUE))
+                continue;
 
             gp.pathfind_escape_dist[nx][ny] = dist + 1;
             pf_queue[pf_tail].x = nx;
