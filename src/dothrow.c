@@ -2545,8 +2545,10 @@ thitmonst(
 
     /* each attack arm below calls thrown_caitiff() before anything can
        anger the target; a pet catching what it was thrown, Kathryn's
-       candy bar and throwing food to tame or befriend are not attacks */
-    if (mon->mtame && mon->mcanmove
+       candy bar and throwing food to tame or befriend are not attacks.
+       An applied polearm or grapnel stays wielded, so a pet can't
+       catch it */
+    if (hmode != HMON_APPLIED && mon->mtame && mon->mcanmove
         && (!(is_animal(mon->data) || mindless(mon->data)))
         && could_use_item(mon, obj, FALSE, FALSE)) {
         if (could_use_item(mon, obj, TRUE, FALSE)) {
