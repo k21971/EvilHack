@@ -1159,8 +1159,9 @@ dochug(struct monst *mtmp)
            3 = spent its whole action */
         if (tactics_result >= 2)
             return (tactics_result == 2) ? 1 : 0;
-        /* tactics -> mnexto -> deal_with_overcrowding */
-        if (mtmp->mstate)
+        /* tactics -> mnexto -> deal_with_overcrowding; a pending
+           terrain-effect bit alone doesn't mean it left the map */
+        if ((mtmp->mstate & ~TERRAIN_FALLOUT_MASK) != 0)
             return 0;
         set_apparxy(mtmp);
         /* tactics teleports can fire a polymorph trap and change

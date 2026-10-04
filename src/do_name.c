@@ -1116,7 +1116,8 @@ char *
 noit_or_your_mon_nam(struct monst *mtmp)
 {
     return x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                    (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE | SUPPRESS_IT)
+                    (has_mgivenname(mtmp) ? (SUPPRESS_SADDLE
+                                             | SUPPRESS_BARDING | SUPPRESS_IT)
                                           : SUPPRESS_IT),
                     FALSE);
 }

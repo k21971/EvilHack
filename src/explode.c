@@ -212,8 +212,8 @@ explode(
     uchar adtyp;
     int explmask[3][3]; /* 0=normal explosion, 1=do shieldeff, 2=do nothing */
     coordxy xx, yy, hero_x, hero_y;
-    boolean shopdamage = FALSE, generic = FALSE,
-            do_hallu = FALSE, inside_engulfer, grabbed, grabbing;
+    boolean shopdamage = FALSE, do_hallu = FALSE, inside_engulfer,
+            grabbed, grabbing;
     coord grabxy;
     char hallu_buf[BUFSZ], killr_buf[BUFSZ];
     short exploding_wand_typ = 0;
@@ -449,10 +449,8 @@ explode(
 
         tmp_at(DISP_END, 0); /* clear the explosion */
     } else {
-        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE) {
+        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE)
             str = "explosion";
-            generic = TRUE;
-        }
         if (!Deaf && olet != SCROLL_CLASS) {
             Soundeffect(se_blast, 75);
             You_hear("a blast.");
@@ -669,14 +667,15 @@ explode(
                 rehumanize();
             } else {
                 if (olet == MON_EXPLODE) {
-                    if (generic) {
-                        /* explosion was unseen; str=="explosion", */
-                        /* svk.killer.name=="gas spore's explosion" */
-                        if (!strcmp(str, "explosion"))
-                            Strcpy(svk.killer.name, str);
-                    } else if (str != svk.killer.name && str != hallu_buf) {
+                    /* killr_buf kept this explosion's own name ("gas
+                       spore's explosion"), which a nested explosion or
+                       a life-saving may have since cleared from
+                       svk.killer.name; str can be the unseen
+                       "explosion" or a hallucinatory name instead */
+                    if (!you_exploding && *killr_buf)
+                        Strcpy(svk.killer.name, killr_buf);
+                    else if (str != svk.killer.name && str != hallu_buf)
                         Strcpy(svk.killer.name, str);
-                    }
                     svk.killer.format = KILLED_BY_AN;
                 } else if (olet == TRAP_EXPLODE) {
                     svk.killer.format = NO_KILLER_PREFIX;

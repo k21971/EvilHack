@@ -2740,6 +2740,9 @@ clone_mon(
 
     m2->mundetected = 0;
     m2->mtrapped = 0;
+    /* a pending terrain check belongs to the original's square; the
+       clone stands on a different one */
+    m2->mstate &= ~TERRAIN_FALLOUT_MASK;
     /* clones start fresh: clear transient status bits and spell-conferred
        state that would otherwise never time out coherently on the clone */
     m2->mcansee = 1;

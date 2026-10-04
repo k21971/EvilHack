@@ -457,7 +457,8 @@ covetous_approach(struct monst *mtmp)
         boolean couldspot = canspotmon(mtmp);
 
         mnexto(mtmp, RLOC_NOMSG);
-        if (!mtmp->mstate && (mtmp->mstrategy & STRAT_APPEARMSG)) {
+        if (!(mtmp->mstate & ~TERRAIN_FALLOUT_MASK)
+            && (mtmp->mstrategy & STRAT_APPEARMSG)) {
             /* one chance only; but STRAT_APPEARMSG doubles as the bribe
                one-shot tracker, so a peaceful blackmail demon keeps it */
             if (!mtmp->mpeaceful || mtmp->data->msound != MS_BRIBE)
@@ -548,7 +549,8 @@ tactics(struct monst *mtmp)
             expels(mtmp, mtmp->data, TRUE);
             /* expels() moved mtmp off the hero's spot, or off the
                level if there was no room */
-            if (DEADMONSTER(mtmp) || mtmp->mstate)
+            if (DEADMONSTER(mtmp)
+                || (mtmp->mstate & ~TERRAIN_FALLOUT_MASK) != 0)
                 return 0;
             mx = mtmp->mx, my = mtmp->my;
         }

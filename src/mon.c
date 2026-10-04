@@ -8327,10 +8327,15 @@ maybe_set_terrain_effects(struct monst *mtmp, struct permonst *oldmdat)
     struct permonst *mdat = mtmp->data;
     boolean changed = FALSE;
 
-    /* mtmp is in liquid */
+    /* mtmp is in liquid, or on a forge, puddle, sewage or open air
+       square, which minliquid_core() also handles; minliquid()
+       rechecks flight */
     if (is_pool(mtmp->mx, mtmp->my) || Is_waterlevel(&u.uz)
          || is_lava(mtmp->mx, mtmp->my)
-         || IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ)) {
+         || IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ)
+         || IS_FORGE(levl[mtmp->mx][mtmp->my].typ)
+         || is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my)
+         || is_open_air(mtmp->mx, mtmp->my)) {
             /* mtmp is a non-flyer/floater/levitator */
         boolean above_water =
                     ((is_flyer(mdat) || is_floater(mdat))

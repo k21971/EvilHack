@@ -78,6 +78,9 @@ steed_off_map(struct monst *steed)
         remove_monster(steed->mx, steed->my);
         newsym(steed->mx, steed->my);
     }
+    /* like every other off-map transition, drop any pending terrain
+       check; movemon() runs minliquid() on a ridden steed anyway */
+    steed->mstate &= ~TERRAIN_FALLOUT_MASK;
     steed->mstate |= MON_OFFMAP;
 }
 
