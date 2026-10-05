@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-04, after session 181): 304
-  rows closed, 83 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-05, after session 182): 306
+  rows closed, 82 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,13 +34,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 61 LOW: small parity rows, quirks and watch/record-only items.
+  - 60 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-04, session 180 follow-up): the
     ucatchgem() helplessness gate; mon_killer_name() naming priests,
     minions and shopkeepers as melee does; the
-    aasimar announce-on-rehumanize row; the pay_for_damage() holder
-    guard and the engulfed-hero expel / gate (small, could share a
-    slice). Also plannable without a ruling: session 177's
+    aasimar announce-on-rehumanize row. Also plannable without a
+    ruling: session 177's
     terrain-effects coverage row and the Phase 6 set_whereisfile()
     BUG-603 row.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
@@ -51,8 +50,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     in session 176, the done_in_by() imitator naming and rider /
     steed text rows in session 178, the BFS diagonal-rule row in
     session 179, the mnearto() shove and aasimar drain rows in
-    session 180, and the poison death-reason name and poison
-    grave-rise rows in session 181. The
+    session 180, the poison death-reason name and poison
+    grave-rise rows in session 181, and the pay_for_damage()
+    refused-shove and engulfed-hero split rows in session 182. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -76,30 +76,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the poisoned() bare-species row; session 180 the aasimar silent
     changes while polymorphed row, the pay_for_damage() refused-shove
     anger row and the engulfed-hero split row; session 181 the other
-    monster-caused direct deaths row (needs a ruling).
-- Latest slice: 2026-10-04 (session 181) A MONSTER'S POISON KILL IS
-  ITS MELEE KILL (code (hash pending); BUG-2131..2134).
-  - A poison death from a monster's melee attack (sting, claw or
-    bite poison, a poisoned weapon, a venom or Sword of Kas blade)
-    now reads, rises and loots as that monster's melee kill:
-    "poisoned by an elven soldier", "poisoned by a chameleon
-    imitating a soldier ant", "poisoned by Kas", "You die...", the
-    grave-rise arms (a zombie's poisoned claw raises a zombie), the
-    killer rummaging through the death pile.
-  - The mind flayer larva's brain-burrow raises the hero as a mind
-    flayer, as master's larva design says.
-  - "Kas" and "Mephistopheles" take singular verbs again ("Kas
-    appears"), restoring master's special_subjs[] entries.
-  - Detail: the closed poison-name and poison grave-rise LOW rows.
-- Previous slice: 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
+    monster-caused direct deaths row (needs a ruling); session 182
+    the land mine on an iced raised drawbridge span row.
+- Latest slice: 2026-10-05 (session 182) SHOPKEEPERS LEAVE THE
+  HERO'S HOLDER BE; ENGULFERS LET GO BEFORE THE DRAWBRIDGE MOVES OR
+  A FIRE-TRAP STEP (code (hash pending); BUG-2135..2137).
+  - A shopkeeper called to damage outside his shop no longer yells
+    "Out of my way, scum!" at the monster holding the hero (or held
+    by them, or riding such a steed) on the damaged square, and no
+    longer lands beside it - possibly outside his shop, angry and
+    pursuing after he is paid. He deals with the hero from where he
+    stands.
+  - A hero engulfed on a drawbridge square is expelled before the
+    bridge moves ("You get expelled from the air elemental!"), then
+    moved or crushed as a free hero, instead of being moved out from
+    under the engulfer with the engulf still set.
+  - A slimed engulfer no longer steps onto an adjacent fire trap and
+    leaves the hero it holds behind.
+  - Detail: the closed pay_for_damage() refused-shove and
+    engulfed-hero split LOW rows.
+- Previous slice: 2026-10-04 (session 181) A MONSTER'S POISON KILL
+  IS ITS MELEE KILL (code b59386d7d, tracker afd70e5a5;
+  BUG-2131..2134): a monster's melee poison death reads, rises and
+  loots as that monster's kill; the mind flayer larva's burrow
+  raises the hero as a mind flayer; "Kas" and "Mephistopheles" take
+  singular verbs again; detail in the closed poison-name and poison
+  grave-rise LOW rows.
+- Earlier slices: 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
   END WHEN MOVED APART; THE AASIMAR DRAIN REACHES A POLYMORPHED
-  HERO'S STATS (code 18aa56636, tracker c3a85547d; BUG-2127..2130):
-  a monster aimed at the hero's holder lands beside it and the hold
-  stays; a hold ends when either partner is moved apart without a
-  teleport; a stat drain applied while polymorphed also caps the
-  normal-form stats; detail in the closed mnearto() and aasimar
-  drain LOW rows.
-- Earlier slices: 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
+  HERO'S STATS (code 18aa56636, tracker c3a85547d;
+  BUG-2127..2130); 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
   THE DIAGONALS MONSTERS CAN WALK (code 6417394c2, tracker
   45d58d366; BUG-2126); 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
   AND RIDER / STEED HOLD TEXT (code 7f9f073db, tracker e3170fd29;
@@ -14495,7 +14501,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: poisoned-weapon and sting death reasons name the bare
       species (BUG-2131) - FIXED 2026-10-04 (session 181, commit
       `Fix: monster melee poison deaths are that monster's kill.` =
-      (hash pending); closure notes at the end of this row).
+      b59386d7d, tracker afd70e5a5, landed 2026-10-04; closure notes
+      at the end of this row).
       Original text: LOW: poisoned-weapon and sting death reasons
       name the bare
       species (minted 2026-10-04, session 178, by the Plan agent;
@@ -14538,9 +14545,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW observation: a zombie's poison instadeath skips the
       graverise arms (BUG-2132; BUG-2133 folded in) - FIXED 2026-10-04
       (session 181, commit `Fix: monster melee poison deaths are
-      that monster's kill.` = (hash pending); closure notes at the
-      end of this row). Original text: LOW observation (2026-09-18,
-      done_in_by parity battery): a
+      that monster's kill.` = b59386d7d, tracker afd70e5a5, landed
+      2026-10-04; closure notes at the end of this row). Original
+      text: LOW observation (2026-09-18, done_in_by parity battery): a
       zombie's poison instadeath skips the graverise arms - the human
       zombie's poisoned sting ("The poison was deadly...") killed the
       hero through poisoned() -> done(POISONING) (src/attrib.c) with
@@ -22854,7 +22861,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       do_entity() / muse_unslime() engulfed-hero split (the helper
       skips u.uswallow) - minted below. parkguard()'s MON_PARKED is
       cleared at once by place_monster() (latent; upstream table).
-- [ ] LOW: a refused mnearto() shove in pay_for_damage() can anger
+- [x] LOW: a refused mnearto() shove in pay_for_damage() can anger
+      the shopkeeper (BUG-2135) - FIXED 2026-10-05 (session 182,
+      commit `Fix: shop, drawbridge and fire-trap moves around a held
+      hero.` = (hash pending); closure notes at the end of this row).
+      Original text: LOW: a refused mnearto() shove in pay_for_damage()
+      can anger
       the shopkeeper (minted 2026-10-04, session 180, battery A S3;
       upstream-shared). When the hero's holder stands on the damaged
       shop-edge square (door / wall / bars) and the hero is outside
@@ -22874,7 +22886,38 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the damaged square's occupant is ustuck_self_or_steed(), skip
       the yell and the mnearto(); the shk deals with the hero from
       where he stands. Plannable.
-- [ ] LOW: a raw relocation can split an engulfer from the hero it
+      CLOSURE (2026-10-05, session 182, plan
+      /root/.claude/plans/bugfix-hold-engulf-relocation-guards.md).
+      FIX (BUG-2135, src/shk.c pay_for_damage() `!uinshp` arm): the
+      occupant is read once; when ustuck_self_or_steed() matches it
+      (the hero's holder, the monster the hero holds, the rider of a
+      holding steed) both the yell and the mnearto() are skipped; any
+      other occupant is still yelled at and yanked aside. Branch-only
+      (upstream's mnearto() frees the hero there instead - the
+      BUG-2127 upstream row). Siblings need nothing: home_shk() and
+      shkcatch() cannot land the shk outside, and shkcatch()'s yell is
+      gated on mnearto() returning 2. REVIEWER: PASS (comment NIT
+      taken). BATTERY A (game-tester, PRE
+      ce32682d2725af94da8f3f5a7ec2710b / POST
+      9d02346433d2260afb1047eb22b9c5c9, gdb-forced add_damage() +
+      pay_for_damage("ruin")): A1 frozen lichen holding from the door
+      - PRE 5/5 rounds "You hear an angry voice:  \"Out of my way,
+      scum!\"" and the shk relocated around the door / POST 3/3 no
+      yell, shk unmoved during the prompt, following 0 after paying;
+      A2 refuse - "Oh, yes!  You'll pay!" on both, POST no yell; A3
+      newt control identical (yell, shk on the door, newt beside);
+      A4 forced layout (in-shop door neighbours filled, one outside
+      square opened) PRE "Ermenak ... vanishes and reappears next to
+      you.  Ermenak gets angry!", following still 1 after "Mollified"
+      / POST no anger, following 0; A5 owlbear hero holding a newt
+      and A6 a knight riding the holding horse - POST no yell, shk
+      stays. Paniclog clean.
+- [x] LOW: a raw relocation can split an engulfer from the hero it
+      has swallowed (BUG-2136, BUG-2137) - FIXED 2026-10-05 (session
+      182, commit `Fix: shop, drawbridge and fire-trap moves around a
+      held hero.` = (hash pending); closure notes at the end of this
+      row). Original text: LOW: a raw relocation can split an
+      engulfer from the hero it
       has swallowed (minted 2026-10-04, session 180, reviewer
       follow-up; upstream-shared). dbridge.c set_entity() prefers the
       hero on a shared square, so an engulfer on the Castle span
@@ -22891,6 +22934,65 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       expels the hero (then moved or crushed as a free hero); an
       engulfer holding the hero never takes muse_unslime()'s
       fire-trap step. Plannable.
+      CLOSURE (2026-10-05, session 182, plan
+      /root/.claude/plans/bugfix-hold-engulf-relocation-guards.md).
+      FIX: BUG-2136 src/dbridge.c - new staticfn db_expel_hero()
+      (u.uswallow and the hero on the span or the portcullis square ->
+      expels(u.ustuck)) in close_drawbridge() and open_drawbridge(),
+      after the protected-bridge check and the see / hear line,
+      before the terrain changes (expels()' mnexto() and spoteffects()
+      see the old terrain; an engulfer placed on the other bridge
+      square is an ordinary occupant); each then re-checks the bridge
+      and returns if the expel's spoteffects() changed it (a land
+      mine). The passtune is the only engulfed producer (engulfed zaps
+      hit u.ustuck; openit() already expels). destroy_drawbridge()
+      unchanged (savelife() expels before e_died()'s teleds()).
+      BUG-2137 src/muse.c munslime() - the adjacent fire-trap scan
+      also requires !(u.uswallow && ustuck_self_or_steed(mon))
+      (find_defensive() / find_misc()'s predicate); an engulfer on a
+      fire trap still uses it in place. Plan agent + reviewer census:
+      no other raw relocation splits an engulfer (gulpmm() blocked by
+      engulfing_u(), m_move() / rloc_to_core() carry the hero, the
+      muse.c trap steps sit behind `u.uswallow && stuck`). REVIEWER:
+      PASS. BATTERY B (game-tester, six Castle games, same PRE / POST
+      md5s; traced at close/open_drawbridge, expels, do_entity, done):
+      B1 Passes_walls hero engulfed by an air elemental on the lowered
+      span, passtune - PRE do_entity with u.uswallow 1, hero ends in
+      the portcullis while the elemental stays on the span (split) /
+      POST "You get expelled from the air elemental!" before any
+      do_entity, uswallow 0, hero tumbles into the portcullis free;
+      B2 open with water walking over the moat - PRE crushed with
+      uswallow 1 (expelled only by savelife) / POST expelled first,
+      crushed as a free hero; B3 land mine on the span - POST expel,
+      KAABLAMM, "The drawbridge collapses into the moat!", close
+      stopped at its re-check, no typ 20 / 39 / 12 left; B4
+      non-engulfed control identical; B5 engulfed in the portcullis
+      doorway - PRE crushed with uswallow 1 / POST expel first; B6
+      iced raised span + land mine, open - POST returned at the
+      re-check, no impossible() (minted the iced-span row below); B7
+      amphibious hero expelled into the moat, record only. BATTERY C
+      (game-tester, blue dragon, `call munslime()`): C1 engulfing
+      dragon, adjacent fire trap - PRE returns 1, dragon on the trap,
+      hero left behind with u.uswallow 1, and next turn "The blue
+      dragon digests you!" from the next square / POST returns 0,
+      nothing moves; C2 non-engulfing control and C3 trap under the
+      engulfer identical; C4 natural sliming of the engulfer by a
+      green-slime hero - POST munslime() FALSE, newcham() to green
+      slime with the hero still inside, no split. Paniclogs clean.
+- [ ] LOW: a land mine on an iced raised drawbridge span orphans the
+      portcullis (minted 2026-10-05, session 182, reviewer + battery
+      B6; master- and upstream-shared). blow_up_landmine() (trap.c)
+      calls destroy_drawbridge() only for DRAWBRIDGE_DOWN or a
+      drawbridge wall; on a raised span over ice (or frozen lava,
+      DB_FLOOR) - where use_trap() allows a mine - the pit fill
+      (fillholetyp()) writes MOAT / LAVAPOOL over the DRAWBRIDGE_UP
+      square instead. The portcullis stays a DBWALL that neither the
+      passtune nor a wand of opening can open (find_drawbridge()
+      fails), and the MOAT keeps the old drawbridgemask bits in its
+      flags (seen: flags 11, portcullis typ 12). Any hero or monster
+      stepping on such a mine causes it; BUG-2136's re-check makes the
+      engulfed path safe. Decide: route a raised-span mine through
+      destroy_drawbridge(), or record only. LOW.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -24246,7 +24348,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-04 | mon.c mnearto() with `move_other` TRUE takes the occupant off the map through mon_leaving_level() -> unstuck(), so any caller aiming a monster at the square of the monster engulfing or holding the hero (or held by a sticky hero) frees the hero: wizard.c tactics() STRAT_HEAL (~394), shk.c home_shk() (~1333), shkcatch() (~4398), pay_for_damage() (~5313), mkmaze.c mv_bubble() (~2052). Minimal upstream fix, centralized: in mnearto(), when `othermon == u.ustuck`, set othermon NULL instead of shoving (vanilla has no monster steeds, so no rider clause); mtmp then lands beside the square through enexto. Caveat inherited by the fix: pay_for_damage() can then land a resident shk outside his shop (rloc_to_core() angers him) when the holder stands on the damaged shop-edge square | fixed on branch (BUG-2127, centralized; supersedes the tactics()-only shape of the 2026-10-02 row); patch artifact not cut yet |
+| 2026-10-05 | dbridge.c close_drawbridge() / open_drawbridge() with the hero ENGULFED on a bridge square (the passtune can be played while swallowed): set_entity() makes only the hero the entity of the shared square, so the engulfer is never processed and do_entity()'s hero arm (`u.ux = newx; u.uy = newy;`) moves the hero to the other bridge square with u.uswallow still set (split), or crushes / drowns the hero inside the untouched engulfer | fixed on branch (BUG-2136: expels(u.ustuck) after the see / hear line and before the terrain change, then a re-check of the bridge in case the expelled hero's spoteffects() set off a land mine); patch artifact not cut yet |
+| 2026-10-05 | muse.c munslime() adjacent fire-trap scan: a slimed monster engulfing the hero is remove_monster() / place_monster()d onto the trap by muse_unslime(), leaving u.ux / u.uy and u.uswallow behind (split; the off-square engulfer keeps digesting the hero) | fixed on branch (BUG-2137: the scan also requires `!(u.uswallow && ustuck_self_or_steed(mon))`, find_defensive() / find_misc()'s predicate); patch artifact not cut yet |
+| 2026-10-05 | trap.c blow_up_landmine() on a RAISED drawbridge span over ice / frozen lava (use_trap() allows the mine there): only DRAWBRIDGE_DOWN or a drawbridge wall reaches destroy_drawbridge(), so the pit fill writes MOAT / LAVAPOOL over the DRAWBRIDGE_UP square and leaves the portcullis a DBWALL nothing can open (find_drawbridge() fails), with stale drawbridgemask bits in the new pool's flags | open on branch (LOW row, needs a ruling); not fixed |
+| 2026-10-04 | mon.c mnearto() with `move_other` TRUE takes the occupant off the map through mon_leaving_level() -> unstuck(), so any caller aiming a monster at the square of the monster engulfing or holding the hero (or held by a sticky hero) frees the hero: wizard.c tactics() STRAT_HEAL (~394), shk.c home_shk() (~1333), shkcatch() (~4398), pay_for_damage() (~5313), mkmaze.c mv_bubble() (~2052). Minimal upstream fix, centralized: in mnearto(), when `othermon == u.ustuck`, set othermon NULL instead of shoving (vanilla has no monster steeds, so no rider clause); mtmp then lands beside the square through enexto. Caveat inherited by the fix: pay_for_damage() can then land a resident shk outside his shop (rloc_to_core() angers him) when the holder stands on the damaged shop-edge square | fixed on branch (BUG-2127, centralized; supersedes the tactics()-only shape of the 2026-10-02 row; the pay_for_damage() caveat closed by BUG-2135, which skips the yell and the shove for the holder); patch artifact not cut yet |
 | 2026-10-04 | mhitm.c mdisplacem() moves both monsters with raw remove_monster() / place_monster() and never releases a hold: a displacer (or a Rider) that swaps the monster holding the hero two squares away leaves u.ustuck set at a distance (", holding you"; the stairs refuse "You are being held") until the hero steps; a displacer held by a sticky hero likewise (a pet's dog_move() returns MMOVE_NOTHING, so dochug's moved-case release never runs). Same class at gulpmm()'s defender-died arm, muse.c muse_unslime()'s step onto a fire trap, dbridge.c do_entity() (monster and hero branches) and vault.c parkguard(). Minimal upstream fix: after each raw placement `if (mon == u.ustuck && !u.uswallow && !m_next2u(mon)) unstuck(mon);` (parkguard(): unstuck(grd)) | fixed on branch (BUG-2129 / BUG-2130, helper unstuck_if_apart()); patch artifact not cut yet |
 | 2026-10-04 | vault.c parkguard() sets `grd->mstate \|= MON_PARKED` and then calls place_monster(grd, 0, 0), whose `mstate &= ~(MON_OFF_MAP_BITS)` clears it again (MON_PARKED is in that mask), so a parked guard reads mstate 0 until a save / restore (restore.c's post-5.0.0 fixup sets the bit for an !mx guard). Latent: every reader still uses PARKEDMONSTER() (isgd && mx == 0), and place_monster()'s own check accepts either. Fix: set the bit after place_monster() | branch carries it (latent, no reader); not yet sent |
 | 2026-10-04 | explode.c explode() hero-death MON_EXPLODE arm (15fbc6b21 tree, after fc75a55d8 #1676): the unseen fix writes the bare "explosion" (losing the monster's name) and the seen-but-hallucinating arm still skips the copy (`str == hallu_buf`), so a nested spore chain or a life-saving inside the inner blast (both clear svk.killer.name) still records "killed by a died". explode() already keeps killr_buf, its own copy of the caller's name, for exactly this. | branch-fixed (BUG-2118, killr_buf for the whole arm); upstream-reportable |
