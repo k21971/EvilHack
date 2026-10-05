@@ -1335,7 +1335,7 @@ dodown(void)
             return ECMD_TIME;
         } else if (is_pool(u.ux, u.uy) && !is_waterwall(u.ux, u.uy)
                    && !u.uinwater && !u.usteed
-                   && (HWwalking || (HFlying && Flying))) {
+                   && (HWwalking || (HFlying_usable && Flying))) {
             /* Monks that have intrinsic water walking, or Illithids
                that have obtained flight, but still wish to go for a
                dip in the pool; a water wall is entered by walking,
@@ -1447,7 +1447,7 @@ doup(void)
        wall where flight stays blocked and the water would just take
        you back */
     if (u.uinwater && !u.uswallow && !is_waterwall(u.ux, u.uy)
-        && (HWwalking || (HFlying && Flying))) {
+        && (HWwalking || (HFlying_usable && Flying))) {
         boolean was_underwater = (Underwater && !Is_waterlevel(&u.uz));
 
         You("%s out of the water.", HWwalking ? "step up" : "fly");

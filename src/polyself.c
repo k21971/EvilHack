@@ -164,7 +164,9 @@ set_uasmon(void)
        demon wings fly (check_wings() below folds them under hard armor) */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
     /* preserve racial flying for races that gain it at certain levels
-       (illithids and vampires at level 12, aasimar at level 15) */
+       (illithids and vampires at level 12, aasimar at level 15); an
+       aasimar's is its angelic wings, dormant while polymorphed (see
+       HFlying_usable) */
     if ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
         && u.ulevel >= 12)
         HFlying |= FROMRACE;
@@ -228,7 +230,7 @@ float_vs_flight(void)
 
     /* floating overrides flight; so does being trapped in the floor */
     if ((HLevitation || ELevitation)
-        || ((HFlying || EFlying) && stuck_in_floor))
+        || ((HFlying_usable || EFlying) && stuck_in_floor))
         BFlying |= I_SPECIAL;
     else
         BFlying &= ~I_SPECIAL;
@@ -319,6 +321,8 @@ polyman(const char *fmt, const char *arg)
             was_mimicking = (U_AP_TYPE != M_AP_NOTHING);
     boolean was_blind = !!Blind,
             had_see_invis = !!See_invisible;
+    /* the form's wings while polymorphed, else the normal body's */
+    boolean had_wings = u_big_wings(), wings_news;
 
     if (Upolyd) {
         u.acurr = u.macurr; /* restore old attribs */
@@ -351,6 +355,17 @@ polyman(const char *fmt, const char *arg)
     }
 
     newsym(u.ux, u.uy);
+
+    /* a winged race's wings (a crowned Infidel's demonic ones, an
+       aasimar's angelic ones) come back with the normal form; angelic
+       wings sprouting for the first time are told below instead */
+    wings_news = aasimar_wings_pending();
+    if (!had_wings && u_big_wings() && !wings_news) {
+        Your("%s wings unfurl from your back.",
+             Race_if(PM_AASIMAR) ? "angelic" : "demonic");
+        if (BFlying & W_ARM)
+            You("fold your wings under your suit.");
+    }
 
     /* an aasimar's penalty and grant changes made in the form went
        untold; tell them now that the armor is back in place */
@@ -1927,7 +1942,7 @@ void
 rehumanize(void)
 {
     boolean was_flying = (Flying != 0),
-            was_not_flying = !was_flying, wings_news;
+            was_not_flying = !was_flying;
     /* a form change can start or stop underwater vision */
     boolean old_uwvis = (Underwater && See_underwater);
 
@@ -1965,8 +1980,6 @@ rehumanize(void)
 
     if (emits_light(gy.youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
-    /* polyman()'s flush of an aasimar's changes clears the record */
-    wings_news = aasimar_wings_pending();
     polyman("You return to %s form!", gu.urace.adj);
     /* reset FROMHUNGER conditions in case player was polyd
        as a vampire, starving, and reverted back to normal
@@ -2004,17 +2017,16 @@ rehumanize(void)
     encumber_msg();
     update_inventory();
     /* if the original form had intrinsic flying, give it back; the
-       current races that fly do so only from a certain experience
-       level on, so check against that; say so only if the hero now
-       flies (levitation, a trap or wings folded under a hard suit can
-       still block it) and freshly sprouted wings haven't already */
+       current races that fly without wings do so only from a certain
+       experience level on, so check against that; say so only if the
+       hero now flies (levitation, being trapped in the floor or the
+       surroundings can still block it); polyman() told of an
+       aasimar's wings */
     if (was_not_flying
-        && (((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
-             && u.ulevel >= 12)
-            || (Race_if(PM_AASIMAR) && u.ulevel >= 15
-                && u.ualign.abuse == 0))) {
+        && (Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+        && u.ulevel >= 12) {
         HFlying |= FROMRACE;
-        if (Flying && !wings_news)
+        if (Flying)
             You_feel("lighter than air!");
     }
     if (was_flying && !Flying && u.usteed)

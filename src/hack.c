@@ -881,7 +881,7 @@ dosinkfall(void)
                couldn't be over a sink at the same time */
             blockd_lev = (BLevitation == I_SPECIAL),
             ufall = (!innate_lev && !blockd_lev
-                     && !(HFlying || EFlying)); /* BFlying */
+                     && !(HFlying_usable || EFlying)); /* BFlying */
 
     if (!ufall) {
         You((innate_lev || blockd_lev) ? "wobble unsteadily for a moment."

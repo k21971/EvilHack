@@ -1404,18 +1404,13 @@ check_flight_landing(boolean was_flying)
 
 /* Does the hero have big wings, the kind most body armor confines? An
    aasimar's angelic wings (experience level 15 with unblemished
-   alignment) stay in any form; otherwise they're the form's own, or the
-   race's when not polymorphed */
+   alignment) belong to the aasimar body; any other wings are the form's
+   own, or the race's when not polymorphed */
 boolean
 u_big_wings(void)
 {
-    if (Race_if(PM_AASIMAR)) {
-        if (HFlying & FROMRACE)
-            return TRUE;
-        /* not manifest yet, or lost to abuse */
-        if (!Upolyd)
-            return FALSE;
-    }
+    if (Race_if(PM_AASIMAR) && !Upolyd)
+        return (HFlying & FROMRACE) != 0L;
     return big_wings(raceptr(&gy.youmonst));
 }
 

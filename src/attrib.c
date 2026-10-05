@@ -1879,23 +1879,19 @@ aasimar_feedback(int chan, boolean penalized)
 staticfn void
 aasimar_changed(int chan, boolean penalized)
 {
-    /* the racial wings came or went, and "Fly" may have with them;
-       check_wings() only notices what its own armor block changes */
+    /* the racial wings came or went, and when not polymorphed "Fly" may
+       have with them; check_wings() only notices what its own armor
+       block changes */
     if (chan == AASIMAR_CH_WINGS)
         disp.botl = TRUE;
     if (!Upolyd) {
         aasimar_feedback(chan, penalized);
-    } else if (!program_state.restoring) {
-        if (!(u.uaasimar_pending & AASIMAR_PENDING(chan))) {
-            u.uaasimar_pending |= AASIMAR_PENDING(chan);
-            /* this change lifted it, so it was in force before */
-            if (!penalized)
-                u.uaasimar_pending |= AASIMAR_WAS_PEN(chan);
-        }
-        /* the news waits, but wings fold under a hard suit in any form
-           as soon as they're there */
-        if (chan == AASIMAR_CH_WINGS)
-            check_wings(TRUE);
+    } else if (!program_state.restoring
+               && !(u.uaasimar_pending & AASIMAR_PENDING(chan))) {
+        u.uaasimar_pending |= AASIMAR_PENDING(chan);
+        /* this change lifted it, so it was in force before */
+        if (!penalized)
+            u.uaasimar_pending |= AASIMAR_WAS_PEN(chan);
     }
 }
 
@@ -2207,7 +2203,8 @@ aasimar_announce_pending(void)
 }
 
 /* Will aasimar_announce_pending() tell of angelic wings sprouting? Asked
-   before polyman(), whose set_uasmon() can still grant the racial flight */
+   just before it (which zeroes the record), after set_uasmon() has
+   granted whatever racial flight the normal form has */
 boolean
 aasimar_wings_pending(void)
 {
@@ -2216,8 +2213,7 @@ aasimar_wings_pending(void)
     return (Race_if(PM_AASIMAR)
             && (pending & AASIMAR_PENDING(AASIMAR_CH_WINGS)) != 0L
             && (pending & AASIMAR_WAS_PEN(AASIMAR_CH_WINGS)) != 0L
-            && ((HFlying & FROMRACE) != 0L
-                || (u.ulevel >= 15 && u.ualign.abuse == 0)));
+            && (HFlying & FROMRACE) != 0L);
 }
 
 /* Another source (adjabil()'s level change, attrcurse()) just changed
@@ -2250,11 +2246,9 @@ aasimar_lose_celestial_blood(void)
     const struct innate *abil;
     int i;
 
-    /* operate on the base form, not a temporary polymorph; changes made
-       in the form go untold, since every power is stripped below */
+    /* changes made in a form go untold, since every power is stripped
+       below */
     u.uaasimar_pending = 0L;
-    if (Upolyd)
-        rehumanize();
 
     /* Become human before any set_uasmon()/check_wings(): those re-grant
        celestial abilities while Race_if(PM_AASIMAR) holds. Do not use
@@ -2279,8 +2273,14 @@ aasimar_lose_celestial_blood(void)
     HAggravate_monster &= ~FROMRACE; /* abuse penalty */
     u.uaasimar_penalties = 0L;
 
+    /* a temporary polymorph ends as a human, so the angelic wings don't
+       come back only to be lost ("You return to human form!") */
+    if (Upolyd)
+        rehumanize();
+
     /* Drop attributes to human ceilings (urace.attrmax is now human's),
-       same clamp the stat-drain penalty uses */
+       same clamp the stat-drain penalty uses; after the revert, which
+       restores the normal form's attributes */
     for (i = 0; i < A_MAX; i++) {
         if (ABASE(i) > ATTRMAX(i))
             ABASE(i) = ATTRMAX(i);
