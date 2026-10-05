@@ -335,6 +335,9 @@ polyman(const char *fmt, const char *arg)
     u.mh = u.mhmax = 0;
     u.mtimedone = 0;
     skinback(FALSE);
+    /* set_uasmon() checked the wings while a merged dragon-scaled suit
+       was still the skin; it is body armor again */
+    check_wings(TRUE);
     u.uundetected = 0;
 
     if (sticking)
@@ -348,6 +351,10 @@ polyman(const char *fmt, const char *arg)
     }
 
     newsym(u.ux, u.uy);
+
+    /* an aasimar's penalty and grant changes made in the form went
+       untold; tell them now that the armor is back in place */
+    aasimar_announce_pending();
 
     /* check whether player foolishly genocided self while poly'd */
     if (ugenocided()) {
@@ -1266,8 +1273,12 @@ polymon(int mntmp)
 #endif
     }
 
-    if (uskin && mntmp != armor_to_dragon(&gy.youmonst))
+    if (uskin && mntmp != armor_to_dragon(&gy.youmonst)) {
         skinback(FALSE);
+        /* as in polyman(): set_uasmon() checked the wings while the
+           suit was still the skin */
+        check_wings(TRUE);
+    }
     break_armor();
     drop_weapon(1);
     /* druids in wildshape form will automatically

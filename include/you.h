@@ -557,6 +557,8 @@ struct you {
     int ulastprayed;         /* moves when last prayed; 0 = never */
     long umoney0;
     long uaasimar_penalties; /* aasimar: penalty ID at each abuse tier */
+    long uaasimar_pending;   /* aasimar: changes made while polymorphed,
+                                announced on return to normal form */
     long uexp, urexp;        /* exper pts for gaining levels and for score */
     long ucleansed;          /* to record moves when player was cleansed */
     long usleep;             /* sleeping; monstermove you last started */

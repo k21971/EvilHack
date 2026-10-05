@@ -746,6 +746,10 @@ attrcurse(void)
     default:
         break;
     }
+    /* an aasimar told of this loss needs no word later about a change
+       to it made while polymorphed */
+    if (ret)
+        aasimar_change_told(&u.uprops[ret].intrinsic);
     return ret;
 }
 

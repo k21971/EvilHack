@@ -212,6 +212,9 @@ staticfn const struct innate *check_innate_abil(long *, long);
 staticfn int innately(long *);
 staticfn long *aasimar_pen_prop(int);
 staticfn int aasimar_pen_minlevel(int);
+staticfn void aasimar_feedback(int, boolean);
+staticfn void aasimar_changed(int, boolean);
+staticfn boolean aasimar_penalized_now(int);
 staticfn void apply_aasimar_penalty(int, boolean);
 staticfn int abuse_tier(void);
 staticfn boolean has_stat_drain_penalty(void);
@@ -1220,6 +1223,7 @@ adjabil(int oldlevel, int newlevel)
        given in normal crowning, and you can e.g. lose and regain
        warning, so you don't want messages about that */
     boolean verbose = !(oldlevel == 0 || newlevel == 0);
+    boolean told;
 
     abil = role_abil(Role_switch);
 
@@ -1287,6 +1291,7 @@ adjabil(int oldlevel, int newlevel)
             mask = FROMRACE;
         }
         prevabil = *(abil->ability);
+        told = FALSE;
         /* giants are too big and loud to acquire stealth from their
            role; the undead races never warm up to fire resistance;
            mindless draugr never develop telepathy */
@@ -1317,8 +1322,10 @@ adjabil(int oldlevel, int newlevel)
                 && (!(*(abil->ability) & HAVEPARTIAL & ~mask)
                     || (*(abil->ability) & TIMEOUT) < 100)
                 && verbose) {
-                if (*(abil->gainstr))
+                if (*(abil->gainstr)) {
                     You_feel("%s!", abil->gainstr);
+                    told = TRUE;
+                }
             }
         } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
             *(abil->ability) &= ~mask;
@@ -1327,14 +1334,22 @@ adjabil(int oldlevel, int newlevel)
                 && (!(*(abil->ability) & HAVEPARTIAL)
                     || (*(abil->ability) & TIMEOUT) < 100)
                 && verbose) {
-                if (*(abil->losestr))
+                if (*(abil->losestr)) {
                     You_feel("%s!", abil->losestr);
-                else if (*(abil->gainstr))
+                    told = TRUE;
+                } else if (*(abil->gainstr)) {
                     You_feel("less %s!", abil->gainstr);
+                    told = TRUE;
+                }
             }
         }
-        if (prevabil != *(abil->ability)) /* it changed */
+        if (prevabil != *(abil->ability)) { /* it changed */
+            /* a polymorphed aasimar's untold change to it is moot once
+               this says so; a silent flip leaves it to be told */
+            if (told)
+                aasimar_change_told(abil->ability);
             postadjabil(abil->ability);
+        }
         abil++;
     }
 
@@ -1689,6 +1704,20 @@ extremeattr(
 #define NUM_AASIMAR_PENALTIES  10
 #define NUM_ABUSE_TIERS        5
 
+/* Feedback channels: the penalty IDs above, then the clean-alignment
+   grants of aasimar_check_abuse(). Changes made while polymorphed are
+   told on return to normal form: u.uaasimar_pending holds a pending bit
+   per channel and, from the first silent change on, whether the hero
+   was penalized before it, so only a net change still in force is told
+   (adjabil() can flip the same FROMRACE bit with its own message in
+   between). Highest bit used is 28 */
+#define AASIMAR_CH_DEATH_RES   10
+#define AASIMAR_CH_WINGS       11
+#define AASIMAR_CH_REGEN       12
+#define NUM_AASIMAR_CHANNELS   13
+#define AASIMAR_PENDING(ch)    (1L << (ch))
+#define AASIMAR_WAS_PEN(ch)    (1L << ((ch) + 16))
+
 #define AASIMAR_PEN_TIER(tier) \
     ((int)((u.uaasimar_penalties \
             >> ((tier) * 6)) & 0x3FL))
@@ -1753,6 +1782,142 @@ aasimar_pen_minlevel(int pen_id)
     }
 }
 
+/* Message for a change on channel chan; penalized is TRUE when the hero
+   is now worse off (positive intrinsic stripped, negative one imposed,
+   stats drained, grant revoked) */
+staticfn void
+aasimar_feedback(int chan, boolean penalized)
+{
+    switch (chan) {
+    case AASIMAR_PEN_SEE_INVIS:
+        if (penalized)
+            Your("eyesight feels diminished.");
+        else
+            You_feel("an odd sensation.");
+        break;
+    case AASIMAR_PEN_ANTIMAGIC:
+        if (penalized)
+            You_feel("vulnerable to magic!");
+        else
+            You_feel("resistant to magic!");
+        break;
+    case AASIMAR_PEN_COLD_RES:
+        if (penalized)
+            You_feel("cooler!");
+        else
+            You_feel("warm!");
+        break;
+    case AASIMAR_PEN_SLEEP_RES:
+        if (penalized)
+            You_feel("tired!");
+        else
+            You_feel("awake!");
+        break;
+    case AASIMAR_PEN_POISON_RES:
+        if (penalized)
+            You_feel("less hardy!");
+        else
+            You_feel("hardy!");
+        break;
+    case AASIMAR_PEN_SHOCK_RES:
+        if (penalized)
+            You_feel("conductive!");
+        else
+            You_feel("insulated!");
+        break;
+    case AASIMAR_PEN_HUNGER:
+        if (penalized)
+            You_feel("ravenously hungry!");
+        else
+            You("no longer feel quite so hungry.");
+        break;
+    case AASIMAR_PEN_AGGRAVATE:
+        if (penalized)
+            You_feel("that monsters are aware of your presence.");
+        else
+            You_feel(
+                  "that monsters are no longer aware of your presence.");
+        break;
+    case AASIMAR_PEN_STAT_DRAIN:
+        if (penalized)
+            You_feel("your divine potential diminishing!");
+        else
+            You_feel("your divine potential restored!");
+        break;
+    case AASIMAR_CH_DEATH_RES:
+        if (penalized)
+            You_feel("the gift of immortality slipping away!");
+        else
+            You_feel("the gift of immortality returning to you!");
+        break;
+    case AASIMAR_CH_WINGS:
+        if (penalized) {
+            /* below level 15 lost levels took them, else the abuse */
+            if (u.ulevel < 15)
+                Your(
+              "angelic wings fold inward and disappear beneath your skin.");
+            else
+                Your("angelic wings wither and fade away!");
+            check_wings(TRUE);
+        } else {
+            pline("Angelic wings sprout from your back!");
+            check_wings(FALSE);
+        }
+        break;
+    case AASIMAR_CH_REGEN:
+        if (penalized)
+            You_feel("less resilient!");
+        else
+            You_feel("resilient!");
+        break;
+    }
+}
+
+/* A change on channel chan just happened: say so now, or while
+   polymorphed remember it for aasimar_announce_pending(); restore's
+   re-application of the stat drain is never remembered */
+staticfn void
+aasimar_changed(int chan, boolean penalized)
+{
+    if (!Upolyd) {
+        aasimar_feedback(chan, penalized);
+    } else if (!program_state.restoring
+               && !(u.uaasimar_pending & AASIMAR_PENDING(chan))) {
+        u.uaasimar_pending |= AASIMAR_PENDING(chan);
+        /* this change lifted it, so it was in force before */
+        if (!penalized)
+            u.uaasimar_pending |= AASIMAR_WAS_PEN(chan);
+    }
+}
+
+/* Is the hero on the penalized side of channel chan right now? */
+staticfn boolean
+aasimar_penalized_now(int chan)
+{
+    long *prop;
+    int i;
+
+    switch (chan) {
+    case AASIMAR_PEN_STAT_DRAIN:
+        for (i = 0; i < A_MAX; i++)
+            if (gu.urace.attrmax[i] != races[flags.initrace].attrmax[i])
+                return TRUE;
+        return FALSE;
+    case AASIMAR_CH_DEATH_RES:
+        return !(HDeath_resistance & FROMRACE);
+    case AASIMAR_CH_WINGS:
+        return !(HFlying & FROMRACE);
+    case AASIMAR_CH_REGEN:
+        return !(HRegeneration & FROMRACE);
+    default:
+        prop = aasimar_pen_prop(chan);
+        if (!prop)
+            return FALSE;
+        return PEN_IS_POSITIVE(chan) ? !(*prop & FROMRACE)
+                                     : ((*prop & FROMRACE) != 0L);
+    }
+}
+
 /* Apply or remove one aasimar penalty.
    apply=TRUE imposes, apply=FALSE reverses */
 staticfn void
@@ -1792,8 +1957,8 @@ apply_aasimar_penalty(int pen_id, boolean apply)
                         MMAX(i) = drained;
                 }
             }
-            if (changed && !Upolyd && !program_state.restoring)
-                You_feel("your divine potential diminishing!");
+            if (changed && !program_state.restoring)
+                aasimar_changed(AASIMAR_PEN_STAT_DRAIN, TRUE);
         } else {
             for (i = 0; i < A_MAX; i++) {
                 if (gu.urace.attrmax[i]
@@ -1802,8 +1967,8 @@ apply_aasimar_penalty(int pen_id, boolean apply)
                 gu.urace.attrmax[i] =
                     races[flags.initrace].attrmax[i];
             }
-            if (changed && !Upolyd)
-                You_feel("your divine potential restored!");
+            if (changed)
+                aasimar_changed(AASIMAR_PEN_STAT_DRAIN, FALSE);
         }
         return;
     }
@@ -1816,84 +1981,24 @@ apply_aasimar_penalty(int pen_id, boolean apply)
 
     if (PEN_IS_POSITIVE(pen_id)) {
         /* Strip FROMRACE to punish, restore to forgive */
-        if (apply) {
-            if (u.ulevel < aasimar_pen_minlevel(pen_id))
-                return;
+        if (u.ulevel < aasimar_pen_minlevel(pen_id))
+            return;
+        if (apply)
             *prop &= ~FROMRACE;
-            if (!Upolyd && prevval != *prop) {
-                switch (pen_id) {
-                case AASIMAR_PEN_SEE_INVIS:
-                    Your("eyesight feels diminished.");
-                    break;
-                case AASIMAR_PEN_ANTIMAGIC:
-                    You_feel("vulnerable to magic!");
-                    break;
-                case AASIMAR_PEN_COLD_RES:
-                    You_feel("cooler!");
-                    break;
-                case AASIMAR_PEN_SLEEP_RES:
-                    You_feel("tired!");
-                    break;
-                case AASIMAR_PEN_POISON_RES:
-                    You_feel("less hardy!");
-                    break;
-                case AASIMAR_PEN_SHOCK_RES:
-                    You_feel("conductive!");
-                    break;
-                }
-            }
-        } else {
-            if (u.ulevel < aasimar_pen_minlevel(pen_id))
-                return;
+        else
             *prop |= FROMRACE;
-            if (!Upolyd && prevval != *prop) {
-                switch (pen_id) {
-                case AASIMAR_PEN_SEE_INVIS:
-                    You_feel("an odd sensation.");
-                    break;
-                case AASIMAR_PEN_ANTIMAGIC:
-                    You_feel("resistant to magic!");
-                    break;
-                case AASIMAR_PEN_COLD_RES:
-                    You_feel("warm!");
-                    break;
-                case AASIMAR_PEN_SLEEP_RES:
-                    You_feel("awake!");
-                    break;
-                case AASIMAR_PEN_POISON_RES:
-                    You_feel("hardy!");
-                    break;
-                case AASIMAR_PEN_SHOCK_RES:
-                    You_feel("insulated!");
-                    break;
-                }
-            }
-        }
     } else {
         /* Negative: set FROMRACE to punish */
-        if (apply) {
+        if (apply)
             *prop |= FROMRACE;
-            if (!Upolyd && prevval != *prop) {
-                if (pen_id == AASIMAR_PEN_HUNGER)
-                    You_feel("ravenously hungry!");
-                else
-                    You_feel(
-                        "that monsters are aware of your presence.");
-            }
-        } else {
+        else
             *prop &= ~FROMRACE;
-            if (!Upolyd && prevval != *prop) {
-                if (pen_id == AASIMAR_PEN_HUNGER)
-                    You("no longer feel quite so hungry.");
-                else
-                    You_feel(
-                  "that monsters are no longer aware of your presence.");
-            }
-        }
     }
 
-    if (prevval != *prop)
+    if (prevval != *prop) {
+        aasimar_changed(pen_id, apply);
         postadjabil(prop);
+    }
 }
 
 /* Compute the abuse tier (0-4) from current abuse value.
@@ -2024,13 +2129,11 @@ aasimar_check_abuse(void)
         if (u.ualign.abuse > 0
             && (HDeath_resistance & FROMRACE)) {
             HDeath_resistance &= ~FROMRACE;
-            if (!Upolyd)
-                You_feel("the gift of immortality slipping away!");
+            aasimar_changed(AASIMAR_CH_DEATH_RES, TRUE);
         } else if (u.ualign.abuse == 0
                    && !(HDeath_resistance & FROMRACE)) {
             HDeath_resistance |= FROMRACE;
-            if (!Upolyd)
-                You_feel("the gift of immortality returning to you!");
+            aasimar_changed(AASIMAR_CH_DEATH_RES, FALSE);
         }
     }
 
@@ -2041,26 +2144,16 @@ aasimar_check_abuse(void)
         if (u.ualign.abuse > 0
             && (HFlying & FROMRACE)) {
             HFlying &= ~FROMRACE;
-            if (!Upolyd) {
-                Your("angelic wings wither and fade away!");
-                check_wings(TRUE);
-            }
+            aasimar_changed(AASIMAR_CH_WINGS, TRUE);
         } else if (u.ualign.abuse == 0
                    && !(HFlying & FROMRACE)) {
             HFlying |= FROMRACE;
-            if (!Upolyd) {
-                pline("Angelic wings sprout from your back!");
-                check_wings(FALSE);
-            }
+            aasimar_changed(AASIMAR_CH_WINGS, FALSE);
         }
     } else if (HFlying & FROMRACE) {
         /* Lost enough levels: revoke */
         HFlying &= ~FROMRACE;
-        if (!Upolyd) {
-            Your(
-              "angelic wings fold inward and disappear beneath your skin.");
-            check_wings(TRUE);
-        }
+        aasimar_changed(AASIMAR_CH_WINGS, TRUE);
     }
 
     /* Hungerless regeneration from clean alignment:
@@ -2069,20 +2162,56 @@ aasimar_check_abuse(void)
         if (u.ualign.abuse > 0
             && (HRegeneration & FROMRACE)) {
             HRegeneration &= ~FROMRACE;
-            if (!Upolyd)
-                You_feel("less resilient!");
+            aasimar_changed(AASIMAR_CH_REGEN, TRUE);
         } else if (u.ualign.abuse == 0
                    && !(HRegeneration & FROMRACE)) {
             HRegeneration |= FROMRACE;
-            if (!Upolyd)
-                You_feel("resilient!");
+            aasimar_changed(AASIMAR_CH_REGEN, FALSE);
         }
     } else if (HRegeneration & FROMRACE) {
         /* Lost enough levels: revoke */
         HRegeneration &= ~FROMRACE;
-        if (!Upolyd)
-            You_feel("less resilient!");
+        aasimar_changed(AASIMAR_CH_REGEN, TRUE);
     }
+}
+
+/* Back in normal form (polyman()): tell the penalty and grant changes
+   made while polymorphed whose net effect is still in force */
+void
+aasimar_announce_pending(void)
+{
+    long pending = u.uaasimar_pending;
+    boolean now;
+    int chan;
+
+    u.uaasimar_pending = 0L;
+    if (!pending || !Race_if(PM_AASIMAR))
+        return;
+    for (chan = AASIMAR_PEN_SEE_INVIS; chan < NUM_AASIMAR_CHANNELS;
+         chan++) {
+        if (!(pending & AASIMAR_PENDING(chan)))
+            continue;
+        now = aasimar_penalized_now(chan);
+        if (now != ((pending & AASIMAR_WAS_PEN(chan)) != 0L))
+            aasimar_feedback(chan, now);
+    }
+}
+
+/* Another source (adjabil()'s level change, attrcurse()) just changed
+   intrinsic prop with a message of its own; the player knows its state
+   now, so a penalty change to it still waiting to be told is moot */
+void
+aasimar_change_told(long *prop)
+{
+    int chan;
+
+    if (!u.uaasimar_pending)
+        return;
+    for (chan = AASIMAR_PEN_SEE_INVIS; chan < AASIMAR_PEN_STAT_DRAIN;
+         chan++)
+        if (aasimar_pen_prop(chan) == prop)
+            u.uaasimar_pending &= ~(AASIMAR_PENDING(chan)
+                                    | AASIMAR_WAS_PEN(chan));
 }
 
 /* An aasimar who deliberately permaconverts their alignment at a
@@ -2098,7 +2227,9 @@ aasimar_lose_celestial_blood(void)
     const struct innate *abil;
     int i;
 
-    /* operate on the base form, not a temporary polymorph */
+    /* operate on the base form, not a temporary polymorph; changes made
+       in the form go untold, since every power is stripped below */
+    u.uaasimar_pending = 0L;
     if (Upolyd)
         rehumanize();
 

@@ -246,6 +246,8 @@ extern boolean extremeattr(int);
 extern void adjalign(int);
 extern void aasimar_check_abuse(void);
 extern void aasimar_lose_celestial_blood(void);
+extern void aasimar_announce_pending(void);
+extern void aasimar_change_told(long *) NONNULLARG1;
 extern void record_abuse_event(int, int);
 extern void record_abuse_event_dtl(int, int, int, int);
 extern void record_abuse_event_mon(int, int, struct monst *);
