@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-05, after session 182): 306
-  rows closed, 82 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-05, after session 183): 308
+  rows closed, 81 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,10 +34,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 60 LOW: small parity rows, quirks and watch/record-only items.
+  - 59 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-04, session 180 follow-up): the
-    ucatchgem() helplessness gate; mon_killer_name() naming priests,
-    minions and shopkeepers as melee does; the
     aasimar announce-on-rehumanize row. Also plannable without a
     ruling: session 177's
     terrain-effects coverage row and the Phase 6 set_whereisfile()
@@ -51,8 +49,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     steed text rows in session 178, the BFS diagonal-rule row in
     session 179, the mnearto() shove and aasimar drain rows in
     session 180, the poison death-reason name and poison
-    grave-rise rows in session 181, and the pay_for_damage()
-    refused-shove and engulfed-hero split rows in session 182. The
+    grave-rise rows in session 181, the pay_for_damage()
+    refused-shove and engulfed-hero split rows in session 182, and
+    the ucatchgem() helplessness and mon_killer_name() priest /
+    minion / shopkeeper naming rows in session 183. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -77,32 +77,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     changes while polymorphed row, the pay_for_damage() refused-shove
     anger row and the engulfed-hero split row; session 181 the other
     monster-caused direct deaths row (needs a ruling); session 182
-    the land mine on an iced raised drawbridge span row.
-- Latest slice: 2026-10-05 (session 182) SHOPKEEPERS LEAVE THE
+    the land mine on an iced raised drawbridge span row; session 183
+    the AD_WRAP drown / lava minion naming row (needs a ruling).
+- Latest slice: 2026-10-05 (session 183) HELPLESS UNICORNS DON'T
+  CATCH; RANGED DEATHS NAME SHOPKEEPERS, PRIESTS AND MINIONS; TRUE
+  SHOPKEEPER NAMES WHILE HALLUCINATING (code (hash pending), tracker
+  (hash pending); BUG-2138..2142).
+  - A sleeping or paralyzed hero polymorphed into a unicorn no longer
+    catches a gem a monster slings; it hits or misses like any
+    missile.
+  - Wand, spell, breath and missile death reasons name a shopkeeper,
+    priest or minion as a melee death does: "killed by a magic
+    missile zapped by Mr. Abitibi, the shopkeeper", "... cast by a
+    renegade Angel of Tyr", "the high priestess of Moloch", and "a
+    silver dagger thrown by ..." instead of a possessive.
+  - While the hero hallucinates, death reasons, the livelog kill
+    line, exact names and a shopkeeper clone's name use the real
+    shopkeeper; Izchak gets his kit when Minetown is made and keeps
+    his #steal exemption. Shop messages still show hallucinated
+    names.
+  - Detail: the closed ucatchgem() and mon_killer_name() LOW rows.
+- Previous slice: 2026-10-05 (session 182) SHOPKEEPERS LEAVE THE
   HERO'S HOLDER BE; ENGULFERS LET GO BEFORE THE DRAWBRIDGE MOVES OR
-  A FIRE-TRAP STEP (code (hash pending); BUG-2135..2137).
-  - A shopkeeper called to damage outside his shop no longer yells
-    "Out of my way, scum!" at the monster holding the hero (or held
-    by them, or riding such a steed) on the damaged square, and no
-    longer lands beside it - possibly outside his shop, angry and
-    pursuing after he is paid. He deals with the hero from where he
-    stands.
-  - A hero engulfed on a drawbridge square is expelled before the
-    bridge moves ("You get expelled from the air elemental!"), then
-    moved or crushed as a free hero, instead of being moved out from
-    under the engulfer with the engulf still set.
-  - A slimed engulfer no longer steps onto an adjacent fire trap and
-    leaves the hero it holds behind.
-  - Detail: the closed pay_for_damage() refused-shove and
-    engulfed-hero split LOW rows.
-- Previous slice: 2026-10-04 (session 181) A MONSTER'S POISON KILL
+  A FIRE-TRAP STEP (code 289c7c452, tracker 988ba1658;
+  BUG-2135..2137): no shove of the hero's holder by a shopkeeper
+  paying for damage, an engulfed hero is expelled before the
+  drawbridge moves, a slimed engulfer skips an adjacent fire trap;
+  detail in the closed pay_for_damage() refused-shove and
+  engulfed-hero split LOW rows.
+- Earlier slices: 2026-10-04 (session 181) A MONSTER'S POISON KILL
   IS ITS MELEE KILL (code b59386d7d, tracker afd70e5a5;
-  BUG-2131..2134): a monster's melee poison death reads, rises and
-  loots as that monster's kill; the mind flayer larva's burrow
-  raises the hero as a mind flayer; "Kas" and "Mephistopheles" take
-  singular verbs again; detail in the closed poison-name and poison
-  grave-rise LOW rows.
-- Earlier slices: 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
+  BUG-2131..2134); 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
   END WHEN MOVED APART; THE AASIMAR DRAIN REACHES A POLYMORPHED
   HERO'S STATS (code 18aa56636, tracker c3a85547d;
   BUG-2127..2130); 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
@@ -14480,8 +14485,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (vampire sovereign). Paniclog clean. New LOW rows below:
       mon_killer_name()'s high priest naming; poisoned() death reasons
       by bare species.
-- [ ] LOW: mon_killer_name() names a temple high priest "a high
-      priest" (minted 2026-10-04, session 178, battery record;
+- [x] LOW: mon_killer_name() names a temple high priest "a high
+      priest" (BUG-2139, BUG-2140) - FIXED 2026-10-05 (session 183,
+      commit `Fix: helpless unicorn catches and ranged killer and
+      shopkeeper names.` = (hash pending); closure notes at the end
+      of this row). Original text: (minted 2026-10-04, session 178,
+      battery record;
       master-shared, master's mcastu.c builds the same name). Ranged
       and spell death reasons (thitu(), death_inflicted_by()) call
       the Sanctum high priest "a high priest" and a temple priest "a
@@ -14498,6 +14507,58 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       them ("... inflicted by the high priest of Moloch", "... zapped
       by Asidonhopo, the shopkeeper", "... by a priestess of Odin").
       Plannable.
+      CLOSURE (2026-10-05, session 183, plan
+      /root/.claude/plans/bugfix-unicorn-catch-killer-names.md).
+      FIX (BUG-2139, src/mcastu.c mon_killer_name(), src/mthrowu.c
+      thitu()): when not a disguised shapeshifter, a shopkeeper goes
+      through the new shk_killer_name() and a priest or minion through
+      m_monnam() with done_in_by()'s own "the" test, else an(); thitu()
+      uses the "by" form for those three (`titled`), as done_in_by()'s
+      compound rule does. The honorific stays ("Mr. Abitibi, the
+      shopkeeper"; the ruling text omitted it, its operative words
+      were "as done_in_by() names them"). RULING (2026-10-05,
+      AskUserQuestion x1, recommended): FIX MELEE TOO - BUG-2140,
+      shkname() returns a random name (core rn2) while hallucinating
+      and done_in_by() recorded it; new shkname_real() (stored name,
+      prefix stripped) behind shk_killer_name(). Reviewer siblings of
+      the same root cause folded in: BUG-2141 (shkinit()'s Izchak kit
+      and #steal's Izchak exemption failed while hallucinating) and
+      BUG-2142 (x_monnam()'s exact-name shopkeeper branch -
+      m_monnam(), livelog_mon_nam() - and clone_mon()'s clone name).
+      REVIEWER: pass 1 PASS (siblings MEDIUM x2 / LOW x3), pass 2
+      PASS. BATTERIES B, C, D (game-tester, PRE
+      9d02346433d2260afb1047eb22b9c5c9 / POST
+      6b131be84798507512ce1deceba61228): B "a priestess" / "a priestess
+      of Odin", "a high priestess" / "the high priestess of Moloch",
+      "a shopkeeper" / "Ms. Sarangan, the shopkeeper" and "Izchak, the
+      shopkeeper", "an Angel" / "a renegade Angel of Tyr", "a templar"
+      / "a templar of Tyr", polymorphed shk "a hill orc" / "Mr.
+      Nosnehpets, the shopkeeper", 117 / 117 untitled monsters
+      identical, thrown "an Angel's thrown bronze dagger" / "a silver
+      dagger thrown by a renegade Angel of Tyr"; C wand death PRE
+      "killed by a magic missile zapped by a shopkeeper" / POST "...
+      zapped by Mr. Donmyar; the shopkeeper" (logfile, xlogfile,
+      tombstone, dumplog; -s display restores the comma), hallucinating
+      melee PRE random "Mr. Picq" / POST true "Mr. Donmyar", RNG
+      counters unmoved; D Izchak kit PRE none / POST full, hallucinating
+      #steal PRE robbed Izchak / POST refused, m_monnam() and clone
+      name and livelog PRE random / POST stored. Paniclogs clean. Full
+      record: BUGFIXES_ARCHIVE BUG-2139..2142.
+- [ ] LOW: the AD_WRAP drown and lava death reasons name a minion
+      couatl by bare species (minted 2026-10-05, session 183, by the
+      Plan agent and reviewer; master-shared). uhitm.c's AD_WRAP arm
+      writes "%s by %s" ("pool of water" / "moat") and "incinerated
+      in molten lava by %s" with an(pmname(magr->data, ...)), so a
+      lawful minion couatl (lminion() picks any non-lord S_ANGEL, and
+      the couatl has AT_HUGS AD_WRAP) reads "a couatl" where melee
+      and, since BUG-2139, ranged reasons say "a couatl of <god>".
+      The same species naming reaches a shopkeeper or priest only
+      after polymorph (AD_DISN "disintegrated by", "decapitated by"
+      with an(l_monnam()) reading "an Asidonhopo the ...", stoning
+      and sliming). These are the direct-death sites of session 181's
+      direct-deaths grave-rise row; a ruling there could take the
+      naming too (mon_killer_name() at each site). Decide: name them
+      through mon_killer_name(), or record only. LOW.
 - [x] LOW: poisoned-weapon and sting death reasons name the bare
       species (BUG-2131) - FIXED 2026-10-04 (session 181, commit
       `Fix: monster melee poison deaths are that monster's kill.` =
@@ -22864,7 +22925,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a refused mnearto() shove in pay_for_damage() can anger
       the shopkeeper (BUG-2135) - FIXED 2026-10-05 (session 182,
       commit `Fix: shop, drawbridge and fire-trap moves around a held
-      hero.` = (hash pending); closure notes at the end of this row).
+      hero.` = 289c7c452, tracker 988ba1658, landed 2026-10-05;
+      closure notes at the end of this row).
       Original text: LOW: a refused mnearto() shove in pay_for_damage()
       can anger
       the shopkeeper (minted 2026-10-04, session 180, battery A S3;
@@ -22915,8 +22977,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a raw relocation can split an engulfer from the hero it
       has swallowed (BUG-2136, BUG-2137) - FIXED 2026-10-05 (session
       182, commit `Fix: shop, drawbridge and fire-trap moves around a
-      held hero.` = (hash pending); closure notes at the end of this
-      row). Original text: LOW: a raw relocation can split an
+      held hero.` = 289c7c452, tracker 988ba1658, landed 2026-10-05;
+      closure notes at the end of this row). Original text: LOW: a
+      raw relocation can split an
       engulfer from the hero it
       has swallowed (minted 2026-10-04, session 180, reviewer
       follow-up; upstream-shared). dbridge.c set_entity() prefers the
@@ -23320,8 +23383,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       may plummet on its first move (rider moves by its own mfndpos,
       movemon() runs minliquid() on the off-map steed). Master-
       shared shape apart from BUG-1314's newcham arm. LOW.
-- [ ] LOW: ucatchgem() (mthrowu.c, the unicorn-form gem catch) has
-      no helplessness check (minted 2026-10-04, session 177, merge
+- [x] LOW: ucatchgem() (mthrowu.c, the unicorn-form gem catch) has
+      no helplessness check (BUG-2138) - FIXED 2026-10-05 (session
+      183, commit `Fix: helpless unicorn catches and ranged killer
+      and shopkeeper names.` = (hash pending); closure notes at the
+      end of this row). Original text: (minted 2026-10-04,
+      session 177, merge
       audit): a sleeping or paralyzed hero polymorphed into a unicorn
       still catches a thrown gem. BUG-2100 gated the martial-arts
       catch with `gm.multi >= 0`; this one was left as it was.
@@ -23330,6 +23397,22 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-04 (session 180 follow-up, decisions log): GATE
       IT, as recommended - a helpless unicorn-form hero doesn't catch;
       the gem hits or misses like any thrown rock. Plannable.
+      CLOSURE (2026-10-05, session 183, plan
+      /root/.claude/plans/bugfix-unicorn-catch-killer-names.md).
+      FIX (BUG-2138, src/mthrowu.c ucatchgem()): the catch also
+      requires `gm.multi >= 0` (m_throw()'s nomul(0) just before it
+      keeps a negative multi); the gem falls through to thitu() /
+      drop_throw(). 5.0's hero-side "slung gems are attacks" rule is
+      not mirrored - every monster gem arrives by sling, so it would
+      kill the catch. REVIEWER: PASS x2. BATTERY A (game-tester, PRE
+      9d02346433d2260afb1047eb22b9c5c9 / POST
+      6b131be84798507512ce1deceba61228, gnome lord with a sling):
+      asleep PRE 10/10 "You accept the gnome lord's gift in the spirit
+      in which it was intended." at multi -29..-21 / POST 0/19, "You
+      are hit by a red gem." / "A red gem misses you." via thitu();
+      paralyzed PRE 8/8 / POST 0/12; glass asleep PRE 8/8 / POST 0/9;
+      awake, counted search (multi 17-19 reset to 0) and human-form
+      controls identical. Paniclog clean.
 
 ## Phase 3 - Levels and quests (233 lua files from 36 .des)
 
@@ -24348,6 +24431,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-05 | mthrowu.c ucatchgem() (Official_nh50 src/mthrowu.c ~506) has no helplessness gate: a sleeping, paralyzed or fainted hero polymorphed into a unicorn still catches a gem a monster slings ("You accept ... gift"); m_throw()'s `if (gm.multi) nomul(0);` just before the call returns early when multi < 0. Same class as the u_catch_thrown_obj() row below (2026-10-02). | fixed on branch (BUG-2138: `gm.multi >= 0`); not yet sent |
+| 2026-10-05 | shkname() returns a random shopkeeper name (and draws core rn2) while Hallucination && !program_state.gameover, but three callers want the true name: end.c done_in_by() (Official_nh50 src/end.c ~268) records a random shopkeeper in the death reason (death reasons are built before gameover); do_name.c x_monnam()'s shopkeeper branch (~925 / ~927) is reached only when hallucination is off OR the caller passes SUPPRESS_HALLUCINATION, so m_monnam() / EXACT_NAME callers (livelog_mon_nam()'s shopkeeper-kill line, dynamic_multi_reason(), "Wait, %s!") get a random name; makemon.c clone_mon() (~906) christens a shopkeeper's clone with a random name. | fixed on branch (BUG-2140 / BUG-2142: shkname_real(), the stored name with the prefix stripped); not yet sent |
 | 2026-10-05 | dbridge.c close_drawbridge() / open_drawbridge() with the hero ENGULFED on a bridge square (the passtune can be played while swallowed): set_entity() makes only the hero the entity of the shared square, so the engulfer is never processed and do_entity()'s hero arm (`u.ux = newx; u.uy = newy;`) moves the hero to the other bridge square with u.uswallow still set (split), or crushes / drowns the hero inside the untouched engulfer | fixed on branch (BUG-2136: expels(u.ustuck) after the see / hear line and before the terrain change, then a re-check of the bridge in case the expelled hero's spoteffects() set off a land mine); patch artifact not cut yet |
 | 2026-10-05 | muse.c munslime() adjacent fire-trap scan: a slimed monster engulfing the hero is remove_monster() / place_monster()d onto the trap by muse_unslime(), leaving u.ux / u.uy and u.uswallow behind (split; the off-square engulfer keeps digesting the hero) | fixed on branch (BUG-2137: the scan also requires `!(u.uswallow && ustuck_self_or_steed(mon))`, find_defensive() / find_misc()'s predicate); patch artifact not cut yet |
 | 2026-10-05 | trap.c blow_up_landmine() on a RAISED drawbridge span over ice / frozen lava (use_trap() allows the mine there): only DRAWBRIDGE_DOWN or a drawbridge wall reaches destroy_drawbridge(), so the pit fill writes MOAT / LAVAPOOL over the DRAWBRIDGE_UP square and leaves the portcullis a DBWALL nothing can open (find_drawbridge() fails), with stale drawbridgemask bits in the new pool's flags | open on branch (LOW row, needs a ruling); not fixed |
@@ -24530,6 +24615,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-05 | Unicorn-catch / killer-name slice ruling (session 183; AskUserQuestion x1, one question, recommended). MELEE SHOPKEEPER NAME: FIX MELEE TOO - done_in_by() records the true shopkeeper name while the hero hallucinates (shkname() picks a random one while Hallucination && !program_state.gameover, and death reasons are built before gameover), through one helper shared with the ranged mon_killer_name() names, over "ranged only, mint a row"; the "hallucinogen-distorted" prefix stays. The ranged names keep done_in_by()'s "Mr. " / "Ms. " honorific (the 2026-10-04 ruling's example text omitted it; its operative words were "as done_in_by() names them"). Reviewer siblings of the same root cause folded in under the cross-file-siblings rule (no question): shkinit()'s Izchak kit test and #steal's Izchak exemption, x_monnam()'s exact-name shopkeeper branch (m_monnam(), livelog_mon_nam()), clone_mon()'s shopkeeper clone name - all through shkname_real(); shk.c message text keeps the hallucinated name. | maintainer |
 | 2026-10-04 | Poison slice rulings (session 181; AskUserQuestion x3, all recommended). (1) SHAPE: SAME AS ITS MELEE KILL - a monster's melee poison death goes through done_in_by() (reason, grave-rise arms, "You die...", bones looting and the rummage line as its melee kill; a venom blade names its wielder), over "name + rise only" (mon_killer_name() text, rise arms, no looting). (2) Mind flayer larva brain-burrow: FOLD IN - it raises the hero as a mind flayer (BUG-2133), over a row. (3) "Kas" / "Mephistopheles" special_subjs[] port revert found by battery B: FOLD INTO THIS SLICE (BUG-2134), over a row for a later slice. | maintainer |
 | 2026-10-04 | Pending LOW rows ruled (session 180 follow-up; AskUserQuestion x2, seven questions, all recommended). (1) ucatchgem(): GATE IT - a helpless unicorn-form hero doesn't catch a thrown gem (as BUG-2100 for the martial-arts catch). (2) mon_killer_name() naming: MATCH MELEE FOR ALL THREE - priests, minions and shopkeepers read in ranged / spell reasons as done_in_by() names them, over "priests and minions only" and master's species naming. (3) poisoned() name: FULL NAME - race and "imitating" in poison death reasons. (4) Poison grave-rise (2026-09-18 observation row): RISE AFTER POISON TOO - a monster-caused poison death runs the grave-rise arms. (5) Aasimar changes while polymorphed: ANNOUNCE ON REHUMANIZE. (6) pay_for_damage() refused shove: GUARD THE SITE (no yell, no relocation when the occupant is the hero's holder), over guard + clear following. (7) Engulfed-hero split: EXPEL / GATE - the drawbridge expels first; an engulfer holding the hero skips the fire-trap unslime step. | maintainer |
 | 2026-10-04 | Hold-and-drain slice fold-in (session 180; AskUserQuestion x1, one question, recommended). BUG-1270's LOST mdisplacem() HALF: FOLD IT IN - restore master's release of a grabber shoved out of the hero's reach in this slice rather than minting a row (master e7f497e5e; the dochug() half was already on the branch via 5.0). Session follow-through under the standing cross-file-siblings rule (no separate question): the displacer side of mdisplacem() and the reviewer's same-class siblings (gulpmm(), muse_unslime(), do_entity(), become_flayer(), parkguard()) went into the same commit as BUG-2129 / BUG-2130; covetous_can_shove() was removed as redundant once mnearto() refuses the shove itself. | maintainer (fold-in); session (rest) |
