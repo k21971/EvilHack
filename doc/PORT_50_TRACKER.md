@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-04, after session 180): 302
-  rows closed, 84 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-04, after session 181): 304
+  rows closed, 83 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,13 +34,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 62 LOW: small parity rows, quirks and watch/record-only items.
-    Every ruled row has landed (the mnearto() shove and the aasimar
-    drain in session 180). Plannable without a ruling: session 177's
-    terrain-effects coverage row (its fix is named) and the Phase 6
-    set_whereisfile() BUG-603 row (port master's shape). Awaiting a
-    ruling: session 177's ucatchgem() row, the two session-178 rows
-    and session 180's three.
+  - 61 LOW: small parity rows, quirks and watch/record-only items.
+    PLANNABLE (ruled 2026-10-04, session 180 follow-up): the
+    ucatchgem() helplessness gate; mon_killer_name() naming priests,
+    minions and shopkeepers as melee does; the
+    aasimar announce-on-rehumanize row; the pay_for_damage() holder
+    guard and the engulfed-hero expel / gate (small, could share a
+    slice). Also plannable without a ruling: session 177's
+    terrain-effects coverage row and the Phase 6 set_whereisfile()
+    BUG-603 row.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
@@ -48,8 +50,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     pathing in session 175, the uasmon_maxStr() EvilHack-races row
     in session 176, the done_in_by() imitator naming and rider /
     steed text rows in session 178, the BFS diagonal-rule row in
-    session 179, and the mnearto() shove and aasimar drain rows in
-    session 180. The
+    session 179, the mnearto() shove and aasimar drain rows in
+    session 180, and the poison death-reason name and poison
+    grave-rise rows in session 181. The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -72,29 +75,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     row; session 178 the mon_killer_name() high priest naming row and
     the poisoned() bare-species row; session 180 the aasimar silent
     changes while polymorphed row, the pay_for_damage() refused-shove
-    anger row and the engulfed-hero split row.
-- Latest slice: 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
+    anger row and the engulfed-hero split row; session 181 the other
+    monster-caused direct deaths row (needs a ruling).
+- Latest slice: 2026-10-04 (session 181) A MONSTER'S POISON KILL IS
+  ITS MELEE KILL (code (hash pending); BUG-2131..2134).
+  - A poison death from a monster's melee attack (sting, claw or
+    bite poison, a poisoned weapon, a venom or Sword of Kas blade)
+    now reads, rises and loots as that monster's melee kill:
+    "poisoned by an elven soldier", "poisoned by a chameleon
+    imitating a soldier ant", "poisoned by Kas", "You die...", the
+    grave-rise arms (a zombie's poisoned claw raises a zombie), the
+    killer rummaging through the death pile.
+  - The mind flayer larva's brain-burrow raises the hero as a mind
+    flayer, as master's larva design says.
+  - "Kas" and "Mephistopheles" take singular verbs again ("Kas
+    appears"), restoring master's special_subjs[] entries.
+  - Detail: the closed poison-name and poison grave-rise LOW rows.
+- Previous slice: 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
   END WHEN MOVED APART; THE AASIMAR DRAIN REACHES A POLYMORPHED
-  HERO'S STATS (code (hash pending); BUG-2127..2130).
-  - A shopkeeper, covetous monster or water bubble aiming a monster
-    at the square of the monster holding the hero (or held by it)
-    no longer shoves it away; the arriving monster lands beside it
-    and the hold stays.
-  - A hold ends at once when either partner is moved out of reach
-    without a teleport: displacement (master's BUG-1270 half that
-    never reached the branch), an engulfer staying on its victim's
-    square, a slimed monster stepping onto a fire trap, a
-    drawbridge, a mind flayer larva's host, a parked vault guard.
-  - A stat drain applied while polymorphed also caps the hero's
-    normal-form stats, so returning to normal form keeps the drain.
-  - Detail: the closed mnearto() and aasimar drain LOW rows.
-- Previous slice: 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
+  HERO'S STATS (code 18aa56636, tracker c3a85547d; BUG-2127..2130):
+  a monster aimed at the hero's holder lands beside it and the hold
+  stays; a hold ends when either partner is moved apart without a
+  teleport; a stat drain applied while polymorphed also caps the
+  normal-form stats; detail in the closed mnearto() and aasimar
+  drain LOW rows.
+- Earlier slices: 2026-10-04 (session 179) MONSTER PATHFINDING TAKES
   THE DIAGONALS MONSTERS CAN WALK (code 6417394c2, tracker
-  45d58d366; BUG-2126): intelligent monsters path through pool, lava,
-  bars and boulder corners; paths no longer cut diagonally through an
-  intact doorway, except onto a doorway hero; detail in the closed
-  LOW diagonal-rule row.
-- Earlier slices: 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
+  45d58d366; BUG-2126); 2026-10-04 (session 178) RACIAL FORM DEATH NAMES
   AND RIDER / STEED HOLD TEXT (code 7f9f073db, tracker e3170fd29;
   BUG-2122..2125); 2026-10-04 (session 177) NETHACK 5.0.0
   POST-RELEASE MERGE (merge b4773a429 = NetHack50 c1a37fb6c = official
@@ -14478,7 +14485,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       kept mon_killer_name() off x_monnam() on purpose (its priest and
       shopkeeper paths rename those killers). Decide whether ranged
       reasons should name priests like the melee reason. LOW.
-- [ ] LOW: poisoned-weapon and sting death reasons name the bare
+      RULED 2026-10-04 (session 180 follow-up, decisions log): MATCH
+      MELEE FOR ALL THREE, as recommended, over "priests and minions
+      only" and master's species naming - priests, minions and
+      shopkeepers read in ranged / spell reasons as done_in_by() names
+      them ("... inflicted by the high priest of Moloch", "... zapped
+      by Asidonhopo, the shopkeeper", "... by a priestess of Odin").
+      Plannable.
+- [x] LOW: poisoned-weapon and sting death reasons name the bare
+      species (BUG-2131) - FIXED 2026-10-04 (session 181, commit
+      `Fix: monster melee poison deaths are that monster's kill.` =
+      (hash pending); closure notes at the end of this row).
+      Original text: LOW: poisoned-weapon and sting death reasons
+      name the bare
       species (minted 2026-10-04, session 178, by the Plan agent;
       master-shared, master's mhitu.c passes mdat->mname). uhitm.c's
       AD_DRST / AD_DRDX / AD_DRCO arm and its poisoned-weapon arm pass
@@ -14486,7 +14505,42 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       by a soldier" with no race and a shapeshifter is named by its
       form with no "imitating". A fix touches poisoned()'s article
       handling (attrib.c). LOW.
-- [ ] LOW observation (2026-09-18, done_in_by parity battery): a
+      RULED 2026-10-04 (session 180 follow-up, decisions log): FULL
+      NAME, as recommended - poison reasons carry the race and
+      "imitating" ("killed by a centaurian soldier", "killed by a
+      chameleon imitating an elven soldier"); poisoned()'s name_to_mon()
+      / the() prefix logic must not turn it into "the a ...".
+      Plannable; pairs with the grave-rise row below (same poisoned()
+      path).
+      CLOSURE (2026-10-04, session 181, plan
+      /root/.claude/plans/bugfix-poison-death-melee-kill.md). SHAPE
+      RULED this session (AskUserQuestion, recommended): SAME AS ITS
+      MELEE KILL - poisoned() hands a monster-caused death to
+      done_in_by() instead of splicing a name into its own killer
+      string. FIX (BUG-2131, src/attrib.c, src/uhitm.c,
+      src/artifact.c, NULL at the other callers): poisoned() takes
+      the poisoner - magr from mhitm_ad_drst()'s hero arm, the AD_PHYS
+      poisoned-weapon arm and artifact_hit()'s AD_DRST blade (NULL
+      there for missiles and the hero's own blade); the reason is
+      done_in_by()'s melee name, so the name_to_mon() / the() logic
+      only serves non-monster poison and "the a ..." cannot arise. A
+      venom / Sword of Kas blade's monster kill reads "poisoned by
+      Kas" (was "killed by a poisoned blade"). BATTERY B (game-tester,
+      PRE fa8813654af77776bb03d1fb9114d22f / POST
+      5eae3eb6115febf3d99e23483e8c2d3e): B1 racial soldier with a
+      poisoned dagger PRE "soldier" / POST "elven soldier" plus "The
+      elven soldier starts to rummage through your possessions...";
+      B2 PRE "soldier ant" / POST "chameleon imitating a soldier ant";
+      B3 Kas PRE DIED "poisoned blade" / POST POISONING "Kas"
+      (KILLED_BY); B4 controls: a monster-thrown poisoned dart ("a
+      dart", KILLED_BY) and dagger of venom ("poisoned blade") read the
+      same on both. Paniclog clean.
+- [x] LOW observation: a zombie's poison instadeath skips the
+      graverise arms (BUG-2132; BUG-2133 folded in) - FIXED 2026-10-04
+      (session 181, commit `Fix: monster melee poison deaths are
+      that monster's kill.` = (hash pending); closure notes at the
+      end of this row). Original text: LOW observation (2026-09-18,
+      done_in_by parity battery): a
       zombie's poison instadeath skips the graverise arms - the human
       zombie's poisoned sting ("The poison was deadly...") killed the
       hero through poisoned() -> done(POISONING) (src/attrib.c) with
@@ -14498,6 +14552,80 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       chain for a monster poisoner (mhitu.c's AD_DRST passes the
       poisoner's name, not the monster) or accept the plain corpse.
       LOW.
+      RULED 2026-10-04 (session 180 follow-up, decisions log): RISE
+      AFTER POISON TOO, as recommended - a poison death caused by a
+      monster (the 1-in-30 instakill or HP lost to poison) runs the
+      same grave-rise arms as that monster's melee kill (wraith,
+      mummy, revenant, zombie, vampire); poison from traps, potions
+      and other non-monster sources is unchanged. Every EvilHack
+      zombie's claw is AD_DRCO, so this is common. Plannable; pairs
+      with the poison-name row above.
+      CLOSURE (2026-10-04, session 181, same plan). FIX (BUG-2132,
+      src/end.c, src/attrib.c): the arm chain moved verbatim into new
+      extern set_ugrave_arise() (assign-on-match, so a caller's -3
+      disintegration sentinel survives), called by done_in_by();
+      poisoned() with a poisoner calls done_in_by(POISONING) for the
+      instakill, and new staticfn poison_losehp() routes a FATAL
+      hit-point loss (losehp()'s own `!Upolyd && u.uhp - loss < 1`)
+      through end_running() + mdamageu() -> done_in_by(DIED);
+      non-fatal and polymorphed losses stay losehp(). Plan agent and
+      reviewer (PASS, one NIT taken): the poisoner is alive at all
+      three sites, gk.killer_weapon is NULL inside them, and lifesave,
+      "Die? n" and sentient_arise() return safely. SIBLING (ruled this
+      session, recommended): FOLD IN the mind flayer larva burrow
+      (BUG-2133, uhitm.c) - set_ugrave_arise(magr) before mongone().
+      BATTERY A (game-tester, same binaries): A1 human zombie claw
+      instakill PRE no "You die...", ugrave -1, ukiller 0 / POST "You
+      die...", ugrave 359 (human zombie), ukiller the zombie, bt done
+      <- done_in_by <- poisoned; A2 fatal HP POST done_in_by <-
+      mdamageu <- poison_losehp; A3 non-fatal stays losehp(); A4
+      partial resistance "extremely toxic!" then the POST rise; A5
+      wolf form: HP loss rehumanizes on both, the instakill kills
+      through the form and POST rises; A6 life saving: one death,
+      ukiller / ugrave / killer name cleared; A7 human zombies
+      genocided -> no rise; A8 XL22 soldier ant POST spectre (419),
+      dart trap control the same on both; A9 POST "Your body rises
+      from the dead as a human zombie...", tombstone "poisoned by a
+      human zombie" on both. B3 Kas POST rise vampire sovereign (331);
+      B5 larva PRE no rise / POST "Your body rises from the dead as a
+      mind flayer...", genocided -> none, life saving survives (larva
+      gone, u.ustuck 0). Battery lore: a zombie's AD_DRIN bite infects
+      SICK_ZOMBIE on most hits and done() then rises the hero anyway -
+      stage poison legs with Sick_resistance. FOLDED IN after the
+      battery (ruled this session, recommended): BUG-2134, objnam.c
+      special_subjs[] regains master's "Kas" and "Mephistopheles"
+      (b2b0cc1f0, lost in the port), found from battery B's "Kas
+      appear next to you."; BATTERY C (final binary
+      ce32682d2725af94da8f3f5a7ec2710b): vtense("Kas" /
+      "Mephistopheles", "appear") PRE "appear" / POST "appears",
+      makesingular() PRE "Ka" / "Mephistophele", POST unchanged;
+      ^G "Kas appear(s) next to you." and "The invisible
+      Mephistopheles appear(s) next to you." (he is always invisible:
+      no message without see invisible); the `/` lookup on Kas PRE
+      asked about "ka" then "kas", POST once (master's "weird monster
+      lookup"); C4 repeated A1 on the final binary, identical. Paniclog
+      clean throughout. RECORDED: the other
+      monster-caused direct deaths - minted as the LOW row below.
+- [ ] LOW: other monster-caused direct deaths skip the grave-rise
+      arms (minted 2026-10-04, session 181, by the poison slice's Plan
+      agent and reviewer; master-shared). set_ugrave_arise() runs only
+      from done_in_by(), poisoned()'s poisoner path and the larva
+      burrow. These kills by a monster call done() directly with
+      their own reason and pick no rise form (most leave gu.ukiller
+      unset too), and the XL22+ spectre arm alone makes every one
+      reachable: AD_WRAP drowning and lava pull (uhitm.c), AD_BHED
+      beheading (uhitm.c), AD_DRLI drain at XL1 (losexp() "life
+      drainage" - the wraith, vampire and Nazgul arms), the touch of
+      death (mcastu.c touch_of_death(), sets ukiller), mind flayer
+      brain-eating "brainlessness" (eat.c via mhitm_ad_drin()),
+      monster-wielded artifact kills (Wand of Orcus - sets ukiller -,
+      Grimtooth disembowel, fire immolation, Angelslayer, Sunsword,
+      Vorpal Blade), seduction "exhaustion" (mhitu.c), and the drow
+      "tainted weapon" hit-point rider (uhitm.c; sleep poison, not
+      poisoned()). Also: the passive poisonous hide's instakill uses
+      DIED where poisoned() uses POISONING. Decide per class: run
+      set_ugrave_arise() (and set gu.ukiller) before the done(), keep
+      the custom reasons; or record only. LOW.
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
@@ -16340,7 +16468,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master parity: a refused tamedog still leaves the monster
       peaceful (vanilla's "worst case, at least it'll be peaceful").
       Genesis grammar slip "The invisible Mephistopheles appear next to
-      you." -> upstream table.
+      you." -> upstream table (withdrawn 2026-10-04: the branch had
+      lost master's special_subjs[] entries, BUG-2134).
 - [ ] LOW: from_what() master-only hallucination arm (minted
       2026-09-06 by the role-tables slice's attrib.c diff). Master's
       from_what() prints " permanently" for HALLUC when
@@ -18834,8 +18963,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: the aasimar stat-drain penalty applied while polymorphed
       misses the saved base stats (BUG-2128) - FIXED 2026-10-04
       (session 180, commit `Fix: hero holds on monster moves and the
-      polymorphed aasimar drain.` = (hash pending); closure notes at
-      the end of this row). Original text: LOW: the aasimar
+      polymorphed aasimar drain.` = 18aa56636, tracker c3a85547d,
+      landed 2026-10-04; closure notes at the end of this row).
+      Original text: LOW: the aasimar
       stat-drain penalty applied while polymorphed misses the saved
       base stats (minted 2026-10-03, session 176, by
       the uasmon_maxStr() Plan agent; master-shared). attrib.c's
@@ -18891,6 +19021,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       returns to the status line. Decide: announce on rehumanize (a
       pending-message flag), announce at once in a form-neutral
       wording, or keep silent. LOW (messages only).
+      RULED 2026-10-04 (session 180 follow-up, decisions log):
+      ANNOUNCE ON REHUMANIZE, as recommended - changes made in a form
+      are remembered and announced on returning to normal form
+      ("You feel your divine potential diminishing!", "Your angelic
+      wings wither and fade away!", and the restore / regain
+      messages); a pending state that must survive save / restore
+      while polymorphed. Plannable.
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -22636,8 +22773,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: mnearto(move_other TRUE) unsticks the hero (BUG-2127;
       BUG-2129 / BUG-2130 folded in) - FIXED 2026-10-04 (session 180,
       commit `Fix: hero holds on monster moves and the polymorphed
-      aasimar drain.` = (hash pending); closure notes at the end of
-      this row). Original text: LOW: mnearto(move_other TRUE)
+      aasimar drain.` = 18aa56636, tracker c3a85547d, landed
+      2026-10-04; closure notes at the end of this row). Original
+      text: LOW: mnearto(move_other TRUE)
       unsticks the hero (minted
       2026-10-02, session 169, reviewer LOW-4 of the covetous slice).
       The branch's mnearto() takes the shoved monster off the map
@@ -22731,6 +22869,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Decide: guard the site (skip the shove when the occupant is
       the hero's holder; the shk talks from where he stands), clear
       `following` in the Mollified arm, or record only. LOW.
+      RULED 2026-10-04 (session 180 follow-up, decisions log): GUARD
+      THE SITE, as recommended, over guard + clear following - when
+      the damaged square's occupant is ustuck_self_or_steed(), skip
+      the yell and the mnearto(); the shk deals with the hero from
+      where he stands. Plannable.
 - [ ] LOW: a raw relocation can split an engulfer from the hero it
       has swallowed (minted 2026-10-04, session 180, reviewer
       follow-up; upstream-shared). dbridge.c set_entity() prefers the
@@ -22742,6 +22885,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       fire trap and leave u.ux behind. unstuck_if_apart() rightly
       skips u.uswallow. Decide: gate those moves on the engulf
       (engulfing_u() / u.uswallow), or expel first. LOW.
+      RULED 2026-10-04 (session 180 follow-up, decisions log): EXPEL
+      / GATE, as recommended, over carry-together and record-only -
+      before the drawbridge moves an engulfed hero the engulfer
+      expels the hero (then moved or crushed as a free hero); an
+      engulfer holding the hero never takes muse_unslime()'s
+      fire-trap step. Plannable.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -23076,6 +23225,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       catch with `gm.multi >= 0`; this one was left as it was.
       Master and upstream share it. Decide: same gate, or record
       only. LOW.
+      RULED 2026-10-04 (session 180 follow-up, decisions log): GATE
+      IT, as recommended - a helpless unicorn-form hero doesn't catch;
+      the gem hits or misses like any thrown rock. Plannable.
 
 ## Phase 3 - Levels and quests (233 lua files from 36 .des)
 
@@ -24144,7 +24296,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-09-07 | mkmaze.c mv_bubble() redraws each water bubble's squares with an unconditional unblock_point() BEFORE re-placing the contents, and bubbles overlap, so a bubble drawn later in the pass unblocks the boulder an earlier bubble just re-placed (place_object blocked it) and any gas-cloud region square in its footprint (does_block returns 2); the hero sees through them (boulder: one turn; cloud: while overlapped). Also the CONS_MON re-placement (mnearto -> rloc_to_flag -> place_monster) never re-blocks a still-disguised boulder-mimic (pick-up is a bare remove_monster, so the disguise survives), and when the hero's bubble square lands on such a mimic, mnexto() keeps its disguise (mnearto's eviction reveals it through mon_leaving_level), so the vacated square stays blocked under the hero and the new square is placed unblocked. levl_sanity_check() reports all of it as "levl[x][y] vision blocking"; Official_nh50 and NetHack50 byte-identical (their Air arm already uses recalc_block_point) | fixed on branch (BUG-1795/1796: recalc_block_point in the draw arm, on the landing square, and on the hero's square and the displaced monster's new square); artifact ~/nh50-mv-bubble-vision-recalc.patch TRIMMED 2026-09-16 to the draw-arm hunk (the mimic halves are superseded by the 2026-09-16 rloc_to_core patch; the full 2026-09-07 version kept as ~/nh50-mv-bubble-vision-recalc.patch.2026-09-07-full; git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 a0b9e59d8); not yet sent |
 | 2026-09-07 | trap.c lava_effects() protects only one in-use inventory item (protect_oid) and impossible()s then burns any other: a scroll of destroy armor (scroll->in_use) destroying levitation or water walking boots (destroy_arm sets armor->in_use) over lava leaves two, and the loser's caller useup()s freed memory after life-saving | artifact ~/nh50-lava-effects-in-use.patch (four-slot protect list + lava_protected()); git apply --check clean vs Official_nh50 f41f1aa09 and NetHack50 593193cdf; not yet sent |
 | 2026-09-06 | trap.c trapeffect_telep_trap() returns Trap_Moved_Mon unconditionally after mtele_trap(), which moves nothing on a no-teleport level or when teleport_pet() refuses (leashed pet yelps); the consumers read Trap_Moved_Mon as "gone, message printed": m_move() ends the monster's move as MMOVE_DIED (no post-move phase that turn) and mhurtle() stops on the square (domove()'s swap-places abuse_dog() arm is unreachable - a peaceful is never displaced onto a trapped square). Official_nh50 and NetHack50 identical; mlevel_tele_trap() already returns Trap_Effect_Finished for its early returns. Surfaced by the 2026-09-06 defended() sweep reviewer when the branch added its own MR early return | fixed on branch (BUG-1774: mtele_trap returns boolean; BUG-1923 2026-09-24: TRUE only when the monster's square changed, which also covers a fixed-destination teleporter whose destination holds the hero or another monster - that arm returned TRUE while moving nothing); artifact ~/nh50-mtele-trap-moved-mon.patch (REVISED 2026-09-24 to the position test, git apply --check clean vs both trees), not yet sent |
-| 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | observed; not reported, no patch |
+| 2026-09-06 | makemon.c makemon()'s arrival message `Norep("%s%s %s%s%c", what, ..., vtense(what, "appear"), ...)` conjugates against the whole subject string, so a unique whose name ends in s reads "The invisible Mephistopheles appear next to you." (observed 2026-09-06 under wizard genesis; Official_nh50 makemon.c carries the same line; master 3.6 has no such message form). | WITHDRAWN 2026-10-04 (session 181): not upstream - upstream's special_subjs[] covers its own uniques; the branch had lost master's "Kas" / "Mephistopheles" entries (BUG-2134, restored) |
 | 2026-09-06 | mon.c newcham() runs its tail on a monster mselftouch() just petrified: after `mselftouch(mtmp, "No longer petrify-resistant, ", ...)` (no gloves, wielded cockatrice corpse, new form not stone-resistant -> minstapetrify -> monstone) vanilla continues into check_gear_next_turn(), the boulder walk (per-iteration guarded) and the Elbereth re-check on a dead monster, and normal_shape() (rescham/restore_cham) then writes cham/mcan, newsyms and runs new_were()/seemimic() on it. Branch fix: `if (DEADMONSTER(mtmp)) return 1;` after the mselftouch call (the shape of the existing mon_break_armor guard) and `if (DEADMONSTER(mon)) return;` after normal_shape's newcham (3.6.x carried the latter as a `continue` in rescham). Vanilla-shared per Official_nh50 mon.c newcham()/normal_shape(). | branch-fixed (BUG-1753); artifact ~/nh50-newcham-mselftouch-dead-tail.patch (git apply --check clean vs Official_nh50 f41f1aa09) |
 | 2026-09-06 | mhitm.c mattackm()'s between-attacks re-check `m_at(gb.bhitpos) != mdef` never matches the hero's steed: mount_steed() removes it from level.monsters (bare remove_monster) so m_at(u.ux,u.uy) is NULL, and mattacku()'s "attack your steed instead" arm aims bhitpos at the hero square - a multi-attack monster attacking the hero's steed lands slot 0 only (fightm under Conflict too). Fix: accept `mdef == u.usteed && u_at(bhitpos)` in the re-check. Official_nh50 identical | fixed on branch (BUG-1749); artifact ~/nh50-mattackm-target-recheck.patch, not yet sent |
 | 2026-09-06 | dogmove.c pet_ranged_attk() sets `gb.bhitpos = mtmp->mx,my` (the PET's own square) before mattackm(mtmp, mtarg), so the re-check compares the pet with its target and every ranged slot after slot 0 is dropped - a pet winter wolf / hell hound (bite slot 0, breath slot 1) never breathes at a lined-up target. Fix: aim bhitpos at mtarg (find_targ returns worm heads). Official_nh50 identical | fixed on branch (BUG-1750); same artifact, not yet sent |
@@ -24273,6 +24425,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-04 | Poison slice rulings (session 181; AskUserQuestion x3, all recommended). (1) SHAPE: SAME AS ITS MELEE KILL - a monster's melee poison death goes through done_in_by() (reason, grave-rise arms, "You die...", bones looting and the rummage line as its melee kill; a venom blade names its wielder), over "name + rise only" (mon_killer_name() text, rise arms, no looting). (2) Mind flayer larva brain-burrow: FOLD IN - it raises the hero as a mind flayer (BUG-2133), over a row. (3) "Kas" / "Mephistopheles" special_subjs[] port revert found by battery B: FOLD INTO THIS SLICE (BUG-2134), over a row for a later slice. | maintainer |
+| 2026-10-04 | Pending LOW rows ruled (session 180 follow-up; AskUserQuestion x2, seven questions, all recommended). (1) ucatchgem(): GATE IT - a helpless unicorn-form hero doesn't catch a thrown gem (as BUG-2100 for the martial-arts catch). (2) mon_killer_name() naming: MATCH MELEE FOR ALL THREE - priests, minions and shopkeepers read in ranged / spell reasons as done_in_by() names them, over "priests and minions only" and master's species naming. (3) poisoned() name: FULL NAME - race and "imitating" in poison death reasons. (4) Poison grave-rise (2026-09-18 observation row): RISE AFTER POISON TOO - a monster-caused poison death runs the grave-rise arms. (5) Aasimar changes while polymorphed: ANNOUNCE ON REHUMANIZE. (6) pay_for_damage() refused shove: GUARD THE SITE (no yell, no relocation when the occupant is the hero's holder), over guard + clear following. (7) Engulfed-hero split: EXPEL / GATE - the drawbridge expels first; an engulfer holding the hero skips the fire-trap unslime step. | maintainer |
 | 2026-10-04 | Hold-and-drain slice fold-in (session 180; AskUserQuestion x1, one question, recommended). BUG-1270's LOST mdisplacem() HALF: FOLD IT IN - restore master's release of a grabber shoved out of the hero's reach in this slice rather than minting a row (master e7f497e5e; the dochug() half was already on the branch via 5.0). Session follow-through under the standing cross-file-siblings rule (no separate question): the displacer side of mdisplacem() and the reviewer's same-class siblings (gulpmm(), muse_unslime(), do_entity(), become_flayer(), parkguard()) went into the same commit as BUG-2129 / BUG-2130; covetous_can_shove() was removed as redundant once mnearto() refuses the shove itself. | maintainer (fold-in); session (rest) |
 | 2026-10-04 | BFS diagonal-rule slice ruling (session 179; AskUserQuestion x1, one question, recommended). DOORWAY HERO: SPARE THE HERO'S SQUARE - the hero-rooted map skips the new no-diagonal-door rule for steps out of its root, since the step onto the hero is a melee attack and dochug() attacks on monnear() adjacency alone; a doorway hero's flank squares stay at distance 1 as on master. Squeezes stay refused at the root; the goal map applies the door rule everywhere (items, stairs, portals are entered). Refines the 2026-10-03 "match mfndpos() terrain" ruling (BUG-2126). | maintainer |
 | 2026-10-04 | Platform-parity and applied-weapon rulings (session 177 follow-up; AskUserQuestion x1, three questions, all recommended; rulings only, code in future sessions). (1) APPLIED POLEARM / GRAPNEL AT YOUR OWN PET: STILL COUNTS - confirms the coordinator reading in the row below: the tame exemption covers throws, fires and kicks; an applied weapon is a weapon attack like melee, as on master (thrown_caitiff() keeps its `hmode == HMON_APPLIED` arm; no change needed). (2) HOST TOOLCHAINS: INSTALL ALL FOUR - the X11 dev packages, the Qt6 dev packages, the DJGPP MS-DOS cross-compiler (sys/msdos/fetch-cross-compiler.sh) and the Amiga cross toolchain (CROSS_TO_AMIGA hints), so the X11, Qt, MS-DOS and Amiga ports compile-check on this host. (3) WINDOWS / macOS: ADD CI JOBS - Windows and macOS runners in the GitHub Actions workflow (.github/workflows/evilhack-cpp.yml, today ubuntu-24.04 only), build recipes from upstream's azure-pipelines.yml. | maintainer |
