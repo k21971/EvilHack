@@ -34,6 +34,7 @@ staticfn boolean e_jumps(struct entity *);
 staticfn int do_entity(struct entity *);
 staticfn boolean e_survives_unique(struct entity *, boolean, const char *);
 staticfn void maybe_destroy_drawbridge(coordxy, coordxy, int, int);
+staticfn void db_expel_hero(coordxy, coordxy, coordxy, coordxy);
 staticfn void nokiller(void);
 
 boolean
@@ -935,6 +936,16 @@ maybe_destroy_drawbridge(coordxy x, coordxy y, int result1, int result2)
     }
 }
 
+/* an engulfer on a bridge square lets go of the hero before the bridge
+   moves, so the hero is moved or crushed as a free hero rather than
+   moved out from under it */
+staticfn void
+db_expel_hero(coordxy x, coordxy y, coordxy x2, coordxy y2)
+{
+    if (u.uswallow && (u_at(x, y) || u_at(x2, y2)))
+        expels(u.ustuck, u.ustuck->data, TRUE);
+}
+
 /*
  * Close the drawbridge located at x,y
  */
@@ -971,6 +982,10 @@ close_drawbridge(coordxy x, coordxy y)
         Soundeffect(se_chains_rattling_gears_turning, 75);
         You_hear("chains rattling and gears turning.");
     }
+    db_expel_hero(x, y, x2, y2);
+    /* a land mine under the expelled hero can destroy the bridge */
+    if (lev1->typ != DRAWBRIDGE_DOWN)
+        return;
     lev1->typ = DRAWBRIDGE_UP;
     lev2 = &levl[x2][y2];
     lev2->typ = DBWALL;
@@ -1050,6 +1065,10 @@ open_drawbridge(coordxy x, coordxy y)
         Soundeffect(se_gears_turning_chains_rattling, 100);
         You_hear("gears turning and chains rattling.");
     }
+    db_expel_hero(x, y, x2, y2);
+    /* a land mine under the expelled hero can destroy the bridge */
+    if (lev1->typ != DRAWBRIDGE_UP)
+        return;
     lev1->typ = DRAWBRIDGE_DOWN;
     lev2 = &levl[x2][y2];
     lev2->typ = DOOR;

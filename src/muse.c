@@ -4602,7 +4602,10 @@ munslime(struct monst *mon, boolean by_you)
                 return muse_unslime(mon, obj, (struct trap *) 0, by_you);
 
         if (((t = t_at(mon->mx, mon->my)) == 0 || t->ttyp != FIRE_TRAP_SET)
-            && mptr->mmove && !mon->mtrapped) {
+            && mptr->mmove && !mon->mtrapped
+            /* an engulfer holding the hero (or the rider of one) stays
+               put; stepping would leave the hero behind */
+            && !(u.uswallow && ustuck_self_or_steed(mon))) {
             coordxy xy[2][8], x, y, idx, ridx, nxy = 0;
 
             for (x = mon->mx - 1; x <= mon->mx + 1; ++x)

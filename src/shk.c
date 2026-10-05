@@ -5763,13 +5763,20 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
             return;
         }
     } else {
+        struct monst *occupant = m_at(x, y);
+        /* mnearto() won't shove the monster holding the hero, held by
+           them, or riding such a steed; the shk stays put rather than
+           land beside it, maybe outside his shop */
+        boolean holder_there = (occupant
+                                && ustuck_self_or_steed(occupant) != 0);
+
         /*
          * Make shkp show up at the door.  Effect:  If there is a monster
          * in the doorway, have the hero hear the shopkeeper yell a bit,
          * pause, then have the shopkeeper appear at the door, having
          * yanked the hapless critter out of the way.
          */
-        if (MON_AT(x, y)) {
+        if (occupant && !holder_there) {
             if (!animal) {
                 if (!Deaf && !muteshk(shkp)) {
                     /* Soundeffect(se_angry_voice, 75); */
@@ -5788,7 +5795,8 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
                 growl(shkp);
             }
         }
-        (void) mnearto(shkp, x, y, TRUE, RLOC_MSG);
+        if (!holder_there)
+            (void) mnearto(shkp, x, y, TRUE, RLOC_MSG);
     }
 
     if ((um_dist(x, y, 1) && !uinshp) || cant_mollify
