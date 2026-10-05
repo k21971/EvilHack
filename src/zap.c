@@ -5584,7 +5584,8 @@ zhitu(
         break;
     case ZT_POISON_GAS:
         if (!Reflecting)
-            poisoned("blast", A_DEX, "poisoned blast", 15, FALSE);
+            poisoned("blast", A_DEX, "poisoned blast", 15, FALSE,
+                     (struct monst *) 0);
         break;
     case ZT_ACID:
         /* the water around a submerged hero dilutes the acid */

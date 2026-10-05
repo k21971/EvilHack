@@ -5151,7 +5151,7 @@ mhitm_ad_drst(
         if (!negated && !rn2(8)) {
             Sprintf(buf, "%s %s", s_suffix(Monnam(magr)),
                     mpoisons_subj(magr, mattk));
-            poisoned(buf, ptmp, pmname(pa, Mgender(magr)), 30, FALSE);
+            poisoned(buf, ptmp, pmname(pa, Mgender(magr)), 30, FALSE, magr);
         }
     } else {
         /* mhitm */
@@ -5593,6 +5593,10 @@ mhitm_ad_wrap(
                         Sprintf(svk.killer.name,
                                 "became a parasitic host to %s",
                                 an(pmname(magr->data, Mgender(magr))));
+                        /* the body rises as the grown mind flayer, as
+                           after the larva's other kills; decided before
+                           the larva leaves the level */
+                        set_ugrave_arise(magr);
                         /* the larva just took over your body */
                         mongone(magr);
                         done(DIED);
@@ -6697,7 +6701,7 @@ mhitm_ad_phys(
                             mpoisons_subj(magr, mattk));
                     /* most poison sources in the game are strength-based */
                     poisoned(buf, A_STR, pmname(magr->data, Mgender(magr)),
-                             30, FALSE);
+                             30, FALSE, magr);
                     if (!permapoisoned(otmp)) {
                         int nopoison = (10 - (otmp->owt / 10));
 

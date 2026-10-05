@@ -293,8 +293,8 @@ done_in_by(struct monst *mtmp, int how)
 {
     char buf[BUFSZ];
     /* the form, not r_data()'s race archetype: the names and the unique
-       test describe the form, and the grave-rise arms below read the
-       race from the monster (zombie_maker(), racial_vampire()) */
+       test describe the form, and set_ugrave_arise() reads the race
+       from the monster (zombie_maker(), racial_vampire()) */
     struct permonst *mptr = mtmp->data,
                     *champtr = ismnum(mtmp->cham) ? &mons[mtmp->cham]
                                                   : mptr;
@@ -471,6 +471,22 @@ done_in_by(struct monst *mtmp, int how)
         }
     }
 
+    set_ugrave_arise(mtmp);
+
+    done(how);
+    return;
+}
+
+RESTORE_WARNING_FORMAT_NONLITERAL
+
+/* what, if anything, a hero killed by 'mtmp' rises from the grave as;
+   only a match assigns, so a caller's earlier choice (a disintegration's
+   no-corpse sentinel) survives a killer that names none */
+void
+set_ugrave_arise(struct monst *mtmp)
+{
+    struct permonst *mptr = mtmp->data;
+
     /*
      * Chicken and egg issue:
      *  Ordinarily Unchanging ought to override something like this,
@@ -514,12 +530,7 @@ done_in_by(struct monst *mtmp, int how)
     if (u.ugrave_arise >= LOW_PM
         && (svm.mvitals[u.ugrave_arise].mvflags & G_GENOD))
         u.ugrave_arise = NON_PM;
-
-    done(how);
-    return;
 }
-
-RESTORE_WARNING_FORMAT_NONLITERAL
 
 /* some special cases for overriding while-helpless reason */
 static const struct {

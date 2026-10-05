@@ -2705,8 +2705,10 @@ artifact_hit(
             otmp->oprops_known |= ITEM_VENOM;
             update_inventory();
         }
+        /* magr is Null for a missile or the hero's own blade, which keep
+           the blade as the cause; a monster's melee blow is its kill */
         if (youdefend && gs.spec_dbon_applies && !rn2(8))
-            poisoned("blade", A_STR, "poisoned blade", 30, FALSE);
+            poisoned("blade", A_STR, "poisoned blade", 30, FALSE, magr);
         return realizes_damage;
     }
     /* disease */

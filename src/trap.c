@@ -1484,7 +1484,8 @@ trapeffect_shooting_trap(
                                  OBJ_NAME(objects[otmp->otyp]),
                                  /* if damage triggered life-saving,
                                     poison is limited to attrib loss */
-                                 (u.umortality > oldumort) ? 0 : 10, TRUE);
+                                 (u.umortality > oldumort) ? 0 : 10, TRUE,
+                                 (struct monst *) 0);
                     obfree(otmp, (struct obj *) 0);
                 }
             } else {
@@ -2496,7 +2497,8 @@ trapeffect_pit(
                              : "fall onto poison spikes",
                              /* if damage triggered life-saving,
                                 poison is limited to attrib loss */
-                             (u.umortality > oldumort) ? 0 : 8, FALSE);
+                             (u.umortality > oldumort) ? 0 : 8, FALSE,
+                             (struct monst *) 0);
             } else {
                 /* plunging flyers take spike damage but not pit damage */
                 if (!conj_pit && !deliberate
@@ -7370,7 +7372,7 @@ chest_trap(
             pline("A cloud of noxious gas billows from %s.", the(xname(obj)));
             if (rn2(3))
                 poisoned("gas cloud", A_STR, "cloud of poison gas", 15,
-                         FALSE);
+                         FALSE, (struct monst *) 0);
             else
                 create_gas_cloud(obj->ox, obj->oy, 1, 8, &gy.youmonst);
             exercise(A_CON, FALSE);
@@ -7380,7 +7382,8 @@ chest_trap(
         case 14:
         case 13:
             You_feel("a needle prick your %s.", body_part(bodypart));
-            poisoned("needle", A_CON, "poisoned needle", 10, FALSE);
+            poisoned("needle", A_CON, "poisoned needle", 10, FALSE,
+                     (struct monst *) 0);
             exercise(A_CON, FALSE);
             break;
         case 12:

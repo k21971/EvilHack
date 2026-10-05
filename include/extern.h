@@ -222,7 +222,8 @@ extern void gainstr(struct obj *, int, boolean);
 extern void losestr(int, const char *, schar);
 extern void poison_strdmg(int, int, const char *, schar);
 extern void poisontell(int, boolean);
-extern void poisoned(const char *, int, const char *, int, boolean) NONNULLARG1;
+extern void poisoned(const char *, int, const char *, int, boolean,
+                     struct monst *) NONNULLARG1;
 extern void change_luck(schar);
 extern int stone_luck(boolean);
 extern boolean has_luckitem(void);
@@ -1081,6 +1082,7 @@ extern int Finish_digestion(void);
 extern void done1(int);
 extern int done2(void);
 extern void done_in_by(struct monst *, int) NONNULLARG1;
+extern void set_ugrave_arise(struct monst *) NONNULLARG1;
 extern void done_object_cleanup(void);
 extern void NH_abort(const char *);
 #endif /* !MAKEDEFS_C && MDLIB_C && !CPPREGEX_C */

@@ -1129,7 +1129,8 @@ m_throw(
                          knmbuf,
                          /* if damage triggered life-saving,
                             poison is limited to attrib loss */
-                         (u.umortality > oldumort) ? 0 : 10, TRUE);
+                         (u.umortality > oldumort) ? 0 : 10, TRUE,
+                         (struct monst *) 0);
             }
             if (hitu && singleobj->otainted && is_poisonable(singleobj)) {
                 if (how_resistant(SLEEP_RES) == 100) {

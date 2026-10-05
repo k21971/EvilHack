@@ -216,6 +216,7 @@ staticfn void apply_aasimar_penalty(int, boolean);
 staticfn int abuse_tier(void);
 staticfn boolean has_stat_drain_penalty(void);
 staticfn boolean aasimar_ability_penalized(long *);
+staticfn void poison_losehp(int, const char *, int, struct monst *);
 
 /* adjust an attribute; return TRUE if change is made, FALSE otherwise */
 boolean
@@ -427,14 +428,33 @@ poisontell(int typ,         /* which attribute */
     (*func)("%s%c", msg_txt, exclaim ? '!' : '.');
 }
 
+/* hit point loss from poison; a lethal dose delivered by a monster's
+   attack is that monster's kill, as its melee damage would be */
+staticfn void
+poison_losehp(
+    int loss,
+    const char *pkiller,
+    int kprefix,
+    struct monst *poisoner)
+{
+    if (poisoner && !Upolyd && u.uhp - loss < 1) {
+        end_running(TRUE); /* as losehp() would */
+        mdamageu(poisoner, loss);
+    } else {
+        losehp(loss, pkiller, kprefix);
+    }
+}
+
 /* called when an attack or trap has poisoned hero (used to be in mon.c) */
 void
 poisoned(
-    const char *reason,    /* controls what messages we display */
+    const char *reason,     /* controls what messages we display */
     int typ,
-    const char *pkiller,   /* for score+log file if fatal */
-    int fatal,             /* if fatal is 0, limit damage to adjattrib */
-    boolean thrown_weapon) /* thrown weapons are less deadly */
+    const char *pkiller,    /* for score+log file if fatal */
+    int fatal,              /* if fatal is 0, limit damage to adjattrib */
+    boolean thrown_weapon,  /* thrown weapons are less deadly */
+    struct monst *poisoner) /* monster whose melee attack delivered the
+                             * poison, or Null; a fatal dose is its kill */
 {
     int i, loss, kprefix = KILLED_BY_AN;
     boolean blast = !strcmp(reason, "blast");
@@ -486,7 +506,7 @@ poisoned(
             newuhpmax = u.uhpmax - (loss / 2);
             setuhpmax(max(newuhpmax, minuhpmax(3)), TRUE); /*True: see FIXME*/
             loss = adjuhploss(loss, olduhp);
-            losehp(loss, pkiller, kprefix); /* poison damage */
+            poison_losehp(loss, pkiller, kprefix, poisoner);
         } else {
             /* instant kill */
             u.uhp = -1;
@@ -500,7 +520,7 @@ poisoned(
         loss = resist_reduce(thrown_weapon ? rnd(6) : rn1(10, 6), POISON_RES);
         if ((blast || cloud) && Half_gas_damage) /* worn towel */
             loss = (loss + 1) / 2;
-        losehp(loss, pkiller, kprefix); /* poison damage */
+        poison_losehp(loss, pkiller, kprefix, poisoner);
     } else {
         /* attribute loss; if typ is A_STR, reduction in current and
            maximum HP will occur once strength has dropped down to 3 */
@@ -512,10 +532,15 @@ poisoned(
     }
 
     if (u.uhp < 1) {
-        svk.killer.format = kprefix;
-        Strcpy(svk.killer.name, pkiller);
-        /* "Poisoned by a poisoned ___" is redundant */
-        done(strstri(pkiller, "poison") ? DIED : POISONING);
+        if (poisoner) {
+            /* named, and risen from the grave, as its melee kill */
+            done_in_by(poisoner, POISONING);
+        } else {
+            svk.killer.format = kprefix;
+            Strcpy(svk.killer.name, pkiller);
+            /* "Poisoned by a poisoned ___" is redundant */
+            done(strstri(pkiller, "poison") ? DIED : POISONING);
+        }
     }
     encumber_msg();
 }
