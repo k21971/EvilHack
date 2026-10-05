@@ -952,7 +952,9 @@ x_monnam(
     /* Shopkeepers: use shopkeeper name.  For normal shopkeepers, just
      * "Asidonhopo"; for unusual ones, "Asidonhopo the invisible
      * shopkeeper" or "Asidonhopo the blue dragon".  If hallucinating,
-     * none of this applies.
+     * none of this applies (and when the caller suppresses
+     * hallucination, the real name is wanted, not shkname()'s random
+     * one).
      */
     if (mtmp->isshk && !do_hallu && !do_mappear) {
         if (adjective && article == ARTICLE_THE) {
@@ -960,9 +962,9 @@ x_monnam(
                sounds silly */
             Strcpy(buf, "the ");
             Strcat(strcat(buf, adjective), " ");
-            Strcat(buf, shkname(mtmp));
+            Strcat(buf, shkname_real(mtmp));
         } else {
-            Strcat(buf, shkname(mtmp));
+            Strcat(buf, shkname_real(mtmp));
             if (mdat != &mons[PM_SHOPKEEPER] || do_invis
                 || has_erac(mtmp)) {
                 Strcat(buf, " the ");

@@ -3274,6 +3274,8 @@ extern int get_shop_item(int);
 extern char *Shknam(struct monst *) NONNULLARG1;
 extern char *shkname(struct monst *) NONNULLARG1;
 extern boolean shkname_is_pname(struct monst *) NONNULLARG1;
+extern const char *shkname_real(struct monst *) NONNULLARG1;
+extern char *shk_killer_name(char *, struct monst *) NONNULLARG12;
 extern boolean is_izchak(struct monst *, boolean) NONNULLARG1;
 
 /* ### sit.c ### */

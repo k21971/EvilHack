@@ -374,11 +374,9 @@ done_in_by(struct monst *mtmp, int how)
                 realnm, shape);
         mptr = mtmp->data; /* reset for mimicker case */
     } else if (mtmp->isshk) {
-        const char *shknm = shkname(mtmp),
-                   *honorific = shkname_is_pname(mtmp) ? ""
-                                   : mtmp->female ? "Ms. " : "Mr. ";
-
-        Sprintf(eos(buf), "%s%s, the shopkeeper", honorific, shknm);
+        /* the true name, as for priests below; shkname() would give a
+           random one while hallucinating */
+        (void) shk_killer_name(eos(buf), mtmp);
         svk.killer.format = KILLED_BY;
     } else if (mtmp->ispriest || mtmp->isminion) {
         /* m_monnam() suppresses "the" prefix plus "invisible", and

@@ -673,10 +673,12 @@ touch_of_death(struct monst *mtmp)
    death-reason builders: "a goblin", "an elven soldier", "the Wizard of
    Yendor", "Asmodeus" (plus " imitating <X>" for a shapeshifter); names
    by race and species, like done_in_by() does for the simple cases and
-   for a shapeshifter's form */
+   for a shapeshifter's form, and names a shopkeeper, priest or minion
+   individually, as done_in_by() does ("Mr. Asidonhopo, the shopkeeper",
+   "the high priest of Moloch", "a priestess of Odin") */
 char *
 mon_killer_name(
-    char *outbuf, /* assumed big enough; pm_names and races are short */
+    char *outbuf, /* assumed big enough; every name built here is short */
     struct monst *mtmp)
 {
     struct permonst *mptr = mtmp->data,
@@ -684,6 +686,23 @@ mon_killer_name(
     const char *realnm = pmname(champtr, Mgender(mtmp)),
         *fakenm = pmname(mptr, Mgender(mtmp));
     char racebuf[BUFSZ];
+
+    if (champtr == mptr && mtmp->isshk)
+        return shk_killer_name(outbuf, mtmp);
+    if (champtr == mptr && (mtmp->ispriest || mtmp->isminion)) {
+        /* m_monnam() gives "priestess of Odin": the true name, deity
+           always shown, no article; a temple's own high priest is
+           unique, one without a temple is not */
+        const char *pnm = m_monnam(mtmp);
+
+        if ((mptr->geno & G_UNIQ) != 0
+            && !(mptr == &mons[PM_HIGH_PRIEST] && !mtmp->ispriest))
+            Sprintf(outbuf, "%s%s", type_is_pname(mptr) ? "" : "the ",
+                    pnm);
+        else
+            Strcpy(outbuf, an(pnm));
+        return outbuf;
+    }
 
     /* the race done_in_by() gives the current form, as x_monnam() names
        it ("a centaurian soldier", "a doppelganger imitating a dwarvish

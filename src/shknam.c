@@ -845,7 +845,7 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
         (void) mongets(shk, SCR_CHARGING);
     nameshk(shk, shp->shknms);
 
-    if (!strcmp(shkname(shk), "Izchak")) {
+    if (!strcmp(shkname_real(shk), "Izchak")) {
         struct obj *otmp;
 
         otmp = mksobj(LONG_SWORD, FALSE, FALSE);
@@ -1111,11 +1111,34 @@ shkname_is_pname(struct monst *mtmp)
     return (boolean) (*shknm == '-' || *shknm == '+' || *shknm == '=');
 }
 
+/* shopkeeper's own name, even while the hero hallucinates (when
+   shkname() picks a random one); for identity tests and exact names */
+const char *
+shkname_real(struct monst *shkp)
+{
+    const char *shknm = ESHK(shkp)->shknam;
+
+    /* strip prefix if present */
+    if (!letter(*shknm))
+        ++shknm;
+    return shknm;
+}
+
+/* a shopkeeper named in a death reason: "Mr. Asidonhopo, the
+   shopkeeper", "Izchak, the shopkeeper"; always the true name, since
+   the reason is built before the game is over */
+char *
+shk_killer_name(char *outbuf, struct monst *shkp)
+{
+    Sprintf(outbuf, "%s%s, the shopkeeper",
+            shkname_is_pname(shkp) ? "" : shkp->female ? "Ms. " : "Mr. ",
+            shkname_real(shkp));
+    return outbuf;
+}
+
 boolean
 is_izchak(struct monst *shkp, boolean override_hallucination)
 {
-    const char *shknm;
-
     if (Hallucination && !override_hallucination)
         return FALSE;
     if (!shkp->isshk)
@@ -1123,11 +1146,7 @@ is_izchak(struct monst *shkp, boolean override_hallucination)
     /* outside of town, Izchak becomes just an ordinary shopkeeper */
     if (!in_town(shkp->mx, shkp->my))
         return FALSE;
-    shknm = ESHK(shkp)->shknam;
-    /* skip "+" prefix */
-    if (!letter(*shknm))
-        ++shknm;
-    return (boolean) !strcmp(shknm, "Izchak");
+    return (boolean) !strcmp(shkname_real(shkp), "Izchak");
 }
 
 #undef VEGETARIAN_CLASS

@@ -3613,7 +3613,7 @@ find_steal_target(void)
             /* skip targets the steal code always refuses */
             if (mtmp->mtame)
                 continue;
-            if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak"))
+            if (mtmp->isshk && !strcmp(shkname_real(mtmp), "Izchak"))
                 continue;
             if (found)
                 return (struct monst *) 0; /* more than one */
@@ -3670,8 +3670,8 @@ dosteal(void)
         }
     }
 
-    /* Izchak is off-limits */
-    if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
+    /* Izchak is off-limits, hallucinating or not */
+    if (mtmp->isshk && !strcmp(shkname_real(mtmp), "Izchak")) {
         You("find yourself unable to steal from %s.", mon_nam(mtmp));
         return ECMD_OK;
     }

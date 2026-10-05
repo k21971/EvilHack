@@ -111,9 +111,13 @@ thitu(
                                     != gt.thrower->data);
             boolean fired = (MON_WEP(gt.thrower)
                              && ammo_and_launcher(obj, MON_WEP(gt.thrower)));
+            /* mon_killer_name() names these individually */
+            boolean titled = (gt.thrower->isshk || gt.thrower->ispriest
+                              || gt.thrower->isminion);
 
-            if (disguised || obj->oartifact) {
-                /* a possessive reads oddly on an "imitating X" name or a
+            if (disguised || titled || obj->oartifact) {
+                /* a possessive reads oddly on an "imitating X" name, a
+                   titled one ("Mr. Asidonhopo, the shopkeeper's") or a
                    proper-noun artifact ("a Woodland-elf's Sting"), so fall
                    back to the "by" form for a clean reading */
                 const char *verb = is_pole(obj) ? "wielded"
@@ -817,14 +821,17 @@ ohitmon(
     return FALSE;
 }
 
-/* hero catches gem thrown by mon iff poly'd into unicorn; might drop it */
+/* hero catches gem thrown by mon iff poly'd into unicorn and able to
+   act; might drop it */
 staticfn boolean
 ucatchgem(
     struct obj *gem,   /* caller has verified gem->oclass */
     struct monst *mon)
 {
-    /* won't catch rock or gray stone; catch (then drop) worthless glass */
-    if (gem->otyp <= LAST_GLASS_GEM && is_unicorn(gy.youmonst.data)) {
+    /* won't catch rock or gray stone; catch (then drop) worthless glass;
+       a helpless hero doesn't catch, as in u_catch_thrown_obj() */
+    if (gem->otyp <= LAST_GLASS_GEM && is_unicorn(gy.youmonst.data)
+        && gm.multi >= 0) {
         char *gem_xname = xname(gem),
              *mon_s_name = s_suffix(mon_nam(mon));
 

@@ -2816,7 +2816,7 @@ clone_mon(
     if (has_mgivenname(mon)) {
         m2 = christen_monst(m2, MGIVENNAME(mon));
     } else if (mon->isshk) {
-        m2 = christen_monst(m2, shkname(mon));
+        m2 = christen_monst(m2, shkname_real(mon));
     }
 
     /* not all clones caused by player are tame or peaceful */
