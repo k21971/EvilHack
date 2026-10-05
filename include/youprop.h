@@ -327,15 +327,16 @@
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
-/* FROMRACE is excluded from the bypass alongside FROMFORM so that
-   races whose flight comes from big_wings() (aasimar at level 15+
-   with clean alignment) are subject to the same hard-armor block
-   used for FROMFORM wings; non-winged FROMRACE flyers (vampires,
-   illithids at level 12+) still fall through the
-   (HFlying && !big_wings(...)) disjunct */
+/* FROMFORM and FROMRACE flight gets past the hard-armor block that
+   check_wings() sets only when no wings are involved: a form's own
+   flight unless that form has big_wings(), racial flight (vampires and
+   illithids at level 12+) unless the hero has big wings at all;
+   u_big_wings() counts an aasimar's angelic wings (level 15+ with clean
+   alignment) in any form, so they fold under hard armor in every form */
 #define Flying \
     ((((EFlying || (HFlying & ~FROMFORM & ~FROMRACE)                        \
-       || (HFlying && !big_wings(raceptr(&gy.youmonst))))                   \
+       || ((HFlying & FROMFORM) && !big_wings(raceptr(&gy.youmonst)))       \
+       || ((HFlying & FROMRACE) && !u_big_wings()))                         \
        || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR)) \
      || (HFlying && !BFlying))
 /* May touch surface; does not override any others */

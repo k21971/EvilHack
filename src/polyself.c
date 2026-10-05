@@ -1166,7 +1166,9 @@ polymon(int mntmp)
     Strcpy(buf, (u.umonnum != mntmp) ? "" : "new ");
     if (dochange) {
         flags.female = !flags.female;
-        Strcat(buf, (is_male(&mons[mntmp]) || is_female(&mons[mntmp]))
+        /* a form whose name tells the sex (dwarf lady) needs no prefix */
+        Strcat(buf, (is_male(&mons[mntmp]) || is_female(&mons[mntmp])
+                     || mons[mntmp].pmnames[flags.female ? FEMALE : MALE])
                        ? "" : flags.female ? "female " : "male ");
     }
     Strcat(buf, pmname(&mons[mntmp], flags.female ? FEMALE : MALE));
@@ -1925,7 +1927,7 @@ void
 rehumanize(void)
 {
     boolean was_flying = (Flying != 0),
-            was_not_flying = !was_flying;
+            was_not_flying = !was_flying, wings_news;
     /* a form change can start or stop underwater vision */
     boolean old_uwvis = (Underwater && See_underwater);
 
@@ -1963,6 +1965,8 @@ rehumanize(void)
 
     if (emits_light(gy.youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));
+    /* polyman()'s flush of an aasimar's changes clears the record */
+    wings_news = aasimar_wings_pending();
     polyman("You return to %s form!", gu.urace.adj);
     /* reset FROMHUNGER conditions in case player was polyd
        as a vampire, starving, and reverted back to normal
@@ -2001,14 +2005,17 @@ rehumanize(void)
     update_inventory();
     /* if the original form had intrinsic flying, give it back; the
        current races that fly do so only from a certain experience
-       level on, so check against that */
+       level on, so check against that; say so only if the hero now
+       flies (levitation, a trap or wings folded under a hard suit can
+       still block it) and freshly sprouted wings haven't already */
     if (was_not_flying
         && (((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
              && u.ulevel >= 12)
             || (Race_if(PM_AASIMAR) && u.ulevel >= 15
                 && u.ualign.abuse == 0))) {
         HFlying |= FROMRACE;
-        You_feel("lighter than air!");
+        if (Flying && !wings_news)
+            You_feel("lighter than air!");
     }
     if (was_flying && !Flying && u.usteed)
         You("and %s return gently to the %s.",

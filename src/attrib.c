@@ -1879,14 +1879,23 @@ aasimar_feedback(int chan, boolean penalized)
 staticfn void
 aasimar_changed(int chan, boolean penalized)
 {
+    /* the racial wings came or went, and "Fly" may have with them;
+       check_wings() only notices what its own armor block changes */
+    if (chan == AASIMAR_CH_WINGS)
+        disp.botl = TRUE;
     if (!Upolyd) {
         aasimar_feedback(chan, penalized);
-    } else if (!program_state.restoring
-               && !(u.uaasimar_pending & AASIMAR_PENDING(chan))) {
-        u.uaasimar_pending |= AASIMAR_PENDING(chan);
-        /* this change lifted it, so it was in force before */
-        if (!penalized)
-            u.uaasimar_pending |= AASIMAR_WAS_PEN(chan);
+    } else if (!program_state.restoring) {
+        if (!(u.uaasimar_pending & AASIMAR_PENDING(chan))) {
+            u.uaasimar_pending |= AASIMAR_PENDING(chan);
+            /* this change lifted it, so it was in force before */
+            if (!penalized)
+                u.uaasimar_pending |= AASIMAR_WAS_PEN(chan);
+        }
+        /* the news waits, but wings fold under a hard suit in any form
+           as soon as they're there */
+        if (chan == AASIMAR_CH_WINGS)
+            check_wings(TRUE);
     }
 }
 
@@ -2195,6 +2204,20 @@ aasimar_announce_pending(void)
         if (now != ((pending & AASIMAR_WAS_PEN(chan)) != 0L))
             aasimar_feedback(chan, now);
     }
+}
+
+/* Will aasimar_announce_pending() tell of angelic wings sprouting? Asked
+   before polyman(), whose set_uasmon() can still grant the racial flight */
+boolean
+aasimar_wings_pending(void)
+{
+    long pending = u.uaasimar_pending;
+
+    return (Race_if(PM_AASIMAR)
+            && (pending & AASIMAR_PENDING(AASIMAR_CH_WINGS)) != 0L
+            && (pending & AASIMAR_WAS_PEN(AASIMAR_CH_WINGS)) != 0L
+            && ((HFlying & FROMRACE) != 0L
+                || (u.ulevel >= 15 && u.ualign.abuse == 0)));
 }
 
 /* Another source (adjabil()'s level change, attrcurse()) just changed

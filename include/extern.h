@@ -247,6 +247,7 @@ extern void adjalign(int);
 extern void aasimar_check_abuse(void);
 extern void aasimar_lose_celestial_blood(void);
 extern void aasimar_announce_pending(void);
+extern boolean aasimar_wings_pending(void);
 extern void aasimar_change_told(long *) NONNULLARG1;
 extern void record_abuse_event(int, int);
 extern void record_abuse_event_dtl(int, int, int, int);
@@ -814,6 +815,7 @@ extern boolean doffing(struct obj *) NONNULLARG1;
 extern void cancel_doff(struct obj *, long) NONNULLARG1;
 extern void cancel_don(void);
 extern int stop_donning(struct obj *); /* doseduce() calls with NULL */
+extern boolean u_big_wings(void);
 extern void check_wings(boolean);
 extern int Armor_off(void);
 extern int Armor_gone(void);

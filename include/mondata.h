@@ -108,7 +108,7 @@
      || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 /* humanoid shape with big wings (flight blocked by most body armor);
-   PM_AASIMAR is gated player-side by check_wings() on level/abuse */
+   PM_AASIMAR is gated player-side by u_big_wings() on its racial flight */
 #define big_wings(ptr) \
     ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON]     \
      || (ptr) == &mons[PM_AMOROUS_DEMON]                                \

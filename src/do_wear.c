@@ -1402,6 +1402,23 @@ check_flight_landing(boolean was_flying)
     }
 }
 
+/* Does the hero have big wings, the kind most body armor confines? An
+   aasimar's angelic wings (experience level 15 with unblemished
+   alignment) stay in any form; otherwise they're the form's own, or the
+   race's when not polymorphed */
+boolean
+u_big_wings(void)
+{
+    if (Race_if(PM_AASIMAR)) {
+        if (HFlying & FROMRACE)
+            return TRUE;
+        /* not manifest yet, or lost to abuse */
+        if (!Upolyd)
+            return FALSE;
+    }
+    return big_wings(raceptr(&gy.youmonst));
+}
+
 /* Some monster forms' flight is blocked by most body armor */
 void
 check_wings(boolean silent) /* we assume a wardrobe change if false */
@@ -1410,14 +1427,7 @@ check_wings(boolean silent) /* we assume a wardrobe change if false */
     boolean old_flying = Flying;
 
     BFlying &= ~W_ARM;
-    /* Aasimar wings only manifest at experience level 15 with
-       unblemished alignment; until then ignore the wing/armor
-       interaction so a low-level or abused aasimar doesn't see
-       "holes for wings" or get W_ARM-blocked from flight */
-    if (Race_if(PM_AASIMAR)
-        && (u.ulevel < 15 || u.ualign.abuse != 0))
-        return;
-    if (!big_wings(raceptr(&gy.youmonst)))
+    if (!u_big_wings())
         return;
 
     if (!uarm) {

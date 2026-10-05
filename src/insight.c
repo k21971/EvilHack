@@ -501,10 +501,15 @@ background_enlightenment(int unused_mode UNUSED, int final)
         char anbuf[20]; /* includes trailing space; [4] suffices */
         struct permonst *uasmon = gy.youmonst.data;
         boolean altphrasing = vampshifted(&gy.youmonst);
+        /* the name the gender word goes in front of */
+        struct permonst *namedmon = altphrasing ? &mons[gy.youmonst.cham]
+                                                : uasmon;
 
         tmpbuf[0] = '\0';
-        /* here we always use current gender, not saved role gender */
-        if (!is_male(uasmon) && !is_female(uasmon) && !is_neuter(uasmon))
+        /* here we always use current gender, not saved role gender;
+           omit it if the name tells it (eg, "female dwarf lady") */
+        if (!is_male(uasmon) && !is_female(uasmon) && !is_neuter(uasmon)
+            && !namedmon->pmnames[flags.female ? FEMALE : MALE])
             Sprintf(tmpbuf, "%s ", genders[flags.female ? 1 : 0].adj);
         if (altphrasing)
             Sprintf(eos(tmpbuf), "%s in ",
