@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-05, after session 185): 312
-  rows closed, 82 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-05, after the session 185
+  follow-up): 314 rows closed, 83 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,13 +34,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 60 LOW: small parity rows, quirks and watch/record-only items.
+  - 61 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     direct-deaths grave-rise + AD_WRAP couatl naming rows (one
     slice), the iced-span land mine row and the paranoid-swim row.
     Also plannable without a ruling: session 177's terrain-effects
     coverage row, the Phase 6 set_whereisfile() BUG-603 row and
-    session 185's Armor_on() landing row.
+    session 185's Armor_on() landing and polymorph-over-a-hole rows.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
@@ -87,29 +87,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     form row and the polymorph sex-naming row; session 185 the
     Armor_on() landing row and the Infidel opening "You were wearing
     the Amulet of Yendor." row (needs a trace).
-- Latest slice: 2026-10-05 (session 185) AASIMAR WINGS FOLD UNDER
-  HARD ARMOR IN ANY FORM; "LIGHTER THAN AIR" ONLY WHEN TRUE; NO
-  REDUNDANT "MALE" / "FEMALE" BEFORE GENDERED FORM NAMES (code
-  (hash pending), tracker (hash pending); BUG-2145..2147).
-  - A clean XL15+ aasimar polymorphed into a wingless form (dwarf
-    lord) no longer flies in a hard suit, and a low-level or abused
-    aasimar in a big-winged form (amorous demon) is grounded by one
-    like a human; a form's own flight (vampire lord) is unchanged.
-  - "You feel lighter than air!" on reverting prints only when the
-    hero really flies afterwards, and not after "Angelic wings sprout
-    from your back!".
-  - "You turn into a dwarf lady!" and ^X "in dwarf lady form" lose
-    the redundant gender word.
-  - Detail: the three closed session-184 LOW rows.
-- Previous slice: 2026-10-05 (session 184) AASIMAR CHANGES MADE WHILE
+- Latest slice: 2026-10-05 (session 185 follow-up) THE ANGELIC WINGS
+  BELONG TO THE AASIMAR BODY; WINGS THAT COME BACK ARE TOLD (code
+  (hash pending), tracker (hash pending); BUG-2148..2149).
+  - An aasimar polymorphed into a wingless form (jackal, dwarf lord)
+    no longer flies at all; its own wings return with its own form.
+  - Returning to normal form from a wingless form: "Your angelic /
+    demonic wings unfurl from your back." (+ "You fold your wings
+    under your suit." in a hard suit).
+  - Detail: the two closed BUG-2148 / BUG-2149 LOW rows.
+- Previous slice: 2026-10-05 (session 185) AASIMAR WINGS FOLD UNDER
+  HARD ARMOR IN ANY FORM (half (a) superseded by BUG-2148);
+  "LIGHTER THAN AIR" ONLY WHEN TRUE; NO REDUNDANT "MALE" / "FEMALE"
+  BEFORE GENDERED FORM NAMES (code b77719068, tracker f8ae42345;
+  BUG-2145..2147); detail in the three closed session-184 LOW rows.
+- Earlier slices: 2026-10-05 (session 184) AASIMAR CHANGES MADE WHILE
   POLYMORPHED ARE TOLD ON REVERTING; DRAGON-MERGED WINGS FOLD UNDER A
   HARD SUIT AGAIN (code abb823646, tracker 88fb7641d;
-  BUG-2143..2144): an aasimar's penalty and grant changes made in a
-  form are told on reverting, and a clean XL15+ aasimar leaving a
-  dragon form merged with a hard dragon-scaled suit no longer flies
-  in it; detail in the closed aasimar penalty / grant announcement
-  LOW row.
-- Earlier slices: 2026-10-05 (session 183) HELPLESS UNICORNS DON'T
+  BUG-2143..2144); 2026-10-05 (session 183) HELPLESS UNICORNS DON'T
   CATCH; RANGED DEATHS NAME SHOPKEEPERS, PRIESTS AND MINIONS; TRUE
   SHOPKEEPER NAMES WHILE HALLUCINATING (code b80cd8243, tracker
   47d8f9abd; BUG-2138..2142); 2026-10-05 (session 182) SHOPKEEPERS
@@ -19188,8 +19183,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       flush stays silent there.
 - [x] LOW: rehumanize()'s "You feel lighter than air!" arm misfires
       (BUG-2145) - FIXED 2026-10-05 (session 185, commit `Fix: aasimar
-      wings fold in any form; truer polymorph texts.` = (hash pending),
-      tracker (hash pending), landed 2026-10-05; closure notes at the
+      wings fold in any form; truer polymorph texts.` = b77719068,
+      tracker f8ae42345, landed 2026-10-05; closure notes at the
       end of this row). Original text: (minted 2026-10-05, session 184,
       reviewer pass 1 + batteries C2 / C5; master-shared). The arm
       re-grants HFlying FROMRACE to an
@@ -19238,7 +19233,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: a winged race's wings are judged by the FORM while
       polymorphed (BUG-2146) - FIXED 2026-10-05 (session 185, commit
       `Fix: aasimar wings fold in any form; truer polymorph texts.` =
-      (hash pending), tracker (hash pending), landed 2026-10-05;
+      b77719068, tracker f8ae42345, landed 2026-10-05;
       closure notes at the end of this row). Original text: (minted
       2026-10-05, session 184, reviewer pass 1 + batteries A-C;
       master-shared). check_wings() tests
@@ -19305,11 +19300,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       D4); crowning (or a deferred sprout) in a soft suit prints no
       "holes for wings" line (set_uasmon()'s silent check records the
       suit first; battery C, both builds). Minted below: Armor_on()
-      never lands a hero whose wings it folds.
+      never lands a hero whose wings it folds. SUPERSEDED IN PART the
+      same day by BUG-2148 (row below): the angelic wings belong to the
+      aasimar body and give no flight in any form, so half (a) and its
+      new wing lines are gone; half (b) stays.
 - [x] LOW: polymorph sex-change naming disagrees with the status title
       (BUG-2147) - FIXED 2026-10-05 (session 185, commit `Fix: aasimar
-      wings fold in any form; truer polymorph texts.` = (hash pending),
-      tracker (hash pending), landed 2026-10-05; closure notes at the
+      wings fold in any form; truer polymorph texts.` = b77719068,
+      tracker f8ae42345, landed 2026-10-05; closure notes at the
       end of this row). Original text: (minted 2026-10-05, session 184,
       batteries A-D; upstream-shared, Official_nh50 polymon() and
       Ugender are identical). polymon()'s
@@ -19352,8 +19350,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       LOW 3; master-shared; code-read, not reproduced). Putting on a
       hard suit runs check_wings(FALSE), which sets the W_ARM block
       ("You fold your wings under your suit.") with no spoteffects(),
-      so a winged hero - a clean XL15+ aasimar (since BUG-2146 in any
-      form), a crowned Infidel, a big-winged form - donning the suit
+      so a winged hero - a clean XL15+ aasimar in its own form, a
+      crowned Infidel, a big-winged form - donning the suit
       while flying over water or lava stays put un-flying until the
       next move. The aasimar wings revoke (aasimar_feedback()'s
       check_wings(TRUE)) has the same shape. Armor_off()'s
@@ -19367,6 +19365,99 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (u_init.c's Infidel ini_inv carries the real Amulet worn); check
       master's opening and whether a wizkit or the pauper path is
       involved. LOW (message only).
+- [x] LOW: an aasimar's angelic wings flew in every polymorph form
+      (BUG-2148) - FIXED 2026-10-05 (session 185, commit (hash
+      pending), tracker (hash pending), landed 2026-10-05). Minted and
+      fixed the same day from a maintainer report after b77719068: "as
+      an aasimar, if I am polymorphed into say a jackal and I reach
+      exp level 15, I still show that I am flying. That should not be,
+      as I am not in my angelic form and do not have my wings."
+      Master-shared: set_uasmon() grants the aasimar's FROMRACE flight
+      while Upolyd and both polyself.c strip sites spare it, so an XL15
+      clean aasimar flew as a jackal, a dwarf lord or any wingless form
+      (b77719068 then folded it under hard armor there). RULED
+      2026-10-05 (decisions log): the angelic wings belong to the
+      aasimar body. CLOSURE (plan
+      /root/.claude/plans/bugfix-angelic-wings-dormant-in-forms.md;
+      Plan agent CONDITIONAL PASS folded in): the FROMRACE bit stays
+      set in a form as the entitlement (BUG-2143's pending word and
+      flush read it) but new `HFlying_usable` (youprop.h) drops it while
+      Upolyd for an aasimar; Flying returns to master's single wing
+      disjunct using it (and in its `&& !BFlying` arm); u_big_wings()
+      gives a polymorphed aasimar only its form's wings; the other
+      intrinsic-flight readers use it too - dosinkfall() (hack.c), the
+      two pool tests (do.c) and "fly down" (trap.c), float_vs_flight();
+      aasimar_changed() loses b77719068's in-form check_wings(TRUE).
+      A wingless flying form (vampire lord) still flies, a big-winged
+      form is judged by its own wings, illithid / vampire XL12 racial
+      flight is unchanged. Reviewer PASS (LOW comment fixes and a dead
+      disjunct in aasimar_wings_pending() folded in). BATTERIES (PRE
+      a57df6a0afbf3582d470a26c47ba9a7e = b77719068, POST
+      4ed0a58d0294841589f5d4bcd54d1efe, final
+      d55b77eacd6d4414f837871d1736a594): E 9/9 PASS - XL14 -> 15 as a
+      jackal PRE "Strained Fly" / POST no Fly (FROMRACE kept,
+      u_big_wings 0), revert both "Angelic wings sprout from your
+      back!  You spread your wings."; jackal / dwarf lord PRE Fly /
+      POST none; dwarf lord
+      in plate PRE blocked 0x1 + ^X "You would fly if your wings weren't
+      confined." + T / W wing lines / POST none of them; jackal out of
+      the suit PRE "You spread your wings and take flight." / POST
+      silent; vampire lord in plate Fly on both (POST blocked 0x0);
+      amorous demon identical; jackal over a pool PRE aloft / POST "You
+      fall into the pool of water.  You sink like a rock."; levitating
+      onto a sink as a dwarf lord PRE "You gain control of your flight."
+      / POST "You crash to the floor!" (unpolymorphed control
+      identical); save / restore as a jackal PRE Fly / POST none. G
+      (PASS): illithid and human controls identical. Records:
+      polymorphing out of flight prints no landing line (ruled); minted
+      below - polymon() re-runs spoteffects() only over water / lava.
+- [x] LOW: wings that come back on reverting went untold (BUG-2149) -
+      FIXED 2026-10-05 (session 185, same commit). Minted and fixed the
+      same day from a maintainer report: "as a crowned infidel (demon
+      form), if I polymorph into a jackal, I stop flying (good) and when
+      I return to demonic form I can fly again (also good) but there's
+      no message about my wings coming back." Master-shared. RULED
+      2026-10-05 (decisions log, AskUserQuestion): "Your demonic wings
+      unfurl from your back." / "Your angelic wings unfurl from your
+      back." every time, plus "You fold your wings under your suit." in
+      a hard suit; nothing when the wings go. CLOSURE: polyman() takes
+      `had_wings = u_big_wings()` at entry (the form's wings while
+      polymorphed, the normal body's otherwise) and, after skinback()
+      and check_wings(TRUE), prints the line when the normal form has
+      big wings and the form left had none, unless
+      aasimar_wings_pending() says the flush will tell a first-time
+      "Angelic wings sprout from your back!"; rehumanize() drops the
+      aasimar clause from the "lighter than air" arm (it would follow
+      every unfurl line). aasimar_lose_celestial_blood() now turns the
+      race human and strips the racial layer BEFORE ending a polymorph
+      (the stat clamp stays after), so the altar conversion reads "You
+      return to human form!" with no unfurl line before "You are but a
+      mortal human now.". BATTERIES: E - every POST revert from a
+      jackal / dwarf lord / vampire lord printed "Your angelic wings
+      unfurl from your back." (+ "You fold your wings under your suit."
+      in plate), none from an amorous demon, never "lighter than air";
+      G - conversion as a dwarf lord PRE "You return to aasimar form!" /
+      POST "You return to human form!", no unfurl on either, human caps
+      (Wis 20 -> 18), no racial flight; unpolymorphed conversion
+      identical. F (PASS, 4 games): unfurl after jackal, dwarf lord in
+      plate (+ fold), floating eye (PRE "You feel lighter than air!"),
+      vampire lord, levitating (Lev kept), a red-dragon merge ("Your
+      skin returns to its original form." first); none from an amorous
+      demon or a winged gargoyle; deferred sprout PRE = POST, no
+      unfurl; revoke in form "Your angelic wings wither and fade away!"
+      on both; revoke + atone in form POST unfurl only; crowned Infidel
+      POST "You return to demonic form!  Your demonic wings unfurl from
+      your back." (+ fold as a dwarf lord in plate), PRE silent. Tester
+      H re-checked the sprout, return, atone and suit legs on the final
+      build.
+- [ ] LOW: losing flight to a polymorph over an open hole or trap door
+      does not drop the hero (minted 2026-10-05, session 185, reviewer
+      note; master-shared; code-read). polymon() re-runs spoteffects()
+      only for pool, lava or underwater, so a hero flying over a hole,
+      a trap door or the Plane of Air's edge who changes into a
+      non-flyer hangs there until the next move. Already true for a
+      bat-form or crowned-Infidel flyer; BUG-2148 makes it reachable for
+      a flying XL15 aasimar too. LOW.
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -24903,6 +24994,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-05 | Angelic / demonic wings in forms (session 185, maintainer report after b77719068 + AskUserQuestion x1, two questions, both recommended). (1) THE ANGELIC WINGS BELONG TO THE AASIMAR BODY: an aasimar's racial flight (clean XL15+) gives no flight in ANY polymorph form - supersedes the session-184 "fold in any form" ruling's half (a) as b77719068 implemented it (racial wings kept and folded in every form); half (b) stays (a low-level or abused aasimar in a big-winged form is blocked by a hard suit like a human). Master keeps the flight in forms; illithid / vampire XL12 racial flight (not wings) is unchanged. (2) WINGS THAT COME BACK ARE TOLD: returning to normal form from a form without big wings prints "Your angelic wings unfurl from your back." / "Your demonic wings unfurl from your back." (crowned Infidel) every time, also while levitating, plus "You fold your wings under your suit." when a hard suit folds them; nothing is said when the wings go ("You turn into a jackal!" covers it). Rejected: "...wings return.", reusing the wardrobe lines only (silent while levitating), a line on losing the wings | maintainer |
 | 2026-10-05 | Pending ruling rows (session 184 follow-up; AskUserQuestion x2, six questions, all recommended; rulings only, code in future sessions). (1) DIRECT MONSTER-CAUSED DEATHS: RISE + FULL NAMES - set_ugrave_arise() and gu.ukiller before each done() (AD_WRAP drowning / lava, AD_BHED beheading, the XL1 drain, the touch of death, brain eating, monster-wielded artifact kills, seduction exhaustion, the drow tainted rider), custom reasons kept, species-named reasons through mon_killer_name() ("by a couatl of Mitra"); one slice with the AD_WRAP couatl naming row. (2) LAND MINE ON AN ICED RAISED SPAN: DESTROY THE BRIDGE via destroy_drawbridge(), as a lowered-bridge mine. (3) PARANOID SWIM: MASTER'S EXACT SHAPE - "Really enter the water / lava?" with master's decline penalty, and swim OFF by default again. (4) "LIGHTER THAN AIR": ONLY WHEN IT'S TRUE - rehumanize()'s line prints only if the hero flies after reverting. (5) RACIAL WINGS WHILE POLYMORPHED: FOLD IN ANY FORM - hard body armor blocks active racial wings whatever the form; the aasimar level / abuse gate applies to the racial wings only. (6) POLYMORPH SEX-CHANGE TEXT: DROP THE REDUNDANT PREFIX on forms with gendered names; upstream's gender-based title stays. | maintainer |
 | 2026-10-05 | Unicorn-catch / killer-name slice ruling (session 183; AskUserQuestion x1, one question, recommended). MELEE SHOPKEEPER NAME: FIX MELEE TOO - done_in_by() records the true shopkeeper name while the hero hallucinates (shkname() picks a random one while Hallucination && !program_state.gameover, and death reasons are built before gameover), through one helper shared with the ranged mon_killer_name() names, over "ranged only, mint a row"; the "hallucinogen-distorted" prefix stays. The ranged names keep done_in_by()'s "Mr. " / "Ms. " honorific (the 2026-10-04 ruling's example text omitted it; its operative words were "as done_in_by() names them"). Reviewer siblings of the same root cause folded in under the cross-file-siblings rule (no question): shkinit()'s Izchak kit test and #steal's Izchak exemption, x_monnam()'s exact-name shopkeeper branch (m_monnam(), livelog_mon_nam()), clone_mon()'s shopkeeper clone name - all through shkname_real(); shk.c message text keeps the hallucinated name. | maintainer |
 | 2026-10-04 | Poison slice rulings (session 181; AskUserQuestion x3, all recommended). (1) SHAPE: SAME AS ITS MELEE KILL - a monster's melee poison death goes through done_in_by() (reason, grave-rise arms, "You die...", bones looting and the rummage line as its melee kill; a venom blade names its wielder), over "name + rise only" (mon_killer_name() text, rise arms, no looting). (2) Mind flayer larva brain-burrow: FOLD IN - it raises the hero as a mind flayer (BUG-2133), over a row. (3) "Kas" / "Mephistopheles" special_subjs[] port revert found by battery B: FOLD INTO THIS SLICE (BUG-2134), over a row for a later slice. | maintainer |
