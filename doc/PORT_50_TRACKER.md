@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-05, after session 184): 309
-  rows closed, 83 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-05, after session 185): 312
+  rows closed, 82 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,10 +34,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 61 LOW: small parity rows, quirks and watch/record-only items.
-    PLANNABLE without a ruling: session 177's
-    terrain-effects coverage row and the Phase 6 set_whereisfile()
-    BUG-603 row.
+  - 60 LOW: small parity rows, quirks and watch/record-only items.
+    PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
+    direct-deaths grave-rise + AD_WRAP couatl naming rows (one
+    slice), the iced-span land mine row and the paranoid-swim row.
+    Also plannable without a ruling: session 177's terrain-effects
+    coverage row, the Phase 6 set_whereisfile() BUG-603 row and
+    session 185's Armor_on() landing row.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
@@ -50,8 +53,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     grave-rise rows in session 181, the pay_for_damage()
     refused-shove and engulfed-hero split rows in session 182, and
     the ucatchgem() helplessness and mon_killer_name() priest /
-    minion / shopkeeper naming rows in session 183, and the aasimar
-    announce-on-rehumanize row in session 184. The
+    minion / shopkeeper naming rows in session 183, the aasimar
+    announce-on-rehumanize row in session 184, and the "lighter than
+    air", wings-in-form and polymorph sex-naming rows in session 185.
+    The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
     term_gone row need a reproduction. Session 157 minted three: the
@@ -75,35 +80,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the poisoned() bare-species row; session 180 the aasimar silent
     changes while polymorphed row, the pay_for_damage() refused-shove
     anger row and the engulfed-hero split row; session 181 the other
-    monster-caused direct deaths row (needs a ruling); session 182
+    monster-caused direct deaths row (ruled 2026-10-05); session 182
     the land mine on an iced raised drawbridge span row; session 183
-    the AD_WRAP drown / lava minion naming row (needs a ruling);
+    the AD_WRAP drown / lava minion naming row (ruled 2026-10-05);
     session 184 the "lighter than air" arm row, the wings-judged-by-
-    form row and the polymorph sex-naming row.
-- Latest slice: 2026-10-05 (session 184) AASIMAR CHANGES MADE WHILE
+    form row and the polymorph sex-naming row; session 185 the
+    Armor_on() landing row and the Infidel opening "You were wearing
+    the Amulet of Yendor." row (needs a trace).
+- Latest slice: 2026-10-05 (session 185) AASIMAR WINGS FOLD UNDER
+  HARD ARMOR IN ANY FORM; "LIGHTER THAN AIR" ONLY WHEN TRUE; NO
+  REDUNDANT "MALE" / "FEMALE" BEFORE GENDERED FORM NAMES (code
+  (hash pending), tracker (hash pending); BUG-2145..2147).
+  - A clean XL15+ aasimar polymorphed into a wingless form (dwarf
+    lord) no longer flies in a hard suit, and a low-level or abused
+    aasimar in a big-winged form (amorous demon) is grounded by one
+    like a human; a form's own flight (vampire lord) is unchanged.
+  - "You feel lighter than air!" on reverting prints only when the
+    hero really flies afterwards, and not after "Angelic wings sprout
+    from your back!".
+  - "You turn into a dwarf lady!" and ^X "in dwarf lady form" lose
+    the redundant gender word.
+  - Detail: the three closed session-184 LOW rows.
+- Previous slice: 2026-10-05 (session 184) AASIMAR CHANGES MADE WHILE
   POLYMORPHED ARE TOLD ON REVERTING; DRAGON-MERGED WINGS FOLD UNDER A
-  HARD SUIT AGAIN (code (hash pending), tracker (hash pending);
-  BUG-2143..2144).
-  - An aasimar's abuse penalties, stat drain, crowning death
-    resistance, wings and regeneration changed silently while
-    polymorphed; returning to normal form now tells the changes still
-    in force ("You return to aasimar form!  You feel vulnerable to
-    magic!  Your angelic wings wither and fade away!"), also after a
-    save / restore in the form.
-  - A clean XL15+ aasimar leaving a dragon form merged with a hard
-    dragon-scaled suit (back to normal form or into another form) no
-    longer flies in the suit.
-  - Detail: the closed aasimar penalty / grant announcement LOW row.
-- Previous slice: 2026-10-05 (session 183) HELPLESS UNICORNS DON'T
+  HARD SUIT AGAIN (code abb823646, tracker 88fb7641d;
+  BUG-2143..2144): an aasimar's penalty and grant changes made in a
+  form are told on reverting, and a clean XL15+ aasimar leaving a
+  dragon form merged with a hard dragon-scaled suit no longer flies
+  in it; detail in the closed aasimar penalty / grant announcement
+  LOW row.
+- Earlier slices: 2026-10-05 (session 183) HELPLESS UNICORNS DON'T
   CATCH; RANGED DEATHS NAME SHOPKEEPERS, PRIESTS AND MINIONS; TRUE
   SHOPKEEPER NAMES WHILE HALLUCINATING (code b80cd8243, tracker
-  47d8f9abd; BUG-2138..2142): no unicorn-form catch while helpless,
-  ranged death reasons name shopkeepers, priests and minions as melee
-  does, true shopkeeper names while hallucinating; detail in the
-  closed ucatchgem() and mon_killer_name() LOW rows.
-- Earlier slices: 2026-10-05 (session 182) SHOPKEEPERS LEAVE THE
-  HERO'S HOLDER BE; ENGULFERS LET GO BEFORE THE DRAWBRIDGE MOVES OR A
-  FIRE-TRAP STEP (code 289c7c452, tracker 988ba1658;
+  47d8f9abd; BUG-2138..2142); 2026-10-05 (session 182) SHOPKEEPERS
+  LEAVE THE HERO'S HOLDER BE; ENGULFERS LET GO BEFORE THE DRAWBRIDGE
+  MOVES OR A FIRE-TRAP STEP (code 289c7c452, tracker 988ba1658;
   BUG-2135..2137); 2026-10-04 (session 181) A MONSTER'S POISON KILL
   IS ITS MELEE KILL (code b59386d7d, tracker afd70e5a5;
   BUG-2131..2134); 2026-10-04 (session 180) HOLDS SURVIVE SHOVES AND
@@ -14558,6 +14569,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       direct-deaths grave-rise row; a ruling there could take the
       naming too (mon_killer_name() at each site). Decide: name them
       through mon_killer_name(), or record only. LOW.
+      RULED 2026-10-05 (session 184 follow-up, decisions log): NAME
+      THEM, as recommended, together with the direct-deaths grave-rise
+      row - the AD_WRAP drown / lava reasons and the other species-
+      named direct-death sites go through mon_killer_name() ("drowned
+      in a moat by a couatl of Mitra"). Plannable as one slice with
+      that row.
 - [x] LOW: poisoned-weapon and sting death reasons name the bare
       species (BUG-2131) - FIXED 2026-10-04 (session 181, commit
       `Fix: monster melee poison deaths are that monster's kill.` =
@@ -14693,6 +14710,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       DIED where poisoned() uses POISONING. Decide per class: run
       set_ugrave_arise() (and set gu.ukiller) before the done(), keep
       the custom reasons; or record only. LOW.
+      RULED 2026-10-05 (session 184 follow-up, decisions log): RISE +
+      FULL NAMES, as recommended (session 181's poison shape) - every
+      listed monster-caused direct death runs set_ugrave_arise() and
+      records gu.ukiller before its done(), keeping its custom reason
+      (an XL22+ hero drowned by an eel leaves a spectre, a wraith's
+      XL1 drain a wraith, a lich's touch of death a revenant; the
+      killer loots the bones pile); the species-named reasons go
+      through mon_killer_name() (the AD_WRAP couatl naming row). The
+      passive poisonous hide's DIED vs POISONING was not asked; settle
+      it in the plan. Plannable as one slice with the naming row.
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
@@ -19081,10 +19108,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: aasimar penalty and grant changes made while polymorphed
       are never announced (BUG-2143, BUG-2144) - FIXED 2026-10-05
       (session 184, commit `Fix: aasimar changes made while
-      polymorphed are told on reverting.` = (hash pending); closure
-      notes at the end of this row). Original text: (minted
-      2026-10-04, session 180, battery B
-      observation; master-shared). apply_aasimar_penalty() and the
+      polymorphed are told on reverting.` = abb823646, tracker
+      88fb7641d, landed 2026-10-05; closure notes at the end of this
+      row). Original text: (minted 2026-10-04, session 180, battery
+      B observation; master-shared). apply_aasimar_penalty() and the
       aasimar_check_abuse() grant arms gate every message on !Upolyd,
       so a drain, a stripped intrinsic or the XL15 wings lost (or
       regained on atonement) while in a form changes silently, and
@@ -19159,9 +19186,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       untold silent one (a silently lifted COLD penalty, then a drain
       below XL12 prints "cooler" to a hero never told "warm"); the
       flush stays silent there.
-- [ ] LOW: rehumanize()'s "You feel lighter than air!" arm misfires
-      (minted 2026-10-05, session 184, reviewer pass 1 + batteries C2 /
-      C5; master-shared). The arm re-grants HFlying FROMRACE to an
+- [x] LOW: rehumanize()'s "You feel lighter than air!" arm misfires
+      (BUG-2145) - FIXED 2026-10-05 (session 185, commit `Fix: aasimar
+      wings fold in any form; truer polymorph texts.` = (hash pending),
+      tracker (hash pending), landed 2026-10-05; closure notes at the
+      end of this row). Original text: (minted 2026-10-05, session 184,
+      reviewer pass 1 + batteries C2 / C5; master-shared). The arm
+      re-grants HFlying FROMRACE to an
       illithid / vampire at XL12+ or a clean XL15+ aasimar when the
       form was not flying, but set_uasmon() already grants it and
       polyself()'s strip spares those races, so it fires only when
@@ -19175,9 +19206,42 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       skips "Your <suit> seems to have holes for wings." because
       set_uasmon()'s silent check_wings() records last_worn_armor
       first. LOW (messages only).
-- [ ] LOW: a winged race's wings are judged by the FORM while
-      polymorphed (minted 2026-10-05, session 184, reviewer pass 1 +
-      batteries A-C; master-shared). check_wings() tests
+      RULED 2026-10-05 (session 184 follow-up, decisions log): ONLY
+      WHEN IT'S TRUE, as recommended - keep the arm but print "You feel
+      lighter than air!" only if the hero actually flies after
+      reverting: no line for a blocked or levitating hero and no
+      doubling after a deferred wings sprout, while an illithid leaving
+      a hard-suited big-winged form still gets it. The lost "holes for
+      wings" line stays a record. Plannable.
+      CLOSURE (2026-10-05, session 185; plan
+      /root/.claude/plans/bugfix-polymorph-wings-and-sex-naming.md):
+      the arm keeps `HFlying |= FROMRACE` but prints only
+      `if (Flying && !wings_news)`; new aasimar_wings_pending()
+      (attrib.c), asked just before polyman() (its flush zeroes the
+      record), is TRUE exactly when the flush will tell "Angelic wings
+      sprout from your back!" (wings pending + WAS_PEN + racial flight
+      now or about to be granted by set_uasmon(); Plan agent D2
+      robustness). BATTERY A (10/10 PASS, PRE
+      a9879fca6e17b57f50a83e191001af42 / POST
+      9f4fd401e90b96afe16b9eadc377687d): levitating revert PRE "You
+      return to aasimar form!  You feel lighter than air!" with Lev /
+      POST no line; XL15 aasimar in splint mail as an incubus PRE the
+      line without Fly / POST none; deferred sprout as a floating eye
+      PRE "Angelic wings sprout from your back!  You spread your
+      wings." + "You feel lighter than air!" / POST without the last;
+      controls identical - an illithid leaving a hard-suited succubus
+      ("You return to illithid form!  You feel lighter than air!" +
+      Fly) and an aasimar leaving a floating eye with nothing pending
+      (the line once). Tester D (final build
+      a57df6a0afbf3582d470a26c47ba9a7e) re-checked the sprout leg: no
+      "lighter than air".
+- [x] LOW: a winged race's wings are judged by the FORM while
+      polymorphed (BUG-2146) - FIXED 2026-10-05 (session 185, commit
+      `Fix: aasimar wings fold in any form; truer polymorph texts.` =
+      (hash pending), tracker (hash pending), landed 2026-10-05;
+      closure notes at the end of this row). Original text: (minted
+      2026-10-05, session 184, reviewer pass 1 + batteries A-C;
+      master-shared). check_wings() tests
       big_wings(raceptr(&gy.youmonst)), the form while Upolyd, so a
       clean XL15+ aasimar polymorphed into a wingless form (dwarf
       lord) flies on its FROMRACE wings in hard splint mail (blocked
@@ -19188,15 +19252,121 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       before the block and flies where a human in the same form is
       blocked. Decide whether racial wings should fold under hard
       armor in any form. LOW.
-- [ ] LOW: polymorph sex-change naming disagrees with the status title
-      (minted 2026-10-05, session 184, batteries A-D; upstream-shared,
-      Official_nh50 polymon() and Ugender are identical). polymon()'s
+      RULED 2026-10-05 (session 184 follow-up, decisions log): FOLD IN
+      ANY FORM, as recommended, both halves - active racial wings
+      (clean XL15+ aasimar, crowned Infidel demon) fold under hard body
+      armor whatever the form (the dwarf-lord aasimar in plate no
+      longer flies), and the aasimar level / abuse gate applies only to
+      the racial wings, so a low-level or abused aasimar in a
+      big-winged form is blocked by a hard suit like a human.
+      Plannable.
+      CLOSURE (2026-10-05, session 185; same plan): new u_big_wings()
+      (do_wear.c) - an aasimar with HFlying FROMRACE (clean XL15+) has
+      big wings in any form, one without it only a big-winged form's,
+      everyone else big_wings(raceptr) as before (keyed on the bit,
+      Plan agent D3: no mid-drain window). check_wings() returns on
+      !u_big_wings(). Flying (youprop.h) splits the old wing disjunct
+      into `(HFlying & FROMFORM) && !big_wings(raceptr)` (a form's own
+      non-wing flight - vampire lord - still flies in plate) and
+      `(HFlying & FROMRACE) && !u_big_wings()` (illithid / vampire
+      racial flight unchanged, including its block in a hard-suited
+      big-winged form); identical for every non-aasimar hero.
+      aasimar_changed() re-runs check_wings(TRUE) for a wings grant /
+      revoke while polymorphed (Plan agent D1: an XL14 aasimar in
+      plate as a dwarf lord reaching XL15 flew until the next wardrobe
+      change; not while restoring) and sets disp.botl for the wings
+      channel (reviewer pass 1 LOW: "Fly" stayed on the status line
+      after a revoke). The crowned Infidel needs nothing: its demon
+      wings are the normal body's FROMFORM flight, absent in any other
+      form. New lines that follow from the ruling: wardrobe "You fold
+      your wings under your suit." / "You spread your wings and take
+      flight." for a clean XL15+ aasimar in a wingless form, and "You
+      spread your wings and take flight." after a polymorph drops the
+      suit (jackal; it flew silently before). BATTERIES (PRE / POST as
+      above): B 9/9 PASS - dwarf lord in plate PRE Fly (blocked 0x0) /
+      POST blocked 0x1 + ^X "You would fly if your wings weren't
+      confined.", T / W wing lines POST only; XL14 -> 15 in the form
+      PRE Fly / POST blocked, revert "Angelic wings sprout from your
+      back!  You fold your wings under your suit." on both; in-form
+      revoke told on reverting on both; XL10 and abused XL15 aasimar
+      as an amorous demon in plate PRE Fly / POST blocked; vampire
+      lady in plate Fly on both (POST blocked 0x1 underneath); jackal
+      out of the suit; save / restore PRE Fly / POST blocked. C
+      controls identical PRE / POST: human incubus in plate, illithid
+      (Fly in plate and as a dwarf lord, blocked as an incubus),
+      crowned Infidel (FROMFORM 0x20000000, blocked in plate, no flight
+      and no wing lines as a dwarf lord), unpolymorphed aasimar XL10 /
+      XL15. D (final build): a revoke via adjalign(-1) left "Fly" on
+      the PRE status line 84 turns unpolymorphed (until ^R) and 25+
+      turns as a dwarf lord; POST cleared at once. RECORDS (no code):
+      is_innate()'s FLYING arm returns FROM_NONE whenever W_ARMOR is
+      set, so a clean XL15 aasimar flying
+      as a vampire lord in plate gets no wizard ^X source (Plan agent
+      D4); crowning (or a deferred sprout) in a soft suit prints no
+      "holes for wings" line (set_uasmon()'s silent check records the
+      suit first; battery C, both builds). Minted below: Armor_on()
+      never lands a hero whose wings it folds.
+- [x] LOW: polymorph sex-change naming disagrees with the status title
+      (BUG-2147) - FIXED 2026-10-05 (session 185, commit `Fix: aasimar
+      wings fold in any form; truer polymorph texts.` = (hash pending),
+      tracker (hash pending), landed 2026-10-05; closure notes at the
+      end of this row). Original text: (minted 2026-10-05, session 184,
+      batteries A-D; upstream-shared, Official_nh50 polymon() and
+      Ugender are identical). polymon()'s
       random sex change flips flags.female and prints the form with a
       "male " / "female " prefix even for a gendered name ("You turn
       into a female dwarf lady!"), while the status title uses
       Ugender, which is u.mfemale (the normal form's sex) while Upolyd:
       "You turn into a male dwarf lord!" with "Wizard the Dwarf Lady"
       on the status line. LOW (text only).
+      RULED 2026-10-05 (session 184 follow-up, decisions log): DROP THE
+      REDUNDANT PREFIX, as recommended - polymon()'s sex-change message
+      omits "male " / "female " for forms with their own gendered names
+      ("You turn into a dwarf lord!"); forms without them keep it.
+      Upstream's gender-based Ugender naming (the status title and 13
+      other sites) stays, so the title can still differ from the body
+      after a flip; offer upstream the report. Plannable.
+      CLOSURE (2026-10-05, session 185; same plan): polymon()'s prefix
+      test also skips a form whose printed name is gendered
+      (`mons[mntmp].pmnames[flags.female ? FEMALE : MALE]`; all 17
+      NAMS() entries carry both); NAM() forms keep it. Reviewer pass 1
+      LOW sibling, folded in: ^X / dumplog background_enlightenment()
+      printed "You are currently in female dwarf lady form." for every
+      gendered form (no flip needed) - the test now looks at the name
+      the word precedes (the vampire's own when vampshifted: "a vampire
+      lady in vampire bat form"; a vampire mage keeps it). 5.0-only:
+      master has no gendered names. BATTERY C (PASS): PRE "You feel
+      like a new female dwarf lady!" / "...female succubus!", POST "You
+      feel like a new dwarf lady!" / "...succubus!", jackal "female
+      jackal" on both; battery A / B POST "You turn into a dwarf
+      lady!" / "a succubus!" (PRE "a male incubus!"). D (final build):
+      ^X PRE "You are currently in male dwarf lord form." / POST "in
+      dwarf lord form." (incubus, gnome lord likewise; rock gnome keeps
+      "male" on both); vampshifted PRE "a male vampire lord in vampire
+      bat form" / POST "a vampire lord in vampire bat form". The
+      status title keeps the normal form's sex ("Wizard the Dwarf
+      Lord" as a dwarf lady), as ruled. Upstream-reportable table row
+      added.
+- [ ] LOW: Armor_on() never lands a hero whose wings it folds
+      (minted 2026-10-05, session 185, Plan agent V2 + reviewer pass 1
+      LOW 3; master-shared; code-read, not reproduced). Putting on a
+      hard suit runs check_wings(FALSE), which sets the W_ARM block
+      ("You fold your wings under your suit.") with no spoteffects(),
+      so a winged hero - a clean XL15+ aasimar (since BUG-2146 in any
+      form), a crowned Infidel, a big-winged form - donning the suit
+      while flying over water or lava stays put un-flying until the
+      next move. The aasimar wings revoke (aasimar_feedback()'s
+      check_wings(TRUE)) has the same shape. Armor_off()'s
+      check_flight_landing() is the model. LOW.
+- [ ] LOW: an Infidel's game opens with "You were wearing the Amulet
+      of Yendor.  a - the Amulet of Yendor (being worn)." at T:1
+      (minted 2026-10-05, session 185, battery C observation; seen on
+      both the session-184 and session-185 builds, human Infidel,
+      wizard mode, --no-evilhackrc). A past-tense take-off line before
+      the hero has done anything, then the worn line. Cause not traced
+      (u_init.c's Infidel ini_inv carries the real Amulet worn); check
+      master's opening and whether a wizkit or the pauper path is
+      involved. LOW (message only).
 - [x] LOW: break_armor() / mon_break_armor() boots gates are vanilla
       PORTED 2026-09-20 (session 133, commit `Fix: satyr, ent and
       tortle forms kept their boots on.` = dd1fb1fc9, tracker
@@ -22320,6 +22490,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       splash. Ruling needed: master's query and penalty, or 5.0's
       refusal. LOW (gameplay: paranoid movement next to water and
       lava).
+      RULED 2026-10-05 (session 184 follow-up, decisions log):
+      MASTER'S EXACT SHAPE, as recommended - "Really enter the water?"
+      / "Really enter the lava?" under paranoid_confirm:swim with
+      master's decline penalty (declining costs no turn; water: boots
+      1 in 3 through water_damage(); lava: 1 in 2 a boot
+      fire_damage() or a resist-reduced d(1,4) foot burn), and swim
+      OFF by default again (master's default is PARANOID_PRAY |
+      PARANOID_QUIT; the branch's PARANOID_PRAY | PARANOID_SWIM |
+      PARANOID_TRAP drops SWIM only - keep TRAP and 5.0's water-wall
+      refusal unless the plan finds a reason). The options help and
+      Guidebook default text follow. Plannable.
 - [ ] LOW: destroyed levitation boots skip float_down() (minted
       2026-09-27, session 149, by the lava burn slice's reviewer;
       master-shared). erode_obj()'s destroy arm brackets
@@ -23157,6 +23338,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       stepping on such a mine causes it; BUG-2136's re-check makes the
       engulfed path safe. Decide: route a raised-span mine through
       destroy_drawbridge(), or record only. LOW.
+      RULED 2026-10-05 (session 184 follow-up, decisions log): DESTROY
+      THE BRIDGE, as recommended - a mine on a raised span goes through
+      destroy_drawbridge() as a lowered-bridge mine does ("The
+      drawbridge disintegrates!", the span back to ice, the portcullis
+      an empty doorway, debris at both squares). Plannable.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -24532,6 +24718,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-05 | polyself.c polymon() (Official_nh50 src/polyself.c ~799-802) prefixes "male " / "female " on a random sex change unless the form is_male / is_female, so the 17 forms with gendered pmnames[] get a redundant word ("You turn into a female dwarf lady!", "You feel like a new female succubus!"); insight.c background_enlightenment() (Official_nh50 ~497) does the same on every gendered form, no flip needed ("You are currently in female dwarf lady form.", vampshifted "a female vampire lady in vampire bat form"). Upstream's Ugender status title is a separate design question, not part of the report | fixed on branch (BUG-2147: skip the word when the name it precedes has a gendered pmnames[] entry); not yet sent |
 | 2026-10-05 | mthrowu.c ucatchgem() (Official_nh50 src/mthrowu.c ~506) has no helplessness gate: a sleeping, paralyzed or fainted hero polymorphed into a unicorn still catches a gem a monster slings ("You accept ... gift"); m_throw()'s `if (gm.multi) nomul(0);` just before the call returns early when multi < 0. Same class as the u_catch_thrown_obj() row below (2026-10-02). | fixed on branch (BUG-2138: `gm.multi >= 0`); not yet sent |
 | 2026-10-05 | shkname() returns a random shopkeeper name (and draws core rn2) while Hallucination && !program_state.gameover, but three callers want the true name: end.c done_in_by() (Official_nh50 src/end.c ~268) records a random shopkeeper in the death reason (death reasons are built before gameover); do_name.c x_monnam()'s shopkeeper branch (~925 / ~927) is reached only when hallucination is off OR the caller passes SUPPRESS_HALLUCINATION, so m_monnam() / EXACT_NAME callers (livelog_mon_nam()'s shopkeeper-kill line, dynamic_multi_reason(), "Wait, %s!") get a random name; makemon.c clone_mon() (~906) christens a shopkeeper's clone with a random name. | fixed on branch (BUG-2140 / BUG-2142: shkname_real(), the stored name with the prefix stripped); not yet sent |
 | 2026-10-05 | dbridge.c close_drawbridge() / open_drawbridge() with the hero ENGULFED on a bridge square (the passtune can be played while swallowed): set_entity() makes only the hero the entity of the shared square, so the engulfer is never processed and do_entity()'s hero arm (`u.ux = newx; u.uy = newy;`) moves the hero to the other bridge square with u.uswallow still set (split), or crushes / drowns the hero inside the untouched engulfer | fixed on branch (BUG-2136: expels(u.ustuck) after the see / hear line and before the terrain change, then a re-check of the bridge in case the expelled hero's spoteffects() set off a land mine); patch artifact not cut yet |
@@ -24716,6 +24903,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-05 | Pending ruling rows (session 184 follow-up; AskUserQuestion x2, six questions, all recommended; rulings only, code in future sessions). (1) DIRECT MONSTER-CAUSED DEATHS: RISE + FULL NAMES - set_ugrave_arise() and gu.ukiller before each done() (AD_WRAP drowning / lava, AD_BHED beheading, the XL1 drain, the touch of death, brain eating, monster-wielded artifact kills, seduction exhaustion, the drow tainted rider), custom reasons kept, species-named reasons through mon_killer_name() ("by a couatl of Mitra"); one slice with the AD_WRAP couatl naming row. (2) LAND MINE ON AN ICED RAISED SPAN: DESTROY THE BRIDGE via destroy_drawbridge(), as a lowered-bridge mine. (3) PARANOID SWIM: MASTER'S EXACT SHAPE - "Really enter the water / lava?" with master's decline penalty, and swim OFF by default again. (4) "LIGHTER THAN AIR": ONLY WHEN IT'S TRUE - rehumanize()'s line prints only if the hero flies after reverting. (5) RACIAL WINGS WHILE POLYMORPHED: FOLD IN ANY FORM - hard body armor blocks active racial wings whatever the form; the aasimar level / abuse gate applies to the racial wings only. (6) POLYMORPH SEX-CHANGE TEXT: DROP THE REDUNDANT PREFIX on forms with gendered names; upstream's gender-based title stays. | maintainer |
 | 2026-10-05 | Unicorn-catch / killer-name slice ruling (session 183; AskUserQuestion x1, one question, recommended). MELEE SHOPKEEPER NAME: FIX MELEE TOO - done_in_by() records the true shopkeeper name while the hero hallucinates (shkname() picks a random one while Hallucination && !program_state.gameover, and death reasons are built before gameover), through one helper shared with the ranged mon_killer_name() names, over "ranged only, mint a row"; the "hallucinogen-distorted" prefix stays. The ranged names keep done_in_by()'s "Mr. " / "Ms. " honorific (the 2026-10-04 ruling's example text omitted it; its operative words were "as done_in_by() names them"). Reviewer siblings of the same root cause folded in under the cross-file-siblings rule (no question): shkinit()'s Izchak kit test and #steal's Izchak exemption, x_monnam()'s exact-name shopkeeper branch (m_monnam(), livelog_mon_nam()), clone_mon()'s shopkeeper clone name - all through shkname_real(); shk.c message text keeps the hallucinated name. | maintainer |
 | 2026-10-04 | Poison slice rulings (session 181; AskUserQuestion x3, all recommended). (1) SHAPE: SAME AS ITS MELEE KILL - a monster's melee poison death goes through done_in_by() (reason, grave-rise arms, "You die...", bones looting and the rummage line as its melee kill; a venom blade names its wielder), over "name + rise only" (mon_killer_name() text, rise arms, no looting). (2) Mind flayer larva brain-burrow: FOLD IN - it raises the hero as a mind flayer (BUG-2133), over a row. (3) "Kas" / "Mephistopheles" special_subjs[] port revert found by battery B: FOLD INTO THIS SLICE (BUG-2134), over a row for a later slice. | maintainer |
 | 2026-10-04 | Pending LOW rows ruled (session 180 follow-up; AskUserQuestion x2, seven questions, all recommended). (1) ucatchgem(): GATE IT - a helpless unicorn-form hero doesn't catch a thrown gem (as BUG-2100 for the martial-arts catch). (2) mon_killer_name() naming: MATCH MELEE FOR ALL THREE - priests, minions and shopkeepers read in ranged / spell reasons as done_in_by() names them, over "priests and minions only" and master's species naming. (3) poisoned() name: FULL NAME - race and "imitating" in poison death reasons. (4) Poison grave-rise (2026-09-18 observation row): RISE AFTER POISON TOO - a monster-caused poison death runs the grave-rise arms. (5) Aasimar changes while polymorphed: ANNOUNCE ON REHUMANIZE. (6) pay_for_damage() refused shove: GUARD THE SITE (no yell, no relocation when the occupant is the hero's holder), over guard + clear following. (7) Engulfed-hero split: EXPEL / GATE - the drawbridge expels first; an engulfer holding the hero skips the fire-trap unslime step. | maintainer |
