@@ -415,7 +415,7 @@ Boots_off(void)
     struct obj *otmp = uarmf;
     int otyp;
     long oldprop;
-    boolean was_in_use;
+    boolean was_in_use, was_levitating = !!Levitation;
 
     if (!otmp) {
         svc.context.takeoff.mask &= ~W_ARMF;
@@ -456,6 +456,15 @@ Boots_off(void)
                 otmp->in_use = 1;
             spoteffects(TRUE);
             otmp->in_use = was_in_use;
+        } else if (is_pool(u.ux, u.uy) && !Levitation && !Flying
+                   && !(is_clinger(gy.youmonst.data) && has_ceiling(&u.uz))
+                   && !svc.context.takeoff.cancelled_don
+                   && iflags.in_lava_effects) {
+            /* erode_obj() is destroying the boots; sink once its caller
+               is done (lava_effects() itself never gets here, the hero
+               being on lava rather than water then) */
+            makeknown(otyp);
+            defer_landing(LANDING_SPOT);
         }
         break;
     case DARK_ELVEN_BOOTS:
@@ -479,6 +488,19 @@ Boots_off(void)
                     otmp->in_use = 1;
                 (void) float_down(0L, 0L);
                 otmp->in_use = was_in_use;
+            } else {
+                /* erode_obj() is destroying the boots, or lava_effects()
+                   is burning them off a hero already down in the lava;
+                   float_down() can't run under either, but the flight it
+                   would uncover must not stay blocked */
+                float_vs_flight();
+                disp.botl = TRUE; /* status: 'Lev' Off, maybe 'Fly' On */
+                if (was_levitating && !Levitation) {
+                    if (Flying)
+                        You("have stopped levitating and are now flying.");
+                    else
+                        defer_landing(LANDING_FLOAT);
+                }
             }
             makeknown(otyp);
         } else {
@@ -1302,7 +1324,13 @@ dragon_armor_handling(
             if (Underwater && !Breathless && !Amphibious && !Swimming) {
                 You("suddenly inhale an unhealthy amount of %s!",
                     hliquid("water"));
-                (void) drown();
+                /* erode_obj() destroying the suit is still holding it,
+                   and drown() would soak (and could destroy) it again;
+                   drown once its caller is done */
+                if (iflags.in_lava_effects)
+                    defer_landing(LANDING_SPOT);
+                else
+                    (void) drown();
             }
         }
         break;
@@ -1386,14 +1414,24 @@ dragon_armor_handling(
     monstunseesu(seenres_lost);
 }
 
-/* the caller has just unworn a flight-granting piece of armor (celestial
-   dragon scales, bare or scaled onto a suit); land unless something else
-   keeps the hero aloft */
+/* the caller has just ended a source of the hero's flight (unworn
+   celestial dragon scales or an amulet of flying, wings folded under a
+   suit); land unless something else keeps the hero aloft */
 void
 check_flight_landing(boolean was_flying)
 {
     if (was_flying && !Flying) {
         disp.botl = TRUE; /* status: 'Fly' Off */
+        /* inside an engulfer there is no ground to reach; expels() lands
+           the hero on release */
+        if (u.uswallow)
+            return;
+        /* erode_obj() is destroying the item, and spoteffects() can't
+           run under its guard; land once its caller is done */
+        if (iflags.in_lava_effects) {
+            defer_landing(LANDING_FLY);
+            return;
+        }
         You("%s.", (is_pool_or_lava(u.ux, u.uy)
                     || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
                       ? "stop flying"
@@ -1494,6 +1532,8 @@ toggle_armor_light(struct obj *armor, boolean on)
 staticfn int
 Armor_on(void)
 {
+    boolean was_flying = !!Flying;
+
     if (!uarm) /* no known instances of !uarm here but play it safe */
         return 0;
     if (!uarm->known) {
@@ -1503,7 +1543,13 @@ Armor_on(void)
     check_wings(FALSE);
     oprops_on(uarm, W_ARM);
     dragon_armor_handling(uarm, TRUE, TRUE);
-    toggle_armor_light(uarm, TRUE);
+    /* a hard suit folds big wings unless celestial scales keep the hero
+       up; land before the suit can light up, since the light can revert
+       a light-hating hero and that revert has a landing of its own */
+    check_flight_landing(was_flying);
+    /* landing in lava can burn the suit away */
+    if (uarm)
+        toggle_armor_light(uarm, TRUE);
     return 0;
 }
 
@@ -1738,7 +1784,13 @@ Amulet_off(void)
                 You("suddenly inhale an unhealthy amount of %s!",
                     hliquid("water"));
                 mkn = TRUE; /* in case of life-saving */
-                (void) drown();
+                /* erode_obj() destroying the amulet is still holding it,
+                   and drown() would soak (and could destroy) what its
+                   caller holds; drown once that caller is done */
+                if (iflags.in_lava_effects)
+                    defer_landing(LANDING_SPOT);
+                else
+                    (void) drown();
             }
         }
         if (region_danger()) {
@@ -1779,15 +1831,9 @@ Amulet_off(void)
 
         float_vs_flight(); /* probably not needed here */
         check_wings(TRUE); /* form with wings that can already fly? */
-        if (was_flying && !Flying) {
-            disp.botl = TRUE; /* status: 'Fly' Off */
-            You("%s.", (is_pool_or_lava(u.ux, u.uy)
-                        || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
-                          ? "stop flying"
-                          : "land");
+        if (was_flying && !Flying)
             mkn = TRUE; /* makeknown(AMULET_OF_FLYING) */
-            spoteffects(TRUE);
-        }
+        check_flight_landing(was_flying);
         break;
     }
     case AMULET_OF_GUARDING:
@@ -1987,7 +2033,7 @@ staticfn void
 Ring_off_or_gone(struct obj *obj, boolean gone)
 {
     long mask = (obj->owornmask & W_RING);
-    boolean observable;
+    boolean observable, was_levitating = !!Levitation;
 
     svc.context.takeoff.mask &= ~mask;
     if (!(u.uprops[objects[obj->otyp].oc_oprop].extrinsic & mask))
@@ -2054,7 +2100,20 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
         }
         break;
     case RIN_LEVITATION:
-        if (!(BLevitation & FROMOUTSIDE)) {
+        if (!(BLevitation & FROMOUTSIDE) && iflags.in_lava_effects) {
+            /* erode_obj() is destroying the ring, or lava_effects() is
+               burning it off a hero already down in the lava; float_down()
+               can't run under either (see Boots_off()) */
+            float_vs_flight();
+            disp.botl = TRUE; /* status: 'Lev' Off, maybe 'Fly' On */
+            if (was_levitating && !Levitation) {
+                if (Flying)
+                    You("have stopped levitating and are now flying.");
+                else
+                    defer_landing(LANDING_FLOAT);
+                learnring(obj, TRUE);
+            }
+        } else if (!(BLevitation & FROMOUTSIDE)) {
             /* in_use keeps lava_effects() from burning up the ring while
                we and our caller still hold it; only over lava, or over a
                trap that could teleport a lava walker onto it, since a

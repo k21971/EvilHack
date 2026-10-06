@@ -661,6 +661,8 @@ static const struct instance_globals_p g_init_p = {
     UNDEFINED_VALUES, /* prevmsg */
     /* mon.c */
     no_terrain_effects, /* pending_terrain_effects */
+    /* trap.c */
+    LANDING_NONE, /* pending_landing */
     /* potion.c */
     UNDEFINED_VALUE, /* potion_nothing */
     UNDEFINED_VALUE, /* potion_unkn */

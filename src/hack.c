@@ -3704,6 +3704,9 @@ spoteffects(boolean pick)
     struct monst *mtmp;
     struct trap *trap = t_at(u.ux, u.uy);
     int trapflag = iflags.failing_untrap ? FAILEDUNTRAP : 0;
+    /* the static spotloc is overwritten by nested passes */
+    coordxy spot_x = u.ux, spot_y = u.uy;
+    enum hero_landing keep_landing;
 
     /* prevent recursion from affecting the hero all over again
        [hero poly'd to iron golem enters water here, drown() inflicts
@@ -3719,6 +3722,12 @@ spoteffects(boolean pick)
     if (iflags.in_lava_effects)
         return;
 
+    /* this pass is the landing a deferred one was waiting for; a request
+       raised during the pass stays, since the check it needs may already
+       be behind it (Swimming lost inside pooleffects()' own drown(), a
+       piercer's drop reverting a flying form after the trap check) */
+    gp.pending_landing = LANDING_NONE;
+
     ++inspoteffects;
     spotterrain = levl[u.ux][u.uy].typ;
     spotloc.x = u.ux, spotloc.y = u.uy;
@@ -3732,6 +3741,9 @@ spoteffects(boolean pick)
 
     if (pooleffects(TRUE))
         goto spotdone;
+    /* a landing asked for inside pooleffects() (Swimming lost in its own
+       drown()) still needs the pool check behind it, so it stays */
+    keep_landing = gp.pending_landing;
 
     check_special_room(FALSE);
     if (IS_SINK(levl[u.ux][u.uy].typ) && Levitation)
@@ -3783,6 +3795,13 @@ spoteffects(boolean pick)
         if (pick && pit)
             (void) pickup(1);
     }
+    /* flight or levitation lost between the pool check and here (a
+       magic beam trap reverting a flying form, a corpse touched while
+       picking up) was met by the trap check just made; a deferred landing
+       would only fire a trap that stays (magic beam, anti-magic) again.
+       A hero moved meanwhile was landed by the pass at the new spot */
+    if (u_at(spot_x, spot_y) && gp.pending_landing > keep_landing)
+        gp.pending_landing = keep_landing;
     /* Warning alerts you to ice danger */
     if (Warning && is_ice(u.ux, u.uy)) {
         static const char *const icewarnings[] = {

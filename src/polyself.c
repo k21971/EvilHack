@@ -324,6 +324,12 @@ polyman(const char *fmt, const char *arg)
     /* the form's wings while polymorphed, else the normal body's */
     boolean had_wings = u_big_wings(), wings_news;
 
+    /* the normal form may neither fly nor float, and a revert can come
+       deep inside an attack (rehumanize() from losehp()); ask moveloop
+       for a landing, which the pool arm below may well make first */
+    if (Levitation || Flying)
+        defer_landing(Levitation ? LANDING_FLOAT : LANDING_FLY);
+
     if (Upolyd) {
         u.acurr = u.macurr; /* restore old attribs */
         u.amax = u.mamax;
@@ -1201,6 +1207,13 @@ polymon(int mntmp)
         u.mtimedone = rn1(501, 2500);
     else
         u.mtimedone = rn1(500, 500);
+    /* the new form may neither fly nor float, and polymon() can run deep
+       inside an attack, a pickup or a timeout; ask moveloop for a landing,
+       which the pool arm below, expels(), break_armor() or
+       dismount_steed() may well make first. Asked before u.umonnum
+       changes, since that alone puts an aasimar's wings to sleep */
+    if (Levitation || Flying)
+        defer_landing(Levitation ? LANDING_FLOAT : LANDING_FLY);
     u.umonnum = mntmp;
     /* a skeletal dragon's breath is fixed per individual; reroll it
        for every new change, before set_uasmon() derives the form's
@@ -2029,9 +2042,14 @@ rehumanize(void)
         if (Flying)
             You_feel("lighter than air!");
     }
-    if (was_flying && !Flying && u.usteed)
+    if (was_flying && !Flying && u.usteed) {
         You("and %s return gently to the %s.",
             mon_nam(u.usteed), surface(u.ux, u.uy));
+        /* that was the landing's news; the deferred landing (polyman())
+           only meets the spot */
+        if (gp.pending_landing == LANDING_FLY)
+            gp.pending_landing = LANDING_SPOT;
+    }
     retouch_equipment(2);
     if (!uarmg)
         selftouch(no_longer_petrify_resistant);

@@ -775,6 +775,15 @@ enum mon_terrain_effects {
     candrown_vs_liquid = 0x20000000,
 };
 
+/* gp.pending_landing: how land_deferred() brings the hero down after
+   flight or levitation ended where no landing could run; higher wins */
+enum hero_landing {
+    LANDING_NONE  = 0,
+    LANDING_SPOT  = 1, /* spoteffects() only; any landing was told */
+    LANDING_FLY   = 2, /* check_flight_landing(): "You land." */
+    LANDING_FLOAT = 3  /* float_down(): "You float gently to ..." */
+};
+
 /* polyself flags */
 enum polyself_flags {
     POLY_NOFLAGS    = 0x00,

@@ -378,7 +378,8 @@ erode_obj(
                    lava_effects()/pooleffects() and back into erosion
                    on the object being destroyed here; the
                    in_lava_effects gates in Boots_off() short-circuit
-                   that recursion */
+                   that recursion and defer the hero's landing to
+                   moveloop (defer_landing()) */
                 iflags.in_lava_effects++;
                 remove_worn_item(otmp, TRUE); /* calls Cloak_off(),&c */
                 iflags.in_lava_effects--;
@@ -394,7 +395,16 @@ erode_obj(
                                        * deleting a worn item) will ensue */
             }
         }
-        delobj(otmp);
+        if (carried(otmp)) {
+            /* losing a carried item can end an invoked power as well
+               (freeinv() -> arti_invoke(): Xiuhcoatl's levitation); the
+               same guard defers that landing */
+            iflags.in_lava_effects++;
+            delobj(otmp);
+            iflags.in_lava_effects--;
+        } else {
+            delobj(otmp);
+        }
         return ER_DESTROYED;
     } else {
         if (flags.verbose && print) {
@@ -4793,6 +4803,8 @@ float_down(
     }
     disp.botl = TRUE;
     nomul(0); /* stop running or resting */
+    /* this is the landing a deferred one was waiting for */
+    gp.pending_landing = LANDING_NONE;
     if (BFlying) {
         /* controlled flight no longer overridden by levitation */
         float_vs_flight(); /* clears BFlying & I_SPECIAL
@@ -4931,6 +4943,47 @@ float_down(
         && on_level(&u.uz, &current_dungeon_level))
         (void) pickup(1);
     return 1;
+}
+
+/* The hero stopped (or, from polymon() and polyman(), may be about to
+   stop) flying or levitating where no landing can run safely: inside a
+   walk over the inventory or the floor, deep in an attack, or under
+   erode_obj()'s in_lava_effects guard. land_deferred() lands the hero
+   at moveloop's next safe point unless spoteffects(), float_down() or
+   goto_level() gets there first */
+void
+defer_landing(int how)
+{
+    /* restore re-applies racial changes; nothing moves the hero there */
+    if (program_state.restoring)
+        return;
+    if (how > (int) gp.pending_landing)
+        gp.pending_landing = (enum hero_landing) how;
+}
+
+/* moveloop's half of defer_landing(); never called from inside a chain
+   walk */
+void
+land_deferred(void)
+{
+    int how = (int) gp.pending_landing;
+
+    /* praying: hold the landing until the prayer is over */
+    if (u.uinvulnerable)
+        return;
+    gp.pending_landing = LANDING_NONE;
+    if (how == LANDING_NONE
+        || Levitation || Flying /* aloft again */
+        || u.uswallow           /* expels() lands the hero */
+        || u.utrap              /* already down: lava, a web, a pit */
+        || u.utotype)           /* leaving; the new level is arrival */
+        return;
+    if (how == LANDING_FLOAT)
+        (void) float_down(0L, 0L);
+    else if (how == LANDING_FLY)
+        check_flight_landing(TRUE);
+    else
+        spoteffects(TRUE);
 }
 
 /* shared code for climbing out of a pit */

@@ -1825,6 +1825,9 @@ goto_level(
     if (on_level(newlevel, &u.uz))
         return; /* this can happen */
 
+    /* a landing deferred on the level being left is moot */
+    gp.pending_landing = LANDING_NONE;
+
     if (gl.luacore && nhcb_counts[NHCB_LVL_LEAVE]) {
         lua_getglobal(gl.luacore, "nh_callback_run");
         lua_pushstring(gl.luacore, nhcb_name[NHCB_LVL_LEAVE]);

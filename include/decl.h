@@ -826,6 +826,9 @@ struct instance_globals_p {
     /* mon.c */
     enum mon_terrain_effects pending_terrain_effects;
 
+    /* trap.c */
+    enum hero_landing pending_landing; /* see defer_landing() */
+
     /* potion.c */
     int potion_nothing;
     int potion_unkn;

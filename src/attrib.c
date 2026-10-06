@@ -1223,7 +1223,7 @@ adjabil(int oldlevel, int newlevel)
        given in normal crowning, and you can e.g. lose and regain
        warning, so you don't want messages about that */
     boolean verbose = !(oldlevel == 0 || newlevel == 0);
-    boolean told;
+    boolean told, was_flying = !!Flying;
 
     abil = role_abil(Role_switch);
 
@@ -1370,6 +1370,12 @@ adjabil(int oldlevel, int newlevel)
     /* Re-evaluate aasimar abuse penalties after level change.
        A newly gained intrinsic may need to be stripped if abused */
     aasimar_check_abuse();
+
+    /* racial flight lost to a level drain (or stripped by crowning, whose
+       demonic wings may yet take over); losexp() runs inside attacks, so
+       let moveloop land the hero */
+    if (was_flying && !Flying)
+        defer_landing(LANDING_FLY);
 }
 
 /* called when gaining a level (before u.ulevel gets incremented);
@@ -2067,11 +2073,12 @@ aasimar_check_abuse(void)
     int current_tier, t, pen_id;
     int eligible[AASIMAR_PEN_STAT_DRAIN]; /* IDs 1-8 */
     int neligible, i, j;
-    boolean already_used;
+    boolean already_used, was_flying;
 
     if (!Race_if(PM_AASIMAR))
         return;
 
+    was_flying = !!Flying;
     current_tier = abuse_tier();
 
     for (t = 0; t < NUM_ABUSE_TIERS; t++) {
@@ -2178,6 +2185,11 @@ aasimar_check_abuse(void)
         HRegeneration &= ~FROMRACE;
         aasimar_changed(AASIMAR_CH_REGEN, TRUE);
     }
+
+    /* the angelic wings went; adjalign() runs this from deep inside
+       combat (a murder in xkilled()), so let moveloop land the hero */
+    if (was_flying && !Flying)
+        defer_landing(LANDING_FLY);
 }
 
 /* Back in normal form (polyman()): tell the penalty and grant changes
@@ -2245,6 +2257,7 @@ aasimar_lose_celestial_blood(void)
 {
     const struct innate *abil;
     int i;
+    boolean was_flying = !!Flying;
 
     /* changes made in a form go untold, since every power is stripped
        below */
@@ -2296,6 +2309,10 @@ aasimar_lose_celestial_blood(void)
 
     /* Permanent: re-forced as human on every restore by role_init() */
     u.uevent.ufallen_aasimar = 1;
+
+    /* the angelic wings are gone; come down onto the altar */
+    if (was_flying && !Flying)
+        defer_landing(LANDING_FLY);
 }
 
 /* avoid possible problems with alignment overflow, and provide a centralized

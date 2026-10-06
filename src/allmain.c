@@ -14,6 +14,7 @@
 staticfn void moveloop_preamble(boolean);
 staticfn void u_calc_moveamt(int);
 staticfn void maybe_generate_rnd_mon(void);
+staticfn void maybe_land_deferred(void);
 staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
 staticfn void do_positionbar(void);
@@ -271,6 +272,18 @@ maybe_generate_rnd_mon(void)
     }
 }
 
+/* land a hero whose flight or levitation ended where no landing could run
+   (see defer_landing()); a hole or trap door may send the hero on */
+staticfn void
+maybe_land_deferred(void)
+{
+    if (gp.pending_landing == LANDING_NONE)
+        return;
+    land_deferred();
+    if (u.utotype)
+        deferred_goto();
+}
+
 #if defined(MICRO) || defined(WIN32)
 static int mvl_abort_lev;
 #endif
@@ -303,6 +316,10 @@ moveloop_core(void)
 
     if (svc.context.resume_wish)
         makewish(); /* clears resume_wish */
+
+    /* the hero's last action may have ended flight or levitation; land
+       before the monsters move */
+    maybe_land_deferred();
 
     if (svc.context.move) {
         /* actual time passed */
@@ -804,6 +821,10 @@ moveloop_core(void)
                a fast hero got multiple moves on that 15th turn, it
                could actually happen more than once on the same turn!] */
         }
+        /* a monster, a timeout or a finished occupation may have ended
+           flight or levitation; land ahead of the pool check below, which
+           would otherwise drown the hero first */
+        maybe_land_deferred();
         /* [fast hero who gets multiple moves per turn ends up sinking
            multiple times per turn; is that what we really want?] */
         if (u.utrap && u.utraptype == TT_LAVA)

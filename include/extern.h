@@ -3649,6 +3649,8 @@ extern void mselftouch(struct monst *, const char *, boolean) NONNULLARG1;
 extern void float_up(void);
 extern void fill_pit(coordxy, coordxy);
 extern int float_down(long, long);
+extern void defer_landing(int);
+extern void land_deferred(void);
 extern void climb_pit(void);
 extern boolean fire_damage(struct obj *, boolean,
                            coordxy, coordxy) NONNULLARG1;

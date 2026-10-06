@@ -4769,8 +4769,24 @@ arti_invoke(struct obj *obj)
             if (on) {
                 float_up();
                 spoteffects(FALSE);
-            } else
+            } else if (iflags.in_lava_effects) {
+                /* erode_obj() is destroying the artifact (or lava_effects()
+                   burning it off a hero already down in the lava, whose
+                   levitation was blocked); float_down() can't run under
+                   either, so do what Boots_off() does there */
+                boolean was_levitating = !BLevitation;
+
+                float_vs_flight();
+                disp.botl = TRUE;
+                if (was_levitating) {
+                    if (Flying)
+                        You("have stopped levitating and are now flying.");
+                    else
+                        defer_landing(LANDING_FLOAT);
+                }
+            } else {
                 (void) float_down(I_SPECIAL | TIMEOUT, W_ARTI);
+            }
             break;
         case INVIS:
             if (BInvis || Blind) {
