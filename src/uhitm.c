@@ -3923,7 +3923,7 @@ mhitm_ad_drli(
         hitmsg(magr, mattk);
         if (!rn2(3) && !Drain_resistance
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)){
-            losexp("life drainage");
+            mon_drains_level(magr, "life drainage");
 
             /* unlike hitting with Stormbringer, wounded attacker doesn't
                heal any from the drained life */
@@ -4634,9 +4634,13 @@ mhitm_ad_bhed(
             if (Upolyd) {
                 rehumanize();
             } else {
+                char kbuf[BUFSZ];
+
                 svk.killer.format = NO_KILLER_PREFIX;
                 Sprintf(svk.killer.name, "decapitated by %s",
-                        an(l_monnam(magr)));
+                        mon_killer_name(kbuf, magr));
+                /* its kill, but a headless body doesn't rise */
+                set_monster_killer(magr, FALSE);
                 done(DECAPITATED);
             }
             mhm->damage = 0;
@@ -5550,23 +5554,30 @@ mhitm_ad_wrap(
                                    && !is_waterwall(magr->mx, magr->my)
                                    && !Is_medusa_level(&u.uz)
                                    && !Is_waterlevel(&u.uz);
+                    char kbuf[BUFSZ];
 
                     urgent_pline("%s drowns you...", Monnam(magr));
                     svk.killer.format = KILLED_BY_AN;
                     Sprintf(svk.killer.name, "%s by %s",
                             moat ? "moat" : "pool of water",
-                            an(pmname(magr->data, Mgender(magr))));
+                            mon_killer_name(kbuf, magr));
+                    /* its kill, rising as after its melee kill */
+                    set_monster_killer(magr, TRUE);
                     done(DROWNING);
                 } else if (is_lava(magr->mx, magr->my)
                            && !likes_fire(gy.youmonst.data)
                            && pa != &mons[PM_MIND_FLAYER_LARVA]) {
+                    char kbuf[BUFSZ];
+
                     /* fire resistance is no help once dragged under */
                     urgent_pline("%s pulls you into the lava...",
                                  Monnam(magr));
                     svk.killer.format = NO_KILLER_PREFIX;
                     Sprintf(svk.killer.name,
                             "incinerated in molten lava by %s",
-                            an(pmname(magr->data, Mgender(magr))));
+                            mon_killer_name(kbuf, magr));
+                    /* its kill, but nothing rises from the lava */
+                    set_monster_killer(magr, FALSE);
                     done(DIED);
                 } else if (mattk->aatyp == AT_HUGS) {
                     You("are being crushed.");
@@ -5585,6 +5596,8 @@ mhitm_ad_wrap(
                         set_ustuck((struct monst *) 0);
                         mhm->damage = 0;
                     } else {
+                        char kbuf[BUFSZ];
+
                         urgent_pline("%s burrows itself into your brain!",
                                      Monnam(magr));
                         Your("last thoughts fade away as you begin"
@@ -5592,7 +5605,7 @@ mhitm_ad_wrap(
                         svk.killer.format = NO_KILLER_PREFIX;
                         Sprintf(svk.killer.name,
                                 "became a parasitic host to %s",
-                                an(pmname(magr->data, Mgender(magr))));
+                                mon_killer_name(kbuf, magr));
                         /* the body rises as the grown mind flayer, as
                            after the larva's other kills; decided before
                            the larva leaves the level */
@@ -5600,6 +5613,9 @@ mhitm_ad_wrap(
                         /* the larva just took over your body */
                         mongone(magr);
                         done(DIED);
+                        /* life-saved: the larva is gone, so the rest of
+                           its attack deals nothing */
+                        mhm->damage = 0;
                     }
                 }
             } else {
@@ -5815,10 +5831,11 @@ mhitm_ad_slim(
             You("are unaffected.");
             mhm->damage = 0;
         } else if (!Slimed) {
+            char kbuf[BUFSZ];
+
             You("don't feel very well.");
             make_slimed(10L, (char *) 0);
-            delayed_killer(SLIMED, KILLED_BY_AN,
-                           pmname(magr->data, Mgender(magr)));
+            delayed_killer(SLIMED, KILLED_BY, mon_killer_name(kbuf, magr));
         } else
             pline("Yuck!");
     } else {
@@ -6437,15 +6454,9 @@ do_stone_u(struct monst *mtmp)
     if (!Stoned && !Stone_resistance
         && !(poly_when_stoned(gy.youmonst.data)
              && polymon(PM_STONE_GOLEM))) {
-        int kformat = KILLED_BY_AN;
-        const char *kname = pmname(mtmp->data, Mgender(mtmp));
+        char kbuf[BUFSZ];
 
-        if (mtmp->data->geno & G_UNIQ) {
-            if (!type_is_pname(mtmp->data))
-                kname = the(kname);
-            kformat = KILLED_BY;
-        }
-        make_stoned(5L, (char *) 0, kformat, kname);
+        make_stoned(5L, (char *) 0, KILLED_BY, mon_killer_name(kbuf, mtmp));
         return 1;
         /* done_in_by(mtmp, STONING); */
     }
@@ -6726,17 +6737,24 @@ mhitm_ad_phys(
                         monstseesu(M_SEEN_SLEEP);
                         pline_The("drow poison doesn't seem to affect you.");
                     } else {
+                        int taintdmg;
+
                         if (!rn2(3)) {
-                            losehp(resist_reduce(rnd(2), POISON_RES),
-                                   "tainted weapon", KILLED_BY_AN);
+                            taintdmg = resist_reduce(rnd(2), POISON_RES);
+                            set_monster_killer_hp(magr, taintdmg, TRUE);
+                            losehp(taintdmg, "tainted weapon", KILLED_BY_AN);
                         } else {
                             if (u.usleep) { /* don't let sleep effect stack */
-                                losehp(resist_reduce(rnd(2), POISON_RES),
-                                       "tainted weapon", KILLED_BY_AN);
+                                taintdmg = resist_reduce(rnd(2), POISON_RES);
+                                set_monster_killer_hp(magr, taintdmg, TRUE);
+                                losehp(taintdmg, "tainted weapon",
+                                       KILLED_BY_AN);
                             } else {
                                 You("lose consciousness.");
-                                losehp(resist_reduce(rnd(2), POISON_RES),
-                                       "tainted weapon", KILLED_BY_AN);
+                                taintdmg = resist_reduce(rnd(2), POISON_RES);
+                                set_monster_killer_hp(magr, taintdmg, TRUE);
+                                losehp(taintdmg, "tainted weapon",
+                                       KILLED_BY_AN);
                                 fall_asleep(-resist_reduce(rn2(3) + 2,
                                                            SLEEP_RES), TRUE);
                             }
@@ -9313,6 +9331,8 @@ passive(
                         mdamageu(mon, tmp);
                     } else {
                         if (how_resistant(DISINT_RES) < 50) {
+                            char kbuf[BUFSZ];
+
                             pline("%s deadly %s disintegrates you!",
                                   s_suffix(Monnam(mon)),
                                   mon->data == &mons[PM_ANTIMATTER_VORTEX]
@@ -9320,7 +9340,10 @@ passive(
                             u.ugrave_arise = -3;
                             svk.killer.format = NO_KILLER_PREFIX;
                             Sprintf(svk.killer.name, "disintegrated by %s",
-                                    an(l_monnam(mon)));
+                                    mon_killer_name(kbuf, mon));
+                            /* its kill (even if it just died), with
+                               nothing left to rise */
+                            set_monster_killer(mon, FALSE);
                             done(DISINTEGRATED);
                             return M_ATTK_DEF_DIED;
                         } else {
@@ -9525,7 +9548,7 @@ passive(
                     if (how_resistant(POISON_RES) <= 34) {
                         pline("%s poisonous hide was deadly...",
                               s_suffix(Monnam(mon)));
-                        done_in_by(mon, DIED);
+                        done_in_by(mon, POISONING);
                         return M_ATTK_DEF_DIED;
                     }
                 }
@@ -9538,9 +9561,12 @@ passive(
             break;
         case AD_SLEE: /* specifically black fungus */
             if (how_resistant(SLEEP_RES) < 100) {
+                int sleepdmg;
+
                 You("lose consciousness.");
-                losehp(resist_reduce(rnd(6), POISON_RES),
-                       "black fungus", KILLED_BY_AN);
+                sleepdmg = resist_reduce(rnd(6), POISON_RES);
+                set_monster_killer_hp(mon, sleepdmg, TRUE);
+                losehp(sleepdmg, "black fungus", KILLED_BY_AN);
                 fall_asleep(-resist_reduce(rn2(3) + 8, SLEEP_RES), TRUE);
             }
             break;
@@ -9579,7 +9605,7 @@ passive(
                         if (how_resistant(POISON_RES) <= 34) {
                             pline("%s poisonous armor was deadly...",
                                   s_suffix(Monnam(mon)));
-                            done_in_by(mon, DIED);
+                            done_in_by(mon, POISONING);
                             return M_ATTK_DEF_DIED;
                         }
                     }

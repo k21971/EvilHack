@@ -817,6 +817,8 @@ eat_brains(
             if (Lifesaved) {
                 Strcpy(svk.killer.name, brainlessness);
                 svk.killer.format = KILLED_BY;
+                /* the eater's kill, rising as after its melee kill */
+                set_monster_killer(magr, TRUE);
                 done(DIED);
                 /* amulet of life saving has now been used up */
                 pline("Unfortunately your brain is still gone.");
@@ -828,6 +830,8 @@ eat_brains(
             }
             Strcpy(svk.killer.name, brainlessness);
             svk.killer.format = KILLED_BY;
+            /* the eater's kill, rising as after its melee kill */
+            set_monster_killer(magr, TRUE);
             done(DIED);
             /* can only get here when in wizard or explore mode and user has
                explicitly chosen not to die; arbitrarily boost intelligence */

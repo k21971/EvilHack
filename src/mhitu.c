@@ -1933,6 +1933,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
     int tim_tmp;
     struct obj *otmp2, *nextobj;
     int i;
+    char kbuf[BUFSZ]; /* death reason */
     boolean physical_damage = FALSE, total_digestion = FALSE;
     /* for tracking if this is the first engulf */
     boolean old_uswallow = u.uswallow;
@@ -2290,7 +2291,9 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             u.ugrave_arise = -3;
             svk.killer.format = NO_KILLER_PREFIX;
             Sprintf(svk.killer.name, "disintegrated by %s",
-                    an(pmname(mtmp->data, Mgender(mtmp))));
+                    mon_killer_name(kbuf, mtmp));
+            /* its kill, with nothing left to rise */
+            set_monster_killer(mtmp, FALSE);
             done(DISINTEGRATED);
         } else {
             tmp = 0;
@@ -2448,6 +2451,7 @@ gazemu(struct monst *mtmp, struct attack *mattk)
         "lackluster",            /* [9] */
     };
     int react = -1;
+    char kbuf[BUFSZ]; /* death reasons */
     boolean is_medusa, reflectable,
             cancelled = (mtmp->mcan != 0), already = FALSE,
             mcanseeu = (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
@@ -2553,15 +2557,8 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                     if (dmg)
                         mdamageu(mtmp, dmg);
                 } else if (!Stoned) {
-                    int kformat = KILLED_BY_AN;
-                    const char *kname = pmname(mtmp->data, Mgender(mtmp));
-
-                    if (mtmp->data->geno & G_UNIQ) {
-                        if (!type_is_pname(mtmp->data))
-                            kname = the(kname);
-                        kformat = KILLED_BY;
-                    }
-                    make_stoned(5L, (char *) 0, kformat, kname);
+                    make_stoned(5L, (char *) 0, KILLED_BY,
+                                mon_killer_name(kbuf, mtmp));
                     return M_ATTK_HIT;
                 }
             } else if (is_medusa) {
@@ -2571,7 +2568,9 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                           s_suffix(Monnam(mtmp)), bare_artifactname(ublindf));
                 urgent_pline("You turn to stone...");
                 svk.killer.format = KILLED_BY;
-                Strcpy(svk.killer.name, pmname(mtmp->data, Mgender(mtmp)));
+                Strcpy(svk.killer.name, mon_killer_name(kbuf, mtmp));
+                /* its kill; a statue doesn't rise */
+                set_monster_killer(mtmp, FALSE);
                 done(STONING);
             }
         }
@@ -2853,7 +2852,9 @@ gazemu(struct monst *mtmp, struct attack *mattk)
                 u.ugrave_arise = -3;
                 svk.killer.format = NO_KILLER_PREFIX;
                 Sprintf(svk.killer.name, "disintegrated by %s",
-                        an(pmname(mtmp->data, Mgender(mtmp))));
+                        mon_killer_name(kbuf, mtmp));
+                /* its kill, with nothing left to rise */
+                set_monster_killer(mtmp, FALSE);
                 done(DISINTEGRATED);
             }
         }
@@ -2909,13 +2910,11 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             case 18:
             case 17:
                 if (!Antimagic) {
-                    char kbuf[BUFSZ];
-
                     (void) death_inflicted_by(kbuf, "a gaze of death",
                                               mtmp);
                     svk.killer.format = KILLED_BY;
                     Strcpy(svk.killer.name, kbuf);
-                    gu.ukiller = mtmp;
+                    set_monster_killer(mtmp, TRUE);
                     done(DIED);
                     dmg = 0;
                     break;
@@ -3399,7 +3398,7 @@ doseduce(struct monst *mon)
         case 3:
             if (!resists_drli(&gy.youmonst)) {
                 You_feel("out of shape.");
-                losexp("overexertion");
+                mon_drains_level(mon, "overexertion");
             } else {
                 You("have a curious feeling...");
             }
@@ -3413,7 +3412,9 @@ doseduce(struct monst *mon)
             You_feel("exhausted.");
             exercise(A_STR, FALSE);
             tmp = rn1(10, 6);
-            losehp(Maybe_Half_Phys(tmp), "exhaustion", KILLED_BY);
+            tmp = Maybe_Half_Phys(tmp);
+            set_monster_killer_hp(mon, tmp, TRUE);
+            losehp(tmp, "exhaustion", KILLED_BY);
             break;
         } /* case 4 */
         } /* switch */

@@ -1563,6 +1563,12 @@ you_sanity_check(void)
                    u.uen, u.uenmax);
         u.uen = u.uenmax;
     }
+    /* the killer and the grave-rise form are only set around a call
+       that may end in done() and cleared when the hero survives it; a
+       leftover killer pointer would dangle once its level is freed */
+    if (gu.ukiller || u.ugrave_arise != NON_PM)
+        impossible("sanity_check: stale death credit (killer %s, rise %d)",
+                   gu.ukiller ? "set" : "none", u.ugrave_arise);
 
     check_wornmask_slots();
     (void) check_invent_gold("invent");

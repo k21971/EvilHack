@@ -293,6 +293,18 @@ losexp(
     disp.botl = TRUE;
 }
 
+/* a monster's attack drains a level; that is fatal only at level 1 to a
+   hero who doesn't resist it (losexp()'s early return and its done()),
+   and then it is that monster's kill; Null 'mtmp' credits nobody, and
+   'drainer' must name the cause, or losexp() would not kill */
+void
+mon_drains_level(struct monst *mtmp, const char *drainer)
+{
+    if (u.ulevel <= 1 && !resists_drli(&gy.youmonst))
+        set_monster_killer(mtmp, TRUE);
+    losexp(drainer);
+}
+
 /*
  * Make experience gaining similar to AD&D(tm), whereby you can at most go
  * up by one level at a time, extra expr possibly helping you along.

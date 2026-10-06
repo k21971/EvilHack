@@ -1087,6 +1087,9 @@ extern void done1(int);
 extern int done2(void);
 extern void done_in_by(struct monst *, int) NONNULLARG1;
 extern void set_ugrave_arise(struct monst *) NONNULLARG1;
+extern void set_monster_killer(struct monst *, boolean) NO_NNARGS;
+extern void set_monster_killer_hp(struct monst *, int, boolean) NO_NNARGS;
+extern void clear_monster_killer(struct monst *) NO_NNARGS;
 extern void done_object_cleanup(void);
 extern void NH_abort(const char *);
 #endif /* !MAKEDEFS_C && MDLIB_C && !CPPREGEX_C */
@@ -1140,6 +1143,7 @@ extern int newpw(void);
 extern int experience(struct monst *, int) NONNULLARG1;
 extern void more_experienced(int, int);
 extern void losexp(const char *);
+extern void mon_drains_level(struct monst *, const char *) NONNULLARG2;
 extern void newexplevel(void);
 extern void pluslvl(boolean);
 extern long rndexp(boolean);

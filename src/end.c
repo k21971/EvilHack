@@ -204,6 +204,15 @@ sentient_arise(int how)
 {
     int mon_nm;
 
+    /* nothing rises from a body the death destroyed; these deaths can
+       reach here with a rise form already picked (the killer's arm in
+       set_ugrave_arise() overwrites a disintegration's no-corpse value)
+       because really_done() picks the no-corpse and statue forms only
+       after this runs */
+    if (how == DECAPITATED || how == INCINERATED || how == DISINTEGRATED
+        || how == STONING || how == BURNING || how == DISSOLVED)
+        return FALSE;
+
     if (how == TURNED_SLIME) {
         /* special case, isn't set by done_in_by */
         mon_nm = PM_GREEN_SLIME;
@@ -528,6 +537,42 @@ set_ugrave_arise(struct monst *mtmp)
     if (u.ugrave_arise >= LOW_PM
         && (svm.mvitals[u.ugrave_arise].mvflags & G_GENOD))
         u.ugrave_arise = NON_PM;
+}
+
+/* a monster's attack is about to kill the hero through done() with a
+   death reason of its own rather than through done_in_by(); it is still
+   that monster's kill, so it loots the bones pile and, when the death
+   leaves a body ('rises'), the hero rises as its melee kill would; a
+   Null 'mtmp' (an artifact nobody wields) records nothing */
+void
+set_monster_killer(struct monst *mtmp, boolean rises)
+{
+    if (!mtmp)
+        return;
+    gu.ukiller = mtmp;
+    if (rises)
+        set_ugrave_arise(mtmp);
+}
+
+/* as set_monster_killer(), for an attack about to take 'loss' hit points
+   through losehp() with its own reason: only a loss fatal to the hero's
+   real body is the monster's kill, losehp()'s own test, as mdamageu()
+   would make it; a polymorphed hero just reverts, crediting nothing */
+void
+set_monster_killer_hp(struct monst *mtmp, int loss, boolean rises)
+{
+    if (!Upolyd && u.uhp - loss < 1)
+        set_monster_killer(mtmp, rises);
+}
+
+/* the hero lived through a call that set_monster_killer() was made for */
+void
+clear_monster_killer(struct monst *mtmp)
+{
+    if (!mtmp)
+        return;
+    gu.ukiller = (struct monst *) 0;
+    u.ugrave_arise = NON_PM;
 }
 
 /* some special cases for overriding while-helpless reason */

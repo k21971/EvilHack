@@ -2506,9 +2506,12 @@ artifact_hit(
                 || (mdef->data == &mons[PM_ENT] && !rn2(10))
                 || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 if (youdefend) {
+                    int loss = (Upolyd ? u.mh : u.uhp) + 1;
+
                     You("ignite and turn to ash!");
-                    losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
-                           NO_KILLER_PREFIX);
+                    /* the wielder's kill, with nothing left to rise */
+                    set_monster_killer_hp(magr, loss, FALSE);
+                    losehp(loss, "immolation", NO_KILLER_PREFIX);
                 } else {
                     /* guard against mdef being killed twice should
                        it die before we reach this point */
@@ -2538,9 +2541,12 @@ artifact_hit(
         if (is_art(otmp, ART_ANGELSLAYER) && !rn2(10)
             && (angel || aasimar)) {
             if (youdefend) {
+                int loss = (Upolyd ? u.mh : u.uhp) + 1;
+
                 pline("Angelslayer's eldritch flame consumes %s!", hittee);
-                losehp((Upolyd ? u.mh : u.uhp) + 1,
-                       "incinerated by Angelslayer", NO_KILLER_PREFIX);
+                /* the wielder's kill, with nothing left to rise */
+                set_monster_killer_hp(magr, loss, FALSE);
+                losehp(loss, "incinerated by Angelslayer", NO_KILLER_PREFIX);
             } else {
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
@@ -2751,8 +2757,11 @@ artifact_hit(
                           youdefend ? "your" : s_suffix(mon_nam(mdef)),
                           youdefend ? "you" : noit_mhim(mdef));
             if (youdefend) {
-                losehp((Upolyd ? u.mh : u.uhp) + 1,
-                       "disemboweled by Grimtooth", NO_KILLER_PREFIX);
+                int loss = (Upolyd ? u.mh : u.uhp) + 1;
+
+                /* the wielder's kill, rising as after its melee kill */
+                set_monster_killer_hp(magr, loss, TRUE);
+                losehp(loss, "disemboweled by Grimtooth", NO_KILLER_PREFIX);
             } else {
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
@@ -2818,7 +2827,8 @@ artifact_hit(
                               distant_name(otmp, xname));
                     svk.killer.format = KILLED_BY;
                     Strcpy(svk.killer.name, "the Wand of Orcus");
-                    gu.ukiller = magr; /* Null when there is no wielder */
+                    /* the wielder's kill (none for a thrown one) */
+                    set_monster_killer(magr, TRUE);
                     done(DIED);
                     return TRUE;
                 }
@@ -2993,8 +3003,11 @@ artifact_hit(
                           youdefend ? "you" : noit_mhim(mdef));
             }
             if (youdefend) {
-                losehp((Upolyd ? u.mh : u.uhp) + 1, "dissolved by Harbinger",
-                       NO_KILLER_PREFIX);
+                int loss = (Upolyd ? u.mh : u.uhp) + 1;
+
+                /* the wielder's kill, with nothing left to rise */
+                set_monster_killer_hp(magr, loss, FALSE);
+                losehp(loss, "dissolved by Harbinger", NO_KILLER_PREFIX);
             } else { /* you or mon hit monster */
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
@@ -3033,6 +3046,8 @@ artifact_hit(
                 svk.killer.format = NO_KILLER_PREFIX;
                 Snprintf(svk.killer.name, sizeof svk.killer.name,
                          "disintegrated by %s", the(xname(otmp)));
+                /* the wielder's kill, with nothing left to rise */
+                set_monster_killer(magr, FALSE);
                 done(DISINTEGRATED);
             } else { /* you or mon hit monster */
                 disint_mon_invent(mdef);
@@ -3237,9 +3252,12 @@ artifact_hit(
                 || (mdef->data == &mons[PM_ENT] && !rn2(10))
                 || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 if (youdefend) {
+                    int loss = (Upolyd ? u.mh : u.uhp) + 1;
+
                     You("ignite and turn to ash!");
-                    losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
-                           NO_KILLER_PREFIX);
+                    /* the wielder's kill, with nothing left to rise */
+                    set_monster_killer_hp(magr, loss, FALSE);
+                    losehp(loss, "immolation", NO_KILLER_PREFIX);
                 } else {
                     /* guard against mdef being killed twice should
                        it die before we reach this point */
@@ -3519,6 +3537,8 @@ artifact_hit(
                     svk.killer.format = NO_KILLER_PREFIX;
                     /* specifically name Sunsword */
                     Sprintf(svk.killer.name, "incinerated by Sunsword");
+                    /* the wielder's kill, with nothing left to rise */
+                    set_monster_killer(magr, FALSE);
                     done(INCINERATED);
                 }
             } else
@@ -3662,6 +3682,8 @@ artifact_hit(
                     /* specifically name the Hammer of the Gods */
                     Sprintf(svk.killer.name,
                             "incinerated by the Hammer of the Gods");
+                    /* the wielder's kill, with nothing left to rise */
+                    set_monster_killer(magr, FALSE);
                     done(INCINERATED);
                 }
             } else
@@ -3788,6 +3810,9 @@ artifact_hit(
                     svk.killer.format = NO_KILLER_PREFIX;
                     Snprintf(svk.killer.name, sizeof svk.killer.name,
                              "decapitated by %s", xname(otmp));
+                    /* the wielder's kill, but a headless body doesn't
+                       rise */
+                    set_monster_killer(magr, FALSE);
                     done(DECAPITATED);
                 }
                 /* Should amulets fall off? */
@@ -3893,7 +3918,7 @@ artifact_hit(
                 otmp->oprops_known |= ITEM_DRLI;
                 update_inventory();
             }
-            losexp("life drainage");
+            mon_drains_level(magr, "life drainage");
             if (magr && magr->mhp < magr->mhpmax) {
                 healmon(magr, (abs(oldhpmax - u.uhpmax) + 1) / 2, 0);
             }

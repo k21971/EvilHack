@@ -647,14 +647,14 @@ touch_of_death(struct monst *mtmp)
     char kbuf[BUFSZ];
 
     (void) death_inflicted_by(kbuf, "the touch of death", mtmp);
-    /* the toucher loots the bones pile if this proves fatal (either
-       arm below can end the game); cleared at the end when it did not */
-    gu.ukiller = mtmp;
 
+    /* either arm below can end the game; the toucher then loots the
+       bones pile and the hero rises as after its melee kill */
     if (!Antimagic) {
         monstunseesu(M_SEEN_MAGR);
         svk.killer.format = KILLED_BY;
         Strcpy(svk.killer.name, kbuf);
+        set_monster_killer(mtmp, TRUE);
         done(DIED);
     } else {
         int dmg = d(8, 6) / 2;
@@ -663,10 +663,11 @@ touch_of_death(struct monst *mtmp)
         monstseesu(M_SEEN_MAGR);
         You("feel drained...");
         drain_uhpmax(dmg / 3 + rn2(5));
+        set_monster_killer_hp(mtmp, dmg, TRUE);
         losehp(dmg, kbuf, KILLED_BY);
     }
     svk.killer.name[0] = '\0'; /* not killed if we get here... */
-    gu.ukiller = (struct monst *) 0;
+    clear_monster_killer(mtmp);
 }
 
 /* articled species name of the monster responsible for a kill, for the
@@ -1175,13 +1176,17 @@ mcast_weaken_you(struct monst *mtmp, struct monst *mdef, int dmg)
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
             /* losestr() ends the game from inside the call when the
-               loss is fatal; the caster then loots the bones pile */
-            gu.ukiller = mtmp;
+               loss is fatal to the hero's real body; the caster then
+               loots the bones pile and the hero rises as after its
+               melee kill (a polymorphed hero just reverts, as from
+               mdamageu()) */
+            if (!Upolyd)
+                set_monster_killer(mtmp, TRUE);
             losestr(rnd(dmg),
                     death_inflicted_by(kbuf, "strength loss", mtmp),
                     KILLED_BY);
             svk.killer.name[0] = '\0'; /* not killed if we get here... */
-            gu.ukiller = (struct monst *) 0;
+            clear_monster_killer(mtmp);
             monstunseesu(M_SEEN_MAGR);
         }
     } else {
