@@ -3476,7 +3476,11 @@ switch_terrain(void)
         if (Levitation)
             You_cant("levitate in here.");
         BLevitation |= FROMOUTSIDE;
-    } else if (BLevitation) {
+    } else if (BLevitation & FROMOUTSIDE) {
+        /* only lifting the terrain's own block floats the hero up; a
+           trap holding a levitator down stays put when the terrain
+           merely differs from the last square (vines landing the hero,
+           a step within reach of a buried iron ball) */
         BLevitation &= ~FROMOUTSIDE;
         /* we're probably levitating now; if not, we must be chained
            to a buried iron ball so get float_up() feedback for that */
@@ -3562,7 +3566,8 @@ pooleffects(
             still_inwater = TRUE;
         } else if (Levitation) {
             You("pop out of the %s like a cork!", hliquid("water"));
-        } else if (EFlying) { /* extrinsic source only */
+        } else if (EFlying && Flying) { /* extrinsic source only; not
+                                          * while held down or blocked */
             You("fly out of the %s.", hliquid("water"));
         } else if (EWwalking) { /* extrinsic source only */
             You("slowly rise above the surface.");
@@ -3583,8 +3588,14 @@ pooleffects(
         }
     }
 
-    /* check for entering water or lava */
-    if (!u.ustuck && !Levitation && !Flying) {
+    /* check for entering water or lava; entangling vegetation holds the
+       hero where it caught them, above the water or lava included (the
+       release in moveloop drops a hero left without flight); a hero
+       already under the water, or walking on it, is held there and
+       still meets it */
+    if (!u.ustuck && !Levitation && !Flying
+        && !(u.utrap && u.utraptype == TT_ENTANGLED && !u.uinwater
+             && !Wwalking)) {
         if (is_pool_or_lava(u.ux, u.uy)
             || (shallow_water && verysmall(gy.youmonst.data))) {
             if (u.usteed && (!grounded(u.usteed->data)
@@ -3885,10 +3896,14 @@ spoteffects(boolean pick)
         && !(Flying && !(Punished && !carried(uball)
                          && is_open_air(uball->ox, uball->oy)))
         && !is_clinger(gy.youmonst.data)
-        && !(u.usteed && is_clinger(u.usteed->data))) {
+        && !(u.usteed && is_clinger(u.usteed->data))
+        /* entangling branches hold the hero over the drop */
+        && !(u.utrap && u.utraptype == TT_ENTANGLED)) {
         if (Punished && !carried(uball))
             pline_The("heavy iron ball falls away, and yanks you down with it!");
-        else
+        /* not when the hero has flight that is only held down (wings
+           folded under a hard suit) */
+        else if (!(HFlying_usable || EFlying || HLevitation || ELevitation))
             pline("Unfortunately, you don't know how to fly.");
         You("plummet several thousand feet to your death.");
         Sprintf(svk.killer.name, "fell to %s death", uhis());

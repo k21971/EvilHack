@@ -1670,15 +1670,27 @@ poly_steed(
         dismount_steed(DISMOUNT_FELL);
     } else {
         char buf[BUFSZ];
+        struct trap *ttmp;
 
         Strcpy(buf, x_monnam(steed, ARTICLE_YOUR, (char *) 0,
                              (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         if (oldshape != steed->data)
             (void) strsubst(buf, "your ", "your new ");
         You("adjust yourself in the saddle on %s.", buf);
+        disp.botl = TRUE; /* status: the steed's form may change 'Fly' */
 
         /* riding blocks stealth unless hero+steed fly */
         steed_vs_stealth();
+
+        /* the rider hovered over a floor trap; with the steed's wings
+           gone and nothing else keeping the hero up, the pair comes down
+           onto it. Water, lava and open air are the steed's own terrain
+           check; traps that catch flyers were met on arrival. Silent,
+           like polyman()'s riding landing: the trap tells it */
+        if (is_flyer(oldshape) && !Flying && !Levitation
+            && (ttmp = t_at(u.ux, u.uy)) != 0
+            && floor_trigger(ttmp->ttyp))
+            defer_landing(LANDING_SPOT);
     }
 }
 

@@ -1370,12 +1370,22 @@ cast_entangle(struct monst *mdef, int skill)
     }
 
     if (youdefend) {
+        boolean aloft, by_tree;
+
         if (u.utrap && u.utraptype == TT_ENTANGLED) {
             You("are already entangled!");
             return;
         }
         if (is_whirly(gy.youmonst.data) || passes_walls(gy.youmonst.data)
             || unsolid(gy.youmonst.data)) {
+            pline_The("spell fails to entangle you.");
+            return;
+        }
+        /* sinking into lava, set in solidified lava or chained to a
+           buried iron ball: the ground already holds the hero, and the
+           vines must not replace that hold */
+        if (u.utrap && (u.utraptype == TT_LAVA || u.utraptype == TT_INFLOOR
+                        || u.utraptype == TT_BURIEDBALL)) {
             pline_The("spell fails to entangle you.");
             return;
         }
@@ -1392,15 +1402,25 @@ cast_entangle(struct monst *mdef, int skill)
                 return;
             }
         }
-        if (nexttotree(u.ux, u.uy))
+        /* after the dismount: a flying steed's rider is down now */
+        aloft = (Levitation || Flying);
+        by_tree = nexttotree(u.ux, u.uy);
+        if (by_tree) /* roots can't reach a hero in the air */
             pline_The("%s from a nearby tree ensnare you!",
-                      rn2(2) ? "branches" : "roots");
+                      (aloft || rn2(2)) ? "branches" : "roots");
         else
             pline_The(
                 "grass underneath you twists and loops around your %s!",
                 makeplural(body_part(LEG)));
         You("are entangled!");
         set_utrap(rn1(6, 3), TT_ENTANGLED); /* 3-8 turns */
+        /* a tree's branches hold a flyer or floater where it is, even
+           over water, a hole or open air, until they let go (allmain);
+           grass can only hold the hero on the ground it grows from, so
+           it pulls the hero down onto it. Deferred, since a monster's
+           spell arrives mid-beam */
+        if (aloft && !by_tree)
+            defer_landing(LANDING_FLY);
         return;
     } else {
         if (mdef->mentangled) {

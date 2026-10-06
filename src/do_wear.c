@@ -1426,13 +1426,18 @@ check_flight_landing(boolean was_flying)
            the hero on release */
         if (u.uswallow)
             return;
+        /* a flyer already under the water (a dive, or flight gained down
+           there) is already down; landing again would rerun drown() on
+           the bottom */
+        if (u.uinwater)
+            return;
         /* erode_obj() is destroying the item, and spoteffects() can't
            run under its guard; land once its caller is done */
         if (iflags.in_lava_effects) {
             defer_landing(LANDING_FLY);
             return;
         }
-        You("%s.", (is_pool_or_lava(u.ux, u.uy)
+        You("%s.", (is_pool_or_lava(u.ux, u.uy) || is_open_air(u.ux, u.uy)
                     || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
                       ? "stop flying"
                       : "land");

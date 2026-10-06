@@ -15,7 +15,6 @@ staticfn boolean keep_saddle_with_steedcorpse(unsigned, struct obj *,
 staticfn boolean keep_barding_with_steedcorpse(unsigned, struct obj *,
                                             struct obj *);
 staticfn boolean mu_maybe_destroy_web(struct monst *, boolean, struct trap *);
-staticfn boolean floor_trigger(int);
 staticfn boolean check_in_air(struct monst *, unsigned);
 staticfn int trapeffect_arrow_trap(struct monst *, struct trap *, unsigned);
 staticfn int trapeffect_bolt_trap(struct monst *, struct trap *, unsigned);
@@ -827,6 +826,10 @@ fall_through(
     if (Sokoban && Can_fall_thru(&u.uz)) {
         ; /* KMH -- You can't escape the Sokoban level traps */
     } else if (Levitation || u.ustuck
+             /* entangling branches hold the hero over the hole; '>'
+                still plunges through on purpose */
+             || (u.utrap && u.utraptype == TT_ENTANGLED
+                 && !(ftflags & TOOKPLUNGE))
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
              || ((Flying || is_clinger(gy.youmonst.data)
                   || maybe_polyd(is_giant(gy.youmonst.data),
@@ -1290,7 +1293,7 @@ reset_utrap(boolean msg)
 }
 
 /* is trap type ttyp triggered by touching the floor? */
-staticfn boolean
+boolean
 floor_trigger(int ttyp)
 {
     switch (ttyp) {
@@ -4776,6 +4779,7 @@ float_down(
     struct trap *trap = (struct trap *) 0;
     d_level current_dungeon_level;
     boolean no_msg = FALSE;
+    coordxy land_x, land_y;
 
     HLevitation &= ~hmask;
     ELevitation &= ~emask;
@@ -4835,6 +4839,7 @@ float_down(
         newsym(u.ux0, u.uy0);
         gv.vision_full_recalc = 1; /* in case the hero moved. */
     }
+    land_x = u.ux, land_y = u.uy;
     /* check for falling into pool - added by GAN 10/20/86 */
     if (!Flying) {
         if (!u.uswallow && u.ustuck) {
@@ -4861,6 +4866,16 @@ float_down(
             (void) lava_effects();
             no_msg = TRUE;
         }
+    }
+    /* drown() or lava_effects() moved the hero (teleport, crawl-out,
+       dismount, life-saved relocation); the move met the trap at the
+       new spot (spoteffects(), or a steed drop's own float_down()), so
+       another pass would fire a trap that stays. Not while dismounting:
+       spoteffects() skipped the trap and objects for this float_down()
+       to do */
+    if (!u_at(land_x, land_y) && !gi.in_steed_dismounting) {
+        encumber_msg();
+        return 1;
     }
     if (!trap) {
         trap = t_at(u.ux, u.uy);
@@ -4975,9 +4990,18 @@ land_deferred(void)
     if (how == LANDING_NONE
         || Levitation || Flying /* aloft again */
         || u.uswallow           /* expels() lands the hero */
-        || u.utrap              /* already down: lava, a web, a pit */
+        /* already down: lava, a web, a pit. Entangling grass holds the
+           hero on the ground it grows from, so a flyer it caught still
+           lands (cast_entangle()); a tree's branches hold the hero where
+           they are until they let go */
+        || (u.utrap && (u.utraptype != TT_ENTANGLED
+                        || nexttotree(u.ux, u.uy)))
         || u.utotype)           /* leaving; the new level is arrival */
         return;
+    /* float_down() won't land a held hero: it reports the hold, and its
+       trap pass skips a hero in u.utrap */
+    if (how == LANDING_FLOAT && u.utrap)
+        how = LANDING_FLY;
     if (how == LANDING_FLOAT)
         (void) float_down(0L, 0L);
     else if (how == LANDING_FLY)
