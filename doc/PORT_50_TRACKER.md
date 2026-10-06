@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-05, after the session 185
-  follow-up): 314 rows closed, 83 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-06, after session 186): 316
+  rows closed, 85 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,10 +34,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 61 LOW: small parity rows, quirks and watch/record-only items.
+  - 63 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
-    direct-deaths grave-rise + AD_WRAP couatl naming rows (one
-    slice), the iced-span land mine row and the paranoid-swim row.
+    iced-span land mine row and the paranoid-swim row; the
+    buzz_killer() death-ray naming row (session 186, a port gap)
+    needs no ruling.
     Also plannable without a ruling: session 177's terrain-effects
     coverage row, the Phase 6 set_whereisfile() BUG-603 row and
     session 185's Armor_on() landing and polymorph-over-a-hole rows.
@@ -54,8 +55,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     refused-shove and engulfed-hero split rows in session 182, and
     the ucatchgem() helplessness and mon_killer_name() priest /
     minion / shopkeeper naming rows in session 183, the aasimar
-    announce-on-rehumanize row in session 184, and the "lighter than
-    air", wings-in-form and polymorph sex-naming rows in session 185.
+    announce-on-rehumanize row in session 184, the "lighter than
+    air", wings-in-form and polymorph sex-naming rows in session 185,
+    and the direct-deaths grave-rise and AD_WRAP couatl naming rows
+    in session 186.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -86,22 +89,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 184 the "lighter than air" arm row, the wings-judged-by-
     form row and the polymorph sex-naming row; session 185 the
     Armor_on() landing row and the Infidel opening "You were wearing
-    the Amulet of Yendor." row (needs a trace).
-- Latest slice: 2026-10-05 (session 185 follow-up) THE ANGELIC WINGS
-  BELONG TO THE AASIMAR BODY; WINGS THAT COME BACK ARE TOLD (code
-  (hash pending), tracker (hash pending); BUG-2148..2149).
-  - An aasimar polymorphed into a wingless form (jackal, dwarf lord)
-    no longer flies at all; its own wings return with its own form.
-  - Returning to normal form from a wingless form: "Your angelic /
-    demonic wings unfurl from your back." (+ "You fold your wings
-    under your suit." in a hard suit).
-  - Detail: the two closed BUG-2148 / BUG-2149 LOW rows.
-- Previous slice: 2026-10-05 (session 185) AASIMAR WINGS FOLD UNDER
+    the Amulet of Yendor." row (needs a trace); session 186 the
+    ranged / remote / indirect kill credit row (needs a ruling), the
+    buzz_killer() death-ray naming row, the STRANGLED engulfer-blame
+    row and the "nothing left" deaths' corpse row.
+- Latest slice: 2026-10-06 (session 186) A MONSTER'S DIRECT KILL IS
+  ITS KILL; NOTHING RISES FROM A DESTROYED BODY (code (hash pending),
+  tracker (hash pending); BUG-2150..2155).
+  - Drowning, the XL1 drain, touch of death, Vecna's gaze, brain
+    eating, seduction, the drow tainted rider, Orcus and Grimtooth
+    now credit the killer (bones looting) and raise the hero as its
+    melee kill would (XL22+: a spectre).
+  - Beheading, incineration, dissolving, disintegration and Medusa
+    record the killer but raise nothing; sentient_arise() no longer
+    revives a beheaded, incinerated, disintegrated or stoned hero.
+  - Reasons name the killer in full ("drowned in a pool of water by a
+    couatl of Tyr", "petrified by a chameleon imitating a
+    cockatrice"); the poisonous hide reads "poisoned by".
+  - Detail: the two closed session-181 / session-183 LOW rows.
+- Previous slice: 2026-10-05 (session 185 follow-up) THE ANGELIC
+  WINGS BELONG TO THE AASIMAR BODY; WINGS THAT COME BACK ARE TOLD
+  (code 07d845689, tracker 930599924; BUG-2148..2149); detail in the
+  two closed BUG-2148 / BUG-2149 LOW rows.
+- Earlier slices: 2026-10-05 (session 185) AASIMAR WINGS FOLD UNDER
   HARD ARMOR IN ANY FORM (half (a) superseded by BUG-2148);
   "LIGHTER THAN AIR" ONLY WHEN TRUE; NO REDUNDANT "MALE" / "FEMALE"
   BEFORE GENDERED FORM NAMES (code b77719068, tracker f8ae42345;
-  BUG-2145..2147); detail in the three closed session-184 LOW rows.
-- Earlier slices: 2026-10-05 (session 184) AASIMAR CHANGES MADE WHILE
+  BUG-2145..2147); 2026-10-05 (session 184) AASIMAR CHANGES MADE WHILE
   POLYMORPHED ARE TOLD ON REVERTING; DRAGON-MERGED WINGS FOLD UNDER A
   HARD SUIT AGAIN (code abb823646, tracker 88fb7641d;
   BUG-2143..2144); 2026-10-05 (session 183) HELPLESS UNICORNS DON'T
@@ -955,7 +969,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 | worn_slot_exempt (poly_obj/worn_slot_sanity) | gw | transient diagnostic exemption, Null between moves, never saved; g_init_w resets it per game (better than master's bare global) |
 | exploder (explode attribution) | ge | transient, save/restore bracketed per explode() call, m_detach clears; never saved (gb.buzzer precedent) |
 | thrower (missile attribution) | gt | transient, bracketed per m_throw/thrwmu flight, m_detach clears; never saved (gb.buzzer precedent) |
-| ukiller (bones looting) | gu | transient death-sequence pointer set beside the killer text in done_in_by()/touch_of_death()/gaze/Orcus, cleared by savelife()/sentient_arise()/m_detach() and savebones()'s dead-killer check; never saved (gb.buzzer precedent) |
+| ukiller (bones looting) | gu | transient death-sequence pointer set by done_in_by() and, for a monster's direct kill with its own death reason, by set_monster_killer() / set_monster_killer_hp() / mon_drains_level() (2026-10-06) right before the done() or the fatal losehp() / losexp(); cleared by savelife()/sentient_arise()/m_detach()/clear_monster_killer() and savebones()'s dead-killer check; you_sanity_check() reports one left set during play; never saved (gb.buzzer precedent) |
 
 ### Content data
 
@@ -14549,7 +14563,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       #steal PRE robbed Izchak / POST refused, m_monnam() and clone
       name and livelog PRE random / POST stored. Paniclogs clean. Full
       record: BUGFIXES_ARCHIVE BUG-2139..2142.
-- [ ] LOW: the AD_WRAP drown and lava death reasons name a minion
+- [x] LOW: the AD_WRAP drown and lava death reasons name a minion
+      couatl by bare species (BUG-2151) - FIXED 2026-10-06 (session
+      186, commit (hash pending), tracker (hash pending), landed
+      2026-10-06; closure notes at the end of this row). Original text:
+      LOW: the AD_WRAP drown and lava death reasons name a minion
       couatl by bare species (minted 2026-10-05, session 183, by the
       Plan agent and reviewer; master-shared). uhitm.c's AD_WRAP arm
       writes "%s by %s" ("pool of water" / "moat") and "incinerated
@@ -14570,6 +14588,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       named direct-death sites go through mon_killer_name() ("drowned
       in a moat by a couatl of Mitra"). Plannable as one slice with
       that row.
+      CLOSURE (2026-10-06, session 186, plan
+      /root/.claude/plans/bugfix-monster-direct-death-credit.md). FIX
+      (BUG-2151, src/uhitm.c, src/mhitu.c): mon_killer_name() at the
+      AD_WRAP drowning, lava-pull and larva-burrow reasons, AD_BHED's
+      "decapitated by", the passive disintegrating hide, the engulf and
+      gaze disintegrations and Medusa's gaze; the delayed stoning
+      (do_stone_u(), beholder / Tal'Gath gaze) and sliming (AD_SLIM)
+      killers take its articled name with KILLED_BY. l_monnam()'s "an
+      it", hallucinated names and "an Asidonhopo" are gone; a
+      christened monster's "called X" is dropped, as in the ranged
+      reasons. BATTERY (game-tester A / C, PRE
+      d55b77eacd6d4414f837871d1736a594 / POST
+      0775cd6e7dceae17ce1350085c10be43): A2 minion couatl PRE "pool of
+      water by a couatl" / POST "pool of water by a couatl of Tyr"; C2
+      chameleon in cockatrice form PRE "cockatrice" KILLED_BY_AN / POST
+      "a chameleon imitating a cockatrice" KILLED_BY, a plain
+      cockatrice "petrified by a cockatrice" on both; C7 "a green
+      slime" / "a chameleon imitating a green slime". Paniclogs clean.
 - [x] LOW: poisoned-weapon and sting death reasons name the bare
       species (BUG-2131) - FIXED 2026-10-04 (session 181, commit
       `Fix: monster melee poison deaths are that monster's kill.` =
@@ -14685,7 +14721,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       lookup"); C4 repeated A1 on the final binary, identical. Paniclog
       clean throughout. RECORDED: the other
       monster-caused direct deaths - minted as the LOW row below.
-- [ ] LOW: other monster-caused direct deaths skip the grave-rise
+- [x] LOW: other monster-caused direct deaths skip the grave-rise
+      arms (BUG-2150; BUG-2152..2155 folded in) - FIXED 2026-10-06
+      (session 186, commit (hash pending), tracker (hash pending),
+      landed 2026-10-06; closure notes at the end of this row).
+      Original text: LOW: other monster-caused direct deaths skip the
+      grave-rise
       arms (minted 2026-10-04, session 181, by the poison slice's Plan
       agent and reviewer; master-shared). set_ugrave_arise() runs only
       from done_in_by(), poisoned()'s poisoner path and the larva
@@ -14715,6 +14756,102 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       through mon_killer_name() (the AD_WRAP couatl naming row). The
       passive poisonous hide's DIED vs POISONING was not asked; settle
       it in the plan. Plannable as one slice with the naming row.
+      CLOSURE (2026-10-06, session 186, plan
+      /root/.claude/plans/bugfix-monster-direct-death-credit.md).
+      RULED this session (AskUserQuestion x1, both recommended,
+      decisions log): NO BODY, NO RISE - beheading, incineration
+      (Sunsword, Hammer, Angelslayer, the lava pull), Harbinger's
+      dissolving, every disintegration and Medusa's stoning record the
+      killer but raise nothing, and sentient_arise() refuses those
+      deaths; the passive hide / green-dragon-scaled armor instakill
+      uses POISONING. FIX (BUG-2150, src/end.c, src/exper.c, the
+      sites): set_monster_killer(mtmp, rises) right before each
+      done(); set_monster_killer_hp() before a losehp() with its own
+      reason, crediting only a loss fatal to the unpolymorphed hero
+      (mdamageu()'s rule); clear_monster_killer() in the two mcastu.c
+      brackets; mon_drains_level() for the XL1 drain. RISE: drowning,
+      the XL1 drain (melee, drain blades, seduction "overexertion"),
+      touch of death, strength loss, Vecna's gaze, brain eating,
+      Orcus, Grimtooth, seduction "exhaustion", the drow tainted
+      rider, the black fungus passive. KILLER ONLY: the beheadings,
+      lava pull, incinerations, Harbinger, immolation, the
+      disintegrations, Medusa. FOLDED IN: BUG-2152 (sentient_arise()
+      guard - closes the existing XL22+ black-dragon-scaled armor
+      disintegration and cockatrice-touch stoning revivals), BUG-2153
+      (hide POISONING), BUG-2154 (a life-saved larva burrow no longer
+      deals the gone larva's damage), BUG-2155 (you_sanity_check()
+      reports a death credit left set during play). Plan agent
+      CONDITIONAL PASS (all folded in; power word kill left out:
+      cast from anywhere on the level), reviewer PASS (NIT x4 folded
+      in). BATTERY (game-tester x3 concurrent, PRE
+      d55b77eacd6d4414f837871d1736a594 / POST
+      0775cd6e7dceae17ce1350085c10be43, final
+      057f267774078fce1f0c76cfa8311bac = POST + comment / attribute
+      NITs; 24 legs, all PASS): A1 giant eel drowning at XL22 POST
+      spectre + ukiller (PRE -1 / 0); A3 lava pull and A4 vorpal
+      jabberwock beheading POST ukiller, ugrave -1; A5 cockatrice-touch
+      stoning and C5 black-dragon-scaled armor disintegration at XL22+
+      Luck 13 PRE "Your soul does not leave your corpse.  You turn into
+      a spectre!" / POST refused; A6 larva burrow + life saving PRE
+      130 -> 128 HP from the gone larva / POST none; B1 wraith XL1
+      drain POST wraith; B2 survived drain then an unrelated death: no
+      credit; B3 lich touch of death (both arms) and B4 Vecna's gaze
+      POST revenant; B5 seduction exhaustion, B6 brain eating and B7
+      drow tainted rider at XL22 POST spectre + ukiller; polymorphed
+      controls (A4, B3c, B5b) revert with nothing set; C1 PRE "killed
+      by a green dragon" / POST "poisoned by a green dragon"; C3
+      Medusa, C4 antimatter vortex, C6 monster-wielded Vorpal Blade
+      POST ukiller. Paniclogs clean, no detector line (a probe
+      confirmed it runs every turn). MINTED: the four LOW rows below.
+- [ ] LOW: ranged, remote and indirect monster kills skip the
+      killer credit and the grave-rise arms (minted 2026-10-06,
+      session 186, by the direct-death slice's census; master-shared).
+      The direct-death slice took melee-class kills only (session
+      181's scope rule). Still uncredited: monster missiles and polearm
+      thrusts (mthrowu.c thitu(), m_throw()'s poison and tainted
+      missiles), rays and breath (zap.c zhitu(), incl. the drain ray
+      and the death ray), wand beams and their spells (muse.c mbhitm(),
+      incl. drain life, striking, dispel evil, undead turning), monster
+      spell explosions and artifact surges (explode.c, ge.exploder is
+      known), power word kill (muse.c mcast_nodir_spell(), cast from
+      anywhere on the level with no line of sight), mind_blast, a gas
+      cloud's creator (region.c creator_mid), thrown potions
+      (potionhit()), and indirect consequences of an attack - AD_POLY
+      system shock, Famine's starvation, AD_PITS pits, boiled potions,
+      knockback into hazards, theft of levitation gear; delayed deaths
+      whose monster is forgotten (stoning, sliming, sickness,
+      withering) cannot be credited without new state. Decide per
+      class: credit + rise (set_monster_killer() / _hp() exist), or
+      record only. LOW.
+- [ ] LOW: master's buzz_killer() naming of a fatal death ray or
+      disintegration breath is absent (minted 2026-10-06, session 186,
+      by the direct-death slice's master census). Master zhitu() names
+      the zapper / breather ("... exhaled by <monster>") on the
+      done(DIED) / done(DISINTEGRATED) path; the branch writes the bare
+      beam name ("death ray", "blast of disintegration"), as vanilla 5.0
+      does, although gb.buzzer is set by every monster ray source
+      (muse.c, mthrowu.c, mcastu.c; 0 for god lightning, storms and
+      traps; may be dead). The non-fatal-path losehp() reasons already
+      go through death_inflicted_by(). Port gap; restore master's naming
+      (mon_killer_name()). LOW.
+- [ ] LOW: the STRANGLED timeout blames an engulfer for any
+      strangulation while engulfed (minted 2026-10-06, session 186,
+      census; master-shared). timeout.c's STRANGLED arm writes
+      "suffocated by <u.ustuck>" whenever u.uswallow, even when an
+      amulet of strangulation started the timer and the engulfer is,
+      say, a purple worm. An engulfer-suffocation kill (gulpmu()
+      AD_WRAP sets Strangled) is also uncredited and raises nothing;
+      that waits on telling the two causes apart. LOW.
+- [ ] LOW: "nothing left" deaths still leave a corpse (minted
+      2026-10-06, session 186, by the direct-death slice's reviewer;
+      master-shared). really_done()'s no-corpse list covers BURNING,
+      DISSOLVED and DISINTEGRATED only, so Harbinger's "dissolved by",
+      Angelslayer's and the lava pull's "incinerated" and both
+      "immolation" arms (all DIED through losehp() / done()) and
+      Sunsword / Hammer of the Gods INCINERATED leave a corpse and a
+      grave (nothing rises from it since BUG-2150 / BUG-2152). Decide:
+      give these deaths a no-corpse cause (or add INCINERATED to the
+      list), or record only. LOW.
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
@@ -19366,8 +19503,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master's opening and whether a wizkit or the pauper path is
       involved. LOW (message only).
 - [x] LOW: an aasimar's angelic wings flew in every polymorph form
-      (BUG-2148) - FIXED 2026-10-05 (session 185, commit (hash
-      pending), tracker (hash pending), landed 2026-10-05). Minted and
+      (BUG-2148) - FIXED 2026-10-05 (session 185, commit `Fix: angelic
+      wings belong to the aasimar body; returning wings told.` =
+      07d845689, tracker 930599924, landed 2026-10-05). Minted and
       fixed the same day from a maintainer report after b77719068: "as
       an aasimar, if I am polymorphed into say a jackal and I reach
       exp level 15, I still show that I am flying. That should not be,
@@ -24994,6 +25132,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-06 | Direct-death credit slice rulings (session 186; AskUserQuestion x1, two questions, both recommended). (1) NO BODY, NO RISE: a death that destroys the body - beheading (AD_BHED, Vorpal Blade), incineration (Sunsword, Hammer of the Gods, Angelslayer, the AD_WRAP lava pull), Harbinger's dissolving, every disintegration, Medusa's stoning - records the killing monster (gu.ukiller, bones looting) but raises nothing, and sentient_arise() refuses DECAPITATED / INCINERATED / DISINTEGRATED / STONING / BURNING / DISSOLVED (closing the existing XL22+ black-dragon-scaled-armor disintegration and cockatrice-touch stoning revivals); every other ruled direct death rises. Asked as the model question first (can a destroyed body rise?), per the session 185 lesson. Rejected: rise as ruled with a disintegration / stoning guard only. (2) PASSIVE POISONOUS HIDE / GREEN DRAGON-SCALED ARMOR INSTAKILL: POISONING ("poisoned by a green dragon"), as a monster's melee poison instakill, over master's and 5.0's DIED. Scope rule restated (session 181): melee-class kills only (melee, touch, gaze, engulf, hug, passive, seduction, touch-range spells); ranged, remote (power word kill) and indirect kills minted as a row | maintainer |
 | 2026-10-05 | Angelic / demonic wings in forms (session 185, maintainer report after b77719068 + AskUserQuestion x1, two questions, both recommended). (1) THE ANGELIC WINGS BELONG TO THE AASIMAR BODY: an aasimar's racial flight (clean XL15+) gives no flight in ANY polymorph form - supersedes the session-184 "fold in any form" ruling's half (a) as b77719068 implemented it (racial wings kept and folded in every form); half (b) stays (a low-level or abused aasimar in a big-winged form is blocked by a hard suit like a human). Master keeps the flight in forms; illithid / vampire XL12 racial flight (not wings) is unchanged. (2) WINGS THAT COME BACK ARE TOLD: returning to normal form from a form without big wings prints "Your angelic wings unfurl from your back." / "Your demonic wings unfurl from your back." (crowned Infidel) every time, also while levitating, plus "You fold your wings under your suit." when a hard suit folds them; nothing is said when the wings go ("You turn into a jackal!" covers it). Rejected: "...wings return.", reusing the wardrobe lines only (silent while levitating), a line on losing the wings | maintainer |
 | 2026-10-05 | Pending ruling rows (session 184 follow-up; AskUserQuestion x2, six questions, all recommended; rulings only, code in future sessions). (1) DIRECT MONSTER-CAUSED DEATHS: RISE + FULL NAMES - set_ugrave_arise() and gu.ukiller before each done() (AD_WRAP drowning / lava, AD_BHED beheading, the XL1 drain, the touch of death, brain eating, monster-wielded artifact kills, seduction exhaustion, the drow tainted rider), custom reasons kept, species-named reasons through mon_killer_name() ("by a couatl of Mitra"); one slice with the AD_WRAP couatl naming row. (2) LAND MINE ON AN ICED RAISED SPAN: DESTROY THE BRIDGE via destroy_drawbridge(), as a lowered-bridge mine. (3) PARANOID SWIM: MASTER'S EXACT SHAPE - "Really enter the water / lava?" with master's decline penalty, and swim OFF by default again. (4) "LIGHTER THAN AIR": ONLY WHEN IT'S TRUE - rehumanize()'s line prints only if the hero flies after reverting. (5) RACIAL WINGS WHILE POLYMORPHED: FOLD IN ANY FORM - hard body armor blocks active racial wings whatever the form; the aasimar level / abuse gate applies to the racial wings only. (6) POLYMORPH SEX-CHANGE TEXT: DROP THE REDUNDANT PREFIX on forms with gendered names; upstream's gender-based title stays. | maintainer |
 | 2026-10-05 | Unicorn-catch / killer-name slice ruling (session 183; AskUserQuestion x1, one question, recommended). MELEE SHOPKEEPER NAME: FIX MELEE TOO - done_in_by() records the true shopkeeper name while the hero hallucinates (shkname() picks a random one while Hallucination && !program_state.gameover, and death reasons are built before gameover), through one helper shared with the ranged mon_killer_name() names, over "ranged only, mint a row"; the "hallucinogen-distorted" prefix stays. The ranged names keep done_in_by()'s "Mr. " / "Ms. " honorific (the 2026-10-04 ruling's example text omitted it; its operative words were "as done_in_by() names them"). Reviewer siblings of the same root cause folded in under the cross-file-siblings rule (no question): shkinit()'s Izchak kit test and #steal's Izchak exemption, x_monnam()'s exact-name shopkeeper branch (m_monnam(), livelog_mon_nam()), clone_mon()'s shopkeeper clone name - all through shkname_real(); shk.c message text keeps the hallucinated name. | maintainer |
