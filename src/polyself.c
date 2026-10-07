@@ -226,7 +226,12 @@ set_uasmon(void)
 void
 float_vs_flight(void)
 {
-    boolean stuck_in_floor = (u.utrap && u.utraptype != TT_PIT);
+    /* a hold lasts until set_utrap() or reset_utrap() clears its type:
+       an escape that counts u.utrap down to 0 tells of it before calling
+       reset_utrap(), and the status update for that message must not
+       lift the block before reset_utrap() can report the change */
+    boolean stuck_in_floor = (u.utraptype != TT_NONE
+                              && u.utraptype != TT_PIT);
 
     /* floating overrides flight; so does being trapped in the floor */
     if ((HLevitation || ELevitation)

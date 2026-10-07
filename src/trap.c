@@ -4710,9 +4710,12 @@ float_up(void)
             You("feel lighter, but your %s is still chained to the %s.",
                 body_part(LEG),
                 IS_ROOM(levl[cc.x][cc.y].typ) ? "floor" : "ground");
-        } else if (u.utraptype == WEB) {
+        } else if (u.utraptype == TT_WEB) {
             You("float up slightly, but you are still stuck in the %s.",
                 trapname(WEB, FALSE));
+        } else if (u.utraptype == TT_ENTANGLED) {
+            You("float up slightly, but you are still entangled by %s.",
+                nexttotree(u.ux, u.uy) ? "a tree" : "vegetation");
         } else { /* bear trap */
             You("float up slightly, but your %s is still stuck.",
                 body_part(LEG));
@@ -4991,11 +4994,12 @@ land_deferred(void)
         || Levitation || Flying /* aloft again */
         || u.uswallow           /* expels() lands the hero */
         /* already down: lava, a web, a pit. Entangling grass holds the
-           hero on the ground it grows from, so a flyer it caught still
-           lands (cast_entangle()); a tree's branches hold the hero where
-           they are until they let go */
-        || (u.utrap && (u.utraptype != TT_ENTANGLED
-                        || nexttotree(u.ux, u.uy)))
+           hero on the ground it grows from, and a buried iron ball's
+           chain on the ground it lies in, so a flyer either one caught
+           still lands (cast_entangle(), bury_an_obj()); a tree's
+           branches hold the hero where they are until they let go */
+        || (u.utrap && u.utraptype != TT_BURIEDBALL
+            && (u.utraptype != TT_ENTANGLED || nexttotree(u.ux, u.uy)))
         || u.utotype)           /* leaving; the new level is arrival */
         return;
     /* float_down() won't land a held hero: it reports the hold, and its

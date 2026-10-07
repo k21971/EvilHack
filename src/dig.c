@@ -2141,9 +2141,16 @@ bury_an_obj(struct obj *otmp, boolean *dealloced)
     if (dealloced)
         *dealloced = FALSE;
     if (otmp == uball) {
+        boolean aloft = (Levitation || Flying);
+
         unpunish();
         set_utrap((unsigned) rn1(50, 20), TT_BURIEDBALL);
         pline_The("iron ball gets buried!");
+        /* the chain now holds a flying or floating hero to the ground
+           (float_vs_flight()); land once the caller's walk over the
+           objects here is done, as for a flyer caught by grass */
+        if (aloft && !Levitation && !Flying)
+            defer_landing(LANDING_FLY);
     }
     /* after unpunish(), or might get deallocated chain */
     otmp2 = otmp->nexthere;

@@ -1437,9 +1437,12 @@ check_flight_landing(boolean was_flying)
             defer_landing(LANDING_FLY);
             return;
         }
+        /* a levitator comes through here when a hold (grass, a buried
+           iron ball's chain) keeps the levitation down */
         You("%s.", (is_pool_or_lava(u.ux, u.uy) || is_open_air(u.ux, u.uy)
                     || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
-                      ? "stop flying"
+                      ? ((HLevitation || ELevitation) ? "stop levitating"
+                                                      : "stop flying")
                       : "land");
         spoteffects(TRUE);
     }

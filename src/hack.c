@@ -1631,7 +1631,9 @@ trapmove(
         return TRUE; /* sanity check */
 
     /*
-     * Note: caller should call reset_utrap() when we set u.utrap to 0.
+     * Note: caller should call reset_utrap() when we set u.utrap to 0;
+     * until then the hold's type keeps flight and levitation blocked
+     * (float_vs_flight()), so that reset_utrap() can report them.
      */
 
     switch (u.utraptype) {
@@ -1747,8 +1749,13 @@ trapmove(
             else
                 You("finally %s free.",
                     !anchored ? "wriggle" : "wrench the ball");
-            if (anchored)
+            if (anchored) {
+                /* unearthing the ball ends the hold quietly; end it
+                   here first so that resumed flight or levitation is
+                   reported */
+                reset_utrap(TRUE);
                 buried_ball_to_punishment();
+            }
         }
         break;
     case TT_ENTANGLED:
