@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-06, after session 188): 322
-  rows closed, 91 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-07, after session 189): 325
+  rows closed, 93 open. Of the open rows:
   - 6 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
     pet-helper AI, the held artifact pokedex tips, timed see
@@ -34,7 +34,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 69 LOW: small parity rows, quirks and watch/record-only items.
+  - 71 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -44,11 +44,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     corpse row (no corpse for all), and the hallucinated-color
     article row with the "A inky potion" row (An() everywhere).
     Also plannable without a ruling: session 177's terrain-effects
-    coverage row, the Phase 6 set_whereisfile() BUG-603 row, and
-    session 188's TT_BURIEDBALL landing row, float_up() WEB constant
-    row and silent vine release row. Needing a ruling (session 188):
-    the item-flying steed row and the held flyer's heaven teleport
-    row; the untamed kitten row needs a trace.
+    coverage row and the Phase 6 set_whereisfile() BUG-603 row.
+    Needing a ruling: the item-flying steed row (with session 189's
+    rider note) and the held flyer's heaven teleport row (session
+    188); the #jump-while-entangled row and the drag_ball() vines
+    row's wording (session 189). Session 189's other silent hold
+    clears row needs per-site message-order calls. The untamed kitten
+    row needs a trace.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
@@ -66,6 +68,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     air", wings-in-form and polymorph sex-naming rows in session 185,
     and the direct-deaths grave-rise and AD_WRAP couatl naming rows
     in session 186.
+    The TT_BURIEDBALL landing, float_up() WEB constant and silent
+    vine release rows landed in session 189.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -106,33 +110,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     article row (ruled 2026-10-06); session 188 the item-flying steed
     row, the landing re-fire row, the TT_BURIEDBALL row, the held
     flyer's heaven teleport row, the float_up() WEB constant row, the
-    silent vine release row and the untamed kitten row.
+    silent vine release row and the untamed kitten row; session 189
+    the other silent hold clears row, the tree-held buried-ball row,
+    the #jump-while-entangled row, the drag_ball() vines row and the
+    roots / branches naming row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-06 (session 188) VINES HOLD FLYERS IN PLACE;
+- Latest slice: 2026-10-07 (session 189) HOLD RELEASES TELL OF THE
+  LIFT THEY GIVE BACK; A BURIED BALL'S CHAIN LANDS A HOVERING HERO
+  (code (hash pending), tracker (hash pending); BUG-2173..2177).
+  - A levitator let go by vines, a bear trap or a web now reads "You
+    start to float in the air!" after the release line; wrenching a
+    buried ball free tells of the levitation or flight it gives back.
+  - A webbed or entangled hero starting to levitate reads "...still
+    stuck in the web." / "...still entangled by a tree." / "...by
+    vegetation." instead of the bear-trap line.
+  - Burying the iron ball under a flyer or levitator pulls them down
+    ("You land."); the square then acts as if walked onto - a hole
+    drops them with the ball, a trap fires, water drowns. Ruled this
+    session, with "You stop levitating." for a held-down levitator.
+  - Detail: the closed TT_BURIEDBALL landing row.
+- Previous slice: 2026-10-06 (session 188) VINES HOLD FLYERS IN PLACE;
   DE-WINGED STEEDS LAND; ONE TRAP PASS AFTER A CRAWL-OUT (code
-  3faae801f, tracker (hash pending); BUG-2165..2172).
-  - A tree's branches hold a flying or levitating hero where they are
-    (over water, a hole or open air too) until they let go; then the
-    hero flies on, or drops at once if the flight ran out meanwhile.
-    Grass alone pulls a flyer down ("You land."). Ruled this session
-    after the maintainer reconsidered catch + land.
-  - A ridden flyer polymorphed into a non-flyer over a floor trap
-    brings the pair down onto it; the status line drops "Fly" at once.
-  - Crawling out of water after levitation ends meets the new
-    square's trap and objects once, not twice.
-  - Also: no fly-out / fall-in loop for a held amulet flyer under
-    water; no false landing for a flyer already under water; no "You
-    float up slightly" for a trap-held levitator on a terrain change;
-    entangle can't replace a lava or buried-ball hold; open-air
-    wording per the session 188 ruling.
-  - Detail: the closed ridden steed landing row.
-- Previous slice: 2026-10-06 (session 187) LOSING FLIGHT OR LEVITATION
+  3faae801f, tracker c048e521d; BUG-2165..2172); detail in the closed
+  ridden steed landing row.
+- Earlier slices: 2026-10-06 (session 187) LOSING FLIGHT OR LEVITATION
   ALWAYS LANDS THE HERO (code ca7b63f03, tracker d1f75db64;
-  BUG-2156..2164); detail in the closed Armor_on() landing row.
-- Earlier slices: 2026-10-06 (session 186) A MONSTER'S DIRECT KILL IS
+  BUG-2156..2164; detail in the closed Armor_on() landing row);
+  2026-10-06 (session 186) A MONSTER'S DIRECT KILL IS
   ITS KILL; NOTHING RISES FROM A DESTROYED BODY (code 497eb05a4,
   tracker 3246b90fd; BUG-2150..2155; detail in the two closed
   session-181 / session-183 LOW rows); 2026-10-05 (session 185
@@ -19636,7 +19643,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       not land the pair (BUG-2166; BUG-2165 and BUG-2167..2172 in the
       same slice) - FIXED 2026-10-06 (session 188, commit `Fix: vines
       hold flyers; de-winged steeds land; one trap pass.` = 3faae801f,
-      tracker (hash pending), landed 2026-10-06; closure
+      tracker c048e521d, landed 2026-10-06; closure
       notes at the end of this row).
       Original text: LOW: a ridden steed that stops flying under a
       mounted hero does
@@ -19746,7 +19753,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       MINTED: the seven LOW rows after the "A inky potion" row.
 - [x] LOW: TT_ENTANGLED grounds a flyer over a hazard (BUG-2167;
       BUG-2172 with it) - FIXED 2026-10-06 (session 188, commit
-      3faae801f, tracker (hash pending), landed 2026-10-06; closure
+      3faae801f, tracker c048e521d, landed 2026-10-06; closure
       notes on the ridden steed row above). RE-RULED 2026-10-06
       (session 188, decisions log; supersedes the CATCH + LAND ruling
       below, which the slice first implemented and batteries A-D
@@ -19784,7 +19791,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pickup / trap pass there). LOW.
 - [x] LOW: float_down() fires a trap twice after a crawl-out (BUG-2165)
       - FIXED 2026-10-06 (session 188, commit 3faae801f, tracker
-      (hash pending), landed 2026-10-06; closure notes on the ridden
+      c048e521d, landed 2026-10-06; closure notes on the ridden
       steed row above: float_down() records its landing square after
       the Punished yank and returns when drown() / lava_effects() moved
       the hero, except while dismounting, where it is the only pass;
@@ -19821,6 +19828,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       steed keep its rider up everywhere (one "steed keeps the rider
       up" predicate, maybe in Flying / Levitation), or nowhere. LOW
       (needs a ruling).
+      RIDER NOTE 2026-10-07 (session 189, battery B8): the Flying macro
+      gates even the is_flyer() steed term on `!(BFlying & ~W_ARMOR)`,
+      and a hold sets BFlying's I_SPECIAL when the rider has their OWN
+      flight or levitation; so a rider chained to a buried iron ball on
+      a pegasus keeps "Fly Ride" with no own source but is grounded
+      with the steed ("You land.", status "Ride") wearing an amulet of
+      flying. Fold into the same ruling.
 - [ ] LOW: a spoteffects() landing re-fires a non-floor trap the
       hovering hero already met (minted 2026-10-06, session 188, Plan
       agent; record unless reached in play). check_in_air() exempts
@@ -19830,8 +19844,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       deferred spoteffects(), grass pulling a flyer down, a release
       drop) meets it again. The
       steed landing (BUG-2166) is limited to floor triggers for this
-      reason. LOW.
-- [ ] LOW: TT_BURIEDBALL grounds a flyer without a landing (minted
+      reason. LOW. Session 189: the buried-ball landing (BUG-2176) is one
+      more pass that can reach it.
+- [x] LOW: TT_BURIEDBALL grounds a flyer without a landing (BUG-2176;
+      BUG-2173..2175 and BUG-2177 in the same slice) - FIXED 2026-10-07
+      (session 189, commit `Fix: hold releases report lift; the chain
+      lands a hovering hero.` = (hash pending), tracker (hash pending),
+      landed 2026-10-07; closure notes at the end of this row).
+      Original text: LOW: TT_BURIEDBALL grounds a flyer without a
+      landing (minted
       2026-10-06, session 188, reviewer pass 1; master-shared). dig.c
       bury_an_obj(uball) -> set_utrap(TT_BURIEDBALL) blocks Flying and
       Levitation through float_vs_flight() with no landing, and
@@ -19840,6 +19861,55 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       sank in while hovering beside it. The pool net catches water;
       holes, open air and floor traps stay hovered. Same class as
       BUG-2167, a different hold ("chain"). Plannable. LOW.
+      CLOSURE (plan /root/.claude/plans/bugfix-hold-release-and-tether-
+      landing.md; session 188's three plannable hold rows). RULINGS
+      2026-10-07 (AskUserQuestion, all recommended; decisions log): the
+      chain PULLS A HOVERING HERO DOWN AND LANDS them (the tether is a
+      ground hold: float_vs_flight() "the floor is reachable",
+      goto_level() "tethered movement makes level change while trapped
+      feasible"); an entangled hero starting to levitate reads "...still
+      entangled by a tree." / "...by vegetation."; a held-down levitator
+      landing over water / lava / open air reads "You stop levitating.".
+      DESIGN: BUG-2173 float_vs_flight() keys the hold on u.utraptype
+      (a hold lasts until set_utrap() / reset_utrap() clears its type),
+      curing every release told before its reset (the vine release,
+      trapmove()'s bear-trap / web / Sting / lava / floor escapes);
+      BUG-2174 trapmove()'s wrench-free arm resets with TRUE before
+      buried_ball_to_punishment()'s silent reset; BUG-2175 float_up()
+      TT_WEB plus the TT_ENTANGLED arm; BUG-2176 bury_an_obj() samples
+      aloft before set_utrap() and defers LANDING_FLY, land_deferred()
+      lets a TT_BURIEDBALL hold through; BUG-2177
+      check_flight_landing()'s "stop levitating". Plan agent: confirmed
+      every mechanism and the census (set_utrap() the only type writer,
+      every u.utrap-zeroing gap closed by a reset), BUG-2174's
+      every-time shape, the rider correction (note on the item-flying
+      steed row). REVIEW: PASS (LOW x4: wider silent-clear census ->
+      minted row; a tree-held hero missed by the aloft sample -> minted
+      row, benign; the do_wear.c comment overclaim -> fixed; a boulder
+      push lands through the move's own spoteffects() without "You
+      land." -> documented). BATTERIES (game-tester A and B concurrent;
+      PRE 41b97e1d96ee5099baeb64567b991121 = c048e521d code, POST
+      7cd36e86fa3f800bfcd98bfa1412cbca; final
+      f30cbd2c1254aeb321595ca9bdbf30ac = POST plus a comment, .text
+      identical): A1-A7 and B1-B10 all PASS on POST and PRE reproduced
+      every row. A: grass / tree releases of a levitator "The vegetation
+      releases you.  You start to float in the air!" (PRE the line
+      alone); flyer "You can fly." on both; bear-trap and web escapes
+      told on POST every time (PRE told a bear-trap escape only when
+      another line had redrawn the status in the same struggle, a web
+      escape never); "...still stuck in the web." / "...entangled by
+      vegetation." / "...by a tree." (PRE the bear-trap line). B: over
+      floor "You land." before the next prompt; over a hole "You land.
+      There's a gaping hole under you!", "The iron ball falls on your
+      head." and Dlvl2 Punished again; a squeaky board squeaks; over a
+      moat "You stop levitating." / "You stop flying." then drown() and
+      the crawl-out (PRE: the pool net only on the next timed action);
+      the freeze path "The iron ball gets buried!  The water freezes.
+      You land."; wrench free "...  You start to float in the air!" /
+      "...  You can fly."; grounded burial, ring / amulet on-off and a
+      raven polymorph while chained never "You land."; open air "You
+      stop levitating." and the plummet. Paniclogs clean. MINTED: the
+      five LOW rows after the vine-release row.
 - [ ] LOW: a held-down flyer level-teleported into the sky dies with
       "Unfortunately, you don't know how to fly." (minted 2026-10-06,
       session 188, reviewer pass 1; master-shared). teleport.c
@@ -19848,7 +19918,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       of the joke line ignores BUG-2169's no-source rule. Decide: does
       a held flyer survive the heavens (the hold cannot follow), and
       the wording. LOW (needs a ruling).
-- [ ] LOW: float_up() tests `u.utraptype == WEB` (minted 2026-10-06,
+- [x] LOW: float_up() tests `u.utraptype == WEB` (BUG-2175) - FIXED
+      2026-10-07 (session 189, commit (hash pending), tracker (hash
+      pending), landed 2026-10-07; closure notes on the TT_BURIEDBALL
+      row above: TT_WEB, plus a TT_ENTANGLED arm "You float up
+      slightly, but you are still entangled by a tree." / "... by
+      vegetation." - RULED 2026-10-07). The WEB constant is a drop-in
+      upstream patch (upstream table).
+      Original text: LOW: float_up() tests `u.utraptype == WEB` (minted
+      2026-10-06,
       session 188, Explore agent + reviewer pass 2; master- and
       upstream-shared). WEB is the trap-type enum (20), not TT_WEB (3),
       so the web arm never fires: a webbed hero who starts levitating
@@ -19856,7 +19934,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       stuck."; TT_ENTANGLED has no arm and gets the same text. Fix:
       TT_WEB (plus an entangle arm if wording is wanted - ask).
       Upstream-reportable. LOW.
-- [ ] LOW: the vines releasing a levitator say nothing (minted
+- [x] LOW: the vines releasing a levitator say nothing (BUG-2173;
+      BUG-2174 with it) - FIXED 2026-10-07 (session 189, commit (hash
+      pending), tracker (hash pending), landed 2026-10-07; closure notes
+      on the TT_BURIEDBALL row above). Not the fix candidate below:
+      float_vs_flight() keys the hold on u.utraptype, which cures the
+      same shape in every trapmove() escape too, and the release line
+      still comes first.
+      Original text: LOW: the vines releasing a levitator say nothing
+      (minted
       2026-10-06, session 188, battery D5; master-shared shape). On the
       release turn allmain.c decrements u.utrap to 0, prints "The
       vegetation releases you.", and only then calls reset_utrap(TRUE);
@@ -19867,6 +19953,65 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       for a flyer does print). Fix candidate: reset before the
       decrement reaches 0 (reset_utrap() while u.utrap is still 1, then
       the release line). Plannable. LOW.
+- [ ] LOW: other holds end silently and the lift comes back untold
+      (minted 2026-10-07, session 189, Plan agent + reviewer L1 +
+      battery B; master- and upstream-shared). Sites that clear a
+      levitation- or flight-blocking hold with reset_utrap(FALSE), so a
+      hero whose own levitation / flight the hold kept down gets it
+      back with no "You start to float in the air!" / "You can fly.":
+      buried_ball_to_punishment() itself and through it teleds() (the
+      crawl-out from water, battery B4; wizard ^T, battery B anomaly),
+      goto_level() (falling through a hole while chained, battery B2),
+      level_tele() and domagicportal() (they unearth the ball and may
+      then shudder and leave the hero in place), digactualhole() at the
+      hero's square (also its TT_INFLOOR reset), unearth_objs() (from
+      melt_ice(), maketrap(), liquid_flow()); savelife()'s lava reset
+      ahead of sink_into_lava()'s reset_utrap(TRUE); maketrap() at a
+      held hero's square; mkinvokearea(); the engulf release in
+      gulpmu(); sink_into_lava()'s "shouldn't happen" reset. Arrival
+      sites re-run spoteffects(), so only the line is missing. Each
+      needs its own message-order call (e.g. after "Pheew!  That was
+      close."). Related order note: remove curse's
+      buried_ball_to_freedom() tells the float before "The clasp on
+      your leg vanishes." (master order). LOW.
+- [ ] LOW: a hero held up by a tree's branches is not landed when the
+      iron ball is buried (minted 2026-10-07, session 189, reviewer
+      L2; master-shared). bury_an_obj() samples `aloft = (Levitation ||
+      Flying)`, which the TT_ENTANGLED hold already blocks, so
+      set_utrap(TT_BURIEDBALL) replaces the branches' hold with no
+      landing and allmain's release drop never runs (the type
+      changed). Needs: a Punished levitator or flyer held by branches,
+      the ball within one square in a pool or pit that freezes or is
+      filled during the 3-8 turn hold. Benign: over a hole or open air
+      the hero hangs until stepping off; over water the pool net drowns
+      them without the line. A correct test needs the lift as it would
+      be without the hold (a weight_cap()-style temporary unblock, or
+      allmain's over_drop / own-source test with its folded-wings
+      imprecision). Record unless reached in play. LOW.
+- [ ] LOW: #jump while entangled (minted 2026-10-07, session 189, Plan
+      agent; master-shared shape). apply.c jump()'s hold switch has no
+      TT_ENTANGLED case: the branch's 5.0 default arm hits
+      impossible("Jumping out of strange trap (7)?") and then frees the
+      hero; master (no default) frees the hero silently. trapmove()
+      says entanglement allows "no escape by struggling". Decide: does
+      a jump break vines (a "You rip free of the vegetation!" arm) or
+      fail like TT_INFLOOR ("You strain your legs, but you're still
+      entangled.")? LOW (needs a ruling; the impossible() is reachable
+      in play).
+- [ ] LOW: drag_ball() pulls the hero out of vines with no message
+      (minted 2026-10-07, session 189, Plan agent; master-shared).
+      ball.c drag_ball()'s hold switch has arms for pits, webs, lava and
+      bear traps ("The ball pulls you out of the ...!") but none for
+      TT_ENTANGLED, then reset_utrap(TRUE) frees the hero silently. Add
+      an arm (wording - ask), or keep the vines' "no escape by
+      struggling" and refuse the drag. LOW.
+- [ ] LOW: a grounded hero caught by a tree reads "roots" at the cast
+      and "branches" at the release, or the reverse (minted 2026-10-07,
+      session 189, battery A anomaly; master-shared). cast_entangle()
+      and allmain's release each roll rn2(2) for a hero on the ground
+      (session 188 fixed "branches" only for a hero caught in the air).
+      Consistent naming needs the cast's pick remembered (no field
+      today) or a stable roll. Cosmetic; record unless wanted. LOW.
 - [ ] LOW: a starting kitten turned untame and peaceful with no hero
       interaction (minted 2026-10-06, session 188, battery B anomaly on
       the POST build; seen once, not traced). Between T:16 and T:18 the
@@ -25339,7 +25484,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-06 | hack.c switch_terrain() `} else if (BLevitation) {` calls float_up() for ANY levitation block, including a trap's I_SPECIAL: a levitator tethered to a buried iron ball (TT_BURIEDBALL; a frozen or boulder-filled pool over the ball) reads "You feel lighter, but your leg is still chained to the floor." on every step within reach that changes terrain type (ROOM / doorless doorway / corridor); fix: `} else if (BLevitation & FROMOUTSIDE) {`. Also trap.c float_up() tests `u.utraptype == WEB` (the trap-type enum) instead of TT_WEB, so a webbed hero who starts levitating gets the bear-trap text | switch_terrain() fixed on branch (BUG-2171; reached there by the vines' landing); the WEB constant is an open LOW row; not sent |
+| 2026-10-07 | Hold releases and the buried ball, shared with Official_nh50: (1) polyself.c float_vs_flight() decides the hold with `u.utrap && u.utraptype != TT_PIT`, but trapmove()'s escapes zero u.utrap and print ("You finally wriggle free.", "You disentangle yourself.", "Sting cuts through the web!", the lava pull-out) before domove's reset_utrap(TRUE); that message's flush_screen() -> bot() -> near_capacity() -> weight_cap() calls float_vs_flight() and lifts the levitation block early, so reset_utrap()'s float_up() never prints whenever disp.botl was set (fix: key the hold on `u.utraptype != TT_NONE && u.utraptype != TT_PIT`; set_utrap() is the only type writer and every gap ends in a reset); (2) hack.c trapmove()'s buried-ball arm prints "You finally wrench the ball free." and calls buried_ball_to_punishment(), whose reset_utrap(FALSE) swallows the resumed levitation / flight every time (fix: reset_utrap(TRUE) first); (3) dig.c bury_an_obj(uball) sets TT_BURIEDBALL under a hovering hero with no landing, so the hero hangs over a hole or trap until moving (upstream has no deferred landing; the shape needs a spoteffects() after bury_objs()' walk) | fixed on branch (BUG-2173, BUG-2174, BUG-2176); (1) and (2) are drop-in patches; not sent |
+| 2026-10-06 | hack.c switch_terrain() `} else if (BLevitation) {` calls float_up() for ANY levitation block, including a trap's I_SPECIAL: a levitator tethered to a buried iron ball (TT_BURIEDBALL; a frozen or boulder-filled pool over the ball) reads "You feel lighter, but your leg is still chained to the floor." on every step within reach that changes terrain type (ROOM / doorless doorway / corridor); fix: `} else if (BLevitation & FROMOUTSIDE) {`. Also trap.c float_up() tests `u.utraptype == WEB` (the trap-type enum) instead of TT_WEB, so a webbed hero who starts levitating gets the bear-trap text | switch_terrain() fixed on branch (BUG-2171; reached there by the vines' landing); the WEB constant fixed on branch 2026-10-07 (BUG-2175; drop-in `u.utraptype == WEB` -> `TT_WEB`, the entangle arm is EvilHack-only); not sent |
 | 2026-10-06 | Landing gaps shared with Official_nh50: polyself.c polymon() / polyman() re-run spoteffects() only over pool / lava, so a flyer or floater turning into a non-flyer over a hole, trap door or open air is not dropped until it moves; do_wear.c Amulet_off() AMULET_OF_FLYING prints "You land." and runs spoteffects() -> dotrap() on the trap under an engulfer while the hero is swallowed; trap.c float_down() re-reads t_at(u.ux, u.uy) after drown() / lava_effects() moved the hero (crawl-out) and fires that square's trap a second time after teleds() -> spoteffects() already did (seen: a magic beam trap twice in one turn), then pickup()s again; trap.c pot_acid_damage()'s "A %s explodes!" hardcodes "A " before simpleonames() ("A inky potion explodes!") | branch: BUG-2157 / BUG-2160 via the deferred landing (not a drop-in patch for upstream); float_down() crawl-out fixed by BUG-2165 (a drop-in patch: record the square after the Punished yank, return when drown() / lava_effects() moved the hero unless in_steed_dismounting); the article is an open LOW row; not sent |
 | 2026-10-05 | polyself.c polymon() (Official_nh50 src/polyself.c ~799-802) prefixes "male " / "female " on a random sex change unless the form is_male / is_female, so the 17 forms with gendered pmnames[] get a redundant word ("You turn into a female dwarf lady!", "You feel like a new female succubus!"); insight.c background_enlightenment() (Official_nh50 ~497) does the same on every gendered form, no flip needed ("You are currently in female dwarf lady form.", vampshifted "a female vampire lady in vampire bat form"). Upstream's Ugender status title is a separate design question, not part of the report | fixed on branch (BUG-2147: skip the word when the name it precedes has a gendered pmnames[] entry); not yet sent |
 | 2026-10-05 | mthrowu.c ucatchgem() (Official_nh50 src/mthrowu.c ~506) has no helplessness gate: a sleeping, paralyzed or fainted hero polymorphed into a unicorn still catches a gem a monster slings ("You accept ... gift"); m_throw()'s `if (gm.multi) nomul(0);` just before the call returns early when multi < 0. Same class as the u_catch_thrown_obj() row below (2026-10-02). | fixed on branch (BUG-2138: `gm.multi >= 0`); not yet sent |
@@ -25526,6 +25672,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-07 | Hold-release / tether-landing slice rulings (session 189; AskUserQuestion x2, three questions, all recommended). (1) THE CHAIN PULLS A HOVERING HERO DOWN AND LANDS: burying the iron ball under a flyer or levitator (a frozen or boulder-filled pool or pit, #wizbury) lands them at the next safe point ("You land.") and the square acts as if walked onto - a hole drops them with the ball unearthed and attached on arrival, a floor trap fires, water drowns / crawl-out, open air plummets (the tether is a ground hold: float_vs_flight()'s "the floor is reachable", goto_level()'s "tethered movement makes level change while trapped feasible"); rejected a chain that holds the hero over holes (would change walking onto a hole while chained too, master and 5.0 fall) and leaving the hover as by-design. (2) ENTANGLED FLOAT-UP TEXT: "You float up slightly, but you are still entangled by a tree." / "... by vegetation." (trapmove()'s predicate wording); rejected "the tree's branches still hold you" and keeping the bear-trap line. (3) HELD-DOWN LEVITATOR OVER A HAZARD: "You stop levitating." (vanilla's word), flyers keep "You stop flying."; rejected "You stop floating." and no change. | maintainer |
 | 2026-10-06 | ENTANGLE HOLDS THE HERO WHERE THEY ARE (session 188, maintainer discussion after the slice's batteries; SUPERSEDES the session 187 follow-up CATCH + LAND ruling for tree catches). A tree's branches hold a flying or levitating hero in place - over water, lava, a hole or open air too - for the whole hold: no landing, no drowning, no fall, no plummet (entangle is a control spell; catch-and-land turned it into a drowning / level-drop / one-cast-kill spell near hazards, and the crawl-out freed the hero anyway). Grass alone (no tree adjacent) can only hold the hero on the ground it grows from, so it pulls a flyer down ("You land."; grass is never a hazard square). On release the hero resumes flying if a source remains; if the flight or levitation ran out during the hold, the hero drops at once over water, lava, open air or a hole. Maintainer also confirmed entangle needs grass underfoot or a tree adjacent (ported: cast_entangle() and the mcastu.c pre-filter) | maintainer |
 | 2026-10-06 | Landing follow-up wording (session 188; AskUserQuestion x1, two questions, both recommended). (1) VINES LANDING A FLYER: "You land." ("You stop flying." over water and open air) - the same check_flight_landing() text as session 187's landings, after the hero's own cast or after the monster turn for a monster's cast; rejected a silent landing. (Later the same session the entangle model became HOLD IN PLACE - see the entry above - so this text now serves only grass pulling a flyer down.) A held levitator reads the same lines. (2) OPEN AIR: check_flight_landing() says "You stop flying." over open air, and spoteffects()' "Unfortunately, you don't know how to fly." prints only when the hero has no flight or levitation source at all (not for vines or wings folded under a hard suit; still for a form or item that simply lost its flight); rejected "stop flying" with the joke kept everywhere, and leaving the text as it was | maintainer |
 | 2026-10-06 | Open-row rulings (session 187 follow-up; AskUserQuestion x1, four questions, all recommended). (1) ENTANGLE vs FLYERS: CATCH + LAND - cast_entangle()'s vines grab a flying hero (master's shape) and the hero lands on the square (water, hole, open air); rejected sparing flyers, and a hybrid sparing them only over hazards. (2) RANGED / REMOTE / INDIRECT MONSTER KILLS: DIRECT RANGED ONLY - credit + rise for missiles and polearm thrusts, rays and breath, wand beams and their spells, spell explosions and artifact surges with a known attacker; record only for power word kill, mind blast, gas cloud creators, thrown-potion side effects, indirect consequences and forgotten delayed deaths; rejected every-known-attacker, credit-without-rise and record-only. (3) "NOTHING LEFT" DEATHS: NO CORPSE FOR ALL - dissolving, incineration (Angelslayer, lava pull, Sunsword, Hammer of the Gods) and immolation leave no corpse or grave; rejected INCINERATED-only and record-only. (4) ARTICLES: FIX ALL WITH An() - the hallucinated-color flame / aura / glow strings and "A inky potion explodes!" read with correct articles, deviating from master's (and upstream's) literal strings | maintainer |
