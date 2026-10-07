@@ -2751,6 +2751,7 @@ extern void nhassert_failed(const char *, const char *, int);
 
 extern void set_uasmon(void);
 extern void float_vs_flight(void);
+extern boolean u_lift_unheld(void);
 extern void steed_vs_stealth(void);
 extern void change_sex(void);
 extern void livelog_newform(boolean, int, int);
@@ -3652,6 +3653,7 @@ extern void fill_pit(coordxy, coordxy);
 extern int float_down(long, long);
 extern void defer_landing(int);
 extern void land_deferred(void);
+extern boolean u_over_drop(void);
 extern void climb_pit(void);
 extern boolean fire_damage(struct obj *, boolean,
                            coordxy, coordxy) NONNULLARG1;

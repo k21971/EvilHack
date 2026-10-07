@@ -2185,10 +2185,14 @@ jump(int magic) /* 0=Physical, otherwise skill level */
             case TT_PIT:
                 You("leap from the pit!");
                 break;
-            case TT_WEB:
+            case TT_WEB: {
+                struct trap *wtrap = t_at(u.ux, u.uy);
+
                 You("tear the web apart as you pull yourself free!");
-                deltrap(t_at(u.ux, u.uy));
+                if (wtrap)
+                    deltrap(wtrap);
                 break;
+            }
             case TT_LAVA:
                 You("pull yourself above the %s!", hliquid("lava"));
                 cc.x = u.ux, cc.y = u.uy; /* take u_at() 'if' below */
@@ -2202,6 +2206,11 @@ jump(int magic) /* 0=Physical, otherwise skill level */
                         : "attached to the buried ball");
                 set_wounded_legs(LEFT_SIDE, rn1(10, 11));
                 set_wounded_legs(RIGHT_SIDE, rn1(10, 11));
+                return ECMD_TIME;
+            case TT_ENTANGLED:
+                /* no escape by struggling (trapmove()) */
+                You("strain your %s, but you're still entangled.",
+                    makeplural(body_part(LEG)));
                 return ECMD_TIME;
             default:
                 impossible("Jumping out of strange trap (%d)?", u.utraptype);

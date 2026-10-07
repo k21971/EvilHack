@@ -934,6 +934,7 @@ drop_ball(coordxy x, coordxy y)
         static const char pullmsg[] = "The ball pulls you out of the ";
         struct trap *t;
         long side;
+        boolean held_over_drop = FALSE;
 
         if (u.utrap
             && u.utraptype != TT_INFLOOR && u.utraptype != TT_BURIEDBALL) {
@@ -941,12 +942,16 @@ drop_ball(coordxy x, coordxy y)
             case TT_PIT:
                 pline("%s%s!", pullmsg, "pit");
                 break;
-            case TT_WEB:
+            case TT_WEB: {
+                struct trap *wtrap = t_at(u.ux, u.uy);
+
                 pline("%s%s!", pullmsg, "web");
                 Soundeffect(se_destroy_web, 30);
                 pline_The("web is destroyed!");
-                deltrap(t_at(u.ux, u.uy));
+                if (wtrap)
+                    deltrap(wtrap);
                 break;
+            }
             case TT_LAVA:
                 pline("%s%s!", pullmsg, hliquid("lava"));
                 break;
@@ -962,6 +967,13 @@ drop_ball(coordxy x, coordxy y)
                            "leg damage from being pulled out of a bear trap",
                            KILLED_BY);
                 }
+                break;
+            case TT_ENTANGLED:
+                pline("%s%s!", pullmsg,
+                      nexttotree(u.ux, u.uy) ? "tree's grip"
+                                             : "vegetation");
+                /* a tree's branches may have held the hero over a drop */
+                held_over_drop = u_over_drop();
                 break;
             }
             reset_utrap(TRUE);
@@ -1000,6 +1012,11 @@ drop_ball(coordxy x, coordxy y)
         if (u.ux0 != u.ux || u.uy0 != u.uy) {
             spoteffects(TRUE);
             sokoban_guilt();
+        } else if (held_over_drop && !Levitation && !Flying
+                   && !u.uinwater) {
+            /* the branches let go of a hero with no lift over the drop;
+               the hero falls once the throw is done */
+            defer_landing(LANDING_SPOT);
         }
     }
 }

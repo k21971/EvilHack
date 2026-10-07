@@ -254,6 +254,24 @@ float_vs_flight(void)
     disp.botl = TRUE;
 }
 
+/* would the hero float or fly if no hold (u.utrap) kept the lift down?
+   float_vs_flight() is the only setter of the I_SPECIAL block bits */
+boolean
+u_lift_unheld(void)
+{
+    long save_BLev = BLevitation, save_BFly = BFlying;
+    boolean res;
+
+    BLevitation &= ~I_SPECIAL;
+    /* floating still overrides flight */
+    if (!(HLevitation || ELevitation))
+        BFlying &= ~I_SPECIAL;
+    res = (Levitation || Flying);
+    BLevitation = save_BLev;
+    BFlying = save_BFly;
+    return res;
+}
+
 /* riding blocks stealth unless hero+steed fly */
 void
 steed_vs_stealth(void)

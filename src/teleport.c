@@ -1442,6 +1442,10 @@ level_tele(void)
     if (iflags.debug_fuzzer && newlev < 0)
         goto random_levtport;
     if (newlev < 0 && !force_dest) {
+        /* the hero leaves the dungeon and no hold can follow (a buried
+           ball's chain was unearthed above); judge lift without it */
+        if (u.utrap)
+            reset_utrap(FALSE);
         if (*u.ushops0) {
             /* take unpaid inventory items off of shop bills */
             gi.in_mklev = TRUE; /* suppress map update */
@@ -1470,7 +1474,10 @@ level_tele(void)
         } else if (Flying) {
             escape_by_flying = "fly down to the ground";
         } else {
-            pline("Unfortunately, you don't know how to fly.");
+            /* not when the hero has flight that is only held down (wings
+               folded under a hard suit) */
+            if (!(HFlying_usable || EFlying || HLevitation || ELevitation))
+                pline("Unfortunately, you don't know how to fly.");
             You("plummet a few thousand feet to your death.");
             Sprintf(svk.killer.name,
                     "teleported out of the dungeon and fell to %s death",

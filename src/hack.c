@@ -3906,7 +3906,9 @@ spoteffects(boolean pick)
         && !(u.usteed && is_clinger(u.usteed->data))
         /* entangling branches hold the hero over the drop */
         && !(u.utrap && u.utraptype == TT_ENTANGLED)) {
-        if (Punished && !carried(uball))
+        /* only a ball that is itself over the drop pulls the hero down */
+        if (Punished && !carried(uball)
+            && is_open_air(uball->ox, uball->oy))
             pline_The("heavy iron ball falls away, and yanks you down with it!");
         /* not when the hero has flight that is only held down (wings
            folded under a hard suit) */

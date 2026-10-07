@@ -5014,6 +5014,17 @@ land_deferred(void)
         spoteffects(TRUE);
 }
 
+/* is the hero over a drop: water, lava, open air or a hole? A tree's
+   branches can hold a hero there (cast_entangle()) */
+boolean
+u_over_drop(void)
+{
+    struct trap *ttmp = t_at(u.ux, u.uy);
+
+    return (is_pool_or_lava(u.ux, u.uy) || is_open_air(u.ux, u.uy)
+            || (ttmp && is_hole(ttmp->ttyp)));
+}
+
 /* shared code for climbing out of a pit */
 void
 climb_pit(void)
