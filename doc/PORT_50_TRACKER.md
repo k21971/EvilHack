@@ -17,13 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-08, after session 194): 334
-  rows closed, 99 open. Of the open rows:
-  - 5 MED: unported master features (potion
+- Phase 2 status (refreshed 2026-10-08, after session 195): 335
+  rows closed, 98 open. Of the open rows:
+  - 4 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
-    the held artifact pokedex tips, timed see
-    invisible and invisibility - its mhitu.c arm landed with the
-    boojum slice).
+    the held artifact pokedex tips).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -81,7 +79,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     pet blood-potion row (MED, with the unrowed muse vampire-blood
     quaff) in session 192; the appearance-shuffle row (MED, with the
     scroll glyph ids) in session 193; the pet-helper row (MED) in
-    session 194.
+    session 194; the timed invisibility row (MED, with master's
+    magic trap and cursed wand of make invisible) in session 195.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -137,21 +136,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-08 (session 194) PETS HELP THEIR OWNER
-  AGAIN (code TBD, tracker TBD; BUG-2199..2202).
-  - Master's dog_move() helper block: a domesticated pet heals a
-    hero below 1/8 HP, casts protection or reflection, and pulls the
-    hero out of a pit, bear trap or web; the unslime arm moved
-    inside the same gate.
-  - Ruling: beside other holds the pet takes its normal turn.
-  - Bear trap / web releases tell returned lift last (standing
-    ruling).
-  - Detail: the closed Pet-helper row.
-- Previous slice: 2026-10-08 (session 193) EVERY SHUFFLED ARMOR
+- Latest slice: 2026-10-08 (session 195) INVISIBILITY AND SEE
+  INVISIBLE WEAR OFF AGAIN; MASTER'S MAGIC TRAP (code TBD, tracker
+  TBD; BUG-2203..2213).
+  - Stalker corpses, fountains, throne effect 10 and both potions
+    give timed effects in master's durations; the wand of make
+    invisible lasts d(1 + charges, 250) and a cursed one reverses
+    invisibility, for the hero and for monsters.
+  - Master's magic trap: fate 10 joins 11, fate 12 fire or ice,
+    fate 18 toggles see invisible, the vanish roll can be smoke and
+    hallucination; both toggles spare innate sources (ruled).
+  - BUG-915's steed use-after-free fix re-ported.
+  - Detail: the closed timed invisibility row.
+- Previous slice: 2026-10-08 (session 194) PETS HELP THEIR OWNER
+  AGAIN (code be8152c34, tracker 1d9593ba8; BUG-2199..2202); detail
+  in the closed Pet-helper row.
+- Earlier slices: 2026-10-08 (session 193) EVERY SHUFFLED ARMOR
   POOL HOLDS ITS LAST MEMBER AGAIN (code 5cc63b077, tracker
-  1861aa9cb; BUG-2196..2198); detail in the closed
-  appearance-shuffle row.
-- Earlier slices: 2026-10-08 (session 192) VAMPIRES DRINK THEIR
+  1861aa9cb; BUG-2196..2198; detail in the closed
+  appearance-shuffle row);
+  2026-10-08 (session 192) VAMPIRES DRINK THEIR
   BLOOD (code 7962b48d1, tracker 1ea45bf3c; BUG-2190..2195; detail
   in the closed vampire blood-potion row);
   2026-10-08 (session 191) A HERO TURNED BACK BY A
@@ -17753,7 +17757,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       blindfolded hero still reads "Your vision becomes crystal
       clear." (master's text; 5.0's case 10 has an eye-tingle
       fallback).
-- [ ] MED: see invisible and invisibility from most sources are
+- [x] MED: timed invisibility and see invisible PORTED 2026-10-08
+      (session 195; BUG-2203..2213; code TBD, tracker TBD; closure
+      notes at the end of this row), with master's cursed wand of
+      make invisible and master's magic trap. Original text: MED: see
+      invisible and invisibility from most sources are
       permanent on the branch; master made them timed (minted
       2026-09-30, session 161, found by that slice's code review; no
       tracker mention of the commit). Master e9cad292b (2019-03-02,
@@ -17778,6 +17786,122 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       boojum's vanishing touch) landed in master's current timed form,
       incr_itimeout(&HInvis, d(6, 100)), with the boojum slice
       (BUG-2095, uhitm.c mhitm_ad_tlpt()). Five files remain.
+      CLOSURE (plan
+      /root/.claude/plans/feature-timed-invisibility-and-magic-trap.md).
+      - Folded in, all unrowed: master 4bcc3e71d + 5b7b662e7 (a cursed
+        wand of make invisible reverses invisibility, hero and
+        monster); the whole of master's domagictrap() (c0daba931,
+        a45760185, a9f319ed0, dc6a75a65, cd9aa1994, e162632f7); the
+        caller's 1-in-15 smoke arm (c0daba931); BUG-915 (master
+        e780aefca), which never reached the branch. Correction to the
+        Plan map: vanilla 3.6 had fates 10 and 11 both "nothing";
+        master's 10 + 11 toggle is EvilHack's own (c0daba931), and
+        5.0 later added a toggle on 11 only.
+      - RULINGS (AskUserQuestion x2, eight questions, all recommended;
+        decisions log): potions, wand and magic trap all master's
+        shape; the smoke arm folded; the four cursed-wand message /
+        state bugs fixed; fate 18 spares innate see invisible; the
+        stalker corpse is silent when already invisible.
+      - BUG-2203: stalker corpse (master 945874193 form), fountain
+        fate 25 and throne effect 10 grant timed rn1(100, 50). Throne
+        effect 6 stays permanent (BUG-2036).
+      - BUG-2204: potion of invisibility rn1(diluted ? 7 : 15, 31 *
+        (blessed ? rnd(4) : 1)), never permanent; the cursed potion
+        only aggravates (5.0's strip of FROMOUTSIDE dropped). The
+        spell (uncursed pseudo potion) gives 31-45.
+      - BUG-2205: potion of see invisible rn1(diluted ? 50 : 100,
+        blessed ? 1500 : 750); 5.0's permchance dropped.
+      - BUG-2206: wand self-zap d(1 + spe, 250); cursed: an invisible
+        hero with no worn source becomes visible (timer and intrinsic
+        stripped, 50% aggravate), otherwise "You fade from view for
+        a brief moment."; cursed at an invisible monster "<Mon>
+        becomes visible!", at a visible one "<Mon> briefly fades from
+        view."
+      - BUG-2207 (master-shared): a wrested charge (spe -1) rolled
+        d(0, 250) = 0 turns with the vanish line and identification;
+        now at least d(1, 250).
+      - BUG-2208 (master-shared, ruled): the cursed self-zap told a
+        blind hero "You become visible." and identified the wand, and
+        told a hero still invisible from a form or a worn item "You
+        become visible." / "You fade from view..."; now "You feel a
+        little more obvious now." / "You feel an odd sensation for a
+        brief moment." (reviewer LOW 1 folded the item / untimed form
+        case).
+      - BUG-2209 (master-shared, ruled): the monster arm gated on
+        !Blind with the pre-change name ("It becomes visible!"), and
+        its raw minvis = 0 kept perminvis and skipped the redraw; now
+        canseemon() / couldsee gates and mon_set_minvis(mtmp, TRUE).
+      - BUG-2210: domagictrap() fates 10 + 11 toggle invisibility,
+        fate 12 is fire or ice, fate 18 toggles see invisible (a
+        crowned hero: "You feel an odd sensation, but nothing
+        happens."); the 1-in-15 vanish roll is half explosion, half
+        "A cloud of brightly colored smoke billows up around you!" +
+        51..100 turns of hallucination (make_hallucinated(), talk
+        FALSE).
+      - BUG-2211 (ruled, master- and vanilla-shared): both toggles
+        flip only FROMOUTSIDE (H ^= FROMOUTSIDE), so a timer, innate
+        see invisible (Monk, Ranger XL15, Aasimar, demon race) and an
+        invisible form survive; fate 11's vanish line is gated on
+        !BInvis (under a mummy wrapping it was false).
+      - BUG-2212 (BUG-915 re-port, upstream-shared): a riding hero on
+        a magic trap over ice, fate 12 fire: melt_ice() ->
+        trap_ice_effects() deleted the trap and steedintrap() read the
+        freed pointer. The trap is refetched at its own square only
+        while the hero is still there (melt_ice()'s spoteffects() can
+        move the hero). Patch artifact
+        ~/nh50-magic-trap-steed-uaf.patch (git apply --check clean on
+        Official_nh50 and NetHack50).
+      - BUG-2213 (reviewer LOW 5, master- and vanilla-shared): the
+        fountain, throne and stalker see-invisible grants now call
+        set_mimic_blocking() + see_monsters(), so an invisible monster
+        already in view is drawn at once (it stayed undrawn until it
+        moved or ^R).
+      - Comment sibling: mon.c's stalker-corpse comment no longer
+        claims permanent grants for the hero (reviewer LOW 3).
+      - Review: PASS (five LOWs, all folded).
+      - BATTERY (three game-testers in their own playground copies;
+        PRE 15548fec = 1d9593ba8 code, POST1 67f3119c, final POST2
+        79c205ba; paniclogs never created):
+        - A (hero sources, 18 legs, all PASS both builds): stalker
+          incr 51 (PRE set_itimeout 96); already invisible INVIS
+          +97 and SEE_INVIS 143, silent (PRE "You feel hidden!" +
+          FROMOUTSIDE both); fountain +64, throne +125 then +97
+          (PRE second sit "An image forms in your mind."); potions
+          40 / blessed 95, 40, 128, 127, 125, 135, 32, 101 / diluted
+          35 / cursed 32 with FROMOUTSIDE kept (PRE 473 / 279..357
+          plus one permanent / 266 / 671 with FROMOUTSIDE cleared);
+          spell 31, 34, 39 (PRE 391, 493, 324); see invisible 1557 /
+          1546 / 761 (PRE permanent with both staged); wand d(4,250)
+          457, wrested 196 / 78 / 128; cursed: fade line, "You become
+          visible." x4 (aggravate 2 of 4), cloak kept, blind "a
+          little more obvious" unidentified, stalker form strips the
+          timer and keeps FROMFORM (PRE +31..45 silent throughout).
+        - B (monster wand + magic trap, 15 legs, all PASS both
+          builds): "The stalker becomes visible!" minvis / perminvis
+          0 / 0 (PRE silent, 1 / 1); "The newt briefly fades from
+          view." (PRE "vanishes!"); fate 10 hum + vanish (PRE none);
+          timed fate 11 keeps the timer (PRE wiped it); stalker form
+          "a little more hidden" 0x24000000 (PRE "obvious" -> 0);
+          mummy wrapping hum only (PRE the false vanish line); fate
+          12 6 flame / 2 mist (PRE 8 flame); fate 18 tingle /
+          diminished / more and less focused with the timer kept /
+          crowned nothing; Monk 0x01000000 -> 0x05000000 ->
+          0x01000000 (PRE "You feel tired."); smoke 79 turns, disco
+          132 (78 + 54), blind "funky", trap gone (PRE explosion);
+          Knight on an iced puddle: POST steedintrap() trap = 0, PRE
+          a dangling pointer whose memory already held "The ice
+          crackles and melts." (ttyp read 0, default arm, no crash).
+        - C (delta on the folds, 7 legs, all PASS): cloak + timer and
+          an untimed stalker form get the odd-sensation line (POST1
+          the fade line); a frozen invisible stalker is drawn the
+          same turn after the fountain, throne and stalker-corpse
+          grants (POST1: undrawn until ^R).
+      - Out-of-claim anomalies, all already rowed or master-shared:
+        rehumanizing from a flyer on a magic trap re-fires it (the
+        landing re-fire row); stalker form is stunned (master
+        PROPSET); the ice arm's encrusted feet slow a cold-resistant
+        hero (master doicetrap()); "welcome to NetHack!" (re-brand
+        row).
 - [x] LOW: master's WISH_TRACKER wish log ported; refused and
       owner-summoned artifact wishes count (BUG-2110..2112) - FIXED
       2026-10-03 (session 174, commit `Port the wish tracker and
@@ -24645,8 +24769,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       feature is entirely unported, row minted below with those
       riders attached.
 - [x] Pet-helper feature PORTED 2026-10-08 (session 194;
-      BUG-2199..2202; code TBD, tracker TBD; closure notes at the
-      end of this row). Original text: Pet-helper feature NOT PORTED
+      BUG-2199..2202; code be8152c34, tracker 1d9593ba8; closure
+      notes at the end of this row). Original text: Pet-helper
+      feature NOT PORTED
       (minted 2026-08-30 by the
       tameness-ladder slice; LOW/MED - player-visible pet AI
       feature; unlogged: no FEATURES_ARCHIVE entry, zero tracker
@@ -26294,6 +26419,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-08 | Timed invisibility slice rulings (session 195; AskUserQuestion x2, eight questions, all recommended). (1) POTION OF INVISIBILITY, MASTER'S SHAPE: never permanent; uncursed or cursed 31-45 turns (31-37 diluted), blessed 31-45 / 62-76 / 93-107 / 124-138; the spell 31-45; a cursed potion only aggravates (5.0's strip of permanent invisibility dropped). (2) POTION OF SEE INVISIBLE, MASTER'S SHAPE: 750-849, blessed 1500-1599, diluted a 50-turn window; never permanent (5.0's permchance dropped). (3) WAND OF MAKE INVISIBLE, MASTER'S SHAPE (4bcc3e71d + 5b7b662e7, unrowed): self-zap d(1 + charges, 250); a cursed wand reverses invisibility for the hero and for monsters; a wrested charge gets at least d(1, 250). (4) MAGIC TRAP: THE WHOLE OF domagictrap() TO MASTER'S SHAPE (fate 10 joins 11, timeout-aware 11, fate 12 fire or ice, fate 18 see-invisible toggle with the crowned guard). (5) THE SMOKE ARM FOLDED IN: half of the 1-in-15 vanish rolls give brightly colored smoke and 51-100 turns of hallucination. (6) FIX ALL FOUR CURSED-WAND MESSAGE / STATE BUGS (blind text, invisible-form text, the monster arm's unseen text, perminvis). (7) FATE 18 SPARES INNATE SEE INVISIBLE: the toggle flips only the trap's own bit (applied to fate 11's invisible form too). (8) A STALKER CORPSE EATEN WHILE INVISIBLE IS SILENT, as on master. | maintainer |
 | 2026-10-08 | Pet-helper slice ruling (session 194; AskUserQuestion x1, recommended). OTHER HOLDS - THE PET CARRIES ON: the pet's trap-help arm names a pit, bear trap or web, so beside a hero sinking in lava, stuck in the floor, chained to a buried ball or held by vines / a tree, a strong pet with hands takes its normal turn (BUG-2201). Rejected master's exact shape, whose arm fell through to `return 1` for those holds and silently spent the pet's turn 1 time in 4. Applied without a new question: the 2026-10-07 TELL IT AFTER THE EVENT ruling - the bear trap and web releases announce returned levitation / flight after their own lines (BUG-2202). | maintainer (ruling); session (standing ruling applied) |
 | 2026-10-08 | Appearance-shuffle slice ruling (session 193; AskUserQuestion x1, recommended). THE RING ARM KEEPS 5.0's WHOLE CLASS: obj_shuffle_range() shuffles svb.bases[RING_CLASS]..bases[RING_CLASS + 1] - 1, with a comment naming the born-name-known ancient / lustrous placeholders that shuffle() skips. That is the same 28 rings as master's RIN_ADORNMENT..RIN_PROTECTION_FROM_SHAPE_CHAN, and a future ring shuffles with no endpoint edit. Rejected master's endpoints, which behave identically today but would leave a ring appended after shape changers with a fixed look (the BUG-1204 pattern). The armor and potion arms restore master's endpoints (BUG-2196 / BUG-2197; no ruling needed). | maintainer |
 | 2026-10-08 | Vampire blood slice rulings (session 192; AskUserQuestion x3, four questions, all recommended). (1) THE PET'S DRINK COUNTS FROM NOW, LIKE A MEAL: an overdue hungrytime is raised to the current turn before the potion's nutrition is added, and hunger confusion clears (dog_eat()'s rule); rejected master's exact block, which paid down the overdue clock (uncursed blood left the pet 241 turns overdue, so it re-drank every ~60 turns). (2) CLOCK + CONFUSION ONLY: no tameness +1 and no flee-timer halving for a pet drinking from its own stash (master's block did neither); rejected full dog_eat() meal parity. (3) BLESSED VAMPIRE BLOOD HEAL TEXT MIRRORS THE HERO: "<Mon> looks completely healed." when the drink ends at full HP, else "<Mon> looks mostly healed."; rejected master's always-"completely" and "looks much better" for the diluted case. (4) THE RESCAN KEEPS VAMPIRE BLOOD'S RANK: check_defensive_item() gains a nomore stop (no find arm, so contained vampire blood stays unfindable); rejected master's shape, where a lower-ranked scroll of create monster replaced the pick ~4/9 to 7/9 of the time. | maintainer |
