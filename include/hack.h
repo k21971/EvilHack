@@ -160,6 +160,15 @@ struct forge_recipe {
 
 extern const struct forge_recipe fusions[]; /* array of forge recipes */
 
+struct potion_alchemy {
+    short result_typ;
+    short typ1;
+    short typ2;
+    int chance; /* 1 = always, N = 1 in N */
+};
+
+extern const struct potion_alchemy potion_fusions[]; /* alchemy recipes */
+
 struct trap_recipe {
     short result_typ;
     short comp;

@@ -1710,6 +1710,8 @@ add_obj_info(winid datawin, short otyp)
                                                                     : "Ray"));
     const struct forge_recipe *recipe;
     boolean has_recipes;
+    const struct potion_alchemy *precipe;
+    boolean has_precipes;
     const struct trap_recipe *trecipe;
     boolean has_trecipes;
     struct obj dummy;
@@ -2210,7 +2212,43 @@ add_obj_info(winid datawin, short otyp)
         }
     }
 
-    /* potion alchemy combinations: no recipe table to iterate yet */
+    /* potion alchemy */
+    has_precipes = FALSE;
+
+    for (precipe = potion_fusions; precipe->result_typ; precipe++) {
+        if (otyp == precipe->typ1 || otyp == precipe->typ2
+            || otyp == precipe->result_typ) {
+            const struct potion_alchemy *prev =
+                (precipe != potion_fusions)
+                    ? precipe - 1
+                    : (const struct potion_alchemy *) 0;
+            char odds[QBUFSZ];
+
+            if (!has_precipes) {
+                OBJPUTSTR("");
+                OBJPUTSTR("Potion alchemy combinations (#dip):");
+                has_precipes = TRUE;
+            }
+            /* a row right after a chance row for the same pair is the
+               fallback when that roll fails */
+            if (precipe->chance > 1)
+                Sprintf(odds, " (1/%d chance)", precipe->chance);
+            else if (prev && prev->chance > 1
+                     && ((prev->typ1 == precipe->typ1
+                          && prev->typ2 == precipe->typ2)
+                         || (prev->typ1 == precipe->typ2
+                             && prev->typ2 == precipe->typ1)))
+                Sprintf(odds, " (%d/%d chance)", prev->chance - 1,
+                        prev->chance);
+            else
+                odds[0] = '\0';
+            Sprintf(buf, "  %s + %s = %s%s",
+                    OBJ_NAME(objects[precipe->typ1]),
+                    OBJ_NAME(objects[precipe->typ2]),
+                    OBJ_NAME(objects[precipe->result_typ]), odds);
+            OBJPUTSTR(buf);
+        }
+    }
 
     /* crafting traps */
     has_trecipes = FALSE;
