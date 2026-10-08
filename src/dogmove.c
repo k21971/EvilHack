@@ -13,6 +13,7 @@
 
 staticfn void dog_starve(struct monst *);
 staticfn boolean dog_hunger(struct monst *, struct edog *);
+staticfn boolean dog_quaff_blood(struct monst *, struct edog *);
 staticfn int dog_invent(struct monst *, struct edog *, int);
 staticfn int dog_goal(struct monst *, struct edog *, int, int, int);
 staticfn int find_friends(struct monst *, struct monst *, int);
@@ -744,6 +745,52 @@ dog_hunger(struct monst *mtmp, struct edog *edog)
         }
     }
     return FALSE;
+}
+
+/* hungry vampire pet drinks a blood potion it carries;
+   returns TRUE if it drank */
+staticfn boolean
+dog_quaff_blood(struct monst *mtmp, struct edog *edog)
+{
+    struct obj *obj;
+    int nutrit;
+
+    for (obj = mtmp->minvent; obj; obj = obj->nobj)
+        if ((obj->otyp == POT_BLOOD || obj->otyp == POT_VAMPIRE_BLOOD)
+            && !obj->cursed)
+            break;
+    if (!obj)
+        return FALSE;
+
+    mquaffmsg(mtmp, obj);
+    /* nutrition mirrors the hero's lesshungry() amounts in potion.c;
+       like a meal, it counts from now rather than paying down the
+       time the pet has gone hungry */
+    if (obj->otyp == POT_VAMPIRE_BLOOD)
+        nutrit = (obj->odiluted ? 1 : 2) * (obj->blessed ? 400 : 100);
+    else
+        nutrit = (obj->odiluted ? 1 : 2) * (obj->blessed ? 100 : 30);
+    if (edog->hungrytime < svm.moves)
+        edog->hungrytime = svm.moves;
+    edog->hungrytime += nutrit;
+    mtmp->mconf = 0;
+    if (edog->mhpmax_penalty) {
+        /* no longer starving */
+        mtmp->mhpmax += edog->mhpmax_penalty;
+        edog->mhpmax_penalty = 0;
+    }
+    /* vampire blood also heals, as in use_defensive() */
+    if (obj->otyp == POT_VAMPIRE_BLOOD) {
+        if (obj->blessed)
+            healmon(mtmp, obj->odiluted ? mtmp->mhpmax / 4
+                                        : mtmp->mhpmax, 0);
+        else
+            healmon(mtmp, d(4, 4) / (obj->odiluted ? 4 : 1), 1);
+    }
+    if (canseemon(mtmp))
+        makeknown(obj->otyp);
+    m_useup(mtmp, obj);
+    return TRUE;
 }
 
 /* do something with object (drop, pick up, eat) at current position
@@ -1509,6 +1556,14 @@ dog_move(
     omy = mtmp->my;
     if (edog && dog_hunger(mtmp, edog))
         return MMOVE_DIED; /* starved */
+
+    /* a hungry vampire pet drinks blood it carries before
+       considering anything else, unless told to come */
+    if (edog && !(edog->petstrat & PETSTRAT_COME)
+        && is_vampire(mtmp->data)
+        && svm.moves > edog->hungrytime + DOG_HUNGRY
+        && dog_quaff_blood(mtmp, edog))
+        return MMOVE_DONE;
 
     udist = distu(omx, omy);
     /* Let steeds eat and maybe throw rider during Conflict */

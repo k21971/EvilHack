@@ -2277,6 +2277,7 @@ extern boolean find_defensive(struct monst *, boolean) NONNULLARG1;
 extern int use_defensive(struct monst *) NONNULLARG1;
 extern int mon_escape_with_amulet(struct monst *) NONNULLARG1;
 extern int rnd_defensive_item(struct monst *) NONNULLARG1;
+extern void mquaffmsg(struct monst *, struct obj *) NONNULLPTRS;
 extern boolean find_offensive(struct monst *) NONNULLARG1;
 extern int use_offensive(struct monst *) NONNULLARG1;
 extern int rnd_offensive_item(struct monst *) NONNULLARG1;

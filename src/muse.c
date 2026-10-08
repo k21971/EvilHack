@@ -18,7 +18,6 @@ staticfn int precheck(struct monst *, struct obj *);
 staticfn void mzapwand(struct monst *, struct obj *, boolean) NONNULLPTRS;
 staticfn void mplayhorn(struct monst *, struct obj *, boolean) NONNULLPTRS;
 staticfn void mreadmsg(struct monst *, struct obj *) NONNULLPTRS;
-staticfn void mquaffmsg(struct monst *, struct obj *) NONNULLPTRS;
 staticfn boolean m_use_healing(struct monst *);
 staticfn boolean m_sees_sleepy_soldier(struct monst *);
 staticfn void m_tele(struct monst *, boolean, boolean, int);
@@ -384,7 +383,7 @@ mreadmsg(struct monst *mtmp, struct obj *otmp)
               vismon ? mon_nam(mtmp) : mhe(mtmp));
 }
 
-staticfn void
+void
 mquaffmsg(struct monst *mtmp, struct obj *otmp)
 {
     if (canseemon(mtmp)) {
@@ -423,6 +422,7 @@ mquaffmsg(struct monst *mtmp, struct obj *otmp)
 #define MUSE_SPE_TELEPORT_AWAY_SELF 21 /* learned spell, no item */
 #define MUSE_SPE_TELEPORT_AWAY 22      /* learned spell, no item */
 #define MUSE_EUCALYPTUS_LEAF 23
+#define MUSE_POT_VAMPIRE_BLOOD 24
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -455,6 +455,15 @@ m_use_healing(struct monst *mtmp)
         if ((obj = m_carrying(mtmp, EUCALYPTUS_LEAF)) != 0) {
             gm.m.defensive = obj;
             gm.m.has_defense = MUSE_EUCALYPTUS_LEAF;
+            return TRUE;
+        }
+    }
+    /* vampire blood cures neither blindness nor sickness, so only a
+       wounded vampire drinks it */
+    if (racial_vampire(mtmp) && mtmp->mhp < mtmp->mhpmax) {
+        if ((obj = m_carrying(mtmp, POT_VAMPIRE_BLOOD)) != 0) {
+            gm.m.defensive = obj;
+            gm.m.has_defense = MUSE_POT_VAMPIRE_BLOOD;
             return TRUE;
         }
     }
@@ -990,6 +999,14 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                 gm.m.defensive = obj;
                 gm.m.has_defense = MUSE_POT_HEALING;
             }
+            nomore(MUSE_POT_VAMPIRE_BLOOD);
+            /* a cornered monster (tryescape) or a hostile Amulet carrier
+               gets here without the wounded test above */
+            if (racial_vampire(mtmp) && mtmp->mhp < mtmp->mhpmax
+                && obj->otyp == POT_VAMPIRE_BLOOD) {
+                gm.m.defensive = obj;
+                gm.m.has_defense = MUSE_POT_VAMPIRE_BLOOD;
+            }
             nomore(MUSE_EUCALYPTUS_LEAF);
             if ((mtmp->msick || mtmp->mdiseased)
                 && obj->otyp == EUCALYPTUS_LEAF) {
@@ -1108,6 +1125,10 @@ check_defensive_item(
         nomore(MUSE_POT_HEALING);
         if (obj->otyp == POT_HEALING)
             return MUSE_POT_HEALING;
+
+        /* vampire blood is only found loose in the inventory, but the
+           rescan must not replace that pick with a lesser item */
+        nomore(MUSE_POT_VAMPIRE_BLOOD);
 
         nomore(MUSE_EUCALYPTUS_LEAF);
         if ((mtmp->msick || mtmp->mdiseased)
@@ -1694,6 +1715,31 @@ use_defensive(struct monst *mtmp)
             pline_mon(mtmp, "%s looks completely healed.", Monnam(mtmp));
         if (oseen)
             makeknown(otmp->otyp);
+        m_useup(mtmp, otmp);
+        return 2;
+    case MUSE_POT_VAMPIRE_BLOOD:
+        if (!otmp)
+            panic(MissingDefensiveItem, "potion of vampire blood");
+        mquaffmsg(mtmp, otmp);
+        if (otmp->blessed) {
+            /* acts mostly like a potion of full healing */
+            healmon(mtmp, otmp->odiluted ? mtmp->mhpmax / 4
+                                         : mtmp->mhpmax, 0);
+            if (vismon)
+                pline_mon(mtmp, "%s looks %s healed.", Monnam(mtmp),
+                          (mtmp->mhp == mtmp->mhpmax) ? "completely"
+                                                      : "mostly");
+        } else if (otmp->cursed) {
+            if (vismon)
+                pline_mon(mtmp, "%s discards the congealed blood in disgust.",
+                          Monnam(mtmp));
+        } else { /* uncursed, acts mostly like a potion of healing */
+            healmon(mtmp, d(4, 4) / (otmp->odiluted ? 4 : 1), 1);
+            if (vismon)
+                pline_mon(mtmp, "%s looks better.", Monnam(mtmp));
+        }
+        if (oseen)
+            makeknown(POT_VAMPIRE_BLOOD);
         m_useup(mtmp, otmp);
         return 2;
     case MUSE_LIZARD_CORPSE:
