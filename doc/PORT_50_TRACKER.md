@@ -17,14 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-07, after session 190): 330
-  rows closed, 96 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-08, after session 192): 332
+  rows closed, 98 open. Of the open rows:
   - 7 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
-    pet-helper AI, the vampire pet's blood-potion self-feed (minted
-    session 190), the held artifact pokedex tips, timed see
+    pet-helper AI, the held artifact pokedex tips, timed see
     invisible and invisibility - its mhitu.c arm landed with the
-    boojum slice).
+    boojum slice) and the object appearance-shuffle ranges (minted
+    session 192: master's fixed potion looks and three armor
+    endpoints were lost).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -35,7 +36,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 73 LOW: small parity rows, quirks and watch/record-only items.
+  - 75 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -78,7 +79,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     vine release rows landed in session 189; the sky teleport,
     #jump, thrown-ball, roots / branches and tree-held buried-ball
     rows in session 190; the six light-revert weapon-slot rows
-    (minted and fixed the same session) in session 191.
+    (minted and fixed the same session) in session 191; the vampire
+    pet blood-potion row (MED, with the unrowed muse vampire-blood
+    quaff) in session 192.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -124,14 +127,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the #jump-while-entangled row, the drag_ball() vines row and the
     roots / branches naming row; session 190 the seven hold-census
     rows above and the vampire pet blood-potion row (MED); session
-    191 the worn-amulet polymorph doubled-lines row.
+    191 the worn-amulet polymorph doubled-lines row; session 192 the
+    vampshifter hunger-penalty carry-over row (and the MED
+    appearance-shuffle row).
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-08 (session 191) A HERO TURNED BACK BY A
+- Latest slice: 2026-10-08 (session 192) VAMPIRES DRINK THEIR
+  BLOOD: A HUNGRY VAMPIRE PET DRINKS THE BLOOD IT CARRIES, AND A
+  WOUNDED VAMPIRE HEALS WITH VAMPIRE BLOOD (code 7962b48d1,
+  tracker (hash pending); BUG-2190..2195).
+  - Master's pet self-feed (6b93ab5dd) and muse vampire-blood quaff
+    (c3816e9ea) were never ported; both are now.
+  - Rulings: a drink feeds the pet from now, like a meal, and
+    clears hunger confusion (no tameness gain); blessed vampire
+    blood "looks completely healed." only at full HP, else "looks
+    mostly healed."; the rescan keeps vampire blood's rank.
+  - Master bugs fixed on the way: an unclamped diluted heal, and
+    full-HP vampires (blind, cornered, Amulet carriers) wasting
+    vampire blood.
+  - Detail: the closed vampire blood-potion row.
+- Previous slice: 2026-10-08 (session 191) A HERO TURNED BACK BY A
   LIGHT KEEPS NO WEAPON IT LOST; A SPENT POLYMORPH POTION IS USED UP
-  (code (hash pending), tracker (hash pending); BUG-2184..2189).
+  (code e338a46e4, tracker 78f8e6992; BUG-2184..2189).
   - Found by the reviewer of the 0.9.3 production hot patch (master
     is frozen; production carries an out-of-tree fix): lighting an
     artifact can hurt a light-hating polymorphed hero back into a
@@ -148,21 +167,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - Previous slice: 2026-10-07 (session 190) THE HOLD CANNOT FOLLOW
   INTO THE SKY; VINES HOLD AGAINST A JUMP, GIVE TO THE BALL, AND LET
   GO PLAINLY; THE CHAIN TAKES OVER FROM THE BRANCHES (code
-  2bc884d66, tracker 385dc3fe8; BUG-2178..2183).
-  - A held hero with a flight or levitation source who
-    level-teleports into the sky flies or floats down and escapes;
-    the "don't know how to fly" joke only with no source at all.
-  - #jump while entangled: "You strain your legs, but you're still
-    entangled." (no wound); throwing the ball: "The ball pulls you
-    out of the tree's grip!" / "...of the vegetation!".
-  - A grounded hero's tree release reads "The tree releases its grip
-    on you."; burying the ball under a tree-held hero lands them.
-  - Detail: the closed sky teleport row.
-- Previous slice: 2026-10-07 (session 189) HOLD RELEASES TELL OF THE
+  2bc884d66, tracker 385dc3fe8; BUG-2178..2183); detail in the
+  closed sky teleport row.
+- Earlier slices: 2026-10-07 (session 189) HOLD RELEASES TELL OF THE
   LIFT THEY GIVE BACK; A BURIED BALL'S CHAIN LANDS A HOVERING HERO
-  (code 6d188eb81, tracker cd928512c; BUG-2173..2177); detail in the
-  closed TT_BURIEDBALL landing row.
-- Earlier slices: 2026-10-06 (session 188) VINES HOLD FLYERS IN
+  (code 6d188eb81, tracker cd928512c; BUG-2173..2177; detail in the
+  closed TT_BURIEDBALL landing row);
+  2026-10-06 (session 188) VINES HOLD FLYERS IN
   PLACE; DE-WINGED STEEDS LAND; ONE TRAP PASS AFTER A CRAWL-OUT (code
   3faae801f, tracker c048e521d; BUG-2165..2172; detail in the closed
   ridden steed landing row);
@@ -3574,8 +3585,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       disintegration-path zombify reset; AD_BHED mcan arms (no
       mhitm_ad_bhed yet); hellfire soul-sear (mcastu); become_flayer
       resets (illithid larva); boss msick resets (Ice Queen/Vecna/
-      Izchak/Ozzy); vampire-blood muse + bones vampire extras +
-      undead_to_corpse vampire tiers (vampire race); bane_applies
+      Izchak/Ozzy); vampire-blood muse [DISCHARGED 2026-10-08,
+      session 192, BUG-2192 - R2 never consumed it] + bones vampire
+      extras + undead_to_corpse vampire tiers (vampire race); bane_applies
       drow/demon arms + Sword of Kas (their slices); Convict-rat
       pacify half (Convict role); salamander u_slip_free clause;
       dogfood defended() additions (defended sweep); corpse_chance
@@ -19191,7 +19203,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (rowed, Phase 5). TO DO: net the splits out, then verify the
       same-name functions first (m_initweap giant / tortle arms,
       domonnoise gnoll [DONE 2026-09-28, session 156, BUG-1994],
-      find_defensive + m_use_healing vampire, the
+      find_defensive + m_use_healing vampire [DONE 2026-10-08,
+      session 192, BUG-2192 - a real gap, ported], the
       four steed.c vampire / zombie sites, the enlightenment vampire
       lines, moverock + sokoban_guilt giant, arti_invoke drow) and
       mint a row per confirmed gap. One 5.0-NATIVE chain also found:
@@ -20283,8 +20296,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       involved. LOW (message only).
 - [x] MED: a returning missile dropped by the two-weapon relight is
       dropped again from the floor (BUG-2184; BUG-2185..2189 in the
-      same slice) - FIXED 2026-10-08 (session 191, commit (hash
-      pending), tracker (hash pending); minted and fixed the same
+      same slice) - FIXED 2026-10-08 (session 191, commit e338a46e4,
+      tracker 78f8e6992, landed 2026-10-08; minted and fixed the same
       session). Found by the evilhack-code-reviewer of the 0.9.3
       production hot patch (out-of-tree, `/root/evilhack-0.9.3-
       hotpatch.patch` and `-v2.patch`; master stays frozen) in the
@@ -24656,25 +24669,138 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pit and fall in). Prescribed history check before porting:
       git log master src/dogmove.c for later helper-block
       tweaks beyond d47c00704.
-- [ ] A tame vampire never drinks the blood potions it hoards
+- [x] A tame vampire never drinks the blood potions it hoards
       (minted 2026-10-07, session 190, found while checking the
-      dog_move port row's deferral list; LOW/MED - pet AI). Master
-      6b93ab5dd ("Tame vampire pets can self-feed from blood
-      resources.") is half ported: could_use_item()'s hoard arm,
-      DOG_SATIATED in mextra.h, dogfood()'s relaxed blood-corpse
-      clause + satiated gate and dog_eat()'s drain guards are on the
-      branch, but dog_move()'s self-feed block is not - a vampire pet
-      more than 300 turns past its hungrytime (not under a come
-      order) quaffs one non-cursed POT_BLOOD / POT_VAMPIRE_BLOOD from
-      its inventory ("<pet> drinks <potion>!" / "You hear a chugging
-      sound."), gains nutrition by the hero's lesshungry() amounts,
-      clears mhpmax_penalty, and vampire blood heals as in muse.c. So
-      the branch's vampire pets pick blood potions up and carry them
-      while starving. The same commit's dog_invent() / dog_goal()
-      satiation bypass for intrinsic-conveying corpses rides the Rumor
-      row's rider (g) with can_give_new_mintrinsic() (dog.c's
-      TODO-EVILHACK marker). Port the block on the 5.0 dog_move() shape
-      (svm.moves, pline_mon()).
+      dog_move port row's deferral list; LOW/MED - pet AI) - FIXED
+      2026-10-08 (session 192, commit 7962b48d1, tracker (hash
+      pending); BUG-2190..2195). Master 6b93ab5dd ("Tame vampire pets
+      can self-feed from blood resources.") was half ported:
+      could_use_item()'s hoard arm, DOG_SATIATED in mextra.h,
+      dogfood()'s relaxed blood-corpse clause + satiated gate and
+      dog_eat()'s drain guards were on the branch, dog_move()'s
+      self-feed block was not. Mapping it found the second unported
+      half of the vampire-blood story: master c3816e9ea's muse.c
+      MUSE_POT_VAMPIRE_BLOOD defensive quaff (the races-R2 deferral
+      "vampire-blood muse (vampire race)" was never consumed and had
+      no row; the race-predicate SWEEP's TO-DO "find_defensive +
+      m_use_healing vampire" named it), so the branch's vampires
+      (makemon gives every S_VAMPIRE a blood potion half the time)
+      carried vampire blood they never drank.
+      - BUG-2190 (dogmove.c, port gap): new staticfn
+        dog_quaff_blood(), called right after dog_hunger() (master's
+        position) for a tame is_vampire() pet more than DOG_HUNGRY
+        (300) turns past its hungrytime and not under a come order;
+        it drinks the first non-cursed potion of blood / vampire
+        blood (mquaffmsg(), exported from muse.c), gains the hero's
+        lesshungry() amounts (blood 200 / 100 / 60 / 30, vampire
+        blood 800 / 400 / 200 / 100 by blessed / diluted), restores
+        mhpmax_penalty, heals for vampire blood via healmon() and
+        returns MMOVE_DONE (master returned 1, "moved"). No
+        splitobj(): m_useup() decrements a stack.
+      - BUG-2191 (dogmove.c, master quirk, RULED 2026-10-08): the
+        drink counts from now like a meal (an overdue hungrytime is
+        raised to svm.moves first) and clears mconf; no tameness or
+        flee-timer change (ruled). Master paid down the overdue
+        clock, so uncursed blood (60) left the pet 241 turns overdue
+        and it re-drank every ~60 turns.
+      - BUG-2192 (muse.c, port gap): MUSE_POT_VAMPIRE_BLOOD 24 -
+        m_use_healing()'s tail arm (after eucalyptus), the
+        find_defensive() flat-loop arm right after potion of healing,
+        and the use_defensive() case (mquaffmsg, healmon(), "looks
+        better." / the cursed "discards the congealed blood in
+        disgust."). check_defensive_item() keeps NO find arm: vampire
+        blood inside a container stays unfindable (master parity).
+      - BUG-2193 (muse.c, master bug): blessed diluted vampire blood
+        did `mhp += mhpmax / 4` with no clamp (mhp > mhpmax trips the
+        branch's mon sanity impossible()); healmon() clamps. Heal
+        text RULED 2026-10-08: "looks completely healed." when the
+        drink ends at full HP, else "looks mostly healed." (the
+        hero's rule; master always said "completely").
+      - BUG-2194 (muse.c, master bug + a branch-only path): vampire
+        blood cures neither blindness nor sickness, but
+        find_defensive() calls m_use_healing() for a blind or sick
+        monster before its HP gate, so master's blinded full-HP
+        vampire drank every vampire blood it carried; the arm needs
+        mhp < mhpmax. Reviewer MEDIUM: the flat-loop arm takes the
+        same term - m_move()'s cornered find_defensive(mtmp, TRUE)
+        (5.0's tryescape, branch only) and a hostile Amulet carrier
+        skip the HP gate.
+      - BUG-2195 (muse.c, master quirk, RULED 2026-10-08): the
+        checker's rescan of the open pack replaced a vampire-blood
+        pick with a lower-ranked item met later (scroll of create
+        monster, eucalyptus); `nomore(MUSE_POT_VAMPIRE_BLOOD)` after
+        its potion of healing arm, no find arm.
+      Kept as master: a hungry vampire on a blood corpse drinks a
+      potion before dog_invent() would drain the corpse; a muse quaff
+      heals but never feeds; is_vampire() for the pet block,
+      racial_vampire() for muse; the branch's flat-loop rank puts the
+      wand of create monster above vampire blood (as above potions of
+      healing). The intrinsic-corpse satiation bypass still rides the
+      Rumor row's rider (g).
+      PLAN AGENT: verified healmon() reproduces master's arithmetic
+      for every case, MMOVE_DONE, the no-double-use ordering, the
+      200-turn drink window (vampires are not carnivores or
+      herbivores, so dog_hunger() resets them to moves + 500 at 500
+      overdue and never starves them), and that a tame vampire never
+      reaches the flat loop (hostile leg needed). REVIEWER: pass 1
+      CONDITIONAL PASS (MEDIUM the tryescape gate, LOW the rescan
+      rank - ruled, LOW the blind gate is mhp < mhpmax, not the
+      fraction gate - noted), both folded; pass 2 PASS (comment nit
+      folded; .text identical). BATTERIES (game-tester; PRE 541c0529
+      = e338a46e4 code; POST 0192aa5e): A 10/10 PASS (nutrition
+      matrix exact, the 300 / 500 thresholds, cursed skipped, penalty
+      + mconf, "You hear a chugging sound." with the type left
+      unknown, come order, muse then self-feed); B 13/13 PASS (text
+      matrix, the cursed discard, blind full HP keeps both potions,
+      blind wounded drinks one and stays blind, blessed diluted
+      capped, healing potion first, contained blood unfound,
+      non-vampire never drinks, hostile drinks on its first move);
+      D delta on aa52309d (= the final c9264292 .text) vs POST: D1
+      cornered full-HP vampire POST1 10/10 drinks ("looks completely
+      healed." at 58/58), POST2 0/10; D2 rescan POST1 blood-first
+      140/330 scroll, POST2 0/330; regressions PASS. Every PRE leg:
+      no vampire-blood use. Paniclogs clean on every copy. Tester
+      notes: `odiluted` is a macro for oeroded (gdb); the reviewer's
+      and my 2/3 for POST1 scroll-first was 7/9 (measured 0.745).
+- [ ] MED: object appearance-shuffle ranges lost master's EvilHack
+      endpoints (minted 2026-10-08, session 192, battery B anomaly:
+      blood and vampire blood showed as "black" / "effervescent").
+      The branch's o_init.c obj_shuffle_range() is 5.0's; master's
+      differs:
+      - POTION_CLASS: master shuffles only POT_GAIN_ABILITY..POT_OIL
+        ("potions of water, sickness and drow poison have the only
+        fixed descriptions"), so sickness stays "dark green", drow
+        poison "inky", blood and vampire blood "blood-red"; the
+        branch shuffles bases[POTION_CLASS]..POT_WATER - 1, so those
+        four take random looks and any other potion can come up
+        "blood-red" / "dark green" / "inky".
+      - ARMOR_CLASS endpoints: master HELM_OF_TELEKINESIS,
+        GAUNTLETS_OF_FUMBLING, FUMBLE_BOOTS (BUG-1204, c05b3fa7a);
+        the branch keeps 5.0's HELM_OF_TELEPATHY,
+        GAUNTLETS_OF_DEXTERITY, LEVITATION_BOOTS, and in the branch's
+        objects.h the helm of telekinesis, gauntlets of fumbling and
+        fumble boots sit AFTER those, so all three keep a fixed look
+        every game (BUG-1204's tell is back, and two more).
+      - RING_CLASS: master RIN_ADORNMENT..RIN_PROTECTION_FROM_SHAPE_
+        CHAN, the branch the whole class - the same shuffled set
+        today (only the artifact placeholders ancient / lustrous
+        follow shape changers, and they are born name-known, which
+        shuffle() skips); check after any ring addition.
+      Restore master's endpoints; carry BUG-1204's coupled sites
+      (master find_skates()'s loop bound - check what the branch uses
+      for the "snow boots" lookup); an existing game keeps its
+      shuffled oc_descr_idx (saved), new games get master's ranges.
+      Verify by a few new games' discoveries / ^I.
+- [ ] LOW: a vampshifter pet's hunger penalty survives into vampire
+      form (minted 2026-10-08, session 192, Plan agent; pre-existing,
+      master-shared shape). A wolf / warg / vampire bat form eats
+      meat, so dog_hunger() can starve it into edog->mhpmax_penalty
+      (mhpmax cut to a third). newcham() back to vampire form replaces
+      mhpmax through newmonhp() and never touches the penalty, and
+      the vampire form never clears it (a non-eater). The next
+      restore - dog_eat() or now dog_quaff_blood() - adds the stale
+      penalty onto a fresh mhpmax. Decide: clear the penalty on a
+      form change, or scale it; check master's newcham().
 - [x] ulastprayed writer/reader WIRED (2026-08-29; minted
       2026-08-26 by the features-coverage sweep; LOW). Master
       45daafcc1 = the symbol's whole history (xNetHack-derived);
@@ -25815,6 +25941,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-08 | potion.c potion_dip()'s polymorph arm (Official_nh50 src/potion.c ~2487, the "obj might be gone" arm) leaves the potion of polymorph unconsumed, with in_use set, when a worn amulet becomes an amulet of change | fixed on branch (BUG-2189, e338a46e4, session 191); no patch artifact yet; not sent |
 | 2026-10-07 | A held levitator or flyer dies in the sky, shared with Official_nh50: teleport.c level_tele()'s negative-level arm tests Levitation / Flying while a hold (bear trap, web, lava, floor) still blocks them through float_vs_flight(), so a hero in a bear trap wearing a ring of levitation who level-teleports to -5 reads "Unfortunately, you don't know how to fly." and plummets, though the hold cannot follow the teleport (fix: `if (u.utrap) reset_utrap(FALSE);` first in the arm - every path out of it ends the game); the same arm prints the joke for a hero whose flight is only held down | fixed on branch (BUG-2178); drop-in patch; not sent |
 | 2026-10-07 | Hold releases and the buried ball, shared with Official_nh50: (1) polyself.c float_vs_flight() decides the hold with `u.utrap && u.utraptype != TT_PIT`, but trapmove()'s escapes zero u.utrap and print ("You finally wriggle free.", "You disentangle yourself.", "Sting cuts through the web!", the lava pull-out) before domove's reset_utrap(TRUE); that message's flush_screen() -> bot() -> near_capacity() -> weight_cap() calls float_vs_flight() and lifts the levitation block early, so reset_utrap()'s float_up() never prints whenever disp.botl was set (fix: key the hold on `u.utraptype != TT_NONE && u.utraptype != TT_PIT`; set_utrap() is the only type writer and every gap ends in a reset); (2) hack.c trapmove()'s buried-ball arm prints "You finally wrench the ball free." and calls buried_ball_to_punishment(), whose reset_utrap(FALSE) swallows the resumed levitation / flight every time (fix: reset_utrap(TRUE) first); (3) dig.c bury_an_obj(uball) sets TT_BURIEDBALL under a hovering hero with no landing, so the hero hangs over a hole or trap until moving (upstream has no deferred landing; the shape needs a spoteffects() after bury_objs()' walk) | fixed on branch (BUG-2173, BUG-2174, BUG-2176); (1) and (2) are drop-in patches; not sent |
 | 2026-10-06 | hack.c switch_terrain() `} else if (BLevitation) {` calls float_up() for ANY levitation block, including a trap's I_SPECIAL: a levitator tethered to a buried iron ball (TT_BURIEDBALL; a frozen or boulder-filled pool over the ball) reads "You feel lighter, but your leg is still chained to the floor." on every step within reach that changes terrain type (ROOM / doorless doorway / corridor); fix: `} else if (BLevitation & FROMOUTSIDE) {`. Also trap.c float_up() tests `u.utraptype == WEB` (the trap-type enum) instead of TT_WEB, so a webbed hero who starts levitating gets the bear-trap text | switch_terrain() fixed on branch (BUG-2171; reached there by the vines' landing); the WEB constant fixed on branch 2026-10-07 (BUG-2175; drop-in `u.utraptype == WEB` -> `TT_WEB`, the entangle arm is EvilHack-only); not sent |
@@ -26004,6 +26131,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-08 | Vampire blood slice rulings (session 192; AskUserQuestion x3, four questions, all recommended). (1) THE PET'S DRINK COUNTS FROM NOW, LIKE A MEAL: an overdue hungrytime is raised to the current turn before the potion's nutrition is added, and hunger confusion clears (dog_eat()'s rule); rejected master's exact block, which paid down the overdue clock (uncursed blood left the pet 241 turns overdue, so it re-drank every ~60 turns). (2) CLOCK + CONFUSION ONLY: no tameness +1 and no flee-timer halving for a pet drinking from its own stash (master's block did neither); rejected full dog_eat() meal parity. (3) BLESSED VAMPIRE BLOOD HEAL TEXT MIRRORS THE HERO: "<Mon> looks completely healed." when the drink ends at full HP, else "<Mon> looks mostly healed."; rejected master's always-"completely" and "looks much better" for the diluted case. (4) THE RESCAN KEEPS VAMPIRE BLOOD'S RANK: check_defensive_item() gains a nomore stop (no find arm, so contained vampire blood stays unfindable); rejected master's shape, where a lower-ranked scroll of create monster replaced the pick ~4/9 to 7/9 of the time. | maintainer |
 | 2026-10-07 | Open-row rulings (session 189 follow-up; AskUserQuestion x2, eight questions, seven recommended; rulings only, code in future sessions). (1) ITEM FLIGHT ON A STEED KEEPS THE RIDER UP EVERYWHERE: one "steed keeps the rider up" test - a steed that flies or floats by any means carries the pair over water, holes, trap doors and open air; rejected natural flyers only and leaving the split. (2) A HOLD ON THE RIDER GROUNDS THE PAIR, own lift or not; rejected the steed's lift ignoring the hold and the own-lift split. (3) HEAVEN TELEPORT: a held hero with any flight or levitation source survives (the hold cannot follow), the joke line only with no source; rejected dying with truer wording. (4) #JUMP WHILE ENTANGLED FAILS, NO WOUND: "You strain your legs, but you're still entangled."; rejected the stuck-floor arm with wounded legs and a jump that rips free. (5) DRAG_BALL() VS VINES: pull free with a line - "The ball pulls you out of the vegetation!" / "... of the tree's grip!"; rejected the vines refusing the drag and one line for both. (6) SILENT HOLD CLEARS: tell the returned lift right after the event's own lines, same level or new; rejected same-level only and silence. (7) ROOTS / BRANCHES: the cast keeps master's roll, a grounded release is neutral - "The tree releases its grip on you."; rejected a stored pick and master's rolls. (8) TREE-HELD HERO WHOSE BALL IS BURIED: FIX IT (maintainer over my record-only pick) - the chain replaces the branches' hold and lands the hero ("You land." with a lift source, a drop with no line without). | maintainer |
 | 2026-10-07 | Hold-release / tether-landing slice rulings (session 189; AskUserQuestion x2, three questions, all recommended). (1) THE CHAIN PULLS A HOVERING HERO DOWN AND LANDS: burying the iron ball under a flyer or levitator (a frozen or boulder-filled pool or pit, #wizbury) lands them at the next safe point ("You land.") and the square acts as if walked onto - a hole drops them with the ball unearthed and attached on arrival, a floor trap fires, water drowns / crawl-out, open air plummets (the tether is a ground hold: float_vs_flight()'s "the floor is reachable", goto_level()'s "tethered movement makes level change while trapped feasible"); rejected a chain that holds the hero over holes (would change walking onto a hole while chained too, master and 5.0 fall) and leaving the hover as by-design. (2) ENTANGLED FLOAT-UP TEXT: "You float up slightly, but you are still entangled by a tree." / "... by vegetation." (trapmove()'s predicate wording); rejected "the tree's branches still hold you" and keeping the bear-trap line. (3) HELD-DOWN LEVITATOR OVER A HAZARD: "You stop levitating." (vanilla's word), flyers keep "You stop flying."; rejected "You stop floating." and no change. | maintainer |
 | 2026-10-06 | ENTANGLE HOLDS THE HERO WHERE THEY ARE (session 188, maintainer discussion after the slice's batteries; SUPERSEDES the session 187 follow-up CATCH + LAND ruling for tree catches). A tree's branches hold a flying or levitating hero in place - over water, lava, a hole or open air too - for the whole hold: no landing, no drowning, no fall, no plummet (entangle is a control spell; catch-and-land turned it into a drowning / level-drop / one-cast-kill spell near hazards, and the crawl-out freed the hero anyway). Grass alone (no tree adjacent) can only hold the hero on the ground it grows from, so it pulls a flyer down ("You land."; grass is never a hazard square). On release the hero resumes flying if a source remains; if the flight or levitation ran out during the hold, the hero drops at once over water, lava, open air or a hole. Maintainer also confirmed entangle needs grass underfoot or a tree adjacent (ported: cast_entangle() and the mcastu.c pre-filter) | maintainer |
