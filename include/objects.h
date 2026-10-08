@@ -1528,10 +1528,11 @@ OBJECT(OBJ("consecration", "GILCHEX FRONUTS"),
        0, SCROLL_CLASS, 0, 0, 5, 5000, 0, 0, 0, 0, 6, HI_PAPER,
         SCR_CONSECRATION),
 /* Extra descriptions, shuffled into use at start of new game.
-     * Code in win/share/tilemap.c depends on SCR_STINKING_CLOUD preceding
-     * these and on how many of them there are.  If a real scroll gets added
-     * after stinking cloud or the number of extra descriptions changes,
-     * tilemap.c must be modified to match.
+     * compose_glyph_name() in glyphs.c depends on SCR_CONSECRATION being
+     * the last real scroll before these, and win/share/tilemap.c depends
+     * on how many of them there are. If a real scroll gets added after
+     * consecration or the number of extra descriptions changes, both
+     * must be modified to match
      */
 /* === SCROLL entries === */
 SCROLL(NoDes,              "TEMOV",  1,   0, 100,

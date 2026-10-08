@@ -277,19 +277,20 @@ obj_shuffle_range(
 
     switch (ocls) {
     case ARMOR_CLASS:
-        if (otyp >= HELMET && otyp <= HELM_OF_TELEPATHY)
-            *lo_p = HELMET, *hi_p = HELM_OF_TELEPATHY;
-        else if (otyp >= GLOVES && otyp <= GAUNTLETS_OF_DEXTERITY)
-            *lo_p = GLOVES, *hi_p = GAUNTLETS_OF_DEXTERITY;
+        if (otyp >= HELMET && otyp <= HELM_OF_TELEKINESIS)
+            *lo_p = HELMET, *hi_p = HELM_OF_TELEKINESIS;
+        else if (otyp >= GLOVES && otyp <= GAUNTLETS_OF_FUMBLING)
+            *lo_p = GLOVES, *hi_p = GAUNTLETS_OF_FUMBLING;
         else if (otyp >= CLOAK_OF_PROTECTION && otyp <= CLOAK_OF_DISPLACEMENT)
             *lo_p = CLOAK_OF_PROTECTION, *hi_p = CLOAK_OF_DISPLACEMENT;
-        else if (otyp >= SPEED_BOOTS && otyp <= LEVITATION_BOOTS)
-            *lo_p = SPEED_BOOTS, *hi_p = LEVITATION_BOOTS;
+        else if (otyp >= SPEED_BOOTS && otyp <= FUMBLE_BOOTS)
+            *lo_p = SPEED_BOOTS, *hi_p = FUMBLE_BOOTS;
         break;
     case POTION_CLASS:
-        /* potion of water has the only fixed description */
-        *lo_p = svb.bases[POTION_CLASS];
-        *hi_p = POT_WATER - 1;
+        /* potions of sickness, drow poison, blood, vampire blood and
+           water have fixed descriptions */
+        if (otyp >= POT_GAIN_ABILITY && otyp <= POT_OIL)
+            *lo_p = POT_GAIN_ABILITY, *hi_p = POT_OIL;
         break;
     case AMULET_CLASS:
     case SCROLL_CLASS:
@@ -304,7 +305,8 @@ obj_shuffle_range(
     case RING_CLASS:
     case WAND_CLASS:
     case VENOM_CLASS:
-        /* entire class */
+        /* entire class; the artifact ring placeholders (ancient,
+           lustrous) are born name-known, so shuffle() skips them */
         *lo_p = svb.bases[ocls];
         *hi_p = svb.bases[ocls + 1] - 1;
         break;

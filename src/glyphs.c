@@ -275,7 +275,7 @@ compose_glyph_name(int glyph, char *buf, size_t bufsz)
         Snprintf(buf, bufsz, "G_%s%s", buf2, buf3);
     } else if (glyph_is_object(glyph)) {
         i = glyph_to_obj(glyph);
-        if (((i > SCR_STINKING_CLOUD) && (i < SCR_MAIL))
+        if (((i > SCR_CONSECRATION) && (i < SCR_MAIL))
             || ((i > WAN_LIGHTNING) && (i < GOLD_PIECE))) {
             return 0;
         }
@@ -283,7 +283,7 @@ compose_glyph_name(int glyph, char *buf, size_t bufsz)
             buf2 = "wand of ";
         else if ((i >= SPE_DIG) && (i < SPE_BLANK_PAPER))
             buf2 = "spellbook of ";
-        else if ((i >= SCR_ENCHANT_ARMOR) && (i <= SCR_STINKING_CLOUD))
+        else if ((i >= SCR_ENCHANT_ARMOR) && (i <= SCR_CONSECRATION))
             buf2 = "scroll of ";
         else if ((i >= POT_GAIN_ABILITY) && (i <= POT_WATER))
             buf2 = (i == POT_WATER) ? "flask of n" : "potion of ";
