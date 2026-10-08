@@ -17,11 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-08, after session 193): 333
+- Phase 2 status (refreshed 2026-10-08, after session 194): 334
   rows closed, 99 open. Of the open rows:
-  - 6 MED: unported master features (potion
+  - 5 MED: unported master features (potion
     alchemy table, terrain concealment, door-material colors,
-    pet-helper AI, the held artifact pokedex tips, timed see
+    the held artifact pokedex tips, timed see
     invisible and invisibility - its mhitu.c arm landed with the
     boojum slice).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
@@ -34,7 +34,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 77 LOW: small parity rows, quirks and watch/record-only items.
+  - 78 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -80,7 +80,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     (minted and fixed the same session) in session 191; the vampire
     pet blood-potion row (MED, with the unrowed muse vampire-blood
     quaff) in session 192; the appearance-shuffle row (MED, with the
-    scroll glyph ids) in session 193.
+    scroll glyph ids) in session 193; the pet-helper row (MED) in
+    session 194.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -130,31 +131,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     vampshifter hunger-penalty carry-over row (and the MED
     appearance-shuffle row); session 193 the duplicate trap-kit G_
     ids row and the wish-merge prinv() message row (needs a
-    trace).
+    trace); session 194 the held amulet of flying's unidentified
+    release row (record-only).
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-08 (session 193) EVERY SHUFFLED ARMOR
-  POOL HOLDS ITS LAST MEMBER AGAIN, AND THE BLOOD-RED, DARK GREEN
-  AND INKY POTIONS KEEP THEIR LOOKS (code 5cc63b077, tracker TBD;
-  BUG-2196..2198).
-  - The branch's 5.0 obj_shuffle_range() stopped short of the helm
-    of telekinesis, gauntlets of fumbling and fumble boots (fixed
-    looks every game, master's BUG-1204 tell) and shuffled
-    EvilHack's fixed-look potions; master's endpoints restored.
-  - Ruling: the ring arm keeps 5.0's whole class (same 28 rings).
-  - Same class: the scrolls of magic detection and consecration get
-    glyph ids (compose_glyph_name()'s last real scroll).
-  - Detail: the closed appearance-shuffle row.
-- Previous slice: 2026-10-08 (session 192) VAMPIRES DRINK THEIR
-  BLOOD (code 7962b48d1, tracker 1ea45bf3c; BUG-2190..2195); detail
-  in the closed vampire blood-potion row.
-- Previous slice: 2026-10-08 (session 191) A HERO TURNED BACK BY A
+- Latest slice: 2026-10-08 (session 194) PETS HELP THEIR OWNER
+  AGAIN (code TBD, tracker TBD; BUG-2199..2202).
+  - Master's dog_move() helper block: a domesticated pet heals a
+    hero below 1/8 HP, casts protection or reflection, and pulls the
+    hero out of a pit, bear trap or web; the unslime arm moved
+    inside the same gate.
+  - Ruling: beside other holds the pet takes its normal turn.
+  - Bear trap / web releases tell returned lift last (standing
+    ruling).
+  - Detail: the closed Pet-helper row.
+- Previous slice: 2026-10-08 (session 193) EVERY SHUFFLED ARMOR
+  POOL HOLDS ITS LAST MEMBER AGAIN (code 5cc63b077, tracker
+  1861aa9cb; BUG-2196..2198); detail in the closed
+  appearance-shuffle row.
+- Earlier slices: 2026-10-08 (session 192) VAMPIRES DRINK THEIR
+  BLOOD (code 7962b48d1, tracker 1ea45bf3c; BUG-2190..2195; detail
+  in the closed vampire blood-potion row);
+  2026-10-08 (session 191) A HERO TURNED BACK BY A
   LIGHT KEEPS NO WEAPON IT LOST; A SPENT POLYMORPH POTION IS USED UP
-  (code e338a46e4, tracker 78f8e6992; BUG-2184..2189); detail in the
-  closed light-revert weapon-slot rows.
-- Earlier slices: 2026-10-07 (session 190) THE HOLD CANNOT FOLLOW
+  (code e338a46e4, tracker 78f8e6992; BUG-2184..2189; detail in the
+  closed light-revert weapon-slot rows);
+  2026-10-07 (session 190) THE HOLD CANNOT FOLLOW
   INTO THE SKY (code 2bc884d66, tracker 385dc3fe8; BUG-2178..2183;
   detail in the closed sky teleport row);
   2026-10-07 (session 189) HOLD RELEASES TELL OF THE
@@ -4262,8 +4266,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       -> pet feeding/behavior slice(s) (OWNERS 2026-10-07, session
       190: no such slice row existed; grass eating and the drop
       avoidance are ported, the helpful actions are the Pet-helper
-      row, the self-feed the vampire blood-potion row beside it,
-      the intrinsic-corpse terms the Rumor row's rider (g));
+      row (LANDED 2026-10-08, session 194, with its come-order
+      gate), the self-feed the vampire blood-potion row beside it
+      (LANDED session 192), the intrinsic-corpse terms the Rumor
+      row's rider (g));
       could_use_item/
       is_better_armor terms + find_best_armor_recurse container
       recursion + m_stash_items -> monster looting (DISCHARGED
@@ -24638,7 +24644,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       nohands, !u.usteed) has NO branch target - the pet-helper
       feature is entirely unported, row minted below with those
       riders attached.
-- [ ] Pet-helper feature NOT PORTED (minted 2026-08-30 by the
+- [x] Pet-helper feature PORTED 2026-10-08 (session 194;
+      BUG-2199..2202; code TBD, tracker TBD; closure notes at the
+      end of this row). Original text: Pet-helper feature NOT PORTED
+      (minted 2026-08-30 by the
       tameness-ladder slice; LOW/MED - player-visible pet AI
       feature; unlogged: no FEATURES_ARCHIVE entry, zero tracker
       coverage until now). Master 31f78b83d ("Pets can help the
@@ -24657,6 +24666,94 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pit and fall in). Prescribed history check before porting:
       git log master src/dogmove.c for later helper-block
       tweaks beyond d47c00704.
+      CLOSURE (plan /root/.claude/plans/feature-pet-helper-actions.md).
+      - Row text corrections: master never had a cure-sickness arm
+        (healup(..., FALSE, FALSE)); 31f78b83d's mcastu.c hunk (the
+        hero-cast CLC_PROTECTION) is covered by the branch's
+        mcast_protection(); its mondata.c hunk was whitespace; its
+        mon.c support-caster skip rides the Goblintown-riders row
+        (rider added there).
+      - History check done (git log -L over master's block): 31f78b83d,
+        d47c00704, ba767aee7, f34b10157, 762f364c8, 68805a672
+        (BUG-553 cooldown, BUG-554 Upolyd threshold), f99afe705 (web
+        NULL guard), a684bb8e8 (skill argument). All ride the port.
+      - BUG-2199: dog_move() gains master's gate (edog, no come order,
+        not confused / stunned / frozen, mtame >= 10) and the heal,
+        protection, reflection and pit / bear trap / web arms, in
+        branch idioms (pline_mon, MMOVE_DONE for master's `return 1`,
+        gv.vision_full_recalc). `!rn2(4)` goes last in each condition
+        (same odds, no draw for pets that cannot help); 5.0's
+        Soundeffect(se_destroy_web) on the web arm.
+      - BUG-2200: the BUG-1440 unslime arm moves inside the gate
+        (master's shape): no unslime from pets below tameness 10,
+        under a come order, confused / stunned / frozen, or without
+        an edog.
+      - BUG-2201, RULED 2026-10-08 (AskUserQuestion, recommended;
+        decisions log): other holds - the pet carries on. The arm
+        names TT_PIT / TT_BEARTRAP / TT_WEB; master fell through to a
+        silent spent turn for lava / floor / buried ball / vines.
+      - BUG-2202 (standing 2026-10-07 TELL IT AFTER THE EVENT
+        ruling): the bear trap and web releases call reset_utrap(TRUE)
+        last (after the injury / the web's deletion, as jump() and
+        drop_ball() do; reviewer LOWs 1-2 folded); the pit keeps
+        climb_pit()'s silent reset.
+      - Master-shared, kept: a pet's reflection cast bumps
+        u.uconduct.reflection; cast durations use the hero's skill;
+        no sight checks; the cast / unslime arms reach an engulfed
+        hero and a ridden steed's rider; a Conflicted pet helps.
+        The come-order clause in the gate is dead (master too): the
+        arrival check clears the order for any pet within distu 2
+        before the gate, and every arm needs distu < 3.
+      - Plan agent: confirmed every callee and the steed path; review
+        PASS (LOW 1-2 release order, folded; LOW 3 this row's text).
+      - BATTERY (two game-testers, own playgrounds; PRE 646edab6 =
+        1861aa9cb code, POST 15548fec; paniclogs never created):
+        - A heal: "The gnoll cleric casts a healing spell at you.
+          You feel better." uhp 9 -> 19 (+10), mspec_used 2;
+          hallucinating "You feel groovy." (+15); polymorphed u.mh
+          5 -> 16 with uhp untouched. Negatives mtame 9 (3 eligible
+          entries) and mconf (17 forced entries): gate never entered.
+          A4c (come order) FAILED as briefed - brief error, the
+          dead clause above. PRE: no heal in 43 turns.
+        - B protection: line + golden haze, uspellprot 0 -> 5, AC 4
+          -> -1. Slow: the cleric's own dochug self-casts kept
+          mspec_used up (46 casts in 117 turns; master-shared).
+        - C reflection (titan, m_lev 18): line + "A shimmering globe
+          appears around you!", u.uconduct.reflection 0 -> 1, xlog
+          conductX lost never_acquired_reflection. #conduct has no
+          reflection line on the branch (the open conduct wiring
+          row).
+        - D pit: ogre and gnoll cleric pull a human out; a hill-giant
+          hero gets "The ogre tries to pull you out, but cannot get
+          a firm grasp." twice and stays trapped.
+        - E bear trap: "The ogre rips you free of the bear trap!",
+          trap kept, wounded legs 500..1499; with a held ring of
+          levitation "...bear trap!  You start to float in the air!"
+          and the tracer order losehp -> set_wounded_legs ->
+          float_up.
+        - F web: torn and deleted; with a held amulet of flying
+          "...setting you free!  You can fly." (deltrap before
+          reset_utrap).
+        - G riding: 19 adjacent ogre checks, 0 arm entries in 44
+          turns.
+        - H ruling: TT_INFLOOR 18 and TT_BURIEDBALL 25 adjacent
+          checks, 0 arm entries, the ogre acting normally; TT_PIT
+          control entered and pulled.
+        - I unslime: POST mtame 9 / mconf no unslime, mtame 10
+          burns it off; PRE mtame 9 burns it off.
+        - PRE control: ogre at mtame 10 beside pit / bear trap / web,
+          no help in 44-45 turns each.
+- [ ] LOW: an amulet of flying put on while held stays unidentified
+      when the release says "You can fly." (minted 2026-10-08,
+      session 194, battery F2 anomaly; upstream-shared, every
+      reset_utrap(TRUE) release site). Amulet_on() identifies only
+      when flight starts at once; a web / bear trap / floor hold
+      blocks it, so the amulet gives no message, and the later
+      release prints "You can fly." without makeknown(). Amulet_off()
+      does identify it (was_flying && !Flying). A held ring of
+      levitation is identified at once ("You float up slightly, but
+      your leg is still stuck."). Record unless a ruling wants the
+      release to identify. LOW.
 - [x] A tame vampire never drinks the blood potions it hoards
       (minted 2026-10-07, session 190, found while checking the
       dog_move port row's deferral list; LOW/MED - pet AI) - FIXED
@@ -24781,7 +24878,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shuffled oc_descr_idx (saved), new games get master's ranges.
       Verify by a few new games' discoveries / ^I.
       LANDED 2026-10-08 (session 193; BUG-2196..2198; code 5cc63b077,
-      tracker TBD). Plan
+      tracker 1861aa9cb). Plan
       /root/.claude/plans/bugfix-appearance-shuffle-ranges.md.
       - BUG-2196: master's armor endpoints HELM_OF_TELEKINESIS,
         GAUNTLETS_OF_FUMBLING, FUMBLE_BOOTS.
@@ -25779,7 +25876,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       BUG-622 (G_GONE genocide check aborting whole-group
       creation, 10 sites) and BUG-936 (is_support()/m_respond
       ally-heal never setting mspec_used) - branch m_initgrp is
-      plain 5.0, branch mon.c has no is_support arm. (b) master
+      plain 5.0, branch mon.c has no is_support arm. Also carry
+      master 31f78b83d's "caster is incapacitated" skip (mconf /
+      mstun / mfrozen) in that heal loop (rider added 2026-10-08,
+      session 194, by the pet-helper slice, whose dogmove.c half
+      landed). (b) master
       pager.c's monster-remarks framework (MONPUTSTR): its Gollum
       farlook line ("Eats fish, goblin, and bat corpses off the
       floor.") rides with that feature - no landing site today
@@ -26193,6 +26294,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-08 | Pet-helper slice ruling (session 194; AskUserQuestion x1, recommended). OTHER HOLDS - THE PET CARRIES ON: the pet's trap-help arm names a pit, bear trap or web, so beside a hero sinking in lava, stuck in the floor, chained to a buried ball or held by vines / a tree, a strong pet with hands takes its normal turn (BUG-2201). Rejected master's exact shape, whose arm fell through to `return 1` for those holds and silently spent the pet's turn 1 time in 4. Applied without a new question: the 2026-10-07 TELL IT AFTER THE EVENT ruling - the bear trap and web releases announce returned levitation / flight after their own lines (BUG-2202). | maintainer (ruling); session (standing ruling applied) |
 | 2026-10-08 | Appearance-shuffle slice ruling (session 193; AskUserQuestion x1, recommended). THE RING ARM KEEPS 5.0's WHOLE CLASS: obj_shuffle_range() shuffles svb.bases[RING_CLASS]..bases[RING_CLASS + 1] - 1, with a comment naming the born-name-known ancient / lustrous placeholders that shuffle() skips. That is the same 28 rings as master's RIN_ADORNMENT..RIN_PROTECTION_FROM_SHAPE_CHAN, and a future ring shuffles with no endpoint edit. Rejected master's endpoints, which behave identically today but would leave a ring appended after shape changers with a fixed look (the BUG-1204 pattern). The armor and potion arms restore master's endpoints (BUG-2196 / BUG-2197; no ruling needed). | maintainer |
 | 2026-10-08 | Vampire blood slice rulings (session 192; AskUserQuestion x3, four questions, all recommended). (1) THE PET'S DRINK COUNTS FROM NOW, LIKE A MEAL: an overdue hungrytime is raised to the current turn before the potion's nutrition is added, and hunger confusion clears (dog_eat()'s rule); rejected master's exact block, which paid down the overdue clock (uncursed blood left the pet 241 turns overdue, so it re-drank every ~60 turns). (2) CLOCK + CONFUSION ONLY: no tameness +1 and no flee-timer halving for a pet drinking from its own stash (master's block did neither); rejected full dog_eat() meal parity. (3) BLESSED VAMPIRE BLOOD HEAL TEXT MIRRORS THE HERO: "<Mon> looks completely healed." when the drink ends at full HP, else "<Mon> looks mostly healed."; rejected master's always-"completely" and "looks much better" for the diluted case. (4) THE RESCAN KEEPS VAMPIRE BLOOD'S RANK: check_defensive_item() gains a nomore stop (no find arm, so contained vampire blood stays unfindable); rejected master's shape, where a lower-ranked scroll of create monster replaced the pick ~4/9 to 7/9 of the time. | maintainer |
 | 2026-10-07 | Open-row rulings (session 189 follow-up; AskUserQuestion x2, eight questions, seven recommended; rulings only, code in future sessions). (1) ITEM FLIGHT ON A STEED KEEPS THE RIDER UP EVERYWHERE: one "steed keeps the rider up" test - a steed that flies or floats by any means carries the pair over water, holes, trap doors and open air; rejected natural flyers only and leaving the split. (2) A HOLD ON THE RIDER GROUNDS THE PAIR, own lift or not; rejected the steed's lift ignoring the hold and the own-lift split. (3) HEAVEN TELEPORT: a held hero with any flight or levitation source survives (the hold cannot follow), the joke line only with no source; rejected dying with truer wording. (4) #JUMP WHILE ENTANGLED FAILS, NO WOUND: "You strain your legs, but you're still entangled."; rejected the stuck-floor arm with wounded legs and a jump that rips free. (5) DRAG_BALL() VS VINES: pull free with a line - "The ball pulls you out of the vegetation!" / "... of the tree's grip!"; rejected the vines refusing the drag and one line for both. (6) SILENT HOLD CLEARS: tell the returned lift right after the event's own lines, same level or new; rejected same-level only and silence. (7) ROOTS / BRANCHES: the cast keeps master's roll, a grounded release is neutral - "The tree releases its grip on you."; rejected a stored pick and master's rolls. (8) TREE-HELD HERO WHOSE BALL IS BURIED: FIX IT (maintainer over my record-only pick) - the chain replaces the branches' hold and lands the hero ("You land." with a lift source, a drop with no line without). | maintainer |
