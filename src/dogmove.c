@@ -1598,39 +1598,149 @@ dog_move(
         return MMOVE_DONE;
     }
 
-    /* unslime: a fire-capable pet burns the slime off a hero who is
-       turning into green slime */
-    if (dmgtype(mtmp->data, AD_FIRE) && !mtmp->mcan && Slimed
-        && distu(mtmp->mx, mtmp->my) < 3) {
-        if (attacktype(mtmp->data, AT_BREA))
-            pline_mon(mtmp, "%s breathes fire on you!", Monnam(mtmp));
-        else if (attacktype(mtmp->data, AT_GAZE) && !Blind && mtmp->mcansee)
-            pline_mon(mtmp, "%s looks at you with a fiery gaze!",
+    /* sometimes your pet can help you out in various ways; it has
+       to be at least domesticated, and it skips these helpful
+       actions while ordered to come to you */
+    if (edog && !(edog->petstrat & PETSTRAT_COME)
+        && !(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)
+        && mtmp->mtame >= 10) {
+        /* heal you if hit points are below 12.5% of max */
+        if (dmgtype(mtmp->data, AD_CLRC)
+            && !(mtmp->mcan || mtmp->mspec_used)
+            && ((Upolyd ? u.mh : u.uhp)
+                < ((Upolyd ? u.mhmax : u.uhpmax) / 8))
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            pline_mon(mtmp, "%s casts a healing spell at you.",
                       Monnam(mtmp));
-        pline("You're %s!", on_fire(&gy.youmonst, ON_FIRE));
-        if (completelyburns(gy.youmonst.data)) {
-            You("go up in flames!");
-            burn_away_slime();
-            rehumanize();
-            return MMOVE_DONE;
-        } else if (how_resistant(FIRE_RES) == 100 || Underwater) {
-            if (Underwater)
-                pline_The("fire quickly fizzles out.");
+            if (Hallucination)
+                You_feel("groovy.");
             else
-                pline_The("fire doesn't feel hot!");
-            monstseesu(M_SEEN_FIRE);
-        } else {
-            losehp(resist_reduce(rnd(6), FIRE_RES),
-                   flags.female ? "being set on fire by her pet"
-                                : "being set on fire by his pet",
-                   KILLED_BY);
+                You_feel("better.");
+            healup(d(3, 6), 0, FALSE, FALSE);
+            mtmp->mspec_used = 4 - (int) mtmp->m_lev;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
+            return MMOVE_DONE;
         }
-        if (!Underwater) {
-            if ((int) mtmp->m_lev > rn2(20))
-                (void) destroy_items(&gy.youmonst, AD_FIRE, rnd(6));
-            burn_away_slime();
+        /* protection if not already protected via spell */
+        if (dmgtype(mtmp->data, AD_CLRC)
+            && !(mtmp->mcan || mtmp->mspec_used)
+            && mtmp->m_lev >= 3 && !u.uspellprot
+            && distu(mtmp->mx, mtmp->my) < 3 && !rn2(4)) {
+            pline_mon(mtmp, "%s casts a protection spell at you.",
+                      Monnam(mtmp));
+            cast_protection(P_SKILL(spell_skilltype(SPE_PROTECTION)));
+            mtmp->mspec_used = 4 - (int) mtmp->m_lev;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
+            return MMOVE_DONE;
         }
-        return MMOVE_DONE;
+        /* reflection if not already reflecting */
+        if (dmgtype(mtmp->data, AD_SPEL)
+            && !(mtmp->mcan || mtmp->mspec_used)
+            && mtmp->m_lev >= 14 && !Reflecting
+            && distu(mtmp->mx, mtmp->my) < 3 && !rn2(4)) {
+            pline_mon(mtmp, "%s casts a reflection spell at you.",
+                      Monnam(mtmp));
+            cast_reflection(&gy.youmonst,
+                            P_SKILL(spell_skilltype(SPE_REFLECTION)));
+            mtmp->mspec_used = 4 - (int) mtmp->m_lev;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
+            return MMOVE_DONE;
+        }
+        /* assist with a pit, bear trap or web - pet has to be
+           strong, have hands, and for the first two be at least
+           as large as you; no help while you ride (a steed pulled
+           its rider out of a pit only to fall in itself), and other
+           holds leave the pet to its normal turn */
+        if (u.utrap
+            && (u.utraptype == TT_PIT || u.utraptype == TT_BEARTRAP
+                || u.utraptype == TT_WEB)
+            && strongmonst(mtmp->data)
+            && !nohands(mtmp->data) && !u.usteed
+            && distu(mtmp->mx, mtmp->my) < 3 && !rn2(4)) {
+            if (u.utraptype == TT_PIT) {
+                if (mtmp->data->msize < gy.youmonst.data->msize) {
+                    pline_mon(mtmp,
+                    "%s tries to pull you out, but cannot get a firm grasp.",
+                              Monnam(mtmp));
+                    return MMOVE_DONE;
+                }
+                pline_mon(mtmp, "%s pulls you out of the pit!",
+                          Monnam(mtmp));
+                reset_utrap(FALSE);
+                fill_pit(u.ux, u.uy);
+                gv.vision_full_recalc = 1; /* vision limits change */
+            } else if (u.utraptype == TT_BEARTRAP) {
+                long side;
+
+                if (mtmp->data->msize < gy.youmonst.data->msize) {
+                    pline_mon(mtmp,
+                    "%s tries to pull you free, but cannot get a firm grasp.",
+                              Monnam(mtmp));
+                    return MMOVE_DONE;
+                }
+                side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
+                pline_mon(mtmp, "%s rips you free of the bear trap!",
+                          Monnam(mtmp));
+                losehp(Maybe_Half_Phys(rnd(10)),
+                       flags.female
+                           ? "being removed from a bear trap by her pet"
+                           : "being removed from a bear trap by his pet",
+                       KILLED_BY);
+                set_wounded_legs(side, rn1(1000, 500));
+                /* tell of any levitation or flight the trap held down */
+                reset_utrap(TRUE);
+            } else {
+                struct trap *wtrap = t_at(u.ux, u.uy);
+
+                pline_mon(mtmp, "%s tears the web apart, setting you free!",
+                          Monnam(mtmp));
+                Soundeffect(se_destroy_web, 30);
+                if (wtrap)
+                    deltrap(wtrap);
+                newsym(u.ux, u.uy);
+                /* tell of any levitation or flight the web held down */
+                reset_utrap(TRUE);
+            }
+            return MMOVE_DONE;
+        }
+        /* unslime: a fire-capable pet burns the slime off a hero who
+           is turning into green slime */
+        if (dmgtype(mtmp->data, AD_FIRE) && !mtmp->mcan && Slimed
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            if (attacktype(mtmp->data, AT_BREA))
+                pline_mon(mtmp, "%s breathes fire on you!", Monnam(mtmp));
+            else if (attacktype(mtmp->data, AT_GAZE) && !Blind
+                     && mtmp->mcansee)
+                pline_mon(mtmp, "%s looks at you with a fiery gaze!",
+                          Monnam(mtmp));
+            pline("You're %s!", on_fire(&gy.youmonst, ON_FIRE));
+            if (completelyburns(gy.youmonst.data)) {
+                You("go up in flames!");
+                burn_away_slime();
+                rehumanize();
+                return MMOVE_DONE;
+            } else if (how_resistant(FIRE_RES) == 100 || Underwater) {
+                if (Underwater)
+                    pline_The("fire quickly fizzles out.");
+                else
+                    pline_The("fire doesn't feel hot!");
+                monstseesu(M_SEEN_FIRE);
+            } else {
+                losehp(resist_reduce(rnd(6), FIRE_RES),
+                       flags.female ? "being set on fire by her pet"
+                                    : "being set on fire by his pet",
+                       KILLED_BY);
+            }
+            if (!Underwater) {
+                if ((int) mtmp->m_lev > rn2(20))
+                    (void) destroy_items(&gy.youmonst, AD_FIRE, rnd(6));
+                burn_away_slime();
+            }
+            return MMOVE_DONE;
+        }
     }
 
     nix = omx; /* set before newdogpos */
