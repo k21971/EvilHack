@@ -464,6 +464,7 @@ dowield(void)
 {
     char qbuf[QBUFSZ];
     struct obj *wep, *oldwep;
+    unsigned oldid;
     int result;
 
     /* May we attempt this? */
@@ -557,7 +558,13 @@ dowield(void)
  wielding:
     /* Set your new primary weapon */
     oldwep = uwep;
+    oldid = oldwep ? oldwep->o_id : 0;
     result = ready_weapon(wep);
+    /* its light or a touch blast can hurt a polymorphed hero back into
+       a natural form whose landing in water or lava lost the old
+       weapon */
+    if (oldwep && o_on(oldid, gi.invent) != oldwep)
+        oldwep = (struct obj *) 0;
     if (flags.pushweapon && oldwep && uwep != oldwep)
         setuswapwep(oldwep);
     untwoweapon();
@@ -570,6 +577,7 @@ int
 doswapweapon(void)
 {
     struct obj *oldwep, *oldswap;
+    unsigned oldid, swapid;
     int result = 0;
 
     /* May we attempt this? */
@@ -585,16 +593,24 @@ doswapweapon(void)
 
     /* Unwield your current secondary weapon */
     oldwep = uwep;
+    oldid = oldwep ? oldwep->o_id : 0;
     oldswap = uswapwep;
+    swapid = oldswap ? oldswap->o_id : 0;
     setuswapwep((struct obj *) 0);
 
     /* Set your new primary weapon */
     result = ready_weapon(oldswap);
+    /* its light or a touch blast can hurt a polymorphed hero back into
+       a natural form that drops it, or whose landing in water or lava
+       loses the old weapon; never seat an item that left inventory */
+    if (oldwep && o_on(oldid, gi.invent) != oldwep)
+        oldwep = (struct obj *) 0;
 
     /* Set your new secondary weapon */
     if (uwep == oldwep) {
         /* Wield failed for some reason */
-        setuswapwep(oldswap);
+        if (!oldswap || o_on(swapid, gi.invent) == oldswap)
+            setuswapwep(oldswap);
     } else {
         setuswapwep(oldwep);
         if (uswapwep)
@@ -851,6 +867,7 @@ wield_tool(struct obj *obj,
             return FALSE;
     } else {
         struct obj *oldwep = uwep;
+        unsigned oldid = oldwep ? oldwep->o_id : 0;
 
         if (will_weld_to_you(obj)) {
             /* hope none of ready_weapon()'s early returns apply here... */
@@ -859,11 +876,17 @@ wield_tool(struct obj *obj,
             You("now wield %s.", doname(obj));
             setuwep(obj);
         }
+        /* as in dowield(): never seat an old weapon that left inventory */
+        if (oldwep && o_on(oldid, gi.invent) != oldwep)
+            oldwep = (struct obj *) 0;
         if (flags.pushweapon && oldwep && uwep != oldwep)
             setuswapwep(oldwep);
     }
-    if (uwep && uwep != obj)
-        return FALSE; /* rewielded old object after dying */
+    /* not wielded after all: the old object was rewielded after dying,
+       or the wield failed or cost the hero obj (returning to a natural
+       form can drop it, or land the hero where it is destroyed) */
+    if (uwep != obj)
+        return FALSE;
     /* applying weapon or tool that gets wielded ends two-weapon combat */
     if (u.twoweap)
         untwoweapon();

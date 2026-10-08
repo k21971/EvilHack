@@ -1763,7 +1763,8 @@ throwit(
             pline("%s the %s and returns to your %s!", Tobjnam(obj, "hit"),
                   ceiling(u.ux, u.uy), body_part(HAND));
             obj = return_throw_to_inv(obj, wep_mask, twoweap, oldslot);
-            retouch_object(&obj, !uarmg, TRUE);
+            if (obj)
+                retouch_object(&obj, !uarmg, TRUE);
             /* retouch_object may NULL obj (e.g. hero changed state
                mid-flight and can no longer safely handle the artifact) */
             if (obj && artifact_light(obj) && !obj->lamplit) {
@@ -1993,9 +1994,18 @@ throwit(
                     setuwep(obj);
                     /* only restore twoweap if swap weapon still exists;
                        reseat so off-hand extrinsics re-engage */
-                    if (twoweap && uswapwep)
+                    if (twoweap && uswapwep) {
+                        unsigned oid = obj->o_id;
+
                         retwoweapon();
-                    retouch_object(&obj, !uarmg, TRUE);
+                        /* relighting the off-hand weapon can hurt a
+                           light-hating hero back into a natural form
+                           that drops this one too */
+                        if (o_on(oid, gi.invent) != obj)
+                            obj = (struct obj *) 0;
+                    }
+                    if (obj)
+                        retouch_object(&obj, !uarmg, TRUE);
                     /* retouch_object may NULL obj */
                     if (obj) {
                         if (artifact_light(obj) && !obj->lamplit) {
@@ -2189,7 +2199,8 @@ throwit(
 
 /* handle a throw-and-return missile coming back into inventory; makes sure
    that if it was wielded, it will be re-wielded; if it was split off of a
-   stack (boomerang), don't let it merge with a different compatible stack */
+   stack (boomerang), don't let it merge with a different compatible stack;
+   returns Null if reinstating two-weapon combat cost the hero the missile */
 staticfn struct obj *
 return_throw_to_inv(
     struct obj *obj,     /* object to add to invent */
@@ -2240,8 +2251,15 @@ return_throw_to_inv(
         /* in case the throw ended dual-wielding, reinstate it after
            successful catch (not needed for boomerang split/unsplit);
            reseat via retwoweapon() so off-hand extrinsics re-engage */
-        if (twoweap && !u.twoweap && uswapwep)
+        if (twoweap && !u.twoweap && uswapwep) {
+            unsigned oid = obj->o_id;
+
             retwoweapon();
+            /* relighting the off-hand weapon can hurt a light-hating hero
+               back into a natural form that drops this one too */
+            if (o_on(oid, gi.invent) != obj)
+                obj = (struct obj *) 0;
+        }
     }
 
     encumber_msg();

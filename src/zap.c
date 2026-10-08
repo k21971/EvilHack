@@ -2216,8 +2216,16 @@ poly_obj(struct obj *obj, int id)
                    must still be a legal two-weapon primary (polymorph
                    can yield ammo or a launcher) */
                 if (was_twoweap && uwep && !bimanual(uwep)
-                    && twoweapon_ok(uwep) && uswapwep)
+                    && twoweapon_ok(uwep) && uswapwep) {
+                    unsigned oid = otmp->o_id;
+
                     retwoweapon(); /* sets u.twoweap = TRUE */
+                    /* relighting the off-hand weapon can hurt a
+                       light-hating hero back into a natural form that
+                       drops the new form too; report it as gone */
+                    if (o_on(oid, gi.invent) != otmp)
+                        otmp = (struct obj *) 0;
+                }
             } else if ((new_wornmask & W_SWAPWEP) != 0L) {
                 if (was_twohanded || !bimanual(otmp))
                     setuswapwep(otmp);

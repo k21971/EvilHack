@@ -2991,6 +2991,7 @@ potion_dip(struct obj *obj, struct obj *potion)
             pline1(nothing_happens);
         } else {
             short save_otyp = obj->otyp;
+            unsigned pid = potion->o_id;
 
             /* KMH, conduct */
             if (!u.uconduct.polypiles++)
@@ -3002,10 +3003,15 @@ potion_dip(struct obj *obj, struct obj *potion)
             /*
              * obj might be gone:
              *  poly_obj() -> set_wear() -> Amulet_on() -> useup()
-             * if obj->otyp is worn amulet and becomes AMULET_OF_CHANGE.
+             * if obj->otyp is worn amulet and becomes AMULET_OF_CHANGE,
+             * or the new form was lost when two-weapon combat resumed.
+             * The polymorph still happened, so the potion is spent; a
+             * drowning on the way can have moved it, so check first.
              */
             if (!obj) {
                 makeknown(POT_POLYMORPH);
+                if (o_on(pid, gi.invent) == potion)
+                    useup(potion);
                 return ECMD_TIME;
             } else if (obj->otyp != save_otyp) {
                 makeknown(POT_POLYMORPH);

@@ -3377,6 +3377,7 @@ doshield(void)
 {
     struct obj *shield;
     menu_item *pick_list = (menu_item *) 0;
+    unsigned sid;
     int n;
 
     /* toggle off: a shield (not bracers) is currently worn */
@@ -3424,8 +3425,13 @@ doshield(void)
     }
 
     /* clear the shield hand, then don the shield */
+    sid = shield->o_id;
     if (!free_shieldhand())
         return ECMD_OK;
+    /* swapping weapons can hurt a polymorphed hero back into a natural
+       form whose landing in water or lava loses the shield */
+    if (o_on(sid, gi.invent) != shield)
+        return ECMD_TIME;
 
     n = accessory_or_armor_on(shield);
     designate_altshield(shield);
