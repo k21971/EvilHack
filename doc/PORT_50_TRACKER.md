@@ -77,7 +77,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     The TT_BURIEDBALL landing, float_up() WEB constant and silent
     vine release rows landed in session 189; the sky teleport,
     #jump, thrown-ball, roots / branches and tree-held buried-ball
-    rows in session 190.
+    rows in session 190; the six light-revert weapon-slot rows
+    (minted and fixed the same session) in session 191.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -122,15 +123,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the other silent hold clears row, the tree-held buried-ball row,
     the #jump-while-entangled row, the drag_ball() vines row and the
     roots / branches naming row; session 190 the seven hold-census
-    rows above and the vampire pet blood-potion row (MED).
+    rows above and the vampire pet blood-potion row (MED); session
+    191 the worn-amulet polymorph doubled-lines row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-07 (session 190) THE HOLD CANNOT FOLLOW
+- Latest slice: 2026-10-08 (session 191) A HERO TURNED BACK BY A
+  LIGHT KEEPS NO WEAPON IT LOST; A SPENT POLYMORPH POTION IS USED UP
+  (code (hash pending), tracker (hash pending); BUG-2184..2189).
+  - Found by the reviewer of the 0.9.3 production hot patch (master
+    is frozen; production carries an out-of-tree fix): lighting an
+    artifact can hurt a light-hating polymorphed hero back into a
+    natural form that drops a weapon, or lands in water or lava and
+    loses one, in the middle of a weapon command.
+  - A returning missile dropped by the two-weapon relight is no
+    longer dropped again from the floor (panic "object lost"); 'x',
+    'w', a welding #apply and #shield never seat or wear an item that
+    left the inventory; a polymorph dip whose new form is lost
+    reports it gone.
+  - Dipping into polymorph uses up the potion even when the item is
+    gone (also the long-standing amulet-of-change case).
+  - Detail: the closed light-revert weapon-slot rows.
+- Previous slice: 2026-10-07 (session 190) THE HOLD CANNOT FOLLOW
   INTO THE SKY; VINES HOLD AGAINST A JUMP, GIVE TO THE BALL, AND LET
-  GO PLAINLY; THE CHAIN TAKES OVER FROM THE BRANCHES (code (hash
-  pending), tracker (hash pending); BUG-2178..2183).
+  GO PLAINLY; THE CHAIN TAKES OVER FROM THE BRANCHES (code
+  2bc884d66, tracker 385dc3fe8; BUG-2178..2183).
   - A held hero with a flight or levitation source who
     level-teleports into the sky flies or floats down and escapes;
     the "don't know how to fly" joke only with no source at all.
@@ -19940,7 +19958,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       five LOW rows after the vine-release row.
 - [x] LOW: a held-down flyer level-teleported into the sky dies
       (BUG-2178; BUG-2179..2183 in the same slice) - FIXED 2026-10-07
-      (session 190, commit (hash pending), tracker (hash pending),
+      (session 190, commit 2bc884d66, tracker 385dc3fe8,
       landed 2026-10-07; closure notes at the end of this row).
       Original text: LOW: a held-down flyer level-teleported into the
       sky dies with
@@ -20091,8 +20109,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       vegetation" fits); expels() lands the hero later, so no drop
       gap there.
 - [x] LOW: a tree-held hero whose iron ball is buried is landed
-      (BUG-2182) - FIXED 2026-10-07 (session 190, commit (hash
-      pending), tracker (hash pending); closure notes on the sky
+      (BUG-2182) - FIXED 2026-10-07 (session 190, commit 2bc884d66,
+      tracker 385dc3fe8; closure notes on the sky
       teleport row above). Original text: LOW: a hero held up by a
       tree's branches is not landed when the
       iron ball is buried (minted 2026-10-07, session 189, reviewer
@@ -20115,7 +20133,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       drop with no line when none does (the release-drop shape).
       Plannable.
 - [x] LOW: #jump while entangled (BUG-2179) - FIXED 2026-10-07
-      (session 190, commit (hash pending), tracker (hash pending);
+      (session 190, commit 2bc884d66, tracker 385dc3fe8;
       closure notes on the sky teleport row above: "You strain your
       legs, but you're still entangled.", no wound, hold kept).
       Original text: LOW: #jump while entangled (minted 2026-10-07,
@@ -20137,8 +20155,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       a jump that rips free. Plannable.
 - [x] LOW: throwing the iron ball pulls the hero out of vines with no
       message (BUG-2180; the switch is drop_ball(), not drag_ball()) -
-      FIXED 2026-10-07 (session 190, commit (hash pending), tracker
-      (hash pending); closure notes on the sky teleport row above).
+      FIXED 2026-10-07 (session 190, commit 2bc884d66, tracker
+      385dc3fe8; closure notes on the sky teleport row above).
       Original text: LOW: drag_ball() pulls the hero out of vines with
       no message
       (minted 2026-10-07, session 189, Plan agent; master-shared).
@@ -20153,8 +20171,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       grip!" (a tree adjacent); rejected the vines refusing the drag
       and one line for both. Plannable.
 - [x] LOW: a grounded hero's tree release is neutral (BUG-2181) -
-      FIXED 2026-10-07 (session 190, commit (hash pending), tracker
-      (hash pending); closure notes on the sky teleport row above:
+      FIXED 2026-10-07 (session 190, commit 2bc884d66, tracker
+      385dc3fe8; closure notes on the sky teleport row above:
       "The tree releases its grip on you."). Original text: LOW: a
       grounded hero caught by a tree reads "roots" at the cast
       and "branches" at the release, or the reverse (minted 2026-10-07,
@@ -20263,6 +20281,65 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (u_init.c's Infidel ini_inv carries the real Amulet worn); check
       master's opening and whether a wizkit or the pauper path is
       involved. LOW (message only).
+- [x] MED: a returning missile dropped by the two-weapon relight is
+      dropped again from the floor (BUG-2184; BUG-2185..2189 in the
+      same slice) - FIXED 2026-10-08 (session 191, commit (hash
+      pending), tracker (hash pending); minted and fixed the same
+      session). Found by the evilhack-code-reviewer of the 0.9.3
+      production hot patch (out-of-tree, `/root/evilhack-0.9.3-
+      hotpatch.patch` and `-v2.patch`; master stays frozen) in the
+      BUG-2009 flow: a lit artifact's light, or a touch blast, hurts a
+      light-hating polymorphed hero back into a natural form that
+      drops a weapon (retouch_equipment(2)), or lands in water or lava
+      (polyman()'s spoteffects(), break_armor() pushing a centaur's or
+      tortle's water walking boots off) and loses one, partway through
+      a weapon command. The rehumanize timing stays INSTANT (the
+      2026-09-29 ruling); every site gets its own o_id re-check.
+      - BUG-2184 (dothrow.c): return_throw_to_inv() returns Null when
+        retwoweapon() cost the hero the missile; the ceiling catch and
+        the horizontal catch run retouch_object() only for a carried
+        obj (retouch_object()'s own re-checks cover only objects in
+        invent on entry).
+      - BUG-2185 (wield.c): doswapweapon()'s "wield failed" arm no
+        longer re-seats a dropped alternate; wield_tool()'s tail is
+        `if (uwep != obj) return FALSE;` (master's form; 5.0's `uwep
+        &&` let a lost tool return TRUE into a canned #apply).
+      - BUG-2186 (wield.c): dowield(), doswapweapon() and wield_tool()
+        never seat an old weapon that left invent as the alternate.
+      - BUG-2187 (do_wear.c): doshield() stops if the shield was lost
+        during free_shieldhand()'s weapon swap (ECMD_TIME).
+      - BUG-2188 (zap.c): poly_obj()'s W_WEP arm returns Null when
+        retwoweapon() cost the hero the new form.
+      - BUG-2189 (potion.c): potion_dip()'s "item gone" arm uses up the
+        potion of polymorph if still carried (RULED 2026-10-08,
+        session 191: use it up, also for the amulet-of-change case;
+        master and upstream leave it with in_use stuck).
+      REVIEWER: pass 1 CONDITIONAL PASS (MEDIUM wield_tool tail, HIGH
+      doshield, LOW poly_obj - folded), pass 2 PASS (LOW: BUG-2189 -
+      ruled and folded). BATTERIES (game-tester; PRE dd1052e6 = HEAD
+      code): A on POST 94664ada - PRE panic "extract_nobj: object
+      lost" on the horizontal and ceiling aklys catches (core dumps),
+      PRE worn-slot insanity for the floor Sunsword alternate (13
+      impossibles), PRE prinv of the rusted-away long sword (dangling
+      uswapwep); POST clean, smoke unchanged. B on POST 541c0529 - PRE
+      #shield left uarms dangling on the rusted-away shield (worn-slot
+      impossibles), PRE prinv "f - a silver knife." of a floor object
+      (a gdb lever made the new form silver), PRE amulet of change
+      left 24 potions in_use ("flagged in_use obj" impossible); POST
+      clean, potions used up (25 -> 14 over 11 dips), smoke unchanged
+      (#apply from the alternate slot, cursed pick-axe weld, #shield
+      on / off / set aside, ordinary dip). Paniclogs clean on every
+      POST game; the PRE lines were moved to the session scratchpad.
+      Staging needed wizard Override (Sunsword is a bane to drow
+      forms) and gdb (form HP 1, alignment, Luck for the soaking).
+- [ ] LOW: a worn amulet polymorphed by a dip prints doubled lines
+      (minted 2026-10-08, session 191, battery B anomaly; PRE and
+      POST alike). "You were wearing a triangular amulet.  You were
+      wearing a square amulet." then "i - a square amulet (being
+      worn).  i - a square amulet (being worn)." - a take-off line
+      for the new form and a doubled prinv. Trace poly_obj()'s worn
+      arm (remove_worn_item() / set_wear() / Amulet_on()) against
+      potion_dip()'s prinv(); check master. LOW (message only).
 - [x] LOW: an aasimar's angelic wings flew in every polymorph form
       (BUG-2148) - FIXED 2026-10-05 (session 185, commit `Fix: angelic
       wings belong to the aasimar body; returning wings told.` =
