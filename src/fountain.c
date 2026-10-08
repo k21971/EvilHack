@@ -580,7 +580,9 @@ drinkfountain(void)
                 You_see("an image of someone stalking you.");
                 pline("But it disappears.");
             }
-            HSee_invisible |= FROMOUTSIDE;
+            incr_itimeout(&HSee_invisible, (long) rn1(100, 50));
+            set_mimic_blocking(); /* do special mimic handling */
+            see_monsters();       /* see invisible monsters */
             newsym(u.ux, u.uy);
             exercise(A_WIS, TRUE);
             break;

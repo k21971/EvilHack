@@ -414,6 +414,21 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             seemimic(mtmp);
         /* format monster's name before altering its visibility */
         Strcpy(nambuf, Monnam(mtmp));
+        if (otmp->cursed) {
+            /* a cursed wand makes an invisible monster visible;
+               clearing perminvis too keeps it from fading back on a
+               form change or when it takes off an invisibility item */
+            if (oldinvis) {
+                mon_set_minvis(mtmp, TRUE);
+                if (canseemon(mtmp)) {
+                    pline("%s becomes visible!", Monnam(mtmp));
+                    learn_it = TRUE;
+                }
+            } else if (couldsee) {
+                pline("%s briefly fades from view.", nambuf);
+            }
+            break;
+        }
         mon_set_minvis(mtmp, FALSE);
         if (!oldinvis && knowninvisible(mtmp)) {
             pline("%s turns transparent!", nambuf);
@@ -3226,12 +3241,39 @@ zapyourself(struct obj *obj, boolean ordinary)
          */
         int msg = !Invis && !Blind && !BInvis;
 
-        if (BInvis && uarmc->otyp == MUMMY_WRAPPING) {
+        if (BInvis && uarmc && uarmc->otyp == MUMMY_WRAPPING) {
             /* A mummy wrapping absorbs it and protects you */
             You_feel("rather itchy under %s.", yname(uarmc));
             break;
         }
-        incr_itimeout(&HInvis, rn1(15, 31));
+        if (obj->cursed) {
+            /* a cursed wand strips timed and intrinsic invisibility
+               unless a worn item also gives it; an invisible form
+               keeps its own */
+            if (!EInvis && (HInvis & (TIMEOUT | INTRINSIC))) {
+                HInvis &= ~(TIMEOUT | INTRINSIC);
+                if (!Invis && !Blind) {
+                    You("become visible.");
+                    learn_it = TRUE;
+                } else {
+                    You_feel("a little more obvious now.");
+                }
+                newsym(u.ux, u.uy);
+                if (rn2(2)) {
+                    pline("For some reason, you feel your presence is known.");
+                    aggravate();
+                }
+            } else if (!Blind && !Invis) {
+                You("fade from view for a brief moment.");
+            } else {
+                /* blind, or still invisible from an item or a form */
+                You_feel("an odd sensation for a brief moment.");
+            }
+            break;
+        }
+        /* a wrested last charge leaves spe at -1, which would roll
+           d(0, 250) == 0 turns */
+        incr_itimeout(&HInvis, d(max(1 + obj->spe, 1), 250));
         if (msg) {
             learn_it = TRUE;
             newsym(u.ux, u.uy);

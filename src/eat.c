@@ -1404,20 +1404,23 @@ cpostfx(int pm)
         disp.botl = TRUE;
         check_intrinsics = TRUE; /* might also convey poison resistance */
         break;
-    case PM_STALKER:
-        if (!Invis) {
-            set_itimeout(&HInvis, (long) rn1(100, 50));
-            if (!Blind && !BInvis)
-                self_invis_message();
-        } else {
-            if (!(HInvis & INTRINSIC))
-                You_feel("hidden!");
-            HInvis |= FROMOUTSIDE;
-            HSee_invisible |= FROMOUTSIDE;
+    case PM_STALKER: {
+        boolean was_invis = !!Invis;
+
+        /* both are timed; a hero already invisible also gains
+           see invisible */
+        incr_itimeout(&HInvis, (long) rn1(100, 50));
+        if (!was_invis && !Blind && !BInvis)
+            self_invis_message();
+        if (was_invis) {
+            incr_itimeout(&HSee_invisible, (long) rn1(100, 50));
+            set_mimic_blocking(); /* do special mimic handling */
+            see_monsters();       /* see invisible monsters */
         }
         newsym(u.ux, u.uy);
-        FALLTHROUGH;
-        /*FALLTHRU*/
+    }
+    FALLTHROUGH;
+    /*FALLTHRU*/
     case PM_YELLOW_LIGHT:
     case PM_GIANT_BAT:
         make_stunned((HStun & TIMEOUT) + 30L, FALSE);

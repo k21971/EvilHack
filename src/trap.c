@@ -2878,18 +2878,42 @@ trapeffect_magic_trap(
         seetrap(trap);
         if (!rn2(15)) {
             /* hero-crafted magic traps carry their crafting
-               component as ammo; the explosion consumes it */
+               component as ammo; the trap's end consumes it */
             deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(u.ux, u.uy); /* update position */
-            You("are caught in a magical explosion!");
-            losehp(rnd(10), "magical explosion", KILLED_BY_AN);
-            Your("body absorbs some of the magical energy!");
-            u.uen = (u.uenmax += 2);
-            if (u.uenmax > u.uenpeak)
-                u.uenpeak = u.uenmax;
+            if (rn2(2)) {
+                You("are caught in a magical explosion!");
+                losehp(rnd(10), "magical explosion", KILLED_BY_AN);
+                Your("body absorbs some of the magical energy!");
+                u.uen = (u.uenmax += 2);
+                if (u.uenmax > u.uenpeak)
+                    u.uenpeak = u.uenmax;
+            } else {
+                if (!Blind) {
+                    if (!Hallucination)
+                        pline("A cloud of brightly colored smoke billows "
+                              "up around you!");
+                    else
+                        pline("The floor lights came on!  Let's disco!");
+                } else {
+                    pline("It smells sort of %s in here.",
+                          Hallucination ? "purple" : "funky");
+                }
+                (void) make_hallucinated((HHallucination & TIMEOUT)
+                                             + (long) rnd(50) + 50L,
+                                         FALSE, 0L);
+            }
             return Trap_Effect_Finished;
         } else {
+            coordxy tx = trap->tx, ty = trap->ty;
+
             domagictrap();
+            /* domagictrap() can free the trap: the fire fate melts ice
+               underfoot (dofiretrap() -> melt_ice() ->
+               trap_ice_effects() -> deltrap()), and the plunge into the
+               water can move the hero; refetch it so steedintrap() never
+               reads freed memory or another square's trap */
+            trap = u_at(tx, ty) ? t_at(tx, ty) : (struct trap *) 0;
         }
         (void) steedintrap(trap, (struct obj *) 0);
     } else {
@@ -5277,15 +5301,14 @@ domagictrap(void)
     } else {
         switch (fate) {
         case 10:
-            /* sometimes nothing happens */
-            break;
         case 11: /* toggle intrinsic invisibility */
             Soundeffect(se_low_hum, 100);
             You_hear("a low hum.");
             if (!Invis) {
-                if (!Blind)
+                if (!Blind && !BInvis)
                     self_invis_message();
-            } else if (!EInvis && !pm_invisible(gy.youmonst.data)) {
+            } else if (!EInvis && !(HInvis & ~FROMOUTSIDE)
+                       && !pm_invisible(gy.youmonst.data)) {
                 if (!Blind) {
                     if (!See_invisible)
                         You("can see yourself again!");
@@ -5295,13 +5318,18 @@ domagictrap(void)
             } else {
                 /* If we're invisible from another source */
                 You_feel("a little more %s now.",
-                         HInvis ? "obvious" : "hidden");
+                         (HInvis & FROMOUTSIDE) ? "obvious" : "hidden");
             }
-            HInvis = HInvis ? 0 : HInvis | FROMOUTSIDE;
+            /* only the trap's own bit toggles; a timeout and an
+               invisible form are kept */
+            HInvis ^= FROMOUTSIDE;
             newsym(u.ux, u.uy);
             break;
-        case 12: /* a flash of fire */
-            dofiretrap((struct obj *) 0);
+        case 12: /* a flash of fire or ice */
+            if (rn2(2))
+                dofiretrap((struct obj *) 0);
+            else
+                doicetrap((struct obj *) 0);
             break;
 
         /* odd feelings */
@@ -5333,8 +5361,40 @@ domagictrap(void)
         case 17:
             You(Hallucination ? "smell hamburgers." : "smell charred flesh.");
             break;
-        case 18:
-            You_feel("tired.");
+        case 18: /* toggle intrinsic see invisible */
+            /* a crowned hero keeps see invisible */
+            if (u.uevent.uhand_of_elbereth) {
+                You_feel("an odd sensation, but nothing happens.");
+                break;
+            }
+            You_feel("an odd sensation.");
+            if (!See_invisible) {
+                if (!Blind) {
+                    if (Invis)
+                        You("can see through yourself, but you are visible!");
+                    else
+                        Your("eyes tingle for a brief moment.");
+                }
+            } else if (!ESee_invisible && !(HSee_invisible & ~FROMOUTSIDE)
+                       && !perceives(gy.youmonst.data)) {
+                if (!Blind) {
+                    if (Invis)
+                        You("can no longer see yourself.");
+                    else
+                        Your("eyesight feels diminished.");
+                }
+            } else {
+                /* If we can see invisible from another source */
+                You_feel("a bit %s now.", (HSee_invisible & FROMOUTSIDE)
+                                              ? "less focused"
+                                              : "more focused");
+            }
+            /* only the trap's own bit toggles; a timeout and innate
+               see invisible are kept */
+            HSee_invisible ^= FROMOUTSIDE;
+            set_mimic_blocking();
+            see_monsters();
+            newsym(u.ux, u.uy);
             break;
 
         /* very occasionally something nice happens. */

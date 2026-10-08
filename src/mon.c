@@ -2569,9 +2569,8 @@ mon_givit(struct monst *mtmp, struct permonst *ptr)
         /*
          * Invisible stalker isn't flagged as conferring invisibility
          * so prop is 0.  For hero, eating a stalker corpse confers
-         * temporary invisibility if hero is visible.  When already
-         * invisible, if confers permanent invisibility and also
-         * permanent see invisible.  For monsters, only permanent
+         * temporary invisibility, and when already invisible also
+         * temporary see invisible. For monsters, only permanent
          * invisibility is possible; temporary invisibility and see
          * invisible aren't implemented for them.
          *

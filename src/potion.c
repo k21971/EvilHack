@@ -1016,18 +1016,14 @@ peffect_invisibility(struct obj *otmp)
     } else {
         self_invis_message();
     }
-    if (otmp->blessed && !rn2(HInvis ? 15 : 30))
-        HInvis |= FROMOUTSIDE;
-    else
-        incr_itimeout(&HInvis, d(6 - 3 * bcsign(otmp), 100) + 100);
+    /* never permanent; a blessed potion can last up to four times as
+       long, a diluted one a little less */
+    incr_itimeout(&HInvis, rn1(otmp->odiluted ? 7 : 15,
+                               31 * (otmp->blessed ? rnd(4) : 1)));
     newsym(u.ux, u.uy); /* update position */
     if (otmp->cursed) {
         pline("For some reason, you feel your presence is known.");
         aggravate();
-
-        /* doing this gives temporary invisibility, but removes permanent
-           invisibility */
-        HInvis &= ~FROMOUTSIDE;
     }
 }
 
@@ -1035,7 +1031,6 @@ staticfn void
 peffect_see_invisible(struct obj *otmp)
 {
     int msg = Invisible && !Blind;
-    int permchance = 10 - (HInvis ? 3 : 0) - (HSee_invisible ? 6 : 0);
 
     gp.potion_unkn++;
     if (otmp->cursed)
@@ -1058,10 +1053,9 @@ peffect_see_invisible(struct obj *otmp)
          */
         make_blinded(0L, TRUE);
     }
-    if (otmp->blessed && !rn2(permchance))
-        HSee_invisible |= FROMOUTSIDE;
-    else
-        incr_itimeout(&HSee_invisible, rn1(100, 750));
+    /* never permanent; blessed doubles the time */
+    incr_itimeout(&HSee_invisible,
+                  rn1(otmp->odiluted ? 50 : 100, otmp->blessed ? 1500 : 750));
     set_mimic_blocking(); /* do special mimic handling */
     see_monsters();       /* see invisible monsters */
     newsym(u.ux, u.uy);   /* see yourself! */
