@@ -17,10 +17,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-08, after session 195): 335
+- Phase 2 status (refreshed 2026-10-08, after session 196): 336
   rows closed, 98 open. Of the open rows:
-  - 4 MED: unported master features (potion
-    alchemy table, terrain concealment, door-material colors,
+  - 4 MED: unported master features (diluted
+    potions weaker, terrain concealment, door-material colors,
     the held artifact pokedex tips).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
@@ -80,7 +80,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     quaff) in session 192; the appearance-shuffle row (MED, with the
     scroll glyph ids) in session 193; the pet-helper row (MED) in
     session 194; the timed invisibility row (MED, with master's
-    magic trap and cursed wand of make invisible) in session 195.
+    magic trap and cursed wand of make invisible) in session 195;
+    the potion alchemy table row (MED, with master's polymorph-dip
+    identification fix) in session 196.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -131,27 +133,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     appearance-shuffle row); session 193 the duplicate trap-kit G_
     ids row and the wish-merge prinv() message row (needs a
     trace); session 194 the held amulet of flying's unidentified
-    release row (record-only).
+    release row (record-only); session 196 the diluted potions
+    weaker row (MED).
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-08 (session 195) INVISIBILITY AND SEE
-  INVISIBLE WEAR OFF AGAIN; MASTER'S MAGIC TRAP (code TBD, tracker
-  TBD; BUG-2203..2213).
-  - Stalker corpses, fountains, throne effect 10 and both potions
-    give timed effects in master's durations; the wand of make
-    invisible lasts d(1 + charges, 250) and a cursed one reverses
-    invisibility, for the hero and for monsters.
-  - Master's magic trap: fate 10 joins 11, fate 12 fire or ice,
-    fate 18 toggles see invisible, the vanish roll can be smoke and
-    hallucination; both toggles spare innate sources (ruled).
-  - BUG-915's steed use-after-free fix re-ported.
-  - Detail: the closed timed invisibility row.
-- Previous slice: 2026-10-08 (session 194) PETS HELP THEIR OWNER
-  AGAIN (code be8152c34, tracker 1d9593ba8; BUG-2199..2202); detail
-  in the closed Pet-helper row.
-- Earlier slices: 2026-10-08 (session 193) EVERY SHUFFLED ARMOR
+- Latest slice: 2026-10-08 (session 196) MASTER'S POTION ALCHEMY
+  TABLE (code TBD, tracker TBD; BUG-2214..2216).
+  - mixtype() reads master's potion_fusions[]: fruit juice now
+    stretches blood and vampire blood, a unicorn horn turns either
+    to water, and enlightenment + levitation makes gain level 1 time
+    in 3 (ruled master's odds).
+  - The pokedex shows "Potion alchemy combinations (#dip):"; the
+    booze fallback rows say "(2/3 chance)" (ruled hybrid).
+  - Dipping into polymorph identifies it only when its appearance
+    was seen, and a blind hero's unseen result is reported (master
+    61d99ef03, exact shape ruled).
+  - Detail: the closed potion alchemy table row.
+- Previous slice: 2026-10-08 (session 195) INVISIBILITY AND SEE
+  INVISIBLE WEAR OFF AGAIN; MASTER'S MAGIC TRAP (code 911c03a78,
+  tracker 0a20a3df8; BUG-2203..2213); detail in the closed timed
+  invisibility row.
+- Earlier slices: 2026-10-08 (session 194) PETS HELP THEIR OWNER
+  AGAIN (code be8152c34, tracker 1d9593ba8; BUG-2199..2202; detail
+  in the closed Pet-helper row);
+  2026-10-08 (session 193) EVERY SHUFFLED ARMOR
   POOL HOLDS ITS LAST MEMBER AGAIN (code 5cc63b077, tracker
   1861aa9cb; BUG-2196..2198; detail in the closed
   appearance-shuffle row);
@@ -7048,7 +7055,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mkobj, alternate materials via valid_obj_material on a
       cg.zeroobj dummy, launcher/poison/stack lines, class lines).
       HELD OUT: the "Potion alchemy combinations (#dip):" section -
-      the branch has no potion_fusions[] table (new row below); and
+      the branch has no potion_fusions[] table (new row below;
+      RE-ENTERED 2026-10-08 with the table, session 196, BUG-2214);
+      and
       39 of the 128 arti_specials[] lines whose backing behaviors the
       2026-09-08 audit found ABSENT (31) or PARTIAL (8) on the branch
       (maintainer ruling: hold, riders on the owner rows - see the
@@ -8900,7 +8909,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "withering" (master pager.c:870) and the AD-label helper's
       `case AD_WTHR: return "wither";` (master pager.c:1928) land
       here with the tables; the attack is live on the branch now.
-- [ ] Potion alchemy recipe table NOT PORTED (NEW, minted 2026-09-08
+- [x] MED: potion alchemy recipe table PORTED 2026-10-08 (session
+      196; BUG-2214..2216; code TBD, tracker TBD; closure notes at the
+      end of this row), with the pokedex section and master's
+      polymorph-dip identification fix. Original text: Potion alchemy
+      recipe table NOT PORTED (NEW, minted 2026-09-08
       by the pokedex slice; MED). Master's `struct potion_alchemy` +
       `potion_fusions[]` (hack.h / potion.c, ac335d855 2025-01-23)
       drive mixtype() from a table; the branch keeps vanilla 5.0's
@@ -8912,6 +8925,134 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       add_obj_info (master pager.c ~1839-1858) has no table to
       iterate; the port left it out behind a one-line comment -
       restore it when the table lands. Untracked before this slice.
+      CORRECTION (session 196): there is no dip.c - d0c5310d1 added
+      the horn + drow poison row to master's potion.c table (and
+      edited pager.c); the branch carried that recipe as BUG-1420's
+      switch arm, now a table row.
+      CLOSURE (plan /root/.claude/plans/feature-potion-alchemy-table.md):
+      - Mapping: master's table = ac335d855 (2025-01-23) +
+        d0c5310d1 (chance fixes, horn + drow poison) + 13aeaa26d
+        (symmetric matching) + c3816e9ea (blood rows, POT_BLOOD in
+        the swap list). 5.0's mixtype() is vanilla 3.6's, so no
+        5.0-only recipe existed. The Plan agent and the reviewer each
+        simulated switch vs table over all 29x29 potion pairs in both
+        orders plus horn / amethyst into every potion per rn2(3)
+        roll: only the four blood recipes and the levitation roll
+        differ, rn2 call counts identical.
+      - RULINGS (AskUserQuestion x2, three questions, all
+        recommended; decisions log): (1) enlightenment + levitation =
+        gain level 1 in 3, master's table (vanilla and the branch
+        gave 2 in 3; ac335d855's conversion flipped it with no
+        changelog line); (2) the pokedex fallback rows say "(2/3
+        chance)" (hybrid; master printed none); (3) the polymorph
+        dip takes master 61d99ef03's exact shape, sighted same-type
+        rerolls included.
+      - BUG-2214: include/hack.h struct potion_alchemy + extern
+        (between the forge and trap recipe structs, as on master);
+        potion.c master's potion_fusions[] verbatim (one added
+        comment above the horn + drow poison row keeps BUG-1420's
+        note) and master's mixtype() body. New recipes: fruit juice +
+        blood = blood, fruit juice + vampire blood = vampire blood
+        (diluted, either order), unicorn horn into blood or vampire
+        blood = water. The swap block (now with POT_BLOOD) is
+        master's text and changes nothing under symmetric matching.
+        pager.c add_obj_info() restores master's "Potion alchemy
+        combinations (#dip):" block between the forge and trap
+        sections; " (1/%d chance)" on a chance row, " (N-1/N
+        chance)" on a same-pair row right after one (ruled hybrid),
+        in a QBUFSZ local (buf2 tripped -Wformat-overflow).
+      - BUG-2215 (ruled master's shape): enlightenment + levitation
+        -> gain level only on rn2(3) == 0.
+      - BUG-2216 (master 61d99ef03, 2023, unrowed): potion_dip()'s
+        polymorph arm counted only a type change, so a blind hero's
+        seen stack that rerolled into its own type turned into
+        unseen "potions" under "Nothing seems to happen.", and the
+        dip identified polymorph even when its appearance had never
+        been seen. Now a type OR seen-flag change takes the changed
+        arm and polymorph is identified only when the polymorph
+        potion's own dknown was set; captured before poly_obj(), it
+        reads the polymorph potion on both dip directions (master
+        read `potion`, the other potion, when the polymorph potion
+        was the dipped object - plan-approved refinement from the
+        commit's stated intent). Ruled consequence (master-live):
+        mksobj() starts potions, scrolls, wands, rings, gems, books,
+        weapons, tools, all food and some shields unseen and
+        poly_obj() never re-observes them, so a sighted same-type
+        reroll also prints the inventory line and identifies
+        polymorph; with perm_invent on (curses), setworn() /
+        setuwep() re-observe a worn or wielded item first, which
+        then keeps "Nothing seems to happen." (reviewer LOW 1).
+      - Review: PASS, six LOWs, no code change (LOW 1 food / shields
+        / perm_invent dependence and LOW 2 the refinement documented;
+        LOW 3 swap block inert; LOW 4 bare names = master; LOW 5 the
+        fallback label assumes one chance row; LOW 6 wording).
+      - BATTERY (two game-testers in their own playground copies; PRE
+        79c205ba = 0a20a3df8 code, POST 1c9e8251; paniclogs never
+        created):
+        - A (alchemy, all PASS): gdb matrix 870 cells per build x 3
+          forced rolls, diff = exactly the 8 claimed cells (levitation
+          + enlightenment both orders: PRE gain level on rolls 1-2,
+          POST on roll 0; the four blood cells both orders and horn
+          into blood / vampire blood), one rn2(3) in each of the 6
+          roll cells on both builds, no order asymmetry; 300 unforced
+          mixes PRE 206 / 94, POST 103 / 197; in game "The mixture
+          looks blood-red." -> "a diluted potion of blood" both
+          orders (PRE control: random arm, water), diluted vampire
+          blood, a vampire hero's "The thinned blood tastes
+          delicious.", horn "The blood-red potion that you dipped
+          into clears." (PRE "Interesting...", potion unchanged);
+          controls equal on both builds (horn + drow poison = fruit
+          juice, healing + drow poison = random arm, healing +
+          sickness = fruit juice); pokedex lookups of blood, vampire
+          blood, unicorn horn, amethyst, gain level, booze,
+          levitation and drow poison line-for-line as expected, gain
+          energy's block sits before "Trap crafting recipes"; PRE no
+          section.
+        - B (polymorph dip, B1-B8 all PASS): sighted same type POST
+          "e - 3 pink potions." + identified (PRE "Nothing seems to
+          happen." + "Call a fizzy potion:"); blind unseen polymorph,
+          different type POST "i - 3 potions." unidentified (PRE
+          identified - master's bug reproduced); blind seen polymorph
+          identified on both; the polymorph potion dipped itself:
+          unseen -> POST unidentified (PRE identified), seen -> both
+          identified; worn amulet -> amulet of change (poly_obj()
+          NULL) identified only when seen, the potion used up once;
+          food rations and a worn ring (tty) take the changed arm;
+          curses + perm_invent re-observes the ring (dknown 1) ->
+          "Nothing seems to happen." as ruled.
+      - Brief corrections from the testers: sysconf sets perm_invent
+        but the tty build has no TTY_PERM_INVENT (inert); the
+        "Nothing seems to happen." arm also opens a "Call a ...
+        potion:" prompt for a seen, unidentified polymorph potion
+        (PRE and POST); amulets start seen; no forge recipe names an
+        alchemy ingredient.
+      - Out-of-claim anomalies, all already rowed or master-shared:
+        "welcome to NetHack!" (re-brand row); the doubled worn-amulet
+        lines (session 191's LOW row); "trap kit + 3 potion of gain
+        energy" (master's pager text verbatim, record only).
+      - MINTED: the MED "Diluted potions weaker" row below (Plan agent
+        finding; every mixing result is diluted).
+- [ ] Diluted potions weaker NOT PORTED (NEW, minted 2026-10-08 by the
+      alchemy table slice, session 196, from the Plan agent; MED).
+      Master df086f65d (2019, "diminished effects ... if they are
+      diluted. From SporkHack.") plus 082a47298 / 0473e3ee4 (2024)
+      shrink 12 quaff arms when the potion is diluted: hallucination
+      rn1(diluted ? 100 : 200, ...), paralysis nomul rn1(5 / 10, ...),
+      monster detection rn1(20 / 40, 21), confusion rn1(4 / 7, ...),
+      blindness rn1(100 / 200, ...), healing d(...) / 2, extra healing
+      d(...) / 2 and its max-HP raise / 2, full healing healup(200 /
+      400, raise / 2) with the blessed level restore skipped when
+      diluted, levitation both timeouts (rn1(25 / 50, 250), rn1(70 /
+      140, 10)), gain energy d(...) / 2, acid damage / 2. The branch
+      carries only booze, invisibility, fruit juice, see invisible,
+      the sleeping fall and blood. 0473e3ee4 also makes full healing
+      say "You feel mostly healed." when HP is still short of max (the
+      branch always says "completely"; the vampire-blood arm already
+      has the master text). Every mixing result is diluted, so this
+      sets the payoff of the alchemy table. Port per arm against 5.0's
+      current formulas (5.0 reworked some of these peffect_*()
+      helpers); diff master's whole peffect switch for odiluted terms
+      first. Untracked before this row.
 - [x] dmgval() material-hardness block NOT PORTED (NEW, minted
       2026-09-08 by the pokedex slice; MED, combat balance). Master
       weapon.c dmgval() (1c3a05414, 2019) adds per-material damage
@@ -17758,7 +17899,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       clear." (master's text; 5.0's case 10 has an eye-tingle
       fallback).
 - [x] MED: timed invisibility and see invisible PORTED 2026-10-08
-      (session 195; BUG-2203..2213; code TBD, tracker TBD; closure
+      (session 195; BUG-2203..2213; code 911c03a78, tracker
+      0a20a3df8; closure
       notes at the end of this row), with master's cursed wand of
       make invisible and master's magic trap. Original text: MED: see
       invisible and invisibility from most sources are
@@ -26419,6 +26561,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-08 | Potion alchemy table slice rulings (session 196; AskUserQuestion x2, three questions, all recommended). (1) ENLIGHTENMENT + LEVITATION MAKES GAIN LEVEL 1 TIME IN 3, master's table (chance 3 = !rn2(3)); vanilla and the branch's switch gave 2 in 3, and master's ac335d855 conversion flipped it with no changelog line; the other 2 in 3 fall to the random-mixture roll; the pokedex says "(1/3 chance)". (2) THE POKEDEX FALLBACK ROWS SHOW THEIR ODDS (hybrid): a row right after a chance row for the same pair prints "(N-1/N chance)", so "gain level + confusion = booze (2/3 chance)" and the gain energy twin; master printed no qualifier. (3) POLYMORPH DIP, MASTER 61d99ef03's EXACT SHAPE: a lost seen flag counts as a change, so a sighted hero's seen item that rerolls into its own type also prints the new inventory line and identifies polymorph when the polymorph potion's appearance was seen; the identification gate reads the polymorph potion's own dknown in both dip directions (plan-approved refinement of master's potion->dknown, from the commit's stated intent). | maintainer |
 | 2026-10-08 | Timed invisibility slice rulings (session 195; AskUserQuestion x2, eight questions, all recommended). (1) POTION OF INVISIBILITY, MASTER'S SHAPE: never permanent; uncursed or cursed 31-45 turns (31-37 diluted), blessed 31-45 / 62-76 / 93-107 / 124-138; the spell 31-45; a cursed potion only aggravates (5.0's strip of permanent invisibility dropped). (2) POTION OF SEE INVISIBLE, MASTER'S SHAPE: 750-849, blessed 1500-1599, diluted a 50-turn window; never permanent (5.0's permchance dropped). (3) WAND OF MAKE INVISIBLE, MASTER'S SHAPE (4bcc3e71d + 5b7b662e7, unrowed): self-zap d(1 + charges, 250); a cursed wand reverses invisibility for the hero and for monsters; a wrested charge gets at least d(1, 250). (4) MAGIC TRAP: THE WHOLE OF domagictrap() TO MASTER'S SHAPE (fate 10 joins 11, timeout-aware 11, fate 12 fire or ice, fate 18 see-invisible toggle with the crowned guard). (5) THE SMOKE ARM FOLDED IN: half of the 1-in-15 vanish rolls give brightly colored smoke and 51-100 turns of hallucination. (6) FIX ALL FOUR CURSED-WAND MESSAGE / STATE BUGS (blind text, invisible-form text, the monster arm's unseen text, perminvis). (7) FATE 18 SPARES INNATE SEE INVISIBLE: the toggle flips only the trap's own bit (applied to fate 11's invisible form too). (8) A STALKER CORPSE EATEN WHILE INVISIBLE IS SILENT, as on master. | maintainer |
 | 2026-10-08 | Pet-helper slice ruling (session 194; AskUserQuestion x1, recommended). OTHER HOLDS - THE PET CARRIES ON: the pet's trap-help arm names a pit, bear trap or web, so beside a hero sinking in lava, stuck in the floor, chained to a buried ball or held by vines / a tree, a strong pet with hands takes its normal turn (BUG-2201). Rejected master's exact shape, whose arm fell through to `return 1` for those holds and silently spent the pet's turn 1 time in 4. Applied without a new question: the 2026-10-07 TELL IT AFTER THE EVENT ruling - the bear trap and web releases announce returned levitation / flight after their own lines (BUG-2202). | maintainer (ruling); session (standing ruling applied) |
 | 2026-10-08 | Appearance-shuffle slice ruling (session 193; AskUserQuestion x1, recommended). THE RING ARM KEEPS 5.0's WHOLE CLASS: obj_shuffle_range() shuffles svb.bases[RING_CLASS]..bases[RING_CLASS + 1] - 1, with a comment naming the born-name-known ancient / lustrous placeholders that shuffle() skips. That is the same 28 rings as master's RIN_ADORNMENT..RIN_PROTECTION_FROM_SHAPE_CHAN, and a future ring shuffles with no endpoint edit. Rejected master's endpoints, which behave identically today but would leave a ring appended after shape changers with a fixed look (the BUG-1204 pattern). The armor and potion arms restore master's endpoints (BUG-2196 / BUG-2197; no ruling needed). | maintainer |
