@@ -17,16 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-09, after session 200): 341
-  rows closed, 110 open. Of the open rows:
-  - 1 HIGH: hero spell parity B (critical healing still falls into
-    "Unknown spell"; it rides with the healing-spell family).
+- Phase 2 status (refreshed 2026-10-09, after session 201): 343
+  rows closed, 112 open. Of the open rows:
+  - 0 HIGH.
   - 8 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, restore
-    ability uncancelling monsters, the init_attr() race-maximum
-    clamp, #turn's alhoon / skeleton ladder, spell letters past 52
-    spells, choosing the worn armor a known enchant armor scroll
-    hits).
+    door-material colors, the held artifact pokedex tips, the
+    init_attr() race-maximum clamp, #turn's alhoon / skeleton
+    ladder, spell letters past 52 spells, choosing the worn armor a
+    known enchant armor scroll hits, stone to flesh's monster
+    extras).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -37,7 +36,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 85 LOW: small parity rows, quirks and watch/record-only items.
+  - 88 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -90,7 +89,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     identification fix) in session 196; the diluted potions weaker
     row (MED, with the vampire-blood "Ugh.  That" text) in session
     197; the savelife() row (MED, with the losexp() level-1 row and
-    pluslvl()'s polymorphed level gain) in session 198.
+    pluslvl()'s polymorphed level gain) in session 198; the restore
+    ability uncancel row (MED, with the hero spell parity B row) in
+    session 201.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -151,29 +152,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     hero spell parity B row (HIGH), the #turn ladder, spell letters
     past 52 spells and enchant armor choice rows (MED), and the
     tport_spell() guards, banished / knocked-away monster tail and
-    power word kill life-save turn rows.
+    power word kill life-save turn rows; session 201 the stone to
+    flesh extras row (MED) and the helpful-spell shopkeeper anger,
+    data.base critical healing text and disguised-mimic cure naming
+    rows.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-09 (session 200) THE HERO CASTS DISPEL
+- Latest slice: 2026-10-09 (session 201) THE HEALING SPELLS TAKE A
+  DIRECTION: CRITICAL HEALING, CURE SICKNESS AND RESTORE ABILITY AT
+  MONSTERS; HEALING DICE BY SKILL (code TBD, tracker TBD;
+  BUG-2238..2244).
+  - Critical healing fell into "Unknown spell" (paniclog); cure
+    sickness and restore ability were self-only; healing rolled
+    5.0's d(6, N) at any skill.
+  - Master's net text ported; a thrown restore ability potion
+    un-cancels instead of healing; closes the MED uncancel row.
+  - Ruled: keep 5.0's Healer pet experience and Pestilence
+    half-heal; cure sickness also cures disease; the demon refusal is
+    a helpful gesture; stone to flesh's extras are their own row.
+  - Minted: the stone to flesh extras row (MED) and three LOW rows.
+  - Detail: the closed hero spell parity B row.
+- Previous slice: 2026-10-09 (session 200) THE HERO CASTS DISPEL
   EVIL, POWER WORD KILL, REPAIR ARMOR, CREATE GRASS AND CREATE TREES
-  (code TBD, tracker TBD; BUG-2231..2237).
-  - The five spells had no spelleffects() case, so a cast fell into
-    "Unknown spell" (paniclog); every Druid starts with create grass.
-  - Master's net text ported; dispel evil's banish ladder discharges
-    the gehennom, yendor, Infidel and icequeen riders.
-  - Ruled: new trees block sight at once; "severely injures" deals a
-    second hit to a unique; #turn's ladder is its own row.
-  - Minted: hero spell parity B (HIGH), the #turn ladder, spell
-    letters past 52 and the enchant armor choice (MED), plus three
-    LOW rows.
-  - Detail: the closed hero spell parity A row.
-- Previous slice: 2026-10-09 (session 199) BLESSED RESTORE ABILITY
+  (code 304c68a1f, tracker dacd48c06; BUG-2231..2237); detail in the
+  closed hero spell parity A row.
+- Earlier slices: 2026-10-09 (session 199) BLESSED RESTORE ABILITY
   GIVES BACK 3-5 LEVELS; MAGIC FOUNTAINS USE THE POTION CODE (code
-  db5e798c1, tracker 5af2a7a96; BUG-2228..2230); detail in the
-  closed blessed restore ability row.
-- Earlier slices: 2026-10-09 (session 198) A POLYMORPHED HERO COMES
+  db5e798c1, tracker 5af2a7a96; BUG-2228..2230; detail in the
+  closed blessed restore ability row);
+  2026-10-09 (session 198) A POLYMORPHED HERO COMES
   BACK FROM LIFE-SAVING ALIVE; LEVEL 1 LOSES NOTHING TWICE (code
   e0a508b47, tracker ebc5de8df; BUG-2223..2227; detail in the
   closed savelife() row);
@@ -3303,7 +3312,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       impossible(); [2026-10-09, session 200: all but
       CRITICAL_HEALING wired by the hero spell parity A slice,
       BUG-2231..2237; CRITICAL_HEALING = the hero spell parity B
-      row]; ORB_OF_FIRE/ORB_OF_FROST wired 2026-08-30 by
+      row; 2026-10-09, session 201: CRITICAL_HEALING wired too,
+      BUG-2238 - deferral DISCHARGED]; ORB_OF_FIRE/ORB_OF_FROST wired
+      2026-08-30 by
       the orbs-remainder slice;
       BURNING_HANDS/SHOCKING_GRASP wired 2026-08-26 by the hero
       burning hands slice (BUG-1708); NEW item; the minted 16-case
@@ -3631,7 +3642,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dogfood defended() additions (defended sweep); corpse_chance
       Sunsword/Hammer zombie-corpse-dissolve (artifact behaviors -
       Trollsbane sibling also absent); zap.c bhitm cure-sickness
-      monster arm (spell is self-only on branch; RIDER 2026-09-03
+      monster arm [DISCHARGED 2026-10-09, session 201, BUG-2240 /
+      BUG-2238 - the arm, the critical healing clear, the
+      zapyourself Withering cures and the zap_steed entry all
+      landed with hero spell parity B] (spell is self-only on
+      branch; RIDER 2026-09-03
       wither slice: that arm also clears mtmp->mwither, and
       SPE_CRITICAL_HEALING's 1-in-4 msick/mwither clear plus the
       zapyourself Withering cures - master zap.c:617/649-664/
@@ -9209,7 +9224,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wish = the recorded master-shared material-parser fact; "You
       have a peculiar feeling" under sustain ability = dopotion()'s
       generic nothing line (brief error).
-- [ ] MED: restore ability uncancels monsters (NEW, minted
+- [x] MED: restore ability uncancels monsters PORTED 2026-10-09
+      (session 201, with the hero spell parity B row; BUG-2241,
+      BUG-2242, BUG-2244; code TBD, tracker TBD; detail in that
+      row). The muse half (MUSE_POT_RESTORE_ABILITY) stays on the
+      muse offense row - note master files it as a DEFENSIVE item
+      (find_defensive / use_defensive), not offense.
+      Original text: restore ability uncancels monsters (NEW, minted
       2026-10-09 by the blessed restore ability slice, session 199,
       from its Plan agent). Master d359ea85e (2021, "Mon can drink
       restore ability to cure cancellation") makes a potion of
@@ -9251,10 +9272,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       clamp goes in 5.0's redistribution and how the removed points
       are spent; battery = new-game stat rolls per affected pair.
 - [x] HIGH: hero spell parity A PORTED 2026-10-09 (session 200;
-      BUG-2231..2237; code TBD, tracker TBD; minted and closed by the
-      same slice). Five generated hero spells had no spelleffects()
-      case, so a cast fell into `impossible("Unknown spell %d
-      attempted.")` (paniclog line, energy spent, no effect): create
+      BUG-2231..2237; code 304c68a1f, tracker dacd48c06; minted and
+      closed by the same slice). Five generated hero spells had no
+      spelleffects() case, so a cast fell into `impossible("Unknown
+      spell %d attempted.")` (paniclog line, energy spent, no effect):
+      create
       grass (every Druid's starting kit), create trees, repair armor
       (the Valkyrie special spell), power word kill (the Wizard's
       crowning gift) and dispel evil. Recorded before only as an item
@@ -9310,8 +9332,57 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         disguised target is banished under its disguise's name;
         dispel evil never untames a pet; "Your set of barding glows"
         for the steed's barding.
-- [ ] HIGH: hero spell parity B (NEW, minted 2026-10-09 by the hero
-      spell parity A slice, session 200). SPE_CRITICAL_HEALING still
+- [x] HIGH: hero spell parity B PORTED 2026-10-09 (session 201;
+      BUG-2238..2244; code TBD, tracker TBD; plan
+      /root/.claude/plans/feature-hero-spell-parity-b.md). Closes the
+      MED restore ability uncancel row too (its muse half stays on
+      the muse offense row).
+      - Ported master's net text in 5.0 idiom: critical healing, cure
+        sickness and restore ability join spelleffects()' directional
+        group (Skilled blessing for the heals and restore ability, not
+        cure sickness); zap.c healing_spell_dice() (4 / 6 / 8 / 10),
+        sickness_spell_dice() (1 / 1 / 2 / 3) and cure_mon_sickness();
+        bhitm() arms for critical healing, cure sickness (cure, or
+        d(N, 8) to a racial zombie) and restore ability (uncancel,
+        e550e0abc's opposite-gender seducer refusal); zapyourself()
+        arms (cure sickness moved from spell.c with its dormant
+        draugr backfire now returning damage; restore ability =
+        peffects(), so session 199's abuse-reset ruling holds);
+        zap_steed() lists restore ability and critical healing;
+        potionhit()'s restore ability arm un-cancels instead of
+        healing (d359ea85e); mimic_hit_msg() knows critical healing.
+        Master's alignment terms (a54b23421 / 226926e5c): only a hurt
+        target counts, a non-Healer only for a non-tame peaceful.
+      - Rulings (AskUserQuestion x2, four questions, all
+        recommended): 5.0 a3f0b54ae's Healer pet experience and
+        Pestilence half-heal kept, layered; cure sickness also cures
+        disease (BUG-2243, master sibling miss); stone to flesh's
+        monster extras minted below; the demon refusal counts as a
+        helpful gesture (BUG-2244, master quirk).
+      - Discharged: the zombie row's bhitm cure-sickness rider; the
+        emsp row's HERO SPELL PARITY deferral (now empty).
+      - Review: PASS, no HIGH / MED; NITs folded (mwither_from_u,
+        comments). Its LOWs minted below (shopkeeper, data.base,
+        disguised mimic); the Stunned self-cast is recorded in
+        GAME_BEHAVIOR.md (master parity).
+      - Battery (three game-testers, own playground copies, binaries
+        renamed; PRE 06b474d8 = 304c68a1f code, POST 1cb2db15): A self
+        casts 9 legs, B monster arms 10 legs, C restore ability /
+        potion / steed / save 9 legs, every leg PASS. POST paniclogs:
+        none, except two "vision blocking" lines in B from the
+        tester's own gdb re-disguise of a door mimic (none after
+        unblock_point()). PRE paniclogs only "Unknown spell" lines.
+        Brief premise corrected by B: the IMMEDIATE beam does not
+        stop at the first monster (a cure sickness beam destroyed a
+        zombie and cured the sick kitten behind it). Out-of-claim,
+        all master-shared: make_sick()'s "You feel cured.  What a
+        relief!" precedes "You are no longer ill." on every Sick
+        cure; a genesis'd Pestilence rides a White Horse the beam
+        never touches (bhit() re-dispatches to a rider's steed only
+        for probing); PRE critical healing took no game time.
+      Original text: hero spell parity B (NEW, minted 2026-10-09 by
+      the hero spell parity A slice, session 200). SPE_CRITICAL_HEALING
+      still
       has no spelleffects() case (a cast falls into "Unknown spell";
       the book generates at prob 10), and it rides with the rest of
       master's healing-spell family because the arms share bhitm() /
@@ -9328,6 +9399,52 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       e550e0abc's could_seduce() guard). Plan the self arms against
       session 199's ruling (3) (5.0's abuse reset on the potion and
       the spell).
+- [ ] MED: stone to flesh's monster arm lacks master's extras (NEW,
+      minted 2026-10-09 by the hero spell parity B slice, session
+      201, ruled its own row). The branch's bhitm() SPE_STONE_TO_FLESH
+      arm is 5.0's (stone golem -> flesh golem, "seems fleshier...",
+      a stone-disguised mimic revealed). Master's has: (a) f1d39f476
+      (New monsters: Ent, Elder Ent, Petrified Ent) - a petrified
+      ent turns into an ent ("turns to wood!" / "looks rather woody
+      for a moment."), LIVE today (the branch has PM_PETRIFIED_ENT);
+      (b) 57e3569c2 - a monster that is turning to stone is cured
+      (mstone = 0, mcanmove = 1, "seems limber!" / the hallucinatory
+      "ruined a future piece of art" line), DEAD on the branch until
+      gradual monster stoning (master 2f58ace93) lands - port it with
+      the Hdgn-slice riders row (a); (c) b41949570's zap.c line -
+      SPE_STONE_TO_FLESH in zap_steed()'s bhitm list, so '>' while
+      riding hits the steed instead of the floor (its mhitu.c half is
+      already on the branch). Keep 5.0's fleshier / mimic extras
+      (they touch nothing master does differently) unless ruled
+      otherwise.
+- [ ] LOW: a helpful spell angers a shopkeeper hit from outside his
+      shop (NEW, minted 2026-10-09 by the hero spell parity B
+      reviewer, session 201; battery-confirmed). bhitm()'s tail runs
+      hot_pursuit() on any shopkeeper hit while the hero is outside
+      every shop, even when `wake` is a helpful gesture; hot_pursuit()
+      -> rile_shk() makes him hostile and adds the surcharge, with no
+      message. Cure sickness on a healthy peaceful shopkeeper and
+      restore ability on any shopkeeper reach it now (battery C:
+      Izchak mpeaceful 1 -> 0, following 1, surcharge 1 after one
+      restore ability cast through his door). Master and vanilla
+      share it (vanilla's speed monster too). Ruling: skip
+      hot_pursuit() for a helpful gesture, or record as parity.
+- [ ] LOW: dat/data.base says critical healing's cure needs Skilled
+      (NEW, minted 2026-10-09 by the hero spell parity B reviewer,
+      session 201; record / ruling). "If skilled or greater, there's
+      a 25% chance this spell will act as if 'cure sickness' were
+      cast on the target as well." Master's code (and the branch's)
+      rolls a flat 1 in 4 at any skill, and master 10089bbf6's own
+      message says a flat 25%. Master text; fix the entry or leave
+      it.
+- [ ] LOW: cure sickness names a sick disguised mimic (NEW, minted
+      2026-10-09 by the hero spell parity B reviewer, session 201;
+      record-only, master-shared). The arm's "<mon> is no longer
+      ill." uses canseemon(), which ignores the disguise, and `wake`
+      is FALSE, so the mimic stays shown as an object while the line
+      names it ("The giant mimic is no longer ill."). The healing
+      arm handles disguises through disguised_mimic /
+      mimic_hit_msg(). Needs a sick mimic that hid again.
 - [ ] MED: #turn's undead ladder misses master's steps (NEW, minted
       2026-10-09 by the hero spell parity A slice, session 200,
       ruled its own row). maybe_turn_mon_iter() (pray.c) lacks
@@ -27064,6 +27181,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-09 | Hero spell parity B slice rulings (session 201; AskUserQuestion x2, four questions, all recommended). (1) 5.0 a3f0b54ae KEPT, LAYERED: a Healer gains experience equal to the HP a hurt pet was missing (capped at the roll), and Pestilence takes half the rolled heal through resist(), both on master's skill dice (c692dc3bf, 4 / 6 / 8 / 10) and master's alignment terms (a54b23421 / 226926e5c); rejected master's exact shape (no experience, Pestilence d(3, 4 / 8 / 12) - vanilla's term, not authored). (2) CURE DISEASE TOO: the hero's cure sickness on a monster clears mdiseased and the sickness / disease / withering timers and credit like master's own monster self-cast, and critical healing's 1-in-4 cure does the same (BUG-2243, master sibling miss, frozen-unfixed); rejected master's msick + mwither only. (3) STONE TO FLESH'S MONSTER EXTRAS (f1d39f476 petrified ent, b41949570's zap_steed line, 57e3569c2's stoning cure) MINTED AS A MED ROW, not folded. (4) THE DEMON REFUSAL IS A HELPFUL GESTURE: e550e0abc's guard still refuses an opposite-gender cancelled amorous demon, but a peaceful one is not angered (BUG-2244, master quirk, frozen-unfixed); rejected master's exact shape (guilt, -5). Plan-approved: the self restore ability cast routes through peffects() so session 199's abuse-reset ruling holds; the self cure sickness text stays 5.0's (moved verbatim). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-10-09 | Hero spell parity A slice rulings (session 200; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: SPELL PARITY A - the five non-healing unwired hero spells (dispel evil, power word kill, repair armor, create grass, create trees) this slice; part B (critical healing, master c692dc3bf's skill-set healing dice, directional cure sickness, the restore ability uncancel MED row, e550e0abc) is the next slice, because those arms share bhitm() / zapyourself(); over taking all six at once, the init_attr() clamp alone, or session 199's two MED rows. (2) DISPEL EVIL ROLL 19 ON A UNIQUE: INTENT - master's `dmg *= 2` runs after resist() has dealt the damage and dmg is never read again (a dead term), so the branch deals a second hit equal to the first through damage_mon(), over master parity (message only). (3) NEW TREES BLOCK SIGHT AT ONCE: block_point() after grow_tree()'s TREE write fixes master's see-through-until-reload trees, over keeping master's behavior. (4) #turn's LADDER (alhoon S_HUMANOID, S_SKELETON step, mstone guard) MINTED AS A MED ROW, not folded. Plan-approved, no question: the turn undead spell half of eb9b1743a folded (the branch had that commit's objects.h levels); a banished peaceful / disguised target is angered / unmasked before it migrates (5.0's newsym() rejects <0,0>); the reviewer's LOWs folded (release_hero() with a dead / limbo re-check, master's "anything (else)" repair lines, the steed dismount in death_magic_anger(), safe_qbuf() for the barding query). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-10-09 | Blessed restore ability slice rulings (session 199; AskUserQuestion x3, five questions; four recommended). (1) MASTER 446e97fa1's FOUNTAIN HUNK PORTS WITH THE CAP (recommended): the magic-fountain arm of drinkfountain() runs peffects() on a blessed restore ability pseudo-potion and a gain ability pseudo-potion (blessed at Luck 4 or more), so a magic fountain also gives back 3-5 lost levels, says "better" instead of "great" with an unfixable trouble, and at Luck 0-3 makes up to six random gain picks (one "already as X as you can get" line on a total miss) where the old arm scanned to the first stat that could rise; the hunk had no row. (2) THE GAIN ABILITY STRENGTH ARM FOLDS IN (recommended): master 7ea89f807 + d2ab69d82 - gain ability raises Strength through gainstr(), which now returns adjattrib()'s result and takes adjattrib()'s int msgflg, so giants, centaurs, tortles, draugr, vampires and aasimar roll a full Strength gain (giants +2d2, capped at 18/100) from a non-cursed potion or a magic fountain; the eat.c callers keep their messages. (3) 5.0's RESTORE ABILITY ABUSE RESET STAYS (vanilla 06012e712: each restored stat's negative exercise goes to 0) on the potion and the spell, and magic fountains now inherit it; rejected master's no-reset shape (the recommended option). (4) RESTORE ABILITY UNCANCELS MONSTERS IS MINTED AS A MED ROW (recommended): master d359ea85e's potionhit() arm and the unported remainder of 1df6b9af3's directional spell, not folded. (5) THE REVIEWER'S init_attr() FIND IS MINTED AS A MED ROW (recommended): master 7ea89f807's clamp of a role's starting stat to one below the race's maximum is missing (vanilla 5.0 init_attr()), so e.g. a giant Barbarian starts at Dex 15 against a cap of 14; not folded. | maintainer |
 | 2026-10-09 | savelife() slice rulings (session 198; AskUserQuestion x5, six questions). (1) LIFE-SAVING HIT POINTS ARE A MAINTAINER-DESIGNED CON CURVE: 60 + 10 * (Con / 2) through Con 21, then 20 * (Con / 2 - 2) - Con 3 70, 4-5 80, ... 16-17 140, 18-19 150, 20-21 160, 22-23 180, 24-25 200 (the cap); it covers the amulet, wizard / explore Die? n and a polymorphed form's u.mh; the amulet's -1 Con applies first, so a Con 19 wearer gets 150; a draugr's own body still comes back full. Rejected master's flat 150 (recommended), 5.0's 50 + 10 * (Con / 2) and a "higher of the two" hybrid; the maintainer chose 5.0's two-point steps, asked for Con 18 = 150 and Con 24-25 = 200, then corrected the preview's 166 / 183 to 160 / 180. (2) THE LOWEST MAX HP AFTER A REVIVAL STAYS 5.0's max(XL, 10) (minuhpmax(10)); rejected master's max(2 * XL, 10) (recommended). (3) losexp()'s MAX HP FLOOR STAYS 5.0's max(XL, 10) WITH ITS NO-RAISE CLAUSE: master's floor of 1 was ruled first (recommended) and then REVERSED after the reviewer showed it composes with 5.0's fire trap into a level-drain ratchet. (4) THE FIRE TRAP KEEPS 5.0's SHAPE (upstream d53c1a7a6, PatR 2022-03-21: max HP shaved only down to XL, and a level drained when it would go below) - never in vanilla 3.6 or master; my recommendation was master's no-drain fire trap. (5) pluslvl()'s POLYMORPHED LEVEL GAIN FIX FOLDED INTO THE SLICE (recommended; battery-found). Master ed8e03168's form clamp max(2 * mlevel, 10) and 7c0ab4d49's entry_level gate needed no ruling (master's fixes). | maintainer |
