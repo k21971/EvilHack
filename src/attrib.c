@@ -307,9 +307,9 @@ adjattrib(
     return TRUE;
 }
 
-/* strength gain */
-void
-gainstr(struct obj *otmp, int incr, boolean givemsg)
+/* strength gain; msgflg as for adjattrib() */
+boolean
+gainstr(struct obj *otmp, int incr, int msgflg)
 {
     int num = incr;
 
@@ -331,8 +331,7 @@ gainstr(struct obj *otmp, int incr, boolean givemsg)
         if (ABASE(A_STR) < STR18(100) && ABASE(A_STR) + num > STR18(100))
             num = STR18(100) - ABASE(A_STR);
     }
-    (void) adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
-                     givemsg ? -1 : 1);
+    return adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num, msgflg);
 }
 
 /* strength loss, may kill you; cause may be poison or monster like 'a' */

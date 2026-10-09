@@ -486,23 +486,24 @@ drinkfountain(void)
     }
 
     if (mgkftn && u.uluck >= 0 && fate >= 10) {
-        int i, ii, littleluck = (u.uluck < 4);
+        int littleluck = (u.uluck < 4);
+        struct obj *pseudo;
 
-        pline("Wow!  This makes you feel great!");
-        /* blessed restore ability */
-        for (ii = 0; ii < A_MAX; ii++)
-            if (ABASE(ii) < AMAX(ii)) {
-                ABASE(ii) = AMAX(ii);
-                disp.botl = TRUE;
-            }
+        /* blessed restore ability; the potion code also restores
+           lost levels */
+        pseudo = mksobj(POT_RESTORE_ABILITY, FALSE, FALSE);
+        pseudo->cursed = 0;
+        pseudo->blessed = 1;
+        (void) peffects(pseudo);
+        obfree(pseudo, (struct obj *) 0);
+
         /* gain ability, blessed if "natural" luck is high */
-        i = rn2(A_MAX); /* start at a random attribute */
-        for (ii = 0; ii < A_MAX; ii++) {
-            if (adjattrib(i, 1, littleluck ? -1 : 0) && littleluck)
-                break;
-            if (++i >= A_MAX)
-                i = 0;
-        }
+        pseudo = mksobj(POT_GAIN_ABILITY, FALSE, FALSE);
+        pseudo->cursed = 0;
+        pseudo->blessed = !littleluck;
+        (void) peffects(pseudo);
+        obfree(pseudo, (struct obj *) 0);
+
         display_nhwindow(WIN_MESSAGE, FALSE);
         pline("A wisp of vapor escapes the fountain...");
         exercise(A_WIS, TRUE);

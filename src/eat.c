@@ -1566,7 +1566,7 @@ cpostfx(int pm)
            elemental resistances rather than one full grant chosen at
            random; STR is given separately since it is not a prop index */
         if (is_giant(ptr))
-            gainstr((struct obj *) 0, 0, TRUE);
+            gainstr((struct obj *) 0, 0, -1);
         for (i = 1; i <= LAST_PROP; i++) {
             if (!intrinsic_possible(i, ptr))
                 continue;
@@ -1979,7 +1979,7 @@ consume_tin(const char *mesg)
                   : !Fixed_abil ? "Popeye"
                   /* no gain, feel like another character from Popeye */
                   : (flags.female ? "Olive Oyl" : "Bluto"));
-        gainstr(tin, 0, FALSE);
+        gainstr(tin, 0, 1);
 
         tin = svc.context.tin.tin = costly_tin(COST_OPEN);
         nutamt = (tin->blessed ? 600                   /* blessed */
@@ -3098,7 +3098,7 @@ fpostfx(struct obj *otmp)
             break;
 
         /* This stuff seems to be VERY healthy! */
-        gainstr(otmp, 1, TRUE);
+        gainstr(otmp, 1, -1);
         if (Upolyd) {
             u.mh += otmp->cursed ? -rnd(20) : rnd(20), disp.botl = TRUE;
             if (u.mh > u.mhmax) {

@@ -218,7 +218,7 @@ extern boolean is_forged_artifact(struct obj *) NONNULLARG1;
 /* ### attrib.c ### */
 
 extern boolean adjattrib(int, int, int);
-extern void gainstr(struct obj *, int, boolean);
+extern boolean gainstr(struct obj *, int, int);
 extern void losestr(int, const char *, schar);
 extern void poison_strdmg(int, int, const char *, schar);
 extern void poisontell(int, boolean);

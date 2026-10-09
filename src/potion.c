@@ -868,11 +868,13 @@ peffect_restore_ability(struct obj *otmp)
            to make the potion more worth keeping around for players with
            the spell or with a unihorn; this is better than full healing
            in that it can restore all of them, not just half, and a
-           blessed potion restores them all at once */
+           blessed potion restores several (3-5) */
         if (otmp->otyp == POT_RESTORE_ABILITY && u.ulevel < u.ulevelmax) {
+            int num_levels = rn1(3, 3);
+
             do {
                 pluslvl(FALSE);
-            } while (u.ulevel < u.ulevelmax && otmp->blessed);
+            } while (u.ulevel < u.ulevelmax && otmp->blessed && --num_levels);
         }
     }
 }
@@ -1251,8 +1253,14 @@ peffect_gain_ability(struct obj *otmp)
             /* only give "your X is already as high as it can get"
                message on last attempt (except blessed potions) */
             itmp = (otmp->blessed || ii == 1) ? 0 : -1;
-            if (adjattrib(i, 1, itmp) && !otmp->blessed)
-                break;
+            /* gainstr() gives inherently strong races a full gain roll */
+            if (i == A_STR) {
+                if (gainstr(otmp, 1, itmp) && !otmp->blessed)
+                    break;
+            } else {
+                if (adjattrib(i, 1, itmp) && !otmp->blessed)
+                    break;
+            }
         }
     }
 }
