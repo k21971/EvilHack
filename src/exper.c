@@ -63,6 +63,11 @@ newpw(void)
             enrnd += gu.urole.enadv.hirnd + gu.urace.enadv.hirnd;
             enfix = gu.urole.enadv.hifix + gu.urace.enadv.hifix;
         }
+        /* rn1(0, x) would divide by zero; minimum Wisdom keeps enrnd
+           positive in play, so this only guards a corrupt save or a
+           future role or race */
+        if (enrnd < 1)
+            enrnd = 1;
         en = enermod(rn1(enrnd, enfix));
     }
     if (en <= 0)
@@ -174,7 +179,7 @@ more_experienced(int exper, int rexp)
     long oldexp = u.uexp,
          oldrexp = u.urexp,
          newexp = oldexp + exper,
-         rexpincr = 4 * exper + rexp,
+         rexpincr = 4L * exper + rexp,
          newrexp = oldrexp + rexpincr;
 
     /* cap experience and score on wraparound */
@@ -210,7 +215,7 @@ void
 losexp(
     const char *drainer) /* cause of death, if drain should be fatal */
 {
-    int num, uhpmin, olduhpmax;
+    int num, uhpmin, olduhpmax, entry_level = u.ulevel;
 
     /* override life-drain resistance when handling an explicit
        wizard mode request to reduce level; never fatal though */
@@ -249,40 +254,47 @@ losexp(
     }
     assert(u.ulevel >= 0 && u.ulevel < MAXULEV); /* valid array index */
 
-    olduhpmax = u.uhpmax;
-    uhpmin = minuhpmax(10); /* same minimum as is used by life-saving */
-    num = (int) u.uhpinc[u.ulevel];
-    u.uhpmax -= num;
-    if (u.uhpmax < uhpmin)
-        setuhpmax(uhpmin, TRUE);
-    /* uhpmax might try to go up if it has previously been reduced by
-       strength loss or by a fire trap or by an attack by Death which
-       all use a different minimum than life-saving or experience loss;
-       we don't allow it to go up because that contradicts assumptions
-       elsewhere (such as healing wielder who drains with Stormbringer) */
-    if (u.uhpmax > olduhpmax)
-        setuhpmax(olduhpmax, TRUE);
+    /* only a level actually lost takes its hit points and energy with
+       it; at level 1 (divine anger, or a fatal drain survived) the gain
+       from reaching level 2 already went when that level was lost, or
+       was never had */
+    if (u.ulevel < entry_level) {
+        olduhpmax = u.uhpmax;
+        uhpmin = minuhpmax(10); /* same minimum as is used by life-saving */
+        num = (int) u.uhpinc[u.ulevel];
+        u.uhpmax -= num;
+        if (u.uhpmax < uhpmin)
+            setuhpmax(uhpmin, TRUE);
+        /* uhpmax might try to go up if it has previously been reduced by
+           strength loss or by a fire trap or by an attack by Death which
+           all use a different minimum than life-saving or experience
+           loss; we don't allow it to go up because that contradicts
+           assumptions elsewhere (such as healing wielder who drains with
+           Stormbringer) */
+        if (u.uhpmax > olduhpmax)
+            setuhpmax(olduhpmax, TRUE);
 
-    u.uhp -= num;
-    if (u.uhp < 1)
-        u.uhp = 1;
-    else if (u.uhp > u.uhpmax)
-        u.uhp = u.uhpmax;
+        u.uhp -= num;
+        if (u.uhp < 1)
+            u.uhp = 1;
+        else if (u.uhp > u.uhpmax)
+            u.uhp = u.uhpmax;
 
-    num = (int) u.ueninc[u.ulevel];
-    u.uenmax -= num;
-    if (u.uenmax < 0)
-        u.uenmax = 0;
-    u.uen -= num;
-    if (u.uen < 0)
-        u.uen = 0;
-    else if (u.uen > u.uenmax)
-        u.uen = u.uenmax;
+        num = (int) u.ueninc[u.ulevel];
+        u.uenmax -= num;
+        if (u.uenmax < 0)
+            u.uenmax = 0;
+        u.uen -= num;
+        if (u.uen < 0)
+            u.uen = 0;
+        else if (u.uen > u.uenmax)
+            u.uen = u.uenmax;
+    }
 
     if (u.uexp > 0)
         u.uexp = newuexp(u.ulevel) - 1;
 
-    if (Upolyd) {
+    if (Upolyd && u.ulevel < entry_level) {
         num = monhp_per_lvl(&gy.youmonst);
         u.mhmax -= num;
         u.mh -= num;
@@ -334,7 +346,7 @@ pluslvl(
     if (Upolyd) {
         hpinc = monhp_per_lvl(&gy.youmonst);
         u.mh += hpinc;
-        setuhpmax(u.mhmax, FALSE); /* acts as setmhmax() when Upolyd */
+        setuhpmax(u.mhmax + hpinc, FALSE); /* acts as setmhmax() when Upolyd */
     }
     hpinc = newhp();
     u.uhp += hpinc;

@@ -4721,7 +4721,10 @@ unmul(const char *msg_override)
            about current form if it's not the default; primarily for
            life-saving while turning into green slime but is also a reminder
            if life-saved while poly'd and Unchanging (explore or wizard mode
-           declining to die since can't be both Unchanging and Lifesaved) */
+           declining to die, a draugr's innate revival, or an amulet of
+           life-saving on a hero stuck in the form they rose from the grave
+           as; the amulets of unchanging and of life-saving can't both be
+           worn) */
         if (Upolyd && !strncmpi(gn.nomovemsg, "You survived that ", 18))
             You("are %s.",
                 an(pmname(&mons[u.umonnum], Ugender))); /* (ignore Hallu) */

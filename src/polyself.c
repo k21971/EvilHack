@@ -1989,8 +1989,10 @@ rehumanize(void)
             Strcpy(svk.killer.name, "killed while stuck in creature form");
             done(DIED);
             /* can get to here if declining to die in explore or wizard
-               mode; since we're wearing an amulet of unchanging we can't
-               be wearing an amulet of life-saving */
+               mode, after a draugr's innate revival, or when an amulet of
+               life-saving saves a hero stuck in the living form they
+               rose from the grave as (an amulet of unchanging and one of
+               life-saving can't both be worn) */
             return; /* don't rehumanize after all */
         } else if (uamul && uamul->otyp == AMULET_OF_UNCHANGING) {
             Your("%s %s!", simpleonames(uamul), otense(uamul, "fail"));

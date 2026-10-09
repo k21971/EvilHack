@@ -991,8 +991,12 @@ disclose(int how, boolean taken)
 staticfn void
 savelife(int how)
 {
-    int uhpmin;
-    int givehp = 50 + 10 * (ACURR(A_CON) / 2);
+    int uhpmin, mhpmin;
+    /* 70 at Con 3, 10 more for every two points up to 160 at Con 20,
+       then 20 more for every two points up to 200 at Con 24 */
+    int conhalf = ACURR(A_CON) / 2,
+        givehp = (conhalf <= 10) ? 60 + 10 * conhalf
+                                 : 20 * (conhalf - 2);
 
     /* the hero lives on; the killer must not loot a later, unrelated
        death's bones pile through a stale pointer */
@@ -1009,8 +1013,14 @@ savelife(int how)
         setuhpmax(uhpmin, TRUE);
     /* a draugr's innate revival restores the whole body */
     u.uhp = min(u.uhpmax, HLifesaved ? u.uhpmax : givehp);
-    if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
+    if (Upolyd) { /* Unchanging, or death which bypasses losing hit points */
+        /* a form whose maximum was drained away would come back with no
+           hit points and die again at its next hurt */
+        mhpmin = max(2 * (int) gy.youmonst.data->mlevel, 10);
+        if (u.mhmax < mhpmin)
+            setuhpmax(mhpmin, FALSE); /* acts as setmhmax() when Upolyd */
         u.mh = min(u.mhmax, givehp);
+    }
     if (u.uhunger < 500 || how == CHOKING) {
         init_uhunger();
     }
