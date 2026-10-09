@@ -17,15 +17,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-09, after session 202): 344
-  rows closed, 113 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-09, after session 203): 345
+  rows closed, 112 open. Of the open rows:
   - 0 HIGH.
-  - 8 MED: unported master features (terrain concealment,
+  - 7 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #turn's
     alhoon / skeleton ladder, spell letters past 52 spells,
     choosing the worn armor a known enchant armor scroll hits,
-    stone to flesh's monster extras) and the dwarf starting
-    pick-axe skill_init() regression.
+    stone to flesh's monster extras).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -162,22 +161,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-09 (session 202) NO STARTING STAT ABOVE
-  THE RACE'S MAXIMUM (code TBD, tracker TBD; BUG-2245).
-  - init_attr() copied a role's minimum stats unclamped, so e.g. a
-    giant Barbarian started at Dex 15 against a cap of 14 and lost
-    the point to its first gain.
-  - Master 7ea89f807's clamp ported (one below the cap, the freed
-    points redistributed); closes the MED init_attr() row.
-  - Minted: the dwarf starting pick-axe skill row (MED) and the
-    failed-restore race override row (LOW).
-  - Detail: the closed init_attr() row.
-- Previous slice: 2026-10-09 (session 201) THE HEALING SPELLS TAKE
+- Latest slice: 2026-10-09 (session 203) A DWARF'S RACIAL
+  PICK-AXE TRAINS NO STARTING SKILL (code TBD, tracker TBD;
+  BUG-2246).
+  - 5.0's split u_init runs skill_init() after the race items, so
+    the 1-in-4 dwarf pick-axe gave a restricted role a Basic skill
+    behind "Program in disorder!" and started the others at Basic.
+  - skill_init() now skips that pick-axe; 5.0's call order stays.
+    Closes the MED dwarf pick-axe row.
+  - Minted: nothing.
+  - Detail: the closed dwarf pick-axe row.
+- Previous slice: 2026-10-09 (session 202) NO STARTING STAT ABOVE
+  THE RACE'S MAXIMUM (code 455fb89a2, tracker ee4292703;
+  BUG-2245); detail in the closed init_attr() row.
+- Earlier slices: 2026-10-09 (session 201) THE HEALING SPELLS TAKE
   A DIRECTION: CRITICAL HEALING, CURE SICKNESS AND RESTORE ABILITY
   AT MONSTERS; HEALING DICE BY SKILL (code b5250a3b6, tracker
-  3a5e56c97; BUG-2238..2244); detail in the closed hero spell
-  parity B row.
-- Earlier slices: 2026-10-09 (session 200) THE HERO CASTS DISPEL
+  3a5e56c97; BUG-2238..2244; detail in the closed hero spell
+  parity B row);
+  2026-10-09 (session 200) THE HERO CASTS DISPEL
   EVIL, POWER WORD KILL, REPAIR ARMOR, CREATE GRASS AND CREATE TREES
   (code 304c68a1f, tracker dacd48c06; BUG-2231..2237; detail in the
   closed hero spell parity A row);
@@ -9256,8 +9258,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Rides the hero spell parity B row (session 200), with
       2ce3d53d6 (zap_steed) and e550e0abc (could_seduce() guard).
 - [x] MED: init_attr() race-maximum clamp PORTED 2026-10-09
-      (session 202; BUG-2245; code TBD, tracker TBD; plan
-      /root/.claude/plans/inherited-wiggling-orbit.md).
+      (session 202; BUG-2245; code 455fb89a2, tracker ee4292703;
+      plan /root/.claude/plans/inherited-wiggling-orbit.md).
       - Master 7ea89f807's clamp ported verbatim into 5.0's
         init_attr() first loop: `while (ABASE(i) >= ATTRMAX(i))`
         lowers the stat and AMAX together, then np is charged with
@@ -9326,7 +9328,54 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       4 -> 5 on a blessed gain ability, both builds). Plan where the
       clamp goes in 5.0's redistribution and how the removed points
       are spent; battery = new-game stat rolls per affected pair.
-- [ ] MED: a dwarf's starting pick-axe trains its skill (NEW,
+- [x] MED: a dwarf's starting pick-axe trains its skill FIXED
+      2026-10-09 (session 203; BUG-2246; code TBD, tracker TBD;
+      plan /root/.claude/plans/elegant-percolating-sunbeam.md).
+      - skill_init()'s "Set skill for all weapons in inventory to
+        be basic" loop skips a PICK_AXE when Race_if(PM_DWARF) &&
+        !Role_if(PM_ARCHEOLOGIST), the exact gift test: the
+        Archeologist's kit is the only one holding a pick-axe, and
+        Convicts get neither. A comment at the gift in
+        u_init_race() points at the skip. 5.0's call order stays:
+        moving skill_init() back between u_init_role() and
+        u_init_race() (master's order) would put 5.0's
+        skill_based_spellbook_id() discovery tail inside the reroll
+        loop. No rulings needed.
+      - CENSUS: the row's restricted list left out the dwarf Wizard
+        (Skill_W has no pick-axe; the Wizard wields it). Restricted:
+        Healer, Monk, Priest, Samurai, Wizard. Allowed, now
+        Unskilled again: Barbarian (cap Skilled), Caveman (Basic),
+        Knight (Basic), Valkyrie (Skilled). Every other race
+        addition has no weapon skill or is is_ammo().
+      - REVIEW: PASS, no HIGH / MED. LOW folded (the pointer
+        comment at the gift); NIT folded (dwarf Wizard). Confirmed:
+        the predicate matches every dwarf-allowed role kit; master
+        called skill_init() after everything each role case adds;
+        the ini_inv_use_obj() wield outcome matches master's inline
+        ini_inv() block; reroll, pauper and wizkit are unaffected.
+      - BATTERIES (two game-testers in four -d playground copies,
+        binaries prea-eh .. postb-eh; PRE 75c8a20b = ee4292703
+        code, POST 8d9dccc7, which differs from the landed build
+        only by the u_init_race() comment; 14 new games; the reroll
+        option as the lever, since each reroll re-runs the 1-in-4
+        pick-axe roll): every leg PASS. PRE: dwarf Healer and Wizard
+        printed "skill_init: curr > max: pick-axe  Program in
+        disorder!" on accepting the character, one paniclog line
+        each (none during rerolls), pick-axe Basic 20(80); dwarf
+        Valkyrie pick-axe Basic. POST: dwarf Healer / Monk / Priest
+        / Samurai / Wizard no disorder message, no paniclog, no
+        pick-axe line in #enhance; dwarf Barbarian / Caveman /
+        Knight / Valkyrie pick-axe Unskilled 0(20); controls: dwarf
+        Archeologist (kit pick-axe) Basic, dwarf Valkyrie without
+        the pick-axe Unskilled. Wield slots match master (Healer /
+        Priest alternate, Wizard wielded, Monk empty-handed,
+        Samurai unassigned). Side observations were all known rows
+        or master parity: the re-brand welcome and devteam@
+        lines, the empty Cave-dweller "Spellcasting Skills" header,
+        the Wizard's empty weapon kit, and a dwarf Archeologist's
+        AC:10 (most likely the Dex <= 9 find_ac() penalty).
+      Original text: MED: a dwarf's starting pick-axe trains its
+      skill (NEW,
       minted 2026-10-09 by the init_attr() clamp slice's battery B,
       session 202; traced). u_init_race() gives a dwarf (not
       Archeologist / Convict) a pick-axe one game in four. Master
