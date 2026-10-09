@@ -900,8 +900,16 @@ init_attr(int np)
 
     for (i = 0; i < A_MAX; i++) {
         ABASE(i) = AMAX(i) = gu.urole.attrbase[i];
+        /* a role's minimum can reach or exceed the race's maximum
+           (giant Barbarian: Dex 15 against 14); drop it one below
+           the cap on purpose, so the redistribution below can land
+           it on 13 or 14 rather than always 14 */
+        while (ABASE(i) >= ATTRMAX(i)) {
+            ABASE(i)--;
+            AMAX(i)--;
+        }
         ATEMP(i) = ATIME(i) = 0;
-        np -= gu.urole.attrbase[i];
+        np -= ABASE(i);
     }
 
     /* distribute leftover points */
