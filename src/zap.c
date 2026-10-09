@@ -40,6 +40,9 @@ staticfn int spell_hit_bonus(int, boolean);
 staticfn int maybe_destroy_item(struct monst *, struct obj *, int) NONNULLPTRS;
 staticfn boolean destroyable(struct obj *, int);
 staticfn int clerical_spell_dice(void);
+staticfn int healing_spell_dice(void);
+staticfn int sickness_spell_dice(void);
+staticfn void cure_mon_sickness(struct monst *) NONNULLARG1;
 staticfn boolean dispel_evil_banish(struct monst *) NONNULLARG1;
 
 staticfn void wishcmdassist(int);
@@ -173,6 +176,44 @@ clerical_spell_dice(void)
     return (skill >= P_EXPERT) ? 12
            : (skill == P_SKILLED) ? 8
              : (skill == P_BASIC) ? 6 : 4;
+}
+
+/* dice count for the hero's healing, extra healing and critical healing
+   spells, set by healing spell skill: 4 unskilled/restricted, 6 basic,
+   8 skilled, 10 expert */
+staticfn int
+healing_spell_dice(void)
+{
+    int skill = P_SKILL(P_HEALING_SPELL);
+
+    return (skill >= P_EXPERT) ? 10
+           : (skill == P_SKILLED) ? 8
+             : (skill == P_BASIC) ? 6 : 4;
+}
+
+/* number of d8 the hero's cure sickness spell deals to a zombie, set by
+   healing spell skill: 1 below skilled, 2 skilled, 3 expert */
+staticfn int
+sickness_spell_dice(void)
+{
+    int skill = P_SKILL(P_HEALING_SPELL);
+
+    return (skill >= P_EXPERT) ? 3 : (skill == P_SKILLED) ? 2 : 1;
+}
+
+/* clear a monster's illness, infection and withering along with their
+   timers and the hero's kill credit */
+staticfn void
+cure_mon_sickness(struct monst *mtmp)
+{
+    mtmp->msick = 0;
+    mtmp->msickbyu = 0;
+    mtmp->mdiseased = 0;
+    mtmp->mdiseabyu = 0;
+    mtmp->msicktime = 0;
+    mtmp->mdiseasetime = 0;
+    mtmp->mwither = 0;
+    mtmp->mwither_from_u = FALSE;
 }
 
 /* dispel evil may banish a monster that failed to resist it to a random
@@ -655,8 +696,11 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         }
         break;
     case SPE_HEALING:
-    case SPE_EXTRA_HEALING: {
-        int healamt = d(6, otyp == SPE_EXTRA_HEALING ? 8 : 4);
+    case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING: {
+        int healamt = d(healing_spell_dice(),
+                        (otyp == SPE_CRITICAL_HEALING) ? 12
+                        : (otyp == SPE_EXTRA_HEALING) ? 8 : 4);
 
         reveal_invis = TRUE;
         if (mtmp->data != &mons[PM_PESTILENCE]) {
@@ -664,12 +708,16 @@ bhitm(struct monst *mtmp, struct obj *otmp)
 
             wake = FALSE; /* wakeup() makes the target angry */
             healmon(mtmp, healamt, 0);
-            /* plain healing must be blessed to cure blindness; extra
-               healing only needs to not be cursed, so spell always cures
-               [potions quaffed by monsters behave slightly differently;
-               we use the rules for the hero here...] */
-            if (skilled_spell || otyp == SPE_EXTRA_HEALING)
+            /* plain healing must be blessed to cure blindness; extra and
+               critical healing only need to not be cursed, so the spell
+               always cures [potions quaffed by monsters behave slightly
+               differently; we use the rules for the hero here...] */
+            if (skilled_spell || otyp == SPE_EXTRA_HEALING
+                || otyp == SPE_CRITICAL_HEALING)
                 mcureblindness(mtmp, canseemon(mtmp));
+            /* critical healing sometimes cures illness and withering */
+            if (otyp == SPE_CRITICAL_HEALING && !rn2(4))
+                cure_mon_sickness(mtmp);
             if (canseemon(mtmp)) {
                 if (disguised_mimic) {
                     if (is_obj_mappear(mtmp, STRANGE_OBJECT)) {
@@ -680,14 +728,20 @@ bhitm(struct monst *mtmp, struct obj *otmp)
                         mimic_hit_msg(mtmp, otyp);
                 } else
                     pline("%s looks%s better.", Monnam(mtmp),
-                          otyp == SPE_EXTRA_HEALING ? " much" : "");
+                          (otyp == SPE_CRITICAL_HEALING) ? " considerably"
+                          : (otyp == SPE_EXTRA_HEALING) ? " much" : "");
             }
             if (mtmp->mtame && Role_if(PM_HEALER) && (delta > 0)) {
                 more_experienced(min(delta, healamt), 0);
                 newexplevel();
             }
-            if (mtmp->mtame || mtmp->mpeaceful) {
-                adjalign(Role_if(PM_HEALER) ? 1 : sgn(u.ualign.type));
+            /* healing a hurt peaceful is a good deed; healing a hurt pet
+               is one only for a Healer */
+            if ((mtmp->mtame || mtmp->mpeaceful) && delta > 0) {
+                if (Role_if(PM_HEALER))
+                    adjalign(1);
+                else if (!mtmp->mtame)
+                    adjalign(sgn(u.ualign.type));
             }
         } else { /* Pestilence */
             /* Pestilence will always resist; damage is half of (healamt/2) */
@@ -695,6 +749,52 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         }
         break;
     }
+    case SPE_CURE_SICKNESS:
+        if (mtmp->msick || mtmp->mdiseased || mtmp->mwither) {
+            wake = FALSE;
+            if (canseemon(mtmp)) {
+                if (mtmp->msick || mtmp->mdiseased)
+                    pline_mon(mtmp, "%s is no longer ill.", Monnam(mtmp));
+                if (mtmp->mwither)
+                    pline_mon(mtmp, "%s is no longer withering away.",
+                              Monnam(mtmp));
+            }
+            if (mtmp->mtame || mtmp->mpeaceful) {
+                if (Role_if(PM_HEALER))
+                    adjalign(1);
+                else if (!mtmp->mtame)
+                    adjalign(sgn(u.ualign.type));
+            }
+            cure_mon_sickness(mtmp);
+        } else if (racial_zombie(mtmp)) {
+            /* the healing magic is anathema to the undead */
+            if (canseemon(mtmp))
+                pline_mon(mtmp, "%s shudders in agony!", Monnam(mtmp));
+            if (damage_mon(mtmp, d(sickness_spell_dice(), 8), AD_PHYS,
+                           TRUE))
+                killed(mtmp);
+        }
+        if (mtmp->mpeaceful && !racial_zombie(mtmp))
+            helpful_gesture = TRUE;
+        break;
+    case SPE_RESTORE_ABILITY:
+        /* a helpful gesture even when the guard below refuses it */
+        if (mtmp->mpeaceful)
+            helpful_gesture = TRUE;
+        if (mtmp->mcan) {
+            if (mtmp->data->mlet != S_NYMPH
+                && could_seduce(mtmp, &gy.youmonst,
+                                (struct attack *) 0) == 1) {
+                /* don't allow abuse/infinite source of level/stat gain */
+                shieldeff(mtmp->mx, mtmp->my);
+                Your("spell has no effect on %s.", mon_nam(mtmp));
+            } else {
+                mtmp->mcan = 0;
+                if (canseemon(mtmp))
+                    pline_mon(mtmp, "%s looks revitalized.", Monnam(mtmp));
+            }
+        }
+        break;
     case WAN_LIGHT: /* (broken wand) */
         if (flash_hits_mon(mtmp, otmp)) {
             learn_it = TRUE;
@@ -3559,10 +3659,69 @@ zapyourself(struct obj *obj, boolean ordinary)
         break;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
         learn_it = TRUE; /* (no effect for spells...) */
-        healup(d(6, obj->otyp == SPE_EXTRA_HEALING ? 8 : 4), 0, FALSE,
-               (obj->blessed || obj->otyp == SPE_EXTRA_HEALING));
-        You_feel("%sbetter.", obj->otyp == SPE_EXTRA_HEALING ? "much " : "");
+        /* critical healing sometimes cures illness, sliming and
+           withering */
+        if (obj->otyp == SPE_CRITICAL_HEALING && !rn2(4)) {
+            if (Sick) {
+                /* cure conditions (which updates status) before feedback */
+                healup(0, 0, TRUE, FALSE);
+                You("are no longer ill.");
+            }
+            if (Slimed)
+                make_slimed(0L, "The slime disappears!");
+            if (Withering) {
+                set_itimeout(&HWithering, (long) 0);
+                if (!Withering)
+                    You("are no longer withering away.");
+            }
+        }
+        healup(d(healing_spell_dice(),
+                 (obj->otyp == SPE_CRITICAL_HEALING) ? 12
+                 : (obj->otyp == SPE_EXTRA_HEALING) ? 8 : 4),
+               0, FALSE,
+               (obj->blessed || obj->otyp == SPE_EXTRA_HEALING
+                || obj->otyp == SPE_CRITICAL_HEALING));
+        You_feel("%sbetter.", (obj->otyp == SPE_CRITICAL_HEALING)
+                                  ? "considerably "
+                                  : (obj->otyp == SPE_EXTRA_HEALING)
+                                      ? "much " : "");
+        break;
+    case SPE_CURE_SICKNESS:
+        /* the healing magic is anathema to an undead caster */
+        if (maybe_polyd(is_zombie(gy.youmonst.data), Race_if(PM_DRAUGR))) {
+            You("shudder in agony!");
+            damage = d(sickness_spell_dice(), 8);
+            exercise(A_CON, FALSE);
+            /* the cure still takes effect even as it wracks the caster */
+            healup(0, 0, TRUE, FALSE);
+        } else {
+            boolean was_sick = !!Sick, was_slimed = !!Slimed;
+
+            /* cure conditions (which updates status) before feedback */
+            healup(0, 0, TRUE, FALSE);
+            /*
+             *  Sick + !Slimed -- You are no longer ill.
+             * !Sick + !Slimed -- You are not ill.
+             * !Sick +  Slimed -- The slime disappears.
+             *  Sick +  Slimed -- You are no longer ill. The slime disappears.
+             */
+            if (was_sick || !was_slimed)
+                You("are %s ill.", was_sick ? "no longer" : "not");
+            if (was_slimed)
+                make_slimed(0L, "The slime disappears!");
+            if (Withering) {
+                set_itimeout(&HWithering, (long) 0);
+                if (!Withering)
+                    You("are no longer withering away.");
+            }
+        }
+        break;
+    case SPE_RESTORE_ABILITY:
+        /* the potion's effect, abuse reset included; only the potion
+           restores lost levels */
+        (void) peffects(obj);
         break;
     case WAN_LIGHT: /* (broken wand) */
         /* assert( !ordinary ); */
@@ -3829,6 +3988,7 @@ zap_steed(struct obj *obj) /* wand or spell */
 
     /* Default processing via bhitm() for these */
     case SPE_CURE_SICKNESS:
+    case SPE_RESTORE_ABILITY:
     case WAN_MAKE_INVISIBLE:
     case WAN_CANCELLATION:
     case SPE_CANCELLATION:
@@ -3842,6 +4002,7 @@ zap_steed(struct obj *obj) /* wand or spell */
     case WAN_SPEED_MONSTER:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
     case SPE_DRAIN_LIFE:
     case WAN_OPENING:
     case SPE_KNOCK:

@@ -2188,7 +2188,6 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 goto do_illness;
             FALLTHROUGH;
             /*FALLTHRU*/
-        case POT_RESTORE_ABILITY:
         case POT_GAIN_ABILITY:
  do_healing:
             angermon = FALSE;
@@ -2199,6 +2198,14 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             }
             if (cureblind)
                 mcureblindness(mon, canseemon(mon));
+            break;
+        case POT_RESTORE_ABILITY:
+            angermon = FALSE;
+            if (mon->mcan) {
+                mon->mcan = 0;
+                if (canseemon(mon))
+                    pline_mon(mon, "%s looks revitalized.", Monnam(mon));
+            }
             break;
         case POT_SICKNESS:
             if (mon->data == &mons[PM_PESTILENCE])

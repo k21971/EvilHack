@@ -2221,15 +2221,21 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_DETECT_UNSEEN:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
+    case SPE_CURE_SICKNESS:
+    case SPE_RESTORE_ABILITY:
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
     case SPE_ENTANGLE:
     case SPE_PSIONIC_WAVE:
     case SPE_CHANGE_METAL_TO_WOOD:
         if (objects[otyp].oc_dir != NODIR) {
-            if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
-                /* healing and extra healing are actually potion effects,
-                   but they've been extended to take a direction like wands */
+            if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
+                || otyp == SPE_CRITICAL_HEALING
+                || otyp == SPE_RESTORE_ABILITY) {
+                /* the healing spells and restore ability work like
+                   potion effects, but they've been extended to take a
+                   direction like wands */
                 if (role_skill >= P_SKILLED)
                     pseudo->blessed = 1;
             }
@@ -2334,7 +2340,6 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_DETECT_TREASURE:
     case SPE_DETECT_MONSTERS:
     case SPE_LEVITATION:
-    case SPE_RESTORE_ABILITY:
         /* high skill yields effect equivalent to blessed potion */
         if (role_skill >= P_SKILLED)
             pseudo->blessed = 1;
@@ -2348,44 +2353,6 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_CURE_BLINDNESS:
         healup(0, 0, FALSE, TRUE);
         break;
-    case SPE_CURE_SICKNESS: {
-        boolean was_sick = !!Sick, was_slimed = !!Slimed;
-
-        /* the healing magic is anathema to an undead caster */
-        if (maybe_polyd(is_zombie(gy.youmonst.data), Race_if(PM_DRAUGR))) {
-            int sickness_skill = (P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
-                                     ? 3
-                                     : (P_SKILL(P_HEALING_SPELL)
-                                        == P_SKILLED) ? 2 : 1;
-            char buf[BUFSZ];
-
-            You("shudder in agony!");
-            exercise(A_CON, FALSE);
-            /* the cure still takes effect even as it wracks the caster */
-            healup(0, 0, TRUE, FALSE);
-            Sprintf(buf, "zapped %sself with a spell", uhim());
-            losehp(d(sickness_skill, 8), buf, NO_KILLER_PREFIX);
-            break;
-        }
-        /* cure conditions (which updates status) before feedback */
-        healup(0, 0, TRUE, FALSE);
-        /*
-         *  Sick + !Slimed -- You are no longer ill.
-         * !Sick + !Slimed -- You are not ill.
-         * !Sick +  Slimed -- The slime disappears.
-         *  Sick +  Slimed -- You are no longer ill.  The slime disappears.
-         */
-        if (was_sick || !was_slimed)
-            You("are %s ill.", was_sick ? "no longer" : "not");
-        if (was_slimed)
-            make_slimed(0L, "The slime disappears!");
-        if (Withering) {
-            set_itimeout(&HWithering, (long) 0);
-            if (!Withering)
-                You("are no longer withering away.");
-        }
-        break;
-    }
     case SPE_CREATE_FAMILIAR:
         (void) make_familiar((struct obj *) 0, u.ux, u.uy, FALSE);
         break;
