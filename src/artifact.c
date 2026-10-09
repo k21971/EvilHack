@@ -46,7 +46,6 @@ staticfn int invoke_shadowblade(struct obj *) NONNULLARG1;
 staticfn int invoke_phasing(struct obj *) NONNULLARG1;
 staticfn int invoke_channel(struct obj *) NONNULLARG1;
 staticfn int invoke_death_magic(struct obj *) NONNULLARG1;
-staticfn void death_magic_anger(struct monst *) NONNULLARG1;
 staticfn int invoke_command_undead(struct obj *) NONNULLARG1;
 staticfn int arti_invoke_cost_pw(struct obj *) NONNULLARG1;
 staticfn boolean arti_invoke_cost(struct obj *) NONNULLARG1;
@@ -4470,8 +4469,9 @@ invoke_channel(struct obj *obj)
 }
 
 /* a peaceful or tame monster has survived the invoked wrath of the Eye
-   or Hand of Vecna; it will not stay friendly toward the invoker */
-staticfn void
+   or Hand of Vecna, or the hero's power word kill spell; it will not
+   stay friendly toward the invoker */
+void
 death_magic_anger(struct monst *mtmp)
 {
     if (mtmp->mpeaceful || mtmp->mtame) {
@@ -4485,6 +4485,9 @@ death_magic_anger(struct monst *mtmp)
             adjalign(-3);
             record_abuse_event_mon(-3, ABUSE_SPELL_PEACEFUL, mtmp);
         }
+        /* a steed that is no longer tame won't stay ridden */
+        if (mtmp == u.usteed)
+            dismount_steed(DISMOUNT_THROWN);
     }
 }
 

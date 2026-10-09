@@ -53,6 +53,12 @@ staticfn void display_spell_target_positions(boolean);
 staticfn boolean spell_aim_step(genericptr_t, coordxy, coordxy);
 staticfn void propagate_chain_lightning(struct chain_lightning_queue *,
             struct chain_lightning_zap);
+staticfn void grow_grass(coordxy, coordxy, genericptr_t);
+staticfn void cast_create_grass(int);
+staticfn void grow_tree(coordxy, coordxy, genericptr_t);
+staticfn void cast_create_trees(int);
+staticfn boolean cast_power_word_kill(void);
+staticfn int repair_armor_ok(struct obj *);
 
 /* The roles[] table lists the role-specific values for tuning
  * percent_success().
@@ -1473,6 +1479,345 @@ cast_metal_to_wood(struct obj *obj, boolean by_you)
         return metal_to_wood(obj, FALSE);
 }
 
+/* do_clear_area() callback for create grass */
+staticfn void
+grow_grass(coordxy x, coordxy y, genericptr_t arg)
+{
+    int *grasscnt = (int *) arg;
+    struct trap *ttmp;
+
+    /* Grow grass only on regular terrain or
+       corridors, weighted towards spaces near
+       the player */
+    if (rn2(1 + distmin(u.ux, u.uy, x, y))
+        || (levl[x][y].typ != ROOM
+            && levl[x][y].typ != CORR))
+        return;
+
+    /* Magic portals and the vibrating square are
+       permanent dungeon features; they cannot be
+       buried. Every other trap type (pits, holes,
+       bear traps, hidden arrow traps, etc.) is
+       covered over by the new grass. The trap
+       persists and still triggers when stepped on,
+       the same way traps remain active beneath
+       puddle or sewage terrain */
+    ttmp = t_at(x, y);
+    if (ttmp && undestroyable_trap(ttmp->ttyp))
+        return;
+
+    /* Sokoban pits, holes, and trap doors are puzzle
+       features; their layout must remain readable, so
+       never cover them with grass on Sokoban levels */
+    if (ttmp && Sokoban
+        && (is_pit(ttmp->ttyp) || is_hole(ttmp->ttyp)))
+        return;
+
+    /* grow grass; clear the rm-flags union since it aliases to a
+       different field on the new typ */
+    levl[x][y].typ = GRASS;
+    levl[x][y].flags = 0;
+    del_engr_at(x, y);
+    newsym(x, y);
+    (*grasscnt)++;
+}
+
+staticfn void
+cast_create_grass(int skill)
+{
+    int bonus = (skill == P_EXPERT
+                 ? 4 : skill == P_SKILLED
+                     ? 2 : skill == P_BASIC
+                         ? 1 : 0);
+    int range = 1 + bonus;
+    int madegrass = 0;
+
+    if (Is_valley(&u.uz)) {
+        pline("Grass begins to grow, but quickly withers away and dies.");
+        return;
+    }
+
+    /* creates grass around the caster, including the tile
+       they are standing on if suitable. at basic skill,
+       grass will grow out to two tile spaces away from the
+       caster, skilled is three tile spaces out, expert is
+       five tile spaces. at unskilled/restricted, grass will
+       only grow one tile space out */
+    do_clear_area(u.ux, u.uy, range, grow_grass, (genericptr_t) &madegrass);
+
+    if (madegrass) {
+        if (Hallucination)
+            pline("Whoa... so much grass, dude!");
+        else
+            pline("Grass grows throughout the area!");
+    } else {
+        /* grass didn't grow anywhere */
+        pline_The("ground briefly stirs, but nothing else happens.");
+    }
+}
+
+/* opaque arg for grow_tree() - carries both the grown-tile counter and
+   the effective caster skill so the callback can honor skill-gated
+   effects (dead-tree revival) without reaching back to P_SKILL() */
+struct tree_growth {
+    int count;
+    int skill;
+};
+
+/* do_clear_area() callback for create trees */
+staticfn void
+grow_tree(coordxy x, coordxy y, genericptr_t arg)
+{
+    struct tree_growth *tg = (struct tree_growth *) arg;
+    struct trap *ttmp;
+
+    /* Never grow a tree on the player's space */
+    if (u_at(x, y))
+        return;
+
+    /* Grow a tree only on regular terrain or grass,
+       never on monsters, objects, or next to doors,
+       weighted towards spaces near the player.
+
+       Never next to other living trees as well. this
+       is done to limit their growth, mainly to prevent
+       a situation where the caster is suddenly trapped.
+
+       Sometimes the energy of the spell can be used to
+       potentially revive nearby dead trees if the
+       caster is skilled enough */
+    if (rn2(2) && levl[x][y].typ == DEADTREE
+        && tg->skill >= P_SKILLED) {
+        if (cansee(x, y))
+            You("revitalize a dead tree!");
+        if (!rn2(3) && Role_if(PM_DRUID))
+            adjalign(1); /* your deity sometimes takes notice */
+    } else if (nexttodoor(x, y) || nexttotree(x, y)
+               || rn2(1 + distmin(u.ux, u.uy, x, y))
+               || OBJ_AT(x, y) || MON_AT(x, y)
+               || (levl[x][y].typ != ROOM
+                   && levl[x][y].typ != GRASS)) {
+        return;
+    }
+
+    /* Permanent dungeon features and level-exit
+       traps are never destroyed: magic portals
+       and the vibrating square are un-uprootable,
+       and holes and trap doors are various level's
+       route to the next */
+    ttmp = t_at(x, y);
+    if (ttmp && (undestroyable_trap(ttmp->ttyp)
+                 || is_hole(ttmp->ttyp)))
+        return;
+
+    /* Sokoban pits are puzzle features; never destroy
+       them on Sokoban levels (holes and trap doors
+       are already guarded above) */
+    if (ttmp && Sokoban && is_pit(ttmp->ttyp))
+        return;
+
+    /* A tree is impassable, so any trap left under
+       it would be unreachable. Tear it out cleanly
+       instead of orphaning the data; ammo-bearing
+       traps (bear trap, land mine) drop their ammo
+       on the tile, where it will sit beneath the
+       new tree until the tree is chopped down */
+    if (ttmp)
+        (void) deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
+
+    /* grow a tree; clear the rm-flags union since it aliases to a
+       different field on the new typ */
+    levl[x][y].typ = TREE;
+    levl[x][y].flags = 0;
+    del_engr_at(x, y);
+    /* a tree blocks sight; tell vision right away rather than
+       leaving it see-through until the level is reloaded */
+    block_point(x, y);
+    newsym(x, y);
+    tg->count++;
+}
+
+staticfn void
+cast_create_trees(int skill)
+{
+    int bonus = (skill == P_EXPERT
+                 ? 4 : skill == P_SKILLED
+                     ? 2 : skill == P_BASIC
+                         ? 1 : 0);
+    int range = 1 + bonus;
+    struct tree_growth tg;
+
+    tg.count = 0;
+    tg.skill = skill;
+
+    if (Is_valley(&u.uz)) {
+        pline("Saplings begin to form, but they quickly wither away "
+              "and die.");
+        return;
+    }
+
+    /* creates a tree around the caster. at basic skill,
+       a tree will grow out to two tile spaces away from the
+       caster, skilled is three tile spaces out, expert is
+       five tile spaces. at unskilled/restricted, a tree will
+       only grow one tile space out */
+    do_clear_area(u.ux, u.uy, range, grow_tree, (genericptr_t) &tg);
+
+    if (tg.count) {
+        if (Hallucination)
+            pline("Only you can prevent forest fires...");
+        else
+            pline("Trees grow throughout the area!");
+    } else {
+        /* trees didn't grow anywhere */
+        pline_The("ground briefly stirs, but nothing else happens.");
+    }
+}
+
+/* power word kill: the caster picks one monster within a range set by
+   attack spell skill and slays it if its hit points are at or below a
+   skill-based limit, else maims it; magic resistance turns either into
+   a nonlethal 8d6. range of power word kill spell (@ is center):
+   U = unskilled, B = basic, S = skilled, E = expert
+       ...........
+       ....EEE....
+       ..EEEEEEE..
+       ..ESSSSSE..
+       .EESBUBSEE.
+       .EESU@USEE.
+       .EESBUBSEE.
+       ..ESSSSSE..
+       ..EEEEEEE..
+       ....EEE....
+       ...........
+   returns TRUE if the slain target was lifesaved */
+staticfn boolean
+cast_power_word_kill(void)
+{
+    char c, qbuf[QBUFSZ];
+    int ans, skill = P_SKILL(P_ATTACK_SPELL);
+    int damage_skill = (skill >= P_EXPERT) ? 200
+                       : (skill == P_SKILLED) ? 150
+                         : (skill == P_BASIC) ? 100 : 50;
+    int range_skill = (skill >= P_EXPERT) ? 17
+                      : (skill == P_SKILLED) ? 7
+                        : (skill == P_BASIC) ? 2 : 0;
+    boolean save_verbose = flags.verbose,
+            save_autodescribe = iflags.autodescribe;
+    struct monst *mtmp = (struct monst *) 0;
+    coord cc;
+
+    cc.x = u.ux, cc.y = u.uy;
+    You("utter a word of power...");
+    pline("choose a monster to slay:");
+
+    flags.verbose = FALSE;
+    iflags.autodescribe = TRUE;
+    ans = getpos(&cc, TRUE, "a monster");
+    flags.verbose = save_verbose;
+    iflags.autodescribe = save_autodescribe;
+    if (ans < 0 || cc.x < 1)
+        return FALSE;
+
+    /* handle selecting your own location first */
+    if (u_at(cc.x, cc.y)) {
+        if (u.usteed) {
+            Sprintf(qbuf, "Kill %.110s?", mon_nam(u.usteed));
+            if ((c = ynq(qbuf)) == 'q')
+                return FALSE;
+            if (c == 'y')
+                mtmp = u.usteed;
+        }
+        if (!mtmp) {
+            Sprintf(qbuf, "%s?",
+                    Role_if(PM_SAMURAI) ? "Perform seppuku"
+                                        : "Commit suicide");
+            if (paranoid_query(TRUE, qbuf)) {
+                Sprintf(svk.killer.name, "%s own word of power", uhis());
+                svk.killer.format = KILLED_BY;
+                done(DIED);
+            }
+            return FALSE;
+        }
+    } else if (u.uswallow) {
+        mtmp = (distu(cc.x, cc.y) <= 2) ? u.ustuck : (struct monst *) 0;
+    } else {
+        mtmp = m_at(cc.x, cc.y);
+    }
+
+    /* whether there's an unseen monster here or not, player will know
+       that there's no monster here after the kill or failed attempt;
+       let hero know too */
+    (void) unmap_invisible(cc.x, cc.y);
+
+    if (!mtmp) {
+        There("is no monster there.");
+        return FALSE;
+    }
+    if (mdistu(mtmp) > range_skill + 1) {
+        pline("%s is out of range.", Monnam(mtmp));
+        return FALSE;
+    }
+    if (immune_death_magic(mtmp->data)) {
+        shieldeff(mtmp->mx, mtmp->my);
+        pline("%s is immune to your word of power!", Monnam(mtmp));
+        return FALSE;
+    }
+
+    if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
+        /* magic resistance holds at any hit points; the target
+           still takes damage, but not below one hit point */
+        shieldeff(mtmp->mx, mtmp->my);
+        pline("%s %s in pain, but resists your deadly spell.",
+              Monnam(mtmp), makeplural(growl_sound(mtmp)));
+        (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
+        death_magic_anger(mtmp);
+    } else if (mtmp->mhp <= damage_skill) {
+        /* assumes not resistant to death magic. monsters with
+           less hit points as determined by damage_skill die */
+        You("%s %s!", rn2(2) ? "annihilate" : "obliterate",
+            mon_nam(mtmp));
+        mtmp->mhp = 0;
+        xkilled(mtmp, XKILL_NOMSG);
+        if (!DEADMONSTER(mtmp))
+            return TRUE; /* lifesaved */
+    } else {
+        /* if not magic resistant, but has more hit points as
+           determined by damage_skill, max hit points and regular
+           hit points take a significant hit, not to go below one
+           hit point */
+        if (!Deaf)
+            pline("%s %s in %s!", Monnam(mtmp),
+                  makeplural(growl_sound(mtmp)),
+                  rn2(2) ? "agony" : "pain");
+        else if (cansee(mtmp->mx, mtmp->my))
+            pline("%s trembles in %s!", Monnam(mtmp),
+                  rn2(2) ? "agony" : "pain");
+        /* mhp will then still be less than this value */
+        mtmp->mhpmax -= rn1(9, 4);
+        if (mtmp->mhpmax < 1) /* protect against invalid value */
+            mtmp->mhpmax = 1;
+        mtmp->mhp /= 3;
+        if (mtmp->mhp < 1)
+            mtmp->mhp = 1;
+        death_magic_anger(mtmp);
+    }
+    return FALSE;
+}
+
+/* getobj callback for the repair armor spell: worn armor is the likely
+   choice; unworn armor stays pickable so the caller can explain that
+   it must be worn */
+staticfn int
+repair_armor_ok(struct obj *obj)
+{
+    if (!obj || obj->oclass != ARMOR_CLASS)
+        return GETOBJ_EXCLUDE;
+    if (obj->owornmask & W_ARMOR)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_DOWNPLAY;
+}
+
 /* attempting to cast a forgotten spell will cause disorientation */
 staticfn void
 spell_backfire(int spell)
@@ -1867,6 +2212,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_WIZARD_LOCK:
     case SPE_DIG:
     case SPE_TURN_UNDEAD:
+    case SPE_DISPEL_EVIL:
     case SPE_POLYMORPH:
     case SPE_TELEPORT_AWAY:
     case SPE_CANCELLATION:
@@ -1974,6 +2320,14 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_SUMMON_ELEMENTAL:
         (void) make_elemental(u.ux, u.uy);
         break;
+    case SPE_POWER_WORD_KILL:
+        if (cast_power_word_kill()) {
+            /* the slain target was lifesaved; like master, the cast
+               takes no time and earns no skill */
+            obfree(pseudo, (struct obj *) 0);
+            return ECMD_OK;
+        }
+        break;
 
     /* these are all duplicates of potion effects */
     case SPE_HASTE_SELF:
@@ -2056,10 +2410,98 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_STONESKIN:
         cast_stoneskin(&gy.youmonst, role_skill);
         break;
+    case SPE_CREATE_GRASS:
+        cast_create_grass(role_skill);
+        break;
+    case SPE_CREATE_TREES:
+        cast_create_trees(role_skill);
+        break;
     case SPE_JUMPING:
         if (!(jump(max(role_skill, 1)) & ECMD_TIME))
             pline1(nothing_happens);
         break;
+    case SPE_REPAIR_ARMOR: {
+        /* removes one level of erosion (both types) for a chosen
+           piece of armor */
+        struct obj *otmp = (struct obj *) 0;
+
+        if (role_skill >= P_BASIC) {
+            if (u.usteed
+                && (otmp = which_armor(u.usteed, W_BARDING)) != 0) {
+                char qbuf[QBUFSZ];
+
+                Snprintf(qbuf, sizeof qbuf, "Repair %s ",
+                         s_suffix(y_monnam(u.usteed)));
+                /* a long barding name gets its simple name instead */
+                (void) safe_qbuf(qbuf, qbuf, "?", otmp, xname,
+                                 simpleonames, "barding");
+                if (y_n(qbuf) == 'n')
+                    otmp = (struct obj *) 0;
+            }
+            if (!otmp) {
+                /* unworn armor can be picked, to be told it must be
+                   worn, but it is no reason to ask */
+                if (!count_worn_armor()) {
+                    struct obj *o;
+
+                    for (o = gi.invent; o; o = o->nobj)
+                        if (o->oclass == ARMOR_CLASS)
+                            break;
+                    You("don't have anything %sto magically repair.",
+                        o ? "else " : "");
+                } else {
+                    otmp = getobj("magically repair", repair_armor_ok,
+                                  GETOBJ_NOFLAGS);
+                    while (otmp && !(otmp->owornmask & W_ARMOR)) {
+                        You("cannot repair armor that is not worn.");
+                        otmp = getobj("magically repair", repair_armor_ok,
+                                      GETOBJ_NOFLAGS);
+                    }
+                }
+            }
+        } else {
+            /* unskilled cast picks armor at random; skip Hand of
+               Vecna since the cursed Hand can't be repaired by the
+               spell. some_armor() is deterministic when only one
+               slot is filled, so bound the retry to avoid an
+               infinite loop when the Hand is the player's only armor */
+            int tryct = 50;
+
+            otmp = some_armor(&gy.youmonst);
+            while (otmp && otmp->oartifact == ART_HAND_OF_VECNA
+                   && --tryct > 0)
+                otmp = some_armor(&gy.youmonst);
+            if (otmp && otmp->oartifact == ART_HAND_OF_VECNA)
+                otmp = (struct obj *) 0;
+        }
+        if (otmp) {
+            if (greatest_erosion(otmp) > 0) {
+                if (Blind)
+                    Your("%s feels warmer for a brief moment.",
+                         xname(otmp));
+                else
+                    Your("%s glows faintly golden for a moment.",
+                         xname(otmp));
+                if (otmp->oeroded > 0)
+                    otmp->oeroded--;
+                if (otmp->oeroded2 > 0)
+                    otmp->oeroded2--;
+                update_inventory();
+            } else {
+                if (Blind)
+                    Your("%s feels lukewarm for a brief moment.",
+                         xname(otmp));
+                else
+                    Your("%s glows briefly, but looks as new as ever.",
+                         xname(otmp));
+            }
+        } else {
+            /* the player can probably feel this, so no need for a
+               !Blind check :) */
+            Your("embarrassing skin rash clears up slightly.");
+        }
+        break;
+    }
     case SPE_CHAIN_LIGHTNING:
         cast_chain_lightning();
         break;

@@ -189,6 +189,7 @@ extern void dump_artifact_info(winid);
 extern boolean artifact_hit(struct monst *, struct monst *, struct obj *,
                             int *, int) NONNULLARG2;
 extern int doinvoke(void);
+extern void death_magic_anger(struct monst *) NONNULLARG1;
 extern boolean finesse_ahriman(struct obj *);
 extern int arti_speak(struct obj *);
 extern boolean artifact_light(struct obj *);

@@ -39,6 +39,8 @@ staticfn void boxlock_invent(struct obj *) NONNULLARG1;
 staticfn int spell_hit_bonus(int, boolean);
 staticfn int maybe_destroy_item(struct monst *, struct obj *, int) NONNULLPTRS;
 staticfn boolean destroyable(struct obj *, int);
+staticfn int clerical_spell_dice(void);
+staticfn boolean dispel_evil_banish(struct monst *) NONNULLARG1;
 
 staticfn void wishcmdassist(int);
 staticfn void wish_history_menu(char *);
@@ -158,6 +160,79 @@ learnwand(struct obj *obj)
         }
         update_inventory();
     }
+}
+
+/* die size for the hero's turn undead and dispel evil spells, set by
+   clerical spell skill: d4 unskilled/restricted, d6 basic, d8 skilled,
+   d12 expert */
+staticfn int
+clerical_spell_dice(void)
+{
+    int skill = P_SKILL(P_CLERIC_SPELL);
+
+    return (skill >= P_EXPERT) ? 12
+           : (skill == P_SKILLED) ? 8
+             : (skill == P_BASIC) ? 6 : 4;
+}
+
+/* dispel evil may banish a monster that failed to resist it to a random
+   level, unless something holds the monster here; returns TRUE if the
+   monster left the level */
+staticfn boolean
+dispel_evil_banish(struct monst *mtmp)
+{
+    int nlev;
+    d_level flev;
+
+    if (mon_has_amulet(mtmp) || In_endgame(&u.uz)
+        || ((Is_qstart(&u.uz) || Is_nemesis(&u.uz))
+            && unique_corpstat(mtmp->data))
+        || ((Is_wiz1_level(&u.uz) || Is_wiz2_level(&u.uz)
+             || Is_wiz3_level(&u.uz)) && mtmp->iswiz)
+        || (Is_sanctum(&u.uz) && mtmp->islucifer)
+        || ((Is_orcustown(&u.uz) || Is_hella_level(&u.uz)
+             || Is_hellb_level(&u.uz) || Is_hellc_level(&u.uz))
+            && (is_dprince(mtmp->data) || is_dlord(mtmp->data)))) {
+        if (canseemon(mtmp))
+            pline("%s seems very disoriented for a moment.",
+                  Monnam(mtmp));
+        return FALSE;
+    }
+
+    nlev = random_teleport_level();
+    if (nlev == depth(&u.uz)) {
+        if (canseemon(mtmp))
+            pline("%s shudders for a moment.", Monnam(mtmp));
+        return FALSE;
+    }
+    if (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+        if (canseemon(mtmp)) {
+            pline("A powerful curse prevents %s from leaving this place!",
+                  mon_nam(mtmp));
+            verbalize("Nooooo!");
+        }
+        return FALSE;
+    }
+    if (canseemon(mtmp))
+        You("banish %s!", mon_nam(mtmp));
+    /* bhitm() still wakes mtmp after it has left the level, which is
+       how a banished shopkeeper comes to give chase; but its spot is
+       then <0,0>, which newsym() refuses, so drop a disguise and anger
+       a peaceful target now, while mtmp is still on the map */
+    if (M_AP_TYPE(mtmp) != M_AP_NOTHING)
+        seemimic(mtmp);
+    if (mtmp->mpeaceful)
+        setmangry(mtmp, TRUE);
+    /* a holder lets go as it leaves; migrate_to_level() would otherwise
+       free the hero without a word */
+    release_hero(mtmp);
+    /* expelling the hero can kill mtmp (a trap where the hero lands)
+       or send it into limbo (no room beside the hero) */
+    if (DEADMONSTER(mtmp) || !mtmp->mx)
+        return TRUE;
+    get_level(&flev, nlev);
+    migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM, (coord *) 0);
+    return TRUE;
 }
 
 /*
@@ -282,7 +357,14 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         if (is_undead(mtmp->data) || is_vampshifter(mtmp)) {
             reveal_invis = TRUE;
             wake = TRUE;
-            dmg = rnd(8);
+            if (canseemon(mtmp))
+                pline("%s %s in %s!", Monnam(mtmp),
+                      rn2(2) ? "withers" : "shudders",
+                      rn2(2) ? "agony" : "pain");
+            if (otyp == SPE_TURN_UNDEAD)
+                dmg = d(2, clerical_spell_dice());
+            else
+                dmg = rnd(8);
             if (dbldam)
                 dmg *= 2;
             if (otyp == SPE_TURN_UNDEAD)
@@ -291,6 +373,72 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             if (!resist(mtmp, otmp->oclass, dmg, NOTELL)) {
                 if (!DEADMONSTER(mtmp))
                     monflee(mtmp, 0, FALSE, TRUE);
+            }
+        }
+        break;
+    case SPE_DISPEL_EVIL:
+        wake = FALSE;
+        if (is_evil(mtmp)) {
+            int pre_mhp = mtmp->mhp;
+
+            reveal_invis = TRUE;
+            wake = TRUE;
+            if (u.ualign.type == A_NONE) {
+                You_feel("like a hypocrite.");
+                adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
+            }
+            if (canseemon(mtmp))
+                pline("%s %s in %s!", Monnam(mtmp),
+                      rn2(2) ? "withers" : "shudders",
+                      rn2(2) ? "agony" : "pain");
+            dmg = d(4, clerical_spell_dice());
+            if (dbldam)
+                dmg *= 2;
+            dmg = spell_damage_bonus(dmg);
+            /* if target monster does not resist and the caster is not
+               evil and skilled/expert in clerical spells, small chance
+               they can be killed outright, or 'banished' to another
+               level. otherwise flee */
+            if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
+                && P_SKILL(P_CLERIC_SPELL) >= P_SKILLED
+                && u.ualign.type != A_NONE && !DEADMONSTER(mtmp)) {
+                switch (rn2(20)) {
+                case 19: {
+                    const char *Gname = halu_gname(u.ualign.type);
+                    boolean uniq = unique_corpstat(mtmp->data);
+
+                    if (canseemon(mtmp))
+                        pline_The("power of %s %s %s!", Gname,
+                                  uniq ? "severely injures" : "overwhelms",
+                                  mon_nam(mtmp));
+                    if (uniq) {
+                        /* a unique is struck a second time, as hard
+                           as the first; a life-saved one has no
+                           wound left to measure */
+                        int dealt = pre_mhp - mtmp->mhp,
+                            wound_hp = mtmp->mhp;
+
+                        if (dealt > 0) {
+                            if (damage_mon(mtmp, dealt, AD_MAGM, TRUE))
+                                killed(mtmp);
+                            else
+                                print_mon_wounded(mtmp, wound_hp);
+                        }
+                    } else {
+                        killed(mtmp);
+                    }
+                    break;
+                }
+                case 18:
+                case 17:
+                case 16:
+                    if (dispel_evil_banish(mtmp))
+                        reveal_invis = FALSE; /* mtmp is gone from bhitpos */
+                    break;
+                default: /* 15 through 0 */
+                    monflee(mtmp, 0, FALSE, TRUE);
+                    break;
+                }
             }
         }
         break;
@@ -3371,6 +3519,14 @@ zapyourself(struct obj *obj, boolean ordinary)
     case SPE_TURN_UNDEAD:
         learn_it = TRUE;
         unturn_you();
+        break;
+    case SPE_DISPEL_EVIL:
+        learn_it = TRUE;
+        if (is_evil(&gy.youmonst)) {
+            You("shudder in agony!");
+            damage = d(8, clerical_spell_dice());
+            exercise(A_CON, FALSE);
+        }
         break;
     case SPE_ENTANGLE:
         cast_entangle(&gy.youmonst, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
