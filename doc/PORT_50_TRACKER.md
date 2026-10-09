@@ -17,11 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-08, after session 196): 336
-  rows closed, 98 open. Of the open rows:
-  - 4 MED: unported master features (diluted
-    potions weaker, terrain concealment, door-material colors,
-    the held artifact pokedex tips).
+- Phase 2 status (refreshed 2026-10-08, after session 197): 337
+  rows closed, 102 open. Of the open rows:
+  - 5 MED: unported master features (terrain concealment,
+    door-material colors, the held artifact pokedex tips, the
+    blessed restore ability level cap, savelife()'s HP and
+    clamps).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -32,7 +33,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 78 LOW: small parity rows, quirks and watch/record-only items.
+  - 81 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -82,7 +83,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 194; the timed invisibility row (MED, with master's
     magic trap and cursed wand of make invisible) in session 195;
     the potion alchemy table row (MED, with master's polymorph-dip
-    identification fix) in session 196.
+    identification fix) in session 196; the diluted potions weaker
+    row (MED, with the vampire-blood "Ugh.  That" text) in session
+    197.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -134,28 +137,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     ids row and the wish-merge prinv() message row (needs a
     trace); session 194 the held amulet of flying's unidentified
     release row (record-only); session 196 the diluted potions
-    weaker row (MED).
+    weaker row (MED); session 197 the blessed restore ability and
+    savelife() rows (MED), the booze confusion row, the diluted-stack
+    mix yield row and the hallucination extras row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-08 (session 196) MASTER'S POTION ALCHEMY
-  TABLE (code TBD, tracker TBD; BUG-2214..2216).
-  - mixtype() reads master's potion_fusions[]: fruit juice now
-    stretches blood and vampire blood, a unicorn horn turns either
-    to water, and enlightenment + levitation makes gain level 1 time
-    in 3 (ruled master's odds).
-  - The pokedex shows "Potion alchemy combinations (#dip):"; the
-    booze fallback rows say "(2/3 chance)" (ruled hybrid).
-  - Dipping into polymorph identifies it only when its appearance
-    was seen, and a blind hero's unseen result is reported (master
-    61d99ef03, exact shape ruled).
-  - Detail: the closed potion alchemy table row.
-- Previous slice: 2026-10-08 (session 195) INVISIBILITY AND SEE
+- Latest slice: 2026-10-08 (session 197) DILUTED POTIONS ARE WEAKER
+  AGAIN (code TBD, tracker TBD; BUG-2217..2222).
+  - Eleven quaff arms take master's diluted terms (shorter
+    hallucination, paralysis, confusion, blindness and levitation;
+    half the energy, acid and full healing; no blessed level
+    restore), plus speed (df086f65d's intent, ruled).
+  - Healing and extra healing keep 5.0's amounts and halve them
+    when diluted; full healing says "mostly healed" when short of
+    max, after its cure lines (master's text).
+  - The blessed potion of monster detection keeps 5.0's 100-199
+    turns (100-149 diluted), and the spell cast at Skilled matches
+    it (ruled).
+  - Detail: the closed diluted potions weaker row.
+- Previous slice: 2026-10-08 (session 196) MASTER'S POTION ALCHEMY
+  TABLE (code cd0d26a56, tracker 5adcfb952; BUG-2214..2216); detail
+  in the closed potion alchemy table row.
+- Earlier slices: 2026-10-08 (session 195) INVISIBILITY AND SEE
   INVISIBLE WEAR OFF AGAIN; MASTER'S MAGIC TRAP (code 911c03a78,
-  tracker 0a20a3df8; BUG-2203..2213); detail in the closed timed
-  invisibility row.
-- Earlier slices: 2026-10-08 (session 194) PETS HELP THEIR OWNER
+  tracker 0a20a3df8; BUG-2203..2213; detail in the closed timed
+  invisibility row);
+  2026-10-08 (session 194) PETS HELP THEIR OWNER
   AGAIN (code be8152c34, tracker 1d9593ba8; BUG-2199..2202; detail
   in the closed Pet-helper row);
   2026-10-08 (session 193) EVERY SHUFFLED ARMOR
@@ -8910,8 +8919,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       `case AD_WTHR: return "wither";` (master pager.c:1928) land
       here with the tables; the attack is live on the branch now.
 - [x] MED: potion alchemy recipe table PORTED 2026-10-08 (session
-      196; BUG-2214..2216; code TBD, tracker TBD; closure notes at the
-      end of this row), with the pokedex section and master's
+      196; BUG-2214..2216; code cd0d26a56, tracker 5adcfb952;
+      closure notes at the end of this row), with the pokedex section
+      and master's
       polymorph-dip identification fix. Original text: Potion alchemy
       recipe table NOT PORTED (NEW, minted 2026-09-08
       by the pokedex slice; MED). Master's `struct potion_alchemy` +
@@ -9032,7 +9042,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         energy" (master's pager text verbatim, record only).
       - MINTED: the MED "Diluted potions weaker" row below (Plan agent
         finding; every mixing result is diluted).
-- [ ] Diluted potions weaker NOT PORTED (NEW, minted 2026-10-08 by the
+- [x] MED: diluted potions weaker PORTED 2026-10-08 (session 197;
+      BUG-2217..2222; code TBD, tracker TBD; closure notes at the end
+      of this row). Original text: Diluted potions weaker NOT PORTED
+      (NEW, minted 2026-10-08 by the
       alchemy table slice, session 196, from the Plan agent; MED).
       Master df086f65d (2019, "diminished effects ... if they are
       diluted. From SporkHack.") plus 082a47298 / 0473e3ee4 (2024)
@@ -9053,6 +9066,104 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       current formulas (5.0 reworked some of these peffect_*()
       helpers); diff master's whole peffect switch for odiluted terms
       first. Untracked before this row.
+      CLOSURE (session 197): the map is 11 arms / 15 master lines,
+      not 12 arms (master potion.c 36 odiluted lines, branch 23, of
+      which 2 are 5.0 e8ca614e5's diluted-stack mix yield; 39 after
+      the port with the speed term; every other file matches). The
+      helpers were vanilla 5.0 byte for byte apart from master's
+      Withering cures, and two of them carry unrowed upstream
+      reworks under the diluted term: 09cf46481 (2022) healing 8 +
+      d(4 + 2b, 4) / extra healing 16 + d(4 + 2b, 8) against
+      master's d(10 + 2b, 4) / d(10 + 2b, 8) (raised by df086f65d
+      itself), and dfac5fbf6 (2023) blessed monster detection potion
+      rn2(100) + 100 against master's rn1(40, 21) for potion and
+      spell alike. Master's own 9b08d9958 (2023, its port of 3.7's
+      speed_up()) dropped df086f65d's diluted speed term. RULINGS
+      (AskUserQuestion x1, four questions; decisions log): (1)
+      healing / extra healing KEEP 5.0's BASES and halve the whole
+      value when diluted (over the recommended master dice); (2)
+      monster detection keeps 5.0's potion buff, halves only the
+      random span when diluted (rn2(diluted ? 50 : 100) + 100), and
+      the spell matches the potion by casting skill - Skilled+ is a
+      blessed pseudo-object, so it takes 100-199 turns; below Skilled
+      the uncursed one-shot is unchanged (maintainer's own option,
+      over the recommended master shape); (3) speed RESTORES
+      df086f65d's intent rn1(diluted ? 5 : 10, ...) (over the
+      recommended master live shape); (4) fold only the vampire-blood
+      "Ugh.  That" text (master's two spaces), mint the rest. BUGS:
+      2217 master's terms in hallucination, paralysis, confusion,
+      blindness, levitation x2, gain energy and acid; 2218 healing /
+      extra healing on 5.0's bases (raise halved, healing's +1 not);
+      2219 full healing (200 / 400, raise / 2, blessed level restore
+      skipped, master's 0473e3ee4 "completely" / "mostly" text after
+      healup(), so the cure lines come first); 2220 monster
+      detection; 2221 speed; 2222 the two "Ugh.  That" strings.
+      Zero results are master parity: a diluted cursed gain energy
+      can roll 0 ("lackluster", no Pw change, identified) and a
+      diluted acid losehp(0) (burn line, no showdamage line). The
+      spell pseudo-objects (mksobj(..., FALSE, FALSE), zeroobj
+      start) and sink / fuzzer potions always read odiluted 0.
+      REVIEW: PASS, three LOWs (comment wording folded; data.base's
+      "several turns ... up to 300 turns" for the Skilled spell is
+      master's text and still true, kept; gain energy's range comment
+      has no diluted line, as on master). BATTERIES (two
+      game-testers, pre-a / post-a / pre-b / post-b playground copies;
+      PRE 1c9e8251 = 5adcfb952 code, POST 7d3b5239; installed
+      05ce37a5 differs by the folded comment only; paniclogs never
+      created): A durations 8/8 PASS (rn2 spans POST 100 / 5 / 4 /
+      100 / 25 / 70 / 5 / 50 diluted vs PRE 200 / 10 / 7 / 200 / 50
+      / 140 / 10 / 100; forced paralysis -29 / -17 vs -34 / -22;
+      Skilled and Expert spell 100-199 POST vs 21-60 PRE, Basic
+      one-shot both, the 300-turn gate +1 both; pseudo oeroded 0 on
+      every cast); B healing / amounts 17 of 18 PASS, and B3(b)
+      reported FAIL against a brief error (healup() raises max only
+      on overflow, so 300 + 200 = 500 stays 500; the tester's
+      301 + 200 gave 502, as the code intends).
+      Out-of-claim: wish-merge "r - a brown potion" = session 193's
+      prinv() row; "#polyself dwarf" refused = the placeholder race.
+- [ ] MED: blessed restore ability restores every lost level (NEW,
+      minted 2026-10-08 by the diluted potions slice, session 197).
+      Master 446e97fa1 (2024-07-19, "Blessed restore ability only
+      restores a few levels") caps the blessed potion at num_levels
+      = rn1(3, 3), 3-5 levels; the branch keeps vanilla's loop
+      ("a blessed potion restores them all at once", 59c357de9,
+      2017, already in vanilla 3.6 and so in 5.0). Unported
+      master feature; master's shape is a one-arm port in
+      peffect_restore_ability().
+- [ ] MED: savelife() HP and clamps NOT master's (NEW, minted
+      2026-10-08 by the diluted potions slice, session 197, from
+      the Plan agent). Three differences: (1) HP restored: 5.0
+      09cf46481's givehp = 50 + 10 * (ACURR(A_CON) / 2), 60-175,
+      against master's min(u.uhpmax, 150) (the draugr HLifesaved
+      arm restores full on both); (2) minimum max HP: minuhpmax(10)
+      = max(ulevel, 10) against master's (and vanilla 3.6's)
+      max(2 * ulevel, 10); (3) master ed8e03168 (2026-02-04, "Fix:
+      infinite death loop when polymorphed with 0 mhmax") clamps
+      u.mhmax to max(2 * mlevel, 10) before u.mh = min(u.mhmax,
+      150); the branch has no clamp, so a polymorphed form whose
+      max was drained to 0 revives at 0 - CRASH-CLASS (loop) when
+      repeated life saving is possible (draugr revival, wizard Die?
+      n, the fuzzer); trace reachability first (exper.c losexp's
+      Upolyd arm, hack.c rust / water, trap.c fire / iron golem,
+      potion.c split).
+- [ ] LOW: booze confusion d(2 + u.uhs, 8) (NEW, minted 2026-10-08
+      by the diluted potions slice, session 197). 5.0 e44de7149
+      (2021, "Amplify booze effect if drinking on empty stomach")
+      against master's d(3, 8); a satiated hero is confused 2-16, a
+      weak one 5-40. Needs a ruling (keep 5.0 or master's shape).
+- [ ] LOW: diluted-stack mix yield (NEW, minted 2026-10-08 by the
+      diluted potions slice, session 197). 5.0 e8ca614e5 (2023,
+      "Reduce yields for multi-step alchemy recipes") mixes at most
+      2 potions when the dipped stack is diluted (potion_dip()'s
+      amt cap); master mixes the whole capped stack. 5.0-only;
+      needs a ruling.
+- [ ] LOW: hallucination potion extras (NEW, minted 2026-10-08 by
+      the diluted potions slice, session 197). 5.0's
+      peffect_hallucination() returns early under Halluc_resistance
+      (no timeout) and rolls an enlightenment ("You perceive
+      yourself...") 1 in 3 blessed / 1 in 6 uncursed; master adds
+      the timeout (blocked by the resistance) and has no
+      enlightenment. 5.0-only; needs a ruling.
 - [x] dmgval() material-hardness block NOT PORTED (NEW, minted
       2026-09-08 by the pokedex slice; MED, combat balance). Master
       weapon.c dmgval() (1c3a05414, 2019) adds per-material damage
@@ -24108,7 +24219,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       - REFL 13 / 6: master's ureflects() sets it on all nine arms;
         the branch sets it at call sites.
       - FIRE 27 / 21: most of the gap is master read.c.
-      - ACID 11 / 9.
+      - ACID 11 / 9. Two of the gap (session 197's Plan agent): a
+        hero resisting a quaffed potion of acid (master
+        peffects() POT_ACID) and a potion of acid hitting a
+        resistant hero (master potionhit()); the branch's
+        peffect_acid() and potionhit() call neither.
       - The rest are equal or near.
       Census each master setter against the branch: a missing one
       leaves a watcher unaware of a resistance master teaches it
@@ -26561,6 +26676,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-08 | Diluted potions slice rulings (session 197; AskUserQuestion x1, four questions; one recommended). (1) HEALING AND EXTRA HEALING KEEP 5.0's AMOUNTS (09cf46481: 8 + d(4 + 2b, 4) and 16 + d(4 + 2b, 8)) AND HALVE THE WHOLE VALUE WHEN DILUTED; extra healing's max-HP raise halves too (master), healing's +1 does not (master). Rejected master's dice d(10 + 2b, 4) / d(10 + 2b, 8), which df086f65d raised in the same commit that added the halving (the recommended option). (2) BLESSED MONSTER DETECTION KEEPS 5.0's POTION BUFF (dfac5fbf6, 100-199 turns) AND HALVES ONLY THE RANDOM SPAN WHEN DILUTED (100-149); THE SPELL MATCHES THE POTION BY CASTING SKILL: at Skilled or better it is a blessed pseudo-object and takes 100-199 turns (5.0 and master gave the spell 21-60); below Skilled the uncursed one-shot is unchanged (maintainer's own option; rejected master's rn1(diluted ? 20 : 40, 21) for both, the recommended option). (3) SPEED RESTORES df086f65d's 2019 INTENT, rn1(diluted ? 5 : 10, ...): a diluted potion gives 100-104 / 160-164 / 40-44 turns; master's own 9b08d9958 (2023) had dropped the term (rejected master's live shape, the recommended option). (4) SIDE FINDS: fold only the vampire-blood "Ugh.  That" text (master's two spaces); mint the blessed restore ability, savelife(), booze confusion, diluted-stack mix yield and hallucination extras rows (recommended). | maintainer |
 | 2026-10-08 | Potion alchemy table slice rulings (session 196; AskUserQuestion x2, three questions, all recommended). (1) ENLIGHTENMENT + LEVITATION MAKES GAIN LEVEL 1 TIME IN 3, master's table (chance 3 = !rn2(3)); vanilla and the branch's switch gave 2 in 3, and master's ac335d855 conversion flipped it with no changelog line; the other 2 in 3 fall to the random-mixture roll; the pokedex says "(1/3 chance)". (2) THE POKEDEX FALLBACK ROWS SHOW THEIR ODDS (hybrid): a row right after a chance row for the same pair prints "(N-1/N chance)", so "gain level + confusion = booze (2/3 chance)" and the gain energy twin; master printed no qualifier. (3) POLYMORPH DIP, MASTER 61d99ef03's EXACT SHAPE: a lost seen flag counts as a change, so a sighted hero's seen item that rerolls into its own type also prints the new inventory line and identifies polymorph when the polymorph potion's appearance was seen; the identification gate reads the polymorph potion's own dknown in both dip directions (plan-approved refinement of master's potion->dknown, from the commit's stated intent). | maintainer |
 | 2026-10-08 | Timed invisibility slice rulings (session 195; AskUserQuestion x2, eight questions, all recommended). (1) POTION OF INVISIBILITY, MASTER'S SHAPE: never permanent; uncursed or cursed 31-45 turns (31-37 diluted), blessed 31-45 / 62-76 / 93-107 / 124-138; the spell 31-45; a cursed potion only aggravates (5.0's strip of permanent invisibility dropped). (2) POTION OF SEE INVISIBLE, MASTER'S SHAPE: 750-849, blessed 1500-1599, diluted a 50-turn window; never permanent (5.0's permchance dropped). (3) WAND OF MAKE INVISIBLE, MASTER'S SHAPE (4bcc3e71d + 5b7b662e7, unrowed): self-zap d(1 + charges, 250); a cursed wand reverses invisibility for the hero and for monsters; a wrested charge gets at least d(1, 250). (4) MAGIC TRAP: THE WHOLE OF domagictrap() TO MASTER'S SHAPE (fate 10 joins 11, timeout-aware 11, fate 12 fire or ice, fate 18 see-invisible toggle with the crowned guard). (5) THE SMOKE ARM FOLDED IN: half of the 1-in-15 vanish rolls give brightly colored smoke and 51-100 turns of hallucination. (6) FIX ALL FOUR CURSED-WAND MESSAGE / STATE BUGS (blind text, invisible-form text, the monster arm's unseen text, perminvis). (7) FATE 18 SPARES INNATE SEE INVISIBLE: the toggle flips only the trap's own bit (applied to fate 11's invisible form too). (8) A STALKER CORPSE EATEN WHILE INVISIBLE IS SILENT, as on master. | maintainer |
 | 2026-10-08 | Pet-helper slice ruling (session 194; AskUserQuestion x1, recommended). OTHER HOLDS - THE PET CARRIES ON: the pet's trap-help arm names a pit, bear trap or web, so beside a hero sinking in lava, stuck in the floor, chained to a buried ball or held by vines / a tree, a strong pet with hands takes its normal turn (BUG-2201). Rejected master's exact shape, whose arm fell through to `return 1` for those holds and silently spent the pet's turn 1 time in 4. Applied without a new question: the 2026-10-07 TELL IT AFTER THE EVENT ruling - the bear trap and web releases announce returned levitation / flight after their own lines (BUG-2202). | maintainer (ruling); session (standing ruling applied) |
