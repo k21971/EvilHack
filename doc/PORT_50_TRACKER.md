@@ -17,15 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-09, after session 201): 343
-  rows closed, 112 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-09, after session 202): 344
+  rows closed, 113 open. Of the open rows:
   - 0 HIGH.
   - 8 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, the
-    init_attr() race-maximum clamp, #turn's alhoon / skeleton
-    ladder, spell letters past 52 spells, choosing the worn armor a
-    known enchant armor scroll hits, stone to flesh's monster
-    extras).
+    door-material colors, the held artifact pokedex tips, #turn's
+    alhoon / skeleton ladder, spell letters past 52 spells,
+    choosing the worn armor a known enchant armor scroll hits,
+    stone to flesh's monster extras) and the dwarf starting
+    pick-axe skill_init() regression.
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -36,7 +36,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 88 LOW: small parity rows, quirks and watch/record-only items.
+  - 89 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -91,7 +91,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     197; the savelife() row (MED, with the losexp() level-1 row and
     pluslvl()'s polymorphed level gain) in session 198; the restore
     ability uncancel row (MED, with the hero spell parity B row) in
-    session 201.
+    session 201; the init_attr() race-maximum clamp row (MED) in
+    session 202.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -155,30 +156,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     power word kill life-save turn rows; session 201 the stone to
     flesh extras row (MED) and the helpful-spell shopkeeper anger,
     data.base critical healing text and disguised-mimic cure naming
-    rows.
+    rows; session 202 the dwarf starting pick-axe skill row (MED)
+    and the failed-restore race override row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-09 (session 201) THE HEALING SPELLS TAKE A
-  DIRECTION: CRITICAL HEALING, CURE SICKNESS AND RESTORE ABILITY AT
-  MONSTERS; HEALING DICE BY SKILL (code TBD, tracker TBD;
-  BUG-2238..2244).
-  - Critical healing fell into "Unknown spell" (paniclog); cure
-    sickness and restore ability were self-only; healing rolled
-    5.0's d(6, N) at any skill.
-  - Master's net text ported; a thrown restore ability potion
-    un-cancels instead of healing; closes the MED uncancel row.
-  - Ruled: keep 5.0's Healer pet experience and Pestilence
-    half-heal; cure sickness also cures disease; the demon refusal is
-    a helpful gesture; stone to flesh's extras are their own row.
-  - Minted: the stone to flesh extras row (MED) and three LOW rows.
-  - Detail: the closed hero spell parity B row.
-- Previous slice: 2026-10-09 (session 200) THE HERO CASTS DISPEL
+- Latest slice: 2026-10-09 (session 202) NO STARTING STAT ABOVE
+  THE RACE'S MAXIMUM (code TBD, tracker TBD; BUG-2245).
+  - init_attr() copied a role's minimum stats unclamped, so e.g. a
+    giant Barbarian started at Dex 15 against a cap of 14 and lost
+    the point to its first gain.
+  - Master 7ea89f807's clamp ported (one below the cap, the freed
+    points redistributed); closes the MED init_attr() row.
+  - Minted: the dwarf starting pick-axe skill row (MED) and the
+    failed-restore race override row (LOW).
+  - Detail: the closed init_attr() row.
+- Previous slice: 2026-10-09 (session 201) THE HEALING SPELLS TAKE
+  A DIRECTION: CRITICAL HEALING, CURE SICKNESS AND RESTORE ABILITY
+  AT MONSTERS; HEALING DICE BY SKILL (code b5250a3b6, tracker
+  3a5e56c97; BUG-2238..2244); detail in the closed hero spell
+  parity B row.
+- Earlier slices: 2026-10-09 (session 200) THE HERO CASTS DISPEL
   EVIL, POWER WORD KILL, REPAIR ARMOR, CREATE GRASS AND CREATE TREES
-  (code 304c68a1f, tracker dacd48c06; BUG-2231..2237); detail in the
-  closed hero spell parity A row.
-- Earlier slices: 2026-10-09 (session 199) BLESSED RESTORE ABILITY
+  (code 304c68a1f, tracker dacd48c06; BUG-2231..2237; detail in the
+  closed hero spell parity A row);
+  2026-10-09 (session 199) BLESSED RESTORE ABILITY
   GIVES BACK 3-5 LEVELS; MAGIC FOUNTAINS USE THE POTION CODE (code
   db5e798c1, tracker 5af2a7a96; BUG-2228..2230; detail in the
   closed blessed restore ability row);
@@ -9226,10 +9229,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       generic nothing line (brief error).
 - [x] MED: restore ability uncancels monsters PORTED 2026-10-09
       (session 201, with the hero spell parity B row; BUG-2241,
-      BUG-2242, BUG-2244; code TBD, tracker TBD; detail in that
-      row). The muse half (MUSE_POT_RESTORE_ABILITY) stays on the
-      muse offense row - note master files it as a DEFENSIVE item
-      (find_defensive / use_defensive), not offense.
+      BUG-2242, BUG-2244; code b5250a3b6, tracker 3a5e56c97;
+      detail in that row). The muse half (MUSE_POT_RESTORE_ABILITY)
+      stays on the muse offense row - note master files it as a
+      DEFENSIVE item (find_defensive / use_defensive), not offense.
       Original text: restore ability uncancels monsters (NEW, minted
       2026-10-09 by the blessed restore ability slice, session 199,
       from its Plan agent). Master d359ea85e (2021, "Mon can drink
@@ -9252,11 +9255,63 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (MUSE_POT_RESTORE_ABILITY) rides the muse offense row.
       Rides the hero spell parity B row (session 200), with
       2ce3d53d6 (zap_steed) and e550e0abc (could_seduce() guard).
-- [ ] MED: init_attr() lets a role's starting stat sit above the
-      race's maximum (NEW, minted 2026-10-09 by the blessed restore
-      ability slice's reviewer, session 199; verified on both
-      bodies). Master 7ea89f807 (Giant race) clamps each stat right
-      after the attrbase copy - `while (ABASE(i) >= ATTRMAX(i)) {
+- [x] MED: init_attr() race-maximum clamp PORTED 2026-10-09
+      (session 202; BUG-2245; code TBD, tracker TBD; plan
+      /root/.claude/plans/inherited-wiggling-orbit.md).
+      - Master 7ea89f807's clamp ported verbatim into 5.0's
+        init_attr() first loop: `while (ABASE(i) >= ATTRMAX(i))`
+        lowers the stat and AMAX together, then np is charged with
+        the lowered value, so the freed points go back to
+        init_attr_role_redist()'s addition pass (attrdist-weighted,
+        never past ATTRMAX). The starting total stays 75. 5.0's
+        rnd_attr() off-by-one fix stays (vanilla; master never
+        touched that loop). No rulings needed.
+      - CENSUS (master and branch role / race tables diffed
+        identical; effective tables draugr_roles, align_roles Dark
+        Knight, race_roles): above the cap - giant / tortle
+        Barbarian Dex, tortle Druid / Healer Cha, dwarf / orc /
+        centaur Knight Cha, centaur Ranger Int, illithid Convict Con,
+        draugr Barbarian / Convict / Rogue / Infidel / Monk / Knight
+        Int (Infidel Wis 10 vs 8, Knight Wis 14 vs 8 and Cha 17 vs 6,
+        21 points freed); at the cap (master drops these one too, by
+        its documented "variety" design) - dwarf / giant / hobbit /
+        centaur Healer Cha 16, tortle Samurai Dex 10, centaur Knight
+        Wis 14, illithid Convict Str 10, draugr Monk Wis 8, draugr
+        Barbarian / Convict / Rogue Cha 6.
+      - REVIEW: PASS, no HIGH / MED. NIT folded (the comment says
+        "reach or exceed"). Confirmed: the hero is never Upolyd at
+        u_init_inventory_attrs(); the 5.0 reroll loop re-runs the
+        whole init, clamp included; nothing snapshots starting
+        stats; starting AC follows the clamped Dex (find_ac() runs
+        after the reroll loop). NIT recorded: Druid's attrdist sums
+        to 95 (5.0's rnd_attr() then returns A_MAX one draw in 20,
+        counted against tryct; harmless). LOW minted below
+        (failed-restore race override).
+      - BATTERIES (two game-testers in four -d playground copies,
+        binaries prea-eh .. postb-eh; PRE 1cb2db15 = 3a5e56c97 code,
+        POST 21ca55cf; 67 new games): A giant / tortle Barbarian,
+        draugr / centaur Knight, illithid Convict, gain ability leg;
+        B tortle Healer / Druid, centaur Ranger, draugr Monk, dwarf
+        Healer at-cap, human Valkyrie control. Every leg PASS: POST
+        every listed stat at or below the cap in all 43 POST games;
+        PRE every above-cap stat above it (^X "innate limit:N")
+        except one tortle Healer game at the cap (vary_init_attr()
+        noise); dwarf Healer POST Cha
+        15 in 2 of 8, 16 in 6, PRE 16 in 3 of 3; draugr Knight POST
+        Str + Dex + Con 55-56 against PRE 37. Gain ability on a giant
+        Barbarian: POST Dex 13 -> 14 "You feel agile!", AC unchanged;
+        PRE Dex 15 -> 14 under the same line, AC 4 -> 5. Starting
+        AC giant Barbarian PRE 4 / POST 5, tortle PRE -1 / POST 0.
+        Totals 75 in 51 of 67 (the rest vary_init_attr()). POST
+        paniclogs: A none; B one line, "skill_init: curr > max:
+        pick-axe" in a dwarf Healer game, also seen on PRE (the
+        MED row minted below).
+      Original text: init_attr() lets a role's starting stat sit
+      above the race's maximum (NEW, minted 2026-10-09 by the
+      blessed restore ability slice's reviewer, session 199;
+      verified on both bodies). Master 7ea89f807 (Giant race)
+      clamps each stat right after the attrbase copy -
+      `while (ABASE(i) >= ATTRMAX(i)) {
       ABASE(i)--; AMAX(i)--; }`, deliberately one below the cap for
       variety - and charges np with the clamped value. The branch's
       init_attr() is vanilla 5.0's (attrbase copied unclamped, then
@@ -9271,6 +9326,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       4 -> 5 on a blessed gain ability, both builds). Plan where the
       clamp goes in 5.0's redistribution and how the removed points
       are spent; battery = new-game stat rolls per affected pair.
+- [ ] MED: a dwarf's starting pick-axe trains its skill (NEW,
+      minted 2026-10-09 by the init_attr() clamp slice's battery B,
+      session 202; traced). u_init_race() gives a dwarf (not
+      Archeologist / Convict) a pick-axe one game in four. Master
+      runs skill_init() inside u_init()'s role switch, BEFORE the
+      race switch adds it, so the pick-axe sets no skill; the
+      branch's 5.0 order runs skill_init(skills_for_role()) from
+      u_init_skills_discoveries() after all starting inventory, and
+      its "Set skill for all weapons in inventory to be basic" loop
+      picks the pick-axe up. Dwarf Healer / Monk / Priest / Samurai
+      (pick-axe restricted) then hit `impossible("skill_init: curr >
+      max: pick-axe")` ("Program in disorder!" on the first screen;
+      2 of 11 dwarf Healer starts in battery B, PRE and POST alike)
+      and keep an unrestricted Basic pick-axe skill; dwarf
+      Barbarian / Caveman / Knight / Valkyrie start at Basic instead
+      of Unskilled. Pick-axe is the only weapon u_init_race() adds
+      (instruments, gems, oilskin, food and the tinning kit have no
+      weapon skill). Plan: keep master's outcome (the race pick-axe
+      gives no skill) without undoing 5.0's call order.
+- [ ] LOW: a new game after a failed restore can inherit the old
+      save's race override (NEW, minted 2026-10-09 by the init_attr()
+      clamp slice's reviewer, session 202; master-shared). When
+      restgamestate() fails after Sfi_you() (a save with u.uhp <= 0,
+      or explore_error_flag), dorecover() returns 0 without clearing
+      `u`, and unixmain falls through to newgame(), whose role_init()
+      runs before u_init_misc()'s memset: a crowned Infidel's
+      uhand_of_elbereth == 4 or a fallen aasimar's ufallen_aasimar
+      makes the new hero race_demon / human for the whole game.
+      Reviewer's suggested fix: skip both u.uevent overrides in
+      role_init() for a new game (newgame() sets flags.pantheon = -1
+      just before calling it; restore re-forces the race after
+      Sfi_you()). Needs a reproduction.
 - [x] HIGH: hero spell parity A PORTED 2026-10-09 (session 200;
       BUG-2231..2237; code 304c68a1f, tracker dacd48c06; minted and
       closed by the same slice). Five generated hero spells had no
@@ -9333,7 +9420,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         dispel evil never untames a pet; "Your set of barding glows"
         for the steed's barding.
 - [x] HIGH: hero spell parity B PORTED 2026-10-09 (session 201;
-      BUG-2238..2244; code TBD, tracker TBD; plan
+      BUG-2238..2244; code b5250a3b6, tracker 3a5e56c97; plan
       /root/.claude/plans/feature-hero-spell-parity-b.md). Closes the
       MED restore ability uncancel row too (its muse half stays on
       the muse offense row).
