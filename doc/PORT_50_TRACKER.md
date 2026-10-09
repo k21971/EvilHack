@@ -17,12 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-08, after session 197): 337
+- Phase 2 status (refreshed 2026-10-09, after session 198): 339
   rows closed, 102 open. Of the open rows:
-  - 5 MED: unported master features (terrain concealment,
+  - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, the
-    blessed restore ability level cap, savelife()'s HP and
-    clamps).
+    blessed restore ability level cap).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -33,7 +32,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 81 LOW: small parity rows, quirks and watch/record-only items.
+  - 82 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -85,7 +84,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the potion alchemy table row (MED, with master's polymorph-dip
     identification fix) in session 196; the diluted potions weaker
     row (MED, with the vampire-blood "Ugh.  That" text) in session
-    197.
+    197; the savelife() row (MED, with the losexp() level-1 row and
+    pluslvl()'s polymorphed level gain) in session 198.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -139,28 +139,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     release row (record-only); session 196 the diluted potions
     weaker row (MED); session 197 the blessed restore ability and
     savelife() rows (MED), the booze confusion row, the diluted-stack
-    mix yield row and the hallucination extras row.
+    mix yield row and the hallucination extras row; session 198 the
+    losestr() hit point cost row and the "extremely toxic" poison
+    floor row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-08 (session 197) DILUTED POTIONS ARE WEAKER
-  AGAIN (code TBD, tracker TBD; BUG-2217..2222).
-  - Eleven quaff arms take master's diluted terms (shorter
-    hallucination, paralysis, confusion, blindness and levitation;
-    half the energy, acid and full healing; no blessed level
-    restore), plus speed (df086f65d's intent, ruled).
-  - Healing and extra healing keep 5.0's amounts and halve them
-    when diluted; full healing says "mostly healed" when short of
-    max, after its cure lines (master's text).
-  - The blessed potion of monster detection keeps 5.0's 100-199
-    turns (100-149 diluted), and the spell cast at Skilled matches
-    it (ruled).
-  - Detail: the closed diluted potions weaker row.
-- Previous slice: 2026-10-08 (session 196) MASTER'S POTION ALCHEMY
-  TABLE (code cd0d26a56, tracker 5adcfb952; BUG-2214..2216); detail
-  in the closed potion alchemy table row.
-- Earlier slices: 2026-10-08 (session 195) INVISIBILITY AND SEE
+- Latest slice: 2026-10-09 (session 198) A POLYMORPHED HERO COMES
+  BACK FROM LIFE-SAVING ALIVE; LEVEL 1 LOSES NOTHING TWICE (code
+  TBD, tracker TBD; BUG-2223..2227).
+  - Life-saving gives back a Con curve: 70 at Con 3 up to 150 at
+    Con 18-19, 160 / 180 / 200 above (maintainer-designed).
+  - A revived polymorphed form gets at least max(2 * mlevel, 10)
+    max HP (master ed8e03168), so a drained form under an amulet
+    of unchanging no longer comes back at 0 and dies again.
+  - losexp() at XL1 no longer takes a level's HP, Pw and form HP a
+    second time (master 7c0ab4d49); pluslvl() raises a polymorphed
+    form's max again (vanilla 5.0 e9a25a0a1 regression).
+  - 5.0's revival minimum, losexp() floor and fire trap kept
+    (ruled; the floor of 1 was reversed).
+  - Detail: the closed savelife() row.
+- Previous slice: 2026-10-08 (session 197) DILUTED POTIONS ARE
+  WEAKER AGAIN (code dbe5cf8cf, tracker 2aaa55dac;
+  BUG-2217..2222); detail in the closed diluted potions weaker row.
+- Earlier slices: 2026-10-08 (session 196) MASTER'S POTION ALCHEMY
+  TABLE (code cd0d26a56, tracker 5adcfb952; BUG-2214..2216; detail
+  in the closed potion alchemy table row);
+  2026-10-08 (session 195) INVISIBILITY AND SEE
   INVISIBLE WEAR OFF AGAIN; MASTER'S MAGIC TRAP (code 911c03a78,
   tracker 0a20a3df8; BUG-2203..2213; detail in the closed timed
   invisibility row);
@@ -9043,8 +9049,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       - MINTED: the MED "Diluted potions weaker" row below (Plan agent
         finding; every mixing result is diluted).
 - [x] MED: diluted potions weaker PORTED 2026-10-08 (session 197;
-      BUG-2217..2222; code TBD, tracker TBD; closure notes at the end
-      of this row). Original text: Diluted potions weaker NOT PORTED
+      BUG-2217..2222; code dbe5cf8cf, tracker 2aaa55dac; closure
+      notes at the end of this row). Original text: Diluted potions
+      weaker NOT PORTED
       (NEW, minted 2026-10-08 by the
       alchemy table slice, session 196, from the Plan agent; MED).
       Master df086f65d (2019, "diminished effects ... if they are
@@ -9130,7 +9137,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2017, already in vanilla 3.6 and so in 5.0). Unported
       master feature; master's shape is a one-arm port in
       peffect_restore_ability().
-- [ ] MED: savelife() HP and clamps NOT master's (NEW, minted
+- [x] MED: savelife() HP and clamps PORTED 2026-10-09 (session 198;
+      BUG-2223..2227; code TBD, tracker TBD; closure notes at the end
+      of this row). Original text: savelife() HP and clamps NOT
+      master's (NEW, minted
       2026-10-08 by the diluted potions slice, session 197, from
       the Plan agent). Three differences: (1) HP restored: 5.0
       09cf46481's givehp = 50 + 10 * (ACURR(A_CON) / 2), 60-175,
@@ -9146,6 +9156,95 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       n, the fuzzer); trace reachability first (exper.c losexp's
       Upolyd arm, hack.c rust / water, trap.c fire / iron golem,
       potion.c split).
+      - CORRECTIONS (session 198 Plan agent, verified): the 5.0
+        range is 60-170 (ACURR caps Con at 25); the draugr's full
+        restore covers u.uhp only, u.mh is capped on both trees;
+        NOT crash-class - a stuck degenerate state, not a hang.
+      - REACHABILITY: u.mhmax <= 0 comes from losexp()'s Upolyd arm
+        (no floor, can go negative) and from Death's touch /
+        Vecna's gaze (mhitu.c, floor min(mlevel, XL) = 0 for a
+        level-0 form); every other reducer floors at 1 or more.
+        - savelife() clears HUnchanging (ruled C6), so only a worn
+          amulet of unchanging keeps the hero stuck. The form comes
+          back at 0(0) or below and dies again at its next hurt;
+          regen_hp() runs only when u.mh < u.mhmax or the form is
+          an eel, so eel forms (and Withering) die every turn.
+        - The player still gets a command between deaths (escape:
+          remove the amulet, or pray - the low-HP fix sets the form
+          max to at least 6). A draugr spends every remaining
+          revival in a row (DRAUGR_REVIVE = rnd(3)); wizard /
+          explore asks Die? at every hurt; the fuzzer sits in it.
+      - RULINGS (decisions log 2026-10-09): (1) the HP given back
+        is a maintainer-designed Con curve: 60 + 10 * (Con / 2)
+        through Con 21, then 20 * (Con / 2 - 2) - Con 3 70, 10
+        110, 18-19 150, 20-21 160, 22-23 180, 24-25 200 (amulet,
+        Die? n and a polymorphed form; the amulet's -1 Con comes
+        first; a draugr's own body still comes back full); (2)
+        the lowest max HP after a revival stays 5.0's max(XL, 10);
+        (3) losexp()'s floor: master's 1 was ruled, then reversed
+        the same session (see the closure below).
+      - BUGS: 2223 the HP curve; 2224 master ed8e03168's form clamp
+        (u.mhmax raised to max(2 * mlevel, 10) through
+        setuhpmax(mhpmin, FALSE) before u.mh = min(u.mhmax,
+        givehp)); 2225 losexp()'s entry_level gate (the LOW
+        level-1 row below, folded); 2226 7c0ab4d49's newpw() enrnd
+        floor and more_experienced() 4L (defensive); 2227
+        pluslvl() never raised a polymorphed form's max (vanilla
+        5.0 e9a25a0a1 dropped the + hpinc; battery-found, folded
+        on the maintainer's ruling). Comment-only: rehumanize()
+        and unmul() now list a draugr's revival and life-saving
+        after a grave rise as ways into the revived-Unchanging
+        state.
+      - RULING 3 REVERSED: the reviewer found master's floor of 1
+        composes with 5.0's fire trap (upstream d53c1a7a6, PatR
+        2022-03-21, designed together with losexp()'s XL/10 floor
+        and its no-raise clause) into a ratchet - once max HP is
+        below XL every fire trap drains a level, down to XL1.
+        Neither tree does that. Maintainer: keep 5.0's fire trap
+        AND 5.0's losexp() floor; only the gate lands. No fire-trap
+        row is minted (ruled keep 5.0, decisions log).
+      - REVIEW: PASS (MED fire-trap ratchet -> ruling 3 reversed;
+        LOW poisoned() raise -> the minted toxic floor row; LOW
+        comment wording folded). The pluslvl() fold had its own
+        narrow review: PASS, the only dropped increment among the
+        18 setuhpmax() sites of that upstream period.
+      - BATTERIES (three game-testers in their own playground
+        copies; PRE 05ce37a5 = 2aaa55dac code, POST e4a6e408, POST2
+        3ff83f57 = installed; paniclogs never created; every leg
+        PASS on both builds): A stuck form 9 legs (PRE 0(-1) and a
+        Die? at every hurt, eel Die? every turn, a draugr's
+        revival spent by one kick, two Die? prompts in one level-1
+        drain, a risen wraith losing 3 HP; POST 10(10) throughout,
+        one prompt, 147 quiet eel turns; save / restore clean); B
+        10 legs (curve 70 / 110 / 150 / 160 / 180 / 200 / 200 at
+        Con 3 / 10 / 18 / 20 / 22 / 24 / 25, PRE 5.0's 60 ... 170;
+        amulet at Con 19 150; form at Con 18 150; level-1 drain
+        and divine anger lose nothing POST, 3 HP / 6 Pw PRE;
+        revival minimum, losexp() floor and fire trap identical
+        on both builds - the second fire trap drains no level); C
+        the pluslvl() fold 5 legs (PRE a full-HP form gains
+        nothing and drain / regain cycles only shrink it, POST
+        both pools rise; sanity_check clean).
+      - BRIEF ERRORS (mine): #levelchange takes no game time, so
+        the "You survived ..." lines wait for the next move;
+        "Heal your leg?" is a riding prompt only; LL_MINORAC lines
+        stay out of the copies' livelog (sysconf LIVELOG=0x0FFF);
+        FIRE_TRAP is FIRE_TRAP_SET (11) in trap.h; #wizcheck does
+        not exist; monhp_per_lvl() is rnd(4) for most hero forms
+        (gy.youmonst.m_lev is never maintained - master and
+        vanilla share it, not a defect).
+      - OUT OF CLAIM (record only): the welcome line still says
+        "welcome to NetHack!" (the re-brand row); a failed draugr
+        revival still prints "you start to revive" and takes Str /
+        Con first (master's order); two #polyself sex flips in two
+        samples (1 in 10 each).
+      - MINTED: the LOW losestr() HP row and the LOW "extremely
+        toxic" poison floor row below.
+      - UPSTREAM: the level-1 double subtraction, the 0-max form
+        revival and the pluslvl() increment are shared with
+        Official_nh50; patch artifact
+        ~/nh50-losexp-savelife-pluslvl.patch (vanilla's own HP
+        amount; applies clean to 15fbc6b21; not sent).
 - [ ] LOW: booze confusion d(2 + u.uhs, 8) (NEW, minted 2026-10-08
       by the diluted potions slice, session 197). 5.0 e44de7149
       (2021, "Amplify booze effect if drinking on empty stomach")
@@ -9164,6 +9263,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       yourself...") 1 in 3 blessed / 1 in 6 uncursed; master adds
       the timeout (blocked by the resistance) and has no
       enlightenment. 5.0-only; needs a ruling.
+- [ ] LOW: losestr() hit point cost (NEW, minted 2026-10-09 by the
+      savelife() slice, session 198, from the Plan agent; checked
+      against master). For each point Strength would fall below 3,
+      5.0 (upstream d53c1a7a6) deals rn1(4, 3) = 3-6 through
+      losehp() ("terminal frailty", can kill) and then lowers the
+      max - a polymorphed form never below 1, the normal max never
+      below XL. Master takes a flat 6 off current and max HP with
+      no floor and no death check (u.mhmax can reach 0 or below,
+      the path ed8e03168's message names). Needs a ruling (keep
+      5.0 or master's shape).
+- [ ] LOW: "extremely toxic" poison max HP floor (NEW, minted
+      2026-10-09 by the savelife() slice, session 198, from the
+      Plan agent; checked against master). poisoned()'s
+      partial-resistance arm (5.0, d53c1a7a6 / b93cfecba) lowers
+      max HP first, to no less than max(XL, 3), then takes the
+      adjusted damage; master runs losehp() and then
+      `u.uhpmax -= i / 2` with no floor. The 5.0 floor can RAISE a
+      max that is already below max(XL, 3) (XL10 at max 4 becomes
+      10; reachable after drain_uhpmax(), floor 1) - session 198
+      reviewer LOW. Needs a ruling.
 - [x] dmgval() material-hardness block NOT PORTED (NEW, minted
       2026-09-08 by the pokedex slice; MED, combat balance). Master
       weapon.c dmgval() (1c3a05414, 2019) adds per-material damage
@@ -19323,8 +19442,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "focusing properly" }; the branch's { 0, 0 } would print "You
       feel smart!  You must have been (null)." (master's own bug
       before that fix). MED (attribute growth).
-- [ ] LOW: losexp() at experience level 1 subtracts a level's hit
-      points and energy again (minted 2026-09-30, session 164, found by
+- [x] LOW: losexp() at experience level 1 subtracts a level's hit
+      points and energy again PORTED 2026-10-09 (session 198, folded
+      into the savelife() slice; BUG-2225 gate, BUG-2226 newpw() /
+      more_experienced(); code TBD, tracker TBD; closure notes at the
+      end of this row). Original text: (minted 2026-09-30, session 164, found by
       the Caveperson slice's Plan agent; "entry_level" and 7c0ab4d49
       had no tracker mention). A level-1 losexp() - prayer anger with
       no drainer, or a drain survived by life-saving - zeroes u.uexp
@@ -19339,6 +19461,20 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (5.0 uhpinc / ueninc are xint16); newpw()'s enrnd floor and
       more_experienced()'s `4L * exper` are defensive only - port
       them with the gate.
+      - CORRECTION (session 198 Plan agent): rndexp()'s diff > 0
+        guard is NOT vanilla 5.0 (Official_nh50 calls rn2((int)
+        diff) bare); the branch has it from the ea8a75559 re-port
+        (BUG-1108).
+      - CLOSURE (session 198): the gate is master's exact shape
+        around 5.0's HP / Pw lines (5.0's max(XL, 10) floor and
+        no-raise clause kept, after ruling 3's reversal - see the
+        closed savelife() row); the polymorph arm is gated too.
+        Battery-proven: a fatal level-1 drain survived and divine
+        anger lose nothing POST (PRE 3 HP / 6 Pw); a polymorphed
+        Unchanging hero is no longer killed a second time inside
+        the same losexp() call; a hero risen from the grave at XL1
+        keeps the wraith form's HP (PRE lost 1-8). Upstream: in
+        the 2026-10-09 upstream-table row.
 - [ ] LOW: crowning drops the gift spellbook even for an illiterate
       hero (minted 2026-09-30, session 164, found by the Caveperson
       slice's Plan agent; "Divine knowledge" had no tracker mention).
@@ -26486,6 +26622,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-09 | Experience level changes while polymorphed, shared with Official_nh50 (all three reproduced in wizard mode on the branch's pre-fix build): (1) exper.c losexp() at XL1 (divine anger, or a fatal drain survived by life-saving or a declined Die?) falls through to `u.uhpmax -= u.uhpinc[1]` and the u.ueninc[1] loss although that level's gain is already gone, and while polymorphed also takes monhp_per_lvl() off the form - a polymorphed Unchanging hero is killed a second time inside the same call (fix: remember the level on entry, adjust only when a level was lost); (2) end.c savelife() restores a form to min(u.mhmax, givehp) with no lower bound, so a form whose max losexp() drove to 0 or below (or Death's touch / Vecna's gaze floored at min(mlevel, ulevel) = 0) comes back at 0 or less under an amulet of unchanging and dies at its next hurt, every turn for an eel form (fix: give the form a minimum max, max(2 * mlevel, 10)); (3) exper.c pluslvl()'s polymorphed arm `u.mh += hpinc; setuhpmax(u.mhmax, FALSE);` never raises the form's max (e9a25a0a1 dropped the increment; fix: `setuhpmax(u.mhmax + hpinc, FALSE)`) | fixed on branch (BUG-2224, BUG-2225, BUG-2227, session 198); patch artifact ~/nh50-losexp-savelife-pluslvl.patch (applies clean to 15fbc6b21); not sent |
 | 2026-10-08 | potion.c potion_dip()'s polymorph arm (Official_nh50 src/potion.c ~2487, the "obj might be gone" arm) leaves the potion of polymorph unconsumed, with in_use set, when a worn amulet becomes an amulet of change | fixed on branch (BUG-2189, e338a46e4, session 191); no patch artifact yet; not sent |
 | 2026-10-07 | A held levitator or flyer dies in the sky, shared with Official_nh50: teleport.c level_tele()'s negative-level arm tests Levitation / Flying while a hold (bear trap, web, lava, floor) still blocks them through float_vs_flight(), so a hero in a bear trap wearing a ring of levitation who level-teleports to -5 reads "Unfortunately, you don't know how to fly." and plummets, though the hold cannot follow the teleport (fix: `if (u.utrap) reset_utrap(FALSE);` first in the arm - every path out of it ends the game); the same arm prints the joke for a hero whose flight is only held down | fixed on branch (BUG-2178); drop-in patch; not sent |
 | 2026-10-07 | Hold releases and the buried ball, shared with Official_nh50: (1) polyself.c float_vs_flight() decides the hold with `u.utrap && u.utraptype != TT_PIT`, but trapmove()'s escapes zero u.utrap and print ("You finally wriggle free.", "You disentangle yourself.", "Sting cuts through the web!", the lava pull-out) before domove's reset_utrap(TRUE); that message's flush_screen() -> bot() -> near_capacity() -> weight_cap() calls float_vs_flight() and lifts the levitation block early, so reset_utrap()'s float_up() never prints whenever disp.botl was set (fix: key the hold on `u.utraptype != TT_NONE && u.utraptype != TT_PIT`; set_utrap() is the only type writer and every gap ends in a reset); (2) hack.c trapmove()'s buried-ball arm prints "You finally wrench the ball free." and calls buried_ball_to_punishment(), whose reset_utrap(FALSE) swallows the resumed levitation / flight every time (fix: reset_utrap(TRUE) first); (3) dig.c bury_an_obj(uball) sets TT_BURIEDBALL under a hovering hero with no landing, so the hero hangs over a hole or trap until moving (upstream has no deferred landing; the shape needs a spoteffects() after bury_objs()' walk) | fixed on branch (BUG-2173, BUG-2174, BUG-2176); (1) and (2) are drop-in patches; not sent |
@@ -26676,6 +26813,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-09 | savelife() slice rulings (session 198; AskUserQuestion x5, six questions). (1) LIFE-SAVING HIT POINTS ARE A MAINTAINER-DESIGNED CON CURVE: 60 + 10 * (Con / 2) through Con 21, then 20 * (Con / 2 - 2) - Con 3 70, 4-5 80, ... 16-17 140, 18-19 150, 20-21 160, 22-23 180, 24-25 200 (the cap); it covers the amulet, wizard / explore Die? n and a polymorphed form's u.mh; the amulet's -1 Con applies first, so a Con 19 wearer gets 150; a draugr's own body still comes back full. Rejected master's flat 150 (recommended), 5.0's 50 + 10 * (Con / 2) and a "higher of the two" hybrid; the maintainer chose 5.0's two-point steps, asked for Con 18 = 150 and Con 24-25 = 200, then corrected the preview's 166 / 183 to 160 / 180. (2) THE LOWEST MAX HP AFTER A REVIVAL STAYS 5.0's max(XL, 10) (minuhpmax(10)); rejected master's max(2 * XL, 10) (recommended). (3) losexp()'s MAX HP FLOOR STAYS 5.0's max(XL, 10) WITH ITS NO-RAISE CLAUSE: master's floor of 1 was ruled first (recommended) and then REVERSED after the reviewer showed it composes with 5.0's fire trap into a level-drain ratchet. (4) THE FIRE TRAP KEEPS 5.0's SHAPE (upstream d53c1a7a6, PatR 2022-03-21: max HP shaved only down to XL, and a level drained when it would go below) - never in vanilla 3.6 or master; my recommendation was master's no-drain fire trap. (5) pluslvl()'s POLYMORPHED LEVEL GAIN FIX FOLDED INTO THE SLICE (recommended; battery-found). Master ed8e03168's form clamp max(2 * mlevel, 10) and 7c0ab4d49's entry_level gate needed no ruling (master's fixes). | maintainer |
 | 2026-10-08 | Diluted potions slice rulings (session 197; AskUserQuestion x1, four questions; one recommended). (1) HEALING AND EXTRA HEALING KEEP 5.0's AMOUNTS (09cf46481: 8 + d(4 + 2b, 4) and 16 + d(4 + 2b, 8)) AND HALVE THE WHOLE VALUE WHEN DILUTED; extra healing's max-HP raise halves too (master), healing's +1 does not (master). Rejected master's dice d(10 + 2b, 4) / d(10 + 2b, 8), which df086f65d raised in the same commit that added the halving (the recommended option). (2) BLESSED MONSTER DETECTION KEEPS 5.0's POTION BUFF (dfac5fbf6, 100-199 turns) AND HALVES ONLY THE RANDOM SPAN WHEN DILUTED (100-149); THE SPELL MATCHES THE POTION BY CASTING SKILL: at Skilled or better it is a blessed pseudo-object and takes 100-199 turns (5.0 and master gave the spell 21-60); below Skilled the uncursed one-shot is unchanged (maintainer's own option; rejected master's rn1(diluted ? 20 : 40, 21) for both, the recommended option). (3) SPEED RESTORES df086f65d's 2019 INTENT, rn1(diluted ? 5 : 10, ...): a diluted potion gives 100-104 / 160-164 / 40-44 turns; master's own 9b08d9958 (2023) had dropped the term (rejected master's live shape, the recommended option). (4) SIDE FINDS: fold only the vampire-blood "Ugh.  That" text (master's two spaces); mint the blessed restore ability, savelife(), booze confusion, diluted-stack mix yield and hallucination extras rows (recommended). | maintainer |
 | 2026-10-08 | Potion alchemy table slice rulings (session 196; AskUserQuestion x2, three questions, all recommended). (1) ENLIGHTENMENT + LEVITATION MAKES GAIN LEVEL 1 TIME IN 3, master's table (chance 3 = !rn2(3)); vanilla and the branch's switch gave 2 in 3, and master's ac335d855 conversion flipped it with no changelog line; the other 2 in 3 fall to the random-mixture roll; the pokedex says "(1/3 chance)". (2) THE POKEDEX FALLBACK ROWS SHOW THEIR ODDS (hybrid): a row right after a chance row for the same pair prints "(N-1/N chance)", so "gain level + confusion = booze (2/3 chance)" and the gain energy twin; master printed no qualifier. (3) POLYMORPH DIP, MASTER 61d99ef03's EXACT SHAPE: a lost seen flag counts as a change, so a sighted hero's seen item that rerolls into its own type also prints the new inventory line and identifies polymorph when the polymorph potion's appearance was seen; the identification gate reads the polymorph potion's own dknown in both dip directions (plan-approved refinement of master's potion->dknown, from the commit's stated intent). | maintainer |
 | 2026-10-08 | Timed invisibility slice rulings (session 195; AskUserQuestion x2, eight questions, all recommended). (1) POTION OF INVISIBILITY, MASTER'S SHAPE: never permanent; uncursed or cursed 31-45 turns (31-37 diluted), blessed 31-45 / 62-76 / 93-107 / 124-138; the spell 31-45; a cursed potion only aggravates (5.0's strip of permanent invisibility dropped). (2) POTION OF SEE INVISIBLE, MASTER'S SHAPE: 750-849, blessed 1500-1599, diluted a 50-turn window; never permanent (5.0's permchance dropped). (3) WAND OF MAKE INVISIBLE, MASTER'S SHAPE (4bcc3e71d + 5b7b662e7, unrowed): self-zap d(1 + charges, 250); a cursed wand reverses invisibility for the hero and for monsters; a wrested charge gets at least d(1, 250). (4) MAGIC TRAP: THE WHOLE OF domagictrap() TO MASTER'S SHAPE (fate 10 joins 11, timeout-aware 11, fate 12 fire or ice, fate 18 see-invisible toggle with the crowned guard). (5) THE SMOKE ARM FOLDED IN: half of the 1-in-15 vanish rolls give brightly colored smoke and 51-100 turns of hallucination. (6) FIX ALL FOUR CURSED-WAND MESSAGE / STATE BUGS (blind text, invisible-form text, the monster arm's unseen text, perminvis). (7) FATE 18 SPARES INNATE SEE INVISIBLE: the toggle flips only the trap's own bit (applied to fate 11's invisible form too). (8) A STALKER CORPSE EATEN WHILE INVISIBLE IS SILENT, as on master. | maintainer |
