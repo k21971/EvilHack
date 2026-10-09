@@ -17,11 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-09, after session 198): 339
-  rows closed, 102 open. Of the open rows:
-  - 4 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, the
-    blessed restore ability level cap).
+- Phase 2 status (refreshed 2026-10-09, after session 199): 340
+  rows closed, 103 open. Of the open rows:
+  - 5 MED: unported master features (terrain concealment,
+    door-material colors, the held artifact pokedex tips, restore
+    ability uncancelling monsters, the init_attr() race-maximum
+    clamp).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -141,29 +142,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     savelife() rows (MED), the booze confusion row, the diluted-stack
     mix yield row and the hallucination extras row; session 198 the
     losestr() hit point cost row and the "extremely toxic" poison
-    floor row.
+    floor row; session 199 the restore ability uncancels monsters
+    and init_attr() race-maximum clamp rows (MED).
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-09 (session 198) A POLYMORPHED HERO COMES
+- Latest slice: 2026-10-09 (session 199) BLESSED RESTORE ABILITY
+  GIVES BACK 3-5 LEVELS; MAGIC FOUNTAINS USE THE POTION CODE (code
+  TBD, tracker TBD; BUG-2228..2230).
+  - A blessed potion of restore ability restores at most 3-5 lost
+    levels (master 446e97fa1); uncursed still 1, the spell none.
+  - A magic fountain runs a blessed restore ability and a gain
+    ability (blessed at Luck 4+), so it gives back levels too and
+    keeps 5.0's abuse reset (ruled).
+  - Gain ability raises Strength through gainstr(): giants,
+    centaurs, tortles, draugr, vampires and aasimar get a full roll
+    (master 7ea89f807 + d2ab69d82).
+  - Minted: restore ability uncancels monsters; init_attr()'s
+    race-maximum clamp (both MED).
+  - Detail: the closed blessed restore ability row.
+- Previous slice: 2026-10-09 (session 198) A POLYMORPHED HERO COMES
   BACK FROM LIFE-SAVING ALIVE; LEVEL 1 LOSES NOTHING TWICE (code
-  TBD, tracker TBD; BUG-2223..2227).
-  - Life-saving gives back a Con curve: 70 at Con 3 up to 150 at
-    Con 18-19, 160 / 180 / 200 above (maintainer-designed).
-  - A revived polymorphed form gets at least max(2 * mlevel, 10)
-    max HP (master ed8e03168), so a drained form under an amulet
-    of unchanging no longer comes back at 0 and dies again.
-  - losexp() at XL1 no longer takes a level's HP, Pw and form HP a
-    second time (master 7c0ab4d49); pluslvl() raises a polymorphed
-    form's max again (vanilla 5.0 e9a25a0a1 regression).
-  - 5.0's revival minimum, losexp() floor and fire trap kept
-    (ruled; the floor of 1 was reversed).
-  - Detail: the closed savelife() row.
-- Previous slice: 2026-10-08 (session 197) DILUTED POTIONS ARE
-  WEAKER AGAIN (code dbe5cf8cf, tracker 2aaa55dac;
-  BUG-2217..2222); detail in the closed diluted potions weaker row.
-- Earlier slices: 2026-10-08 (session 196) MASTER'S POTION ALCHEMY
+  e0a508b47, tracker ebc5de8df; BUG-2223..2227); detail in the
+  closed savelife() row.
+- Earlier slices: 2026-10-08 (session 197) DILUTED POTIONS ARE
+  WEAKER AGAIN (code dbe5cf8cf, tracker 2aaa55dac; BUG-2217..2222;
+  detail in the closed diluted potions weaker row);
+  2026-10-08 (session 196) MASTER'S POTION ALCHEMY
   TABLE (code cd0d26a56, tracker 5adcfb952; BUG-2214..2216; detail
   in the closed potion alchemy table row);
   2026-10-08 (session 195) INVISIBILITY AND SEE
@@ -9128,7 +9134,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       301 + 200 gave 502, as the code intends).
       Out-of-claim: wish-merge "r - a brown potion" = session 193's
       prinv() row; "#polyself dwarf" refused = the placeholder race.
-- [ ] MED: blessed restore ability restores every lost level (NEW,
+- [x] MED: blessed restore ability restores every lost level PORTED
+      2026-10-09 (session 199; BUG-2228..2230; code TBD, tracker TBD;
+      closure notes at the end of this row). Original text: blessed
+      restore ability restores every lost level (NEW,
       minted 2026-10-08 by the diluted potions slice, session 197).
       Master 446e97fa1 (2024-07-19, "Blessed restore ability only
       restores a few levels") caps the blessed potion at num_levels
@@ -9137,8 +9146,94 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2017, already in vanilla 3.6 and so in 5.0). Unported
       master feature; master's shape is a one-arm port in
       peffect_restore_ability().
+      CLOSURE (session 199, plan
+      /root/.claude/plans/feature-restore-ability-level-cap.md): the
+      Plan agent found 446e97fa1 is one design with a second, unrowed
+      hunk - drinkfountain()'s magic arm runs the potion code (8a67c8b54
+      added the obfree() calls) - and that master's gain ability
+      routes Strength through gainstr() (7ea89f807 + d2ab69d82,
+      unrowed); 5.0's 06012e712 abuse reset was already on the branch.
+      RULINGS (AskUserQuestion x3, five questions; decisions log):
+      fountain hunk ported (recommended); the gainstr() arm folded
+      (recommended); 5.0's abuse reset kept, fountains inherit it
+      (over my master-shape pick); the uncancel neighbour and the
+      reviewer's init_attr() find minted as MED rows (recommended).
+      BUGS: 2228 the cap (num_levels rolled inside the level `if`, so
+      the spell and no-loss quaffs roll nothing); 2229 the fountain
+      arm (blessed restore ability pseudo, then gain ability blessed at
+      Luck 4+); 2230 gainstr() returns adjattrib()'s result with an int
+      msgflg, eat.c callers TRUE -> -1 / FALSE -> 1 / TRUE -> -1, and
+      peffect_gain_ability()'s A_STR arm. REVIEW: PASS, no finding in
+      the diff; MED outside it (init_attr() clamp, minted below).
+      BATTERIES (two game-testers in their own playground copies,
+      binaries renamed; PRE 3ff83f57 = ebc5de8df code, POST f04c7802;
+      paniclogs never created; every leg PASS on both builds): A
+      restore / fountain 9 legs - blessed potion at XL 8 of 20 PRE 12
+      levels, POST 4 / 3 / 5 / 3 / 3 / 5 / 5 / 5 over eight quaffs;
+      controls identical (uncursed 1, cursed 0, 2 lost -> 2, none
+      lost -> 0, Skilled spell 0); fountain at Luck 5 PRE "great" and
+      no levels, POST "better" when confused, 3-5 levels, gain in
+      Str..Cha order; Con abuse -20 PRE kept, POST 0 (the blessed
+      potion resets it on both); Luck 2 with one raisable stat PRE
+      5 / 5 raised, POST 9 / 12 with one "already" line on each miss,
+      all maxed PRE silent, POST one line; polymorphed + amulet of
+      unchanging u.mhmax rises per level; vampire XL 10 of 14 regains
+      flight at 12 and the arm completes; sustain ability, levitation
+      and Luck -1 unchanged; POST save / restore clean. B gainstr() 9
+      legs - giant Str 16 forced uncursed PRE +1, POST +5 / +4 / +5 /
+      +5 / +9 / +3 / +3 with "You feel very strong!"; blessed giant
+      Str 18/02 POST; human +1 both; centaur 18/50 -> 18/57-60 POST;
+      giant 18/95 -> 18/98-99, never past 18/100; racial max "already
+      as strong" once; cursed / Fixed_abil unchanged; magic fountain
+      giant 16 -> 18/03 POST; eat.c messages identical (giant corpse,
+      spinach tin "Popeye" with no Str line, royal jelly).
+      Out-of-claim: giant Barbarian Dex 15 above the race's 14 drops
+      to 14 under "You feel agile!" (the init_attr() row below);
+      "welcome to NetHack!" = the re-brand row; "stone giant corpse"
+      wish = the recorded master-shared material-parser fact; "You
+      have a peculiar feeling" under sustain ability = dopotion()'s
+      generic nothing line (brief error).
+- [ ] MED: restore ability uncancels monsters (NEW, minted
+      2026-10-09 by the blessed restore ability slice, session 199,
+      from its Plan agent). Master d359ea85e (2021, "Mon can drink
+      restore ability to cure cancellation") makes a potion of
+      restore ability that hits a monster clear its cancellation
+      ("<Mon> looks revitalized.") instead of healing it; the
+      branch's potionhit() still lumps POT_RESTORE_ABILITY into the
+      gain ability healing arm. Master 1df6b9af3 (2023, "Restore
+      ability spell is now directional") moves SPE_RESTORE_ABILITY
+      into spelleffects()' directional group (blessed at Skilled),
+      adds a bhitm() arm (uncancel, helpful gesture on a peaceful)
+      and a zapyourself() self arm. The branch has only the
+      IMMEDIATE flag (Phase 1 objects swap ec925f41a) and the
+      bhito() no-effect case; spelleffects() still sends the spell
+      to peffects() and never asks for a direction. Plan the self
+      arm against session 199's ruling (3) (5.0's abuse reset kept
+      on the potion and the spell): master's zapyourself() arm
+      copies the restore loop without the reset, while routing '.'
+      through peffects() keeps it. The muse half
+      (MUSE_POT_RESTORE_ABILITY) rides the muse offense row.
+- [ ] MED: init_attr() lets a role's starting stat sit above the
+      race's maximum (NEW, minted 2026-10-09 by the blessed restore
+      ability slice's reviewer, session 199; verified on both
+      bodies). Master 7ea89f807 (Giant race) clamps each stat right
+      after the attrbase copy - `while (ABASE(i) >= ATTRMAX(i)) {
+      ABASE(i)--; AMAX(i)--; }`, deliberately one below the cap for
+      variety - and charges np with the clamped value. The branch's
+      init_attr() is vanilla 5.0's (attrbase copied unclamped, then
+      init_attr_role_redist(), which never lowers a stat), so the
+      tree adoption dropped the clamp. Examples from role.c: giant
+      Barbarian Dex 15 vs 14, tortle Barbarian Dex 15 vs 10, draugr
+      Barbarian / Convict / Monk / Rogue / Infidel Int 7 vs 6,
+      centaur Knight Cha 17 vs 16, tortle Druid Cha 15 vs 14, tortle
+      Healer Cha 16 vs 14, centaur Ranger Int 13 vs 12. The next +1
+      to that stat clamps it to the cap under a "You feel agile!"
+      line (battery B session 199: giant Barbarian Dx 15 -> 14 and AC
+      4 -> 5 on a blessed gain ability, both builds). Plan where the
+      clamp goes in 5.0's redistribution and how the removed points
+      are spent; battery = new-game stat rolls per affected pair.
 - [x] MED: savelife() HP and clamps PORTED 2026-10-09 (session 198;
-      BUG-2223..2227; code TBD, tracker TBD; closure notes at the end
+      BUG-2223..2227; code e0a508b47, tracker ebc5de8df; closure notes at the end
       of this row). Original text: savelife() HP and clamps NOT
       master's (NEW, minted
       2026-10-08 by the diluted potions slice, session 197, from
@@ -16511,6 +16606,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the hero is, and the chosen item is not a fire / frost horn or a
       wand of death, sleep, fire, cold or lightning (master muse.c
       ~2950-2980). The branch has none of it.
+      RIDER 2026-10-09 (session 199): MUSE_POT_RESTORE_ABILITY is
+      the muse half of master d359ea85e; its potionhit() half and
+      the directional restore ability spell (1df6b9af3) have their
+      own MED row, "restore ability uncancels monsters".
 - [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
@@ -19445,7 +19544,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: losexp() at experience level 1 subtracts a level's hit
       points and energy again PORTED 2026-10-09 (session 198, folded
       into the savelife() slice; BUG-2225 gate, BUG-2226 newpw() /
-      more_experienced(); code TBD, tracker TBD; closure notes at the
+      more_experienced(); code e0a508b47, tracker ebc5de8df; closure notes at the
       end of this row). Original text: (minted 2026-09-30, session 164, found by
       the Caveperson slice's Plan agent; "entry_level" and 7c0ab4d49
       had no tracker mention). A level-1 losexp() - prayer anger with
@@ -26813,6 +26912,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-09 | Blessed restore ability slice rulings (session 199; AskUserQuestion x3, five questions; four recommended). (1) MASTER 446e97fa1's FOUNTAIN HUNK PORTS WITH THE CAP (recommended): the magic-fountain arm of drinkfountain() runs peffects() on a blessed restore ability pseudo-potion and a gain ability pseudo-potion (blessed at Luck 4 or more), so a magic fountain also gives back 3-5 lost levels, says "better" instead of "great" with an unfixable trouble, and at Luck 0-3 makes up to six random gain picks (one "already as X as you can get" line on a total miss) where the old arm scanned to the first stat that could rise; the hunk had no row. (2) THE GAIN ABILITY STRENGTH ARM FOLDS IN (recommended): master 7ea89f807 + d2ab69d82 - gain ability raises Strength through gainstr(), which now returns adjattrib()'s result and takes adjattrib()'s int msgflg, so giants, centaurs, tortles, draugr, vampires and aasimar roll a full Strength gain (giants +2d2, capped at 18/100) from a non-cursed potion or a magic fountain; the eat.c callers keep their messages. (3) 5.0's RESTORE ABILITY ABUSE RESET STAYS (vanilla 06012e712: each restored stat's negative exercise goes to 0) on the potion and the spell, and magic fountains now inherit it; rejected master's no-reset shape (the recommended option). (4) RESTORE ABILITY UNCANCELS MONSTERS IS MINTED AS A MED ROW (recommended): master d359ea85e's potionhit() arm and the unported remainder of 1df6b9af3's directional spell, not folded. (5) THE REVIEWER'S init_attr() FIND IS MINTED AS A MED ROW (recommended): master 7ea89f807's clamp of a role's starting stat to one below the race's maximum is missing (vanilla 5.0 init_attr()), so e.g. a giant Barbarian starts at Dex 15 against a cap of 14; not folded. | maintainer |
 | 2026-10-09 | savelife() slice rulings (session 198; AskUserQuestion x5, six questions). (1) LIFE-SAVING HIT POINTS ARE A MAINTAINER-DESIGNED CON CURVE: 60 + 10 * (Con / 2) through Con 21, then 20 * (Con / 2 - 2) - Con 3 70, 4-5 80, ... 16-17 140, 18-19 150, 20-21 160, 22-23 180, 24-25 200 (the cap); it covers the amulet, wizard / explore Die? n and a polymorphed form's u.mh; the amulet's -1 Con applies first, so a Con 19 wearer gets 150; a draugr's own body still comes back full. Rejected master's flat 150 (recommended), 5.0's 50 + 10 * (Con / 2) and a "higher of the two" hybrid; the maintainer chose 5.0's two-point steps, asked for Con 18 = 150 and Con 24-25 = 200, then corrected the preview's 166 / 183 to 160 / 180. (2) THE LOWEST MAX HP AFTER A REVIVAL STAYS 5.0's max(XL, 10) (minuhpmax(10)); rejected master's max(2 * XL, 10) (recommended). (3) losexp()'s MAX HP FLOOR STAYS 5.0's max(XL, 10) WITH ITS NO-RAISE CLAUSE: master's floor of 1 was ruled first (recommended) and then REVERSED after the reviewer showed it composes with 5.0's fire trap into a level-drain ratchet. (4) THE FIRE TRAP KEEPS 5.0's SHAPE (upstream d53c1a7a6, PatR 2022-03-21: max HP shaved only down to XL, and a level drained when it would go below) - never in vanilla 3.6 or master; my recommendation was master's no-drain fire trap. (5) pluslvl()'s POLYMORPHED LEVEL GAIN FIX FOLDED INTO THE SLICE (recommended; battery-found). Master ed8e03168's form clamp max(2 * mlevel, 10) and 7c0ab4d49's entry_level gate needed no ruling (master's fixes). | maintainer |
 | 2026-10-08 | Diluted potions slice rulings (session 197; AskUserQuestion x1, four questions; one recommended). (1) HEALING AND EXTRA HEALING KEEP 5.0's AMOUNTS (09cf46481: 8 + d(4 + 2b, 4) and 16 + d(4 + 2b, 8)) AND HALVE THE WHOLE VALUE WHEN DILUTED; extra healing's max-HP raise halves too (master), healing's +1 does not (master). Rejected master's dice d(10 + 2b, 4) / d(10 + 2b, 8), which df086f65d raised in the same commit that added the halving (the recommended option). (2) BLESSED MONSTER DETECTION KEEPS 5.0's POTION BUFF (dfac5fbf6, 100-199 turns) AND HALVES ONLY THE RANDOM SPAN WHEN DILUTED (100-149); THE SPELL MATCHES THE POTION BY CASTING SKILL: at Skilled or better it is a blessed pseudo-object and takes 100-199 turns (5.0 and master gave the spell 21-60); below Skilled the uncursed one-shot is unchanged (maintainer's own option; rejected master's rn1(diluted ? 20 : 40, 21) for both, the recommended option). (3) SPEED RESTORES df086f65d's 2019 INTENT, rn1(diluted ? 5 : 10, ...): a diluted potion gives 100-104 / 160-164 / 40-44 turns; master's own 9b08d9958 (2023) had dropped the term (rejected master's live shape, the recommended option). (4) SIDE FINDS: fold only the vampire-blood "Ugh.  That" text (master's two spaces); mint the blessed restore ability, savelife(), booze confusion, diluted-stack mix yield and hallucination extras rows (recommended). | maintainer |
 | 2026-10-08 | Potion alchemy table slice rulings (session 196; AskUserQuestion x2, three questions, all recommended). (1) ENLIGHTENMENT + LEVITATION MAKES GAIN LEVEL 1 TIME IN 3, master's table (chance 3 = !rn2(3)); vanilla and the branch's switch gave 2 in 3, and master's ac335d855 conversion flipped it with no changelog line; the other 2 in 3 fall to the random-mixture roll; the pokedex says "(1/3 chance)". (2) THE POKEDEX FALLBACK ROWS SHOW THEIR ODDS (hybrid): a row right after a chance row for the same pair prints "(N-1/N chance)", so "gain level + confusion = booze (2/3 chance)" and the gain energy twin; master printed no qualifier. (3) POLYMORPH DIP, MASTER 61d99ef03's EXACT SHAPE: a lost seen flag counts as a change, so a sighted hero's seen item that rerolls into its own type also prints the new inventory line and identifies polymorph when the polymorph potion's appearance was seen; the identification gate reads the polymorph potion's own dknown in both dip directions (plan-approved refinement of master's potion->dknown, from the commit's stated intent). | maintainer |
