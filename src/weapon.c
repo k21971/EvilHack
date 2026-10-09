@@ -2835,6 +2835,12 @@ skill_init(const struct def_skill *class_skill)
            touchstone from inadvertently providing skill in sling) */
         if (is_ammo(obj))
             continue;
+        /* a dwarf's racial pick-axe from u_init_race() is not part of
+           the role's kit and gives no starting skill; the Archeologist's
+           own pick-axe still counts */
+        if (obj->otyp == PICK_AXE && Race_if(PM_DWARF)
+            && !Role_if(PM_ARCHEOLOGIST))
+            continue;
 
         skill = weapon_type(obj);
         if (skill != P_NONE)

@@ -1275,7 +1275,9 @@ u_init_race(void)
         knows_object(DWARVISH_ROUNDSHIELD, FALSE);
 
         if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT)) {
-            /* wise dwarves bring their toy to the dungeons */
+            /* wise dwarves bring their toy to the dungeons; it gives
+               no starting skill (skill_init() skips it, so keep the
+               role tests there in step with these) */
             if (!rn2(4))
                 ini_inv(Pickaxe);
         }
