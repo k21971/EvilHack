@@ -3619,7 +3619,8 @@ maybe_turn_mon_iter(struct monst *mtmp)
                 pline("Unfortunately, your voice falters.");
             mtmp->mflee = 0;
             mtmp->mfrozen = 0;
-            mtmp->mcanmove = 1;
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
         } else if (!resist(mtmp, '\0', 0, TELL)) {
             int xlev = 6;
 
@@ -3627,6 +3628,7 @@ maybe_turn_mon_iter(struct monst *mtmp)
                 /* this is intentional, lichs are tougher
                    than zombies. */
             case S_LICH:
+            case S_HUMANOID: /* alhoon */
                 xlev += 2;
                 FALLTHROUGH;
                 /*FALLTHRU*/
@@ -3643,6 +3645,10 @@ maybe_turn_mon_iter(struct monst *mtmp)
                 FALLTHROUGH;
                 /*FALLTHRU*/
             case S_MUMMY:
+                xlev += 2;
+                FALLTHROUGH;
+                /*FALLTHRU*/
+            case S_SKELETON:
                 xlev += 2;
                 FALLTHROUGH;
                 /*FALLTHRU*/
