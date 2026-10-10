@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-10, after session 208): 351
-  rows closed, 112 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-10, after session 208's
+  rulings): 355 rows closed, 108 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -33,7 +33,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 92 LOW: small parity rows, quirks and watch/record-only items.
+  - 88 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -48,13 +48,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     item-flying steed row (lift everywhere; a hold on the rider
     grounds the pair) and the other silent hold clears row (tell it
     after the event, per site; gulpmu()'s "trap" wording with it);
-    the other five landed in session 190. Needing a ruling (session
-    190's hold census): the #kick-while-held row (master's lost lava
-    arm needs none), opening magic on vines, whirly / unsolid forms
-    slipping vines, terrain changes under a tree-held hero (and a
-    tree dying mid-hold), cast_entangle() over a pit / web / bear
+    the other five landed in session 190. Ruled 2026-10-10 (session
+    208 follow-up), all plannable: session 190's hold census - the
+    #kick-while-held row, opening magic on vines, whirly / unsolid
+    forms slipping vines, terrain changes under a tree-held hero (and
+    a tree dying mid-hold), cast_entangle() over a pit / web / bear
     trap, burying the ball over another hold, and stairs while
-    entangled. The untamed kitten row needs a trace.
+    entangled. Also ruled then, plannable: the vampshifter
+    hunger-penalty row (clear it on form change), the trap-kit G_ ids
+    row ("unset "), the "extremely toxic" floor row (never raise a
+    lower max), the power word kill life-save row (take the turn),
+    the helpful-spell shopkeeper row (no hot_pursuit()) and the
+    data.base critical healing row (the code follows the text:
+    Skilled). Closed then as kept 5.0: booze confusion, diluted-stack
+    mix yield, hallucination extras and losestr() HP. The untamed
+    kitten row needs a trace.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
     of Kas rows landed in session 172, the rider hold text, ^X form
     wording, ranged death-reason race and exerchk() Int rows in
@@ -170,7 +178,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     session 188.
 - Latest slice: 2026-10-10 (session 208) STONED ENTS BECOME
   PETRIFIED ENTS; STONE TO FLESH TURNS A PETRIFIED ENT BACK INTO AN
-  ENT (code TBD, tracker TBD; BUG-2253..2256).
+  ENT (code a04536a98, tracker 525e869d3; BUG-2253..2256).
   - Master f1d39f476 ported whole: stoned_form() picks the stone
     form by body at every stoning site (intent; master turned a
     hero ent into a stone golem), true ents only (ruled), the
@@ -9565,8 +9573,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       session 199's ruling (3) (5.0's abuse reset on the potion and
       the spell).
 - [x] MED: stone to flesh's monster arm lacks master's extras PORTED
-      2026-10-10 (session 208; BUG-2253..2256; code TBD, tracker TBD;
-      plan /root/.claude/plans/zany-snacking-rocket.md), widened to
+      2026-10-10 (session 208; BUG-2253..2256; code a04536a98,
+      tracker 525e869d3; plan
+      /root/.claude/plans/zany-snacking-rocket.md), widened to
       the whole of master f1d39f476 (New monsters: Ent, Elder Ent,
       Petrified Ent).
       - The trace found the commit's stoning half missing as well,
@@ -9664,6 +9673,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       restore ability cast through his door). Master and vanilla
       share it (vanilla's speed monster too). Ruling: skip
       hot_pursuit() for a helpful gesture, or record as parity.
+      RULED 2026-10-10 (session 208 follow-up; decisions log): a helpful
+      gesture never runs hot_pursuit(); a harmful spell still does. A
+      branch fix over master / vanilla parity. Plannable.
 - [ ] LOW: dat/data.base says critical healing's cure needs Skilled
       (NEW, minted 2026-10-09 by the hero spell parity B reviewer,
       session 201; record / ruling). "If skilled or greater, there's
@@ -9672,6 +9684,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rolls a flat 1 in 4 at any skill, and master 10089bbf6's own
       message says a flat 25%. Master text; fix the entry or leave
       it.
+      RULED 2026-10-10 (session 208 follow-up; decisions log): the CODE
+      follows the text (over my recommended text fix): critical
+      healing's 1-in-4 cure-sickness rider needs Skilled or better;
+      data.base stays. Diverges from master's code and 10089bbf6's
+      message. Plannable.
 - [ ] LOW: cure sickness names a sick disguised mimic (NEW, minted
       2026-10-09 by the hero spell parity B reviewer, session 201;
       record-only, master-shared). The arm's "<mon> is no longer
@@ -10100,6 +10117,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       from spelleffects() (no turn, no skill practice, energy spent);
       the branch keeps that shape. A vampire in bat form "killed"
       back to its true form takes the same path. Intent question.
+      RULED 2026-10-10 (session 208 follow-up; decisions log): a cast
+      whose target is life-saved (or a vampire bat form killed back to
+      its true form) takes its turn and trains the skill like any
+      successful cast. Plannable.
 - [x] MED: savelife() HP and clamps PORTED 2026-10-09 (session 198;
       BUG-2223..2227; code e0a508b47, tracker ebc5de8df; closure notes at the end
       of this row). Original text: savelife() HP and clamps NOT
@@ -10208,25 +10229,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         Official_nh50; patch artifact
         ~/nh50-losexp-savelife-pluslvl.patch (vanilla's own HP
         amount; applies clean to 15fbc6b21; not sent).
-- [ ] LOW: booze confusion d(2 + u.uhs, 8) (NEW, minted 2026-10-08
+- [x] LOW: booze confusion d(2 + u.uhs, 8) - KEPT 5.0'S (ruled
+      2026-10-10, session 208 follow-up, decisions log, over my
+      recommended master's d(3, 8); no code change). Original text:
+      (NEW, minted 2026-10-08
       by the diluted potions slice, session 197). 5.0 e44de7149
       (2021, "Amplify booze effect if drinking on empty stomach")
       against master's d(3, 8); a satiated hero is confused 2-16, a
       weak one 5-40. Needs a ruling (keep 5.0 or master's shape).
-- [ ] LOW: diluted-stack mix yield (NEW, minted 2026-10-08 by the
+- [x] LOW: diluted-stack mix yield - KEPT 5.0'S (ruled 2026-10-10,
+      session 208 follow-up, decisions log, over my recommended master's
+      whole stack; no code change). Original text: (NEW, minted
+      2026-10-08 by the
       diluted potions slice, session 197). 5.0 e8ca614e5 (2023,
       "Reduce yields for multi-step alchemy recipes") mixes at most
       2 potions when the dipped stack is diluted (potion_dip()'s
       amt cap); master mixes the whole capped stack. 5.0-only;
       needs a ruling.
-- [ ] LOW: hallucination potion extras (NEW, minted 2026-10-08 by
+- [x] LOW: hallucination potion extras - KEPT 5.0'S (ruled
+      2026-10-10, session 208 follow-up, decisions log, over my
+      recommended master's shape; no code change). Original text: (NEW,
+      minted 2026-10-08 by
       the diluted potions slice, session 197). 5.0's
       peffect_hallucination() returns early under Halluc_resistance
       (no timeout) and rolls an enlightenment ("You perceive
       yourself...") 1 in 3 blessed / 1 in 6 uncursed; master adds
       the timeout (blocked by the resistance) and has no
       enlightenment. 5.0-only; needs a ruling.
-- [ ] LOW: losestr() hit point cost (NEW, minted 2026-10-09 by the
+- [x] LOW: losestr() hit point cost - KEPT 5.0'S (ruled 2026-10-10,
+      session 208 follow-up, decisions log, over my recommended hybrid
+      of master's flat 6 with 5.0's floors; no code change). Original
+      text: (NEW, minted 2026-10-09 by the
       savelife() slice, session 198, from the Plan agent; checked
       against master). For each point Strength would fall below 3,
       5.0 (upstream d53c1a7a6) deals rn1(4, 3) = 3-6 through
@@ -10246,6 +10279,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       max that is already below max(XL, 3) (XL10 at max 4 becomes
       10; reachable after drain_uhpmax(), floor 1) - session 198
       reviewer LOW. Needs a ruling.
+      RULED 2026-10-10 (session 208 follow-up; decisions log): 5.0's
+      order and max(XL, 3) floor stay, but the floor never RAISES a max
+      that is already below it (that max is left where it is).
+      Plannable.
 - [x] dmgval() material-hardness block NOT PORTED (NEW, minted
       2026-09-08 by the pokedex slice; MED, combat balance). Master
       weapon.c dmgval() (1c3a05414, 2019) adds per-material damage
@@ -21690,6 +21727,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       lava is silent too (restore = master's shape). Decide: the
       vines (and floor / chain) join "You can't move your legs!", or
       get their own line. LOW (needs a ruling; the lava arm does not).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): vines,
+      floor and buried-ball chain holds join "You can't move your
+      legs!"; master's lost TT_LAVA arm is restored with them.
+      Plannable.
 - [ ] LOW: opening magic on an entangled hero (minted 2026-10-07,
       session 190, Plan agent census; master-shared). trap.c
       openholdingtrap() (a wand of opening or knock at self, the Bell
@@ -21702,6 +21743,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       drop_ball() ruling's "the tree's grip" / "the vegetation" fits);
       a release over a drop needs allmain's release-drop shape. LOW
       (needs a ruling).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): opening
+      magic frees vines, with the vegetation wording of the drop_ball()
+      ruling; a release over a hole, open air or water then falls /
+      lands the way allmain's release-drop does. Plannable.
 - [ ] LOW: polymorphing into a whirly, unsolid or wall-passing form
       while entangled keeps the hold (minted 2026-10-07, session 190,
       Plan agent census; master-shared). cast_entangle() refuses those
@@ -21710,6 +21755,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       refused at the cast either. Decide: do such forms slip the vines
       (a "You slip free of the vegetation." style line), and do
       amorphous ones too. LOW (needs a ruling).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): whirly,
+      unsolid, wall-passing AND amorphous forms slip free on polymorph
+      with a "You slip free of the vegetation."-style line (wording
+      shown before landing), and cast_entangle() also refuses amorphous
+      forms. Plannable.
 - [ ] LOW: terrain changes under a tree-held hero replace or drop the
       vines (minted 2026-10-07, session 190, Plan agent census;
       master-shared). The branches hold the hero in place, but: an
@@ -21730,6 +21780,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       releases you.  You can fly.", no landing; a tree-held hero whose
       ball is then buried, or who throws the ball, gets the grass
       shapes. LOW (needs a ruling).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): the hold
+      is the TREE's: an earthquake, digging down, a boulder filling a
+      hole or pit and delfloortrap() keep a vine hold while its live
+      tree is adjacent (exempt, like the buried ball). A tree that dies
+      mid-hold releases the hero with a message and the normal landing
+      or fall. Plannable.
 - [ ] LOW: cast_entangle() silently replaces a pit, web or bear-trap
       hold (minted 2026-10-07, session 190, Plan agent census; master
       refuses no hold at all). The branch refuses only lava, floor and
@@ -21738,6 +21794,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero in a pit loses the pit's vision limit. Decide: refuse
       ("The spell fails to entangle you.") or stack. LOW (needs a
       ruling).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): REFUSE
+      ("The spell fails to entangle you.") over a pit, web or bear trap
+      too, like BUG-2172's lava / floor / chain refusals. Plannable.
 - [ ] LOW: burying the iron ball replaces any other hold (minted
       2026-10-07, session 190, reviewer; master- and upstream-shared,
       Official_nh50 dig.c bury_an_obj() identical). bury_an_obj(uball)
@@ -21750,6 +21809,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (BUG-2172 refuses the cast over lava, floor and chain holds).
       Decide: keep the stronger hold, or let the chain take over. LOW
       (needs a ruling).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): the
+      existing hold stays; the ball is still buried and its chain
+      applies once that hold ends. A branch fix over master / vanilla
+      parity. Plannable.
 - [ ] LOW: '<' / '>' leave a stair while entangled (minted 2026-10-07,
       session 190, Plan agent census; EvilHack-only: vanilla holds
       never sit on stairs, but vines need only a tree adjacent).
@@ -21757,6 +21820,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       stair next to a tree climbs away and goto_level() clears the
       hold silently. Decide: refuse (trapmove()'s "You are entangled
       by a tree." line) or allow. LOW (needs a ruling).
+      RULED 2026-10-10 (session 208 follow-up; decisions log): refuse
+      '<' / '>' with trapmove()'s "You are entangled by a tree.".
+      Plannable.
 - [ ] LOW: a starting kitten turned untame and peaceful with no hero
       interaction (minted 2026-10-06, session 188, battery B anomaly on
       the POST build; seen once, not traced). Between T:16 and T:18 the
@@ -26441,6 +26507,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       trap-kit object arm (e.g. "unset " like the land mine, or
       "kit_"). Pick the prefix by ruling, then check symset / glyph
       docs for the names. Master has no glyph ids.
+      RULED 2026-10-10 (session 208 follow-up; decisions log): prefix
+      "unset " (G_unset_arrow_trap etc.), upstream's LAND_MINE
+      precedent; check the symset / glyph docs for the names. Plannable.
 - [ ] LOW: a wish that merges into a stack prints "k - a blood-red
       potion" with no period and no total (minted 2026-10-08, session
       193, battery anomaly, seen on PRE and POST). A wish that starts
@@ -26462,6 +26531,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       restore - dog_eat() or now dog_quaff_blood() - adds the stale
       penalty onto a fresh mhpmax. Decide: clear the penalty on a
       form change, or scale it; check master's newcham().
+      RULED 2026-10-10 (session 208 follow-up; decisions log): newcham()
+      clears edog->mhpmax_penalty along with the fresh max HP; a later
+      meat form re-earns it only by starving again (master's newcham()
+      has the same gap; branch fix). Plannable.
 - [x] ulastprayed writer/reader WIRED (2026-08-29; minted
       2026-08-26 by the features-coverage sweep; LOW). Master
       45daafcc1 = the symbol's whole history (xNetHack-derived);
@@ -27821,6 +27894,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-10 | Ruling round (session 208 follow-up; AskUserQuestion x5, seventeen questions; rulings recorded only, no code). KEPT 5.0, rows closed with no code change, each over my recommendation: booze confusion d(2 + u.uhs, 8) (over master's d(3, 8)); the diluted-stack mix yield cap of 2 (over master's whole stack); the hallucination potion's resistance early return and enlightenment roll (over master's shape); losestr()'s 3-6 per point through losehp() with 5.0's floors (over a hybrid of master's flat 6 with 5.0's safety). RULED, plannable: the "extremely toxic" poison floor keeps 5.0's order and max(XL, 3) floor but never raises a lower max (recommended); power word kill on a life-saved target takes the turn and trains the skill (recommended); a helpful gesture never runs bhitm()'s shopkeeper hot_pursuit() (recommended; branch fix over master / vanilla); the CODE follows data.base - critical healing's 1-in-4 cure rider needs Skilled (over my recommended text fix; diverges from master); #kick while held by vines / floor / chain says "You can't move your legs!" (recommended); opening magic frees vines with the vegetation wording and the release-drop (recommended); whirly, unsolid, wall-passing and amorphous forms slip vines on polymorph and the cast refuses amorphous forms too (recommended); a vine hold is the tree's - terrain changes keep it while its live tree is adjacent, a dying tree releases with a message and landing (recommended); cast_entangle() refuses over a pit, web or bear trap (recommended); burying the ball keeps the existing hold (recommended; branch fix over master / vanilla); '<' / '>' refused while entangled (recommended); trap-kit object glyph ids take the "unset " prefix (recommended); newcham() clears a vampshifter pet's mhpmax_penalty (recommended; master-shared gap). | maintainer |
 | 2026-10-10 | Ent stoning / stone to flesh slice rulings (session 208; AskUserQuestion x2, four questions, all recommended). (1) INTENT FORM FOR THE HERO SITES: master f1d39f476's stoning half is ported with mondata.c stoned_form() picking the stone form by body (true ent -> petrified ent, golem -> stone golem) at all 17 hero sites and in polymon()'s Stoned arm. Master tries polymon(PM_STONE_GOLEM) first, so a stoned hero ent becomes a stone golem (stone golems lack G_GENO, so its petrified ent fallback never runs); BUG-2254, frozen-unfixed. Rejected: master's exact order; a stone-to-flesh-only slice with a row for the stoning half. (2) b41949570's zap_steed() SPE_STONE_TO_FLESH line DEFERRED to the Hdgn-slice riders row (a) beside the mstone cure: no branch steed can be affected (golems and ents can't be saddled, mstone has no producer), so alone it would only stop a downward cast reaching the floor while riding. Rejected: port it now for parity. (3) ONLY TRUE ENTS PETRIFY: poly_when_stoned() / mon_to_stone() use is_true_ent() (ent, elder ent), matching the commit and the wiki; master's is_ent() also turns tree blights and the Gulthias tree into petrified ents (BUG-2255, frozen-unfixed). Rejected: master's whole S_ENT class. (4) BEYOND MASTER: a petrified ent statue or figurine hit by stone to flesh revives as an ent, mirroring the golem -> flesh golem rule ("turns into wood" / "The figurine turns to wood and animates!"); master revives a petrified ent. Rejected: master parity. Plan-approved, no question: the reviewer's MED (make_corpse()'s petrified ent death statue, f1d39f476's fourth piece) folded as master parity; its LOW folded under ruling (4): an ent that can't be made (genocided, or no room) leaves the statue / figurine alone, as a golem's is. | maintainer (rulings); session, plan-approved (rest) |
 | 2026-10-10 | Enchant armor choice slice ruling (session 207; AskUserQuestion x1, recommended). EMBEDDED ARMOR IS NEVER A CHOICE, FOR BOTH CALLERS: do_wear.c worn_armor_ok() (the getobj callback shared by a known scroll of enchant armor and a Basic repair armor cast) excludes uskin, which keeps its slot bit plus I_SPECIAL after polyself()'s do_merge. A known scroll that picked embedded scales re-entered do_merge (impossible "Already merged with some armor!", or system shock) and stretched the dragon form 1.5x per blessed read; an evaporating embedded suit hit "Removing embedded scales?". Master has the same hole and a wider reach (no count gate). Picking its letter now gives "That is a silly thing to enchant." / "...to magically repair."; count_worn_armor() and both random paths already ignored it. Rejected: a scroll-only exclusion that keeps master's harmless Basic repair of embedded armor, and treating the scroll pick as "Your skin glows then fades.". Plan-approved, no question: one shared choose_worn_armor() in place of a second copy of the spell's block; YN() for the barding query (^A replay). | maintainer (ruling); session, plan-approved (rest) |
 | 2026-10-09 | #turn ladder slice ruling (session 204; AskUserQuestion x1, recommended). MASTER'S LIVE LADDER: master 2f365eaab inserted the S_SKELETON +2 step between S_MUMMY and S_ZOMBIE, and because the ladder falls through, every tier above zombies moved up 2 levels. The minimum XL to destroy (lawful) or pacify (chaotic) is zombie 6, skeleton 8, mummy 10, wraith 12, vampire 14, ghost 16, lich / alhoon 18, exactly as on live 0.9.3 since December 2024. Rejected: keeping vanilla's tiers (zombie 6, mummy 8 ... lich 16) with skeletons slotted in beside zombies at 6. The alhoon joins the lich tier either way (eb9b1743a). | maintainer |
