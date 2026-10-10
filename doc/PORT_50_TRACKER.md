@@ -17,13 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-10, after session 205): 347
+- Phase 2 status (refreshed 2026-10-10, after session 206): 349
   rows closed, 112 open. Of the open rows:
   - 0 HIGH.
-  - 6 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, spell
-    letters past 52 spells, choosing the worn armor a known
-    enchant armor scroll hits, stone to flesh's monster extras).
+  - 5 MED: unported master features (terrain concealment,
+    door-material colors, the held artifact pokedex tips, choosing
+    the worn armor a known enchant armor scroll hits, stone to
+    flesh's monster extras).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -34,7 +34,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 90 LOW: small parity rows, quirks and watch/record-only items.
+  - 91 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -158,23 +158,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     rows; session 202 the dwarf starting pick-axe skill row (MED)
     and the failed-restore race override row; session 204 the
     mk_gen_ok() Mines generation gates row (MED); session 205 the
-    corpse_chance() alhoon / Kas crumble row.
+    corpse_chance() alhoon / Kas crumble row; session 206 the
+    dotele() vault-trap freed-pointer row and the curses popup
+    border residue row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-10 (session 205) NO MASTER MIND FLAYERS
+- Latest slice: 2026-10-10 (session 206) SPELLS 53-62 GET DIGIT
+  LETTERS; TPORT_SPELL() GUARDS (code TBD, tracker TBD;
+  BUG-2249..2251).
+  - spellet() / spell_let_to_idx() / getspell()'s letter range
+    take master's '0'..'9' tier; tport_spell() and dotelecmd()
+    take master's guards and dispatch. Closes the MED spell letters
+    past 52 spells row and the LOW tport_spell() guards row.
+  - Minted: the LOW dotele() vault-trap freed-pointer row and the
+    LOW curses popup border residue row (both builds); the Windows
+    menu digit-accelerator find rides the PLATFORM PARITY row as
+    item (8).
+  - Detail: the closed spell letters row.
+- Previous slice: 2026-10-10 (session 205) NO MASTER MIND FLAYERS
   OR ALHOONS IN THE MINES, NO VAMPIRE MAGES AT MINES' END (code
-  TBD, tracker TBD; BUG-2248).
-  - mk_gen_ok() regains master's two class-pick gates, so the
-    Mines' "h" and the Catacombs' "V" picks match master again.
-    Closes the MED mk_gen_ok() Mines generation gates row.
-  - Minted: the LOW corpse_chance() alhoon / Kas crumble row.
-  - Detail: the closed mk_gen_ok() row.
-- Previous slice: 2026-10-09 (session 204) #TURN'S UNDEAD LADDER
+  ce65979e2, tracker e6d3cb9a8; BUG-2248); detail in the closed
+  mk_gen_ok() row.
+- Earlier slices: 2026-10-09 (session 204) #TURN'S UNDEAD LADDER
   TAKES MASTER'S STEPS (code 70b24f8e9, tracker 6acb23402;
-  BUG-2247); detail in the closed #turn ladder row.
-- Earlier slices: 2026-10-09 (session 203) A DWARF'S RACIAL
+  BUG-2247; detail in the closed #turn ladder row);
+  2026-10-09 (session 203) A DWARF'S RACIAL
   PICK-AXE TRAINS NO STARTING SKILL (code e997233c2, tracker
   f396b14e6; BUG-2246; detail in the closed dwarf pick-axe row);
   2026-10-09 (session 202) NO STARTING STAT ABOVE
@@ -9668,8 +9678,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       keeps at its other paralysis sites). Different command and
       battery from the spell.
 - [x] MED: mk_gen_ok() regains master's two Mines generation gates
-      PORTED 2026-10-10 (session 205; BUG-2248; code TBD, tracker
-      TBD; plan /root/.claude/plans/dynamic-sniffing-parrot.md).
+      PORTED 2026-10-10 (session 205; BUG-2248; code ce65979e2,
+      tracker e6d3cb9a8; plan /root/.claude/plans/dynamic-sniffing-parrot.md).
       - mk_gen_ok() now refuses PM_VAMPIRE_MAGE on
         Is_mineend_level() (master 52d0e27de) and PM_ALHOON /
         PM_MASTER_MIND_FLAYER anywhere In_mines() (master
@@ -9734,14 +9744,61 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       landed; this one never got a row. Port: add the two terms to
       the branch's condition. Battery: kill a seen alhoon and Kas
       on both builds.
-- [ ] MED: spell letters past 52 spells (NEW, minted 2026-10-09 by
-      the hero spell parity A reviewer's hunk audit, session 200).
-      Master ccf51af86 (BUG-761) gave spellet() a third tier (digits)
-      and spell_let_to_idx() a digit branch; the branch's spellet()
-      is still two-tier and getspell()'s `lets` still "assumes at most
-      52 spells", so spell 53 and up get '[' / '\\' letters and a ^A
-      repeat of such a cast is silently rejected. The branch catalog
-      has more than 52 spells.
+- [x] MED: spells 53-62 get digit letters PORTED 2026-10-10 (session
+      206; BUG-2249; code TBD, tracker TBD; plan
+      /root/.claude/plans/composed-baking-ladybug.md).
+      - spellet() takes master ccf51af86's third tier: indices
+        52..61 -> '0'..'9', 62+ -> '?' (unreachable: the branch has
+        62 castable spells, SPE_DIG 447 .. SPE_SUMMON_ELEMENTAL 508,
+        MAXSPELL 63). spell_let_to_idx() gains the digit branch
+        (52..61). getspell()'s MENU_TRADITIONAL range takes master's
+        tail ("a-zA-Z0", "a-zA-Z0-%c", "a-zA-Z0-9"; Strcpy for the
+        fixed strings). The consumers need no edit: learn()'s "as
+        '%c'", docast()'s CQ_REPEAT key, dovspell()'s swap prompt,
+        dospellmenu()'s selectors (dumplog included) and
+        force_learn_spell().
+      - Old behavior: spells 53-62 were lettered [ \ ] ^ _ ` a b c d
+        (two menu commands and four duplicates of spells 1-4); the
+        traditional prompt read "a-zA-[" .. "a-zA-d" and refused
+        digits; a ^A repeat of a menu-picked spell 53-58 did
+        nothing, and of 59-62 cast spells 1-4 instead.
+      - Menus: tty turns a digit that is a selector on the current
+        page into MENU_EXPLICIT_CHOICE before the count switch;
+        curses, X11 and Qt also match the selector first. A digit
+        typed on a page that does not show it starts a count, as on
+        master. Windows GUI: PLATFORM PARITY item (8).
+      - REVIEW: PASS, no HIGH / MED. Round trip verified for 0..61
+        in a scratch harness, and every range string for 1..63.
+        LOWs: the Windows GUI menu (-> PLATFORM PARITY (8)) and
+        d2e1627ff's other hunks (-> the dotele() row below). NITs
+        recorded: curses' selectors[] is per page; `= { { 0 },
+        MAXSPELL }` could replace `inited` (master's shape kept).
+      - BATTERY (two game-testers split by binary, pre-staged -d
+        copies; PRE 3aa5a6c1 = e6d3cb9a8 code, POST 8cc2cf59 =
+        installed; lever = gdb fills of svs.spl_book with otyps
+        447+i). Every claim PASS on both builds; paniclogs absent.
+        - spell_let_to_idx() for a z A Z 0 9 [ ?: POST 0 25 26 51
+          52 61 -1 -1; PRE the digits -1.
+        - Traditional prompt at 52 / 53 / 56 / 62 spells: POST
+          a-zA-Z, a-zA-Z0, a-zA-Z0-3, a-zA-Z0-9; PRE a-zA-Z,
+          a-zA-[, a-zA-^, a-zA-d. Typing 3: POST cast barkskin and
+          ^A cast it again; PRE "You don't know that spell."
+        - tty menu, last page: POST 0..9, and 3 / 7 then ^A cast
+          barkskin / stoneskin twice each (Pw charged every time).
+          PRE: ^ (barkskin) then ^A did nothing; b (stoneskin) then
+          ^A cast magic missile, and with no direction in the
+          repeat queue the hero shot themself ("cmdassist: Invalid
+          direction key!", "The magical energy is released!  Idiot!
+          You've shot yourself!"), twice.
+        - Swap prompt: POST "swap '0' with" (a swap and back checked
+          by gdb); PRE "swap '[' with".
+        - Learn at 52 known: POST 'You add the "orb of fire" spell to
+          your repertoire, as '0'.'; PRE as '['.
+        - curses (4 pages): POST 0..9, and 3 then ^A cast barkskin
+          twice; PRE the punctuation letters.
+        - Side observation: a curses popup-border residue on both
+          builds, from before any spell code ran (PRE step
+          captures) -> the curses popup border residue row below.
 - [ ] MED: a known scroll of enchant armor lets you choose the worn
       armor (NEW, minted 2026-10-09 by the hero spell parity A
       reviewer's hunk audit, session 200). Master 9e66945b6's read.c
@@ -9750,11 +9807,54 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       loop; the branch's seffect_enchant_armor() has only the
       barding y/n and some_armor(). Use a worn-armor getobj callback
       like the spell's repair_armor_ok().
-- [ ] LOW: tport_spell() guards (NEW, minted 2026-10-09 by the hero
-      spell parity A reviewer's hunk audit, session 200). Master
-      ccf51af86 (BUG-757) added the lazy `tport_indx = MAXSPELL` init
-      and guards before tport_spell() writes spl_book; the branch
-      lacks both. Defensive.
+- [x] LOW: tport_spell() guards PORTED 2026-10-10 (session 206;
+      BUG-2250, with BUG-2251 for dotelecmd(); code TBD, tracker TBD;
+      detail and plan in the spell letters row above).
+      - tport_spell() takes master ccf51af86's lazy `static boolean
+        inited` (tport_indx = MAXSPELL on the first call) and the
+        `tport_indx >= MAXSPELL` -> NOOP_SPELL guards before the
+        UNHIDESPELL and REMOVESPELL writes. dotelecmd() takes master
+        d2e1627ff's (BUG-777) explicit dispatch, with impossible()
+        when both are set, in place of `tport_spell(added + hidden -
+        NOOP_SPELL)`. Every paired sequence m^T can produce passes
+        the guards (reviewer trace).
+      - BATTERY: a first call `print tport_spell(3)` in a fresh
+        process: PRE wiped spl_book[0] (count 2 -> 0, "You don't
+        know any spells right now."), POST no change. A first
+        `tport_spell(4)` with teleport away at index 40: PRE zeroed
+        slot 40 (count 62 -> 40), POST no change. Both returned 0.
+        m^T s / n / t left the list identical on both builds (POST s
+        teleported after a gdb Expert escape skill; PRE s failed 8 of
+        8 at Unskilled, list intact).
+- [ ] LOW: dotele()'s vault-trap path reads a freed trap pointer
+      (NEW, minted 2026-10-10 by the spell letters reviewer, session
+      206; verified). Master d2e1627ff (BUG-770) replaced dotele()'s
+      reuse of `trap` after the "Jump in?" `deltrap(trap)` with an
+      explicit vault_accepted boolean. The branch still tests the
+      freed pointer's value: `if (trap) You(... "onto the
+      teleportation trap.")`, `if (!trap && !break_the_rules)` and
+      `if (trap && trap_once)`. Nothing is dereferenced (trap_once
+      short-circuits the teledest read), so it is formally UB only.
+      Shared with Official_nh50, which has the same "Jump in?" shape
+      (the master archive's note that 3.7 lacks the prompt is
+      wrong). The same commit's BUG-776 (teleport_pet() goto
+      restructure) is cosmetic and not carried; BUG-773 / 775 do not
+      apply to the 5.0 text; BUG-771 / 772 / 774 are handled. Port:
+      master's boolean.
+- [ ] LOW: curses leaves a popup border beside the perm_invent panel
+      (NEW, minted 2026-10-10 by the spell letters battery, session
+      206; needs a trace; master parity unknown). In an 80x24
+      curses game with the perm_invent panel showing, dismissing the
+      last "Welcome to experience level 30." message after a
+      #levelchange 30 drain (about 59 ">>" continuations) leaves a
+      grey '|' at row 2 and magenta (35) '*' at rows 3-21 of column
+      54, the panel's left edge, plus row 22 = 17 grey '-' then 37
+      magenta '*'. Magenta is DIALOG_BORDER_COLOR, the popup box()
+      colour (curswins.c). ^R, menus over it, casts and the quit
+      screens do not clear it. Seen on both builds in every curses
+      game (PRE 3aa5a6c1 step captures in session 206's scratchpad
+      pre-p11-*.txt); absent right after the tutorial prompt. tty
+      is unaffected.
 - [ ] LOW: bhitm()'s tail after the target left the level (NEW,
       minted 2026-10-09 by the hero spell parity A slice, session
       200; needs a reproduction). Dispel evil's banish now angers /
@@ -26784,7 +26884,15 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       sys/vms/Makefile_src.vms (link failures there). (7)
       win/win32/mswproc.c ~2931 `1L << ci` with ci = 31 (BL_MASK_BITS
       is now full at 32) is undefined on a 32-bit long - use 1UL; any
-      further condition needs a wider mask type.
+      further condition needs a wider mask type. (8) (added
+      2026-10-10, session 206 reviewer, verified) the Windows GUI
+      menu (win/win32/mhmenu.c, the WM_CHAR handler) runs its
+      `isdigit(ch)` count branch before the accelerator match, so a
+      digit selector cannot be typed: the spell menu's '0'..'9'
+      (spells 53-62, BUG-2249) are mouse / arrow+Enter only there.
+      tty, curses, X11 and Qt match the selector first. Shared with
+      upstream (no vanilla menu uses digit selectors); fix by testing
+      for an exact selector match before starting a count.
       RULED 2026-10-04 (session 177 follow-up, decisions log):
       install ALL FOUR toolchains on this host - X11 dev packages,
       Qt6 dev packages, the DJGPP MS-DOS cross-compiler and the Amiga
@@ -26794,7 +26902,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       are system changes: ask before running apt / the fetch script.
       Plannable as slices: (a) toolchain installs + a baseline build
       of each port as it stands, (b) X11 + Qt Slow/Wither + Guidebook
-      lists, (c) CI jobs + item (6)'s project files + item (7),
+      lists, (c) CI jobs + item (6)'s project files + items (7)
+      and (8),
       (d) TILE-ART DRIFT (MS-DOS, X11 and Windows tiles depend on it).
 
 - [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
