@@ -3944,6 +3944,13 @@ mk_gen_ok(int mndx, unsigned mvflagsmask, unsigned genomask)
     if (!Role_if(PM_INFIDEL)
         && (ptr == &mons[PM_AGENT] || ptr == &mons[PM_CHAMPION]))
         return FALSE;
+    /* vampire mages are too strong for Mines' End */
+    if (Is_mineend_level(&u.uz) && ptr == &mons[PM_VAMPIRE_MAGE])
+        return FALSE;
+    /* master mind flayers and alhoons are too strong for the Mines */
+    if (In_mines(&u.uz)
+        && (ptr == &mons[PM_ALHOON] || ptr == &mons[PM_MASTER_MIND_FLAYER]))
+        return FALSE;
 #ifdef MAIL_STRUCTURES
     /* special levels might ask for random demon type; reject this one */
     if (ptr == &mons[PM_MAIL_DAEMON])
