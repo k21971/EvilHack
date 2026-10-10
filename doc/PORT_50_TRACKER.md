@@ -17,14 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-09, after session 204): 346
+- Phase 2 status (refreshed 2026-10-10, after session 205): 347
   rows closed, 112 open. Of the open rows:
   - 0 HIGH.
-  - 7 MED: unported master features (terrain concealment,
+  - 6 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, spell
     letters past 52 spells, choosing the worn armor a known
-    enchant armor scroll hits, stone to flesh's monster extras,
-    mk_gen_ok()'s two Mines generation gates).
+    enchant armor scroll hits, stone to flesh's monster extras).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -35,7 +34,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 89 LOW: small parity rows, quirks and watch/record-only items.
+  - 90 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -158,24 +157,27 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     data.base critical healing text and disguised-mimic cure naming
     rows; session 202 the dwarf starting pick-axe skill row (MED)
     and the failed-restore race override row; session 204 the
-    mk_gen_ok() Mines generation gates row (MED).
+    mk_gen_ok() Mines generation gates row (MED); session 205 the
+    corpse_chance() alhoon / Kas crumble row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-09 (session 204) #TURN'S UNDEAD LADDER
-  TAKES MASTER'S STEPS (code TBD, tracker TBD; BUG-2247).
-  - Skeletons and alhoons could only be made to flee. They now sit
-    on master's live ladder: zombie 6, skeleton 8, mummy 10, wraith
-    12, vampire 14, ghost 16, lich / alhoon 18 (ruled).
-  - The confused #turn keeps master's mstone guard.
-    Closes the MED #turn ladder row.
-  - Minted: the MED mk_gen_ok() Mines generation gates row.
-  - Detail: the closed #turn ladder row.
-- Previous slice: 2026-10-09 (session 203) A DWARF'S RACIAL
+- Latest slice: 2026-10-10 (session 205) NO MASTER MIND FLAYERS
+  OR ALHOONS IN THE MINES, NO VAMPIRE MAGES AT MINES' END (code
+  TBD, tracker TBD; BUG-2248).
+  - mk_gen_ok() regains master's two class-pick gates, so the
+    Mines' "h" and the Catacombs' "V" picks match master again.
+    Closes the MED mk_gen_ok() Mines generation gates row.
+  - Minted: the LOW corpse_chance() alhoon / Kas crumble row.
+  - Detail: the closed mk_gen_ok() row.
+- Previous slice: 2026-10-09 (session 204) #TURN'S UNDEAD LADDER
+  TAKES MASTER'S STEPS (code 70b24f8e9, tracker 6acb23402;
+  BUG-2247); detail in the closed #turn ladder row.
+- Earlier slices: 2026-10-09 (session 203) A DWARF'S RACIAL
   PICK-AXE TRAINS NO STARTING SKILL (code e997233c2, tracker
-  f396b14e6; BUG-2246); detail in the closed dwarf pick-axe row.
-- Earlier slices: 2026-10-09 (session 202) NO STARTING STAT ABOVE
+  f396b14e6; BUG-2246; detail in the closed dwarf pick-axe row);
+  2026-10-09 (session 202) NO STARTING STAT ABOVE
   THE RACE'S MAXIMUM (code 455fb89a2, tracker ee4292703;
   BUG-2245; detail in the closed init_attr() row);
   2026-10-09 (session 201) THE HEALING SPELLS TAKE
@@ -9587,7 +9589,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arm handles disguises through disguised_mimic /
       mimic_hit_msg(). Needs a sick mimic that hid again.
 - [x] MED: #turn's undead ladder takes master's steps PORTED
-      2026-10-09 (session 204; BUG-2247; code TBD, tracker TBD; plan
+      2026-10-09 (session 204; BUG-2247; code 70b24f8e9, tracker
+      6acb23402; plan
       /root/.claude/plans/stateless-snuggling-kettle.md).
       - maybe_turn_mon_iter() now has master's three pray.c hunks,
         written in 5.0's FALLTHROUGH idiom:
@@ -9664,24 +9667,73 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master's `!mstone || mstone > 2` guard (the guard the branch
       keeps at its other paralysis sites). Different command and
       battery from the spell.
-- [ ] MED: mk_gen_ok() lacks master's two Mines generation gates
-      (NEW, minted 2026-10-09 by the #turn ladder reviewer, session
-      204; verified in the main context). Master's mk_gen_ok()
-      (makemon.c) refuses PM_VAMPIRE_MAGE on Is_mineend_level()
-      (52d0e27de, "prevent vampire mages from spawning in Mines End
-      catacombs") and PM_ALHOON / PM_MASTER_MIND_FLAYER anywhere
-      In_mines() (0c6a876a9). Both are 2020 gameplay fixes. The
-      branch's mk_gen_ok() has the ice nymph and Agent / Champion
-      gates but neither of these, and nothing else in makemon.c
-      gates them. No tracker row, archive entry or branch commit
-      covers them. They are reachable through mkclass() class picks
-      in level content: minefill.lua's `percent(50) and "h"`,
-      minend-1 / minend-2's `"h"`, and minend-3's (Catacombs) `"V"`.
-      The master mind flayer is not G_HELL, so only mkclass()'s
-      toostrong rolls limit it. The alhoon is G_HELL (8 in 9 masked
-      outside Gehennom). Port verbatim into 5.0's mk_gen_ok().
-      Battery: wizard-mode #wizgenesis or a des.monster class pick
-      on a Mines level and in the Catacombs, PRE vs POST counts.
+- [x] MED: mk_gen_ok() regains master's two Mines generation gates
+      PORTED 2026-10-10 (session 205; BUG-2248; code TBD, tracker
+      TBD; plan /root/.claude/plans/dynamic-sniffing-parrot.md).
+      - mk_gen_ok() now refuses PM_VAMPIRE_MAGE on
+        Is_mineend_level() (master 52d0e27de) and PM_ALHOON /
+        PM_MASTER_MIND_FLAYER anywhere In_mines() (master
+        0c6a876a9). The logic is master's, in master's order (after
+        the Agent / Champion gate, before the MAIL_STRUCTURES block),
+        with a comment above each gate. Plain mind flayers stay
+        allowed. rndmonst() stays ungated, as on master.
+      - Reach: every mk_gen_ok() consumer. That covers the Lua class
+        picks (sp_lev.c mkclass(class, G_NOGEN): minefill.lua's "h",
+        minend-1 / minend-2's "h", minend-3's two "V"), ^G with a
+        class letter, and mkclass_poly() (polycontrol class picks,
+        mon.c newcham). Master gates all of these the same way.
+      - CENSUS: at Mines' End the "V" class keeps the vampire
+        sovereign / noble / royal (G_VLAD, not genocidable before
+        Vlad dies), and the "h" class keeps ten species anywhere in
+        the Mines. No caller gets a new NULL / NON_PM.
+      - REVIEW: PASS, no HIGH / MED. NIT folded: the second comment
+        now stands alone. LOW side find verified in the main context
+        and MINTED as the corpse_chance() crumble row below.
+      - BATTERY (two game-testers split by binary, pre-staged -d
+        copies; PRE 9a0bdf37 = 6acb23402 code, POST 1583da9e; the
+        final binary 3aa5a6c1 differs only by the build-time
+        string). Every claim PASS; paniclogs absent. The lever was
+        gdb `u.uhave.amulet = 1` after a visit to depth 46, which
+        made level_difficulty() 46. Alhoon counts also needed G_HELL
+        cleared (mons[74].geno &= ~0x0400). Counts are per 2000
+        gdb mkclass() calls:
+        - POST Mines:2 "h": 0 master mind flayer, 0 alhoon, 122
+          mind flayers. Mines' End: 0 / 0 for "h", and "V" gave 0
+          vampire mages with sovereign / noble / royal all present.
+          The Mines:2 "V" control gave 264 vampire mages. The D:10
+          control gave master mind flayer 113, alhoon 37 and
+          vampire mage 225.
+        - PRE: Mines:2 "h" gave master mind flayer 108 and alhoon
+          66. Mines' End gave vampire mage 229 and master mind
+          flayer 124. D:10 had the same shape as on POST.
+        - mkclass_poly(): POST in the Mines gave 0 master mind
+          flayers and 0 alhoons, and 0 vampire mages at Mines' End.
+          On D:10 it gave master mind flayer 84. PRE gave master
+          mind flayer about 100 and vampire mage about 500 on every
+          level.
+        - The real ^G path ("50 peaceful h" on Mines:2): POST
+          made 50 monsters with no master mind flayer or alhoon;
+          PRE made 4 master mind flayers.
+        - Natural rate with no lever: PRE "V" on Mines:2 gave
+          vampire mage 58 in 2000 (2.9%). POST lever-off at Mines'
+          End gave 0.
+- [ ] LOW: corpse_chance() lacks master's alhoon / Kas crumble arm
+      (NEW, minted 2026-10-10 by the mk_gen_ok() reviewer, session
+      205; verified in the main context). Master's corpse_chance()
+      (mon.c) tests `mdat == &mons[PM_VLAD_THE_IMPALER] ||
+      mdat->mlet == S_LICH || mdat == &mons[PM_ALHOON] || mdat ==
+      &mons[PM_KAS]` and prints "<Mon>'s body crumbles into dust."
+      when the hero can see it and was not swallowed (alhoon added
+      in 5f3ddfd0d, Kas in 08770110a). The branch's corpse_chance()
+      has only Vlad and S_LICH. Both monsters are G_NOCORPSE, so
+      only the message is lost. Master's xkilled() calls
+      corpse_chance() with no G_NOCORPSE pre-check, so the line is
+      live there. The only earlier mention was the artifacts
+      slice's deferral list ("corpse_chance minsects/alhoon-Kas-
+      crumble/open-air arms"). The minsects and open-air arms
+      landed; this one never got a row. Port: add the two terms to
+      the branch's condition. Battery: kill a seen alhoon and Kas
+      on both builds.
 - [ ] MED: spell letters past 52 spells (NEW, minted 2026-10-09 by
       the hero spell parity A reviewer's hunk audit, session 200).
       Master ccf51af86 (BUG-761) gave spellet() a third tier (digits)
