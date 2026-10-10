@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-10, after session 208's
-  rulings): 355 rows closed, 108 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-10, after session 209's vine-hold
+  slice): 361 rows closed, 107 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -33,7 +33,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 88 LOW: small parity rows, quirks and watch/record-only items.
+  - 87 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -49,12 +49,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     grounds the pair) and the other silent hold clears row (tell it
     after the event, per site; gulpmu()'s "trap" wording with it);
     the other five landed in session 190. Ruled 2026-10-10 (session
-    208 follow-up), all plannable: session 190's hold census - the
-    #kick-while-held row, opening magic on vines, whirly / unsolid
-    forms slipping vines, terrain changes under a tree-held hero (and
-    a tree dying mid-hold), cast_entangle() over a pit / web / bear
-    trap, burying the ball over another hold, and stairs while
-    entangled. Also ruled then, plannable: the vampshifter
+    208 follow-up): session 190's hold census - six of its seven rows
+    landed in session 209 (BUG-2257..2265); the seventh, burying the
+    ball over another hold, was split to its own slice (a saved
+    pending-tether flag; plannable). Session 209 minted five LOW rows
+    (a pit inside a standing tree, a polymorphed monster staying
+    entangled, a grass hold outliving its grass, the stale m-prefix
+    pit line, the aloft float_down() wording). Also ruled then,
+    plannable: the vampshifter
     hunger-penalty row (clear it on form change), the trap-kit G_ ids
     row ("unset "), the "extremely toxic" floor row (never raise a
     lower max), the power word kill life-save row (take the turn),
@@ -21716,7 +21718,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       grip on you." (a hero caught in the air keeps "branches" both
       times); rejected storing the cast's word and keeping master's
       rolls. Plannable.
-- [ ] LOW: #kick while held is a silent no-kick (minted 2026-10-07,
+- [x] LOW: #kick while held (BUG-2257) - FIXED 2026-10-10 (session
+      209, commit pending; closure notes in BUGFIXES_ARCHIVE): vines,
+      floor, chain and lava all say "You can't move your leg!"
+      (singular, the existing line); master's TT_LAVA arm restored.
+      Original text: LOW: #kick while held is a silent no-kick
+      (minted 2026-10-07,
       session 190, Plan agent census; master- and upstream-shared
       except the lava arm). dokick.c dokick()'s hold switch says "You
       can't move your legs!" for a web or bear trap only; vines, a
@@ -21731,7 +21738,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       floor and buried-ball chain holds join "You can't move your
       legs!"; master's lost TT_LAVA arm is restored with them.
       Plannable.
-- [ ] LOW: opening magic on an entangled hero (minted 2026-10-07,
+- [x] LOW: opening magic on vines (BUG-2258) - FIXED 2026-10-10
+      (session 209, commit pending): "You are released from the
+      tree's grip." / "...the vegetation."; a no-lift hero held over
+      a drop falls (deferred LANDING_SPOT). The Bell reaches the hero
+      only through a trap on the square (vanilla shape, recorded).
+      Original text: LOW: opening magic on an entangled hero
+      (minted 2026-10-07,
       session 190, Plan agent census; master-shared). trap.c
       openholdingtrap() (a wand of opening or knock at self, the Bell
       of Opening) has no TT_ENTANGLED arm: "You are released from the
@@ -21747,7 +21760,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       magic frees vines, with the vegetation wording of the drop_ball()
       ruling; a release over a hole, open air or water then falls /
       lands the way allmain's release-drop does. Plannable.
-- [ ] LOW: polymorphing into a whirly, unsolid or wall-passing form
+- [x] LOW: polymorph slips the vines (BUG-2259) - FIXED 2026-10-10
+      (session 209, commit pending): "You slip free of the tree's
+      grip." / "...vegetation." for amorphous, whirly, unsolid and
+      wall-passing forms; both cast_entangle() arms refuse amorphous
+      forms (the monster arm ruled in session 209).
+      Original text: LOW: polymorphing into a whirly, unsolid or
+      wall-passing form
       while entangled keeps the hold (minted 2026-10-07, session 190,
       Plan agent census; master-shared). cast_entangle() refuses those
       forms, but polymon()'s release block frees only floor, lava,
@@ -21760,7 +21779,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       with a "You slip free of the vegetation."-style line (wording
       shown before landing), and cast_entangle() also refuses amorphous
       forms. Plannable.
-- [ ] LOW: terrain changes under a tree-held hero replace or drop the
+- [x] LOW: terrain changes keep a tree's hold; a dying tree lets go
+      (BUG-2260, BUG-2261; BUG-2264 the hurl) - FIXED 2026-10-10
+      (session 209, commit pending): u_tree_held() exempts the hold in
+      deltrap_with_ammo() / delfloortrap() / do_pit() / digactualhole()
+      / flooreffects() / trapeffect_pit(); tree_gone_release() at every
+      live-tree removal (fire, death ray, axe, zap_dig both arms,
+      mdig_tunnel, dighole and the broken wand's floods). Released over
+      a pit the hero stands at its edge. D4 (gdb DEADTREE) is the
+      dying-tree case.
+      Original text: LOW: terrain changes under a tree-held hero
+      replace or drop the
       vines (minted 2026-10-07, session 190, Plan agent census;
       master-shared). The branches hold the hero in place, but: an
       earthquake (music.c) reads the blocked lift as grounded, says
@@ -21786,7 +21815,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       tree is adjacent (exempt, like the buried ball). A tree that dies
       mid-hold releases the hero with a message and the normal landing
       or fall. Plannable.
-- [ ] LOW: cast_entangle() silently replaces a pit, web or bear-trap
+- [x] LOW: the cast refuses over any hold (BUG-2262) - FIXED
+      2026-10-10 (session 209, commit pending): "The spell fails to
+      entangle you." over a pit, web or bear trap too.
+      Original text: LOW: cast_entangle() silently replaces a pit,
+      web or bear-trap
       hold (minted 2026-10-07, session 190, Plan agent census; master
       refuses no hold at all). The branch refuses only lava, floor and
       buried-ball holds, so vines cast on a hero in a bear trap free
@@ -21813,7 +21846,22 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       existing hold stays; the ball is still buried and its chain
       applies once that hold ends. A branch fix over master / vanilla
       parity. Plannable.
-- [ ] LOW: '<' / '>' leave a stair while entangled (minted 2026-10-07,
+      SPLIT 2026-10-10 (session 209, AskUserQuestion): its own slice.
+      Nothing records a pending tether (TT_BURIEDBALL is the only
+      marker; buried_ball() finds the ball by proximity), so the ruled
+      shape needs a saved flag in struct you plus hooks at ~15 sites:
+      departures (teleds, level_tele x2, goto_level, mklev), unpunish
+      paths (remove curse x2, prayer x2, apply, nymph theft, polymorph
+      slips), digactualhole(), the earthquake chain-break, unearthing
+      and buried_ball()'s search test. Until then bury_an_obj() keeps
+      BUG-2182's shape (the chain replaces the branches). Plannable.
+- [x] LOW: '<' / '>' while entangled (BUG-2263) - FIXED 2026-10-10
+      (session 209, commit pending): every '<' / '>' is refused with
+      "You are entangled by a tree." / "...by vegetation." (stairs,
+      the hole plunge BUG-2167 allowed, the water exit); ruled in
+      session 209. '>' still ends controlled levitation.
+      Original text: LOW: '<' / '>' leave a stair while entangled
+      (minted 2026-10-07,
       session 190, Plan agent census; EvilHack-only: vanilla holds
       never sit on stairs, but vines need only a tree adjacent).
       doup() / dodown() test only TT_PIT, so an entangled hero on a
@@ -21823,6 +21871,47 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-10 (session 208 follow-up; decisions log): refuse
       '<' / '>' with trapmove()'s "You are entangled by a tree.".
       Plannable.
+- [ ] LOW: a broken wand of digging or digactualhole() leaves a pit
+      inside a standing tree (minted 2026-10-10, session 209, Plan
+      agent; pre-existing, master-shared). do_break_wand()'s non-liquid
+      arm (dig_check(BY_OBJECT) passes a diggable TREE) and dighole()
+      for a tree-walker standing in a tree reach digactualhole(), and
+      maketrap(PIT) has no TREE case: the tree stays and a pit sits
+      inside it. Decide: clear the tree first (ROOM, with
+      tree_gone_release()) or refuse the square. LOW (needs a ruling).
+- [ ] LOW: a monster that polymorphs while entangled stays entangled
+      (minted 2026-10-10, session 209, Plan agent; master-shared).
+      newcham() never clears mentangled / mentangletime, so a monster
+      turning amorphous, whirly, unsolid or wall-passing keeps a hold
+      cast_entangle() refuses it (the hero slips free since BUG-2259).
+      Decide: clear it on such a form, with a seen-monster line. LOW
+      (needs a ruling).
+- [ ] LOW: a grass hold outlives its grass (minted 2026-10-10, session
+      209, Plan agent + reviewer; master-shared). With no live tree
+      adjacent the hold is the square's (BUG-2260's model), yet it
+      lasts when the grass goes: fire burns GRASS to floor
+      (zap_over_floor()), a herbivore hero eats it (eat.c), dighole()'s
+      liquid arm or do_break_wand()'s flood turns it to water (then
+      pooleffects()' TT_ENTANGLED guard keeps the hero up over the new
+      water). Decide: end the hold with the grass, and its line. LOW
+      (needs a ruling on the wording).
+- [ ] LOW: a forced pit after an m-prefixed command reads "You
+      carefully lower yourself into the pit." (minted 2026-10-10,
+      session 209, both battery testers; upstream-shared,
+      Official_nh50 trapeffect_pit()). iflags.menu_requested is cleared
+      only at the next rhack(), so monster moves after an m-prefixed
+      command see it: a pit fiend's hurl read "...hurls you down to the
+      bottom!  You carefully lower yourself into the pit.". Trace which
+      forced-trap paths read it, then clear or ignore it there.
+      Upstream-reportable once traced. LOW (needs a trace).
+- [ ] LOW: ending levitation while branch-held in the air reads "You
+      are no longer trying to float up from the entangling vegetation."
+      (minted 2026-10-10, session 209, fold battery; master-shared
+      wording). float_down()'s blocked arm names TT_ENTANGLED
+      "entangling vegetation" even for a hero a tree's branches hold
+      aloft; BUG-2175's float_up() line already says "entangled by a
+      tree". Decide the wording (e.g. "...from the tree's grip" when
+      nexttotree()). LOW (needs a ruling).
 - [ ] LOW: a starting kitten turned untame and peaceful with no hero
       interaction (minted 2026-10-06, session 188, battery B anomaly on
       the POST build; seen once, not traced). Between T:16 and T:18 the
@@ -27703,6 +27792,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-10 | dig.c dig()'s bear-trap arm (Official_nh50 src/dig.c ~392-410, `BEAR_TRAP && u.utrap`) runs for ANY hold, and its "You destroy the bear trap with ..." branch calls reset_utrap(TRUE) after deltrap(): a hero chained to a buried iron ball (TT_BURIEDBALL) standing on an armed bear trap who digs down is freed from the tether silently, the ball left buried. Fix: reset only when u.utraptype == TT_BEARTRAP (branch BUG-2265). | found (branch-fixed); not yet sent |
 | 2026-10-09 | Experience level changes while polymorphed, shared with Official_nh50 (all three reproduced in wizard mode on the branch's pre-fix build): (1) exper.c losexp() at XL1 (divine anger, or a fatal drain survived by life-saving or a declined Die?) falls through to `u.uhpmax -= u.uhpinc[1]` and the u.ueninc[1] loss although that level's gain is already gone, and while polymorphed also takes monhp_per_lvl() off the form - a polymorphed Unchanging hero is killed a second time inside the same call (fix: remember the level on entry, adjust only when a level was lost); (2) end.c savelife() restores a form to min(u.mhmax, givehp) with no lower bound, so a form whose max losexp() drove to 0 or below (or Death's touch / Vecna's gaze floored at min(mlevel, ulevel) = 0) comes back at 0 or less under an amulet of unchanging and dies at its next hurt, every turn for an eel form (fix: give the form a minimum max, max(2 * mlevel, 10)); (3) exper.c pluslvl()'s polymorphed arm `u.mh += hpinc; setuhpmax(u.mhmax, FALSE);` never raises the form's max (e9a25a0a1 dropped the increment; fix: `setuhpmax(u.mhmax + hpinc, FALSE)`) | fixed on branch (BUG-2224, BUG-2225, BUG-2227, session 198); patch artifact ~/nh50-losexp-savelife-pluslvl.patch (applies clean to 15fbc6b21); not sent |
 | 2026-10-08 | potion.c potion_dip()'s polymorph arm (Official_nh50 src/potion.c ~2487, the "obj might be gone" arm) leaves the potion of polymorph unconsumed, with in_use set, when a worn amulet becomes an amulet of change | fixed on branch (BUG-2189, e338a46e4, session 191); no patch artifact yet; not sent |
 | 2026-10-07 | A held levitator or flyer dies in the sky, shared with Official_nh50: teleport.c level_tele()'s negative-level arm tests Levitation / Flying while a hold (bear trap, web, lava, floor) still blocks them through float_vs_flight(), so a hero in a bear trap wearing a ring of levitation who level-teleports to -5 reads "Unfortunately, you don't know how to fly." and plummets, though the hold cannot follow the teleport (fix: `if (u.utrap) reset_utrap(FALSE);` first in the arm - every path out of it ends the game); the same arm prints the joke for a hero whose flight is only held down | fixed on branch (BUG-2178); drop-in patch; not sent |
@@ -27894,6 +27984,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-10 | Vine-hold census slice rulings (session 209; AskUserQuestion x3, all recommended): the bury-the-ball row is SPLIT to its own slice (a saved pending-tether flag plus ~15 buried-ball hooks; bury_an_obj() keeps BUG-2182's shape until then); the new wording set ("You slip free of the tree's grip." / "...vegetation.", "You are released from the tree's grip." / "...vegetation.", a dying tree reuses moveloop's release lines); cast_entangle()'s MONSTER arm refuses amorphous forms too (one form list for both arms); EVERY '<' / '>' is refused while entangled, the hole plunge included (supersedes BUG-2167's TOOKPLUNGE carve-out); a pit fiend's hurl RIPS the hero free with "You are torn from the tree's grip!" (other holds keep vanilla's silent reset). Kept for master parity after the narrow re-review: dig()'s 2-in-7 "You hit yourself in the foot." for any held hero over a bear trap. | maintainer |
 | 2026-10-10 | Ruling round (session 208 follow-up; AskUserQuestion x5, seventeen questions; rulings recorded only, no code). KEPT 5.0, rows closed with no code change, each over my recommendation: booze confusion d(2 + u.uhs, 8) (over master's d(3, 8)); the diluted-stack mix yield cap of 2 (over master's whole stack); the hallucination potion's resistance early return and enlightenment roll (over master's shape); losestr()'s 3-6 per point through losehp() with 5.0's floors (over a hybrid of master's flat 6 with 5.0's safety). RULED, plannable: the "extremely toxic" poison floor keeps 5.0's order and max(XL, 3) floor but never raises a lower max (recommended); power word kill on a life-saved target takes the turn and trains the skill (recommended); a helpful gesture never runs bhitm()'s shopkeeper hot_pursuit() (recommended; branch fix over master / vanilla); the CODE follows data.base - critical healing's 1-in-4 cure rider needs Skilled (over my recommended text fix; diverges from master); #kick while held by vines / floor / chain says "You can't move your legs!" (recommended); opening magic frees vines with the vegetation wording and the release-drop (recommended); whirly, unsolid, wall-passing and amorphous forms slip vines on polymorph and the cast refuses amorphous forms too (recommended); a vine hold is the tree's - terrain changes keep it while its live tree is adjacent, a dying tree releases with a message and landing (recommended); cast_entangle() refuses over a pit, web or bear trap (recommended); burying the ball keeps the existing hold (recommended; branch fix over master / vanilla); '<' / '>' refused while entangled (recommended); trap-kit object glyph ids take the "unset " prefix (recommended); newcham() clears a vampshifter pet's mhpmax_penalty (recommended; master-shared gap). | maintainer |
 | 2026-10-10 | Ent stoning / stone to flesh slice rulings (session 208; AskUserQuestion x2, four questions, all recommended). (1) INTENT FORM FOR THE HERO SITES: master f1d39f476's stoning half is ported with mondata.c stoned_form() picking the stone form by body (true ent -> petrified ent, golem -> stone golem) at all 17 hero sites and in polymon()'s Stoned arm. Master tries polymon(PM_STONE_GOLEM) first, so a stoned hero ent becomes a stone golem (stone golems lack G_GENO, so its petrified ent fallback never runs); BUG-2254, frozen-unfixed. Rejected: master's exact order; a stone-to-flesh-only slice with a row for the stoning half. (2) b41949570's zap_steed() SPE_STONE_TO_FLESH line DEFERRED to the Hdgn-slice riders row (a) beside the mstone cure: no branch steed can be affected (golems and ents can't be saddled, mstone has no producer), so alone it would only stop a downward cast reaching the floor while riding. Rejected: port it now for parity. (3) ONLY TRUE ENTS PETRIFY: poly_when_stoned() / mon_to_stone() use is_true_ent() (ent, elder ent), matching the commit and the wiki; master's is_ent() also turns tree blights and the Gulthias tree into petrified ents (BUG-2255, frozen-unfixed). Rejected: master's whole S_ENT class. (4) BEYOND MASTER: a petrified ent statue or figurine hit by stone to flesh revives as an ent, mirroring the golem -> flesh golem rule ("turns into wood" / "The figurine turns to wood and animates!"); master revives a petrified ent. Rejected: master parity. Plan-approved, no question: the reviewer's MED (make_corpse()'s petrified ent death statue, f1d39f476's fourth piece) folded as master parity; its LOW folded under ruling (4): an ent that can't be made (genocided, or no room) leaves the statue / figurine alone, as a golem's is. | maintainer (rulings); session, plan-approved (rest) |
 | 2026-10-10 | Enchant armor choice slice ruling (session 207; AskUserQuestion x1, recommended). EMBEDDED ARMOR IS NEVER A CHOICE, FOR BOTH CALLERS: do_wear.c worn_armor_ok() (the getobj callback shared by a known scroll of enchant armor and a Basic repair armor cast) excludes uskin, which keeps its slot bit plus I_SPECIAL after polyself()'s do_merge. A known scroll that picked embedded scales re-entered do_merge (impossible "Already merged with some armor!", or system shock) and stretched the dragon form 1.5x per blessed read; an evaporating embedded suit hit "Removing embedded scales?". Master has the same hole and a wider reach (no count gate). Picking its letter now gives "That is a silly thing to enchant." / "...to magically repair."; count_worn_armor() and both random paths already ignored it. Rejected: a scroll-only exclusion that keeps master's harmless Basic repair of embedded armor, and treating the scroll pick as "Your skin glows then fades.". Plan-approved, no question: one shared choose_worn_armor() in place of a second copy of the spell's block; YN() for the barding query (^A replay). | maintainer (ruling); session, plan-approved (rest) |
