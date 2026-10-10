@@ -4517,12 +4517,17 @@ do_break_wand(struct obj *obj)
                  */
                 typ = fillholetyp(x, y, FALSE);
                 if (typ != ROOM) {
+                    boolean was_tree = IS_TREE(levl[x][y].typ);
+
                     levl[x][y].typ = typ, levl[x][y].flags = 0;
                     liquid_flow(x, y, typ, t_at(x, y),
                                 fillmsg
                                   ? (char *) 0
                                   : "Some holes are quickly filled with %s!");
                     fillmsg = TRUE;
+                    /* the flooded tree may have been holding the hero */
+                    if (was_tree)
+                        tree_gone_release(x, y);
                 } else {
                     digactualhole(x, y, BY_OBJECT,
                                   (rn2(obj->spe) < 3

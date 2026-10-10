@@ -423,7 +423,10 @@ dig(void)
                 You("destroy the bear trap with %s.",
                     yobjnam(uwep, (const char *) 0));
                 deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
-                reset_utrap(TRUE); /* release from trap, maybe Lev or Fly */
+                /* release from trap, maybe Lev or Fly; a buried ball's
+                   chain or a tree's grip isn't the trap's hold */
+                if (u.utrap && u.utraptype == TT_BEARTRAP)
+                    reset_utrap(TRUE);
             }
             /* we haven't made any progress toward a pit yet */
             svc.context.digging.effort = 0;
@@ -472,6 +475,7 @@ dig(void)
         struct obj *obj, *bobj;
         boolean shopedge = *in_rooms(dpx, dpy, SHOPBASE);
         boolean templeedge = *in_rooms(dpx, dpy, TEMPLE);
+        boolean felled_tree = FALSE; /* a live one */
         int digtyp = dig_typ(uwep, dpx, dpy);
 
         if (digtyp == DIGTYP_STATUE
@@ -533,6 +537,7 @@ dig(void)
                         digtxt = "You cut down the tree.";
                     }
                     lev->typ = ROOM, lev->flags = 0;
+                    felled_tree = TRUE;
                     if (!rn2(5))
                         (void) rnd_treefruit_at(dpx, dpy);
                 } else { /* dead tree; no fruit for you */
@@ -585,6 +590,9 @@ dig(void)
         feel_newsym(dpx, dpy);
         if (digtxt && !svc.context.digging.quiet)
             pline1(digtxt); /* after newsym */
+        /* the felled tree may have been the one holding the hero */
+        if (felled_tree)
+            tree_gone_release(dpx, dpy);
         if (dmgtxt)
             pay_for_damage(dmgtxt, FALSE);
 
@@ -716,6 +724,9 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             /* BY_OBJECT means the hero broke a wand, so blame her for it */
             heros_fault = (madeby_u || madeby_obj);
     boolean shopdoor, at_u = u_at(x, y), wont_fall = Levitation || Flying;
+    /* a live tree's branches or roots hold the hero where they are, over
+       the new pit or hole included; the hold is the tree's */
+    boolean tree_held = (at_u && u_tree_held());
     int old_typ, old_aligntyp = A_NONE;
 
     if (at_u && u.utrap) {
@@ -802,7 +813,9 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             wont_fall = TRUE;
 
         if (at_u) {
-            if (!wont_fall) {
+            if (tree_held) {
+                ; /* held above the pit */
+            } else if (!wont_fall) {
                 set_utrap(rn1(4, 2), TT_PIT);
                 gv.vision_full_recalc = 1; /* vision limits change */
             } else
@@ -824,7 +837,7 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             /* in case we're digging down while encased in solid rock
                which is blocking levitation or flight */
             switch_terrain();
-            if (Levitation || Flying)
+            if (Levitation || Flying || tree_held)
                 wont_fall = TRUE;
 
             /* check for leashed pet that can't fall right now */
@@ -1073,6 +1086,9 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
                 lev->typ = typ;
                 liquid_flow(dig_x, dig_y, typ, ttmp,
                             "As you dig, the hole fills with %s!");
+                /* a tree-walker dug out the tree that held the hero */
+                if (IS_TREE(old_typ))
+                    tree_gone_release(dig_x, dig_y);
             }
             retval = TRUE;
         } else {
@@ -1529,7 +1545,7 @@ boolean
 mdig_tunnel(struct monst *mtmp)
 {
     struct rm *here;
-    boolean trapped;
+    boolean trapped, felled_tree = FALSE;
     int pile = rnd(12);
 
     here = &levl[mtmp->mx][mtmp->my];
@@ -1606,6 +1622,7 @@ mdig_tunnel(struct monst *mtmp)
         }
     } else if (IS_TREE(here->typ)) {
         here->typ = ROOM, here->flags = 0;
+        felled_tree = TRUE;
         if (pile && pile < 5)
             (void) rnd_treefruit_at(mtmp->mx, mtmp->my);
     } else if (IS_DEADTREE(here->typ)) {
@@ -1619,6 +1636,9 @@ mdig_tunnel(struct monst *mtmp)
     newsym(mtmp->mx, mtmp->my);
     if (!sobj_at(BOULDER, mtmp->mx, mtmp->my))
         unblock_point(mtmp->mx, mtmp->my); /* vision */
+    /* the tree may have been the one holding the hero */
+    if (felled_tree)
+        tree_gone_release(mtmp->mx, mtmp->my);
 
     return FALSE;
 }
@@ -1837,6 +1857,7 @@ zap_dig(void)
                 if (!(room->wall_info & W_NONDIGGABLE)) {
                     room->typ = ROOM, room->flags = 0;
                     unblock_point(zx, zy); /* vision */
+                    tree_gone_release(zx, zy);
                 } else if (!Blind)
                     pline_The("tree shudders but is unharmed.");
                 break;
@@ -1853,6 +1874,8 @@ zap_dig(void)
                 break;
             }
         } else if (IS_OBSTRUCTED(room->typ)) {
+            boolean live_tree = IS_TREE(room->typ);
+
             if (!may_dig(zx, zy))
                 break;
             if (IS_WALL(room->typ) || room->typ == SDOOR) {
@@ -1877,6 +1900,9 @@ zap_dig(void)
                 digdepth--;
             }
             unblock_point(zx, zy); /* vision */
+            /* the tree may have been the one holding the hero */
+            if (live_tree)
+                tree_gone_release(zx, zy);
         }
         zx += u.dx;
         zy += u.dy;
@@ -2609,6 +2635,11 @@ create_pit_under(struct monst *mdef, struct monst *magr)
      * We have guaranteed that (x,y) now contains either a pit, spiked pit, or
      * hole */
     if (youdefend) {
+        /* the attack tears the hero out of entangling vegetation */
+        if (u.utrap && u.utraptype == TT_ENTANGLED)
+            You("are torn from the %s!", nexttotree(u.ux, u.uy)
+                                             ? "tree's grip"
+                                             : "vegetation");
         reset_utrap(FALSE);
         pline_mon(magr, "%s hurls you down%s!", Monnam(magr),
                   is_pit(trap->ttyp) ? " to the bottom" : "");

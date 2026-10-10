@@ -1481,6 +1481,22 @@ polymon(int mntmp)
         /* probably should burn webs too if PM_FIRE_ELEMENTAL */
         reset_utrap(TRUE);
     }
+    /* entangling vegetation can't hold a form that it could not have
+       caught (cast_entangle()) */
+    if (u.utrap && u.utraptype == TT_ENTANGLED
+        && (amorphous(gy.youmonst.data) || is_whirly(gy.youmonst.data)
+            || unsolid(gy.youmonst.data)
+            || passes_walls(gy.youmonst.data))) {
+        /* a tree's branches may have held the hero over a drop */
+        boolean held_over_drop = u_over_drop();
+
+        You("slip free of the %s.",
+            nexttotree(u.ux, u.uy) ? "tree's grip" : "vegetation");
+        reset_utrap(TRUE);
+        /* a new form with no lift falls once polymon() is done */
+        if (held_over_drop && !Levitation && !Flying && !u.uinwater)
+            defer_landing(LANDING_SPOT);
+    }
     if ((webmaker(gy.youmonst.data)
          || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW)))
         && u.utrap && u.utraptype == TT_WEB) {

@@ -826,10 +826,9 @@ fall_through(
     if (Sokoban && Can_fall_thru(&u.uz)) {
         ; /* KMH -- You can't escape the Sokoban level traps */
     } else if (Levitation || u.ustuck
-             /* entangling branches hold the hero over the hole; '>'
-                still plunges through on purpose */
-             || (u.utrap && u.utraptype == TT_ENTANGLED
-                 && !(ftflags & TOOKPLUNGE))
+             /* entangling branches hold the hero over the hole, a
+                deliberate plunge included ('>' refuses it, dodown()) */
+             || (u.utrap && u.utraptype == TT_ENTANGLED)
              || (!Can_fall_thru(&u.uz) && !levl[u.ux][u.uy].candig)
              || ((Flying || is_clinger(gy.youmonst.data)
                   || maybe_polyd(is_giant(gy.youmonst.data),
@@ -2422,7 +2421,10 @@ trapeffect_pit(
         if (!Sokoban && (Levitation || (Flying && !plunged && !viasitting)))
             return Trap_Effect_Finished;
         feeltrap(trap);
-        if (!Sokoban && is_clinger(gy.youmonst.data) && !plunged) {
+        /* a live tree's branches or roots hold the hero above it, as
+           they do over a hole */
+        if (!Sokoban && (is_clinger(gy.youmonst.data) || u_tree_held())
+            && !plunged) {
             if (already_known) {
                 You_see("%s %spit below you.", a_your[trap->madeby_u],
                         ttype == SPIKED_PIT ? "spiked " : "");
@@ -5057,6 +5059,50 @@ u_over_drop(void)
             || (ttmp && is_hole(ttmp->ttyp)));
 }
 
+/* is the hero held by a live tree's branches or roots (cast_entangle())?
+   That hold is the tree's, not the square's: terrain changes under the
+   hero leave it alone */
+boolean
+u_tree_held(void)
+{
+    return (u.utrap && u.utraptype == TT_ENTANGLED
+            && nexttotree(u.ux, u.uy));
+}
+
+/* entangling vegetation lets go of the hero: the hold ran out (moveloop)
+   or the tree that held the hero died; branches that held the hero over
+   a drop with no lift left let the hero fall once that is safe */
+void
+entangle_release(boolean by_tree)
+{
+    /* held over water, lava, open air or a hole: only a hero caught in
+       the air can be there */
+    boolean over_drop = u_over_drop(),
+            aloft = (over_drop || u_lift_unheld());
+
+    if (!by_tree)
+        pline_The("vegetation releases you.");
+    else if (aloft) /* roots can't reach a hero in the air */
+        pline_The("tree's branches release their grip on you.");
+    else /* the cast named roots or branches at random */
+        pline_The("tree releases its grip on you.");
+    reset_utrap(TRUE);
+    if (over_drop && !Levitation && !Flying && !u.uinwater)
+        defer_landing(LANDING_SPOT);
+}
+
+/* the live tree at x,y has just died or come down; if it held the hero
+   and no other live tree is next to the hero, it lets go. Callers pass
+   only a live tree: a dead one never held anyone, and a grass-held hero
+   beside it must stay held */
+void
+tree_gone_release(coordxy x, coordxy y)
+{
+    if (u.utrap && u.utraptype == TT_ENTANGLED && distu(x, y) <= 2
+        && !nexttotree(u.ux, u.uy))
+        entangle_release(TRUE);
+}
+
 /* shared code for climbing out of a pit */
 void
 climb_pit(void)
@@ -7221,7 +7267,7 @@ openholdingtrap(
     struct trap *t, tdummy;
     char buf[BUFSZ], whichbuf[20];
     const char *trapdescr = 0, *which = 0;
-    boolean ishero = (mon == &gy.youmonst);
+    boolean ishero = (mon == &gy.youmonst), held_over_drop = FALSE;
 
     if (!mon)
         return FALSE;
@@ -7251,6 +7297,15 @@ openholdingtrap(
         case TT_BURIEDBALL:
             trapdescr = "your anchor";
             which = "";
+            break;
+        case TT_ENTANGLED:
+            /* drop_ball()'s wording; never "your", even when the hero
+               made a trap that lies here */
+            trapdescr = nexttotree(u.ux, u.uy) ? "tree's grip"
+                                               : "vegetation";
+            which = "the";
+            /* a tree's branches may have held the hero over a drop */
+            held_over_drop = u_over_drop();
             break;
         case TT_BEARTRAP:
         case TT_PIT:
@@ -7296,6 +7351,10 @@ openholdingtrap(
         reset_utrap(TRUE);
         if (gv.vision_full_recalc)
             vision_recalc(0);
+        /* the branches let go of a hero with no lift over the drop; the
+           hero falls once the zap or the bell is done */
+        if (held_over_drop && !Levitation && !Flying && !u.uinwater)
+            defer_landing(LANDING_SPOT);
     } else {
         if (!mon->mtrapped)
             return FALSE;
@@ -7772,8 +7831,9 @@ deltrap_with_ammo(struct trap *trap, int do_what)
     }
     /* if the hero is tethered to a buried iron ball, that hold belongs
        to the ball rather than to the trap being deleted; preserve it,
-       matching delfloortrap */
-    if (u.utrap && u.utraptype != TT_BURIEDBALL
+       matching delfloortrap; a live tree's branches or roots hold the
+       hero for the tree, so keep that hold too */
+    if (u.utrap && u.utraptype != TT_BURIEDBALL && !u_tree_held()
         && u_at(trap->tx, trap->ty))
         reset_utrap(TRUE);
     deltrap(trap);
@@ -7913,7 +7973,9 @@ delfloortrap(struct trap *ttmp)
         struct monst *mtmp;
 
         if (u_at(ttmp->tx, ttmp->ty)) {
-            if (u.utraptype != TT_BURIEDBALL)
+            /* a buried ball's chain and a live tree's grip don't come
+               from the floor */
+            if (u.utraptype != TT_BURIEDBALL && !u_tree_held())
                 reset_utrap(TRUE);
         } else if ((mtmp = m_at(ttmp->tx, ttmp->ty)) != 0) {
             mtmp->mtrapped = 0;

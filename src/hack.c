@@ -2450,6 +2450,8 @@ domove_fight_burn(coordxy x, coordxy y, const char *target,
                 adjalign(-2);
                 record_abuse_event(-2, ABUSE_DESTROY_TREE);
             }
+            /* the burned tree may have been the one holding the hero */
+            tree_gone_release(x, y);
         }
     } else if (lev->typ == DEADTREE) {
         if (!may_dig(x, y)) {

@@ -835,25 +835,11 @@ moveloop_core(void)
         /* entanglement wears off passively over time */
         if (u.utrap && u.utraptype == TT_ENTANGLED) {
             if (--u.utrap == 0) {
-                /* held over water, lava, open air or a hole: only a hero
-                   caught in the air can be there */
-                boolean over_drop = u_over_drop(),
-                        aloft = (over_drop || u_lift_unheld());
-
-                if (!nexttotree(u.ux, u.uy))
-                    pline_The("vegetation releases you.");
-                else if (aloft) /* roots can't reach a hero in the air */
-                    pline_The("tree's branches release their grip on you.");
-                else /* the cast named roots or branches at random */
-                    pline_The("tree releases its grip on you.");
-                reset_utrap(TRUE);
+                entangle_release(nexttotree(u.ux, u.uy));
                 /* branches whose grip outlasted the hero's flight or
                    levitation held the hero over the drop; fall now,
                    before the hero can step away */
-                if (over_drop && !Levitation && !Flying && !u.uinwater) {
-                    defer_landing(LANDING_SPOT);
-                    maybe_land_deferred();
-                }
+                maybe_land_deferred();
             }
         }
         svc.context.coward = FALSE;

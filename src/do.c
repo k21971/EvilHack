@@ -16,6 +16,7 @@ staticfn boolean danger_uprops(void);
 staticfn int wipeoff(void);
 staticfn int menu_drop(int);
 staticfn boolean u_stuck_cannot_go(const char *);
+staticfn boolean u_entangled_cannot_go(void);
 staticfn NHFILE *currentlevel_rewrite(void);
 staticfn void familiar_level_msg(void);
 staticfn void final_level(void);
@@ -213,8 +214,10 @@ flooreffects(
                && (is_pit(t->ttyp) || is_hole(t->ttyp))) {
         ttyp = t->ttyp;
         tseen = t->tseen ? TRUE : FALSE;
+        /* a live tree's branches or roots hold the hero above the pit
+           or hole, out of the boulder's way */
         if (((mtmp = m_at(x, y)) && mtmp->mtrapped)
-            || (u.utrap && u_at(x,y))) {
+            || (u.utrap && u_at(x, y) && !u_tree_held())) {
             if (*verb && (cansee(x, y) || distu(x, y) == 0))
                 pline("%s boulder %s into the pit%s.",
                       Blind ? "A" : "The",
@@ -287,7 +290,7 @@ flooreffects(
            floor so we shouldn't need any special ice handing here */
         if ((t = t_at(x, y)) != 0) {
             (void) delfloortrap(t);
-            if (u.utrap && u_at(x, y))
+            if (u.utrap && u_at(x, y) && !u_tree_held())
                 reset_utrap(FALSE);
         }
         useupf(obj, 1L);
@@ -1228,6 +1231,19 @@ u_stuck_cannot_go(const char *updn)
     return FALSE;
 }
 
+/* entangling vegetation holds the hero where they are: no climbing,
+   diving or dropping down a hole until it lets go */
+staticfn boolean
+u_entangled_cannot_go(void)
+{
+    if (u.utrap && u.utraptype == TT_ENTANGLED) {
+        You("are entangled by %s.",
+            nexttotree(u.ux, u.uy) ? "a tree" : "vegetation");
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* the #down command */
 int
 dodown(void)
@@ -1280,6 +1296,9 @@ dodown(void)
                 return ECMD_TIME; /* did something, effectively moved */
             }
         }
+        /* held by vegetation, not floating above anything */
+        if (u_entangled_cannot_go())
+            return ECMD_TIME;
         if (BLevitation) {
             ; /* weren't actually floating after all */
         } else if (Blind) {
@@ -1307,6 +1326,9 @@ dodown(void)
                              : surface(u.ux, u.uy));
         return ECMD_OK; /* didn't move */
     }
+
+    if (u_entangled_cannot_go())
+        return ECMD_TIME;
 
     if (Upolyd && ceiling_hider(&mons[u.umonnum]) && u.uundetected) {
         u.uundetected = 0;
@@ -1441,6 +1463,9 @@ doup(void)
         climb_pit();
         return ECMD_TIME;
     }
+
+    if (u_entangled_cannot_go())
+        return ECMD_TIME;
 
     /* "up" to get out of a pool if you have intrinsic water walking
        or flying; not from inside an engulfer, and not from a water

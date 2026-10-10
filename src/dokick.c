@@ -1533,6 +1533,10 @@ dokick(void)
             break;
         case TT_WEB:
         case TT_BEARTRAP:
+        case TT_LAVA:
+        case TT_INFLOOR:
+        case TT_BURIEDBALL:
+        case TT_ENTANGLED:
             You_cant("move your %s!", body_part(LEG));
             break;
         default:

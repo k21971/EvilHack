@@ -320,7 +320,10 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
             Your("chain breaks!");
             reset_utrap(TRUE);
         }
-        if (Levitation || Flying || is_clinger(gy.youmonst.data)) {
+        /* a live tree's branches or roots hold the hero above the chasm
+           (the hold is the tree's, not the floor's) */
+        if (Levitation || Flying || is_clinger(gy.youmonst.data)
+            || u_tree_held()) {
             if (!tu_pit) { /* no pit here previously */
                 pline("A chasm opens up under you!");
                 You("don't fall in!");

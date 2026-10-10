@@ -3658,6 +3658,9 @@ extern int float_down(long, long);
 extern void defer_landing(int);
 extern void land_deferred(void);
 extern boolean u_over_drop(void);
+extern boolean u_tree_held(void);
+extern void entangle_release(boolean);
+extern void tree_gone_release(coordxy, coordxy);
 extern void climb_pit(void);
 extern boolean fire_damage(struct obj *, boolean,
                            coordxy, coordxy) NONNULLARG1;

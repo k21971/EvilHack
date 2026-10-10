@@ -6647,6 +6647,8 @@ dobuzz(
                     record_abuse_event(-2, ABUSE_DESTROY_TREE);
                 }
             }
+            /* whoever cast it, the dead tree lets go of the hero */
+            tree_gone_release(sx, sy);
             /* the tree stops the beam rather than bouncing it */
             range = 0;
             break;
@@ -6939,6 +6941,8 @@ zap_over_floor(
                     record_abuse_event(-2, ABUSE_DESTROY_TREE);
                 }
             }
+            /* the burned tree may have been the one holding the hero */
+            tree_gone_release(x, y);
         } else if (lev->typ == DEADTREE) {
             if (may_dig(x, y)) { /* petrified dead trees are unaffected */
                 if (see_it)

@@ -1405,15 +1405,15 @@ cast_entangle(struct monst *mdef, int skill)
             return;
         }
         if (is_whirly(gy.youmonst.data) || passes_walls(gy.youmonst.data)
-            || unsolid(gy.youmonst.data)) {
+            || unsolid(gy.youmonst.data) || amorphous(gy.youmonst.data)) {
             pline_The("spell fails to entangle you.");
             return;
         }
-        /* sinking into lava, set in solidified lava or chained to a
-           buried iron ball: the ground already holds the hero, and the
-           vines must not replace that hold */
-        if (u.utrap && (u.utraptype == TT_LAVA || u.utraptype == TT_INFLOOR
-                        || u.utraptype == TT_BURIEDBALL)) {
+        /* in a bear trap, a web or a pit, sinking into lava, set in
+           solidified lava or chained to a buried iron ball: something
+           already holds the hero, and the vines must not replace that
+           hold */
+        if (u.utrap) {
             pline_The("spell fails to entangle you.");
             return;
         }
@@ -1458,7 +1458,8 @@ cast_entangle(struct monst *mdef, int skill)
             return;
         } else if (is_whirly(mdef->data)
                    || passes_walls(mdef->data)
-                   || unsolid(mdef->data)) {
+                   || unsolid(mdef->data)
+                   || amorphous(mdef->data)) {
             /* caster-agnostic phrasing; this branch is reached from
                m-v-m spell paths where the player isn't the caster */
             if (canseemon(mdef))
