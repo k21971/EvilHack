@@ -1079,9 +1079,12 @@ dotelecmd(void)
 
     HTeleportation = save_HTele;
     ETeleportation = save_ETele;
-    if (added != NOOP_SPELL || hidden != NOOP_SPELL)
-        /* can't both be non-NOOP so addition will yield the non-NOOP one */
-        (void) tport_spell(added + hidden - NOOP_SPELL);
+    if (added != NOOP_SPELL && hidden != NOOP_SPELL)
+        impossible("dotelecmd: both added and hidden set");
+    else if (added != NOOP_SPELL)
+        (void) tport_spell(added);
+    else if (hidden != NOOP_SPELL)
+        (void) tport_spell(hidden);
 
     return res ? ECMD_TIME : ECMD_OK;
 #undef NOOP_SPELL

@@ -23,8 +23,20 @@
 
 #define spellev(spell) svs.spl_book[spell].sp_lev
 #define spellname(spell) OBJ_NAME(objects[spellid(spell)])
+/* convert a spl_book[] index 0..MAXSPELL-1 into the single character
+   used as menu accelerator and dump-file prefix:
+     0..25  -> 'a'..'z'
+     26..51 -> 'A'..'Z'
+     52..61 -> '0'..'9'
+     62+    -> '?' placeholder (only reachable past EvilHack's 62-entry
+                spell catalog; spell_let_to_idx rejects '?' so single-
+                letter input never resolves to it -- such spells are
+                accessible only via menu mode) */
 #define spellet(spell) \
-    ((char) ((spell < 26) ? ('a' + spell) : ('A' + spell - 26)))
+    ((char) ((spell) < 26 ? ('a' + (spell)) \
+             : (spell) < 52 ? ('A' + (spell) - 26) \
+             : (spell) < 62 ? ('0' + (spell) - 52) \
+             : '?'))
 
 struct chain_lightning_queue;
 struct chain_lightning_zap;
@@ -120,7 +132,8 @@ staticfn int repair_armor_ok(struct obj *);
 /* since the spellbook itself doesn't blow up, don't say just "explodes" */
 static const char explodes[] = "radiates explosive energy";
 
-/* convert a letter into a number in the range 0..51, or -1 if not a letter */
+/* convert a letter or digit into a number in the range 0..61, or -1
+   if not a letter/digit; inverse of spellet() */
 staticfn int
 spell_let_to_idx(char ilet)
 {
@@ -132,6 +145,9 @@ spell_let_to_idx(char ilet)
     indx = ilet - 'A';
     if (indx >= 0 && indx < 26)
         return indx + 26;
+    indx = ilet - '0';
+    if (indx >= 0 && indx < 10)
+        return indx + 52;
     return -1;
 }
 
@@ -805,9 +821,16 @@ getspell(int *spell_no)
             Sprintf(lets, "a-%c", 'a' + nspells - 1);
         else if (nspells == 27)
             Strcpy(lets, "a-zA");
-        /* this assumes that there are at most 52 spells... */
-        else
+        else if (nspells < 53)
             Sprintf(lets, "a-zA-%c", 'A' + nspells - 27);
+        else if (nspells == 53)
+            Strcpy(lets, "a-zA-Z0");
+        else if (nspells <= 62)
+            /* a-zA-Z0-9 caps at 62 single-letter accessible spells */
+            Sprintf(lets, "a-zA-Z0-%c", '0' + nspells - 53);
+        else
+            /* spells past the 62nd are only accessible via menu mode */
+            Strcpy(lets, "a-zA-Z0-9");
 
         Snprintf(qbuf, sizeof qbuf, "Cast which spell? [%s *?]", lets);
         for (retry_limit = 0; ; ++retry_limit) {
@@ -2594,6 +2617,7 @@ tport_spell(int what)
         struct spell savespell;
         int tport_indx;
     } save_tport;
+    static boolean inited = FALSE;
     int i;
 /* also defined in teleport.c */
 #define NOOP_SPELL  0
@@ -2601,6 +2625,17 @@ tport_spell(int what)
 #define ADD_SPELL   2
 #define UNHIDESPELL 3
 #define REMOVESPELL 4
+
+    /* save_tport is zero-initialized by C, which leaves tport_indx
+       at 0 -- a valid spl_book[] index. If REMOVESPELL or UNHIDESPELL
+       were ever the first call (no prior ADD/HIDE), the saved-zero
+       savespell would be written to spl_book[0], wiping the player's
+       first known spell. Set tport_indx out of range on first use so
+       the defensive guards below trip */
+    if (!inited) {
+        save_tport.tport_indx = MAXSPELL;
+        inited = TRUE;
+    }
 
     for (i = 0; i < MAXSPELL; i++)
         if (spellid(i) == SPE_TELEPORT_AWAY || spellid(i) == NO_SPELL)
@@ -2613,6 +2648,8 @@ tport_spell(int what)
             save_tport.tport_indx = MAXSPELL;
         } else if (what == UNHIDESPELL) {
             /*assert( save_tport.savespell.sp_id == SPE_TELEPORT_AWAY );*/
+            if (save_tport.tport_indx >= MAXSPELL)
+                return NOOP_SPELL;
             svs.spl_book[save_tport.tport_indx] = save_tport.savespell;
             save_tport.tport_indx = MAXSPELL; /* burn bridge... */
         } else if (what == ADD_SPELL) {
@@ -2628,6 +2665,8 @@ tport_spell(int what)
             save_tport.tport_indx = MAXSPELL;
         } else if (what == REMOVESPELL) {
             /*assert( i == save_tport.tport_indx );*/
+            if (save_tport.tport_indx >= MAXSPELL)
+                return NOOP_SPELL;
             svs.spl_book[i] = save_tport.savespell;
             save_tport.tport_indx = MAXSPELL;
         } else if (what == HIDE_SPELL) {
