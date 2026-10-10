@@ -1206,33 +1206,22 @@ seffect_enchant_armor(struct obj **sobjp)
     schar s;
     boolean special_armor;
     boolean same_color;
-    /* dragon scales worn in the cloak slot take priority so they can
-       be enchanted into dragon-scaled armor */
-    struct obj *otmp = (uarmc && Is_dragon_scales(uarmc))
-                           ? uarmc
-                           : some_armor(&gy.youmonst);
+    struct obj *otmp;
     boolean sblessed = sobj->blessed;
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
     boolean already_known = (sobj->oclass == SPBOOK_CLASS /* spell */
                              || objects[sobj->otyp].oc_name_known);
     boolean old_erodeproof, new_erodeproof;
-    struct obj *barding;
 
-    /* a known scroll lets a rider target the steed's barding instead of
-       his own armor; no need to ask when some_armor() already picked it */
-    if (already_known && u.usteed
-        && (barding = which_armor(u.usteed, W_BARDING)) != 0
-        && otmp != barding) {
-        char qbuf[QBUFSZ];
-
-        Snprintf(qbuf, sizeof qbuf, "Enchant %s ",
-                 s_suffix(y_monnam(u.usteed)));
-        /* a long barding name gets its simple name instead */
-        (void) safe_qbuf(qbuf, qbuf, "?", barding, xname, simpleonames,
-                         "barding");
-        if (y_n(qbuf) == 'y')
-            otmp = barding;
+    if (already_known) {
+        otmp = choose_worn_armor("enchant", "enchant");
+    } else {
+        /* dragon scales worn in the cloak slot take priority so they
+           can be enchanted into dragon-scaled armor */
+        otmp = (uarmc && Is_dragon_scales(uarmc))
+                   ? uarmc
+                   : some_armor(&gy.youmonst);
     }
     if (!otmp) {
         strange_feeling(sobj, !Blind

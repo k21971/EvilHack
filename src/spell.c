@@ -70,7 +70,6 @@ staticfn void cast_create_grass(int);
 staticfn void grow_tree(coordxy, coordxy, genericptr_t);
 staticfn void cast_create_trees(int);
 staticfn boolean cast_power_word_kill(void);
-staticfn int repair_armor_ok(struct obj *);
 
 /* The roles[] table lists the role-specific values for tuning
  * percent_success().
@@ -1828,19 +1827,6 @@ cast_power_word_kill(void)
     return FALSE;
 }
 
-/* getobj callback for the repair armor spell: worn armor is the likely
-   choice; unworn armor stays pickable so the caller can explain that
-   it must be worn */
-staticfn int
-repair_armor_ok(struct obj *obj)
-{
-    if (!obj || obj->oclass != ARMOR_CLASS)
-        return GETOBJ_EXCLUDE;
-    if (obj->owornmask & W_ARMOR)
-        return GETOBJ_SUGGEST;
-    return GETOBJ_DOWNPLAY;
-}
-
 /* attempting to cast a forgotten spell will cause disorientation */
 staticfn void
 spell_backfire(int spell)
@@ -2416,39 +2402,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
         struct obj *otmp = (struct obj *) 0;
 
         if (role_skill >= P_BASIC) {
-            if (u.usteed
-                && (otmp = which_armor(u.usteed, W_BARDING)) != 0) {
-                char qbuf[QBUFSZ];
-
-                Snprintf(qbuf, sizeof qbuf, "Repair %s ",
-                         s_suffix(y_monnam(u.usteed)));
-                /* a long barding name gets its simple name instead */
-                (void) safe_qbuf(qbuf, qbuf, "?", otmp, xname,
-                                 simpleonames, "barding");
-                if (y_n(qbuf) == 'n')
-                    otmp = (struct obj *) 0;
-            }
-            if (!otmp) {
-                /* unworn armor can be picked, to be told it must be
-                   worn, but it is no reason to ask */
-                if (!count_worn_armor()) {
-                    struct obj *o;
-
-                    for (o = gi.invent; o; o = o->nobj)
-                        if (o->oclass == ARMOR_CLASS)
-                            break;
-                    You("don't have anything %sto magically repair.",
-                        o ? "else " : "");
-                } else {
-                    otmp = getobj("magically repair", repair_armor_ok,
-                                  GETOBJ_NOFLAGS);
-                    while (otmp && !(otmp->owornmask & W_ARMOR)) {
-                        You("cannot repair armor that is not worn.");
-                        otmp = getobj("magically repair", repair_armor_ok,
-                                      GETOBJ_NOFLAGS);
-                    }
-                }
-            }
+            otmp = choose_worn_armor("magically repair", "repair");
         } else {
             /* unskilled cast picks armor at random; skip Hand of
                Vecna since the cursed Hand can't be repaired by the

@@ -864,6 +864,7 @@ extern void adj_abon(struct obj *, schar) NONNULLARG1;
 extern boolean inaccessible_equipment(struct obj *, const char *, boolean);
 extern int any_worn_armor_ok(struct obj *);
 extern int count_worn_armor(void);
+extern struct obj *choose_worn_armor(const char *, const char *) NONNULLPTRS;
 
 /* ### dog.c ### */
 

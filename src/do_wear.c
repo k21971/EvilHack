@@ -48,6 +48,7 @@ staticfn int puton_ok(struct obj *);
 staticfn int remove_ok(struct obj *);
 staticfn int wear_ok(struct obj *);
 staticfn int takeoff_ok(struct obj *);
+staticfn int worn_armor_ok(struct obj *);
 /* maybe_destroy_armor() may return NULL */
 staticfn struct obj *maybe_destroy_armor(struct obj *, struct obj *,
                                        boolean *) NONNULLARG3;
@@ -4785,6 +4786,67 @@ count_worn_armor(void)
     if (uarmu) ret++;
 
     return ret;
+}
+
+/* getobj callback for choose_worn_armor(): worn armor is the likely
+   choice; unworn armor stays pickable so the caller can explain that
+   it must be worn; armor merged into the hero's skin keeps its slot
+   bit but is not a choice: count_worn_armor() does not count it, and
+   enchanting it would merge it again or remove it from the skin */
+staticfn int
+worn_armor_ok(struct obj *obj)
+{
+    if (!obj || obj->oclass != ARMOR_CLASS || obj == uskin)
+        return GETOBJ_EXCLUDE;
+    if (obj->owornmask & W_ARMOR)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_DOWNPLAY;
+}
+
+/* let the hero choose the armor that a known scroll of enchant armor or
+   a skilled repair armor spell works on: a rider is offered the steed's
+   barding first, and armor that is not worn can be picked, to be told
+   it must be worn; returns the hero's armor, the steed's barding (not
+   in invent) or null when nothing is chosen */
+struct obj *
+choose_worn_armor(const char *word, const char *verb)
+{
+    struct obj *otmp = (struct obj *) 0;
+
+    if (u.usteed && (otmp = which_armor(u.usteed, W_BARDING)) != 0) {
+        char qbuf[QBUFSZ];
+
+        Snprintf(qbuf, sizeof qbuf, "%s %s ", verb,
+                 s_suffix(y_monnam(u.usteed)));
+        (void) upstart(qbuf);
+        /* a long barding name gets its simple name instead */
+        (void) safe_qbuf(qbuf, qbuf, "?", otmp, xname, simpleonames,
+                         "barding");
+        /* YN() keeps the answer out of the do-again queue: if the steed
+           is gone when ^A replays this, the queued 'n' would otherwise
+           be read by getobj() as an inventory letter */
+        if (YN(qbuf) == 'n')
+            otmp = (struct obj *) 0;
+    }
+    if (!otmp) {
+        /* unworn armor can be picked, to be told it must be worn, but
+           it is no reason to ask */
+        if (!count_worn_armor()) {
+            struct obj *o;
+
+            for (o = gi.invent; o; o = o->nobj)
+                if (o->oclass == ARMOR_CLASS)
+                    break;
+            You("don't have anything %sto %s.", o ? "else " : "", word);
+        } else {
+            otmp = getobj(word, worn_armor_ok, GETOBJ_NOFLAGS);
+            while (otmp && !(otmp->owornmask & W_ARMOR)) {
+                You("cannot %s armor that is not worn.", verb);
+                otmp = getobj(word, worn_armor_ok, GETOBJ_NOFLAGS);
+            }
+        }
+    }
+    return otmp;
 }
 
 /*do_wear.c*/
