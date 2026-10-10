@@ -17,14 +17,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-09, after session 203): 345
+- Phase 2 status (refreshed 2026-10-09, after session 204): 346
   rows closed, 112 open. Of the open rows:
   - 0 HIGH.
   - 7 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, #turn's
-    alhoon / skeleton ladder, spell letters past 52 spells,
-    choosing the worn armor a known enchant armor scroll hits,
-    stone to flesh's monster extras).
+    door-material colors, the held artifact pokedex tips, spell
+    letters past 52 spells, choosing the worn armor a known
+    enchant armor scroll hits, stone to flesh's monster extras,
+    mk_gen_ok()'s two Mines generation gates).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -91,7 +91,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     pluslvl()'s polymorphed level gain) in session 198; the restore
     ability uncancel row (MED, with the hero spell parity B row) in
     session 201; the init_attr() race-maximum clamp row (MED) in
-    session 202.
+    session 202; the dwarf starting pick-axe skill row (MED) in
+    session 203; the #turn ladder row (MED) in session 204.
     The
     wish-invlet
     row (seen a third and fourth time in session 165) and the curses
@@ -156,25 +157,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     flesh extras row (MED) and the helpful-spell shopkeeper anger,
     data.base critical healing text and disguised-mimic cure naming
     rows; session 202 the dwarf starting pick-axe skill row (MED)
-    and the failed-restore race override row.
+    and the failed-restore race override row; session 204 the
+    mk_gen_ok() Mines generation gates row (MED).
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-09 (session 203) A DWARF'S RACIAL
-  PICK-AXE TRAINS NO STARTING SKILL (code TBD, tracker TBD;
-  BUG-2246).
-  - 5.0's split u_init runs skill_init() after the race items, so
-    the 1-in-4 dwarf pick-axe gave a restricted role a Basic skill
-    behind "Program in disorder!" and started the others at Basic.
-  - skill_init() now skips that pick-axe; 5.0's call order stays.
-    Closes the MED dwarf pick-axe row.
-  - Minted: nothing.
-  - Detail: the closed dwarf pick-axe row.
-- Previous slice: 2026-10-09 (session 202) NO STARTING STAT ABOVE
+- Latest slice: 2026-10-09 (session 204) #TURN'S UNDEAD LADDER
+  TAKES MASTER'S STEPS (code TBD, tracker TBD; BUG-2247).
+  - Skeletons and alhoons could only be made to flee. They now sit
+    on master's live ladder: zombie 6, skeleton 8, mummy 10, wraith
+    12, vampire 14, ghost 16, lich / alhoon 18 (ruled).
+  - The confused #turn keeps master's mstone guard.
+    Closes the MED #turn ladder row.
+  - Minted: the MED mk_gen_ok() Mines generation gates row.
+  - Detail: the closed #turn ladder row.
+- Previous slice: 2026-10-09 (session 203) A DWARF'S RACIAL
+  PICK-AXE TRAINS NO STARTING SKILL (code e997233c2, tracker
+  f396b14e6; BUG-2246); detail in the closed dwarf pick-axe row.
+- Earlier slices: 2026-10-09 (session 202) NO STARTING STAT ABOVE
   THE RACE'S MAXIMUM (code 455fb89a2, tracker ee4292703;
-  BUG-2245); detail in the closed init_attr() row.
-- Earlier slices: 2026-10-09 (session 201) THE HEALING SPELLS TAKE
+  BUG-2245; detail in the closed init_attr() row);
+  2026-10-09 (session 201) THE HEALING SPELLS TAKE
   A DIRECTION: CRITICAL HEALING, CURE SICKNESS AND RESTORE ABILITY
   AT MONSTERS; HEALING DICE BY SKILL (code b5250a3b6, tracker
   3a5e56c97; BUG-2238..2244; detail in the closed hero spell
@@ -9329,8 +9333,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       clamp goes in 5.0's redistribution and how the removed points
       are spent; battery = new-game stat rolls per affected pair.
 - [x] MED: a dwarf's starting pick-axe trains its skill FIXED
-      2026-10-09 (session 203; BUG-2246; code TBD, tracker TBD;
-      plan /root/.claude/plans/elegant-percolating-sunbeam.md).
+      2026-10-09 (session 203; BUG-2246; code e997233c2, tracker
+      f396b14e6; plan
+      /root/.claude/plans/elegant-percolating-sunbeam.md).
       - skill_init()'s "Set skill for all weapons in inventory to
         be basic" loop skips a PICK_AXE when Race_if(PM_DWARF) &&
         !Role_if(PM_ARCHEOLOGIST), the exact gift test: the
@@ -9581,7 +9586,74 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       names it ("The giant mimic is no longer ill."). The healing
       arm handles disguises through disguised_mimic /
       mimic_hit_msg(). Needs a sick mimic that hid again.
-- [ ] MED: #turn's undead ladder misses master's steps (NEW, minted
+- [x] MED: #turn's undead ladder takes master's steps PORTED
+      2026-10-09 (session 204; BUG-2247; code TBD, tracker TBD; plan
+      /root/.claude/plans/stateless-snuggling-kettle.md).
+      - maybe_turn_mon_iter() now has master's three pray.c hunks,
+        written in 5.0's FALLTHROUGH idiom:
+        - `case S_HUMANOID: /* alhoon */` beside S_LICH.
+        - The `case S_SKELETON:` +2 step between S_MUMMY and
+          S_ZOMBIE.
+        - The Confusion arm's `!mstone || mstone > 2` guard on
+          `mcanmove = 1`. mstone is never set nonzero on the branch
+          yet; the guard matches the other paralysis sites.
+      - RULING (decisions log): master's live ladder, shift
+        included. The minimum XL to destroy or pacify is zombie 6,
+        skeleton 8, mummy 10, wraith 12, vampire 14, ghost 16, lich
+        / alhoon 18; before this it was 6 / never / 8 / 10 / 12 / 14
+        / 16 / never.
+      - CENSUS: the alhoon is the only undead in S_HUMANOID. Every
+        S_SKELETON entry is undead: three skeletal hounds, three
+        skeletal steeds, the skeleton, the skeleton warrior and the
+        skeletal dragon. No demon is in a ladder class. The Pale
+        Horse and Charon stay on `default:`.
+      - REVIEW: PASS, no HIGH / MED.
+        - LOW, recorded as master parity: a chaotic #turn can pacify
+          a ridden skeletal steed under a hostile rider, and
+          update_monsteed() turns it hostile again at the rider's
+          next move. Master does the same.
+        - Confirmed: killing a ridden steed inside iter_mons() is
+          safe. The steed is ahead of its rider in fmon. Nothing is
+          freed mid-walk. separate_steed_and_rider() leaves the
+          rider standing, and relobj() drops the saddle and barding
+          there. Master's fmon loop visited ridden steeds the same
+          way.
+        - Every master S_SKELETON site has a branch home.
+        - The reviewer's side find, master's two Mines generation
+          gates, is minted as the MED row below.
+      - BATTERIES: two game-testers in their own pre-staged -d copies
+        (pre-eh / post-eh, binaries renamed). PRE 76759530 =
+        f396b14e6 code, POST 9a0bdf37. Every leg PASS; paniclogs
+        absent.
+        - POST, lawful Knight:
+          - Small skeletal hounds (MR 0): XL 7, 0 of 3 destroyed;
+            XL 8, 3 of 3 ("You destroy the small skeletal hound!",
+            +24 experience).
+          - Kobold mummies: XL 8, 0 destroyed in 15 trials; XL 10,
+            5 destroyed in 7 trials.
+          - Alhoon with gdb mr 0: XL 17, "The alhoon turns to
+            flee."; XL 18, "You destroy the alhoon!".
+        - POST, chaotic Priestess at XL 8: 3 of 3 hounds became
+          peaceful, silently.
+        - PRE: no hound was destroyed or pacified; mummies at XL 8,
+          6 destroyed in 10 trials; the alhoon at XL 18 fled.
+        - Confusion (both builds): "Unfortunately, your voice
+          falters." once. The gdb-frozen skeleton came back with
+          mcanmove 1, mfrozen 0, mflee 0, and acted.
+        - BRIEF ERROR: the brief expected mindless targets to "turn
+          to flee". monflee() returns at once for mindless and
+          unique-corpse monsters on both trees, so a mindless undead
+          that is not destroyed shows nothing and keeps attacking.
+          This is master parity.
+        - Side observations: the welcome line (the re-brand row);
+          chaotic Knights (role.c allows LAWFUL | CHAOTIC on both
+          trees); POST tester's low-confidence farlook first
+          character, 'z' captured then 'Z' on the same line with no
+          command between (unreproduced; putmixed() renders an
+          encoded glyph and the tty code has no case change, so no
+          mechanism was found).
+      Original text: MED: #turn's undead ladder misses master's steps
+      (NEW, minted
       2026-10-09 by the hero spell parity A slice, session 200,
       ruled its own row). maybe_turn_mon_iter() (pray.c) lacks
       master's `case S_HUMANOID: /* alhoon */` beside S_LICH
@@ -9592,6 +9664,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master's `!mstone || mstone > 2` guard (the guard the branch
       keeps at its other paralysis sites). Different command and
       battery from the spell.
+- [ ] MED: mk_gen_ok() lacks master's two Mines generation gates
+      (NEW, minted 2026-10-09 by the #turn ladder reviewer, session
+      204; verified in the main context). Master's mk_gen_ok()
+      (makemon.c) refuses PM_VAMPIRE_MAGE on Is_mineend_level()
+      (52d0e27de, "prevent vampire mages from spawning in Mines End
+      catacombs") and PM_ALHOON / PM_MASTER_MIND_FLAYER anywhere
+      In_mines() (0c6a876a9). Both are 2020 gameplay fixes. The
+      branch's mk_gen_ok() has the ice nymph and Agent / Champion
+      gates but neither of these, and nothing else in makemon.c
+      gates them. No tracker row, archive entry or branch commit
+      covers them. They are reachable through mkclass() class picks
+      in level content: minefill.lua's `percent(50) and "h"`,
+      minend-1 / minend-2's `"h"`, and minend-3's (Catacombs) `"V"`.
+      The master mind flayer is not G_HELL, so only mkclass()'s
+      toostrong rolls limit it. The alhoon is G_HELL (8 in 9 masked
+      outside Gehennom). Port verbatim into 5.0's mk_gen_ok().
+      Battery: wizard-mode #wizgenesis or a des.monster class pick
+      on a Mines level and in the Catacombs, PRE vs POST counts.
 - [ ] MED: spell letters past 52 spells (NEW, minted 2026-10-09 by
       the hero spell parity A reviewer's hunk audit, session 200).
       Master ccf51af86 (BUG-761) gave spellet() a third tier (digits)
@@ -27317,6 +27407,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-09 | #turn ladder slice ruling (session 204; AskUserQuestion x1, recommended). MASTER'S LIVE LADDER: master 2f365eaab inserted the S_SKELETON +2 step between S_MUMMY and S_ZOMBIE, and because the ladder falls through, every tier above zombies moved up 2 levels. The minimum XL to destroy (lawful) or pacify (chaotic) is zombie 6, skeleton 8, mummy 10, wraith 12, vampire 14, ghost 16, lich / alhoon 18, exactly as on live 0.9.3 since December 2024. Rejected: keeping vanilla's tiers (zombie 6, mummy 8 ... lich 16) with skeletons slotted in beside zombies at 6. The alhoon joins the lich tier either way (eb9b1743a). | maintainer |
 | 2026-10-09 | Hero spell parity B slice rulings (session 201; AskUserQuestion x2, four questions, all recommended). (1) 5.0 a3f0b54ae KEPT, LAYERED: a Healer gains experience equal to the HP a hurt pet was missing (capped at the roll), and Pestilence takes half the rolled heal through resist(), both on master's skill dice (c692dc3bf, 4 / 6 / 8 / 10) and master's alignment terms (a54b23421 / 226926e5c); rejected master's exact shape (no experience, Pestilence d(3, 4 / 8 / 12) - vanilla's term, not authored). (2) CURE DISEASE TOO: the hero's cure sickness on a monster clears mdiseased and the sickness / disease / withering timers and credit like master's own monster self-cast, and critical healing's 1-in-4 cure does the same (BUG-2243, master sibling miss, frozen-unfixed); rejected master's msick + mwither only. (3) STONE TO FLESH'S MONSTER EXTRAS (f1d39f476 petrified ent, b41949570's zap_steed line, 57e3569c2's stoning cure) MINTED AS A MED ROW, not folded. (4) THE DEMON REFUSAL IS A HELPFUL GESTURE: e550e0abc's guard still refuses an opposite-gender cancelled amorous demon, but a peaceful one is not angered (BUG-2244, master quirk, frozen-unfixed); rejected master's exact shape (guilt, -5). Plan-approved: the self restore ability cast routes through peffects() so session 199's abuse-reset ruling holds; the self cure sickness text stays 5.0's (moved verbatim). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-10-09 | Hero spell parity A slice rulings (session 200; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: SPELL PARITY A - the five non-healing unwired hero spells (dispel evil, power word kill, repair armor, create grass, create trees) this slice; part B (critical healing, master c692dc3bf's skill-set healing dice, directional cure sickness, the restore ability uncancel MED row, e550e0abc) is the next slice, because those arms share bhitm() / zapyourself(); over taking all six at once, the init_attr() clamp alone, or session 199's two MED rows. (2) DISPEL EVIL ROLL 19 ON A UNIQUE: INTENT - master's `dmg *= 2` runs after resist() has dealt the damage and dmg is never read again (a dead term), so the branch deals a second hit equal to the first through damage_mon(), over master parity (message only). (3) NEW TREES BLOCK SIGHT AT ONCE: block_point() after grow_tree()'s TREE write fixes master's see-through-until-reload trees, over keeping master's behavior. (4) #turn's LADDER (alhoon S_HUMANOID, S_SKELETON step, mstone guard) MINTED AS A MED ROW, not folded. Plan-approved, no question: the turn undead spell half of eb9b1743a folded (the branch had that commit's objects.h levels); a banished peaceful / disguised target is angered / unmasked before it migrates (5.0's newsym() rejects <0,0>); the reviewer's LOWs folded (release_hero() with a dead / limbo re-check, master's "anything (else)" repair lines, the steed dismount in death_magic_anger(), safe_qbuf() for the barding query). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-10-09 | Blessed restore ability slice rulings (session 199; AskUserQuestion x3, five questions; four recommended). (1) MASTER 446e97fa1's FOUNTAIN HUNK PORTS WITH THE CAP (recommended): the magic-fountain arm of drinkfountain() runs peffects() on a blessed restore ability pseudo-potion and a gain ability pseudo-potion (blessed at Luck 4 or more), so a magic fountain also gives back 3-5 lost levels, says "better" instead of "great" with an unfixable trouble, and at Luck 0-3 makes up to six random gain picks (one "already as X as you can get" line on a total miss) where the old arm scanned to the first stat that could rise; the hunk had no row. (2) THE GAIN ABILITY STRENGTH ARM FOLDS IN (recommended): master 7ea89f807 + d2ab69d82 - gain ability raises Strength through gainstr(), which now returns adjattrib()'s result and takes adjattrib()'s int msgflg, so giants, centaurs, tortles, draugr, vampires and aasimar roll a full Strength gain (giants +2d2, capped at 18/100) from a non-cursed potion or a magic fountain; the eat.c callers keep their messages. (3) 5.0's RESTORE ABILITY ABUSE RESET STAYS (vanilla 06012e712: each restored stat's negative exercise goes to 0) on the potion and the spell, and magic fountains now inherit it; rejected master's no-reset shape (the recommended option). (4) RESTORE ABILITY UNCANCELS MONSTERS IS MINTED AS A MED ROW (recommended): master d359ea85e's potionhit() arm and the unported remainder of 1df6b9af3's directional spell, not folded. (5) THE REVIEWER'S init_attr() FIND IS MINTED AS A MED ROW (recommended): master 7ea89f807's clamp of a role's starting stat to one below the race's maximum is missing (vanilla 5.0 init_attr()), so e.g. a giant Barbarian starts at Dex 15 against a cap of 14; not folded. | maintainer |
