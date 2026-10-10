@@ -17,12 +17,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-10, after session 207): 350
+- Phase 2 status (refreshed 2026-10-10, after session 208): 351
   rows closed, 112 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, stone to
-    flesh's monster extras).
+    door-material colors, the held artifact pokedex tips, #apply a
+    dwarvish bearded axe).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -90,11 +90,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     ability uncancel row (MED, with the hero spell parity B row) in
     session 201; the init_attr() race-maximum clamp row (MED) in
     session 202; the dwarf starting pick-axe skill row (MED) in
-    session 203; the #turn ladder row (MED) in session 204.
-    The
-    wish-invlet
-    row (seen a third and fourth time in session 165) and the curses
-    term_gone row need a reproduction. Session 157 minted three: the
+    session 203; the #turn ladder row (MED) in session 204; the
+    enchant armor choice row (MED) in session 207; the stone to
+    flesh extras row (MED, widened to all of f1d39f476) in session
+    208.
+    The curses term_gone row needs a reproduction. The wish-invlet
+    row (seen a third and fourth time in session 165, and a fifth in
+    session 207 with a candidate on-demand recipe) now needs a
+    trace. Session 157 minted three: the
     accessory_or_armor_on() touch-before-wear row (seen live),
     break_armor()'s cached form, and cloak_simple_name()'s
     dragon-scales name. Session 158 minted the hero hug's doubled
@@ -165,22 +168,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-10 (session 207) A KNOWN ENCHANT ARMOR
-  SCROLL LETS YOU CHOOSE THE WORN ARMOR (code TBD, tracker TBD;
-  BUG-2252).
-  - seffect_enchant_armor() takes master's known-reader prompt via
-    a do_wear.c choose_worn_armor() shared with the repair armor
-    spell; armor embedded in the skin is never a choice (ruled).
-    Closes the MED enchant armor choice row.
-  - Minted: the LOW confused-scroll supermaterial shimmer row.
-    Corrected: session 141's dragon-scales battery note that called
-    the wiki's "select the scales" stale.
-  - Detail: the closed enchant armor choice row.
-- Previous slice: 2026-10-10 (session 206) SPELLS 53-62 GET DIGIT
-  LETTERS; TPORT_SPELL() GUARDS (code a1b08d644, tracker
-  56754cd3b; BUG-2249..2251); detail in the closed spell letters
+- Latest slice: 2026-10-10 (session 208) STONED ENTS BECOME
+  PETRIFIED ENTS; STONE TO FLESH TURNS A PETRIFIED ENT BACK INTO AN
+  ENT (code TBD, tracker TBD; BUG-2253..2256).
+  - Master f1d39f476 ported whole: stoned_form() picks the stone
+    form by body at every stoning site (intent; master turned a
+    hero ent into a stone golem), true ents only (ruled), the
+    petrified ent's death statue, and the stone to flesh arms. A
+    petrified ent statue or figurine revives as an ent (ruled,
+    beyond master). Closes the MED stone to flesh extras row.
+  - Deferred to the Hdgn-slice riders row (a): the zap_steed() line
+    (ruled) and the mstone cure.
+  - Minted: the MED #apply bearded axe row.
+  - Detail: the closed stone to flesh extras row.
+- Previous slice: 2026-10-10 (session 207) A KNOWN ENCHANT ARMOR
+  SCROLL LETS YOU CHOOSE THE WORN ARMOR (code 45197a247, tracker
+  8c4227177; BUG-2252); detail in the closed enchant armor choice
   row.
-- Earlier slices: 2026-10-10 (session 205) NO MASTER MIND FLAYERS
+- Earlier slices: 2026-10-10 (session 206) SPELLS 53-62 GET DIGIT
+  LETTERS; TPORT_SPELL() GUARDS (code a1b08d644, tracker
+  56754cd3b; BUG-2249..2251; detail in the closed spell letters
+  row);
+  2026-10-10 (session 205) NO MASTER MIND FLAYERS
   OR ALHOONS IN THE MINES, NO VAMPIRE MAGES AT MINES' END (code
   ce65979e2, tracker e6d3cb9a8; BUG-2248; detail in the closed
   mk_gen_ok() row);
@@ -9555,24 +9564,94 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       e550e0abc's could_seduce() guard). Plan the self arms against
       session 199's ruling (3) (5.0's abuse reset on the potion and
       the spell).
-- [ ] MED: stone to flesh's monster arm lacks master's extras (NEW,
-      minted 2026-10-09 by the hero spell parity B slice, session
-      201, ruled its own row). The branch's bhitm() SPE_STONE_TO_FLESH
-      arm is 5.0's (stone golem -> flesh golem, "seems fleshier...",
-      a stone-disguised mimic revealed). Master's has: (a) f1d39f476
-      (New monsters: Ent, Elder Ent, Petrified Ent) - a petrified
-      ent turns into an ent ("turns to wood!" / "looks rather woody
-      for a moment."), LIVE today (the branch has PM_PETRIFIED_ENT);
-      (b) 57e3569c2 - a monster that is turning to stone is cured
-      (mstone = 0, mcanmove = 1, "seems limber!" / the hallucinatory
-      "ruined a future piece of art" line), DEAD on the branch until
-      gradual monster stoning (master 2f58ace93) lands - port it with
-      the Hdgn-slice riders row (a); (c) b41949570's zap.c line -
-      SPE_STONE_TO_FLESH in zap_steed()'s bhitm list, so '>' while
-      riding hits the steed instead of the floor (its mhitu.c half is
-      already on the branch). Keep 5.0's fleshier / mimic extras
-      (they touch nothing master does differently) unless ruled
-      otherwise.
+- [x] MED: stone to flesh's monster arm lacks master's extras PORTED
+      2026-10-10 (session 208; BUG-2253..2256; code TBD, tracker TBD;
+      plan /root/.claude/plans/zany-snacking-rocket.md), widened to
+      the whole of master f1d39f476 (New monsters: Ent, Elder Ent,
+      Petrified Ent).
+      - The trace found the commit's stoning half missing as well,
+        with no row: poly_when_stoned() had only the golem clause and
+        mon_to_stone() only the golem arm, so a stoned ent died as a
+        statue and a hero ent (Druid wildshape) touching a cockatrice
+        died (BUG-2253). The reviewer found a fourth piece: make_corpse()
+        lacked the petrified ent's death statue and left an edible
+        "petrified ent corpse" (MED, folded).
+      - Now: mondata.c stoned_form(ptr) picks PM_PETRIFIED_ENT for
+        is_true_ent(), else PM_STONE_GOLEM. poly_when_stoned() has the
+        ent clause, and mon_to_stone() handles both. All 17 hero
+        `polymon(PM_STONE_GOLEM)` sites and polymon()'s Stoned arm use
+        it. bhitm() and zapyourself() turn a petrified ent into an ent
+        ("turns to wood!" / "looks rather woody for a moment.").
+        make_corpse() makes the statue.
+      - RULINGS (AskUserQuestion x2, four questions, all recommended;
+        decisions log):
+        (1) INTENT form. Master tries polymon(PM_STONE_GOLEM) first,
+            so its stoned hero ent becomes a stone golem (stone golems
+            lack G_GENO, so the petrified ent fallback never runs);
+            BUG-2254, frozen-unfixed.
+        (2) (c) b41949570's zap_steed() line is DEFERRED to the
+            Hdgn-slice riders row (a), beside (b): no branch steed can
+            be affected, so the line alone would only stop a downward
+            cast from reaching the floor while riding.
+        (3) is_true_ent() only. Master's is_ent() also petrifies tree
+            blights and the Gulthias tree; BUG-2255, frozen-unfixed.
+        (4) BEYOND MASTER: a petrified ent statue or figurine hit by
+            stone to flesh revives as an ent, like the golem rule
+            ("turns into wood" / "The figurine turns to wood and
+            animates!"). When the ent can't be made, the stone is left
+            alone, as a golem's is (reviewer LOW, folded).
+      - Kept: 5.0's "seems fleshier..." and stone-mimic extras.
+      - Review: PASS; MED (death statue) and LOW (genocided ents)
+        folded; NITs left (untouched "stone golem" comments that stay
+        true). Narrow re-review PASS.
+      - Battery (three game-testers, pre-staged -d copies; PRE
+        1bdd8e9b = 8c4227177 code, POST1 d411f677 pre-fold, POST2
+        c117fc7b landed): every leg PASS, paniclogs absent.
+        - Monster ent and elder ent: "solidifies...  Now it's a
+          petrified ent.", alive (PRE: a statue).
+        - Tree blight and Gulthias tree: statues on both builds.
+        - Hero ent: picking up a corpse or clawing a cockatrice gives
+          "You turn into a petrified ent!" (PRE: stoned).
+        - A Stoned human who polymorphs into an ent ends a petrified
+          ent with Stoned cleared.
+        - Stone to flesh at a petrified ent, at yourself, at its
+          statue and at its figurine gives an ent each time (PRE: no
+          change, or a petrified ent). Golem controls are unchanged.
+          A downward cast while riding still reaches the floor.
+        - Fold legs: the death statue (POST1 a corpse), and with ents
+          genocided the statue and figurine are left alone (POST1
+          corpses).
+        - Observed, master parity: a peaceful petrified ent hit by
+          the spell gets angry (wake stays TRUE).
+      Original text: (NEW, minted 2026-10-09 by the hero spell parity
+      B slice, session 201, ruled its own row). The branch's bhitm()
+      SPE_STONE_TO_FLESH arm is 5.0's (stone golem -> flesh golem,
+      "seems fleshier...", a stone-disguised mimic revealed). Master's
+      has: (a) f1d39f476 - a petrified ent turns into an ent ("turns
+      to wood!" / "looks rather woody for a moment."), LIVE today (the
+      branch has PM_PETRIFIED_ENT); (b) 57e3569c2 - a monster that is
+      turning to stone is cured (mstone = 0, mcanmove = 1, "seems
+      limber!" / the hallucinatory "ruined a future piece of art"
+      line), DEAD on the branch until gradual monster stoning (master
+      2f58ace93) lands - port it with the Hdgn-slice riders row (a);
+      (c) b41949570's zap.c line - SPE_STONE_TO_FLESH in zap_steed()'s
+      bhitm list, so '>' while riding hits the steed instead of the
+      floor (its mhitu.c half is already on the branch). Keep 5.0's
+      fleshier / mimic extras unless ruled otherwise.
+- [ ] MED: #apply a dwarvish bearded axe is unported (NEW, minted
+      2026-10-10 by the ent stoning slice, session 208; no earlier
+      row). Master 8041aacfe (New weapon: dwarvish bearded axe) gave
+      doapply() a DWARVISH_BEARDED_AXE case -> apply.c use_axe(), a
+      whip-like hook ("The axe comes free.", "Swoosh!", the snatch).
+      The branch has the object, the wish name, the weapon skill and
+      monster use, but no apply arm. The monster side lives under the
+      muse offensive-item parity deferral (DWARVISH_BEARDED_AXE
+      disarm) and the Expert-shield hook resist. RIDERS: (a) the
+      enexto_core_mon pit escape already recorded on the bare-enexto
+      row; (b) its cockatrice snatch must use
+      `polymon(stoned_form(gy.youmonst.data))` (BUG-2254), not
+      master's double polymon; (c) BUG-392's stackobj() on the
+      dropped item. Needs scoping.
 - [ ] LOW: a helpful spell angers a shopkeeper hit from outside his
       shop (NEW, minted 2026-10-09 by the hero spell parity B
       reviewer, session 201; battery-confirmed). bhitm()'s tail runs
@@ -9803,8 +9882,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           builds, from before any spell code ran (PRE step
           captures) -> the curses popup border residue row below.
 - [x] MED: a known scroll of enchant armor lets you choose the worn
-      armor PORTED 2026-10-10 (session 207; BUG-2252; code TBD,
-      tracker TBD; plan /root/.claude/plans/logical-honking-summit.md).
+      armor PORTED 2026-10-10 (session 207; BUG-2252; code 45197a247,
+      tracker 8c4227177; plan
+      /root/.claude/plans/logical-honking-summit.md).
       Minted 2026-10-09 by the hero spell parity A reviewer's hunk
       audit (session 200).
       - Master 9e66945b6's read.c half, with 3b3da8b1f's barding
@@ -27418,6 +27498,16 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       monster_detect(), and magic_detect(), which was ported whole
       with its guard. That leaves the branch at 7 guarded sites and
       11 unguarded master sites. Both new guards are inert.
+      RIDER 2026-10-10 (session 208, ent stoning slice; moved here
+      from the closed stone to flesh row): stone to flesh's mstone
+      cure arm (57e3569c2: mstone = 0, mcanmove = 1, "seems limber!",
+      the hallucinatory "you just ruined a future piece of art!"),
+      and b41949570's SPE_STONE_TO_FLESH line in zap_steed()'s bhitm
+      list (RULED deferred: no branch steed can be affected until
+      mstone has a producer, and the line alone would only stop a
+      downward cast reaching the floor while riding). The mstone
+      countdown's mon_to_stone() step already turns true ents into
+      petrified ents (BUG-2253).
       (b) master's floater-pickup restriction (mpickgold/
       mpickstuff/can_carry gates: is_floater or can_levitate
       monsters cannot reach the floor, beholder/Tal'Gath exempt)
@@ -27731,6 +27821,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-10 | Ent stoning / stone to flesh slice rulings (session 208; AskUserQuestion x2, four questions, all recommended). (1) INTENT FORM FOR THE HERO SITES: master f1d39f476's stoning half is ported with mondata.c stoned_form() picking the stone form by body (true ent -> petrified ent, golem -> stone golem) at all 17 hero sites and in polymon()'s Stoned arm. Master tries polymon(PM_STONE_GOLEM) first, so a stoned hero ent becomes a stone golem (stone golems lack G_GENO, so its petrified ent fallback never runs); BUG-2254, frozen-unfixed. Rejected: master's exact order; a stone-to-flesh-only slice with a row for the stoning half. (2) b41949570's zap_steed() SPE_STONE_TO_FLESH line DEFERRED to the Hdgn-slice riders row (a) beside the mstone cure: no branch steed can be affected (golems and ents can't be saddled, mstone has no producer), so alone it would only stop a downward cast reaching the floor while riding. Rejected: port it now for parity. (3) ONLY TRUE ENTS PETRIFY: poly_when_stoned() / mon_to_stone() use is_true_ent() (ent, elder ent), matching the commit and the wiki; master's is_ent() also turns tree blights and the Gulthias tree into petrified ents (BUG-2255, frozen-unfixed). Rejected: master's whole S_ENT class. (4) BEYOND MASTER: a petrified ent statue or figurine hit by stone to flesh revives as an ent, mirroring the golem -> flesh golem rule ("turns into wood" / "The figurine turns to wood and animates!"); master revives a petrified ent. Rejected: master parity. Plan-approved, no question: the reviewer's MED (make_corpse()'s petrified ent death statue, f1d39f476's fourth piece) folded as master parity; its LOW folded under ruling (4): an ent that can't be made (genocided, or no room) leaves the statue / figurine alone, as a golem's is. | maintainer (rulings); session, plan-approved (rest) |
 | 2026-10-10 | Enchant armor choice slice ruling (session 207; AskUserQuestion x1, recommended). EMBEDDED ARMOR IS NEVER A CHOICE, FOR BOTH CALLERS: do_wear.c worn_armor_ok() (the getobj callback shared by a known scroll of enchant armor and a Basic repair armor cast) excludes uskin, which keeps its slot bit plus I_SPECIAL after polyself()'s do_merge. A known scroll that picked embedded scales re-entered do_merge (impossible "Already merged with some armor!", or system shock) and stretched the dragon form 1.5x per blessed read; an evaporating embedded suit hit "Removing embedded scales?". Master has the same hole and a wider reach (no count gate). Picking its letter now gives "That is a silly thing to enchant." / "...to magically repair."; count_worn_armor() and both random paths already ignored it. Rejected: a scroll-only exclusion that keeps master's harmless Basic repair of embedded armor, and treating the scroll pick as "Your skin glows then fades.". Plan-approved, no question: one shared choose_worn_armor() in place of a second copy of the spell's block; YN() for the barding query (^A replay). | maintainer (ruling); session, plan-approved (rest) |
 | 2026-10-09 | #turn ladder slice ruling (session 204; AskUserQuestion x1, recommended). MASTER'S LIVE LADDER: master 2f365eaab inserted the S_SKELETON +2 step between S_MUMMY and S_ZOMBIE, and because the ladder falls through, every tier above zombies moved up 2 levels. The minimum XL to destroy (lawful) or pacify (chaotic) is zombie 6, skeleton 8, mummy 10, wraith 12, vampire 14, ghost 16, lich / alhoon 18, exactly as on live 0.9.3 since December 2024. Rejected: keeping vanilla's tiers (zombie 6, mummy 8 ... lich 16) with skeletons slotted in beside zombies at 6. The alhoon joins the lich tier either way (eb9b1743a). | maintainer |
 | 2026-10-09 | Hero spell parity B slice rulings (session 201; AskUserQuestion x2, four questions, all recommended). (1) 5.0 a3f0b54ae KEPT, LAYERED: a Healer gains experience equal to the HP a hurt pet was missing (capped at the roll), and Pestilence takes half the rolled heal through resist(), both on master's skill dice (c692dc3bf, 4 / 6 / 8 / 10) and master's alignment terms (a54b23421 / 226926e5c); rejected master's exact shape (no experience, Pestilence d(3, 4 / 8 / 12) - vanilla's term, not authored). (2) CURE DISEASE TOO: the hero's cure sickness on a monster clears mdiseased and the sickness / disease / withering timers and credit like master's own monster self-cast, and critical healing's 1-in-4 cure does the same (BUG-2243, master sibling miss, frozen-unfixed); rejected master's msick + mwither only. (3) STONE TO FLESH'S MONSTER EXTRAS (f1d39f476 petrified ent, b41949570's zap_steed line, 57e3569c2's stoning cure) MINTED AS A MED ROW, not folded. (4) THE DEMON REFUSAL IS A HELPFUL GESTURE: e550e0abc's guard still refuses an opposite-gender cancelled amorous demon, but a peaceful one is not angered (BUG-2244, master quirk, frozen-unfixed); rejected master's exact shape (guilt, -5). Plan-approved: the self restore ability cast routes through peffects() so session 199's abuse-reset ruling holds; the self cure sickness text stays 5.0's (moved verbatim). | maintainer (1-4); session, plan-approved (rest) |
