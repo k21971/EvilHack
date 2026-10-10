@@ -909,6 +909,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         free_mgivenname(mtmp);
         break;
     case PM_STONE_GOLEM:
+    case PM_PETRIFIED_ENT:
         corpstatflags &= ~CORPSTAT_INIT;
         obj = mkcorpstat(STATUE, (struct monst *) 0, mdat, x, y,
                          corpstatflags);
@@ -1125,7 +1126,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_LIZARD: case PM_TORTLE_SHAMAN: case PM_CHAMELEON: case PM_CROCODILE:
     case PM_GIANT_TURTLE: case PM_CAVE_LIZARD: case PM_SALAMANDER:
     case PM_FROST_SALAMANDER: case PM_LARGE_CAVE_LIZARD:
-    case PM_GIANT_CROCODILE: case PM_PETRIFIED_ENT:
+    case PM_GIANT_CROCODILE:
     case PM_CREEPING_MOUND: case PM_TWIG_BLIGHT: case PM_NEEDLE_BLIGHT:
     case PM_ASSASSIN_VINE: case PM_ORB_OF_FROST: case PM_ORB_OF_FIRE:
     case PM_ARCHEOLOGIST: case PM_BARBARIAN: case PM_CAVE_DWELLER:
@@ -6180,11 +6181,11 @@ xkilled(
 void
 mon_to_stone(struct monst *mtmp)
 {
-    if (mtmp->data->mlet == S_GOLEM) {
-        /* it's a golem, and not a stone golem */
+    if (is_golem(mtmp->data) || is_true_ent(mtmp->data)) {
+        /* a golem or an ent, and not already its stone form */
         if (canseemon(mtmp))
             pline_mon(mtmp, "%s solidifies...", Monnam(mtmp));
-        if (newcham(mtmp, &mons[PM_STONE_GOLEM], NO_NC_FLAGS)) {
+        if (newcham(mtmp, &mons[stoned_form(mtmp->data)], NO_NC_FLAGS)) {
             if (canseemon(mtmp))
                 pline("Now it's %s.", an(pmname(mtmp->data, Mgender(mtmp))));
         } else {

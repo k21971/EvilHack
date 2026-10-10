@@ -646,7 +646,7 @@ m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
                     && touch_petrifies(&mons[obj->corpsenm])) {
                     if (!Stone_resistance
                         && !(poly_when_stoned(gy.youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                             && polymon(stoned_form(gy.youmonst.data)))) {
                         svk.killer.format = KILLED_BY_AN;
                         Sprintf(svk.killer.name,
                                 "telekinetically hurled %s %s",

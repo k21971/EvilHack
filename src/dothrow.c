@@ -1457,7 +1457,7 @@ toss_up(struct obj *obj, boolean hitsroof)
         case EGG:
             if (petrifier && !Stone_resistance
                 && !(poly_when_stoned(gy.youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+                     && polymon(stoned_form(gy.youmonst.data)))) {
                 /* egg ends up "all over your face"; perhaps
                    visored helmet should still save you here */
                 if (uarmh)
@@ -1570,7 +1570,7 @@ toss_up(struct obj *obj, boolean hitsroof)
             harmless = FALSE;
         } else if (petrifier && !Stone_resistance
                    && !(poly_when_stoned(gy.youmonst.data)
-                        && polymon(PM_STONE_GOLEM))) {
+                        && polymon(stoned_form(gy.youmonst.data)))) {
  petrify:
             svk.killer.format = KILLED_BY;
             /* what goes up... */

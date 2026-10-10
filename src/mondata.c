@@ -82,10 +82,21 @@ noattacks(struct permonst *ptr)
 boolean
 poly_when_stoned(struct permonst *ptr)
 {
-    /* non-stone golems turn into stone golems unless latter is genocided */
-    return (boolean) (is_golem(ptr) && ptr != &mons[PM_STONE_GOLEM]
-                      && !(svm.mvitals[PM_STONE_GOLEM].mvflags & G_GENOD));
+    /* non-stone golems turn into stone golems unless latter is genocided,
+       same for ents and elder ents -> petrified ents */
+    return (boolean) ((is_golem(ptr) && ptr != &mons[PM_STONE_GOLEM]
+                       && !(svm.mvitals[PM_STONE_GOLEM].mvflags & G_GENOD))
+                      || (is_true_ent(ptr) && ptr != &mons[PM_PETRIFIED_ENT]
+                          && !(svm.mvitals[PM_PETRIFIED_ENT].mvflags
+                               & G_GENOD)));
     /* allow G_EXTINCT */
+}
+
+/* the stone form a poly_when_stoned() monster type turns into */
+int
+stoned_form(struct permonst *ptr)
+{
+    return is_true_ent(ptr) ? PM_PETRIFIED_ENT : PM_STONE_GOLEM;
 }
 
 /* is 'mon' (possibly youmonst) protected against damage type 'adtype' via

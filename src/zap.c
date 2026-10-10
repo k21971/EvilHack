@@ -827,6 +827,18 @@ bhitm(struct monst *mtmp, struct obj *otmp)
 
             if (canseemon(mtmp))
                 pline("%s %s", name, mesg);
+        } else if (monsndx(mtmp->data) == PM_PETRIFIED_ENT) {
+            const char *mesg;
+            char *name = Monnam(mtmp); /* before possible polymorph */
+
+            /* turn petrified ent into a regular ent */
+            if (newcham(mtmp, &mons[PM_ENT], NO_NC_FLAGS))
+                mesg = "turns to wood!";
+            else
+                mesg = "looks rather woody for a moment.";
+
+            if (canseemon(mtmp))
+                pline("%s %s", name, mesg);
         } else if (mtmp->data->mlet == S_MIMIC
                    && ((M_AP_TYPE(mtmp) == M_AP_FURNITURE
                         && stone_furniture_type(mtmp->mappearance))
@@ -2579,7 +2591,7 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     struct monst *mon, *shkp;
     struct obj *item;
     coordxy oox, ooy;
-    boolean smell = FALSE, golem_xform = FALSE;
+    boolean smell = FALSE, golem_xform = FALSE, ent_xform = FALSE;
     int res = 1; /* affected object by default */
 
     if (objects[obj->otyp].oc_material != MINERAL
@@ -2601,6 +2613,8 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
             ptr = &mons[obj->corpsenm];
             if (is_golem(ptr)) {
                 golem_xform = (ptr != &mons[PM_FLESH_GOLEM]);
+            } else if (ptr == &mons[PM_PETRIFIED_ENT]) {
+                ent_xform = TRUE;
             } else if (vegetarian(ptr)) {
                 /* Don't animate monsters that aren't flesh */
                 obj = poly_obj(obj, MEATBALL);
@@ -2608,11 +2622,14 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
                 break;
             }
             if (obj->otyp == STATUE) {
-                /* animate_statue() forces all golems to become flesh golems */
+                /* animate_statue() forces all golems to become flesh golems
+                   and a petrified ent to become an ent */
                 mon = animate_statue(obj, oox, ooy, ANIMATE_SPELL, (int *) 0);
             } else { /* (obj->otyp == FIGURINE) */
                 if (golem_xform)
                     ptr = &mons[PM_FLESH_GOLEM];
+                else if (ent_xform)
+                    ptr = &mons[PM_ENT];
                 mon = makemon(ptr, oox, ooy,
                               NO_MINVENT | MM_NOMSG | MM_NOSTEED);
                 if (mon) {
@@ -2630,7 +2647,9 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
                         delobj(obj);
                     if (cansee(mon->mx, mon->my))
                         pline_The("figurine %sanimates!",
-                                  golem_xform ? "turns to flesh and " : "");
+                                  golem_xform ? "turns to flesh and "
+                                  : ent_xform ? "turns to wood and "
+                                    : "");
                 }
             }
             if (mon) {
@@ -2639,8 +2658,11 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
                 if (is_golem(ptr) && ptr != &mons[PM_FLESH_GOLEM])
                     (void) newcham(mon, &mons[PM_FLESH_GOLEM],
                                    NC_VIA_WAND_OR_SPELL);
-            } else if ((ptr->geno & (G_NOCORPSE | G_UNIQ)) != 0) {
-                /* didn't revive but can't leave corpse either */
+            } else if (ent_xform
+                       || (ptr->geno & (G_NOCORPSE | G_UNIQ)) != 0) {
+                /* didn't revive but can't leave corpse either; an ent
+                   that couldn't be made leaves the stone alone, the
+                   way a golem does */
                 res = 0;
             } else {
                 /* unlikely to get here since genociding monsters also
@@ -3781,6 +3803,10 @@ zapyourself(struct obj *obj, boolean ordinary)
         if (u.umonnum == PM_STONE_GOLEM) {
             learn_it = TRUE;
             (void) polymon(PM_FLESH_GOLEM);
+        }
+        if (u.umonnum == PM_PETRIFIED_ENT) {
+            learn_it = TRUE;
+            (void) polymon(PM_ENT);
         }
         if (Stoned) {
             learn_it = TRUE;

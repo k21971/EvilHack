@@ -2538,8 +2538,7 @@ gazemu(struct monst *mtmp, struct attack *mattk)
             stop_occupation();
             if (Stone_resistance
                 || (poly_when_stoned(gy.youmonst.data)
-                    && (polymon(PM_STONE_GOLEM)
-                        || polymon(PM_PETRIFIED_ENT)))) {
+                    && polymon(stoned_form(gy.youmonst.data)))) {
                 You("are unaffected by %s gaze.", s_suffix(mon_nam(mtmp)));
                 break;
             }

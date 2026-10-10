@@ -1219,8 +1219,8 @@ polymon(int mntmp)
     You("%s %s!", (u.umonnum != mntmp) ? "turn into" : "feel like", an(buf));
 
     if (Stoned && poly_when_stoned(&mons[mntmp])) {
-        /* poly_when_stoned already checked stone golem genocide */
-        mntmp = PM_STONE_GOLEM;
+        /* poly_when_stoned() already checked the stone form's genocide */
+        mntmp = stoned_form(&mons[mntmp]);
         make_stoned(0L, "You turn to stone!", 0, (char *) 0);
     }
 

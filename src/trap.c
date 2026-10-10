@@ -950,7 +950,7 @@ animate_statue(
     coord cc;
     boolean historic = (Role_if(PM_ARCHEOLOGIST)
                         && (statue->spe & CORPSTAT_HISTORIC) != 0),
-            golem_xform = FALSE, use_saved_traits;
+            golem_xform = FALSE, ent_xform = FALSE, use_saved_traits;
     const char *comes_to_life;
     char statuename[BUFSZ], tmpbuf[BUFSZ];
 
@@ -965,6 +965,12 @@ animate_statue(
         mnum = PM_FLESH_GOLEM;
         mptr = &mons[PM_FLESH_GOLEM];
         use_saved_traits = (has_omonst(statue) && !golem_xform);
+    } else if (mptr == &mons[PM_PETRIFIED_ENT] && cause == ANIMATE_SPELL) {
+        /* statue of a petrified ent hit by stone-to-flesh becomes an ent */
+        ent_xform = TRUE;
+        mnum = PM_ENT;
+        mptr = &mons[PM_ENT];
+        use_saved_traits = FALSE;
     } else {
         use_saved_traits = has_omonst(statue);
     }
@@ -1029,9 +1035,10 @@ animate_statue(
 
     comes_to_life = !canspotmon(mon) ? "disappears"
                     : golem_xform ? "turns into flesh"
-                      : (nonliving(mon->data) || is_vampshifter(mon))
-                        ? "moves"
-                        : "comes to life";
+                      : ent_xform ? "turns into wood"
+                        : (nonliving(mon->data) || is_vampshifter(mon))
+                          ? "moves"
+                          : "comes to life";
     if (u_at(x, y) || cause == ANIMATE_SPELL) {
         /* "the|your|Manlobbi's statue [of a wombat]" */
         shkp = shop_keeper(*in_rooms(mon->mx, mon->my, SHOPBASE));
@@ -4617,7 +4624,8 @@ instapetrify(const char *str)
 {
     if (Stone_resistance)
         return;
-    if (poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))
+    if (poly_when_stoned(gy.youmonst.data)
+        && polymon(stoned_form(gy.youmonst.data)))
         return;
     urgent_pline("You turn to stone...");
     svk.killer.format = KILLED_BY;
@@ -6826,7 +6834,8 @@ help_monster_out(
         You("grab the trapped %s using your bare %s.",
             mtmp_pmname, makeplural(body_part(HAND)));
 
-        if (poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM)) {
+        if (poly_when_stoned(gy.youmonst.data)
+            && polymon(stoned_form(gy.youmonst.data))) {
             display_nhwindow(WIN_MESSAGE, FALSE);
         } else {
             char kbuf[BUFSZ];

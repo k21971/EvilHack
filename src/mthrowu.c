@@ -1212,7 +1212,7 @@ m_throw(
             if (hitu && singleobj->otyp == EGG) {
                 if (!Stoned && !Stone_resistance
                     && !(poly_when_stoned(gy.youmonst.data)
-                         && polymon(PM_STONE_GOLEM))) {
+                         && polymon(stoned_form(gy.youmonst.data)))) {
                     make_stoned(5L, (char *) 0, KILLED_BY, "");
                 }
             }

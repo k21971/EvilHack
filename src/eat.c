@@ -941,7 +941,7 @@ cprefx(int pm)
     if (flesh_petrifies(&mons[pm])) {
         if (!Stone_resistance
             && !(poly_when_stoned(gy.youmonst.data)
-                 && polymon(PM_STONE_GOLEM))) {
+                 && polymon(stoned_form(gy.youmonst.data)))) {
             /* if food was a tin, use it up early to keep it out of bones */
             if (svc.context.tin.tin)
                 use_up_tin(svc.context.tin.tin);
@@ -3128,7 +3128,7 @@ fpostfx(struct obj *otmp)
             && flesh_petrifies(&mons[otmp->corpsenm])) {
             if (!Stone_resistance
                 && !(poly_when_stoned(gy.youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+                     && polymon(stoned_form(gy.youmonst.data)))) {
                 if (!Stoned) {
                     Sprintf(svk.killer.name, "%s egg",
                             mons[otmp->corpsenm].pmnames[NEUTRAL]);

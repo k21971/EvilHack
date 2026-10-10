@@ -505,7 +505,8 @@ use_saddle(struct obj *otmp)
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))) {
+        if (!(poly_when_stoned(gy.youmonst.data)
+              && polymon(stoned_form(gy.youmonst.data)))) {
             Sprintf(kbuf, "attempting to saddle %s",
                     an(pmname(mtmp->data, Mgender(mtmp))));
             instapetrify(kbuf);
@@ -678,7 +679,8 @@ use_barding(struct obj *otmp)
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))) {
+        if (!(poly_when_stoned(gy.youmonst.data)
+              && polymon(stoned_form(gy.youmonst.data)))) {
             Sprintf(kbuf, "attempting to put barding on %s",
                     an(pmname(mtmp->data, Mgender(mtmp))));
             instapetrify(kbuf);

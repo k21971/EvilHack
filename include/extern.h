@@ -2069,6 +2069,7 @@ extern struct attack *attacktype_fordmg(struct permonst *, int, int) NONNULLARG1
 extern boolean attacktype(struct permonst *, int) NONNULLARG1;
 extern boolean noattacks(struct permonst *) NONNULLARG1;
 extern boolean poly_when_stoned(struct permonst *) NONNULLARG1;
+extern int stoned_form(struct permonst *) NONNULLARG1;
 extern boolean defended(struct monst *, int) NONNULLARG1;
 extern boolean Resists_Elem(struct monst *, int) NONNULLARG1;
 extern boolean resists_drli(struct monst *) NONNULLARG1;

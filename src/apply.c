@@ -3661,7 +3661,7 @@ use_whip(struct obj *obj)
                         && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
                         && !Stone_resistance
                         && !(poly_when_stoned(gy.youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                             && polymon(stoned_form(gy.youmonst.data)))) {
                         char kbuf[BUFSZ];
 
                         Strcpy(kbuf, (otmp->quan == 1L) ? an(onambuf)

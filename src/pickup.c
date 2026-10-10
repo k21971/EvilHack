@@ -288,7 +288,8 @@ fatal_corpse_mistake(struct obj *obj, boolean remotely)
     if (u_safe_from_fatal_corpse(obj, st_all) || remotely)
         return FALSE;
 
-    if (poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM)) {
+    if (poly_when_stoned(gy.youmonst.data)
+        && polymon(stoned_form(gy.youmonst.data))) {
         display_nhwindow(WIN_MESSAGE, FALSE); /* --More-- */
         return FALSE;
     }

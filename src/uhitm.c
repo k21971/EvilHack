@@ -3221,7 +3221,8 @@ theft_petrifies(struct obj *otmp)
         return FALSE;
 
 #if 0   /* no poly_when_stoned() critter has theft capability */
-    if (poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM)) {
+    if (poly_when_stoned(gy.youmonst.data)
+        && polymon(stoned_form(gy.youmonst.data))) {
         display_nhwindow(WIN_MESSAGE, FALSE);   /* --More-- */
         return TRUE;
     }
@@ -6453,7 +6454,7 @@ do_stone_u(struct monst *mtmp)
 {
     if (!Stoned && !Stone_resistance
         && !(poly_when_stoned(gy.youmonst.data)
-             && polymon(PM_STONE_GOLEM))) {
+             && polymon(stoned_form(gy.youmonst.data)))) {
         char kbuf[BUFSZ];
 
         make_stoned(5L, (char *) 0, KILLED_BY, mon_killer_name(kbuf, mtmp));
@@ -9269,7 +9270,7 @@ passive(
                 || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
                 if (!Stone_resistance
                     && !(poly_when_stoned(gy.youmonst.data)
-                         && polymon(PM_STONE_GOLEM))) {
+                         && polymon(stoned_form(gy.youmonst.data)))) {
                     done_in_by(mon, STONING); /* "You turn to stone..." */
                     return M_ATTK_DEF_DIED;
                 }

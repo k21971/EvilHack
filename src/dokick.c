@@ -637,7 +637,8 @@ really_kick_object(coordxy x, coordxy y)
         You("kick %s with your bare %s.",
             corpse_xname(gk.kickedobj, (const char *) 0, CXN_PFX_THE),
             makeplural(body_part(FOOT)));
-        if (poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM)) {
+        if (poly_when_stoned(gy.youmonst.data)
+            && polymon(stoned_form(gy.youmonst.data))) {
             ; /* hero has been transformed but kick continues */
         } else {
             /* normalize body shape here; foot, not body_part(FOOT) */
