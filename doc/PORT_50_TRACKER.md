@@ -17,12 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-10, after session 206): 349
+- Phase 2 status (refreshed 2026-10-10, after session 207): 350
   rows closed, 112 open. Of the open rows:
   - 0 HIGH.
-  - 5 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, choosing
-    the worn armor a known enchant armor scroll hits, stone to
+  - 4 MED: unported master features (terrain concealment,
+    door-material colors, the held artifact pokedex tips, stone to
     flesh's monster extras).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
@@ -34,7 +33,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 91 LOW: small parity rows, quirks and watch/record-only items.
+  - 92 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -160,28 +159,32 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     mk_gen_ok() Mines generation gates row (MED); session 205 the
     corpse_chance() alhoon / Kas crumble row; session 206 the
     dotele() vault-trap freed-pointer row and the curses popup
-    border residue row.
+    border residue row; session 207 the confused-scroll
+    supermaterial shimmer row.
     The Armor_on() landing, polymorph-over-a-hole and destroyed
     levitation boots rows landed in session 187; the ridden steed
     landing, TT_ENTANGLED flyer and float_down() double-trap rows in
     session 188.
-- Latest slice: 2026-10-10 (session 206) SPELLS 53-62 GET DIGIT
-  LETTERS; TPORT_SPELL() GUARDS (code TBD, tracker TBD;
-  BUG-2249..2251).
-  - spellet() / spell_let_to_idx() / getspell()'s letter range
-    take master's '0'..'9' tier; tport_spell() and dotelecmd()
-    take master's guards and dispatch. Closes the MED spell letters
-    past 52 spells row and the LOW tport_spell() guards row.
-  - Minted: the LOW dotele() vault-trap freed-pointer row and the
-    LOW curses popup border residue row (both builds); the Windows
-    menu digit-accelerator find rides the PLATFORM PARITY row as
-    item (8).
-  - Detail: the closed spell letters row.
-- Previous slice: 2026-10-10 (session 205) NO MASTER MIND FLAYERS
+- Latest slice: 2026-10-10 (session 207) A KNOWN ENCHANT ARMOR
+  SCROLL LETS YOU CHOOSE THE WORN ARMOR (code TBD, tracker TBD;
+  BUG-2252).
+  - seffect_enchant_armor() takes master's known-reader prompt via
+    a do_wear.c choose_worn_armor() shared with the repair armor
+    spell; armor embedded in the skin is never a choice (ruled).
+    Closes the MED enchant armor choice row.
+  - Minted: the LOW confused-scroll supermaterial shimmer row.
+    Corrected: session 141's dragon-scales battery note that called
+    the wiki's "select the scales" stale.
+  - Detail: the closed enchant armor choice row.
+- Previous slice: 2026-10-10 (session 206) SPELLS 53-62 GET DIGIT
+  LETTERS; TPORT_SPELL() GUARDS (code a1b08d644, tracker
+  56754cd3b; BUG-2249..2251); detail in the closed spell letters
+  row.
+- Earlier slices: 2026-10-10 (session 205) NO MASTER MIND FLAYERS
   OR ALHOONS IN THE MINES, NO VAMPIRE MAGES AT MINES' END (code
-  ce65979e2, tracker e6d3cb9a8; BUG-2248); detail in the closed
-  mk_gen_ok() row.
-- Earlier slices: 2026-10-09 (session 204) #TURN'S UNDEAD LADDER
+  ce65979e2, tracker e6d3cb9a8; BUG-2248; detail in the closed
+  mk_gen_ok() row);
+  2026-10-09 (session 204) #TURN'S UNDEAD LADDER
   TAKES MASTER'S STEPS (code 70b24f8e9, tracker 6acb23402;
   BUG-2247; detail in the closed #turn ladder row);
   2026-10-09 (session 203) A DWARF'S RACIAL
@@ -9745,7 +9748,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the branch's condition. Battery: kill a seen alhoon and Kas
       on both builds.
 - [x] MED: spells 53-62 get digit letters PORTED 2026-10-10 (session
-      206; BUG-2249; code TBD, tracker TBD; plan
+      206; BUG-2249; code a1b08d644, tracker 56754cd3b; plan
       /root/.claude/plans/composed-baking-ladybug.md).
       - spellet() takes master ccf51af86's third tier: indices
         52..61 -> '0'..'9', 62+ -> '?' (unreachable: the branch has
@@ -9799,17 +9802,160 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         - Side observation: a curses popup-border residue on both
           builds, from before any spell code ran (PRE step
           captures) -> the curses popup border residue row below.
-- [ ] MED: a known scroll of enchant armor lets you choose the worn
-      armor (NEW, minted 2026-10-09 by the hero spell parity A
-      reviewer's hunk audit, session 200). Master 9e66945b6's read.c
-      half: a known enchant armor scroll asks which worn armor to
-      enchant, with a "You cannot enchant armor that is not worn."
-      loop; the branch's seffect_enchant_armor() has only the
-      barding y/n and some_armor(). Use a worn-armor getobj callback
-      like the spell's repair_armor_ok().
+- [x] MED: a known scroll of enchant armor lets you choose the worn
+      armor PORTED 2026-10-10 (session 207; BUG-2252; code TBD,
+      tracker TBD; plan /root/.claude/plans/logical-honking-summit.md).
+      Minted 2026-10-09 by the hero spell parity A reviewer's hunk
+      audit (session 200).
+      - Master 9e66945b6's read.c half, with 3b3da8b1f's barding
+        order. A KNOWN scroll first asks a rider "Enchant <steed>'s
+        barding?". On 'n', or with no barding, it asks "What do you
+        want to enchant?" with only worn armor listed. An unworn pick
+        loops on "You cannot enchant armor that is not worn.". With
+        nothing worn it prints "You don't have anything (else) to
+        enchant.". A null pick (ESC, a silly thing, nothing worn)
+        takes the strange-feeling path and the scroll is used up. An
+        UNKNOWN scroll keeps cloak-slot scales first, else
+        some_armor(). The branch used to take scales-or-some_armor()
+        for every reader and ask about the barding after that pick.
+      - 5.0 idiom: the repair armor spell's inline block (session 200,
+        BUG-2233) moved into do_wear.c choose_worn_armor(word, verb),
+        beside any_worn_armor_ok() / count_worn_armor().
+        repair_armor_ok() became staticfn worn_armor_ok(). The spell
+        calls it with ("magically repair", "repair"), the known scroll
+        with ("enchant", "enchant"). The barding query is built as
+        "%s %s " + upstart(). Text is unchanged for both callers.
+      - RULING (AskUserQuestion x1, recommended): armor merged into
+        the hero's skin (uskin) is excluded for BOTH callers. It keeps
+        its slot bit plus I_SPECIAL after do_merge, so the first build
+        suggested it. A known scroll picking embedded scales
+        re-entered polyself()'s do_merge, which hits impossible
+        "Already merged with some armor!" (or system shock). It also
+        stretched the dragon form 1.5x per blessed read. An evaporating
+        embedded suit hit remove_worn_item()'s "Removing embedded
+        scales?". Master has the same hole with a wider reach: no
+        count gate, so even a dragon wearing nothing else is offered
+        its skin. On the branch it needs the Hand of Vecna, the only
+        counted piece a dragon form keeps. Rejected: scroll-only
+        exclusion, and treating the pick as "Your skin glows then
+        fades.". Cost: a Basic repair armor cast can no longer pick
+        the embedded armor (harmless on master). count_worn_armor()
+        and both random paths already ignored it.
+      - REVIEW: CONDITIONAL PASS (MED uskin, above). LOW folded: the
+        barding query uses YN(), so ^A asks it live. y_n() queued the
+        answer, and if the steed was gone at replay, getobj() read
+        the queued 'n' as an inventory letter (this was already true
+        of the spell). LOW recorded: "anything else" when uskin is
+        the only armor (consistent with the ruling). NITs folded: the
+        header names the barding return, and the exclusion comment
+        names the hazard. Narrow re-review PASS: uskin cannot reach
+        seffect_enchant_armor() by any path (uarmc is NULL after
+        do_merge, and some_armor() reads only u-slot pointers). A
+        live 'n' on a replay whose original answer was 'y' makes
+        getobj() wait for a key without its prompt. That is 5.0's
+        normal empty-queue replay behavior, not a desync.
+      - BATTERY (two game-testers split by binary, tmux t207-pre /
+        t207-post; -d copies pre-staged; PRE 8cc2cf59 = 56754cd3b
+        code, POST1 a2eb5e9b = the pre-fold build; lawful human
+        Knights, XL 30): every claim PASS on both builds, paniclogs
+        absent.
+        - U1 / U2 (unknown, both builds): no prompt; the scales meld
+          ("Your set of silver dragon scales hardens and melds into
+          your mail!"); without scales a random piece is enchanted.
+        - K1: POST "What do you want to enchant? [cdef or ?*]", with
+          the unworn +99 helm and shield left out of the list and the
+          `?` menu. Picking d enchanted the helmet. PRE: no prompt,
+          random piece.
+        - K2 / K3: POST unworn pick "You cannot enchant armor that is
+          not worn." and the prompt again; ESC "Never mind." plus the
+          strange-feeling line. An apple gave "That is a silly thing
+          to enchant." The scroll was used up and no armor changed.
+        - K4 / K5: POST "You don't have anything else to enchant." /
+          "You don't have anything to enchant." then the
+          strange-feeling line. PRE: the strange-feeling line only.
+        - K6: POST "[defBC or ?*]". Picking the suit gave "Your ring
+          mail glows silver for a while." (-1 -> +2) with the scales
+          still worn. Picking the scales melded them. PRE: the first
+          read melded.
+        - K7: both "Enchant Farrah's set of barding? [yn] (n)"; y
+          raised the barding (POST 0 -> 2, PRE 0 -> 1). On n: POST
+          "[defB or ?*]" and the chosen gauntlets enchanted; PRE a
+          random piece.
+        - K8: confused, POST prompt; "Your helmet is covered by a
+          shimmering golden shield!" and the helmet became rustproof
+          with +N unchanged. PRE: a random piece (the helmet).
+        - S (repair armor at Basic matter): identical on both builds.
+          "[EF or ?*]"; the unworn re-prompt; both "anything (else)
+          to magically repair." lines with the skin-rash line;
+          "Repair Farrah's set of barding? [yn] (n)".
+        - Side observations, all known or parity: every
+          strange-feeling line was the beginner form (flags.beginner
+          stayed 1 after #levelchange); "Your set of barding glows
+          briefly" in the spell's barding line (session 200's
+          master-shared note); the re-brand welcome line; wished armor
+          with a random negative spe.
+        - BRIEF ERRORS (mine): the Knight kit on this build is plate
+          mail, helmet, large shield and iron gauntlets, not ring
+          mail, small shield and leather gloves; the meld line names
+          the suit's simple name ("your mail").
+      - FOLD LEGS (one game-tester, tmux t207-fold, POST1 a2eb5e9b vs
+        POST2 1bdd8e9b = the final code; four Knight games): every leg
+        PASS or BLOCKED as noted, paniclogs absent on both copies.
+        - F1: the Hand of Vecna worn plus bare silver scales; a known
+          read on the scales gave "You merge with your scaly armor.
+          You turn into a silver dragon!". The next known read: POST2
+          "[z or ?*]" (the Hand only); typing the scales' letter gave
+          "That is a silly thing to enchant." and the strange-feeling
+          line, with the form and HP unchanged. POST1 "[zA or ?*]";
+          picking the scales gave "You shudder for a moment." with
+          27 HP lost (the system-shock branch; the do_merge
+          impossible() is the other branch).
+        - F2 (uskin the only armor, the Hand unworn by gdb): both
+          builds "You don't have anything else to enchant.".
+        - F3 (the spell while a dragon): BLOCKED, "You have no hands
+          to cast!" on both builds.
+        - F4 (^A while riding): POST2 asked the barding question live
+          on replay, and 'n' replayed the helmet pick; POST1 replayed
+          the queued 'n' with no question. Steed gone (gdb
+          dismount_steed(0)) then ^A: POST2 enchanted the helmet;
+          POST1 wasted the scroll (the strange-feeling line only;
+          letter n was a whistle).
+        - BRIEF ERROR (mine): POST1's steed-gone replay was expected
+          to print "You don't have that object." or a silly-thing
+          line. In a replay, getobj()'s queued-key branch drops a
+          letter that is not SUGGEST / DOWNPLAY silently and returns
+          null.
+        - Side observation: the "Hand of Vecna" wish printed "Z - a
+          mummified hand named the Hand of Vecna." for invlet z on
+          both builds (the wish-invlet case row's fifth sighting,
+          recorded there).
+- [ ] LOW: confused enchant armor / destroy armor / enchant weapon do
+      not spare supermaterials (NEW, minted 2026-10-10 in session 207
+      while briefing the enchant armor choice battery; verified).
+      - Master 72ef72b45 ("Don't allow supermaterials to be
+        erodeproofed") and 13468d07c give read.c's three confused
+        arms an is_supermaterial() arm: "<Your item> shimmers for a
+        moment." (not Blind), and the oerodeproof bit is left clear.
+      - Enchant armor and enchant weapon run master's "as good as
+        new!" repair FIRST (13468d07c lets deteriorated supermaterials
+        be repaired) and the shimmer arm right after it. Destroy armor
+        takes the shimmer arm in place of the purple-glow arm.
+      - The branch's three arms are 5.0's text with no such arm. A
+        confused read on mithril / adamantine / dragon-hide gear
+        prints the golden-shield or purple-glow line and sets
+        oerodeproof on a supermaterial. Master keeps that bit clear
+        for every supermaterial: a set bit stops an item stacking with
+        look-alikes that display the same, and gives the destroy armor
+        spell a fourth shot.
+      - The branch already has maybe_erodeproof() and
+        is_supermaterial() (other 72ef72b45 hunks are ported); when
+        planning, re-check the commit's remaining hunks against the
+        branch. Battery: a confused read of each scroll on a mithril
+        piece, both builds.
 - [x] LOW: tport_spell() guards PORTED 2026-10-10 (session 206;
-      BUG-2250, with BUG-2251 for dotelecmd(); code TBD, tracker TBD;
-      detail and plan in the spell letters row above).
+      BUG-2250, with BUG-2251 for dotelecmd(); code a1b08d644,
+      tracker 56754cd3b; detail and plan in the spell letters row
+      above).
       - tport_spell() takes master ccf51af86's lazy `static boolean
         inited` (tport_indx = MAXSPELL on the first call) and the
         `tport_indx >= MAXSPELL` -> NOOP_SPELL guards before the
@@ -14589,6 +14735,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       and chromatic dragons are no-poly targets (the suit maps to blue/
       red); enchant armor melds worn scales without a target prompt
       (master's shape; the wiki's "select the scales" is stale).
+      [CORRECTED 2026-10-10, session 207: wrong. Master prompts a
+      KNOWN reader (9e66945b6), and the wiki was right. The
+      no-prompt melds were the branch's missing port, closed by the
+      enchant armor choice row (BUG-2252). Only an unknown scroll
+      melds without a prompt.]
       Observations, not defects: a non-light colour over a lit suit
       goes dark silently (end_burn, master parity); bare chromatic
       scales give MR only (design); a genesis'd player monster's white-
@@ -22231,6 +22382,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       object.", so the object never held the uppercase letter. The same
       wishes on PRE printed lowercase letters. All four sightings are
       BUC-prefixed wishes.
+      FIFTH SIGHTING (2026-10-10, session 207 fold battery, two builds
+      of 56754cd3b + the enchant armor choice diff, which touches no
+      wish or inventory code): "Hand of Vecna" (NO BUC prefix) printed
+      "Z - a mummified hand named the Hand of Vecna." for invlet z.
+      The W prompt offered "[cefuz or ?*]", and typing Z gave "You
+      don't have that object.". It happened in BOTH game As, which
+      makes it a candidate on-demand recipe: a lawful human Knight
+      with the default wizkit, #levelchange 30, then this as the first
+      wish. A barding wish in game B printed a lowercase "z -". The
+      BUC theory is out. prinv() / xprname() and pline.c have no case
+      mapping (checked again); trace with a gdb breakpoint on
+      xprname() during the wish.
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
       and races lost master's granted properties.` = 408713be5
@@ -27568,6 +27731,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-10 | Enchant armor choice slice ruling (session 207; AskUserQuestion x1, recommended). EMBEDDED ARMOR IS NEVER A CHOICE, FOR BOTH CALLERS: do_wear.c worn_armor_ok() (the getobj callback shared by a known scroll of enchant armor and a Basic repair armor cast) excludes uskin, which keeps its slot bit plus I_SPECIAL after polyself()'s do_merge. A known scroll that picked embedded scales re-entered do_merge (impossible "Already merged with some armor!", or system shock) and stretched the dragon form 1.5x per blessed read; an evaporating embedded suit hit "Removing embedded scales?". Master has the same hole and a wider reach (no count gate). Picking its letter now gives "That is a silly thing to enchant." / "...to magically repair."; count_worn_armor() and both random paths already ignored it. Rejected: a scroll-only exclusion that keeps master's harmless Basic repair of embedded armor, and treating the scroll pick as "Your skin glows then fades.". Plan-approved, no question: one shared choose_worn_armor() in place of a second copy of the spell's block; YN() for the barding query (^A replay). | maintainer (ruling); session, plan-approved (rest) |
 | 2026-10-09 | #turn ladder slice ruling (session 204; AskUserQuestion x1, recommended). MASTER'S LIVE LADDER: master 2f365eaab inserted the S_SKELETON +2 step between S_MUMMY and S_ZOMBIE, and because the ladder falls through, every tier above zombies moved up 2 levels. The minimum XL to destroy (lawful) or pacify (chaotic) is zombie 6, skeleton 8, mummy 10, wraith 12, vampire 14, ghost 16, lich / alhoon 18, exactly as on live 0.9.3 since December 2024. Rejected: keeping vanilla's tiers (zombie 6, mummy 8 ... lich 16) with skeletons slotted in beside zombies at 6. The alhoon joins the lich tier either way (eb9b1743a). | maintainer |
 | 2026-10-09 | Hero spell parity B slice rulings (session 201; AskUserQuestion x2, four questions, all recommended). (1) 5.0 a3f0b54ae KEPT, LAYERED: a Healer gains experience equal to the HP a hurt pet was missing (capped at the roll), and Pestilence takes half the rolled heal through resist(), both on master's skill dice (c692dc3bf, 4 / 6 / 8 / 10) and master's alignment terms (a54b23421 / 226926e5c); rejected master's exact shape (no experience, Pestilence d(3, 4 / 8 / 12) - vanilla's term, not authored). (2) CURE DISEASE TOO: the hero's cure sickness on a monster clears mdiseased and the sickness / disease / withering timers and credit like master's own monster self-cast, and critical healing's 1-in-4 cure does the same (BUG-2243, master sibling miss, frozen-unfixed); rejected master's msick + mwither only. (3) STONE TO FLESH'S MONSTER EXTRAS (f1d39f476 petrified ent, b41949570's zap_steed line, 57e3569c2's stoning cure) MINTED AS A MED ROW, not folded. (4) THE DEMON REFUSAL IS A HELPFUL GESTURE: e550e0abc's guard still refuses an opposite-gender cancelled amorous demon, but a peaceful one is not angered (BUG-2244, master quirk, frozen-unfixed); rejected master's exact shape (guilt, -5). Plan-approved: the self restore ability cast routes through peffects() so session 199's abuse-reset ruling holds; the self cure sickness text stays 5.0's (moved verbatim). | maintainer (1-4); session, plan-approved (rest) |
 | 2026-10-09 | Hero spell parity A slice rulings (session 200; AskUserQuestion x2, four questions, all recommended). (1) SCOPE: SPELL PARITY A - the five non-healing unwired hero spells (dispel evil, power word kill, repair armor, create grass, create trees) this slice; part B (critical healing, master c692dc3bf's skill-set healing dice, directional cure sickness, the restore ability uncancel MED row, e550e0abc) is the next slice, because those arms share bhitm() / zapyourself(); over taking all six at once, the init_attr() clamp alone, or session 199's two MED rows. (2) DISPEL EVIL ROLL 19 ON A UNIQUE: INTENT - master's `dmg *= 2` runs after resist() has dealt the damage and dmg is never read again (a dead term), so the branch deals a second hit equal to the first through damage_mon(), over master parity (message only). (3) NEW TREES BLOCK SIGHT AT ONCE: block_point() after grow_tree()'s TREE write fixes master's see-through-until-reload trees, over keeping master's behavior. (4) #turn's LADDER (alhoon S_HUMANOID, S_SKELETON step, mstone guard) MINTED AS A MED ROW, not folded. Plan-approved, no question: the turn undead spell half of eb9b1743a folded (the branch had that commit's objects.h levels); a banished peaceful / disguised target is angered / unmasked before it migrates (5.0's newsym() rejects <0,0>); the reviewer's LOWs folded (release_hero() with a dead / limbo re-check, master's "anything (else)" repair lines, the steed dismount in death_magic_anger(), safe_qbuf() for the barding query). | maintainer (1-4); session, plan-approved (rest) |
