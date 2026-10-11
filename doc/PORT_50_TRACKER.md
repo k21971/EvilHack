@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-11, after session 212's
-  life-saved steed slice): 366 rows closed, 111 open. Of the open
+- Phase 2 status (refreshed 2026-10-11, after session 213's pet
+  and monster life slice): 369 rows closed, 112 open. Of the open
   rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
@@ -35,12 +35,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 91 LOW: small parity rows, quirks and watch/record-only items.
-    Session 212 minted four: two ruled plannable (abuse_dog()'s
-    master shape; a monster's cursed amulet of life saving), one
-    needing a ruling (a riding accident hurts a praying hero), one
-    needing a reproduction (a minliquid() survivor sent into limbo
-    still moves).
+  - 92 LOW: small parity rows, quirks and watch/record-only items.
+    Session 213 minted four: two needing a ruling (knock cast at a
+    pet wakes it twice; monsters still prefer a failing amulet of
+    life saving), one plannable (the hero's larva form transforms
+    over a life-saved host), one needing a trace (a norevive troll
+    corpse twitches again and again). Session 212 minted four: two
+    (abuse_dog()'s master shape; a monster's cursed amulet of life
+    saving) landed in session 213 (BUG-2282..2285), one needing a
+    ruling (a riding accident hurts a praying hero), one needing a
+    reproduction (a minliquid() survivor sent into limbo still
+    moves).
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -67,13 +72,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the hero's hold); session 211 two (a hero ray or explosion
     leaving a life-saved peaceful friendly, critical healing's two
     cure lines). Also ruled then,
-    plannable: the vampshifter
-    hunger-penalty row (clear it on form change), the trap-kit G_ ids
+    plannable: the trap-kit G_ ids
     row ("unset "), the "extremely toxic" floor row (never raise a
     lower max); the power word kill life-save, helpful-spell
     shopkeeper and data.base critical healing rows landed in session
     211 (BUG-2270..2275, with the life-saved survivor's anger, the
-    Vecna invoke and thrown kind potions). Closed then as kept 5.0: booze confusion, diluted-stack
+    Vecna invoke and thrown kind potions), and the vampshifter
+    hunger-penalty row in session 213 (BUG-2286, every max HP
+    reroll). Closed then as kept 5.0: booze confusion, diluted-stack
     mix yield, hallucination extras and losestr() HP. The untamed
     kitten row needs a trace.
     The passive AD_COLD row closed as kept 5.0, the catch and Sword
@@ -10182,7 +10188,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       with BUG-2277 the starving steed's nested death, BUG-2278 the
       untamed steed's retaliation, BUG-2279 the charm, BUG-2280 knock,
       BUG-2281 the drowned minliquid() survivor) - FIXED 2026-10-11
-      (session 212, commit pending; closure notes in BUGFIXES_ARCHIVE):
+      (session 212, commit 49e869d76, tracker b362c85d9; closure notes
+      in BUGFIXES_ARCHIVE):
       the hero is never thrown off inside the steed's death. wary_dog()
       no longer dismounts; dismount_untamed_steed() (steed.c) throws
       the hero off a ridden steed that is untame and alive at
@@ -10247,9 +10254,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       double up with death_magic_anger(), so fix the callers. Master's
       buzz() and explode() kill arms have the same shape. Needs a
       ruling.
-- [ ] LOW: abuse_dog() is 5.0's, not master's (minted 2026-10-11,
-      session 212, from the life-saved steed slice's census; no earlier
-      row). Master's abuse_dog() (src/dog.c) has two pieces the branch
+- [x] LOW: abuse_dog() is 5.0's, not master's (BUG-2282) - FIXED
+      2026-10-11 (session 213, commit pending; closure notes in
+      BUGFIXES_ARCHIVE): a pet abused down to tameness 0 turns hostile
+      on master's roll (Aggravate / Conflict, or rn2(abuse + 1) for a
+      non-minion), with set_malign(). Master's newsym() is not ported
+      (newsym(0, 0) for a migrating pet is an impossible() on 5.0; the
+      tail already redraws a pet on the map), nor its inline steed
+      throw (ruled: dismount_untamed_steed() stays the single throw
+      site). Battery A / B PASS (abuse 50 hostile 3 / 3, abuse 0
+      peaceful, Conflict and Aggravate hostile, a tame minion no crash;
+      knock at an abuse-50 steed: no "You feel guilty." and no -5 from
+      bhitm()'s tail wakeup). The displaced-pet trap leg could not be
+      staged (a pet never swaps onto a trap but a web).
+      Original text: LOW: abuse_dog() is 5.0's, not master's (minted
+      2026-10-11, session 212, from the life-saved steed slice's census;
+      no earlier row). Master's abuse_dog() (src/dog.c) has two
+      pieces the branch
       lacks: (a) b9f0937b3b "Abused pets can turn hostile when
       untamed" (changelog; with ce189e1c1's isminion guard, 837031316's
       set_malign() and 1ae9be6f8's newsym()): when tameness reaches 0,
@@ -10263,9 +10284,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       next safe point, so (b) is message timing only. RULED 2026-10-11
       (session 212): its own slice with a pet-abuse battery; port
       master's shape. Plannable.
-- [ ] LOW: a monster's cursed amulet of life saving still saves it
-      (minted 2026-10-11, session 212, from the life-saved steed
-      slice; no earlier row). Master 4abb8b886 (with 12ce37472, the
+- [x] LOW: a monster's cursed amulet of life saving still saves it
+      (BUG-2283; with BUG-2284 the undead-race overlay and BUG-2285
+      the troll-beheading and larva predictors) - FIXED 2026-10-11
+      (session 213, commit pending; closure notes in BUGFIXES_ARCHIVE):
+      new mlifesaver_works() (worn, not cursed, not a nonliving form,
+      not racial_zombie / racial_vampire); lifesaved_monster() fails
+      the amulet in master's shape. Vampires carry MH_UNZOMBIE, so the
+      nonliving term also fails native-form vampires, Kas and Vlad
+      (ruled: master's whole term); wolf / bat / warg forms are saved,
+      and a shifted vampire whose amulet failed rises through
+      vamprises(). Battery C 10 / 10 PASS (seen, blind "It dies!" with
+      no identification, Deaf, native vampire lord, fog cloud, cursed
+      wolf form, Draugr and vampire-race barbarians, a beheaded troll's
+      corpse norevive with no revival in 167 turns, a stoned orc's
+      statue).
+      Original text: LOW: a monster's cursed amulet of life saving still
+      saves it (minted 2026-10-11, session 212, from the life-saved
+      steed slice; no earlier row). Master 4abb8b886 (with 12ce37472, the
       message no longer cansee()-gated, and 92d4e0361's `||
       nonliving(mtmp->data)`) gives lifesaved_monster() a failure arm:
       "But wait..." / "<Mon>'s medallion glows white-hot!" when seen,
@@ -10308,6 +10344,49 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       copy the earlier mon_offmap() test's form (a monster-ridden
       steed is MON_OFFMAP and must still act), not a bare
       mon_offmap(). Needs a reproduction.
+- [ ] LOW: knock cast at a pet wakes it twice (minted 2026-10-11,
+      session 213, from the Plan agent and battery B; shared with
+      Official_nh50). bhitm()'s knock arm sets `wake = TRUE`, calls
+      wakeup() and then abuse_dog(), and bhitm()'s tail calls wakeup()
+      again. The first wakeup() leaves a tame pet alone; once
+      abuse_dog() untames it, the second runs setmangry() on the
+      peaceful ex-pet: "You feel guilty.", alignment -5, and it turns
+      hostile (seen on a ridden pony at tameness 1, PRE and POST abuse
+      0). Since session 213 a pet the abuse roll already made hostile
+      skips it. Master has no knock at monsters. Needs a ruling: is a
+      knock that untames a pet an attack on a peaceful (keep), or
+      should the tail skip the second wakeup()?
+- [ ] LOW: monsters still prefer an amulet of life saving that will
+      fail (minted 2026-10-11, session 213, reviewer L2; master-shared
+      for vampires). m_dowear_type()'s W_AMUL case takes the first life
+      saving or reflection amulet, and muse.c searches_for_item() and
+      dogmove.c's item value count life saving, with no
+      mlifesaver_works() test: a Draugr or vampire-race player monster
+      (failing since BUG-2284) or a native-form vampire (master's
+      nonliving term) can wear a useless life saving amulet over
+      reflection. Needs a ruling (skip a failing amulet in the AI, or
+      keep).
+- [ ] LOW: the hero's larva form transforms over a life-saved host
+      (minted 2026-10-11, session 213, reviewer L4; branch pre-existing,
+      master-shared). mhitm_ad_wrap()'s hero leg (the
+      can_become_flayer() arm) runs xkilled(mdef, ...) and then an
+      unconditional polymon(PM_MIND_FLAYER) with M_ATTK_DEF_DIED: a host
+      whose working amulet saves it lives on while the hero becomes a
+      mind flayer and the caller is told it died. The monster leg
+      asks mlifesaver_works() first (BUG-2285). Fix shape: gate the
+      polymon() and the died flag on DEADMONSTER(mdef). Plannable.
+- [ ] LOW: a norevive troll corpse twitches again and again (minted
+      2026-10-11, session 213, battery C anomaly; branch pre-existing).
+      A norevive corpse keeps its REVIVE_MON timer by design (it rots
+      instead when the timer fires). revive_mon()'s rot arm (do.c)
+      calls set_corpsenm(body, undead_to_corpse(...)) - added by the
+      Phase 2 zombie port 7b19b7ba8 - and set_corpsenm() restarts the
+      corpse timeout through start_corpse_timeout(), which starts a new
+      REVIVE_MON timer, so a beheaded troll's corpse printed "The troll
+      corpse twitches feebly." three times (twice for another) before
+      ROT_CORPSE took over. Official_nh50's revive_mon() has no
+      set_corpsenm() there. Needs a trace (master's zombie corpse path,
+      then whether the call should skip non-zombified corpses).
 - [x] MED: savelife() HP and clamps PORTED 2026-10-09 (session 198;
       BUG-2223..2227; code e0a508b47, tracker ebc5de8df; closure notes at the end
       of this row). Original text: savelife() HP and clamps NOT
@@ -26835,9 +26914,25 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       in the tester's games (launched with --no-evilhackrc)? If
       verbose was on, why was the total missing? Then decide master's
       shape vs 5.0's total.
-- [ ] LOW: a vampshifter pet's hunger penalty survives into vampire
-      form (minted 2026-10-08, session 192, Plan agent; pre-existing,
-      master-shared shape). A wolf / warg / vampire bat form eats
+- [x] LOW: a vampshifter pet's hunger penalty survives into vampire
+      form (BUG-2286) - FIXED 2026-10-11 (session 213, commit pending;
+      closure notes in BUGFIXES_ARCHIVE): every fresh max HP roll
+      clears edog->mhpmax_penalty - newcham() (any pet, any form;
+      vamprises(), vamp_stone(), become_flayer() and poly_steed() go
+      through it), mondead()'s Bourbon / Ozzy submit arm and, from the
+      reviewer, both halves of a cut long worm (cutworm(); clone_mon()
+      copies the edog). Battery D PASS (PRE: a polymorphed starving dog
+      kept penalty 10 and its meal inflated the wolf's max 20 -> 30;
+      POST: 0 and 31 stays 31; a vampire noble's own form keeps no
+      penalty; a still-starving eater form re-earns it next turn). A
+      POST2 smoke on the landed binary PASS: a cut tame long worm's
+      halves keep no penalty (PRE: +60 each on their next meal). That
+      path is latent: m_move() keeps a tame long worm out of
+      dog_move(), so the worm never starves itself.
+      Original text: LOW: a vampshifter pet's hunger penalty survives
+      into vampire form (minted 2026-10-08, session 192, Plan agent;
+      pre-existing, master-shared shape). A wolf / warg / vampire bat
+      form eats
       meat, so dog_hunger() can starve it into edog->mhpmax_penalty
       (mhpmax cut to a third). newcham() back to vampire form replaces
       mhpmax through newmonhp() and never touches the penalty, and
@@ -28219,6 +28314,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-11 | Pet and monster life slice rulings (session 213; AskUserQuestion x1, four questions, all recommended). (1) A monster's amulet of life saving fails on master's whole `cursed \|\| nonliving(form)` term: vampires carry MH_UNZOMBIE, so native-form vampires, Kas and Vlad fail as well as the fog cloud (the row named only the fog cloud); wolf / bat / warg forms are saved - the hero's "the unliving have no life to save" rule. (2) abuse_dog() takes master's hostile roll but not its inline steed throw (0d3e663f6): dismount_untamed_steed() stays the single throw site, so no landing runs inside a zap. (3) New mlifesaver_works(): the troll-beheading (hero, monster, Vorpal) and mind flayer larva predictors use it, beyond master. (4) Undead-race monsters (racial_zombie / racial_vampire overlays) fail the amulet like the hero, beyond master. | maintainer |
 | 2026-10-11 | Life-saved steed slice rulings (session 212; AskUserQuestion x1, two questions, both recommended). (1) Master's abuse_dog() shape - b9f0937b3b's "abused pets can turn hostile when untamed" roll and 0d3e663f62's inline steed throw - is its own LOW row with a pet-abuse battery, not folded; the slice's deferred dismount_untamed_steed() already throws the hero off a steed knock untamed. (2) A monster's cursed amulet of life saving failing (master 4abb8b886 / 12ce37472 / 92d4e0361) is its own LOW row. Design (approved plan, no ruling asked): the hero is never thrown off inside a steed's death; the row's suggested throw-after-the-HP-restore was rejected because a landing that kills the steed would run a second death inside the first. A genocided life-saving steed now gets the generic steed-death dismount (no "thrown off", no riding damage). Master's mstone guard in lifesaved_monster() stays with the gradual-stoning rider. | maintainer |
 | 2026-10-11 | Spell trio slice rulings (session 211; AskUserQuestion x3, all recommended). (1) A power word kill target that survives the word (an amulet of life saving, a vampire knocked back to its true form) and was peaceful or tame turns hostile through death_magic_anger() like the magic-resistant and maimed survivors ("You feel distraught.", -3, not for Infidels); Bourbon / Ozzy, who submit, are excluded (Plan agent HIGH). (2) The Eye / Hand of Vecna invoke's kill arm gets the same anger and exclusion. (3) A thrown potion of healing, extra healing, full healing, gain ability, restore ability or SPEED (the speed monster wand's twin) that HITS a shopkeeper from outside his shop skips throwit's hot_pursuit(); invisibility, water, misses and every other object still anger him. (4) The reviewer's HIGH, a life-saved steed dismounted off the map by wary_dog() before its HP returns (master and vanilla shared): minted as a MED row for its own slice; meanwhile both kill arms leave the hero's own steed out of the new anger, so it behaves as before. | maintainer |
 | 2026-10-11 | Buried-ball chain slice rulings (session 210; AskUserQuestion x3, all recommended): the mirror case (a new hold taken within the chain's reach) is fixed in the same slice with the same flag; a waiting chain takes over SILENTLY when the other hold ends (the status line and the next move tell it); a waiting chain shows on the status line (Tethered beside Trapped / InLava, both opt-in) and in ^X ("You are also tethered to something buried."); #jump out of a hold with a waiting chain stops with the tether arm's "You strain your legs, but you're still attached to the buried ball." and its leg wounds; opening magic frees both holds with two lines ("You are released from the bear trap.  You are released from your anchor."), the ball staying buried; the bullwhip yank out of a pit stops at the edge with trapmove()'s "You are chained to the buried ball." and no wounds (reviewer MED). Kept as session 209 left it: dig()'s bear-trap arm for any held hero. | maintainer |
