@@ -17,14 +17,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-11, after session 213's pet
-  and monster life slice): 369 rows closed, 112 open. Of the open
-  rows:
+- Phase 2 status (refreshed 2026-10-11, after session 214's larva,
+  toxic floor and glyph id slice): 372 rows closed, 113 open. Of the
+  open rows:
   - 0 HIGH.
-  - 4 MED: unported master features (terrain concealment,
+  - 5 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe). The life-saved steed row landed in
-    session 212 (BUG-2276..2281).
+    dwarvish bearded axe), and session 214's crash class: a
+    mongone()d Ice Queen revives off the map (needs a census, then
+    a ruling). The life-saved steed row landed in session 212
+    (BUG-2276..2281).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -36,11 +38,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 92 LOW: small parity rows, quirks and watch/record-only items.
-    Session 213 minted four: two needing a ruling (knock cast at a
-    pet wakes it twice; monsters still prefer a failing amulet of
-    life saving), one plannable (the hero's larva form transforms
-    over a life-saved host), one needing a trace (a norevive troll
-    corpse twitches again and again). Session 212 minted four: two
+    Session 214 minted three: two needing a ruling (the larva legs'
+    special hosts - the Enchantress, the Ice Queen, Izchak - ride
+    with the MED Ice Queen row; the Guidebook's glyph: example never
+    sets the symbol), one plannable (damageum()'s kill tail reports
+    a life-saved defender as dead). Session 213 minted four: two
+    needing a ruling (knock cast at a pet wakes it twice; monsters
+    still prefer a failing amulet of life saving), one plannable
+    (the hero's larva form transforms over a life-saved host, landed
+    in session 214 as BUG-2287), one needing a trace (a norevive
+    troll corpse twitches again and again). Session 212 minted four: two
     (abuse_dog()'s master shape; a monster's cursed amulet of life
     saving) landed in session 213 (BUG-2282..2285), one needing a
     ruling (a riding accident hurts a praying hero), one needing a
@@ -71,10 +78,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     who is also tethered, a knockback moving a ridden steed out of
     the hero's hold); session 211 two (a hero ray or explosion
     leaving a life-saved peaceful friendly, critical healing's two
-    cure lines). Also ruled then,
-    plannable: the trap-kit G_ ids
-    row ("unset "), the "extremely toxic" floor row (never raise a
-    lower max); the power word kill life-save, helpful-spell
+    cure lines). Also ruled then: the trap-kit G_ ids row ("unset ")
+    and the "extremely toxic" floor row (never raise a lower max)
+    landed in session 214 (BUG-2288..2290, with the polymorphed
+    hero's toxic damage); the power word kill life-save, helpful-spell
     shopkeeper and data.base critical healing rows landed in session
     211 (BUG-2270..2275, with the life-saved survivor's anger, the
     Vecna invoke and thrown kind potions), and the vampshifter
@@ -10255,9 +10262,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       buzz() and explode() kill arms have the same shape. Needs a
       ruling.
 - [x] LOW: abuse_dog() is 5.0's, not master's (BUG-2282) - FIXED
-      2026-10-11 (session 213, commit pending; closure notes in
-      BUGFIXES_ARCHIVE): a pet abused down to tameness 0 turns hostile
-      on master's roll (Aggravate / Conflict, or rn2(abuse + 1) for a
+      2026-10-11 (session 213, commit 63f9c9fac, tracker 6cd5aaccd;
+      closure notes in BUGFIXES_ARCHIVE): a pet abused down to
+      tameness 0 turns hostile on master's roll (Aggravate / Conflict,
+      or rn2(abuse + 1) for a
       non-minion), with set_malign(). Master's newsym() is not ported
       (newsym(0, 0) for a migrating pet is an impossible() on 5.0; the
       tail already redraws a pet on the map), nor its inline steed
@@ -10287,9 +10295,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: a monster's cursed amulet of life saving still saves it
       (BUG-2283; with BUG-2284 the undead-race overlay and BUG-2285
       the troll-beheading and larva predictors) - FIXED 2026-10-11
-      (session 213, commit pending; closure notes in BUGFIXES_ARCHIVE):
-      new mlifesaver_works() (worn, not cursed, not a nonliving form,
-      not racial_zombie / racial_vampire); lifesaved_monster() fails
+      (session 213, commit 63f9c9fac, tracker 6cd5aaccd; closure notes
+      in BUGFIXES_ARCHIVE): new mlifesaver_works() (worn, not cursed,
+      not a nonliving form, not racial_zombie / racial_vampire);
+      lifesaved_monster() fails
       the amulet in master's shape. Vampires carry MH_UNZOMBIE, so the
       nonliving term also fails native-form vampires, Kas and Vlad
       (ruled: master's whole term); wolf / bat / warg forms are saved,
@@ -10366,7 +10375,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       nonliving term) can wear a useless life saving amulet over
       reflection. Needs a ruling (skip a failing amulet in the AI, or
       keep).
-- [ ] LOW: the hero's larva form transforms over a life-saved host
+- [x] LOW: the hero's larva form transforms over a life-saved host
+      (BUG-2287) - FIXED 2026-10-11 (session 214, commit pending;
+      closure notes in BUGFIXES_ARCHIVE): the takeover arm needs
+      `!mlifesaver_works(mdef)` (a host with a working amulet takes
+      the plain burrow, the kill uses up the amulet and the hero stays
+      attached), and after xkilled() the hero transforms only when
+      DEADMONSTER(mdef) (the Enchantress, a vampshifter: M_ATTK_HIT).
+      "You begin to transform..." now follows the kill line. This also
+      ends the new mind flayer form's extra brain-eating attacks on a
+      surviving host in the same turn. Battery A PASS (PRE reproduced
+      on the amulet and Enchantress legs).
+      Original text: LOW: the hero's larva form transforms over a
+      life-saved host
       (minted 2026-10-11, session 213, reviewer L4; branch pre-existing,
       master-shared). mhitm_ad_wrap()'s hero leg (the
       can_become_flayer() arm) runs xkilled(mdef, ...) and then an
@@ -10387,6 +10408,50 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ROT_CORPSE took over. Official_nh50's revive_mon() has no
       set_corpsenm() there. Needs a trace (master's zombie corpse path,
       then whether the call should skip non-zombified corpses).
+- [ ] MED: a mongone()d Ice Queen revives off the map (minted
+      2026-10-11, session 214, reviewer O1; master-shared crash
+      class). mongone() -> m_detach() takes Kathryn the Ice Queen off
+      the map (and discard_minvent() drops her inventory), but
+      dmonsfree()'s Ice Queen arm (master BUG-226's interception,
+      MON_DETACH-conditional) still runs icequeenrevive(), which never
+      places her: the Enchantress lives on fmon with stale
+      coordinates. When she moves, remove_monster() clears whoever
+      now holds that square. Producers: become_flayer()'s mongone() of
+      the victim (a monster mind flayer larva next to her; the new
+      mind flayer is placed on her square), the open-air plummets in
+      dochug() and minliquid_core(), mon_escape(), and #wizmakemap's
+      makemap_unmakemon(). A defeat through mondead() returns before
+      m_detach(), so it is unaffected. Census the other mongone()
+      callers, then rule the root shape at dmonsfree(): a mongone()d
+      queen stays gone (decide defeat_icequeen), or she is revived
+      and re-placed. Needs a census, then a ruling.
+- [ ] LOW: the larva legs' special hosts (minted 2026-10-11, session
+      214; master-shared). Ruled in session 214 to mint, not fold
+      in. (1) become_flayer()'s mongone() removes Kathryn the
+      Enchantress for good (no "not truly dead" arm), while the hero's
+      leg now spares her. (2) The hero's takeover of the Ice Queen
+      counts as her defeat: the hero becomes a mind flayer, polymon()
+      prints "Kathryn the Ice Queen is no longer in your clutches."
+      (mondead() returned before m_detach(), so she was still held),
+      and she revives as the Enchantress at the end of the turn
+      (reviewer L1; fix shape: exclude her from the takeover). (3)
+      mondead()'s Enchantress arm gives the guilt penalty (-15
+      alignment, -15 luck) whoever killed her. (4) become_flayer()
+      spares Izchak (he becomes an archangel); the hero's leg kills
+      him. (5) "taking over its body!" always says "its" (mhis()), and
+      it prints before xkilled(), so the Enchantress line promises a
+      takeover that does not happen (reviewer N1; master's text).
+      Needs a ruling (ride with the MED Ice Queen row above).
+- [ ] LOW: damageum()'s kill tail reports a life-saved defender as
+      dead (minted 2026-10-11, session 214, Plan agent / reviewer N4;
+      upstream-shared, Official_nh50 identical). After killed() or
+      xkilled(), damageum() returns M_ATTK_DEF_DIED even when life
+      saving brought the defender back, so hmonas() runs
+      passive(..., malive = FALSE) on a living monster. hmonas()'s stop
+      test reads the real state. Today only the passive call is
+      affected (among larva hosts only the Oracle has a passive). Fix
+      shape: `return DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT;`.
+      Plannable; record it in nh50-upstream-bugs-to-carry when taken.
 - [x] MED: savelife() HP and clamps PORTED 2026-10-09 (session 198;
       BUG-2223..2227; code e0a508b47, tracker ebc5de8df; closure notes at the end
       of this row). Original text: savelife() HP and clamps NOT
@@ -10535,7 +10600,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       no floor and no death check (u.mhmax can reach 0 or below,
       the path ed8e03168's message names). Needs a ruling (keep
       5.0 or master's shape).
-- [ ] LOW: "extremely toxic" poison max HP floor (NEW, minted
+- [x] LOW: "extremely toxic" poison max HP floor (BUG-2288; with
+      BUG-2290 the polymorphed hero's damage) - FIXED 2026-10-11
+      (session 214, commit pending; closure notes in
+      BUGFIXES_ARCHIVE): `newuhpmax = min(u.uhpmax, max(newuhpmax,
+      minuhpmax(3)))`, so the floor never raises a lower max. Folded
+      in (reviewer O3, ruled, upstream-shared): olduhp is u.mh when
+      polymorphed, so adjuhploss() no longer cuts a polymorphed
+      hero's toxic loss to 1. Battery B PASS (XL10 max 4: PRE 10, POST
+      4; XL1 max 2: PRE 3, POST 2; max 60 and the max-12 clamp
+      unchanged).
+      Original text: LOW: "extremely toxic" poison max HP floor (NEW,
+      minted
       2026-10-09 by the savelife() slice, session 198, from the
       Plan agent; checked against master). poisoned()'s
       partial-resistance arm (5.0, d53c1a7a6 / b93cfecba) lowers
@@ -26883,7 +26959,20 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
           brief's Valkyrie pre-knows plain GLOVES, which keeps
           restrict_name()'s pool closed - brief error).
         - W5: save / restore dump identical.
-- [ ] LOW: duplicate G_ glyph ids for twelve trap-kit objects
+- [x] LOW: duplicate G_ glyph ids for twelve trap-kit objects
+      (BUG-2289) - FIXED 2026-10-11 (session 214, commit pending;
+      closure notes in BUGFIXES_ARCHIVE): compose_glyph_name()
+      prefixes "unset " to ARROW_TRAP through MAGIC_BEAM_TRAP like
+      the land mine (BEARTRAP's "beartrap" does not collide and keeps
+      vanilla's name); objects.h notes that the run must stay
+      unbroken. --dumpglyphnames: no duplicates, 9539 names, exactly
+      24 renames (12 + 12 piletop_). Battery C PASS: a
+      `glyph:G_arrow_trap` customization reaches the map trap (glyph
+      5740) on POST and the object (5351) on PRE;
+      G_unset_arrow_trap reaches the object. No symset or doc names
+      the old ids.
+      Original text: LOW: duplicate G_ glyph ids for twelve trap-kit
+      objects
       (minted 2026-10-08, session 193, reviewer). EvilHack's trap-kit
       tool objects carry the map trap symbols' names: arrow trap,
       dart trap, bolt trap, spear trap, sleeping gas trap, fire trap,
@@ -26903,6 +26992,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-10 (session 208 follow-up; decisions log): prefix
       "unset " (G_unset_arrow_trap etc.), upstream's LAND_MINE
       precedent; check the symset / glyph docs for the names. Plannable.
+- [ ] LOW: the Guidebook's glyph: example never sets the symbol
+      (minted 2026-10-11, session 214, battery C anomaly;
+      upstream-shared - Official_nh50 and NetHack50 have the same
+      text and parser). Guidebook.mn / .tex document
+      `OPTIONS=glyph:G_pool/U+224B/0-0-160`, but glyphs.c
+      glyphrep_to_custom_map_entries() takes ':' as the Unicode marker
+      and '/' as the color marker, so the second '/' overwrites the
+      color pointer: only the color takes, and `glyph:G_x/U+0021`
+      alone sets nothing. The colon form `glyph:G_x:U+2191/255-0-0`
+      works (battery C). Also, an unknown G_ name in a glyph: line is
+      dropped with no config error. Needs a ruling: fix the
+      documentation (and the Guidebook date) or make the parser
+      accept the documented form; whether an unknown name should warn.
 - [ ] LOW: a wish that merges into a stack prints "k - a blood-red
       potion" with no period and no total (minted 2026-10-08, session
       193, battery anomaly, seen on PRE and POST). A wish that starts
@@ -26915,9 +27017,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       verbose was on, why was the total missing? Then decide master's
       shape vs 5.0's total.
 - [x] LOW: a vampshifter pet's hunger penalty survives into vampire
-      form (BUG-2286) - FIXED 2026-10-11 (session 213, commit pending;
-      closure notes in BUGFIXES_ARCHIVE): every fresh max HP roll
-      clears edog->mhpmax_penalty - newcham() (any pet, any form;
+      form (BUG-2286) - FIXED 2026-10-11 (session 213, commit
+      63f9c9fac, tracker 6cd5aaccd; closure notes in BUGFIXES_ARCHIVE):
+      every fresh max HP roll clears edog->mhpmax_penalty - newcham()
+      (any pet, any form;
       vamprises(), vamp_stone(), become_flayer() and poly_steed() go
       through it), mondead()'s Bourbon / Ozzy submit arm and, from the
       reviewer, both halves of a cut long worm (cutworm(); clone_mon()
@@ -28118,6 +28221,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-11 | A polymorphed hero shrugs off an "extremely toxic" poison, shared with Official_nh50 (attrib.c poisoned() ~372-376): the partial-resistance arm saves `olduhp = u.uhp`, lowers the max with setuhpmax(..., TRUE) and calls adjuhploss(loss, olduhp), which compares olduhp with u.mh when Upolyd. A form with fewer hit points than the base HP gets `loss -= (u.uhp - u.mh)`, floored at 1, so the blow costs the form 1 HP. Fix on the branch: `olduhp = Upolyd ? u.mh : u.uhp` (setuhpmax() never touches u.mh, so the adjustment is zero) (BUG-2290). | found (branch-fixed); not yet sent |
 | 2026-10-11 | A helped shopkeeper is angered from outside his shop, shared with Official_nh50: (1) zap.c bhitm()'s tail runs `if (mtmp->isshk && !*u.ushops) hot_pursuit(mtmp);` even when helpful_gesture is set, so a wand of speed monster (whose own arm says "wake but don't anger a peaceful target") zapped at a peaceful shopkeeper from outside makes him hostile and adds the surcharge, silently; (2) dothrow.c throwit_mon_hit()'s hot_pursuit() runs after a thrown potion of healing / extra healing / full healing / gain ability / restore ability / speed hits him, although potionhit() treats all six as non-hostile. Harmful zaps are unaffected (wakeup(mtmp, TRUE) already chases him). Fix on the branch: `&& !helpful_gesture` on the tail; throwit skips its hot_pursuit() when one of those potions hit (thitmonst() returned 1) (BUG-2273 / BUG-2274). | found (branch-fixed); not yet sent |
 | 2026-10-11 | A life-saved steed is left off the map, shared with Official_nh50 (mon.c ~2875-2879 lifesaved_monster() calls wary_dog() before `mtmp->mhp = mtmp->mhpmax`; steed.c ~701 dismount_steed() places only a living steed): a ridden tame steed that life-saves and is untamed by wary_dog() (killed by the hero, or Pet Sematary's roll) is dismounted while its HP is 0, so it is never placed (and the hero is not moved off its square); it stays alive on fmon off the map until its next move, which logs impossible("no monster to remove") and "Program in disorder!". A starving steed gets its mhpmax_penalty back as HP first, so it IS placed inside its death and a landing that kills it (water, lava) runs a nested death the life save then revives as a living MON_DETACH monster. Fix on the branch (BUG-2276 / BUG-2277): wary_dog() no longer dismounts; a new dismount_untamed_steed() throws the hero off an untame, living steed at moveloop's safe points (before sanity_check(), at the top of each monster's move, before the hero's next input), and movemon_singlemon() skips the move of a steed its own minliquid() untamed. | found (branch-fixed); not yet sent |
 | 2026-10-11 | Knock cast down at a ridden steed can untame it with no dismount, shared with Official_nh50 (zap.c zap_steed() sends SPE_KNOCK to bhitm(u.usteed); bhitm()'s knock arm calls abuse_dog(), which lowers tameness with no steed throw, then wakeup() angers it): the hero keeps riding a hostile steed, and sanity_check reports "steed: not tame" every turn. Fix on the branch (BUG-2280): covered by the same dismount_untamed_steed() safe-point throw; upstream could instead throw in abuse_dog() as EvilHack 0.9.3 did (0d3e663f62). | found (branch-fixed); not yet sent |
@@ -28314,6 +28418,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-11 | Larva, toxic floor and glyph id slice rulings (session 214; AskUserQuestion x2, three questions, all recommended). (1) A monster larva's takeover of Kathryn through become_flayer()'s mongone() is minted, not folded in. That question said the Enchantress never appears; the reviewer then showed that dmonsfree() revives a mongone()d Ice Queen OFF the map (a crash-class orphan), so it was re-asked: (2) mint a MED crash row (census every mongone() producer, then rule the root shape at dmonsfree()); the LOW special-hosts row keeps the non-crash quirks. (3) Fold in reviewer O3, upstream-shared: poisoned()'s toxic arm passes u.mh as the old HP when polymorphed, so a polymorphed hero takes the full loss instead of 1. | maintainer |
 | 2026-10-11 | Pet and monster life slice rulings (session 213; AskUserQuestion x1, four questions, all recommended). (1) A monster's amulet of life saving fails on master's whole `cursed \|\| nonliving(form)` term: vampires carry MH_UNZOMBIE, so native-form vampires, Kas and Vlad fail as well as the fog cloud (the row named only the fog cloud); wolf / bat / warg forms are saved - the hero's "the unliving have no life to save" rule. (2) abuse_dog() takes master's hostile roll but not its inline steed throw (0d3e663f6): dismount_untamed_steed() stays the single throw site, so no landing runs inside a zap. (3) New mlifesaver_works(): the troll-beheading (hero, monster, Vorpal) and mind flayer larva predictors use it, beyond master. (4) Undead-race monsters (racial_zombie / racial_vampire overlays) fail the amulet like the hero, beyond master. | maintainer |
 | 2026-10-11 | Life-saved steed slice rulings (session 212; AskUserQuestion x1, two questions, both recommended). (1) Master's abuse_dog() shape - b9f0937b3b's "abused pets can turn hostile when untamed" roll and 0d3e663f62's inline steed throw - is its own LOW row with a pet-abuse battery, not folded; the slice's deferred dismount_untamed_steed() already throws the hero off a steed knock untamed. (2) A monster's cursed amulet of life saving failing (master 4abb8b886 / 12ce37472 / 92d4e0361) is its own LOW row. Design (approved plan, no ruling asked): the hero is never thrown off inside a steed's death; the row's suggested throw-after-the-HP-restore was rejected because a landing that kills the steed would run a second death inside the first. A genocided life-saving steed now gets the generic steed-death dismount (no "thrown off", no riding damage). Master's mstone guard in lifesaved_monster() stays with the gradual-stoning rider. | maintainer |
 | 2026-10-11 | Spell trio slice rulings (session 211; AskUserQuestion x3, all recommended). (1) A power word kill target that survives the word (an amulet of life saving, a vampire knocked back to its true form) and was peaceful or tame turns hostile through death_magic_anger() like the magic-resistant and maimed survivors ("You feel distraught.", -3, not for Infidels); Bourbon / Ozzy, who submit, are excluded (Plan agent HIGH). (2) The Eye / Hand of Vecna invoke's kill arm gets the same anger and exclusion. (3) A thrown potion of healing, extra healing, full healing, gain ability, restore ability or SPEED (the speed monster wand's twin) that HITS a shopkeeper from outside his shop skips throwit's hot_pursuit(); invisibility, water, misses and every other object still anger him. (4) The reviewer's HIGH, a life-saved steed dismounted off the map by wary_dog() before its HP returns (master and vanilla shared): minted as a MED row for its own slice; meanwhile both kill arms leave the hero's own steed out of the new anger, so it behaves as before. | maintainer |
