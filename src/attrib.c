@@ -501,12 +501,15 @@ poisoned(
         if (how_resistant(POISON_RES) >= 35) {
             /* partial resistance turns the instant kill into a
                severe reaction */
-            int olduhp = u.uhp, newuhpmax;
+            /* adjuhploss() compares this with u.mh when polymorphed */
+            int olduhp = Upolyd ? u.mh : u.uhp, newuhpmax;
 
             pline_The("poison was extremely toxic!");
             loss = resist_reduce(d(4, 6), POISON_RES);
             newuhpmax = u.uhpmax - (loss / 2);
-            setuhpmax(max(newuhpmax, minuhpmax(3)), TRUE); /*True: see FIXME*/
+            /* the floor never raises a max that is already below it */
+            newuhpmax = min(u.uhpmax, max(newuhpmax, minuhpmax(3)));
+            setuhpmax(newuhpmax, TRUE); /*True: see FIXME*/
             loss = adjuhploss(loss, olduhp);
             poison_losehp(loss, pkiller, kprefix, poisoner);
         } else {

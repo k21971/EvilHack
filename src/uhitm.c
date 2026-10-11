@@ -5481,16 +5481,26 @@ mhitm_ad_wrap(
                             mon_nam(mdef));
                         set_ustuck((struct monst *) 0);
                         mhm->damage = 0;
-                    } else if (can_become_flayer(pd)) {
+                    } else if (can_become_flayer(pd)
+                               && !mlifesaver_works(mdef)) {
                         You("burrow into %s brain, taking over its body!",
                             s_suffix(mon_nam(mdef)));
-                        You("begin to transform...");
                         mhm->damage = 0;
                         xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
-                        (void) polymon(PM_MIND_FLAYER);
-                        mhm->hitflags |= M_ATTK_DEF_DIED;
+                        if (DEADMONSTER(mdef)) {
+                            You("begin to transform...");
+                            (void) polymon(PM_MIND_FLAYER);
+                            mhm->hitflags = M_ATTK_DEF_DIED;
+                        } else {
+                            /* a host that cheats death anyway (the
+                               Enchantress, a vampshifter) keeps its
+                               body; only a hit */
+                            mhm->hitflags = M_ATTK_HIT;
+                        }
                         mhm->done = TRUE;
                     } else {
+                        /* a non-host, or a host whose amulet will save
+                           it; the kill in damageum() uses up the amulet */
                         You("burrow into %s brain!",
                             s_suffix(mon_nam(mdef)));
                         mhm->damage = mdef->mhp;

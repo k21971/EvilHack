@@ -289,7 +289,8 @@ compose_glyph_name(int glyph, char *buf, size_t bufsz)
             buf2 = (i == POT_WATER) ? "flask of n" : "potion of ";
         else if ((i >= RIN_ADORNMENT) && (i <= RIN_PROTECTION_FROM_SHAPE_CHAN))
             buf2 = "ring of ";
-        else if (i == LAND_MINE)
+        /* trap objects that share a map trap's name */
+        else if (i == LAND_MINE || (i >= ARROW_TRAP && i <= MAGIC_BEAM_TRAP))
             buf2 = "unset ";
         else
             buf2 = "";

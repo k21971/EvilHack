@@ -1166,7 +1166,9 @@ OBJECT(OBJ("blacksmith hammer", "runed hammer"),
 TOOL("magic marker", "marker",
      0, 0, 1, 1,   0,   2,  50, PLASTIC, CLR_RED,
         MAGIC_MARKER),
-/* traps */
+/* traps; compose_glyph_name() in glyphs.c prefixes "unset " to the
+   glyph names of ARROW_TRAP through MAGIC_BEAM_TRAP, so keep that run
+   unbroken */
 TOOL("land mine", NoDes,
      1, 0, 0, 0,   0, 300, 180, IRON, CLR_RED,
         LAND_MINE),
