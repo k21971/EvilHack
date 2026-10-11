@@ -231,7 +231,10 @@ float_vs_flight(void)
        reset_utrap(), and the status update for that message must not
        lift the block before reset_utrap() can report the change */
     boolean stuck_in_floor = (u.utraptype != TT_NONE
-                              && u.utraptype != TT_PIT);
+                              /* a buried ball's chain waiting behind
+                                 a pit still holds the hero down */
+                              && (u.utraptype != TT_PIT
+                                  || u.utether_pending));
 
     /* floating overrides flight; so does being trapped in the floor */
     if ((HLevitation || ELevitation)
@@ -1447,6 +1450,12 @@ polymon(int mntmp)
         /* FIXME? if spoteffects() triggered rehumanize then we should
            return early */
     }
+    /* a buried ball's chain waiting behind another hold goes first, so
+       that the floor letting go below can't hand the hero to it */
+    if (Passes_walls && u.utether_pending) {
+        pline_The("buried ball is no longer bound to you.");
+        buried_ball_to_freedom();
+    }
     if (Passes_walls && u.utrap
         && (u.utraptype == TT_INFLOOR || u.utraptype == TT_BURIEDBALL)) {
         if (u.utraptype == TT_INFLOOR) {
@@ -1466,7 +1475,7 @@ polymon(int mntmp)
         if (Punished) {
             You("slip out of the iron chain.");
             unpunish();
-        } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+        } else if (u_tethered()) {
             You("slip free of the buried ball and chain.");
             buried_ball_to_freedom();
         }
@@ -2177,7 +2186,7 @@ int
 doremove(void)
 {
     if (!Punished) {
-        if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+        if (u_tethered()) {
             pline_The("ball and chain are buried firmly in the %s.",
                       surface(u.ux, u.uy));
             return ECMD_OK;

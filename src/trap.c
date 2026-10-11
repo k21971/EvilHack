@@ -55,6 +55,7 @@ staticfn boolean find_random_launch_coord(struct trap *, coord *);
 staticfn int mkroll_launch(struct trap *, coordxy, coordxy, short, long);
 staticfn boolean isclearpath(coord *, int, schar, schar);
 staticfn boolean m_easy_escape_pit(struct monst *) NONNULLARG1;
+staticfn void still_chained_msg(void);
 staticfn void dofiretrap(struct obj *);
 staticfn void doicetrap(struct obj *);
 staticfn void domagictrap(void);
@@ -1276,6 +1277,24 @@ set_utrap(unsigned int tim, unsigned int typ)
        in that situation; caller will need to set context.botl itself */
     if (!u.utrap ^ !tim)
         disp.botl = TRUE;
+
+    /* a buried iron ball's chain keeps the hero through other holds:
+       one that takes over from the chain leaves it waiting, and once
+       the last of them ends the chain holds the hero again */
+    if (tim && typ != TT_BURIEDBALL && u.utrap
+        && u.utraptype == TT_BURIEDBALL) {
+        u.utether_pending = 1;
+    } else if (!tim && u.utether_pending) {
+        coord cc;
+
+        cc.x = u.ux, cc.y = u.uy;
+        /* buried_ball() searches only while the flag is still set */
+        if (buried_ball(&cc)) {
+            tim = (unsigned) rn1(50, 20);
+            typ = TT_BURIEDBALL;
+        }
+        u.utether_pending = 0;
+    }
 
     u.utrap = tim;
     u.utraptype = tim ? typ : TT_NONE;
@@ -4716,6 +4735,24 @@ mselftouch(
     }
 }
 
+/* float_up() for a hero chained to a buried iron ball */
+staticfn void
+still_chained_msg(void)
+{
+    coord cc;
+
+    cc.x = u.ux, cc.y = u.uy;
+    /* caveat: this finds the first buried iron ball within
+       one step of the specified location, not necessarily the
+       buried [former] uball at the original anchor point */
+    (void) buried_ball(&cc);
+    /* being chained to the floor blocks levitation from floating
+       above that floor but not from enhancing carrying capacity */
+    You("feel lighter, but your %s is still chained to the %s.",
+        body_part(LEG),
+        IS_ROOM(levl[cc.x][cc.y].typ) ? "floor" : "ground");
+}
+
 /* start levitating */
 void
 float_up(void)
@@ -4727,23 +4764,16 @@ float_up(void)
             You("float up, out of the %s!", trapname(PIT, FALSE));
             gv.vision_full_recalc = 1; /* vision limits change */
             fill_pit(u.ux, u.uy);
+            /* a buried ball's chain that waited behind the pit holds the
+               hero at its edge now (set_utrap()) */
+            if (u.utrap && u.utraptype == TT_BURIEDBALL)
+                still_chained_msg();
         } else if (u.utraptype == TT_LAVA /* molten lava */
                    || u.utraptype == TT_INFLOOR) { /* solidified lava */
             Your("body pulls upward, but your %s are still stuck.",
                  makeplural(body_part(LEG)));
         } else if (u.utraptype == TT_BURIEDBALL) { /* tethered */
-            coord cc;
-
-            cc.x = u.ux, cc.y = u.uy;
-            /* caveat: this finds the first buried iron ball within
-               one step of the specified location, not necessarily the
-               buried [former] uball at the original anchor point */
-            (void) buried_ball(&cc);
-            /* being chained to the floor blocks levitation from floating
-               above that floor but not from enhancing carrying capacity */
-            You("feel lighter, but your %s is still chained to the %s.",
-                body_part(LEG),
-                IS_ROOM(levl[cc.x][cc.y].typ) ? "floor" : "ground");
+            still_chained_msg();
         } else if (u.utraptype == TT_WEB) {
             You("float up slightly, but you are still stuck in the %s.",
                 trapname(WEB, FALSE));
@@ -4834,7 +4864,9 @@ float_down(
             You("are no longer trying to float up from the %s.",
                 (u.utraptype == TT_BEARTRAP) ? "trap's jaws"
                   : (u.utraptype == TT_WEB) ? "web"
-                      : (u.utraptype == TT_BURIEDBALL) ? "chain"
+                      /* a pit lets lift through; a waiting chain doesn't */
+                      : (u.utraptype == TT_BURIEDBALL
+                         || u.utraptype == TT_PIT) ? "chain"
                           : (u.utraptype == TT_LAVA) ? "lava"
                               : (u.utraptype == TT_ENTANGLED)
                                 ? "entangling vegetation"
@@ -5077,8 +5109,8 @@ entangle_release(boolean by_tree)
 {
     /* held over water, lava, open air or a hole: only a hero caught in
        the air can be there */
-    boolean over_drop = u_over_drop(),
-            aloft = (over_drop || u_lift_unheld());
+    boolean over_drop = u_over_drop(), lift = u_lift_unheld(),
+            aloft = (over_drop || lift);
 
     if (!by_tree)
         pline_The("vegetation releases you.");
@@ -5087,8 +5119,15 @@ entangle_release(boolean by_tree)
     else /* the cast named roots or branches at random */
         pline_The("tree releases its grip on you.");
     reset_utrap(TRUE);
-    if (over_drop && !Levitation && !Flying && !u.uinwater)
-        defer_landing(LANDING_SPOT);
+    if (!Levitation && !Flying && !u.uinwater) {
+        /* a buried ball's chain that waited behind the branches holds the
+           hero now (set_utrap()) and pulls a flyer or floater down; grass
+           had already brought the hero to the ground */
+        if (by_tree && lift)
+            defer_landing(LANDING_FLY);
+        else if (over_drop)
+            defer_landing(LANDING_SPOT);
+    }
 }
 
 /* the live tree at x,y has just died or come down; if it held the hero
@@ -7346,6 +7385,16 @@ openholdingtrap(
             Sprintf(buf, "%s is", noit_Monnam(u.usteed));
         /* give release message before untrap in case it triggers a message */
         pline("%s released from %s%s.", buf, which, trapdescr);
+        /* a buried ball's chain waiting behind that hold goes too; the
+           ball stays buried, as for a chain that held the hero itself */
+        if (u.utether_pending) {
+            u.utether_pending = 0; /* reset_utrap() reports any lift */
+            if (!u.usteed)
+                You("are released from your anchor.");
+            else
+                You("and %s are released from your anchor.",
+                    y_monnam(u.usteed));
+        }
         /* might float up if Levitation is being unblocked */
         gv.vision_full_recalc = 1; /* vision limits can change (pit escape) */
         reset_utrap(TRUE);
@@ -8724,8 +8773,12 @@ sink_into_lava(void)
             urgent_pline("You sink below the surface and die.");
             burn_away_slime(); /* add insult to injury? */
             done(DISSOLVED);
-            /* can only get here via life-saving; try to get away from lava */
-            reset_utrap(TRUE);
+            /* can only get here via life-saving; try to get away from lava;
+               a buried ball's chain that waited behind the lava holds the
+               hero since savelife() ended that hold, and the teleport
+               below takes the ball along */
+            if (u.utraptype != TT_BURIEDBALL)
+                reset_utrap(TRUE);
             /* levitation or flight have become unblocked, otherwise Tport */
             if (!Levitation && !Flying)
                 (void) safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT);

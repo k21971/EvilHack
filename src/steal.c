@@ -478,14 +478,17 @@ steal(struct monst *mtmp, char *objnambuf)
             /* uball is not carried (uchain never is) */
             assert(uball != NULL && uball->where == OBJ_FLOOR);
             worn_item_removal(mtmp, uchain);
-        } else if (u.utrap && u.utraptype == TT_BURIEDBALL
-                   && !monkey_business && !rn2(4)) {
+        } else if (u_tethered() && !monkey_business && !rn2(4)) {
             boolean dummy;
 
             /* buried ball is not tracked via 'uball' and there is no chain
                at all (hence no uchain to take off) */
             pline("%s takes off your unseen chain.", Monnambuf);
-            (void) openholdingtrap(&gy.youmonst, &dummy);
+            /* a chain waiting behind another hold leaves that hold */
+            if (u.utether_pending)
+                end_buried_tether(TRUE);
+            else
+                (void) openholdingtrap(&gy.youmonst, &dummy);
         } else if (Blind) {
             pline("Somebody tries to rob you, but finds nothing to steal.");
         } else if (inv_cnt(TRUE) > inv_cnt(FALSE)) {

@@ -1121,7 +1121,9 @@ makemap_prepost(boolean pre, boolean wiztower)
         /* reset cached targets */
         iflags.travelcc.x = iflags.travelcc.y = 0; /* travel destination */
         svc.context.polearm.hitmon = (struct monst *) 0; /* polearm target */
-        /* escape from trap */
+        /* escape from trap; the buried ball of a chain waiting behind
+           the hold goes away with the old level */
+        u.utether_pending = 0;
         reset_utrap(FALSE);
         check_special_room(TRUE); /* room exit */
         (void) memset((genericptr_t) &svd.dndest, 0, sizeof (dest_area));

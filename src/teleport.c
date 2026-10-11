@@ -509,7 +509,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
             is_teleport = (teleds_flags & TELEDS_TELEPORT) != 0;
     struct monst *vault_guard = vault_occupied(u.urooms) ? findgd() : 0;
 
-    if (u.utraptype == TT_BURIEDBALL) {
+    if (u_tethered()) {
         /* unearth it */
         buried_ball_to_punishment();
     }
@@ -1420,7 +1420,7 @@ level_tele(void)
         }
     }
 
-    if (u.utrap && u.utraptype == TT_BURIEDBALL)
+    if (u_tethered())
         buried_ball_to_punishment();
 
     if (!next_to_u() && !force_dest) {
@@ -1588,7 +1588,7 @@ domagicportal(struct trap *ttmp)
     int totype;
     const char *stunmsg = (char *) 0;
 
-    if (u.utrap && u.utraptype == TT_BURIEDBALL)
+    if (u_tethered())
         buried_ball_to_punishment();
 
     if (!next_to_u()) {

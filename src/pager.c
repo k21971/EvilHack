@@ -142,6 +142,9 @@ self_lookat(char *outbuf)
                 uball ? ansimpleoname(uball) : "nothing?");
     if (u.utrap) /* bear trap, pit, web, in-floor, in-lava, tethered */
         Sprintf(eos(outbuf), ", %s", trap_predicament(trapbuf, 0, FALSE));
+    if (u.utether_pending) /* a chain waiting behind that hold */
+        Snprintf(eos(outbuf), BUFSZ - strlen(outbuf),
+                 ", tethered to something buried");
     return outbuf;
 }
 

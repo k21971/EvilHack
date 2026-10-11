@@ -729,12 +729,12 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
     boolean tree_held = (at_u && u_tree_held());
     int old_typ, old_aligntyp = A_NONE;
 
-    if (at_u && u.utrap) {
-        if (u.utraptype == TT_BURIEDBALL)
-            buried_ball_to_punishment();
-        else if (u.utraptype == TT_INFLOOR)
-            reset_utrap(FALSE);
-    }
+    /* a chain waiting behind the floor's hold goes first, so that the
+       floor's release can't hand the hero to it */
+    if (at_u && u_tethered())
+        buried_ball_to_punishment();
+    if (at_u && u.utrap && u.utraptype == TT_INFLOOR)
+        reset_utrap(FALSE);
 
     if (furniture_handled(x, y, madeby_u))
         return;
@@ -2079,8 +2079,9 @@ buried_ball(coord *cc)
 
     /* u.utrap might have already been cleared, in which case the value
        of u.utraptype is no longer meaningful; if u.utrap is still set
-       then u.utraptype needs to be for buried ball */
-    if (!u.utrap || u.utraptype == TT_BURIEDBALL) {
+       then u.utraptype needs to be for buried ball, or the ball's chain
+       has to be waiting behind that hold */
+    if (!u.utrap || u.utraptype == TT_BURIEDBALL || u.utether_pending) {
         for (otmp = svl.level.buriedobjlist; otmp; otmp = otmp->nobj) {
             if (otmp->otyp != HEAVY_IRON_BALL)
                 continue;
@@ -2108,6 +2109,38 @@ buried_ball(coord *cc)
     return ball;
 }
 
+/* is the hero chained to a buried iron ball, held by the chain now or
+   once another hold ends (u.utether_pending)? */
+boolean
+u_tethered(void)
+{
+    return ((u.utrap && u.utraptype == TT_BURIEDBALL)
+            || u.utether_pending);
+}
+
+/* the hero's chain to a buried iron ball is gone (the ball was dug up or
+   freed, or the chain broke); a chain that waited behind another hold
+   leaves that hold in place */
+void
+end_buried_tether(boolean msg)
+{
+    if (u.utether_pending) {
+        boolean was_Lev = (Levitation != 0), was_Fly = (Flying != 0);
+
+        u.utether_pending = 0;
+        float_vs_flight();
+        /* only a pit lets lift through, so the chain was holding it
+           down; floating up out of the pit changes where the hero is,
+           so that runs even when the caller wants no message */
+        if (!was_Lev && Levitation)
+            float_up();
+        if (msg && !was_Fly && Flying)
+            You("can fly.");
+    } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+        reset_utrap(msg);
+    }
+}
+
 void
 buried_ball_to_punishment(void)
 {
@@ -2125,7 +2158,7 @@ buried_ball_to_punishment(void)
             (void) stop_timer(RUST_METAL, obj_to_any(ball));
 #endif
         punish(ball); /* use ball as flag for unearthed buried ball */
-        reset_utrap(FALSE);
+        end_buried_tether(FALSE);
         del_engr_at(cc.x, cc.y);
         newsym(cc.x, cc.y);
     }
@@ -2149,7 +2182,7 @@ buried_ball_to_freedom(void)
 #endif
         place_object(ball, cc.x, cc.y);
         stackobj(ball);
-        reset_utrap(TRUE);
+        end_buried_tether(TRUE);
         del_engr_at(cc.x, cc.y);
         newsym(cc.x, cc.y);
     }
@@ -2167,26 +2200,24 @@ bury_an_obj(struct obj *otmp, boolean *dealloced)
     if (dealloced)
         *dealloced = FALSE;
     if (otmp == uball) {
-        /* a tree's branches hold the hero where they caught them, maybe
-           in the air over a drop; the chain takes over from them, so
-           judge the hero's lift as it is without their hold */
-        boolean tree_held = (u.utrap && u.utraptype == TT_ENTANGLED
-                             && nexttotree(u.ux, u.uy)),
-                aloft = tree_held ? u_lift_unheld()
-                                  : (Levitation || Flying),
-                over_drop = (tree_held && u_over_drop());
+        boolean aloft = (Levitation || Flying);
 
         unpunish();
-        set_utrap((unsigned) rn1(50, 20), TT_BURIEDBALL);
+        if (u.utrap && u.utraptype != TT_BURIEDBALL) {
+            /* the hold the hero is in stays; the chain holds the hero
+               once that ends (set_utrap()) and keeps any lift down
+               meanwhile; a tree's branches let the hero land then */
+            u.utether_pending = 1;
+            float_vs_flight();
+        } else {
+            set_utrap((unsigned) rn1(50, 20), TT_BURIEDBALL);
+        }
         pline_The("iron ball gets buried!");
         /* the chain now holds a flying or floating hero to the ground
            (float_vs_flight()); land once the caller's walk over the
-           objects here is done, as for a flyer caught by grass; a hero
-           the branches held over a drop with no lift left falls */
+           objects here is done, as for a flyer caught by grass */
         if (aloft && !Levitation && !Flying)
             defer_landing(LANDING_FLY);
-        else if (over_drop && !u.uinwater)
-            defer_landing(LANDING_SPOT);
     }
     /* after unpunish(), or might get deallocated chain */
     otmp2 = otmp->nexthere;
@@ -2289,8 +2320,7 @@ unearth_objs(int x, int y)
     for (otmp = svl.level.buriedobjlist; otmp; otmp = otmp2) {
         otmp2 = otmp->nobj;
         if (otmp->ox == x && otmp->oy == y) {
-            if (bball && otmp == bball
-                && u.utrap && u.utraptype == TT_BURIEDBALL) {
+            if (bball && otmp == bball && u_tethered()) {
                 buried_ball_to_punishment();
             } else {
                 obj_extract_self(otmp);
@@ -2640,7 +2670,11 @@ create_pit_under(struct monst *mdef, struct monst *magr)
             You("are torn from the %s!", nexttotree(u.ux, u.uy)
                                              ? "tree's grip"
                                              : "vegetation");
-        reset_utrap(FALSE);
+        /* a buried iron ball's chain stays, even one that has just taken
+           over from a trap deleted above: the pit makes it wait again
+           (set_utrap()) and a hole takes the ball along (goto_level()) */
+        if (u.utraptype != TT_BURIEDBALL)
+            reset_utrap(FALSE);
         pline_mon(magr, "%s hurls you down%s!", Monnam(magr),
                   is_pit(trap->ttyp) ? " to the bottom" : "");
         /* Use FORCETRAP to avoid messages about not falling into the pit if

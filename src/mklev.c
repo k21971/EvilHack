@@ -2662,7 +2662,7 @@ mkinvokearea(void)
 
     /* any trap hero is stuck in will be going away now */
     if (u.utrap) {
-        if (u.utraptype == TT_BURIEDBALL)
+        if (u_tethered())
             buried_ball_to_punishment();
         reset_utrap(FALSE);
     }

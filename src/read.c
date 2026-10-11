@@ -1942,7 +1942,7 @@ seffect_remove_curse(struct obj **sobjp)
     }
     if (Punished && !confused)
         unpunish();
-    if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+    if (u_tethered()) {
         buried_ball_to_freedom();
         pline_The("clasp on your %s vanishes.", body_part(LEG));
     }
@@ -2784,7 +2784,7 @@ selective_remove_curse(void)
     }
     if (Punished)
         unpunish();
-    if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+    if (u_tethered()) {
         buried_ball_to_freedom();
         pline_The("clasp on your %s vanishes.", body_part(LEG));
     }

@@ -1153,6 +1153,17 @@ status_enlightenment(int mode, int final)
                     (anchored ? "were " : "was "), predicament, "");
         } else
             you_are(predicament, "");
+        /* a buried ball's chain waiting behind that hold */
+        if (u.utether_pending) {
+            if (u.usteed) {
+                Sprintf(buf, "you and %s ",
+                        steedname ? steedname : "your steed");
+                *buf = highc(*buf);
+                enl_msg(buf, "are ", "were ",
+                        "also tethered to something buried", "");
+            } else
+                you_are("also tethered to something buried", "");
+        }
     } /* (u.utrap) */
     heldmon[0] = '\0'; /* lint suppression */
     if (u.ustuck) { /* includes u.uswallow */

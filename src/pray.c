@@ -278,7 +278,7 @@ in_trouble(void)
     if (!rn2(10) && (u.ualign.abuse != 0)
         && Role_if(PM_CAVE_DWELLER))
         return 0;
-    if (Punished || (u.utrap && u.utraptype == TT_BURIEDBALL))
+    if (Punished || u_tethered())
         return TROUBLE_PUNISHED;
     if (Cursed_obj(uarmg, GAUNTLETS_OF_FUMBLING)
         || Cursed_obj(uarmf, FUMBLE_BOOTS))
@@ -567,7 +567,7 @@ fix_worst_trouble(int trouble)
      */
     case TROUBLE_PUNISHED:
         Your("chain disappears.");
-        if (u.utrap && u.utraptype == TT_BURIEDBALL)
+        if (u_tethered())
             buried_ball_to_freedom();
         else
             unpunish();

@@ -1321,7 +1321,7 @@ use_bell(struct obj **optr)
             if (uchain) {
                 unpunish();
                 res = 1;
-            } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+            } else if (u_tethered()) {
                 buried_ball_to_freedom();
                 res = 1;
             }
@@ -2170,10 +2170,11 @@ jump(int magic) /* 0=Physical, otherwise skill level */
         coord uc;
         long side;
         int range, temp;
-        boolean wastrapped = FALSE;
+        boolean wastrapped = FALSE, wastrapped_pit = FALSE;
 
         if (u.utrap) {
             wastrapped = TRUE;
+            wastrapped_pit = (u.utraptype == TT_PIT);
             switch (u.utraptype) {
             case TT_BEARTRAP:
                 side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
@@ -2218,6 +2219,20 @@ jump(int magic) /* 0=Physical, otherwise skill level */
             }
             /* if we reach here, hero is no longer trapped */
             reset_utrap(TRUE);
+            /* unless a buried ball's chain waited behind that hold; it
+               holds the hero now (set_utrap()) and stops a leap away */
+            if (u.utrap && u.utraptype == TT_BURIEDBALL
+                && !u_at(cc.x, cc.y)) {
+                if (wastrapped_pit) {
+                    gv.vision_full_recalc = 1; /* out of the pit */
+                    fill_pit(u.ux, u.uy);
+                }
+                You("strain your %s, but you're still attached to the "
+                    "buried ball.", makeplural(body_part(LEG)));
+                set_wounded_legs(LEFT_SIDE, rn1(10, 11));
+                set_wounded_legs(RIGHT_SIDE, rn1(10, 11));
+                return ECMD_TIME;
+            }
         }
         /* jumping on hero's same spot doesn't use walk_path() and isn't
            allowed when riding (handled above) */
@@ -3562,7 +3577,14 @@ use_whip(struct obj *obj)
                     reset_utrap(TRUE); /* [was after teleds(); do this before
                                         * in case it has no alternative other
                                         * than to put hero in another trap] */
-                    teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
+                    /* a buried ball's chain that waited behind the pit
+                       holds the hero at its edge now (set_utrap()) */
+                    if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+                        You("are chained to the buried ball.");
+                        fill_pit(u.ux, u.uy);
+                    } else {
+                        teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
+                    }
                     gv.vision_full_recalc = 1;
                 }
             } else {

@@ -310,15 +310,17 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
                 worm_hit[mtmp->wormno] = TRUE;
         }
     } else if (u_at(x, y)) {
-        if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+        if (u_tethered()) {
             /* Note:  the chain should break if a pit gets
                created at the buried ball's location, which
                is not necessarily here.  But if we don't do
                things this way, entering the new pit below
                will override current trap anyway, but too
-               late to get Lev and Fly handling. */
+               late to get Lev and Fly handling. A chain
+               waiting behind another hold breaks too and
+               leaves that hold. */
             Your("chain breaks!");
-            reset_utrap(TRUE);
+            end_buried_tether(TRUE);
         }
         /* a live tree's branches or roots hold the hero above the chasm
            (the hold is the tree's, not the floor's) */

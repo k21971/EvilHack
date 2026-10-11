@@ -215,9 +215,11 @@ flooreffects(
         ttyp = t->ttyp;
         tseen = t->tseen ? TRUE : FALSE;
         /* a live tree's branches or roots hold the hero above the pit
-           or hole, out of the boulder's way */
+           or hole, out of the boulder's way; a buried ball's chain holds
+           the hero at its edge */
         if (((mtmp = m_at(x, y)) && mtmp->mtrapped)
-            || (u.utrap && u_at(x, y) && !u_tree_held())) {
+            || (u.utrap && u.utraptype != TT_BURIEDBALL && u_at(x, y)
+                && !u_tree_held())) {
             if (*verb && (cansee(x, y) || distu(x, y) == 0))
                 pline("%s boulder %s into the pit%s.",
                       Blind ? "A" : "The",
@@ -290,7 +292,11 @@ flooreffects(
            floor so we shouldn't need any special ice handing here */
         if ((t = t_at(x, y)) != 0) {
             (void) delfloortrap(t);
-            if (u.utrap && u_at(x, y) && !u_tree_held())
+            /* a buried ball's chain holds the hero for the ball, not the
+               pit (delfloortrap()), even one that has just taken over
+               from the pit's hold */
+            if (u.utrap && u_at(x, y) && !u_tree_held()
+                && u.utraptype != TT_BURIEDBALL)
                 reset_utrap(FALSE);
         }
         useupf(obj, 1L);
@@ -1861,7 +1867,7 @@ goto_level(
     }
 
     /* tethered movement makes level change while trapped feasible */
-    if (u.utrap && u.utraptype == TT_BURIEDBALL)
+    if (u_tethered())
         buried_ball_to_punishment(); /* (before we save/leave old level) */
 
     nhfp = currentlevel_rewrite();

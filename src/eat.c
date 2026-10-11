@@ -4496,7 +4496,10 @@ floorfood(
                 struct obj *beartrap;
 
                 deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
-                if (u_in_beartrap)
+                /* deltrap_with_ammo() normally frees the hero; a buried
+                   ball's chain that waited behind the trap holds the hero
+                   after that and must stay */
+                if (u.utrap && u.utraptype == TT_BEARTRAP)
                     reset_utrap(TRUE);
                 beartrap = mksobj(BEARTRAP, TRUE, FALSE);
                 Sprintf(qbuf,"You only manage to %s the bear trap.",

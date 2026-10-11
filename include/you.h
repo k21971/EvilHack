@@ -504,6 +504,9 @@ struct you {
 #define LEFT_HANDED  0x01
     Bitfield(uamulet_on_planes, 1); /* monster escaped to Planes with
                                        Amulet */
+    Bitfield(utether_pending, 1);   /* chained to a buried iron ball, but
+                                       another hold (u.utrap) comes first;
+                                       the chain holds once that ends */
 
     unsigned udg_cnt;           /* how long you have been demigod */
     struct u_event uevent;      /* certain events have happened */

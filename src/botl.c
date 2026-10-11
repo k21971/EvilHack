@@ -1296,11 +1296,16 @@ bot_via_windowport(void)
         = condtests[bl_trapped].test = FALSE;
     if (u.utrap) {
         test_if_enabled(bl_inlava) = (u.utraptype == TT_LAVA);
-        test_if_enabled(bl_tethered) = (u.utraptype == TT_BURIEDBALL);
+        /* a buried ball's chain waiting behind another hold shows
+           beside that hold */
+        test_if_enabled(bl_tethered) = (u.utraptype == TT_BURIEDBALL
+                                        || u.utether_pending);
         /* if in-lava or tethered is disabled and the condition applies,
            lump it in with trapped */
-        test_if_enabled(bl_trapped) = (!condtests[bl_inlava].test
-                                       && !condtests[bl_tethered].test);
+        test_if_enabled(bl_trapped) =
+            (!(u.utraptype == TT_LAVA && condtests[bl_inlava].test)
+             && !(u.utraptype == TT_BURIEDBALL
+                  && condtests[bl_tethered].test));
     }
     condtests[bl_grab].test = condtests[bl_held].test
 #if 0

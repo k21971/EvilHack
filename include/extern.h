@@ -630,6 +630,8 @@ extern void rot_corpse(union any *, long) NONNULLARG1;
 extern struct obj *buried_ball(coord *) NONNULLARG1;
 extern void buried_ball_to_punishment(void);
 extern void buried_ball_to_freedom(void);
+extern boolean u_tethered(void);
+extern void end_buried_tether(boolean);
 extern schar fillholetyp(coordxy, coordxy, boolean);
 extern void liquid_flow(coordxy, coordxy, schar, struct trap *, const char *);
 extern boolean conjoined_pits(struct trap *, struct trap *, boolean);
