@@ -1655,21 +1655,32 @@ boolean
 throwit_mon_hit(struct obj *obj, struct monst *mon)
 {
     if (mon) {
-        boolean obj_gone;
+        boolean obj_gone, kind_potion;
 
         if (mon->isshk && obj->where == OBJ_MINVENT && obj->ocarry == mon) {
             return TRUE;
         }
         (void) snuff_candle(obj);
         gn.notonhead = (gb.bhitpos.x != mon->mx || gb.bhitpos.y != mon->my);
+        /* checked before thitmonst(), which may use up obj; for these
+           potions thrown at a shopkeeper it only returns 1 when one
+           hits and breaks */
+        kind_potion = (obj->otyp == POT_HEALING
+                       || obj->otyp == POT_EXTRA_HEALING
+                       || obj->otyp == POT_FULL_HEALING
+                       || obj->otyp == POT_GAIN_ABILITY
+                       || obj->otyp == POT_RESTORE_ABILITY
+                       || obj->otyp == POT_SPEED);
         obj_gone = thitmonst(mon, obj);
         if (!obj_gone && ammo_stack && ammo_stack != obj)
             ammo_stack->oprops_known |= obj->oprops_known;
         /* Monster may have been tamed; this frees old mon [obsolete] */
         mon = m_at(gb.bhitpos.x, gb.bhitpos.y);
 
-        /* [perhaps this should be moved into thitmonst or hmon] */
-        if (mon && mon->isshk
+        /* [perhaps this should be moved into thitmonst or hmon];
+           a kind potion that hits him does not anger him, a miss
+           still does */
+        if (mon && mon->isshk && !(kind_potion && obj_gone)
             && (!inside_shop(u.ux, u.uy)
                 || !strchr(in_rooms(mon->mx, mon->my, SHOPBASE), *u.ushops)))
             hot_pursuit(mon);

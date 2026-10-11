@@ -715,8 +715,9 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             if (skilled_spell || otyp == SPE_EXTRA_HEALING
                 || otyp == SPE_CRITICAL_HEALING)
                 mcureblindness(mtmp, canseemon(mtmp));
-            /* critical healing sometimes cures illness and withering */
-            if (otyp == SPE_CRITICAL_HEALING && !rn2(4))
+            /* critical healing cast at Skilled or better sometimes
+               cures illness and withering */
+            if (otyp == SPE_CRITICAL_HEALING && skilled_spell && !rn2(4))
                 cure_mon_sickness(mtmp);
             if (canseemon(mtmp)) {
                 if (disguised_mimic) {
@@ -966,7 +967,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         /* seemimic() is done by wakeup() and might unblock vision */
         wakeup(mtmp, helpful_gesture ? FALSE : TRUE);
         m_respond(mtmp);
-        if (mtmp->isshk && !*u.ushops)
+        /* helping a shopkeeper from outside his shop is not an attack */
+        if (mtmp->isshk && !*u.ushops && !helpful_gesture)
             hot_pursuit(mtmp);
     }
     /* note: gb.bhitpos won't be set if swallowed, but that's okay since
@@ -3683,9 +3685,10 @@ zapyourself(struct obj *obj, boolean ordinary)
     case SPE_EXTRA_HEALING:
     case SPE_CRITICAL_HEALING:
         learn_it = TRUE; /* (no effect for spells...) */
-        /* critical healing sometimes cures illness, sliming and
+        /* critical healing cast at Skilled or better (a blessed
+           pseudo-object) sometimes cures illness, sliming and
            withering */
-        if (obj->otyp == SPE_CRITICAL_HEALING && !rn2(4)) {
+        if (obj->otyp == SPE_CRITICAL_HEALING && obj->blessed && !rn2(4)) {
             if (Sick) {
                 /* cure conditions (which updates status) before feedback */
                 healup(0, 0, TRUE, FALSE);

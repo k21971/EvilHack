@@ -69,7 +69,7 @@ staticfn void grow_grass(coordxy, coordxy, genericptr_t);
 staticfn void cast_create_grass(int);
 staticfn void grow_tree(coordxy, coordxy, genericptr_t);
 staticfn void cast_create_trees(int);
-staticfn boolean cast_power_word_kill(void);
+staticfn void cast_power_word_kill(void);
 
 /* The roles[] table lists the role-specific values for tuning
  * percent_success().
@@ -1713,8 +1713,8 @@ cast_create_trees(int skill)
        ..EEEEEEE..
        ....EEE....
        ...........
-   returns TRUE if the slain target was lifesaved */
-staticfn boolean
+ */
+staticfn void
 cast_power_word_kill(void)
 {
     char c, qbuf[QBUFSZ];
@@ -1740,14 +1740,14 @@ cast_power_word_kill(void)
     flags.verbose = save_verbose;
     iflags.autodescribe = save_autodescribe;
     if (ans < 0 || cc.x < 1)
-        return FALSE;
+        return;
 
     /* handle selecting your own location first */
     if (u_at(cc.x, cc.y)) {
         if (u.usteed) {
             Sprintf(qbuf, "Kill %.110s?", mon_nam(u.usteed));
             if ((c = ynq(qbuf)) == 'q')
-                return FALSE;
+                return;
             if (c == 'y')
                 mtmp = u.usteed;
         }
@@ -1760,7 +1760,7 @@ cast_power_word_kill(void)
                 svk.killer.format = KILLED_BY;
                 done(DIED);
             }
-            return FALSE;
+            return;
         }
     } else if (u.uswallow) {
         mtmp = (distu(cc.x, cc.y) <= 2) ? u.ustuck : (struct monst *) 0;
@@ -1775,16 +1775,16 @@ cast_power_word_kill(void)
 
     if (!mtmp) {
         There("is no monster there.");
-        return FALSE;
+        return;
     }
     if (mdistu(mtmp) > range_skill + 1) {
         pline("%s is out of range.", Monnam(mtmp));
-        return FALSE;
+        return;
     }
     if (immune_death_magic(mtmp->data)) {
         shieldeff(mtmp->mx, mtmp->my);
         pline("%s is immune to your word of power!", Monnam(mtmp));
-        return FALSE;
+        return;
     }
 
     if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
@@ -1796,14 +1796,21 @@ cast_power_word_kill(void)
         (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
         death_magic_anger(mtmp);
     } else if (mtmp->mhp <= damage_skill) {
+        boolean was_steed = (mtmp == u.usteed);
+
         /* assumes not resistant to death magic. monsters with
            less hit points as determined by damage_skill die */
         You("%s %s!", rn2(2) ? "annihilate" : "obliterate",
             mon_nam(mtmp));
         mtmp->mhp = 0;
         xkilled(mtmp, XKILL_NOMSG);
-        if (!DEADMONSTER(mtmp))
-            return TRUE; /* lifesaved */
+        /* a target that life-saved (or a vampire knocked back to its
+           true form) survived the word and will not stay friendly;
+           the Ice Queen's dogs submit instead, and the hero's own
+           steed is left alone (life-saving may dismount it before its
+           hit points return, off the map) */
+        if (!DEADMONSTER(mtmp) && !is_defeated(mtmp->data) && !was_steed)
+            death_magic_anger(mtmp);
     } else {
         /* if not magic resistant, but has more hit points as
            determined by damage_skill, max hit points and regular
@@ -1825,7 +1832,6 @@ cast_power_word_kill(void)
             mtmp->mhp = 1;
         death_magic_anger(mtmp);
     }
-    return FALSE;
 }
 
 /* attempting to cast a forgotten spell will cause disorientation */
@@ -2337,12 +2343,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
         (void) make_elemental(u.ux, u.uy);
         break;
     case SPE_POWER_WORD_KILL:
-        if (cast_power_word_kill()) {
-            /* the slain target was lifesaved; like master, the cast
-               takes no time and earns no skill */
-            obfree(pseudo, (struct obj *) 0);
-            return ECMD_OK;
-        }
+        cast_power_word_kill();
         break;
 
     /* these are all duplicates of potion effects */
