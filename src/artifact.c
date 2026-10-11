@@ -4541,8 +4541,6 @@ invoke_death_magic(struct obj *obj)
             case 16:
             case 15:
                 if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))) {
-                    boolean was_steed = (mtmp == u.usteed);
-
                     pline_The("%s %s %s!", distant_name(obj, xname),
                               rn2(2) ? "annihilates" : "obliterates",
                               mon_nam(mtmp));
@@ -4553,11 +4551,12 @@ invoke_death_magic(struct obj *obj)
                     monkilled(mtmp, (char *) 0, AD_DETH);
                     if (!DEADMONSTER(mtmp)) {
                         /* a life-saved survivor will not stay friendly;
-                           the Ice Queen's dogs submit instead, and the
-                           hero's own steed is left alone (life-saving
-                           may dismount it before its hit points
-                           return, off the map) */
-                        if (!is_defeated(mtmp->data) && !was_steed)
+                           the Ice Queen's dogs submit instead. The
+                           hero's own steed is still ridden here:
+                           angering it throws the hero off, and one
+                           already hostile is thrown off by
+                           dismount_untamed_steed() */
+                        if (!is_defeated(mtmp->data))
                             death_magic_anger(mtmp);
                         continue;
                     }

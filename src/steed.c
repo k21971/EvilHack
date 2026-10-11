@@ -161,11 +161,12 @@ mount_up(struct monst *rider)
             nmon = rider->nmon;
         if (steed == rider)
             continue;
-        /* defensive: the mount the hero is sitting on is not up for
-           grabs. No current path leaves a steed mounted and untame -
-           kicking one to zero tameness throws the hero off - so this
-           cannot fire today, but carrying a monster and the hero at
-           once would corrupt state in ways nothing else checks for */
+        /* the mount the hero is sitting on is not up for grabs. A steed
+           untamed by life saving, a charm or knock stays mounted until
+           dismount_untamed_steed() throws the hero off, which runs before
+           each monster moves, so this should not fire; carrying a monster
+           and the hero at once would corrupt state in ways nothing else
+           checks for */
         if (steed == u.usteed)
             continue;
         /* criteria for an acceptable steed */
@@ -1628,6 +1629,23 @@ dismount_steed(
        just got */
     update_inventory();
     return;
+}
+
+/* A steed can stop being tame while the hero still rides it: an amulet of
+   life saving untames it in the middle of its death (wary_dog()), where
+   throwing the hero off could kill it a second time, and a monster's charm
+   or the hero's knock can untame it outright. moveloop and movemon call
+   this at points where nothing is mid-death and before anything acts on
+   the untamed mount; a hero already leaving the level takes the steed
+   along and is thrown off on arrival. Returns TRUE if the hero was
+   thrown */
+boolean
+dismount_untamed_steed(void)
+{
+    if (!u.usteed || u.usteed->mtame || DEADMONSTER(u.usteed) || u.utotype)
+        return FALSE;
+    dismount_steed(DISMOUNT_THROWN);
+    return TRUE;
 }
 
 /* when attempting to saddle or mount a sleeping steed, try to wake it up

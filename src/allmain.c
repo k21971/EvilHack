@@ -15,6 +15,7 @@ staticfn void moveloop_preamble(boolean);
 staticfn void u_calc_moveamt(int);
 staticfn void maybe_generate_rnd_mon(void);
 staticfn void maybe_land_deferred(void);
+staticfn void maybe_dismount_untamed(void);
 staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
 staticfn void do_positionbar(void);
@@ -284,6 +285,15 @@ maybe_land_deferred(void)
         deferred_goto();
 }
 
+/* throw the hero off a steed that stopped being tame while it was ridden
+   (see dismount_untamed_steed()); the landing may find a trap door */
+staticfn void
+maybe_dismount_untamed(void)
+{
+    if (dismount_untamed_steed() && u.utotype)
+        deferred_goto();
+}
+
 #if defined(MICRO) || defined(WIN32)
 static int mvl_abort_lev;
 #endif
@@ -310,6 +320,11 @@ moveloop_core(void)
 
     if (svc.context.bypasses)
         clear_bypasses();
+
+    /* the hero's last action may have untamed the steed (life saving,
+       knock); throw the hero off before sanity_check() or the monsters
+       see it */
+    maybe_dismount_untamed();
 
     if (iflags.sanity_check || iflags.debug_fuzzer)
         sanity_check();
@@ -821,6 +836,9 @@ moveloop_core(void)
                a fast hero got multiple moves on that 15th turn, it
                could actually happen more than once on the same turn!] */
         }
+        /* the last monster to move or a once-per-turn effect may have
+           untamed the steed; throw the hero off before the hero acts */
+        maybe_dismount_untamed();
         /* a monster, a timeout or a finished occupation may have ended
            flight or levitation; land ahead of the pool check below, which
            would otherwise drown the hero first */

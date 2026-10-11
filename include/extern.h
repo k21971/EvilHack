@@ -3480,6 +3480,7 @@ extern boolean mount_steed(struct monst *, boolean) NO_NNARGS;
 extern void exercise_steed(void);
 extern void kick_steed(void);
 extern void dismount_steed(int);
+extern boolean dismount_untamed_steed(void);
 extern void place_monster(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void poly_steed(struct monst *, struct permonst *) NONNULLARG12;
 extern boolean stucksteed(boolean);

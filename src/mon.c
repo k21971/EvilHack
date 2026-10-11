@@ -1809,6 +1809,12 @@ m_calcdistress(struct monst *mtmp)
 boolean
 movemon_singlemon(struct monst *mtmp)
 {
+    /* an earlier monster's move may have untamed the hero's steed (life
+       saving, a charm); throw the hero off before anything else acts. The
+       landing may find a trap door (checked next) or kill the steed (the
+       DEADMONSTER test below) */
+    (void) dismount_untamed_steed();
+
     /* end monster movement early if hero is flagged to leave the level */
     if (u.utotype
 #ifdef SAFERHANGUP
@@ -1872,6 +1878,14 @@ movemon_singlemon(struct monst *mtmp)
         clear_bypasses();
     clear_splitobjs();
     if (minliquid(mtmp))
+        return FALSE;
+    /* minliquid() returns 0 for a monster it life-saved and moved, but
+       moving the hero's steed teleports the hero, whose landing in water
+       can drown it after all; and a ridden steed it life-saved and untamed
+       is still off the map under the hero, where only a tame steed is held
+       still (dog_goal()), so it gives up this move and the hero is thrown
+       off at the next dismount_untamed_steed() */
+    if (DEADMONSTER(mtmp) || (mtmp == u.usteed && !mtmp->mtame))
         return FALSE;
 
     /* after losing equipment, try to put on replacement;

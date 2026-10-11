@@ -1796,8 +1796,6 @@ cast_power_word_kill(void)
         (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
         death_magic_anger(mtmp);
     } else if (mtmp->mhp <= damage_skill) {
-        boolean was_steed = (mtmp == u.usteed);
-
         /* assumes not resistant to death magic. monsters with
            less hit points as determined by damage_skill die */
         You("%s %s!", rn2(2) ? "annihilate" : "obliterate",
@@ -1806,10 +1804,10 @@ cast_power_word_kill(void)
         xkilled(mtmp, XKILL_NOMSG);
         /* a target that life-saved (or a vampire knocked back to its
            true form) survived the word and will not stay friendly;
-           the Ice Queen's dogs submit instead, and the hero's own
-           steed is left alone (life-saving may dismount it before its
-           hit points return, off the map) */
-        if (!DEADMONSTER(mtmp) && !is_defeated(mtmp->data) && !was_steed)
+           the Ice Queen's dogs submit instead. The hero's own steed is
+           still ridden here: angering it throws the hero off, and one
+           already hostile is thrown off by dismount_untamed_steed() */
+        if (!DEADMONSTER(mtmp) && !is_defeated(mtmp->data))
             death_magic_anger(mtmp);
     } else {
         /* if not magic resistant, but has more hit points as

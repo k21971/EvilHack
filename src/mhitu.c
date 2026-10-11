@@ -875,9 +875,11 @@ mattacku(struct monst *mtmp)
             i = mattackm(mtmp, u.usteed);
             if ((i & M_ATTK_AGR_DIED) != 0)
                 return 1;
-            /* make sure steed is still alive and within range */
+            /* make sure steed is still alive and within range, and still
+               tame: life saving or a charm spell can untame it, and it
+               stays under the hero until it is thrown off */
             if ((i & M_ATTK_DEF_DIED) != 0 || !u.usteed
-                || !m_next2u(mtmp))
+                || !u.usteed->mtame || !m_next2u(mtmp))
                 return 0;
             /* Let your steed retaliate (check acceptable_pet_target()
                as a guard) */

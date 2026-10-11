@@ -2009,8 +2009,11 @@ wary_dog(struct monst *mtmp, boolean was_dead)
            don't leave it that way if it's no longer tame */
         if (mtmp->mleashed)
             m_unleash(mtmp, TRUE);
-        if (mtmp == u.usteed)
-            dismount_steed(DISMOUNT_THROWN);
+        /* the hero's steed is not thrown off here: a life-saved steed is
+           still dying (a starving one may hold a few hit points from the
+           penalty refund above), and a landing that kills it again would
+           run a second death inside this one; moveloop throws the hero
+           off once it lives (dismount_untamed_steed()) */
     } else if (edog) {
         /* it's still a pet; start a clean pet-slate now */
         edog->revivals++;
