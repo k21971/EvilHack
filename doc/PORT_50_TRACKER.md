@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-10, after session 209's vine-hold
-  slice): 361 rows closed, 107 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-11, after session 210's buried-ball
+  chain slice): 362 rows closed, 108 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -33,7 +33,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 87 LOW: small parity rows, quirks and watch/record-only items.
+  - 88 LOW: small parity rows, quirks and watch/record-only items.
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
     iced-span land mine row and the paranoid-swim row; the
     buzz_killer() death-ray naming row (session 186, a port gap)
@@ -51,11 +51,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the other five landed in session 190. Ruled 2026-10-10 (session
     208 follow-up): session 190's hold census - six of its seven rows
     landed in session 209 (BUG-2257..2265); the seventh, burying the
-    ball over another hold, was split to its own slice (a saved
-    pending-tether flag; plannable). Session 209 minted five LOW rows
-    (a pit inside a standing tree, a polymorphed monster staying
-    entangled, a grass hold outliving its grass, the stale m-prefix
-    pit line, the aloft float_down() wording). Also ruled then,
+    ball over another hold, landed in session 210 (BUG-2266..2269,
+    with the mirror case). Session 209 minted five LOW rows (a pit
+    inside a standing tree, a polymorphed monster staying entangled,
+    a grass hold outliving its grass, the stale m-prefix pit line,
+    the aloft float_down() wording); session 210 two (a Punished hero
+    who is also tethered, a knockback moving a ridden steed out of
+    the hero's hold). Also ruled then,
     plannable: the vampshifter
     hunger-penalty row (clear it on form change), the trap-kit G_ ids
     row ("unset "), the "extremely toxic" floor row (never raise a
@@ -21719,7 +21721,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       times); rejected storing the cast's word and keeping master's
       rolls. Plannable.
 - [x] LOW: #kick while held (BUG-2257) - FIXED 2026-10-10 (session
-      209, commit pending; closure notes in BUGFIXES_ARCHIVE): vines,
+      209, commit 509c214c4, tracker 31d3be53c; closure notes in
+      BUGFIXES_ARCHIVE): vines,
       floor, chain and lava all say "You can't move your leg!"
       (singular, the existing line); master's TT_LAVA arm restored.
       Original text: LOW: #kick while held is a silent no-kick
@@ -21739,7 +21742,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       legs!"; master's lost TT_LAVA arm is restored with them.
       Plannable.
 - [x] LOW: opening magic on vines (BUG-2258) - FIXED 2026-10-10
-      (session 209, commit pending): "You are released from the
+      (session 209, commit 509c214c4, tracker 31d3be53c): "You are
+      released from the
       tree's grip." / "...the vegetation."; a no-lift hero held over
       a drop falls (deferred LANDING_SPOT). The Bell reaches the hero
       only through a trap on the square (vanilla shape, recorded).
@@ -21761,7 +21765,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ruling; a release over a hole, open air or water then falls /
       lands the way allmain's release-drop does. Plannable.
 - [x] LOW: polymorph slips the vines (BUG-2259) - FIXED 2026-10-10
-      (session 209, commit pending): "You slip free of the tree's
+      (session 209, commit 509c214c4, tracker 31d3be53c): "You slip
+      free of the tree's
       grip." / "...vegetation." for amorphous, whirly, unsolid and
       wall-passing forms; both cast_entangle() arms refuse amorphous
       forms (the monster arm ruled in session 209).
@@ -21781,7 +21786,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       forms. Plannable.
 - [x] LOW: terrain changes keep a tree's hold; a dying tree lets go
       (BUG-2260, BUG-2261; BUG-2264 the hurl) - FIXED 2026-10-10
-      (session 209, commit pending): u_tree_held() exempts the hold in
+      (session 209, commit 509c214c4, tracker 31d3be53c): u_tree_held()
+      exempts the hold in
       deltrap_with_ammo() / delfloortrap() / do_pit() / digactualhole()
       / flooreffects() / trapeffect_pit(); tree_gone_release() at every
       live-tree removal (fire, death ray, axe, zap_dig both arms,
@@ -21816,7 +21822,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mid-hold releases the hero with a message and the normal landing
       or fall. Plannable.
 - [x] LOW: the cast refuses over any hold (BUG-2262) - FIXED
-      2026-10-10 (session 209, commit pending): "The spell fails to
+      2026-10-10 (session 209, commit 509c214c4, tracker 31d3be53c):
+      "The spell fails to
       entangle you." over a pit, web or bear trap too.
       Original text: LOW: cast_entangle() silently replaces a pit,
       web or bear-trap
@@ -21830,7 +21837,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-10 (session 208 follow-up; decisions log): REFUSE
       ("The spell fails to entangle you.") over a pit, web or bear trap
       too, like BUG-2172's lava / floor / chain refusals. Plannable.
-- [ ] LOW: burying the iron ball replaces any other hold (minted
+- [x] LOW: burying the iron ball over another hold (BUG-2266; with
+      BUG-2267 the mirror case, BUG-2268 the boulder on a chained
+      hero's pit square, BUG-2269 the hurl) - FIXED 2026-10-11
+      (session 210, commit pending; closure notes in
+      BUGFIXES_ARCHIVE): a saved bit u.utether_pending records a chain
+      waiting behind another hold; set_utrap() resumes TT_BURIEDBALL
+      silently when the last hold ends, and a new hold taken over the
+      chain makes it wait. Departures unearth the ball, frees free it,
+      opening magic ends both holds ("You are released from your
+      anchor."), #jump and the bullwhip yank stop at the chain;
+      status Tethered (opt-in) and ^X / `;` show a waiting chain.
+      Original text: LOW: burying the iron ball replaces any other
+      hold (minted
       2026-10-07, session 190, reviewer; master- and upstream-shared,
       Official_nh50 dig.c bury_an_obj() identical). bury_an_obj(uball)
       calls set_utrap(TT_BURIEDBALL) over whatever holds the hero: a
@@ -21855,8 +21874,31 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       slips), digactualhole(), the earthquake chain-break, unearthing
       and buried_ball()'s search test. Until then bury_an_obj() keeps
       BUG-2182's shape (the chain replaces the branches). Plannable.
+- [ ] LOW: a Punished hero who is also tethered orphans the wrenched
+      ball (minted 2026-10-11, session 210, Plan agent; master- and
+      upstream-shared). A scroll of punishment read while chained to
+      a buried ball makes a second ball and chain. Wrenching or
+      unearthing the buried one runs buried_ball_to_punishment(),
+      which extracts it from the buried list and calls punish(ball);
+      punish() sees Punished, prints "Your iron ball gets heavier."
+      and returns without placing the reused ball, so the object is
+      left on no chain. drop_ball() also moves such a hero with
+      u.ux / u.uy after a reset that hands them back to the chain.
+      Decide: keep the second chain and drop the old ball where it
+      lay, or merge them. LOW (needs a trace and a ruling).
+- [ ] LOW: a knockback moves a ridden steed out of the hero's hold
+      (minted 2026-10-11, session 210, reviewer; branch, pre-existing).
+      mhurtle() refuses a huge, stuck or mtrapped monster ("doesn't
+      budge!") but a ridden steed is never mtrapped - the hold is the
+      hero's u.utrap - so a cursed-saddle knockback (muse.c) or
+      mhitm_knockback() moves the pair with u_on_newpos(), leaving a
+      bear trap, web or pit hold, a vine hold or a buried ball's
+      chain behind on another square or out of the chain's reach.
+      Suggested fix: add `|| (mon == u.usteed && u.utrap)` to the
+      refusal. LOW (needs a trace).
 - [x] LOW: '<' / '>' while entangled (BUG-2263) - FIXED 2026-10-10
-      (session 209, commit pending): every '<' / '>' is refused with
+      (session 209, commit 509c214c4, tracker 31d3be53c): every '<' /
+      '>' is refused with
       "You are entangled by a tree." / "...by vegetation." (stairs,
       the hole plunge BUG-2167 allowed, the water exit); ruled in
       session 209. '>' still ends controlled levitation.
@@ -27792,6 +27834,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-11 | Buried-ball tether lost to other holds, shared with Official_nh50: (1) dig.c bury_an_obj(uball) calls set_utrap(TT_BURIEDBALL) over any hold, so a hero in a bear trap, web, pit or lava whose ball gets buried (a frozen pool, a filled pit) leaves that hold for the chain's; (2) trap.c set_utrap() for a new hold (a bear trap, web or pit within the chain's reach, a lava re-sink) overwrites TT_BURIEDBALL, so the hero is free once out and the ball stays buried for good; (3) do.c flooreffects() tests `u.utrap && u_at(x, y)` for "falls into the pit with you", so a tethered hero standing on a pit square takes the squish, and a Giant / Passes_walls hero's reset there clears the tether. Fix on the branch: a saved pending-tether bit with the resume in set_utrap(), and the TT_BURIEDBALL exclusion in flooreffects() (BUG-2266..2268). | found (branch-fixed); not yet sent |
 | 2026-10-10 | dig.c dig()'s bear-trap arm (Official_nh50 src/dig.c ~392-410, `BEAR_TRAP && u.utrap`) runs for ANY hold, and its "You destroy the bear trap with ..." branch calls reset_utrap(TRUE) after deltrap(): a hero chained to a buried iron ball (TT_BURIEDBALL) standing on an armed bear trap who digs down is freed from the tether silently, the ball left buried. Fix: reset only when u.utraptype == TT_BEARTRAP (branch BUG-2265). | found (branch-fixed); not yet sent |
 | 2026-10-09 | Experience level changes while polymorphed, shared with Official_nh50 (all three reproduced in wizard mode on the branch's pre-fix build): (1) exper.c losexp() at XL1 (divine anger, or a fatal drain survived by life-saving or a declined Die?) falls through to `u.uhpmax -= u.uhpinc[1]` and the u.ueninc[1] loss although that level's gain is already gone, and while polymorphed also takes monhp_per_lvl() off the form - a polymorphed Unchanging hero is killed a second time inside the same call (fix: remember the level on entry, adjust only when a level was lost); (2) end.c savelife() restores a form to min(u.mhmax, givehp) with no lower bound, so a form whose max losexp() drove to 0 or below (or Death's touch / Vecna's gaze floored at min(mlevel, ulevel) = 0) comes back at 0 or less under an amulet of unchanging and dies at its next hurt, every turn for an eel form (fix: give the form a minimum max, max(2 * mlevel, 10)); (3) exper.c pluslvl()'s polymorphed arm `u.mh += hpinc; setuhpmax(u.mhmax, FALSE);` never raises the form's max (e9a25a0a1 dropped the increment; fix: `setuhpmax(u.mhmax + hpinc, FALSE)`) | fixed on branch (BUG-2224, BUG-2225, BUG-2227, session 198); patch artifact ~/nh50-losexp-savelife-pluslvl.patch (applies clean to 15fbc6b21); not sent |
 | 2026-10-08 | potion.c potion_dip()'s polymorph arm (Official_nh50 src/potion.c ~2487, the "obj might be gone" arm) leaves the potion of polymorph unconsumed, with in_use set, when a worn amulet becomes an amulet of change | fixed on branch (BUG-2189, e338a46e4, session 191); no patch artifact yet; not sent |
@@ -27984,6 +28027,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-11 | Buried-ball chain slice rulings (session 210; AskUserQuestion x3, all recommended): the mirror case (a new hold taken within the chain's reach) is fixed in the same slice with the same flag; a waiting chain takes over SILENTLY when the other hold ends (the status line and the next move tell it); a waiting chain shows on the status line (Tethered beside Trapped / InLava, both opt-in) and in ^X ("You are also tethered to something buried."); #jump out of a hold with a waiting chain stops with the tether arm's "You strain your legs, but you're still attached to the buried ball." and its leg wounds; opening magic frees both holds with two lines ("You are released from the bear trap.  You are released from your anchor."), the ball staying buried; the bullwhip yank out of a pit stops at the edge with trapmove()'s "You are chained to the buried ball." and no wounds (reviewer MED). Kept as session 209 left it: dig()'s bear-trap arm for any held hero. | maintainer |
 | 2026-10-10 | Vine-hold census slice rulings (session 209; AskUserQuestion x3, all recommended): the bury-the-ball row is SPLIT to its own slice (a saved pending-tether flag plus ~15 buried-ball hooks; bury_an_obj() keeps BUG-2182's shape until then); the new wording set ("You slip free of the tree's grip." / "...vegetation.", "You are released from the tree's grip." / "...vegetation.", a dying tree reuses moveloop's release lines); cast_entangle()'s MONSTER arm refuses amorphous forms too (one form list for both arms); EVERY '<' / '>' is refused while entangled, the hole plunge included (supersedes BUG-2167's TOOKPLUNGE carve-out); a pit fiend's hurl RIPS the hero free with "You are torn from the tree's grip!" (other holds keep vanilla's silent reset). Kept for master parity after the narrow re-review: dig()'s 2-in-7 "You hit yourself in the foot." for any held hero over a bear trap. | maintainer |
 | 2026-10-10 | Ruling round (session 208 follow-up; AskUserQuestion x5, seventeen questions; rulings recorded only, no code). KEPT 5.0, rows closed with no code change, each over my recommendation: booze confusion d(2 + u.uhs, 8) (over master's d(3, 8)); the diluted-stack mix yield cap of 2 (over master's whole stack); the hallucination potion's resistance early return and enlightenment roll (over master's shape); losestr()'s 3-6 per point through losehp() with 5.0's floors (over a hybrid of master's flat 6 with 5.0's safety). RULED, plannable: the "extremely toxic" poison floor keeps 5.0's order and max(XL, 3) floor but never raises a lower max (recommended); power word kill on a life-saved target takes the turn and trains the skill (recommended); a helpful gesture never runs bhitm()'s shopkeeper hot_pursuit() (recommended; branch fix over master / vanilla); the CODE follows data.base - critical healing's 1-in-4 cure rider needs Skilled (over my recommended text fix; diverges from master); #kick while held by vines / floor / chain says "You can't move your legs!" (recommended); opening magic frees vines with the vegetation wording and the release-drop (recommended); whirly, unsolid, wall-passing and amorphous forms slip vines on polymorph and the cast refuses amorphous forms too (recommended); a vine hold is the tree's - terrain changes keep it while its live tree is adjacent, a dying tree releases with a message and landing (recommended); cast_entangle() refuses over a pit, web or bear trap (recommended); burying the ball keeps the existing hold (recommended; branch fix over master / vanilla); '<' / '>' refused while entangled (recommended); trap-kit object glyph ids take the "unset " prefix (recommended); newcham() clears a vampshifter pet's mhpmax_penalty (recommended; master-shared gap). | maintainer |
 | 2026-10-10 | Ent stoning / stone to flesh slice rulings (session 208; AskUserQuestion x2, four questions, all recommended). (1) INTENT FORM FOR THE HERO SITES: master f1d39f476's stoning half is ported with mondata.c stoned_form() picking the stone form by body (true ent -> petrified ent, golem -> stone golem) at all 17 hero sites and in polymon()'s Stoned arm. Master tries polymon(PM_STONE_GOLEM) first, so a stoned hero ent becomes a stone golem (stone golems lack G_GENO, so its petrified ent fallback never runs); BUG-2254, frozen-unfixed. Rejected: master's exact order; a stone-to-flesh-only slice with a row for the stoning half. (2) b41949570's zap_steed() SPE_STONE_TO_FLESH line DEFERRED to the Hdgn-slice riders row (a) beside the mstone cure: no branch steed can be affected (golems and ents can't be saddled, mstone has no producer), so alone it would only stop a downward cast reaching the floor while riding. Rejected: port it now for parity. (3) ONLY TRUE ENTS PETRIFY: poly_when_stoned() / mon_to_stone() use is_true_ent() (ent, elder ent), matching the commit and the wiki; master's is_ent() also turns tree blights and the Gulthias tree into petrified ents (BUG-2255, frozen-unfixed). Rejected: master's whole S_ENT class. (4) BEYOND MASTER: a petrified ent statue or figurine hit by stone to flesh revives as an ent, mirroring the golem -> flesh golem rule ("turns into wood" / "The figurine turns to wood and animates!"); master revives a petrified ent. Rejected: master parity. Plan-approved, no question: the reviewer's MED (make_corpse()'s petrified ent death statue, f1d39f476's fourth piece) folded as master parity; its LOW folded under ruling (4): an ent that can't be made (genocided, or no room) leaves the statue / figurine alone, as a golem's is. | maintainer (rulings); session, plan-approved (rest) |
