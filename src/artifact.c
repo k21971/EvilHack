@@ -3778,7 +3778,7 @@ artifact_hit(
                     pline("Good job Henry, but that wasn't Anne.");
                 /* kinda hard to revive if you've lost your head */
                 if (racial_zombie(mdef)
-                    || (is_troll(mdef->data) && !mlifesaver(mdef)))
+                    || (is_troll(mdef->data) && !mlifesaver_works(mdef)))
                     mdef->mcan = 1;
                 observe_object(otmp);
                 return TRUE;

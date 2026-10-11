@@ -462,6 +462,11 @@ cutworm(struct monst *worm, coordxy x, coordxy y,
     worm->mhpmax = d((int) worm->m_lev, 8); /* new maxHP for old worm */
     if (worm->mhpmax < worm->mhp)
         worm->mhp = worm->mhpmax;
+    /* fresh max HP carry no starvation cut to refund later */
+    if (has_edog(worm))
+        EDOG(worm)->mhpmax_penalty = 0;
+    if (has_edog(new_worm))
+        EDOG(new_worm)->mhpmax_penalty = 0;
 
     wtails[new_wnum] = new_tail; /* We've got all the info right now */
     wheads[new_wnum] = curr;     /* so we can do this faster than    */

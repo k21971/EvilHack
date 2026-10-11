@@ -1976,6 +1976,7 @@ extern void mcalcdistress(void);
 extern void replmon(struct monst *, struct monst *) NONNULLARG12;
 extern void relmon(struct monst *, struct monst **) NONNULLARG1;
 extern struct obj *mlifesaver(struct monst *) NONNULLARG1;
+extern boolean mlifesaver_works(struct monst *) NONNULLARG1;
 extern boolean corpse_chance(struct monst *, struct monst *, boolean) NONNULLARG1;
 extern void set_pet_killer(struct monst *);
 extern void cerberusdead(void);

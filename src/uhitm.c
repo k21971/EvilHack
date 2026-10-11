@@ -4600,7 +4600,8 @@ mhitm_ad_bhed(
             if (canseemon(mdef))
                 You("%s %s!", rn2(2) ? "behead" : "decapitate",
                     mon_nam(mdef));
-            if (racial_zombie(mdef) || (is_troll(pd) && !mlifesaver(mdef)))
+            if (racial_zombie(mdef)
+                || (is_troll(pd) && !mlifesaver_works(mdef)))
                 mdef->mcan = 1; /* no head? no reviving */
             xkilled(mdef, XKILL_GIVEMSG);
             mhm->damage = 0; /* damageum() sees the kill, deals nothing */
@@ -4692,7 +4693,8 @@ mhitm_ad_bhed(
                 pline_mon(mdef, "%s %ss %s!", buf,
                           rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
             /* before the death: the corpse is made inside it */
-            if (racial_zombie(mdef) || (is_troll(pd) && !mlifesaver(mdef)))
+            if (racial_zombie(mdef)
+                || (is_troll(pd) && !mlifesaver_works(mdef)))
                 mdef->mcan = 1; /* no head? no reviving */
             if (magr->uexp) {
                 /* hero-conjured helper; hero gets credit and exp */
@@ -5668,7 +5670,7 @@ mhitm_ad_wrap(
                     pline("%s burrows itself into %s brain!",
                           Monnam(magr), s_suffix(the(mon_nam(mdef))));
                 }
-                if (!mlifesaver(mdef)) {
+                if (!mlifesaver_works(mdef)) {
                     /* mind flayer larva transforms by consuming the host */
                     mhm->hitflags |= become_flayer(magr, mdef);
                     mhm->damage = 0;

@@ -4697,6 +4697,18 @@ mlifesaver(struct monst *mon)
     return (struct obj *) 0;
 }
 
+/* will the worn amulet that mlifesaver() finds actually save mon?
+   a cursed one fails, and so does one on an unliving form or an
+   undead race */
+boolean
+mlifesaver_works(struct monst *mon)
+{
+    struct obj *otmp = mlifesaver(mon);
+
+    return (boolean) (otmp && !otmp->cursed && !nonliving(mon->data)
+                      && !racial_zombie(mon) && !racial_vampire(mon));
+}
+
 staticfn void
 lifesaved_monster(struct monst *mtmp)
 {
@@ -4708,6 +4720,23 @@ lifesaved_monster(struct monst *mtmp)
          * to show this for a long worm with only a tail visible.
          * Nor do you check invisibility, because glowing and
          * disintegrating amulets are always visible. */
+        if (!mlifesaver_works(mtmp)) {
+            /* a cursed amulet, or no life to save */
+            if (cansee(mtmp->mx, mtmp->my)) {
+                pline("But wait...");
+                pline("%s medallion glows white-hot!",
+                      s_suffix(Monnam(mtmp)));
+                makeknown(AMULET_OF_LIFE_SAVING);
+            }
+            if (!Deaf)
+                You("hear diabolical laughter in the distance...");
+            pline("%s dies!", Monnam(mtmp));
+            if (cansee(mtmp->mx, mtmp->my))
+                pline_The("medallion crumbles to dust!");
+            m_useup(mtmp, lifesave);
+            mtmp->mhp = 0;
+            return;
+        }
         if (cansee(mtmp->mx, mtmp->my)) {
             pline("But wait...");
             pline("%s medallion begins to glow!", s_suffix(Monnam(mtmp)));
@@ -5203,6 +5232,8 @@ mondead(struct monst *mtmp)
         newmonhp(mtmp, monsndx(mtmp->data));
         /* full health on submitting, not a random roll */
         mtmp->mhp = mtmp->mhpmax;
+        if (has_edog(mtmp))
+            EDOG(mtmp)->mhpmax_penalty = 0;
         if (mtmp == u.ustuck) {
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
@@ -8142,6 +8173,9 @@ newcham(
        into a 0HD creature will require this statement */
     if (!mtmp->mhp)
         mtmp->mhp = 1;
+    /* a fresh max HP carries no starvation cut to refund later */
+    if (has_edog(mtmp))
+        EDOG(mtmp)->mhpmax_penalty = 0;
 
     /* take on the new form... */
     set_mon_data(mtmp, mdat);

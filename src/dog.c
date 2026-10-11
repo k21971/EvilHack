@@ -2042,11 +2042,22 @@ abuse_dog(struct monst *mtmp)
     else
         mtmp->mtame--;
 
+    /* an untamed pet may turn on its abuser, the likelier the more it
+       was abused while tame; the display is updated below */
+    if (!mtmp->mtame
+        && (Aggravate_monster || Conflict
+            || (!mtmp->isminion && rn2(EDOG(mtmp)->abuse + 1)))) {
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+    }
+
     if (mtmp->mtame && !mtmp->isminion)
         EDOG(mtmp)->abuse++;
 
     if (!mtmp->mtame && mtmp->mleashed)
         m_unleash(mtmp, TRUE);
+    /* a ridden steed untamed here (knock cast down at it) is thrown
+       off by dismount_untamed_steed() once the zap is over */
 
     /* don't make a sound if pet is in the middle of leaving the level */
     /* newsym isn't necessary in this case either */
