@@ -4051,11 +4051,16 @@ in_town(coordxy x, coordxy y)
     /*
      * See if (x,y) is in a room with subrooms, if so, assume it's the
      * town.  If there are no subrooms, the whole level is in town.
+     * Test the room's bounding box, walls included, rather than using
+     * inside_room(): a room with subrooms is irregular, and for those
+     * inside_room() goes by room number, which leaves out the town's
+     * walls and every square of its shops and temple.
      */
     for (sroom = &svr.rooms[0]; sroom->hx > 0; sroom++) {
         if (sroom->nsubrooms > 0) {
             has_subrooms = TRUE;
-            if (inside_room(sroom, x, y))
+            if (x >= sroom->lx - 1 && x <= sroom->hx + 1
+                && y >= sroom->ly - 1 && y <= sroom->hy + 1)
                 return TRUE;
         }
     }

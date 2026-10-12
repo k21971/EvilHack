@@ -466,6 +466,11 @@ zombie_form(struct permonst *pm)
 void
 izchak_true_form(struct monst *mtmp)
 {
+    /* newcham() prorates hit points by the old maximum, which a life
+       draining death can leave at zero or below; start from full
+       health */
+    set_mon_min_mhpmax(mtmp, 10);
+    mtmp->mhp = mtmp->mhpmax;
     /* no liquid/open-air hazard here: newcham defers those
        checks to the new form's next move */
     (void) newcham(mtmp, &mons[PM_ARCHANGEL], NO_NC_FLAGS);
@@ -1661,6 +1666,15 @@ m_calcdistress(struct monst *mtmp)
             return;
     }
     were_change(mtmp);
+
+    /* Izchak treats petrification or illness as death and rises in
+       his true form before it can claim him */
+    if (is_izchak(mtmp, TRUE) && racial_human(mtmp)
+        && (mtmp->mstone > 3 || mtmp->msick)) {
+        mondead(mtmp);
+        if (DEADMONSTER(mtmp))
+            return;
+    }
 
     /* gradually time out temporary problems */
     if (mtmp->mblinded && !--mtmp->mblinded)
@@ -5165,6 +5179,34 @@ mondead(struct monst *mtmp)
     if (!DEADMONSTER(mtmp))
         return;
 
+    /* someone or something decided to mess with Izchak; his human
+       guise falls away and he rises in his true form */
+    if (is_izchak(mtmp, TRUE) && racial_human(mtmp)) {
+        if (canspotmon(mtmp)) {
+            pline("But wait!  %s rises and transforms into his true form!",
+                  Monnam(mtmp));
+            gv.vamp_rise_msg = TRUE;
+        }
+        /* a killing blow skips the anger a non-fatal hit gives, so a
+           hero who kills him while he is peaceful pays for it here;
+           a kill credited during monster movement (a trap the hero
+           set, say) is no attack by the hero */
+        if (was_player_kill && mtmp->mpeaceful)
+            setmangry(mtmp, !svc.context.mon_moving);
+        if (!mtmp->mpeaceful)
+            hot_pursuit(mtmp);
+        izchak_true_form(mtmp);
+        if (DEADMONSTER(mtmp))
+            return;
+        if (mtmp == u.ustuck) {
+            if (u.uswallow)
+                expels(mtmp, mtmp->data, FALSE);
+            else
+                uunstick();
+        }
+        return;
+    }
+
     /* vampire in bat/fog/wolf form reverts to vampire instead of dying */
     if (is_vampshifter(mtmp) && vamprises(mtmp))
         return;
@@ -5584,6 +5626,13 @@ monstone(struct monst *mdef)
            mondead() will not run to consume it */
         player_killed = FALSE;
         pet_killer = (struct monst *) 0;
+        return;
+    }
+
+    /* Izchak is never left a statue; mondead() runs life saving or
+       else raises him in his true form, his gear still on him */
+    if (is_izchak(mdef, TRUE) && racial_human(mdef)) {
+        mondead(mdef);
         return;
     }
 
