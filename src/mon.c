@@ -3817,7 +3817,7 @@ static struct {
 static int detach_idx = 0;
 
 /* the hero has freed the Ice Queen from her curse; called from
-   dmonsfree() when Kathryn the Ice Queen is found dead, before the
+   dmonsfree() when Kathryn the Ice Queen is found defeated, before the
    freeing loop can dispose of her; she revives, transformed back into
    her original form of Kathryn the Enchantress, and calls off her
    dogs */
@@ -4002,16 +4002,15 @@ dmonsfree(void)
     for (mtmp = &fmon; *mtmp; ) {
         freetmp = *mtmp;
 
+        /* a defeated Ice Queen transforms to the Enchantress and is
+           revived. mondead() returns before m_detach() for her, so
+           MON_DETACH means mongone() took her away instead (an escape,
+           bones, a wizard mode removal); she stays gone and is freed
+           below like any other departed monster */
         if (DEADMONSTER(freetmp)
-            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            && !(freetmp->mstate & MON_DETACH)) {
             icequeenrevive(freetmp);
-            /* the Ice Queen transforms to the Enchantress and is
-               revived; only decrement the purge counter if she was
-               actually marked for purging */
-            if (freetmp->mstate & MON_DETACH) {
-                iflags.purge_monsters--;
-                freetmp->mstate &= ~MON_DETACH; /* clear after revival */
-            }
             /* track this special case in recent_detaches with a
                negative position */
             Strcpy(recent_detaches[detach_idx].mname,
@@ -5156,7 +5155,9 @@ mondead(struct monst *mtmp)
         return;
 
     /* the Ice Queen is defeated rather than killed; her revival as
-       the Enchantress is handled by dmonsfree() at end of turn */
+       the Enchantress is handled by dmonsfree() at end of turn, which
+       relies on this return skipping m_detach() to tell a defeat from
+       a mongone() */
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
         if (!u.uevent.defeat_icequeen) {
             u.uevent.defeat_icequeen = 1;

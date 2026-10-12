@@ -5492,15 +5492,16 @@ mhitm_ad_wrap(
                             (void) polymon(PM_MIND_FLAYER);
                             mhm->hitflags = M_ATTK_DEF_DIED;
                         } else {
-                            /* a host that cheats death anyway (the
-                               Enchantress, a vampshifter) keeps its
-                               body; only a hit */
+                            /* a host that cheats death anyway (a
+                               vampshifter forced into a host form)
+                               keeps its body; only a hit */
                             mhm->hitflags = M_ATTK_HIT;
                         }
                         mhm->done = TRUE;
                     } else {
-                        /* a non-host, or a host whose amulet will save
-                           it; the kill in damageum() uses up the amulet */
+                        /* a non-host (Kathryn, in either form, is never
+                           one), or a host whose amulet will save it; the
+                           kill in damageum() uses up the amulet */
                         You("burrow into %s brain!",
                             s_suffix(mon_nam(mdef)));
                         mhm->damage = mdef->mhp;
