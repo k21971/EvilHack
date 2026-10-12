@@ -17,9 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-12, after session 217's
-  Izchak death revival slice): 378 rows closed, 114 open. Of the
-  open rows:
+- Phase 2 status (refreshed 2026-10-12, after session 218's
+  killing-blow anger / life-saving pair slice): 380 rows closed, 117
+  open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -38,8 +38,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 94 LOW: small parity rows, quirks and watch/record-only items.
-    Session 217 minted none; it added riders to the ray / explosion
+  - 97 LOW: small parity rows, quirks and watch/record-only items.
+    Session 218 closed two (the ray / explosion survivor row with
+    its melee rider: BUG-2303..2304, BUG-2303 upstream-reportable;
+    the failing life saving amulet AI: BUG-2305) and minted five:
+    one record-only (rare kills inside the hit chain still skip the
+    pre-kill anger), two needing a ruling (an angered
+    always-peaceful is scored as a renegade kill; a polymorphed
+    hero's spell attacks never anger), one plannable (potionhit()'s
+    holy water / rust kills credit the hero unconditionally), one
+    needing a trace (steed.c dismount deaths and dbridge.c's
+    "still not dead?" arm with a survivor). Session 217 minted none; it added riders to the ray / explosion
     survivor row (the melee killing-blow sibling), the gulpum()
     record-only row and the gradual-stoning row.
     Session 216 closed three (the special-hosts legs 3-5, the
@@ -10284,7 +10293,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the orphan stays peaceful as before. Not the krm26 report (that
       one is a monster's steed), but the same signature on the hero
       side. Plannable.
-- [ ] LOW: a hero ray or explosion that kills a peaceful wearing life
+- [x] LOW: a hero ray or explosion that kills a peaceful wearing life
+      saving leaves it peaceful (BUG-2304; the melee rider is
+      BUG-2303) - FIXED 2026-10-12 (session 218, commit pending,
+      tracker pending; closure notes in BUGFIXES_ARCHIVE): after a
+      hero kill, dobuzz(), explode(), tk_push_obj() and
+      drop_boulder_on_monster() (the last two from the census) run
+      their own non-fatal anger when the new hero_kill_survivor()
+      says the target lived (not tame before the kill, not
+      is_defeated(); the rider's Enchantress exclusion was dropped -
+      her arm leaves her hostile, so no second guilt). PREMISE
+      CORRECTION (battery R): an explosion on open floor already
+      angered its target first on both builds (explode() calls
+      zap_over_floor(), whose last line is `wakeup(mon, type >= 0)`,
+      and converts a broken wand's type to a zap type), so the
+      explode() line matters only when the hero is engulfed (battery
+      R4b PASS). The rider became BUG-2303: vanilla 677b32c2a moved
+      hmon_hitmon()'s wakeup() to survivors only, so EVERY melee or
+      missile killing blow skipped setmangry() (Elbereth hypocrisy,
+      attack guilt, the watch, life-saved survivors) and a one-blow
+      kill of a peaceful was scored as a peaceful kill. RULED
+      2026-10-12 (session 218): anger every hit just before the kill
+      line, master's coverage and scoring, 5.0's order for non-fatal
+      hits; hmon_kill_anger() in hmon_hitmon()'s burnkill, poison
+      and destroyed arms, the cockatrice CORPSE / EGG arms, and
+      art_kill_anger() at artifact_hit()'s ten hero instakills.
+      Batteries M / N / R PASS.
+      Original text: LOW: a hero ray or explosion that kills a
+      peaceful wearing life
       saving leaves it peaceful (minted 2026-10-11, session 211,
       reviewer; branch, master and Official_nh50 shared). The
       kill arm of dobuzz() (zap.c, finger of death and the other
@@ -10426,7 +10462,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bhitm()'s tail does not run wakeup() again; an untamed ex-pet
       stays as abuse_dog()'s roll left it, with no guilt and no -5.
       Plannable (upstream-reportable).
-- [ ] LOW: monsters still prefer an amulet of life saving that will
+- [x] LOW: monsters still prefer an amulet of life saving that will
+      fail (BUG-2305) - FIXED 2026-10-12 (session 218, commit pending,
+      tracker pending; closure notes in BUGFIXES_ARCHIVE): new
+      mlifesaver_useless() (nonliving, zombie race, vampire race;
+      mlifesaver_works() uses it) is skipped by
+      find_best_armor_recurse()'s W_AMUL arm, searches_for_item(),
+      could_use_item() and (ruled 2026-10-12, session 218)
+      rnd_misc_item(). m_dowear_type()'s `old` early return is master
+      shape and untouched (a monster that changes form keeps a worn
+      one). Battery A PASS (Draugr / vampire-race player monsters
+      wear reflection, a human keeps life saving).
+      Original text: LOW: monsters still prefer an amulet of life
+      saving that will
       fail (minted 2026-10-11, session 213, reviewer L2; master-shared
       for vampires). m_dowear_type()'s W_AMUL case takes the first life
       saving or reflection amulet, and muse.c searches_for_item() and
@@ -10443,6 +10491,70 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zombie race, vampire race: mlifesaver_works() minus the curse
       test, which monsters cannot know), so it wears reflection etc.
       instead. Plannable.
+- [ ] LOW: rare kills inside the hero's hit chain still skip the
+      pre-kill anger (minted 2026-10-12, session 218, from BUG-2303's
+      plan review and code review; record-only). hmon_kill_anger()
+      covers hmon_hitmon()'s own kill arms and art_kill_anger() the
+      artifact_hit() instakills, but these kills happen inside the
+      chain with `already_killed` and get no setmangry() first, so a
+      dead peaceful is scored as a peaceful kill: a cancel_monst()
+      shapeshifter death (the Tik Tok egg, Magicbane's cancel), a
+      web_unseats_rider() trap death, a thrown pyrolisk egg's
+      explosion (BZ_M_SPELL, a negative type, so zap_over_floor()
+      angers nothing), a potion bash's potionhit() kill, a glass-glove
+      break's mselftouch(), and tk_push_obj()'s cockatrice arm (which
+      never angers at all, killing or not). Not in this class: the
+      artifact surges (Tempest, Harbinger, Dichotomy) and the Hand of
+      Vecna frost burst use BZ_U_BREATH, so zap_over_floor() angers
+      first (battery N6); mhurtle_to_doom()'s mhurtle() wakes first.
+      Also recorded: a life-saved shopkeeper survivor of a melee kill
+      gets setmangry() but not wakeup()'s hot_pursuit() (destroyed
+      stays TRUE, so the tail's wakeup() is skipped); a pet that the
+      blow's abuse_dog() untames misses the Elbereth hypocrisy that
+      master charged. Record-only.
+- [ ] LOW: an angered always-peaceful monster is scored as a renegade
+      kill (minted 2026-10-12, session 218, battery M finding;
+      master and vanilla shared, and now every one-blow melee kill
+      too). setmangry() makes the target hostile and set_malign()
+      gives an always-peaceful hostile the renegade malign
+      +3 * max(5, |align|), so xkilled() skips the murder block and
+      adds it: a lawful hero who kills a peaceful watchman nets +10
+      (guilt -5, then +15), and one who kills their own coaligned
+      temple priest nets +8 (guilt -5, priest arm -2, +15) with no
+      "You murderer!" and no Luck loss (battery M4: PRE -8 / Luck -2
+      / murderer, POST +8). Ruled behavior for BUG-2303 (master's
+      scoring), but the renegade bonus for a victim the hero angered
+      may not be the design intent. Needs a ruling (keep master's
+      scoring, or score a hero-angered always-peaceful as a peaceful
+      kill).
+- [ ] LOW: potionhit()'s holy water and iron golem rust kills credit
+      the hero unconditionally (minted 2026-10-12, session 218, from
+      the BUG-2304 census; branch only). Its POT_WATER arms call
+      killed(mon) under a "should only be by you" comment; master
+      gates both on `your_fault` (else monkilled()), as the branch's
+      own acid arm still does. potionhit() is reached with
+      POTHIT_OTHER_THROW from monster-thrown potions (mthrowu.c) and a
+      monster's telekinesis (telekinesis.c); whether a monster ever
+      throws water needs a trace. Plannable.
+- [ ] LOW: a polymorphed hero's spell attacks never anger a peaceful
+      (minted 2026-10-12, session 218, from the BUG-2304 census;
+      master-shared). hmonas()'s AT_MAGC arm runs castum() and
+      continues with no wakeup(), and mcastu.c has no anger call, so
+      a peaceful hit (or killed) by the hero's polyform psi bolt,
+      fire, cold or the like stays peaceful, while every other
+      polyform attack wakes first. Needs a ruling (anger as the other
+      polyform attacks do, or keep).
+- [ ] LOW: kill arms that may mishandle a target that survives
+      (minted 2026-10-12, session 218, the BUG-2304 census agent's
+      claims, NOT verified): (a) steed.c's dismount deaths (into
+      water, into lava, no room) for a steed that life-saves - it is
+      already placed on the hero's own square, or left in the pool
+      or lava as the hero moves away, and the -1 guilt applies even
+      when it lives; (b) dbridge.c's crush leaves a monster that
+      always survives (Izchak, Kathryn, Bourbon / Ozzy) at the
+      `/* FIXME: still not dead?  What should we do now? */` arm on
+      the crushed square, and never kills a life-saved steed again.
+      Needs a trace.
 - [x] LOW: the hero's larva form transforms over a life-saved host
       (BUG-2287) - FIXED 2026-10-11 (session 214, commit 9ca5e1316,
       tracker 9f583e4ea; closure notes in BUGFIXES_ARCHIVE): the
@@ -10643,7 +10755,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       7 / 7 PASS.
 - [x] MED: master's Izchak death revival is unported - PORTED
       2026-10-12 (session 217, BUG-2300..2302, commit bc35d8002,
-      tracker pending; closure notes at the end of this row and in
+      tracker 5be7c9af9; closure notes at the end of this row and in
       BUGFIXES_ARCHIVE). Original text: (minted
       2026-10-12, session 216, from the special-hosts trace; the
       deferral "Izchak transform + msick reset -> shopkeeper-behaviors"
@@ -28512,6 +28624,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-12 | A melee or missile killing blow never angers its target, shared with Official_nh50 (uhitm.c hmon_hitmon()): 677b32c2a ("Hit and wake sleeping monster makes it growl") moved `wakeup(mon, TRUE)` from before the damage to the tail, `if (!hmd.destroyed && !hmd.offmap)`, so a hit that kills never runs setmangry(): standing on Elbereth, a one-blow kill neither fades it nor calls the hero a hypocrite; a one-blow kill of a peaceful skips "You feel guilty." / "X gets angry!" and peacefuls_respond() (the watch ignores it); a target that life saving or a vampire's revert keeps alive stays peaceful; and the kill is scored as a peaceful kill (murder, malign) where a two-blow kill is scored as a hostile one. artifact_hit()'s instakills and the cockatrice corpse / egg arms return before the tail too. Fix on the branch: setmangry(mon, TRUE) just before the kill line in the kill arms (not wakeup(): its ghod_hitsu() bolt would pass through the dying priest), skipping a pet the blow's abuse_dog() untamed, plus the artifact and stoning arms (BUG-2303). | found (branch-fixed); not yet sent |
 | 2026-10-12 | in_town() leaves out the shops, temple and walls of the des.room Minetowns, shared with Official_nh50 and NetHack50 (hack.c in_town()): lspo_room() marks a parent room irregular when it gains a subroom, and inside_room() then tests roomno, which the subrooms' topologize() overwrote, and skips edge walls; so in minetn-2/3/4/7/8 in_town() is 0 in every shop and the temple, their doorways and the town walls - the watch ignores digging or kicking there (watch_dig(), dokick.c), lock-picking a town door draws no warning, and the priest never calls the guards on an Infidel or Draugr entering the temple. 3.6 tested the bounding box. Fix on the branch: test lx-1..hx+1 / ly-1..hy+1 for a room with subrooms (BUG-2302). | found (branch-fixed); not yet sent |
 | 2026-10-12 | damageum() reports a life-saved defender as dead, shared with Official_nh50 (uhitm.c damageum()'s kill tail): after killed() / xkilled() it returns M_ATTK_DEF_DIED unconditionally, so hmonas() runs passive() with the alive flag off on a monster that life saving (or vamprises()) kept alive, and dokick.c's polyform kick loop stops early. Fix on the branch: `return DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT;` (BUG-2297; the branch's kick loop also stops for its EvilHack-only submitting dogs). | found (branch-fixed); not yet sent |
 | 2026-10-11 | A polymorphed hero shrugs off an "extremely toxic" poison, shared with Official_nh50 (attrib.c poisoned() ~372-376): the partial-resistance arm saves `olduhp = u.uhp`, lowers the max with setuhpmax(..., TRUE) and calls adjuhploss(loss, olduhp), which compares olduhp with u.mh when Upolyd. A form with fewer hit points than the base HP gets `loss -= (u.uhp - u.mh)`, floored at 1, so the blow costs the form 1 HP. Fix on the branch: `olduhp = Upolyd ? u.mh : u.uhp` (setuhpmax() never touches u.mh, so the adjustment is zero) (BUG-2290). | found (branch-fixed); not yet sent |
@@ -28711,6 +28824,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-12 | Killing-blow anger / life-saving pair slice rulings (session 218; AskUserQuestion x3, three questions, all as recommended, one re-asked). (1) MELEE / MISSILE KILLS ANGER EVERY HIT: vanilla 677b32c2a moved hmon_hitmon()'s wakeup() to survivors only, so a killing blow skipped setmangry(); the branch now runs it just before the kill line (master's coverage), keeping 5.0's order for non-fatal hits. Rejected: master's exact position (anger before the damage, master's message order); survivors only with a row for the rest. (2) RE-ASKED, KILL SCORING = MASTER'S: my first question said the anger came "on top of xkilled()'s penalties"; it does not - once setmangry() runs, xkilled() scores a hostile kill (a lawful hero's one-blow peaceful watchman goes from -20 + murderer to net +10, as the branch's own two-blow kill and master already score it). Rejected: reactions with the harsh peaceful scoring kept (a setmangry() split); survivors only. (3) GENERATION TOO: rnd_misc_item() refuses life saving for a form or race it would fail, like the AI sites. Rejected: AI only. Plan-approved, no question: plain setmangry() in the kill arms, not wakeup() (its temple priest bolt passes through the dying priest's square - Plan agent F5); the Enchantress needs no survivor exclusion (her arm leaves her hostile). | maintainer |
 | 2026-10-12 | Izchak death revival slice rulings (session 217; AskUserQuestion x3, three questions, all as recommended). (1) STONING NEVER LEAVES A STATUE: monstone() raises a human Izchak through mondead() before any statue is made, so he rises as the archangel still carrying his kit (BUG-2301); master left a statue holding his kit beside a bare archangel for the hero's instant stoning only (its monster stoners were gradual and hit the mstone > 3 hook first). Rejected: master's literal shape. (2) ANGER HIM ON ANY HERO KILL (reviewer HIGH): a hero kill of a still-peaceful Izchak runs setmangry() inside the arm ("You feel guilty.", "... gets angry!", the watch reacts), then hot_pursuit(); master's hmon_hitmon() woke the target before the damage, the branch (5.0 order) only after a non-fatal hit, so a one-blow kill, poison instakill, ray, explosion or #wizkill brought back a peaceful archangel at no cost. Pet and monster kills leave him peaceful. Rejected: hostility without the penalty; master's literal gate. Plan-approved, no question: re-review LOW 1, via_attack = !svc.context.mon_moving (a kill credited during monster movement is no attack). (3) FIX in_town() NOW (battery A finding): it tests the town room's bounding box, as master and 3.6 did, instead of 5.0's roomno-based inside_room() that leaves out every shop, the temple and the walls of the des.room Minetowns (BUG-2302, upstream-reportable). Rejected: an is_izchak()-only fix with a row for the other callers; landing as is with a MED row. | maintainer |
 | 2026-10-12 | Enchantress / larva-host slice rulings (session 216; AskUserQuestion x3, four questions, three as recommended). (1) The revived Enchantress's invisibility: clear BOTH minvis and perminvis after newcham() (BUG-2296), so a later form change or the removal of an invisibility item cannot fade her back; zap.c's cursed-wand precedent. (2) The hero larva's Izchak reveal wording: the full mirror of the monster leg - "You burrow into Izchak's brain!" / "Izchak starts to transform into a mind flayer!" / "But wait!  Izchak transforms into his true form!" / "You shudder and lose your grip!" (BUG-2294). (3) After the maintainer asked whether Vecna invokes had never credited the hero (true on master and the branch: monkilled(); the "artifact does the killing" comment was the port's own): CREDIT THE HERO NOW - the Eye / Hand of Vecna invoke and the hero's Wand of Orcus death touch kill through xkilled() (BUG-2298..2299), with experience, conduct and xkilled()'s alignment / Luck rules including pets and the hero's steed; the maintainer's pick over my mint-a-row recommendation. The kick-loop stop for a submitting dog (reviewer L1) was folded into BUG-2297 without a ruling: it keeps the pre-fix stop. | maintainer |
 | 2026-10-12 | Ruling round, thirteen questions, rulings recorded only (session 215 follow-up; AskUserQuestion x4, twelve as recommended). Special-hosts legs: (3) the Enchantress's hostility and guilt penalty only for the hero's own kill (was_player_kill); (4) the hero larva's takeover attempt on Izchak MIRRORS the monster leg's archangel reveal (grip broken, hero stays a larva) - the maintainer's pick over my keep-master recommendation; (5) the takeover line uses the host's pronoun. A monster skips a life saving amulet its form or race makes fail (wear, pick-up, pet value). A life-saved peaceful survivor of the hero's ray or explosion is angered as a non-fatal hit would (callers, as BUG-2271). Critical healing's cure prints make_sick()'s line only. Knock at a pet: no second wakeup. No riding-accident damage or wounded legs while u.uinvulnerable. Downward digging refuses a standing tree's square. A monster polymorphing into a form cast_entangle() refuses slips free. A square-held hero's grass hold ends with the grass ("The vegetation releases you."). float_down()'s blocked arm says "the tree's branches" for a tree hold. The Guidebook glyph: example moves to the colon form; the parser and its silence on unknown names stay. | maintainer |
