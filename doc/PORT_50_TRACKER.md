@@ -17,16 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-11, after session 214's larva,
-  toxic floor and glyph id slice): 372 rows closed, 113 open. Of the
+- Phase 2 status (refreshed 2026-10-12, after session 215's Ice
+  Queen off-map revival slice): 373 rows closed, 115 open. Of the
   open rows:
   - 0 HIGH.
-  - 5 MED: unported master features (terrain concealment,
+  - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe), and session 214's crash class: a
-    mongone()d Ice Queen revives off the map (needs a census, then
-    a ruling). The life-saved steed row landed in session 212
-    (BUG-2276..2281).
+    dwarvish bearded axe). Session 214's crash class (a mongone()d
+    Ice Queen revives off the map) landed in session 215
+    (BUG-2291..2292).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -37,10 +36,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 92 LOW: small parity rows, quirks and watch/record-only items.
+  - 95 LOW: small parity rows, quirks and watch/record-only items.
+    Session 215 minted three: one plannable (a revived Enchantress
+    stays invisible - icequeenrevive() clears minvis before
+    newcham()), two needing a trace (a queen defeated in the hero's
+    fatal turn is revived into bones; a queen defeated while riding
+    keeps her steed); its BUG-2292 closed legs 1-2 of the special
+    hosts row (legs 3-5 stay open, needing a ruling).
     Session 214 minted three: two needing a ruling (the larva legs'
-    special hosts - the Enchantress, the Ice Queen, Izchak - ride
-    with the MED Ice Queen row; the Guidebook's glyph: example never
+    special hosts - the Enchantress, the Ice Queen, Izchak; the
+    Guidebook's glyph: example never
     sets the symbol), one plannable (damageum()'s kill tail reports
     a life-saved defender as dead). Session 213 minted four: two
     needing a ruling (knock cast at a pet wakes it twice; monsters
@@ -10376,8 +10381,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reflection. Needs a ruling (skip a failing amulet in the AI, or
       keep).
 - [x] LOW: the hero's larva form transforms over a life-saved host
-      (BUG-2287) - FIXED 2026-10-11 (session 214, commit pending;
-      closure notes in BUGFIXES_ARCHIVE): the takeover arm needs
+      (BUG-2287) - FIXED 2026-10-11 (session 214, commit 9ca5e1316,
+      tracker 9f583e4ea; closure notes in BUGFIXES_ARCHIVE): the
+      takeover arm needs
       `!mlifesaver_works(mdef)` (a host with a working amulet takes
       the plain burrow, the kill uses up the amulet and the hero stays
       attached), and after xkilled() the hero transforms only when
@@ -10408,7 +10414,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ROT_CORPSE took over. Official_nh50's revive_mon() has no
       set_corpsenm() there. Needs a trace (master's zombie corpse path,
       then whether the call should skip non-zombified corpses).
-- [ ] MED: a mongone()d Ice Queen revives off the map (minted
+- [x] MED: a mongone()d Ice Queen revives off the map (BUG-2291)
+      - FIXED 2026-10-12 (session 215, commit pending, tracker
+      pending; closure notes in BUGFIXES_ARCHIVE): ruled "stays
+      gone" - dmonsfree()'s arm also requires !MON_DETACH (only
+      mongone() sets it on a dead queen), master BUG-226's
+      decrement-and-clear is deleted; a removed queen is freed like
+      any departed monster (no Enchantress, release text, defeat
+      credit or death count). Census (52 sites): become_flayer()
+      (the crash path; closed for her by BUG-2292), mon_escape(),
+      remove_mon_from_bones(), wizard `*` genocide / #wizmakemap /
+      nh.debug_flags / elemental_clog(); the open-air plummets are
+      not producers (she flies). An engulf kill was claimed as an
+      off-map defeat but battery F disproved it (mdamagem() re-places
+      an engulfed victim before the kill); the planned re-placement
+      on revival was dropped by re-ruling as a canary-hiding
+      self-heal. Closure note (ruling, not minted): the only known
+      off-map defeat is theoretical - a defeat does not raise
+      purge_monsters, so savelev() can skip dmonsfree() when the
+      level changes within the defeating action, and getlev() then
+      refuses to place the defunct queen; the BUG-1259 detector stays
+      the canary. Original text: MED: a mongone()d Ice Queen revives
+      off the map (minted
       2026-10-11, session 214, reviewer O1; master-shared crash
       class). mongone() -> m_detach() takes Kathryn the Ice Queen off
       the map (and discard_minvent() drops her inventory), but
@@ -10427,7 +10454,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       and re-placed. Needs a census, then a ruling.
 - [ ] LOW: the larva legs' special hosts (minted 2026-10-11, session
       214; master-shared). Ruled in session 214 to mint, not fold
-      in. (1) become_flayer()'s mongone() removes Kathryn the
+      in. SESSION 215 UPDATE: legs (1) and (2) FIXED by BUG-2292
+      (ruled: neither Kathryn form is a host - can_become_flayer()
+      excludes both), which also removes leg (5)'s Enchantress half
+      (she now gets the plain burrow, then "not truly dead"). STILL
+      OPEN: (3) the guilt penalty whoever kills her, (4) Izchak, and
+      (5)'s "its" (a vampshifter forced into a host form is the only
+      remaining host whose takeover line can over-promise). Original
+      legs: (1) become_flayer()'s mongone() removes Kathryn the
       Enchantress for good (no "not truly dead" arm), while the hero's
       leg now spares her. (2) The hero's takeover of the Ice Queen
       counts as her defeat: the hero becomes a mind flayer, polymon()
@@ -10441,7 +10475,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       him. (5) "taking over its body!" always says "its" (mhis()), and
       it prints before xkilled(), so the Enchantress line promises a
       takeover that does not happen (reviewer N1; master's text).
-      Needs a ruling (ride with the MED Ice Queen row above).
+      Needs a ruling (legs 3-5; the MED Ice Queen row closed in
+      session 215).
+- [ ] LOW: a revived Enchantress stays invisible (minted 2026-10-12,
+      session 215, battery G1; branch-only order). icequeenrevive()
+      clears minvis BEFORE newcham(), and newcham() sets minvis from
+      perminvis, so a queen who drank invisibility (minvis and
+      perminvis 1) revives as an invisible Enchantress. Master cleared
+      minvis AFTER newcham_deferred(), so the revived Enchantress was
+      visible. Plannable (clear minvis after the transformation, or
+      clear perminvis too; check whether master's perminvis survival
+      matters later).
+- [ ] LOW: a queen defeated in the same turn the hero dies is revived
+      into bones (minted 2026-10-12, session 215, census agent B and
+      Plan agent; master-shared). remove_mon_from_bones() mongone()s
+      both Kathryn forms by name, but iter_mons() skips a DEADMONSTER,
+      so an Ice Queen defeated earlier in the fatal turn is left on
+      fmon and savebones()' dmonsfree() revives her into the bones
+      file (with the release text and pager if the death was not from
+      hit points). Only outside her realm (it has no bonetag), so it
+      needs her escape chain or a wizard mode ^G. Needs a trace, then
+      a ruling (should bones skip her revival, or remove the revived
+      Enchantress).
+- [ ] LOW: a queen defeated while riding keeps her steed through the
+      revival (minted 2026-10-12, session 215; master-shared). She can
+      mount_up() a saddled steed once STRAT_WAITFORU clears. A riding
+      queen's defeat returns from mondead() before m_detach(), whose
+      has_erid() arm would separate_steed_and_rider(), so the revived
+      peaceful Enchantress may still ride the (hostile) steed. Needs a
+      trace (what newcham() and the revival do with ERID, and what
+      the steed does next), then a ruling.
 - [ ] LOW: damageum()'s kill tail reports a life-saved defender as
       dead (minted 2026-10-11, session 214, Plan agent / reviewer N4;
       upstream-shared, Official_nh50 identical). After killed() or
@@ -10602,8 +10665,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       5.0 or master's shape).
 - [x] LOW: "extremely toxic" poison max HP floor (BUG-2288; with
       BUG-2290 the polymorphed hero's damage) - FIXED 2026-10-11
-      (session 214, commit pending; closure notes in
-      BUGFIXES_ARCHIVE): `newuhpmax = min(u.uhpmax, max(newuhpmax,
+      (session 214, commit 9ca5e1316, tracker 9f583e4ea; closure
+      notes in BUGFIXES_ARCHIVE): `newuhpmax = min(u.uhpmax,
+      max(newuhpmax,
       minuhpmax(3)))`, so the floor never raises a lower max. Folded
       in (reviewer O3, ruled, upstream-shared): olduhp is u.mh when
       polymorphed, so adjuhploss() no longer cuts a polymorphed
@@ -26960,8 +27024,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
           restrict_name()'s pool closed - brief error).
         - W5: save / restore dump identical.
 - [x] LOW: duplicate G_ glyph ids for twelve trap-kit objects
-      (BUG-2289) - FIXED 2026-10-11 (session 214, commit pending;
-      closure notes in BUGFIXES_ARCHIVE): compose_glyph_name()
+      (BUG-2289) - FIXED 2026-10-11 (session 214, commit 9ca5e1316,
+      tracker 9f583e4ea; closure notes in BUGFIXES_ARCHIVE):
+      compose_glyph_name()
       prefixes "unset " to ARROW_TRAP through MAGIC_BEAM_TRAP like
       the land mine (BEARTRAP's "beartrap" does not collide and keeps
       vanilla's name); objects.h notes that the run must stay
@@ -28418,6 +28483,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-12 | Ice Queen off-map revival slice rulings (session 215; AskUserQuestion x3, all recommended). (1) Root shape at dmonsfree(): a mongone()d Ice Queen STAYS GONE - only a queen defeated through mondead() (no MON_DETACH) revives; a removed one is freed like any departed monster, with no Enchantress, release text, defeat credit or death count; master BUG-226's decrement-and-clear is dropped (BUG-2291). (2) Neither Kathryn form is a mind flayer larva host: can_become_flayer() excludes both, so a hero larva defeats the Ice Queen as an ordinary kill and stays a larva, and monster larvae stop seeking her (BUG-2292; special-hosts legs 1-2). (3) Asked after the Plan agent claimed an engulf kill leaves her off the map: re-place her on revival - then RE-ASKED after battery F disproved the premise (mdamagem() re-places an engulfed victim before the kill): DROPPED, a silent self-heal with no producer would hide the BUG-1259 canary; the theoretical dead-queen-in-a-level-file path is recorded in the MED row's closure note instead. | maintainer |
 | 2026-10-11 | Larva, toxic floor and glyph id slice rulings (session 214; AskUserQuestion x2, three questions, all recommended). (1) A monster larva's takeover of Kathryn through become_flayer()'s mongone() is minted, not folded in. That question said the Enchantress never appears; the reviewer then showed that dmonsfree() revives a mongone()d Ice Queen OFF the map (a crash-class orphan), so it was re-asked: (2) mint a MED crash row (census every mongone() producer, then rule the root shape at dmonsfree()); the LOW special-hosts row keeps the non-crash quirks. (3) Fold in reviewer O3, upstream-shared: poisoned()'s toxic arm passes u.mh as the old HP when polymorphed, so a polymorphed hero takes the full loss instead of 1. | maintainer |
 | 2026-10-11 | Pet and monster life slice rulings (session 213; AskUserQuestion x1, four questions, all recommended). (1) A monster's amulet of life saving fails on master's whole `cursed \|\| nonliving(form)` term: vampires carry MH_UNZOMBIE, so native-form vampires, Kas and Vlad fail as well as the fog cloud (the row named only the fog cloud); wolf / bat / warg forms are saved - the hero's "the unliving have no life to save" rule. (2) abuse_dog() takes master's hostile roll but not its inline steed throw (0d3e663f6): dismount_untamed_steed() stays the single throw site, so no landing runs inside a zap. (3) New mlifesaver_works(): the troll-beheading (hero, monster, Vorpal) and mind flayer larva predictors use it, beyond master. (4) Undead-race monsters (racial_zombie / racial_vampire overlays) fail the amulet like the hero, beyond master. | maintainer |
 | 2026-10-11 | Life-saved steed slice rulings (session 212; AskUserQuestion x1, two questions, both recommended). (1) Master's abuse_dog() shape - b9f0937b3b's "abused pets can turn hostile when untamed" roll and 0d3e663f62's inline steed throw - is its own LOW row with a pet-abuse battery, not folded; the slice's deferred dismount_untamed_steed() already throws the hero off a steed knock untamed. (2) A monster's cursed amulet of life saving failing (master 4abb8b886 / 12ce37472 / 92d4e0361) is its own LOW row. Design (approved plan, no ruling asked): the hero is never thrown off inside a steed's death; the row's suggested throw-after-the-HP-restore was rejected because a landing that kills the steed would run a second death inside the first. A genocided life-saving steed now gets the generic steed-death dismount (no "thrown off", no riding damage). Master's mstone guard in lifesaved_monster() stays with the gradual-stoning rider. | maintainer |
