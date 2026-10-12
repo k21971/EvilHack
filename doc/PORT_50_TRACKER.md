@@ -17,15 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-12, after session 215's Ice
-  Queen off-map revival slice): 373 rows closed, 115 open. Of the
+- Phase 2 status (refreshed 2026-10-12, after session 216's
+  Enchantress / larva-host slice): 377 rows closed, 115 open. Of the
   open rows:
   - 0 HIGH.
-  - 4 MED: unported master features (terrain concealment,
+  - 5 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe). Session 214's crash class (a mongone()d
-    Ice Queen revives off the map) landed in session 215
-    (BUG-2291..2292).
+    dwarvish bearded axe, Izchak's death revival - minted in session
+    216). Session 214's crash class (a mongone()d Ice Queen revives
+    off the map) landed in session 215 (BUG-2291..2292).
   - 4 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity.
   - 12 untagged: port gaps (Muse offense items, creeping mound
@@ -36,7 +36,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 95 LOW: small parity rows, quirks and watch/record-only items.
+  - 94 LOW: small parity rows, quirks and watch/record-only items.
+    Session 216 closed three (the special-hosts legs 3-5, the
+    invisible Enchantress, damageum()'s kill tail: BUG-2293..2297),
+    closed one it found and had ruled (Vecna invoke / Orcus touch
+    kill credit: BUG-2298..2299), and minted two: one needing a
+    ruling (a multi-attack hero re-angers a dog that submitted
+    earlier in the same action), one record-only (gulpum()'s
+    digestion arm reports a reverting vampshifter as dead).
     Session 215 minted three: one plannable (a revived Enchantress
     stays invisible - icequeenrevive() clears minvis before
     newcham()), two needing a trace (a queen defeated in the hero's
@@ -10492,7 +10499,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       callers, then rule the root shape at dmonsfree(): a mongone()d
       queen stays gone (decide defeat_icequeen), or she is revived
       and re-placed. Needs a census, then a ruling.
-- [ ] LOW: the larva legs' special hosts (minted 2026-10-11, session
+- [x] LOW: the larva legs' special hosts (BUG-2292 legs 1-2;
+      BUG-2293..2295 legs 3-5) - FIXED 2026-10-12 (session 216, commit
+      pending, tracker pending; closure notes in BUGFIXES_ARCHIVE):
+      (3) mondead()'s Enchantress arm still revives her for any killer,
+      but her hostility and the guilt (-15 alignment, -15 Luck; an
+      Infidel +10) apply only when was_player_kill; (4) the hero larva's
+      new Izchak arm (same predicate order as the monster leg) prints
+      the burrow line, become_flayer()'s two reveal lines and "You
+      shudder and lose your grip!", calls the new shared
+      izchak_true_form() and releases the hold - no kill, the hero
+      stays a larva; (5) the takeover and attach lines use mhis().
+      Batteries K and L PASS.
+      Original text: LOW: the larva legs' special hosts (minted
+      2026-10-11, session
       214; master-shared). Ruled in session 214 to mint, not fold
       in. SESSION 215 UPDATE: legs (1) and (2) FIXED by BUG-2292
       (commit 1ea54e976, tracker 89b6bfe9f)
@@ -10530,7 +10550,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is broken and the hero stays a larva - no kill, no transform.
       (5) The takeover line uses the host's pronoun (mhis()):
       "...taking over his body!". Plannable.
-- [ ] LOW: a revived Enchantress stays invisible (minted 2026-10-12,
+- [x] LOW: a revived Enchantress stays invisible (BUG-2296) - FIXED
+      2026-10-12 (session 216, commit pending, tracker pending; closure
+      notes in BUGFIXES_ARCHIVE): ruled this session to clear both
+      flags - icequeenrevive() clears minvis and perminvis AFTER
+      newcham(), so she stays visible through a later form change or
+      the removal of an invisibility item (zap.c's cursed-wand
+      precedent). Battery K3 PASS (PRE minvis 1 / perminvis 1, POST
+      0 / 0, still 0 after a gdb newcham()).
+      Original text: LOW: a revived Enchantress stays invisible
+      (minted 2026-10-12,
       session 215, battery G1; branch-only order). icequeenrevive()
       clears minvis BEFORE newcham(), and newcham() sets minvis from
       perminvis, so a queen who drank invisibility (minvis and
@@ -10558,7 +10587,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       peaceful Enchantress may still ride the (hostile) steed. Needs a
       trace (what newcham() and the revival do with ERID, and what
       the steed does next), then a ruling.
-- [ ] LOW: damageum()'s kill tail reports a life-saved defender as
+- [x] LOW: damageum()'s kill tail reports a life-saved defender as
+      dead (BUG-2297) - FIXED 2026-10-12 (session 216, commit pending,
+      tracker pending; closure notes in BUGFIXES_ARCHIVE): the tail
+      returns `DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT`; a
+      survivor gets passive() as alive, and a polyform kick loop goes
+      on to the next kick. The kick loop (dokick.c) also stops when the
+      target survived by making peace (Bourbon or Ozzy submitting),
+      which the old DEF_DIED answer had stopped by accident (reviewer
+      L1). Battery K4 PASS (a second kick at the revived Enchantress;
+      one at the Ice Queen); smoke S1 / S2. Recorded in
+      nh50-upstream-bugs-to-carry.
+      Original text: LOW: damageum()'s kill tail reports a life-saved
+      defender as
       dead (minted 2026-10-11, session 214, Plan agent / reviewer N4;
       upstream-shared, Official_nh50 identical). After killed() or
       xkilled(), damageum() returns M_ATTK_DEF_DIED even when life
@@ -10568,6 +10609,58 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       affected (among larva hosts only the Oracle has a passive). Fix
       shape: `return DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT;`.
       Plannable; record it in nh50-upstream-bugs-to-carry when taken.
+- [x] LOW: Eye / Hand of Vecna invoke kills and the hero's Wand of
+      Orcus death touch gave the hero no kill credit (BUG-2298..2299) -
+      FIXED 2026-10-12 (session 216, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE). Found while tracing the
+      special-hosts leg 3 (a Vecna kill of the Enchantress would have
+      escaped the guilt) and ruled this session: credit the hero.
+      invoke_death_magic() and artifact_hit()'s Orcus arm (youattack)
+      now kill through xkilled(..., XKILL_NOMSG) instead of
+      monkilled(), as Power Word Kill does: experience, the
+      never-killed conduct, unique livelogs, the treasure drop and
+      xkilled()'s alignment / Luck rules (a pet or the hero's own
+      steed killed by the invoke costs -15 plus thunder and the
+      "murdered" livelog). Master and the branch shared the
+      monkilled() calls; the branch comment calling it design ("the
+      artifact does the killing") was the port's own. Battery V
+      7 / 7 PASS.
+- [ ] MED: master's Izchak death revival is unported (minted
+      2026-10-12, session 216, from the special-hosts trace; the
+      deferral "Izchak transform + msick reset -> shopkeeper-behaviors"
+      in the Wizard slice notes never got a row). On master a human
+      Izchak in Minetown cannot really be killed: mondead()'s arm
+      ("But wait!  Izchak rises and transforms into his true form!",
+      hot_pursuit() when hostile, newcham_deferred() to an archangel,
+      free_erac(), 1500 HP, ustuck release), mcalcdistress() treating
+      stoning (mstone > 3) or zombie sickness as death, and a
+      zombie-killed Izchak rising briefly as a zombie before
+      transforming. Master commits: df9d7ed69, 9372a28e6, 4e32572bc,
+      59ae72de5, 3a356eafb, e467de805, 0771f9cef / 71eca1c68, plus the
+      dmonsfree() accounting pair a11bb0cb5 / ff0d9164d. On the branch
+      he simply dies (only become_flayer()'s reveal is ported).
+      izchak_true_form() (session 216) is the shared helper. Needs a
+      census of the commits (plus any later Izchak fixes), then the
+      port.
+- [ ] LOW: a multi-attack hero re-angers a Bourbon or Ozzy who
+      submitted on an earlier attack of the same action (minted
+      2026-10-12, session 216, reviewer; branch pre-existing,
+      master-shared). hmonas() stops only on DEADMONSTER(mon), and each
+      later hit runs wakeup(mon, TRUE) -> setmangry(), so the dog that
+      just submitted turns hostile again and the hero pays the
+      attack-a-peaceful cost (-5 / -1). Same is_defeated() family as
+      BUG-2271. The polyform kick loop got its own stop in BUG-2297.
+      Fix shape needs care: a peaceful target at the start of hmonas()
+      is a confirmed attack, so stop only when the submission happened
+      during this action. Needs a ruling (stop the attack sequence, or
+      keep).
+- [ ] LOW: gulpum()'s digestion arm reports a reverting vampshifter as
+      dead (minted 2026-10-12, session 216, reviewer; record-only).
+      The AD_DGST arm returns M_ATTK_DEF_DIED after the kill even when
+      vamprises() brought the target back (life saving is used up
+      first and uniques are refused), so hmonas() runs passive() with
+      the alive flag off; vampires have no passive, so nothing shows.
+      Same shape as BUG-2297.
 - [x] MED: savelife() HP and clamps PORTED 2026-10-09 (session 198;
       BUG-2223..2227; code e0a508b47, tracker ebc5de8df; closure notes at the end
       of this row). Original text: savelife() HP and clamps NOT
@@ -28364,6 +28457,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-12 | damageum() reports a life-saved defender as dead, shared with Official_nh50 (uhitm.c damageum()'s kill tail): after killed() / xkilled() it returns M_ATTK_DEF_DIED unconditionally, so hmonas() runs passive() with the alive flag off on a monster that life saving (or vamprises()) kept alive, and dokick.c's polyform kick loop stops early. Fix on the branch: `return DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT;` (BUG-2297; the branch's kick loop also stops for its EvilHack-only submitting dogs). | found (branch-fixed); not yet sent |
 | 2026-10-11 | A polymorphed hero shrugs off an "extremely toxic" poison, shared with Official_nh50 (attrib.c poisoned() ~372-376): the partial-resistance arm saves `olduhp = u.uhp`, lowers the max with setuhpmax(..., TRUE) and calls adjuhploss(loss, olduhp), which compares olduhp with u.mh when Upolyd. A form with fewer hit points than the base HP gets `loss -= (u.uhp - u.mh)`, floored at 1, so the blow costs the form 1 HP. Fix on the branch: `olduhp = Upolyd ? u.mh : u.uhp` (setuhpmax() never touches u.mh, so the adjustment is zero) (BUG-2290). | found (branch-fixed); not yet sent |
 | 2026-10-11 | A helped shopkeeper is angered from outside his shop, shared with Official_nh50: (1) zap.c bhitm()'s tail runs `if (mtmp->isshk && !*u.ushops) hot_pursuit(mtmp);` even when helpful_gesture is set, so a wand of speed monster (whose own arm says "wake but don't anger a peaceful target") zapped at a peaceful shopkeeper from outside makes him hostile and adds the surcharge, silently; (2) dothrow.c throwit_mon_hit()'s hot_pursuit() runs after a thrown potion of healing / extra healing / full healing / gain ability / restore ability / speed hits him, although potionhit() treats all six as non-hostile. Harmful zaps are unaffected (wakeup(mtmp, TRUE) already chases him). Fix on the branch: `&& !helpful_gesture` on the tail; throwit skips its hot_pursuit() when one of those potions hit (thitmonst() returned 1) (BUG-2273 / BUG-2274). | found (branch-fixed); not yet sent |
 | 2026-10-11 | A life-saved steed is left off the map, shared with Official_nh50 (mon.c ~2875-2879 lifesaved_monster() calls wary_dog() before `mtmp->mhp = mtmp->mhpmax`; steed.c ~701 dismount_steed() places only a living steed): a ridden tame steed that life-saves and is untamed by wary_dog() (killed by the hero, or Pet Sematary's roll) is dismounted while its HP is 0, so it is never placed (and the hero is not moved off its square); it stays alive on fmon off the map until its next move, which logs impossible("no monster to remove") and "Program in disorder!". A starving steed gets its mhpmax_penalty back as HP first, so it IS placed inside its death and a landing that kills it (water, lava) runs a nested death the life save then revives as a living MON_DETACH monster. Fix on the branch (BUG-2276 / BUG-2277): wary_dog() no longer dismounts; a new dismount_untamed_steed() throws the hero off an untame, living steed at moveloop's safe points (before sanity_check(), at the top of each monster's move, before the hero's next input), and movemon_singlemon() skips the move of a steed its own minliquid() untamed. | found (branch-fixed); not yet sent |
@@ -28561,6 +28655,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-12 | Enchantress / larva-host slice rulings (session 216; AskUserQuestion x3, four questions, three as recommended). (1) The revived Enchantress's invisibility: clear BOTH minvis and perminvis after newcham() (BUG-2296), so a later form change or the removal of an invisibility item cannot fade her back; zap.c's cursed-wand precedent. (2) The hero larva's Izchak reveal wording: the full mirror of the monster leg - "You burrow into Izchak's brain!" / "Izchak starts to transform into a mind flayer!" / "But wait!  Izchak transforms into his true form!" / "You shudder and lose your grip!" (BUG-2294). (3) After the maintainer asked whether Vecna invokes had never credited the hero (true on master and the branch: monkilled(); the "artifact does the killing" comment was the port's own): CREDIT THE HERO NOW - the Eye / Hand of Vecna invoke and the hero's Wand of Orcus death touch kill through xkilled() (BUG-2298..2299), with experience, conduct and xkilled()'s alignment / Luck rules including pets and the hero's steed; the maintainer's pick over my mint-a-row recommendation. The kick-loop stop for a submitting dog (reviewer L1) was folded into BUG-2297 without a ruling: it keeps the pre-fix stop. | maintainer |
 | 2026-10-12 | Ruling round, thirteen questions, rulings recorded only (session 215 follow-up; AskUserQuestion x4, twelve as recommended). Special-hosts legs: (3) the Enchantress's hostility and guilt penalty only for the hero's own kill (was_player_kill); (4) the hero larva's takeover attempt on Izchak MIRRORS the monster leg's archangel reveal (grip broken, hero stays a larva) - the maintainer's pick over my keep-master recommendation; (5) the takeover line uses the host's pronoun. A monster skips a life saving amulet its form or race makes fail (wear, pick-up, pet value). A life-saved peaceful survivor of the hero's ray or explosion is angered as a non-fatal hit would (callers, as BUG-2271). Critical healing's cure prints make_sick()'s line only. Knock at a pet: no second wakeup. No riding-accident damage or wounded legs while u.uinvulnerable. Downward digging refuses a standing tree's square. A monster polymorphing into a form cast_entangle() refuses slips free. A square-held hero's grass hold ends with the grass ("The vegetation releases you."). float_down()'s blocked arm says "the tree's branches" for a tree hold. The Guidebook glyph: example moves to the colon form; the parser and its silence on unknown names stay. | maintainer |
 | 2026-10-12 | Ice Queen off-map revival slice rulings (session 215; AskUserQuestion x3, all recommended). (1) Root shape at dmonsfree(): a mongone()d Ice Queen STAYS GONE - only a queen defeated through mondead() (no MON_DETACH) revives; a removed one is freed like any departed monster, with no Enchantress, release text, defeat credit or death count; master BUG-226's decrement-and-clear is dropped (BUG-2291). (2) Neither Kathryn form is a mind flayer larva host: can_become_flayer() excludes both, so a hero larva defeats the Ice Queen as an ordinary kill and stays a larva, and monster larvae stop seeking her (BUG-2292; special-hosts legs 1-2). (3) Asked after the Plan agent claimed an engulf kill leaves her off the map: re-place her on revival - then RE-ASKED after battery F disproved the premise (mdamagem() re-places an engulfed victim before the kill): DROPPED, a silent self-heal with no producer would hide the BUG-1259 canary; the theoretical dead-queen-in-a-level-file path is recorded in the MED row's closure note instead. | maintainer |
 | 2026-10-11 | Larva, toxic floor and glyph id slice rulings (session 214; AskUserQuestion x2, three questions, all recommended). (1) A monster larva's takeover of Kathryn through become_flayer()'s mongone() is minted, not folded in. That question said the Enchantress never appears; the reviewer then showed that dmonsfree() revives a mongone()d Ice Queen OFF the map (a crash-class orphan), so it was re-asked: (2) mint a MED crash row (census every mongone() producer, then rule the root shape at dmonsfree()); the LOW special-hosts row keeps the non-crash quirks. (3) Fold in reviewer O3, upstream-shared: poisoned()'s toxic arm passes u.mh as the old HP when polymorphed, so a polymorphed hero takes the full loss instead of 1. | maintainer |
