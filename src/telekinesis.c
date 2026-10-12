@@ -197,10 +197,18 @@ tk_push_obj(struct obj *obj, int dx, int dy, int range)
                     && !(resists_ston(mtmp) || defended(mtmp, AD_STON))) {
                     minstapetrify(mtmp, !svc.context.mon_moving);
                 } else {
-                    if (damage_mon(mtmp, dmg, AD_PHYS, TRUE))
+                    boolean was_tame = mtmp->mtame;
+
+                    if (damage_mon(mtmp, dmg, AD_PHYS, TRUE)) {
                         xkilled(mtmp, XKILL_GIVEMSG);
-                    else
+                        /* the kill skips the anger a non-fatal strike
+                           gives; a target that lived through it (life
+                           saving) takes that anger now */
+                        if (hero_kill_survivor(mtmp, was_tame))
+                            wakeup(mtmp, TRUE);
+                    } else {
                         wakeup(mtmp, TRUE);
+                    }
                 }
             } else {
                 pline_The("%s bumps against %s.", xname(obj),

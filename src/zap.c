@@ -6462,7 +6462,8 @@ dobuzz(
                     dx = -dx;
                     dy = -dy;
                 } else {
-                    boolean mon_could_move = mon->mcanmove;
+                    boolean mon_could_move = mon->mcanmove,
+                            was_tame = mon->mtame; /* for life saving */
                     int saved_mhp = mon->mhp; /* for print_mon_wounded() */
                     int tmp = zhitm(mon, type, nd, &otmp);
 
@@ -6503,6 +6504,11 @@ dobuzz(
 
                     if (tmp == MAGIC_COOKIE) { /* disintegration */
                         disintegrate_mon(mon, type, flash_str(fltyp, FALSE));
+                        /* a hero's kill skips the anger of the non-fatal
+                           arm below; a target that lived through it
+                           (life saving) takes that anger now */
+                        if (type >= 0 && hero_kill_survivor(mon, was_tame))
+                            wakeup(mon, TRUE);
                     } else if (DEADMONSTER(mon)) {
                         if (type < 0) {
                             /* mon has just been killed by another monster */
@@ -6521,6 +6527,9 @@ dobuzz(
                                 && completelyburns(mon->data))
                                 xkflags |= XKILL_NOCORPSE;
                             xkilled(mon, xkflags);
+                            /* as for disintegration above */
+                            if (hero_kill_survivor(mon, was_tame))
+                                wakeup(mon, TRUE);
                         }
                     } else {
                         if (!otmp) {

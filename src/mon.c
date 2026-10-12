@@ -4725,6 +4725,16 @@ mlifesaver(struct monst *mon)
     return (struct obj *) 0;
 }
 
+/* would an amulet of life saving fail mon whatever its curse state?
+   an unliving form or an undead race has no life for it to save; the
+   monster AI uses this, since a monster cannot know the curse state */
+boolean
+mlifesaver_useless(struct monst *mon)
+{
+    return (boolean) (nonliving(mon->data) || racial_zombie(mon)
+                      || racial_vampire(mon));
+}
+
 /* will the worn amulet that mlifesaver() finds actually save mon?
    a cursed one fails, and so does one on an unliving form or an
    undead race */
@@ -4733,8 +4743,7 @@ mlifesaver_works(struct monst *mon)
 {
     struct obj *otmp = mlifesaver(mon);
 
-    return (boolean) (otmp && !otmp->cursed && !nonliving(mon->data)
-                      && !racial_zombie(mon) && !racial_vampire(mon));
+    return (boolean) (otmp && !otmp->cursed && !mlifesaver_useless(mon));
 }
 
 staticfn void
@@ -5187,10 +5196,12 @@ mondead(struct monst *mtmp)
                   Monnam(mtmp));
             gv.vamp_rise_msg = TRUE;
         }
-        /* a killing blow skips the anger a non-fatal hit gives, so a
-           hero who kills him while he is peaceful pays for it here;
-           a kill credited during monster movement (a trap the hero
-           set, say) is no attack by the hero */
+        /* a hero's melee or missile kill angers him before the kill
+           line, but a killing ray, explosion or spell skips the anger
+           a non-fatal hit gives, so a hero who kills him while he is
+           peaceful pays for it here; a kill credited during monster
+           movement (a trap the hero set, say) is no attack by the
+           hero */
         if (was_player_kill && mtmp->mpeaceful)
             setmangry(mtmp, !svc.context.mon_moving);
         if (!mtmp->mpeaceful)
@@ -7103,6 +7114,21 @@ wakeup(struct monst *mtmp, boolean via_attack)
                 hot_pursuit(mtmp);
         }
     }
+}
+
+/* a hero kill arm that angers only on a non-fatal hit asks this after
+   the kill: did the target live through it after all (life saving, a
+   vampire back in its true form) and so need the anger that hit would
+   have given? A pet's survival is wary_dog()'s business, since a
+   non-fatal hit never angers a pet, and Bourbon and Ozzy submit
+   instead. Izchak's revival angers him itself, and the Enchantress
+   turns hostile in her own arm, so a later setmangry() charges neither
+   of them twice */
+boolean
+hero_kill_survivor(struct monst *mon, boolean was_tame)
+{
+    return (boolean) (!DEADMONSTER(mon) && !was_tame
+                      && !is_defeated(mon->data));
 }
 
 /* hero blundered into a monster they had no way to detect; anger it

@@ -2862,6 +2862,7 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
         && !noncorporeal(mtmp->data) && !unsolid(mtmp->data)) {
         struct obj *helmet = which_armor(mtmp, W_ARMH);
         long mdmg;
+        boolean was_tame = mtmp->mtame; /* for life saving */
 
         if (cansee(mtmp->mx, mtmp->my)) {
             pline("%s is hit by %s!", Monnam(mtmp), doname(otmp2));
@@ -2899,6 +2900,11 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
         if (DEADMONSTER(mtmp)) {
             if (byu) {
                 killed(mtmp);
+                /* the kill skips the anger a non-fatal hit gives; a
+                   target that lived through it (life saving) takes
+                   that anger now */
+                if (hero_kill_survivor(mtmp, was_tame))
+                    wakeup(mtmp, TRUE);
             } else {
                 pline("%s is killed.", Monnam(mtmp));
                 mondied(mtmp);

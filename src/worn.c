@@ -1291,6 +1291,11 @@ find_best_armor_recurse(
                     && obj->otyp != AMULET_OF_FLYING
                     && obj->oartifact != ART_EYE_OF_THE_AETHIOPICA))
                 continue;
+            /* no point wearing life saving that cannot save this form
+               or race; a cursed one still looks fine to a monster */
+            if (obj->otyp == AMULET_OF_LIFE_SAVING
+                && mlifesaver_useless(mon))
+                continue;
             /* for 'best' to be non-Null, it must be an amulet of guarding;
                life-saving and reflection don't get here due to early return
                and other amulets of guarding can't be any better */

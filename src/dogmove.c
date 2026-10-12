@@ -120,7 +120,8 @@ could_use_item(struct monst *mtmp, struct obj *otmp,
              || (otmp->oclass == ARMOR_CLASS
                  && (!check_if_better || is_better_armor(mtmp, otmp)))
              /* useful amulets */
-             || otmp->otyp == AMULET_OF_LIFE_SAVING
+             || (otmp->otyp == AMULET_OF_LIFE_SAVING
+                 && !mlifesaver_useless(mtmp))
              || otmp->otyp == AMULET_OF_REFLECTION
              || otmp->otyp == AMULET_OF_FLYING
              || otmp->otyp == AMULET_OF_MAGIC_RESISTANCE

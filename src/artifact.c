@@ -53,6 +53,7 @@ staticfn int arti_invoke(struct obj *);
 staticfn boolean friendly_in_blast(coordxy, coordxy, struct monst *);
 staticfn boolean Mb_hit(struct monst * magr, struct monst *mdef,
                       struct obj *, int *, int, boolean, char *);
+staticfn void art_kill_anger(boolean, struct monst *) NONNULLARG2;
 staticfn unsigned long abil_to_spfx(long *) NONNULLARG1;
 staticfn uchar abil_to_adtyp(long *) NONNULLARG1;
 staticfn int glow_strength(int);
@@ -2357,6 +2358,17 @@ friendly_in_blast(coordxy x, coordxy y, struct monst *skip)
     return FALSE;
 }
 
+/* the hero's artifact is about to kill mdef outright; anger it first,
+   just before the kill line, as hmon_kill_anger() does for an
+   ordinary killing blow, so the kill is scored as the kill of a
+   hostile monster. A pet is still tame here and is left alone */
+staticfn void
+art_kill_anger(boolean youattack, struct monst *mdef)
+{
+    if (youattack && !DEADMONSTER(mdef))
+        setmangry(mdef, TRUE);
+}
+
 /* Function used when someone attacks someone else with an artifact
  * weapon.  Only adds the special (artifact) damage, and returns a 1 if it
  * did something special (in which case the caller won't print the normal
@@ -2515,6 +2527,7 @@ artifact_hit(
                     /* guard against mdef being killed twice should
                        it die before we reach this point */
                     if (!DEADMONSTER(mdef)) {
+                        art_kill_anger(youattack, mdef);
                         if (show_instakill)
                             pline("%s ignites and turns to ash!",
                                   Monnam(mdef));
@@ -2550,6 +2563,7 @@ artifact_hit(
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
                 if (!DEADMONSTER(mdef)) {
+                    art_kill_anger(youattack, mdef);
                     if (show_instakill)
                         pline_The(
                             "infernal trident's eldritch flame consumes %s!",
@@ -2750,6 +2764,7 @@ artifact_hit(
         }
 
         if (!rn2(10) && (elf || drow)) {
+            art_kill_anger(youattack, mdef);
             if ((youdefend || !DEADMONSTER(mdef)) && show_instakill)
                 pline_The(
                      "cruel blade penetrates %s soft flesh, disemboweling %s!",
@@ -2895,6 +2910,7 @@ artifact_hit(
             case 17:
                 if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
                     && !resist(mdef, 0, 0, 0)) {
+                    art_kill_anger(youattack, mdef);
                     pline_The("%s consumes %s life force!",
                               distant_name(otmp, xname),
                               s_suffix(mon_nam(mdef)));
@@ -2998,6 +3014,7 @@ artifact_hit(
                           : racial_giant(mdef);
 
         if (!rn2(10) && giant && is_art(otmp, ART_HARBINGER)) {
+            art_kill_anger(youattack, mdef);
             if (youdefend || !DEADMONSTER(mdef)) {
                 if (show_instakill)
                     pline(
@@ -3040,6 +3057,7 @@ artifact_hit(
             && !rn2((!youdefend && (mdef->data->geno & G_UNIQ))
                     ? 100 : 12)) {
             /* instant disintegration */
+            art_kill_anger(youattack, mdef);
             if (youdefend || !DEADMONSTER(mdef)) {
                 if (show_instakill)
                     pline_The("deadly blade disintegrates %s!", hittee);
@@ -3265,6 +3283,7 @@ artifact_hit(
                     /* guard against mdef being killed twice should
                        it die before we reach this point */
                     if (!DEADMONSTER(mdef)) {
+                        art_kill_anger(youattack, mdef);
                         if (show_instakill)
                             pline("%s ignites and turns to ash!",
                                   Monnam(mdef));
@@ -3437,6 +3456,7 @@ artifact_hit(
             return TRUE;
         case ART_TROLLSBANE:
             if (youattack && is_troll(mdef->data) && j) {
+                art_kill_anger(youattack, mdef);
                 pline("As you strike %s, it bursts into flame!",
                       mon_nam(mdef));
                 xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
@@ -3503,6 +3523,7 @@ artifact_hit(
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
+                    art_kill_anger(youattack, mdef);
                     pline_The(
              "consecrated blade flares brightly as it incinerates %s!",
                               mon_nam(mdef));
@@ -3624,6 +3645,7 @@ artifact_hit(
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
+                    art_kill_anger(youattack, mdef);
                     pline_The(
                  "divine hammer flares brightly as it incinerates %s!",
                               mon_nam(mdef));

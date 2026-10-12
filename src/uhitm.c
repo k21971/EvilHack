@@ -62,6 +62,7 @@ staticfn void hmon_hitmon_msg_hit(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
 staticfn void hmon_hitmon_msg_lightobj(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
+staticfn void hmon_kill_anger(struct monst *, boolean) NONNULLARG1;
 staticfn boolean hmon_hitmon(struct monst *, struct obj *, int, int)
                              NONNULLARG1;
 staticfn int joust(struct monst *, struct obj *) NONNULLARG12;
@@ -1718,6 +1719,11 @@ hmon_hitmon_misc_obj(
                              obj->dknown ? CXN_PFX_THE
                              : CXN_ARTICLE));
             observe_object(obj);
+            /* the target is stoned below or cures itself, and either
+               way this returns before hmon_hitmon()'s closing wakeup();
+               a resistant target goes on to the ordinary hit */
+            if (!(resists_ston(mon) || defended(mon, AD_STON)))
+                setmangry(mon, TRUE);
             if (!munstone(mon, TRUE))
                 minstapetrify(mon, TRUE);
             if (resists_ston(mon) || defended(mon, AD_STON))
@@ -1773,6 +1779,9 @@ hmon_hitmon_misc_obj(
                   plur(cnt));
             obj->known = 1; /* (not much point...) */
             useup_eggs(obj);
+            /* as for the cockatrice corpse above */
+            if (!(resists_ston(mon) || defended(mon, AD_STON)))
+                setmangry(mon, TRUE);
             if (!munstone(mon, TRUE))
                 minstapetrify(mon, TRUE);
             if (resists_ston(mon) || defended(mon, AD_STON))
@@ -2546,6 +2555,21 @@ hmon_hitmon_msg_lightobj(
  *       hmon_hitmon_msg_hit,       - has !obj guards exc. thrown which is ok
  */
 
+/* the wakeup() at the end of hmon_hitmon() angers only a target that
+   lives through the hit, so a killing blow angers its target here,
+   just before the kill line; the kill is then scored as the kill of a
+   hostile monster, as when the target took a non-fatal hit first. Only
+   setmangry(): the temple priest's lightning bolt would pass through
+   the dying priest's square, and hmon() rolls for it after the kill.
+   A pet that this blow's abuse_dog() has just untamed was still tame
+   when it was hit, so it is left alone */
+staticfn void
+hmon_kill_anger(struct monst *mon, boolean was_tame)
+{
+    if (!(was_tame && !mon->mtame))
+        setmangry(mon, TRUE);
+}
+
 /* guts of hmon(); returns True if 'mon' survives */
 staticfn boolean
 hmon_hitmon(
@@ -2556,6 +2580,8 @@ hmon_hitmon(
 {
     struct _hitmon_data hmd;
     boolean maybe_knockback = FALSE;
+    boolean was_tame = mon->mtame, /* before abuse_dog() */
+            kill_angered = FALSE;
     int saved_mhp = mon->mhp; /* for print_mon_wounded() */
 
     hmd.dmg = 0;
@@ -2803,8 +2829,11 @@ hmon_hitmon(
             }
 
             if (hmd.burnkill) {
-                if (!hmd.already_killed)
+                if (!hmd.already_killed) {
+                    hmon_kill_anger(mon, was_tame);
+                    kill_angered = TRUE;
                     pline("%s ignites and turns to ash!", Monnam(mon));
+                }
                 hmd.destroyed = TRUE;
             }
         }
@@ -2857,6 +2886,8 @@ hmon_hitmon(
         }
     }
     if (hmd.poiskilled) {
+        if (!hmd.already_killed && !hmd.offmap && !kill_angered)
+            hmon_kill_anger(mon, was_tame);
         pline_The("poison was deadly...");
         if (!hmd.already_killed)
             xkilled(mon, XKILL_NOMSG);
@@ -2882,6 +2913,8 @@ hmon_hitmon(
         }
     } else if (hmd.destroyed) {
         if (!hmd.already_killed) {
+            if (!hmd.offmap && !kill_angered)
+                hmon_kill_anger(mon, was_tame);
             if (troll_baned(mon, obj))
                 gm.mkcorpstat_norevive = TRUE;
             killed(mon); /* takes care of most messages */

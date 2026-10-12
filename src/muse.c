@@ -4135,7 +4135,7 @@ rnd_misc_item(struct monst *mtmp)
     if (difficulty < 6 && !rn2(30))
         return rn2(6) ? POT_POLYMORPH : WAN_POLYMORPH;
 
-    if (!rn2(40) && !nonliving(pm) && !is_vampshifter(mtmp))
+    if (!rn2(40) && !mlifesaver_useless(mtmp) && !is_vampshifter(mtmp))
         return AMULET_OF_LIFE_SAVING;
 
     switch (rn2(3)) {
@@ -4224,7 +4224,8 @@ searches_for_item(struct monst *mon, struct obj *obj)
         break;
     case AMULET_CLASS:
         if (typ == AMULET_OF_LIFE_SAVING)
-            return (boolean) !(nonliving(mon->data) || is_vampshifter(mon));
+            return (boolean) !(mlifesaver_useless(mon)
+                               || is_vampshifter(mon));
         if (typ == AMULET_OF_REFLECTION || typ == AMULET_OF_FLYING
             || typ == AMULET_OF_GUARDING || typ == AMULET_OF_ESP
             || typ == AMULET_OF_MAGIC_RESISTANCE

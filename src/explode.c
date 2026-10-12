@@ -206,6 +206,7 @@ explode(
     int i, j, k, damu = dam;
     boolean starting = 1;
     boolean visible, any_shield;
+    boolean was_tame; /* target's tameness before the blast */
     int uhurt = 0; /* 0=unhurt, 1=items damaged, 2=you and items damaged */
     const char *str = (const char *) 0;
     struct monst *mtmp, *mdef = 0;
@@ -505,6 +506,7 @@ explode(
                     mtmp = u.usteed;
                 if (!mtmp)
                     continue;
+                was_tame = mtmp->mtame;
                 if (do_hallu) {
                     int tryct = 0;
 
@@ -577,6 +579,11 @@ explode(
 
                     if (!svc.context.mon_moving) {
                         xkilled(mtmp, XKILL_GIVEMSG | xkflg);
+                        /* the hero's kill skips the anger of the
+                           non-fatal branch below; a target that lived
+                           through it (life saving) takes that anger now */
+                        if (hero_kill_survivor(mtmp, was_tame))
+                            setmangry(mtmp, TRUE);
                     } else if (mdef && mtmp == mdef) {
                         /* 'mdef' killed self trying to cure being turned
                          * into slime due to some action by the player.
