@@ -5437,9 +5437,9 @@ mhitm_ad_wrap(
                 } else {
                     if (gy.youmonst.data == &mons[PM_MIND_FLAYER_LARVA])
                         You("wrap your tentacles around %s %s,"
-                            " attaching yourself to its %s!",
+                            " attaching yourself to %s %s!",
                             s_suffix(mon_nam(mdef)), mbodypart(mdef, HEAD),
-                            mbodypart(mdef, FACE));
+                            mhis(mdef), mbodypart(mdef, FACE));
                     else
                         You("%s %s!",
                             (pa == &mons[PM_GIANT_CENTIPEDE] || coil)
@@ -5482,9 +5482,34 @@ mhitm_ad_wrap(
                         set_ustuck((struct monst *) 0);
                         mhm->damage = 0;
                     } else if (can_become_flayer(pd)
-                               && !mlifesaver_works(mdef)) {
-                        You("burrow into %s brain, taking over its body!",
+                               && !mlifesaver_works(mdef)
+                               && is_izchak(mdef, TRUE)
+                               && racial_human(mdef)) {
+                        /* as with a monster larva, Izchak cannot be
+                           taken over; he reveals his true form and the
+                           hero is shaken loose, still a larva */
+                        You("burrow into %s brain!",
                             s_suffix(mon_nam(mdef)));
+                        if (canseemon(mdef)) {
+                            pline("%s starts to transform into a mind flayer!",
+                                  Monnam(mdef));
+                            pline("But wait!  %s transforms into"
+                                  " his true form!", Monnam(mdef));
+                        }
+                        izchak_true_form(mdef);
+                        You("shudder and lose your grip!");
+                        /* newcham() keeps the hold, since the archangel
+                           and the hero's larva form both stick */
+                        if (u.ustuck == mdef)
+                            set_ustuck((struct monst *) 0);
+                        mhm->damage = 0;
+                        mhm->hitflags = DEADMONSTER(mdef) ? M_ATTK_DEF_DIED
+                                                          : M_ATTK_HIT;
+                        mhm->done = TRUE;
+                    } else if (can_become_flayer(pd)
+                               && !mlifesaver_works(mdef)) {
+                        You("burrow into %s brain, taking over %s body!",
+                            s_suffix(mon_nam(mdef)), mhis(mdef));
                         mhm->damage = 0;
                         xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
                         if (DEADMONSTER(mdef)) {
@@ -7855,7 +7880,10 @@ damageum(
             killed(mdef); /* regular "you kill <mdef>" message */
         }
         gm.mkcorpstat_norevive = FALSE;
-        return M_ATTK_DEF_DIED;
+        /* life saving (or a revival such as the Enchantress's) can
+           leave the defender alive; callers run passive() and further
+           attacks by this answer */
+        return DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT;
     }
     return M_ATTK_HIT;
 }

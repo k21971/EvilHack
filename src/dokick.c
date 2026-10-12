@@ -250,8 +250,12 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
                     searmsg(&gy.youmonst, mon, hated_obj, FALSE);
                 (void) passive(mon, uarmf, (sum != M_ATTK_MISS),
                                !(sum & M_ATTK_DEF_DIED), AT_KICK, FALSE);
-                if ((sum & M_ATTK_DEF_DIED))
-                    break; /* Defender died */
+                /* stop once the defender died, or survived by making
+                   peace (Bourbon or Ozzy submitting); setmangry() above
+                   left any other non-tame target hostile */
+                if ((sum & M_ATTK_DEF_DIED)
+                    || (mon->mpeaceful && !mon->mtame))
+                    break;
             } else {
                 missum(mon, tmp, kickdieroll, uattk,
                        (tmp + armorpenalty > kickdieroll));

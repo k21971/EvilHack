@@ -2899,9 +2899,13 @@ artifact_hit(
                               distant_name(otmp, xname),
                               s_suffix(mon_nam(mdef)));
                     mdef->mhp = 0;
-                    if (!youattack && magr && magr->mtame)
-                        set_pet_killer(magr);
-                    monkilled(mdef, (char *) 0, AD_DETH);
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        if (magr && magr->mtame)
+                            set_pet_killer(magr);
+                        monkilled(mdef, (char *) 0, AD_DETH);
+                    }
                     if (!DEADMONSTER(mdef))
                         return FALSE;
                     return TRUE;
@@ -4545,10 +4549,11 @@ invoke_death_magic(struct obj *obj)
                               rn2(2) ? "annihilates" : "obliterates",
                               mon_nam(mtmp));
                     mtmp->mhp = 0;
-                    /* the artifact does the killing, not the hero;
-                       no experience or murder penalty (the alignment
-                       and luck costs below are the price) */
-                    monkilled(mtmp, (char *) 0, AD_DETH);
+                    /* the hero invoked it, so the hero did the killing:
+                       experience, conduct and xkilled()'s alignment and
+                       luck rules apply on top of the invoke's own cost
+                       below, as for Power Word Kill */
+                    xkilled(mtmp, XKILL_NOMSG);
                     if (!DEADMONSTER(mtmp)) {
                         /* a life-saved survivor will not stay friendly;
                            the Ice Queen's dogs submit instead. The

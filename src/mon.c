@@ -461,6 +461,30 @@ zombie_form(struct permonst *pm)
     return NON_PM;
 }
 
+/* Izchak sheds his human guise and stands revealed as an archangel,
+   whole and healthy; callers give their own messages first */
+void
+izchak_true_form(struct monst *mtmp)
+{
+    /* no liquid/open-air hazard here: newcham defers those
+       checks to the new form's next move */
+    (void) newcham(mtmp, &mons[PM_ARCHANGEL], NO_NC_FLAGS);
+    /* newcham() can still kill in rare cases */
+    if (DEADMONSTER(mtmp))
+        return;
+    mtmp->mcanmove = 1;
+    mtmp->mfrozen = 0;
+    mtmp->mstone = 0;
+    mtmp->msick = 0;
+    mtmp->mdiseased = 0;
+    mtmp->mwither = 0;
+    mtmp->mconf = 0;
+    mtmp->mstun = 0;
+    free_erac(mtmp);
+    mtmp->mhp = mtmp->mhpmax = 1500;
+    newsym(mtmp->mx, mtmp->my);
+}
+
 /* a mind flayer larva consumes a suitable host and matures into an
    adult mind flayer; the larva does the transformation codewise, but
    thematically it is the host's body that is taken over */
@@ -490,20 +514,7 @@ become_flayer(
             pline("But wait!  %s transforms into his true form!",
                   Monnam(mdef));
         }
-        /* no liquid/open-air hazard here: newcham defers those
-           checks to the new form's next move */
-        (void) newcham(mdef, &mons[PM_ARCHANGEL], NO_NC_FLAGS);
-        mdef->mcanmove = 1;
-        mdef->mfrozen = 0;
-        mdef->mstone = 0;
-        mdef->msick = 0;
-        mdef->mdiseased = 0;
-        mdef->mwither = 0;
-        mdef->mconf = 0;
-        mdef->mstun = 0;
-        free_erac(mdef);
-        mdef->mhp = mdef->mhpmax = 1500;
-        newsym(mdef->mx, mdef->my);
+        izchak_true_form(mdef);
         /* larva dies from the attempt */
         mongone(magr);
         return M_ATTK_AGR_DIED;
@@ -3860,12 +3871,16 @@ icequeenrevive(struct monst *mtmp)
     mtmp->mwither = 0;
     mtmp->mconf = 0;
     mtmp->mstun = 0;
-    mtmp->minvis = 0;
 
     /* make her healthy for the transformation; newcham() rescales hit
        points for the new form, so the real values are set afterwards */
     mtmp->mhp = mtmp->mhpmax = max(mtmp->mhpmax, 1);
     (void) newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], NO_NC_FLAGS);
+    /* the curse's end leaves her visible; newcham() re-derives minvis
+       from perminvis, so clear both afterwards, which also keeps her
+       from fading back on a later form change or when she takes off
+       an invisibility item */
+    mtmp->minvis = mtmp->perminvis = 0;
     /* alignment derives from her restored form, so this must follow
        the transformation */
     mtmp->mpeaceful = 1;
@@ -5175,8 +5190,8 @@ mondead(struct monst *mtmp)
         }
         return; /* revive handled in dmonsfree */
     }
-    /* our hero decided to choose poorly and attempt to kill
-       Kathryn the Enchantress */
+    /* Kathryn the Enchantress cannot be killed by anyone; only our hero,
+       who chose poorly, earns her wrath and pays for the attempt */
     if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
         if (canspotmon(mtmp)) {
             pline("But wait!  %s is not truly dead!", mon_nam(mtmp));
@@ -5191,8 +5206,6 @@ mondead(struct monst *mtmp)
         mtmp->mwither = 0;
         mtmp->mconf = 0;
         mtmp->mstun = 0;
-        mtmp->mpeaceful = 0;
-        set_malign(mtmp);
         mtmp->m_lev = 100;
         mtmp->mhp = mtmp->mhpmax = 7500;
         if (mtmp == u.ustuck) {
@@ -5201,15 +5214,21 @@ mondead(struct monst *mtmp)
             else
                 uunstick();
         }
-        newsym(mtmp->mx, mtmp->my);
-        if (u.ualign.type == A_NONE) {
-            adjalign(10);
-        } else {
-            You_feel("very guilty.");
-            adjalign(-15);
-            record_abuse_event(-15, ABUSE_ATTACK_ENCHANTRESS);
+        if (was_player_kill) {
+            mtmp->mpeaceful = 0;
+            set_malign(mtmp);
         }
-        change_luck(-15);
+        newsym(mtmp->mx, mtmp->my);
+        if (was_player_kill) {
+            if (u.ualign.type == A_NONE) {
+                adjalign(10);
+            } else {
+                You_feel("very guilty.");
+                adjalign(-15);
+                record_abuse_event(-15, ABUSE_ATTACK_ENCHANTRESS);
+            }
+            change_luck(-15);
+        }
         return;
     }
 
