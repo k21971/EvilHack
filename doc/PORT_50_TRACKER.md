@@ -42,7 +42,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     newcham()), two needing a trace (a queen defeated in the hero's
     fatal turn is revived into bones; a queen defeated while riding
     keeps her steed); its BUG-2292 closed legs 1-2 of the special
-    hosts row (legs 3-5 stay open, needing a ruling).
+    hosts row. Ruled 2026-10-12 (session 215 follow-up;
+    AskUserQuestion x4, thirteen questions, twelve as recommended),
+    all now plannable: the special-hosts legs 3-5 (the Enchantress
+    penalty on the hero's kills only; the hero's larva leg mirrors the
+    Izchak archangel reveal, the maintainer's pick over keep; the
+    host's pronoun), the failing life saving amulet AI (skip it),
+    session 211's life-saved peaceful survivor of a ray or explosion
+    (anger it) and two cure lines (one line), session 213's knock
+    double wakeup (skip the second), session 212's praying riding
+    accident (no damage or wounded legs), session 209's pit inside a
+    tree (refuse the square), polymorphed monster entangle (slip
+    free), grass hold (ends with the grass, existing line) and aloft
+    float_down() wording ("the tree's branches"), and session 214's
+    Guidebook glyph: example (fix the docs, stay silent).
     Session 214 minted three: two needing a ruling (the larva legs'
     special hosts - the Enchantress, the Ice Queen, Izchak; the
     Guidebook's glyph: example never
@@ -9750,6 +9763,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       longer ill.  You feel considerably better." Master has both
       lines too, in the other order. Decide: drop the explicit line
       (keep make_sick()'s) or keep both. LOW (record / ruling).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): one
+      line - drop zapyourself()'s explicit "You are no longer ill.";
+      make_sick()'s "You feel cured.  What a relief!" stays.
+      Plannable.
 - [ ] LOW: cure sickness names a sick disguised mimic (NEW, minted
       2026-10-09 by the hero spell parity B reviewer, session 201;
       record-only, master-shared). The arm's "<mon> is no longer
@@ -10266,6 +10283,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       double up with death_magic_anger(), so fix the callers. Master's
       buzz() and explode() kill arms have the same shape. Needs a
       ruling.
+      RULED 2026-10-12 (session 215 follow-up; decisions log): anger
+      it - after a life-saved kill, dobuzz() and explode() run the
+      anger a non-fatal hit gives (setmangry(): hostile, the
+      attack-a-peaceful alignment cost, shopkeeper / priest / guard
+      reactions), as BUG-2271 did for power word kill; fix the
+      callers, not xkilled(). Plannable.
 - [x] LOW: abuse_dog() is 5.0's, not master's (BUG-2282) - FIXED
       2026-10-11 (session 213, commit 63f9c9fac, tracker 6cd5aaccd;
       closure notes in BUGFIXES_ARCHIVE): a pet abused down to
@@ -10340,6 +10363,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       during prayer is not an option (the untamed steed would act from
       off the map). Candidate: skip the accident damage while
       u.uinvulnerable. Needs a ruling.
+      RULED 2026-10-12 (session 215 follow-up; decisions log): no harm
+      while praying - while u.uinvulnerable, dismount_steed()'s riding
+      accident skips both the damage and the wounded legs; "You are
+      thrown off of <steed>!" still prints and the throw still
+      happens. Plannable.
 - [ ] LOW: a minliquid() survivor sent into limbo still takes its move
       (minted 2026-10-11, session 212, reviewer re-review; branch
       pre-existing). minliquid()'s survivor arms (lava, water, a
@@ -10370,6 +10398,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       skips it. Master has no knock at monsters. Needs a ruling: is a
       knock that untames a pet an attack on a peaceful (keep), or
       should the tail skip the second wakeup()?
+      RULED 2026-10-12 (session 215 follow-up; decisions log): skip
+      the second wakeup - the knock arm already woke the target, so
+      bhitm()'s tail does not run wakeup() again; an untamed ex-pet
+      stays as abuse_dog()'s roll left it, with no guilt and no -5.
+      Plannable (upstream-reportable).
 - [ ] LOW: monsters still prefer an amulet of life saving that will
       fail (minted 2026-10-11, session 213, reviewer L2; master-shared
       for vampires). m_dowear_type()'s W_AMUL case takes the first life
@@ -10380,6 +10413,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       nonliving term) can wear a useless life saving amulet over
       reflection. Needs a ruling (skip a failing amulet in the AI, or
       keep).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): skip a
+      failing one - m_dowear_type()'s W_AMUL arm, muse.c
+      searches_for_item() and dogmove.c's item value skip life saving
+      for a monster whose form or race makes it fail (nonliving,
+      zombie race, vampire race: mlifesaver_works() minus the curse
+      test, which monsters cannot know), so it wears reflection etc.
+      instead. Plannable.
 - [x] LOW: the hero's larva form transforms over a life-saved host
       (BUG-2287) - FIXED 2026-10-11 (session 214, commit 9ca5e1316,
       tracker 9f583e4ea; closure notes in BUGFIXES_ARCHIVE): the
@@ -10415,8 +10455,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       set_corpsenm() there. Needs a trace (master's zombie corpse path,
       then whether the call should skip non-zombified corpses).
 - [x] MED: a mongone()d Ice Queen revives off the map (BUG-2291)
-      - FIXED 2026-10-12 (session 215, commit pending, tracker
-      pending; closure notes in BUGFIXES_ARCHIVE): ruled "stays
+      - FIXED 2026-10-12 (session 215, commit 1ea54e976, tracker
+      89b6bfe9f; closure notes in BUGFIXES_ARCHIVE): ruled "stays
       gone" - dmonsfree()'s arm also requires !MON_DETACH (only
       mongone() sets it on a dead queen), master BUG-226's
       decrement-and-clear is deleted; a removed queen is freed like
@@ -10455,6 +10495,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [ ] LOW: the larva legs' special hosts (minted 2026-10-11, session
       214; master-shared). Ruled in session 214 to mint, not fold
       in. SESSION 215 UPDATE: legs (1) and (2) FIXED by BUG-2292
+      (commit 1ea54e976, tracker 89b6bfe9f)
       (ruled: neither Kathryn form is a host - can_become_flayer()
       excludes both), which also removes leg (5)'s Enchantress half
       (she now gets the plain burrow, then "not truly dead"). STILL
@@ -10477,6 +10518,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       takeover that does not happen (reviewer N1; master's text).
       Needs a ruling (legs 3-5; the MED Ice Queen row closed in
       session 215).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): legs
+      3-5. (3) Hero's kills only: the Enchantress arm's hostility and
+      penalty ("You feel very guilty.", -15 alignment, -15 luck; an
+      Infidel +10 alignment) apply only when was_player_kill; a pet or
+      monster kill still raises her ("not truly dead") but keeps her
+      attitude and costs nothing. (4) MIRROR for the hero (the
+      maintainer's pick over my keep-master recommendation): the hero
+      larva's takeover attempt on Izchak reveals the archangel ("But
+      wait!  Izchak transforms into his true form!"); the hero's grip
+      is broken and the hero stays a larva - no kill, no transform.
+      (5) The takeover line uses the host's pronoun (mhis()):
+      "...taking over his body!". Plannable.
 - [ ] LOW: a revived Enchantress stays invisible (minted 2026-10-12,
       session 215, battery G1; branch-only order). icequeenrevive()
       clears minvis BEFORE newcham(), and newcham() sets minvis from
@@ -22323,6 +22376,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       maketrap(PIT) has no TREE case: the tree stays and a pit sits
       inside it. Decide: clear the tree first (ROOM, with
       tree_gone_release()) or refuse the square. LOW (needs a ruling).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): refuse
+      the square - digging downward never fells a tree:
+      do_break_wand() skips a standing tree's square, and digging down
+      inside one is stopped with a line (wording shown at plan time).
+      Plannable.
 - [ ] LOW: a monster that polymorphs while entangled stays entangled
       (minted 2026-10-10, session 209, Plan agent; master-shared).
       newcham() never clears mentangled / mentangletime, so a monster
@@ -22330,6 +22388,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       cast_entangle() refuses it (the hero slips free since BUG-2259).
       Decide: clear it on such a form, with a seen-monster line. LOW
       (needs a ruling).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): slip
+      free - newcham() clears mentangled / mentangletime for a form
+      cast_entangle() refuses (whirly, wall-passing, unsolid,
+      amorphous), with a seen-monster line (wording shown at plan
+      time), mirroring the hero's BUG-2259. Plannable.
 - [ ] LOW: a grass hold outlives its grass (minted 2026-10-10, session
       209, Plan agent + reviewer; master-shared). With no live tree
       adjacent the hold is the square's (BUG-2260's model), yet it
@@ -22339,6 +22402,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pooleffects()' TT_ENTANGLED guard keeps the hero up over the new
       water). Decide: end the hold with the grass, and its line. LOW
       (needs a ruling on the wording).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): end it
+      with the existing line - when the grass under a square-held hero
+      (no live tree adjacent) goes (fire, grazing, flooding), the hold
+      ends through entangle_release(FALSE)'s "The vegetation releases
+      you." after the grass's own line. Plannable.
 - [ ] LOW: a forced pit after an m-prefixed command reads "You
       carefully lower yourself into the pit." (minted 2026-10-10,
       session 209, both battery testers; upstream-shared,
@@ -22356,6 +22424,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       aloft; BUG-2175's float_up() line already says "entangled by a
       tree". Decide the wording (e.g. "...from the tree's grip" when
       nexttotree()). LOW (needs a ruling).
+      RULED 2026-10-12 (session 215 follow-up; decisions log): "tree's
+      branches" - float_down()'s blocked arm says "You are no longer
+      trying to float up from the tree's branches." when a live tree
+      holds the hero (nexttotree()), "entangling vegetation"
+      otherwise. Plannable.
 - [ ] LOW: a starting kitten turned untame and peaceful with no hero
       interaction (minted 2026-10-06, session 188, battery B anomaly on
       the POST build; seen once, not traced). Between T:16 and T:18 the
@@ -27070,6 +27143,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dropped with no config error. Needs a ruling: fix the
       documentation (and the Guidebook date) or make the parser
       accept the documented form; whether an unknown name should warn.
+      RULED 2026-10-12 (session 215 follow-up; decisions log): fix the
+      docs, stay silent - the Guidebook (.mn and .tex, date bumped)
+      shows the colon form glyph:G_pool:U+224B/0-0-160; the parser and
+      upstream's silence on unknown G_ names stay. Plannable
+      (upstream-reportable docs).
 - [ ] LOW: a wish that merges into a stack prints "k - a blood-red
       potion" with no period and no total (minted 2026-10-08, session
       193, battery anomaly, seen on PRE and POST). A wish that starts
@@ -28483,6 +28561,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-12 | Ruling round, thirteen questions, rulings recorded only (session 215 follow-up; AskUserQuestion x4, twelve as recommended). Special-hosts legs: (3) the Enchantress's hostility and guilt penalty only for the hero's own kill (was_player_kill); (4) the hero larva's takeover attempt on Izchak MIRRORS the monster leg's archangel reveal (grip broken, hero stays a larva) - the maintainer's pick over my keep-master recommendation; (5) the takeover line uses the host's pronoun. A monster skips a life saving amulet its form or race makes fail (wear, pick-up, pet value). A life-saved peaceful survivor of the hero's ray or explosion is angered as a non-fatal hit would (callers, as BUG-2271). Critical healing's cure prints make_sick()'s line only. Knock at a pet: no second wakeup. No riding-accident damage or wounded legs while u.uinvulnerable. Downward digging refuses a standing tree's square. A monster polymorphing into a form cast_entangle() refuses slips free. A square-held hero's grass hold ends with the grass ("The vegetation releases you."). float_down()'s blocked arm says "the tree's branches" for a tree hold. The Guidebook glyph: example moves to the colon form; the parser and its silence on unknown names stay. | maintainer |
 | 2026-10-12 | Ice Queen off-map revival slice rulings (session 215; AskUserQuestion x3, all recommended). (1) Root shape at dmonsfree(): a mongone()d Ice Queen STAYS GONE - only a queen defeated through mondead() (no MON_DETACH) revives; a removed one is freed like any departed monster, with no Enchantress, release text, defeat credit or death count; master BUG-226's decrement-and-clear is dropped (BUG-2291). (2) Neither Kathryn form is a mind flayer larva host: can_become_flayer() excludes both, so a hero larva defeats the Ice Queen as an ordinary kill and stays a larva, and monster larvae stop seeking her (BUG-2292; special-hosts legs 1-2). (3) Asked after the Plan agent claimed an engulf kill leaves her off the map: re-place her on revival - then RE-ASKED after battery F disproved the premise (mdamagem() re-places an engulfed victim before the kill): DROPPED, a silent self-heal with no producer would hide the BUG-1259 canary; the theoretical dead-queen-in-a-level-file path is recorded in the MED row's closure note instead. | maintainer |
 | 2026-10-11 | Larva, toxic floor and glyph id slice rulings (session 214; AskUserQuestion x2, three questions, all recommended). (1) A monster larva's takeover of Kathryn through become_flayer()'s mongone() is minted, not folded in. That question said the Enchantress never appears; the reviewer then showed that dmonsfree() revives a mongone()d Ice Queen OFF the map (a crash-class orphan), so it was re-asked: (2) mint a MED crash row (census every mongone() producer, then rule the root shape at dmonsfree()); the LOW special-hosts row keeps the non-crash quirks. (3) Fold in reviewer O3, upstream-shared: poisoned()'s toxic arm passes u.mh as the old HP when polymorphed, so a polymorphed hero takes the full loss instead of 1. | maintainer |
 | 2026-10-11 | Pet and monster life slice rulings (session 213; AskUserQuestion x1, four questions, all recommended). (1) A monster's amulet of life saving fails on master's whole `cursed \|\| nonliving(form)` term: vampires carry MH_UNZOMBIE, so native-form vampires, Kas and Vlad fail as well as the fog cloud (the row named only the fog cloud); wolf / bat / warg forms are saved - the hero's "the unliving have no life to save" rule. (2) abuse_dog() takes master's hostile roll but not its inline steed throw (0d3e663f6): dismount_untamed_steed() stays the single throw site, so no landing runs inside a zap. (3) New mlifesaver_works(): the troll-beheading (hero, monster, Vorpal) and mind flayer larva predictors use it, beyond master. (4) Undead-race monsters (racial_zombie / racial_vampire overlays) fail the amulet like the hero, beyond master. | maintainer |
