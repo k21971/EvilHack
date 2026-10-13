@@ -182,7 +182,6 @@ struct monst {
     Bitfield(meverseen, 1); /* mon has been seen at some point */
 
     Bitfield(mspotted, 1);  /* mon is currently seen by hero */
-    Bitfield(mwandexp, 1);  /* mon has experience with wands */
     Bitfield(mgenmklev, 1); /* made by the level generation */
 
     Bitfield(msick, 2);      /* monsters ill from zombies */
@@ -206,7 +205,7 @@ struct monst {
     Bitfield(mstone, 3);     /* monster is turning to stone */
     Bitfield(mberserk, 1);   /* monster is berserk */
     Bitfield(minsects, 1);   /* monster summoned via CLC_INSECTS spell */
-    /* 7 spare bits */
+    /* no spare bits: one more grows struct monst */
 
     uchar mwither;           /* withering; amount of turns left till
                               * recovery */

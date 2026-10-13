@@ -252,6 +252,9 @@ thitu(
                 pline("Ow, that stings!");
                 monstunseesu(M_SEEN_POISON);
             }
+            /* a fatal hit is the thrower's kill; a trap's missile, a
+               scattered object or the hero's own boomerang has none */
+            set_monster_killer_hp(gt.thrower, dam, TRUE);
             losehp(dam, knm, kprefix); /* acid damage */
             exercise(A_STR, FALSE);
         }
@@ -718,8 +721,11 @@ ohitmon(
                 || ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
                      || is_bullet(otmp))
                     && (otmp->oprops & ITEM_PROP_MASK)))) {
-            /* damage from objects with offensive object properties */
+            /* damage from objects with offensive object properties; a
+               surge that catches the hero is the thrower's kill */
+            gt.thrower = magr;
             (void) artifact_hit((struct monst *) 0, mtmp, otmp, &damage, 0);
+            gt.thrower = 0;
         }
 
         if (ammo_stack)
@@ -1131,6 +1137,9 @@ m_throw(
 
                 Strcpy(onmbuf, xname(singleobj));
                 Strcpy(knmbuf, killer_xname(singleobj));
+                /* a lethal dose is the thrower's kill, under the missile's
+                   own name; poisoned()'s instant kill ignores polymorph */
+                set_monster_killer(mon, TRUE);
                 poisoned(onmbuf,
                          (singleobj->otyp == BARBED_NEEDLE) ? A_CON : A_STR,
                          knmbuf,
@@ -1138,23 +1147,30 @@ m_throw(
                             poison is limited to attrib loss */
                          (u.umortality > oldumort) ? 0 : 10, TRUE,
                          (struct monst *) 0);
+                clear_monster_killer(mon);
             }
             if (hitu && singleobj->otainted && is_poisonable(singleobj)) {
                 if (how_resistant(SLEEP_RES) == 100) {
                     monstseesu(M_SEEN_SLEEP);
                     pline_The("drow poison doesn't seem to affect you.");
                 } else {
+                    /* a fatal dose is the thrower's kill */
+                    int taintdmg;
+
                     if (!rn2(3)) {
-                        losehp(resist_reduce(rnd(2), POISON_RES),
-                               xname(singleobj), KILLED_BY_AN);
+                        taintdmg = resist_reduce(rnd(2), POISON_RES);
+                        set_monster_killer_hp(mon, taintdmg, TRUE);
+                        losehp(taintdmg, xname(singleobj), KILLED_BY_AN);
                     } else {
                         if (u.usleep) { /* don't let sleep effect stack */
-                            losehp(resist_reduce(rnd(2), POISON_RES),
-                                   xname(singleobj), KILLED_BY_AN);
+                            taintdmg = resist_reduce(rnd(2), POISON_RES);
+                            set_monster_killer_hp(mon, taintdmg, TRUE);
+                            losehp(taintdmg, xname(singleobj), KILLED_BY_AN);
                         } else {
                             You("lose consciousness.");
-                            losehp(resist_reduce(rnd(2), POISON_RES),
-                                   xname(singleobj), KILLED_BY_AN);
+                            taintdmg = resist_reduce(rnd(2), POISON_RES);
+                            set_monster_killer_hp(mon, taintdmg, TRUE);
+                            losehp(taintdmg, xname(singleobj), KILLED_BY_AN);
                             fall_asleep(-resist_reduce(rn2(3) + 2, SLEEP_RES),
                                         TRUE);
                         }
@@ -1381,8 +1397,12 @@ return_from_mtoss(
     }
     if (otmp) {
         if (hits_thrower) {
-            if (otmp->oartifact)
+            if (otmp->oartifact) {
+                /* a surge that catches the hero is the thrower's kill */
+                gt.thrower = magr;
                 (void) artifact_hit((struct monst *) 0, magr, otmp, &dmg, 0);
+                gt.thrower = 0;
+            }
             /* an artifact instakill arm may already have killed magr */
             if (!DEADMONSTER(magr)) {
                 magr->mhp -= dmg;
@@ -1734,7 +1754,7 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                 gb.buzzer = mtmp;
                 dobuzz(BZ_M_BREATH(BZ_OFS_AD(typ)), (int) mattk->damn,
                        mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
-                       utarget, utarget, FALSE);
+                       utarget, utarget);
                 gb.buzzer = 0;
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some

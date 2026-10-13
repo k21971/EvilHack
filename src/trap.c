@@ -2360,7 +2360,7 @@ trapeffect_magic_beam_trap(
             dobuzz(trap->launch_otyp, 8,
                    trap->launch.x, trap->launch.y,
                    sgn(trap->tx - trap->launch.x),
-                   sgn(trap->ty - trap->launch.y), FALSE, FALSE, FALSE);
+                   sgn(trap->ty - trap->launch.y), FALSE, FALSE);
             gb.buzzer = save_buzzer;
         } else {
             /* crafted beam traps carry their component as ammo */
@@ -2393,7 +2393,7 @@ trapeffect_magic_beam_trap(
             dobuzz(trap->launch_otyp, 8,
                    trap->launch.x, trap->launch.y,
                    sgn(trap->tx - trap->launch.x),
-                   sgn(trap->ty - trap->launch.y), FALSE, FALSE, FALSE);
+                   sgn(trap->ty - trap->launch.y), FALSE, FALSE);
             gb.buzzer = save_buzzer;
             /* trap may be freed; don't dereference */
             if (DEADMONSTER(mtmp))

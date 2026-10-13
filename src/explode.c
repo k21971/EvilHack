@@ -716,6 +716,11 @@ explode(
                     pline("It is fatal.");
                 else
                     pline_The("%s is fatal.", str);
+                /* a monster's spell explosion or artifact surge is the
+                   caster's, wielder's or thrower's kill; nothing rises
+                   from a body the fire burned up */
+                if (!olet && type < 0 && ge.exploder != &gy.youmonst)
+                    set_monster_killer(ge.exploder, adtyp != AD_FIRE);
                 /* Known BUG: BURNING suppresses corpse in bones data,
                    but done does not handle killer reason correctly */
                 done((adtyp == AD_FIRE) ? BURNING : DIED);

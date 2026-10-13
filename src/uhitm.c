@@ -5654,6 +5654,8 @@ mhitm_ad_wrap(
                     Sprintf(svk.killer.name,
                             "incinerated in molten lava by %s",
                             mon_killer_name(kbuf, magr));
+                    /* nothing is left: no corpse, no grave */
+                    u.ugrave_arise = -3;
                     /* its kill, but nothing rises from the lava */
                     set_monster_killer(magr, FALSE);
                     done(DIED);

@@ -19,6 +19,8 @@ staticfn void polyuse(struct obj *, int, int) NO_NNARGS;
 staticfn void create_polymon(struct obj *, int) NO_NNARGS;
 staticfn int stone_to_flesh_obj(struct obj *) NONNULLARG1;
 staticfn boolean zap_updown(struct obj *) NONNULLARG1;
+staticfn char *buzz_killer(char *, int, struct monst *, int,
+                           const char *) NONNULLARG1;
 staticfn void zhitu(int, int, const char *, coordxy, coordxy) NO_NNARGS;
 staticfn void revive_egg(struct obj *) NONNULLARG1;
 staticfn boolean zap_steed(struct obj *) NONNULLARG1;
@@ -5779,6 +5781,52 @@ zhitm(
     return tmp;
 }
 
+/*
+ * 5.0: when fatal, this used to yield "Killed by <fltxt>." without any
+ * information about who was responsible.  Now 'buzzer' is used to try
+ * to supply "zapped/cast/breathed by <mon> [imitating <other_mon>]."
+ *
+ * Room for improvement:  there is no monster available when player is
+ * hit by divine lighting or by Plane of Air thunderstorm so cause of
+ * death remains "killed by a bolt of lightning" w/o extra explanation.
+ *
+ * zhitu() names every ray this way, the death ray, finger of death and
+ * disintegration breath included; 'zapper' is the monster responsible,
+ * Null for the hero's own ray (type >= 0) or a monster ray nobody is
+ * known to have sent.
+ */
+staticfn char *
+buzz_killer(
+    char *kbuf, /* BUFSZ */
+    int type, struct monst *zapper, int abstyp,
+    const char *fltxt)
+{
+    struct obj *otmp = gc.current_wand;
+    /* fire horn and frost horn get handled as wands by caller */
+    const char *verb = (abstyp < ZT_SPELL(0)) /* wand */
+                       ? ((otmp && otmp->oclass == TOOL_CLASS) ? "played"
+                          : "zapped")
+                       : (abstyp < ZT_BREATH(0)) ? "cast"
+                         : (abstyp < ZT_BREATH(MAX_ZT)) ? "exhaled"
+                           : "imagined"; /* should never happen */
+
+    if (!fltxt)
+        fltxt = "";
+    if (type < 0) {
+        /* if zapper is Null, kbuf[] will end up with just <fltxt> */
+        (void) death_inflicted_by(kbuf, fltxt, zapper);
+        /* change "death inflicted by mon" to "death <verb> by mon" */
+        if (zapper)
+            (void) strsubst(kbuf, "inflicted", verb);
+    } else {
+        /* FIXME: "zapped by herself" is suitable for a rebound;
+           "zapped at herself" would be better if player explicitly
+           targeted hero */
+        Sprintf(kbuf, "%s %s by %sself", fltxt, verb, uhim());
+    }
+    return kbuf;
+}
+
 staticfn void
 zhitu(
     int type, int nd,
@@ -5787,6 +5835,11 @@ zhitu(
 {
     int dam = 0, abstyp = zaptype(type);
     int orig_dam = 0;
+    char kbuf[BUFSZ];
+    /* the monster whose ray this is; a ray that hits the hero is its
+       kill. Null for the hero's own ray and for a god's bolt, a storm,
+       a trap or a ray that outlived its zapper */
+    struct monst *zapper = (type < 0) ? gb.buzzer : (struct monst *) 0;
 
     switch (BASE_ZT(abstyp)) {
     case ZT_MAGIC_MISSILE:
@@ -5962,9 +6015,12 @@ zhitu(
         }
         monstunseesu(M_SEEN_MAGR);
         svk.killer.format = KILLED_BY_AN;
-        Strcpy(svk.killer.name, fltxt ? fltxt : "");
+        Strcpy(svk.killer.name,
+               buzz_killer(kbuf, type, zapper, abstyp, fltxt));
         /* when killed by disintegration breath, don't leave corpse */
         u.ugrave_arise = (type == -ZT_BREATH(ZT_DEATH)) ? -3 : NON_PM;
+        /* the zapper's kill; nothing rises from a disintegrated body */
+        set_monster_killer(zapper, type != -ZT_BREATH(ZT_DEATH));
         done((type == -ZT_BREATH(ZT_DEATH)) ? DISINTEGRATED : DIED);
         return; /* lifesaved */
     case ZT_LIGHTNING:
@@ -5983,9 +6039,14 @@ zhitu(
             (void) destroy_items(&gy.youmonst, AD_ELEC, orig_dam);
         break;
     case ZT_POISON_GAS:
-        if (!Reflecting)
+        if (!Reflecting) {
+            /* a lethal dose is the zapper's kill, under the blast's own
+               name; poisoned()'s instant kill ignores polymorph */
+            set_monster_killer(zapper, TRUE);
             poisoned("blast", A_DEX, "poisoned blast", 15, FALSE,
                      (struct monst *) 0);
+            clear_monster_killer(zapper);
+        }
         break;
     case ZT_ACID:
         /* the water around a submerged hero dilutes the acid */
@@ -6070,7 +6131,7 @@ zhitu(
                 You_feel("a dark energy blast draining your %s!", life);
             else
                 pline_The("dark energy blast drains your %s!", life);
-            losexp("life drainage");
+            mon_drains_level(zapper, "life drainage");
         }
         break;
     }
@@ -6092,47 +6153,13 @@ zhitu(
         break;
     }
 
-    /*
-     * 5.0: when fatal, this used to yield "Killed by <fltxt>." without any
-     * information about who was responsible.  Now 'buzzer' is used to try
-     * to supply "zapped/cast/breathed by <mon> [imitating <other_mon>]."
-     *
-     * Room for improvement:  there is no monster available when player is
-     * hit by divine lighting or by Plane of Air thunderstorm so cause of
-     * death remains "killed by a bolt of lightning" w/o extra explanation.
-     *
-     * Wand of death, spell of finger of death, and disintegration breath
-     * don't use this routine so don't include 'inflicted by'.
-     */
-    {
-        char kbuf[BUFSZ];
-        struct obj *otmp = gc.current_wand;
-        /* fire horn and frost horn get handled as wands by caller */
-        const char *verb = (abstyp < ZT_SPELL(0)) /* wand */
-                           ? ((otmp && otmp->oclass == TOOL_CLASS) ? "played"
-                              : "zapped")
-                           : (abstyp < ZT_BREATH(0)) ? "cast"
-                             : (abstyp < ZT_BREATH(MAX_ZT)) ? "exhaled"
-                               : "imagined"; /* should never happen */
-
-        if (type < 0 || (type == 0 && gb.buzzer != 0)) {
-            /* if gb.buzzer is Null, kbuf[] will end up with just <fltxt> */
-            (void) death_inflicted_by(kbuf, fltxt, gb.buzzer);
-            /* change "death inflicted by mon" to "death <verb> by mon" */
-            if (gb.buzzer)
-                (void) strsubst(kbuf, "inflicted", verb);
-        } else {
-            /* FIXME: "zapped by herself" is suitable for a rebound;
-               "zapped at herself" would be better if player explicitly
-               targeted hero */
-            Sprintf(kbuf, "%s %s by %sself", fltxt, verb, uhim());
-        }
-        /* Half_spell_damage protection yields half-damage for wands & spells,
-           including hero's own ricochets; breath attacks do full damage */
-        if (dam && Half_spell_damage && abstyp < ZT_BREATH(0))
-            dam = (dam + 1) / 2;
-        losehp(dam, kbuf, KILLED_BY_AN);
-    }
+    /* Half_spell_damage protection yields half-damage for wands & spells,
+       including hero's own ricochets; breath attacks do full damage */
+    if (dam && Half_spell_damage && abstyp < ZT_BREATH(0))
+        dam = (dam + 1) / 2;
+    /* a fatal hit is the zapper's kill */
+    set_monster_killer_hp(zapper, dam, TRUE);
+    losehp(dam, buzz_killer(kbuf, type, zapper, abstyp, fltxt), KILLED_BY_AN);
     return;
 }
 
@@ -6343,13 +6370,13 @@ disintegrate_mon(
 void
 ubuzz(int type, int nd)
 {
-    dobuzz(type, nd, u.ux, u.uy, u.dx, u.dy, TRUE, FALSE, FALSE);
+    dobuzz(type, nd, u.ux, u.uy, u.dx, u.dy, TRUE, FALSE);
 }
 
 void
 buzz(int type, int nd, coordxy sx, coordxy sy, int dx, int dy)
 {
-    dobuzz(type, nd, sx, sy, dx, dy, TRUE, FALSE, FALSE);
+    dobuzz(type, nd, sx, sy, dx, dy, TRUE, FALSE);
 }
 
 /*
@@ -6367,8 +6394,7 @@ dobuzz(
     int nd,                 /* damage strength ('number of dice') */
     coordxy sx, coordxy sy, /* starting point */
     int dx, int dy,         /* direction delta */
-    boolean sayhit, boolean saymiss, /* report out of sight hit/miss events */
-    boolean forcemiss)
+    boolean sayhit, boolean saymiss) /* report out of sight hit/miss events */
 {
     int range, fltyp = zaptype(type), damgtype = BASE_ZT(fltyp);
     coordxy lsx, lsy;
@@ -6455,7 +6481,7 @@ dobuzz(
  buzzmonst:
             gn.notonhead = (mon->mx != gb.bhitpos.x
                             || mon->my != gb.bhitpos.y);
-            if (!forcemiss && zap_hit(find_mac(mon), spell_type, is_wand)) {
+            if (zap_hit(find_mac(mon), spell_type, is_wand)) {
                 if (mon_reflects(mon, (char *) 0)) {
                     if (cansee(mon->mx, mon->my)) {
                         hit(flash_str(fltyp, FALSE), mon, exclam(0));
@@ -6601,7 +6627,7 @@ dobuzz(
             if (u.usteed && !rn2(3) && !mon_reflects(u.usteed, (char *) 0)) {
                 mon = u.usteed;
                 goto buzzmonst;
-            } else if (!forcemiss && zap_hit((int) u.uac, 0, FALSE)) {
+            } else if (zap_hit((int) u.uac, 0, FALSE)) {
                 range -= 2;
                 pline_dir(xytodir(-dx, -dy), "%s %s you!",
                           The(flash_str(fltyp, FALSE)),

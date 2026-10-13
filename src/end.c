@@ -1629,11 +1629,15 @@ really_done(int how)
     /* maintain ugrave_arise even for !bones_ok */
     if (how == PANICKED)
         u.ugrave_arise = (NON_PM - 3); /* no corpse, no grave */
-    else if (how == BURNING || how == DISSOLVED || how == DISINTEGRATED)
+    else if (how == BURNING || how == DISSOLVED || how == INCINERATED
+             || how == DISINTEGRATED)
         u.ugrave_arise = (NON_PM - 2); /* leave no corpse: nothing is left */
     else if (how == STONING)
         u.ugrave_arise = LEAVESTATUE; /* statue instead of corpse */
-    else if (u.usick_type & SICK_ZOMBIE)
+    /* a death that left nothing (incinerated or dissolved through an
+       ordinary DIED) already chose no corpse; no zombie rises from it */
+    else if ((u.usick_type & SICK_ZOMBIE)
+             && u.ugrave_arise != (NON_PM - 2))
         u.ugrave_arise = gu.urace.zombienum;
     else if (how == TURNED_SLIME
              /* it's possible to turn into slime even though green slimes

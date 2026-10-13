@@ -2402,6 +2402,9 @@ artifact_hit(
     static const char you[] = "you";
     char hittee[BUFSZ];
     int hurtle_distance;
+    /* who a hero's death here is credited to: the wielder, or the
+       monster that threw or thrust a missile nobody wields */
+    struct monst *mkiller = magr ? magr : gt.thrower;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 
@@ -2520,8 +2523,13 @@ artifact_hit(
                     int loss = (Upolyd ? u.mh : u.uhp) + 1;
 
                     You("ignite and turn to ash!");
-                    /* the wielder's kill, with nothing left to rise */
-                    set_monster_killer_hp(magr, loss, FALSE);
+                    /* the wielder's or thrower's kill, with nothing left to
+                       rise; the body is gone, so no corpse and no grave
+                       either (the loss always kills, unless a polymorphed
+                       hero can revert) */
+                    set_monster_killer_hp(mkiller, loss, FALSE);
+                    if (!Upolyd || Unchanging)
+                        u.ugrave_arise = -3;
                     losehp(loss, "immolation", NO_KILLER_PREFIX);
                 } else {
                     /* guard against mdef being killed twice should
@@ -2556,8 +2564,13 @@ artifact_hit(
                 int loss = (Upolyd ? u.mh : u.uhp) + 1;
 
                 pline("Angelslayer's eldritch flame consumes %s!", hittee);
-                /* the wielder's kill, with nothing left to rise */
-                set_monster_killer_hp(magr, loss, FALSE);
+                /* the wielder's or thrower's kill, with nothing left to
+                   rise; the body is gone, so no corpse and no grave
+                   either (the loss always kills, unless a polymorphed
+                   hero can revert) */
+                set_monster_killer_hp(mkiller, loss, FALSE);
+                if (!Upolyd || Unchanging)
+                    u.ugrave_arise = -3;
                 losehp(loss, "incinerated by Angelslayer", NO_KILLER_PREFIX);
             } else {
                 /* guard against mdef being killed twice should
@@ -2682,7 +2695,7 @@ artifact_hit(
 
                 pline("A massive surge of energy courses through the %s!",
                       simpleonames(otmp));
-                ge.exploder = magr;
+                ge.exploder = mkiller;
                 explode(youdefend ? u.ux : mdef->mx,
                         youdefend ? u.uy : mdef->my,
                         (youattack ? BZ_U_BREATH(ZT_LIGHTNING)
@@ -2725,9 +2738,15 @@ artifact_hit(
             update_inventory();
         }
         /* magr is Null for a missile or the hero's own blade, which keep
-           the blade as the cause; a monster's melee blow is its kill */
-        if (youdefend && gs.spec_dbon_applies && !rn2(8))
+           the blade as the cause; a monster's melee blow is its kill, and
+           a missile's poison is its thrower's kill under the blade's name */
+        if (youdefend && gs.spec_dbon_applies && !rn2(8)) {
+            if (!magr)
+                set_monster_killer(mkiller, TRUE);
             poisoned("blade", A_STR, "poisoned blade", 30, FALSE, magr);
+            if (!magr)
+                clear_monster_killer(mkiller);
+        }
         return realizes_damage;
     }
     /* disease */
@@ -2773,8 +2792,9 @@ artifact_hit(
             if (youdefend) {
                 int loss = (Upolyd ? u.mh : u.uhp) + 1;
 
-                /* the wielder's kill, rising as after its melee kill */
-                set_monster_killer_hp(magr, loss, TRUE);
+                /* the wielder's or thrower's kill, rising as after a
+                   melee kill */
+                set_monster_killer_hp(mkiller, loss, TRUE);
                 losehp(loss, "disemboweled by Grimtooth", NO_KILLER_PREFIX);
             } else {
                 /* guard against mdef being killed twice should
@@ -2841,8 +2861,8 @@ artifact_hit(
                               distant_name(otmp, xname));
                     svk.killer.format = KILLED_BY;
                     Strcpy(svk.killer.name, "the Wand of Orcus");
-                    /* the wielder's kill (none for a thrown one) */
-                    set_monster_killer(magr, TRUE);
+                    /* the wielder's or thrower's kill */
+                    set_monster_killer(mkiller, TRUE);
                     done(DIED);
                     return TRUE;
                 }
@@ -2991,7 +3011,7 @@ artifact_hit(
 
                 pline("A surge of acid flows through the %s!",
                       simpleonames(otmp));
-                ge.exploder = magr;
+                ge.exploder = mkiller;
                 explode(youdefend ? u.ux : mdef->mx,
                         youdefend ? u.uy : mdef->my,
                         (youattack ? BZ_U_BREATH(ZT_ACID)
@@ -3025,8 +3045,13 @@ artifact_hit(
             if (youdefend) {
                 int loss = (Upolyd ? u.mh : u.uhp) + 1;
 
-                /* the wielder's kill, with nothing left to rise */
-                set_monster_killer_hp(magr, loss, FALSE);
+                /* the wielder's or thrower's kill, with nothing left to
+                   rise; the body is gone, so no corpse and no grave
+                   either (the loss always kills, unless a polymorphed
+                   hero can revert) */
+                set_monster_killer_hp(mkiller, loss, FALSE);
+                if (!Upolyd || Unchanging)
+                    u.ugrave_arise = -3;
                 losehp(loss, "dissolved by Harbinger", NO_KILLER_PREFIX);
             } else { /* you or mon hit monster */
                 /* guard against mdef being killed twice should
@@ -3068,7 +3093,7 @@ artifact_hit(
                 Snprintf(svk.killer.name, sizeof svk.killer.name,
                          "disintegrated by %s", the(xname(otmp)));
                 /* the wielder's kill, with nothing left to rise */
-                set_monster_killer(magr, FALSE);
+                set_monster_killer(mkiller, FALSE);
                 done(DISINTEGRATED);
             } else { /* you or mon hit monster */
                 disint_mon_invent(mdef);
@@ -3224,7 +3249,7 @@ artifact_hit(
                     struct monst *save_exploder = ge.exploder;
 
                     pline("A surge of flame flows through the blade!");
-                    ge.exploder = magr;
+                    ge.exploder = mkiller;
                     explode(youdefend ? u.ux : mdef->mx,
                             youdefend ? u.uy : mdef->my,
                             (youattack ? BZ_U_BREATH(ZT_FIRE)
@@ -3238,7 +3263,7 @@ artifact_hit(
                     struct monst *save_exploder = ge.exploder;
 
                     pline("A surge of frost flows through the blade!");
-                    ge.exploder = magr;
+                    ge.exploder = mkiller;
                     explode(youdefend ? u.ux : mdef->mx,
                             youdefend ? u.uy : mdef->my,
                             (youattack ? BZ_U_BREATH(ZT_COLD)
@@ -3276,8 +3301,13 @@ artifact_hit(
                     int loss = (Upolyd ? u.mh : u.uhp) + 1;
 
                     You("ignite and turn to ash!");
-                    /* the wielder's kill, with nothing left to rise */
-                    set_monster_killer_hp(magr, loss, FALSE);
+                    /* the wielder's or thrower's kill, with nothing left to
+                       rise; the body is gone, so no corpse and no grave
+                       either (the loss always kills, unless a polymorphed
+                       hero can revert) */
+                    set_monster_killer_hp(mkiller, loss, FALSE);
+                    if (!Upolyd || Unchanging)
+                        u.ugrave_arise = -3;
                     losehp(loss, "immolation", NO_KILLER_PREFIX);
                 } else {
                     /* guard against mdef being killed twice should
@@ -3562,7 +3592,7 @@ artifact_hit(
                     /* specifically name Sunsword */
                     Sprintf(svk.killer.name, "incinerated by Sunsword");
                     /* the wielder's kill, with nothing left to rise */
-                    set_monster_killer(magr, FALSE);
+                    set_monster_killer(mkiller, FALSE);
                     done(INCINERATED);
                 }
             } else
@@ -3708,7 +3738,7 @@ artifact_hit(
                     Sprintf(svk.killer.name,
                             "incinerated by the Hammer of the Gods");
                     /* the wielder's kill, with nothing left to rise */
-                    set_monster_killer(magr, FALSE);
+                    set_monster_killer(mkiller, FALSE);
                     done(INCINERATED);
                 }
             } else
@@ -3837,7 +3867,7 @@ artifact_hit(
                              "decapitated by %s", xname(otmp));
                     /* the wielder's kill, but a headless body doesn't
                        rise */
-                    set_monster_killer(magr, FALSE);
+                    set_monster_killer(mkiller, FALSE);
                     done(DECAPITATED);
                 }
                 /* Should amulets fall off? */
@@ -3943,7 +3973,7 @@ artifact_hit(
                 otmp->oprops_known |= ITEM_DRLI;
                 update_inventory();
             }
-            mon_drains_level(magr, "life drainage");
+            mon_drains_level(mkiller, "life drainage");
             if (magr && magr->mhp < magr->mhpmax) {
                 healmon(magr, (abs(oldhpmax - u.uhpmax) + 1) / 2, 0);
             }

@@ -2872,7 +2872,7 @@ buzzmm(struct monst *mtmp, struct monst *mdef, struct attack *mattk)
         gb.buzzer = mtmp;
         dobuzz(BZ_M_SPELL(BZ_OFS_AD(mattk->adtyp)), (int) mattk->damn,
                mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
-               FALSE, FALSE, FALSE);
+               FALSE, FALSE);
         gb.buzzer = 0;
         return M_ATTK_HIT;
     }
