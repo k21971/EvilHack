@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-13, after session 220's
-  hold-trio slice): 387 rows closed, 115 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-13, after session 221's ruled
+  small-rows slice): 392 rows closed, 112 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -37,7 +37,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 95 LOW: small parity rows, quirks and watch/record-only items.
+  - 92 LOW: small parity rows, quirks and watch/record-only items.
+    Session 221 closed five ruled or plannable rows: the two cure
+    lines (BUG-2318, with the cure sickness self-cast extended to it
+    by ruling), knock's double wakeup (BUG-2319), the praying
+    riding accident (BUG-2320), the Guidebook glyph: form
+    (BUG-2321) and potionhit()'s water kill credit (BUG-2322, rare
+    but reachable through a scatter-surviving potion). Ruled
+    2026-10-13 at plan time, both as recommended: the cure sickness
+    sibling follows the one-line ruling, and knock keeps angering a
+    peaceful mindless target (the arm's wakeup is the attack). It
+    minted two: a throw or fall during prayer landing on a trap
+    (needs a trace, then a ruling) and knock's "knocked back!" on a
+    small ridden steed that never moves (needs a ruling). Five new
+    upstream table rows.
     Session 220 closed the four hold rows ruled 2026-10-12 (the
     tree pit, BUG-2311, with a monster's dig-down in a tree,
     BUG-2312; the polymorph slip-free, BUG-2313; the grass hold
@@ -9795,7 +9808,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       healing's 1-in-4 cure-sickness rider needs Skilled or better;
       data.base stays. Diverges from master's code and 10089bbf6's
       message. Plannable.
-- [ ] LOW: critical healing's self-cure prints two cure lines (minted
+- [x] LOW: two cure lines on a self-cure (BUG-2318, with the cure
+      sickness self-cast extended to it by ruling) - FIXED 2026-10-13
+      (session 221, commit pending, tracker pending; closure notes in
+      BUGFIXES_ARCHIVE): zapyourself()'s critical healing rider and
+      cure sickness arm leave the feedback to healup()'s make_sick()
+      ("You feel cured.  What a relief!"); cure sickness says "You are
+      not ill." only when neither sick nor slimed. Ruled 2026-10-13
+      (session 221 plan time): the cure sickness self-cast's same
+      doubled line follows the one-line ruling (upstream-shared:
+      Official_nh50's spell.c arm doubles it too).
+      Original text: LOW: critical healing's self-cure prints two cure
+      lines (minted
       2026-10-11, session 211, battery C; branch and master).
       zapyourself()'s rider calls healup(0, 0, TRUE, FALSE), whose
       make_sick(0L, ...) already says "You feel cured.  What a
@@ -10429,7 +10453,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch (end.c). RULED
       2026-10-11 (session 212): its own slice, seen / unseen / deaf
       legs. Plannable.
-- [ ] LOW: a riding accident hurts a praying hero (minted 2026-10-11,
+- [x] LOW: a riding accident hurt a praying hero (BUG-2320) - FIXED
+      2026-10-13 (session 221, commit pending, tracker pending; closure
+      notes in BUGFIXES_ARCHIVE): dismount_steed()'s thrown / knocked /
+      fell arm skips the riding-accident losehp() and the wounded legs
+      while u.uinvulnerable; the line and the throw stay. Battery C:
+      a natural Conflict throw mid-prayer, PRE 14 HP and wounded legs,
+      POST none. Its landing still uses pass 2 (traps allowed): a row.
+      Original text: LOW: a riding accident hurts a praying hero
+      (minted 2026-10-11,
       session 212, reviewer L2; branch and master shared). mattacku()'s
       attack-the-steed branch runs before its u.uinvulnerable gate, so
       a monster can kill (and life saving untame) the steed while the
@@ -10446,6 +10478,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       accident skips both the damage and the wounded legs; "You are
       thrown off of <steed>!" still prints and the throw still
       happens. Plannable.
+- [ ] LOW: a throw or fall during prayer can land the hero on a trap
+      (minted 2026-10-13, session 221, from the BUG-2320 Plan agent;
+      branch, master and upstream shared). dismount_steed()'s thrown /
+      fell arm picks its square with landing_spot() pass 2, which
+      allows traps (verified), and the dismount's closing
+      float_down(0L, W_SADDLE) can then fire the trap on that square
+      while u.uinvulnerable (the Plan agent's reading; not traced) - a
+      mid-prayer trap effect the prayer's protection does not cover.
+      land_deferred() (trap.c) already holds deferred landings while
+      praying, the precedent. Candidate: defer the landing's trap, or
+      prefer a trap-free square, while u.uinvulnerable. Needs a trace
+      (float_down()'s trap arm vs the pending-landing deferral), then
+      a ruling.
 - [ ] LOW: a minliquid() survivor sent into limbo still takes its move
       (minted 2026-10-11, session 212, reviewer re-review; branch
       pre-existing). minliquid()'s survivor arms (lava, water, a
@@ -10464,7 +10509,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       copy the earlier mon_offmap() test's form (a monster-ridden
       steed is MON_OFFMAP and must still act), not a bare
       mon_offmap(). Needs a reproduction.
-- [ ] LOW: knock cast at a pet wakes it twice (minted 2026-10-11,
+- [x] LOW: knock woke its target twice (BUG-2319) - FIXED 2026-10-13
+      (session 221, commit pending, tracker pending; closure notes in
+      BUGFIXES_ARCHIVE): the knock arm runs wakeup(mtmp, TRUE) and
+      sets already_woke, and bhitm()'s tail skips its wakeup() (its
+      m_respond() / hot_pursuit() still run). Ruled 2026-10-13
+      (session 221 plan time): a peaceful mindless target stays
+      angered - the arm's wakeup is the attack (it passed !mindless).
+      Battery B: a tameness-1 pet untamed by knock stays peaceful with
+      no guilt; peacefuls are angered once on both builds; a sleeping
+      skeleton that doesn't budge now reads "wakes up!  The skeleton
+      screams!". Knock now differs from a melee hit that untames a pet
+      (hmon_hitmon()'s tail still angers it) - ruled, keep both.
+      Original text: LOW: knock cast at a pet wakes it twice (minted
+      2026-10-11,
       session 213, from the Plan agent and battery B; shared with
       Official_nh50). bhitm()'s knock arm sets `wake = TRUE`, calls
       wakeup() and then abuse_dog(), and bhitm()'s tail calls wakeup()
@@ -10481,6 +10539,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bhitm()'s tail does not run wakeup() again; an untamed ex-pet
       stays as abuse_dog()'s roll left it, with no guilt and no -5.
       Plannable (upstream-reportable).
+- [ ] LOW: knock cast down at a small ridden steed says it is knocked
+      back (minted 2026-10-13, session 221, from the BUG-2319 Plan
+      agent aside; branch, likely upstream shared). zap_steed() sends
+      SPE_KNOCK to bhitm(u.usteed); the knock arm prints "<steed> is
+      knocked back!" for a target smaller than MZ_HUMAN, but the steed
+      shares the hero's square, so mhurtle() gets dx = dy = 0 and
+      returns after its stun and movement loss - the steed never
+      moves. Decide the wording (e.g. "doesn't budge" or a
+      steed-specific line) or the effect. Needs a ruling.
 - [x] LOW: monsters still prefer an amulet of life saving that will
       fail (BUG-2305) - FIXED 2026-10-12 (session 218, commit ff29225e2,
       tracker d77e169e3; closure notes in BUGFIXES_ARCHIVE): new
@@ -10550,7 +10617,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       may not be the design intent. Needs a ruling (keep master's
       scoring, or score a hero-angered always-peaceful as a peaceful
       kill).
-- [ ] LOW: potionhit()'s holy water and iron golem rust kills credit
+- [x] LOW: potionhit()'s water kills credited the hero (BUG-2322) -
+      FIXED 2026-10-13 (session 221, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE): master's gate - killed()
+      when your_fault, else monkilled(mon, "", AD_ACID) for holy water
+      and AD_PHYS for rust. Trace: rare but reachable (and shared with
+      Official_nh50) - a potion survives a MAY_DESTROY scatter (land
+      mine, booby trap, bag of holding blast) 1 time in 100 through
+      breaktest() and ohitmon(NULL, ...) hits with it; telekinesis
+      never pushes water and muse never throws it. Battery D (breaktest
+      lever): POST "The kobold zombie is destroyed!" with no XP;
+      hero throws still credit the hero.
+      Original text: LOW: potionhit()'s holy water and iron golem rust
+      kills credit
       the hero unconditionally (minted 2026-10-12, session 218, from
       the BUG-2304 census; branch only). Its POT_WATER arms call
       killed(mon) under a "should only be by you" comment; master
@@ -22681,7 +22760,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: digging down puts a pit inside a standing tree (BUG-2311,
       with the monster leg BUG-2312 and the adj_pit_checks() flags
       re-port BUG-2316 folded in) - FIXED 2026-10-13 (session 220,
-      commit pending, tracker pending; closure notes in
+      commit e99aeed17, tracker a15876be9; closure notes in
       BUGFIXES_ARCHIVE): dig_check() refuses IS_TREES() (live, dead,
       arboreal stone) with DIGCHECK_FAIL_TREE; a broken wand skips the
       square, a pick reads "The tree's roots are too thick to dig
@@ -22704,7 +22783,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       inside one is stopped with a line (wording shown at plan time).
       Plannable.
 - [x] LOW: a monster that polymorphs while entangled (BUG-2313) -
-      FIXED 2026-10-13 (session 220, commit pending, tracker pending;
+      FIXED 2026-10-13 (session 220, commit e99aeed17, tracker a15876be9;
       closure notes in BUGFIXES_ARCHIVE): newcham() clears mentangled
       and mentangletime for a whirly, wall-passing, unsolid or
       amorphous form, with "The xorn slips free of the vegetation." /
@@ -22724,7 +22803,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       time), mirroring the hero's BUG-2259. Plannable.
 - [x] LOW: a grass hold outlives its grass (BUG-2314, with grazing
       taking a move, BUG-2317, folded in by ruling) - FIXED 2026-10-13
-      (session 220, commit pending, tracker pending; closure notes in
+      (session 220, commit e99aeed17, tracker a15876be9; closure notes in
       BUGFIXES_ARCHIVE): grass_gone_release() (trap.c) ends a
       square-held vine hold with "The vegetation releases you." after
       the grass's own line at every site that removes grass under the
@@ -22757,7 +22836,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       forced-trap paths read it, then clear or ignore it there.
       Upstream-reportable once traced. LOW (needs a trace).
 - [x] LOW: float_down()'s branch-held line (BUG-2315) - FIXED
-      2026-10-13 (session 220, commit pending, tracker pending; closure
+      2026-10-13 (session 220, commit e99aeed17, tracker a15876be9; closure
       notes in BUGFIXES_ARCHIVE): "You are no longer trying to float
       up from the tree's branches." when u_tree_held(); a grass hold
       keeps "entangling vegetation".
@@ -27519,7 +27598,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-10 (session 208 follow-up; decisions log): prefix
       "unset " (G_unset_arrow_trap etc.), upstream's LAND_MINE
       precedent; check the symset / glyph docs for the names. Plannable.
-- [ ] LOW: the Guidebook's glyph: example never sets the symbol
+- [x] LOW: the Guidebook's glyph: form (BUG-2321) - FIXED 2026-10-13
+      (session 221, commit pending, tracker pending; closure notes in
+      BUGFIXES_ARCHIVE): Guidebook.mn / .tex (dates bumped) show
+      `glyph:glyphname:U+nnnn/R-G-B` and
+      `OPTIONS=glyph:G_pool:U+224B/0-0-160`; Guidebook.txt is the
+      build's render with the post-commit GB_DATESTAMP date; the
+      optfn_glyph() comment matches. The parser and its silence on
+      unknown G_ names stay. Battery A: the documented line applies
+      (color 0-0-160 on the pool); Enhanced1 already draws pools as
+      U+224B, so the codepoint half rests on session 214's battery C.
+      Original text: LOW: the Guidebook's glyph: example never sets the
+      symbol
       (minted 2026-10-11, session 214, battery C anomaly;
       upstream-shared - Official_nh50 and NetHack50 have the same
       text and parser). Guidebook.mn / .tex document
@@ -28760,6 +28850,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-13 | A water potion's kill credits the hero whoever threw it, shared with Official_nh50 (potion.c potionhit()'s POT_WATER arms): holy water on undead / demons / weres and water on an iron golem call killed(mon) under "should only be by you", while the acid arm gates on your_fault; a potion that survives a MAY_DESTROY scatter (land mine, booby trap, bag of holding blast; breaktest()'s 1-in-100 obj_resists()) flies into a monster through ohitmon(NULL, ...) -> potionhit(POTHIT_OTHER_THROW) and the hero gets the kill, XP and conduct. EvilHack fix BUG-2322 (master's gate): `if (your_fault) killed(mon); else monkilled(mon, "", AD_ACID / AD_PHYS);`. | found (branch-fixed); not yet sent |
+| 2026-10-13 | The Guidebook documents the glyph: option with the wrong separator, shared with Official_nh50 and NetHack50 (doc/Guidebook.mn / .tex, options.c optfn_glyph() comment): `glyph:glyphname/U+nnnn/R-G-B` and the `glyph:G_pool/U+224B/0-0-160` example, while glyphs.c glyphrep_to_custom_map_entries() takes ':' as the Unicode marker and '/' as the color marker, so the documented line sets only the color (`glyph:G_x/U+0021` sets nothing). EvilHack fix BUG-2321: document `glyph:glyphname:U+nnnn/R-G-B` and `glyph:G_pool:U+224B/0-0-160`. | found (branch-fixed); not yet sent |
+| 2026-10-13 | A riding accident hurts a praying hero, shared with Official_nh50 (steed.c dismount_steed()): the thrown / knocked / fell arm's losehp(rn1(10, 10), "riding accident") and set_wounded_legs() have no u.uinvulnerable test, so a steed that throws its rider under Conflict (dog_move()'s resist_conflict() arm) during a successful prayer still hurts the hero, who may have prayed at low HP. EvilHack fix BUG-2320: skip the damage and the wounded legs while u.uinvulnerable; the throw and its line stay. | found (branch-fixed); not yet sent |
+| 2026-10-13 | Knock wakes its target twice and angers a pet it untamed, shared with Official_nh50 (zap.c bhitm(), ce0d25129): the knock arm calls wakeup(mtmp, !mindless(...)) then abuse_dog(), and bhitm()'s tail calls wakeup(mtmp, TRUE) again, so a pet abuse_dog() untamed at tameness 1 is angered as a peaceful ("You feel guilty.", -5, hostile). EvilHack fix BUG-2319: the arm's wakeup(mtmp, TRUE) counts as the attack (so a mindless peaceful is still angered) and the tail skips its wakeup(). | found (branch-fixed); not yet sent |
+| 2026-10-13 | Casting cure sickness at yourself prints two cure lines, shared with Official_nh50 (spell.c spelleffects() SPE_CURE_SICKNESS): healup(0, 0, TRUE, FALSE) runs make_sick(0L, ..., TRUE, SICK_ALL), which says "You feel cured.  What a relief!", and the arm then adds "You are no longer ill.". EvilHack fix BUG-2318: print "You are not ill." only when neither sick nor slimed; the cure line comes from make_sick(). | found (branch-fixed); not yet sent |
 | 2026-10-13 | Digging down puts a pit or hole inside a standing tree, shared with Official_nh50 (dig.c dig_check() / dighole(), apply.c do_break_wand(), muse.c MUSE_WAN_DIGGING): dig_check() has no tree test and maketrap(PIT/HOLE) has no TREE case, so a broken wand of digging next to a tree, a Passes_walls hero digging or zapping down inside one, or a xorn zapping its wand of digging down inside one leaves the tree standing with a trap in it (a flood arm turns it to water). EvilHack fix BUG-2311..2312: a DIGCHECK_FAIL_TREE result refused by every downward dig ("The tree's roots glow then fade." for a zap), and the monster's selection gates refuse a tree square. Vanilla's only tree refusal is adj_pit_checks(). | found (branch-fixed); not yet sent |
 | 2026-10-13 | adj_pit_checks() zeroes the target square's flags before refusing, shared with Official_nh50 (dig.c adj_pit_checks(): `ltyp = room->typ, room->flags = 0;`): flags aliases wall_info, doormask, altarmask and drawbridgemask, so a hero in a pit zapping digging sideways unpetrifies a tree, turns a locked door into a doorway it then pits, leaves an altar unaligned, makes nondiggable rock diggable, and reads a raised drawbridge span over floor as moat. EvilHack fix BUG-2316 (master's BUG-678 fix, 4ca4a2154, re-ported): drop the zero; dighole() clears flags when it actually changes the square. | found (branch-fixed); not yet sent |
 | 2026-10-13 | A polymorphed hero's melee hits a temple priest already killed by his god's bolt, shared with Official_nh50 (uhitm.c hmonas()): the claw/bite, hug, explode and engulf arms call `wakeup(mon, TRUE)` and then deal damage; wakeup() on a peaceful temple priest calls ghod_hitsu(), whose lightning bolt from the shrine toward the hero can kill a hurt priest standing on that line, and the arm then damages the dead priest - a second kill credited to the hero, a second corpse, impossible() "already detached". Fix on the branch: `if (DEADMONSTER(mon)) continue;` after each of the four wakeup() calls; an exploding form then does not explode (BUG-2308). LATENT in play: the aligned cleric resists shock (MR_ELEC, on both trees), so the bolt only kills a priest who has lost that resistance (e.g. a polymorphed one); the battery staged it by clearing MR_ELEC. | found (branch-fixed); not yet sent |
