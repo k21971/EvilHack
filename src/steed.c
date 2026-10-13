@@ -1372,7 +1372,8 @@ dismount_steed(
         You("%s off of %s!", verb, mon_nam(mtmp));
         if (!have_spot)
             have_spot = landing_spot(&cc, reason, 1);
-        if (!ulev && !ufly) {
+        /* a hero in the midst of a successful prayer is unharmed */
+        if (!ulev && !ufly && !u.uinvulnerable) {
             losehp(Maybe_Half_Phys(rn1(10, 10)), "riding accident",
                    KILLED_BY_AN);
             set_wounded_legs(BOTH_SIDES, (int) HWounded_legs + rn1(5, 5));

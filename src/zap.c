@@ -290,6 +290,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     boolean reveal_invis = FALSE, learn_it = FALSE;
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
+    boolean already_woke = FALSE; /* an arm ran its own wakeup() */
     int dmg, otyp = otmp->otyp; /* otmp is not NULL */
     const char *zap_type_text = "spell";
     struct obj *obj;
@@ -676,7 +677,11 @@ bhitm(struct monst *mtmp, struct obj *otmp)
                     pline("%s doesn't budge.", Monnam(mtmp));
             }
             if (!DEADMONSTER(mtmp)) {
-                wakeup(mtmp, !mindless(mtmp->data));
+                /* wake (and anger) it before abuse_dog(); the tail
+                   must not wake it again, or an ex-pet that
+                   abuse_dog() just untamed is angered as a peaceful */
+                wakeup(mtmp, TRUE);
+                already_woke = TRUE;
                 abuse_dog(mtmp);
             }
         } else if ((obj = which_armor(mtmp, W_SADDLE)) != 0) {
@@ -965,7 +970,8 @@ bhitm(struct monst *mtmp, struct obj *otmp)
     }
     if (wake && !DEADMONSTER(mtmp)) {
         /* seemimic() is done by wakeup() and might unblock vision */
-        wakeup(mtmp, helpful_gesture ? FALSE : TRUE);
+        if (!already_woke)
+            wakeup(mtmp, helpful_gesture ? FALSE : TRUE);
         m_respond(mtmp);
         /* helping a shopkeeper from outside his shop is not an attack */
         if (mtmp->isshk && !*u.ushops && !helpful_gesture)
@@ -3689,11 +3695,9 @@ zapyourself(struct obj *obj, boolean ordinary)
            pseudo-object) sometimes cures illness, sliming and
            withering */
         if (obj->otyp == SPE_CRITICAL_HEALING && obj->blessed && !rn2(4)) {
-            if (Sick) {
-                /* cure conditions (which updates status) before feedback */
+            /* make_sick() gives the "You feel cured." feedback */
+            if (Sick)
                 healup(0, 0, TRUE, FALSE);
-                You("are no longer ill.");
-            }
             if (Slimed)
                 make_slimed(0L, "The slime disappears!");
             if (Withering) {
@@ -3724,16 +3728,16 @@ zapyourself(struct obj *obj, boolean ordinary)
         } else {
             boolean was_sick = !!Sick, was_slimed = !!Slimed;
 
-            /* cure conditions (which updates status) before feedback */
+            /* cure conditions (healup() gives the sickness feedback) */
             healup(0, 0, TRUE, FALSE);
             /*
-             *  Sick + !Slimed -- You are no longer ill.
+             *  Sick + !Slimed -- make_sick()'s "You feel cured."
              * !Sick + !Slimed -- You are not ill.
              * !Sick +  Slimed -- The slime disappears.
-             *  Sick +  Slimed -- You are no longer ill. The slime disappears.
+             *  Sick +  Slimed -- "You feel cured." then the slime line
              */
-            if (was_sick || !was_slimed)
-                You("are %s ill.", was_sick ? "no longer" : "not");
+            if (!was_sick && !was_slimed)
+                You("are not ill.");
             if (was_slimed)
                 make_slimed(0L, "The slime disappears!");
             if (Withering) {

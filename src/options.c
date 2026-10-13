@@ -1829,7 +1829,7 @@ optfn_glyph(
         return optn_ok;
     }
     if (req == do_set) {
-        /* OPTION=glyph:G_glyph/U+NNNN/r-g-b */
+        /* OPTION=glyph:G_glyph:U+NNNN/r-g-b */
         if (negated) {
             if (op != empty_optstr) {
                 bad_negation("glyph", TRUE);

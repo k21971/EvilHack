@@ -2298,10 +2298,12 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                     if (!is_silent(mon->data))
                         wake_nearto(tx, ty, mon->data->mlevel * 10);
                     mon->mhp -= d(2, 6);
-                    /* should only be by you */
-                    if (DEADMONSTER(mon))
-                        killed(mon);
-                    else if (is_were(mon->data) && !is_human(mon->data))
+                    if (DEADMONSTER(mon)) {
+                        if (your_fault)
+                            killed(mon);
+                        else
+                            monkilled(mon, "", AD_ACID);
+                    } else if (is_were(mon->data) && !is_human(mon->data))
                         new_were(mon); /* revert to human */
                 } else if (obj->cursed) {
                     angermon = FALSE;
@@ -2319,9 +2321,12 @@ potionhit(struct monst *mon, struct obj *obj, int how)
                 if (canseemon(mon))
                     pline("%s rusts.", Monnam(mon));
                 mon->mhp -= d(1, 6);
-                /* should only be by you */
-                if (DEADMONSTER(mon))
-                    killed(mon);
+                if (DEADMONSTER(mon)) {
+                    if (your_fault)
+                        killed(mon);
+                    else
+                        monkilled(mon, "", AD_PHYS);
+                }
             }
             break;
         case POT_OIL:

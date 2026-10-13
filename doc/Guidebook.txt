@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
       (Edited and expanded for EvilHack 1.0.0 by Keith Simpson and others)
 
-                               September 08, 2026
+                                October 13, 2026
 
 
 
@@ -5634,7 +5634,7 @@
 
           The format for defining a glyph representation is:
 
-     OPTIONS=glyph:glyphname/U+nnnn/R-G-B
+     OPTIONS=glyph:glyphname:U+nnnn/R-G-B
 
           The  window port that is active needs to provide support for dis-
      playing UTF-8 character sequences and explicit  red-green-blue  colors
@@ -5643,7 +5643,7 @@
      sentation for glyphname G_pool to use Unicode codepoint U+224B and the
      color represented by R-G-B value 0-0-160:
 
-     OPTIONS=glyph:G_pool/U+224B/0-0-160
+     OPTIONS=glyph:G_pool:U+224B/0-0-160
 
      The list of acceptable glyphnames can be produced by evilhack --dumpg-
      lyphnames.  Individual EvilHack glyphs can be specified using  the  G_
