@@ -3292,6 +3292,16 @@ castum(struct monst *mtmp, struct attack *mattk)
     You("cast a spell%s%s!", directed ? " at " : "",
         directed ? mon_nam(mtmp) : "");
 
+    /* every spell that reaches the target angers it before it lands,
+       as the hero's other polymorphed attacks do; only the caster's
+       own self-buffs leave it be. A temple priest's angry god can
+       strike the priest down first */
+    if (directed || (mcast_data[spellnum].flags & MCF_HOSTILE) != 0) {
+        wakeup(mtmp, TRUE);
+        if (DEADMONSTER(mtmp))
+            return M_ATTK_DEF_DIED;
+    }
+
     /* as these are spells, the damage is related to the level
        of the form casting the spell */
     if (mattk->damd)

@@ -72,6 +72,7 @@ staticfn boolean m_slips_free(struct monst *, struct monst *,
 staticfn void start_engulf(struct monst *) NONNULLARG1;
 staticfn void end_engulf(void);
 staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
+staticfn boolean submitted_since(struct monst *, unsigned) NONNULLARG1;
 staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
 staticfn int enchant_skill_dice(void);
 staticfn void nohandglow(struct monst *) NONNULLARG1;
@@ -999,7 +1000,8 @@ hitum(struct monst *mon, struct attack *uattk)
     boolean malive = TRUE, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep,
         *secondwep = u.twoweap ? uswapwep : (struct obj *) 0;
-    unsigned secondwep_id = secondwep ? secondwep->o_id : 0;
+    unsigned secondwep_id = secondwep ? secondwep->o_id : 0,
+             submits = gs.submit_count; /* for submitted_since() */
     int tmp, dieroll, mhit, armorpenalty, attknum = 0,
         x = u.ux + u.dx, y = u.uy + u.dy, oldumort = u.umortality;
 
@@ -1153,6 +1155,10 @@ hitum(struct monst *mon, struct attack *uattk)
                boots */
             if (mhit && !DEADMONSTER(mon))
                 kick_monster(mon, x, y);
+            /* a kick that made it submit ends the attack, as hmon()
+               does for a hit that made it submit */
+            if (submitted_since(mon, submits))
+                malive = FALSE;
         }
     }
 
@@ -8555,6 +8561,16 @@ mhitm_knockback(
     return TRUE;
 }
 
+/* did 'mon' make peace (Bourbon or Ozzy submitting) since the
+   submission count stood at 'submits'? The hero's attack sequence
+   stops then, since its next blow would anger it all over again */
+staticfn boolean
+submitted_since(struct monst *mon, unsigned submits)
+{
+    return (boolean) (gs.submit_count != submits
+                      && is_defeated(mon->data) && mon->mpeaceful);
+}
+
 /* attack monster as a monster; returns True if mon survives;
    'as' picks whose attack list to use: NON_PM means the hero's
    current form, otherwise the given monster index (used for the
@@ -8568,6 +8584,7 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             odd_claw = TRUE;
     int i, tmp, dieroll, armorpenalty, sum[NATTK],
         dhit = 0, attknum = 0, multi_claw = 0, multi_weap = 0;
+    unsigned submits = gs.submit_count; /* for submitted_since() */
     boolean monster_survived;
 
     /* not used here but umpteen mhitm_ad_xxxx() need this */
@@ -8596,9 +8613,12 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
 
         /* target might have been knocked back so no longer in range, or an
            engulfing vampshifted fog cloud killed and reverted to vampire
-           that's placed at another spot (hero occupies mon's first spot) */
+           that's placed at another spot (hero occupies mon's first spot);
+           or an earlier attack made it submit (Bourbon or Ozzy), and the
+           next one would anger it all over again */
         if (i > 0 && (m_at(gb.bhitpos.x, gb.bhitpos.y) != mon
-                      || DEADMONSTER(mon)))
+                      || DEADMONSTER(mon)
+                      || submitted_since(mon, submits)))
             continue;
 
         mattk = (as != NON_PM) ? &mons[as].mattk[i]
@@ -8816,6 +8836,10 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     break;
                 }
                 wakeup(mon, TRUE);
+                /* angering a temple priest calls down his god's bolt,
+                   which can strike the priest down first */
+                if (DEADMONSTER(mon))
+                    continue;
 
                 specialdmg = 0; /* blessed and/or silver bonus */
                 switch (mattk->aatyp) {
@@ -8903,8 +8927,10 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                                 && m_at(gb.bhitpos.x, gb.bhitpos.y) == mon));
                 /* burning hands spell; like master, this applies even
                    when the claw or touch itself passed harmlessly
-                   through a noncorporeal monster */
+                   through a noncorporeal monster; it spares a dog that
+                   this very blow made submit, as the next blow does */
                 if (u.umburn && in_reach && !DEADMONSTER(mon)
+                    && !submitted_since(mon, submits)
                     && (mattk->aatyp == AT_CLAW
                         || mattk->aatyp == AT_TUCH
                         || mattk->aatyp == AT_KICK)) {
@@ -8966,8 +8992,10 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     }
                     nohandburn();
                 }
-                /* shocking grasp spell */
+                /* shocking grasp spell (spares a dog that submitted, as
+                   above) */
                 if (u.umshock && in_reach && !DEADMONSTER(mon)
+                    && !submitted_since(mon, submits)
                     && (mattk->aatyp == AT_CLAW
                         || mattk->aatyp == AT_TUCH
                         || mattk->aatyp == AT_KICK)) {
@@ -9034,6 +9062,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                already grabbed in a previous attack */
             dhit = 1;
             wakeup(mon, TRUE);
+            if (DEADMONSTER(mon)) /* the god's bolt, as above */
+                continue;
             /* choking hug/throttling grab uses hands (gloves or rings);
                normal hug uses outermost of cloak/suit/shirt */
             specialdmg = special_dmgval(&gy.youmonst, mon,
@@ -9108,6 +9138,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
         case AT_EXPL: /* automatic hit if next to */
             dhit = -1;
             wakeup(mon, TRUE);
+            if (DEADMONSTER(mon)) /* the god's bolt; no target left */
+                continue;
             You("explode!");
             sum[i] = explum(mon, mattk);
             break;
@@ -9122,6 +9154,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                purpose, so its ladder judges the miss by the wrong roll */
             if ((dhit = (tmp > (dieroll = rnd(20 + i))))) {
                 wakeup(mon, TRUE);
+                if (DEADMONSTER(mon)) /* the god's bolt, as above */
+                    continue;
                 /* can't engulf unsolid or wall-walking creatures */
                 if (noncorporeal(mon->data) || passes_walls(mon->data)) {
                     /* no specialdmg check needed */
@@ -9163,6 +9197,11 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 || mattk->adtyp == AD_ACID || mattk->adtyp == AD_MAGM
                 || mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
                 sum[i] = castum(mon, mattk);
+                /* the continue skips the stops at the bottom of the
+                   loop; the cast, or the god it angered, may have
+                   ended the hero's form or left the hero helpless */
+                if (!Upolyd || gm.multi < 0)
+                    i = NATTK;
                 continue;
             }
             FALLTHROUGH;

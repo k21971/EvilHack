@@ -5302,6 +5302,11 @@ mondead(struct monst *mtmp)
         mtmp->mstun = 0;
         mtmp->mpeaceful = 1;
         set_malign(mtmp);
+        /* the hero's attack holds off: hitum() and hmonas() stop on
+           the count, and a volley of missiles stops here */
+        gs.submit_count++;
+        if (!svc.context.mon_moving)
+            endmultishot(TRUE);
         newmonhp(mtmp, monsndx(mtmp->data));
         /* full health on submitting, not a random roll */
         mtmp->mhp = mtmp->mhpmax;

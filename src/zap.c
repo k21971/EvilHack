@@ -6376,6 +6376,9 @@ dobuzz(
     struct obj *otmp;
     int spell_type;
     int hdmgtype = Hallucination ? rn2(6) : damgtype;
+    /* m_ids of Bourbon and Ozzy once they submit to this ray; a bounce
+       that hits one again does not anger it */
+    unsigned yielded[2] = { 0, 0 };
 
     /* if it's a hero spell then get its SPE_TYPE */
     spell_type = is_hero_spell(type) ? SPE_MAGIC_MISSILE + damgtype : 0;
@@ -6465,6 +6468,7 @@ dobuzz(
                     boolean mon_could_move = mon->mcanmove,
                             was_tame = mon->mtame; /* for life saving */
                     int saved_mhp = mon->mhp; /* for print_mon_wounded() */
+                    unsigned submits = gs.submit_count; /* for yielded[] */
                     int tmp = zhitm(mon, type, nd, &otmp);
 
                     if (is_rider(mon->data)
@@ -6571,8 +6575,16 @@ dobuzz(
                         if (mon_could_move && !mon->mcanmove) /* ZT_SLEEP */
                             slept_monst(mon);
                         if (damgtype != ZT_SLEEP)
-                            wakeup(mon, (type >= 0) ? TRUE : FALSE);
+                            wakeup(mon, (type >= 0
+                                         && mon->m_id != yielded[0]
+                                         && mon->m_id != yielded[1])
+                                            ? TRUE : FALSE);
                     }
+                    /* a kill arm above made Bourbon or Ozzy submit */
+                    if (gs.submit_count != submits && !DEADMONSTER(mon)
+                        && is_defeated(mon->data) && mon->mpeaceful
+                        && mon->m_id != yielded[0])
+                        yielded[yielded[0] ? 1 : 0] = mon->m_id;
                 }
                 range -= 2;
             } else {

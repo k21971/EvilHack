@@ -930,6 +930,9 @@ struct instance_globals_s {
 
     /* mon.c */
     boolean somebody_can_move;
+    unsigned submit_count; /* bumped each time Bourbon or Ozzy submits
+                              in mondead(); the hero's melee and ray
+                              code compare snapshots of it */
 
     /* options.c */
     struct symsetentry *symset_list; /* files.c will populate this with

@@ -739,6 +739,7 @@ static const struct instance_globals_s g_init_s = {
     FALSE, /* skipdrin */
     /* mon.c */
     FALSE, /* somebody_can_move */
+    0U, /* submit_count */
     /* options.c */
     (struct symsetentry *) 0, /* symset_list */
     FALSE, /* save_menucolors */
