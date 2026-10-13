@@ -17,9 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-12, after session 218's
-  killing-blow anger / life-saving pair slice): 380 rows closed, 117
-  open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-13, after session 219's
+  hmonas() slice): 383 rows closed, 114 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -38,7 +37,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 97 LOW: small parity rows, quirks and watch/record-only items.
+  - 94 LOW: small parity rows, quirks and watch/record-only items.
+    Session 219 closed two (the polyform castum() anger row,
+    BUG-2306; session 216's multi-attack re-anger row, BUG-2307,
+    with the Monk kick and spell riders) and folded in three
+    reviewer finds by ruling (the priest's god bolt double kill,
+    BUG-2308, upstream-reportable; the volley and ray-bounce
+    re-anger, BUG-2309..2310); none minted. Ruled 2026-10-12
+    (session 218 follow-up): the renegade-scoring row closed as
+    kept master's (no code change).
     Session 218 closed two (the ray / explosion survivor row with
     its melee rider: BUG-2303..2304, BUG-2303 upstream-reportable;
     the failing life saving amulet AI: BUG-2305) and minted five:
@@ -10295,8 +10302,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       side. Plannable.
 - [x] LOW: a hero ray or explosion that kills a peaceful wearing life
       saving leaves it peaceful (BUG-2304; the melee rider is
-      BUG-2303) - FIXED 2026-10-12 (session 218, commit pending,
-      tracker pending; closure notes in BUGFIXES_ARCHIVE): after a
+      BUG-2303) - FIXED 2026-10-12 (session 218, commit ff29225e2,
+      tracker d77e169e3; closure notes in BUGFIXES_ARCHIVE): after a
       hero kill, dobuzz(), explode(), tk_push_obj() and
       drop_boulder_on_monster() (the last two from the census) run
       their own non-fatal anger when the new hero_kill_survivor()
@@ -10463,8 +10470,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stays as abuse_dog()'s roll left it, with no guilt and no -5.
       Plannable (upstream-reportable).
 - [x] LOW: monsters still prefer an amulet of life saving that will
-      fail (BUG-2305) - FIXED 2026-10-12 (session 218, commit pending,
-      tracker pending; closure notes in BUGFIXES_ARCHIVE): new
+      fail (BUG-2305) - FIXED 2026-10-12 (session 218, commit ff29225e2,
+      tracker d77e169e3; closure notes in BUGFIXES_ARCHIVE): new
       mlifesaver_useless() (nonliving, zombie race, vampire race;
       mlifesaver_works() uses it) is skipped by
       find_best_armor_recurse()'s W_AMUL arm, searches_for_item(),
@@ -10512,8 +10519,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stays TRUE, so the tail's wakeup() is skipped); a pet that the
       blow's abuse_dog() untames misses the Elbereth hypocrisy that
       master charged. Record-only.
-- [ ] LOW: an angered always-peaceful monster is scored as a renegade
-      kill (minted 2026-10-12, session 218, battery M finding;
+- [x] LOW: an angered always-peaceful monster is scored as a renegade
+      kill - KEPT MASTER'S (ruled 2026-10-12, session 218 follow-up,
+      decisions log, as recommended; no code change): the guilt is
+      charged at the attack, and one-blow and two-blow kills score
+      alike. Original text:
+      (minted 2026-10-12, session 218, battery M finding;
       master and vanilla shared, and now every one-blow melee kill
       too). setmangry() makes the target hostile and set_malign()
       gives an always-peaceful hostile the renegade malign
@@ -10536,7 +10547,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       POTHIT_OTHER_THROW from monster-thrown potions (mthrowu.c) and a
       monster's telekinesis (telekinesis.c); whether a monster ever
       throws water needs a trace. Plannable.
-- [ ] LOW: a polymorphed hero's spell attacks never anger a peaceful
+- [x] LOW: a polymorphed hero's spell attacks never anger a peaceful
+      (BUG-2306) - FIXED 2026-10-13 (session 219, commit pending,
+      tracker pending; closure notes in BUGFIXES_ARCHIVE): castum()
+      angers on every spell that reaches the target (`directed ||
+      MCF_HOSTILE`; the ruling's "undirected = self-buffs" was wrong:
+      fire / ice bolt, acid blast and the vulnerability curse are
+      undirected but hit it), before the damage; only the seven
+      caster self-buffs, fumbles and out-of-power casts leave it be.
+      Original text:
       (minted 2026-10-12, session 218, from the BUG-2304 census;
       master-shared). hmonas()'s AT_MAGC arm runs castum() and
       continues with no wakeup(), and mcastu.c has no anger call, so
@@ -10544,6 +10563,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       fire, cold or the like stays peaceful, while every other
       polyform attack wakes first. Needs a ruling (anger as the other
       polyform attacks do, or keep).
+      RULED 2026-10-12 (session 218 follow-up; decisions log): anger
+      when cast at it - a directed spell (castum()'s "You cast a
+      spell at" line) angers the target before its damage, as the
+      melee pre-kill anger does, so a spell kill scores like a melee
+      kill; undirected spells (self-buffs) leave it peaceful.
+      Plannable.
 - [ ] LOW: kill arms that may mishandle a target that survives
       (minted 2026-10-12, session 218, the BUG-2304 census agent's
       claims, NOT verified): (a) steed.c's dismount deaths (into
@@ -10798,8 +10823,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       m_dowear() gains master's ring slots (the B2 monster ring
       deferral); u.uconduct.killer counts a kill he revives from
       (as for vampshifters, master-shared).
-- [ ] LOW: a multi-attack hero re-angers a Bourbon or Ozzy who
-      submitted on an earlier attack of the same action (minted
+- [x] LOW: a multi-attack hero re-angers a Bourbon or Ozzy who
+      submitted on an earlier attack of the same action (BUG-2307,
+      with BUG-2308..2310 folded in by ruling) - FIXED 2026-10-13
+      (session 219, commit pending, tracker pending; closure notes in
+      BUGFIXES_ARCHIVE): a gs.submit_count bumped by mondead()'s
+      submission arm; hmonas() and hitum() stop when it moved and the
+      target is a peaceful Bourbon / Ozzy (submitted_since()). The
+      ruled row's scope check below was WRONG: a vampire / draugr
+      Monk's extra kick left malive TRUE, so the racial bite re-angered
+      (now stopped), and the burning hands / shocking grasp riders hit
+      the submitted dog (now skipped). Folded in: the priest's god bolt
+      double kill in four hmonas() arms (BUG-2308, upstream-shared),
+      the volley (BUG-2309) and the ray bounce (BUG-2310).
+      Original text: (minted
       2026-10-12, session 216, reviewer; branch pre-existing,
       master-shared). hmonas() stops only on DEADMONSTER(mon), and each
       later hit runs wakeup(mon, TRUE) -> setmangry(), so the dog that
@@ -10810,6 +10847,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       is a confirmed attack, so stop only when the submission happened
       during this action. Needs a ruling (stop the attack sequence, or
       keep).
+      RULED 2026-10-12 (session 218 follow-up; decisions log): stop
+      the attacks - once the dog submits during this action, the
+      remaining hmonas() attacks are skipped; a dog that was peaceful
+      before the action stays a confirmed attack. Scope check: only
+      hmonas() needs it - hitum()'s second hand, Monk kick, shield
+      bash and race attacks already stop, since hmon_hitmon() sets
+      destroyed on the submitting hit and hmon() returns FALSE.
+      Plannable.
 - [ ] LOW: gulpum()'s digestion arm reports a reverting vampshifter as
       dead (minted 2026-10-12, session 216, reviewer; record-only).
       The AD_DGST arm returns M_ATTK_DEF_DIED after the kill even when
@@ -28624,6 +28669,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-13 | A polymorphed hero's melee hits a temple priest already killed by his god's bolt, shared with Official_nh50 (uhitm.c hmonas()): the claw/bite, hug, explode and engulf arms call `wakeup(mon, TRUE)` and then deal damage; wakeup() on a peaceful temple priest calls ghod_hitsu(), whose lightning bolt from the shrine toward the hero can kill a hurt priest standing on that line, and the arm then damages the dead priest - a second kill credited to the hero, a second corpse, impossible() "already detached". Fix on the branch: `if (DEADMONSTER(mon)) continue;` after each of the four wakeup() calls; an exploding form then does not explode (BUG-2308). LATENT in play: the aligned cleric resists shock (MR_ELEC, on both trees), so the bolt only kills a priest who has lost that resistance (e.g. a polymorphed one); the battery staged it by clearing MR_ELEC. | found (branch-fixed); not yet sent |
 | 2026-10-12 | A melee or missile killing blow never angers its target, shared with Official_nh50 (uhitm.c hmon_hitmon()): 677b32c2a ("Hit and wake sleeping monster makes it growl") moved `wakeup(mon, TRUE)` from before the damage to the tail, `if (!hmd.destroyed && !hmd.offmap)`, so a hit that kills never runs setmangry(): standing on Elbereth, a one-blow kill neither fades it nor calls the hero a hypocrite; a one-blow kill of a peaceful skips "You feel guilty." / "X gets angry!" and peacefuls_respond() (the watch ignores it); a target that life saving or a vampire's revert keeps alive stays peaceful; and the kill is scored as a peaceful kill (murder, malign) where a two-blow kill is scored as a hostile one. artifact_hit()'s instakills and the cockatrice corpse / egg arms return before the tail too. Fix on the branch: setmangry(mon, TRUE) just before the kill line in the kill arms (not wakeup(): its ghod_hitsu() bolt would pass through the dying priest), skipping a pet the blow's abuse_dog() untamed, plus the artifact and stoning arms (BUG-2303). | found (branch-fixed); not yet sent |
 | 2026-10-12 | in_town() leaves out the shops, temple and walls of the des.room Minetowns, shared with Official_nh50 and NetHack50 (hack.c in_town()): lspo_room() marks a parent room irregular when it gains a subroom, and inside_room() then tests roomno, which the subrooms' topologize() overwrote, and skips edge walls; so in minetn-2/3/4/7/8 in_town() is 0 in every shop and the temple, their doorways and the town walls - the watch ignores digging or kicking there (watch_dig(), dokick.c), lock-picking a town door draws no warning, and the priest never calls the guards on an Infidel or Draugr entering the temple. 3.6 tested the bounding box. Fix on the branch: test lx-1..hx+1 / ly-1..hy+1 for a room with subrooms (BUG-2302). | found (branch-fixed); not yet sent |
 | 2026-10-12 | damageum() reports a life-saved defender as dead, shared with Official_nh50 (uhitm.c damageum()'s kill tail): after killed() / xkilled() it returns M_ATTK_DEF_DIED unconditionally, so hmonas() runs passive() with the alive flag off on a monster that life saving (or vamprises()) kept alive, and dokick.c's polyform kick loop stops early. Fix on the branch: `return DEADMONSTER(mdef) ? M_ATTK_DEF_DIED : M_ATTK_HIT;` (BUG-2297; the branch's kick loop also stops for its EvilHack-only submitting dogs). | found (branch-fixed); not yet sent |
@@ -28824,6 +28870,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-13 | hmonas() pair slice rulings (session 219; AskUserQuestion x1, two questions, both as recommended or wider). (1) PRIEST BOLT DOUBLE KILL FOLDED IN (recommended; the approved plan had said record a row): hmonas()'s claw/bite, hug, explode and engulf arms stop when the wakeup() before their damage let a peaceful temple priest's god bolt kill the priest; an exploding form then does not explode (no target left). (2) VOLLEY AND RAY RE-ANGER STOPPED IN THIS SLICE (over my mint-rows-for-a-ruling pick): a hero volley stops once a missile makes Bourbon or Ozzy submit (endmultishot(), the remaining missiles stay in inventory), and a bouncing hero ray does not anger a dog that submitted to that same ray (it still takes the damage); a peaceful dog the ray did not make submit is still angered | maintainer |
+| 2026-10-12 | Ruling round, three questions, rulings recorded only (session 218 follow-up; AskUserQuestion x1, all as recommended). (1) RENEGADE SCORING KEPT (master's): an always-peaceful the hero angered, then killed in one blow or two, scores as a renegade kill (+15 malign, no murderer, no Luck loss); the guilt is charged at the attack, no new monster state; row closed, no code change. (2) POLYFORM castum() ANGERS WHEN CAST AT IT: a directed spell angers the target before its damage, matching the other polyform attacks and the melee pre-kill anger; undirected spells (self-buffs) do not. (3) MULTI-ATTACK RE-ANGER STOPS: once Bourbon or Ozzy submits during this action, hmonas() skips the remaining attacks (hitum()'s chain already stops, since hmon() reports the submitting hit as a kill) | maintainer |
 | 2026-10-12 | Killing-blow anger / life-saving pair slice rulings (session 218; AskUserQuestion x3, three questions, all as recommended, one re-asked). (1) MELEE / MISSILE KILLS ANGER EVERY HIT: vanilla 677b32c2a moved hmon_hitmon()'s wakeup() to survivors only, so a killing blow skipped setmangry(); the branch now runs it just before the kill line (master's coverage), keeping 5.0's order for non-fatal hits. Rejected: master's exact position (anger before the damage, master's message order); survivors only with a row for the rest. (2) RE-ASKED, KILL SCORING = MASTER'S: my first question said the anger came "on top of xkilled()'s penalties"; it does not - once setmangry() runs, xkilled() scores a hostile kill (a lawful hero's one-blow peaceful watchman goes from -20 + murderer to net +10, as the branch's own two-blow kill and master already score it). Rejected: reactions with the harsh peaceful scoring kept (a setmangry() split); survivors only. (3) GENERATION TOO: rnd_misc_item() refuses life saving for a form or race it would fail, like the AI sites. Rejected: AI only. Plan-approved, no question: plain setmangry() in the kill arms, not wakeup() (its temple priest bolt passes through the dying priest's square - Plan agent F5); the Enchantress needs no survivor exclusion (her arm leaves her hostile). | maintainer |
 | 2026-10-12 | Izchak death revival slice rulings (session 217; AskUserQuestion x3, three questions, all as recommended). (1) STONING NEVER LEAVES A STATUE: monstone() raises a human Izchak through mondead() before any statue is made, so he rises as the archangel still carrying his kit (BUG-2301); master left a statue holding his kit beside a bare archangel for the hero's instant stoning only (its monster stoners were gradual and hit the mstone > 3 hook first). Rejected: master's literal shape. (2) ANGER HIM ON ANY HERO KILL (reviewer HIGH): a hero kill of a still-peaceful Izchak runs setmangry() inside the arm ("You feel guilty.", "... gets angry!", the watch reacts), then hot_pursuit(); master's hmon_hitmon() woke the target before the damage, the branch (5.0 order) only after a non-fatal hit, so a one-blow kill, poison instakill, ray, explosion or #wizkill brought back a peaceful archangel at no cost. Pet and monster kills leave him peaceful. Rejected: hostility without the penalty; master's literal gate. Plan-approved, no question: re-review LOW 1, via_attack = !svc.context.mon_moving (a kill credited during monster movement is no attack). (3) FIX in_town() NOW (battery A finding): it tests the town room's bounding box, as master and 3.6 did, instead of 5.0's roomno-based inside_room() that leaves out every shop, the temple and the walls of the des.room Minetowns (BUG-2302, upstream-reportable). Rejected: an is_izchak()-only fix with a row for the other callers; landing as is with a MED row. | maintainer |
 | 2026-10-12 | Enchantress / larva-host slice rulings (session 216; AskUserQuestion x3, four questions, three as recommended). (1) The revived Enchantress's invisibility: clear BOTH minvis and perminvis after newcham() (BUG-2296), so a later form change or the removal of an invisibility item cannot fade her back; zap.c's cursed-wand precedent. (2) The hero larva's Izchak reveal wording: the full mirror of the monster leg - "You burrow into Izchak's brain!" / "Izchak starts to transform into a mind flayer!" / "But wait!  Izchak transforms into his true form!" / "You shudder and lose your grip!" (BUG-2294). (3) After the maintainer asked whether Vecna invokes had never credited the hero (true on master and the branch: monkilled(); the "artifact does the killing" comment was the port's own): CREDIT THE HERO NOW - the Eye / Hand of Vecna invoke and the hero's Wand of Orcus death touch kill through xkilled() (BUG-2298..2299), with experience, conduct and xkilled()'s alignment / Luck rules including pets and the hero's steed; the maintainer's pick over my mint-a-row recommendation. The kick-loop stop for a submitting dog (reviewer L1) was folded into BUG-2297 without a ruling: it keeps the pre-fix stop. | maintainer |
