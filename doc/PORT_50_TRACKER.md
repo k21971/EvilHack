@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-13, after session 222's small
-  master-port slice): 395 rows closed, 109 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-13, after session 223's
+  kill-credit slice): 398 rows closed, 111 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -37,7 +37,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 89 LOW: small parity rows, quirks and watch/record-only items.
+  - 91 LOW: small parity rows, quirks and watch/record-only items.
+    Session 223 closed the kill-credit cluster: ranged kills credit
+    and raise (BUG-2327), master's death-ray naming (BUG-2328) and
+    no corpse for "nothing left" deaths (BUG-2329), and by ruling
+    removed 5.0's first-wand-zap miss (BUG-2330). It minted five:
+    two needing a ruling (an AT_EXPL sphere's kill; Sunsword /
+    Hammer vs a vampire hero), two needing a trace (a magic beam
+    trap's launch behind a door; ITEM_DRLI missiles never drain),
+    one plannable (the turn undead spell's wand name). All five are
+    master-shared.
     Session 222 closed three plannable master-port rows: dotele()'s
     freed trap pointer (BUG-2323, upstream-reportable), the alhoon /
     Kas crumble line (BUG-2324) and the confused scrolls on
@@ -9980,8 +9989,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           vampire mage 58 in 2000 (2.9%). POST lever-off at Mines'
           End gave 0.
 - [x] LOW: corpse_chance() lacked master's alhoon / Kas crumble arm
-      (BUG-2324) - FIXED 2026-10-13 (session 222, commit pending,
-      tracker pending; closure notes in BUGFIXES_ARCHIVE): PM_ALHOON
+      (BUG-2324) - FIXED 2026-10-13 (session 222, commit add5e9b91,
+      tracker f2d80a486; closure notes in BUGFIXES_ARCHIVE): PM_ALHOON
       and PM_KAS join the Vlad / S_LICH arm, so a seen kill prints
       "<Mon>'s body crumbles into dust." again (no corpse change: both
       are G_NOCORPSE). Kas dies as PM_KAS (pickvampshape() keeps him
@@ -10192,7 +10201,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: confused enchant armor / destroy armor / enchant weapon
       did not spare supermaterials (BUG-2325, with BUG-2326 for the
       rest of 72ef72b45) - FIXED 2026-10-13 (session 222, commit
-      pending, tracker pending; closure notes in BUGFIXES_ARCHIVE).
+      add5e9b91, tracker f2d80a486; closure notes in BUGFIXES_ARCHIVE).
       - Shape: master 72ef72b45 + 13468d07c's supermaterial arms.
         Enchant armor and enchant weapon repair a deteriorated
         supermaterial ("...looks as good as new!"), then print
@@ -10276,8 +10285,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         teleported after a gdb Expert escape skill; PRE s failed 8 of
         8 at Unskilled, list intact).
 - [x] LOW: dotele()'s vault-trap path read a freed trap pointer
-      (BUG-2323) - FIXED 2026-10-13 (session 222, commit pending,
-      tracker pending; closure notes in BUGFIXES_ARCHIVE): master
+      (BUG-2323) - FIXED 2026-10-13 (session 222, commit add5e9b91,
+      tracker f2d80a486; closure notes in BUGFIXES_ARCHIVE): master
       d2e1627ff's vault_accepted boolean in the 5.0 text - the accept
       arm sets trap to NULL after deltrap() and raises the flag; the
       jump line, the cost gate, the vault_tele() dispatch and the
@@ -17190,7 +17199,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Medusa, C4 antimatter vortex, C6 monster-wielded Vorpal Blade
       POST ukiller. Paniclogs clean, no detector line (a probe
       confirmed it runs every turn). MINTED: the four LOW rows below.
-- [ ] LOW: ranged, remote and indirect monster kills skip the
+- [x] LOW: ranged, remote and indirect monster kills skip the
       killer credit and the grave-rise arms (minted 2026-10-06,
       session 186, by the direct-death slice's census; master-shared).
       The direct-death slice took melee-class kills only (session
@@ -17221,7 +17230,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       boiled potions, knockback, stolen levitation gear) and delayed
       deaths whose monster is forgotten. Plannable (likely one slice
       with the buzz_killer() naming row below).
-- [ ] LOW: master's buzz_killer() naming of a fatal death ray or
+      FIXED 2026-10-13 (session 223, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2327, one slice with
+      the naming row (BUG-2328), the "nothing left" row (BUG-2329)
+      and the ruled removal of 5.0's first-wand-zap miss (BUG-2330).
+      CREDIT + RISE: thitu() and m_throw()'s poisoned and
+      drow-tainted arms (missiles, polearm thrusts, spit, crossfire);
+      zhitu()'s death ray, drain, poison gas and damage tail (the
+      zapper is gb.buzzer for a monster's ray only); mbhitm()'s
+      striking / force bolt, undead turning, drain life and dispel
+      evil; explode() for a monster's spell explosion or artifact
+      surge (olet 0, negative type, ge.exploder). artifact_hit()'s
+      hero-death arms and surges credit `magr ? magr : gt.thrower`,
+      so a thrown or thrust artifact / property missile counts;
+      ohitmon() and the return-trip hit bracket gt.thrower around
+      their artifact_hit(). Poison instakills ignore polymorph and
+      credit unconditionally (bracketed); an Unchanging hero dying in
+      form of the poison's HP loss is also credited (accepted edge).
+      Record only, as ruled: power word kill, AD_POLY system shock,
+      the striking knockback's own deaths ("killed by bumping into a
+      wall"), gas spores, thrown-potion effects, the cockatrice egg.
+      Batteries A / B / C / D all PASS (legs in the archive).
+- [x] LOW: master's buzz_killer() naming of a fatal death ray or
       disintegration breath is absent (minted 2026-10-06, session 186,
       by the direct-death slice's master census). Master zhitu() names
       the zapper / breather ("... exhaled by <monster>") on the
@@ -17232,6 +17262,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       traps; may be dead). The non-fatal-path losehp() reasons already
       go through death_inflicted_by(). Port gap; restore master's naming
       (mon_killer_name()). LOW.
+      FIXED 2026-10-13 (session 223, BUG-2328, with the row above):
+      zhitu()'s tail composition moved into a staticfn buzz_killer()
+      (master's name, the 5.0 text verbatim) and the ZT_DEATH arm
+      uses it: "killed by a death ray zapped by a gnome lord",
+      "killed by a finger of death cast by a gnome lord",
+      "disintegrated by a blast of disintegration exhaled by a black
+      dragon"; the hero's own bounce reads "... zapped by herself"
+      (battery B1-B4 PASS; every other ray text unchanged).
 - [ ] LOW: the STRANGLED timeout blames an engulfer for any
       strangulation while engulfed (minted 2026-10-06, session 186,
       census; master-shared). timeout.c's STRANGLED arm writes
@@ -17240,7 +17278,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       say, a purple worm. An engulfer-suffocation kill (gulpmu()
       AD_WRAP sets Strangled) is also uncredited and raises nothing;
       that waits on telling the two causes apart. LOW.
-- [ ] LOW: "nothing left" deaths still leave a corpse (minted
+- [x] LOW: "nothing left" deaths still leave a corpse (minted
       2026-10-06, session 186, by the direct-death slice's reviewer;
       master-shared). really_done()'s no-corpse list covers BURNING,
       DISSOLVED and DISINTEGRATED only, so Harbinger's "dissolved by",
@@ -17256,6 +17294,65 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arms and Sunsword / Hammer of the Gods INCINERATED leave no
       corpse and no grave (matching NO BODY, NO RISE); the death
       reasons read as they do now. Plannable.
+      FIXED 2026-10-13 (session 223, BUG-2329, with the ranged-credit
+      row): really_done() adds INCINERATED to the no-corpse arm
+      (Sunsword, Hammer); the immolation x2, Angelslayer and
+      Harbinger losehp() sites preset -3 when the loss is fatal
+      (`!Upolyd || Unchanging`); the lava pull presets -3; the
+      SICK_ZOMBIE arm keeps a preset -3, so a zombie-sick hero burned
+      to nothing no longer rises. Battery C E1-E7 PASS (bones
+      reloaded: POST no corpse, no grave; PRE grave + corpse; E6 PRE
+      a human zombie, POST none; E7 beheading control unchanged).
+      Recorded: a draugr with no revivals left pulled into lava keeps
+      a corpse (the revival's savelife() wipes the -3 first).
+- [ ] LOW: an AT_EXPL sphere's explosion credits nobody (minted
+      2026-10-13, session 223, by the reviewer; master-shared).
+      explmu() -> mon_explodes() explodes with MON_EXPLODE, and
+      explode()'s credit arm takes olet 0 only, so a flaming /
+      freezing / shocking sphere that kills the hero picks no rise
+      form. The sphere is already dead (mondead() runs first), so it
+      would loot nothing anyway: only an XL22+ hero's spectre rise is
+      lost. Decide: credit + rise for a sphere's own attack (not a
+      gas spore's death blast), or record only. LOW.
+- [ ] LOW: Sunsword and the Hammer of the Gods never treat an
+      unpolymorphed vampire hero as undead (minted 2026-10-13,
+      session 223, by battery C; master-shared). Both target
+      MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE) through SPFX_DFLAGH, and
+      spec_applies() reads gu.urace.selfmask for the hero: MH_VAMPIRE
+      for the vampire race (draugr are MH_ZOMBIE), so
+      gs.spec_dbon_applies stays 0 - no damage bonus, and the
+      "incinerates your undead flesh!" arm, which names
+      Race_if(PM_VAMPIRE), is unreachable for a vampire hero (battery
+      C forced the gate to test it). Vampire monsters carry
+      MH_UNZOMBIE | MH_VAMPIRE and are hit. Decide: count the vampire
+      race as undead for these artifacts (spec_applies() or the
+      selfmask), or record only. LOW.
+- [ ] LOW: a magic beam trap's launch point can sit beyond a door
+      (minted 2026-10-13, session 223, by battery B;
+      master-shared). maketrap()'s MAGIC_BEAM_TRAP_SET arm walks up
+      to 7 squares per direction to the first IS_STWALL square and
+      walks past anything else, doors included, so the launch can
+      lie behind a closed door (battery B: trap (24,15), door
+      (26,15), launch (31,15)) and the ray meets the door before the
+      trap. Needs a trace of what the ray does at the door, then a
+      ruling: stop the walk at the first non-ACCESSIBLE square, or
+      record. LOW.
+- [ ] LOW: a drain-property (ITEM_DRLI) missile never drains
+      (minted 2026-10-13, session 223, by battery A;
+      master-shared). artifact_hit()'s drain arm tests
+      attacks(AD_DRLI, otmp) || spec_ability(otmp, SPFX_DRLI), and
+      attacks() has no ITEM_DRLI case for a non-artifact, so a thrown
+      "dagger of decay" only does damage (melee drains go through
+      uhitm.c's own ITEM_DRLI handling). The arm's "The deadly %s
+      drains your %s!" line also lacks verb agreement for a stack
+      ("The deadly daggers drains your life!", seen with the arm
+      forced). Needs a trace of the intended reach, then a ruling.
+      LOW.
+- [ ] LOW: a monster's turn undead spell kills as "a wand of undead
+      turning" (minted 2026-10-13, session 223, by the census;
+      master-shared). unturn_you() hard-codes the wand's name and
+      mbhitm()'s SPE_TURN_UNDEAD arm calls it too. Plannable: pass
+      the reason or the otyp. LOW.
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
@@ -29147,6 +29244,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-13 | Kill-credit slice ruling (session 223; AskUserQuestion x1, one question, wider than recommended). FIRST WAND ZAP: REMOVE THE RULE - upstream 4d043a6f9's "a monster's first attack-wand zap always misses" (mwandexp, buzz_force_miss, dobuzz()'s forcemiss) is reverted whole: "lets get rid of that 'first wand zap always misses' rule - this is EvilHack, not easyhack". The Plan agent had found that its mbhitm() gate also read the caster for a monster's force bolt (mcast_immediate_spell() sets gb.buzzer), so force bolt never hit the hero outside the pre-experienced levels; I had offered exempting spells only, or a row. Master never had the rule | maintainer |
 | 2026-10-13 | Small master-port slice rulings (session 222; AskUserQuestion x2, two questions). (1) CONFUSED ENCHANT ARMOR / WEAPON ORDER: SUPERMATERIALS ONLY, over my master's-exact-shape pick - ordinary items keep 5.0's glow-then-repair order ("...covered by a shimmering golden shield!" then "...looks as good as new!"); a supermaterial gets master's 13468d07c arm (repair line, then "...shimmers for a moment.", bit left clear; nothing when Blind and pristine); rejected master's repair-first order for every item. (2) BLIND ORDINARY ENCHANT WEAPON LINE: master's Yobjnam2 form, as recommended ("Your long sword feels warm for a moment.", "Your lichen corpse ..."); rejected 5.0's fixed "Your weapon feels warm for a moment.". Consequences recorded with the plan (master parity): enchant armor / weapon clear a destroy armor spell marker for every BUC, re-arming the first-hit absorb; a confused enchant no longer makes a supermaterial immune to the destroy armor scroll (587a78a8c's !oerodeproof skip) or doubles its price | maintainer |
 | 2026-10-13 | Hold-trio slice rulings (session 220; AskUserQuestion x2, six questions, all as recommended). (1) TREE REFUSAL LINES: a pick-axe digging down inside a tree reads "The tree's roots are too thick to dig through."; a wand or spell zapped down reads "The tree's roots glow then fade." (adj_pit_checks()' existing magical tree line); a broken wand skips a tree square silently. (2) MONSTER SLIP-FREE LINE mirrors the hero's: "The xorn slips free of the vegetation." / "...of the tree's grip."; rejected reusing the expiry line "is no longer entangled". (3) TREE SCOPE = IS_TREES(): live trees, dead trees and arboreal-level stone; rejected live trees only. (4) MONSTER LEG of grass / tree loss: mint a row; rejected folding it in and no row. (5) MASTER'S BUG-678 adj_pit_checks() flags fix (lost in the tree adoption, reviewer HIGH): fold the one-line re-port into this slice (BUG-2316); rejected a MED row. (6) GRAZING TAKES A MOVE (reviewer L1; a deliberate master parity break - master's grazing is free): with BUG-2314 a free graze was an instant escape from a vine hold (BUG-2317); rejected accept-as-is and a row | maintainer |
 | 2026-10-13 | hmonas() pair slice rulings (session 219; AskUserQuestion x1, two questions, both as recommended or wider). (1) PRIEST BOLT DOUBLE KILL FOLDED IN (recommended; the approved plan had said record a row): hmonas()'s claw/bite, hug, explode and engulf arms stop when the wakeup() before their damage let a peaceful temple priest's god bolt kill the priest; an exploding form then does not explode (no target left). (2) VOLLEY AND RAY RE-ANGER STOPPED IN THIS SLICE (over my mint-rows-for-a-ruling pick): a hero volley stops once a missile makes Bourbon or Ozzy submit (endmultishot(), the remaining missiles stay in inventory), and a bouncing hero ray does not anger a dog that submitted to that same ray (it still takes the damage); a peaceful dog the ray did not make submit is still angered | maintainer |
