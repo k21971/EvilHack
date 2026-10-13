@@ -3425,6 +3425,10 @@ doeat(void)
     }
     if (!(otmp = floorfood(isvamp ? "drain" : "eat", 0)))
         return ECMD_OK;
+    /* from floorfood(), &hands_obj where no iron bars stand means the
+       hero has just grazed the grass here */
+    if (otmp == &hands_obj && levl[u.ux][u.uy].typ != IRONBARS)
+        return ECMD_TIME;
     if (check_capacity((char *) 0))
         return ECMD_OK;
 
@@ -4473,8 +4477,11 @@ floorfood(
             levl[u.ux][u.uy].flags = 0;
             newsym(u.ux, u.uy);
             pline("This grass tastes delicious!");
+            /* the eaten grass may have been holding the hero */
+            grass_gone_release(u.ux, u.uy);
             lesshungry(20);
-            return (struct obj *) 0;
+            /* grazing takes a move (doeat()) */
+            return &hands_obj;
         } else if (c == 'q') {
             return (struct obj *) 0;
         }

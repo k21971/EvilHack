@@ -936,6 +936,8 @@ find_defensive(struct monst *mtmp, boolean tryescape)
             && !Sokoban
             /* digging wouldn't be effective; assume they know that */
             && !(levl[x][y].wall_info & W_NONDIGGABLE)
+            /* nor would it inside a standing tree (dig_check()) */
+            && !IS_TREES(levl[x][y].typ)
             && !(Is_botlevel(&u.uz) || In_endgame(&u.uz))
             && !(is_ice(x, y) || is_pool(x, y) || is_lava(x, y))
             && !(is_Vlad(mtmp) && In_V_tower(&u.uz))) {
@@ -1075,6 +1077,8 @@ check_defensive_item(
         && !Sokoban
         /* digging wouldn't be effective; assume they know that */
         && !(levl[x][y].wall_info & W_NONDIGGABLE)
+        /* nor would it inside a standing tree (dig_check()) */
+        && !IS_TREES(levl[x][y].typ)
         && !(Is_botlevel(&u.uz) || In_endgame(&u.uz))
         && !(is_ice(x, y) || is_pool(x, y) || is_lava(x, y))
         && !(is_Vlad(mtmp) && In_V_tower(&u.uz)))

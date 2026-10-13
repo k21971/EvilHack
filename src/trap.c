@@ -3985,6 +3985,8 @@ blow_up_landmine(struct trap *trap)
                 liquid_flow(x, y, typ, trap,
                             cansee(x, y) ? "The hole fills with %s!"
                                          : (char *) 0);
+                /* the flooded grass may have been holding the hero */
+                grass_gone_release(x, y);
             } else {
                 trap->ttyp = PIT;       /* explosion creates a pit */
                 trap->madeby_u = FALSE; /* resulting pit isn't yours */
@@ -4868,9 +4870,10 @@ float_down(
                       : (u.utraptype == TT_BURIEDBALL
                          || u.utraptype == TT_PIT) ? "chain"
                           : (u.utraptype == TT_LAVA) ? "lava"
-                              : (u.utraptype == TT_ENTANGLED)
-                                ? "entangling vegetation"
-                                : "ground"); /* TT_INFLOOR */
+                              : u_tree_held() ? "tree's branches"
+                                : (u.utraptype == TT_ENTANGLED)
+                                  ? "entangling vegetation"
+                                  : "ground"); /* TT_INFLOOR */
         encumber_msg(); /* carrying capacity might have changed */
         return 0;
     }
@@ -5140,6 +5143,17 @@ tree_gone_release(coordxy x, coordxy y)
     if (u.utrap && u.utraptype == TT_ENTANGLED && distu(x, y) <= 2
         && !nexttotree(u.ux, u.uy))
         entangle_release(TRUE);
+}
+
+/* the grass at x,y has just gone (burned, eaten, flooded, dug into or
+   built over); a hero it held there is let go. A live tree next to the
+   hero holds on: that hold is the tree's (u_tree_held()) */
+void
+grass_gone_release(coordxy x, coordxy y)
+{
+    if (u_at(x, y) && u.utrap && u.utraptype == TT_ENTANGLED
+        && !IS_GRASS(levl[x][y].typ) && !nexttotree(u.ux, u.uy))
+        entangle_release(FALSE);
 }
 
 /* shared code for climbing out of a pit */

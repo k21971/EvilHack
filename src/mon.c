@@ -8477,6 +8477,19 @@ newcham(
         mtmp->mwither = 0;
     }
 
+    /* entangling vegetation can't hold a form that it could not have
+       caught (cast_entangle()) */
+    if (mtmp->mentangled
+        && (amorphous(mdat) || is_whirly(mdat) || unsolid(mdat)
+            || passes_walls(mdat))) {
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s slips free of the %s.", Monnam(mtmp),
+                      nexttotree(mtmp->mx, mtmp->my) ? "tree's grip"
+                                                     : "vegetation");
+        mtmp->mentangled = 0;
+        mtmp->mentangletime = 0;
+    }
+
     /* This ought to re-test can_carry() on each item in the inventory
      * rather than just checking ex-giants & boulders, but that'd be
      * pretty expensive to perform.  If implemented, then perhaps

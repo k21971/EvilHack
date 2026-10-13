@@ -2397,6 +2397,8 @@ seffect_consecration(struct obj **sobjp)
         if (!Blind)
             pline("%s altar appears before you!", An(align_str(deity)));
         newsym(u.ux, u.uy);
+        /* the altar replaced grass that may have been holding the hero */
+        grass_gone_release(u.ux, u.uy);
     } else {
         pline1(nothing_happens);
     }

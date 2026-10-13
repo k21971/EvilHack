@@ -369,7 +369,8 @@ enum digcheck_result {
     DIGCHECK_FAIL_CANTDIG,
     DIGCHECK_FAIL_BOULDER,
     DIGCHECK_FAIL_OBJ_POOL_OR_TRAP,
-    DIGCHECK_FAIL_MAGICCHEST
+    DIGCHECK_FAIL_MAGICCHEST,
+    DIGCHECK_FAIL_TREE
 };
 
 /* Dismount: causes for why you are no longer riding */

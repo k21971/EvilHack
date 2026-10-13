@@ -228,6 +228,10 @@ dig_check(struct monst *madeby, coordxy x, coordxy y)
         return DIGCHECK_FAIL_AIRLEVEL;
     } else if (Is_waterlevel(&u.uz)) {
         return DIGCHECK_FAIL_WATERLEVEL;
+    } else if (IS_TREES(levl[x][y].typ)) {
+        /* digging down never fells a standing tree, live or dead; a
+           wall-passing or tree-passing hero or monster can stand in one */
+        return DIGCHECK_FAIL_TREE;
     } else if ((IS_OBSTRUCTED(levl[x][y].typ) && levl[x][y].typ != SDOOR
                 && (levl[x][y].wall_info & W_NONDIGGABLE) != 0)) {
         return DIGCHECK_FAIL_TOOHARD;
@@ -293,6 +297,9 @@ digcheck_fail_message(enum digcheck_result digresult, struct monst *madeby,
         break;
     case DIGCHECK_FAIL_WATERLEVEL:
         pline_The("%s splashes and subsides.", hliquid("water"));
+        break;
+    case DIGCHECK_FAIL_TREE:
+        pline_The("tree's roots are too thick to dig through.");
         break;
     case DIGCHECK_FAIL_OBJ_POOL_OR_TRAP:
     case DIGCHECK_PASSED:
@@ -797,6 +804,14 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
     /* wrath should immediately follow altar destruction message */
     if (heros_fault && old_typ == ALTAR)
         desecrate_altar(FALSE, old_aligntyp);
+    /* the pit or hole took the grass that held the hero (maketrap() made
+       it floor); the arms below decide whether the hero drops */
+    if (at_u) {
+        enum hero_landing was_pending = gp.pending_landing;
+
+        grass_gone_release(x, y);
+        gp.pending_landing = was_pending;
+    }
 
     /* now deal with actual post-trap creation effects */
     if (ttyp == PIT) {
@@ -995,9 +1010,14 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
                   || dig_check_result == DIGCHECK_FAIL_TOOHARD);
     old_typ = lev->typ;
 
-    if ((ttmp && (undestroyable_trap(ttmp->ttyp) || nohole))
-        || (IS_OBSTRUCTED(old_typ) && old_typ != SDOOR
-            && (lev->wall_info & W_NONDIGGABLE) != 0)) {
+    if (dig_check_result == DIGCHECK_FAIL_TREE) {
+        /* a tree-walker digging down inside a standing tree */
+        pline_The("tree's roots %s.",
+                  by_magic ? "glow then fade"
+                           : "are too thick to dig through");
+    } else if ((ttmp && (undestroyable_trap(ttmp->ttyp) || nohole))
+               || (IS_OBSTRUCTED(old_typ) && old_typ != SDOOR
+                   && (lev->wall_info & W_NONDIGGABLE) != 0)) {
         pline_The("%s %shere is too hard to dig in.", surface(dig_x, dig_y),
                   (dig_x != u.ux || dig_y != u.uy) ? "t" : "");
     } else if (ttmp && is_magical_trap(ttmp->ttyp)) {
@@ -1086,9 +1106,8 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
                 lev->typ = typ;
                 liquid_flow(dig_x, dig_y, typ, ttmp,
                             "As you dig, the hole fills with %s!");
-                /* a tree-walker dug out the tree that held the hero */
-                if (IS_TREE(old_typ))
-                    tree_gone_release(dig_x, dig_y);
+                /* the flooded grass may have been holding the hero */
+                grass_gone_release(dig_x, dig_y);
             }
             retval = TRUE;
         } else {
@@ -1749,7 +1768,9 @@ zap_dig(void)
                 }
                 newsym(u.ux, u.uy);
             } else {
-                watch_dig((struct monst *) 0, u.ux, u.uy, TRUE);
+                /* dighole() leaves a tree the hero stands in unharmed */
+                if (!IS_TREES(levl[u.ux][u.uy].typ))
+                    watch_dig((struct monst *) 0, u.ux, u.uy, TRUE);
                 (void) dighole(FALSE, TRUE, (coord *) 0);
             }
         }
@@ -1945,7 +1966,7 @@ adj_pit_checks(coord *cc, char *msg)
         return FALSE;
     *msg = '\0';
     room = &levl[cc->x][cc->y];
-    ltyp = room->typ, room->flags = 0;
+    ltyp = room->typ;
 
     if (is_pool(cc->x, cc->y) || is_lava(cc->x, cc->y)) {
         /* this is handled by the caller after we return FALSE */

@@ -6988,6 +6988,8 @@ zap_over_floor(
                     mon->mundetected = 0;
             }
             newsym(x, y);
+            /* the burned grass may have been holding the hero */
+            grass_gone_release(x, y);
         }
         break; /* ZT_FIRE */
 
