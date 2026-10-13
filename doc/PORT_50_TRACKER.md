@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-13, after session 219's
-  hmonas() slice): 383 rows closed, 114 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-13, after session 220's
+  hold-trio slice): 387 rows closed, 115 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -37,7 +37,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 94 LOW: small parity rows, quirks and watch/record-only items.
+  - 95 LOW: small parity rows, quirks and watch/record-only items.
+    Session 220 closed the four hold rows ruled 2026-10-12 (the
+    tree pit, BUG-2311, with a monster's dig-down in a tree,
+    BUG-2312; the polymorph slip-free, BUG-2313; the grass hold
+    ending with its grass, BUG-2314; float_down()'s "tree's
+    branches", BUG-2315) and folded in two by ruling (master's lost
+    BUG-678 adj_pit_checks() flags fix, BUG-2316; grazing takes a
+    move, BUG-2317). It minted five: the monster leg of grass /
+    tree loss (needs a census), two tree-hold wording lines (needs a
+    ruling), the silent buried-ball chain takeover (needs a
+    ruling), a water-walker's double lava burn on a vine release
+    (needs a trace), and the doubled "solid ground" line after a
+    life-saved drowning (record, upstream-shared).
     Session 219 closed two (the polyform castum() anger row,
     BUG-2306; session 216's multi-attack re-anger row, BUG-2307,
     with the Monk kick and spell riders) and folded in three
@@ -10548,8 +10560,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       monster's telekinesis (telekinesis.c); whether a monster ever
       throws water needs a trace. Plannable.
 - [x] LOW: a polymorphed hero's spell attacks never anger a peaceful
-      (BUG-2306) - FIXED 2026-10-13 (session 219, commit pending,
-      tracker pending; closure notes in BUGFIXES_ARCHIVE): castum()
+      (BUG-2306) - FIXED 2026-10-13 (session 219, commit 434ef95ed,
+      tracker 08fcd6e89; closure notes in BUGFIXES_ARCHIVE): castum()
       angers on every spell that reaches the target (`directed ||
       MCF_HOSTILE`; the ruling's "undirected = self-buffs" was wrong:
       fire / ice bolt, acid blast and the vulnerability curse are
@@ -10826,7 +10838,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] LOW: a multi-attack hero re-angers a Bourbon or Ozzy who
       submitted on an earlier attack of the same action (BUG-2307,
       with BUG-2308..2310 folded in by ruling) - FIXED 2026-10-13
-      (session 219, commit pending, tracker pending; closure notes in
+      (session 219, commit 434ef95ed, tracker 08fcd6e89; closure notes in
       BUGFIXES_ARCHIVE): a gs.submit_count bumped by mondead()'s
       submission arm; hmonas() and hitum() stop when it moved and the
       target is a peaceful Bourbon / Ozzy (submitted_since()). The
@@ -22666,7 +22678,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-10 (session 208 follow-up; decisions log): refuse
       '<' / '>' with trapmove()'s "You are entangled by a tree.".
       Plannable.
-- [ ] LOW: a broken wand of digging or digactualhole() leaves a pit
+- [x] LOW: digging down puts a pit inside a standing tree (BUG-2311,
+      with the monster leg BUG-2312 and the adj_pit_checks() flags
+      re-port BUG-2316 folded in) - FIXED 2026-10-13 (session 220,
+      commit pending, tracker pending; closure notes in
+      BUGFIXES_ARCHIVE): dig_check() refuses IS_TREES() (live, dead,
+      arboreal stone) with DIGCHECK_FAIL_TREE; a broken wand skips the
+      square, a pick reads "The tree's roots are too thick to dig
+      through.", a downward zap "The tree's roots glow then fade.",
+      and the town watch stays out of it; a monster in a tree never
+      picks a wand of digging; master's BUG-678 fix (no flags wipe in
+      adj_pit_checks()) is back.
+      Original text: LOW: a broken wand of digging or digactualhole()
+      leaves a pit
       inside a standing tree (minted 2026-10-10, session 209, Plan
       agent; pre-existing, master-shared). do_break_wand()'s non-liquid
       arm (dig_check(BY_OBJECT) passes a diggable TREE) and dighole()
@@ -22679,7 +22703,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       do_break_wand() skips a standing tree's square, and digging down
       inside one is stopped with a line (wording shown at plan time).
       Plannable.
-- [ ] LOW: a monster that polymorphs while entangled stays entangled
+- [x] LOW: a monster that polymorphs while entangled (BUG-2313) -
+      FIXED 2026-10-13 (session 220, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE): newcham() clears mentangled
+      and mentangletime for a whirly, wall-passing, unsolid or
+      amorphous form, with "The xorn slips free of the vegetation." /
+      "...of the tree's grip." when seen.
+      Original text: LOW: a monster that polymorphs while entangled
+      stays entangled
       (minted 2026-10-10, session 209, Plan agent; master-shared).
       newcham() never clears mentangled / mentangletime, so a monster
       turning amorphous, whirly, unsolid or wall-passing keeps a hold
@@ -22691,7 +22722,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       cast_entangle() refuses (whirly, wall-passing, unsolid,
       amorphous), with a seen-monster line (wording shown at plan
       time), mirroring the hero's BUG-2259. Plannable.
-- [ ] LOW: a grass hold outlives its grass (minted 2026-10-10, session
+- [x] LOW: a grass hold outlives its grass (BUG-2314, with grazing
+      taking a move, BUG-2317, folded in by ruling) - FIXED 2026-10-13
+      (session 220, commit pending, tracker pending; closure notes in
+      BUGFIXES_ARCHIVE): grass_gone_release() (trap.c) ends a
+      square-held vine hold with "The vegetation releases you." after
+      the grass's own line at every site that removes grass under the
+      hero - fire, grazing, a dig or broken-wand flood, a dug pit or
+      hole (digactualhole(); it no longer swaps the hold for TT_PIT
+      silently), a flooded land mine, consecration and the wizard
+      terrain wish; grazing now takes a move.
+      Original text: LOW: a grass hold outlives its grass (minted
+      2026-10-10, session
       209, Plan agent + reviewer; master-shared). With no live tree
       adjacent the hold is the square's (BUG-2260's model), yet it
       lasts when the grass goes: fire burns GRASS to floor
@@ -22714,7 +22756,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       bottom!  You carefully lower yourself into the pit.". Trace which
       forced-trap paths read it, then clear or ignore it there.
       Upstream-reportable once traced. LOW (needs a trace).
-- [ ] LOW: ending levitation while branch-held in the air reads "You
+- [x] LOW: float_down()'s branch-held line (BUG-2315) - FIXED
+      2026-10-13 (session 220, commit pending, tracker pending; closure
+      notes in BUGFIXES_ARCHIVE): "You are no longer trying to float
+      up from the tree's branches." when u_tree_held(); a grass hold
+      keeps "entangling vegetation".
+      Original text: LOW: ending levitation while branch-held in the
+      air reads "You
       are no longer trying to float up from the entangling vegetation."
       (minted 2026-10-10, session 209, fold battery; master-shared
       wording). float_down()'s blocked arm names TT_ENTANGLED
@@ -22727,6 +22775,49 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       trying to float up from the tree's branches." when a live tree
       holds the hero (nexttotree()), "entangling vegetation"
       otherwise. Plannable.
+- [ ] LOW: a monster's vine hold outlives its grass or tree (minted
+      2026-10-13, session 220, ruled to mint; master-shared). The hero
+      side ends with the grass (BUG-2314) or the tree
+      (tree_gone_release(), BUG-2261), but mentangled has no grass /
+      tree model: a monster held on burned, eaten or flooded grass, or
+      by a tree that burns or is cut down, stays put until
+      mentangletime runs out (3-10 turns). Needs its own census of the
+      tree-death and grass-loss sites for monsters, then a ruling on
+      the line. LOW (needs a census, then a ruling).
+- [ ] LOW: two vine-hold lines name a tree's hold "vegetation"
+      (minted 2026-10-13, session 220, reviewer L5; master-shared
+      wording). dothrow.c's held-thrower line "You are anchored by the
+      entangling vegetation." and insight.c's ^X "entangled in
+      vegetation" ignore a tree hold; float_down() now says "tree's
+      branches" (BUG-2315) and trapmove() "entangled by a tree". LOW
+      (needs a wording ruling).
+- [ ] LOW: a waiting buried-ball chain takes over silently when vines
+      let go (minted 2026-10-13, session 220, reviewer L6;
+      pre-existing). entangle_release() -> reset_utrap() hands the
+      hero to a u.utether_pending chain through set_utrap() with no
+      line, and a levitator gets no still_chained_msg(); allmain's
+      timeout release and the new grass releases share it. Decide
+      whether the chain announces itself. LOW (needs a ruling).
+- [ ] LOW: a water-walking hero can burn twice when vines over new
+      lava let go (minted 2026-10-13, session 220, reviewer L3;
+      pre-existing design). pooleffects()' entangled guard lets a held
+      Wwalking hero through, so liquid_flow() already ran
+      lava_effects(); entangle_release() then defers LANDING_SPOT over
+      the lava and the deferred spoteffects() runs lava_effects()
+      again. Allmain's timeout release does the same; the new liquid
+      hooks (dighole(), do_break_wand(), blow_up_landmine(), a lava
+      wish) reach it too. Candidate: skip the over-drop defer when
+      `Wwalking && is_pool_or_lava()`. LOW (needs a trace).
+- [ ] LOW: a life-saved drowning reads "You are back on solid ground."
+      then "You find yourself on solid ground." (minted 2026-10-13,
+      session 220, battery B; upstream-shared, Official_nh50
+      drown()). safe_teleds() lands the hero and describe_decor()'s
+      back_on_ground(FALSE) prints first; rescued_from_terrain()'s
+      back_on_ground(TRUE) then repeats it - the PLNMSG_BACK_ON_GROUND
+      dedupe guards only the other order. Seen after a vine release
+      dropped a hero into a moat with no way out (wizard-mode "Die?"
+      n). LOW (record; upstream-reportable once confirmed on a plain
+      drowning).
 - [ ] LOW: a starting kitten turned untame and peaceful with no hero
       interaction (minted 2026-10-06, session 188, battery B anomaly on
       the POST build; seen once, not traced). Between T:16 and T:18 the
@@ -28669,6 +28760,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-13 | Digging down puts a pit or hole inside a standing tree, shared with Official_nh50 (dig.c dig_check() / dighole(), apply.c do_break_wand(), muse.c MUSE_WAN_DIGGING): dig_check() has no tree test and maketrap(PIT/HOLE) has no TREE case, so a broken wand of digging next to a tree, a Passes_walls hero digging or zapping down inside one, or a xorn zapping its wand of digging down inside one leaves the tree standing with a trap in it (a flood arm turns it to water). EvilHack fix BUG-2311..2312: a DIGCHECK_FAIL_TREE result refused by every downward dig ("The tree's roots glow then fade." for a zap), and the monster's selection gates refuse a tree square. Vanilla's only tree refusal is adj_pit_checks(). | found (branch-fixed); not yet sent |
+| 2026-10-13 | adj_pit_checks() zeroes the target square's flags before refusing, shared with Official_nh50 (dig.c adj_pit_checks(): `ltyp = room->typ, room->flags = 0;`): flags aliases wall_info, doormask, altarmask and drawbridgemask, so a hero in a pit zapping digging sideways unpetrifies a tree, turns a locked door into a doorway it then pits, leaves an altar unaligned, makes nondiggable rock diggable, and reads a raised drawbridge span over floor as moat. EvilHack fix BUG-2316 (master's BUG-678 fix, 4ca4a2154, re-ported): drop the zero; dighole() clears flags when it actually changes the square. | found (branch-fixed); not yet sent |
 | 2026-10-13 | A polymorphed hero's melee hits a temple priest already killed by his god's bolt, shared with Official_nh50 (uhitm.c hmonas()): the claw/bite, hug, explode and engulf arms call `wakeup(mon, TRUE)` and then deal damage; wakeup() on a peaceful temple priest calls ghod_hitsu(), whose lightning bolt from the shrine toward the hero can kill a hurt priest standing on that line, and the arm then damages the dead priest - a second kill credited to the hero, a second corpse, impossible() "already detached". Fix on the branch: `if (DEADMONSTER(mon)) continue;` after each of the four wakeup() calls; an exploding form then does not explode (BUG-2308). LATENT in play: the aligned cleric resists shock (MR_ELEC, on both trees), so the bolt only kills a priest who has lost that resistance (e.g. a polymorphed one); the battery staged it by clearing MR_ELEC. | found (branch-fixed); not yet sent |
 | 2026-10-12 | A melee or missile killing blow never angers its target, shared with Official_nh50 (uhitm.c hmon_hitmon()): 677b32c2a ("Hit and wake sleeping monster makes it growl") moved `wakeup(mon, TRUE)` from before the damage to the tail, `if (!hmd.destroyed && !hmd.offmap)`, so a hit that kills never runs setmangry(): standing on Elbereth, a one-blow kill neither fades it nor calls the hero a hypocrite; a one-blow kill of a peaceful skips "You feel guilty." / "X gets angry!" and peacefuls_respond() (the watch ignores it); a target that life saving or a vampire's revert keeps alive stays peaceful; and the kill is scored as a peaceful kill (murder, malign) where a two-blow kill is scored as a hostile one. artifact_hit()'s instakills and the cockatrice corpse / egg arms return before the tail too. Fix on the branch: setmangry(mon, TRUE) just before the kill line in the kill arms (not wakeup(): its ghod_hitsu() bolt would pass through the dying priest), skipping a pet the blow's abuse_dog() untamed, plus the artifact and stoning arms (BUG-2303). | found (branch-fixed); not yet sent |
 | 2026-10-12 | in_town() leaves out the shops, temple and walls of the des.room Minetowns, shared with Official_nh50 and NetHack50 (hack.c in_town()): lspo_room() marks a parent room irregular when it gains a subroom, and inside_room() then tests roomno, which the subrooms' topologize() overwrote, and skips edge walls; so in minetn-2/3/4/7/8 in_town() is 0 in every shop and the temple, their doorways and the town walls - the watch ignores digging or kicking there (watch_dig(), dokick.c), lock-picking a town door draws no warning, and the priest never calls the guards on an Infidel or Draugr entering the temple. 3.6 tested the bounding box. Fix on the branch: test lx-1..hx+1 / ly-1..hy+1 for a room with subrooms (BUG-2302). | found (branch-fixed); not yet sent |
@@ -28870,6 +28963,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-13 | Hold-trio slice rulings (session 220; AskUserQuestion x2, six questions, all as recommended). (1) TREE REFUSAL LINES: a pick-axe digging down inside a tree reads "The tree's roots are too thick to dig through."; a wand or spell zapped down reads "The tree's roots glow then fade." (adj_pit_checks()' existing magical tree line); a broken wand skips a tree square silently. (2) MONSTER SLIP-FREE LINE mirrors the hero's: "The xorn slips free of the vegetation." / "...of the tree's grip."; rejected reusing the expiry line "is no longer entangled". (3) TREE SCOPE = IS_TREES(): live trees, dead trees and arboreal-level stone; rejected live trees only. (4) MONSTER LEG of grass / tree loss: mint a row; rejected folding it in and no row. (5) MASTER'S BUG-678 adj_pit_checks() flags fix (lost in the tree adoption, reviewer HIGH): fold the one-line re-port into this slice (BUG-2316); rejected a MED row. (6) GRAZING TAKES A MOVE (reviewer L1; a deliberate master parity break - master's grazing is free): with BUG-2314 a free graze was an instant escape from a vine hold (BUG-2317); rejected accept-as-is and a row | maintainer |
 | 2026-10-13 | hmonas() pair slice rulings (session 219; AskUserQuestion x1, two questions, both as recommended or wider). (1) PRIEST BOLT DOUBLE KILL FOLDED IN (recommended; the approved plan had said record a row): hmonas()'s claw/bite, hug, explode and engulf arms stop when the wakeup() before their damage let a peaceful temple priest's god bolt kill the priest; an exploding form then does not explode (no target left). (2) VOLLEY AND RAY RE-ANGER STOPPED IN THIS SLICE (over my mint-rows-for-a-ruling pick): a hero volley stops once a missile makes Bourbon or Ozzy submit (endmultishot(), the remaining missiles stay in inventory), and a bouncing hero ray does not anger a dog that submitted to that same ray (it still takes the damage); a peaceful dog the ray did not make submit is still angered | maintainer |
 | 2026-10-12 | Ruling round, three questions, rulings recorded only (session 218 follow-up; AskUserQuestion x1, all as recommended). (1) RENEGADE SCORING KEPT (master's): an always-peaceful the hero angered, then killed in one blow or two, scores as a renegade kill (+15 malign, no murderer, no Luck loss); the guilt is charged at the attack, no new monster state; row closed, no code change. (2) POLYFORM castum() ANGERS WHEN CAST AT IT: a directed spell angers the target before its damage, matching the other polyform attacks and the melee pre-kill anger; undirected spells (self-buffs) do not. (3) MULTI-ATTACK RE-ANGER STOPS: once Bourbon or Ozzy submits during this action, hmonas() skips the remaining attacks (hitum()'s chain already stops, since hmon() reports the submitting hit as a kill) | maintainer |
 | 2026-10-12 | Killing-blow anger / life-saving pair slice rulings (session 218; AskUserQuestion x3, three questions, all as recommended, one re-asked). (1) MELEE / MISSILE KILLS ANGER EVERY HIT: vanilla 677b32c2a moved hmon_hitmon()'s wakeup() to survivors only, so a killing blow skipped setmangry(); the branch now runs it just before the kill line (master's coverage), keeping 5.0's order for non-fatal hits. Rejected: master's exact position (anger before the damage, master's message order); survivors only with a row for the rest. (2) RE-ASKED, KILL SCORING = MASTER'S: my first question said the anger came "on top of xkilled()'s penalties"; it does not - once setmangry() runs, xkilled() scores a hostile kill (a lawful hero's one-blow peaceful watchman goes from -20 + murderer to net +10, as the branch's own two-blow kill and master already score it). Rejected: reactions with the harsh peaceful scoring kept (a setmangry() split); survivors only. (3) GENERATION TOO: rnd_misc_item() refuses life saving for a form or race it would fail, like the AI sites. Rejected: AI only. Plan-approved, no question: plain setmangry() in the kill arms, not wakeup() (its temple priest bolt passes through the dying priest's square - Plan agent F5); the Enchantress needs no survivor exclusion (her arm leaves her hostile). | maintainer |
