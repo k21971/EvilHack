@@ -1237,6 +1237,17 @@ seffect_enchant_armor(struct obj **sobjp)
         old_erodeproof = (otmp->oerodeproof != 0);
         new_erodeproof = !scursed;
         otmp->oerodeproof = 0; /* for messages */
+        /* naturally fixed armor is repaired but never erodeproofed */
+        if (is_supermaterial(otmp)) {
+            if (new_erodeproof && (otmp->oeroded || otmp->oeroded2)) {
+                otmp->oeroded = otmp->oeroded2 = 0;
+                pline("%s as good as new!",
+                      Yobjnam2(otmp, Blind ? "feel" : "look"));
+            }
+            if (!Blind)
+                pline("%s for a moment.", Yobjnam2(otmp, "shimmer"));
+            return;
+        }
         if (Blind) {
             otmp->rknown = FALSE;
             pline("%s warm for a moment.", Yobjnam2(otmp, "feel"));
@@ -1544,6 +1555,13 @@ seffect_destroy_armor(struct obj **sobjp)
             *sobjp = 0; /* useup() in strange_feeling() */
             exercise(A_STR, FALSE);
             exercise(A_CON, FALSE);
+            return;
+        }
+        /* naturally fixed armor ignores the proofing; the bit is the
+           destroy armor spell's marker, so leave it alone */
+        if (is_supermaterial(otmp)) {
+            if (!Blind)
+                pline("%s for a moment.", Yobjnam2(otmp, "shimmer"));
             return;
         }
         old_erodeproof = (otmp->oerodeproof != 0);
@@ -1986,9 +2004,26 @@ seffect_enchant_weapon(struct obj **sobjp)
         old_erodeproof = (uwep->oerodeproof != 0);
         new_erodeproof = !scursed;
         uwep->oerodeproof = 0; /* for messages */
+        /* naturally fixed weapons are repaired but never erodeproofed */
+        if (is_supermaterial(uwep)) {
+            if (new_erodeproof
+                && (uwep->oeroded
+                    || (uwep->oeroded2 && uwep->oclass != FOOD_CLASS))) {
+                uwep->oeroded = 0;
+                /* oeroded2 doubles as norevive on corpses; that is not
+                   erosion, so it is not repaired */
+                if (uwep->oclass != FOOD_CLASS)
+                    uwep->oeroded2 = 0;
+                pline("%s as good as new!",
+                      Yobjnam2(uwep, Blind ? "feel" : "look"));
+            }
+            if (!Blind)
+                pline("%s for a moment.", Yobjnam2(uwep, "shimmer"));
+            return;
+        }
         if (Blind) {
             uwep->rknown = FALSE;
-            Your("weapon feels warm for a moment.");
+            pline("%s warm for a moment.", Yobjnam2(uwep, "feel"));
         } else {
             uwep->rknown = TRUE;
             pline("%s covered by a %s %s %s!", Yobjnam2(uwep, "are"),

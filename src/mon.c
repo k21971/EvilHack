@@ -5482,7 +5482,8 @@ corpse_chance(
     if (rn2(50) && mon->minsects)
         return FALSE;
 
-    if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH) {
+    if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH
+        || mdat == &mons[PM_ALHOON] || mdat == &mons[PM_KAS]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline_mon(mon, "%s body crumbles into dust.",
                       s_suffix(Monnam(mon)));

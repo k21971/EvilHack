@@ -2345,14 +2345,14 @@ create_object(object *o, struct mkroom *croom)
     }
     if (o->eroded) {
         if (o->eroded < 0) {
-            otmp->oerodeproof = 1;
+            (void) maybe_erodeproof(otmp, 1);
         } else {
             otmp->oeroded = (o->eroded % 4);
             otmp->oeroded2 = ((o->eroded >> 2) % 4);
         }
     } else {
         otmp->oeroded = otmp->oeroded2 = 0;
-        otmp->oerodeproof = 0;
+        (void) maybe_erodeproof(otmp, 0);
     }
     /* artifacts cannot have forging quality or affixed gems */
     if (!otmp->oartifact) {

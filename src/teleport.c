@@ -1100,7 +1100,7 @@ dotele(
 {
     struct trap *trap;
     const char *cantdoit;
-    boolean trap_once = FALSE;
+    boolean vault_accepted = FALSE;
 
     trap = t_at(u.ux, u.uy);
     if (trap && !trap->tseen)
@@ -1116,7 +1116,6 @@ dotele(
             } else
                 trap = 0; /* continue with normal horizontal teleport */
         } else if (trap->ttyp == TELEP_TRAP_SET) {
-            trap_once = trap->once; /* trap may get deleted, save this */
             if (trap->once) {
                 pline("This is a vault teleport, usable once only.");
                 if (y_n("Jump in?") == 'n') {
@@ -1124,14 +1123,16 @@ dotele(
                 } else {
                     deltrap(trap);
                     newsym(u.ux, u.uy);
+                    trap = (struct trap *) 0;
+                    vault_accepted = TRUE;
                 }
             }
-            if (trap)
+            if (trap || vault_accepted)
                 You("%s onto the teleportation trap.", u_locomotion("jump"));
         } else
             trap = 0;
     }
-    if (!trap && !break_the_rules) {
+    if (!trap && !vault_accepted && !break_the_rules) {
         boolean castit = FALSE;
         int energy = 0;
 
@@ -1207,7 +1208,7 @@ dotele(
     }
 
     if (next_to_u()) {
-        if (trap && trap_once) {
+        if (vault_accepted) {
             vault_tele();
         } else if (trap && isok(trap->teledest.x, trap->teledest.y)) {
             teleds(trap->teledest.x, trap->teledest.y, TELEDS_TELEPORT);
@@ -1220,7 +1221,7 @@ dotele(
         You("%s", shudder_for_moment);
         return 0;
     }
-    if (!trap)
+    if (!trap && !vault_accepted)
         morehungry(100);
     return 1;
 }
