@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-13, after session 221's ruled
-  small-rows slice): 392 rows closed, 112 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-13, after session 222's small
+  master-port slice): 395 rows closed, 109 open. Of the open rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
@@ -37,7 +37,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 92 LOW: small parity rows, quirks and watch/record-only items.
+  - 89 LOW: small parity rows, quirks and watch/record-only items.
+    Session 222 closed three plannable master-port rows: dotele()'s
+    freed trap pointer (BUG-2323, upstream-reportable), the alhoon /
+    Kas crumble line (BUG-2324) and the confused scrolls on
+    supermaterials (BUG-2325), with the rest of master 72ef72b45
+    found by its census (BUG-2326: the level-file and Rogue-ghost
+    proofing; the Mitre of Holiness carried the bit every game).
+    Ruled 2026-10-13 at plan and review time: ordinary items keep
+    5.0's glow-then-repair order, and the Blind enchant weapon line
+    names the item. None minted; a RIDER went on the Muse offense
+    row (mmake_wish()'s proofing). One new upstream table row.
     Session 221 closed five ruled or plannable rows: the two cure
     lines (BUG-2318, with the cure sickness self-cast extended to it
     by ruling), knock's double wakeup (BUG-2319), the praying
@@ -9810,7 +9820,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       message. Plannable.
 - [x] LOW: two cure lines on a self-cure (BUG-2318, with the cure
       sickness self-cast extended to it by ruling) - FIXED 2026-10-13
-      (session 221, commit pending, tracker pending; closure notes in
+      (session 221, commit 5a6df5eec, tracker 1ea4cada1; closure notes in
       BUGFIXES_ARCHIVE): zapyourself()'s critical healing rider and
       cure sickness arm leave the feedback to healup()'s make_sick()
       ("You feel cured.  What a relief!"); cure sickness says "You are
@@ -9969,7 +9979,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         - Natural rate with no lever: PRE "V" on Mines:2 gave
           vampire mage 58 in 2000 (2.9%). POST lever-off at Mines'
           End gave 0.
-- [ ] LOW: corpse_chance() lacks master's alhoon / Kas crumble arm
+- [x] LOW: corpse_chance() lacked master's alhoon / Kas crumble arm
+      (BUG-2324) - FIXED 2026-10-13 (session 222, commit pending,
+      tracker pending; closure notes in BUGFIXES_ARCHIVE): PM_ALHOON
+      and PM_KAS join the Vlad / S_LICH arm, so a seen kill prints
+      "<Mon>'s body crumbles into dust." again (no corpse change: both
+      are G_NOCORPSE). Kas dies as PM_KAS (pickvampshape() keeps him
+      in his own form). 08770110a's other hunks were already on the
+      branch; 5f3ddfd0d's other hunks are the alhoon / larva / nursery
+      feature, spot-checked present.
+      Original text: LOW: corpse_chance() lacks master's alhoon / Kas
+      crumble arm
       (NEW, minted 2026-10-10 by the mk_gen_ok() reviewer, session
       205; verified in the main context). Master's corpse_chance()
       (mon.c) tests `mdat == &mons[PM_VLAD_THE_IMPALER] ||
@@ -10169,7 +10189,50 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
           mummified hand named the Hand of Vecna." for invlet z on
           both builds (the wish-invlet case row's fifth sighting,
           recorded there).
-- [ ] LOW: confused enchant armor / destroy armor / enchant weapon do
+- [x] LOW: confused enchant armor / destroy armor / enchant weapon
+      did not spare supermaterials (BUG-2325, with BUG-2326 for the
+      rest of 72ef72b45) - FIXED 2026-10-13 (session 222, commit
+      pending, tracker pending; closure notes in BUGFIXES_ARCHIVE).
+      - Shape: master 72ef72b45 + 13468d07c's supermaterial arms.
+        Enchant armor and enchant weapon repair a deteriorated
+        supermaterial ("...looks as good as new!"), then print
+        "...shimmers for a moment." (not Blind) and leave the bit
+        clear; the arm sits after the "for messages" clear, so a
+        destroy armor spell marker is cleared for every BUC, as on
+        master. Destroy armor prints the shimmer line before any bit
+        write, so the marker is kept, as on master. The weapon arm
+        keeps the branch's FOOD_CLASS norevive guard (a tin is
+        FOOD_CLASS STEEL and reaches it).
+      - RULED 2026-10-13 (session 222, AskUserQuestion x2): ordinary
+        items keep 5.0's glow-then-repair order (over my
+        master's-exact-shape pick; master 13468d07c moved the repair
+        line first for every item); the ordinary enchant weapon arm's
+        Blind line takes master's Yobjnam2 form ("Your long sword
+        feels warm for a moment.", not "Your weapon ..."), a
+        72ef72b45 hunk the reviewer found.
+      - What the stray bit did (it is invisible: the erodeproof word
+        is "" for every supermaterial): the destroy armor spell
+        treats it as its first-hit marker, so the next hit landed
+        instead of being absorbed; the branch's destroy_arm() skips
+        any piece with the bit (587a78a8c), so a confused enchant
+        made a supermaterial immune to the destroy armor scroll's
+        deterioration; mergable() refused to stack the piece with
+        identical-looking ones; getprice() doubled its price. A
+        confused-enchanted wielded tin was "preserved" (doubled
+        price). No costly_alteration() in the new arms: the bit is
+        an invisible marker and master skips the charge.
+      - Whole-commit census (BUG-2326): sp_lev.c create_object()
+        (eroded=-1 and the else arm) and extralev.c makerogueghost()
+        (ring / plate mail) now use maybe_erodeproof(). Live: the
+        Mitre of Holiness (GEMSTONE) carried the bit every game, and
+        the Rogue level stays by ruling. Not gaps: mkobj.c's Samurai
+        splint mail / Convict striped shirt (master 96220c8d6 went
+        back to the direct write on purpose), the 0-writes and
+        is_damageable()-guarded writes, mcastu.c's marker (master's
+        design). muse.c mmake_wish() is unported -> RIDER on the Muse
+        offense items row.
+      Original text: LOW: confused enchant armor / destroy armor /
+      enchant weapon do
       not spare supermaterials (NEW, minted 2026-10-10 in session 207
       while briefing the enchant armor choice battery; verified).
       - Master 72ef72b45 ("Don't allow supermaterials to be
@@ -10212,7 +10275,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         m^T s / n / t left the list identical on both builds (POST s
         teleported after a gdb Expert escape skill; PRE s failed 8 of
         8 at Unskilled, list intact).
-- [ ] LOW: dotele()'s vault-trap path reads a freed trap pointer
+- [x] LOW: dotele()'s vault-trap path read a freed trap pointer
+      (BUG-2323) - FIXED 2026-10-13 (session 222, commit pending,
+      tracker pending; closure notes in BUGFIXES_ARCHIVE): master
+      d2e1627ff's vault_accepted boolean in the 5.0 text - the accept
+      arm sets trap to NULL after deltrap() and raises the flag; the
+      jump line, the cost gate, the vault_tele() dispatch and the
+      morehungry() gate test the flag (trap_once removed; 5.0's
+      teledest arm kept). Behavior unchanged in all four states
+      (battery A: PRE == POST). Upstream table row (Official_nh50 has
+      the same trap_once reads), not sent.
+      Original text: LOW: dotele()'s vault-trap path reads a freed
+      trap pointer
       (NEW, minted 2026-10-10 by the spell letters reviewer, session
       206; verified). Master d2e1627ff (BUG-770) replaced dotele()'s
       reuse of `trap` after the "Jump in?" `deltrap(trap)` with an
@@ -10454,7 +10528,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-10-11 (session 212): its own slice, seen / unseen / deaf
       legs. Plannable.
 - [x] LOW: a riding accident hurt a praying hero (BUG-2320) - FIXED
-      2026-10-13 (session 221, commit pending, tracker pending; closure
+      2026-10-13 (session 221, commit 5a6df5eec, tracker 1ea4cada1; closure
       notes in BUGFIXES_ARCHIVE): dismount_steed()'s thrown / knocked /
       fell arm skips the riding-accident losehp() and the wounded legs
       while u.uinvulnerable; the line and the throw stay. Battery C:
@@ -10510,7 +10584,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       steed is MON_OFFMAP and must still act), not a bare
       mon_offmap(). Needs a reproduction.
 - [x] LOW: knock woke its target twice (BUG-2319) - FIXED 2026-10-13
-      (session 221, commit pending, tracker pending; closure notes in
+      (session 221, commit 5a6df5eec, tracker 1ea4cada1; closure notes in
       BUGFIXES_ARCHIVE): the knock arm runs wakeup(mtmp, TRUE) and
       sets already_woke, and bhitm()'s tail skips its wakeup() (its
       m_respond() / hot_pursuit() still run). Ruled 2026-10-13
@@ -10618,7 +10692,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       scoring, or score a hero-angered always-peaceful as a peaceful
       kill).
 - [x] LOW: potionhit()'s water kills credited the hero (BUG-2322) -
-      FIXED 2026-10-13 (session 221, commit pending, tracker pending;
+      FIXED 2026-10-13 (session 221, commit 5a6df5eec, tracker 1ea4cada1;
       closure notes in BUGFIXES_ARCHIVE): master's gate - killed()
       when your_fault, else monkilled(mon, "", AD_ACID) for holy water
       and AD_PHYS for rust. Trace: rare but reachable (and shared with
@@ -18368,6 +18442,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the muse half of master d359ea85e; its potionhit() half and
       the directional restore ability spell (1df6b9af3) have their
       own MED row, "restore ability uncancels monsters".
+      RIDER 2026-10-13 (session 222, census of master 72ef72b45):
+      when mmake_wish() lands, its erodeproof writes go through
+      maybe_erodeproof() (the commit's 12 muse.c hunks), so a
+      wished supermaterial never carries the bit (BUG-2325..2326).
 - [ ] Creeping mound meatfood() ABSENT (minted 2026-09-06 by the
       defended() sweep audit): the monster exists (include/monsters.h)
       but master's meatfood() (mon.c ~2100: eats food items, cockatrice
@@ -23614,6 +23692,16 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       BUC theory is out. prinv() / xprname() and pline.c have no case
       mapping (checked again); trace with a gdb breakpoint on
       xprname() during the wish.
+      SIXTH SIGHTING (2026-10-13, session 222 battery C, POST
+      94730b87, a neutral human Valkyrie, wizard mode): right after
+      an #adjust merge of slot q into p (q freed), wishing "uncursed
+      scroll of enchant armor" printed "Q - a scroll of enchant
+      armor." on the top line, and a gdb inventory walk read the new
+      object's (o_id 66) invlet as 'Q'; the r prompt then offered
+      "[qr or ?*]", typing Q gave "You don't have that object.", and
+      ^P history stored "q - a scroll of enchant armor.". New
+      candidate trigger: a slot freed by #adjust just before the
+      wish. Still a trace row.
 - [x] HIGH: polyself.c set_uasmon() lacks master's race and form
       properties - PORTED 2026-09-23 (session 135, commits `Fix: forms
       and races lost master's granted properties.` = 408713be5
@@ -27599,7 +27687,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "unset " (G_unset_arrow_trap etc.), upstream's LAND_MINE
       precedent; check the symset / glyph docs for the names. Plannable.
 - [x] LOW: the Guidebook's glyph: form (BUG-2321) - FIXED 2026-10-13
-      (session 221, commit pending, tracker pending; closure notes in
+      (session 221, commit 5a6df5eec, tracker 1ea4cada1; closure notes in
       BUGFIXES_ARCHIVE): Guidebook.mn / .tex (dates bumped) show
       `glyph:glyphname:U+nnnn/R-G-B` and
       `OPTIONS=glyph:G_pool:U+224B/0-0-160`; Guidebook.txt is the
@@ -28850,6 +28938,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-13 | dotele() tests a freed trap pointer after a vault teleporter is accepted, shared with Official_nh50 (teleport.c dotele()): after "Jump in?" -> y, deltrap(trap) frees the trap but `trap` stays non-NULL, and the jump line, the cost gate (`!trap && !break_the_rules`), the `trap && trap_once` vault_tele() dispatch and the morehungry() gate then read the freed pointer's value (no dereference: trap_once short-circuits the teledest read; formally undefined behavior). EvilHack fix BUG-2323 (master's BUG-770 shape, d2e1627ff): set trap to NULL after deltrap() with a vault_accepted flag that the four tests use; trap_once goes. | found (branch-fixed); not yet sent |
 | 2026-10-13 | A water potion's kill credits the hero whoever threw it, shared with Official_nh50 (potion.c potionhit()'s POT_WATER arms): holy water on undead / demons / weres and water on an iron golem call killed(mon) under "should only be by you", while the acid arm gates on your_fault; a potion that survives a MAY_DESTROY scatter (land mine, booby trap, bag of holding blast; breaktest()'s 1-in-100 obj_resists()) flies into a monster through ohitmon(NULL, ...) -> potionhit(POTHIT_OTHER_THROW) and the hero gets the kill, XP and conduct. EvilHack fix BUG-2322 (master's gate): `if (your_fault) killed(mon); else monkilled(mon, "", AD_ACID / AD_PHYS);`. | found (branch-fixed); not yet sent |
 | 2026-10-13 | The Guidebook documents the glyph: option with the wrong separator, shared with Official_nh50 and NetHack50 (doc/Guidebook.mn / .tex, options.c optfn_glyph() comment): `glyph:glyphname/U+nnnn/R-G-B` and the `glyph:G_pool/U+224B/0-0-160` example, while glyphs.c glyphrep_to_custom_map_entries() takes ':' as the Unicode marker and '/' as the color marker, so the documented line sets only the color (`glyph:G_x/U+0021` sets nothing). EvilHack fix BUG-2321: document `glyph:glyphname:U+nnnn/R-G-B` and `glyph:G_pool:U+224B/0-0-160`. | found (branch-fixed); not yet sent |
 | 2026-10-13 | A riding accident hurts a praying hero, shared with Official_nh50 (steed.c dismount_steed()): the thrown / knocked / fell arm's losehp(rn1(10, 10), "riding accident") and set_wounded_legs() have no u.uinvulnerable test, so a steed that throws its rider under Conflict (dog_move()'s resist_conflict() arm) during a successful prayer still hurts the hero, who may have prayed at low HP. EvilHack fix BUG-2320: skip the damage and the wounded legs while u.uinvulnerable; the throw and its line stay. | found (branch-fixed); not yet sent |
@@ -29058,6 +29147,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-13 | Small master-port slice rulings (session 222; AskUserQuestion x2, two questions). (1) CONFUSED ENCHANT ARMOR / WEAPON ORDER: SUPERMATERIALS ONLY, over my master's-exact-shape pick - ordinary items keep 5.0's glow-then-repair order ("...covered by a shimmering golden shield!" then "...looks as good as new!"); a supermaterial gets master's 13468d07c arm (repair line, then "...shimmers for a moment.", bit left clear; nothing when Blind and pristine); rejected master's repair-first order for every item. (2) BLIND ORDINARY ENCHANT WEAPON LINE: master's Yobjnam2 form, as recommended ("Your long sword feels warm for a moment.", "Your lichen corpse ..."); rejected 5.0's fixed "Your weapon feels warm for a moment.". Consequences recorded with the plan (master parity): enchant armor / weapon clear a destroy armor spell marker for every BUC, re-arming the first-hit absorb; a confused enchant no longer makes a supermaterial immune to the destroy armor scroll (587a78a8c's !oerodeproof skip) or doubles its price | maintainer |
 | 2026-10-13 | Hold-trio slice rulings (session 220; AskUserQuestion x2, six questions, all as recommended). (1) TREE REFUSAL LINES: a pick-axe digging down inside a tree reads "The tree's roots are too thick to dig through."; a wand or spell zapped down reads "The tree's roots glow then fade." (adj_pit_checks()' existing magical tree line); a broken wand skips a tree square silently. (2) MONSTER SLIP-FREE LINE mirrors the hero's: "The xorn slips free of the vegetation." / "...of the tree's grip."; rejected reusing the expiry line "is no longer entangled". (3) TREE SCOPE = IS_TREES(): live trees, dead trees and arboreal-level stone; rejected live trees only. (4) MONSTER LEG of grass / tree loss: mint a row; rejected folding it in and no row. (5) MASTER'S BUG-678 adj_pit_checks() flags fix (lost in the tree adoption, reviewer HIGH): fold the one-line re-port into this slice (BUG-2316); rejected a MED row. (6) GRAZING TAKES A MOVE (reviewer L1; a deliberate master parity break - master's grazing is free): with BUG-2314 a free graze was an instant escape from a vine hold (BUG-2317); rejected accept-as-is and a row | maintainer |
 | 2026-10-13 | hmonas() pair slice rulings (session 219; AskUserQuestion x1, two questions, both as recommended or wider). (1) PRIEST BOLT DOUBLE KILL FOLDED IN (recommended; the approved plan had said record a row): hmonas()'s claw/bite, hug, explode and engulf arms stop when the wakeup() before their damage let a peaceful temple priest's god bolt kill the priest; an exploding form then does not explode (no target left). (2) VOLLEY AND RAY RE-ANGER STOPPED IN THIS SLICE (over my mint-rows-for-a-ruling pick): a hero volley stops once a missile makes Bourbon or Ozzy submit (endmultishot(), the remaining missiles stay in inventory), and a bouncing hero ray does not anger a dog that submitted to that same ray (it still takes the damage); a peaceful dog the ray did not make submit is still angered | maintainer |
 | 2026-10-12 | Ruling round, three questions, rulings recorded only (session 218 follow-up; AskUserQuestion x1, all as recommended). (1) RENEGADE SCORING KEPT (master's): an always-peaceful the hero angered, then killed in one blow or two, scores as a renegade kill (+15 malign, no murderer, no Luck loss); the guilt is charged at the attack, no new monster state; row closed, no code change. (2) POLYFORM castum() ANGERS WHEN CAST AT IT: a directed spell angers the target before its damage, matching the other polyform attacks and the melee pre-kill anger; undirected spells (self-buffs) do not. (3) MULTI-ATTACK RE-ANGER STOPS: once Bourbon or Ozzy submits during this action, hmonas() skips the remaining attacks (hitum()'s chain already stops, since hmon() reports the submitting hit as a kill) | maintainer |
