@@ -17,16 +17,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-14, after session 224's
-  ruled small-rows slice): 404 rows closed, 106 open. Of the open
+- Phase 2 status (refreshed 2026-10-14, after session 225's
+  spec_applies() slice): 405 rows closed, 108 open. Of the open
   rows:
   - 0 HIGH.
   - 5 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe), and spec_applies()' any-category rule
-    (master 2aa336648, silently reverted by the tree adoption:
-    Shadowblade's drain is dead against non-weres; minted session
-    224, needs a whole-commit census). Session 217 closed Izchak's death revival
+    dwarvish bearded axe, m_initgrp()'s group support casters and
+    leaders - master 68c2c7544, minted session 225). Session 225
+    closed spec_applies()' any-category rule (BUG-2338).
+    Session 217 closed Izchak's death revival
     (BUG-2300..2301) with the in_town() fix it needed (BUG-2302,
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
@@ -41,7 +41,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 85 LOW: small parity rows, quirks and watch/record-only items.
+  - 87 LOW: small parity rows, quirks and watch/record-only items.
+    Session 225 closed the MED spec_applies() row: master's
+    any-category form (BUG-2338), the drain arm's NULL-attacker
+    abort it would have widened (BUG-2337), master 67524c0bd's
+    mon_aligntyp() reads (BUG-2339), gem_accept()'s set_malign()
+    (BUG-2340), makemon()'s Infidel unicorn test (BUG-2341) and
+    deadbook_pacify_undead()'s set_malign() (BUG-2342). Ruled
+    2026-10-14, all as recommended: the whole of 67524c0bd; an
+    Infidel is never a unicorn's buddy (gem, generation, bones);
+    the deadbook fix folded. It minted one MED (group support
+    casters / leaders) and two LOW (the Knight dragon wake, the
+    sacrifice demon block); two upstream table rows (BUG-2340,
+    BUG-2342).
     Session 224 closed the six ruled or plannable small rows: a
     sphere's own explosion credits the sphere (BUG-2331), a vampire
     hero counts as undead for Sunsword / the Hammer (BUG-2332), the
@@ -10658,7 +10670,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       arise (can_saddle() needs MZ_MEDIUM, and a steed polymorphed
       smaller loses its saddle and throws the rider: mon_break_armor()),
       so only a wizard-mode forced mount reaches it. Plannable.
-      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 224, commit 846a32ad1, tracker b2776f627;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2335: the knock-back
       test gains `!u_at(mtmp->mx, mtmp->my)` (force bolt's own
       guard), so the hero's steed takes "<steed> doesn't budge." with
@@ -17353,7 +17365,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       XL22+ hero rises as a spectre (freezing / shocking; a flaming
       sphere's BURNING leaves no body); a gas spore's AT_BOOM death
       blast stays uncredited. Plannable.
-      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 224, commit 846a32ad1, tracker b2776f627;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2331: new transient
       ge.exploder_attacked, set by mon_explodes() from the attack
       type (saved / restored with ge.exploder), lets explode()'s
@@ -17381,13 +17393,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       wielding either then doubles its damage against a vampire hero
       and can incinerate one (1 in 5 per hit), as for a draugr.
       Plannable.
-      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 224, commit 846a32ad1, tracker b2776f627;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2332: the DFLAGH hero
       leg gains `!Upolyd && Race_if(PM_VAMPIRE) && (mtype &
       MH_UNZOMBIE)` (vampire monsters' own bit). Also reaches
       spec_abon(), score_artifact_weapon() and bane_applies(), where
       only wizard mode's "Override?" prompt goes (as for a draugr).
-- [ ] MED: spec_applies() lost master's any-category rule (minted
+- [x] MED: spec_applies() lost master's any-category rule (minted
       2026-10-14, session 224, by the code reviewer; master fix
       silently reverted by the tree adoption). Master 2aa336648 ("Fix:
       Shadowblade drain life attack not triggering", 2023-12) made
@@ -17408,6 +17420,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Needs scoping: a whole-commit census of 2aa336648's hunks
       against the branch, then a plan (restore master's additive
       form) and a battery per artifact.
+      FIXED 2026-10-14 (session 225, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2338: master's
+      additive form (each category its own `applies += !!(...)`, the
+      ATTK switch `applies += !(...); break;`, `return !!applies`),
+      the branch's later terms kept. Census: 2aa336648's spec_dbon()
+      and artifact_hit() hunks were already on the branch. Folded:
+      BUG-2337 (the drain arm's `assert(magr != 0)` aborted on
+      ohitmon()'s NULL attacker - a land mine or bag blast scattering
+      Stormbringer / Lifestealer / the Staff of Aesculapius, now
+      Shadowblade too); BUG-2339 (master 67524c0bd's mon_aligntyp()
+      reads: the DALIGN arm plus gem_accept(), msummon(), nasty() x2,
+      deadbook_pacify_undead(), getlev()'s bones unicorn and
+      sacrifice_your_race()); BUG-2340 (gem_accept() set_malign(),
+      master BUG-982); BUG-2341 (makemon()'s S_UNICORN raw
+      u.ualign.type, master 6972e3e62; mk_trap_statue()'s unicorn
+      reroll the same way, for consistency); BUG-2342
+      (deadbook_pacify_undead() set_malign()). Ruled 2026-10-14: the
+      whole of 67524c0bd; an Infidel is never a unicorn's buddy,
+      generation and bones included; the deadbook fix here.
+- [ ] MED: m_initgrp() lost master's group support casters and
+      group leaders (minted 2026-10-14, session 225, by the
+      67524c0bd census; master feature never ported). Master
+      68c2c7544 (2024-07, "Various monsters that can spawn in groups
+      will sometimes be lead by a stronger leader") gives a group of
+      3+ a support caster (goblins a goblin shaman, and others that
+      hang back and heal the group) and, for a hostile group, a
+      leader (deer a stag, skeletons a skeleton warrior at XL10+,
+      else little_to_big() except bats, rats and spiders). The
+      branch's m_initgrp() is 5.0's plain loop. Later master fixes
+      ride the feature (changelog "Fix: support casters healing same
+      race undead"). Needs a census of 68c2c7544 and its follow-ups
+      (the healing AI in monmove / mcastu), then a port. MED.
+- [ ] LOW: makemon() lacks master's Knight dragon grudge (minted
+      2026-10-14, session 225, by the 67524c0bd census; master
+      feature never ported). Master's `case S_DRAGON` (0085e9669,
+      the Knight patch; gated on cross-alignment by 7e2e41a89 /
+      BUG-1275) generates a cross-aligned dragon awake
+      (`msleeping = 0`) for a Knight; its peaceful / tame clears are
+      redundant behind M2_HOSTILE. The branch has no S_DRAGON case;
+      newcham()'s and moveloop()'s grudge arms are on the branch.
+      Plannable. LOW.
+- [ ] LOW: sacrifice_your_race()'s summoned demon is vanilla 5.0
+      (minted 2026-10-14, session 225, by the 67524c0bd census).
+      The branch summons dlord() and makes a coaligned one peaceful
+      every time; master uses ndemon() (e8f34a4a0) and a 1-in-5
+      "Who dares summon me?" that leaves it hostile, with
+      set_malign() on the peaceful arm. Only the alignment read
+      (mon_aligntyp(), BUG-2339) is on the branch. Needs a census
+      of those master commits. LOW.
 - [ ] LOW: a magic beam trap's launch point can sit beyond a door
       (minted 2026-10-13, session 223, by battery B;
       master-shared). maketrap()'s MAGIC_BEAM_TRAP_SET arm walks up
@@ -17434,7 +17495,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master-shared). unturn_you() hard-codes the wand's name and
       mbhitm()'s SPE_TURN_UNDEAD arm calls it too. Plannable: pass
       the reason or the otyp. LOW.
-      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 224, commit 846a32ad1, tracker b2776f627;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2336, ruled
       2026-10-14 (name + caster, force bolt's shape):
       unturn_you(otyp, zapper) names "spell of turn undead" / "wand
@@ -23141,7 +23202,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       entangled by a tree."; grass / vine holds keep "You are
       anchored by the entangling vegetation." and "entangled in
       vegetation". Plannable.
-      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 224, commit 846a32ad1, tracker b2776f627;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2333: hurtle()'s
       anchored line and trap_predicament() (^X and `;` on yourself)
       name the tree when u_tree_held(). The held-thrower line lives in
@@ -23161,7 +23222,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       ball." on the ground, or float_up()'s still_chained_msg() ("You
       feel lighter, but your leg is still chained to the floor.")
       when levitating, as a pit release already does. Plannable.
-      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 224, commit 846a32ad1, tracker b2776f627;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2334: after
       entangle_release()'s reset, a chain that took over prints
       still_chained_msg() for a grass-held levitator where float_up()
@@ -29155,6 +29216,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-14 | Reading the blessed Book of the Dead pacifies undead without resyncing their alignment value, shared with Official_nh50 (spell.c deadbook_pacify_undead()): `mtmp->mpeaceful = TRUE` runs with no set_malign() on the monflee() arm (a coaligned undead 2+ squares away, or any cross-aligned one) and on the already-tame arm, so a hostile coaligned undead keeps its renegade malign (positive) after turning peaceful and killing it later gains alignment instead of costing it (a skeletal hound, alignment -3, for a chaotic hero: +3 where a peaceful one is -9). EvilHack fix BUG-2342: set_malign(mtmp) after the tame / flee branch. | found (branch-fixed); not yet sent |
+| 2026-10-14 | A gem gift to a unicorn leaves its alignment value stale, shared with Official_nh50 (dothrow.c gem_accept()): the function sets `mon->mpeaceful = 1; mon->mavenge = 0;` with no set_malign(), so a hostile coaligned unicorn that accepts a gem keeps its hostile malign until something else resyncs it (a lawful hero's white unicorn: 7 where a peaceful one is -21). EvilHack fix BUG-2340 (EvilHack master BUG-982): set_malign(mon) right after the flip, ahead of every path including the junk-gem goto. | found (branch-fixed); not yet sent |
 | 2026-10-13 | dotele() tests a freed trap pointer after a vault teleporter is accepted, shared with Official_nh50 (teleport.c dotele()): after "Jump in?" -> y, deltrap(trap) frees the trap but `trap` stays non-NULL, and the jump line, the cost gate (`!trap && !break_the_rules`), the `trap && trap_once` vault_tele() dispatch and the morehungry() gate then read the freed pointer's value (no dereference: trap_once short-circuits the teledest read; formally undefined behavior). EvilHack fix BUG-2323 (master's BUG-770 shape, d2e1627ff): set trap to NULL after deltrap() with a vault_accepted flag that the four tests use; trap_once goes. | found (branch-fixed); not yet sent |
 | 2026-10-13 | A water potion's kill credits the hero whoever threw it, shared with Official_nh50 (potion.c potionhit()'s POT_WATER arms): holy water on undead / demons / weres and water on an iron golem call killed(mon) under "should only be by you", while the acid arm gates on your_fault; a potion that survives a MAY_DESTROY scatter (land mine, booby trap, bag of holding blast; breaktest()'s 1-in-100 obj_resists()) flies into a monster through ohitmon(NULL, ...) -> potionhit(POTHIT_OTHER_THROW) and the hero gets the kill, XP and conduct. EvilHack fix BUG-2322 (master's gate): `if (your_fault) killed(mon); else monkilled(mon, "", AD_ACID / AD_PHYS);`. | found (branch-fixed); not yet sent |
 | 2026-10-13 | The Guidebook documents the glyph: option with the wrong separator, shared with Official_nh50 and NetHack50 (doc/Guidebook.mn / .tex, options.c optfn_glyph() comment): `glyph:glyphname/U+nnnn/R-G-B` and the `glyph:G_pool/U+224B/0-0-160` example, while glyphs.c glyphrep_to_custom_map_entries() takes ':' as the Unicode marker and '/' as the color marker, so the documented line sets only the color (`glyph:G_x/U+0021` sets nothing). EvilHack fix BUG-2321: document `glyph:glyphname:U+nnnn/R-G-B` and `glyph:G_pool:U+224B/0-0-160`. | found (branch-fixed); not yet sent |
@@ -29364,6 +29427,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-14 | spec_applies() slice rulings (session 225; AskUserQuestion x2, five questions, all as recommended). (1) SCOPE: THE WHOLE OF MASTER 67524c0bd - all eight mon_aligntyp() reads (spec_applies() DALIGN, gem_accept(), msummon(), nasty() x2, deadbook_pacify_undead(), getlev()'s bones unicorn, sacrifice_your_race()) plus master BUG-982's gem_accept() set_malign(); gaps from other master commits get rows (group support casters / leaders, the Knight dragon wake, the sacrifice demon block). (2) GEM BUDDY: master's shape `sgn(mon_aligntyp(mon)) == u.ualign.type` - an unaligned (A_NONE) Infidel is never a unicorn's buddy (live 0.9.3), over keeping 5.0's sgn(u.ualign.type) that made black unicorns buddies. (3) UNICORN GENERATION (reviewer sibling): fold master 6972e3e62's `u.ualign.type == sgn(ptr->maligntyp)` - black unicorns generate hostile to an Infidel. (4) BONES UNICORN: make it consistent - `u.ualign.type == mon_aligntyp(mtmp)` in getlev()'s ghostly reset, deliberately unlike master's sgn() text, so bones black unicorns are hostile to an Infidel too; the delta reviewer's sibling, mk_trap_statue()'s co-aligned unicorn reroll, was folded under the same principle (coordinator call, flagged for veto at landing). (5) DEADBOOK: fix deadbook_pacify_undead()'s missing set_malign() here (master- and upstream-shared). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 224; AskUserQuestion x2, three questions, all as recommended). (1) TURN UNDEAD KILL NAMES: name + caster in mbhitm()'s force bolt shape - "killed by a spell of turn undead cast by a lich", "killed by a wand of undead turning zapped by a gnome lord", the hero's self-cast "killed by a spell of turn undead", the self-zapped wand unchanged; rejected the spell name only. (2) CHAIN LINE FOR A LEVITATOR THE BRANCHES HELD ALOFT: the plain "You are still chained to the buried ball." before the deferred "You land."; rejected float_up()'s "You feel lighter..." line, which would contradict the landing (grass and ground cases as ruled 2026-10-13). (3) DISPEL EVIL SIBLING (reviewer): fold in, spell-of form - "killed by a spell of dispel evil cast by <mon>"; rejected the bare-name form and a row | maintainer |
 | 2026-10-13 | Ruling round, five questions, rulings recorded only (session 223 follow-up; AskUserQuestion x2, four as recommended). (1) AT_EXPL SPHERE KILL: CREDIT + RISE - a sphere's own explosion credits the dead sphere (XL22+ spectre rise; nothing to loot), a gas spore's death blast stays uncredited; rejected record only. (2) VAMPIRE HERO VS SUNSWORD / HAMMER: COUNT AS UNDEAD - a narrow spec_applies() term for MH_UNDEAD artifacts, race selfmask untouched (double damage and the 1-in-5 incineration now reach a vampire hero, as a draugr); rejected record only. (3) TREE-HOLD WORDING: NAME THE TREE - "You are anchored by the tree." and ^X "entangled by a tree" for a tree's hold, grass keeps "vegetation"; rejected keep. (4) BURIED-BALL CHAIN TAKEOVER: ANNOUNCE IT - "You are still chained to the buried ball." on the ground, still_chained_msg() when levitating; rejected silent. (5) KNOCK AT A RIDDEN STEED: ADD A STEED GUARD ("doesn't budge" for the hero's own steed), over my close-as-unreachable pick (normal play cannot ride a sub-human-size steed) | maintainer |
 | 2026-10-13 | Kill-credit slice ruling (session 223; AskUserQuestion x1, one question, wider than recommended). FIRST WAND ZAP: REMOVE THE RULE - upstream 4d043a6f9's "a monster's first attack-wand zap always misses" (mwandexp, buzz_force_miss, dobuzz()'s forcemiss) is reverted whole: "lets get rid of that 'first wand zap always misses' rule - this is EvilHack, not easyhack". The Plan agent had found that its mbhitm() gate also read the caster for a monster's force bolt (mcast_immediate_spell() sets gb.buzzer), so force bolt never hit the hero outside the pre-experienced levels; I had offered exempting spells only, or a row. Master never had the rule | maintainer |
