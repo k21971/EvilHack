@@ -19,6 +19,7 @@ staticfn boolean mk_gen_ok(int, unsigned, unsigned);
 staticfn int QSORTCALLBACK cmp_init_mongen_order(const void *, const void *);
 staticfn void init_mongen_order(void);
 staticfn boolean wrong_elem_type(struct permonst *);
+staticfn boolean m_initgrp_extra(int, coord *, mmflags_nht);
 staticfn void m_initgrp(struct monst *, coordxy, coordxy, int, mmflags_nht);
 staticfn void m_initthrow(struct monst *, int, int);
 staticfn void maybe_arm_silver(struct monst *, struct obj *);
@@ -77,6 +78,26 @@ wrong_elem_type(struct permonst *ptr)
     return FALSE;
 }
 
+/* make one support caster or leader beside a new hostile group;
+   it is hostile too, and it takes one of the group's slots */
+staticfn boolean
+m_initgrp_extra(int mndx, coord *mm, mmflags_nht mmflags)
+{
+    struct monst *mon;
+
+    /* a genocided or extinct extra is skipped, not the whole group */
+    if ((svm.mvitals[mndx].mvflags & G_GONE) != 0
+        || !enexto_gpflags(mm, mm->x, mm->y, &mons[mndx], mmflags))
+        return FALSE;
+    mon = makemon(&mons[mndx], mm->x, mm->y, (mmflags | MM_NOGRP));
+    if (!mon)
+        return FALSE;
+    mon->mpeaceful = FALSE;
+    mon->mavenge = 0;
+    set_malign(mon);
+    return TRUE;
+}
+
 /* make a group just like mtmp */
 staticfn void
 m_initgrp(
@@ -124,6 +145,51 @@ m_initgrp(
 
     mm.x = x;
     mm.y = y;
+
+    /* a hostile group may bring a support caster, who hangs back
+       and heals the others; undead groups never do */
+    if (cnt >= 3 && !is_undead(mtmp->data) && !mtmp->mpeaceful) {
+        int support = NON_PM;
+
+        if (mtmp->data == &mons[PM_GOBLIN])
+            support = PM_GOBLIN_SHAMAN;
+        else if (mtmp->data == &mons[PM_KOBOLD])
+            support = PM_KOBOLD_SHAMAN;
+        else if (mtmp->data == &mons[PM_HILL_ORC]
+                 || mtmp->data == &mons[PM_MORDOR_ORC]
+                 || mtmp->data == &mons[PM_URUK_HAI])
+            support = PM_ORC_SHAMAN;
+        else if (is_gnoll(mtmp->data))
+            support = PM_GNOLL_CLERIC;
+        else if (is_drow(mtmp->data))
+            support = PM_DROW_CLERIC;
+        else if (is_tortle(mtmp->data))
+            support = PM_TORTLE_SHAMAN;
+        else if (is_giant(mtmp->data))
+            support = PM_HILL_GIANT_SHAMAN;
+        if (support != NON_PM && m_initgrp_extra(support, &mm, mmflags))
+            cnt--;
+    }
+
+    /* a hostile group may be led by a stronger leader; bats, rats
+       and spiders are led by one of their own kind, since their next
+       size up is too big a jump in difficulty */
+    if (cnt >= 3 && !peace_minded(mtmp)) {
+        int leader;
+
+        if (mtmp->data == &mons[PM_DEER])
+            leader = PM_STAG; /* deer don't grow up into stags */
+        else if (mtmp->data == &mons[PM_SKELETON] && u.ulevel >= 10)
+            leader = PM_SKELETON_WARRIOR; /* too strong for low levels */
+        else if (is_bat(mtmp->data) || is_rat(mtmp->data)
+                 || is_spider(mtmp->data))
+            leader = monsndx(mtmp->data);
+        else
+            leader = little_to_big(monsndx(mtmp->data));
+        if (m_initgrp_extra(leader, &mm, mmflags))
+            cnt--;
+    }
+
     while (cnt--) {
         if (peace_minded(mtmp))
             continue;

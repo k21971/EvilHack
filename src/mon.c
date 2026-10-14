@@ -33,6 +33,7 @@ staticfn void m_respond_shrieker(struct monst *);
 staticfn void m_respond_medusa(struct monst *);
 staticfn void m_respond_zombie(struct monst *);
 staticfn void m_respond_gnome(struct monst *);
+staticfn void m_respond_support(struct monst *);
 staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
 staticfn void m_restartcham(struct monst *);
@@ -6749,6 +6750,47 @@ m_respond_gnome(struct monst *mtmp)
     }
 }
 
+/* support caster special action: heal one wounded ally of its own race
+   and attitude that it can see within spell range */
+staticfn void
+m_respond_support(struct monst *mtmp)
+{
+    struct monst *mon;
+
+    /* a caster off the map, cancelled, out of spell power, impaired or
+       asleep can't heal */
+    if (mon_offmap(mtmp) || mtmp->mcan || mtmp->mspec_used
+        || mtmp->mconf || mtmp->mstun || mtmp->mfrozen || mtmp->msleeping)
+        return;
+
+    for (mon = fmon; mon; mon = mon->nmon) {
+        if (DEADMONSTER(mon) || mon_offmap(mon) || mon == mtmp)
+            continue;
+        /* no support caster heals the undead */
+        if (is_undead(mon->data) || !same_race(mtmp->data, mon->data))
+            continue;
+        if (!m_cansee(mtmp, mon->mx, mon->my)
+            || dist2(mtmp->mx, mtmp->my, mon->mx, mon->my)
+                   > BOLT_LIM * BOLT_LIM)
+            continue;
+        if (mtmp->mpeaceful != mon->mpeaceful
+            || mon->mhp >= mon->mhpmax)
+            continue;
+
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s casts a spell at %s.",
+                      Monnam(mtmp), mon_nam(mon));
+        if (canseemon(mon))
+            pline_mon(mon, "%s looks better.", Monnam(mon));
+        healmon(mon, d(3, 6), 0);
+        /* one heal per turn, with the spellcasting cooldown */
+        mtmp->mspec_used = 4 - (int) mtmp->m_lev;
+        if (mtmp->mspec_used < 2)
+            mtmp->mspec_used = 2;
+        break;
+    }
+}
+
 /* monster responds to player action; not the same as a passive attack */
 void
 m_respond(struct monst *mtmp)
@@ -6761,6 +6803,9 @@ m_respond(struct monst *mtmp)
         m_respond_zombie(mtmp);
     if (is_gnome(mtmp->data) && !is_undead(mtmp->data) && m_canseeu(mtmp))
         m_respond_gnome(mtmp);
+    /* support casters heal their wounded kin */
+    if (is_support(mtmp->data) && !mtmp->mpeaceful && rn2(2))
+        m_respond_support(mtmp);
     /* Erinyes will inform surrounding monsters of your crimes */
     if (mtmp->data == &mons[PM_ERINYS] && !mtmp->mpeaceful && m_canseeu(mtmp))
         aggravate();

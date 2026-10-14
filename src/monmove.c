@@ -2706,6 +2706,13 @@ m_move(struct monst *mtmp, int after)
         if (mtmp->mberserk)
             appr = 1;
 
+        /* support casters hang back while the hero is healthy */
+        if (is_support(ptr) && !mtmp->mpeaceful
+            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 4 * 4
+            && ((Upolyd ? u.mhmax : u.uhpmax)
+                < 4 * (Upolyd ? u.mh : u.uhp)))
+            appr = -1;
+
         /* any monster holding the Amulet keeps away from the hero; the
            escape goal below turns an intelligent hostile carrier toward
            its way out when the level has one */
