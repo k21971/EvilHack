@@ -17,14 +17,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-14, after session 225's
-  spec_applies() slice): 405 rows closed, 108 open. Of the open
+- Phase 2 status (refreshed 2026-10-14, after session 226's group
+  support casters slice): 407 rows closed, 108 open. Of the open
   rows:
   - 0 HIGH.
-  - 5 MED: unported master features (terrain concealment,
+  - 4 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe, m_initgrp()'s group support casters and
-    leaders - master 68c2c7544, minted session 225). Session 225
+    dwarvish bearded axe). Session 226 closed m_initgrp()'s group
+    support casters and leaders (BUG-2343..2346). Session 225
     closed spec_applies()' any-category rule (BUG-2338).
     Session 217 closed Izchak's death revival
     (BUG-2300..2301) with the in_town() fix it needed (BUG-2302,
@@ -41,7 +41,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 87 LOW: small parity rows, quirks and watch/record-only items.
+  - 88 LOW: small parity rows, quirks and watch/record-only items.
+    Session 226 closed the MED group support casters row and the
+    LOW support-caster hang-back row: random groups of 3+ get
+    master's support caster and a hostile group its leader
+    (BUG-2343), the caster heals its kin (BUG-2345) and hangs back
+    (BUG-2346); the Phase 5 Goblintown riders row closed with its
+    rider (a). Ruled 2026-10-14, all as recommended: a support
+    caster only for a hostile base (BUG-2344, a master bug: a lone
+    hostile shaman beside a race-peaceful group); the hang-back
+    reads polymorphed HP; the heal gate inside m_respond() as for
+    the gnome arm, and a sleeping caster never heals. It minted two
+    LOW (m_respond()'s quivering-blob arm, needing a ruling;
+    bhitm()'s knockback migrating its target before the wake tail,
+    needing a trace); no upstream table rows.
     Session 225 closed the MED spec_applies() row: master's
     any-category form (BUG-2338), the drain arm's NULL-attacker
     abort it would have widened (BUG-2337), master 67524c0bd's
@@ -11711,7 +11724,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       genesis satyrs often asleep (S_NYMPH makemon sleep roll); hero
       armor loss to an unseen caster on Dlvl 1 (consistent with the
       destroy-armor monster spell, not chased).
-- [ ] LOW: m_move() "Support casters hang back" arm NOT PORTED (minted
+- [x] LOW: m_move() "Support casters hang back" arm NOT PORTED (minted
       2026-08-23 by the mberserk slice, found while placing the berserk
       appr override). Master monmove.c m_move(): a hostile is_support()
       caster within dist2 < 16 of the hero sets appr = -1 while the
@@ -11721,6 +11734,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Phase 5 m_initgrp row already carries BUG-936 (is_support()/
       m_respond ally-heal never setting mspec_used, also unported);
       port the hang-back with that cluster, not alone.
+      FIXED 2026-10-14 (session 226, commit pending, tracker pending)
+      as BUG-2346, with the cluster (the MED group support casters
+      row, BUG-2343..2345): the arm after the berserk override and
+      before the Amulet retreat, reading polymorphed HP by ruling
+      (`(Upolyd ? u.mhmax : u.uhpmax) < 4 * (Upolyd ? u.mh : u.uhp)`,
+      master's integer test when unpolymorphed). Battery C PASS.
 - [x] LOW: clone_mon()/montraits() transient-reset width, master
       vs branch (minted 2026-08-23 by the mberserk slice) - CLOSED
       2026-09-02 by the clone-reset slice; the family record lives
@@ -17420,7 +17439,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Needs scoping: a whole-commit census of 2aa336648's hunks
       against the branch, then a plan (restore master's additive
       form) and a battery per artifact.
-      FIXED 2026-10-14 (session 225, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 225, commit d93a9d4c1, tracker bdb9af181;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2338: master's
       additive form (each category its own `applies += !!(...)`, the
       ATTK switch `applies += !(...); break;`, `return !!applies`),
@@ -17439,7 +17458,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (deadbook_pacify_undead() set_malign()). Ruled 2026-10-14: the
       whole of 67524c0bd; an Infidel is never a unicorn's buddy,
       generation and bones included; the deadbook fix here.
-- [ ] MED: m_initgrp() lost master's group support casters and
+- [x] MED: m_initgrp() lost master's group support casters and
       group leaders (minted 2026-10-14, session 225, by the
       67524c0bd census; master feature never ported). Master
       68c2c7544 (2024-07, "Various monsters that can spawn in groups
@@ -17452,6 +17471,46 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ride the feature (changelog "Fix: support casters healing same
       race undead"). Needs a census of 68c2c7544 and its follow-ups
       (the healing AI in monmove / mcastu), then a port. MED.
+      FIXED 2026-10-14 (session 226, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE; plan
+      /root/.claude/plans/feature-group-support-casters-and-leaders.md)
+      as BUG-2343..2346. Census of master's final shape: 68c2c7544,
+      the deer / stag and skeleton warrior leaders, 1c6926edf,
+      31f78b83d, b235df7ee, 998a3ecc1 and the archived riders
+      BUG-561, BUG-622, BUG-936 (plan agent `git log -L`: nothing
+      else). BUG-2343 m_initgrp_extra() + the support and leader
+      blocks (enexto_gpflags() with the spawned species and the
+      group's mmflags; master's always-true NON_PM conjunct
+      dropped); BUG-2344 (ruled) the support only for a hostile
+      base, a master bug; BUG-2345 m_respond_support() inside
+      m_respond() behind `is_support && !mpeaceful && rn2(2)`, the
+      caster gate hoisted plus mon_offmap() and (ruled) msleeping;
+      BUG-2346 m_move()'s hang-back reading polymorphed HP (ruled).
+      Row-text correction: the healing AI is mon.c m_respond(), not
+      mcastu; hill / Mordor orcs are led by an Uruk-hai (grownups[]),
+      not an orc captain. Ruled 2026-10-14, all as recommended:
+      hostile base only; polymorphed HP; the gnome arm's gate shape
+      plus a sleeping-caster skip. Reviewer PASS; batteries A / B / C
+      PASS, every paniclog clean.
+- [ ] LOW: m_respond() lacks master's quivering-blob arm (minted
+      2026-10-14, session 226, by the support casters slice's
+      reviewer). Master 801dc7d35 prints "%s quivers." when a visible
+      quivering blob responds. On master only zap.c's bhitm() wake
+      and boomhit() reach it (dochug never calls m_respond() for a
+      blob); 5.0's m_respond() runs from dochug every turn, so a
+      plain port would print the line every turn the blob is seen.
+      Needs a ruling: a caller-side gate (the zap / boomerang paths
+      only), or leave it out. Flavor text only. LOW.
+- [ ] LOW: bhitm()'s knockback can migrate its target before the
+      wake tail (minted 2026-10-14, session 226, by the support
+      casters slice's plan agent). A force bolt / striking hit over
+      20 damage or slow monster against a small target calls
+      mhurtle(); mhurtle_step()'s mintrap() on a hole, trap door or
+      level teleporter migrates the monster (mx = my = 0), and
+      bhitm()'s tail then still runs wakeup(), m_respond() and
+      hot_pursuit() on it (5.0's newsym() rejects <0,0>;
+      m_respond_support() now returns early off the map). Needs a
+      trace: reproduce, then guard the tail. LOW.
 - [ ] LOW: makemon() lacks master's Knight dragon grudge (minted
       2026-10-14, session 225, by the 67524c0bd census; master
       feature never ported). Master's `case S_DRAGON` (0085e9669,
@@ -28948,7 +29007,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       lamplit + artifact_light end_burn guard with them
       (archive-sweep-before-port: shared-code fixes never travel
       with ported text).
-- [ ] Goblintown-slice riders on unported features (minted
+- [x] Goblintown-slice riders on unported features (minted
       2026-08-14 by the goblintown slice): (a) master's
       m_initgrp() support-caster machinery (goblin/kobold/orc
       shaman, gnoll/drow cleric, tortle/hill-giant shaman, stag,
@@ -28981,6 +29040,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       [(c) DISCHARGED 2026-10-09, session 200: ported with the
       BUG-703 trap rules by the hero spell parity A slice,
       BUG-2231.]
+      [(a) DISCHARGED 2026-10-14, session 226 (commit pending): the
+      group support casters slice, BUG-2343..2346, carried BUG-561
+      (m_initgrp_extra() places the spawned species), BUG-622 (a
+      G_GONE extra is skipped, the group still spawns), BUG-936 (the
+      mspec_used cooldown, one heal per call) and 31f78b83d's
+      incapacitated-caster skip. All three riders are discharged, so
+      the row closes.]
 - [ ] Icequeen-slice riders on unported features (minted 2026-08-14
       by the icequeen slice): (a) master's has_cold_feet() +
       maybe_freeze_underfoot() walk-freezes-terrain feature
@@ -29427,6 +29493,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-14 | Group support casters slice rulings (session 226; AskUserQuestion, three questions, all as recommended). (1) PEACEFUL GROUP: a support caster only when the base monster is hostile (`!mtmp->mpeaceful`, no RNG) - master forces a lone hostile shaman / cleric beside a race-peaceful base (drow / giant / tortle / hobbit / aasimar heroes every time, orcs and co-aligned heroes by chance) whose leader and members are all skipped; archived as master bug BUG-2344, frozen-unfixed. Over master's shape and over a fresh peace_minded() roll. (2) HANG-BACK HP: polymorphed HP (the BUG-554 idiom), written division-free as `max < 4 * cur`, master's test when unpolymorphed. (3) ZAP PATH: the heal gate (`is_support && !mpeaceful && rn2(2)`) lives inside 5.0's m_respond() as the gnome arm's does (BUG-1884 precedent), so zap.c's bhitm() wake and boomhit() take it too where master healed every time (peaceful casters included); plus a sleeping caster never heals (only boomhit() reaches m_respond() with a sleeper). Over the gnome shape alone and over master's exact per-path shape. | maintainer |
 | 2026-10-14 | spec_applies() slice rulings (session 225; AskUserQuestion x2, five questions, all as recommended). (1) SCOPE: THE WHOLE OF MASTER 67524c0bd - all eight mon_aligntyp() reads (spec_applies() DALIGN, gem_accept(), msummon(), nasty() x2, deadbook_pacify_undead(), getlev()'s bones unicorn, sacrifice_your_race()) plus master BUG-982's gem_accept() set_malign(); gaps from other master commits get rows (group support casters / leaders, the Knight dragon wake, the sacrifice demon block). (2) GEM BUDDY: master's shape `sgn(mon_aligntyp(mon)) == u.ualign.type` - an unaligned (A_NONE) Infidel is never a unicorn's buddy (live 0.9.3), over keeping 5.0's sgn(u.ualign.type) that made black unicorns buddies. (3) UNICORN GENERATION (reviewer sibling): fold master 6972e3e62's `u.ualign.type == sgn(ptr->maligntyp)` - black unicorns generate hostile to an Infidel. (4) BONES UNICORN: make it consistent - `u.ualign.type == mon_aligntyp(mtmp)` in getlev()'s ghostly reset, deliberately unlike master's sgn() text, so bones black unicorns are hostile to an Infidel too; the delta reviewer's sibling, mk_trap_statue()'s co-aligned unicorn reroll, was folded under the same principle (coordinator call, flagged for veto at landing). (5) DEADBOOK: fix deadbook_pacify_undead()'s missing set_malign() here (master- and upstream-shared). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 224; AskUserQuestion x2, three questions, all as recommended). (1) TURN UNDEAD KILL NAMES: name + caster in mbhitm()'s force bolt shape - "killed by a spell of turn undead cast by a lich", "killed by a wand of undead turning zapped by a gnome lord", the hero's self-cast "killed by a spell of turn undead", the self-zapped wand unchanged; rejected the spell name only. (2) CHAIN LINE FOR A LEVITATOR THE BRANCHES HELD ALOFT: the plain "You are still chained to the buried ball." before the deferred "You land."; rejected float_up()'s "You feel lighter..." line, which would contradict the landing (grass and ground cases as ruled 2026-10-13). (3) DISPEL EVIL SIBLING (reviewer): fold in, spell-of form - "killed by a spell of dispel evil cast by <mon>"; rejected the bare-name form and a row | maintainer |
 | 2026-10-13 | Ruling round, five questions, rulings recorded only (session 223 follow-up; AskUserQuestion x2, four as recommended). (1) AT_EXPL SPHERE KILL: CREDIT + RISE - a sphere's own explosion credits the dead sphere (XL22+ spectre rise; nothing to loot), a gas spore's death blast stays uncredited; rejected record only. (2) VAMPIRE HERO VS SUNSWORD / HAMMER: COUNT AS UNDEAD - a narrow spec_applies() term for MH_UNDEAD artifacts, race selfmask untouched (double damage and the 1-in-5 incineration now reach a vampire hero, as a draugr); rejected record only. (3) TREE-HOLD WORDING: NAME THE TREE - "You are anchored by the tree." and ^X "entangled by a tree" for a tree's hold, grass keeps "vegetation"; rejected keep. (4) BURIED-BALL CHAIN TAKEOVER: ANNOUNCE IT - "You are still chained to the buried ball." on the ground, still_chained_msg() when levitating; rejected silent. (5) KNOCK AT A RIDDEN STEED: ADD A STEED GUARD ("doesn't budge" for the hero's own steed), over my close-as-unreachable pick (normal play cannot ride a sub-human-size steed) | maintainer |
