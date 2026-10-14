@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-14, after session 226's group
-  support casters slice): 407 rows closed, 108 open. Of the open
+- Phase 2 status (refreshed 2026-10-14, after session 227's ruled
+  small-rows slice): 412 rows closed, 104 open. Of the open
   rows:
   - 0 HIGH.
   - 4 MED: unported master features (terrain concealment,
@@ -41,7 +41,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 88 LOW: small parity rows, quirks and watch/record-only items.
+  - 84 LOW: small parity rows, quirks and watch/record-only items.
+    Session 227 closed five ruled LOW rows:
+    - a quivering blob quivers or flollops at the hero's zap or
+      boomerang, never on its own turns (BUG-2347)
+    - a lit or briefly burned flask of oil polymorphs at full
+      strength; under half its oil left, it dilutes (BUG-2348)
+    - an amulet of flying put on under a flight block is identified
+      when its flight begins (BUG-2349, seven sites)
+    - a pit fiend can't pit an open drawbridge (BUG-2350)
+    - a Knight's cross-aligned dragons are generated awake, zoo
+      rooms included (BUG-2351; master's wake was dead)
+    Ruled 2026-10-14, all as recommended: the half-flask rule,
+    every flight-unblock site, the dragon intent for zoo rooms
+    only. It minted one LOW (fill_zoo() leaves a sleeping rider's
+    steed awake, needing a trace) and two upstream table rows
+    (BUG-2348's timer read, BUG-2349).
     Session 226 closed the MED group support casters row and the
     LOW support-caster hang-back row: random groups of 3+ get
     master's support caster and a hostile group its leader
@@ -11734,7 +11749,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Phase 5 m_initgrp row already carries BUG-936 (is_support()/
       m_respond ally-heal never setting mspec_used, also unported);
       port the hang-back with that cluster, not alone.
-      FIXED 2026-10-14 (session 226, commit pending, tracker pending)
+      FIXED 2026-10-14 (session 226, commit d6e96a4f5, tracker 8c8ebcf3e)
       as BUG-2346, with the cluster (the MED group support casters
       row, BUG-2343..2345): the arm after the berserk override and
       before the Amulet retreat, reading polymorphed HP by ruling
@@ -17471,7 +17486,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ride the feature (changelog "Fix: support casters healing same
       race undead"). Needs a census of 68c2c7544 and its follow-ups
       (the healing AI in monmove / mcastu), then a port. MED.
-      FIXED 2026-10-14 (session 226, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 226, commit d6e96a4f5, tracker 8c8ebcf3e;
       closure notes in BUGFIXES_ARCHIVE; plan
       /root/.claude/plans/feature-group-support-casters-and-leaders.md)
       as BUG-2343..2346. Census of master's final shape: 68c2c7544,
@@ -17492,7 +17507,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hostile base only; polymorphed HP; the gnome arm's gate shape
       plus a sleeping-caster skip. Reviewer PASS; batteries A / B / C
       PASS, every paniclog clean.
-- [ ] LOW: m_respond() lacks master's quivering-blob arm (minted
+- [x] LOW: m_respond() lacks master's quivering-blob arm (minted
       2026-10-14, session 226, by the support casters slice's
       reviewer). Master 801dc7d35 prints "%s quivers." when a visible
       quivering blob responds. On master only zap.c's bhitm() wake
@@ -17501,6 +17516,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       plain port would print the line every turn the blob is seen.
       Needs a ruling: a caller-side gate (the zap / boomerang paths
       only), or leave it out. Flavor text only. LOW.
+      RULED 2026-10-14 (session 226 follow-up, decisions log): PORT
+      WITH A HERO-ACTION GATE - the arm goes in m_respond() behind
+      `!svc.context.mon_moving` (movemon() sets it for every monster
+      turn; bhitm() and boomhit() run on the hero's action), so it
+      prints only on the zap / boomerang paths, master's exact
+      behavior; rejected leaving it out. Plannable.
+      AMENDED 2026-10-14 (same follow-up): the line ALTERNATES
+      between "%s quivers." (homage to the monster's name) and
+      "%s flollops." (can_flollop(): the blob is an S_BLOB, and a
+      monster's psi bolt already makes it flollop) - a random 50/50
+      pick, `rn2(2)` rolled only once the canseemon() gate passes.
+      An EvilHack extension of master's text.
+      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE; plan
+      /root/.claude/plans/feature-ruled-small-rows-s227.md) as
+      BUG-2347: m_respond_blob() and its gated arm after the
+      shrieker's, as ruled.
+      CORRECTION to "master's exact behavior" (found by the s227 plan
+      agent; both cases very rare):
+      - Port silent where master prints. During a monster's move, a
+        mind flayer's telekinesis or a monster-set-off land mine can
+        polymorph a monster INTO a quivering blob through
+        potionhit() -> bhitm(). Master's wake tail then prints;
+        the port does not.
+      - Port prints where master is silent. shk.c's extra
+        dochug(shkp) runs on the hero's action, so a shopkeeper
+        polymorphed into a blob would respond once on shop entry.
+      Battery: 30 of 30 hero zaps and boomerang throws printed a
+      line (14 / 16), and 0 of the blob's 45 own moves did.
 - [ ] LOW: bhitm()'s knockback can migrate its target before the
       wake tail (minted 2026-10-14, session 226, by the support
       casters slice's plan agent). A force bolt / striking hit over
@@ -17511,7 +17555,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hot_pursuit() on it (5.0's newsym() rejects <0,0>;
       m_respond_support() now returns early off the map). Needs a
       trace: reproduce, then guard the tail. LOW.
-- [ ] LOW: makemon() lacks master's Knight dragon grudge (minted
+- [x] LOW: makemon() lacks master's Knight dragon grudge (minted
       2026-10-14, session 225, by the 67524c0bd census; master
       feature never ported). Master's `case S_DRAGON` (0085e9669,
       the Knight patch; gated on cross-alignment by 7e2e41a89 /
@@ -17520,6 +17564,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       redundant behind M2_HOSTILE. The branch has no S_DRAGON case;
       newcham()'s and moveloop()'s grudge arms are on the branch.
       Plannable. LOW.
+      PREMISE CORRECTION 2026-10-14 (session 227): master's wake is
+      dead. Only MM_ASLEEP sleeps a monster before the switch, and
+      its only callers (fill_zoo()) set msleeping = 1 again after
+      makemon(). Special levels apply their own asleep flags
+      afterwards.
+      RULED 2026-10-14 (session 227, decisions log): THE INTENT,
+      ZOO ROOMS ONLY.
+      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2351:
+      - dragon_grudges_knight() in makemon.c, using master's mlet
+        S_DRAGON test.
+      - Master's case, ported.
+      - fill_zoo() leaves such a dragon awake (throne rooms and
+        treasure zoos). Special-level asleep flags (medusa-4,
+        hellc-2, hellc-3, purgatory-1) stay as designed.
+      Battery (lawful Knight): cross-aligned MM_ASLEEP dragons
+      awake, lawful ones asleep, a Valkyrie's all asleep. A runtime
+      COURT fill_zoo(): 6 cross-aligned dragons awake, 6 lawful
+      asleep. PRE: all asleep.
+- [ ] LOW: fill_zoo() puts a rider to sleep but not its steed
+      (minted 2026-10-14, session 227, by battery E; master-shared).
+      In a runtime COURT fill_zoo() on DL24, two goblin outriders
+      were asleep while their wolf steeds (sharing their squares)
+      stayed awake (msleeping 0). fill_zoo() sets msleeping on the
+      makemon() result only, and mount_monster() makes the steed
+      separately. Needs a trace: whether a ridden steed's own sleep
+      state matters while mounted (movement, wake-ups, a dismount
+      or the rider's death), then a ruling. LOW.
 - [ ] LOW: sacrifice_your_race()'s summoned demon is vanilla 5.0
       (minted 2026-10-14, session 225, by the 67524c0bd census).
       The branch summons dlord() and makes a coaligned one peaceful
@@ -17763,6 +17835,37 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       end_burn()'s refund. Fix shape if ever wanted: end the old burn
       ahead of the class switch (splits master's block) or have
       fixup_oil() read the remaining fuel through peek_timer(). LOW.
+      CORRECTION 2026-10-14 (session 226 follow-up): no longer
+      cosmetic - since session 197 (BUG-2217..2222) a diluted potion
+      is weaker (healing halved, shorter durations, no lost level
+      back from blessed full healing), so a full lit flask
+      polymorphed into healing heals half.
+      RULED 2026-10-14 (session 226 follow-up, decisions log): FIX
+      THE LIT CASE - fixup_oil() reads the fuel left in a lit
+      source's burn timer, so a full lit flask makes a full-strength
+      potion while a genuinely part-used flask still dilutes (5.0's
+      rule kept); rejected master's shape (no dilution at all) and
+      record-only. Plannable (pick between peek_timer() in
+      fixup_oil() and ending the burn ahead of the class switch at
+      plan time).
+      PREMISE CORRECTION 2026-10-14 (session 227): a timer read alone
+      would still dilute a lit flask. It holds 399 of 400 turns one
+      turn after lighting, still under 5.0's threshold, so only a
+      same-turn polymorph would come out full strength.
+      RULED 2026-10-14 (session 227, decisions log): THE HALF-FLASK
+      RULE, for lit and unlit flasks alike.
+      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2348. fixup_oil()
+      totals the source's age plus a lit source's burn-timer
+      remainder (peek_timer(), exactly cleanup_burn()'s refund), and
+      dilutes only when that is under MAX_OIL_IN_FLASK / 2.
+      Battery, POST:
+      - lit then zapped (fuel 397-398): not diluted
+      - snuffed after 1 turn: not diluted
+      - lit about 150 turns (fuel 248-251): not diluted
+      - lit 210+ turns (fuel 177-183): diluted
+      - snuffed after 250 turns (fuel 143-147): diluted
+      Battery, PRE: lit and 1-turn-snuffed flasks diluted, unlit not.
 - [x] Dragon-scaled xname() prefix FIXED 2026-09-15 (session 118; the
       LOW "decide" row minted 2026-09-09 by the consumer-sites battery,
       master-shared; THREE commits: A src/objnam.c + src/invent.c +
@@ -18538,7 +18641,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hole square once the target has left the level, because attack()'s
       forcefight tail maps an unseen surviving target (master
       uhitm.c:734, same block); a plain move-attack does not.
-- [ ] create_pit_under() turns an open drawbridge span to floor (LOW;
+- [x] create_pit_under() turns an open drawbridge span to floor (LOW;
       minted 2026-09-12 by the AD_PITS slice, maintainer ruling
       2026-09-12: keep master's shape for now): DRAWBRIDGE_DOWN passes
       the helper's terrain gate (SPACE_POS, not furniture, not air) and
@@ -18549,6 +18652,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       `typ == DRAWBRIDGE_DOWN || is_drawbridge_wall(x, y) >= 0` to the
       refusal gate ("You fail to create a pit on the bridge under X." /
       "looks rather piteous."). LOW.
+      RULED 2026-10-14 (session 226 follow-up, decisions log; reopens
+      the 2026-09-12 keep-for-now): REFUSE THE PIT - add the open
+      drawbridge span and the drawbridge wall to create_pit_under()'s
+      refusal gate so the pit fails as digging does (master-shared
+      fix); rejected keeping the earlier ruling. Plannable.
+      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2350. The gate adds
+      `typ == DRAWBRIDGE_DOWN`. The drawbridge-wall term is left out
+      because it is already refused: is_drawbridge_wall() needs DOOR
+      or DBWALL, and both fail SPACE_POS. A comment says so.
+      Battery at the Castle:
+      - POST, a pit-fiend hero: "You fail to create a pit on the
+        bridge under the test monster.", and the span stays 39.
+      - POST, a monster pit fiend: "The pit fiend looks rather
+        piteous.", and the hero is not trapped.
+      - POST, ordinary floor: pits for both attackers.
+      - PRE: the span became ROOM with a PIT.
 - [ ] create_pit_under()'s land-mine leg can kill the attacker (LOW;
       minted 2026-09-12 by the AD_PITS slice from a reviewer LOW,
       master-shared): blow_up_landmine() -> scatter(MAY_HIT) flings the
@@ -27810,7 +27930,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
           burns it off; PRE mtame 9 burns it off.
         - PRE control: ogre at mtame 10 beside pit / bear trap / web,
           no help in 44-45 turns each.
-- [ ] LOW: an amulet of flying put on while held stays unidentified
+- [x] LOW: an amulet of flying put on while held stays unidentified
       when the release says "You can fly." (minted 2026-10-08,
       session 194, battery F2 anomaly; upstream-shared, every
       reset_utrap(TRUE) release site). Amulet_on() identifies only
@@ -27821,6 +27941,31 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       levitation is identified at once ("You float up slightly, but
       your leg is still stuck."). Record unless a ruling wants the
       release to identify. LOW.
+      RULED 2026-10-14 (session 226 follow-up, decisions log):
+      IDENTIFY AT RELEASE - when a release prints "You can fly." and
+      the worn amulet of flying is the flight source (Amulet_on()'s
+      mask-EFlying test), makeknown() it, at both sites (trap.c
+      reset_utrap() and dig.c's buried-ball chain release);
+      rejected record-only. Plannable.
+      WIDENED 2026-10-14 (session 227 ruling, decisions log): every
+      flight-unblock site.
+      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2349.
+      check_flight_amulet() (do_wear.c) runs Amulet_on()'s mask test
+      after seven messages:
+      - reset_utrap() and end_buried_tether(): "You can fly."
+      - float_down(), and the lava / erode arms of Boots_off(),
+        Ring_off_or_gone() and artifact.c's LEVITATION invoke:
+        "stopped levitating and are now flying"
+      - switch_terrain(): "You start flying."
+      Battery, identified on POST:
+      - web, bear trap and buried ball: "You can fly."
+      - ring and boots of levitation: "now flying"
+      - a xorn leaving rock: "You start flying."
+      Battery, still unidentified: the control with intrinsic
+      flight, ^T out of a web (no line), and the PRE web and ring
+      legs. The dig.c utether_pending arm and the three lava arms
+      are covered by code review only.
 - [x] A tame vampire never drinks the blood potions it hoards
       (minted 2026-10-07, session 190, found while checking the
       dog_move port row's deferral list; LOW/MED - pet AI) - FIXED
@@ -29040,7 +29185,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       [(c) DISCHARGED 2026-10-09, session 200: ported with the
       BUG-703 trap rules by the hero spell parity A slice,
       BUG-2231.]
-      [(a) DISCHARGED 2026-10-14, session 226 (commit pending): the
+      [(a) DISCHARGED 2026-10-14, session 226 (commit d6e96a4f5): the
       group support casters slice, BUG-2343..2346, carried BUG-561
       (m_initgrp_extra() places the spawned species), BUG-622 (a
       G_GONE extra is skipped, the group still spawns), BUG-936 (the
@@ -29282,6 +29427,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-14 | A lit potion of oil polymorphed into another potion always comes out diluted. Shared with Official_nh50 (mkobj.c fixup_oil(), from zap.c poly_obj()): begin_burn() moves an undiluted flask's whole age into its burn timer, so fixup_oil() reads age 0 and `source->age < MAX_OIL_IN_FLASK` marks the result odiluted however full the flask is. EvilHack fix BUG-2348 adds a lit source's peek_timer(BURN_OBJECT) remainder to its age. The upstream patch should send ONLY that timer read: EvilHack's half-flask threshold is a gameplay ruling (diluted potions are weaker here), not part of the upstream fix. | found (branch-fixed); not yet sent |
+| 2026-10-14 | An amulet of flying put on while flight is blocked is never identified when flight begins. Shared with Official_nh50 (do_wear.c Amulet_on() identifies only when flight starts at once). Put on in a web, a bear trap or a buried-ball tether, while levitating, or inside rock, it gives no message, and the later "You can fly." (trap.c reset_utrap(), dig.c's tether release), "You have stopped levitating and are now flying." (trap.c float_down() and the lava / erode arms) or "You start flying." (hack.c switch_terrain()) leaves it unidentified. EvilHack fix BUG-2349: a check_flight_amulet() helper that runs Amulet_on()'s EFlying W_AMUL mask test after each message and calls makeknown(). | found (branch-fixed); not yet sent |
 | 2026-10-14 | Reading the blessed Book of the Dead pacifies undead without resyncing their alignment value, shared with Official_nh50 (spell.c deadbook_pacify_undead()): `mtmp->mpeaceful = TRUE` runs with no set_malign() on the monflee() arm (a coaligned undead 2+ squares away, or any cross-aligned one) and on the already-tame arm, so a hostile coaligned undead keeps its renegade malign (positive) after turning peaceful and killing it later gains alignment instead of costing it (a skeletal hound, alignment -3, for a chaotic hero: +3 where a peaceful one is -9). EvilHack fix BUG-2342: set_malign(mtmp) after the tame / flee branch. | found (branch-fixed); not yet sent |
 | 2026-10-14 | A gem gift to a unicorn leaves its alignment value stale, shared with Official_nh50 (dothrow.c gem_accept()): the function sets `mon->mpeaceful = 1; mon->mavenge = 0;` with no set_malign(), so a hostile coaligned unicorn that accepts a gem keeps its hostile malign until something else resyncs it (a lawful hero's white unicorn: 7 where a peaceful one is -21). EvilHack fix BUG-2340 (EvilHack master BUG-982): set_malign(mon) right after the flip, ahead of every path including the junk-gem goto. | found (branch-fixed); not yet sent |
 | 2026-10-13 | dotele() tests a freed trap pointer after a vault teleporter is accepted, shared with Official_nh50 (teleport.c dotele()): after "Jump in?" -> y, deltrap(trap) frees the trap but `trap` stays non-NULL, and the jump line, the cost gate (`!trap && !break_the_rules`), the `trap && trap_once` vault_tele() dispatch and the morehungry() gate then read the freed pointer's value (no dereference: trap_once short-circuits the teledest read; formally undefined behavior). EvilHack fix BUG-2323 (master's BUG-770 shape, d2e1627ff): set trap to NULL after deltrap() with a vault_accepted flag that the four tests use; trap_once goes. | found (branch-fixed); not yet sent |
@@ -29493,6 +29640,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-14 | Ruled small-rows slice rulings (session 227; AskUserQuestion, three questions, all as recommended). (1) LIT OIL: THE HALF-FLASK RULE. fixup_oil() counts the fuel left in a lit flask's burn timer, and a polymorphed flask dilutes only when less than half its oil (200 turns) is left, lit or unlit alike, over fuel-exact (5.0's under-400 rule), "lit never dilutes" and record-only. This corrects the s226 premise: a timer read alone still dilutes a lit flask one turn after lighting (399 of 400). (2) AMULET OF FLYING: identify it at all five flight-unblock sites (the two "You can fly." sites and the three "stopped levitating and are now flying" sites), over only the two ruled sites. At plan time the review added a fourth "stopped levitating" site (Ring_off_or_gone()) and switch_terrain()'s "You start flying.", as the same class. (3) KNIGHT DRAGON GRUDGE: THE INTENT, ZOO ROOMS ONLY. Master's makemon() case is ported, and fill_zoo() leaves a cross-aligned dragon awake for a Knight; special-level asleep flags are left alone. This was chosen over the intent everywhere, closing the row as dead, and deferring. Premise corrected: master's wake is dead, because fill_zoo() re-sleeps after makemon(). | maintainer |
+| 2026-10-14 | Ruling round, four questions, rulings recorded only (session 226 follow-up; AskUserQuestion, all as recommended). (1) QUIVERING BLOB: port master 801dc7d35's "quivers." arm into m_respond() behind `!svc.context.mon_moving`, so it prints only on the hero's zap / boomerang paths (master's exact behavior), over leaving it out. AMENDED the same day: the line alternates at random (rn2(2) after the canseemon() gate) between "quivers." (homage to the name) and "flollops." (the blob is an S_BLOB; a monster's psi bolt already makes it flollop). (2) LIT OIL POLYMORPH: fix the lit case - fixup_oil() reads the fuel left in the burn timer, so a full lit flask polymorphs into a full-strength potion; a part-used flask still dilutes (5.0's rule), over master's no-dilution shape and record-only (the row's "cosmetic" note was stale: diluted potions are weaker since session 197). (3) AMULET OF FLYING WHILE HELD: identify it at the release's "You can fly." when it is the flight source (both release sites), over record-only. (4) create_pit_under() ON A DRAWBRIDGE: reopen the 2026-09-12 keep-for-now and refuse the pit on an open span or drawbridge wall, as dighole() does. All four rows now plannable. | maintainer |
 | 2026-10-14 | Group support casters slice rulings (session 226; AskUserQuestion, three questions, all as recommended). (1) PEACEFUL GROUP: a support caster only when the base monster is hostile (`!mtmp->mpeaceful`, no RNG) - master forces a lone hostile shaman / cleric beside a race-peaceful base (drow / giant / tortle / hobbit / aasimar heroes every time, orcs and co-aligned heroes by chance) whose leader and members are all skipped; archived as master bug BUG-2344, frozen-unfixed. Over master's shape and over a fresh peace_minded() roll. (2) HANG-BACK HP: polymorphed HP (the BUG-554 idiom), written division-free as `max < 4 * cur`, master's test when unpolymorphed. (3) ZAP PATH: the heal gate (`is_support && !mpeaceful && rn2(2)`) lives inside 5.0's m_respond() as the gnome arm's does (BUG-1884 precedent), so zap.c's bhitm() wake and boomhit() take it too where master healed every time (peaceful casters included); plus a sleeping caster never heals (only boomhit() reaches m_respond() with a sleeper). Over the gnome shape alone and over master's exact per-path shape. | maintainer |
 | 2026-10-14 | spec_applies() slice rulings (session 225; AskUserQuestion x2, five questions, all as recommended). (1) SCOPE: THE WHOLE OF MASTER 67524c0bd - all eight mon_aligntyp() reads (spec_applies() DALIGN, gem_accept(), msummon(), nasty() x2, deadbook_pacify_undead(), getlev()'s bones unicorn, sacrifice_your_race()) plus master BUG-982's gem_accept() set_malign(); gaps from other master commits get rows (group support casters / leaders, the Knight dragon wake, the sacrifice demon block). (2) GEM BUDDY: master's shape `sgn(mon_aligntyp(mon)) == u.ualign.type` - an unaligned (A_NONE) Infidel is never a unicorn's buddy (live 0.9.3), over keeping 5.0's sgn(u.ualign.type) that made black unicorns buddies. (3) UNICORN GENERATION (reviewer sibling): fold master 6972e3e62's `u.ualign.type == sgn(ptr->maligntyp)` - black unicorns generate hostile to an Infidel. (4) BONES UNICORN: make it consistent - `u.ualign.type == mon_aligntyp(mtmp)` in getlev()'s ghostly reset, deliberately unlike master's sgn() text, so bones black unicorns are hostile to an Infidel too; the delta reviewer's sibling, mk_trap_statue()'s co-aligned unicorn reroll, was folded under the same principle (coordinator call, flagged for veto at landing). (5) DEADBOOK: fix deadbook_pacify_undead()'s missing set_malign() here (master- and upstream-shared). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 224; AskUserQuestion x2, three questions, all as recommended). (1) TURN UNDEAD KILL NAMES: name + caster in mbhitm()'s force bolt shape - "killed by a spell of turn undead cast by a lich", "killed by a wand of undead turning zapped by a gnome lord", the hero's self-cast "killed by a spell of turn undead", the self-zapped wand unchanged; rejected the spell name only. (2) CHAIN LINE FOR A LEVITATOR THE BRANCHES HELD ALOFT: the plain "You are still chained to the buried ball." before the deferred "You land."; rejected float_up()'s "You feel lighter..." line, which would contradict the landing (grass and ground cases as ruled 2026-10-13). (3) DISPEL EVIL SIBLING (reviewer): fold in, spell-of form - "killed by a spell of dispel evil cast by <mon>"; rejected the bare-name form and a row | maintainer |
