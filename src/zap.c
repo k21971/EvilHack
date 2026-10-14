@@ -669,7 +669,10 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         } else if (otyp == SPE_KNOCK) {
             wake = TRUE;
             ret = 1;
-            if (mtmp->data->msize < MZ_HUMAN && !m_is_steadfast(mtmp)) {
+            /* the hero's own steed shares the hero's square, so there
+               is no direction to knock it in */
+            if (mtmp->data->msize < MZ_HUMAN && !m_is_steadfast(mtmp)
+                && !u_at(mtmp->mx, mtmp->my)) {
                 if (canseemon(mtmp))
                     pline("%s is knocked back!",
                           Monnam(mtmp));
@@ -1720,9 +1723,23 @@ unturn_dead(struct monst *mon)
     return res;
 }
 
+/* undead turning hits the hero: a wand (WAN_UNDEAD_TURNING) or the spell
+   (SPE_TURN_UNDEAD), zapped or cast by 'zapper' (Null for the hero's
+   own) */
 void
-unturn_you(void)
+unturn_you(int otyp, struct monst *zapper)
 {
+    boolean spell = (otyp == SPE_TURN_UNDEAD);
+    char kbuf[BUFSZ];
+
+    /* name the source and whoever sent it, as for a monster's force
+       bolt; built before anything here can change the zapper */
+    (void) death_inflicted_by(kbuf, spell ? "spell of turn undead"
+                                          : "wand of undead turning",
+                              zapper);
+    if (zapper)
+        (void) strsubst(kbuf, "inflicted", spell ? "cast" : "zapped");
+
     (void) unturn_dead(&gy.youmonst); /* hit carried corpses and eggs */
 
     if (maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))
@@ -1737,7 +1754,7 @@ unturn_you(void)
                      Stunned ? "even more " : "");
         make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
 
-        losehp(d(4, 4), "wand of undead turning", KILLED_BY_AN);
+        losehp(d(4, 4), kbuf, KILLED_BY_AN);
     } else if (is_undead(gy.youmonst.data)) {
         You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
         make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
@@ -3650,7 +3667,7 @@ zapyourself(struct obj *obj, boolean ordinary)
     case WAN_UNDEAD_TURNING:
     case SPE_TURN_UNDEAD:
         learn_it = TRUE;
-        unturn_you();
+        unturn_you(obj->otyp, (struct monst *) 0);
         break;
     case SPE_DISPEL_EVIL:
         learn_it = TRUE;

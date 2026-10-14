@@ -5122,10 +5122,20 @@ entangle_release(boolean by_tree)
     else /* the cast named roots or branches at random */
         pline_The("tree releases its grip on you.");
     reset_utrap(TRUE);
+    /* a buried ball's chain that waited behind the hold has the hero now
+       (set_utrap()); say so. A levitator the grass held gets what
+       float_up() says of a chain; one the branches held aloft lands
+       instead (below) */
+    if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+        if (!by_tree && (HLevitation || ELevitation)
+            && !(BLevitation & ~I_SPECIAL))
+            still_chained_msg();
+        else
+            You("are still chained to the buried ball.");
+    }
     if (!Levitation && !Flying && !u.uinwater) {
-        /* a buried ball's chain that waited behind the branches holds the
-           hero now (set_utrap()) and pulls a flyer or floater down; grass
-           had already brought the hero to the ground */
+        /* that chain pulls down a flyer or floater the branches held;
+           grass had already brought the hero to the ground */
         if (by_tree && lift)
             defer_landing(LANDING_FLY);
         else if (over_drop)

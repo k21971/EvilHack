@@ -717,9 +717,13 @@ explode(
                 else
                     pline_The("%s is fatal.", str);
                 /* a monster's spell explosion or artifact surge is the
-                   caster's, wielder's or thrower's kill; nothing rises
-                   from a body the fire burned up */
-                if (!olet && type < 0 && ge.exploder != &gy.youmonst)
+                   caster's, wielder's or thrower's kill, and a sphere's
+                   own explosion is the sphere's; a death blast is
+                   nobody's. Nothing rises from a body the fire burned
+                   up */
+                if (((!olet && type < 0)
+                     || (olet == MON_EXPLODE && ge.exploder_attacked))
+                    && ge.exploder != &gy.youmonst)
                     set_monster_killer(ge.exploder, adtyp != AD_FIRE);
                 /* Known BUG: BURNING suppresses corpse in bones data,
                    but done does not handle killer reason correctly */
@@ -1080,6 +1084,7 @@ mon_explodes(
     struct attack *mattk)
 {
     struct monst *save_exploder;
+    boolean save_attacked;
     int dmg;
     int type;
     if (mattk->damn) {
@@ -1121,12 +1126,17 @@ mon_explodes(
     /* credit the exploding monster for blast kills (set after the
        mondead() above so m_detach() doesn't clear it; a dead pet is
        still valid for the mtame check until dmonsfree()); save and
-       restore so a chained explosion cannot clobber an outer one */
+       restore so a chained explosion cannot clobber an outer one.
+       Spheres and orbs carry both attacks, so only the attack itself
+       tells their own explosion (AT_EXPL) from a death blast (AT_BOOM) */
     save_exploder = ge.exploder;
+    save_attacked = ge.exploder_attacked;
     ge.exploder = mon;
+    ge.exploder_attacked = (mattk->aatyp == AT_EXPL);
     explode(mon->mx, mon->my, type, dmg, MON_EXPLODE,
             adtyp_to_expltype(mattk->adtyp));
     ge.exploder = save_exploder;
+    ge.exploder_attacked = save_attacked;
 
     /* reset killer */
     svk.killer.name[0] = '\0';

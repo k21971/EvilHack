@@ -332,6 +332,7 @@ static const struct instance_globals_e g_init_e = {
     NULL, /* eatmbuf */
     /* explode.c */
     NULL, /* exploder -- monst responsible for current explode() */
+    FALSE, /* exploder_attacked */
     /* mkmaze.c */
     UNDEFINED_PTR, /* ebubbles */
     /* new */

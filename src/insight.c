@@ -254,7 +254,8 @@ trap_predicament(char *outbuf, int final, boolean wizxtra)
         Sprintf(outbuf, "stuck in %s", the(surface(u.ux, u.uy)));
         break;
     case TT_ENTANGLED:
-        Strcpy(outbuf, "entangled in vegetation");
+        Strcpy(outbuf, u_tree_held() ? "entangled by a tree"
+                                     : "entangled in vegetation");
         break;
     default: /* TT_BEARTRAP, TT_PIT, or TT_WEB */
         Strcpy(outbuf, "trapped");

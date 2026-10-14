@@ -1204,7 +1204,8 @@ hurtle(int dx, int dy, int range, boolean verbose)
             : (u.utraptype == TT_LAVA) ? hliquid("lava")
               : (u.utraptype == TT_INFLOOR) ? surface(u.ux, u.uy)
                 : (u.utraptype == TT_BURIEDBALL) ? "buried ball"
-                  : (u.utraptype == TT_ENTANGLED) ? "entangling vegetation"
+                  : (u.utraptype == TT_ENTANGLED)
+                    ? (u_tree_held() ? "tree" : "entangling vegetation")
                     : "trap");
         nomul(0);
         return;

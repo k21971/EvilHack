@@ -1639,6 +1639,11 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
                 || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
                 || (yours
                     && ((!Upolyd && (gu.urace.selfmask & weap->mtype))
+                        /* a vampire hero is undead as vampire monsters
+                           are (MH_UNZOMBIE); the race selfmask stays
+                           MH_VAMPIRE for the race checks that read it */
+                        || (!Upolyd && Race_if(PM_VAMPIRE)
+                            && (weap->mtype & MH_UNZOMBIE))
                         || ((weap->mtype & MH_WERE) && ismnum(u.ulycn)))));
     } else if (weap->spfx & SPFX_DALIGN) {
         return yours ? (u.ualign.type != weap->alignment)

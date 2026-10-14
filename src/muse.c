@@ -2485,7 +2485,7 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                reverts) */
             if (!Upolyd)
                 set_monster_killer(zapper, TRUE);
-            unturn_you();
+            unturn_you(otyp, zapper);
             clear_monster_killer(zapper);
             learnit = (otmp->otyp == WAN_UNDEAD_TURNING) && gz.zap_oseen;
         } else {
@@ -2569,13 +2569,19 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
             /* player is evil (Infidel) - take damage */
             if (u.ualign.type == A_NONE) {
                 int dmg = d(4, 6);
+                char kbuf[BUFSZ];
 
                 if (mcarried(otmp))
                     dmg += otmp->ocarry->m_lev / 3;
                 You("shudder in agony!");
-                /* a fatal dose is the caster's kill */
+                /* a fatal dose is the caster's kill, named as for a
+                   force bolt */
+                (void) death_inflicted_by(kbuf, "spell of dispel evil",
+                                          zapper);
+                if (zapper)
+                    (void) strsubst(kbuf, "inflicted", "cast");
                 set_monster_killer_hp(zapper, dmg, TRUE);
-                losehp(dmg, "dispel evil", KILLED_BY);
+                losehp(dmg, kbuf, KILLED_BY_AN);
             }
         } else if (is_evil(mtmp)) {
             int dmg = d(4, 6);

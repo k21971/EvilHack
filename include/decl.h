@@ -372,6 +372,8 @@ struct instance_globals_e {
     /* explode.c */
     struct monst *exploder; /* monst responsible for current explode();
                              * transient kill attribution, never saved */
+    boolean exploder_attacked; /* exploder's own AT_EXPL attack rather
+                                * than an AT_BOOM death blast */
 
     /* mkmaze.c */
     struct bubble *ebubbles;

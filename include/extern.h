@@ -4401,7 +4401,7 @@ extern struct monst *get_container_location(struct obj *,
 extern struct monst *montraits(struct obj *, coord *, boolean) NONNULLARG12;
 extern struct monst *revive(struct obj *, boolean) NONNULLARG1;
 extern int unturn_dead(struct monst *) NONNULLARG1;
-extern void unturn_you(void);
+extern void unturn_you(int, struct monst *) NO_NNARGS;
 extern void cancel_item(struct obj *, boolean) NONNULLARG1;
 extern void blank_novel(struct obj *) NONNULLARG1;
 extern boolean drain_item(struct obj *, boolean) NO_NNARGS; /* tests !obj */
