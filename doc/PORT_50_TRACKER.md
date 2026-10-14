@@ -17,12 +17,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-13, after session 223's
-  kill-credit slice): 398 rows closed, 111 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-14, after session 224's
+  ruled small-rows slice): 404 rows closed, 106 open. Of the open
+  rows:
   - 0 HIGH.
-  - 4 MED: unported master features (terrain concealment,
+  - 5 MED: unported master features (terrain concealment,
     door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe). Session 217 closed Izchak's death revival
+    dwarvish bearded axe), and spec_applies()' any-category rule
+    (master 2aa336648, silently reverted by the tree adoption:
+    Shadowblade's drain is dead against non-weres; minted session
+    224, needs a whole-commit census). Session 217 closed Izchak's death revival
     (BUG-2300..2301) with the in_town() fix it needed (BUG-2302,
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
@@ -37,7 +41,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 91 LOW: small parity rows, quirks and watch/record-only items.
+  - 85 LOW: small parity rows, quirks and watch/record-only items.
+    Session 224 closed the six ruled or plannable small rows: a
+    sphere's own explosion credits the sphere (BUG-2331), a vampire
+    hero counts as undead for Sunsword / the Hammer (BUG-2332), the
+    tree's hold is named the tree's (BUG-2333), the vines' release
+    announces a waiting buried-ball chain (BUG-2334), knock at the
+    hero's own steed doesn't budge (BUG-2335), and turn undead names
+    its spell / wand and caster (BUG-2336, with dispel evil folded
+    in by ruling). Ruled 2026-10-14, all as recommended: name +
+    caster, the plain chain line for a levitator held aloft, the
+    dispel evil fold. It minted one MED (spec_applies() above); no
+    upstream table rows.
     Session 223 closed the kill-credit cluster: ranged kills credit
     and raise (BUG-2327), master's death-ray naming (BUG-2328) and
     no corpse for "nothing left" deaths (BUG-2329), and by ruling
@@ -46,7 +61,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Hammer vs a vampire hero), two needing a trace (a magic beam
     trap's launch behind a door; ITEM_DRLI missiles never drain),
     one plannable (the turn undead spell's wand name). All five are
-    master-shared.
+    master-shared. Ruled 2026-10-13 (session 223 follow-up; four as
+    recommended), all now plannable: the AT_EXPL sphere kill (credit
+    + rise), the vampire hero vs Sunsword / Hammer (count as undead),
+    session 220's tree-hold wording (name the tree) and buried-ball
+    chain takeover (announce it), and session 221's knock at a
+    ridden steed (add a steed guard, over my close pick).
     Session 222 closed three plannable master-port rows: dotele()'s
     freed trap pointer (BUG-2323, upstream-reportable), the alhoon /
     Kas crumble line (BUG-2324) and the confused scrolls on
@@ -10622,7 +10642,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bhitm()'s tail does not run wakeup() again; an untamed ex-pet
       stays as abuse_dog()'s roll left it, with no guilt and no -5.
       Plannable (upstream-reportable).
-- [ ] LOW: knock cast down at a small ridden steed says it is knocked
+- [x] LOW: knock cast down at a small ridden steed says it is knocked
       back (minted 2026-10-13, session 221, from the BUG-2319 Plan
       agent aside; branch, likely upstream shared). zap_steed() sends
       SPE_KNOCK to bhitm(u.usteed); the knock arm prints "<steed> is
@@ -10631,6 +10651,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       returns after its stun and movement loss - the steed never
       moves. Decide the wording (e.g. "doesn't budge" or a
       steed-specific line) or the effect. Needs a ruling.
+      RULED 2026-10-13 (session 223 follow-up; decisions log): ADD A
+      STEED GUARD, over my close-as-unreachable pick - the knock arm
+      treats the hero's own steed as "<steed> doesn't budge." (it
+      shares the hero's square). In normal play the case cannot
+      arise (can_saddle() needs MZ_MEDIUM, and a steed polymorphed
+      smaller loses its saddle and throws the rider: mon_break_armor()),
+      so only a wizard-mode forced mount reaches it. Plannable.
+      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2335: the knock-back
+      test gains `!u_at(mtmp->mx, mtmp->my)` (force bolt's own
+      guard), so the hero's steed takes "<steed> doesn't budge." with
+      no mhurtle() stun; wakeup() / abuse_dog() unchanged.
 - [x] LOW: monsters still prefer an amulet of life saving that will
       fail (BUG-2305) - FIXED 2026-10-12 (session 218, commit ff29225e2,
       tracker d77e169e3; closure notes in BUGFIXES_ARCHIVE): new
@@ -17230,10 +17262,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       boiled potions, knockback, stolen levitation gear) and delayed
       deaths whose monster is forgotten. Plannable (likely one slice
       with the buzz_killer() naming row below).
-      FIXED 2026-10-13 (session 223, commit pending, tracker pending;
-      closure notes in BUGFIXES_ARCHIVE) as BUG-2327, one slice with
-      the naming row (BUG-2328), the "nothing left" row (BUG-2329)
-      and the ruled removal of 5.0's first-wand-zap miss (BUG-2330).
+      FIXED 2026-10-13 (session 223, commit 8d1bbbaa4, tracker
+      bffe7abec; closure notes in BUGFIXES_ARCHIVE) as BUG-2327, one
+      slice with the naming row (BUG-2328), the "nothing left" row
+      (BUG-2329) and the ruled removal of 5.0's first-wand-zap miss
+      (BUG-2330).
       CREDIT + RISE: thitu() and m_throw()'s poisoned and
       drow-tainted arms (missiles, polearm thrusts, spit, crossfire);
       zhitu()'s death ray, drain, poison gas and damage tail (the
@@ -17305,7 +17338,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       a human zombie, POST none; E7 beheading control unchanged).
       Recorded: a draugr with no revivals left pulled into lava keeps
       a corpse (the revival's savelife() wipes the -3 first).
-- [ ] LOW: an AT_EXPL sphere's explosion credits nobody (minted
+- [x] LOW: an AT_EXPL sphere's explosion credits nobody (minted
       2026-10-13, session 223, by the reviewer; master-shared).
       explmu() -> mon_explodes() explodes with MON_EXPLODE, and
       explode()'s credit arm takes olet 0 only, so a flaming /
@@ -17314,7 +17347,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       would loot nothing anyway: only an XL22+ hero's spectre rise is
       lost. Decide: credit + rise for a sphere's own attack (not a
       gas spore's death blast), or record only. LOW.
-- [ ] LOW: Sunsword and the Hammer of the Gods never treat an
+      RULED 2026-10-13 (session 223 follow-up; decisions log): CREDIT
+      + RISE, as recommended - a sphere's own AT_EXPL explosion
+      (explmu() -> mon_explodes()) credits the dead sphere, so an
+      XL22+ hero rises as a spectre (freezing / shocking; a flaming
+      sphere's BURNING leaves no body); a gas spore's AT_BOOM death
+      blast stays uncredited. Plannable.
+      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2331: new transient
+      ge.exploder_attacked, set by mon_explodes() from the attack
+      type (saved / restored with ge.exploder), lets explode()'s
+      hero-death arm credit an AT_EXPL blast (explmu() and explmm(),
+      spheres and the orbs, the hero's own tame orb included); AT_BOOM
+      death blasts and nested ones stay uncredited.
+- [x] LOW: Sunsword and the Hammer of the Gods never treat an
       unpolymorphed vampire hero as undead (minted 2026-10-13,
       session 223, by battery C; master-shared). Both target
       MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE) through SPFX_DFLAGH, and
@@ -17327,6 +17373,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       MH_UNZOMBIE | MH_VAMPIRE and are hit. Decide: count the vampire
       race as undead for these artifacts (spec_applies() or the
       selfmask), or record only. LOW.
+      RULED 2026-10-13 (session 223 follow-up; decisions log): COUNT
+      AS UNDEAD, as recommended - a narrow spec_applies() term for
+      MH_UNDEAD artifacts (Sunsword, the Hammer of the Gods) treats
+      an unpolymorphed vampire hero as undead; the race selfmask is
+      NOT changed (your_race() / racial_match() read it). A monster
+      wielding either then doubles its damage against a vampire hero
+      and can incinerate one (1 in 5 per hit), as for a draugr.
+      Plannable.
+      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2332: the DFLAGH hero
+      leg gains `!Upolyd && Race_if(PM_VAMPIRE) && (mtype &
+      MH_UNZOMBIE)` (vampire monsters' own bit). Also reaches
+      spec_abon(), score_artifact_weapon() and bane_applies(), where
+      only wizard mode's "Override?" prompt goes (as for a draugr).
+- [ ] MED: spec_applies() lost master's any-category rule (minted
+      2026-10-14, session 224, by the code reviewer; master fix
+      silently reverted by the tree adoption). Master 2aa336648 ("Fix:
+      Shadowblade drain life attack not triggering", 2023-12) made
+      spec_applies() add up DMONS / DCLAS / DFLAG1 / DFLAGH / DALIGN /
+      ATTK independently and return `!!applies`; the branch has 5.0's
+      first-match `else if` chain (byte-identical to Official_nh50).
+      The same commit's artifact_hit() Shadowblade special case IS on
+      the branch, so the half that remains is dead weight. Effects:
+      Shadowblade (DFLAGH MH_WERE + DRLI(8,10)) gets no spec_dbon vs a
+      non-were, so artifact_hit() returns at its `!spec_dbon_applies`
+      exit before the drain-life arm - its drain is dead against most
+      targets. Grimtooth / Angelslayer / Harbinger (DFLAGH + ATTK):
+      spec_dbon() bypasses spec_applies() but spec_abon() does not,
+      so their to-hit bonus is lost outside their warn class. The
+      Sword of Kas (DALIGN + DRST(10,0)) has no bypass: no poison
+      doubling and no poison arm vs chaotic targets. The DALIGN arm
+      also reads ptr->maligntyp where master reads mon_aligntyp().
+      Needs scoping: a whole-commit census of 2aa336648's hunks
+      against the branch, then a plan (restore master's additive
+      form) and a battery per artifact.
 - [ ] LOW: a magic beam trap's launch point can sit beyond a door
       (minted 2026-10-13, session 223, by battery B;
       master-shared). maketrap()'s MAGIC_BEAM_TRAP_SET arm walks up
@@ -17348,11 +17429,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ("The deadly daggers drains your life!", seen with the arm
       forced). Needs a trace of the intended reach, then a ruling.
       LOW.
-- [ ] LOW: a monster's turn undead spell kills as "a wand of undead
+- [x] LOW: a monster's turn undead spell kills as "a wand of undead
       turning" (minted 2026-10-13, session 223, by the census;
       master-shared). unturn_you() hard-codes the wand's name and
       mbhitm()'s SPE_TURN_UNDEAD arm calls it too. Plannable: pass
       the reason or the otyp. LOW.
+      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2336, ruled
+      2026-10-14 (name + caster, force bolt's shape):
+      unturn_you(otyp, zapper) names "spell of turn undead" / "wand
+      of undead turning" and a monster source's "cast by" / "zapped
+      by <mon>"; the hero's self-zapped wand is unchanged. Folded by
+      ruling (reviewer sibling): mbhitm()'s dispel evil at an Infidel
+      hero dies as "a spell of dispel evil cast by <mon>" (was
+      "killed by dispel evil").
 - [x] Off-hand artifact light on two-weapon PORTED 2026-09-12 (session
       114; the row minted 2026-09-09 by the dragon-scaled consumer-sites
       slice's begin_burn caller diff; commit A = src/wield.c +
@@ -23038,20 +23128,50 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       mentangletime runs out (3-10 turns). Needs its own census of the
       tree-death and grass-loss sites for monsters, then a ruling on
       the line. LOW (needs a census, then a ruling).
-- [ ] LOW: two vine-hold lines name a tree's hold "vegetation"
+- [x] LOW: two vine-hold lines name a tree's hold "vegetation"
       (minted 2026-10-13, session 220, reviewer L5; master-shared
       wording). dothrow.c's held-thrower line "You are anchored by the
       entangling vegetation." and insight.c's ^X "entangled in
       vegetation" ignore a tree hold; float_down() now says "tree's
       branches" (BUG-2315) and trapmove() "entangled by a tree". LOW
       (needs a wording ruling).
-- [ ] LOW: a waiting buried-ball chain takes over silently when vines
+      RULED 2026-10-13 (session 223 follow-up; decisions log): NAME
+      THE TREE, as recommended - held by a tree (u_tree_held()):
+      "You are anchored by the tree." when throwing, ^X "You are
+      entangled by a tree."; grass / vine holds keep "You are
+      anchored by the entangling vegetation." and "entangled in
+      vegetation". Plannable.
+      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2333: hurtle()'s
+      anchored line and trap_predicament() (^X and `;` on yourself)
+      name the tree when u_tree_held(). The held-thrower line lives in
+      hurtle(), reached by a throw's recoil only when levitating (a
+      hold blocks that), so its live paths are a monster's knockback,
+      a force bolt's, a grappling hook and #wiztelekinesis.
+- [x] LOW: a waiting buried-ball chain takes over silently when vines
       let go (minted 2026-10-13, session 220, reviewer L6;
       pre-existing). entangle_release() -> reset_utrap() hands the
       hero to a u.utether_pending chain through set_utrap() with no
       line, and a levitator gets no still_chained_msg(); allmain's
       timeout release and the new grass releases share it. Decide
       whether the chain announces itself. LOW (needs a ruling).
+      RULED 2026-10-13 (session 223 follow-up; decisions log):
+      ANNOUNCE IT, as recommended - after the release line, a hero
+      the chain took back gets "You are still chained to the buried
+      ball." on the ground, or float_up()'s still_chained_msg() ("You
+      feel lighter, but your leg is still chained to the floor.")
+      when levitating, as a pit release already does. Plannable.
+      FIXED 2026-10-14 (session 224, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE) as BUG-2334: after
+      entangle_release()'s reset, a chain that took over prints
+      still_chained_msg() for a grass-held levitator where float_up()
+      would have run, else "You are still chained to the buried
+      ball."; a levitator the branches held aloft gets the plain line
+      before "You land." (ruled 2026-10-14). No steed form:
+      cast_entangle() refuses a held hero and dismounts a rider.
+      Recorded: polymon()'s "You slip free of the vegetation." also
+      hands over to a waiting chain silently - the hero's own escape,
+      silent per session 210's ruling, like the other escapes.
 - [ ] LOW: a water-walking hero can burn twice when vines over new
       lava let go (minted 2026-10-13, session 220, reviewer L3;
       pre-existing design). pooleffects()' entangled guard lets a held
@@ -29244,6 +29364,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-14 | Ruled small-rows slice rulings (session 224; AskUserQuestion x2, three questions, all as recommended). (1) TURN UNDEAD KILL NAMES: name + caster in mbhitm()'s force bolt shape - "killed by a spell of turn undead cast by a lich", "killed by a wand of undead turning zapped by a gnome lord", the hero's self-cast "killed by a spell of turn undead", the self-zapped wand unchanged; rejected the spell name only. (2) CHAIN LINE FOR A LEVITATOR THE BRANCHES HELD ALOFT: the plain "You are still chained to the buried ball." before the deferred "You land."; rejected float_up()'s "You feel lighter..." line, which would contradict the landing (grass and ground cases as ruled 2026-10-13). (3) DISPEL EVIL SIBLING (reviewer): fold in, spell-of form - "killed by a spell of dispel evil cast by <mon>"; rejected the bare-name form and a row | maintainer |
+| 2026-10-13 | Ruling round, five questions, rulings recorded only (session 223 follow-up; AskUserQuestion x2, four as recommended). (1) AT_EXPL SPHERE KILL: CREDIT + RISE - a sphere's own explosion credits the dead sphere (XL22+ spectre rise; nothing to loot), a gas spore's death blast stays uncredited; rejected record only. (2) VAMPIRE HERO VS SUNSWORD / HAMMER: COUNT AS UNDEAD - a narrow spec_applies() term for MH_UNDEAD artifacts, race selfmask untouched (double damage and the 1-in-5 incineration now reach a vampire hero, as a draugr); rejected record only. (3) TREE-HOLD WORDING: NAME THE TREE - "You are anchored by the tree." and ^X "entangled by a tree" for a tree's hold, grass keeps "vegetation"; rejected keep. (4) BURIED-BALL CHAIN TAKEOVER: ANNOUNCE IT - "You are still chained to the buried ball." on the ground, still_chained_msg() when levitating; rejected silent. (5) KNOCK AT A RIDDEN STEED: ADD A STEED GUARD ("doesn't budge" for the hero's own steed), over my close-as-unreachable pick (normal play cannot ride a sub-human-size steed) | maintainer |
 | 2026-10-13 | Kill-credit slice ruling (session 223; AskUserQuestion x1, one question, wider than recommended). FIRST WAND ZAP: REMOVE THE RULE - upstream 4d043a6f9's "a monster's first attack-wand zap always misses" (mwandexp, buzz_force_miss, dobuzz()'s forcemiss) is reverted whole: "lets get rid of that 'first wand zap always misses' rule - this is EvilHack, not easyhack". The Plan agent had found that its mbhitm() gate also read the caster for a monster's force bolt (mcast_immediate_spell() sets gb.buzzer), so force bolt never hit the hero outside the pre-experienced levels; I had offered exempting spells only, or a row. Master never had the rule | maintainer |
 | 2026-10-13 | Small master-port slice rulings (session 222; AskUserQuestion x2, two questions). (1) CONFUSED ENCHANT ARMOR / WEAPON ORDER: SUPERMATERIALS ONLY, over my master's-exact-shape pick - ordinary items keep 5.0's glow-then-repair order ("...covered by a shimmering golden shield!" then "...looks as good as new!"); a supermaterial gets master's 13468d07c arm (repair line, then "...shimmers for a moment.", bit left clear; nothing when Blind and pristine); rejected master's repair-first order for every item. (2) BLIND ORDINARY ENCHANT WEAPON LINE: master's Yobjnam2 form, as recommended ("Your long sword feels warm for a moment.", "Your lichen corpse ..."); rejected 5.0's fixed "Your weapon feels warm for a moment.". Consequences recorded with the plan (master parity): enchant armor / weapon clear a destroy armor spell marker for every BUC, re-arming the first-hit absorb; a confused enchant no longer makes a supermaterial immune to the destroy armor scroll (587a78a8c's !oerodeproof skip) or doubles its price | maintainer |
 | 2026-10-13 | Hold-trio slice rulings (session 220; AskUserQuestion x2, six questions, all as recommended). (1) TREE REFUSAL LINES: a pick-axe digging down inside a tree reads "The tree's roots are too thick to dig through."; a wand or spell zapped down reads "The tree's roots glow then fade." (adj_pit_checks()' existing magical tree line); a broken wand skips a tree square silently. (2) MONSTER SLIP-FREE LINE mirrors the hero's: "The xorn slips free of the vegetation." / "...of the tree's grip."; rejected reusing the expiry line "is no longer entangled". (3) TREE SCOPE = IS_TREES(): live trees, dead trees and arboreal-level stone; rejected live trees only. (4) MONSTER LEG of grass / tree loss: mint a row; rejected folding it in and no row. (5) MASTER'S BUG-678 adj_pit_checks() flags fix (lost in the tree adoption, reviewer HIGH): fold the one-line re-port into this slice (BUG-2316); rejected a MED row. (6) GRAZING TAKES A MOVE (reviewer L1; a deliberate master parity break - master's grazing is free): with BUG-2314 a free graze was an instant escape from a vine hold (BUG-2317); rejected accept-as-is and a row | maintainer |
