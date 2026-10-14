@@ -3435,7 +3435,9 @@ makemon(
             mtmp->mpeaceful = FALSE;
         break;
     case S_UNICORN:
-        if (is_unicorn(ptr) && sgn(u.ualign.type) == sgn(ptr->maligntyp))
+        /* the hero's alignment is not sgn()ed: an unaligned (A_NONE)
+           hero has no coaligned unicorns */
+        if (is_unicorn(ptr) && u.ualign.type == sgn(ptr->maligntyp))
             mtmp->mpeaceful = TRUE;
         break;
     case S_BAT:

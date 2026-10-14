@@ -1393,11 +1393,12 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
             continue;
         if (ghostly) {
             /* reset peaceful/malign relative to new character;
-               shopkeepers will reset based on name */
+               shopkeepers will reset based on name; as in makemon(),
+               an unaligned (A_NONE) hero has no coaligned unicorns */
             if (!mtmp->isshk)
                 mtmp->mpeaceful = (is_unicorn(mtmp->data)
-                                   && (sgn(u.ualign.type)
-                                       == sgn(mtmp->data->maligntyp))) ? 1
+                                   && (u.ualign.type
+                                       == mon_aligntyp(mtmp))) ? 1
                                   : peace_minded(mtmp);
             set_malign(mtmp);
         } else if (elapsed > 0L) {
@@ -1549,7 +1550,6 @@ bones_time_adjust(long *timestamp)
      * from ga.articulo_mortis on bones save */
     *timestamp = svm.moves + prevts;
 }
-
 
 /* "name-role-race-gend-algn" occurs very early in a save file; sometimes we
    want the whole thing, other times just "name" (for svp.plname[]) */

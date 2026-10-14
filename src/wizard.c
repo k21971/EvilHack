@@ -821,7 +821,7 @@ nasty(struct monst *summoner, boolean centered_on_stairs)
         count = 0;
         s_cls = summoner ? summoner->data->mlet : 0;
         difcap = summoner ? summoner->data->difficulty : 0; /* spellcasters */
-        castalign = summoner ? sgn(summoner->data->maligntyp) : 0;
+        castalign = summoner ? sgn(mon_aligntyp(summoner)) : 0;
         tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
         /* if we don't have a casting monster, nasties appear around hero,
            otherwise they'll appear around spot summoner thinks she's at;
@@ -928,8 +928,8 @@ nasty(struct monst *summoner, boolean centered_on_stairs)
                     mtmp->mtk_attk = rnd(4);
 
                     if (++count >= MAXNASTIES
-                        || mtmp->data->maligntyp == 0
-                        || sgn(mtmp->data->maligntyp) == castalign)
+                        || mon_aligntyp(mtmp) == 0
+                        || sgn(mon_aligntyp(mtmp)) == castalign)
                         break;
                 }
  nextj:

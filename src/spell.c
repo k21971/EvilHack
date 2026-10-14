@@ -242,7 +242,7 @@ deadbook_pacify_undead(struct monst *mtmp)
     if ((is_undead(mtmp->data) || is_vampshifter(mtmp))
         && cansee(mtmp->mx, mtmp->my)) {
         mtmp->mpeaceful = TRUE;
-        if (sgn(mtmp->data->maligntyp) == sgn(u.ualign.type)
+        if (sgn(mon_aligntyp(mtmp)) == sgn(u.ualign.type)
             && mdistu(mtmp) < 4)
             if (mtmp->mtame) {
                 if (mtmp->mtame < 20)
@@ -251,6 +251,8 @@ deadbook_pacify_undead(struct monst *mtmp)
                 (void) tamedog(mtmp, (struct obj *) 0, TRUE);
         else
             monflee(mtmp, 0, FALSE, TRUE);
+        /* keep malign in step with the new peacefulness */
+        set_malign(mtmp);
     }
 }
 

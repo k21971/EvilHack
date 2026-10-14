@@ -1611,12 +1611,16 @@ bane_applies(const struct artifact *oart, struct monst *mon)
     return FALSE;
 }
 
-/* decide whether an artifact's special attacks apply against mtmp */
+/* decide whether an artifact's special attacks apply against mtmp; each
+   category an artifact names counts on its own, so one with a bane and a
+   special attack (Shadowblade: weres, and whatever its drain can hurt)
+   applies when either does */
 staticfn int
 spec_applies(const struct artifact *weap, struct monst *mtmp)
 {
     struct permonst *ptr;
     boolean yours;
+    int applies = 0;
 
     if (!(weap->spfx & (SPFX_DBONUS | SPFX_ATTK)))
         return (weap->attk.adtyp == AD_PHYS);
@@ -1624,78 +1628,94 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
     yours = (mtmp == &gy.youmonst);
     ptr = mtmp->data;
 
-    if (weap->spfx & SPFX_DMONS) {
-        return (ptr == &mons[(int) weap->mtype]);
-    } else if (weap->spfx & SPFX_DCLAS) {
-        return (weap->mtype == (unsigned long) ptr->mlet
-                || (has_erac(mtmp)
-                    && weap->mtype
-                       == (unsigned long) safe_mons(ERAC(mtmp)->rmnum).mlet));
-    } else if (weap->spfx & SPFX_DFLAG1) {
-        return ((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
-                || (ptr->mflags1 & weap->mtype) != 0L);
-    } else if (weap->spfx & SPFX_DFLAGH) {
-        return ((has_erac(mtmp) && (ERAC(mtmp)->mrace & weap->mtype))
-                || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
-                || (yours
-                    && ((!Upolyd && (gu.urace.selfmask & weap->mtype))
-                        /* a vampire hero is undead as vampire monsters
-                           are (MH_UNZOMBIE); the race selfmask stays
-                           MH_VAMPIRE for the race checks that read it */
-                        || (!Upolyd && Race_if(PM_VAMPIRE)
-                            && (weap->mtype & MH_UNZOMBIE))
-                        || ((weap->mtype & MH_WERE) && ismnum(u.ulycn)))));
-    } else if (weap->spfx & SPFX_DALIGN) {
-        return yours ? (u.ualign.type != weap->alignment)
-                     : (ptr->maligntyp == A_NONE
-                        || sgn(ptr->maligntyp) != weap->alignment);
-    } else if (weap->spfx & SPFX_ATTK) {
-        if (defended(mtmp, (int) weap->attk.adtyp))
-            return FALSE;
-
+    if (weap->spfx & SPFX_DMONS)
+        applies += !!(ptr == &mons[(int) weap->mtype]);
+    if (weap->spfx & SPFX_DCLAS)
+        applies += !!(weap->mtype == (unsigned long) ptr->mlet
+                      || (has_erac(mtmp)
+                          && (weap->mtype
+                              == (unsigned long)
+                                 safe_mons(ERAC(mtmp)->rmnum).mlet)));
+    if (weap->spfx & SPFX_DFLAG1)
+        applies += !!((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
+                      || (ptr->mflags1 & weap->mtype) != 0L);
+    if (weap->spfx & SPFX_DFLAGH)
+        applies += !!((has_erac(mtmp) && (ERAC(mtmp)->mrace & weap->mtype))
+                      || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
+                      || (yours
+                          && ((!Upolyd && (gu.urace.selfmask & weap->mtype))
+                              /* a vampire hero is undead as vampire
+                                 monsters are (MH_UNZOMBIE); the race
+                                 selfmask stays MH_VAMPIRE for the race
+                                 checks that read it */
+                              || (!Upolyd && Race_if(PM_VAMPIRE)
+                                  && (weap->mtype & MH_UNZOMBIE))
+                              || ((weap->mtype & MH_WERE)
+                                  && ismnum(u.ulycn)))));
+    if (weap->spfx & SPFX_DALIGN)
+        applies += !!(yours ? (u.ualign.type != weap->alignment)
+                            : (mon_aligntyp(mtmp) == A_NONE
+                               || sgn(mon_aligntyp(mtmp)) != weap->alignment));
+    if ((weap->spfx & SPFX_ATTK)
+        && !defended(mtmp, (int) weap->attk.adtyp)) {
         switch (weap->attk.adtyp) {
         case AD_FIRE:
-            return !(yours ? ((how_resistant(FIRE_RES) > 99) || Underwater)
-                           : (resists_fire(mtmp) || mon_underwater(mtmp)));
+            applies += !(yours ? ((how_resistant(FIRE_RES) > 99) || Underwater)
+                               : (resists_fire(mtmp) || mon_underwater(mtmp)));
+            break;
         case AD_COLD:
-            return !(yours ? (how_resistant(COLD_RES) > 99)
-                           : resists_cold(mtmp));
+            applies += !(yours ? (how_resistant(COLD_RES) > 99)
+                               : resists_cold(mtmp));
+            break;
         case AD_ELEC:
-            return !(yours ? (how_resistant(SHOCK_RES) > 99)
-                           : resists_elec(mtmp));
+            applies += !(yours ? (how_resistant(SHOCK_RES) > 99)
+                               : resists_elec(mtmp));
+            break;
         case AD_MAGM:
         case AD_STUN:
-            return !(yours ? Antimagic : (rn2(100) < ptr->mr));
+            applies += !(yours ? Antimagic : (rn2(100) < ptr->mr));
+            break;
         case AD_DRST:
-            return !(yours ? (how_resistant(POISON_RES) > 99)
-                           : resists_poison(mtmp));
+            applies += !(yours ? (how_resistant(POISON_RES) > 99)
+                               : resists_poison(mtmp));
+            break;
         case AD_DRLI:
-            return !(yours ? Drain_resistance : resists_drli(mtmp));
+            applies += !(yours ? Drain_resistance : resists_drli(mtmp));
+            break;
         case AD_DREN:
-            return !nonliving(ptr);
+            applies += !nonliving(ptr);
+            break;
         case AD_STON:
-            return !(yours ? Stone_resistance : resists_ston(mtmp));
+            applies += !(yours ? Stone_resistance : resists_ston(mtmp));
+            break;
         case AD_ACID:
-            return !(yours ? (Acid_resistance || Underwater)
-                           : (resists_acid(mtmp) || mon_underwater(mtmp)));
+            applies += !(yours ? (Acid_resistance || Underwater)
+                               : (resists_acid(mtmp) || mon_underwater(mtmp)));
+            break;
         case AD_DISE:
-            return !(yours ? Sick_resistance : resists_sick(mtmp));
+            applies += !(yours ? Sick_resistance : resists_sick(mtmp));
+            break;
         case AD_DETH:
-            return !(yours ? Death_resistance : immune_death_magic(ptr));
+            applies += !(yours ? Death_resistance : immune_death_magic(ptr));
+            break;
         case AD_DISN:
-            return !(yours ? Disint_resistance : resists_disint(mtmp));
+            applies += !(yours ? Disint_resistance : resists_disint(mtmp));
+            break;
         case AD_FUSE:
-            return !(yours ? (((how_resistant(FIRE_RES) > 99) || Underwater)
-                              && (how_resistant(COLD_RES) > 99))
-                           : ((resists_fire(mtmp) || mon_underwater(mtmp)
-                               || defended(mtmp, AD_FIRE))
-                              && (resists_cold(mtmp)
-                                  || defended(mtmp, AD_COLD))));
+            applies += !(yours
+                         ? (((how_resistant(FIRE_RES) > 99) || Underwater)
+                            && (how_resistant(COLD_RES) > 99))
+                         : ((resists_fire(mtmp) || mon_underwater(mtmp)
+                             || defended(mtmp, AD_FIRE))
+                            && (resists_cold(mtmp)
+                                || defended(mtmp, AD_COLD))));
+            break;
         default:
             impossible("Weird weapon special attack.");
+            break;
         }
     }
-    return 0;
+    return !!applies;
 }
 
 /* return the MH flags of monster that an artifact's special attacks apply
@@ -3937,10 +3957,12 @@ artifact_hit(
             if (drain > 0) {
                 /* drain: was target's damage, now heal attacker by half */
                 drain = (drain + 1) / 2; /* drain/2 rounded up */
+                /* magr is Null when ohitmon() delivers the weapon
+                   (scattered by a land mine or bag blast, say); nobody
+                   heals */
                 if (youattack) {
                     healup(drain, 0, FALSE, FALSE);
-                } else {
-                    assert(magr != 0);
+                } else if (magr) {
                     healmon(magr, drain, 0);
                 }
             }

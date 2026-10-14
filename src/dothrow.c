@@ -2857,13 +2857,16 @@ gem_accept(struct monst *mon, struct obj *obj)
         noluck[]     = " graciously",
         addluck[]    = " gratefully";
     char buf[BUFSZ];
-    boolean is_buddy = sgn(mon->data->maligntyp) == sgn(u.ualign.type);
+    /* the hero's alignment is not sgn()ed: an unaligned (A_NONE) hero
+       is no unicorn's buddy */
+    boolean is_buddy = (sgn(mon_aligntyp(mon)) == u.ualign.type);
     boolean is_gem = objects[obj->otyp].oc_material == GEMSTONE;
     int ret = 0;
 
     Strcpy(buf, Monnam(mon));
     mon->mpeaceful = 1;
     mon->mavenge = 0;
+    set_malign(mon);
 
     /* object properly identified */
     if (obj->dknown && objects[obj->otyp].oc_name_known) {

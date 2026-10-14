@@ -77,10 +77,7 @@ msummon(struct monst *mon)
             return 0;
         }
 
-        atyp = mon->ispriest ? EPRI(mon)->shralign
-               : mon->isminion ? EMIN(mon)->min_align
-                 : (ptr->maligntyp == A_NONE) ? A_NONE
-                   : sgn(ptr->maligntyp);
+        atyp = mon_aligntyp(mon);
     } else {
         ptr = &mons[PM_WIZARD_OF_YENDOR];
         atyp = (ptr->maligntyp == A_NONE) ? A_NONE : sgn(ptr->maligntyp);

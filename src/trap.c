@@ -461,10 +461,12 @@ mk_trap_statue(coordxy x, coordxy y)
     struct permonst *mptr;
     int trycount = 10;
 
-    do { /* avoid ultimately hostile co-aligned unicorn */
+    /* avoid ultimately hostile co-aligned unicorn; as in makemon(), an
+       unaligned (A_NONE) hero has no co-aligned unicorns */
+    do {
         mptr = &mons[rndmonnum_adj(3, 6)];
     } while (--trycount > 0 && is_unicorn(mptr)
-             && sgn(u.ualign.type) == sgn(mptr->maligntyp));
+             && u.ualign.type == sgn(mptr->maligntyp));
     statue = mkcorpstat(STATUE, (struct monst *) 0, mptr, x, y,
                         CORPSTAT_NONE);
     /* MM_NOSTEED prevents mount creation for riding monsters; we only

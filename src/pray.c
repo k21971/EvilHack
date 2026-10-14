@@ -2449,7 +2449,7 @@ sacrifice_your_race(
             else
                 dmon->mstrategy &= ~STRAT_APPEARMSG;
             You("have summoned %s!", dbuf);
-            if (sgn(u.ualign.type) == sgn(dmon->data->maligntyp))
+            if (sgn(u.ualign.type) == sgn(mon_aligntyp(dmon)))
                 dmon->mpeaceful = TRUE;
             You("are terrified, and unable to move.");
             nomul(-3);
