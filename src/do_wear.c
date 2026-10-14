@@ -497,10 +497,12 @@ Boots_off(void)
                 float_vs_flight();
                 disp.botl = TRUE; /* status: 'Lev' Off, maybe 'Fly' On */
                 if (was_levitating && !Levitation) {
-                    if (Flying)
+                    if (Flying) {
                         You("have stopped levitating and are now flying.");
-                    else
+                        check_flight_amulet();
+                    } else {
                         defer_landing(LANDING_FLOAT);
+                    }
                 }
             }
             makeknown(otyp);
@@ -1756,6 +1758,25 @@ Amulet_on(struct obj *amul)
         on_msg(uamul);
 }
 
+/* the hero has just started flying because a hold, levitation, or
+   terrain that blocked flight is gone; an amulet of flying put on under
+   that block couldn't be identified by Amulet_on(), so identify it now
+   if it is what lets the hero fly */
+void
+check_flight_amulet(void)
+{
+    boolean other_flight;
+
+    if (!uamul || uamul->otyp != AMULET_OF_FLYING || !Flying)
+        return;
+    /* the same test Amulet_on() makes */
+    EFlying &= ~W_AMUL;
+    other_flight = !!Flying;
+    EFlying |= W_AMUL;
+    if (!other_flight)
+        makeknown(AMULET_OF_FLYING);
+}
+
 void
 Amulet_off(void)
 {
@@ -2116,10 +2137,12 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
             float_vs_flight();
             disp.botl = TRUE; /* status: 'Lev' Off, maybe 'Fly' On */
             if (was_levitating && !Levitation) {
-                if (Flying)
+                if (Flying) {
                     You("have stopped levitating and are now flying.");
-                else
+                    check_flight_amulet();
+                } else {
                     defer_landing(LANDING_FLOAT);
+                }
                 learnring(obj, TRUE);
             }
         } else if (!(BLevitation & FROMOUTSIDE)) {

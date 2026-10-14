@@ -473,7 +473,9 @@ fill_zoo(struct mkroom *sroom)
                               sx, sy, MM_ASLEEP | MM_NOGRP);
             }
             if (mon) {
-                mon->msleeping = 1;
+                /* a dragon grudging a Knight stays awake (see makemon()) */
+                if (!dragon_grudges_knight(mon))
+                    mon->msleeping = 1;
                 if (type == COURT && mon->mpeaceful) {
                     mon->mpeaceful = 0;
                     set_malign(mon);

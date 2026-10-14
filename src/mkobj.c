@@ -2315,11 +2315,21 @@ fixup_oil(
             potion->age = MAX_OIL_IN_FLASK;
         }
     } else if (source && source->otyp == POT_OIL) {
+        long fuel = source->age;
+
+        /* a lit source keeps most of its fuel in its burn timer */
+        if (source->lamplit) {
+            long expires = peek_timer(BURN_OBJECT, obj_to_any(source));
+
+            if (expires)
+                fuel += expires - svm.moves;
+        }
         /* potion is no longer oil, being turned into non-oil */
         if (potion->age == source->age)
             potion->age = svm.moves;
-        /* when source is a partly used oil, mark potion as diluted */
-        if (source->age < MAX_OIL_IN_FLASK)
+        /* when source has burned more than half its oil, mark potion
+           as diluted */
+        if (fuel < MAX_OIL_IN_FLASK / 2)
             potion->odiluted = 1;
     }
 }

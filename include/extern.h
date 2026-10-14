@@ -820,6 +820,7 @@ extern void cancel_don(void);
 extern int stop_donning(struct obj *); /* doseduce() calls with NULL */
 extern boolean u_big_wings(void);
 extern void check_wings(boolean);
+extern void check_flight_amulet(void);
 extern int Armor_off(void);
 extern int Armor_gone(void);
 extern void dragon_armor_handling(struct obj *, boolean, boolean);
@@ -1632,6 +1633,7 @@ extern int adj_lev(struct permonst *) NONNULLARG1;
 extern struct permonst *grow_up(struct monst *, struct monst *) NONNULLARG1;
 extern struct obj* mongets(struct monst *, int) NONNULLARG1;
 extern int golemhp(int);
+extern boolean dragon_grudges_knight(struct monst *) NONNULLARG1;
 extern boolean peace_minded(struct monst *) NONNULLARG1;
 extern void set_malign(struct monst *) NONNULLARG1;
 extern void newmcorpsenm(struct monst *) NONNULLARG1;

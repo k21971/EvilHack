@@ -3510,6 +3510,15 @@ makemon(
         if (Inhell && is_bat(ptr))
             mon_adjust_speed(mtmp, 2, (struct obj *) 0);
         break;
+    case S_DRAGON:
+        /* cross-aligned dragons bear a grudge against Knights and are
+           generated awake and hostile; same-aligned dragons follow the
+           normal rules and may even be tamed (see tamedog()) */
+        if (dragon_grudges_knight(mtmp)) {
+            mtmp->mpeaceful = mtmp->mtame = FALSE;
+            mtmp->msleeping = 0;
+        }
+        break;
     }
     if ((ct = emits_light(mtmp->data)) > 0)
         new_light_source(mtmp->mx, mtmp->my, ct, LS_MONSTER,
@@ -4613,6 +4622,15 @@ golemhp(int type)
     default:
         return 0;
     }
+}
+
+/* cross-aligned dragons bear a grudge against Knights; makemon() and
+   fill_zoo() generate them awake */
+boolean
+dragon_grudges_knight(struct monst *mtmp)
+{
+    return (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_DRAGON
+            && sgn(mon_aligntyp(mtmp)) != u.ualign.type);
 }
 
 /*

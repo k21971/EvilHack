@@ -3507,8 +3507,10 @@ switch_terrain(void)
         /* [minor bug: we don't know whether this is beginning flight or
            resuming it; that could be tracked so that this message could
            be adjusted to "resume flying", but isn't worth the effort...] */
-        if (Flying && !was_flying)
+        if (Flying && !was_flying) {
             You("start flying.");
+            check_flight_amulet();
+        }
     }
     if ((!!Levitation ^ was_levitating) || (!!Flying ^ was_flying))
         disp.botl = TRUE; /* update Lev/Fly status condition */

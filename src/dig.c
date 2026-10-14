@@ -2155,8 +2155,10 @@ end_buried_tether(boolean msg)
            so that runs even when the caller wants no message */
         if (!was_Lev && Levitation)
             float_up();
-        if (msg && !was_Fly && Flying)
+        if (msg && !was_Fly && Flying) {
             You("can fly.");
+            check_flight_amulet();
+        }
     } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
         reset_utrap(msg);
     }
@@ -2590,8 +2592,11 @@ create_pit_under(struct monst *mdef, struct monst *magr)
     boolean sent_down_hole = FALSE;
 
     /* check for illegalities: out of bounds, terrain unsuitable for traps,
-     * or trap types that should not be deleted and replaced with pits */
+     * or trap types that should not be deleted and replaced with pits;
+     * a lowered drawbridge is as hard as digging finds it (the portcullis
+     * square, a drawbridge wall or doorway, already fails SPACE_POS) */
     if (!isok(x, y) || !SPACE_POS(typ) || IS_FURNITURE(typ) || IS_AIR(typ)
+        || typ == DRAWBRIDGE_DOWN
         || (trap && undestroyable_trap(trap->ttyp))
         || (In_endgame(&u.uz) && !Is_earthlevel(&u.uz))) {
         if (youattack) {

@@ -1314,8 +1314,10 @@ reset_utrap(boolean msg)
     if (msg) {
         if (!was_Lev && Levitation)
             float_up();
-        if (!was_Fly && Flying)
+        if (!was_Fly && Flying) {
             You("can fly.");
+            check_flight_amulet();
+        }
     }
 }
 
@@ -4889,6 +4891,7 @@ float_down(
                             * unless hero is stuck in floor */
         if (Flying) {
             You("have stopped levitating and are now flying.");
+            check_flight_amulet();
             encumber_msg(); /* carrying capacity might have changed */
             return 1;
         }

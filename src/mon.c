@@ -30,6 +30,7 @@ staticfn void logdeadmon(struct monst *, int, boolean, struct monst *);
 staticfn void anger_quest_guardians(struct monst *);
 staticfn boolean ok_to_obliterate(struct monst *);
 staticfn void m_respond_shrieker(struct monst *);
+staticfn void m_respond_blob(struct monst *);
 staticfn void m_respond_medusa(struct monst *);
 staticfn void m_respond_zombie(struct monst *);
 staticfn void m_respond_gnome(struct monst *);
@@ -6693,6 +6694,16 @@ m_respond_shrieker(struct monst *mtmp)
     aggravate();
 }
 
+/* quivering blob special action: quiver, or flollop like the jelly it
+   is, when the hero's zap or boomerang reaches it */
+staticfn void
+m_respond_blob(struct monst *mtmp)
+{
+    if (canseemon(mtmp))
+        pline_mon(mtmp, "%s %s.", Monnam(mtmp),
+                  rn2(2) ? "quivers" : "flollops");
+}
+
 /* medusa special action: gaze at hero */
 staticfn void
 m_respond_medusa(struct monst *mtmp)
@@ -6797,6 +6808,10 @@ m_respond(struct monst *mtmp)
 {
     if (mtmp->data->msound == MS_SHRIEK && !um_dist(mtmp->mx, mtmp->my, 1))
         m_respond_shrieker(mtmp);
+    /* dochug() calls this every turn the blob moves; it should only
+       respond when the hero's action reaches it */
+    if (mtmp->data == &mons[PM_QUIVERING_BLOB] && !svc.context.mon_moving)
+        m_respond_blob(mtmp);
     if (mtmp->data == &mons[PM_MEDUSA] && couldsee(mtmp->mx, mtmp->my))
         m_respond_medusa(mtmp);
     if (is_zombie(mtmp->data) && !rn2(10))

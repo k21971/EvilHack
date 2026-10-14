@@ -4875,10 +4875,12 @@ arti_invoke(struct obj *obj)
                 float_vs_flight();
                 disp.botl = TRUE;
                 if (was_levitating) {
-                    if (Flying)
+                    if (Flying) {
                         You("have stopped levitating and are now flying.");
-                    else
+                        check_flight_amulet();
+                    } else {
                         defer_landing(LANDING_FLOAT);
+                    }
                 }
             } else {
                 (void) float_down(I_SPECIAL | TIMEOUT, W_ARTI);
