@@ -17,13 +17,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-14, after session 227's ruled
-  small-rows slice): 412 rows closed, 104 open. Of the open
+- Phase 2 status (refreshed 2026-10-15, after session 228's terrain
+  concealment slice): 413 rows closed, 103 open. Of the open
   rows:
   - 0 HIGH.
-  - 4 MED: unported master features (terrain concealment,
-    door-material colors, the held artifact pokedex tips, #apply a
-    dwarvish bearded axe). Session 226 closed m_initgrp()'s group
+  - 3 MED: unported master features (door-material colors, the held
+    artifact pokedex tips, #apply a dwarvish bearded axe). Session
+    228 closed terrain concealment: hiders hide in grass and sand and
+    under sinks, altars, thrones, ladders and graves (BUG-2352), with
+    master's hold-in-cover move rule (BUG-2353), re-checks where that
+    terrain vanishes (BUG-2354), master's lost ceiling-drop fixes
+    (BUG-2355..2356), the sticky-mimic reveal (BUG-2357, damp-sweep
+    rider (d)), master's remove_object() re-check (BUG-2358) and two
+    ceiling-drop siblings from the reviewer (BUG-2359..2360). Ruled
+    2026-10-14/15, all as recommended but the wording: terrain is the
+    fallback cover, master's move rule, "in the grass" / "under the
+    throne" with plain names (the maintainer's pick over master's
+    farlook names), and the hide message stays for pets too. Nothing
+    minted; three upstream table rows (BUG-2355, 2356, 2359).
+    Session 226 closed m_initgrp()'s group
     support casters and leaders (BUG-2343..2346). Session 225
     closed spec_applies()' any-category rule (BUG-2338).
     Session 217 closed Izchak's death revival
@@ -6370,7 +6382,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (2026-09-24, jumping slice - its worn producer landed there);
       (d) mattacku mimic-sticky reveal block (master mhitu.c:926-940,
       "was hidden under" after set_ustuck) - pre-existing structural
-      gap adjacent to the ported reveal arms;
+      gap adjacent to the ported reveal arms; DONE 2026-10-15
+      (session 228, BUG-2357, with the terrain concealment row);
       (e) detect.c leech/eel unhide arms (master detect.c:1824/2000 -
       detection must unhide leeches; the branch's detection unhide
       gates predate the leech hider class);
@@ -11453,7 +11466,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pyrolisk egg gets no tier line for that hit; master has no
       pyrolisk arm (parity n/a). Candidate: report the tier before the
       early return when the target survived. LOW.
-- [ ] Terrain concealment (concealed_spot/explain_terrain) NOT PORTED
+- [x] Terrain concealment (concealed_spot/explain_terrain) NOT PORTED
       (NEW, minted 2026-09-08 by the pokedex slice; MED). Master's
       concealed_spot() + the explain_terrain() macro (display.h) name
       the terrain a hider hides under; six consumers: apply.c
@@ -11468,6 +11481,46 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       lacks master's `else if (concealed_spot(u.ux, u.uy)) " under
       <explain_terrain()>"` arm after the object test; it stays on
       this row.
+      CORRECTED 2026-10-15 (session 228 census): master's apply.c
+      consumer is fig_transform()'s "crawl under" line, not the
+      stethoscope (that reaches mhidden_description() through
+      mstatusline()); master calls concealed_spot() at fourteen
+      places, including the sanity check, maybe_unhide_at(),
+      hideunder(), m_move()'s hold, dohide(), animate_statue(),
+      rot_corpse() and create_particular().
+      RULED 2026-10-14/15 (session 228, decisions log): terrain still
+      hides when 5.0 refuses the object cover; master's m_move() hold
+      rule; the wording "in the grass" / "in the sand" / "under the
+      throne" (plain names, never "opulent throne" or "ladder up");
+      the hide message stays for pets.
+      FIXED 2026-10-15 (session 228, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE; plan
+      /root/.claude/plans/feature-terrain-concealment.md) as
+      BUG-2352..2360:
+      - BUG-2352: monmove.c terrain_cover_phrase() /
+        concealing_terrain() / concealed_spot() / hider_cover_at(),
+        mon.c can_hide_under_pile() / hider_terrain_cover() /
+        hider_cover_phrase(); hideunder() falls back to the terrain;
+        maybe_unhide_at() re-applies every hideunder() rule; the
+        sanity check, dohide() (with an `otop &&` guard on the
+        cockatrice-pile arm), animate_statue(), rot_corpse(),
+        create_particular() and the messages in mhitu.c, uhitm.c,
+        pager.c, insight.c and apply.c.
+      - BUG-2353: master's hold-in-cover rule in m_move().
+      - BUG-2354: maybe_unhide_at() where concealing terrain
+        vanishes (sit.c x2, pray.c, do.c x2, fountain.c, zap.c,
+        trap.c maketrap(), dig.c liquid_flow(), mklev.c, objnam.c).
+      - BUG-2355 / BUG-2356: master's BUG-1137 / BUG-1288
+        ceiling-drop fixes, lost in the adoption.
+      - BUG-2357: the sticky-mimic reveal (damp-sweep rider (d)).
+      - BUG-2358: master's BUG-220 remove_object() re-check, with
+        remove_object_core() for recreate_pile_at(), movebubbles()
+        and set_bc().
+      - BUG-2359 / BUG-2360 (reviewer, same block): the drop no longer
+        strikes an attacker its landing killed, drags a rider's steed
+        along and clears entanglement.
+      Batteries T1 / T2 / T3, 33 POST legs PASS, every POST paniclog
+      clean; PRE logged the four claimed impossibles.
 - [ ] Artifact behaviour remainder = the HELD pokedex tips (NEW,
       minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
       The 2026-09-08 audit checked all 128 arti_specials[] lines
@@ -17528,7 +17581,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       monster's psi bolt already makes it flollop) - a random 50/50
       pick, `rn2(2)` rolled only once the canseemon() gate passes.
       An EvilHack extension of master's text.
-      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 227, commit e20c574be, tracker 01e398ea3;
       closure notes in BUGFIXES_ARCHIVE; plan
       /root/.claude/plans/feature-ruled-small-rows-s227.md) as
       BUG-2347: m_respond_blob() and its gated arm after the
@@ -17571,7 +17624,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       afterwards.
       RULED 2026-10-14 (session 227, decisions log): THE INTENT,
       ZOO ROOMS ONLY.
-      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 227, commit e20c574be, tracker 01e398ea3;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2351:
       - dragon_grudges_knight() in makemon.c, using master's mlet
         S_DRAGON test.
@@ -17854,7 +17907,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       same-turn polymorph would come out full strength.
       RULED 2026-10-14 (session 227, decisions log): THE HALF-FLASK
       RULE, for lit and unlit flasks alike.
-      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 227, commit e20c574be, tracker 01e398ea3;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2348. fixup_oil()
       totals the source's age plus a lit source's burn-timer
       remainder (peek_timer(), exactly cleanup_burn()'s refund), and
@@ -18657,7 +18710,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       drawbridge span and the drawbridge wall to create_pit_under()'s
       refusal gate so the pit fails as digging does (master-shared
       fix); rejected keeping the earlier ruling. Plannable.
-      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 227, commit e20c574be, tracker 01e398ea3;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2350. The gate adds
       `typ == DRAWBRIDGE_DOWN`. The drawbridge-wall term is left out
       because it is already refused: is_drawbridge_wall() needs DOOR
@@ -27949,7 +28002,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       rejected record-only. Plannable.
       WIDENED 2026-10-14 (session 227 ruling, decisions log): every
       flight-unblock site.
-      FIXED 2026-10-14 (session 227, commit pending, tracker pending;
+      FIXED 2026-10-14 (session 227, commit e20c574be, tracker 01e398ea3;
       closure notes in BUGFIXES_ARCHIVE) as BUG-2349.
       check_flight_amulet() (do_wear.c) runs Amulet_on()'s mask test
       after seven messages:
@@ -29427,6 +29480,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-15 | A ceiling-hider hero's drop leaves a hidden attacker hidden over nothing. Shared with Official_nh50 and NetHack50 (mhitu.c mattacku(), the `is_hider(youmonst.data)` block): the attacking monster is moved onto the hero's old square with place_monster(), and a hides_under attacker that was hidden under objects on its own square stays mundetected on the bare square, so the sanity check logs "mon hiding under nonexistent obj". EvilHack fix BUG-2355 (master's BUG-1137): maybe_unhide_at() + newsym() after the swap. | found (branch-fixed); not yet sent |
+| 2026-10-15 | The same drop moves a trapped attacker off its trap with mtrapped still set ("trapped without a trap"). Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2356 (master's BUG-1288): clear mtrapped and fill_pit() the old square before place_monster(). | found (branch-fixed); not yet sent |
+| 2026-10-15 | The same drop can strike an attacker that the hero's landing has already killed. Shared with Official_nh50 and NetHack50: teleds() runs spoteffects() on the landing square (enexto() does not avoid traps), so a land mine's blast or a rolling boulder can kill the moved attacker; a piercer hero's arm then runs find_mac() and killed() on the dead monster (battery: "It is almost hit by a falling piercer (you)!" after the attacker had died). EvilHack fix BUG-2359: `if (DEADMONSTER(mtmp)) return 1;` after teleds(). | found (branch-fixed); not yet sent |
 | 2026-10-14 | A lit potion of oil polymorphed into another potion always comes out diluted. Shared with Official_nh50 (mkobj.c fixup_oil(), from zap.c poly_obj()): begin_burn() moves an undiluted flask's whole age into its burn timer, so fixup_oil() reads age 0 and `source->age < MAX_OIL_IN_FLASK` marks the result odiluted however full the flask is. EvilHack fix BUG-2348 adds a lit source's peek_timer(BURN_OBJECT) remainder to its age. The upstream patch should send ONLY that timer read: EvilHack's half-flask threshold is a gameplay ruling (diluted potions are weaker here), not part of the upstream fix. | found (branch-fixed); not yet sent |
 | 2026-10-14 | An amulet of flying put on while flight is blocked is never identified when flight begins. Shared with Official_nh50 (do_wear.c Amulet_on() identifies only when flight starts at once). Put on in a web, a bear trap or a buried-ball tether, while levitating, or inside rock, it gives no message, and the later "You can fly." (trap.c reset_utrap(), dig.c's tether release), "You have stopped levitating and are now flying." (trap.c float_down() and the lava / erode arms) or "You start flying." (hack.c switch_terrain()) leaves it unidentified. EvilHack fix BUG-2349: a check_flight_amulet() helper that runs Amulet_on()'s EFlying W_AMUL mask test after each message and calls makeknown(). | found (branch-fixed); not yet sent |
 | 2026-10-14 | Reading the blessed Book of the Dead pacifies undead without resyncing their alignment value, shared with Official_nh50 (spell.c deadbook_pacify_undead()): `mtmp->mpeaceful = TRUE` runs with no set_malign() on the monflee() arm (a coaligned undead 2+ squares away, or any cross-aligned one) and on the already-tame arm, so a hostile coaligned undead keeps its renegade malign (positive) after turning peaceful and killing it later gains alignment instead of costing it (a skeletal hound, alignment -3, for a chaotic hero: +3 where a peaceful one is -9). EvilHack fix BUG-2342: set_malign(mtmp) after the tame / flee branch. | found (branch-fixed); not yet sent |
@@ -29640,6 +29696,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-14/15 | Terrain concealment slice rulings (session 228; AskUserQuestion x2, four questions). (1) FALLBACK: terrain still hides a hides_under monster or hero when 5.0 refuses the object cover (fewer than 10 coins, a pet on a cursed pile, a pile of only cockatrice corpses); rejected master's shape, where any object makes it object cover only (as recommended). (2) MOVEMENT: master's hold rule - the hider picks its move, attacks from cover, moves cover-to-cover freely and refuses 9 in 10 moves onto ground with no cover; rejected 5.0's early "do not leave hiding place" return (as recommended). (3) WORDING: "in the grass" / "in the sand", "under the throne / ladder / sink / altar / grave" with plain names and the article everywhere (farlook, ^X included); rejected master's farlook names ("under the opulent throne", "under the ladder up"), which was my recommendation, and plain names with "under" throughout. (4) HIDE MESSAGE (after battery B4: a pet garter snake in a half-grass room, 51 lines in 523 turns): keep "You see <mon> hide in the grass." for every hider, pets included, as 5.0 does for object cover (as recommended). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 227; AskUserQuestion, three questions, all as recommended). (1) LIT OIL: THE HALF-FLASK RULE. fixup_oil() counts the fuel left in a lit flask's burn timer, and a polymorphed flask dilutes only when less than half its oil (200 turns) is left, lit or unlit alike, over fuel-exact (5.0's under-400 rule), "lit never dilutes" and record-only. This corrects the s226 premise: a timer read alone still dilutes a lit flask one turn after lighting (399 of 400). (2) AMULET OF FLYING: identify it at all five flight-unblock sites (the two "You can fly." sites and the three "stopped levitating and are now flying" sites), over only the two ruled sites. At plan time the review added a fourth "stopped levitating" site (Ring_off_or_gone()) and switch_terrain()'s "You start flying.", as the same class. (3) KNIGHT DRAGON GRUDGE: THE INTENT, ZOO ROOMS ONLY. Master's makemon() case is ported, and fill_zoo() leaves a cross-aligned dragon awake for a Knight; special-level asleep flags are left alone. This was chosen over the intent everywhere, closing the row as dead, and deferring. Premise corrected: master's wake is dead, because fill_zoo() re-sleeps after makemon(). | maintainer |
 | 2026-10-14 | Ruling round, four questions, rulings recorded only (session 226 follow-up; AskUserQuestion, all as recommended). (1) QUIVERING BLOB: port master 801dc7d35's "quivers." arm into m_respond() behind `!svc.context.mon_moving`, so it prints only on the hero's zap / boomerang paths (master's exact behavior), over leaving it out. AMENDED the same day: the line alternates at random (rn2(2) after the canseemon() gate) between "quivers." (homage to the name) and "flollops." (the blob is an S_BLOB; a monster's psi bolt already makes it flollop). (2) LIT OIL POLYMORPH: fix the lit case - fixup_oil() reads the fuel left in the burn timer, so a full lit flask polymorphs into a full-strength potion; a part-used flask still dilutes (5.0's rule), over master's no-dilution shape and record-only (the row's "cosmetic" note was stale: diluted potions are weaker since session 197). (3) AMULET OF FLYING WHILE HELD: identify it at the release's "You can fly." when it is the flight source (both release sites), over record-only. (4) create_pit_under() ON A DRAWBRIDGE: reopen the 2026-09-12 keep-for-now and refuse the pit on an open span or drawbridge wall, as dighole() does. All four rows now plannable. | maintainer |
 | 2026-10-14 | Group support casters slice rulings (session 226; AskUserQuestion, three questions, all as recommended). (1) PEACEFUL GROUP: a support caster only when the base monster is hostile (`!mtmp->mpeaceful`, no RNG) - master forces a lone hostile shaman / cleric beside a race-peaceful base (drow / giant / tortle / hobbit / aasimar heroes every time, orcs and co-aligned heroes by chance) whose leader and members are all skipped; archived as master bug BUG-2344, frozen-unfixed. Over master's shape and over a fresh peace_minded() roll. (2) HANG-BACK HP: polymorphed HP (the BUG-554 idiom), written division-free as `max < 4 * cur`, master's test when unpolymorphed. (3) ZAP PATH: the heal gate (`is_support && !mpeaceful && rn2(2)`) lives inside 5.0's m_respond() as the gnome arm's does (BUG-1884 precedent), so zap.c's bhitm() wake and boomhit() take it too where master healed every time (peaceful casters included); plus a sleeping caster never heals (only boomhit() reaches m_respond() with a sleeper). Over the gnome shape alone and over master's exact per-path shape. | maintainer |
