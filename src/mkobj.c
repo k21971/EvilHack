@@ -963,7 +963,9 @@ mksobj_init(struct obj **obj, boolean artif)
             && is_drow_weapon(otmp) && !rn2(100))
             otmp->otainted = 1;
 
-        if (artif && !rn2(20 + (10 * nartifact_exist()))) {
+        /* the odds fall with each artifact the hero has wished for,
+           not with each artifact in existence */
+        if (artif && !rn2(30 + (5 * u.uconduct.wisharti))) {
             /* mk_artifact() with otmp and A_NONE will never return NULL */
             otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
             *obj = otmp;
@@ -1234,7 +1236,8 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->spe = rne(3);
         } else
             blessorcurse(otmp, 10);
-        if (artif && !rn2(40 + (10 * nartifact_exist()))) {
+        /* as for weapons, scaled by the hero's artifact wishes */
+        if (artif && !rn2(40 + (5 * u.uconduct.wisharti))) {
             /* mk_artifact() with otmp and A_NONE will never return NULL */
             otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
             *obj = otmp;
