@@ -38,6 +38,9 @@ staticfn int QSORTCALLBACK vanqsort_cmp(const genericptr, const genericptr);
 staticfn int num_extinct(void);
 staticfn int num_gone(int, int *);
 staticfn char *size_str(int);
+#ifdef CHRONICLE
+staticfn void putstr_long_row(winid, const char *, int);
+#endif
 
 extern const char *const hu_stat[];  /* hunger status from eat.c */
 extern const char *const enc_stat[]; /* encumbrance status from botl.c */
@@ -2948,6 +2951,42 @@ do_gamelog(void)
 #define majorevent(llmsg) (((llmsg)->flags & LL_majors) != 0)
 #define spoilerevent(llmsg) (((llmsg)->flags & LL_SPOILER) != 0)
 
+#ifdef CHRONICLE
+/* window ports expect putstr() text shorter than BUFSZ (and tty's
+   compress_str() drops the last character of an unpadded 255-character
+   line); show a longer #chronicle row in pieces of at most BUFSZ - 2
+   characters split at spaces, each continuation indented by 'indent' to
+   line up under the entry's text */
+staticfn void
+putstr_long_row(winid win, const char *row, int indent)
+{
+    char piece[BUFSZ];
+    const char *p = row;
+    int len, cut, room, pad = 0;
+
+    if (indent < 0 || indent > BUFSZ / 2)
+        indent = 0;
+    while (*p) {
+        room = BUFSZ - 2 - pad;
+        len = (int) strlen(p);
+        if (len <= room) {
+            cut = len;
+        } else {
+            for (cut = room; cut > 0 && p[cut] != ' '; --cut)
+                continue;
+            if (!cut)
+                cut = room; /* no space to split at */
+        }
+        Snprintf(piece, sizeof piece, "%*s%.*s", pad, "", cut, p);
+        putstr(win, 0, piece);
+        p += cut;
+        while (*p == ' ')
+            ++p;
+        pad = indent;
+    }
+}
+#endif /* CHRONICLE */
+
 /* #chronicle details */
 void
 show_gamelog(int final)
@@ -2955,7 +2994,9 @@ show_gamelog(int final)
 #ifdef CHRONICLE
     struct gamelog_line *llmsg;
     winid win;
-    char buf[BUFSZ];
+    /* a turn number plus a whole entry; livelog_printf() allows entries
+       up to BUFSZ * 2 */
+    char buf[BUFSZ * 2 + 32];
     int eventcnt = 0;
 
     win = create_nhwindow(NHW_MENU);
@@ -2969,7 +3010,12 @@ show_gamelog(int final)
         if (!eventcnt++)
             putstr(win, ATR_SUBHEAD, " Turn");
         Snprintf(buf, sizeof buf, "%5ld: %s", llmsg->turn, llmsg->text);
-        putstr(win, 0, buf);
+        /* the dumplog's writers ('final') take a row of any length */
+        if (!final && strlen(buf) >= BUFSZ - 1)
+            putstr_long_row(win, buf,
+                            (int) (strlen(buf) - strlen(llmsg->text)));
+        else
+            putstr(win, 0, buf);
     }
     /* since start of game is logged as a major event, 'eventcnt' should
        never end up as 0; for 'final', end of game is a major event too */
