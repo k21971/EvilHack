@@ -17,11 +17,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-15, after session 229's bearded
-  axe slice): 414 rows closed, 106 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-15, after session 230's held
+  artifact tips slice): 415 rows closed, 109 open. Of the open rows:
   - 0 HIGH.
-  - 2 MED: unported master features (door-material colors, the held
-    artifact pokedex tips). Session 229 closed #apply a dwarvish
+  - 3 MED: unported master features (door-material colors, the
+    Magic 8-Ball's read advice and #apply wish, bag explosion
+    damage). Session 230 re-entered 18 of the 20 held artifact
+    pokedex tips with their mechanisms (BUG-2365..2376): Butcher and
+    the Staff of the Archmagi keep out of Mb_hit()'s scare / cancel
+    tiers with master's three hit nouns, plus four lost Mb_hit()
+    guards (the probe of the hero no longer marks (0,0)); Tempest's
+    remaining stun holes (a yellow mold's passive; the Archon gaze
+    and stalker corpse for monster wielders, ruled mirror) and the
+    stun spell's misplaced immunity test (master-shared); the Sword
+    of Annihilation and the Armor of Retribution never destroyed;
+    the Bag of the Hesperides' weight tier and waterproofing;
+    Ashmar / Retribution Con 25 and Retribution's carry cap;
+    Secespita's x1.5 sacrifice and kill energy (real kills only);
+    the Wand of Orcus curses itself (a restore guard); cursed lock
+    tools break; the Gauntlets of Purity gate, piety line, slide-off
+    and martial bonus (closes the wear-restriction row); Dragonbane's
+    dragon-hero sear and destroy-armor refusal. Ruled 2026-10-15, six
+    questions, all as recommended. The umbrella row now owns only the
+    Magic 8-Ball. Minted the bag explosion MED and three LOW rows.
+    Session 229 closed #apply a dwarvish
     bearded axe: the hook grabs a monster's weapon or, one time in
     four, its shield, climbs out of a pit and otherwise chops
     (BUG-2361; shared parts mirror the branch whip, a "swing" wield
@@ -55,15 +74,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   - 5 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity, racial size
     macros.
-  - 12 untagged: port gaps (Muse offense items, creeping mound
-    meatfood(), monster chest_trap(), Gauntlets of Purity wear
-    gate, nasties[] reconcile,
+  - 11 untagged: port gaps (Muse offense items, creeping mound
+    meatfood(), monster chest_trap(), nasties[] reconcile,
     des-placed mplayer sex, look_at_monster buffer, "pairs of"),
     rows that wait on other work (endgame plane order with Phase
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 87 LOW: small parity rows, quirks and watch/record-only items.
+  - 90 LOW: small parity rows, quirks and watch/record-only items.
+    Session 230 minted three: obj_typename()'s " stone" on non-gem
+    gemstone items (master's GemStone() class term), container
+    destruction skipping obj_resists() (a census), and a Rider corpse
+    an engulfer digests leaking as a free object (a trace).
     Session 229 minted three: the dead dwarf Valkyrie bearded axe
     substitution and the pit hook-out that lands back in the pit
     (rulings), and touchfood() / dog_eat() missing a migrating
@@ -2462,7 +2484,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       detection deferral marker added in detect.c (SCR_MAGIC_
       DETECTION effect unported; master magic_detect walks the
       chain + 3 crystal guards); cursed-tool-break marker in
-      lock.c (MAGIC_KEY exemption must ride when it ports);
+      lock.c (MAGIC_KEY exemption must ride when it ports;
+      DISCHARGED 2026-10-15, session 230, BUG-2374 - the exemption
+      rode; this commit's objnam.c GemStone() class term was never
+      ported, minted as a LOW row the same day);
       tile art -> Phase 4 (S_magic_chest shifts cmap tiles
       after forge - BOTH new terrains need one tiles pass).
       REVIEWER POSITIVES: objnam parse block fixes a LATENT
@@ -2484,7 +2509,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       name collision remains), iron safes
       (generation arms + stethoscope cracking + lock_action
       flavor), magic detection (marker above), cursed-tool
-      break, Is_container range to BAG_OF_DEVOURING (bags
+      break (LANDED 2026-10-15, BUG-2374), Is_container range to
+      BAG_OF_DEVOURING (bags
       slice), tile art (Phase 4). OPEN DECISION recorded:
       tip-into keeps 5.0's carried-only target design + the
       chest as the sole floor-side target (master offered all
@@ -5463,7 +5489,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mhitm/mhitu/uhitm/zhitm arms, polyself PROPSET, priest.c,
       insight report rework); should_cleave() conjunct at the
       Cleaver hitum line; Vecna-relics/Ashmar/Retribution worn
-      acurr force-arms; mon_regen !mwither gate (wither owner);
+      acurr force-arms (DISCHARGED: Vecna in ab70e04e8, Ashmar /
+      Retribution Con 2026-10-15 as BUG-2371); mon_regen !mwither
+      gate (wither owner);
       corpse_chance minsects/alhoon-Kas-crumble/open-air arms.
       Battery AFTER B commits (game-tester agent; combined brief
       READY at scratchpad battery-brief-artifacts.md A1-A13 +
@@ -9878,7 +9906,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       whole dropx family lands here; "swing", the bracer turn and the
       web refusal; the whip and grapple racial size restored; the menu
       line "Hook or chop with this axe".
-      FIXED 2026-10-15 (session 229, commit pending, tracker pending;
+      FIXED 2026-10-15 (session 229, commit c45c9ee17, tracker fecddb20e;
       closure notes in BUGFIXES_ARCHIVE; plan
       /root/.claude/plans/feature-bearded-axe-apply.md) as
       BUG-2361..2364:
@@ -11567,6 +11595,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       clean; PRE logged the four claimed impossibles.
 - [ ] Artifact behaviour remainder = the HELD pokedex tips (NEW,
       minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
+      NARROWED 2026-10-15 (session 230, commit pending, tracker
+      pending; plan /root/.claude/plans/feature-held-artifact-tips.md;
+      closure notes in BUGFIXES_ARCHIVE): 18 of the 20 held lines
+      re-entered at master's positions (branch table 108 -> 126) with
+      their mechanisms as BUG-2365..2376 - Mb_hit()'s Butcher / Staff
+      carve-outs, three nouns and four lost guards; Tempest's yellow
+      mold, Archon gaze, stalker corpse and the mcastu.c stun-spell
+      misplaced test; obj_resists() for the Sword and Retribution;
+      the Hesperides weight tier and waterproofing; Ashmar /
+      Retribution Con 25 and Retribution's carry cap; Secespita's
+      x1.5 sacrifice and kill energy (real kills only); the Orcus
+      self-curse (four arms, a restore guard); cursed lock tools
+      breaking; the Gauntlets of Purity gate, piety line, slide-off
+      and martial bonus (tip reworded "Boosts martial arts damage for
+      lawful wearers."; closes the wear-restriction row); Dragonbane's
+      dragon-hero sear and destroy-armor refusal. Hesperides theft and
+      Dragonbane sears were already live. Ruled 2026-10-15, six
+      questions, all as recommended (chest-gas gate stays vanilla).
+      This row now owns ONLY the Magic 8-Ball ("Dispenses advice when
+      read." plus the untipped #apply wish, below); Xiuhcoatl's line
+      stays held as master's doc bug. Premises corrected by the
+      census (the text below is the pre-slice record): the "owner
+      rows" cited as ~1915 / ~7749 / ~4884 / ~8499 were deferral
+      notes inside closed rows (no Orcus row ever existed); the
+      steal.c refusal was live in thief_slips_off() (0612d2a42);
+      break_armor()'s Retribution arm had landed (BUG-1996);
+      cancel_item() never calls obj_resists(); the Dragonbane sear
+      was live for the hero and monster wearers (962936762).
+      Batteries T1 / T2 / T3 PASS on PRE and POST, all six
+      paniclogs clean.
       The 2026-09-08 audit checked all 128 arti_specials[] lines
       against the branch: 89 LIVE (ported), 31 ABSENT + 8 PARTIAL
       held out of the table (ruling: no tip may describe a behavior
@@ -11646,6 +11704,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       secondary arm (ported): Idol of Moloch (fig_transform idol arm),
       Dragonbane disintegration (destroy_arm arm), Dichotomy
       (lava-inventory arm).
+- [ ] MED: bag explosion damage and text never ported (minted
+      2026-10-15, session 230, by the held-tips census; no row
+      before). Master pickup.c blasts the hero for
+      `Maybe_Half_Phys(d(8, 10))` "exploding magical bag" when a bag
+      of holding explodes and `Maybe_Half_Phys(d(12, 12))` "exploding
+      magical artifact bag" for the Bag of the Hesperides, with a
+      livelog naming the Bag (727100736; master BUG-311 f6ff550c4's
+      was_boh local rides - the BotH test after useup()). The branch
+      keeps vanilla `d(6, 6)` "magical explosion" at both pickup.c
+      sites (the #put path and the #tip path) and its livelog always
+      says "bag of holding". Balance-visible: census master's whole
+      commit and BUG-311 first. MED.
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -13793,8 +13863,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       of fumbling -9, gauntlets of dexterity +1 in its own case,
       master's comments carried. BATTERY: measured to-hit deltas
       power -2 / none 0 / dexterity +1 / fumbling -9.
-- [ ] Gauntlets of Purity wear-restriction + piety message (NEW,
-      minted 2026-08-16 by the Vecna slice). The branch has the
+- [x] Gauntlets of Purity wear-restriction + piety message (NEW,
+      minted 2026-08-16 by the Vecna slice). FIXED 2026-10-15
+      (session 230, commit pending, tracker pending; absorbed by the
+      held pokedex tips slice, ruling 1) as BUG-2375: the canwearobj()
+      gate (record < 20, and Infidels "...sense your wickedness, and
+      refuse to be worn!"), the piety line in Gloves_on()'s
+      GAUNTLETS_OF_POWER case (the artifact's base type; the marker
+      above MUMMIFIED_HAND removed), plus master's once-per-input
+      slide-off with forced drops ("discern your impurity", ruled)
+      and the martial-arts bonus. No "artifact use-restriction row"
+      exists; this row was the owner. Battery T3 PASS. The branch has the
       artifact (artilist, forging recipe, muse reflection arm) but
       NEITHER half of its wear gate: master's canwearobj refusal
       ("You are not pure enough to wear these gauntlets.") and the
@@ -17690,6 +17769,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       separately. Needs a trace: whether a ridden steed's own sleep
       state matters while mounted (movement, wake-ups, a dismount
       or the rider's death), then a ruling. LOW.
+- [ ] LOW: obj_typename() appends " stone" to non-gem GEMSTONE items
+      (minted 2026-10-15, session 230, by batteries T2 / T3). Master
+      1464c4a98 (the magic chests commit, whose row is closed) added
+      `&& objects[typ].oc_class == GEM_CLASS` to objnam.c's
+      GemStone(); the branch never took that hunk, so obj_typename()'s
+      default arm names EvilHack's gemstone-material crystal plate mail
+      and rod "crystal plate mail stone" / "rod stone" - seen in the
+      object lookup header (`Object lookup for "crystal plate mail
+      stone":`) and the discoveries list ("Armor of Retribution
+      [non-aligned crystal plate mail stone]"). Fix: restore master's
+      term; check every GemStone() caller (objnam.c obj_typename()
+      default arm and xname()'s GEM_CLASS arm). LOW.
+- [ ] LOW: destroying a container frees its contents with no
+      obj_resists() check (minted 2026-10-15, session 230, by the
+      held-tips Plan agent's delobj audit; master-shared). lock.c
+      breakchestlock() (a blunt #force destroys each item 1 time in 3,
+      "is destroyed!"), erode_obj() destroying a non-box bag, and
+      in_container()'s obfree() of an exploding container release the
+      contents without the obj_resists(obj, 0, 0) test delobj() makes,
+      so the Sword of Annihilation or the Armor of Retribution in a
+      box can still be lost there (the Amulet never could be put in
+      one). Needs a census of each site on master, then a ruling.
+      LOW.
+- [ ] LOW: a Rider corpse digested by an engulfer leaks as a free
+      object (minted 2026-10-15, session 230, by the held-tips Plan
+      agent; vanilla-shared, upstream-reportable). do.c
+      engulfer_digests_food() prints "<corpse> is instantly
+      digested!" and calls delobj(), which refuses a Rider corpse
+      (obj_resists(obj, 0, 0)), so the OBJ_FREE corpse is never placed
+      or freed and its revive timer stays attached. Needs a trace
+      (wizard: carry a Death corpse, get swallowed by a purple worm,
+      drop it; watch the revive timer), then a fix (skip the digestion
+      for an obj_resists() object, or mpickobj() it). LOW.
 - [ ] LOW: a dwarf Valkyrie never starts with the bearded axe (minted
       2026-10-15, session 229, by battery T1; master-shared). Master
       8041aacfe gave dwarves `{ PM_DWARF, LONG_SWORD,
