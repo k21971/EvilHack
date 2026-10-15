@@ -879,10 +879,10 @@ gpiousu(void)
 }
 
 /* a crowning gift was dropped at the hero's feet; dropy()'s flooreffects
-   can destroy it or carry it elsewhere, and this build's dropy is void
-   where the 3.6.x version returned that fact - infer it from the
-   object's location so the caller does not keep blessing or discovering
-   a gift that no longer sits on the floor */
+   can destroy it or carry it elsewhere (and an engulfer can eat it);
+   dropy()'s return reports the same thing, and so does the object's
+   location, which is checked here so the caller does not keep blessing
+   or discovering a gift that no longer sits on the floor */
 staticfn struct obj *
 dropped_gift(struct obj *obj)
 {

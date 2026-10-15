@@ -4040,6 +4040,8 @@ use_misc(struct monst *mtmp)
                 pline_mon(mtmp, "%s yanks %s from your %s!", Monnam(mtmp),
                           the_weapon, hand_buf);
                 place_object(obj, mtmp->mx, mtmp->my);
+                stackobj(obj);
+                newsym(mtmp->mx, mtmp->my);
                 break;
             case 2: /* onto floor beneath you */
                 pline_mon(mtmp, "%s yanks %s to the %s!", Monnam(mtmp),

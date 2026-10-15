@@ -314,6 +314,8 @@ itemactions(struct obj *otmp)
                    "Hit yourself with this cream pie");
     else if (otmp->otyp == BULLWHIP)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Lash out with this whip");
+    else if (otmp->otyp == DWARVISH_BEARDED_AXE)
+        ia_addmenu(win, IA_APPLY_OBJ, 'a', "Hook or chop with this axe");
     else if (otmp->otyp == GRAPPLING_HOOK)
         ia_addmenu(win, IA_APPLY_OBJ, 'a',
                    "Grapple something with this hook");

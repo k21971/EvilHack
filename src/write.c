@@ -82,8 +82,9 @@ write_ok(struct obj *obj)
 
 /* write -- applying a magic marker */
 int
-dowrite(struct obj *pen)
+dowrite(struct obj **penp)
 {
+    struct obj *pen = *penp;
     struct obj *paper;
     char namebuf[BUFSZ] = DUMMY, *nm, *bp;
     struct obj *new_obj;
@@ -107,7 +108,8 @@ dowrite(struct obj *pen)
     } else if (Glib) {
         pline("%s from your %s.", Tobjnam(pen, "slip"),
               fingers_or_gloves(FALSE));
-        dropx(pen);
+        if (dropx(pen))
+            *penp = (struct obj *) 0; /* doapply() mustn't use it */
         return ECMD_TIME;
     }
 

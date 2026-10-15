@@ -584,7 +584,9 @@ dofire(void)
                 return use_pole(uwep, TRUE);
             /* if we're wielding a bullwhip, apply it */
             } else if (uwep && uwep->otyp == BULLWHIP) {
-                return use_whip(uwep);
+                struct obj *whip = uwep; /* use_whip() may null its copy */
+
+                return use_whip(&whip);
             } else if (iflags.fireassist
                        && uswapwep && is_pole(uswapwep)
                        && !(uswapwep->cursed && uswapwep->bknown)) {

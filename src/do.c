@@ -895,31 +895,39 @@ drop(struct obj *obj)
 
 /* dropx - take dropped item out of inventory;
    called in several places - may produce output
-   (eg ship_object() and dropy() -> sellobj() both produce output) */
-void
+   (eg ship_object() and dropy() -> sellobj() both produce output);
+   returns TRUE if obj is gone (see dropz()) or fell to another level,
+   in which case the caller must not use it again */
+boolean
 dropx(struct obj *obj)
 {
     freeinv(obj);
     if (!u.uswallow) {
         if (ship_object(obj, u.ux, u.uy, FALSE))
-            return;
+            return TRUE; /* shipped elsewhere or destroyed */
         if (IS_ALTAR(levl[u.ux][u.uy].typ))
             doaltarobj(obj); /* set bknown */
     }
-    dropy(obj);
+    return dropy(obj);
 }
 
-/* dropy - put dropped object at destination; called from lots of places */
-void
+/* dropy - put dropped object at destination; called from lots of places;
+   returns TRUE if obj is gone (see dropz()) */
+boolean
 dropy(struct obj *obj)
 {
-    dropz(obj, FALSE);
+    return dropz(obj, FALSE);
 }
 
-/* dropz - really put dropped object at its destination... */
-void
+/* dropz - really put dropped object at its destination...
+   returns TRUE if obj is gone: floor effects used it up or sent it
+   elsewhere, or an engulfer ate it or merged it into a stack it carries;
+   the caller must not use it again */
+boolean
 dropz(struct obj *obj, boolean with_impact)
 {
+    boolean gone = FALSE;
+
     if (obj == uwep)
         setuwep((struct obj *) 0);
     if (obj == uquiver)
@@ -933,13 +941,14 @@ dropz(struct obj *obj, boolean with_impact)
             /* moving shop item into engulfer's inventory treated as theft */
             if (is_unpaid(obj))
                 (void) stolen_value(obj, u.ux, u.uy, TRUE, FALSE);
-            /* add to engulfer's inventory if not immediately eaten */
-            if (!engulfer_digests_food(obj))
-                (void) mpickobj(u.ustuck, obj);
+            /* add to engulfer's inventory if not immediately eaten;
+               mpickobj() frees obj when it merges into a carried stack */
+            if (engulfer_digests_food(obj) || mpickobj(u.ustuck, obj))
+                gone = TRUE;
         }
     } else {
         if (flooreffects(obj, u.ux, u.uy, "drop"))
-            return;
+            return TRUE;
         place_object(obj, u.ux, u.uy);
         if (with_impact)
             container_impact_dmg(obj, u.ux, u.uy);
@@ -954,6 +963,7 @@ dropz(struct obj *obj, boolean with_impact)
         newsym(u.ux, u.uy); /* remap location under self */
     }
     encumber_msg();
+    return gone;
 }
 
 /* when swallowed, move dropped object from OBJ_FREE to u.ustuck's inventory;

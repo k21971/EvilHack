@@ -137,7 +137,7 @@ extern void use_unicorn_horn(struct obj **);
 extern int use_figurine(struct obj **);
 extern boolean tinnable(struct obj *) NONNULLPTRS;
 extern void reset_trapset(void);
-extern int use_whip(struct obj *) NONNULLPTRS;
+extern int use_whip(struct obj **) NONNULLPTRS;
 extern boolean could_pole_mon(void);
 extern int use_pole(struct obj *, boolean) NONNULLPTRS;
 extern void maybe_dunk_boulders(coordxy, coordxy);
@@ -714,9 +714,9 @@ extern void doaltarobj(struct obj *) NONNULLARG1;
 extern void polymorph_sink(void);
 extern void trycall(struct obj *) NONNULLARG1;
 extern boolean canletgo(struct obj *, const char *) NONNULLPTRS;
-extern void dropx(struct obj *) NONNULLARG1;
-extern void dropy(struct obj *) NONNULLARG1;
-extern void dropz(struct obj *, boolean) NONNULLARG1;
+extern boolean dropx(struct obj *) NONNULLARG1;
+extern boolean dropy(struct obj *) NONNULLARG1;
+extern boolean dropz(struct obj *, boolean) NONNULLARG1;
 extern void obj_no_longer_held(struct obj *);
 extern int doddrop(void);
 extern int dodown(void);
@@ -4393,7 +4393,7 @@ extern void extract_from_minvent(struct monst *, struct obj *, boolean,
 /* ### write.c ### */
 
 extern int ink_cost(short);
-extern int dowrite(struct obj *) NONNULLARG1;
+extern int dowrite(struct obj **) NONNULLARG1;
 
 /* ### zap.c ### */
 
