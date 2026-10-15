@@ -17,13 +17,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-15, after session 228's terrain
-  concealment slice): 413 rows closed, 103 open. Of the open
-  rows:
+- Phase 2 status (refreshed 2026-10-15, after session 229's bearded
+  axe slice): 414 rows closed, 106 open. Of the open rows:
   - 0 HIGH.
-  - 3 MED: unported master features (door-material colors, the held
-    artifact pokedex tips, #apply a dwarvish bearded axe). Session
-    228 closed terrain concealment: hiders hide in grass and sand and
+  - 2 MED: unported master features (door-material colors, the held
+    artifact pokedex tips). Session 229 closed #apply a dwarvish
+    bearded axe: the hook grabs a monster's weapon or, one time in
+    four, its shield, climbs out of a pit and otherwise chops
+    (BUG-2361; shared parts mirror the branch whip, a "swing" wield
+    verb, a bracer deflect takes the turn, a web refuses the chop,
+    a "Hook or chop with this axe" menu line), with master's dropx()
+    destroyed-item report for the whip, grease, marker and axe slips
+    (BUG-2362), the muse whip yank's stackobj() (BUG-2363) and the
+    whip and grapple's racial size (BUG-2364). Ruled 2026-10-15, all
+    as recommended. Minted a SWEEP (racial size macros) and three
+    LOW rows; one upstream table row (BUG-2362).
+    Session 228 closed terrain concealment: hiders hide in grass and sand and
     under sinks, altars, thrones, ladders and graves (BUG-2352), with
     master's hold-in-cover move rule (BUG-2353), re-checks where that
     terrain vanishes (BUG-2354), master's lost ceiling-drop fixes
@@ -43,8 +52,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 4 SWEEP: race-predicate census, is_bracer() census, inert
-    persistent fields, monstseesu() setter parity.
+  - 5 SWEEP: race-predicate census, is_bracer() census, inert
+    persistent fields, monstseesu() setter parity, racial size
+    macros.
   - 12 untagged: port gaps (Muse offense items, creeping mound
     meatfood(), monster chest_trap(), Gauntlets of Purity wear
     gate, nasties[] reconcile,
@@ -53,7 +63,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 84 LOW: small parity rows, quirks and watch/record-only items.
+  - 87 LOW: small parity rows, quirks and watch/record-only items.
+    Session 229 minted three: the dead dwarf Valkyrie bearded axe
+    substitution and the pit hook-out that lands back in the pit
+    (rulings), and touchfood() / dog_eat() missing a migrating
+    dropy() (a trace).
     Session 227 closed five ruled LOW rows:
     - a quivering blob quivers or flollops at the hero's zap or
       boomerang, never on its own turns (BUG-2347)
@@ -9837,7 +9851,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bhitm list, so '>' while riding hits the steed instead of the
       floor (its mhitu.c half is already on the branch). Keep 5.0's
       fleshier / mimic extras unless ruled otherwise.
-- [ ] MED: #apply a dwarvish bearded axe is unported (NEW, minted
+- [x] MED: #apply a dwarvish bearded axe is unported (NEW, minted
       2026-10-10 by the ent stoning slice, session 208; no earlier
       row). Master 8041aacfe (New weapon: dwarvish bearded axe) gave
       doapply() a DWARVISH_BEARDED_AXE case -> apply.c use_axe(), a
@@ -9851,6 +9865,36 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       `polymon(stoned_form(gy.youmonst.data))` (BUG-2254), not
       master's double polymon; (c) BUG-392's stackobj() on the
       dropped item. Needs scoping.
+      SCOPED 2026-10-15 (session 229 census): master's use_axe() took
+      16 commits after 8041aacfe (834e2210e chop fallthrough,
+      1e835fae5 r_bigmonst, 25e9eb05b bracers, BUG-315 / 558 / 876 /
+      888 / 980 / 1267). Rider (c) is master e7ceedd0b's muse.c fix,
+      not the hero side (which already stacks); its whip half was
+      live on the branch. Master's BUG-315 / BUG-1068 dropx()
+      destroyed-item report had never reached the branch and had no
+      row. The branch whip and grapple had lost master's racial size.
+      RULED 2026-10-15 (session 229, decisions log): the shared parts
+      mirror the branch whip and the axe-only rules are master's; the
+      whole dropx family lands here; "swing", the bracer turn and the
+      web refusal; the whip and grapple racial size restored; the menu
+      line "Hook or chop with this axe".
+      FIXED 2026-10-15 (session 229, commit pending, tracker pending;
+      closure notes in BUGFIXES_ARCHIVE; plan
+      /root/.claude/plans/feature-bearded-axe-apply.md) as
+      BUG-2361..2364:
+      - BUG-2361: apply.c use_axe() + the doapply() arm; riders (a)
+        and (b) carried (enexto_core_mon, stoned_form()); the shield
+        pull goes through extract_from_minvent() (the BUG-1267 light
+        guard); iactions.c "a - Hook or chop with this axe".
+      - BUG-2362: dropx() / dropy() / dropz() return whether the item
+        is gone; use_grease(), use_whip(), use_axe() and dowrite()
+        null doapply()'s pointer; dothrow.c passes a local copy.
+      - BUG-2363: rider (c), muse.c MUSE_BULLWHIP case 1 stackobj() +
+        newsym().
+      - BUG-2364: r_bigmonst() / r_verysmall() in the whip pit hook
+        and use_grapple().
+      Batteries T1 / T2 / T3, 29 legs PASS, every paniclog clean (two
+      T1 expectations re-adjudicated as whip / master parity).
 - [x] LOW: a helped shopkeeper angered from outside his shop
       (BUG-2273; with BUG-2274 the thrown potions) - FIXED 2026-10-11
       (session 211, commit 222276412, tracker c5b523635; closure notes in
@@ -11493,7 +11537,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rule; the wording "in the grass" / "in the sand" / "under the
       throne" (plain names, never "opulent throne" or "ladder up");
       the hide message stays for pets.
-      FIXED 2026-10-15 (session 228, commit pending, tracker pending;
+      FIXED 2026-10-15 (session 228, commit a218756b2, tracker 7734804ee;
       closure notes in BUGFIXES_ARCHIVE; plan
       /root/.claude/plans/feature-terrain-concealment.md) as
       BUG-2352..2360:
@@ -12953,7 +12997,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       their features are unported - each must arrive as
       enexto_core_mon with its feature: apply.c hooked-axe pit
       escape, mon.c larva-host steed displacement, uhitm.c
-      underwater swim-under displace.
+      underwater swim-under displace. The hooked-axe pit escape
+      ARRIVED 2026-10-15 as enexto_core_mon (session 229, BUG-2361).
 - [x] can_levitate/can_fly consumer sweep beyond goodpos/
       minliquid/mfndpos PORTED 2026-09-05 (minted 2026-07-31;
       MEDIUM after the BUG-1413 battery's live kill: steed.c's
@@ -17645,6 +17690,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       separately. Needs a trace: whether a ridden steed's own sleep
       state matters while mounted (movement, wake-ups, a dismount
       or the rider's death), then a ruling. LOW.
+- [ ] LOW: a dwarf Valkyrie never starts with the bearded axe (minted
+      2026-10-15, session 229, by battery T1; master-shared). Master
+      8041aacfe gave dwarves `{ PM_DWARF, LONG_SWORD,
+      DWARVISH_BEARDED_AXE }` so a dwarvish Valkyrie would start with
+      the axe; master 0cda3347f later gave Valkyries a +1 spear
+      instead of a long sword, so the line never fires on either tree
+      and a dwarf Valkyrie starts with a +1 dwarvish spear (SPEAR ->
+      DWARVISH_SPEAR). Ruling: remove the dead line, or give the
+      dwarf Valkyrie the axe in place of the spear. LOW.
+- [ ] LOW: a pit hook-out can land the hero back in the same pit
+      (minted 2026-10-15, session 229, by battery T1; whip, axe and
+      master alike). Hooking a big monster from a pit picks the
+      landing square with enexto_core_mon() around the monster, which
+      can return the hero's own pit square: "You pull yourself out of
+      the pit!  You fall into a pit!" (the giant's only other free
+      neighbour was taken). Ruling: keep, or skip the hero's square
+      (and say the hook comes free when nothing else is free). LOW.
+- [ ] LOW: touchfood() and dog_eat() miss a dropy() that ships the
+      item away (minted 2026-10-15, session 229, from the reviewer's
+      LOW-5). eat.c touchfood() and dogmove.c dog_eat()'s vampire
+      arm drop a split piece with dropy() when the inventory is full
+      and test only `where == OBJ_DELETED` afterwards; a hero over a
+      seen trap door (uescaped_shaft() -> ship_object()) leaves the
+      piece OBJ_MIGRATING, and the caller keeps using it. dropy() now
+      returns "gone" (BUG-2362), so `if (dropy(obj)) obj = NULL;` is
+      the likely fix. Needs a trace in play first (levitating over a
+      trap door with a full inventory, eating from a stack). LOW.
 - [ ] LOW: sacrifice_your_race()'s summoned demon is vanilla 5.0
       (minted 2026-10-14, session 225, by the 67524c0bd census).
       The branch summons dlord() and makes a coaligned one peaceful
@@ -18908,6 +18980,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       parameter) instead of copying master's monster arm in
       recharge(): flat 3 * |spe| damage, mondied() with no kill
       credit, and an ungated spin message.
+      RIDER 2026-10-15 (session 229, bearded axe slice; the hero side
+      landed as BUG-2361): the DWARVISH_BEARDED_AXE disarm is master's
+      check_misc_item() MUSE_DWARVISH_BEARDED_AXE_WEAPON (13) /
+      _SHIELD (14) arms on can_attempt_disarm() (master muse.c ~5503:
+      not peaceful, the axe is MON_WEP, the hero adjacent and not
+      engulfed, the hero's weapon can be let go / an off-hand weapon
+      when two-weaponing, a non-bracer shield), and their use_misc()
+      arms. Carry with them: 42b930307's Hidinshell immunity,
+      ea833424a's !u.uswallow, 25e9eb05b's two bracer gates (the
+      is_bracer SWEEP's muse.c 2 / 0), 9fdd7d9e4's Expert-shield
+      resist ("You hold on firmly to %s.", P_SKILL(P_SHIELD) >=
+      P_EXPERT; the find_ac row's last open consumer), e887a6501's
+      mhis(), the mon_hates_material downgrade of the snatch, and
+      BUG-392's stackobj() + newsym() after the case-1 place_object()
+      (the whip half landed as BUG-2363).
       RIDER 2026-10-02 (session 171, census of master 91977c174): the
       "maxdmg melee gate" named in the Phase 2 owner list never got a
       row of its own and rides here. Master 1a0cb91af ("Monster using
@@ -22142,6 +22229,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       trees - the same family as the race tests made against
       youmonst.data. Note it when the sweep reaches polyself.c.
       LOW-MED.
+- [ ] SWEEP: racial size macros (minted 2026-10-15, session 229, from
+      the bearded axe slice, which found the branch whip and grapple
+      reading the base form where master reads the racial one). The
+      race-predicate SWEEP above covers is_ / racial_ predicates, not
+      size. Master's r_bigmonst() / r_verysmall() (mondata.h; size of
+      r_data(), the erac race when there is one, so a giant-race
+      mercenary is big) appear 31 times in master src/, 17 on the
+      branch after the slice. Per file (master / branch): artifact.c
+      3 / 2, dogmove.c 1 / 0, hack.c 2 / 0, mon.c 4 / 2, mondata.c
+      2 / 0, monmove.c 2 / 0, muse.c 2 / 0 (find_defensive()'s
+      ignore_boulders, not the axe), priest.c 1 / 0, weapon.c 3 / 2;
+      apply.c (4 / 4 after BUG-2364), dokick.c, worn.c and zap.c
+      match. Classify each site (a 5.0 rewrite that dropped the
+      racial term, a moved site, or a deliberate base-form test) and
+      mint a row per real gap. LOW-MED.
 - [x] LOW: uasmon_maxStr() gives EvilHack race families no race Str
       cap (BUG-2117) - FIXED 2026-10-03 (session 176, commit `Give
       EvilHack race forms their race's Str cap while polymorphed.` =
@@ -25948,6 +26050,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       percent_success()'s metallic-shield rule, now ported with the
       spellcasting slice (BUG-2058; a metallic shield takes the shield
       penalty unless it is bracers); spell.c is 1 / 1.
+      PROGRESS (2026-10-15, session 229): the apply.c site was
+      use_axe()'s "<mon>'s bracers deflects your attack!", ported with
+      the bearded axe (BUG-2361); apply.c is 1 / 1. The two muse.c
+      sites are the monster bearded-axe disarm (muse parity row).
 - [x] MED: death magic outcome shape vs magic resistance - PORTED
       2026-09-23 (session 136, partial reflection / death magic slice,
       commits `Fix: rays at the hero ignored partial reflection and
@@ -29205,6 +29311,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       lamplit + artifact_light end_burn guard with them
       (archive-sweep-before-port: shared-code fixes never travel
       with ported text).
+      CORRECTED + HALF DONE 2026-10-15 (session 229): master's
+      worn-shield snatch arm is in use_axe(), not use_whip() (BUG-1267
+      names use_axe()'s shield branch; master's whip has no shield
+      arm). It landed with the bearded axe (BUG-2361): the pulled
+      shield goes through extract_from_minvent(), which ends a shield
+      of light's burn before the worn mask clears (battery T1: lamplit
+      0, no light source left). The munstone() strip loop stays open.
 - [x] Goblintown-slice riders on unported features (minted
       2026-08-14 by the goblintown slice): (a) master's
       m_initgrp() support-caster machinery (goblin/kobold/orc
@@ -29480,6 +29593,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-15 | An applied item destroyed as it slips from the hero (Fumbling / Glib over open air or lava) leaves doapply() holding the deleted object. Shared with Official_nh50 (apply.c use_grease() x2 and use_whip(), write.c dowrite(); do.c dropx() / dropy() / dropz() are void): doapply()'s tail reads `obj->oartifact` after delobj() marked the object OBJ_DELETED, against its own comment that a helper which can destroy obj must null it. No crash (dobjsfree() frees at the end of the command) and no visible effect. EvilHack fix BUG-2362 (master's BUG-315 / BUG-1068): dropz() returns whether the object is gone, dropy() / dropx() pass it on, and the helpers take `struct obj **` and null the caller's pointer. | found (branch-fixed); not yet sent |
 | 2026-10-15 | A ceiling-hider hero's drop leaves a hidden attacker hidden over nothing. Shared with Official_nh50 and NetHack50 (mhitu.c mattacku(), the `is_hider(youmonst.data)` block): the attacking monster is moved onto the hero's old square with place_monster(), and a hides_under attacker that was hidden under objects on its own square stays mundetected on the bare square, so the sanity check logs "mon hiding under nonexistent obj". EvilHack fix BUG-2355 (master's BUG-1137): maybe_unhide_at() + newsym() after the swap. | found (branch-fixed); not yet sent |
 | 2026-10-15 | The same drop moves a trapped attacker off its trap with mtrapped still set ("trapped without a trap"). Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2356 (master's BUG-1288): clear mtrapped and fill_pit() the old square before place_monster(). | found (branch-fixed); not yet sent |
 | 2026-10-15 | The same drop can strike an attacker that the hero's landing has already killed. Shared with Official_nh50 and NetHack50: teleds() runs spoteffects() on the landing square (enexto() does not avoid traps), so a land mine's blast or a rolling boulder can kill the moved attacker; a piercer hero's arm then runs find_mac() and killed() on the dead monster (battery: "It is almost hit by a falling piercer (you)!" after the attacker had died). EvilHack fix BUG-2359: `if (DEADMONSTER(mtmp)) return 1;` after teleds(). | found (branch-fixed); not yet sent |
@@ -29696,6 +29810,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-15 | Bearded axe slice rulings (session 229; AskUserQuestion x3, six questions, all as recommended). (1) SHARED PARTS: use_axe() mirrors the branch's 5.0 use_whip() (boulder hook, a big monster hooked only when seen, an unseen monster revealed and never disarmed, the buried-ball chain stop, "not enough room" when engulfed, the target always wakes); the axe-only rules are master's; rejected master's 3.6 body as written. (2) DROPX FAMILY: master's BUG-315 / BUG-1068 shape lands here (dropx() reports a destroyed item; the whip, grease, marker and axe slips null doapply()'s pointer); re-asked after the Plan agent showed 5.0's deferred dealloc makes it hygiene, not a crash fix: kept; rejected the axe only with a row. (3) QUIRKS: the wield verb "swing" (master "lash"), a bracer deflect takes the turn and wakes the monster, a web refuses the chop fallthrough (hooking still works); master's repeated confdir() kept. (4) RACIAL SIZE: the whip pit hook and use_grapple() get master's r_bigmonst() / r_verysmall() here, a SWEEP row for the other tree-wide gaps. (5) MENU: the item-action line "a - Hook or chop with this axe"; rejected "Hook something with this axe" and no line. | maintainer |
 | 2026-10-14/15 | Terrain concealment slice rulings (session 228; AskUserQuestion x2, four questions). (1) FALLBACK: terrain still hides a hides_under monster or hero when 5.0 refuses the object cover (fewer than 10 coins, a pet on a cursed pile, a pile of only cockatrice corpses); rejected master's shape, where any object makes it object cover only (as recommended). (2) MOVEMENT: master's hold rule - the hider picks its move, attacks from cover, moves cover-to-cover freely and refuses 9 in 10 moves onto ground with no cover; rejected 5.0's early "do not leave hiding place" return (as recommended). (3) WORDING: "in the grass" / "in the sand", "under the throne / ladder / sink / altar / grave" with plain names and the article everywhere (farlook, ^X included); rejected master's farlook names ("under the opulent throne", "under the ladder up"), which was my recommendation, and plain names with "under" throughout. (4) HIDE MESSAGE (after battery B4: a pet garter snake in a half-grass room, 51 lines in 523 turns): keep "You see <mon> hide in the grass." for every hider, pets included, as 5.0 does for object cover (as recommended). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 227; AskUserQuestion, three questions, all as recommended). (1) LIT OIL: THE HALF-FLASK RULE. fixup_oil() counts the fuel left in a lit flask's burn timer, and a polymorphed flask dilutes only when less than half its oil (200 turns) is left, lit or unlit alike, over fuel-exact (5.0's under-400 rule), "lit never dilutes" and record-only. This corrects the s226 premise: a timer read alone still dilutes a lit flask one turn after lighting (399 of 400). (2) AMULET OF FLYING: identify it at all five flight-unblock sites (the two "You can fly." sites and the three "stopped levitating and are now flying" sites), over only the two ruled sites. At plan time the review added a fourth "stopped levitating" site (Ring_off_or_gone()) and switch_terrain()'s "You start flying.", as the same class. (3) KNIGHT DRAGON GRUDGE: THE INTENT, ZOO ROOMS ONLY. Master's makemon() case is ported, and fill_zoo() leaves a cross-aligned dragon awake for a Knight; special-level asleep flags are left alone. This was chosen over the intent everywhere, closing the row as dead, and deferring. Premise corrected: master's wake is dead, because fill_zoo() re-sleeps after makemon(). | maintainer |
 | 2026-10-14 | Ruling round, four questions, rulings recorded only (session 226 follow-up; AskUserQuestion, all as recommended). (1) QUIVERING BLOB: port master 801dc7d35's "quivers." arm into m_respond() behind `!svc.context.mon_moving`, so it prints only on the hero's zap / boomerang paths (master's exact behavior), over leaving it out. AMENDED the same day: the line alternates at random (rn2(2) after the canseemon() gate) between "quivers." (homage to the name) and "flollops." (the blob is an S_BLOB; a monster's psi bolt already makes it flollop). (2) LIT OIL POLYMORPH: fix the lit case - fixup_oil() reads the fuel left in the burn timer, so a full lit flask polymorphs into a full-strength potion; a part-used flask still dilutes (5.0's rule), over master's no-dilution shape and record-only (the row's "cosmetic" note was stale: diluted potions are weaker since session 197). (3) AMULET OF FLYING WHILE HELD: identify it at the release's "You can fly." when it is the flight source (both release sites), over record-only. (4) create_pit_under() ON A DRAWBRIDGE: reopen the 2026-09-12 keep-for-now and refuse the pit on an open span or drawbridge wall, as dighole() does. All four rows now plannable. | maintainer |
