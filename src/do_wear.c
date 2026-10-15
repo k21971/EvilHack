@@ -4523,14 +4523,6 @@ disintegrate_arm(struct obj *atmp)
            in its place */
         return 0;
     } else if ((otmp = maybe_destroy_armor(uarmg, atmp, &resisted)) != 0) {
-        if (is_art(otmp, ART_DRAGONBANE)) {
-            /* the dragon hide defies disintegration outright; nothing
-               else is destroyed in its place */
-            pline("%s %s and cannot be disintegrated.", Yname2(otmp),
-                  rn2(2) ? "resists completely" : "defies physics");
-            otmp->in_use = 0;
-            return 0;
-        }
         urgent_pline("Your %s vanish!", gloves_simple_name(otmp));
         losing_gloves = TRUE;
     } else if ((otmp = maybe_destroy_armor(uarmf, atmp, &resisted)) != 0) {

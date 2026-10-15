@@ -1920,7 +1920,8 @@ passive_disint_agr(
     int mdead,
     int mhit)
 {
-    disint_mon_invent(magr);
+    /* black dragon hide or scales spare Dragonbane; a vortex does not */
+    disint_mon_invent(magr, mdef->data != &mons[PM_ANTIMATTER_VORTEX]);
     if (is_rider(magr->data)) {
         if (canseemon(magr)) {
             pline_mon(magr, "%s body reintegrates before your %s!",
@@ -2176,7 +2177,7 @@ passivemm(
             } else if (passive_contact_attack(aatyp)
                        /* a weapon, boots or gloves go first */
                        && !passive_disint_gear(magr, aatyp, vortex ? 3 : 6,
-                                               FALSE)) {
+                                               !vortex)) {
                 if (vortex ? rn2(10) : rn2(20)) {
                     if (canseemon(magr))
                         pline("%s %s partially disintegrates %s!",

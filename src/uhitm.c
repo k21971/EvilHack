@@ -6493,7 +6493,7 @@ mhitm_ad_disn(
             }
             /* the cull spares a worn amulet of life saving so that it
                can still operate */
-            disint_mon_invent(mdef);
+            disint_mon_invent(mdef, FALSE);
             if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */
                 remove_monster(mdef->mx, mdef->my);
                 mdef->mhp = 1; /* it shouldn't be < 1, but make sure */
@@ -9845,7 +9845,10 @@ passive(
                                   Yobjnam2(weapon, "are"),
                                   otense(weapon, "remain"));
                             break;
-                        } else if (weapon->oartifact && rn2(20)) {
+                        } else if (weapon->oartifact == ART_DRAGONBANE
+                                   || (weapon->oartifact && rn2(20))) {
+                            /* Dragonbane always survives black dragon
+                               disintegration */
                             pline("%s %s, but remains %s.", Yname2(weapon),
                                   rn2(2) ? "shudders violently"
                                          : "vibrates unexpectedly",

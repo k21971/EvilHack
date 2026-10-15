@@ -40,7 +40,7 @@ staticfn void mayberem(struct monst *, const char *, struct obj *,
 staticfn int assess_dmg(struct monst *, int);
 staticfn int passiveum(struct permonst *, struct monst *, struct attack *);
 staticfn int passive_armor_dmg(struct monst *, int, int);
-staticfn int passive_disint_kill(struct monst *);
+staticfn int passive_disint_kill(struct monst *, boolean);
 staticfn const char *hidden_under_what(struct monst *, char *);
 staticfn void hider_reveal_msg(struct monst *);
 
@@ -3646,11 +3646,12 @@ passive_armor_dmg(struct monst *mtmp, int dmg, int adtyp)
 }
 
 /* the hero's armor or hide disintegrated the attacker outright; Riders
-   reintegrate, everything else dies without a corpse */
+   reintegrate, everything else dies without a corpse; black dragon hide
+   or scales spare Dragonbane, an antimatter vortex form does not */
 staticfn int
-passive_disint_kill(struct monst *mtmp)
+passive_disint_kill(struct monst *mtmp, boolean spare_dragonbane)
 {
-    disint_mon_invent(mtmp);
+    disint_mon_invent(mtmp, spare_dragonbane);
     if (is_rider(mtmp->data)) {
         if (canseemon(mtmp)) {
             pline_mon(mtmp, "%s body reintegrates before your %s!",
@@ -3797,7 +3798,7 @@ passiveum(
                     if (canseemon(mtmp))
                         pline_mon(mtmp, "%s is disintegrated completely!",
                                   Monnam(mtmp));
-                    return passive_disint_kill(mtmp);
+                    return passive_disint_kill(mtmp, TRUE);
                 }
             }
             break;
@@ -3963,7 +3964,10 @@ passiveum(
         }
         return assess_dmg(mtmp, tmp);
     case AD_DISN: { /* black dragon, antimatter vortex */
-        boolean vortex = (gy.youmonst.data == &mons[PM_ANTIMATTER_VORTEX]);
+        boolean vortex = (gy.youmonst.data == &mons[PM_ANTIMATTER_VORTEX]),
+                /* the form that was hit, even if the blow ended it */
+                spare_dragonbane = (olduasmon
+                                    != &mons[PM_ANTIMATTER_VORTEX]);
 
         if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
             if (canseemon(mtmp) && !rn2(3)) {
@@ -3974,7 +3978,8 @@ passiveum(
         } else if (passive_contact_attack((int) mattk->aatyp)
                    /* a weapon, boots or gloves go first */
                    && !passive_disint_gear(mtmp, (int) mattk->aatyp,
-                                           vortex ? 3 : 6, FALSE)) {
+                                           vortex ? 3 : 6,
+                                           spare_dragonbane)) {
             if (vortex ? rn2(10) : rn2(20)) {
                 if (canseemon(mtmp))
                     Your("%s partially disintegrates %s!",
@@ -3985,7 +3990,7 @@ passiveum(
             if (canseemon(mtmp))
                 Your("deadly %s disintegrates %s!",
                      vortex ? "form" : "hide", mon_nam(mtmp));
-            return passive_disint_kill(mtmp);
+            return passive_disint_kill(mtmp, spare_dragonbane);
         }
         break;
     }

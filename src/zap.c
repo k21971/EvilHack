@@ -6314,9 +6314,11 @@ zap_hit(
 
 /* disintegration routine for a monster's inventory when the monster
    itself is disintegrated; also called for the Sword of Annihilation's
-   instant-disintegration hits */
+   instant-disintegration hits; spare_dragonbane is set when a dragon's
+   disintegration breath or a black dragon's hide or scales did it,
+   which Dragonbane always survives */
 void
-disint_mon_invent(struct monst *mon)
+disint_mon_invent(struct monst *mon, boolean spare_dragonbane)
 {
     struct obj *otmp, *otmp2, *m_amulet = mlifesaver(mon);
 
@@ -6324,7 +6326,8 @@ disint_mon_invent(struct monst *mon)
 #define oresist_disintegration(obj)                                       \
     (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
      || obj->otyp == CRYSTAL_PLATE_MAIL || is_quest_artifact(obj)         \
-     || obj == m_amulet)
+     || obj == m_amulet                                                   \
+     || (spare_dragonbane && obj->oartifact == ART_DRAGONBANE))
 
     for (otmp = mon->minvent; otmp; otmp = otmp2) {
         otmp2 = otmp->nobj;
@@ -6376,7 +6379,8 @@ disintegrate_mon(
             hit(fltxt, mon, "!");
     }
 
-    disint_mon_invent(mon);
+    /* only a disintegration breath reaches here, a dragon's */
+    disint_mon_invent(mon, TRUE);
 
     if (type < 0) {
         if (gb.buzzer && gb.buzzer->mtame)

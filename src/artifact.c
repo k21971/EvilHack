@@ -3134,7 +3134,7 @@ artifact_hit(
                 set_monster_killer(mkiller, FALSE);
                 done(DISINTEGRATED);
             } else { /* you or mon hit monster */
-                disint_mon_invent(mdef);
+                disint_mon_invent(mdef, FALSE);
                 if (youattack) {
                     if (is_rider(mdef->data)) {
                         if (vis) {
