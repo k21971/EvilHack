@@ -17,12 +17,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-15, after session 230's held
-  artifact tips slice): 415 rows closed, 109 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-15, after session 231's Magic
+  8-Ball slice): 421 rows closed, 108 open. Of the open rows:
   - 0 HIGH.
-  - 3 MED: unported master features (door-material colors, the
-    Magic 8-Ball's read advice and #apply wish, bag explosion
-    damage). Session 230 re-entered 18 of the 20 held artifact
+  - 2 MED: unported master features (door-material colors, bag
+    explosion damage). Session 231 closed the Magic 8-Ball
+    (BUG-2378..2387): #apply shakes it - refused when stunned or
+    underwater, a whispered rumor otherwise, and a blessed ball
+    grants a wish 1 time in 100000, then winks out (held in_use
+    through the wish, so a wizard lava wish or a fatal wish cannot
+    free it first - a master use-after-free); #read gives one of 20
+    answers and its pokedex tip returns. Folded by ruling: the One
+    Ring's inscription (closes its LOW row); master's low-Int read
+    gate (Int < 6 reads nothing but mail, the Hawaiian shirt and the
+    Book of the Dead; an unreadable eaten cookie keeps conduct);
+    item-menu lines for the ball, the Ring, the striped shirt and
+    Gjallar; master's wish livelog format (the request only, the
+    8-Ball's wishes tagged, a hangup keeps the tag); the #chronicle
+    long-line cut (vanilla-shared; long in-game rows wrapped in the
+    core, which keeps the Windows GUI's 256-byte putstr safe);
+    master's random artifact odds (1 in 30 weapons / 40 armor, + 5
+    per artifact wish). Ruled 2026-10-15, all as recommended but the
+    decline line (kept and tagged). One upstream table row
+    (BUG-2386); one LOW minted (curses menu paging on a tall entry).
+    Session 230 re-entered 18 of the 20 held artifact
     pokedex tips with their mechanisms (BUG-2365..2376): Butcher and
     the Staff of the Archmagi keep out of Mb_hit()'s scare / cancel
     tiers with master's three hit nouns, plus four lost Mb_hit()
@@ -87,8 +105,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 90 LOW: small parity rows, quirks and watch/record-only items.
-    Session 230 minted three: obj_typename()'s " stone" on non-gem
-    gemstone items (master's GemStone() class term), container
+    Session 231 closed the One Ring inscription row and minted one:
+    curses menu paging hangs on an entry taller than a page
+    (vanilla-shared, needs a reproducer). Session 230 minted three: obj_typename()'s
+    " stone" on non-gem gemstone items (master's GemStone() class
+    term), container
     destruction skipping obj_resists() (a census), and a Rider corpse
     an engulfer digests leaking as a free object (a trace).
     Session 229 minted three: the dead dwarf Valkyrie bearded axe
@@ -11598,8 +11619,26 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
         along and clears entanglement.
       Batteries T1 / T2 / T3, 33 POST legs PASS, every POST paniclog
       clean; PRE logged the four claimed impossibles.
-- [ ] Artifact behaviour remainder = the HELD pokedex tips (NEW,
+- [x] Artifact behaviour remainder = the HELD pokedex tips (NEW,
       minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
+      CLOSED 2026-10-15 (session 231, the Magic 8-Ball, commit
+      pending; plan /root/.claude/plans/feature-magic-8-ball.md;
+      closure notes in BUGFIXES_ARCHIVE BUG-2378..2387): master's
+      #apply arm (use_eight_ball(): "You are incapable of using ..."
+      when stunned, "You can't effectively shake ... in this medium."
+      underwater, else "You vigorously shake ..." with a usage fee
+      when unpaid; a blessed ball grants a wish 1 time in 100000 -
+      "The Magic 8-Ball has granted you a wish!" / "...winks out of
+      existence." - held in_use through the wish, BUG-2379), the
+      doapply tail's rumor whisper with arti_speak()'s stunned /
+      underwater gate, makewish(boolean) with master's " using the
+      Magic 8-Ball" livelog tag (resume_wish 2 keeps it through a
+      hangup); the #read arm (20 answers; "You feel only a smooth
+      plastic window." when blind) and the tip "Dispenses advice when
+      read." (branch table 126 -> 127; only Xiuhcoatl's master doc
+      bug stays out, not held for porting). Every eight ball can
+      grant the wish, as on master. Batteries T1..T4 PASS, all
+      paniclogs clean.
       NARROWED 2026-10-15 (session 230, commit 2a7478347, tracker
       40fcee718; plan /root/.claude/plans/feature-held-artifact-tips.md;
       closure notes in BUGFIXES_ARCHIVE): 18 of the 20 held lines
@@ -11616,7 +11655,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       and martial bonus (tip reworded "Boosts martial arts damage for
       lawful wearers."; closes the wear-restriction row); Dragonbane's
       dragon-hero sear (its destroy-armor refusal was REMOVED the same
-      day by maintainer correction, commit pending - master's
+      day by maintainer correction, commit 72eb999b1 - master's
       eb758dabe arm was meant for black dragon passive
       disintegration and blocked the scroll only because master's
       scroll calls the same destroy_arm(); BUG-2377 closed the real
@@ -11728,6 +11767,79 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sites (the #put path and the #tip path) and its livelog always
       says "bag of holding". Balance-visible: census master's whole
       commit and BUG-311 first. MED.
+- [x] Low-intelligence read gate never ported (minted and closed
+      2026-10-15, session 231, by the Magic 8-Ball census; no row
+      before, though the branch changelog lists it). Master 7d857f3b9:
+      with Int < 6 doread() refuses everything but a scroll of mail,
+      the Hawaiian shirt and the Book of the Dead ("You can't seem to
+      make out what all these weird scribbles / confusing scratches on
+      the <type> mean.", no time), and outrumor() gives an eaten
+      fortune cookie "What a pity that you cannot understand what it
+      says!". PORTED (BUG-2382, commit pending) after getobj(),
+      keeping 5.0's capacity -> shell -> getobj order. Ruled 2026-10-15
+      master's shape: about 45% of Draugr Barbarians (Int cap 6, role
+      base 7 dropped to 5) start unable to read, as on 0.9.3. Ruled
+      fix: an eaten cookie that could not be read no longer breaks
+      illiterate conduct (BUG-2383, master frozen-unfixed). Battery T3
+      PASS (15 items refused at Int 5, the three exempt items read, a
+      dunce cap's Int 6 reads, a Draugr Barbarian at Int 5 refused).
+      MED.
+- [x] Random artifact generation odds silently reverted (minted and
+      closed 2026-10-15, session 231, by the Magic 8-Ball census; the
+      branch changelog lists both master entries). Master 0bee10c4d +
+      5385094d0 + 84101cf90: a random weapon becomes an artifact 1 in
+      (30 + 5 x artifact wishes), armor 1 in (40 + 5 x artifact
+      wishes); the adoption kept vanilla 1 in (20 + 10 x
+      nartifact_exist()) and (40 + 10 x nartifact_exist()), so 1.5x
+      more early weapons and about 1/2 by midgame, 1/3 late (each
+      artifact in existence, the Oracle's 8-Ball included, cut the
+      odds). PORTED (BUG-2387, commit pending, its own commit); the
+      property roll after a failed roll is byte-identical. Battery T4
+      PASS: 11 cells x 20000 draws within 3 SD (PRE weapons 1021 at
+      k=0 / 345 at k=4, POST 686 / 616 and 470 at w=2). MED.
+- [x] Wish livelog format back to master's (minted and closed
+      2026-10-15, session 231, maintainer side note mid-slice: "I do
+      not like the new way branch livelogs wishes. I prefer the way
+      wishes are livelogged on master"). 5.0 e764026a1 appended `,
+      got "<object>"` to every wish line. Ruled: master's format (the
+      request only; the 8-Ball's wishes end " using the Magic
+      8-Ball"), the 5.0 decline line KEPT and tagged (the maintainer's
+      pick over master-exact, which logs nothing), folded into this
+      slice. BUG-2385, commit pending; the request is bounded so the
+      closing quote and the tag survive a long one. Battery T1 / T2
+      PASS. LOW.
+- [x] #chronicle cut long gamelog lines (minted and closed 2026-10-15,
+      session 231, by battery T2; vanilla-shared). livelog_printf()
+      stores entries up to BUFSZ * 2, but show_gamelog() formatted
+      each row into a BUFSZ buffer, so a 220+ character wish request
+      showed `...blesse" usin` in #chronicle and the dumplog. Re-ruled
+      three times as the premises corrected (the row buffer alone
+      fixed only the dumplog; curses_num_lines() and tty's
+      compress_str() also cut at BUFSZ; then the code reviewer found
+      rows of BUFSZ or more overflow the Windows GUI's putstr - win32
+      NH_A2W is a bare strncpy into TCHAR wbuf[BUFSZ] - and every port
+      assumes putstr() text fits in BUFSZ). FINAL: the port edits
+      reverted; show_gamelog() splits an in-game row of 255 characters
+      or more at spaces into pieces of at most 254 (tty's
+      compress_str() drops the last character of an unpadded
+      255-character line), continuations indented under the entry
+      text, and the dumplog keeps one whole row. BUG-2386,
+      commit pending, its own commit; upstream table row. Battery T2
+      PASS on the final shape: the whole row on tty at 80 and 110
+      columns and on curses, rows of 254 / 255 / 256 characters split
+      with nothing lost, one whole dumplog row (text and HTML), other
+      windows and ^P history identical to PRE. LOW.
+- [ ] LOW: curses menu paging hangs on an entry taller than a page
+      (minted 2026-10-15, session 231, from the code reviewer;
+      vanilla-shared, upstream-reportable). win/curses/cursdial.c
+      menu_determine_pages() has no case for an entry taller than a
+      whole page: on overflow it backs up to prev_item and re-places
+      the same entry on a new page forever, or dereferences a NULL
+      prev_item when the entry is the first. A 255-character
+      #chronicle row at a 40x10 terminal (below the 40x15 startup
+      minimum, reachable by resizing) hangs on both builds. Fix shape:
+      when the entry starts the page, keep it there and clip it. Needs
+      a reproducer in play first. LOW.
 - [x] Dexterity-to-AC ladder (NEW, minted 2026-07-28 by the combat
       damage/AC slice, which found it while verifying find_ac() for the
       shield row). NOT PREVIOUSLY ON ANY ROW - the tree adoption
@@ -19060,12 +19172,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       attribute (arw->tethered) that no artifact sets. The pokedex
       "Returns when thrown by a skilled hammer wielder." stays true.
       LOW.
-- [ ] Reading the One Ring's inscription ABSENT (minted 2026-09-09 by
+- [x] Reading the One Ring's inscription ABSENT (minted 2026-09-09 by
       the bane-aura census): master 397510c57 (the ring became an
       artifact) lets doread() read the One Ring - blind: "You feel an
       engraving on the ring", else "It reads:" + the Ring-verse,
       breaks literacy with a livelog line; the branch's doread() has
       no arm, so `r` refuses it as unreadable. Flavor + conduct. LOW.
+      CLOSED 2026-10-15 (session 231, folded into the Magic 8-Ball
+      slice by ruling, commit pending, BUG-2381): master's arm after
+      Gjallar, worn or not; blind "You feel an engraving on the
+      lustrous ring named the One Ring." (unidentified) / "...on the
+      One Ring." (identified - xname() drops the leading "the"); an
+      item-menu "Read the inscription on the ring" line (BUG-2384).
+      Battery T3 PASS.
 - [ ] botl_hitbonus()/BL_TOHIT status field ABSENT (minted 2026-09-09
       by the bane-aura census; the roles-review DEFER list and row
       ~7961 "WHEN IT LANDS it must carry the taper, the XL30 +5 and
@@ -29717,6 +29836,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-15 | #chronicle and the dumplog cut a long gamelog line. Shared with Official_nh50: pline.c livelog_printf() formats entries into `char gamelogbuf[BUFSZ * 2]`, but insight.c show_gamelog() formats each row into `char buf[BUFSZ]` ("%5ld: %s"), so any entry past about 248 characters loses its tail (a 253-character wish request showed `...blesse" usin`); win/curses/cursmisc.c curses_num_lines() also copies at most BUFSZ - 1 characters, so curses under-counts the wrapped lines of any longer menu row even after the first fix (curses_break_str() already sizes to the string); and win/tty/wintty.c compress_str() copies any row at least a screen wide into `static char cbuf[BUFSZ]`, so tty stops the row near 252 characters. Widening those buffers is NOT safe: win32 mhmenu.c / mhtext.c MSNH_MSG_PUTSTR copy putstr text into `TCHAR wbuf[BUFSZ]` with NH_A2W (a bare strncpy in the non-Unicode build, no terminator) and then _tcscat() it, so every port must keep receiving putstr() text under BUFSZ. EvilHack fix BUG-2386: show_gamelog() formats into BUFSZ * 2 + 32 and, for the in-game window, splits a row of 255 characters or more at spaces into pieces of at most 254 (vanilla tty compress_str() also drops the last character of an unpadded 255-character line), continuations indented under the entry text; the dumplog (dump procs, which stream) keeps one whole row. | found (branch-fixed); not yet sent |
 | 2026-10-15 | An applied item destroyed as it slips from the hero (Fumbling / Glib over open air or lava) leaves doapply() holding the deleted object. Shared with Official_nh50 (apply.c use_grease() x2 and use_whip(), write.c dowrite(); do.c dropx() / dropy() / dropz() are void): doapply()'s tail reads `obj->oartifact` after delobj() marked the object OBJ_DELETED, against its own comment that a helper which can destroy obj must null it. No crash (dobjsfree() frees at the end of the command) and no visible effect. EvilHack fix BUG-2362 (master's BUG-315 / BUG-1068): dropz() returns whether the object is gone, dropy() / dropx() pass it on, and the helpers take `struct obj **` and null the caller's pointer. | found (branch-fixed); not yet sent |
 | 2026-10-15 | A ceiling-hider hero's drop leaves a hidden attacker hidden over nothing. Shared with Official_nh50 and NetHack50 (mhitu.c mattacku(), the `is_hider(youmonst.data)` block): the attacking monster is moved onto the hero's old square with place_monster(), and a hides_under attacker that was hidden under objects on its own square stays mundetected on the bare square, so the sanity check logs "mon hiding under nonexistent obj". EvilHack fix BUG-2355 (master's BUG-1137): maybe_unhide_at() + newsym() after the swap. | found (branch-fixed); not yet sent |
 | 2026-10-15 | The same drop moves a trapped attacker off its trap with mtrapped still set ("trapped without a trap"). Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2356 (master's BUG-1288): clear mtrapped and fill_pit() the old square before place_monster(). | found (branch-fixed); not yet sent |
@@ -29934,6 +30054,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-15 | Magic 8-Ball slice rulings (session 231; AskUserQuestion x4, eight questions). (1) SCOPE: the 8-Ball (read advice, #apply wish, its livelog tag, the tip, a shake menu line) plus every offered co-port - the One Ring's #read arm, master 7d857f3b9's low-Int read gate, master's random artifact odds (own commit), and item-menu read lines for the striped shirt and Gjallar (as recommended). (2) DRAUGR: master's shape - about 45% of Draugr Barbarians start at Int 5 and cannot read until Int rises, as on 0.9.3 (as recommended). (3) 8-BALL TAG: " using the Magic 8-Ball" placed where master put it, the decline line tagged too, "Magic 8-Ball" capitalized everywhere (as recommended). (4) COOKIE: an eaten fortune cookie that could not be read no longer breaks illiterate conduct (as recommended; master quirk). (5) WISH LIVELOG FORMAT (maintainer side note mid-slice): back to master's - the request only, no 5.0 `, got "<object>"` tail - folded into this slice; the 5.0 decline line KEPT and tagged (the maintainer's pick over master-exact, which logs nothing). (6) CHRONICLE CUT (battery T2): re-ruled three times as the premises corrected - first show_gamelog()'s row buffer, then also curses_num_lines() and tty's compress_str(), then (after the code reviewer showed rows of BUFSZ or more overflow the Windows GUI's putstr) the FINAL ruling: wrap long in-game rows in show_gamelog(), dumplog rows whole, the port edits reverted (as recommended each time). Decided without asking: every blessed eight ball can grant the wish and an unpaid ball pays its full price per shake (master parity); resume_wish retyped boolean -> xint8 (same size). | maintainer |
 | 2026-10-15 | Bearded axe slice rulings (session 229; AskUserQuestion x3, six questions, all as recommended). (1) SHARED PARTS: use_axe() mirrors the branch's 5.0 use_whip() (boulder hook, a big monster hooked only when seen, an unseen monster revealed and never disarmed, the buried-ball chain stop, "not enough room" when engulfed, the target always wakes); the axe-only rules are master's; rejected master's 3.6 body as written. (2) DROPX FAMILY: master's BUG-315 / BUG-1068 shape lands here (dropx() reports a destroyed item; the whip, grease, marker and axe slips null doapply()'s pointer); re-asked after the Plan agent showed 5.0's deferred dealloc makes it hygiene, not a crash fix: kept; rejected the axe only with a row. (3) QUIRKS: the wield verb "swing" (master "lash"), a bracer deflect takes the turn and wakes the monster, a web refuses the chop fallthrough (hooking still works); master's repeated confdir() kept. (4) RACIAL SIZE: the whip pit hook and use_grapple() get master's r_bigmonst() / r_verysmall() here, a SWEEP row for the other tree-wide gaps. (5) MENU: the item-action line "a - Hook or chop with this axe"; rejected "Hook something with this axe" and no line. | maintainer |
 | 2026-10-14/15 | Terrain concealment slice rulings (session 228; AskUserQuestion x2, four questions). (1) FALLBACK: terrain still hides a hides_under monster or hero when 5.0 refuses the object cover (fewer than 10 coins, a pet on a cursed pile, a pile of only cockatrice corpses); rejected master's shape, where any object makes it object cover only (as recommended). (2) MOVEMENT: master's hold rule - the hider picks its move, attacks from cover, moves cover-to-cover freely and refuses 9 in 10 moves onto ground with no cover; rejected 5.0's early "do not leave hiding place" return (as recommended). (3) WORDING: "in the grass" / "in the sand", "under the throne / ladder / sink / altar / grave" with plain names and the article everywhere (farlook, ^X included); rejected master's farlook names ("under the opulent throne", "under the ladder up"), which was my recommendation, and plain names with "under" throughout. (4) HIDE MESSAGE (after battery B4: a pet garter snake in a half-grass room, 51 lines in 523 turns): keep "You see <mon> hide in the grass." for every hider, pets included, as 5.0 does for object cover (as recommended). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 227; AskUserQuestion, three questions, all as recommended). (1) LIT OIL: THE HALF-FLASK RULE. fixup_oil() counts the fuel left in a lit flask's burn timer, and a polymorphed flask dilutes only when less than half its oil (200 turns) is left, lit or unlit alike, over fuel-exact (5.0's under-400 rule), "lit never dilutes" and record-only. This corrects the s226 premise: a timer read alone still dilutes a lit flask one turn after lighting (399 of 400). (2) AMULET OF FLYING: identify it at all five flight-unblock sites (the two "You can fly." sites and the three "stopped levitating and are now flying" sites), over only the two ruled sites. At plan time the review added a fourth "stopped levitating" site (Ring_off_or_gone()) and switch_terrain()'s "You start flying.", as the same class. (3) KNIGHT DRAGON GRUDGE: THE INTENT, ZOO ROOMS ONLY. Master's makemon() case is ported, and fill_zoo() leaves a cross-aligned dragon awake for a Knight; special-level asleep flags are left alone. This was chosen over the intent everywhere, closing the row as dead, and deferring. Premise corrected: master's wake is dead, because fill_zoo() re-sleeps after makemon(). | maintainer |
