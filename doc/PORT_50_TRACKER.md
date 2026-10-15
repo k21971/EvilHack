@@ -37,9 +37,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the Wand of Orcus curses itself (a restore guard); cursed lock
     tools break; the Gauntlets of Purity gate, piety line, slide-off
     and martial bonus (closes the wear-restriction row); Dragonbane's
-    dragon-hero sear and destroy-armor refusal. Ruled 2026-10-15, six
-    questions, all as recommended. The umbrella row now owns only the
-    Magic 8-Ball. Minted the bag explosion MED and three LOW rows.
+    dragon-hero sear. Ruled 2026-10-15, six questions, all as
+    recommended. The umbrella row now owns only the Magic 8-Ball.
+    Minted the bag explosion MED and three LOW rows. Same-day
+    maintainer correction (BUG-2377): Dragonbane is fully immune to
+    black dragon disintegration but NOT to destroy armor - the
+    BUG-2376 destroy-armor refusal came out, and a monster wearer's
+    (or a wielded) Dragonbane no longer falls to a black dragon's
+    hide, scales or the disintegration cull.
     Session 229 closed #apply a dwarvish
     bearded axe: the hook grabs a monster's weapon or, one time in
     four, its shield, climbs out of a pit and otherwise chops
@@ -11595,8 +11600,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       clean; PRE logged the four claimed impossibles.
 - [ ] Artifact behaviour remainder = the HELD pokedex tips (NEW,
       minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
-      NARROWED 2026-10-15 (session 230, commit pending, tracker
-      pending; plan /root/.claude/plans/feature-held-artifact-tips.md;
+      NARROWED 2026-10-15 (session 230, commit 2a7478347, tracker
+      40fcee718; plan /root/.claude/plans/feature-held-artifact-tips.md;
       closure notes in BUGFIXES_ARCHIVE): 18 of the 20 held lines
       re-entered at master's positions (branch table 108 -> 126) with
       their mechanisms as BUG-2365..2376 - Mb_hit()'s Butcher / Staff
@@ -11610,7 +11615,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       breaking; the Gauntlets of Purity gate, piety line, slide-off
       and martial bonus (tip reworded "Boosts martial arts damage for
       lawful wearers."; closes the wear-restriction row); Dragonbane's
-      dragon-hero sear and destroy-armor refusal. Hesperides theft and
+      dragon-hero sear (its destroy-armor refusal was REMOVED the same
+      day by maintainer correction, commit pending - master's
+      eb758dabe arm was meant for black dragon passive
+      disintegration and blocked the scroll only because master's
+      scroll calls the same destroy_arm(); BUG-2377 closed the real
+      black-dragon holes: a monster wearer's gloves vs the hide, the
+      disintegration cull, a wielded Dragonbane vs black dragon
+      scales). Hesperides theft and
       Dragonbane sears were already live. Ruled 2026-10-15, six
       questions, all as recommended (chest-gas gate stays vanilla).
       This row now owns ONLY the Magic 8-Ball ("Dispenses advice when
@@ -13865,8 +13877,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       power -2 / none 0 / dexterity +1 / fumbling -9.
 - [x] Gauntlets of Purity wear-restriction + piety message (NEW,
       minted 2026-08-16 by the Vecna slice). FIXED 2026-10-15
-      (session 230, commit pending, tracker pending; absorbed by the
-      held pokedex tips slice, ruling 1) as BUG-2375: the canwearobj()
+      (session 230, commit 2a7478347, tracker 40fcee718; absorbed by
+      the held pokedex tips slice, ruling 1) as BUG-2375: the canwearobj()
       gate (record < 20, and Infidels "...sense your wickedness, and
       refuse to be worn!"), the piety line in Gloves_on()'s
       GAUNTLETS_OF_POWER case (the artifact's base type; the marker
