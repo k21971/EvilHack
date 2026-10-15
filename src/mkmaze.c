@@ -1687,8 +1687,9 @@ movebubbles(void)
                         if (OBJ_AT(x, y)) {
                             struct obj *olist = (struct obj *) 0, *otmp;
 
+                            /* the pile travels with any hider here */
                             while ((otmp = svl.level.objects[x][y]) != 0) {
-                                remove_object(otmp);
+                                remove_object_core(otmp);
                                 otmp->ox = otmp->oy = 0;
                                 otmp->nexthere = olist;
                                 olist = otmp;

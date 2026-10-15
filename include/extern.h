@@ -1875,6 +1875,7 @@ extern boolean is_rottable(struct obj *) NONNULLARG1;
 extern void place_object(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern void recreate_pile_at(coordxy, coordxy);
 extern void remove_object(struct obj *) NONNULLARG1;
+extern void remove_object_core(struct obj *) NONNULLARG1;
 extern void discard_minvent(struct monst *, boolean) NONNULLARG1;
 extern void obj_extract_self(struct obj *) NONNULLARG1;
 extern void extract_nobj(struct obj *, struct obj **) NONNULLARG12;
@@ -2037,6 +2038,8 @@ extern void restartcham(void);
 extern void restore_cham(struct monst *) NONNULLARG1;
 extern void maybe_unhide_at(coordxy, coordxy);
 extern boolean hideunder(struct monst *) NONNULLARG1;
+extern const char *hider_terrain_cover(struct monst *) NONNULLARG1;
+extern const char *hider_cover_phrase(struct monst *, char *) NONNULLPTRS;
 extern void hide_monst(struct monst *) NONNULLARG1;
 extern void mon_animal_list(boolean);
 extern boolean valid_vampshiftform(int, int);
@@ -2180,6 +2183,10 @@ extern boolean should_displace(struct monst *, const struct mfndposdata *,
 extern boolean mon_escape_target(struct monst *, coordxy *, coordxy *);
 extern boolean undesirable_disp(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern boolean can_hide_under_obj(struct obj *);
+extern const char *terrain_cover_phrase(coordxy, coordxy);
+extern boolean concealing_terrain(coordxy, coordxy);
+extern boolean concealed_spot(coordxy, coordxy);
+extern boolean hider_cover_at(coordxy, coordxy);
 
 /* ### monst.c ### */
 

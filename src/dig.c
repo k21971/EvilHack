@@ -976,6 +976,8 @@ liquid_flow(
     } else if ((mon = m_at(x, y)) != 0) {
         (void) minliquid(mon);
     }
+    /* the flooded grass or sand conceals no one now */
+    maybe_unhide_at(x, y);
 }
 
 RESTORE_WARNING_FORMAT_NONLITERAL
@@ -2426,7 +2428,7 @@ rot_corpse(anything *arg, long timeout)
         struct monst *mtmp = m_at(x, y);
 
         /* a hiding monster may be exposed */
-        if (mtmp && !OBJ_AT(x, y) && mtmp->mundetected
+        if (mtmp && !concealed_spot(x, y) && mtmp->mundetected
             && hides_under(mtmp->data)) {
             mtmp->mundetected = 0;
         } else if (u_at(x, y)

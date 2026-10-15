@@ -2526,11 +2526,6 @@ m_move(struct monst *mtmp, int after)
             return offer;
     }
 
-    if (hides_under(ptr) && OBJ_AT(mtmp->mx, mtmp->my)
-        && can_hide_under_obj(svl.level.objects[mtmp->mx][mtmp->my])
-        && rn2(10))
-        return MMOVE_NOTHING; /* do not leave hiding place */
-
     /* set up pre-move visibility flags */
     seenflgs = (canseemon(mtmp) ? 1 : 0) | (canspotmon(mtmp) ? 2 : 0);
 
@@ -3046,6 +3041,12 @@ m_move(struct monst *mtmp, int after)
             || (nix == mtmp->mux && niy == mtmp->muy))
             return m_move_aggress(mtmp, nix, niy);
 
+        /* a hider attacks from its cover but seldom ventures out of it;
+           moving from one bit of cover to another is free */
+        if (hides_under(ptr) && hider_cover_at(mtmp->mx, mtmp->my)
+            && !hider_cover_at(nix, niy) && rn2(10))
+            return MMOVE_NOTHING;
+
         if ((mfp.info[chi] & ALLOW_MDISP) != 0) {
             struct monst *mtmp2;
             int mstatus;
@@ -3205,6 +3206,62 @@ can_hide_under_obj(struct obj *obj)
 #undef NO_HIDING_UNDER_STATUES
 #endif
     return TRUE; /* can hide under the object */
+}
+
+/* phrase naming the terrain a hides_under monster or hero can conceal
+   itself in or under when no object there serves as cover, preposition
+   and article included; Null when the terrain at <x,y> conceals nothing */
+const char *
+terrain_cover_phrase(coordxy x, coordxy y)
+{
+    switch (levl[x][y].typ) {
+    case GRASS:
+        return "in the grass";
+    case SAND:
+        return "in the sand";
+    case SINK:
+        return "under the sink";
+    case ALTAR:
+        return "under the altar";
+    case THRONE:
+        return "under the throne";
+    case LADDER:
+        return "under the ladder";
+    case GRAVE:
+        return "under the grave";
+    default:
+        break;
+    }
+    return (const char *) 0;
+}
+
+/* can the terrain at <x,y> conceal a hides_under monster or hero? */
+boolean
+concealing_terrain(coordxy x, coordxy y)
+{
+    return (terrain_cover_phrase(x, y) != 0);
+}
+
+/* is there anything at <x,y> a hider might be under: any object, or
+   concealing terrain; the loose test, for sanity checks and for keeping
+   a hider hidden */
+boolean
+concealed_spot(coordxy x, coordxy y)
+{
+    return (OBJ_AT(x, y) || concealing_terrain(x, y));
+}
+
+/* is there usable cover at <x,y>: concealing terrain, or a pile that
+   can_hide_under_obj() accepts; never at a non-pit trap */
+boolean
+hider_cover_at(coordxy x, coordxy y)
+{
+    struct trap *t = t_at(x, y);
+
+    if (t && !is_pit(t->ttyp))
+        return FALSE;
+    return (concealing_terrain(x, y)
+            || can_hide_under_obj(svl.level.objects[x][y]));
 }
 
 void

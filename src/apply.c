@@ -2569,7 +2569,14 @@ fig_transform(anything *arg, long timeout)
             suppress_see = TRUE;
 
         if (mtmp->mundetected) {
-            if (hides_under(mtmp->data) && mshelter) {
+            const char *terrain = hides_under(mtmp->data)
+                                  ? hider_terrain_cover(mtmp) : 0;
+
+            if (terrain) {
+                /* grass, sand or furniture, not an object pile */
+                Snprintf(and_vanish, sizeof and_vanish, " and hide %s",
+                         terrain);
+            } else if (hides_under(mtmp->data) && mshelter) {
                 Snprintf(and_vanish, sizeof and_vanish, " and %s under %s",
                          locomotion(mtmp->data, "crawl"), doname(mshelter));
             } else if (mtmp->data->mlet == S_MIMIC

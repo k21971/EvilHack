@@ -4683,6 +4683,8 @@ wizterrainwish(struct _readobjnam_data *d)
             tree_gone_release(x, y);
         else
             grass_gone_release(x, y);
+        /* the new terrain may not conceal a hidden hero */
+        maybe_unhide_at(x, y);
     }
     if (madeterrain || badterrain)
         return &hands_obj;

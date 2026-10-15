@@ -4100,7 +4100,7 @@ create_particular_creation(
         }
         if (d->hidden
            && ((is_hider(mtmp->data) && mtmp->data->mlet != S_MIMIC)
-               || (hides_under(mtmp->data) && OBJ_AT(mx, my))
+               || (hides_under(mtmp->data) && concealed_spot(mx, my))
                || (mtmp->data->mlet == S_EEL
                    && (is_pool(mx, my) || is_puddle(mx, my)))
                || (mtmp->data == &mons[PM_GIANT_LEECH]

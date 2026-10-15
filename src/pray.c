@@ -2429,6 +2429,8 @@ sacrifice_your_race(
                     an(hcolor(NH_BLACK)));
             levl[u.ux][u.uy].typ = ROOM;
             levl[u.ux][u.uy].altarmask = 0;
+            /* a hidden hero can no longer hide under it */
+            maybe_unhide_at(u.ux, u.uy);
             newsym(u.ux, u.uy);
             angry_priest();
             demonless_msg = "cloud dissipates";

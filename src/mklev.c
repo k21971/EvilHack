@@ -2795,6 +2795,8 @@ mkinvpos(coordxy x, coordxy y, int dist)
         else
             (void) minliquid(mon);
     }
+    /* the new floor, trap or moat may leave a hider without cover */
+    maybe_unhide_at(x, y);
 
     if (!does_block(x, y, lev))
         unblock_point(x, y); /* make sure vision knows location is open */

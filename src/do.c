@@ -558,6 +558,8 @@ polymorph_sink(void)
         pline_The("sink transforms into %s!", an(defsyms[sym].explanation));
     else
         pline_The("sink vanishes.");
+    /* a fountain, forge or bare floor hides no one */
+    maybe_unhide_at(u.ux, u.uy);
     newsym(u.ux, u.uy);
 }
 
@@ -588,6 +590,8 @@ teleport_sink(void)
             /* remove old sink */
             set_levltyp(u.ux, u.uy, ROOM); /* was SINK so updates nsinks */
             levl[u.ux][u.uy].looted = 0;
+            /* a hidden hero loses the sink's cover */
+            maybe_unhide_at(u.ux, u.uy);
             newsym(u.ux, u.uy);
             /* create sink at new position */
             set_levltyp(cx, cy, SINK); /* now SINK so also updates nsinks */

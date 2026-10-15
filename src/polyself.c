@@ -2570,8 +2570,10 @@ dohide(void)
     if (hides_under(gy.youmonst.data)) {
         long ct = 0L;
         struct obj *otmp, *otop = svl.level.objects[u.ux][u.uy];
+        /* grass, sand and some furniture conceal a hider too */
+        boolean terrain = concealing_terrain(u.ux, u.uy);
 
-        if (!otop) {
+        if (!otop && !terrain) {
             There("is nothing to hide under here.");
             u.uundetected = 0;
             return ECMD_OK;
@@ -2581,8 +2583,10 @@ dohide(void)
                   && touch_petrifies(&mons[otmp->corpsenm]);
              otmp = otmp->nexthere)
             ct += otmp->quan;
-        /* otmp will be Null iff the entire pile consists of 'trice corpses */
-        if (!otmp && !Stone_resistance) {
+        /* otmp will be Null iff the entire pile consists of 'trice corpses
+           (or there is no pile); concealing terrain lets the hero hide
+           without touching them */
+        if (otop && !otmp && !Stone_resistance && !terrain) {
             char kbuf[BUFSZ];
             const char *corpse_name = cxname(otop);
 

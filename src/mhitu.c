@@ -41,8 +41,52 @@ staticfn int assess_dmg(struct monst *, int);
 staticfn int passiveum(struct permonst *, struct monst *, struct attack *);
 staticfn int passive_armor_dmg(struct monst *, int, int);
 staticfn int passive_disint_kill(struct monst *);
+staticfn const char *hidden_under_what(struct monst *, char *);
+staticfn void hider_reveal_msg(struct monst *);
 
 #define ld() ((yyyymmdd((time_t) 0) - (getyear() * 10000L)) == 0xe5)
+
+/* the cover a just-revealed hider was using, preposition included;
+   liquid is checked apart from object and terrain cover because eels
+   and giant leeches hide in bare water or sewage; Null when there is
+   nothing to name */
+staticfn const char *
+hidden_under_what(struct monst *mtmp, char *buf)
+{
+    coordxy x = mtmp->mx, y = mtmp->my;
+    struct obj *obj = svl.level.objects[x][y];
+    const char *cover;
+
+    if (!obj && !is_damp_terrain(x, y) && !concealing_terrain(x, y))
+        return (const char *) 0;
+    if (Blind && !(obj && obj->dknown))
+        return "under something";
+    if (is_pool(x, y) && !Underwater)
+        return "under the water";
+    if (is_puddle(x, y))
+        return "under the shallow water";
+    if (is_sewage(x, y))
+        return "under the raw sewage";
+    if ((cover = hider_cover_phrase(mtmp, buf)) != 0)
+        return cover;
+    return "under something";
+}
+
+/* tell the hero what cover a hider that just struck had been using */
+staticfn void
+hider_reveal_msg(struct monst *mtmp)
+{
+    char Amonbuf[BUFSZ], coverbuf[BUFSZ];
+    const char *cover = hidden_under_what(mtmp, coverbuf);
+
+    if (!cover)
+        return;
+    Strcpy(Amonbuf, Amonnam(mtmp));
+    /* mtmp might be invisible with hero unable to see same */
+    if (!strcmp(Amonbuf, "It")) /* note: not strcmpi() */
+        Strcpy(Amonbuf, Something);
+    pline("%s was hidden %s!", Amonbuf, cover);
+}
 
 /* The attacker's weapon can be destroyed mid-attack - glass breakage in
    mhitm_ad_phys(), erosion in the rust paths - after mattacku() has
@@ -941,9 +985,21 @@ mattacku(struct monst *mtmp)
                 return 0;
             }
 
+            /* mtmp is being relocated off its tile; if it was stuck in
+               a trap there (web, pit, bear trap) it no longer is - the
+               trap stays behind - and any entangling plants let go, as
+               rloc_to_core() does */
+            if (mtmp->mtrapped) {
+                mtmp->mtrapped = 0;
+                fill_pit(mtmp->mx, mtmp->my);
+            }
+            if (mtmp->mentangled)
+                mtmp->mentangled = 0;
+
             /* put mtmp at hero's spot and move hero to <cc.x,.y> */
             newsym(mtmp->mx, mtmp->my); /* finish removal */
             place_monster(mtmp, u.ux, u.uy);
+            update_monsteed(mtmp); /* a rider drags its steed along */
             if (mtmp->wormno) {
                 worm_move(mtmp);
                 /* tail hasn't grown, so if it now occupies <cc.x,.y>
@@ -953,8 +1009,18 @@ mattacku(struct monst *mtmp)
                                            NO_MM_FLAGS);
             }
             teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG); /* move hero */
+            /* the hero's landing spot can kill mtmp beside it (a land
+               mine's blast, a rolling boulder) */
+            if (DEADMONSTER(mtmp))
+                return 1;
             set_apparxy(mtmp);
             newsym(u.ux, u.uy);
+
+            /* mtmp now stands on the hero's vacated spot; if it was a
+               hidden hides_under/eel/leech monster, the cover it had
+               may not exist here */
+            maybe_unhide_at(mtmp->mx, mtmp->my);
+            newsym(mtmp->mx, mtmp->my);
 
             if (gy.youmonst.data->mlet != S_PIERCER)
                 return 0; /* lurkers don't attack */
@@ -986,8 +1052,13 @@ mattacku(struct monst *mtmp)
                  * zap the "laid by you" momentarily instead.
                  */
                 struct obj *obj = svl.level.objects[u.ux][u.uy];
+                const char *cover = (const char *) 0;
+                char coverbuf[BUFSZ];
 
-                if (obj || u.umonnum == PM_TRAPPER
+                if (obj
+                    || (hides_under(gy.youmonst.data)
+                        && concealing_terrain(u.ux, u.uy))
+                    || u.umonnum == PM_TRAPPER
                     || (u.umonnum == PM_GIANT_LEECH
                         && is_sewage(u.ux, u.uy))
                     || (gy.youmonst.data->mlet == S_EEL
@@ -999,22 +1070,21 @@ mattacku(struct monst *mtmp)
                         if (obj->otyp == EGG)
                             obj->spe = 0;
                     }
+                    if (hides_under(gy.youmonst.data))
+                        cover = hider_cover_phrase(&gy.youmonst, coverbuf);
                     /* note that m_monnam() overrides hallucination, which is
                        what we want when message is from mtmp's perspective */
-                    if (gy.youmonst.data->mlet == S_EEL
-                        || u.umonnum == PM_TRAPPER
-                        || u.umonnum == PM_GIANT_LEECH || !obj)
+                    if (!cover)
                         pline(
                              "Wait, %s!  There's a hidden %s named %s there!",
                               m_monnam(mtmp),
                               pmname(gy.youmonst.data, Ugender), svp.plname);
                     else
                         pline(
-                          "Wait, %s!  There's a %s named %s hiding under %s!",
+                             "Wait, %s!  There's a %s named %s hiding %s!",
                               m_monnam(mtmp),
                               pmname(gy.youmonst.data, Ugender),
-                              svp.plname,
-                              doname(svl.level.objects[u.ux][u.uy]));
+                              svp.plname, cover);
                     if (obj)
                         obj->spe = save_spe;
                 } else
@@ -1039,9 +1109,14 @@ mattacku(struct monst *mtmp)
                   pmname(gy.youmonst.data, Ugender), svp.plname);
         if (sticky) {
             set_ustuck(mtmp);
-            /* the attacker may have struck from cover */
+            /* the attacker may have struck from cover; normally hitmu()
+               reveals it, but we return before that */
             if (mtmp->mundetected) {
                 mtmp->mundetected = 0;
+                if ((hides_under(mtmp->data) || mtmp->data->mlet == S_EEL
+                     || mtmp->data == &mons[PM_GIANT_LEECH])
+                    && !tp_sensemon(mtmp) && !Detect_monsters)
+                    hider_reveal_msg(mtmp);
                 newsym(mtmp->mx, mtmp->my);
             }
         }
@@ -1716,33 +1791,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
             || mdat == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = 0;
         if (!tp_sensemon(mtmp) && !Detect_monsters) {
-            struct obj *obj;
-            const char *what;
-            char Amonbuf[BUFSZ];
-
-            /* eels and giant leeches hide in bare water/sewage with
-               no object cover */
-            if ((obj = svl.level.objects[mtmp->mx][mtmp->my]) != 0
-                || is_damp_terrain(mtmp->mx, mtmp->my)) {
-                if (Blind && !(obj && obj->dknown))
-                    what = something;
-                else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
-                    what = "the water";
-                else if (is_puddle(mtmp->mx, mtmp->my))
-                    what = "the shallow water";
-                else if (is_sewage(mtmp->mx, mtmp->my))
-                    what = "the raw sewage";
-                else if (obj)
-                    what = doname(obj);
-                else
-                    what = something;
-
-                Strcpy(Amonbuf, Amonnam(mtmp));
-                /* mtmp might be invisible with hero unable to see same */
-                if (!strcmp(Amonbuf, "It")) /* note: not strcmpi() */
-                    Strcpy(Amonbuf, Something);
-                pline("%s was hidden under %s!", Amonbuf, what);
-            }
+            hider_reveal_msg(mtmp);
             newsym(mtmp->mx, mtmp->my);
         }
     }

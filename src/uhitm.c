@@ -310,8 +310,8 @@ attack_checks(
             return FALSE;
         }
         if (!tp_sensemon(mtmp) && !Detect_monsters) {
-            struct obj *obj;
-            char lmonbuf[BUFSZ];
+            const char *cover;
+            char lmonbuf[BUFSZ], coverbuf[BUFSZ];
             boolean notseen;
 
             Strcpy(lmonbuf, l_monnam(mtmp));
@@ -324,10 +324,10 @@ attack_checks(
             else if (Blind || (is_damp_terrain(mtmp->mx, mtmp->my)
                                && !Underwater))
                 pline("Wait!  There's a hidden monster there!");
-            else if ((obj = svl.level.objects[mtmp->mx][mtmp->my]) != 0)
-                pline("Wait!  There's %s hiding under %s!",
+            else if ((cover = hider_cover_phrase(mtmp, coverbuf)) != 0)
+                pline("Wait!  There's %s hiding %s!",
                       notseen ? something : (const char *) an(lmonbuf),
-                      doname(obj));
+                      cover);
             return TRUE;
         }
     }

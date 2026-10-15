@@ -2296,8 +2296,11 @@ youhiding(boolean via_enlghtmt, /* enlightenment line vs topl message */
                 Sprintf(bp, " in the %s", waterbody_name(u.ux, u.uy));
         } else if (hides_under(gy.youmonst.data)) {
             struct obj *o = svl.level.objects[u.ux][u.uy];
+            const char *terrain = hider_terrain_cover(&gy.youmonst);
 
-            if (o)
+            if (terrain)
+                Sprintf(bp, " %s", terrain);
+            else if (o)
                 Sprintf(bp, " underneath %s", ansimpleoname(o));
         } else if (is_clinger(gy.youmonst.data) || Flying) {
             /* Flying: 'lurker above' hides on ceiling but doesn't cling */

@@ -7033,6 +7033,9 @@ zap_over_floor(
                 /* at a minimum, hiders are forced out of hiding */
                 if (hides_under(mon->data) && mon->mundetected)
                     mon->mundetected = 0;
+            } else {
+                /* a hero hiding in the grass loses its cover */
+                maybe_unhide_at(x, y);
             }
             newsym(x, y);
             /* the burned grass may have been holding the hero */

@@ -2704,7 +2704,8 @@ recreate_pile_at(coordxy x, coordxy y)
     /* remove all objects at <x,y>, saving a reversed temporary list */
     for (otmp = svl.level.objects[x][y]; otmp; otmp = next_obj) {
         next_obj = otmp->nexthere;
-        remove_object(otmp); /* obj_extract_self() for floor */
+        /* the pile is rebuilt below, so a hider under it stays hidden */
+        remove_object_core(otmp);
         otmp->nobj = reversed;
         reversed = otmp;
     }
@@ -2846,8 +2847,25 @@ obj_timer_checks(
 
 #undef ROT_ICE_ADJUSTMENT
 
+/* take an object off the floor; a monster or the hero hiding under it
+   may be revealed */
 void
 remove_object(struct obj *otmp)
+{
+    coordxy x = otmp->ox;
+    coordxy y = otmp->oy;
+
+    remove_object_core(otmp);
+    /* if a monster was hiding under this object, it may need
+       to be revealed */
+    maybe_unhide_at(x, y);
+}
+
+/* take an object off the floor without re-checking a hider there; for
+   callers that rebuild the pile in place or carry it along with the
+   hider */
+void
+remove_object_core(struct obj *otmp)
 {
     coordxy x = otmp->ox;
     coordxy y = otmp->oy;

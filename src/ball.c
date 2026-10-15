@@ -423,9 +423,10 @@ set_bc(int already_blind)
      *  would be beneath them.  Then put the ball&chain back.  This is pretty
      *  disgusting, but it will work.
      */
-    remove_object(uchain);
+    /* both go straight back, so a hider under them stays hidden */
+    remove_object_core(uchain);
     if (ball_on_floor)
-        remove_object(uball);
+        remove_object_core(uball);
 
     newsym(uchain->ox, uchain->oy);
     u.cglyph = levl[uchain->ox][uchain->oy].glyph;

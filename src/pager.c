@@ -259,11 +259,18 @@ mhidden_description(
     } else if (isyou ? u.uundetected : mon->mundetected) {
         Strcpy(outbuf, ", hiding");
         if (hides_under(mon->data)) {
-            Strcat(outbuf, " under ");
-            /* remembered glyph, not glyph_at() which is 'mon' */
-            if (glyph_is_object(glyph))
-                goto objfrommap;
-            Strcat(outbuf, something);
+            const char *terrain = hider_terrain_cover(mon);
+
+            if (terrain) {
+                /* grass, sand or furniture, not an object pile */
+                Sprintf(eos(outbuf), " %s", terrain);
+            } else {
+                Strcat(outbuf, " under ");
+                /* remembered glyph, not glyph_at() which is 'mon' */
+                if (glyph_is_object(glyph))
+                    goto objfrommap;
+                Strcat(outbuf, something);
+            }
         } else if (is_hider(mon->data)) {
             Sprintf(eos(outbuf), " on the %s",
                     ceiling_hider(mon->data) ? "ceiling"

@@ -1871,6 +1871,8 @@ breaksink(coordxy x, coordxy y)
     levl[x][y].looted = 0;
     levl[x][y].blessedftn = 0;
     SET_FOUNTAIN_LOOTED(x, y);
+    /* a fountain hides no one */
+    maybe_unhide_at(x, y);
     newsym(x, y);
 }
 

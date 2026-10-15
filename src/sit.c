@@ -104,6 +104,8 @@ throne_sit_effect(void)
                    terrain wish may already have replaced this one */
                 if (IS_THRONE(levl[tx][ty].typ)) {
                     levl[tx][ty].typ = ROOM, levl[tx][ty].flags = 0;
+                    /* a hider can no longer hide under it */
+                    maybe_unhide_at(tx, ty);
                     map_background(tx, ty, FALSE);
                     newsym_force(tx, ty);
                     pline_The("throne %s in a puff of logic.",
@@ -242,6 +244,8 @@ throne_sit_effect(void)
     if (!rn2(3) && IS_THRONE(levl[tx][ty].typ)
         && (!wizard || y_n("Analyze throne?") == 'y')) {
         levl[tx][ty].typ = ROOM, levl[tx][ty].flags = 0;
+        /* a hider can no longer hide under it */
+        maybe_unhide_at(tx, ty);
         map_background(tx, ty, FALSE);
         newsym_force(tx, ty);
         /* "[God] promptly vanishes in a puff of logic" is from

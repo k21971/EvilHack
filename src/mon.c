@@ -39,6 +39,7 @@ staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
 staticfn void m_restartcham(struct monst *);
 staticfn boolean restrap(struct monst *);
+staticfn boolean can_hide_under_pile(struct monst *, coordxy, coordxy);
 staticfn int pick_animal(void);
 staticfn int pickvampshape(struct monst *);
 staticfn boolean isspecmon(struct monst *);
@@ -202,7 +203,8 @@ sanity_check_single_mon(
             mx = my = 0;
         if (mtmp == u.ustuck)
             impossible("hiding monster stuck to you (%s)", msg);
-        if (m_at(mx, my) == mtmp && hides_under(mptr) && !OBJ_AT(mx, my))
+        if (m_at(mx, my) == mtmp && hides_under(mptr)
+            && !concealed_spot(mx, my))
             impossible("mon hiding under nonexistent obj (%s)", msg);
         if (mptr->mlet == S_EEL
             && !(is_damp_terrain(mx, my) && !Is_waterlevel(&u.uz)))
@@ -7597,32 +7599,90 @@ restrap(struct monst *mtmp)
     return FALSE;
 }
 
-/* reveal a hiding monster at x,y, either under nonexistent object,
-   or an eel out of water. */
+/* reveal a hiding monster at x,y, either under nonexistent object or
+   terrain cover, or an eel out of water */
 void
 maybe_unhide_at(coordxy x, coordxy y)
 {
     struct monst *mtmp;
-    boolean undetected = FALSE, trapped = FALSE;
+    boolean undetected = FALSE;
 
     if ((mtmp = m_at(x, y)) != (struct monst *) 0) {
         undetected = mtmp->mundetected;
-        trapped = mtmp->mtrapped;
     } else if (u_at(x, y)) {
         mtmp = &gy.youmonst;
         undetected = u.uundetected;
-        trapped = u.utrap;
     } else {
         return;
     }
 
+    /* hideunder() re-applies every hiding rule (trapped, the pile, the
+       terrain); it never speaks for a hider that is already hidden */
     if (undetected
-        && ((hides_under(mtmp->data)
-             && (!OBJ_AT(x, y) || trapped
-                 || !can_hide_under_obj(svl.level.objects[x][y])))
+        && (hides_under(mtmp->data)
             || (mtmp->data->mlet == S_EEL && !is_damp_terrain(x, y))
             || (mtmp->data == &mons[PM_GIANT_LEECH] && !is_sewage(x, y))))
         (void) hideunder(mtmp);
+}
+
+/* can mtmp (or the hero) hide under the pile at <x,y>? */
+staticfn boolean
+can_hide_under_pile(struct monst *mtmp, coordxy x, coordxy y)
+{
+    struct obj *otmp = svl.level.objects[x][y];
+
+    if (!otmp
+        /* most things can be hidden under, but not all */
+        || !can_hide_under_obj(otmp)
+        /* pets won't hide under a cursed item or an item of any BUC
+           state that shares a pile with one or more cursed items */
+        || (mtmp->mtame && cursed_object_at(x, y))
+        /* aquatic creatures don't reach here; other swimmers
+           shouldn't hide beneath underwater objects */
+        || is_pool_or_lava(x, y))
+        return FALSE;
+    /* most monsters won't hide under a cockatrice corpse but they
+       can hide under a pile containing more than just such corpses */
+    if ((mtmp == &gy.youmonst) ? !Stone_resistance
+                               : !(resists_ston(mtmp)
+                                   || defended(mtmp, AD_STON)))
+        while (otmp && otmp->otyp == CORPSE
+               && touch_petrifies(&mons[otmp->corpsenm]))
+            otmp = otmp->nexthere;
+    return (otmp != 0);
+}
+
+/* the terrain phrase ("in the grass") when terrain rather than an
+   object pile is what conceals a hides_under monster or the hero;
+   Null otherwise */
+const char *
+hider_terrain_cover(struct monst *mtmp)
+{
+    boolean is_u = (mtmp == &gy.youmonst);
+    coordxy x = is_u ? u.ux : mtmp->mx, y = is_u ? u.uy : mtmp->my;
+
+    if (can_hide_under_pile(mtmp, x, y))
+        return (const char *) 0;
+    return terrain_cover_phrase(x, y);
+}
+
+/* the cover a hides_under monster or the hero is using, preposition
+   included: the terrain phrase, else "under <top object>" formatted
+   into buf (BUFSZ); Null when there is neither */
+const char *
+hider_cover_phrase(struct monst *mtmp, char *buf)
+{
+    boolean is_u = (mtmp == &gy.youmonst);
+    coordxy x = is_u ? u.ux : mtmp->mx, y = is_u ? u.uy : mtmp->my;
+    struct obj *otmp = svl.level.objects[x][y];
+    const char *terrain = hider_terrain_cover(mtmp);
+
+    if (terrain)
+        return terrain;
+    if (!otmp)
+        return (const char *) 0;
+    Snprintf(buf, BUFSZ, "under %s", doname(otmp));
+    return buf;
 }
 
 /* monster/hero tries to hide under something at the current location;
@@ -7632,9 +7692,9 @@ boolean
 hideunder(struct monst *mtmp)
 {
     struct trap *t;
-    struct obj *otmp;
     const char *seenmon = (char *) 0, *seenobj = (char *) 0,
                *locomo = (char *) 0;
+    char coverbuf[BUFSZ];
     int seeit = gi.in_mklev ? 0 : canseemon(mtmp);
     boolean oldundetctd, undetected = FALSE, is_u = (mtmp == &gy.youmonst);
     coordxy x = is_u ? u.ux : mtmp->mx, y = is_u ? u.uy : mtmp->my;
@@ -7654,38 +7714,35 @@ hideunder(struct monst *mtmp)
                       && !Is_waterlevel(&u.uz)
                       && (!Underwater || !couldsee(x, y)));
         if (seeit) {
-            seenobj = "the water";
+            seenobj = "under the water";
             locomo = "dive";
         }
     } else if (mtmp->data == &mons[PM_GIANT_LEECH]) {
         /* giant leeches conceal themselves in raw sewage */
         undetected = is_sewage(x, y);
         if (seeit) {
-            seenobj = "the raw sewage";
+            seenobj = "under the raw sewage";
             locomo = "dive";
         }
-    } else if (hides_under(mtmp->data)
-               /* hider-underers only hide under objects */
-               && (otmp = svl.level.objects[x][y]) != 0
-               /* most things can be hidden under, but not all */
-               && can_hide_under_obj(otmp)
-               /* pets won't hide under a cursed item or an item of any BUC
-                  state that shares a pile with one or more cursed items */
-               && (!mtmp->mtame || !cursed_object_at(x, y))
-               /* aquatic creatures don't reach here; other swimmers
-                  shouldn't hide beneath underwater objects */
-               && !is_pool_or_lava(x, y)) {
-        if (seeit) /*&& (!is_pool(x, y) || (Underwater && distu(x, y) <= 2))*/
-            seenobj = ansimpleoname(otmp);
-        /* most monsters won't hide under a cockatrice corpse but they
-           can hide under a pile containing more than just such corpses */
-        if (is_u ? !Stone_resistance
-                 : !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
-            while (otmp && otmp->otyp == CORPSE
-                   && touch_petrifies(&mons[otmp->corpsenm]))
-                otmp = otmp->nexthere;
-        if (otmp)
+    } else if (hides_under(mtmp->data)) {
+        const char *terrain;
+
+        if (can_hide_under_pile(mtmp, x, y)) {
             undetected = TRUE;
+            if (seeit) {
+                Snprintf(coverbuf, sizeof coverbuf, "under %s",
+                         ansimpleoname(svl.level.objects[x][y]));
+                seenobj = coverbuf;
+            }
+        } else if ((terrain = terrain_cover_phrase(x, y)) != 0) {
+            /* grass, sand and some furniture conceal a hider when no
+               object there serves as cover */
+            undetected = TRUE;
+            if (seeit) {
+                seenobj = terrain;
+                locomo = "hide";
+            }
+        }
     }
 
     if (is_u) {
@@ -7693,7 +7750,7 @@ hideunder(struct monst *mtmp)
         u.uundetected = undetected ? 1 : 0;
 #if 0   /* feedback handled via #monster */
         if (undetected && !oldundeteced && seenobj)
-            You("hide under %s.", seenobj);
+            You("hide %s.", seenobj);
 #endif
     } else {
         if (seeit)
@@ -7707,7 +7764,7 @@ hideunder(struct monst *mtmp)
             if (!locomo)
                 locomo = locomotion(mtmp->data, "hide");
             set_msg_xy(mtmp->mx, mtmp->my); /* pline() will reset this */
-            You_see("%s %s under %s.", seenmon, locomo, seenobj);
+            You_see("%s %s %s.", seenmon, locomo, seenobj);
             iflags.last_msg = PLNMSG_HIDE_UNDER;
             gl.last_hider = mtmp->m_id;
         }

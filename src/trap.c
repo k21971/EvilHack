@@ -746,6 +746,9 @@ maketrap(coordxy x, coordxy y, int typ)
         if (Sokoban)
             maybe_finish_sokoban();
     }
+    /* a pit or hole may have replaced grass, sand or furniture, and no
+       hider stays hidden at a non-pit trap */
+    maybe_unhide_at(x, y);
     return ttmp;
 }
 
@@ -1117,7 +1120,7 @@ animate_statue(
 
     /* avoid hiding under nothing */
     if (u_at(x, y) && Upolyd && hides_under(gy.youmonst.data)
-        && !OBJ_AT(x, y))
+        && !concealed_spot(x, y))
         u.uundetected = 0;
 
     if (fail_reason)
