@@ -2582,6 +2582,7 @@ static const struct arti_special {
     { ART_GJALLAR, "Blowing it wakes every monster on the level." },
     { ART_GJALLAR, "Blessed, its blast stuns those nearby." },
     { ART_IDOL_OF_MOLOCH, "Can be applied as a figurine of a horned devil." },
+    { ART_MAGIC_8_BALL, "Dispenses advice when read." },
     { ART_HAND_OF_VECNA, "Raises strength to maximum while worn." },
     { ART_HAND_OF_VECNA,
       "Chills your strikes; bare-handed blows may burst in frost." },

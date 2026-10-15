@@ -395,8 +395,8 @@ moveloop_core(void)
     if (iflags.sanity_check || iflags.debug_fuzzer)
         sanity_check();
 
-    if (svc.context.resume_wish)
-        makewish(); /* clears resume_wish */
+    if (svc.context.resume_wish) /* makewish() clears it */
+        makewish(svc.context.resume_wish == 2);
 
     /* the hero's last action may have ended flight or levitation; land
        before the monsters move */

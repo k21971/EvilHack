@@ -409,6 +409,21 @@ doread(void)
     otyp = scroll->otyp;
     scroll->pickup_prev = 0; /* no longer 'just picked up' */
 
+    /* really low intelligence prevents reading most things; the
+       exceptions are scrolls of mail (messages from outside the game),
+       Hawaiian shirts (a pattern, not text) and the Book of the Dead
+       (needed to win) */
+    if (ACURR(A_INT) < 6
+#ifdef MAIL_STRUCTURES
+        && otyp != SCR_MAIL
+#endif
+        && otyp != HAWAIIAN_SHIRT && otyp != SPE_BOOK_OF_THE_DEAD) {
+        You_cant("seem to make out what all these %s on the %s mean.",
+                 rn2(2) ? "weird scribbles" : "confusing scratches",
+                 simple_typename(otyp));
+        return ECMD_OK;
+    }
+
     /* outrumor has its own blindness check */
     if (otyp == FORTUNE_COOKIE) {
         if (flags.verbose)
@@ -586,6 +601,49 @@ doread(void)
         if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT,
                    "became literate by reading the divine signature of Heimdallr");
+
+        return ECMD_TIME;
+    } else if (is_art(scroll, ART_MAGIC_8_BALL)) {
+        static const char *const eightball_msgs[] = {
+            /* positive */
+            "Yes", "Signs point to yes", "As I see it, yes",
+            "Yes - definitely", "It is certain", "It is decidedly so",
+            "Without a doubt", "You may rely on it", "Most likely",
+            "Outlook good",
+            /* noncommittal */
+            "Reply hazy, try again", "Ask again later",
+            "Better not tell you now", "Cannot predict now",
+            "Concentrate and ask again",
+            /* negative */
+            "Don't count on it", "Outlook not so good", "Very doubtful",
+            "My reply is no", "My sources say no",
+        };
+
+        if (Blind) {
+            You("feel only a smooth plastic window.");
+            return ECMD_OK;
+        }
+        if (flags.verbose)
+            You("turn over %s and read:", the(xname(scroll)));
+        pline("\"%s\".", eightball_msgs[rn2(SIZE(eightball_msgs))]);
+        if (!u.uconduct.literate++)
+            livelog_printf(LL_CONDUCT,
+                           "became literate by reading the Magic 8-Ball");
+
+        return ECMD_TIME;
+    } else if (is_art(scroll, ART_ONE_RING)) {
+        if (Blind) {
+            You_feel("an engraving on the %s.", singular(scroll, xname));
+            return ECMD_OK;
+        }
+        if (flags.verbose)
+            pline("It reads:");
+        pline("\"One Ring to rule them all, One Ring to find them,"
+              " One Ring to bring them all and in the darkness"
+              " bind them.\"");
+        if (!u.uconduct.literate++)
+            livelog_printf(LL_CONDUCT,
+                           "became literate by reading the One Ring");
 
         return ECMD_TIME;
     } else if (otyp == CANDY_BAR) {

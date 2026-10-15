@@ -3229,7 +3229,7 @@ zapnodir(struct obj *obj)
             known = !!obj->dknown;
             /* wand of wishing asks player what to wish for so always becomes
                discovered (unless it hasn't been seen) */
-            makewish();
+            makewish(FALSE);
         }
         break;
     case WAN_ENLIGHTENMENT:
@@ -8229,8 +8229,9 @@ wish_history_menu(char *buf)
 
 RESTORE_WARNING_FORMAT_NONLITERAL
 
+/* eight_ball: the Magic 8-Ball granted this wish; the livelog says so */
 void
-makewish(void)
+makewish(boolean eight_ball)
 {
     char buf[BUFSZ] = DUMMY;
     char bufcpy[BUFSZ], wish[BUFSZ], promptbuf[QBUFSZ];
@@ -8238,6 +8239,7 @@ makewish(void)
     long maybe_LL_arti;
     int tries = 0, declines = 0;
     long oldwisharti = u.uconduct.wisharti;
+    const char *via = eight_ball ? " using the Magic 8-Ball" : "";
 
     svc.context.resume_wish = 0;
     promptbuf[0] = '\0';
@@ -8256,14 +8258,15 @@ makewish(void)
         getlin(promptbuf, buf);
 
     /* terminal gone or hangup pending: keep the wish for restore rather
-       than letting the forfeit test below decline it */
+       than letting the forfeit test below decline it; 2 keeps the Magic
+       8-Ball mark, even through a second hangup at the restored prompt */
     if (iflags.term_gone
 #ifdef HANGUPHANDLING
         || program_state.done_hup
 #endif
         ) {
         if (!iflags.debug_fuzzer)
-            svc.context.resume_wish = 1;
+            svc.context.resume_wish = eight_ball ? 2 : 1;
         return;
     }
 
@@ -8313,7 +8316,7 @@ makewish(void)
     } else if (otmp == &nothing) {
         /* explicitly wished for "nothing", presumably attempting
            to retain wishless conduct */
-        livelog_printf(LL_WISH, "declined to make a wish");
+        livelog_printf(LL_WISH, "declined to make a wish%s", via);
         return;
     } else if (otmp == &hands_obj && u.uconduct.wisharti == oldwisharti) {
         wish_history_add(bufcpy);
@@ -8329,11 +8332,10 @@ makewish(void)
 
     /* wisharti conduct handled in readobjnam() */
     maybe_LL_arti = ((oldwisharti < u.uconduct.wisharti) ? LL_ARTIFACT : 0L);
-    if (otmp == &hands_obj) /* artifact refused or reclaimed by its owner */
-        Snprintf(wish, sizeof wish, "\"%s\"", bufcpy);
-    else
-        Snprintf(wish, sizeof wish, "\"%s\", got \"%s\"", bufcpy,
-                 doname(otmp));
+    /* the livelog names the request only, as on master; bound it so a
+       long request cannot cut off the closing quote or the source */
+    Snprintf(wish, sizeof wish, "\"%.*s\"%s",
+             (int) (sizeof wish - 3 - strlen(via)), bufcpy, via);
     /* KMH, conduct */
     if (!u.uconduct.wishes++)
         livelog_printf((LL_CONDUCT | LL_WISH | maybe_LL_arti),

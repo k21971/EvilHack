@@ -3436,7 +3436,7 @@ mongrantswish(struct monst **monp)
     tmp_at(DISP_ALWAYS, glyph);
     tmp_at(mx, my);
     /* grant the wish */
-    makewish();
+    makewish(FALSE);
     /* clean up */
     tmp_at(DISP_END, 0);
 }

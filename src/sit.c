@@ -99,7 +99,7 @@ throne_sit_effect(void)
                 change_luck(1);
             } else if (!rn2(5)) {
                 /* overall about 1.5% of throne effects grant a wish */
-                makewish();
+                makewish(FALSE);
                 /* no farming thrones for multiple wishes; a wizard mode
                    terrain wish may already have replaced this one */
                 if (IS_THRONE(levl[tx][ty].typ)) {

@@ -96,6 +96,14 @@ item_reading_classification(struct obj *obj, char *outbuf)
         Strcpy(outbuf, "Read the slogan on the apron");
     } else if (otyp == HAWAIIAN_SHIRT) {
         Strcpy(outbuf, "Look at the pattern on the shirt");
+    } else if (otyp == STRIPED_SHIRT) {
+        Strcpy(outbuf, "Read the prisoner number on the shirt");
+    } else if (is_art(obj, ART_GJALLAR)) {
+        Strcpy(outbuf, "Read the signature on the horn");
+    } else if (is_art(obj, ART_MAGIC_8_BALL)) {
+        Strcpy(outbuf, "Read the answer in this eight ball");
+    } else if (is_art(obj, ART_ONE_RING)) {
+        Strcpy(outbuf, "Read the inscription on the ring");
     } else if (obj->oclass == SCROLL_CLASS) {
         const char *magic = ((obj->dknown
 #ifdef MAIL_STRUCTURES
@@ -390,6 +398,8 @@ itemactions(struct obj *otmp)
                    "Clean yourself off with this towel");
     else if (otmp->otyp == CRYSTAL_BALL)
         ia_addmenu(win, IA_APPLY_OBJ, 'a', "Peer into this crystal ball");
+    else if (otmp->otyp == EIGHT_BALL)
+        ia_addmenu(win, IA_APPLY_OBJ, 'a', "Shake this eight ball");
     else if (otmp->otyp == MAGIC_MARKER)
         ia_addmenu(win, IA_APPLY_OBJ, 'a',
                    "Write on something with this marker");

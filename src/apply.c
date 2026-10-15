@@ -9,6 +9,7 @@ staticfn int use_camera(struct obj *);
 staticfn int use_towel(struct obj *);
 staticfn boolean its_dead(coordxy, coordxy, int *);
 staticfn int use_stethoscope(struct obj *);
+staticfn void use_eight_ball(struct obj **);
 staticfn void use_whistle(struct obj *);
 staticfn void use_magic_whistle(struct obj *);
 staticfn void magic_whistled(struct obj *);
@@ -477,6 +478,34 @@ use_stethoscope(struct obj *obj)
     if (!its_dead(rx, ry, &res))
         You("hear nothing special."); /* not You_hear()  */
     return res;
+}
+
+/* shake an eight ball; a blessed one grants a wish 1 time in 100000,
+   then vanishes */
+staticfn void
+use_eight_ball(struct obj **optr)
+{
+    struct obj *obj = *optr;
+
+    if (Stunned) {
+        You("are incapable of using %s.", yname(obj));
+    } else if (Underwater) {
+        You("can't effectively shake %s in this medium.", yname(obj));
+    } else {
+        You("vigorously shake %s...", yname(obj));
+        check_unpaid_usage(obj, TRUE);
+        if (obj->blessed && !rn2(100000)) {
+            pline_The("Magic 8-Ball has granted you a wish!");
+            /* in_use keeps the ball through the wish: lava burning the
+               inventory spares it, bones made from a fatal wish leave it
+               out, and a restore finishes it off */
+            obj->in_use = 1;
+            makewish(TRUE);
+            pline_The("Magic 8-Ball winks out of existence.");
+            useup(obj); /* one wish is all you get */
+            *optr = (struct obj *) 0;
+        }
+    }
 }
 
 static const char whistle_str[] = "produce a %s whistling sound.",
@@ -5181,6 +5210,9 @@ doapply(void)
         break;
     case CRYSTAL_BALL:
         use_crystal_ball(&obj);
+        break;
+    case EIGHT_BALL:
+        use_eight_ball(&obj);
         break;
     case MAGIC_MARKER:
         res = dowrite(&obj);

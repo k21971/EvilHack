@@ -4465,7 +4465,7 @@ extern void disint_mon_invent(struct monst *, boolean) NONNULLARG1;
 extern int resist(struct monst *, char, int, int) NONNULLARG1;
 extern void wish_history_add(char *);
 extern void wish_history_flush(void);
-extern void makewish(void);
+extern void makewish(boolean);
 extern const char *flash_str(int, boolean) NONNULL;
 
 /* ### unixmain.c, windsys.c ### */

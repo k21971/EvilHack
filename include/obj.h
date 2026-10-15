@@ -556,7 +556,9 @@ struct obj {
      || (otmp)->otyp == CAN_OF_GREASE || (otmp)->otyp == MAGIC_MARKER        \
      || (otmp)->oclass == COIN_CLASS || (otmp)->oartifact == ART_GJALLAR \
      || (otmp)->otyp == STRIPED_SHIRT                                    \
-     || (otmp)->otyp == CANDY_BAR || (otmp)->otyp == HAWAIIAN_SHIRT)
+     || (otmp)->otyp == CANDY_BAR || (otmp)->otyp == HAWAIIAN_SHIRT      \
+     || (otmp)->oartifact == ART_MAGIC_8_BALL                            \
+     || (otmp)->oartifact == ART_ONE_RING)
 
 /* special stones */
 #define is_graystone(obj)                                 \

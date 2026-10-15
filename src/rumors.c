@@ -545,6 +545,12 @@ outrumor(
                 pline(fortune_msg);
             pline("What a pity that you cannot read it!");
             return;
+        } else if (ACURR(A_INT) < 6) {
+            /* too dim to read it; doread() has the same gate */
+            if (mechanism == BY_COOKIE)
+                pline(fortune_msg);
+            pline("What a pity that you cannot understand what it says!");
+            return;
         }
     }
 

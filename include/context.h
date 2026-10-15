@@ -176,7 +176,8 @@ struct context_info {
     boolean mv;
     boolean bypasses;    /* bypass flag is set on at least one fobj */
     boolean door_opened; /* set to true if door was opened during test_move */
-    boolean resume_wish; /* game was exited while in wish prompt */
+    xint8 resume_wish;   /* game was exited while in wish prompt;
+                          * 2 if the Magic 8-Ball granted the wish */
     unsigned long tips;
     struct dig_info digging;
     struct victual_info victual;

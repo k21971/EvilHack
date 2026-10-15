@@ -4979,6 +4979,9 @@ arti_speak(struct obj *obj)
     /* Is this a speaking artifact? */
     if (oart == &artilist[ART_NONARTIFACT] || !(oart->spfx & SPFX_SPEAK))
         return ECMD_OK; /* nothing happened */
+    /* the Magic 8-Ball only answers a hero who can shake it properly */
+    if ((Stunned || Underwater) && is_art(obj, ART_MAGIC_8_BALL))
+        return ECMD_OK;
 
     line = getrumor(bcsign(obj), buf, TRUE);
     if (!*line)

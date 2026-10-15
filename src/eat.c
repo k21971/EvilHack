@@ -3056,7 +3056,8 @@ fpostfx(struct obj *otmp)
         break;
     case FORTUNE_COOKIE:
         outrumor(bcsign(otmp), BY_COOKIE);
-        if (!Blind)
+        /* no conduct when outrumor() showed no text */
+        if (!Blind && ACURR(A_INT) >= 6)
             if (!u.uconduct.literate++)
                 livelog_printf(LL_CONDUCT,
                     "became literate by reading the fortune inside a cookie");
