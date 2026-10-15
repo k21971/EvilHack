@@ -943,9 +943,6 @@ Gloves_on(void)
     case GAUNTLETS_OF_PROTECTION:
         makeknown(uarmg->otyp);
         break;
-    /* TODO-EVILHACK: master prints a piety message here when the
-       Gauntlets of Purity slide on; that rides the artifact
-       use-restriction port, not the Hand of Vecna */
     case MUMMIFIED_HAND:
         makeknown(uarmg->otyp);
         disp.botl = TRUE;
@@ -955,6 +952,12 @@ Gloves_on(void)
             incr_itimeout(&HFumbling, rnd(20));
         break;
     case GAUNTLETS_OF_POWER:
+        /* the Gauntlets of Purity welcome a pious wearer */
+        if (u.ualign.record >= 20
+            && is_art(uarmg, ART_GAUNTLETS_OF_PURITY))
+            pline_The("%s sense your piety, and slide comfortably over"
+                      " your %s.", artiname(uarmg->oartifact),
+                      makeplural(body_part(HAND)));
         makeknown(uarmg->otyp);
         disp.botl = TRUE; /* taken care of in attrib.c */
         break;
@@ -2992,6 +2995,18 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
                 Your("%s are too slippery to pull on %s.",
                      fingers_or_gloves(FALSE), gloves_simple_name(otmp));
             err++;
+        } else if (!wizard && is_art(otmp, ART_GAUNTLETS_OF_PURITY)
+                   && (u.ualign.record < 20 || Role_if(PM_INFIDEL))) {
+            /* only the pious may wear them, and an Infidel never */
+            if (noisy) {
+                if (Role_if(PM_INFIDEL))
+                    pline_The("%s sense your wickedness, and refuse to be"
+                              " worn!", xname(otmp));
+                else
+                    You("are not pure enough to wear these %s.",
+                        gloves_simple_name(otmp));
+            }
+            err++;
         } else if (is_art(otmp, ART_HAND_OF_VECNA)
                    && racial_aasimar(&gy.youmonst)) {
             if (noisy)
@@ -4508,6 +4523,14 @@ disintegrate_arm(struct obj *atmp)
            in its place */
         return 0;
     } else if ((otmp = maybe_destroy_armor(uarmg, atmp, &resisted)) != 0) {
+        if (is_art(otmp, ART_DRAGONBANE)) {
+            /* the dragon hide defies disintegration outright; nothing
+               else is destroyed in its place */
+            pline("%s %s and cannot be disintegrated.", Yname2(otmp),
+                  rn2(2) ? "resists completely" : "defies physics");
+            otmp->in_use = 0;
+            return 0;
+        }
         urgent_pline("Your %s vanish!", gloves_simple_name(otmp));
         losing_gloves = TRUE;
     } else if ((otmp = maybe_destroy_armor(uarmf, atmp, &resisted)) != 0) {

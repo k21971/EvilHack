@@ -3073,6 +3073,10 @@ eval_offering(struct obj *otmp, aligntyp altaralign)
             value += 3;
         }
     }
+    /* an offering made with Secespita in hand is worth half again as
+       much; the integer half leaves a conversion's token 1 at 1 */
+    if (value > 0 && wielding_artifact(ART_SECESPITA))
+        value += value / 2;
     return value;
 }
 
@@ -3127,6 +3131,8 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
 
             if (is_unicorn(ptr))
                 mval += 3;
+            if (wielding_artifact(ART_SECESPITA))
+                mval += mval / 2;
             new_timeout = svm.moves + (long) mval * 500L;
             if (svc.context.next_moloch_offering < new_timeout)
                 svc.context.next_moloch_offering = new_timeout;

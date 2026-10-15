@@ -4882,6 +4882,12 @@ weight_cap(void)
             carrcap = (carrcap * (long) gy.youmonst.data->cwt / WT_HUMAN);
     }
 
+    /* the Armor of Retribution raises capacity and its ceiling */
+    if (is_art(uarm, ART_ARMOR_OF_RETRIBUTION)) {
+        carrcap += 200;
+        maxcarrcap += 500;
+    }
+
     if (Levitation || Is_airlevel(&u.uz) /* pugh@cornell */
         || (u.usteed && strongmonst(u.usteed->data))) {
         carrcap = maxcarrcap;

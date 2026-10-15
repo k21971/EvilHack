@@ -16,6 +16,8 @@ staticfn void u_calc_moveamt(int);
 staticfn void maybe_generate_rnd_mon(void);
 staticfn void maybe_land_deferred(void);
 staticfn void maybe_dismount_untamed(void);
+staticfn void maybe_orcus_recurse(void);
+staticfn void maybe_purity_slide_off(void);
 staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
 staticfn void do_positionbar(void);
@@ -292,6 +294,70 @@ maybe_dismount_untamed(void)
 {
     if (dismount_untamed_steed() && u.utotype)
         deferred_goto();
+}
+
+/* an uncursed Wand of Orcus in the hero's hand curses itself again */
+staticfn void
+maybe_orcus_recurse(void)
+{
+    if (!is_art(uwep, ART_WAND_OF_ORCUS) || uwep->cursed || rn2(100))
+        return;
+    curse(uwep);
+    if (!Role_if(PM_INFIDEL))
+        pline_The("%s itself to your %s!", aobjnam(uwep, "weld"),
+                  body_part(HAND));
+    set_bknown(uwep, 1);
+    update_inventory(); /* set_bknown() skips it when bknown was set */
+}
+
+/* the Gauntlets of Purity won't stay on a hero who isn't pious, and
+   now and then they find out a chaotic or unaligned wearer; whatever
+   the bared hands held is forced loose, even if cursed */
+staticfn void
+maybe_purity_slide_off(void)
+{
+    struct obj *was_shield;
+    const char *what;
+
+    if (wizard || !is_art(uarmg, ART_GAUNTLETS_OF_PURITY)
+        || donning(uarmg))
+        return;
+    if (u.ualign.record >= 20
+        && (u.ualign.type > A_CHAOTIC || rn2(2000)))
+        return;
+
+    pline_The("%s %s, and remove themselves from your %s!",
+              artiname(uarmg->oartifact),
+              (u.ualign.record < 20) ? "sense your impiety"
+                                     : "discern your impurity",
+              makeplural(body_part(HAND)));
+    /* forced off but kept in inventory; a wielded cockatrice corpse
+       can stone the hero in here, so nothing is cached across it */
+    (void) Gloves_off();
+    if (u.twoweap) {
+        Your("%s and %s are forced from your %s!", simpleonames(uwep),
+             simpleonames(uswapwep), makeplural(body_part(HAND)));
+        set_twoweap(FALSE); /* u.twoweap = FALSE */
+        (void) dropx(uswapwep);
+        (void) dropx(uwep);
+    } else if (uwep && (was_shield = uarms) != 0) {
+        Your("%s and %s are forced from your %s!", simpleonames(uwep),
+             simpleonames(was_shield), makeplural(body_part(HAND)));
+        (void) Shield_off();
+        (void) dropx(uwep);
+        (void) dropx(was_shield);
+    } else if (!uwep && (was_shield = uarms) != 0) {
+        what = simpleonames(was_shield);
+        Your("%s %s forced from your %s!", what, vtense(what, "are"),
+             body_part(HAND));
+        (void) Shield_off();
+        (void) dropx(was_shield);
+    } else if (uwep) {
+        what = simpleonames(uwep);
+        Your("%s %s forced from your %s!", what, vtense(what, "are"),
+             body_part(HAND));
+        (void) dropx(uwep);
+    }
 }
 
 #if defined(MICRO) || defined(WIN32)
@@ -929,6 +995,9 @@ moveloop_core(void)
             mvl_orc_regen = can_orc_now;
         }
     }
+
+    maybe_orcus_recurse();
+    maybe_purity_slide_off();
 
     m_everyturn_effect(&gy.youmonst);
 

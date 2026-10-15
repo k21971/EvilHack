@@ -2014,6 +2014,8 @@ obj_resists(struct obj *obj,
         || obj->otyp == CANDELABRUM_OF_INVOCATION
         || obj->otyp == BELL_OF_OPENING
         || obj->otyp == SCR_CONSECRATION
+        || obj->oartifact == ART_SWORD_OF_ANNIHILATION
+        || obj->oartifact == ART_ARMOR_OF_RETRIBUTION
         || (obj->otyp == CORPSE && is_rider(&mons[obj->corpsenm]))) {
         return TRUE;
     } else {

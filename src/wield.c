@@ -152,6 +152,13 @@ setuwep(struct obj *obj)
         disp.botl = TRUE;
         update_inventory();
     }
+    /* the Wand of Orcus curses itself in the hand that wields it; a
+       restore only reseats the slot, so leave its state alone then */
+    if (uwep == obj && is_art(obj, ART_WAND_OF_ORCUS)
+        && !program_state.restoring) {
+        curse(obj);
+        update_inventory();
+    }
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
      * message.  Wielding one via 'a'pplying it will.
      * 3.2.2:  Wielding arbitrary objects will give bashing message too.
@@ -226,7 +233,10 @@ ready_weapon(struct obj *wep)
     } else {
         /* Weapon WILL be wielded after this point */
         res = ECMD_TIME;
-        if (will_weld_to_you(wep)) {
+        /* the Wand of Orcus curses itself in setuwep() below, so it
+           welds even when it isn't cursed yet */
+        if (will_weld_to_you(wep)
+            || (is_art(wep, ART_WAND_OF_ORCUS) && !Role_if(PM_INFIDEL))) {
             const char *tmp = xname(wep), *thestr = "The ";
 
             if (strncmp(tmp, thestr, 4) && !strncmp(The(tmp), thestr, 4))

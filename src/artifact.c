@@ -2154,18 +2154,19 @@ static const char *const mb_verb[2][NUM_MB_INDICES] = {
     { "prod", "amaze", "tickle", "purge" },
 };
 
-/* called when someone is being hit by Magicbane */
+/* called when someone is being hit by Magicbane, Butcher or the Staff
+   of the Archmagi */
 staticfn boolean
 Mb_hit(struct monst *magr, /* attacker */
        struct monst *mdef, /* defender */
-       struct obj *mb,     /* Magicbane */
+       struct obj *mb,     /* Magicbane, Butcher or the Staff */
        int *dmgptr,        /* extra damage target will suffer */
        int dieroll,        /* d20 that has already scored a hit */
        boolean vis,        /* whether the action can be seen */
        char *hittee)       /* target's name: "you" or mon_nam(mdef) */
 {
     struct permonst *old_mdat;
-    const char *verb;
+    const char *verb, *mbnoun;
     boolean youattack = (magr == &gy.youmonst),
             youdefend = (mdef == &gy.youmonst),
             resisted = FALSE, do_stun, do_confuse, result;
@@ -2174,7 +2175,7 @@ Mb_hit(struct monst *magr, /* attacker */
     result = FALSE; /* no message given yet */
     /* the most severe effects are less likely at higher enchantment */
     if (mb->spe >= 3)
-        scare_dieroll /= (1 << (mb->spe / 3));
+        scare_dieroll /= (1 << min(mb->spe / 3, 30));
     /* if target successfully resisted the artifact damage bonus,
        reduce overall likelihood of the assorted special effects */
     if (!gs.spec_dbon_applies)
@@ -2199,26 +2200,37 @@ Mb_hit(struct monst *magr, /* attacker */
         attack_indx = MB_INDEX_STUN;
         *dmgptr += rnd(4); /* (3..4)d4 */
     }
-    /* mindless and unique monsters can't be scared */
+    /* mindless and unique monsters can't be scared, and Butcher's
+       blows never frighten */
     if (dieroll <= scare_dieroll
-        && !mindless(mdef->data) && !unique_corpstat(mdef->data)) {
+        && !mindless(mdef->data) && !unique_corpstat(mdef->data)
+        && !is_art(mb, ART_BUTCHER)) {
         attack_indx = MB_INDEX_SCARE;
         *dmgptr += rnd(4); /* (3..5)d4 */
     }
-    if (dieroll <= (scare_dieroll / 2)) {
+    /* neither Butcher nor the Staff of the Archmagi absorbs magic */
+    if (dieroll <= (scare_dieroll / 2)
+        && !is_art(mb, ART_BUTCHER)
+        && !is_art(mb, ART_STAFF_OF_THE_ARCHMAGI)) {
         attack_indx = MB_INDEX_CANCEL;
         *dmgptr += rnd(4); /* (4..6)d4 */
     }
 
     /* give the hit message prior to inflicting the effects */
     verb = mb_verb[!!Hallucination][attack_indx];
+    mbnoun = is_art(mb, ART_MAGICBANE) ? "magic-absorbing staff"
+             : is_art(mb, ART_STAFF_OF_THE_ARCHMAGI) ? "powerful staff"
+               : "massive triple-headed flail"; /* Butcher */
     if (youattack || youdefend || vis) {
         result = TRUE;
-        pline_The("magic-absorbing blade %s %s!",
-                  vtense((const char *) 0, verb), hittee);
+        pline_The("%s %s %s!", mbnoun, vtense((const char *) 0, verb),
+                  hittee);
         /* assume probing has some sort of noticeable feedback
-           even if it is being done by one monster to another */
-        if (attack_indx == MB_INDEX_PROBE && !canspotmon(mdef))
+           even if it is being done by one monster to another; the
+           hero carries no map coordinates and is never remembered
+           as an unseen monster */
+        if (attack_indx == MB_INDEX_PROBE && !youdefend
+            && !canspotmon(mdef))
             map_invisible(mdef->mx, mdef->my);
     }
 
@@ -2320,7 +2332,7 @@ Mb_hit(struct monst *magr, /* attacker */
     if (do_confuse) {
         if (youdefend)
             make_confused((HConfusion & TIMEOUT) + 4L, FALSE);
-        else
+        else if (!DEADMONSTER(mdef))
             mdef->mconf = 1;
     }
 
@@ -2334,7 +2346,8 @@ Mb_hit(struct monst *magr, /* attacker */
             shieldeff(youdefend ? u.ux : mdef->mx,
                       youdefend ? u.uy : mdef->my);
         }
-        if ((do_stun || do_confuse) && flags.verbose) {
+        if ((do_stun || do_confuse) && flags.verbose
+            && (youdefend || !DEADMONSTER(mdef))) {
             char buf[BUFSZ];
 
             buf[0] = '\0';

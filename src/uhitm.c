@@ -2646,6 +2646,13 @@ hmon_hitmon(
     if (!hmd.already_killed)
         hmon_hitmon_vecna_relics(&hmd, mon);
 
+    /* a lawful martial artist wearing the Gauntlets of Purity hits
+       harder bare-handed */
+    if (!hmd.destroyed && hmd.hand_to_hand && !obj && !hmd.obj_gone
+        && P_SKILL(P_MARTIAL_ARTS) && u.ualign.type == A_LAWFUL
+        && martial_bonus() && is_art(uarmg, ART_GAUNTLETS_OF_PURITY))
+        hmd.dmg += rnd(4) + 2;
+
     if (hmd.ispoisoned
         || (obj && ((obj->oprops & ITEM_VENOM)
                     || is_art(obj, ART_SWORD_OF_KAS))))
@@ -2942,6 +2949,20 @@ hmon_hitmon(
             if (!mon->mstun && !helpless(mon) && canseemon(mon))
                 pline("%s appears confused.", Monnam(mon));
         }
+    }
+    /* Secespita captures the life force of a living victim it slays
+       and turns it into magical energy for its wielder */
+    if (hmd.destroyed && DEADMONSTER(mon) && is_art(obj, ART_SECESPITA)
+        && (obj == uwep || (u.twoweap && obj == uswapwep))
+        && !nonliving(hmd.mdat) && u.uen < u.uenmax) {
+        int energy = mon->m_lev + 1;
+
+        energy += rn2(energy);
+        pline_The("ritual knife captures the evanescent life force.");
+        u.uen += energy;
+        if (u.uen > u.uenmax)
+            u.uen = u.uenmax;
+        disp.botl = TRUE;
     }
     /* nothing to report when the weapon itself is gone; the message that
        destroyed it has already accounted for it */
@@ -9614,6 +9635,8 @@ passive(
             }
             break;
         case AD_STUN: /* specifically yellow mold */
+            if (wielding_artifact(ART_TEMPEST))
+                break; /* immune, silently */
             if (!Stunned)
                 make_stunned((long) tmp, TRUE);
             break;
@@ -9936,6 +9959,14 @@ passive(
                 break;
             }
         }
+    }
+    /* Dragonbane sears the dragon-shaped hero who attacks its wearer */
+    if ((passive_armor = which_armor(mon, W_ARMG)) != 0
+        && passive_armor->otyp == GLOVES
+        && is_art(passive_armor, ART_DRAGONBANE)
+        && is_dragon(gy.youmonst.data) && !rn2(3)) {
+        pline("Dragonbane sears your scaly hide!");
+        mdamageu(mon, rnd(6) + 2);
     }
     return (malive | mhit);
 }

@@ -1181,8 +1181,12 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
            this is different from the way the hero gets stunned because
            a stunned monster recovers randomly instead of via countdown;
            both cases make an effort to prevent the target from being
-           continuously stunned due to repeated gaze attacks */
-        if (rn2(2))
+           continuously stunned due to repeated gaze attacks; a target
+           that resists stunning or wields Tempest is spared, as the
+           hero is */
+        if (rn2(2)
+            && !(mon_resists_stun(mdef) || defended(mdef, AD_STUN)
+                 || mon_wielding_artifact(mdef, ART_TEMPEST)))
             mdef->mstun = 1;
     }
 

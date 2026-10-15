@@ -1268,14 +1268,14 @@ mcast_stun_you(struct monst *mtmp, struct monst *mdef, int dmg)
 
         if (!mdef || DEADMONSTER(mdef))
             return;
-        if (resist(mdef, 0, 0, FALSE)) {
+        if (mon_resists_stun(mdef) || defended(mdef, AD_STUN)
+            || mon_wielding_artifact(mdef, ART_TEMPEST)) {
+            /* immune whether or not it resists the spell itself */
             shieldeff(mdef->mx, mdef->my);
-            if (yours || canseemon(mdef)) {
-                if (mon_resists_stun(mdef) || defended(mdef, AD_STUN)
-                    || mon_wielding_artifact(mdef, ART_TEMPEST))
-                    pline("%s seems momentarily disoriented.",
-                          Monnam(mdef));
-            }
+            if (yours || canseemon(mdef))
+                pline("%s seems momentarily disoriented.", Monnam(mdef));
+        } else if (resist(mdef, 0, 0, FALSE)) {
+            shieldeff(mdef->mx, mdef->my);
         } else {
             if (yours || canseemon(mdef)) {
                 if (mdef->mstun)

@@ -2212,10 +2212,18 @@ weight(struct obj *obj)
          *      blessed                 x/4 [rounded up: (x+3)/4]
          *      otherwise               x/2 [rounded up: (x+1)/2]
          *
-         *  The macro DELTA_CWT in pickup.c also implements these
-         *  weight equations.
+         *  The Bag of the Hesperides is a bag of holding with stronger
+         *  tiers: cursed 4x, blessed x/6 [(x+3)/6], otherwise x/3
+         *  [(x+1)/3], both rounded to nearest.
+         *
+         *  delta_cwt() in pickup.c compares weight() before and after
+         *  a removal, so it needs no copy of these equations.
          */
-        if (obj->otyp == BAG_OF_HOLDING)
+        if (obj->oartifact == ART_BAG_OF_THE_HESPERIDES)
+            cwt = obj->cursed ? (cwt * 4)
+                  : obj->blessed ? ((cwt + 3) / 6)
+                    : ((cwt + 1) / 3); /* uncursed */
+        else if (obj->otyp == BAG_OF_HOLDING)
             cwt = obj->cursed ? (cwt * 2)
                   : obj->blessed ? ((cwt + 3) / 4)
                     : ((cwt + 1) / 2); /* uncursed */

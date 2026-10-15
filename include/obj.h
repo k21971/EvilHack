@@ -451,7 +451,8 @@ struct obj {
 /* usually waterproof; random chance to be subjected to leakage if cursed;
    excludes statues, which aren't vulnerable to water even when cursed */
 #define Waterproof_container(o) \
-    ((o)->otyp == OILSKIN_SACK || (o)->otyp == ICE_BOX || Is_box(o))
+    ((o)->otyp == OILSKIN_SACK || (o)->otyp == ICE_BOX || Is_box(o) \
+     || (o)->oartifact == ART_BAG_OF_THE_HESPERIDES)
 
 /* dragon gear
  * NOTE: this assumes that gray dragons come first and chromatic last, as

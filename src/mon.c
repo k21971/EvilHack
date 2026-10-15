@@ -2635,7 +2635,11 @@ mon_givit(struct monst *mtmp, struct permonst *ptr)
                       : mtmp->invis_blkd ? "seems to flicker"
                         : "becomes invisible");
         }
-        mtmp->mstun = 1; /* no timeout but will eventually wear off */
+        /* the stun spares a monster that resists it or wields Tempest,
+           as it spares the hero; the invisibility still takes */
+        if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)
+              || mon_wielding_artifact(mtmp, ART_TEMPEST)))
+            mtmp->mstun = 1; /* no timeout but will eventually wear off */
         return;
     }
 

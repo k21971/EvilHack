@@ -1597,7 +1597,11 @@ acurr(int chridx)
                 result = 25;
         }
     } else if (chridx == A_CON) {
-        if (wielding_artifact(ART_OGRESMASHER))
+        /* Ogresmasher, Ashmar and the Armor of Retribution hold
+           constitution at its maximum */
+        if (wielding_artifact(ART_OGRESMASHER)
+            || is_art(uarms, ART_ASHMAR)
+            || is_art(uarm, ART_ARMOR_OF_RETRIBUTION))
             result = 25;
     } else if (chridx == A_INT || chridx == A_WIS) {
         /* Yes, this may raise Int and/or Wis if hero is sufficiently
@@ -1656,7 +1660,10 @@ extremeattr(
             || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;
     } else if (attrindx == A_CON) {
-        if (wielding_artifact(ART_OGRESMASHER))
+        /* mirror acurr()'s forced constitution */
+        if (wielding_artifact(ART_OGRESMASHER)
+            || is_art(uarms, ART_ASHMAR)
+            || is_art(uarm, ART_ARMOR_OF_RETRIBUTION))
             lolimit = hilimit;
     } else if (attrindx == A_CHA) {
         /* mirror acurr()'s A_CHA forced floor and ceiling so a +0 item

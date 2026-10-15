@@ -622,10 +622,6 @@ pick_lock(
                     return PICKLOCK_LEARNED_SOMETHING;
                 }
 
-                /* TODO-EVILHACK: master breaks a cursed unlocking tool
-                   1 in 5 per use, exempting MAGIC_KEY, STETHOSCOPE and
-                   the quest artifact keys; the exemptions must ride
-                   along when that feature ports */
                 switch (picktyp) {
                 case CREDIT_CARD:
                     ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
@@ -642,6 +638,22 @@ pick_lock(
                 }
                 if (otmp->cursed)
                     ch /= 2;
+
+                /* small chance a cursed locking tool will break on use;
+                   the magic key and the two artifact keys never do */
+                if (pick->cursed && !rn2(5) && picktyp != MAGIC_KEY
+                    && !is_art(pick, ART_MASTER_KEY_OF_THIEVERY)
+                    && !is_art(pick, ART_YENDORIAN_EXPRESS_CARD)) {
+                    pline("As you start to %s the %s, your %s breaks!",
+                          otmp->olocked ? "unlock" : "lock",
+                          xname(otmp), xname(pick));
+                    if (carried(pick))
+                        useup(pick);
+                    else
+                        delobj(pick);
+                    nomul(0);
+                    return PICKLOCK_DID_NOTHING;
+                }
 
                 gx.xlock.box = otmp;
                 gx.xlock.door = 0;
@@ -758,6 +770,22 @@ pick_lock(
             default:
                 ch = 0;
             }
+
+            /* small chance a cursed locking tool will break on use */
+            if (pick->cursed && !rn2(5) && picktyp != MAGIC_KEY
+                && !is_art(pick, ART_MASTER_KEY_OF_THIEVERY)
+                && !is_art(pick, ART_YENDORIAN_EXPRESS_CARD)) {
+                pline("As you start to %s the door, your %s breaks!",
+                      (door->doormask & D_LOCKED) ? "unlock" : "lock",
+                      xname(pick));
+                if (carried(pick))
+                    useup(pick);
+                else
+                    delobj(pick);
+                nomul(0);
+                return PICKLOCK_DID_NOTHING;
+            }
+
             gx.xlock.door = door;
             gx.xlock.box = 0;
         }

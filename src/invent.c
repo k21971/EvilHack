@@ -1424,7 +1424,9 @@ freeinv_core(struct obj *obj)
         set_artifact_intrinsic(obj, 0, W_ART);
     }
 
-    if (obj->otyp == LOADSTONE) {
+    /* a loadstone or the Wand of Orcus curses itself on leaving
+       the hero's inventory */
+    if (obj->otyp == LOADSTONE || is_art(obj, ART_WAND_OF_ORCUS)) {
         curse(obj);
     } else if (confers_luck(obj) || (obj->oprops & ITEM_EXCEL)) {
         set_moreluck();
@@ -1483,7 +1485,9 @@ delobj_core(
     boolean update_map;
 
     /* obj_resists(obj,0,0) protects the Amulet, the invocation tools,
-       and Rider corpses */
+       the scroll of consecration, Rider corpses, an Infidel's quest
+       artifact, the Sword of Annihilation and the Armor of
+       Retribution */
     if (!force && obj_resists(obj, 0, 0)) {
         /* player might be doing something stupid, but we
          * can't guarantee that.  assume special artifacts
