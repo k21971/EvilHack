@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-16, after session 233's
-  GemStone() slice): 426 rows closed, 107 open. Of the open rows:
+  ruled LOW rows): 429 rows closed, 104 open. Of the open rows:
   - 0 HIGH.
   - 1 MED: an unported master feature (door-material colors).
     Session 232 closed the bag explosion row (BUG-2388..2391): an
@@ -117,12 +117,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 90 LOW: small parity rows, quirks and watch/record-only items.
+  - 87 LOW: small parity rows, quirks and watch/record-only items.
     Session 233 closed the GemStone() row (BUG-2392): the identified
     rod, helm of brilliance, crystal plate mail, crystal chest,
     magic chest and magic key no longer gain " stone" in the
     discoveries list, the `/` lookup header and lock.c's "mundane"
-    line (master's GEM_CLASS term restored). Nothing minted.
+    line (master's GEM_CLASS term restored). It then closed three
+    ruled rows: an exploding bag of holding in a shop leaves its
+    contents with their owners (BUG-2393..2396: the bag alone is
+    billed, the hero's things stay the hero's, stock stays stock,
+    destroyed goods and goods flung out of the shop are charged, the
+    hero's gold landing inside is credited, the trigger is never
+    sold first); a pit hook-out never lands the hero back in the pit
+    (BUG-2397); the dwarf Valkyrie axe row closed with no change (the
+    line serves dwarvish Knights; master names the Valkyrie spear).
+    Nothing minted.
     Session 232 minted one: an exploding bag on a shop floor turns
     the hero's own contents into shop stock and re-charges scattered
     gold (vanilla-shared, needs a ruling).
@@ -11847,7 +11856,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       no credit, and picking it up charges it again. Needs a ruling
       (save and restore the contents' no_charge around addtobill();
       credit gold that lands inside the shop) and an upstream look.
-      LOW.
+      LOW. CLOSED 2026-10-16 (session 233, commit pending; plan
+      /root/.claude/plans/vast-drifting-willow.md; closure notes in
+      BUGFIXES_ARCHIVE BUG-2393..2396). Ruled (three rounds, all as
+      recommended): contents keep their owners - only the bag itself
+      is billed, and only if it is the shop's; the hero's surviving
+      things stay the hero's wherever they land in the shop; shop
+      stock stays stock, unbilled, on the shop floor; shop goods the
+      blast destroys are charged ("You owe N zorkmids for lost
+      merchandise.", told before any credit); unpaid goods and shop
+      stock flung out of the shop are charged as if thrown out; the
+      carried bag is covered too. FIXED: in_container() bills a
+      shop's floor bag alone (cobj hidden) and no longer sells or
+      marks the trigger first (BUG-2393, BUG-2395); scatter() settles
+      flags where each object lands, credits the hero's gold that
+      lands inside (none for an angry shopkeeper), bills shop stock
+      the blast breaks or fractures, charges stock (with what it
+      holds) flung out of the shop, and leaves the hero's things on
+      the door and beyond plain (BUG-2394, BUG-2396). The carried
+      case and #tip use the same rules. Wider
+      than the row: the hero's own destroyed items were silently
+      charged, the trigger was offered for sale, the hero's gold flung
+      out was charged, unpaid goods landed outside still unpaid.
+      Batteries T1 / T2 PASS (follow-ups on the reviewed build).
 - [x] Low-intelligence read gate never ported (minted and closed
       2026-10-15, session 231, by the Magic 8-Ball census; no row
       before, though the branch changelog lists it). Master 7d857f3b9:
@@ -17986,7 +18017,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       [non-aligned crystal plate mail stone]"). Fix: restore master's
       term; check every GemStone() caller (objnam.c obj_typename()
       default arm and xname()'s GEM_CLASS arm). LOW. CLOSED 2026-10-16
-      (session 233, commit pending; plan
+      (session 233, commit 20a5326ae, tracker 66d5db0ef; plan
       /root/.claude/plans/vast-drifting-willow.md; closure notes in
       BUGFIXES_ARCHIVE BUG-2392). FIXED (BUG-2392): master's class
       term restored in the macro (xname()'s GEM_CLASS arm unchanged).
@@ -18023,7 +18054,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (wizard: carry a Death corpse, get swallowed by a purple worm,
       drop it; watch the revive timer), then a fix (skip the digestion
       for an obj_resists() object, or mpickobj() it). LOW.
-- [ ] LOW: a dwarf Valkyrie never starts with the bearded axe (minted
+- [x] LOW: a dwarf Valkyrie never starts with the bearded axe (minted
       2026-10-15, session 229, by battery T1; master-shared). Master
       8041aacfe gave dwarves `{ PM_DWARF, LONG_SWORD,
       DWARVISH_BEARDED_AXE }` so a dwarvish Valkyrie would start with
@@ -18031,8 +18062,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       instead of a long sword, so the line never fires on either tree
       and a dwarf Valkyrie starts with a +1 dwarvish spear (SPEAR ->
       DWARVISH_SPEAR). Ruling: remove the dead line, or give the
-      dwarf Valkyrie the axe in place of the spear. LOW.
-- [ ] LOW: a pit hook-out can land the hero back in the same pit
+      dwarf Valkyrie the axe in place of the spear. LOW. CLOSED
+      2026-10-16 (session 233, ruled: no change). The premise was
+      wrong: the line is live for dwarvish Knights. Master a39fa976b
+      ("Allow dwarves and orcs to play as Knights.") raised Knight
+      axe skill to Expert in the same commit, and the racial swap
+      has no role exception, so a dwarvish Knight's +1 long sword
+      becomes a +1 dwarvish bearded axe on both trees. Master
+      0cda3347f's message names the Valkyrie rule outright:
+      "Dwarven valkyries will start with a dwarven spear."
+- [x] LOW: a pit hook-out can land the hero back in the same pit
       (minted 2026-10-15, session 229, by battery T1; whip, axe and
       master alike). Hooking a big monster from a pit picks the
       landing square with enexto_core_mon() around the monster, which
@@ -18040,6 +18079,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the pit!  You fall into a pit!" (the giant's only other free
       neighbour was taken). Ruling: keep, or skip the hero's square
       (and say the hook comes free when nothing else is free). LOW.
+      CLOSED 2026-10-16 (session 233, commit pending; plan
+      /root/.claude/plans/vast-drifting-willow.md; closure notes in
+      BUGFIXES_ARCHIVE BUG-2397). Ruled: never the hero's square.
+      Not a rare edge: the hero's square is always one of the
+      monster's neighbours, so about 1 hook-out in 8 in an open room
+      re-trapped the hero (battery PRE: 3 of 32). FIXED (BUG-2397):
+      apply.c pit_hookout_spot() picks from ring 1 around the monster
+      only, skipping the hero's square, with the real-hero goodpos()
+      of master BUG-888; nowhere free gives "The axe comes free." /
+      "The bullwhip slips free." and the hero stays in the pit (turn
+      spent); a pending buried-ball tether still takes the hero.
+      Battery T3 PASS (POST 0 of 34 axe and 0 of 25 whip landings
+      back in the pit; boxed in 24 of 24 come free; water only with
+      water walking; boulder / furniture / buried ball unchanged).
 - [ ] LOW: touchfood() and dog_eat() miss a dropy() that ships the
       item away (minted 2026-10-15, session 229, from the reviewer's
       LOW-5). eat.c touchfood() and dogmove.c dog_eat()'s vampire
