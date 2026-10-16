@@ -17,11 +17,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-15, after session 231's Magic
-  8-Ball slice): 421 rows closed, 108 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-15, after session 232's bag
+  explosion slice): 425 rows closed, 108 open. Of the open rows:
   - 0 HIGH.
-  - 2 MED: unported master features (door-material colors, bag
-    explosion damage). Session 231 closed the Magic 8-Ball
+  - 1 MED: an unported master feature (door-material colors).
+    Session 232 closed the bag explosion row (BUG-2388..2391): an
+    exploding bag of holding deals master's d(8, 10) "exploding
+    magical bag", or d(12, 12) "exploding magical artifact bag"
+    for the Bag of the Hesperides, halved by half physical damage,
+    and its livelog names the Bag (#tip keeps " via tipping"); the
+    contents "fly everywhere" up to 10 squares, small statues
+    fracture, the bag of holding identifies itself, and #tip
+    identifies the item that set it off (it stays destroyed, ruled).
+    An unpaid statue that fractures is billed, with its contents
+    hidden from the dummy copy (a reviewer CRITICAL panic otherwise).
+    Ruled 2026-10-15, four questions, all as recommended. Three rows
+    minted and closed; one LOW minted (the hero's own bag contents
+    become shop stock when the bag explodes on a shop floor).
+    Session 231 closed the Magic 8-Ball
     (BUG-2378..2387): #apply shakes it - refused when stunned or
     underwater, a whispered rumor otherwise, and a blessed ball
     grants a wish 1 time in 100000, then winks out (held in_use
@@ -104,7 +117,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 90 LOW: small parity rows, quirks and watch/record-only items.
+  - 91 LOW: small parity rows, quirks and watch/record-only items.
+    Session 232 minted one: an exploding bag on a shop floor turns
+    the hero's own contents into shop stock and re-charges scattered
+    gold (vanilla-shared, needs a ruling).
     Session 231 closed the One Ring inscription row and minted one:
     curses menu paging hangs on an entry taller than a page
     (vanilla-shared, needs a reproducer). Session 230 minted three: obj_typename()'s
@@ -11622,7 +11638,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] Artifact behaviour remainder = the HELD pokedex tips (NEW,
       minted 2026-09-08 by the pokedex tips audit; LOW/MED umbrella).
       CLOSED 2026-10-15 (session 231, the Magic 8-Ball, commit
-      pending; plan /root/.claude/plans/feature-magic-8-ball.md;
+      5e9136d4a, tracker 7cc7fea48;
+      plan /root/.claude/plans/feature-magic-8-ball.md;
       closure notes in BUGFIXES_ARCHIVE BUG-2378..2387): master's
       #apply arm (use_eight_ball(): "You are incapable of using ..."
       when stunned, "You can't effectively shake ... in this medium."
@@ -11755,7 +11772,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       secondary arm (ported): Idol of Moloch (fig_transform idol arm),
       Dragonbane disintegration (destroy_arm arm), Dichotomy
       (lava-inventory arm).
-- [ ] MED: bag explosion damage and text never ported (minted
+- [x] MED: bag explosion damage and text never ported (minted
       2026-10-15, session 230, by the held-tips census; no row
       before). Master pickup.c blasts the hero for
       `Maybe_Half_Phys(d(8, 10))` "exploding magical bag" when a bag
@@ -11766,7 +11783,65 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       keeps vanilla `d(6, 6)` "magical explosion" at both pickup.c
       sites (the #put path and the #tip path) and its livelog always
       says "bag of holding". Balance-visible: census master's whole
-      commit and BUG-311 first. MED.
+      commit and BUG-311 first. MED. CLOSED 2026-10-15 (session 232,
+      commit pending; plan /root/.claude/plans/eager-conjuring-pie.md;
+      closure notes in BUGFIXES_ARCHIVE BUG-2388..2391). PORTED
+      (BUG-2388) at both sites: master's damage and killer names,
+      halved by half physical damage, and the Bag-naming livelog
+      (#tip keeps 5.0's " via tipping" tail, ruled); a
+      `hesperides` local read before the bag is used up stands in
+      for master's BotH macro. A census of every master explosion
+      commit found three more silent reverts, minted and closed
+      below (BUG-2389..2391). Battery T1 / T2 PASS (#put n 35, the
+      Bag n 94 and a death "killed by an exploding magical artifact
+      bag", half physical 12 / 25 / 21, #tip n 39; PRE n 21 / 26
+      "magical explosion").
+- [x] Bag of holding explosion scatter lost master's touches (minted
+      and closed 2026-10-15, session 232, by the bag explosion
+      census; no row before). Master 3e3717df8 / ee56b5229:
+      do_boh_explosion() prints "The <bag>'s contents fly
+      everywhere!" (not Blind, bag not empty), scatters at a
+      blastforce of rn1(7, 4) = 4..10 with VIS_EFFECTS | MAY_FRACTURE
+      added (small statues fracture 9 times in 10) and identifies the
+      bag of holding. PORTED (BUG-2389, commit pending); the
+      BUG-1403 obj_resists() term kept. Battery T1 / T2 PASS (27
+      rings at blastforce 4..10, 11 landing beyond 4; statues 5 of 5
+      fractured, PRE 0 of 4; Blind silent, bag still identified).
+      MED.
+- [x] #tip into a bag of holding identified no trigger (minted and
+      closed 2026-10-15, session 232, by the bag explosion census;
+      no row before). Master ee56b5229 identified a tipped wand of
+      cancellation or bag of tricks that set off the explosion.
+      PORTED (BUG-2390, commit pending) with #put's four-type list
+      (plus bag of treasure and bag of devouring). Ruled: the tipped
+      trigger stays destroyed (5.0), not scattered as master's
+      BUG-507 left it. Battery T2 PASS. LOW.
+- [x] Unpaid statue fractured out of an exploding bag never billed
+      (minted and closed 2026-10-15, session 232, by the Plan agent;
+      master-shared, reached once MAY_FRACTURE is ported). scatter()
+      fractured an OBJ_FREE statue that fracture_rock() cannot bill:
+      7..66 unpaid rocks against a quantity-1 statue bill entry.
+      FIXED (BUG-2391, commit pending): costly_alteration(
+      COST_FRACTURE) with the statue's contents hidden, as
+      breakchestlock() does (the reviewer's CRITICAL on the first
+      version: bill_dummy_object()'s whole-struct copy billed the
+      contents again and panicked "add_to_billobjs: obj not free",
+      reproduced by battery T3). Battery T2 / T3 PASS. Ruled fix.
+      LOW.
+- [ ] LOW: an exploding bag in a shop gives the hero's own contents
+      to the shop (minted 2026-10-15, session 232, by batteries T2
+      and T3; vanilla-shared, master too, any scatter range). When
+      the hero's own (no-charge) bag on a shop floor explodes,
+      in_container() bills it through addtobill(), whose
+      picked_container() clears every content's no_charge; only the
+      bag's own flag is restored, so the hero's items land on the
+      shop floor as stock ("a yellow gem (for sale, 933 zorkmids)").
+      Likewise gold the hero was charged for inside a shop-owned
+      container scatters back onto the shop floor as shop gold with
+      no credit, and picking it up charges it again. Needs a ruling
+      (save and restore the contents' no_charge around addtobill();
+      credit gold that lands inside the shop) and an upstream look.
+      LOW.
 - [x] Low-intelligence read gate never ported (minted and closed
       2026-10-15, session 231, by the Magic 8-Ball census; no row
       before, though the branch changelog lists it). Master 7d857f3b9:
@@ -11775,7 +11850,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       make out what all these weird scribbles / confusing scratches on
       the <type> mean.", no time), and outrumor() gives an eaten
       fortune cookie "What a pity that you cannot understand what it
-      says!". PORTED (BUG-2382, commit pending) after getobj(),
+      says!". PORTED (BUG-2382, commit 5e9136d4a) after getobj(),
       keeping 5.0's capacity -> shell -> getobj order. Ruled 2026-10-15
       master's shape: about 45% of Draugr Barbarians (Int cap 6, role
       base 7 dropped to 5) start unable to read, as on 0.9.3. Ruled
@@ -11793,7 +11868,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       nartifact_exist()) and (40 + 10 x nartifact_exist()), so 1.5x
       more early weapons and about 1/2 by midgame, 1/3 late (each
       artifact in existence, the Oracle's 8-Ball included, cut the
-      odds). PORTED (BUG-2387, commit pending, its own commit); the
+      odds). PORTED (BUG-2387, commit a6e658347, its own commit); the
       property roll after a failed roll is byte-identical. Battery T4
       PASS: 11 cells x 20000 draws within 3 SD (PRE weapons 1021 at
       k=0 / 345 at k=4, POST 686 / 616 and 470 at w=2). MED.
@@ -11805,7 +11880,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       request only; the 8-Ball's wishes end " using the Magic
       8-Ball"), the 5.0 decline line KEPT and tagged (the maintainer's
       pick over master-exact, which logs nothing), folded into this
-      slice. BUG-2385, commit pending; the request is bounded so the
+      slice. BUG-2385, commit 5e9136d4a; the request is bounded so the
       closing quote and the tag survive a long one. Battery T1 / T2
       PASS. LOW.
 - [x] #chronicle cut long gamelog lines (minted and closed 2026-10-15,
@@ -11824,7 +11899,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       compress_str() drops the last character of an unpadded
       255-character line), continuations indented under the entry
       text, and the dumplog keeps one whole row. BUG-2386,
-      commit pending, its own commit; upstream table row. Battery T2
+      commit a16fb3014, its own commit; upstream table row. Battery T2
       PASS on the final shape: the whole row on tty at 80 and 110
       columns and on curses, rows of 254 / 255 / 256 characters split
       with nothing lost, one whole dumplog row (text and HTML), other
@@ -19179,7 +19254,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       breaks literacy with a livelog line; the branch's doread() has
       no arm, so `r` refuses it as unreadable. Flavor + conduct. LOW.
       CLOSED 2026-10-15 (session 231, folded into the Magic 8-Ball
-      slice by ruling, commit pending, BUG-2381): master's arm after
+      slice by ruling, commit 5e9136d4a, BUG-2381): master's arm after
       Gjallar, worn or not; blind "You feel an engraving on the
       lustrous ring named the One Ring." (unidentified) / "...on the
       One Ring." (identified - xname() drops the leading "the"); an
@@ -30054,7 +30129,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
-| 2026-10-15 | Magic 8-Ball slice rulings (session 231; AskUserQuestion x4, eight questions). (1) SCOPE: the 8-Ball (read advice, #apply wish, its livelog tag, the tip, a shake menu line) plus every offered co-port - the One Ring's #read arm, master 7d857f3b9's low-Int read gate, master's random artifact odds (own commit), and item-menu read lines for the striped shirt and Gjallar (as recommended). (2) DRAUGR: master's shape - about 45% of Draugr Barbarians start at Int 5 and cannot read until Int rises, as on 0.9.3 (as recommended). (3) 8-BALL TAG: " using the Magic 8-Ball" placed where master put it, the decline line tagged too, "Magic 8-Ball" capitalized everywhere (as recommended). (4) COOKIE: an eaten fortune cookie that could not be read no longer breaks illiterate conduct (as recommended; master quirk). (5) WISH LIVELOG FORMAT (maintainer side note mid-slice): back to master's - the request only, no 5.0 `, got "<object>"` tail - folded into this slice; the 5.0 decline line KEPT and tagged (the maintainer's pick over master-exact, which logs nothing). (6) CHRONICLE CUT (battery T2): re-ruled three times as the premises corrected - first show_gamelog()'s row buffer, then also curses_num_lines() and tty's compress_str(), then (after the code reviewer showed rows of BUFSZ or more overflow the Windows GUI's putstr) the FINAL ruling: wrap long in-game rows in show_gamelog(), dumplog rows whole, the port edits reverted (as recommended each time). Decided without asking: every blessed eight ball can grant the wish and an unpaid ball pays its full price per shake (master parity); resume_wish retyped boolean -> xint8 (same size). | maintainer |
+| 2026-10-15 | Bag explosion slice rulings (session 232; AskUserQuestion x2, four questions, all as recommended). (1) SCOPE everything: master's damage, killer names and Bag-naming livelog at both sites, plus do_boh_explosion()'s four silent reverts ("contents fly everywhere", blastforce 4..10, MAY_FRACTURE, makeknown(BAG_OF_HOLDING)) and #tip identifying the trigger (widened to #put's four types). (2) The #tip trigger stays DESTROYED (5.0), not scattered as master's BUG-507 left it. (3) The #tip livelog keeps 5.0's " via tipping" tail with master's Bag naming. (4) FIX the unpaid-statue fracture billing hole MAY_FRACTURE exposes (scatter() bills it, contents hidden; BUG-2391). | maintainer |
+| 2026-10-15 | Magic 8-Ball slice rulings (session 231; AskUserQuestion x6, ten questions). (1) SCOPE: the 8-Ball (read advice, #apply wish, its livelog tag, the tip, a shake menu line) plus every offered co-port - the One Ring's #read arm, master 7d857f3b9's low-Int read gate, master's random artifact odds (own commit), and item-menu read lines for the striped shirt and Gjallar (as recommended). (2) DRAUGR: master's shape - about 45% of Draugr Barbarians start at Int 5 and cannot read until Int rises, as on 0.9.3 (as recommended). (3) 8-BALL TAG: " using the Magic 8-Ball" placed where master put it, the decline line tagged too, "Magic 8-Ball" capitalized everywhere (as recommended). (4) COOKIE: an eaten fortune cookie that could not be read no longer breaks illiterate conduct (as recommended; master quirk). (5) WISH LIVELOG FORMAT (maintainer side note mid-slice): back to master's - the request only, no 5.0 `, got "<object>"` tail - folded into this slice; the 5.0 decline line KEPT and tagged (the maintainer's pick over master-exact, which logs nothing). (6) CHRONICLE CUT (battery T2): re-ruled three times as the premises corrected - first show_gamelog()'s row buffer, then also curses_num_lines() and tty's compress_str(), then (after the code reviewer showed rows of BUFSZ or more overflow the Windows GUI's putstr) the FINAL ruling: wrap long in-game rows in show_gamelog(), dumplog rows whole, the port edits reverted (as recommended each time). Decided without asking: every blessed eight ball can grant the wish and an unpaid ball pays its full price per shake (master parity); resume_wish retyped boolean -> xint8 (same size). | maintainer |
 | 2026-10-15 | Bearded axe slice rulings (session 229; AskUserQuestion x3, six questions, all as recommended). (1) SHARED PARTS: use_axe() mirrors the branch's 5.0 use_whip() (boulder hook, a big monster hooked only when seen, an unseen monster revealed and never disarmed, the buried-ball chain stop, "not enough room" when engulfed, the target always wakes); the axe-only rules are master's; rejected master's 3.6 body as written. (2) DROPX FAMILY: master's BUG-315 / BUG-1068 shape lands here (dropx() reports a destroyed item; the whip, grease, marker and axe slips null doapply()'s pointer); re-asked after the Plan agent showed 5.0's deferred dealloc makes it hygiene, not a crash fix: kept; rejected the axe only with a row. (3) QUIRKS: the wield verb "swing" (master "lash"), a bracer deflect takes the turn and wakes the monster, a web refuses the chop fallthrough (hooking still works); master's repeated confdir() kept. (4) RACIAL SIZE: the whip pit hook and use_grapple() get master's r_bigmonst() / r_verysmall() here, a SWEEP row for the other tree-wide gaps. (5) MENU: the item-action line "a - Hook or chop with this axe"; rejected "Hook something with this axe" and no line. | maintainer |
 | 2026-10-14/15 | Terrain concealment slice rulings (session 228; AskUserQuestion x2, four questions). (1) FALLBACK: terrain still hides a hides_under monster or hero when 5.0 refuses the object cover (fewer than 10 coins, a pet on a cursed pile, a pile of only cockatrice corpses); rejected master's shape, where any object makes it object cover only (as recommended). (2) MOVEMENT: master's hold rule - the hider picks its move, attacks from cover, moves cover-to-cover freely and refuses 9 in 10 moves onto ground with no cover; rejected 5.0's early "do not leave hiding place" return (as recommended). (3) WORDING: "in the grass" / "in the sand", "under the throne / ladder / sink / altar / grave" with plain names and the article everywhere (farlook, ^X included); rejected master's farlook names ("under the opulent throne", "under the ladder up"), which was my recommendation, and plain names with "under" throughout. (4) HIDE MESSAGE (after battery B4: a pet garter snake in a half-grass room, 51 lines in 523 turns): keep "You see <mon> hide in the grass." for every hider, pets included, as 5.0 does for object cover (as recommended). | maintainer |
 | 2026-10-14 | Ruled small-rows slice rulings (session 227; AskUserQuestion, three questions, all as recommended). (1) LIT OIL: THE HALF-FLASK RULE. fixup_oil() counts the fuel left in a lit flask's burn timer, and a polymorphed flask dilutes only when less than half its oil (200 turns) is left, lit or unlit alike, over fuel-exact (5.0's under-400 rule), "lit never dilutes" and record-only. This corrects the s226 premise: a timer read alone still dilutes a lit flask one turn after lighting (399 of 400). (2) AMULET OF FLYING: identify it at all five flight-unblock sites (the two "You can fly." sites and the three "stopped levitating and are now flying" sites), over only the two ruled sites. At plan time the review added a fourth "stopped levitating" site (Ring_off_or_gone()) and switch_terrain()'s "You start flying.", as the same class. (3) KNIGHT DRAGON GRUDGE: THE INTENT, ZOO ROOMS ONLY. Master's makemon() case is ported, and fill_zoo() leaves a cross-aligned dragon awake for a Knight; special-level asleep flags are left alone. This was chosen over the intent everywhere, closing the row as dead, and deferring. Premise corrected: master's wake is dead, because fill_zoo() re-sleeps after makemon(). | maintainer |
