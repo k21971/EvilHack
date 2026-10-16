@@ -33,6 +33,7 @@ staticfn void use_trap(struct obj *);
 staticfn int touchstone_ok(struct obj *);
 staticfn int use_stone(struct obj *);
 staticfn int set_trap(void); /* occupation callback */
+staticfn boolean pit_hookout_spot(coord *, coordxy, coordxy);
 staticfn int use_axe(struct obj **);
 staticfn void display_polearm_positions(boolean);
 staticfn void calc_pole_range(int *, int *);
@@ -3446,6 +3447,37 @@ set_trap(void)
     return 0;
 }
 
+/* a hero in a pit, hooked onto the monster at <x,y>, climbs out next to
+   it but never back onto the hero's own (pit) spot; goodpos() is used as
+   in enexto_core_mon(), so the hero's worn gear counts */
+staticfn boolean
+pit_hookout_spot(coord *cc, coordxy x, coordxy y)
+{
+    coord candy[ROWNO * (COLNO - 1)]; /* collect_coords()'s contract */
+    coord bc;
+    int i, n, pass;
+
+    /* a buried ball's chain waiting behind the pit holds the hero at its
+       edge instead (reset_utrap()), so no spot is needed */
+    bc.x = u.ux, bc.y = u.uy;
+    if (u.utether_pending && buried_ball(&bc))
+        return TRUE;
+
+    n = collect_coords(candy, x, y, 1, CC_NO_FLAGS,
+                       (boolean (*)(coordxy, coordxy)) 0);
+    for (pass = 0; pass < 2; ++pass)
+        for (i = 0; i < n; ++i) {
+            if (u_at(candy[i].x, candy[i].y))
+                continue;
+            if (goodpos(candy[i].x, candy[i].y, &gy.youmonst,
+                        !pass ? GP_CHECKSCARY : NO_MM_FLAGS)) {
+                *cc = candy[i];
+                return TRUE;
+            }
+        }
+    return FALSE;
+}
+
 int
 use_whip(struct obj **objp)
 {
@@ -3613,9 +3645,7 @@ use_whip(struct obj **objp)
             cc.y = ry;
             You("wrap your bullwhip around %s.", wrapped_what);
             if (proficient && rn2(proficient + 2)) {
-                if (!mtmp
-                    || enexto_core_mon(&cc, rx, ry, &gy.youmonst,
-                                       NO_MM_FLAGS)) {
+                if (!mtmp || pit_hookout_spot(&cc, rx, ry)) {
                     You("yank yourself out of the pit!");
                     reset_utrap(TRUE); /* [was after teleds(); do this before
                                         * in case it has no alternative other
@@ -3629,6 +3659,9 @@ use_whip(struct obj **objp)
                         teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
                     }
                     gv.vision_full_recalc = 1;
+                } else {
+                    /* nowhere to climb out to but the pit itself */
+                    pline1(msg_slipsfree);
                 }
             } else {
                 pline1(msg_slipsfree);
@@ -3915,9 +3948,7 @@ use_axe(struct obj **objp)
             cc.y = ry;
             You("hook your axe onto %s.", hooked_what);
             if (proficient && rn2(proficient + 2)) {
-                if (!mtmp
-                    || enexto_core_mon(&cc, rx, ry, &gy.youmonst,
-                                       NO_MM_FLAGS)) {
+                if (!mtmp || pit_hookout_spot(&cc, rx, ry)) {
                     You("pull yourself out of the pit!");
                     /* before teleds(), as for the bullwhip, in case it
                        has no alternative other than another trap */
@@ -3931,6 +3962,9 @@ use_axe(struct obj **objp)
                         teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
                     }
                     gv.vision_full_recalc = 1;
+                } else {
+                    /* nowhere to climb out to but the pit itself */
+                    pline1(msg_comesfree);
                 }
             } else {
                 pline1(msg_comesfree);
