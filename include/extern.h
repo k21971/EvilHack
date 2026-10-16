@@ -2771,6 +2771,7 @@ extern void nhassert_failed(const char *, const char *, int);
 extern void set_uasmon(void);
 extern void float_vs_flight(void);
 extern boolean u_lift_unheld(void);
+extern boolean u_lift_unenclosed(void);
 extern void steed_vs_stealth(void);
 extern void change_sex(void);
 extern void livelog_newform(boolean, int, int);

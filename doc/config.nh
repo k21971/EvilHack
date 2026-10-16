@@ -226,7 +226,7 @@
 #OPTIONS=packorder:")[%?+/=!(*0_`
 
 # A space separated list of specific situations where alternate
-# prompting is desired.  The default is paranoid_confirmation:pray.
+# prompting is desired.  The default is paranoid_confirmation:pray trap.
 #OPTIONS=paranoid_confirmation:confirm quit die bones attack pray remove
 
 # Always show the inventory window? X11 and Windows GUI only.

@@ -4059,7 +4059,7 @@
      paranoid_confirmation
        A space  separated  list  of  specific  situations  where  alternate
        prompting  is  desired.   The default is "paranoid_confirmation:pray
-       swim trap".
+       trap".
 
        Confirm     - for any prompts which are set to require "yes"  rather
                      than  `y',  also  require  "no"  to  reject instead of
@@ -4084,14 +4084,16 @@
                      rather than just `y', set Confirm too);
        trap        - require `y' to confirm an attempt to move into or onto
                      a known trap, unless doing  so  is  considered  to  be
-                     harmless; when enabled, this confirmation is also used
-                     for moving into visible gas cloud regions; (to require
-                     "yes"  rather than just `y', set Confirm too); confir-
-                     mation can be skipped by using the `m'  movement  pre-
-                     fix;
-       swim        - prevent walking into water or lava; on by default; (to
-                     deliberately  step onto/into such terrain when this is
-                     set, use the `m' movement prefix when adjacent);
+                     harmless;  on by default; when enabled, this confirma-
+                     tion is also used for moving into  visible  gas  cloud
+                     regions;  (to  require "yes" rather than just `y', set
+                     Confirm too); confirmation can be skipped by using the
+                     `m' movement prefix;
+       swim        - require "yes" to confirm walking into known  water  or
+                     lava;  (set  Confirm  too  to  also  require  "no"  to
+                     reject); confirmation can be skipped by using the  `m'
+                     movement  prefix,  which is also needed to step into a
+                     wall of water or lava whether or not this is set;
        AutoAll     - require confirmation  when  the  `A'  (Autoselect-All)
                      choice is selected in object class filtering menus for
                      menustyle:Full;  (to  require  "yes"  rather than just
@@ -4100,15 +4102,15 @@
                      mands even when wearing just one applicable item;
        all         - turn on all of the above.
 
-       By default, the pray, swim, and trap choices are enabled, the others
-       disabled.  To disable them without setting any of the other choices,
+       By  default,  the pray and trap choices are enabled, the others dis-
+       abled.  To disable them without setting any of  the  other  choices,
        use  paranoid_confirmation:none.  To keep them enabled while setting
        any of the others, you can include them in the  new  list,  such  as
-       paranoid_confirmation:attack pray swim Remove or you can precede the
+       paranoid_confirmation:attack pray trap Remove or you can precede the
        first  entry  in  the  list  with  a  plus  sign, paranoid_confirma-
        tion:+attack Remove.  To remove an entry that  has  been  previously
        set  without  removing  others,  precede the first entry in the list
-       with a minus sign, paranoid_confirmation:-swim.  To  both  add  some
+       with a minus sign, paranoid_confirmation:-trap.  To  both  add  some
        new  entries  and  remove  some old ones, you can use multiple para-
        noid_confirmation option settings, or you can use the `+'  form  and
        list  entries to be added by their name and entries to be removed by
@@ -5700,7 +5702,7 @@
        the traditional Rogue-like commands.
 
      paranoid_confirmation:swim
-       Prevent walking into water or lava.
+       Ask before walking into water or lava.
 
      accessiblemsg
        Adds direction or location information to messages.

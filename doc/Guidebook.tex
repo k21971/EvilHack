@@ -25,7 +25,7 @@
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
 %DO NOT REMOVE NH_DATESUB \date{Date(%B %-d, %Y)}
-\date{October 13, 2026}
+\date{October 16, 2026}
 
 \maketitle
 
@@ -5062,7 +5062,7 @@ are filled in at the end from the previous order.
 \item[paranoid\textunderscore confirmation]
 A space separated list of specific situations where alternate
 prompting is desired.
-The default is ``\textit{paranoid\textunderscore confirmation:pray swim trap}''.
+The default is ``\textit{paranoid\textunderscore confirmation:pray trap}''.
 %.sd
 %.si
 \newlength{\pcwidth}
@@ -5100,15 +5100,17 @@ than immediately praying; on by default;
 (to require ``yes'' rather than just `y', set Confirm too);
 \item[trap]
 require `\texttt{y}' to confirm an attempt to move into or onto a known trap,
-unless doing so is considered to be harmless;
+unless doing so is considered to be harmless; on by default;
 when enabled, this confirmation is also used for moving into visible
 gas cloud regions;
 (to require ``yes'' rather than just `y', set Confirm too);
 confirmation can be skipped by using the `\texttt{m}' movement prefix;
 \item[swim]
-prevent walking into water or lava; on by default; (to deliberately step
-onto/into such terrain when this is set, use the `\texttt{m}'
-movement prefix when adjacent);
+require ``yes'' to confirm walking into known water or lava;
+(set Confirm too to also require ``no'' to reject);
+confirmation can be skipped by using the `\texttt{m}' movement prefix,
+which is also needed to step into a wall of water or lava whether or not
+this is set;
 \item[AutoAll]
 require confirmation when the `A' (Autoselect-All) choice is selected
 in object class filtering menus for \textit{menustyle:Full};
@@ -5121,17 +5123,17 @@ turn on all of the above.
 \end{description}
 %.ei
 %.ed
-By default, the pray, swim, and trap choices are enabled, the others disabled.
+By default, the pray and trap choices are enabled, the others disabled.
 To disable them without setting
 any of the other choices, use ``\textit{paranoid\textunderscore confirmation:none}''.
 To keep them enabled while setting any of the others, you can
 include them in the list, such as
-``\textit{par\-a\-noid\textunderscore con\-fir\-ma\-tion:attack~pray~swim~Remove}''
+``\textit{par\-a\-noid\textunderscore con\-fir\-ma\-tion:attack~pray~trap~Remove}''
 or you can precede the first entry in the list with a plus sign,
 ``\textit{paranoid\textunderscore confirmation:+attack~Remove}''.
 To remove an entry that has been previously set without removing others,
 precede the first entry in the list with a minus sign,
-``\textit{paranoid\textunderscore confirmation:-swim}.
+``\textit{paranoid\textunderscore confirmation:-trap}''.
 To both add some new entries and remove some old ones, you can use
 multiple \textit{paranoid\textunderscore confirmation} option settings, or you can
 use the `\texttt{+}' form and list entries to be added by their name
@@ -7054,7 +7056,7 @@ If this is the case, disable the number\textunderscore pad option and use the
 traditional Rogue-like commands.
 %.lp
 \item[paranoid\textunderscore confirmation:swim]
-Prevent walking into water or lava.
+Ask before walking into water or lava.
 %.lp
 \item[accessiblemsg]
 Adds direction or location information to messages.

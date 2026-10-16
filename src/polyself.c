@@ -275,6 +275,26 @@ u_lift_unheld(void)
     return res;
 }
 
+/* would the hero float or fly once out of terrain that blocks the lift
+   (solid rock or a tree being phased through, a closed door, a wall of
+   water or lava)? switch_terrain() is the only setter of the
+   FROMOUTSIDE block bits and clears them on stepping onto different
+   terrain that does not block; holds (I_SPECIAL) still keep the hero
+   down */
+boolean
+u_lift_unenclosed(void)
+{
+    long save_BLev = BLevitation, save_BFly = BFlying;
+    boolean res;
+
+    BLevitation &= ~FROMOUTSIDE;
+    BFlying &= ~FROMOUTSIDE;
+    res = (Levitation || Flying);
+    BLevitation = save_BLev;
+    BFlying = save_BFly;
+    return res;
+}
+
 /* riding blocks stealth unless hero+steed fly */
 void
 steed_vs_stealth(void)

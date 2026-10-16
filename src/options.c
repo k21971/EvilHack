@@ -170,9 +170,9 @@ static const struct paranoia_opts {
       "y required to enter known trap unless considered harmless" },
     { PARANOID_AUTOALL, "Autoall", 2, "autoselect-all", 2,
       "y required to pick filter choice 'A' for menustyle:Full" },
-    /* not a yes/n[o] vs y/n change nor a y/n addition */
+    /* an extra question that always requires "yes" */
     { PARANOID_SWIM, "swim", 1, 0, 0,
-      "'m' prefix necessary to deliberately walk into lava or water" },
+      "yes required to walk into water or lava" },
     { PARANOID_REMOVE, "Remove", 1, "Takeoff", 1,
       /* normally when there is only 1 candidate it's chosen automatically */
       "always pick from inventory for Remove and Takeoff" },
@@ -2867,10 +2867,12 @@ optfn_paranoid_confirmation(
      * ordinarily there.  (They ask for 'y' keystroke unless Confirm is
      * also set, then they'll switch to "yes<return>", "no<return>".)
      *
-     * Player can also change game's behavior.  paranoid_confirm:swim
-     * can be used to prevent accidentally stepping into water or lava;
-     * player must use the 'm' movement prefix to do that intentionally.
-     * paranoid_confirm:Remove [with synonym parnoid_confirm:Takeoff]
+     * Player can add a prompt that always requires "yes<return>":
+     * paranoid_confirm:swim asks before walking into water or lava
+     * (the 'm' movement prefix skips the question).
+     *
+     * Player can also change game's behavior. paranoid_confirm:Remove
+     * [with synonym parnoid_confirm:Takeoff]
      * changes the 'R' and 'T' commands [which have differing criteria
      * for "only one candidate item"] to prompt for inventory item to
      * remove/takeoff when there is only one candidate, so allows player
@@ -7256,7 +7258,7 @@ initoptions_init(void)
     flags.end_own = FALSE;
     flags.end_top = 3;
     flags.end_around = 2;
-    flags.paranoia_bits = PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP;
+    flags.paranoia_bits = PARANOID_PRAY | PARANOID_TRAP;
     flags.versinfo = have_branch ? 4 : 1;
     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
     flags.runmode = RUN_LEAP;

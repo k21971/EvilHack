@@ -23,6 +23,7 @@ staticfn boolean trapmove(coordxy, coordxy, struct trap *);
 staticfn int QSORTCALLBACK notice_mons_cmp(const genericptr,
                                            const genericptr) NONNULLPTRS;
 staticfn schar u_simple_floortyp(coordxy, coordxy);
+staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy);
 staticfn boolean domove_bump_mon(struct monst *, int) NONNULLARG1;
 staticfn boolean domove_attackmon_at(struct monst *, coordxy, coordxy,
@@ -1926,8 +1927,13 @@ staticfn schar
 u_simple_floortyp(coordxy x, coordxy y)
 {
     /* mirror the gating pooleffects() uses: an airborne steed keeps the
-       hero clear of the liquid, and worn levitation or flight counts */
-    boolean u_in_air = (Levitation || Flying || !grounded(gy.youmonst.data)
+       hero clear of the liquid, and the hero's own levitation or flight
+       counts (a form's floating or flying included, but not wings folded
+       under hard armor, nor a clinging form), including lift that only
+       the terrain the hero stands in blocks (inside rock or a tree being
+       phased through, a closed door, a liquid wall), since stepping out
+       over the liquid restores it before pooleffects() runs */
+    boolean u_in_air = (u_lift_unenclosed()
                         || (u.usteed && (!grounded(u.usteed->data)
                                          || can_levitate(u.usteed)
                                          || can_fly(u.usteed))));
@@ -1978,6 +1984,49 @@ handle_tip(int tip)
     return FALSE;
 }
 
+/* paranoid_confirm:swim asks before the hero walks into water or lava at
+   x,y; turning back at the edge can still wet or burn their feet.
+   Returns TRUE if the move is refused */
+staticfn boolean
+swim_declined(coordxy x, coordxy y)
+{
+    boolean lava = is_lava(x, y);
+
+    if (paranoid_query(ParanoidSwim, lava ? "Really enter the lava?"
+                                          : "Really enter the water?"))
+        return FALSE;
+    /* a lost terminal or a pending hangup reads as "no"; refuse the move
+       without making the hero pay for an answer they never gave */
+    if (iflags.term_gone
+#ifdef HANGUPHANDLING
+        || program_state.done_hup
+#endif
+        )
+        return TRUE;
+
+    You("narrowly avoid %s into the %s.", rn2(2) ? "falling" : "plunging",
+        waterbody_name(x, y));
+    /* a rider's feet are clear of the edge the steed stopped at */
+    if (u.usteed)
+        return TRUE;
+    if (!lava) {
+        if (uarmf && !rn2(3)
+            && water_damage(uarmf, "metal boots", TRUE) == ER_NOTHING)
+            Your("boots get wet.");
+    } else if (rn2(2)) {
+        if (uarmf) {
+            pline("Molten lava splashes onto your %s.", simpleonames(uarmf));
+            (void) fire_damage(uarmf, TRUE, u.ux, u.uy);
+        } else {
+            pline("Molten lava splashes onto your %s!",
+                  makeplural(body_part(FOOT)));
+            losehp(resist_reduce(d(1, 4), FIRE_RES), "touching molten lava",
+                   KILLED_BY);
+        }
+    }
+    return TRUE;
+}
+
 /* Is it dangerous for hero to move to x,y due to water or lava? */
 staticfn boolean
 swim_move_danger(coordxy x, coordxy y)
@@ -1988,30 +2037,38 @@ swim_move_danger(coordxy x, coordxy y)
     if (Underwater && (is_pool(x,y) || IS_WATERWALL(newtyp)))
         return FALSE;
 
+    /* newtyp is POOL or LAVAPOOL only for a hero who would touch the
+       liquid; is_pool() and is_lava() would also match a liquid wall
+       and an airborne hero stepping out of one */
     if ((newtyp != u_simple_floortyp(u.ux, u.uy))
         && !Stunned && !Confusion && levl[x][y].seenv
-        && (is_pool(x, y) || is_lava(x, y) || liquid_wall)) {
+        && (newtyp == POOL || newtyp == LAVAPOOL || liquid_wall)) {
 
         /* FIXME: This can be exploited to identify ring of fire resistance
          * if the player is wearing it unidentified and has identified
          * fireproof boots of water walking and is walking over lava. However,
          * this is such a marginal case that it may not be worth fixing. */
-        if ((is_pool(x, y) && !Known_wwalking)
+        if ((newtyp == POOL && !Known_wwalking)
             /* is_lava(ux,uy): don't move onto/over lava with known
                lava-walking because it isn't completely safe, but do
                continue to move over lava if already doing so */
-            || (is_lava(x, y) && !Known_lwalking && !is_lava(u.ux, u.uy))
+            || (newtyp == LAVAPOOL && !Known_lwalking
+                && !is_lava(u.ux, u.uy))
             || liquid_wall) {
             if (svc.context.nopick) {
-                /* moving with m-prefix */
+                /* moving with m-prefix, even an m-prefixed run */
                 svc.context.tips |= (1 << TIP_SWIM);
                 return FALSE;
-            } else if (ParanoidSwim || liquid_wall) {
+            } else if (liquid_wall) {
+                /* walls of water or lava are refused whether or not
+                   paranoid_confirm:swim is set */
                 You("avoid %s into the %s.",
                     ing_suffix(u_locomotion("step")),
                     waterbody_name(x, y));
                 (void) handle_tip(TIP_SWIM);
                 return TRUE;
+            } else if (ParanoidSwim) {
+                return swim_declined(x, y);
             }
         }
     }
