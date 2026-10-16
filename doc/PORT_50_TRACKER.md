@@ -11856,7 +11856,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       no credit, and picking it up charges it again. Needs a ruling
       (save and restore the contents' no_charge around addtobill();
       credit gold that lands inside the shop) and an upstream look.
-      LOW. CLOSED 2026-10-16 (session 233, commit pending; plan
+      LOW. CLOSED 2026-10-16 (session 233, commit 7e5d2d27e,
+      tracker 520b534ad; plan
       /root/.claude/plans/vast-drifting-willow.md; closure notes in
       BUGFIXES_ARCHIVE BUG-2393..2396). Ruled (three rounds, all as
       recommended): contents keep their owners - only the bag itself
@@ -18079,12 +18080,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the pit!  You fall into a pit!" (the giant's only other free
       neighbour was taken). Ruling: keep, or skip the hero's square
       (and say the hook comes free when nothing else is free). LOW.
-      CLOSED 2026-10-16 (session 233, commit pending; plan
+      CLOSED 2026-10-16 (session 233, commit 0486d142e,
+      tracker 520b534ad; plan
       /root/.claude/plans/vast-drifting-willow.md; closure notes in
       BUGFIXES_ARCHIVE BUG-2397). Ruled: never the hero's square.
       Not a rare edge: the hero's square is always one of the
       monster's neighbours, so about 1 hook-out in 8 in an open room
-      re-trapped the hero (battery PRE: 3 of 32). FIXED (BUG-2397):
+      re-trapped the hero (battery PRE: 3 of 32); it came with master
+      BUG-888's real-hero enexto_core_mon() (vanilla's stand-in
+      enexto() rejects the hero's square). FIXED (BUG-2397):
       apply.c pit_hookout_spot() picks from ring 1 around the monster
       only, skipping the hero's square, with the real-hero goodpos()
       of master BUG-888; nowhere free gives "The axe comes free." /
@@ -29986,6 +29990,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-16 | An exploding bag of holding on a shop floor gives the shop the hero's things. Shared with Official_nh50: pickup.c in_container() bills the whole floor bag through addtobill() before do_boh_explosion() scatters the contents (a 3.6 leftover from when the blast deleted them), so picked_container() turns the hero's contents into shop stock, bill_box_content() leaves shop contents unpaid on the floor, gold credited at put-in is charged again by costly_gold() and scatters back as shop gold, and stolen_value() charges the hero for their own destroyed items. EvilHack fix BUG-2393 (7e5d2d27e). | found (branch-fixed); not yet sent |
+| 2026-10-16 | scatter() does no shop ownership for objects flung from a carried bag of holding. Shared with Official_nh50: the hero's items and gold landing on costly squares become the shop's, unpaid goods land unpaid (outside the shop: "unpaid obj not carried!"), the hero's own gold flung out of the shop is charged, and breakobj(hero_caused FALSE) charges only unpaid goods. EvilHack fix BUG-2394 (7e5d2d27e). | found (branch-fixed); not yet sent |
+| 2026-10-16 | The item that blows up a shop's floor bag of holding is offered for sale first. Shared with Official_nh50: pickup.c in_container() runs sellobj() on the item before testing mbag_explodes(), so putting the hero's wand of cancellation into a shop's floor bag of holding asks "Sell it?" and then destroys it. EvilHack fix BUG-2395 (7e5d2d27e). | found (branch-fixed); not yet sent |
 | 2026-10-15 | #chronicle and the dumplog cut a long gamelog line. Shared with Official_nh50: pline.c livelog_printf() formats entries into `char gamelogbuf[BUFSZ * 2]`, but insight.c show_gamelog() formats each row into `char buf[BUFSZ]` ("%5ld: %s"), so any entry past about 248 characters loses its tail (a 253-character wish request showed `...blesse" usin`); win/curses/cursmisc.c curses_num_lines() also copies at most BUFSZ - 1 characters, so curses under-counts the wrapped lines of any longer menu row even after the first fix (curses_break_str() already sizes to the string); and win/tty/wintty.c compress_str() copies any row at least a screen wide into `static char cbuf[BUFSZ]`, so tty stops the row near 252 characters. Widening those buffers is NOT safe: win32 mhmenu.c / mhtext.c MSNH_MSG_PUTSTR copy putstr text into `TCHAR wbuf[BUFSZ]` with NH_A2W (a bare strncpy in the non-Unicode build, no terminator) and then _tcscat() it, so every port must keep receiving putstr() text under BUFSZ. EvilHack fix BUG-2386: show_gamelog() formats into BUFSZ * 2 + 32 and, for the in-game window, splits a row of 255 characters or more at spaces into pieces of at most 254 (vanilla tty compress_str() also drops the last character of an unpadded 255-character line), continuations indented under the entry text; the dumplog (dump procs, which stream) keeps one whole row. | found (branch-fixed); not yet sent |
 | 2026-10-15 | An applied item destroyed as it slips from the hero (Fumbling / Glib over open air or lava) leaves doapply() holding the deleted object. Shared with Official_nh50 (apply.c use_grease() x2 and use_whip(), write.c dowrite(); do.c dropx() / dropy() / dropz() are void): doapply()'s tail reads `obj->oartifact` after delobj() marked the object OBJ_DELETED, against its own comment that a helper which can destroy obj must null it. No crash (dobjsfree() frees at the end of the command) and no visible effect. EvilHack fix BUG-2362 (master's BUG-315 / BUG-1068): dropz() returns whether the object is gone, dropy() / dropx() pass it on, and the helpers take `struct obj **` and null the caller's pointer. | found (branch-fixed); not yet sent |
 | 2026-10-15 | A ceiling-hider hero's drop leaves a hidden attacker hidden over nothing. Shared with Official_nh50 and NetHack50 (mhitu.c mattacku(), the `is_hider(youmonst.data)` block): the attacking monster is moved onto the hero's old square with place_monster(), and a hides_under attacker that was hidden under objects on its own square stays mundetected on the bare square, so the sanity check logs "mon hiding under nonexistent obj". EvilHack fix BUG-2355 (master's BUG-1137): maybe_unhide_at() + newsym() after the swap. | found (branch-fixed); not yet sent |
