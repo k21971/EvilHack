@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-16, after session 233's
-  ruled LOW rows): 429 rows closed, 104 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-16, after session 234's
+  paranoid-swim slice): 432 rows closed, 104 open. Of the open rows:
   - 0 HIGH.
   - 1 MED: an unported master feature (door-material colors).
     Session 232 closed the bag explosion row (BUG-2388..2391): an
@@ -118,6 +118,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
   - 87 LOW: small parity rows, quirks and watch/record-only items.
+    Session 234 closed the paranoid-swim row (BUG-2398): with
+    paranoid_confirmation:swim (off by default again) a step into
+    known water or lava asks "Really enter the water?" / "Really enter
+    the lava?", and turning back can wet, rust or burn the boots or
+    burn bare feet (not while riding, not on a hangup). It minted and
+    fixed two: a levitator phasing through rock or a tree is no longer
+    refused at water it floats over (BUG-2399), and a form with wings
+    folded under armor or a clinging form is asked (BUG-2400). Minted
+    one: `_` travel to an adjacent pool or liquid wall walks in
+    unasked (needs a ruling).
     Session 233 closed the GemStone() row (BUG-2392): the identified
     rod, helm of brilliance, crystal plate mail, crystal chest,
     magic chest and magic key no longer gain " stone" in the
@@ -308,7 +318,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     reproduction (a minliquid() survivor sent into limbo still
     moves).
     PLANNABLE (ruled 2026-10-05, session 184 follow-up): the
-    iced-span land mine row and the paranoid-swim row; the
+    iced-span land mine row (the paranoid-swim row landed in session
+    234); the
     buzz_killer() death-ray naming row (session 186, a port gap)
     needs no ruling. Ruled 2026-10-06 (session 187 follow-up): the
     ranged / remote / indirect kill credit row (direct ranged only;
@@ -27292,7 +27303,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       levitation boots skip float_down() (both below). Noted,
       no row: sp_lev.c's `eroded < 0` sets oerodeproof with no
       class check, but no current .lua file puts it on a potion.
-- [ ] LOW: master's paranoid-swim decline penalty is absent (minted
+- [x] LOW: master's paranoid-swim decline penalty is absent (minted
       2026-09-27, session 149, by the lava burn slice). Master
       2c50b94ab ("Paranoid water/lava") asks "Really enter the
       water?" / "Really enter the lava?" under paranoid_confirm:swim
@@ -27318,6 +27329,37 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       PARANOID_TRAP drops SWIM only - keep TRAP and 5.0's water-wall
       refusal unless the plan finds a reason). The options help and
       Guidebook default text follow. Plannable.
+      CLOSED 2026-10-16 (session 234, commit pending; plan
+      /root/.claude/plans/golden-growing-russell.md; closure notes in
+      BUGFIXES_ARCHIVE BUG-2398). Master's query and decline penalty
+      (swim_declined()), swim off by default, TRAP and the always-on
+      wall refusal kept, the m prefix still bypasses. Ruled
+      2026-10-16: no penalty while riding, a hangup refuses with no
+      penalty, waterbody_name() in the decline line, menu text "yes
+      required to walk into water or lava". The census found two more
+      (rows below): the phasing false prompt (BUG-2399) and the
+      pinned-wing / clinging form gap (BUG-2400).
+- [x] LOW: a levitating or flying hero phasing through rock or a tree
+      is refused at water or lava they would float over (BUG-2399;
+      minted and FIXED 2026-10-16, session 234, by the paranoid-swim
+      census; master regression a23c53ed8 re-broke 276f347d2, vanilla
+      5.0 shares it). u_lift_unenclosed() masks switch_terrain()'s
+      FROMOUTSIDE block bits for the test; an airborne hero stepping
+      out of a liquid wall is not asked either.
+- [x] LOW: a form with wings folded under armor, or a clinging form,
+      is never asked before falling into water or lava (BUG-2400;
+      minted and FIXED 2026-10-16, session 234, reviewer MEDIUM;
+      BUG-1309's known residual; master and vanilla 5.0 alike). The
+      hero's !grounded() term is gone from u_simple_floortyp().
+- [ ] LOW: `_` travel to an adjacent pool or liquid wall walks in
+      unasked (minted 2026-10-16, session 234, Plan agent; master and
+      vanilla 5.0 alike; record). findtravelpath()'s adjacent-target
+      shortcut calls nomul(0), which clears run and travel but keeps
+      context.nopick, so swim_move_danger() takes the m-prefix arm: no
+      paranoid question and not even 5.0's always-on wall refusal. A
+      travel target the player picked is arguably deliberate; decide
+      whether travel should ask like a plain step. LOW (needs a
+      ruling).
 - [x] LOW: destroyed levitation boots skip float_down() (BUG-2158;
       BUG-2161..2164 the crash-class siblings under the same guard) -
       FIXED 2026-10-06 (session 187, commit ca7b63f03, tracker
@@ -29990,6 +30032,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-16 | A levitating or flying hero phasing through rock (a xorn form) is refused at water or lava they would float over. Shared with Official_nh50: hack.c u_simple_floortyp() reads Levitation / Flying, which switch_terrain()'s FROMOUTSIDE block keeps FALSE inside obstructed terrain, though stepping onto the pool lifts the block before pooleffects() runs; also an airborne hero stepping out of a water wall. EvilHack fix BUG-2399 (commit pending). | found (branch-fixed); not yet sent |
+| 2026-10-16 | A form whose wings armor folds (or a clinging form) is never warned by paranoid_confirm:swim and falls in. Shared with Official_nh50: hack.c u_simple_floortyp()'s `!grounded(gy.youmonst.data)` counts it airborne, but pooleffects() tests only Levitation and Flying. EvilHack fix BUG-2400 (commit pending). | found (branch-fixed); not yet sent |
 | 2026-10-16 | An exploding bag of holding on a shop floor gives the shop the hero's things. Shared with Official_nh50: pickup.c in_container() bills the whole floor bag through addtobill() before do_boh_explosion() scatters the contents (a 3.6 leftover from when the blast deleted them), so picked_container() turns the hero's contents into shop stock, bill_box_content() leaves shop contents unpaid on the floor, gold credited at put-in is charged again by costly_gold() and scatters back as shop gold, and stolen_value() charges the hero for their own destroyed items. EvilHack fix BUG-2393 (7e5d2d27e). | found (branch-fixed); not yet sent |
 | 2026-10-16 | scatter() does no shop ownership for objects flung from a carried bag of holding. Shared with Official_nh50: the hero's items and gold landing on costly squares become the shop's, unpaid goods land unpaid (outside the shop: "unpaid obj not carried!"), the hero's own gold flung out of the shop is charged, and breakobj(hero_caused FALSE) charges only unpaid goods. EvilHack fix BUG-2394 (7e5d2d27e). | found (branch-fixed); not yet sent |
 | 2026-10-16 | The item that blows up a shop's floor bag of holding is offered for sale first. Shared with Official_nh50: pickup.c in_container() runs sellobj() on the item before testing mbag_explodes(), so putting the hero's wand of cancellation into a shop's floor bag of holding asks "Sell it?" and then destroys it. EvilHack fix BUG-2395 (7e5d2d27e). | found (branch-fixed); not yet sent |
@@ -30211,6 +30255,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-16 | Paranoid-swim slice rulings (session 234; AskUserQuestion x2, six questions, all as recommended). (1) PHASING: fix it - a levitator or flyer whose lift only the terrain it stands in blocks (rock or a tree being phased through, a closed door, a liquid wall) is not asked (master's a23c53ed8 regression, frozen-unfixed). (2) RIDING: no decline penalty while mounted; the question and the line still appear. (3) WORDING: 5.0's waterbody_name() in master's "You narrowly avoid falling/plunging into the ..." line. (4) MENU TEXT: "yes required to walk into water or lava". (5) FOLD the reviewer's grounded() gap (BUG-2400): pinned-wing and clinging forms are asked. (6) HANGUP: a hangup or lost terminal at the question refuses the move with no penalty. Decided in the plan: the m prefix bypasses everything, an m-prefixed run included (5.0's gate, not master's `!nopick \|\| run`). | maintainer |
 | 2026-10-15 | Bag explosion slice rulings (session 232; AskUserQuestion x2, four questions, all as recommended). (1) SCOPE everything: master's damage, killer names and Bag-naming livelog at both sites, plus do_boh_explosion()'s four silent reverts ("contents fly everywhere", blastforce 4..10, MAY_FRACTURE, makeknown(BAG_OF_HOLDING)) and #tip identifying the trigger (widened to #put's four types). (2) The #tip trigger stays DESTROYED (5.0), not scattered as master's BUG-507 left it. (3) The #tip livelog keeps 5.0's " via tipping" tail with master's Bag naming. (4) FIX the unpaid-statue fracture billing hole MAY_FRACTURE exposes (scatter() bills it, contents hidden; BUG-2391). | maintainer |
 | 2026-10-15 | Magic 8-Ball slice rulings (session 231; AskUserQuestion x6, ten questions). (1) SCOPE: the 8-Ball (read advice, #apply wish, its livelog tag, the tip, a shake menu line) plus every offered co-port - the One Ring's #read arm, master 7d857f3b9's low-Int read gate, master's random artifact odds (own commit), and item-menu read lines for the striped shirt and Gjallar (as recommended). (2) DRAUGR: master's shape - about 45% of Draugr Barbarians start at Int 5 and cannot read until Int rises, as on 0.9.3 (as recommended). (3) 8-BALL TAG: " using the Magic 8-Ball" placed where master put it, the decline line tagged too, "Magic 8-Ball" capitalized everywhere (as recommended). (4) COOKIE: an eaten fortune cookie that could not be read no longer breaks illiterate conduct (as recommended; master quirk). (5) WISH LIVELOG FORMAT (maintainer side note mid-slice): back to master's - the request only, no 5.0 `, got "<object>"` tail - folded into this slice; the 5.0 decline line KEPT and tagged (the maintainer's pick over master-exact, which logs nothing). (6) CHRONICLE CUT (battery T2): re-ruled three times as the premises corrected - first show_gamelog()'s row buffer, then also curses_num_lines() and tty's compress_str(), then (after the code reviewer showed rows of BUFSZ or more overflow the Windows GUI's putstr) the FINAL ruling: wrap long in-game rows in show_gamelog(), dumplog rows whole, the port edits reverted (as recommended each time). Decided without asking: every blessed eight ball can grant the wish and an unpaid ball pays its full price per shake (master parity); resume_wish retyped boolean -> xint8 (same size). | maintainer |
 | 2026-10-15 | Bearded axe slice rulings (session 229; AskUserQuestion x3, six questions, all as recommended). (1) SHARED PARTS: use_axe() mirrors the branch's 5.0 use_whip() (boulder hook, a big monster hooked only when seen, an unseen monster revealed and never disarmed, the buried-ball chain stop, "not enough room" when engulfed, the target always wakes); the axe-only rules are master's; rejected master's 3.6 body as written. (2) DROPX FAMILY: master's BUG-315 / BUG-1068 shape lands here (dropx() reports a destroyed item; the whip, grease, marker and axe slips null doapply()'s pointer); re-asked after the Plan agent showed 5.0's deferred dealloc makes it hygiene, not a crash fix: kept; rejected the axe only with a row. (3) QUIRKS: the wield verb "swing" (master "lash"), a bracer deflect takes the turn and wakes the monster, a web refuses the chop fallthrough (hooking still works); master's repeated confdir() kept. (4) RACIAL SIZE: the whip pit hook and use_grapple() get master's r_bigmonst() / r_verysmall() here, a SWEEP row for the other tree-wide gaps. (5) MENU: the item-action line "a - Hook or chop with this axe"; rejected "Hook something with this axe" and no line. | maintainer |
