@@ -2788,6 +2788,10 @@ do_boh_explosion(struct obj *boh, boolean on_floor)
     struct obj *otmp, *nobj;
 
     boh->in_use = 1; /* in case scatter() leads to bones creation */
+    /* before the loop empties it; otherwise Has_contents() is always 0 */
+    if (!Blind && Has_contents(boh))
+        pline_The("%s contents fly everywhere!",
+                  s_suffix(simpleonames(boh)));
     for (otmp = boh->cobj; otmp; otmp = nobj) {
         nobj = otmp->nobj;
         /* obj_resists() items survive the loss roll and scatter instead */
@@ -2796,9 +2800,14 @@ do_boh_explosion(struct obj *boh, boolean on_floor)
             mbag_item_gone(!on_floor, otmp, TRUE);
         } else {
             otmp->ox = u.ux, otmp->oy = u.uy;
-            (void) scatter(u.ux, u.uy, 4, MAY_HIT | MAY_DESTROY, otmp);
+            (void) scatter(u.ux, u.uy, rn1(7, 4),
+                           VIS_EFFECTS | MAY_HIT | MAY_DESTROY
+                               | MAY_FRACTURE,
+                           otmp);
         }
     }
+    /* bag just blew up? must be a bag of holding */
+    makeknown(BAG_OF_HOLDING);
     /* boh is about to be deleted so no need to reset its in_use flag here */
 }
 
@@ -3001,7 +3010,13 @@ in_container(struct obj *obj)
             (void) stop_timer(SHRINK_GLOB, obj_to_any(obj));
         }
     } else if (Is_mbag(gc.current_container) && mbag_explodes(obj, 0)) {
-        livelog_printf(LL_ACHIEVE, "just blew up %s bag of holding", uhis());
+        /* the container is used up below */
+        boolean hesperides = is_art(gc.current_container,
+                                    ART_BAG_OF_THE_HESPERIDES);
+
+        livelog_printf(LL_ACHIEVE, "just blew up %s %s", uhis(),
+                       hesperides ? "Bag of the Hesperides"
+                                  : "bag of holding");
         /* explicitly mention what item is triggering the explosion */
         urgent_pline(
               "As you put %s inside, you are blasted by a magical explosion!",
@@ -3040,7 +3055,12 @@ in_container(struct obj *obj)
         else
             panic("in_container:  bag not found.");
 
-        losehp(d(6, 6), "magical explosion", KILLED_BY_AN);
+        if (hesperides)
+            losehp(Maybe_Half_Phys(d(12, 12)),
+                   "exploding magical artifact bag", KILLED_BY_AN);
+        else
+            losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag",
+                   KILLED_BY_AN);
         gc.current_container = 0; /* baggone = TRUE; */
     } else if (gc.current_container->otyp == BAG_OF_DEVOURING) {
         /* permanently destroy the item; obj_resists() items and the
@@ -4291,13 +4311,24 @@ tipcontainer(struct obj *box) /* or bag */
                     terse = FALSE;
                     to_floor = TRUE;
                 } else if (Is_mbag(targetbox) && mbag_explodes(otmp, 0)) {
+                    /* targetbox is used up below */
+                    boolean hesperides = is_art(targetbox,
+                                                ART_BAG_OF_THE_HESPERIDES);
+
                     livelog_printf(LL_ACHIEVE,
-                                 "just blew up %s bag of holding via tipping",
-                                   uhis());
+                                   "just blew up %s %s via tipping", uhis(),
+                                   hesperides ? "Bag of the Hesperides"
+                                              : "bag of holding");
                     /* explicitly mention what item is triggering explosion */
                     urgent_pline(
                    "As %s %s inside, you are blasted by a magical explosion!",
                                  doname(otmp), otense(otmp, "tumble"));
+                    /* the item that set it off just identified itself */
+                    if (otmp->otyp == WAN_CANCELLATION
+                        || otmp->otyp == BAG_OF_TRICKS
+                        || otmp->otyp == BAG_OF_TREASURE
+                        || otmp->otyp == BAG_OF_DEVOURING)
+                        makeknown(otmp->otyp);
 
                     /* if putting one bag of holding into another, first
                        blow up the one going in, then (below) blow up the
@@ -4317,7 +4348,12 @@ tipcontainer(struct obj *box) /* or bag */
                     targetbox = 0; /* it's gone */
                     nobj = 0; /* stop tipping; want loop to exit 'normally' */
 
-                    losehp(d(6, 6), "magical explosion", KILLED_BY_AN);
+                    if (hesperides)
+                        losehp(Maybe_Half_Phys(d(12, 12)),
+                               "exploding magical artifact bag", KILLED_BY_AN);
+                    else
+                        losehp(Maybe_Half_Phys(d(8, 10)),
+                               "exploding magical bag", KILLED_BY_AN);
                 } else {
                     /* freeze corpse rot/revive timers when tipping into
                        an ice box, matching #loot put-in */

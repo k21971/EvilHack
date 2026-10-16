@@ -856,6 +856,17 @@ scatter(
                     Soundeffect(se_stone_crumbling, 100);
                     You_hear("stone crumbling.");
                 }
+                /* an unpaid statue blown out of a container is OBJ_FREE
+                   here, so fracture_rock() can't bill for it; bill the
+                   statue but not its contents, which stay unpaid and
+                   drop to the floor in break_statue() */
+                if (otmp->unpaid && *u.ushops) {
+                    struct obj *hide_contents = otmp->cobj;
+
+                    otmp->cobj = 0;
+                    costly_alteration(otmp, COST_FRACTURE);
+                    otmp->cobj = hide_contents;
+                }
                 (void) break_statue(otmp);
                 place_object(otmp, sx, sy); /* put fragments on floor */
             }
