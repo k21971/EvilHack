@@ -6,6 +6,14 @@
 
 staticfn int explosionmask(struct monst *, uchar, char) NONNULLARG1;
 staticfn void engulfer_explosion_msg(uchar, char);
+staticfn void no_charge_gone(struct obj *);
+staticfn boolean still_billed(struct obj *);
+staticfn void unpaid_gone(struct obj *);
+staticfn long flung_obj_lands(struct obj *, coordxy, coordxy, unsigned);
+staticfn void flung_stock_leaves(struct obj *, coordxy, coordxy, unsigned,
+                                 boolean);
+staticfn long flung_spot_lands(coordxy, coordxy, unsigned, unsigned, long,
+                               boolean);
 
 /* Note: Arrays are column first, while the screen is row first */
 static const int explosion[3][3] = {
@@ -761,6 +769,141 @@ struct scatter_chain {
     boolean stopped;            /* flag for in-motion/stopped   */
 };
 
+/* the hero's no_charge things are plain property off a shop's floor */
+staticfn void
+no_charge_gone(struct obj *obj)
+{
+    obj->no_charge = 0;
+    if (Has_contents(obj))
+        picked_container(obj);
+}
+
+/* is obj, or an unpaid object inside it, on a living shopkeeper's bill? */
+staticfn boolean
+still_billed(struct obj *obj)
+{
+    struct monst *mtmp;
+    struct obj *otmp;
+
+    if (obj->unpaid)
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+            if (!DEADMONSTER(mtmp) && mtmp->isshk
+                && onshopbill(obj, mtmp, TRUE))
+                return TRUE;
+    for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+        if (still_billed(otmp))
+            return TRUE;
+    return FALSE;
+}
+
+/* the shopkeeper is gone and setpaid() missed obj while it was flying */
+staticfn void
+unpaid_gone(struct obj *obj)
+{
+    struct obj *otmp;
+
+    obj->unpaid = 0;
+    for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+        unpaid_gone(otmp);
+}
+
+/* 'obj', flung by the hero's doing (SHOP_BILL), comes down at <x,y>:
+   unpaid shop goods come off the bill back inside the shop and are
+   charged for anywhere else, as if thrown; returns the gold to credit
+   the hero with (HERO_OWNS) */
+staticfn long
+flung_obj_lands(
+    struct obj *obj,
+    coordxy x, coordxy y,
+    unsigned scflags)
+{
+    struct monst *shkp;
+    boolean inside;
+
+    if ((scflags & SHOP_BILL) == 0)
+        return 0L;
+    if (!*u.ushops || !(shkp = shop_keeper(*u.ushops))) {
+        /* a shopkeeper the blast killed left this unpaid but unbilled */
+        if (is_unpaid(obj) && !still_billed(obj))
+            unpaid_gone(obj);
+        return 0L;
+    }
+    inside = (costly_spot(x, y) && *in_rooms(x, y, SHOPBASE) == *u.ushops);
+    if (is_unpaid(obj)) {
+        if (inside || !inhishop(shkp))
+            subfrombill(obj, shkp);
+        else
+            (void) stolen_value(obj, u.ux, u.uy, (boolean) shkp->mpeaceful,
+                                FALSE);
+    }
+    /* an angry shopkeeper keeps gold that lands in his shop, as when it
+       is dropped there */
+    if (!inside || (scflags & HERO_OWNS) == 0 || !inhishop(shkp)
+        || !shkp->mpeaceful)
+        return 0L;
+    if (obj->oclass == COIN_CLASS)
+        return obj->quan;
+    return Has_contents(obj) ? contained_gold(obj, TRUE) : 0L;
+}
+
+/* shop stock the hero's blast flung out of the shop, lying at <x,y> now
+   (on the floor, so stolen_value() prices a container's stock contents
+   and gold too), is charged for as if thrown out; 'heros' is obj's
+   no_charge from before place_object() cleared it off the shop floor,
+   so the hero's own things are told apart */
+staticfn void
+flung_stock_leaves(
+    struct obj *obj,
+    coordxy x, coordxy y,
+    unsigned scflags,
+    boolean heros)
+{
+    struct monst *shkp;
+
+    if ((scflags & (SHOP_BILL | HERO_OWNS)) != SHOP_BILL || !*u.ushops
+        || obj->oclass == COIN_CLASS || obj->unpaid
+        || (heros && !Has_contents(obj))
+        || !(shkp = shop_keeper(*u.ushops)) || !inhishop(shkp)
+        || (costly_spot(x, y) && *in_rooms(x, y, SHOPBASE) == *u.ushops))
+        return;
+    /* the hero's own container is priced for its stock and gold alone;
+       the caller's no_charge_gone() clears the flag again */
+    obj->no_charge = heros;
+    (void) stolen_value(obj, u.ux, u.uy, (boolean) shkp->mpeaceful, FALSE);
+}
+
+/* the object 'o_id', 'quan' of them, that hit a monster was put down at
+   <x,y> by drop_throw(); settle it as it lands, unless a stack already
+   lying there merged into it (stacks only merge with matching flags,
+   which are valid where they lie); 'heros' is its no_charge from before
+   it was placed; returns the gold to credit the hero with, the flung
+   coins alone if they merged with gold lying there */
+staticfn long
+flung_spot_lands(
+    coordxy x, coordxy y,
+    unsigned scflags,
+    unsigned o_id, long quan,
+    boolean heros)
+{
+    struct obj *otmp;
+    long gold = 0L;
+
+    for (otmp = svl.level.objects[x][y]; otmp; otmp = otmp->nexthere)
+        if (otmp->o_id == o_id) {
+            if (otmp->oclass == COIN_CLASS) {
+                if (flung_obj_lands(otmp, x, y, scflags))
+                    gold = quan;
+            } else if (otmp->quan == quan) {
+                gold = flung_obj_lands(otmp, x, y, scflags);
+                flung_stock_leaves(otmp, x, y, scflags, heros);
+                if (!costly_spot(x, y))
+                    no_charge_gone(otmp);
+            }
+            break;
+        }
+    return gold;
+}
+
 /*
  * scflags:
  *      VIS_EFFECTS     Add visual effects to display
@@ -769,6 +912,10 @@ struct scatter_chain {
  *      MAY_HIT         Objects may hit you or monsters
  *      MAY_DESTROY     Objects may be destroyed at random
  *      MAY_FRACTURE    Stone objects can be fractured (statues, boulders)
+ *      SHOP_BILL       The hero is to blame: shop goods that break are
+ *                      billed, unpaid ones settle where they land
+ *      HERO_OWNS       With SHOP_BILL: unflagged objects and gold are the
+ *                      hero's rather than shop stock
  */
 
 /* returns number of scattered objects */
@@ -779,7 +926,7 @@ scatter(
     unsigned int scflags,
     struct obj *obj)         /* only scatter this obj */
 {
-    struct obj *otmp;
+    struct obj *otmp, *item;
     int tmp;
     int farthest = 0;
     uchar typ;
@@ -787,10 +934,12 @@ scatter(
     boolean used_up;
     boolean individual_object = obj ? TRUE : FALSE;
     boolean shop_origin, lostgoods = FALSE;
+    /* the hero's blast breaking shop stock (not the hero's own things) */
+    boolean bill_stock = ((scflags & (SHOP_BILL | HERO_OWNS)) == SHOP_BILL);
     struct monst *mtmp, *shkp = 0;
     struct scatter_chain *stmp, *stmp2 = 0;
     struct scatter_chain *schain = (struct scatter_chain *) 0;
-    long total = 0L;
+    long total = 0L, held_gold = 0L;
 
     if (individual_object && (obj->ox != sx || obj->oy != sy))
         impossible("scattered object <%d,%d> not at scatter site <%d,%d>",
@@ -856,18 +1005,34 @@ scatter(
                     Soundeffect(se_stone_crumbling, 100);
                     You_hear("stone crumbling.");
                 }
-                /* an unpaid statue blown out of a container is OBJ_FREE
-                   here, so fracture_rock() can't bill for it; bill the
-                   statue but not its contents, which stay unpaid and
-                   drop to the floor in break_statue() */
-                if (otmp->unpaid && *u.ushops) {
+                /* a statue blown out of a container is OBJ_FREE here, so
+                   fracture_rock() can't bill for it; bill an unpaid one,
+                   or shop stock the hero's blast broke, for the statue
+                   but not its contents */
+                if (*u.ushops
+                    && (otmp->unpaid
+                        || (bill_stock && shop_origin && !otmp->no_charge))) {
                     struct obj *hide_contents = otmp->cobj;
 
                     otmp->cobj = 0;
+                    if (!otmp->unpaid)
+                        addtobill(otmp, FALSE, FALSE, TRUE);
                     costly_alteration(otmp, COST_FRACTURE);
                     otmp->cobj = hide_contents;
+                } else if ((scflags & SHOP_BILL) != 0 && otmp->unpaid
+                           && !still_billed(otmp)) {
+                    /* the blast killed the shopkeeper */
+                    otmp->unpaid = 0;
+                }
+                /* break_statue() drops the contents here */
+                for (item = otmp->cobj; item; item = item->nobj) {
+                    held_gold += flung_obj_lands(item, sx, sy, scflags);
+                    if (!costly_spot(sx, sy))
+                        no_charge_gone(item);
                 }
                 (void) break_statue(otmp);
+                if (!costly_spot(sx, sy))
+                    no_charge_gone(otmp);
                 place_object(otmp, sx, sy); /* put fragments on floor */
             }
             newsym(sx, sy); /* in case it's beyond radius of 'farthest' */
@@ -877,8 +1042,21 @@ scatter(
         } else if ((scflags & MAY_DESTROY) != 0
                    && (!rn2(10) || (objects[otmp->otyp].oc_material == GLASS
                                     || otmp->otyp == EGG))) {
+            boolean tempbill = FALSE;
+
+            /* the hero pays for shop stock the blast breaks (unpaid goods
+               are charged anyway once breaks() uses them up); never a
+               container, whose contents would be billed with it */
+            if (bill_stock && shop_origin && *u.ushops && !otmp->unpaid
+                && !otmp->no_charge && otmp->oclass != COIN_CLASS
+                && !Has_contents(otmp)) {
+                addtobill(otmp, FALSE, FALSE, TRUE);
+                tempbill = otmp->unpaid ? TRUE : FALSE;
+            }
             if (breaks(otmp, sx, sy))
                 used_up = TRUE;
+            else if (tempbill && otmp->unpaid)
+                subfrombill(otmp, shkp);
         }
 
         if (!used_up) {
@@ -926,11 +1104,20 @@ scatter(
                     stmp->stopped = TRUE;
                 } else if ((mtmp = m_at(gb.bhitpos.x, gb.bhitpos.y)) != 0) {
                     if (scflags & MAY_HITMON) {
+                        unsigned flung_id = stmp->obj->o_id;
+                        long flung_quan = stmp->obj->quan;
+                        boolean flung_nc = stmp->obj->no_charge;
+
                         stmp->range--;
                         if (ohitmon((struct monst *) 0, mtmp, stmp->obj, 1,
                                     FALSE)) {
                             stmp->obj = (struct obj *) 0;
                             stmp->stopped = TRUE;
+                            held_gold += flung_spot_lands(gb.bhitpos.x,
+                                                          gb.bhitpos.y,
+                                                          scflags, flung_id,
+                                                          flung_quan,
+                                                          flung_nc);
                         }
                     }
                 } else if (u_at(gb.bhitpos.x, gb.bhitpos.y)) {
@@ -981,7 +1168,13 @@ scatter(
                 obj_left_shop = (shop_origin && !costly_spot(x, y));
             }
             if (!flooreffects(stmp->obj, x, y, "land")) {
-                if (obj_left_shop
+                /* place_object() clears no_charge off the shop floor */
+                boolean heros = stmp->obj->no_charge;
+
+                /* settle the flags before stackobj() merges anything */
+                held_gold += flung_obj_lands(stmp->obj, x, y, scflags);
+                /* the hero's own gold leaving the shop is the hero's */
+                if (obj_left_shop && (scflags & HERO_OWNS) == 0
                     && strchr(u.urooms, *in_rooms(u.ux, u.uy, SHOPBASE))) {
                     /* At the moment this only takes on gold. While it is
                        simple enough to call addtobill for other items that
@@ -1001,6 +1194,10 @@ scatter(
                     }
                 }
                 place_object(stmp->obj, x, y);
+                /* other goods the hero's blast flings out (SHOP_BILL) */
+                flung_stock_leaves(stmp->obj, x, y, scflags, heros);
+                if (!costly_spot(x, y))
+                    no_charge_gone(stmp->obj);
                 stackobj(stmp->obj);
             }
         }
@@ -1015,6 +1212,12 @@ scatter(
     if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mentangled)
         mtmp->mentangled = 0;
     maybe_unhide_at(sx, sy);
+    if (held_gold) { /* the hero's gold that came down inside the shop */
+        struct monst *ushk = shop_keeper(*u.ushops);
+
+        if (ushk)
+            donate_gold(held_gold, ushk, TRUE);
+    }
     if (lostgoods) /* implies shop_origin and therefore shkp valid */
         credit_report(shkp, 1, FALSE);
     return total;

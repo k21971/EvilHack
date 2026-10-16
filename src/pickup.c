@@ -31,6 +31,7 @@ staticfn int lift_object(struct obj *, struct obj *, long *, boolean);
 staticfn void pickup_prinv(struct obj *, long, const char *);
 staticfn boolean mbag_explodes(struct obj *, int);
 staticfn boolean is_boh_item_gone(void);
+staticfn void boh_hero_goods(struct obj *);
 staticfn void do_boh_explosion(struct obj *, boolean);
 staticfn long boh_loss(struct obj *, boolean);
 staticfn boolean bag_devours_invent(struct obj *);
@@ -2780,31 +2781,60 @@ is_boh_item_gone(void)
     return (boolean) (!rn2(13));
 }
 
-/* Scatter most of Bag of holding contents around.  Some items will be
-   destroyed with the same chance as looting a cursed bag. */
+/* the hero's things flung around a shop stay the hero's wherever they
+   land in it; unpaid ones stay billed until they come down (scatter()) */
 staticfn void
-do_boh_explosion(struct obj *boh, boolean on_floor)
+boh_hero_goods(struct obj *obj)
+{
+    struct obj *otmp;
+
+    if (obj->oclass == COIN_CLASS)
+        return;
+    if (!obj->unpaid)
+        obj->no_charge = 1;
+    for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+        boh_hero_goods(otmp);
+}
+
+/* Scatter most of Bag of holding contents around.  Some items will be
+   destroyed with the same chance as looting a cursed bag.
+   If boh lay on a costly spot (shopfloor), its contents are shop goods
+   unless they are no_charge; otherwise they are the hero's unless they
+   are unpaid */
+staticfn void
+do_boh_explosion(struct obj *boh, boolean shopfloor)
 {
     struct obj *otmp, *nobj;
+    struct monst *shkp;
+    unsigned scflags = VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE
+                       | SHOP_BILL | (shopfloor ? 0 : HERO_OWNS);
+    long loss = 0L;
 
     boh->in_use = 1; /* in case scatter() leads to bones creation */
     /* before the loop empties it; otherwise Has_contents() is always 0 */
     if (!Blind && Has_contents(boh))
         pline_The("%s contents fly everywhere!",
                   s_suffix(simpleonames(boh)));
+    /* the losses come first, so their charge is told before anything the
+       scattering pays or credits */
     for (otmp = boh->cobj; otmp; otmp = nobj) {
         nobj = otmp->nobj;
         /* obj_resists() items survive the loss roll and scatter instead */
         if (is_boh_item_gone() && !obj_resists(otmp, 0, 0)) {
             obj_extract_self(otmp);
-            mbag_item_gone(!on_floor, otmp, TRUE);
-        } else {
-            otmp->ox = u.ux, otmp->oy = u.uy;
-            (void) scatter(u.ux, u.uy, rn1(7, 4),
-                           VIS_EFFECTS | MAY_HIT | MAY_DESTROY
-                               | MAY_FRACTURE,
-                           otmp);
+            loss += mbag_item_gone(!shopfloor, otmp, TRUE);
         }
+    }
+    if (loss) /* the blast destroyed some shop goods */
+        You("owe %ld %s for lost merchandise.", loss, currency(loss));
+    for (otmp = boh->cobj; otmp; otmp = nobj) {
+        nobj = otmp->nobj;
+        /* looked up each time: a flung item may kill the shopkeeper */
+        shkp = *u.ushops ? shop_keeper(*u.ushops) : 0;
+        if (!shopfloor && shkp && inhishop(shkp))
+            boh_hero_goods(otmp);
+        otmp->ox = u.ux, otmp->oy = u.uy;
+        (void) scatter(u.ux, u.uy, rn1(7, 4), scflags, otmp);
     }
     /* bag just blew up? must be a bag of holding */
     makeknown(BAG_OF_HOLDING);
@@ -2894,7 +2924,7 @@ staticfn int
 in_container(struct obj *obj)
 {
     boolean floor_container = !carried(gc.current_container);
-    boolean was_unpaid = FALSE;
+    boolean was_unpaid = FALSE, boom, shopfloor;
     char buf[BUFSZ];
 
     if (!gc.current_container) {
@@ -2980,7 +3010,10 @@ in_container(struct obj *obj)
     if (obj_is_burning(obj)) /* this used to be part of freeinv() */
         (void) snuff_lit(obj, TRUE);
 
-    if (floor_container && costly_spot(u.ux, u.uy)) {
+    /* tested before sellobj(): an item that blows the bag up stays as it
+       was carried rather than being sold or marked on its way in */
+    boom = (Is_mbag(gc.current_container) && mbag_explodes(obj, 0));
+    if (floor_container && costly_spot(u.ux, u.uy) && !boom) {
         /* defer gold until after put-in message */
         if (obj->oclass != COIN_CLASS) {
             /* sellobj() will take an unpaid item off the shop bill */
@@ -3009,7 +3042,7 @@ in_container(struct obj *obj)
         } else if (obj->globby && obj->timed) {
             (void) stop_timer(SHRINK_GLOB, obj_to_any(obj));
         }
-    } else if (Is_mbag(gc.current_container) && mbag_explodes(obj, 0)) {
+    } else if (boom) {
         /* the container is used up below */
         boolean hesperides = is_art(gc.current_container,
                                     ART_BAG_OF_THE_HESPERIDES);
@@ -3021,9 +3054,6 @@ in_container(struct obj *obj)
         urgent_pline(
               "As you put %s inside, you are blasted by a magical explosion!",
                      doname(obj));
-        /* did not actually insert obj yet */
-        if (was_unpaid)
-            addtobill(obj, FALSE, FALSE, TRUE);
         /* the item that set it off just identified itself by doing so */
         if (obj->otyp == WAN_CANCELLATION
             || obj->otyp == BAG_OF_TRICKS
@@ -3031,22 +3061,23 @@ in_container(struct obj *obj)
             || obj->otyp == BAG_OF_DEVOURING)
             makeknown(obj->otyp);
         if (obj->otyp == BAG_OF_HOLDING) /* one bag of holding into another */
-            do_boh_explosion(obj, (boolean) (obj->where == OBJ_FLOOR));
+            do_boh_explosion(obj, FALSE); /* it was carried */
+        /* an unpaid trigger is still on the bill; obfree() uses it up */
         obfree(obj, (struct obj *) 0);
-        /* if carried, shop goods will be flagged 'unpaid' and obfree() will
-           handle bill issues, but if on floor, we need to put them on bill
-           before deleting them (non-shop items will be flagged 'no_charge')*/
-        if (floor_container && costly_spot(gc.current_container->ox,
-                                           gc.current_container->oy)) {
-            struct obj save_no_charge;
+        /* a shop's bag on its floor is billed for itself alone; its
+           contents keep their owners as they fly, and useupf() finds the
+           bag billed already (the hero's own bag is never billed) */
+        shopfloor = (floor_container
+                     && costly_spot(gc.current_container->ox,
+                                    gc.current_container->oy));
+        if (shopfloor && !gc.current_container->no_charge) {
+            struct obj *hide_contents = gc.current_container->cobj;
 
-            save_no_charge.no_charge = gc.current_container->no_charge;
+            gc.current_container->cobj = 0;
             addtobill(gc.current_container, FALSE, FALSE, FALSE);
-            /* addtobill() clears no charge; we need to set it back
-               so that useupf() doesn't double bill */
-            gc.current_container->no_charge = save_no_charge.no_charge;
+            gc.current_container->cobj = hide_contents;
         }
-        do_boh_explosion(gc.current_container, floor_container);
+        do_boh_explosion(gc.current_container, shopfloor);
 
         if (!floor_container)
             useup(gc.current_container);
@@ -4251,7 +4282,7 @@ tipcontainer(struct obj *box) /* or bag */
               terse ? ':' : '.');
 
         for (otmp = box->cobj; otmp; otmp = nobj) {
-            boolean to_floor;
+            boolean to_floor, boom;
 
             nobj = otmp->nobj;
 
@@ -4287,8 +4318,21 @@ tipcontainer(struct obj *box) /* or bag */
                 terse = FALSE;
                 continue;
             }
+            boom = (targetbox && Is_mbag(targetbox)
+                    && mbag_explodes(otmp, 0));
             if (maybeshopgoods) {
+                /* a bag of holding that sets the target off is billed for
+                   itself alone, since its contents scatter as they lay on
+                   the shop floor; any other trigger is destroyed along
+                   with its contents, so those stay billed */
+                boolean scatters = (boom && otmp->otyp == BAG_OF_HOLDING);
+                struct obj *hide_contents = otmp->cobj;
+
+                if (scatters)
+                    otmp->cobj = 0;
                 addtobill(otmp, FALSE, FALSE, TRUE);
+                if (scatters)
+                    otmp->cobj = hide_contents;
                 iflags.suppress_price++; /* doname formatting */
             }
 
@@ -4310,7 +4354,7 @@ tipcontainer(struct obj *box) /* or bag */
                     makeknown(BAG_OF_DEVOURING);
                     terse = FALSE;
                     to_floor = TRUE;
-                } else if (Is_mbag(targetbox) && mbag_explodes(otmp, 0)) {
+                } else if (boom) {
                     /* targetbox is used up below */
                     boolean hesperides = is_art(targetbox,
                                                 ART_BAG_OF_THE_HESPERIDES);
@@ -4334,13 +4378,16 @@ tipcontainer(struct obj *box) /* or bag */
                        blow up the one going in, then (below) blow up the
                        one it's going into */
                     if (otmp->otyp == BAG_OF_HOLDING) /* BoH into another */
-                        do_boh_explosion(otmp, !srcheld);
+                        do_boh_explosion(otmp, maybeshopgoods);
                     /* always delete the item which triggered the explosion */
                     obfree(otmp, (struct obj *) 0); /* where==OBJ_FREE */
 
                     /* [assumes targetbox is carried, otherwise shop bill
                        handling becomes necessary here] */
-                    do_boh_explosion(targetbox, !dstheld);
+                    do_boh_explosion(targetbox,
+                                     !dstheld
+                                     && costly_spot(targetbox->ox,
+                                                    targetbox->oy));
                     if (dstheld)
                         useup(targetbox);
                     else

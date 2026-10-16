@@ -1448,6 +1448,10 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define MAY_HIT (MAY_HITMON | MAY_HITYOU)
 #define MAY_DESTROY 0x08  /* objects may be destroyed at random */
 #define MAY_FRACTURE 0x10 /* boulders & statues may fracture */
+#define SHOP_BILL 0x20    /* hero is to blame: bill shop goods that break,
+                             settle unpaid shop goods where they land */
+#define HERO_OWNS 0x40    /* with SHOP_BILL: unflagged objects and gold
+                             are the hero's rather than shop stock */
 
 /* Macros for launching objects */
 #define ROLL 0x01          /* the object is rolling */
