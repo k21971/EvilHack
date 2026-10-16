@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-15, after session 232's bag
-  explosion slice): 425 rows closed, 108 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-16, after session 233's
+  GemStone() slice): 426 rows closed, 107 open. Of the open rows:
   - 0 HIGH.
   - 1 MED: an unported master feature (door-material colors).
     Session 232 closed the bag explosion row (BUG-2388..2391): an
@@ -117,7 +117,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 91 LOW: small parity rows, quirks and watch/record-only items.
+  - 90 LOW: small parity rows, quirks and watch/record-only items.
+    Session 233 closed the GemStone() row (BUG-2392): the identified
+    rod, helm of brilliance, crystal plate mail, crystal chest,
+    magic chest and magic key no longer gain " stone" in the
+    discoveries list, the `/` lookup header and lock.c's "mundane"
+    line (master's GEM_CLASS term restored). Nothing minted.
     Session 232 minted one: an exploding bag on a shop floor turns
     the hero's own contents into shop stock and re-charges scattered
     gold (vanilla-shared, needs a ruling).
@@ -11784,7 +11789,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sites (the #put path and the #tip path) and its livelog always
       says "bag of holding". Balance-visible: census master's whole
       commit and BUG-311 first. MED. CLOSED 2026-10-15 (session 232,
-      commit pending; plan /root/.claude/plans/eager-conjuring-pie.md;
+      commit ac28cb13e, tracker 1606a9d5a;
+      plan /root/.claude/plans/eager-conjuring-pie.md;
       closure notes in BUGFIXES_ARCHIVE BUG-2388..2391). PORTED
       (BUG-2388) at both sites: master's damage and killer names,
       halved by half physical damage, and the Bag-naming livelog
@@ -11803,7 +11809,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       everywhere!" (not Blind, bag not empty), scatters at a
       blastforce of rn1(7, 4) = 4..10 with VIS_EFFECTS | MAY_FRACTURE
       added (small statues fracture 9 times in 10) and identifies the
-      bag of holding. PORTED (BUG-2389, commit pending); the
+      bag of holding. PORTED (BUG-2389, commit ac28cb13e); the
       BUG-1403 obj_resists() term kept. Battery T1 / T2 PASS (27
       rings at blastforce 4..10, 11 landing beyond 4; statues 5 of 5
       fractured, PRE 0 of 4; Blind silent, bag still identified).
@@ -11812,7 +11818,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       closed 2026-10-15, session 232, by the bag explosion census;
       no row before). Master ee56b5229 identified a tipped wand of
       cancellation or bag of tricks that set off the explosion.
-      PORTED (BUG-2390, commit pending) with #put's four-type list
+      PORTED (BUG-2390, commit ac28cb13e) with #put's four-type list
       (plus bag of treasure and bag of devouring). Ruled: the tipped
       trigger stays destroyed (5.0), not scattered as master's
       BUG-507 left it. Battery T2 PASS. LOW.
@@ -11821,7 +11827,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master-shared, reached once MAY_FRACTURE is ported). scatter()
       fractured an OBJ_FREE statue that fracture_rock() cannot bill:
       7..66 unpaid rocks against a quantity-1 statue bill entry.
-      FIXED (BUG-2391, commit pending): costly_alteration(
+      FIXED (BUG-2391, commit ac28cb13e): costly_alteration(
       COST_FRACTURE) with the statue's contents hidden, as
       breakchestlock() does (the reviewer's CRITICAL on the first
       version: bill_dummy_object()'s whole-struct copy billed the
@@ -17968,7 +17974,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       separately. Needs a trace: whether a ridden steed's own sleep
       state matters while mounted (movement, wake-ups, a dismount
       or the rider's death), then a ruling. LOW.
-- [ ] LOW: obj_typename() appends " stone" to non-gem GEMSTONE items
+- [x] LOW: obj_typename() appends " stone" to non-gem GEMSTONE items
       (minted 2026-10-15, session 230, by batteries T2 / T3). Master
       1464c4a98 (the magic chests commit, whose row is closed) added
       `&& objects[typ].oc_class == GEM_CLASS` to objnam.c's
@@ -17979,7 +17985,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stone":`) and the discoveries list ("Armor of Retribution
       [non-aligned crystal plate mail stone]"). Fix: restore master's
       term; check every GemStone() caller (objnam.c obj_typename()
-      default arm and xname()'s GEM_CLASS arm). LOW.
+      default arm and xname()'s GEM_CLASS arm). LOW. CLOSED 2026-10-16
+      (session 233, commit pending; plan
+      /root/.claude/plans/vast-drifting-willow.md; closure notes in
+      BUGFIXES_ARCHIVE BUG-2392). FIXED (BUG-2392): master's class
+      term restored in the macro (xname()'s GEM_CLASS arm unchanged).
+      Six non-gem GEMSTONE types reached the default arm: rod, helm
+      of brilliance, crystal plate mail, crystal chest, hidden chest
+      and magic key (rings and the Amulet take their own arms).
+      Before 1464c4a98 master kept armor out with a call-site
+      ARMOR_CLASS guard; the adoption took vanilla's macro and call
+      site, losing both. Reviewer PASS. Battery PASS (PRE / POST):
+      discoveries "rod (ornate mace)", "helm of brilliance (crystal
+      helmet)", "magic key (ornate key)", "Armor of Retribution
+      [non-aligned crystal plate mail]"; `Object lookup for "crystal
+      plate mail":`; "You can't unlock such a container with a
+      mundane magic key." (PRE: " stone" on each); gem names, the
+      unidentified gem and the paniclog unchanged.
 - [ ] LOW: destroying a container frees its contents with no
       obj_resists() check (minted 2026-10-15, session 230, by the
       held-tips Plan agent's delobj audit; master-shared). lock.c
