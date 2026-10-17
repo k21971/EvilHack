@@ -115,13 +115,6 @@ enum trap_result {
     Trap_Moved_Mon = 3, /* new location, or new level */
 };
 
-/* return codes from immune_to_trap() */
-enum trap_immunities {
-    TRAP_NOT_IMMUNE = 0,
-    TRAP_CLEARLY_IMMUNE = 1,
-    TRAP_HIDDEN_IMMUNE = 2,
-};
-
 /* values for deltrap_with_ammo() */
 enum deltrap_handle_ammo {
     DELTRAP_RETURN_AMMO = 0, /* return ammo to caller; do nothing with it */

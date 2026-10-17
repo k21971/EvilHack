@@ -1758,7 +1758,9 @@ do_repeat(void)
         cmdq_clear(CQ_REPEAT);
         gc.command_queue[CQ_REPEAT] = repeat_copy;
         iflags.menu_requested = FALSE;
-        if (svc.context.move)
+        /* life saving clears context.move but leaves the hero helpless,
+           which the ECMD_OK reset would undo */
+        if (svc.context.move || gm.multi < 0)
             res = ECMD_TIME;
     }
     return res;
@@ -5579,6 +5581,13 @@ dotravel_target(void)
 
     iflags.getloc_travelmode = FALSE;
 
+    /* rhack()'s shell check never sees travel, which moves the hero
+       from here and from moveloop() */
+    if (Hidinshell) {
+        Your("movement is constrained by your shell.");
+        return ECMD_FAIL;
+    }
+
     svc.context.travel = 1;
     svc.context.travel1 = 1;
     svc.context.run = 8;
@@ -5591,7 +5600,11 @@ dotravel_target(void)
     svc.context.mv = TRUE;
 
     domove();
-    return ECMD_TIME;
+    /* a first step that domove() refused (a declined swim question, a
+       wall of water or lava) clears context.move and must not cost a
+       turn; life saving during the step clears it too but leaves the
+       hero helpless, which the ECMD_OK reset would undo */
+    return (svc.context.move || gm.multi < 0) ? ECMD_TIME : ECMD_OK;
 }
 
 /* mouse click look command */

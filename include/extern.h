@@ -3659,7 +3659,6 @@ extern struct monst *animate_statue(struct obj *, coordxy, coordxy,
                                     int, int *) NONNULLARG1;
 extern struct monst *activate_statue_trap(struct trap *, coordxy, coordxy,
                                           boolean) NONNULLARG1;
-extern int immune_to_trap(struct monst *, unsigned) NO_NNARGS; /* revisit */
 extern void set_utrap(unsigned, unsigned);
 extern void reset_utrap(boolean);
 extern void reset_utrap_deferred(void);

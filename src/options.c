@@ -166,8 +166,6 @@ static const struct paranoia_opts {
        they switch to yes/no if paranoid:confirm is also set */
     { PARANOID_PRAY, "pray", 1, 0, 0,
       "y required to pray (supersedes old \"prayconfirm\" option)" },
-    { PARANOID_TRAP, "trap", 1, "move-trap", 1,
-      "y required to enter known trap unless considered harmless" },
     { PARANOID_AUTOALL, "Autoall", 2, "autoselect-all", 2,
       "y required to pick filter choice 'A' for menustyle:Full" },
     /* an extra question that always requires "yes" */
@@ -2952,7 +2950,8 @@ optfn_paranoid_confirmation(
          *
          * paranoid_confirm:foo bar
          *   clears all confirmation bits (from previous settings, including
-         *   default), then sets the bits for foo and bar;
+         *   default) except quit, then sets the bits for foo and bar;
+         *   quit stays set unless cleared by name or by none;
          *
          * paranoid_confirm:+foo bar
          *   existing bits are kept, plus those for foo and bar are set;
@@ -2978,8 +2977,8 @@ optfn_paranoid_confirmation(
          */
         (void) mungspaces(op);
         if (*op != '+' && *op != '-') {
-            /* new value; first clear all old bits */
-            flags.paranoia_bits = 0;
+            /* new value; first clear all old bits except quit */
+            flags.paranoia_bits = PARANOID_QUIT;
         } else {
             /* augmenting existing value; keep old bits */
             plus_or_minus = TRUE; /* only used for "+none" and "-none" */
@@ -3066,6 +3065,11 @@ optfn_paranoid_confirmation(
                 Snprintf(eos(tmpbuf), sizeof tmpbuf - strlen(tmpbuf),
                          " %s", paranoia[i].argname);
         }
+        /* a new list keeps quit, so a saved list without it must
+           clear it by name */
+        if (req == get_cnf_val && tmpbuf[0]
+            && !(flags.paranoia_bits & PARANOID_QUIT))
+            Snprintf(eos(tmpbuf), sizeof tmpbuf - strlen(tmpbuf), " !quit");
         /* note: always leaves enough room for caller to tack on '\n' */
         Snprintf(opts, BUFSZ - 1, "%s",
                  tmpbuf[0] ? &tmpbuf[1] : "none");
@@ -7258,7 +7262,7 @@ initoptions_init(void)
     flags.end_own = FALSE;
     flags.end_top = 3;
     flags.end_around = 2;
-    flags.paranoia_bits = PARANOID_PRAY | PARANOID_TRAP;
+    flags.paranoia_bits = PARANOID_PRAY | PARANOID_QUIT;
     flags.versinfo = have_branch ? 4 : 1;
     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
     flags.runmode = RUN_LEAP;

@@ -231,11 +231,12 @@ packorder     a list of default symbols for kinds of       [")[%?+!=/(*`0_]
               some other things) gets shown if the 'sortpack' option is on
               (If you specify only some kinds of items, the others from the
               default order will be appended to the end.)
-paranoid_confirmation  space separated list    [paranoid_confirm:pray trap]
+paranoid_confirmation  space separated list    [paranoid_confirm:pray quit]
               of situations where alternate prompting is desired
               Confirm -- when requiring "yes", also require "no" to reject;
-                      also requires yes rather than y for pray, trap, Autoall
-              quit    -- yes vs y to confirm quitting or to enter explore mode
+                      also requires yes rather than y for pray, Autoall
+              quit    -- yes vs y to confirm quitting or to enter explore mode;
+                      on by default; a new list keeps it unless it has !quit
               die     -- yes vs y to confirm dying (for explore or debug mode)
               bones   -- yes vs y to confirm saving bones data in debug mode
               attack  -- yes vs y to confirm attacking a peaceful monster
@@ -244,8 +245,6 @@ paranoid_confirmation  space separated list    [paranoid_confirm:pray trap]
               Were-change -- yes vs y to confirm changing form due to
                       lycanthropy when hero has polymorph control;
               pray    -- y to confirm an attempt to pray; on by default
-              trap    -- y to enter a known trap unless it is harmless;
-                      on by default
               swim    -- yes to walk into water or lava when hero has
                       seen it and isn't impaired; m prefix skips it
               AutoAll -- y to confirm if using menustyle:Full and choice 'A'

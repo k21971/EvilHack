@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
       (Edited and expanded for EvilHack 1.0.0 by Keith Simpson and others)
 
-                                October 13, 2026
+                                October 17, 2026
 
 
 
@@ -702,9 +702,11 @@
           about  (e.g. seen or previously traversed).  If there is no known
           path, a guess is made instead.  Stops on most of the same  condi-
           tions  as  the  `G'  prefix,  but  without picking up objects, so
-          implicitly forces the `m' prefix.  For ports with mouse  support,
-          the  command  is also invoked when a mouse-click takes place on a
-          location other than the current position.
+          implicitly forces the `m' prefix.  Unlike an  `m'-prefixed  move,
+          travel  still  asks  before walking into water or lava when para-
+          noid_confirmation:swim is set.  For ports with mouse support, the
+          command is also invoked when a mouse-click takes place on a loca-
+          tion other than the current position.
 
      .    Wait or rest, do nothing for one turn.  Precede with the `m' pre-
           fix to wait for a  turn  even  next  to  a  hostile  monster,  if
@@ -1211,9 +1213,9 @@
           is `M-X'.
 
           Requires confirmation; default response is  n  (no).   To  really
-          switch  to  explore  mode, respond with y.  You can set the para-
-          noid_confirmation:quit  option  to  require  a  response  of  yes
-          instead.
+          switch  to  explore  mode,  respond  with yes.  You can clear the
+          paranoid_confirmation:quit option, which is set  by  default,  to
+          accept y instead.
 
      #fight
           Prefix key to force fight a direction, even if you see nothing to
@@ -1374,8 +1376,7 @@
           pletes.  Debug mode only.
 
           Asks  for  confirmation; default is n (no); continue playing.  To
-          really panic, respond with y.  You can set the paranoid_confirma-
-          tion:quit option to require a response of yes instead.
+          really panic, respond with yes.
 
      #pay
           Pay your shopping bill.  Default key is `p'.
@@ -1423,8 +1424,8 @@
           Since using this command by accident would throw away the current
           game, you are asked  to  confirm  your  intent  before  quitting.
           Default  response  is  n (no); continue playing.  To really quit,
-          respond with  y.   You  can  set  the  paranoid_confirmation:quit
-          option to require a response of yes instead.
+          respond with yes.  You can clear  the  paranoid_confirmation:quit
+          option, which is set by default, to accept y instead.
 
      #quiver
           Select ammunition for quiver.  Default key is `Q'.
@@ -4059,63 +4060,60 @@
      paranoid_confirmation
        A space  separated  list  of  specific  situations  where  alternate
        prompting  is  desired.   The default is "paranoid_confirmation:pray
-       trap".
+       quit".
 
        Confirm     - for any prompts which are set to require "yes"  rather
                      than  `y',  also  require  "no"  to  reject instead of
                      accepting any non-yes response as no; changes pray and
                      AutoAll to require "yes" or `no' too;
        quit        - require "yes" rather than `y' to confirm quitting  the
-                     game or switching into non-scoring explore mode;
-       die         - require  "yes"  rather  than `y' to confirm dying (not
+                     game or switching into non-scoring explore mode; on by
+                     default,  and  a  new  list  keeps  it unless it names
+                     !quit;
+       die         - require "yes" rather than `y' to  confirm  dying  (not
                      useful in normal play; applies to explore mode);
-       bones       - require "yes" rather than `y' to confirm saving  bones
+       bones       - require  "yes" rather than `y' to confirm saving bones
                      data when dying in debug mode;
-       attack      - require  "yes"  rather than `y' to confirm attacking a
+       attack      - require "yes" rather than `y' to confirm  attacking  a
                      peaceful monster;
-       wand-break  - require "yes" rather than `y' to  confirm  breaking  a
+       wand-break  - require  "yes"  rather  than `y' to confirm breaking a
                      wand with the apply command;
-       eating      - require  "yes"  rather  than `y' to confirm whether to
+       eating      - require "yes" rather than `y' to  confirm  whether  to
                      continue eating;
        Were-change - require "yes" rather than `y' to confirm changing form
                      due to lycanthropy when hero has polymorph control;
-       pray        - require `y' to confirm an attempt to pray rather  than
-                     immediately  praying; on by default; (to require "yes"
+       pray        - require  `y' to confirm an attempt to pray rather than
+                     immediately praying; on by default; (to require  "yes"
                      rather than just `y', set Confirm too);
-       trap        - require `y' to confirm an attempt to move into or onto
-                     a known trap, unless doing  so  is  considered  to  be
-                     harmless;  on by default; when enabled, this confirma-
-                     tion is also used for moving into  visible  gas  cloud
-                     regions;  (to  require "yes" rather than just `y', set
-                     Confirm too); confirmation can be skipped by using the
-                     `m' movement prefix;
-       swim        - require "yes" to confirm walking into known  water  or
+       swim        - require  "yes"  to confirm walking into known water or
                      lava;  (set  Confirm  too  to  also  require  "no"  to
-                     reject); confirmation can be skipped by using the  `m'
-                     movement  prefix,  which is also needed to step into a
-                     wall of water or lava whether or not this is set;
-       AutoAll     - require confirmation  when  the  `A'  (Autoselect-All)
+                     reject);  confirmation can be skipped by using the `m'
+                     movement prefix, which is also needed to step  into  a
+                     wall  of  water  or  lava  whether or not this is set;
+                     travel (`_') asks too and  never  steps  into  such  a
+                     wall;
+       AutoAll     - require  confirmation  when  the  `A' (Autoselect-All)
                      choice is selected in object class filtering menus for
-                     menustyle:Full;  (to  require  "yes"  rather than just
+                     menustyle:Full; (to require  "yes"  rather  than  just
                      `y', set Confirm too);
-       Remove      - require selection from inventory for `R' and `T'  com-
+       Remove      - require  selection from inventory for `R' and `T' com-
                      mands even when wearing just one applicable item;
        all         - turn on all of the above.
 
-       By  default,  the pray and trap choices are enabled, the others dis-
-       abled.  To disable them without setting any of  the  other  choices,
-       use  paranoid_confirmation:none.  To keep them enabled while setting
-       any of the others, you can include them in the  new  list,  such  as
-       paranoid_confirmation:attack pray trap Remove or you can precede the
-       first  entry  in  the  list  with  a  plus  sign, paranoid_confirma-
-       tion:+attack Remove.  To remove an entry that  has  been  previously
-       set  without  removing  others,  precede the first entry in the list
-       with a minus sign, paranoid_confirmation:-trap.  To  both  add  some
-       new  entries  and  remove  some old ones, you can use multiple para-
-       noid_confirmation option settings, or you can use the `+'  form  and
-       list  entries to be added by their name and entries to be removed by
-       `!' and name.  The positive (no `!') and negative (with `!') entries
-       can be intermixed.
+       By default, the pray and quit choices are enabled, the  others  dis-
+       abled.   A  new  list keeps quit unless it also names !quit or none.
+       To disable them without setting any of the other choices, use  para-
+       noid_confirmation:none.   To  keep pray enabled while setting any of
+       the others, you can include it  in  the  new  list,  such  as  para-
+       noid_confirmation:attack  pray  Remove  or you can precede the first
+       entry in the list with a  plus  sign,  paranoid_confirmation:+attack
+       Remove.   To  remove  an  entry that has been previously set without
+       removing others, precede the first entry in the list  with  a  minus
+       sign, paranoid_confirmation:-quit.  To both add some new entries and
+       remove  some  old  ones,  you can use multiple paranoid_confirmation
+       option settings, or you can use the `+' form and list entries to  be
+       added  by their name and entries to be removed by `!' and name.  The
+       positive (no `!') and negative (with `!') entries can be intermixed.
 
      pauper
        Start the character with no possessions  (default  false).   Persis-

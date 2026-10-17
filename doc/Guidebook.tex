@@ -25,7 +25,7 @@
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
 %DO NOT REMOVE NH_DATESUB \date{Date(%B %-d, %Y)}
-\date{October 16, 2026}
+\date{October 17, 2026}
 
 \maketitle
 
@@ -875,6 +875,8 @@ If there is no known path, a guess is made instead.
 Stops on most of
 the same conditions as the `\texttt{G}' command, but without picking up
 objects, so implicitly forces the `\texttt{m}' prefix.
+Unlike an `\texttt{m}'-prefixed move, travel still asks before walking
+into water or lava when \textit{paranoid\textunderscore confirmation:swim} is set.
 For ports with mouse
 support, the command is also invoked when a mouse-click takes place on a
 location other than the current position.
@@ -1488,10 +1490,10 @@ Switch from normal play to non-scoring explore mode.
 Default key is `\texttt{M-X}'.\\
 %.lp ""
 Requires confirmation; default response is `\texttt{n}' (no).
-To really switch to explore mode, respond with `\texttt{y}'.
-You can set the
+To really switch to explore mode, respond with ``\texttt{yes}''.
+You can clear the
 \textit{paranoid\textunderscore confirmation:quit}
-option to require a response of ``\texttt{yes}'' instead.
+option, which is set by default, to accept `\texttt{y}' instead.
 %.lp
 \item[\#fight]
 Prefix key to force fight a direction, even if you see nothing
@@ -1678,10 +1680,7 @@ Autocompletes.
 Debug mode only.\\
 %.lp ""
 Asks for confirmation; default is `\texttt{n}' (no); continue playing.
-To really panic, respond with `\texttt{y}'.
-You can set the
-\textit{paranoid\textunderscore confirmation:quit}
-option to require a response of ``\texttt{yes}'' instead.
+To really panic, respond with ``\texttt{yes}''.
 %.lp
 \item[\#pay]
 Pay your shopping bill. Default key is `\texttt{p}'.
@@ -1733,10 +1732,10 @@ Quit the program without saving your game. Autocompletes.\\
 Since using this command by accident would throw away the current game,
 you are asked to confirm your intent before quitting.
 Default response is `\texttt{n}' (no); continue playing.
-To really quit, respond with `\texttt{y}'.
-You can set the
+To really quit, respond with ``\texttt{yes}''.
+You can clear the
 \textit{paranoid\textunderscore confirmation:quit}
-option to require a response of ``\texttt{yes}'' instead.
+option, which is set by default, to accept `\texttt{y}' instead.
 %.lp
 \item[\#quiver]
 Select ammunition for quiver. Default key is `\texttt{Q}'.
@@ -5062,7 +5061,7 @@ are filled in at the end from the previous order.
 \item[paranoid\textunderscore confirmation]
 A space separated list of specific situations where alternate
 prompting is desired.
-The default is ``\textit{paranoid\textunderscore confirmation:pray trap}''.
+The default is ``\textit{paranoid\textunderscore confirmation:pray quit}''.
 %.sd
 %.si
 \newlength{\pcwidth}
@@ -5076,6 +5075,7 @@ as no; changes pray and AutoAll to require ``yes'' or ``no'' too;
 \item[quit]
 require ``\texttt{yes}'' rather than `\texttt{y}' to confirm quitting
 the game or switching into non-scoring explore mode;
+on by default, and a new list keeps it unless it names `\texttt{!quit}';
 \item[die]
 require ``\texttt{yes}'' rather than `\texttt{y}' to confirm dying (not
 useful in normal play; applies to explore mode);
@@ -5098,19 +5098,12 @@ to lycanthropy when hero has polymorph control;
 require `\texttt{y}' to confirm an attempt to pray rather
 than immediately praying; on by default;
 (to require ``yes'' rather than just `y', set Confirm too);
-\item[trap]
-require `\texttt{y}' to confirm an attempt to move into or onto a known trap,
-unless doing so is considered to be harmless; on by default;
-when enabled, this confirmation is also used for moving into visible
-gas cloud regions;
-(to require ``yes'' rather than just `y', set Confirm too);
-confirmation can be skipped by using the `\texttt{m}' movement prefix;
 \item[swim]
 require ``yes'' to confirm walking into known water or lava;
 (set Confirm too to also require ``no'' to reject);
 confirmation can be skipped by using the `\texttt{m}' movement prefix,
 which is also needed to step into a wall of water or lava whether or not
-this is set;
+this is set; travel (`\texttt{\textunderscore}') asks too and never steps into such a wall;
 \item[AutoAll]
 require confirmation when the `A' (Autoselect-All) choice is selected
 in object class filtering menus for \textit{menustyle:Full};
@@ -5123,17 +5116,18 @@ turn on all of the above.
 \end{description}
 %.ei
 %.ed
-By default, the pray and trap choices are enabled, the others disabled.
+By default, the pray and quit choices are enabled, the others disabled.
+A new list keeps quit unless it also names `\texttt{!quit}' or `\texttt{none}'.
 To disable them without setting
 any of the other choices, use ``\textit{paranoid\textunderscore confirmation:none}''.
-To keep them enabled while setting any of the others, you can
-include them in the list, such as
-``\textit{par\-a\-noid\textunderscore con\-fir\-ma\-tion:attack~pray~trap~Remove}''
+To keep pray enabled while setting any of the others, you can
+include it in the list, such as
+``\textit{par\-a\-noid\textunderscore con\-fir\-ma\-tion:attack~pray~Remove}''
 or you can precede the first entry in the list with a plus sign,
 ``\textit{paranoid\textunderscore confirmation:+attack~Remove}''.
 To remove an entry that has been previously set without removing others,
 precede the first entry in the list with a minus sign,
-``\textit{paranoid\textunderscore confirmation:-trap}''.
+``\textit{paranoid\textunderscore confirmation:-quit}''.
 To both add some new entries and remove some old ones, you can use
 multiple \textit{paranoid\textunderscore confirmation} option settings, or you can
 use the `\texttt{+}' form and list entries to be added by their name

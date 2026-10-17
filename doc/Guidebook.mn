@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 October 16, 2026
+.ds f2 October 17, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -824,6 +824,8 @@ If there is no known path, a guess is made instead.
 Stops on most of
 the same conditions as the \(oq\f(CRG\fP\(cq prefix, but without picking up
 objects, so implicitly forces the \(oq\f(CRm\fP\(cq prefix.
+Unlike an \(oq\f(CRm\fP\(cq-prefixed move, travel still asks before walking
+into water or lava when \fIparanoid_confirmation:swim\fP is set.
 For ports with mouse
 support, the command is also invoked when a mouse-click takes place on a
 location other than the current position.
@@ -1423,10 +1425,10 @@ Switch from normal play to non-scoring explore mode.
 Default key is \(oqM-X\(cq.
 .lp ""
 Requires confirmation; default response is \f(CRn\fP (no).
-To really switch to explore mode, respond with \f(CRy\fP.
-You can set the
+To really switch to explore mode, respond with \f(CRyes\fP.
+You can clear the
 .op paranoid_confirmation:quit
-option to require a response of \f(CRyes\fP instead.
+option, which is set by default, to accept \f(CRy\fP instead.
 .lp "#fight   "
 Prefix key to force fight a direction, even if you see nothing
 to fight there.
@@ -1598,10 +1600,7 @@ Autocompletes.
 Debug mode only.
 .lp ""
 Asks for confirmation; default is \f(CRn\fP (no); continue playing.
-To really panic, respond with \f(CRy\fP.
-You can set the
-.op paranoid_confirmation:quit
-option to require a response of \f(CRyes\fP instead.
+To really panic, respond with \f(CRyes\fP.
 .lp "#pay     "
 Pay your shopping bill.
 Default key is \(oqp\(cq.
@@ -1653,10 +1652,10 @@ Autocompletes.
 Since using this command by accident would throw away the current game,
 you are asked to confirm your intent before quitting.
 Default response is \f(CRn\fP (no); continue playing.
-To really quit, respond with \f(CRy\fP.
-You can set the
+To really quit, respond with \f(CRyes\fP.
+You can clear the
 .op paranoid_confirmation:quit
-option to require a response of \f(CRyes\fP instead.
+option, which is set by default, to accept \f(CRy\fP instead.
 .lp "#quiver  "
 Select ammunition for quiver.
 Default key is \(oqQ\(cq.
@@ -4629,7 +4628,7 @@ Any omitted types are filled in at the end from the previous order.
 .lp paranoid_confirmation
 A space separated list of specific situations where alternate
 prompting is desired.
-The default is \(lqparanoid_confirmation:pray trap\(rq.
+The default is \(lqparanoid_confirmation:pray quit\(rq.
 .PS Were-change
 .PL Confirm
 for any prompts which are set to require \(lqyes\(rq rather than \(oqy\(cq,
@@ -4638,6 +4637,7 @@ as no; changes pray and AutoAll to require \(lqyes\(rq or \(oqno\(cq too;
 .PL quit
 require \(lqyes\(rq rather than \(oqy\(cq to confirm quitting
 the game or switching into non-scoring explore mode;
+on by default, and a new list keeps it unless it names \f(CR!quit\fP;
 .PL die
 require \(lqyes\(rq rather than \(oqy\(cq to confirm dying (not
 useful in normal play; applies to explore mode);
@@ -4660,19 +4660,12 @@ to lycanthropy when hero has polymorph control;
 require \(oqy\(cq to confirm an attempt to pray rather
 than immediately praying; on by default;
 (to require \(lqyes\(rq rather than just \(oqy\(cq, set Confirm too);
-.PL trap
-require \(oqy\(cq to confirm an attempt to move into or onto a known trap,
-unless doing so is considered to be harmless; on by default;
-when enabled, this confirmation is also used for moving into visible
-gas cloud regions;
-(to require \(lqyes\(rq rather than just \(oqy\(cq, set Confirm too);
-confirmation can be skipped by using the \(oq\f(CRm\fP\(cq movement prefix;
 .PL swim
 require \(lqyes\(rq to confirm walking into known water or lava;
 (set Confirm too to also require \(lqno\(rq to reject);
 confirmation can be skipped by using the \(oq\f(CRm\fP\(cq movement prefix,
 which is also needed to step into a wall of water or lava whether or not
-this is set;
+this is set; travel (\(oq\f(CR_\fP\(cq) asks too and never steps into such a wall;
 .PL AutoAll
 require confirmation when the \(oqA\(cq (Autoselect-All) choice is selected
 in object class filtering menus for \f(CRmenustyle:Full\fP;
@@ -4683,17 +4676,18 @@ commands even when wearing just one applicable item;
 .PL all
 turn on all of the above.
 .PE
-By default, the pray and trap choices are enabled, the others disabled.
+By default, the pray and quit choices are enabled, the others disabled.
+A new list keeps quit unless it also names \f(CR!quit\fP or \f(CRnone\fP.
 To disable them without setting
 any of the other choices, use \f(CRparanoid_confirmation:none\fP.
-To keep them enabled while setting any of the others, you can
-include them in the new list, such as
-\f(CRparanoid_confirmation:attack pray trap Remove\fP
+To keep pray enabled while setting any of the others, you can
+include it in the new list, such as
+\f(CRparanoid_confirmation:attack pray Remove\fP
 or you can precede the first entry in the list with a plus sign,
 \f(CRparanoid_confirmation:+attack Remove\fP.
 To remove an entry that has been previously set without removing others,
 precede the first entry in the list with a minus sign,
-\f(CRparanoid_confirmation:-trap\fP.
+\f(CRparanoid_confirmation:-quit\fP.
 To both add some new entries and remove some old ones, you can use
 multiple \fIparanoid_confirmation\fP option settings, or you can
 use the \(oq\f(CR+\fP\(cq form and list entries to be added by their name
