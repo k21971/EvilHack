@@ -17,8 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-17, after session 235's
-  steed-lift slice): 436 rows closed, 108 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-17, after session 236's
+  silent hold clears slice): 439 rows closed, 109 open. Of the open
+  rows:
   - 0 HIGH.
   - 1 MED: an unported master feature (door-material colors).
     Session 232 closed the bag explosion row (BUG-2388..2391): an
@@ -117,7 +118,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 91 LOW: small parity rows, quirks and watch/record-only items.
+  - 92 LOW: small parity rows, quirks and watch/record-only items.
+    Session 236 closed the silent hold clears row (BUG-2406): a hold
+    that kept the hero's levitation or flight down and ended without
+    a word (a teleport out of any hold, a level change, an engulfing,
+    life saving in lava, a dig, an earthquake chasm, a melting or
+    flooding square under a buried ball, the invocation) now tells
+    the returned lift right after the event's own lines ("Pheew!
+    That was close.  You start to float in the air!"), through a
+    deferred report on the pending-landing model. It minted and
+    fixed two: the engulf release naming vines "the trap" (BUG-2407,
+    ruled vines only) and remove curse / the blessed bell telling
+    the float before their own line (BUG-2408). Minted two (both
+    plannable): delfloortrap() / deltrap_with_ammo() telling the lift
+    before the event, and a stale web hold left by dig().
     Session 235 closed the item-flying steed row (BUG-2401..2402): a
     steed that flies or floats by any means (natural, worn gear or a
     spell) carries its rider over water, holes, trap doors and open
@@ -343,10 +357,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     article row with the "A inky potion" row (An() everywhere).
     Also plannable without a ruling: session 177's terrain-effects
     coverage row and the Phase 6 set_whereisfile() BUG-603 row.
-    Ruled 2026-10-07 (session 189 follow-up), still plannable: the
-    other silent hold clears row (tell it after the event, per site;
-    gulpmu()'s "trap" wording with it; the item-flying steed row
-    landed in session 235);
+    Ruled 2026-10-07 (session 189 follow-up): the other silent hold
+    clears row landed in session 236 (BUG-2406..2408, with gulpmu()'s
+    "trap" wording) and the item-flying steed row in session 235;
     the other five landed in session 190. Ruled 2026-10-10 (session
     208 follow-up): session 190's hold census - six of its seven rows
     landed in session 209 (BUG-2257..2265); the seventh, burying the
@@ -23341,7 +23354,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       has own lift (the chain is a ground hold, branches hold in
       place); rejected the steed's lift ignoring the hold and keeping
       the own-lift split. Plannable.
-      CLOSED 2026-10-17 (session 235, commit pending; plan
+      CLOSED 2026-10-17 (session 235, commit 835edffae, tracker
+      251a3c845; plan
       /root/.claude/plans/immutable-sparking-wozniak.md; closure notes
       in BUGFIXES_ARCHIVE BUG-2401..2405). mondata.h mon_airborne()
       (flies or floats by nature, worn gear or a spell; clinging
@@ -23358,14 +23372,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       drop the hero leaves (BUG-2405, ruled 2026-10-17 for every
       teleds()).
 - [x] LOW: flight gained while held flies through the hold (BUG-2403;
-      minted and FIXED 2026-10-17, session 235, commit pending, Plan
-      agent; master and vanilla 5.0 alike). float_vs_flight() set
+      minted and FIXED 2026-10-17, session 235, commit 835edffae,
+      Plan agent; master and vanilla 5.0 alike). float_vs_flight() set
       BFlying I_SPECIAL only when the hero already had flight, and
       nothing re-ran it when flight arrived mid-hold, so an illithid
       reaching XL 12 in a bear trap showed "Fly" while trapped. The
       block is now set for every hold.
 - [x] LOW: a ridden steed's lift changes untold (BUG-2404; minted and
-      FIXED 2026-10-17, session 235, commit pending, Plan agent +
+      FIXED 2026-10-17, session 235, commit 835edffae, Plan agent +
       reviewer). Worn gear (update_mon_extrinsics()), a levitation
       spell running out, the self-cast and grow_up() changed a steed's
       lift with no status / stealth refresh and no landing on a floor
@@ -23373,7 +23387,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       steed_lift_changed() serves all of them.
 - [x] LOW: teleds() unearths a tethered ball into the drop the hero
       leaves (BUG-2405; minted and FIXED 2026-10-17, session 235,
-      commit pending, battery T2.5 FAIL; master-shared for drown()'s
+      commit 835edffae, battery T2.5 FAIL; master-shared for drown()'s
       crawl-out). buried_ball_to_punishment() ran before the move, so
       the ball came up at the hero's feet over the pool (it sank), the
       lava, or open air (it fell away and yanked the hero to their
@@ -23610,7 +23624,37 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       for a flyer does print). Fix candidate: reset before the
       decrement reaches 0 (reset_utrap() while u.utrap is still 1, then
       the release line). Plannable. LOW.
-- [ ] LOW: other holds end silently and the lift comes back untold
+- [x] LOW: other holds end silently and the lift comes back untold
+      (BUG-2406; BUG-2407 / BUG-2408 with it) - CLOSED 2026-10-17
+      (session 236, commit pending; plan
+      /root/.claude/plans/smooth-leaping-puffin.md; closure notes in
+      BUGFIXES_ARCHIVE BUG-2406..2408). A deferred lift report on the
+      gp.pending_landing model: trap.c reset_utrap_deferred() ends a
+      hold and defer_lift_msg() records the lift that came back
+      (gp.pending_lift); lift_msg_deferred() tells it ("You start to
+      float in the air!" / "You can fly." / "You and your <steed> are
+      airborne again.") after the event's own lines - explicit in
+      drown(), lava_effects(), sink_into_lava(), the lava prayer,
+      digactualhole(), mkinvokearea(), gulpmu(), deferred_goto() and
+      the bell; moveloop catch-alls beside both maybe_land_deferred()
+      calls and at the top of movemon_singlemon(). teleds() (any
+      hold), goto_level(), maketrap(), the TT_INFLOOR dig, savelife(),
+      gulpmu(), music.c do_pit()'s chasm (a pit replacing a floor or
+      grass hold; found by the Plan agent) and two wizard-only sites
+      defer; end_buried_tether(FALSE) defers instead of staying
+      silent. Up-stairs with a chained hero reads "With great effort,
+      you climb up the stairs." and down-stairs "You descend the
+      stairs." before the lift line (mechanics unchanged);
+      back_on_ground() says "on" while the lift is untold. BUG-2407:
+      gulpmu() "You are released from the tree's grip!" / "...the
+      vegetation!" (ruled 2026-10-17: vines only). BUG-2408: remove
+      curse's clasp line and the blessed bell's "Something opens..."
+      come before the float (buried_ball_to_freedom() gained a msg
+      flag). Left alone: the web arm's transient hold with a steed,
+      the heaven arm and the pit-fiend hurl (both tell it themselves),
+      pit-only resets. Battery: 28 legs PASS on two testers.
+      Original text: LOW: other holds end silently and the lift comes
+      back untold
       (minted 2026-10-07, session 189, Plan agent + reviewer L1 +
       battery B; master- and upstream-shared). Sites that clear a
       levitation- or flight-blocking hold with reset_utrap(FALSE), so a
@@ -23643,6 +23687,37 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       same site (the drop_ball() ruling's "the tree's grip" / "the
       vegetation" fits); expels() lands the hero later, so no drop
       gap there.
+- [x] LOW: an engulfer releases a vine-held hero "from the trap"
+      (BUG-2407; minted and FIXED 2026-10-17, session 236, commit
+      pending; the session 190 census note on the row above). Ruled
+      2026-10-17: vines only - "You are released from the tree's
+      grip!" next to a live tree, "...from the vegetation!" otherwise;
+      bear trap, pit, lava, floor and chain keep "the trap" (the
+      maintainer over my every-hold pick).
+- [x] LOW: remove curse and the blessed bell of opening tell the float
+      before their own line (BUG-2408; minted and FIXED 2026-10-17,
+      session 236, commit pending; the row above's order note plus
+      the bell, found by the Plan agent; master and vanilla 5.0
+      alike). "The clasp on your leg vanishes." / "Something
+      opens..." now come first, then "You start to float in the
+      air!".
+- [ ] LOW: delfloortrap() and deltrap_with_ammo() tell the returned
+      lift before the event's own line (minted 2026-10-17, session
+      236, Plan agent; master-shared shape). Both end the hero's hold
+      with reset_utrap(TRUE) inside the helper, so liquid_flow()'s
+      "As you dig, the hole fills with water!", dighole()'s "You dig a
+      hole through..." and create_pit_under() follow the float line.
+      Ruled shape: the 2026-10-07 TELL IT AFTER THE EVENT ruling;
+      ruled 2026-10-17 a separate slice (about 51 callers to census;
+      reset_utrap_deferred() is the likely tool). LOW (plannable).
+- [ ] LOW: dig() on a level that cannot be dug down deletes a web the
+      hero is caught in and leaves the hold (minted 2026-10-17,
+      session 236, Plan agent; master-shared). dig.c dig()'s
+      DIGCHECK_PASSED_DESTROY_TRAP arm deletes a web with a plain
+      deltrap() and never releases the hero (the bear-trap arm calls
+      reset_utrap(TRUE)), so a TT_WEB hold outlives its web; a later
+      pit replaces it (dig.c digactualhole()'s set_utrap(TT_PIT)) and
+      a held-down lift comes back unannounced. LOW (plannable).
 - [x] LOW: a tree-held hero whose iron ball is buried is landed
       (BUG-2182) - FIXED 2026-10-07 (session 190, commit 2bc884d66,
       tracker 385dc3fe8; closure notes on the sky
@@ -30124,6 +30199,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
+| 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406: a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
+| 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408: the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
 | 2026-10-17 | A tethered hero leaving water by drown()'s crawl-out drops the unearthed ball into the pool. Shared with Official_nh50: teleport.c teleds() calls buried_ball_to_punishment() before moving, and punish() places the ball at the hero's feet. EvilHack fix BUG-2405: unearth at the arrival square when the hero is over a drop. | found (branch-fixed); not sent |
 | 2026-10-16 | A levitating or flying hero phasing through rock (a xorn form) is refused at water or lava they would float over. Shared with Official_nh50: hack.c u_simple_floortyp() reads Levitation / Flying, which switch_terrain()'s FROMOUTSIDE block keeps FALSE inside obstructed terrain, though stepping onto the pool lifts the block before pooleffects() runs; also an airborne hero stepping out of a water wall. EvilHack fix BUG-2399 (b6310f0e4). | found (branch-fixed); not yet sent |
@@ -30349,6 +30426,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-17 | Silent hold clears slice rulings (session 236; AskUserQuestion x1, two questions). (1) ENGULF RELEASE WORDING: vines only - "You are released from the tree's grip!" next to a live tree, "...from the vegetation!" otherwise; the bear trap, pit, lava, solidified floor and buried-ball chain keep "the trap" (the maintainer over my every-hold pick, which mirrored the hurtle "You are anchored by the ..." list). (2) EARLY TELLS: delfloortrap() and deltrap_with_ammo(), which tell the returned lift before the event's own line (about 51 callers), get their own row, not this slice (as recommended). | maintainer |
 | 2026-10-17 | Steed-lift slice rulings (session 235; AskUserQuestion x3, five questions, all as recommended). (1) RELEASE LINE (2026-10-16): a hold ending while only the steed's lift brings the pair up reads "You and your <steed> are airborne again."; own flight keeps "You can fly.". (2) CHAINED PAIR OVER A DROP (2026-10-16): on a steed that flies or floats by itself over water or lava, "The chain pulls you off your <steed>!" then the existing dismount (the rider on an adjacent spot, Punished again; the steed stays up); rejected a silent pull-off and the pair staying dry. (3) UNEARTH SCOPE (2026-10-17, after battery T2.5): every teleds() from water, lava, open air or a hole unearths a tethered ball at the arrival square (also changes master's crawl-out, where the ball sank into the pool); rejected the pull-off only. (4) DELTA BATTERY: launch now. Decided in the plan: a floating or levitating steed's rider reads Flying, not Levitation; clinging stays a separate term; pegasus parity for the rider's levitation ending ("...are now flying."); the open-air pull-off as over water. | maintainer |
 | 2026-10-16 | Paranoid-swim slice rulings (session 234; AskUserQuestion x2, six questions, all as recommended). (1) PHASING: fix it - a levitator or flyer whose lift only the terrain it stands in blocks (rock or a tree being phased through, a closed door, a liquid wall) is not asked (master's a23c53ed8 regression, frozen-unfixed). (2) RIDING: no decline penalty while mounted; the question and the line still appear. (3) WORDING: 5.0's waterbody_name() in master's "You narrowly avoid falling/plunging into the ..." line. (4) MENU TEXT: "yes required to walk into water or lava". (5) FOLD the reviewer's grounded() gap (BUG-2400): pinned-wing and clinging forms are asked. (6) HANGUP: a hangup or lost terminal at the question refuses the move with no penalty. Decided in the plan: the m prefix bypasses everything, an m-prefixed run included (5.0's gate, not master's `!nopick \|\| run`). | maintainer |
 | 2026-10-15 | Bag explosion slice rulings (session 232; AskUserQuestion x2, four questions, all as recommended). (1) SCOPE everything: master's damage, killer names and Bag-naming livelog at both sites, plus do_boh_explosion()'s four silent reverts ("contents fly everywhere", blastforce 4..10, MAY_FRACTURE, makeknown(BAG_OF_HOLDING)) and #tip identifying the trigger (widened to #put's four types). (2) The #tip trigger stays DESTROYED (5.0), not scattered as master's BUG-507 left it. (3) The #tip livelog keeps 5.0's " via tipping" tail with master's Bag naming. (4) FIX the unpaid-statue fracture billing hole MAY_FRACTURE exposes (scatter() bills it, contents hidden; BUG-2391). | maintainer |
