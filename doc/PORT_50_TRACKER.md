@@ -27570,7 +27570,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       far target's last step (only the adjacent shortcut's nomul(0)
       cleared run). Rejected master's exact shape and leaving it.
       Plannable.
-      CLOSED 2026-10-17 (session 237, commit pending; plan
+      CLOSED 2026-10-17 (session 237, commit ac60731fc, tracker 84d07f0ad; plan
       /root/.claude/plans/steady-mapping-noodle.md; closure notes in
       BUGFIXES_ARCHIVE BUG-2409). domove_core() notes a travel step
       before findtravelpath() ends travel on its last step, and only
@@ -27583,7 +27583,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (Blind only; lookaround() stops a sighted hero first).
 - [x] LOW: 5.0's paranoid_confirmation:trap removed, its gas cloud
       question included (BUG-2410; minted and FIXED 2026-10-17,
-      session 237, commit pending; ruled 2026-10-17). The travel
+      session 237, commit ac60731fc; ruled 2026-10-17). The travel
       row's census found travel to an adjacent known trap or gas
       cloud skipped that question too; the maintainer: "i'd like to
       get rid of 5.0's paranoid trap altogether" (master never had
@@ -27595,13 +27595,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       master. Travel still routes around known traps.
 - [x] LOW: master's paranoid quit default was never ported
       (BUG-2411; minted and FIXED 2026-10-17, session 237, commit
-      pending; ruled 2026-10-17; master 367af1633). Quitting and
+      ac60731fc; ruled 2026-10-17; master 367af1633). Quitting and
       entering explore mode took a plain 'y'. The default is pray +
       quit; a new list keeps quit unless it names !quit or none
       (-quit and !paranoid_confirmation also clear it); #saveoptions
       writes " !quit" when quit is off, so the reload keeps it off.
 - [x] LOW: a refused first `_` travel step costs a turn (BUG-2412;
-      minted and FIXED 2026-10-17, session 237, commit pending; found
+      minted and FIXED 2026-10-17, session 237, commit ac60731fc; found
       by the battery; vanilla 5.0 shares it). dotravel_target() runs
       the first step itself and returned ECMD_TIME, and rhack() then
       sets context.move over domove()'s refusal; master's dotravel()
@@ -27611,7 +27611,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       do_repeat() got the same helpless term (^A into a life-saved
       step).
 - [x] LOW: a tortle hiding in its shell can travel (BUG-2413;
-      minted and FIXED 2026-10-17, session 237, commit pending; found
+      minted and FIXED 2026-10-17, session 237, commit ac60731fc; found
       by the re-review; branch-only port regression). rhack()'s
       shell check runs after the command, and dotravel_target()
       moves the hero itself (later steps from moveloop()), so `_`,
@@ -30316,8 +30316,8 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-17 | `_` travel never asks paranoid_confirm:swim's question and walks into walls of water or lava: swim_move_danger() reads context.nopick as the m prefix, but dotravel_target() sets it for every travel. Shared with Official_nh50 (hack.c swim_move_danger()'s nopick arm). EvilHack fix BUG-2409 (commit pending): domove_core() captures context.travel before findtravelpath() ends it, and only an m-prefixed move skips. | found (branch-fixed); not yet sent |
-| 2026-10-17 | A refused first `_` travel step costs a turn: dotravel_target() runs domove() and returns ECMD_TIME regardless, and rhack() sets context.move over domove()'s refusal (in vanilla: a visible monster on the first square, a declined gas cloud question, a known-trap stop, "That door is closed."). Shared with Official_nh50 (cmd.c dotravel_target()); do_repeat() maps context.move the same way and loses a life-saved hero's helpless turn. EvilHack fix BUG-2412 (commit pending): ECMD_OK when context.move is clear, ECMD_TIME when gm.multi < 0. | found (branch-fixed); not yet sent |
+| 2026-10-17 | `_` travel never asks paranoid_confirm:swim's question and walks into walls of water or lava: swim_move_danger() reads context.nopick as the m prefix, but dotravel_target() sets it for every travel. Shared with Official_nh50 (hack.c swim_move_danger()'s nopick arm). EvilHack fix BUG-2409 (ac60731fc): domove_core() captures context.travel before findtravelpath() ends it, and only an m-prefixed move skips. | found (branch-fixed); not yet sent |
+| 2026-10-17 | A refused first `_` travel step costs a turn: dotravel_target() runs domove() and returns ECMD_TIME regardless, and rhack() sets context.move over domove()'s refusal (in vanilla: a visible monster on the first square, a declined gas cloud question, a known-trap stop, "That door is closed."). Shared with Official_nh50 (cmd.c dotravel_target()); do_repeat() maps context.move the same way and loses a life-saved hero's helpless turn. EvilHack fix BUG-2412 (ac60731fc): ECMD_OK when context.move is clear, ECMD_TIME when gm.multi < 0. | found (branch-fixed); not yet sent |
 | 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab). Shared with Official_nh50 and NetHack50 HEAD; battery-confirmed on the branch. Not fixed yet (MED row). | found; not fixed; not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
