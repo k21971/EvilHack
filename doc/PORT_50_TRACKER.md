@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-16, after session 234's
-  paranoid-swim slice): 432 rows closed, 104 open. Of the open rows:
+- Phase 2 status (refreshed 2026-10-17, after session 235's
+  steed-lift slice): 436 rows closed, 108 open. Of the open rows:
   - 0 HIGH.
   - 1 MED: an unported master feature (door-material colors).
     Session 232 closed the bag explosion row (BUG-2388..2391): an
@@ -117,7 +117,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 87 LOW: small parity rows, quirks and watch/record-only items.
+  - 91 LOW: small parity rows, quirks and watch/record-only items.
+    Session 235 closed the item-flying steed row (BUG-2401..2402): a
+    steed that flies or floats by any means (natural, worn gear or a
+    spell) carries its rider over water, holes, trap doors and open
+    air, and a hold on the rider grounds the pair whatever the
+    rider's own lift ("You and your <steed> are airborne again." on
+    release; a chained pair over water, lava or open air is pulled
+    off its steed onto an adjacent spot). It minted and fixed three:
+    flight gained while held (BUG-2403), a steed's lift changes
+    untold (BUG-2404), and teleds() unearthing a tethered ball into
+    the water, lava or open air the hero leaves (BUG-2405). Minted
+    five: the level-change unearth paths (needs a ruling), a second
+    ball lost on unearthing (plannable), monster flight / levitation
+    items clearing a property another source grants, landing_spot()
+    on open air, and a chained own-lift hero over open air (needs a
+    ruling).
     Session 234 closed the paranoid-swim row (BUG-2398): with
     paranoid_confirmation:swim (off by default again) a step into
     known water or lava asks "Really enter the water?" / "Really enter
@@ -329,9 +344,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Also plannable without a ruling: session 177's terrain-effects
     coverage row and the Phase 6 set_whereisfile() BUG-603 row.
     Ruled 2026-10-07 (session 189 follow-up), still plannable: the
-    item-flying steed row (lift everywhere; a hold on the rider
-    grounds the pair) and the other silent hold clears row (tell it
-    after the event, per site; gulpmu()'s "trap" wording with it);
+    other silent hold clears row (tell it after the event, per site;
+    gulpmu()'s "trap" wording with it; the item-flying steed row
+    landed in session 235);
     the other five landed in session 190. Ruled 2026-10-10 (session
     208 follow-up): session 190's hold census - six of its seven rows
     landed in session 209 (BUG-2257..2265); the seventh, burying the
@@ -23295,7 +23310,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-06 (session 187 follow-up, decisions log): FIX WITH
       An(), with the hallucinated-color article row ("An inky potion
       explodes!", "Another" unchanged). Plannable.
-- [ ] LOW: an item-flying or levitating steed carries its rider over
+- [x] LOW: an item-flying or levitating steed carries its rider over
       water but not over holes or open air (minted 2026-10-06, session
       188, census; master-shared in shape). The Flying macro carries a
       rider only through is_flyer(u.usteed->data); check_in_air(),
@@ -23326,6 +23341,81 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       has own lift (the chain is a ground hold, branches hold in
       place); rejected the steed's lift ignoring the hold and keeping
       the own-lift split. Plannable.
+      CLOSED 2026-10-17 (session 235, commit pending; plan
+      /root/.claude/plans/immutable-sparking-wozniak.md; closure notes
+      in BUGFIXES_ARCHIVE BUG-2401..2405). mondata.h mon_airborne()
+      (flies or floats by nature, worn gear or a spell; clinging
+      apart) is the Flying macro's steed term (BUG-2401), so a floating
+      steed's rider reads Flying, not Levitation; float_vs_flight()
+      sets BFlying I_SPECIAL for any hold, not only with own flight
+      (BUG-2402). Ruled 2026-10-16: the release line for steed-only
+      lift is "You and your <steed> are airborne again."; a chained
+      pair on a self-lifting steed over water, lava or open air reads
+      "The chain pulls you off your <steed>!" and the rider is set on
+      an adjacent spot, the steed staying up. Three more minted and
+      closed (rows below): flight gained while held (BUG-2403), steed
+      lift changes untold (BUG-2404), the unearthed ball landing in the
+      drop the hero leaves (BUG-2405, ruled 2026-10-17 for every
+      teleds()).
+- [x] LOW: flight gained while held flies through the hold (BUG-2403;
+      minted and FIXED 2026-10-17, session 235, commit pending, Plan
+      agent; master and vanilla 5.0 alike). float_vs_flight() set
+      BFlying I_SPECIAL only when the hero already had flight, and
+      nothing re-ran it when flight arrived mid-hold, so an illithid
+      reaching XL 12 in a bear trap showed "Fly" while trapped. The
+      block is now set for every hold.
+- [x] LOW: a ridden steed's lift changes untold (BUG-2404; minted and
+      FIXED 2026-10-17, session 235, commit pending, Plan agent +
+      reviewer). Worn gear (update_mon_extrinsics()), a levitation
+      spell running out, the self-cast and grow_up() changed a steed's
+      lift with no status / stealth refresh and no landing on a floor
+      trap; only poly_steed() had it (is_flyer() only). steed.c
+      steed_lift_changed() serves all of them.
+- [x] LOW: teleds() unearths a tethered ball into the drop the hero
+      leaves (BUG-2405; minted and FIXED 2026-10-17, session 235,
+      commit pending, battery T2.5 FAIL; master-shared for drown()'s
+      crawl-out). buried_ball_to_punishment() ran before the move, so
+      the ball came up at the hero's feet over the pool (it sank), the
+      lava, or open air (it fell away and yanked the hero to their
+      death). Ruled 2026-10-17: every teleds() from water, lava, open
+      air or a hole unearths the ball at the arrival square (dig.c
+      unearth_tether_ball()).
+- [ ] LOW: the level-change unearth paths still bring a tethered ball
+      up at the hero's feet over a drop (minted 2026-10-17, session
+      235, reviewer; master-shared; record). goto_level(),
+      level_tele(), domagicportal(), mkinvokearea() and unearth_objs()
+      call buried_ball_to_punishment() at the hero's square, outside
+      teleds(), so BUG-2405's rule does not reach them; over open air
+      that is the yank and plummet. Reaching one needs a tethered
+      unmounted hero over open air (held by branches with a pending
+      tether). Decide: extend BUG-2405's rule, or record. LOW.
+- [ ] LOW: unearthing a tethered ball while Punished with a second
+      ball loses the buried one (minted 2026-10-17, session 235,
+      reviewer; master and vanilla 5.0 alike). A hero who reads a
+      scroll of punishment while tethered gets a new ball; when the
+      buried one comes up, punish() takes its "Your iron ball gets
+      heavier." path and returns, so the extracted ball is never placed
+      or freed (an OBJ_FREE leak, not a crash). Fix candidate: when
+      Punished, place the ball back on its square. LOW (plannable).
+- [ ] LOW: a monster's flight or levitation item comes off and clears
+      the property while another source still grants it (minted
+      2026-10-17, session 235, Plan agent; master-shared). worn.c
+      update_mon_extrinsics()'s FLYING / LEVITATION off-arms clear
+      MR2_FLY / MR2_LEVITATE without the other-worn-source loop the
+      TELEPAT / DISPLACED arm uses, and m_calcdistress()'s
+      mlevitatetime expiry clears gear-granted MR2_LEVITATE. LOW.
+- [ ] LOW: landing_spot() can set a dismounted rider on open air
+      (minted 2026-10-17, session 235, Plan agent; record).
+      ACCESSIBLE(AIR) is true, so a dismount next to open air may pick
+      an AIR square (seen possible, not seen in the battery: the
+      pull-off landed on floor every time). LOW.
+- [ ] LOW: a chained own-lift hero over open air plummets while a
+      chained pair is pulled off its steed (minted 2026-10-17, session
+      235; record / needs a ruling). The session 189 ruling makes the
+      chain a ground hold, so a flyer or levitator chained over open
+      air falls to its death; BUG-2402's pull-off sets a rider on an
+      adjacent spot instead. Decide whether the chain should hold an
+      unmounted hero at the edge too. LOW.
 - [ ] LOW: a spoteffects() landing re-fires a non-floor trap the
       hovering hero already met (minted 2026-10-06, session 188, Plan
       agent; record unless reached in play). check_in_air() exempts
@@ -27329,7 +27419,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       PARANOID_TRAP drops SWIM only - keep TRAP and 5.0's water-wall
       refusal unless the plan finds a reason). The options help and
       Guidebook default text follow. Plannable.
-      CLOSED 2026-10-16 (session 234, commit pending; plan
+      CLOSED 2026-10-16 (session 234, commit b6310f0e4, tracker
+      038f37825; plan
       /root/.claude/plans/golden-growing-russell.md; closure notes in
       BUGFIXES_ARCHIVE BUG-2398). Master's query and decline penalty
       (swim_declined()), swim off by default, TRAP and the always-on
@@ -27341,14 +27432,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       pinned-wing / clinging form gap (BUG-2400).
 - [x] LOW: a levitating or flying hero phasing through rock or a tree
       is refused at water or lava they would float over (BUG-2399;
-      minted and FIXED 2026-10-16, session 234, by the paranoid-swim
-      census; master regression a23c53ed8 re-broke 276f347d2, vanilla
-      5.0 shares it). u_lift_unenclosed() masks switch_terrain()'s
-      FROMOUTSIDE block bits for the test; an airborne hero stepping
-      out of a liquid wall is not asked either.
+      minted and FIXED 2026-10-16, session 234, commit b6310f0e4, by
+      the paranoid-swim census; master regression a23c53ed8 re-broke
+      276f347d2, vanilla 5.0 shares it). u_lift_unenclosed() masks
+      switch_terrain()'s FROMOUTSIDE block bits for the test; an
+      airborne hero stepping out of a liquid wall is not asked either.
 - [x] LOW: a form with wings folded under armor, or a clinging form,
       is never asked before falling into water or lava (BUG-2400;
-      minted and FIXED 2026-10-16, session 234, reviewer MEDIUM;
+      minted and FIXED 2026-10-16, session 234, commit b6310f0e4,
+      reviewer MEDIUM;
       BUG-1309's known residual; master and vanilla 5.0 alike). The
       hero's !grounded() term is gone from u_simple_floortyp().
 - [ ] LOW: `_` travel to an adjacent pool or liquid wall walks in
@@ -30032,8 +30124,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-16 | A levitating or flying hero phasing through rock (a xorn form) is refused at water or lava they would float over. Shared with Official_nh50: hack.c u_simple_floortyp() reads Levitation / Flying, which switch_terrain()'s FROMOUTSIDE block keeps FALSE inside obstructed terrain, though stepping onto the pool lifts the block before pooleffects() runs; also an airborne hero stepping out of a water wall. EvilHack fix BUG-2399 (commit pending). | found (branch-fixed); not yet sent |
-| 2026-10-16 | A form whose wings armor folds (or a clinging form) is never warned by paranoid_confirm:swim and falls in. Shared with Official_nh50: hack.c u_simple_floortyp()'s `!grounded(gy.youmonst.data)` counts it airborne, but pooleffects() tests only Levitation and Flying. EvilHack fix BUG-2400 (commit pending). | found (branch-fixed); not yet sent |
+| 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
+| 2026-10-17 | A tethered hero leaving water by drown()'s crawl-out drops the unearthed ball into the pool. Shared with Official_nh50: teleport.c teleds() calls buried_ball_to_punishment() before moving, and punish() places the ball at the hero's feet. EvilHack fix BUG-2405: unearth at the arrival square when the hero is over a drop. | found (branch-fixed); not sent |
+| 2026-10-16 | A levitating or flying hero phasing through rock (a xorn form) is refused at water or lava they would float over. Shared with Official_nh50: hack.c u_simple_floortyp() reads Levitation / Flying, which switch_terrain()'s FROMOUTSIDE block keeps FALSE inside obstructed terrain, though stepping onto the pool lifts the block before pooleffects() runs; also an airborne hero stepping out of a water wall. EvilHack fix BUG-2399 (b6310f0e4). | found (branch-fixed); not yet sent |
+| 2026-10-16 | A form whose wings armor folds (or a clinging form) is never warned by paranoid_confirm:swim and falls in. Shared with Official_nh50: hack.c u_simple_floortyp()'s `!grounded(gy.youmonst.data)` counts it airborne, but pooleffects() tests only Levitation and Flying. EvilHack fix BUG-2400 (b6310f0e4). | found (branch-fixed); not yet sent |
 | 2026-10-16 | An exploding bag of holding on a shop floor gives the shop the hero's things. Shared with Official_nh50: pickup.c in_container() bills the whole floor bag through addtobill() before do_boh_explosion() scatters the contents (a 3.6 leftover from when the blast deleted them), so picked_container() turns the hero's contents into shop stock, bill_box_content() leaves shop contents unpaid on the floor, gold credited at put-in is charged again by costly_gold() and scatters back as shop gold, and stolen_value() charges the hero for their own destroyed items. EvilHack fix BUG-2393 (7e5d2d27e). | found (branch-fixed); not yet sent |
 | 2026-10-16 | scatter() does no shop ownership for objects flung from a carried bag of holding. Shared with Official_nh50: the hero's items and gold landing on costly squares become the shop's, unpaid goods land unpaid (outside the shop: "unpaid obj not carried!"), the hero's own gold flung out of the shop is charged, and breakobj(hero_caused FALSE) charges only unpaid goods. EvilHack fix BUG-2394 (7e5d2d27e). | found (branch-fixed); not yet sent |
 | 2026-10-16 | The item that blows up a shop's floor bag of holding is offered for sale first. Shared with Official_nh50: pickup.c in_container() runs sellobj() on the item before testing mbag_explodes(), so putting the hero's wand of cancellation into a shop's floor bag of holding asks "Sell it?" and then destroys it. EvilHack fix BUG-2395 (7e5d2d27e). | found (branch-fixed); not yet sent |
@@ -30255,6 +30349,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-17 | Steed-lift slice rulings (session 235; AskUserQuestion x3, five questions, all as recommended). (1) RELEASE LINE (2026-10-16): a hold ending while only the steed's lift brings the pair up reads "You and your <steed> are airborne again."; own flight keeps "You can fly.". (2) CHAINED PAIR OVER A DROP (2026-10-16): on a steed that flies or floats by itself over water or lava, "The chain pulls you off your <steed>!" then the existing dismount (the rider on an adjacent spot, Punished again; the steed stays up); rejected a silent pull-off and the pair staying dry. (3) UNEARTH SCOPE (2026-10-17, after battery T2.5): every teleds() from water, lava, open air or a hole unearths a tethered ball at the arrival square (also changes master's crawl-out, where the ball sank into the pool); rejected the pull-off only. (4) DELTA BATTERY: launch now. Decided in the plan: a floating or levitating steed's rider reads Flying, not Levitation; clinging stays a separate term; pegasus parity for the rider's levitation ending ("...are now flying."); the open-air pull-off as over water. | maintainer |
 | 2026-10-16 | Paranoid-swim slice rulings (session 234; AskUserQuestion x2, six questions, all as recommended). (1) PHASING: fix it - a levitator or flyer whose lift only the terrain it stands in blocks (rock or a tree being phased through, a closed door, a liquid wall) is not asked (master's a23c53ed8 regression, frozen-unfixed). (2) RIDING: no decline penalty while mounted; the question and the line still appear. (3) WORDING: 5.0's waterbody_name() in master's "You narrowly avoid falling/plunging into the ..." line. (4) MENU TEXT: "yes required to walk into water or lava". (5) FOLD the reviewer's grounded() gap (BUG-2400): pinned-wing and clinging forms are asked. (6) HANGUP: a hangup or lost terminal at the question refuses the move with no penalty. Decided in the plan: the m prefix bypasses everything, an m-prefixed run included (5.0's gate, not master's `!nopick \|\| run`). | maintainer |
 | 2026-10-15 | Bag explosion slice rulings (session 232; AskUserQuestion x2, four questions, all as recommended). (1) SCOPE everything: master's damage, killer names and Bag-naming livelog at both sites, plus do_boh_explosion()'s four silent reverts ("contents fly everywhere", blastforce 4..10, MAY_FRACTURE, makeknown(BAG_OF_HOLDING)) and #tip identifying the trigger (widened to #put's four types). (2) The #tip trigger stays DESTROYED (5.0), not scattered as master's BUG-507 left it. (3) The #tip livelog keeps 5.0's " via tipping" tail with master's Bag naming. (4) FIX the unpaid-statue fracture billing hole MAY_FRACTURE exposes (scatter() bills it, contents hidden; BUG-2391). | maintainer |
 | 2026-10-15 | Magic 8-Ball slice rulings (session 231; AskUserQuestion x6, ten questions). (1) SCOPE: the 8-Ball (read advice, #apply wish, its livelog tag, the tip, a shake menu line) plus every offered co-port - the One Ring's #read arm, master 7d857f3b9's low-Int read gate, master's random artifact odds (own commit), and item-menu read lines for the striped shirt and Gjallar (as recommended). (2) DRAUGR: master's shape - about 45% of Draugr Barbarians start at Int 5 and cannot read until Int rises, as on 0.9.3 (as recommended). (3) 8-BALL TAG: " using the Magic 8-Ball" placed where master put it, the decline line tagged too, "Magic 8-Ball" capitalized everywhere (as recommended). (4) COOKIE: an eaten fortune cookie that could not be read no longer breaks illiterate conduct (as recommended; master quirk). (5) WISH LIVELOG FORMAT (maintainer side note mid-slice): back to master's - the request only, no 5.0 `, got "<object>"` tail - folded into this slice; the 5.0 decline line KEPT and tagged (the maintainer's pick over master-exact, which logs nothing). (6) CHRONICLE CUT (battery T2): re-ruled three times as the premises corrected - first show_gamelog()'s row buffer, then also curses_num_lines() and tty's compress_str(), then (after the code reviewer showed rows of BUFSZ or more overflow the Windows GUI's putstr) the FINAL ruling: wrap long in-game rows in show_gamelog(), dumplog rows whole, the port edits reverted (as recommended each time). Decided without asking: every blessed eight ball can grant the wish and an unpaid ball pays its full price per shake (master parity); resume_wish retyped boolean -> xint8 (same size). | maintainer |
