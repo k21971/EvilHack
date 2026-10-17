@@ -15,6 +15,7 @@ staticfn void moveloop_preamble(boolean);
 staticfn void u_calc_moveamt(int);
 staticfn void maybe_generate_rnd_mon(void);
 staticfn void maybe_land_deferred(void);
+staticfn void maybe_lift_msg_deferred(void);
 staticfn void maybe_dismount_untamed(void);
 staticfn void maybe_orcus_recurse(void);
 staticfn void maybe_purity_slide_off(void);
@@ -287,6 +288,19 @@ maybe_land_deferred(void)
         deferred_goto();
 }
 
+/* tell of levitation or flight a hold kept down that came back where no
+   message could go (see defer_lift_msg()); a dismount float_up() makes
+   may land the hero on a trap door */
+staticfn void
+maybe_lift_msg_deferred(void)
+{
+    if (gp.pending_lift == LIFT_NONE)
+        return;
+    lift_msg_deferred();
+    if (u.utotype)
+        deferred_goto();
+}
+
 /* throw the hero off a steed that stopped being tame while it was ridden
    (see dismount_untamed_steed()); the landing may find a trap door */
 staticfn void
@@ -399,8 +413,9 @@ moveloop_core(void)
         makewish(svc.context.resume_wish == 2);
 
     /* the hero's last action may have ended flight or levitation; land
-       before the monsters move */
+       before the monsters move; or ended a hold that kept them down */
     maybe_land_deferred();
+    maybe_lift_msg_deferred();
 
     if (svc.context.move) {
         /* actual time passed */
@@ -907,8 +922,10 @@ moveloop_core(void)
         maybe_dismount_untamed();
         /* a monster, a timeout or a finished occupation may have ended
            flight or levitation; land ahead of the pool check below, which
-           would otherwise drown the hero first */
+           would otherwise drown the hero first; or ended a hold that kept
+           them down */
         maybe_land_deferred();
+        maybe_lift_msg_deferred();
         /* [fast hero who gets multiple moves per turn ends up sinking
            multiple times per turn; is that what we really want?] */
         if (u.utrap && u.utraptype == TT_LAVA)

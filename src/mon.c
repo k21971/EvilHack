@@ -1844,6 +1844,9 @@ movemon_singlemon(struct monst *mtmp)
        landing may find a trap door (checked next) or kill the steed (the
        DEADMONSTER test below) */
     (void) dismount_untamed_steed();
+    /* or teleported the hero out of a hold that kept the hero's lift
+       down; tell of the lift before anything else acts */
+    lift_msg_deferred();
 
     /* end monster movement early if hero is flagged to leave the level */
     if (u.utotype

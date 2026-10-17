@@ -2660,11 +2660,12 @@ mkinvokearea(void)
     }
     display_nhwindow(WIN_MESSAGE, TRUE);
 
-    /* any trap hero is stuck in will be going away now */
+    /* any trap hero is stuck in will be going away now; lift it kept
+       down is told once the stairwell has formed */
     if (u.utrap) {
         if (u_tethered())
             buried_ball_to_punishment();
-        reset_utrap(FALSE);
+        reset_utrap_deferred();
     }
 
     xmin = xmax = svi.inv_pos.x; /* reset after the check for walls */
@@ -2699,6 +2700,7 @@ mkinvokearea(void)
     mkstairs(u.ux, u.uy, 0, (struct mkroom *) 0, FALSE); /* down */
     newsym(u.ux, u.uy);
     gv.vision_full_recalc = 1; /* everything changed */
+    lift_msg_deferred();
 }
 
 /* Change level topology.  Boulders in the vicinity are eliminated.

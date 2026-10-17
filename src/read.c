@@ -2019,8 +2019,9 @@ seffect_remove_curse(struct obj **sobjp)
     if (Punished && !confused)
         unpunish();
     if (u_tethered()) {
-        buried_ball_to_freedom();
+        /* the clasp goes first; any lift the chain kept down follows */
         pline_The("clasp on your %s vanishes.", body_part(LEG));
+        buried_ball_to_freedom(TRUE);
     }
     update_inventory();
 }
@@ -2880,8 +2881,9 @@ selective_remove_curse(void)
     if (Punished)
         unpunish();
     if (u_tethered()) {
-        buried_ball_to_freedom();
+        /* the clasp goes first; any lift the chain kept down follows */
         pline_The("clasp on your %s vanishes.", body_part(LEG));
+        buried_ball_to_freedom(TRUE);
     }
     update_inventory();
 }

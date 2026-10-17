@@ -1353,7 +1353,8 @@ use_bell(struct obj **optr)
                 unpunish();
                 res = 1;
             } else if (u_tethered()) {
-                buried_ball_to_freedom();
+                /* any lift the chain kept down is told after what opens */
+                buried_ball_to_freedom(FALSE);
                 res = 1;
             }
             res += openit();
@@ -1370,6 +1371,7 @@ use_bell(struct obj **optr)
                 learno = TRUE;
                 break;
             }
+            lift_msg_deferred();
 
         } else { /* uncursed */
             if (findit() != 0)

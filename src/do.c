@@ -1724,6 +1724,7 @@ goto_level(
     int dist = depth(newlevel) - depth(&u.uz);
     boolean do_fall_dmg = FALSE;
     boolean was_swallowed = u.uswallow; /* set_ustuck(Null) clears it */
+    boolean lift_untold; /* lift a hold kept down, told after arrival */
     schar prev_temperature = svl.level.flags.temperature;
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
@@ -1905,7 +1906,10 @@ goto_level(
     check_special_room(TRUE); /* probably was a trap door */
     if (Punished)
         unplacebc();
-    reset_utrap(FALSE); /* needed in level_tele */
+    /* needed in level_tele; any lift the hold kept down is told after
+       the arrival's messages (deferred_goto(), moveloop) */
+    reset_utrap_deferred();
+    lift_untold = (gp.pending_lift != LIFT_NONE);
     fill_pit(u.ux, u.uy);
     set_ustuck((struct monst *) 0); /* clear u.ustuck and u.uswallow */
     /* leaving the level is a release from a suffocating engulfer too;
@@ -2058,6 +2062,8 @@ goto_level(
     } else if (at_stairs && !In_endgame(&u.uz)) {
         if (up) {
             stairway *stway = stairway_find_from(&u.uz0, ga.at_ladder);
+            const char *climb;
+
             if (stway) {
                 u_on_newpos(stway->sx, stway->sy);
                 stway->u_traversed = TRUE;
@@ -2066,13 +2072,19 @@ goto_level(
             else
                 u_on_dnstairs();
             /* you climb up the {stairs|ladder};
-               fly up the stairs; fly up along the ladder */
-            great_effort = (Punished && !Levitation);
+               fly up the stairs; fly up along the ladder; a hero whose
+               lift a hold kept down climbed, wings or not */
+            great_effort = (Punished && (lift_untold || !Levitation));
+            climb = !lift_untold ? u_locomotion("climb")
+                    : (is_flyer(gy.youmonst.data)
+                       || is_floater(gy.youmonst.data)) ? "climb"
+                      : locomotion(gy.youmonst.data, "climb");
             if (flags.verbose || great_effort)
                 pline("%s %s up%s the %s.",
                       great_effort ? "With great effort, you" : "You",
-                      u_locomotion("climb"),
-                      (Flying && ga.at_ladder) ? " along" : "",
+                      climb,
+                      (Flying && !lift_untold && ga.at_ladder) ? " along"
+                                                               : "",
                       ga.at_ladder ? "ladder" : "stairs");
         } else { /* down */
             stairway *stway = stairway_find_from(&u.uz0, ga.at_ladder);
@@ -2086,7 +2098,12 @@ goto_level(
             if (!u.dz) {
                 ; /* stayed on same level? (no transit effects) */
             } else if (Flying) {
-                if (flags.verbose)
+                /* a hero whose flight a hold kept down went down on foot;
+                   the flight is told after arrival */
+                if (flags.verbose && lift_untold)
+                    You("%s.", ga.at_ladder ? "climb down the ladder"
+                                            : "descend the stairs");
+                else if (flags.verbose)
                     You("fly down %s.",
                         ga.at_ladder ? "along the ladder" : "the stairs");
             } else if (near_capacity() > UNENCUMBERED
@@ -2523,6 +2540,9 @@ deferred_goto(void)
         free((genericptr_t) gd.dfr_pre_msg), gd.dfr_pre_msg = 0;
     if (gd.dfr_post_msg)
         free((genericptr_t) gd.dfr_post_msg), gd.dfr_post_msg = 0;
+    /* a hold left behind kept the lift down; tell of it after the
+       arrival's messages */
+    lift_msg_deferred();
 }
 
 /*

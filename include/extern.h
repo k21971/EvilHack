@@ -630,7 +630,7 @@ extern void rot_corpse(union any *, long) NONNULLARG1;
 extern struct obj *buried_ball(coord *) NONNULLARG1;
 extern void buried_ball_to_punishment(void);
 extern void unearth_tether_ball(struct obj *) NONNULLARG1;
-extern void buried_ball_to_freedom(void);
+extern void buried_ball_to_freedom(boolean);
 extern boolean u_tethered(void);
 extern void end_buried_tether(boolean);
 extern schar fillholetyp(coordxy, coordxy, boolean);
@@ -3662,6 +3662,7 @@ extern struct monst *activate_statue_trap(struct trap *, coordxy, coordxy,
 extern int immune_to_trap(struct monst *, unsigned) NO_NNARGS; /* revisit */
 extern void set_utrap(unsigned, unsigned);
 extern void reset_utrap(boolean);
+extern void reset_utrap_deferred(void);
 extern void flight_resumed_msg(void);
 extern boolean floor_trigger(int);
 extern boolean wearing_iron_shoes(struct monst *);
@@ -3679,6 +3680,8 @@ extern void fill_pit(coordxy, coordxy);
 extern int float_down(long, long);
 extern void defer_landing(int);
 extern void land_deferred(void);
+extern void defer_lift_msg(boolean, boolean);
+extern void lift_msg_deferred(void);
 extern boolean u_over_drop(void);
 extern boolean u_tree_held(void);
 extern void entangle_release(boolean);

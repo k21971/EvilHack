@@ -1049,8 +1049,9 @@ savelife(int how)
                               ? "running out of chances to revive"
                               : "attempting to cheat Death";
 
+    /* any lift the lava held down is told after the life saving */
     if (u.utrap && u.utraptype == TT_LAVA)
-        reset_utrap(FALSE);
+        reset_utrap_deferred();
     disp.botl = TRUE;
     u.ugrave_arise = NON_PM;
     HUnchanging = 0L;

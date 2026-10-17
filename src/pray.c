@@ -436,11 +436,13 @@ fix_worst_trouble(int trouble)
         disp.botl = TRUE;
         break;
     case TROUBLE_LAVA:
-        /* teleport should always succeed, but if not, just untrap them */
+        /* teleport should always succeed, but if not, just untrap them;
+           any lift the lava kept down is told after the rescue */
         if (!safe_teleds(TELEDS_NO_FLAGS))
-            reset_utrap(TRUE);
+            reset_utrap_deferred();
         rescued_from_terrain(DISSOLVED); /* DISSOLVED: pending cause of death
                                           * if trouble didn't get cured */
+        lift_msg_deferred();
         break;
     case TROUBLE_STARVING:
         /* temporarily lost strength recovery now handled by init_uhunger() */
@@ -568,7 +570,7 @@ fix_worst_trouble(int trouble)
     case TROUBLE_PUNISHED:
         Your("chain disappears.");
         if (u_tethered())
-            buried_ball_to_freedom();
+            buried_ball_to_freedom(TRUE);
         else
             unpunish();
         break;

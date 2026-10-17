@@ -794,6 +794,14 @@ enum hero_landing {
     LANDING_FLOAT = 3  /* float_down(): "You float gently to ..." */
 };
 
+/* gp.pending_lift: levitation or flight that a hold kept down and that
+   came back ahead of the event's own messages; see defer_lift_msg() */
+enum lift_resumed {
+    LIFT_NONE  = 0x00,
+    LIFT_FLOAT = 0x01, /* float_up(): "You start to float in the air!" */
+    LIFT_FLY   = 0x02  /* flight_resumed_msg(): "You can fly." */
+};
+
 /* polyself flags */
 enum polyself_flags {
     POLY_NOFLAGS    = 0x00,

@@ -332,9 +332,14 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
             }
         } else if (!tu_pit || !u.utrap || u.utraptype != TT_PIT) {
             /* no pit here previously, or you were
-               not in it even if there was */
+               not in it even if there was; a hold the pit replaces (the
+               floor, grass) may have kept lift down, which a pit lets
+               through: told after the fall, floating out of the pit */
+            boolean was_Lev = (Levitation != 0), was_Fly = (Flying != 0);
+
             You("fall into a chasm!");
             set_utrap(rn1(6, 2), TT_PIT);
+            defer_lift_msg(was_Lev, was_Fly);
             losehp(Maybe_Half_Phys(rnd(6)),
                    "fell into a chasm", NO_KILLER_PREFIX);
             selftouch("Falling, you");

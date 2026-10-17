@@ -551,7 +551,9 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
         else if (!allow_drag)
             unplacebc(); /* have to move the ball */
     }
-    reset_utrap(FALSE);
+    /* any lift the hold kept down is told after the move's own messages,
+       by the caller or at moveloop's next safe point */
+    reset_utrap_deferred();
     was_swallowed = u.uswallow; /* set_ustuck(Null) clears uswallow */
     set_ustuck((struct monst *) 0);
     u.ux0 = u.ux;
@@ -1463,6 +1465,8 @@ level_tele(void)
            ball's chain was unearthed above); judge lift without it */
         if (u.utrap)
             reset_utrap(FALSE);
+        /* the escape below tells of any lift itself */
+        gp.pending_lift = LIFT_NONE;
         if (*u.ushops0) {
             /* take unpaid inventory items off of shop bills */
             gi.in_mklev = TRUE; /* suppress map update */

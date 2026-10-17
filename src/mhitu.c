@@ -2040,11 +2040,15 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
 
         if (u.utrap) {
             You("are released from the %s!",
-                (u.utraptype == TT_WEB) ? "web" : "trap");
+                (u.utraptype == TT_WEB) ? "web"
+                : (u.utraptype != TT_ENTANGLED) ? "trap"
+                  : nexttotree(u.ux, u.uy) ? "tree's grip"
+                    : "vegetation");
             /* a buried ball's chain waiting behind the hold lets go
-               with it, like a chain that held the hero itself */
+               with it, like a chain that held the hero itself; any lift
+               the hold kept down is told once the engulfing is done */
             u.utether_pending = 0;
-            reset_utrap(FALSE);
+            reset_utrap_deferred();
         }
 
         i = number_leashed();
@@ -2071,6 +2075,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             if (Punished)
                 placebc();
             set_ustuck((struct monst *) 0);
+            lift_msg_deferred();
             return (!DEADMONSTER(mtmp)) ? M_ATTK_MISS : M_ATTK_AGR_DIED;
         }
 
@@ -2102,6 +2107,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
                 (void) snuff_lit(otmp2, FALSE);
             }
         }
+        lift_msg_deferred();
     }
 
     if (mtmp != u.ustuck)

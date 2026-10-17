@@ -549,7 +549,7 @@ maketrap(coordxy x, coordxy y, int typ)
                 || (u.utraptype == TT_WEB && typ != WEB)
                 || (u.utraptype == TT_PIT && !is_pit(typ))
                 || (u.utraptype == TT_LAVA && !is_lava(x, y))))
-            reset_utrap(FALSE);
+            reset_utrap_deferred(); /* any lift is told after the event */
         /* old <tx,ty> remain valid */
     } else if (!CAN_OVERWRITE_TERRAIN(lev->typ) /* stairs */
                || is_pool_or_lava(x, y)
@@ -1322,11 +1322,24 @@ reset_utrap(boolean msg)
     }
 }
 
+/* end the hero's hold now, but tell of any levitation or flight it kept
+   down only after the caller's event has given its own messages (see
+   lift_msg_deferred()) */
+void
+reset_utrap_deferred(void)
+{
+    boolean was_Lev = (Levitation != 0), was_Fly = (Flying != 0);
+
+    set_utrap(0, 0);
+    defer_lift_msg(was_Lev, was_Fly);
+}
+
 /* the hold that kept the hero's flight down has ended; the lift may be
    the steed's alone */
 void
 flight_resumed_msg(void)
 {
+    gp.pending_lift &= ~(unsigned) LIFT_FLY; /* told now */
     if (u.usteed && !u_flies_unmounted())
         You("and %s are airborne again.",
             x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
@@ -4777,6 +4790,7 @@ still_chained_msg(void)
 void
 float_up(void)
 {
+    gp.pending_lift &= ~(unsigned) LIFT_FLOAT; /* told now */
     disp.botl = TRUE;
     if (u.utrap) {
         if (u.utraptype == TT_PIT) {
@@ -5092,6 +5106,40 @@ land_deferred(void)
         check_flight_landing(TRUE);
     else
         spoteffects(TRUE);
+}
+
+/* A hold that kept the hero's levitation or flight down has ended ahead
+   of the event's own messages: a teleport, a level change, an engulfing,
+   life saving. lift_msg_deferred() tells of the lift after them unless
+   float_up() or flight_resumed_msg() gets there first */
+void
+defer_lift_msg(boolean was_Lev, boolean was_Fly)
+{
+    /* restore ends no holds; as for defer_landing() */
+    if (program_state.restoring)
+        return;
+    if (!was_Lev && Levitation)
+        gp.pending_lift |= LIFT_FLOAT;
+    if (!was_Fly && Flying)
+        gp.pending_lift |= LIFT_FLY;
+}
+
+/* defer_lift_msg()'s other half; lift that has gone again since (a new
+   hold, blocking terrain, its source removed) goes untold */
+void
+lift_msg_deferred(void)
+{
+    unsigned lift = gp.pending_lift;
+
+    /* leaving the level: told after arrival (deferred_goto()) */
+    if (lift == LIFT_NONE || u.utotype)
+        return;
+    gp.pending_lift = LIFT_NONE;
+    /* as reset_utrap(TRUE) does; floating keeps flight blocked */
+    if ((lift & LIFT_FLOAT) && Levitation)
+        float_up();
+    if ((lift & LIFT_FLY) && Flying)
+        flight_resumed_msg();
 }
 
 /* is the hero over a drop: water, lava, open air or a hole? A tree's
@@ -6170,7 +6218,11 @@ rnd_nextto_goodpos(coordxy *x, coordxy *y, struct monst *mtmp)
 void
 back_on_ground(boolean rescued)
 {
-    const char *preposit = (Levitation || Flying) ? "over" : "on",
+    /* lift a hold kept down and that is still to be told comes after
+       this line (lift_msg_deferred()) */
+    boolean aloft = ((Levitation && !(gp.pending_lift & LIFT_FLOAT))
+                     || (Flying && !(gp.pending_lift & LIFT_FLY)));
+    const char *preposit = aloft ? "over" : "on",
                *surf = surface(u.ux, u.uy), *you_are_back;
     char icebuf[QBUFSZ];
 
@@ -6343,15 +6395,20 @@ drown(void)
         You("attempt a teleport spell."); /* utcsri!carroll */
         if (!noteleport_level(&gy.youmonst)) {
             (void) dotele(FALSE);
-            if (!is_pool(u.ux, u.uy))
+            if (!is_pool(u.ux, u.uy)) {
+                /* lift a hold kept down, after the move */
+                lift_msg_deferred();
                 return TRUE;
+            }
         } else
             pline_The("attempted teleport spell fails.");
     }
     if (u.usteed) {
         dismount_steed(DISMOUNT_GENERIC);
-        if (!is_pool(u.ux, u.uy))
+        if (!is_pool(u.ux, u.uy)) {
+            lift_msg_deferred();
             return TRUE;
+        }
     }
     /* if sleeping, wake up now so that we don't crawl out of water
        while still asleep; we can't do that the same way that waking
@@ -6376,6 +6433,7 @@ drown(void)
         if (succ) {
             pline("Pheew!  That was close.");
             teleds(x, y, TELEDS_ALLOW_DRAG);
+            lift_msg_deferred();
             return TRUE;
         }
         /* still too much weight */
@@ -6409,6 +6467,7 @@ drown(void)
     if (u.uinwater)
         set_uinwater(0); /* u.uinwater = 0 */
     rescued_from_terrain(DROWNING);
+    lift_msg_deferred();
     return TRUE;
 }
 
@@ -8735,6 +8794,8 @@ lava_effects(void)
         /* normally done via safe_teleds() -> teleds() -> spoteffects() but
            spoteffects() was no-op when called with nonzero in_lava_effects */
         spoteffects(FALSE); /* suppress auto-pickup for this landing... */
+        /* lift a hold kept down (teleds()), after the rescue */
+        lift_msg_deferred();
 
         return TRUE;
     } else if (!Wwalking && (!u.utrap || u.utraptype != TT_LAVA)) {
@@ -8788,7 +8849,7 @@ sink_into_lava(void)
            * allmain() only checks whether the hero is at a lava location,
            * not whether he or she is currently sinking */
     } else if (!is_lava(u.ux, u.uy)) {
-        reset_utrap(FALSE); /* this shouldn't happen either */
+        reset_utrap(TRUE); /* this shouldn't happen either */
     } else if (!u.uinvulnerable) {
         /* ordinarily we'd have to be fire resistant to survive long
            enough to become stuck in lava, but it can happen without
@@ -8817,6 +8878,8 @@ sink_into_lava(void)
             /* levitation or flight have become unblocked, otherwise Tport */
             if (!Levitation && !Flying)
                 (void) safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT);
+            /* the lift savelife() gave back, told after the life saving */
+            lift_msg_deferred();
         } else if (!u.umoved) {
             /* can't fully turn into slime while in lava, but might not
                have it be burned away until you've come awfully close */

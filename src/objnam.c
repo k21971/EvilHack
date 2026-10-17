@@ -4650,7 +4650,7 @@ wizterrainwish(struct _readobjnam_data *d)
             docrt();
         } else {
             if (u.utrap && u.utraptype == TT_LAVA && !is_lava(u.ux, u.uy))
-                reset_utrap(FALSE);
+                reset_utrap_deferred(); /* lift told after the wish */
             recalc_block_point(x, y);
         }
 

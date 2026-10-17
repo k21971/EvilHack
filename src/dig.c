@@ -737,11 +737,12 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
     int old_typ, old_aligntyp = A_NONE;
 
     /* a chain waiting behind the floor's hold goes first, so that the
-       floor's release can't hand the hero to it */
+       floor's release can't hand the hero to it; any lift either kept
+       down is told after the dig's own messages */
     if (at_u && u_tethered())
         buried_ball_to_punishment();
     if (at_u && u.utrap && u.utraptype == TT_INFLOOR)
-        reset_utrap(FALSE);
+        reset_utrap_deferred();
 
     if (furniture_handled(x, y, madeby_u))
         return;
@@ -833,8 +834,12 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             } else if (!wont_fall) {
                 set_utrap(rn1(4, 2), TT_PIT);
                 gv.vision_full_recalc = 1; /* vision limits change */
-            } else
+            } else {
+                /* lift a hold kept down, told after the dig; a hero
+                   still in an old pit floats out of it */
+                lift_msg_deferred();
                 reset_utrap(TRUE);
+            }
             if (oldobjs != newobjs) /* something unearthed */
                 (void) pickup(1);   /* detects pit */
         } else if (mtmp) {
@@ -854,6 +859,8 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
             switch_terrain();
             if (Levitation || Flying || tree_held)
                 wont_fall = TRUE;
+            /* lift a hold kept down, told after the dig */
+            lift_msg_deferred();
 
             /* check for leashed pet that can't fall right now */
             if (!u.ustuck && !wont_fall && !next_to_u()) {
@@ -888,6 +895,8 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                 goto_level(&newlevel, FALSE, TRUE, FALSE);
                 /* messages for arriving in special rooms */
                 spoteffects(FALSE);
+                /* lift a hold kept down, told after arrival */
+                lift_msg_deferred();
             }
         } else {
             if (shopdoor && heros_fault)
@@ -2143,7 +2152,8 @@ u_tethered(void)
 
 /* the hero's chain to a buried iron ball is gone (the ball was dug up or
    freed, or the chain broke); a chain that waited behind another hold
-   leaves that hold in place */
+   leaves that hold in place. Without msg, any lift the chain kept down
+   is told after the caller's event (lift_msg_deferred()) */
 void
 end_buried_tether(boolean msg)
 {
@@ -2153,14 +2163,21 @@ end_buried_tether(boolean msg)
         u.utether_pending = 0;
         float_vs_flight();
         /* only a pit lets lift through, so the chain was holding it
-           down; floating up out of the pit changes where the hero is,
-           so that runs even when the caller wants no message */
-        if (!was_Lev && Levitation)
-            float_up();
-        if (msg && !was_Fly && Flying)
-            flight_resumed_msg();
+           down; floating up out of the pit happens where the lift is
+           told, after the caller's event when that has messages to come */
+        if (!msg) {
+            defer_lift_msg(was_Lev, was_Fly);
+        } else {
+            if (!was_Lev && Levitation)
+                float_up();
+            if (!was_Fly && Flying)
+                flight_resumed_msg();
+        }
     } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
-        reset_utrap(msg);
+        if (msg)
+            reset_utrap(TRUE);
+        else
+            reset_utrap_deferred();
     }
 }
 
@@ -2198,8 +2215,11 @@ unearth_tether_ball(struct obj *ball)
     newsym(bx, by);
 }
 
+/* the buried iron ball the hero was chained to comes up where it lies
+   and the chain is gone; without msg, any lift the chain kept down is
+   told after the caller's own messages (lift_msg_deferred()) */
 void
-buried_ball_to_freedom(void)
+buried_ball_to_freedom(boolean msg)
 {
     coord cc;
     struct obj *ball;
@@ -2216,7 +2236,7 @@ buried_ball_to_freedom(void)
 #endif
         place_object(ball, cc.x, cc.y);
         stackobj(ball);
-        end_buried_tether(TRUE);
+        end_buried_tether(msg);
         del_engr_at(cc.x, cc.y);
         newsym(cc.x, cc.y);
     }
@@ -2723,7 +2743,9 @@ create_pit_under(struct monst *mdef, struct monst *magr)
             sent_down_hole = TRUE;
         } else if (Levitation || Flying) {
             You("%s back up.", Flying ? "fly" : "float");
-            /* utrap should not have been set at all */
+            /* utrap should not have been set at all; this tells of any
+               lift still waiting to be told */
+            gp.pending_lift = LIFT_NONE;
         }
     } else {
         wakeup(mdef, FALSE);

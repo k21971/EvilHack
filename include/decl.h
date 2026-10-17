@@ -830,6 +830,7 @@ struct instance_globals_p {
 
     /* trap.c */
     enum hero_landing pending_landing; /* see defer_landing() */
+    unsigned pending_lift; /* LIFT_* bits; see defer_lift_msg() */
 
     /* potion.c */
     int potion_nothing;

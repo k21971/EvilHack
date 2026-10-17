@@ -1753,9 +1753,9 @@ trapmove(
                 You("finally %s free.",
                     !anchored ? "wriggle" : "wrench the ball");
             if (anchored) {
-                /* unearthing the ball ends the hold quietly; end it
-                   here first so that resumed flight or levitation is
-                   reported */
+                /* unearthing the ball would tell of resumed flight or
+                   levitation only after this action; end the hold here
+                   first so that it follows the line above */
                 reset_utrap(TRUE);
                 buried_ball_to_punishment();
             }

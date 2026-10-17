@@ -1495,7 +1495,7 @@ polymon(int mntmp)
        that the floor letting go below can't hand the hero to it */
     if (Passes_walls && u.utether_pending) {
         pline_The("buried ball is no longer bound to you.");
-        buried_ball_to_freedom();
+        buried_ball_to_freedom(TRUE);
     }
     if (Passes_walls && u.utrap
         && (u.utraptype == TT_INFLOOR || u.utraptype == TT_BURIEDBALL)) {
@@ -1503,7 +1503,7 @@ polymon(int mntmp)
             pline_The("rock seems to no longer trap you.");
         } else {
             pline_The("buried ball is no longer bound to you.");
-            buried_ball_to_freedom();
+            buried_ball_to_freedom(TRUE);
         }
         reset_utrap(TRUE);
     } else if (likes_lava(gy.youmonst.data) && u.utrap
@@ -1518,7 +1518,7 @@ polymon(int mntmp)
             unpunish();
         } else if (u_tethered()) {
             You("slip free of the buried ball and chain.");
-            buried_ball_to_freedom();
+            buried_ball_to_freedom(TRUE);
         }
     }
     if (u.utrap && (u.utraptype == TT_WEB || u.utraptype == TT_BEARTRAP)
