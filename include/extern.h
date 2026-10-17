@@ -629,6 +629,7 @@ extern void rot_organic(union any *, long) NONNULLARG1;
 extern void rot_corpse(union any *, long) NONNULLARG1;
 extern struct obj *buried_ball(coord *) NONNULLARG1;
 extern void buried_ball_to_punishment(void);
+extern void unearth_tether_ball(struct obj *) NONNULLARG1;
 extern void buried_ball_to_freedom(void);
 extern boolean u_tethered(void);
 extern void end_buried_tether(boolean);
@@ -2769,9 +2770,11 @@ extern void nhassert_failed(const char *, const char *, int);
 /* ### polyself.c ### */
 
 extern void set_uasmon(void);
+extern boolean u_held_down(void);
 extern void float_vs_flight(void);
 extern boolean u_lift_unheld(void);
 extern boolean u_lift_unenclosed(void);
+extern boolean u_flies_unmounted(void);
 extern void steed_vs_stealth(void);
 extern void change_sex(void);
 extern void livelog_newform(boolean, int, int);
@@ -3496,6 +3499,7 @@ extern void kick_steed(void);
 extern void dismount_steed(int);
 extern boolean dismount_untamed_steed(void);
 extern void place_monster(struct monst *, coordxy, coordxy) NONNULLARG1;
+extern void steed_lift_changed(struct monst *, boolean) NONNULLARG1;
 extern void poly_steed(struct monst *, struct permonst *) NONNULLARG12;
 extern boolean stucksteed(boolean);
 
@@ -3658,6 +3662,7 @@ extern struct monst *activate_statue_trap(struct trap *, coordxy, coordxy,
 extern int immune_to_trap(struct monst *, unsigned) NO_NNARGS; /* revisit */
 extern void set_utrap(unsigned, unsigned);
 extern void reset_utrap(boolean);
+extern void flight_resumed_msg(void);
 extern boolean floor_trigger(int);
 extern boolean wearing_iron_shoes(struct monst *);
 extern boolean m_harmless_trap(struct monst *, struct trap *) NONNULLPTRS;

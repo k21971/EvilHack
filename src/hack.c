@@ -22,6 +22,8 @@ staticfn boolean findtravelpath(int);
 staticfn boolean trapmove(coordxy, coordxy, struct trap *);
 staticfn int QSORTCALLBACK notice_mons_cmp(const genericptr,
                                            const genericptr) NONNULLPTRS;
+staticfn boolean steed_keeps_dry(void);
+staticfn void chain_pulls_off_steed(void);
 staticfn schar u_simple_floortyp(coordxy, coordxy);
 staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy);
@@ -1922,21 +1924,44 @@ u_locomotion(const char *def)
              : locomotion(gy.youmonst.data, def);
 }
 
+/* does the hero's steed keep its rider clear of the water or lava below?
+   Its flight or floating does, by nature, worn gear or a spell, unless a
+   hold on the rider keeps the pair down; so does clinging to the ceiling */
+staticfn boolean
+steed_keeps_dry(void)
+{
+    return (u.usteed
+            && ((is_clinger(u.usteed->data) && has_ceiling(&u.uz))
+                || (mon_airborne(u.usteed) && !u_held_down())));
+}
+
+/* the hero's steed flies or floats, but a hold keeps the pair down over
+   water, lava or open air: the steed itself can stay up, so the hero
+   comes off it (the caller dismounts); only a buried iron ball's chain
+   can hold a rider there */
+staticfn void
+chain_pulls_off_steed(void)
+{
+    if (u.usteed && mon_airborne(u.usteed) && u_held_down()
+        && (u.utraptype == TT_BURIEDBALL || u.utether_pending))
+        pline_The("chain pulls you off %s!",
+                  x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
+                           (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+}
+
 /* Return a simplified floor solid/liquid state based on hero's state */
 staticfn schar
 u_simple_floortyp(coordxy x, coordxy y)
 {
-    /* mirror the gating pooleffects() uses: an airborne steed keeps the
+    /* mirror the gating pooleffects() uses: a steed that clings, or
+       that flies or floats unless a hold keeps the pair down, keeps the
        hero clear of the liquid, and the hero's own levitation or flight
        counts (a form's floating or flying included, but not wings folded
        under hard armor, nor a clinging form), including lift that only
        the terrain the hero stands in blocks (inside rock or a tree being
        phased through, a closed door, a liquid wall), since stepping out
        over the liquid restores it before pooleffects() runs */
-    boolean u_in_air = (u_lift_unenclosed()
-                        || (u.usteed && (!grounded(u.usteed->data)
-                                         || can_levitate(u.usteed)
-                                         || can_fly(u.usteed))));
+    boolean u_in_air = (u_lift_unenclosed() || steed_keeps_dry());
 
     if (is_waterwall(x, y))
         return WATER; /* wall of water, fly/lev does not matter */
@@ -3666,15 +3691,16 @@ pooleffects(
              && !Wwalking)) {
         if (is_pool_or_lava(u.ux, u.uy)
             || (shallow_water && verysmall(gy.youmonst.data))) {
-            if (u.usteed && (!grounded(u.usteed->data)
-                             || can_levitate(u.usteed)
-                             || can_fly(u.usteed))) {
-                /* floating or clinging steed keeps hero safe (is_flyer()
-                   test is redundant; it can't be true since Flying yielded
-                   false) */
+            if (steed_keeps_dry()) {
+                /* a flying, floating or clinging steed keeps hero safe;
+                   Flying is false for a flying or floating one here only
+                   when the terrain the hero is in blocks it (a wall of
+                   water or lava, as on the Plane of Water) */
                 return FALSE;
             } else if (u.usteed) {
-                /* steed enters pool */
+                /* steed enters pool, or a hold pulls the hero off one
+                   that stays up */
+                chain_pulls_off_steed();
                 dismount_steed(Underwater ? DISMOUNT_FELL : DISMOUNT_GENERIC);
                 /* dismount_steed() -> float_down() -> pickup()
                    (float_down doesn't do autopickup on Air or Water) */
@@ -3967,6 +3993,18 @@ spoteffects(boolean pick)
         && !(u.usteed && is_clinger(u.usteed->data))
         /* entangling branches hold the hero over the drop */
         && !(u.utrap && u.utraptype == TT_ENTANGLED)) {
+        /* a hold keeps a rider down over the drop, but a steed that flies
+           or floats stays up: the hero comes off it onto a spot nearby
+           when there is one */
+        if (u.usteed && mon_airborne(u.usteed) && u_held_down()) {
+            chain_pulls_off_steed();
+            dismount_steed(DISMOUNT_GENERIC);
+            /* a hero left here met the drop in dismount_steed()'s
+               float_down(), unless the hold kept the hero's levitation
+               back */
+            if (!u_at(spot_x, spot_y) || !(HLevitation || ELevitation))
+                goto spotdone;
+        }
         /* only a ball that is itself over the drop pulls the hero down */
         if (Punished && !carried(uball)
             && is_open_air(uball->ox, uball->oy))

@@ -3061,13 +3061,13 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
     }
     case SPE_LEVITATION:
         /* self-targeting: grant temporary levitation */
-        if (!is_floater(caster->data) && !is_flyer(caster->data)
-            && !can_levitate(caster) && !can_fly(caster)) {
+        if (!mon_airborne(caster)) {
             caster->mextrinsics |= MR2_LEVITATE;
             caster->mlevitatetime = rn1(50, 50); /* 50-100 turns */
             if (canseemon(caster))
                 pline_mon(caster, "%s begins to float in the air!",
                           Monnam(caster));
+            steed_lift_changed(caster, FALSE);
         }
         break;
     case SPE_JUMPING:

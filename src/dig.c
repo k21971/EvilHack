@@ -2157,10 +2157,8 @@ end_buried_tether(boolean msg)
            so that runs even when the caller wants no message */
         if (!was_Lev && Levitation)
             float_up();
-        if (msg && !was_Fly && Flying) {
-            You("can fly.");
-            check_flight_amulet();
-        }
+        if (msg && !was_Fly && Flying)
+            flight_resumed_msg();
     } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
         reset_utrap(msg);
     }
@@ -2176,17 +2174,28 @@ buried_ball_to_punishment(void)
     cc.y = u.uy;
     ball = buried_ball(&cc);
     if (ball) {
-        obj_extract_self(ball);
-#if 0
-        /* rusting buried metallic objects is not implemented yet */
-        if (ball->timed)
-            (void) stop_timer(RUST_METAL, obj_to_any(ball));
-#endif
-        punish(ball); /* use ball as flag for unearthed buried ball */
+        unearth_tether_ball(ball);
         end_buried_tether(FALSE);
-        del_engr_at(cc.x, cc.y);
-        newsym(cc.x, cc.y);
     }
+}
+
+/* the buried iron ball the hero was chained to comes up at the hero's
+   feet and the hero is punished with it again; the caller ends the
+   tether (end_buried_tether()) */
+void
+unearth_tether_ball(struct obj *ball)
+{
+    coordxy bx = ball->ox, by = ball->oy;
+
+    obj_extract_self(ball);
+#if 0
+    /* rusting buried metallic objects is not implemented yet */
+    if (ball->timed)
+        (void) stop_timer(RUST_METAL, obj_to_any(ball));
+#endif
+    punish(ball); /* use ball as flag for unearthed buried ball */
+    del_engr_at(bx, by);
+    newsym(bx, by);
 }
 
 void

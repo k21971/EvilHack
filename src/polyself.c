@@ -222,23 +222,31 @@ set_uasmon(void)
     gw.were_changes = 0L;
 }
 
-/* Levitation overrides Flying; set or clear BFlying|I_SPECIAL */
-void
-float_vs_flight(void)
+/* is the hero held in or on the floor, so that no lift (the hero's own or
+   a steed's) can raise the hero? A pit lets lift through */
+boolean
+u_held_down(void)
 {
     /* a hold lasts until set_utrap() or reset_utrap() clears its type:
        an escape that counts u.utrap down to 0 tells of it before calling
        reset_utrap(), and the status update for that message must not
        lift the block before reset_utrap() can report the change */
-    boolean stuck_in_floor = (u.utraptype != TT_NONE
-                              /* a buried ball's chain waiting behind
-                                 a pit still holds the hero down */
-                              && (u.utraptype != TT_PIT
-                                  || u.utether_pending));
+    return (u.utraptype != TT_NONE
+            /* a buried ball's chain waiting behind a pit still holds the
+               hero down */
+            && (u.utraptype != TT_PIT || u.utether_pending));
+}
 
-    /* floating overrides flight; so does being trapped in the floor */
-    if ((HLevitation || ELevitation)
-        || ((HFlying_usable || EFlying) && stuck_in_floor))
+/* Levitation overrides Flying; set or clear BFlying|I_SPECIAL */
+void
+float_vs_flight(void)
+{
+    boolean stuck_in_floor = u_held_down();
+
+    /* floating overrides flight; so does being trapped in the floor,
+       which also keeps a flying or floating steed and its rider down, so
+       the block is set whether or not the hero has flight of their own */
+    if ((HLevitation || ELevitation) || stuck_in_floor)
         BFlying |= I_SPECIAL;
     else
         BFlying &= ~I_SPECIAL;
@@ -292,6 +300,19 @@ u_lift_unenclosed(void)
     res = (Levitation || Flying);
     BLevitation = save_BLev;
     BFlying = save_BFly;
+    return res;
+}
+
+/* would the hero fly without the steed's own flight or floating? */
+boolean
+u_flies_unmounted(void)
+{
+    struct monst *steed = u.usteed;
+    boolean res;
+
+    u.usteed = (struct monst *) 0; /* the Flying test reads the steed */
+    res = (Flying != 0);
+    u.usteed = steed;
     return res;
 }
 

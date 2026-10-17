@@ -1051,8 +1051,8 @@ dorecover(NHFILE *nhfp)
        for their wings, ensure they stay tucked away under their body
        armor upon reload. This has to come after the getlev() above,
        which is where u.usteed is re-linked from u.usteed_mid: the
-       first thing check_wings() reads is Flying, and Flying reads
-       u.usteed->data. set_uasmon() defers its own call for the same
+       first thing check_wings() reads is Flying, and Flying reads the
+       steed. set_uasmon() defers its own call for the same
        reason, "until we have a steed" */
     check_wings(TRUE);
     program_state.something_worth_saving = 1; /* useful data now exists */

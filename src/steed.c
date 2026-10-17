@@ -1076,9 +1076,7 @@ mount_steed(
     }
 
     /* Is the player impaired? */
-    if (!force && !is_floater(ptr) && !is_flyer(ptr)
-        && !can_levitate(mtmp) && !can_fly(mtmp) && Levitation
-        && !Lev_at_will) {
+    if (!force && !mon_airborne(mtmp) && Levitation && !Lev_at_will) {
         You("cannot reach %s.", mon_nam(mtmp));
         return (FALSE);
     }
@@ -1115,8 +1113,7 @@ mount_steed(
     /* Success */
     maybewakesteed(mtmp);
     if (!force) {
-        if (Levitation && !is_floater(ptr) && !is_flyer(ptr)
-            && !can_levitate(mtmp) && !can_fly(mtmp))
+        if (Levitation && !mon_airborne(mtmp))
             /* Must have Lev_at_will at this point */
             pline("%s magically floats up!", Monnam(mtmp));
         You("mount %s.", mon_nam(mtmp));
@@ -1678,6 +1675,30 @@ maybewakesteed(struct monst *steed)
     finish_meating(steed);
 }
 
+/* the hero's steed may have gained or lost the flight or floating that
+   carries its rider (worn gear, a spell running out, a new shape);
+   was_airborne is the lift it had before */
+void
+steed_lift_changed(struct monst *mon, boolean was_airborne)
+{
+    struct trap *ttmp;
+
+    if (mon != u.usteed || !was_airborne == !mon_airborne(mon))
+        return;
+    disp.botl = TRUE; /* status: 'Fly' */
+    /* riding blocks stealth unless hero+steed fly */
+    steed_vs_stealth();
+    /* the rider hovered over a floor trap; with the steed's lift gone
+       and nothing else keeping the hero up, the pair comes down onto it.
+       Water, lava and open air are the steed's own terrain check; traps
+       that catch flyers were met on arrival, and a hold had already
+       brought the pair down. Silent, like polyman()'s riding landing:
+       the trap tells it */
+    if (was_airborne && !Flying && !Levitation && !u_held_down()
+        && (ttmp = t_at(u.ux, u.uy)) != 0 && floor_trigger(ttmp->ttyp))
+        defer_landing(LANDING_SPOT);
+}
+
 /* steed has taken on a new shape */
 void
 poly_steed(
@@ -1691,27 +1712,19 @@ poly_steed(
         dismount_steed(DISMOUNT_FELL);
     } else {
         char buf[BUFSZ];
-        struct trap *ttmp;
+        /* a worn amulet and spell lift survive newcham(); armor it
+           strips was told of by update_mon_extrinsics() */
+        boolean was_airborne = (is_flyer(oldshape) || is_floater(oldshape)
+                                || can_fly(steed) || can_levitate(steed));
 
         Strcpy(buf, x_monnam(steed, ARTICLE_YOUR, (char *) 0,
                              (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
         if (oldshape != steed->data)
             (void) strsubst(buf, "your ", "your new ");
         You("adjust yourself in the saddle on %s.", buf);
-        disp.botl = TRUE; /* status: the steed's form may change 'Fly' */
-
-        /* riding blocks stealth unless hero+steed fly */
-        steed_vs_stealth();
-
-        /* the rider hovered over a floor trap; with the steed's wings
-           gone and nothing else keeping the hero up, the pair comes down
-           onto it. Water, lava and open air are the steed's own terrain
-           check; traps that catch flyers were met on arrival. Silent,
-           like polyman()'s riding landing: the trap tells it */
-        if (is_flyer(oldshape) && !Flying && !Levitation
-            && (ttmp = t_at(u.ux, u.uy)) != 0
-            && floor_trigger(ttmp->ttyp))
-            defer_landing(LANDING_SPOT);
+        /* status, stealth and a landing on a floor trap if the new form
+           lost the steed's wings */
+        steed_lift_changed(steed, was_airborne);
     }
 }
 

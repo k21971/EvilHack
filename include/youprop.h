@@ -325,7 +325,9 @@
 #define HFlying u.uprops[FLYING].intrinsic
 #define EFlying u.uprops[FLYING].extrinsic
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
-   FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
+   FROMOUTSIDE set if inside solid rock (or in water on Plane of Water);
+   being trapped sets it whatever would lift the hero, so it also keeps
+   a flying or floating steed and its rider down */
 #define BFlying u.uprops[FLYING].blocked
 /* an aasimar's racial flight is its angelic wings, part of the aasimar
    body: it lies dormant while the hero is polymorphed (the FROMRACE bit
@@ -337,11 +339,12 @@
    clean alignment) is subject to the hard-armor block check_wings()
    sets; wingless form and racial flyers (vampires, illithids at level
    12+) still fall through the (HFlying_usable && !big_wings(...))
-   disjunct */
+   disjunct; a steed that flies or floats by any means carries its rider
+   (a floating steed's rider counts as flying, not levitating) */
 #define Flying \
     ((((EFlying || (HFlying & ~FROMFORM & ~FROMRACE)                        \
        || (HFlying_usable && !big_wings(raceptr(&gy.youmonst))))            \
-       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR)) \
+       || (u.usteed && mon_airborne(u.usteed))) && !(BFlying & ~W_ARMOR))   \
      || (HFlying_usable && !BFlying))
 /* May touch surface; does not override any others */
 

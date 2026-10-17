@@ -690,6 +690,7 @@ update_mon_extrinsics(
         altwhich = altprop(obj);
     long props = obj->oprops;
     long i = 0L;
+    boolean was_airborne = mon_airborne(mon);
 
     unseen = !canseemon(mon);
     unsensed = !sensemon(mon);
@@ -930,6 +931,9 @@ update_mon_extrinsics(
         }
     }
 
+    /* a steed's new or lost flight or floating carries or drops its
+       rider */
+    steed_lift_changed(mon, was_airborne);
     if (!on && mon == u.usteed && obj->otyp == SADDLE)
         dismount_steed(DISMOUNT_FELL);
 

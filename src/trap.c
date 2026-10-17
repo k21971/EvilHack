@@ -1317,11 +1317,23 @@ reset_utrap(boolean msg)
     if (msg) {
         if (!was_Lev && Levitation)
             float_up();
-        if (!was_Fly && Flying) {
-            You("can fly.");
-            check_flight_amulet();
-        }
+        if (!was_Fly && Flying)
+            flight_resumed_msg();
     }
+}
+
+/* the hold that kept the hero's flight down has ended; the lift may be
+   the steed's alone */
+void
+flight_resumed_msg(void)
+{
+    if (u.usteed && !u_flies_unmounted())
+        You("and %s are airborne again.",
+            x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
+                     (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+    else
+        You("can fly.");
+    check_flight_amulet();
 }
 
 /* is trap type ttyp triggered by touching the floor? */
@@ -3879,12 +3891,11 @@ steedintrap(struct trap *trap, struct obj *otmp)
         steedhit = TRUE;
         break;
     case SPEAR_TRAP_SET:
+        /* Flying counts the steed's own flight or floating, unless a
+           hold keeps the pair down */
         pline("The spear stabs %s%s!",
-              (is_flyer(steed->data) || can_fly(steed)
-               || Levitation || Flying) ? "at " : "",
-              mon_nam(steed));
-        if (is_flyer(steed->data) || can_fly(steed)
-            || Levitation || Flying) {
+              (Levitation || Flying) ? "at " : "", mon_nam(steed));
+        if (Levitation || Flying) {
             pline("But it isn't long enough to reach %s.",
                   mon_nam(steed));
         } else if (thick_skinned(steed->data)
@@ -4813,9 +4824,7 @@ float_up(void)
     } else {
         You("start to float in the air!");
     }
-    if (u.usteed && !is_floater(u.usteed->data)
-        && !is_flyer(u.usteed->data)
-        && !can_fly(u.usteed) && !can_levitate(u.usteed)) {
+    if (u.usteed && !mon_airborne(u.usteed)) {
         if (Lev_at_will) {
             pline("%s magically floats up!", Monnam(u.usteed));
         } else {
@@ -4964,10 +4973,7 @@ float_down(
         } else if (Is_waterlevel(&u.uz) && !no_msg) {
             You_feel("heavier.");
         } else if (is_open_air(u.ux, u.uy)
-                   && !(u.usteed && (is_floater(u.usteed->data)
-                                     || is_flyer(u.usteed->data)
-                                     || can_levitate(u.usteed)
-                                     || can_fly(u.usteed)))) {
+                   && !(u.usteed && mon_airborne(u.usteed))) {
             if (!Flying) {
                 You("are no longer flying.");
                 You("plummet several thousand feet to your death.");
@@ -4992,10 +4998,7 @@ float_down(
                     if (u.usteed)
                         dismount_steed(DISMOUNT_FELL);
                     selftouch("As you fall, you");
-                } else if (u.usteed && (is_floater(u.usteed->data)
-                                        || is_flyer(u.usteed->data)
-                                        || can_levitate(u.usteed)
-                                        || can_fly(u.usteed))) {
+                } else if (u.usteed && mon_airborne(u.usteed)) {
                     You("settle more firmly in the saddle.");
                 } else if (Hallucination) {
                     pline("Bummer!  You've %s.",

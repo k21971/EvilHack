@@ -1780,6 +1780,7 @@ m_calcdistress(struct monst *mtmp)
         if (canseemon(mtmp))
             pline("%s floats gently to the %s.",
                   Monnam(mtmp), surface(mtmp->mx, mtmp->my));
+        steed_lift_changed(mtmp, TRUE);
     }
     if (can_jump(mtmp) && mtmp->mjumptime && mtmp->mjumptime <= 1) {
         mtmp->mextrinsics &= ~(MR2_JUMPING);

@@ -230,6 +230,11 @@
     ((mon_resistancebits(mon) & MR2_LEVITATE) != 0)
 #define can_fly(mon) \
     ((mon_resistancebits(mon) & MR2_FLY) != 0)
+/* flies or floats, by nature, worn gear or a spell; clinging, which
+   grounded() and m_in_air() also count, is not included */
+#define mon_airborne(mon) \
+    (is_flyer((mon)->data) || is_floater((mon)->data) \
+     || can_fly(mon) || can_levitate(mon))
 #define can_wwalk(mon) \
     ((mon_resistancebits(mon) & MR2_WATERWALK) != 0)
 #define has_claws(ptr) \

@@ -4409,6 +4409,8 @@ grow_up(struct monst *mtmp, struct monst *victim)
         lev_limit = (ptr->mlevel > 49 ? 50 : 49);
 
     if ((int) ++mtmp->m_lev >= mons[newtype].mlevel && newtype != oldtype) {
+        boolean was_airborne = mon_airborne(mtmp);
+
         ptr = &mons[newtype];
         /* new form might force gender change */
         fem = is_male(ptr) ? 0 : is_female(ptr) ? 1 : mtmp->female;
@@ -4442,6 +4444,9 @@ grow_up(struct monst *mtmp, struct monst *victim)
                       an(buf));
         }
         set_mon_data(mtmp, ptr);
+        /* a ridden baby dragon grown into a winged adult carries its
+           rider now */
+        steed_lift_changed(mtmp, was_airborne);
         if (mtmp->cham == oldtype && is_shapeshifter(ptr))
             mtmp->cham = newtype; /* vampire growing into vampire lord */
         newsym(mtmp->mx, mtmp->my);    /* color may change */
