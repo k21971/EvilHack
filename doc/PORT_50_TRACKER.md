@@ -17,11 +17,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-17, after session 236's
-  silent hold clears slice): 439 rows closed, 109 open. Of the open
-  rows:
+- Phase 2 status (refreshed 2026-10-17, after session 237's
+  travel and paranoid slice): 444 rows closed, 111 open. Of the
+  open rows:
   - 0 HIGH.
-  - 1 MED: an unported master feature (door-material colors).
+  - 2 MED: an unported master feature (door-material colors), and
+    auto-opening a door costing no turn (minted session 237,
+    plannable).
     Session 232 closed the bag explosion row (BUG-2388..2391): an
     exploding bag of holding deals master's d(8, 10) "exploding
     magical bag", or d(12, 12) "exploding magical artifact bag"
@@ -118,7 +120,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 92 LOW: small parity rows, quirks and watch/record-only items.
+  - 93 LOW: small parity rows, quirks and watch/record-only items.
+    Session 237 closed the `_` travel row (BUG-2409): with paranoid
+    swim on, every travel step into known water or lava asks, an
+    adjacent target included, and travel never walks into a wall
+    of water or lava; only an m-prefixed move goes in unasked.
+    Ruled the same day: 5.0's paranoid trap is gone with its gas
+    cloud question (BUG-2410), and master's paranoid quit default
+    is ported - a typed "yes" to quit or enter explore mode
+    (BUG-2411). The battery found a refused first travel step cost
+    a turn (BUG-2412) and the re-review a tortle traveling in its
+    shell (BUG-2413). Minted three: travel's last step bumps a
+    monster on the destination (needs a ruling), the auto-open MED
+    above, and #saveoptions copying sysconf MSGTYPE lines twice
+    (needs a trace).
     Session 236 closed the silent hold clears row (BUG-2406): a hold
     that kept the hero's levitation or flight down and ended without
     a word (a teleport out of any hold, a level change, an engulfing,
@@ -131,7 +146,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     ruled vines only) and remove curse / the blessed bell telling
     the float before their own line (BUG-2408). Minted two (both
     plannable): delfloortrap() / deltrap_with_ammo() telling the lift
-    before the event, and a stale web hold left by dig().
+    before the event, and a stale web hold left by dig(). Its
+    follow-up ruled the three rows that waited on a ruling, all now
+    plannable: `_` travel asks like a step, the chain catches an
+    unmounted hero at the edge of open air, and an unearthed ball
+    comes up safely over a drop (arrival spot on a level change,
+    where it was buried otherwise).
     Session 235 closed the item-flying steed row (BUG-2401..2402): a
     steed that flies or floats by any means (natural, worn gear or a
     spell) carries its rider over water, holes, trap doors and open
@@ -23403,6 +23423,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       that is the yank and plummet. Reaching one needs a tethered
       unmounted hero over open air (held by branches with a pending
       tether). Decide: extend BUG-2405's rule, or record. LOW.
+      RULED 2026-10-17 (session 236 follow-up, decisions log): BRING
+      IT UP SAFELY - a level change brings the ball up at the arrival
+      spot on the new level (as teleds() does); paths that leave the
+      hero in place (a level teleport or portal that only shudders, a
+      melting or flooding square) bring it up where it was buried,
+      not at the hero's feet, so no yank. Rejected level changes only
+      and record only. Plannable.
 - [ ] LOW: unearthing a tethered ball while Punished with a second
       ball loses the buried one (minted 2026-10-17, session 235,
       reviewer; master and vanilla 5.0 alike). A hero who reads a
@@ -23430,6 +23457,12 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       air falls to its death; BUG-2402's pull-off sets a rider on an
       adjacent spot instead. Decide whether the chain should hold an
       unmounted hero at the edge too. LOW.
+      RULED 2026-10-17 (session 236 follow-up, decisions log): CATCH
+      AT THE EDGE - over open air the chain anchored on the ledge stops
+      the fall and pulls the hero onto an adjacent solid spot (wording
+      at plan time); over water and lava the hero still falls in, as
+      ruled in session 189. Rejected every drop as for the pair, and
+      keeping the plummet. Plannable.
 - [ ] LOW: a spoteffects() landing re-fires a non-floor trap the
       hovering hero already met (minted 2026-10-06, session 188, Plan
       agent; record unless reached in play). check_in_air() exempts
@@ -23626,7 +23659,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       the release line). Plannable. LOW.
 - [x] LOW: other holds end silently and the lift comes back untold
       (BUG-2406; BUG-2407 / BUG-2408 with it) - CLOSED 2026-10-17
-      (session 236, commit pending; plan
+      (session 236, commit 4df9def6a, tracker c8438f211; plan
       /root/.claude/plans/smooth-leaping-puffin.md; closure notes in
       BUGFIXES_ARCHIVE BUG-2406..2408). A deferred lift report on the
       gp.pending_landing model: trap.c reset_utrap_deferred() ends a
@@ -23689,14 +23722,14 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       gap there.
 - [x] LOW: an engulfer releases a vine-held hero "from the trap"
       (BUG-2407; minted and FIXED 2026-10-17, session 236, commit
-      pending; the session 190 census note on the row above). Ruled
+      4df9def6a; the session 190 census note on the row above). Ruled
       2026-10-17: vines only - "You are released from the tree's
       grip!" next to a live tree, "...from the vegetation!" otherwise;
       bear trap, pit, lava, floor and chain keep "the trap" (the
       maintainer over my every-hold pick).
 - [x] LOW: remove curse and the blessed bell of opening tell the float
       before their own line (BUG-2408; minted and FIXED 2026-10-17,
-      session 236, commit pending; the row above's order note plus
+      session 236, commit 4df9def6a; the row above's order note plus
       the bell, found by the Plan agent; master and vanilla 5.0
       alike). "The clasp on your leg vanishes." / "Something
       opens..." now come first, then "You start to float in the
@@ -27518,7 +27551,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       reviewer MEDIUM;
       BUG-1309's known residual; master and vanilla 5.0 alike). The
       hero's !grounded() term is gone from u_simple_floortyp().
-- [ ] LOW: `_` travel to an adjacent pool or liquid wall walks in
+- [x] LOW: `_` travel to an adjacent pool or liquid wall walks in
       unasked (minted 2026-10-16, session 234, Plan agent; master and
       vanilla 5.0 alike; record). findtravelpath()'s adjacent-target
       shortcut calls nomul(0), which clears run and travel but keeps
@@ -27527,6 +27560,90 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       travel target the player picked is arguably deliberate; decide
       whether travel should ask like a plain step. LOW (needs a
       ruling).
+      RULED 2026-10-17 (session 236 follow-up, decisions log): ASK LIKE
+      A STEP - every `_` travel step into known water or lava asks when
+      paranoid swim is on, an adjacent target included, and walls of
+      water or lava are refused; only m+direction steps in unasked.
+      Wider than the minted row: travel always sets context.nopick, so
+      under session 234's 5.0 gate (nopick alone) the branch never
+      asks during travel, while master's `!nopick || run` asked for a
+      far target's last step (only the adjacent shortcut's nomul(0)
+      cleared run). Rejected master's exact shape and leaving it.
+      Plannable.
+      CLOSED 2026-10-17 (session 237, commit pending; plan
+      /root/.claude/plans/steady-mapping-noodle.md; closure notes in
+      BUGFIXES_ARCHIVE BUG-2409). domove_core() notes a travel step
+      before findtravelpath() ends travel on its last step, and only
+      an m-prefixed move skips the question or the wall refusal. The
+      battery found a refused first travel step cost a turn
+      (BUG-2412, row below). Kept as master parity: a Blind hero's
+      last step into known liquid is refused by
+      avoid_running_into_trap_or_liquid() with no question, and a
+      count-prefixed travel's final counted step reads as an m-step
+      (Blind only; lookaround() stops a sighted hero first).
+- [x] LOW: 5.0's paranoid_confirmation:trap removed, its gas cloud
+      question included (BUG-2410; minted and FIXED 2026-10-17,
+      session 237, commit pending; ruled 2026-10-17). The travel
+      row's census found travel to an adjacent known trap or gas
+      cloud skipped that question too; the maintainer: "i'd like to
+      get rid of 5.0's paranoid trap altogether" (master never had
+      it). Removed avoid_trap_andor_region(), immune_to_trap() (its
+      only consumer) and enum trap_immunities, PARANOID_TRAP /
+      ParanoidTrap (AutoAll back to master's 0x0800), the 'trap' /
+      'move-trap' values and the default bit. A config naming 'trap'
+      gets "Unknown paranoid_confirmation parameter 'trap'.", as on
+      master. Travel still routes around known traps.
+- [x] LOW: master's paranoid quit default was never ported
+      (BUG-2411; minted and FIXED 2026-10-17, session 237, commit
+      pending; ruled 2026-10-17; master 367af1633). Quitting and
+      entering explore mode took a plain 'y'. The default is pray +
+      quit; a new list keeps quit unless it names !quit or none
+      (-quit and !paranoid_confirmation also clear it); #saveoptions
+      writes " !quit" when quit is off, so the reload keeps it off.
+- [x] LOW: a refused first `_` travel step costs a turn (BUG-2412;
+      minted and FIXED 2026-10-17, session 237, commit pending; found
+      by the battery; vanilla 5.0 shares it). dotravel_target() runs
+      the first step itself and returned ECMD_TIME, and rhack() then
+      sets context.move over domove()'s refusal; master's dotravel()
+      queued the travel key and its rhack() never overrode it. It now
+      returns ECMD_OK for a refused step and ECMD_TIME when life
+      saving left the hero helpless (the re-review's HIGH);
+      do_repeat() got the same helpless term (^A into a life-saved
+      step).
+- [x] LOW: a tortle hiding in its shell can travel (BUG-2413;
+      minted and FIXED 2026-10-17, session 237, commit pending; found
+      by the re-review; branch-only port regression). rhack()'s
+      shell check runs after the command, and dotravel_target()
+      moves the hero itself (later steps from moveloop()), so `_`,
+      #retravel and click travel crossed the level keeping the
+      shell's AC; master's travel key reached the shell check.
+      dotravel_target() now refuses with "Your movement is
+      constrained by your shell." and no time.
+- [ ] LOW: travel's last step treats a monster on the destination
+      as an m-prefixed bump (minted 2026-10-17, session 237, Plan
+      agent; master and vanilla 5.0 alike). findtravelpath()'s
+      nomul(0) clears context.travel before domove_bump_mon()'s
+      `nopick && !travel` test, so a pet or peaceful on the target
+      gets "Pardon me, <mon>." (a turn used, no swap; battery) and
+      a hostile "You move right into <mon>." instead of a swap or
+      an attack. Switching the test to the travel_step capture would
+      change whether travel's last step attacks. LOW (needs a
+      ruling).
+- [ ] MED: auto-opening a door costs no turn (minted 2026-10-17,
+      session 237, re-review MEDIUM, battery-confirmed on PRE and
+      POST; vanilla 5.0 shares it). test_move()'s autoopen arm sets
+      context.move = (ux != u.ux || uy != u.uy), always FALSE from
+      domove_core() (upstream 20c456cbb / faf2267ab, "whether hero
+      moved"); master charged a turn (context.door_opened =
+      context.move = doopen_indir(x, y)). A plain step into a closed
+      door opens it for free ("The door opens.", moves 3 -> 3).
+      Travel never auto-opens (the arm needs !run). Plannable
+      (master parity); check master's cost for a locked door (free
+      on both branch builds) at plan time.
+- [ ] LOW: #saveoptions writes sysconf's MSGTYPE lines into the
+      player's config file, each twice (minted 2026-10-17, session
+      237, battery anomaly). LOW (needs a trace: sysconf parsed
+      twice, or the msgtype list doubled).
 - [x] LOW: destroyed levitation boots skip float_down() (BUG-2158;
       BUG-2161..2164 the crash-class siblings under the same guard) -
       FIXED 2026-10-06 (session 187, commit ca7b63f03, tracker
@@ -30199,8 +30316,11 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 | date | fix | status |
 |------|-----|--------|
-| 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406: a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
-| 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408: the event line first. | found (branch-fixed); not sent |
+| 2026-10-17 | `_` travel never asks paranoid_confirm:swim's question and walks into walls of water or lava: swim_move_danger() reads context.nopick as the m prefix, but dotravel_target() sets it for every travel. Shared with Official_nh50 (hack.c swim_move_danger()'s nopick arm). EvilHack fix BUG-2409 (commit pending): domove_core() captures context.travel before findtravelpath() ends it, and only an m-prefixed move skips. | found (branch-fixed); not yet sent |
+| 2026-10-17 | A refused first `_` travel step costs a turn: dotravel_target() runs domove() and returns ECMD_TIME regardless, and rhack() sets context.move over domove()'s refusal (in vanilla: a visible monster on the first square, a declined gas cloud question, a known-trap stop, "That door is closed."). Shared with Official_nh50 (cmd.c dotravel_target()); do_repeat() maps context.move the same way and loses a life-saved hero's helpless turn. EvilHack fix BUG-2412 (commit pending): ECMD_OK when context.move is clear, ECMD_TIME when gm.multi < 0. | found (branch-fixed); not yet sent |
+| 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab). Shared with Official_nh50 and NetHack50 HEAD; battery-confirmed on the branch. Not fixed yet (MED row). | found; not fixed; not yet sent |
+| 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
+| 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
 | 2026-10-17 | A tethered hero leaving water by drown()'s crawl-out drops the unearthed ball into the pool. Shared with Official_nh50: teleport.c teleds() calls buried_ball_to_punishment() before moving, and punish() places the ball at the hero's feet. EvilHack fix BUG-2405: unearth at the arrival square when the hero is over a drop. | found (branch-fixed); not sent |
 | 2026-10-16 | A levitating or flying hero phasing through rock (a xorn form) is refused at water or lava they would float over. Shared with Official_nh50: hack.c u_simple_floortyp() reads Levitation / Flying, which switch_terrain()'s FROMOUTSIDE block keeps FALSE inside obstructed terrain, though stepping onto the pool lifts the block before pooleffects() runs; also an airborne hero stepping out of a water wall. EvilHack fix BUG-2399 (b6310f0e4). | found (branch-fixed); not yet sent |
@@ -30426,6 +30546,8 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-17 | Travel / paranoid slice rulings (session 237; AskUserQuestion x2, three questions). (1) PARANOID TRAP: asked whether `_` travel should ask at an adjacent known trap or gas cloud like a step (5.0's paranoid_confirmation:trap had the travel row's gap), the maintainer answered "i'd like to get rid of 5.0's paranoid trap altogether"; scope ruled ALL OF IT, AS MASTER (as recommended) - the trap and gas cloud questions, the 'trap' / 'move-trap' values, PARANOID_TRAP (AutoAll back to master's 0x0800) and immune_to_trap() go; a config naming 'trap' gets the unknown-parameter error; travel still routes around known traps; rejected accepting 'trap' silently and keeping the cloud question. (2) PARANOID QUIT: port master 367af1633 (as recommended) - default pray + quit, a new list keeps quit (cleared by naming !quit or none, -quit, or !paranoid_confirmation); rejected a row for later and leaving 5.0's default. | maintainer |
+| 2026-10-17 | Open-row rulings (session 236 follow-up; AskUserQuestion x1, three questions, all as recommended). (1) TRAVEL ASKS LIKE A STEP: every `_` travel step into known water or lava asks when paranoid swim is on, an adjacent target included, and walls of water or lava are refused; only m+direction steps in unasked (travel always sets nopick, so session 234's 5.0 gate never asked during travel; master asked only for a far target's last step); rejected master's exact shape and leaving it. (2) THE CHAIN CATCHES AT THE EDGE: a hero chained to a buried ball over open air is pulled onto an adjacent solid spot instead of plummeting; water and lava keep session 189's falling in; rejected every drop as for the pair, and keeping the plummet. (3) UNEARTH OVER A DROP: a level change brings the ball up at the arrival spot; stay-in-place paths (a shuddering level teleport or portal, a melting or flooding square) bring it up where it was buried; rejected level changes only and record only. | maintainer |
 | 2026-10-17 | Silent hold clears slice rulings (session 236; AskUserQuestion x1, two questions). (1) ENGULF RELEASE WORDING: vines only - "You are released from the tree's grip!" next to a live tree, "...from the vegetation!" otherwise; the bear trap, pit, lava, solidified floor and buried-ball chain keep "the trap" (the maintainer over my every-hold pick, which mirrored the hurtle "You are anchored by the ..." list). (2) EARLY TELLS: delfloortrap() and deltrap_with_ammo(), which tell the returned lift before the event's own line (about 51 callers), get their own row, not this slice (as recommended). | maintainer |
 | 2026-10-17 | Steed-lift slice rulings (session 235; AskUserQuestion x3, five questions, all as recommended). (1) RELEASE LINE (2026-10-16): a hold ending while only the steed's lift brings the pair up reads "You and your <steed> are airborne again."; own flight keeps "You can fly.". (2) CHAINED PAIR OVER A DROP (2026-10-16): on a steed that flies or floats by itself over water or lava, "The chain pulls you off your <steed>!" then the existing dismount (the rider on an adjacent spot, Punished again; the steed stays up); rejected a silent pull-off and the pair staying dry. (3) UNEARTH SCOPE (2026-10-17, after battery T2.5): every teleds() from water, lava, open air or a hole unearths a tethered ball at the arrival square (also changes master's crawl-out, where the ball sank into the pool); rejected the pull-off only. (4) DELTA BATTERY: launch now. Decided in the plan: a floating or levitating steed's rider reads Flying, not Levitation; clinging stays a separate term; pegasus parity for the rider's levitation ending ("...are now flying."); the open-air pull-off as over water. | maintainer |
 | 2026-10-16 | Paranoid-swim slice rulings (session 234; AskUserQuestion x2, six questions, all as recommended). (1) PHASING: fix it - a levitator or flyer whose lift only the terrain it stands in blocks (rock or a tree being phased through, a closed door, a liquid wall) is not asked (master's a23c53ed8 regression, frozen-unfixed). (2) RIDING: no decline penalty while mounted; the question and the line still appear. (3) WORDING: 5.0's waterbody_name() in master's "You narrowly avoid falling/plunging into the ..." line. (4) MENU TEXT: "yes required to walk into water or lava". (5) FOLD the reviewer's grounded() gap (BUG-2400): pinned-wing and clinging forms are asked. (6) HANGUP: a hangup or lost terminal at the question refuses the move with no penalty. Decided in the plan: the m prefix bypasses everything, an m-prefixed run included (5.0's gate, not master's `!nopick \|\| run`). | maintainer |
