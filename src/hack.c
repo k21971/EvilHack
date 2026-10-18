@@ -27,7 +27,7 @@ staticfn void chain_pulls_off_steed(void);
 staticfn schar u_simple_floortyp(coordxy, coordxy);
 staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy, boolean);
-staticfn boolean domove_bump_mon(struct monst *, int) NONNULLARG1;
+staticfn boolean domove_bump_mon(struct monst *, int, boolean) NONNULLARG1;
 staticfn boolean domove_attackmon_at(struct monst *, coordxy, coordxy,
                                    boolean *) NONNULLPTRS;
 staticfn boolean domove_fight_ironbars(coordxy, coordxy);
@@ -1159,13 +1159,23 @@ test_move(
                         struct _cmd_queue *cq = cmdq_peek(CQ_CANNED);
 
                         if (tmp == ECMD_OK && cq && cq->typ == CMDQ_EXTCMD
-                            && cq->ec_entry == ext_func_tab_from_func(dokick))
+                            && (cq->ec_entry
+                                == ext_func_tab_from_func(dokick))) {
                             /* door hasn't been opened, but fake it so that
-                               canned kick will be executed as next command */
+                               canned kick will be executed as next command;
+                               the kick uses the time, and a count ends here
+                               so it neither asks again nor queues more
+                               (not nomul(), which would drop the kick) */
                             svc.context.door_opened = TRUE;
-                        else
-                            svc.context.door_opened = !closed_door(x, y);
-                        svc.context.move = (ux != u.ux || uy != u.uy);
+                            end_running(TRUE);
+                        } else {
+                            /* as on master, any attempt that took time
+                               (the door opened or resisted, a key was put
+                               to its lock) uses this move; 'door_opened'
+                               keeps the caller from taking it back */
+                            svc.context.door_opened = (tmp & ECMD_TIME) != 0;
+                        }
+                        svc.context.move = (tmp & ECMD_TIME) != 0;
                     } else if (x == ux || y == uy) {
                         if (Blind || Stunned || ACURR(A_DEX) < 10
                             || Fumbling) {
@@ -2101,9 +2111,11 @@ swim_move_danger(coordxy x, coordxy y, boolean travel_step)
     return FALSE;
 }
 
-/* moving with 'm' prefix, bump into a monster? */
+/* moving with 'm' prefix, bump into a monster?
+   travel_step is set for a step of '_' travel, which sets
+   context.nopick like the m prefix */
 staticfn boolean
-domove_bump_mon(struct monst *mtmp, int glyph)
+domove_bump_mon(struct monst *mtmp, int glyph, boolean travel_step)
 {
     /* If they used a 'm' command, trying to move onto a monster
      * prints the below message and wastes a turn.  The exception is
@@ -2113,6 +2125,9 @@ domove_bump_mon(struct monst *mtmp, int glyph)
      * different message and makes the player remember the monster.
      */
     if (svc.context.nopick && !svc.context.travel
+        /* travel's last step comes here with travel already ended;
+           it swaps with a safe monster as any travel step does */
+        && !(travel_step && is_safemon(mtmp))
         && (canspotmon(mtmp) || glyph_is_invisible(glyph)
             || glyph_is_warning(glyph))) {
         if (M_AP_TYPE(mtmp) && !Protection_from_shape_changers
@@ -3099,7 +3114,7 @@ domove_core(void)
         if (!is_safemon(mtmp) || svc.context.forcefight)
             nomul(0);
 
-        if (domove_bump_mon(mtmp, glyph))
+        if (domove_bump_mon(mtmp, glyph, travel_step))
             return;
 
         /* attack monster */
