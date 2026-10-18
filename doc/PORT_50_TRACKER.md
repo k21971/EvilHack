@@ -17,13 +17,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-17, after session 237's
-  travel and paranoid slice): 444 rows closed, 111 open. Of the
-  open rows:
+- Phase 2 status (refreshed 2026-10-18, after session 239's
+  auto-open and travel last step slice): 447 rows closed, 111
+  open. Of the open rows:
   - 0 HIGH.
-  - 2 MED: an unported master feature (door-material colors), and
-    auto-opening a door costing no turn (minted session 237,
-    plannable).
+  - 1 MED: an unported master feature (door-material colors).
+    Session 239 closed the auto-open row (BUG-2414): walking into
+    a closed door uses a turn again when the door opens or
+    resists, or when an autounlock key starts on its lock, as on
+    master; a locked door without a key stays free.
     Session 232 closed the bag explosion row (BUG-2388..2391): an
     exploding bag of holding deals master's d(8, 10) "exploding
     magical bag", or d(12, 12) "exploding magical artifact bag"
@@ -120,7 +122,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 93 LOW: small parity rows, quirks and watch/record-only items.
+  - 94 LOW: small parity rows, quirks and watch/record-only items.
+    Session 239 closed the travel last step row (BUG-2415, ruled
+    2026-10-18 like mid-path): travel's last step swaps with a pet
+    or peaceful instead of "Pardon me" (Stormbringer and the Sword
+    of Kas attack, ruled), and an 'I' or warning square keeps the
+    bump. It also fixed autounlock's kick with a count, which asked
+    again on the next step and hit an impossible() (BUG-2416).
+    Minted two: `_` onto an adjacent boulder never pushes it (needs
+    a ruling; master pushed) and the adjacent shortcut zeroing a
+    travel count (needs a trace).
     Session 237 closed the `_` travel row (BUG-2409): with paranoid
     swim on, every travel step into known water or lava asks, an
     adjacent target included, and travel never walks into a wall
@@ -27619,27 +27630,63 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shell's AC; master's travel key reached the shell check.
       dotravel_target() now refuses with "Your movement is
       constrained by your shell." and no time.
-- [ ] LOW: travel's last step treats a monster on the destination
-      as an m-prefixed bump (minted 2026-10-17, session 237, Plan
-      agent; master and vanilla 5.0 alike). findtravelpath()'s
-      nomul(0) clears context.travel before domove_bump_mon()'s
-      `nopick && !travel` test, so a pet or peaceful on the target
-      gets "Pardon me, <mon>." (a turn used, no swap; battery) and
-      a hostile "You move right into <mon>." instead of a swap or
-      an attack. Switching the test to the travel_step capture would
-      change whether travel's last step attacks. LOW (needs a
-      ruling).
-- [ ] MED: auto-opening a door costs no turn (minted 2026-10-17,
-      session 237, re-review MEDIUM, battery-confirmed on PRE and
-      POST; vanilla 5.0 shares it). test_move()'s autoopen arm sets
-      context.move = (ux != u.ux || uy != u.uy), always FALSE from
-      domove_core() (upstream 20c456cbb / faf2267ab, "whether hero
-      moved"); master charged a turn (context.door_opened =
-      context.move = doopen_indir(x, y)). A plain step into a closed
-      door opens it for free ("The door opens.", moves 3 -> 3).
-      Travel never auto-opens (the arm needs !run). Plannable
-      (master parity); check master's cost for a locked door (free
-      on both branch builds) at plan time.
+- [x] LOW: travel's last step treats a monster on the destination
+      as an m-prefixed bump (BUG-2415; minted 2026-10-17, session 237,
+      Plan agent; master and vanilla 5.0 alike) - FIXED 2026-10-18
+      (session 239, commit pending). findtravelpath()'s nomul(0) ends
+      travel before the last step, and a pet or peaceful skips
+      domove_core()'s own nomul(0), so domove_bump_mon()'s `nopick &&
+      !travel` test read travel's nopick as the m prefix: "Pardon me,
+      <mon>.", a turn used, no swap. Ruled 2026-10-18 LIKE MID-PATH:
+      domove_bump_mon() takes the travel_step capture and skips the
+      bump for an is_safemon() monster, so the last step swaps (with
+      Stormbringer or the Sword of Kas wielded it attacks, ruled, as
+      mid-path and a plain step do); an 'I' or warning square keeps
+      the bump (ruled; mid-path bumps it too, because domove_core()'s
+      nomul(0) for a non-safe monster ends travel first). The row's
+      hostile half was wrong: the adjacent-target shortcut never runs
+      onto an occupied square (5.0 crawl_destination() -> goodpos()),
+      so every last step onto a monster has run 8 and a seen hostile
+      already stopped for free (battery PRE).
+- [x] MED: auto-opening a door costs no turn (BUG-2414; minted
+      2026-10-17, session 237, re-review MEDIUM; vanilla 5.0 shares
+      it) - FIXED 2026-10-18 (session 239, commit pending).
+      test_move()'s autoopen arm set context.move = (ux != u.ux || uy
+      != u.uy), always FALSE from domove_core() (upstream 20c456cbb /
+      faf2267ab read "move" as "the hero moved"; 20c456cbb also undid
+      upstream's own bfa0f072f), and door_opened = !closed_door(), so
+      an open, a resist and an autounlock key's first lock turn were
+      all free. Now door_opened = move = doopen_indir() took time, as
+      master: opens / resists / key started cost a turn, a count keeps
+      trying a resisting door, a locked door without a key stays free.
+      5.0's autounlock "untrap" arm follows the same rule (each yes a
+      turn, a count re-asks; q ends it).
+- [x] LOW: autounlock=kick with a count asks "Kick it?" again on the
+      next counted step (BUG-2416; minted and FIXED 2026-10-18, session
+      239, commit pending; Plan agent; vanilla 5.0 shares it). The kick
+      arm fakes door_opened and skips nomul(0), and moveloop() repeats
+      domove() before rhack() pops the canned kick, so the next step's
+      yn_function() read the queued kick as its answer: "yn_function()
+      returned '^['; using 'q' instead", "Program in disorder!", no
+      kick (battery PRE). The arm now ends the count with
+      end_running(TRUE) (nomul() would clear the queued kick;
+      end_running(FALSE) left context.mv set - reviewer MEDIUM).
+- [ ] LOW: `_` onto an adjacent boulder never pushes it (minted
+      2026-10-18, session 239, reviewer + battery T16; vanilla 5.0
+      alike). 5.0 7d77267f9 gave findtravelpath()'s adjacent shortcut
+      crawl_destination(), whose goodpos() refuses a boulder square
+      for a hero who cannot throw rocks; the step then comes from the
+      path search at run 8, where test_move() refuses the boulder
+      silently ("A boulder blocks your path." only with
+      mention_walls). Master's shortcut set run 0 and pushed it. LOW
+      (needs a ruling).
+- [ ] LOW: findtravelpath()'s adjacent shortcut zeroes a travel count
+      when its test_move() fails (minted 2026-10-18, session 239, Plan
+      agent; vanilla 5.0 alike). It calls end_running(FALSE) (multi 0)
+      before test_move(); a refused shortcut (a diagonal out of a
+      doorway) falls back to the path search with run 8 but multi 0,
+      so travel takes one step and stops. Master set run 0 and kept
+      multi. LOW (needs a trace and a battery leg).
 - [ ] LOW: #saveoptions writes sysconf's MSGTYPE lines into the
       player's config file, each twice (minted 2026-10-17, session
       237, battery anomaly). LOW (needs a trace: sysconf parsed
@@ -30318,7 +30365,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 |------|-----|--------|
 | 2026-10-17 | `_` travel never asks paranoid_confirm:swim's question and walks into walls of water or lava: swim_move_danger() reads context.nopick as the m prefix, but dotravel_target() sets it for every travel. Shared with Official_nh50 (hack.c swim_move_danger()'s nopick arm). EvilHack fix BUG-2409 (ac60731fc): domove_core() captures context.travel before findtravelpath() ends it, and only an m-prefixed move skips. | found (branch-fixed); not yet sent |
 | 2026-10-17 | A refused first `_` travel step costs a turn: dotravel_target() runs domove() and returns ECMD_TIME regardless, and rhack() sets context.move over domove()'s refusal (in vanilla: a visible monster on the first square, a declined gas cloud question, a known-trap stop, "That door is closed."). Shared with Official_nh50 (cmd.c dotravel_target()); do_repeat() maps context.move the same way and loses a life-saved hero's helpless turn. EvilHack fix BUG-2412 (ac60731fc): ECMD_OK when context.move is clear, ECMD_TIME when gm.multi < 0. | found (branch-fixed); not yet sent |
-| 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab). Shared with Official_nh50 and NetHack50 HEAD; battery-confirmed on the branch. Not fixed yet (MED row). | found; not fixed; not yet sent |
+| 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab), and door_opened = !closed_door(), so a resisting door and an autounlock key's first lock turn are free too (20c456cbb also undid bfa0f072f's "autounlock of door or chest took no time" fix). Shared with Official_nh50 and NetHack50 HEAD c1a37fb6c. EvilHack fix BUG-2414 (commit pending): door_opened = move = (doopen_indir() & ECMD_TIME), as 3.6. | found (branch-fixed); not yet sent |
+| 2026-10-18 | autounlock=kick with a count: a counted walk into a locked door answers y to "Kick it?", the kick arm skips nomul(0) so the count goes on, and the next counted step's yn_function() reads the queued dokick as input - impossible("yn_function() returned '^['; using 'q' instead"), "Program in disorder!", no kick. Shared with Official_nh50 (hack.c test_move() kick arm, 7982c72e8). EvilHack fix BUG-2416 (commit pending): end_running(TRUE) in the kick arm (nomul() would drop the queued kick). | found (branch-fixed); not yet sent |
+| 2026-10-18 | Travel's last step onto a pet or peaceful bumps it ("Pardon me, <mon>.", a turn, no swap) where every earlier travel step swaps: findtravelpath()'s nomul(0) clears context.travel and domove_bump_mon()'s `nopick && !travel` reads travel's nopick as the m prefix. Shared with Official_nh50 (and 3.6). EvilHack fix BUG-2415 (commit pending): domove_core()'s travel_step capture is passed in and an is_safemon() target skips the bump. | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -30546,6 +30595,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-18 | Auto-open / travel last step slice rulings (session 239; AskUserQuestion x3 plus one follow-up answer, four questions). (1) TRAVEL LAST STEP LIKE MID-PATH (as recommended; folded into the auto-open slice): the last travel step swaps with a pet or peaceful the hero can see and stops for free at a seen non-safe monster; rejected a plain step (attack a hostile), master's bump, and not now. (2) UNSEEN 'I' / WARNING TARGET: "lets stick with branch behavior" - the bump stays. The question was asked on my wrong premise that mid-path travel attacks these squares; the Plan agent corrected it (domove_core()'s nomul(0) for a non-safe monster ends travel before the bump test, so mid-path bumps too; master bumps an 'I' but attacks a warning number, lacking 5.0 121290cde's warning arm), so the ruling matches mid-path and needs no code. (3) STORMBRINGER / SWORD OF KAS: ATTACK, AS MID-PATH (as recommended) - the last step onto a pet or peaceful attacks with no prompt, as mid-path travel and a plain step do; rejected exempting the blades. (4) KICK COUNT: FOLD IT IN (as recommended) - a counted walk ends when autounlock queues a kick (BUG-2416). Decided without asking (master parity): the auto-open charges as 3.6 (opens / resists / key started a turn, a count keeps trying, locked without a key free); 5.0's untrap arm follows that rule. | maintainer |
 | 2026-10-17 | Travel / paranoid slice rulings (session 237; AskUserQuestion x2, three questions). (1) PARANOID TRAP: asked whether `_` travel should ask at an adjacent known trap or gas cloud like a step (5.0's paranoid_confirmation:trap had the travel row's gap), the maintainer answered "i'd like to get rid of 5.0's paranoid trap altogether"; scope ruled ALL OF IT, AS MASTER (as recommended) - the trap and gas cloud questions, the 'trap' / 'move-trap' values, PARANOID_TRAP (AutoAll back to master's 0x0800) and immune_to_trap() go; a config naming 'trap' gets the unknown-parameter error; travel still routes around known traps; rejected accepting 'trap' silently and keeping the cloud question. (2) PARANOID QUIT: port master 367af1633 (as recommended) - default pray + quit, a new list keeps quit (cleared by naming !quit or none, -quit, or !paranoid_confirmation); rejected a row for later and leaving 5.0's default. | maintainer |
 | 2026-10-17 | Open-row rulings (session 236 follow-up; AskUserQuestion x1, three questions, all as recommended). (1) TRAVEL ASKS LIKE A STEP: every `_` travel step into known water or lava asks when paranoid swim is on, an adjacent target included, and walls of water or lava are refused; only m+direction steps in unasked (travel always sets nopick, so session 234's 5.0 gate never asked during travel; master asked only for a far target's last step); rejected master's exact shape and leaving it. (2) THE CHAIN CATCHES AT THE EDGE: a hero chained to a buried ball over open air is pulled onto an adjacent solid spot instead of plummeting; water and lava keep session 189's falling in; rejected every drop as for the pair, and keeping the plummet. (3) UNEARTH OVER A DROP: a level change brings the ball up at the arrival spot; stay-in-place paths (a shuddering level teleport or portal, a melting or flooding square) bring it up where it was buried; rejected level changes only and record only. | maintainer |
 | 2026-10-17 | Silent hold clears slice rulings (session 236; AskUserQuestion x1, two questions). (1) ENGULF RELEASE WORDING: vines only - "You are released from the tree's grip!" next to a live tree, "...from the vegetation!" otherwise; the bear trap, pit, lava, solidified floor and buried-ball chain keep "the trap" (the maintainer over my every-hold pick, which mirrored the hurtle "You are anchored by the ..." list). (2) EARLY TELLS: delfloortrap() and deltrap_with_ammo(), which tell the returned lift before the event's own line (about 51 callers), get their own row, not this slice (as recommended). | maintainer |
