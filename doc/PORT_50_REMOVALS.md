@@ -139,6 +139,33 @@ slice. Scopes below were ruled via AskUserQuestion on 2026-10-17.
   semantics, restful sleep, the polymorphed `u.mh` arm, and the
   layered EvilHack terms above, which assume 5.0's die.
 
+### 1.5 [ ] Hitpointbar blink and dashes at critical HP
+
+- **5.0 source:** 7da370d74 (PatR 2024-04-11, "experimental
+  hitpointbar change").
+- **What it does:** when `critically_low_hp(TRUE)` holds, the tty and
+  curses hitpointbar blinks and `repad_with_dashes()` turns the
+  title's trailing space pairs into " -". Curses also stopped honoring
+  the HP highlight's attribute for the bar and forces inverse, as tty
+  does.
+- **Branch sites:** wintty.c's `hpbar_crit_hp` (set in the BL_HP arm
+  of the status update, read in the hitpointbar render, which also
+  blinks the second part); cursstat.c's `hpbar_crit_hp` and its
+  `HL_BLINK` / forced `HL_INVERSE` in `hpbar_color`, read in
+  `curs_HPbar()`; `repad_with_dashes()` in botl.c and its extern.h
+  prototype (no other caller). Qt and the Windows GUI do not have the
+  blink. Guidebook.mn / .tex: the "For tty and curses, blink will also
+  be used..." sentence, and the "video attributes ... ignored in favor
+  of inverse" sentence, which no longer holds for curses.
+- **Master:** tty draws the filled part in inverse plus the HP color
+  and the rest plain; curses uses the HP highlight's color and
+  attribute (`hpbar_color = color_and_attr`). No blink, no dashes.
+- **Scope ruled 2026-10-17:** the bar goes back to master's shape in
+  both tty and curses. KEEP 5.0's opt-in `criticalhp` status-hilite
+  rule (df2799faf, not on master; e.g.
+  `hilite_status:hitpoints/criticalhp/red&bold`). It only acts when a
+  player configures it, and the bar still takes its color.
+
 ## 2. Removed so far (landed)
 
 All landed unless noted. BUG ids and commits as recorded in the
