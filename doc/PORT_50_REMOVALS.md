@@ -22,7 +22,8 @@ all), `[?]` open ruling.
 ## 1. Planned removals (maintainer requests, 2026-10-17)
 
 No code has changed for any of these. Each needs its own plan and
-slice. Scopes below were ruled via AskUserQuestion on 2026-10-17.
+slice. Scopes below were ruled via AskUserQuestion on 2026-10-17;
+1.4, 1.6 and 1.3's food death-drops on 2026-10-18.
 
 ### 1.1 [ ] Generic-object display (true colors only up close)
 
@@ -96,16 +97,19 @@ slice. Scopes below were ruled via AskUserQuestion on 2026-10-17.
   healing 115 / base price 20 never landed; the branch uses master's
   objects table (healing 57 / price 100, extra healing 47).
 - **Scope ruled:** remove the supply chests AND the Mines food.
-- **Related, not yet ruled:** 39a7dc1c5 (same series): most monsters
-  no longer death-drop newly created food in `xkilled()` (only
-  M2_COLLECT monsters keep it). Live on the branch; master death-drops
-  food. Census the rest of the series at slice time: 87f3b4809 (Monk
+- **Ruled 2026-10-18 into this removal:** 39a7dc1c5 (same series):
+  most monsters no longer death-drop newly created food in `xkilled()`
+  (only M2_COLLECT monsters keep it, which in EvilHack covers most
+  humanoids, so beasts and dragons drop none). Live on the branch;
+  master death-drops food. Remove the delete-food arm with the
+  chests: keeping it without them leaves less food than either tree.
+  Census the rest of the series at slice time: 87f3b4809 (Monk
   quest home extra rations), 9d910773d (starting magic markers),
   e8ca614e5 (multi-step alchemy yields), 319dfbdaa (Wizards learn
   spellbooks with skill), 6acf5a778 (potions destroyed on very hot
   ground), 4a00b66b3 (oil boiling point).
 
-### 1.4 [?] HP regeneration - revisit (not yet a removal)
+### 1.4 [ ] HP regeneration -> master's formula
 
 - **5.0 source:** f3408b87b (Alex Smith 2023-12-11, "A new HP
   regeneration formula"): (XL + Con)% chance of 1 HP each turn;
@@ -138,6 +142,17 @@ slice. Scopes below were ruled via AskUserQuestion on 2026-10-17.
 - **Coupled terms to name in any ruling:** Regeneration's +1
   semantics, restful sleep, the polymorphed `u.mh` arm, and the
   layered EvilHack terms above, which assume 5.0's die.
+- **Scope ruled 2026-10-18:** master's formula exactly, rejecting 5.0's
+  roll and a slower-of-the-two hybrid. 5.0 paired its roll with
+  commoner healing potions (never landed) and the supply chests
+  (1.3), so the branch was 5-7x slower than 0.9.3 from XL 14 with
+  Con 13+. Regeneration goes back to "at least 1 HP a turn". The
+  drow-in-light (interval x3) and Druid (interval - 1) terms go back
+  to master's forms, which retires the 2026-09-18 `rn2(300)`
+  adaptation. Restful sleep healing (91c46ab54) is dropped too:
+  `U_CAN_REGEN()`'s sleep term and its +1, in both the `u.uhp` and
+  the polymorphed `u.mh` arms. The polymorphed arm is otherwise
+  master's already.
 
 ### 1.5 [ ] Hitpointbar blink and dashes at critical HP
 
@@ -165,6 +180,20 @@ slice. Scopes below were ruled via AskUserQuestion on 2026-10-17.
   rule (df2799faf, not on master; e.g.
   `hilite_status:hitpoints/criticalhp/red&bold`). It only acts when a
   player configures it, and the bar still takes its color.
+
+### 1.6 [ ] `nasties[]` -> master's list
+
+- **Branch today:** 5.0's 44-entry list with EvilHack renames. On
+  EvilHack alignments it is 19 neutral, 20 chaotic or unaligned and 5
+  lawful, so a lawful caster stops on only 24 of 44 picks and
+  summons more than the table intends.
+- **Master:** a curated 50-entry list (EvilHack-authored: the shadow
+  dragon 9e0097194, the devils out with de169194a), 22 neutral, 15
+  chaotic, 13 lawful.
+- **Ruled 2026-10-18:** master's list as one unit, with `nasty()`'s
+  comment recomputed; the tracker's nasties[] content reconcile row is
+  the slice. 5.0's picking rules (`pick_nasty()`'s difficulty cap and
+  lesser-form substitution) are a separate difference outside it.
 
 ## 2. Removed so far (landed)
 
@@ -290,6 +319,10 @@ tracker; sNNN = port session.
   2 in 3 success dropped; always fails with disorientation.
 - [x] #jump into iron bars: "You crash into some iron bars" -> a
   refusal (s138, BUG-1918, a8f62f78c).
+- [x] `poisoned()`: 5.0's survivable deadly poison (survive with more
+  HP than 6 + 4d6, at -1 Con and -3 to the poison's stat) -> master's
+  instant death below 35% poison resistance, the toxic arm draining no
+  stat (partial-intrinsics port; ratified 2026-10-18).
 
 ### 2.4 Text and logs
 
@@ -357,11 +390,8 @@ tracker; sNNN = port session.
 
 ## 4. Open
 
-- [?] `nasties[]`: the branch still carries 5.0's list; the open tracker
-  row swaps in master's curated list as one unit (5.0's list lets a
-  lawful caster stop only 24 of 44 summons).
-- [?] `poisoned()`'s survivor CON drains: dropped in code (master
-  parity), but the row still lists it under RATIFY QUEUE.
+None. The last two were ruled 2026-10-18: `nasties[]` became 1.6,
+and `poisoned()`'s survivor drains were ratified (listed under 2.3).
 
 ## 5. Not counted: vanilla rules replaced by EvilHack's own systems
 

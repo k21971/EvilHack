@@ -18,10 +18,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-18, after session 239's
-  auto-open and travel last step slice): 447 rows closed, 111
-  open. Of the open rows:
-  - 0 HIGH.
-  - 1 MED: an unported master feature (door-material colors).
+  auto-open and travel last step slice and its two follow-up ruling
+  rounds): 450 rows closed, 114 open. Of the open rows:
+  - 1 HIGH: a buried sack holding the Sword of Annihilation, the
+    Armor of Retribution or a scroll of consecration hangs the game
+    when it rots (rot_organic(); master-shared, live on 0.9.3; ruled
+    branch-only, no hot patch). Minted 2026-10-18 by the container
+    census.
+  - 2 MED: an unported master feature (door-material colors), and a
+    Draugr dying in the turn they defeat the Ice Queen likely
+    crashing at exit (branch-only; minted 2026-10-18).
+    The second ruling round (2026-10-18, session 239 follow-up)
+    traced the ten rows that needed a trace or census first and
+    ruled them all, nine as recommended: prayer traps wait for the
+    prayer's end, a tether counts as Punished (session 235's
+    duplicate folded), a defeated queen stays out of bones and
+    dismounts on revival, zoo steeds sleep with their riders, the
+    beam trap's walk stops at doors and trees, entangled monsters are
+    released with their grass or tree, the merge line keeps 5.0's
+    total with the period fixed, containers spare obj_resists()
+    items everywhere, and the dead weapon-decay code goes (my pick
+    was record only) with the hit-line verbs fixed. All plannable.
+    Minted five: the HIGH hang and MED crash above, and LOW rows for
+    a praying hero hurtled or hit by a stray beam, a rock-mole hero
+    eating the Sword (trace), and off-level entangle catch-up (master
+    parity).
     Session 239 closed the auto-open row (BUG-2414): walking into
     a closed door uses a turn again when the door opens or
     resists, or when an autounlock key starts on its lock, as on
@@ -122,7 +143,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 94 LOW: small parity rows, quirks and watch/record-only items.
+  - 95 LOW: small parity rows, quirks and watch/record-only items.
     Session 239 closed the travel last step row (BUG-2415, ruled
     2026-10-18 like mid-path): travel's last step swaps with a pet
     or peaceful instead of "Pardon me" (Stormbringer and the Sword
@@ -131,7 +152,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     again on the next step and hit an impossible() (BUG-2416).
     Minted two: `_` onto an adjacent boulder never pushes it (needs
     a ruling; master pushed) and the adjacent shortcut zeroing a
-    travel count (needs a trace).
+    travel count (needs a trace). Its follow-up (2026-10-18) ruled
+    eight items: the boulder row closed as 5.0's refusal and the
+    pet-fetched bags row as master's, both with no code change; the
+    egg recognition row (fix it) and the nasties[] row (master's
+    list) are now plannable; a LOW row was minted already ruled
+    (autounlock untrap with a count stops after one check); and
+    doc/PORT_50_REMOVALS.md gained the HP regeneration removal
+    (master's formula, no restful sleep healing), the food
+    death-drops (master's) and poisoned()'s ratification.
     Session 237 closed the `_` travel row (BUG-2409): with paranoid
     swim on, every travel step into known water or lava asks, an
     adjacent target included, and travel never walks into a wall
@@ -5329,7 +5358,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (freezing-mist >=50 arm dead rn2(3) store, master-only,
       intended shape rides with the trap-types owner).
       RATIFY QUEUE: poisoned() drops 5.0's survived-arm CON
-      drains (master parity); lava-sink monstseesu keyed on
+      drains (master parity) [RATIFIED 2026-10-18, session 239
+      follow-up, decisions log: deadly poison stays deadly below
+      35% resistance, no stat drain on the toxic arm]; lava-sink monstseesu keyed on
       boil_away kept (branch improvement over master's
       unconditional call); "quaffing a burning potion of oil"
       killer string kept over master's shorter form.
@@ -8210,7 +8241,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       counts: 19 neutral / 20 chaotic-or-unaligned / 5 lawful, so a
       lawful caster stops only 24/44 and floods more summons than the
       table's design intent). Whole-table swap ports as one unit with
-      a comment recompute; do not partial-edit.
+      a comment recompute; do not partial-edit. RULED 2026-10-18
+      (session 239 follow-up, decisions log): MASTER'S LIST, as
+      recommended - master's 50 entries (EvilHack-authored: the shadow
+      dragon 9e0097194, the devils out with de169194a) with nasty()'s
+      comment recomputed (master's own: lawful 35/50, chaotic 37/50,
+      neutral or no caster 22/50); rejected keeping 5.0's 44. 5.0's
+      picking rules (pick_nasty()'s difcap and lesser-form
+      substitution) differ from master too but are outside this row.
+      Plannable.
 - [ ] pet-name options for the EvilHack-only roles (minted 2026-08-07
       by the Wizard slice's pseudoname plumbing): master also carries
       ratname (Convict sewer rat) and homunname (Infidel lesser
@@ -10844,7 +10883,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       praying, the precedent. Candidate: defer the landing's trap, or
       prefer a trap-free square, while u.uinvulnerable. Needs a trace
       (float_down()'s trap arm vs the pending-landing deferral), then
-      a ruling.
+      a ruling. TRACED 2026-10-18 (session 239 follow-up, Plan agent,
+      code read): THROWN, FELL and GENERIC start landing_spot() at
+      pass 2 and KNOCKED at pass 1, and both take a trap square;
+      float_down() clears gp.pending_landing itself and its trap arm
+      calls dotrap() with u.uinvulnerable still set, so
+      land_deferred()'s prayer hold is never reached. Mid-prayer
+      throws come from a Conflict steed, dismount_untamed_steed()
+      after a monster kills, charms or untames the steed, and the
+      bane-hostility loop. RULED 2026-10-18 (decisions log): HOLD IT
+      UNTIL THE PRAYER ENDS, as recommended - while u.uinvulnerable,
+      float_down()'s trap arm calls defer_landing(LANDING_SPOT)
+      instead of dotrap(), so the trap fires after "You finish your
+      prayer." and the god's answer; hold the landing's pickup with it
+      so the item list is not told twice. Rejected a trap-free landing
+      square, never firing, and record only. Siblings minted in the
+      next row. Plannable (battery: Conflict ring, a saddled pet, one
+      open trapped square, #pray).
+- [ ] LOW: a praying hero can be hurtled or hit by a stray beam
+      (minted 2026-10-18, session 239 follow-up, from the prayer-trap
+      trace; master-shared). A master mind flayer's telekinetic pull
+      (telekinesis.c, from monmove.c with no prayer check) or a stray
+      striking / force bolt from mbhitm() (muse.c's hero arm, a
+      monster casting at another monster or a pet's use_offensive())
+      moves or damages a hero mid-prayer; hurtle_step() fires portals,
+      vibrating squares, fire and ice traps and Sokoban holes on the
+      way, and hurtle()'s nomul(-range) may clear u.uinvulnerable
+      early (inferred). A sleeping gas trap's fall_asleep() can clear
+      it too. LOW (needs a trace of each, then a ruling).
 - [ ] LOW: a minliquid() survivor sent into limbo still takes its move
       (minted 2026-10-11, session 212, reviewer re-review; branch
       pre-existing). minliquid()'s survivor arms (lava, water, a
@@ -11188,7 +11254,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hit points). Only outside her realm (it has no bonetag), so it
       needs her escape chain or a wizard mode ^G. Needs a trace, then
       a ruling (should bones skip her revival, or remove the revived
-      Enchantress).
+      Enchantress). TRACED 2026-10-18 (session 239 follow-up, Plan
+      agent, code read): mondead()'s queen arm returns before
+      m_detach(), so she sits on fmon with mhp 0 and MON_DETACH clear;
+      the hero's death reaches savebones() before movemon()'s
+      dmonsfree(), iter_mons() skips her, and savebones()' dmonsfree()
+      revives her. The bones hold a peaceful 7500-HP Enchantress with
+      the queen's kit and any steed (always_peaceful resets her for
+      the next hero; a second Enchantress follows their own defeat).
+      The row's "if the death was not from hit points" is wrong:
+      done() zeroes u.uhp first, so the text gate opens only for a
+      Draugr (the MED crash row below). RULED 2026-10-18 (decisions
+      log): SHE STAYS OUT OF BONES, as recommended - before
+      savebones()' iter_mons(), mongone() a DEADMONSTER Ice Queen
+      without MON_DETACH (m_detach() puts a steed back), and the
+      BUG-2291 guard frees her silently. Rejected revive-then-remove
+      and record only. Plannable.
 - [ ] LOW: a queen defeated while riding keeps her steed through the
       revival (minted 2026-10-12, session 215; master-shared). She can
       mount_up() a saddled steed once STRAT_WAITFORU clears. A riding
@@ -11196,7 +11277,43 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       has_erid() arm would separate_steed_and_rider(), so the revived
       peaceful Enchantress may still ride the (hostile) steed. Needs a
       trace (what newcham() and the revival do with ERID, and what
-      the steed does next), then a ruling.
+      the steed does next), then a ruling. TRACED 2026-10-18 (session
+      239 follow-up, Plan agent, code read): newcham()'s rider check
+      runs after icequeenrevive() sets mcanmove and before mpeaceful,
+      so she normally stays mounted with no message; the steed stays
+      hostile until her next dochug() reaches update_monsteed(), and
+      can hit the hero first (a woolly mammoth is speed 10 to her 9).
+      Against an Infidel or undead hero she is hostile and paralyzed
+      for 100 turns while the hostile steed fights alone. Master: same
+      shape, but its mcanmove = 1 comes after newcham(), so a queen
+      frozen at her defeat falls off there. Reachable: a frost giant's
+      saddled mammoth in her realm (1 in 5, and icequeen-3's fixed
+      one). RULED 2026-10-18 (decisions log): SHE DISMOUNTS ON
+      REVIVAL, as recommended - after the transformation and her
+      peaceful / hostile arms, a dismount line and
+      separate_steed_and_rider(); the steed stays hostile beside her
+      and can be fought alone. Not in mondead(): separating a dead
+      rider puts the steed on her square. Rejected keeping her
+      mounted with the steed calmed at once, and record only.
+      Plannable.
+- [ ] MED: a Draugr dying in the turn they defeat the Ice Queen
+      likely crashes at exit (minted 2026-10-18, session 239
+      follow-up, from the queen bones trace; branch-only regression;
+      code read, not reproduced). With no bones, the defeated queen
+      lives until nh_terminate() -> freedynamicdata() -> dmonsfree()
+      (FREE_ALL_MEMORY is on), after exit_nhwindows(). The branch's
+      icequeenrevive() feedback gate is `u.uhp <= 0 && !Lifesaved`,
+      where master's is `!ELifesaved` (8b4283ba8 widened it), and a
+      Draugr's racial HLifesaved survives a failed revival, so the
+      text runs: com_pager()'s "text" window reaches
+      tty_create_nhwindow(), which reads ttyDisplay->cols after
+      tty_exit_nhwindows() freed it - a NULL dereference after topten
+      and the xlogfile are written. The Infidel "You feel guilty."
+      line raw-prints after exit in both trees. Fix shape (master
+      parity plus a guard): master's !ELifesaved gate, and no
+      icequeenrevive() feedback once program_state.gameover is set.
+      MED (needs a battery: a Draugr in icequeen-3 whose revival
+      fails the turn of the defeat).
 - [x] LOW: damageum()'s kill tail reports a life-saved defender as
       dead (BUG-2297) - FIXED 2026-10-12 (session 216, commit 7cc1136de,
       tracker 865ec9522; closure notes in BUGFIXES_ARCHIVE): the tail
@@ -13704,13 +13821,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ordinary pet-kill path (orc ate the corpse, no hero credit),
       gnome zombie resisted 9/9 with the "doesn't seem to affect"
       line, wear-off 6/36 vs nominal 1/10.
-- [ ] Pets still fetch the two rare bags (NEW, minted 2026-07-31
+- [x] Pets still fetch the two rare bags (NEW, minted 2026-07-31
       with BUG-1416; LOW, master-shared). dogmove.c dog_invent()
       picks up floor items via the nofetch class filter and never
       consults searches_for_item(), so a pet will carry an
       uncursed bag of treasure/devouring after BUG-1416. Master
       has the same shape; fix is a beyond-master decision (add the
-      two otyps to dog_invent's exclusions if wanted).
+      two otyps to dog_invent's exclusions if wanted). CLOSED
+      2026-10-18 (session 239 follow-up, decisions log), no code
+      change: LEAVE AS MASTER, as recommended - pets fetch both bags
+      like any item (could_use_item() never claims them, so they
+      come back to the hero); rejected the dog_invent() exclusion.
 - [x] mhitm.c res[i] clobber in both mattackm miss arms (NEW, minted
       2026-07-30 by the 2026-07-29 review; MEDIUM regression).
       res[i] = M_ATTK_DEF_DIED overwrites a just-set M_ATTK_AGR_DIED
@@ -18075,7 +18196,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       makemon() result only, and mount_monster() makes the steed
       separately. Needs a trace: whether a ridden steed's own sleep
       state matters while mounted (movement, wake-ups, a dismount
-      or the rider's death), then a ruling. LOW.
+      or the rider's death), then a ruling. LOW. TRACED 2026-10-18
+      (session 239 follow-up, Plan agent, code read): the steed is on
+      fmon off the map and gets its own turns; a ridden steed never
+      moves (m_move() returns for ridden_by) and a sleeping rider
+      keeps the pair put, but an awake steed attacks an adjacent hero
+      and the hit's combat noise wakes the rider. Without Stealth a
+      sleeping wolf wakes on its first turn in view anyway; with
+      Stealth the hero gets "The wolf bites!" instead of a free first
+      strike. Sleep rays, sleeping gas, ^G "sleeping" and des asleep
+      flags reach only the rider too (left as they are). Master
+      identical. RULED 2026-10-18 (decisions log): STEEDS SLEEP TOO,
+      as recommended - fill_zoo() also puts a sleeper's steed to
+      sleep (a Knight's grudge dragon stays awake, as ruled for
+      BUG-2351); archived as a master bug, frozen-unfixed. Rejected
+      the watchdog record. Plannable.
 - [x] LOW: obj_typename() appends " stone" to non-gem GEMSTONE items
       (minted 2026-10-15, session 230, by batteries T2 / T3). Master
       1464c4a98 (the magic chests commit, whose row is closed) added
@@ -18114,7 +18249,57 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       so the Sword of Annihilation or the Armor of Retribution in a
       box can still be lost there (the Amulet never could be put in
       one). Needs a census of each site on master, then a ruling.
-      LOW.
+      LOW. CENSUS 2026-10-18 (session 239 follow-up, Plan agent, code
+      read): obj_resists(obj, 0, 0) protects the Amulet, an Infidel's
+      quest artifact, the Book of the Dead, the Candelabrum, the Bell,
+      the scroll of consecration, the Sword, the Armor and Rider
+      corpses; in_container() refuses only the first five, and
+      obfree() -> delete_contents() frees a container's contents with
+      no test, so every delobj / useup / obfree of a container is a
+      hole. Unchecked sites (master the same at each): breakchestlock()
+      (each item 1 in 3), erode_obj()'s destroyed bag, in_container()'s
+      exploding trigger (a sack holding the item), a sack inside an
+      exploding bag of holding (1 in 13), a bag of devouring, a
+      chest_trap() explosion's floor pile, a drawbridge, a polymorph
+      zap or dip, a polypile golem, nested disintegration, a passive
+      AD_DISN on a wielded container, a drop into open air, a sink with
+      a ring of hunger, a sewage dip, a hero eating a container, a
+      lava death burning a carried sack. Safe: fire_damage(), lava,
+      kicks, rust, monster eating. Master also loses a floor box's
+      contents in erode_obj() and the obj_resists item in
+      do_boh_explosion()'s 1-in-13 return (the branch is fixed there).
+      RULED 2026-10-18 (decisions log): SPARE THEM EVERYWHERE, as
+      recommended - containers keep accepting them (master's
+      permission); a shared helper pulls obj_resists() contents out,
+      recursively, and drops them where the container was, at every
+      reachable site; a bag of devouring refuses a container holding
+      one. Rejected refusing them in containers, the three named sites
+      only, and record only. The burial hang is its own HIGH row
+      (next). Plannable.
+- [ ] HIGH: a buried sack holding an indestructible item hangs the
+      game (minted 2026-10-18, session 239 follow-up, from the
+      container census; master-shared, live on 0.9.3 since the
+      consecration scroll joined obj_resists() in 4bed05499 /
+      67665fd1d). rot_organic() (dig.c) loops `while
+      (Has_contents(obj)) bury_an_obj(obj->cobj)`, and bury_an_obj()
+      returns early for an obj_resists() item without extracting it
+      (its comment assumes such items "can't be confined to bags"), so
+      the loop never ends. Trigger: a sack holding the Sword of
+      Annihilation, the Armor of Retribution or a scroll of
+      consecration is buried (a boulder fills its pit) and its rot
+      timer fires 250-500 turns later. Ruled 2026-10-18: fix on the
+      branch only, no production hot patch (master archived
+      frozen-unfixed); the fix lands with or before the row above
+      (the refused item comes out of the rotting sack, buried or on
+      the floor). HIGH (needs a battery: a scroll of consecration in a
+      sack in a pit, a boulder pushed in, wait about 500 turns).
+- [ ] LOW: a rock-mole-form hero may be able to eat the Sword of
+      Annihilation (minted 2026-10-18, session 239 follow-up, from the
+      container census; inferred, not traced). is_edible()'s
+      obj_resists() line is commented out (vanilla too), so
+      eatspecial()'s useup() may destroy an indestructible metal item,
+      a site BUG-2369's delobj audit did not cover. LOW (needs a
+      trace).
 - [ ] LOW: a Rider corpse digested by an engulfer leaks as a free
       object (minted 2026-10-15, session 230, by the held-tips Plan
       agent; vanilla-shared, upstream-reportable). do.c
@@ -18194,7 +18379,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (26,15), launch (31,15)) and the ray meets the door before the
       trap. Needs a trace of what the ray does at the door, then a
       ruling: stop the walk at the first non-ACCESSIBLE square, or
-      record. LOW.
+      record. LOW. TRACED 2026-10-18 (session 239 follow-up, Plan
+      agent, code read): the walk passes everything that is not
+      IS_STWALL (doors, secret doors, secret corridors, trees, water,
+      lava, bars). At a closed door zap_over_floor() sets rangemod
+      -1000, so the ray ends there: a wooden door burns, shatters or
+      splinters (fire, cold, lightning), otherwise "The door absorbs
+      the spell!" / "...the blast!"; metal and stone doors absorb
+      every type, and a secret door is revealed first. A tree or
+      secret corridor bounces the ray so it never reaches the trap.
+      ACCESSIBLE(DOOR) is TRUE, so the row's candidate would still
+      pass doors. Hero-crafted beam traps use the same walk. Master
+      identical. RULED 2026-10-18 (decisions log): STOP AT DOORS AND
+      TREES, as recommended - the walk abandons a direction at any
+      DOOR (any state), SDOOR, TREE, DEADTREE or SCORR and tries the
+      next, so the ray always has a clear line; no line in 8
+      directions keeps the existing fallback. Rejected letting empty
+      or broken doorways pass, and record only. Plannable.
 - [ ] LOW: a drain-property (ITEM_DRLI) missile never drains
       (minted 2026-10-13, session 223, by battery A;
       master-shared). artifact_hit()'s drain arm tests
@@ -18205,7 +18406,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       drains your %s!" line also lacks verb agreement for a stack
       ("The deadly daggers drains your life!", seen with the arm
       forced). Needs a trace of the intended reach, then a ruling.
-      LOW.
+      LOW. TRACED 2026-10-18 (session 239 follow-up, Plan agent, code
+      read): no weapon can carry decay - create_oprop() skips
+      ITEM_DRLI for weapons, weapon-tools, launchers, ammo and
+      missiles, wishes strip it, forging only passes properties on;
+      master ba3a76f2e (2019) "ITEM_DRLI is now only allowed on armor,
+      not weapons" removed attacks()' case on purpose. The row's
+      "melee drains through uhitm.c" premise is wrong: uhitm.c has no
+      ITEM_DRLI code, and melee, thrown and fired hits all reach
+      artifact_hit() the same way. Fire, frost, shock and venom do
+      work on missiles. RULED 2026-10-18 (decisions log): DELETE THE
+      DEAD DECAY CODE (over my record-as-designed pick) - the
+      unreachable weapon-decay arms in spec_dbon() and artifact_hit()
+      go, no change in play; rejected record only and making decay
+      work on weapons. Folded in by ruling: the hit lines' verb
+      agreement - a wielded stack gets plural verbs ("The daggers of
+      fire burn the newt!") on the fire, frost, shock and venom lines
+      (artifact.c, distant_name(xname) with a fixed singular verb);
+      archived as a master bug, frozen-unfixed. Plannable.
 - [x] LOW: a monster's turn undead spell kills as "a wand of undead
       turning" (minted 2026-10-13, session 223, by the census;
       master-shared). unturn_you() hard-codes the wand's name and
@@ -20665,7 +20883,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       returns the parent itself). Fix shape to rule on: have
       learn_egg_type() mark the egg's own type and adjust the
       callers (hatch_egg() passes big_to_little(egg->corpsenm) now
-      only to compensate). LOW (display only).
+      only to compensate). LOW (display only). RULED 2026-10-18
+      (session 239 follow-up, decisions log): FIX IT, as recommended
+      - learn_egg_type() marks the egg's own kind and the callers pass
+      the egg actually laid, hatched or identified (polymon() the
+      eggs the form lays, invent.c the identified egg alone);
+      archived as a master bug, frozen-unfixed; rejected record
+      only. Plannable.
 - [x] LOW (feature): monster-side gnome egg fear is absent
       PORTED 2026-09-20 (session 133, commit `Fix: scared monsters lost
       master's cries and gnomes their egg fear.` = e29c917d5,
@@ -23441,8 +23665,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       melting or flooding square) bring it up where it was buried,
       not at the hero's feet, so no yank. Rejected level changes only
       and record only. Plannable.
-- [ ] LOW: unearthing a tethered ball while Punished with a second
-      ball loses the buried one (minted 2026-10-17, session 235,
+- [x] LOW: unearthing a tethered ball while Punished with a second
+      ball loses the buried one (FOLDED 2026-10-18 into session 210's
+      "Punished hero who is also tethered" row, the same producer,
+      ruled there; no separate work) (minted 2026-10-17, session 235,
       reviewer; master and vanilla 5.0 alike). A hero who reads a
       scroll of punishment while tethered gets a new ball; when the
       buried one comes up, punish() takes its "Your iron ball gets
@@ -24006,7 +24232,25 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       left on no chain. drop_ball() also moves such a hero with
       u.ux / u.uy after a reset that hands them back to the chain.
       Decide: keep the second chain and drop the old ball where it
-      lay, or merge them. LOW (needs a trace and a ruling).
+      lay, or merge them. LOW (needs a trace and a ruling). TRACED
+      2026-10-18 (session 239 follow-up, Plan agent, code read):
+      seffect_punishment(), punish(), the angry god's case and the
+      Convict quest leader test only Punished, so a tethered hero gets
+      a second ball and chain; every tether-ending path (the wrench,
+      teleds(), level_tele(), the portal, goto_level(),
+      digactualhole(), unearth_objs(), mkinvokearea()) hands the
+      extracted ball to punish(), whose Punished arm adds the weight
+      and returns, leaving it OBJ_FREE (a silent leak). drop_ball()'s
+      u.ux = x - u.dx move lets a thrown second ball drag the hero
+      past buried_ball()'s two-square search. Prayer's punishment cure
+      frees only the tether. RULED 2026-10-18 (decisions log): TETHER
+      COUNTS AS PUNISHED, as recommended - reading punishment while
+      tethered prints "You are being punished for your misbehavior!
+      Your iron ball gets heavier.", the buried ball takes the weight,
+      no second chain; the angry god and the Convict leader treat a
+      tethered hero as Punished. Rejected keeping both chains and
+      record only. Session 235's duplicate row is folded in (closed).
+      Plannable.
 - [ ] LOW: a knockback moves a ridden steed out of the hero's hold
       (minted 2026-10-11, session 210, reviewer; branch, pre-existing).
       mhurtle() refuses a huge, stuck or mtrapped monster ("doesn't
@@ -24139,7 +24383,33 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       by a tree that burns or is cut down, stays put until
       mentangletime runs out (3-10 turns). Needs its own census of the
       tree-death and grass-loss sites for monsters, then a ruling on
-      the line. LOW (needs a census, then a ruling).
+      the line. LOW (needs a census, then a ruling). CENSUS
+      2026-10-18 (session 239 follow-up, Plan agent, code read): the
+      only setter is cast_entangle() (the hero's spell, a monster's
+      beam at another monster, monster learned casts); no
+      terrain-changing site reads mentangled. Monster-reachable sites:
+      fire over grass (zap.c, before the ray hits the monster), a
+      broken digging wand's pits, holes and flood, a monster digging
+      down, create_pit_under(), mkinvpos(), and every tree loss (axe
+      chop, a monster tunneling, digging and death rays, fire, a fire
+      weapon, wizard terrain wishes) plus still_chewing() on a tree,
+      which has no hook for anyone (master-shared). Pet grazing is
+      unreachable (the held pet returns first); a land mine already
+      clears the hold silently. Master identical. RULED 2026-10-18
+      (decisions log): RELEASE WITH THE HERO'S LINES, as recommended -
+      grass_gone_release() and tree_gone_release() also release
+      monsters ("The vegetation releases the newt." / "The tree
+      releases its grip on the newt." when seen, after the event's own
+      line), with hooks at the monster dig arms and still_chewing().
+      Rejected master's expiry line, a silent release and record
+      only. Plannable.
+- [ ] LOW: monsters left entangled on another level never count
+      down (minted 2026-10-18, session 239 follow-up, from the vine
+      census; port loss, master parity). Master's
+      mon_catchup_elapsed_time() (dog.c) shortens mentangletime by the
+      elapsed time (to 1 at most); the branch's copy dropped it, so a
+      monster entangled when the hero left is still held for its full
+      remaining time on return. LOW (plannable, master's shape).
 - [x] LOW: two vine-hold lines name a tree's hold "vegetation"
       (minted 2026-10-13, session 220, reviewer L5; master-shared
       wording). dothrow.c's held-thrower line "You are anchored by the
@@ -27633,7 +27903,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
 - [x] LOW: travel's last step treats a monster on the destination
       as an m-prefixed bump (BUG-2415; minted 2026-10-17, session 237,
       Plan agent; master and vanilla 5.0 alike) - FIXED 2026-10-18
-      (session 239, commit pending). findtravelpath()'s nomul(0) ends
+      (session 239, commit b7fbafc80). findtravelpath()'s nomul(0) ends
       travel before the last step, and a pet or peaceful skips
       domove_core()'s own nomul(0), so domove_bump_mon()'s `nopick &&
       !travel` test read travel's nopick as the m prefix: "Pardon me,
@@ -27650,7 +27920,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       already stopped for free (battery PRE).
 - [x] MED: auto-opening a door costs no turn (BUG-2414; minted
       2026-10-17, session 237, re-review MEDIUM; vanilla 5.0 shares
-      it) - FIXED 2026-10-18 (session 239, commit pending).
+      it) - FIXED 2026-10-18 (session 239, commit b7fbafc80).
       test_move()'s autoopen arm set context.move = (ux != u.ux || uy
       != u.uy), always FALSE from domove_core() (upstream 20c456cbb /
       faf2267ab read "move" as "the hero moved"; 20c456cbb also undid
@@ -27663,7 +27933,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       turn, a count re-asks; q ends it).
 - [x] LOW: autounlock=kick with a count asks "Kick it?" again on the
       next counted step (BUG-2416; minted and FIXED 2026-10-18, session
-      239, commit pending; Plan agent; vanilla 5.0 shares it). The kick
+      239, commit b7fbafc80; Plan agent; vanilla 5.0 shares it). The kick
       arm fakes door_opened and skips nomul(0), and moveloop() repeats
       domove() before rhack() pops the canned kick, so the next step's
       yn_function() read the queued kick as its answer: "yn_function()
@@ -27671,7 +27941,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       kick (battery PRE). The arm now ends the count with
       end_running(TRUE) (nomul() would clear the queued kick;
       end_running(FALSE) left context.mv set - reviewer MEDIUM).
-- [ ] LOW: `_` onto an adjacent boulder never pushes it (minted
+- [x] LOW: `_` onto an adjacent boulder never pushes it (minted
       2026-10-18, session 239, reviewer + battery T16; vanilla 5.0
       alike). 5.0 7d77267f9 gave findtravelpath()'s adjacent shortcut
       crawl_destination(), whose goodpos() refuses a boulder square
@@ -27679,7 +27949,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       path search at run 8, where test_move() refuses the boulder
       silently ("A boulder blocks your path." only with
       mention_walls). Master's shortcut set run 0 and pushed it. LOW
-      (needs a ruling).
+      (needs a ruling). CLOSED 2026-10-18 (session 239 follow-up,
+      decisions log), no code change: KEEP 5.0'S REFUSAL, over my
+      push-as-master pick - travel never pushes a boulder (no turn
+      used; a plain move key pushes it). test_move()'s run >= 2 arm
+      skips the refusal for a Blind or Hallucinating hero, who still
+      pushes (5.0's own; code reading, not battery-checked).
+- [ ] LOW: autounlock=untrap with a count asks "Check this door for
+      a trap?" again on every counted step (minted 2026-10-18, session
+      239 follow-up, from session 239's kept-by-choice note on the
+      auto-open row above; a 5.0-only arm - master's autounlock has no
+      untrap mode). With apply-key on and a key carried,
+      doopen_indir() reaches pick_lock(), whose door arm runs untrap()
+      on a yes and reports time, so test_move()'s autoopen arm sets
+      door_opened and the count goes on: `4l` is up to four prompted
+      searches, a turn per yes ('n' goes on to the unlock question,
+      'q' ends the count). RULED 2026-10-18 (decisions log): STOP
+      AFTER ONE CHECK, as recommended - one question and one turn,
+      then the count ends, as the kick arm does (BUG-2416's
+      end_running(TRUE)); rejected re-asking each step. LOW
+      (plannable).
 - [ ] LOW: findtravelpath()'s adjacent shortcut zeroes a travel count
       when its test_move() fails (minted 2026-10-18, session 239, Plan
       agent; vanilla 5.0 alike). It calls end_running(FALSE) (multi 0)
@@ -29136,7 +29425,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       prints the period, with no total. Needs a trace: was verbose off
       in the tester's games (launched with --no-evilhackrc)? If
       verbose was on, why was the total missing? Then decide master's
-      shape vs 5.0's total.
+      shape vs 5.0's total. TRACED 2026-10-18 (session 239 follow-up,
+      Plan agent, code read): the tester wishes with #wizwish, and
+      wiz_wish() turns flags.verbose off around makewish() (vanilla and
+      master too); hold_another_object() passes the wished count, so
+      total_of is TRUE on a merge, which drops the period, while
+      verbose off drops the total. Pickup and container merges show
+      the same shape with verbose off. Vanilla 5.0 identical (377be376f,
+      a3f452bbe). RULED 2026-10-18 (decisions log): KEEP THE TOTAL, FIX
+      THE PERIOD, as recommended - verbose on: "k - a blood-red potion
+      (2 in total)."; verbose off and ^W: "k - a blood-red potion."
+      (master's line). Upstream-reportable. Rejected master's shape and
+      the total regardless of verbose. Plannable.
 - [x] LOW: a vampshifter pet's hunger penalty survives into vampire
       form (BUG-2286) - FIXED 2026-10-11 (session 213, commit
       63f9c9fac, tracker 6cd5aaccd; closure notes in BUGFIXES_ARCHIVE):
@@ -29849,6 +30149,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       GitHub Actions jobs (evilhack-cpp.yml gains Windows and macOS
       runners; recipes from upstream's azure-pipelines.yml). Installs
       are system changes: ask before running apt / the fetch script.
+      APPROVED 2026-10-19 (decisions log): all four installs; slice
+      (a) still gets a plan, and each exact command is shown to the
+      maintainer before it runs.
       Plannable as slices: (a) toolchain installs + a baseline build
       of each port as it stands, (b) X11 + Qt Slow/Wither + Guidebook
       lists, (c) CI jobs + item (6)'s project files + items (7)
@@ -30361,13 +30664,17 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 
 ## Upstream-reportable fixes (send as format-patch, never edit their tree)
 
+Ruled 2026-10-19 (decisions log): cut a git format-patch file for every
+row still marked unsent (multi-session, planned first; From: the
+maintainer, no co-author trailer). Sending stays the maintainer's.
+
 | date | fix | status |
 |------|-----|--------|
 | 2026-10-17 | `_` travel never asks paranoid_confirm:swim's question and walks into walls of water or lava: swim_move_danger() reads context.nopick as the m prefix, but dotravel_target() sets it for every travel. Shared with Official_nh50 (hack.c swim_move_danger()'s nopick arm). EvilHack fix BUG-2409 (ac60731fc): domove_core() captures context.travel before findtravelpath() ends it, and only an m-prefixed move skips. | found (branch-fixed); not yet sent |
 | 2026-10-17 | A refused first `_` travel step costs a turn: dotravel_target() runs domove() and returns ECMD_TIME regardless, and rhack() sets context.move over domove()'s refusal (in vanilla: a visible monster on the first square, a declined gas cloud question, a known-trap stop, "That door is closed."). Shared with Official_nh50 (cmd.c dotravel_target()); do_repeat() maps context.move the same way and loses a life-saved hero's helpless turn. EvilHack fix BUG-2412 (ac60731fc): ECMD_OK when context.move is clear, ECMD_TIME when gm.multi < 0. | found (branch-fixed); not yet sent |
-| 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab), and door_opened = !closed_door(), so a resisting door and an autounlock key's first lock turn are free too (20c456cbb also undid bfa0f072f's "autounlock of door or chest took no time" fix). Shared with Official_nh50 and NetHack50 HEAD c1a37fb6c. EvilHack fix BUG-2414 (commit pending): door_opened = move = (doopen_indir() & ECMD_TIME), as 3.6. | found (branch-fixed); not yet sent |
-| 2026-10-18 | autounlock=kick with a count: a counted walk into a locked door answers y to "Kick it?", the kick arm skips nomul(0) so the count goes on, and the next counted step's yn_function() reads the queued dokick as input - impossible("yn_function() returned '^['; using 'q' instead"), "Program in disorder!", no kick. Shared with Official_nh50 (hack.c test_move() kick arm, 7982c72e8). EvilHack fix BUG-2416 (commit pending): end_running(TRUE) in the kick arm (nomul() would drop the queued kick). | found (branch-fixed); not yet sent |
-| 2026-10-18 | Travel's last step onto a pet or peaceful bumps it ("Pardon me, <mon>.", a turn, no swap) where every earlier travel step swaps: findtravelpath()'s nomul(0) clears context.travel and domove_bump_mon()'s `nopick && !travel` reads travel's nopick as the m prefix. Shared with Official_nh50 (and 3.6). EvilHack fix BUG-2415 (commit pending): domove_core()'s travel_step capture is passed in and an is_safemon() target skips the bump. | found (branch-fixed); not yet sent |
+| 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab), and door_opened = !closed_door(), so a resisting door and an autounlock key's first lock turn are free too (20c456cbb also undid bfa0f072f's "autounlock of door or chest took no time" fix). Shared with Official_nh50 and NetHack50 HEAD c1a37fb6c. EvilHack fix BUG-2414 (b7fbafc80): door_opened = move = (doopen_indir() & ECMD_TIME), as 3.6. | found (branch-fixed); not yet sent |
+| 2026-10-18 | autounlock=kick with a count: a counted walk into a locked door answers y to "Kick it?", the kick arm skips nomul(0) so the count goes on, and the next counted step's yn_function() reads the queued dokick as input - impossible("yn_function() returned '^['; using 'q' instead"), "Program in disorder!", no kick. Shared with Official_nh50 (hack.c test_move() kick arm, 7982c72e8). EvilHack fix BUG-2416 (b7fbafc80): end_running(TRUE) in the kick arm (nomul() would drop the queued kick). | found (branch-fixed); not yet sent |
+| 2026-10-18 | Travel's last step onto a pet or peaceful bumps it ("Pardon me, <mon>.", a turn, no swap) where every earlier travel step swaps: findtravelpath()'s nomul(0) clears context.travel and domove_bump_mon()'s `nopick && !travel` reads travel's nopick as the m prefix. Shared with Official_nh50 (and 3.6). EvilHack fix BUG-2415 (b7fbafc80): domove_core()'s travel_step capture is passed in and an is_safemon() target skips the bump. | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -30595,6 +30902,9 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-19 | Maintainer-action round (session 239 follow-up; AskUserQuestion x1, three questions, two as recommended). (1) MASTER EVIDENCE: batteries' MASTER legs run on a scratch master build (a detached master worktree in the scratchpad, own HACKDIR / PREFIX, `SHELLDIR=`, the 2026-10-07 hot patch recipe), never the live evilhackdir binaries the auto-mode classifier blocks; rejected the maintainer running the legs and code reading only. (2) PLATFORM PARITY: all four toolchain installs approved (X11 and Qt6 dev packages, DJGPP, the Amiga cross toolchain); slice (a) is planned and each command shown before it runs; rejected Linux packages only and not now. (3) UPSTREAM PATCHES: cut a patch for EVERY unsent upstream row, over my recent-batch pick (sessions 232-239); rejected an index of the 24 existing files and not now. | maintainer |
+| 2026-10-18 | Trace-first ruling round, ten rows, rulings recorded only (session 239 follow-up; five Plan agents traced the rows by code reading, then AskUserQuestion x3, twelve questions, ten as recommended). (1) PRAYER TRAP: HOLD IT UNTIL THE PRAYER ENDS - float_down()'s trap arm defers the landing while u.uinvulnerable; rejected a trap-free square, never firing, record. (2) TWO CHAINS: A TETHER COUNTS AS PUNISHED for the scroll, the angry god and the Convict leader; rejected both chains, record; session 235's duplicate folded. (3) QUEEN BONES: SHE STAYS OUT OF BONES (mongone() before iter_mons()); rejected revive-then-remove, record. (4) QUEEN STEED: SHE DISMOUNTS ON REVIVAL; rejected a calmed steed, record. (5) ZOO STEEDS SLEEP TOO; rejected the watchdog record. (6) BEAM TRAP WALK STOPS AT DOORS (any state), SECRET DOORS, TREES AND SECRET CORRIDORS; rejected passing doorways, record. (7) ENTANGLED MONSTERS RELEASED WITH THEIR GRASS OR TREE, with the hero's lines; rejected the expiry line, silent, record. (8) MERGE LINE: KEEP 5.0'S TOTAL, FIX THE PERIOD; rejected master's shape, the total regardless of verbose. (9) CONTAINERS SPARE obj_resists() ITEMS AT EVERY SITE; rejected refusing them in containers, three sites only, record. (10) LIVE HANG: BRANCH ONLY, over my v3-hot-patch pick - no production patch, master archived frozen-unfixed. (11) DECAY: DELETE THE DEAD WEAPON-DECAY CODE, over my record-as-designed pick; rejected making decay work on weapons. (12) HIT VERBS: plural verbs for a wielded stack on the property hit lines. Minted five rows: the HIGH burial hang, the MED Draugr exit crash, and LOW rows for mid-prayer hurtles / stray beams, a rock-mole hero eating the Sword, and the off-level entangle catch-up. | maintainer |
+| 2026-10-18 | Ruling round, eight items, rulings recorded only (session 239 follow-up; AskUserQuestion x3, nine questions, eight as recommended). (1) UNTRAP COUNT: STOP AFTER ONE CHECK - autounlock untrap with a count asks once, takes the turn, and ends the count like the kick arm (new LOW row, plannable); rejected re-asking each step (the session 239 keep). (2) TRAVEL ONTO AN ADJACENT BOULDER: KEEP 5.0'S REFUSAL, over my push-as-master pick - `_` never pushes a boulder, no turn used; row closed, no code change. (3) PETS AND THE TWO RARE BAGS: LEAVE AS MASTER - pets fetch a bag of treasure or devouring like any item; row closed, no code change. (4) EGG RECOGNITION: FIX IT - learn_egg_type() marks the egg's own kind, callers pass the egg laid or identified (master bug, frozen-unfixed). (5) FOOD DEATH-DROPS: MASTER'S DROPS - 5.0 39a7dc1c5's delete-food arm in xkilled() comes out with the supply-chest removal (doc/PORT_50_REMOVALS.md 1.3; keeping it without the chests and Mines food left less food than either tree). (6) nasties[]: MASTER'S 50-ENTRY LIST as one unit (the row is plannable; 5.0's picking rules are outside it). (7) poisoned(): RATIFIED master's deadly-poison arm (instant death below 35% resistance, the toxic arm drains no stat); rejected 5.0's survive-with-HP arm and its Con / stat drains. (8) HP REGENERATION: MASTER'S FORMULA (removals 1.4) - XL 1-9 one HP every 42 / (XL + 2) + 1 turns, XL 10+ every 3 turns 1 or rnd(Con) capped at XL - 9, Regeneration at least 1 a turn, the drow-in-light and Druid terms back to master's interval forms (the 2026-09-18 rn2(300) adaptation retired); rejected keeping 5.0's roll and the slower-of-the-two hybrid. (9) RESTFUL SLEEP HEALING: DROP IT, AS MASTER - 5.0 91c46ab54's U_CAN_REGEN() sleep term and +1 go; rejected keeping it. | maintainer |
 | 2026-10-18 | Auto-open / travel last step slice rulings (session 239; AskUserQuestion x3 plus one follow-up answer, four questions). (1) TRAVEL LAST STEP LIKE MID-PATH (as recommended; folded into the auto-open slice): the last travel step swaps with a pet or peaceful the hero can see and stops for free at a seen non-safe monster; rejected a plain step (attack a hostile), master's bump, and not now. (2) UNSEEN 'I' / WARNING TARGET: "lets stick with branch behavior" - the bump stays. The question was asked on my wrong premise that mid-path travel attacks these squares; the Plan agent corrected it (domove_core()'s nomul(0) for a non-safe monster ends travel before the bump test, so mid-path bumps too; master bumps an 'I' but attacks a warning number, lacking 5.0 121290cde's warning arm), so the ruling matches mid-path and needs no code. (3) STORMBRINGER / SWORD OF KAS: ATTACK, AS MID-PATH (as recommended) - the last step onto a pet or peaceful attacks with no prompt, as mid-path travel and a plain step do; rejected exempting the blades. (4) KICK COUNT: FOLD IT IN (as recommended) - a counted walk ends when autounlock queues a kick (BUG-2416). Decided without asking (master parity): the auto-open charges as 3.6 (opens / resists / key started a turn, a count keeps trying, locked without a key free); 5.0's untrap arm follows that rule. | maintainer |
 | 2026-10-17 | Travel / paranoid slice rulings (session 237; AskUserQuestion x2, three questions). (1) PARANOID TRAP: asked whether `_` travel should ask at an adjacent known trap or gas cloud like a step (5.0's paranoid_confirmation:trap had the travel row's gap), the maintainer answered "i'd like to get rid of 5.0's paranoid trap altogether"; scope ruled ALL OF IT, AS MASTER (as recommended) - the trap and gas cloud questions, the 'trap' / 'move-trap' values, PARANOID_TRAP (AutoAll back to master's 0x0800) and immune_to_trap() go; a config naming 'trap' gets the unknown-parameter error; travel still routes around known traps; rejected accepting 'trap' silently and keeping the cloud question. (2) PARANOID QUIT: port master 367af1633 (as recommended) - default pray + quit, a new list keeps quit (cleared by naming !quit or none, -quit, or !paranoid_confirmation); rejected a row for later and leaving 5.0's default. | maintainer |
 | 2026-10-17 | Open-row rulings (session 236 follow-up; AskUserQuestion x1, three questions, all as recommended). (1) TRAVEL ASKS LIKE A STEP: every `_` travel step into known water or lava asks when paranoid swim is on, an adjacent target included, and walls of water or lava are refused; only m+direction steps in unasked (travel always sets nopick, so session 234's 5.0 gate never asked during travel; master asked only for a far target's last step); rejected master's exact shape and leaving it. (2) THE CHAIN CATCHES AT THE EDGE: a hero chained to a buried ball over open air is pulled onto an adjacent solid spot instead of plummeting; water and lava keep session 189's falling in; rejected every drop as for the pair, and keeping the plummet. (3) UNEARTH OVER A DROP: a level change brings the ball up at the arrival spot; stay-in-place paths (a shuddering level teleport or portal, a melting or flooding square) bring it up where it was buried; rejected level changes only and record only. | maintainer |
