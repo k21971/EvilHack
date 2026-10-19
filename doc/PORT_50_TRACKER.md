@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-19, after session 240's burial
-  hang and container slice): 454 rows closed, 122 open (the two [~]
+- Phase 2 status (refreshed 2026-10-19, after session 241's Draugr
+  exit crash slice): 455 rows closed, 121 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,12 +27,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 6 MED: unported master features (door-material colors, monster
-    ring-wearing, monster touch-attack sears, the Astral Red Horse),
-    a Draugr dying in the turn they defeat the Ice Queen likely
-    crashing at exit (branch-only; minted 2026-10-18), and the
-    "bag not found" panic of an exploding floor bag over a seen trap
-    door (pre-existing; minted 2026-10-19 by session 240's reviewer).
+  - 5 MED: unported master features (door-material colors, monster
+    ring-wearing, monster touch-attack sears, the Astral Red Horse)
+    and the "bag not found" panic of an exploding floor bag over a
+    seen trap door (pre-existing; minted 2026-10-19 by session 240's
+    reviewer). Session 241 closed the Draugr exit crash (BUG-2422:
+    no Ice Queen revival feedback once the game is over or the
+    windows are gone, which also saves a panic save).
     The 2026-10-19 bookkeeping pass flipped two stale checkboxes (the
     shop bag explosion row and the lit oil polymorph row, both closed
     in their text), closed the Materials and Racial monsters
@@ -11394,7 +11395,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rider puts the steed on her square. Rejected keeping her
       mounted with the steed calmed at once, and record only.
       Plannable.
-- [ ] MED: a Draugr dying in the turn they defeat the Ice Queen
+- [x] MED: a Draugr dying in the turn they defeat the Ice Queen
       likely crashes at exit (minted 2026-10-18, session 239
       follow-up, from the queen bones trace; branch-only regression;
       code read, not reproduced). With no bones, the defeated queen
@@ -11412,6 +11413,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       icequeenrevive() feedback once program_state.gameover is set.
       MED (needs a battery: a Draugr in icequeen-3 whose revival
       fails the turn of the defeat).
+      CLOSED 2026-10-19 (session 241, BUG-2422, commit pending):
+      icequeenrevive() shows nothing once the game is over or the
+      windows are gone (program_state.gameover || !window_inited),
+      and keeps master's `u.uhp <= 0 && !ELifesaved` gate in play; the
+      guilt line and uunstick()'s clutch line follow the first test,
+      and the revival itself always runs. The reviewer found a second
+      route, master-shared: panic() tears the windows down before
+      dosave0(), whose dmonsfree() revived a queen defeated in that
+      turn and crashed the error save (folded). dothrow.c's candy-bar
+      twin back to master's !ELifesaved. Batteries: PRE reproduced the
+      SIGSEGV (tty_create_nhwindow <- com_pager <- icequeenrevive <-
+      dmonsfree <- freedynamicdata, exit 134); POST quiet exits, the
+      in-game text and pager unchanged, the bones path and an
+      Infidel's guilt line silent, a gdb panic save complete.
 - [x] LOW: damageum()'s kill tail reports a life-saved defender as
       dead (BUG-2297) - FIXED 2026-10-12 (session 216, commit 7cc1136de,
       tracker 865ec9522; closure notes in BUGFIXES_ARCHIVE): the tail
@@ -18392,7 +18407,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       leaves (BUG-2421). Four batteries PASS (archive). Follow-up
       2026-10-19 (ruled, 5.0's wording with the original count): the
       #put / #tip blast line names the trigger sack as it went in,
-      before its indestructible contents are spared (commit pending).
+      before its indestructible contents are spared (52c9baa7d).
 - [x] HIGH: a buried sack holding an indestructible item hangs the
       game (minted 2026-10-18, session 239 follow-up, from the
       container census; master-shared, live on 0.9.3 since the
