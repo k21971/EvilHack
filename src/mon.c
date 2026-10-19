@@ -3864,14 +3864,23 @@ icequeenrevive(struct monst *mtmp)
     struct monst *mon;
     struct permonst *bourbon = &mons[PM_BOURBON];
     struct permonst *ozzy = &mons[PM_OZZY];
+    boolean over, quiet;
 
     /* our hero has freed the Ice Queen from her curse */
     if (mtmp->data != &mons[PM_KATHRYN_THE_ICE_QUEEN])
         return;
 
-    /* in case the player kills themselves while defeating the Ice
-       Queen and isn't life-saved */
-    if (u.uhp <= 0 && !Lifesaved) {
+    /* nothing is shown once the game is over or the window system is
+       gone: the revival also runs from savebones(), from the cleanup
+       at exit and from a panic save, the latter two after the windows
+       are torn down */
+    over = (program_state.gameover || !iflags.window_inited);
+    /* nor if the hero died defeating the Ice Queen and wasn't
+       life-saved (a Draugr's racial HLifesaved outlives a failed
+       revival, so only the extrinsic counts) */
+    quiet = (over || (u.uhp <= 0 && !ELifesaved));
+
+    if (quiet) {
         ; /* suppress feedback */
     } else {
         Your("actions have released %s from a powerful curse!",
@@ -3918,6 +3927,8 @@ icequeenrevive(struct monst *mtmp)
     if (mtmp == u.ustuck) {
         if (u.uswallow)
             expels(mtmp, mtmp->data, FALSE);
+        else if (over)
+            set_ustuck((struct monst *) 0);
         else
             uunstick();
     }
@@ -3929,7 +3940,7 @@ icequeenrevive(struct monst *mtmp)
             continue;
         /* cure any ailments the dogs may have also */
         if (mon->data == bourbon || mon->data == ozzy) {
-            if (u.uhp <= 0 && !Lifesaved) {
+            if (quiet) {
                 ; /* suppress feedback */
             } else {
                 if (mon->data == bourbon && !mon->mpeaceful) {
@@ -3955,9 +3966,7 @@ icequeenrevive(struct monst *mtmp)
             newsym(mon->mx, mon->my); /* enable peaceful glyph */
         }
     }
-    /* in case the player kills themselves while defeating the Ice
-       Queen and isn't life-saved */
-    if (u.uhp <= 0 && !Lifesaved) {
+    if (quiet) {
         ; /* suppress feedback */
     } else {
         if (Role_if(PM_INFIDEL)) {
@@ -3985,7 +3994,8 @@ icequeenrevive(struct monst *mtmp)
         }
     }
     if (u.ualign.type == A_NONE) {
-        You_feel("guilty.");
+        if (!over)
+            You_feel("guilty.");
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
         record_abuse_event(-2, ABUSE_INFIDEL_GOOD);
     } else {

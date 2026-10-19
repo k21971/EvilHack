@@ -2776,7 +2776,7 @@ thitmonst(
                 continue;
             /* cure any ailments the dogs may have also */
             if (mtmp->data == bourbon || mtmp->data == ozzy) {
-                if (u.uhp <= 0 && !Lifesaved) {
+                if (u.uhp <= 0 && !ELifesaved) {
                     ; /* suppress feedback */
                 } else {
                     if (mtmp->data == bourbon && !mtmp->mpeaceful) {
