@@ -18,16 +18,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-18, after session 239's
-  auto-open and travel last step slice and its two follow-up ruling
-  rounds): 450 rows closed, 114 open. Of the open rows:
+  auto-open and travel last step slice, its follow-up ruling rounds
+  and the 2026-10-19 bookkeeping pass): 452 rows closed, 121 open
+  (the two [~] umbrellas, Materials and Racial monsters, were never
+  counted and are now closed). Of the open rows:
   - 1 HIGH: a buried sack holding the Sword of Annihilation, the
     Armor of Retribution or a scroll of consecration hangs the game
     when it rots (rot_organic(); master-shared, live on 0.9.3; ruled
     branch-only, no hot patch). Minted 2026-10-18 by the container
     census.
-  - 2 MED: an unported master feature (door-material colors), and a
-    Draugr dying in the turn they defeat the Ice Queen likely
+  - 5 MED: unported master features (door-material colors, monster
+    ring-wearing, monster touch-attack sears, the Astral Red Horse),
+    and a Draugr dying in the turn they defeat the Ice Queen likely
     crashing at exit (branch-only; minted 2026-10-18).
+    The 2026-10-19 bookkeeping pass flipped two stale checkboxes (the
+    shop bag explosion row and the lit oil polymorph row, both closed
+    in their text), closed the Materials and Racial monsters
+    umbrellas after Plan-agent audits, ruled their two leftovers
+    (each player-monster rolls its own kit; stone_missile reads the
+    item's own material), and minted the seven orphans: three MED
+    port gaps above, an oc_material SWEEP, and LOW rows for materials
+    nits, the giant-race cloak gate and the racial live-coverage
+    watch. The raw checkbox count now matches the dashboard.
     The second ruling round (2026-10-18, session 239 follow-up)
     traced the ten rows that needed a trace or census first and
     ruled them all, nine as recommended: prayer traps wait for the
@@ -133,9 +145,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 5 SWEEP: race-predicate census, is_bracer() census, inert
+  - 6 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity, racial size
-    macros.
+    macros, base-type oc_material reads.
   - 11 untagged: port gaps (Muse offense items, creeping mound
     meatfood(), monster chest_trap(), nasties[] reconcile,
     des-placed mplayer sex, look_at_monster buffer, "pairs of"),
@@ -143,7 +155,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 95 LOW: small parity rows, quirks and watch/record-only items.
+  - 98 LOW: small parity rows, quirks and watch/record-only items.
     Session 239 closed the travel last step row (BUG-2415, ruled
     2026-10-18 like mid-path): travel's last step swaps with a pet
     or peaceful instead of "Pardon me" (Stormbringer and the Sword
@@ -1711,7 +1723,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       helm of opposite alignment with sanity_check on, vault-guard
       cycle, Plane of Water bubbles, crowded-level arrival, fuzzer
       with fuzzer_impossible_panic)
-- [~] Materials system (obj->material; init/naming/pricing/burn)
+- [x] Materials system (obj->material; init/naming/pricing/burn)
       SLICE A (core assignment) IN PROGRESS 2026-07-13, subagent-
       executed + reviewed: instance-based predicates (objclass.h;
       is_supermaterial/is_fixed/is_damageable/mat_is_* added;
@@ -1867,6 +1879,49 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       matdensities[] 5-bit-field OOB clamp on restore,
       init_dummyobj material, is_rottable dead BONE test (master
       parity, kept)
+      CLOSED 2026-10-19 (session 239 follow-up, umbrella audit by a
+      Plan agent, no code change). All four slices landed 2026-07-13:
+      A 9f3d9c32d, B 75dbca89a, C 6befde951, D f5af0ebd4. The other
+      deferrals were discharged by later rows (trap types, forging,
+      door materials, glass / blocker sears, monster AI, ERAC,
+      spellbook learning, shop racial pricing, obufs widening,
+      Croesus, the pager) or are moot: the poly_obj erodeproof write
+      sits under is_damageable() (BUG-2326 census), init_dummyobj's
+      one caller reads no material, and "fix master first" died with
+      the 2026-07-15 freeze. The rest moved to the four rows below;
+      stone_missile ruled 2026-10-19 (decisions log): the item's own
+      material.
+- [ ] MED: monster touch attacks never sear (minted 2026-10-19 by
+      the Materials umbrella audit; port gap). Master's hitmu() and
+      mdamagem() add special_dmgval(magr, mdef,
+      attack_contact_slots(), &hated_obj) and searmsg() for the
+      attacker's gloves, boots, rings or own body; the branch calls
+      special_dmgval() only with the hero as attacker and has no
+      attack_contact_slots(), so an iron golem's fist never burns an
+      elf hero and a silver-gloved monster's punch never sears a
+      demon. LOW-risk port (special_dmgval() takes a monster already).
+- [ ] MED: the Red Horse never comes (minted 2026-10-19 by the
+      Materials umbrella audit; port gap). Master 84f8e3fa6 (2018)
+      gives an Astral arrival a tame, saddled Red Horse
+      (gain_guardian_steed(), with the barding reroll) instead of the
+      guardian angel; the branch's do.c still calls
+      gain_guardian_angel(). It was deferred only inside closed rows
+      (the Infidel / roles and barding notes).
+- [ ] SWEEP: base-type oc_material reads (minted 2026-10-19 by the
+      Materials umbrella audit): about 88 objects[].oc_material reads
+      on the branch against 65 on master. Known gaps: o_material()
+      (detect.c), polyuse() / poly_zapped (zap.c), is_flimsy()
+      (obj.h; also lacks master's DRAGON_HIDE arm), burnarmor()'s
+      helm name (trap.c), and stone_missile() (obj.h), ruled
+      2026-10-19 to read the item's own material. Classify the
+      5.0-native rest.
+- [ ] LOW: materials nits (minted 2026-10-19 by the Materials
+      umbrella audit; master-shared, its "fix master first" void
+      since the freeze). not_spec_material() reads one past the NUL
+      on a bare "silver" wish (objnam.c; inside the buffer, no crash,
+      inferred); "opening a iron container" (pickup.c); NO_MATERIAL
+      passes valid_obj_material(); matdensities[] is unclamped on
+      restore (a 5-bit field, 25 entries).
 - [x] Object properties (oprops)
       PORTED + REVIEWED 2026-07-15 (subagent-ported 33 files
       +~1400, reviewer CONDITIONAL FAIL -> all findings fixed by
@@ -2007,7 +2062,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       screen; retest opportunistically with the retarget done
       BEFORE launch), mon-side worn-prop extrinsics in live
       combat (obj_has_prop/mon_prop paths gdb-adjacent only).
-- [~] Racial monsters (ERAC overlay)
+- [x] Racial monsters (ERAC overlay)
       SLICE A (core) 2026-07-13, subagent-ported 20 files +791,
       reviewed (conditional pass, NO blockers; fixups in flight):
       struct erac (Phase 1 fields matched master exactly; NO
@@ -2384,6 +2439,44 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Werebane vs werewolf taming, racial tin/sacrifice,
       vorpal-behead troll corpse revival, yellow light vs drow
       both directions.
+      CLOSED 2026-10-19 (session 239 follow-up, umbrella audit by a
+      Plan agent, no code change). All slices landed: A 549f72cc3, B1
+      e9b9cab24, B2 with the B1 fixups 418f9fa63; battery PASSED
+      2026-07-15. The three B2 decisions were ruled 2026-07-15
+      (decisions log); the master backport candidates died with the
+      freeze. The coordinator items closed later: zombie_maker (ruled
+      2026-07-16), Izchak (bc35d8002, 7cc1136de), mon_prop (oprops
+      e95bed697), grave-arise (c8c090f8c); corpse glyphs stay master's
+      (corpsenm). Every deferral-map subsystem has a closed row, and
+      peaceful_to_glyph rides the ownerless option wirings row. The
+      kit-array splits were ruled 2026-10-19 (decisions log): each
+      player-monster rolls its own kit. Minted the three rows below.
+- [ ] MED: monster ring-wearing NOT PORTED (minted 2026-10-19 by the
+      Racial monsters umbrella audit; its B2 deferral map was the only
+      owner). Master 5880eed5f (2019, the Monster Ring patch) and its
+      fixes: W_RINGL / W_RINGR in m_dowear() with the empty-hand-first
+      order (d7dbcf9b2), extra_pref()'s ring arms, muse.c's
+      searches_for_item() rings, the Nazgul ring, cursed-glove gating.
+      The branch's m_dowear() has no ring slots, so every ring grant
+      (Astral priests' and angels' slow digestion, a stolen ring) is
+      inert. Its obligations are listed in the closed umbrella row
+      above (the 2026-08-27..09-29 ring-wearing notes); other rows
+      point at it as "the ring-wearing deferral".
+- [ ] LOW: a giant-race monster can wear any cloak (minted 2026-10-19
+      by the Racial monsters umbrella audit, its B2 reviewer nit).
+      m_dowear() admits the cloak slot by WrappingAllowed(r_data()),
+      but m_dowear_type()'s mummy-wrapping-only size test reads
+      mon->data->msize (worn.c), so a giant-race soldier or priest
+      that picks up a cloak or robe wears it. Master: never. Use
+      r_data(). Code read only.
+- [ ] LOW watch: Racial monsters live-coverage residue (minted
+      2026-10-19 by the umbrella audit; static and reviewer checks
+      only): drow temple darkening, gnome Int / nymph Cha quotes and
+      Izchak's non-racial pricing, maybe_arm_silver vs Infidel /
+      Vampire heroes, Scorpius's crossbow for gnome / hobbit Rangers,
+      the mfrozen re-arm, glob sell prices; the B1 recommendations
+      (Sting vs a racial orc, Werebane taming, vorpal troll revival,
+      yellow light vs drow). Tick each as a battery covers it.
 - [x] Forging (+ FORGE nhl binding for .des->lua levels)
       PORTED + REVIEWED 2026-07-15 (subagent-ported 50 files
       +1935/-154, reviewer CONDITIONAL PASS -> blocker + concerns
@@ -12030,7 +12123,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       contents again and panicked "add_to_billobjs: obj not free",
       reproduced by battery T3). Battery T2 / T3 PASS. Ruled fix.
       LOW.
-- [ ] LOW: an exploding bag in a shop gives the hero's own contents
+- [x] LOW: an exploding bag in a shop gives the hero's own contents
       to the shop (minted 2026-10-15, session 232, by batteries T2
       and T3; vanilla-shared, master too, any scatter range). When
       the hero's own (no-charge) bag on a shop floor explodes,
@@ -15328,7 +15421,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch filter matches only showdamage's "[HP " prefix
       (master filtered "(MHP " too), so an unfiltered monster-
       damage line would clutter dumps and break message grouping. Archive: the options half of Documentation and
-      Guidebook Infrastructure + master e84a85d5a.
+      Guidebook Infrastructure + master e84a85d5a. RIDER
+      (2026-10-19, Racial monsters umbrella closure): the umbrella's
+      peaceful_to_glyph deferral rides underline_peacefuls here;
+      mon_to_glyph already goes through racial_mndx.
 - [x] Per-alignment overview altar tracking PORTED whole
       (2026-08-28, master 851cc48a0 = final state, its only
       dungeon.c follow-up 6ce6f4157 touched no altar code; three
@@ -18622,7 +18718,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       lit potions of oil and lit candles merge; "gold dragon scale
       mail" wishes deliver a set of gold dragon scales (a slot separate
       from body armor); lit-capable tool results are ~1 in 20-40 dips.
-- [ ] Lit potion of oil polymorphed into another potion comes out
+- [x] Lit potion of oil polymorphed into another potion comes out
       "diluted" (LOW, upstream-shared; minted 2026-09-16 by the poly_obj
       lit-state slice): poly_obj()'s POTION_CLASS arm calls
       fixup_oil(otmp, obj) (mkobj.c) BEFORE the lit-state block ends the
@@ -30902,6 +30998,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-19 | Bookkeeping pass rulings (session 239 follow-up; AskUserQuestion x1, two questions, both as recommended). (1) PLAYER-MONSTER KIT ROLLS: each player-monster rolls its own kit from the branch's const split tables (the Barbarian battle-axe, Druid scimitar and spellbook, and the giant / tortle variants); rejected master's runtime writes into the shared tables (including the hero's u_init.c Barbarian[] and Druid[]), which fix the first roll for the rest of the game - a master quirk, archived frozen-unfixed. (2) stone_missile: a missile passes harmlessly through a rock-passing monster when the item's OWN material is mineral or gemstone (materials-consistent); rejected 5.0's base-type test and removing the rule as master. Recorded the same day without asking: the Materials and Racial monsters [~] umbrellas closed by audit, seven orphan rows minted, two stale checkboxes flipped. | maintainer |
 | 2026-10-19 | Maintainer-action round (session 239 follow-up; AskUserQuestion x1, three questions, two as recommended). (1) MASTER EVIDENCE: batteries' MASTER legs run on a scratch master build (a detached master worktree in the scratchpad, own HACKDIR / PREFIX, `SHELLDIR=`, the 2026-10-07 hot patch recipe), never the live evilhackdir binaries the auto-mode classifier blocks; rejected the maintainer running the legs and code reading only. (2) PLATFORM PARITY: all four toolchain installs approved (X11 and Qt6 dev packages, DJGPP, the Amiga cross toolchain); slice (a) is planned and each command shown before it runs; rejected Linux packages only and not now. (3) UPSTREAM PATCHES: cut a patch for EVERY unsent upstream row, over my recent-batch pick (sessions 232-239); rejected an index of the 24 existing files and not now. | maintainer |
 | 2026-10-18 | Trace-first ruling round, ten rows, rulings recorded only (session 239 follow-up; five Plan agents traced the rows by code reading, then AskUserQuestion x3, twelve questions, ten as recommended). (1) PRAYER TRAP: HOLD IT UNTIL THE PRAYER ENDS - float_down()'s trap arm defers the landing while u.uinvulnerable; rejected a trap-free square, never firing, record. (2) TWO CHAINS: A TETHER COUNTS AS PUNISHED for the scroll, the angry god and the Convict leader; rejected both chains, record; session 235's duplicate folded. (3) QUEEN BONES: SHE STAYS OUT OF BONES (mongone() before iter_mons()); rejected revive-then-remove, record. (4) QUEEN STEED: SHE DISMOUNTS ON REVIVAL; rejected a calmed steed, record. (5) ZOO STEEDS SLEEP TOO; rejected the watchdog record. (6) BEAM TRAP WALK STOPS AT DOORS (any state), SECRET DOORS, TREES AND SECRET CORRIDORS; rejected passing doorways, record. (7) ENTANGLED MONSTERS RELEASED WITH THEIR GRASS OR TREE, with the hero's lines; rejected the expiry line, silent, record. (8) MERGE LINE: KEEP 5.0'S TOTAL, FIX THE PERIOD; rejected master's shape, the total regardless of verbose. (9) CONTAINERS SPARE obj_resists() ITEMS AT EVERY SITE; rejected refusing them in containers, three sites only, record. (10) LIVE HANG: BRANCH ONLY, over my v3-hot-patch pick - no production patch, master archived frozen-unfixed. (11) DECAY: DELETE THE DEAD WEAPON-DECAY CODE, over my record-as-designed pick; rejected making decay work on weapons. (12) HIT VERBS: plural verbs for a wielded stack on the property hit lines. Minted five rows: the HIGH burial hang, the MED Draugr exit crash, and LOW rows for mid-prayer hurtles / stray beams, a rock-mole hero eating the Sword, and the off-level entangle catch-up. | maintainer |
 | 2026-10-18 | Ruling round, eight items, rulings recorded only (session 239 follow-up; AskUserQuestion x3, nine questions, eight as recommended). (1) UNTRAP COUNT: STOP AFTER ONE CHECK - autounlock untrap with a count asks once, takes the turn, and ends the count like the kick arm (new LOW row, plannable); rejected re-asking each step (the session 239 keep). (2) TRAVEL ONTO AN ADJACENT BOULDER: KEEP 5.0'S REFUSAL, over my push-as-master pick - `_` never pushes a boulder, no turn used; row closed, no code change. (3) PETS AND THE TWO RARE BAGS: LEAVE AS MASTER - pets fetch a bag of treasure or devouring like any item; row closed, no code change. (4) EGG RECOGNITION: FIX IT - learn_egg_type() marks the egg's own kind, callers pass the egg laid or identified (master bug, frozen-unfixed). (5) FOOD DEATH-DROPS: MASTER'S DROPS - 5.0 39a7dc1c5's delete-food arm in xkilled() comes out with the supply-chest removal (doc/PORT_50_REMOVALS.md 1.3; keeping it without the chests and Mines food left less food than either tree). (6) nasties[]: MASTER'S 50-ENTRY LIST as one unit (the row is plannable; 5.0's picking rules are outside it). (7) poisoned(): RATIFIED master's deadly-poison arm (instant death below 35% resistance, the toxic arm drains no stat); rejected 5.0's survive-with-HP arm and its Con / stat drains. (8) HP REGENERATION: MASTER'S FORMULA (removals 1.4) - XL 1-9 one HP every 42 / (XL + 2) + 1 turns, XL 10+ every 3 turns 1 or rnd(Con) capped at XL - 9, Regeneration at least 1 a turn, the drow-in-light and Druid terms back to master's interval forms (the 2026-09-18 rn2(300) adaptation retired); rejected keeping 5.0's roll and the slower-of-the-two hybrid. (9) RESTFUL SLEEP HEALING: DROP IT, AS MASTER - 5.0 91c46ab54's U_CAN_REGEN() sleep term and +1 go; rejected keeping it. | maintainer |
