@@ -2933,7 +2933,7 @@ in_container(struct obj *obj)
 {
     boolean floor_container = !carried(gc.current_container);
     boolean was_unpaid = FALSE, boom, shopfloor;
-    char buf[BUFSZ];
+    char buf[BUFSZ], trigname[BUFSZ];
 
     if (!gc.current_container) {
         impossible("<in> no gc.current_container?");
@@ -3019,9 +3019,13 @@ in_container(struct obj *obj)
        other than a bag of holding is destroyed with all it holds, so
        what can't be destroyed falls at the hero's feet first */
     boom = (Is_mbag(gc.current_container) && mbag_explodes(obj, 0));
+    trigname[0] = '\0';
     if (boom && obj->otyp != BAG_OF_HOLDING
-        && has_indestructible_contents(obj))
+        && has_indestructible_contents(obj)) {
+        /* the blast message names it as it was put in */
+        Strcpy(trigname, doname(obj));
         spare_indestructible_contents(obj, 0, 0);
+    }
 
     freeinv(obj);
 
@@ -3068,7 +3072,7 @@ in_container(struct obj *obj)
         /* explicitly mention what item is triggering the explosion */
         urgent_pline(
               "As you put %s inside, you are blasted by a magical explosion!",
-                     doname(obj));
+                     *trigname ? trigname : doname(obj));
         /* the item that set it off just identified itself by doing so */
         if (obj->otyp == WAN_CANCELLATION
             || obj->otyp == BAG_OF_TRICKS
@@ -4299,6 +4303,7 @@ tipcontainer(struct obj *box) /* or bag */
 
         for (otmp = box->cobj; otmp; otmp = nobj) {
             boolean to_floor, boom, lost;
+            char trigname[BUFSZ];
 
             nobj = otmp->nobj;
 
@@ -4333,9 +4338,14 @@ tipcontainer(struct obj *box) /* or bag */
             /* a lost bag or statue, or a trigger other than a bag of
                holding (destroyed with all it holds), leaves what can't
                be destroyed behind in the box */
+            trigname[0] = '\0';
             if ((lost || (boom && otmp->otyp != BAG_OF_HOLDING))
-                && has_indestructible_contents(otmp))
+                && has_indestructible_contents(otmp)) {
+                /* the blast message names it as it was tipped */
+                if (boom)
+                    Strcpy(trigname, doname(otmp));
                 spare_indestructible_contents(otmp, 0, 0);
+            }
 
             obj_extract_self(otmp);
             otmp->ox = box->ox, otmp->oy = box->oy;
@@ -4395,7 +4405,8 @@ tipcontainer(struct obj *box) /* or bag */
                     /* explicitly mention what item is triggering explosion */
                     urgent_pline(
                    "As %s %s inside, you are blasted by a magical explosion!",
-                                 doname(otmp), otense(otmp, "tumble"));
+                                 *trigname ? trigname : doname(otmp),
+                                 otense(otmp, "tumble"));
                     /* the item that set it off just identified itself */
                     if (otmp->otyp == WAN_CANCELLATION
                         || otmp->otyp == BAG_OF_TRICKS
