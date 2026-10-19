@@ -2001,22 +2001,31 @@ drain_item(struct obj *obj, boolean by_you)
     return TRUE;
 }
 
+/* the objects obj_resists() always spares; no random roll, so it can
+   scan a container's contents without disturbing the RNG */
+boolean
+obj_indestructible(struct obj *obj)
+{
+    return (boolean) (obj->otyp == AMULET_OF_YENDOR
+                      /* an Infidel's quest artifact absorbs the Amulet's
+                         power and is every bit as durable */
+                      || (Role_if(PM_INFIDEL) && is_quest_artifact(obj))
+                      || obj->otyp == SPE_BOOK_OF_THE_DEAD
+                      || obj->otyp == CANDELABRUM_OF_INVOCATION
+                      || obj->otyp == BELL_OF_OPENING
+                      || obj->otyp == SCR_CONSECRATION
+                      || obj->oartifact == ART_SWORD_OF_ANNIHILATION
+                      || obj->oartifact == ART_ARMOR_OF_RETRIBUTION
+                      || (obj->otyp == CORPSE
+                          && is_rider(&mons[obj->corpsenm])));
+}
+
 boolean
 obj_resists(struct obj *obj,
             int ochance, /* percent chance for ordinary objects */
             int achance) /* percent chance for artifacts */
 {
-    if (obj->otyp == AMULET_OF_YENDOR
-        /* an Infidel's quest artifact absorbs the Amulet's power
-           and is every bit as durable */
-        || (Role_if(PM_INFIDEL) && is_quest_artifact(obj))
-        || obj->otyp == SPE_BOOK_OF_THE_DEAD
-        || obj->otyp == CANDELABRUM_OF_INVOCATION
-        || obj->otyp == BELL_OF_OPENING
-        || obj->otyp == SCR_CONSECRATION
-        || obj->oartifact == ART_SWORD_OF_ANNIHILATION
-        || obj->oartifact == ART_ARMOR_OF_RETRIBUTION
-        || (obj->otyp == CORPSE && is_rider(&mons[obj->corpsenm]))) {
+    if (obj_indestructible(obj)) {
         return TRUE;
     } else {
         int chance = rn2(100);
@@ -2076,6 +2085,9 @@ polyuse(struct obj *objhdr, int mat, int minwt)
 
         if (((int) objects[otmp->otyp].oc_material == mat)
             == (rn2(minwt + 1) != 0)) {
+            /* what can't be destroyed is left on the floor, unbilled */
+            if (has_indestructible_contents(otmp))
+                spare_indestructible_contents(otmp, 0, 0);
             /* appropriately add damage to bill */
             if (costly_spot(otmp->ox, otmp->oy)) {
                 if (*u.ushops)
@@ -2218,6 +2230,9 @@ do_osshock(struct obj *obj)
             obj = splitobj(obj, (long) rnd((int) obj->quan - 1));
     }
 
+    /* what can't be destroyed is left on the floor, unbilled */
+    if (has_indestructible_contents(obj))
+        spare_indestructible_contents(obj, 0, 0);
     /* appropriately add damage to bill */
     if (costly_spot(obj->ox, obj->oy)) {
         if (*u.ushops)
@@ -2472,6 +2487,11 @@ poly_obj(struct obj *obj, int id)
      * ** we are now done adjusting the object (except possibly wearing it) **
      */
 
+    /* the old object is deleted below along with whatever it holds;
+       what can't be destroyed is left where it is first, before
+       replace_object() frees it and before the shopkeeper prices it */
+    if (has_indestructible_contents(obj))
+        spare_indestructible_contents(obj, 0, 0);
     (void) get_obj_location(obj, &ox, &oy, BURIED_TOO | CONTAINED_TOO);
     old_wornmask = obj->owornmask & ~(W_ART | W_ARTI);
     /* swap otmp for obj */
@@ -6356,6 +6376,10 @@ disint_mon_invent(struct monst *mon, boolean spare_dragonbane)
                         }
                     }
                 }
+                /* what can't be destroyed inside a bag or statue in
+                   there drops at the monster's feet too */
+                if (has_indestructible_contents(otmp))
+                    spare_indestructible_contents(otmp, 0, 0);
             }
             extract_from_minvent(mon, otmp, TRUE, TRUE);
             obfree(otmp, (struct obj *) 0);

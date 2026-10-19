@@ -1457,6 +1457,9 @@ extern void consume_obj_charge(struct obj *, boolean) NONNULLARG1;
 extern void freeinv_core(struct obj *) NONNULLARG1;
 extern void freeinv(struct obj *) NONNULLARG1;
 extern void delallobj(coordxy, coordxy);
+extern boolean has_indestructible_contents(struct obj *) NONNULLARG1;
+extern void spare_indestructible_contents(struct obj *, coordxy,
+                                          coordxy) NONNULLARG1;
 extern void delobj(struct obj *) NONNULLARG1;
 extern void delobj_core(struct obj *, boolean) NONNULLARG1;
 extern struct obj *sobj_at(int, coordxy, coordxy);
@@ -4424,6 +4427,7 @@ extern void blank_novel(struct obj *) NONNULLARG1;
 extern boolean drain_item(struct obj *, boolean) NO_NNARGS; /* tests !obj */
 extern boolean obj_unpolyable(struct obj *) NONNULLARG1;
 extern struct obj *poly_obj(struct obj *, int) NONNULLARG1;
+extern boolean obj_indestructible(struct obj *) NONNULLARG1;
 extern boolean obj_resists(struct obj *, int, int) NONNULLARG1;
 extern boolean obj_shudders(struct obj *) NONNULLARG1;
 extern void do_osshock(struct obj *) NONNULLARG1;

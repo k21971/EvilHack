@@ -5618,6 +5618,7 @@ void
 mongone(struct monst *mdef)
 {
     struct monst *rider;
+    struct obj *otmp;
 
     mdef->mhp = 0; /* can skip some inventory bookkeeping */
 
@@ -5633,7 +5634,11 @@ mongone(struct monst *mdef)
     /* stuck to you? release */
     unstuck(mdef);
     /* drop special items like the Amulet so that a dismissed Kop or nurse
-       can't remove them from the game */
+       can't remove them from the game, along with what can't be destroyed
+       inside a carried bag or statue (discard_minvent() frees those) */
+    for (otmp = mdef->minvent; otmp; otmp = otmp->nobj)
+        if (has_indestructible_contents(otmp))
+            spare_indestructible_contents(otmp, 0, 0);
     mdrop_special_objs(mdef);
     /* release rest of monster's inventory--it is removed from game */
     discard_minvent(mdef, FALSE);

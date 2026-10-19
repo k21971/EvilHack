@@ -12,6 +12,7 @@ staticfn int QSORTCALLBACK sortloot_cmp(const genericptr, const genericptr);
 staticfn void reorder_invent(void);
 staticfn struct obj *addinv_core0(struct obj *, struct obj *,
                                                          boolean) NONNULLARG1;
+staticfn void pull_indestructibles(struct obj *, struct obj **) NONNULLARG12;
 staticfn void noarmor(boolean);
 staticfn void invdisp_nothing(const char *, const char *);
 staticfn boolean worn_wield_only(struct obj *);
@@ -1348,6 +1349,9 @@ RESTORE_WARNING_FORMAT_NONLITERAL
 void
 useupall(struct obj *obj)
 {
+    /* what can't be destroyed falls at the hero's feet */
+    if (has_indestructible_contents(obj))
+        spare_indestructible_contents(obj, 0, 0);
     setnotworn(obj);
     freeinv(obj);
     obfree(obj, (struct obj *) 0); /* deletes contents also */
@@ -1468,6 +1472,136 @@ delallobj(coordxy x, coordxy y)
     }
 }
 
+/* is an object that is never destroyed (obj_indestructible()) anywhere
+   inside 'container', a bag, a box or a statue? */
+boolean
+has_indestructible_contents(struct obj *container)
+{
+    struct obj *otmp;
+
+    for (otmp = container->cobj; otmp; otmp = otmp->nobj)
+        if (obj_indestructible(otmp)
+            || (Has_contents(otmp) && has_indestructible_contents(otmp)))
+            return TRUE;
+    return FALSE;
+}
+
+/* take every indestructible object out of 'container', at any depth,
+   and chain them onto *chainp through nobj */
+staticfn void
+pull_indestructibles(struct obj *container, struct obj **chainp)
+{
+    struct obj *otmp, *nextobj;
+
+    for (otmp = container->cobj; otmp; otmp = nextobj) {
+        nextobj = otmp->nobj; /* obj_extract_self() clears it */
+        if (obj_indestructible(otmp)) {
+            obj_extract_self(otmp);
+            if (container->otyp == ICE_BOX)
+                removed_from_icebox(otmp);
+            otmp->nobj = *chainp;
+            *chainp = otmp;
+        } else if (Has_contents(otmp)) {
+            pull_indestructibles(otmp, chainp);
+        }
+    }
+}
+
+/* 'container' is about to be destroyed along with whatever it holds:
+   take its indestructible objects out, at any depth, and leave them
+   where it is - on its square, buried, in the container holding it, or
+   at the feet of the hero or monster carrying it; nothing is said */
+void
+spare_indestructible_contents(
+    struct obj *container,
+    coordxy x, coordxy y) /* landing spot, only for an OBJ_FREE container */
+{
+    struct obj *otmp, *chain = (struct obj *) 0, *parent;
+    struct monst *mtmp, *shkp;
+    int where = container->where;
+
+    if (where != OBJ_FLOOR && where != OBJ_BURIED && where != OBJ_CONTAINED
+        && where != OBJ_INVENT && where != OBJ_MINVENT
+        && !(where == OBJ_FREE && isok(x, y))) {
+        impossible("spare_indestructible_contents: %s, where=%d",
+                   simpleonames(container), where);
+        return;
+    }
+    pull_indestructibles(container, &chain);
+
+    while ((otmp = chain) != 0) {
+        chain = otmp->nobj;
+        otmp->nobj = (struct obj *) 0;
+        switch (where) {
+        case OBJ_FLOOR:
+            /* already on this square: no flooreffects(), which could
+               ship the rest of the pile down a hole, and no stackobj(),
+               which may free a stack the caller is walking */
+            place_object(otmp, container->ox, container->oy);
+            newsym(container->ox, container->oy);
+            break;
+        case OBJ_BURIED:
+            otmp->ox = container->ox, otmp->oy = container->oy;
+            add_to_buried(otmp);
+            break;
+        case OBJ_CONTAINED:
+            parent = container->ocontainer;
+            /* an ice box freezes it, as when it is put in */
+            if (parent->otyp == ICE_BOX && !age_is_relative(otmp)) {
+                otmp->age = svm.moves - otmp->age;
+                if (otmp->otyp == CORPSE && otmp->timed) {
+                    (void) stop_timer(ROT_CORPSE, obj_to_any(otmp));
+                    (void) stop_timer(REVIVE_MON, obj_to_any(otmp));
+                }
+            }
+            (void) add_to_container(parent, otmp);
+            container_weight(parent);
+            break;
+        case OBJ_INVENT:
+            /* at the hero's feet, as dropz() leaves a dropped object, but
+               never sold: unpaid goods go back to stock, and the hero's
+               own things stay the hero's */
+            if (u.uswallow) {
+                if (otmp->unpaid)
+                    (void) stolen_value(otmp, u.ux, u.uy, TRUE, TRUE);
+                (void) mpickobj(u.ustuck, otmp);
+                break;
+            }
+            if (flooreffects(otmp, u.ux, u.uy, ""))
+                break;
+            place_object(otmp, u.ux, u.uy);
+            if (costly_spot(u.ux, u.uy)
+                && (shkp = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE))) != 0
+                && inhishop(shkp)) {
+                if (otmp->unpaid)
+                    subfrombill(otmp, shkp);
+                else
+                    otmp->no_charge = 1;
+            }
+            newsym(u.ux, u.uy);
+            break;
+        case OBJ_MINVENT:
+            mtmp = container->ocarry;
+            if (!mtmp->mx) { /* migrating monster, not on the map */
+                otmp->ox = otmp->oy = 0;
+                (void) rloco(otmp);
+            } else if (!flooreffects(otmp, mtmp->mx, mtmp->my, "")) {
+                place_object(otmp, mtmp->mx, mtmp->my);
+                newsym(mtmp->mx, mtmp->my);
+            }
+            break;
+        default: /* OBJ_FREE, checked above */
+            if (!flooreffects(otmp, x, y, "")) {
+                place_object(otmp, x, y);
+                newsym(x, y);
+            }
+            break;
+        }
+    }
+    if (where == OBJ_INVENT)
+        update_inventory();
+}
+
 /* normal object deletion (if unpaid, it remains on the bill) */
 void
 delobj(struct obj *obj)
@@ -1497,6 +1631,11 @@ delobj_core(
         obj->in_use = 0; /* in case caller has set this to 1 */
         return;
     }
+    /* obfree() frees a container's contents along with it; what can't
+       be destroyed is left where the container was */
+    if (obj->where != OBJ_FREE && obj->where != OBJ_MIGRATING
+        && has_indestructible_contents(obj))
+        spare_indestructible_contents(obj, 0, 0);
     update_map = (obj->where == OBJ_FLOOR);
     obj_extract_self(obj);
     if (update_map) { /* floor object's coordinates are always up to date */
@@ -4909,6 +5048,10 @@ useupf(struct obj *obj, long numused)
         otmp = splitobj(obj, numused);
     else
         otmp = obj;
+    /* spared before billing, so the bill holds only what is lost */
+    if (otmp->where != OBJ_FREE && otmp->where != OBJ_MIGRATING
+        && has_indestructible_contents(otmp))
+        spare_indestructible_contents(otmp, 0, 0);
     if (!svc.context.mon_moving && costly_spot(otmp->ox, otmp->oy)) {
         if (strchr(u.urooms, *in_rooms(otmp->ox, otmp->oy, 0)))
             addtobill(otmp, FALSE, FALSE, FALSE);

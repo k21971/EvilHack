@@ -2819,8 +2819,11 @@ do_boh_explosion(struct obj *boh, boolean shopfloor)
        scattering pays or credits */
     for (otmp = boh->cobj; otmp; otmp = nobj) {
         nobj = otmp->nobj;
-        /* obj_resists() items survive the loss roll and scatter instead */
+        /* obj_resists() items survive the loss roll and scatter instead,
+           and so do those inside a lost bag or statue */
         if (is_boh_item_gone() && !obj_resists(otmp, 0, 0)) {
+            if (has_indestructible_contents(otmp))
+                spare_indestructible_contents(otmp, 0, 0);
             obj_extract_self(otmp);
             loss += mbag_item_gone(!shopfloor, otmp, TRUE);
         }
@@ -2852,8 +2855,11 @@ boh_loss(struct obj *container, boolean held)
 
         for (curr = container->cobj; curr; curr = otmp) {
             otmp = curr->nobj;
-            /* obj_resists() items survive the loss roll */
+            /* obj_resists() items survive the loss roll, and those
+               inside a lost bag or statue stay in this bag */
             if (is_boh_item_gone() && !obj_resists(curr, 0, 0)) {
+                if (has_indestructible_contents(curr))
+                    spare_indestructible_contents(curr, 0, 0);
                 obj_extract_self(curr);
                 loss += mbag_item_gone(held, curr, FALSE);
             }
@@ -2865,9 +2871,9 @@ boh_loss(struct obj *container, boolean held)
 
 /* a cursed bag of devouring 'attacks' when you #loot it, consuming
    1-3 eligible items from open inventory (worn/wielded included).
-   obj_resists() items, the Amulet, invocation items and an
-   uncompleted quest artifact are off-limits; returns TRUE if it
-   ate anything */
+   obj_resists() items, the Amulet, invocation items, a bag or statue
+   holding an indestructible object and an uncompleted quest artifact
+   are off-limits; returns TRUE if it ate anything */
 staticfn boolean
 bag_devours_invent(struct obj *container)
 {
@@ -2882,6 +2888,7 @@ bag_devours_invent(struct obj *container)
                 || otmp == uskin
                 || (otmp == uarmg && otmp->oartifact == ART_HAND_OF_VECNA)
                 || obj_resists(otmp, 0, 0)
+                || has_indestructible_contents(otmp)
                 || (is_quest_artifact(otmp) && !u.uevent.qcompleted))
                 continue;
             eligible++;
@@ -2895,6 +2902,7 @@ bag_devours_invent(struct obj *container)
                 || otmp == uskin
                 || (otmp == uarmg && otmp->oartifact == ART_HAND_OF_VECNA)
                 || obj_resists(otmp, 0, 0)
+                || has_indestructible_contents(otmp)
                 || (is_quest_artifact(otmp) && !u.uevent.qcompleted))
                 continue;
             if (n-- > 0)
@@ -2969,7 +2977,8 @@ in_container(struct obj *obj)
         makeknown(BAG_OF_TREASURE);
         return 0;
     } else if (gc.current_container->otyp == BAG_OF_DEVOURING
-               && obj_resists(obj, 0, 0)) {
+               && (obj_resists(obj, 0, 0)
+                   || has_indestructible_contents(obj))) {
         Strcpy(buf, the(xname(obj)));
         pline("%s refuses to devour %s.",
               The(xname(gc.current_container)), buf);
@@ -3005,14 +3014,20 @@ in_container(struct obj *obj)
         return 0;
     }
 
+    /* tested before sellobj(): an item that blows the bag up stays as it
+       was carried rather than being sold or marked on its way in; one
+       other than a bag of holding is destroyed with all it holds, so
+       what can't be destroyed falls at the hero's feet first */
+    boom = (Is_mbag(gc.current_container) && mbag_explodes(obj, 0));
+    if (boom && obj->otyp != BAG_OF_HOLDING
+        && has_indestructible_contents(obj))
+        spare_indestructible_contents(obj, 0, 0);
+
     freeinv(obj);
 
     if (obj_is_burning(obj)) /* this used to be part of freeinv() */
         (void) snuff_lit(obj, TRUE);
 
-    /* tested before sellobj(): an item that blows the bag up stays as it
-       was carried rather than being sold or marked on its way in */
-    boom = (Is_mbag(gc.current_container) && mbag_explodes(obj, 0));
     if (floor_container && costly_spot(u.ux, u.uy) && !boom) {
         /* defer gold until after put-in message */
         if (obj->oclass != COIN_CLASS) {
@@ -3094,8 +3109,9 @@ in_container(struct obj *obj)
                    KILLED_BY_AN);
         gc.current_container = 0; /* baggone = TRUE; */
     } else if (gc.current_container->otyp == BAG_OF_DEVOURING) {
-        /* permanently destroy the item; obj_resists() items and the
-           Amulet and invocation items were already refused above */
+        /* permanently destroy the item; obj_resists() items, the
+           Amulet, invocation items and a bag or statue holding an
+           indestructible object were already refused above */
         if (was_unpaid)
             addtobill(obj, FALSE, FALSE, TRUE);
         Strcpy(buf, the(xname(gc.current_container)));
@@ -4282,18 +4298,22 @@ tipcontainer(struct obj *box) /* or bag */
               terse ? ':' : '.');
 
         for (otmp = box->cobj; otmp; otmp = nobj) {
-            boolean to_floor, boom;
+            boolean to_floor, boom, lost;
 
             nobj = otmp->nobj;
 
             /* a bag of devouring destination consumes whatever is
                tipped into it, exactly as if the item were put in with
-               #loot; obj_resists() items are refused below and fall to
-               the floor instead. handle the eaten case before billing
-               so shop loss is taken via mbag_item_gone(), matching the
+               #loot; obj_resists() items and a bag or statue holding an
+               indestructible object are refused below and fall to the
+               floor instead (unless a cursed source bag loses that bag
+               first, leaving what it held behind in the source). handle
+               the eaten case before billing so
+               shop loss is taken via mbag_item_gone(), matching the
                cursed magic bag case below */
             if (targetbox && targetbox->otyp == BAG_OF_DEVOURING
-                && !obj_resists(otmp, 0, 0)) {
+                && !obj_resists(otmp, 0, 0)
+                && !has_indestructible_contents(otmp)) {
                 obj_extract_self(otmp);
                 Strcpy(buf, the(xname(targetbox)));
                 pline("%s %s devoured by %s!", The(xname(otmp)),
@@ -4304,22 +4324,30 @@ tipcontainer(struct obj *box) /* or bag */
                 continue;
             }
 
+            /* obj_resists() items survive the loss roll and fall
+               through to normal tip placement */
+            lost = (box->otyp != ICE_BOX && cursed_mbag
+                    && is_boh_item_gone() && !obj_resists(otmp, 0, 0));
+            boom = (!lost && targetbox && Is_mbag(targetbox)
+                    && mbag_explodes(otmp, 0));
+            /* a lost bag or statue, or a trigger other than a bag of
+               holding (destroyed with all it holds), leaves what can't
+               be destroyed behind in the box */
+            if ((lost || (boom && otmp->otyp != BAG_OF_HOLDING))
+                && has_indestructible_contents(otmp))
+                spare_indestructible_contents(otmp, 0, 0);
+
             obj_extract_self(otmp);
             otmp->ox = box->ox, otmp->oy = box->oy;
 
             if (box->otyp == ICE_BOX) {
                 removed_from_icebox(otmp); /* resume rotting for corpse */
-            /* obj_resists() items survive the loss roll and fall
-               through to normal tip placement */
-            } else if (cursed_mbag && is_boh_item_gone()
-                       && !obj_resists(otmp, 0, 0)) {
+            } else if (lost) {
                 loss += mbag_item_gone(srcheld, otmp, FALSE);
                 /* abbreviated drop format is no longer appropriate */
                 terse = FALSE;
                 continue;
             }
-            boom = (targetbox && Is_mbag(targetbox)
-                    && mbag_explodes(otmp, 0));
             if (maybeshopgoods) {
                 /* a bag of holding that sets the target off is billed for
                    itself alone, since its contents scatter as they lay on
@@ -4346,7 +4374,8 @@ tipcontainer(struct obj *box) /* or bag */
                        to the floor (summarized before the loop) */
                     to_floor = TRUE;
                 } else if (targetbox->otyp == BAG_OF_DEVOURING) {
-                    /* reached only for obj_resists() items; the bag
+                    /* reached only for obj_resists() items and bags or
+                       statues holding an indestructible object; the bag
                        refuses them and they fall to the floor */
                     Strcpy(buf, the(xname(otmp)));
                     pline("%s refuses to devour %s.",

@@ -232,8 +232,15 @@ breakchestlock(struct obj *box, boolean destroyit)
         pline("In fact, you've totally destroyed %s.", the(xname(box)));
         /* Put the contents on ground at the hero's feet. */
         while ((otmp = box->cobj) != 0) {
+            boolean destroyed = ((!rn2(3) || otmp->oclass == POTION_CLASS)
+                                 && !obj_indestructible(otmp));
+
+            /* a destroyed bag or statue gives up what can't be destroyed
+               to the box, so this loop puts it on the ground next */
+            if (destroyed && has_indestructible_contents(otmp))
+                spare_indestructible_contents(otmp, 0, 0);
             obj_extract_self(otmp);
-            if (!rn2(3) || otmp->oclass == POTION_CLASS) {
+            if (destroyed) {
                 chest_shatter_msg(otmp);
                 if (costly)
                     loss += stolen_value(otmp, u.ux, u.uy, peaceful_shk,

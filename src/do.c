@@ -410,6 +410,9 @@ flooreffects(
         } else {
             if (!Blind)
                 pline("%s away and %s.", it_falls, disappears);
+            /* what can't be destroyed falls on its own, as above */
+            if (has_indestructible_contents(obj))
+                spare_indestructible_contents(obj, x, y);
             delobj(obj);
             res = TRUE;
         }

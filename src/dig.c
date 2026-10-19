@@ -2276,12 +2276,12 @@ bury_an_obj(struct obj *otmp, boolean *dealloced)
     /* after unpunish(), or might get deallocated chain */
     otmp2 = otmp->nexthere;
     /*
-     * obj_resists(,0,0) prevents Rider corpses from being buried.
-     * It also prevents The Amulet and invocation tools from being
-     * buried.  Since they can't be confined to bags and statues,
-     * it makes sense that they can't be buried either, even though
-     * the real reason there (direct accessibility when carried) is
-     * completely different.
+     * obj_resists(,0,0) keeps Rider corpses, the Amulet, the invocation
+     * tools and the other indestructible objects from being buried
+     * loose. The ones a bag can hold (the scroll of consecration, the
+     * Sword of Annihilation, the Armor of Retribution, Rider corpses)
+     * are buried along with it, and stay buried when it rots away,
+     * see rot_organic()
      */
     if (otmp == uchain || obj_resists(otmp, 0, 0))
         return otmp2;
@@ -2402,16 +2402,24 @@ unearth_objs(int x, int y)
 void
 rot_organic(anything *arg, long timeout UNUSED)
 {
-    struct obj *obj = arg->a_obj;
+    struct obj *obj = arg->a_obj, *cobj;
 
-    while (Has_contents(obj)) {
+    while ((cobj = obj->cobj) != 0) {
         /* We don't need to place contained object on the floor
            first, but we do need to update its map coordinates. */
-        obj->cobj->ox = obj->ox, obj->cobj->oy = obj->oy;
-        /* Everything which can be held in a container can also be
-           buried, so bury_an_obj's use of obj_extract_self insures
-           that Has_contents(obj) will eventually become false. */
-        (void) bury_an_obj(obj->cobj, (boolean *) 0);
+        cobj->ox = obj->ox, cobj->oy = obj->oy;
+        if (obj_indestructible(cobj)) {
+            /* bury_an_obj() would refuse it and leave it here, looping
+               forever; it stays buried where the container was */
+            obj_extract_self(cobj);
+            if (obj->otyp == ICE_BOX)
+                removed_from_icebox(cobj);
+            add_to_buried(cobj);
+        } else {
+            /* bury_an_obj()'s obj_extract_self() takes everything else
+               out, so the contents run out */
+            (void) bury_an_obj(cobj, (boolean *) 0);
+        }
     }
     obj_extract_self(obj);
     obfree(obj, (struct obj *) 0);

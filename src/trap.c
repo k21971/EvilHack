@@ -7490,6 +7490,10 @@ chest_trap(
             pline("%s!", Tobjnam(obj, "explode"));
             Snprintf(buf, sizeof buf, "exploding %s", xname(obj));
 
+            /* what can't be destroyed is left where the box is, and
+               isn't charged for */
+            if (has_indestructible_contents(obj))
+                spare_indestructible_contents(obj, 0, 0);
             if (costly)
                 loss += stolen_value(obj, ox, oy, (boolean) shkp->mpeaceful,
                                      TRUE);
@@ -7507,13 +7511,17 @@ chest_trap(
                                  && uball->ox == ox && uball->oy == oy)))
                 unpunish();
             /* destroy everything at the spot (the Amulet, the
-               invocation tools, and Rider corpses will remain intact);
-               usually the chest will be destroyed along with the stuff at
-               this spot, but not if it is being carried */
+               invocation tools, Rider corpses and the other
+               indestructible objects will remain intact, uncharged, and
+               a bag or statue here gives them up first); usually the
+               chest will be destroyed along with the stuff at this spot,
+               but not if it is being carried */
             chestgone = FALSE;
             for (otmp = svl.level.objects[ox][oy]; otmp; otmp = otmp2) {
                 otmp2 = otmp->nexthere;
-                if (costly)
+                if (has_indestructible_contents(otmp))
+                    spare_indestructible_contents(otmp, 0, 0);
+                if (costly && !obj_indestructible(otmp))
                     loss += stolen_value(otmp, otmp->ox, otmp->oy,
                                          (boolean) shkp->mpeaceful, TRUE);
                 if (otmp == obj)
