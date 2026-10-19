@@ -17,20 +17,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-18, after session 239's
-  auto-open and travel last step slice, its follow-up ruling rounds
-  and the 2026-10-19 bookkeeping pass): 452 rows closed, 121 open
-  (the two [~] umbrellas, Materials and Racial monsters, were never
-  counted and are now closed). Of the open rows:
-  - 1 HIGH: a buried sack holding the Sword of Annihilation, the
-    Armor of Retribution or a scroll of consecration hangs the game
-    when it rots (rot_organic(); master-shared, live on 0.9.3; ruled
-    branch-only, no hot patch). Minted 2026-10-18 by the container
-    census.
-  - 5 MED: unported master features (door-material colors, monster
+- Phase 2 status (refreshed 2026-10-19, after session 240's burial
+  hang and container slice): 454 rows closed, 122 open (the two [~]
+  umbrellas, Materials and Racial monsters, were never counted and
+  are now closed). Of the open rows:
+  - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
+    buried sack's indestructible contents stay buried loose) and the
+    container row (BUG-2418..2421: a destroyed bag, box or statue
+    leaves the scroll of consecration, the Sword, the Armor or a
+    Rider corpse where it was - at the carrier's feet for a carried
+    one - and the bag of devouring refuses a bag holding one).
+  - 6 MED: unported master features (door-material colors, monster
     ring-wearing, monster touch-attack sears, the Astral Red Horse),
-    and a Draugr dying in the turn they defeat the Ice Queen likely
-    crashing at exit (branch-only; minted 2026-10-18).
+    a Draugr dying in the turn they defeat the Ice Queen likely
+    crashing at exit (branch-only; minted 2026-10-18), and the
+    "bag not found" panic of an exploding floor bag over a seen trap
+    door (pre-existing; minted 2026-10-19 by session 240's reviewer).
     The 2026-10-19 bookkeeping pass flipped two stale checkboxes (the
     shop bag explosion row and the lit oil polymorph row, both closed
     in their text), closed the Materials and Racial monsters
@@ -155,7 +157,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 98 LOW: small parity rows, quirks and watch/record-only items.
+  - 99 LOW: small parity rows, quirks and watch/record-only items.
+    Session 240 closed the container row (above) and minted two: a
+    Rider corpse taken out of an ice box never revives (norevive), and
+    an exploding box on a shop floor is charged twice (vanilla-shared).
     Session 239 closed the travel last step row (BUG-2415, ruled
     2026-10-18 like mid-path): travel's last step swaps with a pet
     or peaceful instead of "Pardon me" (Stormbringer and the Sword
@@ -18335,7 +18340,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       plate mail":`; "You can't unlock such a container with a
       mundane magic key." (PRE: " stone" on each); gem names, the
       unidentified gem and the paniclog unchanged.
-- [ ] LOW: destroying a container frees its contents with no
+- [x] LOW: destroying a container frees its contents with no
       obj_resists() check (minted 2026-10-15, session 230, by the
       held-tips Plan agent's delobj audit; master-shared). lock.c
       breakchestlock() (a blunt #force destroys each item 1 time in 3,
@@ -18371,8 +18376,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reachable site; a bag of devouring refuses a container holding
       one. Rejected refusing them in containers, the three named sites
       only, and record only. The burial hang is its own HIGH row
-      (next). Plannable.
-- [ ] HIGH: a buried sack holding an indestructible item hangs the
+      (next). Plannable. CLOSED 2026-10-19 (session 240, BUG-2418..2421,
+      commit pending): zap.c obj_indestructible() (obj_resists()'s
+      always-TRUE list, no roll); invent.c has_indestructible_contents()
+      and spare_indestructible_contents(), hooked into delobj_core() and
+      useupall() and called before the billing or the extraction at
+      every other site the census, the Plan agent and the reviewer
+      found (statues included). Ruled 2026-10-19 (decisions log): a
+      carried container's items fall at the carrier's feet (shop:
+      unpaid back to stock, the hero's own no_charge), silent, the
+      sewage creature and the hunger sink take the bag and leave the
+      item. #force and a box explosion no longer destroy one outright
+      (BUG-2419), the bag of devouring refuses a bag holding one
+      (BUG-2420), and an exploding box no longer charges for one it
+      leaves (BUG-2421). Four batteries PASS (archive).
+- [x] HIGH: a buried sack holding an indestructible item hangs the
       game (minted 2026-10-18, session 239 follow-up, from the
       container census; master-shared, live on 0.9.3 since the
       consecration scroll joined obj_resists() in 4bed05499 /
@@ -18389,6 +18407,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (the refused item comes out of the rotting sack, buried or on
       the floor). HIGH (needs a battery: a scroll of consecration in a
       sack in a pit, a boulder pushed in, wait about 500 turns).
+      CLOSED 2026-10-19 (session 240, BUG-2417, commit pending):
+      rot_organic() add_to_buried()s an obj_indestructible() content
+      loose where the container was (ruled 2026-10-19 STAY BURIED, over
+      my up-to-the-floor pick); everything else keeps bury_an_obj().
+      Battery A: PRE spun at 100% CPU in rot_organic() -> bury_an_obj();
+      POST buried loose, dug up, nested sacks rot in two steps, the
+      timer survives save and restore.
+- [ ] MED: an exploding bag of holding on the floor can panic with
+      "in_container:  bag not found." (minted 2026-10-19, session 240,
+      by the reviewer; pre-existing). When the hero stands on a seen
+      trap door or hole (uescaped_shaft(), after the 1-in-5 escape, or
+      flying), flooreffects() of anything landing on the hero's square
+      calls ship_object() -> impact_drop(), which ships every other
+      object there 1 time in 3, the bag of holding included; then
+      in_container()'s obj_here() fails. scatter()'s landings reach it
+      today; session 240's #put trigger spare (a sack holding a wand of
+      cancellation and an indestructible object) is a second route.
+      Needs a trace on master, then a fix (re-check obj_here() after
+      the blast and treat a shipped bag as gone, or keep the bag from
+      falling mid-explosion). MED.
+- [ ] LOW: a Rider corpse taken out of an ice box never revives
+      (minted 2026-10-19, session 240, by the Plan agent).
+      removed_from_icebox() sets norevive for every corpse but an ice
+      troll's and revive() refuses a norevive corpse, so the Rider only
+      twitches until it rots; #loot take-out, a broken ice box and
+      session 240's spare (a destroyed ice box) all go through it.
+      Needs a master census, then a ruling. LOW.
+- [ ] LOW: an exploding box on a shop floor is charged twice (minted
+      2026-10-19, session 240, by battery D; master + vanilla 5.0).
+      chest_trap() charges stolen_value() for the box with its contents,
+      then its floor loop charges the now-empty box again (battery: box
+      14 + sack 4 + bugle 27 billed 59). Fix: skip the box itself in
+      the floor loop's billing. Plannable; upstream-reportable. LOW.
 - [ ] LOW: a rock-mole-form hero may be able to eat the Sword of
       Annihilation (minted 2026-10-18, session 239 follow-up, from the
       container census; inferred, not traced). is_edible()'s
@@ -30771,6 +30822,8 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-17 | Auto-opening a door costs no turn: test_move()'s autoopen arm sets context.move = (ux != u.ux \|\| uy != u.uy), always FALSE from domove_core() (20c456cbb / faf2267ab), and door_opened = !closed_door(), so a resisting door and an autounlock key's first lock turn are free too (20c456cbb also undid bfa0f072f's "autounlock of door or chest took no time" fix). Shared with Official_nh50 and NetHack50 HEAD c1a37fb6c. EvilHack fix BUG-2414 (b7fbafc80): door_opened = move = (doopen_indir() & ECMD_TIME), as 3.6. | found (branch-fixed); not yet sent |
 | 2026-10-18 | autounlock=kick with a count: a counted walk into a locked door answers y to "Kick it?", the kick arm skips nomul(0) so the count goes on, and the next counted step's yn_function() reads the queued dokick as input - impossible("yn_function() returned '^['; using 'q' instead"), "Program in disorder!", no kick. Shared with Official_nh50 (hack.c test_move() kick arm, 7982c72e8). EvilHack fix BUG-2416 (b7fbafc80): end_running(TRUE) in the kick arm (nomul() would drop the queued kick). | found (branch-fixed); not yet sent |
 | 2026-10-18 | Travel's last step onto a pet or peaceful bumps it ("Pardon me, <mon>.", a turn, no swap) where every earlier travel step swaps: findtravelpath()'s nomul(0) clears context.travel and domove_bump_mon()'s `nopick && !travel` reads travel's nopick as the m prefix. Shared with Official_nh50 (and 3.6). EvilHack fix BUG-2415 (b7fbafc80): domove_core()'s travel_step capture is passed in and an is_safemon() target skips the bump. | found (branch-fixed); not yet sent |
+| 2026-10-19 | An exploding trapped box charges for the indestructible objects it leaves on its square: chest_trap()'s floor loop calls stolen_value() for every object there before delobj() refuses the Amulet, an invocation item or a Rider corpse. Shared with Official_nh50. EvilHack fix BUG-2421 (commit pending): the loop skips the billing for an obj_indestructible() object. | found (branch-fixed); not yet sent |
+| 2026-10-19 | An exploding trapped box on a shop floor is charged twice: chest_trap() charges stolen_value() for the box with its contents, then the floor loop charges the now-empty box again. Shared with Official_nh50 (and master). EvilHack: LOW row minted 2026-10-19, not fixed yet. | found (open); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -30998,6 +31051,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-19 | Burial hang and container slice rulings (session 240; AskUserQuestion x1, four questions, one as recommended). (1) CARRIED CONTAINER: ITS INDESTRUCTIBLE CONTENTS FALL AT THE CARRIER'S FEET, over my into-inventory pick - through the usual landing (water, lava, a hole), never sold: in a tended shop an unpaid one comes off the bill as stock and the hero's own gets no_charge; a monster's at its feet. (2) SILENT, as recommended - no new line; flooreffects()' own landing lines stay. (3) ROTTED BURIED SACK: ITS INDESTRUCTIBLE CONTENTS STAY BURIED loose, over my up-to-the-floor pick (dug up later). (4) TAKERS: the sewage creature and a sink fed a ring of hunger take the container and leave the item, over my refuse pick (the bag of devouring still refuses, ruled 2026-10-18). Minted: MED the "bag not found" panic of an exploding floor bag over a seen trap door (reviewer; pre-existing), LOW a Rider corpse out of an ice box never revives (Plan agent), LOW an exploding box on a shop floor charged twice (battery D; vanilla-shared). | maintainer |
 | 2026-10-19 | Bookkeeping pass rulings (session 239 follow-up; AskUserQuestion x1, two questions, both as recommended). (1) PLAYER-MONSTER KIT ROLLS: each player-monster rolls its own kit from the branch's const split tables (the Barbarian battle-axe, Druid scimitar and spellbook, and the giant / tortle variants); rejected master's runtime writes into the shared tables (including the hero's u_init.c Barbarian[] and Druid[]), which fix the first roll for the rest of the game - a master quirk, archived frozen-unfixed. (2) stone_missile: a missile passes harmlessly through a rock-passing monster when the item's OWN material is mineral or gemstone (materials-consistent); rejected 5.0's base-type test and removing the rule as master. Recorded the same day without asking: the Materials and Racial monsters [~] umbrellas closed by audit, seven orphan rows minted, two stale checkboxes flipped. | maintainer |
 | 2026-10-19 | Maintainer-action round (session 239 follow-up; AskUserQuestion x1, three questions, two as recommended). (1) MASTER EVIDENCE: batteries' MASTER legs run on a scratch master build (a detached master worktree in the scratchpad, own HACKDIR / PREFIX, `SHELLDIR=`, the 2026-10-07 hot patch recipe), never the live evilhackdir binaries the auto-mode classifier blocks; rejected the maintainer running the legs and code reading only. (2) PLATFORM PARITY: all four toolchain installs approved (X11 and Qt6 dev packages, DJGPP, the Amiga cross toolchain); slice (a) is planned and each command shown before it runs; rejected Linux packages only and not now. (3) UPSTREAM PATCHES: cut a patch for EVERY unsent upstream row, over my recent-batch pick (sessions 232-239); rejected an index of the 24 existing files and not now. | maintainer |
 | 2026-10-18 | Trace-first ruling round, ten rows, rulings recorded only (session 239 follow-up; five Plan agents traced the rows by code reading, then AskUserQuestion x3, twelve questions, ten as recommended). (1) PRAYER TRAP: HOLD IT UNTIL THE PRAYER ENDS - float_down()'s trap arm defers the landing while u.uinvulnerable; rejected a trap-free square, never firing, record. (2) TWO CHAINS: A TETHER COUNTS AS PUNISHED for the scroll, the angry god and the Convict leader; rejected both chains, record; session 235's duplicate folded. (3) QUEEN BONES: SHE STAYS OUT OF BONES (mongone() before iter_mons()); rejected revive-then-remove, record. (4) QUEEN STEED: SHE DISMOUNTS ON REVIVAL; rejected a calmed steed, record. (5) ZOO STEEDS SLEEP TOO; rejected the watchdog record. (6) BEAM TRAP WALK STOPS AT DOORS (any state), SECRET DOORS, TREES AND SECRET CORRIDORS; rejected passing doorways, record. (7) ENTANGLED MONSTERS RELEASED WITH THEIR GRASS OR TREE, with the hero's lines; rejected the expiry line, silent, record. (8) MERGE LINE: KEEP 5.0'S TOTAL, FIX THE PERIOD; rejected master's shape, the total regardless of verbose. (9) CONTAINERS SPARE obj_resists() ITEMS AT EVERY SITE; rejected refusing them in containers, three sites only, record. (10) LIVE HANG: BRANCH ONLY, over my v3-hot-patch pick - no production patch, master archived frozen-unfixed. (11) DECAY: DELETE THE DEAD WEAPON-DECAY CODE, over my record-as-designed pick; rejected making decay work on weapons. (12) HIT VERBS: plural verbs for a wielded stack on the property hit lines. Minted five rows: the HIGH burial hang, the MED Draugr exit crash, and LOW rows for mid-prayer hurtles / stray beams, a rock-mole hero eating the Sword, and the off-level entangle catch-up. | maintainer |
