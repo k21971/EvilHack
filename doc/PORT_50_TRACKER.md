@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-20, after session 245's
-  damage_mon() core slice): 459 rows closed, 130 open (the two [~]
+  damage_mon() core slice): 459 rows closed, 131 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,7 +27,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 8 MED: unported master features (door-material colors, the
+  - 10 MED: unported master features (door-material colors, the
     Astral Red Horse, explode()'s underwater rule - minted
     2026-10-20 by session 245's census of master 61fbffdee - and
     five display options split out of the LOW ownerless option
@@ -35,7 +35,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     the sparkle frame count, invweight, hilite_hidden_stairs and
     the realtime status-line clock; a 0.9.3 rc file setting four of
     them gets "Unknown option" on the branch, and sparkle:N above 1
-    is rejected as a boolean).
+    is rejected as a boolean - plus master's always-on " MC:N" and
+    " TH:N" status fields: BL_MC minted and the to-hit row raised
+    from LOW by the maintainer 2026-10-20).
     Session 245 closed the damage_mon() core (BUG-2438..2447): the
     router now applies the 1.5x elemental vulnerability and halves
     physical damage for a monster carrying a half-physical-damage
@@ -206,7 +208,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 105 LOW: small parity rows, quirks and watch/record-only items.
+  - 104 LOW: small parity rows, quirks and watch/record-only items.
     Session 245 minted two: spell-touch damage enters as the
     attack's damage type (record only), and hero breath's saving
     throw can halve the water / doused / level-0 drain kills into
@@ -15810,8 +15812,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       but the code sets u; the rc parser matches only s / c / f, so
       realtime_format:u is rejected; rc realtime:disabled stores
       'd' (the O menu stores 0), leaving an empty field on the
-      status line. Interlocks the botl_hitbonus()/BL_TOHIT row
-      (another new status field). RC COMPAT: OPTIONS=realtime and
+      status line. Interlocks the botl_hitbonus()/BL_TOHIT and
+      BL_MC rows (more new status fields; one enum shift if they
+      land together). RC COMPAT: OPTIONS=realtime and
       realtime_format are "Unknown option" on the branch. opthelp /
       Guidebook travel with it.
 - [x] Per-alignment overview altar tracking PORTED whole
@@ -20197,15 +20200,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       One Ring." (identified - xname() drops the leading "the"); an
       item-menu "Read the inscription on the ring" line (BUG-2384).
       Battery T3 PASS.
-- [ ] botl_hitbonus()/BL_TOHIT status field ABSENT (minted 2026-09-09
-      by the bane-aura census; the roles-review DEFER list and row
-      ~7961 "WHEN IT LANDS it must carry the taper, the XL30 +5 and
-      the hitcap" named it with no row): master weapon.c
-      botl_hitbonus() computes the hero's displayed to-hit (Luck,
-      abon, find_mac, level taper, weapon hit bonus, drow-dark
-      Shadowblade arm, ring of increase accuracy) for botl.c's
-      BL_TOHIT status field; the branch has neither. Interlocks the
-      Phase 4 status-line rows (a new status field). LOW.
+- [ ] MED: botl_hitbonus()/BL_TOHIT status field ABSENT (minted
+      2026-09-09 by the bane-aura census as LOW; the roles-review
+      DEFER list and row ~7961 "WHEN IT LANDS it must carry the
+      taper, the XL30 +5 and the hitcap" named it with no row;
+      RAISED to MED 2026-10-20 by the maintainer with the BL_MC row
+      below - every 0.9.3 status line shows it). Master 10e9e507c
+      (from SpliceHack cdd9a9c) shows the hero's base to-hit as
+      " TH:N" after AC and MC, always on (no option). weapon.c
+      botl_hitbonus() is find_roll_to_hit() minus the target's
+      terms: 1 + abon() + u.uhitinc + Luck + the level taper, the
+      XL30 +5, the Monk armor penalty / martial-arts bonus, drow
+      dark (drow weapons, Shadowblade) / lit, heavy iron ball,
+      bare-handed glove enchantment, encumbrance, trapped, druid /
+      vampire forms, forged quality (BUG-486's uswapwep guard),
+      base_hitbonus() (spe + oc_hitbon, master's target-free half
+      of hitval()) and weapon_hit_bonus(), and the unskilled /
+      restricted hitcap (18 for a wielded potion, 4d6d8dd24).
+      Unidentified weapon and ring-of-increase-accuracy enchantments
+      are subtracted back out so the field gives nothing away.
+      Plumbing shared with BL_MC: the botl.h enum, INIT_BLSTAT
+      "to-hit" " TH:%s", hilite name "tohit" with negative values
+      allowed like AC (master botl.c's three `fld == BL_AC || fld
+      == BL_TOHIT` tests), do_statusline2()'s "TH:%-2d" (cfdf41a43,
+      the dumplog / classic line), and every window port's field
+      order (master: tty, curses, win32; the branch adds X11 - the
+      Phase 4 X11 status reconciliation row). Branch: neither the
+      function nor the field. PORT NOTE: mirror the branch's live
+      find_roll_to_hit() term by term, then diff against master's
+      copy (master's later touches: dc9c5feee level taper,
+      e0b22c186 Luck, eb265e378 bracers, d37fb5964 / 39f53170b crash
+      fixes, 9b58eb47d forged quality, c3816e9ea vampire form,
+      4d6d8dd24 potion hitcap). The roles-review deferral and the
+      forged-quality "botl_hitbonus FQ display" rider ride this
+      row. Port with the BL_MC row: one status-field slice.
+- [ ] MED: BL_MC magic-cancellation status field ABSENT (minted
+      2026-10-20, maintainer; port gap with no row until now, found
+      while splitting the display-option rows). Master d6b780ad2
+      shows the hero's magic cancellation as " MC:N" between AC
+      and TH, always on (no option), from magic_negation(&youmonst)
+      - otherwise visible only through enlightenment. Plumbing:
+      the botl.h enum (BL_AC, BL_MC, BL_TOHIT), INIT_BLSTAT
+      "magic-neg" " MC:%s", hilite name "mc", do_statusline2()'s
+      "MC:%d" (cfdf41a43), and the window ports' field orders
+      (master: tty, curses, win32 mhstatus.h / mswproc.c; the
+      branch adds X11). Branch: magic_negation() is in place
+      (mhitu.c, matching master's per BUG-2440); no field. Port
+      with the botl_hitbonus()/BL_TOHIT row above: one enum shift
+      and one field-order pass per window port. No option, so no
+      rc-file breakage.
 - [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
@@ -31479,6 +31522,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | Status-field rows (session 245 follow-up; maintainer request, no AskUserQuestion). Master's always-on " MC:N" status field (BL_MC, d6b780ad2), which had no row, gets a MED row, and the existing botl_hitbonus()/BL_TOHIT " TH:N" row is raised from LOW to MED beside it: both are on every 0.9.3 status line. They share one plumbing pass (botl.h enum, blstats, hilite names, do_statusline2(), each window port's field order) and should land as one status-field slice. | maintainer |
 | 2026-10-20 | Display-option rows (session 245 follow-up; maintainer request, no AskUserQuestion). underline_peacefuls, master's sparkle frame count, master's invweight (wizweight opened to every player), hilite_hidden_stairs and the realtime status-line clock (show_realtime + realtime_format) each get their own MED row, split out of the LOW ownerless option wirings row, where they sat as one-word mentions. The sparkle "branch keeps 5.0's boolean per the Phase 1 ruling" wording is withdrawn: it was the flag.h row's field-port note, not a ruling, and master's frame count is the target. autoall_menu, hallucinating and the paranoid default stay in the LOW row. | maintainer |
 | 2026-10-20 | damage_mon() core slice rulings (session 245; AskUserQuestion x3, five questions). (1) WORDING: master's parentheses "(MHP -N, M left)" / "(MHP -N, killed|destroyed)" for the wizard-mode showmondamage line, over my bracket recommendation (to match 5.0's hero line); then, asked mid-turn by the maintainer, the hero's showdamage line also takes master's form "(HP -N, M left)" / "(HP -N, killed)", replacing vanilla 5.0's "[HP ...]", and the dumplog filter takes master's "(HP " / "(MHP " prefixes (supersedes the 2026-08-29 dumplog-grouping slice's bracket adaptation). (2) SCOPE, all four fold-ins as recommended: resist()'s MC save bonus and half-spell-damage halving (081a06725), ray and spell-touch halving (081a06725), no opposite-resistance bonus (e5e4439e7, a silent revert), engulfer dig-out halving (6218b2ad8). (3) RAY GATE: master's stated intent (as recommended) - a half-spell-damage carrier halves wand and spell rays from anyone and never breath, mirroring the hero's Half_spell_damage; master's code halves only hero rays, breath included. (4) DEADLY POISON: fix it (as recommended) - the AD_PHYS "deadly" kills pass 2 * mhp so the half-physical-damage halving cannot leave the target alive; the paper golem's fire-trap immolation folded under the same ruling. (5) Battery go-ahead (three testers concurrently). Decided without asking: display-only by_you choices, drain life as AD_DRLI, the accepted double halving of a ring blast inside a physical blow, the munslime() ray type and "breathe" fixes, zhitm() printing showmondamage for hero rays. | maintainer |
 | 2026-10-20 | Monster touch-sear slice rulings (session 244; AskUserQuestion x2, three questions, all as recommended). (1) HERO RACE: FIX IT EVERYWHERE - mon_hates_material() read the role monster for an unpolymorphed hero, so natural elf / drow (iron), orc (mithril) and vampire / demon-race (silver) heroes took no hated-material damage from weapons, missiles or (after the port) touches, only the recoil line; an unpolymorphed hero now also hates what raceptr() hates (BUG-2434, master frozen-unfixed), over a touch-sears-only fix and master parity. Accepted cost spelled out: +1..6 (mean ~3) per iron or mithril hit, +1..20 (mean ~10.5) per silver hit, and monster weapon AI preferring silver against vampire heroes. (2) POLYMORPHED HERO: MASTER'S SHAPE (a0651814a, authored on master) - one attack_contact_slots() for monsters and the hero; every claw or touch weighs both rings, a bear hug also counts gloves and rings (BUG-2435); barehanded double punches keep 5.0's per-hand ring (the double_punch ruling). Folded under its rationale without asking: a gloveless fist's body sear (BUG-2436). (3) SEAR WORDING (asked after battery C): "pair of iron ..." - the material follows a leading "pair of " / "set of ", as xname() places it (BUG-2437, master frozen-unfixed). | maintainer |
