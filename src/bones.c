@@ -8,6 +8,7 @@
 #ifndef SFCTOOL
 staticfn boolean no_bones_level(d_level *);
 staticfn void goodfruit(int);
+staticfn void empty_inuse_container(struct obj *) NONNULLARG1;
 staticfn void resetobjs(struct obj *, boolean);
 staticfn void give_to_nearby_mon(struct obj *, coordxy, coordxy) NONNULLARG1;
 staticfn boolean fixuporacle(struct monst *) NONNULLARG1;
@@ -52,6 +53,44 @@ goodfruit(int id)
         f->fid = id;
 }
 
+/* a container in use as the hero died (a bag of holding blowing up) is
+   gone, but what it still held lands where it was; the contents have
+   been reset already */
+staticfn void
+empty_inuse_container(struct obj *container)
+{
+    struct obj *otmp, *parent;
+
+    while ((otmp = container->cobj) != 0) {
+        obj_extract_self(otmp);
+        switch (container->where) {
+        case OBJ_FLOOR:
+            otmp->ghostly = 1;
+            place_object(otmp, container->ox, container->oy);
+            break;
+        case OBJ_MINVENT:
+            otmp->ghostly = 1;
+            (void) add_to_minv(container->ocarry, otmp);
+            break;
+        case OBJ_CONTAINED:
+            parent = container->ocontainer;
+            (void) add_to_container(parent, otmp);
+            container_weight(parent);
+            break;
+        case OBJ_BURIED:
+            otmp->ghostly = 1;
+            otmp->ox = container->ox, otmp->oy = container->oy;
+            add_to_buried(otmp);
+            break;
+        default:
+            impossible("empty_inuse_container: %s, where=%d",
+                       simpleonames(container), container->where);
+            obfree(otmp, (struct obj *) 0);
+            break;
+        }
+    }
+}
+
 staticfn void
 resetobjs(struct obj *ochain, boolean restore)
 {
@@ -62,6 +101,8 @@ resetobjs(struct obj *ochain, boolean restore)
         if (otmp->cobj)
             resetobjs(otmp->cobj, restore);
         if (otmp->in_use) {
+            if (Has_contents(otmp))
+                empty_inuse_container(otmp);
             obj_extract_self(otmp);
             dealloc_obj(otmp);
             continue;

@@ -2706,6 +2706,7 @@ extern boolean allow_all(struct obj *) NO_NNARGS;
 extern boolean allow_category(struct obj *) NONNULLARG1;
 extern boolean is_worn_by_type(struct obj *) NONNULLARG1;
 extern int ck_bag(struct obj *) NONNULLARG1;
+extern void boh_hero_goods(struct obj *) NONNULLARG1;
 extern void removed_from_icebox(struct obj *) NONNULLARG1;
 /* reset_justpicked() is sometimes passed gi.invent
  * which can be null */

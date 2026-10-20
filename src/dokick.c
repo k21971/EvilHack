@@ -1824,6 +1824,9 @@ impact_drop(
         /* sokoban prizes never fall */
         if (is_soko_prize(obj))
             continue;
+        /* an object in use, such as an exploding bag, stays put */
+        if (obj->in_use)
+            continue;
         /* boulders can fall too, but rarely & never due to rocks */
         if ((isrock && obj->otyp == BOULDER)
             || rn2(obj->otyp == BOULDER ? 30 : 3))

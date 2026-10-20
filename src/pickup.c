@@ -31,7 +31,6 @@ staticfn int lift_object(struct obj *, struct obj *, long *, boolean);
 staticfn void pickup_prinv(struct obj *, long, const char *);
 staticfn boolean mbag_explodes(struct obj *, int);
 staticfn boolean is_boh_item_gone(void);
-staticfn void boh_hero_goods(struct obj *);
 staticfn void do_boh_explosion(struct obj *, boolean);
 staticfn long boh_loss(struct obj *, boolean);
 staticfn boolean bag_devours_invent(struct obj *);
@@ -2782,8 +2781,10 @@ is_boh_item_gone(void)
 }
 
 /* the hero's things flung around a shop stay the hero's wherever they
-   land in it; unpaid ones stay billed until they come down (scatter()) */
-staticfn void
+   land in it; unpaid ones stay billed until they come down (scatter());
+   also for what a blasting bag still holds when the game ends
+   (done_object_cleanup()) */
+void
 boh_hero_goods(struct obj *obj)
 {
     struct obj *otmp;
@@ -2811,6 +2812,8 @@ do_boh_explosion(struct obj *boh, boolean shopfloor)
     long loss = 0L;
 
     boh->in_use = 1; /* in case scatter() leads to bones creation */
+    /* what it still holds if the game ends mid-blast (done_object_cleanup) */
+    gb.blasting_bag = boh;
     /* before the loop empties it; otherwise Has_contents() is always 0 */
     if (!Blind && Has_contents(boh))
         pline_The("%s contents fly everywhere!",
@@ -2839,6 +2842,7 @@ do_boh_explosion(struct obj *boh, boolean shopfloor)
         otmp->ox = u.ux, otmp->oy = u.uy;
         (void) scatter(u.ux, u.uy, rn1(7, 4), scflags, otmp);
     }
+    gb.blasting_bag = (struct obj *) 0;
     /* bag just blew up? must be a bag of holding */
     makeknown(BAG_OF_HOLDING);
     /* boh is about to be deleted so no need to reset its in_use flag here */
@@ -3019,6 +3023,10 @@ in_container(struct obj *obj)
        other than a bag of holding is destroyed with all it holds, so
        what can't be destroyed falls at the hero's feet first */
     boom = (Is_mbag(gc.current_container) && mbag_explodes(obj, 0));
+    /* a floor bag about to blow up stays put while things land at the
+       hero's feet ahead of and during its blast */
+    if (boom && floor_container)
+        gc.current_container->in_use = 1;
     trigname[0] = '\0';
     if (boom && obj->otyp != BAG_OF_HOLDING
         && has_indestructible_contents(obj)) {
@@ -3098,9 +3106,11 @@ in_container(struct obj *obj)
         }
         do_boh_explosion(gc.current_container, shopfloor);
 
+        /* the blast may have moved the hero off the bag's square (a
+           hero thrown from a steed by a vapor-triggered change of form) */
         if (!floor_container)
             useup(gc.current_container);
-        else if (obj_here(gc.current_container, u.ux, u.uy))
+        else if (gc.current_container->where == OBJ_FLOOR)
             useupf(gc.current_container, gc.current_container->quan);
         else
             panic("in_container:  bag not found.");
