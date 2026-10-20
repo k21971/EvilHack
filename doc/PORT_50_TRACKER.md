@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-20, after session 245's
-  damage_mon() core slice): 459 rows closed, 125 open (the two [~]
+  damage_mon() core slice): 459 rows closed, 130 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,9 +27,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 3 MED: unported master features (door-material colors, the
+  - 8 MED: unported master features (door-material colors, the
     Astral Red Horse, explode()'s underwater rule - minted
-    2026-10-20 by session 245's census of master 61fbffdee).
+    2026-10-20 by session 245's census of master 61fbffdee - and
+    five display options split out of the LOW ownerless option
+    wirings row by the maintainer 2026-10-20: underline_peacefuls,
+    the sparkle frame count, invweight, hilite_hidden_stairs and
+    the realtime status-line clock; a 0.9.3 rc file setting four of
+    them gets "Unknown option" on the branch, and sparkle:N above 1
+    is rejected as a boolean).
     Session 245 closed the damage_mon() core (BUG-2438..2447): the
     router now applies the 1.5x elemental vulnerability and halves
     physical damage for a monster carrying a half-physical-damage
@@ -1558,7 +1564,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       in skills.h comment; weapon.c positional tables updated -
       remember that gotcha for every remaining skill)
 - [x] flag.h DONE 2026-07-12b (fields only; options.c wiring
-      with subsystems; sparkle bool-vs-int kept 5.0 bool)
+      with subsystems; sparkle bool-vs-int kept 5.0 bool - a
+      field-port note, not a ruling: master's frame count has its
+      own MED row since 2026-10-20)
 - [x] mextra.h DONE 2026-07-12b (copy_mextra intentionally NOT
       extended - needs new* constructors, Phase 2)
 - [x] context.h DONE 2026-07-12b (soko 6-prize system deferred:
@@ -2016,8 +2024,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (master's parentheses vs the branch showdamage's vanilla 5.0
       "[HP ...]" brackets), and end.c is_hp_tracking_msg() learning
       the monster prefix so dumplog grouping filters it.
-      PORTED 2026-10-20 (session 245, BUG-2438..2447, commit
-      pending).
+      PORTED 2026-10-20 (session 245, BUG-2438..2447, 33f183643).
       The census mapped master's 114 calls (22 files): 33 branch
       sites subtracted raw and none applied the 1.5x or the halving
       itself before reaching the router (spec_dbon() scales only its
@@ -2653,7 +2660,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       2026-07-16), Izchak (bc35d8002, 7cc1136de), mon_prop (oprops
       e95bed697), grave-arise (c8c090f8c); corpse glyphs stay master's
       (corpsenm). Every deferral-map subsystem has a closed row, and
-      peaceful_to_glyph rides the ownerless option wirings row. The
+      peaceful_to_glyph rides the ownerless option wirings row (the
+      underline_peacefuls MED row since 2026-10-20). The
       kit-array splits were ruled 2026-10-19 (decisions log): each
       player-monster rolls its own kit. Minted the three rows below.
 - [x] MED: monster ring-wearing PORTED 2026-10-20 (session 243,
@@ -15650,14 +15658,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       row). Dangling flag.h/iflags fields with zero options.c
       registration and zero consumers on the branch:
       autoall_menu (master: boolopt + do.c drop_everything +
-      pickup.c loot_everything arms), hilite_hidden_stairs,
-      showmondamage (MOVED 2026-10-20 to the MED damage_mon() core
-      row, which owns its emitter), show_realtime + realtime_format,
-      underline_peacefuls (wc2 field; cursmain.c mention only),
-      plus the start-state option hallucinating (no field),
-      master's wizweight->invweight rename (branch keeps 5.0's
-      wizweight), and master's sparkle frame-count semantics
-      (branch keeps 5.0's boolean per the Phase 1 ruling). Their
+      pickup.c loot_everything arms), showmondamage (MOVED
+      2026-10-20 to the MED damage_mon() core row, which owns its
+      emitter), plus the start-state option hallucinating (no
+      field). MOVED 2026-10-20 (maintainer, session 245 follow-up)
+      to five MED rows of their own, right below:
+      underline_peacefuls, master's sparkle frame count, master's
+      wizweight->invweight rename, hilite_hidden_stairs, and
+      show_realtime + realtime_format (the old "branch keeps 5.0's
+      boolean per the Phase 1 ruling" for sparkle was only the
+      flag.h row's field-port note, never a maintainer ruling). Their
       Guidebook/opthelp entries travel with the wiring (filtered
       out of the 2026-08-28 re-derivation). Master's paranoid
       default "pray quit" vs branch "pray swim trap" also parks
@@ -15670,8 +15680,140 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "(MHP " prefixes, both lines ruled into master's form). Archive: the options half of Documentation and
       Guidebook Infrastructure + master e84a85d5a. RIDER
       (2026-10-19, Racial monsters umbrella closure): the umbrella's
-      peaceful_to_glyph deferral rides underline_peacefuls here;
-      mon_to_glyph already goes through racial_mndx.
+      peaceful_to_glyph deferral rides underline_peacefuls (its own
+      MED row below since 2026-10-20); mon_to_glyph already goes
+      through racial_mndx.
+- [ ] MED: underline_peacefuls never ported (minted 2026-10-20,
+      maintainer split from the LOW ownerless option wirings row
+      above; port gap). Master 180371ffe (from xNetHack 29b2c92;
+      e610523e3 fixed its O-menu order) underlines peaceful
+      monsters on the map when the option is on (boolean, default
+      off, set in game). Master's shape: a GLYPH_PEACEFUL_OFF glyph
+      range with peaceful_to_glyph() / peacefulnum_to_glyph(),
+      picked in display_monster() (not while hallucinating), in
+      detect.c map_monst() and for worm.c's tail segments;
+      mapglyph() returns MG_PEACEFUL; tty draws ATR_ULINE and
+      curses A_UNDERLINE, both advertising WC2_PEACEFUL (master's
+      0x20000L is WC2_U_UTF8STR on 5.0 - take a free bit);
+      create_particular_creation() redraws after setting peaceful.
+      Master tags 14 newsym() calls "clear/enable peaceful glyph"
+      (mon.c 9, priest.c 4, shk.c 1) so the glyph follows mpeaceful
+      at once; the branch already has 8 (mon.c 7, uhitm.c 1) that
+      rode in with other code and none in priest.c or shk.c -
+      census the gap (demon_talk's pair landed as BUG-1758).
+      fe90af7aa (BUG-1278) adds the HTML-dump arm (mg_hl_attr()
+      MG_PEACEFUL -> HL_ULINE, plus NHdump.css's underline
+      thickness), shared with the Phase 4 HTML dumplog row's
+      "pet/peaceful highlighting". Branch: the flag.h wc2 field and
+      its define only - no optlist entry, no MG_PEACEFUL, no
+      consumer. DESIGN CALL at port time: 5.0's monster glyphs are
+      gendered (the pet and ridden ranges each split male /
+      female), so master's shape costs two new ranges plus tilemap
+      and glyph-name work; the lighter option is an MG_PEACEFUL
+      glyphflag (0x08000 is free) set where the glyph is mapped.
+      RC COMPAT: a 0.9.3 OPTIONS=underline_peacefuls is "Unknown
+      option" on the branch. The Racial monsters umbrella's
+      peaceful_to_glyph deferral rides this row. Guidebook /
+      opthelp travel with it.
+- [ ] MED: master's sparkle frame count never ported (minted
+      2026-10-20, maintainer split from the LOW ownerless option
+      wirings row above; port gap). Master 534916132 (Vivit-R)
+      turns sparkle into a number: 0..21 frames of the resistance
+      animation (default SHIELD_COUNT = 21; "!sparkle" = 0; a
+      negative value resets to 21 and a larger one clamps to 21),
+      set in game and shown in the O menu as that number.
+      shieldeff() and explode()'s shield pass start at a random
+      frame (rand() % SHIELD_COUNT) and play flags.sparkle frames.
+      Branch: 5.0's boolean (flag.h, optlist.h NHOPTB), read by
+      display.c shieldeff(), explode.c and mon.c flash_mon() (its
+      `!flags.sparkle` halving reads the same with an int). The
+      flag.h row's "sparkle bool-vs-int kept 5.0 bool" was a
+      field-port note, not a ruling. RC COMPAT: sparkle:N for any N
+      above 1 is "'sparkle:5' is not valid for a boolean" on the
+      branch (0 and 1 parse as off / on), and master's own
+      sys/unix/sysconf ships OPTIONS=pickup_burden:unencumbered,
+      sparkle:5. Port question: master's start frame uses libc
+      rand(); 5.0's display effects draw from rn2_on_display_rng().
+      opthelp / Guidebook travel with it.
+- [ ] MED: master's invweight never ported (minted 2026-10-20,
+      maintainer split from the LOW ownerless option wirings row
+      above; port gap). Master 90c12021c (from xNetHack) renames
+      wizweight to invweight and opens it to every player (boolean,
+      default off, set in game): doname() appends " (N aum)" to an
+      item in inventory (obj->where == OBJ_INVENT), and to every
+      item in wizard mode; xprname() scales owt to the shown count
+      when listing part of a stack (cast to long, guarded on
+      obj->quan > 0, restored after); a glob whose shop price
+      already shows its weight skips the suffix (weightshown).
+      Branch: 5.0's wizweight - optlist.h set_wizonly, objnam.c
+      doname_base() gated `wizard && iflags.wizweight`, folded into
+      the price parenthetical when with_price, suppressed by
+      paydoname() on the pay menu (BUG-2076's price-quote room fix
+      sits just above it). Port: rename the option and field
+      (flag.h, optlist.h, options.c, the shk.c / mkobj.c comments,
+      opthelp, Guidebook - master's .lp invweight text after
+      e84a85d5a; drop the wizhelp line, master's wizhelp has none),
+      widen the gate to master's, carry xprname()'s partial-count
+      scaling, and keep 5.0's with_price merge and paydoname()
+      suppression unless ruled otherwise. RC COMPAT:
+      OPTIONS=invweight is "Unknown option" on the branch.
+- [ ] MED: hilite_hidden_stairs never ported (minted 2026-10-20,
+      maintainer split from the LOW ownerless option wirings row
+      above; port gap). Master c2e69540d (from xNetHack 24c092b /
+      9961eb6) + 2dfff4dc5 (BUG-375): with the option on (boolean,
+      default off, set in game), stairs covered by an object, a
+      corpse or a statue draw on a red background. mapglyph() sets
+      MG_STAIRS on those three glyph arms when On_stairs(x, y); tty
+      calls term_start_bgcolor(CLR_RED) on the map window and
+      resets it after the character (BUG-375's row-bleed fix);
+      curses uses CURSES_BG_FLAG, or A_REVERSE without color
+      (BUG-1229's truecolor background fix); the HTML dump's
+      mg_hl_attr() maps it to HL_INVERSE. BUG-375's Windows half is
+      moot (5.0's consoletty.c has a working term_start_bgcolor()).
+      Branch: the flag.h field and 5.0's commented-out curses stub
+      ("hilite stairs not in 3.6, yet") only - no MG_STAIRS, no
+      optlist entry. DESIGN CALL at port time: a new MG_ bit as on
+      master, or a red framecolor from display.c
+      get_bkglyph_and_framecolor(), which tty and curses already
+      draw as a per-cell background. The branch's termcap.c
+      term_start_bgcolor() still folds bright colors onto the dim
+      SGR codes (BUG-810, fixed on master); CLR_RED is unaffected,
+      but carry the fix if the slice touches the function. RC
+      COMPAT: OPTIONS=hilite_hidden_stairs is "Unknown option" on
+      the branch. Guidebook / opthelp travel with it.
+- [ ] MED: the realtime status-line clock never ported (minted
+      2026-10-20, maintainer split from the LOW ownerless option
+      wirings row above; port gap). Master 2609abf26 (from TNNT
+      ac4d7b2) adds a BL_REALTIME status field (after BL_TIME;
+      status_hilites name "realtime") behind REALTIME_ON_BOTL,
+      which master's hardfought, linux and clang-linux-debug hints
+      define - so live 0.9.3 games show it, on by default. Options
+      (set in game): realtime = disabled / play time (accumulated
+      urealtime) / wallclock time (now - ubirthday, real time since
+      the game began; the default); realtime_format = s (seconds) /
+      c (h:mm) / f (hh:mm:ss) / u (two units, e.g. "1h:05m").
+      botl_realtime() and format_duration_with_units() live in
+      botl.c; master's windows.c field orders place it after
+      BL_TIME. Riders: BUG-1011's 24-byte field width and BUG-1017's
+      missing break (29f3df0ab). Branch: the two flag.h fields
+      behind the same #ifdef only; no hints file defines it (the
+      branch's hardfought hints carry SCORE_ON_BOTL alone), no
+      BL_REALTIME, and tty (wintty.c) and curses (cursstat.c) keep
+      their own 5.0 field orders, so each port needs the field
+      placed. Already on the branch: 2609abf26's "You have been
+      playing for" enlightenment line (5.0 insight.c
+      fmt_elapsed_time()). Not on it: the commit's livelog
+      "realtime=" field (files.c; the 5.0 line has none) - a
+      server-parser question for the slice. MASTER QUIRKS to rule
+      at port time (read from code, not seen in play): the
+      documented realtime_format default is f (opthelp, Guidebook)
+      but the code sets u; the rc parser matches only s / c / f, so
+      realtime_format:u is rejected; rc realtime:disabled stores
+      'd' (the O menu stores 0), leaving an empty field on the
+      status line. Interlocks the botl_hitbonus()/BL_TOHIT row
+      (another new status field). RC COMPAT: OPTIONS=realtime and
+      realtime_format are "Unknown option" on the branch. opthelp /
+      Guidebook travel with it.
 - [x] Per-alignment overview altar tracking PORTED whole
       (2026-08-28, master 851cc48a0 = final state, its only
       dungeon.c follow-up 6ce6f4157 touched no altar code; three
@@ -31109,7 +31251,7 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-20 | "in_container:  bag not found." panic: a bag of holding exploding on the floor while the hero stands over a seen hole or trap door without falling. Items flung back onto the hero's square land through flooreffects() -> ship_object() (1b7c372f5), whose impact_drop() knocks each other pile object down 1 time in 3, the exploding bag included; a bag of holding trigger's own scatter can knock the outer floor bag down before its blast starts. Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2423 (a19f2fc8b): impact_drop() leaves an in_use object in place, and in_container() marks a floor bag in_use as soon as the blast is certain. | found (branch-fixed); not yet sent |
 | 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (a19f2fc8b): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
 | 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (a19f2fc8b, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
-| 2026-10-20 | A fire-breathing monster curing its own sliming prints "The red dragon breaths fire on itself.": muse_unslime() passes the noun "breath" as monverbself()'s verb, and vtense() makes it "breaths" (master and 3.6 printed "%s breathes fire on %sself."). Shared with Official_nh50 (muse.c). EvilHack fix BUG-2445 (commit pending): the verb is "breathe". | found (branch-fixed); not yet sent |
+| 2026-10-20 | A fire-breathing monster curing its own sliming prints "The red dragon breaths fire on itself.": muse_unslime() passes the noun "breath" as monverbself()'s verb, and vtense() makes it "breaths" (master and 3.6 printed "%s breathes fire on %sself."). Shared with Official_nh50 (muse.c). EvilHack fix BUG-2445 (33f183643): the verb is "breathe". | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31337,6 +31479,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | Display-option rows (session 245 follow-up; maintainer request, no AskUserQuestion). underline_peacefuls, master's sparkle frame count, master's invweight (wizweight opened to every player), hilite_hidden_stairs and the realtime status-line clock (show_realtime + realtime_format) each get their own MED row, split out of the LOW ownerless option wirings row, where they sat as one-word mentions. The sparkle "branch keeps 5.0's boolean per the Phase 1 ruling" wording is withdrawn: it was the flag.h row's field-port note, not a ruling, and master's frame count is the target. autoall_menu, hallucinating and the paranoid default stay in the LOW row. | maintainer |
 | 2026-10-20 | damage_mon() core slice rulings (session 245; AskUserQuestion x3, five questions). (1) WORDING: master's parentheses "(MHP -N, M left)" / "(MHP -N, killed|destroyed)" for the wizard-mode showmondamage line, over my bracket recommendation (to match 5.0's hero line); then, asked mid-turn by the maintainer, the hero's showdamage line also takes master's form "(HP -N, M left)" / "(HP -N, killed)", replacing vanilla 5.0's "[HP ...]", and the dumplog filter takes master's "(HP " / "(MHP " prefixes (supersedes the 2026-08-29 dumplog-grouping slice's bracket adaptation). (2) SCOPE, all four fold-ins as recommended: resist()'s MC save bonus and half-spell-damage halving (081a06725), ray and spell-touch halving (081a06725), no opposite-resistance bonus (e5e4439e7, a silent revert), engulfer dig-out halving (6218b2ad8). (3) RAY GATE: master's stated intent (as recommended) - a half-spell-damage carrier halves wand and spell rays from anyone and never breath, mirroring the hero's Half_spell_damage; master's code halves only hero rays, breath included. (4) DEADLY POISON: fix it (as recommended) - the AD_PHYS "deadly" kills pass 2 * mhp so the half-physical-damage halving cannot leave the target alive; the paper golem's fire-trap immolation folded under the same ruling. (5) Battery go-ahead (three testers concurrently). Decided without asking: display-only by_you choices, drain life as AD_DRLI, the accepted double halving of a ring blast inside a physical blow, the munslime() ray type and "breathe" fixes, zhitm() printing showmondamage for hero rays. | maintainer |
 | 2026-10-20 | Monster touch-sear slice rulings (session 244; AskUserQuestion x2, three questions, all as recommended). (1) HERO RACE: FIX IT EVERYWHERE - mon_hates_material() read the role monster for an unpolymorphed hero, so natural elf / drow (iron), orc (mithril) and vampire / demon-race (silver) heroes took no hated-material damage from weapons, missiles or (after the port) touches, only the recoil line; an unpolymorphed hero now also hates what raceptr() hates (BUG-2434, master frozen-unfixed), over a touch-sears-only fix and master parity. Accepted cost spelled out: +1..6 (mean ~3) per iron or mithril hit, +1..20 (mean ~10.5) per silver hit, and monster weapon AI preferring silver against vampire heroes. (2) POLYMORPHED HERO: MASTER'S SHAPE (a0651814a, authored on master) - one attack_contact_slots() for monsters and the hero; every claw or touch weighs both rings, a bear hug also counts gloves and rings (BUG-2435); barehanded double punches keep 5.0's per-hand ring (the double_punch ruling). Folded under its rationale without asking: a gloveless fist's body sear (BUG-2436). (3) SEAR WORDING (asked after battery C): "pair of iron ..." - the material follows a leading "pair of " / "set of ", as xname() places it (BUG-2437, master frozen-unfixed). | maintainer |
 | 2026-10-20 | Monster ring-wearing port rulings (session 243; AskUserQuestion x1, two questions, both as recommended). (1) RING OF SEE INVISIBLE: WEAR IT - master's AI wants it (searches_for_item) but master's wear list never puts it on, a mismatch original to the 2019 patch against its own "should match" comments; the branch adds it to the accept list with a branch-only extra_pref() score of 10 (a worn one makes the monster see an invisible hero at every mon_prop(SEE_INVIS) site; the species-only perceives() sites stay). (2) METALLIC ACCESSORY AC: FIX IT - material_bonus()'s metallic floor applied to every worn item in find_mac(), so a monster's iron amulet already gave -1 AC and metal rings would too, while the hero's find_ac() never had it; armor_bonus() applies the material bonus to ARMOR_CLASS only (BUG-2428, master frozen-unfixed). Folded under the OFF-arm re-scan obligation without asking: the spell-timer refcount (BUG-2430), the single-source invisibility writes (BUG-2429), the m-v-m negative-ring clamp (BUG-2431), the creation-time lift lines (BUG-2432). | maintainer |
