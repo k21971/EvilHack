@@ -1503,6 +1503,7 @@ mdamagem(
     struct permonst *pa = magr->data, *pd = mdef->data;
     struct mhitm_data mhm;
     unsigned wep_id;
+    long armask;
 
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
     mhm.hitflags = M_ATTK_MISS;
@@ -1546,6 +1547,18 @@ mdamagem(
     mhm.damage += mon_ring_bonus(magr, RIN_INCREASE_DAMAGE);
     if (mhm.damage < 0)
         mhm.damage = 0;
+
+    /* gloves, rings, boots, helm, torso armor or bare body made of a
+       material the defender hates; before the damage handler, as on
+       master, so a resisted touch loses it too */
+    armask = attack_contact_slots(magr, mattk->aatyp, mwep);
+    if (armask) {
+        struct obj *hated_obj;
+
+        mhm.damage += special_dmgval(magr, mdef, armask, &hated_obj);
+        if (hated_obj && gv.vis && canseemon(mdef))
+            searmsg(magr, mdef, hated_obj, FALSE);
+    }
 
     wep_id = mwep ? mwep->o_id : 0;
     mhitm_adtyping(magr, mattk, mdef, &mhm);

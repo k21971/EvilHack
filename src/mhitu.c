@@ -1772,11 +1772,15 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     struct permonst *olduasmon = gy.youmonst.data;
     int res;
     struct mhitm_data mhm;
+    long armask;
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
     mhm.specialdmg = 0;
     mhm.mwep = mon_currwep;
     mhm.done = FALSE;
+    /* read before the damage handler, which can null mhm.mwep when the
+       weapon erodes away or shatters mid-blow */
+    armask = attack_contact_slots(mtmp, mattk->aatyp, mhm.mwep);
 
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
@@ -1841,6 +1845,19 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     /* the knockback can dismount the hero onto a trap whose effect
        kills the attacker; the blow still lands, but a corpse casts no
        spell-hand riders and draws no passive response */
+
+    /* gloves, rings, boots, helm, torso armor or bare body made of a
+       material the hero hates; after the AC reduction, as on master */
+    if (armask && !DEADMONSTER(mtmp)) {
+        struct obj *hated_obj;
+
+        mhm.damage += special_dmgval(mtmp, &gy.youmonst, armask,
+                                     &hated_obj);
+        if (hated_obj && !(Barkskin || Stoneskin)) {
+            searmsg(mtmp, &gy.youmonst, hated_obj, FALSE);
+            exercise(A_CON, FALSE);
+        }
+    }
 
     /* burning hands spell - extra fire damage on unarmed touch attacks */
     if (!DEADMONSTER(mtmp) && mtmp->mburnhands && !MON_WEP(mtmp)
@@ -4254,6 +4271,43 @@ cloneu(void)
     u.mh -= mon->mhp;
     disp.botl = TRUE;
     return mon;
+}
+
+/* Given an attacker and the attack type it is currently attacking with,
+ * return a bitmask of W_ARM* values representing the gear slots that
+ * might come in contact with the defender; where a slot is bare, the
+ * attacker's own body makes the contact. 'wep' is the weapon actually
+ * swung by an AT_WEAP attack (Null when bare-handed), whose own bonus
+ * comes from dmgval(); a monster's off-hand swing can outlive its
+ * primary weapon, so this does not read the primary slot.
+ * Does not check whether slots are covered by other gear;
+ * special_dmgval() handles that */
+long
+attack_contact_slots(struct monst *magr, int aatyp, struct obj *wep)
+{
+    switch (aatyp) {
+    case AT_WEAP:
+        if (wep)
+            return 0L;
+        FALLTHROUGH;
+        /*FALLTHRU*/
+    case AT_CLAW:
+    case AT_TUCH:
+        /* attack with hands; gloves and rings might touch */
+        return W_ARMG | W_RINGL | W_RINGR;
+    case AT_HUGS:
+        /* a strangling hug uses the hands; any other hug also brings
+           the torso slots into contact */
+        return hug_throttles(magr->data)
+                   ? (W_ARMG | W_RINGL | W_RINGR)
+                   : (W_ARMG | W_RINGL | W_RINGR | W_ARMC | W_ARM | W_ARMU);
+    case AT_KICK:
+        return W_ARMF;
+    case AT_BUTT:
+        return W_ARMH;
+    default:
+        return 0L;
+    }
 }
 
 #undef ld

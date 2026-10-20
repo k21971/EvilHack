@@ -1724,6 +1724,8 @@ extern boolean ranged_attk_assessed(struct monst *,
                                     boolean (*)(struct monst *, int))
                                     NONNULLARG1;
 extern boolean ranged_attk_available(struct monst *mtmp) NONNULLARG1;
+extern long attack_contact_slots(struct monst *, int, struct obj *)
+    NONNULLARG1;
 
 /* ### minion.c ### */
 

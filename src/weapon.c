@@ -694,6 +694,7 @@ searmsg(
         char *cxnameobj = cxname(obj);
         const char *matname;
         boolean alreadyin;
+        int lead = 0;
 
         mat = obj->material;
         matname = materialnm[mat];
@@ -704,9 +705,15 @@ searmsg(
          * name doesn't already contain the material string somewhere.
          * (e.g. "sword" should turn into "iron sword", but "engraved
          * silver bell" shouldn't turn into "silver engraved silver
-         * bell") */
+         * bell"). A leading "pair of " or "set of " stays in front, as
+         * xname() places the material ("pair of iron gauntlets") */
         if (!alreadyin) {
-            Snprintf(onamebuf, sizeof onamebuf, "%s %s", matname, cxnameobj);
+            if (!strncmp(cxnameobj, "pair of ", 8))
+                lead = 8;
+            else if (!strncmp(cxnameobj, "set of ", 7))
+                lead = 7;
+            Snprintf(onamebuf, sizeof onamebuf, "%.*s%s %s", lead,
+                     cxnameobj, matname, cxnameobj + lead);
         } else {
             Strcpy(onamebuf, cxnameobj);
         }

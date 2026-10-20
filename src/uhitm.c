@@ -1329,10 +1329,13 @@ hmon_hitmon_barehands(struct _hitmon_data *hmd, struct monst *mon)
        don't give double bonus.
        When making only one hit, both rings are checked (backwards
        compatibility => playability), but when making two hits, only the
-       ring on the hand making the attack is checked */
-    spcdmgflg = uarmg ? W_ARMG
-              : (((hmd->twohits == 0 || hmd->twohits == 1) ? W_RINGR : 0L)
-                 | ((hmd->twohits == 0 || hmd->twohits == 2) ? W_RINGL : 0L));
+       ring on the hand making the attack is checked.
+       The glove slot is always in contact: special_dmgval() skips the
+       rings under gloves, and a bare fist lets the form's own body
+       count (an iron golem's fist against an elf) */
+    spcdmgflg = W_ARMG
+                | ((hmd->twohits == 0 || hmd->twohits == 1) ? W_RINGR : 0L)
+                | ((hmd->twohits == 0 || hmd->twohits == 2) ? W_RINGL : 0L);
     hmd->dmg += special_dmgval(&gy.youmonst, mon, spcdmgflg,
                                &hmd->hated_obj);
 }
@@ -8603,30 +8606,24 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
 {
     struct attack *mattk, alt_attk;
     struct obj *weapon, **originalweapon;
-    boolean altwep = FALSE, weapon_used = !weapon_attacks,
-            odd_claw = TRUE;
+    boolean altwep = FALSE, weapon_used = !weapon_attacks;
     int i, tmp, dieroll, armorpenalty, sum[NATTK],
-        dhit = 0, attknum = 0, multi_claw = 0, multi_weap = 0;
+        dhit = 0, attknum = 0, multi_weap = 0;
     unsigned submits = gs.submit_count; /* for submitted_since() */
     boolean monster_survived;
 
     /* not used here but umpteen mhitm_ad_xxxx() need this */
     gv.vis = (canseemon(mon) || m_next2u(mon));
 
-    /* with just one touch/claw/weapon attack, both rings matter;
-       with more than one, alternate right and left when checking
-       whether silver ring causes successful hit */
+    /* with more than one weapon attack, each one counts as one of two
+       hits (gt.twohits) */
     for (i = 0; i < NATTK; i++) {
         sum[i] = M_ATTK_MISS;
         mattk = (as != NON_PM) ? &mons[as].mattk[i]
                 : getmattk(&gy.youmonst, mon, i, sum, &alt_attk);
         if (mattk->aatyp == AT_WEAP)
             ++multi_weap;
-        if (mattk->aatyp == AT_WEAP
-            || mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH)
-            ++multi_claw;
     }
-    multi_claw = (multi_claw > 1); /* switch from count to yes/no */
     gt.twohits = 0;
 
     gs.skipdrin = FALSE; /* [see mattackm(mhitm.c)] */
@@ -8655,7 +8652,6 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             if (!weapon_attacks)
                 continue;
  use_weapon:
-            odd_claw = !odd_claw; /* see case AT_CLAW,AT_TUCH below */
             /* if we've already hit with a two-handed weapon, we don't
                get to make another weapon attack (note:  monsters who
                use weapons do not have this restriction, but they also
@@ -8864,28 +8860,21 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 if (DEADMONSTER(mon))
                     continue;
 
-                specialdmg = 0; /* blessed and/or silver bonus */
+                /* blessed and/or silver bonus; as on master, no
+                   alternating right/left ring per claw or touch: a hero
+                   who knows the ring on one hand is especially effective
+                   will keep hitting with that hand, so take whichever
+                   piece of gear (or the form's own body) hurts most */
+                specialdmg = special_dmgval(&gy.youmonst, mon,
+                                            attack_contact_slots(
+                                                &gy.youmonst, mattk->aatyp,
+                                                uwep),
+                                            &hated_obj);
                 switch (mattk->aatyp) {
                 case AT_CLAW:
                 case AT_TUCH:
                     /* verb=="claws" may be overridden below */
                     verb = (mattk->aatyp == AT_TUCH) ? "touch" : "claws";
-                    /* decide if material-hater will be hit by ring(s);
-                       for 'multi_claw' where attacks alternate right/left,
-                       assume 'even' claw or touch attacks use dominant hand
-                       or paw, 'odd' ones use non-dominant hand for ring
-                       interaction; even vs odd is based on actual attacks
-                       rather than on index into mon->dat->mattk[] so that
-                       {bite,claw,claw} instead of {claw,claw,bite} doesn't
-                       make poly'd hero mysteriously switch handedness */
-                    odd_claw = !odd_claw;
-                    specialdmg = special_dmgval(&gy.youmonst, mon,
-                                                W_ARMG
-                                                | ((odd_claw || !multi_claw)
-                                                   ? W_RINGL : 0L)
-                                                | ((!odd_claw || !multi_claw)
-                                                   ? W_RINGR : 0L),
-                                                &hated_obj);
                     break;
                 case AT_TENT:
                     /* assumes mind flayer's tentacles-on-head rather
@@ -8895,8 +8884,6 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                 case AT_KICK:
                     verb = is_quadruped(gy.youmonst.data) ? "trample"
                                                           : "kick";
-                    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF,
-                                                &hated_obj);
                     break;
                 case AT_BUTT:
                     /* mbodypart(mon,HEAD)=="head" */
@@ -8906,8 +8893,6 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                     /* hypothetical; if any form with a head-butt attack
                        could wear a helmet, it would hit shades when
                        wearing a blessed (or silver) one */
-                    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMH,
-                                                &hated_obj);
                     break;
                 case AT_BITE:
                     verb = has_beak(gy.youmonst.data) ? "peck" : "bite";
@@ -9088,10 +9073,11 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             if (DEADMONSTER(mon)) /* the god's bolt, as above */
                 continue;
             /* choking hug/throttling grab uses hands (gloves or rings);
-               normal hug uses outermost of cloak/suit/shirt */
+               normal hug uses the hands too, plus the outermost of
+               cloak/suit/shirt */
             specialdmg = special_dmgval(&gy.youmonst, mon,
-                                        byhand ? (W_ARMG | W_RINGL | W_RINGR)
-                                               : (W_ARMC | W_ARM | W_ARMU),
+                                        attack_contact_slots(&gy.youmonst,
+                                                             AT_HUGS, uwep),
                                         &hated_obj);
             if (unconcerned) {
                 /* strangling something which can't be strangled */
@@ -9112,9 +9098,9 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
             if (noncorporeal(mon->data)) {
                 const char *verb = byhand ? "grasp" : "hug";
 
-                /* hugging a shade; successful if blessed outermost armor
-                   for normal hug, or blessed gloves or silver ring(s) for
-                   choking hug; deals damage but never grabs hold */
+                /* hugging a shade; successful if blessed gloves or silver
+                   ring(s) for either hug, or blessed outermost armor for
+                   normal hug; deals damage but never grabs hold */
                 if (specialdmg) {
                     You("%s %s%s", verb, mon_nam(mon), exclam(specialdmg));
                     if (hated_obj && flags.verbose)
