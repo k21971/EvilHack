@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-20, after session 242's bag of
-  holding panic slice): 456 rows closed, 121 open (the two [~]
+- Phase 2 status (refreshed 2026-10-20, after session 243's monster
+  ring-wearing slice): 457 rows closed, 120 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,8 +27,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 4 MED: unported master features (door-material colors, monster
-    ring-wearing, monster touch-attack sears, the Astral Red Horse).
+  - 3 MED: unported master features (door-material colors, monster
+    touch-attack sears, the Astral Red Horse).
+    Session 243 closed monster ring-wearing (BUG-2426..2432): monsters
+    with hands wear master's ring list plus the ring of see invisible
+    (ruled), with the slot-scoped probe made exact on this tree, the
+    OFF-arm re-scans, the metallic-accessory AC fix (ruled), the
+    invisibility re-sync, the m-v-m negative-ring clamp and the silent
+    creation-time lift lines.
     Session 242 closed the "bag not found" panic (BUG-2423..2425): an
     exploding floor bag of holding can no longer be knocked down a
     seen hole by what lands at the hero's feet (a vanilla 5.0 route;
@@ -2006,7 +2012,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       DEFERRED (item -> subsystem): pray.c gear-gift/altar-venom/
       Moloch-hellfire/Dirge oprops (sacrifice + Infidel + Dirge),
       fountain.c forge-transfer + property gems + sp_lev
-      affixed-gem (Forging), monster ring/amulet wearing
+      affixed-gem (Forging), monster ring/amulet wearing [the ring
+      half, extra_pref()'s property arms and the find_mac() exclusion
+      LANDED 2026-10-20 session 243, BUG-2426]
       (extra_pref/RIN_* muse sites; when it lands, find_mac() also
       needs master's RIN_INCREASE_DAMAGE/ACCURACY worn-loop
       exclusion - find_mac now feeds dmgval's low-AC arm too,
@@ -2311,8 +2319,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       in play), setmnotwielded2
       dual-wield drop, mon_bimanual, big_wings W_ARM (DISCHARGED
       2026-08-27, rode find_best_armor_recurse), monster
-      ring-wearing (extra_pref rework, W_RINGL/R, Nazgul ring,
-      cursed_glove gating; the 2026-08-27 monster-looting slice
+      ring-wearing [ALL ring items below DISCHARGED 2026-10-20 by
+      session 243, BUG-2426..2432] (extra_pref rework, W_RINGL/R,
+      Nazgul ring, cursed_glove gating; the 2026-08-27 monster-looting slice
       ADDED obligations here: convert the six new 2-arg
       extra_pref call sites - find_best_armor_recurse x2 +
       is_better_armor x4 - to the 3-arg slot form when the
@@ -2464,17 +2473,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       peaceful_to_glyph rides the ownerless option wirings row. The
       kit-array splits were ruled 2026-10-19 (decisions log): each
       player-monster rolls its own kit. Minted the three rows below.
-- [ ] MED: monster ring-wearing NOT PORTED (minted 2026-10-19 by the
-      Racial monsters umbrella audit; its B2 deferral map was the only
-      owner). Master 5880eed5f (2019, the Monster Ring patch) and its
-      fixes: W_RINGL / W_RINGR in m_dowear() with the empty-hand-first
-      order (d7dbcf9b2), extra_pref()'s ring arms, muse.c's
+- [x] MED: monster ring-wearing PORTED 2026-10-20 (session 243,
+      BUG-2426..2432, PENDING-S243; minted 2026-10-19 by the Racial
+      monsters umbrella audit; its B2 deferral map was the only owner).
+      Master 5880eed5f (2019, the Monster Ring patch) and its fixes:
+      W_RINGL / W_RINGR in m_dowear() with the empty-hand-first order
+      (d7dbcf9b2), extra_pref()'s ring arms, muse.c's
       searches_for_item() rings, the Nazgul ring, cursed-glove gating.
-      The branch's m_dowear() has no ring slots, so every ring grant
-      (Astral priests' and angels' slow digestion, a stolen ring) is
-      inert. Its obligations are listed in the closed umbrella row
-      above (the 2026-08-27..09-29 ring-wearing notes); other rows
-      point at it as "the ring-wearing deferral".
+      LANDED: the two ring passes (welded weapon = mwelded() with the
+      Infidel exemption, cursed gloves, empty hand first), the accept
+      list plus the ring of see invisible (ruled), extra_pref()'s full
+      master body with the probe made exact for this tree (BUG-2427:
+      Resists_Elem() and mon_prop() walk worn objects, so the probe
+      also drops the worn mask; a probing_gear flag silences the lift
+      lines and the steed landing), the RING_CLASS want arm, the four
+      to-hit / damage ring sites through mon_ring_bonus(), the
+      find_mac() exclusion, armor_bonus()'s armor-only material bonus
+      (BUG-2428, ruled), worn_gear_grants() re-scans for levitation /
+      flight / free action / jumping / water walking / invisibility
+      with the spell-timer refcount (BUG-2429, BUG-2430), the m-v-m
+      negative-ring clamp (BUG-2431), silent creation-time lift lines
+      (BUG-2432), is_better_armor()'s slot 0, the monster body part in
+      a probed ring's "(on left hand)". Obligations discharged: every
+      ring item of the B2 deferral map (annotated there), BUG-271 #1 /
+      BUG-502, 7e1238ca4 / 5e5123697, BUG-2028's stolen ring, the
+      Izchak record. Parity recorded: duplicate or negative rings worn
+      into an empty hand, uniques wear teleport rings, a pet's teleport
+      ring blinks it away, rings cost no turn, a handless polymorph
+      keeps rings, a levitating pet cannot reach floor items, Astral
+      high priests may carry two rings of slow digestion (makemon's
+      Astral kit plus priest.c's temple kit, both trees). Battery: four
+      game-testers (A wear pass 9 legs, B combat / AC / Astral / Izchak /
+      Nazgul / player monsters 11 legs, C timers / save / bones 7 legs,
+      D the review folds on the final build) - every leg PASS,
+      paniclogs empty; the welded two-hander gate re-staged by D7 (a
+      gnome lord refuses a two-hander).
 - [ ] LOW: a giant-race monster can wear any cloak (minted 2026-10-19
       by the Racial monsters umbrella audit, its B2 reviewer nit).
       m_dowear() admits the cloak slot by WrappingAllowed(r_data()),
@@ -11515,7 +11548,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bounding box as master did (upstream-reportable). Record only:
       his ring of slow digestion stays unworn until the branch's
       m_dowear() gains master's ring slots (the B2 monster ring
-      deferral); u.uconduct.killer counts a kill he revives from
+      deferral; WORN since session 243, battery A2); u.uconduct.killer counts a kill he revives from
       (as for vampshifters, master-shared).
 - [x] LOW: a multi-attack hero re-angers a Bourbon or Ozzy who
       submitted on an earlier attack of the same action (BUG-2307,
@@ -13690,7 +13723,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       trap x2. ROUTED, not edited: muse.c RIN_LEVITATION
       searches_for_item + worn.c extra_pref ring/oprop scoring
       (BUG-271 #1, BUG-502) -> monster ring-wearing (Racial umbrella
-      tail); uhitm.c/hack.c "swim underneath" block (BUG-271 #2) ->
+      tail; LANDED session 243); uhitm.c/hack.c "swim underneath" block (BUG-271 #2) ->
       damp-sweep rider (b); maybe_freeze_underfoot (BUG-271 #3) ->
       icequeen rider (a); mloot_container + container likes ->
       container-looting; create_pit_under (BUG-679) -> its own
@@ -15055,7 +15088,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mummy-wrapping minvis/w_blocks gate needs it); extra_pref
       exported 2-arg (the 3-arg slot form = BUG-1266 belongs to
       monster ring-wearing, obligation annotated on the B2 map);
-      NO W_RINGL/W_RINGR cases (same owner);
+      NO W_RINGL/W_RINGR cases (same owner; both LANDED session 243);
       objects[].oc_charged stands in for master's 3.6-only
       is_chargeable() in could_use_item; inediate() macro added;
       cures_stoning exported; svm.moves/obj_to_any/safe_mons/
@@ -17070,7 +17103,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (annotated); worn.c extra_pref's FREE_ACTION oprop arm +
       RIN_FREE_ACTION/RIN_ANCIENT case (2) and 5e5123697's m_dowear_type
       RIN_FREE_ACTION accept-list entry -> the monster ring-wearing
-      umbrella (annotated, with the OFF-arm re-scan obligation).
+      umbrella (annotated, with the OFF-arm re-scan obligation; all
+      LANDED session 243, BUG-2426 / BUG-2430).
       PARITY: mcastu.c's monster-target paralysis and the Ice Queen's
       paralyze_monst(100) are ungated on master too; hero-side
       Free_action sites match master (insight.c + the mhitm_ad_plys
@@ -18452,7 +18486,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Needs a trace on master, then a fix (re-check obj_here() after
       the blast and treat a shipped bag as gone, or keep the bag from
       falling mid-explosion). MED.
-      CLOSED 2026-10-20 (session 242, BUG-2423..2425, PENDING-S242).
+      CLOSED 2026-10-20 (session 242, BUG-2423..2425, a19f2fc8b).
       Master trace: master cannot reach it - its flooreffects() only
       says "<obj> tumbles into the hole." at the hero's square; the
       ship arm is vanilla 5.0 1b7c372f5 (Official_nh50 and NetHack50
@@ -22386,7 +22420,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         - a thief puts stolen armor on at once (4042b8973,
           m_dowear(mtmp, TRUE); BUG-2028). The branch m_dowear() has
           no ring slots, so a stolen Ring of P'hul stays unworn:
-          obligation added to the monster ring-wearing deferral.
+          obligation added to the monster ring-wearing deferral
+          (LANDED session 243: the wear pass fills the ring slots).
       - FIXED BEYOND MASTER: steal_it() rolled the slip check twice on
         the first item (pre-loop and the loop's first pass), so a
         cursed slippery item was stolen 1 in 16, not the ruled 1 in 4
@@ -30882,9 +30917,9 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-18 | Travel's last step onto a pet or peaceful bumps it ("Pardon me, <mon>.", a turn, no swap) where every earlier travel step swaps: findtravelpath()'s nomul(0) clears context.travel and domove_bump_mon()'s `nopick && !travel` reads travel's nopick as the m prefix. Shared with Official_nh50 (and 3.6). EvilHack fix BUG-2415 (b7fbafc80): domove_core()'s travel_step capture is passed in and an is_safemon() target skips the bump. | found (branch-fixed); not yet sent |
 | 2026-10-19 | An exploding trapped box charges for the indestructible objects it leaves on its square: chest_trap()'s floor loop calls stolen_value() for every object there before delobj() refuses the Amulet, an invocation item or a Rider corpse. Shared with Official_nh50. EvilHack fix BUG-2421 (f754f67be): the loop skips the billing for an obj_indestructible() object. | found (branch-fixed); not yet sent |
 | 2026-10-19 | An exploding trapped box on a shop floor is charged twice: chest_trap() charges stolen_value() for the box with its contents, then the floor loop charges the now-empty box again. Shared with Official_nh50 (and master). EvilHack: LOW row minted 2026-10-19, not fixed yet. | found (open); not yet sent |
-| 2026-10-20 | "in_container:  bag not found." panic: a bag of holding exploding on the floor while the hero stands over a seen hole or trap door without falling. Items flung back onto the hero's square land through flooreffects() -> ship_object() (1b7c372f5), whose impact_drop() knocks each other pile object down 1 time in 3, the exploding bag included; a bag of holding trigger's own scatter can knock the outer floor bag down before its blast starts. Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2423 (PENDING-S242): impact_drop() leaves an in_use object in place, and in_container() marks a floor bag in_use as soon as the blast is certain. | found (branch-fixed); not yet sent |
-| 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (PENDING-S242): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
-| 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (PENDING-S242, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
+| 2026-10-20 | "in_container:  bag not found." panic: a bag of holding exploding on the floor while the hero stands over a seen hole or trap door without falling. Items flung back onto the hero's square land through flooreffects() -> ship_object() (1b7c372f5), whose impact_drop() knocks each other pile object down 1 time in 3, the exploding bag included; a bag of holding trigger's own scatter can knock the outer floor bag down before its blast starts. Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2423 (a19f2fc8b): impact_drop() leaves an in_use object in place, and in_container() marks a floor bag in_use as soon as the blast is certain. | found (branch-fixed); not yet sent |
+| 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (a19f2fc8b): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
+| 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (a19f2fc8b, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31112,6 +31147,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | Monster ring-wearing port rulings (session 243; AskUserQuestion x1, two questions, both as recommended). (1) RING OF SEE INVISIBLE: WEAR IT - master's AI wants it (searches_for_item) but master's wear list never puts it on, a mismatch original to the 2019 patch against its own "should match" comments; the branch adds it to the accept list with a branch-only extra_pref() score of 10 (a worn one makes the monster see an invisible hero at every mon_prop(SEE_INVIS) site; the species-only perceives() sites stay). (2) METALLIC ACCESSORY AC: FIX IT - material_bonus()'s metallic floor applied to every worn item in find_mac(), so a monster's iron amulet already gave -1 AC and metal rings would too, while the hero's find_ac() never had it; armor_bonus() applies the material bonus to ARMOR_CLASS only (BUG-2428, master frozen-unfixed). Folded under the OFF-arm re-scan obligation without asking: the spell-timer refcount (BUG-2430), the single-source invisibility writes (BUG-2429), the m-v-m negative-ring clamp (BUG-2431), the creation-time lift lines (BUG-2432). | maintainer |
 | 2026-10-20 | Bag of holding panic slice rulings (session 242; AskUserQuestion x3, one question each, all as recommended). (1) BONES (2026-10-19): when the hero dies while an exploding bag's contents are still flying, ITEMS LAND, BAG GONE - the bag is destroyed and what it still held lies where the bag was (its square, or the inventory of the monster, statue or container holding it), over vanilla 5.0's delete-and-panic and master's whole bag. (2) CARRIED BAG: COVERED TOO, over floor-only (vanilla destroys a carried bag's unflung contents at death). (3) PLACEMENT, re-asked after the reviewer showed addinv() at death runs pickup side effects (Archeologist label deciphering breaks illiterate conduct, an AD_MAGM artifact breaks never-had-MR): AT THE HERO'S FEET, bypassing pickup and landing effects, never sold (unpaid back to stock, the hero's own no_charge), so they skip the bones curse roll and the death inventory list. Decided without asking (technical): the floor-bag pin covers every floor explosion (SAFERHANGUP keeps the flag out of saves); the lava-flagged bags stay destroyed (narrowed to the blasting bag); a moved hero's remaining contents fly from the new square, as on master. | maintainer |
 | 2026-10-19 | Trigger line count (session 240 follow-up; AskUserQuestion x1 after a 5.0-vs-master comparison). The #put / #tip blast line keeps 5.0's doname() wording (master named the trigger with thesimpleoname() / ansimpleoname(), no BUC, no count) and names the trigger sack as it was put in or tipped, ORIGINAL COUNT, the spared indestructible object included - over leaving the post-spare count; the cursed bag's "has vanished!" line keeps counting only what is lost (same Doname2() on both trees). | maintainer |
 | 2026-10-19 | Burial hang and container slice rulings (session 240; AskUserQuestion x1, four questions, one as recommended). (1) CARRIED CONTAINER: ITS INDESTRUCTIBLE CONTENTS FALL AT THE CARRIER'S FEET, over my into-inventory pick - through the usual landing (water, lava, a hole), never sold: in a tended shop an unpaid one comes off the bill as stock and the hero's own gets no_charge; a monster's at its feet. (2) SILENT, as recommended - no new line; flooreffects()' own landing lines stay. (3) ROTTED BURIED SACK: ITS INDESTRUCTIBLE CONTENTS STAY BURIED loose, over my up-to-the-floor pick (dug up later). (4) TAKERS: the sewage creature and a sink fed a ring of hunger take the container and leave the item, over my refuse pick (the bag of devouring still refuses, ruled 2026-10-18). Minted: MED the "bag not found" panic of an exploding floor bag over a seen trap door (reviewer; pre-existing), LOW a Rider corpse out of an ice box never revives (Plan agent), LOW an exploding box on a shop floor charged twice (battery D; vanilla-shared). | maintainer |
