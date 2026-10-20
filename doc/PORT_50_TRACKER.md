@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-20, after session 243's monster
-  ring-wearing slice): 457 rows closed, 120 open (the two [~]
+- Phase 2 status (refreshed 2026-10-20, after session 244's monster
+  touch-sear slice): 458 rows closed, 122 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,8 +27,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 3 MED: unported master features (door-material colors, monster
-    touch-attack sears, the Astral Red Horse).
+  - 2 MED: unported master features (door-material colors, the
+    Astral Red Horse).
+    Session 244 closed monster touch-attack sears (BUG-2433..2437):
+    gloves, rings, boots, helm, torso armor or a bare hated body sear
+    on contact, as on master; natural elf, drow, orc, vampire and
+    demon-race heroes now take hated-material damage from weapons,
+    missiles and touches (ruled; it was message-only on both trees);
+    the polymorphed hero weighs both rings per claw and counts gloves
+    and rings in a bear hug (ruled master's shape) and body-sears
+    with a gloveless fist; sear lines read "pair of iron ..." (ruled).
     Session 243 closed monster ring-wearing (BUG-2426..2432): monsters
     with hands wear master's ring list plus the ring of see invisible
     (ruled), with the slot-scoped probe made exact on this tree, the
@@ -170,7 +178,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 100 LOW: small parity rows, quirks and watch/record-only items.
+  - 103 LOW: small parity rows, quirks and watch/record-only items.
+    Session 244 minted three: dmgval()'s blessing terms read the
+    natural hero's role monster, a shapechanged vampire-race hero
+    hates silver nowhere, and the reviewer's sear-path nits.
     Session 242 minted one (a floor container knocked down a hole
     mid-#tip or mid-#loot keeps being worked on). Session 240 closed the container row (above) and minted two: a
     Rider corpse taken out of an ice box never revives (norevive), and
@@ -1910,7 +1921,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the 2026-07-15 freeze. The rest moved to the four rows below;
       stone_missile ruled 2026-10-19 (decisions log): the item's own
       material.
-- [ ] MED: monster touch attacks never sear (minted 2026-10-19 by
+- [x] MED: monster touch attacks never sear (minted 2026-10-19 by
       the Materials umbrella audit; port gap). Master's hitmu() and
       mdamagem() add special_dmgval(magr, mdef,
       attack_contact_slots(), &hated_obj) and searmsg() for the
@@ -1919,6 +1930,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       attack_contact_slots(), so an iron golem's fist never burns an
       elf hero and a silver-gloved monster's punch never sears a
       demon. LOW-risk port (special_dmgval() takes a monster already).
+      PORTED 2026-10-20 (session 244, BUG-2433..2437, PENDING-S244).
+      Master a0651814a's attack_contact_slots() (mhitu.c, taking the
+      swung weapon: an off-hand swing can outlive the primary) feeds
+      hitmu() after the negative-AC reduction and mdamagem() before
+      the damage handler, master's positions. Scoping found the
+      reason the row's own example could not have worked even after
+      the port: mon_hates_material() read the hero's ROLE monster,
+      so a natural elf, drow, orc, vampire or demon hero took no
+      hated-material damage from anything (weapons and missiles
+      printed the recoil line only) - BUG-2434, ruled FIX IT
+      EVERYWHERE (decisions log). The polymorphed hero took
+      master's shape too (ruled): both rings on every claw or touch,
+      gloves and rings in a bear hug (BUG-2435), a gloveless fist's
+      body (BUG-2436); searmsg() reads "pair of iron ..." (ruled,
+      BUG-2437). Battery: three testers PRE/POST plus a POST3
+      wording leg, every leg PASS, paniclogs empty. Minted the three
+      LOW rows below.
 - [ ] MED: the Red Horse never comes (minted 2026-10-19 by the
       Materials umbrella audit; port gap). Master 84f8e3fa6 (2018)
       gives an Astral arrival a tame, saddled Red Horse
@@ -1941,6 +1969,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       inferred); "opening a iron container" (pickup.c); NO_MATERIAL
       passes valid_obj_material(); matdensities[] is unclamped on
       restore (a 5-bit field, 25 entries).
+- [ ] LOW: dmgval() reads the natural hero's role monster (minted
+      2026-10-20, session 244, by the touch-sear slice; master-
+      shared). dmgval() takes ptr = r_data(mdef), the role monster
+      for an unpolymorphed hero, and mon_hates_blessings() reads
+      mon->data: a blessed weapon gives no rnd(4) against a vampire,
+      draugr or demon-race hero, and a cursed one none against an
+      aasimar hero (potion.c's holy water compensates with explicit
+      Race_if() terms; dmgval() does not). Same root cause as
+      BUG-2434 (mon_hates_material(), fixed); decide whether the
+      blessing terms follow that ruling.
+- [ ] LOW: a vampire-race hero in #shapechange form hates silver
+      nowhere (minted 2026-10-20, session 244; master-shared).
+      Upolyd, so raceptr() and r_data() both give the bat / fog /
+      wolf form, and is_vampshifter() keys on the monster vampire
+      species in ->cham, which the race's forms do not carry.
+      Hate_material() and mon_hates_material() both miss it.
+- [ ] LOW: sear-path nits (minted 2026-10-20, session 244, by the
+      touch-sear slice's reviewer; master-shared). (1) dmgval()'s
+      druid / vampire wild-shape bonus (magr == hero && !uwep)
+      fires for each worn item special_dmgval() rolls and for
+      objects thrown unarmed, and runs after the noncorporeal
+      zeroing, so a druid form wearing any ring hugs or claws a
+      shade for damage. (2) dothrow.c's throw-upward `!dmg`
+      fallback adds the hated-material sear without a Barkskin /
+      Stoneskin gate, and mhitm_ad_phys()'s weapon sear runs
+      exercise(A_CON) under them (searmsg() is silent). (3)
+      hitmu() adds a negative ring of increase damage without
+      mdamagem()'s clamp at 0 (BUG-2431), so it can eat part of the
+      new contact sear when the hero's AC is not negative.
 - [x] Object properties (oprops)
       PORTED + REVIEWED 2026-07-15 (subagent-ported 33 files
       +~1400, reviewer CONDITIONAL FAIL -> all findings fixed by
@@ -2474,7 +2531,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       kit-array splits were ruled 2026-10-19 (decisions log): each
       player-monster rolls its own kit. Minted the three rows below.
 - [x] MED: monster ring-wearing PORTED 2026-10-20 (session 243,
-      BUG-2426..2432, PENDING-S243; minted 2026-10-19 by the Racial
+      BUG-2426..2432, a951ed2a4; minted 2026-10-19 by the Racial
       monsters umbrella audit; its B2 deferral map was the only owner).
       Master 5880eed5f (2019, the Monster Ring patch) and its fixes:
       W_RINGL / W_RINGR in m_dowear() with the empty-hand-first order
@@ -31147,6 +31204,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | Monster touch-sear slice rulings (session 244; AskUserQuestion x2, three questions, all as recommended). (1) HERO RACE: FIX IT EVERYWHERE - mon_hates_material() read the role monster for an unpolymorphed hero, so natural elf / drow (iron), orc (mithril) and vampire / demon-race (silver) heroes took no hated-material damage from weapons, missiles or (after the port) touches, only the recoil line; an unpolymorphed hero now also hates what raceptr() hates (BUG-2434, master frozen-unfixed), over a touch-sears-only fix and master parity. Accepted cost spelled out: +1..6 (mean ~3) per iron or mithril hit, +1..20 (mean ~10.5) per silver hit, and monster weapon AI preferring silver against vampire heroes. (2) POLYMORPHED HERO: MASTER'S SHAPE (a0651814a, authored on master) - one attack_contact_slots() for monsters and the hero; every claw or touch weighs both rings, a bear hug also counts gloves and rings (BUG-2435); barehanded double punches keep 5.0's per-hand ring (the double_punch ruling). Folded under its rationale without asking: a gloveless fist's body sear (BUG-2436). (3) SEAR WORDING (asked after battery C): "pair of iron ..." - the material follows a leading "pair of " / "set of ", as xname() places it (BUG-2437, master frozen-unfixed). | maintainer |
 | 2026-10-20 | Monster ring-wearing port rulings (session 243; AskUserQuestion x1, two questions, both as recommended). (1) RING OF SEE INVISIBLE: WEAR IT - master's AI wants it (searches_for_item) but master's wear list never puts it on, a mismatch original to the 2019 patch against its own "should match" comments; the branch adds it to the accept list with a branch-only extra_pref() score of 10 (a worn one makes the monster see an invisible hero at every mon_prop(SEE_INVIS) site; the species-only perceives() sites stay). (2) METALLIC ACCESSORY AC: FIX IT - material_bonus()'s metallic floor applied to every worn item in find_mac(), so a monster's iron amulet already gave -1 AC and metal rings would too, while the hero's find_ac() never had it; armor_bonus() applies the material bonus to ARMOR_CLASS only (BUG-2428, master frozen-unfixed). Folded under the OFF-arm re-scan obligation without asking: the spell-timer refcount (BUG-2430), the single-source invisibility writes (BUG-2429), the m-v-m negative-ring clamp (BUG-2431), the creation-time lift lines (BUG-2432). | maintainer |
 | 2026-10-20 | Bag of holding panic slice rulings (session 242; AskUserQuestion x3, one question each, all as recommended). (1) BONES (2026-10-19): when the hero dies while an exploding bag's contents are still flying, ITEMS LAND, BAG GONE - the bag is destroyed and what it still held lies where the bag was (its square, or the inventory of the monster, statue or container holding it), over vanilla 5.0's delete-and-panic and master's whole bag. (2) CARRIED BAG: COVERED TOO, over floor-only (vanilla destroys a carried bag's unflung contents at death). (3) PLACEMENT, re-asked after the reviewer showed addinv() at death runs pickup side effects (Archeologist label deciphering breaks illiterate conduct, an AD_MAGM artifact breaks never-had-MR): AT THE HERO'S FEET, bypassing pickup and landing effects, never sold (unpaid back to stock, the hero's own no_charge), so they skip the bones curse roll and the death inventory list. Decided without asking (technical): the floor-bag pin covers every floor explosion (SAFERHANGUP keeps the flag out of saves); the lava-flagged bags stay destroyed (narrowed to the blasting bag); a moved hero's remaining contents fly from the new square, as on master. | maintainer |
 | 2026-10-19 | Trigger line count (session 240 follow-up; AskUserQuestion x1 after a 5.0-vs-master comparison). The #put / #tip blast line keeps 5.0's doname() wording (master named the trigger with thesimpleoname() / ansimpleoname(), no BUC, no count) and names the trigger sack as it was put in or tipped, ORIGINAL COUNT, the spared indestructible object included - over leaving the post-spare count; the cursed bag's "has vanished!" line keeps counting only what is lost (same Doname2() on both trees). | maintainer |
