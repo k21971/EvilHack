@@ -639,6 +639,14 @@ mon_hates_material(struct monst *mon, int material)
     if (hates_material(r_data(mon), material))
         return TRUE;
 
+    /* the unpolymorphed hero's own entry is the role's monster, which
+     * is always human; the race carries the aversion (iron for elves
+     * and drow, mithril for orcs, silver for vampires and demons), as
+     * Hate_material() already reckons it */
+    if (mon == &gy.youmonst && !Upolyd
+        && hates_material(raceptr(mon), material))
+        return TRUE;
+
     /* extra case: shapeshifted vampires still hate silver */
     if (material == SILVER && is_vampshifter(mon))
         return TRUE;
