@@ -1154,8 +1154,8 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
             }
             if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
                 return FALSE;
-            mtmp->mhp -= rnd(dam) + 5;
-            if (DEADMONSTER(mtmp)) {
+            if (damage_mon(mtmp, rnd(dam) + 5, AD_DRST,
+                           heros_fault(reg))) {
                 if (heros_fault(reg)) {
                     killed(mtmp);
                 } else {

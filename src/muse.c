@@ -240,8 +240,7 @@ precheck(struct monst *mon, struct obj *obj)
                         ? "nearby" : "in the distance");
         }
         m_useup(mon, obj);
-        mon->mhp -= dam;
-        if (DEADMONSTER(mon)) {
+        if (damage_mon(mon, dam, AD_RBRE, FALSE)) {
             monkilled(mon, "", AD_RBRE);
             return 1;
         }
@@ -2546,7 +2545,7 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                 shieldeff(mtmp->mx, mtmp->my);
             } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                        && !DEADMONSTER(mtmp)) {
-                (void) damage_mon(mtmp, dmg, AD_DRLI, TRUE);
+                (void) damage_mon(mtmp, dmg, AD_DRLI, FALSE);
                 mtmp->mhpmax -= dmg;
                 if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0
                     || mtmp->m_lev < 1) {
@@ -2590,7 +2589,7 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                 dmg += otmp->ocarry->m_lev / 3;
             if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                 && !DEADMONSTER(mtmp)) {
-                (void) damage_mon(mtmp, dmg, AD_MAGM, TRUE);
+                (void) damage_mon(mtmp, dmg, AD_MAGM, FALSE);
                 if (canseemon(mtmp))
                     pline_mon(mtmp, "%s %s in %s!", Monnam(mtmp),
                               rn2(2) ? "withers" : "shudders",
@@ -4769,11 +4768,12 @@ muse_unslime(
         /* monster is using fire breath on self */
         if (vis)
             pline_mon(mon, "%s.",
-                      monverbself(mon, Monnam(mon), "breath", "fire on"));
+                      monverbself(mon, Monnam(mon), "breathe", "fire on"));
         if (!rn2(3))
             mon->mbreath_attk = rn1(10, 5);
-        /* -21 => monster's fire breath; 1 => # of damage dice */
-        dmg = zhitm(mon, by_you ? 21 : -21, 1, &odummyp);
+        /* fire breath; 1 => # of damage dice */
+        dmg = zhitm(mon, by_you ? BZ_U_BREATH(ZT_FIRE)
+                                : BZ_M_BREATH(ZT_FIRE), 1, &odummyp);
     } else if (otyp == SCR_FIRE) {
         mreadmsg(mon, obj);
         if (mon->mconf) {
@@ -4834,8 +4834,9 @@ muse_unslime(
             mplayhorn(mon, obj, TRUE);
         else
             mzapwand(mon, obj, TRUE);
-        /* -1 => monster's wand of fire; 2 => # of damage dice */
-        dmg = zhitm(mon, by_you ? 1 : -1, 2, &odummyp);
+        /* wand of fire; 2 => # of damage dice */
+        dmg = zhitm(mon, by_you ? BZ_U_WAND(ZT_FIRE)
+                                : BZ_M_WAND(ZT_FIRE), 2, &odummyp);
     }
 
     if (dmg) {

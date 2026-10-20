@@ -239,11 +239,11 @@ flooreffects(
                     if (svc.context.mon_moving) {
                         /* normally we'd use ohitmon() but it can call
                            drop_throw() which calls flooreffects();
-                           the boulder-pusher isn't tracked here, so
-                           no attacker */
+                           damage_mon() applies SPFX_HPHDAM halving
+                           centrally for AD_PHYS; the boulder-pusher
+                           isn't tracked here, so no attacker */
                         damage = dmgval((struct monst *) 0, obj, mtmp);
-                        mtmp->mhp -= damage;
-                        if (DEADMONSTER(mtmp)) {
+                        if (damage_mon(mtmp, damage, AD_PHYS, FALSE)) {
                             if (canspotmon(mtmp))
                                 pline("%s is %s!", Monnam(mtmp),
                                       (nonliving(mtmp->data)

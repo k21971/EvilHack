@@ -49,6 +49,7 @@ staticfn struct permonst *accept_newcham_form(struct monst *, int);
 staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
 staticfn short m_chooserace(unsigned long);
+staticfn int scale_mon_damage(struct monst *, int, int) NONNULLARG1;
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -1303,9 +1304,13 @@ minliquid_core(struct monst *mtmp)
 
         if (cansee(mtmp->mx, mtmp->my))
             pline_mon(mtmp, "%s rusts.", Monnam(mtmp));
-        mtmp->mhp -= dam;
+        /* not quite accurate, but no resistance to rusting */
+        (void) damage_mon(mtmp, dam, AD_PHYS, FALSE);
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= dam;
+        /* the max HP loss is not halved like the damage can be */
+        if (mtmp->mhp > mtmp->mhpmax)
+            mtmp->mhp = mtmp->mhpmax;
         if (DEADMONSTER(mtmp)) {
             mondied(mtmp);
             if (DEADMONSTER(mtmp))
@@ -1467,7 +1472,7 @@ minliquid_core(struct monst *mtmp)
                  || is_sewage(mtmp->mx, mtmp->my))) {
             /* as mhp gets lower, the rate of further loss slows down */
             if (mtmp->mhp > 1 && rn2(mtmp->mhp) > rn2(8))
-                mtmp->mhp--;
+                (void) damage_mon(mtmp, 1, AD_PHYS, FALSE);
             monflee(mtmp, 2, FALSE, FALSE);
         }
     }
@@ -5574,8 +5579,7 @@ corpse_chance(
                            KILLED_BY_AN);
                 } else {
                     You_hear("an explosion.");
-                    magr->mhp -= tmp;
-                    if (DEADMONSTER(magr)) {
+                    if (damage_mon(magr, tmp, AD_PHYS, FALSE)) {
                         /* swallowed pet gas spore rips its engulfer
                            open; parity with the exploder credit for
                            normal spore blasts */
@@ -7501,19 +7505,41 @@ healmon(struct monst *mtmp, int amt, int overheal)
     }
 }
 
+/* EvilHack. Scale damage of the given type for mon: a monster
+   vulnerable to the element takes half again as much, and one with an
+   SPFX_HPHDAM artifact takes half of physical damage (the monster
+   equivalent of Half_physical_damage; gated on AD_PHYS so elemental
+   and spell adtypes aren't affected here) */
+staticfn int
+scale_mon_damage(struct monst *mon, int amount, int type)
+{
+    if (vulnerable_to(mon, type))
+        amount = ((amount * 3) + 1) / 2;
+
+    if (type == AD_PHYS && amount > 0
+        && mon_arti_has_spfx(mon, SPFX_HPHDAM))
+        amount = (amount + 1) / 2;
+
+    return amount;
+}
+
 /* EvilHack. Central monster-damage router: damages mon by amount of
-   type and reports whether it should have died. TODO-EVILHACK: the
-   vulnerability multiplier, SPFX_HPHDAM artifact halving, monster
-   spellbook-reading interruption, and hero-facing damage display
-   return here with their subsystems */
+   type, handling vulnerabilities, half physical damage, monster
+   spellbook reading interruption, and the showmondamage display for
+   damage the hero dealt. Returns whether mon should have died. The
+   remaining raw mon->mhp -= sites are deliberate exceptions: the
+   long worm shrink attrition, the withering per-turn tick, the
+   cloning HP-pool split, and zhitm(), which inlines its own
+   vulnerability and SPFX_HSPDAM so it can return the damage dealt */
 boolean
 damage_mon(struct monst *mon, int amount, int type, boolean by_you)
 {
-    /* TODO-EVILHACK: vulnerability scaling, HPHDAM artifact halving,
-       and damage display port with the damage_mon core slice */
-    nhUse(type);
-    nhUse(by_you);
+    amount = scale_mon_damage(mon, amount, type);
     mon->mhp -= amount;
+    /* a caller's max HP cut (level drain) is not halved like the
+       damage can be; don't leave mhp above it */
+    if (mon->mhp > mon->mhpmax)
+        mon->mhp = mon->mhpmax;
 
     /* interrupt spellbook reading - being attacked breaks
        concentration */
@@ -7521,6 +7547,9 @@ damage_mon(struct monst *mon, int amount, int type, boolean by_you)
         EMSP(mon)->msp_reading = 0;
         EMSP(mon)->msp_read_turns = 0;
     }
+
+    if (by_you)
+        showmondamage(mon, amount);
 
     return (DEADMONSTER(mon)) ? TRUE : FALSE;
 }
@@ -7534,9 +7563,10 @@ boolean
 damage_mon_nonlethal(struct monst *mon, int amount, int type,
                      boolean by_you)
 {
-    nhUse(type);
-    nhUse(by_you);
+    amount = scale_mon_damage(mon, amount, type);
     mon->mhp -= amount;
+    if (mon->mhp > mon->mhpmax)
+        mon->mhp = mon->mhpmax;
     if (mon->mhp < 1)
         mon->mhp = 1;
 
@@ -7544,6 +7574,9 @@ damage_mon_nonlethal(struct monst *mon, int amount, int type,
         EMSP(mon)->msp_reading = 0;
         EMSP(mon)->msp_read_turns = 0;
     }
+
+    if (by_you)
+        showmondamage(mon, amount);
 
     return FALSE;
 }

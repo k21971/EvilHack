@@ -2153,8 +2153,10 @@ trapeffect_fire_trap(
             if (alt > num)
                 num = alt;
 
-            if (thitm(0, mtmp, (struct obj *) 0, num, immolate,
-                      trap->madeby_u ? TRUE : FALSE))
+            /* immolation is a kill; doubled because damage_mon()
+               halves physical damage for an SPFX_HPHDAM carrier */
+            if (thitm(0, mtmp, (struct obj *) 0, immolate ? 2 * num : num,
+                      immolate, trap->madeby_u ? TRUE : FALSE))
                 trapkilled = TRUE;
             else {
                 mtmp->mhpmax -= rn2(num + 1);
@@ -2165,12 +2167,12 @@ trapeffect_fire_trap(
         if (burnarmor(mtmp) || rn2(3)) {
             int xtradmg = destroy_items(mtmp, AD_FIRE, orig_dmg);
             ignite_items(mtmp->minvent);
-            if (!DEADMONSTER(mtmp)) {
-                mtmp->mhp -= xtradmg;
-                if (DEADMONSTER(mtmp)) { /* NOW it's dead */
-                    monkilled(mtmp, "", AD_FIRE);
-                    trapkilled = TRUE;
-                }
+            if (!DEADMONSTER(mtmp)
+                && damage_mon(mtmp, xtradmg, AD_FIRE,
+                              trap->madeby_u ? TRUE : FALSE)) {
+                /* NOW it's dead */
+                monkilled(mtmp, "", AD_FIRE);
+                trapkilled = TRUE;
             }
         }
         if (burn_floor_objects(tx, ty, see_it, FALSE)
@@ -2237,12 +2239,12 @@ trapeffect_ice_trap(
             } else if (!rn2(2)) {
                 int xtradmg = destroy_items(mtmp, AD_COLD, num);
 
-                if (!DEADMONSTER(mtmp)) {
-                    mtmp->mhp -= xtradmg;
-                    if (DEADMONSTER(mtmp)) { /* NOW it's dead */
-                        monkilled(mtmp, "", AD_COLD);
-                        trapkilled = TRUE;
-                    }
+                if (!DEADMONSTER(mtmp)
+                    && damage_mon(mtmp, xtradmg, AD_COLD,
+                                  trap->madeby_u ? TRUE : FALSE)) {
+                    /* NOW it's dead */
+                    monkilled(mtmp, "", AD_COLD);
+                    trapkilled = TRUE;
                 }
             }
         }
@@ -6543,8 +6545,7 @@ try_disarm(
                 if (ttype == BEAR_TRAP) {
                     if (mtmp->mtame)
                         abuse_dog(mtmp);
-                    mtmp->mhp -= rnd(4);
-                    if (DEADMONSTER(mtmp))
+                    if (damage_mon(mtmp, rnd(4), AD_PHYS, TRUE))
                         killed(mtmp);
                 } else if (ttype == WEB) {
                     struct trap *ttmp2 = t_at(u.ux, u.uy);

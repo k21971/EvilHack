@@ -384,7 +384,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
         }
         break;
     case WAN_SPEED_MONSTER:
-        if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+        if (!resist(mtmp, otmp->oclass, 0, NOTELL) || mtmp->mtame) {
             if (disguised_mimic)
                 seemimic(mtmp);
             mon_adjust_speed(mtmp, 1, otmp);
@@ -877,7 +877,7 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             shieldeff_mon(mtmp);
         } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                    && !DEADMONSTER(mtmp)) {
-            mtmp->mhp -= dmg;
+            (void) damage_mon(mtmp, dmg, AD_DRLI, TRUE);
             mtmp->mhpmax -= dmg;
             /* die if already level 0, regardless of hit points */
             if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0 || mtmp->m_lev < 1) {
@@ -5565,6 +5565,9 @@ zhitm(
     int damgtype = BASE_ZT(zaptype(type));
     boolean sho_shieldeff = FALSE;
     boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
+    /* captured before the death arms set type to -1 */
+    boolean hero_ray = (type >= 0),
+            breath = (zaptype(type) >= ZT_BREATH(0));
 
     *ootmp = (struct obj *) 0;
     switch (damgtype) {
@@ -5592,8 +5595,6 @@ zhitm(
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         orig_dmg = tmp; /* includes spell bonus but not monster vuln to fire */
-        if (resists_cold(mon))
-            tmp += 7;
         if (burnarmor(mon)) {
             if (!rn2(3)) {
                 tmp += destroy_items(mon, AD_FIRE, orig_dmg);
@@ -5610,8 +5611,6 @@ zhitm(
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         orig_dmg = tmp; /* includes spell bonus but not monster vuln to cold */
-        if (resists_fire(mon))
-            tmp += d(nd, 3);
         if (!rn2(3))
             tmp += destroy_items(mon, AD_COLD, orig_dmg);
         break;
@@ -5809,14 +5808,31 @@ zhitm(
         tmp /= 2;
     if (tmp < 0)
         tmp = 0; /* don't allow negative damage */
+    /* vulnerability and the monster equivalent of Half_spell_damage are
+       applied here rather than via damage_mon() so that the damage
+       dealt can be returned; water, drain and stun have no vulnerable
+       element */
+    if (vulnerable_to(mon, damgtype + 1))
+        tmp = ((3 * tmp) + 1) / 2;
+    /* wand and spell rays from anyone are halved, breath attacks do full
+       damage (as for the hero in zhitu()), and type -1 marks a death
+       arm's no-saving-throw kill */
+    if (tmp > 0 && !breath && type != -1
+        && mon_arti_has_spfx(mon, SPFX_HSPDAM))
+        tmp = (tmp + 1) / 2;
     debugpline3("zapped monster hp = %d (= %d - %d)", mon->mhp - tmp,
                 mon->mhp, tmp);
     mon->mhp -= tmp;
+    /* a drain breath's max HP cut is not halved by a saving throw */
+    if (mon->mhp > mon->mhpmax)
+        mon->mhp = mon->mhpmax;
     /* interrupt spellbook reading - being zapped breaks concentration */
     if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
         EMSP(mon)->msp_reading = 0;
         EMSP(mon)->msp_read_turns = 0;
     }
+    if (hero_ray && tmp != MAGIC_COOKIE)
+        showmondamage(mon, tmp);
     return tmp;
 }
 
@@ -7641,7 +7657,9 @@ mon_charge_ring(struct monst *mon, struct obj *obj, boolean vis)
                   otense(obj, "explode"));
         dmg = rnd(3 * abs(obj->spe));
         /* the blast is physical; mirror the Half_physical_damage
-           halving the hero gets */
+           halving the hero gets. A blast folded into a physical blow
+           (a shocking grasp or shock artifact hit) is halved again by
+           damage_mon() along with the rest of that blow */
         if (mon_arti_has_spfx(mon, SPFX_HPHDAM))
             dmg = (dmg + 1) / 2;
         m_useup(mon, obj); /* takes care of a worn ring */
@@ -8036,7 +8054,7 @@ int
 resist(struct monst *mtmp, char oclass, int damage, int tell)
 {
     int resisted;
-    int alev, dlev;
+    int alev, dlev, eff_mr;
 
     /* fake players always pass resistance test against Conflict
        (this doesn't guarantee that they're never affected by it) */
@@ -8074,18 +8092,30 @@ resist(struct monst *mtmp, char oclass, int damage, int tell)
     else if (dlev < 1)
         dlev = is_mplayer(mtmp->data) ? u.ulevel : 1;
 
-    resisted = rn2(100 + alev - dlev) < mtmp->data->mr;
+    /* every level of MC the monster would have as a player (from worn
+       armor a_can, ring of protection, amulet of guarding, SPFX_PROTECT
+       artifacts, or innate priest/minion grace) adds +20 to its
+       effective mr%; clamp to 100 so stacked sources never overflow */
+    eff_mr = mtmp->data->mr + magic_negation(mtmp) * 20;
+    if (eff_mr > 100)
+        eff_mr = 100;
+    resisted = rn2(100 + alev - dlev) < eff_mr;
     if (resisted) {
         if (tell)
             shieldeff_mon(mtmp);
         damage = (damage + 1) / 2;
     }
 
+    /* monster equivalent of Half_spell_damage; resist() is only called
+       for magical/spell damage (breath attacks bypass it and go through
+       zhitm() directly) so no adtyp gate is needed here */
+    if (damage > 0 && mon_arti_has_spfx(mtmp, SPFX_HSPDAM))
+        damage = (damage + 1) / 2;
+
     if (damage) {
         int saved_mhp = mtmp->mhp; /* for print_mon_wounded() */
 
-        mtmp->mhp -= damage;
-        if (DEADMONSTER(mtmp)) {
+        if (damage_mon(mtmp, damage, AD_RBRE, !gm.m_using)) {
             if (gm.m_using) {
                 if (gb.buzzer && gb.buzzer->mtame)
                     set_pet_killer(gb.buzzer);

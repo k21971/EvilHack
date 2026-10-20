@@ -2754,7 +2754,7 @@ hmon_hitmon(
                so we test for 1; 0 shouldn't be able to happen here... */
             && hmd.dmg > 0 && u.uconduct.weaphit <= 1)
             first_weapon_hit(obj);
-        mon->mhp -= hmd.dmg;
+        (void) damage_mon(mon, hmd.dmg, AD_PHYS, TRUE);
     }
     /* adjustments might have made tmp become less than what
        a level-draining artifact has already done to max HP */
@@ -3967,7 +3967,7 @@ mhitm_ad_drli(
                 if (mdef->mhpmax > (int) mdef->m_lev)
                     mdef->mhpmax = (int) mdef->m_lev + 1;
             }
-            mdef->mhp -= mhm->damage;
+            (void) damage_mon(mdef, mhm->damage, AD_DRLI, TRUE);
             /* !m_lev: level 0 monster is killed regardless of hit points
                rather than drop to level -1; note: some non-living creatures
                (golems, vortices) are subject to life-drain */
@@ -6977,14 +6977,16 @@ mhitm_ad_phys(
                 } else if (rn2(30)) {
                     mhm->damage += rnd(6);
                 } else {
-                    /* lethal dose; raise the damage to the victim's
-                       remaining hit points so the caller's ordinary
-                       kill path handles the death, keeping growth and
-                       pet-kill attribution on the usual route */
+                    /* lethal dose; raise the damage to twice the
+                       victim's remaining hit points so the caller's
+                       ordinary kill path handles the death, keeping
+                       growth and pet-kill attribution on the usual
+                       route; doubled because damage_mon() halves
+                       physical damage for an SPFX_HPHDAM carrier */
                     if (gv.vis && canspotmon(mdef))
                         pline_The("poison was deadly...");
-                    if (mhm->damage < mdef->mhp)
-                        mhm->damage = mdef->mhp;
+                    if (mhm->damage < 2 * mdef->mhp)
+                        mhm->damage = 2 * mdef->mhp;
                 }
                 if (!permapoisoned(mwep)) {
                     int nopoison = (10 - (mwep->owt / 10));
@@ -7924,8 +7926,7 @@ damageum(
         return mhm.hitflags;
 
     mdef->mstrategy &= ~STRAT_WAITFORU; /* in case player is very fast */
-    mdef->mhp -= mhm.damage;
-    if (DEADMONSTER(mdef)) {
+    if (damage_mon(mdef, mhm.damage, (int) mattk->adtyp, TRUE)) {
         /* troll killed by Trollsbane won't auto-revive; FIXME? same when
            Trollsbane is wielded as primary and two-weaponing kills with
            secondary, which matches monster vs monster behavior but is
@@ -8308,8 +8309,7 @@ gulpum(struct monst *mdef, struct attack *mattk)
                 break;
             }
             end_engulf();
-            mdef->mhp -= dam;
-            if (DEADMONSTER(mdef)) {
+            if (damage_mon(mdef, dam, (int) mattk->adtyp, TRUE)) {
                 killed(mdef);
                 if (DEADMONSTER(mdef)) /* not lifesaved */
                     return M_ATTK_DEF_DIED;
@@ -10404,7 +10404,7 @@ light_hits_light_hater(struct monst *mon, int dmg)
     } else if (canseemon(mon)) {
         pline_mon(mon, "%s recoils from the light!", Monnam(mon));
     }
-    mon->mhp -= dmg;
+    (void) damage_mon(mon, dmg, AD_BLND, !svc.context.mon_moving);
     wake_nearto(mon->mx, mon->my, 30);
     if (DEADMONSTER(mon)) {
         if (svc.context.mon_moving)

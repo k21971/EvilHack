@@ -63,8 +63,7 @@
      || gy.youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
 
 /* vulnerable_to() (mondata.c) reads these through gy.youmonst;
-   the remaining master consumers (damage_mon central scaling,
-   combat-arm messages) port with the vulnerability-consumers item.
+   for monsters, damage_mon() and zhitm() apply its 1.5x scaling.
    The word arms mask out FROMFORM: that bit is a poly-time snapshot
    (polyself's PROPSET, kept for from_what() attribution) of the same
    fact vulnerable_to() re-derives live with its full-resistance

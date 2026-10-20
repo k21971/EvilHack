@@ -4829,7 +4829,28 @@ showdamage(int dmg)
     if (!iflags.showdamage || !dmg)
         return;
 
-    pline("[HP %i, %i left]", -dmg, Upolyd ? u.mh : u.uhp);
+    if ((Upolyd ? u.mh : u.uhp) <= 0)
+        pline("(HP %i, killed)", -dmg);
+    else
+        pline("(HP %i, %i left)", -dmg, Upolyd ? u.mh : u.uhp);
+}
+
+/* show a message how much damage the monster the hero is attacking
+   received (debug mode only) */
+void
+showmondamage(struct monst *mtmp, int mondmg)
+{
+    if (!wizard)
+        return;
+
+    if (!iflags.showmondamage || !mondmg)
+        return;
+
+    if (DEADMONSTER(mtmp))
+        pline("(MHP %i, %s)", -mondmg,
+              nonliving(mtmp->data) ? "destroyed" : "killed");
+    else
+        pline("(MHP %i, %i left)", -mondmg, mtmp->mhp);
 }
 
 void

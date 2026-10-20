@@ -682,6 +682,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(showexp, Status, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.showexp, Term_False,
            "show experience points in status line")
+    NHOPTB(showmondamage, Advanced, 0, opt_in, set_wizonly,
+           Off, Yes, No, No, NoAlias, &iflags.showmondamage, Term_False,
+           "show damage monsters take from you in message line")
     NHOPTB(showrace, Map, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &flags.showrace, Term_False,
            "show your character by race rather than role")

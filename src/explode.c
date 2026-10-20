@@ -551,7 +551,9 @@ explode(
                      * this is imperfect and marginal (burning items only
                      * deal 1 damage), ignore it for golemeffects(). */
                     golemeffects(mtmp, (int) adtyp, dam);
-                    mtmp->mhp -= itemdmg; /* item destruction dmg */
+                    /* item destruction dmg */
+                    (void) damage_mon(mtmp, itemdmg, (int) adtyp,
+                                      !svc.context.mon_moving);
                 } else {
                     /* Call resist with 0 and do damage manually so 1) we can
                      * get out the message before doing the damage, and 2) we
@@ -570,15 +572,10 @@ explode(
                        gets hit by double damage */
                     if (grabbed && mtmp == u.ustuck && next2u(x, y))
                         mdam *= 2;
-                    /* being resistant to opposite type of damage makes
-                       target more vulnerable to current type of damage
-                       (when target is also resistant to current type,
-                       we won't get here) */
-                    if (resists_cold(mtmp) && adtyp == AD_FIRE)
-                        mdam *= 2;
-                    else if (resists_fire(mtmp) && adtyp == AD_COLD)
-                        mdam *= 2;
-                    mtmp->mhp -= mdam + itemdmg;
+                    /* elemental vulnerability is applied by damage_mon(),
+                       to the item destruction damage as well */
+                    (void) damage_mon(mtmp, mdam + itemdmg, (int) adtyp,
+                                      !svc.context.mon_moving);
                 }
                 if (DEADMONSTER(mtmp)) {
                     int xkflg = ((adtyp == AD_FIRE
@@ -662,8 +659,6 @@ explode(
                that victim might have been killed when hit by the blast) */
             if (grabbing && dist2((int) grabxy.x, (int) grabxy.y, x, y) <= 2)
                 damu *= 2;
-            /* hero does not get same fire-resistant vs cold and
-               cold-resistant vs fire double damage as monsters [why not?] */
             if (Upolyd)
                 u.mh -= damu;
             else

@@ -166,9 +166,8 @@ missmm(
         && mon_hates_material(magr, blocker->material)
         && !(has_barkskin(magr) || has_stoneskin(magr))) {
         searmsg(mdef, magr, blocker, FALSE);
-        /* glancing blow. master notes here that damage_mon() applies
-           the SPFX_HPHDAM halving centrally for AD_PHYS; on this branch
-           damage_mon is still the stub, so that arrives with it */
+        /* glancing blow; damage_mon() applies the SPFX_HPHDAM halving
+           for AD_PHYS, matching the hero-symmetric site in mhitu.c */
         if (damage_mon(magr, rnd(sear_damage(blocker->material) / 2),
                        AD_PHYS, FALSE)) {
             if (mdef->mtame)
@@ -1596,10 +1595,16 @@ mdamagem(
                       makeplural(mbodypart(magr, HAND)), mon_nam(mdef));
         } else {
             if (gv.vis && canseemon(magr))
-                pline("%s burns %s with %s %s!", Monnam(magr),
+                pline("%s %s %s with %s %s!", Monnam(magr),
+                      vulnerable_to(mdef, AD_FIRE) ? "severely burns"
+                          : can_vaporize(mdef->data) ? "vaporizes part of"
+                          : "burns",
                       mon_nam(mdef), mhis(magr),
                       makeplural(mbodypart(magr, HAND)));
-            mhm.damage += firedmg;
+            /* monster equivalent of Half_spell_damage; the item blast
+               below keeps the full spell damage as its scale */
+            mhm.damage += mon_arti_has_spfx(mdef, SPFX_HSPDAM)
+                              ? (firedmg + 1) / 2 : firedmg;
             if (!rn2(4))
                 mhm.damage += destroy_items(mdef, AD_FIRE, firedmg);
         }
@@ -1624,9 +1629,12 @@ mdamagem(
         } else {
             if (gv.vis && canseemon(magr))
                 pline("%s %s %s with %s %s!", Monnam(magr),
-                      rn2(2) ? "jolts" : "shocks", mon_nam(mdef),
-                      mhis(magr), makeplural(mbodypart(magr, HAND)));
-            mhm.damage += elecdmg;
+                      vulnerable_to(mdef, AD_ELEC) ? "severely shocks"
+                          : rn2(2) ? "jolts" : "shocks",
+                      mon_nam(mdef), mhis(magr),
+                      makeplural(mbodypart(magr, HAND)));
+            mhm.damage += mon_arti_has_spfx(mdef, SPFX_HSPDAM)
+                              ? (elecdmg + 1) / 2 : elecdmg;
             if (!rn2(4))
                 mhm.damage += destroy_items(mdef, AD_ELEC, elecdmg);
         }
@@ -1639,8 +1647,7 @@ mdamagem(
     if (!mhm.damage)
         return mhm.hitflags;
 
-    mdef->mhp -= mhm.damage;
-    if (mdef->mhp < 1) {
+    if (damage_mon(mdef, mhm.damage, (int) mattk->adtyp, FALSE)) {
         if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */
             remove_monster(mdef->mx, mdef->my);
             mdef->mhp = 1; /* otherwise place_monster will complain */
@@ -1745,7 +1752,7 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
                 pline("%s shudders!", Before);
 
             dmg += (mdef->mhpmax + 1) / 2;
-            mdef->mhp -= dmg;
+            (void) damage_mon(mdef, dmg, AD_RBRE, magr == &gy.youmonst);
             dmg = 0;
             if (DEADMONSTER(mdef)) {
                 if (magr == &gy.youmonst) {
@@ -2455,7 +2462,7 @@ passivemm(
         tmp = 0;
 
  assess_dmg:
-    if ((magr->mhp -= tmp) <= 0) {
+    if (damage_mon(magr, tmp, (int) mdattk[i].adtyp, FALSE)) {
         gz.zombify = FALSE; /* attacker's corpse never zombifies */
         if (mdef->mtame)
             set_pet_killer(mdef);

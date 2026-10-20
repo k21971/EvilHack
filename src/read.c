@@ -2993,8 +2993,7 @@ drop_boulder_on_monster(coordxy x, coordxy y, boolean confused, boolean byu)
                           xname(helmet), mhim(mtmp));
             }
         }
-        mtmp->mhp -= mdmg;
-        if (DEADMONSTER(mtmp)) {
+        if (damage_mon(mtmp, mdmg, AD_PHYS, byu)) {
             if (byu) {
                 killed(mtmp);
                 /* the kill skips the anger a non-fatal hit gives; a

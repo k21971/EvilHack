@@ -1749,10 +1749,7 @@ zap_dig(void)
             if (digests(mtmp->data))
                 You("pierce %s %s wall!", s_suffix(mon_nam(mtmp)),
                     mbodypart(mtmp, STOMACH));
-            if (unique_corpstat(mtmp->data))
-                mtmp->mhp = (mtmp->mhp + 1) / 2;
-            else
-                mtmp->mhp = 1; /* almost dead */
+            mtmp->mhp = (mtmp->mhp + 1) / 2; /* not almost dead */
             expels(mtmp, mtmp->data, !digests(mtmp->data));
         }
         return;

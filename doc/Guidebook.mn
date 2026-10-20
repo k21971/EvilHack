@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 October 17, 2026
+.ds f2 October 20, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -4958,6 +4958,10 @@ and the amount of hit points left.
 .lp "showexp "
 Show your accumulated experience points on bottom line (default off).
 Persistent.
+.lp showmondamage
+Whenever a monster you're attacking takes damage, show a message of the
+damage taken, and the amount of hit points left.
+Debug mode only.
 .lp showrace
 Display yourself as the glyph for your race, rather than the glyph
 for your role (default off).

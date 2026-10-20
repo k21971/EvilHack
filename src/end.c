@@ -746,12 +746,12 @@ should_query_disclose_option(int category, char *defquery)
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
 /* check if a message is HP tracking output that should be filtered
-   from the dumplog (showdamage) */
+   from the dumplog (showdamage/showmondamage output) */
 staticfn boolean
 is_hp_tracking_msg(const char *msg)
 {
-    /* filter "[HP -X, Y left]" style messages */
-    return (msg && !strncmp(msg, "[HP ", 4));
+    /* filter "(HP -X, Y left)" and "(MHP -X, Y left)" style messages */
+    return (msg && (!strncmp(msg, "(HP ", 4) || !strncmp(msg, "(MHP ", 5)));
 }
 
 /* output the latest messages, grouping consecutive identical messages

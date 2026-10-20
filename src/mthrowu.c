@@ -675,7 +675,9 @@ ohitmon(
                 } else {
                     if (vis)
                         pline_The("poison was deadly...");
-                    damage = mtmp->mhp;
+                    /* doubled: damage_mon() halves physical damage for
+                       an SPFX_HPHDAM carrier */
+                    damage = 2 * mtmp->mhp;
                 }
             }
         }
@@ -707,7 +709,9 @@ ohitmon(
                 } else {
                     if (vis)
                         pline_The("poison was deadly...");
-                    damage = mtmp->mhp;
+                    /* doubled: damage_mon() halves physical damage for
+                       an SPFX_HPHDAM carrier */
+                    damage = 2 * mtmp->mhp;
                 }
             }
         }
@@ -751,16 +755,17 @@ ohitmon(
 
         /* might already be dead (if petrified) */
         if (!harmless && !DEADMONSTER(mtmp)) {
-            mtmp->mhp -= damage;
-            if (DEADMONSTER(mtmp)) {
+            /* don't blame hero for unknown rolling boulder trap */
+            boolean hero_blamed = (!svc.context.mon_moving
+                                   && (otmp->otyp != BOULDER || range >= 0
+                                       || otmp->otrapped));
+
+            if (damage_mon(mtmp, damage, AD_PHYS, hero_blamed)) {
                 if (vis || (verbose && !gm.mtarget))
                     pline("%s is %s!", Monnam(mtmp),
                           (nonliving(mtmp->data) || is_vampshifter(mtmp)
                            || !canspotmon(mtmp)) ? "destroyed" : "killed");
-                /* don't blame hero for unknown rolling boulder trap */
-                if (!svc.context.mon_moving
-                   && (otmp->otyp != BOULDER || range >= 0
-                       || otmp->otrapped)) {
+                if (hero_blamed) {
                     xkilled(mtmp, XKILL_NOMSG);
                 } else {
                     if (magr && magr->mtame)
@@ -1404,12 +1409,10 @@ return_from_mtoss(
                 gt.thrower = 0;
             }
             /* an artifact instakill arm may already have killed magr */
-            if (!DEADMONSTER(magr)) {
-                magr->mhp -= dmg;
-                if (DEADMONSTER(magr))
-                    monkilled(magr, canspotmon(magr) ? "" : (char *) 0,
-                              AD_PHYS);
-            }
+            if (!DEADMONSTER(magr)
+                && damage_mon(magr, dmg, AD_PHYS, FALSE))
+                monkilled(magr, canspotmon(magr) ? "" : (char *) 0,
+                          AD_PHYS);
         }
         if (notcaught) {
             (void) snuff_candle(otmp);

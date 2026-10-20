@@ -143,6 +143,7 @@ Boolean options available when running in debug mode (aka wizard mode):
 menu_tab_sep   menu formatting--do not touch
 monpolycontrol have player choose shape-changing monsters' new shapes
 montelecontrol let player choose destination for teleported monsters
+showmondamage  show damage monsters take from you
 travel_debug   show state of travel pathfinding algorithm on the map
 wizweight      include item weights in inventory display
 

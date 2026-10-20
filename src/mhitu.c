@@ -37,7 +37,7 @@ staticfn int gulpmu(struct monst *, struct attack *);
 staticfn int explmu(struct monst *, struct attack *, boolean);
 staticfn void mayberem(struct monst *, const char *, struct obj *,
                        const char *);
-staticfn int assess_dmg(struct monst *, int);
+staticfn int assess_dmg(struct monst *, int, int);
 staticfn int passiveum(struct permonst *, struct monst *, struct attack *);
 staticfn int passive_armor_dmg(struct monst *, int, int);
 staticfn int passive_disint_kill(struct monst *, boolean);
@@ -1033,7 +1033,7 @@ mattacku(struct monst *mtmp)
                 if (3 + find_mac(mtmp) <= rnd(20)) {
                     pline("%s is hit by a falling piercer (you)!",
                           Monnam(mtmp));
-                    if ((mtmp->mhp -= d(3, 6)) < 1)
+                    if (damage_mon(mtmp, d(3, 6), AD_PHYS, TRUE))
                         killed(mtmp);
                 } else
                     pline("%s is almost hit by a falling piercer (you)!",
@@ -3644,9 +3644,9 @@ mayberem(struct monst *mon,
 }
 
 staticfn int
-assess_dmg(struct monst *mtmp, int tmp)
+assess_dmg(struct monst *mtmp, int tmp, int adtyp)
 {
-    if ((mtmp->mhp -= tmp) <= 0) {
+    if (damage_mon(mtmp, tmp, adtyp, TRUE)) {
         pline_mon(mtmp, "%s dies!", Monnam(mtmp));
         xkilled(mtmp, XKILL_NOMSG);
         if (!DEADMONSTER(mtmp))
@@ -3990,7 +3990,7 @@ passiveum(
                     mon_currwep_gone(mwp2);
             }
         }
-        return assess_dmg(mtmp, tmp);
+        return assess_dmg(mtmp, tmp, (int) oldu_mattk->adtyp);
     case AD_DISN: { /* black dragon, antimatter vortex */
         boolean vortex = (gy.youmonst.data == &mons[PM_ANTIMATTER_VORTEX]),
                 /* the form that was hit, even if the blow ended it */
@@ -4013,7 +4013,7 @@ passiveum(
                     Your("%s partially disintegrates %s!",
                          vortex ? "form" : "hide", mon_nam(mtmp));
                 tmp = rn2(6) + 1;
-                return assess_dmg(mtmp, tmp);
+                return assess_dmg(mtmp, tmp, (int) oldu_mattk->adtyp);
             }
             if (canseemon(mtmp))
                 Your("deadly %s disintegrates %s!",
@@ -4099,7 +4099,7 @@ passiveum(
                 You("explode!");
                 /* KMH, balance patch -- this is okay with unchanging */
                 rehumanize();
-                return assess_dmg(mtmp, tmp);
+                return assess_dmg(mtmp, tmp, (int) oldu_mattk->adtyp);
             }
             break;
         case AD_PLYS: /* Floating eye */
@@ -4245,7 +4245,7 @@ passiveum(
     else
         tmp = 0;
 
-    return assess_dmg(mtmp, tmp);
+    return assess_dmg(mtmp, tmp, (int) oldu_mattk->adtyp);
 }
 
 struct monst *

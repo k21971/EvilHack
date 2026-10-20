@@ -2489,7 +2489,7 @@ dogaze(void)
                         ignite_items(mtmp->minvent);
                     }
                     if (dmg)
-                        mtmp->mhp -= dmg;
+                        (void) damage_mon(mtmp, dmg, AD_FIRE, TRUE);
                     if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 }

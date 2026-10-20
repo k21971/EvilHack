@@ -1829,7 +1829,9 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
     if (gs.spec_dbon_applies) {
         dbon = weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
         /* we want to possibly increase dbon, not the whole attack's
-           damage, since only dbon is elemental */
+           damage, since only dbon is elemental; damage_mon() can't
+           do it, as that would double-count the damage when the
+           weapon hits */
         if (vulnerable_to(mon, weap->attk.adtyp))
             dbon = ((3 * dbon) + 1) / 2;
         /* damage bonus doubles if Dichotomy hits a target that resists
