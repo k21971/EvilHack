@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-20, after session 244's monster
-  touch-sear slice): 458 rows closed, 123 open (the two [~]
+- Phase 2 status (refreshed 2026-10-20, after session 245's
+  damage_mon() core slice): 459 rows closed, 125 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -28,9 +28,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
   - 3 MED: unported master features (door-material colors, the
-    Astral Red Horse, the damage_mon() core with wizard-mode
-    showmondamage - minted 2026-10-20 in the session 244 follow-up:
-    an orphaned deferral, no open row owned it).
+    Astral Red Horse, explode()'s underwater rule - minted
+    2026-10-20 by session 245's census of master 61fbffdee).
+    Session 245 closed the damage_mon() core (BUG-2438..2447): the
+    router now applies the 1.5x elemental vulnerability and halves
+    physical damage for a monster carrying a half-physical-damage
+    artifact, and about 33 raw damage sites route through it as on
+    master; the wizard-mode showmondamage option prints
+    "(MHP -N, M left)" and the hero's showdamage line takes
+    master's "(HP -N, M left)" form (both ruled). Folded by ruling:
+    resist() adds +20 per point of a monster's MC to its saving
+    throw and halves resisted damage for a half-spell-damage
+    carrier; rays apply the vulnerability and halve wand and spell
+    rays (not breath, ruled master's stated intent) for a
+    half-spell-damage carrier; a monster's burning hands and
+    shocking grasp regain the halving and "severely burns" /
+    "vaporizes part of" / "severely shocks"; vanilla's
+    opposite-resistance ray and explosion bonuses are gone again
+    (a silent revert of master e5e4439e7); digging out of an
+    engulfer halves its HP. Also: pets are always sped, a fire
+    breather cures its sliming with fire (not the stun spell) and
+    "breathes" it, "deadly" poison and a paper golem's immolation
+    stay fatal through the halving (ruled), and mhp never exceeds
+    mhpmax after a halved blow.
     Session 244 closed monster touch-attack sears (BUG-2433..2437):
     gloves, rings, boots, helm, torso armor or a bare hated body sear
     on contact, as on master; natural elf, drow, orc, vampire and
@@ -180,8 +200,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 103 LOW: small parity rows, quirks and watch/record-only items.
-    Session 244 minted three: dmgval()'s blessing terms read the
+  - 105 LOW: small parity rows, quirks and watch/record-only items.
+    Session 245 minted two: spell-touch damage enters as the
+    attack's damage type (record only), and hero breath's saving
+    throw can halve the water / doused / level-0 drain kills into
+    survival. Session 244 minted three: dmgval()'s blessing terms read the
     natural hero's role monster, a shapechanged vampire-race hero
     hates silver nowhere, and the reviewer's sear-path nits.
     Session 242 minted one (a floor container knocked down a hole
@@ -1405,7 +1428,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hooks = TODO-EVILHACK; its caller sweep must include do.c
       flooreffects' boulder-into-pit m-v-m arm, raw mhp -= dmgval
       where master routes damage_mon - the comment there no longer
-      names it; noted 2026-08-26), move_chain_to -> ball.c, monst.h
+      names it; noted 2026-08-26; DISCHARGED 2026-10-20 by the
+      damage_mon() core row, BUG-2438), move_chain_to -> ball.c, monst.h
       mtk_attk field, materialnm[] UPDATED IN PLACE in decl.c -
       5.0 already carried a vanilla-ordered copy, so the enum swap
       HAD to be paired with this array (silent name-shift class!).
@@ -1957,7 +1981,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       guardian angel; the branch's do.c still calls
       gain_guardian_angel(). It was deferred only inside closed rows
       (the Infidel / roles and barding notes).
-- [ ] MED: the damage_mon() core never landed (minted 2026-10-20,
+- [x] MED: the damage_mon() core never landed (minted 2026-10-20,
       session 244 follow-up; port gap, orphaned deferral). Master's
       damage_mon() and damage_mon_nonlethal() (mon.c) scale the
       amount by 1.5x ((amount * 3 + 1) / 2) when vulnerable_to(mon,
@@ -1992,6 +2016,70 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (master's parentheses vs the branch showdamage's vanilla 5.0
       "[HP ...]" brackets), and end.c is_hp_tracking_msg() learning
       the monster prefix so dumplog grouping filters it.
+      PORTED 2026-10-20 (session 245, BUG-2438..2447, commit
+      pending).
+      The census mapped master's 114 calls (22 files): 33 branch
+      sites subtracted raw and none applied the 1.5x or the halving
+      itself before reaching the router (spec_dbon() scales only its
+      elemental dbon on an AD_PHYS blow, master's comment restored).
+      scale_mon_damage() carries master's two terms; the routers
+      clamp mhp to mhpmax (BUG-2447, reviewer MEDIUM: a halved blow
+      beside a full max-HP cut); every raw site routes with master's
+      type / by_you (assess_dmg() takes the adtyp); master's four raw
+      exceptions stay. showmondamage ported; RULED master's
+      parentheses for it and, mid-slice, for the hero's showdamage
+      too ("(HP -N, M left)" / "(HP -N, killed)"); the dumplog filter
+      takes "(HP " / "(MHP ". The cited master commits were walked
+      whole and their unported pieces folded by ruling (scope
+      question, all four): resist()'s MC save bonus and HSPDAM
+      halving (BUG-2440, with speed monster's pet exemption),
+      zhitm()'s vulnerability and HSPDAM (BUG-2441, RULED master's
+      stated intent: wand and spell rays from anyone, never breath),
+      mdamagem()'s spell-touch halving and wording (BUG-2442),
+      e5e4439e7's opposite-resistance removal (BUG-2443, a silent
+      revert), 6218b2ad8's engulfer dig-out halving (BUG-2444).
+      Found on the way: munslime()'s stun-spell literal and the
+      "breaths" typo (BUG-2445), and the "deadly" kills a halving
+      could survive (BUG-2446, RULED fix it). Accepted, master's
+      central rule: a charged-ring blast inside a physical blow is
+      halved twice for a half-physical-damage carrier. Battery: three
+      testers PRE / POST plus a delta leg on the final build, every
+      leg PASS, paniclogs empty. Minted the MED and two LOW rows
+      below.
+- [ ] MED: explode()'s underwater rule never ported (minted
+      2026-10-20 by session 245's census of master 61fbffdee; port
+      gap). Master's explode() spares a submerged monster or hero:
+      fire / acid deal only rnd(3) to a mon_underwater() monster,
+      burnarmor() and the item-destruction pass are skipped
+      underwater, and the hero arm halves fire / acid with
+      Maybe_Half_Phys() underwater and skips burn_away_slime(),
+      burnarmor(), the acid erosion and destroy_item(). BUG-1779
+      restored 61fbffdee's terms only at the sites a defended()
+      sweep touched, so explode.c has none of them. Needs a ruling
+      on a master quirk in the same hunk: its item gate
+      `!Underwater && !(adtyp == AD_FIRE || adtyp == AD_ACID)` means
+      fire and acid explosions never destroy items even on dry land
+      (scrolls, potions and spellbooks survive a fireball) - port
+      as written, or gate only underwater.
+- [ ] LOW: spell-touch damage enters as the attack's damage type
+      (minted 2026-10-20 by session 245; master quirk, record only
+      unless ruled). A monster's burning hands / shocking grasp
+      extra (mdamagem()) and the hero's (hmon_hitmon()) are added to
+      the blow and reach damage_mon() as mattk->adtyp / AD_PHYS, so
+      a fire-vulnerable target told "severely burns" takes no 1.5x
+      on the spell part, while a cold-touch attacker's burning hands
+      get the 1.5x against a cold-vulnerable target. Master the
+      same; hmonas()'s polymorphed-hero arms already route the spell
+      damage with its own element.
+- [ ] LOW: hero breath's saving throw can halve an outright kill
+      (minted 2026-10-20 by session 245's reviewer; vanilla shape,
+      more frequent with BUG-2440's MC bonus). zhitm() halves hero
+      rays (type >= 0, breath included) on a resist() success after
+      the switch, so the water breath's "The iron golem falls to
+      pieces!" / "is extinguished!" and the drain breath's level-0
+      kill (all tmp = mhp + 1) can leave the target alive after the
+      message. Fix shape: mark those arms like the death ray's
+      type = -1, or skip the halving when tmp > mhp.
 - [ ] SWEEP: base-type oc_material reads (minted 2026-10-19 by the
       Materials umbrella audit): about 88 objects[].oc_material reads
       on the branch against 65 on master. Known gaps: o_material()
@@ -5878,7 +5966,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mthrowu thrown Dirge/Harbinger iron-bars dissolve;
       vulnerable_to remaining consumers (damage_mon central 1.5x,
       mhitm/mhitu/uhitm/zhitm arms, polyself PROPSET, priest.c,
-      insight report rework); should_cleave() conjunct at the
+      insight report rework; the router, zhitm and mdamagem
+      wording DISCHARGED 2026-10-20 by the damage_mon() core row); should_cleave() conjunct at the
       Cleaver hitum line; Vecna-relics/Ashmar/Retribution worn
       acurr force-arms (DISCHARGED: Vecna in ab70e04e8, Ashmar /
       Retribution Con 2026-10-15 as BUG-2371); mon_regen !mwither
@@ -15576,7 +15665,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       showmondamage must extend end.c is_hp_tracking_msg - the
       branch filter matches only showdamage's "[HP " prefix
       (master filtered "(MHP " too), so an unfiltered monster-
-      damage line would clutter dumps and break message grouping. Archive: the options half of Documentation and
+      damage line would clutter dumps and break message grouping
+      (DISCHARGED 2026-10-20: the filter takes master's "(HP " /
+      "(MHP " prefixes, both lines ruled into master's form). Archive: the options half of Documentation and
       Guidebook Infrastructure + master e84a85d5a. RIDER
       (2026-10-19, Racial monsters umbrella closure): the umbrella's
       peaceful_to_glyph deferral rides underline_peacefuls here;
@@ -16037,7 +16128,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       minus four adjudicated adaptations: (1) gs.saved_plines/
       gs.saved_pline_index globals replace master's extern locals;
       (2) staticfn/ANSI style; (3) the filter prefix is "[HP "
-      NOT master's "(HP "/"(MHP " - branch showdamage() prints
+      NOT master's "(HP "/"(MHP " (SUPERSEDED 2026-10-20: both
+      lines ruled into master's parenthesized form, the filter
+      took master's prefixes) - branch showdamage() prints
       "[HP %i, %i left]" byte-identical to vanilla 5.0 (upstream
       adopted the feature with bracket styling; master's
       parenthesized form, its "(HP %i, killed)" variant and
@@ -31016,6 +31109,7 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-20 | "in_container:  bag not found." panic: a bag of holding exploding on the floor while the hero stands over a seen hole or trap door without falling. Items flung back onto the hero's square land through flooreffects() -> ship_object() (1b7c372f5), whose impact_drop() knocks each other pile object down 1 time in 3, the exploding bag included; a bag of holding trigger's own scatter can knock the outer floor bag down before its blast starts. Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2423 (a19f2fc8b): impact_drop() leaves an in_use object in place, and in_container() marks a floor bag in_use as soon as the blast is certain. | found (branch-fixed); not yet sent |
 | 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (a19f2fc8b): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
 | 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (a19f2fc8b, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
+| 2026-10-20 | A fire-breathing monster curing its own sliming prints "The red dragon breaths fire on itself.": muse_unslime() passes the noun "breath" as monverbself()'s verb, and vtense() makes it "breaths" (master and 3.6 printed "%s breathes fire on %sself."). Shared with Official_nh50 (muse.c). EvilHack fix BUG-2445 (commit pending): the verb is "breathe". | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31243,6 +31337,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | damage_mon() core slice rulings (session 245; AskUserQuestion x3, five questions). (1) WORDING: master's parentheses "(MHP -N, M left)" / "(MHP -N, killed|destroyed)" for the wizard-mode showmondamage line, over my bracket recommendation (to match 5.0's hero line); then, asked mid-turn by the maintainer, the hero's showdamage line also takes master's form "(HP -N, M left)" / "(HP -N, killed)", replacing vanilla 5.0's "[HP ...]", and the dumplog filter takes master's "(HP " / "(MHP " prefixes (supersedes the 2026-08-29 dumplog-grouping slice's bracket adaptation). (2) SCOPE, all four fold-ins as recommended: resist()'s MC save bonus and half-spell-damage halving (081a06725), ray and spell-touch halving (081a06725), no opposite-resistance bonus (e5e4439e7, a silent revert), engulfer dig-out halving (6218b2ad8). (3) RAY GATE: master's stated intent (as recommended) - a half-spell-damage carrier halves wand and spell rays from anyone and never breath, mirroring the hero's Half_spell_damage; master's code halves only hero rays, breath included. (4) DEADLY POISON: fix it (as recommended) - the AD_PHYS "deadly" kills pass 2 * mhp so the half-physical-damage halving cannot leave the target alive; the paper golem's fire-trap immolation folded under the same ruling. (5) Battery go-ahead (three testers concurrently). Decided without asking: display-only by_you choices, drain life as AD_DRLI, the accepted double halving of a ring blast inside a physical blow, the munslime() ray type and "breathe" fixes, zhitm() printing showmondamage for hero rays. | maintainer |
 | 2026-10-20 | Monster touch-sear slice rulings (session 244; AskUserQuestion x2, three questions, all as recommended). (1) HERO RACE: FIX IT EVERYWHERE - mon_hates_material() read the role monster for an unpolymorphed hero, so natural elf / drow (iron), orc (mithril) and vampire / demon-race (silver) heroes took no hated-material damage from weapons, missiles or (after the port) touches, only the recoil line; an unpolymorphed hero now also hates what raceptr() hates (BUG-2434, master frozen-unfixed), over a touch-sears-only fix and master parity. Accepted cost spelled out: +1..6 (mean ~3) per iron or mithril hit, +1..20 (mean ~10.5) per silver hit, and monster weapon AI preferring silver against vampire heroes. (2) POLYMORPHED HERO: MASTER'S SHAPE (a0651814a, authored on master) - one attack_contact_slots() for monsters and the hero; every claw or touch weighs both rings, a bear hug also counts gloves and rings (BUG-2435); barehanded double punches keep 5.0's per-hand ring (the double_punch ruling). Folded under its rationale without asking: a gloveless fist's body sear (BUG-2436). (3) SEAR WORDING (asked after battery C): "pair of iron ..." - the material follows a leading "pair of " / "set of ", as xname() places it (BUG-2437, master frozen-unfixed). | maintainer |
 | 2026-10-20 | Monster ring-wearing port rulings (session 243; AskUserQuestion x1, two questions, both as recommended). (1) RING OF SEE INVISIBLE: WEAR IT - master's AI wants it (searches_for_item) but master's wear list never puts it on, a mismatch original to the 2019 patch against its own "should match" comments; the branch adds it to the accept list with a branch-only extra_pref() score of 10 (a worn one makes the monster see an invisible hero at every mon_prop(SEE_INVIS) site; the species-only perceives() sites stay). (2) METALLIC ACCESSORY AC: FIX IT - material_bonus()'s metallic floor applied to every worn item in find_mac(), so a monster's iron amulet already gave -1 AC and metal rings would too, while the hero's find_ac() never had it; armor_bonus() applies the material bonus to ARMOR_CLASS only (BUG-2428, master frozen-unfixed). Folded under the OFF-arm re-scan obligation without asking: the spell-timer refcount (BUG-2430), the single-source invisibility writes (BUG-2429), the m-v-m negative-ring clamp (BUG-2431), the creation-time lift lines (BUG-2432). | maintainer |
 | 2026-10-20 | Bag of holding panic slice rulings (session 242; AskUserQuestion x3, one question each, all as recommended). (1) BONES (2026-10-19): when the hero dies while an exploding bag's contents are still flying, ITEMS LAND, BAG GONE - the bag is destroyed and what it still held lies where the bag was (its square, or the inventory of the monster, statue or container holding it), over vanilla 5.0's delete-and-panic and master's whole bag. (2) CARRIED BAG: COVERED TOO, over floor-only (vanilla destroys a carried bag's unflung contents at death). (3) PLACEMENT, re-asked after the reviewer showed addinv() at death runs pickup side effects (Archeologist label deciphering breaks illiterate conduct, an AD_MAGM artifact breaks never-had-MR): AT THE HERO'S FEET, bypassing pickup and landing effects, never sold (unpaid back to stock, the hero's own no_charge), so they skip the bones curse roll and the death inventory list. Decided without asking (technical): the floor-bag pin covers every floor explosion (SAFERHANGUP keeps the flag out of saves); the lava-flagged bags stay destroyed (narrowed to the blasting bag); a moved hero's remaining contents fly from the new square, as on master. | maintainer |
