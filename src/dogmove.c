@@ -82,14 +82,15 @@ is_better_armor(struct monst *mtmp, struct obj *otmp)
             continue;
 
         if (!best
-            || (armor_bonus(obj) + extra_pref(mtmp, obj)
-                > armor_bonus(best) + extra_pref(mtmp, best)))
+            || (armor_bonus(obj) + extra_pref(mtmp, obj, 0L)
+                > armor_bonus(best) + extra_pref(mtmp, best, 0L)))
             best = obj;
     }
 
+    /* armor only reaches here, so no ring slot is being filled */
     return ((best == (struct obj *) 0)
-            || (armor_bonus(otmp) + extra_pref(mtmp, otmp)
-                > armor_bonus(best) + extra_pref(mtmp, best)));
+            || (armor_bonus(otmp) + extra_pref(mtmp, otmp, 0L)
+                > armor_bonus(best) + extra_pref(mtmp, best, 0L)));
 }
 
 /*

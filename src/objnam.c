@@ -1863,7 +1863,9 @@ doname_base(
         if (obj->owornmask & W_RINGL)
             Concat(bp, 0, " (on left ");
         if (obj->owornmask & W_RING) /* either left or right */
-            ConcatF1(bp, 0,"%s)", body_part(HAND));
+            ConcatF1(bp, 0, "%s)",
+                     mcarried(obj) ? mbodypart(obj->ocarry, HAND)
+                                   : body_part(HAND));
         if (known && objects[obj->otyp].oc_charged) {
             Sprintf(eos(prefix), "%+d ", obj->spe); /* sitoa(obj->spe)+" " */
         }

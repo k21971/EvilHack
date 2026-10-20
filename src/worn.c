@@ -675,6 +675,28 @@ obj_has_prop(struct obj *obj, int which)
      ? (POISON_RES + ACID_RES - objects[(o)->otyp].oc_oprop)    \
      : 0)
 
+/* set while extra_pref() temporarily strips a worn ring to score a
+   candidate for its slot; update_mon_extrinsics() then skips the
+   player-facing side effects of a real change (the lift lines and the
+   steed's landing) because the ring goes straight back on */
+static boolean probing_gear = FALSE;
+
+/* does worn gear other than 'except' grant property 'which' to mon?
+   wielded gear is left out since wielding never granted it */
+boolean
+worn_gear_grants(struct monst *mon, int which, struct obj *except)
+{
+    struct obj *otmp;
+
+    for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+        if (otmp == except || !(otmp->owornmask & ~W_WEAPONS))
+            continue;
+        if (obj_has_prop(otmp, which) || altprop(otmp) == which)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /* armor put on or taken off; might be magical variety */
 void
 update_mon_extrinsics(
@@ -736,7 +758,9 @@ update_mon_extrinsics(
             boolean was_levitating = can_levitate(mon);
 
             mon->mextrinsics |= MR2_LEVITATE;
-            if (!unseen && !was_levitating)
+            /* silently: a monster created wearing it never stood on
+               the ground, and a probe puts the ring straight back */
+            if (!unseen && !was_levitating && !silently && !probing_gear)
                 pline_mon(mon, "%s starts to float in the air!", Monnam(mon));
             break;
         }
@@ -748,7 +772,7 @@ update_mon_extrinsics(
                                  || can_levitate(mon) || can_fly(mon));
 
             mon->mextrinsics |= MR2_FLY;
-            if (!unseen && !could_fly)
+            if (!unseen && !could_fly && !silently && !probing_gear)
                 pline_mon(mon, "%s starts to fly!", Monnam(mon));
             break;
         }
@@ -762,7 +786,13 @@ update_mon_extrinsics(
     } else { /* off */
         switch (which) {
         case INVIS:
-            mon->minvis = mon->perminvis;
+            /* another worn item may still grant it (a cloak of
+               invisibility under a ring of invisibility); a worn mummy
+               wrapping keeps the monster visible either way */
+            mon->minvis = mon->invis_blkd
+                              ? 0
+                              : (worn_gear_grants(mon, INVIS, obj)
+                                 || mon->perminvis);
             break;
         case FAST: {
             boolean save_in_mklev = gi.in_mklev;
@@ -772,43 +802,47 @@ update_mon_extrinsics(
             gi.in_mklev = save_in_mklev;
             break;
         }
+        /* for each of these, another worn item may grant the same
+           property (a helm of telepathy with an amulet of ESP, a cloak
+           of displacement over shimmering-scaled mail, a ring of
+           levitation with levitation boots), so the bit goes only when
+           nothing else worn still confers it */
         case WWALKING:
-            mon->mextrinsics &= ~(MR2_WATERWALK);
+            if (!worn_gear_grants(mon, WWALKING, obj))
+                mon->mextrinsics &= ~(MR2_WATERWALK);
             break;
         case JUMPING:
-            mon->mextrinsics &= ~(MR2_JUMPING);
+            /* the monster's own jumping spell may still be running */
+            if (!worn_gear_grants(mon, JUMPING, obj) && !mon->mjumptime)
+                mon->mextrinsics &= ~(MR2_JUMPING);
             break;
         case DISPLACED:
         case TELEPAT: {
-            /* another worn item may grant the same property (a helm of
-               telepathy with an amulet of ESP, a cloak of displacement
-               over shimmering-scaled mail); wielded gear doesn't count
-               since wielding never granted it */
             unsigned long mr2 = (which == DISPLACED) ? MR2_DISPLACED
                                                      : MR2_TELEPATHY;
 
-            for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
-                if (otmp == obj || !(otmp->owornmask & ~W_WEAPONS))
-                    continue;
-                if (obj_has_prop(otmp, which))
-                    break;
-            }
-            if (!otmp)
+            if (!worn_gear_grants(mon, which, obj))
                 mon->mextrinsics &= ~mr2;
             break;
         }
         case LEVITATION:
+            /* the monster's own levitation spell may still be running */
+            if (worn_gear_grants(mon, LEVITATION, obj) || mon->mlevitatetime)
+                break;
             mon->mextrinsics &= ~(MR2_LEVITATE);
-            if (!unseen && !can_levitate(mon))
+            if (!unseen && !can_levitate(mon) && !probing_gear)
                 pline_mon(mon, "%s floats gently back to the %s.",
                           Monnam(mon), surface(mon->mx, mon->my));
             break;
         case FREE_ACTION:
-            mon->mextrinsics &= ~(MR2_FREE_ACTION);
+            if (!worn_gear_grants(mon, FREE_ACTION, obj))
+                mon->mextrinsics &= ~(MR2_FREE_ACTION);
             break;
         case FLYING:
+            if (worn_gear_grants(mon, FLYING, obj))
+                break;
             mon->mextrinsics &= ~(MR2_FLY);
-            if (!unseen
+            if (!unseen && !probing_gear
                 && !(is_flyer(mon->data) || is_floater(mon->data)
                      || can_levitate(mon) || can_fly(mon)))
                 pline_mon(mon, "%s lands on the %s.",
@@ -870,8 +904,12 @@ update_mon_extrinsics(
        against that and can get away with a blanket worn-mask value. */
     switch (w_blocks(obj, ~0L)) {
     case INVIS:
+        /* a wrapping coming off uncovers a worn ring or cloak of
+           invisibility as well as a permanently invisible monster */
         mon->invis_blkd = on ? 1 : 0;
-        mon->minvis = on ? 0 : mon->perminvis;
+        mon->minvis = on ? 0
+                         : (worn_gear_grants(mon, INVIS, obj)
+                            || mon->perminvis);
         break;
     default:
         break;
@@ -933,7 +971,8 @@ update_mon_extrinsics(
 
     /* a steed's new or lost flight or floating carries or drops its
        rider */
-    steed_lift_changed(mon, was_airborne);
+    if (!probing_gear)
+        steed_lift_changed(mon, was_airborne);
     if (!on && mon == u.usteed && obj->otyp == SADDLE)
         dismount_steed(DISMOUNT_FELL);
 
@@ -959,8 +998,10 @@ armor_bonus(struct obj *armor)
     }
     /* start with its base AC value */
     bon = objects[armor->otyp].a_ac;
-    /* adjust for material */
-    bon += material_bonus(armor);
+    /* adjust for material; the metallic floor inside material_bonus()
+       is written for armor, so a worn ring or amulet gets none */
+    if (armor->oclass == ARMOR_CLASS)
+        bon += material_bonus(armor);
     /* subtract erosion */
     bon -= (int) greatest_erosion(armor);
     /* erosion is not allowed to make the armor worse than wearing
@@ -1088,7 +1129,11 @@ find_mac(struct monst *mon)
     long mwflags = mon->misc_worn_check;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
-        if (obj->owornmask & mwflags) {
+        /* a worn ring of increase damage or accuracy is not armor;
+           its enchantment goes to the attack, not the AC */
+        if ((obj->owornmask & mwflags)
+            && obj->otyp != RIN_INCREASE_DAMAGE
+            && obj->otyp != RIN_INCREASE_ACCURACY) {
             if (obj->otyp == AMULET_OF_GUARDING)
                 base -= 2; /* fixed amount, not impacted by erosion */
             else
@@ -1209,7 +1254,12 @@ find_mac(struct monst *mon)
 void
 m_dowear(struct monst *mon, boolean creation)
 {
-    boolean can_wear_armor;
+    struct obj *mw = MON_WEP(mon), *gloves = which_armor(mon, W_ARMG);
+    boolean can_wear_armor,
+            cursed_glove = (gloves && gloves->cursed),
+            /* a welded weapon keeps that hand's ring from coming off or
+               going on; an Infidel is immune to the curse */
+            welded = (mw && mwelded(mw) && mon->data != &mons[PM_INFIDEL]);
 
 #define RACE_EXCEPTION TRUE
     /* Note the restrictions here are the same as in dowear in do_wear.c
@@ -1241,6 +1291,30 @@ m_dowear(struct monst *mon, boolean creation)
     /* bracers fill the shield slot but leave the hands free, so the
        two-handed weapon restriction is applied per item instead */
     m_dowear_type(mon, W_ARMS, creation, FALSE);
+
+    /* two rings per monster; a ring takes up a "hand" slot, and
+       neither goes on over cursed gloves */
+    {
+        boolean ringl_ok = !(welded && mon_bimanual(mon, mw)) && !cursed_glove,
+                ringr_ok = !welded && !cursed_glove,
+                wearl = (which_armor(mon, W_RINGL) != 0),
+                wearr = (which_armor(mon, W_RINGR) != 0);
+
+        /* when one ring hand is already occupied and the other is free,
+           fill the empty hand first; filling the occupied hand first would
+           make the monster swap a better ring into it and then re-wear the
+           displaced ring on the empty hand */
+        if (ringl_ok && ringr_ok && wearl && !wearr) {
+            m_dowear_type(mon, W_RINGR, creation, FALSE);
+            m_dowear_type(mon, W_RINGL, creation, FALSE);
+        } else {
+            if (ringl_ok)
+                m_dowear_type(mon, W_RINGL, creation, FALSE);
+            if (ringr_ok)
+                m_dowear_type(mon, W_RINGR, creation, FALSE);
+        }
+    }
+
     m_dowear_type(mon, W_ARMG, creation, FALSE);
     if (!slithy(mon->data) && !racial_centaur(mon)
         && mon->data != &mons[PM_DRIDER] && !racial_tortle(mon))
@@ -1366,6 +1440,34 @@ find_best_armor_recurse(
                 && obj->otyp != JACKET)
                 continue;
             break;
+        case W_RINGL:
+        case W_RINGR:
+            /* the rings a monster knows how to use; searches_for_item()
+               wants the same set */
+            if (obj->oclass != RING_CLASS
+                || (obj->otyp != RIN_INVISIBILITY
+                    && obj->otyp != RIN_SEE_INVISIBLE
+                    && obj->otyp != RIN_FIRE_RESISTANCE
+                    && obj->otyp != RIN_COLD_RESISTANCE
+                    && obj->otyp != RIN_POISON_RESISTANCE
+                    && obj->otyp != RIN_SHOCK_RESISTANCE
+                    && obj->otyp != RIN_REGENERATION
+                    && obj->otyp != RIN_TELEPORTATION
+                    && obj->otyp != RIN_TELEPORT_CONTROL
+                    && obj->otyp != RIN_SLOW_DIGESTION
+                    && obj->otyp != RIN_INCREASE_DAMAGE
+                    && obj->otyp != RIN_INCREASE_ACCURACY
+                    && obj->otyp != RIN_PROTECTION
+                    && obj->otyp != RIN_LEVITATION
+                    && obj->otyp != RIN_FREE_ACTION
+                    && obj->otyp != RIN_ANCIENT
+                    && obj->otyp != RIN_LUSTROUS))
+                continue;
+            /* a Nazgul keeps its cursed ring of invisibility as loot */
+            if (mon->data == &mons[PM_NAZGUL]
+                && obj->otyp == RIN_INVISIBILITY)
+                continue;
+            break;
         }
         if (obj->owornmask)
             continue;
@@ -1375,8 +1477,8 @@ find_best_armor_recurse(
          * off one it would forget spe and once again think the object is
          * better than what it already has.
          */
-        if (best && (armor_bonus(best) + extra_pref(mon, best)
-                     >= armor_bonus(obj) + extra_pref(mon, obj)))
+        if (best && (armor_bonus(best) + extra_pref(mon, best, flag)
+                     >= armor_bonus(obj) + extra_pref(mon, obj, flag)))
             continue;
         best = obj;
     }
@@ -1612,6 +1714,19 @@ which_armor(struct monst *mon, long flag)
                 return obj;
         return (struct obj *) 0;
     }
+}
+
+/* the summed enchantment of the rings of type 'otyp' a monster wears */
+int
+mon_ring_bonus(struct monst *mon, int otyp)
+{
+    struct obj *o;
+    int bonus = 0;
+
+    for (o = mon->minvent; o; o = o->nobj)
+        if ((o->owornmask & W_RING) && o->otyp == otyp)
+            bonus += o->spe;
+    return bonus;
 }
 
 /* remove an item of armor and then drop it */
@@ -1958,16 +2073,146 @@ mon_break_armor(struct monst *mon, boolean polyspot)
 
 /* bias a monster's preferences towards armor that has special benefits. */
 int
-extra_pref(struct monst *mon, struct obj *obj)
+extra_pref(
+    struct monst *mon,
+    struct obj *obj,
+    long slot) /* ring slot being filled (W_RINGL or W_RINGR), or 0 */
 {
-    /* currently only does speed boots, but might be expanded if monsters
-     * get to use more armor abilities
-     */
-    if (obj) {
-        if (obj->otyp == SPEED_BOOTS && mon->permspeed != MFAST)
-            return 20;
+    struct obj *old, *mwep, *mswap;
+    long oldmask = 0L;
+    int rc = 1;
+
+    if (!obj)
+        return 0;
+    if (obj_has_prop(obj, ANTIMAGIC)
+        && !(resists_magm(mon) || defended(mon, AD_MAGM)))
+        return 50;
+    if (obj_has_prop(obj, REFLECTING) && !mon_reflects(mon, (char *) 0))
+        return 40;
+    if (obj_has_prop(obj, DISPLACED) && !has_displacement(mon))
+        return 30;
+    if (obj_has_prop(obj, FREE_ACTION) && !has_free_action(mon))
+        return 30;
+    if (obj_has_prop(obj, FAST) && mon->permspeed != MFAST)
+        return 25;
+    if (obj_has_prop(obj, FLYING) && grounded(mon->data) && !can_fly(mon))
+        return 20;
+    if (obj_has_prop(obj, LEVITATION) && grounded(mon->data)
+        && !can_levitate(mon))
+        return 15;
+    if (obj_has_prop(obj, JUMPING) && !can_jump(mon))
+        return 10;
+    if (obj_has_prop(obj, WWALKING) && !can_wwalk(mon))
+        return 10;
+    if (obj->oclass != RING_CLASS)
+        return 0;
+
+    /* Find out whether the monster already has some resistance.
+       Temporarily strip only the ring in the slot being filled - the one
+       that would actually be replaced - so the resists_*(), defended()
+       and mon_prop() queries inside the switch see the prospective
+       "wearing this object instead" state. Keeping the other hand's ring
+       on lets those queries notice a property the monster already has
+       from it, so a redundant duplicate ring is not over-valued. The
+       worn mask comes off too: resists_fire() and mon_prop() walk the
+       worn objects as well as the bits, and with the mask left on the
+       slot's own ring would score as if it conferred nothing, so a
+       monster with one usable hand would swap two rings back and forth
+       every gear pass. probing_gear keeps update_mon_extrinsics() from
+       announcing the strip or landing a ridden monster. The matching
+       restore is at the function tail; no return may come between */
+    old = (slot & W_RING) ? which_armor(mon, slot) : (struct obj *) 0;
+    if (old) {
+        probing_gear = TRUE;
+        oldmask = old->owornmask;
+        update_mon_extrinsics(mon, old, FALSE, TRUE);
+        old->owornmask = 0L;
     }
-    return 0;
+    mwep = MON_WEP(mon);
+    mswap = MON_WEP2(mon);
+    /* this list should match the one in find_best_armor_recurse() */
+    switch (obj->otyp) {
+    case RIN_FIRE_RESISTANCE:
+        if (!(resists_fire(mon) || defended(mon, AD_FIRE)))
+            rc = (dmgtype(mon->data, AD_FIRE)
+                  || mon_wielding_artifact(mon, ART_FIRE_BRAND)
+                  || mon_wielding_artifact(mon, ART_XIUHCOATL)
+                  || mon_wielding_artifact(mon, ART_ANGELSLAYER)
+                  || mon_wielding_artifact(mon, ART_DICHOTOMY)
+                  || (mwep && (mwep->oprops & ITEM_FIRE))
+                  || (mswap && (mswap->oprops & ITEM_FIRE))) ? 25 : 5;
+        break;
+    case RIN_COLD_RESISTANCE:
+        if (!(resists_cold(mon) || defended(mon, AD_COLD)))
+            rc = (dmgtype(mon->data, AD_COLD)
+                  || mon_wielding_artifact(mon, ART_FROST_BRAND)
+                  || mon_wielding_artifact(mon, ART_DICHOTOMY)
+                  || (mwep && (mwep->oprops & ITEM_FROST))
+                  || (mswap && (mswap->oprops & ITEM_FROST))) ? 25 : 5;
+        break;
+    case RIN_POISON_RESISTANCE:
+        if (!(resists_poison(mon) || defended(mon, AD_DRST)))
+            rc = (dmgtype(mon->data, AD_DRST)
+                  || dmgtype(mon->data, AD_DRCO)
+                  || dmgtype(mon->data, AD_DRDX)
+                  || (mwep && (mwep->oprops & ITEM_VENOM))
+                  || (mswap && (mswap->oprops & ITEM_VENOM))) ? 25 : 5;
+        break;
+    case RIN_SHOCK_RESISTANCE:
+        if (!(resists_elec(mon) || defended(mon, AD_ELEC)))
+            rc = (dmgtype(mon->data, AD_ELEC)
+                  || mon_wielding_artifact(mon, ART_MJOLLNIR)
+                  || mon_wielding_artifact(mon, ART_KEOLEWA)
+                  || (mwep && (mwep->oprops & ITEM_SHOCK))
+                  || (mswap && (mswap->oprops & ITEM_SHOCK))) ? 25 : 5;
+        break;
+    case RIN_REGENERATION:
+        rc = !mon_prop(mon, REGENERATION) ? 25 : 5;
+        break;
+    case RIN_SEE_INVISIBLE:
+        rc = !mon_prop(mon, SEE_INVIS) ? 10 : 1;
+        break;
+    case RIN_INVISIBILITY:
+    case RIN_LUSTROUS:
+        if (mon->mtame || mon->mpeaceful)
+            /* monsters actually don't know if you can see invisible,
+               but for tame or peaceful monsters we'll make reservations */
+            rc = See_invisible ? 10 : 0;
+        else
+            rc = 30;
+        break;
+    case RIN_INCREASE_DAMAGE:
+    case RIN_INCREASE_ACCURACY:
+    case RIN_PROTECTION:
+        rc = (obj->spe > 0) ? 10 + 3 * obj->spe : 0;
+        break;
+    case RIN_TELEPORTATION:
+        if (!mon_prop(mon, TELEPORT))
+            rc = obj->cursed ? 5 : 15;
+        break;
+    case RIN_TELEPORT_CONTROL:
+        if (!mon_prop(mon, TELEPORT_CONTROL))
+            rc = mon_prop(mon, TELEPORT) ? 20 : 5;
+        break;
+    case RIN_SLOW_DIGESTION:
+        rc = dmgtype(mon->data, AD_DGST) ? 35 : 25;
+        break;
+    case RIN_LEVITATION:
+        rc = (grounded(mon->data) && !can_fly(mon) && !can_levitate(mon))
+                 ? 20 : 0;
+        break;
+    case RIN_FREE_ACTION:
+    case RIN_ANCIENT:
+        if (!has_free_action(mon))
+            rc = 30;
+        break;
+    }
+    if (old) {
+        old->owornmask = oldmask;
+        update_mon_extrinsics(mon, old, TRUE, TRUE);
+        probing_gear = FALSE;
+    }
+    return rc;
 }
 
 /*

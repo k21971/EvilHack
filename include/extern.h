@@ -4386,7 +4386,9 @@ extern void update_mon_extrinsics(struct monst *, struct obj *, boolean,
 /* no NONNULLARG1: keeps master's defensive impossible() on a null obj */
 extern int armor_bonus(struct obj *);
 extern int armor_provides_extrinsic(struct obj *);
-extern int extra_pref(struct monst *, struct obj *) NONNULLARG1;
+extern int extra_pref(struct monst *, struct obj *, long) NONNULLARG1;
+extern int mon_ring_bonus(struct monst *, int) NONNULLARG1;
+extern boolean worn_gear_grants(struct monst *, int, struct obj *) NONNULLARG1;
 extern struct obj *armor_blocker(struct monst *, int *, int) NONNULLPTRS;
 extern int find_mac(struct monst *) NONNULLARG1;
 extern void m_dowear(struct monst *, boolean) NONNULLARG1;

@@ -1775,16 +1775,20 @@ m_calcdistress(struct monst *mtmp)
     }
     if (can_levitate(mtmp) && mtmp->mlevitatetime
         && mtmp->mlevitatetime <= 1) {
-        mtmp->mextrinsics &= ~(MR2_LEVITATE);
         mtmp->mlevitatetime = 0;
-        if (canseemon(mtmp))
-            pline("%s floats gently to the %s.",
-                  Monnam(mtmp), surface(mtmp->mx, mtmp->my));
-        steed_lift_changed(mtmp, TRUE);
+        /* gear put on during the spell keeps the monster up */
+        if (!worn_gear_grants(mtmp, LEVITATION, (struct obj *) 0)) {
+            mtmp->mextrinsics &= ~(MR2_LEVITATE);
+            if (canseemon(mtmp) && !mon_airborne(mtmp))
+                pline("%s floats gently to the %s.",
+                      Monnam(mtmp), surface(mtmp->mx, mtmp->my));
+            steed_lift_changed(mtmp, TRUE);
+        }
     }
     if (can_jump(mtmp) && mtmp->mjumptime && mtmp->mjumptime <= 1) {
-        mtmp->mextrinsics &= ~(MR2_JUMPING);
         mtmp->mjumptime = 0;
+        if (!worn_gear_grants(mtmp, JUMPING, (struct obj *) 0))
+            mtmp->mextrinsics &= ~(MR2_JUMPING);
         /* no message - jumping expiration is silent */
     }
 

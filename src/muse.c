@@ -4191,7 +4191,8 @@ searches_for_item(struct monst *mon, struct obj *obj)
         || mon->data == &mons[PM_GHOST]) /* don't loot bones piles */
         return FALSE;
 
-    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY)
+    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY
+        || typ == RIN_INVISIBILITY || typ == RIN_LUSTROUS)
         return (boolean) (!mon->minvis && !mon->invis_blkd
                           && !attacktype(mon->data, AT_GAZE));
     if (typ == WAN_SPEED_MONSTER || typ == POT_SPEED)
@@ -4277,6 +4278,37 @@ searches_for_item(struct monst *mon, struct obj *obj)
         /* intelligent monsters seek ammo when out */
         if (!nohands(mon->data) && mon_wants_ammo(mon, obj))
             return TRUE;
+        break;
+    case RING_CLASS:
+        /* this list should match the one in find_best_armor_recurse() */
+        if (typ == RIN_PROTECTION || typ == RIN_INCREASE_DAMAGE
+            || typ == RIN_INCREASE_ACCURACY)
+            return (obj->spe > 0);
+        if (typ == RIN_SEE_INVISIBLE)
+            return !mon_prop(mon, SEE_INVIS);
+        if (typ == RIN_FIRE_RESISTANCE)
+            return !(resists_fire(mon) || defended(mon, AD_FIRE));
+        if (typ == RIN_COLD_RESISTANCE)
+            return !(resists_cold(mon) || defended(mon, AD_COLD));
+        if (typ == RIN_SHOCK_RESISTANCE)
+            return !(resists_elec(mon) || defended(mon, AD_ELEC));
+        if (typ == RIN_POISON_RESISTANCE)
+            return !(resists_poison(mon) || defended(mon, AD_DRST));
+        if (typ == RIN_SLOW_DIGESTION)
+            return !mon_prop(mon, SLOW_DIGESTION);
+        if (typ == RIN_REGENERATION)
+            return !mon_prop(mon, REGENERATION);
+        if (typ == RIN_LEVITATION)
+            return (grounded(mon->data) && !can_levitate(mon)
+                    && !can_fly(mon));
+        if (typ == RIN_FREE_ACTION || typ == RIN_ANCIENT)
+            return TRUE;
+        /* invisibility and lustrous rings were decided above with the
+           wand and potion, before the switch */
+        if (typ == RIN_TELEPORTATION)
+            return !mon_prop(mon, TELEPORT);
+        if (typ == RIN_TELEPORT_CONTROL)
+            return !mon_prop(mon, TELEPORT_CONTROL);
         break;
     default:
         break;

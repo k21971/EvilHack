@@ -461,6 +461,9 @@ mattackm(
             tmp -= 3;
     }
 
+    /* worn rings of increase accuracy */
+    tmp += mon_ring_bonus(magr, RIN_INCREASE_ACCURACY);
+
     /* mundetected monsters become un-hidden if they are attacked */
     if (mdef->mundetected) {
         mdef->mundetected = 0;
@@ -1537,6 +1540,12 @@ mdamagem(
             return M_ATTK_AGR_DIED;
         }
     }
+
+    /* worn rings of increase damage; a negative ring must not turn the
+       blow into healing when the damage is applied below */
+    mhm.damage += mon_ring_bonus(magr, RIN_INCREASE_DAMAGE);
+    if (mhm.damage < 0)
+        mhm.damage = 0;
 
     wep_id = mwep ? mwep->o_id : 0;
     mhitm_adtyping(magr, mattk, mdef, &mhm);
