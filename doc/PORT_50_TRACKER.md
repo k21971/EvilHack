@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-19, after session 241's Draugr
-  exit crash slice): 455 rows closed, 121 open (the two [~]
+- Phase 2 status (refreshed 2026-10-20, after session 242's bag of
+  holding panic slice): 456 rows closed, 121 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,11 +27,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 5 MED: unported master features (door-material colors, monster
-    ring-wearing, monster touch-attack sears, the Astral Red Horse)
-    and the "bag not found" panic of an exploding floor bag over a
-    seen trap door (pre-existing; minted 2026-10-19 by session 240's
-    reviewer). Session 241 closed the Draugr exit crash (BUG-2422:
+  - 4 MED: unported master features (door-material colors, monster
+    ring-wearing, monster touch-attack sears, the Astral Red Horse).
+    Session 242 closed the "bag not found" panic (BUG-2423..2425): an
+    exploding floor bag of holding can no longer be knocked down a
+    seen hole by what lands at the hero's feet (a vanilla 5.0 route;
+    master never ships there), nor lost when a thrown rider is set
+    down beside it (master-shared); dying mid-blast with bones no
+    longer panics - the bag is gone and what it still held lands
+    (ruled). One LOW minted: a floor container knocked down a hole
+    mid-#tip or mid-#loot keeps being worked on.
+    Session 241 closed the Draugr exit crash (BUG-2422:
     no Ice Queen revival feedback once the game is over or the
     windows are gone, which also saves a panic save).
     The 2026-10-19 bookkeeping pass flipped two stale checkboxes (the
@@ -158,8 +164,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 99 LOW: small parity rows, quirks and watch/record-only items.
-    Session 240 closed the container row (above) and minted two: a
+  - 100 LOW: small parity rows, quirks and watch/record-only items.
+    Session 242 minted one (a floor container knocked down a hole
+    mid-#tip or mid-#loot keeps being worked on). Session 240 closed the container row (above) and minted two: a
     Rider corpse taken out of an ice box never revives (norevive), and
     an exploding box on a shop floor is charged twice (vanilla-shared).
     Session 239 closed the travel last step row (BUG-2415, ruled
@@ -11413,7 +11420,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       icequeenrevive() feedback once program_state.gameover is set.
       MED (needs a battery: a Draugr in icequeen-3 whose revival
       fails the turn of the defeat).
-      CLOSED 2026-10-19 (session 241, BUG-2422, commit pending):
+      CLOSED 2026-10-19 (session 241, BUG-2422, 715a080c1):
       icequeenrevive() shows nothing once the game is over or the
       windows are gone (program_state.gameover || !window_inited),
       and keeps master's `u.uhp <= 0 && !ELifesaved` gate in play; the
@@ -18432,7 +18439,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Battery A: PRE spun at 100% CPU in rot_organic() -> bury_an_obj();
       POST buried loose, dug up, nested sacks rot in two steps, the
       timer survives save and restore.
-- [ ] MED: an exploding bag of holding on the floor can panic with
+- [x] MED: an exploding bag of holding on the floor can panic with
       "in_container:  bag not found." (minted 2026-10-19, session 240,
       by the reviewer; pre-existing). When the hero stands on a seen
       trap door or hole (uescaped_shaft(), after the 1-in-5 escape, or
@@ -18445,6 +18452,39 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Needs a trace on master, then a fix (re-check obj_here() after
       the blast and treat a shipped bag as gone, or keep the bag from
       falling mid-explosion). MED.
+      CLOSED 2026-10-20 (session 242, BUG-2423..2425, PENDING-S242).
+      Master trace: master cannot reach it - its flooreffects() only
+      says "<obj> tumbles into the hole." at the hero's square; the
+      ship arm is vanilla 5.0 1b7c372f5 (Official_nh50 and NetHack50
+      still panic). BUG-2423: impact_drop() leaves an in_use object in
+      place and in_container() marks the floor bag in use as soon as
+      the blast is certain (covering the trigger spare and a bag of
+      holding trigger's scatter too). BUG-2424 (master-shared, Plan
+      agent): a riding lycanthrope changed by a flung cursed potion of
+      water's vapor is set down beside the bag - in_container() now
+      checks the bag is still on the floor. BUG-2425 (vanilla 5.0):
+      dying mid-blast with bones panicked "dealloc_obj with cobj";
+      ruled 2026-10-19 ITEMS LAND, BAG GONE (a floor bag empties on its
+      square at bones time; a carried or in-flight one empties at the
+      hero's feet at the end of the game, never sold). Three batteries
+      PASS (archive).
+- [ ] LOW: a floor container knocked down a hole mid-operation keeps
+      being worked on (minted 2026-10-20, session 242, by the Plan
+      agent; vanilla 5.0, no crash). (a) #tip of a floor box onto the
+      floor, or into a carried bag of holding that blows up, while the
+      hero stands over a seen hole: each spilled or flung item that
+      lands at the hero's feet runs impact_drop(), which can ship the
+      source box; tipcontainer() keeps spilling its contents at the
+      hero's feet, copies the box's migration coordinates into
+      otmp->ox/oy, and after impact_drop() has charged the box and
+      contents as stolen it addtobill()s / sellobj()s them again (the
+      hero's own goods turn into stock, the shop's are charged twice).
+      Suggested fix: stop the loop once `!srcheld && box->where !=
+      OBJ_FLOOR`. (b) bag_devours_invent() eating a worn amulet of
+      flying over a seen hole: the hero's landing (float_down()'s
+      don't-fall arm) runs impact_drop(), which can ship the bag of
+      devouring being looted; looting carries on with a bag that has
+      left the level. Needs a ruling on (a)'s stop and a plan. LOW.
 - [ ] LOW: a Rider corpse taken out of an ice box never revives
       (minted 2026-10-19, session 240, by the Plan agent).
       removed_from_icebox() sets norevive for every corpse but an ice
@@ -30842,6 +30882,9 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-18 | Travel's last step onto a pet or peaceful bumps it ("Pardon me, <mon>.", a turn, no swap) where every earlier travel step swaps: findtravelpath()'s nomul(0) clears context.travel and domove_bump_mon()'s `nopick && !travel` reads travel's nopick as the m prefix. Shared with Official_nh50 (and 3.6). EvilHack fix BUG-2415 (b7fbafc80): domove_core()'s travel_step capture is passed in and an is_safemon() target skips the bump. | found (branch-fixed); not yet sent |
 | 2026-10-19 | An exploding trapped box charges for the indestructible objects it leaves on its square: chest_trap()'s floor loop calls stolen_value() for every object there before delobj() refuses the Amulet, an invocation item or a Rider corpse. Shared with Official_nh50. EvilHack fix BUG-2421 (f754f67be): the loop skips the billing for an obj_indestructible() object. | found (branch-fixed); not yet sent |
 | 2026-10-19 | An exploding trapped box on a shop floor is charged twice: chest_trap() charges stolen_value() for the box with its contents, then the floor loop charges the now-empty box again. Shared with Official_nh50 (and master). EvilHack: LOW row minted 2026-10-19, not fixed yet. | found (open); not yet sent |
+| 2026-10-20 | "in_container:  bag not found." panic: a bag of holding exploding on the floor while the hero stands over a seen hole or trap door without falling. Items flung back onto the hero's square land through flooreffects() -> ship_object() (1b7c372f5), whose impact_drop() knocks each other pile object down 1 time in 3, the exploding bag included; a bag of holding trigger's own scatter can knock the outer floor bag down before its blast starts. Shared with Official_nh50 and NetHack50. EvilHack fix BUG-2423 (PENDING-S242): impact_drop() leaves an in_use object in place, and in_container() marks a floor bag in_use as soon as the blast is certain. | found (branch-fixed); not yet sent |
+| 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (PENDING-S242): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
+| 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (PENDING-S242, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31069,6 +31112,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | Bag of holding panic slice rulings (session 242; AskUserQuestion x3, one question each, all as recommended). (1) BONES (2026-10-19): when the hero dies while an exploding bag's contents are still flying, ITEMS LAND, BAG GONE - the bag is destroyed and what it still held lies where the bag was (its square, or the inventory of the monster, statue or container holding it), over vanilla 5.0's delete-and-panic and master's whole bag. (2) CARRIED BAG: COVERED TOO, over floor-only (vanilla destroys a carried bag's unflung contents at death). (3) PLACEMENT, re-asked after the reviewer showed addinv() at death runs pickup side effects (Archeologist label deciphering breaks illiterate conduct, an AD_MAGM artifact breaks never-had-MR): AT THE HERO'S FEET, bypassing pickup and landing effects, never sold (unpaid back to stock, the hero's own no_charge), so they skip the bones curse roll and the death inventory list. Decided without asking (technical): the floor-bag pin covers every floor explosion (SAFERHANGUP keeps the flag out of saves); the lava-flagged bags stay destroyed (narrowed to the blasting bag); a moved hero's remaining contents fly from the new square, as on master. | maintainer |
 | 2026-10-19 | Trigger line count (session 240 follow-up; AskUserQuestion x1 after a 5.0-vs-master comparison). The #put / #tip blast line keeps 5.0's doname() wording (master named the trigger with thesimpleoname() / ansimpleoname(), no BUC, no count) and names the trigger sack as it was put in or tipped, ORIGINAL COUNT, the spared indestructible object included - over leaving the post-spare count; the cursed bag's "has vanished!" line keeps counting only what is lost (same Doname2() on both trees). | maintainer |
 | 2026-10-19 | Burial hang and container slice rulings (session 240; AskUserQuestion x1, four questions, one as recommended). (1) CARRIED CONTAINER: ITS INDESTRUCTIBLE CONTENTS FALL AT THE CARRIER'S FEET, over my into-inventory pick - through the usual landing (water, lava, a hole), never sold: in a tended shop an unpaid one comes off the bill as stock and the hero's own gets no_charge; a monster's at its feet. (2) SILENT, as recommended - no new line; flooreffects()' own landing lines stay. (3) ROTTED BURIED SACK: ITS INDESTRUCTIBLE CONTENTS STAY BURIED loose, over my up-to-the-floor pick (dug up later). (4) TAKERS: the sewage creature and a sink fed a ring of hunger take the container and leave the item, over my refuse pick (the bag of devouring still refuses, ruled 2026-10-18). Minted: MED the "bag not found" panic of an exploding floor bag over a seen trap door (reviewer; pre-existing), LOW a Rider corpse out of an ice box never revives (Plan agent), LOW an exploding box on a shop floor charged twice (battery D; vanilla-shared). | maintainer |
 | 2026-10-19 | Bookkeeping pass rulings (session 239 follow-up; AskUserQuestion x1, two questions, both as recommended). (1) PLAYER-MONSTER KIT ROLLS: each player-monster rolls its own kit from the branch's const split tables (the Barbarian battle-axe, Druid scimitar and spellbook, and the giant / tortle variants); rejected master's runtime writes into the shared tables (including the hero's u_init.c Barbarian[] and Druid[]), which fix the first roll for the rest of the game - a master quirk, archived frozen-unfixed. (2) stone_missile: a missile passes harmlessly through a rock-passing monster when the item's OWN material is mineral or gemstone (materials-consistent); rejected 5.0's base-type test and removing the rule as master. Recorded the same day without asking: the Materials and Racial monsters [~] umbrellas closed by audit, seven orphan rows minted, two stale checkboxes flipped. | maintainer |
