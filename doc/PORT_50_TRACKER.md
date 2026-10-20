@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-20, after session 244's monster
-  touch-sear slice): 458 rows closed, 122 open (the two [~]
+  touch-sear slice): 458 rows closed, 123 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,8 +27,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: unported master features (door-material colors, the
-    Astral Red Horse).
+  - 3 MED: unported master features (door-material colors, the
+    Astral Red Horse, the damage_mon() core with wizard-mode
+    showmondamage - minted 2026-10-20 in the session 244 follow-up:
+    an orphaned deferral, no open row owned it).
     Session 244 closed monster touch-attack sears (BUG-2433..2437):
     gloves, rings, boots, helm, torso armor or a bare hated body sear
     on contact, as on master; natural elf, drow, orc, vampire and
@@ -1930,7 +1932,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       attack_contact_slots(), so an iron golem's fist never burns an
       elf hero and a silver-gloved monster's punch never sears a
       demon. LOW-risk port (special_dmgval() takes a monster already).
-      PORTED 2026-10-20 (session 244, BUG-2433..2437, PENDING-S244).
+      PORTED 2026-10-20 (session 244, BUG-2433..2437, 77974fcf3 +
+      da5122ccd).
       Master a0651814a's attack_contact_slots() (mhitu.c, taking the
       swung weapon: an off-hand swing can outlive the primary) feeds
       hitmu() after the negative-AC reduction and mdamagem() before
@@ -1954,6 +1957,41 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       guardian angel; the branch's do.c still calls
       gain_guardian_angel(). It was deferred only inside closed rows
       (the Infidel / roles and barding notes).
+- [ ] MED: the damage_mon() core never landed (minted 2026-10-20,
+      session 244 follow-up; port gap, orphaned deferral). Master's
+      damage_mon() and damage_mon_nonlethal() (mon.c) scale the
+      amount by 1.5x ((amount * 3 + 1) / 2) when vulnerable_to(mon,
+      type), halve AD_PHYS for a monster carrying an SPFX_HPHDAM
+      artifact, interrupt spellbook reading, and, when by_you, call
+      showmondamage(). Master routes about 114 damage sites through
+      them, with 7 raw `mhp -=` left as stated exceptions (long worm
+      shrink, the withering tick, the cloning HP split, zhitm()'s
+      inlined vulnerability / HSPDAM). The branch's pair is a
+      TODO-EVILHACK stub keeping only the spellbook interruption;
+      it has 46 callers and 38 raw `mhp -=` sites, among them the
+      hero's melee (uhitm.c `mon->mhp -= hmd.dmg`), mdamagem(),
+      zap.c, explode.c, potion.c, trap.c and muse.c. Today only
+      scattered sites apply the two terms (vulnerable_to() 25 calls
+      against master's 32; SPFX_HPHDAM halving only in mcastu.c and
+      the ring-blast path), so a monster carrying Gjallar or another
+      HPHDAM artifact takes full damage from most blows, and a
+      vulnerable monster misses the 1.5x wherever master's central
+      router applied it. Every earlier mention sat in closed rows
+      (Monster spellbook learning's deferrals, the ARTIFACTS slice's
+      "vulnerable_to remaining consumers (damage_mon central 1.5x,
+      mhitm/mhitu/uhitm/zhitm arms ...)"). Census first: map each
+      master damage_mon() caller to its branch site, mark where the
+      branch already applies vulnerability / HPHDAM itself (no
+      double scaling), then fill the core and route or annotate the
+      raw sites. Folds in master's wizard-mode showmondamage option
+      (moved here from the Ownerless option wirings row):
+      SET_IN_WIZGAME, default off, "(MHP -N, M left)" /
+      "(MHP -N, killed|destroyed)" (nonliving() picks the word)
+      after hero-dealt damage; it needs an optlist.h entry, the
+      Guidebook (.mn/.tex/.txt) and opthelp lines, a wording ruling
+      (master's parentheses vs the branch showdamage's vanilla 5.0
+      "[HP ...]" brackets), and end.c is_hp_tracking_msg() learning
+      the monster prefix so dumplog grouping filters it.
 - [ ] SWEEP: base-type oc_material reads (minted 2026-10-19 by the
       Materials umbrella audit): about 88 objects[].oc_material reads
       on the branch against 65 on master. Known gaps: o_material()
@@ -15524,7 +15562,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       registration and zero consumers on the branch:
       autoall_menu (master: boolopt + do.c drop_everything +
       pickup.c loot_everything arms), hilite_hidden_stairs,
-      showmondamage, show_realtime + realtime_format,
+      showmondamage (MOVED 2026-10-20 to the MED damage_mon() core
+      row, which owns its emitter), show_realtime + realtime_format,
       underline_peacefuls (wc2 field; cursmain.c mention only),
       plus the start-state option hallucinating (no field),
       master's wizweight->invweight rename (branch keeps 5.0's
