@@ -1550,13 +1550,7 @@ mcast_acid_blast(struct monst *mtmp, struct monst *mdef)
             pline_The("acid dissipates harmlessly.");
             monstseesu(M_SEEN_ACID);
         }
-        /* using two weapons at once makes both of them more vulnerable */
-        if (rn2(u.twoweap ? 2 : 3))
-            acid_damage(uwep);
-        if (u.twoweap && rn2(2))
-            acid_damage(uswapwep);
-        if (rn2(4))
-            erode_armor(&gy.youmonst, ERODE_CORRODE);
+        /* explode() makes the hero's weapon and armor corrosion rolls */
     } else {
         if (!mdef || DEADMONSTER(mdef))
             return;
@@ -1584,7 +1578,8 @@ mcast_acid_blast(struct monst *mtmp, struct monst *mdef)
             if (canseemon(mdef))
                 pline("But the acid dissipates harmlessly.");
         }
-        if (rn2(4))
+        /* the surrounding water dilutes the acid */
+        if (!mon_underwater(mdef) && rn2(4))
             erode_armor(mdef, ERODE_CORRODE);
     }
 }

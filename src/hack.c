@@ -3569,6 +3569,23 @@ slowed_by_sewage(void)
     return TRUE;
 }
 
+/* the water around a submerged hero has boiled away or frozen; leave it
+   at once, so the rest of the event no longer treats the hero as
+   underwater */
+void
+leave_vanished_water(void)
+{
+    if (!u.uinwater)
+        return;
+    set_uinwater(0); /* u.uinwater = 0 */
+    u.uundetected = 0;
+    /* the vision tables may have been built for the submerged view */
+    if (!Is_waterlevel(&u.uz))
+        vision_reset();
+    docrt();
+    gv.vision_full_recalc = 1;
+}
+
 /* extracted from spoteffects; called by spoteffects to check for entering or
    leaving a pool of water/lava, and by moveloop to check for staying on one;
    returns true to skip rest of spoteffects */

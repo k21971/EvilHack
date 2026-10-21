@@ -1359,6 +1359,7 @@ extern void classify_terrain(void);
 extern void switch_terrain(void);
 extern void set_uinwater(int);
 extern boolean slowed_by_sewage(void);
+extern void leave_vanished_water(void);
 extern boolean pooleffects(boolean);
 extern void spoteffects(boolean);
 extern char *in_rooms(coordxy, coordxy, int);

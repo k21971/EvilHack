@@ -361,7 +361,7 @@ explode(
             adtyp = AD_DRST;
             break;
         case 7:
-            adstr = "splash of acid";
+            adstr = "torrent of acid";
             adtyp = AD_ACID;
             break;
         default:
@@ -484,6 +484,7 @@ explode(
         for (i = 0; i < 3; i++) {
             for (j = 0; j < 3; j++) {
                 int itemdmg = 0;
+                boolean submerged;
 
                 if (explmask[i][j] == EXPL_SKIP)
                     continue;
@@ -536,10 +537,15 @@ explode(
                     pline("%s is caught in the %s!", Monnam(mtmp), str);
                 }
 
-                itemdmg = destroy_items(mtmp, (int) adtyp, dam);
-                if (adtyp == AD_FIRE) {
-                    (void) burnarmor(mtmp);
-                    ignite_items(mtmp->minvent);
+                /* water shields a submerged target from fire and acid */
+                submerged = (mon_underwater(mtmp)
+                             && (adtyp == AD_FIRE || adtyp == AD_ACID));
+                if (!submerged) {
+                    itemdmg = destroy_items(mtmp, (int) adtyp, dam);
+                    if (adtyp == AD_FIRE) {
+                        (void) burnarmor(mtmp);
+                        ignite_items(mtmp->minvent);
+                    }
                 }
 
                 if ((explmask[i][j] & EXPL_MON) != 0) {
@@ -572,6 +578,8 @@ explode(
                        gets hit by double damage */
                     if (grabbed && mtmp == u.ustuck && next2u(x, y))
                         mdam *= 2;
+                    if (submerged)
+                        mdam = rnd(3); /* physical damage only */
                     /* elemental vulnerability is applied by damage_mon(),
                        to the item destruction damage as well */
                     (void) damage_mon(mtmp, mdam + itemdmg, (int) adtyp,
@@ -638,8 +646,9 @@ explode(
             You("are caught in the %s!", str);
             iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
         }
-        /* do property damage first, in case we end up leaving bones */
-        if (adtyp == AD_FIRE)
+        /* do property damage first, in case we end up leaving bones;
+           being underwater shields the hero from fire and acid */
+        if (adtyp == AD_FIRE && !Underwater)
             burn_away_slime();
         if (Invulnerable) {
             damu = 0;
@@ -647,10 +656,28 @@ explode(
         } else if (adtyp == AD_PHYS || adtyp == AD_ACID)
             damu = Maybe_Half_Phys(damu);
         if (adtyp == AD_FIRE) {
-            (void) burnarmor(&gy.youmonst);
-            ignite_items(gi.invent);
+            if (Underwater) {
+                damu = Maybe_Half_Phys(damu);
+            } else {
+                (void) burnarmor(&gy.youmonst);
+                ignite_items(gi.invent);
+            }
+        } else if (adtyp == AD_ACID) {
+            if (Underwater) {
+                damu = Maybe_Half_Phys(damu);
+            } else {
+                /* using two weapons at once makes both of them more
+                   vulnerable */
+                if (rn2(u.twoweap ? 2 : 3))
+                    acid_damage(uwep);
+                if (u.twoweap && uswapwep && rn2(2))
+                    acid_damage(uswapwep);
+                if (rn2(4))
+                    erode_armor(&gy.youmonst, ERODE_CORRODE);
+            }
         }
-        (void) destroy_items(&gy.youmonst, (int) adtyp, dam);
+        if (!(Underwater && (adtyp == AD_FIRE || adtyp == AD_ACID)))
+            (void) destroy_items(&gy.youmonst, (int) adtyp, dam);
 
         ugolemeffects((int) adtyp, damu);
         if (uhurt == 2) {
@@ -698,6 +725,9 @@ explode(
                 } else if (adtyp == AD_FIRE && olet == FORGE_EXPLODE) {
                     svk.killer.format = KILLED_BY_AN;
                     Strcpy(svk.killer.name, str);
+                } else if (adtyp == AD_FIRE && olet == BURNING_OIL) {
+                    svk.killer.format = KILLED_BY_AN;
+                    Strcpy(svk.killer.name, "exploding fire bomb");
                 } else if (type >= 0 && olet != SCROLL_CLASS) {
                     svk.killer.format = NO_KILLER_PREFIX;
                     Snprintf(svk.killer.name, sizeof svk.killer.name,
@@ -740,6 +770,7 @@ explode(
         pay_for_damage((adtyp == AD_FIRE) ? "burn away"
                           : (adtyp == AD_COLD) ? "shatter"
                              : (adtyp == AD_DISN) ? "disintegrate"
+                                : (adtyp == AD_ACID) ? "dissolve"
                                 : "destroy",
                        FALSE);
     }

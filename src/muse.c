@@ -4650,6 +4650,9 @@ munslime(struct monst *mon, boolean by_you)
 {
     struct obj *obj, odummy;
     struct permonst *mptr = mon->data;
+    /* fire can't burn slime away underwater; only a fire trap on dry
+       land beside the water still serves */
+    boolean submerged = mon_underwater(mon);
 
     /*
      * muse_unslime() gives "mon starts turning green", "mon zaps
@@ -4669,7 +4672,7 @@ munslime(struct monst *mon, boolean by_you)
        isn't able to cure itself of green slime with its own attack
        [possible extension: monst capable of casting high level clerical
        spells could toss pillar of fire at self--probably too suicidal] */
-    if (!mon->mcan && !mon->mbreath_attk
+    if (!mon->mcan && !mon->mbreath_attk && !submerged
         && attacktype_fordmg(mptr, AT_BREA, AD_FIRE)) {
         odummy = cg.zeroobj; /* otyp == STRANGE_OBJECT */
         return muse_unslime(mon, &odummy, (struct trap *) 0, by_you);
@@ -4679,9 +4682,11 @@ munslime(struct monst *mon, boolean by_you)
     if (!is_animal(mptr) && !mindless(mptr)) {
         struct trap *t;
 
-        for (obj = mon->minvent; obj; obj = obj->nobj)
-            if (cures_sliming(mon, obj))
-                return muse_unslime(mon, obj, (struct trap *) 0, by_you);
+        if (!submerged) {
+            for (obj = mon->minvent; obj; obj = obj->nobj)
+                if (cures_sliming(mon, obj))
+                    return muse_unslime(mon, obj, (struct trap *) 0, by_you);
+        }
 
         if (((t = t_at(mon->mx, mon->my)) == 0 || t->ttyp != FIRE_TRAP_SET)
             && mptr->mmove && !mon->mtrapped

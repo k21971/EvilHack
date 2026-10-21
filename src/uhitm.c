@@ -7998,7 +7998,8 @@ explum(struct monst *mdef, struct attack *mattk)
            so it uses the positive hero-breath section */
         explode(u.ux, u.uy, BZ_U_BREATH(BZ_OFS_AD(mattk->adtyp)), tmp,
                 MON_EXPLODE, adtyp_to_expltype(mattk->adtyp));
-        if (mdef && mattk->adtyp == AD_ACID) {
+        /* the surrounding water dilutes the acid */
+        if (mdef && mattk->adtyp == AD_ACID && !mon_underwater(mdef)) {
             if (rn2(4))
                 erode_armor(mdef, ERODE_CORRODE);
             if (rn2(2)) {

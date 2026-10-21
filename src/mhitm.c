@@ -1424,7 +1424,8 @@ explmm(struct monst *magr, struct monst *mdef, struct attack *mattk)
     if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
         || mattk->adtyp == AD_ELEC || mattk->adtyp == AD_ACID) {
         mon_explodes(magr, mattk);
-        if (mdef && mattk->adtyp == AD_ACID) {
+        /* the surrounding water dilutes the acid */
+        if (mdef && mattk->adtyp == AD_ACID && !mon_underwater(mdef)) {
             if (rn2(4))
                 erode_armor(mdef, ERODE_CORRODE);
             if (rn2(2)) {

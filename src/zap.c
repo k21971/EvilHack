@@ -6999,6 +6999,8 @@ zap_over_floor(
                         mon->mundetected = 0;
                     }
                 }
+                if (u_at(x, y))
+                    leave_vanished_water();
                 newsym(x, y);
                 if (t) {
                     /* if water walking/swimming/magical breathing, maybe fall
@@ -7030,6 +7032,8 @@ zap_over_floor(
             lev->typ = ROOM, lev->flags = 0;
             /* unhide any monster (or hero) lurking in it */
             maybe_unhide_at(x, y);
+            if (u_at(x, y))
+                leave_vanished_water();
             newsym(x, y);
         } else if (lev->typ == TREE) {
             if (see_it)

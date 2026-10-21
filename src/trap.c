@@ -5113,6 +5113,7 @@ dofiretrap(
             pline_The("water evaporates!");
             levl[u.ux][u.uy].typ = ROOM;
             maybe_unhide_at(u.ux, u.uy);
+            leave_vanished_water();
             newsym(u.ux, u.uy);
         }
         return;
@@ -5243,6 +5244,7 @@ doicetrap(
         start_melt_ice_timeout(u.ux, u.uy, 0L);
         obj_ice_effects(u.ux, u.uy, TRUE);
         maybe_unhide_at(u.ux, u.uy);
+        leave_vanished_water();
         newsym(u.ux, u.uy);
     }
 }
