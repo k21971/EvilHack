@@ -1149,13 +1149,15 @@ newsym(coordxy x, coordxy y)
 void
 shieldeff(coordxy x, coordxy y)
 {
-    int i;
+    int i, k;
 
     if (!flags.sparkle)
         return;
     if (cansee(x, y)) { /* Don't see anything if can't see the location */
-        for (i = 0; i < SHIELD_COUNT; i++) {
-            show_glyph(x, y, cmap_to_glyph(shield_static[i]));
+        k = rn2_on_display_rng(SHIELD_COUNT); /* random starting frame */
+        for (i = 0; i < flags.sparkle; i++) {
+            show_glyph(x, y,
+                       cmap_to_glyph(shield_static[(k + i) % SHIELD_COUNT]));
             flush_screen(1); /* make sure the glyph shows up */
             nh_delay_output();
         }

@@ -3133,7 +3133,7 @@ checkfile(
                     || !strncmpi(alt, "an ", 3)
                     || !strncmpi(alt, "the ", 4)))
             alt = strchr(alt, ' ') + 1;
-        /* remove charges or "(lit)" or wizmode "(N aum)" */
+        /* remove charges or "(lit)" or invweight "(N aum)" */
         if ((ep = strstri(dbase_str, " (")) != 0 && ep > dbase_str)
             *ep = '\0';
         if (alt && (ap = strstri(alt, " (")) != 0 && ap > alt)

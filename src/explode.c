@@ -422,7 +422,12 @@ explode(
         curs_on_u(); /* will flush screen and output */
 
         if (any_shield && flags.sparkle) { /* simulate shield effect */
-            for (k = 0; k < SHIELD_COUNT; k++) {
+            int frame0 = rn2_on_display_rng(SHIELD_COUNT); /* random start */
+
+            for (k = 0; k < flags.sparkle; k++) {
+                int sglyph = cmap_to_glyph(
+                                 shield_static[(frame0 + k) % SHIELD_COUNT]);
+
                 for (i = 0; i < 3; i++)
                     for (j = 0; j < 3; j++) {
                         xx = x + i - 1;
@@ -433,8 +438,7 @@ explode(
                              * directly to the buffered screen.  tmp_at()
                              * will clean up the location for us later.
                              */
-                            show_glyph(xx, yy,
-                                       cmap_to_glyph(shield_static[k]));
+                            show_glyph(xx, yy, sglyph);
                     }
                 curs_on_u(); /* will flush screen and output */
                 nh_delay_output();

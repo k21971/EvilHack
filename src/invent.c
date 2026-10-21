@@ -3134,8 +3134,18 @@ xprname(
     boolean use_invlet = (flags.invlet_constant && obj != NULL
                           && let != CONTAINED_SYM && let != HANDS_SYM);
     long savequan = 0L;
+    unsigned saveowt = 0;
+    boolean owt_scaled = FALSE;
 
-    if (quan && obj) {
+    /* obj->quan > 0 guard prevents divide-by-zero; savequan == 0 means
+       the quantity wasn't changed */
+    if (quan && obj && obj->quan > 0L) {
+        if (iflags.invweight) {
+            /* show the weight of the part being listed */
+            saveowt = obj->owt;
+            obj->owt = (unsigned) ((long) obj->owt * quan / obj->quan);
+            owt_scaled = TRUE;
+        }
         savequan = obj->quan;
         obj->quan = quan;
     }
@@ -3176,6 +3186,8 @@ xprname(
 
     if (savequan)
         obj->quan = savequan;
+    if (owt_scaled)
+        obj->owt = saveowt;
 
     return li;
 }

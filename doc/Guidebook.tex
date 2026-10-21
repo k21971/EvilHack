@@ -4770,6 +4770,9 @@ Persistent.
 %.lp ""
 If you use menu coloring, you may want to turn this off.
 %.lp
+\item[invweight]
+Augment object descriptions with their objects' weight (default off).
+%.lp
 \item[legacy]
 Display an introductory message when starting the game (default on).
 Persistent.
@@ -5573,8 +5576,9 @@ or the \texttt{\#genocided} command.
 Allow sounds to be emitted from an integrated sound library (default on).
 %.lp
 \item[sparkle]
-Display a sparkly effect when a monster (including yourself) is hit by an
-attack to which it is resistant (default on).  Persistent.
+Specify the length in frames of the sparkly animation that is displayed
+when a monster (including you) is hit by an effect to which it is resistant
+(default 21).  Persistent.
 %.lp
 \item[spidername]
 Name your starting spider (for example, ``\texttt{spidername:Phil}'').
@@ -5736,10 +5740,6 @@ For multiple lines in a configuration file, that would be the first
 non-comment line.
 For a comma-separated list in EVILHACKOPTIONS or an OPTIONS line in a
 configuration file, that would be the \textit{rightmost} option in the list.
-%.lp
-\item[wizweight]
-Augment object descriptions with their objects' weight (default off).
-Debug mode only.
 %.lp
 \item[zerocomp]
 When writing out a save file, perform zero-comp compression of the

@@ -3362,7 +3362,7 @@ hornoplenty(
                a carried container, hero's encumbrance could change */
             if (carried(targetbox)) {
                 encumber_msg();
-                update_inventory(); /* for contents count or wizweight */
+                update_inventory(); /* for contents count or invweight */
             }
         } else {
             /* assumes this is taking place at hero's location */

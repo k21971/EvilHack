@@ -48,6 +48,5 @@ debug_overwrite_stairs
                 == allows stairs to be replaced by other terrain
 monpolycontrol  == prompt for new form whenever any monster changes shape
 sanity_check    == evaluate monsters, objects, and map prior to each turn
-wizweight       == augment object descriptions with their objects' weight
 
 [Opt] = conditionally available depending upon build-time settings

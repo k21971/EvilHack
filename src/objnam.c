@@ -51,6 +51,7 @@ staticfn char *xname_flags(struct obj *, unsigned);
 staticfn char *dragon_scaled_prefix(struct obj *, char *);
 staticfn char *minimal_xname(struct obj *);
 staticfn void add_erosion_words(struct obj *, char *);
+staticfn char *globwt(struct obj *, char *, boolean *) NONNULL NONNULLPTRS;
 staticfn char *doname_base(struct obj *obj, unsigned);
 staticfn void objnam_add_verb(char *, struct obj *, const char *)
                                                             NONNULLPTRS;
@@ -1499,6 +1500,21 @@ erosion_matters(struct obj *obj)
 #define DONAME_FOR_MENU     4 /* [not used anywhere yet] */
 #define DONAME_FORCE_GENDER 8 /* always add male or female */
 
+/* a glob's shop price depends on its weight, so show the weight with
+   the price; sets *weightformatted_p for doname_base()'s weight suffix */
+staticfn char *
+globwt(struct obj *otmp, char *buf, boolean *weightformatted_p)
+{
+    *buf = '\0';
+    if (otmp->globby) {
+        Sprintf(buf, "%u aum, ", otmp->owt);
+        *weightformatted_p = TRUE;
+    } else {
+        *weightformatted_p = FALSE;
+    }
+    return buf;
+}
+
 /* core of doname() */
 staticfn char *
 doname_base(
@@ -1509,10 +1525,11 @@ doname_base(
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             for_menu = (doname_flags & DONAME_FOR_MENU) != 0,
-            with_corpse_genders = (doname_flags & DONAME_FORCE_GENDER) != 0;
+            with_corpse_genders = (doname_flags & DONAME_FORCE_GENDER) != 0,
+            weightshown = FALSE;
     boolean known, dknown, cknown, bknown, lknown,
             fake_arti, force_the;
-    char prefix[PREFIX];
+    char prefix[PREFIX], globbuf[QBUFSZ];
     char tmpbuf[PREFIX + 1]; /* for when we have to add something at
                               * the start of prefix instead of the
                               * end (Strcat is used on the end) */
@@ -2067,11 +2084,13 @@ doname_base(
     if (iflags.suppress_price || program_state.restoring) {
         ; /* don't attempt to obtain any shop pricing, even if 'with_price' */
     } else if (is_unpaid(obj)) { /* in inventory or in container in invent */
-        char pricebuf[40];
+        char pricebuf[QBUFSZ];
         long quotedprice = unpaid_cost(obj, COST_CONTENTS);
 
         /* separately formatted suffix avoids need for ConcatF3() */
-        Sprintf(pricebuf, "%ld %s", quotedprice, currency(quotedprice));
+        Snprintf(pricebuf, sizeof pricebuf, "%s%ld %s",
+                 globwt(obj, globbuf, &weightshown),
+                 quotedprice, currency(quotedprice));
         ConcatF2(bp, 0, " (%s, %s)",
                  obj->unpaid ? "unpaid" : "contents", pricebuf);
 
@@ -2081,13 +2100,16 @@ doname_base(
         long price = get_cost_of_shop_item(obj, &nochrg);
 
         if (price > 0L) {
-            char pricebuf[40];
+            char pricebuf[QBUFSZ];
 
-            Sprintf(pricebuf, "%ld %s", price, currency(price));
+            Snprintf(pricebuf, sizeof pricebuf, "%s%ld %s",
+                     globwt(obj, globbuf, &weightshown),
+                     price, currency(price));
             ConcatF2(bp, 0, " (%s, %s)",
                      nochrg ? "contents" : "for sale", pricebuf);
         } else if (nochrg > 0) {
-            Concat(bp, 0, " (no charge)");
+            ConcatF1(bp, 0, " (%sno charge)",
+                     globwt(obj, globbuf, &weightshown));
         } else if (iflags.pricequotes && !objects[obj->otyp].oc_name_known) {
             /* the quote's BUFSZ room test is measured from the buffer
                start it is given; pass the name region's start so the
@@ -2112,16 +2134,24 @@ doname_base(
         Strcat(prefix, tmpbuf);
     }
 
-    /* show weight for items (debug tourist info);
-       "aum" is stolen from Crawl's "Arbitrary Unit of Measure" */
-    if (wizard && iflags.wizweight) {
-        /* wizard mode user has asked to see object weights */
-        if (with_price && bp_eos[-1] == ')')
-            ConcatF1(bp, 1, ", %u aum)", obj->owt);
-        else
-            ConcatF1(bp, 0, " (%u aum)", obj->owt);
+    /* show weight for items in inventory, or for everything in wizard
+       mode; "aum" is stolen from Crawl's "Arbitrary Unit of Measure" */
+    if (iflags.invweight && (obj->where == OBJ_INVENT || wizard)
+        && !weightshown) { /* a glob's shop price already includes it */
+        char wtbuf[40];
+        size_t wtlen, fulllen;
 
-        /* ConcatF1(bp) updates bp_eos and bpspaceleft but we're done
+        Sprintf(wtbuf, " (%u aum)", obj->owt);
+        wtlen = strlen(wtbuf);
+        /* length after the prefix goes on, as measured by the BUFSZ
+           clip below */
+        fulllen = strlen(prefix) + (size_t) (bp_eos - bp) + wtlen
+                  + (for_menu ? 4 : 0);
+        /* drop the weight rather than show a truncated number */
+        if (wtlen < bpspaceleft && fulllen <= BUFSZ - 1)
+            Concat(bp, 0, wtbuf);
+
+        /* Concat(bp) updates bp_eos and bpspaceleft but we're done
            with them now; add a fake use so compiler won't complain
            about a variable assignment that won't be subsequently used */
         nhUse(bp_eos);
@@ -2807,17 +2837,17 @@ paydoname(struct obj *obj)
     static const char and_contents[] = " and its contents";
     char *p;
     unsigned save_cknown = obj->cknown;
-    boolean save_wizweight = iflags.wizweight;
+    boolean save_invweight = iflags.invweight;
 
     if (Has_contents(obj))
         obj->cknown = 0;
     /* avoid showing item weights to unclutter billing's pay-menu a bit */
-    iflags.wizweight = FALSE;
+    iflags.invweight = FALSE;
     /* suppress invent-style price; caller will add billing-style price */
     iflags.suppress_price++;
     p = doname_base(obj, 0U);
     iflags.suppress_price--;
-    iflags.wizweight = save_wizweight;
+    iflags.invweight = save_invweight;
 
     if (Has_contents(obj)) {
         /* buy_container() sets no_charge for a container that has just

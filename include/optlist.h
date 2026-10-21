@@ -418,6 +418,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(implicit_uncursed, Advanced, 0, opt_out, set_in_game,
            On, Yes, No, No, NoAlias, &flags.implicit_uncursed, Term_False,
            "omit \"uncursed\" from inventory")
+    NHOPTB(invweight, Advanced, 0, opt_in, set_in_game,
+           Off, Yes, No, No, NoAlias, &iflags.invweight, Term_False,
+           "show item weights in inventory")
 #if 0   /* obsolete - pre-OSX Mac */
     NHOPTB(large_font, Advanced, 0, opt_in, set_in_config,
            Off, Yes, No, No, NoAlias, &iflags.obsolete,
@@ -746,9 +749,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
            Off, Yes, No, No, NoAlias, &iflags.sounds, Term_Off,
            "use sounds")
 #endif
-    NHOPTB(sparkle, Map, 0, opt_out, set_in_game,
-           On, Yes, No, No, NoAlias, &flags.sparkle, Term_False,
-           "display sparkly effect when resisting magic")
+    NHOPTC(sparkle, Map, 24, opt_out, set_in_game,
+                Yes, Yes, No, No, NoAlias,
+                "number of frames of sparkly effect when resisting magic")
     NHOPTC(spidername, Advanced, PL_PSIZ, opt_in, set_gameview,
                 No, Yes, No, No, NoAlias,
                 "name of your starting pet if it is a large spider")
@@ -936,9 +939,6 @@ static int optfn_##a(int, int, boolean, char *, char *);
  /* NHOPTC(windowtype) -- moved to top */
     NHOPTB(wizmgender, Advanced, 0, opt_in, set_wizonly,
            Off, Yes, No, No, NoAlias, &iflags.wizmgender, Term_False,
-           (char *)0)
-    NHOPTB(wizweight, Advanced, 0, opt_in, set_wizonly,
-           Off, Yes, No, No, NoAlias, &iflags.wizweight, Term_False,
            (char *)0)
     NHOPTB(wraptext, Advanced, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.wc2_wraptext, Term_False,

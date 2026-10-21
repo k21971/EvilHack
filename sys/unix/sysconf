@@ -195,9 +195,9 @@ PANICTRACE_LIBC=2
 # Basic options
 OPTIONS=disclose:yi ya yv yg yc yo
 OPTIONS=bones,color,lit_corridor,dark_room,autodig,autoopen
-OPTIONS=boulder:0,pickup_burden:unencumbered
+OPTIONS=pickup_burden:unencumbered,sparkle:5
 OPTIONS=!autopickup,hilite_pet,hilite_pile,time,use_darkgray
-OPTIONS=msg_window:reversed,number_pad:1,sortloot:full
+OPTIONS=msg_window:reversed,number_pad:0,sortloot:full
 OPTIONS=menu_objsyms,perm_invent,hitpointbar,quick_farsight
 
 # Realtime status clock (disabled / play time / wallclock time)

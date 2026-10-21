@@ -69,6 +69,7 @@ static struct allopt_t allopt_init[] = {
 #undef OPTIONS_C
 
 #define PILE_LIMIT_DFLT 5
+#define SPARKLE_DFLT SHIELD_COUNT
 #define rolestring(val, array, field) \
     ((val >= 0) ? array[val].field : (val == ROLE_RANDOM) ? randomrole : none)
 
@@ -4227,6 +4228,60 @@ optfn_sortvanquished(
 }
 
 staticfn int
+optfn_sparkle(
+    int optidx, int req, boolean negated,
+    char *opts, char *op)
+{
+    if (req == do_init) {
+        return optn_ok;
+    }
+    if (req == do_set) {
+        /* number of frames of the resistance animation; the true/false
+           words of the former boolean option stay valid */
+        op = string_for_opt(opts, TRUE);
+        if (negated) {
+            if (op != empty_optstr) {
+                bad_negation(allopt[optidx].name, TRUE);
+                return optn_err;
+            }
+            flags.sparkle = 0;
+        } else {
+            const char *p = op;
+            int ln;
+
+            while (*p == ' ' || *p == '\t')
+                ++p;
+            ln = (int) strlen(p);
+            if (!ln) {
+                flags.sparkle = SPARKLE_DFLT;
+            } else if (digit(*p)
+                       || ((*p == '+' || *p == '-') && digit(p[1]))) {
+                flags.sparkle = atoi(p);
+            } else if (!strncmpi(p, "true", ln) || !strncmpi(p, "yes", ln)
+                       || !strcmpi(p, "on")) {
+                flags.sparkle = SPARKLE_DFLT;
+            } else if (!strncmpi(p, "false", ln)
+                       || !strncmpi(p, "no", ln) || !strcmpi(p, "off")) {
+                flags.sparkle = 0;
+            } else {
+                config_error_add("Unknown %s parameter '%s'",
+                                 allopt[optidx].name, op);
+                return optn_silenterr;
+            }
+        }
+        /* sanity check */
+        if (flags.sparkle < 0 || flags.sparkle > SPARKLE_DFLT)
+            flags.sparkle = SPARKLE_DFLT;
+        return optn_ok;
+    }
+    if (req == get_val || req == get_cnf_val) {
+        Sprintf(opts, "%d", flags.sparkle);
+        return optn_ok;
+    }
+    return optn_ok;
+}
+
+staticfn int
 optfn_spidername(
     int optidx, int req,
     boolean negated,
@@ -5580,7 +5635,7 @@ optfn_boolean(
         case opt_price_quotes:
         case opt_sortpack:
         case opt_implicit_uncursed:
-        case opt_wizweight:
+        case opt_invweight:
             if (!flags.invlet_constant)
                 reassign();
             update_inventory();
@@ -7479,6 +7534,7 @@ initoptions_init(void)
     flags.paranoia_bits = PARANOID_PRAY | PARANOID_QUIT;
     flags.versinfo = have_branch ? 4 : 1;
     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
+    flags.sparkle = SPARKLE_DFLT;        /* 21 */
     flags.runmode = RUN_LEAP;
     iflags.msg_history = 20;
 
