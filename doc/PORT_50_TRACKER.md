@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-21, after session 247's
-  explode() underwater slice): 461 rows closed, 132 open (the two [~]
+- Phase 2 status (refreshed 2026-10-21, after session 248's
+  status-field slice): 464 rows closed, 136 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,15 +27,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 8 MED: unported master features (door-material colors and
-    five display options split out of the LOW ownerless option
+  - 6 MED: unported master features (door-material colors and
+    four display options split out of the LOW ownerless option
     wirings row by the maintainer 2026-10-20: underline_peacefuls,
-    the sparkle frame count, invweight, hilite_hidden_stairs and
-    the realtime status-line clock; a 0.9.3 rc file setting four of
-    them gets "Unknown option" on the branch, and sparkle:N above 1
-    is rejected as a boolean - plus master's always-on " MC:N" and
-    " TH:N" status fields: BL_MC minted and the to-hit row raised
-    from LOW by the maintainer 2026-10-20).
+    the sparkle frame count, invweight and hilite_hidden_stairs; a
+    0.9.3 rc file setting three of them gets "Unknown option" on the
+    branch, and sparkle:N above 1 is rejected as a boolean) and
+    master's abon() / dbon() strength tables (minted by session 248:
+    the branch still has 5.0's to-hit and damage bonuses for St).
+    Session 248 closed the status fields (BUG-2462..2483): master's
+    " MC:N" and " TH:N" after AC and the realtime clock after T:
+    (options realtime / realtime_format, on in the server hints).
+    Ruled over master's code: TH counts a Tortle's spear bonus,
+    hides an unknown enchantment only where it added one, and
+    refreshes with MC and the clock every turn, also with time off;
+    rc realtime:disabled and realtime_format:u work; the default
+    format stays u. Folded: ten 5.0-shared master status fixes and
+    5.0's initblstats[] order bug (a version hilite rule landed on
+    the weapon field).
     Session 247 closed explode()'s underwater rule (BUG-2453..2461):
     a submerged swimmer caught in a fire or acid blast takes 1-3 and
     keeps its items; a submerged hero keeps slime, armor, lamps and
@@ -217,9 +226,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 6 SWEEP: race-predicate census, is_bracer() census, inert
+  - 7 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity, racial size
-    macros, base-type oc_material reads.
+    macros, base-type oc_material reads, status values that change
+    without disp.botl (session 248: 5.0 dropped 3.6's per-command
+    status redraw, ruled keep and census).
   - 11 untagged: port gaps (Muse offense items, creeping mound
     meatfood(), monster chest_trap(), nasties[] reconcile,
     des-placed mplayer sex, look_at_monster buffer, "pairs of"),
@@ -227,7 +238,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 107 LOW: small parity rows, quirks and watch/record-only items.
+  - 112 LOW: small parity rows, quirks and watch/record-only items.
+    Session 248 minted five: the livelog line's realtime= / player=
+    format, two archive carries absent outside the slice (BUG-600,
+    BUG-790) with weapon_status()'s dead morning-star lines, the
+    opening and reroll screens' AC:0 MC:0 (5.0 order), tty's
+    three-line status losing conditions to showvers, and
+    #saveoptions after --evilhackrc targeting ~/.evilhackrc (the
+    last three shared with Official_nh50).
     Session 247 minted three: master 61f44f611's bracers wording is
     half-ported ("Your wooden shield smoulders!" for bracers),
     5.0's "Boom!" before every seen explosion (record only), and a
@@ -2140,7 +2158,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reading a scroll of fire underwater ("The water around you
       vaporizes violently!", then an explosion on the hero's square).
       Plannable.
-      CLOSED 2026-10-21 (session 247, commit pending; BUG-2453..2461).
+      CLOSED 2026-10-21 (session 247, eb099244a; BUG-2453..2461).
       Master's current explode() terms are ported in 5.0 idiom:
       - Monster arm: a mon_underwater() target of a fire / acid
         blast keeps its items (destroy_items() gated whole), no
@@ -2989,7 +3007,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       percent-resist sites,
       hack_artifacts non-forge retargets (Dirge/Priest/Caveman -
       artifact/crowning slice), botl_hitbonus FQ display
-      (SCORE_ON_BOTL extension), monk qi weapon-break FQ guards,
+      (SCORE_ON_BOTL extension; DISCHARGED 2026-10-21, session 248,
+      BUG-2462: the forged-quality terms are in botl_hitbonus()), monk qi weapon-break FQ guards,
       pray.c sacrifice-gift FQ sites (sacrifice rework; DISCHARGED
       2026-08-27 by the god-gift slice - the abuse-gated
       FQ_SUPERIOR/FQ_EXCEPTIONAL roll lives in bestow_regular_gift
@@ -5387,7 +5406,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       god-gift subsystem (record_gift), crowning rework,
       Xiuhcoatl throw cluster, Giantslayer/Harbinger/
       awaiting_guaranteed_gift artifact behaviors, larva AT_TENT
-      wrap, ma_break, botl_hitbonus, begin_burn light-establish
+      wrap, ma_break, botl_hitbonus (DISCHARGED 2026-10-21,
+      session 248, BUG-2462), begin_burn light-establish
       lightdamage, gain_guardian_steed (DISCHARGED 2026-10-20,
       session 246, BUG-2448), sewage terrain, dual-wield
       offhand weight (DISCHARGED 2026-08-22 with the weapon-skill
@@ -9280,7 +9300,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rider); hitval's magr arg (attacker-param row). botl_hitbonus
       does not exist on the branch (deferred, roles-review DEFER
       list) - WHEN IT LANDS it must carry the taper, the XL30 +5
-      and the hitcap, master's two-site mirror. The glove
+      and the hitcap, master's two-site mirror (LANDED 2026-10-21,
+      session 248, BUG-2462, with all three). The glove
       enchantment DAMAGE half is on the new bare-handed row below.
 - [x] weapon.c hero weapon-skill tables still vanilla (NEW, minted
       2026-08-22 by the hero to-hit/AC balance slice, which added
@@ -9297,7 +9318,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       weapon_dam_bonus). Character-balance change - diff the WHOLE
       of both functions in one deliberate slice; master also has a
       third weapon_skill_level() consumer in botl_hitbonus (absent,
-      see its deferral).
+      see its deferral; landed 2026-10-21, BUG-2462).
       PORTED 2026-08-22 (weapon-skill tables + noncorporeal slice,
       BUG-1665..1668, commit A = ae4402b81). PREMISE CORRECTIONS: (1)
       weapon_dam_bonus() is VALUE-IDENTICAL to master - `diff -w`
@@ -9342,6 +9363,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       for glass) and that pre-flight breakage destroys the whole floor
       stack since it runs before splitobj(); at -40 the Priest landed
       0 of 80 swings, so the penalty is close to a prohibition.
+- [ ] MED: abon() / dbon() strength tables still vanilla 5.0
+      (minted 2026-10-21, session 248, by the status-field slice's
+      TH census; port gap, no row before; ruled a row of its own).
+      Master authored new tables (50ccfea00 "Some tweaks to damage
+      and to-hit bonuses based on STR and/or two weaponing",
+      5524d1ef6, 73a1c3ef2 "Tweak damage bonus for using two-handed
+      weapons"); the branch carries 5.0's. dbon(): master St <6 -2,
+      <9 -1, <16 0, 16-18 +1, 18/01-18/50 +2, 18/51-18/75 +3, up to
+      18/99 +4, 18/00 +5, above +6, then x1.5 inside dbon() for a
+      bimanual uwep (so apply.c / dig.c callers get it too); branch
+      5.0 <6 -1, <16 0, 16-17 +1, 18 +2, up to 18/75 +3, 18/90 +4,
+      18/99 +5, 18/00 and above +6, and hmon's 5.0 3/2 two-handed
+      and 3/4 per-hit two-weapon factors. abon(): master's 18/50
+      boundary is `<= STR18(50)` (+1, vanilla 3.6), the branch 5.0's
+      `< STR18(50)` (+2 at exactly 18/50), so TH can differ from
+      master at that one value. Character balance: plan the whole
+      of both functions plus hmon's strbonus block in one slice,
+      with a damage battery (master legs) and a ruling on how
+      master's in-dbon() 1.5x relates to 5.0's hmon factors.
 - [x] Noncorporeal hit rules tree-wide + hmon_hitmon_barehanded()
       (NEW, minted 2026-08-22 by the hero to-hit/AC balance slice).
       shade_glare() itself regained master's bone and +2-weapon
@@ -15908,7 +15948,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       but carry the fix if the slice touches the function. RC
       COMPAT: OPTIONS=hilite_hidden_stairs is "Unknown option" on
       the branch. Guidebook / opthelp travel with it.
-- [ ] MED: the realtime status-line clock never ported (minted
+- [x] MED: the realtime status-line clock never ported (minted
       2026-10-20, maintainer split from the LOW ownerless option
       wirings row above; port gap). Master 2609abf26 (from TNNT
       ac4d7b2) adds a BL_REALTIME status field (after BL_TIME;
@@ -15942,6 +15982,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       land together). RC COMPAT: OPTIONS=realtime and
       realtime_format are "Unknown option" on the branch. opthelp /
       Guidebook travel with it.
+      CLOSED 2026-10-21 (session 248, commit pending; BUG-2463,
+      BUG-2467..2471). BL_REALTIME after BL_TIME (in the enum
+      always, enabled only under REALTIME_ON_BOTL with a shown
+      value); options realtime / realtime_format with O-menu
+      handlers, defaults wallclock / u; hints hardfought and
+      linux-debug define the macro (commented in linux.500 and
+      macOS.500), sysconf sets realtime:wallclock time. Master
+      quirks RULED fixed: rc realtime:disabled hides the field,
+      rc realtime_format:u is accepted (master dropped it silently),
+      the default stays u with the docs corrected (ruled over the
+      documented f); also fixed: the options are known on builds
+      without the macro, the play-time clock during the opening
+      screens, curses vertical status (placement, label, drop when
+      short). The clock refreshes every turn, also with time off.
+      Not on the classic line or in the dumplog (master parity).
+      Livelog realtime= -> its own LOW row (ruled).
 - [x] Per-alignment overview altar tracking PORTED whole
       (2026-08-28, master 851cc48a0 = final state, its only
       dungeon.c follow-up 6ce6f4157 touched no altar code; three
@@ -20325,7 +20381,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       One Ring." (identified - xname() drops the leading "the"); an
       item-menu "Read the inscription on the ring" line (BUG-2384).
       Battery T3 PASS.
-- [ ] MED: botl_hitbonus()/BL_TOHIT status field ABSENT (minted
+- [x] MED: botl_hitbonus()/BL_TOHIT status field ABSENT (minted
       2026-09-09 by the bane-aura census as LOW; the roles-review
       DEFER list and row ~7961 "WHEN IT LANDS it must carry the
       taper, the XL30 +5 and the hitcap" named it with no row;
@@ -20359,7 +20415,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       4d6d8dd24 potion hitcap). The roles-review deferral and the
       forged-quality "botl_hitbonus FQ display" rider ride this
       row. Port with the BL_MC row: one status-field slice.
-- [ ] MED: BL_MC magic-cancellation status field ABSENT (minted
+      CLOSED 2026-10-21 (session 248, commit pending; BUG-2462,
+      BUG-2464..2466). botl_hitbonus() mirrors the live
+      find_roll_to_hit() minus the target's terms, with master's
+      base_hitbonus() now also used by hitval(); the taper, the
+      XL30 +5, the hitcap and BUG-486's guards carried. RULED over
+      master's code: the Tortle spear / trident +2 counts (master
+      omitted it), an unknown enchantment is hidden only where the
+      weapon term added it (master lowered TH by a wielded wand's
+      charges and a non-AT_WEAP form's spe), TH refreshes every
+      turn (also MC; master refreshed only with time on, through
+      3.6's per-command redraw that 5.0 dropped). Not taken: the
+      abon() 18/50 boundary (the strength-tables row).
+- [x] MED: BL_MC magic-cancellation status field ABSENT (minted
       2026-10-20, maintainer; port gap with no row until now, found
       while splitting the display-option rows). Master d6b780ad2
       shows the hero's magic cancellation as " MC:N" between AC
@@ -20374,6 +20442,73 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       with the botl_hitbonus()/BL_TOHIT row above: one enum shift
       and one field-order pass per window port. No option, so no
       rc-file breakage.
+      CLOSED 2026-10-21 (session 248, commit pending; BUG-2462).
+      " MC:N" after AC from magic_negation(&gy.youmonst) in every
+      port's order (tty, curses incl. vertical, genl, dumplog,
+      win32); refreshed every turn with TH (a carried protection
+      artifact changes it without disp.botl). The slice also
+      folded the archive's 5.0-shared status carries (BUG-2474..
+      2483, re-ports of BUG-1012..1103) and 5.0's initblstats[]
+      order bug (BUG-2473).
+- [ ] SWEEP: status values that change without disp.botl (minted
+      2026-10-21, session 248, ruled). Vanilla 3.6 and master do a
+      full status update after every non-running command while
+      `time` is on (allmain.c `else if (flags.time && (!context.move
+      || !context.mv)) context.botl = TRUE;`); 5.0 dropped that line
+      for a time-only partial update, so on the branch any status
+      field whose state changes without the code setting disp.botl
+      stays stale even with time on (master: only with time off).
+      Five instances were fixed one at a time (BUG-1614 sewage Slow,
+      BUG-1638 the Pw refund, BUG-2146 aasimar wings, BUG-2166 /
+      BUG-2404 "Fly Ride"); TH, MC and the clock now refresh every
+      turn (BUG-2466). RULED 2026-10-21: keep 5.0's partial update
+      (not restore 3.6's redraw) and census EvilHack-authored code
+      that changes a shown value (conditions, encumbrance, Pw, AC,
+      HD, alignment, hunger, the 5.0 weapon / armor / terrain fields)
+      without disp.botl. Battery staging note: bare gdb writes to
+      condition timeouts show only after Ctrl-R, make_*() calls the
+      next turn.
+- [ ] LOW: livelog line format vs master (minted 2026-10-21, session
+      248, ruled). Master's 0.9.3 livelog line carries `realtime=`
+      (play seconds, `(long)` cast 5a17e1fd7) and names the player
+      `player=`; the branch's NetHack50 (Hardfought fork) line has
+      no realtime and says `name=`. Decide once Hardfought's parser
+      needs for the evilhack-50 variant are known.
+- [ ] LOW: archive carries absent outside their slices (minted
+      2026-10-21, session 248, by the status slice's archive sweep;
+      verify each before porting). BUG-600: restgamestate()'s
+      `uwep = 0; setuwep(otmp)` re-runs setworn()'s artifact grants
+      (master computes unweapon directly; the conduct / intrinsic
+      double-grant is read from code, not seen). BUG-790: the
+      burn_object() lantern arm tests `obj->age` with no NULL guard
+      (the candle sibling has `obj &&`). Also: botl.c
+      weapon_status() lost its `case P_MORNING_STAR:` label with the
+      skill (EvilHack has none), leaving two unreachable lines.
+- [ ] LOW: the opening and reroll screens show AC:0 MC:0 and a
+      pre-skill TH (minted 2026-10-21, session 248, battery B / A;
+      shared with Official_nh50). newgame()'s first bot() runs after
+      u_init_inventory_attrs() but before u_init_skills_discoveries()
+      calls skill_init() and find_ac(), so the status under the
+      intro text and in the reroll menu reads AC:0 (5.0 order) and,
+      on the branch, MC:0 and a TH 1-3 off (master's intro already
+      shows the worn AC). Fix shape: find_ac() (and skill_init()) at
+      the end of u_init_inventory_attrs(), or bot() after both.
+- [ ] LOW: tty three-line status with showvers drops the conditions
+      (minted 2026-10-21, session 248, battery C; shared with
+      Official_nh50 by code reading). render_status()'s row-3
+      condition placement allows for BL_VERS only when it directly
+      follows BL_CONDITION, but weapon / armor / terrain sit between
+      them, so right-justified conditions and the right-justified
+      version collide and the version wins ("Dlvl:1 T:11 6m:29s ...
+      evilhack-50 1.0.0-0" with four conditions set; they return
+      with showvers off).
+- [ ] LOW: #saveoptions after --evilhackrc=FILE targets ~/.evilhackrc
+      (minted 2026-10-21, session 248, battery C; shared with
+      Official_nh50). cfgfiles.c frees gc.cmdline_rcfile after
+      reading it, so #saveoptions offers to overwrite the default rc
+      ("Overwrite config file /root/.evilhackrc? [yes|n]"), not the
+      file the game loaded. Risk: a player who answers yes loses
+      their main rc.
 - [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
@@ -30852,7 +30987,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       after "HurtLegs", tt_condorder[] (Wither after TermIll, Slow
       after Ride, matching windows.c), mask_to_fancyfield[], the two
       case switches and status_indices[] (Wither beside TermIll,
-      mirroring master 3fb3081f4). (2) Qt qt_stat.h/.cpp: slow and
+      mirroring master 3fb3081f4); and the session 248 status fields
+      (X11 status reconciliation row's rider). (2) Qt qt_stat.h/.cpp:
+      MC, TH and the realtime clock (Qt reads core variables
+      directly: hand-written widgets beside AC and time); slow and
       wither labelled icons, init-list, show/hide, layout (Slow /
       Withering properties); optional Qt menu entries for forge,
       order, shapechange, shield, steal, telekinesis, wildshape.
@@ -30925,8 +31063,28 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       and then add the EvilHack condition rows in one pass. Note:
       tty/curses/Qt/chain/shim need nothing - they render conditions
       from the shared src/botl.c conditions[] table.
+      NOTE 2026-10-21 (session 248): the BL_MASK_PARALYZ reference
+      is gone (the 5.0.0 catch-up adopted upstream's winstat.c,
+      which spells PARLYZ), so the compile claim above is stale.
+      RIDER (session 248): X11 has no slot for the new BL_MC,
+      BL_TOHIT and BL_REALTIME fields - add them to
+      X11_fieldorder_2[][18] (row 2 is full and has no BL_FLUSH) /
+      X11_fieldorder_3[][13], formats[] and bl_to_fancyfield[] (with
+      new F_ fields for the fancy status), master order AC MC TH and
+      T realtime.
 - [ ] HTML dumplog: NetHack50 DUMPHTML base + EvilHack enhancements
       (pet/peaceful highlighting, customcolor swatches, rider fix)
+      RIDER (2026-10-21, session 248 archive sweep): master's other
+      DUMPHTML fixes in src/windows.c are absent on the branch -
+      BUG-1094 (dump_add_menu()'s closing tag reads the attr that
+      get_menu_coloring() rewrote; snapshot it), BUG-1096 (NULL str
+      guards: html_dump_str() / html_dump_line() have them,
+      dump_putstr() check), BUG-1101 (dump_open_log()'s mid-function
+      #undef / #define DUMPLOG_FILE / DUMPHTML_FILE, still at the
+      top of the #if block). The status-code ones (BUG-1093, 1099,
+      1103) landed with session 248 as BUG-2478 / 2480 / 2483.
+      These are NetHack50 (Hardfought fork) code, absent from
+      Official_nh50.
 - [ ] TILE-ART DRIFT: win/share/other.txt is behind the branch's
       cmap enum and every tile from the first branch-only symbol
       onward resolves to the WRONG ART. Own item (minted
@@ -31420,8 +31578,14 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (a19f2fc8b): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
 | 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (a19f2fc8b, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
 | 2026-10-20 | A fire-breathing monster curing its own sliming prints "The red dragon breaths fire on itself.": muse_unslime() passes the noun "breath" as monverbself()'s verb, and vtense() makes it "breaths" (master and 3.6 printed "%s breathes fire on %sself."). Shared with Official_nh50 (muse.c). EvilHack fix BUG-2445 (33f183643): the verb is "breathe". | found (branch-fixed); not yet sent |
-| 2026-10-21 | An underwater hero caught in a fire explosion has their lamps and candles lit ("Your oil lamp catches light!"), though #apply refuses to light one underwater ("Sorry, fire and water don't mix."): explode()'s hero arm calls ignite_items(gi.invent) with no Underwater test, and catch_lit() has none either (reading a scroll of fire underwater is enough). Shared with Official_nh50 (explode.c). EvilHack fix BUG-2453 (commit pending): ignite_items() runs only when the hero is not Underwater, with burnarmor(). | found (branch-fixed); not yet sent |
-| 2026-10-21 | A fire blast or ray that boils away a pool under a submerged hero (magical breathing) leaves u.uinwater set on the dry square until the next turn's pooleffects(): zap_over_floor()'s fire arm turns the POOL into ROOM plus a pit and calls dotrap(), but never clears it, unlike its own freeze arm ("leave the no longer existent water"). The rest of the event still treats the hero as underwater: dobuzz() hits the hero after zap_over_floor(), so zhitu()'s `|| Underwater` shield blocks the ray that boiled the water, and the 3x3 underwater view stays. Shared with Official_nh50 (zap.c). EvilHack fix BUG-2460 (commit pending): leave the water at once (set_uinwater(0), vision_reset(), docrt()), as the freeze arm does. | found (branch-fixed); not yet sent |
+| 2026-10-21 | An underwater hero caught in a fire explosion has their lamps and candles lit ("Your oil lamp catches light!"), though #apply refuses to light one underwater ("Sorry, fire and water don't mix."): explode()'s hero arm calls ignite_items(gi.invent) with no Underwater test, and catch_lit() has none either (reading a scroll of fire underwater is enough). Shared with Official_nh50 (explode.c). EvilHack fix BUG-2453 (eb099244a): ignite_items() runs only when the hero is not Underwater, with burnarmor(). | found (branch-fixed); not yet sent |
+| 2026-10-21 | A fire blast or ray that boils away a pool under a submerged hero (magical breathing) leaves u.uinwater set on the dry square until the next turn's pooleffects(): zap_over_floor()'s fire arm turns the POOL into ROOM plus a pit and calls dotrap(), but never clears it, unlike its own freeze arm ("leave the no longer existent water"). The rest of the event still treats the hero as underwater: dobuzz() hits the hero after zap_over_floor(), so zhitu()'s `|| Underwater` shield blocks the ray that boiled the water, and the 3x3 underwater view stays. Shared with Official_nh50 (zap.c). EvilHack fix BUG-2460 (eb099244a): leave the water at once (set_uinwater(0), vision_reset(), docrt()), as the freeze arm does. | found (branch-fixed); not yet sent |
+| 2026-10-21 | initblstats[] is not in enum statusfields order: "version" sits before weapon / armor / terrain while the enum puts BL_VERS last. init_blstats() copies the table by position and everything else indexes it by field, so blstats[][BL_VERS] gets terrain's 20-byte buffer (a longer version string is cut), status_hilite2str() / #saveoptions name a version rule "terrain" (weapon -> version, armor -> weapon, terrain -> armor), and status_hilite_menu_choose_field() returns the table position, so a version rule picked in the O menu lands on BL_WEAPON. Shared with Official_nh50 (botl.c). EvilHack fix BUG-2473 (commit pending): the table in enum order. | found (branch-fixed); not yet sent |
+| 2026-10-21 | Hilite percentage rules `>-1%` and `<101%` are rejected ("invalid percentage value") though the Guidebook documents them: parse_status_hl2() compares hilite.value.a_int with GT_VALUE / LT_VALUE where hilite.rel was meant. Also splitsubfields() rejects exactly maxsf subfields (`sf >= maxsf - 1`), and percentage() / compare_blstats() test the a_void union member as a generic zero. Shared with Official_nh50 (botl.c). EvilHack fixes BUG-2474..2476 (commit pending; master BUG-1012..1014). | found (branch-fixed); not yet sent |
+| 2026-10-21 | genl_status_init() allocates status_vals[] without freeing the previous buffers, so a second full status_initialize() (which only warns) leaks them. Shared with Official_nh50 (windows.c). EvilHack fix BUG-2479 (commit pending; master BUG-1095): free before alloc. | found (branch-fixed); not yet sent |
+| 2026-10-21 | The status line under the opening text and in the reroll menu shows AC:0: newgame()'s first bot() runs after u_init_inventory_attrs() and before u_init_skills_discoveries() calls find_ac() and skill_init(). Shared with Official_nh50 (allmain.c / u_init.c). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
+| 2026-10-21 | tty three-line status with showvers on loses the status conditions: render_status() reserves room for the version only when BL_VERS directly follows BL_CONDITION in the row order, but weapon / armor / terrain sit between them, so the right-justified version overwrites the right-justified conditions. Shared with Official_nh50 (wintty.c, by code reading; seen on the branch). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
+| 2026-10-21 | #saveoptions after --nethackrc=FILE offers to overwrite the default rc file, not FILE: rcfile handling frees gc.cmdline_rcfile once the file is read. Shared with Official_nh50 (cfgfiles.c). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31649,6 +31813,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-21 | Status-field slice rulings (session 248; AskUserQuestion x5, ten questions, eight as recommended). (0) SLICE: the three status-field rows together (BL_MC, BL_TOHIT, the realtime clock) ahead of the four display-option rows. (1) TORTLE: TH includes hitval()'s target-free Tortle spear / trident +2 that master's botl_hitbonus() left out (master's stated intent: drop only target terms). (2) QUIRKS (multi-select, all four fixed): rc realtime:disabled hides the field; rc realtime_format:u accepted; an unknown enchantment is subtracted only where the weapon term added it (master: a wielded wand's charges, a non-AT_WEAP form's spe); TH refreshes every turn. (3) DEFAULT FORMAT: u, master's code and 0.9.3's live feel ("5m:03s"), NOT the recommended f that master's commit message, opthelp and Guidebook document; the docs are corrected to u. (4) CARRIES: fold all ten 5.0-shared master status fixes (BUG-1012/1013/1014/1021 botl.c, BUG-1093/1095/1099/1100/1102/1103 windows.c) plus 5.0's initblstats[] order bug; BUG-1094/1096/1101 ride the HTML dumplog row. (5) HINTS: REALTIME_ON_BOTL beside SCORE_ON_BOTL (active hardfought / linux-debug, commented linux.500 / macOS.500, commented config.h). (6) LIVELOG realtime=: a LOW row. (7) abon() / dbon() strength tables: a MED row of their own; TH uses the branch abon(). (8) REFRESH: every turn whether or not 'time' is on (the per-turn update runs always; a full bot() when TH or MC changed). (9) STATUS LAG (asked after battery A showed master refreshes everything per command with time on through vanilla 3.6's moveloop line, which 5.0 dropped): keep 5.0's partial update and mint a SWEEP row for EvilHack code that changes shown state without disp.botl, NOT the recommended restore of 3.6's per-command redraw. Taken without asking: BL_REALTIME always in the enum but never enabled without the macro, the options known on every build (accepted and ignored without it), MAXCO 256, curses vertical placement / drop of the clock, win32 MC / TH only (master parity), X11 / Qt / libnh left to their rows, no clock in the dumplog or the classic line (master parity). | maintainer |
 | 2026-10-21 | explode() underwater slice rulings (session 247; AskUserQuestion x4, six questions, all as recommended). (1) ACID BLAST: ONE ROLL - restoring explode()'s hero acid corrosion (master 9ad600bde, lost in the adoption) would make a monster's acid blast spell corrode twice, as on master since 2021 (the spell's own 2019 copy plus explode()'s); explode() owns it (9ad600bde's stated intent) and the spell's hero copy goes. On land the odds stay the branch's (weapon 2/3, armor 3/4); underwater none. Rejected: master's two rolls (armor 15/16, one roll even underwater), and two on land / none underwater. (2) MONSTER ACID: GATE ALL THREE - mcast_acid_blast()'s monster target, explmm() and explum() skip a submerged target's corrosion (61fbffdee's "player or monster", missed cases fixed as found); rejected leaving them as master. (3) FOLD all three master explode.c silent reverts: "torrent of acid" (ac3233d3c), the "exploding fire bomb" killer (3340a7a4a), the shop "dissolve" verb (539acf0ae). (4) REVIEWER LOWs: FOLD both - water that boils away under a submerged hero clears u.uinwater at once (a shared master / vanilla bug; the puddle, fire trap and ice trap siblings went in with it under the cross-file-siblings rule), and a submerged monster gets no fire slime cure. (5) FIRE RAYS: THE WATER IS GONE, THE RAY HITS - buzz() boils a square before hitting the hero there, so a fire ray that boils a submerged hero's pool now hits as on land (full damage, armor burn, item loss, slime burnt), where master and vanilla keep the hero shielded; moats still shield. | maintainer |
 | 2026-10-21 | explode()'s underwater rule (session 246 follow-up; AskUserQuestion x1, as recommended). The row's stated quirk (61fbffdee's item gate sparing items from every fire / acid explosion) was already fixed by master 20ff7e6c8, so the port takes master's current explode.c. The real asymmetry was ruled: an underwater hero caught in a fire or acid explosion takes MASTER'S CODE EXACTLY, the full blast with Maybe_Half_Phys() (acid halved twice for a half-physical-damage hero). Rejected: rnd(3) like explode()'s monster arm, and immunity like master's melee and ray paths ("The fire quickly fizzles out."). Underwater monsters take rnd(3). Neither the hero nor monsters lose armor, items or slime to an underwater fire or acid blast. | maintainer |
 | 2026-10-20 | Astral Red Horse slice rulings (session 246; AskUserQuestion x2, four questions, all as recommended). (1) DEAF TEXT: deaf-aware - "You feel a soft voice:" for a deaf hero, "A voice whispers:" otherwise, as 5.0's angel does (master's steed function predates vanilla 3.6.2's Deaf variants; BUG-2450). (2) SADDLE ODDS: fold master's random-saddle odds into the slice - 1 in 2000 for any can_saddle() species (master 0cd8b62 + ee655584a), over minting a row and keeping vanilla's 1 in 100 for domestic animals only (BUG-2451). (3) REVIEWER LOWs: all three folded - the first-pet livelog uses the() for a unique (BUG-2452), sp_lev.c's des saddle checks which_armor() first, mon.c's angel comment reworded. (4) Battery go-ahead (three testers, master legs on the scratch master build). Decided without asking (master's shape): no Conflict arm at arrival and dog_move()'s lose_guardian_angel() arm deleted (84f8e3fa6); the Infidel gate on the caller (6972e3e62, found by battery B); worn makemon() gear blessed in place (BUG-2449, master frozen-unfixed); master's literal tame / EDOG writes over initedog(). | maintainer |
