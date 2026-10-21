@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-20, after session 246's
-  Astral Red Horse slice): 460 rows closed, 130 open (the two [~]
+- Phase 2 status (refreshed 2026-10-21, after session 247's
+  explode() underwater slice): 461 rows closed, 132 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,9 +27,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 9 MED: unported master features (door-material colors,
-    explode()'s underwater rule - minted
-    2026-10-20 by session 245's census of master 61fbffdee - and
+  - 8 MED: unported master features (door-material colors and
     five display options split out of the LOW ownerless option
     wirings row by the maintainer 2026-10-20: underline_peacefuls,
     the sparkle frame count, invweight, hilite_hidden_stairs and
@@ -38,6 +36,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     is rejected as a boolean - plus master's always-on " MC:N" and
     " TH:N" status fields: BL_MC minted and the to-hit row raised
     from LOW by the maintainer 2026-10-20).
+    Session 247 closed explode()'s underwater rule (BUG-2453..2461):
+    a submerged swimmer caught in a fire or acid blast takes 1-3 and
+    keeps its items; a submerged hero keeps slime, armor, lamps and
+    items and takes the blast halved again with half physical
+    damage. Acid explosions corrode the hero's weapon and armor
+    again (lost in the adoption), once per acid blast spell (ruled;
+    master rolled twice). Ruled folds: a submerged monster's armor
+    is spared by the spell and by acid spheres, master's "torrent
+    of acid", "exploding fire bomb" and shop "dissolve" texts, water
+    that boils away or freezes under a submerged hero lets go of
+    them at once (so the fire ray that boils it hits), and no fire
+    slime cure for a submerged monster.
     Session 246 closed the Astral Red Horse (BUG-2448..2452): a
     fervent, not severely abused, non-Infidel hero gets master's
     tame, saddled Red Horse on reaching the Astral Plane instead of
@@ -217,7 +227,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 104 LOW: small parity rows, quirks and watch/record-only items.
+  - 107 LOW: small parity rows, quirks and watch/record-only items.
+    Session 247 minted three: master 61f44f611's bracers wording is
+    half-ported ("Your wooden shield smoulders!" for bracers),
+    5.0's "Boom!" before every seen explosion (record only), and a
+    tiny hero submerged in a puddle sees a blank map (master too).
     Session 245 minted two: spell-touch damage enters as the
     attack's damage type (record only), and hero breath's saving
     throw can halve the water / doused / level-0 drain kills into
@@ -2095,7 +2109,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       testers PRE / POST plus a delta leg on the final build, every
       leg PASS, paniclogs empty. Minted the MED and two LOW rows
       below.
-- [ ] MED: explode()'s underwater rule never ported (minted
+- [x] MED: explode()'s underwater rule never ported (minted
       2026-10-20 by session 245's census of master 61fbffdee; port
       gap). Master's explode() spares a submerged monster or hero:
       fire / acid deal only rnd(3) to a mon_underwater() monster,
@@ -2126,6 +2140,59 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       reading a scroll of fire underwater ("The water around you
       vaporizes violently!", then an explosion on the hero's square).
       Plannable.
+      CLOSED 2026-10-21 (session 247, commit pending; BUG-2453..2461).
+      Master's current explode() terms are ported in 5.0 idiom:
+      - Monster arm: a mon_underwater() target of a fire / acid
+        blast keeps its items (destroy_items() gated whole), no
+        burnarmor() / ignite_items(), and takes rnd(3) after
+        resist() (damage_mon() still adds the 1.5x vulnerability).
+      - Hero arm: no slime burn, armor burn, lamp lighting or item
+        loss underwater; an extra Maybe_Half_Phys() for fire and
+        acid (acid quartered with half physical damage).
+      Found on the way: the hero's acid corrosion from explosions
+      (master 9ad600bde + BUG-544) was lost in the tree adoption
+      (BUG-2454); restored inside the !Underwater gate.
+      RULED (decisions log, 2026-10-21):
+      - One corrosion roll per acid blast spell: the spell's own
+        hero copy is gone (master rolled twice, BUG-2455).
+      - Monster-side acid corrosion skips a submerged target in
+        mcast_acid_blast(), explmm() and explum() (BUG-2456).
+      - Three master explode.c silent reverts folded: "torrent of
+        acid", the "exploding fire bomb" killer, the shop "dissolve"
+        verb (BUG-2457..2459).
+      - Reviewer LOWs folded: water that boils away or freezes under
+        a submerged hero clears u.uinwater at once (pool, puddle,
+        fire trap, ice trap; BUG-2460), so a fire ray that boils the
+        hero's pool hits as on land (ruled); a submerged monster no
+        longer burns its slime away with fire (BUG-2461).
+      Battery: four testers, PRE / POST / POST2 plus master-parity
+      legs on a scratch master build; every leg PASS (A1-A8, B1-B8,
+      C1-C6, D1-D7), paniclogs empty. Minted the three LOW rows
+      below.
+- [ ] LOW: master 61f44f611's bracers wording only partly ported
+      (minted 2026-10-21 by session 247's battery; silent revert).
+      Burning worn bracers reads "Your wooden shield smoulders!":
+      burnarmor() keeps 5.0's literal "wooden shield" for the W_ARMS
+      slot, where master says "shield" or "bracers" (is_bracer()),
+      and master's current arm returns TRUE without a fallthrough
+      when no shield is worn. do_wear.c's half is missing too: the
+      c_bracers "already wearing" text and "Your bracers crumble
+      away!". Only the mcastu.c half (the monster destroy-armor
+      "crumble away") is on the branch.
+- [ ] LOW: 5.0's "Boom!" before a seen explosion (minted
+      2026-10-21 by session 247's battery; 5.0 extra, record only
+      unless ruled). explode() prints "Boom!" whenever no "You hear
+      a blast." line was given, so every visible blast reads
+      "Boom!  You are caught in the fireball!". Master never prints
+      it.
+- [ ] LOW: a tiny hero submerged in a puddle sees a blank map
+      (minted 2026-10-21 by session 247's battery; shared with
+      master). pooleffects() submerges a verysmall form in a puddle
+      or sewage (drown(): "You touch bottom."), but under_water()
+      redraws only is_pool_or_lava() / is_ice() squares, so the
+      hero's own square and the hero glyph are never drawn, even
+      after ^R; only the cursor marks the hero. Fix shape: let
+      under_water() draw damp terrain (is_damp_terrain()) too.
 - [ ] LOW: spell-touch damage enters as the attack's damage type
       (minted 2026-10-20 by session 245; master quirk, record only
       unless ruled). A monster's burning hands / shocking grasp
@@ -31353,6 +31420,8 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-20 | Same panic with no hole: a riding lycanthrope breathes a flung cursed potion of water's vapor mid-blast, changes form, is thrown from the steed by dismount_steed(DISMOUNT_POLY) and set down beside the bag, so in_container()'s obj_here(bag, u.ux, u.uy) fails. Shared with Official_nh50 (and master). EvilHack fix BUG-2424 (a19f2fc8b): check `bag->where == OBJ_FLOOR`; useupf() bills from the bag's own square. | found (branch-fixed); not yet sent |
 | 2026-10-20 | "dealloc_obj with cobj" panic at bones: the hero dies while an exploding floor bag of holding's contents are still flying (an adjacent gas spore hit by a flung item explodes), and resetobjs() frees the in_use bag while it still holds unflung items; a carried bag's unflung contents are deleted by inven_inuse() instead. Shared with Official_nh50. EvilHack fix BUG-2425 (a19f2fc8b, ruled): bones empty an in-use container where it lies, and a carried blasting bag's contents land at the hero's feet in done_object_cleanup(). | found (branch-fixed); not yet sent |
 | 2026-10-20 | A fire-breathing monster curing its own sliming prints "The red dragon breaths fire on itself.": muse_unslime() passes the noun "breath" as monverbself()'s verb, and vtense() makes it "breaths" (master and 3.6 printed "%s breathes fire on %sself."). Shared with Official_nh50 (muse.c). EvilHack fix BUG-2445 (33f183643): the verb is "breathe". | found (branch-fixed); not yet sent |
+| 2026-10-21 | An underwater hero caught in a fire explosion has their lamps and candles lit ("Your oil lamp catches light!"), though #apply refuses to light one underwater ("Sorry, fire and water don't mix."): explode()'s hero arm calls ignite_items(gi.invent) with no Underwater test, and catch_lit() has none either (reading a scroll of fire underwater is enough). Shared with Official_nh50 (explode.c). EvilHack fix BUG-2453 (commit pending): ignite_items() runs only when the hero is not Underwater, with burnarmor(). | found (branch-fixed); not yet sent |
+| 2026-10-21 | A fire blast or ray that boils away a pool under a submerged hero (magical breathing) leaves u.uinwater set on the dry square until the next turn's pooleffects(): zap_over_floor()'s fire arm turns the POOL into ROOM plus a pit and calls dotrap(), but never clears it, unlike its own freeze arm ("leave the no longer existent water"). The rest of the event still treats the hero as underwater: dobuzz() hits the hero after zap_over_floor(), so zhitu()'s `|| Underwater` shield blocks the ray that boiled the water, and the 3x3 underwater view stays. Shared with Official_nh50 (zap.c). EvilHack fix BUG-2460 (commit pending): leave the water at once (set_uinwater(0), vision_reset(), docrt()), as the freeze arm does. | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31580,6 +31649,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-21 | explode() underwater slice rulings (session 247; AskUserQuestion x4, six questions, all as recommended). (1) ACID BLAST: ONE ROLL - restoring explode()'s hero acid corrosion (master 9ad600bde, lost in the adoption) would make a monster's acid blast spell corrode twice, as on master since 2021 (the spell's own 2019 copy plus explode()'s); explode() owns it (9ad600bde's stated intent) and the spell's hero copy goes. On land the odds stay the branch's (weapon 2/3, armor 3/4); underwater none. Rejected: master's two rolls (armor 15/16, one roll even underwater), and two on land / none underwater. (2) MONSTER ACID: GATE ALL THREE - mcast_acid_blast()'s monster target, explmm() and explum() skip a submerged target's corrosion (61fbffdee's "player or monster", missed cases fixed as found); rejected leaving them as master. (3) FOLD all three master explode.c silent reverts: "torrent of acid" (ac3233d3c), the "exploding fire bomb" killer (3340a7a4a), the shop "dissolve" verb (539acf0ae). (4) REVIEWER LOWs: FOLD both - water that boils away under a submerged hero clears u.uinwater at once (a shared master / vanilla bug; the puddle, fire trap and ice trap siblings went in with it under the cross-file-siblings rule), and a submerged monster gets no fire slime cure. (5) FIRE RAYS: THE WATER IS GONE, THE RAY HITS - buzz() boils a square before hitting the hero there, so a fire ray that boils a submerged hero's pool now hits as on land (full damage, armor burn, item loss, slime burnt), where master and vanilla keep the hero shielded; moats still shield. | maintainer |
 | 2026-10-21 | explode()'s underwater rule (session 246 follow-up; AskUserQuestion x1, as recommended). The row's stated quirk (61fbffdee's item gate sparing items from every fire / acid explosion) was already fixed by master 20ff7e6c8, so the port takes master's current explode.c. The real asymmetry was ruled: an underwater hero caught in a fire or acid explosion takes MASTER'S CODE EXACTLY, the full blast with Maybe_Half_Phys() (acid halved twice for a half-physical-damage hero). Rejected: rnd(3) like explode()'s monster arm, and immunity like master's melee and ray paths ("The fire quickly fizzles out."). Underwater monsters take rnd(3). Neither the hero nor monsters lose armor, items or slime to an underwater fire or acid blast. | maintainer |
 | 2026-10-20 | Astral Red Horse slice rulings (session 246; AskUserQuestion x2, four questions, all as recommended). (1) DEAF TEXT: deaf-aware - "You feel a soft voice:" for a deaf hero, "A voice whispers:" otherwise, as 5.0's angel does (master's steed function predates vanilla 3.6.2's Deaf variants; BUG-2450). (2) SADDLE ODDS: fold master's random-saddle odds into the slice - 1 in 2000 for any can_saddle() species (master 0cd8b62 + ee655584a), over minting a row and keeping vanilla's 1 in 100 for domestic animals only (BUG-2451). (3) REVIEWER LOWs: all three folded - the first-pet livelog uses the() for a unique (BUG-2452), sp_lev.c's des saddle checks which_armor() first, mon.c's angel comment reworded. (4) Battery go-ahead (three testers, master legs on the scratch master build). Decided without asking (master's shape): no Conflict arm at arrival and dog_move()'s lose_guardian_angel() arm deleted (84f8e3fa6); the Infidel gate on the caller (6972e3e62, found by battery B); worn makemon() gear blessed in place (BUG-2449, master frozen-unfixed); master's literal tame / EDOG writes over initedog(). | maintainer |
 | 2026-10-20 | Status-field rows (session 245 follow-up; maintainer request, no AskUserQuestion). Master's always-on " MC:N" status field (BL_MC, d6b780ad2), which had no row, gets a MED row, and the existing botl_hitbonus()/BL_TOHIT " TH:N" row is raised from LOW to MED beside it: both are on every 0.9.3 status line. They share one plumbing pass (botl.h enum, blstats, hilite names, do_statusline2(), each window port's field order) and should land as one status-field slice. | maintainer |
