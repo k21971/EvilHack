@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-21, after session 249's
-  invweight / sparkle slice): 466 rows closed, 137 open (the two [~]
+  invweight / sparkle slice): 467 rows closed, 136 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -247,10 +247,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 114 LOW: small parity rows, quirks and watch/record-only items.
+  - 113 LOW: small parity rows, quirks and watch/record-only items.
     Session 249 minted two: master's BUG-369 weight() overflow caps
     never carried (wizard / fuzzer wishes), and 5.0's one-aum
-    minimum for 1..49 coins (ruling needed; invweight shows it).
+    minimum for 1..49 coins (ruled the same day: keep 5.0's, closed).
     Session 248 minted five: the livelog line's realtime= / player=
     format, two archive carries absent outside the slice (BUG-600,
     BUG-790) with weapon_status()'s dead morning-star lines, the
@@ -15914,7 +15914,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sparkle:5. Port question: master's start frame uses libc
       rand(); 5.0's display effects draw from rn2_on_display_rng().
       opthelp / Guidebook travel with it.
-      CLOSED 2026-10-21 (session 249, commit pending; BUG-2487..2489).
+      CLOSED 2026-10-21 (session 249, edcd79898; BUG-2487..2489).
       int flags.sparkle 0..21 through optfn_sparkle(): bare 21, ! 0,
       numbers with master's clamps (below 0 or above 21 -> 21), the
       start frame from rn2_on_display_rng(). RULED: default 21 built
@@ -15948,7 +15948,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       scaling, and keep 5.0's with_price merge and paydoname()
       suppression unless ruled otherwise. RC COMPAT:
       OPTIONS=invweight is "Unknown option" on the branch.
-      CLOSED 2026-10-21 (session 249, commit pending; BUG-2484..2486).
+      CLOSED 2026-10-21 (session 249, edcd79898; BUG-2484..2486).
       iflags.invweight for every player (set in game; no wizweight
       alias, as on master), xprname()'s partial-count weight, and
       the suffix dropped rather than cut when the name runs long.
@@ -16004,13 +16004,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       so a wizard-mode wish for "467584111 daggers" overflows a
       signed int (UBSan). Wizard / fuzzer only. Port master's caps
       into 5.0's weight() and the readobjnam count path.
-- [ ] LOW: 5.0's one-aum minimum for gold (minted 2026-10-21,
+- [x] LOW: 5.0's one-aum minimum for gold (minted 2026-10-21,
       session 249 battery anomaly; RULING NEEDED). 5.0 90aded364
       "weight of gold" makes weight() return at least 1 for any
       coins; 1..49 coins weighed 0 on master and 3.6. invweight now
       shows it: branch "6 gold pieces (1 aum)", master "(0 aum)".
       Rule master's 0 or 5.0's minimum (one unit of encumbrance for
       a small purse).
+      RULED 2026-10-21 (maintainer, session 249 follow-up): KEEP
+      5.0's METHOD - 1..49 coins weigh 1 aum. No code change; the
+      branch already carries 90aded364.
 - [x] MED: the realtime status-line clock never ported (minted
       2026-10-20, maintainer split from the LOW ownerless option
       wirings row above; port gap). Master 2609abf26 (from TNNT
@@ -31667,7 +31670,7 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-21 | initblstats[] is not in enum statusfields order: "version" sits before weapon / armor / terrain while the enum puts BL_VERS last. init_blstats() copies the table by position and everything else indexes it by field, so blstats[][BL_VERS] gets terrain's 20-byte buffer (a longer version string is cut), status_hilite2str() / #saveoptions name a version rule "terrain" (weapon -> version, armor -> weapon, terrain -> armor), and status_hilite_menu_choose_field() returns the table position, so a version rule picked in the O menu lands on BL_WEAPON. Shared with Official_nh50 (botl.c). EvilHack fix BUG-2473 (923569904): the table in enum order. | found (branch-fixed); not yet sent |
 | 2026-10-21 | Hilite percentage rules `>-1%` and `<101%` are rejected ("invalid percentage value") though the Guidebook documents them: parse_status_hl2() compares hilite.value.a_int with GT_VALUE / LT_VALUE where hilite.rel was meant. Also splitsubfields() rejects exactly maxsf subfields (`sf >= maxsf - 1`), and percentage() / compare_blstats() test the a_void union member as a generic zero. Shared with Official_nh50 (botl.c). EvilHack fixes BUG-2474..2476 (923569904; master BUG-1012..1014). | found (branch-fixed); not yet sent |
 | 2026-10-21 | genl_status_init() allocates status_vals[] without freeing the previous buffers, so a second full status_initialize() (which only warns) leaks them. Shared with Official_nh50 (windows.c). EvilHack fix BUG-2479 (923569904; master BUG-1095): free before alloc. | found (branch-fixed); not yet sent |
-| 2026-10-21 | The wizweight suffix folds ", N aum)" into the last parenthetical whenever doname_with_price() was used and the name ends in ')' (`with_price && bp_eos[-1] == ')'`), which was meant for a floor item's shop price. Every inventory menu built by query_objlist() (D, A) passes with_price, so wizard mode shows "a +0 long sword (weapon in hand, 40 aum)" in D but "(weapon in hand) (40 aum)" in `i`, "(0:4, 7 aum)" for charges and "(unpaid, 5 zorkmids, 20 aum)" for an unpaid item, and puts the weight inside a typed name that ends in ')'. Shared with Official_nh50 (objnam.c). EvilHack fix BUG-2486 (commit pending): the weight is always its own parenthetical. | found (branch-fixed); not yet sent |
+| 2026-10-21 | The wizweight suffix folds ", N aum)" into the last parenthetical whenever doname_with_price() was used and the name ends in ')' (`with_price && bp_eos[-1] == ')'`), which was meant for a floor item's shop price. Every inventory menu built by query_objlist() (D, A) passes with_price, so wizard mode shows "a +0 long sword (weapon in hand, 40 aum)" in D but "(weapon in hand) (40 aum)" in `i`, "(0:4, 7 aum)" for charges and "(unpaid, 5 zorkmids, 20 aum)" for an unpaid item, and puts the weight inside a typed name that ends in ')'. Shared with Official_nh50 (objnam.c). EvilHack fix BUG-2486 (edcd79898): the weight is always its own parenthetical. | found (branch-fixed); not yet sent |
 | 2026-10-21 | The status line under the opening text and in the reroll menu shows AC:0: newgame()'s first bot() runs after u_init_inventory_attrs() and before u_init_skills_discoveries() calls find_ac() and skill_init(). Shared with Official_nh50 (allmain.c / u_init.c). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
 | 2026-10-21 | tty three-line status with showvers on loses the status conditions: render_status() reserves room for the version only when BL_VERS directly follows BL_CONDITION in the row order, but weapon / armor / terrain sit between them, so the right-justified version overwrites the right-justified conditions. Shared with Official_nh50 (wintty.c, by code reading; seen on the branch). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
 | 2026-10-21 | #saveoptions after --nethackrc=FILE offers to overwrite the default rc file, not FILE: rcfile handling frees gc.cmdline_rcfile once the file is read. Shared with Official_nh50 (cfgfiles.c). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
@@ -31898,6 +31901,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-21 | Gold weight (session 249 follow-up, maintainer, no AskUserQuestion): keep 5.0's method (90aded364) - 1..49 coins weigh 1 aum, not master's 0. No code change; the LOW row is closed. | maintainer |
 | 2026-10-21 | invweight / sparkle slice rulings (session 249; AskUserQuestion x3: the slice pick, then six rulings, all as recommended). (0) SLICE: invweight + the sparkle frame count, ahead of the two map-highlight rows and the strength tables. (1) SPARKLE DEFAULT: 21 built in, sysconf sparkle:5 - master never initializes flags.sparkle (0 without an rc file or sysconf) while its opthelp, Guidebook and 116359135 say 21; the server keeps 0.9.3's 5. Rejected 5 built in, and master's 0. (2) GLOB PRICES: master's / vanilla 3.6.2's globwt() - every player sees a glob's weight inside its shop price; rejected 5.0 296548852's removal. (3) PAY LINES: 5.0's paydoname() suppression kept (master's "You bought ... (20 aum)" rejected). (4) SYSCONF: master's OPTIONS block exactly (sparkle:5, no boulder:0, number_pad:0) plus a Phase 6 sysconf row for the rest; rejected sparkle:5 alone, and the whole file now. (5) WEIGHT MERGE: always a separate " (N aum)", as on master - 5.0's merge fired in the D / A menus (Plan review); rejected merging into real price parentheses only. (6) SPARKLE WORDS: true / yes / on 21, false / no / off 0, other text a config error; rejected master's atoi() (silent 0) and numbers only. | maintainer |
 | 2026-10-21 | Status-field slice rulings (session 248; AskUserQuestion x5, ten questions, eight as recommended). (0) SLICE: the three status-field rows together (BL_MC, BL_TOHIT, the realtime clock) ahead of the four display-option rows. (1) TORTLE: TH includes hitval()'s target-free Tortle spear / trident +2 that master's botl_hitbonus() left out (master's stated intent: drop only target terms). (2) QUIRKS (multi-select, all four fixed): rc realtime:disabled hides the field; rc realtime_format:u accepted; an unknown enchantment is subtracted only where the weapon term added it (master: a wielded wand's charges, a non-AT_WEAP form's spe); TH refreshes every turn. (3) DEFAULT FORMAT: u, master's code and 0.9.3's live feel ("5m:03s"), NOT the recommended f that master's commit message, opthelp and Guidebook document; the docs are corrected to u. (4) CARRIES: fold all ten 5.0-shared master status fixes (BUG-1012/1013/1014/1021 botl.c, BUG-1093/1095/1099/1100/1102/1103 windows.c) plus 5.0's initblstats[] order bug; BUG-1094/1096/1101 ride the HTML dumplog row. (5) HINTS: REALTIME_ON_BOTL beside SCORE_ON_BOTL (active hardfought / linux-debug, commented linux.500 / macOS.500, commented config.h). (6) LIVELOG realtime=: a LOW row. (7) abon() / dbon() strength tables: a MED row of their own; TH uses the branch abon(). (8) REFRESH: every turn whether or not 'time' is on (the per-turn update runs always; a full bot() when TH or MC changed). (9) STATUS LAG (asked after battery A showed master refreshes everything per command with time on through vanilla 3.6's moveloop line, which 5.0 dropped): keep 5.0's partial update and mint a SWEEP row for EvilHack code that changes shown state without disp.botl, NOT the recommended restore of 3.6's per-command redraw. Taken without asking: BL_REALTIME always in the enum but never enabled without the macro, the options known on every build (accepted and ignored without it), MAXCO 256, curses vertical placement / drop of the clock, win32 MC / TH only (master parity), X11 / Qt / libnh left to their rows, no clock in the dumplog or the classic line (master parity). | maintainer |
 | 2026-10-21 | explode() underwater slice rulings (session 247; AskUserQuestion x4, six questions, all as recommended). (1) ACID BLAST: ONE ROLL - restoring explode()'s hero acid corrosion (master 9ad600bde, lost in the adoption) would make a monster's acid blast spell corrode twice, as on master since 2021 (the spell's own 2019 copy plus explode()'s); explode() owns it (9ad600bde's stated intent) and the spell's hero copy goes. On land the odds stay the branch's (weapon 2/3, armor 3/4); underwater none. Rejected: master's two rolls (armor 15/16, one roll even underwater), and two on land / none underwater. (2) MONSTER ACID: GATE ALL THREE - mcast_acid_blast()'s monster target, explmm() and explum() skip a submerged target's corrosion (61fbffdee's "player or monster", missed cases fixed as found); rejected leaving them as master. (3) FOLD all three master explode.c silent reverts: "torrent of acid" (ac3233d3c), the "exploding fire bomb" killer (3340a7a4a), the shop "dissolve" verb (539acf0ae). (4) REVIEWER LOWs: FOLD both - water that boils away under a submerged hero clears u.uinwater at once (a shared master / vanilla bug; the puddle, fire trap and ice trap siblings went in with it under the cross-file-siblings rule), and a submerged monster gets no fire slime cure. (5) FIRE RAYS: THE WATER IS GONE, THE RAY HITS - buzz() boils a square before hitting the hero there, so a fire ray that boils a submerged hero's pool now hits as on land (full damage, armor burn, item loss, slime burnt), where master and vanilla keep the hero shielded; moats still shield. | maintainer |

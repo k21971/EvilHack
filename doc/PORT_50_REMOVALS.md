@@ -392,6 +392,8 @@ tracker; sNNN = port session.
 - Ended up removed after a first keep: polearm stand-off (kept, then
   BUG-1949), paranoid trap (kept s184, removed s237), the mysterious
   force decay term (kept 2026-07-23, removed s140).
+- [r] Gold weight minimum: 1..49 coins weigh 1 aum (5.0 90aded364)
+  kept over master's 0 (ruled 2026-10-21, s249).
 
 ## 4. Open
 
