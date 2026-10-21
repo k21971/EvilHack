@@ -81,11 +81,12 @@ initedog(struct monst *mtmp, boolean everything)
      * pet will be initialized before in_moveloop is true) */
     if (!u.uconduct.pets && program_state.in_moveloop) {
         /* "obtained" a pet rather than "tamed" it because it might have come
-         * from a figurine or some other method in which it was created tame
-         * using an() is safe unless it somehow becomes possible to tame a
-         * unique monster */
+         * from a figurine or some other method in which it was created tame;
+         * a unique (such as a petless hero's Red Horse) takes the() */
         livelog_printf(LL_CONDUCT, "obtained %s first pet (%s)",
-                       uhis(), an(mon_pmname(mtmp)));
+                       uhis(), (mtmp->data->geno & G_UNIQ)
+                                   ? the(mon_pmname(mtmp))
+                                   : an(mon_pmname(mtmp)));
     }
     u.uconduct.pets++;
 }
@@ -508,7 +509,7 @@ makedog(void)
             petname = "Bobo"; /* Viva La Dirt League */
     }
 
-    /* specifying NO_MINVENT prevents makemon() from having a 1% chance
+    /* specifying NO_MINVENT prevents makemon() from having a small chance
        of creating a pony with an already worn saddle; dogs and cats
        aren't affected because they don't have any initial inventory
        [if anybody adds stranger pets that are expected to have such,
@@ -2071,6 +2072,78 @@ abuse_dog(struct monst *mtmp)
             newsym(mtmp->mx, mtmp->my);
             if (mtmp->wormno) {
                 redraw_worm(mtmp);
+            }
+        }
+    }
+}
+
+/* just entered the Astral Plane; receive tame mount if worthy */
+void
+gain_guardian_steed(void)
+{
+    struct monst *mtmp;
+    struct obj *otmp, *otmp2;
+    coord mm;
+
+    Hear_again(); /* attempt to cure any deafness now (divine
+                     message will be heard even if that fails) */
+    if (u.ualign.record > 8 && u.ualign.abuse < 30) {
+        /* fervent and have not severely abused alignment */
+        if (!Deaf)
+            pline("A voice whispers:");
+        else
+            You_feel("a soft voice:");
+        SetVoice((struct monst *) 0, 0, 80, voice_deity);
+        /* Neither Centaurs, Giants, nor Tortles can ride horses */
+        verbalize(
+  "Worthy vassal, know now thy true identity!  Behold thy %s, the Red Horse!",
+                  (Race_if(PM_CENTAUR) || Race_if(PM_GIANT)
+                   || Race_if(PM_TORTLE)) ? "companion" : "steed");
+        mm.x = u.ux;
+        mm.y = u.uy;
+        if (enexto(&mm, mm.x, mm.y, &mons[PM_RED_HORSE])
+            && (mtmp = makemon(&mons[PM_RED_HORSE], mm.x, mm.y,
+                               MM_EDOG | MM_NOMSG)) != 0) {
+            /* Too nasty for the game to unexpectedly break petless conduct on
+             * the final level of the game. The Red Horse will still appear, but
+             * won't be tamed. Toss some carrots at it if you want to tame it */
+            if (u.uconduct.pets) {
+                mtmp->mtame = 20;
+                u.uconduct.pets++;
+            }
+            EDOG(mtmp)->apport = ACURR(A_CHA);
+            /* make sure our steed isn't starving to death when we arrive */
+            EDOG(mtmp)->hungrytime = 1000 + svm.moves;
+            mtmp->mstrategy &= ~STRAT_APPEARMSG;
+            /* for 'hilite_pet'; after making tame, before next message */
+            newsym(mtmp->mx, mtmp->my);
+            if (!Blind)
+                pline_The("Red Horse appears near you.");
+            else
+                You_feel("the presence of the Red Horse near you.");
+            /* make it strong enough vs. endgame foes */
+            mtmp->mhp = mtmp->mhpmax =
+                d((int) mtmp->m_lev, 10) + 30 + rnd(30);
+            /* makemon() may already have saddled or barded it; bless
+               what it wears rather than orphan a second one */
+            if ((otmp = which_armor(mtmp, W_SADDLE)) == 0
+                && (otmp = mksobj(SADDLE, TRUE, FALSE)) != 0)
+                put_saddle_on_mon(otmp, mtmp);
+            if (otmp) {
+                bless(otmp);
+                otmp->dknown = otmp->bknown = otmp->rknown = 1;
+            }
+            /* chance of wearing barding */
+            if ((otmp2 = which_armor(mtmp, W_BARDING)) == 0 && !rn2(3)
+                && (otmp2 = mksobj(rn2(2) ? SPIKED_BARDING
+                                          : BARDING_OF_REFLECTION,
+                                   TRUE, FALSE)) != 0) {
+                reroll_barding_material(otmp2, mtmp, (struct monst *) 0);
+                put_barding_on_mon(otmp2, mtmp);
+            }
+            if (otmp2) {
+                bless(otmp2);
+                otmp2->dknown = otmp2->bknown = otmp2->rknown = 1;
             }
         }
     }

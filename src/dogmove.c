@@ -1767,15 +1767,6 @@ dog_move(
     if (appr == -2)
         return MMOVE_NOTHING;
 
-    if (Conflict && !resist_conflict(mtmp)) {
-        if (!edog) {
-            /* Guardian angel refuses to be conflicted; rather,
-             * it disappears, angrily, and sends in some nasties
-             */
-            lose_guardian_angel(mtmp);
-            return MMOVE_DIED; /* current monster is gone */
-        }
-    }
 #if 0 /* [this is now handled in dochug()] */
     if (!Conflict && !mtmp->mconf
         && mtmp == u.ustuck && !sticks(gy.youmonst.data)) {

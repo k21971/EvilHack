@@ -3666,8 +3666,8 @@ makemon(
     if (allow_minvent) {
         setup_mon_inventory(mtmp);
 
-        if (!rn2(100) && is_domestic(ptr)
-            && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
+        if (!rn2(2000) && can_saddle(mtmp)
+            && !which_armor(mtmp, W_SADDLE)) {
             /* NULL obj arg means put_saddle_on_mon()
              * will create the saddle itself */
             put_saddle_on_mon((struct obj *) 0, mtmp);

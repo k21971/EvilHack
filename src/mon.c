@@ -161,7 +161,7 @@ sanity_check_single_mon(
         impossible("guard without egd (%s)", msg);
     if (mtmp->isminion && !has_emin(mtmp))
         impossible("minion without emin (%s)", msg);
-    /* guardian angel on astral level is tame but has emin rather than edog */
+    /* a tame minion has emin rather than edog */
     if (mtmp->mtame) {
         if (!has_edog(mtmp) && !mtmp->isminion)
             impossible("pet without edog (%s)", msg);

@@ -891,6 +891,7 @@ extern int dogfood(struct monst *, struct obj *) NONNULLPTRS;
 extern boolean tamedog(struct monst *, struct obj *, boolean) NONNULLARG1;
 extern void abuse_dog(struct monst *) NONNULLARG1;
 extern void wary_dog(struct monst *, boolean) NONNULLARG1;
+extern void gain_guardian_steed(void);
 
 /* ### dogmove.c ### */
 
@@ -1742,8 +1743,6 @@ extern int dlord(aligntyp);
 extern int llord(void);
 extern int ndemon(aligntyp);
 extern int lminion(void);
-extern void lose_guardian_angel(struct monst *);
-extern void gain_guardian_angel(void);
 
 /* ### mklev.c ### */
 

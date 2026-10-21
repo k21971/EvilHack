@@ -2490,8 +2490,9 @@ final_level(void)
     /* create some player-monsters */
     create_mplayers(rn1(5, 4), TRUE);
 
-    /* create a guardian angel next to player, if worthy */
-    gain_guardian_angel();
+    /* create a guardian steed next to player, if worthy */
+    if (u.ualign.type != A_NONE)
+        gain_guardian_steed();
 }
 
 /* change levels at the end of this turn, after monsters finish moving */

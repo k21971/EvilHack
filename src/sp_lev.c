@@ -2403,7 +2403,9 @@ create_object(object *o, struct mkroom *croom)
                 ; /* ['otmp' remains on floor] */
             } else {
                 remove_object(otmp);
-                if (otmp->otyp == SADDLE && can_saddle(invent_carrying_monster))
+                /* a monster already saddled keeps this one as a spare */
+                if (otmp->otyp == SADDLE && can_saddle(invent_carrying_monster)
+                    && !which_armor(invent_carrying_monster, W_SADDLE))
                     put_saddle_on_mon(otmp, invent_carrying_monster);
                 else if (mpickobj(invent_carrying_monster, otmp)) {
                     /* merged with an existing stack in minvent;

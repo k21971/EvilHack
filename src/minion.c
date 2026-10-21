@@ -543,6 +543,11 @@ ndemon(aligntyp atyp) /* A_NONE is used for 'any alignment' */
     return (ptr && is_ndemon(ptr)) ? monsndx(ptr) : NON_PM;
 }
 
+/* lose_guardian_angel() and gain_guardian_angel() commented out here
+ * due to addition of the hero obtaining The Red Horse (player == War)
+ */
+
+#if 0
 /* guardian angel has been affected by conflict so is abandoning hero */
 void
 lose_guardian_angel(
@@ -643,5 +648,6 @@ gain_guardian_angel(void)
         }
     }
 }
+#endif
 
 /*minion.c*/

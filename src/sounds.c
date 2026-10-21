@@ -831,8 +831,9 @@ mon_is_gecko(struct monst *mon)
    domonnoise() are indexed by these */
 enum pet_moods { PET_DISTRESSED, PET_HUNGRY, PET_WELL_FED, PET_CONTENT };
 
-/* caller has checked mtmp->mtame; the Astral guardian angel is tame
-   but has no edog (it is a minion), so it is never hungry or well fed */
+/* caller has checked mtmp->mtame; a tame minion has no edog, so it is
+   never hungry or well fed (none arises in play since the Red Horse
+   replaced the Astral guardian angel) */
 staticfn int
 pet_mood(struct monst *mtmp)
 {
