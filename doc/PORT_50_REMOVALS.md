@@ -404,4 +404,6 @@ ranges (BUG-1685), the XP curve and other numeric constants
 (BUG-1714, ea8a75559), monster spell cooldowns (BUG-1642), Wizard's
 `intervene()` (BUG-1558..1561), role intrinsic tables (BUG-1760; Arc
 and Val keep 5.0's by ruling), life-saving HP (a maintainer-designed
-Con curve, s198), magic fountains and restore ability (BUG-2228..2244).
+Con curve, s198), magic fountains and restore ability (BUG-2228..2244),
+the Astral Red Horse in place of the guardian Angel and its Conflict
+Angels (BUG-2448), master's random-saddle odds (BUG-2451).

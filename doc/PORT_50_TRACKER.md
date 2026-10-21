@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-20, after session 245's
-  damage_mon() core slice): 459 rows closed, 131 open (the two [~]
+- Phase 2 status (refreshed 2026-10-20, after session 246's
+  Astral Red Horse slice): 460 rows closed, 130 open (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,8 +27,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 10 MED: unported master features (door-material colors, the
-    Astral Red Horse, explode()'s underwater rule - minted
+  - 9 MED: unported master features (door-material colors,
+    explode()'s underwater rule - minted
     2026-10-20 by session 245's census of master 61fbffdee - and
     five display options split out of the LOW ownerless option
     wirings row by the maintainer 2026-10-20: underline_peacefuls,
@@ -38,6 +38,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     is rejected as a boolean - plus master's always-on " MC:N" and
     " TH:N" status fields: BL_MC minted and the to-hit row raised
     from LOW by the maintainer 2026-10-20).
+    Session 246 closed the Astral Red Horse (BUG-2448..2452): a
+    fervent, not severely abused, non-Infidel hero gets master's
+    tame, saddled Red Horse on reaching the Astral Plane instead of
+    the guardian Angel. Conflict no longer brings hostile Angels, and
+    a petless hero's horse comes untamed. Gear makemon() already put
+    on the horse is blessed in place (a master leak fixed). Ruled:
+    the deaf-aware voice line, and master's 1 in 2000 random-saddle
+    odds for every saddleable species, a silent revert found by the
+    plan. The first-pet livelog names a unique with "the".
     Session 245 closed the damage_mon() core (BUG-2438..2447): the
     router now applies the 1.5x elemental vulnerability and halves
     physical damage for a monster carrying a half-physical-damage
@@ -1984,13 +1993,44 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       BUG-2437). Battery: three testers PRE/POST plus a POST3
       wording leg, every leg PASS, paniclogs empty. Minted the three
       LOW rows below.
-- [ ] MED: the Red Horse never comes (minted 2026-10-19 by the
+- [x] MED: the Red Horse never comes (minted 2026-10-19 by the
       Materials umbrella audit; port gap). Master 84f8e3fa6 (2018)
       gives an Astral arrival a tame, saddled Red Horse
       (gain_guardian_steed(), with the barding reroll) instead of the
       guardian angel; the branch's do.c still calls
       gain_guardian_angel(). It was deferred only inside closed rows
       (the Infidel / roles and barding notes).
+      CLOSED 2026-10-20 (session 246, commit pending; BUG-2448..2452).
+      gain_guardian_steed() is ported in master's final form after
+      its ten commits, in 5.0 idiom:
+      - Gate: `u.ualign.abuse < 30`. The branch's abuse is unsigned
+        and counts up, against master's `(abuse * -1) < 30`.
+      - makemon() gets MM_EDOG | MM_NOMSG, so there is no
+        "suddenly appears" line. Master's makemon() had none.
+      - SetVoice(voice_deity) before the verbalize, plus 5.0's
+        hilite newsym().
+      - final_level() calls it only for a non-A_NONE hero, as master
+        6972e3e62 does. Battery B found that gate; PRE gave an
+        Infidel a tame Angel aligned to A_NONE.
+      - minion.c's angel pair is #if 0 under master's comment.
+      - dog_move()'s lose_guardian_angel() Conflict arm is deleted, as
+        master did. Conflict at arrival changes nothing (master's
+        design): no booming voice, no hostile Angels.
+      Master bug (BUG-2449): makemon() may already have saddled or
+      barded the horse; that gear is now blessed in place. Master
+      orphaned a second blessed piece and left the horse a possibly
+      cursed saddle; the branch's helpers would also print
+      impossible().
+      RULED (decisions log): deaf-aware lines (BUG-2450), and
+      master's random-saddle odds folded in: 1 in 2000 for any
+      can_saddle() species (BUG-2451, a silent revert of master
+      0cd8b62 + ee655584a; untracked before).
+      Reviewer LOWs folded by ruling: the first-pet livelog uses the()
+      for a unique, "(the Red Horse)" (BUG-2452); sp_lev.c's des
+      saddle checks which_armor() first; the mon.c comment.
+      Battery: three testers, every leg PASS (A1-A8, B1-B6, C1-C6),
+      master-parity legs on a scratch master build, paniclogs never
+      created.
 - [x] MED: the damage_mon() core never landed (minted 2026-10-20,
       session 244 follow-up; port gap, orphaned deferral). Master's
       damage_mon() and damage_mon_nonlethal() (mon.c) scale the
@@ -5265,7 +5305,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Xiuhcoatl throw cluster, Giantslayer/Harbinger/
       awaiting_guaranteed_gift artifact behaviors, larva AT_TENT
       wrap, ma_break, botl_hitbonus, begin_burn light-establish
-      lightdamage, gain_guardian_steed, sewage terrain, dual-wield
+      lightdamage, gain_guardian_steed (DISCHARGED 2026-10-20,
+      session 246, BUG-2448), sewage terrain, dual-wield
       offhand weight (DISCHARGED 2026-08-22 with the weapon-skill
       tables row, BUG-1666), druid_form landmine (all_druid_forms()
       unimplemented - roles slice MUST implement before any
@@ -8058,7 +8099,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       off-map steed (wand of probing is the only wand that touches
       it).
       DEFERRALS, each verified absent by grep rather than assumed:
-      gain_guardian_steed (Red Horse barding), selective_remove_curse
+      gain_guardian_steed (Red Horse barding) [DISCHARGED 2026-10-20,
+      session 246, BUG-2448], selective_remove_curse
       (NEW - expert-clerical auto-uncurse of steed barding, belongs
       with the spell-skill subsystem), hero-cast SPE_REPAIR_ARMOR
       prompt [ported 2026-10-09, session 200, BUG-2233], an
@@ -31522,6 +31564,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-20 | Astral Red Horse slice rulings (session 246; AskUserQuestion x2, four questions, all as recommended). (1) DEAF TEXT: deaf-aware - "You feel a soft voice:" for a deaf hero, "A voice whispers:" otherwise, as 5.0's angel does (master's steed function predates vanilla 3.6.2's Deaf variants; BUG-2450). (2) SADDLE ODDS: fold master's random-saddle odds into the slice - 1 in 2000 for any can_saddle() species (master 0cd8b62 + ee655584a), over minting a row and keeping vanilla's 1 in 100 for domestic animals only (BUG-2451). (3) REVIEWER LOWs: all three folded - the first-pet livelog uses the() for a unique (BUG-2452), sp_lev.c's des saddle checks which_armor() first, mon.c's angel comment reworded. (4) Battery go-ahead (three testers, master legs on the scratch master build). Decided without asking (master's shape): no Conflict arm at arrival and dog_move()'s lose_guardian_angel() arm deleted (84f8e3fa6); the Infidel gate on the caller (6972e3e62, found by battery B); worn makemon() gear blessed in place (BUG-2449, master frozen-unfixed); master's literal tame / EDOG writes over initedog(). | maintainer |
 | 2026-10-20 | Status-field rows (session 245 follow-up; maintainer request, no AskUserQuestion). Master's always-on " MC:N" status field (BL_MC, d6b780ad2), which had no row, gets a MED row, and the existing botl_hitbonus()/BL_TOHIT " TH:N" row is raised from LOW to MED beside it: both are on every 0.9.3 status line. They share one plumbing pass (botl.h enum, blstats, hilite names, do_statusline2(), each window port's field order) and should land as one status-field slice. | maintainer |
 | 2026-10-20 | Display-option rows (session 245 follow-up; maintainer request, no AskUserQuestion). underline_peacefuls, master's sparkle frame count, master's invweight (wizweight opened to every player), hilite_hidden_stairs and the realtime status-line clock (show_realtime + realtime_format) each get their own MED row, split out of the LOW ownerless option wirings row, where they sat as one-word mentions. The sparkle "branch keeps 5.0's boolean per the Phase 1 ruling" wording is withdrawn: it was the flag.h row's field-port note, not a ruling, and master's frame count is the target. autoall_menu, hallucinating and the paranoid default stay in the LOW row. | maintainer |
 | 2026-10-20 | damage_mon() core slice rulings (session 245; AskUserQuestion x3, five questions). (1) WORDING: master's parentheses "(MHP -N, M left)" / "(MHP -N, killed|destroyed)" for the wizard-mode showmondamage line, over my bracket recommendation (to match 5.0's hero line); then, asked mid-turn by the maintainer, the hero's showdamage line also takes master's form "(HP -N, M left)" / "(HP -N, killed)", replacing vanilla 5.0's "[HP ...]", and the dumplog filter takes master's "(HP " / "(MHP " prefixes (supersedes the 2026-08-29 dumplog-grouping slice's bracket adaptation). (2) SCOPE, all four fold-ins as recommended: resist()'s MC save bonus and half-spell-damage halving (081a06725), ray and spell-touch halving (081a06725), no opposite-resistance bonus (e5e4439e7, a silent revert), engulfer dig-out halving (6218b2ad8). (3) RAY GATE: master's stated intent (as recommended) - a half-spell-damage carrier halves wand and spell rays from anyone and never breath, mirroring the hero's Half_spell_damage; master's code halves only hero rays, breath included. (4) DEADLY POISON: fix it (as recommended) - the AD_PHYS "deadly" kills pass 2 * mhp so the half-physical-damage halving cannot leave the target alive; the paper golem's fire-trap immolation folded under the same ruling. (5) Battery go-ahead (three testers concurrently). Decided without asking: display-only by_you choices, drain life as AD_DRLI, the accepted double halving of a ring blast inside a physical blow, the munslime() ray type and "breathe" fixes, zhitm() printing showmondamage for hero rays. | maintainer |
