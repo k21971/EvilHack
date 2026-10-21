@@ -252,6 +252,11 @@ tracker; sNNN = port session.
 - [x] **First-touch Amulet wish** (`u.uevent.amulet_wish`; a Hardfought
   server patch, not vanilla 5.0): deleted, the bit left dormant
   (2026-07-22).
+- [x] **wizweight**, wizard-only, with its ", N aum)" merge into the
+  last parenthesis: master's invweight for every player, the weight
+  always its own " (N aum)"; 5.0's removal of glob weights from shop
+  prices (296548852) reverted (s249, BUG-2484..2486; master
+  90c12021c).
 
 ### 2.2 Monster AI
 
@@ -406,4 +411,5 @@ ranges (BUG-1685), the XP curve and other numeric constants
 and Val keep 5.0's by ruling), life-saving HP (a maintainer-designed
 Con curve, s198), magic fountains and restore ability (BUG-2228..2244),
 the Astral Red Horse in place of the guardian Angel and its Conflict
-Angels (BUG-2448), master's random-saddle odds (BUG-2451).
+Angels (BUG-2448), master's random-saddle odds (BUG-2451), the
+sparkle frame count (BUG-2487).
