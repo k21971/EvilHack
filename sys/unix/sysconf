@@ -200,6 +200,9 @@ OPTIONS=!autopickup,hilite_pet,hilite_pile,time,use_darkgray
 OPTIONS=msg_window:reversed,number_pad:1,sortloot:full
 OPTIONS=menu_objsyms,perm_invent,hitpointbar,quick_farsight
 
+# Realtime status clock (disabled / play time / wallclock time)
+OPTIONS=realtime:wallclock time
+
 # Various MSGTYPE examples
 MSGTYPE=hide "Unknown command *"
 MSGTYPE=alert "The (couatl|.*eel|kraken) swings itself around you!"

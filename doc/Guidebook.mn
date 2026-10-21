@@ -60,7 +60,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 October 20, 2026
+.ds f2 October 21, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -4861,6 +4861,33 @@ Persistent.
 .lp ratname
 Name your starting rat (for example \(lqratname:Squeak\(rq).
 Cannot be set with the \(oqO\(cq command.
+.lp realtime
+Show a real-time clock on the status line.
+The possible values are:
+.PS "wallclock\ time"
+.PL disabled
+no clock;
+.PL "play\ time"
+time spent playing this game;
+.PL "wallclock\ time"
+real time since the game began, including time away from it.
+.PE
+The default is \(lqwallclock time\(rq.
+By default, this feature is suppressed when building the program.
+.lp realtime_format
+The format of the \(lqrealtime\(rq clock.
+The possible values are:
+.PS "fixed\ units"
+.PL seconds
+seconds (5103);
+.PL condensed
+hours and minutes (1:25);
+.PL "fixed\ units"
+hours, minutes and seconds (01:25:03);
+.PL units
+the two largest units (1h:25m, 5m:03s).
+.PE
+The default is \(lqunits\(rq.
 .lp reroll
 Allows rerolling your character's starting inventory and attributes (default
 false).  Persistent.
@@ -5951,18 +5978,21 @@ title	dungeon-level	experience-level
 strength	gold	experience
 dexterity	hitpoints	HD
 constitution	hitpoints-max	time
-intelligence	power	hunger
-wisdom	power-max	carrying-capacity
-charisma	armor-class	condition
-alignment		score
+intelligence	power	realtime
+wisdom	power-max	hunger
+charisma	armor-class	carrying-capacity
+alignment	magic-neg	condition
+	to-hit	score
 .\"TABLE_END  Do not delete this line.
 .TE
 .lp ""
 The pseudo-field \(lqcharacteristics\(rq can be used to set all six
 of Str, Dex, Con, Int, Wis, and Cha at once.  \(lqHD\(rq is \(lqhit dice\(rq,
 an approximation of experience level displayed when polymorphed.
-\(lqexperience\(rq, \(lqtime\(rq, and \(lqscore\(rq are conditionally
-displayed depending upon your other option settings.
+\(lqmagic-neg\(rq is magic cancellation (MC) and \(lqto-hit\(rq is your
+base chance to hit (TH).
+\(lqexperience\(rq, \(lqtime\(rq, \(lqrealtime\(rq, and \(lqscore\(rq are
+conditionally displayed depending upon your other option settings.
 .lp ""
 Instead of a behavior, \(lqcondition\(rq takes the following condition flags:
 stone, slime, strngl, foodpois, termill, blind, deaf, stun, conf, hallu,
@@ -6027,8 +6057,9 @@ exactly 1 experience point short of the next level.
 .lp "*"
 absolute value sets the attribute when the field value matches
 that number.
-The number must be 0 or higher, except for \(lqarmor-class\(cq which
-allows negative values, and may optionally be preceded by \(oq=\(cq.
+The number must be 0 or higher, except for \(lqarmor-class\(rq and
+\(lqto-hit\(rq which allow negative values, and may optionally be preceded
+by \(oq=\(cq.
 If the number is preceded by \(oq<=\(cq or \(oq>=\(cq instead,
 it also matches when value is below or above.
 If the prefix is \(oq<\(cq or \(oq>\(cq, only match when strictly

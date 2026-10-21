@@ -126,7 +126,7 @@ extern const char *ARGV0;
 struct display_hints {
     boolean botl;            /* partially redo status line */
     boolean botlx;           /* print an entirely new bottom line */
-    boolean time_botl;       /* context.botl for 'time' (moves) only */
+    boolean time_botl;       /* per-turn time, realtime, TH, MC */
 };
 extern struct display_hints disp;
 

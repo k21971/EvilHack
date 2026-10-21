@@ -642,6 +642,22 @@ static int optfn_##a(int, int, boolean, char *, char *);
            Off, No, No, No, NoAlias, (boolean *) 0, Term_False,
            (char *)0)
 #endif
+#ifdef REALTIME_ON_BOTL
+    NHOPTC(realtime, Status, sizeof "wallclock time", opt_in, set_in_game,
+                No, Yes, Yes, Yes, NoAlias,
+                "show real time in status line")
+    NHOPTC(realtime_format, Status, sizeof "fixed units", opt_in,
+                set_in_game, No, Yes, Yes, Yes, NoAlias,
+                "format of realtime in status line")
+#else
+    /* known but ignored, so a config file setting them still loads */
+    NHOPTC(realtime, Advanced, sizeof "wallclock time", opt_in,
+                set_in_config, No, Yes, Yes, No, NoAlias,
+                "realtime status clock (not built in)")
+    NHOPTC(realtime_format, Advanced, sizeof "fixed units", opt_in,
+                set_in_config, No, Yes, Yes, No, NoAlias,
+                "realtime status clock format (not built in)")
+#endif
     NHOPTB(reroll, Advanced, 0, opt_in, set_in_config,
            Off, Yes, No, No, NoAlias, &u.uroleplay.reroll, Term_False,
            "allow rerolling of starting inventory and items")

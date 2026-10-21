@@ -4122,6 +4122,8 @@ extern int vms_get_saved_games(const char *, char ***);
 /* ### weapon.c ### */
 
 extern const char *weapon_descr(struct obj *) NONNULLARG1;
+extern int base_hitbonus(struct obj *) NO_NNARGS;
+extern int botl_hitbonus(void);
 extern int hitval(struct monst *, struct obj *, struct monst *) NONNULLARG23;
 extern int dmgval(struct monst *, struct obj *, struct monst *) NONNULLARG23;
 extern int special_dmgval(struct monst *, struct monst *, long,

@@ -156,6 +156,127 @@ weapon_descr(struct obj *obj)
     return makesingular(descr);
 }
 
+/* the "to hit" bonuses of otmp that don't depend on the target */
+int
+base_hitbonus(struct obj *otmp)
+{
+    int tmp = 0;
+
+    if (!otmp)
+        return 0;
+
+    if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+        tmp += otmp->spe;
+
+    /* Put weapon-specific "to hit" bonuses in below: */
+    tmp += objects[otmp->otyp].oc_hitbon;
+    return tmp;
+}
+
+/* base to-hit shown on the status line: the terms of find_roll_to_hit()
+   that don't involve the target, since the display has no way of
+   knowing what the hero intends to attack */
+int
+botl_hitbonus(void)
+{
+    int tmp, tmp2;
+    int wepskill, twowepskill, useskill;
+    uchar aatyp = gy.youmonst.data->mattk[0].aatyp;
+
+    tmp = 1 + abon() + u.uhitinc
+          + (sgn(Luck) * ((abs(Luck) + 2) / 3))
+          + maybe_polyd(gy.youmonst.data->mlevel,
+                        (u.ulevel > 20 ? 10 + (u.ulevel / 2)
+                                       : u.ulevel));
+
+    /* don't reveal the enchantment of an unidentified ring */
+    if (uleft && uleft->otyp == RIN_INCREASE_ACCURACY && !uleft->known)
+        tmp -= uleft->spe;
+    if (uright && uright->otyp == RIN_INCREASE_ACCURACY && !uright->known)
+        tmp -= uright->spe;
+
+    if (u.ulevel == 30)
+        tmp += 5;
+
+    if (Role_if(PM_MONK) && !Upolyd) {
+        if (uarm)
+            tmp -= gu.urole.spelarmr + 20;
+        else if (!uwep && (!uarms || is_bracer(uarms)))
+            tmp += (u.ulevel / 3) + 2;
+    }
+
+    if (maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))) {
+        if (spot_is_dark(u.ux, u.uy)) {
+            if (!uwep || is_drow_weapon(uwep)
+                || uwep->oartifact == ART_SHADOWBLADE)
+                tmp += (u.ulevel / 3) + 2;
+        } else {
+            tmp -= 4;
+        }
+    }
+
+    if (uwep && uwep->otyp == HEAVY_IRON_BALL)
+        tmp += 4;
+
+    if (!uwep && uarmg)
+        tmp += uarmg->spe;
+
+    if ((tmp2 = near_capacity()) != 0)
+        tmp -= (tmp2 * 2) - 1;
+    if (u.utrap)
+        tmp -= 3;
+
+    if (!uwep && druid_form)
+        tmp += (u.ulevel / 3) + 5;
+
+    if (!uwep && vampire_form)
+        tmp += (u.ulevel / 3) + 5;
+
+    if (uwep) {
+        if (uwep->forged_qual == FQ_EXCEPTIONAL
+            || (u.twoweap && uswapwep
+                && uswapwep->forged_qual == FQ_EXCEPTIONAL))
+            tmp += 1;
+        if (uwep->forged_qual == FQ_INFERIOR
+            || (u.twoweap && uswapwep
+                && uswapwep->forged_qual == FQ_INFERIOR))
+            tmp -= 2;
+    }
+
+    if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
+        if (uwep) {
+            tmp += base_hitbonus(uwep);
+            /* don't reveal an enchantment the hero hasn't learned */
+            if (!uwep->known
+                && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep)))
+                tmp -= uwep->spe;
+            /* the one hitval() term that doesn't depend on the target */
+            if (racial_tortle(&gy.youmonst)
+                && (is_spear(uwep) || uwep->otyp == TRIDENT))
+                tmp += 2;
+        }
+        tmp += weapon_hit_bonus(uwep);
+    } else if (aatyp == AT_KICK && martial_bonus()) {
+        tmp += weapon_hit_bonus((struct obj *) 0);
+    }
+
+    if (uwep && aatyp == AT_WEAP && !u.uswallow) {
+        /* potions make passable improvised weapons; raise the
+           unskilled/restricted to-hit ceiling from 15 to 18 */
+        int hitcap = (uwep->oclass == POTION_CLASS) ? 18 : 15;
+
+        wepskill = weapon_skill_level(uwep);
+        twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
+        /* use the lesser skill of two-weapon or your primary */
+        useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill
+                                                         : wepskill;
+        if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED)
+            && tmp > hitcap)
+            tmp = hitcap;
+    }
+    return tmp;
+}
+
 /*
  *      hitval returns an integer representing the "to hit" bonuses
  *      of "otmp" against the monster. magr is the attacker (the hero
@@ -169,11 +290,7 @@ hitval(struct monst *magr, struct obj *otmp, struct monst *mdef)
     struct permonst *ptr = r_data(mdef);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
-    if (Is_weapon)
-        tmp += otmp->spe;
-
-    /* Put weapon-specific "to hit" bonuses in below: */
-    tmp += objects[otmp->otyp].oc_hitbon;
+    tmp += base_hitbonus(otmp);
 
     /* Put weapon vs. monster type "to hit" bonuses in below: */
 

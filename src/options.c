@@ -215,6 +215,18 @@ static NEARDATA const char *burdentype[] = {
 static NEARDATA const char *runmodes[] = {
     "teleport",     "run",          "walk",     "crawl"
 };
+#ifdef REALTIME_ON_BOTL
+/* first letter of each is its value in iflags (and its menu letter) */
+static NEARDATA const char *realtime_types[] = {
+    "disabled",     "play time",    "wallclock time"
+};
+static NEARDATA const char *realtime_formats[][2] = {
+    { "seconds",     "seconds (s)" },
+    { "condensed",   "condensed (h:mm)" },
+    { "fixed units", "fixed units (hh:mm:ss)" },
+    { "units",       "units (xxh:xxm)" },
+};
+#endif
 static NEARDATA const char *sortltype[] = {
     "none",         "loot",         "full"
 };
@@ -398,6 +410,10 @@ staticfn int handler_paranoid_confirmation(void);
 staticfn int handler_perminv_mode(void);
 staticfn int handler_pickup_burden(void);
 staticfn int handler_pickup_types(void);
+#ifdef REALTIME_ON_BOTL
+staticfn int handler_realtime(void);
+staticfn int handler_realtime_format(void);
+#endif
 staticfn int handler_runmode(void);
 staticfn int handler_petattr(void);
 staticfn int handler_sortloot(void);
@@ -3621,6 +3637,128 @@ optfn_ratname(
 }
 
 staticfn int
+optfn_realtime(
+    int optidx, int req, boolean negated,
+    char *opts, char *op)
+{
+    nhUse(negated);
+#ifdef REALTIME_ON_BOTL
+    if (req == do_init) {
+        return optn_ok;
+    }
+    if (req == do_set) {
+        char c;
+
+        if (op == empty_optstr) {
+            config_error_add("Value is mandatory for %s",
+                             allopt[optidx].name);
+            return optn_err;
+        }
+        switch ((c = lowc(*op))) {
+        case 'd':
+            iflags.show_realtime = '\0';
+            break;
+        case 'p':
+        case 'w':
+            iflags.show_realtime = c;
+            break;
+        default:
+            config_error_add("Unknown %s parameter '%s'",
+                             allopt[optidx].name, op);
+            return optn_err;
+        }
+        if (!go.opt_initial) {
+            if (VIA_WINDOWPORT())
+                status_initialize(REASSESS_ONLY);
+            disp.botl = TRUE;
+        }
+        return optn_ok;
+    }
+    if (req == get_val || req == get_cnf_val) {
+        Strcpy(opts, realtime_types[(iflags.show_realtime == 'p') ? 1
+                                    : (iflags.show_realtime == 'w') ? 2
+                                      : 0]);
+        return optn_ok;
+    }
+    if (req == do_handler) {
+        return handler_realtime();
+    }
+    return optn_ok;
+#else
+    /* not built in; accept and ignore the option so that a config file
+       written for a build with the realtime clock still loads */
+    nhUse(optidx);
+    nhUse(op);
+    if (req == get_val)
+        Strcpy(opts, "unsupported");
+    else if (req == get_cnf_val)
+        opts[0] = '\0';
+    return optn_ok;
+#endif
+}
+
+staticfn int
+optfn_realtime_format(
+    int optidx, int req, boolean negated,
+    char *opts, char *op)
+{
+    nhUse(negated);
+#ifdef REALTIME_ON_BOTL
+    if (req == do_init) {
+        return optn_ok;
+    }
+    if (req == do_set) {
+        char c;
+
+        if (op == empty_optstr) {
+            config_error_add("Value is mandatory for %s",
+                             allopt[optidx].name);
+            return optn_err;
+        }
+        switch ((c = lowc(*op))) {
+        case 's':
+        case 'c':
+        case 'f':
+        case 'u':
+            iflags.realtime_format = c;
+            break;
+        default:
+            config_error_add("Unknown %s parameter '%s'",
+                             allopt[optidx].name, op);
+            return optn_err;
+        }
+        if (!go.opt_initial)
+            disp.botl = TRUE;
+        return optn_ok;
+    }
+    if (req == get_val || req == get_cnf_val) {
+        int i;
+
+        opts[0] = '\0';
+        for (i = 0; i < SIZE(realtime_formats); i++)
+            if (iflags.realtime_format == *realtime_formats[i][0]) {
+                Strcpy(opts, realtime_formats[i][0]);
+                break;
+            }
+        return optn_ok;
+    }
+    if (req == do_handler) {
+        return handler_realtime_format();
+    }
+    return optn_ok;
+#else
+    /* not built in; accept and ignore, as for 'realtime' */
+    nhUse(optidx);
+    nhUse(op);
+    if (req == get_val)
+        Strcpy(opts, "unsupported");
+    else if (req == get_cnf_val)
+        opts[0] = '\0';
+    return optn_ok;
+#endif
+}
+
+staticfn int
 optfn_roguesymset(
     int optidx, int req, boolean negated UNUSED,
     char *opts, char *op)
@@ -6211,6 +6349,82 @@ handler_pickup_types(void)
     return optn_ok;
 }
 
+#ifdef REALTIME_ON_BOTL
+staticfn int
+handler_realtime(void)
+{
+    winid tmpwin;
+    anything any;
+    int i, n;
+    const char *mode_name;
+    menu_item *mode_pick = (menu_item *) 0;
+    int clr = NO_COLOR;
+    char cur = iflags.show_realtime ? iflags.show_realtime : 'd';
+
+    tmpwin = create_nhwindow(NHW_MENU);
+    start_menu(tmpwin, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+    for (i = 0; i < SIZE(realtime_types); i++) {
+        mode_name = realtime_types[i];
+        any.a_char = *mode_name;
+        add_menu(tmpwin, &nul_glyphinfo, &any, *mode_name,
+                 0, ATR_NONE, clr, mode_name,
+                 (cur == *mode_name) ? MENU_ITEMFLAGS_SELECTED
+                                     : MENU_ITEMFLAGS_NONE);
+    }
+    end_menu(tmpwin, "Type of time to show on the status line:");
+    n = select_menu(tmpwin, PICK_ONE, &mode_pick);
+    if (n > 0) {
+        char c = mode_pick[0].item.a_char;
+
+        if (n > 1 && c == cur)
+            c = mode_pick[1].item.a_char;
+        iflags.show_realtime = (c == 'd') ? '\0' : c;
+        free((genericptr_t) mode_pick);
+        if (VIA_WINDOWPORT())
+            status_initialize(REASSESS_ONLY);
+        disp.botl = TRUE;
+    }
+    destroy_nhwindow(tmpwin);
+    return optn_ok;
+}
+
+staticfn int
+handler_realtime_format(void)
+{
+    winid tmpwin;
+    anything any;
+    int i, n;
+    menu_item *fmt_pick = (menu_item *) 0;
+    int clr = NO_COLOR;
+
+    tmpwin = create_nhwindow(NHW_MENU);
+    start_menu(tmpwin, MENU_BEHAVE_STANDARD);
+    any = cg.zeroany;
+    for (i = 0; i < SIZE(realtime_formats); i++) {
+        any.a_char = *realtime_formats[i][0];
+        add_menu(tmpwin, &nul_glyphinfo, &any, any.a_char,
+                 0, ATR_NONE, clr, realtime_formats[i][1],
+                 (iflags.realtime_format == any.a_char)
+                     ? MENU_ITEMFLAGS_SELECTED
+                     : MENU_ITEMFLAGS_NONE);
+    }
+    end_menu(tmpwin, "Format used by the realtime display:");
+    n = select_menu(tmpwin, PICK_ONE, &fmt_pick);
+    if (n > 0) {
+        char c = fmt_pick[0].item.a_char;
+
+        if (n > 1 && c == iflags.realtime_format)
+            c = fmt_pick[1].item.a_char;
+        iflags.realtime_format = c;
+        free((genericptr_t) fmt_pick);
+        disp.botl = TRUE;
+    }
+    destroy_nhwindow(tmpwin);
+    return optn_ok;
+}
+#endif /* REALTIME_ON_BOTL */
+
 staticfn int
 handler_runmode(void)
 {
@@ -7281,6 +7495,10 @@ initoptions_init(void)
     iflags.menu_headings.color = NO_COLOR;
     iflags.getpos_coords = GPCOORDS_NONE;
     iflags.msg_is_alert = FALSE;
+#ifdef REALTIME_ON_BOTL
+    iflags.show_realtime = 'w';
+    iflags.realtime_format = 'u';
+#endif
 
     /* hero's role, race, &c haven't been chosen yet */
     flags.initrole = flags.initrace = flags.initgend = flags.initalign

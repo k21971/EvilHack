@@ -481,8 +481,11 @@ moveloop_core(void)
                    a value that is distinct every time the hero moves */
                 gh.hero_seq = svm.moves << 3;
 
-                if (flags.time && !svc.context.run)
-                    disp.time_botl = TRUE; /* 'moves' just changed */
+                /* 'moves' just changed; the per-turn status update also
+                   keeps to-hit, magic cancellation and the realtime clock
+                   current, so it runs whether or not 'time' is shown */
+                if (!svc.context.run)
+                    disp.time_botl = TRUE;
 
                 /********************************/
                 /* once-per-turn things go here */

@@ -44,7 +44,7 @@ static int nhattr2curses(int);
 
 /* width of a single line in vertical status orientation (one field per line;
    everything but title fits within 30 even with prefix and longest value) */
-#define STATVAL_WIDTH 60 /* overkill; was MAXCO (200), massive overkill */
+#define STATVAL_WIDTH 60 /* overkill; was MAXCO (then 200), massive overkill */
 
 void
 curses_status_init(void)
@@ -87,8 +87,9 @@ curses_status_finish(void)
  *      -- fldindex could be any one of the following from botl.h:
  *         BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
  *         BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD, BL_ENE, BL_ENEMAX,
- *         BL_XP, BL_AC, BL_HD, BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,
- *         BL_LEVELDESC, BL_EXP, BL_CONDITION
+ *         BL_XP, BL_AC, BL_MC, BL_TOHIT, BL_HD, BL_TIME, BL_REALTIME,
+ *         BL_HUNGER, BL_HP, BL_HPMAX, BL_LEVELDESC, BL_EXP, BL_CONDITION,
+ *         BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_VERS
  *      -- fldindex could also be BL_FLUSH (-1), which is not really
  *         a field index, but is a special trigger to tell the
  *         windowport that it should redisplay all its status fields,
@@ -254,49 +255,55 @@ draw_horizontal(boolean border)
     /* almost all fields already come with a leading space;
        "xspace" indicates places where we'll generate an extra one */
     static const enum statusfields
-    twolineorder[3][19] = {
+    twolineorder[3][22] = {
         { BL_TITLE,
           /*xspace*/ BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
           /*xspace*/ BL_ALIGN,
           /*xspace*/ BL_SCORE,
           BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
-          blPAD, blPAD, blPAD },
+          blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
         { BL_LEVELDESC,
           /*xspace*/ BL_GOLD,
           /*xspace*/ BL_HP, BL_HPMAX,
           /*xspace*/ BL_ENE, BL_ENEMAX,
           /*xspace*/ BL_AC,
+          /*xspace*/ BL_MC,
+          /*xspace*/ BL_TOHIT,
           /*xspace*/ BL_XP, BL_EXP, BL_HD,
           /*xspace*/ BL_TIME,
+          /*xspace*/ BL_REALTIME,
           /*xspace*/ BL_HUNGER, BL_CAP,
           BL_WEAPON, BL_ARMOR, BL_TERRAIN, BL_CONDITION, BL_VERS,
           BL_FLUSH },
         { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
           blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
-          blPAD, blPAD, blPAD }
+          blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
     },
-    threelineorder[3][19] = { /* moves align to line 2, leveldesc+ to 3 */
+    threelineorder[3][22] = { /* moves align to line 2, leveldesc+ to 3 */
         { BL_TITLE,
           /*xspace*/ BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
           /*xspace*/ BL_SCORE,
           BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
-          blPAD, blPAD, blPAD },
+          blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
         { BL_ALIGN,
           /*xspace*/ BL_GOLD,
           /*xspace*/ BL_HP, BL_HPMAX,
           /*xspace*/ BL_ENE, BL_ENEMAX,
           /*xspace*/ BL_AC,
+          /*xspace*/ BL_MC,
+          /*xspace*/ BL_TOHIT,
           /*xspace*/ BL_XP, BL_EXP, BL_HD,
           /*xspace*/ BL_HUNGER, BL_CAP, BL_WEAPON, BL_ARMOR, BL_TERRAIN,
-          BL_FLUSH, blPAD, blPAD, blPAD },
+          BL_FLUSH, blPAD, blPAD, blPAD, blPAD },
         { BL_LEVELDESC,
           /*xspace*/ BL_TIME,
+          /*xspace*/ BL_REALTIME,
           /*xspecial*/ BL_CONDITION,
           /*xspecial*/ BL_VERS,
           BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
-          blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
+          blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
     };
-    const enum statusfields (*fieldorder)[19];
+    const enum statusfields (*fieldorder)[22];
     coordxy spacing[MAXBLSTATS], valline[MAXBLSTATS];
     enum statusfields fld, prev_fld;
     char *text, *p, cbuf[BUFSZ], ebuf[STATVAL_WIDTH];
@@ -444,12 +451,15 @@ draw_horizontal(boolean border)
             case BL_HP:
             case BL_ENE:
             case BL_AC:
+            case BL_MC:
+            case BL_TOHIT:
             case BL_GOLD:
                 spacing[fld] = 1; /* always extra space */
                 break;
             case BL_XP:
             case BL_HD:
             case BL_TIME:
+            case BL_REALTIME:
                 spacing[fld] = status_activefields[fld] ? 1 : 0;
                 break;
             case BL_SCORE:
@@ -698,14 +708,15 @@ draw_vertical(boolean border)
         /* 5:blank */
         BL_HP, BL_HPMAX,
         BL_ENE, BL_ENEMAX,
-        BL_AC,
+        BL_AC, BL_MC, BL_TOHIT,
         /* 4:blank */
         BL_LEVELDESC,
         BL_ALIGN,
         BL_XP, BL_EXP, BL_HD,
         BL_GOLD,
-        /* 3:blank (but only if time or score or both enabled) */
+        /* 3:blank (but only if any of time, realtime and score enabled) */
         BL_TIME,
+        BL_REALTIME,
         BL_SCORE,
         /* 2:blank */
         BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
@@ -718,7 +729,7 @@ draw_vertical(boolean border)
         BL_FLUSH
     };
     static const enum statusfields shrinkorder[] = {
-        BL_VERS, BL_STR, BL_SCORE, BL_TIME, BL_LEVELDESC, BL_HP,
+        BL_VERS, BL_STR, BL_SCORE, BL_TIME, BL_REALTIME, BL_LEVELDESC, BL_HP,
         BL_TERRAIN, BL_ARMOR, BL_WEAPON,
         BL_CONDITION, BL_CAP, BL_HUNGER
     };
@@ -759,6 +770,8 @@ draw_vertical(boolean border)
         time_and_score |= 1;
     if (status_activefields[BL_SCORE])
         time_and_score |= 2;
+    if (status_activefields[BL_REALTIME])
+        time_and_score |= 4;
     cond_count = 0;
     if (curses_condition_bits) {
         for (i = 0; i < CONDITION_COUNT; ++i)
@@ -794,11 +807,17 @@ draw_vertical(boolean border)
             /* time will be separated from gold unless it is inactive */
             spacing[fld] = (time_and_score & 1) ? 2 : 0;
             break;
+        case BL_REALTIME:
+            /* shown on the line after time; needs the separator from gold
+               if time is inactive */
+            spacing[fld] = !(time_and_score & 4) ? 0
+                           : (time_and_score & 1) ? 1 : 2;
+            break;
         case BL_SCORE:
             /* unlike hunger+cap, score is shown on separate line from time;
-               needs time+score separator if time is inactive */
-            spacing[fld] = (time_and_score == 2) ? 2
-                           : (time_and_score == 3) ? 1 : 0;
+               needs time+score separator if time and realtime are inactive */
+            spacing[fld] = !(time_and_score & 2) ? 0
+                           : (time_and_score & 5) ? 1 : 2;
             break;
         case BL_HUNGER:
             /* separated from characteristics unless blank */
@@ -876,14 +895,23 @@ draw_vertical(boolean border)
 #ifdef SCORE_ON_BOTL
         /* with all optional fields and every status condition (12 out
            of the 13 since two are mutually exclusive) active, we need
-           22 non-blank lines; curses_create_main_windows() used to
-           require 24 lines or more in order to enable vertical status,
-           but that has been relaxed to 20 so height_needed might still
-           be too high after suppressing all the blank lines */
+           22 non-blank lines, plus two for magic cancellation and to-hit
+           and one for the realtime clock; curses_create_main_windows()
+           used to require 24 lines or more in order to enable vertical
+           status, but that has been relaxed to 20 so height_needed might
+           still be too high after suppressing all the blank lines */
         if (height_needed > height && status_activefields[BL_SCORE]) {
             height_needed -= spacing[BL_SCORE];
             spacing[BL_SCORE] = 0;
             time_and_score &= ~2;
+        }
+#endif
+#ifdef REALTIME_ON_BOTL
+        /* the realtime clock is the next to go */
+        if (height_needed > height && status_activefields[BL_REALTIME]) {
+            height_needed -= spacing[BL_REALTIME];
+            spacing[BL_REALTIME] = 0;
+            time_and_score &= ~4;
         }
 #endif
     } else if (height_needed < height) {
@@ -893,8 +921,9 @@ draw_vertical(boolean border)
             height_needed = height;
         }
     }
-    /* height_needed isn't used beyond here but was updated (for BL_SCORE
-       or BL_VERS) to keep it accurate in case that changes someday */
+    /* height_needed isn't used beyond here but was updated (for BL_SCORE,
+       BL_REALTIME or BL_VERS) to keep it accurate in case that changes
+       someday */
     nhUse(height_needed);
 
     if (border)
@@ -905,6 +934,7 @@ draw_vertical(boolean border)
         if ((fld == BL_HUNGER && !(cap_and_hunger & 1))
             || (fld == BL_CAP && !(cap_and_hunger & 2))
             || (fld == BL_TIME && !(time_and_score & 1))
+            || (fld == BL_REALTIME && !(time_and_score & 4))
             || (fld == BL_SCORE && !(time_and_score & 2)))
             continue;
 
@@ -1224,7 +1254,10 @@ curs_vert_status_vals(int win_width)
             *status_vals_long[fldidx] = '\0';
         } else {
             text = status_vals[fldidx];
-            if (fldidx != BL_TITLE && fldidx != BL_LEVELDESC) {
+            /* the realtime clock has no label but its value can contain
+               colons ("1h:05m") */
+            if (fldidx != BL_TITLE && fldidx != BL_LEVELDESC
+                && fldidx != BL_REALTIME) {
                 if ((colon = strchr(text, ':')) != 0)
                     text = colon + 1;
             }
@@ -1249,6 +1282,7 @@ curs_vert_status_vals(int win_width)
                       : "hit-dice";
                 break;
             case BL_ALIGN:
+            case BL_REALTIME:
                 /* don't want sprintf(": %s") below inserting second space */
                 if (*text == ' ')
                     ++text;

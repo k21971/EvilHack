@@ -8,26 +8,28 @@
 /* Note: this comment is about the pre-VIA_WINDOWPORT two line status
  * which is still available but has not added a bunch of conditional
  * extra status conditions (Grab, InLava, Held, Zzz and many others)
- * or the new fields Weapon, Armor, and Terrain.
+ * or the new fields Weapon, Armor, Terrain, and Realtime; it does
+ * show magic cancellation (MC) and base to-hit (TH).
  *
  * MAXCO must hold longest uncompressed status line, and must be larger
  * than COLNO
  *
  * longest practical second status line at the moment is
 Astral Plane \GXXXXNNNN:123456 HP:1234(1234) Pw:1234(1234) AC:-127
- Xp:30/123456789 T:123456  Stone Slime Strngl FoodPois TermIll
- Satiated Overloaded Blind Deaf Stun Conf Hallu Lev Ride
- * -- or about 185 characters.  '$' gets encoded even when it
- * could be used as-is.  The first five status conditions are fatal
- * so it's rare to have more than one at a time.
+ MC:3 TH:-99 Xp:30/123456789 T:123456  Stone Slime Strngl FoodPois
+ TermIll Wither Satiated Overloaded Blind Deaf Stun Conf Hallu Lev Ride
+ * -- or about 205 characters, plus the version when 'showvers' is set.
+ * '$' gets encoded even when it could be used as-is. The first five
+ * status conditions are fatal so it's rare to have more than one at
+ * a time.
  *
  * When the full line is wider than the map, the basic status line
  * formatting will move less important fields to the end, so if/when
  * truncation is necessary, it will chop off the least significant
  * information.
  */
-#if COLNO <= 160
-#define MAXCO 200
+#if COLNO <= 216
+#define MAXCO 256
 #else
 #define MAXCO (COLNO + 40)
 #endif
@@ -52,12 +54,13 @@ enum statusfields {
     BL_TITLE = 0,
     BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,  /*  1.. 6 */
     BL_ALIGN, BL_SCORE, BL_CAP, BL_GOLD,        /*  7..10 */
-    BL_ENE, BL_ENEMAX, BL_XP, BL_AC, BL_HD,     /* 11..15 */
-    BL_TIME, BL_HUNGER, BL_HP, BL_HPMAX,        /* 16..19 */
-    BL_LEVELDESC, BL_EXP, BL_CONDITION,         /* 20..22 */
-    BL_WEAPON, BL_ARMOR, BL_TERRAIN,            /* 23..25 */
-    BL_VERS,                                    /*   26   */
-    MAXBLSTATS /* [27] */
+    BL_ENE, BL_ENEMAX, BL_XP, BL_AC, BL_MC,     /* 11..15 */
+    BL_TOHIT, BL_HD, BL_TIME, BL_REALTIME,      /* 16..19 */
+    BL_HUNGER, BL_HP, BL_HPMAX,                 /* 20..22 */
+    BL_LEVELDESC, BL_EXP, BL_CONDITION,         /* 23..25 */
+    BL_WEAPON, BL_ARMOR, BL_TERRAIN,            /* 26..28 */
+    BL_VERS,                                    /*   29   */
+    MAXBLSTATS /* [30] */
 };
 
 enum relationships {

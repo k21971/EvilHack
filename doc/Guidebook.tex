@@ -25,7 +25,7 @@
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
 %DO NOT REMOVE NH_DATESUB \date{Date(%B %-d, %Y)}
-\date{October 20, 2026}
+\date{October 21, 2026}
 
 \maketitle
 
@@ -5314,6 +5314,37 @@ Cannot be set with the `\texttt{O}' command.  Persistent.
 Name your starting rat (for example, ``\texttt{ratname:Squeak}'').
 Cannot be set with the `\texttt{O}' command.
 %.lp
+\item[realtime]
+Show a real-time clock on the status line.
+The possible values are:
+
+%.sd
+%.si
+\texttt{disabled} --- no clock;\\
+\texttt{play time} --- time spent playing this game;\\
+\texttt{wallclock time} --- real time since the game began, including
+time away from it.
+%.ei
+%.ed
+
+The default is \textit{wallclock time}.
+By default, this feature is suppressed when building the program.
+%.lp
+\item[realtime\textunderscore format]
+The format of the \textit{realtime} clock.
+The possible values are:
+
+%.sd
+%.si
+\texttt{seconds} --- seconds (5103);\\
+\texttt{condensed} --- hours and minutes (1:25);\\
+\texttt{fixed units} --- hours, minutes and seconds (01:25:03);\\
+\texttt{units} --- the two largest units (1h:25m, 5m:03s).
+%.ei
+%.ed
+
+The default is \textit{units}.
+%.lp
 \item[reroll]
 Allows rerolling your character's starting inventory and attributes (default
 false).  Persistent.
@@ -6581,10 +6612,11 @@ title & dungeon-level & experience-level\\
 strength & gold & experience\\
 dexterity & hitpoints & HD\\
 constitution & hitpoints-max & time\\
-intelligence & power & hunger\\
-wisdom & power-max & carrying-capacity\\
-charisma & armor-class & condition\\
-alignment &  & score\\
+intelligence & power & realtime\\
+wisdom & power-max & hunger\\
+charisma & armor-class & carrying-capacity\\
+alignment & magic-neg & condition\\
+ & to-hit & score\\
 %TABLE_END  Do not delete this line.
 \end{tabular}
 \end{center}
@@ -6593,8 +6625,10 @@ alignment &  & score\\
 The pseudo-field `characteristics' can be used to set all six
 of Str, Dex, Con, Int, Wis, and Cha at once.  `HD' is `hit dice',
 an approximation of experience level displayed when polymorphed.
-`experience', `time', and `score' are conditionally displayed
-depending upon your other option settings.
+`magic-neg' is magic cancellation (MC) and `to-hit' is your base
+chance to hit (TH).
+`experience', `time', `realtime', and `score' are conditionally
+displayed depending upon your other option settings.
 
 %.lp ""
 Instead of a behavior, `condition' takes the following condition flags:
@@ -6658,8 +6692,9 @@ exactly 1 experience point short of the next level.
 %.lp "*"
 \item[absolute] value sets the attribute when the field value
 matches that number.
-The number must be 0 or higher, except for ``\textit{armor-class} which
-allows negative values, and may optionally be preceded by `\texttt{=}'.
+The number must be 0 or higher, except for `\textit{armor-class}' and
+`\textit{to-hit}' which allow negative values, and may optionally be
+preceded by `\texttt{=}'.
 If the number is preceded by `\texttt{<=}' or `\texttt{>=}' instead,
 it also matches when value is below or above.
 If the prefix is `\texttt{<}' or `\texttt{>}', only match when strictly

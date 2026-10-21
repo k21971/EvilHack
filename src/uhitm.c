@@ -408,7 +408,9 @@ mon_maybe_unparalyze(struct monst *mtmp)
 
 /* how easy it is for hero to hit a monster,
    using attack type aatyp and/or weapon.
-   larger value == easier to hit */
+   larger value == easier to hit;
+   botl_hitbonus() repeats the terms that don't involve the target for
+   the status line, so keep the two in step */
 int
 find_roll_to_hit(
     struct monst *mtmp,

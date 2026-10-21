@@ -917,6 +917,10 @@ genl_status_init(void)
     int i;
 
     for (i = 0; i < MAXBLSTATS; ++i) {
+        /* free first in case status_initialize() runs twice (botl.c warns
+           but doesn't bail on a 2nd full-init call) */
+        if (status_vals[i])
+            free((genericptr_t) status_vals[i]);
         status_vals[i] = (char *) alloc(MAXCO);
         *status_vals[i] = '\0';
         status_activefields[i] = FALSE;
@@ -969,33 +973,34 @@ genl_status_update(
     enum statusfields idx1, idx2, *fieldlist;
     char *nb, *text = (char *) ptr;
 
-    static enum statusfields fieldorder[][15] = {
+    static enum statusfields fieldorder[][18] = {
         /* line one */
         { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
           BL_SCORE, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH,
-          BL_FLUSH },
+          BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH },
         /* line two, default order */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
           BL_XP, BL_EXP, BL_HD,
-          BL_TIME,
+          BL_TIME, BL_REALTIME,
           BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_FLUSH },
         /* move time to the end */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
           BL_XP, BL_EXP, BL_HD,
           BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_TIME, BL_FLUSH },
+          BL_TIME, BL_REALTIME, BL_FLUSH },
         /* move experience and time to the end */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
           BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
+          BL_XP, BL_EXP, BL_HD, BL_TIME, BL_REALTIME, BL_FLUSH },
         /* move level description plus gold and experience and time to end */
-        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
+        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
           BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_LEVELDESC, BL_GOLD, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
+          BL_LEVELDESC, BL_GOLD, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_REALTIME,
+          BL_FLUSH },
     };
 
     /* in case interface is using genl_status_update() but has not
@@ -1067,10 +1072,15 @@ genl_status_update(
         if (status_activefields[idx1])
             Strcpy(nb = eos(nb), status_vals[idx1]);
     }
-    /* if '$' is encoded, buffer length of \GXXXXNNNN is 9 greater than
-       single char; we want to subtract that 9 when checking display length */
+    if (strlen(newbot1) >= sizeof newbot1 - 1)
+        impossible("genl_status_update: line 1 overflow");
+    /* if '$' is encoded, buffer length of \GXXXXNNNN (10 chars) is
+       ENCGLYPH_DELTA greater than the rendered single char; subtract
+       that delta when checking display length */
+#define ENCGLYPH_DELTA 9
     lndelta = (status_activefields[BL_GOLD]
-               && strstr(status_vals[BL_GOLD], "\\G")) ? 9 : 0;
+               && strstr(status_vals[BL_GOLD], "\\G")) ? ENCGLYPH_DELTA : 0;
+#undef ENCGLYPH_DELTA
     /* basic bot2 formats groups of second line fields into five buffers,
        then decides how to order those buffers based on comparing lengths
        of [sub]sets of them to the width of the map; we have more control
@@ -1087,7 +1097,7 @@ genl_status_update(
                 case BL_HP: /* for pass 4, Hp comes first; mungspaces()
                                will strip the unwanted leading spaces */
                 case BL_XP: case BL_HD:
-                case BL_TIME:
+                case BL_TIME: case BL_REALTIME:
                     Strcpy(nb = eos(nb), " ");
                     break;
                 case BL_LEVELDESC:
@@ -1134,6 +1144,8 @@ genl_status_update(
             break;
         }
     } /* pass */
+    if (strlen(newbot2) >= sizeof newbot2 - 1)
+        impossible("genl_status_update: line 2 overflow");
     curs(WIN_STATUS, 1, 0);
     putstr(WIN_STATUS, 0, newbot1);
     curs(WIN_STATUS, 1, 1);
@@ -1646,25 +1658,27 @@ html_print_glyph(
 
 /* Status field ordering for 2 or 3 lines, from tty windowport */
 #define blPAD BL_FLUSH
-#define MAX_PER_ROW 15
+#define MAX_PER_ROW 17
 static const enum statusfields
     twolineorder[3][MAX_PER_ROW] = {
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
-      BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
+      BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
+      BL_AC, BL_MC, BL_TOHIT, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
       BL_CAP, BL_CONDITION, BL_FLUSH },
     { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
-      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
 },
     threelineorder[3][MAX_PER_ROW] = {
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
-      BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
+      BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
+      blPAD },
     { BL_ALIGN, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
+      BL_AC, BL_MC, BL_TOHIT, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
       BL_CAP, BL_FLUSH, blPAD, blPAD },
     { BL_LEVELDESC, BL_TIME, BL_CONDITION, BL_FLUSH, blPAD, blPAD,
-      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
+      blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
+      blPAD }
 };
 static const enum statusfields (*fieldorder)[MAX_PER_ROW];
 
@@ -1882,7 +1896,7 @@ dump_render_status(void)
             }
         }
         if (dumphtml_file)
-            fprintf(dumphtml_file, "%*s</span>\n", pad, " ");
+            fprintf(dumphtml_file, "%*s</span>\n", pad > 0 ? pad : 0, " ");
     }
     return;
 }
@@ -1905,10 +1919,14 @@ dump_status_update(
     const char *fmt;
 
     /* we don't have an init routine, so do it on the first run through */
-    static boolean inited = FALSE;
+    /* keyed on the row count rather than a one-shot flag so that a
+       'statuslines' change before a later dump picks the right order */
+    static int inited_for_lines = 0;
+    int num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
 
-    if (!inited) {
-        int i, num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
+    if (inited_for_lines != num_rows) {
+        int i;
+
         fieldorder = (num_rows != 3) ? twolineorder : threelineorder;
         for (i = 0; i < MAXBLSTATS; ++i) {
             dump_status[i].idx = BL_FLUSH;
@@ -1917,13 +1935,13 @@ dump_status_update(
         }
         dump_condition_bits = 0L;
         hpbar_percent = 0, hpbar_color = NO_COLOR;
-        inited = TRUE;
+        inited_for_lines = num_rows;
     }
 
     if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
         return;
 
-    if ((fldidx >= 0 && fldidx < MAXBLSTATS) && !status_activefields[fldidx])
+    if (fldidx >= 0 && !status_activefields[fldidx])
         return;
 
     switch (fldidx) {

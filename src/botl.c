@@ -17,6 +17,15 @@ staticfn const char *rank_of_role(int, const struct Role *, boolean);
 staticfn const char *rank(void);
 staticfn void bot_via_windowport(void);
 staticfn void stat_update_time(void);
+#ifdef REALTIME_ON_BOTL
+staticfn char *format_duration_with_units(long);
+staticfn const char *botl_realtime(void);
+/* 'realtime' option value '\0' means disabled */
+#define realtime_shown() \
+    (iflags.show_realtime == 'p' || iflags.show_realtime == 'w')
+#else
+#define realtime_shown() FALSE
+#endif
 
 char *
 get_strength_str(void)
@@ -103,7 +112,7 @@ char *
 do_statusline2(void)
 {
     static char newbot2[BUFSZ], /* MAXCO: botl.h */
-         /* dungeon location (and gold), hero health (HP, PW, AC),
+         /* dungeon location (and gold), hero health (HP, PW, AC, MC, TH),
             experience (HD if poly'd, else Exp level and maybe Exp points),
             time (in moves), varying number of status conditions */
          dloc[QBUFSZ], hlth[QBUFSZ], expr[QBUFSZ],
@@ -137,14 +146,16 @@ do_statusline2(void)
     /* '$' encoded as \GXXXXNNNN is 9 chars longer than display will need */
     dx = strstri(dloc, "\\G") ? 9 : 0;
 
-    /* health and armor class (has trailing space for AC 0..9) */
+    /* health, armor class, magic cancellation and base to-hit (AC and
+       TH have a trailing space for 0..9) */
     hp = Upolyd ? u.mh : u.uhp;
     hpmax = Upolyd ? u.mhmax : u.uhpmax;
     if (hp < 0)
         hp = 0;
-    Sprintf(hlth, "HP:%d(%d) Pw:%d(%d) AC:%-2d",
+    Sprintf(hlth, "HP:%d(%d) Pw:%d(%d) AC:%-2d MC:%d TH:%-2d",
             min(hp, 9999), min(hpmax, 9999),
-            min(u.uen, 9999), min(u.uenmax, 9999), u.uac);
+            min(u.uen, 9999), min(u.uenmax, 9999), u.uac,
+            magic_negation(&gy.youmonst), botl_hitbonus());
     hln = strlen(hlth);
 
     /* experience */
@@ -274,20 +285,31 @@ bot(void)
     disp.botl = disp.botlx = disp.time_botl = FALSE;
 }
 
-/* special purpose status update: move counter ('time' status) only */
+/* special purpose status update once per turn: move counter ('time'
+   status), realtime clock, base to-hit and magic cancellation */
 void
 timebot(void)
 {
     if (gb.bot_disabled)
         return;
     /* we're called when disp.time_botl is set and general disp.botl
-       is clear; disp.time_botl gets set whenever svm.moves changes value
-       so there's no benefit in tracking previous value to decide whether
-       to skip update; suppress_map_output() handles program_state.restoring
+       is clear; disp.time_botl gets set whenever svm.moves changes value,
+       whether or not 'time' is shown, so there's no benefit in tracking
+       previous value to decide whether to skip update;
+       suppress_map_output() handles program_state.restoring
        and program_state.done_hup (tty hangup => no further output at all)
        and we use it for maybe skipping status as well as for the map */
-    if (flags.time && iflags.status_updates && !suppress_map_output()) {
-        if (VIA_WINDOWPORT()) {
+    if (iflags.status_updates && !suppress_map_output()) {
+        /* to-hit and magic cancellation change without a full update
+           (Luck, lighting for a drow, a ring of increase accuracy, a
+           carried protection artifact) and can change back, which
+           stat_update_time()'s comparison with the older status slot
+           would miss, so do a full update when either differs */
+        if (VIA_WINDOWPORT()
+            && botl_hitbonus()
+               == gb.blstats[gn.now_or_before_idx][BL_TOHIT].a.a_int
+            && magic_negation(&gy.youmonst)
+               == gb.blstats[gn.now_or_before_idx][BL_MC].a.a_int) {
             stat_update_time();
         } else {
             /* old status display updates everything */
@@ -479,6 +501,82 @@ botl_score(void)
     return nowrap_add(u.urexp, umoney + depthbonus);
 }
 #endif /* SCORE_ON_BOTL */
+
+#ifdef REALTIME_ON_BOTL
+/* format a duration as days, hours, minutes and seconds, leaving out
+   leading units that are zero (e.g. "2h:03m:05s") */
+staticfn char *
+format_duration_with_units(long seconds)
+{
+    static char buf_fmt_duration[BUFSZ];
+    long minutes = seconds / 60L;
+    long hours = minutes / 60L;
+    long days = hours / 24L;
+
+    seconds %= 60L;
+    minutes %= 60L;
+    hours %= 24L;
+
+    if (days > 0L)
+        Sprintf(buf_fmt_duration, "%ldd:%2.2ldh:%2.2ldm:%2.2lds",
+                days, hours, minutes, seconds);
+    else if (hours > 0L)
+        Sprintf(buf_fmt_duration, "%ldh:%2.2ldm:%2.2lds",
+                hours, minutes, seconds);
+    else
+        Sprintf(buf_fmt_duration, "%ldm:%2.2lds", minutes, seconds);
+    return buf_fmt_duration;
+}
+
+/* value of the realtime status field: play time or wallclock time
+   since the game began, in the 'realtime_format' style */
+staticfn const char *
+botl_realtime(void)
+{
+    static char buf[BUFSZ];
+    long currenttime;
+
+    if (iflags.show_realtime == 'p') {
+        /* for a game that's over, really_done() has already added the
+           final session to urealtime.realtime */
+        currenttime = urealtime.realtime;
+        /* start_timing is still 0 during a new game's opening screens */
+        if (!program_state.gameover && urealtime.start_timing)
+            currenttime += timet_delta(getnow(), urealtime.start_timing);
+    } else if (iflags.show_realtime == 'w') {
+        currenttime = ubirthday ? timet_delta(getnow(), ubirthday) : 0L;
+    } else {
+        return "";
+    }
+    if (currenttime < 0L)
+        currenttime = 0L;
+
+    switch (iflags.realtime_format) {
+    case 's':
+        Sprintf(buf, "%ld", currenttime);
+        break;
+    case 'c':
+        Sprintf(buf, "%ld:%2.2ld", currenttime / 3600L,
+                (currenttime % 3600L) / 60L);
+        break;
+    case 'f':
+        Sprintf(buf, "%02ld:%02ld:%02ld", currenttime / 3600L,
+                (currenttime % 3600L) / 60L, currenttime % 60L);
+        break;
+    case 'u':
+    default: {
+        char *duration = format_duration_with_units(currenttime), *p;
+
+        /* only show the two largest units */
+        if ((p = strchr(duration, ':')) != 0)
+            p[4] = '\0';
+        Strcpy(buf, duration);
+        break;
+    }
+    }
+    return buf;
+}
+#endif /* REALTIME_ON_BOTL */
 
 /* provide the name of the current level for display by various ports */
 int
@@ -817,6 +915,9 @@ staticfn void status_hilites_viewall(void);
 
 /*
  * If entries are added to this, botl.h will require updating too.
+ * Entries must stay in the order of botl.h's enum statusfields:
+ * init_blstats() copies them by position but they're looked up by
+ * field index.
  *
  * 'max' values of BL_XP and BL_EXP get special handling since the
  * percentage involved isn't a direct 100*current/maximum calculation.
@@ -842,8 +943,12 @@ static struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("power-max", "(%s)", ANY_INT, 10, BL_ENEMAX),
     INIT_BLSTATP("experience-level", " Xp:%s", ANY_INT, 10, BL_XP, BL_XP),
     INIT_BLSTAT("armor-class", " AC:%s", ANY_INT, 10, BL_AC),
+    INIT_BLSTAT("magic-neg", " MC:%s", ANY_INT, 10, BL_MC),
+    INIT_BLSTAT("to-hit", " TH:%s", ANY_INT, 10, BL_TOHIT),
     INIT_BLSTAT("HD", " HD:%s", ANY_INT, 10, BL_HD),
     INIT_BLSTAT("time", " T:%s", ANY_LONG, 30, BL_TIME),
+    /* hours in the 'f' format are unbounded */
+    INIT_BLSTAT("realtime", " %s", ANY_STR, 24, BL_REALTIME),
     /* hunger used to be 'ANY_UINT'; see note below in bot_via_windowport() */
     INIT_BLSTAT("hunger", " %s", ANY_INT, 20, BL_HUNGER),
     INIT_BLSTATP("hitpoints", " HP:%s", ANY_INT, 10, BL_HPMAX, BL_HP),
@@ -851,11 +956,6 @@ static struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("dungeon-level", "%s", ANY_STR, MAXVALWIDTH, BL_LEVELDESC),
     INIT_BLSTATP("experience", "/%s", ANY_LONG, 30, BL_EXP, BL_EXP),
     INIT_BLSTAT("condition", "%s", ANY_MASK32, 0, BL_CONDITION),
-    /* optional; once set it doesn't change unless 'showvers' option is
-       toggled or player modifies the 'versinfo' option;
-       available mostly for screenshots or someone looking over shoulder;
-       blstat[][BL_VERS] is actually an int copy of flags.versinfo (0...7) */
-    INIT_BLSTAT("version", " %s", ANY_STR, MAXVALWIDTH, BL_VERS),
     /* weapon and armor are constructed strings with no particular numeric
        equivalent */
     INIT_BLSTAT("weapon", " %s", ANY_STR, 20, BL_WEAPON),
@@ -864,6 +964,11 @@ static struct istat_s initblstats[MAXBLSTATS] = {
        isn't useful; using type 'string' allows highlighting based on text
        matching which is potentially useful */
     INIT_BLSTAT("terrain", " %s", ANY_STR, 20, BL_TERRAIN),
+    /* optional; once set it doesn't change unless 'showvers' option is
+       toggled or player modifies the 'versinfo' option;
+       available mostly for screenshots or someone looking over shoulder;
+       blstat[][BL_VERS] is actually an int copy of flags.versinfo (0...7) */
+    INIT_BLSTAT("version", " %s", ANY_STR, MAXVALWIDTH, BL_VERS),
 };
 
 #undef INIT_BLSTATP
@@ -1222,6 +1327,12 @@ bot_via_windowport(void)
     /* Armor class */
     gb.blstats[idx][BL_AC].a.a_int = u.uac;
 
+    /* Magic cancellation */
+    gb.blstats[idx][BL_MC].a.a_int = magic_negation(&gy.youmonst);
+
+    /* Base to-hit */
+    gb.blstats[idx][BL_TOHIT].a.a_int = botl_hitbonus();
+
     /* Monster level (if Upolyd) */
     gb.blstats[idx][BL_HD].a.a_int = Upolyd ? (int) mons[u.umonnum].mlevel : 0;
 
@@ -1231,6 +1342,14 @@ bot_via_windowport(void)
 
     /* Time (moves) */
     gb.blstats[idx][BL_TIME].a.a_long = svm.moves;
+
+#ifdef REALTIME_ON_BOTL
+    /* Realtime */
+    Snprintf(gb.blstats[idx][BL_REALTIME].val,
+             (size_t) gb.blstats[idx][BL_REALTIME].valwidth, "%s",
+             botl_realtime());
+    gv.valset[BL_REALTIME] = TRUE;
+#endif
 
     /* Hunger */
     /* note: u.uhs is unsigned, and 3.6.1's STATUS_HILITE defined
@@ -1428,19 +1547,37 @@ bot_via_windowport(void)
 
 #undef cond_cache_prepA
 
-/* update just the status lines' 'time' field */
+/* update just the status lines' 'time' and 'realtime' fields */
 staticfn void
 stat_update_time(void)
 {
     int idx = gn.now_or_before_idx; /* no 0/1 toggle */
     int fld = BL_TIME;
+    boolean updated = FALSE;
 
     /* Time (moves) */
-    gb.blstats[idx][fld].a.a_long = svm.moves;
-    gv.valset[fld] = FALSE;
+    if (flags.time) {
+        gb.blstats[idx][fld].a.a_long = svm.moves;
+        gv.valset[fld] = FALSE;
+        if (eval_notify_windowport_field(fld, gv.valset, idx))
+            updated = TRUE;
+    }
 
-    eval_notify_windowport_field(fld, gv.valset, idx);
-    if ((windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
+#ifdef REALTIME_ON_BOTL
+    /* Realtime */
+    if (realtime_shown()) {
+        fld = BL_REALTIME;
+        Snprintf(gb.blstats[idx][fld].val,
+                 (size_t) gb.blstats[idx][fld].valwidth, "%s",
+                 botl_realtime());
+        gv.valset[fld] = TRUE;
+        if (eval_notify_windowport_field(fld, gv.valset, idx))
+            updated = TRUE;
+    }
+#endif
+
+    /* nothing to flush when neither field is shown or neither changed */
+    if (updated && (windowprocs.wincap2 & WC2_FLUSH_STATUS) != 0L)
         status_update(BL_FLUSH, (genericptr_t) 0, 0, 0,
                       NO_COLOR, (unsigned long *) 0);
     return;
@@ -1780,6 +1917,7 @@ evaluate_and_notify_windowport(
         if (((fld == BL_SCORE) && !flags.showscore)
             || ((fld == BL_EXP) && !flags.showexp)
             || ((fld == BL_TIME) && !flags.time)
+            || ((fld == BL_REALTIME) && !realtime_shown())
             || ((fld == BL_HD) && !Upolyd)
             || ((fld == BL_XP || fld == BL_EXP) && Upolyd)
             || ((fld == BL_VERS) && !flags.showvers)
@@ -1849,14 +1987,15 @@ status_initialize(
         fld = initblstats[i].fld;
         fldenabl = (fld == BL_SCORE) ? flags.showscore
                    : (fld == BL_TIME) ? flags.time
-                     : (fld == BL_EXP) ? (boolean) (flags.showexp && !Upolyd)
-                       : (fld == BL_XP) ? (boolean) !Upolyd
-                         : (fld == BL_HD) ? (boolean) Upolyd
-                           : (fld == BL_VERS) ? flags.showvers
-                             : (fld == BL_WEAPON) ? flags.weaponstatus
-                               : (fld == BL_ARMOR) ? flags.armorstatus
-                                 : (fld == BL_TERRAIN) ? flags.terrainstatus
-                                   : TRUE;
+                     : (fld == BL_REALTIME) ? (boolean) realtime_shown()
+                       : (fld == BL_EXP) ? (boolean) (flags.showexp && !Upolyd)
+                         : (fld == BL_XP) ? (boolean) !Upolyd
+                           : (fld == BL_HD) ? (boolean) Upolyd
+                             : (fld == BL_VERS) ? flags.showvers
+                               : (fld == BL_WEAPON) ? flags.weaponstatus
+                                 : (fld == BL_ARMOR) ? flags.armorstatus
+                                   : (fld == BL_TERRAIN) ? flags.terrainstatus
+                                     : TRUE;
 
         fieldname = initblstats[i].fldname;
         fieldfmt = (fld == BL_TITLE && iflags.wc2_hitpointbar) ? "%-30.30s"
@@ -1966,12 +2105,32 @@ compare_blstats(struct istat_s *bl1, struct istat_s *bl2)
     }
 
     anytype = bl1->anytype;
-    if ((!bl1->a.a_void || !bl2->a.a_void)
-        && (anytype == ANY_IPTR || anytype == ANY_UPTR
-            || anytype == ANY_LPTR || anytype == ANY_ULPTR)) {
-        panic("compare_blstat: invalid pointer %s, %s",
-              fmt_ptr((genericptr_t) bl1->a.a_void),
-              fmt_ptr((genericptr_t) bl2->a.a_void));
+    {
+        /* validate pointer-typed entries via the written union member,
+           not via an 'a_void' type pun */
+        boolean ptr_invalid = FALSE;
+
+        switch (anytype) {
+        case ANY_IPTR:
+            ptr_invalid = (!bl1->a.a_iptr || !bl2->a.a_iptr);
+            break;
+        case ANY_UPTR:
+            ptr_invalid = (!bl1->a.a_uptr || !bl2->a.a_uptr);
+            break;
+        case ANY_LPTR:
+            ptr_invalid = (!bl1->a.a_lptr || !bl2->a.a_lptr);
+            break;
+        case ANY_ULPTR:
+            ptr_invalid = (!bl1->a.a_ulptr || !bl2->a.a_ulptr);
+            break;
+        default:
+            break;
+        }
+        if (ptr_invalid) {
+            panic("compare_blstat: invalid pointer %s, %s",
+                  fmt_ptr((genericptr_t) bl1->a.a_void),
+                  fmt_ptr((genericptr_t) bl2->a.a_void));
+        }
     }
     /* cheat; terrain is highlighted as a string but we have a handy int
        reflecting its value to use when checking for changes */
@@ -2143,45 +2302,61 @@ percentage(struct istat_s *bl, struct istat_s *maxbl)
     use_rawval = (fld == BL_HP || fld == BL_ENE);
     ival = 0, lval = 0L, uval = 0U, ulval = 0UL;
     anytype = bl->anytype;
-    if (maxbl->a.a_void) {
-        switch (anytype) {
-        case ANY_INT:
-            /* HP and energy are int so this is the only case that cares
-               about 'rawval'; for them, we use that rather than their
-               potentially truncated (to 9999) display value */
+    /* check the divisor through its written union member rather than
+       reading 'a_void' as a generic non-zero pun */
+    switch (anytype) {
+    case ANY_INT:
+        /* HP and energy are int so this is the only case that cares
+           about 'rawval'; for them, we use that rather than their
+           potentially truncated (to 9999) display value */
+        mval = use_rawval ? maxbl->rawval.a_int : maxbl->a.a_int;
+        if (mval != 0) {
             ival = use_rawval ? bl->rawval.a_int : bl->a.a_int;
-            mval = use_rawval ? maxbl->rawval.a_int : maxbl->a.a_int;
             result = ((100 * ival) / mval);
-            break;
-        case ANY_LONG:
+        }
+        break;
+    case ANY_LONG:
+        if (maxbl->a.a_long != 0L) {
             lval  = bl->a.a_long;
             result = (int) ((100L * lval) / maxbl->a.a_long);
-            break;
-        case ANY_UINT:
+        }
+        break;
+    case ANY_UINT:
+        if (maxbl->a.a_uint != 0U) {
             uval = bl->a.a_uint;
             result = (int) ((100U * uval) / maxbl->a.a_uint);
-            break;
-        case ANY_ULONG:
+        }
+        break;
+    case ANY_ULONG:
+        if (maxbl->a.a_ulong != 0UL) {
             ulval = bl->a.a_ulong;
             result = (int) ((100UL * ulval) / maxbl->a.a_ulong);
-            break;
-        case ANY_IPTR:
+        }
+        break;
+    case ANY_IPTR:
+        if (maxbl->a.a_iptr && *maxbl->a.a_iptr != 0) {
             ival = *bl->a.a_iptr;
             result = ((100 * ival) / (*maxbl->a.a_iptr));
-            break;
-        case ANY_LPTR:
+        }
+        break;
+    case ANY_LPTR:
+        if (maxbl->a.a_lptr && *maxbl->a.a_lptr != 0L) {
             lval = *bl->a.a_lptr;
             result = (int) ((100L * lval) / (*maxbl->a.a_lptr));
-            break;
-        case ANY_UPTR:
+        }
+        break;
+    case ANY_UPTR:
+        if (maxbl->a.a_uptr && *maxbl->a.a_uptr != 0U) {
             uval = *bl->a.a_uptr;
             result = (int) ((100U * uval) / (*maxbl->a.a_uptr));
-            break;
-        case ANY_ULPTR:
+        }
+        break;
+    case ANY_ULPTR:
+        if (maxbl->a.a_ulptr && *maxbl->a.a_ulptr != 0UL) {
             ulval = *bl->a.a_ulptr;
             result = (int) ((100UL * ulval) / (*maxbl->a.a_ulptr));
-            break;
         }
+        break;
     }
     /* don't let truncation from integer division produce a zero result
        from a non-zero input; note: if we ever change to something like
@@ -2348,8 +2523,11 @@ static const struct fieldid_t {
     { "xl",       BL_XP },
     { "xplvl",    BL_XP },
     { "ac",       BL_AC },
+    { "mc",       BL_MC },
+    { "tohit",    BL_TOHIT },
     { "hit-dice", BL_HD },
     { "turns",    BL_TIME },
+    { "realtime", BL_REALTIME },
     { "hp",       BL_HP },
     { "hp-max",   BL_HPMAX },
     { "dgn",      BL_LEVELDESC },
@@ -2860,7 +3038,7 @@ splitsubfields(char *str, char ***sfarr, int maxsf)
             }
             c++;
         }
-        if (sf >= maxsf - 1)
+        if (sf >= maxsf)
             return -1;
         if (!*c && c != st)
             subfields[sf++] = st;
@@ -3093,10 +3271,12 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
 
             op = grt ? ">" : gte ? ">=" : lt ? "<" : le ? "<=" : "=";
             if (dt == ANY_INT
-                /* AC is the only field where negative values make sense but
-                   accept >-1 for other fields; reject <0 for non-AC */
+                /* AC and to-hit are the only fields where negative values
+                   make sense but accept >-1 for other fields; reject <0
+                   for the rest */
                 && (hilite.value.a_int
-                    < ((fld == BL_AC) ? -128 : grt ? -1 : lt ? 1 : 0)
+                    < ((fld == BL_AC || fld == BL_TOHIT) ? -128
+                       : grt ? -1 : lt ? 1 : 0)
                 /* percentages have another more comprehensive check below */
                     || hilite.value.a_int > (percent ? (lt ? 101 : 100)
                                                      : LARGEST_INT))) {
@@ -3150,13 +3330,13 @@ parse_status_hl2(char (*s)[QBUFSZ], boolean from_configfile)
                 return FALSE;
             } else if ((hilite.value.a_int < -1)
                        || (hilite.value.a_int == -1
-                           && hilite.value.a_int != GT_VALUE)
+                           && hilite.rel != GT_VALUE)
                        || (hilite.value.a_int == 0
                            && hilite.rel == LT_VALUE)
                        || (hilite.value.a_int == 100
                            && hilite.rel == GT_VALUE)
                        || (hilite.value.a_int == 101
-                           && hilite.value.a_int != LT_VALUE)
+                           && hilite.rel != LT_VALUE)
                        || (hilite.value.a_int > 101)) {
                 config_error_add(
                            "hilite_status: invalid percentage value '%s%d%%'",
@@ -3297,6 +3477,8 @@ conditionbitmask2str(unsigned long ul)
     if (!ul)
         return buf;
 
+    /* skip index 0 ("strangled"); it's a single-condition alias for
+       the canonical "strngl" already emitted by the loop below */
     for (i = 1; i < SIZE(condition_aliases); i++)
         if (condition_aliases[i].bitmask == ul)
             alias = condition_aliases[i].id;
@@ -3832,6 +4014,11 @@ status_hilite_menu_choose_field(void)
             && !gb.blstats[0][BL_SCORE].thresholds)
             continue;
 #endif
+#ifndef REALTIME_ON_BOTL
+        if (initblstats[i].fld == BL_REALTIME
+            && !gb.blstats[0][BL_REALTIME].thresholds)
+            continue;
+#endif
         any = cg.zeroany;
         any.a_int = (i + 1);
         add_menu(tmpwin, &nul_glyphinfo, &any, 0, 0, ATR_NONE,
@@ -4178,9 +4365,10 @@ status_hilite_menu_add(int origfld)
             if (!strchr(numstart, '%'))
                 Strcat(numstart, "%");
 
-        /* reject negative values except for AC and >-1; reject 0 for < */
+        /* reject negative values except for AC, to-hit and >-1;
+           reject 0 for < */
         } else if (dt == ANY_INT
-                   && (aval.a_int < ((fld == BL_AC) ? -128
+                   && (aval.a_int < ((fld == BL_AC || fld == BL_TOHIT) ? -128
                                      : (lt_gt_eq == GT_VALUE) ? -1
                                        : (lt_gt_eq == LT_VALUE) ? 1 : 0))) {
             pline("%s'%s%d'%s", threshold_value,
@@ -4196,7 +4384,8 @@ status_hilite_menu_add(int origfld)
 
         if (lt_gt_eq == NO_LTEQGT) {
             boolean ltok = ((dt == ANY_INT)
-                            ? (aval.a_int > 0 || fld == BL_AC)
+                            ? (aval.a_int > 0 || fld == BL_AC
+                               || fld == BL_TOHIT)
                             : (aval.a_long > 0L)),
                     gtok = (!percent || aval.a_long < 100);
 
@@ -4559,6 +4748,12 @@ status_hilite_menu_fld(int fld)
         ;
     } else
 #endif
+#ifndef REALTIME_ON_BOTL
+    if (fld == BL_REALTIME) {
+        /* likewise for 'realtime' when REALTIME_ON_BOTL is disabled */
+        ;
+    } else
+#endif
     {
         any = cg.zeroany;
         any.a_int = -2;
@@ -4681,6 +4876,11 @@ status_hilite_menu(void)
            menus will show them and allow deletions but not additions,
            otherwise, it won't show 'score' at all */
         if (fld == BL_SCORE && !count)
+            continue;
+#endif
+#ifndef REALTIME_ON_BOTL
+        /* likewise for 'realtime' when REALTIME_ON_BOTL is disabled */
+        if (fld == BL_REALTIME && !count)
             continue;
 #endif
         any = cg.zeroany;

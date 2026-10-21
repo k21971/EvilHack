@@ -3320,7 +3320,7 @@ runmode_delay_output(void)
            display after every step */
         if (flags.runmode != RUN_LEAP || !(svm.moves % 7L)) {
             /* moveloop() suppresses time_botl when running */
-            disp.time_botl = flags.time;
+            disp.time_botl = TRUE;
             curs_on_u();
             nh_delay_output();
             if (flags.runmode == RUN_CRAWL) {
@@ -4722,11 +4722,11 @@ void
 end_running(boolean and_travel)
 {
     /* moveloop() suppresses time_botl when context.run is non-zero; when
-       running stops, update 'time' even if other botl status is unchanged */
+       running stops, update 'time' and the other per-turn status fields
+       even if other botl status is unchanged */
     if (svc.context.run) {
         svc.context.run = 0;
-        if (flags.time)
-            disp.time_botl = TRUE;
+        disp.time_botl = TRUE;
         /* classify_terrain() suppresses setting disp.botl when
            running; after that, it can no longer compare current terrain
            against iflaga.terrain_typ to detect a change, so recompute */

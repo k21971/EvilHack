@@ -151,7 +151,9 @@ curses_create_main_windows(void)
          * can accommodate widest field ("Experience  : 30/123456789")
          * other than title without truncating anything.
          * Height originally required at least 24 lines, but 21
-         * suffices and 20 can be made to work by suppressing score.]
+         * suffices and 20 can be made to work by suppressing score;
+         * magic cancellation and to-hit take two more lines, and the
+         * realtime clock is suppressed after score when space is short.]
          */
         if (hspace >= 26 && term_rows >= 20) {
             status_orientation = iflags.wc_align_status;

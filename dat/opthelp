@@ -269,6 +269,16 @@ pickup_types  a list of default symbols for kinds of objects to          []
 pile_limit    for feedback when walking across floor objects,           [5]
               threshold at which "there are objects here" is displayed
               instead of listing them.  (0 means "always list objects.")
+realtime      the kind of real-time clock shown on the     [wallclock time]
+              status line:
+              disabled       -- no clock
+              play time      -- time spent playing this game
+              wallclock time -- real time since the game began
+realtime_format  the format of the realtime clock:                      [u]
+              s -- seconds (s)
+              c -- condensed (h:mm)
+              f -- fixed units (hh:mm:ss)
+              u -- units, the two largest (xxh:xxm)
 runmode       controls how often the map window is updated for        [run]
               multi-step movement (various running modes or travel command):
               teleport -- don't update map until movement stops;
