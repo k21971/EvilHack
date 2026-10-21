@@ -2000,7 +2000,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       guardian angel; the branch's do.c still calls
       gain_guardian_angel(). It was deferred only inside closed rows
       (the Infidel / roles and barding notes).
-      CLOSED 2026-10-20 (session 246, commit pending; BUG-2448..2452).
+      CLOSED 2026-10-20 (session 246, 4a247b1bb; BUG-2448..2452).
       gain_guardian_steed() is ported in master's final form after
       its ten commits, in 5.0 idiom:
       - Gate: `u.ualign.abuse < 30`. The branch's abuse is unsigned
@@ -2110,6 +2110,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       fire and acid explosions never destroy items even on dry land
       (scrolls, potions and spellbooks survive a fireball) - port
       as written, or gate only underwater.
+      CORRECTED 2026-10-21: that premise was stale. Master fixed the
+      gate 12 days later (20ff7e6c8, "fire/acid explosions not
+      affecting various objects in open inventory"). Master's current
+      shape skips item destruction only when the target is underwater
+      AND the blast is fire or acid, for both monsters and the hero;
+      on dry land fire explosions burn items as usual. Port
+      master's CURRENT explode.c, not 61fbffdee's first cut.
+      RULED 2026-10-21 (decisions log): MASTER'S CODE EXACTLY for the
+      underwater hero. A fire or acid blast still deals its full
+      damage (Maybe_Half_Phys() underwater, so an acid blast is
+      halved twice for a half-physical-damage hero, as on master).
+      Monsters take rnd(3) "physical damage only". Neither loses
+      armor, items or slime to the blast. The commonest case is
+      reading a scroll of fire underwater ("The water around you
+      vaporizes violently!", then an explosion on the hero's square).
+      Plannable.
 - [ ] LOW: spell-touch damage enters as the attack's damage type
       (minted 2026-10-20 by session 245; master quirk, record only
       unless ruled). A monster's burning hands / shocking grasp
@@ -31564,6 +31580,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-21 | explode()'s underwater rule (session 246 follow-up; AskUserQuestion x1, as recommended). The row's stated quirk (61fbffdee's item gate sparing items from every fire / acid explosion) was already fixed by master 20ff7e6c8, so the port takes master's current explode.c. The real asymmetry was ruled: an underwater hero caught in a fire or acid explosion takes MASTER'S CODE EXACTLY, the full blast with Maybe_Half_Phys() (acid halved twice for a half-physical-damage hero). Rejected: rnd(3) like explode()'s monster arm, and immunity like master's melee and ray paths ("The fire quickly fizzles out."). Underwater monsters take rnd(3). Neither the hero nor monsters lose armor, items or slime to an underwater fire or acid blast. | maintainer |
 | 2026-10-20 | Astral Red Horse slice rulings (session 246; AskUserQuestion x2, four questions, all as recommended). (1) DEAF TEXT: deaf-aware - "You feel a soft voice:" for a deaf hero, "A voice whispers:" otherwise, as 5.0's angel does (master's steed function predates vanilla 3.6.2's Deaf variants; BUG-2450). (2) SADDLE ODDS: fold master's random-saddle odds into the slice - 1 in 2000 for any can_saddle() species (master 0cd8b62 + ee655584a), over minting a row and keeping vanilla's 1 in 100 for domestic animals only (BUG-2451). (3) REVIEWER LOWs: all three folded - the first-pet livelog uses the() for a unique (BUG-2452), sp_lev.c's des saddle checks which_armor() first, mon.c's angel comment reworded. (4) Battery go-ahead (three testers, master legs on the scratch master build). Decided without asking (master's shape): no Conflict arm at arrival and dog_move()'s lose_guardian_angel() arm deleted (84f8e3fa6); the Infidel gate on the caller (6972e3e62, found by battery B); worn makemon() gear blessed in place (BUG-2449, master frozen-unfixed); master's literal tame / EDOG writes over initedog(). | maintainer |
 | 2026-10-20 | Status-field rows (session 245 follow-up; maintainer request, no AskUserQuestion). Master's always-on " MC:N" status field (BL_MC, d6b780ad2), which had no row, gets a MED row, and the existing botl_hitbonus()/BL_TOHIT " TH:N" row is raised from LOW to MED beside it: both are on every 0.9.3 status line. They share one plumbing pass (botl.h enum, blstats, hilite names, do_statusline2(), each window port's field order) and should land as one status-field slice. | maintainer |
 | 2026-10-20 | Display-option rows (session 245 follow-up; maintainer request, no AskUserQuestion). underline_peacefuls, master's sparkle frame count, master's invweight (wizweight opened to every player), hilite_hidden_stairs and the realtime status-line clock (show_realtime + realtime_format) each get their own MED row, split out of the LOW ownerless option wirings row, where they sat as one-word mentions. The sparkle "branch keeps 5.0's boolean per the Phase 1 ruling" wording is withdrawn: it was the flag.h row's field-port note, not a ruling, and master's frame count is the target. autoall_menu, hallucinating and the paranoid default stay in the LOW row. | maintainer |
