@@ -257,6 +257,14 @@ tracker; sNNN = port session.
   always its own " (N aum)"; 5.0's removal of glob weights from shop
   prices (296548852) reverted (s249, BUG-2484..2486; master
   90c12021c).
+- [x] **Small purses weightless for encumbrance**: 5.0's 90aded364
+  gave 1..49 coins 1 aum in weight() only; inv_weight() and pickup's
+  lift math now count it too (ruled s250, BUG-2493, 34b404ad1;
+  beyond master, which counts 0 everywhere).
+- [x] **Traditional identify re-asking on ESC**: ESC at "What kinds
+  of thing do you want to identify?" now goes to the identify menu,
+  so a hangup can no longer spin there (s250, BUG-2499, 34b404ad1;
+  master 8966b35a7).
 
 ### 2.2 Monster AI
 
@@ -393,7 +401,8 @@ tracker; sNNN = port session.
   BUG-1949), paranoid trap (kept s184, removed s237), the mysterious
   force decay term (kept 2026-07-23, removed s140).
 - [r] Gold weight minimum: 1..49 coins weigh 1 aum (5.0 90aded364)
-  kept over master's 0 (ruled 2026-10-21, s249).
+  kept over master's 0 (ruled 2026-10-21, s249); extended to
+  encumbrance in s250 (2.1).
 
 ## 4. Open
 
@@ -414,4 +423,5 @@ and Val keep 5.0's by ruling), life-saving HP (a maintainer-designed
 Con curve, s198), magic fountains and restore ability (BUG-2228..2244),
 the Astral Red Horse in place of the guardian Angel and its Conflict
 Angels (BUG-2448), master's random-saddle odds (BUG-2451), the
-sparkle frame count (BUG-2487).
+sparkle frame count (BUG-2487), the inventory weight / slots header
+(BUG-2490).

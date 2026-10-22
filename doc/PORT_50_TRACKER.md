@@ -17,8 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-21, after session 249's
-  invweight / sparkle slice): 467 rows closed, 136 open (the two [~]
+- Phase 2 status (refreshed 2026-10-21, after session 250's
+  inventory header / weight caps slice): 469 rows closed, 137 open
+  (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
   - 0 HIGH. Session 240 closed the burial hang (BUG-2417: a rotting
@@ -27,14 +28,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 5 MED: unported master features (door-material colors; the
+  - 4 MED: unported master features (door-material colors; the
     two map-highlight options split out of the LOW ownerless option
     wirings row by the maintainer 2026-10-20, underline_peacefuls
     and hilite_hidden_stairs, both "Unknown option" in a 0.9.3 rc
-    file; master's "Inventory: X/Y weight (N/52 slots)" line over
-    every `i`, minted by session 249; and master's abon() / dbon()
-    strength tables, minted by session 248: the branch still has
-    5.0's to-hit and damage bonuses for St).
+    file; and master's abon() / dbon() strength tables, minted by
+    session 248: the branch still has 5.0's to-hit and damage
+    bonuses for St).
+    Session 250 closed master's inventory header and the weight()
+    caps (BUG-2490..2500): every full inventory list (`i`, `*` at
+    an item prompt, ^I, disclosure, curses perm_invent, the
+    dumplogs) opens with "Inventory: X/Y weight (N/52 slots)";
+    weight() no longer overflows (capped at LARGEST_INT, 32767
+    here, so 6 boulders show 32767 aum) and a wished count stops
+    at 10000. Ruled: 1..49 gold coins weigh 1 aum for encumbrance
+    too, as they already did in weight(). Folded: the rest of
+    master 8966b35a7 (traditional identify no longer spins on a
+    hangup) and a fountain fix (gold lost in a fountain updates $
+    and its weight at once).
     Session 249 closed invweight and the sparkle frame count
     (BUG-2484..2489): any player can show inventory weights, each
     its own " (N aum)" in every listing (5.0's merge into the last
@@ -247,7 +258,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 113 LOW: small parity rows, quirks and watch/record-only items.
+  - 115 LOW: small parity rows, quirks and watch/record-only items.
+    Session 250 minted three: curses perm_invent's header goes stale
+    after capacity-only changes (Str / Con, levitation, polymorph;
+    master too), its column indicator hides the header's figures in
+    a narrow sidebar, and carry_count()'s gold take-out from a
+    carried ordinary container mispredicts the weight change
+    (pre-existing). It closed the BUG-369 caps row.
     Session 249 minted two: master's BUG-369 weight() overflow caps
     never carried (wizard / fuzzer wishes), and 5.0's one-aum
     minimum for 1..49 coins (ruled the same day: keep 5.0's, closed).
@@ -8208,7 +8225,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ONE LATENT FIX: BUG-579's update_inventory() calls are right but
       have nothing to show, because 5.0's perm_invent renders no
       weight header at all - master's curses port does. -> Phase 4 UI
-      sweep. ALSO LEARNED: keepdogs() skips both parties, so a mounted
+      sweep. [RE-CHECKED 2026-10-21, session 250: the header landed
+      (BUG-2490); mounting a warhorse moved curses perm_invent's Y
+      925 -> 1000 at once and dismounting moved it back.] ALSO
+      LEARNED: keepdogs() skips both parties, so a mounted
       monster can NEVER follow the hero across levels by design; and
       the spear trap is the only in-game damage source that reaches an
       off-map steed (wand of probing is the only wand that touches
@@ -15981,7 +16001,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       but carry the fix if the slice touches the function. RC
       COMPAT: OPTIONS=hilite_hidden_stairs is "Unknown option" on
       the branch. Guidebook / opthelp travel with it.
-- [ ] MED: master's inventory weight / slots line never ported
+- [x] MED: master's inventory weight / slots line never ported
       (minted 2026-10-21, session 249 battery anomaly; split out of
       the Phase 4 post-migration row's curses rider). Master
       528c22fdb (from xNetHack, via FIQhack) puts a bold
@@ -15995,7 +16015,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       mount / dismount update_inventory() calls refresh nothing
       until this lands (re-check then). No option, so no rc
       breakage.
-- [ ] LOW: master's BUG-369 weight() overflow caps never carried
+      CLOSED 2026-10-21 (session 250, 34b404ad1; BUG-2490).
+      Master's line and its five follow-ups, gated `!lets &&
+      !usextra && !inuse_only` (5.0's getobj passes the hands text
+      on every `*` menu; the branch's `*` in-use list reaches here
+      without letters), plain at gameover like 5.0's headings
+      (master's disclosure line is bold). 5.0's #dip offers hands,
+      so dip `*` has no header (master shows it). BUG-579
+      RE-CHECKED: curses perm_invent's Y went 925 -> 1000 on
+      mounting a warhorse and back on dismounting, at once.
+      Folded: the rest of master 8966b35a7 (BUG-2495, 2497..2500;
+      identify_pack()'s `n <= 0` ends a hangup spin, upstream).
+- [x] LOW: master's BUG-369 weight() overflow caps never carried
       (minted 2026-10-21, session 249 battery triage; archive
       carry). Master 615b608e0 (2026-04) computes weight()'s statue,
       eaten-food and default `wt * quan` products in a long capped
@@ -16004,6 +16035,49 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       so a wizard-mode wish for "467584111 daggers" overflows a
       signed int (UBSan). Wizard / fuzzer only. Port master's caps
       into 5.0's weight() and the readobjnam count path.
+      CLOSED 2026-10-21 (session 250, 34b404ad1; BUG-2491,
+      BUG-2492, BUG-2494). Master's caps on 5.0's body. RULED: cap
+      at LARGEST_INT as master's source reads - 32767 on the
+      branch (see the LARGEST_INT row): 10000 daggers show 32767
+      aum (master 100000), 6 boulders 32767 (master 36000, display
+      only). Folded: "pair of" / "pairs of" no longer double a
+      count past INT_MAX / 2 or a negative one (master bug,
+      upstream). Left as on master: glob owt, the bag
+      multipliers, atoi() past INT_MAX, a 32-bit `long`. Note: this
+      build has no sanitizers (WANT_ASAN / WANT_UBSAN unset); the
+      old binary wrapped 467584111 daggers to "(380873814 aum)".
+- [ ] LOW: perm_invent's inventory header goes stale after
+      capacity-only changes (minted 2026-10-21, session 250; master
+      shares it). The header's X / Y come from inv_weight() /
+      weight_cap(), but a perm_invent window (curses, X11, win32)
+      is redrawn only on update_inventory(); a Str or Con change,
+      levitation or flight starting or ending, polymorph or a worn
+      Retribution change the capacity without one. BUG-579 paired
+      the call with the steed only. Census the weight_cap() inputs
+      and add update_inventory() where they change (popup `i`
+      menus are rebuilt each time and are not affected).
+- [ ] LOW: curses perm_invent's column indicator hides the inventory
+      header in a narrow sidebar (minted 2026-10-21, session 250
+      battery A9). The header is perm_invent's first line, counts
+      toward pi.widest, never shifts on a right scroll (letterless)
+      and gets the "[1-26 of 54}" indicator drawn over its right
+      end: at 110 columns the top row reads "Inventory: 90/[1-26 of
+      54}" - Y and the slot count unseen (150 columns: whole line).
+      Master's curses has no indicator and cuts the line at the
+      window edge. Fix shape: put the indicator on its own line or
+      the border, or keep the header out of pi.widest and wrap /
+      shorten it ("90/925 wt, 4/52") for narrow sidebars.
+- [ ] LOW: carry_count() mispredicts taking part of a gold stack out
+      of a carried ordinary container (minted 2026-10-21, session
+      250 reviewer; pre-existing in 5.0 and master). delta_cwt()
+      returns the taken part's owt for a non-magic container, not
+      the container's real weight change, so with rounding (and,
+      since BUG-2493, the 1-aum minimum) the prediction can be off
+      by one: purse empty, sack of 120 coins, max_capacity() -1,
+      take 30 -> all taken, the hero ends one unit heavier with no
+      prompt (60 of 120 was already off before). Battery could not
+      stage it (Overtaxed blocks #apply). Fix shape: for gold,
+      compare weight(container) before and after the split.
 - [x] LOW: 5.0's one-aum minimum for gold (minted 2026-10-21,
       session 249 battery anomaly; RULING NEEDED). 5.0 90aded364
       "weight of gold" makes weight() return at least 1 for any
@@ -16014,6 +16088,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       RULED 2026-10-21 (maintainer, session 249 follow-up): KEEP
       5.0's METHOD - 1..49 coins weigh 1 aum. No code change; the
       branch already carries 90aded364.
+      EXTENDED 2026-10-21 (session 250 ruling, BUG-2493): 5.0 left
+      inv_weight() and pickup.c's GOLD_WT / GOLD_CAPACITY at 0 for
+      1..49 coins; ruled "count it everywhere", so encumbrance and
+      the new inventory header now count the 1 aum too (upstream
+      row).
 - [x] MED: the realtime status-line clock never ported (minted
       2026-10-20, maintainer split from the LOW ownerless option
       wirings row above; port gap). Master 2609abf26 (from TNNT
@@ -16574,6 +16653,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pin that mhitu.c site (and the cmd.c repeat cap) to 32767 or
       the ruling is voided. Archive: LARGEST_INT Raised to 2^31-1
       (Feb 23 2026).
+      NEW CONSUMER 2026-10-21 (session 250, BUG-2491, ruled):
+      weight()'s statue / eaten-food / default stack products cap
+      at LARGEST_INT as on master, so on the branch any stack over
+      32767 aum shows 32767 - reachable in normal play at 6 boulders
+      (36000; display only: a giant's encumbrance counts 8 each),
+      and 3277+ rocks in a blessed Bag of the Hesperides weigh 5461
+      instead of 6667. 5.0's corpse arm already capped there. The
+      widening restores master's figures; glob owt and the bag
+      multipliers stay uncapped on both trees.
 - [x] Rust-trap dousing of pure-flame monsters PORTED (2026-08-29,
       the last missing arm of master 9d38f549e - macro + zap zhitm/
       zhitu + mcastu geyser arms had already re-landed via
@@ -20534,6 +20622,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       without disp.botl. Battery staging note: bare gdb writes to
       condition timeouts show only after Ctrl-R, make_*() calls the
       next turn.
+      Instance fixed 2026-10-21 (session 250, BUG-2496, shared with
+      5.0 and master): gold lost in a fountain (#dip) left $ stale
+      until ^R ("$:5000" with money_cnt() 4860).
 - [ ] LOW: livelog line format vs master (minted 2026-10-21, session
       248, ruled). Master's 0.9.3 livelog line carries `realtime=`
       (play seconds, `(long)` cast 5a17e1fd7) and names the player
@@ -31156,6 +31247,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       1103) landed with session 248 as BUG-2478 / 2480 / 2483.
       These are NetHack50 (Hardfought fork) code, absent from
       Official_nh50.
+      OBSERVED 2026-10-21 (session 250 battery A8): master's HTML
+      dump wraps the inventory section in `<ul><li>` items with
+      `<h3>` class headings; the branch writes plain lines ending in
+      `<br>` (class headings plain at gameover per 5.0's
+      add_menu_heading()), header line included. Reconcile with the
+      enhancements above.
 - [ ] TILE-ART DRIFT: win/share/other.txt is behind the branch's
       cmap enum and every tile from the first branch-only symbol
       onward resolves to the WRONG ART. Own item (minted
@@ -31248,6 +31345,9 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       that fix stays latent until this row lands. Re-check it then.
       MOVED 2026-10-21 (session 249): the header has its own Phase 2
       MED row (master shows it over every `i`, not only in curses).
+      LANDED 2026-10-21 (session 250, BUG-2490); BUG-579 re-checked
+      (mount / dismount refresh Y at once). The narrow-sidebar
+      overlay is a Phase 2 LOW row.
 - [ ] Fuzzer input hook (curses_getch chokepoint) re-established.
       SWEEP NOTE (2026-08-26, features-coverage sweep): the
       chokepoint itself is upstream-provided (curses_getch
@@ -31674,6 +31774,11 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-21 | The status line under the opening text and in the reroll menu shows AC:0: newgame()'s first bot() runs after u_init_inventory_attrs() and before u_init_skills_discoveries() calls find_ac() and skill_init(). Shared with Official_nh50 (allmain.c / u_init.c). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
 | 2026-10-21 | tty three-line status with showvers on loses the status conditions: render_status() reserves room for the version only when BL_VERS directly follows BL_CONDITION in the row order, but weapon / armor / terrain sit between them, so the right-justified version overwrites the right-justified conditions. Shared with Official_nh50 (wintty.c, by code reading; seen on the branch). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
 | 2026-10-21 | #saveoptions after --nethackrc=FILE offers to overwrite the default rc file, not FILE: rcfile handling frees gc.cmdline_rcfile once the file is read. Shared with Official_nh50 (cfgfiles.c). EvilHack: LOW row minted 2026-10-21, not fixed yet. | found (open); not yet sent |
+| 2026-10-21 | weight() multiplies `wt * (int) obj->quan` in int for statues, partly eaten food and the default case, and readobjnam() puts no ceiling on a wizard-mode count, so wishing for "467584111 daggers" overflows (signed int UB; observed as "(380873814 aum)"). Only the corpse arm computes in a long capped at LARGEST_INT. Shared with Official_nh50 (mkobj.c weight(), objnam.c readobjnam()). EvilHack fix BUG-2491 / BUG-2492 (34b404ad1): the other arms capped like the corpse arm and the count capped at 10000. | found (branch-fixed); not yet sent |
+| 2026-10-21 | "pair of" / "pairs of" double the wished count before any check: "1500000000 pairs of daggers" overflows int, and atoi()'s wrap gives "3000000000 pair of daggers" a negative count that "pair of" also doubles. Shared with Official_nh50 (objnam.c readobjnam_postparse1()). EvilHack fix BUG-2494 (34b404ad1): double only 0 < cnt <= INT_MAX / 2. | found (branch-fixed); not yet sent |
+| 2026-10-21 | 90aded364 ("weight of gold") made weight() count 1..49 coins as 1 aum but left inv_weight() and pickup.c's GOLD_WT / GOLD_CAPACITY rounding them to 0, so wizweight shows "6 gold pieces (1 aum)" while encumbrance counts 0, and carry_count()'s merge correction mixes the two rules (its prediction for picking up a few coins is 1 heavier than the result). Shared with Official_nh50 (hack.c, pickup.c). EvilHack fix BUG-2493 (34b404ad1, ruled): the minimum everywhere, with a guard for GOLD_CAPACITY()'s closed form at its iw == -1 edge (where it allows a 49-coin total that now weighs 1). | found (branch-fixed); not yet sent |
+| 2026-10-21 | Losing gold in a fountain (#dip, "You lost some of your gold in the fountain!") lowers the coins' quan with no owt recompute, no disp.botl and no update_inventory(): $ stays stale until a redraw and the stack's weight stays the old one. Shared with Official_nh50 (fountain.c dipfountain()). EvilHack fix BUG-2496 (34b404ad1). | found (branch-fixed); not yet sent |
+| 2026-10-21 | identify_pack()'s traditional-menustyle loop stops only on `n < 0`; ggetobj() returns 0 for ESC at "What kinds of thing do you want to identify?", so ESC re-asks forever, and after a hangup (tty input returns ESC on every call) the process can spin. Shared with Official_nh50 (invent.c identify_pack()). EvilHack fix BUG-2499 (34b404ad1; master 8966b35a7's `n <= 0`; ESC then reaches menu_identify()). | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31901,6 +32006,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-21 | Inventory header / weight caps slice rulings (session 250; AskUserQuestion x3, five questions, four as recommended). (0) SLICE: master's inventory weight / slots line plus the BUG-369 caps, ahead of the map-highlight rows, the strength tables and the disp.botl sweep. (1) CAP: LARGEST_INT as master's source reads (32767 on the branch), not INT_MAX; re-confirmed after the premise was corrected twice (a capped stack is divided inside a magic bag; boulders stack, so 6 reach 32767 in normal play - display only). (2) SMALL PURSE: COUNT IT EVERYWHERE - inv_weight() and pickup's lift math take 5.0's 1-aum minimum for 1..49 coins, so the header matches the per-item weights; NOT the recommended keep (encumbrance at 0, master's and 5.0's formula). (3) 8966b35a7: fold the rest of master's invent.c review commit (BUG-762/763/764/766/767), not a LOW row. (4) BOULDERS: keep LARGEST_INT. Taken without asking (in the approved plan): the header gated `!lets && !usextra && !inuse_only`, plain at gameover like 5.0's headings (master's disclosure line is bold), menucolors skipped; the fountain gold refresh and the "pair of" overflow guard folded from the Plan review; carrying_stoning_corpse() routed with master's two sites. | maintainer |
 | 2026-10-21 | Gold weight (session 249 follow-up, maintainer, no AskUserQuestion): keep 5.0's method (90aded364) - 1..49 coins weigh 1 aum, not master's 0. No code change; the LOW row is closed. | maintainer |
 | 2026-10-21 | invweight / sparkle slice rulings (session 249; AskUserQuestion x3: the slice pick, then six rulings, all as recommended). (0) SLICE: invweight + the sparkle frame count, ahead of the two map-highlight rows and the strength tables. (1) SPARKLE DEFAULT: 21 built in, sysconf sparkle:5 - master never initializes flags.sparkle (0 without an rc file or sysconf) while its opthelp, Guidebook and 116359135 say 21; the server keeps 0.9.3's 5. Rejected 5 built in, and master's 0. (2) GLOB PRICES: master's / vanilla 3.6.2's globwt() - every player sees a glob's weight inside its shop price; rejected 5.0 296548852's removal. (3) PAY LINES: 5.0's paydoname() suppression kept (master's "You bought ... (20 aum)" rejected). (4) SYSCONF: master's OPTIONS block exactly (sparkle:5, no boulder:0, number_pad:0) plus a Phase 6 sysconf row for the rest; rejected sparkle:5 alone, and the whole file now. (5) WEIGHT MERGE: always a separate " (N aum)", as on master - 5.0's merge fired in the D / A menus (Plan review); rejected merging into real price parentheses only. (6) SPARKLE WORDS: true / yes / on 21, false / no / off 0, other text a config error; rejected master's atoi() (silent 0) and numbers only. | maintainer |
 | 2026-10-21 | Status-field slice rulings (session 248; AskUserQuestion x5, ten questions, eight as recommended). (0) SLICE: the three status-field rows together (BL_MC, BL_TOHIT, the realtime clock) ahead of the four display-option rows. (1) TORTLE: TH includes hitval()'s target-free Tortle spear / trident +2 that master's botl_hitbonus() left out (master's stated intent: drop only target terms). (2) QUIRKS (multi-select, all four fixed): rc realtime:disabled hides the field; rc realtime_format:u accepted; an unknown enchantment is subtracted only where the weapon term added it (master: a wielded wand's charges, a non-AT_WEAP form's spe); TH refreshes every turn. (3) DEFAULT FORMAT: u, master's code and 0.9.3's live feel ("5m:03s"), NOT the recommended f that master's commit message, opthelp and Guidebook document; the docs are corrected to u. (4) CARRIES: fold all ten 5.0-shared master status fixes (BUG-1012/1013/1014/1021 botl.c, BUG-1093/1095/1099/1100/1102/1103 windows.c) plus 5.0's initblstats[] order bug; BUG-1094/1096/1101 ride the HTML dumplog row. (5) HINTS: REALTIME_ON_BOTL beside SCORE_ON_BOTL (active hardfought / linux-debug, commented linux.500 / macOS.500, commented config.h). (6) LIVELOG realtime=: a LOW row. (7) abon() / dbon() strength tables: a MED row of their own; TH uses the branch abon(). (8) REFRESH: every turn whether or not 'time' is on (the per-turn update runs always; a full bot() when TH or MC changed). (9) STATUS LAG (asked after battery A showed master refreshes everything per command with time on through vanilla 3.6's moveloop line, which 5.0 dropped): keep 5.0's partial update and mint a SWEEP row for EvilHack code that changes shown state without disp.botl, NOT the recommended restore of 3.6's per-command redraw. Taken without asking: BL_REALTIME always in the enum but never enabled without the macro, the options known on every build (accepted and ignored without it), MAXCO 256, curses vertical placement / drop of the clock, win32 MC / TH only (master parity), X11 / Qt / libnh left to their rows, no clock in the dumplog or the classic line (master parity). | maintainer |
