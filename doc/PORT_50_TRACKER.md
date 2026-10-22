@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-21, after session 250's
-  inventory header / weight caps slice): 469 rows closed, 137 open
+- Phase 2 status (refreshed 2026-10-22, after session 251's
+  map-highlight slice): 471 rows closed, 138 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -28,13 +28,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 4 MED: unported master features (door-material colors; the
-    two map-highlight options split out of the LOW ownerless option
-    wirings row by the maintainer 2026-10-20, underline_peacefuls
-    and hilite_hidden_stairs, both "Unknown option" in a 0.9.3 rc
-    file; and master's abon() / dbon() strength tables, minted by
-    session 248: the branch still has 5.0's to-hit and damage
-    bonuses for St).
+  - 2 MED: unported master features (door-material colors, and
+    master's abon() / dbon() strength tables, minted by session
+    248: the branch still has 5.0's to-hit and damage bonuses for
+    St).
+    Session 251 closed the two map-highlight options
+    (BUG-2501..2519): underline_peacefuls underlines a peaceful,
+    non-tame monster on tty, curses and in the HTML dump, as a flag
+    on the drawn map cell (ruled over master's peaceful glyph
+    ranges), so a peaceful shown by monster detection stays inverse
+    and a peaceful rider keeps its ridden look; hilite_hidden_stairs
+    puts a red background (inverse without color, nh_inv in the
+    dump) under an object, corpse, statue or boulder on stairs or a
+    ladder the hero has seen or felt (ruled; master also lit
+    detected objects on never-seen stairs). Both redraw at once
+    when toggled. Ruled every redraw gap: about 50 newsym() calls
+    (long worm tails included) keep the underline and the pet
+    highlight in step when a monster turns peaceful or hostile;
+    newsym() at <0,0> fixed in the pet catch-up and Kathryn's
+    anger. Folded: master's set_malign() carries (the watch, five
+    vault guard arms, the sacrifice demon lord), the rest of master
+    42f2510d5's vault.c review, a paralysed watchman that "woke up"
+    but never moved, an uninitialized tty framecolor, and upstream
+    d13eceb28's dead-guard parking regression (killing a guard in
+    his corridor printed "placing defunct monster").
     Session 250 closed master's inventory header and the weight()
     caps (BUG-2490..2500): every full inventory list (`i`, `*` at
     an item prompt, ^I, disclosure, curses perm_invent, the
@@ -258,7 +275,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 115 LOW: small parity rows, quirks and watch/record-only items.
+  - 118 LOW: small parity rows, quirks and watch/record-only items.
+    Session 251 minted three: mpeaceful flips without set_malign()
+    on both trees (a per-site ruling), red objects unreadable on
+    the red hidden-stairs background, and wizard ^G peaceful /
+    hostile leaving a rider's steed as rolled.
     Session 250 minted three: curses perm_invent's header goes stale
     after capacity-only changes (Str / Con, levitation, polymorph;
     master too), its column indicator hides the header's figures in
@@ -2833,7 +2854,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       e95bed697), grave-arise (c8c090f8c); corpse glyphs stay master's
       (corpsenm). Every deferral-map subsystem has a closed row, and
       peaceful_to_glyph rides the ownerless option wirings row (the
-      underline_peacefuls MED row since 2026-10-20). The
+      underline_peacefuls MED row since 2026-10-20; CLOSED 2026-10-22
+      by session 251's cell flag, which needs no peaceful glyph). The
       kit-array splits were ruled 2026-10-19 (decisions log): each
       player-monster rolls its own kit. Minted the three rows below.
 - [x] MED: monster ring-wearing PORTED 2026-10-20 (session 243,
@@ -15881,8 +15903,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (2026-10-19, Racial monsters umbrella closure): the umbrella's
       peaceful_to_glyph deferral rides underline_peacefuls (its own
       MED row below since 2026-10-20); mon_to_glyph already goes
-      through racial_mndx.
-- [ ] MED: underline_peacefuls never ported (minted 2026-10-20,
+      through racial_mndx. Discharged 2026-10-22 (session 251): the
+      underline is a cell flag, so no peaceful glyph was needed.
+- [x] MED: underline_peacefuls never ported (minted 2026-10-20,
       maintainer split from the LOW ownerless option wirings row
       above; port gap). Master 180371ffe (from xNetHack 29b2c92;
       e610523e3 fixed its O-menu order) underlines peaceful
@@ -15914,6 +15937,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       option" on the branch. The Racial monsters umbrella's
       peaceful_to_glyph deferral rides this row. Guidebook /
       opthelp travel with it.
+      CLOSED 2026-10-22 (session 251, 8861de48c;
+      BUG-2501, 2504..2508). RULED a flag on the drawn cell, not
+      master's peaceful glyph ranges: show_glyph_flags() ORs
+      MG_PEACEFUL (0x08000) into the buffered glyphinfo for a
+      peaceful, non-tame monster when not hallucinating
+      (display_monster, map_monst, detect_wsegs); dump_map and
+      reveal_terrain carry it through glyph_xflags_at(). tty
+      ATR_ULINE (an independent arm), curses A_UNDERLINE ORed in
+      (write_char keeps it over a frame), HTML <u> plus NHdump.css's
+      u {} rule; a plain NHOPTB (Map), no WC2 bit; toggling redraws
+      at once (master needed ^R). Beyond master (BUG-2504): a
+      peaceful shown by monster detection keeps its inverse and
+      gains the underline, a peaceful rider keeps its ridden glyph
+      (master's peaceful glyph replaced both, the detected inverse
+      even with the option off; a telepathy-sensed monster is drawn
+      as seen, so never inverse, on both trees). Redraws RULED every
+      gap: master's lost tagged / untagged newsym sites (BUG-2505,
+      with 401e63697's guard set_malign, BUG-2506) plus about 40
+      both-tree gaps (BUG-2507), long worm tails included, and the
+      newsym-at-<0,0> hazards (BUG-2508). The Racial monsters
+      umbrella's peaceful_to_glyph deferral closes with it (no
+      peaceful glyph exists). Win32 GUI / X11 / Qt: PLATFORM PARITY
+      item (9).
 - [x] MED: master's sparkle frame count never ported (minted
       2026-10-20, maintainer split from the LOW ownerless option
       wirings row above; port gap). Master 534916132 (Vivit-R)
@@ -15977,7 +16023,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the pay lines weight-free; 5.0's ", N aum)" merge removed -
       it fired in the D / A menus and inside typed names (upstream
       row).
-- [ ] MED: hilite_hidden_stairs never ported (minted 2026-10-20,
+- [x] MED: hilite_hidden_stairs never ported (minted 2026-10-20,
       maintainer split from the LOW ownerless option wirings row
       above; port gap). Master c2e69540d (from xNetHack 24c092b /
       9961eb6) + 2dfff4dc5 (BUG-375): with the option on (boolean,
@@ -16001,6 +16047,46 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       but carry the fix if the slice touches the function. RC
       COMPAT: OPTIONS=hilite_hidden_stairs is "Unknown option" on
       the branch. Guidebook / opthelp travel with it.
+      CLOSED 2026-10-22 (session 251, 8861de48c;
+      BUG-2502, 2503, 2518). MG_STAIRS (0x10000) set in
+      map_glyphinfo() for an object, body or statue glyph (boulders
+      and piles too) on stairs or a ladder the hero has seen or felt
+      - RULED levl seenv; master's bare On_stairs() painted objects
+      found by object detection on never-seen stairs (BUG-2503,
+      frozen-unfixed). tty: red through the framecolor arm when the
+      core framed nothing, inverse with color off; curses: CLR_RED
+      framecolor unless the core framed the spot, A_REVERSE without
+      color; HTML nh_inv. A hallucinated statue is a monster glyph
+      and loses the red (master the same). term_start_bgcolor()'s
+      BUG-810 fold untouched (CLR_RED is a dim color). Fold-in:
+      ttyDisplay->framecolor was never initialized (BUG-2518,
+      upstream).
+- [ ] LOW: mpeaceful flips without set_malign() (minted 2026-10-22,
+      session 251 redraw census; both trees, needs a per-site intent
+      ruling). Each leaves malign at the old disposition's value, so
+      killing the monster later scores the alignment change of the
+      old one: dokick.c ghitm() (a bribed mercenary), quest.c
+      prisoner_speaks(), priest.c priest_talk()'s three anger arms
+      (intemple()'s arm calls it, "no penalty for attacking him"),
+      artifact.c invoke_banish(), objnam.c readobjnam()'s wished
+      artifact owner, and allmain.c's pet-limit untame when the pet
+      stays peaceful (mtame 0, malign still the tame value). Master
+      lacks all of them; vanilla 5.0 lacks them where the code is
+      shared.
+- [ ] LOW: red objects on the red hidden-stairs background (minted
+      2026-10-22, session 251; master shares it). With
+      hilite_hidden_stairs on, a CLR_RED object, corpse or statue
+      on stairs (a ruby, a red dragon corpse) draws red on red and
+      is unreadable on tty and curses; 5.0's blue pile background
+      has the same problem for blue objects. Fix shape: inverse
+      instead of the background when the glyph's color is the
+      background color.
+- [ ] LOW: wizard ^G "peaceful" / "hostile" leaves a rider's steed
+      with its rolled disposition (minted 2026-10-22, session 251
+      battery A: "peaceful goblin outrider" rode a wolf with
+      mpeaceful 0). create_particular_creation() sets only the rider
+      (master the same); tamedog()'s "steeds follow their riders'
+      direction" block is the model. Wizard mode only.
 - [x] MED: master's inventory weight / slots line never ported
       (minted 2026-10-21, session 249 battery anomaly; split out of
       the Phase 4 post-migration row's curses rider). Master
@@ -31176,6 +31262,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       tty, curses, X11 and Qt match the selector first. Shared with
       upstream (no vanilla menu uses digit selectors); fix by testing
       for an exact selector match before starting a count.
+      (9) (added 2026-10-22, session 251) underline_peacefuls and
+      hilite_hidden_stairs draw on tty (incl. the Windows console)
+      and curses and in the HTML dump only: the Win32 GUI
+      (win/win32/mhmap.c), X11 (win/X11/winmap.c) and Qt
+      (win/Qt/qt_map.cpp) ignore MG_PEACEFUL and MG_STAIRS (master
+      never drew them there either), and X11 / Qt tiles draw a
+      framecolor as an outline, not a background.
       RULED 2026-10-04 (session 177 follow-up, decisions log):
       install ALL FOUR toolchains on this host - X11 dev packages,
       Qt6 dev packages, the DJGPP MS-DOS cross-compiler and the Amiga
@@ -31253,6 +31346,13 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       `<br>` (class headings plain at gameover per 5.0's
       add_menu_heading()), header line included. Reconcile with the
       enhancements above.
+      PEACEFUL HALF LANDED 2026-10-22 (session 251, BUG-2501 / 2502):
+      mg_hl_attr() maps MG_PEACEFUL to HL_ULINE and MG_STAIRS to
+      HL_INVERSE, dump_map() carries the buffered peaceful flag, and
+      NHdump.css has master's u {} thickness rule. Still open from
+      fe90af7aa: master's MG_RIDDEN -> HL_INVERSE arm (5.0's tty draws
+      no ridden highlight either - decide together) and the
+      extended-color inverse spans (extcolor_256_rgb()).
 - [ ] TILE-ART DRIFT: win/share/other.txt is behind the branch's
       cmap enum and every tile from the first branch-only symbol
       onward resolves to the WRONG ART. Own item (minted
@@ -31779,6 +31879,11 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-21 | 90aded364 ("weight of gold") made weight() count 1..49 coins as 1 aum but left inv_weight() and pickup.c's GOLD_WT / GOLD_CAPACITY rounding them to 0, so wizweight shows "6 gold pieces (1 aum)" while encumbrance counts 0, and carry_count()'s merge correction mixes the two rules (its prediction for picking up a few coins is 1 heavier than the result). Shared with Official_nh50 (hack.c, pickup.c). EvilHack fix BUG-2493 (34b404ad1, ruled): the minimum everywhere, with a guard for GOLD_CAPACITY()'s closed form at its iw == -1 edge (where it allows a 49-coin total that now weighs 1). | found (branch-fixed); not yet sent |
 | 2026-10-21 | Losing gold in a fountain (#dip, "You lost some of your gold in the fountain!") lowers the coins' quan with no owt recompute, no disp.botl and no update_inventory(): $ stays stale until a redraw and the stack's weight stays the old one. Shared with Official_nh50 (fountain.c dipfountain()). EvilHack fix BUG-2496 (34b404ad1). | found (branch-fixed); not yet sent |
 | 2026-10-21 | identify_pack()'s traditional-menustyle loop stops only on `n < 0`; ggetobj() returns 0 for ESC at "What kinds of thing do you want to identify?", so ESC re-asks forever, and after a hangup (tty input returns ESC on every call) the process can spin. Shared with Official_nh50 (invent.c identify_pack()). EvilHack fix BUG-2499 (34b404ad1; master 8966b35a7's `n <= 0`; ESC then reaches menu_identify()). | found (branch-fixed); not yet sent |
+| 2026-10-22 | angry_guards() clears mfrozen on a paralysed watchman but never sets mcanmove, and mcalcdistress() only restores mcanmove when a non-zero mfrozen counts down, so the watchman "wakes up" and never moves again; it also flips mpeaceful with no set_malign() (killing the angry watchman scores the peaceful-kill penalty) and no newsym(); pacify_guard() likewise skips set_malign(). Shared with Official_nh50 (mon.c angry_guards(), pacify_guard()). EvilHack fix BUG-2509 / BUG-2506 (8861de48c; master 401e63697's set_malign()). | found (branch-fixed); not yet sent |
+| 2026-10-22 | vault.c, found by master 42f2510d5's review of the shared 3.6 code: uleftvault() and gd_move()'s four guard-anger writes skip set_malign(); gd_move() and paygd() use the guard after rloc() / mnexto() without a DEADMONSTER check (rloc_to_core() can mintrap() a trapped mover), and the warncnt-7 arm returns -1 for a guard mnexto() sent into limbo (deal_with_overcrowding() on a full level); gd_pick_corridor_gold() leaves the guard where he is when the hero can't see the gold, so mpickgold() finds nothing and the corridor never clears; clear_fcorr(), wallify_vault() and gd_mv_monaway() rloc() a leashed pet without m_unleash(); clear_fcorr()'s `!carried(uball)` reads a mid-throw ball's stale coordinates; find_guard_dest() teleports the hero after its "Not a single corridor" impossible(); findgd() dereferences EGD() without has_egd(). Shared with Official_nh50 (vault.c). EvilHack fix BUG-2510..2516 (8861de48c). | found (branch-fixed); not yet sent |
+| 2026-10-22 | A demon lord summoned by a same-race sacrifice who comes peaceful (coaligned) keeps the hostile malign: pray.c's dosacrifice arm sets mpeaceful with no set_malign(). Shared with Official_nh50 (pray.c dosacrifice()). EvilHack fix BUG-2517 (8861de48c; master 85486467a). | found (branch-fixed); not yet sent |
+| 2026-10-22 | tty_init_nhwindows() never initializes ttyDisplay->framecolor (alloc() is plain malloc()), while tty_print_glyph() reads it on every glyph with color on. Shared with Official_nh50 (win/tty/wintty.c). EvilHack fix BUG-2518 (8861de48c). | found (branch-fixed); not yet sent |
+| 2026-10-22 | d13eceb28 ("eliminate one more source of vault guard newsym msgs") made place_monster()'s dead-monster arm test PARKEDMONSTER(mon), i.e. the guard's CURRENT mx == 0, instead of the target <0,0>; parkguard() calls remove_monster() (mx unchanged) then place_monster(grd, 0, 0), so a guard killed away from <0,0> - one standing on his own temporary corridor, the usual end of "So be it, rogue!" - is refused: impossible("placing defunct monster onto map, mstate:200, ...") and "Program in disorder!", and he is never parked. Shared with NetHack50 / Official_nh50 (steed.c place_monster()). EvilHack fix BUG-2519 (8861de48c): the pre-d13eceb28 target test, as master; paygd() also returns for a dead guard, since 5.0's findgd() (unlike master's) returns a dead parked guard and paygd() would mnexto() him onto the map (a Punished hero's ball left on the corridor keeps it alive past gddone). | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -31829,7 +31934,7 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-05 | trap.c blow_up_landmine() on a RAISED drawbridge span over ice / frozen lava (use_trap() allows the mine there): only DRAWBRIDGE_DOWN or a drawbridge wall reaches destroy_drawbridge(), so the pit fill writes MOAT / LAVAPOOL over the DRAWBRIDGE_UP square and leaves the portcullis a DBWALL nothing can open (find_drawbridge() fails), with stale drawbridgemask bits in the new pool's flags | open on branch (LOW row, ruled 2026-10-05: destroy the bridge); not fixed |
 | 2026-10-04 | mon.c mnearto() with `move_other` TRUE takes the occupant off the map through mon_leaving_level() -> unstuck(), so any caller aiming a monster at the square of the monster engulfing or holding the hero (or held by a sticky hero) frees the hero: wizard.c tactics() STRAT_HEAL (~394), shk.c home_shk() (~1333), shkcatch() (~4398), pay_for_damage() (~5313), mkmaze.c mv_bubble() (~2052). Minimal upstream fix, centralized: in mnearto(), when `othermon == u.ustuck`, set othermon NULL instead of shoving (vanilla has no monster steeds, so no rider clause); mtmp then lands beside the square through enexto. Caveat inherited by the fix: pay_for_damage() can then land a resident shk outside his shop (rloc_to_core() angers him) when the holder stands on the damaged shop-edge square | fixed on branch (BUG-2127, centralized; supersedes the tactics()-only shape of the 2026-10-02 row; the pay_for_damage() caveat closed by BUG-2135, which skips the yell and the shove for the holder); patch artifact not cut yet |
 | 2026-10-04 | mhitm.c mdisplacem() moves both monsters with raw remove_monster() / place_monster() and never releases a hold: a displacer (or a Rider) that swaps the monster holding the hero two squares away leaves u.ustuck set at a distance (", holding you"; the stairs refuse "You are being held") until the hero steps; a displacer held by a sticky hero likewise (a pet's dog_move() returns MMOVE_NOTHING, so dochug's moved-case release never runs). Same class at gulpmm()'s defender-died arm, muse.c muse_unslime()'s step onto a fire trap, dbridge.c do_entity() (monster and hero branches) and vault.c parkguard(). Minimal upstream fix: after each raw placement `if (mon == u.ustuck && !u.uswallow && !m_next2u(mon)) unstuck(mon);` (parkguard(): unstuck(grd)) | fixed on branch (BUG-2129 / BUG-2130, helper unstuck_if_apart()); patch artifact not cut yet |
-| 2026-10-04 | vault.c parkguard() sets `grd->mstate \|= MON_PARKED` and then calls place_monster(grd, 0, 0), whose `mstate &= ~(MON_OFF_MAP_BITS)` clears it again (MON_PARKED is in that mask), so a parked guard reads mstate 0 until a save / restore (restore.c's post-5.0.0 fixup sets the bit for an !mx guard). Latent: every reader still uses PARKEDMONSTER() (isgd && mx == 0), and place_monster()'s own check accepts either. Fix: set the bit after place_monster() | branch carries it (latent, no reader); not yet sent |
+| 2026-10-04 | vault.c parkguard() sets `grd->mstate \|= MON_PARKED` and then calls place_monster(grd, 0, 0), whose `mstate &= ~(MON_OFF_MAP_BITS)` clears it again (MON_PARKED is in that mask), so a parked guard reads mstate 0 until a save / restore (restore.c's post-5.0.0 fixup sets the bit for an !mx guard). Latent: every reader still uses PARKEDMONSTER() (isgd && mx == 0), and place_monster()'s own check accepts either. Fix: set the bit after place_monster() - in ADDITION to before it, not instead (session 251 reviewer): place_monster()'s !isok() arm reads the bit for a guard parked from the map, whose mx is still his old square, so moving the set would make every such parking fire "trying to place guard at <0,0>" | branch carries it (latent, no reader); not yet sent |
 | 2026-10-04 | explode.c explode() hero-death MON_EXPLODE arm (15fbc6b21 tree, after fc75a55d8 #1676): the unseen fix writes the bare "explosion" (losing the monster's name) and the seen-but-hallucinating arm still skips the copy (`str == hallu_buf`), so a nested spore chain or a life-saving inside the inner blast (both clear svk.killer.name) still records "killed by a died". explode() already keeps killr_buf, its own copy of the caller's name, for exactly this. | branch-fixed (BUG-2118, killr_buf for the whole arm); upstream-reportable |
 | 2026-10-04 | monmove.c dochug() tactics() return (`if (mtmp->mstate) return 0;`, 15fbc6b21 tree ~785) and makemon.c clone_mon() (copies mstate whole) predate 9b4a8dfb0's pending-terrain bits in mstate (TERRAIN_FALLOUT_MASK): a covetous monster flagged by a polymorph trap loses its action until terrain_effects() runs, and a clone split inside terrain_effects() keeps stale bits. | branch-fixed (BUG-2120: mask / clear); upstream-reportable |
 | 2026-10-04 | 9b4a8dfb0 terrain effects reach newcham() and revive_corpse() only: revive() callers that bypass revive_corpse() (zap.c ~1406 and ~2680, also pray.c / mkroom.c paths on the branch), a monster's levitation timing out, or lost worn flight gear over water / lava are never flagged, so those monsters still wait for their own next move. | upstream-shared; branch LOW row (terrain-effects coverage) |
@@ -32006,6 +32111,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-22 | Map-highlight slice rulings (session 251; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: underline_peacefuls and hilite_hidden_stairs together, ahead of the strength tables, session 250's LOW rows and the disp.botl sweep. (1) PEACEFUL MARK: a flag on the drawn cell (MG_PEACEFUL ORed into the buffered glyphinfo by the code that draws the monster), not master's male / female peaceful glyph ranges (1122 glyphs, tilemap and glyph-name work, per-monster rc glyph customizations split off); a peaceful shown by monster detection keeps the detected inverse and gains the underline, a peaceful rider keeps its ridden look. [Premise correction, battery A: the question said "sensed by telepathy"; a telepathy-sensed monster is drawn as seen on both trees and is never inverse - the detected inverse comes from monster detection.] (2) HIDDEN STAIRS: only stairs the hero has seen or felt (levl seenv), not master's bare On_stairs(), which lights detected objects on never-seen stairs. (3) REDRAWS: every gap - master's lost newsym() sites plus every both-tree site where the drawn underline (or 5.0's pet highlight) can disagree with the monster. (4) MASTER 42f2510d5: fold the rest of the vault.c review (BUG-841, 843, 844, 845, 849 with 840 / 842), not a row; 846 / 847 / 850 moot on 5.0, 848 (free_egd() removal) not applicable (5.0's free_e*() family, mirrored by util/sfctool.c). Taken without asking: master's set_malign() carries at the same lines (401e63697, 42f2510d5, 85486467a); no WC2_PEACEFUL bit and no wc2 gating; toggling redraws at once; color off draws hidden stairs inverse on tty and curses; create_particular's redraw unconditional; the HTML MG_RIDDEN arm left to the Phase 4 HTML dumplog row. (5) GUARD KILL (asked after battery B hit it): fold the place_monster() fix for upstream d13eceb28's dead-guard parking regression (BUG-2519, master's target test) and re-run that leg, not a HIGH row. | maintainer |
 | 2026-10-21 | Inventory header / weight caps slice rulings (session 250; AskUserQuestion x3, five questions, four as recommended). (0) SLICE: master's inventory weight / slots line plus the BUG-369 caps, ahead of the map-highlight rows, the strength tables and the disp.botl sweep. (1) CAP: LARGEST_INT as master's source reads (32767 on the branch), not INT_MAX; re-confirmed after the premise was corrected twice (a capped stack is divided inside a magic bag; boulders stack, so 6 reach 32767 in normal play - display only). (2) SMALL PURSE: COUNT IT EVERYWHERE - inv_weight() and pickup's lift math take 5.0's 1-aum minimum for 1..49 coins, so the header matches the per-item weights; NOT the recommended keep (encumbrance at 0, master's and 5.0's formula). (3) 8966b35a7: fold the rest of master's invent.c review commit (BUG-762/763/764/766/767), not a LOW row. (4) BOULDERS: keep LARGEST_INT. Taken without asking (in the approved plan): the header gated `!lets && !usextra && !inuse_only`, plain at gameover like 5.0's headings (master's disclosure line is bold), menucolors skipped; the fountain gold refresh and the "pair of" overflow guard folded from the Plan review; carrying_stoning_corpse() routed with master's two sites. | maintainer |
 | 2026-10-21 | Gold weight (session 249 follow-up, maintainer, no AskUserQuestion): keep 5.0's method (90aded364) - 1..49 coins weigh 1 aum, not master's 0. No code change; the LOW row is closed. | maintainer |
 | 2026-10-21 | invweight / sparkle slice rulings (session 249; AskUserQuestion x3: the slice pick, then six rulings, all as recommended). (0) SLICE: invweight + the sparkle frame count, ahead of the two map-highlight rows and the strength tables. (1) SPARKLE DEFAULT: 21 built in, sysconf sparkle:5 - master never initializes flags.sparkle (0 without an rc file or sysconf) while its opthelp, Guidebook and 116359135 say 21; the server keeps 0.9.3's 5. Rejected 5 built in, and master's 0. (2) GLOB PRICES: master's / vanilla 3.6.2's globwt() - every player sees a glob's weight inside its shop price; rejected 5.0 296548852's removal. (3) PAY LINES: 5.0's paydoname() suppression kept (master's "You bought ... (20 aum)" rejected). (4) SYSCONF: master's OPTIONS block exactly (sparkle:5, no boulder:0, number_pad:0) plus a Phase 6 sysconf row for the rest; rejected sparkle:5 alone, and the whole file now. (5) WEIGHT MERGE: always a separate " (N aum)", as on master - 5.0's merge fired in the D / A menus (Plan review); rejected merging into real price parentheses only. (6) SPARKLE WORDS: true / yes / on 21, false / no / off 0, other text a config error; rejected master's atoi() (silent 0) and numbers only. | maintainer |
