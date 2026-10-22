@@ -58,7 +58,8 @@ staticfn void tipcontainer(struct obj *);
 #define FOLLOW(curr, flags) \
     (((flags) & BY_NEXTHERE) ? (curr)->nexthere : (curr)->nobj)
 
-#define GOLD_WT(n) (((n) + 50L) / 100L)
+/* any amount of gold weighs at least 1, as in weight() */
+#define GOLD_WT(n) ((n) > 0L ? max(((n) + 50L) / 100L, 1L) : 0L)
 /* if you can figure this out, give yourself a hearty pat on the back... */
 #define GOLD_CAPACITY(w, n) (((w) * -100L) - ((n) + 50L) - 1L)
 
@@ -1622,6 +1623,10 @@ carry_count(struct obj *obj,            /* object to pick up... */
         iw -= (int) GOLD_WT(umoney);
         if (!adjust_wt) {
             qq = GOLD_CAPACITY((long) iw, umoney);
+            /* GOLD_CAPACITY() follows the rounding alone; at iw -1 it
+               allows a total of 49 coins, which weigh 1 */
+            if (qq > 0L && iw + GOLD_WT(umoney + qq) >= 0L)
+                qq = 0L;
         } else {
             oow = 0;
             qq = 50L - (umoney % 100L) - 1L;

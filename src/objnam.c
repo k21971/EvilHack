@@ -5272,10 +5272,13 @@ readobjnam_postparse1(struct _readobjnam_data *d)
      */
     if (!strncmpi(d->bp, "pair of ", 8)) {
         d->bp += 8;
-        d->cnt *= 2;
+        /* doubling a huge count would overflow; atoi() can also
+           yield a negative one */
+        if (d->cnt > 0 && d->cnt <= INT_MAX / 2)
+            d->cnt *= 2;
     } else if (!strncmpi(d->bp, "pairs of ", 9)) {
         d->bp += 9;
-        if (d->cnt > 1)
+        if (d->cnt > 1 && d->cnt <= INT_MAX / 2)
             d->cnt *= 2;
     } else if (!strncmpi(d->bp, "set of ", 7)) {
         d->bp += 7;
@@ -6149,6 +6152,8 @@ readobjnam(char *bp, struct obj *no_wish)
 
     /* if player specified a reasonable count, maybe honor it;
        quantity for gold is handled elsewhere and d.cnt is 0 for it here */
+    if (d.cnt > 10000)
+        d.cnt = 10000;
     if (d.otmp->globby) {
         /* for globs, calculate weight based on gsize, then multiply by cnt;
            asking for 2 globs or for 2 small globs produces 1 small glob

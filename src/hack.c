@@ -4992,7 +4992,7 @@ inv_weight(void)
 
     while (otmp) {
         if (otmp->oclass == COIN_CLASS)
-            wt += (int) (((long) otmp->quan + 50L) / 100L);
+            wt += weight(otmp); /* any amount weighs at least 1 */
         else if (otmp->otyp == BOULDER && racial_throws_rocks(&gy.youmonst))
             wt += GIANT_BLDR_WEIGHT * otmp->quan;
         else /* otmp->otyp != BOULDER || !racial_throws_rocks(&gy.youmonst) */

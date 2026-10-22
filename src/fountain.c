@@ -787,8 +787,12 @@ dipfountain(struct obj *obj)
                         money -= coin_loss * denomination;
                         if (!otmp->quan)
                             delobj(otmp);
+                        else
+                            otmp->owt = weight(otmp);
                     }
                 }
+                disp.botl = TRUE;
+                update_inventory();
                 You("lost some of your gold in the fountain!");
                 CLEAR_FOUNTAIN_LOOTED(u.ux, u.uy);
                 exercise(A_WIS, FALSE);

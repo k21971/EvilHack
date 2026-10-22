@@ -372,8 +372,11 @@ loot_xname(struct obj *obj)
         obj->spe = saveo.spe;
         /* give "towel" a suffix that will force wet ones to come first,
            moist ones next, and dry ones last regardless of whether
-           they've been flagged as having spe known */
-        Strcat(res, is_wet_towel(obj) ? ((obj->spe >= 3) ? "x" : "y") : "z");
+           they've been flagged as having spe known; bound check is
+           defensive against a long custom oname filling res */
+        if (strlen(res) < BUFSZ - 2)
+            Strcat(res, is_wet_towel(obj) ? ((obj->spe >= 3) ? "x" : "y")
+                                          : "z");
     }
     if (obj->globby) {
         obj->owt = saveo.owt;
@@ -382,10 +385,11 @@ loot_xname(struct obj *obj)
            but globs with different bless/curse state won't merge so it is
            feasible to have multiple at the same location; add a suffix to
            get such sorted by size (small first) */
-        Strcat(res, (obj->owt <= 100) ? "a"
-                    : (obj->owt <= 300) ? "b"
-                      : (obj->owt <= 500) ? "c"
-                        : "d");
+        if (strlen(res) < BUFSZ - 2)
+            Strcat(res, (obj->owt <= 100) ? "a"
+                        : (obj->owt <= 300) ? "b"
+                          : (obj->owt <= 500) ? "c"
+                            : "d");
     }
     if (scaled)
         obj->dragonscales = saveo.corpsenm;
@@ -626,7 +630,7 @@ sortloot(
                to do a cockatrice corpse touch check during pickup even
                if/when the filter rejects food class) */
             && (!augment_filter || o->otyp != CORPSE
-                || !touch_petrifies(&mons[o->corpsenm])))
+                || !safe_touch_petrifies(o->corpsenm)))
             continue;
         sliarray[i] = zerosli;
         sliarray[i].obj = o, sliarray[i].indx = (int) i;
@@ -1694,7 +1698,7 @@ carrying_stoning_corpse(void)
     struct obj *otmp;
 
     for (otmp = gi.invent; otmp; otmp = otmp->nobj)
-        if (otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm]))
+        if (otmp->otyp == CORPSE && safe_touch_petrifies(otmp->corpsenm))
             break;
     return otmp;
 }
@@ -2962,8 +2966,11 @@ identify_pack(
             do {
                 n = ggetobj("identify", identify, id_limit, FALSE,
                             (unsigned *) 0);
-                if (n < 0)
-                    break; /* quit or no eligible items */
+                /* 0: ESC or nothing picked, -1: nothing eligible,
+                   -2/-3: 'm'; stop on 0 too so a hangup (endless ESC)
+                   can't spin here; 0 and -2/-3 go to menu_identify() */
+                if (n <= 0)
+                    break;
             } while ((id_limit -= n) > 0);
         if (n == 0 || n < -1)
             menu_identify(id_limit);
@@ -3321,6 +3328,11 @@ display_pickinv(
             doing_perm_invent = FALSE, save_flags_sortpack,
             usextra = (xtra_choice && allowxtra);
 
+    /* wizid_fakeobj is used purely as a unique-pointer sentinel;
+       zero-init for static-analyzer friendliness even though field
+       reads never occur */
+    (void) memset((genericptr_t) &wizid_fakeobj, 0, sizeof wizid_fakeobj);
+
     if (lets && !*lets)
         lets = 0; /* simplify tests: (lets) instead of (lets && *lets) */
 
@@ -3498,6 +3510,21 @@ display_pickinv(
         add_menu(win, &nul_glyphinfo, &any, HANDS_SYM, 0, ATR_NONE,
                  clr, xtra_choice, MENU_ITEMFLAGS_NONE);
         gotsomething = TRUE;
+    }
+
+    /* weight carried, carrying capacity and letters in use, over any
+       list of the whole inventory */
+    if (!lets && !usextra && !inuse_only) {
+        char invheading[QBUFSZ];
+        int excess = inv_weight(); /* weight minus capacity; sets gw.wc */
+
+        Sprintf(invheading, "Inventory: %d/%d weight (%d/%d slots)",
+                excess + gw.wc, gw.wc, inv_cnt(FALSE), invlet_basic);
+        any = cg.zeroany;
+        /* plain during end-of-game disclosure, like add_menu_heading() */
+        add_menu(win, &nul_glyphinfo, &any, '\0', '\0',
+                 program_state.gameover ? ATR_NONE : ATR_BOLD, clr,
+                 invheading, MENU_ITEMFLAGS_SKIPMENUCOLORS);
     }
 
  nextclass:
@@ -4280,11 +4307,19 @@ dotypeinv(void)
 const char *
 dfeature_at(coordxy x, coordxy y, char *buf)
 {
-    struct rm *lev = &levl[x][y];
-    int ltyp = lev->typ, cmap = -1;
+    struct rm *lev;
+    int ltyp, cmap = -1;
     const char *dfeature = 0;
     static char altbuf[BUFSZ];
     stairway *stway = stairway_at(x, y);
+
+    /* defense-in-depth: current callers always pass u.ux,u.uy
+       (always isok), but pointer formation before bounds check
+       would be UB for any future off-map caller */
+    if (!isok(x, y))
+        return (const char *) 0;
+    lev = &levl[x][y];
+    ltyp = lev->typ;
 
     if (IS_DOOR(ltyp)) {
         switch (lev->doormask) {
@@ -4606,7 +4641,7 @@ boolean
 will_feel_cockatrice(struct obj *otmp, boolean force_touch)
 {
     if ((Blind || force_touch) && !uarmg && !Stone_resistance
-        && (otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])))
+        && (otmp->otyp == CORPSE && safe_touch_petrifies(otmp->corpsenm)))
         return TRUE;
     return FALSE;
 }

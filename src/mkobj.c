@@ -2153,6 +2153,7 @@ int
 weight(struct obj *obj)
 {
     int wt = (int) objects[obj->otyp].oc_weight; /* weight of 1 'otyp' */
+    long long_wt;
 
     if (obj->quan < 1L) {
         impossible("Calculating weight of %ld %s?",
@@ -2198,7 +2199,8 @@ weight(struct obj *obj)
             if (wt < minwt)
                 wt = minwt;
             /* this has no effect because statues don't stack */
-            wt *= (int) obj->quan;
+            long_wt = (long) wt * obj->quan;
+            wt = (long_wt > LARGEST_INT) ? LARGEST_INT : (int) long_wt;
         }
 
         cwt = 0; /* contents weight */
@@ -2239,7 +2241,6 @@ weight(struct obj *obj)
     }
     if (obj->otyp == CORPSE && ismnum(obj->corpsenm)) {
         int mnum = obj->corpsenm;
-        long long_wt;
 
         /* racial corpses weigh what their racial monster weighs */
         if (has_omonst(obj) && has_erac(OMONST(obj)))
@@ -2250,7 +2251,9 @@ weight(struct obj *obj)
             wt = eaten_stat(wt, obj);
         return wt;
     } else if (obj->oclass == FOOD_CLASS && obj->oeaten) {
-        return eaten_stat((int) obj->quan * wt, obj);
+        long_wt = obj->quan * (long) wt;
+        return eaten_stat((long_wt > LARGEST_INT) ? LARGEST_INT
+                                                  : (int) long_wt, obj);
     } else if (obj->oclass == COIN_CLASS) {
         /* 5.0: always weigh at least 1 unit; used to yield 0 for 1..49 */
         wt = (int) ((obj->quan + 50L) / 100L);
@@ -2260,7 +2263,11 @@ weight(struct obj *obj)
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION && obj->spe) {
         return wt + obj->spe * (int) objects[TALLOW_CANDLE].oc_weight;
     }
-    return (wt ? wt * (int) obj->quan : ((int) obj->quan + 1) >> 1);
+    if (wt) {
+        long_wt = (long) wt * obj->quan;
+        return (long_wt > LARGEST_INT) ? LARGEST_INT : (int) long_wt;
+    }
+    return (int) ((obj->quan + 1L) >> 1);
 }
 
 static const int treefruits[] = {
