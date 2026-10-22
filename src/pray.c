@@ -2453,8 +2453,11 @@ sacrifice_your_race(
             else
                 dmon->mstrategy &= ~STRAT_APPEARMSG;
             You("have summoned %s!", dbuf);
-            if (sgn(u.ualign.type) == sgn(mon_aligntyp(dmon)))
+            if (sgn(u.ualign.type) == sgn(mon_aligntyp(dmon))) {
                 dmon->mpeaceful = TRUE;
+                set_malign(dmon);
+                newsym(dmon->mx, dmon->my); /* enable peaceful glyph */
+            }
             You("are terrified, and unable to move.");
             nomul(-3);
             gm.multi_reason = "being terrified of a demon";
@@ -3667,6 +3670,7 @@ maybe_turn_mon_iter(struct monst *mtmp)
                     if (u.ualign.type == A_CHAOTIC) {
                         mtmp->mpeaceful = 1;
                         set_malign(mtmp);
+                        newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
                     } else { /* damn them */
                         killed(mtmp);
                     }

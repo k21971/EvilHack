@@ -784,8 +784,11 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
     int cursattr = nch.attr;
 
     curscolor = get_framecolor(&nch);
-    if ((nch.framecolor != NO_COLOR) && (nch.attr == A_REVERSE)) {
-        cursattr = A_NORMAL; /* hilited pet looks odd otherwise */
+    /* reverse video over a frame color looks odd (a hilited pet); keep
+       any other attribute, such as the underline on a peaceful */
+    if (nch.framecolor != NO_COLOR && nch.attr != NONE
+        && (nch.attr & A_REVERSE) != 0) {
+        cursattr = (int) (nch.attr & ~A_REVERSE);
     }
     curses_toggle_color_attr(win, curscolor, cursattr, ON);
 #if defined(CURSES_UNICODE) && defined(ENHANCED_SYMBOLS)

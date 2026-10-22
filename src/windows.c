@@ -1544,7 +1544,7 @@ html_init_sym(void)
 }
 
 /* convert 'special' flags returned from mapglyph to
-  highlight attrs (currently just inverse) */
+  highlight attrs (inverse and underline) */
 unsigned
 mg_hl_attr(unsigned special)
 {
@@ -1557,6 +1557,10 @@ mg_hl_attr(unsigned special)
         hl |= HL_INVERSE;
     if ((special & MG_BW_LAVA) && iflags.use_inverse)
         hl |= HL_INVERSE;
+    if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs)
+        hl |= HL_INVERSE;
+    if ((special & MG_PEACEFUL) && iflags.underline_peacefuls)
+        hl |= HL_ULINE;
     return hl;
 }
 

@@ -1536,6 +1536,7 @@ domonnoise(struct monst *mtmp)
                     verbl_msg = "Good.  Now beat it, scum!";
                     mtmp->mpeaceful = 1;
                     set_malign(mtmp);
+                    newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
                     break;
                 } else {
                     pline("I said %ld!", gdemand);
@@ -1834,6 +1835,7 @@ dochat(void)
                 if (!mtmp->mpeaceful) {
                     mtmp->mpeaceful = 1;
                     set_malign(mtmp);
+                    newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
                 }
                 pline("%s enjoys the chat.", Monnam(mtmp));
             } else {
@@ -1858,6 +1860,7 @@ dochat(void)
             if (rnl(10) < 3) {
                 mtmp->mpeaceful = 1;
                 set_malign(mtmp);
+                newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
             }
             return ECMD_TIME;
         }

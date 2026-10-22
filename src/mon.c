@@ -7064,14 +7064,15 @@ setmangry(struct monst *mtmp, boolean via_attack)
                 mon->mpeaceful = 0;
                 set_malign(mon);
                 growl(mon);
+                newsym(mon->mx, mon->my); /* clear peaceful glyph */
             }
             if (mon->data == ozzy && mon->mpeaceful) {
                 mon->mstrategy &= ~STRAT_WAITMASK;
                 mon->mpeaceful = 0;
                 set_malign(mon);
                 growl(mon);
+                newsym(mon->mx, mon->my); /* clear peaceful glyph */
             }
-            newsym(mon->mx, mon->my); /* clear peaceful glyph */
         }
     }
 
@@ -7090,6 +7091,8 @@ setmangry(struct monst *mtmp, boolean via_attack)
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
         newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+        if (mtmp->wormno)
+            redraw_worm(mtmp);
         /* peacefuls always catch convicts stealing. but, convicts don't
            feel guilty about it. (note there's still an alignment penalty
            for failing to steal from a priest in steal_it()) */
@@ -9023,8 +9026,13 @@ angry_guards(boolean silent)
             if (mtmp->msleeping || mtmp->mfrozen) {
                 slct++;
                 mtmp->msleeping = mtmp->mfrozen = 0;
+                /* an emptied paralysis count never restores mcanmove */
+                if (!mtmp->mstone || mtmp->mstone > 2)
+                    mtmp->mcanmove = 1;
             }
             mtmp->mpeaceful = 0;
+            set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         }
     }
     if (ct) {
@@ -9058,8 +9066,11 @@ angry_guards(boolean silent)
 staticfn void
 pacify_guard(struct monst *mtmp)
 {
-    if (is_watch(mtmp->data))
+    if (is_watch(mtmp->data)) {
         mtmp->mpeaceful = 1;
+        set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
+    }
 }
 
 void

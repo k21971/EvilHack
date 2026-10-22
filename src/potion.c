@@ -3481,6 +3481,7 @@ djinni_from_bottle(struct obj *obj)
         verbalize("You freed me!");
         mtmp->mpeaceful = TRUE;
         set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
         break;
     case 3:
         verbalize("It is about time!");
@@ -3492,6 +3493,7 @@ djinni_from_bottle(struct obj *obj)
         verbalize("You disturbed me, fool!");
         mtmp->mpeaceful = FALSE;
         set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         break;
     }
 }

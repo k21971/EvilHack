@@ -5664,6 +5664,11 @@ optfn_boolean(
             go.opt_need_redraw = TRUE;
             go.opt_need_glyph_reset = TRUE;
             break;
+        case opt_hilite_hidden_stairs:
+        case opt_underline_peacefuls:
+            /* the flags are on every map cell already; just redraw */
+            go.opt_need_redraw = TRUE;
+            break;
         case opt_hitpointbar:
             if (VIA_WINDOWPORT()) {
                 /* [is reassessment really needed here?] */

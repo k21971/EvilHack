@@ -974,12 +974,14 @@ curses_print_glyph(
         ch = curses_convert_glyph(ch, glyph);
 
     if (wid == NHW_MAP) {
-/* hilite stairs not in 3.6, yet
         if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs) {
-            color = 16 + (color * 2);
-        } else
-*/
-        if ((special & MG_OBJPILE) && iflags.hilite_pile) {
+            if (iflags.wc_color) {
+                /* unless the core framed the spot itself */
+                if (attr.framecolor == NO_COLOR)
+                    attr.framecolor = CLR_RED;
+            } else /* if (iflags.use_inverse) */
+                attr.attribute_flags = A_REVERSE;
+        } else if ((special & MG_OBJPILE) && iflags.hilite_pile) {
             if (iflags.wc_color)
                 attr.framecolor = CLR_BLUE;
             else /* if (iflags.use_inverse) */
@@ -999,6 +1001,11 @@ curses_print_glyph(
             attr.attribute_flags = A_REVERSE;
         }
     }
+    /* peacefuls keep whatever attribute was chosen above, underlined */
+    if ((special & MG_PEACEFUL) && iflags.underline_peacefuls)
+        attr.attribute_flags = (attr.attribute_flags == NONE)
+                                   ? A_UNDERLINE
+                                   : (attr.attribute_flags | A_UNDERLINE);
 
     curses_putch(wid, x, y, ch,
 #ifdef ENHANCED_SYMBOLS

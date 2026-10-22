@@ -210,6 +210,7 @@ precheck(struct monst *mon, struct obj *obj)
                     verbalize("You freed me!");
                     mtmp->mpeaceful = 1;
                     set_malign(mtmp);
+                    newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
                 } else {
                     verbalize("It is about time.");
                     if (vis)

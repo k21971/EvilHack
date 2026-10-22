@@ -4265,6 +4265,9 @@ cloneu(void)
     mon->mcloned = 1;
     mon = christen_monst(mon, svp.plname);
     initedog(mon, TRUE);
+    newsym(mon->mx, mon->my); /* update display */
+    if (mon->wormno)
+        redraw_worm(mon);
     mon->m_lev = gy.youmonst.data->mlevel;
     mon->mhpmax = u.mhmax;
     mon->mhp = u.mh / 2;

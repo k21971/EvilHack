@@ -640,6 +640,7 @@ prisoner_speaks(struct monst *mtmp)
         verbalize("I'm finally free!");
         mtmp->mstrategy &= ~STRAT_WAITMASK;
         mtmp->mpeaceful = 1;
+        newsym(mtmp->mx, mtmp->my); /* update display */
 
         /* Your god is happy... */
         adjalign(3);

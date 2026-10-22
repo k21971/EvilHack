@@ -265,6 +265,7 @@ summon_minion(aligntyp alignment, boolean talk)
         }
         mon->mpeaceful = FALSE;
         /* don't call set_malign(); player was naughty */
+        newsym(mon->mx, mon->my); /* clear peaceful glyph */
     }
     return mon;
 }

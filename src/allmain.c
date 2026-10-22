@@ -552,8 +552,11 @@ moveloop_core(void)
                         if (rn2(EDOG(weakdog)->abuse + 1) || !rn2(3)) {
                             weakdog->mpeaceful = 0;
                             set_malign(weakdog);
-                            newsym(weakdog->mx, weakdog->my);
                         }
+                        /* pet highlight off, maybe peaceful underline on */
+                        newsym(weakdog->mx, weakdog->my);
+                        if (weakdog->wormno)
+                            redraw_worm(weakdog);
                         if (weakdog->mleashed)
                             m_unleash(weakdog, TRUE);
 

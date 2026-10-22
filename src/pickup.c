@@ -3298,6 +3298,7 @@ observe_quantum_cat(struct obj *box, boolean makecat, boolean givemsg)
         if (livecat) {
             livecat->mpeaceful = 1;
             set_malign(livecat);
+            newsym(livecat->mx, livecat->my); /* enable peaceful glyph */
             if (givemsg) {
                 if (!canspotmon(livecat))
                     You("think %s brushed your %s.", something,

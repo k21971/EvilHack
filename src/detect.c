@@ -133,7 +133,7 @@ map_monst(struct monst *mtmp, boolean showtail)
                   ? pet_to_glyph(mtmp, newsym_rn2)
                   : mon_to_glyph(mtmp, newsym_rn2);
 
-    show_glyph(mtmp->mx, mtmp->my, glyph);
+    show_glyph_flags(mtmp->mx, mtmp->my, glyph, peaceful_glyphflag(mtmp));
 
     if (showtail && mtmp->data == &mons[PM_LONG_WORM])
         detect_wsegs(mtmp, 0);
@@ -2622,6 +2622,8 @@ dump_map(void)
             glyph = reveal_terrain_getglyph(x, y, u.uswallow,
                                             default_glyph, subset);
             map_glyphinfo(x, y, glyph, 0, &glyphinfo);
+            /* a peaceful monster's flag isn't part of its glyph */
+            glyphinfo.gm.glyphflags |= glyph_xflags_at(x, y, glyph);
             ch = glyphinfo.ttychar;
 #ifdef DUMPHTML
             /* HTML map prints in a defined rectangle, so
@@ -2684,7 +2686,8 @@ reveal_terrain(
             for (y = 0; y < ROWNO; y++) {
                 glyph = reveal_terrain_getglyph(x, y, swallowed,
                                                 default_glyph, which_subset);
-                show_glyph(x, y, glyph);
+                /* a monster left on the map stays underlined */
+                show_glyph_flags(x, y, glyph, glyph_xflags_at(x, y, glyph));
             }
 
         /* hero's location is not highlighted, but getpos() starts with

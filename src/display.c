@@ -123,7 +123,7 @@
  */
 #include "hack.h"
 
-staticfn void show_mon_or_warn(coordxy, coordxy, int);
+staticfn void show_mon_or_warn(coordxy, coordxy, int, unsigned);
 staticfn void display_monster(coordxy, coordxy,
                               struct monst *, int, boolean) NONNULLPTRS;
 staticfn int swallow_to_glyph(int, int);
@@ -488,7 +488,7 @@ map_location(coordxy x, coordxy y, int show)
 
 /* display something on monster layer; may need to fixup object layer */
 staticfn void
-show_mon_or_warn(coordxy x, coordxy y, int monglyph)
+show_mon_or_warn(coordxy x, coordxy y, int monglyph, unsigned xflags)
 {
     struct obj *o;
 
@@ -501,7 +501,7 @@ show_mon_or_warn(coordxy x, coordxy y, int monglyph)
             map_object(o, FALSE);
     }
 
-    show_glyph(x, y, monglyph);
+    show_glyph_flags(x, y, monglyph, xflags);
 }
 
 #define DETECTED 2
@@ -636,7 +636,7 @@ display_monster(
             else
                 num = mon_to_glyph(mon, rn2_on_display_rng);
         }
-        show_mon_or_warn(x, y, num);
+        show_mon_or_warn(x, y, num, peaceful_glyphflag(mon));
         mon->meverseen = 1;
     }
 }
@@ -667,7 +667,7 @@ display_warning(struct monst *mon)
         impossible("display_warning did not match warning type?");
         return;
     }
-    show_mon_or_warn(x, y, glyph);
+    show_mon_or_warn(x, y, glyph, 0U);
 }
 
 int
@@ -1997,6 +1997,15 @@ newsym_force(coordxy x, coordxy y)
 void
 show_glyph(coordxy x, coordxy y, int glyph)
 {
+    show_glyph_flags(x, y, glyph, 0U);
+}
+
+/* show_glyph() with glyphflags the glyph itself doesn't carry
+   (MG_PEACEFUL); they are buffered with the spot, so a change in
+   them redraws it just as a change of glyph does */
+void
+show_glyph_flags(coordxy x, coordxy y, int glyph, unsigned xflags)
+{
 #ifndef UNBUFFERED_GLYPHINFO
     glyph_info glyphinfo;
 #endif
@@ -2129,6 +2138,11 @@ show_glyph(coordxy x, coordxy y, int glyph)
        alongside the glyphs themselves for better performance, increased
        buffer size */
     map_glyphinfo(x, y, glyph, 0, &glyphinfo);
+    glyphinfo.gm.glyphflags |= xflags;
+#else
+    /* nowhere to keep them; flush_screen() maps the spot again from
+       the bare glyph */
+    nhUse(xflags);
 #endif
 
     oldglyph = gg.gbuf[y][x].glyphinfo.glyph;
@@ -2628,6 +2642,22 @@ glyph_at(coordxy x, coordxy y)
     return gg.gbuf[y][x].glyphinfo.glyph; /* _glyph_at(x,y) */
 }
 
+/* glyphflags show_glyph_flags() buffered at <x,y> on top of what
+   'glyph' maps to, if 'glyph' is still the one shown there */
+unsigned
+glyph_xflags_at(coordxy x, coordxy y, int glyph)
+{
+#ifndef UNBUFFERED_GLYPHINFO
+    if (isok(x, y) && gg.gbuf[y][x].glyphinfo.glyph == glyph)
+        return gg.gbuf[y][x].glyphinfo.gm.glyphflags & MG_PEACEFUL;
+#else
+    nhUse(x);
+    nhUse(y);
+    nhUse(glyph);
+#endif
+    return 0U;
+}
+
 #ifdef UNBUFFERED_GLYPHINFO
 glyph_info *
 glyphinfo_at(coordxy x, coordxy y, int glyph)
@@ -2773,6 +2803,11 @@ map_glyphinfo(
     const glyph_map *gmap = &glyphmap[glyph];
 
     glyphinfo->gm = *gmap; /* glyphflags, sym.symidx, sym.color, tileidx */
+    /* an object, body or statue over stairs or a ladder the hero has
+       seen or felt (menus pass <0,0>, which isok() rejects) */
+    if (glyph_is_object(glyph) && isok(x, y) && levl[x][y].seenv
+        && On_stairs(x, y))
+        glyphinfo->gm.glyphflags |= MG_STAIRS;
     /*
      * Only hero tinkering permitted on-the-fly (who).
      * Unique glyphs in glyphmap[] determine everything else (what).

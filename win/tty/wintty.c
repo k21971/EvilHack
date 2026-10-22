@@ -543,6 +543,7 @@ tty_init_nhwindows(int *argcp UNUSED, char **argv UNUSED)
     ttyDisplay->inmore = ttyDisplay->inread = ttyDisplay->intr = 0;
     ttyDisplay->dismiss_more = 0;
     ttyDisplay->color = NO_COLOR;
+    ttyDisplay->framecolor = NO_COLOR;
     ttyDisplay->attrs = 0;
     ttyDisplay->topl_utf8 = 0;
     ttyDisplay->mixed = 0;
@@ -3861,9 +3862,9 @@ tty_print_glyph(
     const glyph_info *bkglyphinfo)
 {
     boolean inverse_on = FALSE, colordone = FALSE, glyphdone = FALSE;
-    boolean petattr = FALSE;
+    boolean petattr = FALSE, uline_on = FALSE;
     int ch;
-    uint32 color;
+    uint32 color, framecolor;
     unsigned special;
 
     HUPSKIP();
@@ -3921,20 +3922,32 @@ tty_print_glyph(
        BW_LAVA, BW_ICE, BW_SINK, BW_ENGR won't ever be set when color is on;
        (tried bold for ice but it didn't look very good; inverse is easier
        to see although the Valkyrie quest ends up being hard on the eyes) */
-    if (iflags.use_color
-        && bkglyphinfo && bkglyphinfo->framecolor != NO_COLOR) {
-        ttyDisplay->framecolor = bkglyphinfo->framecolor;
-        term_start_bgcolor(bkglyphinfo->framecolor);
+    framecolor = bkglyphinfo ? bkglyphinfo->framecolor : NO_COLOR;
+    /* stairs under an object get a red background unless the core
+       framed the spot itself */
+    if (framecolor == NO_COLOR && (special & MG_STAIRS) != 0
+        && iflags.hilite_hidden_stairs)
+        framecolor = CLR_RED;
+    if (iflags.use_color && framecolor != NO_COLOR) {
+        ttyDisplay->framecolor = framecolor;
+        term_start_bgcolor(framecolor);
     } else if ((special & MG_PET) != 0 && iflags.hilite_pet) {
         term_start_attr(iflags.wc2_petattr);
         petattr = TRUE;
     } else if ((((special & MG_OBJPILE) != 0 && iflags.hilite_pile)
+                || ((special & MG_STAIRS) != 0
+                    && iflags.hilite_hidden_stairs)
                 || ((special & MG_FEMALE) != 0 && wizard && iflags.wizmgender)
                 || ((special & (MG_DETECT | MG_BW_LAVA | MG_BW_ICE
                                 | MG_BW_SINK | MG_BW_ENGR)) != 0))
                && iflags.use_inverse) {
         term_start_attr(ATR_INVERSE);
         inverse_on = TRUE;
+    }
+    /* peacefuls are underlined on top of any of the above */
+    if ((special & MG_PEACEFUL) != 0 && iflags.underline_peacefuls) {
+        term_start_attr(ATR_ULINE);
+        uline_on = TRUE;
     }
 
 #if defined(TILES_IN_GLYPHMAP) && defined(MSDOS)
@@ -3955,6 +3968,8 @@ tty_print_glyph(
     if (!glyphdone)
         g_putch(ch); /* print the character */
 
+    if (uline_on)
+        term_end_attr(ATR_ULINE);
     if (inverse_on)
         term_end_attr(ATR_INVERSE);
     else if (petattr)

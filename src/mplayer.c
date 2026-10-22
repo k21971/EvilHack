@@ -454,6 +454,7 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         mtmp = christen_monst(mtmp, nam);
         mtmp->mpeaceful = 0;
         set_malign(mtmp); /* peaceful may have changed again */
+        newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
 
         /* non-mplayer summons (quest leaders wished back by their own
            artifact) keep the gear makemon gave them; role kit for real

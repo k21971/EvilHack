@@ -69,8 +69,8 @@ clear_fcorr(struct monst *grd, boolean forceshow)
             forceshow = TRUE;
         if ((u_at(fcx, fcy) && !DEADMONSTER(grd))
             || (!forceshow && couldsee(fcx, fcy))
-            || (Punished && !carried(uball) && uball->ox == fcx
-                && uball->oy == fcy))
+            || (Punished && uball->where == OBJ_FLOOR
+                && uball->ox == fcx && uball->oy == fcy))
             return FALSE;
 
         if ((mtmp = m_at(fcx, fcy)) != 0) {
@@ -79,6 +79,8 @@ clear_fcorr(struct monst *grd, boolean forceshow)
             } else {
                 if (mtmp->mtame)
                     yelp(mtmp);
+                if (mtmp->mtame && mtmp->mleashed)
+                    m_unleash(mtmp, TRUE);
                 if (!rloc(mtmp, RLOC_MSG))
                     m_into_limbo(mtmp);
             }
@@ -213,7 +215,8 @@ findgd(void)
 
     /* this might find a guard parked at <0,0> since it'll be on fmon list */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (mtmp->isgd && on_level(&EGD(mtmp)->gdlevel, &u.uz)) {
+        if (mtmp->isgd && has_egd(mtmp)
+            && on_level(&EGD(mtmp)->gdlevel, &u.uz)) {
             if (!mtmp->mx && !EGD(mtmp)->gddone)
                 mtmp->mhp = mtmp->mhpmax;
             return mtmp;
@@ -222,7 +225,8 @@ findgd(void)
     /* if not on fmon, look for a guard waiting to migrate to this level */
     for (mprev = &gm.migrating_mons; (mtmp = *mprev) != 0;
          mprev = &mtmp->nmon) {
-        if (mtmp->isgd && on_level(&EGD(mtmp)->gdlevel, &u.uz)) {
+        if (mtmp->isgd && has_egd(mtmp)
+            && on_level(&EGD(mtmp)->gdlevel, &u.uz)) {
             /* take out of migrating_mons and place at <0,0>;
                simplified mon_arrive(); avoid that because it would
                send mtmp into limbo if no regular map spot is available */
@@ -274,6 +278,10 @@ uleftvault(struct monst *grd)
             if (canspotmon(grd)) /* see or sense via telepathy */
                 pline("%s becomes irate.", Monnam(grd));
             grd->mpeaceful = 0; /* bypass setmangry() */
+            set_malign(grd);
+            /* findgd() can hand over a guard parked at <0,0> */
+            if (grd->mx)
+                newsym(grd->mx, grd->my); /* update display */
         }
         /* if arriving outside guard's temporary corridor, give the
            guard an extra move to deliver message(s) and to teleport
@@ -315,7 +323,6 @@ find_guard_dest(struct monst *guard, coordxy *rx, coordxy *ry)
         ;
     }
     impossible("Not a single corridor on this level?");
-    tele();
     return FALSE;
 }
 
@@ -686,6 +693,8 @@ wallify_vault(struct monst *grd)
                 if ((mon = m_at(x, y)) != 0 && mon != grd) {
                     if (mon->mtame)
                         yelp(mon);
+                    if (mon->mtame && mon->mleashed)
+                        m_unleash(mon, TRUE);
                     if (!rloc(mon, RLOC_MSG))
                         m_into_limbo(mon);
                 }
@@ -757,6 +766,8 @@ gd_mv_monaway(struct monst *grd, int nx, int ny)
             SetVoice(grd, 0, 80, 0);
             verbalize("Out of my way, scum!");
         }
+        if (mtmp->mtame && mtmp->mleashed)
+            m_unleash(mtmp, TRUE);
         if (!rloc(mtmp, RLOC_ERR | RLOC_MSG) || MON_AT(nx, ny))
             m_into_limbo(mtmp);
         recalc_block_point(nx, ny);
@@ -823,11 +834,11 @@ gd_pick_corridor_gold(struct monst *grd, int goldx, int goldy)
     } else {
         /* just for insurance... */
         gd_mv_monaway(grd, goldx, goldy); /* make room for guard */
-        if (see_it) { /* skip if player won't see the message */
-            remove_monster(grd->mx, grd->my);
-            newsym(grd->mx, grd->my);
-            place_monster(grd, goldx, goldy); /* sets <grd->mx, grd->my> */
-        }
+        /* must move guard to gold's tile so mpickgold() finds it;
+           the post-pickup block below restores guard to original spot */
+        remove_monster(grd->mx, grd->my);
+        newsym(grd->mx, grd->my);
+        place_monster(grd, goldx, goldy); /* sets <grd->mx, grd->my> */
         mpickgold(grd); /* does a newsym */
     }
 
@@ -934,6 +945,8 @@ gd_move(struct monst *grd)
             && (grd_in_vault || (in_fcorridor(grd, grd->mx, grd->my)
                                  && !in_fcorridor(grd, u.ux, u.uy)))) {
             (void) rloc(grd, RLOC_MSG);
+            if (DEADMONSTER(grd))
+                return -2; /* trap killed grd; cleanup done by mondead */
             wallify_vault(grd);
             if (!in_fcorridor(grd, grd->mx, grd->my))
                 (void) clear_fcorr(grd, TRUE);
@@ -955,6 +968,8 @@ gd_move(struct monst *grd)
         }
         egrd->witness = 0;
         grd->mpeaceful = 0;
+        set_malign(grd);
+        newsym(grd->mx, grd->my); /* update display */
         return -1;
     }
 
@@ -985,12 +1000,19 @@ gd_move(struct monst *grd)
                     verbalize("You've been warned, knave!");
                 }
                 grd->mpeaceful = 0;
+                set_malign(grd);
                 mnexto(grd, RLOC_NOMSG);
+                if (DEADMONSTER(grd))
+                    return -2;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 levl[m][n].flags = egrd->fakecorr[0].flags;
                 recalc_block_point(m, n);
                 del_engr_at(m, n);
                 newsym(m, n);
+                /* mnexto() can send grd into limbo on a full level */
+                if (!grd->mx)
+                    return -2;
+                newsym(grd->mx, grd->my); /* update display */
                 return -1;
             }
             /* not fair to get mad when (s)he's fainted or paralyzed */
@@ -1004,12 +1026,16 @@ gd_move(struct monst *grd)
                 m = grd->mx;
                 n = grd->my;
                 (void) rloc(grd, RLOC_MSG);
+                if (DEADMONSTER(grd))
+                    return -2;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 levl[m][n].flags = egrd->fakecorr[0].flags;
                 recalc_block_point(m, n); /* guard corridor goes away */
                 del_engr_at(m, n);
                 newsym(m, n);
                 grd->mpeaceful = 0;
+                set_malign(grd);
+                newsym(grd->mx, grd->my); /* update display */
                 gd_letknow(grd);
                 return -1;
             } else {
@@ -1059,6 +1085,8 @@ gd_move(struct monst *grd)
                     verbalize("So be it, rogue!");
                 }
                 grd->mpeaceful = 0;
+                set_malign(grd);
+                newsym(grd->mx, grd->my); /* update display */
                 return -1;
             }
         }
@@ -1227,7 +1255,8 @@ paygd(boolean silently)
     int gdx, gdy;
     char buf[BUFSZ];
 
-    if (!umoney || !grd)
+    /* findgd() can return a dead guard parked at <0,0> */
+    if (!umoney || !grd || DEADMONSTER(grd))
         return;
 
     if (u.uinvault) {
@@ -1241,6 +1270,8 @@ paygd(boolean silently)
             goto remove_guard;
 
         mnexto(grd, RLOC_NOMSG);
+        if (DEADMONSTER(grd))
+            return; /* trap killed grd; cleanup done by mondead */
         if (!silently)
             pline("%s remits your gold to the vault.", Monnam(grd));
         gdx = svr.rooms[EGD(grd)->vroom].lx + rn2(2);

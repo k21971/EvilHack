@@ -78,6 +78,15 @@ span.nh_screen {
   background-color: #00AA00;
 }
 
+/* Underline attribute (peaceful monsters, status hilites): the
+   default hairline text-decoration is nearly invisible at map font
+   sizes, so thicken it and drop it just below the glyph; engines
+   without these properties fall back to the default underline */
+u {
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.12em;
+}
+
 .nh_color_0 { color: #555555; }  /* CLR_BLACK          */
 .nh_color_1 { color: #AA0000; }  /* CLR_RED            */
 .nh_color_2 { color: #00AA00; }  /* CLR_GREEN          */

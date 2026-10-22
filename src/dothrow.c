@@ -2799,9 +2799,11 @@ thitmonst(
                 mtmp->mstun = 0;
                 mtmp->mpeaceful = 1;
                 set_malign(mtmp);
+                newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
             }
         }
         set_malign(mon);
+        newsym(mon->mx, mon->my); /* enable peaceful glyph */
         /* handle the now eaten candy bar */
         obfree(obj, (struct obj *) 0);
         return 1;
@@ -2869,6 +2871,7 @@ gem_accept(struct monst *mon, struct obj *obj)
     mon->mpeaceful = 1;
     mon->mavenge = 0;
     set_malign(mon);
+    newsym(mon->mx, mon->my); /* enable peaceful glyph */
 
     /* object properly identified */
     if (obj->dknown && objects[obj->otyp].oc_name_known) {
@@ -3013,6 +3016,7 @@ release_camera_demon(struct obj *obj, coordxy x, coordxy y)
                                          : "The picture-painting demon");
         mtmp->mpeaceful = !obj->cursed;
         set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* update display */
     }
 }
 

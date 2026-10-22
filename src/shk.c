@@ -1408,7 +1408,12 @@ pacify_shk(struct monst *shkp, boolean clear_surcharge)
 staticfn void
 rile_shk(struct monst *shkp)
 {
-    NOTANGRY(shkp) = FALSE; /* make angry */
+    if (NOTANGRY(shkp)) {
+        NOTANGRY(shkp) = FALSE; /* make angry */
+        newsym(shkp->mx, shkp->my); /* clear peaceful glyph */
+        if (shkp->wormno)
+            redraw_worm(shkp);
+    }
     if (!ESHK(shkp)->surcharge) {
         long surcharge;
         struct bill_x *bp = ESHK(shkp)->bill_p;
@@ -1445,6 +1450,9 @@ make_happy_shk(struct monst *shkp, boolean silentkops)
     struct eshk *eshkp = ESHK(shkp);
 
     pacify_shk(shkp, FALSE);
+    newsym(shkp->mx, shkp->my); /* enable peaceful glyph */
+    if (shkp->wormno)
+        redraw_worm(shkp);
     eshkp->following = 0;
     eshkp->robbed = 0L;
 
@@ -2725,6 +2733,9 @@ inherits(
                       noit_mhim(shkp));
             /* shopkeeper has now been paid in full */
             pacify_shk(shkp, FALSE);
+            newsym(shkp->mx, shkp->my); /* enable peaceful glyph */
+            if (shkp->wormno)
+                redraw_worm(shkp);
             eshkp->following = 0;
             eshkp->robbed = 0L;
         }

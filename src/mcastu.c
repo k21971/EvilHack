@@ -927,6 +927,9 @@ mcast_summon_mons(struct monst *mtmp, struct monst *mdef)
                         else
                             mpet->mpeaceful = mpet->mtame = 0;
                         set_malign(mpet);
+                        newsym(mpet->mx, mpet->my); /* update display */
+                        if (mpet->wormno)
+                            redraw_worm(mpet);
                     } else {
                         mpet = makemon((struct permonst *) 0,
                                        bypos.x, bypos.y, MM_NOMSG);
@@ -2066,6 +2069,7 @@ mcast_insects(struct monst *mtmp, struct monst *mdef)
                     else
                         mtmp2->mpeaceful = 0;
                     set_malign(mtmp2);
+                    newsym(mtmp2->mx, mtmp2->my); /* update display */
                 }
             }
         }

@@ -151,6 +151,7 @@ calm_nymphs(int distance)
             mtmp->mpeaceful = 1;
             mtmp->mavenge = 0;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             if (canseemon(mtmp))
                 pline(
@@ -181,6 +182,7 @@ awaken_soldiers(struct monst *bugler  /* monster that played instrument */)
             mtmp->mcanmove = 1;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             if (canseemon(mtmp))
                 pline("%s is now ready for battle!", Monnam(mtmp));
             else if (!Deaf)

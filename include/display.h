@@ -602,6 +602,10 @@ enum glyph_offsets {
 #define pet_to_glyph(mon, rng) \
     ((int) what_mon(racial_mndx(mon), rng)                              \
      + (((mon)->female == 0) ? GLYPH_PET_MALE_OFF : GLYPH_PET_FEM_OFF))
+/* glyphflag a monster adds to whatever glyph it is drawn with */
+#define peaceful_glyphflag(mon) \
+    (((mon)->mpeaceful && !(mon)->mtame && !Hallucination)              \
+     ? MG_PEACEFUL : 0U)
 
 /* treat unaligned as the default instead of explicitly checking for it;
    altar alignment uses 3 bits with 4 defined values and 4 unused ones */
@@ -1034,7 +1038,8 @@ enum glyph_offsets {
 #define MG_FLAG_NORMAL     0x00
 #define MG_FLAG_NOOVERRIDE 0x01 /* disregard accessibility override values */
 
-/* Special mapped glyphflags encoded by reset_glyphmap() + map_glyphinfo() */
+/* Special mapped glyphflags encoded by reset_glyphmap() + map_glyphinfo(),
+   and by show_glyph_flags() for MG_PEACEFUL */
 #define MG_HERO    0x00001  /* represents the hero */
 #define MG_CORPSE  0x00002  /* represents a body */
 #define MG_INVIS   0x00004  /* represents invisible monster */
@@ -1054,6 +1059,9 @@ enum glyph_offsets {
 #define MG_MALE    0x01000  /* represents a male mon or statue of one */
 #define MG_FEMALE  0x02000  /* represents a female mon or statue of one */
 #define MG_BADXY   0x04000  /* bad coordinates were passed */
+#define MG_PEACEFUL 0x08000 /* peaceful, non-tame monster; added by
+                             * show_glyph_flags(), not by the glyph */
+#define MG_STAIRS  0x10000  /* object, body or statue over seen stairs */
 
 /* docrt(): re-draw whole screen; docrt_flags(): docrt() with more control */
 enum docrt_flags_bits {

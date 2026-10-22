@@ -30,6 +30,7 @@ goldX          when filtering objects by bless/curse state,       [False]
 help           print all available info when using the / command   [True]
 herecmd_menu   show menu of some possible commands when clicking
                on yourself or next to you with mouse              [False]
+hilite_hidden_stairs  highlight stairs hidden under items         [False]
 hilite_pet     display pets in a highlighted manner               [False]
 hilite_pile    display item piles in a highlighted manner         [False]
 ignintr        ignore interrupt signal, including breaks          [False]
@@ -82,6 +83,7 @@ toptenwin      print topten in a window rather than stdout        [False]
 travel         enables travelling via mouse click if supported;    [True]
                can be toggled off to prevent mouse clicks on the map from
                attempting to move the hero; does not affect travel via '_'
+underline_peacefuls  underline peaceful monsters                  [False]
 use_darkgray   use bold black instead of blue for black glyphs.    [True]
 use_inverse    display detected monsters in highlighted manner    [False]
 verbose        print more commentary during the game               [True]

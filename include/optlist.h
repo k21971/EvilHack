@@ -375,6 +375,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
                 "same as palette, only order is reversed")
 #endif
 #endif /* 0 */
+    NHOPTB(hilite_hidden_stairs, Map, 0, opt_in, set_in_game,
+           Off, Yes, No, No, NoAlias, &iflags.hilite_hidden_stairs, Term_False,
+           "highlight stairs hidden under items")
     NHOPTB(hilite_pet, Map, 0, opt_in, set_in_game,
            Off, Yes, No, No, NoAlias, &iflags.wc_hilite_pet, Term_False,
            "use highlight for pets")
@@ -848,6 +851,9 @@ static int optfn_##a(int, int, boolean, char *, char *);
     NHOPTB(tutorial, Advanced, 0, opt_out, set_in_config,
            On, Yes, No, No, NoAlias, &flags.tutorial, Term_False,
            "ask if you want the tutorial")
+    NHOPTB(underline_peacefuls, Map, 0, opt_in, set_in_game,
+           Off, Yes, No, No, NoAlias, &iflags.wc2_underline_peacefuls,
+           Term_False, "underline peaceful monsters")
     NHOPTB(use_darkgray, Advanced, 0, opt_out, set_in_config,
            On, Yes, No, No, NoAlias, &iflags.wc2_darkgray, Term_False,
            "use bold black color instead of blue")

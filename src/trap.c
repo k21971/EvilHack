@@ -1036,6 +1036,9 @@ animate_statue(
         mon->mtame = 0; /* (might be petrified pet tossed onto trap) */
         mon->mpeaceful = 0;
         set_malign(mon);
+        /* the final redraw is of the statue's spot, and mon can be
+           beside it */
+        newsym(mon->mx, mon->my); /* clear peaceful glyph */
     }
 
     comes_to_life = !canspotmon(mon) ? "disappears"
@@ -6600,6 +6603,9 @@ reward_untrap(struct trap *ttmp, struct monst *mtmp)
             && mtmp->data->mlet != S_HUMAN) {
             mtmp->mpeaceful = 1;
             set_malign(mtmp); /* reset alignment */
+            newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
+            if (mtmp->wormno)
+                redraw_worm(mtmp);
             pline("%s is grateful.", Monnam(mtmp));
         }
         /* Helping someone out of a trap is a nice thing to do.
@@ -6777,6 +6783,9 @@ try_lift(
             && rnl(10) < 3) {
             mtmp->mpeaceful = 1;
             set_malign(mtmp); /* reset alignment */
+            newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
+            if (mtmp->wormno)
+                redraw_worm(mtmp);
             pline("%s thinks it was nice of you to try.", Monnam(mtmp));
         }
         return 0;

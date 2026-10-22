@@ -4128,6 +4128,10 @@ create_particular_creation(
             mtmp->mtame = 0; /* sanity precaution */
             mtmp->mpeaceful = d->makepeaceful ? 1 : 0;
             set_malign(mtmp);
+            /* makemon() drew it with the peacefulness it rolled */
+            newsym(mtmp->mx, mtmp->my);
+            if (mtmp->wormno)
+                redraw_worm(mtmp);
         }
         if (d->saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
             /* NULL obj arg means put_saddle_on_mon()

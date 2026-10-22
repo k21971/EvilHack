@@ -828,6 +828,9 @@ intemple(int roomno)
                     msg2 = "Begone!";
                 }
                 priest->mpeaceful = 0;
+                newsym(priest->mx, priest->my); /* clear peaceful glyph */
+                if (priest->wormno)
+                    redraw_worm(priest);
                 /* became angry voluntarily; no penalty for attacking him */
                 set_malign(priest);
             } else {
@@ -909,6 +912,7 @@ intemple(int roomno)
                 You("sense a presence close by!");
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* update display */
             /* draugr do not fear the undead,
                or anything else for that matter */
             if (!maybe_polyd(is_undead(gy.youmonst.data),
@@ -963,6 +967,9 @@ priest_talk(struct monst *priest)
     if (priest->mflee || (!priest->ispriest && coaligned && strayed)) {
         pline("%s doesn't want anything to do with you!", Monnam(priest));
         priest->mpeaceful = 0;
+        newsym(priest->mx, priest->my); /* clear peaceful glyph */
+        if (priest->wormno)
+            redraw_worm(priest);
         return;
     }
 
@@ -984,6 +991,9 @@ priest_talk(struct monst *priest)
             priest->mcanmove = 1;
         }
         priest->mpeaceful = 0;
+        newsym(priest->mx, priest->my); /* clear peaceful glyph */
+        if (priest->wormno)
+            redraw_worm(priest);
         SetVoice(priest, 0, 80, 0);
         verbalize1(cranky_msg[rn2(3)]);
         return;
@@ -996,6 +1006,9 @@ priest_talk(struct monst *priest)
         verbalize(
               "Begone!  Thou desecratest this holy place with thy presence.");
         priest->mpeaceful = 0;
+        newsym(priest->mx, priest->my); /* clear peaceful glyph */
+        if (priest->wormno)
+            redraw_worm(priest);
         return;
     }
     if (!money_cnt(gi.invent)) {

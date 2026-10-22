@@ -465,8 +465,10 @@ ghitm(struct monst *mtmp, struct obj *gold)
             if (goldreqd && rn2(3)) {
                 umoney = money_cnt(gi.invent);
                 goldreqd += (umoney + u.ulevel * rn2(5)) / ACURR(A_CHA);
-                if (value > goldreqd)
+                if (value > goldreqd) {
                     mtmp->mpeaceful = TRUE;
+                    newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
+                }
             }
 
             if (!mtmp->mpeaceful) {

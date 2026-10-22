@@ -1094,7 +1094,10 @@ mon_catchup_elapsed_time(
         } else {
             mtmp->mtame = mtmp->mpeaceful = 0; /* hostile! */
             set_malign(mtmp);
-            newsym(mtmp->mx, mtmp->my); /* update display */
+            /* catch-up runs before mon_arrive() places mtmp, and while
+               getlev() loads a level that isn't on the screen yet */
+            if (mtmp->mx && !program_state.in_getlev)
+                newsym(mtmp->mx, mtmp->my); /* update display */
         }
     }
     /* check to see if it would have died as a pet; if so, go wild instead
@@ -1108,7 +1111,8 @@ mon_catchup_elapsed_time(
             || (svm.moves > edog->hungrytime + 750)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
             set_malign(mtmp);
-            newsym(mtmp->mx, mtmp->my); /* update display */
+            if (mtmp->mx && !program_state.in_getlev)
+                newsym(mtmp->mx, mtmp->my); /* update display */
         }
     }
 
@@ -1804,6 +1808,13 @@ tamedog(
     if (has_erid(mtmp)) {
         ERID(mtmp)->mon_steed->mpeaceful = 1;
         set_malign(ERID(mtmp)->mon_steed);
+    }
+    /* calmed even if not tamed below; a guard parked at <0,0> is off
+       the map */
+    if (mtmp->mx) {
+        newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
+        if (mtmp->wormno)
+            redraw_worm(mtmp);
     }
 
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj

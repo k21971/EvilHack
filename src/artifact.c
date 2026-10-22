@@ -4327,6 +4327,7 @@ invoke_banish(struct obj *obj UNUSED)
             chance++;
 
         mtmp->msleeping = mtmp->mtame = mtmp->mpeaceful = 0;
+        newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         if (chance <= 1 || !rn2(chance)) {
             if (!Inhell) {
                 nvanished++;

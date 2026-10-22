@@ -1210,6 +1210,8 @@ dochug(struct monst *mtmp)
                     pline("%s gets angry!", Amonnam(mtmp));
                     mtmp->mpeaceful = 0;
                     set_malign(mtmp);
+                    /* visible now, and no longer peaceful */
+                    newsym(mtmp->mx, mtmp->my);
                     /* since no way is an image going to pay it off */
                 }
             } else if (demon_talk(mtmp))
@@ -1242,6 +1244,7 @@ dochug(struct monst *mtmp)
             verbalize("Good.  Now beat it, scum!");
             mtmp->mpeaceful = 1;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
         } else {
             pline("I said %ld!", gdemand);
             mtmp->mspec_used = 1000;

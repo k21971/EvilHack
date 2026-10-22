@@ -253,6 +253,7 @@ deadbook_pacify_undead(struct monst *mtmp)
             monflee(mtmp, 0, FALSE, TRUE);
         /* keep malign in step with the new peacefulness */
         set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
     }
 }
 
@@ -345,6 +346,7 @@ deadbook(struct obj *book2)
                                            NO_MINVENT)) != 0)) {
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         }
         /* next handle the affect on things you're carrying */
         (void) unturn_dead(&gy.youmonst);
