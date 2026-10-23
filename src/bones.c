@@ -645,6 +645,10 @@ savebones(int how, time_t when, struct obj *corpse)
     if (u.usteed)
         dismount_steed(DISMOUNT_BONES);
 
+    /* a queen defeated in the fatal turn would be revived into the
+       bones by dmonsfree() below; send her away like a living one */
+    while ((mtmp = pending_icequeen()) != 0)
+        mongone(mtmp);
     iter_mons(remove_mon_from_bones); /* send various unique monsters away, */
     /* a killer that died alongside the hero is still on fmon until
        dmonsfree() frees it; the looting leg below must not reach it

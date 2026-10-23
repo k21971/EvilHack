@@ -128,6 +128,12 @@ dosave0(void)
         }
     }
 
+    /* a defeated Ice Queen awaiting her revival is revived before
+       vision is shut down below, so the hero can see it happen;
+       savelev() would revive her unseen */
+    HUP if (pending_icequeen())
+        dmonsfree();
+
     HUP mark_synch(); /* flush any buffered screen output */
 
     nhfp = create_savefile();
@@ -530,8 +536,10 @@ savelev_core(NHFILE *nhfp, xint8 lev)
        it, and savemonchn() below would otherwise free a still
        pending detached monster without crediting the purge
        count, which the next dmonsfree() then reports as a
-       count mismatch */
-    if (iflags.purge_monsters)
+       count mismatch; a defeated Ice Queen is not in that count
+       (she awaits her revival), so check for her too, or a queen
+       who died since the last pass would be written dead */
+    if (iflags.purge_monsters || pending_icequeen())
         dmonsfree();
     if (nhfp->mode != FREEING) {
         /* WRITING (probably ORed with FREEING), or COUNTING */

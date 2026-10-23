@@ -3941,6 +3941,16 @@ icequeenrevive(struct monst *mtmp)
         else
             uunstick();
     }
+    /* freed of the curse, she gets down from a steed she rode as the
+       queen; it keeps its own attitude */
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed) {
+        struct monst *steed = ERID(mtmp)->mon_steed;
+
+        if (!quiet && canseemon(mtmp))
+            pline("%s clambers off %s.", Monnam(mtmp),
+                  canseemon(steed) ? mon_nam(steed) : "something");
+        separate_steed_and_rider(mtmp);
+    }
     newsym(mtmp->mx, mtmp->my);
 
     /* fix up Bourbon and Ozzy */
@@ -4012,6 +4022,22 @@ icequeenrevive(struct monst *mtmp)
     }
     change_luck(2);
     return;
+}
+
+/* a defeated Ice Queen still on fmon awaiting her revival in dmonsfree();
+   mondead() skips m_detach() for her, so neither iter_mons() nor the
+   purge count sees her */
+struct monst *
+pending_icequeen(void)
+{
+    struct monst *mtmp;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+        if (DEADMONSTER(mtmp)
+            && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            && !(mtmp->mstate & MON_DETACH))
+            return mtmp;
+    return (struct monst *) 0;
 }
 
 /* really free dead monsters */

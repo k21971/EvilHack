@@ -1921,6 +1921,11 @@ goto_level(
         end_engulf_suffocation();
     set_uinwater(0); /* u.uinwater = 0 */
     u.uundetected = 0; /* not hidden, even if means are available */
+    /* a defeated Ice Queen awaiting her revival is revived while the
+       hero can still see her; savelev() would revive her after vision
+       is shut down below */
+    if (pending_icequeen())
+        dmonsfree();
     if (!iflags.nofollowers) {
         keepdogs(FALSE);
         /* called after keepdogs(), so adjacent or engulfing dlords
