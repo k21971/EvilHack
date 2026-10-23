@@ -1055,6 +1055,24 @@ dochug(struct monst *mtmp)
         return 0;             /* other frozen monsters can't do anything */
     }
 
+    /* a ridden steed follows its rider: it takes the rider's attitude
+       and wakes once the rider is up and able to act, even when the
+       rider fights in place and never runs update_monsteed() */
+    if (mtmp->ridden_by) {
+        struct monst *rider = get_mon_rider(mtmp);
+
+        if (rider && !DEADMONSTER(rider)) {
+            if (!mtmp->mtame && mtmp->mpeaceful != rider->mpeaceful) {
+                mtmp->mpeaceful = rider->mpeaceful;
+                set_malign(mtmp);
+            }
+            if (!helpless(rider)) {
+                wake_msg(mtmp, FALSE);
+                mtmp->msleeping = 0;
+            }
+        }
+    }
+
     /* there is a chance we will wake it */
     if (mtmp->msleeping && !disturb(mtmp)) {
         if (Hallucination)

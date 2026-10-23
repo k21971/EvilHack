@@ -2181,6 +2181,8 @@ create_monster(monster *m, struct mkroom *croom)
             mtmp->mpeaceful = m->peaceful;
             /* changed mpeaceful again; have to reset malign */
             set_malign(mtmp);
+            /* a steed takes its rider's attitude (see mount_monster()) */
+            update_monsteed(mtmp);
         }
         if (m->asleep > BOOL_RANDOM)
             mtmp->msleeping = m->asleep;

@@ -890,6 +890,7 @@ nasty(struct monst *summoner, boolean centered_on_stairs)
                                     mmflags)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
                     set_malign(mtmp);
+                    update_monsteed(mtmp); /* the steed follows its rider */
                     newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
                 } else {
                     /* random monster to substitute for geno'd selection;

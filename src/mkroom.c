@@ -476,9 +476,14 @@ fill_zoo(struct mkroom *sroom)
                 /* a dragon grudging a Knight stays awake (see makemon()) */
                 if (!dragon_grudges_knight(mon))
                     mon->msleeping = 1;
+                /* so does its steed, unless it is such a dragon itself */
+                if (mon->msleeping && has_erid(mon) && ERID(mon)->mon_steed
+                    && !dragon_grudges_knight(ERID(mon)->mon_steed))
+                    ERID(mon)->mon_steed->msleeping = 1;
                 if (type == COURT && mon->mpeaceful) {
                     mon->mpeaceful = 0;
                     set_malign(mon);
+                    update_monsteed(mon); /* the steed follows its rider */
                 }
             }
             switch (type) {

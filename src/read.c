@@ -4129,6 +4129,7 @@ create_particular_creation(
             mtmp->mtame = 0; /* sanity precaution */
             mtmp->mpeaceful = d->makepeaceful ? 1 : 0;
             set_malign(mtmp);
+            update_monsteed(mtmp); /* the steed follows its rider */
             /* makemon() drew it with the peacefulness it rolled */
             newsym(mtmp->mx, mtmp->my);
             if (mtmp->wormno)

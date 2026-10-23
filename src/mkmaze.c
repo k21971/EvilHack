@@ -946,6 +946,7 @@ stolen_booty(void)
         mtmp = christen_monst(mtmp, upstart(gang));
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
+        update_monsteed(mtmp); /* the steed follows its rider */
         shiny_orc_stuff(mtmp);
         migrate_orc(mtmp, ORC_LEADER);
     }

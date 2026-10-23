@@ -95,6 +95,7 @@ m_initgrp_extra(int mndx, coord *mm, mmflags_nht mmflags)
     mon->mpeaceful = FALSE;
     mon->mavenge = 0;
     set_malign(mon);
+    update_monsteed(mon); /* the steed follows its rider */
     newsym(mon->mx, mon->my); /* clear peaceful glyph */
     return TRUE;
 }
@@ -205,6 +206,7 @@ m_initgrp(
                 mon->mpeaceful = FALSE;
                 mon->mavenge = 0;
                 set_malign(mon);
+                update_monsteed(mon); /* the steed follows its rider */
                 newsym(mon->mx, mon->my); /* clear peaceful glyph */
                 /* Undo the second peace_minded() check in makemon(); if the
                  * monster turned out to be peaceful the first time we
