@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-23, after session 253's
-  disp.botl sweep): 473 rows closed, 142 open
+- Phase 2 status (refreshed 2026-10-23, after session 254's
+  artifact-strip fix): 474 rows closed, 143 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -29,9 +29,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
   - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4), and a wielded weapon turned into an
-    artifact keeping what its object properties granted (minted by
-    session 253; master-shared).
+    stays with Phase 4), and master's naming envoy (an unported
+    master feature: #naming Sting or Orcrist brings a hostile grey
+    elf; minted by session 254).
+    Session 254 closed the artifact strip (BUG-2538, master
+    frozen-unfixed): a wielded weapon turned into an artifact (#name
+    Sting / Orcrist, crowning, the Excalibur dip, the Dirge altar)
+    now gives up the telepathy, warning and searching its object
+    properties granted, in either hand, and a weapon of
+    excellence's Luck and Cha go with them; before, they stayed
+    after the artifact was put away.
     Session 252 closed master's strength damage bonus (BUG-2520,
     2521): dbon() has master's table, and a blow struck with a
     two-handed weapon gets 1.5x of it (melee, an applied polearm,
@@ -298,7 +305,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 122 LOW: small parity rows, quirks and watch/record-only items.
+  - 123 LOW: small parity rows, quirks and watch/record-only items.
+    Session 254 minted one: a weapon of excellence in the
+    alternate-weapon slot counts toward Luck without two-weapon
+    combat, so the stored Luck depends on what last recomputed it
+    (master too; needs a ruling).
     Session 253 minted two: a bare-handed cockatrice corpse is not
     re-checked when Stoneskin's stoning resistance ends (expiry or
     cancellation; master too), and a cursed weapon of excellence
@@ -20825,7 +20836,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dragon keeps reflection and a form vulnerability prints no
       false line after cancellation. Paniclogs empty; save / restore
       clean.
-- [ ] MED: a wielded weapon turned into an artifact keeps what its
+- [x] MED: a wielded weapon turned into an artifact keeps what its
       object properties granted (minted 2026-10-23, session 253, by
       the disp.botl census's Plan stress test; master-shared; ruled
       a row of its own). oname()'s artifact arm (#name Sting /
@@ -20844,6 +20855,74 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       W_WEP / W_SWAPWEP)), clears the properties, then runs
       set_moreluck() and sets disp.botl. Own battery (Excalibur dip
       and a crowning with a wielded long sword of telepathy).
+      CLOSED 2026-10-23 (session 254, 3ce673393; BUG-2538,
+      master frozen-unfixed). New strip_oprops() (artifact.c)
+      replaces the three clear lines (oname()'s artifact arm, which
+      crowning reaches, the Excalibur dip and the Dirge arm). It
+      revokes the wield grants through set_artifact_intrinsic()'s
+      plain-weapon arm, briefly zeroing oartifact because oname()
+      calls it after artifact_exists() has set it (the same idiom as
+      oprops_off()'s ITEM_EXCEL clear), under W_WEP for uwep and
+      W_SWAPWEP for uswapwep; then it clears the properties and,
+      for a carried weapon of excellence, runs set_moreluck() and
+      sets disp.botl. In oname() it runs before untwoweapon() and
+      the artifact's own W_WEP grant, so a shared grant (Excalibur's
+      searching) comes back. A Plan stress test dropped the planned
+      doaffixgem() fold (the blacksmith hammer is no weptool, and the
+      luckstone's own useup() already recomputes Luck) and found
+      master's naming envoy unported (MED row below). Reviewer PASS
+      (two LOWs, no action: the dip and Dirge calls precede oname()'s
+      own, a harmless second clear; the carried() gate is wider than
+      confers_luck()'s). Battery: A (PRE fe5cf50e / POST 8edf9127,
+      lawful Knights) 5 / 5 PASS - the telepathy dip (PRE ETelepat
+      0x100 kept through w- and a plain dagger, blind telepathy and
+      ^X "You are telepathic."; POST 0 from the dip on), the
+      uncursed excellence dip (PRE moreluck 3 after w- and Cha 18
+      stale - a disp.botl watch saw no redraw; POST 0, Cha at
+      once), the cursed one (PRE -3 kept; POST 0), save / restore,
+      and an off-hand two-weapon dip (PRE ETelepat 0x400 kept
+      through a save / restore; POST 0); B 4 / 4 PASS on both
+      builds - #name Sting wielded (PRE EWarning 0x100 kept; POST
+      0, Sting's own EWarn_of_mon seated), #name Sting as the
+      two-weapon off-hand (PRE ETelepat 0x400 kept; POST 0),
+      #wizcrown with a long sword of telepathy and excellence (PRE
+      ETelepat 0x100 and moreluck 3 kept; POST 0 and 0, Excalibur's
+      searching and drain resistance seated), Dirge (PRE ETelepat
+      0x100 kept; POST 0), plus a POST save / restore; M (scratch
+      c444f6a3a) 3 / 3 the bug on master (the telepathy dip,
+      moreluck 3 after the excellence dip, EWarning after #name
+      Sting; master's time catch-all redraws the Cha). Paniclogs
+      empty.
+- [ ] MED: master's naming envoy was never ported (minted
+      2026-10-23, session 254, by the artifact-strip slice's Plan
+      stress test; ruled a row, not a fold). Master c895ac258
+      ("Naming/wishing for artifacts tweaks", its do_name.c half)
+      plus af668d42c's speech quoting: in oname()'s via_naming arm,
+      #naming an elven dagger Sting or an elven broadsword Orcrist
+      makes a hostile grey elf 2 times in 3 ("You see a Grey-elf
+      step out of the shadows." / "You hear movement nearby.",
+      hallucination variants), which says "\"Sting is not yours to
+      take!  Relinquish it!\"" (or Return), plus up to two hostile
+      green elves (rn2(3) each); the elf wakes, puts on armor and
+      wields. The branch's oname() (5.0's, from the tree adoption)
+      has no such block, and `git log -S'step out of the shadows'
+      -- src/do_name.c` finds it never did. The commit's objnam.c
+      half (wishing for an artifact brings its owner) is on the
+      branch in master's later form. Battery M (session 254) saw
+      it on master: a Grey-elf and two helpers on one naming.
+- [ ] LOW: a weapon of excellence in the alternate-weapon slot
+      counts toward Luck without two-weapon combat (minted
+      2026-10-23, session 254 Plan stress test; master-shared;
+      needs a ruling). confers_luck() takes ITEM_EXCEL with
+      owornmask & (W_ARMOR | W_WEP | W_SWAPWEP) and ignores
+      u.twoweap, while setuswapwep()'s gain arm and
+      excel_forced_cha() need two-weapon combat. So an excellence
+      weapon put in the alternate slot (x) gives no Luck when it
+      goes there, then counts once any other luck item recomputes
+      u.moreluck (a luckstone picked up, another weapon wielded).
+      Options: gate confers_luck()'s W_SWAPWEP on u.twoweap (and
+      recompute in set_twoweap()), or let setuswapwep() recompute
+      for the alternate slot too.
 - [ ] LOW: a bare-handed cockatrice corpse is not re-checked when
       Stoneskin's stoning resistance ends (minted 2026-10-23,
       session 253 reviewer; master-shared). The STONE_RES timeout
@@ -32282,6 +32361,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-23 | Artifact-strip slice rulings (session 254; AskUserQuestion x2, two questions, both as recommended). (0) SLICE: the MED row "a wielded weapon turned into an artifact keeps what its object properties granted" alone, ahead of the same row plus the cursed-excellence Cha LOW, the form-bit SWEEP census, or the MED plus that SWEEP. (1) NAMING ENVOY: master c895ac258's do_name.c half (a hostile grey elf, maybe two green elves, when #naming Sting or Orcrist), found unported by the Plan stress test in the same oname() arm, gets a MED row of its own, not a fold. Taken without asking (approved plan): one helper, strip_oprops(), that briefly zeroes oartifact so the revoke goes through set_artifact_intrinsic()'s plain-weapon arm, rather than a copy of its three arms or a hook in artifact_exists(); the dip and Dirge sites keep an explicit call; the planned doaffixgem() Luck fold was dropped (a stress-test finding: the blacksmith hammer is no weptool, and the luckstone's useup() already recomputes Luck); the alternate-slot excellence Luck quirk goes to a LOW row needing a ruling. | maintainer |
 | 2026-10-23 | disp.botl sweep rulings (session 253; AskUserQuestion x2, four questions, all as recommended). (0) SLICE: the SWEEP row "status values that change without disp.botl", ahead of nasties[] and the ruled small rows. (1) ARTIFACT STRIP: a MED row of its own (a wielded weapon turned into an artifact keeps its object properties' wield grants; Luck and Cha stuck for excellence), not folded. (2) CANCELLATION: fold all three - Stoneskin's stoning resistance ends with it (BUG-2536, master too); reflection and the vulnerabilities clear only their TIMEOUT part, with each line printed only when a timed effect actually ended (BUG-2537). (3) EXCELLENCE CHA: only excellence weapons count (master reads both hands' beatitude). [Premise correction, battery B: the question's example - an uncursed excellence main hand with a blessed plain off-hand giving Cha 25 - was wrong; that mix gave 18 on both builds because the uncursed main hand meets the 18 arm first. The case the ruling changes is a blessed excellence main hand with a plain non-blessed off-hand: 18 before, 25 now.] Taken without asking (approved plan or reviewer): set_twoweap() and every weapon-slot setworn() / setnotworn() redraw whatever weaponstatus says; maybe_purity_slide_off() runs before the per-input find_ac(); #name calls encumber_msg(); one per-input classify_terrain() after the vision block instead of per-site calls; extremeattr() shares excel_forced_cha(); the reflection fade warning, the reflection cast and ureflects() read only the TIMEOUT part; the cursed-excellence Cha <= 6 quirk and the cockatrice-corpse re-check go to LOW rows. | maintainer |
 | 2026-10-23 | Strength-bonus slice rulings (session 252; AskUserQuestion x2, four questions, three as recommended). (0) SLICE: the abon() / dbon() MED row, ahead of the session 250-251 LOW rows, the plannable ruled list and the disp.botl sweep. (1) TWO-HANDED: master's 1.5x (((d*3)+1)/2, so a penalty stays as it is) only for a blow struck WITH a two-handed weapon: hitobj == uwep or uswapwep, WEAPON / TOOL class, raw oc_bimanual (giants one-handing included, per 73a1c3ef2). Covered: melee, an applied polearm, a giant's off-hand two-hander, and the dig self-hits. A thrown dagger, a kicked object and a shield bash get the plain bonus, and so does a wielded bulky armor. Master keyed the 1.5x on uwep's oc_big bit for every dbon() use (BUG-2521, frozen-unfixed). Folded under this ruling: a wielded boulder, a boulder filling a pit and a dragged ball (all plain; master 1.5x), and no u.twoweap test (a shattering glass primary clears the flag before the off-hand swings). (2) TWO HITS: the full bonus on each hit of a two-weapon attack or a double punch (master); 5.0's 3/4 and its melee-only 3/2 are removed. (3) abon() 18/50: KEEP 5.0's +2 at exactly 18/50 (gnome and orc cap), over the recommended master / vanilla 3.6 +1; abon() unchanged. |
 | 2026-10-22 | Map-highlight slice rulings (session 251; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: underline_peacefuls and hilite_hidden_stairs together, ahead of the strength tables, session 250's LOW rows and the disp.botl sweep. (1) PEACEFUL MARK: a flag on the drawn cell (MG_PEACEFUL ORed into the buffered glyphinfo by the code that draws the monster), not master's male / female peaceful glyph ranges (1122 glyphs, tilemap and glyph-name work, per-monster rc glyph customizations split off); a peaceful shown by monster detection keeps the detected inverse and gains the underline, a peaceful rider keeps its ridden look. [Premise correction, battery A: the question said "sensed by telepathy"; a telepathy-sensed monster is drawn as seen on both trees and is never inverse - the detected inverse comes from monster detection.] (2) HIDDEN STAIRS: only stairs the hero has seen or felt (levl seenv), not master's bare On_stairs(), which lights detected objects on never-seen stairs. (3) REDRAWS: every gap - master's lost newsym() sites plus every both-tree site where the drawn underline (or 5.0's pet highlight) can disagree with the monster. (4) MASTER 42f2510d5: fold the rest of the vault.c review (BUG-841, 843, 844, 845, 849 with 840 / 842), not a row; 846 / 847 / 850 moot on 5.0, 848 (free_egd() removal) not applicable (5.0's free_e*() family, mirrored by util/sfctool.c). Taken without asking: master's set_malign() carries at the same lines (401e63697, 42f2510d5, 85486467a); no WC2_PEACEFUL bit and no wc2 gating; toggling redraws at once; color off draws hidden stairs inverse on tty and curses; create_particular's redraw unconditional; the HTML MG_RIDDEN arm left to the Phase 4 HTML dumplog row. (5) GUARD KILL (asked after battery B hit it): fold the place_monster() fix for upstream d13eceb28's dead-guard parking regression (BUG-2519, master's target test) and re-run that leg, not a HIGH row. | maintainer |
