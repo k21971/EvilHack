@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-23, after session 256's
-  form-bit sweep): 477 rows closed, 144 open
+- Phase 2 status (refreshed 2026-10-23, after session 257's
+  steed trio): 481 rows closed, 143 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -324,7 +324,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 126 LOW: small parity rows, quirks and watch/record-only items.
+  - 125 LOW: small parity rows, quirks and watch/record-only items.
+    Session 257 closed four (BUG-2547..2551, master frozen-unfixed):
+    an Ice Queen defeated in the hero's fatal turn stays out of the
+    bones, and one who withered to death just before the hero took
+    the stairs or saved is revived then, in view, instead of being
+    written dead ("placing defunct monster"); a queen defeated while
+    riding reads "Kathryn the Enchantress clambers off the saddled
+    woolly mammoth." and stands beside the still-hostile steed; zoo
+    riders' steeds sleep with them (a Knight's grudging fell beast
+    stays awake) and wake once the rider is up; and a steed takes
+    its rider's attitude - an orcish hero's court wolves, Orcish
+    Town's wargs and the Ice Queen's summoned goblin captain's warg
+    are hostile with their riders, as is a ^G "peaceful" / "hostile"
+    rider's steed. Minted three: newcham()'s rider lines ignoring
+    the exit-time quiet flag (record), a fatal-turn queen missing
+    from the vanquished list (needs a ruling), and #wizloaddes
+    leaving a replaced filler's hidden eels on room floor
+    (investigation, wizard mode).
     Session 256 closed one (the cockatrice re-check, with the
     form-bit sweep) and minted three: casting Stoneskin while
     turning to stone does not stop it (master too; needs a
@@ -11910,7 +11927,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       visible. Plannable (clear minvis after the transformation, or
       clear perminvis too; check whether master's perminvis survival
       matters later).
-- [ ] LOW: a queen defeated in the same turn the hero dies is revived
+- [x] LOW: a queen defeated in the same turn the hero dies is revived
       into bones (minted 2026-10-12, session 215, census agent B and
       Plan agent; master-shared). remove_mon_from_bones() mongone()s
       both Kathryn forms by name, but iter_mons() skips a DEADMONSTER,
@@ -11936,7 +11953,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       without MON_DETACH (m_detach() puts a steed back), and the
       BUG-2291 guard frees her silently. Rejected revive-then-remove
       and record only. Plannable.
-- [ ] LOW: a queen defeated while riding keeps her steed through the
+      CLOSED 2026-10-23 (session 257, e03162609; BUG-2547 and
+      BUG-2548, master frozen-unfixed). New extern
+      pending_icequeen() (mon.c, dmonsfree()'s own revival test);
+      savebones() mongone()s her before iter_mons(), and a steed she
+      rode stays in the bones on her square (battery A: PRE a
+      peaceful Enchantress in the loaded bones, mounted in the
+      mounted variant; POST no Kathryn; master the same as PRE).
+      Folded by ruling (Plan stress test find): a queen withered to
+      death in mcalcdistress() after movemon()'s dmonsfree() was
+      written dead when the hero then changed level or saved
+      ("placing defunct monster", an off-map Enchantress); goto_level()
+      and dosave0() now revive her while vision is on, and
+      savelev_core() checks for her as the catch-all.
+- [x] LOW: a queen defeated while riding keeps her steed through the
       revival (minted 2026-10-12, session 215; master-shared). She can
       mount_up() a saddled steed once STRAT_WAITFORU clears. A riding
       queen's defeat returns from mondead() before m_detach(), whose
@@ -11962,6 +11992,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       rider puts the steed on her square. Rejected keeping her
       mounted with the steed calmed at once, and record only.
       Plannable.
+      CLOSED 2026-10-23 (session 257, e03162609; BUG-2549,
+      master frozen-unfixed). icequeenrevive(), after the HP set and
+      the ustuck release, before the dogs and the pager: "Kathryn
+      the Enchantress clambers off the saddled woolly mammoth."
+      (ruled wording, matching mount_up()'s "clambers onto"; seen
+      and not quiet; an unseen steed reads "something"), then
+      separate_steed_and_rider() - she moves beside it, the steed
+      keeps her old square and its hostility. newcham()'s own
+      "falls from" arm still covers a queen who cannot ride then.
+- [ ] LOW: newcham()'s rider lines ignore icequeenrevive()'s quiet
+      flag (minted 2026-10-23, session 257 Plan stress test; record
+      only). newcham()'s "Transforming, %s falls from %s!" and
+      "%s falls from %s mount as %s transforms!" test canseemon()
+      only, so a queen revived at exit teardown (over) while trapped,
+      held or still waiting would raw-print the line after the
+      windows are gone. Exit-only and cosmetic; BUG-2422's com_pager
+      gate is the model if it ever matters.
+- [ ] LOW: a queen defeated in the hero's fatal turn is missing from
+      the vanquished list and the dumplog (minted 2026-10-23, session
+      257 Plan stress test; needs a ruling, master the same). Her death
+      count is incremented in icequeenrevive(), which runs from
+      dmonsfree() after done()'s disclosure and dump (and BUG-2547
+      now mongone()s her in savebones() instead). Decide whether a
+      defeat in the fatal turn should count as vanquished.
 - [x] MED: a Draugr dying in the turn they defeat the Ice Queen
       likely crashes at exit (minted 2026-10-18, session 239
       follow-up, from the queen bones trace; branch-only regression;
@@ -16195,12 +16249,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       has the same problem for blue objects. Fix shape: inverse
       instead of the background when the glyph's color is the
       background color.
-- [ ] LOW: wizard ^G "peaceful" / "hostile" leaves a rider's steed
+- [x] LOW: wizard ^G "peaceful" / "hostile" leaves a rider's steed
       with its rolled disposition (minted 2026-10-22, session 251
       battery A: "peaceful goblin outrider" rode a wolf with
       mpeaceful 0). create_particular_creation() sets only the rider
       (master the same); tamedog()'s "steeds follow their riders'
       direction" block is the model. Wizard mode only.
+      CLOSED 2026-10-23 (session 257, 86cae38de; BUG-2551, the
+      reviewer's sibling of the creation-site attitude fix):
+      update_monsteed(mtmp) after the makepeaceful / makehostile
+      set_malign(), and every ridden steed now takes its rider's
+      attitude on its own turn.
 - [x] MED: master's inventory weight / slots line never ported
       (minted 2026-10-21, session 249 battery anomaly; split out of
       the Phase 4 post-migration row's curses rider). Master
@@ -19214,7 +19273,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       awake, lawful ones asleep, a Valkyrie's all asleep. A runtime
       COURT fill_zoo(): 6 cross-aligned dragons awake, 6 lawful
       asleep. PRE: all asleep.
-- [ ] LOW: fill_zoo() puts a rider to sleep but not its steed
+- [x] LOW: fill_zoo() puts a rider to sleep but not its steed
       (minted 2026-10-14, session 227, by battery E; master-shared).
       In a runtime COURT fill_zoo() on DL24, two goblin outriders
       were asleep while their wolf steeds (sharing their squares)
@@ -19237,6 +19296,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sleep (a Knight's grudge dragon stays awake, as ruled for
       BUG-2351); archived as a master bug, frozen-unfixed. Rejected
       the watchdog record. Plannable.
+      CLOSED 2026-10-23 (session 257, 86cae38de; BUG-2550 and
+      BUG-2551, master frozen-unfixed). fill_zoo() puts a sleeping
+      rider's steed to sleep unless dragon_grudges_knight(steed)
+      (a Knight's fell beast stays awake). Ruled with it: a ridden
+      steed's own dochug() turn wakes it (wake_msg()) once its
+      rider is not helpless() - the rider-move route via
+      update_monsteed() missed a rider fighting in place - and
+      gives it its rider's attitude; update_monsteed() follows the
+      attitude write at fill_zoo()'s COURT arm, the des peaceful
+      flag, nasty(), m_initgrp() / m_initgrp_extra(), mk_mplayer(),
+      the orc-gang leader and ^G, so an orcish hero's court wolves,
+      Orcish Town's wargs and the Ice Queen's summoned goblin
+      captain's warg turn hostile with their riders (battery C / B
+      PRE: peaceful). Sleep rays, gas, des asleep / paralyzed and
+      ^G "sleeping" still reach only the rider, as ruled.
+- [ ] LOW investigation: #wizloaddes over a filler level left its
+      hidden eels on room floor (minted 2026-10-23, session 257
+      battery C, on session 256's branch build; wizard mode only).
+      Loading minetn-1 over a Mines filler that held hidden piranhas
+      and jellyfish left 11 of them on the new map with mundetected
+      1, several on ROOM squares; sanity_check printed "eel hiding
+      out of water (fmon)" x8. Session 257 does not touch
+      #wizloaddes; the POST run's filler just had no hidden swimmers.
+      Check what #wizloaddes clears from the replaced level.
 - [x] LOW: obj_typename() appends " stone" to non-gem GEMSTONE items
       (minted 2026-10-15, session 230, by batteries T2 / T3). Master
       1464c4a98 (the magic chests commit, whose row is closed) added
@@ -32557,6 +32640,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-23 | Steed trio slice rulings (session 257; AskUserQuestion x4, seven questions, six as recommended). (0) SLICE: the three ruled LOW rows queen bones, queen steed and zoo steeds, ahead of the entangle pair, a small-fix batch, or nasties[]. (1) DISMOUNT WORDING "clambers off" ("Kathryn the Enchantress clambers off the saddled woolly mammoth."), matching mount_up()'s "clambers onto" and the taming line, after the transformation lines and before the dogs and the pager. (2) FOLD BOTH ATTITUDE SITES: fill_zoo()'s COURT flip and a des peaceful=0 rider pass the attitude to the steed (update_monsteed()). (3) WAKE WITH RIDER: a woken rider wakes its steed; sleep rays, gas, des asleep and ^G "sleeping" stay rider-only as ruled 2026-10-18. (4) FOLD NOW, over my mint-a-row pick: a queen withered to death after the end-of-turn pass is revived at the level change or save, not written dead. (5) STEED TURN + 5 SITES (after the reviewer found update_monsteed() runs only when a rider moves): a ridden steed's own dochug() takes its rider's attitude and wakes once the rider is not helpless; update_monsteed() follows the attitude write at nasty(), m_initgrp(), m_initgrp_extra(), mk_mplayer() and the orc-gang leader. (6) REVIVE WHILE SEEN: goto_level() and dosave0() revive a pending queen before vision is shut down, so she is named and watched; savelev() stays the catch-all. Taken without asking (reviewer siblings): read.c's ^G peaceful / hostile syncs the steed (closes session 251's row), helpless() and wake_msg() on the steed wake. | maintainer |
 | 2026-10-23 | Form-bit sweep slice rulings (session 256; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: the SWEEP row "raw reads and clears of intrinsic words that carry 5.0's form / race bits" plus the LOW cockatrice re-check row, ahead of the SWEEP alone, a batch of ruled LOW rows, or nasties[]. (1) SPARE THE FORM: attrcurse() never strips the FROMFORM grant; the hero's own layers underneath (eaten partial, level, race) still go with the message (vanilla 5.0's `& INTRINSIC` shape and the ice trap's BUG-1451 rule; master's strip came incidentally from 17442b734). (2) TELL AND STOP under a worn source: the strip is measured on the hero's own layers, so a partial lost under a ring of fire resistance reads "You feel warmer." and ends the curse (master's shape), and the ice trap's "You feel alarmingly cooler." the same; a FROMOUTSIDE grant still pins (BUG-1357). (3) VALKYRIES AND BARBARIANS follow the same rule: unpolymorphed, set_uasmon()'s form is the role monster (MR_COLD / MR_POISON), so the curse reads "You feel cooler." once, the level-1 grant goes, the gremlin gains it, and the role form keeps her resistant (vanilla 3.6 / 5.0; master lost it until the next save / restore). (4) PER-CAUSE COCKATRICE WORDING: Stoneskin's expiry uses wielding_corpse() (killer "resistance timing out while wielding a cockatrice corpse"), cancellation selftouch("No longer petrify-resistant, you") (killer "a cockatrice corpse"). Taken without asking (approved plan or review): the Bracers of the First Circle's removal re-checks too (killer "removing / losing bracers ..."), maybe_purity_slide_off() drops the weapon before Shield_off() (reviewer CRITICAL), and a clay golem with Unchanging, Stoneskin and a wielded cockatrice corpse now turns to stone before the cancel kill. | maintainer |
 | 2026-10-23 | Naming envoy slice rulings (session 255; AskUserQuestion x2, three questions, all as recommended). (0) SLICE: the MED row "master's naming envoy was never ported" alone, ahead of the same row plus the form-bit SWEEP census, that census alone, or a batch of ruled LOW rows. (1) WIELD ON ARRIVAL (intent over master's live play): master's mon_wield_item() ran with weapon_check 0 and did nothing, so master's Grey-elf spent its first adjacent turn wielding; the port sets NEED_HTH_WEAPON first, as the wish-owner block does - "The Grey-elf wields ...!" right after its speech, a cursed melee weapon welds at arrival, bow and thrown-dagger play unchanged. (2) SIGHT GATE IN BOTH BLOCKS: canseemon() replaces !Blind for the envoy's see / hear lines and speaker and for the wish owner's "puff of smoke" / "small explosion" lines and speaker, so an engulfed or underwater hero, or a newcomer out of sight, hears it and reads "Someone says:" instead of "You see it ..." / "It says:"; blind heroes read master's lines. Taken without asking (approved plan): MM_NOMSG on all three makemon() calls (master's makemon() was silent; the vine / covetous / pet-arrival precedent); SetVoice() before each verbalize(); master's redundant m_dowear() and msleeping = 0 kept. | maintainer |
 | 2026-10-23 | Artifact-strip slice rulings (session 254; AskUserQuestion x2, two questions, both as recommended). (0) SLICE: the MED row "a wielded weapon turned into an artifact keeps what its object properties granted" alone, ahead of the same row plus the cursed-excellence Cha LOW, the form-bit SWEEP census, or the MED plus that SWEEP. (1) NAMING ENVOY: master c895ac258's do_name.c half (a hostile grey elf, maybe two green elves, when #naming Sting or Orcrist), found unported by the Plan stress test in the same oname() arm, gets a MED row of its own, not a fold. Taken without asking (approved plan): one helper, strip_oprops(), that briefly zeroes oartifact so the revoke goes through set_artifact_intrinsic()'s plain-weapon arm, rather than a copy of its three arms or a hook in artifact_exists(); the dip and Dirge sites keep an explicit call; the planned doaffixgem() Luck fold was dropped (a stress-test finding: the blacksmith hammer is no weptool, and the luckstone's useup() already recomputes Luck); the alternate-slot excellence Luck quirk goes to a LOW row needing a ruling. | maintainer |
