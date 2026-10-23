@@ -1050,9 +1050,9 @@ hitum(struct monst *mon, struct attack *uattk)
         && !u.uswallow && !u.ustuck && !NODIAG(u.umonnum))
         return hitum_cleave(mon, uattk);
 
-    /* 0: single hit, 1: first of two hits; affects strength bonus and
-       silver rings; known_hitum() -> hmon() -> hmon_hitmon() will copy
-       gt.twohits into struct _hitmon_data hmd.twohits */
+    /* 0: single hit, 1: first of two hits; affects silver rings;
+       known_hitum() -> hmon() -> hmon_hitmon() will copy gt.twohits
+       into struct _hitmon_data hmd.twohits */
     gt.twohits = (uwep ? u.twoweap : double_punch()) ? 1 : 0;
 
     tmp = find_roll_to_hit(mon, uattk->aatyp, uwep, &attknum, &armorpenalty);
@@ -2105,39 +2105,21 @@ hmon_hitmon_do_hit(
 staticfn void
 hmon_hitmon_dmg_recalc(struct _hitmon_data *hmd, struct obj *obj)
 {
-    int dmgbonus = 0, strbonus, absbonus;
+    int dmgbonus = 0;
 
     /*
      * Potential bonus (or penalty) from worn ring of increase damage
-     * (or intrinsic bonus from eating same) or from strength.  Strength
-     * bonus is increased for melee with two-handed weapons and decreased
-     * for dual attacks (but when both hit, the total for the two is more
-     * than the bonus for a regular single hit).
+     * (or intrinsic bonus from eating same) or from strength. Each hit
+     * of a dual attack gets the whole of both; dbon() raises the
+     * strength bonus for a blow struck with a two-handed weapon
      */
     if (hmd->get_dmg_bonus) {
-        /* for dual attacks, udaminc applies to both, and two-handed
-           weapons use it as-is */
         dmgbonus = u.udaminc;
         /* throwing using a propellor gets an increase-damage bonus
-           but not a strength one; other attacks get both;
-           for dual attacks, 3/4 of the strength bonus is used; when
-           both attacks hit, overall bonus is 3/2 rather than doubled;
-           melee hit with two-handed weapon uses 3/2 strength bonus to
-           approximately match double hit with two-weapon ('approximate'
-           because udaminc skews in favor of two-weapon); the 3/2 factor
-           for two-handed strength does not apply to polearms unless
-           hero is simply bashing with one of those and does not apply
-           to jousting because lances are one-handed */
+           but not a strength one; other attacks get both */
         if (hmd->thrown != HMON_THROWN
-            || !obj || !uwep || !ammo_and_launcher(obj, uwep)) {
-            strbonus = dbon();
-            absbonus = abs(strbonus);
-            if (hmd->twohits)
-                strbonus = ((3 * absbonus + 2) / 4) * sgn(strbonus);
-            else if (hmd->thrown == HMON_MELEE && uwep && bimanual(uwep))
-                strbonus = ((3 * absbonus + 1) / 2) * sgn(strbonus);
-            dmgbonus += strbonus;
-        }
+            || !obj || !uwep || !ammo_and_launcher(obj, uwep))
+            dmgbonus += dbon(obj);
     }
 
     /* wearing red dragon-scaled armor gives the wearer

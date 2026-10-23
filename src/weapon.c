@@ -2077,31 +2077,50 @@ abon(void)
         return (sbon + dex - 14);
 }
 
-/* damage bonus for strength */
+/* damage bonus for strength; hitobj is the object the blow is struck
+   with, or NULL when bare-handed */
 int
-dbon(void)
+dbon(struct obj *hitobj)
 {
     int str = ACURR(A_STR);
+    int bonus = 0;
 
     if (Upolyd)
         return 0;
 
     if (str < 6)
-        return -1;
+        bonus = -2;
+    else if (str < 9)
+        bonus = -1;
     else if (str < 16)
-        return 0;
-    else if (str < 18)
-        return 1;
-    else if (str == 18)
-        return 2; /* up to 18 */
+        bonus = 0;
+    else if (str <= 18)
+        bonus = 1;
+    else if (str <= STR18(50))
+        bonus = 2; /* up to 18/50 */
     else if (str <= STR18(75))
-        return 3; /* up to 18/75 */
-    else if (str <= STR18(90))
-        return 4; /* up to 18/90 */
+        bonus = 3; /* up to 18/75 */
     else if (str < STR18(100))
-        return 5; /* up to 18/99 */
+        bonus = 4; /* up to 18/99 */
+    else if (str == STR18(100))
+        bonus = 5; /* 18/00 only */
     else
-        return 6;
+        bonus = 6;
+
+    /* damage bonus is multiplied 1.5 times for a blow struck with a
+       weapon made for two hands, even by a giant one-handing it
+       (they're heavy); the rounding leaves a penalty as it is. A
+       thrown or kicked object or a shield bash is not swung with it
+       and gets the plain bonus. No u.twoweap test: the primary
+       weapon's destruction can clear the flag before hitum() swings
+       the off-hand it captured earlier */
+    if (hitobj && (hitobj == uwep || hitobj == uswapwep)
+        && (hitobj->oclass == WEAPON_CLASS
+            || hitobj->oclass == TOOL_CLASS)
+        && objects[hitobj->otyp].oc_bimanual)
+        bonus = ((bonus * 3) + 1) / 2;
+
+    return bonus;
 }
 
 /* called when wet_a_towel() or dry_a_towel() is changing a towel's wetness */

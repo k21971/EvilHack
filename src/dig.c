@@ -411,7 +411,8 @@ dig(void)
         } else if (ttmp && ttmp->ttyp == BEAR_TRAP && u.utrap) {
             if (rnl(7) > (Fumbling ? 1 : 4)) {
                 char kbuf[BUFSZ];
-                int dmg = dmgval(&gy.youmonst, uwep, &gy.youmonst) + dbon();
+                int dmg = dmgval(&gy.youmonst, uwep, &gy.youmonst)
+                          + dbon(uwep);
 
                 if (dmg < 1)
                     dmg = 1;
@@ -1332,7 +1333,7 @@ use_pick_axe2(struct obj *obj)
         char buf[BUFSZ];
         int dam;
 
-        dam = rnd(2) + dbon() + obj->spe;
+        dam = rnd(2) + dbon(obj) + obj->spe;
         if (dam <= 0)
             dam = 1;
         You("hit yourself with %s.", yname(uwep));

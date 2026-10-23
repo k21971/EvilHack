@@ -3591,7 +3591,7 @@ use_whip(struct obj **objp)
                 return ECMD_TIME;
             }
         }
-        dam = rnd(2) + dbon() + obj->spe;
+        dam = rnd(2) + dbon(obj) + obj->spe;
         if (dam <= 0)
             dam = 1;
         You("hit your %s with your bullwhip.", body_part(FOOT));
@@ -3892,7 +3892,7 @@ use_axe(struct obj **objp)
             kick_steed();
             return ECMD_TIME;
         }
-        dam = rnd(8) + dbon() + obj->spe;
+        dam = rnd(8) + dbon(obj) + obj->spe;
         if (dam <= 0)
             dam = 1;
         You("hit your %s with your axe.", body_part(FOOT));

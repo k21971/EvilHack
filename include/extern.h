@@ -4147,7 +4147,10 @@ extern int mon_wield_item(struct monst *) NONNULLARG1;
 extern void mwepgone(struct monst *) NONNULLARG1;
 extern void mwep2gone(struct monst *) NONNULLARG1;
 extern int abon(void);
-extern int dbon(void);
+/* hmon_hitmon_dmg_recalc() calls dbon() with a NULL argument for a
+   bare-handed hit or one that used up its object, preventing
+   NONNULLARG1 */
+extern int dbon(struct obj *) NO_NNARGS;
 extern void wet_a_towel(struct obj *, int, boolean) NONNULLARG1;
 extern void dry_a_towel(struct obj *, int, boolean) NONNULLARG1;
 extern char *skill_level_name(int, char *) NONNULLARG2;
