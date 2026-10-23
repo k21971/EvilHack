@@ -6740,7 +6740,11 @@ readobjnam(char *bp, struct obj *no_wish)
         if (mtmp && !is_mplayer(mtmp->data))
             free_mgivenname(mtmp);
         if (mtmp) {
-            if (Blind) {
+            /* not just !Blind: an engulfed or underwater hero can't
+               see the owner arrive */
+            boolean seen = canseemon(mtmp);
+
+            if (!seen) {
                 if (Hallucination)
                     pline("Smells like teen spirit...");
                 else
@@ -6755,7 +6759,8 @@ readobjnam(char *bp, struct obj *no_wish)
                     pline("There is a puff of smoke and a figure appears!");
             }
             if (!Deaf) {
-                pline("%s says:", Blind ? "Someone" : Monnam(mtmp));
+                pline("%s says:", seen ? Monnam(mtmp) : "Someone");
+                SetVoice(mtmp, 0, 80, 0);
                 verbalize("Did you think that I would %s %s %s?",
                           rn2(2) ? "relinquish"
                                  : (rn2(2) ? "hand over" : "give you"),
