@@ -578,20 +578,14 @@ attrcurse(void)
 
     switch (rnd(14)) {
     case 1:
-        if (HFire_resistance) {
-            int before = how_resistant(FIRE_RES);
-
-            HFire_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-            decr_resistance(&HFire_resistance, rnd(50) + 50);
-            /* the mask and decrement may not have moved the needle
-               (a divine grant pins the read at 100; a fully spent
-               percentage was already 0) - only a real drop counts
-               as a removal, otherwise try the next slot */
-            if (how_resistant(FIRE_RES) < before) {
-                You_feel("warmer.");
-                ret = FIRE_RES;
-                break;
-            }
+        /* strip_resistance() leaves gear and the hero's form alone and
+           reports only a real drop of the hero's own share (a
+           permanent external grant pins it at 100; a form-only one
+           was 0 to begin with); otherwise try the next slot */
+        if (HFire_resistance && strip_resistance(FIRE_RES, rnd(50) + 50)) {
+            You_feel("warmer.");
+            ret = FIRE_RES;
+            break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/
@@ -605,16 +599,11 @@ attrcurse(void)
         FALLTHROUGH;
         /*FALLTHRU*/
     case 3:
-        if (HPoison_resistance) {
-            int before = how_resistant(POISON_RES);
-
-            HPoison_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-            decr_resistance(&HPoison_resistance, rnd(50) + 50);
-            if (how_resistant(POISON_RES) < before) {
-                You_feel("a little sick!");
-                ret = POISON_RES;
-                break;
-            }
+        if (HPoison_resistance
+            && strip_resistance(POISON_RES, rnd(50) + 50)) {
+            You_feel("a little sick!");
+            ret = POISON_RES;
+            break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/
@@ -631,16 +620,10 @@ attrcurse(void)
         FALLTHROUGH;
         /*FALLTHRU*/
     case 5:
-        if (HCold_resistance) {
-            int before = how_resistant(COLD_RES);
-
-            HCold_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-            decr_resistance(&HCold_resistance, rnd(50) + 50);
-            if (how_resistant(COLD_RES) < before) {
-                You_feel("cooler.");
-                ret = COLD_RES;
-                break;
-            }
+        if (HCold_resistance && strip_resistance(COLD_RES, rnd(50) + 50)) {
+            You_feel("cooler.");
+            ret = COLD_RES;
+            break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/
@@ -708,44 +691,29 @@ attrcurse(void)
         FALLTHROUGH;
         /*FALLTHRU*/
     case 12:
-        if (HSleep_resistance) {
-            int before = how_resistant(SLEEP_RES);
-
-            HSleep_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-            decr_resistance(&HSleep_resistance, rnd(50) + 50);
-            if (how_resistant(SLEEP_RES) < before) {
-                You_feel("a little tired.");
-                ret = SLEEP_RES;
-                break;
-            }
+        if (HSleep_resistance
+            && strip_resistance(SLEEP_RES, rnd(50) + 50)) {
+            You_feel("a little tired.");
+            ret = SLEEP_RES;
+            break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/
     case 13:
-        if (HDisint_resistance) {
-            int before = how_resistant(DISINT_RES);
-
-            HDisint_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-            decr_resistance(&HDisint_resistance, rnd(50) + 50);
-            if (how_resistant(DISINT_RES) < before) {
-                You_feel("less firm.");
-                ret = DISINT_RES;
-                break;
-            }
+        if (HDisint_resistance
+            && strip_resistance(DISINT_RES, rnd(50) + 50)) {
+            You_feel("less firm.");
+            ret = DISINT_RES;
+            break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/
     case 14:
-        if (HShock_resistance) {
-            int before = how_resistant(SHOCK_RES);
-
-            HShock_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-            decr_resistance(&HShock_resistance, rnd(50) + 50);
-            if (how_resistant(SHOCK_RES) < before) {
-                You_feel("more conductive.");
-                ret = SHOCK_RES;
-                break;
-            }
+        if (HShock_resistance
+            && strip_resistance(SHOCK_RES, rnd(50) + 50)) {
+            You_feel("more conductive.");
+            ret = SHOCK_RES;
+            break;
         }
         FALLTHROUGH;
         /*FALLTHRU*/

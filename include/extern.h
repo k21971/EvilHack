@@ -2822,6 +2822,7 @@ extern void set_itimeout(long *, long) NONNULLARG1;
 extern void incr_itimeout(long *, int) NONNULLARG1;
 extern void incr_resistance(long *, int) NONNULLARG1;
 extern void decr_resistance(long *, int) NONNULLARG1;
+extern boolean strip_resistance(int, int);
 extern int how_resistant(int);
 extern int resist_reduce(int, int);
 extern void make_confused(long, boolean);

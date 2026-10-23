@@ -7,6 +7,7 @@
 
 staticfn long itimeout(long);
 staticfn long itimeout_incr(long, int);
+staticfn int own_resistance(int);
 staticfn void ghost_from_bottle(void);
 staticfn int drink_ok(struct obj *);
 staticfn void peffect_restore_ability(struct obj *);
@@ -131,38 +132,71 @@ decr_resistance(long *which, int incr)
         *which |= (oldval | HAVEPARTIAL);
 }
 
-/* return the percentage that the hero resists the given property */
-int
-how_resistant(int which)
+/* the percentage of a resistance the hero's own intrinsic layers give,
+   leaving out worn or wielded gear and the grant of the hero's form
+   (a polymorph form, or the role monster while unpolymorphed) */
+staticfn int
+own_resistance(int which)
 {
+    long *word = &u.uprops[which].intrinsic;
     int val;
 
-    /* extrinsics and level/race/form based intrinsics always provide
-       100%, as do divine or other permanent external grants */
-    if (u.uprops[which].extrinsic
-        || (u.uprops[which].intrinsic
-            & (FROMEXPER | FROMRACE | FROMFORM | FROMOUTSIDE))) {
+    /* level and race based intrinsics always provide 100%, as do
+       permanent external grants */
+    if (*word & (FROMEXPER | FROMRACE | FROMOUTSIDE)) {
         val = 100;
-    } else if (u.uprops[which].intrinsic & HAVEPARTIAL) {
-        val = (u.uprops[which].intrinsic & TIMEOUT);
+    } else if (*word & HAVEPARTIAL) {
+        val = (int) (*word & TIMEOUT);
 
         if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
             && which == FIRE_RES && val > 50) {
             val = 50; /* Draugr/Vampires intrinsic fire res capped at 50% */
-            u.uprops[which].intrinsic &= ~TIMEOUT;
-            u.uprops[which].intrinsic |= (val | HAVEPARTIAL);
+            *word &= ~TIMEOUT;
+            *word |= (val | HAVEPARTIAL);
         } else if (val > 100) {
             val = 100;
-            u.uprops[which].intrinsic &= ~TIMEOUT;
-            u.uprops[which].intrinsic |= (val | HAVEPARTIAL);
+            *word &= ~TIMEOUT;
+            *word |= (val | HAVEPARTIAL);
         }
     } else {
         /* the TIMEOUT bits only hold a percentage when HAVEPARTIAL is
            set; otherwise a nonzero value is a timed full-strength
            grant (lava-escape fire resistance, mid-meal acid or stone
            resistance) that expires on its own */
-        val = (u.uprops[which].intrinsic & TIMEOUT) ? 100 : 0;
+        val = (*word & TIMEOUT) ? 100 : 0;
     }
+    return val;
+}
+
+/* strip the hero's own layers of a partial-capable resistance: level
+   and race grants go, a partial drops by 'amount' and a timed grant
+   ends; a permanent external grant (an eaten amulet versus poison)
+   stays, and so do worn gear and the form's grant, which the read
+   leaves out; TRUE when the hero's own share went down, so a strip
+   that moved nothing is not reported as a loss */
+boolean
+strip_resistance(int which, int amount)
+{
+    long *word = &u.uprops[which].intrinsic;
+    int before = own_resistance(which);
+
+    *word &= ~(FROMEXPER | FROMRACE);
+    decr_resistance(word, amount);
+    return (own_resistance(which) < before);
+}
+
+/* return the percentage that the hero resists the given property */
+int
+how_resistant(int which)
+{
+    int val;
+
+    /* extrinsics and form based intrinsics always provide 100% */
+    if (u.uprops[which].extrinsic
+        || (u.uprops[which].intrinsic & FROMFORM))
+        val = 100;
+    else
+        val = own_resistance(which);
 
     /* vulnerability lowers the effective resistance */
     switch (which) {

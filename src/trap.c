@@ -5213,15 +5213,11 @@ doicetrap(
                     return;
                 incr_itimeout(&HVulnerable_cold, rnd(75) + 75);
                 You_feel("extremely chilly.");
-            } else {
-                int prev = how_resistant(COLD_RES);
-
-                HCold_resistance &= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-                decr_resistance(&HCold_resistance, rnd(25) + 25);
-                /* a permanent full-strength source survives the strip
-                   untouched; only claim a loss when one happened */
-                if (how_resistant(COLD_RES) < prev)
-                    You_feel("alarmingly cooler.");
+            } else if (strip_resistance(COLD_RES, rnd(25) + 25)) {
+                /* a permanent external grant survives the strip
+                   untouched and worn gear does not hide a loss; only
+                   claim a loss when one happened */
+                You_feel("alarmingly cooler.");
             }
         }
     } else {
