@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-23, after session 255's
-  naming envoy port): 475 rows closed, 143 open
+- Phase 2 status (refreshed 2026-10-23, after session 256's
+  form-bit sweep): 477 rows closed, 144 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -286,10 +286,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 7 SWEEP: race-predicate census, is_bracer() census, inert
+  - 6 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity, racial size
-    macros, base-type oc_material reads, raw reads of intrinsic
-    words that carry 5.0's form / race bits (minted by session 253).
+    macros, base-type oc_material reads.
+    Session 256 closed the form-bit sweep (BUG-2542..2546): a
+    gremlin's curse, an angry god or a disenchanter corpse no
+    longer strips a resistance the hero's form gives - a red
+    dragon keeps its fire resistance, and an unpolymorphed
+    Valkyrie (cold) or Barbarian (poison) reads "You feel cooler."
+    / "You feel a little sick!" once and stays resistant through
+    the role form, as in vanilla (master lost it until the next
+    save / restore). A stripped partial under a ring or the form
+    is now told and ends the curse ("You feel warmer.", "You feel
+    alarmingly cooler." from the ice trap) instead of going
+    silently and taking a second intrinsic. A cockatrice corpse
+    held bare-handed is re-checked when Stoneskin runs out, is
+    cancelled, or the Bracers of the First Circle come off.
     Session 253 closed the status-redraw sweep (BUG-2522..2537):
     a census of EvilHack-authored code found shown values changed
     with no redraw, now fixed - withering cured by prayer, full
@@ -312,7 +324,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 124 LOW: small parity rows, quirks and watch/record-only items.
+  - 126 LOW: small parity rows, quirks and watch/record-only items.
+    Session 256 closed one (the cockatrice re-check, with the
+    form-bit sweep) and minted three: casting Stoneskin while
+    turning to stone does not stop it (master too; needs a
+    ruling), the ice trap's early return skips the damage for a
+    hero already vulnerable to cold (master too), and a
+    dragon-scaled suit's death text names the base suit
+    ("removing ring mail").
     Session 255 minted one: a wished artifact's owner says "The"
     mid-sentence ("Did you think that I would relinquish The
     Tsurugi of Muramasa so easily?"; master too).
@@ -20920,8 +20939,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       half (wishing for an artifact brings its owner) is on the
       branch in master's later form. Battery M (session 254) saw
       it on master: a Grey-elf and two helpers on one naming.
-      CLOSED 2026-10-23 (session 255, commit pending; BUG-2539
-      port, BUG-2540 and BUG-2541 master frozen-unfixed). New
+      CLOSED 2026-10-23 (session 255, b7727e0f3 envoy +
+      6b88b598b owner gate; BUG-2539 port, BUG-2540 and BUG-2541
+      master frozen-unfixed). New
       staticfn naming_envoy() (do_name.c) carries master's final
       block (c895ac258 through 8cfdb7406) in master's RNG order,
       called from oname()'s via_naming arm behind `rn2(3)` before
@@ -20989,7 +21009,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Options: gate confers_luck()'s W_SWAPWEP on u.twoweap (and
       recompute in set_twoweap()), or let setuswapwep() recompute
       for the alternate slot too.
-- [ ] LOW: a bare-handed cockatrice corpse is not re-checked when
+- [x] LOW: a bare-handed cockatrice corpse is not re-checked when
       Stoneskin's stoning resistance ends (minted 2026-10-23,
       session 253 reviewer; master-shared). The STONE_RES timeout
       arm calls wielding_corpse() on uwep / uswapwep when the
@@ -20999,13 +21019,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bare-handed under Stoneskin keeps it safely afterwards. Fix
       shape: the same two wielding_corpse() calls after both clears
       when !Stone_resistance.
+      CLOSED 2026-10-23 (session 256, e7641cea0; BUG-2544 and
+      BUG-2546 master frozen-unfixed, BUG-2545 the BUG-2536
+      follow-on), with the form-bit SWEEP below. Ruled per-cause
+      wording: the expiry calls wielding_corpse() as the STONE_RES
+      arm does ("You are wielding a cockatrice corpse in your bare
+      hands.", killer "resistance timing out while wielding a
+      cockatrice corpse"); cancellation calls selftouch("No longer
+      petrify-resistant, you") behind !uarmg, before the magic
+      resistance return (killer "a cockatrice corpse", the text a
+      polymorphed hero's rehumanize() already gives). Folded as a
+      third site of the class: Shield_off() re-checks after the
+      Bracers of the First Circle (DFNS(AD_STON)) come off, killer
+      "removing / losing bracers while wielding a cockatrice
+      corpse" (wielding_corpse() names bracers by
+      shield_simple_name()). Reviewer CRITICAL folded:
+      maybe_purity_slide_off() now drops the weapon before
+      Shield_off(), since the bracers' re-check could unwield it
+      and leave dropx(NULL).
 - [ ] LOW: a cursed weapon of excellence raises Cha 6 or lower to 18
       (minted 2026-10-23, session 253 reviewer; master-shared; needs
       a ruling). excel_forced_cha() keeps acurr()'s old priority:
       the cursed arm needs tmp > 6, so tmp <= 6 falls through to the
       "tmp < 18 and not blessed" arm and gets 18. Options: a cursed
       one forces at most 6 (tmp stands at or below it), or keep.
-- [ ] SWEEP: raw reads and clears of intrinsic words that carry 5.0's
+- [x] SWEEP: raw reads and clears of intrinsic words that carry 5.0's
       form / race bits (minted 2026-10-23, session 253, from
       BUG-2537's follow-up check). set_uasmon() PROPSETs FROMFORM into
       the same u.uprops[].intrinsic word that EvilHack's timed spells
@@ -21022,6 +21060,98 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       against 5.0's ~INTRINSIC and the form's later restore).
       Census every PROPSET property's raw H-word tests and writes in
       EvilHack-authored code (`git diff 15fbc6b21 HEAD -- src/`).
+      CLOSED 2026-10-23 (session 256, bd4db68c9 curse strip +
+      e7641cea0 cockatrice re-checks; BUG-2542 master
+      frozen-unfixed, BUG-2543 branch regression from 3d94580ad). CENSUS: 295 of the 86,044 added lines touch a
+      FROMFORM-stamped word; the Plan stress test re-walked every
+      write. Unpolymorphed, set_uasmon()'s "form" is the ROLE
+      monster, so a Valkyrie's MR_COLD and a Barbarian's MR_POISON
+      are FROMFORM too. One producer: attrcurse()'s six
+      partial-resistance arms tested `if (HFoo)` and masked
+      `&= (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL)`, stripping the
+      form's grant (a red dragon lost its fire resistance, a
+      Valkyrie her cold resistance, until the next polymorph,
+      rehumanize or save / restore; the gremlin gained it; master
+      the same, from 17442b734's partial-intrinsics rewrite).
+      Sibling (3d94580ad): the before / after how_resistant()
+      compare read a worn source's 100 as no drop, so a stripped
+      partial (and the level / race tags) went silently and the
+      switch stripped a second slot; doicetrap()'s strip arm the
+      same. Safe as is: phasing_dialogue()'s `== 15` (a form or
+      permanent phaser keeps phasing; HPasses_trees is never
+      timed), invoke_phasing()'s age (behind `if (Passes_walls)`),
+      the trap grant guards, the magic-trap toggles, the telepathy
+      tests, apply.c's `HJumping & ~INTRINSIC` (master PROPSETs
+      JUMPING too), the displacement word, the eat.c gates. Ruled
+      (AskUserQuestion x3, all as recommended): spare the form, for
+      unpolymorphed Valkyries and Barbarians too (vanilla 3.6 /
+      5.0: "You feel cooler." once, the level-1 grant goes, the
+      gremlin gains it, the role form keeps her resistant); tell
+      and stop under a worn source (master's shape); per-cause
+      cockatrice wording (the LOW row above). FIX: potion.c
+      own_resistance() (the hero's own layers - FROMEXPER /
+      FROMRACE / FROMOUTSIDE, a partial with the draugr / vampire
+      fire cap, a timed grant - without gear or the form;
+      how_resistant() now calls it, unchanged in result) and
+      strip_resistance(which, amount) (drops FROMEXPER / FROMRACE,
+      decr_resistance(), TRUE on a real drop of the hero's own
+      share); attrcurse()'s six arms and doicetrap()'s strip arm
+      call it, RNG order unchanged. Stress test also found sit.c's
+      "a divine grant pins the read at 100" false (crowning stores
+      a 100% partial; the only FROMOUTSIDE grant among the six is
+      an eaten amulet versus poison). Reviewer pass 1 FAIL (the
+      purity CRITICAL, folded; LOWs folded: the bracers name, the
+      helper's mask and comment; a clay golem with Unchanging,
+      Stoneskin and a cockatrice corpse now turns to a stone golem
+      before the cancel kill, accepted), pass 2 PASS. Battery (PRE
+      8b124fa8, POST 5a2ca01e, MASTER scratch fbb4fef3): A 17 / 17
+      PASS - a red dragon's form-only fire skipped (POST "You feel
+      less jumpy." from the next slot, 0x20000000 kept; PRE "You
+      feel warmer.", 0), form plus a 60% partial ("warmer", form
+      kept), Valkyrie 0x21000000 -> 0x20000000 with ^X still
+      cold resistant and a second proc silent (PRE 0, healed by
+      save / restore), ring plus a 40% partial (POST "warmer" and
+      stop; PRE silent, teleportitis stripped too), the
+      FROMOUTSIDE pin, a Barbarian's poison, the draugr cap (a
+      stored 100 stripped by 51 to 0 on both), the ice trap under
+      a ring (POST "You feel alarmingly cooler."; PRE silent), save
+      / restore, a night gremlin against a red dragon (POST
+      mon_give_prop() gets 0; PRE the gremlin gains MR_FIRE); B
+      all PASS - expiry, cancellation (also magic resistant),
+      polymorphed (one touch line, then "You return to human
+      form!"), the bracers, gloves and gargoyle-form controls, the
+      purity slide-off (corpse dropped first, no touch, no panic),
+      a real death (xlogfile "petrified by resistance timing out
+      while wielding a cockatrice corpse"); M 4 / 4 - master's
+      Valkyrie loses cold resistance until a save / restore, its
+      red dragon loses the form's fire resistance, neither the
+      Stoneskin expiry nor the bracers re-check. Paniclogs empty.
+- [ ] LOW: casting Stoneskin while turning to stone does not stop the
+      petrification (minted 2026-10-23, session 256 Plan stress
+      test; master-shared; needs a ruling). cast_stoneskin()
+      (spell.c) sets HStone_resistance's I_SPECIAL with no Stoned
+      check, while gaining stoning resistance cures it everywhere
+      else (yellow dragon scales on, an artifact's defense,
+      polymorph). Options: make_stoned(0L, "You no longer seem to
+      be petrifying.", ...) when Stoned, or keep (the spell guards
+      against new stoning only).
+- [ ] LOW: doicetrap()'s innate arm returns early for a hero already
+      vulnerable to cold (minted 2026-10-23, session 256 Plan stress
+      test; master-shared). `if (Vulnerable_cold) return;` inside
+      the resistant branch skips the damage roll, item destruction
+      and the ice-encrusting step for a role / race / form cold
+      resistant hero who is already vulnerable; the intent is only
+      to skip a second vulnerability. Fix shape: guard the
+      incr_itimeout() and its line instead of returning.
+- [ ] LOW: a dragon-scaled suit's death text names the base suit
+      (minted 2026-10-23, session 256 battery B; branch: master
+      never re-checked dragon armor). wielding_corpse()'s killer
+      uses simpleonames(), so taking off a yellow-scaled ring mail
+      while wielding a cockatrice corpse reads "petrified by
+      removing ring mail while wielding a cockatrice corpse". Also
+      seen: maybe_purity_slide_off() names the corpse "corpse"
+      ("Your corpse and pair of runed bracers are forced from your
+      hands!"), simpleonames() again.
 - [ ] LOW: livelog line format vs master (minted 2026-10-21, session
       248, ruled). Master's 0.9.3 livelog line carries `realtime=`
       (play seconds, `(long)` cast 5a17e1fd7) and names the player
@@ -32427,6 +32557,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-23 | Form-bit sweep slice rulings (session 256; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: the SWEEP row "raw reads and clears of intrinsic words that carry 5.0's form / race bits" plus the LOW cockatrice re-check row, ahead of the SWEEP alone, a batch of ruled LOW rows, or nasties[]. (1) SPARE THE FORM: attrcurse() never strips the FROMFORM grant; the hero's own layers underneath (eaten partial, level, race) still go with the message (vanilla 5.0's `& INTRINSIC` shape and the ice trap's BUG-1451 rule; master's strip came incidentally from 17442b734). (2) TELL AND STOP under a worn source: the strip is measured on the hero's own layers, so a partial lost under a ring of fire resistance reads "You feel warmer." and ends the curse (master's shape), and the ice trap's "You feel alarmingly cooler." the same; a FROMOUTSIDE grant still pins (BUG-1357). (3) VALKYRIES AND BARBARIANS follow the same rule: unpolymorphed, set_uasmon()'s form is the role monster (MR_COLD / MR_POISON), so the curse reads "You feel cooler." once, the level-1 grant goes, the gremlin gains it, and the role form keeps her resistant (vanilla 3.6 / 5.0; master lost it until the next save / restore). (4) PER-CAUSE COCKATRICE WORDING: Stoneskin's expiry uses wielding_corpse() (killer "resistance timing out while wielding a cockatrice corpse"), cancellation selftouch("No longer petrify-resistant, you") (killer "a cockatrice corpse"). Taken without asking (approved plan or review): the Bracers of the First Circle's removal re-checks too (killer "removing / losing bracers ..."), maybe_purity_slide_off() drops the weapon before Shield_off() (reviewer CRITICAL), and a clay golem with Unchanging, Stoneskin and a wielded cockatrice corpse now turns to stone before the cancel kill. | maintainer |
 | 2026-10-23 | Naming envoy slice rulings (session 255; AskUserQuestion x2, three questions, all as recommended). (0) SLICE: the MED row "master's naming envoy was never ported" alone, ahead of the same row plus the form-bit SWEEP census, that census alone, or a batch of ruled LOW rows. (1) WIELD ON ARRIVAL (intent over master's live play): master's mon_wield_item() ran with weapon_check 0 and did nothing, so master's Grey-elf spent its first adjacent turn wielding; the port sets NEED_HTH_WEAPON first, as the wish-owner block does - "The Grey-elf wields ...!" right after its speech, a cursed melee weapon welds at arrival, bow and thrown-dagger play unchanged. (2) SIGHT GATE IN BOTH BLOCKS: canseemon() replaces !Blind for the envoy's see / hear lines and speaker and for the wish owner's "puff of smoke" / "small explosion" lines and speaker, so an engulfed or underwater hero, or a newcomer out of sight, hears it and reads "Someone says:" instead of "You see it ..." / "It says:"; blind heroes read master's lines. Taken without asking (approved plan): MM_NOMSG on all three makemon() calls (master's makemon() was silent; the vine / covetous / pet-arrival precedent); SetVoice() before each verbalize(); master's redundant m_dowear() and msleeping = 0 kept. | maintainer |
 | 2026-10-23 | Artifact-strip slice rulings (session 254; AskUserQuestion x2, two questions, both as recommended). (0) SLICE: the MED row "a wielded weapon turned into an artifact keeps what its object properties granted" alone, ahead of the same row plus the cursed-excellence Cha LOW, the form-bit SWEEP census, or the MED plus that SWEEP. (1) NAMING ENVOY: master c895ac258's do_name.c half (a hostile grey elf, maybe two green elves, when #naming Sting or Orcrist), found unported by the Plan stress test in the same oname() arm, gets a MED row of its own, not a fold. Taken without asking (approved plan): one helper, strip_oprops(), that briefly zeroes oartifact so the revoke goes through set_artifact_intrinsic()'s plain-weapon arm, rather than a copy of its three arms or a hook in artifact_exists(); the dip and Dirge sites keep an explicit call; the planned doaffixgem() Luck fold was dropped (a stress-test finding: the blacksmith hammer is no weptool, and the luckstone's useup() already recomputes Luck); the alternate-slot excellence Luck quirk goes to a LOW row needing a ruling. | maintainer |
 | 2026-10-23 | disp.botl sweep rulings (session 253; AskUserQuestion x2, four questions, all as recommended). (0) SLICE: the SWEEP row "status values that change without disp.botl", ahead of nasties[] and the ruled small rows. (1) ARTIFACT STRIP: a MED row of its own (a wielded weapon turned into an artifact keeps its object properties' wield grants; Luck and Cha stuck for excellence), not folded. (2) CANCELLATION: fold all three - Stoneskin's stoning resistance ends with it (BUG-2536, master too); reflection and the vulnerabilities clear only their TIMEOUT part, with each line printed only when a timed effect actually ended (BUG-2537). (3) EXCELLENCE CHA: only excellence weapons count (master reads both hands' beatitude). [Premise correction, battery B: the question's example - an uncursed excellence main hand with a blessed plain off-hand giving Cha 25 - was wrong; that mix gave 18 on both builds because the uncursed main hand meets the 18 arm first. The case the ruling changes is a blessed excellence main hand with a plain non-blessed off-hand: 18 before, 25 now.] Taken without asking (approved plan or reviewer): set_twoweap() and every weapon-slot setworn() / setnotworn() redraw whatever weaponstatus says; maybe_purity_slide_off() runs before the per-input find_ac(); #name calls encumber_msg(); one per-input classify_terrain() after the vision block instead of per-site calls; extremeattr() shares excel_forced_cha(); the reflection fade warning, the reflection cast and ureflects() read only the TIMEOUT part; the cursed-excellence Cha <= 6 quirk and the cockatrice-corpse re-check go to LOW rows. | maintainer |
