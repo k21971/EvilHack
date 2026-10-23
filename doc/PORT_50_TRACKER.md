@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-23, after session 254's
-  artifact-strip fix): 474 rows closed, 143 open
+- Phase 2 status (refreshed 2026-10-23, after session 255's
+  naming envoy port): 475 rows closed, 143 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -28,10 +28,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: door-material colors (an unported master feature; it
-    stays with Phase 4), and master's naming envoy (an unported
-    master feature: #naming Sting or Orcrist brings a hostile grey
-    elf; minted by session 254).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4).
+    Session 255 closed master's naming envoy (BUG-2539..2541):
+    #naming Sting or Orcrist brings a hostile Grey-elf 2 times in
+    3, which says the artifact is not yours to take, with up to
+    two Green-elves. Ruled: the Grey-elf arrives wielding (master's
+    wield call never fired, so there it spent its first turn next
+    to the hero wielding), and an envoy or a wished artifact's
+    owner the hero cannot see (engulfed, underwater, out of sight)
+    is heard, not seen - "Someone says:" where master printed
+    "It says:".
     Session 254 closed the artifact strip (BUG-2538, master
     frozen-unfixed): a wielded weapon turned into an artifact (#name
     Sting / Orcrist, crowning, the Excalibur dip, the Dirge altar)
@@ -305,7 +312,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 123 LOW: small parity rows, quirks and watch/record-only items.
+  - 124 LOW: small parity rows, quirks and watch/record-only items.
+    Session 255 minted one: a wished artifact's owner says "The"
+    mid-sentence ("Did you think that I would relinquish The
+    Tsurugi of Muramasa so easily?"; master too).
     Session 254 minted one: a weapon of excellence in the
     alternate-weapon slot counts toward Luck without two-weapon
     combat, so the stored Luck depends on what last recomputed it
@@ -20893,7 +20903,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       moreluck 3 after the excellence dip, EWarning after #name
       Sting; master's time catch-all redraws the Cha). Paniclogs
       empty.
-- [ ] MED: master's naming envoy was never ported (minted
+- [x] MED: master's naming envoy was never ported (minted
       2026-10-23, session 254, by the artifact-strip slice's Plan
       stress test; ruled a row, not a fold). Master c895ac258
       ("Naming/wishing for artifacts tweaks", its do_name.c half)
@@ -20910,6 +20920,62 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       half (wishing for an artifact brings its owner) is on the
       branch in master's later form. Battery M (session 254) saw
       it on master: a Grey-elf and two helpers on one naming.
+      CLOSED 2026-10-23 (session 255, commit pending; BUG-2539
+      port, BUG-2540 and BUG-2541 master frozen-unfixed). New
+      staticfn naming_envoy() (do_name.c) carries master's final
+      block (c895ac258 through 8cfdb7406) in master's RNG order,
+      called from oname()'s via_naming arm behind `rn2(3)` before
+      the literacy conduct. All three makemon() calls add MM_NOMSG
+      (5.0's makemon() announces "suddenly appears"; master's was
+      silent); SetVoice() before verbalize(). Ruled (AskUserQuestion,
+      both as recommended): (1) the Grey-elf arrives wielding -
+      weapon_check = NEED_HTH_WEAPON before mon_wield_item(), as the
+      wish-owner block does; master's call ran with weapon_check 0
+      and returned at once, so there the elf spent its first
+      adjacent turn wielding (BUG-2540); (2) canseemon() instead of
+      !Blind for the see / hear lines and the speaker, in the envoy
+      and in objnam.c's wish-owner block, so an engulfed or
+      underwater hero, or a newcomer out of sight, gets the hearing
+      line and "Someone says:" where master printed "You see it
+      step out of the shadows." / "There is a puff of smoke and a
+      figure appears!" and "It says:" (BUG-2541; blind heroes read
+      exactly master's lines). Plan stress test: master's wield call
+      is dead; SetVoice() placement; the mtmp lifetime across the
+      helper makemon() calls; debug_mongen blocks every makemon().
+      Reviewer PASS (LOWs, no action: mon_wield_item()'s uncast
+      return, as master and the sibling; an invisible wish owner
+      now reads "smell smoke" while not blind). Battery: A (POST
+      8b124fa8) 10 / 10 PASS - sighted Sting and Orcrist (master's
+      lines, then "The Grey-elf wields ...!", no "suddenly
+      appears"; one Grey-elf quaffed invisibility before its first
+      strike, another struck at once), the gate forced to 0
+      (nothing), Blind ("You hear movement nearby." / "Someone
+      says:"), Deaf (sight line only; a cursed short sword welded
+      at arrival), hallucinating ("the second coming of the
+      Prophet", a random speaker), engulfed by a fog cloud (the
+      hearing lines), Grey-elf genocided (nothing, no helpers), an
+      elven Ranger killing the envoy (no murder, no Luck or
+      alignment loss), save / restore (elves hostile and armed); B
+      (PRE 8edf9127 / POST) 7 / 7 PASS - PRE names Sting three
+      times with no envoy; the wish owner sighted and blind
+      unchanged, engulfed PRE "There is a puff of smoke and a
+      figure appears!  It says:" / POST "You hear a small
+      explosion and smell smoke.  Someone says:", the hero still
+      engulfed after the owner arrives on both; M (scratch
+      c444f6a3a) 4 / 4 - master's sighted lines, engulfed "You see
+      it step out of the shadows.  It says:", the first adjacent
+      turn a wield ("The Grey-elf wields a copper elven
+      broadsword!", no attack) and the strike the turn after, the
+      engulfed owner wish "It says:". Paniclogs empty.
+- [ ] LOW: a wished artifact's owner says "The" mid-sentence
+      (minted 2026-10-23, session 255, battery B; master-shared).
+      The wish-owner block (objnam.c) passes artiname()'s name to
+      verbalize("Did you think that I would %s %s %s?"), so an
+      artifact whose name starts with "The" reads "...relinquish The
+      Tsurugi of Muramasa so easily?" (master objnam.c the same).
+      The naming envoy is not affected (only Sting and Orcrist can
+      be named). Candidate: the() lowercases a leading "The " - check
+      it leaves the other names bare ("Xiuhcoatl", "Grayswandir").
 - [ ] LOW: a weapon of excellence in the alternate-weapon slot
       counts toward Luck without two-weapon combat (minted
       2026-10-23, session 254 Plan stress test; master-shared;
@@ -32361,6 +32427,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-23 | Naming envoy slice rulings (session 255; AskUserQuestion x2, three questions, all as recommended). (0) SLICE: the MED row "master's naming envoy was never ported" alone, ahead of the same row plus the form-bit SWEEP census, that census alone, or a batch of ruled LOW rows. (1) WIELD ON ARRIVAL (intent over master's live play): master's mon_wield_item() ran with weapon_check 0 and did nothing, so master's Grey-elf spent its first adjacent turn wielding; the port sets NEED_HTH_WEAPON first, as the wish-owner block does - "The Grey-elf wields ...!" right after its speech, a cursed melee weapon welds at arrival, bow and thrown-dagger play unchanged. (2) SIGHT GATE IN BOTH BLOCKS: canseemon() replaces !Blind for the envoy's see / hear lines and speaker and for the wish owner's "puff of smoke" / "small explosion" lines and speaker, so an engulfed or underwater hero, or a newcomer out of sight, hears it and reads "Someone says:" instead of "You see it ..." / "It says:"; blind heroes read master's lines. Taken without asking (approved plan): MM_NOMSG on all three makemon() calls (master's makemon() was silent; the vine / covetous / pet-arrival precedent); SetVoice() before each verbalize(); master's redundant m_dowear() and msleeping = 0 kept. | maintainer |
 | 2026-10-23 | Artifact-strip slice rulings (session 254; AskUserQuestion x2, two questions, both as recommended). (0) SLICE: the MED row "a wielded weapon turned into an artifact keeps what its object properties granted" alone, ahead of the same row plus the cursed-excellence Cha LOW, the form-bit SWEEP census, or the MED plus that SWEEP. (1) NAMING ENVOY: master c895ac258's do_name.c half (a hostile grey elf, maybe two green elves, when #naming Sting or Orcrist), found unported by the Plan stress test in the same oname() arm, gets a MED row of its own, not a fold. Taken without asking (approved plan): one helper, strip_oprops(), that briefly zeroes oartifact so the revoke goes through set_artifact_intrinsic()'s plain-weapon arm, rather than a copy of its three arms or a hook in artifact_exists(); the dip and Dirge sites keep an explicit call; the planned doaffixgem() Luck fold was dropped (a stress-test finding: the blacksmith hammer is no weptool, and the luckstone's useup() already recomputes Luck); the alternate-slot excellence Luck quirk goes to a LOW row needing a ruling. | maintainer |
 | 2026-10-23 | disp.botl sweep rulings (session 253; AskUserQuestion x2, four questions, all as recommended). (0) SLICE: the SWEEP row "status values that change without disp.botl", ahead of nasties[] and the ruled small rows. (1) ARTIFACT STRIP: a MED row of its own (a wielded weapon turned into an artifact keeps its object properties' wield grants; Luck and Cha stuck for excellence), not folded. (2) CANCELLATION: fold all three - Stoneskin's stoning resistance ends with it (BUG-2536, master too); reflection and the vulnerabilities clear only their TIMEOUT part, with each line printed only when a timed effect actually ended (BUG-2537). (3) EXCELLENCE CHA: only excellence weapons count (master reads both hands' beatitude). [Premise correction, battery B: the question's example - an uncursed excellence main hand with a blessed plain off-hand giving Cha 25 - was wrong; that mix gave 18 on both builds because the uncursed main hand meets the 18 arm first. The case the ruling changes is a blessed excellence main hand with a plain non-blessed off-hand: 18 before, 25 now.] Taken without asking (approved plan or reviewer): set_twoweap() and every weapon-slot setworn() / setnotworn() redraw whatever weaponstatus says; maybe_purity_slide_off() runs before the per-input find_ac(); #name calls encumber_msg(); one per-input classify_terrain() after the vision block instead of per-site calls; extremeattr() shares excel_forced_cha(); the reflection fade warning, the reflection cast and ureflects() read only the TIMEOUT part; the cursed-excellence Cha <= 6 quirk and the cockatrice-corpse re-check go to LOW rows. | maintainer |
 | 2026-10-23 | Strength-bonus slice rulings (session 252; AskUserQuestion x2, four questions, three as recommended). (0) SLICE: the abon() / dbon() MED row, ahead of the session 250-251 LOW rows, the plannable ruled list and the disp.botl sweep. (1) TWO-HANDED: master's 1.5x (((d*3)+1)/2, so a penalty stays as it is) only for a blow struck WITH a two-handed weapon: hitobj == uwep or uswapwep, WEAPON / TOOL class, raw oc_bimanual (giants one-handing included, per 73a1c3ef2). Covered: melee, an applied polearm, a giant's off-hand two-hander, and the dig self-hits. A thrown dagger, a kicked object and a shield bash get the plain bonus, and so does a wielded bulky armor. Master keyed the 1.5x on uwep's oc_big bit for every dbon() use (BUG-2521, frozen-unfixed). Folded under this ruling: a wielded boulder, a boulder filling a pit and a dragged ball (all plain; master 1.5x), and no u.twoweap test (a shattering glass primary clears the flag before the off-hand swings). (2) TWO HITS: the full bonus on each hit of a two-weapon attack or a double punch (master); 5.0's 3/4 and its melee-only 3/2 are removed. (3) abon() 18/50: KEEP 5.0's +2 at exactly 18/50 (gnome and orc cap), over the recommended master / vanilla 3.6 +1; abon() unchanged. |
