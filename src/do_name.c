@@ -10,6 +10,7 @@ staticfn char *name_from_player(char *, const char *, const char *);
 staticfn void do_mgivenname(void);
 staticfn boolean alreadynamed(struct monst *, char *, char *) NONNULLPTRS;
 staticfn void do_oname(struct obj *) NONNULLARG1;
+staticfn void naming_envoy(struct obj *) NONNULLARG1;
 staticfn char *docall_xname(struct obj *) NONNULLARG1;
 staticfn void namefloorobj(void);
 
@@ -371,6 +372,51 @@ do_oname(struct obj *obj)
         (void) encumber_msg();
 }
 
+/* naming Sting or Orcrist brings an envoy of elvenkind to take it
+   back: a hostile grey elf, maybe with a green elf or two */
+staticfn void
+naming_envoy(struct obj *obj)
+{
+    struct monst *mtmp;
+    boolean seen;
+
+    mtmp = makemon(&mons[PM_GREY_ELF], u.ux, u.uy,
+                   MM_ADJACENTOK | MM_ANGRY | MM_NOMSG);
+    if (!mtmp)
+        return;
+    seen = canseemon(mtmp);
+    if (seen) {
+        if (Hallucination)
+            You("see the second coming of the Prophet.");
+        else
+            You("see %s step out of the shadows.", a_monnam(mtmp));
+    } else if (!Deaf) {
+        if (Hallucination)
+            You("hear the sounds of silence.");
+        else
+            You("hear movement nearby.");
+    }
+    if (!Deaf) {
+        pline("%s says:", seen ? Monnam(mtmp) : "Someone");
+        SetVoice(mtmp, 0, 80, 0);
+        verbalize("%s is not yours to take!  %s it!",
+                  artiname(obj->oartifact),
+                  rn2(2) ? "Relinquish" : "Return");
+    }
+    /* random chance of some helpers */
+    if (rn2(3))
+        (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy,
+                       MM_ADJACENTOK | MM_ANGRY | MM_NOMSG);
+    if (rn2(3))
+        (void) makemon(&mons[PM_GREEN_ELF], u.ux, u.uy,
+                       MM_ADJACENTOK | MM_ANGRY | MM_NOMSG);
+    mtmp->msleeping = 0;
+    m_dowear(mtmp, TRUE);
+    /* a new monster wants no weapon yet; arrive armed */
+    mtmp->weapon_check = NEED_HTH_WEAPON;
+    mon_wield_item(mtmp);
+}
+
 struct obj *
 oname(
     struct obj *obj,  /* item to assign name to */
@@ -419,6 +465,11 @@ oname(
         if (obj->unpaid)
             alter_cost(obj, 0L);
         if (via_naming) {
+            /* naming an artifact has consequences, much like wishing
+               for one... not as bad as a player monster or a quest
+               nemesis, but these don't come for free either */
+            if (rn2(3))
+                naming_envoy(obj);
             /* violate illiteracy conduct since successfully wrote arti-name */
             if (!u.uconduct.literate++)
                 livelog_printf(LL_CONDUCT | LL_ARTIFACT,
