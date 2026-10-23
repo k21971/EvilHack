@@ -402,8 +402,10 @@ oname(
     if (lth)
         artifact_exists(obj, name, TRUE, oflgs);
     if (obj->oartifact) {
-        /* artifacts do not carry object properties */
-        obj->oprops = obj->oprops_known = 0L;
+        /* artifacts do not carry object properties; this also takes
+           back what they granted a wielded weapon, before the
+           artifact's own grants below */
+        strip_oprops(obj);
         /* artifacts cannot have forging quality or affixed gems */
         obj->forged_qual = FQ_NORMAL;
         obj->affixed_gem = 0;

@@ -158,6 +158,7 @@ extern struct obj *mk_particular_artifact(int);
 extern struct obj *mk_artifact(struct obj *, aligntyp, uchar, boolean);
 extern long enforce_oprops_mutex(long);
 extern struct obj *create_oprop(struct obj *, boolean);
+extern void strip_oprops(struct obj *) NONNULLPTRS;
 extern const char *artifact_name(const char *, short *, boolean) NONNULLARG1;
 extern boolean exist_artifact(int, const char *) NONNULLPTRS;
 extern void artifact_exists(struct obj *, const char *, boolean, unsigned) ;

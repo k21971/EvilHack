@@ -664,6 +664,34 @@ create_oprop(struct obj *obj, boolean allow_detrimental)
     return otmp;
 }
 
+/* obj is becoming an artifact, which carries no object properties;
+   revoke what they granted it as a wielded plain weapon, since a
+   later unwield revokes by the artifact's own fields and would leave
+   them seated, then recompute Luck and redraw the Cha that a weapon
+   of excellence forces */
+void
+strip_oprops(struct obj *obj)
+{
+    long props = obj->oprops;
+    char art = obj->oartifact;
+
+    if (props && (obj == uwep || obj == uswapwep)) {
+        /* oname() calls this after artifact_exists() has set
+           oartifact; revoke as the plain weapon */
+        obj->oartifact = 0;
+        /* the off-hand slot grants only while u.twoweap; revoking it
+           regardless is harmless, as in setworn()'s teardown */
+        set_artifact_intrinsic(obj, FALSE,
+                               (obj == uwep) ? W_WEP : W_SWAPWEP);
+        obj->oartifact = art;
+    }
+    obj->oprops = obj->oprops_known = 0L;
+    if ((props & ITEM_EXCEL) && carried(obj)) {
+        set_moreluck();
+        disp.botl = TRUE;
+    }
+}
+
 /*
  * Returns the full name (with articles and correct capitalization) of an
  * artifact named "name" if one exists, or NULL, it not.

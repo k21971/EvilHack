@@ -2495,7 +2495,7 @@ sacrifice_your_race(
         && !(uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
         && !exist_artifact(LONG_SWORD, artiname(ART_DIRGE))) {
         Your("sword melts in your hand and transforms into something new!");
-        uwep->oprops = uwep->oprops_known = 0L;
+        strip_oprops(uwep);
         uwep->otyp = LONG_SWORD;
         uwep = oname(uwep, artiname(ART_DIRGE), ONAME_GIFT | ONAME_KNOW_ARTI);
         discover_artifact(ART_DIRGE);
