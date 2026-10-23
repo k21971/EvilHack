@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-23, after session 252's
-  strength-bonus slice): 472 rows closed, 139 open
+- Phase 2 status (refreshed 2026-10-23, after session 253's
+  disp.botl sweep): 473 rows closed, 141 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -28,8 +28,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 1 MED: door-material colors (an unported master feature; it
-    stays with Phase 4).
+  - 2 MED: door-material colors (an unported master feature; it
+    stays with Phase 4), and a wielded weapon turned into an
+    artifact keeping what its object properties granted (minted by
+    session 253; master-shared).
     Session 252 closed master's strength damage bonus (BUG-2520,
     2521): dbon() has master's table, and a blow struck with a
     two-handed weapon gets 1.5x of it (melee, an applied polearm,
@@ -270,11 +272,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 7 SWEEP: race-predicate census, is_bracer() census, inert
+  - 6 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity, racial size
-    macros, base-type oc_material reads, status values that change
-    without disp.botl (session 248: 5.0 dropped 3.6's per-command
-    status redraw, ruled keep and census).
+    macros, base-type oc_material reads.
+    Session 253 closed the status-redraw sweep (BUG-2522..2537):
+    a census of EvilHack-authored code found shown values changed
+    with no redraw, now fixed - withering cured by prayer, full
+    healing or cure sickness; sea dragon scales ending
+    strangulation; a magic trap's Pw explosion; lava sinking; the
+    aasimar stat drain; an attribute artifact or a weapon of
+    excellence leaving the hands or changing beatitude (every
+    weapon-slot change now redraws); the Gauntlets of Purity
+    sliding off after the AC recount; #name Sting / Orcrist
+    changing weight; Croesus's touch; the terrain field (one
+    per-input reclassify), the ice and glowhands conditions. Ruled:
+    a weapon of excellence sets Cha by its own beatitude only (the
+    other hand's plain weapon no longer counts); cancellation also
+    ends Stoneskin's stoning resistance, and spares a form's or
+    race's reflection and vulnerabilities.
   - 11 untagged: port gaps (Muse offense items, creeping mound
     meatfood(), monster chest_trap(), nasties[] reconcile,
     des-placed mplayer sex, look_at_monster buffer, "pairs of"),
@@ -282,7 +297,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 120 LOW: small parity rows, quirks and watch/record-only items.
+  - 122 LOW: small parity rows, quirks and watch/record-only items.
+    Session 253 minted two: a bare-handed cockatrice corpse is not
+    re-checked when Stoneskin's stoning resistance ends (expiry or
+    cancellation; master too), and a cursed weapon of excellence
+    raises Cha 6 or lower to 18 (master too; needs a ruling).
     Session 252 minted two: a boulder falling on a trapped monster
     fills the pit even when the monster lives (all three trees),
     and 5.0's wield-then-queue apply costs an extra action, with
@@ -20744,7 +20763,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       folded the archive's 5.0-shared status carries (BUG-2474..
       2483, re-ports of BUG-1012..1103) and 5.0's initblstats[]
       order bug (BUG-2473).
-- [ ] SWEEP: status values that change without disp.botl (minted
+- [x] SWEEP: status values that change without disp.botl (minted
       2026-10-21, session 248, ruled). Vanilla 3.6 and master do a
       full status update after every non-running command while
       `time` is on (allmain.c `else if (flags.time && (!context.move
@@ -20765,6 +20784,81 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Instance fixed 2026-10-21 (session 250, BUG-2496, shared with
       5.0 and master): gold lost in a fountain (#dip) left $ stale
       until ^R ("$:5000" with money_cnt() 4860).
+      CLOSED 2026-10-23 (session 253, 65f52c1a1;
+      BUG-2522..2537). Census: three Explore agents read ~300
+      status-state writes among the lines `git diff 15fbc6b21 HEAD
+      -- src/` adds (conditions; HP / Pw / attributes / alignment /
+      gold / level / hunger / title; AC / encumbrance / weapon /
+      armor / terrain); a Plan agent stress-tested the fixes and
+      the reviewer found two more paths (extremeattr(),
+      setnotworn()). Fixed: withering cleared by prayer, full
+      healing or cure sickness (2522); sea dragon scales ending
+      strangulation (2523); a magic trap's Pw explosion (2524,
+      upstream lines); lava sinking HP (2525); the aasimar stat
+      drain (2526); sentient_arise()'s HP (2527); an attribute
+      artifact leaving the hands - #twoweapon off, given to a pet,
+      stolen - now that set_twoweap() and every weapon-slot
+      setworn() / setnotworn() redraw (2528); a weapon of
+      excellence's beatitude changes, with the ruled Cha rule shared
+      by acurr() and extremeattr() (2529); the Gauntlets of Purity
+      sliding off after the per-input AC recount (2530); #name Sting
+      / Orcrist changing weight in a free action (2531); Croesus's
+      touch / metal-to-wood on a carried item (2532); the terrain
+      field, by one per-input classify_terrain() (2533, 5.0-shared);
+      the ice condition (2534); the glowhands condition (2535,
+      upstream). Folded by ruling: cancellation's Stoneskin stoning
+      resistance (2536, master too) and the reflection /
+      vulnerability form bits EvilHack's timed-spell code misread
+      (2537). Safe by design, no change: AC and encumbrance inputs
+      changed inside a time-taking action (5.0's per-input find_ac()
+      and per-turn encumber_msg() redraw them before the next
+      prompt); conditions set through make_*() / set_utrap() /
+      float_*() / u_slow_down(); gold moved through addinv() /
+      freeinv() / money2u() / money2mon().
+      Battery (two game-testers, PRE 50532651 vs POST fe5cf50e): A
+      9/9 and B 9/9 PASS on POST, PRE stale on every leg that could
+      show it (sentient_arise() and #name are redrawn on PRE by
+      done_timeout() / getobj(); #name's gain is the capacity message
+      at once). Rulings shown: a blessed excellence main hand with a
+      plain off-hand reads Cha 25 (PRE 18); an Unchanging silver
+      dragon keeps reflection and a form vulnerability prints no
+      false line after cancellation. Paniclogs empty; save / restore
+      clean.
+- [ ] MED: a wielded weapon turned into an artifact keeps what its
+      object properties granted (minted 2026-10-23, session 253, by
+      the disp.botl census's Plan stress test; master-shared; ruled
+      a row of its own). oname()'s artifact arm (#name Sting /
+      Orcrist, crowning gifts), the Excalibur dip (fountain.c) and
+      the Dirge altar (pray.c) zero obj->oprops without revoking the
+      wield grants set_artifact_intrinsic() made from them
+      (ITEM_SEARCHING / ITEM_WARNING / ITEM_ESP -> ESearching /
+      EWarning / ETelepat W_WEP); the later unwield revokes by the
+      new artifact's own fields, so a wielded long sword of
+      telepathy dipped into Excalibur leaves extrinsic telepathy on
+      for good. A weapon of excellence leaves u.moreluck and its
+      forced Cha stuck (confers_luck() is FALSE once the property is
+      gone, so bless() skips set_moreluck()). Fix shape: one helper,
+      called before each of the four clears, that revokes the grants
+      while oartifact is still 0 (set_artifact_intrinsic(obj, 0,
+      W_WEP / W_SWAPWEP)), clears the properties, then runs
+      set_moreluck() and sets disp.botl. Own battery (Excalibur dip
+      and a crowning with a wielded long sword of telepathy).
+- [ ] LOW: a bare-handed cockatrice corpse is not re-checked when
+      Stoneskin's stoning resistance ends (minted 2026-10-23,
+      session 253 reviewer; master-shared). The STONE_RES timeout
+      arm calls wielding_corpse() on uwep / uswapwep when the
+      resistance ends (timeout.c), but the STONESKIN expiry and,
+      since BUG-2536, cancellation clear the spell's I_SPECIAL bit
+      with no such check, so a hero wielding a cockatrice corpse
+      bare-handed under Stoneskin keeps it safely afterwards. Fix
+      shape: the same two wielding_corpse() calls after both clears
+      when !Stone_resistance.
+- [ ] LOW: a cursed weapon of excellence raises Cha 6 or lower to 18
+      (minted 2026-10-23, session 253 reviewer; master-shared; needs
+      a ruling). excel_forced_cha() keeps acurr()'s old priority:
+      the cursed arm needs tmp > 6, so tmp <= 6 falls through to the
+      "tmp < 18 and not blessed" arm and gets 18. Options: a cursed
+      one forces at most 6 (tmp stands at or below it), or keep.
 - [ ] LOW: livelog line format vs master (minted 2026-10-21, session
       248, ruled). Master's 0.9.3 livelog line carries `realtime=`
       (play seconds, `(long)` cast 5a17e1fd7) and names the player
@@ -31938,6 +32032,11 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-22 | A demon lord summoned by a same-race sacrifice who comes peaceful (coaligned) keeps the hostile malign: pray.c's dosacrifice arm sets mpeaceful with no set_malign(). Shared with Official_nh50 (pray.c dosacrifice()). EvilHack fix BUG-2517 (8861de48c; master 85486467a). | found (branch-fixed); not yet sent |
 | 2026-10-22 | tty_init_nhwindows() never initializes ttyDisplay->framecolor (alloc() is plain malloc()), while tty_print_glyph() reads it on every glyph with color on. Shared with Official_nh50 (win/tty/wintty.c). EvilHack fix BUG-2518 (8861de48c). | found (branch-fixed); not yet sent |
 | 2026-10-22 | d13eceb28 ("eliminate one more source of vault guard newsym msgs") made place_monster()'s dead-monster arm test PARKEDMONSTER(mon), i.e. the guard's CURRENT mx == 0, instead of the target <0,0>; parkguard() calls remove_monster() (mx unchanged) then place_monster(grd, 0, 0), so a guard killed away from <0,0> - one standing on his own temporary corridor, the usual end of "So be it, rogue!" - is refused: impossible("placing defunct monster onto map, mstate:200, ...") and "Program in disorder!", and he is never parked. Shared with NetHack50 / Official_nh50 (steed.c place_monster()). EvilHack fix BUG-2519 (8861de48c): the pre-d13eceb28 target test, as master; paygd() also returns for a dead guard, since 5.0's findgd() (unlike master's) returns a dead parked guard and paygd() would mnexto() him onto the map (a Punished hero's ball left on the corridor keeps it alive past gddone). | found (branch-fixed); not yet sent |
+| 2026-10-23 | A magic trap's explosion prints "Your body absorbs some of the magical energy!" after losehp() and only then sets `u.uen = (u.uenmax += 2)`, so the message's flush draws the old Pw and nothing redraws it (Pw is then full, so regeneration never does). Shared with Official_nh50 (trap.c trapeffect_magic_trap()). EvilHack fix BUG-2524 (65f52c1a1): disp.botl after the write. | found (branch-fixed); not yet sent |
+| 2026-10-23 | sink_into_lava() divides u.uhp by three every move with no disp.botl ("You sink deeper" is a Norep), so HP stays stale. Shared with Official_nh50 (trap.c). EvilHack fix BUG-2525 (65f52c1a1). | found (branch-fixed); not yet sent |
+| 2026-10-23 | The terrainstatus field changes only when the hero moves (spoteffects() -> switch_terrain()) or a run ends, so terrain changed under a still hero keeps its old name (dryup(), breaksink(), a pool frozen under a levitating hero, ...). Shared with Official_nh50. EvilHack fix BUG-2533 (65f52c1a1): `if (flags.terrainstatus && !u.uswallow) classify_terrain();` once per player input, just before moveloop_core()'s bot(). | found (branch-fixed); not yet sent |
+| 2026-10-23 | The opt-in ice condition reads levl typ at the hero's square, but zap_over_floor()'s ZT_COLD freeze and melt_ice() change it under the hero with no disp.botl. Shared with Official_nh50 (zap.c). EvilHack fix BUG-2534 (65f52c1a1). | found (branch-fixed); not yet sent |
+| 2026-10-23 | The opt-in glowhands condition lags: the scroll of confuse monster prints "Your hands begin to glow red." before raising u.umconf, and nohandglow() prints before lowering it, both with no disp.botl after the write. Shared with Official_nh50 (read.c, uhitm.c). EvilHack fix BUG-2535 (65f52c1a1). | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -32165,6 +32264,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-23 | disp.botl sweep rulings (session 253; AskUserQuestion x2, four questions, all as recommended). (0) SLICE: the SWEEP row "status values that change without disp.botl", ahead of nasties[] and the ruled small rows. (1) ARTIFACT STRIP: a MED row of its own (a wielded weapon turned into an artifact keeps its object properties' wield grants; Luck and Cha stuck for excellence), not folded. (2) CANCELLATION: fold all three - Stoneskin's stoning resistance ends with it (BUG-2536, master too); reflection and the vulnerabilities clear only their TIMEOUT part, with each line printed only when a timed effect actually ended (BUG-2537). (3) EXCELLENCE CHA: only excellence weapons count (master reads both hands' beatitude). [Premise correction, battery B: the question's example - an uncursed excellence main hand with a blessed plain off-hand giving Cha 25 - was wrong; that mix gave 18 on both builds because the uncursed main hand meets the 18 arm first. The case the ruling changes is a blessed excellence main hand with a plain non-blessed off-hand: 18 before, 25 now.] Taken without asking (approved plan or reviewer): set_twoweap() and every weapon-slot setworn() / setnotworn() redraw whatever weaponstatus says; maybe_purity_slide_off() runs before the per-input find_ac(); #name calls encumber_msg(); one per-input classify_terrain() after the vision block instead of per-site calls; extremeattr() shares excel_forced_cha(); the reflection fade warning, the reflection cast and ureflects() read only the TIMEOUT part; the cursed-excellence Cha <= 6 quirk and the cockatrice-corpse re-check go to LOW rows. | maintainer |
 | 2026-10-23 | Strength-bonus slice rulings (session 252; AskUserQuestion x2, four questions, three as recommended). (0) SLICE: the abon() / dbon() MED row, ahead of the session 250-251 LOW rows, the plannable ruled list and the disp.botl sweep. (1) TWO-HANDED: master's 1.5x (((d*3)+1)/2, so a penalty stays as it is) only for a blow struck WITH a two-handed weapon: hitobj == uwep or uswapwep, WEAPON / TOOL class, raw oc_bimanual (giants one-handing included, per 73a1c3ef2). Covered: melee, an applied polearm, a giant's off-hand two-hander, and the dig self-hits. A thrown dagger, a kicked object and a shield bash get the plain bonus, and so does a wielded bulky armor. Master keyed the 1.5x on uwep's oc_big bit for every dbon() use (BUG-2521, frozen-unfixed). Folded under this ruling: a wielded boulder, a boulder filling a pit and a dragged ball (all plain; master 1.5x), and no u.twoweap test (a shattering glass primary clears the flag before the off-hand swings). (2) TWO HITS: the full bonus on each hit of a two-weapon attack or a double punch (master); 5.0's 3/4 and its melee-only 3/2 are removed. (3) abon() 18/50: KEEP 5.0's +2 at exactly 18/50 (gnome and orc cap), over the recommended master / vanilla 3.6 +1; abon() unchanged. |
 | 2026-10-22 | Map-highlight slice rulings (session 251; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: underline_peacefuls and hilite_hidden_stairs together, ahead of the strength tables, session 250's LOW rows and the disp.botl sweep. (1) PEACEFUL MARK: a flag on the drawn cell (MG_PEACEFUL ORed into the buffered glyphinfo by the code that draws the monster), not master's male / female peaceful glyph ranges (1122 glyphs, tilemap and glyph-name work, per-monster rc glyph customizations split off); a peaceful shown by monster detection keeps the detected inverse and gains the underline, a peaceful rider keeps its ridden look. [Premise correction, battery A: the question said "sensed by telepathy"; a telepathy-sensed monster is drawn as seen on both trees and is never inverse - the detected inverse comes from monster detection.] (2) HIDDEN STAIRS: only stairs the hero has seen or felt (levl seenv), not master's bare On_stairs(), which lights detected objects on never-seen stairs. (3) REDRAWS: every gap - master's lost newsym() sites plus every both-tree site where the drawn underline (or 5.0's pet highlight) can disagree with the monster. (4) MASTER 42f2510d5: fold the rest of the vault.c review (BUG-841, 843, 844, 845, 849 with 840 / 842), not a row; 846 / 847 / 850 moot on 5.0, 848 (free_egd() removal) not applicable (5.0's free_e*() family, mirrored by util/sfctool.c). Taken without asking: master's set_malign() carries at the same lines (401e63697, 42f2510d5, 85486467a); no WC2_PEACEFUL bit and no wc2 gating; toggling redraws at once; color off draws hidden stairs inverse on tty and curses; create_particular's redraw unconditional; the HTML MG_RIDDEN arm left to the Phase 4 HTML dumplog row. (5) GUARD KILL (asked after battery B hit it): fold the place_monster() fix for upstream d13eceb28's dead-guard parking regression (BUG-2519, master's target test) and re-run that leg, not a HIGH row. | maintainer |
 | 2026-10-21 | Inventory header / weight caps slice rulings (session 250; AskUserQuestion x3, five questions, four as recommended). (0) SLICE: master's inventory weight / slots line plus the BUG-369 caps, ahead of the map-highlight rows, the strength tables and the disp.botl sweep. (1) CAP: LARGEST_INT as master's source reads (32767 on the branch), not INT_MAX; re-confirmed after the premise was corrected twice (a capped stack is divided inside a magic bag; boulders stack, so 6 reach 32767 in normal play - display only). (2) SMALL PURSE: COUNT IT EVERYWHERE - inv_weight() and pickup's lift math take 5.0's 1-aum minimum for 1..49 coins, so the header matches the per-item weights; NOT the recommended keep (encumbrance at 0, master's and 5.0's formula). (3) 8966b35a7: fold the rest of master's invent.c review commit (BUG-762/763/764/766/767), not a LOW row. (4) BOULDERS: keep LARGEST_INT. Taken without asking (in the approved plan): the header gated `!lets && !usextra && !inuse_only`, plain at gameover like 5.0's headings (master's disclosure line is bold), menucolors skipped; the fountain gold refresh and the "pair of" overflow guard folded from the Plan review; carrying_stoning_corpse() routed with master's two sites. | maintainer |
