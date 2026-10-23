@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-22, after session 251's
-  map-highlight slice): 471 rows closed, 138 open
+- Phase 2 status (refreshed 2026-10-23, after session 252's
+  strength-bonus slice): 472 rows closed, 139 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -28,10 +28,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     leaves the scroll of consecration, the Sword, the Armor or a
     Rider corpse where it was - at the carrier's feet for a carried
     one - and the bag of devouring refuses a bag holding one).
-  - 2 MED: unported master features (door-material colors, and
-    master's abon() / dbon() strength tables, minted by session
-    248: the branch still has 5.0's to-hit and damage bonuses for
-    St).
+  - 1 MED: door-material colors (an unported master feature; it
+    stays with Phase 4).
+    Session 252 closed master's strength damage bonus (BUG-2520,
+    2521): dbon() has master's table, and a blow struck with a
+    two-handed weapon gets 1.5x of it (melee, an applied polearm,
+    a giant's one-handed or off-hand two-hander, the dig
+    self-hits). A thrown dagger, a kicked object, a shield bash or
+    a wielded plate mail / boulder gets the plain bonus (ruled;
+    master gave them 1.5x). Each hit of a two-weapon attack or a
+    double punch gets the full bonus (5.0's 3/4 removed). abon()
+    keeps 5.0's +2 at exactly 18/50 (ruled), so TH is unchanged.
     Session 251 closed the two map-highlight options
     (BUG-2501..2519): underline_peacefuls underlines a peaceful,
     non-tame monster on tty, curses and in the HTML dump, as a flag
@@ -275,7 +282,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 118 LOW: small parity rows, quirks and watch/record-only items.
+  - 120 LOW: small parity rows, quirks and watch/record-only items.
+    Session 252 minted two: a boulder falling on a trapped monster
+    fills the pit even when the monster lives (all three trees),
+    and 5.0's wield-then-queue apply costs an extra action, with
+    the queued step lost to an interrupt (needs a ruling).
     Session 251 minted three: mpeaceful flips without set_malign()
     on both trees (a per-site ruling), red objects unreadable on
     the red hidden-stairs background, and wizard ^G peaceful /
@@ -9417,7 +9428,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       for glass) and that pre-flight breakage destroys the whole floor
       stack since it runs before splitobj(); at -40 the Priest landed
       0 of 80 swings, so the penalty is close to a prohibition.
-- [ ] MED: abon() / dbon() strength tables still vanilla 5.0
+- [x] MED: abon() / dbon() strength tables still vanilla 5.0
       (minted 2026-10-21, session 248, by the status-field slice's
       TH census; port gap, no row before; ruled a row of its own).
       Master authored new tables (50ccfea00 "Some tweaks to damage
@@ -9436,6 +9447,49 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       of both functions plus hmon's strbonus block in one slice,
       with a damage battery (master legs) and a ruling on how
       master's in-dbon() 1.5x relates to 5.0's hmon factors.
+      CLOSED 2026-10-23 (session 252, 8814d900a; BUG-2520,
+      2521). dbon(struct obj *hitobj) takes master's table verbatim
+      and master's ((d*3)+1)/2, which leaves a penalty as it is.
+      RULED: the 1.5x applies only to a blow struck WITH a
+      two-handed weapon. The test is hitobj == uwep or uswapwep,
+      WEAPON / TOOL class, raw oc_bimanual, so a giant one-handing a
+      two-hander gets it (73a1c3ef2's intent). Covered: melee, an
+      applied polearm (5.0 had excluded it), Cleaver's three hits,
+      a giant's off-hand two-hander (with no u.twoweap test,
+      because a shattering glass primary clears the flag before the
+      off-hand swings), and the battle-axe / mattock and bear-trap
+      dig self-hits. Plain bonus: a thrown dagger, a kicked object, a
+      shield bash, a boulder filling a pit, a dragged ball, and a
+      wielded plate mail or boulder. Master gave all six 1.5x, keyed
+      on uwep's oc_big bit (BUG-2521, frozen-unfixed). RULED: each
+      hit of a dual attack (two-weapon, double punch) gets the full
+      bonus, so 5.0's 3/4 and its melee-only 3/2 are gone
+      (PORT_50_REMOVALS 2.3). RULED over the recommendation: abon()
+      keeps 5.0's +2 at exactly 18/50 (gnomes and orcs cap there),
+      so TH is unchanged. The prototype is NO_NNARGS because
+      bare-handed hits and used-up objects pass NULL. Battery: A
+      6/6, B 7/7 plus optional G3 and O, master M 3/3; every dbon
+      value matched the table; paniclogs empty.
+- [ ] LOW: a boulder that falls into a pit onto a trapped monster
+      always fills the pit (minted 2026-10-23, session 252 battery
+      B; master, the branch and vanilla 5.0 alike). flooreffects()
+      sets `res = FALSE; /* still alive, boulder still intact */`
+      when the monster survives, but the shared tail overwrites it
+      with `res = TRUE` after useupf() and fill, so a 9999-HP target
+      lived and "The boulder fills a pit." anyway. The comment dates
+      from 3.6.2. Fix shape: when the monster survives, leave the
+      boulder on the square and the pit open (the comment's intent),
+      or delete the dead assignment. Upstream shares it.
+- [ ] LOW: applying an unwielded tool now costs an extra action, and
+      an interrupt drops the second one (minted 2026-10-23, session
+      252 battery B; needs a ruling). 5.0's use_pick_axe(),
+      use_axe(), use_whip(), use_pole() and use_grapple() wield the
+      tool, return ECMD_TIME and queue a canned doapply for the next
+      move. A monster attack in between clears the queue, so the
+      tester had to apply the halberd and battle-axe again. Master's
+      (vanilla 3.6) wield_tool() arm sets res = 1 and goes straight
+      on to the direction prompt in the same action. Options:
+      master's one-action shape, or keep 5.0's queue.
 - [x] Noncorporeal hit rules tree-wide + hmon_hitmon_barehanded()
       (NEW, minted 2026-08-22 by the hero to-hit/AC balance slice).
       shade_glare() itself regained master's bone and +2-weapon
@@ -32111,6 +32165,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-23 | Strength-bonus slice rulings (session 252; AskUserQuestion x2, four questions, three as recommended). (0) SLICE: the abon() / dbon() MED row, ahead of the session 250-251 LOW rows, the plannable ruled list and the disp.botl sweep. (1) TWO-HANDED: master's 1.5x (((d*3)+1)/2, so a penalty stays as it is) only for a blow struck WITH a two-handed weapon: hitobj == uwep or uswapwep, WEAPON / TOOL class, raw oc_bimanual (giants one-handing included, per 73a1c3ef2). Covered: melee, an applied polearm, a giant's off-hand two-hander, and the dig self-hits. A thrown dagger, a kicked object and a shield bash get the plain bonus, and so does a wielded bulky armor. Master keyed the 1.5x on uwep's oc_big bit for every dbon() use (BUG-2521, frozen-unfixed). Folded under this ruling: a wielded boulder, a boulder filling a pit and a dragged ball (all plain; master 1.5x), and no u.twoweap test (a shattering glass primary clears the flag before the off-hand swings). (2) TWO HITS: the full bonus on each hit of a two-weapon attack or a double punch (master); 5.0's 3/4 and its melee-only 3/2 are removed. (3) abon() 18/50: KEEP 5.0's +2 at exactly 18/50 (gnome and orc cap), over the recommended master / vanilla 3.6 +1; abon() unchanged. |
 | 2026-10-22 | Map-highlight slice rulings (session 251; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: underline_peacefuls and hilite_hidden_stairs together, ahead of the strength tables, session 250's LOW rows and the disp.botl sweep. (1) PEACEFUL MARK: a flag on the drawn cell (MG_PEACEFUL ORed into the buffered glyphinfo by the code that draws the monster), not master's male / female peaceful glyph ranges (1122 glyphs, tilemap and glyph-name work, per-monster rc glyph customizations split off); a peaceful shown by monster detection keeps the detected inverse and gains the underline, a peaceful rider keeps its ridden look. [Premise correction, battery A: the question said "sensed by telepathy"; a telepathy-sensed monster is drawn as seen on both trees and is never inverse - the detected inverse comes from monster detection.] (2) HIDDEN STAIRS: only stairs the hero has seen or felt (levl seenv), not master's bare On_stairs(), which lights detected objects on never-seen stairs. (3) REDRAWS: every gap - master's lost newsym() sites plus every both-tree site where the drawn underline (or 5.0's pet highlight) can disagree with the monster. (4) MASTER 42f2510d5: fold the rest of the vault.c review (BUG-841, 843, 844, 845, 849 with 840 / 842), not a row; 846 / 847 / 850 moot on 5.0, 848 (free_egd() removal) not applicable (5.0's free_e*() family, mirrored by util/sfctool.c). Taken without asking: master's set_malign() carries at the same lines (401e63697, 42f2510d5, 85486467a); no WC2_PEACEFUL bit and no wc2 gating; toggling redraws at once; color off draws hidden stairs inverse on tty and curses; create_particular's redraw unconditional; the HTML MG_RIDDEN arm left to the Phase 4 HTML dumplog row. (5) GUARD KILL (asked after battery B hit it): fold the place_monster() fix for upstream d13eceb28's dead-guard parking regression (BUG-2519, master's target test) and re-run that leg, not a HIGH row. | maintainer |
 | 2026-10-21 | Inventory header / weight caps slice rulings (session 250; AskUserQuestion x3, five questions, four as recommended). (0) SLICE: master's inventory weight / slots line plus the BUG-369 caps, ahead of the map-highlight rows, the strength tables and the disp.botl sweep. (1) CAP: LARGEST_INT as master's source reads (32767 on the branch), not INT_MAX; re-confirmed after the premise was corrected twice (a capped stack is divided inside a magic bag; boulders stack, so 6 reach 32767 in normal play - display only). (2) SMALL PURSE: COUNT IT EVERYWHERE - inv_weight() and pickup's lift math take 5.0's 1-aum minimum for 1..49 coins, so the header matches the per-item weights; NOT the recommended keep (encumbrance at 0, master's and 5.0's formula). (3) 8966b35a7: fold the rest of master's invent.c review commit (BUG-762/763/764/766/767), not a LOW row. (4) BOULDERS: keep LARGEST_INT. Taken without asking (in the approved plan): the header gated `!lets && !usextra && !inuse_only`, plain at gameover like 5.0's headings (master's disclosure line is bold), menucolors skipped; the fountain gold refresh and the "pair of" overflow guard folded from the Plan review; carrying_stoning_corpse() routed with master's two sites. | maintainer |
 | 2026-10-21 | Gold weight (session 249 follow-up, maintainer, no AskUserQuestion): keep 5.0's method (90aded364) - 1..49 coins weigh 1 aum, not master's 0. No code change; the LOW row is closed. | maintainer |

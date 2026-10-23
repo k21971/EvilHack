@@ -336,6 +336,12 @@ tracker; sNNN = port session.
   HP than 6 + 4d6, at -1 Con and -3 to the poison's stat) -> master's
   instant death below 35% poison resistance, the toxic arm draining no
   stat (partial-intrinsics port; ratified 2026-10-18).
+- [x] Strength damage bonus on two-handed and dual hits: 5.0's 3/2 of
+  the bonus for melee with a two-hander held in both hands (no giants,
+  no applied polearms), and 3/4 on each hit of a two-weapon attack or
+  double punch -> master's 1.5x for any blow struck with a two-handed
+  weapon, and the full bonus on each hit (s252, BUG-2520 / 2521,
+  8814d900a).
 
 ### 2.4 Text and logs
 
@@ -403,6 +409,9 @@ tracker; sNNN = port session.
 - [r] Gold weight minimum: 1..49 coins weigh 1 aum (5.0 90aded364)
   kept over master's 0 (ruled 2026-10-21, s249); extended to
   encumbrance in s250 (2.1).
+- [r] Strength to-hit at exactly 18/50: abon()'s +2 (5.0, so gnomes and
+  orcs gain a point at their cap) kept over master's / vanilla 3.6's +1
+  (ruled 2026-10-23, s252).
 
 ## 4. Open
 
@@ -424,4 +433,4 @@ Con curve, s198), magic fountains and restore ability (BUG-2228..2244),
 the Astral Red Horse in place of the guardian Angel and its Conflict
 Angels (BUG-2448), master's random-saddle odds (BUG-2451), the
 sparkle frame count (BUG-2487), the inventory weight / slots header
-(BUG-2490).
+(BUG-2490), the strength damage table (BUG-2520).
