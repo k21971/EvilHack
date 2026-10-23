@@ -1320,8 +1320,9 @@ dragon_armor_handling(
     case SEA_DRAGON_SCALES:
         if (puton) {
             if (Strangled) {
-                You("can suddenly breathe again!");
                 Strangled = 0L;
+                disp.botl = TRUE;
+                You("can suddenly breathe again!");
             }
             ESwimming |= W_ARM;
         } else {

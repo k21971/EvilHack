@@ -365,7 +365,10 @@ do_oname(struct obj *obj)
     }
 
     obj = oname(obj, buf, ONAME_VIA_NAMING | ONAME_KNOW_ARTI);
-    nhUse(obj);
+    /* naming Sting or Orcrist can change its material and weight, and
+       #name takes no time, so neither moveloop encumbrance check runs */
+    if (carried(obj))
+        (void) encumber_msg();
 }
 
 struct obj *

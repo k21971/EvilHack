@@ -459,6 +459,7 @@ fix_worst_trouble(int trouble)
         break;
     case TROUBLE_WITHERING:
         set_itimeout(&HWithering, (long) 0);
+        disp.botl = TRUE;
         if (!Withering)
             You("stop withering.");
         else

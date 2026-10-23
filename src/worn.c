@@ -163,7 +163,9 @@ setworn(struct obj *obj, long mask)
         /* tux -> tuxedo -> "monkey suit" -> monk's suit */
         iflags.tux_penalty = (uarm && Role_if(PM_MONK) && gu.urole.spelarmr);
     }
-    if ((flags.weaponstatus && (mask & W_WEP) != 0L)
+    /* a weapon slot change can also change the barehanded condition
+       and Str / Con / Cha (attribute artifacts, weapons of excellence) */
+    if ((mask & (W_WEP | W_SWAPWEP)) != 0L
         || (flags.armorstatus && (mask & W_ARMOR) != 0L))
         disp.botl = TRUE;
     update_inventory();
@@ -213,7 +215,8 @@ setnotworn(struct obj *obj)
         }
     if (!uarm)
         iflags.tux_penalty = FALSE;
-    if ((flags.weaponstatus && (unworn & W_WEP) != 0L)
+    /* see setworn() */
+    if ((unworn & (W_WEP | W_SWAPWEP)) != 0L
         || (flags.armorstatus && (unworn & W_ARMOR) != 0L))
         disp.botl = TRUE;
     update_inventory();

@@ -220,6 +220,7 @@ staticfn int abuse_tier(void);
 staticfn boolean has_stat_drain_penalty(void);
 staticfn boolean aasimar_ability_penalized(long *);
 staticfn void poison_losehp(int, const char *, int, struct monst *);
+staticfn int excel_forced_cha(int);
 
 /* adjust an attribute; return TRUE if change is made, FALSE otherwise */
 boolean
@@ -1546,6 +1547,29 @@ adjuhploss(
     return max(loss, 1);
 }
 
+/* the charisma a wielded weapon of excellence forces from the
+   unforced value tmp, or 0 when it forces nothing; only an excellence
+   weapon's own beatitude counts, not a plain weapon in the other hand */
+staticfn int
+excel_forced_cha(int tmp)
+{
+    struct obj *xlw = (uwep && (uwep->oprops & ITEM_EXCEL))
+                          ? uwep : (struct obj *) 0,
+               *xls = (u.twoweap && uswapwep
+                       && (uswapwep->oprops & ITEM_EXCEL))
+                          ? uswapwep : (struct obj *) 0;
+
+    if (!xlw && !xls)
+        return 0;
+    if (tmp > 6 && ((xlw && xlw->cursed) || (xls && xls->cursed)))
+        return 6;
+    if (tmp < 18 && ((xlw && !xlw->blessed) || (xls && !xls->blessed)))
+        return 18;
+    if ((xlw && xlw->blessed) || (xls && xls->blessed))
+        return 25;
+    return 0;
+}
+
 /* return the current effective value of a specific characteristic
    (the 'a' in 'acurr()' comes from outdated use of "attribute" for the
    six Str/Dex/&c characteristics; likewise for u.abon, u.atemp, u.acurr) */
@@ -1577,24 +1601,12 @@ acurr(int chridx)
             result = max(tmp, 3);
     } else if (chridx == A_CHA) {
         if (tmp < 18 && (gy.youmonst.data->mlet == S_NYMPH
-                         || u.umonnum == PM_AMOROUS_DEMON))
+                         || u.umonnum == PM_AMOROUS_DEMON)) {
             result = 18;
-        else if ((uwep && (uwep->oprops & ITEM_EXCEL))
-                 || (u.twoweap && uswapwep
-                     && (uswapwep->oprops & ITEM_EXCEL))) {
+        } else {
             /* a wielded weapon of excellence forces charisma toward
                an extreme based on its beatitude */
-            if (tmp > 6
-                && ((uwep && uwep->cursed)
-                    || (u.twoweap && uswapwep->cursed)))
-                result = 6;
-            else if (tmp < 18
-                     && ((uwep && !uwep->blessed)
-                         || (u.twoweap && !uswapwep->blessed)))
-                result = 18;
-            else if ((uwep && uwep->blessed)
-                     || (u.twoweap && uswapwep->blessed))
-                result = 25;
+            result = excel_forced_cha(tmp);
         }
     } else if (chridx == A_CON) {
         /* Ogresmasher, Ashmar and the Armor of Retribution hold
@@ -1669,25 +1681,14 @@ extremeattr(
         /* mirror acurr()'s A_CHA forced floor and ceiling so a +0 item
            put on while charisma is forced doesn't reveal its
            enchantment via a no-visible-change deduction */
-        int tmp = u.abon.a[A_CHA] + u.atemp.a[A_CHA] + u.acurr.a[A_CHA];
+        int tmp = u.abon.a[A_CHA] + u.atemp.a[A_CHA] + u.acurr.a[A_CHA],
+            forced;
 
         if ((gy.youmonst.data->mlet == S_NYMPH
              || u.umonnum == PM_AMOROUS_DEMON) && tmp < 18) {
             lolimit = hilimit = 18;
-        } else if ((uwep && (uwep->oprops & ITEM_EXCEL))
-                   || (u.twoweap && uswapwep
-                       && (uswapwep->oprops & ITEM_EXCEL))) {
-            if (tmp > 6
-                && ((uwep && uwep->cursed)
-                    || (u.twoweap && uswapwep->cursed)))
-                lolimit = hilimit = 6;
-            else if (tmp < 18
-                     && ((uwep && !uwep->blessed)
-                         || (u.twoweap && !uswapwep->blessed)))
-                lolimit = hilimit = 18;
-            else if ((uwep && uwep->blessed)
-                     || (u.twoweap && uswapwep->blessed))
-                lolimit = hilimit = 25;
+        } else if ((forced = excel_forced_cha(tmp)) != 0) {
+            lolimit = hilimit = forced;
         }
     }
     /* this exception is hypothetical; the only other worn item affecting
@@ -1985,8 +1986,11 @@ apply_aasimar_penalty(int pen_id, boolean apply)
                         MMAX(i) = drained;
                 }
             }
-            if (changed && !program_state.restoring)
+            if (changed && !program_state.restoring) {
+                /* the clamps above can lower shown attributes */
+                disp.botl = TRUE;
                 aasimar_changed(AASIMAR_PEN_STAT_DRAIN, TRUE);
+            }
         } else {
             for (i = 0; i < A_MAX; i++) {
                 if (gu.urace.attrmax[i]

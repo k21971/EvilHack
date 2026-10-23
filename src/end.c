@@ -279,6 +279,7 @@ sentient_arise(int how)
         /* bug: if u.uhp <= 0, monsters won't attack for some reason
          * set to max, not like you're ever going to need it again */
         u.uhp = u.uhpmax;
+        disp.botl = TRUE;
         pline(
       "Somehow, you retain your identity and what you must still do.");
         return TRUE;

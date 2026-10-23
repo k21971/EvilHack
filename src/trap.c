@@ -2953,6 +2953,7 @@ trapeffect_magic_trap(
                 u.uen = (u.uenmax += 2);
                 if (u.uenmax > u.uenpeak)
                     u.uenpeak = u.uenmax;
+                disp.botl = TRUE;
             } else {
                 if (!Blind) {
                     if (!Hallucination)
@@ -5244,6 +5245,7 @@ doicetrap(
         levl[u.ux][u.uy].icedpool = is_puddle(u.ux, u.uy) ? ICED_PUDDLE
                                                           : ICED_SEWAGE;
         levl[u.ux][u.uy].typ = ICE;
+        disp.botl = TRUE; /* the ice condition */
         start_melt_ice_timeout(u.ux, u.uy, 0L);
         obj_ice_effects(u.ux, u.uy, TRUE);
         maybe_unhide_at(u.ux, u.uy);
@@ -8689,6 +8691,7 @@ sink_into_lava(void)
                 u.mh = (u.mh + 2) / 3;
             else
                 u.uhp = (u.uhp + 2) / 3;
+            disp.botl = TRUE;
         }
 
         u.utrap -= (1 << 8);

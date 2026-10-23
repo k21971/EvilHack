@@ -775,8 +775,9 @@ nh_timeout(void)
         }
     }
 
-    /* a small warning that a timed spell ward is about to run out */
-    if (HReflecting == 20 && !Blind)
+    /* a small warning that a timed spell ward is about to run out;
+       a silver dragon form's reflection sits in the same word */
+    if ((HReflecting & TIMEOUT) == 20 && !Blind)
         pline_The("shimmering globe around you is starting to fade.");
 
     if (HBarkskin == 20 || HStoneskin == 20)

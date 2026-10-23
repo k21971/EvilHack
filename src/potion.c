@@ -1407,6 +1407,7 @@ peffect_full_healing(struct obj *otmp)
     }
     if (!otmp->cursed && Withering) {
         set_itimeout(&HWithering, (long) 0);
+        disp.botl = TRUE;
         if (!Withering)
             You("are no longer withering away.");
     }

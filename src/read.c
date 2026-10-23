@@ -1732,6 +1732,7 @@ seffect_confuse_monster(struct obj **sobjp)
         if (u.umconf >= 40)
             incr = 1;
         u.umconf += (unsigned) incr;
+        disp.botl = TRUE; /* the glowhands condition */
     }
 }
 

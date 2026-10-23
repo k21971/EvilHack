@@ -3783,6 +3783,7 @@ zapyourself(struct obj *obj, boolean ordinary)
                 make_slimed(0L, "The slime disappears!");
             if (Withering) {
                 set_itimeout(&HWithering, (long) 0);
+                disp.botl = TRUE;
                 if (!Withering)
                     You("are no longer withering away.");
             }
@@ -4172,9 +4173,11 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                     disp.botl = TRUE; /* potential AC change */
                     find_ac();
                 }
-                if (HReflecting > 0) {
+                /* only the timed (spell or trap) parts go; a form's or
+                   race's reflection and vulnerabilities stay */
+                if (HReflecting & TIMEOUT) {
                     pline("The shimmering globe around you disappears.");
-                    HReflecting = 0;
+                    HReflecting &= ~TIMEOUT;
                 }
                 if (HBarkskin) {
                     HBarkskin = 0;
@@ -4183,24 +4186,31 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                 }
                 if (HStoneskin) {
                     HStoneskin = 0;
+                    /* the stoning resistance the spell gave goes with it,
+                       as when it times out */
+                    HStone_resistance &= ~I_SPECIAL;
                     Your("%s returns to normal.",
                          mbodypart(&gy.youmonst, SKIN));
                 }
-                if (HVulnerable_fire) {
-                    HVulnerable_fire = 0;
-                    You("are no longer vulnerable to fire.");
+                if (HVulnerable_fire & TIMEOUT) {
+                    HVulnerable_fire &= ~TIMEOUT;
+                    if (!Vulnerable_fire)
+                        You("are no longer vulnerable to fire.");
                 }
-                if (HVulnerable_cold) {
-                    HVulnerable_cold = 0;
-                    You("are no longer vulnerable to cold.");
+                if (HVulnerable_cold & TIMEOUT) {
+                    HVulnerable_cold &= ~TIMEOUT;
+                    if (!Vulnerable_cold)
+                        You("are no longer vulnerable to cold.");
                 }
-                if (HVulnerable_elec) {
-                    HVulnerable_elec = 0;
-                    You("are no longer vulnerable to electricity.");
+                if (HVulnerable_elec & TIMEOUT) {
+                    HVulnerable_elec &= ~TIMEOUT;
+                    if (!Vulnerable_elec)
+                        You("are no longer vulnerable to electricity.");
                 }
-                if (HVulnerable_acid) {
-                    HVulnerable_acid = 0;
-                    You("are no longer vulnerable to acid.");
+                if (HVulnerable_acid & TIMEOUT) {
+                    HVulnerable_acid &= ~TIMEOUT;
+                    if (!Vulnerable_acid)
+                        You("are no longer vulnerable to acid.");
                 }
                 if (u.umburn) {
                     u.umburn = 0;
@@ -4222,6 +4232,10 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                          is_bird(gy.youmonst.data)
                              ? "talons" : makeplural(body_part(HAND)));
                 }
+                /* Barkskin and Stoneskin are gone, and the lines above
+                   have drawn the status line; recount AC and redraw */
+                find_ac();
+                disp.botl = TRUE;
             }
         } else {
             /* one monster-target leg serves both the hero attacking
@@ -6829,6 +6843,8 @@ melt_ice(coordxy x, coordxy y, const char *msg)
                       : lev->icedpool == ICED_SEWAGE ? SEWAGE : MOAT);
         lev->icedpool = 0;
     }
+    if (u_at(x, y))
+        disp.botl = TRUE; /* the ice condition */
     spot_stop_timers(x, y, MELT_ICE_AWAY); /* no more ice to melt away */
     if (t_at(x, y))
         trap_ice_effects(x, y, TRUE); /* TRUE because ice_is_melting */
@@ -7155,6 +7171,7 @@ zap_over_floor(
                     You_hear("a crackling sound.");
                 }
                 if (u_at(x, y)) {
+                    disp.botl = TRUE; /* the ice condition */
                     if (u.uinwater) { /* not just `if (Underwater)' */
                         /* leave the no longer existent water */
                         set_uinwater(0); /* u.uinwater = 0 */

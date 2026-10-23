@@ -6166,6 +6166,9 @@ mhitm_ad_wthr(
                 u.uhp = min(u.uhp, u.uhpmax);
             }
         }
+        /* hitmu()'s closing stop_occupation() -> nomul(0) skips the
+           redraw while the hero is helpless */
+        disp.botl = TRUE;
     } else {
         /* uhitm and mhitm */
         if (nonliving(pd) /* is_fleshy() would also exempt fungi, blobs
@@ -10225,6 +10228,8 @@ nohandglow(struct monst *mon)
             Your("%s no longer glow so brightly %s.", hands, hcolor(NH_RED));
     }
     u.umconf--;
+    if (!u.umconf)
+        disp.botl = TRUE; /* the glowhands condition */
 }
 
 /* extra damage dice for the burning hands and shocking grasp spells,

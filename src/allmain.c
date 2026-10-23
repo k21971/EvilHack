@@ -968,6 +968,11 @@ moveloop_core(void)
 
     clear_splitobjs();
 
+    /* ahead of find_ac() so gauntlets or a shield forced off are
+       counted before the status line is drawn */
+    maybe_orcus_recurse();
+    maybe_purity_slide_off();
+
     find_ac();
     if (!svc.context.mv || Blind) {
         /* redo monsters if hallu or wearing a helm of telepathy */
@@ -988,6 +993,11 @@ moveloop_core(void)
         if (gv.vision_full_recalc)
             vision_recalc(0); /* vision! */
     }
+    /* terrain can change under a hero who doesn't move (a puddle dries,
+       a throne vanishes, an altar is consecrated); spoteffects() only
+       reclassifies on a move, and the display stops while engulfed */
+    if (flags.terrainstatus && !u.uswallow)
+        classify_terrain();
     if (disp.botl || disp.botlx) {
         bot();
         curs_on_u();
@@ -1018,9 +1028,6 @@ moveloop_core(void)
             mvl_orc_regen = can_orc_now;
         }
     }
-
-    maybe_orcus_recurse();
-    maybe_purity_slide_off();
 
     m_everyturn_effect(&gy.youmonst);
 

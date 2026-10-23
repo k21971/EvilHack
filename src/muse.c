@@ -4440,8 +4440,9 @@ ureflects(const char *fmt, const char *str)
         if (fmt && str)
             pline(fmt, str, "gloves");
         return TRUE;
-    } else if (HReflecting) {
-        /* reflection spell */
+    } else if (HReflecting & TIMEOUT) {
+        /* reflection spell; a silver dragon form's own bit in the same
+           word is the "scales" arm below */
         if (fmt && str)
             pline(fmt, str, "magical shield");
         return TRUE;

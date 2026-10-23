@@ -1000,8 +1000,9 @@ set_twoweap(boolean on_off)
 {
     if (on_off != u.twoweap) {
         u.twoweap = on_off;
-        if (flags.weaponstatus)
-            disp.botl = TRUE;
+        /* the weapon field, and Str / Con / Cha when the off-hand is
+           an attribute artifact or a weapon of excellence */
+        disp.botl = TRUE;
     }
 }
 

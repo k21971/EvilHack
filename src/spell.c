@@ -1268,7 +1268,9 @@ cast_reflection(struct monst *mdef, int skill)
 
     if (youdefend) {
         u.uconduct.reflection++;
-        if (HReflecting) {
+        /* only the timed part is the spell's; a silver dragon form's
+           reflection sits in the same word */
+        if (HReflecting & TIMEOUT) {
             if (!Blind)
                 pline_The(
                  "shimmering globe around you becomes slightly brighter.");
@@ -1283,7 +1285,8 @@ cast_reflection(struct monst *mdef, int skill)
         /* the higher the skill in matter-based spells, the longer
            the effect */
         incr_itimeout(&HReflecting,
-                      rn1(10, HReflecting ? (duration / 5) : duration));
+                      rn1(10, (HReflecting & TIMEOUT) ? (duration / 5)
+                                                       : duration));
     } else {
         if (canseemon(mdef))
             pline("A shimmering globe appears around %s!", mon_nam(mdef));

@@ -1957,13 +1957,15 @@ bless(struct obj *otmp)
         old_light = arti_light_radius(otmp);
     otmp->cursed = 0;
     otmp->blessed = 1;
-    if (carried(otmp) && confers_luck(otmp))
+    if (carried(otmp) && confers_luck(otmp)) {
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING
-             || otmp->otyp == BAG_OF_TREASURE)
+        disp.botl = TRUE; /* a wielded weapon of excellence sets Cha */
+    } else if (otmp->otyp == BAG_OF_HOLDING
+               || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
-    else if (otmp->otyp == FIGURINE && otmp->timed)
+    } else if (otmp->otyp == FIGURINE && otmp->timed) {
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(otmp));
+    }
     if (otmp->lamplit)
         maybe_adjust_light(otmp, old_light);
     return;
@@ -1977,11 +1979,13 @@ unbless(struct obj *otmp)
     if (otmp->lamplit)
         old_light = arti_light_radius(otmp);
     otmp->blessed = 0;
-    if (carried(otmp) && confers_luck(otmp))
+    if (carried(otmp) && confers_luck(otmp)) {
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING
-             || otmp->otyp == BAG_OF_TREASURE)
+        disp.botl = TRUE; /* a wielded weapon of excellence sets Cha */
+    } else if (otmp->otyp == BAG_OF_HOLDING
+               || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
+    }
     if (otmp->lamplit)
         maybe_adjust_light(otmp, old_light);
 }
@@ -2009,6 +2013,7 @@ curse(struct obj *otmp)
     /* some cursed items need immediate updating */
     if (carried(otmp) && confers_luck(otmp)) {
         set_moreluck();
+        disp.botl = TRUE; /* a wielded weapon of excellence sets Cha */
     } else if (otmp->otyp == BAG_OF_HOLDING
                || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
@@ -2035,13 +2040,15 @@ uncurse(struct obj *otmp)
     if (otmp->lamplit)
         old_light = arti_light_radius(otmp);
     otmp->cursed = 0;
-    if (carried(otmp) && confers_luck(otmp))
+    if (carried(otmp) && confers_luck(otmp)) {
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING
-             || otmp->otyp == BAG_OF_TREASURE)
+        disp.botl = TRUE; /* a wielded weapon of excellence sets Cha */
+    } else if (otmp->otyp == BAG_OF_HOLDING
+               || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
-    else if (otmp->otyp == FIGURINE && otmp->timed)
+    } else if (otmp->otyp == FIGURINE && otmp->timed) {
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(otmp));
+    }
     if (otmp->lamplit)
         maybe_adjust_light(otmp, old_light);
     return;
@@ -4873,6 +4880,8 @@ metal_to_wood(struct obj *obj, boolean by_you)
             pline("%s %s transforms into wood.",
                   by_you ? "Your" : "The", onamebuf);
         obj->owt = weight(obj);
+        if (carried(obj))
+            disp.botl = TRUE; /* encumbrance; a worn piece's armor name */
         if (origmat != obj->material) {
             /* Charge for the cost of the object if unpaid.
                Currently there is no need to check by_you
@@ -4936,6 +4945,8 @@ material_to_gold(struct obj *obj)
             pline("%s %s turns to solid gold!",
                   carried(obj) ? "Your" : "The", onamebuf);
         obj->owt = weight(obj);
+        if (carried(obj))
+            disp.botl = TRUE; /* encumbrance; a worn piece's armor name */
         if (origmat != obj->material) {
             /* charge for the cost of the object if unpaid */
             costly_alteration(obj, COST_DRAIN);
