@@ -18,7 +18,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
 - Phase 2 status (refreshed 2026-10-23, after session 253's
-  disp.botl sweep): 473 rows closed, 141 open
+  disp.botl sweep): 473 rows closed, 142 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -272,9 +272,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 6 SWEEP: race-predicate census, is_bracer() census, inert
+  - 7 SWEEP: race-predicate census, is_bracer() census, inert
     persistent fields, monstseesu() setter parity, racial size
-    macros, base-type oc_material reads.
+    macros, base-type oc_material reads, raw reads of intrinsic
+    words that carry 5.0's form / race bits (minted by session 253).
     Session 253 closed the status-redraw sweep (BUG-2522..2537):
     a census of EvilHack-authored code found shown values changed
     with no redraw, now fixed - withering cured by prayer, full
@@ -20859,6 +20860,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the cursed arm needs tmp > 6, so tmp <= 6 falls through to the
       "tmp < 18 and not blessed" arm and gets 18. Options: a cursed
       one forces at most 6 (tmp stands at or below it), or keep.
+- [ ] SWEEP: raw reads and clears of intrinsic words that carry 5.0's
+      form / race bits (minted 2026-10-23, session 253, from
+      BUG-2537's follow-up check). set_uasmon() PROPSETs FROMFORM into
+      the same u.uprops[].intrinsic word that EvilHack's timed spells
+      and effects use (ACID_RES .. WERE_RES, REFLECTING, TELEPAT,
+      PASSES_WALLS, the VULN_* set, ...), so code that tests `HFoo`,
+      compares `HFoo == N` or clears `HFoo = 0` for the timed part
+      misreads or strips a form's trait. BUG-2537 fixed REFLECTING
+      and the VULN_* set. Candidates seen, not yet traced:
+      timeout.c phasing_dialogue() compares `HPasses_walls == 15` /
+      `== 1`, so a timed phasing effect in a xorn (Passes_walls) form
+      never warns - the same shape as the reflection fade warning;
+      sit.c attrcurse() masks `HFoo &= (TIMEOUT | FROMOUTSIDE |
+      HAVEPARTIAL)`, which also drops FROMFORM / FROMRACE (check
+      against 5.0's ~INTRINSIC and the form's later restore).
+      Census every PROPSET property's raw H-word tests and writes in
+      EvilHack-authored code (`git diff 15fbc6b21 HEAD -- src/`).
 - [ ] LOW: livelog line format vs master (minted 2026-10-21, session
       248, ruled). Master's 0.9.3 livelog line carries `realtime=`
       (play seconds, `(long)` cast 5a17e1fd7) and names the player
