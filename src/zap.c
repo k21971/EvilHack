@@ -4164,6 +4164,8 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                 You_feel("a wave of energy dissipate around you.");
                 return FALSE;
             } else {
+                boolean stoneskin_gone = FALSE;
+
                 You_feel(
                     "magical energies being absorbed from your vicinity.");
                 if (u.uspellprot) {
@@ -4189,6 +4191,7 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                     /* the stoning resistance the spell gave goes with it,
                        as when it times out */
                     HStone_resistance &= ~I_SPECIAL;
+                    stoneskin_gone = TRUE;
                     Your("%s returns to normal.",
                          mbodypart(&gy.youmonst, SKIN));
                 }
@@ -4236,6 +4239,12 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
                    have drawn the status line; recount AC and redraw */
                 find_ac();
                 disp.botl = TRUE;
+                /* Stoneskin's stoning resistance may have been all that
+                   kept a bare-handed cockatrice corpse safe; checked
+                   here, ahead of the magic resistance return below and
+                   of rehumanize()'s own check */
+                if (stoneskin_gone && !uarmg)
+                    selftouch("No longer petrify-resistant, you");
             }
         } else {
             /* one monster-target leg serves both the hero attacking

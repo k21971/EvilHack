@@ -1002,6 +1002,7 @@ wielding_corpse(
         if (how)
             Sprintf(hbuf, "%s %s", voluntary ? "removing" : "losing",
                     is_gloves(how) ? gloves_simple_name(how)
+                    : is_bracer(how) ? shield_simple_name(how)
                     : strsubst(simpleonames(how), "set of ", ""));
         else
             Strcpy(hbuf, "resistance timing out");
@@ -1131,11 +1132,14 @@ Shield_off(void)
 {
     struct obj *otmp = uarms;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+    boolean on_purpose;
 
     if (!otmp) {
         svc.context.takeoff.mask &= ~W_ARMS;
         return 0;
     }
+    /* same determination as Gloves_off() */
+    on_purpose = !svc.context.mon_moving && !otmp->in_use;
     oprops_off(uarms, WORN_SHIELD);
 
     svc.context.takeoff.mask &= ~W_ARMS;
@@ -1166,6 +1170,13 @@ Shield_off(void)
     svc.context.takeoff.cancelled_don = FALSE;
     if (was_arti_light)
         toggle_armor_light(otmp, FALSE);
+    /* the Bracers of the First Circle's stoning resistance went with
+       them, as for yellow dragon scales; the uswapwep case is always
+       a no-op */
+    if (otmp->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCLE) {
+        wielding_corpse(uwep, otmp, on_purpose);
+        wielding_corpse(uswapwep, otmp, on_purpose);
+    }
     return 0;
 }
 

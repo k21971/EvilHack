@@ -1135,6 +1135,11 @@ nh_timeout(void)
                 pline_The("stone covering your %s completely disappears.",
                           mbodypart(&gy.youmonst, SKIN));
                 find_ac();
+                /* as when timed stoning resistance ends: a cockatrice
+                   corpse held bare-handed is no longer safe; the
+                   uswapwep case is always a no-op */
+                wielding_corpse(uwep, (struct obj *) 0, FALSE);
+                wielding_corpse(uswapwep, (struct obj *) 0, FALSE);
                 break;
             /* all these need to make sure the external intrinsic is not
                there too */

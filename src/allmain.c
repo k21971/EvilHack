@@ -357,8 +357,11 @@ maybe_purity_slide_off(void)
     } else if (uwep && (was_shield = uarms) != 0) {
         Your("%s and %s are forced from your %s!", simpleonames(uwep),
              simpleonames(was_shield), makeplural(body_part(HAND)));
-        (void) Shield_off();
+        /* the weapon goes first: taking off a stoning-resistant shield
+           (the Bracers of the First Circle) re-checks a wielded
+           cockatrice corpse, which could unwield it under us */
         (void) dropx(uwep);
+        (void) Shield_off();
         (void) dropx(was_shield);
     } else if (!uwep && (was_shield = uarms) != 0) {
         what = simpleonames(was_shield);
