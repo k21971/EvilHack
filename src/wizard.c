@@ -33,19 +33,21 @@ static NEARDATA const int nasties[] = {
     /* neutral */
     PM_COCKATRICE, PM_ETTIN, PM_STALKER, PM_MINOTAUR,
     PM_OWLBEAR, PM_PURPLE_WORM, PM_XAN, PM_UMBER_HULK,
-    PM_XORN, PM_ZRUTY, PM_LEOCROTTA, PM_BALUCHITHERIUM,
-    PM_CARNIVOROUS_APE, PM_FIRE_ELEMENTAL, PM_JABBERWOCK,
+    PM_XORN, PM_ZRUTY, PM_LEOCROTTA, PM_DIRE_WOLVERINE,
+    PM_GIANT_CENTIPEDE, PM_FIRE_ELEMENTAL, PM_JABBERWOCK,
     PM_IRON_GOLEM, PM_OCHRE_JELLY, PM_GREEN_SLIME,
-    PM_DISPLACER_BEAST, PM_GENETIC_ENGINEER,
+    PM_GELATINOUS_CUBE, PM_SEA_DRAGON, PM_GENETIC_ENGINEER,
     /* chaotic */
-    PM_BLACK_DRAGON, PM_RED_DRAGON, PM_ARCH_LICH, PM_VAMPIRE_NOBLE,
+    PM_BLACK_DRAGON, PM_SHADOW_DRAGON, PM_DEMILICH, PM_VAMPIRE_ROYAL,
     PM_MASTER_MIND_FLAYER, PM_DISENCHANTER, PM_WINGED_GARGOYLE,
-    PM_STORM_GIANT, PM_OLOG_HAI, PM_ELVEN_NOBLE, PM_ELVEN_ROYAL,
-    PM_OGRE_ROYAL, PM_CAPTAIN, PM_GREMLIN,
+    PM_STORM_GIANT, PM_OLOG_HAI, PM_MAGICAL_EYE, PM_ELVEN_ROYAL,
+    PM_OGRE_ROYAL, PM_CAPTAIN, PM_GREMLIN, PM_HILL_GIANT_SHAMAN,
+    PM_DISPLACER_BEAST,
     /* lawful */
-    PM_SILVER_DRAGON, PM_ORANGE_DRAGON, PM_GREEN_DRAGON,
-    PM_YELLOW_DRAGON, PM_GUARDIAN_NAGA, PM_FIRE_GIANT,
-    PM_ALEAX, PM_COUATL, PM_HORNED_DEVIL, PM_BARBED_DEVIL,
+    PM_SILVER_DRAGON, PM_GOLD_DRAGON, PM_STONE_GIANT,
+    PM_SHIMMERING_DRAGON, PM_GRAY_DRAGON, PM_DWARF_ROYAL,
+    PM_GUARDIAN_NAGA, PM_FIRE_GIANT, PM_ALEAX, PM_ANGEL,
+    PM_COUATL, PM_TORTLE_SHAMAN, PM_BLACK_NAGA,
     /* (Archons, titans, ki-rin, and golden nagas are suitably nasty, but
        they're summoners so would aggravate excessive summoning) */
 };
@@ -71,9 +73,9 @@ static NEARDATA const int vecna_nasties[] = {
 };
 
 static NEARDATA const unsigned wizapp[] = {
-    PM_HUMAN,      PM_WATER_DEMON,  PM_VAMPIRE,       PM_RED_DRAGON,
-    PM_TROLL,      PM_UMBER_HULK,   PM_XORN,          PM_XAN,
-    PM_COCKATRICE, PM_FLOATING_EYE, PM_GUARDIAN_NAGA, PM_TRAPPER,
+    PM_HUMAN,      PM_LAVA_DEMON,        PM_VAMPIRE_ROYAL, PM_RED_DRAGON,
+    PM_ROCK_TROLL, PM_UMBER_HULK,        PM_XORN,          PM_GIANT_CENTIPEDE,
+    PM_BASILISK,   PM_VORPAL_JABBERWOCK, PM_GUARDIAN_NAGA, PM_TRAPPER,
 };
 
 /* If you've found the Amulet, make the Wizard appear after some time */
@@ -746,16 +748,16 @@ pick_nasty(
 
     /* if genocided or too difficult or out of place, try a substitute
        when a suitable one exists
-           arch-lich -> master lich,
+           demilich -> lich,
            master mind flayer -> mind flayer,
        but the substitutes are likely to be genocided too */
     alt = res;
     if ((svm.mvitals[res].mvflags & G_GENOD) != 0
         || (difcap > 0 && mons[res].difficulty >= difcap)
-         /* note: nasty() -> makemon() ignores G_HELL|G_NOHELL;
-            arch-lich and master lich are both flagged as hell-only;
-            this filtering demotes arch-lich to master lich when
-            outside of Gehennom (unless the latter has been genocided) */
+         /* note: nasty() -> makemon() ignores G_HELL|G_NOHELL; no
+            member of nasties[] with a hell flag has a lesser form, so
+            for this table the out-of-place test finds no substitute
+            and the pick stands */
         || (mons[res].geno & (Inhell ? G_NOHELL : G_HELL)) != 0)
         alt = big_to_little(res);
     if (alt != res && (svm.mvitals[alt].mvflags & G_GENOD) == 0) {
@@ -841,17 +843,21 @@ nasty(struct monst *summoner, boolean centered_on_stairs)
             bypos.y = u.uy;
         }
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i) {
-            /* Of the 44 nasties[], on this game's monster data 5 are
-             * lawful, 20 are chaotic or unaligned, and 19 are neutral.
+            /* Of the 50 nasties[], on this game's monster data 21 are
+             * neutral, 16 are chaotic and 13 are lawful; none is
+             * unaligned.
              *
              * The inner loop breaks on a critter whose alignment is
              * neutral or matches the caster's sign: a neutral caster
              * (or the no-summoner harassment case) breaks on neutrals
-             * only (19/44), a lawful caster on neutrals plus lawfuls
-             * (24/44), and a chaotic caster on neutrals plus chaotics
-             * (39/44), so chaotic casters stop soonest and summon the
+             * only (21/50), a lawful caster on neutrals plus lawfuls
+             * (34/50), and a chaotic caster on neutrals plus chaotics
+             * (37/50), so chaotic casters stop soonest and summon the
              * fewest creatures on average. An unaligned summoner
              * counts as chaotic here (sgn of its A_NONE alignment).
+             * The test reads the monster actually made, so a gnomish
+             * captain (neutral) or an Angel made as another god's
+             * minion can break the loop off its listed side.
              *
              * The outer loop potentially gives casters who stop early
              * a chance to even things up since others will hit
@@ -913,13 +919,14 @@ nasty(struct monst *summoner, boolean centered_on_stairs)
                 if (mtmp) {
                     /* if creating an arch-lich or Archon, further directly
                        selected nasties will have to be less difficult, and
-                       substitues for geno victims will usually be less
-                       (note: Archon is not in nasties[] but could be chosen
-                       as random replacement for a genocided selection) */
+                       substitutes for geno victims will usually be less
+                       (note: neither is in nasties[] but either could be
+                       chosen as random replacement for a genocided
+                       selection) */
                     if (mtmp->data == &mons[PM_ARCH_LICH]
                         || mtmp->data == &mons[PM_ARCHON]) {
                         tmp = min(mons[PM_ARCHON].difficulty, /* A:26 */
-                                  mons[PM_ARCH_LICH].difficulty); /* L:31 */
+                                  mons[PM_ARCH_LICH].difficulty); /* L:29 */
                         if (!difcap || difcap > tmp)
                             difcap = tmp; /* rest must be lower difficulty */
                     }
