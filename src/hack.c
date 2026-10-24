@@ -3822,7 +3822,9 @@ spoteffects(boolean pick)
            the timeout to prevent that */
         if (trap && (HLevitation & TIMEOUT) == 1L
             && !(ELevitation || (HLevitation & ~(I_SPECIAL | TIMEOUT)))) {
-            if (rn2(2)) { /* defer timeout */
+            /* a praying hero's timeouts wait for the prayer, and so would
+               the landing (float_down()), which this pass would undo */
+            if (rn2(2) || u.uinvulnerable) { /* defer timeout */
                 incr_itimeout(&HLevitation, 1L);
             } else { /* timeout early */
                 if (float_down(I_SPECIAL | TIMEOUT, 0L)) {

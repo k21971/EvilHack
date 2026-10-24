@@ -2019,7 +2019,8 @@ seffect_remove_curse(struct obj **sobjp)
     }
     if (Punished && !confused)
         unpunish();
-    if (u_tethered()) {
+    /* a chain to a buried ball is a punishment too (punish()) */
+    if (u_tethered() && !confused) {
         /* the clasp goes first; any lift the chain kept down follows */
         pline_The("clasp on your %s vanishes.", body_part(LEG));
         buried_ball_to_freedom(TRUE);
@@ -3797,6 +3798,23 @@ punish(struct obj *sobj)
         Your("iron ball gets heavier.");
         uball->owt += WT_IRON_BALL_INCR * (1 + cursed_levy);
         return;
+    }
+    /* a buried iron ball the hero is chained to is punishment enough and
+       takes the weight; unearth_tether_ball() hands that ball here while
+       the chain still holds the hero, to be worn again */
+    if (!reuse_ball && u_tethered()) {
+        coord cc;
+        struct obj *bball;
+
+        cc.x = u.ux, cc.y = u.uy;
+        if ((bball = buried_ball(&cc)) != 0) {
+            Your("iron ball gets heavier.");
+            bball->owt += WT_IRON_BALL_INCR * (1 + cursed_levy);
+            return;
+        }
+        /* no ball to be chained to: the stale tether goes, and a new
+           ball and chain follow */
+        end_buried_tether(FALSE);
     }
     if (amorphous(gy.youmonst.data) || is_whirly(gy.youmonst.data)
         || unsolid(gy.youmonst.data)) {

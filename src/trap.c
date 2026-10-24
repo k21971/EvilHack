@@ -591,13 +591,22 @@ maketrap(coordxy x, coordxy y, int typ)
         break;
     case MAGIC_BEAM_TRAP_SET: {
         int d, startdir = rn2(N_DIRS);
-        int dist, lx, ly, ok = 0;
+        int dist, lx, ly, ltyp, ok = 0;
 
         for (d = 0; d < N_DIRS && !ok; d++) {
             for (dist = 1; dist < 8 && !ok; dist++) {
                 lx = x + dist * xdir[(startdir + d) % N_DIRS];
                 ly = y + dist * ydir[(startdir + d) % N_DIRS];
-                if (isok(lx, ly) && IS_STWALL(levl[lx][ly].typ)) {
+                if (!isok(lx, ly))
+                    break;
+                ltyp = levl[lx][ly].typ;
+                /* the beam can't reach the trap through a door, a secret
+                   door or corridor, or a tree: try another direction
+                   (an arboreal level's stone stays a launch point) */
+                if (IS_DOOR(ltyp) || ltyp == SDOOR || ltyp == SCORR
+                    || ltyp == TREE || ltyp == DEADTREE)
+                    break;
+                if (IS_STWALL(ltyp)) {
                     ttmp->launch.x = lx;
                     ttmp->launch.y = ly;
                     /* no AD_DISN, thanks */
@@ -4861,8 +4870,15 @@ float_down(
             FALLTHROUGH;
             /*FALLTHRU*/
         default:
-            if (!u.utrap) /* not already in the trap */
-                dotrap(trap, NO_TRAP_FLAGS);
+            if (u.utrap) /* already in the trap */
+                break;
+            /* praying: the trap waits for the god's answer, and the look
+               at what lies here waits with it (land_deferred()) */
+            if (u.uinvulnerable) {
+                defer_landing(LANDING_SPOT);
+                return 1;
+            }
+            dotrap(trap, NO_TRAP_FLAGS);
         }
     }
     if (!Is_airlevel(&u.uz) && !Is_waterlevel(&u.uz) && !u.uswallow

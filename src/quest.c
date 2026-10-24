@@ -406,8 +406,9 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
                     if (q_guardian && mtmp->data == q_guardian)
                         setmangry(mtmp, FALSE);
                 }
-                /* Convict quest leader is extra harsh */
-                if (Role_if(PM_CONVICT) && !Punished)
+                /* Convict quest leader is extra harsh, unless the hero
+                   is already chained (to a ball or a buried ball) */
+                if (Role_if(PM_CONVICT) && !Punished && !u_tethered())
                     punish((struct obj *) 0);
                 livelog_printf(LL_ACHIEVE, "refused to give up %s to %s",
                                qa_name, ldr_name);

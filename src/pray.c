@@ -797,7 +797,8 @@ angrygods(aligntyp resp_god)
         losexp((char *) 0);
         break;
     case 6:
-        if (!Punished) {
+        /* a chain to a buried ball counts as punishment already */
+        if (!Punished && !u_tethered()) {
             gods_angry(resp_god);
             punish((struct obj *) 0);
             break;
