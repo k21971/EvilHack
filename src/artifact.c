@@ -1824,12 +1824,9 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
                 dbon = ((3 * dbon) + 1) / 2;
             return dbon;
         }
-        if ((otmp->oprops & ITEM_DRLI)
-            && (yours ? !Drain_resistance
-                      : !(resists_drli(mon) || defended(mon, AD_DRLI)))) {
-            gs.spec_dbon_applies = TRUE;
-            return 0;
-        }
+        /* no weapon carries decay (ITEM_DRLI): create_oprop() and wishes
+           keep it to armor, and a shield or gloves strike through here
+           only with fire, frost or shock, which exclude it */
         return 0;
     }
 
@@ -2554,18 +2551,20 @@ artifact_hit(
                         || is_bullet(otmp) || otmp == uarms
                         || otmp == uarmg)
                        && (otmp->oprops & ITEM_FIRE)) {
-                pline_The("%s %s %s%c",
+                /* a wielded stack takes a plural verb */
+                boolean partly = (gs.spec_dbon_applies
+                                  && can_vaporize(mdef->data));
+                const char *verb = !gs.spec_dbon_applies ? "hit"
+                                   : partly ? "vaporize"
+                                     : def_underwater ? "hit"
+                                       : vulnerable_to(mdef, AD_FIRE)
+                                         ? "severely burn" : "burn";
+
+                pline_The("%s %s%s %s%c",
                           otmp->oclass == WEAPON_CLASS
                               ? distant_name(otmp, xname)
                               : simpleonames(otmp),
-                          !gs.spec_dbon_applies
-                              ? "hits"
-                              : can_vaporize(mdef->data)
-                                  ? "vaporizes part of"
-                                  : def_underwater
-                                      ? "hits"
-                                      : vulnerable_to(mdef, AD_FIRE)
-                                          ? "severely burns" : "burns",
+                          otense(otmp, verb), partly ? " part of" : "",
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
@@ -2680,16 +2679,19 @@ artifact_hit(
                         || is_bullet(otmp) || otmp == uarms
                         || otmp == uarmg)
                        && (otmp->oprops & ITEM_FROST)) {
-                pline_The("%s %s %s%c",
+                /* a wielded stack takes a plural verb */
+                boolean partly = (gs.spec_dbon_applies
+                                  && can_freeze(mdef->data));
+                const char *verb = !gs.spec_dbon_applies ? "hit"
+                                   : partly ? "freeze"
+                                     : vulnerable_to(mdef, AD_COLD)
+                                       ? "severely freeze" : "freeze";
+
+                pline_The("%s %s%s %s%c",
                           otmp->oclass == WEAPON_CLASS
                               ? distant_name(otmp, xname)
                               : simpleonames(otmp),
-                          !gs.spec_dbon_applies
-                              ? "hits"
-                              : can_freeze(mdef->data)
-                                  ? "freezes part of"
-                                  : vulnerable_to(mdef, AD_COLD)
-                                      ? "severely freezes" : "freezes",
+                          otense(otmp, verb), partly ? " part of" : "",
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
@@ -2723,15 +2725,17 @@ artifact_hit(
                         || is_bullet(otmp) || otmp == uarms
                         || otmp == uarmg)
                        && (otmp->oprops & ITEM_SHOCK)) {
+                /* a wielded stack takes a plural verb */
+                const char *verb = !gs.spec_dbon_applies ? "hit"
+                                   : vulnerable_to(mdef, AD_ELEC)
+                                     ? "severely shock"
+                                     : rn2(2) ? "jolt" : "shock";
+
                 pline_The("%s %s %s%c",
                           otmp->oclass == WEAPON_CLASS
                               ? distant_name(otmp, xname)
                               : simpleonames(otmp),
-                          !gs.spec_dbon_applies
-                              ? "hits"
-                              : vulnerable_to(mdef, AD_ELEC)
-                                  ? "severely shocks"
-                                  : rn2(2) ? "jolts" : "shocks",
+                          otense(otmp, verb),
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
@@ -2796,11 +2800,14 @@ artifact_hit(
             } else if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
                         || is_bullet(otmp))
                        && (otmp->oprops & ITEM_VENOM)) {
+                /* a wielded stack takes a plural verb */
+                const char *verb = (resists_poison(mdef)
+                                    || defended(mdef, AD_DRST))
+                                       ? "hit"
+                                       : rn2(2) ? "infect" : "poison";
+
                 pline_The("%s %s %s%c",
-                          distant_name(otmp, xname),
-                          (resists_poison(mdef) || defended(mdef, AD_DRST))
-                              ? "hits"
-                              : rn2(2) ? "infects" : "poisons",
+                          distant_name(otmp, xname), otense(otmp, verb),
                           hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
@@ -3976,20 +3983,10 @@ artifact_hit(
                 else if (is_art(otmp, ART_SHADOWBLADE))
                     pline_The("shadowy blade draws the %s from %s!",
                               life, mon_nam(mdef));
-                /* thirsty weapons currently are not allowed but we
-                   cover that base here in case they are added someday */
-                else if (otmp->oclass == WEAPON_CLASS
-                         && (otmp->oprops & ITEM_DRLI))
-                    pline_The("deadly %s draws the %s from %s!",
-                              otmpname, life, mon_nam(mdef));
                 /* the Staff of Aesculapius */
                 else
                     pline("%s draws the %s from %s!",
                           The(otmpname), life, mon_nam(mdef));
-                if (otmp->oprops & ITEM_DRLI) {
-                    otmp->oprops_known |= ITEM_DRLI;
-                    update_inventory();
-                }
             }
             if (mdef->m_lev == 0) {
                 /* losing a level when at 0 is fatal */
@@ -4035,16 +4032,9 @@ artifact_hit(
                     pline_The("massive sword drains your %s!", life);
                 else if (is_art(otmp, ART_SHADOWBLADE))
                     pline_The("shadowy blade drains your %s!", life);
-                else if (otmp->oclass == WEAPON_CLASS
-                         && (otmp->oprops & ITEM_DRLI))
-                    pline_The("deadly %s drains your %s!", otmpname, life);
                 /* the Staff of Aesculapius */
                 else
                     pline("%s drains your %s!", The(otmpname), life);
-            }
-            if (otmp->oprops & ITEM_DRLI) {
-                otmp->oprops_known |= ITEM_DRLI;
-                update_inventory();
             }
             mon_drains_level(mkiller, "life drainage");
             if (magr && magr->mhp < magr->mhpmax) {

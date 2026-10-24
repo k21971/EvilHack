@@ -3907,13 +3907,13 @@ icequeenrevive(struct monst *mtmp)
                 mon_nam(mtmp));
     }
 
-    /* should be redundant (set in mondead), but in case of funky
-       business */
-    if (!u.uevent.defeat_icequeen)
+    /* should be redundant (set and counted in mondead), but in case of
+       funky business */
+    if (!u.uevent.defeat_icequeen) {
         u.uevent.defeat_icequeen = 1;
-
-    if (svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died < 255)
-        svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
+        if (svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died < 255)
+            svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
+    }
 
     mtmp->mcanmove = 1;
     mtmp->mfrozen = 0;
@@ -5296,6 +5296,11 @@ mondead(struct monst *mtmp)
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
         if (!u.uevent.defeat_icequeen) {
             u.uevent.defeat_icequeen = 1;
+            /* she counts as vanquished now, as any other monster does
+               at its death; her revival comes only after a fatal turn's
+               disclosure and dump */
+            if (svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died < 255)
+                svm.mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
             /* the defeat state is recorded regardless of cause, but
                the livelog is credit-gated like the killed_* boss
                lines; attribution was consumed on entry above */

@@ -1381,11 +1381,10 @@ hatch_egg(anything *arg, long timeout)
             break;
         }
 
-        /* learn_egg_type() steps up one form from its argument, and the
-           hatchling can be two or more forms below the egg; hand it the
-           form one step below the egg (the egg is used up only below) */
+        /* the hatching shows what this kind of egg looks like (the egg
+           is used up only below) */
         if (cansee_hatchspot && knows_egg)
-            learn_egg_type(big_to_little(egg->corpsenm));
+            learn_egg_type(egg->corpsenm);
 
         if (egg->quan > 0) {
             /* still some eggs left; we didn't split the stack, just
@@ -1410,15 +1409,14 @@ hatch_egg(anything *arg, long timeout)
     }
 }
 
-/* Learn to recognize eggs of the given type. */
+/* Learn to recognize eggs of the given type; mnum is the egg's own kind
+   (its corpsenm, which is what an egg's name reads), not its hatchling */
 void
 learn_egg_type(int mnum)
 {
     /* defensive: bad corpsenm shouldn't index mvitals[] */
     if (!ismnum(mnum))
         return;
-    /* baby monsters hatch from grown-up eggs */
-    mnum = little_to_big(mnum);
     svm.mvitals[mnum].mvflags |= MV_KNOWS_EGG;
     /* we might have just learned about other eggs being carried */
     update_inventory();

@@ -567,6 +567,9 @@ pick_lock(
                         return PICKLOCK_DID_NOTHING; /* c == 'q' */
                     /* c == 'y' */
                     untrap(FALSE, 0, 0, otmp);
+                    /* the check is this step's whole action; a count
+                       would ask again on every repeat */
+                    end_running(TRUE);
                     return PICKLOCK_DID_SOMETHING; /* even if no trap found */
                 } else if (autounlock
                           && (flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0) {
@@ -740,6 +743,9 @@ pick_lock(
                     return PICKLOCK_DID_NOTHING;
                 /* c == 'y' */
                 untrap(FALSE, cc.x, cc.y, (struct obj *) 0);
+                /* the check is this step's whole action; a counted move
+                   or #open would ask again on every step */
+                end_running(TRUE);
                 return PICKLOCK_DID_SOMETHING; /* even if no trap found */
             }
             /* credit cards are only good for unlocking */
