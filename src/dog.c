@@ -1030,6 +1030,14 @@ mon_catchup_elapsed_time(
         else
             mtmp->mstoneskintime -= imv;
     }
+    /* an entangling spell's hold runs down too; the expiry check lets
+       go, with its message, on the next tick */
+    if (mtmp->mentangletime) {
+        if (imv >= mtmp->mentangletime)
+            mtmp->mentangletime = 1;
+        else
+            mtmp->mentangletime -= imv;
+    }
 
     /* withering monsters by rights ought to keep withering while
        off-level, but it brings up a host of problems to have a monster

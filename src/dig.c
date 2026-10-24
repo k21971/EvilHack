@@ -598,7 +598,7 @@ dig(void)
         feel_newsym(dpx, dpy);
         if (digtxt && !svc.context.digging.quiet)
             pline1(digtxt); /* after newsym */
-        /* the felled tree may have been the one holding the hero */
+        /* the felled tree may have held the hero or a monster */
         if (felled_tree)
             tree_gone_release(dpx, dpy);
         if (dmgtxt)
@@ -806,13 +806,14 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
     /* wrath should immediately follow altar destruction message */
     if (heros_fault && old_typ == ALTAR)
         desecrate_altar(FALSE, old_aligntyp);
-    /* the pit or hole took the grass that held the hero (maketrap() made
-       it floor); the arms below decide whether the hero drops */
-    if (at_u) {
+    /* the pit or hole took the grass that held the hero or a monster
+       (maketrap() made it floor); the arms below decide who drops */
+    {
         enum hero_landing was_pending = gp.pending_landing;
 
         grass_gone_release(x, y);
-        gp.pending_landing = was_pending;
+        if (at_u)
+            gp.pending_landing = was_pending;
     }
 
     /* now deal with actual post-trap creation effects */
@@ -850,6 +851,8 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                     pline("%s %s over the pit.", Monnam(mtmp),
                           (is_flyer(mtmp->data) || can_fly(mtmp))
                               ? "flies" : "floats");
+            } else if (mon_tree_held(mtmp)) {
+                ; /* held above the pit, as the hero is */
             } else if (mtmp != madeby)
                 (void) mintrap(mtmp, NO_TRAP_FLAGS);
         }
@@ -909,7 +912,9 @@ digactualhole(coordxy x, coordxy y, struct monst *madeby, int ttyp)
                 if (!grounded(mtmp->data)
                     || can_levitate(mtmp) || can_fly(mtmp)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
-                    || mtmp->data->msize >= MZ_HUGE)
+                    || mtmp->data->msize >= MZ_HUGE
+                    /* a live tree's hold keeps it above the hole */
+                    || mon_tree_held(mtmp))
                     return;
                 /* probably a vortex, or a rider whose steed holds or is
                    held by the hero */
@@ -1118,7 +1123,7 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
                 lev->typ = typ;
                 liquid_flow(dig_x, dig_y, typ, ttmp,
                             "As you dig, the hole fills with %s!");
-                /* the flooded grass may have been holding the hero */
+                /* the flooded grass may have held the hero or a monster */
                 grass_gone_release(dig_x, dig_y);
             }
             retval = TRUE;
@@ -1667,7 +1672,7 @@ mdig_tunnel(struct monst *mtmp)
     newsym(mtmp->mx, mtmp->my);
     if (!sobj_at(BOULDER, mtmp->mx, mtmp->my))
         unblock_point(mtmp->mx, mtmp->my); /* vision */
-    /* the tree may have been the one holding the hero */
+    /* the tree may have held the hero or a monster */
     if (felled_tree)
         tree_gone_release(mtmp->mx, mtmp->my);
 
@@ -1930,7 +1935,7 @@ zap_dig(void)
                 digdepth--;
             }
             unblock_point(zx, zy); /* vision */
-            /* the tree may have been the one holding the hero */
+            /* the tree may have held the hero or a monster */
             if (live_tree)
                 tree_gone_release(zx, zy);
         }
@@ -2758,6 +2763,16 @@ create_pit_under(struct monst *mdef, struct monst *magr)
         /* We want to make them be in the trap anew - they won't fall into holes
          * and such if this is left as 1 */
         mdef->mtrapped = 0;
+        /* the attack tears it out of entangling vegetation, as it does
+           the hero */
+        if (mdef->mentangled) {
+            if (canseemon(mdef))
+                pline_mon(mdef, "%s is torn from the %s!", Monnam(mdef),
+                          nexttotree(mdef->mx, mdef->my) ? "tree's grip"
+                                                         : "vegetation");
+            mdef->mentangled = 0;
+            mdef->mentangletime = 0;
+        }
         if (canseemon(mdef)) {
             if (youattack)
                 You("hurl %s down%s!", mon_nam(mdef),

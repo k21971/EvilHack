@@ -1834,6 +1834,10 @@ rloc_to_core(
     if (x == mtmp->mx && y == mtmp->my && m_at(x, y) == mtmp)
         return; /* that was easy */
 
+    /* a fall pending over the old square (mon_lost_support()) stays
+       there; arriving on a hole makes none */
+    mtmp->mstate &= ~((long) nonflyer_vs_hole);
+
     if (oldx) { /* "pick up" monster */
         if (domsg && canspotmon(mtmp)) {
             if (couldsee(x, y) || sensemon(mtmp)) {

@@ -4929,8 +4929,9 @@ do_break_wand(struct obj *obj)
                                   ? (char *) 0
                                   : "Some holes are quickly filled with %s!");
                     fillmsg = TRUE;
-                    /* the flooded grass may have been holding the hero
-                       (dig_check() spares a standing tree's square) */
+                    /* the flooded grass may have been holding the hero or
+                       a monster (dig_check() spares a standing tree's
+                       square) */
                     grass_gone_release(x, y);
                 } else {
                     digactualhole(x, y, BY_OBJECT,

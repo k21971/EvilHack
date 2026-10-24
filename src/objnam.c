@@ -4711,7 +4711,7 @@ wizterrainwish(struct _readobjnam_data *d)
            while in xorn form and replacing solid stone with furniture) */
         switch_terrain();
         /* the new terrain may have replaced the tree or the grass that
-           held the hero */
+           held the hero or, for a tree, a monster beside it */
         if (IS_TREE(oldtyp))
             tree_gone_release(x, y);
         else

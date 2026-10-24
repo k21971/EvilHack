@@ -2696,6 +2696,16 @@ mkinvokearea(void)
         nh_delay_output();
     }
 
+    /* grass and trees inside the area are gone; with the whole area
+       rebuilt, a monster they held is let go */
+    {
+        struct monst *mtmp;
+
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+            if (!DEADMONSTER(mtmp))
+                mon_entangle_recheck(mtmp);
+    }
+
     You("are standing at the top of a stairwell leading down!");
     mkstairs(u.ux, u.uy, 0, (struct mkroom *) 0, FALSE); /* down */
     newsym(u.ux, u.uy);

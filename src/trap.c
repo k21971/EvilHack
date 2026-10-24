@@ -84,6 +84,7 @@ staticfn void join_adjacent_pits(struct trap *);
 staticfn boolean thitm(int, struct monst *, struct obj *, int,
                                               boolean, boolean) NONNULLARG2;
 staticfn void maybe_finish_sokoban(void);
+staticfn void mon_entangle_release(struct monst *, boolean) NONNULLARG1;
 
 static const char *const a_your[2] = { "a", "your" };
 static const char *const A_Your[2] = { "A", "Your" };
@@ -5017,27 +5018,85 @@ entangle_release(boolean by_tree)
     }
 }
 
+/* is a monster held by a live tree's branches or roots? As for the hero
+   (u_tree_held()), terrain changes under it leave that hold alone */
+boolean
+mon_tree_held(struct monst *mtmp)
+{
+    return (mtmp->mentangled && nexttotree(mtmp->mx, mtmp->my));
+}
+
+/* entangling vegetation lets go of a monster: the grass under it or the
+   live tree beside it is gone */
+staticfn void
+mon_entangle_release(struct monst *mtmp, boolean by_tree)
+{
+    mtmp->mentangled = 0;
+    mtmp->mentangletime = 0;
+    if (canseemon(mtmp)) {
+        if (by_tree)
+            pline_mon(mtmp, "The tree releases its grip on %s.",
+                      mon_nam(mtmp));
+        else
+            pline_mon(mtmp, "The vegetation releases %s.", mon_nam(mtmp));
+    }
+    /* a tree that held it over a hole (mon_tree_held()) no longer does */
+    mon_lost_support(mtmp);
+}
+
+/* the terrain around an entangled monster has been rebuilt wholesale
+   (mkinvokearea()); with no grass under it and no live tree beside it,
+   nothing holds it any more */
+void
+mon_entangle_recheck(struct monst *mtmp)
+{
+    if (mtmp->mentangled && !IS_GRASS(levl[mtmp->mx][mtmp->my].typ)
+        && !nexttotree(mtmp->mx, mtmp->my))
+        mon_entangle_release(mtmp, FALSE);
+}
+
 /* the live tree at x,y has just died or come down; if it held the hero
-   and no other live tree is next to the hero, it lets go. Callers pass
-   only a live tree: a dead one never held anyone, and a grass-held hero
-   beside it must stay held */
+   or a monster beside it and no other live tree is next to them, it lets
+   go. Callers pass only a live tree: a dead one never held anyone, and a
+   grass-held hero or monster beside it must stay held */
 void
 tree_gone_release(coordxy x, coordxy y)
 {
+    struct monst *mtmp;
+    coordxy mx, my;
+
     if (u.utrap && u.utraptype == TT_ENTANGLED && distu(x, y) <= 2
         && !nexttotree(u.ux, u.uy))
         entangle_release(TRUE);
+    for (mx = x - 1; mx <= x + 1; mx++)
+        for (my = y - 1; my <= y + 1; my++) {
+            if (!isok(mx, my) || (mtmp = m_at(mx, my)) == 0)
+                continue;
+            /* a long worm's tail square names its head; take the head
+               on its own square only, and only once */
+            if (mtmp->mx != mx || mtmp->my != my || DEADMONSTER(mtmp))
+                continue;
+            if (mtmp->mentangled && !nexttotree(mx, my))
+                mon_entangle_release(mtmp, TRUE);
+        }
 }
 
 /* the grass at x,y has just gone (burned, eaten, flooded, dug into or
-   built over); a hero it held there is let go. A live tree next to the
-   hero holds on: that hold is the tree's (u_tree_held()) */
+   built over); a hero or monster it held there is let go. A live tree
+   next to them holds on: that hold is the tree's (u_tree_held(),
+   mon_tree_held()) */
 void
 grass_gone_release(coordxy x, coordxy y)
 {
+    struct monst *mtmp;
+
     if (u_at(x, y) && u.utrap && u.utraptype == TT_ENTANGLED
         && !IS_GRASS(levl[x][y].typ) && !nexttotree(u.ux, u.uy))
         entangle_release(FALSE);
+    if ((mtmp = m_at(x, y)) != 0 && mtmp->mx == x && mtmp->my == y
+        && !DEADMONSTER(mtmp) && mtmp->mentangled
+        && !IS_GRASS(levl[x][y].typ) && !nexttotree(x, y))
+        mon_entangle_release(mtmp, FALSE);
 }
 
 /* shared code for climbing out of a pit */

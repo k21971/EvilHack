@@ -6787,7 +6787,7 @@ dobuzz(
                     record_abuse_event(-2, ABUSE_DESTROY_TREE);
                 }
             }
-            /* whoever cast it, the dead tree lets go of the hero */
+            /* whoever cast it, the dead tree lets go of whoever it held */
             tree_gone_release(sx, sy);
             /* the tree stops the beam rather than bouncing it */
             range = 0;
@@ -7087,7 +7087,7 @@ zap_over_floor(
                     record_abuse_event(-2, ABUSE_DESTROY_TREE);
                 }
             }
-            /* the burned tree may have been the one holding the hero */
+            /* the burned tree may have held the hero or a monster */
             tree_gone_release(x, y);
         } else if (lev->typ == DEADTREE) {
             if (may_dig(x, y)) { /* petrified dead trees are unaffected */
@@ -7113,7 +7113,7 @@ zap_over_floor(
                 maybe_unhide_at(x, y);
             }
             newsym(x, y);
-            /* the burned grass may have been holding the hero */
+            /* the burned grass may have held the hero or a monster */
             grass_gone_release(x, y);
         }
         break; /* ZT_FIRE */

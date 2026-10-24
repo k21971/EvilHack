@@ -783,6 +783,8 @@ enum mon_terrain_effects {
        since they get set on mon->mstate */
     nonflyer_vs_liquid  = 0x10000000,
     candrown_vs_liquid = 0x20000000,
+    /* a hold or a lift ended over a hole or trap door (mon_lost_support()) */
+    nonflyer_vs_hole = 0x40000000,
 };
 
 /* gp.pending_landing: how land_deferred() brings the hero down after

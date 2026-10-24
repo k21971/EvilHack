@@ -69,9 +69,8 @@ enum m_ap_types {
 /* 0x10000000 through 0x40000000 match enum pending_terrain_effects   */
 /*                         0x10000000 */ /* nonflyer_vs_liquid  */
 /*                         0x20000000 */ /* candrown_vs_liquid */
-/*                         0x40000000 */
+/*                         0x40000000 */ /* nonflyer_vs_hole */
 #define TERRAIN_FALLOUT_MASK   0x70000000
-
 
 #define M_AP_TYPMASK  0x7
 #define M_AP_F_DKNOWN 0x8

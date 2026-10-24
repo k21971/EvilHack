@@ -670,6 +670,9 @@ still_chewing(coordxy x, coordxy y)
     struct rm *lev = &levl[x][y];
     struct obj *boulder = sobj_at(BOULDER, x, y);
     const char *digtxt = (char *) 0, *dmgtxt = (char *) 0;
+    /* a live tree chewed through lets go of anyone it held; this counts
+       the stone of an arboreal level, which reads as trees */
+    boolean live_tree = (!boulder && IS_TREE(lev->typ));
 
     if (svc.context.digging.down) /* not continuing prev dig (w/ pick-axe) */
         (void) memset((genericptr_t) &svc.context.digging, 0,
@@ -851,6 +854,8 @@ still_chewing(coordxy x, coordxy y)
     newsym(x, y);
     if (digtxt)
         You1(digtxt); /* after newsym */
+    if (live_tree)
+        tree_gone_release(x, y);
     if (dmgtxt)
         pay_for_damage(dmgtxt, FALSE);
     (void) memset((genericptr_t) &svc.context.digging, 0,
@@ -2548,7 +2553,7 @@ domove_fight_burn(coordxy x, coordxy y, const char *target,
                 adjalign(-2);
                 record_abuse_event(-2, ABUSE_DESTROY_TREE);
             }
-            /* the burned tree may have been the one holding the hero */
+            /* the burned tree may have held the hero or a monster */
             tree_gone_release(x, y);
         }
     } else if (lev->typ == DEADTREE) {

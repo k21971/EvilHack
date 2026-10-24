@@ -51,6 +51,8 @@ staticfn void pacify_guard(struct monst *);
 staticfn short m_chooserace(unsigned long);
 staticfn int scale_mon_damage(struct monst *, int, int) NONNULLARG1;
 staticfn boolean damage_mon_core(struct monst *, int, boolean) NONNULLARG1;
+staticfn boolean mon_falls_unsupported(struct monst *) NONNULLARG1;
+staticfn boolean mon_unsupported_fall(struct monst *) NONNULLARG1;
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -1778,6 +1780,7 @@ m_calcdistress(struct monst *mtmp)
         mtmp->mentangled = 0;
         if (canseemon(mtmp))
             pline("%s is no longer entangled.", Monnam(mtmp));
+        mon_lost_support(mtmp); /* a tree held it over a hole */
     }
     if (can_levitate(mtmp) && mtmp->mlevitatetime
         && mtmp->mlevitatetime <= 1) {
@@ -1789,6 +1792,7 @@ m_calcdistress(struct monst *mtmp)
                 pline("%s floats gently to the %s.",
                       Monnam(mtmp), surface(mtmp->mx, mtmp->my));
             steed_lift_changed(mtmp, TRUE);
+            mon_lost_support(mtmp); /* it floated over a hole */
         }
     }
     if (can_jump(mtmp) && mtmp->mjumptime && mtmp->mjumptime <= 1) {
@@ -1929,6 +1933,9 @@ movemon_singlemon(struct monst *mtmp)
        still (dog_goal()), so it gives up this move and the hero is thrown
        off at the next dismount_untamed_steed() */
     if (DEADMONSTER(mtmp) || (mtmp == u.usteed && !mtmp->mtame))
+        return FALSE;
+    /* a hold or lift that ended over a hole drops it before it acts */
+    if (mon_unsupported_fall(mtmp))
         return FALSE;
 
     /* after losing equipment, try to put on replacement;
@@ -8722,6 +8729,7 @@ newcham(
                                                      : "vegetation");
         mtmp->mentangled = 0;
         mtmp->mentangletime = 0;
+        mon_lost_support(mtmp); /* a tree held it over a hole */
     }
 
     /* This ought to re-test can_carry() on each item in the inventory
@@ -8826,16 +8834,73 @@ terrain_effects(void)
 
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-        if ((mtmp->mstate & TERRAIN_FALLOUT_MASK) != 0) {
+        if ((mtmp->mstate & (long) (nonflyer_vs_liquid
+                                    | candrown_vs_liquid)) != 0) {
             /* nonflyer_vs_liquid */
-            if (!DEADMONSTER(mtmp)
-                && ((mtmp->mstate & (long) (nonflyer_vs_liquid | candrown_vs_liquid)) != 0))
+            if (!DEADMONSTER(mtmp))
                 (void) minliquid(mtmp);
 
-            /* always clear these bits, even if DEADMONSTER */
-            mtmp->mstate &= ~TERRAIN_FALLOUT_MASK;
+            /* always clear these bits, even if DEADMONSTER; the
+               nonflyer_vs_hole bit waits for the monster's own turn
+               (mon_unsupported_fall()) */
+            mtmp->mstate &= ~((long) (nonflyer_vs_liquid
+                                      | candrown_vs_liquid));
         }
     }
+}
+
+/* nothing holds a grounded monster up over the hole or trap door it
+   stands on: not a trap it is caught in, a hold, flight, levitation, its
+   size or length, a rider's place on its back, or the hero it holds or
+   who holds it */
+staticfn boolean
+mon_falls_unsupported(struct monst *mtmp)
+{
+    struct trap *ttmp = t_at(mtmp->mx, mtmp->my);
+
+    return (ttmp && is_hole(ttmp->ttyp) && Can_fall_thru(&u.uz)
+            && mtmp != u.usteed && !mtmp->ridden_by
+            && !ustuck_self_or_steed(mtmp)
+            && !mtmp->mtrapped && !mtmp->mentangled
+            && grounded(mtmp->data) && !mon_airborne(mtmp)
+            && !(mtmp->wormno && count_wsegs(mtmp) > 5)
+            && mtmp->data->msize < MZ_HUGE);
+}
+
+/* a monster has just lost what held it up (a vegetation hold, its
+   levitation): if it stands on a hole or trap door, it drops through at
+   the start of its own next turn (mon_unsupported_fall()), as the hero's
+   deferred landing does before the hero acts; the hold's or lift's own
+   message comes first. A teleport cancels it (rloc_to_core()) */
+void
+mon_lost_support(struct monst *mtmp)
+{
+    if (mon_falls_unsupported(mtmp))
+        mtmp->mstate |= (long) nonflyer_vs_hole;
+}
+
+/* movemon_singlemon(): the fall mon_lost_support() set up; returns TRUE
+   if the monster has left the level or died */
+staticfn boolean
+mon_unsupported_fall(struct monst *mtmp)
+{
+    struct obj *leash;
+    int trapret;
+
+    if ((mtmp->mstate & (long) nonflyer_vs_hole) == 0)
+        return FALSE;
+    mtmp->mstate &= ~((long) nonflyer_vs_hole);
+    if (!mon_falls_unsupported(mtmp))
+        return FALSE;
+    /* a cursed leash holds a pet back, as it does at a trap door it
+       steps onto (teleport_pet()); FORCETRAP below would let it slip */
+    if (mtmp->mleashed && (leash = get_mleash(mtmp)) != 0 && leash->cursed) {
+        yelp(mtmp);
+        return FALSE;
+    }
+    trapret = mintrap(mtmp, FORCETRAP);
+    return (trapret == Trap_Killed_Mon || trapret == Trap_Moved_Mon
+            || DEADMONSTER(mtmp) || mon_offmap(mtmp));
 }
 
 /* sometimes an egg will be special */

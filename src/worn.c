@@ -836,6 +836,8 @@ update_mon_extrinsics(
             if (!unseen && !can_levitate(mon) && !probing_gear)
                 pline_mon(mon, "%s floats gently back to the %s.",
                           Monnam(mon), surface(mon->mx, mon->my));
+            if (!probing_gear)
+                mon_lost_support(mon); /* it floated over a hole */
             break;
         case FREE_ACTION:
             if (!worn_gear_grants(mon, FREE_ACTION, obj))
@@ -850,6 +852,8 @@ update_mon_extrinsics(
                      || can_levitate(mon) || can_fly(mon)))
                 pline_mon(mon, "%s lands on the %s.",
                           Monnam(mon), surface(mon->mx, mon->my));
+            if (!probing_gear)
+                mon_lost_support(mon); /* it flew over a hole */
             break;
         case FIRE_RES:
         case COLD_RES:
