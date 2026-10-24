@@ -367,6 +367,9 @@ tracker; sNNN = port session.
 - [x] xlogfile conduct tokens -> master's names (2026-07-17).
 - [x] -nethackrc / NETHACKOPTIONS / .nethackrc -> EvilHack names
   (2026-07-12).
+- [x] "Boom!" before every explosion the hero sees (s258, BUG-2560,
+  81f2eaeef; master never printed it; an unseen blast still reads
+  "You hear a blast.").
 
 ### 2.5 Levels and content
 

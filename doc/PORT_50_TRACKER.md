@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-24, after the ruling round
-  that followed session 257): 484 rows closed, 141 open
+- Phase 2 status (refreshed 2026-10-24, after session 258's
+  twelve-row slice): 496 rows closed, 130 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -324,7 +324,29 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 123 LOW: small parity rows, quirks and watch/record-only items.
+  - 112 LOW: small parity rows, quirks and watch/record-only items.
+    Session 258 closed twelve (BUG-2552..2568): a spell touch or the
+    Hand of Vecna's cold deals its own element (1.5x against a
+    vulnerable target, not halved as physical damage; the hero's
+    spell dice halved by a half-spell artifact; the hero's
+    Half_physical_damage spares a monster's spell touch), and the
+    riders skip a target or thief the damage handler teleported;
+    blessings and the bane artifacts count the race of a natural
+    hero and of a racial player-monster (aura and taming refusal
+    included); a cursed weapon of excellence caps Cha at 6, an
+    adornment ring under one is never learned without a visible
+    change, and an alternate-slot one gives Luck only while
+    two-weaponing; no "Boom!"; an always-peaceful monster's malign
+    is +1 for an Infidel or Draugr hero; the owner's and the forfeit
+    prompt's artifact name takes "the"; the ice trap still freezes
+    an already vulnerable hero; the merge line keeps its period; an
+    exploding shop box is billed once; tipping or looting stops when
+    the container falls down a hole. Folded, found by battery C: a
+    wish-owner leader of another role killed marked the hero's own
+    leader dead (base Luck -4, quest entry) and, per the reviewer,
+    counted as murdering a peaceful (BUG-2568, a port regression;
+    master's leader / nemesis gates restored). Minted one record
+    row: the elemental-extras residue.
     The 2026-10-24 ruling round (after session 257) ruled ten rows.
     Three closed with no code: Stoneskin cast while turning to
     stone stays a guard against new stoning only; applying an
@@ -2350,7 +2372,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       c_bracers "already wearing" text and "Your bracers crumble
       away!". Only the mcastu.c half (the monster destroy-armor
       "crumble away") is on the branch.
-- [ ] LOW: 5.0's "Boom!" before a seen explosion (minted
+- [x] LOW: 5.0's "Boom!" before a seen explosion (minted
       2026-10-21 by session 247's battery; 5.0 extra, record only
       unless ruled). explode() prints "Boom!" whenever no "You hear
       a blast." line was given, so every visible blast reads
@@ -2359,6 +2381,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       RULED 2026-10-24 (decisions log): DROP IT, as recommended -
       explode() prints no "Boom!" (master's shape); an unseen blast
       still reads "You hear a blast.". Plannable.
+      CLOSED 2026-10-24 (session 258, 81f2eaeef; BUG-2560). explode()
+      prints no "Boom!" (master's shape); dig.c's own "Boom!" at a
+      destroyed magic trap no longer doubles. Battery C. Recorded in
+      doc/PORT_50_REMOVALS.md.
 - [ ] LOW: a tiny hero submerged in a puddle sees a blank map
       (minted 2026-10-21 by session 247's battery; shared with
       master). pooleffects() submerges a verysmall form in a puddle
@@ -2367,7 +2393,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hero's own square and the hero glyph are never drawn, even
       after ^R; only the cursor marks the hero. Fix shape: let
       under_water() draw damp terrain (is_damp_terrain()) too.
-- [ ] LOW: spell-touch damage enters as the attack's damage type
+- [x] LOW: spell-touch damage enters as the attack's damage type
       (minted 2026-10-20 by session 245; master quirk, record only
       unless ruled). A monster's burning hands / shocking grasp
       extra (mdamagem()) and the hero's (hmon_hitmon()) are added to
@@ -2383,6 +2409,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       for monsters (mdamagem()) and the hero (hmon_hitmon()), as
       hmonas() already does. Archived as a master quirk,
       frozen-unfixed. Plannable.
+      CLOSED 2026-10-24 (session 258, 9eabd71a8; BUG-2552..2554, master
+      frozen-unfixed). New extern damage_mon_elem() (mon.c) scales a
+      blow and its fire / shock / cold parts each for its own element,
+      and only the blow meets SPFX_HPHDAM; mdamagem() keeps the riders
+      apart (BUG-2442's halving kept), hmon_hitmon() tracks the parts in
+      struct _hitmon_data (hmd.dmg stays the total for the stagger and
+      hurtle gates). Folded by ruling: the Hand of Vecna's cold counts
+      as cold, the hero's spell dice are halved against an SPFX_HSPDAM
+      defender (spell_touch_dmg(), hmonas() too), and the hero's
+      Half_physical_damage halves only the blow under a monster's spell
+      touch. Battery A: winter wolf PRE blow + burn unscaled, POST blow
+      + 1.5x burn (7 / 7 samples); a cold-clawed ice troll's burn PRE
+      got the cold 1.5x against a tortle, POST not; the hero's burn /
+      shock / Vecna cold 1.5x POST; Angelslayer halves the hero's dice
+      POST; Half_physical PRE halved the burn too (1+8 -> 5), POST only
+      the blow (3+8 -> 10). Master as PRE (battery M1).
+- [ ] LOW: elemental-extras residue (minted 2026-10-24, session 258, by
+      the Plan stress test; record only). (a) A monster caught in an ice
+      trap's mist takes it through thitm() as AD_PHYS, so a
+      cold-vulnerable one gets no 1.5x. (b) mhurtle_to_doom() predicts
+      survival from the hit's unscaled total, so a target whose
+      elemental part now gets 1.5x can be knocked back and then die
+      where it lands. (c) A kill by a monster's spell-touch part keeps
+      the attack's death type, so a paper golem burned to death by a
+      claw still leaves a corpse. Master shares (b) and (c).
 - [ ] LOW: hero breath's saving throw can halve an outright kill
       (minted 2026-10-20 by session 245's reviewer; vanilla shape,
       more frequent with BUG-2440's MC bonus). zhitm() halves hero
@@ -2407,7 +2458,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       inferred); "opening a iron container" (pickup.c); NO_MATERIAL
       passes valid_obj_material(); matdensities[] is unclamped on
       restore (a 5-bit field, 25 entries).
-- [ ] LOW: dmgval() reads the natural hero's role monster (minted
+- [x] LOW: dmgval() reads the natural hero's role monster (minted
       2026-10-20, session 244, by the touch-sear slice; master-
       shared). dmgval() takes ptr = r_data(mdef), the role monster
       for an unpolymorphed hero, and mon_hates_blessings() reads
@@ -2422,6 +2473,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       demon-race hero and the cursed one an aasimar hero (the hero's
       race counts, as for hated materials). Archived as a master bug,
       frozen-unfixed. Plannable.
+      CLOSED 2026-10-24 (session 258, 4da61ac04; BUG-2556, master
+      frozen-unfixed). mon_hates_blessings() reads r_data() (ruled
+      "monsters too": racial vampire / draugr player-monsters) and the
+      unpolymorphed hero's raceptr() (BUG-2434's arm); the cursed term
+      and Angelslayer's AI score use racial_aasimar(). Folded after
+      review (ruled "both races"): the wielded-bane aura (allmain.c) and
+      the taming refusal (dog.c) count a racial monster's race for
+      Sunsword, the Hammer, Demonbane and Angelslayer. Battery B:
+      vampire hero's toss-up and a soldier's blessed blade, aasimar
+      hero's cursed dagger, a vampire barbarian player-monster: the
+      bonus fires POST only; an aasimar samurai angered by Angelslayer
+      and a vampire barbarian by Sunsword POST only. Master as PRE
+      (battery M3).
 - [ ] LOW: a vampire-race hero in #shapechange form hates silver
       nowhere (minted 2026-10-20, session 244; master-shared).
       Upolyd, so raceptr() and r_data() both give the bat / fog /
@@ -16287,7 +16351,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       invoke_banish() is dead code (no artifact carries BANISH on the
       branch). Minted with it: the always-peaceful +1 accumulation
       (next row).
-- [ ] LOW: set_malign()'s always-peaceful arm accumulates for an
+- [x] LOW: set_malign()'s always-peaceful arm accumulates for an
       Infidel or Draugr hero (minted 2026-10-24 by the set_malign
       site trace; master the same, makemon.c). `mtmp->malign += 1`
       ("killing them is barely an alignment hit") grows with every
@@ -16296,6 +16360,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       in between. RULED 2026-10-24 (decisions log): FIXED +1, as
       recommended - `mtmp->malign = 1`. Archived as a master bug,
       frozen-unfixed. Plannable.
+      CLOSED 2026-10-24 (session 258, 81f2eaeef; BUG-2561, master
+      frozen-unfixed). `mtmp->malign = 1`. Battery C: an Infidel's
+      peaceful watchman PRE 2, 3, 4, 5 over creation and three
+      recomputes, POST 1 throughout. Master as PRE (battery M6).
 - [ ] LOW: red objects on the red hidden-stairs background (minted
       2026-10-22, session 251; master shares it). With
       hilite_hidden_stairs on, a CLR_RED object, corpse or statue
@@ -19509,7 +19577,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       square at bones time; a carried or in-flight one empties at the
       hero's feet at the end of the game, never sold). Three batteries
       PASS (archive).
-- [ ] LOW: a floor container knocked down a hole mid-operation keeps
+- [x] LOW: a floor container knocked down a hole mid-operation keeps
       being worked on (minted 2026-10-20, session 242, by the Plan
       agent; vanilla 5.0, no crash). (a) #tip of a floor box onto the
       floor, or into a carried bag of holding that blows up, while the
@@ -19531,6 +19599,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       double billing, no goods turned into stock) and looting stops
       once the bag of devouring has left the level. Rejected record
       only. Plannable.
+      CLOSED 2026-10-24 (session 258, 4e2f4ef47; BUG-2566 (vanilla 5.0 +
+      branch; master never ships the dropped items, battery M10;
+      upstream-reportable) and BUG-2567 (master frozen-unfixed)).
+      tipcontainer() stops once the box is no longer obj_here();
+      use_container() stops once the bag of devouring or the hero has
+      left its square; doloot_core() skips a menu pick that has gone and
+      stops its single-container walk. Battery D: PRE tipping scattered
+      the rest below and billed the hero's own goods in a shop, a dagger
+      was taken out of a migrating bag, a fallen box got a loot prompt;
+      POST the rest travels inside the box, no loot prompt, the fallen
+      box is skipped.
 - [ ] LOW: a Rider corpse taken out of an ice box never revives
       (minted 2026-10-19, session 240, by the Plan agent).
       removed_from_icebox() sets norevive for every corpse but an ice
@@ -19538,12 +19617,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       twitches until it rots; #loot take-out, a broken ice box and
       session 240's spare (a destroyed ice box) all go through it.
       Needs a master census, then a ruling. LOW.
-- [ ] LOW: an exploding box on a shop floor is charged twice (minted
+- [x] LOW: an exploding box on a shop floor is charged twice (minted
       2026-10-19, session 240, by battery D; master + vanilla 5.0).
       chest_trap() charges stolen_value() for the box with its contents,
       then its floor loop charges the now-empty box again (battery: box
       14 + sack 4 + bugle 27 billed 59). Fix: skip the box itself in
       the floor loop's billing. Plannable; upstream-reportable. LOW.
+      CLOSED 2026-10-24 (session 258, 81f2eaeef; BUG-2565, master
+      frozen-unfixed; upstream-reportable). The floor loop skips the box
+      itself. Battery C: PRE 66 = 16 + 4 + 30 + 16, POST 51 = 16 + 5 +
+      30. Master as PRE (battery M9).
 - [ ] LOW: a rock-mole-form hero may be able to eat the Sword of
       Annihilation (minted 2026-10-18, session 239 follow-up, from the
       container census; inferred, not traced). is_edible()'s
@@ -21130,7 +21213,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       turn a wield ("The Grey-elf wields a copper elven
       broadsword!", no attack) and the strike the turn after, the
       engulfed owner wish "It says:". Paniclogs empty.
-- [ ] LOW: a wished artifact's owner says "The" mid-sentence
+- [x] LOW: a wished artifact's owner says "The" mid-sentence
       (minted 2026-10-23, session 255, battery B; master-shared).
       The wish-owner block (objnam.c) passes artiname()'s name to
       verbalize("Did you think that I would %s %s %s?"), so an
@@ -21139,7 +21222,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       The naming envoy is not affected (only Sting and Orcrist can
       be named). Candidate: the() lowercases a leading "The " - check
       it leaves the other names bare ("Xiuhcoatl", "Grayswandir").
-- [ ] LOW: a weapon of excellence in the alternate-weapon slot
+      CLOSED 2026-10-24 (session 258, 81f2eaeef; BUG-2562, master
+      frozen-unfixed). the() on the owner's line and, sibling, on
+      quest.c's "Forfeit %s to %s?" prompt; the quest livelog lines keep
+      the raw name as master's do. Battery C: "relinquish the Tsurugi of
+      Muramasa", Xiuhcoatl bare, "Forfeit the Staff of Aesculapius to
+      the Norn?". Master as PRE (battery M7).
+- [x] LOW: a weapon of excellence in the alternate-weapon slot
       counts toward Luck without two-weapon combat (minted
       2026-10-23, session 254 Plan stress test; master-shared;
       needs a ruling). confers_luck() takes ITEM_EXCEL with
@@ -21157,6 +21246,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       u.twoweap, and starting or stopping two-weapon combat
       recomputes Luck (set_twoweap()). Rejected always counting the
       alternate slot. Plannable.
+      CLOSED 2026-10-24 (session 258, d3aa7e877; BUG-2559, master
+      frozen-unfixed). confers_luck() counts W_SWAPWEP only while
+      u.twoweap; no set_twoweap() hook (every start / stop path reseats
+      the off-hand through setuswapwep(), which recomputes). Battery B:
+      PRE moreluck 3 after any recompute with the sword merely in the
+      alternate slot, POST 0 until #twoweapon, 0 again on stopping; save
+      / restore keeps it. Master as PRE (battery M5).
 - [x] LOW: a bare-handed cockatrice corpse is not re-checked when
       Stoneskin's stoning resistance ends (minted 2026-10-23,
       session 253 reviewer; master-shared). The STONE_RES timeout
@@ -21185,7 +21281,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       maybe_purity_slide_off() now drops the weapon before
       Shield_off(), since the bracers' re-check could unwield it
       and leave dropx(NULL).
-- [ ] LOW: a cursed weapon of excellence raises Cha 6 or lower to 18
+- [x] LOW: a cursed weapon of excellence raises Cha 6 or lower to 18
       (minted 2026-10-23, session 253 reviewer; master-shared; needs
       a ruling). excel_forced_cha() keeps acurr()'s old priority:
       the cursed arm needs tmp > 6, so tmp <= 6 falls through to the
@@ -21195,6 +21291,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       cursed weapon of excellence never raises Cha (Cha 10 reads 6,
       Cha 4 stays 4); uncursed and blessed unchanged. Archived as a
       master bug, frozen-unfixed. Plannable.
+      CLOSED 2026-10-24 (session 258, d3aa7e877; BUG-2557 and BUG-2558,
+      master frozen-unfixed). excel_forced_cha() caps at 6 for a cursed
+      one (base 4 reads 4); extremeattr() makes 6 a ceiling under a
+      cursed one and, folded (pre-existing, master too), 18 a floor
+      under an uncursed one, so no adornment ring is learned without a
+      visible change. Battery B: base 4 / 5 PRE 18, POST 4 / 5; the
+      two-weapon cursed + blessed pair capped; the +2 ring at base 16
+      learned PRE only. Master as PRE (battery M4).
 - [x] SWEEP: raw reads and clears of intrinsic words that carry 5.0's
       form / race bits (minted 2026-10-23, session 253, from
       BUG-2537's follow-up check). set_uasmon() PROPSETs FROMFORM into
@@ -21290,7 +21394,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       CLOSED 2026-10-24 by ruling (decisions log): KEEP, over my
       lean to cure - Stoneskin guards against new stoning only; a
       hero already turning to stone needs a real cure. No code.
-- [ ] LOW: doicetrap()'s innate arm returns early for a hero already
+- [x] LOW: doicetrap()'s innate arm returns early for a hero already
       vulnerable to cold (minted 2026-10-23, session 256 Plan stress
       test; master-shared). `if (Vulnerable_cold) return;` inside
       the resistant branch skips the damage roll, item destruction
@@ -21298,6 +21402,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       resistant hero who is already vulnerable; the intent is only
       to skip a second vulnerability. Fix shape: guard the
       incr_itimeout() and its line instead of returning.
+      CLOSED 2026-10-24 (session 258, 81f2eaeef; BUG-2563, master
+      frozen-unfixed). Only the second dose of vulnerability and its
+      line are skipped. Battery C: PRE the two mist lines and nothing
+      more, POST also "You are uninjured.", shattered potions and
+      encrusted feet. Master as PRE (battery M8).
 - [ ] LOW: a dragon-scaled suit's death text names the base suit
       (minted 2026-10-23, session 256 battery B; branch: master
       never re-checked dragon armor). wielding_corpse()'s killer
@@ -30126,7 +30235,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       tracing was armed (unchanged code; in_reach correctly stayed 1
       and the rider landed; 16 later non-stasis claws all teleported -
       unexplained, possibly a staging leftover).
-- [ ] LOW: monster burning hands / shocking grasp riders land after
+- [x] LOW: monster burning hands / shocking grasp riders land after
       an AD_TLPT hit moved the defender (minted 2026-10-02, session
       172, by the hero rider-guard slice's Plan agent; master-shared).
       mhitm.c mattackm()'s riders (~1554 / ~1582) run after
@@ -30142,6 +30251,17 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shape: the hero arm's reach test (BUG-2102) - for mhitm a
       position check against the defender's pre-attack square, for
       mhitu a check that the hero is still adjacent. LOW (rare).
+      CLOSED 2026-10-24 (session 258, 9eabd71a8; BUG-2555, master
+      frozen-unfixed). mdamagem() and hitmu() record both parties'
+      squares before mhitm_adtyping() and skip both riders, spending no
+      charge, when either moved (widened by the Plan stress test:
+      AD_SGLD and nymph thieves rloc() themselves); a knockback
+      afterwards still counts as contact. Battery A: PRE the quantum
+      mechanic burned the teleported wolf at its new square and killed a
+      5-HP one past the clamp, burned the teleported hero, and a
+      leprechaun burned the hero after vanishing; POST no line, charge
+      unspent; a no-teleport level still gets the rider. Master as PRE
+      (battery M2).
 - [ ] LOW: a hero's thrown venom, egg or cream pie can leak against a
       noncorporeal target (minted 2026-10-02, session 172, by the
       coating / needle delta's reviewer; pre-existing, master-shared -
@@ -31128,7 +31248,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shows the colon form glyph:G_pool:U+224B/0-0-160; the parser and
       upstream's silence on unknown G_ names stay. Plannable
       (upstream-reportable docs).
-- [ ] LOW: a wish that merges into a stack prints "k - a blood-red
+- [x] LOW: a wish that merges into a stack prints "k - a blood-red
       potion" with no period and no total (minted 2026-10-08, session
       193, battery anomaly, seen on PRE and POST). A wish that starts
       a new stack prints "l - a blood-red potion.". The branch's
@@ -31150,6 +31270,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       (2 in total)."; verbose off and ^W: "k - a blood-red potion."
       (master's line). Upstream-reportable. Rejected master's shape and
       the total regardless of verbose. Plannable.
+      CLOSED 2026-10-24 (session 258, 81f2eaeef; BUG-2564;
+      upstream-reportable). total_of includes flags.verbose. Battery C:
+      a #wizwish merge PRE "e - a potion of water", POST with the
+      period; verbose on "(2 in total)." on both.
 - [x] LOW: a vampshifter pet's hunger penalty survives into vampire
       form (BUG-2286) - FIXED 2026-10-11 (session 213, commit
       63f9c9fac, tracker 6cd5aaccd; closure notes in BUGFIXES_ARCHIVE):
@@ -32485,6 +32609,9 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-23 | The terrainstatus field changes only when the hero moves (spoteffects() -> switch_terrain()) or a run ends, so terrain changed under a still hero keeps its old name (dryup(), breaksink(), a pool frozen under a levitating hero, ...). Shared with Official_nh50. EvilHack fix BUG-2533 (65f52c1a1): `if (flags.terrainstatus && !u.uswallow) classify_terrain();` once per player input, just before moveloop_core()'s bot(). | found (branch-fixed); not yet sent |
 | 2026-10-23 | The opt-in ice condition reads levl typ at the hero's square, but zap_over_floor()'s ZT_COLD freeze and melt_ice() change it under the hero with no disp.botl. Shared with Official_nh50 (zap.c). EvilHack fix BUG-2534 (65f52c1a1). | found (branch-fixed); not yet sent |
 | 2026-10-23 | The opt-in glowhands condition lags: the scroll of confuse monster prints "Your hands begin to glow red." before raising u.umconf, and nohandglow() prints before lowering it, both with no disp.botl after the write. Shared with Official_nh50 (read.c, uhitm.c). EvilHack fix BUG-2535 (65f52c1a1). | found (branch-fixed); not yet sent |
+| 2026-10-24 | A merge line printed by prinv() loses its period when flags.verbose is off: total_of drops the period and the " (N in total)." that would end the line is appended only under verbose (#wizwish turns verbose off around the wish, so wishes show it: "k - a blood-red potion"). Shared with Official_nh50 (invent.c prinv()). EvilHack fix BUG-2564 (81f2eaeef): total_of includes flags.verbose. | found (branch-fixed); not yet sent |
+| 2026-10-24 | An exploding box on a shop floor is billed twice: chest_trap() charges stolen_value() for the box with its contents, empties it, then the floor loop charges the empty box again. Shared with Official_nh50 (trap.c chest_trap()). EvilHack fix BUG-2565 (81f2eaeef): the floor loop skips the box itself. | found (branch-fixed); not yet sent |
+| 2026-10-24 | #tip of a floor box over a seen hole keeps tipping after the box has fallen: the first dropped item falls through (flooreffects() -> ship_object()) and impact_drop() can ship the box, but tipcontainer() keeps extracting its contents, gives them the box's migration coordinates and, in a shop, bills them again (the hero's own goods turn into shop stock). Shared with Official_nh50 (pickup.c tipcontainer()). EvilHack fix BUG-2566 (4e2f4ef47): stop once the box is no longer obj_here() at the hero's square. | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -32712,6 +32839,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-24 | Twelve-row slice rulings (session 258; AskUserQuestion x4, six questions, all as recommended). (0) SLICE: all four offered groups combined - melee damage terms, the excellence pair, the small-fix batch and the mid-operation container stop. (1) BLESSINGS REACH RACIAL MONSTERS TOO: mon_hates_blessings() reads r_data(), so racial vampire / draugr player-monsters take the blessed bonus as holy water already burns them. (2) HALF_PHYSICAL SPARES THE SPELL TOUCH: a monster's burning hands / shocking grasp on the hero is halved by Half_spell_damage only. (3) FOLD the Hand of Vecna's cold (as cold) and the hero's spell dice vs a half-spell artifact. (4) BANE AURA, BOTH RACES (reviewer MEDIUM): the wielded-bane aura and the taming refusal count a racial monster's race for Angelslayer, Sunsword, the Hammer and Demonbane. (5) FOLD NOW the leader-kill regression battery C found (m_detach()'s msound tests -> master's gates); the reviewer's set_malign() / nemesis-bonus siblings folded with it as the same class. Taken without asking: no set_twoweap() Luck hook (every path already recomputes through setuswapwep()); the uncursed-excellence floor in extremeattr() (master-shared leak); the quest livelog lines keep the raw artifact name, as master's do. | maintainer |
 | 2026-10-24 | Ruling round after session 257 (AskUserQuestion x3, eleven questions, nine as recommended; an Explore agent traced the set_malign sites first). (1) CURSED EXCELLENCE CAPS CHA AT 6: never raises it (Cha 4 stays 4). (2) ALTERNATE-SLOT LUCK ONLY WHILE TWO-WEAPONING, recomputed when two-weapon combat starts or stops. (3) STONESKIN KEEPS GUARDING ONLY, over my lean to cure: casting it while turning to stone does not stop the stoning (row closed, no code). (4) A FATAL-TURN QUEEN COUNTS as vanquished in the list and the dumplog. (5) KEEP 5.0'S TOOL-APPLY QUEUE, over my master's-shape recommendation (row closed, no code). (6) BLESSING DAMAGE FOLLOWS BUG-2434: a monster's blessed weapon hurts a vampire-, draugr- or demon-race hero, a cursed one an aasimar hero. (7) SPELL-TOUCH DAMAGE USES THE SPELL'S OWN ELEMENT (fire / shock) for resistance and vulnerability. (8) DROP 5.0'S "Boom!" (master's shape). (9) THE set_malign() FLIP SITES CLOSE WITH NO CODE: xkilled() recomputes malign before scoring a kill. (10) A CONTAINER THAT LEAVES MID-#tip OR MID-#loot STOPS THE OPERATION (no double billing). (11) set_malign()'s always-peaceful arm for an Infidel or Draugr hero becomes a fixed +1 instead of += 1 per call (new row, master too). | maintainer |
 | 2026-10-23 | Steed trio slice rulings (session 257; AskUserQuestion x4, seven questions, six as recommended). (0) SLICE: the three ruled LOW rows queen bones, queen steed and zoo steeds, ahead of the entangle pair, a small-fix batch, or nasties[]. (1) DISMOUNT WORDING "clambers off" ("Kathryn the Enchantress clambers off the saddled woolly mammoth."), matching mount_up()'s "clambers onto" and the taming line, after the transformation lines and before the dogs and the pager. (2) FOLD BOTH ATTITUDE SITES: fill_zoo()'s COURT flip and a des peaceful=0 rider pass the attitude to the steed (update_monsteed()). (3) WAKE WITH RIDER: a woken rider wakes its steed; sleep rays, gas, des asleep and ^G "sleeping" stay rider-only as ruled 2026-10-18. (4) FOLD NOW, over my mint-a-row pick: a queen withered to death after the end-of-turn pass is revived at the level change or save, not written dead. (5) STEED TURN + 5 SITES (after the reviewer found update_monsteed() runs only when a rider moves): a ridden steed's own dochug() takes its rider's attitude and wakes once the rider is not helpless; update_monsteed() follows the attitude write at nasty(), m_initgrp(), m_initgrp_extra(), mk_mplayer() and the orc-gang leader. (6) REVIVE WHILE SEEN: goto_level() and dosave0() revive a pending queen before vision is shut down, so she is named and watched; savelev() stays the catch-all. Taken without asking (reviewer siblings): read.c's ^G peaceful / hostile syncs the steed (closes session 251's row), helpless() and wake_msg() on the steed wake. | maintainer |
 | 2026-10-23 | Form-bit sweep slice rulings (session 256; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: the SWEEP row "raw reads and clears of intrinsic words that carry 5.0's form / race bits" plus the LOW cockatrice re-check row, ahead of the SWEEP alone, a batch of ruled LOW rows, or nasties[]. (1) SPARE THE FORM: attrcurse() never strips the FROMFORM grant; the hero's own layers underneath (eaten partial, level, race) still go with the message (vanilla 5.0's `& INTRINSIC` shape and the ice trap's BUG-1451 rule; master's strip came incidentally from 17442b734). (2) TELL AND STOP under a worn source: the strip is measured on the hero's own layers, so a partial lost under a ring of fire resistance reads "You feel warmer." and ends the curse (master's shape), and the ice trap's "You feel alarmingly cooler." the same; a FROMOUTSIDE grant still pins (BUG-1357). (3) VALKYRIES AND BARBARIANS follow the same rule: unpolymorphed, set_uasmon()'s form is the role monster (MR_COLD / MR_POISON), so the curse reads "You feel cooler." once, the level-1 grant goes, the gremlin gains it, and the role form keeps her resistant (vanilla 3.6 / 5.0; master lost it until the next save / restore). (4) PER-CAUSE COCKATRICE WORDING: Stoneskin's expiry uses wielding_corpse() (killer "resistance timing out while wielding a cockatrice corpse"), cancellation selftouch("No longer petrify-resistant, you") (killer "a cockatrice corpse"). Taken without asking (approved plan or review): the Bracers of the First Circle's removal re-checks too (killer "removing / losing bracers ..."), maybe_purity_slide_off() drops the weapon before Shield_off() (reviewer CRITICAL), and a clay golem with Unchanging, Stoneskin and a wielded cockatrice corpse now turns to stone before the cancel kill. | maintainer |
