@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-23, after session 257's
-  steed trio): 481 rows closed, 143 open
+- Phase 2 status (refreshed 2026-10-24, after the ruling round
+  that followed session 257): 484 rows closed, 141 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -324,7 +324,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 125 LOW: small parity rows, quirks and watch/record-only items.
+  - 123 LOW: small parity rows, quirks and watch/record-only items.
+    The 2026-10-24 ruling round (after session 257) ruled ten rows.
+    Three closed with no code: Stoneskin cast while turning to
+    stone stays a guard against new stoning only; applying an
+    unwielded tool keeps 5.0's wield-then-apply queue; the
+    attitude flips without set_malign() score nothing wrong
+    (xkilled() recomputes malign before scoring). Seven are now
+    plannable: a cursed weapon of excellence caps Cha at 6; the
+    alternate slot gives Luck only while two-weaponing; a
+    fatal-turn queen counts as vanquished; the blessing damage
+    terms read the hero's race (BUG-2434's rule); spell-touch
+    damage uses the spell's own element; no "Boom!" (master); and
+    a container that leaves mid-#tip or mid-#loot stops the
+    operation. Minted one, ruled the same day: set_malign()'s
+    always-peaceful arm accumulates +1 per call for an Infidel or
+    Draugr hero (fixed +1).
     Session 257 closed four (BUG-2547..2551, master frozen-unfixed):
     an Ice Queen defeated in the hero's fatal turn stays out of the
     bones, and one who withered to death just before the hero took
@@ -2341,6 +2356,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       a blast." line was given, so every visible blast reads
       "Boom!  You are caught in the fireball!". Master never prints
       it.
+      RULED 2026-10-24 (decisions log): DROP IT, as recommended -
+      explode() prints no "Boom!" (master's shape); an unseen blast
+      still reads "You hear a blast.". Plannable.
 - [ ] LOW: a tiny hero submerged in a puddle sees a blank map
       (minted 2026-10-21 by session 247's battery; shared with
       master). pooleffects() submerges a verysmall form in a puddle
@@ -2359,6 +2377,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       get the 1.5x against a cold-vulnerable target. Master the
       same; hmonas()'s polymorphed-hero arms already route the spell
       damage with its own element.
+      RULED 2026-10-24 (decisions log): THE SPELL'S OWN ELEMENT, as
+      recommended - the burning hands part counts as fire and the
+      shocking grasp part as shock for resistance and vulnerability,
+      for monsters (mdamagem()) and the hero (hmon_hitmon()), as
+      hmonas() already does. Archived as a master quirk,
+      frozen-unfixed. Plannable.
 - [ ] LOW: hero breath's saving throw can halve an outright kill
       (minted 2026-10-20 by session 245's reviewer; vanilla shape,
       more frequent with BUG-2440's MC bonus). zhitm() halves hero
@@ -2393,6 +2417,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Race_if() terms; dmgval() does not). Same root cause as
       BUG-2434 (mon_hates_material(), fixed); decide whether the
       blessing terms follow that ruling.
+      RULED 2026-10-24 (decisions log): FOLLOW BUG-2434, as
+      recommended - the blessed bonus reaches a vampire-, draugr- or
+      demon-race hero and the cursed one an aasimar hero (the hero's
+      race counts, as for hated materials). Archived as a master bug,
+      frozen-unfixed. Plannable.
 - [ ] LOW: a vampire-race hero in #shapechange form hates silver
       nowhere (minted 2026-10-20, session 244; master-shared).
       Upolyd, so raceptr() and r_data() both give the bat / fog /
@@ -9557,7 +9586,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       from 3.6.2. Fix shape: when the monster survives, leave the
       boulder on the square and the pit open (the comment's intent),
       or delete the dead assignment. Upstream shares it.
-- [ ] LOW: applying an unwielded tool now costs an extra action, and
+- [x] LOW: applying an unwielded tool now costs an extra action, and
       an interrupt drops the second one (minted 2026-10-23, session
       252 battery B; needs a ruling). 5.0's use_pick_axe(),
       use_axe(), use_whip(), use_pole() and use_grapple() wield the
@@ -9567,6 +9596,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (vanilla 3.6) wield_tool() arm sets res = 1 and goes straight
       on to the direction prompt in the same action. Options:
       master's one-action shape, or keep 5.0's queue.
+      CLOSED 2026-10-24 by ruling (decisions log): KEEP 5.0'S QUEUE,
+      over my master's-shape recommendation - the wield takes its
+      move and the apply follows on the next. No code.
 - [x] Noncorporeal hit rules tree-wide + hmon_hitmon_barehanded()
       (NEW, minted 2026-08-22 by the hero to-hit/AC balance slice).
       shade_glare() itself regained master's bone and +2-weapon
@@ -12016,6 +12048,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dmonsfree() after done()'s disclosure and dump (and BUG-2547
       now mongone()s her in savebones() instead). Decide whether a
       defeat in the fatal turn should count as vanquished.
+      RULED 2026-10-24 (decisions log): COUNT HER, as recommended -
+      a queen defeated in the fatal turn shows in the vanquished list
+      and the dumplog like any other defeat. Plannable (the count
+      must not double for a defeat the hero survives).
 - [x] MED: a Draugr dying in the turn they defeat the Ice Queen
       likely crashes at exit (minted 2026-10-18, session 239
       follow-up, from the queen bones trace; branch-only regression;
@@ -16229,7 +16265,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       BUG-810 fold untouched (CLR_RED is a dim color). Fold-in:
       ttyDisplay->framecolor was never initialized (BUG-2518,
       upstream).
-- [ ] LOW: mpeaceful flips without set_malign() (minted 2026-10-22,
+- [x] LOW: mpeaceful flips without set_malign() (minted 2026-10-22,
       session 251 redraw census; both trees, needs a per-site intent
       ruling). Each leaves malign at the old disposition's value, so
       killing the monster later scores the alignment change of the
@@ -16241,6 +16277,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stays peaceful (mtame 0, malign still the tame value). Master
       lacks all of them; vanilla 5.0 lacks them where the code is
       shared.
+      CLOSED 2026-10-24 by ruling (decisions log): NO EFFECT, no
+      code, as recommended. xkilled() calls set_malign() just before
+      it scores a kill (mon.c, the cleanup label; master the same)
+      and nothing else reads malign, so a stale value never reaches
+      a score. The priest's "no penalty" comment belongs to
+      intemple(); the wished owner is already hostile from
+      mk_mplayer(); a tame and a peaceful monster share one malign;
+      invoke_banish() is dead code (no artifact carries BANISH on the
+      branch). Minted with it: the always-peaceful +1 accumulation
+      (next row).
+- [ ] LOW: set_malign()'s always-peaceful arm accumulates for an
+      Infidel or Draugr hero (minted 2026-10-24 by the set_malign
+      site trace; master the same, makemon.c). `mtmp->malign += 1`
+      ("killing them is barely an alignment hit") grows with every
+      call, so killing a peaceful always-peaceful monster scores +2
+      (creation and the kill's recompute), more after any recompute
+      in between. RULED 2026-10-24 (decisions log): FIXED +1, as
+      recommended - `mtmp->malign = 1`. Archived as a master bug,
+      frozen-unfixed. Plannable.
 - [ ] LOW: red objects on the red hidden-stairs background (minted
       2026-10-22, session 251; master shares it). With
       hilite_hidden_stairs on, a CLR_RED object, corpse or statue
@@ -19471,6 +19526,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       don't-fall arm) runs impact_drop(), which can ship the bag of
       devouring being looted; looting carries on with a bag that has
       left the level. Needs a ruling on (a)'s stop and a plan. LOW.
+      RULED 2026-10-24 (decisions log): STOP BOTH, as recommended -
+      tipping stops once the box has left the hero's square (no
+      double billing, no goods turned into stock) and looting stops
+      once the bag of devouring has left the level. Rejected record
+      only. Plannable.
 - [ ] LOW: a Rider corpse taken out of an ice box never revives
       (minted 2026-10-19, session 240, by the Plan agent).
       removed_from_icebox() sets norevive for every corpse but an ice
@@ -21092,6 +21152,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Options: gate confers_luck()'s W_SWAPWEP on u.twoweap (and
       recompute in set_twoweap()), or let setuswapwep() recompute
       for the alternate slot too.
+      RULED 2026-10-24 (decisions log): TWO-WEAPON ONLY, as
+      recommended - confers_luck() counts W_SWAPWEP only while
+      u.twoweap, and starting or stopping two-weapon combat
+      recomputes Luck (set_twoweap()). Rejected always counting the
+      alternate slot. Plannable.
 - [x] LOW: a bare-handed cockatrice corpse is not re-checked when
       Stoneskin's stoning resistance ends (minted 2026-10-23,
       session 253 reviewer; master-shared). The STONE_RES timeout
@@ -21126,6 +21191,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the cursed arm needs tmp > 6, so tmp <= 6 falls through to the
       "tmp < 18 and not blessed" arm and gets 18. Options: a cursed
       one forces at most 6 (tmp stands at or below it), or keep.
+      RULED 2026-10-24 (decisions log): CAP AT 6, as recommended - a
+      cursed weapon of excellence never raises Cha (Cha 10 reads 6,
+      Cha 4 stays 4); uncursed and blessed unchanged. Archived as a
+      master bug, frozen-unfixed. Plannable.
 - [x] SWEEP: raw reads and clears of intrinsic words that carry 5.0's
       form / race bits (minted 2026-10-23, session 253, from
       BUG-2537's follow-up check). set_uasmon() PROPSETs FROMFORM into
@@ -21209,7 +21278,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Valkyrie loses cold resistance until a save / restore, its
       red dragon loses the form's fire resistance, neither the
       Stoneskin expiry nor the bracers re-check. Paniclogs empty.
-- [ ] LOW: casting Stoneskin while turning to stone does not stop the
+- [x] LOW: casting Stoneskin while turning to stone does not stop the
       petrification (minted 2026-10-23, session 256 Plan stress
       test; master-shared; needs a ruling). cast_stoneskin()
       (spell.c) sets HStone_resistance's I_SPECIAL with no Stoned
@@ -21218,6 +21287,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       polymorph). Options: make_stoned(0L, "You no longer seem to
       be petrifying.", ...) when Stoned, or keep (the spell guards
       against new stoning only).
+      CLOSED 2026-10-24 by ruling (decisions log): KEEP, over my
+      lean to cure - Stoneskin guards against new stoning only; a
+      hero already turning to stone needs a real cure. No code.
 - [ ] LOW: doicetrap()'s innate arm returns early for a hero already
       vulnerable to cold (minted 2026-10-23, session 256 Plan stress
       test; master-shared). `if (Vulnerable_cold) return;` inside
@@ -32640,6 +32712,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-24 | Ruling round after session 257 (AskUserQuestion x3, eleven questions, nine as recommended; an Explore agent traced the set_malign sites first). (1) CURSED EXCELLENCE CAPS CHA AT 6: never raises it (Cha 4 stays 4). (2) ALTERNATE-SLOT LUCK ONLY WHILE TWO-WEAPONING, recomputed when two-weapon combat starts or stops. (3) STONESKIN KEEPS GUARDING ONLY, over my lean to cure: casting it while turning to stone does not stop the stoning (row closed, no code). (4) A FATAL-TURN QUEEN COUNTS as vanquished in the list and the dumplog. (5) KEEP 5.0'S TOOL-APPLY QUEUE, over my master's-shape recommendation (row closed, no code). (6) BLESSING DAMAGE FOLLOWS BUG-2434: a monster's blessed weapon hurts a vampire-, draugr- or demon-race hero, a cursed one an aasimar hero. (7) SPELL-TOUCH DAMAGE USES THE SPELL'S OWN ELEMENT (fire / shock) for resistance and vulnerability. (8) DROP 5.0'S "Boom!" (master's shape). (9) THE set_malign() FLIP SITES CLOSE WITH NO CODE: xkilled() recomputes malign before scoring a kill. (10) A CONTAINER THAT LEAVES MID-#tip OR MID-#loot STOPS THE OPERATION (no double billing). (11) set_malign()'s always-peaceful arm for an Infidel or Draugr hero becomes a fixed +1 instead of += 1 per call (new row, master too). | maintainer |
 | 2026-10-23 | Steed trio slice rulings (session 257; AskUserQuestion x4, seven questions, six as recommended). (0) SLICE: the three ruled LOW rows queen bones, queen steed and zoo steeds, ahead of the entangle pair, a small-fix batch, or nasties[]. (1) DISMOUNT WORDING "clambers off" ("Kathryn the Enchantress clambers off the saddled woolly mammoth."), matching mount_up()'s "clambers onto" and the taming line, after the transformation lines and before the dogs and the pager. (2) FOLD BOTH ATTITUDE SITES: fill_zoo()'s COURT flip and a des peaceful=0 rider pass the attitude to the steed (update_monsteed()). (3) WAKE WITH RIDER: a woken rider wakes its steed; sleep rays, gas, des asleep and ^G "sleeping" stay rider-only as ruled 2026-10-18. (4) FOLD NOW, over my mint-a-row pick: a queen withered to death after the end-of-turn pass is revived at the level change or save, not written dead. (5) STEED TURN + 5 SITES (after the reviewer found update_monsteed() runs only when a rider moves): a ridden steed's own dochug() takes its rider's attitude and wakes once the rider is not helpless; update_monsteed() follows the attitude write at nasty(), m_initgrp(), m_initgrp_extra(), mk_mplayer() and the orc-gang leader. (6) REVIVE WHILE SEEN: goto_level() and dosave0() revive a pending queen before vision is shut down, so she is named and watched; savelev() stays the catch-all. Taken without asking (reviewer siblings): read.c's ^G peaceful / hostile syncs the steed (closes session 251's row), helpless() and wake_msg() on the steed wake. | maintainer |
 | 2026-10-23 | Form-bit sweep slice rulings (session 256; AskUserQuestion x3, five questions, all as recommended). (0) SLICE: the SWEEP row "raw reads and clears of intrinsic words that carry 5.0's form / race bits" plus the LOW cockatrice re-check row, ahead of the SWEEP alone, a batch of ruled LOW rows, or nasties[]. (1) SPARE THE FORM: attrcurse() never strips the FROMFORM grant; the hero's own layers underneath (eaten partial, level, race) still go with the message (vanilla 5.0's `& INTRINSIC` shape and the ice trap's BUG-1451 rule; master's strip came incidentally from 17442b734). (2) TELL AND STOP under a worn source: the strip is measured on the hero's own layers, so a partial lost under a ring of fire resistance reads "You feel warmer." and ends the curse (master's shape), and the ice trap's "You feel alarmingly cooler." the same; a FROMOUTSIDE grant still pins (BUG-1357). (3) VALKYRIES AND BARBARIANS follow the same rule: unpolymorphed, set_uasmon()'s form is the role monster (MR_COLD / MR_POISON), so the curse reads "You feel cooler." once, the level-1 grant goes, the gremlin gains it, and the role form keeps her resistant (vanilla 3.6 / 5.0; master lost it until the next save / restore). (4) PER-CAUSE COCKATRICE WORDING: Stoneskin's expiry uses wielding_corpse() (killer "resistance timing out while wielding a cockatrice corpse"), cancellation selftouch("No longer petrify-resistant, you") (killer "a cockatrice corpse"). Taken without asking (approved plan or review): the Bracers of the First Circle's removal re-checks too (killer "removing / losing bracers ..."), maybe_purity_slide_off() drops the weapon before Shield_off() (reviewer CRITICAL), and a clay golem with Unchanging, Stoneskin and a wielded cockatrice corpse now turns to stone before the cancel kill. | maintainer |
 | 2026-10-23 | Naming envoy slice rulings (session 255; AskUserQuestion x2, three questions, all as recommended). (0) SLICE: the MED row "master's naming envoy was never ported" alone, ahead of the same row plus the form-bit SWEEP census, that census alone, or a batch of ruled LOW rows. (1) WIELD ON ARRIVAL (intent over master's live play): master's mon_wield_item() ran with weapon_check 0 and did nothing, so master's Grey-elf spent its first adjacent turn wielding; the port sets NEED_HTH_WEAPON first, as the wish-owner block does - "The Grey-elf wields ...!" right after its speech, a cursed melee weapon welds at arrival, bow and thrown-dagger play unchanged. (2) SIGHT GATE IN BOTH BLOCKS: canseemon() replaces !Blind for the envoy's see / hear lines and speaker and for the wish owner's "puff of smoke" / "small explosion" lines and speaker, so an engulfed or underwater hero, or a newcomer out of sight, hears it and reads "Someone says:" instead of "You see it ..." / "It says:"; blind heroes read master's lines. Taken without asking (approved plan): MM_NOMSG on all three makemon() calls (master's makemon() was silent; the vine / covetous / pet-arrival precedent); SetVoice() before each verbalize(); master's redundant m_dowear() and msleeping = 0 kept. | maintainer |
