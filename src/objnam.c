@@ -6764,7 +6764,8 @@ readobjnam(char *bp, struct obj *no_wish)
                 verbalize("Did you think that I would %s %s %s?",
                           rn2(2) ? "relinquish"
                                  : (rn2(2) ? "hand over" : "give you"),
-                          aname, rn2(2) ? "so easily" : "without a fight");
+                          the(aname), rn2(2) ? "so easily"
+                                             : "without a fight");
             }
             /* re-apply erosion properties before giving the artifact to
                its owner; the normal erosion pass ran before oname(),

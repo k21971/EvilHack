@@ -3108,7 +3108,9 @@ obj_to_let(struct obj *obj)
 void
 prinv(const char *prefix, struct obj *obj, long quan)
 {
-    boolean total_of = (quan && (quan < obj->quan));
+    /* with verbose off there is no "(N in total)." to end the line, so
+       xprname() supplies the period itself */
+    boolean total_of = (flags.verbose && quan && (quan < obj->quan));
     char totalbuf[QBUFSZ];
 
     if (!prefix)
@@ -3120,7 +3122,7 @@ prinv(const char *prefix, struct obj *obj, long quan)
                  " (%ld in total).", obj->quan);
     pline("%s%s%s%s", prefix, *prefix ? " " : "",
           xprname(obj, (char *) 0, obj_to_let(obj), !total_of, 0L, quan),
-          flags.verbose ? totalbuf : "");
+          totalbuf);
 }
 
 DISABLE_WARNING_FORMAT_NONLITERAL

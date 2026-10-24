@@ -5209,10 +5209,12 @@ doicetrap(
                species) cannot be stripped; overlay a temporary
                vulnerability instead */
             if (HCold_resistance & (FROMEXPER | FROMRACE | FROMFORM)) {
-                if (Vulnerable_cold)
-                    return;
-                incr_itimeout(&HVulnerable_cold, rnd(75) + 75);
-                You_feel("extremely chilly.");
+                /* a hero already vulnerable gains no second dose, but
+                   the mist still chills, freezes and encrusts below */
+                if (!Vulnerable_cold) {
+                    incr_itimeout(&HVulnerable_cold, rnd(75) + 75);
+                    You_feel("extremely chilly.");
+                }
             } else if (strip_resistance(COLD_RES, rnd(25) + 25)) {
                 /* a permanent external grant survives the strip
                    untouched and worn gear does not hide a loss; only
@@ -7531,7 +7533,8 @@ chest_trap(
                 otmp2 = otmp->nexthere;
                 if (has_indestructible_contents(otmp))
                     spare_indestructible_contents(otmp, 0, 0);
-                if (costly && !obj_indestructible(otmp))
+                /* the box itself was charged with its contents above */
+                if (costly && otmp != obj && !obj_indestructible(otmp))
                     loss += stolen_value(otmp, otmp->ox, otmp->oy,
                                          (boolean) shkp->mpeaceful, TRUE);
                 if (otmp == obj)

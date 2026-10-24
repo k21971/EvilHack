@@ -4795,8 +4795,9 @@ set_malign(struct monst *mtmp)
                 || (!Upolyd && Race_if(PM_DRAUGR))) {
                 /* Moloch's will; 'always peaceful' types also turn
                    on the walking dead - killing them is barely an
-                   alignment hit */
-                mtmp->malign += 1;
+                   alignment hit; set, not added to, since this runs
+                   again on every attitude change */
+                mtmp->malign = 1;
             } else if (Role_if(PM_CONVICT)) {
                 /* Several 'always peaceful' types become hostile
                    once they see a Convict. Still an alignment

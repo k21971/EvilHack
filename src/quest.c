@@ -336,7 +336,7 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
             Strcpy(ldr_buf, ldrname());
             ldr_name = ldr_buf;
 
-            Snprintf(qbuf, sizeof qbuf, "Forfeit %s to %s?", qa_name,
+            Snprintf(qbuf, sizeof qbuf, "Forfeit %s to %s?", the(qa_name),
                      ldr_name);
             /* quest leader decides they want the quest artifact */
             qt_pager("leader_wantsit");

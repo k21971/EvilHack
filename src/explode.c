@@ -227,7 +227,6 @@ explode(
     char hallu_buf[BUFSZ], killr_buf[BUFSZ];
     short exploding_wand_typ = 0;
     boolean you_exploding = (olet == MON_EXPLODE && type >= 0);
-    boolean didmsg = FALSE;
 
     if (olet == WAND_CLASS) { /* retributive strike */
         /* 'type' is passed as (wand's object type * -1); save
@@ -467,12 +466,8 @@ explode(
         if (!Deaf && olet != SCROLL_CLASS) {
             Soundeffect(se_blast, 75);
             You_hear("a blast.");
-            didmsg = TRUE;
         }
     }
-
-    if (!Deaf && !didmsg)
-        pline("Boom!");
 
     /* the hero can be moved mid-loop: killing u.usteed dismounts, and
        the dismount's float_down() can reposition him - dragged to the
