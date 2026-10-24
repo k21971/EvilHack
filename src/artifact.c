@@ -2012,7 +2012,7 @@ score_artifact_weapon(
             score += hp / 10;
         break;
     case ART_ANGELSLAYER:
-        if (is_angel(mdef->data) || is_aasimar(mdef->data))
+        if (is_angel(mdef->data) || racial_aasimar(mdef))
             score += hp / 10;
         break;
     case ART_SWORD_OF_ANNIHILATION:

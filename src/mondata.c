@@ -716,12 +716,21 @@ sear_damage(int material)
 boolean
 mon_hates_blessings(struct monst *mon)
 {
-    return (boolean) (is_vampshifter(mon) || hates_blessings(mon->data));
+    /* r_data(): a racial vampire or draugr player-monster's race entry
+       is undead even though its role monster isn't */
+    if (is_vampshifter(mon) || hates_blessings(r_data(mon)))
+        return TRUE;
+
+    /* the unpolymorphed hero's own entry is the role's monster, which
+     * is always human; the vampire, draugr and demon races carry the
+     * aversion, as mon_hates_material() reckons a hated material */
+    return (boolean) (mon == &gy.youmonst && !Upolyd
+                      && hates_blessings(raceptr(mon)));
 }
 
 /* True if monster-type is especially affected by blessed objects */
 boolean
-hates_blessings(struct permonst *ptr)
+hates_blessings(const struct permonst *ptr)
 {
     return (boolean) (is_undead(ptr) || is_demon(ptr));
 }

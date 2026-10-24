@@ -1755,7 +1755,7 @@ tamedog(
 
     if ((wielding_artifact(ART_SUNSWORD)
          || wielding_artifact(ART_HAMMER_OF_THE_GODS))
-        && is_undead(mtmp->data))
+        && mon_has_race(mtmp, MH_UNDEAD))
         return FALSE;
 
     if (wielding_artifact(ART_WEREBANE) && is_were(mtmp->data))
@@ -1767,12 +1767,12 @@ tamedog(
     /* can't really tame demons, but this is here for completeness sake */
     if ((wielding_artifact(ART_DEMONBANE)
          || wielding_artifact(ART_HAMMER_OF_THE_GODS))
-        && is_demon(mtmp->data))
+        && mon_has_race(mtmp, MH_DEMON))
         return FALSE;
 
     /* same for angels */
     if (wielding_artifact(ART_ANGELSLAYER)
-        && (is_angel(mtmp->data) || is_aasimar(mtmp->data)))
+        && (is_angel(mtmp->data) || racial_aasimar(mtmp)))
         return FALSE;
 
     if (wielding_artifact(ART_VORPAL_BLADE) && is_jabberwock(mtmp->data))

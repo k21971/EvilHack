@@ -2111,7 +2111,7 @@ extern int sear_damage(int);
 extern int monmaterial(int);
 extern boolean is_fleshy(const struct permonst *) NONNULLARG1;
 extern boolean mon_hates_blessings(struct monst *) NONNULLARG1;
-extern boolean hates_blessings(struct permonst *) NONNULLARG1;
+extern boolean hates_blessings(const struct permonst *) NONNULLARG1;
 extern boolean mon_hates_light(struct monst *) NONNULLARG1;
 extern boolean passes_bars(struct permonst *) NONNULLARG1;
 extern boolean can_blow(struct monst *) NONNULLARG1;

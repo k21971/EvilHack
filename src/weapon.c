@@ -300,7 +300,7 @@ hitval(struct monst *magr, struct obj *otmp, struct monst *mdef)
 
     /* Cursed weapons used against angelic beings */
     if (Is_weapon && otmp->cursed
-        && (is_angel(ptr) || is_aasimar(ptr)))
+        && (is_angel(ptr) || racial_aasimar(mdef)))
         tmp += 2;
 
     /* Infidels get a slight bonus against lawful or
@@ -574,7 +574,7 @@ dmgval(struct monst *magr, struct obj *otmp, struct monst *mdef)
 
         if (otmp->blessed && mon_hates_blessings(mdef))
             bonus += rnd(4);
-        if (otmp->cursed && (is_angel(ptr) || is_aasimar(ptr)))
+        if (otmp->cursed && (is_angel(ptr) || racial_aasimar(mdef)))
             bonus += rnd(4);
         if (magr == &gy.youmonst && otmp->cursed && Role_if(PM_INFIDEL)
             && (mon_aligntyp(mdef) == A_LAWFUL
