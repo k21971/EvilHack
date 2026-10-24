@@ -2318,6 +2318,11 @@ doloot_core(void)
             if (n > 0) {
                 for (i = 1; i <= n; i++) {
                     cobj = pick_list[i - 1].item.a_obj;
+                    /* an earlier pick's looting can send floor objects
+                       down a hole here (a bag of devouring eating what
+                       held the hero up); skip any that went */
+                    if (cobj != gm.mchest && !obj_here(cobj, cc.x, cc.y))
+                        continue;
                     timepassed |= do_loot_cont(&cobj, i, n);
                     if (ga.abort_looting) {
                         /* chest trap or magic bag explosion or <esc> */
@@ -2345,6 +2350,9 @@ doloot_core(void)
                     if (ga.abort_looting)
                         /* chest trap or magic bag explosion or <esc> */
                         return (timepassed ? ECMD_TIME : ECMD_OK);
+                    /* the floor pile may have gone down a hole */
+                    if (nobj && !obj_here(nobj, cc.x, cc.y))
+                        break;
                 }
             }
             if (anyfound)
@@ -3494,8 +3502,20 @@ use_container(
     /* a cursed bag of devouring instead lashes out at the hero */
     if (gc.current_container->otyp == BAG_OF_DEVOURING
         && gc.current_container->cursed) {
+        coordxy bx = gc.current_container->ox,
+                by = gc.current_container->oy;
+
         if (bag_devours_invent(gc.current_container)) {
             used = ECMD_TIME;
+            /* eating what held the hero up over a hole can send a floor
+               bag down it with the hero's landing (impact_drop()), or a
+               trap there can carry the hero off; then there is nothing
+               left here to loot */
+            if (!held && (!obj_here(gc.current_container, bx, by)
+                          || !u_at(bx, by))) {
+                gc.current_container = 0;
+                goto containerdone;
+            }
         } else if (!rn2(3)) {
             /* found nothing worth eating? devour the hero instead */
             makeknown(BAG_OF_DEVOURING);
@@ -4513,6 +4533,12 @@ tipcontainer(struct obj *box) /* or bag */
 
             if (maybeshopgoods)
                 iflags.suppress_price--; /* reset */
+
+            /* an item that fell through a hole here can knock what is
+               on the floor down with it (impact_drop()); once the box
+               has gone, the rest of its contents go with it */
+            if (!srcheld && !obj_here(box, ox, oy))
+                break;
         }
         if (loss) /* magic bag lost some shop goods */
             You("owe %ld %s for lost merchandise.", loss, currency(loss));
