@@ -220,6 +220,7 @@ staticfn int abuse_tier(void);
 staticfn boolean has_stat_drain_penalty(void);
 staticfn boolean aasimar_ability_penalized(long *);
 staticfn void poison_losehp(int, const char *, int, struct monst *);
+staticfn boolean excel_cha_weapons(struct obj **, struct obj **) NONNULLPTRS;
 staticfn int excel_forced_cha(int);
 
 /* adjust an attribute; return TRUE if change is made, FALSE otherwise */
@@ -1547,22 +1548,31 @@ adjuhploss(
     return max(loss, 1);
 }
 
+/* the wielded weapons of excellence whose beatitude sets charisma: the
+   primary, and the off-hand one only in two-weapon combat; FALSE when
+   there is neither */
+staticfn boolean
+excel_cha_weapons(struct obj **xlw, struct obj **xls)
+{
+    *xlw = (uwep && (uwep->oprops & ITEM_EXCEL)) ? uwep : (struct obj *) 0;
+    *xls = (u.twoweap && uswapwep && (uswapwep->oprops & ITEM_EXCEL))
+               ? uswapwep : (struct obj *) 0;
+    return (*xlw || *xls);
+}
+
 /* the charisma a wielded weapon of excellence forces from the
    unforced value tmp, or 0 when it forces nothing; only an excellence
-   weapon's own beatitude counts, not a plain weapon in the other hand */
+   weapon's own beatitude counts, not a plain weapon in the other hand;
+   a cursed one caps charisma at 6 and never raises it */
 staticfn int
 excel_forced_cha(int tmp)
 {
-    struct obj *xlw = (uwep && (uwep->oprops & ITEM_EXCEL))
-                          ? uwep : (struct obj *) 0,
-               *xls = (u.twoweap && uswapwep
-                       && (uswapwep->oprops & ITEM_EXCEL))
-                          ? uswapwep : (struct obj *) 0;
+    struct obj *xlw, *xls;
 
-    if (!xlw && !xls)
+    if (!excel_cha_weapons(&xlw, &xls))
         return 0;
-    if (tmp > 6 && ((xlw && xlw->cursed) || (xls && xls->cursed)))
-        return 6;
+    if ((xlw && xlw->cursed) || (xls && xls->cursed))
+        return (tmp > 6) ? 6 : 0;
     if (tmp < 18 && ((xlw && !xlw->blessed) || (xls && !xls->blessed)))
         return 18;
     if ((xlw && xlw->blessed) || (xls && xls->blessed))
@@ -1683,12 +1693,20 @@ extremeattr(
            enchantment via a no-visible-change deduction */
         int tmp = u.abon.a[A_CHA] + u.atemp.a[A_CHA] + u.acurr.a[A_CHA],
             forced;
+        struct obj *xlw, *xls;
 
         if ((gy.youmonst.data->mlet == S_NYMPH
              || u.umonnum == PM_AMOROUS_DEMON) && tmp < 18) {
             lolimit = hilimit = 18;
         } else if ((forced = excel_forced_cha(tmp)) != 0) {
             lolimit = hilimit = forced;
+        } else if (excel_cha_weapons(&xlw, &xls)) {
+            /* forcing nothing, a cursed one still holds charisma at 6
+               or below, and an uncursed one at 18 or above */
+            if ((xlw && xlw->cursed) || (xls && xls->cursed))
+                hilimit = 6;
+            else
+                lolimit = 18;
         }
     }
     /* this exception is hypothetical; the only other worn item affecting

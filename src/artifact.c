@@ -918,8 +918,11 @@ confers_luck(struct obj *obj)
     if (obj->otyp == LUCKSTONE)
         return TRUE;
 
+    /* an excellence weapon in the alternate slot counts only in
+       two-weapon combat, as for its charisma */
     if ((obj->oprops & ITEM_EXCEL)
-        && (obj->owornmask & (W_ARMOR | W_WEP | W_SWAPWEP)))
+        && ((obj->owornmask & (W_ARMOR | W_WEP))
+            || ((obj->owornmask & W_SWAPWEP) && u.twoweap)))
         return TRUE;
 
     return (boolean) (obj->oartifact && spec_ability(obj, SPFX_LUCK));
