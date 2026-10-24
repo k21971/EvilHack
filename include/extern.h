@@ -2042,6 +2042,8 @@ extern struct monst *get_iter_mons_xy(boolean (*)(struct monst *,
                                       coordxy, coordxy);
 extern int healmon(struct monst *, int, int) NONNULLARG1;
 extern boolean damage_mon(struct monst *, int, int, boolean) NONNULLARG1;
+extern boolean damage_mon_elem(struct monst *, int, int, int, int, int,
+                               boolean) NONNULLARG1;
 extern boolean damage_mon_nonlethal(struct monst *, int, int,
                                     boolean) NONNULLARG1;
 extern void rescham(void);

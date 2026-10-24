@@ -1773,6 +1773,10 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     int res;
     struct mhitm_data mhm;
     long armask;
+    coordxy ax, ay, hx = u.ux, hy = u.uy;
+    boolean parted;
+    int handdmg = 0; /* the spell-hand riders' damage */
+
     mhm.hitflags = M_ATTK_MISS;
     mhm.permdmg = 0;
     mhm.specialdmg = 0;
@@ -1810,7 +1814,12 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     /* worn rings of increase damage */
     mhm.damage += mon_ring_bonus(mtmp, RIN_INCREASE_DAMAGE);
 
+    ax = mtmp->mx, ay = mtmp->my;
     mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm);
+    /* a damage handler that teleported either party (AD_TLPT, a thief
+       making off with gold) ended the contact the spell-hand riders
+       below need; a knockback afterwards doesn't */
+    parted = (mtmp->mx != ax || mtmp->my != ay || !u_at(hx, hy));
 
     (void) mhitm_knockback(mtmp, &gy.youmonst, mattk, &mhm.hitflags,
                            (MON_WEP(mtmp) != 0));
@@ -1860,7 +1869,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     }
 
     /* burning hands spell - extra fire damage on unarmed touch attacks */
-    if (!DEADMONSTER(mtmp) && mtmp->mburnhands && !MON_WEP(mtmp)
+    if (!DEADMONSTER(mtmp) && mtmp->mburnhands && !MON_WEP(mtmp) && !parted
         && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
             || mattk->aatyp == AT_WEAP)) {
         int firedmg = rnd(6) + 2;
@@ -1879,6 +1888,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
             if (Half_spell_damage)
                 firedmg /= 2;
             mhm.damage += firedmg;
+            handdmg += firedmg;
             if ((int) mtmp->m_lev > rn2(20))
                 (void) destroy_items(&gy.youmonst, AD_FIRE, firedmg);
             burn_away_slime();
@@ -1890,7 +1900,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     }
 
     /* shocking grasp spell - extra shock damage on unarmed touch attacks */
-    if (!DEADMONSTER(mtmp) && mtmp->mshockgrasp && !MON_WEP(mtmp)
+    if (!DEADMONSTER(mtmp) && mtmp->mshockgrasp && !MON_WEP(mtmp) && !parted
         && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
             || mattk->aatyp == AT_WEAP)) {
         int elecdmg = rnd(6) + 2;
@@ -1908,6 +1918,7 @@ hitmu(struct monst *mtmp, struct attack *mattk)
             if (Half_spell_damage)
                 elecdmg /= 2;
             mhm.damage += elecdmg;
+            handdmg += elecdmg;
             if ((int) mtmp->m_lev > rn2(20))
                 (void) destroy_items(&gy.youmonst, AD_ELEC, elecdmg);
         }
@@ -1918,12 +1929,15 @@ hitmu(struct monst *mtmp, struct attack *mattk)
     }
 
     if (mhm.damage > 0) {
-        /* [Half_physical_damage isn't applied to mhm.permdmg] */
-        if (Half_physical_damage
-            /* Mitre of Holiness, even if not currently blessed */
-            || (Role_if(PM_CLERIC) && uarmh && is_quest_artifact(uarmh)
-                && mon_hates_blessings(mtmp)))
-            mhm.damage = (mhm.damage + 1) / 2;
+        /* [Half_physical_damage isn't applied to mhm.permdmg]; nor to
+           the spell-hand riders, which Half_spell_damage covers, so
+           only a blow that adds to them is halved */
+        if ((Half_physical_damage
+             /* Mitre of Holiness, even if not currently blessed */
+             || (Role_if(PM_CLERIC) && uarmh && is_quest_artifact(uarmh)
+                 && mon_hates_blessings(mtmp)))
+            && mhm.damage > handdmg)
+            mhm.damage = (mhm.damage - handdmg + 1) / 2 + handdmg;
 
         if (mhm.permdmg) { /* Death's life force drain */
             int lowerlimit, *hpmax_p;

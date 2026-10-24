@@ -50,6 +50,7 @@ staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
 staticfn short m_chooserace(unsigned long);
 staticfn int scale_mon_damage(struct monst *, int, int) NONNULLARG1;
+staticfn boolean damage_mon_core(struct monst *, int, boolean) NONNULLARG1;
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -7563,7 +7564,31 @@ scale_mon_damage(struct monst *mon, int amount, int type)
 boolean
 damage_mon(struct monst *mon, int amount, int type, boolean by_you)
 {
-    amount = scale_mon_damage(mon, amount, type);
+    return damage_mon_core(mon, scale_mon_damage(mon, amount, type), by_you);
+}
+
+/* EvilHack. damage_mon() for a blow that carries elemental extras (the
+   burning hands and shocking grasp spells, the Hand of Vecna's cold):
+   each part is scaled for its own element, so it meets its own
+   vulnerability and only the blow itself is halved by SPFX_HPHDAM */
+boolean
+damage_mon_elem(
+    struct monst *mon,
+    int amount, int type, /* the blow and its damage type */
+    int firedmg, int shockdmg, int colddmg,
+    boolean by_you)
+{
+    amount = scale_mon_damage(mon, amount, type)
+             + scale_mon_damage(mon, firedmg, AD_FIRE)
+             + scale_mon_damage(mon, shockdmg, AD_ELEC)
+             + scale_mon_damage(mon, colddmg, AD_COLD);
+    return damage_mon_core(mon, amount, by_you);
+}
+
+/* apply damage already scaled by scale_mon_damage() */
+staticfn boolean
+damage_mon_core(struct monst *mon, int amount, boolean by_you)
+{
     mon->mhp -= amount;
     /* a caller's max HP cut (level drain) is not halved like the
        damage can be; don't leave mhp above it */

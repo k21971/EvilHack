@@ -1504,6 +1504,9 @@ mdamagem(
     struct mhitm_data mhm;
     unsigned wep_id;
     long armask;
+    coordxy ax, ay, dx, dy;
+    boolean parted;
+    int burndmg = 0, shockdmg = 0; /* the spell-hand riders' damage */
 
     mhm.damage = d((int) mattk->damn, (int) mattk->damd);
     mhm.hitflags = M_ATTK_MISS;
@@ -1561,7 +1564,13 @@ mdamagem(
     }
 
     wep_id = mwep ? mwep->o_id : 0;
+    ax = magr->mx, ay = magr->my, dx = mdef->mx, dy = mdef->my;
     mhitm_adtyping(magr, mattk, mdef, &mhm);
+    /* a damage handler that teleported either party (AD_TLPT, a thief
+       making off with its loot) ended the contact the spell-hand riders
+       below need; a knockback afterwards doesn't */
+    parted = (magr->mx != ax || magr->my != ay
+              || mdef->mx != dx || mdef->my != dy);
     /* mwep is our caller's pointer by value; rustm() inside the AD_PHYS
        handler can erode the weapon away, so re-check before the tests
        further down read it */
@@ -1581,8 +1590,9 @@ mdamagem(
     if (mhm.done)
         return mhm.hitflags;
 
-    /* burning hands spell - extra fire damage on unarmed touch attacks */
-    if (magr->mburnhands && !mwep && !DEADMONSTER(mdef)
+    /* burning hands spell - extra fire damage on unarmed touch attacks;
+       it is dealt as fire, apart from the attack's own damage type */
+    if (magr->mburnhands && !mwep && !DEADMONSTER(mdef) && !parted
         && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
             || mattk->aatyp == AT_WEAP)) {
         int firedmg = rnd(6) + 2;
@@ -1604,10 +1614,10 @@ mdamagem(
                       makeplural(mbodypart(magr, HAND)));
             /* monster equivalent of Half_spell_damage; the item blast
                below keeps the full spell damage as its scale */
-            mhm.damage += mon_arti_has_spfx(mdef, SPFX_HSPDAM)
-                              ? (firedmg + 1) / 2 : firedmg;
+            burndmg += mon_arti_has_spfx(mdef, SPFX_HSPDAM)
+                           ? (firedmg + 1) / 2 : firedmg;
             if (!rn2(4))
-                mhm.damage += destroy_items(mdef, AD_FIRE, firedmg);
+                burndmg += destroy_items(mdef, AD_FIRE, firedmg);
         }
         magr->mburnhands--;
         if (!magr->mburnhands && canseemon(magr))
@@ -1615,8 +1625,9 @@ mdamagem(
                   makeplural(mbodypart(magr, HAND)));
     }
 
-    /* shocking grasp spell - extra shock damage on unarmed touch attacks */
-    if (magr->mshockgrasp && !mwep && !DEADMONSTER(mdef)
+    /* shocking grasp spell - extra shock damage on unarmed touch attacks,
+       dealt as shock */
+    if (magr->mshockgrasp && !mwep && !DEADMONSTER(mdef) && !parted
         && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
             || mattk->aatyp == AT_WEAP)) {
         int elecdmg = rnd(6) + 2;
@@ -1634,10 +1645,10 @@ mdamagem(
                           : rn2(2) ? "jolts" : "shocks",
                       mon_nam(mdef), mhis(magr),
                       makeplural(mbodypart(magr, HAND)));
-            mhm.damage += mon_arti_has_spfx(mdef, SPFX_HSPDAM)
-                              ? (elecdmg + 1) / 2 : elecdmg;
+            shockdmg += mon_arti_has_spfx(mdef, SPFX_HSPDAM)
+                            ? (elecdmg + 1) / 2 : elecdmg;
             if (!rn2(4))
-                mhm.damage += destroy_items(mdef, AD_ELEC, elecdmg);
+                shockdmg += destroy_items(mdef, AD_ELEC, elecdmg);
         }
         magr->mshockgrasp--;
         if (!magr->mshockgrasp && canseemon(magr))
@@ -1645,10 +1656,11 @@ mdamagem(
                   makeplural(mbodypart(magr, HAND)));
     }
 
-    if (!mhm.damage)
+    if (!mhm.damage && !burndmg && !shockdmg)
         return mhm.hitflags;
 
-    if (damage_mon(mdef, mhm.damage, (int) mattk->adtyp, FALSE)) {
+    if (damage_mon_elem(mdef, mhm.damage, (int) mattk->adtyp, burndmg,
+                        shockdmg, 0, FALSE)) {
         if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */
             remove_monster(mdef->mx, mdef->my);
             mdef->mhp = 1; /* otherwise place_monster will complain */

@@ -600,6 +600,10 @@ struct you {
  */
 struct _hitmon_data {
     int dmg;  /* damage */
+    int firedmg, shockdmg, colddmg; /* the parts of dmg that are fire
+                                     * (burning hands), shock (shocking
+                                     * grasp) and cold (the Hand of
+                                     * Vecna), for damage_mon_elem() */
     int thrown;
     int twohits; /* 0: 1 of 1; 1: 1 of 2; 2: 2 of 2 */
     int dieroll;

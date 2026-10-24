@@ -54,6 +54,8 @@ staticfn void hmon_hitmon_jousting(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG123;
 staticfn void hmon_hitmon_stagger(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
+staticfn void hmon_hitmon_damage(struct _hitmon_data *,
+                                 struct monst *) NONNULLARG12;
 staticfn void hmon_hitmon_pet(struct _hitmon_data *, struct monst *,
                              struct obj *) NONNULLARG12;
 staticfn void hmon_hitmon_splitmon(struct _hitmon_data *, struct monst *,
@@ -75,6 +77,7 @@ staticfn int gulpum(struct monst *, struct attack *) NONNULLPTRS;
 staticfn boolean submitted_since(struct monst *, unsigned) NONNULLARG1;
 staticfn boolean hmonas(struct monst *, int, boolean) NONNULLARG1;
 staticfn int enchant_skill_dice(void);
+staticfn int spell_touch_dmg(struct monst *, int) NONNULLARG1;
 staticfn void nohandglow(struct monst *) NONNULLARG1;
 staticfn void first_weapon_hit(struct obj *) NONNULLARG1;
 staticfn boolean shade_aware(struct obj *) NO_NNARGS;
@@ -2199,8 +2202,9 @@ hmon_hitmon_vecna_relics(struct _hitmon_data *hmd, struct monst *mon)
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_COLD, hmd->dmg);
         } else {
-            hmd->dmg += destroy_items(mon, AD_COLD, hmd->dmg);
-            hmd->dmg += rnd(5) + 7; /* 8-12 hit points of cold damage */
+            hmd->colddmg = destroy_items(mon, AD_COLD, hmd->dmg);
+            hmd->colddmg += rnd(5) + 7; /* 8-12 hit points of cold damage */
+            hmd->dmg += hmd->colddmg;
         }
     }
 }
@@ -2353,6 +2357,24 @@ hmon_hitmon_stagger(
             hmd->already_killed = TRUE;
         hmd->hittxt = TRUE;
     }
+}
+
+/* deal the hit's damage: the blow as physical, and the burning hands,
+   shocking grasp and Hand of Vecna parts as their own element */
+staticfn void
+hmon_hitmon_damage(struct _hitmon_data *hmd, struct monst *mon)
+{
+    int blow = hmd->dmg - hmd->firedmg - hmd->shockdmg - hmd->colddmg;
+
+    /* only a blow that was negative before the Hand of Vecna's cold
+       was added leaves less than the parts; take the shortfall out of
+       the cold, so the hit's total stays what it was */
+    if (blow < 0) {
+        hmd->colddmg = max(hmd->colddmg + blow, 0);
+        blow = 0;
+    }
+    (void) damage_mon_elem(mon, blow, AD_PHYS, hmd->firedmg,
+                           hmd->shockdmg, hmd->colddmg, TRUE);
 }
 
 staticfn void
@@ -2578,6 +2600,7 @@ hmon_hitmon(
     int saved_mhp = mon->mhp; /* for print_mon_wounded() */
 
     hmd.dmg = 0;
+    hmd.firedmg = hmd.shockdmg = hmd.colddmg = 0;
     hmd.thrown = thrown;
     hmd.twohits = thrown ? 0 : gt.twohits;
     hmd.dieroll = dieroll;
@@ -2652,8 +2675,10 @@ hmon_hitmon(
         boolean mon_is_shade = noncorporeal(mon->data); /* or ghost */
 
         /* make sure that negative damage adjustment can't result
-           in inadvertently boosting the victim's hit points */
+           in inadvertently boosting the victim's hit points; a blow
+           this weak delivers none of the Hand of Vecna's cold either */
         hmd.dmg = (hmd.get_dmg_bonus && !mon_is_shade) ? 1 : 0;
+        hmd.colddmg = 0;
         if (mon_is_shade && !hmd.hittxt
             && thrown != HMON_THROWN && thrown != HMON_KICKED)
             /* this gives "harmlessly passes through" feedback even when
@@ -2683,7 +2708,7 @@ hmon_hitmon(
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_FIRE, hmd.dmg);
         } else {
-            hmd.dmg += destroy_items(mon, AD_FIRE, hmd.dmg);
+            int firedmg = destroy_items(mon, AD_FIRE, hmd.dmg);
 
             if (completelyburns(mon->data)
                 || mon->data == &mons[PM_WOOD_GOLEM]
@@ -2693,7 +2718,9 @@ hmon_hitmon(
                 || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12)))
                 hmd.burnkill = TRUE; /* ignites outright, no extra damage */
             else
-                hmd.dmg += d(enchant_skill_dice(), 4);
+                firedmg += spell_touch_dmg(mon, d(enchant_skill_dice(), 4));
+            hmd.firedmg += firedmg;
+            hmd.dmg += firedmg;
         }
     }
 
@@ -2705,8 +2732,11 @@ hmon_hitmon(
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_ELEC, hmd.dmg);
         } else {
-            hmd.dmg += destroy_items(mon, AD_ELEC, hmd.dmg);
-            hmd.dmg += d(enchant_skill_dice(), 6);
+            int shockdmg = destroy_items(mon, AD_ELEC, hmd.dmg);
+
+            shockdmg += spell_touch_dmg(mon, d(enchant_skill_dice(), 6));
+            hmd.shockdmg += shockdmg;
+            hmd.dmg += shockdmg;
         }
     }
 
@@ -2738,7 +2768,7 @@ hmon_hitmon(
                so we test for 1; 0 shouldn't be able to happen here... */
             && hmd.dmg > 0 && u.uconduct.weaphit <= 1)
             first_weapon_hit(obj);
-        (void) damage_mon(mon, hmd.dmg, AD_PHYS, TRUE);
+        hmon_hitmon_damage(&hmd, mon);
     }
     /* adjustments might have made tmp become less than what
        a level-draining artifact has already done to max HP */
@@ -8964,7 +8994,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                                    : makeplural(body_part(HAND)));
                         }
 
-                        firedmg += destroy_items(mon, AD_FIRE, firedmg);
+                        firedmg = spell_touch_dmg(mon, firedmg)
+                                  + destroy_items(mon, AD_FIRE, firedmg);
 
                         if (completelyburns(mon->data)
                             || mon->data == &mons[PM_WOOD_GOLEM]
@@ -9018,7 +9049,8 @@ hmonas(struct monst *mon, int as, boolean weapon_attacks)
                               ? "talons"
                               : makeplural(body_part(HAND)));
 
-                        elecdmg += destroy_items(mon, AD_ELEC, elecdmg);
+                        elecdmg = spell_touch_dmg(mon, elecdmg)
+                                  + destroy_items(mon, AD_ELEC, elecdmg);
 
                         if (damage_mon(mon, elecdmg, AD_ELEC, TRUE)) {
                             xkilled(mon, XKILL_GIVEMSG);
@@ -10241,6 +10273,15 @@ enchant_skill_dice(void)
              ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                  ? 2 : 1;
+}
+
+/* the hero's burning hands or shocking grasp damage against mon; an
+   artifact granting half spell damage halves it, as it does a
+   monster's (mdamagem()) */
+staticfn int
+spell_touch_dmg(struct monst *mon, int dmg)
+{
+    return mon_arti_has_spfx(mon, SPFX_HSPDAM) ? (dmg + 1) / 2 : dmg;
 }
 
 /* use up a burning hands charge, with feedback; flames on the hero's
