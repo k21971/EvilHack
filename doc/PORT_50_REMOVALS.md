@@ -181,20 +181,6 @@ slice. Scopes below were ruled via AskUserQuestion on 2026-10-17;
   `hilite_status:hitpoints/criticalhp/red&bold`). It only acts when a
   player configures it, and the bar still takes its color.
 
-### 1.6 [ ] `nasties[]` -> master's list
-
-- **Branch today:** 5.0's 44-entry list with EvilHack renames. On
-  EvilHack alignments it is 19 neutral, 20 chaotic or unaligned and 5
-  lawful, so a lawful caster stops on only 24 of 44 picks and
-  summons more than the table intends.
-- **Master:** a curated 50-entry list (EvilHack-authored: the shadow
-  dragon 9e0097194, the devils out with de169194a), 22 neutral, 15
-  chaotic, 13 lawful.
-- **Ruled 2026-10-18:** master's list as one unit, with `nasty()`'s
-  comment recomputed; the tracker's nasties[] content reconcile row is
-  the slice. 5.0's picking rules (`pick_nasty()`'s difficulty cap and
-  lesser-form substitution) are a separate difference outside it.
-
 ## 2. Removed so far (landed)
 
 All landed unless noted. BUG ids and commits as recorded in the
@@ -397,6 +383,10 @@ tracker; sNNN = port session.
 - [x] Player-monster gear switch (including dragon scale mail) ->
   master's kit (BUG-1552..1557).
 - [x] Fountain gush / swamp make PUDDLE, not 5.0's POOL.
+- [x] Summon nasties: 5.0's 44-entry `nasties[]` -> master's curated
+  50 (ruled 2026-10-18 as planned item 1.6), with the Double Trouble
+  clone's `wizapp[]` disguises -> master's 12, the other half of
+  master 04518bab7 (s259, BUG-2569 / 2570, 8b03f5d2c).
 
 ## 3. Reversed (5.0 kept after a removal was ruled or proposed)
 
@@ -418,8 +408,9 @@ tracker; sNNN = port session.
 
 ## 4. Open
 
-None. The last two were ruled 2026-10-18: `nasties[]` became 1.6,
-and `poisoned()`'s survivor drains were ratified (listed under 2.3).
+None. The last two were ruled 2026-10-18: `nasties[]` became 1.6
+(landed s259, now under 2.5), and `poisoned()`'s survivor drains were
+ratified (listed under 2.3).
 
 ## 5. Not counted: vanilla rules replaced by EvilHack's own systems
 
