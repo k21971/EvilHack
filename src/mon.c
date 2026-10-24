@@ -4643,14 +4643,16 @@ m_detach(
        or wizard mode genocide of "*" can result in special monsters going
        away without having been killed */
     if (due_to_death) {
-        if (mtmp->data->msound == MS_NEMESIS) {
+        /* only the hero's own quest nemesis and leader count: wishing for
+           another role's quest artifact brings that role's leader */
+        if (monsndx(mtmp->data) == gu.urole.neminum) {
             nemdead();
             /* The Archeologist, Caveman, and Priest quest texts describe
                the nemesis's body creating noxious fumes/gas when killed. */
             if (stinky_nemesis(mtmp))
                 nemesis_stinks(mx, my);
         }
-        if (mtmp->data->msound == MS_LEADER)
+        if (mtmp->m_id == svq.quest_status.leader_m_id)
             leaddead();
         /* release (drop onto map) all objects carried by mtmp; assumes that
            mtmp->mx,my contains the appropriate location */
@@ -6231,7 +6233,7 @@ xkilled(
             pline("That was an extremely bad idea...");
         else
             pline("Umm... err...");
-    } else if (mdat->msound == MS_NEMESIS) { /* Real good! */
+    } else if (mndx == gu.urole.neminum) { /* Real good! */
         if (!svq.quest_status.killed_leader)
             adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */

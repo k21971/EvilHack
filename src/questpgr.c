@@ -190,9 +190,8 @@ stinky_nemesis(struct monst *mon)
         }
 #else
     nhUse(mon);
-    /* since nemdead() just gave the message for hero's nemesis even if 'mon'
-       is some other role's nemesis (feasible in wizard mode), base any gas
-       cloud on the text that was shown even if not appropriate for 'mon' */
+    /* m_detach() calls this only for the hero's own nemesis, right after
+       nemdead() gave its death text; base any gas cloud on that text */
     (void) com_pager_core(gu.urole.filecode, "killed_nemesis", FALSE, 0,
                           &mesg);
 #endif

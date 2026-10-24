@@ -4773,7 +4773,9 @@ set_malign(struct monst *mtmp)
     /* compare raw alignment so an unaligned hero (A_NONE) is never
        treated as coaligned with anyone */
     coaligned = (sgn(mal) == u.ualign.type);
-    if (mtmp->data->msound == MS_LEADER) {
+    /* the hero's own quest leader; another role's leader, brought by a
+       wish for its quest artifact, is judged like any other monster */
+    if (monsndx(mtmp->data) == gu.urole.ldrnum) {
         if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
         else
