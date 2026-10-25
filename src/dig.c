@@ -321,10 +321,12 @@ dig(void)
     lev = &levl[dpx][dpy];
     /* perhaps a nymph stole your pick-axe while you were busy digging */
     /* or perhaps you teleported away */
+    /* or got caught in a web, which use_pick_axe2() would refuse */
     if (u.uswallow || !uwep || (!ispick && !is_axe(uwep))
         || !on_level(&svc.context.digging.level, &u.uz)
         || ((svc.context.digging.down ? (dpx != u.ux || dpy != u.uy)
-                                  : !next2u(dpx, dpy))))
+                                  : !next2u(dpx, dpy)))
+        || (u.utrap && u.utraptype == TT_WEB))
         return 0;
 
     if (svc.context.digging.down) {
@@ -1309,6 +1311,14 @@ use_pick_axe2(struct obj *obj)
     int dig_target;
     boolean ispick = is_pick(obj);
     const char *verbing = ispick ? "digging" : "chopping";
+
+    /* as for use_pick_axe(); autodig via '>' and F with a pick come
+       straight here */
+    if (u.utrap && u.utraptype == TT_WEB) {
+        pline("Unfortunately, you can't %s while entangled in a web.",
+              ispick ? "dig" : "chop");
+        return ECMD_OK;
+    }
 
     if (u.uswallow && do_attack(u.ustuck)) {
         ; /* return 1 */

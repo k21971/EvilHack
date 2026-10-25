@@ -254,10 +254,9 @@ flooreffects(
                     } else {
                         (void) hmon(mtmp, obj, HMON_THROWN, dieroll);
                     }
-                    if (!DEADMONSTER(mtmp) && !is_whirly(mtmp->data))
-                        res = FALSE; /* still alive, boulder still intact */
-                    nhUse(res);
                 }
+                /* dead or alive, the boulder fills the pit below it
+                   and a survivor stands on the filled square */
                 mtmp->mtrapped = 0;
             } else {
                 if (!Passes_walls && !racial_throws_rocks(&gy.youmonst)) {

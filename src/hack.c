@@ -2628,7 +2628,11 @@ domove_fight_empty(coordxy x, coordxy y)
                 && uwep && dig_typ(uwep, x, y)
                 /* should we dig? */
                 && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
-                (void) use_pick_axe2(uwep);
+                /* a refusal (held in a web) takes no time */
+                if (!(use_pick_axe2(uwep) & ECMD_TIME)) {
+                    svc.context.move = 0;
+                    nomul(0);
+                }
                 return TRUE;
             }
         }

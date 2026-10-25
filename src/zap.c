@@ -5778,12 +5778,14 @@ zhitm(
             if (mon->mtame)
                 pline("May %s rust in peace.", mon_nam(mon));
             tmp = mon->mhp + 1;
+            type = -1; /* the kill is announced; no saving throw */
             break;
         }
         if (completelydoused(mon->data)) {
             if (canseemon(mon))
                 pline("%s is extinguished!", Monnam(mon));
             tmp = mon->mhp + 1;
+            type = -1; /* as above */
             break;
         }
         if (!rn2(6)) {
@@ -5804,6 +5806,7 @@ zhitm(
         }
         if (mon->m_lev == 0) {
             tmp = mon->mhp + 1;
+            type = -1; /* a level 0 target dies outright */
         } else {
             tmp += drain;
             mon->mhpmax -= drain;
