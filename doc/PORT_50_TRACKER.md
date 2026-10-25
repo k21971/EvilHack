@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-24, after session 259's
-  ten-row slice): 506 rows closed, 130 open
+- Phase 2 status (refreshed 2026-10-25, after session 261's
+  thirteen-row slice): 522 rows closed, 118 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -286,9 +286,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     upstream-reportable). Session 214's crash class (a mongone()d
     Ice Queen revives off the map) landed in session 215
     (BUG-2291..2292).
-  - 6 SWEEP: race-predicate census, is_bracer() census, inert
-    persistent fields, monstseesu() setter parity, racial size
-    macros, base-type oc_material reads.
+  - 5 SWEEP: race-predicate census, inert persistent fields,
+    monstseesu() setter parity, racial size macros, base-type
+    oc_material reads.
+    Session 261 closed the is_bracer() census with the bracers
+    wording port (BUG-2587): every master-only site is ported or
+    covered by shield_simple_name().
     Session 256 closed the form-bit sweep (BUG-2542..2546): a
     gremlin's curse, an angry god or a disenchanter corpse no
     longer strips a resistance the hero's form gives - a red
@@ -323,7 +326,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 113 LOW: small parity rows, quirks and watch/record-only items.
+  - 102 LOW: small parity rows, quirks and watch/record-only items.
+    Session 261 closed fifteen (BUG-2586..2601): gloves and
+    gauntlets take property wishes ("leather gloves of fire");
+    bracers are named as bracers when they burn, rust, crumble or
+    keep another shield off; acid potions and hallucinated colors
+    take the right article ("An inky potion explodes!"); a stoning
+    death names the dragon-scaled suit, and the Gauntlets of
+    Purity name the corpse they force loose; a polymorphed hero's
+    water or drain breath kill no longer survives on a saving
+    throw; a webbed hero can't dig through `>` or F; a red or
+    orange object on hidden stairs, and a blue one on a curses
+    pile, is drawn inverse; a tiny hero under a puddle or sewage
+    sees its surroundings; the first-polymorph livelog follows the
+    screen; perm_invent's weight header follows capacity changes
+    and keeps its numbers in a narrow curses sidebar; and taking
+    part of a stack from a carried bag weighs what is left. Minted
+    four: a "pair of leather gloves" wish, the "gauntlets of
+    <property>" wish pick, the polymorphed status title's sex, and
+    "[already wearing a bracers]".
     Session 259 closed ten (BUG-2569..2584): summon nasties and the
     Wizard's clone disguises use master's lists; a monster held by
     grass or a tree is let go when it goes ("The vegetation releases
@@ -2375,7 +2396,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       legs on a scratch master build; every leg PASS (A1-A8, B1-B8,
       C1-C6, D1-D7), paniclogs empty. Minted the three LOW rows
       below.
-- [ ] LOW: master 61f44f611's bracers wording only partly ported
+- [x] LOW: master 61f44f611's bracers wording only partly ported
       (minted 2026-10-21 by session 247's battery; silent revert).
       Burning worn bracers reads "Your wooden shield smoulders!":
       burnarmor() keeps 5.0's literal "wooden shield" for the W_ARMS
@@ -2385,6 +2406,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       c_bracers "already wearing" text and "Your bracers crumble
       away!". Only the mcastu.c half (the monster destroy-armor
       "crumble away") is on the branch.
+      CLOSED 2026-10-25 (session 261, be6bd0f84; BUG-2587; master
+      61f44f611 + b70cf417e). burnarmor() names "bracers" or "shield" (5.0's
+      "wooden shield", which named any burning shield wooden, goes); its
+      `continue` reroll stays by ruling (decisions log) - master
+      3a452ae45's `return TRUE` arm, a side effect of its is_bracer() NULL
+      fix, is archived as a master quirk, frozen-unfixed. The hero rust
+      trap arm names bracers too, canwearobj() says "You are already
+      wearing bracers." for worn bracers, disintegrate_arm() "Your bracers
+      crumble away!", armor_status() "Bracers". Battery A: PRE "Your
+      wooden shield smoulders!", "Your shield rusts!", "crumbles away", "a
+      shield", "Shield"; POST "Your bracers smoulder!", "Your bracers
+      rust!", "crumble away", "You are already wearing bracers.",
+      "Bracers"; a wooden small shield "Your shield smoulders!" (PRE
+      "wooden shield"); an iron large shield prints nothing on either.
 - [x] LOW: 5.0's "Boom!" before a seen explosion (minted
       2026-10-21 by session 247's battery; 5.0 extra, record only
       unless ruled). explode() prints "Boom!" whenever no "You hear
@@ -2398,7 +2433,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       prints no "Boom!" (master's shape); dig.c's own "Boom!" at a
       destroyed magic trap no longer doubles. Battery C. Recorded in
       doc/PORT_50_REMOVALS.md.
-- [ ] LOW: a tiny hero submerged in a puddle sees a blank map
+- [x] LOW: a tiny hero submerged in a puddle sees a blank map
       (minted 2026-10-21 by session 247's battery; shared with
       master). pooleffects() submerges a verysmall form in a puddle
       or sewage (drown(): "You touch bottom."), but under_water()
@@ -2406,6 +2441,23 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       hero's own square and the hero glyph are never drawn, even
       after ^R; only the cursor marks the hero. Fix shape: let
       under_water() draw damp terrain (is_damp_terrain()) too.
+      CLOSED 2026-10-25 (session 261, fd2af9750; BUG-2597, master
+      frozen-unfixed). Wider than the row's shape: vision.c's underwater
+      block and display.c's feel_location(), newsym() (which returned before
+      display_self()) and under_water() gates admit is_damp_terrain();
+      domove_fight_empty() meets the water; folded sibling (battery C):
+      wizterrainwish() keeps a tiny hero under a new puddle or sewage.
+      Battery C, a newt (the See_underwater path) and an iguana with an
+      amulet of magical breathing (the under_water() path), in puddles and
+      sewage: PRE a blank map with only the cursor, also after ^R; POST the
+      hero and adjacent damp squares drawn; F at a puddle "You attack
+      nothing." -> "You harmlessly attack the shallow water." ("the
+      sewage"). Delta on POST2: a "sewage" or "puddle" wish over a
+      submerged tiny hero ejected it on PRE (it sank again next turn) and
+      keeps it under on POST2; a "grass" wish leaves the water on both.
+      RECORDED (wizard-only): a "room" terrain wish is refused on a puddle
+      or sewage square ("Room|floor|ground not allowed here."), 5.0's
+      whitelist knowing no damp terrain.
 - [x] LOW: spell-touch damage enters as the attack's damage type
       (minted 2026-10-20 by session 245; master quirk, record only
       unless ruled). A monster's burning hands / shocking grasp
@@ -2447,7 +2499,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       where it lands. (c) A kill by a monster's spell-touch part keeps
       the attack's death type, so a paper golem burned to death by a
       claw still leaves a corpse. Master shares (b) and (c).
-- [ ] LOW: hero breath's saving throw can halve an outright kill
+- [x] LOW: hero breath's saving throw can halve an outright kill
       (minted 2026-10-20 by session 245's reviewer; vanilla shape,
       more frequent with BUG-2440's MC bonus). zhitm() halves hero
       rays (type >= 0, breath included) on a resist() success after
@@ -2456,6 +2508,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       kill (all tmp = mhp + 1) can leave the target alive after the
       message. Fix shape: mark those arms like the death ray's
       type = -1, or skip the halving when tmp > mhp.
+      CLOSED 2026-10-25 (session 261, dffa62871; BUG-2593, master
+      frozen-unfixed). zhitm()'s water iron-golem, completelydoused() and
+      drain m_lev 0 arms set type = -1, the death ray's idiom (only
+      polymorphed hero breath reaches them; vanilla has neither breath).
+      Battery B with resist() forced true: PRE the golem alive at 30/120
+      after two "falls to pieces!", a fire elemental at 29/59 after "is
+      extinguished!", a level-0 newt at 12/50; POST all killed and
+      resist() never reached; forced-false controls kill on both.
 - [ ] SWEEP: base-type oc_material reads (minted 2026-10-19 by the
       Materials umbrella audit): about 88 objects[].oc_material reads
       on the branch against 65 on master. Known gaps: o_material()
@@ -2464,6 +2524,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       helm name (trap.c), and stone_missile() (obj.h), ruled
       2026-10-19 to read the item's own material. Classify the
       5.0-native rest.
+      PROGRESS (2026-10-25, session 261): burnarmor()'s helm name reads
+      item->material (BUG-2588, be6bd0f84), master's read.
 - [ ] LOW: materials nits (minted 2026-10-19 by the Materials
       umbrella audit; master-shared, its "fix master first" void
       since the freeze). not_spec_material() reads one past the NUL
@@ -9182,7 +9244,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       die. PRE healed by the to-hit number: 24 per claw (iron), 6 per
       claw from tmp 31 (flesh). The resisted branch still spends a
       charge on both builds.
-- [ ] LOW: hallucinated colors break the producer articles (minted
+- [x] LOW: hallucinated colors break the producer articles (minted
       2026-08-26, reviewer catch, master-shared verbatim): the
       unblessed burning hands message hardcodes "a%s%s flame" with
       "n " (right for "orange", wrong for a hallucinated consonant
@@ -9197,7 +9259,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       finds read with a correct article ("a red flame", "an orange
       aura"), deviating from master's literal strings. One slice with
       the "A inky potion explodes!" row. Plannable.
-- [ ] LOW investigation: "gloves"-form wishes rejected while
+      CLOSED 2026-10-25 (session 261, be6bd0f84; BUG-2590, master
+      frozen-unfixed). an() / An() on burning hands' and shocking grasp's
+      purple and first-cast lines, confuse monster's blessed confused
+      glow, the sink ooze, the protection haze, the Wizard's intervene
+      glow and the monster shocking grasp; the sweep (every literal a / A
+      before hcolor(), rndcolor(), glow_color() or hliquid()) found no
+      more. Battery A, hallucinating: PRE "engulfed in an dark white
+      flame" and "surrounded by a indigo-chartreuse aura" on every first
+      cast; POST "a tuneless flame", "an umami flame", "an iridescent
+      aura"; "a bright <color>" unchanged on both; the sink ooze sampled
+      consonant colors only. The ooze, haze and intervene lines are
+      vanilla's (upstream row).
+- [x] LOW investigation: "gloves"-form wishes rejected while
       "gauntlets" forms work (minted 2026-08-26, battery
       observation): wizard wishes for "blessed +0 pair of leather
       gloves" / "pair of gloves" / "gloves" all returned "Nothing
@@ -9206,6 +9280,18 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "gauntlets" and "gauntlets of protection" wish fine. Check
       objnam.c wish parsing on the branch vs master (material-prefix
       interaction suspected); may be master-shared.
+      CLOSED 2026-10-25 (session 261, battery A): "gloves" and "pair of
+      gloves" wish fine on both builds (the alias since cac4efc84), the
+      control "blessed +0 leather gloves" works, but "blessed +0 pair of
+      leather gloves" still fails on both - re-minted narrower below.
+- [ ] LOW: a "pair of <material> gloves" wish fails (minted 2026-10-25,
+      session 261, from the row above; master-shared by code reading).
+      readobjnam()'s prefix loop stops at "pair" before the material
+      prefix is parsed, and once "pair of" is cut "leather gloves"
+      names nothing, so "blessed +0 pair of leather gloves" reads
+      "Nothing fitting that description exists in the game." while
+      "blessed +0 leather gloves" works. Needs master's order traced,
+      then a fix shape.
 - [x] dothrow.c launcher range table NOT PORTED (minted 2026-08-06 by
       the Archeologist slice's reviewer while proving the range>0
       gate's producer absent). Master's throwit() range overrides for
@@ -9668,7 +9754,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       bare-handed hits and used-up objects pass NULL. Battery: A
       6/6, B 7/7 plus optional G3 and O, master M 3/3; every dbon
       value matched the table; paniclogs empty.
-- [ ] LOW: a boulder that falls into a pit onto a trapped monster
+- [x] LOW: a boulder that falls into a pit onto a trapped monster
       always fills the pit (minted 2026-10-23, session 252 battery
       B; master, the branch and vanilla 5.0 alike). flooreffects()
       sets `res = FALSE; /* still alive, boulder still intact */`
@@ -9678,6 +9764,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       from 3.6.2. Fix shape: when the monster survives, leave the
       boulder on the square and the pit open (the comment's intent),
       or delete the dead assignment. Upstream shares it.
+      CLOSED 2026-10-25 (session 261, dffa62871; BUG-2594) by ruling
+      (decisions log): ALWAYS FILL - the dead `res = FALSE` and its
+      nhUse() are gone and a comment says the boulder fills the pit dead
+      or alive; no change in play. Battery B (a blessed scroll of earth
+      onto a pit-trapped 9999-HP monster): both builds "The boulder fills
+      a pit.", the monster lives with mtrapped 0, the pit is gone.
+      Upstream row (dead code).
 - [x] LOW: applying an unwielded tool now costs an extra action, and
       an interrupt drops the second one (minted 2026-10-23, session
       252 battery B; needs a ruling). 5.0's use_pick_axe(),
@@ -16421,7 +16514,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       frozen-unfixed). `mtmp->malign = 1`. Battery C: an Infidel's
       peaceful watchman PRE 2, 3, 4, 5 over creation and three
       recomputes, POST 1 throughout. Master as PRE (battery M6).
-- [ ] LOW: red objects on the red hidden-stairs background (minted
+- [x] LOW: red objects on the red hidden-stairs background (minted
       2026-10-22, session 251; master shares it). With
       hilite_hidden_stairs on, a CLR_RED object, corpse or statue
       on stairs (a ruby, a red dragon corpse) draws red on red and
@@ -16429,6 +16522,19 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       has the same problem for blue objects. Fix shape: inverse
       instead of the background when the glyph's color is the
       background color.
+      CLOSED 2026-10-25 (session 261, fd2af9750; BUG-2596, master
+      frozen-unfixed). A glyph in the highlight's color or its bright form
+      is drawn inverse: tty skips the stairs background so the existing
+      inverse arm draws it, curses uses A_REVERSE in the stairs and pile
+      arms. Battery C (capture-pane -e): a ruby `\e[31m\e[41m*` ->
+      `\e[7m\e[31m*`, an orange `\e[91m\e[41m%` -> inverse, on tty and
+      curses; a sapphire or sea dragon scales topping a curses pile
+      `\e[34m\e[44m*` -> `\e[7m\e[34m*`; dagger controls keep the
+      background; a blue object on a pile over hidden stairs keeps the
+      stairs' red. RECORDED (reviewer LOW-1, accepted): tty with
+      use_inverse off now draws the ruby plain red with no stairs cue,
+      where curses reverses regardless. The curses pile half is vanilla's
+      (upstream row).
 - [x] LOW: wizard ^G "peaceful" / "hostile" leaves a rider's steed
       with its rolled disposition (minted 2026-10-22, session 251
       battery A: "peaceful goblin outrider" rode a wolf with
@@ -16485,7 +16591,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       multipliers, atoi() past INT_MAX, a 32-bit `long`. Note: this
       build has no sanitizers (WANT_ASAN / WANT_UBSAN unset); the
       old binary wrapped 467584111 daggers to "(380873814 aum)".
-- [ ] LOW: perm_invent's inventory header goes stale after
+- [x] LOW: perm_invent's inventory header goes stale after
       capacity-only changes (minted 2026-10-21, session 250; master
       shares it). The header's X / Y come from inv_weight() /
       weight_cap(), but a perm_invent window (curses, X11, win32)
@@ -16495,7 +16601,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the call with the steed only. Census the weight_cap() inputs
       and add update_inventory() where they change (popup `i`
       menus are rebuilt each time and are not affected).
-- [ ] LOW: curses perm_invent's column indicator hides the inventory
+      CLOSED 2026-10-25 (session 261, fd2af9750; BUG-2599, master
+      frozen-unfixed). One central check rather than a per-site census:
+      encumber_msg() redraws perm_invent when gw.wc differs from the new
+      go.oldwc; it runs after each hero action and after nh_timeout()
+      every turn, helpless turns included. Battery D (curses): wounded
+      legs 950 -> 850 at once, levitation's end 1000 -> 850 in the landing
+      turn, Con and Str drops at once; PRE stale until an inventory
+      action; polymorph already redrew on both.
+- [x] LOW: curses perm_invent's column indicator hides the inventory
       header in a narrow sidebar (minted 2026-10-21, session 250
       battery A9). The header is perm_invent's first line, counts
       toward pi.widest, never shifts on a right scroll (letterless)
@@ -16506,7 +16620,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       window edge. Fix shape: put the indicator on its own line or
       the border, or keep the header out of pi.widest and wrap /
       shorten it ("90/925 wt, 4/52") for narrow sidebars.
-- [ ] LOW: carry_count() mispredicts taking part of a gold stack out
+      CLOSED 2026-10-25 (session 261, fd2af9750; BUG-2600) by ruling
+      (decisions log): only item lines raise pi.widest (letterless lines
+      never shift sideways), and the column indicator goes on the first
+      letterless line it fits beside, never the row indicator's line, else
+      the top line. Battery D at 110 columns: PRE "Inventory: 335[1-26 of
+      58}"; POST "Inventory: 355/975 weight " over "Weapons       [1-26 of
+      58}", scrolling "{14-39 of 58}" on that line with the header
+      unshifted; a short inventory shows no indicator on POST (PRE "[1-26
+      of 37}", the header's own width).
+- [x] LOW: carry_count() mispredicts taking part of a gold stack out
       of a carried ordinary container (minted 2026-10-21, session
       250 reviewer; pre-existing in 5.0 and master). delta_cwt()
       returns the taken part's owt for a non-magic container, not
@@ -16517,6 +16640,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       prompt (60 of 120 was already off before). Battery could not
       stage it (Overtaxed blocks #apply). Fix shape: for gold,
       compare weight(container) before and after the split.
+      CLOSED 2026-10-25 (session 261, fd2af9750; BUG-2601, master
+      frozen-unfixed; widened). delta_cwt() is replaced by cwt_drop(), the
+      container's real drop when `taken` of a stack leave it (all of it:
+      unlinked; part: weighed with the rest left in), at all three sites,
+      and the gold container loop scans down from the full count by the
+      hero's gold weight steps. The bag of holding case was wrong too:
+      delta_cwt() assumed the whole stack left. Battery D (iw faked by
+      gdb; the menu splits the stack before carry_count()): 120 gold, take
+      30 at -1: PRE all, POST "There are 30 gold pieces in the bag, but
+      you cannot carry any more."; 200 gold, take 199: PRE all, POST none,
+      149 and 200 taken on both; an uncursed bag of holding's 20 daggers,
+      take 5 at -10: PRE 3, POST "You can only carry one of the 5 daggers
+      in the bag."; a carried sack's daggers at -30: all 5 on both (only
+      the weight's place changes). Upstream row.
 - [x] LOW: 5.0's one-aum minimum for gold (minted 2026-10-21,
       session 249 battery anomaly; RULING NEEDED). 5.0 90aded364
       "weight of gold" makes weight() return at least 1 for any
@@ -19839,13 +19976,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ruling). The fire / frost / shock / venom lines print "The daggers
       of fire burn you!" while blind; the drain arm has a Blind
       "You feel ..." form.
-- [ ] LOW: a wish for gloves or gauntlets with a property fails (minted
+- [x] LOW: a wish for gloves or gauntlets with a property fails (minted
       2026-10-24, session 259 battery D; branch regression).
       readobjnam() skips the property scan for any text holding
       "gloves " or "gauntlets " (the ogre power / giant strength
       guard), so "leather gloves of fire" reads "Nothing fitting that
       description exists in the game."; master's guard does not include
       them. Plannable: narrow the guard to those two alternate names.
+      CLOSED 2026-10-25 (session 261, be6bd0f84; BUG-2586). The guard
+      names only "ogre power" and "giant strength". Battery A: "leather
+      gloves of fire" and "dark elven gloves of fire" PRE "Nothing fitting
+      that description exists in the game.", POST the gloves with fire;
+      the ogre / giant aliases and gauntlets of power, protection,
+      dexterity and fumbling unchanged; "gloves of fumbling" PRE gauntlets
+      of fumbling, POST leather gloves of fumbling (master's shape);
+      "gauntlets of fire" PRE fails, POST four of five gauntlets of power
+      with the property in wizard mode - LOW row below.
+- [ ] LOW: a "gauntlets of <property>" wish picks among all gauntlets
+      (minted 2026-10-25, session 261 Plan agent and battery A;
+      master-shared). With the property cut, "gauntlets" is an
+      o_ranges[] class name (GAUNTLETS..GAUNTLETS_OF_POWER, 12:8), so
+      the wish gives gauntlets of power 2 times in 5, whose property is
+      stripped outside wizard mode (oc_magic); a plain "gauntlets"
+      wish does the same on both trees. Needs a ruling: a
+      `{ "gauntlets", GAUNTLETS }` alias, or record.
 - [x] LOW: a monster's turn undead spell kills as "a wand of undead
       turning" (minted 2026-10-13, session 223, by the census;
       master-shared). unturn_you() hard-codes the wand's name and
@@ -21495,7 +21649,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       line are skipped. Battery C: PRE the two mist lines and nothing
       more, POST also "You are uninjured.", shattered potions and
       encrusted feet. Master as PRE (battery M8).
-- [ ] LOW: a dragon-scaled suit's death text names the base suit
+- [x] LOW: a dragon-scaled suit's death text names the base suit
       (minted 2026-10-23, session 256 battery B; branch: master
       never re-checked dragon armor). wielding_corpse()'s killer
       uses simpleonames(), so taking off a yellow-scaled ring mail
@@ -21504,6 +21658,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       seen: maybe_purity_slide_off() names the corpse "corpse"
       ("Your corpse and pair of runed bracers are forced from your
       hands!"), simpleonames() again.
+      CLOSED 2026-10-25 (session 261, be6bd0f84; BUG-2591, and
+      BUG-2592 master frozen-unfixed). wielding_corpse() names
+      "<color>-scaled <suit>"; maybe_purity_slide_off() names a corpse
+      with corpse_xname(CXN_NO_PFX). Battery B: the xlogfile's "petrified
+      by removing ring mail while wielding a cockatrice corpse" -> "...
+      removing yellow-scaled ring mail while ..."; "Your corpse and large
+      shield are forced from your hands!" -> "Your newt corpse and ...";
+      "Your corpse is forced from your hand!" -> "Your newt corpse is
+      ...". RECORDED (both builds): taking the suit off reads "You finish
+      taking off your dragon mail." (suit_simple_name()'s scaled arm).
 - [ ] LOW: livelog line format vs master (minted 2026-10-21, session
       248, ruled). Master's 0.9.3 livelog line carries `realtime=`
       (play seconds, `(long)` cast 5a17e1fd7) and names the player
@@ -24285,7 +24449,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
         monster does not stop mindless blights (EvilHack onscary(),
         by design). The polymorph livelog sex mismatch the battery
         hit was minted as a LOW row below.
-- [ ] LOW: the first-polymorph livelog can name the wrong sex
+- [x] LOW: the first-polymorph livelog can name the wrong sex
       (minted 2026-10-02, session 170, vine battery anomaly; verified
       on the bodies; UPSTREAM-SHARED, Official_nh50 polyself.c
       ~753). polymon() writes "changed form for the first time,
@@ -24297,6 +24461,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       gender-neutral mons[].mname. Fix shape: move the livelog after
       the sex is settled (or log the neutral name, as master does).
       LOW (livelog text).
+      CLOSED 2026-10-25 (session 261, fd2af9750; BUG-2598) by ruling
+      (decisions log): GENDERED, logged once the sex is settled (the block
+      moved below polymon()'s "You turn into" line, before the Stoned arm).
+      Battery C with the flip forced: PRE "You turn into a dwarf lord!"
+      beside the chronicle's "becoming a dwarf lady" (livelog gender=Fem);
+      POST "becoming a dwarf lord" (gender=Mal); unflipped controls agree
+      on both. Upstream row.
+- [ ] LOW: a polymorphed hero's status title names the natural sex's
+      form (minted 2026-10-25, session 261 battery C; vanilla-shared).
+      botl.c names the form with Ugender, which reads u.mfemale - the
+      saved natural sex - while Upolyd, and flags.female holds the
+      form's sex, so after polymon()'s random flip "You turn into a
+      dwarf lord!" shows "Wizard the Dwarf Lady" (persists through
+      ^R). Master named the form with the sexless mons[].mname. Needs
+      a census of Ugender's users before a fix.
 - [x] LOW: player-monster Monk kick stun ABSENT
       PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
       master's grab, trunk and Monk kick arms.` = 18140062c,
@@ -25488,7 +25667,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       levitation boots over a pool beside a trap too. Fix: skip the
       trap and pickup when drown() / lava_effects() moved the hero.
       Plannable. LOW.
-- [ ] LOW: "A inky potion explodes!" (minted 2026-10-06, session 187,
+- [x] LOW: "A inky potion explodes!" (minted 2026-10-06, session 187,
       battery E anomaly A2; upstream-shared). The acid-in-water
       explosion line in trap.c hardcodes "A " / "Another " before
       simpleonames(); a vowel-initial description needs "An". Cosmetic;
@@ -25496,6 +25675,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-06 (session 187 follow-up, decisions log): FIX WITH
       An(), with the hallucinated-color article row ("An inky potion
       explodes!", "Another" unchanged). Plannable.
+      CLOSED 2026-10-25 (session 261, be6bd0f84; BUG-2589). An() on
+      the first explosion line. Battery A (four unmergeable acid stacks
+      soaked by a "pool" wish; "inky" swapped in by gdb): PRE "A inky
+      potion explodes!", POST "An inky potion explodes!"; "Another" and
+      consonant appearances unchanged on both. Upstream row.
 - [x] LOW: an item-flying or levitating steed carries its rider over
       water but not over holes or open air (minted 2026-10-06, session
       188, census; master-shared in shape). The Flying macro carries a
@@ -25898,7 +26082,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       Ruled shape: the 2026-10-07 TELL IT AFTER THE EVENT ruling;
       ruled 2026-10-17 a separate slice (about 51 callers to census;
       reset_utrap_deferred() is the likely tool). LOW (plannable).
-- [ ] LOW: dig() on a level that cannot be dug down deletes a web the
+- [x] LOW: dig() on a level that cannot be dug down deletes a web the
       hero is caught in and leaves the hold (minted 2026-10-17,
       session 236, Plan agent; master-shared). dig.c dig()'s
       DIGCHECK_PASSED_DESTROY_TRAP arm deletes a web with a plain
@@ -25906,6 +26090,18 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       reset_utrap(TRUE)), so a TT_WEB hold outlives its web; a later
       pit replaces it (dig.c digactualhole()'s set_utrap(TT_PIT)) and
       a held-down lift comes back unannounced. LOW (plannable).
+      CLOSED 2026-10-25 (session 261, dffa62871; BUG-2595, master
+      frozen-unfixed). Reachable after all: `>` with autodig and F toward
+      a wall with a wielded pick call use_pick_axe2() without
+      use_pick_axe()'s web refusal. use_pick_axe2() now refuses
+      ("Unfortunately, you can't dig while entangled in a web.", no time;
+      domove_fight_empty() clears context.move for it, reviewer MED-1) and
+      dig() stops its occupation for a webbed hero. Battery B on a
+      hardfloor level: PRE `>` "You start digging downward.  You destroy
+      the web with your pick-axe." with utrap 10 / TT_WEB left, and F dug
+      through the wall; POST the refusal with the turn counter unchanged,
+      web and hold intact; unheld controls dig the web away on both.
+      Upstream row.
 - [x] LOW: a tree-held hero whose iron ball is buried is landed
       (BUG-2182) - FIXED 2026-10-07 (session 190, commit 2bc884d66,
       tracker 385dc3fe8; closure notes on the sky
@@ -28909,7 +29105,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       "You are very fast from your creature form.", PRE "... from
       current creature form."; on land "You are fast because of your
       experience." on both.
-- [ ] SWEEP: is_bracer() census (minted 2026-09-23, session 135, from
+- [x] SWEEP: is_bracer() census (minted 2026-09-23, session 135, from
       the set_uasmon() slice's bracers-as-shield sibling sweep, which
       fixed the two-weapon / two-hander class only: zap.c poly_obj(),
       worn.c check_wornmask_slots(), iactions.c). Per-file is_bracer
@@ -28933,6 +29129,19 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       use_axe()'s "<mon>'s bracers deflects your attack!", ported with
       the bearded axe (BUG-2361); apply.c is 1 / 1. The two muse.c
       sites are the monster bearded-axe disarm (muse parity row).
+      CLOSED 2026-10-25 (session 261, be6bd0f84, with BUG-2587):
+      trap.c is 3 / 3 (burnarmor(), the hero and monster rust trap arms);
+      do_wear.c's other master-only sites are covered by
+      shield_simple_name() (select_off(), disintegrate_arm()) and
+      canwearobj() carries master b70cf417e's; steal.c names through
+      armor_simple_name() -> shield_simple_name(); weapon.c is 4 / 4; the
+      two muse.c sites are the monster bearded-axe disarm (muse parity
+      row). iactions.c's "[already wearing a bracers]" minted below.
+- [ ] LOW: the item-actions menu says "[already wearing a bracers]"
+      (minted 2026-10-25, session 261 Plan agent; vanilla-shared:
+      Official_nh50 iactions.c reads "a gloves" and "a boots" too).
+      iactions.c builds it with an(armor_simple_name(o)), which ignores
+      pair names. Plannable: no article for a plural name.
 - [x] MED: death magic outcome shape vs magic resistance - PORTED
       2026-09-23 (session 136, partial reflection / death magic slice,
       commits `Fix: rays at the hero ignored partial reflection and
@@ -32876,6 +33085,14 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-24 | A trap fires under a praying hero: a Conflict steed's throw (or a killed or untamed steed) lands the hero through float_down(), whose trap arm calls dotrap() with u.uinvulnerable set - land_deferred()'s prayer hold is never reached, and a trap door's fall damage lands mid-prayer. Shared with Official_nh50 (trap.c float_down()). EvilHack fix BUG-2576 (92d30018c): defer_landing(LANDING_SPOT) while u.uinvulnerable, skipping float_down()'s pickup; spoteffects()'s timeout-early arm defers a levitation timeout while praying. | found (branch-fixed); not yet sent |
 | 2026-10-24 | A hero chained to a buried ball who reads punishment, angers a god (case 6) or refuses the Convict leader gets a second ball and chain; every tether-ending path then hands the old ball to punish(), whose Punished arm returns without placing it (an OBJ_FREE leak). Shared with Official_nh50 (read.c punish(), pray.c angrygods()). EvilHack fix BUG-2578 (92d30018c): a tether counts as Punished; the buried ball takes the weight. | found (branch-fixed); not yet sent |
 | 2026-10-24 | A confused remove curse frees a tether to a buried ball while it leaves a ball and chain on (`Punished && !confused`). Shared with Official_nh50 (read.c seffect_remove_curse()). EvilHack fix BUG-2579 (92d30018c): the tether arm takes the same !confused gate. | found (branch-fixed); not yet sent |
+| 2026-10-25 | The first acid potion line hardcodes "A " ("A inky potion explodes!"), and three hallucinated-color lines hardcode "a" / "A" before hcolor(): the sink's "A <color> ooze gushes up from the drain!", the protection spell's "shimmer with a <color> haze", the Wizard's intervene "notice a <color> glow". Shared with Official_nh50 (trap.c pot_acid_damage(), dokick.c, mcastu.c, wizard.c). EvilHack fix BUG-2589 / BUG-2590 (be6bd0f84): An() / an(). | found (branch-fixed); not yet sent |
+| 2026-10-25 | flooreffects()'s boulder arm sets `res = FALSE; /* still alive, boulder still intact */` for a surviving pit-trapped monster, but the arm's tail always sets res = TRUE and the boulder fills the pit (dead since 3.6.2). Shared with Official_nh50 (do.c). EvilHack BUG-2594 (dffa62871): the dead assignment is deleted and the comment corrected. | found (branch-fixed); not yet sent |
+| 2026-10-25 | A hero held in a web digs anyway through `>` with autodig (do.c) or F toward a wall with a wielded pick (hack.c domove_fight_empty()): both call use_pick_axe2() without use_pick_axe()'s web refusal, and digging down on a level that can't be dug destroys the web and leaves the hold. Shared with Official_nh50. EvilHack fix BUG-2595 (dffa62871): use_pick_axe2() refuses (no time; domove_fight_empty() honors it) and dig() stops for a webbed hero. | found (branch-fixed); not yet sent |
+| 2026-10-25 | curses' hilite_pile blue background hides a blue or bright blue object on top of a pile. Shared with Official_nh50 (cursmain.c curses_print_glyph()). EvilHack fix BUG-2596 (fd2af9750): A_REVERSE when the glyph's color % BRIGHT is CLR_BLUE. | found (branch-fixed); not yet sent |
+| 2026-10-25 | The first-polymorph livelog names the sex from before polymon()'s random flip ("becoming a dwarf lady" beside "You turn into a dwarf lord!"). Shared with Official_nh50 (polyself.c polymon()). EvilHack fix BUG-2598 (fd2af9750): the livelog moves below the sex decision. | found (branch-fixed); not yet sent |
+| 2026-10-25 | carry_count()'s delta_cwt() ignores the count: a bag of holding is assumed to lose the whole stack when part is taken (a pickup past the carrying limit), and an ordinary container the part's owt, which for split gold (90aded364's 1-aum minimum) differs from the container's real drop. Shared with Official_nh50 (pickup.c). EvilHack fix BUG-2601 (fd2af9750): cwt_drop() weighs the container with the rest left in; the gold loop scans down by weight steps. | found (branch-fixed); not yet sent |
+| 2026-10-25 | A polymorphed hero's status title names the natural sex's form: botl.c uses Ugender, which reads u.mfemale (the saved natural sex) while Upolyd, while flags.female holds the form's. Shared with Official_nh50 (you.h, botl.c). EvilHack: LOW row minted 2026-10-25, not fixed yet. | found (open); not yet sent |
+| 2026-10-25 | The item-actions menu reads "[already wearing a gloves]" / "a boots" (an() of armor_simple_name()). Shared with Official_nh50 (iactions.c). EvilHack: LOW row minted 2026-10-25, not fixed yet. | found (open); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -33103,6 +33320,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-25 | Thirteen-row slice rulings (session 261; AskUserQuestion x2, five questions, all as recommended). (0) SLICE: all four offered groups - the regression / wording batch, combat and trap logic, display and livelog, the inventory weight UI. (1) SHIELD-SLOT BURN: KEEP THE REROLL - burnarmor()'s shield case keeps `continue` when no shield is worn and a burned shield is no body hit; master 3a452ae45's `return TRUE` (a side effect of its is_bracer() NULL fix) roughly doubled fire item destruction for armored targets (a fire ray ~7% -> ~13% of hits, a fire trap 73% -> 80%) and is archived as a master quirk, frozen-unfixed. (2) BOULDER INTO AN OCCUPIED PIT: ALWAYS FILL - delete the dead assignment, no play change; rejected the 3.6.2 comment's boulder over an open pit. (3) FIRST-POLYMORPH LIVELOG: GENDERED, written once the sex is settled; rejected the neutral pmnames[NEUTRAL] ("a vampire noble"). (4) CURSES PERM_INVENT: letterless lines leave pi.widest and the column indicator moves to the first line it fits beside; rejected an indicator line of its own. Plan-approved without a separate question: master 61f44f611's "shield" over 5.0's "wooden shield"; canwearobj() per master b70cf417e; armor_status() "bracers"; webbed digging refused at use_pick_axe2() plus a silent dig() backstop; one central perm_invent capacity check; carry_count()'s bag of holding half; the bright highlight colors; the terrain-wish sibling of the submerged view (battery C). | maintainer (rulings); session, plan-approved (rest) |
 | 2026-10-24 | Ten-row slice rulings (session 259; AskUserQuestion x5, seven questions, one of them re-asked at the maintainer's request; of the six standing answers four as recommended, two folds over my mint-a-row picks). (0) SLICE: all four offered groups - nasties[], the entangle pair, the trap and chain trio, the small-fix batch. (1) WIZAPP[] FOLDED: master 04518bab7's other unported hunk (the Double Trouble clone's disguises) lands with nasties[] as master's 12. (2) TREE-HELD MONSTERS STAY UP, FOLDED NOW (over my mint-a-row pick): a monster a live tree holds is not dropped into a new pit or hole by digactualhole() and does not choose to dig down; the hurl and the earthquake keep their shape. (3) CONFUSED REMOVE CURSE KEEPS THE TETHER, as it keeps a ball and chain. (4) THE DEFERRED FALL, FOLDED NOW (over my mint-a-row pick; the maintainer re-asked the question after a first mint-a-row answer): a grounded monster whose hold or levitation ends while it stands on a hole or trap door falls through, at the start of its own next turn after the reviewer's pass; a monster that spawned or teleported onto a hole stays as before. (5) THE B10 RE-RUN on POST3. Decided without asking: master's nasties[] comment counts corrected (BUG-804 counted the displacer beast as neutral; the table lists it with the chaotics); the earthquake hooks dropped as unreachable (do_earthquake() never cracks grass - a LOW row); master 979393c66's migrate clear withdrawn (mon_leaving_level() already clears the hold); a cursed leash holds a pet back from the deferred fall (reviewer M1); worn levitation / flying gear coming off counts as a lift ending (reviewer M2). | maintainer |
 | 2026-10-24 | Twelve-row slice rulings (session 258; AskUserQuestion x4, six questions, all as recommended). (0) SLICE: all four offered groups combined - melee damage terms, the excellence pair, the small-fix batch and the mid-operation container stop. (1) BLESSINGS REACH RACIAL MONSTERS TOO: mon_hates_blessings() reads r_data(), so racial vampire / draugr player-monsters take the blessed bonus as holy water already burns them. (2) HALF_PHYSICAL SPARES THE SPELL TOUCH: a monster's burning hands / shocking grasp on the hero is halved by Half_spell_damage only. (3) FOLD the Hand of Vecna's cold (as cold) and the hero's spell dice vs a half-spell artifact. (4) BANE AURA, BOTH RACES (reviewer MEDIUM): the wielded-bane aura and the taming refusal count a racial monster's race for Angelslayer, Sunsword, the Hammer and Demonbane. (5) FOLD NOW the leader-kill regression battery C found (m_detach()'s msound tests -> master's gates); the reviewer's set_malign() / nemesis-bonus siblings folded with it as the same class. Taken without asking: no set_twoweap() Luck hook (every path already recomputes through setuswapwep()); the uncursed-excellence floor in extremeattr() (master-shared leak); the quest livelog lines keep the raw artifact name, as master's do. | maintainer |
 | 2026-10-24 | Ruling round after session 257 (AskUserQuestion x3, eleven questions, nine as recommended; an Explore agent traced the set_malign sites first). (1) CURSED EXCELLENCE CAPS CHA AT 6: never raises it (Cha 4 stays 4). (2) ALTERNATE-SLOT LUCK ONLY WHILE TWO-WEAPONING, recomputed when two-weapon combat starts or stops. (3) STONESKIN KEEPS GUARDING ONLY, over my lean to cure: casting it while turning to stone does not stop the stoning (row closed, no code). (4) A FATAL-TURN QUEEN COUNTS as vanquished in the list and the dumplog. (5) KEEP 5.0'S TOOL-APPLY QUEUE, over my master's-shape recommendation (row closed, no code). (6) BLESSING DAMAGE FOLLOWS BUG-2434: a monster's blessed weapon hurts a vampire-, draugr- or demon-race hero, a cursed one an aasimar hero. (7) SPELL-TOUCH DAMAGE USES THE SPELL'S OWN ELEMENT (fire / shock) for resistance and vulnerability. (8) DROP 5.0'S "Boom!" (master's shape). (9) THE set_malign() FLIP SITES CLOSE WITH NO CODE: xkilled() recomputes malign before scoring a kill. (10) A CONTAINER THAT LEAVES MID-#tip OR MID-#loot STOPS THE OPERATION (no double billing). (11) set_malign()'s always-peaceful arm for an Infidel or Draugr hero becomes a fixed +1 instead of += 1 per call (new row, master too). | maintainer |
