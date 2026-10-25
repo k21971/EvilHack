@@ -34,7 +34,7 @@ struct pi_data {
     struct pi_line *array;         /* one element for each line of perminv */
     unsigned allocsize, inuseindx; /* num elements allocated and populated */
     unsigned rowoffset, coloffset; /* for displaying a subset due to space */
-    unsigned widest;               /* longest array[].invtxt */
+    unsigned widest;               /* longest item line's text */
 };
 #define PERMINV_CHUNK 20 /* number of elements to grow array[] when needed */
 
@@ -316,16 +316,18 @@ curs_add_invt(
     newelement.letter = accelerator;
     aptr[pi.inuseindx++] = newelement;
 
-    len = strlen(str);
+    /* only item lines shift when the window is scrolled sideways, so a
+       long letterless line (the inventory weight header, a class header)
+       is cut at the window's edge rather than counted here */
     if (accelerator) {
         /* +4: " )c " inventory letter will be inserted before invtxt;
            invtxt's "a "/"an "/"the " prefix, if any, will be skipped */
-        len += 4;
+        len = strlen(str) + 4;
         if (len > pi.widest)
             len -= pi_article_skip(str);
+        if (len > pi.widest)
+            pi.widest = len;
     }
-    if (len > pi.widest)
-        pi.widest = len;
 }
 
 /* display the inventory menu-like data collected in pi.array[] */
@@ -333,11 +335,12 @@ static void
 curs_show_invt(WINDOW *win)
 {
     const char *str;
-    char accelerator, tmpbuf[BUFSZ];
+    char accelerator, tmpbuf[BUFSZ], colbuf[BUFSZ];
     int attr, color;
     unsigned lineno, stroffset, widest, left_col, right_col,
-        first_shown = 0, last_shown = 0, item_count = 0, xtra_line = 0;
-    int x, y, width, height, available_width,
+        first_shown = 0, last_shown = 0, item_count = 0, xtra_line = 0,
+        colind_len = 0;
+    int x, y, width, height, available_width, colind_y = -1, last_y = -1,
         border = curses_window_has_border(INV_WIN) ? 1 : 0,
         /* we actually care about the topmost of message, map, or status
            but either they all have borders or none do so just check map */
@@ -369,6 +372,27 @@ curs_show_invt(WINDOW *win)
         xtra_line = 1;
     }
 
+    /*
+     * More columns than the persistent inventory window can fit so some
+     * columns aren't shown.  Something like "[1-25 of 40}" or
+     * "{16-40 of 40]" will overwrite the rightmost portion of the first
+     * letterless line it fits beside (usually a short object class
+     * header) so that it doesn't cover the inventory weight header or an
+     * item; failing that, the top line.  The bottom line is left to the
+     * row indicator when there is one.
+     */
+    if (widest > (unsigned) width) {
+        Sprintf(colbuf, "%c%u-%u of %u%c",
+                (left_col > 1) ? '{' : '[',
+                left_col, right_col, widest,
+                (right_col < widest) ? '}' : ']');
+        colind_len = (unsigned) strlen(colbuf);
+        if (xtra_line)
+            colind_y = border; /* the blank line inserted above */
+        if (pi.inuseindx > (unsigned) height)
+            last_y = height - (1 - border);
+    }
+
     for (lineno = 0; lineno < pi.rowoffset; ++lineno)
         if (pi.array[lineno].letter)
             ++item_count;
@@ -390,6 +414,9 @@ curs_show_invt(WINDOW *win)
             /* 'y' has grown too big; there are too many lines to fit */
             continue; /* skip, but still loop to update 'item_count' */
         }
+        if (!accelerator && colind_len && colind_y < 0 && y != last_y
+            && strlen(str) + 1 + colind_len <= (unsigned) width)
+            colind_y = y;
         available_width = width; /* width is already -2 for Lft+Rgt borders */
 
         wmove(win, y, x);
@@ -447,20 +474,8 @@ curs_show_invt(WINDOW *win)
                 (last_shown < item_count) ? '>' : ']');
         mvwaddstr(win, y, x + (width - (int) strlen(tmpbuf)), tmpbuf);
     }
-    if (widest > (unsigned) width) {
-        /*
-         * More columns than the persistent inventory window can fit so
-         * some columns aren't shown.  Overwrite the rightmost portion of
-         * first line with something like "[1-25 of 40}" or "{16-40 of 40]".
-         * For the usual case, that line will be an object class header
-         * so we won't be obscuring an item, but that might not be the
-         * situation on page 2 and definitely won't be if 'sortpack' is Off.
-         */
-        Sprintf(tmpbuf, "%c%u-%u of %u%c",
-                (left_col > 1) ? '{' : '[',
-                left_col, right_col, widest,
-                (right_col < widest) ? '}' : ']');
-        mvwaddstr(win, border, x + (width - (int) strlen(tmpbuf)), tmpbuf);
-    }
+    if (colind_len) /* column indicator, formatted above */
+        mvwaddstr(win, (colind_y >= 0) ? colind_y : border,
+                  x + (width - (int) colind_len), colbuf);
     return;
 }

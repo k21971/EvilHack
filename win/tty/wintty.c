@@ -3924,9 +3924,11 @@ tty_print_glyph(
        to see although the Valkyrie quest ends up being hard on the eyes) */
     framecolor = bkglyphinfo ? bkglyphinfo->framecolor : NO_COLOR;
     /* stairs under an object get a red background unless the core
-       framed the spot itself */
+       framed the spot itself; a red or orange object would vanish
+       into it, so that one falls through to inverse below */
     if (framecolor == NO_COLOR && (special & MG_STAIRS) != 0
-        && iflags.hilite_hidden_stairs)
+        && iflags.hilite_hidden_stairs
+        && (colordone || color % BRIGHT != CLR_RED))
         framecolor = CLR_RED;
     if (iflags.use_color && framecolor != NO_COLOR) {
         ttyDisplay->framecolor = framecolor;

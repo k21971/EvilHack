@@ -24,7 +24,7 @@ staticfn boolean allow_cat_no_uchain(struct obj *);
 #endif
 staticfn int autopick(struct obj *, int, menu_item **);
 staticfn int count_categories(struct obj *, int);
-staticfn int delta_cwt(struct obj *, struct obj *);
+staticfn int cwt_drop(struct obj *, struct obj *, long, long);
 staticfn long carry_count(struct obj *, struct obj *, long, boolean, int *,
                         int *);
 staticfn int lift_object(struct obj *, struct obj *, long *, boolean);
@@ -1547,34 +1547,45 @@ count_categories(struct obj *olist, int qflags)
 }
 
 /*
- *  How much the weight of the given container will change when the given
- *  object is removed from it.  Use before and after weight amounts rather
- *  than trying to match the calculation used by weight() in mkobj.c.
+ *  How much the weight of the given container will drop when 'taken' of
+ *  the 'fullquan' objects in the given stack are removed from it.  Use
+ *  before and after weight amounts rather than trying to match the
+ *  calculation used by weight() in mkobj.c (bags of holding, and gold,
+ *  whose split parts don't weigh what the whole did).  The stack's quan
+ *  and owt may hold the caller's trial count; whatever is found there
+ *  is put back.
  */
 staticfn int
-delta_cwt(struct obj *container, struct obj *obj)
+cwt_drop(struct obj *container, struct obj *obj, long fullquan, long taken)
 {
     struct obj **prev;
-    int owt, nwt;
+    long savequan = obj->quan;
+    unsigned saveowt = obj->owt;
+    int nwt;
 
-    if (container->otyp != BAG_OF_HOLDING
-        && container->otyp != BAG_OF_TREASURE)
-        return obj->owt;
-
-    owt = nwt = container->owt;
-    /* find the object so that we can remove it */
-    for (prev = &container->cobj; *prev; prev = &(*prev)->nobj)
-        if (*prev == obj)
-            break;
-    if (!*prev) {
-        panic("delta_cwt: obj not inside container?");
-    } else {
-        /* temporarily remove the object and calculate resulting weight */
+    if (taken <= 0L)
+        return 0;
+    if (taken >= fullquan) {
+        /* find the object so that we can remove it */
+        for (prev = &container->cobj; *prev; prev = &(*prev)->nobj)
+            if (*prev == obj)
+                break;
+        if (!*prev)
+            panic("cwt_drop: obj not inside container?");
+        /* temporarily remove the object and calculate resulting weight;
+           weight() won't weigh a stack of none */
         *prev = obj->nobj;
         nwt = weight(container);
         *prev = obj; /* put the object back; obj->nobj is still valid */
+    } else {
+        /* weigh the container with what would be left of the stack */
+        obj->quan = fullquan - taken;
+        obj->owt = (unsigned) weight(obj);
+        nwt = weight(container);
+        obj->quan = savequan;
+        obj->owt = saveowt;
     }
-    return owt - nwt;
+    return (int) container->owt - nwt;
 }
 
 /* could we carry `obj'? if not, could we carry some of it/them? */
@@ -1587,8 +1598,8 @@ carry_count(struct obj *obj,            /* object to pick up... */
 {
     boolean adjust_wt = container && carried(container),
             is_gold = obj->oclass == COIN_CLASS;
-    int wt, iw, ow, oow;
-    long qq, savequan, umoney;
+    int wt, iw, ow;
+    long qq, savequan, umoney, gstep;
     unsigned saveowt;
     const char *verb, *prefx1, *prefx2, *suffx;
     char obj_nambuf[BUFSZ], where[BUFSZ];
@@ -1604,7 +1615,7 @@ carry_count(struct obj *obj,            /* object to pick up... */
     }
     wt = iw + (int) obj->owt;
     if (adjust_wt)
-        wt -= delta_cwt(container, obj);
+        wt -= cwt_drop(container, obj, savequan, count);
     /* This will go with silver+copper & new gold weight */
     if (is_gold) /* merged gold might affect cumulative weight */
         wt -= (GOLD_WT(umoney) + GOLD_WT(count) - GOLD_WT(umoney + count));
@@ -1628,27 +1639,29 @@ carry_count(struct obj *obj,            /* object to pick up... */
             if (qq > 0L && iw + GOLD_WT(umoney + qq) >= 0L)
                 qq = 0L;
         } else {
-            oow = 0;
-            qq = 50L - (umoney % 100L) - 1L;
-            if (qq < 0L)
-                qq += 100L;
-            for (; qq <= count; qq += 100L) {
-                obj->quan = qq;
-                obj->owt = (unsigned) GOLD_WT(qq);
-                ow = (int) GOLD_WT(umoney + qq);
-                ow -= delta_cwt(container, obj);
-                if (iw + ow >= 0)
+            /* the container's loss doesn't follow the hero's gain:
+               scan down from all of them; between two steps in the
+               weight of the hero's gold, taking fewer coins only
+               shrinks the container's loss, so only the count just
+               below each step is worth trying */
+            ow = 0;
+            for (qq = count; qq > 0L; qq = gstep - 1L - umoney) {
+                ow = (int) GOLD_WT(umoney + qq)
+                     - cwt_drop(container, obj, savequan, qq);
+                if (iw + ow < 0)
                     break;
-                oow = ow;
+                /* the lowest total weighing what umoney + qq does */
+                gstep = umoney + qq;
+                gstep = (gstep >= 150L) ? ((gstep - 50L) / 100L) * 100L + 50L
+                                        : 1L;
             }
-            iw -= oow;
-            qq -= 100L;
         }
         if (qq < 0L)
             qq = 0L;
         else if (qq > count)
             qq = count;
-        wt = iw + (int) GOLD_WT(umoney + qq);
+        wt = iw + (!adjust_wt ? (int) GOLD_WT(umoney + qq)
+                   : (qq > 0L) ? ow : 0);
     } else if (count > 1 || count < obj->quan) {
         /*
          * Ugh. Calc num to lift by changing the quan of the
@@ -1661,7 +1674,7 @@ carry_count(struct obj *obj,            /* object to pick up... */
             obj->quan = qq;
             obj->owt = (unsigned) (ow = weight(obj));
             if (adjust_wt)
-                ow -= delta_cwt(container, obj);
+                ow -= cwt_drop(container, obj, savequan, qq);
             if (iw + ow >= 0)
                 break;
             wt = iw + ow;
@@ -2033,6 +2046,15 @@ encumber_msg(void)
     }
 
     go.oldcap = newcap;
+
+    /* near_capacity() refreshed gw.wc; a capacity change on its own
+       (Str or Con, form, levitation, flight, wounded legs, ...) leaves
+       a persistent inventory window's "Inventory: X/Y" header stale */
+    if (gw.wc != go.oldwc) {
+        if (go.oldwc)
+            update_inventory();
+        go.oldwc = gw.wc;
+    }
 }
 
 /* Is there a container at x,y. Optional: return count of containers at x,y */

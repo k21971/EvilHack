@@ -766,6 +766,7 @@ struct instance_globals_o {
 
     /* pickup.c */
     int oldcap; /* last encumbrance */
+    int oldwc;  /* last weight capacity, for the perm_invent header */
 
     /* restore.c */
     struct fruit *oldfruit;

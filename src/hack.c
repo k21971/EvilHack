@@ -2603,7 +2603,11 @@ domove_fight_empty(coordxy x, coordxy y)
         struct obj *boulder = 0, *fireobj;
         boolean explo = (Upolyd && attacktype(gy.youmonst.data, AT_EXPL)),
                 solid = (off_edge || (!accessible(x, y)
-                                      || IS_FURNITURE(levl[x][y].typ)));
+                                      || IS_FURNITURE(levl[x][y].typ)
+                                      /* a submerged hero meets the
+                                         puddle's water, not air */
+                                      || (Underwater
+                                          && is_damp_terrain(x, y))));
         char buf[BUFSZ];
 
         if (off_edge) {
@@ -2647,7 +2651,7 @@ domove_fight_empty(coordxy x, coordxy y)
 
         if (boulder) {
             Strcpy(buf, ansimpleoname(boulder));
-        } else if (Underwater && !is_pool(x, y)) {
+        } else if (Underwater && !is_damp_terrain(x, y)) {
             /* Underwater, targeting non-water; the map just shows blank
                because you don't see remembered terrain while underwater;
                although the hero can attack an adjacent monster this way,

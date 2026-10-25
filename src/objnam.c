@@ -4669,8 +4669,11 @@ wizterrainwish(struct _readobjnam_data *d)
         feel_newsym(x, y); /* map the spot where the wish occurred */
 
         /* hero started at <x,y> but might not be there anymore (create
-           lava, decline to die, and get teleported away to safety) */
-        if (u.uinwater && !is_pool(u.ux, u.uy)) {
+           lava, decline to die, and get teleported away to safety); a
+           tiny hero stays under a puddle or sewage, as in pooleffects() */
+        if (u.uinwater && !is_pool(u.ux, u.uy)
+            && !(is_damp_terrain(u.ux, u.uy)
+                 && verysmall(gy.youmonst.data))) {
             set_uinwater(0); /* u.uinwater = 0; leave the water */
             /* the vision tables may have been built for the submerged
                view, and the new terrain changes what blocks at <x,y>

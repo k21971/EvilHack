@@ -2228,7 +2228,7 @@ weight(struct obj *obj)
          *  tiers: cursed 4x, blessed x/6 [(x+3)/6], otherwise x/3
          *  [(x+1)/3], both rounded to nearest.
          *
-         *  delta_cwt() in pickup.c compares weight() before and after
+         *  cwt_drop() in pickup.c compares weight() before and after
          *  a removal, so it needs no copy of these equations.
          */
         if (obj->oartifact == ART_BAG_OF_THE_HESPERIDES)

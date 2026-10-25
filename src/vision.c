@@ -625,14 +625,15 @@ vision_recalc(int control)
             /*
              * The hero is underwater.  Only see surrounding locations if
              * they are also underwater.  This overrides night vision but
-             * does not override x-ray vision.
+             * does not override x-ray vision.  A tiny hero can be under
+             * a puddle or sewage.
              */
             has_night_vision = 0;
 
             lo_col = max(u.ux - 1, 1);
             for (row = u.uy - 1; row <= u.uy + 1; row++)
                 for (col = lo_col; col <= u.ux + 1; col++) {
-                    if (!isok(col, row) || !is_pool(col, row))
+                    if (!isok(col, row) || !is_damp_terrain(col, row))
                         continue;
 
                     next_rmin[row] = min(next_rmin[row], col);

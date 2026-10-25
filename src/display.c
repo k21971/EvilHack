@@ -784,9 +784,9 @@ feel_location(coordxy x, coordxy y)
         return;
 
     /* The hero can't feel non pool locations while under water
-       except for lava and ice. */
+       except for lava and ice; a puddle or sewage counts as a pool. */
     if (Underwater && !Is_waterlevel(&u.uz)
-        && !is_pool_or_lava(x, y) && !is_ice(x, y))
+        && !is_damp_terrain(x, y) && !is_lava(x, y) && !is_ice(x, y))
         return;
 
     /* Set the seen vector as if the hero had seen it.
@@ -970,8 +970,9 @@ newsym(coordxy x, coordxy y)
     }
     if (Underwater && !Is_waterlevel(&u.uz)) {
         /* when underwater, don't do anything unless <x,y> is an
-           adjacent water or lava or ice position */
-        if (!(is_pool_or_lava(x, y) || is_ice(x, y))
+           adjacent water (puddle and sewage too) or lava or ice
+           position */
+        if (!(is_damp_terrain(x, y) || is_lava(x, y) || is_ice(x, y))
             || (!See_underwater && !next2u(x, y)))
             return;
     }
@@ -1509,7 +1510,8 @@ under_water(int mode)
 
     for (x = u.ux - 1; x <= u.ux + 1; x++)
         for (y = u.uy - 1; y <= u.uy + 1; y++)
-            if (isok(x, y) && (is_pool_or_lava(x, y) || is_ice(x, y))) {
+            if (isok(x, y) && (is_damp_terrain(x, y) || is_lava(x, y)
+                               || is_ice(x, y))) {
                 if (Blind && !u_at(x, y))
                     show_glyph(x, y, GLYPH_UNEXPLORED);
                 else

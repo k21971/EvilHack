@@ -974,17 +974,29 @@ curses_print_glyph(
         ch = curses_convert_glyph(ch, glyph);
 
     if (wid == NHW_MAP) {
+        /* a glyph in the highlight's own color (or its bright form)
+           would vanish into that background, so it gets inverse
+           instead; write_char() drops A_REVERSE under a framecolor */
         if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs) {
             if (iflags.wc_color) {
                 /* unless the core framed the spot itself */
-                if (attr.framecolor == NO_COLOR)
-                    attr.framecolor = CLR_RED;
+                if (attr.framecolor == NO_COLOR) {
+                    if (!attr.color256
+                        && attr.basic_color % BRIGHT == CLR_RED)
+                        attr.attribute_flags = A_REVERSE;
+                    else
+                        attr.framecolor = CLR_RED;
+                }
             } else /* if (iflags.use_inverse) */
                 attr.attribute_flags = A_REVERSE;
         } else if ((special & MG_OBJPILE) && iflags.hilite_pile) {
-            if (iflags.wc_color)
-                attr.framecolor = CLR_BLUE;
-            else /* if (iflags.use_inverse) */
+            if (iflags.wc_color) {
+                if (!attr.color256
+                    && attr.basic_color % BRIGHT == CLR_BLUE)
+                    attr.attribute_flags = A_REVERSE;
+                else
+                    attr.framecolor = CLR_BLUE;
+            } else /* if (iflags.use_inverse) */
                 attr.attribute_flags = A_REVERSE;
         }
         /* water and lava look the same except for color; when color is off

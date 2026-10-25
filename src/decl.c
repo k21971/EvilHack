@@ -621,6 +621,7 @@ static const struct instance_globals_o g_init_o = {
     FALSE, /* opt_symset_changed */
     /* pickup.c */
     0,  /* oldcap */
+    0,  /* oldwc */
     /* restore.c */
     UNDEFINED_PTR, /* oldfruit */
     /* rumors.c */

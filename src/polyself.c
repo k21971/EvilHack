@@ -1203,12 +1203,6 @@ polymon(int mntmp)
     if (Hidinshell)
         (void) toggleshell();
 
-    /* KMH, conduct */
-    if (!u.uconduct.polyselfs++)
-        livelog_printf(LL_CONDUCT,
-                       "changed form for the first time, becoming %s",
-                       an(pmname(&mons[mntmp], flags.female ? FEMALE : MALE)));
-
     /* exercise used to be at the very end but only Wis was affected
        there since the polymorph was always in effect by then */
     exercise(A_CON, FALSE);
@@ -1261,6 +1255,13 @@ polymon(int mntmp)
     }
     Strcat(buf, pmname(&mons[mntmp], flags.female ? FEMALE : MALE));
     You("%s %s!", (u.umonnum != mntmp) ? "turn into" : "feel like", an(buf));
+
+    /* KMH, conduct; logged once the sex is settled so that it names
+       the form just announced */
+    if (!u.uconduct.polyselfs++)
+        livelog_printf(LL_CONDUCT,
+                       "changed form for the first time, becoming %s",
+                       an(pmname(&mons[mntmp], flags.female ? FEMALE : MALE)));
 
     if (Stoned && poly_when_stoned(&mons[mntmp])) {
         /* poly_when_stoned() already checked the stone form's genocide */
