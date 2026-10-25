@@ -5,7 +5,7 @@
 #	various -I, -D, and -W settings appended below;
 #	these are the settings of most interest for an end-user build
 #	(clang doesn't support '-Og', gcc needs 4.x or later)
-CCFLAGS = -g3 -O0
+CCFLAGS = -g
 #CCFLAGS = -g -Og
 #CCFLAGS = -O2
 #	Note: this is not the usual 'CFLAGS' which is used in default

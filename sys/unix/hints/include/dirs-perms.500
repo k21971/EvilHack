@@ -10,14 +10,13 @@ SOURCEINSTALL=1
 # -----------------------------------------
 ifeq "$(WHICH_OS)" "Linux"
 
-PREFIX ?=/opt/nethack/chroot
-HACKDIR ?=/nh500.0-hdf
-INSTDIR ?=$(PREFIX)$(HACKDIR)
-VARDIR ?=$(INSTDIR)/var
+HACKDIR ?=$(PREFIX)/playground
+INSTDIR ?=$(HACKDIR)
+VARDIR ?=$(HACKDIR)
 
-GAMEPERM ?= 0755
+GAMEPERM ?= 0700
 VARFILEPERM ?= 0600
-VARDIRPERM ?= 0755
+VARDIRPERM ?= 0700
 
 else   # macOS
 #
@@ -62,13 +61,11 @@ ifeq "$(WHICH_OS)" "Linux"
 # This is for the Linux system-wide install
 # -----------------------------------------
 
-PREFIX ?=/usr
-# Migration window: $(GAME)50dir keeps the live 3.6.x $(GAME)dir
-# install untouched; flip to $(GAME)dir at the v1.0.0 cutover
-HACKDIR ?=$(PREFIX)/games/lib/$(GAME)50dir
+PREFIX ?=$(wildcard ~)/nh/install
+HACKDIR ?=$(PREFIX)/games/lib/nethackdir
 SHELLDIR ?= $(PREFIX)/games
 INSTDIR ?=$(HACKDIR)
-VARDIR ?=$(HACKDIR)/var
+VARDIR ?=$(HACKDIR)
 MANDIR ?=/usr/share/man/man6
 
 VARDIRPERM ?= 0755

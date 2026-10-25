@@ -14,8 +14,6 @@
 
 #-PRE xxxx
 
-WANT_SOURCE_INSTALL=1
-
 WHICH_OS=Linux
 HINTSVERSION := 500
 
@@ -39,9 +37,25 @@ endif
 # linux.500 hints file provides a single-user build for Linux (such
 # as Ubuntu focal).
 
+# tty and curses, tty by default (set here so the shared
+# multiw-1.500 stays as vanilla ships it)
+WANT_WIN_TTY=1
+WANT_WIN_CURSES=1
+WANT_DEFAULT=tty
+
 # note: '#-INCLUDE' is not just a comment
 #        multiw-1.500 contains sections 1 to 2
 #-INCLUDE multiw-1.500
+
+# Server chroot layout. HACKDIR is the path inside the chroot that is
+# compiled into the binary; INSTDIR/VARDIR resolve under the source
+# tree because dirs-perms.500 sets PREFIX=$(abspath $(NHSROOT)).
+HACKDIR=/evilhack-1.0.0
+INSTDIR=$(PREFIX)$(HACKDIR)
+VARDIR=$(INSTDIR)/var
+GAMEPERM=0755
+VARFILEPERM=0600
+VARDIRPERM=0755
 
 # note: '#-INCLUDE' is not just a comment
 #        it pulls in the contents of dirs-perms.500
@@ -87,6 +101,10 @@ endif   # WANT_WIN_QT6
 # to both linux and macOS
 
 #-INCLUDE compiler.500
+
+# full debug info, no optimisation (compiler.500 ships -g);
+# CFLAGS is built from CCFLAGS lazily, so this override takes effect
+CCFLAGS = -g3 -O0
 
 ifdef WANT_SYSTEM_LUA
 ifndef LUA_VERSION
@@ -526,13 +544,18 @@ CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 # On this server the chroot is populated by install-to-chroot.sh as an explicit,
 # reviewable step; `make all` should only ever produce artifacts in the tree.
 # The auto-install was harmless here (INSTDIR resolves to the source tree, since
-# dirs-perms.500's unconditional PREFIX= shadows its own /opt/nethack default) --
+# dirs-perms.500 sets PREFIX to the tree unless WANT_SHARED_INSTALL) --
 # but `install:` runs `rm -rf $(INSTDIR) $(VARDIR)`, so anything that ever made
 # PREFIX resolve at the chroot would turn a plain build into deleting the
 # playground and every save. Not a risk worth carrying for a staging dir nothing
 # consumes. `make install` remains available explicitly if it is ever wanted.
-# NOTE: WANT_SOURCE_INSTALL must STAY set -- the CFLAGS line above is gated on it,
-# and without it the binary builds with no SYSCF at all.
+# NOTE: SYSCF is always on: the NHCFLAGS line above adds -DSYSCF,
+# -DSYSCF_FILE and -DSECURE unconditionally, so the CFLAGS line here
+# only repeats them (as vanilla's linux.500 does). On Linux,
+# dirs-perms.500 picks the install layout from WANT_SHARED_INSTALL
+# alone (it reads WANT_SOURCE_INSTALL only on macOS), so neither hints
+# file sets WANT_SOURCE_INSTALL; this block runs only when it's given
+# on the make command line.
 #MOREALL=$(MAKE) install
 endif #?WANT_SOURCE_INSTALL
 

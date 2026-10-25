@@ -5,8 +5,8 @@
 # 1. Which windowing interface(s) should be included in this binary?
 # One or more of these can be manually uncommented and/or can be specified
 # on the 'make' command line.  If none are enabled, tty will be used.
-WANT_WIN_TTY=1
-WANT_WIN_CURSES=1
+#WANT_WIN_TTY=1
+#WANT_WIN_CURSES=1
 #WANT_WIN_X11=1
 #WANT_WIN_QT=1
 
@@ -14,7 +14,7 @@ WANT_WIN_CURSES=1
 # Exactly one of these can be manually uncommented and/or can be specified
 # on the 'make' command line.  If none is enabled, the first among
 # WANT_WIN_{tty,curses,X11,Qt} that is enabled will become default.
-WANT_DEFAULT=tty
+#WANT_DEFAULT=tty
 #WANT_DEFAULT=curses
 #WANT_DEFAULT=Qt
 #WANT_DEFAULT=X11
