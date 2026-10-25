@@ -631,8 +631,8 @@ mcast_protection(struct monst *mtmp)
             pline_The("%s haze around %s becomes more dense.",
                       hcolor(NH_GOLDEN), mon_nam(mtmp));
         else
-            pline_The("air around %s begins to shimmer with a %s haze.",
-                      mon_nam(mtmp), hcolor(NH_GOLDEN));
+            pline_The("air around %s begins to shimmer with %s haze.",
+                      mon_nam(mtmp), an(hcolor(NH_GOLDEN)));
     }
     mtmp->mprotection += gain;
 }

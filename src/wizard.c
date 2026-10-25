@@ -1035,7 +1035,7 @@ intervene(void)
         break;
     case 2:
         if (!Blind)
-            You("notice a %s glow surrounding you.", hcolor(NH_BLACK));
+            You("notice %s glow surrounding you.", an(hcolor(NH_BLACK)));
         rndcurse();
         break;
     case 3:

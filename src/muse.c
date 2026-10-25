@@ -3110,10 +3110,10 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
             if (caster->mshockgrasp > 20)
                 caster->mshockgrasp = 20; /* cap at 20 */
             if (canseemon(caster))
-                pline_mon(caster, "%s %s are surrounded by a %s aura!",
+                pline_mon(caster, "%s %s are surrounded by %s aura!",
                           s_suffix(Monnam(caster)),
                           makeplural(mbodypart(caster, HAND)),
-                          hcolor(NH_BLUE));
+                          an(hcolor(NH_BLUE)));
         }
         break;
     default:

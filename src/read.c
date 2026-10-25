@@ -1701,9 +1701,9 @@ seffect_confuse_monster(struct obj **sobjp)
                  altfeedback ? "" : hcolor(NH_PURPLE));
             make_confused(HConfusion + rnd(100), FALSE);
         } else {
-            pline("A %s%s surrounds your %s.",
-                  altfeedback ? "" : hcolor(NH_RED),
-                  altfeedback ? "faint buzz" : " glow", body_part(HEAD));
+            pline("%s %s surrounds your %s.",
+                  altfeedback ? "A faint" : An(hcolor(NH_RED)),
+                  altfeedback ? "buzz" : "glow", body_part(HEAD));
             make_confused(0L, TRUE);
         }
     } else {
@@ -1757,16 +1757,16 @@ seffect_burning_hands(struct obj **sobjp)
             if (Blind)
                 Your("%s feel warm.", hands);
             else
-                Your("%s are engulfed in a %s flame.", hands,
-                     hcolor(NH_PURPLE));
+                Your("%s are engulfed in %s flame.", hands,
+                     an(hcolor(NH_PURPLE)));
             if (how_resistant(FIRE_RES) < 100)
                 losehp(1, "burning hands", KILLED_BY);
         } else {
             if (Blind)
                 Your("%s feels warm.", body_part(HEAD));
             else
-                pline("A %s flame engulfs your %s.",
-                      hcolor(NH_PURPLE), body_part(HEAD));
+                pline("%s flame engulfs your %s.",
+                      An(hcolor(NH_PURPLE)), body_part(HEAD));
             if (how_resistant(FIRE_RES) < 100)
                 losehp(6, "burning hands", KILLED_BY);
         }
@@ -1775,8 +1775,9 @@ seffect_burning_hands(struct obj **sobjp)
             if (Blind)
                 Your("%s feel hot.", hands);
             else
-                Your("%s are engulfed in a%s%s flame.", hands,
-                     u.umburn ? " bright " : "n ", hcolor(NH_ORANGE));
+                Your("%s are engulfed in %s%s flame.", hands,
+                     u.umburn ? "a bright " : "",
+                     u.umburn ? hcolor(NH_ORANGE) : an(hcolor(NH_ORANGE)));
             u.umburn++;
         } else {
             if (Blind)
@@ -1814,16 +1815,16 @@ seffect_shocking_grasp(struct obj **sobjp)
             if (Blind)
                 Your("%s feel numb.", hands);
             else
-                Your("%s are surrounded by a %s aura.", hands,
-                     hcolor(NH_PURPLE));
+                Your("%s are surrounded by %s aura.", hands,
+                     an(hcolor(NH_PURPLE)));
             if (how_resistant(SHOCK_RES) < 100)
                 losehp(1, "shocking grasp", KILLED_BY);
         } else {
             if (Blind)
                 Your("%s feels numb.", body_part(HEAD));
             else
-                pline("A %s aura surrounds your %s.",
-                      hcolor(NH_PURPLE), body_part(HEAD));
+                pline("%s aura surrounds your %s.",
+                      An(hcolor(NH_PURPLE)), body_part(HEAD));
             if (how_resistant(SHOCK_RES) < 100)
                 losehp(6, "shocking grasp", KILLED_BY);
         }
@@ -1832,8 +1833,9 @@ seffect_shocking_grasp(struct obj **sobjp)
             if (Blind)
                 Your("%s feel energized.", hands);
             else
-                Your("%s are surrounded by a %s%s aura.", hands,
-                     u.umshock ? "bright " : "", hcolor(NH_BLUE));
+                Your("%s are surrounded by %s%s aura.", hands,
+                     u.umshock ? "a bright " : "",
+                     u.umshock ? hcolor(NH_BLUE) : an(hcolor(NH_BLUE)));
             u.umshock++;
         } else {
             if (Blind)

@@ -5330,10 +5330,11 @@ readobjnam_postparse1(struct _readobjnam_data *d)
          * (avoid "wand/finger of death" confusion).
          * Don't match "ogre" or "giant" monster name inside alternate item
          * names "gauntlets of ogre power" and "gauntlets of giant strength"
-         * (or the alternate spelling of those, "gloves of ...").
+         * (or the alternate spelling of those, "gloves of ..."); other
+         * gloves and gauntlets still get the property scan below.
          */
         if (!strstri(sng, "wand ") && !strstri(sng, "spellbook ")
-            && !strstri(sng, "gauntlets ") && !strstri(sng, "gloves ")
+            && !strstri(sng, "ogre power") && !strstri(sng, "giant strength")
             && !strstri(sng, "finger ") && !strstri(sng, "potion ")
             /* protect artifact names whose tail could parse as a
                monster name or an object property */

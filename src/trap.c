@@ -133,7 +133,7 @@ burnarmor(struct monst *victim)
         case 0:
             item = hitting_u ? uarmh : which_armor(victim, W_ARMH);
             if (item) {
-                mat_idx = objects[item->otyp].oc_material;
+                mat_idx = item->material;
                 Sprintf(buf, "%s %s", materialnm[mat_idx],
                         helm_simple_name(item));
             }
@@ -157,7 +157,8 @@ burnarmor(struct monst *victim)
             return TRUE;
         case 2:
             item = hitting_u ? uarms : which_armor(victim, W_ARMS);
-            if (!burn_dmg(item, "wooden shield"))
+            if (!burn_dmg(item, (item && is_bracer(item)) ? "bracers"
+                                                          : "shield"))
                 continue;
             break;
         case 3:
@@ -1942,7 +1943,10 @@ trapeffect_rust_trap(
             break;
         case 1:
             pline("%s your left %s!", A_gush_of_water_hits, body_part(ARM));
-            if (water_damage(uarms, "shield", TRUE) != ER_NOTHING)
+            if (water_damage(uarms,
+                             (uarms && is_bracer(uarms)) ? "bracers"
+                                                         : "shield",
+                             TRUE) != ER_NOTHING)
                 break;
             if (u.twoweap || (uwep && bimanual(uwep)))
                 (void) water_damage(u.twoweap ? uswapwep : uwep, 0, TRUE);
@@ -5759,10 +5763,11 @@ pot_acid_damage(
             * variant.
             */
         bufp = simpleonames(obj);
-        pline("%s%s %s!", /* "A potion explodes!" */
-                !exploded ? (one ? "A " : "Some ")
+        pline("%s%s %s!", /* "An inky potion explodes!" */
+              !exploded ? (one ? "" : "Some ")
                         : (one ? "Another " : "More "),
-            bufp, vtense(bufp, "explode"));
+              (!exploded && one) ? An(bufp) : bufp,
+              vtense(bufp, "explode"));
     }
     if (ga.acid_ctx.ctx_valid) {
         if (obj->dknown)

@@ -18,6 +18,7 @@ staticfn void maybe_land_deferred(void);
 staticfn void maybe_lift_msg_deferred(void);
 staticfn void maybe_dismount_untamed(void);
 staticfn void maybe_orcus_recurse(void);
+staticfn const char *purity_slide_name(struct obj *);
 staticfn void maybe_purity_slide_off(void);
 staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
@@ -324,6 +325,16 @@ maybe_orcus_recurse(void)
     update_inventory(); /* set_bknown() skips it when bknown was set */
 }
 
+/* a short name for something the Gauntlets of Purity force loose; a
+   corpse keeps its monster type, which simpleonames() drops */
+staticfn const char *
+purity_slide_name(struct obj *obj)
+{
+    return (obj->otyp == CORPSE)
+               ? corpse_xname(obj, (const char *) 0, CXN_NO_PFX)
+               : simpleonames(obj);
+}
+
 /* the Gauntlets of Purity won't stay on a hero who isn't pious, and
    now and then they find out a chaotic or unaligned wearer; whatever
    the bared hands held is forced loose, even if cursed */
@@ -349,14 +360,14 @@ maybe_purity_slide_off(void)
        can stone the hero in here, so nothing is cached across it */
     (void) Gloves_off();
     if (u.twoweap) {
-        Your("%s and %s are forced from your %s!", simpleonames(uwep),
-             simpleonames(uswapwep), makeplural(body_part(HAND)));
+        Your("%s and %s are forced from your %s!", purity_slide_name(uwep),
+             purity_slide_name(uswapwep), makeplural(body_part(HAND)));
         set_twoweap(FALSE); /* u.twoweap = FALSE */
         (void) dropx(uswapwep);
         (void) dropx(uwep);
     } else if (uwep && (was_shield = uarms) != 0) {
-        Your("%s and %s are forced from your %s!", simpleonames(uwep),
-             simpleonames(was_shield), makeplural(body_part(HAND)));
+        Your("%s and %s are forced from your %s!", purity_slide_name(uwep),
+             purity_slide_name(was_shield), makeplural(body_part(HAND)));
         /* the weapon goes first: taking off a stoning-resistant shield
            (the Bracers of the First Circle) re-checks a wielded
            cockatrice corpse, which could unwield it under us */
@@ -364,13 +375,13 @@ maybe_purity_slide_off(void)
         (void) Shield_off();
         (void) dropx(was_shield);
     } else if (!uwep && (was_shield = uarms) != 0) {
-        what = simpleonames(was_shield);
+        what = purity_slide_name(was_shield);
         Your("%s %s forced from your %s!", what, vtense(what, "are"),
              body_part(HAND));
         (void) Shield_off();
         (void) dropx(was_shield);
     } else if (uwep) {
-        what = simpleonames(uwep);
+        what = purity_slide_name(uwep);
         Your("%s %s forced from your %s!", what, vtense(what, "are"),
              body_part(HAND));
         (void) dropx(uwep);

@@ -11,8 +11,9 @@ static NEARDATA const char c_armor[] = "armor", c_suit[] = "suit",
                            c_shirt[] = "shirt", c_cloak[] = "cloak",
                            c_gloves[] = "gloves", c_boots[] = "boots",
                            c_helmet[] = "helmet", c_shield[] = "shield",
-                           c_weapon[] = "weapon", c_sword[] = "sword",
-                           c_axe[] = "axe", c_that_[] = "that";
+                           c_bracers[] = "bracers", c_weapon[] = "weapon",
+                           c_sword[] = "sword", c_axe[] = "axe",
+                           c_that_[] = "that";
 
 static NEARDATA const long takeoff_order[] = {
     WORN_BLINDF, W_WEP,      WORN_SHIELD, WORN_GLOVES, LEFT_RING,
@@ -999,7 +1000,13 @@ wielding_corpse(
             makeplural(body_part(HAND)));
         /* "removing" ought to be "taking off" but that makes the
            tombstone text more likely to be truncated */
-        if (how)
+        if (how && Is_dragon_scaled_armor(how))
+            /* simpleonames() leaves out the scales; name them as
+               xname() does, "yellow-scaled ring mail" */
+            Sprintf(hbuf, "%s %s-scaled %s",
+                    voluntary ? "removing" : "losing",
+                    dragon_scales_color(how), simpleonames(how));
+        else if (how)
             Sprintf(hbuf, "%s %s", voluntary ? "removing" : "losing",
                     is_gloves(how) ? gloves_simple_name(how)
                     : is_bracer(how) ? shield_simple_name(how)
@@ -2920,7 +2927,8 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
     } else if (is_shield(otmp)) {
         if (uarms) {
             if (noisy)
-                already_wearing(an(c_shield));
+                already_wearing(is_bracer(uarms) ? c_bracers
+                                                 : an(c_shield));
             err++;
         } else if (uwep && !is_bracer(otmp) && bimanual(uwep)) {
             if (noisy)
@@ -4540,12 +4548,14 @@ disintegrate_arm(struct obj *atmp)
     } else if ((otmp = maybe_destroy_armor(uarmf, atmp, &resisted)) != 0) {
         urgent_pline("Your %s disintegrate!", boots_simple_name(otmp));
     } else if ((otmp = maybe_destroy_armor(uarms, atmp, &resisted)) != 0) {
+        const char *shnm = shield_simple_name(otmp); /* bracers or shield */
+
         /* for a shield of light, we don't want Shield_off() to report
            that it stops shining _after_ we've been told that it is
            destroyed */
         if (otmp->lamplit)
             end_burn(otmp, FALSE);
-        urgent_pline("Your %s crumbles away!", shield_simple_name(otmp));
+        urgent_pline("Your %s %s away!", shnm, vtense(shnm, "crumble"));
     } else if (u.usteed
                && (otmp = which_armor(u.usteed, W_BARDING)) != 0
                /* don't route barding through maybe_destroy_armor() (at

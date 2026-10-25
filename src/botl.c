@@ -797,7 +797,8 @@ armor_status(char *armbuf)
                            : uarmu ? "shirt"
                              : uarmh ? helm_simple_name(uarmh) /* hat|helm */
                                : uarmf ? "boots"
-                                 : uarms ? "shield"
+                                 : uarms ? (is_bracer(uarms) ? "bracers"
+                                                             : "shield")
                                    : ""); /* not possible */
     } else { /* more than one piece */
         char *p = armbuf;
