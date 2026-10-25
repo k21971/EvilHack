@@ -9,17 +9,17 @@
 # autonamed chroot directory. Can rename.
 DATESTAMP=`date +%Y%m%d-%H%M%S`
 HDF_CHROOT="/opt/nethack/chroot"
-NETHACK_GIT="/home/build/NetHack50"
+NETHACK_GIT="/home/build/EvilHack"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
 COMPRESSBIN="/bin/gzip"
 # fixed data to copy (leave blank to skip)
-NH_GIT="/home/build/NetHack50"
+NH_GIT="/home/build/EvilHack"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="nh500.0-hdf"
+NHSUBDIR="evilhack-1.0.0"
 # VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/nh500.0-hdf/var/"
+NH_VAR_PLAYGROUND="/evilhack-1.0.0/var/"
 # END OF CONFIG
 ##############################################################################
 
@@ -43,11 +43,11 @@ findlibs()
 #
 # 🔴 NEVER `cp` over a file in a live chroot. `cp` opens the destination
 # O_TRUNC, so an existing file is briefly zero-length WHILE games hold it open:
-#   - every running nethack holds nh500.0-hdf/nhdat open for the whole session
-#     and reads level/lua data from it, so a truncating overwrite hands a live
-#     game a short read mid-play;
+#   - every running game holds evilhack-1.0.0/nhdat open for the whole
+#     session and reads level/lua data from it, so a truncating overwrite
+#     hands a live game a short read mid-play;
 #   - for anything mmap'd, a demand fault past the shortened EOF is SIGBUS, and
-#     nethack traps only SIGHUP and SIGXCPU -- so that is a LOST CHARACTER, not
+#     the game traps only SIGHUP and SIGXCPU -- so that is a LOST CHARACTER, not
 #     a caught error.
 #
 # Stage alongside the target, then rename(2). A running process keeps its old
@@ -100,17 +100,21 @@ set -e
 umask 022
 
 echo "Creating inprogress and extrainfo directories"
-mkdir -p "$HDF_CHROOT/dgldir/inprogress-nh500.0-hdf"
-chown "$USRGRP" "$HDF_CHROOT/dgldir/inprogress-nh500.0-hdf"
-mkdir -p "$HDF_CHROOT/dgldir/extrainfo-nh500"
-chown "$USRGRP" "$HDF_CHROOT/dgldir/extrainfo-nh500"
+mkdir -p "$HDF_CHROOT/dgldir/inprogress-evil100"
+chown "$USRGRP" "$HDF_CHROOT/dgldir/inprogress-evil100"
+mkdir -p "$HDF_CHROOT/dgldir/extrainfo-evil"
+chown "$USRGRP" "$HDF_CHROOT/dgldir/extrainfo-evil"
 
 echo "Making $HDF_CHROOT/$NHSUBDIR"
 mkdir -p "$HDF_CHROOT/$NHSUBDIR"
 
-NETHACKBIN="$NETHACK_GIT/src/nethack"
+NETHACKBIN="$NETHACK_GIT/src/evilhack"
 if [ -n "$NETHACKBIN" -a ! -e "$NETHACKBIN" ]; then
   errorexit "Cannot find NetHack binary $NETHACKBIN"
+fi
+
+if [ -n "$COMPRESSBIN" -a ! -e "$COMPRESSBIN" ]; then
+  errorexit "Cannot find compression binary $COMPRESSBIN"
 fi
 
 if [ -n "$NETHACKBIN" -a -e "$NETHACKBIN" ]; then
@@ -120,21 +124,21 @@ if [ -n "$NETHACKBIN" -a -e "$NETHACKBIN" ]; then
   # The binary itself is safe to plain-cp: $NHBINFILE is a NEW datestamped name,
   # so no inode a running game has mapped is touched. It is the SYMLINK swap
   # that has to be atomic -- `ln -fs` is unlink+symlink, and any login landing
-  # in that window finds no `nethack` at all.
+  # in that window finds no `evilhack` at all.
   # Same "don't touch what hasn't changed" rule as install_atomic, and here it
   # also stops a no-op rebuild dropping another ~12M dated copy every run.
   # NB the binary embeds NETHACK_GIT_SHA, so two builds from the same commit
   # compare equal while builds from different commits never do.
-  _cur="`readlink nethack 2>/dev/null || true`"
+  _cur="`readlink evilhack 2>/dev/null || true`"
   if [ -n "$_cur" ] && [ -e "$_cur" ] && cmp -s "$NETHACKBIN" "$_cur"; then
-    echo "  nethack unchanged ($_cur) - not installing a new dated binary"
+    echo "  evilhack unchanged ($_cur) - not installing a new dated binary"
   else
     cp "$NETHACKBIN" "$NHBINFILE"
     chown root:root "$NHBINFILE"
     chmod 755 "$NHBINFILE"
-    ln -sfn "$NHBINFILE" "nethack.new.$$"
-    mv -T "nethack.new.$$" nethack
-    echo "  nethack -> $NHBINFILE"
+    ln -sfn "$NHBINFILE" "evilhack.new.$$"
+    mv -T "evilhack.new.$$" evilhack
+    echo "  evilhack -> $NHBINFILE"
   fi
   LIBS="$LIBS `findlibs $NETHACKBIN`"
   cd "$HDF_CHROOT"
@@ -188,6 +192,16 @@ if [ -n "$RECOVER" -a -e "$RECOVER" ]; then
   rm -f "$HDF_CHROOT/$NHSUBDIR/var/recover"   # clean up the old location
   LIBS="$LIBS `findlibs $RECOVER`"
   cd "$HDF_CHROOT"
+fi
+
+# The game execs $COMPRESSBIN (COMPRESS in the hints) inside the chroot for
+# every save and bones file, so it has to be in there with its libraries.
+# Code, like recover: root-owned and installed atomically.
+if [ -n "$COMPRESSBIN" ]; then
+  echo "Copying $COMPRESSBIN"
+  mkdir -p "$HDF_CHROOT`dirname $COMPRESSBIN`"
+  install_atomic "$COMPRESSBIN" "$HDF_CHROOT$COMPRESSBIN" 755 root:root
+  LIBS="$LIBS `findlibs $COMPRESSBIN`"
 fi
 
 LIBS=`for lib in $LIBS; do echo $lib; done | sort | uniq`
