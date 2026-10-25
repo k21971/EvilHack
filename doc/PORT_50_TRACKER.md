@@ -32672,6 +32672,22 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       trees; EvilHack-only hints needing re-derive: linux-chroot,
       linux-debug.gha, clang-linux-debug; upstream hints now
       composable *.500 + hints/include/ fragments)
+      RIDER (2026-10-25, TNNT f6e2d194c + 90a457e8b ported):
+      compiler.500, multiw-1.500 and dirs-perms.500 are byte-identical
+      to Official_nh50 again. The fork's and the branch's overrides
+      now sit in hints/hardfought and hints/linux-debug: tty + curses
+      (default tty) above the multiw-1.500 include, the install layout
+      above dirs-perms.500 (hardfought: the chroot layout and 0755
+      perms; linux-debug: PREFIX /usr and the migration-window
+      $(GAME)50dir HACKDIR), and CCFLAGS -g3 -O0 after compiler.500.
+      hardfought no longer sets WANT_SOURCE_INSTALL (on Linux
+      dirs-perms.500 never reads it; NHCFLAGS adds SYSCF on its own).
+      linux-debug's make variables are unchanged. hardfought loses the
+      repeated SYSCF flags, and its HACKDIR is now the production path
+      /evilhack-1.0.0 (maintainer, 2026-10-25), replacing the fork's
+      /nh500.0-hdf. linux.500 / macOS.500 builds get
+      vanilla's defaults back (-g, tty only, playground / ~/nh/install).
+      Keep the includes vanilla on later catch-ups.
 - [ ] sysconf reconciliation (minted 2026-10-21, session 249, ruled
       with the sparkle slice). The adopted sys/unix/sysconf is the
       Hardfought vanilla server's. Session 249 restored master's
@@ -32699,6 +32715,19 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       (Hardfought 8a8c36f1e) added more hard-coded `nethack` symlink
       handling to install-to-chroot.sh and moved `recover` out of
       var/; re-brand those with the re-path above.
+      RIDER (2026-10-25): the two riders above are DONE, with values
+      from the maintainer. HACKDIR is /evilhack-1.0.0 (master deploys
+      /evilhack-0.9.3). hints/hardfought now sets it (it was in
+      hints/include/dirs-perms.500), and install-to-chroot.sh's
+      NHSUBDIR / NH_VAR_PLAYGROUND match it. The script now reads
+      /home/build/EvilHack, installs src/evilhack behind an `evilhack`
+      symlink, and creates dgldir/inprogress-evil100 and
+      dgldir/extrainfo-evil. config.h's EXTRAINFO_FN is
+      "/dgldir/extrainfo-evil/%n.extrainfo", as on master. The xlogfile
+      field-set check is still open.
+      install-to-chroot.sh now installs COMPRESSBIN (/bin/gzip, which
+      the hints' COMPRESS runs for every save and bones file) and its
+      libraries into the chroot (TNNT ee1334741 ported).
 - [ ] LOW: set_whereisfile() lacks master's BUG-603 hardening
       (minted 2026-10-04, session 177, merge audit). The branch has
       the NetHack50 fork's version: it builds the expanded name in an
