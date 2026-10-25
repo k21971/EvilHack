@@ -32697,12 +32697,66 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       .evil.html); master's LLC_TURNS=3000 (no conduct livelogs
       before turn 3000) and its SERVERSEED / SERVERSEED_FILE lines
       are missing (check what 5.0 still reads; see the serverseed
-      row above); RECOVER is enabled; the 5.0-only entries
+      row above); RECOVER is DONE (2026-10-25, BUG-2585: "Start the
+      game again to attempt recovery.", ruled; sysconf.template too);
+      the 5.0-only entries
       (MSGHANDLER, MAX_REROLL_RATE, HIDEUSAGE, CRASHREPORTURL,
       PORTABLE_DEVICE_PATHS) need a keep / drop call. The branch's
       make install recreates sysconf (rm -rf of the install dir,
       then SYSCONFENSURE), so the cutover ships this file.
-- [ ] Emergency-save recovery vs 5.0 SELF_RECOVER + CRASHREPORT
+- [x] Emergency-save recovery vs 5.0 SELF_RECOVER + CRASHREPORT
+      DONE 2026-10-25 (BUG-2585, maintainer rulings via
+      AskUserQuestion). VERDICT, level-file recovery: the branch's
+      5.0 in-process SELF_RECOVER recover_savefile() stays; it beats
+      master's linked util/recover.c (5821f87e7) on every failure
+      path. Master left a partial save file behind and fell through
+      getlock's gotlock: into a new game over the crashed one; 5.0
+      deletes the partial save, keeps the level files and exits
+      "Couldn't recover old game.". getlock() gains master's
+      "Automatic recovery of game successful!" with a forced --More--,
+      printed once the new lock file is written (the battery saw the
+      bare line replaced unseen in ~40ms; master's own "Press any key
+      to continue..." tail made its line long enough to force one).
+      Review folds: no offer while an unopenable regular save exists
+      (master's rename replaced it), a stray .e beside a recovered
+      .e.gz is set aside, .bak names skipped by the saved-game menu,
+      set_error_savefile()'s WIN32 overrun bounded. PANIC SAVES: master's c0f02c54d rebuilt on
+      5.0's CHECK_PANIC_SAVE. restore_saved_game() -> check_panic_save()
+      -> recover_panic_save() asks "There is no regular save file but
+      there is a panic one.  Attempt to recover it?" before role
+      selection; y keeps a .bak and renames the .e.gz (or a hand-
+      uncompressed .e) into the regular slot; n / Esc = new game, panic
+      save kept and offered again. 5.0's ask_about_panic_save() notice
+      ("demi-divine intervention", quit unless y) is gone.
+      CHECK_PANIC_SAVE added to windconf.h (Windows parity, uncompiled
+      here). CRASHREPORT is not part of this row; it stays with the
+      "crash logging" extras row.
+- [ ] LOW: recover_savefile()'s short-.0 early return (minted
+      2026-10-25 with BUG-2585; upstream 5.0). When the level-0 file
+      is shorter than the checkpoint header and a save file already
+      exists, it deletes the .0 and returns TRUE without setting
+      program_state.in_self_recover, so getlock()'s
+      `recover_savefile() && program_state.in_self_recover` reports
+      "Couldn't recover old game." and exits; the next start restores
+      normally. Rare (a crash inside a previous recovery's restore).
+      Setting the flag in that branch looks safe (it only forces the
+      structlevel save path and blocks saving / checkpointing until
+      unixmain clears it) but needs a staged repro. LOW.
+- [ ] LOW: master 3ce940b8c privilege-drop hardening never ported
+      (minted 2026-10-25). Master checks setgid(getgid()) /
+      setuid(getuid()) and exits on failure at four sites, while the
+      branch still discards the results: src/files.c (child before
+      exec), sys/unix/unixmain.c (main), sys/unix/unixunix.c (child
+      process), util/recover.c (-d other than HACKDIR). The same commit
+      checked linux_mapon / linux_mapoff's terminal escape write()s in
+      sys/share/unixtty.c; the branch's are unchecked too. Its hints
+      hunk (-O2, -Wstringop-truncation) does not apply to 5.0's hints.
+      LOW (hardening).
+- [ ] LOW: recovery parity gaps (minted 2026-10-25). VMS defines no
+      CHECK_PANIC_SAVE (master offered panic-save recovery on every
+      non-MICRO port) and vanilla macOS.500 defines no SELF_RECOVER
+      (no getlock "Recover [r]"; master linked recover.o on every Unix
+      build). Decide per platform with the Phase 4 parity row.
 - [ ] Deploy scripts; xlogfile field-set scoreboard check (plan §9.3)
       RIDER (2026-10-03, session 174): install-to-chroot.sh still
       deploys to NetHack50's server paths (NHSUBDIR "nh500.0-hdf",
@@ -33038,11 +33092,11 @@ trees, different content - Phase 0 rename).
 | HTML dumplog | DUMPHTML (fork) | pet/peaceful highlight, customcolor, rider hero highlight | |
 | livelog | fork livelog | EvilHack event extras - diff the sets | |
 | server hints | hints/hardfought (fork) | EvilHack hints deltas (pkg-config WINTTYLIB etc.) | |
-| recover | fork recover.c changes | EvilHack recover tweaks | |
+| recover | fork recover.c changes | EvilHack recover tweaks: 5821f87e7's NO_MAIN link into the game is superseded by 5.0's in-process SELF_RECOVER (2026-10-25 verdict, BUG-2585); 3ce940b8c's privilege-drop check rides the Phase 6 LOW hardening row | |
 | themed rooms | themerms.lua (origin) | DONE 2026-08-16 with the vaults.des row: 18 unique rndvaults live as themerooms entries + Massacre role parity; rndvault C registry retired unported (ratified 2026-07-18) | x |
 | color/truecolor | coloratt/utf8map/glyphs.c | extcolor 24-bit, customcolor registry (RENAME ours) | |
 | crash logging | CRASHREPORT (report.c) | crash-log infra, paniclog extras | |
-| self-recovery | SELF_RECOVER | emergency .e.gz save + in-game recovery | |
+| self-recovery | SELF_RECOVER | emergency .e.gz save + in-game recovery: DONE 2026-10-25 (BUG-2585), master's prompt rebuilt on 5.0's CHECK_PANIC_SAVE; level-file recovery stays 5.0's | x |
 | extended player names | fork | verify parity | |
 
 ## Decisions log
