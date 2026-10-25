@@ -3935,7 +3935,6 @@ extern void tty_utf8graphics_fixup(void);
 
 #ifdef UNIX
 extern void getlock(void);
-extern void ask_about_panic_save(void);
 extern void regularize(char *) NONNULLARG1;
 #if defined(TIMED_DELAY) && !defined(msleep) && defined(SYSV)
 extern void msleep(unsigned);

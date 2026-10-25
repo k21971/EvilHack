@@ -19,6 +19,9 @@
 #define SELF_RECOVER /* Allow the game itself to recover from an aborted \
                         game */
 
+#define CHECK_PANIC_SAVE /* Offer to recover a panic save when there is \
+                            no regular save file */
+
 #define SYSCF                /* Use a global configuration */
 #define SYSCF_FILE "sysconf" /* Use a file to hold the SYSCF configuration */
 

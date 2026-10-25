@@ -53,6 +53,9 @@ WIZARDS=*
 # information help.
 #SUPPORT=call Izchak at extension 42.
 
+# If not null, displayed at the end of a panic-save sequence.
+RECOVER=Start the game again to attempt recovery.
+
 # Uncomment the next line to disable the SEDUCE option.
 #SEDUCE=0
 

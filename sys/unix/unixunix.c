@@ -108,6 +108,9 @@ getlock(void)
 #endif
     int i = 0, fd, c, too_old;
     const char *fq_lock;
+#ifdef SELF_RECOVER
+    boolean recovered = FALSE;
+#endif
 
 #ifdef TTY_GRAPHICS
     /* idea from rpick%ucqais@uccba.uc.edu
@@ -217,6 +220,7 @@ getlock(void)
 #ifdef SELF_RECOVER
         if (c == 'r' || c == 'R') {
             if (recover_savefile() && program_state.in_self_recover) {
+                recovered = TRUE;
                 set_levelfile_name(gl.lock, 0);
                 fq_lock = fqname(gl.lock, LEVELPREFIX, 0);
                 goto gotlock;
@@ -256,40 +260,22 @@ getlock(void)
             /*NOTREACHED*/
         }
     }
-}
+#ifdef SELF_RECOVER
+    /* only now that the lock file is back: the --More-- waits on the
+       player, and another start under this name must not slip in */
+    if (recovered) {
+        static const char recovered_msg[] =
+            "Automatic recovery of game successful!";
 
-/* caller couldn't find a regular save file but did find a panic one */
-void
-ask_about_panic_save(void)
-{
-#ifdef CHECK_PANIC_SAVE
-    static const char Instead_prompt[] = "Start a new game instead?";
-    int c = '\0';
-
-    pline("There is no regular save file but there is a panic one.");
-    pline("It might be recoverable with demi-divine intervention.");
-    if (iflags.window_inited) {
-        c = yn_function(Instead_prompt, "yn\033q", 'n', FALSE);
-    } else {
-        raw_printf("%s [yn] (n) ", Instead_prompt);
-        (void) fflush(stdout);
-        do {
-            c = getchar();
-            if (c == EOF || c == '\033' || c == '\0')
-                break;
-            c = lowc(c);
-        } while (!strchr("ynq\n", c));
-    }
-    if (c != 'y') {
-        /* caller successfully called getlock() and made <levelfile>.0 */
-        delete_levelfile(0);
-        unlock_file(HLOCK); /* just in case, release 'perm' */
-        if (iflags.window_inited)
-            exit_nhwindows((char *) 0);
-        nh_terminate(EXIT_SUCCESS);
+        if (iflags.window_inited) {
+            pline("%s", recovered_msg);
+            /* --More--; the welcome back would replace it unseen */
+            display_nhwindow(WIN_MESSAGE, TRUE);
+        } else {
+            raw_print(recovered_msg);
+        }
     }
 #endif
-    return; /* proceed with new game */
 }
 
 /* normalize file name - we don't like .'s, /'s, spaces */

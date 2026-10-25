@@ -205,6 +205,11 @@ boolean proc_wizkit_line(char *buf);
 void read_wizkit(void);  /* in extern.h; why here too? */
 staticfn FILE *fopen_sym_file(void);
 staticfn NHFILE *viable_nhfile(NHFILE *);
+#ifdef CHECK_PANIC_SAVE
+staticfn boolean copy_file(const char *, const char *);
+staticfn boolean file_present(const char *);
+staticfn boolean recover_panic_save(void);
+#endif
 #endif /* !SFCTOOL */
 
 /* return a file's name without its path and optionally trailing 'type' */
@@ -1314,7 +1319,10 @@ set_error_savefile(void)
 #ifdef MAC68K
     Strcat(gs.SAVEF, "-e");
 #else
-    Strcat(gs.SAVEF, ".e");
+    /* SAVESIZE leaves no room for ".e" on WIN32 (SAVEX is ""), so a name
+       already at the limit keeps its regular form rather than overrun */
+    if (strlen(gs.SAVEF) + sizeof ".e" <= sizeof gs.SAVEF)
+        Strcat(gs.SAVEF, ".e");
 #endif
 #endif
 }
@@ -1431,6 +1439,116 @@ delete_savefile(void)
     return 0; /* for restore_saved_game() (ex-xxxmain.c) test */
 }
 
+#ifdef CHECK_PANIC_SAVE
+/* copy a file byte for byte; both names are already fqname()-resolved */
+staticfn boolean
+copy_file(const char *from, const char *to)
+{
+    int ifd, ofd;
+    boolean ok;
+
+    if ((ifd = open(from, O_RDONLY | O_BINARY, 0)) < 0)
+        return FALSE;
+    if ((ofd = open(to, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
+                    FCMASK)) < 0) {
+        (void) nhclose(ifd);
+        return FALSE;
+    }
+    ok = copy_bytes(ifd, ofd);
+    (void) nhclose(ifd);
+    (void) nhclose(ofd);
+    if (!ok)
+        (void) unlink(to);
+    return ok;
+}
+
+/* is a file there? fopen() checks with the effective ids, as the game's
+   own opens do; any failure but "no such file" (mode 0, an unsearchable
+   directory) counts as present so that callers fail closed */
+staticfn boolean
+file_present(const char *name)
+{
+    FILE *fp;
+
+    if ((fp = fopen(name, RDBMODE)) != NULL) {
+        (void) fclose(fp);
+        return TRUE;
+    }
+    return (errno != ENOENT);
+}
+
+/* panic() writes a complete save under the error name (see
+   set_error_savefile()), and check_panic_save() has found one while
+   there is no regular save. Offer to recover it: keep a copy, then
+   rename it into the regular slot so the normal restore path loads it.
+   Declining keeps the panic save and starts a new game; it is offered
+   again whenever there is no regular save. Returns TRUE when the
+   regular slot now holds the save, with SAVEF back to the regular name */
+staticfn boolean
+recover_panic_save(void)
+{
+    char regbase[SAVESIZE];
+    char regfile[FQN_MAX_FILENAME + 8], panicfile[FQN_MAX_FILENAME + 8];
+    char plainfile[FQN_MAX_FILENAME + 8], bakfile[FQN_MAX_FILENAME + 12];
+
+    /* a prompt is required; skip if we cannot ask */
+    if (!iflags.window_inited)
+        return FALSE;
+
+    /* set_error_savefile() appends to SAVEF in place, so put the
+       regular name back before anything can return */
+    Strcpy(regbase, gs.SAVEF);
+    Strcpy(regfile, fqname(gs.SAVEF, SAVEPREFIX, 0));
+    set_error_savefile();
+    Strcpy(panicfile, fqname(gs.SAVEF, SAVEPREFIX, 0));
+    Strcpy(gs.SAVEF, regbase);
+    /* the panic save is normally compressed; check_panic_save() also
+       accepts one that has been uncompressed by hand */
+    Strcpy(plainfile, panicfile);
+
+    /* a regular save that exists but could not be opened (a failed
+       uncompress leaves only the compressed file; an interrupted
+       restore leaves it mode 0) must not be replaced by the rename */
+    if (file_present(regfile))
+        return FALSE;
+#ifdef COMPRESS_EXTENSION
+    {
+        char cfn[FQN_MAX_FILENAME + 8];
+
+        Snprintf(cfn, sizeof cfn, "%s%s", regfile, COMPRESS_EXTENSION);
+        if (file_present(cfn))
+            return FALSE;
+        Snprintf(cfn, sizeof cfn, "%s%s", panicfile, COMPRESS_EXTENSION);
+        if (file_present(cfn)) {
+            Strcpy(panicfile, cfn);
+            Strcat(regfile, COMPRESS_EXTENSION);
+        }
+    }
+#endif
+
+    if (y_n("There is no regular save file but there is a panic one.  "
+            "Attempt to recover it?") != 'y')
+        return FALSE;
+
+    /* keep a copy for examination; the ".bak" name is never offered */
+    Snprintf(bakfile, sizeof bakfile, "%s.bak", panicfile);
+    (void) copy_file(panicfile, bakfile); /* best effort */
+
+    if (rename(panicfile, regfile) != 0) {
+        pline("Unable to prepare the recovered save file.");
+        return FALSE;
+    }
+    /* an uncompressed copy left beside the compressed one (gzip
+       interrupted before removing its input) would be offered again
+       after this game ends; set it aside with the other copy */
+    if (strcmp(plainfile, panicfile) && file_present(plainfile)) {
+        Snprintf(bakfile, sizeof bakfile, "%s.bak", plainfile);
+        (void) rename(plainfile, bakfile);
+    }
+    return TRUE;
+}
+#endif /* CHECK_PANIC_SAVE */
+
 /* try to open up a save file and prepare to restore it */
 NHFILE *
 restore_saved_game(void)
@@ -1443,7 +1561,16 @@ restore_saved_game(void)
     fq_save = fqname(gs.SAVEF, SAVEPREFIX, 0);
 
     nh_uncompress(fq_save);
-    if ((nhfp = open_savefile()) != 0) {
+    nhfp = open_savefile();
+#ifdef CHECK_PANIC_SAVE
+    /* no regular save; offer to recover a panic save */
+    if (!nhfp && check_panic_save() && recover_panic_save()) {
+        fq_save = fqname(gs.SAVEF, SAVEPREFIX, 0);
+        nh_uncompress(fq_save);
+        nhfp = open_savefile();
+    }
+#endif
+    if (nhfp) {
         if ((sfstatus = validate(nhfp, fq_save, FALSE, 0)) != SF_UPTODATE) {
             close_nhfile(nhfp);
             nhfp = problematic_savefile(sfstatus, fq_save);
@@ -1672,7 +1799,9 @@ get_saved_games(void)
 
                 if (!entry)
                     break;
-                if (sscanf(entry->d_name, "%d%63s", &uid, name) == 2) {
+                if (sscanf(entry->d_name, "%d%63s", &uid, name) == 2
+                    /* not a copy kept by recover_panic_save() */
+                    && !str_end_is(name, ".bak")) {
                     if (uid == myuid) {
                         char filename[BUFSZ];
                         char *r;

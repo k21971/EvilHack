@@ -303,15 +303,8 @@ main(int argc, char *argv[])
             }
         }
 
-#ifdef CHECK_PANIC_SAVE
-        /* no save file; check for a panic save; if the check finds one,
-           ask the player whether to proceed with a new game; it will
-           quit instead of returning if the answer isn't yes */
-        if (check_panic_save())
-            ask_about_panic_save();
-#endif
-
-        /* no save file; start a new game */
+        /* no usable save file (none, one that failed to restore, or a
+           panic save the player declined to recover); start a new game */
         newgame();
         wd_message();
     }

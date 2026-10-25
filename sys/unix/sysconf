@@ -64,7 +64,7 @@ MAX_REROLL_RATE=10
 SUPPORT=Contact K2 or Tangles on Libera irc channel #hardfought
 
 # If not null, displayed at the end of a panic-save sequence.
-RECOVER=Run the recover program.
+RECOVER=Start the game again to attempt recovery.
 
 # Uncomment the next line to disable the SEDUCE option, causing succubi and
 # incubi to use nymphs' charm behavior rather than their own seduce behavior.

@@ -126,10 +126,10 @@
 /* #define SELF_RECOVER */
 
 /*
- * At start of game, if there is no save file to restore or lock and
- * level files to recover but there is a panic save file for the current
- * character, tell the player that it exists and ask whether to start a
- * new game.  Does not attempt to rename and restore the panic save file.
+ * At start of game, if there is no save file to restore but there is a
+ * panic save file for the current character, offer to recover it: a
+ * copy is kept, then it is renamed into the regular save slot and
+ * restored. Declining starts a new game and keeps the panic save.
  */
 #define CHECK_PANIC_SAVE
 
