@@ -2194,6 +2194,11 @@ end_buried_tether(boolean msg)
     }
 }
 
+/* the buried iron ball the hero is chained to comes up where it lies,
+   the chain between it and the hero, and the hero is punished with it
+   again; a hero who then changes level takes it along as any punished
+   hero does, and one over a drop is not pulled down by a ball landing
+   at their feet */
 void
 buried_ball_to_punishment(void)
 {
@@ -2204,16 +2209,16 @@ buried_ball_to_punishment(void)
     cc.y = u.uy;
     ball = buried_ball(&cc);
     if (ball) {
-        unearth_tether_ball(ball);
+        unearth_tether_ball(ball, TRUE);
         end_buried_tether(FALSE);
     }
 }
 
-/* the buried iron ball the hero was chained to comes up at the hero's
-   feet and the hero is punished with it again; the caller ends the
-   tether (end_buried_tether()) */
+/* the buried iron ball the hero was chained to comes up where it lies
+   (in_place) or at the hero's feet, and the hero is punished with it
+   again; the caller ends the tether (end_buried_tether()) */
 void
-unearth_tether_ball(struct obj *ball)
+unearth_tether_ball(struct obj *ball, boolean in_place)
 {
     coordxy bx = ball->ox, by = ball->oy;
 
@@ -2223,7 +2228,11 @@ unearth_tether_ball(struct obj *ball)
     if (ball->timed)
         (void) stop_timer(RUST_METAL, obj_to_any(ball));
 #endif
-    punish(ball); /* use ball as flag for unearthed buried ball */
+    /* use ball as flag for unearthed buried ball */
+    if (in_place)
+        punish_at(ball, bx, by);
+    else
+        punish(ball);
     del_engr_at(bx, by);
     newsym(bx, by);
 }
@@ -2377,18 +2386,24 @@ bury_objs(int x, int y)
 void
 unearth_objs(int x, int y)
 {
-    struct obj *otmp, *otmp2, *bball;
+    struct obj *otmp, *otmp2, *bball = (struct obj *) 0;
     coord cc;
 
     debugpline2("unearth_objs: at <%d,%d>", x, y);
-    cc.x = x;
-    cc.y = y;
-    bball = buried_ball(&cc);
+    /* the ball the hero is chained to comes up here, where it lies, and
+       the hero is punished with it again; any other ball here is just
+       another buried object */
+    if (u_tethered()) {
+        cc.x = u.ux;
+        cc.y = u.uy;
+        bball = buried_ball(&cc);
+    }
     for (otmp = svl.level.buriedobjlist; otmp; otmp = otmp2) {
         otmp2 = otmp->nobj;
         if (otmp->ox == x && otmp->oy == y) {
-            if (bball && otmp == bball && u_tethered()) {
-                buried_ball_to_punishment();
+            if (bball && otmp == bball) {
+                unearth_tether_ball(bball, TRUE);
+                end_buried_tether(FALSE);
             } else {
                 obj_extract_self(otmp);
                 if (otmp->timed)

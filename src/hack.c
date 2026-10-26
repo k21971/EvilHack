@@ -24,6 +24,7 @@ staticfn int QSORTCALLBACK notice_mons_cmp(const genericptr,
                                            const genericptr) NONNULLPTRS;
 staticfn boolean steed_keeps_dry(void);
 staticfn void chain_pulls_off_steed(void);
+staticfn boolean chain_catches_hero(boolean);
 staticfn schar u_simple_floortyp(coordxy, coordxy);
 staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy, boolean);
@@ -1961,6 +1962,80 @@ chain_pulls_off_steed(void)
         pline_The("chain pulls you off %s!",
                   x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
                            (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+}
+
+/* a hero chained to a buried iron ball, about to fall over open air, is
+   held by the chain anchored in the ground and pulled back onto solid
+   ground within its reach, still chained; FALSE when there is no such
+   spot (or no ball) and the fall goes ahead */
+staticfn boolean
+chain_catches_hero(boolean pick)
+{
+    coord cc, spots[8];
+    coordxy x, y;
+    int i, n = 0, prefer = -1;
+    struct trap *t;
+
+    cc.x = u.ux, cc.y = u.uy;
+    if (!buried_ball(&cc))
+        return FALSE;
+    for (x = u.ux - 1; x <= u.ux + 1; x++)
+        for (y = u.uy - 1; y <= u.uy + 1; y++) {
+            if (!isok(x, y) || u_at(x, y)
+                /* within the chain's reach, as trapmove() allows */
+                || dist2(x, y, cc.x, cc.y) > 2
+                /* goodpos() lets a swimmer onto water */
+                || is_open_air(x, y) || is_pool_or_lava(x, y)
+                || IS_OBSTRUCTED(levl[x][y].typ) || closed_door(x, y)
+                || ((t = t_at(x, y)) != 0 && is_hole(t->ttyp))
+                /* a spot the hero could crawl onto out of water: free,
+                   and diagonal only past doorways and squeezes the hero
+                   could step through */
+                || !crawl_destination(x, y))
+                continue;
+            if (x == u.ux0 && y == u.uy0)
+                prefer = n;
+            spots[n].x = x, spots[n].y = y;
+            ++n;
+        }
+    /* back where the hero came from when that will do, else anywhere;
+       a region may refuse entry */
+    while (n > 0) {
+        i = (prefer >= 0) ? prefer : rn2(n);
+        prefer = -1;
+        if (in_out_region(spots[i].x, spots[i].y))
+            break;
+        spots[i] = spots[--n];
+    }
+    if (!n)
+        return FALSE;
+
+    pline_The("chain pulls you back onto solid ground!");
+    notice_mon_off();
+    u.ux0 = u.ux, u.uy0 = u.uy;
+    u_on_newpos(spots[i].x, spots[i].y);
+    u.umoved = TRUE;
+    if (u.ustuck && !u.uswallow && !next2u(u.ustuck->mx, u.ustuck->my)) {
+        if (sticks(gy.youmonst.data))
+            You("aren't able to maintain your hold on %s.",
+                mon_nam(u.ustuck));
+        else
+            pline("Startled, %s can no longer hold you!",
+                  mon_nam(u.ustuck));
+        set_ustuck((struct monst *) 0);
+    }
+    newsym(u.ux0, u.uy0);
+    check_leash(u.ux0, u.uy0);
+    update_player_regions();
+    see_monsters();
+    gv.vision_full_recalc = 1;
+    nomul(0);
+    vision_recalc(0);
+    /* the new spot's terrain, traps and objects */
+    spoteffects(pick);
+    notice_mon_on();
+    notice_all_mons(TRUE);
+    return TRUE;
 }
 
 /* Return a simplified floor solid/liquid state based on hero's state */
@@ -3975,6 +4050,10 @@ spoteffects(boolean pick)
             if (!u_at(spot_x, spot_y) || !(HLevitation || ELevitation))
                 goto spotdone;
         }
+        /* a chain anchored in solid ground holds the hero over the drop
+           and pulls them back onto it */
+        if (u_tethered() && !u.usteed && chain_catches_hero(pick))
+            goto spotdone;
         /* only a ball that is itself over the drop pulls the hero down */
         if (Punished && !carried(uball)
             && is_open_air(uball->ox, uball->oy))

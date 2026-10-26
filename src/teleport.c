@@ -511,9 +511,9 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
     struct obj *tether_ball = (struct obj *) 0;
 
     if (u_tethered()) {
-        /* unearth it; the ball comes up at the hero's feet, so a hero
-           over water, lava, open air or a hole, who would have it land
-           in that, takes it up on arrival instead */
+        /* unearth it; the ball comes up where it lies, but a hero over
+           water, lava, open air or a hole, whose chain would lie in that
+           for the move to drag, takes it up on arrival instead */
         if (u_over_drop()) {
             coord cc;
 
@@ -597,7 +597,7 @@ teleds(coordxy nux, coordxy nuy, int teleds_flags)
     u_on_newpos(nux, nuy); /* set u.<x,y>, usteed-><mx,my>; cliparound() */
     fill_pit(u.ux0, u.uy0);
     if (tether_ball)
-        unearth_tether_ball(tether_ball);
+        unearth_tether_ball(tether_ball, FALSE);
     if (ball_active && uchain && uchain->where == OBJ_FREE)
         placebc(); /* put back the ball&chain if they were taken off map */
     update_player_regions();

@@ -3786,6 +3786,16 @@ do_genocide(
 void
 punish(struct obj *sobj)
 {
+    punish_at(sobj, 0, 0);
+}
+
+/* punish(), with a reused ball (sobj, a buried iron ball the hero was
+   chained to) put down at <bx,by> when that is on the map, the chain
+   between it and the hero; otherwise ball and chain go at the hero's
+   feet */
+void
+punish_at(struct obj *sobj, coordxy bx, coordxy by)
+{
     /* angrygods() calls this with NULL sobj arg */
     struct obj *reuse_ball = (sobj && sobj->otyp == HEAVY_IRON_BALL)
                                 ? sobj : (struct obj *) 0;
@@ -3823,6 +3833,13 @@ punish(struct obj *sobj)
         if (!reuse_ball) {
             pline("A ball and chain appears, then falls away.");
             dropy(mkobj(BALL_CLASS, TRUE));
+        } else if (isok(bx, by)) {
+            /* where it lay, as dropy() would at the hero's feet */
+            if (!flooreffects(reuse_ball, bx, by, "fall")) {
+                place_object(reuse_ball, bx, by);
+                stackobj(reuse_ball);
+            }
+            newsym(bx, by);
         } else {
             dropy(reuse_ball);
         }
@@ -3839,9 +3856,12 @@ punish(struct obj *sobj)
      *  variables will be set at the next call to placebc().
      */
     if (!u.uswallow) {
-        placebc();
-        if (Blind)
-            set_bc(1);      /* set up ball and chain variables */
+        /* placebc_at() sets up the ball and chain variables itself */
+        if (!reuse_ball || !isok(bx, by) || !placebc_at(bx, by)) {
+            placebc();
+            if (Blind)
+                set_bc(1);  /* set up ball and chain variables */
+        }
         newsym(u.ux, u.uy); /* see ball&chain if can't see self */
     }
 }

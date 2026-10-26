@@ -265,6 +265,7 @@ extern void uchangealign(int, int);
 extern void ballrelease(boolean);
 extern void ballfall(void);
 extern void move_chain_to(coordxy, coordxy);
+extern boolean placebc_at(coordxy, coordxy);
 #ifndef BREADCRUMBS
 extern void placebc(void);
 extern void unplacebc(void);
@@ -630,7 +631,7 @@ extern void rot_organic(union any *, long) NONNULLARG1;
 extern void rot_corpse(union any *, long) NONNULLARG1;
 extern struct obj *buried_ball(coord *) NONNULLARG1;
 extern void buried_ball_to_punishment(void);
-extern void unearth_tether_ball(struct obj *) NONNULLARG1;
+extern void unearth_tether_ball(struct obj *, boolean) NONNULLARG1;
 extern void buried_ball_to_freedom(boolean);
 extern boolean u_tethered(void);
 extern void end_buried_tether(boolean);
@@ -2979,6 +2980,7 @@ extern void litroom(boolean, boolean, struct obj *, coordxy,
                     coordxy) NO_NNARGS;
 extern void do_genocide(int);
 extern void punish(struct obj *) NO_NNARGS;
+extern void punish_at(struct obj *, coordxy, coordxy) NO_NNARGS;
 extern void unpunish(void);
 extern boolean cant_revive(int *, boolean, struct obj *) NO_NNARGS;
 extern boolean create_particular(void);

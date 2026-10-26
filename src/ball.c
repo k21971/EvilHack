@@ -11,6 +11,7 @@
 staticfn int bc_order(void);
 staticfn void litter(void);
 staticfn void placebc_core(void);
+staticfn boolean safe_chain_spot(coordxy, coordxy);
 staticfn void unplacebc_core(void);
 staticfn boolean check_restriction(int);
 
@@ -143,6 +144,99 @@ placebc_core(void)
 
     newsym(u.ux, u.uy);
     bcrestriction = 0;
+}
+
+/* can the chain lie at <x,y>? not in rock or a closed door, nor where
+   drag_ball() would later jerk the hero toward it (water, lava, open
+   air, a pit or a hole) */
+staticfn boolean
+safe_chain_spot(coordxy x, coordxy y)
+{
+    struct trap *t;
+
+    if (!isok(x, y) || IS_OBSTRUCTED(levl[x][y].typ)
+        || (IS_DOOR(levl[x][y].typ)
+            && (levl[x][y].doormask & (D_CLOSED | D_LOCKED)))
+        || is_open_air(x, y) || is_pool_or_lava(x, y))
+        return FALSE;
+    t = t_at(x, y);
+    return !(t && (is_pit(t->ttyp) || is_hole(t->ttyp)));
+}
+
+/*
+ *  Place the ball at <bx,by>, no more than two squares from the hero, and
+ *  the chain between ball and hero; used for a buried ball the hero was
+ *  chained to coming up where it lies. Returns FALSE, placing nothing,
+ *  when the ball is farther away, or two squares away with no square
+ *  between that can take the chain safely while the hero isn't over a
+ *  drop; the caller then puts both at the hero's feet with placebc()
+ */
+boolean
+placebc_at(coordxy bx, coordxy by)
+{
+    coordxy cx, cy, x, y;
+    boolean found;
+
+    if (!uchain || !uball) {
+        impossible("Where are your ball and chain?");
+        return TRUE;
+    }
+    if (!check_restriction(0)) {
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+        paniclog("placebc_at", "placebc_at denied, restriction in effect");
+#endif
+        return TRUE;
+    }
+    if (uchain->where != OBJ_FREE) {
+        impossible("bc already placed?");
+        return TRUE;
+    }
+    if (distmin(u.ux, u.uy, bx, by) > 2)
+        return FALSE;
+
+    if (distmin(u.ux, u.uy, bx, by) <= 1) {
+        /* the chain lies under the hero, as when a Punished hero stands
+           beside the ball */
+        cx = u.ux, cy = u.uy;
+    } else {
+        /* the square straight toward the ball first, then any other
+           square next to both */
+        cx = u.ux + sgn(bx - u.ux), cy = u.uy + sgn(by - u.uy);
+        found = safe_chain_spot(cx, cy);
+        for (x = u.ux - 1; x <= u.ux + 1 && !found; x++)
+            for (y = u.uy - 1; y <= u.uy + 1 && !found; y++)
+                if (!u_at(x, y) && distmin(x, y, bx, by) <= 1
+                    && safe_chain_spot(x, y))
+                    cx = x, cy = y, found = TRUE;
+        if (!found) {
+            if (!u_over_drop())
+                return FALSE;
+            /* over a drop the feet are no better; drag_ball() copes
+               with a chain in rock */
+            cx = u.ux + sgn(bx - u.ux), cy = u.uy + sgn(by - u.uy);
+        }
+    }
+#ifdef BREADCRUMBS
+    bcpbreadcrumbs.in_effect = TRUE;
+    bcubreadcrumbs.in_effect = FALSE;
+    bcpbreadcrumbs.funcnm = "placebc_at";
+    bcpbreadcrumbs.linenum = __LINE__;
+#endif
+
+    (void) flooreffects(uchain, cx, cy, ""); /* chain might rust */
+    (void) flooreffects(uball, bx, by, "");
+    place_object(uball, bx, by);
+    place_object(uchain, cx, cy);
+    /* pick up the glyphs beneath before newsym() shows ball and chain;
+       a blind hero feels only what is at the hero's own spot */
+    u.bglyph = levl[bx][by].glyph;
+    u.cglyph = levl[cx][cy].glyph;
+    u.bc_felt = 0;
+    newsym(bx, by);
+    newsym(cx, cy);
+    u.bc_order = bc_order();
+    bcrestriction = 0;
+    return TRUE;
 }
 
 staticfn void

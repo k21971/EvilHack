@@ -1226,8 +1226,15 @@ landing_spot(
     int i, j, best_j, clockwise_j, counterclk_j,
         n, viable, distance, min_distance = -1;
     coordxy x, y;
-    boolean found, impaird, kn_trap, boulder;
+    boolean found, impaird, kn_trap, boulder, stays_up;
     struct trap *t;
+    struct monst *steed = u.usteed;
+
+    /* open air is no landing for a hero whose own lift, not the
+       steed's, won't keep them up there (a hold keeps it down) */
+    u.usteed = 0; /* affects the Flying test */
+    stays_up = (Levitation || Flying);
+    u.usteed = steed;
 
     (void) memset((genericptr_t) try, 0, sizeof try);
     n = 0;
@@ -1287,6 +1294,8 @@ landing_spot(
             x = u.ux + try[j].x;
             y = u.uy + try[j].y;
             if (!isok(x, y) || u_at(x, y)) /* [note: u_at() can't happen] */
+                continue;
+            if (is_open_air(x, y) && !stays_up)
                 continue;
 
             if (accessible(x, y) && !MON_AT(x, y)
