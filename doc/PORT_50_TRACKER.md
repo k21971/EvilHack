@@ -20003,6 +20003,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ruling). The fire / frost / shock / venom lines print "The daggers
       of fire burn you!" while blind; the drain arm has a Blind
       "You feel ..." form.
+      RULED 2026-10-26 (ruling round after session 262): "You feel
+      something <verb> you!" - the drain arm's You_feel form with
+      "something" for the weapon name, every verb the sighted line
+      uses ("You feel something severely burn you!", "... freeze you!",
+      "... jolt you!" / "... shock you!", "... poison you!" /
+      "... infect you!"); sighted lines unchanged. Plannable.
 - [x] LOW: a wish for gloves or gauntlets with a property fails (minted
       2026-10-24, session 259 battery D; branch regression).
       readobjnam() skips the property scan for any text holding
@@ -20027,6 +20033,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       stripped outside wizard mode (oc_magic); a plain "gauntlets"
       wish does the same on both trees. Needs a ruling: a
       `{ "gauntlets", GAUNTLETS }` alias, or record.
+      RULED 2026-10-26 (ruling round after session 262): the alias.
+      "gauntlets of <property>" always gives plain gauntlets with the
+      property, and a bare "gauntlets" wish always gives plain
+      gauntlets (gauntlets of power by name only). Master
+      frozen-unfixed. Plannable.
 - [x] LOW: a monster's turn undead spell kills as "a wand of undead
       turning" (minted 2026-10-13, session 223, by the census;
       master-shared). unturn_you() hard-codes the wand's name and
@@ -21701,6 +21712,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       `player=`; the branch's NetHack50 (Hardfought fork) line has
       no realtime and says `name=`. Decide once Hardfought's parser
       needs for the evilhack-50 variant are known.
+      RULED 2026-10-26 (maintainer, ruling round after session 262):
+      the fork's format, plus what it is missing from master's line -
+      keep `name=`, add `realtime=`, and census master's 0.9.3 livelog
+      fields against the fork's at plan time for any other field the
+      fork drops. Unblocked; plannable.
 - [x] LOW: archive carries absent outside their slices (minted
       2026-10-21, session 248, by the status slice's archive sweep;
       verify each before porting). BUG-600: restgamestate()'s
@@ -25911,6 +25927,11 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       walking steed that steps onto open air within reach falls
       together. Decide: the chain pulls the rider off and the steed
       falls, or record.
+      RULED 2026-10-26 (ruling round after session 262): the chain
+      pulls the rider off, the steed goes over the drop alone, and the
+      hero lands on solid ground within the chain's reach, still
+      chained; with no such spot the hero still falls (the recorded
+      no-landing-spot row). Plannable.
 - [ ] LOW: a blind Punished hero's map keeps a felt chain after the
       chain is dragged away (minted 2026-10-26, session 262, battery E;
       vanilla-shared, record). feel_location() clears BC_CHAIN once the
@@ -26685,6 +26706,10 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       always-peaceful), while digactualhole()'s immediate fall angers
       only a shopkeeper (make_angry_shk()). Decide whether the deferred
       fall takes the dig rules.
+      RULED 2026-10-26 (ruling round after session 262): the dig
+      rules - the deferred fall angers only a shopkeeper, as the
+      immediate one does; a peaceful that later walks onto the hole
+      keeps mintrap()'s walk-on roll. Plannable.
 - [ ] LOW: a flying form polymorphed into a grounded one over a hole
       stays up (minted 2026-10-24, session 259 reviewer pass 2; record).
       maybe_set_terrain_effects() handles the liquid case and leaves
@@ -26695,6 +26720,9 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       switch has no GRASS case, so a grass square never gets a chasm
       while the floor around it does. A fix must also release whoever
       the grass holds there (grass_gone_release()).
+      RULED 2026-10-26 (ruling round after session 262): grass cracks
+      into a pit like the floor, releasing whoever it holds. Master
+      frozen-unfixed. Plannable.
 - [x] LOW: monsters left entangled on another level never count
       down (minted 2026-10-18, session 239 follow-up, from the vine
       census; port loss, master parity). Master's
@@ -33466,6 +33494,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-26 | Ruling round after session 262 (AskUserQuestion x2, eight questions; the five rulings as recommended, two of the three input items over my picks). (1) TETHERED RIDER: THE CHAIN PULLS THE RIDER OFF a grounded steed over open air, the steed falls alone, the hero lands within the chain's reach still chained; rejected record (both fall). (2) DEFERRED HOLE FALL: THE DIG RULES (only a shopkeeper angers); rejected mintrap()'s walk-on roll. (3) EARTHQUAKE: GRASS CRACKS into a pit and releases whoever it holds; rejected record. (4) GAUNTLETS: THE `{ "gauntlets", GAUNTLETS }` ALIAS; rejected record. (5) BLIND PROPERTY HIT LINES: "You feel something <verb> you!"; rejected "Something burns you!" and the drain arm's "an object". (6) LIVELOG: THE FORK'S FORMAT PLUS WHAT IT IS MISSING (keep `name=`, add `realtime=`, census master's other fields at plan time), over my master's-format pick; rejected the fork's line alone and staying blocked. (7) UNSEEN-PEACEFUL CARVE-OUT: LEAVE BOTH, over my extend-both pick - only walking into an unseen peaceful costs Luck; a telekinetic object, a thrown or kicked object is a form of attack and keeps the full alignment penalty. Closes the July scope-cut follow-up. Follow-up: the walking bump keeps master c5cd67948's intent (maintainer-confirmed) - the peaceful still turns hostile with every knock-on effect, and the hero pays Luck (-2, LUCKMIN for a co-aligned priest) instead of alignment; the branch already matches (wakeup_accidental() / setmangry_accidental(), the cached-glyph and canspotmon() guards, peacefuls_respond()'s flag), so no row. (8) UPSTREAM PATCH CUTS: EACH PHASE 2 SLICE CUTS ITS OWN NEW UPSTREAM ROWS, plus ONE CATCH-UP SLICE for the existing unsent backlog; rejected one catch-up only and waiting for Phase 2's end. Sending stays the maintainer's. | maintainer |
 | 2026-10-25 | Session 262 slice rulings (AskUserQuestion x3, four questions, all as recommended). (0) SLICE: all four offered groups - the session 248 batch (#saveoptions, the opening AC, tty showvers, the archive carries), the ruled tether landings, the raised-span mine, the wording and wish traces. (1) CATCH AT THE EDGE OUTCOME: the hero STAYS CHAINED - the anchor holds, the hero is pulled onto a solid square within the chain's reach, line A "The chain pulls you back onto solid ground!" (echoing the pair's "The chain pulls you off <steed>!"); rejected line B "The chain catches you and pulls you onto solid ground!" and the pair's shape (ball wrenched up, Punished at the feet). (2) UGENDER: FORM'S SEX EVERYWHERE, re-opening the 2026-10-05 ruling - Ugender reads flags.female (status title on every port, glyph, mirror, farlook, hider / mimic lines, life-saving, risen body), self-genocide keeps the natural sex; rejected the title-only change and keeping 2026-10-05. (3, 2026-10-26) RAISED-SPAN MINE: DESTROY, AS RULED 2026-10-05, re-confirmed after the stress test showed the span's occupant takes destroy_drawbridge()'s falling chunk (a walking hero dies unless life-saved, as on a lowered bridge); rejected vanilla dighole()'s keep-the-bridge refill and sparing the span's occupant. Plan-approved without a question: level changes carry the in-place ball (no deferral to the arrival); the reroll menu keeps AC:0; landing_spot() skips open air; the protected-bridge, use-after-free and relocated-victim folds. | maintainer |
 | 2026-10-25 | Thirteen-row slice rulings (session 261; AskUserQuestion x2, five questions, all as recommended). (0) SLICE: all four offered groups - the regression / wording batch, combat and trap logic, display and livelog, the inventory weight UI. (1) SHIELD-SLOT BURN: KEEP THE REROLL - burnarmor()'s shield case keeps `continue` when no shield is worn and a burned shield is no body hit; master 3a452ae45's `return TRUE` (a side effect of its is_bracer() NULL fix) roughly doubled fire item destruction for armored targets (a fire ray ~7% -> ~13% of hits, a fire trap 73% -> 80%) and is archived as a master quirk, frozen-unfixed. (2) BOULDER INTO AN OCCUPIED PIT: ALWAYS FILL - delete the dead assignment, no play change; rejected the 3.6.2 comment's boulder over an open pit. (3) FIRST-POLYMORPH LIVELOG: GENDERED, written once the sex is settled; rejected the neutral pmnames[NEUTRAL] ("a vampire noble"). (4) CURSES PERM_INVENT: letterless lines leave pi.widest and the column indicator moves to the first line it fits beside; rejected an indicator line of its own. Plan-approved without a separate question: master 61f44f611's "shield" over 5.0's "wooden shield"; canwearobj() per master b70cf417e; armor_status() "bracers"; webbed digging refused at use_pick_axe2() plus a silent dig() backstop; one central perm_invent capacity check; carry_count()'s bag of holding half; the bright highlight colors; the terrain-wish sibling of the submerged view (battery C). | maintainer (rulings); session, plan-approved (rest) |
 | 2026-10-24 | Ten-row slice rulings (session 259; AskUserQuestion x5, seven questions, one of them re-asked at the maintainer's request; of the six standing answers four as recommended, two folds over my mint-a-row picks). (0) SLICE: all four offered groups - nasties[], the entangle pair, the trap and chain trio, the small-fix batch. (1) WIZAPP[] FOLDED: master 04518bab7's other unported hunk (the Double Trouble clone's disguises) lands with nasties[] as master's 12. (2) TREE-HELD MONSTERS STAY UP, FOLDED NOW (over my mint-a-row pick): a monster a live tree holds is not dropped into a new pit or hole by digactualhole() and does not choose to dig down; the hurl and the earthquake keep their shape. (3) CONFUSED REMOVE CURSE KEEPS THE TETHER, as it keeps a ball and chain. (4) THE DEFERRED FALL, FOLDED NOW (over my mint-a-row pick; the maintainer re-asked the question after a first mint-a-row answer): a grounded monster whose hold or levitation ends while it stands on a hole or trap door falls through, at the start of its own next turn after the reviewer's pass; a monster that spawned or teleported onto a hole stays as before. (5) THE B10 RE-RUN on POST3. Decided without asking: master's nasties[] comment counts corrected (BUG-804 counted the displacer beast as neutral; the table lists it with the chaotics); the earthquake hooks dropped as unreachable (do_earthquake() never cracks grass - a LOW row); master 979393c66's migrate clear withdrawn (mon_leaving_level() already clears the hold); a cursed leash holds a pet back from the deferred fall (reviewer M1); worn levitation / flying gear coming off counts as a lift ending (reviewer M2). | maintainer |
