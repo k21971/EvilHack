@@ -17,8 +17,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-25, after session 261's
-  thirteen-row slice): 522 rows closed, 118 open
+- Phase 2 status (refreshed 2026-10-26, after session 262's
+  eleven-row slice): 533 rows closed, 112 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -326,7 +326,25 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
     3's endgame.lua, Convict/Infidel pet names with their quest
     tracks, damp riders with their features), and the standing
     per-subsystem archive sweep.
-  - 102 LOW: small parity rows, quirks and watch/record-only items.
+  - 96 LOW: small parity rows, quirks and watch/record-only items.
+    Session 262 closed eleven (BUG-2602..2615): #saveoptions and the
+    deferred mention_decor option follow the --evilhackrc file; the
+    status under the opening text shows the worn AC; tty's three-line
+    status keeps its conditions beside showvers; a restored game grants
+    the wielded weapon's properties once; a buried ball the hero is
+    chained to comes up where it lies, so it no longer yanks the hero
+    down over open air, and the chain catches a hero over open air ("The
+    chain pulls you back onto solid ground!", still chained, ruled); a
+    dismount never sets a hero who can't stay up on open air; a land
+    mine on a raised drawbridge destroys it (ruled; the span's occupant
+    takes the chunk), one on a protected bridge leaves it whole, and a
+    surviving monster no longer reads the freed trap; "[already wearing
+    gloves]" and "mail"; "pair of leather gloves" wishes work; a
+    polymorphed hero is named by the form's sex (ruled, re-opening
+    2026-10-05). Minted five: a chained rider on a grounded steed (needs
+    a ruling), a chained rider with no landing spot, a blind hero's felt
+    chain, the protected bridge's unseen refusal line and hella-2's dry
+    moat span.
     Session 261 closed fifteen (BUG-2586..2601): gloves and
     gauntlets take property wishes ("leather gloves of fire");
     bracers are named as bracers when they burn, rust, crumble or
@@ -9284,7 +9302,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       gloves" wish fine on both builds (the alias since cac4efc84), the
       control "blessed +0 leather gloves" works, but "blessed +0 pair of
       leather gloves" still fails on both - re-minted narrower below.
-- [ ] LOW: a "pair of <material> gloves" wish fails (minted 2026-10-25,
+- [x] LOW: a "pair of <material> gloves" wish fails (minted 2026-10-25,
       session 261, from the row above; master-shared by code reading).
       readobjnam()'s prefix loop stops at "pair" before the material
       prefix is parsed, and once "pair of" is cut "leather gloves"
@@ -9292,6 +9310,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "Nothing fitting that description exists in the game." while
       "blessed +0 leather gloves" works. Needs master's order traced,
       then a fix shape.
+      CLOSED 2026-10-26 (session 262, bec8c40db; BUG-2614): master's order
+      traced - the same failure (the material is parsed only before the
+      "pair of" cut). readobjnam_oilskin() / readobjnam_material() also
+      run after a pair / set cut. Battery D: "blessed +0 pair of leather
+      gloves", "pair of iron gauntlets", "pair of leather bracers", "2
+      pairs of leather gloves", "set of iron barding", "pair of iron
+      shoes", "pair of oilskin cloth gloves" PRE "Nothing fitting that
+      description exists in the game.", POST the item; controls
+      unchanged.
 - [x] dothrow.c launcher range table NOT PORTED (minted 2026-08-06 by
       the Archeologist slice's reviewer while proving the range>0
       gate's producer absent). Master's throwit() range overrides for
@@ -21674,7 +21701,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       `player=`; the branch's NetHack50 (Hardfought fork) line has
       no realtime and says `name=`. Decide once Hardfought's parser
       needs for the evilhack-50 variant are known.
-- [ ] LOW: archive carries absent outside their slices (minted
+- [x] LOW: archive carries absent outside their slices (minted
       2026-10-21, session 248, by the status slice's archive sweep;
       verify each before porting). BUG-600: restgamestate()'s
       `uwep = 0; setuwep(otmp)` re-runs setworn()'s artifact grants
@@ -21684,7 +21711,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (the candle sibling has `obj &&`). Also: botl.c
       weapon_status() lost its `case P_MORNING_STAR:` label with the
       skill (EvilHack has none), leaving two unreachable lines.
-- [ ] LOW: the opening and reroll screens show AC:0 MC:0 and a
+      CLOSED 2026-10-26 (session 262, 50f0a510c): BUG-600 re-ported -
+      set_unweapon() (wield.c) replaces restgamestate()'s uwep = 0 /
+      setuwep() re-grant (battery A: Magicbane's antimagic conduct count
+      PRE +2, POST +1 per restore; gu.unweapon after restore unchanged
+      for bare hands, pick-axe, bow, long sword); BUG-790's lantern
+      guard re-ported; the dead morning-star lines deleted (the morning
+      star is P_MACE).
+- [x] LOW: the opening and reroll screens show AC:0 MC:0 and a
       pre-skill TH (minted 2026-10-21, session 248, battery B / A;
       shared with Official_nh50). newgame()'s first bot() runs after
       u_init_inventory_attrs() but before u_init_skills_discoveries()
@@ -21693,7 +21727,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       on the branch, MC:0 and a TH 1-3 off (master's intro already
       shows the worn AC). Fix shape: find_ac() (and skill_init()) at
       the end of u_init_inventory_attrs(), or bot() after both.
-- [ ] LOW: tty three-line status with showvers drops the conditions
+      CLOSED 2026-10-26 (session 262, 50f0a510c; BUG-2603). newgame()
+      redraws the status just before the legacy text. Battery A: PRE
+      "AC:0 MC:0" under the intro, POST "AC:5" for the Valkyrie kit
+      (u.uac 5); TH and MC showed no PRE / POST difference in those
+      games; the reroll menu keeps AC:0 on both (nothing is worn while
+      rerolling, by design). Upstream row.
+- [x] LOW: tty three-line status with showvers drops the conditions
       (minted 2026-10-21, session 248, battery C; shared with
       Official_nh50 by code reading). render_status()'s row-3
       condition placement allows for BL_VERS only when it directly
@@ -21702,13 +21742,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       version collide and the version wins ("Dlvl:1 T:11 6m:29s ...
       evilhack-50 1.0.0-0" with four conditions set; they return
       with showvers off).
-- [ ] LOW: #saveoptions after --evilhackrc=FILE targets ~/.evilhackrc
+      CLOSED 2026-10-26 (session 262, 50f0a510c; BUG-2604). render_status()
+      tests the next / previous shown field (next_active_field(),
+      prev_active_field()); conditions followed by a shown weapon /
+      armor / terrain field are not indented, since they overwrote those
+      fields. Battery A: PRE "Dlvl:1 T:2 0m:35s" with the conditions
+      blanked before "evilhack-50", POST "Conf Deaf Hallu Stun" indented
+      and the version intact; weapon / armor status on: PRE a 21-column
+      gap, POST "Conf Deaf Hallu Stun Spear Shield"; two-line control
+      equal. Upstream row.
+- [x] LOW: #saveoptions after --evilhackrc=FILE targets ~/.evilhackrc
       (minted 2026-10-21, session 248, battery C; shared with
       Official_nh50). cfgfiles.c frees gc.cmdline_rcfile after
       reading it, so #saveoptions offers to overwrite the default rc
       ("Overwrite config file /root/.evilhackrc? [yes|n]"), not the
       file the game loaded. Risk: a player who answers yes loses
       their main rc.
+      CLOSED 2026-10-26 (session 262, 50f0a510c; BUG-2602). rcfile() keeps
+      the command-line file's name while that file could be read (freed
+      only when the first pass fell back to the default rc), so the
+      later mention_decor pass and #saveoptions use it;
+      freedynamicdata() frees it. Battery A: PRE configfile
+      $HOME/.evilhackrc with mention_decor read from it, POST the named
+      rc with mention_decor 1, and /dev/null for --no-evilhackrc; a
+      missing file's open error prints once at startup on both. Upstream
+      row.
 - [ ] Muse offense items ABSENT (minted 2026-09-06 by the defended()
       sweep audit; the mhitm slice's "-> muse offense" deferral had
       no row): MUSE_POT_OIL (master check_offensive_item/use_offensive
@@ -24468,7 +24526,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       beside the chronicle's "becoming a dwarf lady" (livelog gender=Fem);
       POST "becoming a dwarf lord" (gender=Mal); unflipped controls agree
       on both. Upstream row.
-- [ ] LOW: a polymorphed hero's status title names the natural sex's
+- [x] LOW: a polymorphed hero's status title names the natural sex's
       form (minted 2026-10-25, session 261 battery C; vanilla-shared).
       botl.c names the form with Ugender, which reads u.mfemale - the
       saved natural sex - while Upolyd, and flags.female holds the
@@ -24476,6 +24534,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       dwarf lord!" shows "Wizard the Dwarf Lady" (persists through
       ^R). Master named the form with the sexless mons[].mname. Needs
       a census of Ugender's users before a fix.
+      CLOSED 2026-10-26 (session 262, bec8c40db; BUG-2615) by the 2026-10-25
+      ruling FORM'S SEX EVERYWHERE, re-opening the 2026-10-05 row:
+      Ugender reads flags.female; self-genocide keeps the natural sex;
+      Mgender()'s hero arm agrees. Battery D: after a forced flip PRE
+      "Wizard the Dwarf Lady", "You look like a dwarf lady.", farlook
+      "dwarf lady"; POST "Wizard the Dwarf Lord", "dwarf lord"; without
+      a flip "dwarf lady" on both. Upstream row.
 - [x] LOW: player-monster Monk kick stun ABSENT
       PORTED 2026-09-20 (session 133, commit `Fix: monster melee lost
       master's grab, trunk and Monk kick arms.` = 18140062c,
@@ -25403,6 +25468,8 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       status title keeps the normal form's sex ("Wizard the Dwarf
       Lord" as a dwarf lady), as ruled. Upstream-reportable table row
       added.
+      RE-RULED 2026-10-25 (session 262): FORM'S SEX EVERYWHERE - Ugender
+      now names the current form (BUG-2615, bec8c40db).
 - [x] LOW: Armor_on() never lands a hero whose wings it folds
       (BUG-2156; BUG-2157..2164 in the same slice) - FIXED 2026-10-06
       (session 187, commit `Fix: losing flight or levitation always
@@ -25751,7 +25818,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       death). Ruled 2026-10-17: every teleds() from water, lava, open
       air or a hole unearths the ball at the arrival square (dig.c
       unearth_tether_ball()).
-- [ ] LOW: the level-change unearth paths still bring a tethered ball
+- [x] LOW: the level-change unearth paths still bring a tethered ball
       up at the hero's feet over a drop (minted 2026-10-17, session
       235, reviewer; master-shared; record). goto_level(),
       level_tele(), domagicportal(), mkinvokearea() and unearth_objs()
@@ -25767,6 +25834,20 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       melting or flooding square) bring it up where it was buried,
       not at the hero's feet, so no yank. Rejected level changes only
       and record only. Plannable.
+      CLOSED 2026-10-26 (session 262, 3fe54ad2c; BUG-2605, 2606) as ruled:
+      buried_ball_to_punishment() brings the ball up where it was buried
+      - placebc_at() lays the chain under the hero or on a safe square
+      between (never air, water, lava, a pit or hole, rock), else both
+      at the feet when the hero is not over a drop; a level change
+      carries the Punished hero's ball to the arrival; unearth_objs()
+      unearths the hero's own ball in place and any other as a plain
+      object. Battery B: a shuddering ^V PRE ball at the feet, POST at
+      the buried square with the chain under the hero (staging needs a
+      cursed leash and blocked squares); ^V tree-held over AIR PRE yank
+      and plummet, POST arrival Punished; melt_ice() and the wrench-free
+      PRE feet, POST buried square. Battery E: a distance-2 ball's chain
+      on the middle square; AIR middle squares fall back to the feet;
+      ten drags, no jerk.
 - [x] LOW: unearthing a tethered ball while Punished with a second
       ball loses the buried one (FOLDED 2026-10-18 into session 210's
       "Punished hero who is also tethered" row, the same producer,
@@ -25784,12 +25865,25 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       MR2_FLY / MR2_LEVITATE without the other-worn-source loop the
       TELEPAT / DISPLACED arm uses, and m_calcdistress()'s
       mlevitatetime expiry clears gear-granted MR2_LEVITATE. LOW.
-- [ ] LOW: landing_spot() can set a dismounted rider on open air
+- [x] LOW: landing_spot() can set a dismounted rider on open air
       (minted 2026-10-17, session 235, Plan agent; record).
       ACCESSIBLE(AIR) is true, so a dismount next to open air may pick
       an AIR square (seen possible, not seen in the battery: the
       pull-off landed on floor every time). LOW.
-- [ ] LOW: a chained own-lift hero over open air plummets while a
+      CLOSED 2026-10-26 (session 262, 3fe54ad2c; BUG-2608): landing_spot()
+      skips open air unless the hero's own lift (u.usteed set aside for
+      the Flying test) keeps them up. Battery E: a voluntary dismount
+      over AIR PRE landed on air 6 of 7, POST on floor 6 of 6, and with
+      no floor "You can't.  There isn't anywhere for you to stand."; a
+      chained rider pulled off over AIR PRE yanked down, POST on floor.
+      Clingers and held riders count as unable to stay up (reviewer
+      note).
+- [ ] LOW: a chained rider with no landing spot plummets before the
+      catch (minted 2026-10-26, session 262, Plan agent; record). When
+      landing_spot() finds nothing, dismount_steed() moves the steed and
+      float_down() drops the hero over open air before spoteffects()'s
+      chain catch is reached.
+- [x] LOW: a chained own-lift hero over open air plummets while a
       chained pair is pulled off its steed (minted 2026-10-17, session
       235; record / needs a ruling). The session 189 ruling makes the
       chain a ground hold, so a flyer or levitator chained over open
@@ -25802,6 +25896,28 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       at plan time); over water and lava the hero still falls in, as
       ruled in session 189. Rejected every drop as for the pair, and
       keeping the plummet. Plannable.
+      CLOSED 2026-10-26 (session 262, 3fe54ad2c; BUG-2607) as ruled, the
+      hero STAYS CHAINED (2026-10-25 ruling, line A):
+      chain_catches_hero() pulls the hero onto a solid square within the
+      chain's reach, the one they came from first ("The chain pulls you
+      back onto solid ground!"), without teleds(); the hold and Teth
+      stay. Battery B: a step onto AIR within reach and a tree letting
+      go of a levitating hero over AIR, PRE plummet, POST caught, still
+      tethered, alive.
+- [ ] LOW: a tethered rider on a grounded steed plummets with it over
+      open air (minted 2026-10-26, session 262, Plan agent; needs a
+      ruling). spoteffects()'s pull-off arm needs an airborne steed and
+      chain_catches_hero() is unmounted-only, so a chained pair on a
+      walking steed that steps onto open air within reach falls
+      together. Decide: the chain pulls the rider off and the steed
+      falls, or record.
+- [ ] LOW: a blind Punished hero's map keeps a felt chain after the
+      chain is dragged away (minted 2026-10-26, session 262, battery E;
+      vanilla-shared, record). feel_location() clears BC_CHAIN once the
+      hero steps off the chain's square, so move_bc() no longer restores
+      the glyph beneath when the chain moves on; set_bc(1) after a blind
+      punishment also takes the chain's own glyph as the one beneath.
+      Seen on both builds with and without a buried ball.
 - [ ] LOW: a spoteffects() landing re-fires a non-floor trap the
       hovering hero already met (minted 2026-10-06, session 188, Plan
       agent; record unless reached in play). check_in_air() exempts
@@ -29137,11 +29253,15 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       armor_simple_name() -> shield_simple_name(); weapon.c is 4 / 4; the
       two muse.c sites are the monster bearded-axe disarm (muse parity
       row). iactions.c's "[already wearing a bracers]" minted below.
-- [ ] LOW: the item-actions menu says "[already wearing a bracers]"
+- [x] LOW: the item-actions menu says "[already wearing a bracers]"
       (minted 2026-10-25, session 261 Plan agent; vanilla-shared:
       Official_nh50 iactions.c reads "a gloves" and "a boots" too).
       iactions.c builds it with an(armor_simple_name(o)), which ignores
       pair names. Plannable: no article for a plural name.
+      CLOSED 2026-10-26 (session 262, bec8c40db; BUG-2613): no article for
+      pair_of() items or a "mail" suit. Battery D: PRE "a gloves", "a
+      bracers", "a boots", "a mail"; POST "[already wearing gloves]",
+      "bracers", "boots", "mail"; helm control unchanged. Upstream row.
 - [x] MED: death magic outcome shape vs magic resistance - PORTED
       2026-09-23 (session 136, partial reflection / death magic slice,
       commits `Fix: rays at the hero ignored partial reflection and
@@ -31032,7 +31152,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       engulfer identical; C4 natural sliming of the engulfer by a
       green-slime hero - POST munslime() FALSE, newcham() to green
       slime with the hero still inside, no split. Paniclogs clean.
-- [ ] LOW: a land mine on an iced raised drawbridge span orphans the
+- [x] LOW: a land mine on an iced raised drawbridge span orphans the
       portcullis (minted 2026-10-05, session 182, reviewer + battery
       B6; master- and upstream-shared). blow_up_landmine() (trap.c)
       calls destroy_drawbridge() only for DRAWBRIDGE_DOWN or a
@@ -31051,6 +31171,26 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       destroy_drawbridge() as a lowered-bridge mine does ("The
       drawbridge disintegrates!", the span back to ice, the portcullis
       an empty doorway, debris at both squares). Plannable.
+      CLOSED 2026-10-26 (session 262, e92804e68; BUG-2609..2612) as ruled,
+      re-confirmed 2026-10-26 with the span occupant's falling chunk
+      known: a mine on a raised span destroys the bridge; a frozen moat
+      keeps its melt timer; a protected bridge stays whole, with no pit
+      or fill. Folded: the monster arm's use-after-free of the trap
+      (branch regression; reachable through any liquid fill), and the
+      recursive trap check on a relocated victim (monster and hero;
+      vanilla-shared). Battery C: PRE moat (or a pit) over the span with
+      an orphaned DBWALL, POST "The drawbridge disintegrates!", ICE /
+      ICED_MOAT, a doorway, melt timer running; a crocodile by a pool,
+      no crash on either; Valley PRE moat over the span or portcullis,
+      POST intact.
+- [ ] LOW: destroy_drawbridge()'s refusal line has no sight check
+      (minted 2026-10-26, session 262, Plan agent; vanilla-shared).
+      "This drawbridge cannot be destroyed." prints for a monster's mine
+      out of sight on the Valley or the Wizard's Tower levels.
+- [ ] LOW: hella-2's raised span over its moat counts as dry ground
+      (minted 2026-10-26, session 262, Plan agent; record). is_moat() is
+      false on a hella level, so a mine can be set on the raised DB_MOAT
+      span and now destroys that bridge through the moat branch.
 - [x] Telekinesis damage cap (BUG-2032) - FIXED 2026-10-01 (session
       168, commit `Fix: cap telekinetic push damage at ten dice.` =
       ad2d118e4, tracker c4acecad9, landed 2026-10-01; closure notes
@@ -33091,8 +33231,14 @@ maintainer, no co-author trailer). Sending stays the maintainer's.
 | 2026-10-25 | curses' hilite_pile blue background hides a blue or bright blue object on top of a pile. Shared with Official_nh50 (cursmain.c curses_print_glyph()). EvilHack fix BUG-2596 (fd2af9750): A_REVERSE when the glyph's color % BRIGHT is CLR_BLUE. | found (branch-fixed); not yet sent |
 | 2026-10-25 | The first-polymorph livelog names the sex from before polymon()'s random flip ("becoming a dwarf lady" beside "You turn into a dwarf lord!"). Shared with Official_nh50 (polyself.c polymon()). EvilHack fix BUG-2598 (fd2af9750): the livelog moves below the sex decision. | found (branch-fixed); not yet sent |
 | 2026-10-25 | carry_count()'s delta_cwt() ignores the count: a bag of holding is assumed to lose the whole stack when part is taken (a pickup past the carrying limit), and an ordinary container the part's owt, which for split gold (90aded364's 1-aum minimum) differs from the container's real drop. Shared with Official_nh50 (pickup.c). EvilHack fix BUG-2601 (fd2af9750): cwt_drop() weighs the container with the rest left in; the gold loop scans down by weight steps. | found (branch-fixed); not yet sent |
-| 2026-10-25 | A polymorphed hero's status title names the natural sex's form: botl.c uses Ugender, which reads u.mfemale (the saved natural sex) while Upolyd, while flags.female holds the form's. Shared with Official_nh50 (you.h, botl.c). EvilHack: LOW row minted 2026-10-25, not fixed yet. | found (open); not yet sent |
-| 2026-10-25 | The item-actions menu reads "[already wearing a gloves]" / "a boots" (an() of armor_simple_name()). Shared with Official_nh50 (iactions.c). EvilHack: LOW row minted 2026-10-25, not fixed yet. | found (open); not yet sent |
+| 2026-10-25 | A polymorphed hero's status title names the natural sex's form: botl.c uses Ugender, which reads u.mfemale (the saved natural sex) while Upolyd, while flags.female holds the form's; the mirror, farlook, the hider / mimic lines, life-saving, the risen body and the hero's glyph follow it. Shared with Official_nh50 (you.h; vanilla's 0c3b9642e meant the current sex). EvilHack fix BUG-2615 (bec8c40db): `#define Ugender (flags.female ? 1 : 0)`, self-genocide keeps the natural sex. | found (branch-fixed); not yet sent |
+| 2026-10-25 | The item-actions menu reads "[already wearing a gloves]" / "a boots" / "a mail" (an() of armor_simple_name()). Shared with Official_nh50 (iactions.c). EvilHack fix BUG-2613 (bec8c40db): no article for pair_of() items or a "mail" suit. | found (branch-fixed); not yet sent |
+| 2026-10-26 | --nethackrc=FILE is forgotten after the first rc pass: rcfile() frees gc.cmdline_rcfile, the later rcfile_only_this_option(opt_mention_decor) pass reads ~/.nethackrc, and configfile[] then names it, so #saveoptions offers to overwrite the default rc and mention_decor comes from the wrong file. Shared with Official_nh50 (cfgfiles.c, allmain.c). EvilHack fix BUG-2602 (50f0a510c): keep the name while that file could be read; free it in freedynamicdata(). | found (branch-fixed); not yet sent |
+| 2026-10-26 | The status under the opening text shows AC:0 (and a pre-skill to-hit): newgame()'s bot() runs before u_init_skills_discoveries() wears the starting gear. Shared with Official_nh50 (allmain.c). EvilHack fix BUG-2603 (50f0a510c): bot() before the legacy text. | found (branch-fixed); not yet sent |
+| 2026-10-26 | tty statuslines:3 with showvers blanks the status conditions: render_status() tests raw fieldorder[] adjacency of BL_CONDITION and BL_VERS, which BL_WEAPON / BL_ARMOR / BL_TERRAIN sit between; with those fields on, indented conditions overwrite them. Shared with Official_nh50 (wintty.c). EvilHack fix BUG-2604 (50f0a510c): next / previous shown-field helpers; no indent before a shown weapon / armor / terrain field. | found (branch-fixed); not yet sent |
+| 2026-10-26 | An unearthed buried iron ball the hero is chained to comes up at the hero's feet (level teleport or portal before their refusal returns, goto_level(), invocation, flooding, melting, wrenching free), so over open air it yanks the hero to death; unearth_objs() re-searches from the hero and can bring up another ball. Shared with Official_nh50 (dig.c, read.c, ball.c). EvilHack fix BUG-2605 / 2606 (3fe54ad2c): placebc_at() / punish_at(), the ball where it lies with the chain on a safe square between. | found (branch-fixed); not yet sent |
+| 2026-10-26 | landing_spot() accepts open air (ACCESSIBLE(AIR)), so a dismount can set a hero who cannot fly or float on air beside solid ground. Shared with Official_nh50 (steed.c). EvilHack fix BUG-2608 (3fe54ad2c): skip open air unless the hero's own lift keeps them up. | found (branch-fixed); not yet sent |
+| 2026-10-26 | A land mine on a raised drawbridge's span (over ice or floor) floods the span and orphans the portcullis; on a protected bridge (Valley, Wizard's Tower) the refused destruction is followed by the pit fill over the span or portcullis; after the blast the monster arm forces mintrap() and the hero arm dotrap() at the victim's current square, which the water or the bridge's fall may have changed. Shared with Official_nh50 (trap.c blow_up_landmine(), trapeffect_landmine()). EvilHack fix BUG-2609, 2610, 2612 (e92804e68). | found (branch-fixed); not yet sent |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent |
 | 2026-10-17 | A hold does not ground a flying steed's rider unless the rider has own flight, and flight gained during a hold flies through it. Shared with Official_nh50: polyself.c float_vs_flight() sets BFlying I_SPECIAL only for `(HFlying \|\| EFlying) && stuck_in_floor`, re-evaluated only by set_utrap() and lift-change sites. EvilHack fix BUG-2402 / BUG-2403: set it for every hold. | found (branch-fixed); not sent |
@@ -33320,6 +33466,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-25 | Session 262 slice rulings (AskUserQuestion x3, four questions, all as recommended). (0) SLICE: all four offered groups - the session 248 batch (#saveoptions, the opening AC, tty showvers, the archive carries), the ruled tether landings, the raised-span mine, the wording and wish traces. (1) CATCH AT THE EDGE OUTCOME: the hero STAYS CHAINED - the anchor holds, the hero is pulled onto a solid square within the chain's reach, line A "The chain pulls you back onto solid ground!" (echoing the pair's "The chain pulls you off <steed>!"); rejected line B "The chain catches you and pulls you onto solid ground!" and the pair's shape (ball wrenched up, Punished at the feet). (2) UGENDER: FORM'S SEX EVERYWHERE, re-opening the 2026-10-05 ruling - Ugender reads flags.female (status title on every port, glyph, mirror, farlook, hider / mimic lines, life-saving, risen body), self-genocide keeps the natural sex; rejected the title-only change and keeping 2026-10-05. (3, 2026-10-26) RAISED-SPAN MINE: DESTROY, AS RULED 2026-10-05, re-confirmed after the stress test showed the span's occupant takes destroy_drawbridge()'s falling chunk (a walking hero dies unless life-saved, as on a lowered bridge); rejected vanilla dighole()'s keep-the-bridge refill and sparing the span's occupant. Plan-approved without a question: level changes carry the in-place ball (no deferral to the arrival); the reroll menu keeps AC:0; landing_spot() skips open air; the protected-bridge, use-after-free and relocated-victim folds. | maintainer |
 | 2026-10-25 | Thirteen-row slice rulings (session 261; AskUserQuestion x2, five questions, all as recommended). (0) SLICE: all four offered groups - the regression / wording batch, combat and trap logic, display and livelog, the inventory weight UI. (1) SHIELD-SLOT BURN: KEEP THE REROLL - burnarmor()'s shield case keeps `continue` when no shield is worn and a burned shield is no body hit; master 3a452ae45's `return TRUE` (a side effect of its is_bracer() NULL fix) roughly doubled fire item destruction for armored targets (a fire ray ~7% -> ~13% of hits, a fire trap 73% -> 80%) and is archived as a master quirk, frozen-unfixed. (2) BOULDER INTO AN OCCUPIED PIT: ALWAYS FILL - delete the dead assignment, no play change; rejected the 3.6.2 comment's boulder over an open pit. (3) FIRST-POLYMORPH LIVELOG: GENDERED, written once the sex is settled; rejected the neutral pmnames[NEUTRAL] ("a vampire noble"). (4) CURSES PERM_INVENT: letterless lines leave pi.widest and the column indicator moves to the first line it fits beside; rejected an indicator line of its own. Plan-approved without a separate question: master 61f44f611's "shield" over 5.0's "wooden shield"; canwearobj() per master b70cf417e; armor_status() "bracers"; webbed digging refused at use_pick_axe2() plus a silent dig() backstop; one central perm_invent capacity check; carry_count()'s bag of holding half; the bright highlight colors; the terrain-wish sibling of the submerged view (battery C). | maintainer (rulings); session, plan-approved (rest) |
 | 2026-10-24 | Ten-row slice rulings (session 259; AskUserQuestion x5, seven questions, one of them re-asked at the maintainer's request; of the six standing answers four as recommended, two folds over my mint-a-row picks). (0) SLICE: all four offered groups - nasties[], the entangle pair, the trap and chain trio, the small-fix batch. (1) WIZAPP[] FOLDED: master 04518bab7's other unported hunk (the Double Trouble clone's disguises) lands with nasties[] as master's 12. (2) TREE-HELD MONSTERS STAY UP, FOLDED NOW (over my mint-a-row pick): a monster a live tree holds is not dropped into a new pit or hole by digactualhole() and does not choose to dig down; the hurl and the earthquake keep their shape. (3) CONFUSED REMOVE CURSE KEEPS THE TETHER, as it keeps a ball and chain. (4) THE DEFERRED FALL, FOLDED NOW (over my mint-a-row pick; the maintainer re-asked the question after a first mint-a-row answer): a grounded monster whose hold or levitation ends while it stands on a hole or trap door falls through, at the start of its own next turn after the reviewer's pass; a monster that spawned or teleported onto a hole stays as before. (5) THE B10 RE-RUN on POST3. Decided without asking: master's nasties[] comment counts corrected (BUG-804 counted the displacer beast as neutral; the table lists it with the chaotics); the earthquake hooks dropped as unreachable (do_earthquake() never cracks grass - a LOW row); master 979393c66's migrate clear withdrawn (mon_leaving_level() already clears the hold); a cursed leash holds a pet back from the deferred fall (reviewer M1); worn levitation / flying gear coming off counts as a lift ending (reviewer M2). | maintainer |
 | 2026-10-24 | Twelve-row slice rulings (session 258; AskUserQuestion x4, six questions, all as recommended). (0) SLICE: all four offered groups combined - melee damage terms, the excellence pair, the small-fix batch and the mid-operation container stop. (1) BLESSINGS REACH RACIAL MONSTERS TOO: mon_hates_blessings() reads r_data(), so racial vampire / draugr player-monsters take the blessed bonus as holy water already burns them. (2) HALF_PHYSICAL SPARES THE SPELL TOUCH: a monster's burning hands / shocking grasp on the hero is halved by Half_spell_damage only. (3) FOLD the Hand of Vecna's cold (as cold) and the hero's spell dice vs a half-spell artifact. (4) BANE AURA, BOTH RACES (reviewer MEDIUM): the wielded-bane aura and the taming refusal count a racial monster's race for Angelslayer, Sunsword, the Hammer and Demonbane. (5) FOLD NOW the leader-kill regression battery C found (m_detach()'s msound tests -> master's gates); the reviewer's set_malign() / nemesis-bonus siblings folded with it as the same class. Taken without asking: no set_twoweap() Luck hook (every path already recomputes through setuswapwep()); the uncursed-excellence floor in extremeattr() (master-shared leak); the quest livelog lines keep the raw artifact name, as master's do. | maintainer |
