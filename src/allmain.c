@@ -1668,6 +1668,11 @@ newgame(void)
         newsym(u.ux, u.uy);
     }
 
+    /* the status shown so far predates the worn starting gear and the
+       skills (u_init_skills_discoveries()); show the real AC, MC and
+       to-hit under the opening text */
+    bot();
+
     if (flags.legacy) {
         /* pauper text takes precedence for all roles; Convicts have
            their own legacy message; a role's quest section can define

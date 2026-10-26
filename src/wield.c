@@ -163,6 +163,15 @@ setuwep(struct obj *obj)
      * message.  Wielding one via 'a'pplying it will.
      * 3.2.2:  Wielding arbitrary objects will give bashing message too.
      */
+    set_unweapon(obj);
+}
+
+/* whether fighting with obj (Null: bare hands) earns the "bashing"
+   reminder; restgamestate() uses this for the restored weapon, whose
+   slot setworn() has already filled */
+void
+set_unweapon(struct obj *obj)
+{
     if (obj) {
         gu.unweapon = (obj->oclass == WEAPON_CLASS)
                        ? is_launcher(obj) || is_ammo(obj) || is_missile(obj)

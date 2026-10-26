@@ -801,16 +801,17 @@ restgamestate(NHFILE *nhfp)
     /* reset weapon so that player will get a reminder about "bashing"
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
-       applied or wielded it, so be conservative and assume the former */
-    otmp = uwep;   /* `uwep' usually init'd by setworn() in loop above */
-    uwep = 0;      /* clear it and have setuwep() reinit */
-    setuwep(otmp); /* (don't need any null check here) */
+       applied or wielded it, so be conservative and assume the former;
+       `uwep' was seated by setworn() in the loop above, and clearing it
+       for setuwep() to reinit would grant its properties a second time
+       (counting the antimagic and reflection conducts again) */
+    set_unweapon(uwep);
     if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == GRAPPLING_HOOK)
         gu.unweapon = TRUE;
 
     /* the 'u' struct read back above carries the SAVING process's
        u.ustuck and u.usteed pointers, which are meaningless here and
-       must never be dereferenced. setuwep() just made the last
+       must never be dereferenced. set_unweapon() just made the last
        legitimate use of one: it reads u.usteed's non-null-ness as a
        "hero is mounted" flag, which is why they are not cleared any
        earlier than this. Clearing them here rather than in dorecover()

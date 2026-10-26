@@ -1288,6 +1288,8 @@ freedynamicdata(void)
     /* miscellaneous */
     /* free_pickinv_cache();  --  now done from really_done()... */
     free_symsets();
+    if (gc.cmdline_rcfile)
+        free((genericptr_t) gc.cmdline_rcfile), gc.cmdline_rcfile = 0;
 #ifdef USER_SOUNDS
     release_sound_mappings();
 #endif

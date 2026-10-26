@@ -748,8 +748,6 @@ weapon_status(char *outbuf)
             case P_QUARTERSTAFF:
                 res = "staff";
                 break;
-                res = "mrng-star"; /* still pretty long */
-                break;
             case P_POLEARMS:
                 res = "pole";
                 break;

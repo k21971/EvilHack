@@ -1762,7 +1762,7 @@ burn_object(anything *arg, long timeout)
             break;
         }
 
-        if (obj->age)
+        if (obj && obj->age)
             begin_burn(obj, TRUE);
 
         break;

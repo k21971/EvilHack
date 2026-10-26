@@ -230,6 +230,8 @@ static void tty_putsym(winid, int, int, char);
 #ifdef STATUS_HILITES
 static boolean check_fields(boolean forcefields, int sz[MAX_STATUS_ROWS]);
 static void render_status(void);
+static int next_active_field(int, int);
+static int prev_active_field(int, int);
 static void tty_putstatusfield(const char *, int, int);
 static boolean check_windowdata(void);
 static void set_condition_length(void);
@@ -5013,6 +5015,32 @@ condattr(long bm, unsigned long *bmarray)
         }                                       \
     } while (0)
 
+/* the first field after fieldorder[row][i] that is shown, or BL_FLUSH;
+   inactive fields (weapon, armor, terrain when their options are off)
+   sit between conditions and version in the row orders */
+static int
+next_active_field(int row, int i)
+{
+    int fld;
+
+    while ((fld = fieldorder[row][++i]) != BL_FLUSH)
+        if (status_activefields[fld])
+            break;
+    return fld;
+}
+
+/* the last field before fieldorder[row][i] that is shown, or BL_FLUSH */
+static int
+prev_active_field(int row, int i)
+{
+    int fld;
+
+    while (--i >= 0)
+        if (status_activefields[fld = fieldorder[row][i]])
+            return fld;
+    return BL_FLUSH;
+}
+
 static void
 render_status(void)
 {
@@ -5060,14 +5088,14 @@ render_status(void)
                      * be indented to line up with a position on 2nd row.
                      */
                     if (row == MAX_STATUS_ROWS - 1 && bits != 0L) {
-                        int cstart, last_col = cw->cols;
+                        int cstart, last_col = cw->cols,
+                            nextfld = next_active_field(row, i);
                         char *dat = &cw->data[y][0];
 
                         /* 'version' might follow conditions; if so, adjust
                            expectations for where conditions should end;
                            only matters when conditions are being indented */
-                        if (status_activefields[BL_VERS]
-                            && fieldorder[row][i + 1] == BL_VERS)
+                        if (nextfld == BL_VERS)
                             last_col -= (int) tty_status[NOW][BL_VERS].lth;
                         /* line up with hunger (or where it would have
                            been when currently omitted); if there isn't
@@ -5083,6 +5111,11 @@ render_status(void)
                         else if (x + tlth < cw->cols - 1)
                             cstart = last_col - tlth;
                         else
+                            cstart = x;
+                        /* weapon, armor or terrain following conditions
+                           were placed by check_fields() as if conditions
+                           stayed put, so indenting would overwrite them */
+                        if (nextfld != BL_FLUSH && nextfld != BL_VERS)
                             cstart = x;
                         /* indent conditions to line them up with 2nd row */
                         if (x < cstart) {
@@ -5220,7 +5253,7 @@ render_status(void)
                         int vx = tty_status[BEFORE][BL_CONDITION].x
                                  + tty_status[BEFORE][BL_CONDITION].lth;
 
-                        if (i > 0 && fieldorder[row][i - 1] == BL_CONDITION
+                        if (prev_active_field(row, i) == BL_CONDITION
                             && x != vx) {
                             x = vx;
                             tty_curs(WIN_STATUS, x, y);

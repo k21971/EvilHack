@@ -153,6 +153,9 @@ static const char *default_configfile =
 #endif
 #endif
 static char configfile[BUFSZ];
+/* the last fopen_config_file() for a file other than sysconf opened the
+   file it was asked for, not one of the default names it falls back to */
+static boolean named_configfile_opened = FALSE;
 
 char *
 get_configfile(void)
@@ -256,6 +259,7 @@ fopen_config_file(const char *filename, int src)
      * should hang around. If set, it is expected to be a full path name
      * (if relevant)
      */
+    named_configfile_opened = FALSE;
     if (filename && *filename) {
         set_configfile_name(filename);
 #ifdef UNIX
@@ -279,6 +283,7 @@ fopen_config_file(const char *filename, int src)
         } else
 #endif
         if ((fp = fopen(configfile, "r")) != (FILE *) 0) {
+            named_configfile_opened = TRUE;
             return  fp;
 #if defined(UNIX) || defined(VMS)
         } else {
@@ -2004,7 +2009,13 @@ rcfile(void)
         config_error_done();
     }
 
-    if (gc.cmdline_rcfile)
+    /* later passes (rcfile_only_this_option() for the deferred
+       mention_decor, #saveoptions' file name) need the command line's
+       file again, so keep its name while that file could be read; one
+       that couldn't be has already fallen back to the default file,
+       and asking again would repeat the open failure mid-game */
+    if (gc.cmdline_rcfile
+        && (nameval != gc.cmdline_rcfile || !named_configfile_opened))
         free((genericptr_t) gc.cmdline_rcfile), gc.cmdline_rcfile = 0;
     /*[end of evilhackrc handling]*/
 }

@@ -4199,6 +4199,7 @@ extern void set_ulycn(int);
 /* ### wield.c ### */
 
 extern void setuwep(struct obj *) NO_NNARGS; /* NULL:ball.c, do.c */
+extern void set_unweapon(struct obj *) NO_NNARGS;
 extern const char *empty_handed(void);
 extern void setuqwep(struct obj *) NO_NNARGS;  /* NULL:ball.c, do.c */
 extern void setuswapwep(struct obj *) NO_NNARGS; /* NULL: ball.c, do.c */

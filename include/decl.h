@@ -268,7 +268,7 @@ struct instance_globals_c {
     int currentgraphics;
 
     /* files.c, cfgfiles.c */
-    char *cmdline_rcfile;  /* set in unixmain.c, used in options.c */
+    char *cmdline_rcfile;  /* set in earlyarg.c, used in cfgfiles.c */
     char *config_section_chosen;
     char *config_section_current;
     boolean chosen_symset_start;
