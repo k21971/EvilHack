@@ -661,10 +661,20 @@ itemactions(struct obj *otmp)
             long Wmask = armcat_to_wornmask(objects[otmp->otyp].oc_armcat);
             struct obj *o = wearmask_to_obj(Wmask);
 
-            if (!o)
+            if (!o) {
                 Strcpy(buf, "Wear this armor");
-            else
-                Sprintf(buf, "[already wearing %s]", an(armor_simple_name(o)));
+            } else {
+                const char *wornnm = armor_simple_name(o);
+                size_t wlen = strlen(wornnm);
+
+                /* no article for a pair ("gloves", "bracers") or for
+                   mail, which isn't counted ("ring mail" -> "mail") */
+                Sprintf(buf, "[already wearing %s]",
+                        (pair_of(o)
+                         || (wlen >= 4 && !strcmpi(wornnm + wlen - 4,
+                                                   "mail")))
+                            ? wornnm : an(wornnm));
+            }
 
             ia_addmenu(win, IA_WEAR_OBJ, 'W', buf);
         }

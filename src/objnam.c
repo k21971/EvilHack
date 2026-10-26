@@ -69,6 +69,8 @@ staticfn void set_wallprop_from_str(char *) NONNULLARG1;
 staticfn struct obj *wizterrainwish(struct _readobjnam_data *);
 staticfn void dbterrainmesg(const char *, coordxy, coordxy) NONNULLARG1;
 staticfn void readobjnam_init(char *, struct _readobjnam_data *);
+staticfn int readobjnam_oilskin(struct _readobjnam_data *);
+staticfn int readobjnam_material(struct _readobjnam_data *);
 staticfn int readobjnam_preparse(struct _readobjnam_data *);
 staticfn void readobjnam_parse_charges(struct _readobjnam_data *);
 staticfn int readobjnam_postparse1(struct _readobjnam_data *);
@@ -4859,7 +4861,7 @@ staticfn int
 readobjnam_preparse(struct _readobjnam_data *d)
 {
     char *save_bp = 0;
-    int i = 0, more_l = 0, res = 1;
+    int more_l = 0, res = 1;
 
     for (;;) {
         int l;
@@ -5037,14 +5039,8 @@ readobjnam_preparse(struct _readobjnam_data *d)
                 break;
             /* "very large " had "very " peeled off on previous iteration */
             d->gsize = (d->very != 1) ? 3 : 4;
-        } else if (!strncmpi(d->bp, "oilskin ", l = 8)
-                   && strncmpi(d->bp, "oilskin cloak", 13)
-                   && strncmpi(d->bp, "oilskin sack", 12)) {
-            /* "oilskin" as a prefix for some other item is a wish for
-               the oilskin object property */
-            if (!d->objpropcount || wizard)
-                d->objprops |= ITEM_OILSKIN;
-            d->objpropcount++;
+        } else if ((l = readobjnam_oilskin(d)) != 0) {
+            ; /* just increment `bp' by `l' below */
         } else if (!strncmpi(d->bp, "real ", l = 5)) {
             /* accept "real Amulet of Yendor" with "blessed" or "cursed"
                or useless "erodeproof" before or after "real" ... */
@@ -5089,32 +5085,7 @@ readobjnam_preparse(struct _readobjnam_data *d)
                 l += more_l;
         } else {
             /* check for materials */
-            if (!strncmpi(d->bp, "silver dragon", l = 13)
-                || !strncmpi(d->bp, "gold dragon", l = 11)) {
-                /* hack so that gold/silver dragon scales doesn't get
-                 * interpreted as silver, or a wish for just "gold" doesn't
-                 * get interpreted as gold */
-                break;
-            }
-            /* doesn't currently catch "wood" for wooden */
-            for (i = 1; i < NUM_MATERIAL_TYPES; i++) {
-                l = (int) strlen(materialnm[i]);
-                if (l > 0 && !strncmpi(d->bp, materialnm[i], l)
-                    /* require a word boundary after the material name so
-                       that e.g. "silverfish" doesn't match "silver" */
-                    && (d->bp[l] == ' ' || d->bp[l] == '\0')
-                    /* it LOOKS like a wish for a material...
-                       but need to ensure that it's not just a wish for
-                       something else that happens to have a prefix of a
-                       material */
-                    && !not_spec_material(d->bp, i)) {
-                    d->material = i;
-                    if (d->bp[l] == ' ')
-                        l++;
-                    break; /* from the for loop */
-                }
-            }
-            if (i == NUM_MATERIAL_TYPES)
+            if ((l = readobjnam_material(d)) == 0)
                 /* no matching materials so no match for anything in this
                  * whole if chain */
                 break;
@@ -5124,6 +5095,56 @@ readobjnam_preparse(struct _readobjnam_data *d)
     if (save_bp)
         d->bp = save_bp;
     return res;
+}
+
+/* "oilskin" leading d->bp as a prefix for some other item is a wish for
+   the oilskin object property; returns the length to skip, or 0 */
+staticfn int
+readobjnam_oilskin(struct _readobjnam_data *d)
+{
+    if (strncmpi(d->bp, "oilskin ", 8)
+        || !strncmpi(d->bp, "oilskin cloak", 13)
+        || !strncmpi(d->bp, "oilskin sack", 12))
+        return 0;
+    if (!d->objpropcount || wizard)
+        d->objprops |= ITEM_OILSKIN;
+    d->objpropcount++;
+    return 8;
+}
+
+/* a material name leading d->bp ("leather gloves") goes in d->material;
+   returns the length to skip, the space after it included, or 0 */
+staticfn int
+readobjnam_material(struct _readobjnam_data *d)
+{
+    int i, l;
+
+    if (!strncmpi(d->bp, "silver dragon", 13)
+        || !strncmpi(d->bp, "gold dragon", 11)) {
+        /* hack so that gold/silver dragon scales doesn't get
+         * interpreted as silver, or a wish for just "gold" doesn't
+         * get interpreted as gold */
+        return 0;
+    }
+    /* doesn't currently catch "wood" for wooden */
+    for (i = 1; i < NUM_MATERIAL_TYPES; i++) {
+        l = (int) strlen(materialnm[i]);
+        if (l > 0 && !strncmpi(d->bp, materialnm[i], l)
+            /* require a word boundary after the material name so
+               that e.g. "silverfish" doesn't match "silver" */
+            && (d->bp[l] == ' ' || d->bp[l] == '\0')
+            /* it LOOKS like a wish for a material...
+               but need to ensure that it's not just a wish for
+               something else that happens to have a prefix of a
+               material */
+            && !not_spec_material(d->bp, i)) {
+            d->material = i;
+            if (d->bp[l] == ' ')
+                l++;
+            return l;
+        }
+    }
+    return 0;
 }
 
 staticfn void
@@ -5273,20 +5294,29 @@ readobjnam_postparse1(struct _readobjnam_data *d)
      * -- boots, gloves, and lenses -- are also not mergeable, so cnt is
      * ignored anyway.
      */
-    if (!strncmpi(d->bp, "pair of ", 8)) {
+    if (!strncmpi(d->bp, "pair of ", i = 8)) {
         d->bp += 8;
         /* doubling a huge count would overflow; atoi() can also
            yield a negative one */
         if (d->cnt > 0 && d->cnt <= INT_MAX / 2)
             d->cnt *= 2;
-    } else if (!strncmpi(d->bp, "pairs of ", 9)) {
+    } else if (!strncmpi(d->bp, "pairs of ", i = 9)) {
         d->bp += 9;
         if (d->cnt > 1 && d->cnt <= INT_MAX / 2)
             d->cnt *= 2;
-    } else if (!strncmpi(d->bp, "set of ", 7)) {
-        d->bp += 7;
-    } else if (!strncmpi(d->bp, "sets of ", 8)) {
-        d->bp += 8;
+    } else if (!strncmpi(d->bp, "set of ", i = 7)
+               || !strncmpi(d->bp, "sets of ", i = 8)) {
+        d->bp += i;
+    } else {
+        i = 0;
+    }
+    /* xname() puts the oilskin property and the material after "pair
+       of" / "set of" ("pair of leather gloves"), past the prefixes
+       readobjnam_preparse() looked at */
+    if (i) {
+        d->bp += readobjnam_oilskin(d);
+        if (!d->material)
+            d->bp += readobjnam_material(d);
     }
 
     /* Intercept pudding globs here; they're a valid wish target,

@@ -3582,7 +3582,9 @@ do_genocide(
     if (how & PLAYER) {
         mndx = u.umonster; /* non-polymorphed mon num */
         ptr = &mons[mndx];
-        Strcpy(buf, pmname(ptr, Ugender));
+        /* the natural form, so its sex too */
+        Strcpy(buf, pmname(ptr, (Upolyd ? u.mfemale : flags.female)
+                                    ? FEMALE : MALE));
         killplayer++;
     } else {
         buf[0] = '\0'; /* init for EDIT_GETLIN */

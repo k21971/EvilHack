@@ -646,7 +646,9 @@ struct _hitmon_data {
 };
 
 #define Upolyd (u.umonnum != u.umonster)
-#define Ugender ((Upolyd ? u.mfemale : flags.female) ? 1 : 0)
+/* the current form's sex; while polymorphed flags.female holds the
+   form's and u.mfemale the natural one */
+#define Ugender (flags.female ? 1 : 0)
 
 #define druid_form \
     (Role_if(PM_DRUID) && all_druid_forms(monsndx(gy.youmonst.data)))
