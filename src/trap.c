@@ -3285,6 +3285,7 @@ trapeffect_landmine(
                              || (trflags & FAILEDUNTRAP) != 0);
         boolean forcebungle = (trflags & FORCEBUNGLE) != 0;
         unsigned steed_mid = 0;
+        coordxy tx = trap->tx, ty = trap->ty;
         struct obj *saddle = 0;
         struct obj *barding = 0;
         struct obj *abarding = 0;
@@ -3339,12 +3340,13 @@ trapeffect_landmine(
         /* fetch surviving floor tack AFTER the explosion -- scatter()
            inside blow_up_landmine() can break and free metallic barding,
            so capturing the pointers earlier risks a use-after-free inside
-           keep_barding_with_steedcorpse() */
-        saddle = sobj_at(SADDLE, u.ux, u.uy);
-        barding = sobj_at(BARDING, u.ux, u.uy);
-        abarding = sobj_at(RUNED_BARDING, u.ux, u.uy);
-        sbarding = sobj_at(SPIKED_BARDING, u.ux, u.uy);
-        rbarding = sobj_at(BARDING_OF_REFLECTION, u.ux, u.uy);
+           keep_barding_with_steedcorpse(); it lies where the steed died,
+           on the mine's spot, wherever the hero has gone since */
+        saddle = sobj_at(SADDLE, tx, ty);
+        barding = sobj_at(BARDING, tx, ty);
+        abarding = sobj_at(RUNED_BARDING, tx, ty);
+        sbarding = sobj_at(SPIKED_BARDING, tx, ty);
+        rbarding = sobj_at(BARDING_OF_REFLECTION, tx, ty);
         if (steed_mid && saddle && !u.usteed)
             (void) keep_saddle_with_steedcorpse(steed_mid, fobj, saddle);
         if (steed_mid && barding && !u.usteed)
@@ -3355,13 +3357,15 @@ trapeffect_landmine(
             (void) keep_barding_with_steedcorpse(steed_mid, fobj, sbarding);
         if (steed_mid && rbarding && !u.usteed)
             (void) keep_barding_with_steedcorpse(steed_mid, fobj, rbarding);
-        newsym(u.ux, u.uy); /* update trap symbol */
-        /* fall recursively into the pit... */
-        if ((trap = t_at(u.ux, u.uy)) != 0)
+        newsym(tx, ty); /* update trap symbol */
+        /* fall recursively into the pit, unless the falling drawbridge
+           or a life-saved hero's escape from its water moved the hero
+           off the mine's spot (whatever trap waits there already went) */
+        if (u_at(tx, ty) && (trap = t_at(u.ux, u.uy)) != 0)
             dotrap(trap, RECURSIVETRAP);
-        fill_pit(u.ux, u.uy);
+        fill_pit(tx, ty);
     } else {
-        boolean trapkilled = FALSE;
+        boolean trapkilled = FALSE, youmade;
         boolean in_sight = canseemon(mtmp) || (mtmp == u.usteed);
         coordxy tx = trap->tx, ty = trap->ty;
 
@@ -3396,15 +3400,20 @@ trapeffect_landmine(
         if (!in_sight && !Deaf)
             pline("Kaablamm!  %s an explosion in the distance!",
                   "You hear");  /* Deaf-aware */
+        /* blow_up_landmine() frees the trap when the hole fills with
+           water or lava or a drawbridge goes, so note whose it was */
+        youmade = trap->madeby_u ? TRUE : FALSE;
         blow_up_landmine(trap);
+        trap = (struct trap *) 0;
         /* explosion might have destroyed a drawbridge; don't
            dish out more damage if monster is already dead */
         if (DEADMONSTER(mtmp)
-            || thitm(0, mtmp, (struct obj *) 0, damage, FALSE,
-                     trap->madeby_u ? TRUE : FALSE)) {
+            || thitm(0, mtmp, (struct obj *) 0, damage, FALSE, youmade)) {
             trapkilled = TRUE;
-        } else {
-            /* monsters recursively fall into new pit */
+        } else if (mtmp->mx == tx && mtmp->my == ty) {
+            /* monsters recursively fall into new pit; not one that the
+               water or the bridge's fall moved elsewhere, which would
+               set off whatever trap waits there */
             if (mintrap(mtmp, trflags | FORCETRAP) == Trap_Killed_Mon)
                 trapkilled = TRUE;
         }
@@ -3810,9 +3819,10 @@ steedintrap(struct trap *trap, struct obj *otmp)
 void
 blow_up_landmine(struct trap *trap)
 {
-    coordxy x = trap->tx, y = trap->ty, dbx, dby;
+    coordxy x = trap->tx, y = trap->ty, dbx = x, dby = y;
     struct rm *lev = &levl[x][y];
     schar old_typ, typ;
+    boolean db_stands = FALSE;
 
     old_typ = lev->typ;
     set_trap_ammo(trap, (struct obj *) 0); /* useup the land mine obj */
@@ -3821,22 +3831,28 @@ blow_up_landmine(struct trap *trap)
                    (struct obj *) 0);
     del_engr_at(x, y);
     wake_nearto(x, y, 400);
-    if (IS_DOOR(lev->typ))
+    /* destroy drawbridge if present, lowered or raised; if under the
+       portcullis, the bridge is adjacent */
+    if (find_drawbridge(&dbx, &dby)) {
+        destroy_drawbridge(dbx, dby);
+        if (IS_DRAWBRIDGE(levl[dbx][dby].typ))
+            /* a protected one refused; leave span and portcullis be */
+            db_stands = TRUE;
+        else if (old_typ == DRAWBRIDGE_UP && lev->typ == ICE)
+            /* the frozen moat under a raised span is plain ice now;
+               spot_checks() would otherwise stop its melt timer */
+            old_typ = ICE;
+    } else if (IS_DOOR(lev->typ)) {
         lev->doormask = D_BROKEN;
-    /* destroy drawbridge if present */
-    if (lev->typ == DRAWBRIDGE_DOWN || is_drawbridge_wall(x, y) >= 0) {
-        dbx = x, dby = y;
-        /* if under the portcullis, the bridge is adjacent */
-        if (find_drawbridge(&dbx, &dby))
-            destroy_drawbridge(dbx, dby);
     }
     trap = t_at(x, y); /* expected to be null after destruction */
     /* or could be null if scatter blew up oil which melted ice */
     /* convert landmine into pit */
     if (trap) {
-        if (Is_waterlevel(&u.uz) || Is_airlevel(&u.uz)) {
+        if (db_stands || Is_waterlevel(&u.uz) || Is_airlevel(&u.uz)) {
             /* no pits here */
             deltrap(trap);
+            newsym(x, y);
         } else {
             /* fill pit with water, if applicable */
             typ = fillholetyp(x, y, FALSE);
