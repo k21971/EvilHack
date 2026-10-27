@@ -2560,12 +2560,20 @@ artifact_hit(
                                        : vulnerable_to(mdef, AD_FIRE)
                                          ? "severely burn" : "burn";
 
-                pline_The("%s %s%s %s%c",
-                          otmp->oclass == WEAPON_CLASS
-                              ? distant_name(otmp, xname)
-                              : simpleonames(otmp),
-                          otense(otmp, verb), partly ? " part of" : "",
-                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+                /* a blind hero only feels a monster's weapon; the hero's
+                   own (a cursed one turning, one tossed up) is known */
+                if (youdefend && Blind && !carried(otmp)
+                    && otmp != gt.thrownobj)
+                    You_feel("something %s%s you%c", verb,
+                             partly ? " part of" : "",
+                             !gs.spec_dbon_applies ? '.' : '!');
+                else
+                    pline_The("%s %s%s %s%c",
+                              otmp->oclass == WEAPON_CLASS
+                                  ? distant_name(otmp, xname)
+                                  : simpleonames(otmp),
+                              otense(otmp, verb), partly ? " part of" : "",
+                              hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
         if ((otmp->oprops & ITEM_FIRE) && gs.spec_dbon_applies) {
@@ -2687,12 +2695,20 @@ artifact_hit(
                                      : vulnerable_to(mdef, AD_COLD)
                                        ? "severely freeze" : "freeze";
 
-                pline_The("%s %s%s %s%c",
-                          otmp->oclass == WEAPON_CLASS
-                              ? distant_name(otmp, xname)
-                              : simpleonames(otmp),
-                          otense(otmp, verb), partly ? " part of" : "",
-                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+                /* a blind hero only feels a monster's weapon; the hero's
+                   own (a cursed one turning, one tossed up) is known */
+                if (youdefend && Blind && !carried(otmp)
+                    && otmp != gt.thrownobj)
+                    You_feel("something %s%s you%c", verb,
+                             partly ? " part of" : "",
+                             !gs.spec_dbon_applies ? '.' : '!');
+                else
+                    pline_The("%s %s%s %s%c",
+                              otmp->oclass == WEAPON_CLASS
+                                  ? distant_name(otmp, xname)
+                                  : simpleonames(otmp),
+                              otense(otmp, verb), partly ? " part of" : "",
+                              hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
         if ((otmp->oprops & ITEM_FROST) && gs.spec_dbon_applies) {
@@ -2731,12 +2747,19 @@ artifact_hit(
                                      ? "severely shock"
                                      : rn2(2) ? "jolt" : "shock";
 
-                pline_The("%s %s %s%c",
-                          otmp->oclass == WEAPON_CLASS
-                              ? distant_name(otmp, xname)
-                              : simpleonames(otmp),
-                          otense(otmp, verb),
-                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+                /* a blind hero only feels a monster's weapon; the hero's
+                   own (a cursed one turning, one tossed up) is known */
+                if (youdefend && Blind && !carried(otmp)
+                    && otmp != gt.thrownobj)
+                    You_feel("something %s you%c", verb,
+                             !gs.spec_dbon_applies ? '.' : '!');
+                else
+                    pline_The("%s %s %s%c",
+                              otmp->oclass == WEAPON_CLASS
+                                  ? distant_name(otmp, xname)
+                                  : simpleonames(otmp),
+                              otense(otmp, verb),
+                              hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
         if ((otmp->oprops & ITEM_SHOCK) && gs.spec_dbon_applies) {
@@ -2806,9 +2829,16 @@ artifact_hit(
                                        ? "hit"
                                        : rn2(2) ? "infect" : "poison";
 
-                pline_The("%s %s %s%c",
-                          distant_name(otmp, xname), otense(otmp, verb),
-                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+                /* a blind hero only feels a monster's weapon; the hero's
+                   own (a cursed one turning, one tossed up) is known */
+                if (youdefend && Blind && !carried(otmp)
+                    && otmp != gt.thrownobj)
+                    You_feel("something %s you%c", verb,
+                             !gs.spec_dbon_applies ? '.' : '!');
+                else
+                    pline_The("%s %s %s%c",
+                              distant_name(otmp, xname), otense(otmp, verb),
+                              hittee, !gs.spec_dbon_applies ? '.' : '!');
             }
         }
         if ((otmp->oprops & ITEM_VENOM) && gs.spec_dbon_applies) {

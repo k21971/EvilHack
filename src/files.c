@@ -3966,6 +3966,7 @@ livelog_add(long ll_type, const char *str)
     FILE *livelogfile;
     time_t now;
     int gindx, aindx;
+    long realtime;
 
     if (!(ll_type & sysopt.livelog))
         return;
@@ -3989,18 +3990,24 @@ livelog_add(long ll_type, const char *str)
                -128 unaligned;
            so subtracting from 1 converts between the aligned values */
         aindx = (u.ualign.type == A_NONE) ? 3 : 1 - u.ualign.type;
+        /* play time in seconds, as master's line has it; once the game
+           is over, really_done() has already added the final session */
+        realtime = urealtime.realtime;
+        if (!program_state.gameover && urealtime.start_timing)
+            realtime += timet_delta(now, urealtime.start_timing);
         /* format relies on STD C's implicit concatenation of
            adjacent string literals */
         (void) fprintf(livelogfile,
-                       "lltype=%ld"  LLOG_SEP  "name=%s"       LLOG_SEP
-                       "role=%s"     LLOG_SEP  "race=%s"       LLOG_SEP
-                       "gender=%s"   LLOG_SEP  "align=%s"      LLOG_SEP
-                       "turns=%ld"   LLOG_SEP  "starttime=%ld" LLOG_SEP
-                       "curtime=%ld" LLOG_SEP  "message=%s"    LLOG_EOL,
+                       "lltype=%ld"    LLOG_SEP  "name=%s"       LLOG_SEP
+                       "role=%s"       LLOG_SEP  "race=%s"       LLOG_SEP
+                       "gender=%s"     LLOG_SEP  "align=%s"      LLOG_SEP
+                       "turns=%ld"     LLOG_SEP  "realtime=%ld"  LLOG_SEP
+                       "starttime=%ld" LLOG_SEP  "curtime=%ld"   LLOG_SEP
+                       "message=%s"    LLOG_EOL,
                        (ll_type & sysopt.livelog), svp.plname,
                        gu.urole.filecode, gu.urace.filecode,
                        genders[gindx].filecode, aligns[aindx].filecode,
-                       svm.moves, timet_to_seconds(ubirthday),
+                       svm.moves, realtime, timet_to_seconds(ubirthday),
                        timet_to_seconds(now), str);
         (void) fclose(livelogfile);
         unlock_file(LIVELOGFILE);

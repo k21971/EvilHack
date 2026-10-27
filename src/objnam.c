@@ -4007,6 +4007,7 @@ static const struct alt_spellings {
     { "drow boots", DARK_ELVEN_BOOTS },
     /* armor */
     { "gloves", GLOVES },
+    { "gauntlets", GAUNTLETS }, /* not o_ranges[]'s random pick */
     { "bracers", BRACERS },
     { "runed bracers", RUNED_BRACERS },
     { (const char *) 0, 0 },

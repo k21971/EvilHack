@@ -985,7 +985,10 @@ symparse_find(const void *bstr_, const void *rec_)
         }
     }
 
-    return 0;
+    /* the key is used up; a name that goes on past it only starts with
+       it (S_lava is not S_lavawall), and sorts after it as in
+       symparse_compare() */
+    return ((*rec)->name[bstr->len] != '\0') ? -1 : 0;
 }
 
 /*
