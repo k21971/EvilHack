@@ -20012,7 +20012,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       uses ("You feel something severely burn you!", "... freeze you!",
       "... jolt you!" / "... shock you!", "... poison you!" /
       "... infect you!"); sighted lines unchanged. Plannable.
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2618, master
+      CLOSED 2026-10-27 (session 265, 7bef3db5f; BUG-2618, master
       frozen-unfixed). The four object-property arms of artifact_hit()
       print the ruled line for a blind hero hit by a weapon the hero
       does not carry and did not throw (reviewer MEDIUM: a cursed
@@ -20055,7 +20055,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       property, and a bare "gauntlets" wish always gives plain
       gauntlets (gauntlets of power by name only). Master
       frozen-unfixed. Plannable.
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2617, master
+      CLOSED 2026-10-27 (session 265, 7bef3db5f; BUG-2617, master
       frozen-unfixed). spellings[] has `{ "gauntlets", GAUNTLETS }`,
       which alt_spelling_otyp() reads before o_ranges[]. Battery A:
       5x "gauntlets of fire" PRE 4 plain + 1 gauntlets of power, POST
@@ -21741,7 +21741,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       keep `name=`, add `realtime=`, and census master's 0.9.3 livelog
       fields against the fork's at plan time for any other field the
       fork drops. Unblocked; plannable.
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2619). The
+      CLOSED 2026-10-27 (session 265, 7bef3db5f; BUG-2619). The
       census found realtime= the only missing field (player= -> name=
       as ruled; no per-event fields on either tree); livelog_add()
       writes it between turns= and starttime=, as master does, with
@@ -25966,7 +25966,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero lands on solid ground within the chain's reach, still
       chained; with no such spot the hero still falls (the recorded
       no-landing-spot row). Plannable.
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2620).
+      CLOSED 2026-10-27 (session 265, b8b1f24d5; BUG-2620).
       spoteffects() calls chain_pulls_rider_off() for a tethered rider
       on a steed that is not airborne: chain_landing() (the spot search
       chain_catches_hero() now shares) finds the spot, "The chain pulls
@@ -26762,7 +26762,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       rules - the deferred fall angers only a shopkeeper, as the
       immediate one does; a peaceful that later walks onto the hole
       keeps mintrap()'s walk-on roll. Plannable.
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2621).
+      CLOSED 2026-10-27 (session 265, b8b1f24d5; BUG-2621).
       mon_unsupported_fall() passes the new LOSTSUPPORT trap flag
       (hack.h 0x200U); for it mintrap() angers only a shopkeeper with
       make_angry_shk(), gated as mlevel_tele_trap() lets it fall (not
@@ -26784,7 +26784,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-26 (ruling round after session 262): grass cracks
       into a pit like the floor, releasing whoever it holds. Master
       frozen-unfixed. Plannable.
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2622, master
+      CLOSED 2026-10-27 (session 265, b8b1f24d5; BUG-2622, master
       frozen-unfixed). do_earthquake() sends GRASS to do_pit() with
       ROOM / CORR; do_pit() runs grass_gone_release() right after
       maketrap() (stress test and
@@ -31909,7 +31909,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       from a player's config; the symbol lands in the wrong slot.
       Found 2026-07-14 and never applied here. Fix: return -1 when the
       entry's name continues past the key (the upstream patch).
-      CLOSED 2026-10-27 (session 265, commit pending; BUG-2616; master's
+      CLOSED 2026-10-27 (session 265, 7bef3db5f; BUG-2616; master's
       linear match_sym() needed an exact name). The patch's line, with
       a branch-style comment. Battery A (gdb match_sym()): PRE S_worm ->
       S_WORM_TAIL and S_ANT -> S_anti_magic_trap (S_lava and S_human
