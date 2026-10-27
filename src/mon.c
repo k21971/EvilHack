@@ -8903,7 +8903,7 @@ mon_unsupported_fall(struct monst *mtmp)
         yelp(mtmp);
         return FALSE;
     }
-    trapret = mintrap(mtmp, FORCETRAP);
+    trapret = mintrap(mtmp, FORCETRAP | LOSTSUPPORT);
     return (trapret == Trap_Killed_Mon || trapret == Trap_Moved_Mon
             || DEADMONSTER(mtmp) || mon_offmap(mtmp));
 }

@@ -4497,8 +4497,17 @@ mintrap(struct monst *mtmp, unsigned mintrapflags)
         /* Monster is aggravated by being trapped by you.
            Recognizing who made the trap isn't completely
            unreasonable; everybody has their own style. */
-        if (trap->madeby_u && rnl(5))
+        if (trap->madeby_u && (mintrapflags & LOSTSUPPORT) != 0) {
+            /* a hold or lift gave out over a hole the hero dug: the
+               drop is the dig's, so only a shopkeeper minds, as when
+               the hole opened under it (digactualhole()); a bottom
+               level's hole lets it stand (mlevel_tele_trap()) */
+            if (mtmp->isshk
+                && (!Is_botlevel(&u.uz) || Is_stronghold(&u.uz)))
+                make_angry_shk(mtmp, 0, 0);
+        } else if (trap->madeby_u && rnl(5)) {
             setmangry(mtmp, FALSE);
+        }
 
         trap_result = trapeffect_selector(mtmp, trap, mintrapflags);
 

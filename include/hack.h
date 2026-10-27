@@ -382,7 +382,9 @@ enum dismount_types {
     DISMOUNT_POLY     = 4,
     DISMOUNT_ENGULFED = 5,
     DISMOUNT_BONES    = 6,
-    DISMOUNT_BYCHOICE = 7
+    DISMOUNT_BYCHOICE = 7,
+    DISMOUNT_CHAIN    = 8  /* a buried ball's chain pulls the hero off a
+                            * walking steed over open air */
 };
 
 struct dgn_topology { /* special dungeon levels for speed */
@@ -1422,6 +1424,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define FAILEDUNTRAP  0x40U /* trap activated by failed untrap attempt */
 #define HURTLING      0x80U /* monster is hurtling through air */
 #define ESCAPETRAP    0x100U /* monster jumped onto the trap to escape */
+#define LOSTSUPPORT   0x200U /* hold or lift ended over a hole */
 
 /* Flags to control test_move in hack.c */
 #define DO_MOVE 0   /* really doing the move */

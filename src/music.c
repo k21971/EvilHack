@@ -237,8 +237,24 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
         return; /* no pit if portal at that location */
     chasm->tseen = 1;
 
+    /* a boulder or liquid may fill the chasm (below); a hero who will
+       meet it open loses a chain waiting behind an entangling hold
+       first, as the hero arm breaks it, so that the release can't hand
+       the hero to it */
+    otmp = sobj_at(BOULDER, x, y);
+    filltype = otmp ? ROOM : fillholetyp(x, y, FALSE);
+    if (!otmp && filltype == ROOM && u_at(x, y) && u_tethered() && u.utrap
+        && u.utraptype == TT_ENTANGLED) {
+        Your("chain breaks!");
+        end_buried_tether(TRUE);
+    }
+    /* the chasm took the grass that held the hero or a monster
+       (maketrap() made it floor and unhid whoever it covered); the
+       arms below decide who drops */
+    grass_gone_release(x, y);
+
     mtmp = m_at(x, y);
-    if ((otmp = sobj_at(BOULDER, x, y)) != 0) {
+    if (otmp) {
         if (cansee(x, y))
             pline("KADOOM!  The boulder falls into a chasm%s!",
                   u_at(x, y) ? " below you" : "");
@@ -252,7 +268,6 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
     /* Let liquid flow into the newly created chasm.
        Adjust corresponding code in apply.c for exploding
        wand of digging if you alter this sequence. */
-    filltype = fillholetyp(x, y, FALSE);
     if (filltype != ROOM) {
         set_levltyp(x, y, filltype); /* levl[x][y] = filltype; */
         liquid_flow(x, y, filltype, chasm, (char *) 0);
@@ -265,7 +280,10 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
     /* We have to check whether monsters or hero falls into a
        new pit....  Note: if we get here, chasm is non-Null. */
     if (mtmp) {
+        /* a live tree's branches or roots hold it above the chasm, as
+           they do the hero */
         if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)
+            && !mon_tree_held(mtmp)
             && !(mtmp->wormno && worm_hit[mtmp->wormno])) {
             boolean m_already_trapped = mtmp->mtrapped;
 
@@ -335,8 +353,8 @@ do_pit(coordxy x, coordxy y, unsigned tu_pit,
         } else if (!tu_pit || !u.utrap || u.utraptype != TT_PIT) {
             /* no pit here previously, or you were
                not in it even if there was; a hold the pit replaces (the
-               floor, grass) may have kept lift down, which a pit lets
-               through: told after the fall, floating out of the pit */
+               floor) may have kept lift down, which a pit lets through:
+               told after the fall, floating out of the pit */
             boolean was_Lev = (Levitation != 0), was_Fly = (Flying != 0);
 
             You("fall into a chasm!");
@@ -491,6 +509,7 @@ do_earthquake(int force, boolean player_caused)
                 /*FALLTHRU*/
             case CORR:
             case ROOM:
+            case GRASS: /* cracks like the floor; do_pit() lets go its holds */
                 do_pit(x, y, tu_pit, quake_worm_hit, player_caused);
                 break;
             case SDOOR:

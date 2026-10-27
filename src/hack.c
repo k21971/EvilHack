@@ -23,8 +23,12 @@ staticfn boolean trapmove(coordxy, coordxy, struct trap *);
 staticfn int QSORTCALLBACK notice_mons_cmp(const genericptr,
                                            const genericptr) NONNULLPTRS;
 staticfn boolean steed_keeps_dry(void);
+staticfn void chain_pull_msg(void);
 staticfn void chain_pulls_off_steed(void);
+staticfn boolean chain_landing(coord *) NONNULLARG1;
+staticfn void chain_set_down(coordxy, coordxy, boolean);
 staticfn boolean chain_catches_hero(boolean);
+staticfn boolean chain_pulls_rider_off(boolean);
 staticfn schar u_simple_floortyp(coordxy, coordxy);
 staticfn boolean swim_declined(coordxy, coordxy);
 staticfn boolean swim_move_danger(coordxy, coordxy, boolean);
@@ -1950,6 +1954,15 @@ steed_keeps_dry(void)
                 || (mon_airborne(u.usteed) && !u_held_down())));
 }
 
+/* a buried iron ball's chain takes the hero off the steed */
+staticfn void
+chain_pull_msg(void)
+{
+    pline_The("chain pulls you off %s!",
+              x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
+                       (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+}
+
 /* the hero's steed flies or floats, but a hold keeps the pair down over
    water, lava or open air: the steed itself can stay up, so the hero
    comes off it (the caller dismounts); only a buried iron ball's chain
@@ -1959,17 +1972,16 @@ chain_pulls_off_steed(void)
 {
     if (u.usteed && mon_airborne(u.usteed) && u_held_down()
         && (u.utraptype == TT_BURIEDBALL || u.utether_pending))
-        pline_The("chain pulls you off %s!",
-                  x_monnam(u.usteed, ARTICLE_YOUR, (char *) 0,
-                           (SUPPRESS_SADDLE | SUPPRESS_BARDING), FALSE));
+        chain_pull_msg();
 }
 
-/* a hero chained to a buried iron ball, about to fall over open air, is
-   held by the chain anchored in the ground and pulled back onto solid
-   ground within its reach, still chained; FALSE when there is no such
-   spot (or no ball) and the fall goes ahead */
+/* where the chain on a buried iron ball can set a hero down who is over
+   open air: solid ground within its reach, the spot the hero came from
+   when that will do; FALSE when there is none (or no ball). A region may
+   refuse entry, and one that lets the hero in has been entered, so on
+   TRUE the caller must move the hero to *spot */
 staticfn boolean
-chain_catches_hero(boolean pick)
+chain_landing(coord *spot)
 {
     coord cc, spots[8];
     coordxy x, y;
@@ -2009,11 +2021,18 @@ chain_catches_hero(boolean pick)
     }
     if (!n)
         return FALSE;
+    *spot = spots[i];
+    return TRUE;
+}
 
-    pline_The("chain pulls you back onto solid ground!");
+/* the chain sets the hero down at x,y; not teleds(), which would dig up
+   the ball for a hero over open air, so the hero stays chained to it */
+staticfn void
+chain_set_down(coordxy x, coordxy y, boolean pick)
+{
     notice_mon_off();
     u.ux0 = u.ux, u.uy0 = u.uy;
-    u_on_newpos(spots[i].x, spots[i].y);
+    u_on_newpos(x, y);
     u.umoved = TRUE;
     if (u.ustuck && !u.uswallow && !next2u(u.ustuck->mx, u.ustuck->my)) {
         if (sticks(gy.youmonst.data))
@@ -2035,6 +2054,42 @@ chain_catches_hero(boolean pick)
     spoteffects(pick);
     notice_mon_on();
     notice_all_mons(TRUE);
+}
+
+/* a hero chained to a buried iron ball, about to fall over open air, is
+   held by the chain anchored in the ground and pulled back onto solid
+   ground within its reach, still chained; FALSE when there is no such
+   spot (or no ball) and the fall goes ahead */
+staticfn boolean
+chain_catches_hero(boolean pick)
+{
+    coord cc;
+
+    if (!chain_landing(&cc))
+        return FALSE;
+    pline_The("chain pulls you back onto solid ground!");
+    chain_set_down(cc.x, cc.y, pick);
+    return TRUE;
+}
+
+/* the same chain holds a rider whose walking steed steps onto open air:
+   it pulls the hero off onto solid ground within its reach, still
+   chained, and the steed goes over the drop alone; FALSE when there is
+   no such spot (or no ball) and the pair falls */
+staticfn boolean
+chain_pulls_rider_off(boolean pick)
+{
+    coord cc;
+
+    if (!chain_landing(&cc))
+        return FALSE;
+    chain_pull_msg();
+    dismount_steed(DISMOUNT_CHAIN);
+    if (u.usteed) {
+        impossible("chain_pulls_rider_off: still mounted?");
+        return FALSE;
+    }
+    chain_set_down(cc.x, cc.y, pick);
     return TRUE;
 }
 
@@ -4053,6 +4108,10 @@ spoteffects(boolean pick)
         /* a chain anchored in solid ground holds the hero over the drop
            and pulls them back onto it */
         if (u_tethered() && !u.usteed && chain_catches_hero(pick))
+            goto spotdone;
+        /* a walking steed goes over the drop alone */
+        if (u_tethered() && u.usteed && !mon_airborne(u.usteed)
+            && chain_pulls_rider_off(pick))
             goto spotdone;
         /* only a ball that is itself over the drop pulls the hero down */
         if (Punished && !carried(uball)

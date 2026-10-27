@@ -1230,6 +1230,13 @@ landing_spot(
     struct trap *t;
     struct monst *steed = u.usteed;
 
+    /* the chain sets the hero down itself (chain_pulls_rider_off());
+       the steed is let go where the pair stands */
+    if (reason == DISMOUNT_CHAIN) {
+        spot->x = u.ux, spot->y = u.uy;
+        return TRUE;
+    }
+
     /* open air is no landing for a hero whose own lift, not the
        steed's, won't keep them up there (a hold keeps it down) */
     u.usteed = 0; /* affects the Flying test */
@@ -1392,6 +1399,7 @@ dismount_steed(
             have_spot = landing_spot(&cc, reason, 1);
         break;
     case DISMOUNT_ENGULFED:
+    case DISMOUNT_CHAIN:
         /* caller displays message */
         break;
     case DISMOUNT_BONES:
@@ -1492,7 +1500,10 @@ dismount_steed(
         /* Set hero's and/or steed's positions.  Usually try moving the
            hero first.  Note: for DISMOUNT_ENGULFED, caller hasn't set
            u.uswallow yet but has set u.ustuck. */
-        if (!u.uswallow && !u.ustuck && have_spot) {
+        /* the chain's set-down breaks a hold the hero is pulled out of
+           (chain_set_down()) */
+        if (!u.uswallow && (!u.ustuck || reason == DISMOUNT_CHAIN)
+            && have_spot) {
             struct permonst *mdat = mtmp->data;
 
             /* The steed may drop into water/lava */
@@ -1565,7 +1576,16 @@ dismount_steed(
              * autopickup before falling into the hole).
              */
             /* [ALI] No need to move the player if the steed died. */
-            if (!DEADMONSTER(mtmp)) {
+            if (reason == DISMOUNT_CHAIN) {
+                /* the caller sets the hero down; cc is the drop the
+                   steed was let go over, and one still standing there
+                   is moved off it */
+                if (!DEADMONSTER(mtmp)) {
+                    impossible("dismount_steed: chained steed survived?");
+                    if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
+                        rloc_to(mtmp, cc.x, cc.y);
+                }
+            } else if (!DEADMONSTER(mtmp)) {
                 /* Keep steed here, move the player to cc;
                  * teleds() clears u.utrap
                  */
@@ -1620,9 +1640,13 @@ dismount_steed(
 
     /* usually return the hero to the surface */
     if (reason != DISMOUNT_ENGULFED && reason != DISMOUNT_BONES) {
-        gi.in_steed_dismounting = TRUE;
-        (void) float_down(0L, W_SADDLE);
-        gi.in_steed_dismounting = FALSE;
+        /* a walking steed lent the hero no lift, and the hero is still
+           over the drop: the chain's set-down meets the new spot */
+        if (reason != DISMOUNT_CHAIN) {
+            gi.in_steed_dismounting = TRUE;
+            (void) float_down(0L, W_SADDLE);
+            gi.in_steed_dismounting = FALSE;
+        }
         disp.botl = TRUE;
         encumber_msg();
         gv.vision_full_recalc = 1;
