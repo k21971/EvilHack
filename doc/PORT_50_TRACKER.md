@@ -26814,6 +26814,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       and takes the damage; digactualhole()'s pit arm floats them over
       it ("flies / floats over the pit"). A fix changes every quake
       square. Decide: digactualhole()'s exclusions, or record.
+      RULED 2026-10-27 (maintainer, after session 265, AskUserQuestion):
+      STAY UP, SILENT - do_pit()'s monster arm takes digactualhole()'s
+      test (is_flyer(), is_floater(), can_levitate(), can_fly(); the
+      is_clinger() and mon_tree_held() skips stay) and prints nothing
+      for a monster that stays over the chasm, as the quake is quiet;
+      rejected digactualhole()'s "<Mon> floats / flies over the
+      chasm." line and recording. Master frozen-unfixed. Plannable.
 - [ ] LOW: the earthquake never cracks sand (minted 2026-10-27, session
       265 reviewer; master-shared; needs a ruling). SAND (rm.h 38) is
       IS_ROOM floor terrain like GRASS (no hiding in it on the branch),
@@ -33848,7 +33855,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
-| 2026-10-27 | Quake terrain ruling (after session 265, asked in conversation): SAND CRACKS like GRASS and floor, and neither gets a line for the terrain itself - an empty cracked square just shows its pit; a held hero or monster still gets the release and fall lines. Rejected adding "The grass splits open." style feedback. The floaters / flyers quake row stays open. | maintainer |
+| 2026-10-27 | Quake terrain ruling (after session 265, asked in conversation): SAND CRACKS like GRASS and floor, and neither gets a line for the terrain itself - an empty cracked square just shows its pit; a held hero or monster still gets the release and fall lines. Rejected adding "The grass splits open." style feedback. Then (AskUserQuestion x1, as recommended) the floaters / flyers row: STAY UP, SILENT - floaters and monsters that can levitate or fly stay over a quake chasm (digactualhole()'s test) with no line; rejected the dig code's "floats / flies over" line and recording. | maintainer |
 | 2026-10-26 | ROUTING SPLIT (after session 264): "resume phase 2" is the EvilHack port only and "resume 5.0 fixes" is the vanilla 5.0 upstream PR work, each with its own session record and NEXT. A Phase 2 slice that finds a vanilla bug fixes it on the branch and mints the Upstream-reportable row but cuts no patch; patches are cut in 5.0 fixes sessions against a fresh upstream head. Supersedes (8) of the ruling round after session 262 and the "each new slice cuts its own rows" clause of the re-ruling below. The send queue and Upstream-reportable table belong to the fixes track; one session counter serves both. | maintainer |
 | 2026-10-26 | Upstream triage ruling (AskUserQuestion x1, after the triage slice found six player-text buffer overflows - pick_lock() qbuf, chest_trap() buf[80], aobjnam() into the next obuf slot, do_screen_description() with a long engraving, nh_snprintf() at size 0, the empty CMD_PARAM bind): they go out as PUBLIC PRs from the PR fork like the rest of the crash class, one patch per bug, with no private report to the devteam (over my private-email pick; NetHack ships setgid on servers and the 3.6.x overflows were handled as security releases). | maintainer |
 | 2026-10-26 | Upstream patch re-ruling (AskUserQuestion x1, four questions; supersedes (8) of the ruling round below, which assumed about 70 unsent rows - a census found 207 rows, none marked sent, about 183 branch-fixed, about 18 unfixed, 4 withdrawn, 2 fork-only; of the 24 /root/nh50-*.patch files 16 apply on 15fbc6b21, 6 are prose write-ups with sketch hunks and 2 drifted). (1) SCHEDULE: A TRIAGE SLICE FIRST - fetch current upstream into a scratch clone (Official_nh50 stays frozen), mark rows upstream already fixed, reconcile with what the PR fork already sent, rank by severity, re-cut the 6 write-ups and 2 drifted patches; then catch-up cuts in priority order, and each new slice cuts its own rows. (2) SCOPE: THE CRASH CLASS FIRST (about 60 crash / panic / memory / overflow rows), then the maintainer decides on the gameplay, message and display rows. (3) CHANNEL: GITHUB PULL REQUESTS from the maintainer's PR fork /home/build/official_nh5_fork (origin k21971/official_nh5_fork, upstream NetHack/NetHack, base NetHack-5.0); no recommendation was offered. (4) BATCHING: ONE PATCH PER BUG, over my series-by-area pick. | maintainer |
