@@ -17,8 +17,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   detectors slice ported first per plan - see Phase 2 checklist
   notes; landed e265bd879). Phase 1 COMPLETE 2026-07-13 (gate
   PASSED) except roles-side follow-ups logged in its section
-- Phase 2 status (refreshed 2026-10-26, after session 262's
-  eleven-row slice): 533 rows closed, 113 open
+- Phase 2 status (refreshed 2026-10-27, after session 265's
+  ruled-rows slice: seven rows closed, two quake LOW rows minted):
+  540 rows closed, 108 open
   (the two [~]
   umbrellas, Materials and Racial monsters, were never counted and
   are now closed). Of the open rows:
@@ -20000,7 +20001,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "freeze", "jolt", "infect" on POST (PRE singular); one dagger and
       the pair of gloves singular on both; a monster's stack "burn you";
       a "dagger of decay" arrives without the property on both.
-- [ ] LOW: a blind hero still sees the weapon named on the property hit
+- [x] LOW: a blind hero still sees the weapon named on the property hit
       lines (minted 2026-10-24, session 259 Plan agent; needs a wording
       ruling). The fire / frost / shock / venom lines print "The daggers
       of fire burn you!" while blind; the drain arm has a Blind
@@ -20011,6 +20012,20 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       uses ("You feel something severely burn you!", "... freeze you!",
       "... jolt you!" / "... shock you!", "... poison you!" /
       "... infect you!"); sighted lines unchanged. Plannable.
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2618, master
+      frozen-unfixed). The four object-property arms of artifact_hit()
+      print the ruled line for a blind hero hit by a weapon the hero
+      does not carry and did not throw (reviewer MEDIUM: a cursed
+      weapon turning on the hero and a dagger tossed up stay named);
+      named artifacts unchanged. Battery A: blind, PRE "The elven
+      dagger of fire burns you!", POST "You feel something burn you!",
+      "... freeze you!", "... shock / jolt you!", "... poison /
+      infect you!", "You feel something hit you." for a poison
+      resistant hero; sighted and hero-attacking lines equal. Battery
+      C (with the fold): a blind hero's cursed dagger of fire turning
+      reads "The dagger of fire burns you!" and one tossed up "The
+      dagger burns you!" (before the fold "You feel something burn
+      you!"); a monster's still "You feel something burn you!".
 - [x] LOW: a wish for gloves or gauntlets with a property fails (minted
       2026-10-24, session 259 battery D; branch regression).
       readobjnam() skips the property scan for any text holding
@@ -20027,7 +20042,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       of fumbling, POST leather gloves of fumbling (master's shape);
       "gauntlets of fire" PRE fails, POST four of five gauntlets of power
       with the property in wizard mode - LOW row below.
-- [ ] LOW: a "gauntlets of <property>" wish picks among all gauntlets
+- [x] LOW: a "gauntlets of <property>" wish picks among all gauntlets
       (minted 2026-10-25, session 261 Plan agent and battery A;
       master-shared). With the property cut, "gauntlets" is an
       o_ranges[] class name (GAUNTLETS..GAUNTLETS_OF_POWER, 12:8), so
@@ -20040,6 +20055,13 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       property, and a bare "gauntlets" wish always gives plain
       gauntlets (gauntlets of power by name only). Master
       frozen-unfixed. Plannable.
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2617, master
+      frozen-unfixed). spellings[] has `{ "gauntlets", GAUNTLETS }`,
+      which alt_spelling_otyp() reads before o_ranges[]. Battery A:
+      5x "gauntlets of fire" PRE 4 plain + 1 gauntlets of power, POST
+      5 plain with fire; 5x "gauntlets" PRE 4 + 1 power, POST 5 plain;
+      power, fumbling, dexterity, protection, ogre power, "gloves of
+      fire" and "leather gloves of fire" equal on both.
 - [x] LOW: a monster's turn undead spell kills as "a wand of undead
       turning" (minted 2026-10-13, session 223, by the census;
       master-shared). unturn_you() hard-codes the wand's name and
@@ -21708,7 +21730,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "Your corpse is forced from your hand!" -> "Your newt corpse is
       ...". RECORDED (both builds): taking the suit off reads "You finish
       taking off your dragon mail." (suit_simple_name()'s scaled arm).
-- [ ] LOW: livelog line format vs master (minted 2026-10-21, session
+- [x] LOW: livelog line format vs master (minted 2026-10-21, session
       248, ruled). Master's 0.9.3 livelog line carries `realtime=`
       (play seconds, `(long)` cast 5a17e1fd7) and names the player
       `player=`; the branch's NetHack50 (Hardfought fork) line has
@@ -21719,6 +21741,16 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       keep `name=`, add `realtime=`, and census master's 0.9.3 livelog
       fields against the fork's at plan time for any other field the
       fork drops. Unblocked; plannable.
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2619). The
+      census found realtime= the only missing field (player= -> name=
+      as ruled; no per-event fields on either tree); livelog_add()
+      writes it between turns= and starttime=, as master does, with
+      botl_realtime()'s guard (master's formula counts the last
+      session twice in lines written after really_done()). Master's
+      LLC_TURNS filter is a filter, not a field: noted on the sysconf
+      row. Battery A: PRE no field; POST realtime 0, 24, 25 ... 220,
+      non-decreasing, = curtime - start_timing; a staged LL_DUMP quit
+      line realtime=78 after an in-game 57, not doubled.
 - [x] LOW: archive carries absent outside their slices (minted
       2026-10-21, session 248, by the status slice's archive sweep;
       verify each before porting). BUG-600: restgamestate()'s
@@ -25922,7 +25954,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       stay. Battery B: a step onto AIR within reach and a tree letting
       go of a levitating hero over AIR, PRE plummet, POST caught, still
       tethered, alive.
-- [ ] LOW: a tethered rider on a grounded steed plummets with it over
+- [x] LOW: a tethered rider on a grounded steed plummets with it over
       open air (minted 2026-10-26, session 262, Plan agent; needs a
       ruling). spoteffects()'s pull-off arm needs an airborne steed and
       chain_catches_hero() is unmounted-only, so a chained pair on a
@@ -25934,6 +25966,24 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       hero lands on solid ground within the chain's reach, still
       chained; with no such spot the hero still falls (the recorded
       no-landing-spot row). Plannable.
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2620).
+      spoteffects() calls chain_pulls_rider_off() for a tethered rider
+      on a steed that is not airborne: chain_landing() (the spot search
+      chain_catches_hero() now shares) finds the spot, "The chain pulls
+      you off <steed>!", dismount_steed(DISMOUNT_CHAIN) lets the steed
+      go on the air square (its open-air arm: plummet, "You feel
+      guilty.", -1 alignment), and chain_set_down() moves the hero
+      without teleds(), so the ball stays buried; no float_down().
+      Battery B1: PRE plummet + Die?; POST "The chain pulls you off
+      your pony!" / "The saddled pony plummets several thousand feet
+      to its death.  You feel guilty.", hero on the square they came
+      from, still tethered, record -1; no-spot control plummets on
+      both; the pegasus (BUG-2402) and unmounted controls equal; a
+      levitating rider gets no "float up from the chain" line. Battery
+      C: a holder next to the landing square keeps its hold; one that
+      is not prints "Startled, the lichen can no longer hold you!".
+      RECORDED: after the same line BUG-2402's airborne arm digs the
+      ball up (Punished) while this arm keeps the tether.
 - [ ] LOW: a blind Punished hero's map keeps a felt chain after the
       chain is dragged away (minted 2026-10-26, session 262, battery E;
       vanilla-shared, record). feel_location() clears BC_CHAIN once the
@@ -26700,7 +26750,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       finds it in grass_gone_release() / tree_gone_release(); the hold
       runs out on its timer. stucksteed() ignores mentangled, so it is
       cosmetic.
-- [ ] LOW: the deferred hole fall runs mintrap()'s walk-on anger roll
+- [x] LOW: the deferred hole fall runs mintrap()'s walk-on anger roll
       (minted 2026-10-24, session 259 reviewer pass 2; needs a ruling).
       A peaceful whose tree hold or levitation ends over a hole the hero
       dug falls through mintrap(FORCETRAP), whose madeby_u && rnl(5)
@@ -26712,12 +26762,21 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       rules - the deferred fall angers only a shopkeeper, as the
       immediate one does; a peaceful that later walks onto the hole
       keeps mintrap()'s walk-on roll. Plannable.
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2621).
+      mon_unsupported_fall() passes the new LOSTSUPPORT trap flag
+      (hack.h 0x200U); for it mintrap() angers only a shopkeeper with
+      make_angry_shk(), gated as mlevel_tele_trap() lets it fall (not
+      on a bottom level other than the Castle), and skips the rnl(5)
+      roll. Battery B2: PRE 10/12 peaceful dwarves angered ("You feel
+      guilty.  The dwarf gets angry!"), alignment 0 -> -50; POST 0/12,
+      alignment 0; walk-on mintrap() control PRE 6/6, POST 4/5
+      angered; shopkeepers PRE 3/4, POST 4/4 ("<shk> gets angry!").
 - [ ] LOW: a flying form polymorphed into a grounded one over a hole
       stays up (minted 2026-10-24, session 259 reviewer pass 2; record).
       maybe_set_terrain_effects() handles the liquid case and leaves
       other terrains as a TODO; a fix would flag nonflyer_vs_hole only
       when the old form was airborne.
-- [ ] LOW: the earthquake never cracks grass (minted 2026-10-24,
+- [x] LOW: the earthquake never cracks grass (minted 2026-10-24,
       session 259 battery B7; master the same). do_earthquake()'s
       switch has no GRASS case, so a grass square never gets a chasm
       while the floor around it does. A fix must also release whoever
@@ -26725,6 +26784,42 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       RULED 2026-10-26 (ruling round after session 262): grass cracks
       into a pit like the floor, releasing whoever it holds. Master
       frozen-unfixed. Plannable.
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2622, master
+      frozen-unfixed). do_earthquake() sends GRASS to do_pit() with
+      ROOM / CORR; do_pit() runs grass_gone_release() right after
+      maketrap() (stress test and
+      reviewer folds: a chain waiting behind an entangling hold breaks
+      first when the hero will meet the open chasm, so the release
+      can't hand the hero to it; a tree-held monster no longer falls
+      into a new chasm, as digactualhole() keeps it up). Battery B2:
+      PRE grass unchanged and both still entangled; POST "The
+      vegetation releases the dwarf.  The dwarf falls into a chasm!
+      The vegetation releases you." / "You fall into a chasm!", grass
+      typ ROOM + PIT; tree-held dwarf PRE falls in, POST stays up.
+      The first B2.6 staging buried the ball under the hero's own
+      square, where maketrap()'s unearth_objs() brings it up first
+      (BUG-2606; floor does the same) - re-staged in battery C: ball on
+      a neighbouring square, do_pit() on the grass alone, "Your chain
+      breaks!  The vegetation releases you.  You fall into a chasm!",
+      no "still chained"; beside three pools 3 of 4 chasms flooded:
+      "The vegetation releases you.  You are still chained to the
+      buried ball." then the water, no chain break (floor's outcome).
+      The reviewer's grass-hider LOW did not reproduce: maketrap()
+      already calls maybe_unhide_at(), so no call was added.
+- [ ] LOW: the earthquake drops floaters and levitating or flying-capable
+      monsters into its chasms (minted 2026-10-27, session 265 Plan
+      agent; master-shared; needs a ruling). do_pit()'s monster arm
+      skips only is_flyer() and is_clinger() forms, so a floating eye,
+      a levitating monster or one that can_fly() "falls into a chasm!"
+      and takes the damage; digactualhole()'s pit arm floats them over
+      it ("flies / floats over the pit"). A fix changes every quake
+      square. Decide: digactualhole()'s exclusions, or record.
+- [ ] LOW: the earthquake never cracks sand (minted 2026-10-27, session
+      265 reviewer; master-shared; needs a ruling). SAND (rm.h 38) is
+      IS_ROOM floor terrain like GRASS (no hiding in it on the branch),
+      and do_earthquake()'s switch has no case for it on either tree.
+      Decide: sand cracks like floor (maketrap() makes it ROOM), or
+      record.
 - [x] LOW: monsters left entangled on another level never count
       down (minted 2026-10-18, session 239 follow-up, from the vine
       census; port loss, master parity). Master's
@@ -31804,7 +31899,7 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       shows the colon form glyph:G_pool:U+224B/0-0-160; the parser and
       upstream's silence on unknown G_ names stay. Plannable
       (upstream-reportable docs).
-- [ ] LOW: a symbols keyword can match a longer symbol name (minted
+- [x] LOW: a symbols keyword can match a longer symbol name (minted
       2026-10-26, upstream triage; vanilla-shared, upstream patch
       nh50-symparse-prefix-match.patch). symbols.c symparse_find(), the
       bsearch() comparator behind match_sym(), returns 0 once the key
@@ -31814,6 +31909,13 @@ BATTERY (2026-09-16, T6 on the branch): with a ring of polymorph
       from a player's config; the symbol lands in the wrong slot.
       Found 2026-07-14 and never applied here. Fix: return -1 when the
       entry's name continues past the key (the upstream patch).
+      CLOSED 2026-10-27 (session 265, commit pending; BUG-2616; master's
+      linear match_sym() needed an exact name). The patch's line, with
+      a branch-style comment. Battery A (gdb match_sym()): PRE S_worm ->
+      S_WORM_TAIL and S_ANT -> S_anti_magic_trap (S_lava and S_human
+      happened to resolve right on this build); POST every key returns
+      its own name, controls equal. The upstream patch stays in the 5.0
+      fixes send queue.
 - [x] LOW: a wish that merges into a stack prints "k - a blood-red
       potion" with no period and no total (minted 2026-10-08, session
       193, battery anomaly, seen on PRE and POST). A wish that starts
@@ -33084,7 +33186,10 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       DUMPLOGFILE / DUMPHTMLFILE point at nethack/dumplog/%t.nh.txt
       and .nh.html (master: evilhack/dumplog/%t.evil.txt and
       .evil.html); master's LLC_TURNS=3000 (no conduct livelogs
-      before turn 3000) and its SERVERSEED / SERVERSEED_FILE lines
+      before turn 3000; session 265's livelog census: the branch has
+      no code for it either - no sysopt.ll_conduct_turns, no
+      cfgfiles.c parse, no livelog_add() filter, so restoring it is a
+      port, not a sysconf line) and its SERVERSEED / SERVERSEED_FILE lines
       are missing (check what 5.0 still reads; see the serverseed
       row above); RECOVER is DONE (2026-10-25, BUG-2585: "Start the
       game again to attempt recovery.", ruled; sysconf.template too);
@@ -33738,6 +33843,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-26 | ROUTING SPLIT (after session 264): "resume phase 2" is the EvilHack port only and "resume 5.0 fixes" is the vanilla 5.0 upstream PR work, each with its own session record and NEXT. A Phase 2 slice that finds a vanilla bug fixes it on the branch and mints the Upstream-reportable row but cuts no patch; patches are cut in 5.0 fixes sessions against a fresh upstream head. Supersedes (8) of the ruling round after session 262 and the "each new slice cuts its own rows" clause of the re-ruling below. The send queue and Upstream-reportable table belong to the fixes track; one session counter serves both. | maintainer |
 | 2026-10-26 | Upstream triage ruling (AskUserQuestion x1, after the triage slice found six player-text buffer overflows - pick_lock() qbuf, chest_trap() buf[80], aobjnam() into the next obuf slot, do_screen_description() with a long engraving, nh_snprintf() at size 0, the empty CMD_PARAM bind): they go out as PUBLIC PRs from the PR fork like the rest of the crash class, one patch per bug, with no private report to the devteam (over my private-email pick; NetHack ships setgid on servers and the 3.6.x overflows were handled as security releases). | maintainer |
 | 2026-10-26 | Upstream patch re-ruling (AskUserQuestion x1, four questions; supersedes (8) of the ruling round below, which assumed about 70 unsent rows - a census found 207 rows, none marked sent, about 183 branch-fixed, about 18 unfixed, 4 withdrawn, 2 fork-only; of the 24 /root/nh50-*.patch files 16 apply on 15fbc6b21, 6 are prose write-ups with sketch hunks and 2 drifted). (1) SCHEDULE: A TRIAGE SLICE FIRST - fetch current upstream into a scratch clone (Official_nh50 stays frozen), mark rows upstream already fixed, reconcile with what the PR fork already sent, rank by severity, re-cut the 6 write-ups and 2 drifted patches; then catch-up cuts in priority order, and each new slice cuts its own rows. (2) SCOPE: THE CRASH CLASS FIRST (about 60 crash / panic / memory / overflow rows), then the maintainer decides on the gameplay, message and display rows. (3) CHANNEL: GITHUB PULL REQUESTS from the maintainer's PR fork /home/build/official_nh5_fork (origin k21971/official_nh5_fork, upstream NetHack/NetHack, base NetHack-5.0); no recommendation was offered. (4) BATCHING: ONE PATCH PER BUG, over my series-by-area pick. | maintainer |
 | 2026-10-26 | Ruling round after session 262 (AskUserQuestion x2, eight questions; the five rulings as recommended, two of the three input items over my picks). (1) TETHERED RIDER: THE CHAIN PULLS THE RIDER OFF a grounded steed over open air, the steed falls alone, the hero lands within the chain's reach still chained; rejected record (both fall). (2) DEFERRED HOLE FALL: THE DIG RULES (only a shopkeeper angers); rejected mintrap()'s walk-on roll. (3) EARTHQUAKE: GRASS CRACKS into a pit and releases whoever it holds; rejected record. (4) GAUNTLETS: THE `{ "gauntlets", GAUNTLETS }` ALIAS; rejected record. (5) BLIND PROPERTY HIT LINES: "You feel something <verb> you!"; rejected "Something burns you!" and the drain arm's "an object". (6) LIVELOG: THE FORK'S FORMAT PLUS WHAT IT IS MISSING (keep `name=`, add `realtime=`, census master's other fields at plan time), over my master's-format pick; rejected the fork's line alone and staying blocked. (7) UNSEEN-PEACEFUL CARVE-OUT: LEAVE BOTH, over my extend-both pick - only walking into an unseen peaceful costs Luck; a telekinetic object, a thrown or kicked object is a form of attack and keeps the full alignment penalty. Closes the July scope-cut follow-up. Follow-up: the walking bump keeps master c5cd67948's intent (maintainer-confirmed) - the peaceful still turns hostile with every knock-on effect, and the hero pays Luck (-2, LUCKMIN for a co-aligned priest) instead of alignment; the branch already matches (wakeup_accidental() / setmangry_accidental(), the cached-glyph and canspotmon() guards, peacefuls_respond()'s flag), so no row. (8) UPSTREAM PATCH CUTS: EACH PHASE 2 SLICE CUTS ITS OWN NEW UPSTREAM ROWS, plus ONE CATCH-UP SLICE for the existing unsent backlog; rejected one catch-up only and waiting for Phase 2's end. Sending stays the maintainer's. | maintainer |
