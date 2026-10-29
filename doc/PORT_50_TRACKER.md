@@ -33945,11 +33945,13 @@ so the numbers above stay put. By the sort rule 53 belongs with #22-#23,
 54. no BUG id (2026-10-28 row; leak / normal play, intermittent):
     nhl_alloc() asks lua_gc() inside a __gc finalizer, gets -1 and
     refuses the call's allocation, so the finalizer never runs - to cut;
-    branch-fixed BUG-2627 (session 270; patch base).
+    branch-fixed BUG-2627 (session 270; patch base). MOVED TO THE FRONT
+    by the maintainer (2026-10-29): cut with #55 ahead of #22.
 55. no BUG id (2026-10-28 row; undefined behavior / latent): a nested
     nhl_pcall() leaves the step limit's jmp_buf in a dead frame - to
     cut; branch-fixed BUG-2628 (session 270; patch base); reproduced by
-    session 270's battery T3 (SIGSEGV in panic()).
+    session 270's battery T3 (SIGSEGV in panic()). MOVED TO THE FRONT
+    by the maintainer (2026-10-29): cut with #54 ahead of #22.
 
 Re-tiered 2026-10-28 out of #12 (vault.c, 5.0 fixes session 267); by the
 sort rule 56 belongs with #43-#44 and 57 with #41-#42:
@@ -34113,6 +34115,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-29 | Upstream send-queue priority (asked in conversation after Phase 2 session 270, AskUserQuestion x1, as recommended): #54 (Lua finalizers refused memory) and #55 (a nested nhl_pcall()'s dead jump, reproduced by session 270 as a crash) MOVE TO THE FRONT - both have battery-tested branch fixes (BUG-2627 / BUG-2628, commit 853d88409) to cut from; the queue continues at #22 after them. | maintainer |
 | 2026-10-28 | Crash-MED slice rulings (Phase 2 session 270, AskUserQuestion x4, all as recommended). (1) SLICE (multiSelect): the three crash-class MED rows the 5.0 fixes sessions minted, plus TNNT's V2 / V3 / V5 on the branch. (2) HARP LINE: an angry shopkeeper calmed by any taming route prints only "<Shk> calms down."; the harp's 5.0 "seems more amiable" line is skipped for shopkeepers and kept for other monsters. (3) TAME VAMPIRES: fold in master a54040738 + 8cf05e229 (and 88a376bdd, the same feature's rescham() hunk, found by the Plan agent): a tame vampire stays a vampire, and protection from shape changers or cancellation does not force a pet back; pets still lose a disguise (5.0's sanity check). (4) RING OFF: fix master's freeze (m_restartcham() re-arms only an empty cham), master frozen-unfixed. Decided without asking: the Lua cap keeps its old semantics; the per-call step refills stay; weffects() takes upstream's current_wand test; a blind hero hears "calms down" (make_happy_shk() has no visibility gate). | maintainer |
 | 2026-10-28 | Upstream send-queue priority and quickmimic rulings (5.0 fixes session 269). (1) PRIORITY (asked in conversation): send queue #53, TNNT's V1 (mon_arrive() reverts a shape changer before placing it; three TNNT fuzz stops, two of them Vlad on a Vlad's Tower ladder) MOVES TO THE FRONT and is cut ahead of #22. (2) QUICKMIMIC (AskUserQuestion x1, as recommended): the audit's separate newsym(<0,0>) from mon_catchup_elapsed_time() -> finish_meating() before placement gets a C-latent row and queue entry #58, cut only once a producer is found; rejected a second patch now and folding it into #53's patch. | maintainer |
 | 2026-10-28 | Upstream bag-of-holding blast cut rulings (5.0 fixes session 268, AskUserQuestion x1, three questions, all as recommended). (1) #21 BONES SHAPE: what an in-use bag still holds when the hero dies GOES WITH THE BAG in the vanilla patch (resetobjs() calls delete_contents()), matching a carried bag, whose contents inven_inuse() -> useup() already deletes; rejected the branch's ITEMS LAND shape (BUG-2425, ruled 2026-10-19), which stays branch-only and would need done_object_cleanup() and a new global upstream. (2) PACKAGING: separate patches, send order #21, #19, #20, with #19's message naming #21's subject - #19 marks the bag in use before a bag-of-holding trigger's blast, so without #21 dying in that window would turn vanilla's whole-bag bones into a "dealloc_obj with cobj" panic; rejected merging #19 and #21. REVERSED the same session (maintainer, after the cut): #19 and #21 go out as ONE patch, nh50-boh-blast-in-use.patch, so PRs approved out of order or with a delay between them can never leave #19 landed without #21; #20 stays its own patch (independent hunk, safe alone). (3) #19 SCOPE: cover every mover the audit found - impact_drop() (the hole), autopickup (a pyrolisk egg's fire melting ice under a swimming hero) and polymon()'s drop_weapon() of a wielded carried bag in the trigger window (in_container() and tipcontainer() mark the bag in use, carried or on the floor); rejected hole-only with new rows. | maintainer |
