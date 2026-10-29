@@ -476,8 +476,11 @@ explode(
 
         tmp_at(DISP_END, 0); /* clear the explosion */
     } else {
-        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE)
+        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE) {
             str = "explosion";
+            /* unseen, so don't name the shapeshifter's form either */
+            unmorphed_str = (const char *) 0;
+        }
         if (!Deaf && olet != SCROLL_CLASS) {
             Soundeffect(se_blast, 75);
             You_hear("a blast.");
@@ -542,6 +545,7 @@ explode(
                                 s_suffix(rndmonnam((char *) 0)));
                     } while (*hallu_buf != lowc(*hallu_buf) && ++tryct < 20);
                     str = hallu_buf;
+                    unmorphed_str = (const char *) 0;
                 }
                 if (engulfing_u(mtmp)) {
                     engulfer_explosion_msg(adtyp, olet);
@@ -660,6 +664,7 @@ explode(
                             s_suffix(rndmonnam((char *) 0)));
                 } while (*hallu_buf != lowc(*hallu_buf));
                 str = hallu_buf;
+                unmorphed_str = (const char *) 0;
             }
             You("are caught in the %s%s!",
                 unmorphed_str ? s_suffix(unmorphed_str) : str,

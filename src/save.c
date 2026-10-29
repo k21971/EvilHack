@@ -103,8 +103,11 @@ dosave0(void)
     done_object_cleanup(); /* maybe force some items onto map */
 
     /* ensure SAVEF is set; pcmain sets it at startup but the player
-       name may have changed since then (strstrplay, strstrstrplay) */
-    set_savefile_name(TRUE);
+       name may have changed since then (strstrplay, strstrstrplay);
+       not for a panic save, whose error-file name panic() has just
+       set via set_error_savefile() */
+    if (!program_state.panicking)
+        set_savefile_name(TRUE);
     if (!program_state.something_worth_saving || !gs.SAVEF[0])
         goto done;
 
@@ -977,6 +980,10 @@ savemonchn(NHFILE *nhfp, struct monst *mtmp)
             savemon(nhfp, mtmp);
             if (mtmp->minvent)
                 saveobjchn(nhfp, &mtmp->minvent);
+        } else if (mtmp->minvent && release_data(nhfp)) {
+            /* only freeing: release the inventory without writing it,
+               or dealloc_monst() below would leak it */
+            saveobjchn(nhfp, &mtmp->minvent);
         }
         if (release_data(nhfp)) {
             if (mtmp == svc.context.polearm.hitmon) {
