@@ -174,7 +174,7 @@ if percent(10) then
 	des.monster({id="watch captain", name="Vimes", female=0, peaceful=1})
 end
 if percent(10) then
-	des.monster({id="dwarf", name="Cheery", female=1, peaceful=1, keep_default_invent=false}) -- no pick-axe
+	des.monster({id="mountain dwarf", name="Cheery", female=1, peaceful=1, keep_default_invent=false}) -- no pick-axe
 end
 if percent(10) then
 	des.monster({id="clay golem", name="Dorfl", female=0, peaceful=1, keep_default_invent=false})
