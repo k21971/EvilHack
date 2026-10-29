@@ -735,12 +735,13 @@ mon_arrive(struct monst *mtmp, int when)
     fromdlev.dnum = mtmp->mtrack[2].x;
     fromdlev.dlevel = mtmp->mtrack[2].y;
     mon_track_clear(mtmp);
-    /* in case Protection_from_shape_changers is different now from when
-       'mtmp' went onto the migrating monsters list; that's handled in
-       getlev() when returning to a previously visited level and by the
-       special level code for monsters specified in the level, but needed
-       here for monsters migrating to a newly created level */
-    restore_cham(mtmp);
+    /* restore_cham() below: in case Protection_from_shape_changers is
+       different now from when 'mtmp' went onto the migrating monsters
+       list; that's handled in getlev() when returning to a previously
+       visited level and by the special level code for monsters specified
+       in the level, but needed here for monsters migrating to a newly
+       created level; it waits until 'mtmp' is on the map because
+       reverting to normal shape redisplays it at <mx,my> */
 
     if (mtmp == u.usteed || mtmp->ridden_by) {
         if (mtmp->ridden_by) {
@@ -760,6 +761,11 @@ mon_arrive(struct monst *mtmp, int when)
                steed along - it must stay on fmon for that relmon,
                keeping the pair on the same monster list */
         }
+        /* the hero's steed is already at the hero's spot and a monster's
+           steed mirrors its rider; one whose rider could not arrive
+           reverts when the pair finally does */
+        if (mtmp->mx)
+            restore_cham(mtmp);
         mtmp->mstate &= ~MON_STILL_ARRIVING;
         return; /* don't place steed on the map */
     }
@@ -774,6 +780,9 @@ mon_arrive(struct monst *mtmp, int when)
             rloc_to(mtmp, u.ux, u.uy);
         else
             mnexto(mtmp, RLOC_NOMSG);
+        /* mnexto() might have put it in limbo */
+        if (mtmp->mx && !DEADMONSTER(mtmp))
+            restore_cham(mtmp);
         mtmp->mstate &= ~MON_STILL_ARRIVING;
         return;
     } else if (when == Wiz_arrive) {
@@ -939,6 +948,8 @@ mon_arrive(struct monst *mtmp, int when)
             relmon(mtmp, &failed_arrivals);
         else /* when==Wiz_arrive => not being called by losedogs() */
             m_into_limbo(mtmp);
+    } else if (!DEADMONSTER(mtmp)) { /* in case placement killed it */
+        restore_cham(mtmp);
     }
     mtmp->mstate &= ~MON_STILL_ARRIVING;
 }
@@ -1689,7 +1700,7 @@ tamedog(
     struct obj *obj, /* food or scroll/spell */
     boolean givemsg)
 {
-    boolean blessed_scroll = FALSE;
+    boolean blessed_scroll = FALSE, was_peaceful;
     struct monst *holder;
 
     if (obj && (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS)) {
@@ -1803,8 +1814,10 @@ tamedog(
     if (mtmp->ridden_by)
         return FALSE;
 
-    /* worst case, at least it'll be peaceful. */
-    if (givemsg && !mtmp->mpeaceful && canspotmon(mtmp)) {
+    /* worst case, at least it'll be peaceful; a shopkeeper's own line
+       comes from make_happy_shk() below */
+    was_peaceful = mtmp->mpeaceful ? TRUE : FALSE;
+    if (givemsg && !mtmp->mpeaceful && !mtmp->isshk && canspotmon(mtmp)) {
         pline_mon(mtmp, "%s seems %s.", Monnam(mtmp),
               Hallucination ? "really chill" : "more amiable");
         givemsg = FALSE; /* don't give another message below */
@@ -1825,13 +1838,15 @@ tamedog(
             redraw_worm(mtmp);
     }
 
+    /* a shopkeeper in either form goes on to be pacified below */
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
-        && mtmp->data->mlet == S_DOG)
+        && mtmp->data->mlet == S_DOG && !mtmp->isshk)
         return FALSE;
 
     if ((Role_if(PM_CONVICT)
          || (!Upolyd && Race_if(PM_DRAUGR) && !is_undead(mtmp->data)))
-        && is_domestic(mtmp->data) && !mtmp->mtame && obj) {
+        && is_domestic(mtmp->data) && !mtmp->mtame && obj
+        && !mtmp->isshk) {
         /* domestic animals are wary of Convicts and the walking dead */
         pline("%s still looks wary of you.", Monnam(mtmp));
         return FALSE;
@@ -1899,8 +1914,11 @@ tamedog(
         }
         return FALSE; /* didn't just get tamed */
     }
-    /* pacify angry shopkeeper but don't tame him/her/it/them */
+    /* pacify angry shopkeeper but don't tame him/her/it/them; with the
+       old disposition back, make_happy_shk() says "calms down" for an
+       angry one (it makes the shopkeeper peaceful again itself) */
     if (mtmp->isshk) {
+        mtmp->mpeaceful = was_peaceful;
         make_happy_shk(mtmp, FALSE);
         return FALSE;
     }

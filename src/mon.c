@@ -37,6 +37,8 @@ staticfn void m_respond_gnome(struct monst *);
 staticfn void m_respond_support(struct monst *);
 staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
+staticfn void normal_appearance(struct monst *);
+staticfn void rescham_mon(struct monst *);
 staticfn void m_restartcham(struct monst *);
 staticfn boolean restrap(struct monst *);
 staticfn boolean can_hide_under_pile(struct monst *, coordxy, coordxy);
@@ -7381,6 +7383,15 @@ normal_shape(struct monst *mon)
     if (is_were(mon->data) && !racial_human(mon)) {
         new_were(mon);
     }
+    normal_appearance(mon);
+}
+
+/* drop a mimic's or quickmimicking pet's disguise; also done for a pet,
+   which keeps its form under Protection_from_shape_changers or when
+   cancelled, because no disguise is allowed to outlast either */
+staticfn void
+normal_appearance(struct monst *mon)
+{
     if (M_AP_TYPE(mon) != M_AP_NOTHING) {
         /* this used to include a cansee() check but Protection_from_
            _shape_changers shouldn't be trumped by being unseen */
@@ -7649,19 +7660,32 @@ damage_mon_nonlethal(struct monst *mon, int amount, int type,
     return FALSE;
 }
 
+/* a pet keeps whatever form it has, but not a disguise */
+staticfn void
+rescham_mon(struct monst *mtmp)
+{
+    if (mtmp->mtame)
+        normal_appearance(mtmp);
+    else
+        normal_shape(mtmp);
+}
+
 /* force all chameleons and mimics to become themselves and werecreatures
-   to revert to human form; called when Protection_from_shape_changers gets
-   activated via wearing or eating ring or via #wizintrinsic */
+   to revert to human form, except that pets only lose a disguise; called
+   when Protection_from_shape_changers gets activated via wearing or
+   eating ring or via #wizintrinsic */
 void
 rescham(void)
 {
-    iter_mons(normal_shape);
+    iter_mons(rescham_mon);
 }
 
 staticfn void
 m_restartcham(struct monst *mtmp)
 {
-    if (!mtmp->mcan)
+    /* a pet kept its shape-changing under the protection; its current
+       form, which may not be its own, must not replace it */
+    if (!mtmp->mcan && mtmp->cham == NON_PM)
         mtmp->cham = pm_to_cham(monsndx(mtmp->data));
     if (mtmp->data->mlet == S_MIMIC && mtmp->msleeping) {
         set_mimic_sym(mtmp);
@@ -7684,9 +7708,15 @@ void
 restore_cham(struct monst *mon)
 {
     if (Protection_from_shape_changers || mon->mcan) {
-        /* force chameleon or mimic to revert to its natural shape */
-        normal_shape(mon);
-    } else if (mon->cham == NON_PM) {
+        if (!mon->mtame) {
+            /* force chameleon or mimic to revert to its natural shape */
+            normal_shape(mon);
+            return;
+        }
+        /* a pet keeps its form, but not a disguise */
+        normal_appearance(mon);
+    }
+    if (mon->cham == NON_PM) {
         /* chameleon doesn't change shape here, just gets allowed to do so */
         mon->cham = pm_to_cham(monsndx(mon->data));
     }
@@ -8020,7 +8050,9 @@ decide_to_shapeshift(struct monst *mon)
                 }
             }
         } else {
-            if (mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
+            /* if we're already in vampire form and are tame, don't shift
+               back to an animal/fog form */
+            if (!mon->mtame && mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
                 && (!canseemon(mon)
                     || mdistu(mon) > BOLT_LIM * BOLT_LIM))
                 dochng = TRUE; /* 'ptr' stays Null */

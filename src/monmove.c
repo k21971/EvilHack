@@ -3500,8 +3500,10 @@ can_ooze(struct monst *mtmp)
 boolean
 can_fog(struct monst *mtmp)
 {
+    /* a tame vampire keeps its vampire form */
     if (!(svm.mvitals[PM_FOG_CLOUD].mvflags & G_GENOD) && is_vampshifter(mtmp)
-        && !Protection_from_shape_changers && !stuff_prevents_passage(mtmp))
+        && !Protection_from_shape_changers && !stuff_prevents_passage(mtmp)
+        && !mtmp->mtame)
         return TRUE;
     return FALSE;
 }
