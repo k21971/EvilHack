@@ -466,7 +466,7 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         /* mplayers arriving in Purgatory sometimes control their fall */
         if (on_level(&purgstart_level, &u.uz) && rn2(2)) {
             (void) mongets(mtmp, RIN_TELEPORT_CONTROL);
-            m_dowear(mtmp, FALSE);
+            m_dowear(mtmp, TRUE);
         }
 
         if (ascending) {

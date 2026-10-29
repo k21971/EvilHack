@@ -1800,7 +1800,7 @@ m_initweap(struct monst *mtmp)
             if (on_level(&astral_level, &u.uz) && !rn2(3)) {
                 otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
                 (void) mpickobj(mtmp, otmp);
-                m_dowear(mtmp, FALSE);
+                m_dowear(mtmp, TRUE);
             }
         }
         break;
@@ -2537,7 +2537,7 @@ m_initinv(struct monst *mtmp)
             /* some insurance against 'purple rain' */
             if (on_level(&astral_level, &u.uz) && rn2(2)) {
                 (void) mongets(mtmp, RIN_SLOW_DIGESTION);
-                m_dowear(mtmp, FALSE);
+                m_dowear(mtmp, TRUE);
             }
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
@@ -4552,7 +4552,7 @@ mongets(struct monst *mtmp, int otyp)
         if (mtmp->data == &mons[PM_MEDUSA]) {
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 7)
                 otmp->spe = rn2(3) + 3;
-            otmp->blessed = TRUE;
+            bless(otmp);
             (void) maybe_erodeproof(otmp, 1);
         }
 

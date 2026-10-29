@@ -347,7 +347,7 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
                     /* completing the quest frees the bell of opening
                        from its 'curse' */
                     if ((otmp = carrying(BELL_OF_OPENING)) != 0)
-                        otmp->blessed = 1;
+                        bless(otmp);
                     adjalign(5); /* god happy, much yay */
                     u.uluck += 3; /* increase luck */
                     /* leader still gives the artifact their special
@@ -429,7 +429,7 @@ finish_quest(struct obj *obj) /* quest artifact or thrown unique item or faux
             /* completing the quest frees the bell of opening
                from its 'curse' */
             if ((otmp = carrying(BELL_OF_OPENING)) != 0)
-                otmp->blessed = 1;
+                bless(otmp);
             /* behave as if leader imparts sufficient info about the
                quest artifact */
             if (!Qstat(pissed_off)) {

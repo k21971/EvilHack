@@ -615,7 +615,7 @@ priestini(
         /* some insurance against 'purple rain' */
         if (on_level(&astral_level, &u.uz)) {
             (void) mongets(priest, RIN_SLOW_DIGESTION);
-            m_dowear(priest, FALSE);
+            m_dowear(priest, TRUE);
         }
         /* 2 to 4 spellbooks */
         for (cnt = rn1(3, 2); cnt > 0; --cnt) {
