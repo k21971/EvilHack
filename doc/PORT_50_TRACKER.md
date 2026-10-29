@@ -32799,6 +32799,65 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       root-level symlinks to var/ (perm, logfile, xlogfile, livelog,
       wishtracker, save, whereis, record) - the -d dir is read as the
       VARDIR root.
+- [x] UPSTREAM CATCH-UP 2 to official 5.0.1 work-in-progress -
+      MERGED 2026-10-29 (session 272; maintainer asked to merge before
+      the 5.0.1 delta grew; plan
+      /root/.claude/plans/feature-evilhack-50-upstream-catchup-5.0.1wip.md).
+      Merge 37559c359 (parents 5590fc0fd + official b0c09c878, the
+      5.0.1 WIP head of 2026-10-27), merge base 15fbc6b21. Source was
+      official upstream directly: the Hardfought fork (k21971/NetHack50)
+      had taken no 5.0.1 work and its server patches were already on the
+      branch. Range 509 commits / 364 files, but 270 are the classic Mac
+      / Atari / Amiga / GEM revival and Lua 5.5.1 moved in-tree under
+      nhlua/ (submodules/lua, lib/lua and make fetch-lua gone; hints
+      include files renamed .500 -> .501); game code ~100 commits.
+      16 conflicts (save.c savelev_core, explode.c x2, sp_lev.c, cmd.c,
+      exper.c, steed.c, objnam.c, quest.lua x6, Tou-strt.lua map,
+      medusa-1.lua, Guidebook x3, Makefile.src, .gitignore,
+      cross-post.500 modify/delete). Clean-merge breakers fixed in the
+      merge commit: patchlevel.h (PATCHLEVEL 1 and an enabled
+      VERSION_COMPATIBILITY 0x05000000L would have refused every
+      EvilHack save - EvilHack stays 1.0.0-0, ruled); linux-debug and
+      hardfought hints (3-way merged onto linux.501; the CCFLAGS
+      override dropped compiler.501's Lua include, so nothing would
+      compile); CI fetch-lua step; the meat theme room asked for
+      "enormous meatball" (EvilHack's "huge chunk of meat", renamed per
+      ruling); knox-1's no-spawn hunk dropped (ruling). Duplicates that
+      merged as comment conflicts: b0c09c878 = BUG-1797 (bcef23194),
+      0eb53d9e7 = e0a508b47, a9614ee8d = 8861de48c. Follow-ups:
+      a3392454c (BUG-2631..2634: savemonchn() inventory leak on
+      free-only passes, panic saves keeping the error name, explosion
+      name leaks, #wizlevelport name route prerequisite), 35d44e1d1
+      (BUG-2635 / 2636: Tourist home level syntax error and NPC keys,
+      Mightily Oats, Monk locate no-dig width), eedebf8fe (BUG-2637 /
+      2638: Windows version ids 1.0.0 - the game opened nhdat100 while
+      both Windows builds made nhdat500 - and the console builds'
+      stale NetHack.rc). Rulings: decisions log 2026-10-29 (session
+      272). Checks: build 0 warnings, tile.c total_tiles_used 3164
+      unchanged, all 213 tracked .lua files parse under Lua 5.5.1, the
+      296 upstream-only files equal b0c09c878 apart from the listed
+      edits, hardfought setup.sh dry run clean; reviewer PASS on the
+      merge (three LOWs, two fixed in it) and PASS on the follow-ups
+      (one MEDIUM -> BUG-2638). BATTERIES (POST-only, ruled;
+      evilhack-game-tester): first run 10 legs / 5 games - every
+      special level by name under Lua 5.5 plus 20 #wizmakemap levels,
+      the Tourist home level and text, Monk locate, #panic ->
+      0wizard.e.gz -> recovery prompt (BUG-2632), meat rooms and the
+      meatball wishes, box probing, egg probing, the stuck-pet travel
+      stop, Kathryn, the medusa-1 jellyfish all PASS; four failures
+      fixed as BUG-2639..2642 (Infidel handout keyed on the Amulet
+      Infidels start with; Tourist "dwarf" placeholder; the quest
+      bell left blessed AND cursed, plus the Medusa sibling; ~30
+      "<mon> puts on a ring." lines while the Astral Plane is built),
+      two brief errors (a gas spore for the shapeshifter leg; a
+      failed search expected to mark a chest safe). Re-test R1-R6 /
+      4 games all PASS (shapeshifter text with a flaming sphere:
+      seen names it, blind and hallucinating don't, death "burned
+      by an explosion of a chameleon morphed into a flaming
+      sphere"); paniclog never created. Battery-found commits:
+      3d81810b0 (BUG-2640 + Tourist text tidy), 276e27571 (BUG-2641 /
+      2642, master-shared, frozen-unfixed), 60487b7e3 (BUG-2639, the
+      teleport.c half left out of 3d81810b0).
 - [ ] PLATFORM PARITY (maintainer directive 2026-09-03: when the
       latest 5.0 is pulled in, EvilHack must reach FULL support on
       every platform 5.0 supports - not just tty/curses on Linux).
@@ -32850,6 +32909,21 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       (win/Qt/qt_map.cpp) ignore MG_PEACEFUL and MG_STAIRS (master
       never drew them there either), and X11 / Qt tiles draw a
       framecolor as an outline, not a background.
+      (10) (added 2026-10-29, session 272, catch-up 2) 5.0.1 WIP
+      revives the classic Mac port (sys/mac68k: 68k and PowerPC via
+      Retro68), Atari ST (sys/atari) with the GEM window port
+      (win/gem), and updates Amiga. RULED 2026-10-29: in scope for
+      later PLATFORM PARITY slices. They compile EvilHack's sources
+      through the shared HOBJ list (telekinesis.c included), but their
+      hand-written status displays (mac68k/macstat.c rows sized
+      [3][15], win/gem/wingem.c, amiga/winstr.c) lack MC, TH,
+      Realtime, Slow and Wither; toolchains needed: Retro68 +
+      hfsutils (+ python3, optional sit), cross-mint + hatari (the
+      Amiga cross toolchain is already approved). Their version
+      strings still say NetHack 5.0.1 (sys/vms Install / Makefile /
+      vmsbuild, Amiga AMIGA_VERSION_STRING, mac68k Info.plist,
+      cross-pre2.501, multiw-1.501 NHV, macOS.501) - set them to
+      EvilHack 1.0.0 with each port's slice.
       RULED 2026-10-04 (session 177 follow-up, decisions log):
       install ALL FOUR toolchains on this host - X11 dev packages,
       Qt6 dev packages, the DJGPP MS-DOS cross-compiler and the Amiga
@@ -33499,6 +33573,33 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
       master; keep it. Sweep `rg -i nethack` over the player-facing
       strings when this lands. LOW (branding).
 
+- [ ] LOW: idle checkpoint vs a defeated Ice Queen (minted
+      2026-10-29, session 272, catch-up 2; RULED accept + track).
+      Upstream's idle checkpoint (34e91f177 / 96e217c3f; opt-in
+      `idlecheckpoint`, curses / Windows console / Qt) skips dmonsfree()
+      and savemonchn() leaves out every DEADMONSTER. Kathryn awaiting
+      revival is dead but not MON_DETACH and keeps her inventory, so a
+      checkpoint taken between her death and the next dmonsfree() (a
+      --More-- right after the kill is enough) omits her and her
+      inventory while save_timers() / save_light_sources() still write
+      records for her items: a crash-recovery from that file loses her
+      revival, leaves her steed off the map for good (restore.c), and
+      if she carried a timed item relink_timers() panics "can't find
+      o_id". Candidate fix: skip only `mstate & MON_DETACH` there and
+      make a dead-but-attached queen restore and revive.
+- [x] LOW: #wizlevelport Endgame prerequisite for an Infidel already
+      carrying the unimbued Idol (minted 2026-10-29, session 272) -
+      FIXED the same session as BUG-2639 (60487b7e3): the battery
+      showed it was worse - Infidels start with the Amulet, so they
+      got nothing and goto_level() refused the Planes silently; the
+      helper now imbues the carried Idol or makes an imbued one.
+      wiz_endgame_prereq() (src/teleport.c, BUG-2634) makes a new Idol
+      when u.uhave.amulet is 0, but oname() refuses a second Idol of
+      Moloch, so the hero gets a plain figurine with spe 1 and
+      uimbued_idol set while the carried Idol stays unimbued. Older
+      menu-route behavior, now also on the name route; wizard mode
+      only. Fix: imbue the carried Idol instead.
+
 ## Phase 7 - Validation and release
 
 - [ ] Build matrix; Lua test harness (test/) wired in
@@ -33606,6 +33707,13 @@ was re-tiered X instead (no send; unreachable in vanilla, see its row).
 | 2026-10-28 | Lua __gc finalizers fail with "[lua] error in __gc (not enough memory)" in paniclog (bursts of up to 10, GCFINMAX) far below any state's cap: nhl_alloc() enforces memlimit through nhl_getmeminuse(), i.e. lua_gc(LUA_GCCOUNT) from inside the allocator, and lua_gc() returns -1 for every option while the collector is stopped internally, which GCTM() does for the whole run of a __gc metamethod. The -1 becomes (uint32_t) -1025, over every cap, so any allocation the finalizer call needs (a fresh CallInfo or more stack, when finalizers run deeper than any spare CallInfo) is refused and the finalizer never runs: l_selection_gc() leaks the selection's map (about 1.7 KB each), and l_obj_gc() never drops lua_ref_cnt, so a later dealloc_obj() parks the object as OBJ_LUAFREE for good. No crash. Shared with Official_nh50 and NetHack50 (nhlua.c nhl_alloc(), bacfa6ef4); still live upstream after its move to an in-tree Lua 5.5.1 (d7f5c59cc), whose lua_gc() and GCTM() keep the same stop. Found by TNNT fuzzing (paniclog lines in a fuzz run, trigger not pinned): write-up, a deterministic #wizloadlua repro and a diff in TNNT's vanilla-issues.md V2 (/home/build/wizmode_builds/tnnt/.claude/skills/crash-analysis/references/vanilla-issues.md, local, untracked). Fix shape: keep a per-state byte count in nhl_user_data, updated by nhl_alloc(), instead of asking lua_gc(). | found (open); NO SEND - RE-TIERED X (2026-10-29, 5.0 fixes session 271, maintainer ruling): unreachable in vanilla @b0c09c878; triage 2026-10-28 @b0c09c878: C (leak, normal play, intermittent), live - WRONG for vanilla, and so is the fix cell's "still live upstream": upstream's in-tree Lua 5.5.1 runs luaD_checkminstack() (new in 5.5, absent from the branch's lib/lua-5.4.8) before GCTM() stops the collector, reserving two CallInfos and BASIC_STACK_SIZE stack slots, so the finalizer call itself needs no allocation; NetHack's only finalizers, l_selection_gc() and l_obj_gc(), allocate nothing; NHL_SB_SAFE (#wizloadlua included) has no setmetatable, so a script cannot add a __gc of its own; TNNT's gcfintest.lua on an unfixed vanilla build logged 0 lines (40 on the branch). The allocator's lua_gc() test stays a latent flaw (any allocation inside a finalizer, or in lua_close()'s GCSTPCLS finalizer run, would be refused). Branch-fixed BUG-2627 (session 270, 853d88409), still needed on the branch's Lua 5.4.8; no upstream issue or PR |
 | 2026-10-28 | A nested nhl_pcall() leaves the Lua step limit's jmp_buf in a dead frame: in a step-limited state every nhl_pcall() does setjmp(nud->jb), and with perpcall refills nud->steps. C code running inside an outer pcall makes calls of its own (l_selection_iterate()'s callback; the des.monster / des.object / des.room / des.region / des.map contents functions through nhl_pcall_handle()), and once one returns nud->jb points into its finished frame, so an outer chunk that then runs out of steps longjmp()s there from nhl_hookfn() (undefined behavior) instead of reaching panic("Lua time exceeded ..."). The refills also stretch the outer budget, which is likely why it has never been seen. Shared with Official_nh50 and NetHack50 (nhlua.c nhl_pcall()). Found by reading the code during TNNT's V2 investigation, not reproduced: TNNT's vanilla-issues.md V3 (/home/build/wizmode_builds/tnnt/.claude/skills/crash-analysis/references/vanilla-issues.md, local, untracked). Fix shape: save and restore nud->jb and nud->steps around the nested lua_pcall(), or arm the setjmp only at the outermost depth with a depth counter in nhl_user_data. | found (open); sent as PR #1733 (2026-10-29, fix-lua-nested-pcall-jump; patch nh50-lua-nested-pcall-jump.patch, 5.0 fixes session 271); triage 2026-10-28 @b0c09c878: C (undefined behavior, latent), live, branch-fixed BUG-2628 (session 270, 853d88409; only the outermost nhl_pcall() arms the setjmp), REPRODUCED 2026-10-28 by session 270's battery T3 (#wizloadlua: an infinite loop after a selection iterate() crashes the unfixed build inside panic()'s vsnprintf, SIGSEGV, no paniclog line), no upstream issue or PR; REPRODUCED ON VANILLA 2026-10-29 @b0c09c878 (in-tree Lua 5.5.1, a scratch source-tree playground build, #wizloadlua): the same v3nested.lua panics "Lua time exceeded -866561680:DD" (state id and name read from the dead frame; the backtrace ends in a stack address right after nhl_pcall()); with the patch it panics "Lua time exceeded 4:l_selection_iterate" with the full backtrace to wiz_load_lua() (the name is the nested call's, as before: nhl_pcall_handle() reads nud->name after the call, so it is not restored); the v3plain.lua control panics cleanly both ways; levels 2-15 generated with the patch, paniclog clean. The patch is the branch's BUG-2628 hunks; its pcall_depth init sits right after memlimit (on the branch it follows inuse), so a catch-up merge conflicts there visibly |
 | 2026-10-28 | Taming magic calms an angry shopkeeper without "<shk> calms down.": tamedog() sets mpeaceful = 1 before its isshk arm calls make_happy_shk(), so make_happy_shk()'s wasmad = ANGRY(shkp) is always FALSE there. A scroll of taming or charm monster prints nothing (maybe_tame() passes no message); a magic harp prints "seems more amiable". From 231bd75b7 (#819), which moved the shopkeeper case from maybe_tame() into tamedog(). Shared with Official_nh50 and NetHack50 (dog.c tamedog()); master took the same shape on 2025-01-20 (136a1828d, the 3.7 scroll of taming commits), so live 0.9.3 never prints it either. Found by reading the code in TNNT (seen in its pacified-shopkeeper achievement test): TNNT's vanilla-issues.md V5 (/home/build/wizmode_builds/tnnt/.claude/skills/crash-analysis/references/vanilla-issues.md, local, untracked). Fix shape: put the old mpeaceful back just before make_happy_shk() for a shopkeeper (pacify_shk() sets it again), or move the shopkeeper arm above mpeaceful = 1. | found (open); not yet sent; triage 2026-10-28 @b0c09c878: M, live, branch-fixed BUG-2629 (session 270, 45714a555; ruled 2026-10-28: "calms down" only, the harp's "seems more amiable" skipped for shopkeepers), master frozen-unfixed, no upstream issue or PR |
+| 2026-10-29 | savemonchn() leaks every monster's inventory when a level is only freed: 34e91f177 moved `saveobjchn(nhfp, &mtmp->minvent)` inside the update_file() block, so FREEING-only passes (freedynamicdata() at exit, endgame entry, tutorial exit, wiz_makemap, an aborted restore) dealloc_monst() monsters with their minvent unreleased. Official_nh50 b0c09c878; BUG-2631, src/save.c | found (branch-fixed a3392454c); not sent; triage 2026-10-29 @b0c09c878: C (leak, normal play), live; send queue #59 |
+| 2026-10-29 | Panic saves land in the normal save slot: dosave0()'s new `set_savefile_name(TRUE)` (40257617d via e9c21a560) overwrites the error name panic() set with set_error_savefile() just before calling it, so the CHECK_PANIC_SAVE path never sees an error save. Official_nh50 b0c09c878; BUG-2632, src/save.c | found (branch-fixed a3392454c, `if (!program_state.panicking)`); not sent; triage 2026-10-29 @b0c09c878: G (lost crash recovery), live |
+| 2026-10-29 | A shapeshifter's explosion names its form to a blind or hallucinating hero: explode()'s `unmorphed_str` (40586e0e6 / adc688807) survives the unseen `str = "explosion"` and both `str = hallu_buf`, and every message prefers it. Official_nh50 b0c09c878; BUG-2633, src/explode.c | found (branch-fixed a3392454c); not sent; triage 2026-10-29 @b0c09c878: M, live |
+| 2026-10-29 | #wizlevelport by level name (4c42c928c) into the Planes skips the "Endgame prerequisite:" Amulet the `?` menu hands over. Official_nh50 b0c09c878; BUG-2634, src/teleport.c | found (branch-fixed a3392454c, shared helper); not sent; triage 2026-10-29 @b0c09c878: M (wizard mode), live |
+| 2026-10-29 | The new Tourist home level does not load: four `des.object({id="statue", montype="wumpus" x=...})` lines lack a comma (Lua syntax error -> maze fallback, no leader, quest unstartable); its named NPCs use positional tables (`{"watchman", 35, 08, ...}`) that lspo_monster() ignores (random monster, random spot); `male=1` is not a monster key (Tou-strt, Tou-loca); Tou-loca's "Mightily Oats" id "priest" makes a temple priest with no temple; quest.lua Tourist `othertime` uses "%cs" ("no Tourist's here"); its assignment has a whitespace-only line, and with the real names three lines run past 80 columns (two in assignquest, one in leader_first). Official_nh50 b0c09c878 (merge 993c80183, 9e94dac95); BUG-2635 | found (branch-fixed 35d44e1d1, the merge 37559c359 and 3d81810b0 (text tidy)); not sent; triage 2026-10-29 @b0c09c878: G (every Tourist game), live |
+| 2026-10-29 | The new Monk locate level fills the map (0..78) but keeps the old `des.non_diggable(selection.area(00,00,75,20))`, so columns 76-78 dig. Official_nh50 b0c09c878 (0a070a888); BUG-2636, dat/Mon-loca.lua | found (branch-fixed 35d44e1d1); not sent; triage 2026-10-29 @b0c09c878: G, live |
+| 2026-10-29 | Build leftovers from the in-tree Lua move (d7f5c59cc): hints/linux.501 libnh rule still names ../lib/lua/liblua.a; linux.501's WANT_SYSTEM_LUA block uses LUASHVER, no longer defined (package names become "lua-"); Makefile.top `$(GAME): $(LUA_LIB)` (undefined; harmless, src/Makefile pulls LUALIB) and its spotless-lib still runs `cd lib/lua && rm $(LUABASELIB)` (ignored error); NetHack.xcodeproj still points at lib/lua-5.4.8; sys/msdos/nhlua.h declares `int lua_error`. Official_nh50 b0c09c878; no BUG id | found (EvilHack's own hints fixed in the merge 37559c359: libnh -> $(LUALIB)); not sent; triage 2026-10-29 @b0c09c878: M (build), live |
 | 2026-10-28 | A pet arriving off the migrating-monster list in the middle of a meal on a mimic corpse (quickmimic: M_AP_TYPE set, meating > 0) gets impossible("newsym: attempting screen update for <0,0>"): mon_arrive() runs mon_catchup_elapsed_time() before the monster is placed, and once the elapsed time exceeds meating it calls finish_meating(), whose newsym(mtmp->mx, mtmp->my) redraws <0,0> (dog.c mon_catchup_elapsed_time(), dogmove.c finish_meating()). getlev()'s catch-up runs after placement and is fine. Found by the Plan agent auditing #53's cut (5.0 fixes session 269); no producer confirmed: an eating pet stays behind rather than following the hero, so it needs some other route onto migrating_mons mid-meal. Shared with Official_nh50 and NetHack50; live on the branch (same catch-up order and finish_meating()). Fix shape: guard finish_meating()'s newsym() with mtmp->mx, or run the catch-up after placement while keeping nmv for wander. | found (open); not yet sent; triage 2026-10-28 @b0c09c878: C (impossible, latent), live, not fixed on the branch, no upstream issue or PR; RULED 2026-10-28 (decisions log): row only, cut once a producer is found |
 | 2026-10-17 | A hold that keeps the hero's levitation or flight down and ends without a message gives the lift back untold (no float_up() / "You can fly.", none of float_up()'s side effects, an amulet of flying left unidentified). Shared with Official_nh50: reset_utrap(FALSE) in teleds() (any teleport out of any hold), goto_level(), maketrap(), digactualhole(), mkinvokearea(), savelife(), gulpmu(), and buried_ball_to_punishment()'s callers; music.c do_pit() replaces a floor hold with a pit that lets lift through. EvilHack fix BUG-2406 (4df9def6a): a deferred lift report told after the event's own lines. | found (branch-fixed); not sent; triage 2026-10-26 @60a39eb52: G, live |
 | 2026-10-17 | Remove curse and the blessed bell of opening tell "You start to float in the air!" before "The clasp on your leg vanishes." / "Something opens...". Shared with Official_nh50: read.c and apply.c call buried_ball_to_freedom() (reset_utrap(TRUE)) before their own line. EvilHack fix BUG-2408 (4df9def6a): the event line first. | found (branch-fixed); not sent; triage 2026-10-26 @60a39eb52: M, live |
@@ -33981,6 +34089,10 @@ Added 2026-10-28 by #53's cut (5.0 fixes session 269); by the sort rule
     finish_meating() redraws a quickmimic pet at <0,0> - row only,
     ruled cut later: find a producer first (eating pets don't follow
     the hero).
+59. BUG-2631 (2026-10-29 row, catch-up 2; leak / normal play):
+    savemonchn() frees monsters but not their inventory on FREEING-only
+    passes since 34e91f177 - reachable on every exit, so it sorts
+    ahead of the latent #56-#58; patch not cut yet.
 
 X tier (no send):
 
@@ -34127,6 +34239,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-10-29 | Upstream catch-up 2 rulings (session 272; conversation plus AskUserQuestion x8, 22 questions). (0) MERGE NOW: take official 5.0.1 work-in-progress b0c09c878 rather than wait for the 5.0.1 release (maintainer asked; source is official upstream directly, the Hardfought fork having no 5.0.1 work). (1) VERSION (stated in conversation): EvilHack stays 1.0.0-0 whatever vanilla's patchlevel.h says, until the maintainer says otherwise. (2) TOURIST QUEST: TAKE UPSTREAM's Discworld rewrite with its bugs fixed (over keep-EvilHack and EvilHack-text-plus-levels), EvilHack's bell / kill-the-leader / forfeit lines written in the new voice and approved as rendered, gotit2 in the new voice (as recommended). (3) MONK LOCATE: take upstream's lava level (over master's cave), no-dig widened. (4) MEAT ROOM: keep it and rename EvilHack's "huge chunk of meat" to 5.0's "enormous meatball" (maintainer's own option, over drop / keep-with-old-name). (5) LUDIOS: keep spawns (as recommended). (6) JELLYFISH: upstream (03,02), replacing the 2026-10-03 (01,02) ruling (as recommended). (7) SHAPESHIFTER EXPLOSIONS: upstream wording plus its two name-leak fixes (as recommended). (8) "amulet of flight" alias kept (as recommended). (9) Each asked individually, all as recommended: pet-swap travel stop, box trap-knowledge fixes, probing carried eggs, tutorial 'D' engraving, data.base "akitu", shop_keeper() check wizard-only / silent in makelevel, #wizlevelport names with a shared Amulet / Idol prerequisite. (10) ICE QUEEN vs idle checkpoint: accept, LOW row (as recommended; the follow-up reviewer later found the recovery can panic on a timed item - recorded in the row). (11) PLATFORMS: the revived mac68k / Atari-GEM / Amiga ports are in scope for later PLATFORM PARITY slices; this merge verified on Linux tty/curses only (as recommended). (12) WINDOWS / DOC VERSION IDS: EvilHack 1.0.0 (as recommended). (13) BATTERY: POST-only on the merged install (as recommended). | maintainer |
 | 2026-10-29 | Upstream Lua cut rulings (5.0 fixes session 271, AskUserQuestion x2). (1) VANILLA RUNS (as recommended): the #54 / #55 repros run in a vanilla wizard-mode game built and installed in a scratch source-tree playground, unfixed and fixed, so the PR text quotes vanilla. (2) #54 (TNNT V2, Lua finalizers refused memory) goes to X, NO SEND - the maintainer picked it over the recommended "re-tier C latent, keep it queued" and over "send now as hardening": upstream's in-tree Lua 5.5.1 reserves the finalizer call's CallInfos and stack with luaD_checkminstack() before GCTM() stops the collector, NetHack's only finalizers allocate nothing and the sandbox has no setmetatable, so nothing in vanilla reaches the -1 (0 lines from TNNT's repro there, 40 on the branch's Lua 5.4.8). The branch keeps BUG-2627. #55 is cut alone. | maintainer |
 | 2026-10-29 | Upstream send-queue priority (asked in conversation after Phase 2 session 270, AskUserQuestion x1, as recommended): #54 (Lua finalizers refused memory) and #55 (a nested nhl_pcall()'s dead jump, reproduced by session 270 as a crash) MOVE TO THE FRONT - both have battery-tested branch fixes (BUG-2627 / BUG-2628, commit 853d88409) to cut from; the queue continues at #22 after them. | maintainer |
 | 2026-10-28 | Crash-MED slice rulings (Phase 2 session 270, AskUserQuestion x4, all as recommended). (1) SLICE (multiSelect): the three crash-class MED rows the 5.0 fixes sessions minted, plus TNNT's V2 / V3 / V5 on the branch. (2) HARP LINE: an angry shopkeeper calmed by any taming route prints only "<Shk> calms down."; the harp's 5.0 "seems more amiable" line is skipped for shopkeepers and kept for other monsters. (3) TAME VAMPIRES: fold in master a54040738 + 8cf05e229 (and 88a376bdd, the same feature's rescham() hunk, found by the Plan agent): a tame vampire stays a vampire, and protection from shape changers or cancellation does not force a pet back; pets still lose a disguise (5.0's sanity check). (4) RING OFF: fix master's freeze (m_restartcham() re-arms only an empty cham), master frozen-unfixed. Decided without asking: the Lua cap keeps its old semantics; the per-call step refills stay; weffects() takes upstream's current_wand test; a blind hero hears "calms down" (make_happy_shk() has no visibility gate). | maintainer |
