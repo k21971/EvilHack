@@ -126,6 +126,7 @@ typedef struct nhl_user_data {
     uint32_t flags;     /* from nhl_sandbox_info */
 
     uint32_t memlimit;
+    size_t inuse;       /* bytes allocated, kept by nhl_alloc() */
 
     uint32_t steps;     /* current counter */
     uint32_t osteps;    /* original steps value */
@@ -138,6 +139,7 @@ typedef struct nhl_user_data {
 
 #ifdef NHL_SANDBOX
     jmp_buf jb;
+    int pcall_depth;    /* nhl_pcall() calls in progress */
 #endif
 } nhl_user_data;
 
@@ -2143,17 +2145,30 @@ nhl_pcall(lua_State *L, int nargs, int nresults, const char *name)
             nud->steps = nud->perpcall;
             nud->statctr = 0;
         }
-        if (setjmp(nud->jb)) {
-            /* panic, because we don't know if the game state is corrupt */
-            /* XXX can we get a lua stack trace as well? */
-            panic("Lua time exceeded %d:%s", nud->sid,
-                  nud->name ? nud->name : "(unknown)");
+        /* only the outermost call sets the jump: a nested call (a
+           selection iterator's callback, a des.room contents function)
+           has returned, and its frame is gone, by the time the outer
+           chunk can run out of steps */
+        if (!nud->pcall_depth) {
+            if (setjmp(nud->jb)) {
+                /* panic, because we don't know if the game state is
+                   corrupt */
+                /* XXX can we get a lua stack trace as well? */
+                panic("Lua time exceeded %d:%s", nud->sid,
+                      nud->name ? nud->name : "(unknown)");
+            }
         }
     }
+    if (nud)
+        nud->pcall_depth++;
 #endif
 
     rv = lua_pcall(L, nargs, nresults, 1);
 
+#ifdef NHL_SANDBOX
+    if (nud)
+        nud->pcall_depth--;
+#endif
     lua_remove(L, 1); /* remove handler */
 
 #ifdef NHL_SANDBOX
@@ -2979,25 +2994,36 @@ UNSAFEIO:
 
 RESTORE_WARNING_CONDEXPR_IS_CONSTANT
 
+/* usage is counted here rather than asked of lua_gc(), which returns -1
+   while the collector is stopped internally; it is for the whole time a
+   __gc metamethod runs, so every allocation a finalizer needed was refused
+   and the finalizer never ran; when ptr is Null, osize is a Lua type tag
+   rather than a size */
 staticfn void *
-nhl_alloc(void *ud, void *ptr, size_t osize UNUSED, size_t nsize)
+nhl_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
     nhl_user_data *nud = ud;
+    size_t oldsize = ptr ? osize : 0;
 
     if (nsize == 0) {
         if (ptr != NULL) {
             free(ptr);
+            if (nud)
+                nud->inuse -= oldsize;
         }
         return NULL;
     }
 
     /* Check nud->L because it will be NULL during state init. */
     if (nud && nud->L && nud->memlimit) { /* this state is size limited */
-        if (nhl_getmeminuse(nud->L) > nud->memlimit)
+        if (nud->inuse > nud->memlimit)
             return NULL;
     }
 
-    return re_alloc(ptr, (unsigned) nsize);
+    ptr = re_alloc(ptr, (unsigned) nsize);
+    if (nud)
+        nud->inuse = nud->inuse - oldsize + nsize;
+    return ptr;
 }
 
 DISABLE_WARNING_UNREACHABLE_CODE
@@ -3065,6 +3091,10 @@ nhlL_newstate(nhl_sandbox_info *sbi, const char *name)
             return 0;
         nud->L = NULL;
         nud->memlimit = sbi->memlimit;
+        nud->inuse = 0;
+#ifdef NHL_SANDBOX
+        nud->pcall_depth = 0;
+#endif
         nud->perpcall = 0; /* set up below, if needed */
         nud->steps = 0;
         nud->osteps = 0;
